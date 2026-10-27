@@ -5,6 +5,6 @@ public sealed class StopMoveIncoming : IncomingWirePacket<StopMoveDto>
 {
     public override void Apply(StopMoveDto packet)
     {
-        MovementIncomingPacketServices.ApplyStop(packet);
+        CombatIncomingPacketServices.ApplyStopMove(packet);
     }
 }
