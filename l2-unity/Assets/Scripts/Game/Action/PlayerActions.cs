@@ -28,6 +28,8 @@ public class PlayerActions : MonoBehaviour
             Destroy(this);
         }
 
+        WireActionPacketServices();
+
         _actions = new Dictionary<ActionType, L2Action>();
         AttackAction attack = new AttackAction();
         attack.Bind(_targets, _gameClient);
@@ -38,6 +40,16 @@ public class PlayerActions : MonoBehaviour
         nextTarget.Bind(_targets);
         _actions.Add(ActionType.NextTarget, nextTarget);
         _actions.Add(ActionType.RideStrider, new RideStriderAction());
+    }
+
+    private void Start()
+    {
+        WireActionPacketServices();
+    }
+
+    private void WireActionPacketServices()
+    {
+        ActionPacketServices.Bind(game: _gameClient, input: _input, targets: _targets);
     }
 
     private void OnDestroy()
@@ -52,7 +64,7 @@ public class PlayerActions : MonoBehaviour
 
     private void ListenToKeybindedActions()
     {
-        InputManager input = _input != null ? _input : IncomingPacketActions.Input;
+        InputManager input = _input != null ? _input : ActionPacketServices.Input;
         if (input == null)
             return;
 
@@ -77,7 +89,7 @@ public class PlayerActions : MonoBehaviour
 
     public void UseSkill(int skillId)
     {
-        GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+        GameClient game = _gameClient != null ? _gameClient : ActionPacketServices.Game;
         if (game == null)
             return;
         game.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));

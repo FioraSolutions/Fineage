@@ -14,12 +14,12 @@ public class AttackAction : L2Action
 
     private TargetManager Targets
     {
-        get { return _targets != null ? _targets : IncomingPacketActions.Targets; }
+        get { return _targets != null ? _targets : ActionPacketServices.Targets; }
     }
 
     private GameClient Game
     {
-        get { return _game != null ? _game : IncomingPacketActions.Game; }
+        get { return _game != null ? _game : ActionPacketServices.Game; }
     }
 
     public AttackAction() : base() { }
