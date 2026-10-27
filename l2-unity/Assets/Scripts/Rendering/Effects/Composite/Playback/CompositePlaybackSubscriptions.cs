@@ -21,7 +21,7 @@ public static class CompositePlaybackSubscriptions
             return;
         }
 
-        IAnimationManager animationManager = animations != null ? animations : IncomingPacketActions.Animations;
+        IAnimationManager animationManager = animations != null ? animations : RenderingPacketServices.Animations;
         if (context?.CasterEntity?.Identity == null || animationManager == null)
         {
             return;
