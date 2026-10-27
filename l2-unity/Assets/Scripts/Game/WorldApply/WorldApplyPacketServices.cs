@@ -10,13 +10,15 @@ public static class WorldApplyPacketServices
     private static World _gameWorld;
     private static GameManager _manager;
     private static IWorldDomainSink _domain;
+    private static WorldPacketApply _worldApply;
 
     public static void Bind(
         PlayerController player = null,
         EventBus bus = null,
         World gameWorld = null,
         GameManager manager = null,
-        IWorldDomainSink domain = null)
+        IWorldDomainSink domain = null,
+        WorldPacketApply worldApply = null)
     {
         if (player != null)
             _player = player;
@@ -28,6 +30,8 @@ public static class WorldApplyPacketServices
             _manager = manager;
         if (domain != null)
             _domain = domain;
+        if (worldApply != null)
+            _worldApply = worldApply;
     }
 
     public static PlayerController Player =>
@@ -44,6 +48,28 @@ public static class WorldApplyPacketServices
 
     public static IWorldDomainSink Domain =>
         _domain != null ? _domain : IncomingPacketActions.Domain;
+
+    public static WorldPacketApply WorldApply =>
+        _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
+
+    public static void ApplyWorld(Action<WorldPacketApply> apply)
+    {
+        WorldPacketApply worldApply = WorldApply;
+        if (worldApply != null && apply != null)
+            apply(worldApply);
+    }
+
+    public static void QueueWorld(Action<WorldPacketApply> apply)
+    {
+        if (apply == null)
+            return;
+        Queue(() => ApplyWorld(apply));
+    }
+
+    public static void Queue(Action action)
+    {
+        IncomingPacketActions.Queue(action);
+    }
 
     public static void QueueWorldNextFrame(Action<WorldPacketApply> apply)
     {

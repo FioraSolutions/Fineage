@@ -9,6 +9,6 @@ public sealed class MagicSkillUseIncoming : IncomingWirePacket<MagicSkillUseDto>
         // Packet is still read, so the stream stays aligned. Restore the queue below to turn it back on.
          if (packet == null)
              return;
-         IncomingPacketServices.QueueWorld(apply => apply.MagicSkillUse(packet));
+        CombatIncomingPacketServices.QueueWorld(apply => apply.MagicSkillUse(packet));
     }
 }

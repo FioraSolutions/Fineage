@@ -67,7 +67,7 @@ public class EnchantWindow : L2PopupWindow
 
     private void WireItemEnchantPacketServices()
     {
-        ItemEnchantPacketServices.Bind(game: _gameClient);
+        ItemEnchantPacketServices.Bind(game: _gameClient, enchant: this);
     }
 
     protected override void LoadAssets()

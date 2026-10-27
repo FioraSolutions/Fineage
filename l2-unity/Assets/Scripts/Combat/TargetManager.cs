@@ -70,8 +70,12 @@ public class TargetManager : MonoBehaviour
 
     private void WireCombatPacketServices()
     {
+<<<<<<< HEAD
         CombatPacketServices.Bind(game: _gameClient, gameWorld: _world);
         GameEventPacketServices.Bind(targets: this);
+=======
+        CombatPacketServices.Bind(game: _gameClient, gameWorld: _world, targets: this);
+>>>>>>> d28b79e42 (feat(arch): combat incoming handlers via CombatIncomingPacketServices (#142 sub-slice 48))
     }
 
     void OnDestroy()

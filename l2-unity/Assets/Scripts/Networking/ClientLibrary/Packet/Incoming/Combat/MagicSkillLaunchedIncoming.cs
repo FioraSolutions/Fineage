@@ -7,6 +7,6 @@ public sealed class MagicSkillLaunchedIncoming : IncomingWirePacket<MagicSkillLa
     {
         if (packet == null)
             return;
-        IncomingPacketServices.QueueWorld(apply => apply.MagicSkillLaunched(packet));
+        CombatIncomingPacketServices.QueueWorld(apply => apply.MagicSkillLaunched(packet));
     }
 }

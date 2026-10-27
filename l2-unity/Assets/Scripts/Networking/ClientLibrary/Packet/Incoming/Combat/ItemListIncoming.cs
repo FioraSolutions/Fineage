@@ -5,6 +5,6 @@ public sealed class ItemListIncoming : IncomingWirePacket<ItemListDto>
 {
     public override void Apply(ItemListDto packet)
     {
-        IncomingPacketServices.Inventory.SetInventory(packet.Items, packet.EquipItems, packet.ShowWindow, packet.AdenaCount, packet.Items.Count + packet.EquipItems.Count);
+        CombatIncomingPacketServices.Inventory.SetInventory(packet.Items, packet.EquipItems, packet.ShowWindow, packet.AdenaCount, packet.Items.Count + packet.EquipItems.Count);
     }
 }

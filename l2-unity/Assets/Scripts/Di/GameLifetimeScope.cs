@@ -172,7 +172,8 @@ public sealed class GameLifetimeScope : LifetimeScope
                     bus: runtime.Bus,
                     gameWorld: world,
                     manager: runtime.Manager,
-                    domain: domain);
+                    domain: domain,
+                    worldApply: worldApply);
                 MovementPacketLatest.Wire(domain);
                 MoveCostLog.Wire(world);
                 if (App.Container != null)
