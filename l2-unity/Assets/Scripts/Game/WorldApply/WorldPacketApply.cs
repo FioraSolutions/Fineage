@@ -10,6 +10,7 @@ public sealed class WorldPacketApply
     private readonly PlayerPositionSender _positionSender;
     private readonly GameManager _gameManager;
     private readonly PacketApplyQueue _applyQueue;
+    private readonly IGameEventBus _gameEvents;
 
     public WorldPacketApply(
         World world,
@@ -20,13 +21,15 @@ public sealed class WorldPacketApply
         MonsterWorldApply monsterApply,
         UserWorldApply userApply,
         GameManager gameManager,
-        PacketApplyQueue applyQueue)
+        PacketApplyQueue applyQueue,
+        IGameEventBus gameEvents)
     {
         _world = world;
         _html = html;
         _positionSender = positionSender;
         _gameManager = gameManager;
         _applyQueue = applyQueue;
+        _gameEvents = gameEvents;
         Register<PlayerEntity>(playerApply);
         Register<NpcEntity>(npcApply);
         Register<MonsterEntity>(monsterApply);
@@ -193,6 +196,7 @@ public sealed class WorldPacketApply
             // " dead=" + entity.IsDead() +
             // " type=" + entity.GetType().Name);
         apply.OnDie(entity, dto);
+        _gameEvents?.Publish(new EntityDiedEvent(dto.ObjectId));
         // UnityChainLog.OnDie(entity, dto);
         // UnityReplaySession.OnDie(entity);
     }
