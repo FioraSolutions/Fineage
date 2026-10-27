@@ -12,7 +12,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
 
     private World GameWorld
     {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
+        get { return _world != null ? _world : GamePacketServices.GameWorld; }
     }
     private const string PROJECTILE_TIMER_LOG = "[PROJECTILE_TIMER]";
     private const string MagicProjectileSyncTag = "[MAGIC_PROJECTILE_SYNC]";
@@ -39,13 +39,20 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
         }
         _entityMask = LayerMask.GetMask("EntityClick");
         Instance = this;
+        WireGamePacketServices();
     }
 
     private void Start()
     {
+        WireGamePacketServices();
         HitManager hits = _hits != null ? _hits : HitManager.Instance;
         if (hits != null)
             hits.BindProjectileHits();
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(gameWorld: _world);
     }
     #endregion
 
@@ -464,7 +471,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
         if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null &&
             PlayerEntity.Instance.Identity.Id == objectId)
             return PlayerEntity.Instance;
-        World world = IncomingPacketActions.GameWorld;
+        World world = GamePacketServices.GameWorld;
         return world != null ? world.GetEntityNoLockSync(objectId) : null;
     }
 

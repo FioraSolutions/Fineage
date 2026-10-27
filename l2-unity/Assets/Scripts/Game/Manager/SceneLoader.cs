@@ -22,32 +22,17 @@ public class SceneLoader : MonoBehaviour
 
     private GameManager Manager
     {
-        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
+        get { return _gameManager != null ? _gameManager : GamePacketServices.Manager; }
     }
 
     private GameClient Game
     {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+        get { return _gameClient != null ? _gameClient : GamePacketServices.Game; }
     }
 
     private World GameWorld
     {
-        get
-        {
-            if (_world != null)
-                return _world;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<World>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.GameWorld;
-        }
+        get { return _world != null ? _world : GamePacketServices.GameWorld; }
     }
 
     public string GameScene { get { return _gameScene; } }
@@ -65,6 +50,18 @@ public class SceneLoader : MonoBehaviour
         {
             Destroy(this);
         }
+
+        WireGamePacketServices();
+    }
+
+    private void Start()
+    {
+        WireGamePacketServices();
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(manager: _gameManager, game: _gameClient, gameWorld: _world);
     }
 
     public void LoadMenu()

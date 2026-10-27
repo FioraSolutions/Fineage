@@ -25,7 +25,7 @@ public static class SkillAnimationCastDataBuilder
         }
 
         Animator animator = null;
-        IAnimationManager animationManager = animations != null ? animations : IncomingPacketActions.Animations;
+        IAnimationManager animationManager = animations != null ? animations : GamePacketServices.Animations;
         if (animationManager is BaseAnimationManager animMgr && entity.Identity != null)
         {
             IAnimationController registered = animMgr.GetRegisteredController(entity.Identity.Id);

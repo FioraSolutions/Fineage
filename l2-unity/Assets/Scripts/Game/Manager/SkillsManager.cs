@@ -29,7 +29,7 @@ public class SkillsManager : MonoBehaviour
 
     public void Start()
     {
-        
+        WireGamePacketServices();
     }
 
 
@@ -45,6 +45,12 @@ public class SkillsManager : MonoBehaviour
             Destroy(this);
         }
 
+        WireGamePacketServices();
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(effectSkills: _effectSkills);
     }
 
     public void Update()
@@ -61,7 +67,7 @@ public class SkillsManager : MonoBehaviour
         if (!_enabled) return;
 
         _elapsedTime = (Time.time * 1000) - _starttime;
-        EffectSkillsmanager effectSkills = _effectSkills != null ? _effectSkills : IncomingPacketActions.EffectSkills;
+        EffectSkillsmanager effectSkills = _effectSkills != null ? _effectSkills : GamePacketServices.EffectSkills;
         if (effectSkills != null)
             effectSkills.UpdateWorldTime(_elapsedTime);
 
