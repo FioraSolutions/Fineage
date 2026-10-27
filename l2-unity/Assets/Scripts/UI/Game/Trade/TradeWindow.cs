@@ -12,10 +12,7 @@ public class TradeWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => TradePacketServices.Game;
     private static TradeWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
 
@@ -43,11 +40,22 @@ public class TradeWindow : L2PopupWindow
             _instance = this;
             _exchangeSlots = new List<ExchangeSlot>();
             _exchangeItems = new List<ItemInstance>();
+            WireTradePacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireTradePacketServices();
+    }
+
+    private void WireTradePacketServices()
+    {
+        TradePacketServices.Bind(game: _gameClient);
     }
 
     public void AddData(TradeStartDto data)

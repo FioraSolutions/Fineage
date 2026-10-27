@@ -21,10 +21,7 @@ public class TradeRequestWindow : L2PopupWindow
     [Inject] World _world;
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => TradePacketServices.Game;
 
     private World Worlds
     {
@@ -43,11 +40,22 @@ public class TradeRequestWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireTradePacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireTradePacketServices();
+    }
+
+    private void WireTradePacketServices()
+    {
+        TradePacketServices.Bind(game: _gameClient);
     }
 
     public void AddData(SendTradeRequestDto request)
