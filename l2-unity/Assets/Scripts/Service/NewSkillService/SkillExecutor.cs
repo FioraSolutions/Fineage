@@ -11,15 +11,11 @@ public class SkillExecutor : MonoBehaviour
     [Inject] EffectManager _effects;
     private SkillAnimationRunner _animRunner;
 
-    private IAnimationManager Animations
-    {
-        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
-    }
+    private IAnimationManager Animations =>
+        _animations != null ? _animations : ServicePacketServices.Animations;
 
-    private EffectManager Effects
-    {
-        get { return _effects != null ? _effects : IncomingPacketActions.Effects; }
-    }
+    private EffectManager Effects =>
+        _effects != null ? _effects : ServicePacketServices.Effects;
 
     public event Action OnSkillSequenceFinished;
     public event Action<AnimationEventsBase> OnAllAnimationFinished;
@@ -41,6 +37,12 @@ public class SkillExecutor : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        WireServicePacketServices();
+    }
+
+    private void WireServicePacketServices()
+    {
+        ServicePacketServices.Bind(animations: _animations, effects: _effects);
     }
 
     public async Task ExecuteSkill(Entity entity , AnimationCombo animationCombo , AnimationEventsBase actions)

@@ -27,10 +27,8 @@ public sealed class CombatFacingService : MonoBehaviour
     [Inject] L2PawnYaw _pawnYaw;
     [Inject] PlayerController _player;
 
-    private PlayerController Player
-    {
-        get { return _player != null ? _player : IncomingPacketActions.Player; }
-    }
+    private PlayerController Player =>
+        _player != null ? _player : ServicePacketServices.Player;
 
     private static WeapongrpTable Weapons
     {
@@ -88,6 +86,12 @@ public sealed class CombatFacingService : MonoBehaviour
         }
 
         Instance = this;
+        WireServicePacketServices();
+    }
+
+    private void WireServicePacketServices()
+    {
+        ServicePacketServices.Bind(player: _player);
     }
 
     private void OnDestroy()
