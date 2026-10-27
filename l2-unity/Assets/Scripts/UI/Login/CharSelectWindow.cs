@@ -7,6 +7,22 @@ using VContainer;
 
 public class CharSelectWindow : L2Window {
     [Inject] LoginRuntime _login;
+
+    private CharacterSelector Characters
+    {
+        get { return _login != null ? _login.Selector : IncomingPacketActions.Characters; }
+    }
+
+    private GameClient Game
+    {
+        get { return _login != null ? _login.Game : IncomingPacketActions.Game; }
+    }
+
+    private GameManager Manager
+    {
+        get { return _login != null ? _login.Manager : IncomingPacketActions.Manager; }
+    }
+
     private VisualTreeAsset _arrowInputTemplate;
     private ArrowInputManipulator _charNameManipulator;
     private List<CharSelectionInfoPackage> _characters;
@@ -84,7 +100,7 @@ public class CharSelectWindow : L2Window {
         VisualElement userNameInputContainer = GetElementById("UserSelectContainer");
         VisualElement userNameInput = _arrowInputTemplate.Instantiate()[0];
         _charNameManipulator = new ArrowInputManipulator(userNameInput, "Name", new string[] { }, -1, (index, value) => {
-            IncomingPacketActions.Characters.SelectInterludeCharacter(index);
+            Characters.SelectInterludeCharacter(index);
         });
 
         _levelLabel = (Label)GetElementById("LevelLabel");
@@ -272,25 +288,22 @@ public class CharSelectWindow : L2Window {
     }
     private void StartGamePressed()
     {
-        IncomingPacketActions.Characters.ConfirmSelection();
+        Characters.ConfirmSelection();
     }
 
     private void ReLoginPressed() {
-        GameManager manager = _login != null && _login.Manager != null ? _login.Manager : IncomingPacketActions.Manager;
-        GameClient game = _login != null && _login.Game != null ? _login.Game : IncomingPacketActions.Game;
-        manager.OnRelogin();
-        game.Disconnect();
+        Manager.OnRelogin();
+        Game.Disconnect();
     }
 
     private void CreatePressed() {
         // GameManager.Instance.OnCreateUser();
-        GameClient game = _login != null && _login.Game != null ? _login.Game : IncomingPacketActions.Game;
-        game.Send(new NewCharacterCommand());
+        Game.Send(new NewCharacterCommand());
     }
 
     private void DeletePressed()
     {
         // Debug.Log("DeletePressed");
-        IncomingPacketActions.Characters.TryToDeleteCharacter();
+        Characters.TryToDeleteCharacter();
     }
 }

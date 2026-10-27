@@ -52,6 +52,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<CharacterBuilder>(builder);
 
         RegisterIfFound<L2GameUI>(builder);
+        RegisterIfFound<L2SlotManager>(builder);
         RegisterIfFound<ChatWindow>(builder);
         RegisterIfFound<HtmlWindow>(builder);
         RegisterIfFound<DealerWindow>(builder);

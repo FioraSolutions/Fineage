@@ -28,7 +28,7 @@ public class GearSlot : InventorySlot
             {
                 AddCacheName(item, ObjectId);
 
-                IncomingPacketActions.Game.Send(new UseItemCommand(ObjectId, 0));
+                ResolveGameClient().Send(new UseItemCommand(ObjectId, 0));
             }
             else
             {
@@ -82,5 +82,21 @@ public class GearSlot : InventorySlot
             _slotElement.Add(_blackElement);
         }
 
+    }
+
+    private static GameClient ResolveGameClient()
+    {
+        if (App.GameContainer != null)
+        {
+            try
+            {
+                return App.GameContainer.Resolve<GameClient>();
+            }
+            catch
+            {
+            }
+        }
+
+        return IncomingPacketActions.Game;
     }
 }

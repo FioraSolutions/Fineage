@@ -1,9 +1,17 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class DescriptionSkillWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private static DescriptionSkillWindow _instance;
     public static DescriptionSkillWindow Instance { get { return _instance; } }
     private DataProviderWindows _dataProvider;
@@ -80,7 +88,7 @@ public class DescriptionSkillWindow : L2PopupWindow
         // 2 - Pledge skills
         if (_packet != null)
         {
-            IncomingPacketActions.Game.Send(new RequestAcquireSkillCommand(_packet.GetId(), _packet.GetLevel(), 0));
+            Game.Send(new RequestAcquireSkillCommand(_packet.GetId(), _packet.GetLevel(), 0));
         }
         base.HideWindow();
     }

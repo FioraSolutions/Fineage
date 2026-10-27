@@ -5,10 +5,18 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
 using Debug = UnityEngine.Debug;
+using VContainer;
 
 
 public class DealerWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
 
 
     private static DealerWindow _instance;
@@ -485,7 +493,7 @@ public class DealerWindow : L2PopupWindow
 
     private void SendServer(INetworkCommand packet)
     {
-        IncomingPacketActions.Game.Send(packet);
+        Game.Send(packet);
     }
 
     private void OkWear()

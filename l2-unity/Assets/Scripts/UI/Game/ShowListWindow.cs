@@ -5,12 +5,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using VContainer;
 
 using UnityEngine.UIElements;
 
 
 public class ShowListWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private static ShowListWindow _instance;
     public static ShowListWindow Instance { get { return _instance; } }
     private Button _СЃancelButton;
@@ -86,7 +94,7 @@ public class ShowListWindow : L2PopupWindow
         if (_players.ContainsKey(_select))
         {
             int objectId = _players[_select];
-            IncomingPacketActions.Game.Send(new RequestPackageSendableItemListCommand(objectId));
+            Game.Send(new RequestPackageSendableItemListCommand(objectId));
             HideWindow();
         }
     }

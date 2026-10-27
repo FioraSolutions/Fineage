@@ -5,9 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class ClanDetailedInfo
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private const string _templateNameClanInfo = "Data/UI/_Elements/Game/Clan/DetailedContent/ClanInfoContent";
     private const string _templateNamePrivilegesInfo = "Data/UI/_Elements/Game/Clan/DetailedContent/PrivilegesInfoContent";
     private const string _templateNameRankingPrivelege = "Data/UI/_Elements/Game/Clan/DetailedContent/RankingPrivilege";
@@ -114,14 +122,14 @@ public class ClanDetailedInfo
 
     private void OnClickOkTitle(string memberName, string title)
     {
-        IncomingPacketActions.Game.Send(new RequestGiveNickNameCommand(memberName, title));
+        Game.Send(new RequestGiveNickNameCommand(memberName, title));
 
         //Debug.Log("Click Ok OnClickOkTitle memberName " + memberName + " Rank " + title);
     }
 
     private void OnDeleteTitle(string memberName)
     {
-        IncomingPacketActions.Game.Send(new RequestGiveNickNameCommand(memberName, ""));
+        Game.Send(new RequestGiveNickNameCommand(memberName, ""));
     }
     private string _selectDismiss = "";
     private void OnOkDismiss(string memberName)
@@ -134,7 +142,7 @@ public class ClanDetailedInfo
 
     private void SystemMessageClickOkDismiss()
     {
-        IncomingPacketActions.Game.Send(new RequestOustPledgeMemberCommand(_selectDismiss));
+        Game.Send(new RequestOustPledgeMemberCommand(_selectDismiss));
         CancelEvent();
     }
 
@@ -161,7 +169,7 @@ public class ClanDetailedInfo
 
         if(newPrivileges != -1)
         {
-            IncomingPacketActions.Game.Send(new RequestPledgePowerCommand(useRank, 2, newPrivileges));
+            Game.Send(new RequestPledgePowerCommand(useRank, 2, newPrivileges));
 
         }
 

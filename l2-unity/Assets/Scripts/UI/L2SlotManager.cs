@@ -2,9 +2,17 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class L2SlotManager : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     [SerializeField] private L2Slot _draggedSlot;
     [SerializeField] private L2Slot _hoverSlot;
     private L2Slot _dragSlotData;
@@ -228,7 +236,7 @@ public class L2SlotManager : L2PopupWindow
 
     private void OkDestroyRecipe()
     {
-        IncomingPacketActions.Game.Send(new RequestRecipeBookDestroyCommand(_recipeId));
+        Game.Send(new RequestRecipeBookDestroyCommand(_recipeId));
         CleanupMessageWindow();
     }
 

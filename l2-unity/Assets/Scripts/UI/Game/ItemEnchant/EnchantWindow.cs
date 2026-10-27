@@ -6,10 +6,18 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static EnchantResultDto;
 using static L2Slot;
+using VContainer;
 
 
 public class EnchantWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private static EnchantWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
     private VisualTreeAsset _inventorySlotChoiceTemplate;
@@ -206,7 +214,7 @@ public class EnchantWindow : L2PopupWindow
     {
         //if (_selectItem != null)
         //{
-            IncomingPacketActions.Game.Send(new RequestEnchantItemCommand(objectId));
+            Game.Send(new RequestEnchantItemCommand(objectId));
         //}
     }
 
