@@ -55,7 +55,7 @@ public class TradeWindow : L2PopupWindow
 
     private void WireTradePacketServices()
     {
-        TradePacketServices.Bind(game: _gameClient);
+        TradePacketServices.Bind(game: _gameClient, trade: this);
     }
 
     public void AddData(TradeStartDto data)

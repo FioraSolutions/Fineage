@@ -74,7 +74,7 @@ public class QuestWindow : L2TwoPanels
 
     private void WireQuestPacketServices()
     {
-        QuestPacketServices.Bind(game: _gameClient);
+        QuestPacketServices.Bind(game: _gameClient, quest: this);
     }
 
     private void OnDestroy()

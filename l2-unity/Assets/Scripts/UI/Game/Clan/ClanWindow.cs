@@ -65,7 +65,7 @@ public class ClanWindow : L2TwoPanels
 
     private void WireClanPacketServices()
     {
-        ClanPacketServices.Bind(game: _gameClient);
+        ClanPacketServices.Bind(game: _gameClient, clan: this);
     }
 
     protected override void LoadAssets()
