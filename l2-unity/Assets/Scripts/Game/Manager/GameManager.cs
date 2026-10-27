@@ -2,15 +2,20 @@
 using UnityEngine;
 using VContainer;
 
-public class GameManager : MonoBehaviour {
-    //[SerializeField] private int _protocolVersion = 1;
-    //interlude client
+public class GameManager : MonoBehaviour, IGameManager {
+
+    #region Configuration ── protocol version, inspector toggles
+
     private int _protocolVersion = 746;
     [SerializeField] private GameState _gameState = GameState.LOGIN_SCREEN;
     private bool _gameReady = false;
     [SerializeField] private Camera _loadingCamera;
     [Tooltip("Connect login button to ZoneServer v2 (:9777) instead of Interlude stub.")]
     [SerializeField] private bool _useZoneServerV2 = false;
+
+    #endregion
+
+    #region Dependencies ── TODO: extract TableInitializer to own class
 
     [Inject] GameClient _gameClient;
     [Inject] LoginClient _loginClient;
@@ -37,6 +42,8 @@ public class GameManager : MonoBehaviour {
     [Inject] ModelTable _models;
     [Inject] LogongrpTable _logonGrps;
     [Inject] SystemMessageTable _systemMessages;
+
+    #endregion
 
     private SceneLoader Scenes
     {
@@ -119,6 +126,10 @@ public class GameManager : MonoBehaviour {
         IconManager.Instance.CacheOtherIcons();
         IconManager.Instance.CacheInterfaceIcons();
     }
+
+    #endregion
+
+    #region Lobby flow callbacks ── TODO: extract to LobbyFlowController
 
     public void LogIn() {
     }
@@ -292,6 +303,10 @@ public class GameManager : MonoBehaviour {
         
     }
 
+    #endregion
+
+    #region Loading UI helpers
+
     public void StartLoading()
     {
         if (_loadingCamera != null)
@@ -308,4 +323,6 @@ public class GameManager : MonoBehaviour {
             IncomingPacketActions.LoginUi.StartLoading();
         }
     }
+
+    #endregion
 }
