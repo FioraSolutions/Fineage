@@ -48,8 +48,17 @@ public abstract class DefaultClient : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Release builds point login/game sockets at the shared playtest host.
+    /// Editor play keeps the serialized address when no host is configured.
+    /// </summary>
+    protected virtual void ApplyPlaytestEndpoint()
+    {
+    }
+
     public async void Connect()
     {
+        ApplyPlaytestEndpoint();
         _connected = false;
         if (_connecting)
         {

@@ -114,6 +114,11 @@ public class LoginClient : DefaultClient {
     {
         return _sessionId;
     }
+    protected override void ApplyPlaytestEndpoint()
+    {
+        PlaytestEndpointRuntime.ApplyLogin(this);
+    }
+
     protected override void CreateAsyncClient() {
         if (_client != null && !_client.IsConnected)
             _client = null;
