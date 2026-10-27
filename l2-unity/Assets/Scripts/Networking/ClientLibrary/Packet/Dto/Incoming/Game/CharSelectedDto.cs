@@ -17,7 +17,9 @@ public class CharSelectedDto : IWireDto
 
     public void ReadFrom(PacketReader reader)
     {
-        CharSelectInfoPackage selectChar = CharSelectWindow.Instance.GetSelectChar();
+        CharSelectInfoPackage selectChar = CharSelectWindow.Instance != null
+            ? CharSelectWindow.Instance.GetSelectChar()
+            : null;
         //_info.Identity.Heading = 0;
         _info.Identity.Owned = true;
         _info.Stats.Speed = 120;
@@ -32,8 +34,11 @@ public class CharSelectedDto : IWireDto
         _info.Stats.MCritical = 5;
         _info.Stats.Sp = 0;
         _info.Appearance.Running = true;
-        _info.Appearance.HairStyle = selectChar.HairStyle;
-        _info.Appearance.HairColor = selectChar.HairColor;
+        if (selectChar != null)
+        {
+            _info.Appearance.HairStyle = selectChar.HairStyle;
+            _info.Appearance.HairColor = selectChar.HairColor;
+        }
         // Stats end not found Appearance
 
 
@@ -52,9 +57,16 @@ public class CharSelectedDto : IWireDto
         int race = reader.ReadI();
 
         //set default (will need to be completed)
-        // _info.Appearance.Race = selectChar.Race;
-        _info.Appearance.Sex = selectChar.Sex;
-        _info.Appearance.Race = (int)MapClassId.GetRace(selectChar.Race);
+        if (selectChar != null)
+        {
+            _info.Appearance.Sex = selectChar.Sex;
+            _info.Appearance.Race = (int)MapClassId.GetRace(selectChar.Race);
+        }
+        else
+        {
+            _info.Appearance.Sex = sex;
+            _info.Appearance.Race = race;
+        }
 
 
         _info.Identity.PlayerClass = reader.ReadI(); //classId

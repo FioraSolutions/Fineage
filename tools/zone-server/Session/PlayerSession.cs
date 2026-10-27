@@ -1,4 +1,5 @@
 using System.Net.Sockets;
+using Fineage.ZoneServer;
 using Fineage.ZoneServer.Wire;
 using MessagePack;
 
@@ -15,6 +16,7 @@ sealed class PlayerSession
     readonly TcpClient _client;
     readonly NetworkStream _stream;
     readonly int _sessionId;
+    string _account = "?";
 
     public bool Authenticated { get; private set; }
     public bool InWorld { get; private set; }
@@ -29,10 +31,12 @@ sealed class PlayerSession
         _sessionId = sessionId;
     }
 
+    string Ctx => $"session={_sessionId} account={_account}";
+
     public async Task RunAsync(CancellationToken ct)
     {
         string ep = _client.Client.RemoteEndPoint?.ToString() ?? "?";
-        Console.WriteLine($"[{Stamp()}] zone connect {ep}");
+        ZoneLog.Info($"zone connect remote={ep} session={_sessionId}");
 
         try
         {
@@ -47,11 +51,11 @@ sealed class PlayerSession
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[{Stamp()}] zone error {ep}: {ex.Message}");
+            ZoneLog.Error($"zone error remote={ep} {Ctx}: {ex.Message}");
         }
         finally
         {
-            Console.WriteLine($"[{Stamp()}] zone disconnect {ep}");
+            ZoneLog.Info($"zone disconnect remote={ep} {Ctx}");
             _client.Dispose();
         }
     }
@@ -63,14 +67,16 @@ sealed class PlayerSession
             case MsgType.Hello:
             {
                 var hello = Decode<HelloMsg>(body) ?? new HelloMsg();
-                Console.WriteLine($"[{Stamp()}] RX Hello proto={hello.ProtocolVersion} build={hello.ClientBuild}");
+                ZoneLog.Info($"RX Hello {Ctx} proto={hello.ProtocolVersion} build={hello.ClientBuild}");
+                ZoneLog.Debug($"Hello body len={body.Length}");
                 await SendAsync(MsgType.HelloAck, new HelloAckMsg(), ct).ConfigureAwait(false);
                 break;
             }
             case MsgType.Auth:
             {
                 var auth = Decode<AuthMsg>(body) ?? new AuthMsg();
-                Console.WriteLine($"[{Stamp()}] RX Auth account={auth.Account}");
+                _account = string.IsNullOrWhiteSpace(auth.Account) ? "?" : auth.Account;
+                ZoneLog.Info($"RX Auth {Ctx}");
                 // Stub: accept any credentials.
                 Authenticated = true;
                 await SendAsync(MsgType.AuthOk, new AuthOkMsg
@@ -84,12 +90,13 @@ sealed class PlayerSession
             {
                 if (!Authenticated)
                 {
+                    ZoneLog.Warn($"RX EnterWorld rejected (auth required) {Ctx}");
                     await SendAsync(MsgType.Error, new ErrorMsg { Code = "auth", Message = "Auth required" }, ct)
                         .ConfigureAwait(false);
                     break;
                 }
 
-                Console.WriteLine($"[{Stamp()}] RX EnterWorld → spawn TI");
+                ZoneLog.Info($"RX EnterWorld {Ctx} → spawn TI");
                 InWorld = true;
                 X = SpawnX;
                 Y = SpawnY;
@@ -111,6 +118,7 @@ sealed class PlayerSession
             {
                 if (!InWorld)
                 {
+                    ZoneLog.Warn($"RX MoveTo rejected (EnterWorld first) {Ctx}");
                     await SendAsync(MsgType.Error, new ErrorMsg { Code = "world", Message = "EnterWorld first" }, ct)
                         .ConfigureAwait(false);
                     break;
@@ -118,9 +126,12 @@ sealed class PlayerSession
 
                 var move = Decode<MoveToMsg>(body);
                 if (move == null)
+                {
+                    ZoneLog.Warn($"RX MoveTo decode failed {Ctx} len={body.Length}");
                     break;
+                }
 
-                Console.WriteLine($"[{Stamp()}] RX Move → {move.DestX},{move.DestY},{move.DestZ}");
+                ZoneLog.Info($"RX Move {Ctx} → {move.DestX},{move.DestY},{move.DestZ}");
                 int oX = move.OriginX;
                 int oY = move.OriginY;
                 int oZ = move.OriginZ;
@@ -136,7 +147,7 @@ sealed class PlayerSession
                 break;
             }
             default:
-                Console.WriteLine($"[{Stamp()}] RX unknown type={type} len={body.Length}");
+                ZoneLog.Debug($"RX unknown type={type} len={body.Length} {Ctx}");
                 await SendAsync(MsgType.Error, new ErrorMsg
                 {
                     Code = "unknown",
@@ -150,7 +161,8 @@ sealed class PlayerSession
     {
         byte[] body = MessagePackSerializer.Serialize(msg);
         await FrameIO.SendAsync(_stream, (ushort)type, body, ct).ConfigureAwait(false);
-        Console.WriteLine($"[{Stamp()}] TX {type}");
+        // Move echoes stay Info; other TX are Info milestones.
+        ZoneLog.Info($"TX {type} {Ctx}");
     }
 
     static T? Decode<T>(byte[] body) where T : class
@@ -159,6 +171,4 @@ sealed class PlayerSession
             return null;
         return MessagePackSerializer.Deserialize<T>(body);
     }
-
-    static string Stamp() => DateTime.Now.ToString("HH:mm:ss");
 }

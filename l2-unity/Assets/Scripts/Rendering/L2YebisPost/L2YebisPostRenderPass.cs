@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
 
 /// <summary>
@@ -117,14 +118,113 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
         _execFrame = 0;
     }
 
+#if URP_COMPATIBILITY_MODE
+#pragma warning disable 618, 672
     public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
     {
-        RenderTextureDescriptor desc = ColorDesc(renderingData.cameraData.cameraTargetDescriptor, 0, 0);
+        EnsureTargets(renderingData.cameraData);
+    }
+
+    public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+    {
+        if (_material == null)
+        {
+            L2NameplateOverlayQueue.FlushImmediateFallback();
+            L2YebisPostRuntime.WillFlushNameplates = false;
+            return;
+        }
+
+        EnsureTargets(renderingData.cameraData);
+        if (_temp == null)
+        {
+            L2NameplateOverlayQueue.FlushImmediateFallback();
+            L2YebisPostRuntime.WillFlushNameplates = false;
+            return;
+        }
+
+        RTHandle cameraColor = renderingData.cameraData.renderer.cameraColorTargetHandle;
+        if (cameraColor == null)
+        {
+            L2NameplateOverlayQueue.FlushImmediateFallback();
+            L2YebisPostRuntime.WillFlushNameplates = false;
+            return;
+        }
+
+        CommandBuffer cmd = CommandBufferPool.Get("L2 Yebis Post");
+        using (new ProfilingScope(cmd, Sampler))
+            ExecuteYebis(cmd, cameraColor, renderingData.cameraData, renderingData.cameraData.renderer.cameraDepthTargetHandle);
+        context.ExecuteCommandBuffer(cmd);
+        CommandBufferPool.Release(cmd);
+        L2YebisPostRuntime.WillFlushNameplates = false;
+    }
+#pragma warning restore 618, 672
+#endif
+
+    sealed class YebisPassData
+    {
+        public TextureHandle color;
+        public TextureHandle depth;
+        public bool hasDepth;
+        public L2YebisPostRenderPass pass;
+        public UniversalCameraData cameraData;
+    }
+
+    public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
+    {
+        if (_material == null)
+        {
+            L2NameplateOverlayQueue.FlushImmediateFallback();
+            L2YebisPostRuntime.WillFlushNameplates = false;
+            return;
+        }
+
+        UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
+        UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+        EnsureTargets(cameraData);
+
+        TextureHandle color = resources.activeColorTexture;
+        if (!color.IsValid() || _temp == null)
+        {
+            L2NameplateOverlayQueue.FlushImmediateFallback();
+            L2YebisPostRuntime.WillFlushNameplates = false;
+            return;
+        }
+
+        TextureHandle depth = resources.activeDepthTexture;
+        using (IUnsafeRenderGraphBuilder builder =
+               renderGraph.AddUnsafePass<YebisPassData>("L2 Yebis Post", out YebisPassData passData, Sampler))
+        {
+            passData.color = color;
+            passData.depth = depth;
+            passData.hasDepth = depth.IsValid();
+            passData.pass = this;
+            passData.cameraData = cameraData;
+
+            builder.UseTexture(color, AccessFlags.ReadWrite);
+            if (passData.hasDepth)
+                builder.UseTexture(depth, AccessFlags.ReadWrite);
+            // Persistent working buffers are written via RTHandle fields inside ExecuteYebis.
+            builder.AllowPassCulling(false);
+            builder.AllowGlobalStateModification(true);
+            builder.SetRenderFunc(static (YebisPassData data, UnsafeGraphContext context) =>
+            {
+                CommandBuffer cmd = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
+                RTHandle depthRt = data.hasDepth ? (RTHandle)data.depth : null;
+                data.pass.ExecuteYebis(cmd, data.color, data.cameraData, depthRt);
+            });
+        }
+
+        L2YebisPostRuntime.WillFlushNameplates = false;
+    }
+
+    void EnsureTargets(UniversalCameraData cameraData)
+    {
+        RenderTextureDescriptor desc = ColorDesc(cameraData.cameraTargetDescriptor, 0, 0);
 
         RenderingUtils.ReAllocateIfNeeded(
             ref _temp, desc, FilterMode.Bilinear, TextureWrapMode.Clamp, name: "_L2YebisTemp");
 
-        RenderTextureDescriptor curveDesc = ColorDesc(renderingData.cameraData.cameraTargetDescriptor, 0, 0);
+        RenderTextureDescriptor curveDesc = ColorDesc(cameraData.cameraTargetDescriptor, 0, 0);
         curveDesc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
         curveDesc.sRGB = false;
         RenderingUtils.ReAllocateIfNeeded(
@@ -156,8 +256,8 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
         RenderingUtils.ReAllocateIfNeeded(
             ref _bloomExclude, desc, FilterMode.Point, TextureWrapMode.Clamp, name: "_L2YebisBloomExclude");
 
-        if (renderingData.cameraData.cameraType == CameraType.Game
-            && renderingData.cameraData.renderType == CameraRenderType.Base)
+        if (cameraData.cameraType == CameraType.Game
+            && cameraData.renderType == CameraRenderType.Base)
         {
             RenderingUtils.ReAllocateIfNeeded(
                 ref _captureScene, desc, FilterMode.Point, TextureWrapMode.Clamp, name: "_L2YebisCaptureScene");
@@ -168,26 +268,8 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
         }
     }
 
-    public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+    void ExecuteYebis(CommandBuffer cmd, RTHandle cameraColor, UniversalCameraData cameraData, RTHandle cameraDepth)
     {
-        if (_material == null || _temp == null)
-        {
-            L2NameplateOverlayQueue.FlushImmediateFallback();
-            L2YebisPostRuntime.WillFlushNameplates = false;
-            return;
-        }
-
-        RTHandle cameraColor = renderingData.cameraData.renderer.cameraColorTargetHandle;
-        if (cameraColor == null)
-        {
-            L2NameplateOverlayQueue.FlushImmediateFallback();
-            L2YebisPostRuntime.WillFlushNameplates = false;
-            return;
-        }
-
-        CommandBuffer cmd = CommandBufferPool.Get("L2 Yebis Post");
-        using (new ProfilingScope(cmd, Sampler))
-        {
             BindParams();
 
             _material.SetFloat(LumaGridId, 0f);
@@ -224,8 +306,8 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
             // Restore: wantBloom = intensity > 0.0001 && debug != 1. Saved intensity is yebisBloomIntensity (0.18).
             bool wantBloom = false;
 
-            bool gameBase = renderingData.cameraData.cameraType == CameraType.Game
-                && renderingData.cameraData.renderType == CameraRenderType.Base;
+            bool gameBase = cameraData.cameraType == CameraType.Game
+                && cameraData.renderType == CameraRenderType.Base;
             string captureFolder = null;
             if (gameBase && L2YebisLiveCapture.Consume())
             {
@@ -235,7 +317,7 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
                 }
                 else
                 {
-                    var cameraFormat = renderingData.cameraData.cameraTargetDescriptor.graphicsFormat;
+                    var cameraFormat = cameraData.cameraTargetDescriptor.graphicsFormat;
                     float hours = WorldClock.Instance != null ? WorldClock.Instance.WorldHours : -1f;
                     captureFolder = L2YebisLiveCapture.CreateFolder(
                         hours,
@@ -247,14 +329,7 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
                     cmd.ClearRenderTarget(false, true, new Color(1f, 0f, 1f, 1f));
                     cmd.SetRenderTarget(_captureGrade.nameID);
                     cmd.ClearRenderTarget(false, true, new Color(1f, 0f, 1f, 1f));
-                    string sceneCopy = CopyCapture(cmd, cameraColor, _captureScene);
-                    // Debug.Log(
-                        // "[Yebis] перед combine " + _captureScene.rt.width + "x" + _captureScene.rt.height +
-                        // " cameraFormat=" + cameraFormat +
-                        // " copyFormat=" + _captureScene.rt.graphicsFormat +
-                        // " created=" + _captureScene.rt.IsCreated() +
-                        // " how=" + sceneCopy +
-                        // " src=" + RtSize(cameraColor));
+                    CopyCapture(cmd, cameraColor, _captureScene);
                 }
             }
 
@@ -284,8 +359,8 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
 
                 if (wantBloom)
                 {
-                    if (_settings.yebisBloomExcludeSkyCloudsSun)
-                        FillBloomExcludeMask(cmd, ref renderingData);
+                    if (_settings.yebisBloomExcludeSkyCloudsSun && cameraDepth != null)
+                        FillBloomExcludeMask(cmd, cameraDepth);
                     else
                         BindBloomExclude(cmd, false);
 
@@ -320,11 +395,6 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
             }
             L2NameplateOverlayQueue.Flush(cmd);
             MaybeLogYebis(cmd, cameraColor);
-        }
-
-        context.ExecuteCommandBuffer(cmd);
-        CommandBufferPool.Release(cmd);
-        L2YebisPostRuntime.WillFlushNameplates = false;
     }
 
     void BindParams()
@@ -361,9 +431,8 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
         _material.SetFloat(GradeStageId, L2YebisLiveCapture.GradeStage);
     }
 
-    void FillBloomExcludeMask(CommandBuffer cmd, ref RenderingData renderingData)
+    void FillBloomExcludeMask(CommandBuffer cmd, RTHandle cameraDepth)
     {
-        RTHandle cameraDepth = renderingData.cameraData.renderer.cameraDepthTargetHandle;
         if (_bloomExclude == null || cameraDepth == null)
         {
             BindBloomExclude(cmd, false);

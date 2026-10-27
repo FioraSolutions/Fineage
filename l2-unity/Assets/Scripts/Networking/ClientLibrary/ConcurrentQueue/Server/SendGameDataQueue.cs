@@ -48,13 +48,15 @@ public class SendGameDataQueue : IDisposable
         }
         catch (OperationCanceledException)
         {
+            LobbyFlowLog.Warn("SendGame AddItem canceled — command=" + command.GetType().Name);
         }
         catch (InvalidOperationException)
         {
+            LobbyFlowLog.Warn("SendGame AddItem on completed queue — command=" + command.GetType().Name);
         }
         catch (Exception ex)
         {
-            // Debug.LogError("SendGameDataQueue->AddItem " + ex);
+            LobbyFlowLog.Exception("SendGame AddItem " + command.GetType().Name, ex);
         }
     }
 
@@ -163,16 +165,24 @@ public class SendGameDataQueue : IDisposable
                     IOutgoingPacket packet = _protocol.EncodeGame(item.Command, item.Encrypt);
                     if (packet == null)
                     {
-                        // LobbyFlowLog.Warn("TX EncodeGame returned null command=" + item.Command.GetType().Name);
+                        LobbyFlowLog.Warn("TX EncodeGame null command=" + item.Command.GetType().Name);
                         continue;
                     }
 
-                    // LobbyFlowLog.Info("TX " + item.Command.GetType().Name + " encrypt=" + item.Encrypt + " opcode=0x" + packet.GetPacketType().ToString("X2"));
-                    ((GameClientPacketHandler)handler).SendPacket(packet);
+                    ClientPacketHandler current;
+                    lock (_sync)
+                        current = _clientPacketHandler ?? handler;
+                    if (current == null)
+                    {
+                        LobbyFlowLog.Warn("TX SendGame no handler command=" + item.Command.GetType().Name);
+                        continue;
+                    }
+
+                    current.SendPacket(packet);
                 }
                 catch (Exception ex)
                 {
-                    // Debug.LogError("SendGameDataQueue->Send " + ex);
+                    LobbyFlowLog.Exception("SendGame Send " + item.Command.GetType().Name, ex);
                 }
             }
         }

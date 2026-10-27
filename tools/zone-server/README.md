@@ -16,8 +16,13 @@ Maps to client domain events from `#3` (`PlayerSpawned`, `MoveTo`, …). Unity d
 ```bash
 cd tools/zone-server
 dotnet run                 # listen 127.0.0.1:9777
+dotnet run -- --verbose    # Debug lines (FINEAGE_ZONE_DEBUG=1 also works)
 dotnet run -- --selftest   # Hello→Auth→EnterWorld→Move smoke
 ```
+
+## Logs
+
+Milestone lines go to the console (`[ZONE]`) and `logs/zone.log` (rotate ~3MB). Info covers Hello → Auth → EnterWorld → Move echoes; `--verbose` / `FINEAGE_ZONE_DEBUG=1` enables Debug. See `l2-unity/docs/LOGGING.md`.
 
 ## Frame
 

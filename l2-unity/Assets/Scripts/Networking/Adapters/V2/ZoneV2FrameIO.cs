@@ -32,25 +32,23 @@ public static class ZoneV2FrameIO
         await stream.FlushAsync(ct).ConfigureAwait(false);
     }
 
-    public static async Task<bool> TryReadAsync(NetworkStream stream, CancellationToken ct, out ZoneV2Frame frame)
+    public static async Task<ZoneV2Frame?> TryReadAsync(NetworkStream stream, CancellationToken ct)
     {
-        frame = default;
         byte[] header = new byte[HeaderSize];
         if (!await ReadExactAsync(stream, header, ct).ConfigureAwait(false))
-            return false;
+            return null;
 
         ushort total = (ushort)(header[0] | (header[1] << 8));
         ushort type = (ushort)(header[2] | (header[3] << 8));
         if (total < HeaderSize)
-            return false;
+            return null;
 
         int bodyLen = total - HeaderSize;
         byte[] body = bodyLen == 0 ? Array.Empty<byte>() : new byte[bodyLen];
         if (bodyLen > 0 && !await ReadExactAsync(stream, body, ct).ConfigureAwait(false))
-            return false;
+            return null;
 
-        frame = new ZoneV2Frame((ZoneV2MsgType)type, body);
-        return true;
+        return new ZoneV2Frame((ZoneV2MsgType)type, body);
     }
 
     static async Task<bool> ReadExactAsync(NetworkStream stream, byte[] buffer, CancellationToken ct)
