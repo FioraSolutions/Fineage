@@ -9,10 +9,7 @@ public class L2SlotManager : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => GameWindowPacketServices.Game;
     [SerializeField] private L2Slot _draggedSlot;
     [SerializeField] private L2Slot _hoverSlot;
     private L2Slot _dragSlotData;
@@ -25,11 +22,22 @@ public class L2SlotManager : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireGameWindowPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireGameWindowPacketServices();
+    }
+
+    private void WireGameWindowPacketServices()
+    {
+        GameWindowPacketServices.Bind(game: _gameClient);
     }
 
     private void OnDestroy()

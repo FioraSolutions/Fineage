@@ -353,7 +353,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                     SkillInstance skillItem = SkillListWindow.Instance.GetSkillInstanceBySkillId(skillId);
                     return GetSkillContainer(skillItem);
                 case (int)SlotType.BuffPanel:
-                    SkillInstance instance = BufferPanel.Instance.GetCellByPosition(position);
+                    SkillInstance instance = AuxiliaryGameUIPacketServices.Buffer.GetCellByPosition(position);
                     return GetSkillContainer(instance);
             }
         }
@@ -681,7 +681,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 SetSimpleItemSingleToolTip(skillbarInstance, template);
                 break;
             case (int)SlotType.BuffPanel:
-                SkillInstance instance = BufferPanel.Instance.GetCellByPosition(position);
+                SkillInstance instance = AuxiliaryGameUIPacketServices.Buffer.GetCellByPosition(position);
                 SetBuffPanelToolTip(instance, template);
                 break;
             case (int)SlotType.Gear:
@@ -705,7 +705,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
         if (instance != null)
         {
             int skillId = instance.SkillID;
-            float buffTimeLeft = BufferPanel.Instance.GetLeftTimeByPosition(skillId);
+            float buffTimeLeft = AuxiliaryGameUIPacketServices.Buffer.GetLeftTimeByPosition(skillId);
 
             VisualElement updateElement = SetSkillToolTip(instance, template, buffTimeLeft);
             BindingLeftTime(updateElement, buffTimeLeft, skillId);
@@ -717,8 +717,8 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
         if (updateElement != null && buffTimeLeft > 0)
         {
             Action<int, float> timeUpdateHandler = (skillId, timeLeft) => HandleTimeLeftUpdated(skillId, timeLeft, updateElement);
-            BufferPanel.Instance.TrackSkillId(skillId);
-            BufferPanel.Instance.SetSubscrible(timeUpdateHandler);
+            AuxiliaryGameUIPacketServices.Buffer.TrackSkillId(skillId);
+            AuxiliaryGameUIPacketServices.Buffer.SetSubscrible(timeUpdateHandler);
         }
     }
     private void HandleTimeLeftUpdated(int skillId, float newTimeLeft, VisualElement elementToUpdate)
