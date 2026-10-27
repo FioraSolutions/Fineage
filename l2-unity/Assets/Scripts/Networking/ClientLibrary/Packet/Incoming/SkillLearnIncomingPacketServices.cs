@@ -30,4 +30,8 @@ public static class SkillLearnIncomingPacketServices
 
     public static void ApplySkillList(SkillListDto packet) =>
         Queue(() => SkillList.UpdateSkillList(packet.Skills));
+
+    public static void ApplySkillCoolTime(SkillCoolTimeDto packet)
+    {
+    }
 }
