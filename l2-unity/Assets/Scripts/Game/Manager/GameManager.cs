@@ -123,12 +123,14 @@ public class GameManager : MonoBehaviour, IGameManager {
     {
         if (loginUi != null)
             _loginUi = loginUi;
+        LobbyUiPacketServices.Bind(loginUi: _loginUi);
     }
 
     public void WireGameUi(L2GameUI gameUi)
     {
         if (gameUi != null)
             _gameUi = gameUi;
+        LobbyUiPacketServices.Bind(gameUi: _gameUi);
     }
 
     #endregion
@@ -142,10 +144,10 @@ public class GameManager : MonoBehaviour, IGameManager {
             _loadingCamera.enabled = true;
         }
 
-        L2GameUI ui = _gameUi != null ? _gameUi : IncomingPacketActions.Ui;
+        L2GameUI ui = LobbyUiPacketServices.GameUi;
         if (ui != null)
             ui.StartLoading();
-        L2LoginUI loginUi = _loginUi != null ? _loginUi : IncomingPacketActions.LoginUi;
+        L2LoginUI loginUi = LobbyUiPacketServices.LoginUi;
         if (loginUi != null)
             loginUi.StartLoading();
     }
