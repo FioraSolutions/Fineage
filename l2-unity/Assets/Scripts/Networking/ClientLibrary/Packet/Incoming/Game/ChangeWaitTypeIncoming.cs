@@ -3,6 +3,6 @@ public sealed class ChangeWaitTypeIncoming : IncomingWirePacket<ChangeWaitTypeDt
 {
     public override void Apply(ChangeWaitTypeDto packet)
     {
-        WorldIncomingPacketServices.ApplyWorld(apply => apply.ChangeWaitType(packet));
+        EntityAnimIncomingPacketServices.ApplyChangeWaitType(packet);
     }
 }
