@@ -56,7 +56,7 @@ public sealed class RequestAuthLogin : OutgoingWirePacket<RequestAuthLoginDto>
             }
         }
 
-        return IncomingPacketActions.Login;
+        return NetworkingPacketServices.Login;
     }
 
     private static bool TryCreate(string account, string password)

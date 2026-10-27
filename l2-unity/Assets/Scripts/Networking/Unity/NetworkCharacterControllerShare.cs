@@ -9,30 +9,9 @@ public class NetworkCharacterControllerShare : MonoBehaviour {
     [Inject] World _world;
     [Inject] PlayerController _player;
 
-    private World GameWorld
-    {
-        get
-        {
-            if (_world != null)
-                return _world;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<World>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.GameWorld;
-        }
-    }
+    private World GameWorld => NetworkingPacketServices.GameWorld;
 
-    private PlayerController LocalPlayer
-    {
-        get { return _player != null ? _player : IncomingPacketActions.Player; }
-    }
+    private PlayerController LocalPlayer => NetworkingPacketServices.Player;
 
     private CharacterController _characterController;
     private NetworkTransformShare _networkTransformShare;
@@ -56,6 +35,7 @@ public class NetworkCharacterControllerShare : MonoBehaviour {
     }
 
     void Start() {
+        NetworkingPacketServices.Bind(world: _world, player: _player);
         _characterController = GetComponent<CharacterController>();
         World world = GameWorld;
         if(_characterController == null || (world != null && world.OfflineMode)) {

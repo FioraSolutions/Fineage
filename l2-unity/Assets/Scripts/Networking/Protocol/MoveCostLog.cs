@@ -17,7 +17,10 @@ public static class MoveCostLog
     public static void Wire(World world)
     {
         if (world != null)
+        {
             _world = world;
+            NetworkingPacketServices.Bind(world: world);
+        }
     }
 
     static string LogPath => L2DiagPaths.DiagFile("moveTick.txt");
@@ -171,7 +174,7 @@ public static class MoveCostLog
 
     static int WorldCount()
     {
-        World world = _world != null ? _world : IncomingPacketActions.GameWorld;
+        World world = NetworkingPacketServices.GameWorld;
         if (world == null)
             return 0;
         int n = 0;

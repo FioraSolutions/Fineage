@@ -6,25 +6,7 @@ using VContainer;
 public class NetworkTransformReceive : MonoBehaviour {
     [Inject] World _world;
 
-    private World GameWorld
-    {
-        get
-        {
-            if (_world != null)
-                return _world;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<World>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.GameWorld;
-        }
-    }
+    private World GameWorld => NetworkingPacketServices.GameWorld;
     [SerializeField] private Vector3 _serverPosition;
     private Vector3 _lastPos;
     private float _newRotation;
@@ -40,6 +22,7 @@ public class NetworkTransformReceive : MonoBehaviour {
     private long _maximumAllowedDesyncTimeMs = 0;
 
     void Start() {
+        NetworkingPacketServices.Bind(world: _world);
         World world = GameWorld;
         if(world != null && world.OfflineMode) {
             this.enabled = false;

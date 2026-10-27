@@ -34,33 +34,13 @@ public abstract class DefaultClient : MonoBehaviour
     public bool IsConnected { get { return _connected; } }
     public int Ping { get { return _ping; } set { _ping = value; } }
 
-    private GameManager Manager
-    {
-        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
-    }
+    private GameManager Manager => NetworkingPacketServices.Manager;
 
-    private World GameWorld
-    {
-        get
-        {
-            if (_world != null)
-                return _world;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<World>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.GameWorld;
-        }
-    }
+    private World GameWorld => NetworkingPacketServices.GameWorld;
 
     private void Start()
     {
+        NetworkingPacketServices.Bind(world: _world, manager: _gameManager);
         World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
