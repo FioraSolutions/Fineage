@@ -1,8 +1,6 @@
 [IncomingGamePacket(GameServerPacketType.ChangeWaitType)]
 public sealed class ChangeWaitTypeIncoming : IncomingWirePacket<ChangeWaitTypeDto>
 {
-    public override void Apply(ChangeWaitTypeDto packet)
-    {
+    public override void Apply(ChangeWaitTypeDto packet) =>
         EntityAnimIncomingPacketServices.ApplyChangeWaitType(packet);
-    }
 }
