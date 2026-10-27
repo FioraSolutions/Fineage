@@ -8,20 +8,11 @@ using VContainer;
 public class CharSelectWindow : L2Window {
     [Inject] LoginRuntime _login;
 
-    private CharacterSelector Characters
-    {
-        get { return _login != null ? _login.Selector : IncomingPacketActions.Characters; }
-    }
+    private CharacterSelector Characters => LoginPacketServices.Characters;
 
-    private GameClient Game
-    {
-        get { return _login != null ? _login.Game : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => LoginPacketServices.Game;
 
-    private GameManager Manager
-    {
-        get { return _login != null ? _login.Manager : IncomingPacketActions.Manager; }
-    }
+    private GameManager Manager => LoginPacketServices.Manager;
 
     private VisualTreeAsset _arrowInputTemplate;
     private ArrowInputManipulator _charNameManipulator;
@@ -50,9 +41,20 @@ public class CharSelectWindow : L2Window {
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            WireLoginPacketServices();
         } else {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireLoginPacketServices();
+    }
+
+    private void WireLoginPacketServices()
+    {
+        LoginPacketServices.Bind(login: _login);
     }
 
     private void OnDestroy() {

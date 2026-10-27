@@ -8,20 +8,11 @@ public class ServerSelectWindow : L2Window
 {
     [Inject] LoginRuntime _login;
 
-    private GameClient Game
-    {
-        get { return _login != null ? _login.Game : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => LoginPacketServices.Game;
 
-    private LoginClient Login
-    {
-        get { return _login != null ? _login.LoginClient : IncomingPacketActions.Login; }
-    }
+    private LoginClient Login => LoginPacketServices.LoginClient;
 
-    private LoginWindow LoginWin
-    {
-        get { return _login != null ? _login.LoginWindow : IncomingPacketActions.LoginWindow; }
-    }
+    private LoginWindow LoginWin => LoginPacketServices.LoginWindow;
 
     private VisualTreeAsset _serverElementTemplate;
     private VisualElement _listContentContainer;
@@ -36,9 +27,20 @@ public class ServerSelectWindow : L2Window
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            WireLoginPacketServices();
         } else {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireLoginPacketServices();
+    }
+
+    private void WireLoginPacketServices()
+    {
+        LoginPacketServices.Bind(login: _login);
     }
 
     private void OnDestroy() {
