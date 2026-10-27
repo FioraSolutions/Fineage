@@ -1,7 +1,8 @@
 # Playtest clients for the one shared public dev server.
 # Push to main, or a v* tag, builds Win/macOS/Linux and publishes a GitHub Release.
 # workflow_dispatch can build another ref (including dev) once this file is on the default branch.
-# Missing Unity license or FINEAGE_PUBLIC_HOST fails in prepare, before Unity is pulled.
+# Missing Unity license fails in prepare, before Unity is pulled.
+# Host defaults: fineage.evpoint.by, login.fineage.evpoint.by:2106, game.fineage.evpoint.by:7777.
 # See Docs/PLAYTEST_RELEASE.md.
 
 name: release-clients
@@ -13,23 +14,23 @@ on:
   workflow_dispatch:
     inputs:
       public_host:
-        description: FINEAGE_PUBLIC_HOST override (hostname or IP)
+        description: Override landing host (default fineage.evpoint.by)
         required: false
         type: string
       login_host:
-        description: Login host when it differs from the public host
+        description: Override login host (default login.fineage.evpoint.by)
         required: false
         type: string
       game_host:
-        description: Game host when it differs from the public host
+        description: Override game host (default game.fineage.evpoint.by)
         required: false
         type: string
       login_port:
-        description: Login TCP port (default 2106)
+        description: Override login TCP port (default 2106)
         required: false
         type: string
       game_port:
-        description: Game TCP port (empty keeps the server-list port)
+        description: Override game TCP port (default 7777)
         required: false
         type: string
       create_release:

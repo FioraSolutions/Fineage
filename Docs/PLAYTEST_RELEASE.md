@@ -1,6 +1,14 @@
 # Playtest client releases
 
-Windows, macOS, and Linux players for the one shared public dev server. The client in git still defaults to `127.0.0.1`. Release builds bake a hostname from `FINEAGE_PUBLIC_HOST` (a GitHub Actions secret or a `workflow_dispatch` input). Nothing in the repo hardcodes that hostname.
+Windows, macOS, and Linux players for the one shared public dev server. The client defaults to the Cloudflare tunnel:
+
+| Name | Host | Port |
+| --- | --- | --- |
+| Landing (HTTP) | `fineage.evpoint.by` | 443 |
+| Login (TCP) | `login.fineage.evpoint.by` | 2106 |
+| Game (TCP) | `game.fineage.evpoint.by` | 7777 |
+
+`FINEAGE_PUBLIC_HOST` is the landing name. It does not replace the login or game hosts. Secrets and `workflow_dispatch` inputs override any of the three.
 
 PR CI (`.github/workflows/build-and-test.yml`) does not run Unity. The release workflow is `.github/workflows/release-clients.yml`.
 
@@ -10,38 +18,38 @@ Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unit
 
 `PlaytestEndpointRuntime` runs at the start of `Connect()`:
 
-- Login uses the public host and port (default **2106** when a host is set and no port is).
-- Game host replaces the ServerList address when a public host is set, so a LAN IP in the server list does not win.
-- Game port stays the ServerList port unless `gamePort` / `FINEAGE_GAME_PORT` is set.
+- Login dials `login.fineage.evpoint.by:2106` unless `loginHost` / `FINEAGE_LOGIN_HOST` overrides it.
+- Game host replaces the ServerList address (`game.fineage.evpoint.by`), so a LAN IP in the server list does not win.
+- Game port is **7777** unless `gamePort` / `FINEAGE_GAME_PORT` overrides it.
 
 Zone v2 (`FineageWireConfig.ZoneHost`) is unchanged.
 
-The socket accepts a DNS name, not only a dotted IP. IPv4 is preferred. The client opens a normal TCP connection to `host:port`. A Cloudflare Tunnel TCP route that only answers through `cloudflared access tcp` is not a socket this client can dial. The hostname has to resolve and accept TCP (DNS plus forwarded ports, Cloudflare Spectrum, or two real TCP listeners). When login and game are different names, set `FINEAGE_LOGIN_HOST` and `FINEAGE_GAME_HOST`. When the public game port is not the port inside ServerList, set `FINEAGE_GAME_PORT`.
+The socket accepts a DNS name, not only a dotted IP. IPv4 is preferred. The client opens a normal TCP connection to the login host on 2106 and the game host on 7777. `fineage.evpoint.by` is HTTP for the landing page and is not a game socket. Each TCP name has to resolve and accept TCP on that port. A tunnel route that only answers through `cloudflared access tcp` is not a socket this client can dial.
 
 ## Config file
 
 ```json
 {
-  "host": "",
-  "loginHost": "",
-  "gameHost": "",
-  "loginPort": 0,
-  "gamePort": 0
+  "host": "fineage.evpoint.by",
+  "loginHost": "login.fineage.evpoint.by",
+  "gameHost": "game.fineage.evpoint.by",
+  "loginPort": 2106,
+  "gamePort": 7777
 }
 ```
 
-`host` fills login and game when the specific host is empty. `loginPort` / `gamePort` of `0` means unset. The copies in git are empty on purpose:
+`host` is the landing hostname. `loginHost` and `gameHost` are what the sockets dial. The same JSON is committed in:
 
 - `l2-unity/Assets/StreamingAssets/fineage-endpoint.json` (shipped, editable in the player)
 - `l2-unity/Assets/Resources/FineagePlaytest.json` (baked fallback)
 
-`scripts/bake-playtest-endpoint.py` overwrites both from the environment before a release build. It refuses to write when every host variable is empty.
+`scripts/bake-playtest-endpoint.py` rewrites both before a release build. Empty environment variables keep these defaults. A set variable replaces that one field.
 
 ## Override order
 
 Highest priority first. An empty field does not clear a lower layer.
 
-1. Command line: `-fineageHost` / `--fineage-host`, `-fineageLoginHost`, `-fineageGameHost`, `-fineageLoginPort`, `-fineageGamePort` (space or `=`).
+1. Command line: `-fineageHost` / `--fineage-host` (landing only), `-fineageLoginHost`, `-fineageGameHost`, `-fineageLoginPort`, `-fineageGamePort` (space or `=`).
 2. `fineage-endpoint.json` in Unity's `persistentDataPath` (survives updates). For company `DefaultCompany` and product `L2-Unity`:
    - Windows: `%USERPROFILE%\AppData\LocalLow\DefaultCompany\L2-Unity\fineage-endpoint.json`
    - macOS: `~/Library/Application Support/DefaultCompany/L2-Unity/fineage-endpoint.json`
@@ -51,12 +59,16 @@ Highest priority first. An empty field does not clear a lower layer.
 5. `StreamingAssets/fineage-endpoint.json` inside the build.
 6. Resources asset `FineagePlaytest`.
 
-Examples (replace the hostname; do not commit it):
+Local loopback (the prefab still says `127.0.0.1`; the playtest config replaces it unless you override):
 
 ```bash
-FINEAGE_PUBLIC_HOST=<your-tunnel-hostname> python3 scripts/bake-playtest-endpoint.py
-Fineage.exe -fineageHost <your-tunnel-hostname> -fineageGamePort 7777
-FINEAGE_PUBLIC_HOST=<your-tunnel-hostname> ./Fineage.x86_64
+Fineage.exe -fineageLoginHost 127.0.0.1 -fineageGameHost 127.0.0.1 -fineageLoginPort 2106 -fineageGamePort 7777
+```
+
+A one-off public host:
+
+```bash
+FINEAGE_LOGIN_HOST=login.example FINEAGE_GAME_HOST=game.example python3 scripts/bake-playtest-endpoint.py
 ```
 
 Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineage-endpoint.json l2-unity/Assets/Resources/FineagePlaytest.json`.
@@ -93,15 +105,15 @@ Personal license ([game-ci activation](https://game.ci/docs/github/activation)):
 
 Pro/Plus can use `UNITY_SERIAL` + `UNITY_EMAIL` + `UNITY_PASSWORD` instead of `UNITY_LICENSE`. Do not commit the `.ulf`.
 
-Playtest host:
+Playtest host secrets are optional. Unset means the Cloudflare defaults above.
 
-| Secret | Value |
+| Secret | Override for |
 | --- | --- |
-| `FINEAGE_PUBLIC_HOST` | Hostname or IP of the shared dev server. Required unless `FINEAGE_LOGIN_HOST` or `FINEAGE_GAME_HOST` is set. |
-| `FINEAGE_LOGIN_HOST` | Optional. Overrides the login host only. |
-| `FINEAGE_GAME_HOST` | Optional. Overrides the game host only. |
-| `FINEAGE_LOGIN_PORT` | Optional. Default 2106. |
-| `FINEAGE_GAME_PORT` | Optional. Unset keeps the ServerList port. |
+| `FINEAGE_PUBLIC_HOST` | Landing host. Default `fineage.evpoint.by`. Does not change login or game. |
+| `FINEAGE_LOGIN_HOST` | Login TCP host. Default `login.fineage.evpoint.by`. |
+| `FINEAGE_GAME_HOST` | Game TCP host. Default `game.fineage.evpoint.by`. |
+| `FINEAGE_LOGIN_PORT` | Login port. Default 2106. |
+| `FINEAGE_GAME_PORT` | Game port. Default 7777. |
 
 `workflow_dispatch` inputs override the matching secrets for that run.
 
@@ -143,6 +155,8 @@ Use the newest release whose `tag_name` starts with `playtest-`. Download:
 https://github.com/FioraSolutions/Fineage/releases/download/<tag>/<file>
 ```
 
-`version.json` fields: `version`, `unityVersion`, `commit`, `ref`, `releaseTag`, `prerelease`, `host`, `loginHost`, `gameHost`, `loginPort`, `gamePort` (`0` means the client kept the server-list port), `gamePortMeaning`, `assets[]` (`id`, `file`).
+The landing page is `https://fineage.evpoint.by`. It should link the zips from the GitHub Release, not proxy the game TCP ports.
 
-Read `version.json` before linking the zips so the page can show the build version, changelog, and which host that client was baked for.
+`version.json` fields: `version`, `unityVersion`, `commit`, `ref`, `releaseTag`, `prerelease`, `host`, `landingUrl`, `loginHost`, `gameHost`, `loginPort`, `gamePort`, `gamePortMeaning` (`override` when the client forces the game port, which the default 7777 does), `assets[]` (`id`, `file`).
+
+Read `version.json` before linking the zips so the page can show the build version, changelog, and which login and game hosts that client was baked for.

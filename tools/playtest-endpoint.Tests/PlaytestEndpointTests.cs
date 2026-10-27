@@ -7,19 +7,22 @@ namespace Fineage.Playtest.Tests;
 public class PlaytestEndpointTests
 {
     [Fact]
-    public void EmptyInput_DoesNotOverride()
+    public void EmptyInput_UsesCloudflarePlaytest()
     {
         PlaytestEndpoint endpoint = PlaytestEndpoint.Resolve(new PlaytestEndpointInput());
 
-        Assert.False(endpoint.OverrideLogin);
-        Assert.False(endpoint.OverrideGameHost);
-        Assert.False(endpoint.OverrideGamePort);
-        Assert.Equal(string.Empty, endpoint.LoginHost);
-        Assert.Equal(0, endpoint.LoginPort);
+        Assert.Equal(PlaytestEndpoint.DefaultPublicHost, endpoint.PublicHost);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginHost, endpoint.LoginHost);
+        Assert.Equal(PlaytestEndpoint.DefaultGameHost, endpoint.GameHost);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginPort, endpoint.LoginPort);
+        Assert.Equal(PlaytestEndpoint.DefaultGamePort, endpoint.GamePort);
+        Assert.True(endpoint.OverrideLogin);
+        Assert.True(endpoint.OverrideGameHost);
+        Assert.True(endpoint.OverrideGamePort);
     }
 
     [Fact]
-    public void BakedHost_SetsLoginAndGame_AndDefaultsLoginPort()
+    public void PublicHost_DoesNotRetargetLoginOrGame()
     {
         PlaytestEndpoint endpoint = PlaytestEndpoint.Resolve(new PlaytestEndpointInput
         {
@@ -34,12 +37,11 @@ public class PlaytestEndpointTests
                 """,
         });
 
-        Assert.Equal("play.example", endpoint.LoginHost);
-        Assert.Equal("play.example", endpoint.GameHost);
+        Assert.Equal("play.example", endpoint.PublicHost);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginHost, endpoint.LoginHost);
+        Assert.Equal(PlaytestEndpoint.DefaultGameHost, endpoint.GameHost);
         Assert.Equal(PlaytestEndpoint.DefaultLoginPort, endpoint.LoginPort);
-        Assert.True(endpoint.OverrideLogin);
-        Assert.True(endpoint.OverrideGameHost);
-        Assert.False(endpoint.OverrideGamePort);
+        Assert.Equal(PlaytestEndpoint.DefaultGamePort, endpoint.GamePort);
     }
 
     [Fact]
@@ -48,12 +50,13 @@ public class PlaytestEndpointTests
         PlaytestEndpoint endpoint = PlaytestEndpoint.Resolve(new PlaytestEndpointInput
         {
             BakedJson = """
-                {"host":"shared.example","loginHost":"login.example","gameHost":"","loginPort":"2107","gamePort":4000}
+                {"host":"shared.example","loginHost":"login.example","gameHost":"game.example","loginPort":"2107","gamePort":4000}
                 """,
         });
 
+        Assert.Equal("shared.example", endpoint.PublicHost);
         Assert.Equal("login.example", endpoint.LoginHost);
-        Assert.Equal("shared.example", endpoint.GameHost);
+        Assert.Equal("game.example", endpoint.GameHost);
         Assert.Equal(2107, endpoint.LoginPort);
         Assert.Equal(4000, endpoint.GamePort);
         Assert.True(endpoint.OverrideGamePort);
@@ -76,6 +79,7 @@ public class PlaytestEndpointTests
             CommandLine = new[] { "Fineage.exe", "-fineageGameHost", "cmd.example", "--fineage-login-port=2200" },
         });
 
+        Assert.Equal("side.example", endpoint.PublicHost);
         Assert.Equal("persist.example", endpoint.LoginHost);
         Assert.Equal("cmd.example", endpoint.GameHost);
         Assert.Equal(2200, endpoint.LoginPort);
@@ -109,7 +113,7 @@ public class PlaytestEndpointTests
     }
 
     [Fact]
-    public void CommittedTemplates_DoNotOverride()
+    public void CommittedTemplates_MatchCloudflareDefaults()
     {
         string root = RepoRoot();
         string streaming = File.ReadAllText(Path.Combine(root, "l2-unity/Assets/StreamingAssets/fineage-endpoint.json"));
@@ -121,9 +125,13 @@ public class PlaytestEndpointTests
             BakedJson = baked,
         });
 
-        Assert.False(endpoint.OverrideLogin);
-        Assert.False(endpoint.OverrideGameHost);
-        Assert.False(endpoint.OverrideGamePort);
+        Assert.Equal(PlaytestEndpoint.DefaultPublicHost, endpoint.PublicHost);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginHost, endpoint.LoginHost);
+        Assert.Equal(PlaytestEndpoint.DefaultGameHost, endpoint.GameHost);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginPort, endpoint.LoginPort);
+        Assert.Equal(PlaytestEndpoint.DefaultGamePort, endpoint.GamePort);
+        Assert.Contains(PlaytestEndpoint.DefaultLoginHost, streaming);
+        Assert.Contains(PlaytestEndpoint.DefaultGameHost, baked);
     }
 
     [Fact]

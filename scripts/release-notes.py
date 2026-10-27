@@ -12,6 +12,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from playtest_hosts import LANDING_URL, endpoint_defaults
+
 ASSETS = [
     {"id": "windows", "file": "Fineage-Windows-x64.zip"},
     {"id": "macos", "file": "Fineage-macOS.zip"},
@@ -85,38 +87,38 @@ def changelog_markdown(repo: Path, version: str, endpoint: dict[str, object]) ->
     elif log.count("\n") >= 99:
         log += "\n- … older commits omitted"
 
-    host = str(endpoint["host"] or endpoint["loginHost"] or "(not set)")
-    login_host = str(endpoint["loginHost"] or endpoint["host"] or "(not set)")
-    game_host = str(endpoint["gameHost"] or endpoint["host"] or "(not set)")
-    login_port = endpoint["loginPort"] or 2106
+    host = str(endpoint["host"])
+    login_host = str(endpoint["loginHost"])
+    game_host = str(endpoint["gameHost"])
+    login_port = endpoint["loginPort"]
     game_port = endpoint["gamePort"]
-    game_port_text = str(game_port) if game_port else "server-list port"
 
     return (
         f"# Fineage {version}\n\n"
         "Shared playtest client for the one public dev server.\n\n"
+        f"- Landing: `{endpoint['landingUrl']}`\n"
         f"- Public host: `{host}`\n"
         f"- Login: `{login_host}:{login_port}`\n"
-        f"- Game: `{game_host}` ({game_port_text})\n\n"
+        f"- Game: `{game_host}:{game_port}`\n\n"
         "## Changes\n\n"
         f"{header_note}{log}\n"
     )
 
 
 def endpoint_summary(env: dict[str, str]) -> dict[str, object]:
-    host = env.get("FINEAGE_PUBLIC_HOST", "").strip()
-    login_host = env.get("FINEAGE_LOGIN_HOST", "").strip()
-    game_host = env.get("FINEAGE_GAME_HOST", "").strip()
-    login_port = port_or_zero(env.get("FINEAGE_LOGIN_PORT", ""))
-    game_port = port_or_zero(env.get("FINEAGE_GAME_PORT", ""))
-    if (host or login_host) and login_port == 0:
-        login_port = 2106
+    defaults = endpoint_defaults()
+    host = env.get("FINEAGE_PUBLIC_HOST", "").strip() or str(defaults["host"])
+    login_host = env.get("FINEAGE_LOGIN_HOST", "").strip() or str(defaults["loginHost"])
+    game_host = env.get("FINEAGE_GAME_HOST", "").strip() or str(defaults["gameHost"])
+    login_port = port_or_zero(env.get("FINEAGE_LOGIN_PORT", "")) or defaults["loginPort"]
+    game_port = port_or_zero(env.get("FINEAGE_GAME_PORT", "")) or defaults["gamePort"]
     return {
         "host": host,
         "loginHost": login_host,
         "gameHost": game_host,
         "loginPort": login_port,
         "gamePort": game_port,
+        "landingUrl": LANDING_URL if host == defaults["host"] else "https://" + host,
     }
 
 
@@ -150,8 +152,9 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
         "releaseTag": tag,
         "prerelease": prerelease,
         "host": endpoint["host"],
-        "loginHost": endpoint["loginHost"] or endpoint["host"],
-        "gameHost": endpoint["gameHost"] or endpoint["host"],
+        "landingUrl": endpoint["landingUrl"],
+        "loginHost": endpoint["loginHost"],
+        "gameHost": endpoint["gameHost"],
         "loginPort": endpoint["loginPort"],
         "gamePort": endpoint["gamePort"],
         "gamePortMeaning": "override" if endpoint["gamePort"] else "server-list",
@@ -208,11 +211,15 @@ def self_test() -> int:
         notes = write_notes(repo, out, env)
         assert str(notes["version"]).startswith("0.0.0-")
         assert notes["host"] == "play.test"
+        assert notes["loginHost"] == "login.fineage.evpoint.by"
+        assert notes["gameHost"] == "game.fineage.evpoint.by"
         assert notes["loginPort"] == 2106
-        assert notes["gamePort"] == 0
+        assert notes["gamePort"] == 7777
+        assert notes["landingUrl"] == "https://play.test"
         changelog = (out / "CHANGELOG.md").read_text(encoding="utf-8")
         assert "Initial client" in changelog
         assert "play.test" in changelog
+        assert "login.fineage.evpoint.by:2106" in changelog
 
         subprocess.check_call(["git", "tag", "v0.2.0"], cwd=repo)
         readme.write_text("hi2\n", encoding="utf-8")

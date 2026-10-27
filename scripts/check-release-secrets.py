@@ -8,17 +8,10 @@ import sys
 from collections.abc import Mapping
 
 DOC = "Docs/PLAYTEST_RELEASE.md"
-HOST_KEYS = ("FINEAGE_PUBLIC_HOST", "FINEAGE_LOGIN_HOST", "FINEAGE_GAME_HOST")
 
 
 def problems(env: Mapping[str, str]) -> list[str]:
     missing: list[str] = []
-    if not any(env.get(key, "").strip() for key in HOST_KEYS):
-        missing.append(
-            "FINEAGE_PUBLIC_HOST (or FINEAGE_LOGIN_HOST / FINEAGE_GAME_HOST, "
-            "or the workflow_dispatch public_host input)"
-        )
-
     email = bool(env.get("UNITY_EMAIL", "").strip())
     password = bool(env.get("UNITY_PASSWORD", "").strip())
     license_file = bool(env.get("UNITY_LICENSE", "").strip())
@@ -44,7 +37,8 @@ def render(missing: list[str]) -> str:
         [
             "",
             "Set them on the GitHub repo: Settings → Secrets and variables → Actions.",
-            "Do not commit a license file or a hostname into the client.",
+            "Do not commit a license file. Playtest hostnames already have Cloudflare defaults;",
+            "FINEAGE_PUBLIC_HOST, FINEAGE_LOGIN_HOST, and FINEAGE_GAME_HOST only override them.",
             f"See {DOC}.",
         ]
     )
@@ -57,7 +51,6 @@ def self_test() -> int:
     assert problems({"FINEAGE_PUBLIC_HOST": "play.example"})
     assert not problems(
         {
-            "FINEAGE_PUBLIC_HOST": "play.example",
             "UNITY_LICENSE": canary,
             "UNITY_EMAIL": "dev@example.com",
             "UNITY_PASSWORD": canary,

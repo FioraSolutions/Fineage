@@ -6,12 +6,18 @@ using System.Net.Sockets;
 
 /// <summary>
 /// Resolved shared-playtest login and game endpoint.
-/// Empty hosts mean "keep the serialized / server-list address".
+/// Defaults are the Cloudflare tunnel hostnames. An empty override does not clear them.
+/// <see cref="PublicHost"/> is the landing name (HTTP). Login and game are separate TCP names.
 /// </summary>
 public sealed class PlaytestEndpoint
 {
+    public const string DefaultPublicHost = "fineage.evpoint.by";
+    public const string DefaultLoginHost = "login.fineage.evpoint.by";
+    public const string DefaultGameHost = "game.fineage.evpoint.by";
     public const int DefaultLoginPort = 2106;
+    public const int DefaultGamePort = 7777;
 
+    public string PublicHost { get; private set; }
     public string LoginHost { get; private set; }
     public string GameHost { get; private set; }
     public int LoginPort { get; private set; }
@@ -21,29 +27,36 @@ public sealed class PlaytestEndpoint
     public bool OverrideGamePort { get; private set; }
 
     /// <summary>
-    /// Layers are applied lowest priority first. An empty host does not clear a lower layer.
-    /// Login port defaults to 2106 when a login host is set and no port is.
-    /// Game port stays on the server-list value unless a port in 1..65535 is set.
+    /// Layers are applied lowest priority first, on top of the Cloudflare defaults.
+    /// An empty field does not clear a lower layer. <c>host</c> is the landing name and
+    /// does not replace login or game hosts.
     /// </summary>
     public static PlaytestEndpoint Resolve(PlaytestEndpointInput input)
     {
         if (input == null)
             input = new PlaytestEndpointInput();
 
-        string loginHost = null;
-        string gameHost = null;
-        int loginPort = 0;
-        int gamePort = 0;
-        bool gamePortSet = false;
+        string publicHost = DefaultPublicHost;
+        string loginHost = DefaultLoginHost;
+        string gameHost = DefaultGameHost;
+        int loginPort = DefaultLoginPort;
+        int gamePort = DefaultGamePort;
+        bool gamePortSet = true;
 
-        ApplyLayer(ParseLayer(input.BakedJson), ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
-        ApplyLayer(ParseLayer(input.StreamingJson), ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
-        ApplyLayer(FromEnvironment(input.Environment), ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
-        ApplyLayer(ParseLayer(input.SidecarJson), ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
-        ApplyLayer(ParseLayer(input.PersistentJson), ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
-        ApplyLayer(ParseCommandLine(input.CommandLine), ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
+        ApplyLayer(ParseLayer(input.BakedJson), ref publicHost, ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
+        ApplyLayer(ParseLayer(input.StreamingJson), ref publicHost, ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
+        ApplyLayer(FromEnvironment(input.Environment), ref publicHost, ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
+        ApplyLayer(ParseLayer(input.SidecarJson), ref publicHost, ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
+        ApplyLayer(ParseLayer(input.PersistentJson), ref publicHost, ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
+        ApplyLayer(ParseCommandLine(input.CommandLine), ref publicHost, ref loginHost, ref gameHost, ref loginPort, ref gamePort, ref gamePortSet);
+
+        if (string.IsNullOrEmpty(loginHost))
+            loginHost = publicHost;
+        if (string.IsNullOrEmpty(gameHost))
+            gameHost = publicHost;
 
         var result = new PlaytestEndpoint();
+        result.PublicHost = publicHost ?? string.Empty;
         result.LoginHost = loginHost ?? string.Empty;
         result.GameHost = gameHost ?? string.Empty;
         result.OverrideLogin = !string.IsNullOrEmpty(loginHost);
@@ -162,6 +175,7 @@ public sealed class PlaytestEndpoint
 
     static void ApplyLayer(
         PlaytestEndpointFields layer,
+        ref string publicHost,
         ref string loginHost,
         ref string gameHost,
         ref int loginPort,
@@ -171,10 +185,8 @@ public sealed class PlaytestEndpoint
         string shared = Clean(layer.HostSet ? layer.Host : null);
         string login = Clean(layer.LoginHostSet ? layer.LoginHost : null);
         string game = Clean(layer.GameHostSet ? layer.GameHost : null);
-        if (login == null)
-            login = shared;
-        if (game == null)
-            game = shared;
+        if (shared != null)
+            publicHost = shared;
         if (login != null)
             loginHost = login;
         if (game != null)

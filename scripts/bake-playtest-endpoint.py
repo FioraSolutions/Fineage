@@ -10,10 +10,12 @@ import sys
 import tempfile
 from pathlib import Path
 
+from playtest_hosts import GAME_HOST, LOGIN_HOST, LOGIN_PORT, PUBLIC_HOST, endpoint_defaults
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STREAMING = REPO_ROOT / "l2-unity/Assets/StreamingAssets/fineage-endpoint.json"
 RESOURCES = REPO_ROOT / "l2-unity/Assets/Resources/FineagePlaytest.json"
-DOC = "Docs/PLAYTEST_RELEASE.md"
+ENDPOINT_SOURCE = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Playtest/PlaytestEndpoint.cs"
 
 
 def optional_port(env: dict[str, str], name: str) -> int:
@@ -29,23 +31,19 @@ def optional_port(env: dict[str, str], name: str) -> int:
     return value
 
 
-def endpoint_from_env(env: dict[str, str], *, allow_empty: bool) -> dict[str, object]:
-    host = env.get("FINEAGE_PUBLIC_HOST", "").strip()
-    login_host = env.get("FINEAGE_LOGIN_HOST", "").strip()
-    game_host = env.get("FINEAGE_GAME_HOST", "").strip()
-    if not allow_empty and not (host or login_host or game_host):
-        raise SystemExit(
-            "FINEAGE_PUBLIC_HOST is empty. Set the repo secret or workflow_dispatch input.\n"
-            f"See {DOC}."
-        )
-    login_port = optional_port(env, "FINEAGE_LOGIN_PORT")
-    game_port = optional_port(env, "FINEAGE_GAME_PORT")
-    if (host or login_host) and login_port == 0:
-        login_port = 2106
+def pick(env: dict[str, str], name: str, default: object) -> object:
+    raw = env.get(name, "").strip()
+    return raw or default
+
+
+def endpoint_from_env(env: dict[str, str]) -> dict[str, object]:
+    defaults = endpoint_defaults()
+    login_port = optional_port(env, "FINEAGE_LOGIN_PORT") or defaults["loginPort"]
+    game_port = optional_port(env, "FINEAGE_GAME_PORT") or defaults["gamePort"]
     return {
-        "host": host,
-        "loginHost": login_host,
-        "gameHost": game_host,
+        "host": pick(env, "FINEAGE_PUBLIC_HOST", defaults["host"]),
+        "loginHost": pick(env, "FINEAGE_LOGIN_HOST", defaults["loginHost"]),
+        "gameHost": pick(env, "FINEAGE_GAME_HOST", defaults["gameHost"]),
         "loginPort": login_port,
         "gamePort": game_port,
     }
@@ -67,33 +65,31 @@ def write_endpoint(directory: Path | None, payload: dict[str, object]) -> None:
 
 
 def self_test() -> int:
-    for path in (STREAMING, RESOURCES):
-        data = json.loads(path.read_text(encoding="utf-8"))
-        if data.get("host") or data.get("loginHost") or data.get("gameHost"):
-            print(f"{path} must keep an empty host in git. Bake at build time.", file=sys.stderr)
-            return 1
-        if data.get("loginPort") != 0 or data.get("gamePort") != 0:
-            print(f"{path} template ports must stay 0", file=sys.stderr)
+    defaults = endpoint_defaults()
+    source = ENDPOINT_SOURCE.read_text(encoding="utf-8")
+    for marker in (PUBLIC_HOST, LOGIN_HOST, GAME_HOST):
+        if f'"{marker}"' not in source:
+            print(f"{ENDPOINT_SOURCE} is missing {marker}", file=sys.stderr)
             return 1
 
-    try:
-        endpoint_from_env({}, allow_empty=False)
-    except SystemExit as exc:
-        if "FINEAGE_PUBLIC_HOST" not in str(exc):
-            raise
-    else:
-        print("empty host should fail", file=sys.stderr)
-        return 1
+    for path in (STREAMING, RESOURCES):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if data != defaults:
+            print(f"{path} must match the Cloudflare defaults {defaults}", file=sys.stderr)
+            return 1
+
+    assert endpoint_from_env({}) == defaults
 
     payload = endpoint_from_env(
         {
             "FINEAGE_PUBLIC_HOST": "play.example",
             "FINEAGE_GAME_PORT": "7777",
-        },
-        allow_empty=False,
+        }
     )
     assert payload["host"] == "play.example"
-    assert payload["loginPort"] == 2106
+    assert payload["loginHost"] == LOGIN_HOST
+    assert payload["gameHost"] == GAME_HOST
+    assert payload["loginPort"] == LOGIN_PORT
     assert payload["gamePort"] == 7777
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -115,13 +111,8 @@ def main(argv: list[str]) -> int:
         type=Path,
         help="Write both JSON files here instead of the Unity project (tests).",
     )
-    parser.add_argument(
-        "--allow-empty",
-        action="store_true",
-        help="Write an empty host. Release builds should not use this.",
-    )
     args = parser.parse_args(argv)
-    payload = endpoint_from_env(dict(os.environ), allow_empty=args.allow_empty)
+    payload = endpoint_from_env(dict(os.environ))
     write_endpoint(args.output_dir, payload)
     return 0
 
