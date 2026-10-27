@@ -399,7 +399,7 @@ Fineage.Di/                  (depends on all above)
 
 → [#141](https://github.com/FioraSolutions/Fineage/issues/141) (GameManager decompose), [#142](https://github.com/FioraSolutions/Fineage/issues/142) (IncomingPacketActions migration)
 
-- [ ] Extract GameManager → TableInitializer + LobbyFlowController
+- [x] Extract GameManager → TableInitializer + LobbyFlowController
 - [ ] Convert `IncomingPacketActions` usages to `[Inject]` one subsystem at a time
 - [ ] Remove `GameRuntime` / `LoginRuntime` as consumers migrate
 - [ ] Remove `static Instance` from classes as last consumer migrates

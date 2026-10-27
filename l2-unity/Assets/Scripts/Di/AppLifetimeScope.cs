@@ -12,6 +12,9 @@ public sealed class AppLifetimeScope : LifetimeScope
         RegisterIfFound<GameClient>(builder);
         RegisterIfFound<LoginClient>(builder);
 
+        builder.Register<TableInitializer>(Lifetime.Singleton);
+        builder.Register<LobbyFlowController>(Lifetime.Singleton);
+
         builder.Register<IncomingPacketAutoRegistry>(Lifetime.Singleton)
             .AsSelf()
             .As<IIncomingPacketAutoRegistry>()
