@@ -5,5 +5,6 @@ public sealed class MacroListIncoming : IncomingWirePacket<MacroListDto>
 {
     public override void Apply(MacroListDto packet)
     {
+        StubIncomingPacketServices.ApplyMacroList(packet);
     }
 }

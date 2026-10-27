@@ -5,6 +5,6 @@ public sealed class ShopPreviewInfoIncoming : IncomingWirePacket<ShopPreviewInfo
 {
     public override void Apply(ShopPreviewInfoDto packet)
     {
-        // Debug.Log("There is no implementation of this package.> OnShopPreviewInfo");
+        StubIncomingPacketServices.ApplyShopPreviewInfo(packet);
     }
 }
