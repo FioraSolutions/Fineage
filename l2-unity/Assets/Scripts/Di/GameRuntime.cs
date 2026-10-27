@@ -1,3 +1,5 @@
+using VContainer;
+
 public sealed class GameRuntime
 {
     private PlayerController _player;
@@ -46,10 +48,31 @@ public sealed class GameRuntime
     private DeadWindow _dead;
     private StatusWindow _status;
 
-    public EventProcessor Events { get; }
-    public GameClient Game { get; }
-    public LoginClient Login { get; }
-    public GameManager Manager { get; }
+    private EventProcessor _events;
+    private GameClient _game;
+    private LoginClient _login;
+    private GameManager _manager;
+
+    public EventProcessor Events
+    {
+        get { return _events != null ? _events : EventProcessor.Instance; }
+    }
+
+    public GameClient Game
+    {
+        get { return _game != null ? _game : IncomingPacketActions.Game; }
+    }
+
+    public LoginClient Login
+    {
+        get { return _login != null ? _login : IncomingPacketActions.Login; }
+    }
+
+    public GameManager Manager
+    {
+        get { return _manager != null ? _manager : IncomingPacketActions.Manager; }
+    }
+
     public World World { get { return Live(ref _world, global::World.Instance); } }
     public PlayerInventory Inventory { get { return Live(ref _inventory, PlayerInventory.Instance); } }
     public TargetManager Targets { get { return Live(ref _targets, TargetManager.Instance); } }
@@ -107,12 +130,21 @@ public sealed class GameRuntime
         get { return _actions != null ? _actions : (_actions = PlayerActions.Instance); }
     }
 
-    public GameRuntime()
+    [Inject]
+    public void Construct(
+        EventProcessor events,
+        GameClient game,
+        LoginClient login,
+        GameManager manager)
     {
-        Events = EventProcessor.Instance;
-        Game = GameClient.Instance;
-        Login = LoginClient.Instance;
-        Manager = GameManager.Instance;
+        if (events != null)
+            _events = events;
+        if (game != null)
+            _game = game;
+        if (login != null)
+            _login = login;
+        if (manager != null)
+            _manager = manager;
     }
 
     public void BindApply(WorldPacketApply worldApply, MessagePacketApply messageApply)
