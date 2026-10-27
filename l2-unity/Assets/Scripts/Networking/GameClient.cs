@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
+using VContainer;
 
 public class GameClient : DefaultClient {
+    [Inject] IZoneTransport _zoneTransport;
     protected PlayerInfoInterlude _playerInfo;
     protected int _serverId;
     private int _playKey1;
@@ -84,20 +86,9 @@ public class GameClient : DefaultClient {
 
     public void Send(INetworkCommand command)
     {
-        if (FineageWireConfig.IsZoneV2)
-        {
-            MoveToCommand move = command as MoveToCommand;
-            if (move != null)
-            {
-                ZoneV2Client zone = ZoneV2Client.Instance;
-                if (zone != null)
-                    zone.SendMove(move.From, move.To);
-                return;
-            }
-
-            // Other Interlude game commands are no-ops on ZoneV2 until wired.
+        IZoneTransport transport = ResolveZoneTransport();
+        if (transport != null && transport.TrySendGameCommand(command))
             return;
-        }
 
         EnqueueGame(command, IsCryptEnabled());
     }
@@ -113,9 +104,10 @@ public class GameClient : DefaultClient {
     /// </summary>
     public bool SendAuthLoginNow(string account, int playKey1, int playKey2, int loginKey1, int loginKey2)
     {
-        if (FineageWireConfig.IsZoneV2)
+        IZoneTransport transport = ResolveZoneTransport();
+        if (transport != null && !transport.AllowsInterludeGameSocketAuth)
         {
-            LobbyFlowLog.Error("SendAuthLoginNow blocked — WireMode=ZoneV2 (Interlude stub path required)");
+            LobbyFlowLog.Error("SendAuthLoginNow blocked — zone transport owns auth (Interlude game socket path required)");
             return false;
         }
 
@@ -161,6 +153,15 @@ public class GameClient : DefaultClient {
             return;
 
         Network.SendGame.AddItem(command, crypt);
+    }
+
+    private IZoneTransport ResolveZoneTransport()
+    {
+        if (_zoneTransport != null)
+            return _zoneTransport;
+        if (App.HasContainer)
+            return App.Resolve<IZoneTransport>();
+        return null;
     }
 
     public void EndLoadWorld()

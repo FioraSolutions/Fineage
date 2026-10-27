@@ -27,6 +27,7 @@ public sealed class AppLifetimeScope : LifetimeScope
         builder.Register<IncomingLoginDataQueue>(Lifetime.Singleton);
         builder.Register<SendLoginDataQueue>(Lifetime.Singleton);
         builder.Register<NetworkRuntime>(Lifetime.Singleton);
+        builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
         builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().AsSelf();
         RegisterDatTables(builder);
 
