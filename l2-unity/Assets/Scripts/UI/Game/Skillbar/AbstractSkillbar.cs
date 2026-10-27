@@ -51,7 +51,7 @@ public abstract class AbstractSkillbar
         }
 
         _arrowInputManipulator = new ArrowInputManipulator(arrowInput, null, arrowInputValues, _page,
-        (index, value) => SkillbarWindow.Instance.OnPageChanged(SkillbarIndex, index));
+        (index, value) => IncomingPacketActions.Skillbar.OnPageChanged(SkillbarIndex, index));
 
         UpdateVisuals();
         ResetShortcuts();
@@ -104,7 +104,7 @@ public abstract class AbstractSkillbar
         anchor.Clear();
 
         // Create slots
-        VisualElement slotElement = SkillbarWindow.Instance.BarSlotTemplate.Instantiate()[0];
+        VisualElement slotElement = IncomingPacketActions.Skillbar.BarSlotTemplate.Instantiate()[0];
         anchor.Add(slotElement);
 
         SkillbarSlot slot = new SkillbarSlot(slotElement, _page * PlayerShortcuts.MAXIMUM_SHORTCUTS_PER_BAR + position, _skillbarIndex, position);
