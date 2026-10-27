@@ -10,10 +10,7 @@ public class ChatWindow : L2Window
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => ChatPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _messageLabelTemplate;
@@ -42,11 +39,22 @@ public class ChatWindow : L2Window
         if (_instance == null)
         {
             _instance = this;
+            WireChatPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireChatPacketServices();
+    }
+
+    private void WireChatPacketServices()
+    {
+        ChatPacketServices.Bind(game: _gameClient);
     }
 
     private void OnDestroy()
