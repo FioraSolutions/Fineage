@@ -122,12 +122,19 @@ public class GameManager : MonoBehaviour {
 
         GameObject.Destroy(IncomingPacketActions.LoginUi.gameObject);
         PlayerInfoInterlude playerInfo = _gameClient.PlayerInfo;
-        IncomingPacketActions.GameWorld.SpawnPlayer(playerInfo.Identity, playerInfo.Status, playerInfo.Stats, playerInfo.Appearance);
+        DomainPlayerSpawned spawned = InterludeDomainMap.PlayerSpawned(playerInfo);
+        if (IncomingPacketActions.Domain != null && spawned != null)
+            IncomingPacketActions.Domain.ApplyPlayerSpawned(spawned);
+        else
+            IncomingPacketActions.GameWorld.SpawnPlayer(playerInfo.Identity, playerInfo.Status, playerInfo.Stats, playerInfo.Appearance);
         IncomingPacketActions.Ui.StopLoading();
         PlayerStateMachine.Instance.enabled = true;
         WorldSpawnReady = true;
         _gameClient.Send(new EnterWorldCommand());
-        IncomingPacketActions.ApplyWorld(apply => apply.FlushKnownlist());
+        if (IncomingPacketActions.Domain != null)
+            IncomingPacketActions.Domain.FlushKnownlist();
+        else
+            IncomingPacketActions.ApplyWorld(apply => apply.FlushKnownlist());
         _gameClient.EndLoadWorld();
 
         PlayerStateMachine.Instance.ChangeState(PlayerState.IDLE);

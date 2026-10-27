@@ -20,13 +20,16 @@ public sealed class UserInfoIncoming : IncomingWirePacket<UserInfoDto>
             // " local=" + (PlayerEntity.Instance != null ? GearFlowLog.Entity(PlayerEntity.Instance) : "PlayerEntity=null"));
         IncomingPacketActions.Queue(() =>
         {
-            if (IncomingPacketActions.GameWorld != null)
+            DomainStatsChanged changed = InterludeDomainMap.Stats(userInfo);
+            if (IncomingPacketActions.Domain != null && changed != null)
+            {
+                IncomingPacketActions.Domain.ApplyStatsChanged(changed);
+            }
+            else if (IncomingPacketActions.GameWorld != null)
             {
                 IncomingPacketActions.GameWorld.UserInfoUpdateCharacter(userInfo);
                 if (PlayerEntity.Instance != null)
-                {
                     IncomingPacketActions.GameWorld.UpdateUserInfo(PlayerEntity.Instance, userInfo);
-                }
             }
 
             if (userInfo.PlayerInfoInterlude.Identity.ClanId != 0)

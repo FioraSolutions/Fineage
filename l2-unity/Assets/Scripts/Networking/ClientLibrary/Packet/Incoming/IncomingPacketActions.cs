@@ -4,6 +4,7 @@ public static class IncomingPacketActions
 {
     public static WorldPacketApply WorldApply { get; private set; }
     public static MessagePacketApply MessageApply { get; private set; }
+    public static IWorldDomainSink Domain { get; private set; }
 
     private static PacketApplyQueue _applyQueue;
     private static EventProcessor _events;
@@ -42,7 +43,11 @@ public static class IncomingPacketActions
         _loginRuntime = runtime;
     }
 
-    public static void BindGame(GameRuntime runtime, WorldPacketApply worldApply = null, MessagePacketApply messageApply = null)
+    public static void BindGame(
+        GameRuntime runtime,
+        WorldPacketApply worldApply = null,
+        MessagePacketApply messageApply = null,
+        IWorldDomainSink domain = null)
     {
         _runtime = runtime;
         if (runtime == null)
@@ -59,6 +64,8 @@ public static class IncomingPacketActions
             WorldApply = worldApply;
         if (messageApply != null)
             MessageApply = messageApply;
+        if (domain != null)
+            Domain = domain;
     }
 
     private static T Live<T>(T runtimeValue, T fallback) where T : class
@@ -369,6 +376,19 @@ public static class IncomingPacketActions
             _applyQueue.QueueNextFrame(action);
         else
             Queue(action);
+    }
+
+    public static void ApplyDomain(Action<IWorldDomainSink> apply)
+    {
+        if (Domain != null && apply != null)
+            apply(Domain);
+    }
+
+    public static void QueueDomain(Action<IWorldDomainSink> apply)
+    {
+        if (apply == null)
+            return;
+        Queue(() => ApplyDomain(apply));
     }
 
     public static void ApplyMessage(Action<MessagePacketApply> apply)
