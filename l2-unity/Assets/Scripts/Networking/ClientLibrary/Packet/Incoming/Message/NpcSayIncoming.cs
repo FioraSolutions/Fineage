@@ -6,6 +6,6 @@ public sealed class NpcSayIncoming : IncomingWirePacket<NpcSayDto>
         if (packet.NpcMessage == null)
             return;
 
-        IncomingPacketServices.ApplyMessage(apply => apply.NpcSay(packet.NpcMessage));
+        MessagePacketServices.ApplyMessage(apply => apply.NpcSay(packet.NpcMessage));
     }
 }

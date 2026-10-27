@@ -6,6 +6,6 @@ public sealed class CreatureSayIncoming : IncomingWirePacket<CreatureSayDto>
         if (packet.Message == null)
             return;
 
-        IncomingPacketServices.ApplyMessage(apply => apply.CreatureSay(packet.Message));
+        MessagePacketServices.ApplyMessage(apply => apply.CreatureSay(packet.Message));
     }
 }
