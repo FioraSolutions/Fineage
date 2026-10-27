@@ -3,47 +3,56 @@
 [IncomingGamePacket(GameServerPacketType.InterludeKeyPacket)]
 public sealed class InterludeKeyIncoming : IncomingWirePacket<InterludeKeyDto>
 {
-    private bool _keyAuthCompleted;
-
     protected override void OnParsed(InterludeKeyDto packet)
     {
-        // LobbyFlowLog.Info(
-            // "InterludeKey OnParsed authAllowed=" + packet.AuthAllowed +
-            // " useBlowfish=" + packet.UseBlowfish + " serverId=" + packet.ServerId +
-            // " alreadyDone=" + _keyAuthCompleted);
-
-        if (_keyAuthCompleted || !packet.AuthAllowed)
-        {
-            // if (!packet.AuthAllowed)
-                // LobbyFlowLog.Warn("InterludeKey AuthAllowed=false — wait Apply to disconnect");
+        // Handler instance is a registry singleton — never gate AuthLogin on sticky fields
+        // (that skipped AuthLogin after ServerList Confirm → PlayOk on every reconnect).
+        if (!packet.AuthAllowed)
             return;
-        }
 
+        // Crypt must arm on the parse thread before later encrypted RX; AuthLogin itself
+        // is sent from Apply (main/apply queue) so it cannot race SendGame.Stop/replace.
         if (packet.UseBlowfish)
         {
             byte[] equalsKey = BlowFishStaticKey.GetCreateFullKeyBlowFish(packet.BlowFishKey);
             IncomingPacketActions.Game.EnableCrypt(equalsKey);
-            // LobbyFlowLog.Info("InterludeKey crypt enabled");
         }
-
-        // LobbyFlowLog.Info("TX AuthLogin account=" + IncomingPacketActions.Login.Account);
-        IncomingPacketActions.Game.Send(new AuthLoginCommand(
-            IncomingPacketActions.Login.Account,
-            IncomingPacketActions.Game.PlayKey1,
-            IncomingPacketActions.Game.PlayKey2,
-            IncomingPacketActions.Game.SessionKey1,
-            IncomingPacketActions.Game.SessionKey2));
-        _keyAuthCompleted = true;
     }
 
     public override void Apply(InterludeKeyDto packet)
     {
-        if (packet.AuthAllowed)
+        if (!packet.AuthAllowed)
+        {
+            LobbyFlowLog.Warn("InterludeKey AuthAllowed=false → disconnect");
+            IncomingPacketActions.Game.Disconnect();
+            IncomingPacketActions.Login.Disconnect();
             return;
+        }
 
-        // LobbyFlowLog.Error("InterludeKey Apply REJECT — disconnect login+game");
-        IncomingPacketActions.Game.Disconnect();
-        IncomingPacketActions.Login.Disconnect();
-        _keyAuthCompleted = true;
+        var login = IncomingPacketActions.Login;
+        var game = IncomingPacketActions.Game;
+        if (login == null || game == null)
+        {
+            LobbyFlowLog.Warn("InterludeKey AuthLogin skipped — Login/Game null");
+            return;
+        }
+
+        // Direct wire write (bypass SendGame queue): evidence showed TX AuthLogin logged
+        // while stub never got RX AuthLogin — queue/handler races after PlayOk socket replace.
+        LobbyFlowLog.Info(
+            "TX AuthLogin account=" + login.Account +
+            " play=" + game.PlayKey1.ToString("X8") + "/" + game.PlayKey2.ToString("X8") +
+            " login=" + game.SessionKey1.ToString("X8") + "/" + game.SessionKey2.ToString("X8") +
+            " cryptEnabled=" + game.IsCryptEnabled());
+        bool wrote = game.SendAuthLoginNow(
+            login.Account,
+            game.PlayKey1,
+            game.PlayKey2,
+            game.SessionKey1,
+            game.SessionKey2);
+        if (!wrote)
+            LobbyFlowLog.Error("AuthLogin WIRE FAIL — socket write skipped/failed (stub will hang after InterludeKey)");
+        else
+            LobbyFlowLog.Info("AuthLogin WIRE OK — waiting CharSelectionInfo");
     }
 }

@@ -121,7 +121,8 @@ public class AsynchronousClient
         DisposeQueue();
 
         EventProcessor events = _network != null ? _network.Events : EventProcessor.Instance;
-        events.QueueEvent(() => _client.OnDisconnect());
+        DefaultClient owner = _client;
+        events.QueueEvent(() => owner.OnDisconnectFrom(this));
 
         Interlocked.Exchange(ref _state, 0);
 
@@ -145,26 +146,42 @@ public class AsynchronousClient
 
     public void SendPacket(IOutgoingPacket packet)
     {
+        TrySendPacket(packet);
+    }
+
+    /// <summary>Write one framed packet. Returns false if socket dead or write threw.</summary>
+    public bool TrySendPacket(IOutgoingPacket packet)
+    {
         try
         {
+            if (packet == null)
+                return false;
             if (_socket == null || !_socket.Connected || _stream == null)
-                return;
+            {
+                LobbyFlowLog.Warn("TrySendPacket skip — socket dead state=" + Volatile.Read(ref _state) +
+                    " connectedFlag=" + (_socket != null && _socket.Connected));
+                return false;
+            }
 
             byte[] data = packet.GetData();
+            if (data == null)
+                return false;
             int totalSize = data.Length + 2;
             if (totalSize > ushort.MaxValue)
                 throw new InvalidOperationException("Packet too large");
 
             ushort sizeHeader = (ushort)totalSize;
-
             byte[] header = BitConverter.GetBytes(sizeHeader);
 
             _stream.Write(header, 0, 2);
             _stream.Write(data, 0, data.Length);
+            _stream.Flush();
+            return true;
         }
         catch (Exception e)
         {
-            // Debug.Log(e.ToString());
+            LobbyFlowLog.Exception("TrySendPacket", e);
+            return false;
         }
     }
 

@@ -32,6 +32,17 @@ public class GameClient : DefaultClient {
     }
 
     protected override void CreateAsyncClient() {
+        // Always replace prior game socket before PlayOk→Connect (half-open after skipped AuthLogin).
+        AsynchronousClient previous = _client;
+        _client = null;
+        if (previous != null)
+        {
+            try { previous.Disconnect(); } catch { /* ignore */ }
+        }
+
+        if (Network == null)
+            throw new System.InvalidOperationException("NetworkRuntime not ready (AppLifetimeScope)");
+
         clientPacketHandler = new GameClientPacketHandler();
         serverPacketHandler = new GameServerPacketHandler(Network.Protocol, Network.Dispatcher);
 
@@ -58,27 +69,90 @@ public class GameClient : DefaultClient {
 
     protected override void OnConnectionSuccess() {
         base.OnConnectionSuccess();
-        // LobbyFlowLog.Info("GameClient.OnConnectionSuccess — send ProtocolVersion");
+        LobbyFlowLog.Info("GameClient.OnConnectionSuccess — send ProtocolVersion");
 
         GameManager manager = IncomingPacketActions.Manager;
         if (manager != null)
             manager.IsSwitchingServer = false;
-        // else
-            // LobbyFlowLog.Error("GameClient.OnConnectionSuccess Manager is null");
+        else
+            LobbyFlowLog.Error("GameClient.OnConnectionSuccess Manager is null");
 
         int protocol = manager != null ? manager.ProtocolVersion : 746;
-        // LobbyFlowLog.Info("TX ProtocolVersion=" + protocol + " crypt=" + IsCryptEnabled());
+        LobbyFlowLog.Info("TX ProtocolVersion=" + protocol + " crypt=" + IsCryptEnabled());
         SendPlain(new ProtocolVersionCommand(protocol));
     }
 
     public void Send(INetworkCommand command)
     {
+        if (FineageWireConfig.IsZoneV2)
+        {
+            MoveToCommand move = command as MoveToCommand;
+            if (move != null)
+            {
+                ZoneV2Client zone = ZoneV2Client.Instance;
+                if (zone != null)
+                    zone.SendMove(move.From, move.To);
+                return;
+            }
+
+            // Other Interlude game commands are no-ops on ZoneV2 until wired.
+            return;
+        }
+
         EnqueueGame(command, IsCryptEnabled());
     }
 
     public void SendPlain(INetworkCommand command)
     {
         EnqueueGame(command, false);
+    }
+
+    /// <summary>
+    /// Encode + write AuthLogin on the current game socket immediately (no SendGame queue).
+    /// Used right after InterludeKey so lobby cannot stall when the queue worker is stale.
+    /// </summary>
+    public bool SendAuthLoginNow(string account, int playKey1, int playKey2, int loginKey1, int loginKey2)
+    {
+        if (FineageWireConfig.IsZoneV2)
+        {
+            LobbyFlowLog.Error("SendAuthLoginNow blocked — WireMode=ZoneV2 (Interlude stub path required)");
+            return false;
+        }
+
+        if (Network == null || Network.Protocol == null)
+        {
+            LobbyFlowLog.Error("SendAuthLoginNow failed — NetworkRuntime/Protocol null");
+            return false;
+        }
+
+        if (_client == null || !_client.IsConnected)
+        {
+            LobbyFlowLog.Error("SendAuthLoginNow failed — game socket null/disconnected");
+            return false;
+        }
+
+        try
+        {
+            IOutgoingPacket packet = Network.Protocol.EncodeGame(
+                new AuthLoginCommand(account, playKey1, playKey2, loginKey1, loginKey2),
+                encrypt: false);
+            if (packet == null)
+            {
+                LobbyFlowLog.Error("SendAuthLoginNow failed — EncodeGame returned null");
+                return false;
+            }
+
+            byte[] data = packet.GetData();
+            int bodyLen = data != null ? data.Length : 0;
+            bool ok = _client.TrySendPacket(packet);
+            LobbyFlowLog.Info("SendAuthLoginNow bodyLen=" + bodyLen + " wrote=" + ok);
+            return ok;
+        }
+        catch (System.Exception ex)
+        {
+            LobbyFlowLog.Exception("SendAuthLoginNow", ex);
+            return false;
+        }
     }
 
     private void EnqueueGame(INetworkCommand command, bool crypt)
@@ -95,18 +169,18 @@ public class GameClient : DefaultClient {
     }
 
     public override void OnConnectionFailed() {
+        LobbyFlowLog.Warn("GameClient.OnConnectionFailed ip=" + _serverIp + " port=" + _serverPort);
         base.OnConnectionFailed();
         IncomingPacketActions.Manager.IsSwitchingServer = false;
         IncomingPacketActions.Manager.OnRelogin();
     }
 
     public override void OnAuthAllowed() {
-        //Debug.Log("Authed to GameServer");
-
         IncomingPacketActions.Manager.OnAuthAllowed();
     }
 
     public override void OnDisconnect() {
+        LobbyFlowLog.Info("GameClient.Disconnect");
         base.OnDisconnect();
     }
 

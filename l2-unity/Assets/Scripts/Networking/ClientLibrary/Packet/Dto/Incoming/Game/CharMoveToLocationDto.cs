@@ -25,6 +25,25 @@ public class CharMoveToLocationDto : IWireDto
         CreatedAt = DateTime.Now;
     }
 
+    /// <summary>Unity-space positions (already converted). Used by domain / ZoneV2.</summary>
+    public static CharMoveToLocationDto FromUnity(int objId, Vector3 destination, Vector3 origin)
+    {
+        CharMoveToLocationDto dto = new CharMoveToLocationDto();
+        dto.ObjId = objId;
+        dto.NewPosition = destination;
+        dto.OldPosition = origin;
+        return dto;
+    }
+
+    /// <summary>L2j world ints → Unity via <see cref="VectorUtils"/>.</summary>
+    public static CharMoveToLocationDto FromL2(int objId, int destX, int destY, int destZ, int originX, int originY, int originZ)
+    {
+        return FromUnity(
+            objId,
+            VectorUtils.ConvertPosToUnity(new Vector3(destX, destY, destZ)),
+            VectorUtils.ConvertPosToUnity(new Vector3(originX, originY, originZ)));
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         ObjId = reader.ReadI();

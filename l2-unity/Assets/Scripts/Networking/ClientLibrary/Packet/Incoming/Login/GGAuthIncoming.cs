@@ -3,9 +3,11 @@ public sealed class GGAuthIncoming : IncomingWirePacket<GGAuthDto>
 {
     protected override void OnParsed(GGAuthDto packet)
     {
-        IncomingPacketActions.Login.Send(new RequestAuthLoginCommand(
-            IncomingPacketActions.Login.Account,
-            IncomingPacketActions.Login.Password,
+        LoginClient login = IncomingPacketActions.Login;
+        LobbyFlowLog.Info("TX RequestAuthLogin account=" + (login != null ? login.Account : "?"));
+        login.Send(new RequestAuthLoginCommand(
+            login.Account,
+            login.Password,
             packet.Response));
     }
 

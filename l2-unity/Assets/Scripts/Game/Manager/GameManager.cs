@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private GameState _gameState = GameState.LOGIN_SCREEN;
     private bool _gameReady = false;
     [SerializeField] private Camera _loadingCamera;
+    [Tooltip("Connect login button to ZoneServer v2 (:9777) instead of Interlude stub.")]
+    [SerializeField] private bool _useZoneServerV2 = false;
 
     [Inject] GameClient _gameClient;
     [Inject] LoginClient _loginClient;
@@ -64,6 +66,13 @@ public class GameManager : MonoBehaviour {
             Destroy(this);
             return;
         }
+
+        // Inspector false must force Interlude — ClearOverride would fall through to PlayerPrefs
+        // and silently drop Interlude AuthLogin via GameClient.Send ZoneV2 no-op.
+        if (_useZoneServerV2)
+            FineageWireConfig.SetOverride(FineageWireConfig.Mode.ZoneV2);
+        else
+            FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
@@ -130,12 +139,17 @@ public class GameManager : MonoBehaviour {
         IncomingPacketActions.Ui.StopLoading();
         PlayerStateMachine.Instance.enabled = true;
         WorldSpawnReady = true;
-        _gameClient.Send(new EnterWorldCommand());
+        if (!FineageWireConfig.IsZoneV2)
+        {
+            FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
+            _gameClient.Send(new EnterWorldCommand());
+        }
         if (IncomingPacketActions.Domain != null)
             IncomingPacketActions.Domain.FlushKnownlist();
         else
             IncomingPacketActions.ApplyWorld(apply => apply.FlushKnownlist());
-        _gameClient.EndLoadWorld();
+        if (!FineageWireConfig.IsZoneV2)
+            _gameClient.EndLoadWorld();
 
         PlayerStateMachine.Instance.ChangeState(PlayerState.IDLE);
         PlayerStateMachine.Instance.NotifyEvent(Event.ENTER_WORLD);

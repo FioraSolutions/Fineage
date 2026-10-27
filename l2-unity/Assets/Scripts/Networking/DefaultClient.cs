@@ -46,12 +46,24 @@ public abstract class DefaultClient : MonoBehaviour
         _connected = false;
         if (_connecting)
         {
-            // LobbyFlowLog.Warn(GetType().Name + ".Connect skipped — already connecting");
+            LobbyFlowLog.Warn(GetType().Name + ".Connect skipped — already connecting");
             return;
         }
 
-        // LobbyFlowLog.Info(GetType().Name + ".Connect start ip=" + _serverIp + " port=" + _serverPort);
-        CreateAsyncClient();
+        // Arm guard before CreateAsyncClient so a re-entrant Connect cannot replace the socket mid-flight.
+        _connecting = true;
+        LobbyFlowLog.Info(GetType().Name + ".Connect start ip=" + _serverIp + " port=" + _serverPort);
+        try
+        {
+            CreateAsyncClient();
+        }
+        catch (Exception ex)
+        {
+            _connecting = false;
+            LobbyFlowLog.Exception(GetType().Name + ".CreateAsyncClient", ex);
+            return;
+        }
+
         WhileConnecting();
 
         bool connected = false;
@@ -61,13 +73,13 @@ public abstract class DefaultClient : MonoBehaviour
         }
         catch (Exception ex)
         {
-            // LobbyFlowLog.Exception(GetType().Name + ".Connect Task.Run", ex);
+            LobbyFlowLog.Exception(GetType().Name + ".Connect Task.Run", ex);
         }
 
         _connecting = false;
         EventProcessor events = Events;
-        // LobbyFlowLog.Info(GetType().Name + ".Connect socketResult=" + connected +
-            // " events=" + (events != null) + " manager=" + (IncomingPacketActions.Manager != null));
+        LobbyFlowLog.Info(GetType().Name + ".Connect socketResult=" + connected +
+            " events=" + (events != null) + " manager=" + (IncomingPacketActions.Manager != null));
 
         if (connected)
         {
@@ -75,13 +87,13 @@ public abstract class DefaultClient : MonoBehaviour
             {
                 events.QueueEvent(() =>
                 {
-                    // LobbyFlowLog.Info(GetType().Name + ".OnConnectionSuccess (EventProcessor)");
+                    LobbyFlowLog.Info(GetType().Name + ".OnConnectionSuccess (EventProcessor)");
                     OnConnectionSuccess();
                 });
             }
             else
             {
-                // LobbyFlowLog.Warn(GetType().Name + ".Connect no EventProcessor — OnConnectionSuccess inline");
+                LobbyFlowLog.Warn(GetType().Name + ".Connect no EventProcessor — OnConnectionSuccess inline");
                 OnConnectionSuccess();
             }
         }
@@ -111,6 +123,8 @@ public abstract class DefaultClient : MonoBehaviour
     {
         _connecting = false;
         _connected = false;
+        // Allow a fresh AsynchronousClient on the next Connect (failed sockets leave a dead instance).
+        _client = null;
     }
 
     public abstract void OnAuthAllowed();
@@ -127,9 +141,22 @@ public abstract class DefaultClient : MonoBehaviour
 
     public virtual void OnDisconnect()
     {
+        OnDisconnectFrom(_client);
+    }
+
+    /// <summary>
+    /// Only clear the active socket when this callback is for that instance.
+    /// CreateAsyncClient may replace _client before a prior Disconnect event runs.
+    /// </summary>
+    public virtual void OnDisconnectFrom(AsynchronousClient source)
+    {
         _connected = false;
+        if (source != null && !ReferenceEquals(_client, source))
+            return;
+
         _client = null;
-        IncomingPacketActions.Manager.OnDisconnect();
+        if (IncomingPacketActions.Manager != null)
+            IncomingPacketActions.Manager.OnDisconnect();
     }
 
     protected NetworkRuntime Network
