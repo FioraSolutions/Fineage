@@ -1,0 +1,32 @@
+---
+description: Fineage delivery — models, refactor-first, CI, worktrees
+alwaysApply: true
+---
+
+# Fineage delivery
+
+## Models
+
+- **Architecture / complex design / epic planning / boundary decisions:** use a **powerful** model (Claude Opus / high-thinking). Do not design the system on Composer alone.
+- **Implementation / mechanical coding / tests / CI after design is clear:** use **Composer** (default coding agent). Omit heavy models for hammering.
+
+## Refactor before features
+
+- Prefer **epic #131** (client architecture) progress before **epic #129** (Gremlin smoke) client-heavy work.
+- Do not ship Gremlin feature layers onto an unreformed monolith when the change belongs in the arch epic first.
+
+## CI and landing
+
+- Target branch for feature work: **`dev`** via PR only. Never push to `main`/`dev`.
+- **Green GitHub Actions** (build-and-test / required checks) before merge. Fix red CI on the PR branch.
+
+## Worktrees and ownership
+
+- One agent → one branch → one worktree. Follow `Docs/AGENT_BRANCH_PROTOCOL.md` and `Docs/PARALLEL_AGENTS.md`.
+- Do not `git checkout` another agent’s in-flight branch; use `git worktree add`.
+- Do not amend, rebase, or force-push others’ commits.
+
+## Coordination links
+
+- Repo agent entry: `AGENTS.md`
+- GitHub Project: https://github.com/orgs/FioraSolutions/projects/7
