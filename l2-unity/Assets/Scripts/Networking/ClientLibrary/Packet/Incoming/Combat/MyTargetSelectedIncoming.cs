@@ -5,16 +5,16 @@ public sealed class MyTargetSelectedIncoming : IncomingWirePacket<MyTargetSelect
 {
     public override void Apply(MyTargetSelectDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        CombatIncomingPacketServices.Queue(() =>
         {
             if (packet.ObjectId == PlayerEntity.Instance.Identity.Id)
             {
-                IncomingPacketServices.Targets.SetTarget(new ObjectData(PlayerEntity.Instance.transform.gameObject), "#ffffff");
+                CombatIncomingPacketServices.Targets.SetTarget(new ObjectData(PlayerEntity.Instance.transform.gameObject), "#ffffff");
             }
             else
             {
-                IncomingPacketServices.Targets.NextTargetById(packet.ObjectId, packet.Color);
-                IncomingPacketServices.ApplyWorld(apply => apply.SendArrivedPosition());
+                CombatIncomingPacketServices.Targets.NextTargetById(packet.ObjectId, packet.Color);
+                CombatIncomingPacketServices.ApplyWorld(apply => apply.SendArrivedPosition());
             }
         });
     }

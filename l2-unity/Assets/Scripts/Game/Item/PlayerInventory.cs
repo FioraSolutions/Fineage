@@ -138,6 +138,7 @@ public class PlayerInventory : MonoBehaviour
     private void WireItemPacketServices()
     {
         ItemPacketServices.Bind(game: _gameClient);
+        InventoryPacketServices.Bind(game: _gameClient, inventory: this);
     }
 
     private void OnDestroy()

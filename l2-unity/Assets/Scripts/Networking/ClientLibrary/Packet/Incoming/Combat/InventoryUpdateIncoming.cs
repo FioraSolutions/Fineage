@@ -5,6 +5,6 @@ public sealed class InventoryUpdateIncoming : IncomingWirePacket<InventoryUpdate
 {
     public override void Apply(InventoryUpdateDto packet)
     {
-        IncomingPacketServices.Inventory.UpdateInventory(packet.Items, packet.EquipItems);
+        CombatIncomingPacketServices.Inventory.UpdateInventory(packet.Items, packet.EquipItems);
     }
 }
