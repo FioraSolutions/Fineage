@@ -6,6 +6,10 @@ using VContainer;
 public class HitManager : MonoBehaviour
 {
     [Inject] World _world;
+
+    private World GameWorld =>
+        _world != null ? _world : GamePacketServices.GameWorld;
+
     public static HitManager Instance { get; private set; }
     private const string ETC_NAME = "etc_";
     private const string IMPACT_DEBUG_TAG = "[HIT_DEBUG]";
@@ -33,6 +37,11 @@ public class HitManager : MonoBehaviour
         public Action<string> OnShot;
     }
 
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(gameWorld: _world);
+    }
+
     private void Awake()
     {
         if (Instance == null)
@@ -53,6 +62,7 @@ public class HitManager : MonoBehaviour
 
     private void Start()
     {
+        WireGamePacketServices();
         TrySubscribeProjectileHits();
     }
 
@@ -819,7 +829,7 @@ public class HitManager : MonoBehaviour
 
     private Entity ResolveEntityFromWorld(int entityId)
     {
-        World world = _world != null ? _world : World.Instance;
+        World world = GameWorld;
         if (entityId <= 0 || world == null)
             return null;
 
