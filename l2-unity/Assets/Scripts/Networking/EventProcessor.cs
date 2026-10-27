@@ -41,8 +41,13 @@ public class EventProcessor : MonoBehaviour
         if (worldApply != null)
         {
             _worldApply = worldApply;
-            NetworkingPacketServices.Bind(worldApply: worldApply);
+            WireNetworkingPacketServices();
         }
+    }
+
+    void WireNetworkingPacketServices()
+    {
+        NetworkingPacketServices.Bind(world: _world, worldApply: _worldApply, events: this);
     }
 
     private World GameWorld => NetworkingPacketServices.GameWorld;
@@ -51,7 +56,7 @@ public class EventProcessor : MonoBehaviour
 
     private void Start()
     {
-        NetworkingPacketServices.Bind(world: _world, worldApply: _worldApply);
+        WireNetworkingPacketServices();
         World world = GameWorld;
         if (world != null && world.OfflineMode)
         {

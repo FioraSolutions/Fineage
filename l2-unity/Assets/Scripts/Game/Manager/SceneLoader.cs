@@ -19,6 +19,7 @@ public class SceneLoader : MonoBehaviour
     [Inject] GameManager _gameManager;
     [Inject] GameClient _gameClient;
     [Inject] World _world;
+    [Inject] L2GameUI _gameUi;
 
     private GameManager Manager
     {
@@ -52,16 +53,23 @@ public class SceneLoader : MonoBehaviour
         }
 
         WireGamePacketServices();
+        WireSceneLoaderUiPacketServices();
     }
 
     private void Start()
     {
         WireGamePacketServices();
+        WireSceneLoaderUiPacketServices();
     }
 
     private void WireGamePacketServices()
     {
         GamePacketServices.Bind(manager: _gameManager, game: _gameClient, gameWorld: _world);
+    }
+
+    private void WireSceneLoaderUiPacketServices()
+    {
+        SceneLoaderUiPacketServices.Bind(gameUi: _gameUi);
     }
 
     public void LoadMenu()
@@ -331,10 +339,9 @@ public class SceneLoader : MonoBehaviour
 
     private static L2GameUI GetGameUi()
     {
-        if (L2GameUI.Instance != null)
-        {
-            return L2GameUI.Instance;
-        }
+        L2GameUI ui = SceneLoaderUiPacketServices.GameUi;
+        if (ui != null)
+            return ui;
 
         return FindFirstObjectByType<L2GameUI>(FindObjectsInactive.Include);
     }

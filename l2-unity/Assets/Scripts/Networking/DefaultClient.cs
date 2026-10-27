@@ -193,7 +193,7 @@ public abstract class DefaultClient : MonoBehaviour
             NetworkRuntime runtime = Network;
             if (runtime != null && runtime.Events != null)
                 return runtime.Events;
-            return EventProcessor.Instance;
+            return NetworkingPacketServices.Events;
         }
     }
 

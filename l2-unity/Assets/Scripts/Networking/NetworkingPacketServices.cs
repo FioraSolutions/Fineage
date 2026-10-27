@@ -13,6 +13,7 @@ public static class NetworkingPacketServices
     static LoginClient _login;
     static LoginWindow _loginWindow;
     static PlayerController _player;
+    static EventProcessor _events;
 
     public static void Bind(
         World world = null,
@@ -21,7 +22,8 @@ public static class NetworkingPacketServices
         GameManager manager = null,
         LoginClient login = null,
         LoginWindow loginWindow = null,
-        PlayerController player = null)
+        PlayerController player = null,
+        EventProcessor events = null)
     {
         if (world != null)
             _world = world;
@@ -37,7 +39,12 @@ public static class NetworkingPacketServices
             _loginWindow = loginWindow;
         if (player != null)
             _player = player;
+        if (events != null)
+            _events = events;
     }
+
+    public static EventProcessor Events =>
+        _events != null ? _events : ResolveFromGameContainer<EventProcessor>() ?? EventProcessor.Instance;
 
     public static PlayerController Player =>
         _player != null ? _player : ResolveFromGameContainer<PlayerController>() ?? IncomingPacketActions.Player;
