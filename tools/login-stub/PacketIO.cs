@@ -137,7 +137,7 @@ static class SelfTest
         if (dec2[0] != 0x03)
             throw new Exception("LoginOk opcode lost");
 
-        
+
         Console.WriteLine("selftest OK");
     }
 }

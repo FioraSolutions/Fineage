@@ -83,8 +83,12 @@ public class WireMessagesTests
         var msg = new MoveToMsg
         {
             ObjectId = 1,
-            DestX = 100, DestY = 200, DestZ = 300,
-            OriginX = 10, OriginY = 20, OriginZ = 30
+            DestX = 100,
+            DestY = 200,
+            DestZ = 300,
+            OriginX = 10,
+            OriginY = 20,
+            OriginZ = 30
         };
         var bytes = MessagePackSerializer.Serialize(msg);
         var decoded = MessagePackSerializer.Deserialize<MoveToMsg>(bytes);
