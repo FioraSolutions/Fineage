@@ -37,6 +37,11 @@ public class GameClient : DefaultClient {
         }
     }
 
+    protected override void ApplyPlaytestEndpoint()
+    {
+        PlaytestEndpointRuntime.ApplyGame(this);
+    }
+
     protected override void CreateAsyncClient() {
         // Always replace prior game socket before PlayOk→Connect (half-open after skipped AuthLogin).
         AsynchronousClient previous = _client;
