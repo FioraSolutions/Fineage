@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using UnityEngine;
+using VContainer;
 
 public interface IEffectAttachmentResolver
 {
@@ -8,6 +9,11 @@ public interface IEffectAttachmentResolver
 
 public class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
 {
+    [Inject] World _world;
+
+    private World GameWorld =>
+        _world != null ? _world : GamePacketServices.GameWorld;
+
     private static readonly string[] WeaponNamePattern = { Gear.weaponName }; // "weapon_"
 
     public bool Resolve(EffectAttachmentPoint point, EffectResolveContext context, out Transform resolvedTransform, out Vector3 worldPosition)
@@ -89,13 +95,14 @@ public class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
             return false;
         }
 
-        if (context.CasterEntity == null && context.CasterUserId > 0 && World.Instance != null)
+        World world = GameWorld;
+        if (context.CasterEntity == null && context.CasterUserId > 0 && world != null)
         {
-            context.CasterEntity = World.Instance.GetEntityNoLockSync(context.CasterUserId);
+            context.CasterEntity = world.GetEntityNoLockSync(context.CasterUserId);
         }
-        if (context.TargetEntity == null && context.TargetUserId > 0 && World.Instance != null)
+        if (context.TargetEntity == null && context.TargetUserId > 0 && world != null)
         {
-            context.TargetEntity = World.Instance.GetEntityNoLockSync(context.TargetUserId);
+            context.TargetEntity = world.GetEntityNoLockSync(context.TargetUserId);
         }
 
         if (context.CasterTransform == null && context.CasterEntity != null)

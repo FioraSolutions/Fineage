@@ -6,6 +6,10 @@ using VContainer;
 public class SwordCollisionService : MonoBehaviour
 {
     [Inject] World _world;
+
+    private World GameWorld =>
+        _world != null ? _world : GamePacketServices.GameWorld;
+
     private const string TIMER_LOG = "[SWORD_TIMER]";
     private const string CHAIN_LOG = "[ATK_HIT_CHAIN]";
     private const float DEFAULT_HIT_FRACTION = 0.88f;
@@ -187,11 +191,21 @@ public class SwordCollisionService : MonoBehaviour
             // $"attackerId={attackerEntityId} epoch={epoch} sword={swordBase.name} target={target.name}");
     }
 
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(gameWorld: _world);
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         _entityMask = LayerMask.GetMask("EntityClick");
+    }
+
+    private void Start()
+    {
+        WireGamePacketServices();
     }
 
     public void RegisterSword(Transform swordBase, Transform swordTip, Transform target, float extraRange)
@@ -335,7 +349,7 @@ public class SwordCollisionService : MonoBehaviour
 
     private Entity GetEntityById(int entityId)
     {
-        World world = _world != null ? _world : World.Instance;
+        World world = GameWorld;
         if (entityId <= 0 || world == null)
             return null;
         return world.GetEntityNoLockSync(entityId);
