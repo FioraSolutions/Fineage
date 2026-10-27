@@ -19,9 +19,11 @@ public sealed class EntityActionMachine : ITickable
         IAnimationManager animations,
         EffectManager effects,
         MoveAllCharacters moves,
-        GameClient game)
+        GameClient game,
+        PacketApplyQueue applyQueue)
     {
         Instance = this;
+        AnimationPacketServices.Bind(animations: animations, applyQueue: applyQueue);
         ControllerPacketServices.Bind(
             gameWorld: gameWorld,
             animations: animations,
