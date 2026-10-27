@@ -1,0 +1,27 @@
+---
+description: Frozen IncomingPacketActions surface and obsolete seam singletons (#137)
+alwaysApply: true
+---
+
+# Freeze IncomingPacketActions (#137)
+
+## IncomingPacketActions
+
+- **Do not add or remove** public static properties, methods, or bind signatures on `IncomingPacketActions` (`l2-unity/Assets/Scripts/Networking/ClientLibrary/Packet/Incoming/IncomingPacketActions.cs`).
+- The file is marked `FROZEN — no new members (#137)` at the top.
+
+## Seam singletons (start set)
+
+Do **not** introduce new `*.Instance` call sites for:
+
+- `World.Instance`
+- `GameManager.Instance`
+- `EventProcessor.Instance`
+- `PlayerController.Instance`
+
+These getters are `[Obsolete("Use [Inject] instead")]`. New code should use VContainer `[Inject]` instead of the static locator.
+
+## Out of scope here
+
+- Converting existing call sites to `[Inject]` is tracked in #142.
+- Automated surface guard: follow-up branch `feat/137-frozen-surface-guard`, not this rule file alone.

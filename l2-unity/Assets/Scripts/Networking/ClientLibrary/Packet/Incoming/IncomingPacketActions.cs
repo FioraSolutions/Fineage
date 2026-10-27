@@ -1,3 +1,4 @@
+// FROZEN — no new members (#137)
 using System;
 
 public static class IncomingPacketActions
