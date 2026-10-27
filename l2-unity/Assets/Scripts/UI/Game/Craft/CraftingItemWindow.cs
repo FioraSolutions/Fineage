@@ -42,7 +42,7 @@ public class CraftingItemWindow : L2PopupWindow
 
     private void WireCraftPacketServices()
     {
-        CraftPacketServices.Bind(game: _gameClient);
+        CraftPacketServices.Bind(game: _gameClient, crafting: this);
     }
 
     protected override void LoadAssets()

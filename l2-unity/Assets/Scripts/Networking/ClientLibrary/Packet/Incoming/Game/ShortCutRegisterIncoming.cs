@@ -5,6 +5,6 @@ public sealed class ShortCutRegisterIncoming : IncomingWirePacket<ShortCutRegist
 {
     public override void Apply(ShortCutRegisterDto packet)
     {
-        IncomingPacketServices.Queue(() => IncomingPacketServices.Shortcuts.RegisterShortcut(packet.Shortcut));
+        UiIncomingPacketServices.Queue(() => UiIncomingPacketServices.Shortcuts.RegisterShortcut(packet.Shortcut));
     }
 }

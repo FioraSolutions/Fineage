@@ -19,6 +19,7 @@ public static class ControllerPacketServices
     private static BufferPanel _buffer;
     private static DeadWindow _dead;
     private static EventBus _bus;
+    private static PositionValidationController _positionValidation;
 
     public static void Bind(
         World gameWorld = null,
@@ -33,7 +34,8 @@ public static class ControllerPacketServices
         SkillsManager skillCombos = null,
         BufferPanel buffer = null,
         DeadWindow dead = null,
-        EventBus bus = null)
+        EventBus bus = null,
+        PositionValidationController positionValidation = null)
     {
         if (gameWorld != null)
             _gameWorld = gameWorld;
@@ -61,6 +63,8 @@ public static class ControllerPacketServices
             _dead = dead;
         if (bus != null)
             _bus = bus;
+        if (positionValidation != null)
+            _positionValidation = positionValidation;
     }
 
     public static World GameWorld =>
@@ -101,6 +105,11 @@ public static class ControllerPacketServices
 
     public static EventBus Bus =>
         _bus != null ? _bus : IncomingPacketActions.Bus;
+
+    public static PositionValidationController PositionValidation =>
+        _positionValidation != null
+            ? _positionValidation
+            : IncomingPacketActions.PositionValidation;
 
     public static void Queue(Action action) => IncomingPacketActions.Queue(action);
 }

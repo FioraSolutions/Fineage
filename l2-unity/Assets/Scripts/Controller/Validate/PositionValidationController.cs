@@ -42,6 +42,7 @@ public class PositionValidationController : MonoBehaviour
             _validateList = new List<ValidateLocationDto>();
             _validateRemove = new List<ValidateLocationDto>();
             _validateInitPosition = new List<CharMoveToLocationDto>();
+            WireControllerPacketServices();
         }
         else
         {
@@ -49,7 +50,11 @@ public class PositionValidationController : MonoBehaviour
         }
     }
 
-    
+    private void WireControllerPacketServices()
+    {
+        ControllerPacketServices.Bind(positionValidation: this);
+    }
+
     void Update()
     {
         try

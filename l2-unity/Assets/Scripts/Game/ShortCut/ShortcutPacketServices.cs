@@ -7,12 +7,14 @@ public static class ShortcutPacketServices
     private static PlayerInventory _inventory;
     private static InputManager _input;
     private static PlayerActions _actions;
+    private static PlayerShortcuts _shortcuts;
 
     public static void Bind(
         GameClient game = null,
         PlayerInventory inventory = null,
         InputManager input = null,
-        PlayerActions actions = null)
+        PlayerActions actions = null,
+        PlayerShortcuts shortcuts = null)
     {
         if (game != null)
             _game = game;
@@ -22,6 +24,8 @@ public static class ShortcutPacketServices
             _input = input;
         if (actions != null)
             _actions = actions;
+        if (shortcuts != null)
+            _shortcuts = shortcuts;
     }
 
     public static GameClient Game =>
@@ -35,4 +39,7 @@ public static class ShortcutPacketServices
 
     public static PlayerActions Actions =>
         _actions != null ? _actions : IncomingPacketActions.Actions;
+
+    public static PlayerShortcuts Shortcuts =>
+        _shortcuts != null ? _shortcuts : IncomingPacketActions.Shortcuts;
 }

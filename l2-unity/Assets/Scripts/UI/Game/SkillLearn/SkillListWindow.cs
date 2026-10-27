@@ -55,12 +55,22 @@ public class SkillListWindow : L2PopupWindow
             _supportActiveSkills = new ActiveSkillsHide();
             _supportPassiveSkills = new PassiveSkillsHide();
             _allSkills = new Dictionary<int, SkillInstance>();
-
+            WireSkillLearnPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireSkillLearnPacketServices();
+    }
+
+    private void WireSkillLearnPacketServices()
+    {
+        SkillLearnPacketServices.Bind(skillList: this);
     }
 
    

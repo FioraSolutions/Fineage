@@ -5,11 +5,11 @@ public sealed class RecipeItemMakeInfoIncoming : IncomingWirePacket<RecipeItemMa
 {
     public override void Apply(RecipeItemMakeInfoDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        UiIncomingPacketServices.Queue(() =>
         {
-            IncomingPacketServices.RecipeBook.HideWindow();
-            IncomingPacketServices.Crafting.AddData(packet);
-            IncomingPacketServices.Crafting.ShowWindow();
+            UiIncomingPacketServices.RecipeBook.HideWindow();
+            UiIncomingPacketServices.Crafting.AddData(packet);
+            UiIncomingPacketServices.Crafting.ShowWindow();
         });
     }
 }
