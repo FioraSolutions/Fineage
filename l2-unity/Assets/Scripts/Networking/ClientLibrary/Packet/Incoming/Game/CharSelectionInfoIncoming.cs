@@ -9,21 +9,21 @@ public sealed class CharSelectionInfoIncoming : IncomingWirePacket<CharSelection
         int count = packet != null && packet.Characters != null ? packet.Characters.Count : -1;
         LobbyFlowLog.Info("CharSelectionInfo Apply chars=" + count + " selectedSlot=" + (packet != null ? packet.SelectedSlotId : -1));
         MapClassId.Init();
-        IncomingPacketServices.Queue(() =>
+        CharacterIncomingPacketServices.Queue(() =>
         {
             try
             {
-                IncomingPacketServices.CharSelect.SetInterludeCharacterList(packet.Characters);
-                IncomingPacketServices.CharSelect.SelectInterludeSlot(packet.SelectedSlotId);
+                CharacterIncomingPacketServices.CharSelect.SetInterludeCharacterList(packet.Characters);
+                CharacterIncomingPacketServices.CharSelect.SelectInterludeSlot(packet.SelectedSlotId);
 
-                IncomingPacketServices.Characters.SetCharacterInterludeList(packet.Characters);
-                IncomingPacketServices.Characters.SelectInterludeCharacter(packet.SelectedSlotId);
+                CharacterIncomingPacketServices.Characters.SetCharacterInterludeList(packet.Characters);
+                CharacterIncomingPacketServices.Characters.SelectInterludeCharacter(packet.SelectedSlotId);
 
-                IncomingPacketServices.Login.Disconnect();
+                CharacterIncomingPacketServices.Login.Disconnect();
                 LobbyFlowLog.Info("CharSelectionInfo → Game.OnAuthAllowed (show char select)");
-                IncomingPacketServices.Game.OnAuthAllowed();
+                CharacterIncomingPacketServices.Game.OnAuthAllowed();
                 LobbyFlowLog.Info("CharSelectionInfo DONE state=" +
-                    (IncomingPacketServices.Manager != null ? IncomingPacketServices.Manager.GameState.ToString() : "null"));
+                    (CharacterIncomingPacketServices.Manager != null ? CharacterIncomingPacketServices.Manager.GameState.ToString() : "null"));
             }
             catch (Exception ex)
             {
