@@ -4,6 +4,12 @@ using VContainer;
 public class NpcCursorManager : MonoBehaviour
 {
     [Inject] ItemDropPicker _dropPicker;
+
+    private ItemDropPicker DropPicker
+    {
+        get { return _dropPicker != null ? _dropPicker : ManagerInteractionPacketServices.DropPicker; }
+    }
+
     private Texture2D _defaultCursor;
     private Texture2D _hoverCursorTalk;
     private Texture2D _hoverCursorAtk;
@@ -17,8 +23,15 @@ public class NpcCursorManager : MonoBehaviour
     const int PickupCursorId = 3;
     const float PickDistance = 1000f;
 
+    private void Awake()
+    {
+        App.InjectGameObject(gameObject);
+        WireManagerInteractionPacketServices();
+    }
+
     void Start()
     {
+        WireManagerInteractionPacketServices();
         _defaultCursor = IconManager.Instance.LoadCursorByName("Default");
         _hoverCursorAtk = IconManager.Instance.LoadCursorByName("Attack");
         _hoverCursorTalk = IconManager.Instance.LoadCursorByName("Talk");
@@ -37,8 +50,9 @@ public class NpcCursorManager : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         ItemEntity dropEntity = null;
-        bool dropHit = _dropPicker != null &&
-            _dropPicker.TryPick(ray, PickDistance, _stickyDropItem, out dropEntity, out _);
+        ItemDropPicker dropPicker = DropPicker;
+        bool dropHit = dropPicker != null &&
+            dropPicker.TryPick(ray, PickDistance, _stickyDropItem, out dropEntity, out _);
         _stickyDropItem = dropHit ? dropEntity : null;
 
         if (dropHit && dropEntity != null)
@@ -104,5 +118,10 @@ public class NpcCursorManager : MonoBehaviour
 
         _currentCursor = id;
         Cursor.SetCursor(texture, Vector2.zero, CursorMode.Auto);
+    }
+
+    private void WireManagerInteractionPacketServices()
+    {
+        ManagerInteractionPacketServices.Bind(dropPicker: _dropPicker);
     }
 }
