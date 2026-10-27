@@ -615,7 +615,7 @@ public class CompositeEffectV2 : CompositePrefabEffect
             return;
         }
 
-        if (_context?.CasterEntity?.Identity == null || IncomingPacketActions.Animations == null)
+        if (_context?.CasterEntity?.Identity == null || Animations == null)
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // V2TaSpawnLog.Warn(
@@ -628,7 +628,7 @@ public class CompositeEffectV2 : CompositePrefabEffect
         }
 
         int casterId = _context.CasterEntity.Identity.Id;
-        _v2AnimationEvents = IncomingPacketActions.Animations.GetAnimationEvents(casterId);
+        _v2AnimationEvents = Animations.GetAnimationEvents(casterId);
         if (_v2AnimationEvents == null || _v2ShootSources.Contains(_v2AnimationEvents))
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

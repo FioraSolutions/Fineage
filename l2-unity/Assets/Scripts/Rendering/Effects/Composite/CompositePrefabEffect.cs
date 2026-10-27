@@ -28,6 +28,13 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
     public event Action<CompositePrefabEffect, EffectResolveContext> StartSpawn;
 
     [Inject] IHomeProjectileService _homeProjectiles;
+    [Inject] IAnimationManager _animations;
+
+    protected IAnimationManager Animations
+    {
+        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+    }
+
     readonly IEffectAttachmentResolver _resolver = new DefaultEffectAttachmentResolver();
     protected EffectResolveContext _context;
     readonly List<PendingCompositePart> _pendingParts = new List<PendingCompositePart>();
@@ -266,6 +273,7 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
             _context,
             _shootEventSources,
             HandleAnimationShoot,
+            Animations,
             out _animationEvents,
             ref _isSubscribedToAnyShoot);
     }

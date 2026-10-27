@@ -14,6 +14,18 @@ public class TargetManager : MonoBehaviour
     public const int KindCreature = 6;
 
     [Inject] GameClient _gameClient;
+    [Inject] World _world;
+
+    private World GameWorld
+    {
+        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
+    }
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
+
     private TargetData _target = null;
     private TargetData _attackTarget = null;
     private Transform _playerTransform;
@@ -167,7 +179,7 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         if (world == null)
         {
             return;
@@ -218,7 +230,7 @@ public class TargetManager : MonoBehaviour
 
     public void NextTargetById(int id , string hexColor)
     {
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         Entity found = world != null ? world.GetEntityNoLockSync(id) : null;
         if (found == null &&
             PlayerEntity.Instance != null &&
@@ -308,7 +320,7 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+        GameClient game = Game;
         if (game == null)
         {
             return;
@@ -398,7 +410,7 @@ public class TargetManager : MonoBehaviour
         {
             if (PlayerEntity.Instance.TargetId != -1)
             {
-                GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+                GameClient game = Game;
                 if (game != null)
                     game.Send(new RequestTargetCanceldCommand());
                 PlayerEntity.Instance.TargetId = -1;
