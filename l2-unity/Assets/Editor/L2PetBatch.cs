@@ -4,20 +4,10 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-[InitializeOnLoad]
+// Manual only: Windows paths + runs on every domain reload were spamming
+// the Console and fighting Play Mode. Use the menu item to rebuild pets.
 public static class L2PetBatch
 {
-    static L2PetBatch()
-    {
-        EditorApplication.delayCall += BuildAll;
-        EditorApplication.playModeStateChanged += OnPlayMode;
-    }
-
-    static void OnPlayMode(PlayModeStateChange state)
-    {
-        if (state == PlayModeStateChange.EnteredEditMode)
-            EditorApplication.delayCall += BuildAll;
-    }
     struct PetMesh
     {
         public string Package;

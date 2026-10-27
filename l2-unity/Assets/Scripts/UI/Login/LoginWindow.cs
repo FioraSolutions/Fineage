@@ -149,12 +149,14 @@ public class LoginWindow : L2Window
 
     public override void HideWindow() {
         base.HideWindow();
-        _logo.style.display = DisplayStyle.None;
+        if (_logo != null)
+            _logo.style.display = DisplayStyle.None;
     }
 
     public override void ShowWindow() {
         base.ShowWindow();
-        _logo.style.display = DisplayStyle.Flex;
-        _userInput.Focus();
+        if (_logo != null)
+            _logo.style.display = DisplayStyle.Flex;
+        _userInput?.Focus();
     }
 }

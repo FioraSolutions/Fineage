@@ -40,9 +40,12 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
     void Update()
     {
         CrowdAnimTest.EnsureTimeCap();
+        if (_moveDict == null)
+            return;
+
         StepMoves();
 
-        if (_rotateDict.Count == 0) return;
+        if (_rotateDict == null || _rotateDict.Count == 0) return;
 
         foreach (KeyValuePair<int, RotateData> kvp in _rotateDict)
         {
@@ -296,7 +299,7 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 
     private void ReconcileStoppedMoves()
     {
-        if (_stoppedMoveData.Count == 0)
+        if (_stoppedMoveData == null || _stoppedMoveData.Count == 0)
             return;
 
         foreach (KeyValuePair<int, MovementData> pair in _stoppedMoveData)

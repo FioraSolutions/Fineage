@@ -19,17 +19,24 @@ public abstract class L2Window : MonoBehaviour
     void Start()
     {
         _isWindowHidden = false;
-        LoadAssets();
+        EnsureAssetsLoaded();
     }
 
     protected abstract void LoadAssets();
+
+    protected void EnsureAssetsLoaded()
+    {
+        if (_windowTemplate != null)
+            return;
+        LoadAssets();
+    }
 
     protected VisualTreeAsset LoadAsset(string assetPath)
     {
         VisualTreeAsset asset = Resources.Load<VisualTreeAsset>(assetPath);
         if (asset == null)
         {
-            // Debug.LogError($"Could not load {assetPath} template.");
+            Debug.LogError($"[L2Window] Could not load UI template '{assetPath}' on {GetType().Name}.");
         }
 
         return asset;
@@ -83,6 +90,9 @@ public abstract class L2Window : MonoBehaviour
 
     public void AddWindow(VisualElement root)
     {
+        // Subclasses often override Awake without calling base; Start may also
+        // not have run yet when L2UI.LoadUI attaches windows on first Update.
+        EnsureAssetsLoaded();
         if (_windowTemplate == null)
         {
             return;

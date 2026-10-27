@@ -31,7 +31,7 @@ public class DeadManager : MonoBehaviour, IDead
 
     void Update()
     {
-        if (_dict.Count == 0)
+        if (_dict == null || _dict.Count == 0)
         {
             return;
         }
