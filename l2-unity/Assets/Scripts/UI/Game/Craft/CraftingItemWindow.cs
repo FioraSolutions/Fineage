@@ -10,10 +10,7 @@ public class CraftingItemWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => CraftPacketServices.Game;
     private ICreatorSimpleTrade _creatorSimpleTrade;
     private static CraftingItemWindow _instance;
     private RecipeItemMakeInfoDto _packet;
@@ -30,12 +27,22 @@ public class CraftingItemWindow : L2PopupWindow
             _instance = this;
             _creatorSimpleTrade = new CreatorSimpleTrade();
             _dataProvider = new DataProviderCraftItem();
-
+            WireCraftPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireCraftPacketServices();
+    }
+
+    private void WireCraftPacketServices()
+    {
+        CraftPacketServices.Bind(game: _gameClient);
     }
 
     protected override void LoadAssets()
