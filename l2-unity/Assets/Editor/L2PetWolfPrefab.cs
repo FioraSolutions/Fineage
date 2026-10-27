@@ -175,11 +175,13 @@ public static class L2PetWolfPrefab
     static void StripAnimationsFromFbx()
     {
         string project = Directory.GetCurrentDirectory();
-        string blender = @"C:\Users\hh-soft\Pictures\test_umodel\blemder_portable\blender-3.6.16-windows-x64\blender.exe";
+        string blender = L2DiagPaths.BlenderExe;
         string script = Path.Combine(project, "Assets/Editor/L2EffectGenerator/Blender/psk_psa_to_fbx.py");
         string addon = Path.Combine(project, "Assets/Editor/L2EffectGenerator/Blender/io_import_scene_unreal_psa_psk_280.py");
-        string psk = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\SkeletalMesh\pet_wolf_a_m00.psk";
-        string psa = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\MeshAnimation\pet_wolf_anim.psa";
+        string psk = L2DiagPaths.UmodelFile(
+            "unpack", "monster_1", "LineageMonsters", "SkeletalMesh", "pet_wolf_a_m00.psk");
+        string psa = L2DiagPaths.UmodelFile(
+            "unpack", "monster_1", "LineageMonsters", "MeshAnimation", "pet_wolf_anim.psa");
         string fbx = Path.Combine(project, FbxPath);
         string reference = Path.Combine(project, "Assets/Resources/Data/Animations/LineageMonsters/wolf_m00/wolf.fbx");
         var start = new ProcessStartInfo();

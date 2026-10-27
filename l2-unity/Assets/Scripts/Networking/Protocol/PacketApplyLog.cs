@@ -19,7 +19,7 @@ public static class PacketApplyLog
     }
 
     const double DumpMs = 50.0;
-    const string LogPath = @"C:\unity\l2 client\decompile\log\packetApply.txt";
+    static string LogPath => L2DiagPaths.File("packetApply.txt");
 
     static readonly Dictionary<string, Stat> Stats = new Dictionary<string, Stat>(64);
     static readonly List<KeyValuePair<string, Stat>> SortBuffer = new List<KeyValuePair<string, Stat>>(64);

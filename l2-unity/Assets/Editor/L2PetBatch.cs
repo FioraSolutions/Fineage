@@ -23,16 +23,16 @@ public static class L2PetBatch
         {
             Package = "LineageMonsters",
             Stem = "hatchling_m00",
-            Psk = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\SkeletalMesh\hatchling_m00.psk",
-            Psa = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\MeshAnimation\hatchling_anim.psa",
+            Psk = "unpack/monster_1/LineageMonsters/SkeletalMesh/hatchling_m00.psk",
+            Psa = "unpack/monster_1/LineageMonsters/MeshAnimation/hatchling_anim.psa",
             Materials = new[] { "Assets/Resources/Data/SysTextures/LineageMonstersTex/Materials/hatchling_t00.mat" }
         },
         new PetMesh
         {
             Package = "LineageMonsters",
             Stem = "strider_m00",
-            Psk = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\SkeletalMesh\strider_m00.psk",
-            Psa = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\MeshAnimation\strider_anim.psa",
+            Psk = "unpack/monster_1/LineageMonsters/SkeletalMesh/strider_m00.psk",
+            Psa = "unpack/monster_1/LineageMonsters/MeshAnimation/strider_anim.psa",
             Materials = new[]
             {
                 "Assets/Resources/Data/SysTextures/LineageMonstersTex/Materials/strider_t00.mat",
@@ -43,8 +43,8 @@ public static class L2PetBatch
         {
             Package = "LineageMonsters",
             Stem = "wyvern_m00",
-            Psk = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\SkeletalMesh\wyvern_m00.psk",
-            Psa = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_1\LineageMonsters\MeshAnimation\wyvern_anim.psa",
+            Psk = "unpack/monster_1/LineageMonsters/SkeletalMesh/wyvern_m00.psk",
+            Psa = "unpack/monster_1/LineageMonsters/MeshAnimation/wyvern_anim.psa",
             Materials = new[]
             {
                 "Assets/Resources/Data/SysTextures/LineageMonstersTex/Materials/wyvern_t00.mat",
@@ -55,16 +55,16 @@ public static class L2PetBatch
         {
             Package = "LineageMonsters2",
             Stem = "baby_buffalo_m00",
-            Psk = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_anim\LineageMonsters2\SkeletalMesh\baby_buffalo_m00.psk",
-            Psa = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_anim\LineageMonsters2\MeshAnimation\baby_buffalo_anim.psa",
+            Psk = "unpack/monster_anim/LineageMonsters2/SkeletalMesh/baby_buffalo_m00.psk",
+            Psa = "unpack/monster_anim/LineageMonsters2/MeshAnimation/baby_buffalo_anim.psa",
             Materials = new[] { "Assets/Resources/Data/SysTextures/LineageMonstersTex2/Materials/baby_buffalo_t00.mat" }
         },
         new PetMesh
         {
             Package = "LineageMonsters2",
             Stem = "baby_ostrich_m00",
-            Psk = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_anim\LineageMonsters2\SkeletalMesh\baby_ostrich_m00.psk",
-            Psa = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_anim\LineageMonsters2\MeshAnimation\Baby_Ostrich_anim.psa",
+            Psk = "unpack/monster_anim/LineageMonsters2/SkeletalMesh/baby_ostrich_m00.psk",
+            Psa = "unpack/monster_anim/LineageMonsters2/MeshAnimation/Baby_Ostrich_anim.psa",
             Materials = new[]
             {
                 "Assets/Resources/Data/SysTextures/LineageMonstersTex2/Materials/baby_ostrich_t00.mat",
@@ -75,8 +75,8 @@ public static class L2PetBatch
         {
             Package = "LineageMonsters2",
             Stem = "baby_tiger_m00",
-            Psk = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_anim\LineageMonsters2\SkeletalMesh\baby_tiger_m00.psk",
-            Psa = @"C:\Users\hh-soft\Pictures\test_umodel\unpack\monster_anim\LineageMonsters2\MeshAnimation\baby_tiger_anim.psa",
+            Psk = "unpack/monster_anim/LineageMonsters2/SkeletalMesh/baby_tiger_m00.psk",
+            Psa = "unpack/monster_anim/LineageMonsters2/MeshAnimation/baby_tiger_anim.psa",
             Materials = new[] { "Assets/Resources/Data/SysTextures/LineageMonstersTex2/Materials/baby_tiger_t00.mat" }
         }
     };
@@ -243,9 +243,11 @@ public static class L2PetBatch
     static void StripAnimationsFromFbx(PetMesh pet, string fbxPath)
     {
         string project = Directory.GetCurrentDirectory();
-        string blender = @"C:\Users\hh-soft\Pictures\test_umodel\blemder_portable\blender-3.6.16-windows-x64\blender.exe";
+        string blender = L2DiagPaths.BlenderExe;
         string script = Path.Combine(project, "Assets/Editor/L2EffectGenerator/Blender/psk_psa_to_fbx.py");
         string addon = Path.Combine(project, "Assets/Editor/L2EffectGenerator/Blender/io_import_scene_unreal_psa_psk_280.py");
+        string psk = L2DiagPaths.UmodelFile(pet.Psk.Split('/'));
+        string psa = L2DiagPaths.UmodelFile(pet.Psa.Split('/'));
         string fbx = Path.Combine(project, fbxPath);
         string reference = Path.Combine(project, "Assets/Resources/Data/Animations/LineageMonsters/wolf_m00/wolf.fbx");
         var start = new ProcessStartInfo();
@@ -253,7 +255,7 @@ public static class L2PetBatch
         start.UseShellExecute = false;
         start.CreateNoWindow = true;
         start.Arguments =
-            "-b -P \"" + script + "\" -- \"" + pet.Psk + "\" \"" + pet.Psa + "\" \"" + fbx + "\" \"" + addon + "\" \"" + reference + "\" mesh";
+            "-b -P \"" + script + "\" -- \"" + psk + "\" \"" + psa + "\" \"" + fbx + "\" \"" + addon + "\" \"" + reference + "\" mesh";
         using (Process process = Process.Start(start))
         {
             if (process != null)

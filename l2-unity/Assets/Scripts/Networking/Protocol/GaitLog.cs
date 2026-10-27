@@ -9,12 +9,12 @@ using Debug = UnityEngine.Debug;
 /// CharInfo (UserEntity) walk/run gait regression diagnostics.
 /// Traces the walk->run transition decision so we can see why CharInfo
 /// "stay walking" when they should run.
-/// File: C:\unity\l2 client\decompile\log\gait.txt
+/// File: logs/diag/gait.txt (via L2DiagPaths)
 /// Console: one line per second (rolling).
 /// </summary>
 public static class GaitLog
 {
-    const string LogPath = @"C:\unity\l2 client\decompile\log\gait.txt";
+    static string LogPath => L2DiagPaths.File("gait.txt");
     const float FlushSec = 1f;
 
     // Per-object throttle: avoid spamming while still capturing every transition.

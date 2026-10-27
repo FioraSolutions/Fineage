@@ -10,11 +10,11 @@ using Debug = UnityEngine.Debug;
 /// Deep anim/gait trace for Human Magic CharInfo only (MMagic / FMagic).
 /// Covers MoveToPawn AND post-MagicShot return (cast playable → FinishRemoteCast → idle/gait).
 /// Filter console: [MAGIC_GAIT]
-/// File: C:\unity\l2 client\decompile\log\magic-gait.txt
+/// File: logs/diag/magic-gait.txt (via L2DiagPaths)
 /// </summary>
 public static class MagicGaitTrace
 {
-    const string LogPath = @"C:\unity\l2 client\decompile\log\magic-gait.txt";
+    static string LogPath => L2DiagPaths.File("magic-gait.txt");
 
     // Per-id throttle only for high-frequency sync ticks.
     static readonly Dictionary<int, float> LastSyncAt = new Dictionary<int, float>(32);
