@@ -22,6 +22,18 @@ public class LicenseWindow : L2Window
         _instance = null;
     }
 
+    public void DevAutoAgreeIfEnabled() {
+        if (FineageDev.AutoAdvanceLobby)
+            StartCoroutine(AutoAgreeWhenShown());
+    }
+
+    private IEnumerator AutoAgreeWhenShown() {
+        yield return null;
+        yield return null;
+        if (!_isWindowHidden)
+            AgreeButtonPressed();
+    }
+
     private void Update() {
         if (!_isWindowHidden) {
             if (Input.GetKeyDown(KeyCode.Escape)) {

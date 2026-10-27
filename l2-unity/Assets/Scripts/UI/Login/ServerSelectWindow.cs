@@ -97,6 +97,16 @@ public class ServerSelectWindow : L2Window
         if(lastServer == 0 && _serverData != null && _serverData.Count > 0) {
             SelectServer(0);
         }
+
+        if (FineageDev.AutoAdvanceLobby && _serverData != null && _serverData.Count > 0)
+            StartCoroutine(AutoConfirm());
+    }
+
+    private IEnumerator AutoConfirm() {
+        yield return null;
+        yield return null;
+        if (!_isWindowHidden)
+            ConfirmButtonPressed();
     }
 
     public void SelectServer(int rowId) {

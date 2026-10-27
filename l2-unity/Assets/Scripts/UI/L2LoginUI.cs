@@ -123,6 +123,7 @@ public class L2LoginUI : L2UI
         IncomingPacketActions.LoginWindow.HideWindow();
         IncomingPacketActions.LicenseWindow.ShowWindow();
         IncomingPacketActions.ServerSelect.HideWindow();
+        IncomingPacketActions.LicenseWindow.DevAutoAgreeIfEnabled();
     }
 
     public void ShowCharSelectWindow() {
