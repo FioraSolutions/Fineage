@@ -150,7 +150,7 @@ public sealed class PlayerWorldApply : EntityWorldApply
         RefreshPlayerStandWait(player);
     }
 
-    static void RefreshPlayerStandWait(PlayerEntity player)
+    void RefreshPlayerStandWait(PlayerEntity player)
     {
         if (player == null || player.IsDead() || player.IsAttack)
             return;
@@ -169,8 +169,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
             state == PlayerState.REBIRTH ||
             state == PlayerState.DEAD)
             return;
-        PlayerController player = Player;
-        if (player != null && player.RunningToDestination)
+        PlayerController controller = Player;
+        if (controller != null && controller.RunningToDestination)
             return;
 
         PlayerStateMachine.Instance.NotifyEvent(Event.ARRIVED);

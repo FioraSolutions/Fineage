@@ -853,6 +853,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     {
         GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
         WorldPacketApply apply = _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
-        return manager != null && manager.WorldSpawnReady && _world != null && apply != null;
+        return manager != null && manager.WorldSpawnReady && apply != null;
     }
 }

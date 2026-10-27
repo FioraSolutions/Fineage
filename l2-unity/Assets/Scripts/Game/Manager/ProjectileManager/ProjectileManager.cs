@@ -464,7 +464,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
         if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null &&
             PlayerEntity.Instance.Identity.Id == objectId)
             return PlayerEntity.Instance;
-        World world = GameWorld;
+        World world = IncomingPacketActions.GameWorld;
         return world != null ? world.GetEntityNoLockSync(objectId) : null;
     }
 
