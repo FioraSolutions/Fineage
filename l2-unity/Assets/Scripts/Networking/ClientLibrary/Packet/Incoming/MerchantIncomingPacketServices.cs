@@ -1,12 +1,14 @@
 using System;
 
 /// <summary>
-/// Merchant / dealer shop wire packet handler access via GameIncomingPacketServices (#142 sub-slice 61).
+/// Merchant / dealer warehouse wire packet handler access via GameIncomingPacketServices (#142 sub-slice 61).
+/// Shop list apply paths live on <see cref="ShopListIncomingPacketServices"/> (sub-slice 84).
 /// </summary>
 public static class MerchantIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
 
+<<<<<<< HEAD
     public static void ApplyBuyList(BuyListDto packet) =>
         Queue(() =>
         {
@@ -42,10 +44,22 @@ public static class MerchantIncomingPacketServices
             GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Sell");
             GameIncomingPacketServices.Dealer.SetProductType(ProductType.SELL);
             GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, packet.ListID);
+=======
+    public static void ApplyWhDepositList(WarehouseDepositListDto packet) =>
+        Queue(() =>
+        {
+            UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
+            GameIncomingPacketServices.Dealer.SetWindowName("Personal storage");
+            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
+            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items in stock");
+            GameIncomingPacketServices.Dealer.SetProductType(ProductType.WHDepositList);
+            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
+>>>>>>> 3a88e9e87 (feat(arch): shop list incoming facade (#142 sub-slice 84))
             GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
             GameIncomingPacketServices.Dealer.ShowWindow();
         });
 
+<<<<<<< HEAD
     public static void ApplyShopPreviewList(ShopPreviewListDto packet) =>
         Queue(() =>
         {
@@ -74,4 +88,18 @@ public static class MerchantIncomingPacketServices
     public static void ApplyShopPreviewInfo(ShopPreviewInfoDto packet)
     {
     }
+=======
+    public static void ApplyWhWithdrawList(WarehouseWithdrawListDto packet) =>
+        Queue(() =>
+        {
+            UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
+            GameIncomingPacketServices.Dealer.SetWindowName("Personal storage");
+            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Items in Warehouse");
+            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items taken away");
+            GameIncomingPacketServices.Dealer.SetProductType(ProductType.WHWithdrawList);
+            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
+            GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            GameIncomingPacketServices.Dealer.ShowWindow();
+        });
+>>>>>>> 3a88e9e87 (feat(arch): shop list incoming facade (#142 sub-slice 84))
 }
