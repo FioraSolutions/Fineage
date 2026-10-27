@@ -17,12 +17,12 @@ public sealed class WorldDomainSink : IWorldDomainSink
         if (move == null || _worldApply == null)
             return;
 
-        // Intention/Player still consume CharMoveToLocationDto; v2 must supply InterludeDto
-        // or a domain-native Intention payload later.
-        if (move.InterludeDto == null)
-            return;
+        // Intention/Player still consume CharMoveToLocationDto; synthesize when v2 has none.
+        CharMoveToLocationDto dto = move.InterludeDto;
+        if (dto == null)
+            dto = CharMoveToLocationDto.FromUnity(move.ObjectId, move.Destination, move.Origin);
 
-        _worldApply.MoveTo(move.ObjectId, move.Destination, move.Origin, move.InterludeDto);
+        _worldApply.MoveTo(move.ObjectId, move.Destination, move.Origin, dto);
     }
 
     public void ApplyStopMove(DomainStopMove stop)
