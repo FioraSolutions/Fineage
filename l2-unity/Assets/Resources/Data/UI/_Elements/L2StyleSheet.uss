@@ -1123,6 +1123,8 @@
     -unity-slice-right: 15;
     -unity-slice-bottom: 15;
     width: 100%;
+    /* Absolute overlay must not steal Button ClickEvents. */
+    picking-mode: ignore;
 }
 
 .l2-button-ele {
@@ -1215,6 +1217,7 @@
     margin-right: 0;
     margin-bottom: 0;
     margin-left: 0;
+    picking-mode: ignore;
 }
 
 .button-label-disabled {

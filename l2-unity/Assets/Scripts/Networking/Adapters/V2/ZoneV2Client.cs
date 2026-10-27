@@ -163,9 +163,10 @@ public sealed class ZoneV2Client : MonoBehaviour
 
             while (!ct.IsCancellationRequested)
             {
-                ZoneV2Frame f;
-                if (!await ZoneV2FrameIO.TryReadAsync(stream, ct, out f).ConfigureAwait(false))
+                ZoneV2Frame? frame = await ZoneV2FrameIO.TryReadAsync(stream, ct).ConfigureAwait(false);
+                if (frame == null)
                     break;
+                ZoneV2Frame f = frame.Value;
 
                 switch (f.Type)
                 {

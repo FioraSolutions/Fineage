@@ -107,14 +107,19 @@ public class LoginClient : DefaultClient {
         return _sessionId;
     }
     protected override void CreateAsyncClient() {
+        if (_client != null && !_client.IsConnected)
+            _client = null;
+
         if (_client == null)
         {
+            if (Network == null)
+                throw new System.InvalidOperationException("NetworkRuntime not ready (AppDataScope)");
+
             clientPacketHandler = new LoginClientPacketHandler();
             serverPacketHandler = new LoginServerPacketHandler(Network.Protocol, Network.Dispatcher);
 
             _client = new AsynchronousClient(_serverIp, _serverPort, this, clientPacketHandler, serverPacketHandler, true, Network);
         }
-          
     }
 
     protected override void WhileConnecting() {
@@ -131,7 +136,11 @@ public class LoginClient : DefaultClient {
     }
 
     public override void OnConnectionFailed() {
-        base.OnConnectionFailed();
+        LobbyFlowLog.Warn("LoginClient.OnConnectionFailed ip=" + _serverIp + " port=" + _serverPort);
+        base.OnConnectionFailed(); // clears dead _client in DefaultClient
+        if (IncomingPacketActions.LoginWindow != null)
+            IncomingPacketActions.LoginWindow.ShowErrorText(
+                "Cannot reach login server " + _serverIp + ":" + _serverPort);
     }
 
     public override void OnAuthAllowed() {
@@ -153,16 +162,18 @@ public class LoginClient : DefaultClient {
     }
 
     public void OnServerSelected(int serverId) {
+        LobbyFlowLog.Info("TX RequestServerLogin serverId=" + serverId +
+            " session=" + SessionKey1.ToString("X8") + "/" + SessionKey2.ToString("X8"));
         Send(new RequestServerLoginCommand(serverId, SessionKey1, SessionKey2));
     }
 
     public override void OnDisconnect() {
+        LobbyFlowLog.Info("LoginClient.Disconnect");
         base.OnDisconnect();
         if (Network != null)
         {
             Network.IncomingLogin.Stop();
             Network.SendLogin.Stop();
         }
-        // Debug.Log("Disconnected from LoginServer.");
     }
 }

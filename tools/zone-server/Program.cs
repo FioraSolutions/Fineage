@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using Fineage.ZoneServer;
 using Fineage.ZoneServer.Session;
 
 // Fineage ZoneServer skeleton (wire v2 + MessagePack).
@@ -7,10 +8,7 @@ using Fineage.ZoneServer.Session;
 const int LoginPort = 9106; // reserved — Auth currently on game socket for MVP
 const int GamePort = 9777;
 
-Console.WriteLine($"Fineage ZoneServer v2  game 127.0.0.1:{GamePort}  (login reserved :{LoginPort})");
-Console.WriteLine("Flow: Hello → Auth → EnterWorld → MoveTo ↔ MoveToAck");
-Console.WriteLine("Client dual-adapter not wired yet — smoke with --selftest.");
-Console.WriteLine("Ctrl+C to stop.");
+ZoneLog.Configure(args.Contains("--verbose") || args.Contains("-v"));
 
 if (args.Contains("--selftest"))
 {
@@ -20,6 +18,14 @@ if (args.Contains("--selftest"))
 
 var listener = new TcpListener(IPAddress.Loopback, GamePort);
 listener.Start();
+ZoneLog.Info($"listen bind game=127.0.0.1:{GamePort} (login reserved :{LoginPort})");
+Console.WriteLine("Flow: Hello → Auth → EnterWorld → MoveTo ↔ MoveToAck");
+Console.WriteLine("Client dual-adapter not wired yet — smoke with --selftest.");
+Console.WriteLine(ZoneLog.Verbose
+    ? "Verbose: on (Debug)."
+    : "Info milestones; pass --verbose or FINEAGE_ZONE_DEBUG=1 for Debug.");
+Console.WriteLine("File: logs/zone.log  |  Ctrl+C to stop.");
+
 int nextSession = 1;
 
 _ = Task.Run(async () =>
@@ -29,7 +35,11 @@ _ = Task.Run(async () =>
         var client = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
         int sid = Interlocked.Increment(ref nextSession);
         var session = new PlayerSession(client, sid);
-        _ = Task.Run(() => session.RunAsync(CancellationToken.None));
+        _ = Task.Run(async () =>
+        {
+            try { await session.RunAsync(CancellationToken.None).ConfigureAwait(false); }
+            catch (Exception ex) { ZoneLog.Error($"session={sid} handler: {ex.Message}"); }
+        });
     }
 });
 

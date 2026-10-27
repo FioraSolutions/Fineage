@@ -62,7 +62,8 @@ public class L2LoginUI : L2UI
         IncomingPacketActions.LicenseWindow.HideWindow();
         IncomingPacketActions.ServerSelect.AddWindow(_rootVisualContainer);
         IncomingPacketActions.ServerSelect.HideWindow();
-        HideMissingMaterialRenderers();
+        // Early pass (menu-only). SceneLoader runs a second pass after additive l2_lobby.
+        LobbyBrokenMaterialHider.HideBrokenRenderers("login_ui_load");
         StartCoroutine(ShowLoginWhenReady());
         try
         {
@@ -71,30 +72,6 @@ public class L2LoginUI : L2UI
         catch (System.Exception ex)
         {
             Debug.LogWarning("[L2LoginUI] SkillAnimationDatabase.Initialize failed: " + ex.Message);
-        }
-    }
-
-    static void HideMissingMaterialRenderers()
-    {
-        // Lobby ships/FX often ship with null material slots → magenta error mats on Metal.
-        var rends = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < rends.Length; i++)
-        {
-            var mats = rends[i].sharedMaterials;
-            bool bad = mats == null || mats.Length == 0;
-            if (!bad)
-            {
-                for (int m = 0; m < mats.Length; m++)
-                {
-                    if (mats[m] == null)
-                    {
-                        bad = true;
-                        break;
-                    }
-                }
-            }
-            if (bad)
-                rends[i].enabled = false;
         }
     }
 

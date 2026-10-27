@@ -51,20 +51,43 @@ public class ServerSelectWindow : L2Window
 
         yield return new WaitForEndOfFrame();
 
+        if (_windowEle == null)
+        {
+            Debug.LogError("[ServerSelect] BuildWindow: _windowEle null after InitWindow");
+            yield break;
+        }
+
+        // Absolute ButtonBg/Label children steal picks unless Ignore — clicks never reach Button.
+        foreach (var child in _windowEle.Query(className: "l2-button-bg").ToList())
+            child.pickingMode = PickingMode.Ignore;
+        foreach (var child in _windowEle.Query(className: "button-label").ToList())
+            child.pickingMode = PickingMode.Ignore;
+
         Button confirmButton = _windowEle.Q<Button>("ConfirmButton");
-        confirmButton.AddManipulator(new ButtonClickSoundManipulator(confirmButton));
-        confirmButton.RegisterCallback<ClickEvent>(evt => ConfirmButtonPressed());
+        if (confirmButton != null)
+        {
+            confirmButton.AddManipulator(new ButtonClickSoundManipulator(confirmButton));
+            confirmButton.RegisterCallback<ClickEvent>(evt => ConfirmButtonPressed());
+        }
+        else
+            Debug.LogError("[ServerSelect] ConfirmButton missing in UXML");
 
         Button cancelButton = _windowEle.Q<Button>("CancelButton");
-        cancelButton.AddManipulator(new ButtonClickSoundManipulator(cancelButton));
-        cancelButton.RegisterCallback<ClickEvent>(evt => CancelButtonPressed());
+        if (cancelButton != null)
+        {
+            cancelButton.AddManipulator(new ButtonClickSoundManipulator(cancelButton));
+            cancelButton.RegisterCallback<ClickEvent>(evt => CancelButtonPressed());
+        }
 
         Button nameButton = _windowEle.Q<Button>("Name");
-        nameButton.AddManipulator(new ButtonClickSoundManipulator(nameButton));
+        if (nameButton != null)
+            nameButton.AddManipulator(new ButtonClickSoundManipulator(nameButton));
         Button trafficButton = _windowEle.Q<Button>("Traffic");
-        trafficButton.AddManipulator(new ButtonClickSoundManipulator(trafficButton));
+        if (trafficButton != null)
+            trafficButton.AddManipulator(new ButtonClickSoundManipulator(trafficButton));
         Button characterButton = _windowEle.Q<Button>("Character");
-        characterButton.AddManipulator(new ButtonClickSoundManipulator(characterButton));
+        if (characterButton != null)
+            characterButton.AddManipulator(new ButtonClickSoundManipulator(characterButton));
 
         _listContentContainer = _windowEle.Q<VisualElement>("ServerContainer");
 
@@ -244,14 +267,28 @@ public class ServerSelectWindow : L2Window
     }
 
     private void ConfirmButtonPressed() {
-        if(_selectServerData != null & _selectServerData.status != 0){
-            LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
+        LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
+        if (client == null)
+        {
+            LobbyFlowLog.Error("Confirm: LoginClient null");
+            return;
+        }
+
+        // L2J ServerList status byte: 0 = down, non-zero = up (stub sends 1).
+        bool online = _selectServerData != null && _selectServerData.status != 0 && _selectedServerId >= 0;
+        LobbyFlowLog.Info("Confirm serverId=" + _selectedServerId +
+                  " status=" + (_selectServerData != null ? _selectServerData.status.ToString() : "null") +
+                  " online=" + online);
+
+        if (online) {
             client.OnServerSelected(_selectedServerId);
         }
         else
         {
-            LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
-            IncomingPacketActions.LoginWindow.ShowErrorText("Your login attempt failed due to high server load. Please try again later");
+            LobbyFlowLog.Warn("Confirm rejected — server offline/invalid; disconnect login");
+            var loginWindow = IncomingPacketActions.LoginWindow;
+            if (loginWindow != null)
+                loginWindow.ShowErrorText("Your login attempt failed due to high server load. Please try again later");
             client.Disconnect();
         }
     }

@@ -44,9 +44,12 @@ public sealed class InterludeProtocol : IProtocol
 
         byte[] data = packet.GetData();
         byte type = packet.GetPacketType();
+        // BuildLogin already appends checksum via PacketWriter.WriteChecksum.
+        // Only re-checksum packets that still use non-Login framing (legacy).
         if (type != (byte)LoginClientPacketType.AuthGameGuard
             && type != (byte)LoginClientPacketType.RequestAuthLogin
-            && type != (byte)LoginClientPacketType.RequestServerList)
+            && type != (byte)LoginClientPacketType.RequestServerList
+            && type != (byte)LoginClientPacketType.RequestServerLogin)
         {
             NewCrypt.appendChecksum(data);
         }

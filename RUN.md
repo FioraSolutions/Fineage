@@ -52,3 +52,13 @@ dotnet run          # 127.0.0.1:2106 (login) + :7777 (game)
 4. Грузится Talking Island `17_25`, клик по земле — бег (stub эхает `CharMoveToLocation`).
 
 Позже заменить stub на свой C# login/game сервер (тот же wire).
+
+## Логи
+
+Кратко: `l2-unity/docs/LOGGING.md`.
+
+- Lobby/login: Console `[LOBBY]` + `l2-unity/logs/diag/lobby-flow.txt`
+- Stub: `[STUB]` + `tools/login-stub/logs/stub.log`; `dotnet run -- --verbose` или `FINEAGE_STUB_DEBUG=1`
+- Zone: `[ZONE]` + `tools/zone-server/logs/zone.log`; `--verbose` / `FINEAGE_ZONE_DEBUG=1`
+- Debug в клиенте: `FineageLog.DebugEnabled = true` или define `FINEAGE_LOG_DEBUG`
+- Если `~/Library/Logs/Unity/Editor.log` раздулся: `: > ~/Library/Logs/Unity/Editor.log`

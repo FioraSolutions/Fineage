@@ -3,7 +3,8 @@ public sealed class AuthLogin : OutgoingWirePacket<AuthLoginDto>
 {
     protected override byte Opcode => (byte)GameClientPacketType.AuthLogin;
 
-    protected override OutgoingBuildKind BuildKind => OutgoingBuildKind.GameOverwriteOpcode;
+    // Opcode + body only (pad optional; stub/ClientSmoke pad separately). No trailing zero-int.
+    protected override OutgoingBuildKind BuildKind => OutgoingBuildKind.GameNoPad;
 
     public AuthLogin(AuthLoginCommand command) : this(command.Account, command.PlayKey1, command.PlayKey2, command.LoginKey1, command.LoginKey2) { }
 

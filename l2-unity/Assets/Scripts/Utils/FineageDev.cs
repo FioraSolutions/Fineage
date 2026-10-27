@@ -3,5 +3,5 @@
 /// </summary>
 public static class FineageDev
 {
-    public static bool AutoAdvanceLobby = true;
+    public static bool AutoAdvanceLobby = false;
 }

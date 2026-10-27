@@ -67,10 +67,12 @@ public class GameManager : MonoBehaviour {
             return;
         }
 
+        // Inspector false must force Interlude — ClearOverride would fall through to PlayerPrefs
+        // and silently drop Interlude AuthLogin via GameClient.Send ZoneV2 no-op.
         if (_useZoneServerV2)
             FineageWireConfig.SetOverride(FineageWireConfig.Mode.ZoneV2);
         else
-            FineageWireConfig.ClearOverride();
+            FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
@@ -138,7 +140,10 @@ public class GameManager : MonoBehaviour {
         PlayerStateMachine.Instance.enabled = true;
         WorldSpawnReady = true;
         if (!FineageWireConfig.IsZoneV2)
+        {
+            FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
             _gameClient.Send(new EnterWorldCommand());
+        }
         if (IncomingPacketActions.Domain != null)
             IncomingPacketActions.Domain.FlushKnownlist();
         else
