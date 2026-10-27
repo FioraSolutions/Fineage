@@ -12,7 +12,7 @@ public sealed class PetDeleteIncoming : IncomingPacket<DeleteObjectDto>
     public override void Apply(DeleteObjectDto dto)
     {
         SpawnFrameBudget.Cancel(dto.ObjectId);
-        if (IncomingPacketActions.GameWorld != null)
-            IncomingPacketActions.GameWorld.DeleteObject(dto.ObjectId);
+        if (IncomingPacketServices.GameWorld != null)
+            IncomingPacketServices.GameWorld.DeleteObject(dto.ObjectId);
     }
 }

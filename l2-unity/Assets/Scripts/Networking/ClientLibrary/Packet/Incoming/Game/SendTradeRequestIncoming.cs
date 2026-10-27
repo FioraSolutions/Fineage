@@ -5,10 +5,10 @@ public sealed class SendTradeRequestIncoming : IncomingWirePacket<SendTradeReque
 {
     public override void Apply(SendTradeRequestDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            IncomingPacketActions.TradeRequest.AddData(packet);
-            IncomingPacketActions.TradeRequest.ShowWindow();
+            IncomingPacketServices.TradeRequest.AddData(packet);
+            IncomingPacketServices.TradeRequest.ShowWindow();
         });
     }
 }

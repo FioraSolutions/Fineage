@@ -9,21 +9,21 @@ public sealed class CharSelectionInfoIncoming : IncomingWirePacket<CharSelection
         int count = packet != null && packet.Characters != null ? packet.Characters.Count : -1;
         LobbyFlowLog.Info("CharSelectionInfo Apply chars=" + count + " selectedSlot=" + (packet != null ? packet.SelectedSlotId : -1));
         MapClassId.Init();
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
             try
             {
-                IncomingPacketActions.CharSelect.SetInterludeCharacterList(packet.Characters);
-                IncomingPacketActions.CharSelect.SelectInterludeSlot(packet.SelectedSlotId);
+                IncomingPacketServices.CharSelect.SetInterludeCharacterList(packet.Characters);
+                IncomingPacketServices.CharSelect.SelectInterludeSlot(packet.SelectedSlotId);
 
-                IncomingPacketActions.Characters.SetCharacterInterludeList(packet.Characters);
-                IncomingPacketActions.Characters.SelectInterludeCharacter(packet.SelectedSlotId);
+                IncomingPacketServices.Characters.SetCharacterInterludeList(packet.Characters);
+                IncomingPacketServices.Characters.SelectInterludeCharacter(packet.SelectedSlotId);
 
-                IncomingPacketActions.Login.Disconnect();
+                IncomingPacketServices.Login.Disconnect();
                 LobbyFlowLog.Info("CharSelectionInfo → Game.OnAuthAllowed (show char select)");
-                IncomingPacketActions.Game.OnAuthAllowed();
+                IncomingPacketServices.Game.OnAuthAllowed();
                 LobbyFlowLog.Info("CharSelectionInfo DONE state=" +
-                    (IncomingPacketActions.Manager != null ? IncomingPacketActions.Manager.GameState.ToString() : "null"));
+                    (IncomingPacketServices.Manager != null ? IncomingPacketServices.Manager.GameState.ToString() : "null"));
             }
             catch (Exception ex)
             {

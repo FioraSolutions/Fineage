@@ -3,6 +3,6 @@ public sealed class MagicSkillCanceledIncoming : IncomingWirePacket<MagicSkillCa
 {
     public override void Apply(MagicSkillCanceledDto packet)
     {
-        IncomingPacketActions.ApplyWorld(apply => apply.MagicSkillCanceled(packet));
+        IncomingPacketServices.ApplyWorld(apply => apply.MagicSkillCanceled(packet));
     }
 }

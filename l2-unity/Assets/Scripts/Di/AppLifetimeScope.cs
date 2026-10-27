@@ -48,6 +48,12 @@ public sealed class AppLifetimeScope : LifetimeScope
                 manager,
                 animations,
                 container.Resolve<PacketApplyQueue>());
+            IncomingPacketServices.Bind(
+                game: container.Resolve<GameClient>(),
+                login: container.Resolve<LoginClient>(),
+                manager: manager,
+                applyQueue: container.Resolve<PacketApplyQueue>(),
+                events: container.Resolve<EventProcessor>());
             LobbyFlowLog.Wire(manager);
         });
     }

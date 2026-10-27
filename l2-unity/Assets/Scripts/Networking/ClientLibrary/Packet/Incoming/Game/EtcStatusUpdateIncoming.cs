@@ -5,10 +5,10 @@ public sealed class EtcStatusUpdateIncoming : IncomingWirePacket<EtcStatusUpdate
 {
     public override void Apply(EtcStatusUpdateDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            if (IncomingPacketActions.Buffer != null)
-                IncomingPacketActions.Buffer.RefreshPenalty(packet);
+            if (IncomingPacketServices.Buffer != null)
+                IncomingPacketServices.Buffer.RefreshPenalty(packet);
         });
     }
 }

@@ -5,13 +5,13 @@ public sealed class CharSelectedIncoming : IncomingWirePacket<CharSelectedDto>
 {
     protected override void OnParsed(CharSelectedDto packet)
     {
-        IncomingPacketActions.Game.PlayerInfo = packet.PlayeInfo;
-        IncomingPacketActions.Game.SetDataPreparationCompleted(false);
+        IncomingPacketServices.Game.PlayerInfo = packet.PlayeInfo;
+        IncomingPacketServices.Game.SetDataPreparationCompleted(false);
     }
 
     public override void Apply(CharSelectedDto packet)
     {
-        IncomingPacketActions.Game.PlayerInfo = packet.PlayeInfo;
-        IncomingPacketActions.Manager.OnCharacterSelect();
+        IncomingPacketServices.Game.PlayerInfo = packet.PlayeInfo;
+        IncomingPacketServices.Manager.OnCharacterSelect();
     }
 }

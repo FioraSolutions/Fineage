@@ -5,12 +5,12 @@ public sealed class ShortBuffStatusUpdateIncoming : IncomingWirePacket<ShortBuff
 {
     public override void Apply(ShortBuffStatusUpdateDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            if (IncomingPacketActions.Buffer == null || packet.Effect == null)
+            if (IncomingPacketServices.Buffer == null || packet.Effect == null)
                 return;
             var item = packet.Effect;
-            IncomingPacketActions.Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
+            IncomingPacketServices.Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
         });
     }
 }

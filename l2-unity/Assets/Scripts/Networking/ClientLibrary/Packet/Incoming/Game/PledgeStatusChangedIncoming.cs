@@ -5,6 +5,6 @@ public sealed class PledgeStatusChangedIncoming : IncomingWirePacket<PledgeStatu
 {
     public override void Apply(PledgeStatusChangedDto packet)
     {
-        IncomingPacketActions.Queue(() => IncomingPacketActions.Clan.UpdateClanIdInfo(packet));
+        IncomingPacketServices.Queue(() => IncomingPacketServices.Clan.UpdateClanIdInfo(packet));
     }
 }

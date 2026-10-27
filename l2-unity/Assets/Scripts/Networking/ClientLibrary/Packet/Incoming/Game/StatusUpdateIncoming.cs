@@ -16,7 +16,7 @@ public sealed class StatusUpdateIncoming : IncomingPacket<StatusUpdateDto>
 
     public override void Apply(StatusUpdateDto dto)
     {
-        if (IncomingPacketActions.GameWorld != null)
-            IncomingPacketActions.GameWorld.StatusUpdate(dto.ObjectId, dto.Attributes);
+        if (IncomingPacketServices.GameWorld != null)
+            IncomingPacketServices.GameWorld.StatusUpdate(dto.ObjectId, dto.Attributes);
     }
 }

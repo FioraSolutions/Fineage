@@ -5,6 +5,6 @@ public sealed class ChooseInventoryItemIncoming : IncomingWirePacket<ChooseInven
 {
     public override void Apply(ChooseInventoryItemDto packet)
     {
-        IncomingPacketActions.Queue(() => IncomingPacketActions.Enchant.ShowWindow(packet.Item));
+        IncomingPacketServices.Queue(() => IncomingPacketServices.Enchant.ShowWindow(packet.Item));
     }
 }

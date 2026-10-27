@@ -23,6 +23,13 @@ public sealed class LoginLifetimeScope : LifetimeScope
         {
             LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
             IncomingPacketActions.BindLogin(loginRuntime);
+            IncomingPacketServices.Bind(
+                game: loginRuntime.Game,
+                login: loginRuntime.LoginClient,
+                manager: loginRuntime.Manager,
+                loginWindow: loginRuntime.LoginWindow,
+                charSelect: loginRuntime.CharSelect,
+                characters: loginRuntime.Selector);
             if (App.Container != null)
             {
                 try

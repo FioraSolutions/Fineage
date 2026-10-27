@@ -5,10 +5,10 @@ public sealed class AskJoinPartyIncoming : IncomingWirePacket<AskJoinPartyDto>
 {
     public override void Apply(AskJoinPartyDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            IncomingPacketActions.PartyInvite.AddData(packet);
-            IncomingPacketActions.PartyInvite.ShowWindow();
+            IncomingPacketServices.PartyInvite.AddData(packet);
+            IncomingPacketServices.PartyInvite.ShowWindow();
         });
     }
 }

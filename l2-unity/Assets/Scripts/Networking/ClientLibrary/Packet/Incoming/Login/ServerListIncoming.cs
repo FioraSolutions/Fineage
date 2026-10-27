@@ -3,6 +3,6 @@ public sealed class ServerListIncoming : IncomingWirePacket<ServerListDto>
 {
     public override void Apply(ServerListDto packet)
     {
-        IncomingPacketActions.Login.OnServerListReceived(packet.LastServer, packet.ServersData, packet.CharsOnServers);
+        IncomingPacketServices.Login.OnServerListReceived(packet.LastServer, packet.ServersData, packet.CharsOnServers);
     }
 }

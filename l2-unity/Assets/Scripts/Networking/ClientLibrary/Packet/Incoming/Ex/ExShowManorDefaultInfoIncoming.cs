@@ -5,10 +5,10 @@ public sealed class ExShowManorDefaultInfoIncoming : IncomingWirePacket<ExShowMa
 {
     public override void Apply(ExShowManorDefaultInfoDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            IncomingPacketActions.SeedInfo.SetDataDefaultManorInfo(packet.List);
-            IncomingPacketActions.SeedInfo.ShowWindowActiveTabAllDefault();
+            IncomingPacketServices.SeedInfo.SetDataDefaultManorInfo(packet.List);
+            IncomingPacketServices.SeedInfo.ShowWindowActiveTabAllDefault();
         });
     }
 }
