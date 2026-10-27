@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class L2LoginUI : L2UI
 {
+    [Inject] LoginRuntime _login;
+
     [SerializeField] private VisualElement _loadingElement;
 
     private bool loading = false;
@@ -12,6 +15,31 @@ public class L2LoginUI : L2UI
     public static L2LoginUI Instance { get { return _instance; } }
 
     public bool IsLoading { get { return loading; } }
+
+    private LoginWindow LoginWin
+    {
+        get { return _login != null ? _login.LoginWindow : IncomingPacketActions.LoginWindow; }
+    }
+
+    private LicenseWindow LicenseWin
+    {
+        get { return _login != null ? _login.License : IncomingPacketActions.LicenseWindow; }
+    }
+
+    private ServerSelectWindow ServerWin
+    {
+        get { return _login != null ? _login.Servers : IncomingPacketActions.ServerSelect; }
+    }
+
+    private CharSelectWindow CharSelectWin
+    {
+        get { return _login != null ? _login.CharSelect : IncomingPacketActions.CharSelect; }
+    }
+
+    private CharCreationWindow CharCreateWin
+    {
+        get { return _login != null ? _login.CharCreate : IncomingPacketActions.CharCreate; }
+    }
 
     public void SetLoading(bool loading)
     {
@@ -53,15 +81,15 @@ public class L2LoginUI : L2UI
     protected override void LoadUI() {
         base.LoadUI();
 
-        IncomingPacketActions.LoginWindow.AddWindow(_rootVisualContainer);
-        IncomingPacketActions.CharSelect.AddWindow(_rootVisualContainer);
-        IncomingPacketActions.CharSelect.HideWindow();
-        IncomingPacketActions.CharCreate.AddWindow(_rootVisualContainer);
-        IncomingPacketActions.CharCreate.HideWindow();
-        IncomingPacketActions.LicenseWindow.AddWindow(_rootVisualContainer);
-        IncomingPacketActions.LicenseWindow.HideWindow();
-        IncomingPacketActions.ServerSelect.AddWindow(_rootVisualContainer);
-        IncomingPacketActions.ServerSelect.HideWindow();
+        LoginWin.AddWindow(_rootVisualContainer);
+        CharSelectWin.AddWindow(_rootVisualContainer);
+        CharSelectWin.HideWindow();
+        CharCreateWin.AddWindow(_rootVisualContainer);
+        CharCreateWin.HideWindow();
+        LicenseWin.AddWindow(_rootVisualContainer);
+        LicenseWin.HideWindow();
+        ServerWin.AddWindow(_rootVisualContainer);
+        ServerWin.HideWindow();
         // Early pass (menu-only). SceneLoader runs a second pass after additive l2_lobby.
         LobbyBrokenMaterialHider.HideBrokenRenderers("login_ui_load");
         StartCoroutine(ShowLoginWhenReady());
@@ -80,7 +108,7 @@ public class L2LoginUI : L2UI
         // AddWindow builds via coroutine — wait until LoginWindow visual exists.
         for (int i = 0; i < 120; i++)
         {
-            var login = IncomingPacketActions.LoginWindow;
+            var login = LoginWin;
             if (login != null && login.gameObject != null)
             {
                 login.ShowWindow();
@@ -91,49 +119,49 @@ public class L2LoginUI : L2UI
     }
 
     public void ShowServerSelectWindow() {
-        IncomingPacketActions.LoginWindow.HideWindow();
-        IncomingPacketActions.LicenseWindow.HideWindow();
-        IncomingPacketActions.ServerSelect.ShowWindow();
+        LoginWin.HideWindow();
+        LicenseWin.HideWindow();
+        ServerWin.ShowWindow();
     }
 
     public void ShowLicenseWindow() {
-        IncomingPacketActions.LoginWindow.HideWindow();
-        IncomingPacketActions.LicenseWindow.ShowWindow();
-        IncomingPacketActions.ServerSelect.HideWindow();
-        IncomingPacketActions.LicenseWindow.DevAutoAgreeIfEnabled();
+        LoginWin.HideWindow();
+        LicenseWin.ShowWindow();
+        ServerWin.HideWindow();
+        LicenseWin.DevAutoAgreeIfEnabled();
     }
 
     public void ShowCharSelectWindow() {
-        IncomingPacketActions.LoginWindow.HideWindow();
-        IncomingPacketActions.CharCreate.HideWindow();
-        IncomingPacketActions.CharSelect.ShowWindow();
-        IncomingPacketActions.ServerSelect.HideWindow();
+        LoginWin.HideWindow();
+        CharCreateWin.HideWindow();
+        CharSelectWin.ShowWindow();
+        ServerWin.HideWindow();
     }
 
     public void ShowLoginWindow() {
-        IncomingPacketActions.CharSelect.HideWindow();
-        IncomingPacketActions.LoginWindow.ShowWindow();
-        IncomingPacketActions.CharCreate.HideWindow();
-        IncomingPacketActions.CharSelect.HideWindow();
-        IncomingPacketActions.LicenseWindow.HideWindow();
-        IncomingPacketActions.ServerSelect.HideWindow();
+        CharSelectWin.HideWindow();
+        LoginWin.ShowWindow();
+        CharCreateWin.HideWindow();
+        CharSelectWin.HideWindow();
+        LicenseWin.HideWindow();
+        ServerWin.HideWindow();
     }
 
     public void ShowCharCreationWindow() {
-        IncomingPacketActions.CharSelect.HideWindow();
-        IncomingPacketActions.CharCreate.Init();
-        IncomingPacketActions.CharCreate.ShowWindow();
+        CharSelectWin.HideWindow();
+        CharCreateWin.Init();
+        CharCreateWin.ShowWindow();
 
     }
 
     public void SetCharTemplations(List<PlayerTemplates> playerTemplates)
     {
-        IncomingPacketActions.CharCreate.Clear();
-        IncomingPacketActions.CharCreate.SetPlayerTemplates(playerTemplates);
+        CharCreateWin.Clear();
+        CharCreateWin.SetPlayerTemplates(playerTemplates);
     }
 
     public void ShowCharCreationError(string text)
     {
-        IncomingPacketActions.CharCreate.SetlabelError(text);
+        CharCreateWin.SetlabelError(text);
     }
 }

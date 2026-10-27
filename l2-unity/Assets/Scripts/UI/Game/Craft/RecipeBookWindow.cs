@@ -4,9 +4,17 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
+using VContainer;
 
 public class RecipeBookWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualElement _inventoryTabView;
@@ -91,7 +99,7 @@ public class RecipeBookWindow : L2PopupWindow
 
     private void SendRequestOpenCraftWindow(int recipeId)
     {
-        IncomingPacketActions.Game.Send(new RequestRecipeItemMakeInfoCommand(recipeId));
+        Game.Send(new RequestRecipeItemMakeInfoCommand(recipeId));
     }
 
     private void UpdateSizeLabel(Label sizeLabel , RecipeBookItemListDto packet)

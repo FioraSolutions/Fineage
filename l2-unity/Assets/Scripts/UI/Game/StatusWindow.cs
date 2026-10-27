@@ -3,9 +3,17 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class StatusWindow : L2Window
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private Label _nameLabel;
     private Label _levelLabel;
     private Label _HPTextLabel;
@@ -137,7 +145,7 @@ public class StatusWindow : L2Window
 
     private void SendSelfTargetAction(PlayerEntity player)
     {
-        if (player.Identity == null || IncomingPacketActions.Game == null)
+        if (player.Identity == null || Game == null)
         {
             return;
         }
@@ -145,7 +153,7 @@ public class StatusWindow : L2Window
         var position = player.transform.position;
         var l2jpos = VectorUtils.ConvertPosUnityToL2j(position);
 
-        IncomingPacketActions.Game.Send(new ClickActionCommand(
+        Game.Send(new ClickActionCommand(
             player.Identity.Id,
             (int)l2jpos.x,
             (int)l2jpos.y,

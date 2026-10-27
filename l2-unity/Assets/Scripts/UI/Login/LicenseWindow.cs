@@ -7,6 +7,12 @@ using VContainer;
 public class LicenseWindow : L2Window
 {
     [Inject] LoginRuntime _login;
+
+    private LoginClient Login
+    {
+        get { return _login != null ? _login.LoginClient : IncomingPacketActions.Login; }
+    }
+
     private static LicenseWindow _instance;
     public static LicenseWindow Instance { get { return _instance; } }
 
@@ -71,12 +77,10 @@ public class LicenseWindow : L2Window
 
     private void AgreeButtonPressed() {
         //LoginClient.Instance.ClientPacketHandler.SendPacket()
-        LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
-        client.Send(new RequestServerListCommand(client.SessionKey1 , client.SessionKey2));
+        Login.Send(new RequestServerListCommand(Login.SessionKey1 , Login.SessionKey2));
     }
 
     private void DisagreeButtonPressed() {
-        LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
-        client.Disconnect();
+        Login.Disconnect();
     }
 }

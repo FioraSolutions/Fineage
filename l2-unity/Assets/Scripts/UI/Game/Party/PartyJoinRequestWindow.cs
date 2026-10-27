@@ -2,9 +2,17 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class PartyInvitationWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private static PartyInvitationWindow _instance;
     private VisualElement _progressBar;
     private VisualElement _progressBarBg;
@@ -140,14 +148,14 @@ public class PartyInvitationWindow : L2PopupWindow
 
     private void SendAcceptResponse()
     {
-        IncomingPacketActions.Game.Send(new RequestAnswerJoinPartyCommand(1));
+        Game.Send(new RequestAnswerJoinPartyCommand(1));
 
         OnInvitationResponse?.Invoke(true);
     }
 
     private void SendDeclineResponse()
     {
-        IncomingPacketActions.Game.Send(new RequestAnswerJoinPartyCommand(0));
+        Game.Send(new RequestAnswerJoinPartyCommand(0));
 
         OnInvitationResponse?.Invoke(false);
     }

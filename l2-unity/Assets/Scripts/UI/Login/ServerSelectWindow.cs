@@ -7,6 +7,22 @@ using VContainer;
 public class ServerSelectWindow : L2Window
 {
     [Inject] LoginRuntime _login;
+
+    private GameClient Game
+    {
+        get { return _login != null ? _login.Game : IncomingPacketActions.Game; }
+    }
+
+    private LoginClient Login
+    {
+        get { return _login != null ? _login.LoginClient : IncomingPacketActions.Login; }
+    }
+
+    private LoginWindow LoginWin
+    {
+        get { return _login != null ? _login.LoginWindow : IncomingPacketActions.LoginWindow; }
+    }
+
     private VisualTreeAsset _serverElementTemplate;
     private VisualElement _listContentContainer;
     private List<VisualElement> _serverElements;
@@ -153,9 +169,8 @@ public class ServerSelectWindow : L2Window
 
         //Debug.Log("Server selected: " + _selectedServerId);
 
-        GameClient game = _login != null && _login.Game != null ? _login.Game : IncomingPacketActions.Game;
-        game.ServerIp = StringUtils.ByteArrayToIpAddress(_serverData[rowId].ip);
-        game.ServerPort = _serverData[rowId].port;
+        Game.ServerIp = StringUtils.ByteArrayToIpAddress(_serverData[rowId].ip);
+        Game.ServerPort = _serverData[rowId].port;
     }
 
     private string ParseServerName(int serverId) {
@@ -262,13 +277,11 @@ public class ServerSelectWindow : L2Window
 
     private void SetServerId(int id) {
         _selectedServerId = id;
-        GameClient game = _login != null && _login.Game != null ? _login.Game : IncomingPacketActions.Game;
-        game.ServerId = id;
+        Game.ServerId = id;
     }
 
     private void ConfirmButtonPressed() {
-        LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
-        if (client == null)
+        if (Login == null)
         {
             LobbyFlowLog.Error("Confirm: LoginClient null");
             return;
@@ -281,20 +294,18 @@ public class ServerSelectWindow : L2Window
                   " online=" + online);
 
         if (online) {
-            client.OnServerSelected(_selectedServerId);
+            Login.OnServerSelected(_selectedServerId);
         }
         else
         {
             LobbyFlowLog.Warn("Confirm rejected — server offline/invalid; disconnect login");
-            var loginWindow = IncomingPacketActions.LoginWindow;
-            if (loginWindow != null)
-                loginWindow.ShowErrorText("Your login attempt failed due to high server load. Please try again later");
-            client.Disconnect();
+            if (LoginWin != null)
+                LoginWin.ShowErrorText("Your login attempt failed due to high server load. Please try again later");
+            Login.Disconnect();
         }
     }
 
     private void CancelButtonPressed() {
-        LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
-        client.Disconnect();
+        Login.Disconnect();
     }
 }

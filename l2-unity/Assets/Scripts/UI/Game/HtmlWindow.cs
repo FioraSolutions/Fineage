@@ -3,9 +3,17 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class HtmlWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private Label _titleLabel;
     private static HtmlWindow _instance;
     public static HtmlWindow Instance => _instance;
@@ -36,7 +44,7 @@ public class HtmlWindow : L2PopupWindow
         if (Input.GetKeyDown(KeyCode.B) && CanSend(1100))
         {
             // Debug.Log("Requesting : ShowBoard");
-            IncomingPacketActions.Game.Send(new RequestShowBoardCommand());
+            Game.Send(new RequestShowBoardCommand());
         }
     }
 
@@ -288,7 +296,7 @@ public class HtmlWindow : L2PopupWindow
         if (string.IsNullOrEmpty(action))
             return;
 
-        IncomingPacketActions.Game.Send(new RequestBypassToServerCommand(action));
+        Game.Send(new RequestBypassToServerCommand(action));
     }
 
     public void UseActionCommand(string command)

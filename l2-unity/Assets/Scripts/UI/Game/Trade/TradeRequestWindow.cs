@@ -19,6 +19,12 @@ public class TradeRequestWindow : L2PopupWindow
     private Coroutine _countdownCoroutine;
 
     [Inject] World _world;
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
 
     private World Worlds
     {
@@ -154,7 +160,7 @@ public class TradeRequestWindow : L2PopupWindow
     private void SendAcceptResponse()
     {
         // Отправляем пакет подтверждения торговли
-        IncomingPacketActions.Game.Send(new AnswerTradeRequestCommand(1));
+        Game.Send(new AnswerTradeRequestCommand(1));
 
         OnTradeResponse?.Invoke(true);
     }
@@ -162,7 +168,7 @@ public class TradeRequestWindow : L2PopupWindow
     private void SendDeclineResponse()
     {
         // Отправляем пакет отклонения торговли
-        IncomingPacketActions.Game.Send(new AnswerTradeRequestCommand(0));
+        Game.Send(new AnswerTradeRequestCommand(0));
 
         OnTradeResponse?.Invoke(false);
     }

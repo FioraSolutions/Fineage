@@ -4,9 +4,17 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class RankingPrivelege : AbstractClanContent
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private ICreatorTables _creatorTableWindows;
     private Func<string, VisualTreeAsset> _loaderFunc;
     private const string master_table_content = "Content";
@@ -77,7 +85,7 @@ public class RankingPrivelege : AbstractClanContent
         if (_selectRank != null)
         {
 
-            IncomingPacketActions.Game.Send(new RequestPledgePowerCommand(_selectRank.GetRank(), 1, _selectRank.GetPower()));
+            Game.Send(new RequestPledgePowerCommand(_selectRank.GetRank(), 1, _selectRank.GetPower()));
 
             //OnSwitchRank?.Invoke(EDIT_MODE_ALL_NOT_CHECKED);
 

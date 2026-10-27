@@ -3,9 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class QuestWindow : L2TwoPanels
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
 
     private static QuestWindow _instance;
     private BuilderTabs _builderTabs;
@@ -272,7 +280,7 @@ public class QuestWindow : L2TwoPanels
     {
         if(_selectQuest != null)
         {
-            IncomingPacketActions.Game.Send(new RequestQuestAbortCommand(_selectQuest.QuestID));
+            Game.Send(new RequestQuestAbortCommand(_selectQuest.QuestID));
             CancelEvent();
         }
 

@@ -2,10 +2,18 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 
 public class CraftingItemWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
     private ICreatorSimpleTrade _creatorSimpleTrade;
     private static CraftingItemWindow _instance;
     private RecipeItemMakeInfoDto _packet;
@@ -79,7 +87,7 @@ public class CraftingItemWindow : L2PopupWindow
     {
         if (_packet != null)
         {
-            IncomingPacketActions.Game.Send(new RequestRecipeItemMakeSelfCommand(_packet.RecipeId));
+            Game.Send(new RequestRecipeItemMakeSelfCommand(_packet.RecipeId));
         }
     }
 
@@ -88,7 +96,7 @@ public class CraftingItemWindow : L2PopupWindow
 
         if (_packet != null)
         {
-            IncomingPacketActions.Game.Send(new RequestRecipeBookOpenCommand(_packet.IsDwarvenRecipe));
+            Game.Send(new RequestRecipeBookOpenCommand(_packet.IsDwarvenRecipe));
         }
 
         HideWindow();
