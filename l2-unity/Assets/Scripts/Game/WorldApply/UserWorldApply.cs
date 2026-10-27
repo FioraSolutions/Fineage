@@ -13,7 +13,7 @@ public sealed class UserWorldApply : EntityWorldApply
 
     private World GameWorld
     {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
+        get { return _world != null ? _world : WorldApplyPacketServices.GameWorld; }
     }
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
