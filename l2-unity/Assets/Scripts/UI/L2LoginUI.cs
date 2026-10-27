@@ -62,7 +62,55 @@ public class L2LoginUI : L2UI
         IncomingPacketActions.LicenseWindow.HideWindow();
         IncomingPacketActions.ServerSelect.AddWindow(_rootVisualContainer);
         IncomingPacketActions.ServerSelect.HideWindow();
-        SkillAnimationDatabase.Initialize();
+        HideMissingMaterialRenderers();
+        StartCoroutine(ShowLoginWhenReady());
+        try
+        {
+            SkillAnimationDatabase.Initialize();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("[L2LoginUI] SkillAnimationDatabase.Initialize failed: " + ex.Message);
+        }
+    }
+
+    static void HideMissingMaterialRenderers()
+    {
+        // Lobby ships/FX often ship with null material slots → magenta error mats on Metal.
+        var rends = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < rends.Length; i++)
+        {
+            var mats = rends[i].sharedMaterials;
+            bool bad = mats == null || mats.Length == 0;
+            if (!bad)
+            {
+                for (int m = 0; m < mats.Length; m++)
+                {
+                    if (mats[m] == null)
+                    {
+                        bad = true;
+                        break;
+                    }
+                }
+            }
+            if (bad)
+                rends[i].enabled = false;
+        }
+    }
+
+    System.Collections.IEnumerator ShowLoginWhenReady()
+    {
+        // AddWindow builds via coroutine — wait until LoginWindow visual exists.
+        for (int i = 0; i < 120; i++)
+        {
+            var login = IncomingPacketActions.LoginWindow;
+            if (login != null && login.gameObject != null)
+            {
+                login.ShowWindow();
+                yield break;
+            }
+            yield return null;
+        }
     }
 
     public void ShowServerSelectWindow() {

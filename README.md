@@ -74,7 +74,11 @@ UI Interface [Картинки в примерах](https://github.com/gawric/Un
 <img src="https://i.postimg.cc/RhzrQjzS/buy-sell.png" alt="Preview0" style="max-width: 75%; height: auto;">  
 
 ## Telegram  
-Группа в телеграме для обсуждения  [Telegram](https://t.me/l2unityForL2j).  
+Группа в телеграме для обсуждения: [t.me/l2unityForL2j](https://t.me/l2unityForL2j).  
+
+Внутренний чат / тред с ассетами (челы пушили модели/текстуры и т.п. — пока просто закладка, нужна ли нам эта пачка ещё не разбирали):  
+https://t.me/c/l2unityForL2j/1  
+
 
 
 ## Гайд  

@@ -86,3 +86,11 @@ l2-unity/ProfileAnalyzer/*.pdata
 
 # Rider
 .idea/
+# Local agent / runtime junk
+logs/
+tools/Agent*.cs
+**/bin/
+**/obj/
+
+# Accidental Windows path artifact
+l2-unity/C:*/

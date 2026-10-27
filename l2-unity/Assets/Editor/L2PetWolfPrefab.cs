@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-[InitializeOnLoad]
+// Manual only — was auto-running on domain reload / leave Play Mode.
 public static class L2PetWolfPrefab
 {
     const string FbxPath = "Assets/Resources/Data/Animations/LineageMonsters/pet_wolf_a_m00/pet_wolf_a_m00.fbx";
@@ -14,17 +14,8 @@ public static class L2PetWolfPrefab
 
     static bool _busy;
 
-    static L2PetWolfPrefab()
-    {
-        EditorApplication.delayCall += BuildIfMissing;
-        EditorApplication.playModeStateChanged += OnPlayMode;
-    }
-
-    static void OnPlayMode(PlayModeStateChange state)
-    {
-        if (state == PlayModeStateChange.EnteredEditMode)
-            EditorApplication.delayCall += BuildIfMissing;
-    }
+    [MenuItem("L2/Pets/Build Wolf Prefab")]
+    public static void BuildIfMissingMenu() => BuildIfMissing();
 
     static void BuildIfMissing()
     {

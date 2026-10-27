@@ -163,17 +163,13 @@ public class ChatWindow : L2Window
 
     void Update()
     {
-        if (InputManager.Instance.Validate)
-        {
-            if (_chatOpened)
-            {
-                CloseChat(true);
-            }
-            else
-            {
-                StartCoroutine(OpenChat());
-            }
-        }
+        if (InputManager.Instance == null || !InputManager.Instance.Validate)
+            return;
+
+        if (_chatOpened)
+            CloseChat(true);
+        else
+            StartCoroutine(OpenChat());
     }
 
     IEnumerator OpenChat()

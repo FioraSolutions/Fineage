@@ -24,12 +24,25 @@ public abstract class L2UI : MonoBehaviour
     {
         if (_rootElement != null && !float.IsNaN(_rootElement.resolvedStyle.width) && _uiLoaded == false)
         {
-            LoadUI();
-            _uiLoaded = true;
+            try
+            {
+                LoadUI();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+            finally
+            {
+                // Always mark loaded so a one-shot failure doesn't spam every frame.
+                _uiLoaded = true;
+            }
         }
         else
         {
-            _rootElement = GetComponent<UIDocument>().rootVisualElement;
+            var doc = GetComponent<UIDocument>();
+            if (doc != null)
+                _rootElement = doc.rootVisualElement;
         }
 
         if (_uiLoaded)

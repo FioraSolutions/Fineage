@@ -72,6 +72,8 @@ public class MapWindow : L2PopupWindow
 
     public void LateUpdate()
     {
+        if (_mapPanner == null)
+            return;
         _mapPanner.UpdateMarker(_isWindowHidden);
     }
 

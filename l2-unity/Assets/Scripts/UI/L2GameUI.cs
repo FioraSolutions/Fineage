@@ -274,6 +274,9 @@ public class L2GameUI : L2UI
 
     public void CheckUIInputs()
     {
+        if (InputManager.Instance == null)
+            return;
+
         if (InputManager.Instance.OpenCharacerStatus)
         {
             if (CharacterInfoWindow.Instance != null)

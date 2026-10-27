@@ -28,6 +28,7 @@ public sealed class L2FxCompositorRenderPass : ScriptableRenderPass
     static readonly int KawaseTexelSizeId = Shader.PropertyToID("_KawaseTexelSize");
     static readonly ShaderTagId ForwardOnlyTag = new ShaderTagId("UniversalForwardOnly");
     static readonly ProfilingSampler Sampler = new ProfilingSampler("L2Fx D3D9 Compositor");
+    static readonly ProfilingSampler SamplerDirect = new ProfilingSampler("L2 FX Direct UNORM");
 
     readonly L2FxCompositorSettings _settings;
     readonly Material _transferMaterial;
@@ -137,8 +138,11 @@ public sealed class L2FxCompositorRenderPass : ScriptableRenderPass
             return;
         }
 
+        // CPU-only scope: DrawSkillFx/DrawFxLayer call cmd.Clear() after
+        // ExecuteCommandBuffer, which would wipe BeginSample and spam
+        // Begin/EndProfileEvent mismatch errors if the scope targeted cmd.
         CommandBuffer cmd = CommandBufferPool.Get("L2Fx D3D9 Compositor");
-        using (new ProfilingScope(cmd, Sampler))
+        using (new ProfilingScope(Sampler))
         {
             Shader.SetGlobalFloat(D3D9ActiveId, 1f);
             Shader.SetGlobalFloat(DebugModeId, _settings.debugMode);
@@ -183,7 +187,7 @@ public sealed class L2FxCompositorRenderPass : ScriptableRenderPass
         }
 
         CommandBuffer cmd = CommandBufferPool.Get("L2 FX Direct UNORM");
-        using (new ProfilingScope(cmd, Sampler))
+        using (new ProfilingScope(SamplerDirect))
         {
             cmd.SetGlobalFloat(D3D9ActiveId, 1f);
             cmd.SetGlobalFloat(DebugModeId, _settings.debugMode);
