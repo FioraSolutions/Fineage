@@ -6,4 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Fineage.LoginStub</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fineage.LoginStub.Tests" />
+  </ItemGroup>
 </Project>

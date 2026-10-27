@@ -1,0 +1,25 @@
+# Refactor-before-features policy
+
+Until epic [#131](https://github.com/FioraSolutions/Fineage/issues/131) P0 items are complete, **architecture refactoring takes priority over new features**.
+
+## Active policy
+
+1. **Pause `smoke:gremlin`** (epic [#129](https://github.com/FioraSolutions/Fineage/issues/129)) — content delivery is blocked pending CI + refactor base.
+2. **Do not add new members** to `IncomingPacketActions.cs` — surface is frozen per [#137](https://github.com/FioraSolutions/Fineage/issues/137).
+3. **Do not expand `GameManager`** responsibilities. Extract to focused classes per [#141](https://github.com/FioraSolutions/Fineage/issues/141).
+4. **New networking code** must go through `IZoneTransport` interface, not inline `IsZoneV2` checks.
+5. **New code must be testable** — prefer constructor/method injection over `static Instance` singletons.
+
+## Worktree protocol
+
+- Each branch gets its own worktree. Never reuse another agent's branch.
+- Do not push directly to `main` or `dev`. Land via PR into `dev`.
+- See `Docs/AGENT_BRANCH_PROTOCOL.md` for full rules.
+
+## Priority order (from CLIENT_ARCHITECTURE_REVIEW.md)
+
+1. [#137](https://github.com/FioraSolutions/Fineage/issues/137) — Freeze IncomingPacketActions surface
+2. [#139](https://github.com/FioraSolutions/Fineage/issues/139) — Assembly definition split
+3. [#140](https://github.com/FioraSolutions/Fineage/issues/140) — Wire V2 through IZoneTransport
+4. [#141](https://github.com/FioraSolutions/Fineage/issues/141) — Decompose GameManager
+5. [#142](https://github.com/FioraSolutions/Fineage/issues/142) — Migrate IncomingPacketActions to DI

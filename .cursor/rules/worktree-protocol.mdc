@@ -1,0 +1,20 @@
+# Worktree protocol
+
+## Rules
+
+1. **One agent → one branch → one worktree.** Never reuse another agent's branch mid-flight.
+2. **Do not `git checkout`** a branch that another agent owns while that agent is running.
+3. **Commit and push only from your branch.** Do not amend, rebase, or force-push anyone else's commits.
+4. **Never push directly to `main` or `dev`.** Land only via PR into `dev`.
+5. **Prefer worktrees** for parallel edits. Create from repo root after `git fetch`.
+
+## Naming convention
+
+```
+../Fineage-<purpose>/   → branch feat/<purpose> or chore/<purpose>
+```
+
+Example:
+```bash
+git worktree add ../Fineage-ci-refactor -b feat/ci-and-arch-base origin/dev
+```
