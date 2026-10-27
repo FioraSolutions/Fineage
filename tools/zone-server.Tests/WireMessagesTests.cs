@@ -134,6 +134,32 @@ public class WireMessagesTests
         Assert.Equal(1002, (ushort)MsgType.AuthOk);
         Assert.Equal(1003, (ushort)MsgType.PlayerSpawned);
         Assert.Equal(1004, (ushort)MsgType.MoveToAck);
+        Assert.Equal(1005, (ushort)MsgType.CharInfo);
+        Assert.Equal(1006, (ushort)MsgType.NpcInfo);
+        Assert.Equal(1007, (ushort)MsgType.DeleteObject);
         Assert.Equal(1099, (ushort)MsgType.Error);
+    }
+
+    [Fact]
+    public void PresenceMsgs_RoundTrip()
+    {
+        var charInfo = new CharInfoMsg
+        {
+            ObjectId = 9,
+            Name = "Hero",
+            X = 1,
+            Y = 2,
+            Z = 3,
+            ClassId = 10
+        };
+        var npc = new NpcInfoMsg { ObjectId = 20_001, NpcTemplateId = 30_001, X = 4, Y = 5, Z = 6 };
+        var del = new DeleteObjectMsg { ObjectId = 99 };
+
+        Assert.Equal(charInfo.ObjectId,
+            MessagePackSerializer.Deserialize<CharInfoMsg>(MessagePackSerializer.Serialize(charInfo)).ObjectId);
+        Assert.Equal(npc.NpcTemplateId,
+            MessagePackSerializer.Deserialize<NpcInfoMsg>(MessagePackSerializer.Serialize(npc)).NpcTemplateId);
+        Assert.Equal(del.ObjectId,
+            MessagePackSerializer.Deserialize<DeleteObjectMsg>(MessagePackSerializer.Serialize(del)).ObjectId);
     }
 }

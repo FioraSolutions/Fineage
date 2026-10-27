@@ -38,9 +38,13 @@ See `Wire/MsgType.cs` and `Wire/Messages.cs`.
 
 `Accounts/AccountCharacterStore` holds per-account characters for the **login-stub** Interlude game port (no DB). Human Fighter create path only; wired from `tools/login-stub`.
 
+## v0.4 presence (thin)
+
+On `EnterWorld`, the server sends `NpcInfo` / `CharInfo` for entities in grid AOI (3×3 cells, 3000 L2 units). `MoveTo` updates AOI and emits `DeleteObject` when entities leave visibility. Static TI NPCs are hardcoded in `ZoneWorld.SeedTalkingIslandNpcs()`.
+
 ## Next
 
 - TLS on the channel
 - Separate login listener
 - Client `Adapters/V2` → `IWorldDomainSink`
-- Interest / tick loop
+- Tick loop / combat

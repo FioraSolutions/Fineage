@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using Fineage.ZoneServer;
 using Fineage.ZoneServer.Session;
+using Fineage.ZoneServer.World;
 
 // Fineage ZoneServer skeleton (wire v2 + MessagePack).
 // Ports differ from Interlude stub so both can run: login-stub 2106/7777, zone 9106/9777.
@@ -15,6 +16,9 @@ if (args.Contains("--selftest"))
     await SelfTest.RunAsync();
     return;
 }
+
+var world = new ZoneWorld();
+world.SeedTalkingIslandNpcs();
 
 var listener = new TcpListener(IPAddress.Loopback, GamePort);
 listener.Start();
@@ -34,7 +38,7 @@ _ = Task.Run(async () =>
     {
         var client = await listener.AcceptTcpClientAsync().ConfigureAwait(false);
         int sid = Interlocked.Increment(ref nextSession);
-        var session = new PlayerSession(client, sid);
+        var session = new PlayerSession(client, sid, world);
         _ = Task.Run(async () =>
         {
             try { await session.RunAsync(CancellationToken.None).ConfigureAwait(false); }

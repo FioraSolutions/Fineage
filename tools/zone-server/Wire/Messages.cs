@@ -69,3 +69,32 @@ public sealed class ErrorMsg
     [Key(0)] public string Code { get; set; } = "";
     [Key(1)] public string Message { get; set; } = "";
 }
+
+/// <summary>Thin v0.4 presence — maps to client CharInfo / DomainKnownlistAdd.</summary>
+[MessagePackObject]
+public sealed class CharInfoMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
+    [Key(1)] public string Name { get; set; } = "";
+    [Key(2)] public int X { get; set; }
+    [Key(3)] public int Y { get; set; }
+    [Key(4)] public int Z { get; set; }
+    [Key(5)] public int ClassId { get; set; }
+}
+
+/// <summary>Thin v0.4 presence — maps to client NpcInfo.</summary>
+[MessagePackObject]
+public sealed class NpcInfoMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
+    [Key(1)] public int NpcTemplateId { get; set; }
+    [Key(2)] public int X { get; set; }
+    [Key(3)] public int Y { get; set; }
+    [Key(4)] public int Z { get; set; }
+}
+
+[MessagePackObject]
+public sealed class DeleteObjectMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
+}

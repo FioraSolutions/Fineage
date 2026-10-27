@@ -14,5 +14,8 @@ public enum MsgType : ushort
     AuthOk = 1002,
     PlayerSpawned = 1003,
     MoveToAck = 1004,
+    CharInfo = 1005,
+    NpcInfo = 1006,
+    DeleteObject = 1007,
     Error = 1099
 }

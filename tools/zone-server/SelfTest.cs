@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using Fineage.ZoneServer.Session;
+using Fineage.ZoneServer.World;
 using Fineage.ZoneServer.Wire;
 using MessagePack;
 
@@ -8,6 +9,8 @@ static class SelfTest
     public static async Task RunAsync()
     {
         const int port = 9777;
+        var world = new ZoneWorld();
+        world.SeedTalkingIslandNpcs();
         TcpListener? local = null;
         try
         {
@@ -16,7 +19,7 @@ static class SelfTest
             _ = Task.Run(async () =>
             {
                 var c = await local.AcceptTcpClientAsync().ConfigureAwait(false);
-                await new PlayerSession(c, 1).RunAsync(CancellationToken.None).ConfigureAwait(false);
+                await new PlayerSession(c, 1, world).RunAsync(CancellationToken.None).ConfigureAwait(false);
             });
             Console.WriteLine("[selftest] started ephemeral ZoneServer");
         }
@@ -44,6 +47,12 @@ static class SelfTest
             var spawn = await ExpectAsync(stream, MsgType.PlayerSpawned).ConfigureAwait(false);
             var spawned = MessagePackSerializer.Deserialize<PlayerSpawnedMsg>(spawn);
             Console.WriteLine($"[selftest] PlayerSpawned id={spawned.ObjectId} @ {spawned.X},{spawned.Y},{spawned.Z}");
+
+            var npc = await ExpectAsync(stream, MsgType.NpcInfo).ConfigureAwait(false);
+            var npcInfo = MessagePackSerializer.Deserialize<NpcInfoMsg>(npc);
+            Console.WriteLine($"[selftest] NpcInfo id={npcInfo.ObjectId} template={npcInfo.NpcTemplateId}");
+            if (npcInfo.ObjectId != 20_001)
+                throw new Exception($"expected NpcInfo objectId=20001, got {npcInfo.ObjectId}");
 
             await SendAsync(stream, MsgType.MoveTo, new MoveToMsg
             {
