@@ -11,10 +11,7 @@ public class RecipeBookWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => CraftPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualElement _inventoryTabView;
@@ -30,12 +27,22 @@ public class RecipeBookWindow : L2PopupWindow
         {
             _instance = this;
             _creatorWindow = new CreatorTradingWindowsWithTabs();
-
+            WireCraftPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireCraftPacketServices();
+    }
+
+    private void WireCraftPacketServices()
+    {
+        CraftPacketServices.Bind(game: _gameClient);
     }
 
     protected override void LoadAssets()
