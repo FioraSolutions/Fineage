@@ -4,11 +4,29 @@ public sealed class PlayerWorldApply : EntityWorldApply
 {
     private readonly SkillbarWindow _skillbar;
     private readonly EffectManager _effects;
+    private readonly PlayerController _player;
+    private readonly EventBus _bus;
 
-    public PlayerWorldApply(SkillbarWindow skillbar, EffectManager effects)
+    public PlayerWorldApply(
+        SkillbarWindow skillbar,
+        EffectManager effects,
+        PlayerController player,
+        EventBus bus)
     {
         _skillbar = skillbar;
         _effects = effects;
+        _player = player;
+        _bus = bus;
+    }
+
+    private PlayerController Player
+    {
+        get { return _player != null ? _player : IncomingPacketActions.Player; }
+    }
+
+    private EventBus Bus
+    {
+        get { return _bus != null ? _bus : IncomingPacketActions.Bus; }
     }
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
@@ -132,7 +150,7 @@ public sealed class PlayerWorldApply : EntityWorldApply
         RefreshPlayerStandWait(player);
     }
 
-    static void RefreshPlayerStandWait(PlayerEntity player)
+    void RefreshPlayerStandWait(PlayerEntity player)
     {
         if (player == null || player.IsDead() || player.IsAttack)
             return;
@@ -151,7 +169,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
             state == PlayerState.REBIRTH ||
             state == PlayerState.DEAD)
             return;
-        if (IncomingPacketActions.Player != null && IncomingPacketActions.Player.RunningToDestination)
+        PlayerController controller = Player;
+        if (controller != null && controller.RunningToDestination)
             return;
 
         PlayerStateMachine.Instance.NotifyEvent(Event.ARRIVED);
@@ -159,8 +178,9 @@ public sealed class PlayerWorldApply : EntityWorldApply
 
     public override void OnSocialAction(Entity entity, SocialActionDto dto)
     {
-        if (dto != null && dto.ActionId == 15 && IncomingPacketActions.Bus != null)
-            IncomingPacketActions.Bus.LevelUp(entity, dto.ObjectId);
+        EventBus bus = Bus;
+        if (dto != null && dto.ActionId == 15 && bus != null)
+            bus.LevelUp(entity, dto.ObjectId);
     }
 
     public override void OnMagicSkillCanceled(Entity entity, MagicSkillCanceledDto dto)

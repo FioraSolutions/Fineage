@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 public class SceneLoader : MonoBehaviour
 {
@@ -15,9 +16,38 @@ public class SceneLoader : MonoBehaviour
     private bool _worldStreaming;
     private bool _streamingBusy;
 
+    [Inject] GameManager _gameManager;
+    [Inject] GameClient _gameClient;
+    [Inject] World _world;
+
     private GameManager Manager
     {
-        get { return IncomingPacketActions.Manager; }
+        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
+    }
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
+
+    private World GameWorld
+    {
+        get
+        {
+            if (_world != null)
+                return _world;
+            if (App.GameContainer != null)
+            {
+                try
+                {
+                    return App.GameContainer.Resolve<World>();
+                }
+                catch
+                {
+                }
+            }
+            return IncomingPacketActions.GameWorld;
+        }
     }
 
     public string GameScene { get { return _gameScene; } }
@@ -77,13 +107,14 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadSWMap()
     {
-        if (IncomingPacketActions.Game == null || IncomingPacketActions.Game.PlayerInfo.Identity == null)
+        GameClient game = Game;
+        if (game == null || game.PlayerInfo.Identity == null)
         {
             // Debug.LogError("LoadSWMap: no player xyz");
             return;
         }
 
-        Vector3 l2Pos = IncomingPacketActions.Game.PlayerInfo.Identity.GetL2jPos();
+        Vector3 l2Pos = game.PlayerInfo.Identity.GetL2jPos();
         StartCoroutine(LoadSWMapRoutine(l2Pos));
     }
 
@@ -121,7 +152,7 @@ public class SceneLoader : MonoBehaviour
 
     private void FinishLoadSWMap()
     {
-        if (IncomingPacketActions.GameWorld != null)
+        if (GameWorld != null)
         {
             Manager.OnWorldSceneLoaded();
         }

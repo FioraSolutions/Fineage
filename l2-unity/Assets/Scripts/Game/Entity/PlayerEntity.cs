@@ -27,6 +27,17 @@ public class PlayerEntity : Entity
     public  Animation LastAtkAnimation { get; set; }
     public static PlayerEntity Instance { get => _instance; }
 
+    private PlayerController LocalPlayer
+    {
+        get
+        {
+            PlayerController local = GetComponent<PlayerController>();
+            if (local != null)
+                return local;
+            return IncomingPacketActions.Player;
+        }
+    }
+
     //default combo name
     private readonly Animation[] pAtkList = { AnimationNames.ATK01, AnimationNames.ATK02, AnimationNames.ATK03 };
 
@@ -153,10 +164,9 @@ public class PlayerEntity : Entity
             serverValue = 120f;
         float converted = base.UpdateRunSpeed(serverValue);
         // Apply planar speed first — anim NRE must not leave PlayerController at 0.
-        if (IncomingPacketActions.Player != null)
-            IncomingPacketActions.Player.UpdateRunSpeed(converted);
-        else if (PlayerController.Instance != null)
-            PlayerController.Instance.UpdateRunSpeed(converted);
+        PlayerController player = LocalPlayer;
+        if (player != null)
+            player.UpdateRunSpeed(converted);
 
         PlayerAppearance playerApperance = _appearance as PlayerAppearance;
         bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
@@ -186,10 +196,9 @@ public class PlayerEntity : Entity
         if (serverValue <= 0.001f)
             serverValue = 80f;
         float converted = base.UpdateWalkSpeed(serverValue);
-        if (IncomingPacketActions.Player != null)
-            IncomingPacketActions.Player.UpdateWalkSpeed(converted);
-        else if (PlayerController.Instance != null)
-            PlayerController.Instance.UpdateWalkSpeed(converted);
+        PlayerController player = LocalPlayer;
+        if (player != null)
+            player.UpdateWalkSpeed(converted);
 
         PlayerAppearance playerApperance = _appearance as PlayerAppearance;
         bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
@@ -215,10 +224,9 @@ public class PlayerEntity : Entity
     {
         base.UpdateMoveType(running);
 
-        if (IncomingPacketActions.Player != null)
-        {
-            IncomingPacketActions.Player.Running = running;
-        }
+        PlayerController player = LocalPlayer;
+        if (player != null)
+            player.Running = running;
 
         if (PlayerStateMachine.Instance != null)
         {

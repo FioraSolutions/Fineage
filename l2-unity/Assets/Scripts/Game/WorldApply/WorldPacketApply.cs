@@ -8,6 +8,8 @@ public sealed class WorldPacketApply
     private readonly World _world;
     private readonly HtmlWindow _html;
     private readonly PlayerPositionSender _positionSender;
+    private readonly GameManager _gameManager;
+    private readonly PacketApplyQueue _applyQueue;
 
     public WorldPacketApply(
         World world,
@@ -16,11 +18,15 @@ public sealed class WorldPacketApply
         PlayerWorldApply playerApply,
         NpcWorldApply npcApply,
         MonsterWorldApply monsterApply,
-        UserWorldApply userApply)
+        UserWorldApply userApply,
+        GameManager gameManager,
+        PacketApplyQueue applyQueue)
     {
         _world = world;
         _html = html;
         _positionSender = positionSender;
+        _gameManager = gameManager;
+        _applyQueue = applyQueue;
         Register<PlayerEntity>(playerApply);
         Register<NpcEntity>(npcApply);
         Register<MonsterEntity>(monsterApply);
@@ -36,7 +42,7 @@ public sealed class WorldPacketApply
     {
         if (_world == null || npcInfo == null || npcInfo.Identity == null)
             return;
-        if (!IncomingPacketActions.IsWorldSpawnReady())
+        if (!IsWorldSpawnReady())
             return;
 
         Entity entity = _world.GetEntityNoLockSync(npcInfo.Identity.Id);
@@ -46,7 +52,7 @@ public sealed class WorldPacketApply
                 return;
             if (!SpawnFrameBudget.TryConsumeSpawn())
             {
-                IncomingPacketActions.QueueWorldNextFrame(apply => apply.UpdateNpc(npcInfo));
+                QueueWorldNextFrame(apply => apply.UpdateNpc(npcInfo));
                 return;
             }
             _world.SpawnNpc(npcInfo.Identity, npcInfo.Status, npcInfo.Stats);
@@ -74,7 +80,7 @@ public sealed class WorldPacketApply
             // GearFlowLog.Warn("UpdateUser abort world/info null");
             return;
         }
-        if (!IncomingPacketActions.IsWorldSpawnReady())
+        if (!IsWorldSpawnReady())
         {
             // GearFlowLog.Warn("UpdateUser abort world not ready id=" + info.Identity.Id +
                 // " nick=" + info.Identity.Name + " " + GearFlowLog.Paperdoll(info.Appearance));
@@ -95,7 +101,7 @@ public sealed class WorldPacketApply
                 return;
             if (!SpawnFrameBudget.TryConsumeSpawn())
             {
-                IncomingPacketActions.QueueWorldNextFrame(apply => apply.UpdateUser(info));
+                QueueWorldNextFrame(apply => apply.UpdateUser(info));
                 return;
             }
             _world.SpawnUser(info);
@@ -400,5 +406,21 @@ public sealed class WorldPacketApply
 
         apply = null;
         return false;
+    }
+
+    private bool IsWorldSpawnReady()
+    {
+        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
+        return manager != null && manager.WorldSpawnReady && _world != null;
+    }
+
+    private void QueueWorldNextFrame(System.Action<WorldPacketApply> apply)
+    {
+        if (apply == null)
+            return;
+        if (_applyQueue != null)
+            _applyQueue.QueueNextFrame(() => apply(this));
+        else
+            IncomingPacketActions.QueueWorldNextFrame(apply);
     }
 }

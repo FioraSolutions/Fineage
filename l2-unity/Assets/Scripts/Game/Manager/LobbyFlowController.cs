@@ -8,6 +8,12 @@ using VContainer;
 public sealed class LobbyFlowController
 {
     private GameManager _game;
+    private LoginRuntime _loginRuntime;
+    private World _world;
+    private IWorldDomainSink _domain;
+    private WorldPacketApply _worldApply;
+    private PacketApplyQueue _applyQueue;
+    private L2GameUI _gameUi;
 
     [Inject] GameClient _gameClient;
     [Inject] LoginClient _loginClient;
@@ -19,9 +25,108 @@ public sealed class LobbyFlowController
         _game = game;
     }
 
+    public void WireLogin(LoginRuntime loginRuntime)
+    {
+        _loginRuntime = loginRuntime;
+    }
+
+    public void WireGame(
+        World world,
+        IWorldDomainSink domain,
+        WorldPacketApply worldApply,
+        PacketApplyQueue applyQueue,
+        L2GameUI gameUi)
+    {
+        _world = world;
+        _domain = domain;
+        _worldApply = worldApply;
+        _applyQueue = applyQueue;
+        _gameUi = gameUi;
+    }
+
     private SceneLoader Scenes
     {
         get { return _sceneLoader != null ? _sceneLoader : SceneLoader.Instance; }
+    }
+
+    private L2LoginUI LoginUi
+    {
+        get
+        {
+            if (_loginRuntime != null && _loginRuntime.Ui != null)
+                return _loginRuntime.Ui;
+            return IncomingPacketActions.LoginUi;
+        }
+    }
+
+    private L2GameUI GameUi
+    {
+        get
+        {
+            if (_gameUi != null)
+                return _gameUi;
+            return IncomingPacketActions.Ui;
+        }
+    }
+
+    private ServerSelectWindow ServerSelect
+    {
+        get
+        {
+            if (_loginRuntime != null && _loginRuntime.Servers != null)
+                return _loginRuntime.Servers;
+            return IncomingPacketActions.ServerSelect;
+        }
+    }
+
+    private LoginCameraManager LoginCamera
+    {
+        get
+        {
+            if (_loginRuntime != null && _loginRuntime.Camera != null)
+                return _loginRuntime.Camera;
+            return IncomingPacketActions.LoginCamera;
+        }
+    }
+
+    private CharacterCreator Creator
+    {
+        get
+        {
+            if (_loginRuntime != null && _loginRuntime.Creator != null)
+                return _loginRuntime.Creator;
+            return IncomingPacketActions.Creator;
+        }
+    }
+
+    private World GameWorld
+    {
+        get
+        {
+            if (_world != null)
+                return _world;
+            return IncomingPacketActions.GameWorld;
+        }
+    }
+
+    private IWorldDomainSink Domain
+    {
+        get
+        {
+            if (_domain != null)
+                return _domain;
+            return IncomingPacketActions.Domain;
+        }
+    }
+
+    private WorldPacketApply WorldApply
+    {
+        get
+        {
+            if (_worldApply != null)
+                return _worldApply;
+            return IncomingPacketActions.WorldApply;
+        }
     }
 
     public void LogIn()
@@ -35,23 +140,34 @@ public sealed class LobbyFlowController
 
     public void OnWorldSceneLoaded()
     {
-        GameObject.Destroy(IncomingPacketActions.LoginUi.gameObject);
+        L2LoginUI loginUi = LoginUi;
+        if (loginUi != null)
+            GameObject.Destroy(loginUi.gameObject);
         PlayerInfoInterlude playerInfo = _gameClient.PlayerInfo;
         DomainPlayerSpawned spawned = InterludeDomainMap.PlayerSpawned(playerInfo);
-        if (IncomingPacketActions.Domain != null && spawned != null)
-            IncomingPacketActions.Domain.ApplyPlayerSpawned(spawned);
+        IWorldDomainSink domain = Domain;
+        if (domain != null && spawned != null)
+            domain.ApplyPlayerSpawned(spawned);
         else
-            IncomingPacketActions.GameWorld.SpawnPlayer(playerInfo.Identity, playerInfo.Status, playerInfo.Stats, playerInfo.Appearance);
-        IncomingPacketActions.Ui.StopLoading();
+            GameWorld.SpawnPlayer(playerInfo.Identity, playerInfo.Status, playerInfo.Stats, playerInfo.Appearance);
+        L2GameUI ui = GameUi;
+        if (ui != null)
+            ui.StopLoading();
         PlayerStateMachine.Instance.enabled = true;
         _game.WorldSpawnReady = true;
         if (_zoneTransport == null || _zoneTransport.AllowsInterludeGameSocketAuth)
             FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
         _gameClient.Send(new EnterWorldCommand());
-        if (IncomingPacketActions.Domain != null)
-            IncomingPacketActions.Domain.FlushKnownlist();
+        if (domain != null)
+            domain.FlushKnownlist();
         else
-            IncomingPacketActions.ApplyWorld(apply => apply.FlushKnownlist());
+        {
+            WorldPacketApply apply = WorldApply;
+            if (apply != null)
+                apply.FlushKnownlist();
+            else
+                IncomingPacketActions.ApplyWorld(a => a.FlushKnownlist());
+        }
         _gameClient.EndLoadWorld();
 
         PlayerStateMachine.Instance.ChangeState(PlayerState.IDLE);
@@ -67,7 +183,7 @@ public sealed class LobbyFlowController
     {
         _game.GameState = GameState.READING_LICENSE;
 
-        IncomingPacketActions.LoginUi.ShowLicenseWindow();
+        LoginUi.ShowLicenseWindow();
     }
 
     public void OnLoginServerPlayOk()
@@ -84,17 +200,17 @@ public sealed class LobbyFlowController
     {
         _game.GameState = GameState.SERVER_LIST;
 
-        IncomingPacketActions.LoginUi.ShowServerSelectWindow();
+        LoginUi.ShowServerSelectWindow();
 
-        IncomingPacketActions.ServerSelect.UpdateServerList(lastServer, serverData, charsOnServers);
+        ServerSelect.UpdateServerList(lastServer, serverData, charsOnServers);
     }
 
     public void OnAuthAllowed()
     {
         _game.GameState = GameState.CHAR_SELECT;
-        IncomingPacketActions.LoginCamera.SwitchCamera("CharSelect");
+        LoginCamera.SwitchCamera("CharSelect");
 
-        IncomingPacketActions.LoginUi.ShowCharSelectWindow();
+        LoginUi.ShowCharSelectWindow();
     }
 
     public void OnCharacterSelect()
@@ -102,7 +218,7 @@ public sealed class LobbyFlowController
         _game.GameState = GameState.IN_GAME;
         _game.WorldSpawnReady = false;
 
-        IncomingPacketActions.LoginUi.StartLoading();
+        LoginUi.StartLoading();
         Scenes.LoadSWMap();
     }
 
@@ -110,15 +226,15 @@ public sealed class LobbyFlowController
     {
         _game.GameState = GameState.CHAR_CREATION;
 
-        IncomingPacketActions.LoginCamera.SwitchCamera("Login");
+        LoginCamera.SwitchCamera("Login");
 
-        IncomingPacketActions.LoginUi.SetCharTemplations(playerTemplates);
-        IncomingPacketActions.LoginUi.ShowCharCreationWindow();
+        LoginUi.SetCharTemplations(playerTemplates);
+        LoginUi.ShowCharCreationWindow();
     }
 
     public void OnCreateUserFail(string text)
     {
-        IncomingPacketActions.LoginUi.ShowCharCreationError(text);
+        LoginUi.ShowCharCreationError(text);
     }
 
     public void OnWorldLoading()
@@ -128,13 +244,16 @@ public sealed class LobbyFlowController
             MusicManager.Instance.Clear();
         }
 
-        if (IncomingPacketActions.Ui != null)
+        L2GameUI ui = GameUi;
+        if (ui != null)
         {
-            IncomingPacketActions.Ui.StartLoading();
+            ui.StartLoading();
         }
-        else if (IncomingPacketActions.LoginUi != null)
+        else
         {
-            IncomingPacketActions.LoginUi.StartLoading();
+            L2LoginUI loginUi = LoginUi;
+            if (loginUi != null)
+                loginUi.StartLoading();
         }
     }
 
@@ -144,9 +263,9 @@ public sealed class LobbyFlowController
         _game.WorldSpawnReady = false;
         _game.GameState = GameState.LOGIN_SCREEN;
 
-        IncomingPacketActions.LoginCamera.SwitchCamera("Login");
+        LoginCamera.SwitchCamera("Login");
 
-        IncomingPacketActions.LoginUi.ShowLoginWindow();
+        LoginUi.ShowLoginWindow();
     }
 
     public void OnDisconnect()
@@ -177,13 +296,14 @@ public sealed class LobbyFlowController
     {
         if (GameState.IN_GAME == _game.GameState)
         {
-            if (IncomingPacketActions.LoginUi != null)
+            L2LoginUI loginUi = LoginUi;
+            if (loginUi != null)
             {
-                IncomingPacketActions.LoginUi.StopLoading();
-                IncomingPacketActions.LoginUi.SetLoading(true);
+                loginUi.StopLoading();
+                loginUi.SetLoading(true);
             }
 
-            IncomingPacketActions.Creator.SpawnAllPawns();
+            Creator.SpawnAllPawns();
         }
     }
 }

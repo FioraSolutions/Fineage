@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour, IGameManager {
     [Inject] SceneLoader _sceneLoader;
 
     LobbyFlowController _lobbyFlow;
+    L2GameUI _gameUi;
+    L2LoginUI _loginUi;
 
     #endregion
 
@@ -117,6 +119,18 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     public void OnGameLaunched() => _lobbyFlow.OnGameLaunched();
 
+    public void WireLoginUi(L2LoginUI loginUi)
+    {
+        if (loginUi != null)
+            _loginUi = loginUi;
+    }
+
+    public void WireGameUi(L2GameUI gameUi)
+    {
+        if (gameUi != null)
+            _gameUi = gameUi;
+    }
+
     #endregion
 
     #region Loading UI helpers
@@ -128,14 +142,12 @@ public class GameManager : MonoBehaviour, IGameManager {
             _loadingCamera.enabled = true;
         }
 
-        if (IncomingPacketActions.Ui != null)
-        {
-            IncomingPacketActions.Ui.StartLoading();
-        }
-        if (IncomingPacketActions.LoginUi != null)
-        {
-            IncomingPacketActions.LoginUi.StartLoading();
-        }
+        L2GameUI ui = _gameUi != null ? _gameUi : IncomingPacketActions.Ui;
+        if (ui != null)
+            ui.StartLoading();
+        L2LoginUI loginUi = _loginUi != null ? _loginUi : IncomingPacketActions.LoginUi;
+        if (loginUi != null)
+            loginUi.StartLoading();
     }
 
     #endregion

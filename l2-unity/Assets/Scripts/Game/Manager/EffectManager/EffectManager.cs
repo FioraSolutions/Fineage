@@ -8,6 +8,7 @@ public class EffectManager : MonoBehaviour
     public EffectDatabase database;
     [SerializeField] private Transform _activeEffectsContainer;
     [Inject] IObjectResolver _container;
+    [Inject] IAnimationManager _animations;
     private const string IMPACT_DEBUG_TAG = "[HIT_DEBUG]";
     private int _impactSpawnCounter = 0;
     private readonly System.Collections.Generic.Dictionary<string, (int count, float windowStartSec)> _impactWindowByPoint
@@ -115,7 +116,8 @@ public class EffectManager : MonoBehaviour
         Transform weapon = entity.GetWeaponTransform();
 
         Transform attach = weapon != null ? weapon : entity.transform;
-        MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo);
+        IAnimationManager animations = _animations != null ? _animations : IncomingPacketActions.Animations;
+        MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo, animations);
         PlayEffect(effectId, attach, castData);
     }
 

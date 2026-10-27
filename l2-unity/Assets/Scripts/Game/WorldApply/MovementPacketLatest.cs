@@ -8,6 +8,14 @@ using System.Collections.Generic;
 /// </summary>
 public static class MovementPacketLatest
 {
+    static IWorldDomainSink _domain;
+
+    public static void Wire(IWorldDomainSink domain)
+    {
+        if (domain != null)
+            _domain = domain;
+    }
+
     enum Kind
     {
         Move,
@@ -54,7 +62,7 @@ public static class MovementPacketLatest
         if (Ids.Count == 0)
             return;
 
-        IWorldDomainSink domain = IncomingPacketActions.Domain;
+        IWorldDomainSink domain = _domain != null ? _domain : IncomingPacketActions.Domain;
 
         for (int i = 0; i < Ids.Count; i++)
         {

@@ -7,6 +7,12 @@ using VContainer;
 public class PlayerInventory : MonoBehaviour
 {
     [Inject] GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
+
     public enum InventoryChange
     {
         UNCHANGED = 0, ADDED = 1, REMOVED = 3, MODIFIED = 2
@@ -505,7 +511,7 @@ public class PlayerInventory : MonoBehaviour
 
     private void SendUseItemPacket(int objectId)
     {
-        GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+        GameClient game = Game;
         if (game == null)
             return;
         game.Send(new UseItemCommand(objectId, 0));
@@ -562,7 +568,7 @@ public class PlayerInventory : MonoBehaviour
             ItemInstance item = _playerInventory[objectId];
             //getInstance().AddS1Items(new VariableItem(item.ItemData.ItemName.Name, objectId));
             //AudioManager.Instance.PlayEquipSound("trash_basket");
-            GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+            GameClient game = Game;
             if (game == null)
                 return;
             game.Send(new RequestDestroyItemCommand(objectId, quantity));
@@ -585,7 +591,7 @@ public class PlayerInventory : MonoBehaviour
             return;
         }
 
-        GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+        GameClient game = Game;
         if (game == null || PlayerEntity.Instance == null)
             return;
 
