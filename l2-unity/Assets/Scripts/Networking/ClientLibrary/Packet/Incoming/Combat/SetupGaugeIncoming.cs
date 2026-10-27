@@ -5,5 +5,6 @@ public sealed class SetupGaugeIncoming : IncomingWirePacket<SetupGaugeDto>
 {
     public override void Apply(SetupGaugeDto packet)
     {
+        StubIncomingPacketServices.ApplySetupGauge(packet);
     }
 }

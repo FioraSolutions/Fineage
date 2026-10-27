@@ -5,5 +5,6 @@ public sealed class CharCreateOkIncoming : IncomingWirePacket<CharCreateOkDto>
 {
     public override void Apply(CharCreateOkDto packet)
     {
+        StubIncomingPacketServices.ApplyCharCreateOk(packet);
     }
 }

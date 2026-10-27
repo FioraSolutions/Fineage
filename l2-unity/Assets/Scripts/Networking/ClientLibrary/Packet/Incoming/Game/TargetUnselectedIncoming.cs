@@ -3,5 +3,6 @@ public sealed class TargetUnselectedIncoming : IncomingWirePacket<TargetUnselect
 {
     public override void Apply(TargetUnselectedDto dto)
     {
+        StubIncomingPacketServices.ApplyTargetUnselected(dto);
     }
 }

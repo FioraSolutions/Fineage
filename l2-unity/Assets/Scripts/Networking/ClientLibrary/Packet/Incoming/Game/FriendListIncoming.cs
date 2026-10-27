@@ -10,6 +10,6 @@ public sealed class FriendListIncoming : IncomingPacket<FriendListIncomingDto>
 
     public override void Apply(FriendListIncomingDto dto)
     {
-        // Debug.Log("Friend List SUccess");
+        StubIncomingPacketServices.ApplyFriendList(dto);
     }
 }
