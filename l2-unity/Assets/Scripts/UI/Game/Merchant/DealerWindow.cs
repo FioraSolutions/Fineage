@@ -13,10 +13,7 @@ public class DealerWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => MerchantPacketServices.Game;
 
 
     private static DealerWindow _instance;
@@ -62,11 +59,22 @@ public class DealerWindow : L2PopupWindow
             _itemEvalutor = new ShopItemEvaluator(_instance);
             _shopCellCreator = new ShopInventoryController(_instance , _defaultCount);
             _tradeItemMover = new TradeItemMover(this , _shopCellCreator, _itemEvalutor);
+            WireMerchantPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireMerchantPacketServices();
+    }
+
+    private void WireMerchantPacketServices()
+    {
+        MerchantPacketServices.Bind(game: _gameClient);
     }
 
     private void OnDestroy()
