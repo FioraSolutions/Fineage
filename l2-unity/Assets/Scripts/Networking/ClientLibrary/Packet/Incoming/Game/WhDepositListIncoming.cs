@@ -3,8 +3,6 @@ using UnityEngine;
 [IncomingGamePacket(GameServerPacketType.WhDepositList)]
 public sealed class WhDepositListIncoming : IncomingWirePacket<WarehouseDepositListDto>
 {
-    public override void Apply(WarehouseDepositListDto packet)
-    {
-        MerchantIncomingPacketServices.ApplyWhDepositList(packet);
-    }
+    public override void Apply(WarehouseDepositListDto packet) =>
+        WarehouseIncomingPacketServices.ApplyWhDepositList(packet);
 }
