@@ -3,9 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class SkillbarWindow : L2PopupWindow
 {
+    [Inject] PlayerShortcuts _shortcuts;
+
+    private PlayerShortcuts Shortcuts
+    {
+        get { return _shortcuts != null ? _shortcuts : IncomingPacketActions.Shortcuts; }
+    }
+
     private bool _locked = false;
     private bool _vertical = true;
     private bool _tooltipDisabled = false;
@@ -205,7 +213,7 @@ public class SkillbarWindow : L2PopupWindow
             _skillbars[skillbarIndex + PlayerShortcuts.MAXIMUM_SKILLBAR_COUNT * x].ChangePage(page);
         }
 
-        PlayerShortcuts.Instance.UpdatePageMapping(skillbarIndex, page);
+        Shortcuts.UpdatePageMapping(skillbarIndex, page);
 
         UpdateAllShortcuts();
     }
@@ -232,7 +240,7 @@ public class SkillbarWindow : L2PopupWindow
 
     public void UpdateAllShortcuts()
     {
-        UpdateAllShortcuts(PlayerShortcuts.Instance.Shortcuts);
+        UpdateAllShortcuts(Shortcuts.Shortcuts);
     }
 
     public void UpdateAllShortcuts(List<Shortcut> shortcuts)
