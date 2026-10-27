@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Incoming handler access to game services with DI wiring and IncomingPacketServices fallback (#142).
+/// Incoming handler access to game services with DI wiring and IncomingPacketActions fallback (#142).
 /// </summary>
 public static class IncomingPacketServices
 {
@@ -151,103 +151,103 @@ public static class IncomingPacketServices
     }
 
     public static GameClient Game =>
-        _game != null ? _game : IncomingPacketServices.Game;
+        _game != null ? _game : IncomingPacketActions.Game;
 
     public static LoginClient Login =>
-        _login != null ? _login : IncomingPacketServices.Login;
+        _login != null ? _login : IncomingPacketActions.Login;
 
     public static GameManager Manager =>
-        _manager != null ? _manager : IncomingPacketServices.Manager;
+        _manager != null ? _manager : IncomingPacketActions.Manager;
 
     public static World GameWorld =>
-        _gameWorld != null ? _gameWorld : IncomingPacketServices.GameWorld;
+        _gameWorld != null ? _gameWorld : IncomingPacketActions.GameWorld;
 
     public static WorldPacketApply WorldApply =>
-        _worldApply != null ? _worldApply : IncomingPacketServices.WorldApply;
+        _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
 
     public static MessagePacketApply MessageApply =>
-        _messageApply != null ? _messageApply : IncomingPacketServices.MessageApply;
+        _messageApply != null ? _messageApply : IncomingPacketActions.MessageApply;
 
     public static IWorldDomainSink Domain =>
-        _domain != null ? _domain : IncomingPacketServices.Domain;
+        _domain != null ? _domain : IncomingPacketActions.Domain;
 
     public static PlayerInventory Inventory =>
-        _inventory != null ? _inventory : IncomingPacketServices.Inventory;
+        _inventory != null ? _inventory : IncomingPacketActions.Inventory;
 
     public static TargetManager Targets =>
-        _targets != null ? _targets : IncomingPacketServices.Targets;
+        _targets != null ? _targets : IncomingPacketActions.Targets;
 
     public static PlayerShortcuts Shortcuts =>
-        _shortcuts != null ? _shortcuts : IncomingPacketServices.Shortcuts;
+        _shortcuts != null ? _shortcuts : IncomingPacketActions.Shortcuts;
 
     public static PositionValidationController PositionValidation =>
-        _positionValidation != null ? _positionValidation : IncomingPacketServices.PositionValidation;
+        _positionValidation != null ? _positionValidation : IncomingPacketActions.PositionValidation;
 
     public static LoginWindow LoginWindow =>
-        _loginWindow != null ? _loginWindow : IncomingPacketServices.LoginWindow;
+        _loginWindow != null ? _loginWindow : IncomingPacketActions.LoginWindow;
 
     public static CharSelectWindow CharSelect =>
-        _charSelect != null ? _charSelect : IncomingPacketServices.CharSelect;
+        _charSelect != null ? _charSelect : IncomingPacketActions.CharSelect;
 
     public static CharacterSelector Characters =>
-        _characters != null ? _characters : IncomingPacketServices.Characters;
+        _characters != null ? _characters : IncomingPacketActions.Characters;
 
     public static HtmlWindow Html =>
-        _html != null ? _html : IncomingPacketServices.Html;
+        _html != null ? _html : IncomingPacketActions.Html;
 
     public static DealerWindow Dealer =>
-        _dealer != null ? _dealer : IncomingPacketServices.Dealer;
+        _dealer != null ? _dealer : IncomingPacketActions.Dealer;
 
     public static MultiSellWindow MultiSell =>
-        _multiSell != null ? _multiSell : IncomingPacketServices.MultiSell;
+        _multiSell != null ? _multiSell : IncomingPacketActions.MultiSell;
 
     public static TradeWindow Trade =>
-        _trade != null ? _trade : IncomingPacketServices.Trade;
+        _trade != null ? _trade : IncomingPacketActions.Trade;
 
     public static TradeRequestWindow TradeRequest =>
-        _tradeRequest != null ? _tradeRequest : IncomingPacketServices.TradeRequest;
+        _tradeRequest != null ? _tradeRequest : IncomingPacketActions.TradeRequest;
 
     public static PartyInvitationWindow PartyInvite =>
-        _partyInvite != null ? _partyInvite : IncomingPacketServices.PartyInvite;
+        _partyInvite != null ? _partyInvite : IncomingPacketActions.PartyInvite;
 
     public static EnchantWindow Enchant =>
-        _enchant != null ? _enchant : IncomingPacketServices.Enchant;
+        _enchant != null ? _enchant : IncomingPacketActions.Enchant;
 
     public static RecipeBookWindow RecipeBook =>
-        _recipeBook != null ? _recipeBook : IncomingPacketServices.RecipeBook;
+        _recipeBook != null ? _recipeBook : IncomingPacketActions.RecipeBook;
 
     public static CraftingItemWindow Crafting =>
-        _crafting != null ? _crafting : IncomingPacketServices.Crafting;
+        _crafting != null ? _crafting : IncomingPacketActions.Crafting;
 
     public static SkillLearnWindow SkillLearn =>
-        _skillLearn != null ? _skillLearn : IncomingPacketServices.SkillLearn;
+        _skillLearn != null ? _skillLearn : IncomingPacketActions.SkillLearn;
 
     public static DescriptionSkillWindow SkillDesc =>
-        _skillDesc != null ? _skillDesc : IncomingPacketServices.SkillDesc;
+        _skillDesc != null ? _skillDesc : IncomingPacketActions.SkillDesc;
 
     public static SkillListWindow SkillList =>
-        _skillList != null ? _skillList : IncomingPacketServices.SkillList;
+        _skillList != null ? _skillList : IncomingPacketActions.SkillList;
 
     public static QuestWindow Quest =>
-        _quest != null ? _quest : IncomingPacketServices.Quest;
+        _quest != null ? _quest : IncomingPacketActions.Quest;
 
     public static QuestListWindow QuestList =>
-        _questList != null ? _questList : IncomingPacketServices.QuestList;
+        _questList != null ? _questList : IncomingPacketActions.QuestList;
 
     public static ClanWindow Clan =>
-        _clan != null ? _clan : IncomingPacketServices.Clan;
+        _clan != null ? _clan : IncomingPacketActions.Clan;
 
     public static ShowListWindow ShowList =>
-        _showList != null ? _showList : IncomingPacketServices.ShowList;
+        _showList != null ? _showList : IncomingPacketActions.ShowList;
 
     public static SeedInfoWindow SeedInfo =>
-        _seedInfo != null ? _seedInfo : IncomingPacketServices.SeedInfo;
+        _seedInfo != null ? _seedInfo : IncomingPacketActions.SeedInfo;
 
     public static SellCropListWindow SellCrop =>
-        _sellCrop != null ? _sellCrop : IncomingPacketServices.SellCrop;
+        _sellCrop != null ? _sellCrop : IncomingPacketActions.SellCrop;
 
     public static BufferPanel Buffer =>
-        _buffer != null ? _buffer : IncomingPacketServices.Buffer;
+        _buffer != null ? _buffer : IncomingPacketActions.Buffer;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply)
     {
@@ -296,6 +296,6 @@ public static class IncomingPacketServices
         if (processor != null)
             processor.QueueEvent(action);
         else
-            IncomingPacketServices.Queue(action);
+            IncomingPacketActions.Queue(action);
     }
 }
