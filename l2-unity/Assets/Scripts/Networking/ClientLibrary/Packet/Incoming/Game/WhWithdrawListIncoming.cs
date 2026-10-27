@@ -5,16 +5,16 @@ public sealed class WhWithdrawListIncoming : IncomingWirePacket<WarehouseWithdra
 {
     public override void Apply(WarehouseWithdrawListDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        GameIncomingPacketServices.Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            IncomingPacketServices.Dealer.SetWindowName("Personal storage");
-            IncomingPacketServices.Dealer.SetHeaderNameSellPanel("Items in Warehouse");
-            IncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items taken away");
-            IncomingPacketServices.Dealer.SetProductType(ProductType.WHWithdrawList);
-            IncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
-            IncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            IncomingPacketServices.Dealer.ShowWindow();
+            GameIncomingPacketServices.Dealer.SetWindowName("Personal storage");
+            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Items in Warehouse");
+            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items taken away");
+            GameIncomingPacketServices.Dealer.SetProductType(ProductType.WHWithdrawList);
+            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
+            GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            GameIncomingPacketServices.Dealer.ShowWindow();
         });
     }
 }

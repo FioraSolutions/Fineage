@@ -6,7 +6,7 @@ public sealed class ExShowQuestInfoIncoming : IncomingWirePacket<ExShowQuestInfo
     public override void Apply(ExShowQuestInfoDto packet)
     {
         if (IncomingPacketServices.GameWorld != null)
-            IncomingPacketServices.Queue(() => IncomingPacketServices.QuestList.ShowWindow());
+            GameIncomingPacketServices.Queue(() => GameIncomingPacketServices.QuestList.ShowWindow());
 
         // Debug.Log("Event Open ExShowQuestInfo Info");
     }

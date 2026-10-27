@@ -8,6 +8,6 @@ public sealed class TradeDoneIncoming : IncomingPacket<TradeDoneIncomingDto>
 
     public override void Apply(TradeDoneIncomingDto dto)
     {
-        IncomingPacketServices.Trade.HideWindow();
+        GameIncomingPacketServices.Trade.HideWindow();
     }
 }

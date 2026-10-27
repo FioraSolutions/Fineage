@@ -5,6 +5,6 @@ public sealed class PledgeInfoIncoming : IncomingWirePacket<PledgeInfoDto>
 {
     public override void Apply(PledgeInfoDto packet)
     {
-        IncomingPacketServices.Queue(() => IncomingPacketServices.Clan.UpdatePledge(packet));
+        GameIncomingPacketServices.Queue(() => GameIncomingPacketServices.Clan.UpdatePledge(packet));
     }
 }

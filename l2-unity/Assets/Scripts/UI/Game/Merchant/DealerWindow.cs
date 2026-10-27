@@ -74,7 +74,7 @@ public class DealerWindow : L2PopupWindow
 
     private void WireMerchantPacketServices()
     {
-        MerchantPacketServices.Bind(game: _gameClient);
+        MerchantPacketServices.Bind(game: _gameClient, dealer: this);
     }
 
     private void OnDestroy()

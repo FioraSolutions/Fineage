@@ -5,6 +5,6 @@ public sealed class PledgeShowMemberListAddIncoming : IncomingWirePacket<PledgeS
 {
     public override void Apply(PledgeShowMemberListAddDto packet)
     {
-        IncomingPacketServices.Queue(() => IncomingPacketServices.Clan.AddMemberData(packet));
+        GameIncomingPacketServices.Queue(() => GameIncomingPacketServices.Clan.AddMemberData(packet));
     }
 }

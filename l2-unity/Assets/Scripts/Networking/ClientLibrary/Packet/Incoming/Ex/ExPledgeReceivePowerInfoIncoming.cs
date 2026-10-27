@@ -5,6 +5,6 @@ public sealed class ExPledgeReceivePowerInfoIncoming : IncomingWirePacket<Pledge
 {
     public override void Apply(PledgeReceivePowerInfoDto packet)
     {
-        IncomingPacketServices.Queue(() => IncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+        GameIncomingPacketServices.Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
     }
 }
