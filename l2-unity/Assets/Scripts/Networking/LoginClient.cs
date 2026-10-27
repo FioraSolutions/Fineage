@@ -5,16 +5,11 @@ using VContainer;
 
 public class LoginClient : DefaultClient {
     [Inject] GameManager _gameManager;
+    [Inject] LoginWindow _loginWindow;
 
-    private GameManager Manager
-    {
-        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
-    }
+    private GameManager Manager => NetworkingPacketServices.Manager;
 
-    private LoginWindow LoginWindowUi
-    {
-        get { return IncomingPacketActions.LoginWindow; }
-    }
+    private LoginWindow LoginWindowUi => NetworkingPacketServices.LoginWindow;
     // Crypt
     public static byte[] STATIC_BLOWFISH_KEY = {
         (byte) 0x6b,
@@ -70,6 +65,7 @@ public class LoginClient : DefaultClient {
     }
 
     private void Awake() {
+        NetworkingPacketServices.Bind(manager: _gameManager, login: this, loginWindow: _loginWindow);
         if (_instance == null) {
             _instance = this;
         } else if (_instance != this) {

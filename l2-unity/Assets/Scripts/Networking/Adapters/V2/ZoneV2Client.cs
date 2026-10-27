@@ -25,42 +25,17 @@ public sealed class ZoneV2Client : MonoBehaviour
             _domain = domain;
         if (worldApply != null)
             _worldApply = worldApply;
+        NetworkingPacketServices.Bind(
+            domain: _domain,
+            worldApply: _worldApply,
+            manager: _gameManager);
     }
 
-    private GameManager Manager
-    {
-        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
-    }
+    private GameManager Manager => NetworkingPacketServices.Manager;
 
-    private IWorldDomainSink Domain
-    {
-        get
-        {
-            if (_domain != null)
-                return _domain;
-            return IncomingPacketActions.Domain;
-        }
-    }
+    private IWorldDomainSink Domain => NetworkingPacketServices.Domain;
 
-    private WorldPacketApply WorldApply
-    {
-        get
-        {
-            if (_worldApply != null)
-                return _worldApply;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<WorldPacketApply>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.WorldApply;
-        }
-    }
+    private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 
     readonly ConcurrentQueue<Action> _main = new ConcurrentQueue<Action>();
     CancellationTokenSource _cts;
@@ -82,6 +57,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
     void Awake()
     {
+        NetworkingPacketServices.Bind(manager: _gameManager);
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
@@ -257,7 +233,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                                 if (apply != null)
                                     apply.MoveTo(domainMove.ObjectId, domainMove.Destination, domainMove.Origin, domainMove.InterludeDto);
                                 else
-                                    IncomingPacketActions.ApplyWorld(a =>
+                                    NetworkingPacketServices.ApplyWorld(a =>
                                         a.MoveTo(domainMove.ObjectId, domainMove.Destination, domainMove.Origin, domainMove.InterludeDto));
                             }
                         });

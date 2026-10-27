@@ -6,25 +6,7 @@ public class NetworkTransformShare : MonoBehaviour
 {
     [Inject] World _world;
 
-    private World GameWorld
-    {
-        get
-        {
-            if (_world != null)
-                return _world;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<World>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.GameWorld;
-        }
-    }
+    private World GameWorld => NetworkingPacketServices.GameWorld;
     private CharacterController _characterController;
     private Vector3 _lastPos, _lastRot;
     private float _lastSharedPosTime;
@@ -52,6 +34,7 @@ public class NetworkTransformShare : MonoBehaviour
 
     void Start()
     {
+        NetworkingPacketServices.Bind(world: _world);
         World world = GameWorld;
         if (world != null && world.OfflineMode)
         {

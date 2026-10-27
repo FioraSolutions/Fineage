@@ -39,51 +39,19 @@ public class EventProcessor : MonoBehaviour
     public void WireGameApply(WorldPacketApply worldApply)
     {
         if (worldApply != null)
+        {
             _worldApply = worldApply;
-    }
-
-    private World GameWorld
-    {
-        get
-        {
-            if (_world != null)
-                return _world;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<World>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.GameWorld;
+            NetworkingPacketServices.Bind(worldApply: worldApply);
         }
     }
 
-    private WorldPacketApply WorldApply
-    {
-        get
-        {
-            if (_worldApply != null)
-                return _worldApply;
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return App.GameContainer.Resolve<WorldPacketApply>();
-                }
-                catch
-                {
-                }
-            }
-            return IncomingPacketActions.WorldApply;
-        }
-    }
+    private World GameWorld => NetworkingPacketServices.GameWorld;
+
+    private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 
     private void Start()
     {
+        NetworkingPacketServices.Bind(world: _world, worldApply: _worldApply);
         World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
@@ -145,6 +113,6 @@ public class EventProcessor : MonoBehaviour
         if (apply != null)
             MovementPacketLatest.Flush(apply);
         else
-            IncomingPacketActions.ApplyWorld(MovementPacketLatest.Flush);
+            NetworkingPacketServices.ApplyWorld(MovementPacketLatest.Flush);
     }
 }

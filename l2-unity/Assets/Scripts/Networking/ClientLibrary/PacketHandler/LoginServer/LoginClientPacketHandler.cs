@@ -12,7 +12,7 @@ public class LoginClientPacketHandler : ClientPacketHandler
 
     LoginClient Login
     {
-        get { return _login != null ? _login : IncomingPacketActions.Login; }
+        get { return _login != null ? _login : NetworkingPacketServices.Login; }
     }
 
     public override void SendPacket(IOutgoingPacket packet)

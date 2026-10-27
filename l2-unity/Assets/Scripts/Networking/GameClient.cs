@@ -5,10 +5,7 @@ public class GameClient : DefaultClient {
     [Inject] IZoneTransport _zoneTransport;
     [Inject] GameManager _gameManager;
 
-    private GameManager Manager
-    {
-        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
-    }
+    private GameManager Manager => NetworkingPacketServices.Manager;
     protected PlayerInfoInterlude _playerInfo;
     protected int _serverId;
     private int _playKey1;
@@ -32,6 +29,7 @@ public class GameClient : DefaultClient {
     public static GameClient Instance { get { return _instance; } }
 
     private void Awake() {
+        NetworkingPacketServices.Bind(manager: _gameManager);
         if (_instance == null) {
             _instance = this;
         } else if (_instance != this) {
