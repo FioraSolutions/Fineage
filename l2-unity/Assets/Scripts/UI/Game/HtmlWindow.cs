@@ -10,10 +10,7 @@ public class HtmlWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => GameWindowPacketServices.Game;
     private Label _titleLabel;
     private static HtmlWindow _instance;
     public static HtmlWindow Instance => _instance;
@@ -34,9 +31,22 @@ public class HtmlWindow : L2PopupWindow
     private void Awake()
     {
         if (_instance == null)
+        {
             _instance = this;
+            WireGameWindowPacketServices();
+        }
         else
             Destroy(this);
+    }
+
+    private void Start()
+    {
+        WireGameWindowPacketServices();
+    }
+
+    private void WireGameWindowPacketServices()
+    {
+        GameWindowPacketServices.Bind(game: _gameClient);
     }
 
     private void Update()

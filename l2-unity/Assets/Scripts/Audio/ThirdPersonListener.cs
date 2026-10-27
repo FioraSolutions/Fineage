@@ -18,7 +18,7 @@ public class ThirdPersonListener : MonoBehaviour
 
     [Inject] PlayerController _playerController;
 
-    private PlayerController Player
+    private PlayerController ResolvedPlayer
     {
         get { return _playerController != null ? _playerController : AudioPacketServices.Player; }
     }
@@ -75,7 +75,7 @@ public class ThirdPersonListener : MonoBehaviour
 
     void Update() {
         if(_player == null) {
-            PlayerController playerController = Player;
+            PlayerController playerController = ResolvedPlayer;
             if (playerController != null) {
                 _player = playerController.gameObject;
             }

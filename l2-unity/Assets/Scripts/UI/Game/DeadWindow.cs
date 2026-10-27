@@ -8,10 +8,7 @@ public class DeadWindow : L2Window
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => GameWindowPacketServices.Game;
     private static DeadWindow _instance;
     public static DeadWindow Instance { get { return _instance; } }
 
@@ -20,11 +17,22 @@ public class DeadWindow : L2Window
         if (_instance == null)
         {
             _instance = this;
+            WireGameWindowPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireGameWindowPacketServices();
+    }
+
+    private void WireGameWindowPacketServices()
+    {
+        GameWindowPacketServices.Bind(game: _gameClient);
     }
 
     private void OnDestroy()
