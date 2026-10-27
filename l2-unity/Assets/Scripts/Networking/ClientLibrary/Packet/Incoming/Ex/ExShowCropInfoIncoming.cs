@@ -5,10 +5,10 @@ public sealed class ExShowCropInfoIncoming : IncomingWirePacket<ExShowCropInfoDt
 {
     public override void Apply(ExShowCropInfoDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        WorldIncomingPacketServices.Queue(() =>
         {
-            IncomingPacketServices.SeedInfo.SetDataCropInfo(packet.List);
-            IncomingPacketServices.SeedInfo.ShowWindow();
+            WorldIncomingPacketServices.SeedInfo.SetDataCropInfo(packet.List);
+            WorldIncomingPacketServices.SeedInfo.ShowWindow();
         });
     }
 }
