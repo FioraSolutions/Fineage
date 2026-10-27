@@ -2,7 +2,7 @@
 
 ## Требования
 
-- Unity **6000.0.68f1** (Apple Silicon) — pinned в `ProjectSettings/ProjectVersion.txt`
+- Unity **6000.3.27f1** LTS (Apple Silicon) — pinned в `ProjectSettings/ProjectVersion.txt`
 - Проект: `l2-unity/`
 - Диагностические дампы: `l2-unity/logs/diag/` (не Windows `C:\unity\...`)
 
@@ -10,11 +10,14 @@
 
 | Что | Сейчас | Заметка |
 |---|---|---|
-| Editor | 6000.0.68f1 | Последний патч ветки 6.0 — **6000.0.85f1**; 6.0 LTS EOL с 16.10.2026. Рекомендуемый LTS — **6.3** (6000.3.x). Прыжок 6.0→6.3 отдельно, не вслепую. |
-| URP / ShaderGraph / VFX | 17.0.4 | Идут с Editor 6000.0.x |
-| Input System | 1.18.0 | OK |
+| Editor | **6000.3.27f1** (LTS) | Ветка `chore/unity-6.3`. Было 6000.0.68f1. |
+| URP / ShaderGraph / VFX | **17.3.0** | Линия Editor 6000.3.x |
+| Input System | **1.20.1** | |
+| ProBuilder | **6.1.3** | |
 | VContainer | 1.19.0 | Актуальный релиз |
 | UnityMeshSimplifier | commit `d741912` | Закреплён; не `master` floating |
+
+Первый открытие в 6.3: дождаться Package Manager resolve + реимпорт; `packages-lock.json` пересоберёт Editor.
 
 ## На что опирается «декомпил» (в репо)
 
@@ -28,7 +31,7 @@
 
 ## Экран логина (без сервера)
 
-1. Открой `l2-unity` в Unity 6000.0.68f1 (первый импорт может занять долго).
+1. Открой `l2-unity` в Unity **6000.3.27f1** (первый импорт / package resolve может занять долго).
 2. Сцена **`Assets/Resources/Scenes/Menu.unity`** → Play.
 3. Должен появиться UI логина (логин/пароль).  
    Кнопка Login ещё ничего полезного не сделает без login-сервера на `127.0.0.1:2106`.
