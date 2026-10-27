@@ -15,9 +15,9 @@ public sealed class PlayerAttackClearOnEntityDiedListener : IDisposable
         _subscription = gameEvents.Subscribe<EntityDiedEvent>(OnEntityDied);
     }
 
-    private static void OnEntityDied(EntityDiedEvent e)
+    private void OnEntityDied(EntityDiedEvent e)
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = GameEventPacketServices.LocalPlayer;
         if (player == null || player.TargetId != e.ObjectId)
             return;
 

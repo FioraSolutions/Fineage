@@ -15,9 +15,9 @@ public sealed class TargetClearOnEntityDiedListener : IDisposable
         _subscription = gameEvents.Subscribe<EntityDiedEvent>(OnEntityDied);
     }
 
-    private static void OnEntityDied(EntityDiedEvent e)
+    private void OnEntityDied(EntityDiedEvent e)
     {
-        TargetManager targets = TargetManager.Instance;
+        TargetManager targets = GameEventPacketServices.Targets;
         if (targets == null)
             return;
 
