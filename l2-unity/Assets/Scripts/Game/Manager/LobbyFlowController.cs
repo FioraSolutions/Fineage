@@ -19,10 +19,17 @@ public sealed class LobbyFlowController
     [Inject] LoginClient _loginClient;
     [Inject] IZoneTransport _zoneTransport;
     [Inject] SceneLoader _sceneLoader;
+    [Inject] MusicManager _music;
 
     public void Attach(GameManager game)
     {
         _game = game;
+        WireLobbyFlowPacketServices();
+    }
+
+    void WireLobbyFlowPacketServices()
+    {
+        LobbyFlowPacketServices.Bind(_sceneLoader, playerState: null, music: _music);
     }
 
     public void WireLogin(LoginRuntime loginRuntime)
@@ -44,10 +51,11 @@ public sealed class LobbyFlowController
         _gameUi = gameUi;
     }
 
-    private SceneLoader Scenes
-    {
-        get { return _sceneLoader != null ? _sceneLoader : SceneLoader.Instance; }
-    }
+    private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
+
+    private PlayerStateMachine StateMachine => LobbyFlowPacketServices.PlayerState;
+
+    private MusicManager Music => LobbyFlowPacketServices.Music;
 
     private L2LoginUI LoginUi
     {
@@ -153,7 +161,9 @@ public sealed class LobbyFlowController
         L2GameUI ui = GameUi;
         if (ui != null)
             ui.StopLoading();
-        PlayerStateMachine.Instance.enabled = true;
+        PlayerStateMachine stateMachine = StateMachine;
+        if (stateMachine != null)
+            stateMachine.enabled = true;
         _game.WorldSpawnReady = true;
         if (_zoneTransport == null || _zoneTransport.AllowsInterludeGameSocketAuth)
             FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
@@ -170,8 +180,11 @@ public sealed class LobbyFlowController
         }
         _gameClient.EndLoadWorld();
 
-        PlayerStateMachine.Instance.ChangeState(PlayerState.IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.ENTER_WORLD);
+        if (stateMachine != null)
+        {
+            stateMachine.ChangeState(PlayerState.IDLE);
+            stateMachine.NotifyEvent(Event.ENTER_WORLD);
+        }
     }
 
     public void OnLoginServerConnected()
@@ -239,10 +252,9 @@ public sealed class LobbyFlowController
 
     public void OnWorldLoading()
     {
-        if (MusicManager.Instance != null)
-        {
-            MusicManager.Instance.Clear();
-        }
+        MusicManager music = Music;
+        if (music != null)
+            music.Clear();
 
         L2GameUI ui = GameUi;
         if (ui != null)
@@ -275,7 +287,9 @@ public sealed class LobbyFlowController
 
         if (_game.GameState > GameState.CHAR_CREATION)
         {
-            MusicManager.Instance.Clear();
+            MusicManager music = Music;
+            if (music != null)
+                music.Clear();
             Scenes.LoadMenu();
         }
         else if (_game.GameState > GameState.LOGIN_SCREEN && !_gameClient.IsConnected && !_loginClient.IsConnected)
