@@ -7,12 +7,12 @@ using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// Same shape as Frida move_tick_probe: packets this frame vs CC.Move cost.
-/// File: C:\unity\l2 client\decompile\log\moveTick.txt
+/// File: logs/diag/moveTick.txt (via L2DiagPaths)
 /// Console: one line per second.
 /// </summary>
 public static class MoveCostLog
 {
-    const string LogPath = @"C:\unity\l2 client\decompile\log\moveTick.txt";
+    static string LogPath => L2DiagPaths.File("moveTick.txt");
     const float FlushSec = 1f;
 
     static int _fMove;
@@ -45,7 +45,7 @@ public static class MoveCostLog
     static readonly HashSet<int> Unique = new HashSet<int>(1024);
     static readonly StringBuilder Line = new StringBuilder(384);
 
-    public static bool Enabled { get; set; } = true;
+    public static bool Enabled { get; set; } = false;
 
     public static void NoteMovePacket(int objId)
     {

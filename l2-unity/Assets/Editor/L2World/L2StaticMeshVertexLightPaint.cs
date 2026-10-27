@@ -12,7 +12,7 @@ public static class L2StaticMeshVertexLightPaint
 {
     const string MapT3d = "Assets/Resources/Data/Maps/17_25/Meta/17_25.t3d";
     const string MeshFolder = "Assets/Resources/Data/StaticMeshes/world_bridge_S";
-    const string LogPath = @"C:\unity\l2 client\decompile\v2\wooden\extract\lineage2\bridge_vertex_light.txt";
+    static string LogPath => L2DiagPaths.File("bridge_vertex_light.txt");
 
     static readonly string[] PrefabPaths =
     {

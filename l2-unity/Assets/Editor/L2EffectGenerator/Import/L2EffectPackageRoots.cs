@@ -13,12 +13,19 @@ public static class L2EffectPackageRoots
     public const string MeshDestFolder =
         "Assets/Resources/Data/StaticMeshes/LineageEffectsStaticmeshes";
 
-    public const string DefaultViewerRoot =
-        @"C:\unity\l2 client\l2-viwer-effect\My project";
-    public const string ExtraViewerRoot = @"C:\unity\l2 client\l2-viwer-effect";
-    public const string ExtraMeshDir = @"C:\Users\hh-soft\Pictures\test_umodel\meshe_essend";
-    public const string ExtraTextureDir = @"C:\Users\hh-soft\Pictures\test_umodel\SysTextures\essens";
-    public const string ExtraSysTexturesDir = @"C:\Users\hh-soft\Pictures\test_umodel\SysTextures";
+    // Optional local clones; discovery also walks parents for l2-viwer-effect.
+    // Override with env L2_VIEWER_ROOT / L2_UMODEL_MESH_DIR / L2_UMODEL_TEX_DIR.
+    public static string DefaultViewerRoot =>
+        System.Environment.GetEnvironmentVariable("L2_VIEWER_ROOT")
+        ?? Path.Combine(Directory.GetParent(Application.dataPath)!.FullName, "External", "l2-viwer-effect", "My project");
+    public static string ExtraViewerRoot =>
+        Path.GetDirectoryName(DefaultViewerRoot) ?? "";
+    public static string ExtraMeshDir =>
+        System.Environment.GetEnvironmentVariable("L2_UMODEL_MESH_DIR") ?? "";
+    public static string ExtraTextureDir =>
+        System.Environment.GetEnvironmentVariable("L2_UMODEL_TEX_DIR") ?? "";
+    public static string ExtraSysTexturesDir =>
+        System.Environment.GetEnvironmentVariable("L2_UMODEL_SYS_TEX_DIR") ?? ExtraTextureDir;
 
     public static string FindUModelExe()
     {
