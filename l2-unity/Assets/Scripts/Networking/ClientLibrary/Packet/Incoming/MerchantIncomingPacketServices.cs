@@ -96,4 +96,8 @@ public static class MerchantIncomingPacketServices
             GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
             GameIncomingPacketServices.Dealer.ShowWindow();
         });
+
+    public static void ApplyShopPreviewInfo(ShopPreviewInfoDto packet)
+    {
+    }
 }

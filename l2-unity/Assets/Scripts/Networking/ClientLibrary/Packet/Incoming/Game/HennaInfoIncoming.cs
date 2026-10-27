@@ -3,8 +3,6 @@ using UnityEngine;
 [IncomingGamePacket(GameServerPacketType.HennaInfo)]
 public sealed class HennaInfoIncoming : IncomingWirePacket<HennaInfoDto>
 {
-    public override void Apply(HennaInfoDto packet)
-    {
-        StubIncomingPacketServices.ApplyHennaInfo(packet);
-    }
+    public override void Apply(HennaInfoDto packet) =>
+        CharacterIncomingPacketServices.ApplyHennaInfo(packet);
 }
