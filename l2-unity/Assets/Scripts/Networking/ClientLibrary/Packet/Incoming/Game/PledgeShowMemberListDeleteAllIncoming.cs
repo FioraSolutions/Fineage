@@ -5,6 +5,6 @@ public sealed class PledgeShowMemberListDeleteAllIncoming : IncomingWirePacket<P
 {
     public override void Apply(PledgeShowMemberListDeleteAllDto packet)
     {
-        GameIncomingPacketServices.Queue(() => GameIncomingPacketServices.Clan.DeleteMemberData());
+        PledgeIncomingPacketServices.ApplyPledgeShowMemberListDeleteAll();
     }
 }

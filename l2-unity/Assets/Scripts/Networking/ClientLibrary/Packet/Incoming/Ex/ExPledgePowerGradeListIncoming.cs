@@ -5,6 +5,6 @@ public sealed class ExPledgePowerGradeListIncoming : IncomingWirePacket<PledgePo
 {
     public override void Apply(PledgePowerGradeListDto packet)
     {
-        GameIncomingPacketServices.Queue(() => GameIncomingPacketServices.Clan.ShowGradeInfo(packet));
+        PledgeIncomingPacketServices.ApplyExPledgePowerGradeList(packet);
     }
 }

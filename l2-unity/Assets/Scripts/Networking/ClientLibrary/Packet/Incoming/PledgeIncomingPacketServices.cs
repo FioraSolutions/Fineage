@@ -1,0 +1,42 @@
+using System;
+
+/// <summary>
+/// Pledge/clan wire packet handler access via GameIncomingPacketServices (#142 sub-slice 60).
+/// </summary>
+public static class PledgeIncomingPacketServices
+{
+    public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
+
+    public static void ApplyPledgeInfo(PledgeInfoDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdatePledge(packet));
+
+    public static void ApplyPledgeStatusChanged(PledgeStatusChangedDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdateClanIdInfo(packet));
+
+    public static void ApplyPledgeShowMemberListAdd(PledgeShowMemberListAddDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.AddMemberData(packet));
+
+    public static void ApplyPledgeShowMemberListAll(PledgeShowMemberListAllDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.AddClanData(packet));
+
+    public static void ApplyPledgeShowMemberListDeleteAll() =>
+        Queue(() => GameIncomingPacketServices.Clan.DeleteMemberData());
+
+    public static void ApplyPledgeShowMemberListDelete(PledgeShowMemberListDeleteDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.DeleteMemberData(packet));
+
+    public static void ApplyPledgeShowMemberListUpdate(PledgeShowMemberListUpdateDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdateMemberData(packet));
+
+    public static void ApplyManagePledgePower(ManagePledgePowerDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+
+    public static void ApplyExPledgePowerGradeList(PledgePowerGradeListDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.ShowGradeInfo(packet));
+
+    public static void ApplyExPledgeReceiveMemberInfo(PledgeReceiveMemberInfoDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+
+    public static void ApplyExPledgeReceivePowerInfo(PledgeReceivePowerInfoDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+}
