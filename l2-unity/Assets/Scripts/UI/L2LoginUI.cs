@@ -66,7 +66,7 @@ public class L2LoginUI : L2UI
 
     private void OnDestroy()
     { 
-        IncomingPacketActions.BindLogin(null);
+        LoginPacketServices.ClearLoginRuntime();
         if (loading)
         {
             //Debug.Log("L2LoginUI Auto : DESTROYYYY");

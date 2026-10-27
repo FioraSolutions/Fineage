@@ -9,6 +9,7 @@ public class ChatWindow : L2Window
 {
 
     [Inject] GameClient _gameClient;
+    [Inject] MessagePacketApply _messageApply;
 
     private GameClient Game => ChatPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
@@ -55,6 +56,7 @@ public class ChatWindow : L2Window
     private void WireChatPacketServices()
     {
         ChatPacketServices.Bind(game: _gameClient);
+        MessagePacketServices.Bind(messageApply: _messageApply);
     }
 
     private void OnDestroy()

@@ -8,7 +8,7 @@ public sealed class SystemMessageIncoming : IncomingWirePacket<SystemMessageDto>
     {
         try
         {
-            IncomingPacketServices.ApplyMessage(apply => apply.SystemMessage(packet));
+            MessagePacketServices.ApplyMessage(apply => apply.SystemMessage(packet));
         }
         catch (Exception ex)
         {
