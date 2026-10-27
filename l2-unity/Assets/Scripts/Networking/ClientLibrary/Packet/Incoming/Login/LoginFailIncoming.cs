@@ -3,7 +3,7 @@ public sealed class LoginFailIncoming : IncomingWirePacket<LoginFailDto>
 {
     public override void Apply(LoginFailDto packet)
     {
-        IncomingPacketServices.LoginWindow.ShowErrorText(packet.Message);
-        IncomingPacketServices.Login.Disconnect();
+        LoginPacketServices.LoginWindow.ShowErrorText(packet.Message);
+        LoginPacketServices.LoginClient.Disconnect();
     }
 }
