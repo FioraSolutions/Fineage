@@ -8,5 +8,6 @@ public sealed class TradeOwnAddIncoming : IncomingPacket<TradeOwnAddIncomingDto>
 
     public override void Apply(TradeOwnAddIncomingDto dto)
     {
+        TradeSessionIncomingPacketServices.ApplyOwnAdd(dto);
     }
 }
