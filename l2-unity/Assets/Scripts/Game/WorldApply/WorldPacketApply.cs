@@ -416,7 +416,7 @@ public sealed class WorldPacketApply
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
+        GameManager manager = _gameManager != null ? _gameManager : WorldApplyPacketServices.Manager;
         return manager != null && manager.WorldSpawnReady && _world != null;
     }
 
@@ -427,6 +427,6 @@ public sealed class WorldPacketApply
         if (_applyQueue != null)
             _applyQueue.QueueNextFrame(() => apply(this));
         else
-            IncomingPacketActions.QueueWorldNextFrame(apply);
+            WorldApplyPacketServices.QueueWorldNextFrame(apply);
     }
 }
