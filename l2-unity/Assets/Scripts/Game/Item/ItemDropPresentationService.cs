@@ -65,22 +65,17 @@ public sealed class ItemDropPresentationService
         _world = world;
         _animations = animations;
         _effects = effects;
+        ItemPacketServices.Bind(gameWorld: world, animations: animations, effects: effects);
     }
 
-    private World GameWorld
-    {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
-    }
+    private World GameWorld =>
+        _world != null ? _world : ItemPacketServices.GameWorld;
 
-    private IAnimationManager Animations
-    {
-        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
-    }
+    private IAnimationManager Animations =>
+        _animations != null ? _animations : ItemPacketServices.Animations;
 
-    private EffectManager Effects
-    {
-        get { return _effects != null ? _effects : IncomingPacketActions.Effects; }
-    }
+    private EffectManager Effects =>
+        _effects != null ? _effects : ItemPacketServices.Effects;
 
     public void Tick(float deltaTime)
     {

@@ -8,10 +8,7 @@ public class PlayerInventory : MonoBehaviour
 {
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => ItemPacketServices.Game;
 
     public enum InventoryChange
     {
@@ -121,6 +118,7 @@ public class PlayerInventory : MonoBehaviour
         {
             _instance = this;
             _changeInventoryData = new ChangeInventoryData();
+            WireItemPacketServices();
         }
         else if (_instance != this)
         {
@@ -133,7 +131,13 @@ public class PlayerInventory : MonoBehaviour
 
     private void Start()
     {
+        WireItemPacketServices();
         _playerInventory.Clear();
+    }
+
+    private void WireItemPacketServices()
+    {
+        ItemPacketServices.Bind(game: _gameClient);
     }
 
     private void OnDestroy()
