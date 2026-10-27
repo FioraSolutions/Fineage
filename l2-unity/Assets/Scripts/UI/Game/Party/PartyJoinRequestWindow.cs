@@ -9,10 +9,7 @@ public class PartyInvitationWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => PartyPacketServices.Game;
     private static PartyInvitationWindow _instance;
     private VisualElement _progressBar;
     private VisualElement _progressBarBg;
@@ -35,13 +32,24 @@ public class PartyInvitationWindow : L2PopupWindow
     private void Awake()
     {
         if (_instance == null)
-        { 
+        {
             _instance = this;
+            WirePartyPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WirePartyPacketServices();
+    }
+
+    private void WirePartyPacketServices()
+    {
+        PartyPacketServices.Bind(game: _gameClient);
     }
 
     public void AddData(AskJoinPartyDto request)
