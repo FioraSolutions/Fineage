@@ -59,6 +59,7 @@ public sealed class WorldPacketApply
                 return;
             }
             _world.SpawnNpc(npcInfo.Identity, npcInfo.Status, npcInfo.Stats);
+            _gameEvents?.Publish(new EntitySpawnedEvent(npcInfo.Identity.Id));
         }
         else
             _world.UpdateNpc(entity, npcInfo);
@@ -108,6 +109,7 @@ public sealed class WorldPacketApply
                 return;
             }
             _world.SpawnUser(info);
+            _gameEvents?.Publish(new EntitySpawnedEvent(info.Identity.Id));
             return;
         }
 
