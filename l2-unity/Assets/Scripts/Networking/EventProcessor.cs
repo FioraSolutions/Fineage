@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using UnityEngine;
+using VContainer;
 
 public class EventProcessor : MonoBehaviour
 {
+    [Inject] World _world;
+    WorldPacketApply _worldApply;
     private static EventProcessor _instance;
     [System.Obsolete("Use [Inject] instead")]
     public static EventProcessor Instance { get { return _instance; } }
@@ -33,9 +36,55 @@ public class EventProcessor : MonoBehaviour
             Destroy(this);
     }
 
+    public void WireGameApply(WorldPacketApply worldApply)
+    {
+        if (worldApply != null)
+            _worldApply = worldApply;
+    }
+
+    private World GameWorld
+    {
+        get
+        {
+            if (_world != null)
+                return _world;
+            if (App.GameContainer != null)
+            {
+                try
+                {
+                    return App.GameContainer.Resolve<World>();
+                }
+                catch
+                {
+                }
+            }
+            return IncomingPacketActions.GameWorld;
+        }
+    }
+
+    private WorldPacketApply WorldApply
+    {
+        get
+        {
+            if (_worldApply != null)
+                return _worldApply;
+            if (App.GameContainer != null)
+            {
+                try
+                {
+                    return App.GameContainer.Resolve<WorldPacketApply>();
+                }
+                catch
+                {
+                }
+            }
+            return IncomingPacketActions.WorldApply;
+        }
+    }
+
     private void Start()
     {
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
             this.enabled = false;
@@ -84,9 +133,18 @@ public class EventProcessor : MonoBehaviour
 
         int pendingMoves = MovementPacketLatest.Count;
         long flushStart = System.Diagnostics.Stopwatch.GetTimestamp();
-        PacketApplyLog.Time("MoveLatestFlush", () => IncomingPacketActions.ApplyWorld(MovementPacketLatest.Flush));
+        PacketApplyLog.Time("MoveLatestFlush", FlushMovementLatest);
         double flushMs = (System.Diagnostics.Stopwatch.GetTimestamp() - flushStart) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
         MoveCostLog.NoteFlush(pendingMoves, flushMs);
         PacketApplyLog.EndBatch();
+    }
+
+    private void FlushMovementLatest()
+    {
+        WorldPacketApply apply = WorldApply;
+        if (apply != null)
+            MovementPacketLatest.Flush(apply);
+        else
+            IncomingPacketActions.ApplyWorld(MovementPacketLatest.Flush);
     }
 }

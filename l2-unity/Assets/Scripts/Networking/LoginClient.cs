@@ -1,8 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using L2_login;
+using VContainer;
 
 public class LoginClient : DefaultClient {
+    [Inject] GameManager _gameManager;
+
+    private GameManager Manager
+    {
+        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
+    }
+
+    private LoginWindow LoginWindowUi
+    {
+        get { return IncomingPacketActions.LoginWindow; }
+    }
     // Crypt
     public static byte[] STATIC_BLOWFISH_KEY = {
         (byte) 0x6b,
@@ -115,7 +127,7 @@ public class LoginClient : DefaultClient {
             if (Network == null)
                 throw new System.InvalidOperationException("NetworkRuntime not ready (AppDataScope)");
 
-            clientPacketHandler = new LoginClientPacketHandler();
+            clientPacketHandler = new LoginClientPacketHandler(this);
             serverPacketHandler = new LoginServerPacketHandler(Network.Protocol, Network.Dispatcher);
 
             _client = new AsynchronousClient(_serverIp, _serverPort, this, clientPacketHandler, serverPacketHandler, true, Network);
@@ -132,25 +144,26 @@ public class LoginClient : DefaultClient {
 
         // Debug.Log("Connected to LoginServer");
 
-        IncomingPacketActions.Manager.OnLoginServerConnected();
+        Manager.OnLoginServerConnected();
     }
 
     public override void OnConnectionFailed() {
         LobbyFlowLog.Warn("LoginClient.OnConnectionFailed ip=" + _serverIp + " port=" + _serverPort);
         base.OnConnectionFailed(); // clears dead _client in DefaultClient
-        if (IncomingPacketActions.LoginWindow != null)
-            IncomingPacketActions.LoginWindow.ShowErrorText(
+        LoginWindow loginWindow = LoginWindowUi;
+        if (loginWindow != null)
+            loginWindow.ShowErrorText(
                 "Cannot reach login server " + _serverIp + ":" + _serverPort);
     }
 
     public override void OnAuthAllowed() {
         // Debug.Log("Authed to LoginServer");
-        IncomingPacketActions.Manager.OnLoginServerAuthAllowed();
+        Manager.OnLoginServerAuthAllowed();
     }
 
     public void OnServerListReceived(byte lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers) {
 
-        IncomingPacketActions.Manager.OnReceivedServerList(lastServer, serverData, charsOnServers);
+        Manager.OnReceivedServerList(lastServer, serverData, charsOnServers);
     }
 
     public void Send(INetworkCommand command)
