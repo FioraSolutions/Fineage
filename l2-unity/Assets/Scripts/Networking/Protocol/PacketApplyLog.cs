@@ -19,7 +19,7 @@ public static class PacketApplyLog
     }
 
     const double DumpMs = 50.0;
-    static string LogPath => L2DiagPaths.File("packetApply.txt");
+    static string LogPath => L2DiagPaths.DiagFile("packetApply.txt");
 
     static readonly Dictionary<string, Stat> Stats = new Dictionary<string, Stat>(64);
     static readonly List<KeyValuePair<string, Stat>> SortBuffer = new List<KeyValuePair<string, Stat>>(64);

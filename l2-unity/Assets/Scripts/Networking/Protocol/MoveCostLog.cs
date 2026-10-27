@@ -12,7 +12,7 @@ using Debug = UnityEngine.Debug;
 /// </summary>
 public static class MoveCostLog
 {
-    static string LogPath => L2DiagPaths.File("moveTick.txt");
+    static string LogPath => L2DiagPaths.DiagFile("moveTick.txt");
     const float FlushSec = 1f;
 
     static int _fMove;

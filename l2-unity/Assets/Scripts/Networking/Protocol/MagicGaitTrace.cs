@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 /// </summary>
 public static class MagicGaitTrace
 {
-    static string LogPath => L2DiagPaths.File("magic-gait.txt");
+    static string LogPath => L2DiagPaths.DiagFile("magic-gait.txt");
 
     // Per-id throttle only for high-frequency sync ticks.
     static readonly Dictionary<int, float> LastSyncAt = new Dictionary<int, float>(32);

@@ -19,7 +19,7 @@ public static class MagicSkillUseTrace
     }
 
     const double DumpMs = 8.0;
-    static string LogPath => L2DiagPaths.File("magicSkillUse.txt");
+    static string LogPath => L2DiagPaths.DiagFile("magicSkillUse.txt");
 
     static readonly List<Row> Rows = new List<Row>(24);
     static bool _active;

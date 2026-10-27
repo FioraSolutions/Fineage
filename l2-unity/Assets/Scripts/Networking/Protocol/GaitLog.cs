@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 /// </summary>
 public static class GaitLog
 {
-    static string LogPath => L2DiagPaths.File("gait.txt");
+    static string LogPath => L2DiagPaths.DiagFile("gait.txt");
     const float FlushSec = 1f;
 
     // Per-object throttle: avoid spamming while still capturing every transition.

@@ -19,7 +19,8 @@ public static class L2DiagPaths
         }
     }
 
-    public static string File(string fileName)
+    /// <summary>Path under <see cref="DiagDir"/>. Named DiagFile so it does not shadow <see cref="System.IO.File"/>.</summary>
+    public static string DiagFile(string fileName)
     {
         return Path.Combine(DiagDir, fileName);
     }

@@ -17,7 +17,7 @@ public static class L2BridgeVertexColorBake
     static string IndexPath => L2DiagPaths.DecompileFile("v2", "wooden", "extract", "lineage2", "bridge_ia_indices.txt");
     const string MeshPath = "Assets/Resources/Data/StaticMeshes/world_bridge_S/world_bridge01_l2color.asset";
     const string MaterialPath = "Assets/Resources/Data/Textures/world_bridge_t/Materials/world_bridge01.mat";
-    static string LogPath => L2DiagPaths.File("bridge_color_bake.txt");
+    static string LogPath => L2DiagPaths.DiagFile("bridge_color_bake.txt");
     const float PositionScale = 0.019f;
 
     static readonly string[] PrefabPaths =
