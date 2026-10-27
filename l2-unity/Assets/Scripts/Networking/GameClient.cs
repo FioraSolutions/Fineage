@@ -73,6 +73,21 @@ public class GameClient : DefaultClient {
 
     public void Send(INetworkCommand command)
     {
+        if (FineageWireConfig.IsZoneV2)
+        {
+            MoveToCommand move = command as MoveToCommand;
+            if (move != null)
+            {
+                ZoneV2Client zone = ZoneV2Client.Instance;
+                if (zone != null)
+                    zone.SendMove(move.From, move.To);
+                return;
+            }
+
+            // Other Interlude game commands are no-ops on ZoneV2 until wired.
+            return;
+        }
+
         EnqueueGame(command, IsCryptEnabled());
     }
 

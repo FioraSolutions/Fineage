@@ -131,6 +131,12 @@ public class LoginWindow : L2Window
         if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
             return;
 
+        if (FineageWireConfig.IsZoneV2)
+        {
+            ZoneV2Client.Ensure().BeginSession(account, password);
+            return;
+        }
+
         client.Account = account;
         client.Password = password;
         client.Connect();
