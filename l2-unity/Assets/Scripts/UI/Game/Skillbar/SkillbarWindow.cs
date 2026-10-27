@@ -8,11 +8,9 @@ using VContainer;
 public class SkillbarWindow : L2PopupWindow
 {
     [Inject] PlayerShortcuts _shortcuts;
+    [Inject] PlayerInventory _inventory;
 
-    private PlayerShortcuts Shortcuts
-    {
-        get { return _shortcuts != null ? _shortcuts : IncomingPacketActions.Shortcuts; }
-    }
+    private PlayerShortcuts Shortcuts => SkillbarPacketServices.Shortcuts;
 
     private bool _locked = false;
     private bool _vertical = true;
@@ -42,6 +40,7 @@ public class SkillbarWindow : L2PopupWindow
         {
             _instance = this;
             _cooldownAnimationService = new CooldownAnimationService();
+            WireSkillbarPacketServices();
         }
         else
         {
@@ -51,6 +50,16 @@ public class SkillbarWindow : L2PopupWindow
         _expandCoroutines = new List<Coroutine>();
         _minimizeCoroutines = new List<Coroutine>();
 
+    }
+
+    private void Start()
+    {
+        WireSkillbarPacketServices();
+    }
+
+    private void WireSkillbarPacketServices()
+    {
+        SkillbarPacketServices.Bind(skillbar: this, shortcuts: _shortcuts, inventory: _inventory);
     }
 
     private void OnDestroy()
