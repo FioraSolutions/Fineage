@@ -1,10 +1,8 @@
-using UnityEngine;
-
 [IncomingGamePacket(GameServerPacketType.EnchantResult)]
 public sealed class EnchantResultIncoming : IncomingWirePacket<EnchantResultDto>
 {
     public override void Apply(EnchantResultDto packet)
     {
-        CombatIncomingPacketServices.Queue(() => CombatIncomingPacketServices.Enchant.EnchantResult(packet.Result));
+        CombatIncomingPacketServices.ApplyEnchantResult(packet);
     }
 }
