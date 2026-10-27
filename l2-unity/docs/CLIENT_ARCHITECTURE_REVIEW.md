@@ -73,6 +73,7 @@ Below are the findings grouped by severity.
 | **Files** | `GameManager.cs` (3 checks), `GameClient.cs` (2 checks), `LoginWindow.cs` (1 check) |
 | **Problem** | Protocol-specific branches are scattered as `if (FineageWireConfig.IsZoneV2)` inside methods that otherwise handle Interlude logic. Adding a third protocol or a feature flag will double the branch count. |
 | **Recommendation** | `GameClient.Send()` should delegate to an `ITransport` strategy injected by DI, selected by `FineageWireConfig.Current`. The inline checks collapse. |
+| **Progress** | PR #111 introduced `IZoneTransport` interface (`Networking/Adapters/V2/IZoneTransport.cs`) — the right abstraction for V2 transport. Next step: wire `GameClient.Send()` to delegate through it and remove inline `IsZoneV2` branches. |
 
 #### P1-3: `GameRuntime` and `LoginRuntime` are hand-rolled service locators
 
@@ -214,20 +215,24 @@ UI  ──→  Controller  ──→  Game/Domain  ──→  Networking
 
 - `IWorldDomainSink` is the right abstraction — both protocols converge here.
 - `DomainMoveTo`, `DomainPlayerSpawned`, etc. are proper domain DTOs.
+- **PR #111** added `IZoneTransport` interface and `Docs/ARCHITECTURE_NET.md` — the V2 transport abstraction is in place.
 
 ### Problems
 
 - `GameClient.Send()` has an inline `if (FineageWireConfig.IsZoneV2)` that silently drops all non-Move commands.
 - `GameManager.OnWorldSceneLoaded()` has 3 `IsZoneV2` checks that skip EnterWorld/EndLoadWorld — these are lobby-flow branches, not transport details.
 - `ZoneV2Client` directly touches `GameClient.Instance.PlayerInfo` and `IncomingPacketActions.Manager` — it should publish a domain event.
+- `IZoneTransport` (from #111) exists but is not yet wired into `GameClient.Send()` — the inline branches remain.
 
 ### Recommendation
 
-Extract `ITransport { void Send(INetworkCommand); }` with two implementations:
-- `InterludeTransport` wrapping current `GameClient` send queue
-- `ZoneV2Transport` wrapping `ZoneV2Client`
+Wire `GameClient.Send()` to delegate through `IZoneTransport` (already defined)
+for V2 commands. For Interlude, the existing send-queue path stays as-is.
+The 6 inline `IsZoneV2` checks in GameManager/GameClient/LoginWindow should
+collapse once the transport strategy is injected.
 
-`GameClient.Send()` becomes a one-liner delegation. `GameManager` never checks `IsZoneV2`.
+`GameManager` should never check `IsZoneV2` — transport details belong in the
+adapter layer.
 
 ---
 
@@ -368,12 +373,14 @@ Fineage.Di/                  (depends on all above)
 ### Phase 1 — Guardrails (this PR + next sprint)
 
 - [x] Document architecture boundaries (this review)
-- [ ] Freeze `IncomingPacketActions` surface — add `[Obsolete]` warning to `Instance` properties
-- [ ] Extract `IGameManager` interface for networking entry points
-- [ ] Remove `using static UnityEditor.Progress` from `EventBus.cs`
-- [ ] Add boundary comments / `#region` markers to `GameManager.cs`
+- [x] Extract `IGameManager` interface for networking entry points *(PR #127)*
+- [x] Remove `using static UnityEditor.Progress` from `EventBus.cs` *(PR #127)*
+- [x] Add boundary comments / `#region` markers to `GameManager.cs` *(PR #127)*
+- [ ] Freeze `IncomingPacketActions` surface → [#137](https://github.com/FioraSolutions/Fineage/issues/137)
 
 ### Phase 2 — Assembly definitions (1–2 sprints)
+
+→ [#139](https://github.com/FioraSolutions/Fineage/issues/139)
 
 - [ ] Create `.asmdef` files for Domain, Networking, Game, UI, Controller, Di
 - [ ] Fix resulting compile errors (these reveal real dependency violations)
@@ -381,21 +388,31 @@ Fineage.Di/                  (depends on all above)
 
 ### Phase 3 — Protocol abstraction (2 sprints)
 
-- [ ] Extract `ITransport` from `GameClient.Send()`
+→ [#140](https://github.com/FioraSolutions/Fineage/issues/140)
+
+- [x] Define `IZoneTransport` interface *(PR #111)*
+- [ ] Wire `GameClient.Send()` to delegate V2 commands through `IZoneTransport`
 - [ ] Move `ZoneV2Client` receive loop to use `IWorldDomainSink` exclusively
-- [ ] Remove all `FineageWireConfig.IsZoneV2` inline checks
+- [ ] Remove all `FineageWireConfig.IsZoneV2` inline checks from GameManager/GameClient/LoginWindow
 
 ### Phase 4 — Service locator elimination (ongoing)
 
+→ [#141](https://github.com/FioraSolutions/Fineage/issues/141) (GameManager decompose), [#142](https://github.com/FioraSolutions/Fineage/issues/142) (IncomingPacketActions migration)
+
+- [ ] Extract GameManager → TableInitializer + LobbyFlowController
 - [ ] Convert `IncomingPacketActions` usages to `[Inject]` one subsystem at a time
 - [ ] Remove `GameRuntime` / `LoginRuntime` as consumers migrate
 - [ ] Remove `static Instance` from classes as last consumer migrates
 
 ### Phase 5 — Domain events (ongoing)
 
+→ [#143](https://github.com/FioraSolutions/Fineage/issues/143)
+
 - [ ] Introduce `MessagePipe` or expand `EventBus`
 - [ ] New features use domain events, not direct calls
 - [ ] Existing features migrate opportunistically
+
+**Epic issue:** [#131](https://github.com/FioraSolutions/Fineage/issues/131)
 
 ---
 
