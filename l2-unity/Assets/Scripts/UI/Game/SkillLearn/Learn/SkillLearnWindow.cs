@@ -12,10 +12,7 @@ public class SkillLearnWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => SkillLearnPacketServices.Game;
     private static SkillLearnWindow _instance;
     protected VisualTreeAsset _rowsTemplate;
     private ICreatorVerticalScroll _creatorWindow;
@@ -30,11 +27,22 @@ public class SkillLearnWindow : L2PopupWindow
         {
             _instance = this;
             _creatorWindow = new CreatorVerticalScrollWindows();
+            WireSkillLearnPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireSkillLearnPacketServices();
+    }
+
+    private void WireSkillLearnPacketServices()
+    {
+        SkillLearnPacketServices.Bind(game: _gameClient);
     }
 
     protected override void LoadAssets()

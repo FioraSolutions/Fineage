@@ -8,10 +8,7 @@ public class DescriptionSkillWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => SkillLearnPacketServices.Game;
     private static DescriptionSkillWindow _instance;
     public static DescriptionSkillWindow Instance { get { return _instance; } }
     private DataProviderWindows _dataProvider;
@@ -26,11 +23,22 @@ public class DescriptionSkillWindow : L2PopupWindow
         {
             _instance = this;
             _dataProvider = new DataProviderWindows();
+            WireSkillLearnPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireSkillLearnPacketServices();
+    }
+
+    private void WireSkillLearnPacketServices()
+    {
+        SkillLearnPacketServices.Bind(game: _gameClient);
     }
 
     protected override void LoadAssets()
