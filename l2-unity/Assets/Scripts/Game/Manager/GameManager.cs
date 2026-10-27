@@ -64,6 +64,7 @@ public class GameManager : MonoBehaviour, IGameManager {
     public int ProtocolVersion { get { return _protocolVersion; } }
 
     private static GameManager _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static GameManager Instance { get { return _instance; } }
 
     void Awake() {

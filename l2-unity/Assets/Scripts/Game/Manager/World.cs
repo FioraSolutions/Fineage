@@ -94,6 +94,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     public LayerMask GroundMask { get { return _groundMask; } }
 
     private static World _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static World Instance { get { return _instance; } }
 
     private void Awake() {

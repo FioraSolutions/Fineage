@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
     public Vector3 MoveDirection { get { return _moveDirection; } }
 
     private static PlayerController _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static PlayerController Instance { get { return _instance; } }
 
     private Entity _monster;
