@@ -71,6 +71,7 @@ public class TargetManager : MonoBehaviour
     private void WireCombatPacketServices()
     {
         CombatPacketServices.Bind(game: _gameClient, gameWorld: _world);
+        GameEventPacketServices.Bind(targets: this);
     }
 
     void OnDestroy()

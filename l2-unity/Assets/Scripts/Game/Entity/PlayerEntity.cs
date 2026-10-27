@@ -74,6 +74,7 @@ public class PlayerEntity : Entity
             ? _playerController
             : GetComponent<PlayerController>();
         EntityPacketServices.Bind(player: local);
+        GameEventPacketServices.Bind(localPlayer: this);
     }
 
     public override void Initialize()
