@@ -16,15 +16,9 @@ public class TargetManager : MonoBehaviour
     [Inject] GameClient _gameClient;
     [Inject] World _world;
 
-    private World GameWorld
-    {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
-    }
+    private World GameWorld => CombatPacketServices.GameWorld;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => CombatPacketServices.Game;
 
     private TargetData _target = null;
     private TargetData _attackTarget = null;
@@ -59,6 +53,7 @@ public class TargetManager : MonoBehaviour
         {
             _instance = this;
             _considerCandidate = ConsiderCandidate;
+            WireCombatPacketServices();
         }
         else
         {
@@ -68,8 +63,14 @@ public class TargetManager : MonoBehaviour
 
     private void Start()
     {
+        WireCombatPacketServices();
         _target = null;
         _attackTarget = null;
+    }
+
+    private void WireCombatPacketServices()
+    {
+        CombatPacketServices.Bind(game: _gameClient, gameWorld: _world);
     }
 
     void OnDestroy()
