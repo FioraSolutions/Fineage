@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     [Inject] GameClient _gameClient;
     [Inject] LoginClient _loginClient;
+    [Inject] IZoneTransport _zoneTransport;
     [Inject] SceneLoader _sceneLoader;
     [Inject] ItemTable _items;
     [Inject] ItemNameTable _itemNames;
@@ -153,17 +154,14 @@ public class GameManager : MonoBehaviour, IGameManager {
         IncomingPacketActions.Ui.StopLoading();
         PlayerStateMachine.Instance.enabled = true;
         WorldSpawnReady = true;
-        if (!FineageWireConfig.IsZoneV2)
-        {
+        if (_zoneTransport == null || _zoneTransport.AllowsInterludeGameSocketAuth)
             FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
-            _gameClient.Send(new EnterWorldCommand());
-        }
+        _gameClient.Send(new EnterWorldCommand());
         if (IncomingPacketActions.Domain != null)
             IncomingPacketActions.Domain.FlushKnownlist();
         else
             IncomingPacketActions.ApplyWorld(apply => apply.FlushKnownlist());
-        if (!FineageWireConfig.IsZoneV2)
-            _gameClient.EndLoadWorld();
+        _gameClient.EndLoadWorld();
 
         PlayerStateMachine.Instance.ChangeState(PlayerState.IDLE);
         PlayerStateMachine.Instance.NotifyEvent(Event.ENTER_WORLD);

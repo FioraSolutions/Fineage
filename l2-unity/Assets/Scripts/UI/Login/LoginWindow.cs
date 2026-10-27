@@ -8,6 +8,7 @@ using VContainer;
 public class LoginWindow : L2Window
 {
     [Inject] LoginRuntime _login;
+    [Inject] IZoneTransport _zoneTransport;
     private VisualElement _logo;
     private TextField _userInput;
     private TextField _passwordInput;
@@ -131,9 +132,10 @@ public class LoginWindow : L2Window
         if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
             return;
 
-        if (FineageWireConfig.IsZoneV2)
+        IZoneTransport transport = _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
+        if (transport != null && transport.BypassesInterludeLogin)
         {
-            ZoneV2Client.Ensure().BeginSession(account, password);
+            transport.BeginSession(account, password);
             return;
         }
 
