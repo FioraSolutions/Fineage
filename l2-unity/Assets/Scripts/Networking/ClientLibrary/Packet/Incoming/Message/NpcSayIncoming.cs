@@ -1,11 +1,6 @@
 [IncomingGamePacket(GameServerPacketType.NpcSay)]
 public sealed class NpcSayIncoming : IncomingWirePacket<NpcSayDto>
 {
-    public override void Apply(NpcSayDto packet)
-    {
-        if (packet.NpcMessage == null)
-            return;
-
-        MessageIncomingPacketServices.ApplyNpcSay(packet.NpcMessage);
-    }
+    public override void Apply(NpcSayDto packet) =>
+        MessageIncomingPacketServices.ApplyNpcSay(packet);
 }

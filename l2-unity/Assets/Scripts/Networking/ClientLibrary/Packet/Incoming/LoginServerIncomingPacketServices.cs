@@ -29,6 +29,14 @@ public static class LoginServerIncomingPacketServices
             packet.Response));
     }
 
+    public static void ApplyInit(InitDto packet)
+    {
+    }
+
+    public static void ApplyGGAuth(GGAuthDto packet)
+    {
+    }
+
     public static void OnLoginOkParsed(LoginOkDto packet)
     {
         Login.SessionKey1 = packet.SessionKey1;
