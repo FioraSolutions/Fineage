@@ -14,7 +14,7 @@ public sealed class DeleteObjectIncoming : IncomingPacket<DeleteObjectDto>
     public override void Apply(DeleteObjectDto dto)
     {
         SpawnFrameBudget.Cancel(dto.ObjectId);
-        if (IncomingPacketServices.GameWorld != null)
-            IncomingPacketServices.GameWorld.DeleteObject(dto.ObjectId);
+        if (WorldIncomingPacketServices.GameWorld != null)
+            WorldIncomingPacketServices.GameWorld.DeleteObject(dto.ObjectId);
     }
 }
