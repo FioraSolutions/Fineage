@@ -86,11 +86,22 @@ public class GearSlot : InventorySlot
 
     private static GameClient ResolveGameClient()
     {
+        if (App.HasContainer)
+        {
+            try
+            {
+                return (GameClient)App.Container.Resolve(typeof(GameClient));
+            }
+            catch
+            {
+            }
+        }
+
         if (App.GameContainer != null)
         {
             try
             {
-                return App.GameContainer.Resolve<GameClient>();
+                return (GameClient)App.GameContainer.Resolve(typeof(GameClient));
             }
             catch
             {
