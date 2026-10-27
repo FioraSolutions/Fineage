@@ -107,6 +107,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.Register<MonsterWorldApply>(Lifetime.Singleton);
         builder.Register<UserWorldApply>(Lifetime.Singleton);
         builder.Register<WorldPacketApply>(Lifetime.Singleton);
+        builder.Register<WorldDomainSink>(Lifetime.Singleton).As<IWorldDomainSink>().AsSelf();
         builder.Register<MessagePacketApply>(Lifetime.Singleton);
         builder.Register<GameRuntime>(Lifetime.Singleton);
 
@@ -118,8 +119,9 @@ public sealed class GameLifetimeScope : LifetimeScope
                 GameRuntime runtime = container.Resolve<GameRuntime>();
                 WorldPacketApply worldApply = container.Resolve<WorldPacketApply>();
                 MessagePacketApply messageApply = container.Resolve<MessagePacketApply>();
+                IWorldDomainSink domain = container.Resolve<IWorldDomainSink>();
                 runtime.BindApply(worldApply, messageApply);
-                IncomingPacketActions.BindGame(runtime, worldApply, messageApply);
+                IncomingPacketActions.BindGame(runtime, worldApply, messageApply, domain);
             }
             catch (Exception ex)
             {

@@ -13,6 +13,10 @@ public sealed class PetInfoIncoming : IncomingPacket<NpcInfoDto>
         if (packet.Identity != null)
             SpawnFrameBudget.ClearCancel(packet.Identity.Id);
         StorageNpc.getInstance().AddNpcInfo(packet);
-        IncomingPacketActions.QueueWorld(apply => apply.UpdateNpc(packet));
+        DomainKnownlistAdd add = InterludeDomainMap.Npc(packet);
+        if (IncomingPacketActions.Domain != null && add != null)
+            IncomingPacketActions.QueueDomain(domain => domain.ApplyKnownlistAdd(add));
+        else
+            IncomingPacketActions.QueueWorld(apply => apply.UpdateNpc(packet));
     }
 }
