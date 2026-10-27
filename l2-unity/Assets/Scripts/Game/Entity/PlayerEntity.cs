@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using VContainer;
 
 
 public class PlayerEntity : Entity
@@ -27,14 +28,16 @@ public class PlayerEntity : Entity
     public  Animation LastAtkAnimation { get; set; }
     public static PlayerEntity Instance { get => _instance; }
 
+    [Inject] PlayerController _playerController;
+
     private PlayerController LocalPlayer
     {
         get
         {
-            PlayerController local = GetComponent<PlayerController>();
-            if (local != null)
-                return local;
-            return IncomingPacketActions.Player;
+            PlayerController local = _playerController != null
+                ? _playerController
+                : GetComponent<PlayerController>();
+            return local != null ? local : EntityPacketServices.Player;
         }
     }
 
@@ -56,6 +59,21 @@ public class PlayerEntity : Entity
         {
             Destroy(this);
         }
+
+        WireEntityPacketServices();
+    }
+
+    private void Start()
+    {
+        WireEntityPacketServices();
+    }
+
+    void WireEntityPacketServices()
+    {
+        PlayerController local = _playerController != null
+            ? _playerController
+            : GetComponent<PlayerController>();
+        EntityPacketServices.Bind(player: local);
     }
 
     public override void Initialize()

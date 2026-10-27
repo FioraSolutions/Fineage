@@ -11,64 +11,9 @@ public class PlayerStatePickup : StateMachineBehaviour
     const float FinishNorm = 0.95f;
     bool _switched;
 
-    static IAnimationManager Animations
-    {
-        get
-        {
-            if (App.HasContainer)
-            {
-                try
-                {
-                    return App.Resolve<IAnimationManager>();
-                }
-                catch
-                {
-                }
-            }
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
 
-            if (App.GameContainer != null)
-            {
-                try
-                {
-                    return (IAnimationManager)App.GameContainer.Resolve(typeof(IAnimationManager));
-                }
-                catch
-                {
-                }
-            }
-
-            return IncomingPacketActions.Animations;
-        }
-    }
-
-    static void QueueOnMain(Action action)
-    {
-        if (App.HasContainer)
-        {
-            try
-            {
-                App.Resolve<PacketApplyQueue>().Queue(action);
-                return;
-            }
-            catch
-            {
-            }
-        }
-
-        if (App.GameContainer != null)
-        {
-            try
-            {
-                ((PacketApplyQueue)App.GameContainer.Resolve(typeof(PacketApplyQueue))).Queue(action);
-                return;
-            }
-            catch
-            {
-            }
-        }
-
-        IncomingPacketActions.Queue(action);
-    }
+    static void QueueOnMain(Action action) => AnimationPacketServices.QueueOnMain(action);
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
