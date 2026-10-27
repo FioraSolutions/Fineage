@@ -90,4 +90,12 @@ public static class CharacterIncomingPacketServices
 
     public static void ApplyCharTemplate(CharTemplatesDto templates) =>
         Queue(() => Manager.OnCreateUser(templates.PlayerTemplates));
+
+    public static void ApplyCharCreateOk(CharCreateOkDto packet)
+    {
+    }
+
+    public static void ApplyHennaInfo(HennaInfoDto packet)
+    {
+    }
 }
