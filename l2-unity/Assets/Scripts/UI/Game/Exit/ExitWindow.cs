@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class ExitWindow : L2PopupWindow
 {
+    [Inject] L2GameUI _gameUi;
+    [Inject] AudioManager _audio;
+
     private Button _exitButton;
     private Button _restartButton;
     private Label _windowName;
@@ -23,11 +27,22 @@ public class ExitWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireSystemUIPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireSystemUIPacketServices();
+    }
+
+    private void WireSystemUIPacketServices()
+    {
+        SystemUIPacketServices.Bind(ui: _gameUi, audio: _audio);
     }
 
     private void OnDestroy()
@@ -100,14 +115,14 @@ public class ExitWindow : L2PopupWindow
     public override void ShowWindow()
     {
         base.ShowWindow();
-        L2GameUI.Instance.WindowOpened(this);
+        SystemUIPacketServices.Ui.WindowOpened(this);
     }
 
     public override void HideWindow()
     {
         base.HideWindow();
-        AudioManager.Instance.PlayUISound("window_close");
-        L2GameUI.Instance.WindowClosed(this);
+        SystemUIPacketServices.Audio.PlayUISound("window_close");
+        SystemUIPacketServices.Ui.WindowClosed(this);
     }
 
     private void HandleRestartButtonClick()
