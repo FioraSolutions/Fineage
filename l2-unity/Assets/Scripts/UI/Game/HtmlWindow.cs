@@ -46,7 +46,7 @@ public class HtmlWindow : L2PopupWindow
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient);
+        GameWindowPacketServices.Bind(game: _gameClient, html: this);
     }
 
     private void Update()

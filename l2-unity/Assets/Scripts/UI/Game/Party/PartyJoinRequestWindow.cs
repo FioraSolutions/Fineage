@@ -49,7 +49,7 @@ public class PartyInvitationWindow : L2PopupWindow
 
     private void WirePartyPacketServices()
     {
-        PartyPacketServices.Bind(game: _gameClient);
+        PartyPacketServices.Bind(game: _gameClient, partyInvite: this);
     }
 
     public void AddData(AskJoinPartyDto request)

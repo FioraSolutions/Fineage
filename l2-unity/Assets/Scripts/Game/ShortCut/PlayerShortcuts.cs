@@ -60,7 +60,8 @@ public class PlayerShortcuts : MonoBehaviour
             game: _gameClient,
             inventory: _inventory,
             input: _input,
-            actions: _actions);
+            actions: _actions,
+            shortcuts: this);
     }
 
     private void OnDestroy()

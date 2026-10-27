@@ -5,10 +5,10 @@ public sealed class MultiSellListIncoming : IncomingWirePacket<MultiSellListDto>
 {
     public override void Apply(MultiSellListDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        UiIncomingPacketServices.Queue(() =>
         {
-            IncomingPacketServices.MultiSell.AddData(packet.GetOnlyItems(), packet);
-            IncomingPacketServices.MultiSell.ShowWindow();
+            UiIncomingPacketServices.MultiSell.AddData(packet.GetOnlyItems(), packet);
+            UiIncomingPacketServices.MultiSell.ShowWindow();
         });
     }
 }

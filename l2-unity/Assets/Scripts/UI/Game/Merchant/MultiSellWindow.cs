@@ -11,7 +11,8 @@ public class MultiSellWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game => MerchantPacketServices.Game;
+    private GameClient Game =>
+        _gameClient != null ? _gameClient : IncomingPacketActions.Game;
     private static MultiSellWindow _instance;
     private ICreatorTradeTab _creatorWindow;
 
@@ -42,7 +43,7 @@ public class MultiSellWindow : L2PopupWindow
             _creatorWindow = new CreatorTradingWindowsWithTabs();
             _dataProvider = new TooltipDataProvider();
             _toolTips = new MultiSellToolTips(_dataProvider);
-            WireMerchantPacketServices();
+            WireMultiSellPacketServices();
         }
         else
         {
@@ -52,12 +53,12 @@ public class MultiSellWindow : L2PopupWindow
 
     private void Start()
     {
-        WireMerchantPacketServices();
+        WireMultiSellPacketServices();
     }
 
-    private void WireMerchantPacketServices()
+    private void WireMultiSellPacketServices()
     {
-        MerchantPacketServices.Bind(game: _gameClient);
+        MultiSellPacketServices.Bind(multiSell: this);
     }
 
     protected override void LoadAssets()

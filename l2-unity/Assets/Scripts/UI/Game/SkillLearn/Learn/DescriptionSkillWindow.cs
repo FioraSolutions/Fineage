@@ -38,7 +38,7 @@ public class DescriptionSkillWindow : L2PopupWindow
 
     private void WireSkillLearnPacketServices()
     {
-        SkillLearnPacketServices.Bind(game: _gameClient);
+        SkillLearnPacketServices.Bind(game: _gameClient, skillDesc: this);
     }
 
     protected override void LoadAssets()

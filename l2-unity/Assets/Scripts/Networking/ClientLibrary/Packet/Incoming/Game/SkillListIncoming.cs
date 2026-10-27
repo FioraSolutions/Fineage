@@ -5,6 +5,6 @@ public sealed class SkillListIncoming : IncomingWirePacket<SkillListDto>
 {
     public override void Apply(SkillListDto packet)
     {
-        IncomingPacketServices.Queue(() => IncomingPacketServices.SkillList.UpdateSkillList(packet.Skills));
+        UiIncomingPacketServices.Queue(() => UiIncomingPacketServices.SkillList.UpdateSkillList(packet.Skills));
     }
 }

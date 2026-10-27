@@ -5,10 +5,10 @@ public sealed class TutorialShowHtmlIncoming : IncomingWirePacket<TutorialShowHt
 {
     public override void Apply(TutorialShowHtmlDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        UiIncomingPacketServices.Queue(() =>
         {
-            IncomingPacketServices.Html.InjectToWindow(packet.Html);
-            IncomingPacketServices.Html.ShowWindowToCenter();
+            UiIncomingPacketServices.Html.InjectToWindow(packet.Html);
+            UiIncomingPacketServices.Html.ShowWindowToCenter();
         });
     }
 }

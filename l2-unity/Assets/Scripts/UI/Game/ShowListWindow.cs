@@ -43,7 +43,7 @@ public class ShowListWindow : L2PopupWindow
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient);
+        GameWindowPacketServices.Bind(game: _gameClient, showList: this);
     }
 
     protected override void LoadAssets()

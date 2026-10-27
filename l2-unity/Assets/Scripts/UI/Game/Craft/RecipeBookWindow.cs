@@ -42,7 +42,7 @@ public class RecipeBookWindow : L2PopupWindow
 
     private void WireCraftPacketServices()
     {
-        CraftPacketServices.Bind(game: _gameClient);
+        CraftPacketServices.Bind(game: _gameClient, recipeBook: this);
     }
 
     protected override void LoadAssets()

@@ -8,7 +8,7 @@ public sealed class ShowBoardIncoming : IncomingWirePacket<ShowCBoardDto>
         if (IncomingPacketServices.GameWorld == null || !dto.ReadyToOpen)
             return;
 
-        IncomingPacketServices.Html.InjectToCommunityWindow(dto.Html);
-        IncomingPacketServices.Html.ToggleCommunityBoard(false);
+        UiIncomingPacketServices.Html.InjectToCommunityWindow(dto.Html);
+        UiIncomingPacketServices.Html.ToggleCommunityBoard(false);
     }
 }

@@ -5,10 +5,10 @@ public sealed class RecipeBookItemListIncoming : IncomingWirePacket<RecipeBookIt
 {
     public override void Apply(RecipeBookItemListDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        UiIncomingPacketServices.Queue(() =>
         {
-            IncomingPacketServices.RecipeBook.AddData(packet);
-            IncomingPacketServices.RecipeBook.ShowWindow();
+            UiIncomingPacketServices.RecipeBook.AddData(packet);
+            UiIncomingPacketServices.RecipeBook.ShowWindow();
         });
     }
 }

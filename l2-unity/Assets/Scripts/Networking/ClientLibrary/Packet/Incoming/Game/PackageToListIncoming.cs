@@ -5,10 +5,10 @@ public sealed class PackageToListIncoming : IncomingWirePacket<PackageToListDto>
 {
     public override void Apply(PackageToListDto packet)
     {
-        IncomingPacketServices.Queue(() =>
+        UiIncomingPacketServices.Queue(() =>
         {
-            IncomingPacketServices.ShowList.AddList(packet.Players);
-            IncomingPacketServices.ShowList.ShowWindow();
+            UiIncomingPacketServices.ShowList.AddList(packet.Players);
+            UiIncomingPacketServices.ShowList.ShowWindow();
         });
     }
 }
