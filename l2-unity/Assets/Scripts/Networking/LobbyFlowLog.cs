@@ -9,12 +9,24 @@ using System;
 public static class LobbyFlowLog
 {
     public const string Tag = "[LOBBY]";
+    static GameManager _manager;
+
+    public static void Wire(GameManager manager)
+    {
+        if (manager != null)
+            _manager = manager;
+    }
+
+    static GameManager Manager
+    {
+        get { return _manager != null ? _manager : IncomingPacketActions.Manager; }
+    }
 
     public static bool Active
     {
         get
         {
-            GameManager manager = IncomingPacketActions.Manager;
+            GameManager manager = Manager;
             return manager == null || manager.GameState < GameState.IN_GAME;
         }
     }

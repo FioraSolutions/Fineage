@@ -34,6 +34,10 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
         RegisterIfFound<MoveAllCharacters>(builder);
+        RegisterIfFound<NetworkCharacterControllerShare>(builder);
+        RegisterIfFound<NetworkTransformReceive>(builder);
+        RegisterIfFound<NetworkTransformShare>(builder);
+        RegisterIfFound<ZoneV2Client>(builder);
         RegisterIfFound<GravityNpc>(builder);
         RegisterIfFound<FNManagerLight>(builder);
         RegisterIfFound<SwordCollisionService>(builder);
@@ -125,6 +129,29 @@ public sealed class GameLifetimeScope : LifetimeScope
                 runtime.BindApply(worldApply, messageApply);
                 IncomingPacketActions.BindGame(runtime, worldApply, messageApply, domain);
                 MovementPacketLatest.Wire(domain);
+                World world = container.Resolve<World>();
+                MoveCostLog.Wire(world);
+                if (App.Container != null)
+                {
+                    try
+                    {
+                        EventProcessor events = App.Container.Resolve<EventProcessor>();
+                        events.WireGameApply(worldApply);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                try
+                {
+                    ZoneV2Client zoneV2 = container.Resolve<ZoneV2Client>();
+                    zoneV2.WireGame(domain, worldApply);
+                }
+                catch
+                {
+                }
+
                 if (App.Container != null)
                 {
                     try

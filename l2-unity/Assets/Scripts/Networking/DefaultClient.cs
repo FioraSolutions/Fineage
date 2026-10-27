@@ -6,6 +6,8 @@ using VContainer;
 public abstract class DefaultClient : MonoBehaviour
 {
     [Inject] protected NetworkRuntime _network;
+    [Inject] protected GameManager _gameManager;
+    [Inject] protected World _world;
     [Header("Connection")]
     [SerializeField] protected string _serverIp = "127.0.0.1";
     [SerializeField] protected int _serverPort = 11000;
@@ -32,9 +34,34 @@ public abstract class DefaultClient : MonoBehaviour
     public bool IsConnected { get { return _connected; } }
     public int Ping { get { return _ping; } set { _ping = value; } }
 
+    private GameManager Manager
+    {
+        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
+    }
+
+    private World GameWorld
+    {
+        get
+        {
+            if (_world != null)
+                return _world;
+            if (App.GameContainer != null)
+            {
+                try
+                {
+                    return App.GameContainer.Resolve<World>();
+                }
+                catch
+                {
+                }
+            }
+            return IncomingPacketActions.GameWorld;
+        }
+    }
+
     private void Start()
     {
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
             this.enabled = false;
@@ -79,7 +106,7 @@ public abstract class DefaultClient : MonoBehaviour
         _connecting = false;
         EventProcessor events = Events;
         LobbyFlowLog.Info(GetType().Name + ".Connect socketResult=" + connected +
-            " events=" + (events != null) + " manager=" + (IncomingPacketActions.Manager != null));
+            " events=" + (events != null) + " manager=" + (Manager != null));
 
         if (connected)
         {
@@ -155,8 +182,9 @@ public abstract class DefaultClient : MonoBehaviour
             return;
 
         _client = null;
-        if (IncomingPacketActions.Manager != null)
-            IncomingPacketActions.Manager.OnDisconnect();
+        GameManager manager = Manager;
+        if (manager != null)
+            manager.OnDisconnect();
     }
 
     protected NetworkRuntime Network

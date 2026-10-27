@@ -40,13 +40,15 @@ public sealed class AppLifetimeScope : LifetimeScope
             App.Container = container;
             AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);
+            GameManager manager = container.Resolve<GameManager>();
             IncomingPacketActions.BindApp(
                 container.Resolve<EventProcessor>(),
                 container.Resolve<GameClient>(),
                 container.Resolve<LoginClient>(),
-                container.Resolve<GameManager>(),
+                manager,
                 animations,
                 container.Resolve<PacketApplyQueue>());
+            LobbyFlowLog.Wire(manager);
         });
     }
 

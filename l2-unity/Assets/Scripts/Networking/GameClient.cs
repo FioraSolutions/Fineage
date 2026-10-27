@@ -3,6 +3,12 @@ using VContainer;
 
 public class GameClient : DefaultClient {
     [Inject] IZoneTransport _zoneTransport;
+    [Inject] GameManager _gameManager;
+
+    private GameManager Manager
+    {
+        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
+    }
     protected PlayerInfoInterlude _playerInfo;
     protected int _serverId;
     private int _playKey1;
@@ -66,14 +72,14 @@ public class GameClient : DefaultClient {
     protected override void WhileConnecting() {
         base.WhileConnecting();
 
-        IncomingPacketActions.Manager.OnConnectingToGameServer();
+        Manager.OnConnectingToGameServer();
     }
 
     protected override void OnConnectionSuccess() {
         base.OnConnectionSuccess();
         LobbyFlowLog.Info("GameClient.OnConnectionSuccess — send ProtocolVersion");
 
-        GameManager manager = IncomingPacketActions.Manager;
+        GameManager manager = Manager;
         if (manager != null)
             manager.IsSwitchingServer = false;
         else
@@ -172,12 +178,18 @@ public class GameClient : DefaultClient {
     public override void OnConnectionFailed() {
         LobbyFlowLog.Warn("GameClient.OnConnectionFailed ip=" + _serverIp + " port=" + _serverPort);
         base.OnConnectionFailed();
-        IncomingPacketActions.Manager.IsSwitchingServer = false;
-        IncomingPacketActions.Manager.OnRelogin();
+        GameManager manager = Manager;
+        if (manager != null)
+        {
+            manager.IsSwitchingServer = false;
+            manager.OnRelogin();
+        }
     }
 
     public override void OnAuthAllowed() {
-        IncomingPacketActions.Manager.OnAuthAllowed();
+        GameManager manager = Manager;
+        if (manager != null)
+            manager.OnAuthAllowed();
     }
 
     public override void OnDisconnect() {

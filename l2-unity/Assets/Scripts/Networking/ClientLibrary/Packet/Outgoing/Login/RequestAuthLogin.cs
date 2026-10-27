@@ -26,7 +26,10 @@ public sealed class RequestAuthLogin : OutgoingWirePacket<RequestAuthLoginDto>
         byte[] testRsa = new byte[TestRsaSize];
         Array.Copy(accountBytes, 0, testRsa, 79, accountBytes.Length);
         Array.Copy(passwordBytes, 0, testRsa, 93, passwordBytes.Length);
-        Dto.RsaBlock = IncomingPacketActions.Login.RSACrypt.EncryptRSABlockNoPaddingBoundleCastle(testRsa);
+        LoginClient login = ResolveLoginClient();
+        if (login == null || login.RSACrypt == null)
+            return;
+        Dto.RsaBlock = login.RSACrypt.EncryptRSABlockNoPaddingBoundleCastle(testRsa);
         Dto.Response = responce;
         _valid = true;
     }
@@ -36,6 +39,24 @@ public sealed class RequestAuthLogin : OutgoingWirePacket<RequestAuthLoginDto>
         if (!_valid)
             return new byte[0];
         return base.GetData();
+    }
+
+    private static LoginClient ResolveLoginClient()
+    {
+        if (App.HasContainer)
+        {
+            try
+            {
+                LoginClient resolved = App.Resolve<LoginClient>();
+                if (resolved != null)
+                    return resolved;
+            }
+            catch
+            {
+            }
+        }
+
+        return IncomingPacketActions.Login;
     }
 
     private static bool TryCreate(string account, string password)
