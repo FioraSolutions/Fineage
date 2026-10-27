@@ -26,6 +26,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<CombatFacingService>(builder);
         RegisterIfFound<EventBus>(builder);
         builder.Register<GameEventBus>(Lifetime.Singleton).As<IGameEventBus>();
+        builder.Register<TargetClearOnEntityDiedListener>(Lifetime.Singleton);
         builder.Register<L2ActorFade>(Lifetime.Singleton);
         builder.Register<DefaultEffectAttachmentResolver>(Lifetime.Singleton).As<IEffectAttachmentResolver>();
         builder.Register<HomeProjectileDualFlightRoots>(Lifetime.Singleton);
@@ -124,6 +125,7 @@ public sealed class GameLifetimeScope : LifetimeScope
             try
             {
                 GameRuntime runtime = container.Resolve<GameRuntime>();
+                container.Resolve<TargetClearOnEntityDiedListener>();
                 WorldPacketApply worldApply = container.Resolve<WorldPacketApply>();
                 MessagePacketApply messageApply = container.Resolve<MessagePacketApply>();
                 IWorldDomainSink domain = container.Resolve<IWorldDomainSink>();
