@@ -34,6 +34,10 @@ MessagePack body
 
 See `Wire/MsgType.cs` and `Wire/Messages.cs`.
 
+## Account-local characters (Interlude stub)
+
+`Accounts/AccountCharacterStore` holds per-account characters for the **login-stub** Interlude game port (no DB). Human Fighter create path only; wired from `tools/login-stub`.
+
 ## Next
 
 - TLS on the channel
