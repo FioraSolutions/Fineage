@@ -54,10 +54,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         get { return _characterInfo != null ? _characterInfo : CharacterInfoWindow.Instance; }
     }
 
-    public IAnimationManager Animations
-    {
-        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
-    }
+    public IAnimationManager Animations => WorldPacketServices.Animations;
 
     public Transform UsersContainer
     {
@@ -126,6 +123,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         }
 
         BindItemDropPresentationRunner();
+        WireWorldPacketServices();
     }
 
     [Inject]
@@ -145,9 +143,20 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     }
 
     void Start() {
+        WireWorldPacketServices();
         if (_deadManager != null)
             _deadManager.OnReadyToRemove += RemoveObject;
         UpdateMasks();
+    }
+
+    private void WireWorldPacketServices()
+    {
+        WorldPacketServices.Bind(
+            animations: _animations,
+            game: _gameClient,
+            manager: _gameManager,
+            worldApply: _worldApply);
+        GamePacketServices.Bind(gameWorld: this);
     }
 
     public void UpdateMasks() {
@@ -628,10 +637,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             game.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
     }
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => WorldPacketServices.Game;
 
     private void SendAppearing()
     {
@@ -851,8 +857,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
-        WorldPacketApply apply = _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
+        GameManager manager = WorldPacketServices.Manager;
+        WorldPacketApply apply = WorldPacketServices.WorldApply;
         return manager != null && manager.WorldSpawnReady && apply != null;
     }
 }
