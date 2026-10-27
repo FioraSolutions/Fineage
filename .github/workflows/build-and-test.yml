@@ -1,0 +1,58 @@
+name: build-and-test
+
+on:
+  pull_request:
+    branches: [dev]
+  push:
+    branches: ['feat/**', 'fix/**', 'chore/**']
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore tools/Fineage.Tools.sln
+
+      - name: Build
+        run: dotnet build tools/Fineage.Tools.sln --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test tools/Fineage.Tools.sln --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/TestResults/*.trx'
+          retention-days: 14
+
+  # Advisory only — not a required status check. Pre-existing tool code has
+  # whitespace drift; continue-on-error keeps the PR gate on build-and-test.
+  format-check:
+    name: format-check
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Check formatting
+        run: dotnet format tools/Fineage.Tools.sln --verify-no-changes --verbosity diagnostic

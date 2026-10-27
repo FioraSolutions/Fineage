@@ -56,6 +56,10 @@ ExportedObj/
 .vscode/
 *.sln
 *.csproj
+# Keep tools/ projects and solution (not auto-generated)
+!tools/**/*.csproj
+!tools/**/*.sln
+!tools/*.sln
 *.suo
 *.sln.docstates
 *.user
@@ -91,6 +95,7 @@ logs/
 tools/Agent*.cs
 **/bin/
 **/obj/
+**/TestResults/
 
 # Accidental Windows path artifact
 l2-unity/C:*/

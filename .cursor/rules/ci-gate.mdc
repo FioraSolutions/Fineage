@@ -1,0 +1,20 @@
+# CI Gate — mandatory for all PRs
+
+All code changes targeting `dev` **must** pass the `build-and-test` GitHub Actions check before merge. No exceptions.
+
+## Rules
+
+1. **Every PR to `dev`** triggers `.github/workflows/build-and-test.yml`.
+2. `dotnet build` + `dotnet test` must be **green** for `tools/Fineage.Tools.sln`.
+3. If you add a new tool/library under `tools/`, add its `.csproj` to the solution and create a corresponding `.Tests` xUnit project.
+4. Do **not** merge PRs with failing checks. Fix tests first.
+5. The required status check name is **`build-and-test`**. `format-check` is advisory for now.
+
+## What's tested
+
+- `tools/zone-server` — FrameIO, Wire messages (MessagePack), MessageRegistry, MemorySessionStore, MemoryCache, SingleCellAoi
+- `tools/login-stub` — PacketBuilder encoding, LoginCrypt (Blowfish, XOR, checksum), Framed IO
+
+## Unity client
+
+Unity C# (under `l2-unity/`) is **not** built or tested in CI — it requires a Unity license and editor. Server tools are the CI gate. See `Docs/CI_AND_TESTING.md` for how to add Unity EditMode tests later.
