@@ -12,9 +12,22 @@ public sealed class EntityActionMachine : ITickable
     private readonly List<Entity> _active = new List<Entity>();
     private readonly HashSet<int> _activeIds = new HashSet<int>();
 
-    public EntityActionMachine(L2PawnRange pawnRange, L2PawnYaw pawnYaw)
+    public EntityActionMachine(
+        L2PawnRange pawnRange,
+        L2PawnYaw pawnYaw,
+        World gameWorld,
+        IAnimationManager animations,
+        EffectManager effects,
+        MoveAllCharacters moves,
+        GameClient game)
     {
         Instance = this;
+        ControllerPacketServices.Bind(
+            gameWorld: gameWorld,
+            animations: animations,
+            effects: effects,
+            moves: moves,
+            game: game);
         _pawnRange = pawnRange;
         _processes = new Dictionary<EntityActionKind, IEntityActionProcess>
         {
@@ -189,8 +202,8 @@ public sealed class EntityActionMachine : ITickable
         List<Entity> attackers = new List<Entity>();
         CollectAttackersOf(dead, _active, attackers);
 
-        World world = IncomingPacketActions.GameWorld != null
-            ? IncomingPacketActions.GameWorld
+        World world = ControllerPacketServices.GameWorld != null
+            ? ControllerPacketServices.GameWorld
             : World.Instance;
         if (world != null)
             world.ForEachEntity(entity => CollectAttacker(dead, entity, attackers));

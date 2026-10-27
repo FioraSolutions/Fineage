@@ -24,7 +24,7 @@ public class NewMagicSkillsState  : AbstractAttackEvents
 
                 AnimationCombo readyCombo = SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
                 string[] orderedReadyCycle = SetupDurationHelper.BuildOrderedCycleForOverrideTiming(readyCombo.GetAnimCycle());
-                float[] durations = IncomingPacketActions.Animations.GetOverrideClipsDurations(objectId, orderedReadyCycle);
+                float[] durations = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedReadyCycle);
                 float shotEventTime = SetupDurationHelper.ResolveShotEventTime(objectId, orderedReadyCycle);
                 float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(
                     entity, useSkill.SkillId, entity != null ? entity.Target : null);

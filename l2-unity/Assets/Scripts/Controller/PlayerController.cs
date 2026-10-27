@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public partial class PlayerController : MonoBehaviour
 {
     /* Components */
     private CharacterController _controller;
@@ -89,8 +89,9 @@ public class PlayerController : MonoBehaviour
         _instance = this;
         if (_calcSpeed == null)
             _calcSpeed = new PlayerMovementSpeedCalculator();
+        WireControllerPacketServices();
         if (_pp_sender == null)
-            _pp_sender = new PlayerPositionSender();
+            _pp_sender = _injectedPositionSender != null ? _injectedPositionSender : new PlayerPositionSender();
 
         EnsureCharacterController();
     }
@@ -103,6 +104,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        WireControllerPacketServices();
         EnsureCharacterController();
         _gearEffects = GetComponent<GearEffects>();
     }

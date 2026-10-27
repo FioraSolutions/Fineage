@@ -13,7 +13,7 @@ public class AttackingState : StateBase
 
     public override void Update()
     {
-        if (IncomingPacketActions.Input.Move || IncomingPacketActions.Player.RunningToDestination && !IncomingPacketActions.Targets.HasAttackTarget())
+        if (ControllerPacketServices.Input.Move || ControllerPacketServices.Player.RunningToDestination && !ControllerPacketServices.Targets.HasAttackTarget())
         {
             _stateMachine.ChangeIntention(Intention.INTENTION_MOVE_TO);
         }

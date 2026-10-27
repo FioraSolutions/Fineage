@@ -32,7 +32,7 @@ public static class GroundSnapHelper
             return groundMask.Value;
         }
 
-        World world = IncomingPacketActions.GameWorld;
+        World world = ControllerPacketServices.GameWorld;
         if (world != null)
         {
             return world.GroundMask;

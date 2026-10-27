@@ -105,7 +105,7 @@ public class NewIdleState : StateBase
 
     private static bool IsCurrentTargetDead()
     {
-        if (PlayerEntity.Instance == null || IncomingPacketActions.GameWorld == null)
+        if (PlayerEntity.Instance == null || ControllerPacketServices.GameWorld == null)
         {
             return false;
         }
@@ -116,7 +116,7 @@ public class NewIdleState : StateBase
             return false;
         }
 
-        Entity target = IncomingPacketActions.GameWorld.GetEntityNoLockSync(targetId);
+        Entity target = ControllerPacketServices.GameWorld.GetEntityNoLockSync(targetId);
         return target == null || target.IsDead();
     }
 
@@ -130,8 +130,8 @@ public class NewIdleState : StateBase
         swingNorm = 0f;
 
         int objectId = _stateMachine.GetObjectId();
-        string recent = IncomingPacketActions.Animations != null
-            ? IncomingPacketActions.Animations.GetCurrentAnimationName(objectId)
+        string recent = ControllerPacketServices.Animations != null
+            ? ControllerPacketServices.Animations.GetCurrentAnimationName(objectId)
             : null;
         if (!IsCombatSwingStateName(recent))
         {
@@ -139,7 +139,7 @@ public class NewIdleState : StateBase
         }
 
         IAnimationController controller = null;
-        if (IncomingPacketActions.Animations is AnimationManager concrete)
+        if (ControllerPacketServices.Animations is AnimationManager concrete)
         {
             controller = concrete.GetPlayerController(objectId);
         }
@@ -189,14 +189,14 @@ public class NewIdleState : StateBase
 
     private void PlayAnimation(Animation animation)
     {
-        IncomingPacketActions.Animations.PlayAnimation(_stateMachine.GetObjectId() , animation.ToString(), true);
+        ControllerPacketServices.Animations.PlayAnimation(_stateMachine.GetObjectId() , animation.ToString(), true);
     }
 
     private void PlayAnimationDeferred(Animation animation, bool fromCombatSmb = false)
     {
         int objectId = _stateMachine.GetObjectId();
         string animName = animation.ToString();
-        IncomingPacketActions.Queue(() =>
+        ControllerPacketServices.Queue(() =>
         {
             // A Move packet can arrive before this frame. Do not put atkwait back over walk/run.
             if (_stateMachine.ShouldKeepLocomotion() ||
@@ -213,7 +213,7 @@ public class NewIdleState : StateBase
             }
 
             // WaitReturnLog.Play(objectId, animName);
-            IncomingPacketActions.Animations.PlayAnimation(objectId, animName, true);
+            ControllerPacketServices.Animations.PlayAnimation(objectId, animName, true);
         });
     }
 }

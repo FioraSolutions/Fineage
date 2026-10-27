@@ -5,10 +5,16 @@ using VContainer;
 public class PositionValidationController : MonoBehaviour
 {
     [Inject] World _world;
+    [Inject] IAnimationManager _animations;
 
     private World GameWorld
     {
         get { return _world != null ? _world : World.Instance; }
+    }
+
+    private IAnimationManager Animations
+    {
+        get { return _animations != null ? _animations : ControllerPacketServices.Animations; }
     }
 
     private PlayerController Player
@@ -134,12 +140,12 @@ public class PositionValidationController : MonoBehaviour
         }else if (entity.GetType() == typeof(PlayerEntity))
         {
             int objectId = entity.Identity.Id;
-            Dictionary<string, float> floatValues  = IncomingPacketActions.Animations.PlayerGetAllFloat(objectId);
+            Dictionary<string, float> floatValues  = Animations.PlayerGetAllFloat(objectId);
             entity.HideObject();
             NewCalcGravity(Player, newPosition);
             entity.ShowObject();
 
-            IncomingPacketActions.Animations.PlayerSetAllFloat(objectId , floatValues);
+            Animations.PlayerSetAllFloat(objectId , floatValues);
             ReStartAnimationPlayer(PlayerStateMachine.Instance);
 
         }else if (entity.GetType() == typeof(NpcEntity))

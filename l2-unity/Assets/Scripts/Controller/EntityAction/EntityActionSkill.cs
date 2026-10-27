@@ -71,8 +71,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (!keepMove)
             EntityActionVisual.CancelMove(entity);
 
-        Entity target = IncomingPacketActions.GameWorld != null
-            ? IncomingPacketActions.GameWorld.GetEntityNoLockSync(magic.TargetId)
+        Entity target = ControllerPacketServices.GameWorld != null
+            ? ControllerPacketServices.GameWorld.GetEntityNoLockSync(magic.TargetId)
             : null;
         bool selfCast = entity.Identity != null && entity.Identity.Id == magic.TargetId;
 
@@ -116,8 +116,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
             // " self=" + selfCast +
             // " target=" + EntityActionCombatLog.Describe(target));
 
-        if (IncomingPacketActions.Animations != null && entity.Identity != null && magic.HitTime > 0)
-            IncomingPacketActions.Animations.SetSpTimeAtk(entity.Identity.Id, magic.HitTime);
+        if (ControllerPacketServices.Animations != null && entity.Identity != null && magic.HitTime > 0)
+            ControllerPacketServices.Animations.SetSpTimeAtk(entity.Identity.Id, magic.HitTime);
 
         try
         {
@@ -186,7 +186,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
         entity.IsSoulshotCharged = true;
         WeaponChargeSkill.Play(
-            IncomingPacketActions.Effects,
+            ControllerPacketServices.Effects,
             magic.SkillId,
             entity.GetWeaponTransform(),
             entity.transform);
@@ -202,9 +202,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (objectId == 0)
             return null;
 
-        if (IncomingPacketActions.GameWorld != null)
+        if (ControllerPacketServices.GameWorld != null)
         {
-            Entity fromWorld = IncomingPacketActions.GameWorld.GetEntityNoLockSync(objectId);
+            Entity fromWorld = ControllerPacketServices.GameWorld.GetEntityNoLockSync(objectId);
             if (fromWorld != null)
                 return fromWorld;
         }
@@ -334,8 +334,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
             return;
 
         Entity target = entity.ActionSlot.Target;
-        if (target == null && IncomingPacketActions.GameWorld != null)
-            target = IncomingPacketActions.GameWorld.GetEntityNoLockSync(magic.TargetId);
+        if (target == null && ControllerPacketServices.GameWorld != null)
+            target = ControllerPacketServices.GameWorld.GetEntityNoLockSync(magic.TargetId);
         if (target == null || target == entity || target.IsDead())
             return;
 
@@ -372,10 +372,10 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
         int objectId = entity.Identity.Id;
         string[] orderedCycle = SetupDurationHelper.BuildOrderedCycleForOverrideTiming(combo.GetAnimCycle());
-        float[] durations = IncomingPacketActions.Animations != null
-            ? IncomingPacketActions.Animations.GetOverrideClipsDurations(objectId, orderedCycle)
+        float[] durations = ControllerPacketServices.Animations != null
+            ? ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedCycle)
             : System.Array.Empty<float>();
-        float shotEventTime = IncomingPacketActions.Animations != null
+        float shotEventTime = ControllerPacketServices.Animations != null
             ? SetupDurationHelper.ResolveShotEventTime(objectId, orderedCycle)
             : 0f;
         Transform targetTransform = target != null ? target.transform : entity.AttackTarget;
@@ -448,7 +448,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
     static void PlaySkillEffect(Entity entity, MagicSkillUseDto magic)
     {
         bool windstrike = magic != null && magic.SkillId == 4247;
-        EffectManager effects = IncomingPacketActions.Effects;
+        EffectManager effects = ControllerPacketServices.Effects;
         if (effects == null || entity == null || magic == null)
         {
             if (windstrike)
@@ -521,11 +521,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
 
         if (hasNpcOverride &&
-            IncomingPacketActions.Animations != null &&
+            ControllerPacketServices.Animations != null &&
             entity.Identity != null)
         {
             // MobSkillLog.Play(entity, sequence);
-            IncomingPacketActions.Animations.PlayMonsterAnimation(
+            ControllerPacketServices.Animations.PlayMonsterAnimation(
                 entity.Identity.Id, sequence);
         }
 
@@ -617,9 +617,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     static AnimationEventsBase ResolveEvents(Entity entity)
     {
-        if (entity == null || entity.Identity == null || IncomingPacketActions.Animations == null)
+        if (entity == null || entity.Identity == null || ControllerPacketServices.Animations == null)
             return null;
-        return IncomingPacketActions.Animations.GetAnimationEvents(entity.Identity.Id);
+        return ControllerPacketServices.Animations.GetAnimationEvents(entity.Identity.Id);
     }
 
     static bool IsMagicSkill(MagicSkillUseDto magic)

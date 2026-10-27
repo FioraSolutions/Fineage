@@ -15,7 +15,7 @@ public class NewStopMoveIntention : IntentionBase
 
             L2PawnRange.ClearIgnoredPawn(PlayerEntity.Instance);
             PlayerStateMachine.Instance.IsMoveToPawn = false;
-            IncomingPacketActions.Player.StopMove();
+            ControllerPacketServices.Player.StopMove();
             //Debug.Log("IsMoveToPawn Двигаемся к цели stopmove1");
 
             //когда мы не успеваем добежать до точки и находимся в состоянии бега нам нужно предупредить RunningState о том что мы прибежали на место и нам нужно отключить анимацию бега
@@ -26,7 +26,7 @@ public class NewStopMoveIntention : IntentionBase
 
                 _stateMachine.NotifyEvent(Event.ARRIVED);
                 _stateMachine.ChangeIntention(Intention.INTENTION_IDLE);
-                IncomingPacketActions.Player.StopMove();
+                ControllerPacketServices.Player.StopMove();
             }
             else
             {

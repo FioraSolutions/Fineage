@@ -75,7 +75,7 @@ public class NewAttackState : AbstractAttackEvents
 
                 PlayerEntity.Instance.RefreshRandomPAttack();
                 Animation random = PlayerEntity.Instance.RandomName;
-                IncomingPacketActions.Animations.PlayAnimationTrigger(_stateMachine.GetObjectId() , random.ToString());
+                ControllerPacketServices.Animations.PlayAnimationTrigger(_stateMachine.GetObjectId() , random.ToString());
 
                 break;
             case Event.WAIT_RETURN:

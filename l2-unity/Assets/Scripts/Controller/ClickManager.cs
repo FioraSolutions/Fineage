@@ -23,17 +23,17 @@ public class ClickManager : MonoBehaviour
 
     private InputManager GameInput
     {
-        get { return _input != null ? _input : IncomingPacketActions.Input; }
+        get { return _input != null ? _input : ControllerPacketServices.Input; }
     }
 
     private TargetManager Targets
     {
-        get { return _targets != null ? _targets : IncomingPacketActions.Targets; }
+        get { return _targets != null ? _targets : ControllerPacketServices.Targets; }
     }
 
     private GameClient Game
     {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+        get { return _gameClient != null ? _gameClient : ControllerPacketServices.Game; }
     }
 
     // L2 FindMouseTargetObject far = 10000 UU.

@@ -24,8 +24,8 @@ public sealed class EntityActionAttack : IEntityActionProcess
 
         if (payload is AttackDto attack)
         {
-            Entity target = IncomingPacketActions.GameWorld != null
-                ? IncomingPacketActions.GameWorld.GetEntityNoLockSync(attack.TargetId)
+            Entity target = ControllerPacketServices.GameWorld != null
+                ? ControllerPacketServices.GameWorld.GetEntityNoLockSync(attack.TargetId)
                 : null;
             if (target == null || target == entity)
             {
@@ -42,8 +42,8 @@ public sealed class EntityActionAttack : IEntityActionProcess
             // CharInfoMoveBudgetLog.Compare(entity, "ATK", target, attack.AttackerPos, true);
             L2PawnRange.TrySnapUserToPacket(entity, attack.AttackerPos, "Attack pos");
             _pawnYaw.RequestLook(entity.transform, target.transform.position, L2PawnYaw.RotationRateYaw);
-            if (entity is MonsterEntity && IncomingPacketActions.Moves != null)
-                IncomingPacketActions.Moves.AddRotate(entity.Identity.Id, new RotateData(target, entity));
+            if (entity is MonsterEntity && ControllerPacketServices.Moves != null)
+                ControllerPacketServices.Moves.AddRotate(entity.Identity.Id, new RotateData(target, entity));
             // EntityActionCombatLog.Watch(entity);
             // EntityActionCombatLog.LogCiPawn(entity,
                 // "Attack.Enter nick=" + EntityActionCombatLog.NameOf(entity) +

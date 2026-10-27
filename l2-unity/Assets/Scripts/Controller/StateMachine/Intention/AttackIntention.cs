@@ -7,7 +7,7 @@ public class AttackIntention : IntentionBase
 
     public override void Enter(object arg0)
     {
-        Transform target = IncomingPacketActions.Targets.Target.Data.ObjectTransform;
+        Transform target = ControllerPacketServices.Targets.Target.Data.ObjectTransform;
 
         //AttackDto attackpacket = (AttackDto)arg0;
 
@@ -42,7 +42,7 @@ public class AttackIntention : IntentionBase
 
         if (type != AttackIntentionType.TargetReached)
         {
-            IncomingPacketActions.Targets.SetAttackTarget();
+            ControllerPacketServices.Targets.SetAttackTarget();
         }
         //Debug.Log("Attack Intention!!!!! comment code");
         if (type == AttackIntentionType.WaitReturn)
