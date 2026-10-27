@@ -15,10 +15,7 @@ public class ShowListWindow : L2PopupWindow
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => GameWindowPacketServices.Game;
     private static ShowListWindow _instance;
     public static ShowListWindow Instance { get { return _instance; } }
     private Button _СЃancelButton;
@@ -31,11 +28,22 @@ public class ShowListWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireGameWindowPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireGameWindowPacketServices();
+    }
+
+    private void WireGameWindowPacketServices()
+    {
+        GameWindowPacketServices.Bind(game: _gameClient);
     }
 
     protected override void LoadAssets()
