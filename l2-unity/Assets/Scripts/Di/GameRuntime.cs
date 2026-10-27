@@ -14,6 +14,7 @@ public sealed class GameRuntime
     private PositionValidationController _positionValidation;
     private EffectManager _effects;
     private EventBus _bus;
+    private IGameEventBus _gameEvents;
     private CameraController _camera;
     private IMoveAllCharacters _moves;
     private CombatFacingService _facing;
@@ -83,6 +84,7 @@ public sealed class GameRuntime
     public PositionValidationController PositionValidation { get { return Live(ref _positionValidation, PositionValidationController.Instance); } }
     public EffectManager Effects { get { return Live(ref _effects, EffectManager.Instance); } }
     public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }
+    public IGameEventBus GameEvents => _gameEvents;
     public CameraController Camera { get { return Live(ref _camera, CameraController.Instance); } }
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharacters.Instance); } }
     public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
@@ -135,7 +137,8 @@ public sealed class GameRuntime
         EventProcessor events,
         GameClient game,
         LoginClient login,
-        GameManager manager)
+        GameManager manager,
+        IGameEventBus gameEvents)
     {
         if (events != null)
             _events = events;
@@ -145,6 +148,8 @@ public sealed class GameRuntime
             _login = login;
         if (manager != null)
             _manager = manager;
+        if (gameEvents != null)
+            _gameEvents = gameEvents;
     }
 
     public void BindApply(WorldPacketApply worldApply, MessagePacketApply messageApply)
