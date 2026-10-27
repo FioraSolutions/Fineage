@@ -5,6 +5,6 @@ public sealed class PledgeShowMemberListUpdateIncoming : IncomingWirePacket<Pled
 {
     public override void Apply(PledgeShowMemberListUpdateDto packet)
     {
-        IncomingPacketActions.Queue(() => IncomingPacketActions.Clan.UpdateMemberData(packet));
+        IncomingPacketServices.Queue(() => IncomingPacketServices.Clan.UpdateMemberData(packet));
     }
 }

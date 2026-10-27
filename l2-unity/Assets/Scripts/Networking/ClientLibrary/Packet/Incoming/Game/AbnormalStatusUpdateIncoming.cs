@@ -5,12 +5,12 @@ public sealed class AbnormalStatusUpdateIncoming : IncomingWirePacket<AbnormalSt
 {
     public override void Apply(AbnormalStatusUpdateDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            if (IncomingPacketActions.Buffer == null)
+            if (IncomingPacketServices.Buffer == null)
                 return;
             foreach (var item in packet.ListEffect)
-                IncomingPacketActions.Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
+                IncomingPacketServices.Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
         });
     }
 }

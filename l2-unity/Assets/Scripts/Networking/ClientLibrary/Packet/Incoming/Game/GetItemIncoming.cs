@@ -3,8 +3,8 @@ public sealed class GetItemIncoming : IncomingWirePacket<GetItemDto>
 {
     public override void Apply(GetItemDto dto)
     {
-        if (dto == null || IncomingPacketActions.GameWorld == null)
+        if (dto == null || IncomingPacketServices.GameWorld == null)
             return;
-        IncomingPacketActions.GameWorld.PickupGroundItem(dto.ObjectId, dto.PlayerId, dto.UnityPos);
+        IncomingPacketServices.GameWorld.PickupGroundItem(dto.ObjectId, dto.PlayerId, dto.UnityPos);
     }
 }

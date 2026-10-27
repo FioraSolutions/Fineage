@@ -3,10 +3,10 @@ public sealed class SpawnItemIncoming : IncomingWirePacket<SpawnItemDto>
 {
     public override void Apply(SpawnItemDto dto)
     {
-        if (dto == null || IncomingPacketActions.GameWorld == null)
+        if (dto == null || IncomingPacketServices.GameWorld == null)
             return;
 
-        IncomingPacketActions.GameWorld.SpawnOrUpdateGroundItem(
+        IncomingPacketServices.GameWorld.SpawnOrUpdateGroundItem(
             dto.ObjectId,
             dto.ItemId,
             dto.Count,

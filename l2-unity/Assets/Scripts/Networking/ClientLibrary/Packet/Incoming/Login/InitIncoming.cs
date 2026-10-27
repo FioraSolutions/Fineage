@@ -3,11 +3,11 @@ public sealed class InitIncoming : IncomingWirePacket<InitDto>
 {
     protected override void OnParsed(InitDto packet)
     {
-        IncomingPacketActions.Login.SetRSAKey(packet.PublicKey);
-        IncomingPacketActions.Login.SetBlowFishKey(packet.BlowfishKey);
-        IncomingPacketActions.Login.SetSessionId(packet.SessionId);
-        IncomingPacketActions.Login.CompleteInitPacket();
-        IncomingPacketActions.Login.Send(new AuthGameGuardCommand(packet.SessionId, packet.GG));
+        IncomingPacketServices.Login.SetRSAKey(packet.PublicKey);
+        IncomingPacketServices.Login.SetBlowFishKey(packet.BlowfishKey);
+        IncomingPacketServices.Login.SetSessionId(packet.SessionId);
+        IncomingPacketServices.Login.CompleteInitPacket();
+        IncomingPacketServices.Login.Send(new AuthGameGuardCommand(packet.SessionId, packet.GG));
     }
 
     public override void Apply(InitDto packet)

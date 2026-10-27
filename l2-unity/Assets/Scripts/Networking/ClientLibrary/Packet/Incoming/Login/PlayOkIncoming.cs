@@ -3,32 +3,32 @@ public sealed class PlayOkIncoming : IncomingWirePacket<PlayOkDto>
 {
     protected override void OnParsed(PlayOkDto packet)
     {
-        IncomingPacketActions.Game.PlayKey1 = packet.PlayOk1;
-        IncomingPacketActions.Game.PlayKey2 = packet.PlayOk2;
+        IncomingPacketServices.Game.PlayKey1 = packet.PlayOk1;
+        IncomingPacketServices.Game.PlayKey2 = packet.PlayOk2;
     }
 
     public override void Apply(PlayOkDto packet)
     {
         LobbyFlowLog.Info(
             "PlayOk Apply playKey1=" + packet.PlayOk1 + " playKey2=" + packet.PlayOk2 +
-            " state=" + (IncomingPacketActions.Manager != null ? IncomingPacketActions.Manager.GameState.ToString() : "null"));
+            " state=" + (IncomingPacketServices.Manager != null ? IncomingPacketServices.Manager.GameState.ToString() : "null"));
 
-        IncomingPacketActions.Manager.OnLoginServerPlayOk();
+        IncomingPacketServices.Manager.OnLoginServerPlayOk();
 
-        if (IncomingPacketActions.Manager.GameState != GameState.READY_TO_CONNECT)
+        if (IncomingPacketServices.Manager.GameState != GameState.READY_TO_CONNECT)
         {
-            LobbyFlowLog.Warn("PlayOk skip Game.Connect — GameState=" + IncomingPacketActions.Manager.GameState);
+            LobbyFlowLog.Warn("PlayOk skip Game.Connect — GameState=" + IncomingPacketServices.Manager.GameState);
             return;
         }
-        if (IncomingPacketActions.Manager.IsSwitchingServer)
+        if (IncomingPacketServices.Manager.IsSwitchingServer)
         {
             LobbyFlowLog.Warn("PlayOk skip Game.Connect — already switching server");
             return;
         }
 
-        IncomingPacketActions.Manager.IsSwitchingServer = true;
-        IncomingPacketActions.Login.Disconnect();
+        IncomingPacketServices.Manager.IsSwitchingServer = true;
+        IncomingPacketServices.Login.Disconnect();
         LobbyFlowLog.Info("PlayOk → Login.Disconnect + Game.Connect");
-        IncomingPacketActions.Game.Connect();
+        IncomingPacketServices.Game.Connect();
     }
 }

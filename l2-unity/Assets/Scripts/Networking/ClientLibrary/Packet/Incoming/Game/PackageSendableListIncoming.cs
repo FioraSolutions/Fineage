@@ -5,16 +5,16 @@ public sealed class PackageSendableListIncoming : IncomingWirePacket<PackageSend
 {
     public override void Apply(PackageSendableListDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            IncomingPacketActions.Dealer.SetWindowName("Send a parcel");
-            IncomingPacketActions.Dealer.SetHeaderNameSellPanel("Inventory");
-            IncomingPacketActions.Dealer.SetHeaderNameBuyPanel("Shipping list");
-            IncomingPacketActions.Dealer.SetProductType(ProductType.PackageSendableList);
-            IncomingPacketActions.Dealer.UpdateBuyData(packet.Items, true, packet.PlayerObject);
-            IncomingPacketActions.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            IncomingPacketActions.Dealer.ShowWindow();
+            IncomingPacketServices.Dealer.SetWindowName("Send a parcel");
+            IncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
+            IncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Shipping list");
+            IncomingPacketServices.Dealer.SetProductType(ProductType.PackageSendableList);
+            IncomingPacketServices.Dealer.UpdateBuyData(packet.Items, true, packet.PlayerObject);
+            IncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            IncomingPacketServices.Dealer.ShowWindow();
         });
     }
 }

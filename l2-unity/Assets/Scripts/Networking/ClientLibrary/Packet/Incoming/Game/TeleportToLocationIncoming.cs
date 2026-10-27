@@ -5,10 +5,10 @@ public sealed class TeleportToLocationIncoming : IncomingWirePacket<TeleportToLo
 {
     public override void Apply(TeleportToLocationDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
             // UnityChainLog.OnTeleport(packet.TarObjId, packet.X, packet.Y, packet.Z);
-            IncomingPacketActions.GameWorld.TeleportTo(packet.TarObjId, packet.TeleportPos);
+            IncomingPacketServices.GameWorld.TeleportTo(packet.TarObjId, packet.TeleportPos);
         });
     }
 }

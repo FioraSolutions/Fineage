@@ -5,15 +5,15 @@ public sealed class ShopPreviewListIncoming : IncomingWirePacket<ShopPreviewList
 {
     public override void Apply(ShopPreviewListDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            IncomingPacketActions.Dealer.SetHeaderNameSellPanel("Attempt");
-            IncomingPacketActions.Dealer.SetHeaderNameBuyPanel("Selection list");
-            IncomingPacketActions.Dealer.SetProductType(ProductType.WEAR);
-            IncomingPacketActions.Dealer.UpdateBuyData(packet.Products, false, packet.ListID);
-            IncomingPacketActions.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            IncomingPacketActions.Dealer.ShowWindowToCenter();
+            IncomingPacketServices.Dealer.SetHeaderNameSellPanel("Attempt");
+            IncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Selection list");
+            IncomingPacketServices.Dealer.SetProductType(ProductType.WEAR);
+            IncomingPacketServices.Dealer.UpdateBuyData(packet.Products, false, packet.ListID);
+            IncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            IncomingPacketServices.Dealer.ShowWindowToCenter();
         });
     }
 }

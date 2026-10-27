@@ -5,16 +5,16 @@ public sealed class WhDepositListIncoming : IncomingWirePacket<WarehouseDepositL
 {
     public override void Apply(WarehouseDepositListDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            IncomingPacketActions.Dealer.SetWindowName("Personal storage");
-            IncomingPacketActions.Dealer.SetHeaderNameSellPanel("Inventory");
-            IncomingPacketActions.Dealer.SetHeaderNameBuyPanel("Items in stock");
-            IncomingPacketActions.Dealer.SetProductType(ProductType.WHDepositList);
-            IncomingPacketActions.Dealer.UpdateBuyData(packet.Products, true, -1);
-            IncomingPacketActions.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            IncomingPacketActions.Dealer.ShowWindow();
+            IncomingPacketServices.Dealer.SetWindowName("Personal storage");
+            IncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
+            IncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items in stock");
+            IncomingPacketServices.Dealer.SetProductType(ProductType.WHDepositList);
+            IncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
+            IncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            IncomingPacketServices.Dealer.ShowWindow();
         });
     }
 }

@@ -5,6 +5,6 @@ public sealed class ManagePledgePowerIncoming : IncomingWirePacket<ManagePledgeP
 {
     public override void Apply(ManagePledgePowerDto packet)
     {
-        IncomingPacketActions.Queue(() => IncomingPacketActions.Clan.UpdateDetailedInfo(packet));
+        IncomingPacketServices.Queue(() => IncomingPacketServices.Clan.UpdateDetailedInfo(packet));
     }
 }

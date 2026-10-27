@@ -5,6 +5,6 @@ public sealed class ValidateLocationIncoming : IncomingWirePacket<ValidateLocati
 {
     public override void Apply(ValidateLocationDto packet)
     {
-        IncomingPacketActions.PositionValidation.AddValidateLocation(packet);
+        IncomingPacketServices.PositionValidation.AddValidateLocation(packet);
     }
 }

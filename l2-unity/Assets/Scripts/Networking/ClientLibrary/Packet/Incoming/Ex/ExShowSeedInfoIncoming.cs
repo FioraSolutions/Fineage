@@ -5,10 +5,10 @@ public sealed class ExShowSeedInfoIncoming : IncomingWirePacket<ExShowSeedInfoDt
 {
     public override void Apply(ExShowSeedInfoDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            IncomingPacketActions.SeedInfo.ShowWindowActiveTabSeed();
-            IncomingPacketActions.SeedInfo.SetDataSeedInfo(packet.List);
+            IncomingPacketServices.SeedInfo.ShowWindowActiveTabSeed();
+            IncomingPacketServices.SeedInfo.SetDataSeedInfo(packet.List);
         });
     }
 }

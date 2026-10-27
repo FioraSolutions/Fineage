@@ -5,11 +5,11 @@ public sealed class AcquireSkillInfoIncoming : IncomingWirePacket<AcquireSkillIn
 {
     public override void Apply(AcquireSkillInfoDto packet)
     {
-        IncomingPacketActions.Queue(() =>
+        IncomingPacketServices.Queue(() =>
         {
-            IncomingPacketActions.SkillLearn.HideWindow();
-            IncomingPacketActions.SkillDesc.AddData(packet);
-            IncomingPacketActions.SkillDesc.ShowWindow();
+            IncomingPacketServices.SkillLearn.HideWindow();
+            IncomingPacketServices.SkillDesc.AddData(packet);
+            IncomingPacketServices.SkillDesc.ShowWindow();
         });
     }
 }

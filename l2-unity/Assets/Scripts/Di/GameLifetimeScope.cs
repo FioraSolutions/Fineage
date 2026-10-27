@@ -129,6 +129,37 @@ public sealed class GameLifetimeScope : LifetimeScope
                 IWorldDomainSink domain = container.Resolve<IWorldDomainSink>();
                 runtime.BindApply(worldApply, messageApply);
                 IncomingPacketActions.BindGame(runtime, worldApply, messageApply, domain);
+                IncomingPacketServices.Bind(
+                    game: runtime.Game,
+                    login: runtime.Login,
+                    manager: runtime.Manager,
+                    gameWorld: runtime.World,
+                    worldApply: worldApply,
+                    messageApply: messageApply,
+                    domain: domain,
+                    inventory: runtime.Inventory,
+                    targets: runtime.Targets,
+                    shortcuts: runtime.Shortcuts,
+                    positionValidation: runtime.PositionValidation,
+                    html: runtime.Html,
+                    dealer: runtime.Dealer,
+                    multiSell: runtime.MultiSell,
+                    trade: runtime.Trade,
+                    tradeRequest: runtime.TradeRequest,
+                    partyInvite: runtime.PartyInvite,
+                    enchant: runtime.Enchant,
+                    recipeBook: runtime.RecipeBook,
+                    crafting: runtime.Crafting,
+                    skillLearn: runtime.SkillLearn,
+                    skillDesc: runtime.SkillDesc,
+                    skillList: runtime.SkillList,
+                    quest: runtime.Quest,
+                    questList: runtime.QuestList,
+                    clan: runtime.Clan,
+                    showList: runtime.ShowList,
+                    seedInfo: runtime.SeedInfo,
+                    sellCrop: runtime.SellCrop,
+                    buffer: runtime.Buffer);
                 MovementPacketLatest.Wire(domain);
                 World world = container.Resolve<World>();
                 MoveCostLog.Wire(world);

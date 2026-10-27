@@ -3,6 +3,6 @@ public sealed class SocialActionIncoming : IncomingWirePacket<SocialActionDto>
 {
     public override void Apply(SocialActionDto packet)
     {
-        IncomingPacketActions.ApplyWorld(apply => apply.SocialAction(packet));
+        IncomingPacketServices.ApplyWorld(apply => apply.SocialAction(packet));
     }
 }
