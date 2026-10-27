@@ -17,11 +17,11 @@ public class SkillbarMain : AbstractSkillbar
     {
         _expandButton = _windowEle.Q<Button>("ExpandBtn");
         _expandButton.AddManipulator(new ButtonClickSoundManipulator(_expandButton));
-        _expandButton.RegisterCallback<ClickEvent>((evt) => IncomingPacketActions.Skillbar.AddSkillbar());
+        _expandButton.RegisterCallback<ClickEvent>((evt) => SkillbarPacketServices.Skillbar.AddSkillbar());
 
         _minimizeButton = _windowEle.Q<Button>("MinimizeBtn");
         _minimizeButton.AddManipulator(new ButtonClickSoundManipulator(_minimizeButton));
-        _minimizeButton.RegisterCallback<ClickEvent>((evt) => IncomingPacketActions.Skillbar.ResetSkillbar());
+        _minimizeButton.RegisterCallback<ClickEvent>((evt) => SkillbarPacketServices.Skillbar.ResetSkillbar());
 
         _rotateButton = _windowEle.Q<Button>("RotateBtn");
         _rotateButton.AddManipulator(new ButtonClickSoundManipulator(_rotateButton));
@@ -54,12 +54,12 @@ public class SkillbarMain : AbstractSkillbar
 
     private void HandleTooltipClick()
     {
-        IncomingPacketActions.Skillbar.ToggleDisableTooltip();
+        SkillbarPacketServices.Skillbar.ToggleDisableTooltip();
     }
 
     public void ToggleDisableTooltip()
     {
-        if (!IncomingPacketActions.Skillbar.TooltipDisabled)
+        if (!SkillbarPacketServices.Skillbar.TooltipDisabled)
         {
             if (_tooltipButton.ClassListContains("min"))
             {
@@ -79,12 +79,12 @@ public class SkillbarMain : AbstractSkillbar
 
     private void HandleLockClick()
     {
-        IncomingPacketActions.Skillbar.ToggleLockSkillBar();
+        SkillbarPacketServices.Skillbar.ToggleLockSkillBar();
     }
 
     public void ToggleLockSkillBar()
     {
-        if (!IncomingPacketActions.Skillbar.Locked)
+        if (!SkillbarPacketServices.Skillbar.Locked)
         {
             if (_lockButton.ClassListContains("locked"))
             {
@@ -102,6 +102,6 @@ public class SkillbarMain : AbstractSkillbar
 
     private void HandleRotateClick()
     {
-        IncomingPacketActions.Skillbar.ToggleRotate();
+        SkillbarPacketServices.Skillbar.ToggleRotate();
     }
 }
