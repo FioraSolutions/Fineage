@@ -15,7 +15,7 @@ public sealed class InterludeKeyIncoming : IncomingWirePacket<InterludeKeyDto>
         if (packet.UseBlowfish)
         {
             byte[] equalsKey = BlowFishStaticKey.GetCreateFullKeyBlowFish(packet.BlowFishKey);
-            IncomingPacketServices.Game.EnableCrypt(equalsKey);
+            LobbyWireIncomingPacketServices.Game.EnableCrypt(equalsKey);
         }
     }
 
@@ -24,13 +24,13 @@ public sealed class InterludeKeyIncoming : IncomingWirePacket<InterludeKeyDto>
         if (!packet.AuthAllowed)
         {
             LobbyFlowLog.Warn("InterludeKey AuthAllowed=false → disconnect");
-            IncomingPacketServices.Game.Disconnect();
-            IncomingPacketServices.Login.Disconnect();
+            LobbyWireIncomingPacketServices.Game.Disconnect();
+            LobbyWireIncomingPacketServices.Login.Disconnect();
             return;
         }
 
-        var login = IncomingPacketServices.Login;
-        var game = IncomingPacketServices.Game;
+        var login = LobbyWireIncomingPacketServices.Login;
+        var game = LobbyWireIncomingPacketServices.Game;
         if (login == null || game == null)
         {
             LobbyFlowLog.Warn("InterludeKey AuthLogin skipped — Login/Game null");
