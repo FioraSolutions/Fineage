@@ -64,8 +64,9 @@ public sealed class WorldDomainSink : IWorldDomainSink
 
         UserInfoDto userInfo = changed.InterludeUserInfo;
         _world.UserInfoUpdateCharacter(userInfo);
-        if (PlayerEntity.Instance != null)
-            _world.UpdateUserInfo(PlayerEntity.Instance, userInfo);
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
+        if (local != null)
+            _world.UpdateUserInfo(local, userInfo);
     }
 
     public void FlushKnownlist()

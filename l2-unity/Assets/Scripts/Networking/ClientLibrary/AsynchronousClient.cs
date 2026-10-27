@@ -102,7 +102,7 @@ public class AsynchronousClient
             string host = _client != null && !string.IsNullOrWhiteSpace(_client.ServerIp) ? _client.ServerIp : _ip;
             Debug.LogWarning("Connection failed for " + (isLogin ? "login" : "game") + " " + host + ": " + ex.Message);
             Disconnect();
-            EventProcessor events = _network != null ? _network.Events : EventProcessor.Instance;
+            EventProcessor events = _network != null ? _network.Events : NetworkingPacketServices.Events;
             events.QueueEvent(() => _client.OnConnectionFailed());
             return false;
         }
@@ -121,7 +121,7 @@ public class AsynchronousClient
 
         DisposeQueue();
 
-        EventProcessor events = _network != null ? _network.Events : EventProcessor.Instance;
+        EventProcessor events = _network != null ? _network.Events : NetworkingPacketServices.Events;
         DefaultClient owner = _client;
         events.QueueEvent(() => owner.OnDisconnectFrom(this));
 

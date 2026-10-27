@@ -14,7 +14,7 @@
         if (model == null)
             return;
 
-        EventProcessor events = EventProcessor.Instance;
+        EventProcessor events = NetworkingPacketServices.Events;
         int mainPending = events != null ? events.PendingCount : 0;
         // PacketLatencyLog.OnQueued(model, mainPending);
         _applyQueue.QueueApply(() =>

@@ -126,6 +126,10 @@ public sealed partial class PlayerController
 
     void WireControllerPacketServices()
     {
+        PlayerEntity localEntity = GetComponent<PlayerEntity>();
+        if (localEntity != null)
+            DomainPacketServices.Bind(localPlayer: localEntity);
+
         ControllerPacketServices.Bind(
             gameWorld: _packetWorld,
             player: this,

@@ -29,7 +29,7 @@ public sealed class PacketApplyQueue
     /// </summary>
     public void QueueNextFrame(Action action)
     {
-        EventProcessor processor = _events != null ? _events : EventProcessor.Instance;
+        EventProcessor processor = _events != null ? _events : NetworkingPacketServices.Events;
         if (processor != null)
             processor.QueueEvent(action);
         else
