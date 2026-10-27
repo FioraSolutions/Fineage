@@ -21,6 +21,9 @@ jobs:
       - name: Check frozen IncomingPacketActions surface
         run: python3 scripts/check-frozen-incoming-packet-actions.py
 
+      - name: Check client asmdef layout (#139)
+        run: python3 scripts/check-client-asmdef-layout.py
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
