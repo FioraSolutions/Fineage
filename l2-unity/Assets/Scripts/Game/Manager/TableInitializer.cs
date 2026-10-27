@@ -28,41 +28,65 @@ public sealed class TableInitializer
     [Inject] LogongrpTable _logonGrps;
     [Inject] SystemMessageTable _systemMessages;
 
-    private static T Table<T>(T injected, T fallback) where T : class
-    {
-        return injected != null ? injected : fallback;
-    }
-
     public void LoadTables()
     {
-        ItemTable items = Table(_items, ItemTable.Instance);
+        WireTablePacketServices();
+
+        ItemTable items = TablePacketServices.Items;
         items.Initialize();
-        Table(_itemNames, ItemNameTable.Instance).Initialize();
-        Table(_itemStats, ItemStatDataTable.Instance).Initialize();
-        Table(_armorGrps, ArmorgrpTable.Instance).Initialize();
-        Table(_etcItemGrps, EtcItemgrpTable.Instance).Initialize();
-        Table(_weaponGrps, WeapongrpTable.Instance).Initialize();
+        TablePacketServices.ItemNames.Initialize();
+        TablePacketServices.ItemStats.Initialize();
+        TablePacketServices.ArmorGrps.Initialize();
+        TablePacketServices.EtcItemGrps.Initialize();
+        TablePacketServices.WeaponGrps.Initialize();
         items.CacheItems();
-        NpcDecoEffectsTable decoEffects = Table(_npcDecoEffects, NpcDecoEffectsTable.Instance);
+        NpcDecoEffectsTable decoEffects = TablePacketServices.NpcDecoEffects;
         decoEffects.Initialize();
-        Table(_npcGrps, NpcgrpTable.Instance).Initialize(decoEffects);
-        Table(_questNames, QuestNameTable.Instance).Initialize();
-        Table(_recipes, RecipeTable.Instance).Initialize();
-        Table(_npcNames, NpcNameTable.Instance).Initialize();
-        Table(_actionNames, ActionNameTable.Instance).Initialize();
-        Table(_animLengths, AnimLeghtTable.Instance).Initialize();
-        Table(_sysStrings, SysStringTable.Instance).Initialize();
-        Table(_skillNames, SkillNameTable.Instance).Initialize();
-        Table(_skillGrps, SkillgrpTable.Instance).Initialize();
-        Table(_mobSkillAnimGrps, MobSkillAnimgrpTable.Instance).Initialize();
-        Table(_animTweens, AnimTweenTable.Instance).Initialize();
-        Table(_enterEvents, EnterEventTable.Instance).Initialize();
-        Table(_models, ModelTable.Instance).Initialize();
-        Table(_logonGrps, LogongrpTable.Instance).Initialize();
-        Table(_systemMessages, SystemMessageTable.Instance).Initialize();
+        TablePacketServices.NpcGrps.Initialize(decoEffects);
+        TablePacketServices.QuestNames.Initialize();
+        TablePacketServices.Recipes.Initialize();
+        TablePacketServices.NpcNames.Initialize();
+        TablePacketServices.ActionNames.Initialize();
+        TablePacketServices.AnimLengths.Initialize();
+        TablePacketServices.SysStrings.Initialize();
+        TablePacketServices.SkillNames.Initialize();
+        TablePacketServices.SkillGrps.Initialize();
+        TablePacketServices.MobSkillAnimGrps.Initialize();
+        TablePacketServices.AnimTweens.Initialize();
+        TablePacketServices.EnterEvents.Initialize();
+        TablePacketServices.Models.Initialize();
+        TablePacketServices.LogonGrps.Initialize();
+        TablePacketServices.SystemMessages.Initialize();
         IconManager.Instance.Initialize();
         IconManager.Instance.CacheIcons();
         IconManager.Instance.CacheOtherIcons();
         IconManager.Instance.CacheInterfaceIcons();
+    }
+
+    private void WireTablePacketServices()
+    {
+        TablePacketServices.Bind(
+            items: _items,
+            itemNames: _itemNames,
+            itemStats: _itemStats,
+            armorGrps: _armorGrps,
+            etcItemGrps: _etcItemGrps,
+            weaponGrps: _weaponGrps,
+            npcDecoEffects: _npcDecoEffects,
+            npcGrps: _npcGrps,
+            npcNames: _npcNames,
+            questNames: _questNames,
+            recipes: _recipes,
+            actionNames: _actionNames,
+            animLengths: _animLengths,
+            sysStrings: _sysStrings,
+            skillNames: _skillNames,
+            skillGrps: _skillGrps,
+            mobSkillAnimGrps: _mobSkillAnimGrps,
+            animTweens: _animTweens,
+            enterEvents: _enterEvents,
+            models: _models,
+            logonGrps: _logonGrps,
+            systemMessages: _systemMessages);
     }
 }
