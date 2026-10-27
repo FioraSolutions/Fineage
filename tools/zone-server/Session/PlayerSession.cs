@@ -1,37 +1,40 @@
 using System.Net.Sockets;
 using Fineage.ZoneServer;
+using Fineage.ZoneServer.World;
 using Fineage.ZoneServer.Wire;
 using MessagePack;
 
 namespace Fineage.ZoneServer.Session;
 
-sealed class PlayerSession
+public sealed class PlayerSession
 {
     // Talking Island spawn used by login-stub (tile 17_25).
     public const int SpawnX = -84318;
     public const int SpawnY = 244578;
     public const int SpawnZ = -3730;
-    public const int PlayerObjectId = 1;
 
     readonly TcpClient _client;
     readonly NetworkStream _stream;
     readonly int _sessionId;
+    readonly ZoneWorld _world;
     string _account = "?";
 
     public bool Authenticated { get; private set; }
     public bool InWorld { get; private set; }
+    public int PlayerObjectId { get; private set; }
     public int X { get; private set; } = SpawnX;
     public int Y { get; private set; } = SpawnY;
     public int Z { get; private set; } = SpawnZ;
 
-    public PlayerSession(TcpClient client, int sessionId)
+    public PlayerSession(TcpClient client, int sessionId, ZoneWorld world)
     {
         _client = client;
         _stream = client.GetStream();
         _sessionId = sessionId;
+        _world = world;
     }
 
-    string Ctx => $"session={_sessionId} account={_account}";
+    string Ctx => $"session={_sessionId} account={_account} obj={PlayerObjectId}";
 
     public async Task RunAsync(CancellationToken ct)
     {
@@ -55,6 +58,8 @@ sealed class PlayerSession
         }
         finally
         {
+            if (InWorld)
+                _world.LeavePlayer(PlayerObjectId);
             ZoneLog.Info($"zone disconnect remote={ep} {Ctx}");
             _client.Dispose();
         }
@@ -101,10 +106,13 @@ sealed class PlayerSession
                     X = SpawnX;
                     Y = SpawnY;
                     Z = SpawnZ;
+                    string charName = string.IsNullOrWhiteSpace(_account) ? "Test" : _account;
+                    PlayerObjectId = _world.EnterPlayer(this, charName, X, Y, Z);
+
                     await SendAsync(MsgType.PlayerSpawned, new PlayerSpawnedMsg
                     {
                         ObjectId = PlayerObjectId,
-                        Name = "Test",
+                        Name = charName,
                         X = X,
                         Y = Y,
                         Z = Z,
@@ -112,6 +120,8 @@ sealed class PlayerSession
                         WalkSpeed = 80f,
                         Running = true
                     }, ct).ConfigureAwait(false);
+
+                    await _world.ApplyEnterPresenceAsync(this, PlayerObjectId, ct).ConfigureAwait(false);
                     break;
                 }
             case MsgType.MoveTo:
@@ -138,12 +148,12 @@ sealed class PlayerSession
                     X = move.DestX;
                     Y = move.DestY;
                     Z = move.DestZ;
-                    // Authoritative echo (DomainMoveTo on client).
                     move.ObjectId = PlayerObjectId;
                     move.OriginX = oX;
                     move.OriginY = oY;
                     move.OriginZ = oZ;
                     await SendAsync(MsgType.MoveToAck, move, ct).ConfigureAwait(false);
+                    await _world.ApplyMovePresenceAsync(this, PlayerObjectId, X, Y, Z, ct).ConfigureAwait(false);
                     break;
                 }
             default:
@@ -157,11 +167,17 @@ sealed class PlayerSession
         }
     }
 
+    public async Task SendWireAsync(MsgType type, object msg, CancellationToken ct)
+    {
+        byte[] body = MessagePackSerializer.Serialize(msg.GetType(), msg);
+        await FrameIO.SendAsync(_stream, (ushort)type, body, ct).ConfigureAwait(false);
+        ZoneLog.Info($"TX {type} {Ctx}");
+    }
+
     async Task SendAsync<T>(MsgType type, T msg, CancellationToken ct)
     {
         byte[] body = MessagePackSerializer.Serialize(msg);
         await FrameIO.SendAsync(_stream, (ushort)type, body, ct).ConfigureAwait(false);
-        // Move echoes stay Info; other TX are Info milestones.
         ZoneLog.Info($"TX {type} {Ctx}");
     }
 
