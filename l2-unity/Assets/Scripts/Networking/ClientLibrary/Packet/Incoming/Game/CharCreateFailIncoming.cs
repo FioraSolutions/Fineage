@@ -6,6 +6,6 @@ public sealed class CharCreateFailIncoming : IncomingWirePacket<CharCreateFailDt
     public override void Apply(CharCreateFailDto packet)
     {
         string text = packet.Text;
-        IncomingPacketServices.Queue(() => IncomingPacketServices.Manager.OnCreateUserFail(text));
+        CharacterIncomingPacketServices.Queue(() => CharacterIncomingPacketServices.Manager.OnCreateUserFail(text));
     }
 }

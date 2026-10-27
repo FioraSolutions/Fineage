@@ -20,9 +20,9 @@ public sealed class CharInfoIncoming : IncomingWirePacket<CharInfoDto>
         SpawnFrameBudget.ClearCancel(packet.Identity.Id);
         StorageNpc.getInstance().AddCharInfo(packet);
         DomainKnownlistAdd add = InterludeDomainMap.Char(packet);
-        if (IncomingPacketServices.Domain != null && add != null)
-            IncomingPacketServices.QueueDomain(domain => domain.ApplyKnownlistAdd(add));
+        if (CharacterIncomingPacketServices.Domain != null && add != null)
+            CharacterIncomingPacketServices.QueueDomain(domain => domain.ApplyKnownlistAdd(add));
         else
-            IncomingPacketServices.QueueWorld(apply => apply.UpdateUser(packet));
+            CharacterIncomingPacketServices.QueueWorld(apply => apply.UpdateUser(packet));
     }
 }
