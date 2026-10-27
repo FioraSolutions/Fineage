@@ -21,7 +21,7 @@ public class CharacterSelector : MonoBehaviour
 
     private GameClient Game
     {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+        get { return _gameClient != null ? _gameClient : CharacterPacketServices.Game; }
     }
 
     private List<Logongrp> LogonGrps
@@ -48,9 +48,20 @@ public class CharacterSelector : MonoBehaviour
             _instance = this;
             dict = new Dictionary<int, float>();
             App.InjectGameObject(gameObject);
+            WireCharacterPacketServices();
         } else if (_instance != this) {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireCharacterPacketServices();
+    }
+
+    private void WireCharacterPacketServices()
+    {
+        CharacterPacketServices.Bind(game: _gameClient);
     }
 
     public void SetCharacterList(List<CharSelectionInfoPackage> characters) {
