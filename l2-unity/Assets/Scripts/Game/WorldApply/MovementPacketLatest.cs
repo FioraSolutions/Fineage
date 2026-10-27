@@ -51,8 +51,10 @@ public static class MovementPacketLatest
 
     public static void Flush(WorldPacketApply world)
     {
-        if (world == null || Ids.Count == 0)
+        if (Ids.Count == 0)
             return;
+
+        IWorldDomainSink domain = IncomingPacketActions.Domain;
 
         for (int i = 0; i < Ids.Count; i++)
         {
@@ -63,14 +65,25 @@ public static class MovementPacketLatest
             switch (slot.Kind)
             {
                 case Kind.Move:
-                    if (slot.Move != null)
+                    if (slot.Move == null)
+                        break;
+                    if (domain != null)
+                        domain.ApplyMoveTo(InterludeDomainMap.Move(slot.Move));
+                    else if (world != null)
                         world.MoveTo(slot.Move.ObjId, slot.Move.NewPosition, slot.Move.OldPosition, slot.Move);
                     break;
                 case Kind.Stop:
-                    world.StopMove(slot.Stop);
+                    if (slot.Stop == null)
+                        break;
+                    if (domain != null)
+                        domain.ApplyStopMove(InterludeDomainMap.Stop(slot.Stop));
+                    else if (world != null)
+                        world.StopMove(slot.Stop);
                     break;
                 case Kind.Pawn:
-                    world.MoveToPawn(slot.Pawn);
+                    // Pawn stays on Interlude apply until a DomainMoveToPawn exists.
+                    if (slot.Pawn != null && world != null)
+                        world.MoveToPawn(slot.Pawn);
                     break;
             }
         }
