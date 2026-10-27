@@ -5,10 +5,6 @@ public sealed class SendTradeRequestIncoming : IncomingWirePacket<SendTradeReque
 {
     public override void Apply(SendTradeRequestDto packet)
     {
-        GameIncomingPacketServices.Queue(() =>
-        {
-            GameIncomingPacketServices.TradeRequest.AddData(packet);
-            GameIncomingPacketServices.TradeRequest.ShowWindow();
-        });
+        TradeOpenIncomingPacketServices.ApplySendTradeRequest(packet);
     }
 }
