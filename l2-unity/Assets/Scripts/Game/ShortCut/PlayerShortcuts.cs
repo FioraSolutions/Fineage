@@ -13,25 +13,13 @@ public class PlayerShortcuts : MonoBehaviour
     [Inject] InputManager _input;
     [Inject] PlayerActions _actions;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => ShortcutPacketServices.Game;
 
-    private InputManager Input
-    {
-        get { return _input != null ? _input : IncomingPacketActions.Input; }
-    }
+    private InputManager Input => ShortcutPacketServices.Input;
 
-    private PlayerActions Actions
-    {
-        get { return _actions != null ? _actions : IncomingPacketActions.Actions; }
-    }
+    private PlayerActions Actions => ShortcutPacketServices.Actions;
 
-    private PlayerInventory Inventory
-    {
-        get { return _inventory != null ? _inventory : IncomingPacketActions.Inventory; }
-    }
+    private PlayerInventory Inventory => ShortcutPacketServices.Inventory;
     public const int MAXIMUM_SHORTCUTS_PER_BAR = 12;
     public const int MAXIMUM_SKILLBAR_COUNT = 5;
     private int[] _pageMap;
@@ -58,6 +46,21 @@ public class PlayerShortcuts : MonoBehaviour
 
         _shortcuts = new Dictionary<int, Shortcut>();
         _pageMap = new int[5] { 0, 1, 2, 3, 4 };
+        WireShortcutPacketServices();
+    }
+
+    private void Start()
+    {
+        WireShortcutPacketServices();
+    }
+
+    private void WireShortcutPacketServices()
+    {
+        ShortcutPacketServices.Bind(
+            game: _gameClient,
+            inventory: _inventory,
+            input: _input,
+            actions: _actions);
     }
 
     private void OnDestroy()
