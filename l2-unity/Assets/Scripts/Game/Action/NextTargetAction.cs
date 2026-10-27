@@ -9,7 +9,7 @@
 
     private TargetManager Targets
     {
-        get { return _targets != null ? _targets : IncomingPacketActions.Targets; }
+        get { return _targets != null ? _targets : ActionPacketServices.Targets; }
     }
 
     public override void UseAction()

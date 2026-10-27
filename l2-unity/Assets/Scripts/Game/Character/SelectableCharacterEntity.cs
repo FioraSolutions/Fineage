@@ -9,7 +9,7 @@ public class SelectableCharacterEntity : MonoBehaviour
 
     private IAnimationManager Animations
     {
-        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+        get { return _animations != null ? _animations : CharacterPacketServices.Animations; }
     }
     //private float _walkSpeed = 1.5f;
     [SerializeField] private string _weaponAnim;
@@ -32,6 +32,17 @@ public class SelectableCharacterEntity : MonoBehaviour
         _baseAnimationController = GetComponent<BaseAnimationController>();
         _destination = transform.position;
         App.InjectGameObject(gameObject);
+        WireCharacterPacketServices();
+    }
+
+    private void Start()
+    {
+        WireCharacterPacketServices();
+    }
+
+    private void WireCharacterPacketServices()
+    {
+        CharacterPacketServices.Bind(animations: _animations);
     }
 
     private void Update() {

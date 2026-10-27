@@ -75,7 +75,7 @@ public class AsynchronousClient
         {
             string ipStr = !string.IsNullOrWhiteSpace(_client.ServerIp) ? _client.ServerIp : _ip;
             int port = _client.ServerPort != 0 ? _client.ServerPort : _port;
-            var ip = IPAddress.Parse(ipStr);
+            IPAddress ip = EndpointAddress.Resolve(ipStr);
             _socket = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             if (_initPacketEnabled)
@@ -97,9 +97,10 @@ public class AsynchronousClient
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
-            // Debug.LogWarning("Connection failed for: " + (isLogin ? " LoginClient." : " GameClient."));
+            string host = _client != null && !string.IsNullOrWhiteSpace(_client.ServerIp) ? _client.ServerIp : _ip;
+            Debug.LogWarning("Connection failed for " + (isLogin ? "login" : "game") + " " + host + ": " + ex.Message);
             Disconnect();
             EventProcessor events = _network != null ? _network.Events : EventProcessor.Instance;
             events.QueueEvent(() => _client.OnConnectionFailed());
