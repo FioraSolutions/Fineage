@@ -26,6 +26,9 @@ public sealed class PlayerSession
     public int Y { get; private set; } = SpawnY;
     public int Z { get; private set; } = SpawnZ;
 
+    /// <summary>Server-side target lock for thin melee (Interlude MyTargetSelected).</summary>
+    public int SelectedTargetId { get; set; }
+
     public PlayerSession(TcpClient client, int sessionId, ZoneWorld world)
     {
         _client = client;
@@ -154,6 +157,45 @@ public sealed class PlayerSession
                     move.OriginZ = oZ;
                     await SendAsync(MsgType.MoveToAck, move, ct).ConfigureAwait(false);
                     await _world.ApplyMovePresenceAsync(this, PlayerObjectId, X, Y, Z, ct).ConfigureAwait(false);
+                    break;
+                }
+            case MsgType.SelectTarget:
+                {
+                    if (!InWorld)
+                        break;
+                    var sel = Decode<SelectTargetMsg>(body);
+                    if (sel == null)
+                        break;
+                    ZoneLog.Info($"RX SelectTarget {Ctx} → {sel.TargetObjectId}");
+                    if (!await _world.TrySelectTargetAsync(this, PlayerObjectId, sel.TargetObjectId, ct)
+                            .ConfigureAwait(false))
+                    {
+                        await SendAsync(MsgType.Error, new ErrorMsg
+                        {
+                            Code = "target",
+                            Message = "Invalid target"
+                        }, ct).ConfigureAwait(false);
+                    }
+
+                    break;
+                }
+            case MsgType.AttackRequest:
+                {
+                    if (!InWorld)
+                        break;
+                    var atk = Decode<AttackRequestMsg>(body) ?? new AttackRequestMsg();
+                    if (atk.TargetObjectId > 0)
+                        SelectedTargetId = atk.TargetObjectId;
+                    ZoneLog.Info($"RX AttackRequest {Ctx} target={SelectedTargetId}");
+                    if (!await _world.TryMeleeAttackAsync(this, PlayerObjectId, ct).ConfigureAwait(false))
+                    {
+                        await SendAsync(MsgType.Error, new ErrorMsg
+                        {
+                            Code = "attack",
+                            Message = "Attack failed"
+                        }, ct).ConfigureAwait(false);
+                    }
+
                     break;
                 }
             default:

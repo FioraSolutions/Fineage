@@ -8,6 +8,8 @@ public enum MsgType : ushort
     Auth = 2,
     EnterWorld = 3,
     MoveTo = 4,
+    SelectTarget = 5,
+    AttackRequest = 6,
 
     // S → C
     HelloAck = 1001,
@@ -17,5 +19,8 @@ public enum MsgType : ushort
     CharInfo = 1005,
     NpcInfo = 1006,
     DeleteObject = 1007,
+    MyTargetSelected = 1008,
+    Attack = 1009,
+    StatusUpdate = 1010,
     Error = 1099
 }

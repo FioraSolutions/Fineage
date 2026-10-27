@@ -1,3 +1,4 @@
+using Fineage.ZoneServer.Combat;
 using MessagePack;
 
 namespace Fineage.ZoneServer.Wire;
@@ -97,4 +98,50 @@ public sealed class NpcInfoMsg
 public sealed class DeleteObjectMsg
 {
     [Key(0)] public int ObjectId { get; set; }
+}
+
+[MessagePackObject]
+public sealed class SelectTargetMsg
+{
+    [Key(0)] public int TargetObjectId { get; set; }
+}
+
+/// <summary>Interlude AttackRequest — uses current target when body empty.</summary>
+[MessagePackObject]
+public sealed class AttackRequestMsg
+{
+    [Key(0)] public int TargetObjectId { get; set; }
+}
+
+/// <summary>Maps to client MyTargetSelected.</summary>
+[MessagePackObject]
+public sealed class MyTargetSelectedMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
+    /// <summary>Interlude color hint (e.g. 11 = hostile red).</summary>
+    [Key(1)] public int ColorHint { get; set; } = InterludeStatus.TargetColorHostile;
+}
+
+/// <summary>Thin Attack — enough for melee hit visual + damage number.</summary>
+[MessagePackObject]
+public sealed class AttackMsg
+{
+    [Key(0)] public int AttackerObjectId { get; set; }
+    [Key(1)] public int TargetObjectId { get; set; }
+    [Key(2)] public int Damage { get; set; }
+    [Key(3)] public byte Flags { get; set; }
+    [Key(4)] public int AttackerX { get; set; }
+    [Key(5)] public int AttackerY { get; set; }
+    [Key(6)] public int AttackerZ { get; set; }
+    [Key(7)] public int TargetX { get; set; }
+    [Key(8)] public int TargetY { get; set; }
+    [Key(9)] public int TargetZ { get; set; }
+}
+
+[MessagePackObject]
+public sealed class StatusUpdateMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
+    [Key(1)] public int[] AttributeIds { get; set; } = Array.Empty<int>();
+    [Key(2)] public int[] Values { get; set; } = Array.Empty<int>();
 }

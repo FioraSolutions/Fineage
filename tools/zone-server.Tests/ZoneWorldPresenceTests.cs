@@ -16,6 +16,7 @@ public class ZoneWorldPresenceTests
         int probeId = world.EnterPlayer(null!, "probe", PlayerSession.SpawnX, PlayerSession.SpawnY, PlayerSession.SpawnZ);
         var visible = world.Aoi.GetVisible(probeId);
         Assert.Contains(20_001, visible);
+        Assert.Contains(ZoneWorld.SwordMobObjectId, visible);
         Assert.DoesNotContain(20_002, visible);
         world.LeavePlayer(probeId);
     }
