@@ -3,8 +3,6 @@ using UnityEngine;
 [IncomingGamePacket(GameServerPacketType.SkillCoolTime)]
 public sealed class SkillCoolTimeIncoming : IncomingWirePacket<SkillCoolTimeDto>
 {
-    public override void Apply(SkillCoolTimeDto packet)
-    {
-        StubIncomingPacketServices.ApplySkillCoolTime(packet);
-    }
+    public override void Apply(SkillCoolTimeDto packet) =>
+        SkillLearnIncomingPacketServices.ApplySkillCoolTime(packet);
 }

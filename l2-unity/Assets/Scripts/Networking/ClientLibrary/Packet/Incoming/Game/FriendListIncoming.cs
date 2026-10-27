@@ -8,8 +8,6 @@ public sealed class FriendListIncoming : IncomingPacket<FriendListIncomingDto>
         return new FriendListIncomingDto();
     }
 
-    public override void Apply(FriendListIncomingDto dto)
-    {
-        StubIncomingPacketServices.ApplyFriendList(dto);
-    }
+    public override void Apply(FriendListIncomingDto dto) =>
+        SocialIncomingPacketServices.ApplyFriendList(dto);
 }
