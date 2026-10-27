@@ -5,6 +5,6 @@ public sealed class NpcHtmlMessageIncoming : IncomingWirePacket<NpcHtmlMessageDt
 {
     public override void Apply(NpcHtmlMessageDto packet)
     {
-        WorldIncomingPacketServices.QueueWorld(apply => apply.ShowNpcHtml(packet));
+        NpcIncomingPacketServices.ApplyNpcHtmlMessage(packet);
     }
 }
