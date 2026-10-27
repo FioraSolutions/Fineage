@@ -8,12 +8,9 @@ using System.Collections.Generic;
 /// </summary>
 public static class MovementPacketLatest
 {
-    static IWorldDomainSink _domain;
-
     public static void Wire(IWorldDomainSink domain)
     {
-        if (domain != null)
-            _domain = domain;
+        WorldApplyPacketServices.Bind(domain: domain);
     }
 
     enum Kind
@@ -62,7 +59,7 @@ public static class MovementPacketLatest
         if (Ids.Count == 0)
             return;
 
-        IWorldDomainSink domain = _domain != null ? _domain : IncomingPacketActions.Domain;
+        IWorldDomainSink domain = WorldApplyPacketServices.Domain;
 
         for (int i = 0; i < Ids.Count; i++)
         {

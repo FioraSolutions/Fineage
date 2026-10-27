@@ -21,12 +21,12 @@ public sealed class PlayerWorldApply : EntityWorldApply
 
     private PlayerController Player
     {
-        get { return _player != null ? _player : IncomingPacketActions.Player; }
+        get { return _player != null ? _player : WorldApplyPacketServices.Player; }
     }
 
     private EventBus Bus
     {
-        get { return _bus != null ? _bus : IncomingPacketActions.Bus; }
+        get { return _bus != null ? _bus : WorldApplyPacketServices.Bus; }
     }
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
