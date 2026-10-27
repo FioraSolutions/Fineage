@@ -10,25 +10,13 @@ using VContainer;
 public class CharCreationWindow : L2Window {
     [Inject] LoginRuntime _login;
 
-    private CharacterCreator Creator
-    {
-        get { return _login != null ? _login.Creator : IncomingPacketActions.Creator; }
-    }
+    private CharacterCreator Creator => LoginPacketServices.Creator;
 
-    private LoginCameraManager LoginCamera
-    {
-        get { return _login != null ? _login.Camera : IncomingPacketActions.LoginCamera; }
-    }
+    private LoginCameraManager LoginCamera => LoginPacketServices.LoginCamera;
 
-    private GameClient Game
-    {
-        get { return _login != null ? _login.Game : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => LoginPacketServices.Game;
 
-    private GameManager Manager
-    {
-        get { return _login != null ? _login.Manager : IncomingPacketActions.Manager; }
-    }
+    private GameManager Manager => LoginPacketServices.Manager;
 
     private VisualTreeAsset _arrowInputTemplate;
     private ArrowInputManipulator hairstyleManipulator;
@@ -49,9 +37,20 @@ public class CharCreationWindow : L2Window {
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            WireLoginPacketServices();
         } else {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireLoginPacketServices();
+    }
+
+    private void WireLoginPacketServices()
+    {
+        LoginPacketServices.Bind(login: _login);
     }
 
     private void OnDestroy() {

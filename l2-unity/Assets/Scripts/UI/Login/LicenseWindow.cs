@@ -8,10 +8,7 @@ public class LicenseWindow : L2Window
 {
     [Inject] LoginRuntime _login;
 
-    private LoginClient Login
-    {
-        get { return _login != null ? _login.LoginClient : IncomingPacketActions.Login; }
-    }
+    private LoginClient Login => LoginPacketServices.LoginClient;
 
     private static LicenseWindow _instance;
     public static LicenseWindow Instance { get { return _instance; } }
@@ -19,9 +16,20 @@ public class LicenseWindow : L2Window
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            WireLoginPacketServices();
         } else {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireLoginPacketServices();
+    }
+
+    private void WireLoginPacketServices()
+    {
+        LoginPacketServices.Bind(login: _login);
     }
 
     private void OnDestroy() {

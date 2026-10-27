@@ -16,30 +16,15 @@ public class L2LoginUI : L2UI
 
     public bool IsLoading { get { return loading; } }
 
-    private LoginWindow LoginWin
-    {
-        get { return _login != null ? _login.LoginWindow : IncomingPacketActions.LoginWindow; }
-    }
+    private LoginWindow LoginWin => LoginPacketServices.LoginWindow;
 
-    private LicenseWindow LicenseWin
-    {
-        get { return _login != null ? _login.License : IncomingPacketActions.LicenseWindow; }
-    }
+    private LicenseWindow LicenseWin => LoginPacketServices.LicenseWindow;
 
-    private ServerSelectWindow ServerWin
-    {
-        get { return _login != null ? _login.Servers : IncomingPacketActions.ServerSelect; }
-    }
+    private ServerSelectWindow ServerWin => LoginPacketServices.ServerSelect;
 
-    private CharSelectWindow CharSelectWin
-    {
-        get { return _login != null ? _login.CharSelect : IncomingPacketActions.CharSelect; }
-    }
+    private CharSelectWindow CharSelectWin => LoginPacketServices.CharSelect;
 
-    private CharCreationWindow CharCreateWin
-    {
-        get { return _login != null ? _login.CharCreate : IncomingPacketActions.CharCreate; }
-    }
+    private CharCreationWindow CharCreateWin => LoginPacketServices.CharCreate;
 
     public void SetLoading(bool loading)
     {
@@ -50,9 +35,20 @@ public class L2LoginUI : L2UI
         if (_instance == null) {
             _instance = this;
             DiBootstrap.EnsureLoginScope();
+            WireLoginPacketServices();
         } else {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireLoginPacketServices();
+    }
+
+    private void WireLoginPacketServices()
+    {
+        LoginPacketServices.Bind(login: _login);
     }
 
     protected override void Update() {
