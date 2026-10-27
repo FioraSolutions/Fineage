@@ -7,6 +7,8 @@ using static UnityEngine.GraphicsBuffer;
 public class PlayerActions : MonoBehaviour
 {
     [Inject] GameClient _gameClient;
+    [Inject] InputManager _input;
+    [Inject] TargetManager _targets;
     private Dictionary<ActionType, L2Action> _actions;
     
     private static PlayerActions _instance;
@@ -27,10 +29,14 @@ public class PlayerActions : MonoBehaviour
         }
 
         _actions = new Dictionary<ActionType, L2Action>();
-        _actions.Add(ActionType.Attack, new AttackAction());
+        AttackAction attack = new AttackAction();
+        attack.Bind(_targets, _gameClient);
+        _actions.Add(ActionType.Attack, attack);
         _actions.Add(ActionType.Sit, new SitStandAction());
         _actions.Add(ActionType.WalkRun, new WalkRunAction());
-        _actions.Add(ActionType.NextTarget, new NextTargetAction());
+        NextTargetAction nextTarget = new NextTargetAction();
+        nextTarget.Bind(_targets);
+        _actions.Add(ActionType.NextTarget, nextTarget);
         _actions.Add(ActionType.RideStrider, new RideStriderAction());
     }
 
@@ -46,7 +52,7 @@ public class PlayerActions : MonoBehaviour
 
     private void ListenToKeybindedActions()
     {
-        InputManager input = IncomingPacketActions.Input;
+        InputManager input = _input != null ? _input : IncomingPacketActions.Input;
         if (input == null)
             return;
 

@@ -8,6 +8,7 @@ public sealed class GameLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         RegisterIfFound<World>(builder);
+        RegisterIfFound<PlayerController>(builder);
         RegisterIfFound<WorldCombat>(builder);
         RegisterIfFound<TargetManager>(builder);
         RegisterIfFound<HitManager>(builder);
@@ -122,6 +123,26 @@ public sealed class GameLifetimeScope : LifetimeScope
                 IWorldDomainSink domain = container.Resolve<IWorldDomainSink>();
                 runtime.BindApply(worldApply, messageApply);
                 IncomingPacketActions.BindGame(runtime, worldApply, messageApply, domain);
+                MovementPacketLatest.Wire(domain);
+                if (App.Container != null)
+                {
+                    try
+                    {
+                        LobbyFlowController lobby = App.Container.Resolve<LobbyFlowController>();
+                        lobby.WireGame(
+                            container.Resolve<World>(),
+                            domain,
+                            worldApply,
+                            container.Resolve<PacketApplyQueue>(),
+                            runtime.Ui);
+                        GameManager manager = App.Container.Resolve<GameManager>();
+                        if (runtime.Ui != null)
+                            manager.WireGameUi(runtime.Ui);
+                    }
+                    catch
+                    {
+                    }
+                }
             }
             catch (Exception ex)
             {

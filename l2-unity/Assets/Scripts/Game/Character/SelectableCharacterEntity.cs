@@ -1,9 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 
 public class SelectableCharacterEntity : MonoBehaviour
 {
+    [Inject] IAnimationManager _animations;
+
+    private IAnimationManager Animations
+    {
+        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+    }
     //private float _walkSpeed = 1.5f;
     [SerializeField] private string _weaponAnim;
     [SerializeField] private Vector3 _destination;
@@ -24,6 +31,7 @@ public class SelectableCharacterEntity : MonoBehaviour
         _characterController = GetComponent<CharacterController>();
         _baseAnimationController = GetComponent<BaseAnimationController>();
         _destination = transform.position;
+        App.InjectGameObject(gameObject);
     }
 
     private void Update() {
@@ -84,14 +92,18 @@ public class SelectableCharacterEntity : MonoBehaviour
 
     private void StartWalking() {
         _walking = true;
-        IncomingPacketActions.Animations.PlayLobbyLocomotion(
-            _baseAnimationController, AnimationNames.WALK.ToString() + WeaponAnim);
+        IAnimationManager animations = Animations;
+        if (animations != null)
+            animations.PlayLobbyLocomotion(
+                _baseAnimationController, AnimationNames.WALK.ToString() + WeaponAnim);
     }
 
     private void StopWalking() {
         _walking = false;
-        IncomingPacketActions.Animations.PlayLobbyLocomotion(
-            _baseAnimationController, AnimationNames.WAIT.ToString() + WeaponAnim);
+        IAnimationManager animations = Animations;
+        if (animations != null)
+            animations.PlayLobbyLocomotion(
+                _baseAnimationController, AnimationNames.WAIT.ToString() + WeaponAnim);
         transform.eulerAngles = _destEulerAngles;
     }
 

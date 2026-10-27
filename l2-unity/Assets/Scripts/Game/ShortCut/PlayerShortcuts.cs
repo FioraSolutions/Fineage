@@ -10,10 +10,27 @@ public class PlayerShortcuts : MonoBehaviour
 {
     [Inject] GameClient _gameClient;
     [Inject] PlayerInventory _inventory;
+    [Inject] InputManager _input;
+    [Inject] PlayerActions _actions;
 
     private GameClient Game
     {
         get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
+
+    private InputManager Input
+    {
+        get { return _input != null ? _input : IncomingPacketActions.Input; }
+    }
+
+    private PlayerActions Actions
+    {
+        get { return _actions != null ? _actions : IncomingPacketActions.Actions; }
+    }
+
+    private PlayerInventory Inventory
+    {
+        get { return _inventory != null ? _inventory : IncomingPacketActions.Inventory; }
     }
     public const int MAXIMUM_SHORTCUTS_PER_BAR = 12;
     public const int MAXIMUM_SKILLBAR_COUNT = 5;
@@ -66,7 +83,10 @@ public class PlayerShortcuts : MonoBehaviour
             {
                 if (_pageMap[i] == shortcut.Page)
                 {
-                    bool shortcutUsed = IncomingPacketActions.Input.SkillbarInputs[i, shortcut.Slot];
+                    InputManager input = Input;
+                    if (input == null)
+                        continue;
+                    bool shortcutUsed = input.SkillbarInputs[i, shortcut.Slot];
                     if (shortcutUsed)
                     {
                         UseShortcut(shortcut);
@@ -78,7 +98,10 @@ public class PlayerShortcuts : MonoBehaviour
 
     public string GetKeybindForShortcut(int skillbarId, int slot)
     {
-        InputAction action = IncomingPacketActions.Input.SkillbarActions[skillbarId, slot];
+        InputManager input = Input;
+        if (input == null)
+            return string.Empty;
+        InputAction action = input.SkillbarActions[skillbarId, slot];
         return action.GetBindingDisplayString(0).ToUpper();
     }
 
@@ -88,15 +111,19 @@ public class PlayerShortcuts : MonoBehaviour
         switch (shortcut.Type)
         {
             case Shortcut.TYPE_ITEM:
-                PlayerInventory inventory = _inventory != null ? _inventory : IncomingPacketActions.Inventory;
+                PlayerInventory inventory = Inventory;
                 if (inventory != null)
                     inventory.UseItem(shortcut.Id, true);
                 break;
             case Shortcut.TYPE_ACTION:
-                IncomingPacketActions.Actions.UseAction((ActionType)shortcut.Id);
+                PlayerActions actions = Actions;
+                if (actions != null)
+                    actions.UseAction((ActionType)shortcut.Id);
                 break;
             case Shortcut.TYPE_SKILL:
-                IncomingPacketActions.Actions.UseSkill(shortcut.Id);
+                PlayerActions skillActions = Actions;
+                if (skillActions != null)
+                    skillActions.UseSkill(shortcut.Id);
                 break;
             default:
                 break;

@@ -17,6 +17,12 @@ public class CharacterSelector : MonoBehaviour
     private List<GameObject> _characterGameObjects;
 
     [Inject] private LogongrpTable _logonGrps;
+    [Inject] private GameClient _gameClient;
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
 
     private List<Logongrp> LogonGrps
     {
@@ -181,7 +187,9 @@ public class CharacterSelector : MonoBehaviour
             // Debug.LogWarning("Please select a character");
             return;
         }
-        IncomingPacketActions.Game.Send(new CharacterSelectCommand(SelectedSlot));
+        GameClient game = Game;
+        if (game != null)
+            game.Send(new CharacterSelectCommand(SelectedSlot));
        // GameClient.Instance.ClientPacketHandler.SendRequestSelectCharacter(SelectedSlot);
     }
 
@@ -192,7 +200,9 @@ public class CharacterSelector : MonoBehaviour
                 // Debug.LogWarning("Please select a character");
                 return;
             }
-            IncomingPacketActions.Game.Send(new CharacterDeleteCommand(SelectedSlot));
+            GameClient game = Game;
+            if (game != null)
+                game.Send(new CharacterDeleteCommand(SelectedSlot));
             // Debug.LogWarning("Requesting delete character , slot: " + SelectedSlot);
     }
 

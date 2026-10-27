@@ -8,6 +8,12 @@ using VContainer;
 public class ProjectileManager : AbstractProjectile, IProjectileManager
 {
     [Inject] HitManager _hits;
+    [Inject] World _world;
+
+    private World GameWorld
+    {
+        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
+    }
     private const string PROJECTILE_TIMER_LOG = "[PROJECTILE_TIMER]";
     private const string MagicProjectileSyncTag = "[MAGIC_PROJECTILE_SYNC]";
     private const float ArrowAnimatorLaunchCompensationSeconds = 0.08f;
@@ -458,7 +464,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
         if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null &&
             PlayerEntity.Instance.Identity.Id == objectId)
             return PlayerEntity.Instance;
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         return world != null ? world.GetEntityNoLockSync(objectId) : null;
     }
 
