@@ -27,7 +27,7 @@ var gameListener = new TcpListener(IPAddress.Loopback, GamePort);
 loginListener.Start();
 gameListener.Start();
 Console.WriteLine($"Fineage stub login 127.0.0.1:{LoginPort}  game 127.0.0.1:{GamePort}");
-Console.WriteLine("Play Menu → Login (any account/pass) → Agree → Confirm server → char lobby.");
+Console.WriteLine("Menu → Login → Start on Test → Talking Island (17_25). Click ground to run.");
 Console.WriteLine("Ctrl+C to stop.");
 
 _ = AcceptLoop(loginListener, HandleLoginAsync);
@@ -144,6 +144,12 @@ static async Task HandleLoginAsync(TcpClient client)
     }
 }
 
+// Talking Island Village — tile 17_25 (maps present in project).
+const int SpawnX = -84318;
+const int SpawnY = 244578;
+const int SpawnZ = -3730;
+const int PlayerObjectId = 1;
+
 static async Task HandleGameAsync(TcpClient client)
 {
     var ep = client.Client.RemoteEndPoint;
@@ -155,21 +161,16 @@ static async Task HandleGameAsync(TcpClient client)
         if (rx == null) return;
         Console.WriteLine($"[{Stamp()}] RX game opcode=0x{rx[0]:X2} len={rx.Length} (ProtocolVersion)");
 
-        // InterludeKey: auth ok, no blowfish (simplest path)
         var keyPkt = new PacketBuilder()
             .C(0x00)
-            .C(1)              // auth allowed
-            .B(new byte[8])    // key
-            .D(0)              // useBlowfish = false
-            .D(1)              // serverId
+            .C(1)
+            .B(new byte[8])
+            .D(0)
+            .D(1)
             .ToArray();
-        // Game packets from server: client GameClientReceiving expects raw body after length.
-        // Outgoing BuildGame on client adds pad; server→client typically no client-style pad required
-        // beyond what DTO reads. Send minimal.
         await Framed.SendAsync(stream, PadGame(keyPkt));
         Console.WriteLine($"[{Stamp()}] TX InterludeKey (no crypt)");
 
-        // AuthLogin
         rx = await Framed.ReadBodyAsync(stream);
         if (rx == null) return;
         Console.WriteLine($"[{Stamp()}] RX game opcode=0x{rx[0]:X2} (AuthLogin)");
@@ -177,8 +178,63 @@ static async Task HandleGameAsync(TcpClient client)
         await Framed.SendAsync(stream, PadGame(BuildCharSelectionInfo("Test", "test")));
         Console.WriteLine($"[{Stamp()}] TX CharSelectionInfo char=Test");
 
-        // Keep connection briefly for Apply on client.
-        await Task.Delay(5000);
+        int curX = SpawnX, curY = SpawnY, curZ = SpawnZ;
+        bool entered = false;
+
+        while (client.Connected)
+        {
+            rx = await Framed.ReadBodyAsync(stream);
+            if (rx == null || rx.Length == 0)
+                break;
+
+            byte op = rx[0];
+            switch (op)
+            {
+                case 0x0D: // CharacterSelect
+                    Console.WriteLine($"[{Stamp()}] RX CharacterSelect");
+                    await Framed.SendAsync(stream, PadGame(BuildCharSelected("Test", PlayerObjectId, curX, curY, curZ)));
+                    Console.WriteLine($"[{Stamp()}] TX CharSelected @ {curX},{curY},{curZ} (17_25)");
+                    break;
+
+                case 0x03: // EnterWorld
+                    Console.WriteLine($"[{Stamp()}] RX EnterWorld");
+                    entered = true;
+                    await Framed.SendAsync(stream, PadGame(new PacketBuilder().C(0xC1).D(0).ToArray())); // SkillCoolTime empty
+                    Console.WriteLine($"[{Stamp()}] TX SkillCoolTime (empty)");
+                    break;
+
+                case 0x9D: // RequestSkillCoolTime
+                    await Framed.SendAsync(stream, PadGame(new PacketBuilder().C(0xC1).D(0).ToArray()));
+                    break;
+
+                case 0x01: // MoveToLocation
+                    if (rx.Length < 29)
+                    {
+                        Console.WriteLine($"[{Stamp()}] RX Move short len={rx.Length}");
+                        break;
+                    }
+                    int tX = BinaryPrimitives.ReadInt32LittleEndian(rx.AsSpan(1));
+                    int tY = BinaryPrimitives.ReadInt32LittleEndian(rx.AsSpan(5));
+                    int tZ = BinaryPrimitives.ReadInt32LittleEndian(rx.AsSpan(9));
+                    int oX = BinaryPrimitives.ReadInt32LittleEndian(rx.AsSpan(13));
+                    int oY = BinaryPrimitives.ReadInt32LittleEndian(rx.AsSpan(17));
+                    int oZ = BinaryPrimitives.ReadInt32LittleEndian(rx.AsSpan(21));
+                    Console.WriteLine($"[{Stamp()}] RX Move → {tX},{tY},{tZ}");
+                    await Framed.SendAsync(stream, PadGame(BuildCharMove(PlayerObjectId, tX, tY, tZ, oX, oY, oZ)));
+                    curX = tX; curY = tY; curZ = tZ;
+                    break;
+
+                case 0x48: // ValidatePosition — ignore
+                    break;
+
+                default:
+                    if (!entered || op != 0x00)
+                        Console.WriteLine($"[{Stamp()}] RX game opcode=0x{op:X2} len={rx.Length}");
+                    break;
+            }
+        }
+
+        Console.WriteLine($"[{Stamp()}] game disconnect {ep}");
     }
 }
 
@@ -192,6 +248,53 @@ static byte[] PadGame(byte[] body)
     byte[] padded = new byte[b.Length + (8 - rem)];
     Buffer.BlockCopy(b, 0, padded, 0, b.Length);
     return padded;
+}
+
+static byte[] BuildCharSelected(string name, int objectId, int x, int y, int z)
+{
+    // Matches CharSelectedDto.ReadFrom.
+    var p = new PacketBuilder()
+        .C(0x15)
+        .S(name)
+        .D(objectId)
+        .S("")          // title
+        .D(1)           // sessionId
+        .D(0)           // clan
+        .D(0)           // empty
+        .D(0)           // sex
+        .D(0)           // race
+        .D(0)           // classId
+        .D(1)           // active
+        .D(x).D(y).D(z)
+        .F(200.0).F(50.0) // hp mp
+        .D(0)           // cp (read as int in dto — actually ReadI for Cp)
+        .Q(0)           // exp
+        .D(1)           // level
+        .D(0)           // karma
+        .D(0)           // pk
+        .D(21).D(40).D(43).D(25).D(30).D(11); // int str con men dex wit
+
+    for (int i = 0; i < 30; i++)
+        p.D(0);
+
+    p.D(0).D(0)         // empty1 empty2
+        .D(0)           // reset tick
+        .D(0)           // empty3
+        .D(0);          // classId2
+    for (int i = 0; i < 12; i++) // empty31 + empty4..empty14
+        p.D(0);
+
+    return p.ToArray();
+}
+
+static byte[] BuildCharMove(int objectId, int xDst, int yDst, int zDst, int x, int y, int z)
+{
+    return new PacketBuilder()
+        .C(0x01)
+        .D(objectId)
+        .D(xDst).D(yDst).D(zDst)
+        .D(x).D(y).D(z)
+        .ToArray();
 }
 
 static byte[] BuildCharSelectionInfo(string name, string account)

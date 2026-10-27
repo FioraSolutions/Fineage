@@ -43,8 +43,9 @@ dotnet run          # 127.0.0.1:2106 (login) + :7777 (game)
 # dotnet run -- --selftest
 ```
 
-1. Menu.unity → Play → Login (любой логин/пароль).
-2. `FineageDev.AutoAdvanceLobby=true` сам жмёт Agree + Confirm server.
-3. Stub шлёт `CharSelectionInfo` с персонажем **Test** (Human Fighter) → камера CharSelect + pawn.
+1. `dotnet run` в `tools/login-stub` (login `:2106`, game `:7777`).
+2. Menu.unity → Play → Login (любой логин/пароль).
+3. AutoAgree/Confirm → char select → **Start** на **Test**.
+4. Грузится Talking Island `17_25`, клик по земле — бег (stub эхает `CharMoveToLocation`).
 
 Позже заменить stub на свой C# login/game сервер (тот же wire).
