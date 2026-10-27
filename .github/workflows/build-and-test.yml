@@ -18,6 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check frozen IncomingPacketActions surface
+        run: python3 scripts/check-frozen-incoming-packet-actions.py
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
