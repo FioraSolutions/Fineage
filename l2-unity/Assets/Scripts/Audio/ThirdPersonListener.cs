@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 
 public class ThirdPersonListener : MonoBehaviour
 {
@@ -15,6 +16,13 @@ public class ThirdPersonListener : MonoBehaviour
     private static ThirdPersonListener _instance;
     public static ThirdPersonListener Instance { get { return _instance; } }
 
+    [Inject] PlayerController _playerController;
+
+    private PlayerController Player
+    {
+        get { return _playerController != null ? _playerController : AudioPacketServices.Player; }
+    }
+
     private void Awake() {
         if (_instance == null) {
             _instance = this;
@@ -23,10 +31,23 @@ public class ThirdPersonListener : MonoBehaviour
         if (_cam == null && Camera.main != null) {
             _cam = Camera.main.gameObject;
         }
+
+        App.InjectGameObject(gameObject);
+        WireAudioPacketServices();
     }
 
     private void OnEnable() {
         _instance = this;
+    }
+
+    private void Start()
+    {
+        WireAudioPacketServices();
+    }
+
+    private void WireAudioPacketServices()
+    {
+        AudioPacketServices.Bind(player: _playerController);
     }
 
     private void OnDisable() {
@@ -54,8 +75,9 @@ public class ThirdPersonListener : MonoBehaviour
 
     void Update() {
         if(_player == null) {
-            if(PlayerController.Instance != null) {
-                _player = PlayerController.Instance.gameObject;
+            PlayerController playerController = Player;
+            if (playerController != null) {
+                _player = playerController.gameObject;
             }
         } else {
             _attributes.position = FMODUnity.RuntimeUtils.ToFMODVector(_player.transform.position);

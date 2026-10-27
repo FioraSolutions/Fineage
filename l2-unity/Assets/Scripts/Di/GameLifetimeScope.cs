@@ -48,6 +48,8 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<Geodata>(builder);
         RegisterIfFound<AudioManager>(builder);
         RegisterIfFound<MusicManager>(builder);
+        RegisterIfFound<SurfaceDetector>(builder);
+        RegisterIfFound<ThirdPersonListener>(builder);
         RegisterIfFound<SkillsManager>(builder);
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
