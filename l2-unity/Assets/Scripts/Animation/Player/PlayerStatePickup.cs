@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -9,6 +10,65 @@ public class PlayerStatePickup : StateMachineBehaviour
 {
     const float FinishNorm = 0.95f;
     bool _switched;
+
+    static IAnimationManager Animations
+    {
+        get
+        {
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<IAnimationManager>();
+                }
+                catch
+                {
+                }
+            }
+
+            if (App.GameContainer != null)
+            {
+                try
+                {
+                    return (IAnimationManager)App.GameContainer.Resolve(typeof(IAnimationManager));
+                }
+                catch
+                {
+                }
+            }
+
+            return IncomingPacketActions.Animations;
+        }
+    }
+
+    static void QueueOnMain(Action action)
+    {
+        if (App.HasContainer)
+        {
+            try
+            {
+                App.Resolve<PacketApplyQueue>().Queue(action);
+                return;
+            }
+            catch
+            {
+            }
+        }
+
+        if (App.GameContainer != null)
+        {
+            try
+            {
+                ((PacketApplyQueue)App.GameContainer.Resolve(typeof(PacketApplyQueue))).Queue(action);
+                return;
+            }
+            catch
+            {
+            }
+        }
+
+        IncomingPacketActions.Queue(action);
+    }
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -26,7 +86,8 @@ public class PlayerStatePickup : StateMachineBehaviour
     {
         _switched = true;
         int objectId = AnimatorUtils.GetObjectId(animator);
-        if (IncomingPacketActions.Animations == null || objectId == 0)
+        IAnimationManager animations = Animations;
+        if (animations == null || objectId == 0)
             return;
 
         bool local = AnimatorUtils.IsLocalPlayerAnimator(animator);
@@ -47,9 +108,9 @@ public class PlayerStatePickup : StateMachineBehaviour
             }
         }
 
-        IncomingPacketActions.Queue(() =>
+        QueueOnMain(() =>
         {
-            IncomingPacketActions.Animations.PlayAnimation(
+            animations.PlayAnimation(
                 objectId, AnimationNames.WAIT.ToString(), true);
         });
     }

@@ -11,6 +11,16 @@ public class SkillExecutor : MonoBehaviour
     [Inject] EffectManager _effects;
     private SkillAnimationRunner _animRunner;
 
+    private IAnimationManager Animations
+    {
+        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+    }
+
+    private EffectManager Effects
+    {
+        get { return _effects != null ? _effects : IncomingPacketActions.Effects; }
+    }
+
     public event Action OnSkillSequenceFinished;
     public event Action<AnimationEventsBase> OnAllAnimationFinished;
     public static SkillExecutor Instance { get; private set; }
@@ -42,8 +52,7 @@ public class SkillExecutor : MonoBehaviour
         // _emitter.SetupActions(actions);
 
         string[] cycle = animationCombo.GetAnimCycle();
-        IAnimationManager animations = _animations != null ? _animations : IncomingPacketActions.Animations;
-        _animRunner.StartRun(cycle, objectId , animations  , () => OnAllAnimationFinish(actions));
+        _animRunner.StartRun(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
     }
 
     public async Task ExecuteSkillOverride(Skillgrp skill, Entity entity, AnimationCombo animationCombo, AnimationEventsBase actions, bool isLong = false)
@@ -51,7 +60,7 @@ public class SkillExecutor : MonoBehaviour
         if (entity == null || animationCombo == null) return;
         int objectId = entity.Identity.Id;
 
-        EffectManager effects = _effects != null ? _effects : IncomingPacketActions.Effects;
+        EffectManager effects = Effects;
         if (effects != null)
             effects.PlayEffect(skill.Id, entity.transform, entity.GetMagicCastData());
 
@@ -67,16 +76,15 @@ public class SkillExecutor : MonoBehaviour
                 " cycle=" + (cycle == null ? "null" : string.Join(",", cycle)) +
                 " long=" + isLong +
                 " runner=" + (_animRunner != null) +
-                " animations=" + ((_animations != null ? _animations : IncomingPacketActions.Animations) != null));
+                " animations=" + (Animations != null));
         }
-        IAnimationManager animations = _animations != null ? _animations : IncomingPacketActions.Animations;
         if (isLong)
         {
-            _animRunner.StartRunLongOverride(cycle, objectId, animations, () => OnAllAnimationFinish(actions));
+            _animRunner.StartRunLongOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
         }
         else
         {
-            _animRunner.StartRunOverride(cycle, objectId, animations, () => OnAllAnimationFinish(actions));
+            _animRunner.StartRunOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
         }
     }
 
