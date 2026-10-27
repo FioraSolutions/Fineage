@@ -25,13 +25,12 @@ public class PlayerMovementSpeedCalculator : ICalcSpeed
     {
         if (_running)
         {
-            _currentSpeed = _defaultRunSpeed;
+            _currentSpeed = _defaultRunSpeed > 0.001f ? _defaultRunSpeed : _default;
         }
         else
         {
-            _currentSpeed = _defaultWalkSpeed;
+            _currentSpeed = _defaultWalkSpeed > 0.001f ? _defaultWalkSpeed : _default * 0.65f;
         }
-        //Is Rotate to target slow speed to 1f
         return _currentSpeed;
     }
 

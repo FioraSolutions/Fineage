@@ -208,10 +208,13 @@ public class Entity : MonoBehaviour {
         UpdateSpeed(_stats.Speed);
 
         EquipAllWeapons();
-        _gear.OnEquipAnimationRefresh -= OnWeaponEquipped;
-        _gear.OnUnequipAnimationRefresh -= OnWeaponUnequipped;
-        _gear.OnEquipAnimationRefresh += OnWeaponEquipped;
-        _gear.OnUnequipAnimationRefresh += OnWeaponUnequipped;
+        if (_gear != null)
+        {
+            _gear.OnEquipAnimationRefresh -= OnWeaponEquipped;
+            _gear.OnUnequipAnimationRefresh -= OnWeaponUnequipped;
+            _gear.OnEquipAnimationRefresh += OnWeaponEquipped;
+            _gear.OnUnequipAnimationRefresh += OnWeaponUnequipped;
+        }
     }
 
     public NetworkAnimationController GetAnimatorController()

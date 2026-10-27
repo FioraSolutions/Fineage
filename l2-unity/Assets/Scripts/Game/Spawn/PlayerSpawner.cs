@@ -68,11 +68,15 @@ public sealed class PlayerSpawner
         }
         controller.enabled = true;
         controller.Initialize();
+        CharacterController cc = go.GetComponent<CharacterController>();
+        if (cc != null)
+            cc.enabled = true;
         App.InjectGameObject(go);
         go.SetActive(true);
 
         PlayerAnimationController animation = go.GetComponentInChildren<PlayerAnimationController>();
-        animation.Initialize();
+        if (animation != null)
+            animation.Initialize();
         EntitySpawnShared.RegisterAnimation(world, identity.Id, animation, player);
 
         Gear gear = go.GetComponent<Gear>();
@@ -81,8 +85,13 @@ public sealed class PlayerSpawner
 
         PlayerStats statsIntr = (PlayerStats)player.Stats;
         player.Initialize();
-        player.UpdateRunSpeed(statsIntr.RunRealSpeed);
-        player.UpdateWalkSpeed(statsIntr.WalkRealSpeed);
+        float run = statsIntr.RunRealSpeed > 0.001f ? statsIntr.RunRealSpeed : 120f;
+        float walk = statsIntr.WalkRealSpeed > 0.001f ? statsIntr.WalkRealSpeed : 80f;
+        player.UpdateRunSpeed(run);
+        player.UpdateWalkSpeed(walk);
+        // Direct apply — Guarantees PlayerController has speeds even if anim path threw.
+        controller.UpdateRunSpeed(StatsConverter.Instance.ConvertStat(Stat.SPEED, run));
+        controller.UpdateWalkSpeed(StatsConverter.Instance.ConvertStat(Stat.SPEED, walk));
         player.UpdatePAtkSpeedPlayer((int)statsIntr.BasePAtkSpeed);
         player.UpdateMAtkSpeed((int)statsIntr.MAtkSpd);
 

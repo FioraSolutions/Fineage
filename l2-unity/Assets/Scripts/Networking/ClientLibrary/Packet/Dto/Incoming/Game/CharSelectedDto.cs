@@ -58,6 +58,8 @@ public class CharSelectedDto : IWireDto
 
 
         _info.Identity.PlayerClass = reader.ReadI(); //classId
+        // CharSelected has no separate BaseClass field — keep fighter/mystic for anim speed tables.
+        _info.Appearance.BaseClass = _info.Identity.PlayerClass;
         int unknow = reader.ReadI();// active ??
         int x = reader.ReadI();
         int y =  reader.ReadI();

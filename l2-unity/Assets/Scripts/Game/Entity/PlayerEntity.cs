@@ -149,35 +149,55 @@ public class PlayerEntity : Entity
 
     public override float UpdateRunSpeed(float serverValue)
     {
+        if (serverValue <= 0.001f)
+            serverValue = 120f;
         float converted = base.UpdateRunSpeed(serverValue);
-        PlayerAppearance playerApperance = (PlayerAppearance)_appearance;
+        // Apply planar speed first — anim NRE must not leave PlayerController at 0.
+        if (IncomingPacketActions.Player != null)
+            IncomingPacketActions.Player.UpdateRunSpeed(converted);
+        else if (PlayerController.Instance != null)
+            PlayerController.Instance.UpdateRunSpeed(converted);
 
-        float anim_converted = CharTemplateRegistry.GetRunSpeed(playerApperance.BaseClass,
-            playerApperance.Sex, 
-            serverValue, 
-            _gear.IsTwoHandedEquipped());
+        PlayerAppearance playerApperance = _appearance as PlayerAppearance;
+        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
+        int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
+        int sex = playerApperance != null ? playerApperance.Sex : 0;
+        float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, serverValue, twoHanded);
+        if (PlayerAnimationController.Instance != null)
+            PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
 
-        PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
-        IncomingPacketActions.Player.UpdateRunSpeed(converted);
         _lastServerRunSpeed = serverValue;
         return converted;
     }
 
     public void RefreshRunSpeed()
     {
-        PlayerAppearance playerApperance = (PlayerAppearance)_appearance;
-        float anim_converted = CharTemplateRegistry.GetRunSpeed(playerApperance.BaseClass, playerApperance.Sex, _lastServerRunSpeed, _gear.IsTwoHandedEquipped());
-        PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
+        PlayerAppearance playerApperance = _appearance as PlayerAppearance;
+        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
+        int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
+        int sex = playerApperance != null ? playerApperance.Sex : 0;
+        float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, _lastServerRunSpeed, twoHanded);
+        if (PlayerAnimationController.Instance != null)
+            PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
     }
 
     public override float UpdateWalkSpeed(float serverValue)
     {
+        if (serverValue <= 0.001f)
+            serverValue = 80f;
         float converted = base.UpdateWalkSpeed(serverValue);
-        PlayerAppearance playerApperance = (PlayerAppearance)_appearance;
-        float anim_converted = CharTemplateRegistry.GetWalkSpeed(playerApperance.BaseClass, playerApperance.Sex, serverValue, _gear.IsTwoHandedEquipped());
-        PlayerAnimationController.Instance.SetWalkSpeed(anim_converted);
-        //PlayerAnimationController.Instance.SetWalkSpeed(0.45f);
-        IncomingPacketActions.Player.UpdateWalkSpeed(converted);
+        if (IncomingPacketActions.Player != null)
+            IncomingPacketActions.Player.UpdateWalkSpeed(converted);
+        else if (PlayerController.Instance != null)
+            PlayerController.Instance.UpdateWalkSpeed(converted);
+
+        PlayerAppearance playerApperance = _appearance as PlayerAppearance;
+        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
+        int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
+        int sex = playerApperance != null ? playerApperance.Sex : 0;
+        float anim_converted = CharTemplateRegistry.GetWalkSpeed(baseClass, sex, serverValue, twoHanded);
+        if (PlayerAnimationController.Instance != null)
+            PlayerAnimationController.Instance.SetWalkSpeed(anim_converted);
 
         return converted;
     }

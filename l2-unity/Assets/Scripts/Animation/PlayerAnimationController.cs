@@ -15,20 +15,20 @@ public class PlayerAnimationController : BaseAnimationController
     {
         base.Initialize();
 
-        if (_instance == null)
-        {
-            _instance = this;
-        }
-        else
+        if (_instance != null && _instance != this)
         {
             Destroy(this);
+            return;
         }
+
+        _instance = this;
     }
 
     void OnDestroy()
     {
         base.OnDestroy();
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
     public void StartTrigger(string name)

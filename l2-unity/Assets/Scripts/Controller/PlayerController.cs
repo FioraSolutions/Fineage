@@ -31,11 +31,20 @@ public class PlayerController : MonoBehaviour
 
     public void UpdateRunSpeed(float defaultRunSpeed)
     {
+        if (_calcSpeed == null)
+            _calcSpeed = new PlayerMovementSpeedCalculator();
+        // Stub/CharSelected may omit UserInfo — never leave planar speed at 0 (run-in-place).
+        if (defaultRunSpeed <= 0.001f)
+            defaultRunSpeed = 0.7f;
         _calcSpeed.UpdateSpeedRun(defaultRunSpeed);
     }
 
     public void UpdateWalkSpeed(float defaultWalkSpeed)
     {
+        if (_calcSpeed == null)
+            _calcSpeed = new PlayerMovementSpeedCalculator();
+        if (defaultWalkSpeed <= 0.001f)
+            defaultWalkSpeed = 0.45f;
         _calcSpeed.UpdateSpeedWalk(defaultWalkSpeed);
     }
 
@@ -68,29 +77,41 @@ public class PlayerController : MonoBehaviour
     private ICalcSpeed _calcSpeed;
     public void Initialize()
     {
-        if (_instance == null)
-        {
-            _instance = this;
-
-
-            _calcSpeed = new PlayerMovementSpeedCalculator();
-            _pp_sender = new PlayerPositionSender();
-        }
-        else
+        // Same-instance re-init (domain reload / re-enter world) must not Destroy(this):
+        // that wiped Instance in OnDestroy and left move with zero speed.
+        if (_instance != null && _instance != this)
         {
             Destroy(this);
+            return;
         }
+
+        _instance = this;
+        if (_calcSpeed == null)
+            _calcSpeed = new PlayerMovementSpeedCalculator();
+        if (_pp_sender == null)
+            _pp_sender = new PlayerPositionSender();
+
+        EnsureCharacterController();
     }
 
     void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
     void Start()
     {
-        _controller = GetComponent<CharacterController>();
+        EnsureCharacterController();
         _gearEffects = GetComponent<GearEffects>();
+    }
+
+    void EnsureCharacterController()
+    {
+        if (_controller == null)
+            _controller = GetComponent<CharacterController>();
+        if (_controller != null && !_controller.enabled)
+            _controller.enabled = true;
     }
 
 
