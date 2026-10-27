@@ -15,38 +15,16 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     #endregion
 
-    #region Dependencies ── TODO: extract TableInitializer to own class
+    #region Dependencies
 
-    [Inject] GameClient _gameClient;
-    [Inject] LoginClient _loginClient;
-    [Inject] IZoneTransport _zoneTransport;
+    [Inject] TableInitializer _tableInitializer;
     [Inject] SceneLoader _sceneLoader;
-    [Inject] ItemTable _items;
-    [Inject] ItemNameTable _itemNames;
-    [Inject] ItemStatDataTable _itemStats;
-    [Inject] ArmorgrpTable _armorGrps;
-    [Inject] EtcItemgrpTable _etcItemGrps;
-    [Inject] WeapongrpTable _weaponGrps;
-    [Inject] NpcDecoEffectsTable _npcDecoEffects;
-    [Inject] NpcgrpTable _npcGrps;
-    [Inject] NpcNameTable _npcNames;
-    [Inject] QuestNameTable _questNames;
-    [Inject] RecipeTable _recipes;
-    [Inject] ActionNameTable _actionNames;
-    [Inject] AnimLeghtTable _animLengths;
-    [Inject] SysStringTable _sysStrings;
-    [Inject] SkillNameTable _skillNames;
-    [Inject] SkillgrpTable _skillGrps;
-    [Inject] MobSkillAnimgrpTable _mobSkillAnimGrps;
-    [Inject] AnimTweenTable _animTweens;
-    [Inject] EnterEventTable _enterEvents;
-    [Inject] ModelTable _models;
-    [Inject] LogongrpTable _logonGrps;
-    [Inject] SystemMessageTable _systemMessages;
+
+    LobbyFlowController _lobbyFlow;
 
     #endregion
 
-    #region Table init
+    #region Lifecycle
 
     private SceneLoader Scenes
     {
@@ -54,13 +32,12 @@ public class GameManager : MonoBehaviour, IGameManager {
     }
 
     public bool IsSwitchingServer { get; set; } = false;
-    public bool WorldSpawnReady { get; private set; }
+    public bool WorldSpawnReady { get; internal set; }
 
     public GameState GameState {
         get { return _gameState; }
         set {
             _gameState = value;
-            //Debug.Log($"Game state is now {_gameState}.");
         }
     }
     public bool GameReady { get { return _gameReady; } set { _gameReady = value; } }
@@ -78,8 +55,6 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        // Inspector false must force Interlude — ClearOverride would fall through to PlayerPrefs
-        // and silently drop Interlude AuthLogin via GameClient.Send ZoneV2 no-op.
         if (_useZoneServerV2)
             FineageWireConfig.SetOverride(FineageWireConfig.Mode.ZoneV2);
         else
@@ -89,220 +64,58 @@ public class GameManager : MonoBehaviour, IGameManager {
             gameObject.AddComponent<AppLifetimeScope>();
     }
 
-    private void Start() {
-        LoadTables();
-        Scenes.LoadMenu(); 
-    }
-
-    private static T Table<T>(T injected, T fallback) where T : class
+    [Inject]
+    void WireLobbyFlow(LobbyFlowController lobbyFlow)
     {
-        return injected != null ? injected : fallback;
+        _lobbyFlow = lobbyFlow;
+        _lobbyFlow.Attach(this);
     }
 
-    private void LoadTables() {
-        ItemTable items = Table(_items, ItemTable.Instance);
-        items.Initialize();
-        Table(_itemNames, ItemNameTable.Instance).Initialize();
-        Table(_itemStats, ItemStatDataTable.Instance).Initialize();
-        Table(_armorGrps, ArmorgrpTable.Instance).Initialize();
-        Table(_etcItemGrps, EtcItemgrpTable.Instance).Initialize();
-        Table(_weaponGrps, WeapongrpTable.Instance).Initialize();
-        items.CacheItems();
-        NpcDecoEffectsTable decoEffects = Table(_npcDecoEffects, NpcDecoEffectsTable.Instance);
-        decoEffects.Initialize();
-        Table(_npcGrps, NpcgrpTable.Instance).Initialize(decoEffects);
-        Table(_questNames, QuestNameTable.Instance).Initialize();
-        Table(_recipes, RecipeTable.Instance).Initialize();
-        Table(_npcNames, NpcNameTable.Instance).Initialize();
-        Table(_actionNames, ActionNameTable.Instance).Initialize();
-        Table(_animLengths, AnimLeghtTable.Instance).Initialize();
-        Table(_sysStrings, SysStringTable.Instance).Initialize();
-        Table(_skillNames, SkillNameTable.Instance).Initialize();
-        Table(_skillGrps, SkillgrpTable.Instance).Initialize();
-        Table(_mobSkillAnimGrps, MobSkillAnimgrpTable.Instance).Initialize();
-        Table(_animTweens, AnimTweenTable.Instance).Initialize();
-        Table(_enterEvents, EnterEventTable.Instance).Initialize();
-        Table(_models, ModelTable.Instance).Initialize();
-        Table(_logonGrps, LogongrpTable.Instance).Initialize();
-        Table(_systemMessages, SystemMessageTable.Instance).Initialize();
-        IconManager.Instance.Initialize();
-        IconManager.Instance.CacheIcons();
-        IconManager.Instance.CacheOtherIcons();
-        IconManager.Instance.CacheInterfaceIcons();
+    private void Start() {
+        _tableInitializer.LoadTables();
+        Scenes.LoadMenu();
     }
 
     #endregion
 
-    #region Lobby flow callbacks ── TODO: extract to LobbyFlowController
+    #region Lobby flow (delegates to LobbyFlowController)
 
-    public void LogIn() {
-    }
+    public void LogIn() => _lobbyFlow.LogIn();
 
-    public void LogOut() {
-        _loginClient.Disconnect();
-    }
+    public void LogOut() => _lobbyFlow.LogOut();
 
-    public void OnWorldSceneLoaded() {
+    public void OnWorldSceneLoaded() => _lobbyFlow.OnWorldSceneLoaded();
 
-        GameObject.Destroy(IncomingPacketActions.LoginUi.gameObject);
-        PlayerInfoInterlude playerInfo = _gameClient.PlayerInfo;
-        DomainPlayerSpawned spawned = InterludeDomainMap.PlayerSpawned(playerInfo);
-        if (IncomingPacketActions.Domain != null && spawned != null)
-            IncomingPacketActions.Domain.ApplyPlayerSpawned(spawned);
-        else
-            IncomingPacketActions.GameWorld.SpawnPlayer(playerInfo.Identity, playerInfo.Status, playerInfo.Stats, playerInfo.Appearance);
-        IncomingPacketActions.Ui.StopLoading();
-        PlayerStateMachine.Instance.enabled = true;
-        WorldSpawnReady = true;
-        if (_zoneTransport == null || _zoneTransport.AllowsInterludeGameSocketAuth)
-            FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
-        _gameClient.Send(new EnterWorldCommand());
-        if (IncomingPacketActions.Domain != null)
-            IncomingPacketActions.Domain.FlushKnownlist();
-        else
-            IncomingPacketActions.ApplyWorld(apply => apply.FlushKnownlist());
-        _gameClient.EndLoadWorld();
+    public void OnLoginServerConnected() => _lobbyFlow.OnLoginServerConnected();
 
-        PlayerStateMachine.Instance.ChangeState(PlayerState.IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.ENTER_WORLD);
-    }
+    public void OnLoginServerAuthAllowed() => _lobbyFlow.OnLoginServerAuthAllowed();
 
+    public void OnLoginServerPlayOk() => _lobbyFlow.OnLoginServerPlayOk();
 
-    public void OnLoginServerConnected() {
-        GameState = GameState.LOGIN_CONNECTED;
-    }
+    public void OnConnectingToGameServer() => _lobbyFlow.OnConnectingToGameServer();
 
-    public void OnLoginServerAuthAllowed() {
-        GameState = GameState.READING_LICENSE;
-        // LobbyFlowLog.Info("state=READING_LICENSE show license");
+    public void OnReceivedServerList(byte lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers) =>
+        _lobbyFlow.OnReceivedServerList(lastServer, serverData, charsOnServers);
 
-        IncomingPacketActions.LoginUi.ShowLicenseWindow();
-    }
+    public void OnAuthAllowed() => _lobbyFlow.OnAuthAllowed();
 
-    public void OnLoginServerPlayOk() {
-        GameState = GameState.READY_TO_CONNECT;
-        // LobbyFlowLog.Info("state=READY_TO_CONNECT");
-    }
+    public void OnCharacterSelect() => _lobbyFlow.OnCharacterSelect();
 
-    public void OnConnectingToGameServer() {
-        GameState = GameState.CONNECTING_TO_GAMESERVER;
-        // LobbyFlowLog.Info("state=CONNECTING_TO_GAMESERVER");
-    }
+    public void OnCreateUser(List<PlayerTemplates> playerTemplates) => _lobbyFlow.OnCreateUser(playerTemplates);
 
-    public void OnReceivedServerList(byte lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers) {
-        GameState = GameState.SERVER_LIST;
-        int count = serverData != null ? serverData.Count : 0;
-        // LobbyFlowLog.Info("state=SERVER_LIST lastServer=" + lastServer + " servers=" + count);
+    public void OnCreateUserFail(string text) => _lobbyFlow.OnCreateUserFail(text);
 
-        IncomingPacketActions.LoginUi.ShowServerSelectWindow();
+    public void OnWorldLoading() => _lobbyFlow.OnWorldLoading();
 
-        IncomingPacketActions.ServerSelect.UpdateServerList(lastServer, serverData, charsOnServers);
-    }
+    public void OnRelogin() => _lobbyFlow.OnRelogin();
 
-    public void OnAuthAllowed()
-    {
-        GameState = GameState.CHAR_SELECT;
-        // LobbyFlowLog.Info("state=CHAR_SELECT switch camera + show window");
-        IncomingPacketActions.LoginCamera.SwitchCamera("CharSelect");
+    public void OnDisconnect() => _lobbyFlow.OnDisconnect();
 
-        IncomingPacketActions.LoginUi.ShowCharSelectWindow();
-    }
+    public void OnGameserverSelected() => _lobbyFlow.OnGameserverSelected();
 
-    public void OnCharacterSelect() {
-        GameState = GameState.IN_GAME;
-        WorldSpawnReady = false;
+    public void OnStartingGame() => _lobbyFlow.OnStartingGame();
 
-        IncomingPacketActions.LoginUi.StartLoading();
-        Scenes.LoadSWMap();
-    }
-
-   
-
-    public void OnCreateUser(List<PlayerTemplates> playerTemplates) {
-        GameState = GameState.CHAR_CREATION;
-
-        IncomingPacketActions.LoginCamera.SwitchCamera("Login");
-
-        IncomingPacketActions.LoginUi.SetCharTemplations(playerTemplates);
-        IncomingPacketActions.LoginUi.ShowCharCreationWindow();
-    }
-
-    public void OnCreateUserFail(string text)
-    {
-        IncomingPacketActions.LoginUi.ShowCharCreationError(text);
-    }
-
-    public void OnWorldLoading() {
-        if (MusicManager.Instance != null)
-        {
-            MusicManager.Instance.Clear();
-        }
-
-        if (IncomingPacketActions.Ui != null)
-        {
-            IncomingPacketActions.Ui.StartLoading();
-        }
-        else if (IncomingPacketActions.LoginUi != null)
-        {
-            IncomingPacketActions.LoginUi.StartLoading();
-        }
-    }
-
-    public void OnRelogin() {
-        IsSwitchingServer = false;
-        WorldSpawnReady = false;
-        GameState = GameState.LOGIN_SCREEN;
-
-        IncomingPacketActions.LoginCamera.SwitchCamera("Login");
-
-        IncomingPacketActions.LoginUi.ShowLoginWindow();
-    }
-
-    public void OnDisconnect() {
-        // PlayOk closes the login socket on purpose while GameClient is still connecting.
-        // That disconnect must not reopen the login window.
-        if (IsSwitchingServer)
-            return;
-
-        if (GameState > GameState.CHAR_CREATION) {
-            MusicManager.Instance.Clear();
-            Scenes.LoadMenu();
-        } else if(GameState > GameState.LOGIN_SCREEN && !_gameClient.IsConnected && !_loginClient.IsConnected) {
-            OnRelogin();
-        }
-    }
-
-    public void OnGameserverSelected() {
-        // Debug.Log("Gameserver selected, connecting...");
-
-        //GameClient.Instance.Connect();
-    }
-
-    public void OnStartingGame() {
-        // Debug.Log("On Starting game");
-        //L2LoginUI.Instance.StartLoading();
-    }
-
-    public void OnGameLaunched() {
-        if(GameState.IN_GAME == GameState)
-        {
-            //Debug.Log("On game launched");
-            if (IncomingPacketActions.LoginUi != null)
-            {
-                IncomingPacketActions.LoginUi.StopLoading();
-                IncomingPacketActions.LoginUi.SetLoading(true);
-                //L2LoginUI.Instance.OnManualDestroy();
-                //Debug.Log("GameManager: OnGameLaunched Success Loading ");
-            }
-            else
-            {
-                //Debug.Log("GameManager: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ !!!! OnGameLaunched L2LoginUI NULLL");
-            }
-
-            IncomingPacketActions.Creator.SpawnAllPawns();
-        }
-        
-    }
+    public void OnGameLaunched() => _lobbyFlow.OnGameLaunched();
 
     #endregion
 
