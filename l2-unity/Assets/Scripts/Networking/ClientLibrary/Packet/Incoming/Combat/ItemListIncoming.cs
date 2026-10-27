@@ -1,8 +1,6 @@
 [IncomingGamePacket(GameServerPacketType.ItemList)]
 public sealed class ItemListIncoming : IncomingWirePacket<ItemListDto>
 {
-    public override void Apply(ItemListDto packet)
-    {
+    public override void Apply(ItemListDto packet) =>
         CombatIncomingPacketServices.ApplyItemList(packet);
-    }
 }
