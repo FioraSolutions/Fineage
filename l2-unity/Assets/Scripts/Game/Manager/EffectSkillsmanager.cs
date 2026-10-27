@@ -17,15 +17,15 @@ public class EffectSkillsmanager : MonoBehaviour
 
     private World Worlds
     {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
+        get { return _world != null ? _world : GamePacketServices.GameWorld; }
     }
 
-
-    void Start()
+    private void WireGamePacketServices()
     {
-        _skillsEffect = GameObject.Find("Skills");
-        
+        GamePacketServices.Bind(gameWorld: _world, effectSkills: this);
     }
+
+
 
     public void UpdateWorldTime(float worldTimeCombo)
     {
@@ -238,12 +238,20 @@ public class EffectSkillsmanager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            App.InjectGameObject(gameObject);
+            WireGamePacketServices();
         }
         else if (_instance != this)
         {
             Destroy(this);
         }
 
+    }
+
+    private void Start()
+    {
+        WireGamePacketServices();
+        _skillsEffect = GameObject.Find("Skills");
     }
 
 

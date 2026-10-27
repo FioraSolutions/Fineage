@@ -17,6 +17,7 @@ public class ListenerCharacterGear : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             App.InjectGameObject(gameObject);
+            WireGamePacketServices();
         }
         else
         {
@@ -24,14 +25,24 @@ public class ListenerCharacterGear : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        WireGamePacketServices();
+    }
+
     private EventBus Bus
     {
-        get { return _bus != null ? _bus : IncomingPacketActions.Bus; }
+        get { return _bus != null ? _bus : GamePacketServices.Bus; }
     }
 
     private World GameWorld
     {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
+        get { return _world != null ? _world : GamePacketServices.GameWorld; }
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(bus: _bus, gameWorld: _world);
     }
 
     private void OnEnable()
