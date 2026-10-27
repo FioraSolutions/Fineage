@@ -6,7 +6,6 @@ public sealed class InitIncoming : IncomingWirePacket<InitDto>
         LoginServerIncomingPacketServices.OnInitParsed(packet);
     }
 
-    public override void Apply(InitDto packet)
-    {
-    }
+    public override void Apply(InitDto packet) =>
+        LoginServerIncomingPacketServices.ApplyInit(packet);
 }

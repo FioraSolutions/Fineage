@@ -6,8 +6,6 @@ public sealed class PlayOkIncoming : IncomingWirePacket<PlayOkDto>
         LoginServerIncomingPacketServices.OnPlayOkParsed(packet);
     }
 
-    public override void Apply(PlayOkDto packet)
-    {
+    public override void Apply(PlayOkDto packet) =>
         LoginServerIncomingPacketServices.ApplyPlayOk(packet);
-    }
 }

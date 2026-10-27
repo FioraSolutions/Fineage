@@ -6,7 +6,6 @@ public sealed class GGAuthIncoming : IncomingWirePacket<GGAuthDto>
         LoginServerIncomingPacketServices.OnGGAuthParsed(packet);
     }
 
-    public override void Apply(GGAuthDto packet)
-    {
-    }
+    public override void Apply(GGAuthDto packet) =>
+        LoginServerIncomingPacketServices.ApplyGGAuth(packet);
 }
