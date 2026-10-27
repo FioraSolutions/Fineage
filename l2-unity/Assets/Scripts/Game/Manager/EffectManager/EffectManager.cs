@@ -15,7 +15,21 @@ public class EffectManager : MonoBehaviour
         = new System.Collections.Generic.Dictionary<string, (int count, float windowStartSec)>();
     private const float IMPACT_WINDOW_SEC = 0.35f;
 
-    void Awake() => Instance = this;
+    void Awake()
+    {
+        Instance = this;
+        WireGamePacketServices();
+    }
+
+    private void Start()
+    {
+        WireGamePacketServices();
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(animations: _animations);
+    }
 
 
     public void PlayEffect(int id, Transform target, MagicCastData castData = null)
@@ -116,7 +130,7 @@ public class EffectManager : MonoBehaviour
         Transform weapon = entity.GetWeaponTransform();
 
         Transform attach = weapon != null ? weapon : entity.transform;
-        IAnimationManager animations = _animations != null ? _animations : IncomingPacketActions.Animations;
+        IAnimationManager animations = _animations != null ? _animations : GamePacketServices.Animations;
         MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo, animations);
         PlayEffect(effectId, attach, castData);
     }
