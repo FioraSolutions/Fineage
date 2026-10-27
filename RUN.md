@@ -35,11 +35,16 @@
 
 Опционально: drag&drop `l2_lobby` в Menu (как в README gawric) для фона лобби.
 
-## Заглушка login-сокета (позже)
+## Login stub → экран персонажа
 
 ```bash
 cd tools/login-stub
-dotnet run
+dotnet run          # 127.0.0.1:2106 (login) + :7777 (game)
+# dotnet run -- --selftest
 ```
 
-Слушает `127.0.0.1:2106`, принимает TCP. Init/Blowfish/auth — следующий шаг под твой C# сервер.
+1. Menu.unity → Play → Login (любой логин/пароль).
+2. `FineageDev.AutoAdvanceLobby=true` сам жмёт Agree + Confirm server.
+3. Stub шлёт `CharSelectionInfo` с персонажем **Test** (Human Fighter) → камера CharSelect + pawn.
+
+Позже заменить stub на свой C# login/game сервер (тот же wire).
