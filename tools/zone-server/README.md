@@ -42,9 +42,13 @@ See `Wire/MsgType.cs` and `Wire/Messages.cs`.
 
 On `EnterWorld`, the server sends `NpcInfo` / `CharInfo` for entities in grid AOI (3×3 cells, 3000 L2 units). `MoveTo` updates AOI and emits `DeleteObject` when entities leave visibility. Static TI NPCs are hardcoded in `ZoneWorld.SeedTalkingIslandNpcs()`.
 
+## v0.5 combat (thin)
+
+`SelectTarget` → `MyTargetSelected` (Interlude color hint). `AttackRequest` applies a flat melee hit when in range to the nearby sword mob (`objectId=20003`, Gremlin template). Server echoes `Attack` + `StatusUpdate` with `CUR_HP` / `MAX_HP` (ids `0x09` / `0x0a`). No skills, inventory, or full formulas.
+
 ## Next
 
 - TLS on the channel
 - Separate login listener
 - Client `Adapters/V2` → `IWorldDomainSink`
-- Tick loop / combat
+- Tick loop / AI

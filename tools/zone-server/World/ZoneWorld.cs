@@ -7,7 +7,7 @@ namespace Fineage.ZoneServer.World;
 /// <summary>
 /// Single-zone presence: AOI + thin CharInfo/NpcInfo/DeleteObject fan-out.
 /// </summary>
-public sealed class ZoneWorld
+public sealed partial class ZoneWorld
 {
     readonly IAoiProvider _aoi;
     readonly Dictionary<int, ZoneEntity> _entities = new();
@@ -26,9 +26,10 @@ public sealed class ZoneWorld
             PlayerSession.SpawnX + 800, PlayerSession.SpawnY + 400, PlayerSession.SpawnZ);
         AddStaticNpc(20_002, 30_006, "Gremlin",
             PlayerSession.SpawnX + 12_000, PlayerSession.SpawnY, PlayerSession.SpawnZ);
+        SeedSwordMobNearSpawn();
     }
 
-    public void AddStaticNpc(int objectId, int templateId, string name, int x, int y, int z)
+    public void AddStaticNpc(int objectId, int templateId, string name, int x, int y, int z, int maxHp = 0)
     {
         lock (_lock)
         {
@@ -40,7 +41,9 @@ public sealed class ZoneWorld
                 X = x,
                 Y = y,
                 Z = z,
-                NpcTemplateId = templateId
+                NpcTemplateId = templateId,
+                MaxHp = maxHp,
+                CurHp = maxHp
             };
             _entities[objectId] = entity;
             _aoi.Enter(objectId, x, y);

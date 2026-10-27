@@ -11,4 +11,9 @@ public sealed class ZoneEntity
     /// <summary>Interlude NPC template id (NPCs only).</summary>
     public int NpcTemplateId { get; init; }
     public int ClassId { get; init; }
+
+    public int MaxHp { get; set; }
+    public int CurHp { get; set; }
+
+    public bool IsAliveNpc => Kind == ZoneEntityKind.Npc && CurHp > 0;
 }
