@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class InventoryWindow : L2PopupWindow
 {
+    [Inject] GameClient _gameClient;
     public static int PLAYER_INVENTORY_SIZE = 81;
 
     private VisualTreeAsset _tabTemplate;
@@ -63,7 +65,17 @@ public class InventoryWindow : L2PopupWindow
             Destroy(this);
         }
 
-      
+        WireInventoryPacketServices();
+    }
+
+    private void Start()
+    {
+        WireInventoryPacketServices();
+    }
+
+    private void WireInventoryPacketServices()
+    {
+        InventoryPacketServices.Bind(game: _gameClient);
     }
 
     private void OnDestroy()
