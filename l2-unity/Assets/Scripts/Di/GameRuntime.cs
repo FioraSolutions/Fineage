@@ -59,20 +59,11 @@ public sealed class GameRuntime
         get { return _events != null ? _events : EventProcessor.Instance; }
     }
 
-    public GameClient Game
-    {
-        get { return _game != null ? _game : IncomingPacketActions.Game; }
-    }
+    public GameClient Game => DiRuntimePacketServices.Game;
 
-    public LoginClient Login
-    {
-        get { return _login != null ? _login : IncomingPacketActions.Login; }
-    }
+    public LoginClient Login => DiRuntimePacketServices.Login;
 
-    public GameManager Manager
-    {
-        get { return _manager != null ? _manager : IncomingPacketActions.Manager; }
-    }
+    public GameManager Manager => DiRuntimePacketServices.Manager;
 
     public World World { get { return Live(ref _world, global::World.Instance); } }
     public PlayerInventory Inventory { get { return Live(ref _inventory, PlayerInventory.Instance); } }
@@ -150,6 +141,7 @@ public sealed class GameRuntime
             _manager = manager;
         if (gameEvents != null)
             _gameEvents = gameEvents;
+        DiRuntimePacketServices.Bind(game: _game, login: _login, manager: _manager);
     }
 
     public void BindApply(WorldPacketApply worldApply, MessagePacketApply messageApply)
