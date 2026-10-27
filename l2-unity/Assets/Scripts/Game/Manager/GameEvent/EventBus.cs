@@ -1,6 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
+/// <summary>
+/// Legacy gear/level-up events on a scene <see cref="MonoBehaviour"/>.
+/// New domain events (spawn, death, movement) use <see cref="IGameEventBus"/> (#143).
+/// </summary>
 public class EventBus : MonoBehaviour
 {
     public static EventBus Instance { get; private set; }
