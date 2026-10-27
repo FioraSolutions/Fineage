@@ -20,11 +20,18 @@ public class CharSelectedDto : IWireDto
         CharSelectInfoPackage selectChar = CharSelectWindow.Instance.GetSelectChar();
         //_info.Identity.Heading = 0;
         _info.Identity.Owned = true;
-        _info.Stats.Speed = 50;
+        _info.Stats.Speed = 120;
+        _info.Stats.BaseRunSpeed = 120;
+        _info.Stats.BaseWalkingSpeed = 80;
+        // Stub/dev may skip UserInfo — still need real speeds to walk/run.
+        _info.Stats.RunRealSpeed = 120f;
+        _info.Stats.WalkRealSpeed = 80f;
+        _info.Stats.BasePAtkSpeed = 300;
         _info.Stats.AttackRange = 5;
         _info.Stats.PCritical = 5;
         _info.Stats.MCritical = 5;
         _info.Stats.Sp = 0;
+        _info.Appearance.Running = true;
         _info.Appearance.HairStyle = selectChar.HairStyle;
         _info.Appearance.HairColor = selectChar.HairColor;
         // Stats end not found Appearance

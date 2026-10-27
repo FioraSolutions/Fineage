@@ -77,6 +77,27 @@ static class ClientSmoke
         byte[]? chars = await Framed.ReadBodyAsync(gs);
         if (chars == null || chars[0] != 0x13) throw new Exception("no CharSelectionInfo");
         Console.WriteLine($"CharSelectionInfo OK len={chars.Length}");
+
+        // CharacterSelect slot 0
+        byte[] sel = PadBlowfish(new PacketBuilder().C(0x0D).D(0).H(0).D(0).D(0).D(0).ToArray());
+        await Framed.SendAsync(gs, sel);
+        byte[]? selected = await Framed.ReadBodyAsync(gs);
+        if (selected == null || selected[0] != 0x15) throw new Exception("no CharSelected");
+        Console.WriteLine($"CharSelected OK len={selected.Length}");
+
+        byte[] enter = PadBlowfish(new PacketBuilder().C(0x03).B(new byte[32]).D(1).D(1).D(1).D(1).B(new byte[32]).D(1).ToArray());
+        await Framed.SendAsync(gs, enter);
+        byte[]? cool = await Framed.ReadBodyAsync(gs);
+        if (cool == null || cool[0] != 0xC1) throw new Exception("no SkillCoolTime");
+        Console.WriteLine("EnterWorld/SkillCoolTime OK");
+
+        // Move echo
+        byte[] move = PadBlowfish(new PacketBuilder()
+            .C(0x01).D(-84300).D(244600).D(-3730).D(-84318).D(244578).D(-3730).D(1).ToArray());
+        await Framed.SendAsync(gs, move);
+        byte[]? moveAck = await Framed.ReadBodyAsync(gs);
+        if (moveAck == null || moveAck[0] != 0x01) throw new Exception("no CharMoveToLocation");
+        Console.WriteLine("CharMoveToLocation OK");
         Console.WriteLine("client smoke PASSED");
     }
 
