@@ -2,8 +2,12 @@ using System;
 using UnityEngine;
 
 /// <summary>
+<<<<<<< HEAD
 /// Combat incoming packet handler access via domain facades and IncomingPacketActions fallback (#142 sub-slice 48).
 /// Apply encapsulation for combat handlers (#142 sub-slice 77).
+=======
+/// Combat incoming packet handler access via domain facades and IncomingPacketActions fallback (#142 sub-slices 48, 78).
+>>>>>>> 9449a566a (feat(arch): combat movement/stub incoming Apply encapsulation (#142 sub-slice 78))
 /// </summary>
 public static class CombatIncomingPacketServices
 {
@@ -22,6 +26,7 @@ public static class CombatIncomingPacketServices
     public static void Queue(Action action) =>
         WorldApplyPacketServices.Queue(action);
 
+<<<<<<< HEAD
     public static void ApplyAttack(AttackDto packet) =>
         ApplyWorld(apply => apply.Attack(packet));
 
@@ -85,4 +90,17 @@ public static class CombatIncomingPacketServices
             packet.ShowWindow,
             packet.AdenaCount,
             packet.Items.Count + packet.EquipItems.Count);
+=======
+    public static void ApplyMoveToPawn(MoveToPawnDto packet) =>
+        MovementIncomingPacketServices.ApplyPawn(packet);
+
+    public static void ApplyStopMove(StopMoveDto packet) =>
+        MovementIncomingPacketServices.ApplyStop(packet);
+
+    public static void ApplySetupGauge(SetupGaugeDto packet) =>
+        StubIncomingPacketServices.ApplySetupGauge(packet);
+
+    public static void ApplyActionFailed(ActionFailedDto packet) =>
+        StubIncomingPacketServices.ApplyActionFailed(packet);
+>>>>>>> 9449a566a (feat(arch): combat movement/stub incoming Apply encapsulation (#142 sub-slice 78))
 }
