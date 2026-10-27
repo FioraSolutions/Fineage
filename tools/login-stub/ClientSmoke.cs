@@ -76,7 +76,27 @@ static class ClientSmoke
 
         byte[]? chars = await Framed.ReadBodyAsync(gs);
         if (chars == null || chars[0] != 0x13) throw new Exception("no CharSelectionInfo");
-        Console.WriteLine($"CharSelectionInfo OK len={chars.Length}");
+        int charCount = chars.Length >= 5 ? BinaryPrimitives.ReadInt32LittleEndian(chars.AsSpan(1)) : 0;
+        Console.WriteLine($"CharSelectionInfo OK len={chars.Length} count={charCount}");
+
+        if (charCount == 0)
+        {
+            byte[] newChar = PadBlowfish(new PacketBuilder().C(0x0E).ToArray());
+            await Framed.SendAsync(gs, newChar);
+            byte[]? templates = await Framed.ReadBodyAsync(gs);
+            if (templates == null || templates[0] != 0x17) throw new Exception("no CharTemplate");
+            Console.WriteLine("CharTemplate OK");
+
+            byte[] create = PadBlowfish(BuildCharacterCreatePacket("Test"));
+            await Framed.SendAsync(gs, create);
+            byte[]? createOk = await Framed.ReadBodyAsync(gs);
+            if (createOk == null || createOk[0] != 0x19) throw new Exception("no CharCreateOk");
+            chars = await Framed.ReadBodyAsync(gs);
+            if (chars == null || chars[0] != 0x13) throw new Exception("no CharSelectionInfo after create");
+            charCount = BinaryPrimitives.ReadInt32LittleEndian(chars.AsSpan(1));
+            if (charCount < 1) throw new Exception("CharSelectionInfo empty after create");
+            Console.WriteLine($"CharacterCreate OK count={charCount}");
+        }
 
         // CharacterSelect slot 0
         byte[] sel = PadBlowfish(new PacketBuilder().C(0x0D).D(0).H(0).D(0).D(0).D(0).ToArray());
@@ -99,6 +119,23 @@ static class ClientSmoke
         if (moveAck == null || moveAck[0] != 0x01) throw new Exception("no CharMoveToLocation");
         Console.WriteLine("CharMoveToLocation OK");
         Console.WriteLine("client smoke PASSED");
+    }
+
+    static byte[] BuildCharacterCreatePacket(string name)
+    {
+        // Mirrors CharacterCreateDto + Human Fighter template stats.
+        byte[] nameUtf16 = System.Text.Encoding.Unicode.GetBytes(name);
+        var p = new PacketBuilder()
+            .C(0x0B)
+            .C((byte)nameUtf16.Length)
+            .B(nameUtf16)
+            .C(0)
+            .D(0)   // race human
+            .D(0)   // male
+            .D(0)   // fighter
+            .D(21).D(40).D(43).D(25).D(30).D(11)
+            .D(0).D(0).D(0);
+        return p.ToArray();
     }
 
     static byte[] PadBlowfish(byte[] data)

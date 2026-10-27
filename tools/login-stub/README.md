@@ -15,3 +15,12 @@ dotnet run -- --clienttest # needs stub already listening in another process
 ## Logs
 
 Console `[STUB]` + `logs/stub.log` (~3MB rotate). Info milestones cover the full login → EnterWorld → Move path; verbose adds opcode/len and short hex. Details: `l2-unity/docs/LOGGING.md`.
+
+## Character create (stub)
+
+Account-local roster lives in `Fineage.ZoneServer.Accounts.AccountCharacterStore` (in-memory, no DB). Game opcodes:
+
+- `NewCharacter` (0x0E) → `CharTemplate` (0x17) with **Human Fighter** only
+- `CharacterCreate` (0x0B) → `CharCreateOk` (0x19) + refreshed `CharSelectionInfo` (0x13)
+
+Fresh accounts start with an empty char list; use the client Create flow or let `--clienttest` create `Test` automatically.
