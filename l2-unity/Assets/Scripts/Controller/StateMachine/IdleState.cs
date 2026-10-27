@@ -9,12 +9,12 @@ public class IdleState : StateBase
     public override void Update()
     {
         // Does the player want to move ?
-        if (IncomingPacketActions.Input.Move || IncomingPacketActions.Player.RunningToDestination && !IncomingPacketActions.Targets.HasAttackTarget())
+        if (ControllerPacketServices.Input.Move || ControllerPacketServices.Player.RunningToDestination && !ControllerPacketServices.Targets.HasAttackTarget())
         {
             //else dead player bug? code running point to dead
             //_stateMachine.ChangeIntention(Intention.INTENTION_MOVE_TO);
         }
-        else if (IncomingPacketActions.Player.RunningToDestination && IncomingPacketActions.Targets.HasAttackTarget())
+        else if (ControllerPacketServices.Player.RunningToDestination && ControllerPacketServices.Targets.HasAttackTarget())
         {
            // _stateMachine.ChangeIntention(Intention.INTENTION_FOLLOW);
         }

@@ -78,10 +78,10 @@ public class SetupDurationHelper
 
     public static bool IsPickupAnimationPlaying(int objectId)
     {
-        if (IncomingPacketActions.Animations == null)
+        if (ControllerPacketServices.Animations == null)
             return false;
 
-        string current = IncomingPacketActions.Animations.GetCurrentAnimationName(objectId);
+        string current = ControllerPacketServices.Animations.GetCurrentAnimationName(objectId);
         return !string.IsNullOrEmpty(current)
             && current.IndexOf("pickup", StringComparison.OrdinalIgnoreCase) >= 0;
     }
@@ -125,7 +125,7 @@ public class SetupDurationHelper
         }
 
         string[] orderedCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
-        float[] durations = IncomingPacketActions.Animations.GetOverrideClipsDurations(objectId, orderedCycle);
+        float[] durations = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedCycle);
         float shotEventTime = ResolveShotEventTime(objectId, orderedCycle);
         entity.SetupLongCastDuration(useSkill.HitTime, durations, shotEventTime, useSkill.TargetId);
     }
@@ -136,7 +136,7 @@ public class SetupDurationHelper
         if (useSkill.HitTime > 0)
         {
             string[] orderedSelfCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
-            float[] durations_self = IncomingPacketActions.Animations.GetOverrideClipsDurations(objectId, orderedSelfCycle);
+            float[] durations_self = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedSelfCycle);
             float shotEventTime_self = ResolveShotEventTime(objectId, orderedSelfCycle);
             entity.SetupTotalCastDuration(useSkill.HitTime, 0f, durations_self, shotEventTime_self, useSkill.TargetId, CastStyleOf(useSkill), MixComboOf(useSkill));
         }
@@ -185,13 +185,13 @@ public class SetupDurationHelper
         // For two-clip execution (CastEnd -> MagicShot), shoot event belongs to the second clip.
         if (orderedCycle.Length == 2)
         {
-            return IncomingPacketActions.Animations.GetOverrideEventTimeByName(
+            return ControllerPacketServices.Animations.GetOverrideEventTimeByName(
                 objectId,
                 new[] { orderedCycle[1] },
                 "OnAnimationShoot");
         }
 
-        return IncomingPacketActions.Animations.GetOverrideEventTimeByName(objectId, orderedCycle, "OnAnimationShoot");
+        return ControllerPacketServices.Animations.GetOverrideEventTimeByName(objectId, orderedCycle, "OnAnimationShoot");
     }
 
     public static float ResolveMagicFlightTimeMs(Entity entity, int skillId, Transform target)

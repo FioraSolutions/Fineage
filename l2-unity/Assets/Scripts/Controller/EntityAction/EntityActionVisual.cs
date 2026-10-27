@@ -44,11 +44,11 @@ public static class EntityActionVisual
 
         if (entity is NpcEntity npc)
             npc.OnStartL2jMoving(walking);
-        else if (entity is MonsterEntity monster && IncomingPacketActions.Animations != null)
+        else if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
         {
             string anim = walking ? AnimationNames.MONSTER_WALK.ToString() : AnimationNames.MONSTER_RUN.ToString();
 
-            IncomingPacketActions.Animations.PlayMonsterAnimation(monster.Identity.Id, anim);
+            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, anim);
             EntitySpawnShared.LogStriderGait("start-move", monster, "asked=" + anim);
         }
     }
@@ -81,10 +81,10 @@ public static class EntityActionVisual
             npc.OnStopL2jMoving();
         else if (entity is MonsterEntity monster)
         {
-            if (IncomingPacketActions.Animations != null && monster.Identity != null)
+            if (ControllerPacketServices.Animations != null && monster.Identity != null)
             {
 
-                IncomingPacketActions.Animations.PlayMonsterAnimation(
+                ControllerPacketServices.Animations.PlayMonsterAnimation(
                     monster.Identity.Id,
                     AnimationNames.MONSTER_WAIT.ToString());
                 EntitySpawnShared.LogStriderGait("stop-move", monster, "asked=wait");
@@ -103,10 +103,10 @@ public static class EntityActionVisual
             return;
         }
 
-        if (entity is MonsterEntity monster && IncomingPacketActions.Animations != null)
+        if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
         {
 
-            IncomingPacketActions.Animations.PlayMonsterAnimation(monster.Identity.Id, AnimationNames.MONSTER_ATK01.ToString());
+            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, AnimationNames.MONSTER_ATK01.ToString());
         }
     }
 
@@ -137,9 +137,9 @@ public static class EntityActionVisual
             return;
         }
 
-        if (IncomingPacketActions.Animations == null)
+        if (ControllerPacketServices.Animations == null)
             return;
-        IncomingPacketActions.Animations.PlayMonsterAnimation(entity.Identity.Id, state);
+        ControllerPacketServices.Animations.PlayMonsterAnimation(entity.Identity.Id, state);
     }
 
     public static void PlayStandWait(Entity entity)
@@ -176,17 +176,17 @@ public static class EntityActionVisual
         if (!CanPlayAnim(entity))
             return;
 
-        if (entity is MonsterEntity monster && IncomingPacketActions.Animations != null && monster.Identity != null)
+        if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null && monster.Identity != null)
         {
       
-            IncomingPacketActions.Animations.PlayMonsterAnimation(monster.Identity.Id, "atkwait");
+            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, "atkwait");
         }
     }
 
     public static void PlaySocial(Entity entity, int actionId)
     {
-        if (actionId == 15 && IncomingPacketActions.Bus != null)
-            IncomingPacketActions.Bus.LevelUp(entity, entity != null && entity.Identity != null ? entity.Identity.Id : 0);
+        if (actionId == 15 && ControllerPacketServices.Bus != null)
+            ControllerPacketServices.Bus.LevelUp(entity, entity != null && entity.Identity != null ? entity.Identity.Id : 0);
 
         if (entity is UserEntity user)
         {
@@ -200,8 +200,8 @@ public static class EntityActionVisual
 
         if (entity is NpcEntity || entity is MonsterEntity)
         {
-            if (IncomingPacketActions.Animations != null && entity.Identity != null)
-                IncomingPacketActions.Animations.PlayMonsterAnimation(entity.Identity.Id, "social01");
+            if (ControllerPacketServices.Animations != null && entity.Identity != null)
+                ControllerPacketServices.Animations.PlayMonsterAnimation(entity.Identity.Id, "social01");
         }
     }
 
@@ -258,8 +258,8 @@ public static class EntityActionVisual
             return;
         }
 
-        if (entity is MonsterEntity monster && IncomingPacketActions.Animations != null)
-            IncomingPacketActions.Animations.PlayMonsterAnimation(monster.Identity.Id, AnimationNames.DEAD.ToString());
+        if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
+            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, AnimationNames.DEAD.ToString());
     }
 
     static void PlayUserLocomotion(UserEntity user, string move, float? fadeDuration = null, bool force = false)
@@ -343,9 +343,9 @@ public static class EntityActionVisual
         if (nacSpeed != null)
             nacSpeed.SetAnimatorSpeed(1f);
 
-        if (IncomingPacketActions.Animations != null)
+        if (ControllerPacketServices.Animations != null)
         {
-            IncomingPacketActions.Animations.PlayAnimationTrigger(user.Identity.Id, prefix);
+            ControllerPacketServices.Animations.PlayAnimationTrigger(user.Identity.Id, prefix);
             // Debug.Log(user.LogTag + " Visual.MeleeAttack state=" + state + " cycleMs=" + cycleMs);
             return;
         }
@@ -382,8 +382,8 @@ public static class EntityActionVisual
         }
 
         int objectId = user.Identity.Id;
-        if (IncomingPacketActions.Animations != null && magic != null && magic.HitTime > 0)
-            IncomingPacketActions.Animations.SetSpTimeAtk(objectId, magic.HitTime);
+        if (ControllerPacketServices.Animations != null && magic != null && magic.HitTime > 0)
+            ControllerPacketServices.Animations.SetSpTimeAtk(objectId, magic.HitTime);
 
         string state = trigger + user.WeaponAnim;
 
@@ -392,9 +392,9 @@ public static class EntityActionVisual
             : AttackTimingHelper.ResolveAttackCycleMs(user, state);
         user.BeginAttackVisual(cycleMs / 1000f);
 
-        if (IncomingPacketActions.Animations != null)
+        if (ControllerPacketServices.Animations != null)
         {
-            IncomingPacketActions.Animations.PlayAnimationTrigger(objectId, trigger);
+            ControllerPacketServices.Animations.PlayAnimationTrigger(objectId, trigger);
             // Debug.Log(user.LogTag + " Visual.PhysicalSkill trigger=" + trigger +
                 // " state=" + state + " cycleMs=" + cycleMs);
             return;
@@ -437,11 +437,11 @@ public static class EntityActionVisual
 
     static void PlayUserDeath(UserEntity user, bool alreadyCorpse)
     {
-        if (user == null || user.Identity == null || IncomingPacketActions.Animations == null)
+        if (user == null || user.Identity == null || ControllerPacketServices.Animations == null)
             return;
 
         user.ClearAttackVisual();
-        IncomingPacketActions.Animations.PlayExactAnimatorState(
+        ControllerPacketServices.Animations.PlayExactAnimatorState(
             user.Identity.Id, PlayerDeathAnim.Death, alreadyCorpse);
         // Debug.Log(user.LogTag + " Visual.Death alreadyCorpse=" + alreadyCorpse);
     }
@@ -449,12 +449,12 @@ public static class EntityActionVisual
     public static void PlayRevive(Entity entity)
     {
         UserEntity user = entity as UserEntity;
-        if (user == null || user.Identity == null || IncomingPacketActions.Animations == null)
+        if (user == null || user.Identity == null || ControllerPacketServices.Animations == null)
             return;
 
         user.SetDead(false);
         user.ClearAttackVisual();
-        float duration = IncomingPacketActions.Animations.PlayExactAnimatorState(
+        float duration = ControllerPacketServices.Animations.PlayExactAnimatorState(
             user.Identity.Id, PlayerDeathAnim.Rebirth);
         user.BeginAttackVisual(duration);
         // Debug.Log(user.LogTag + " Visual.Revive duration=" + duration);

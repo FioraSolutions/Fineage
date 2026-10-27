@@ -23,7 +23,7 @@ public class NewAttackIntention : IntentionBase
             AttackDto myModel = (AttackDto)arg0;
             int targetId = myModel.TargetId;
 
-            Entity targetEntity = IncomingPacketActions.GameWorld.GetEntityNoLockSync(targetId);
+            Entity targetEntity = ControllerPacketServices.GameWorld.GetEntityNoLockSync(targetId);
 
             if (targetEntity != null)
             {
@@ -41,13 +41,13 @@ public class NewAttackIntention : IntentionBase
                     int localId = PlayerEntity.Instance.Identity.Id;
                     CombatFacingService.Ensure().BeginFollow(
                         localId,
-                        IncomingPacketActions.Player.transform,
+                        ControllerPacketServices.Player.transform,
                         targetEntity.transform);
                 }
                 else
                 {
                     CombatFacingService.Instance?.EndFollowLocal("melee-snapshot");
-                    IncomingPacketActions.Player.RotateToAttacker(targetEntity.transform.position);
+                    ControllerPacketServices.Player.RotateToAttacker(targetEntity.transform.position);
                 }
             }
 
@@ -64,8 +64,8 @@ public class NewAttackIntention : IntentionBase
                 HitManager.Instance.RememberLocalAttack(myModel);
 
             PlayerEntity.Instance.IsAttack = true;
-            if (IncomingPacketActions.Targets != null)
-                IncomingPacketActions.Targets.SetAttackTarget();
+            if (ControllerPacketServices.Targets != null)
+                ControllerPacketServices.Targets.SetAttackTarget();
             PlayerEntity.Instance.SetSelfHit(playerHit);
             // AttackDto packet SS flag — recharge every swing (otherwise only first Hit shows SoulShot).
             PlayerEntity.Instance.IsSoulshotCharged = playerHit.hasSoulshot();
@@ -89,9 +89,9 @@ public class NewAttackIntention : IntentionBase
 
     static void SelectPacketTarget(Entity targetEntity)
     {
-        if (IncomingPacketActions.Targets != null)
+        if (ControllerPacketServices.Targets != null)
         {
-            IncomingPacketActions.Targets.SetTarget(new ObjectData(targetEntity.gameObject), "#ffffff");
+            ControllerPacketServices.Targets.SetTarget(new ObjectData(targetEntity.gameObject), "#ffffff");
             return;
         }
 

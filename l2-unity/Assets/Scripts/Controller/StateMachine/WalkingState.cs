@@ -9,7 +9,7 @@ public class WalkingState : StateBase
         switch (evt)
         {
             case Event.ARRIVED:
-                if (IncomingPacketActions.Targets.HasAttackTarget())
+                if (ControllerPacketServices.Targets.HasAttackTarget())
                 {
                  //   _stateMachine.ChangeIntention(Intention.INTENTION_ATTACK, AttackIntentionType.TargetReached);
                 }
@@ -25,16 +25,16 @@ public class WalkingState : StateBase
     public override void Update()
     {
         //Arrived to destination
-        if (!IncomingPacketActions.Input.Move && !IncomingPacketActions.Player.RunningToDestination)
+        if (!ControllerPacketServices.Input.Move && !ControllerPacketServices.Player.RunningToDestination)
         {
             _stateMachine.NotifyEvent(Event.ARRIVED);
         }
 
         // If move input is pressed while running to target
-        if (IncomingPacketActions.Targets.HasAttackTarget() && IncomingPacketActions.Input.Move)
+        if (ControllerPacketServices.Targets.HasAttackTarget() && ControllerPacketServices.Input.Move)
         {
             // Cancel follow target
-            IncomingPacketActions.Targets.ClearAttackTarget();
+            ControllerPacketServices.Targets.ClearAttackTarget();
         }
     }
 }

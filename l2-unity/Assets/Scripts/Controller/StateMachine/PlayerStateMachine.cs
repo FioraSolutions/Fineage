@@ -137,8 +137,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (_currentIntention == Intention.INTENTION_MOVE_TO ||
             _currentIntention == Intention.INTENTION_MOVE_TO_PAWN)
             return true;
-        return IncomingPacketActions.Player != null &&
-               IncomingPacketActions.Player.RunningToDestination;
+        return ControllerPacketServices.Player != null &&
+               ControllerPacketServices.Player.RunningToDestination;
     }
 
 

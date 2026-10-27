@@ -11,7 +11,7 @@ public abstract class AbstractAttackEvents : StateBase
     public AbstractAttackEvents(int objectId , Animation[] specialsBows, PlayerStateMachine stateMachine = null ) : base(stateMachine)
     {
         _specialsBows = specialsBows;
-        _events = IncomingPacketActions.Animations.GetAnimationEvents(objectId);
+        _events = ControllerPacketServices.Animations.GetAnimationEvents(objectId);
     }
 
     public override void Enter()
@@ -97,7 +97,7 @@ public abstract class AbstractAttackEvents : StateBase
         if (_stateMachine != null && _stateMachine.Player != null)
         {
             int objectId = _stateMachine.Player.Identity.Id;
-            IncomingPacketActions.Animations.ResetPlayerAnimatorSpeed(objectId);
+            ControllerPacketServices.Animations.ResetPlayerAnimatorSpeed(objectId);
         }
 
         // Pose return is owned by combat SMB (SpAtk / Magic / jatk SwitchToIdle).

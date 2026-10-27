@@ -4,14 +4,14 @@
 
     public override void Enter()
     {
-        if(IncomingPacketActions.Player.RunningToDestination) IncomingPacketActions.Player.StopMove();
+        if(ControllerPacketServices.Player.RunningToDestination) ControllerPacketServices.Player.StopMove();
     }
     public override void HandleEvent(Event evt, object payload = null)
     {
         switch (evt)
         {
             case Event.DEAD:
-                IncomingPacketActions.Animations.PlayOriginalAnimation(_stateMachine.GetObjectId() , AnimationNames.DEAD.ToString());
+                ControllerPacketServices.Animations.PlayOriginalAnimation(_stateMachine.GetObjectId() , AnimationNames.DEAD.ToString());
                 break;
  
         }

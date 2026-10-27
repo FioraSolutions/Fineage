@@ -19,7 +19,7 @@ public class MagicAttackIntention : IntentionBase
 
             if (anim != null)
             {
-                Rotate(IncomingPacketActions.Player, useSkill);
+                Rotate(ControllerPacketServices.Player, useSkill);
                 Task.Run(() => WaitAndStart(useSkill, anim, distance));
             }
         }
@@ -29,7 +29,7 @@ public class MagicAttackIntention : IntentionBase
     {
         var timeout = Task.Delay(500);
 
-        while (IncomingPacketActions.Player.IsTurnsAround())
+        while (ControllerPacketServices.Player.IsTurnsAround())
         {
            // if (await Task.WhenAny(timeout) == timeout) break;
            // Debug.LogWarning("Player turns around");
@@ -40,20 +40,20 @@ public class MagicAttackIntention : IntentionBase
 
     private async void StartUseSkill(MagicSkillUseDto useSkill , AnimationCombo anim , float distance)
     {
-        Entity monster =await  IncomingPacketActions.GameWorld.GetEntityNoLock(useSkill.TargetId);
-        IncomingPacketActions.Queue(() =>
+        Entity monster =await  ControllerPacketServices.GameWorld.GetEntityNoLock(useSkill.TargetId);
+        ControllerPacketServices.Queue(() =>
         {
-            IncomingPacketActions.SkillCombos.ExecutePlayerCombo(useSkill.TargetId, anim, useSkill.HitTime, distance, IncomingPacketActions.EffectSkills, useSkill.SkillId);
-            var footerPosition = IncomingPacketActions.Player.GetPlayerPosition();
+            ControllerPacketServices.SkillCombos.ExecutePlayerCombo(useSkill.TargetId, anim, useSkill.HitTime, distance, ControllerPacketServices.EffectSkills, useSkill.SkillId);
+            var footerPosition = ControllerPacketServices.Player.GetPlayerPosition();
             // var bodyPosition = PlayerController.Instance.GetBodyPosition();
-            var bodyPosition = IncomingPacketActions.Player.GetCollisionSelf(monster.transform);
-            IncomingPacketActions.EffectSkills.ShowEffect(useSkill.SkillId, footerPosition, bodyPosition, useSkill.HitTime , monster);
+            var bodyPosition = ControllerPacketServices.Player.GetCollisionSelf(monster.transform);
+            ControllerPacketServices.EffectSkills.ShowEffect(useSkill.SkillId, footerPosition, bodyPosition, useSkill.HitTime , monster);
         });
     }
 
     private async void Rotate(PlayerController controller , MagicSkillUseDto useSkill)
     {
-        Entity entity = await IncomingPacketActions.GameWorld.GetEntityNoLock(useSkill.TargetId);
+        Entity entity = await ControllerPacketServices.GameWorld.GetEntityNoLock(useSkill.TargetId);
         controller.StartRotateFollow(entity);
     }
 
