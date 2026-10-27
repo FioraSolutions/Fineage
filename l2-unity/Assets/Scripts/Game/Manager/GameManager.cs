@@ -45,12 +45,14 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     #endregion
 
+    #region Table init
+
     private SceneLoader Scenes
     {
         get { return _sceneLoader != null ? _sceneLoader : SceneLoader.Instance; }
     }
 
-    public bool IsSwitchingServer = false;
+    public bool IsSwitchingServer { get; set; } = false;
     public bool WorldSpawnReady { get; private set; }
 
     public GameState GameState {
