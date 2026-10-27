@@ -11,10 +11,7 @@ public class ClanWindow : L2TwoPanels
 
     [Inject] GameClient _gameClient;
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => ClanPacketServices.Game;
    
     private static ClanWindow _instance;
     private MasterClan _masterClan;
@@ -53,11 +50,22 @@ public class ClanWindow : L2TwoPanels
 
             _dataProviderClanInfo = new DataProviderClanInfo();
             _detailedClan = new ClanDetailedInfo(_dataProviderClanInfo);
+            WireClanPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireClanPacketServices();
+    }
+
+    private void WireClanPacketServices()
+    {
+        ClanPacketServices.Bind(game: _gameClient);
     }
 
     protected override void LoadAssets()

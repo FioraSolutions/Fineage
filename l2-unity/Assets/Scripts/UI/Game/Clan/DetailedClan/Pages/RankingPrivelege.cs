@@ -4,17 +4,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VContainer;
 
 public class RankingPrivelege : AbstractClanContent
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private GameClient Game => ClanPacketServices.Game;
     private ICreatorTables _creatorTableWindows;
     private Func<string, VisualTreeAsset> _loaderFunc;
     private const string master_table_content = "Content";
