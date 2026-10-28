@@ -37,6 +37,14 @@ public class ValidateLocationDto : IWireDto
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(objectId, location, heading);
+        // HashCode is not in this project's .NET Standard profile.
+        unchecked
+        {
+            int hash = 17;
+            hash = (hash * 31) + objectId;
+            hash = (hash * 31) + location.GetHashCode();
+            hash = (hash * 31) + heading;
+            return hash;
+        }
     }
 }
