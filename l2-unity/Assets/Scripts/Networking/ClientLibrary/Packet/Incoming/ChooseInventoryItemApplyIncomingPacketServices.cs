@@ -8,7 +8,7 @@ public static class ChooseInventoryItemApplyIncomingPacketServices
 {
     public static EnchantWindow Enchant => EnchantApplyIncomingPacketServices.Enchant;
 
-    public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyChooseInventoryItem(ChooseInventoryItemDto packet) =>
         Queue(() => Enchant.ShowWindow(packet.Item));
