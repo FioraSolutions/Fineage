@@ -5,11 +5,11 @@ using System;
 /// </summary>
 public static class PlayerApplyIncomingPacketServices
 {
-    public static GameClient Game => PresenceApplyIncomingPacketServices.Game;
+    public static GameClient Game => WorldSessionApplyIncomingPacketServices.Game;
 
-    public static World GameWorld => PresenceApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldSessionApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => PresenceApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldSessionApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => PresenceApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldSessionApplyIncomingPacketServices.Queue(action);
 }
