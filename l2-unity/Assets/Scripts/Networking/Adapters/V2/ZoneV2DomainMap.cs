@@ -89,6 +89,8 @@ public static class ZoneV2DomainMap
         dto.Stats.WalkRealSpeed = 80f;
         dto.Status.SetHp(100);
         dto.Status.SetMp(100);
+        if (info.HasPaperdoll)
+            ApplyItemIds(dto.Appearance, info.PaperdollItemIds);
         return dto;
     }
 
@@ -283,6 +285,144 @@ public static class ZoneV2DomainMap
                 return ItemSlot.rfinger;
             default:
                 return ItemSlot.none;
+        }
+    }
+
+    /// <summary>
+    /// Copies UserInfo class, speeds, and paperdoll onto a spawn record.
+    /// Position stays on the spawn packet.
+    /// </summary>
+    public static void OverlayUserInfo(PlayerInfoInterlude info, ZoneV2UserInfo user)
+    {
+        if (info.Identity == null || info.Appearance == null || info.Stats == null)
+            return;
+
+        info.Identity.PlayerClass = user.ClassId;
+        info.Appearance.Race = (int)MapClassId.GetCharacterRace(user.ClassId);
+        bool mage = CharacterClassParser.IsMage((CharacterClass)user.ClassId);
+        info.Appearance.BaseClass = mage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
+        if (!string.IsNullOrEmpty(user.Name))
+            info.Identity.Name = user.Name;
+        if (user.RunSpeed > 0.001f)
+        {
+            int run = Mathf.RoundToInt(user.RunSpeed);
+            info.Stats.BaseRunSpeed = run;
+            info.Stats.RunRealSpeed = user.RunSpeed;
+            info.Stats.Speed = run;
+        }
+
+        if (user.WalkSpeed > 0.001f)
+        {
+            info.Stats.BaseWalkingSpeed = Mathf.RoundToInt(user.WalkSpeed);
+            info.Stats.WalkRealSpeed = user.WalkSpeed;
+        }
+
+        info.Appearance.Running = user.Running;
+        if (user.HasPaperdoll)
+            ApplyUserPaperdoll(info.Appearance, user.Paperdoll);
+    }
+
+    public static void ApplyUserPaperdoll(PlayerAppearance appearance, ZoneV2PaperdollSlot[] slots)
+    {
+        if (appearance == null || slots == null)
+            return;
+        ApplyObjectIds(appearance.PaperDoll, slots);
+        ApplyItemIds(appearance, ZoneV2Paperdoll.ItemIds(slots));
+    }
+
+    public static void ApplyItemIds(PlayerAppearance appearance, int[] itemIds)
+    {
+        if (appearance == null || itemIds == null)
+            return;
+
+        PaperDollSelection doll = appearance.PaperDoll;
+        doll.Item_Under = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Under);
+        doll.Item_Lear = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftEar);
+        doll.Item_Rear = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightEar);
+        doll.Item_Neck = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Neck);
+        doll.Item_LFinger = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftFinger);
+        doll.Item_RFinger = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightFinger);
+        doll.Item_Head = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Head);
+        doll.Item_RHand = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightHand);
+        doll.Item_LHand = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftHand);
+        doll.Item_Gloves = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Gloves);
+        doll.Item_Chest = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Chest);
+        doll.Item_Legs = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Legs);
+        doll.Item_Feet = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Feet);
+        doll.Item_Cloak = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Cloak);
+        doll.Item_Face = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Face);
+        doll.Item_Hair = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Hair);
+        doll.Item_Hair2 = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Hair2);
+        appearance.RHand = doll.Item_RHand;
+        appearance.LHand = doll.Item_LHand;
+        appearance.Gloves = doll.Item_Gloves;
+        appearance.Chest = doll.Item_Chest;
+        appearance.Legs = doll.Item_Legs;
+        appearance.Feet = doll.Item_Feet;
+        appearance.PaperdollReady = true;
+    }
+
+    static void ApplyObjectIds(PaperDollSelection doll, ZoneV2PaperdollSlot[] slots)
+    {
+        if (doll == null || slots == null)
+            return;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            int objectId = slots[i].ObjectId;
+            switch (i)
+            {
+                case ZoneV2Paperdoll.Under:
+                    doll.Obj_Under = objectId;
+                    break;
+                case ZoneV2Paperdoll.LeftEar:
+                    doll.Obj_Lear = objectId;
+                    break;
+                case ZoneV2Paperdoll.RightEar:
+                    doll.Obj_Pear = objectId;
+                    break;
+                case ZoneV2Paperdoll.Neck:
+                    doll.Obj_Neck = objectId;
+                    break;
+                case ZoneV2Paperdoll.LeftFinger:
+                    doll.Obj_LFinger = objectId;
+                    break;
+                case ZoneV2Paperdoll.RightFinger:
+                    doll.Obj_RFinger = objectId;
+                    break;
+                case ZoneV2Paperdoll.Head:
+                    doll.Obj_Head = objectId;
+                    break;
+                case ZoneV2Paperdoll.RightHand:
+                    doll.Obj_RHand = objectId;
+                    break;
+                case ZoneV2Paperdoll.LeftHand:
+                    doll.Obj_LHand = objectId;
+                    break;
+                case ZoneV2Paperdoll.Gloves:
+                    doll.Obj_Gloves = objectId;
+                    break;
+                case ZoneV2Paperdoll.Chest:
+                    doll.Obj_Chest = objectId;
+                    break;
+                case ZoneV2Paperdoll.Legs:
+                    doll.Obj_Legs = objectId;
+                    break;
+                case ZoneV2Paperdoll.Feet:
+                    doll.Obj_Feet = objectId;
+                    break;
+                case ZoneV2Paperdoll.Cloak:
+                    doll.Obj_Cloak = objectId;
+                    break;
+                case ZoneV2Paperdoll.Face:
+                    doll.Obj_Face = objectId;
+                    break;
+                case ZoneV2Paperdoll.Hair:
+                    doll.Obj_Hair = objectId;
+                    break;
+                case ZoneV2Paperdoll.Hair2:
+                    doll.Obj_Hair2 = objectId;
+                    break;
+            }
         }
     }
 }

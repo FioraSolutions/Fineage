@@ -89,6 +89,8 @@ public sealed class ZoneV2Client : MonoBehaviour
                 Debug.LogError("[ZoneV2] main-thread: " + ex);
             }
         }
+
+        ZoneV2GearSession.FlushPending();
     }
 
     public void BeginSession(string account, string password)
@@ -182,6 +184,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
         _stream = null;
         _tcp = null;
+        ZoneV2GearSession.Reset();
     }
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)
@@ -291,12 +294,11 @@ public sealed class ZoneV2Client : MonoBehaviour
                         }
 
                         SessionObjectId = spawned.ObjectId;
-                        PlayerInfoInterlude info = ZoneV2DomainMap.ToPlayerInfo(spawned);
                         int objectId = spawned.ObjectId;
                         int spawnX = spawned.X;
                         int spawnY = spawned.Y;
                         int spawnZ = spawned.Z;
-                        string spawnName = info.Identity != null ? info.Identity.Name : "";
+                        string spawnName = spawned.Name;
                         Post(() =>
                         {
                             Debug.Log("[ZoneV2] PlayerSpawned name=" + spawnName
@@ -304,7 +306,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                                 + " x=" + spawnX
                                 + " y=" + spawnY
                                 + " z=" + spawnZ);
-                            OnPlayerSpawnedMain(info);
+                            OnPlayerSpawnedMain(ZoneV2GearSession.PrepareSpawn(spawned));
                         });
                         break;
 
@@ -408,11 +410,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
-                        Post(() =>
-                        {
-                            ItemListDto listDto = ZoneV2DomainMap.ToItemListDto(itemRows);
-                            ItemListApplyIncomingPacketServices.ApplyItemList(listDto);
-                        });
+                        Post(() => ZoneV2GearSession.NoteItemList(itemRows));
                         break;
 
                     case ZoneV2MsgType.InventoryUpdate:
@@ -423,11 +421,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
-                        Post(() =>
+                        Post(() => ZoneV2GearSession.NoteInventoryUpdate(invChanges));
+                        break;
+
+                    case ZoneV2MsgType.UserInfo:
+                        ZoneV2UserInfo userInfo;
+                        if (!ZoneV2Messages.TryDecodeUserInfo(f.Body, out userInfo))
                         {
-                            InventoryUpdateDto updateDto = ZoneV2DomainMap.ToInventoryUpdateDto(invChanges);
-                            InventoryUpdateApplyIncomingPacketServices.ApplyInventoryUpdate(updateDto);
-                        });
+                            Post(() => Debug.LogWarning("[ZoneV2] bad UserInfo body"));
+                            break;
+                        }
+
+                        Post(() => ZoneV2GearSession.NoteUserInfo(userInfo));
                         break;
 
                     case ZoneV2MsgType.AbnormalStatusUpdate:
