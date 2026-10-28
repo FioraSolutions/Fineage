@@ -410,6 +410,20 @@ public static class ZoneV2MsgPack
         return values;
     }
 
+    /// <summary>MessagePack string array. Nil is an empty list. A nil element is an empty string.</summary>
+    public static string[] ReadStringArray(byte[] buf, ref int i)
+    {
+        if (TryConsumeNil(buf, ref i))
+            return Array.Empty<string>();
+        int n = ReadArrayHeader(buf, ref i);
+        if (n <= 0)
+            return Array.Empty<string>();
+        var values = new string[n];
+        for (int j = 0; j < n; j++)
+            values[j] = ReadString(buf, ref i) ?? "";
+        return values;
+    }
+
     public static void WriteIntArray(BinaryWriter w, int[] values)
     {
         if (values == null)
