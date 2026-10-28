@@ -1,0 +1,73 @@
+using Xunit;
+
+namespace Fineage.Client.ZoneV2.Tests;
+
+public class FineageWireConfigTests
+{
+    public FineageWireConfigTests()
+    {
+        FineageWireConfig.ClearOverride();
+        FineageWireConfig.UseLoginHandoff = false;
+    }
+
+    [Fact]
+    public void Playtest_backend_uses_public_hosts_and_login_handoff()
+    {
+        FineageWireConfig.EnablePlaytestBackend(null, 0, " ", -1);
+
+        Assert.True(FineageWireConfig.IsZoneV2);
+        Assert.True(FineageWireConfig.UseLoginHandoff);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginHost, FineageWireConfig.LoginHost);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginPort, FineageWireConfig.LoginPort);
+        Assert.Equal(PlaytestEndpoint.DefaultGameHost, FineageWireConfig.ZoneHost);
+        Assert.Equal(PlaytestEndpoint.DefaultGamePort, FineageWireConfig.ZonePort);
+        Assert.Equal("login.fineage.evpoint.by", FineageWireConfig.LoginHost);
+        Assert.Equal(2106, FineageWireConfig.LoginPort);
+        Assert.Equal("game.fineage.evpoint.by", FineageWireConfig.ZoneHost);
+        Assert.Equal(7777, FineageWireConfig.ZonePort);
+    }
+
+    [Fact]
+    public void Playtest_backend_keeps_explicit_hosts()
+    {
+        FineageWireConfig.EnablePlaytestBackend(" login.example ", 2106, " game.example ", 7777);
+
+        Assert.Equal("login.example", FineageWireConfig.LoginHost);
+        Assert.Equal(2106, FineageWireConfig.LoginPort);
+        Assert.Equal("game.example", FineageWireConfig.ZoneHost);
+        Assert.Equal(7777, FineageWireConfig.ZonePort);
+        Assert.True(FineageWireConfig.IsZoneV2);
+        Assert.True(FineageWireConfig.UseLoginHandoff);
+    }
+
+    [Fact]
+    public void Local_backend_uses_loopback_ports()
+    {
+        FineageWireConfig.EnableLocalBackend(null, 0, null, 0);
+
+        Assert.Equal(FineageWireConfig.LocalLoginHost, FineageWireConfig.LoginHost);
+        Assert.Equal(FineageWireConfig.LocalLoginPort, FineageWireConfig.LoginPort);
+        Assert.Equal(FineageWireConfig.LocalZoneHost, FineageWireConfig.ZoneHost);
+        Assert.Equal(FineageWireConfig.LocalZonePort, FineageWireConfig.ZonePort);
+        Assert.Equal("127.0.0.1", FineageWireConfig.LoginHost);
+        Assert.Equal(9106, FineageWireConfig.LoginPort);
+        Assert.Equal(9777, FineageWireConfig.ZonePort);
+        Assert.True(FineageWireConfig.IsZoneV2);
+        Assert.True(FineageWireConfig.UseLoginHandoff);
+    }
+
+    [Fact]
+    public void Playtest_backend_replaces_loopback_hosts()
+    {
+        FineageWireConfig.EnableLocalBackend(null, 0, null, 0);
+        FineageWireConfig.UseLoginHandoff = false;
+        FineageWireConfig.EnablePlaytestBackend(null, 0, null, 0);
+
+        Assert.Equal(PlaytestEndpoint.DefaultLoginHost, FineageWireConfig.LoginHost);
+        Assert.Equal(PlaytestEndpoint.DefaultLoginPort, FineageWireConfig.LoginPort);
+        Assert.Equal(PlaytestEndpoint.DefaultGameHost, FineageWireConfig.ZoneHost);
+        Assert.Equal(PlaytestEndpoint.DefaultGamePort, FineageWireConfig.ZonePort);
+        Assert.True(FineageWireConfig.UseLoginHandoff);
+        Assert.True(FineageWireConfig.IsZoneV2);
+    }
+}

@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Feature flag for Interlude stub vs Fineage ZoneServer v2.
-/// Public playtest hosts come from <see cref="PlaytestEndpoint"/> defaults.
+/// Public playtest calls <see cref="EnablePlaytestBackend"/> (ZoneV2 + login handoff).
 /// <see cref="FineageLocalBackend"/> opt-in calls <see cref="EnableLocalBackend"/> for 127.0.0.1.
 /// </summary>
 public static class FineageWireConfig
@@ -36,17 +36,59 @@ public static class FineageWireConfig
     /// </summary>
     public static bool UseLoginHandoff;
 
+    /// <summary>
+    /// Public Fineage login + zone. ZoneV2 and login handoff, with playtest hosts.
+    /// Empty values fall back to <see cref="PlaytestEndpoint"/> defaults, not loopback.
+    /// </summary>
+    public static void EnablePlaytestBackend(
+        string loginHost,
+        int loginPort,
+        string zoneHost,
+        int zonePort)
+    {
+        ApplyZoneV2Handoff(
+            loginHost,
+            loginPort,
+            zoneHost,
+            zonePort,
+            PlaytestEndpoint.DefaultLoginHost,
+            PlaytestEndpoint.DefaultLoginPort,
+            PlaytestEndpoint.DefaultGameHost,
+            PlaytestEndpoint.DefaultGamePort);
+    }
+
     public static void EnableLocalBackend(
         string loginHost,
         int loginPort,
         string zoneHost,
         int zonePort)
     {
+        ApplyZoneV2Handoff(
+            loginHost,
+            loginPort,
+            zoneHost,
+            zonePort,
+            LocalLoginHost,
+            LocalLoginPort,
+            LocalZoneHost,
+            LocalZonePort);
+    }
+
+    static void ApplyZoneV2Handoff(
+        string loginHost,
+        int loginPort,
+        string zoneHost,
+        int zonePort,
+        string fallbackLoginHost,
+        int fallbackLoginPort,
+        string fallbackZoneHost,
+        int fallbackZonePort)
+    {
         SetOverride(Mode.ZoneV2);
-        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? LocalLoginHost : loginHost;
-        LoginPort = loginPort > 0 ? loginPort : LocalLoginPort;
-        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? LocalZoneHost : zoneHost;
-        ZonePort = zonePort > 0 ? zonePort : LocalZonePort;
+        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? fallbackLoginHost : loginHost.Trim();
+        LoginPort = loginPort > 0 ? loginPort : fallbackLoginPort;
+        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? fallbackZoneHost : zoneHost.Trim();
+        ZonePort = zonePort > 0 ? zonePort : fallbackZonePort;
         UseLoginHandoff = true;
     }
 
