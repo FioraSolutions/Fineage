@@ -9,14 +9,13 @@ using System;
 /// Pledge show-member-list-delete-all on <see cref="PledgeShowMemberListDeleteAllIncomingPacketServices"/> (sub-slice 126).
 /// Pledge show-member-list-delete on <see cref="PledgeShowMemberListDeleteIncomingPacketServices"/> (sub-slice 127).
 /// Pledge show-member-list-update on <see cref="PledgeShowMemberListUpdateIncomingPacketServices"/> (sub-slice 128).
+/// Manage pledge power on <see cref="ManagePledgePowerIncomingPacketServices"/> (sub-slice 129).
 /// </summary>
 public static class PledgeIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
 
 
-    public static void ApplyManagePledgePower(ManagePledgePowerDto packet) =>
-        Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
 
     public static void ApplyExPledgePowerGradeList(PledgePowerGradeListDto packet) =>
         Queue(() => GameIncomingPacketServices.Clan.ShowGradeInfo(packet));
