@@ -11,19 +11,6 @@ public static class LoginServerIncomingPacketServices
 
     public static LoginWindow LoginWindow => LoginPacketServices.LoginWindow;
 
-    public static void OnLoginOkParsed(LoginOkDto packet)
-    {
-        Login.SessionKey1 = packet.SessionKey1;
-        Login.SessionKey2 = packet.SessionKey2;
-        Game.SessionKey1 = packet.SessionKey1;
-        Game.SessionKey2 = packet.SessionKey2;
-    }
-
-    public static void ApplyLoginOk(LoginOkDto packet)
-    {
-        Login.OnAuthAllowed();
-    }
-
     public static void OnPlayOkParsed(PlayOkDto packet)
     {
         Game.PlayKey1 = packet.PlayOk1;
