@@ -1,15 +1,15 @@
 /// <summary>
-/// Apply facade (#142 batch slice 152). Re-homes from <see cref="AbnormalStatusUpdateIncomingPacketServices"/>.
-/// 
+/// Apply facade (#142 batch slice 152; locator queue slice 258). Re-homes from <see cref="AbnormalStatusUpdateIncomingPacketServices"/>.
+///
 /// Abnormal status update wire packet handler entry (#142 batch slice 141).
 /// </summary>
 public static class AbnormalStatusUpdateApplyIncomingPacketServices
 {
-    public static BufferPanel Buffer => UiApplyIncomingPacketServices.Buffer;
+    public static BufferPanel Buffer => LocatorApplyIncomingPacketServices.Buffer;
 
     public static void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateDto packet)
     {
-        UiApplyIncomingPacketServices.Queue(() =>
+        QueueApplyIncomingPacketServices.Queue(() =>
         {
             if (Buffer == null)
                 return;

@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-/// <summary>Apply Zone V2 <see cref="ZoneV2MsgType.PartyMemberList"/> (1029) for minimal roster feedback.</summary>
+/// <summary>Apply Zone V2 <see cref="ZoneV2MsgType.PartyMemberList"/> (1029) for minimal roster feedback (#142 locator queue slice 258).</summary>
 public static class PartyMemberListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => QueueApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyPartyMemberList(ZoneV2PartyMemberList list) =>
         Queue(() =>
