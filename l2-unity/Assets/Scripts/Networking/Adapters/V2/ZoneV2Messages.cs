@@ -60,6 +60,18 @@ public static class ZoneV2Messages
         }, 2);
     }
 
+    /// <summary>MessagePack array [itemId, count] — Fineage-Backend <c>GrantItemRequestMsg</c>.</summary>
+    public static byte[] EncodeGrantItemRequest(int itemId, int count)
+    {
+        if (count < 1)
+            count = 1;
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, itemId);
+            ZoneV2MsgPack.WriteInt(w, count);
+        }, 2);
+    }
+
     public static bool TryDecodeHelloAck(byte[] body, out int protocolVersion, out string serverName)
     {
         protocolVersion = 0;
