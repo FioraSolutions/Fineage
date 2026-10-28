@@ -1,10 +1,10 @@
 using System;
 
 /// <summary>
-/// Package sendable (parcel shipping) list wire packet handler entry (#142 sub-slice 117).
+/// Package sendable (parcel shipping) list wire packet handler entry (#142 batch slice 148).
 /// Splits parcel sendable list apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 84 encapsulation).
 /// </summary>
-public static class PackageSendableListIncomingPacketServices
+public static class PackageSendableListApplyIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
 

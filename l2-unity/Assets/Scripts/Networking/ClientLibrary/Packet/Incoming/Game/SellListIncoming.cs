@@ -3,5 +3,5 @@
 public sealed class SellListIncoming : IncomingWirePacket<SellListDto>
 {
     public override void Apply(SellListDto packet) =>
-        SellListIncomingPacketServices.ApplySellList(packet);
+        SellListApplyIncomingPacketServices.ApplySellList(packet);
 }
