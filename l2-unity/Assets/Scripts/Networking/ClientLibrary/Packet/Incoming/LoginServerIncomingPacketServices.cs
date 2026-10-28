@@ -11,15 +11,6 @@ public static class LoginServerIncomingPacketServices
 
     public static LoginWindow LoginWindow => LoginPacketServices.LoginWindow;
 
-    public static void OnInitParsed(InitDto packet)
-    {
-        Login.SetRSAKey(packet.PublicKey);
-        Login.SetBlowFishKey(packet.BlowfishKey);
-        Login.SetSessionId(packet.SessionId);
-        Login.CompleteInitPacket();
-        Login.Send(new AuthGameGuardCommand(packet.SessionId, packet.GG));
-    }
-
     public static void OnGGAuthParsed(GGAuthDto packet)
     {
         LobbyFlowLog.Info("TX RequestAuthLogin account=" + (Login != null ? Login.Account : "?"));
@@ -27,10 +18,6 @@ public static class LoginServerIncomingPacketServices
             Login.Account,
             Login.Password,
             packet.Response));
-    }
-
-    public static void ApplyInit(InitDto packet)
-    {
     }
 
     public static void ApplyGGAuth(GGAuthDto packet)
