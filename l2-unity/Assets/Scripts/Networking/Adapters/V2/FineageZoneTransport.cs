@@ -41,6 +41,18 @@ public sealed class FineageZoneTransport : IZoneTransport
         {
             ZoneV2Client zone = ZoneV2Client.Ensure();
             zone.SendMove(move.From, move.To);
+            return true;
+        }
+
+        ClickActionCommand action = command as ClickActionCommand;
+        if (action != null)
+        {
+            ZoneV2Client zone = ZoneV2Client.Ensure();
+            zone.SendSelectTarget(action.ObjectId);
+            TargetManager targets = ControllerPacketServices.Targets;
+            if (targets != null && targets.IsAttackTargetSet())
+                zone.SendAttackRequest(action.ObjectId);
+            return true;
         }
 
         // Other Interlude game commands are no-ops on ZoneV2 until wired.

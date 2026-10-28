@@ -40,6 +40,16 @@ public static class ZoneV2Messages
         }, 7);
     }
 
+    public static byte[] EncodeSelectTarget(int targetObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
+    }
+
+    public static byte[] EncodeAttackRequest(int targetObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
+    }
+
     public static bool TryDecodeHelloAck(byte[] body, out int protocolVersion, out string serverName)
     {
         protocolVersion = 0;
@@ -223,6 +233,83 @@ public static class ZoneV2Messages
             return false;
         }
     }
+
+    public static bool TryDecodeMyTargetSelected(byte[] body, out ZoneV2MyTargetSelected selected)
+    {
+        selected = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 2)
+                return false;
+            selected = new ZoneV2MyTargetSelected
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ColorHint = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeAttack(byte[] body, out ZoneV2Attack attack)
+    {
+        attack = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 10)
+                return false;
+            attack = new ZoneV2Attack
+            {
+                AttackerObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                TargetObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Damage = ZoneV2MsgPack.ReadInt(body, ref i),
+                Flags = (byte)ZoneV2MsgPack.ReadInt(body, ref i),
+                AttackerX = ZoneV2MsgPack.ReadInt(body, ref i),
+                AttackerY = ZoneV2MsgPack.ReadInt(body, ref i),
+                AttackerZ = ZoneV2MsgPack.ReadInt(body, ref i),
+                TargetX = ZoneV2MsgPack.ReadInt(body, ref i),
+                TargetY = ZoneV2MsgPack.ReadInt(body, ref i),
+                TargetZ = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeStatusUpdate(byte[] body, out ZoneV2StatusUpdate status)
+    {
+        status = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 3)
+                return false;
+            status = new ZoneV2StatusUpdate
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                AttributeIds = ZoneV2MsgPack.ReadIntArray(body, ref i),
+                Values = ZoneV2MsgPack.ReadIntArray(body, ref i)
+            };
+            return status.AttributeIds != null &&
+                   status.Values != null &&
+                   status.AttributeIds.Length == status.Values.Length;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
 }
 
 public struct ZoneV2PlayerSpawned
@@ -265,4 +352,31 @@ public struct ZoneV2NpcInfo
     public int X;
     public int Y;
     public int Z;
+}
+
+public struct ZoneV2MyTargetSelected
+{
+    public int ObjectId;
+    public int ColorHint;
+}
+
+public struct ZoneV2Attack
+{
+    public int AttackerObjectId;
+    public int TargetObjectId;
+    public int Damage;
+    public byte Flags;
+    public int AttackerX;
+    public int AttackerY;
+    public int AttackerZ;
+    public int TargetX;
+    public int TargetY;
+    public int TargetZ;
+}
+
+public struct ZoneV2StatusUpdate
+{
+    public int ObjectId;
+    public int[] AttributeIds;
+    public int[] Values;
 }
