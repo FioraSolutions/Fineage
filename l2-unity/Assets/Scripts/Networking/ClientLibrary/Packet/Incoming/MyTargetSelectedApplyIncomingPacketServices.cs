@@ -8,10 +8,10 @@ public static class MyTargetSelectedApplyIncomingPacketServices
 {
     public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
 
-    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => TargetApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
+        TargetApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void ApplyMyTargetSelected(MyTargetSelectDto packet)
     {
