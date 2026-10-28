@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.PledgeStatusChanged)]
 public sealed class PledgeStatusChangedIncoming : IncomingWirePacket<PledgeStatusChangedDto>

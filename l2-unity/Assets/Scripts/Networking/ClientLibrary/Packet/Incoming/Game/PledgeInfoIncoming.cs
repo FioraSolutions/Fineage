@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.PledgeInfo)]
 public sealed class PledgeInfoIncoming : IncomingWirePacket<PledgeInfoDto>

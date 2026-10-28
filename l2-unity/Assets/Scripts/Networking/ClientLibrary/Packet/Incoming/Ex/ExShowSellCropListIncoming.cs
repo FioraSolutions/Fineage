@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingExPacket(GameExServerPacketType.ExShowSellCropList)]
 public sealed class ExShowSellCropListIncoming : IncomingWirePacket<ExShowSellCropListDto>

@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingExPacket(GameExServerPacketType.ExPledgeReceiveMemberInfo)]
 public sealed class ExPledgeReceiveMemberInfoIncoming : IncomingWirePacket<PledgeReceiveMemberInfoDto>

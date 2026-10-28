@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.QuestList)]
 public sealed class QuestListIncoming : IncomingWirePacket<QuestListDto>

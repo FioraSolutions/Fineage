@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.SendTradeRequest)]
 public sealed class SendTradeRequestIncoming : IncomingWirePacket<SendTradeRequestDto>

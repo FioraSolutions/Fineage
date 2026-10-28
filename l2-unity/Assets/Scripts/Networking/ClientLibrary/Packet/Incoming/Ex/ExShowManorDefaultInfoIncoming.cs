@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingExPacket(GameExServerPacketType.ExShowManorDefaultInfo)]
 public sealed class ExShowManorDefaultInfoIncoming : IncomingWirePacket<ExShowManorDefaultInfoDto>

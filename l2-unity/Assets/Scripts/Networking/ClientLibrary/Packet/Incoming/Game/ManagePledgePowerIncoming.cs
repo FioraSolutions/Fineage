@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.ManagePledgePower)]
 public sealed class ManagePledgePowerIncoming : IncomingWirePacket<ManagePledgePowerDto>

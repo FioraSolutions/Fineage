@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.NpcHtmlMessage)]
 public sealed class NpcHtmlMessageIncoming : IncomingWirePacket<NpcHtmlMessageDto>

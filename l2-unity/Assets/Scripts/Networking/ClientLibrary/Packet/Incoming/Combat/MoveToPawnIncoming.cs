@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.MoveToPawn)]
 public sealed class MoveToPawnIncoming : IncomingWirePacket<MoveToPawnDto>
