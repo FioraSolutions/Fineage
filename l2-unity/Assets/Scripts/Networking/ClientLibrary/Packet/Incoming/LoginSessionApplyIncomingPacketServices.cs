@@ -17,5 +17,5 @@ public static class LoginSessionApplyIncomingPacketServices
 
     public static CharacterSelector Characters => LocatorApplyIncomingPacketServices.Characters;
 
-    public static void Queue(Action action) => LoginApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => QueueApplyIncomingPacketServices.Queue(action);
 }
