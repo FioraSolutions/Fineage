@@ -6,15 +6,15 @@ using System;
 /// </summary>
 public static class CharSelectionInfoApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginPacketServices.LoginClient;
+    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginPacketServices.Game;
+    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LoginPacketServices.Manager;
+    public static GameManager Manager => LobbyApplyIncomingPacketServices.Manager;
 
-    public static CharSelectWindow CharSelect => LoginPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => LobbyApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => LoginPacketServices.Characters;
+    public static CharacterSelector Characters => LobbyApplyIncomingPacketServices.Characters;
 
     public static void Queue(Action action) => CharacterApplyIncomingPacketServices.Queue(action);
 

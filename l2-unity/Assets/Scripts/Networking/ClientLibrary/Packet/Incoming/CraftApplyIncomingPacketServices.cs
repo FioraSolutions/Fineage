@@ -9,5 +9,5 @@ public static class CraftApplyIncomingPacketServices
 
     public static CraftingItemWindow Crafting => UiApplyIncomingPacketServices.Crafting;
 
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

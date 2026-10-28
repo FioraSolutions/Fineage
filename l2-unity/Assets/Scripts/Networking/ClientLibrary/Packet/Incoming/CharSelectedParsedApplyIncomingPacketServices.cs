@@ -4,7 +4,7 @@
 /// </summary>
 public static class CharSelectedParsedApplyIncomingPacketServices
 {
-    public static GameClient Game => LoginPacketServices.Game;
+    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
 
     public static void OnCharSelectedParsed(CharSelectedDto packet)
     {

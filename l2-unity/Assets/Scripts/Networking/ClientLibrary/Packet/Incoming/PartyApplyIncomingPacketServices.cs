@@ -7,5 +7,5 @@ public static class PartyApplyIncomingPacketServices
 {
     public static PartyInvitationWindow PartyInvite => UiApplyIncomingPacketServices.PartyInvite;
 
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }
