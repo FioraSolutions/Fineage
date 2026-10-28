@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// UI-domain incoming packet handler access via domain apply hubs (#142 sub-slice 50; orchestration slice 170).
+/// UI-domain incoming packet handler access via domain apply hubs (#142 sub-slice 50; queue orchestration slice 176).
 /// </summary>
 public static class UiApplyIncomingPacketServices
 {

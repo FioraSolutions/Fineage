@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Game incoming packet handler access via domain apply hubs (#142 sub-slice 49; orchestration slice 170).
+/// Game incoming packet handler access via domain apply hubs (#142 sub-slice 49; queue orchestration slice 176).
 /// </summary>
 public static class GameApplyIncomingPacketServices
 {
