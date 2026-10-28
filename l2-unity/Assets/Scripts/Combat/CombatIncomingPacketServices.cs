@@ -92,8 +92,8 @@ public static class CombatIncomingPacketServices
         MovementIncomingPacketServices.ApplyStop(packet);
 
     public static void ApplySetupGauge(SetupGaugeDto packet) =>
-        CombatFeedbackIncomingPacketServices.ApplySetupGauge(packet);
+        SetupGaugeIncomingPacketServices.ApplySetupGauge(packet);
 
     public static void ApplyActionFailed(ActionFailedDto packet) =>
-        CombatFeedbackIncomingPacketServices.ApplyActionFailed(packet);
+        ActionFailedIncomingPacketServices.ApplyActionFailed(packet);
 }

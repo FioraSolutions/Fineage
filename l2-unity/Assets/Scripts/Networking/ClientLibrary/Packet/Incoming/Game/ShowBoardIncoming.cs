@@ -3,5 +3,5 @@
 public sealed class ShowBoardIncoming : IncomingWirePacket<ShowCBoardDto>
 {
     public override void Apply(ShowCBoardDto dto) =>
-        HtmlIncomingPacketServices.ApplyShowBoard(dto);
+        ShowBoardIncomingPacketServices.ApplyShowBoard(dto);
 }
