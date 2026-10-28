@@ -117,6 +117,12 @@ public static class ZoneV2Messages
         }, 2);
     }
 
+    /// <summary>MessagePack array [objectId] — Fineage-Backend <c>PickupRequestMsg</c>.</summary>
+    public static byte[] EncodePickupRequest(int groundObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, groundObjectId), 1);
+    }
+
     public static bool TryDecodeHelloAck(byte[] body, out int protocolVersion, out string serverName)
     {
         protocolVersion = 0;
@@ -307,6 +313,54 @@ public static class ZoneV2Messages
             return false;
         }
     }
+
+    /// <summary>Backend <c>SpawnItemMsg</c> keys 0–7 (MessagePack array).</summary>
+    public static bool TryDecodeSpawnItem(byte[] body, out ZoneV2SpawnItem item)
+    {
+        item = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 7)
+                return false;
+            item = new ZoneV2SpawnItem
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
+                X = ZoneV2MsgPack.ReadInt(body, ref i),
+                Y = ZoneV2MsgPack.ReadInt(body, ref i),
+                Z = ZoneV2MsgPack.ReadInt(body, ref i),
+                Stackable = ZoneV2MsgPack.ReadBool(body, ref i),
+                Count = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            if (n >= 8)
+                item.Unknown = ZoneV2MsgPack.ReadInt(body, ref i);
+            else
+                item.Unknown = 0;
+            if (n > 8)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 8);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>Normalized spawn fields shared with <see cref="ZoneV2DomainMap.ToSpawnItemDto"/> (testable without Unity DTOs).</summary>
+    public static SpawnItemApplyFields ToSpawnItemApplyFields(ZoneV2SpawnItem item) =>
+        new SpawnItemApplyFields
+        {
+            ObjectId = item.ObjectId,
+            ItemId = item.ItemId,
+            X = item.X,
+            Y = item.Y,
+            Z = item.Z,
+            Stackable = item.Stackable,
+            Count = item.Count,
+            Unknown = item.Unknown
+        };
 
     public static bool TryDecodeError(byte[] body, out string code, out string message)
     {
@@ -1148,6 +1202,31 @@ public struct ZoneV2ItemEntry
     public string Icon;
     public string WeaponType;
     public string ArmorType;
+}
+
+public struct ZoneV2SpawnItem
+{
+    public int ObjectId;
+    public int ItemId;
+    public int X;
+    public int Y;
+    public int Z;
+    public bool Stackable;
+    public int Count;
+    public int Unknown;
+}
+
+/// <summary>Wire spawn row after decode — same field set as Interlude <c>SpawnItemDto</c> apply.</summary>
+public struct SpawnItemApplyFields
+{
+    public int ObjectId;
+    public int ItemId;
+    public int X;
+    public int Y;
+    public int Z;
+    public bool Stackable;
+    public int Count;
+    public int Unknown;
 }
 
 public struct ZoneV2InventoryChange

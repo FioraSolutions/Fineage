@@ -13,6 +13,30 @@ public sealed class SpawnItemDto : IWireDto
     public int Unknown { get; private set; }
     public Vector3 UnityPos { get; private set; }
 
+    /// <summary>Zone V2 <see cref="ZoneV2MsgType.SpawnItem"/> (1018).</summary>
+    public static SpawnItemDto FromZoneV2(
+        int objectId,
+        int itemId,
+        int x,
+        int y,
+        int z,
+        bool stackable,
+        int count,
+        int unknown = 0)
+    {
+        var dto = new SpawnItemDto();
+        dto.ObjectId = objectId;
+        dto.ItemId = itemId;
+        dto.X = x;
+        dto.Y = y;
+        dto.Z = z;
+        dto.Stackable = stackable;
+        dto.Count = count;
+        dto.Unknown = unknown;
+        dto.UnityPos = VectorUtils.ConvertPosToUnity(new Vector3(x, y, z));
+        return dto;
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         ObjectId = reader.ReadI();

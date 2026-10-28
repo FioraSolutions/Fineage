@@ -506,6 +506,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.GrantItemRequest, body);
     }
 
+    public void SendPickupRequest(int groundObjectId)
+    {
+        if (!Connected || _stream == null || groundObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodePickupRequest(groundObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.PickupRequest, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -645,6 +653,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         DeleteObjectDto deleteDto = new DeleteObjectDto { ObjectId = deleteId };
                         Post(() => DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(deleteDto));
+                        break;
+
+                    case ZoneV2MsgType.SpawnItem:
+                        ZoneV2SpawnItem ground;
+                        if (!ZoneV2Messages.TryDecodeSpawnItem(f.Body, out ground))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad SpawnItem body"));
+                            break;
+                        }
+
+                        SpawnItemDto spawnDto = ZoneV2DomainMap.ToSpawnItemDto(ground);
+                        Post(() => SpawnItemApplyIncomingPacketServices.ApplySpawnItem(spawnDto));
                         break;
 
                     case ZoneV2MsgType.MyTargetSelected:

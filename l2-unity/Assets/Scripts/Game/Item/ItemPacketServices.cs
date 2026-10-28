@@ -44,4 +44,13 @@ public static class ItemPacketServices
             return;
         game.Send(new ZoneGrantItemCommand(itemId, count));
     }
+
+    /// <summary>Zone V2 pickup (opcode 14); server replies with InventoryUpdate + DeleteObject fan-out.</summary>
+    public static void SendZonePickup(int groundObjectId)
+    {
+        GameClient game = Game;
+        if (game == null || groundObjectId <= 0)
+            return;
+        game.Send(new ZonePickupRequestCommand(groundObjectId));
+    }
 }
