@@ -36,6 +36,8 @@ public class CharacterSelector : MonoBehaviour
     public Camera Camera { get { return _charSelectCamera; } set { _charSelectCamera = value; } }
     public int SelectedSlot { get { return _selectedCharacterSlot; } }
 
+    public CharSelectInfoPackage SelectedInterludeCharacter => _selectedCharacterInterlude;
+
     /// <summary>Spawned lobby pawns (Interlude / legacy select row).</summary>
     public IReadOnlyList<GameObject> CharacterPawns => _characterGameObjects;
 

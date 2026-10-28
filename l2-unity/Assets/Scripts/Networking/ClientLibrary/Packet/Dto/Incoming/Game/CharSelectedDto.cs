@@ -14,9 +14,7 @@
 
     public void ReadFrom(PacketReader reader)
     {
-        CharSelectInfoPackage selectChar = CharSelectWindow.Instance != null
-            ? CharSelectWindow.Instance.GetSelectChar()
-            : null;
+        CharSelectInfoPackage selectChar = ResolveSelectChar();
         //_info.Identity.Heading = 0;
         _info.Identity.Owned = true;
         _info.Stats.Speed = 120;
@@ -75,13 +73,27 @@
         int z = reader.ReadI();
         _info.Identity.SetL2jPos(x, y, z);
 
-        _info.Status.SetHp(reader.ReadD());
-        _info.Status.SetMp(reader.ReadD());
-        _info.Status.Cp = reader.ReadI();
+        // Interlude CharSelected: writeF(currentHp), writeF(currentMp), writeD(sp)
+        _info.Status.SetHp(reader.ReadF());
+        _info.Status.SetMp(reader.ReadF());
+        _info.Stats.Sp = reader.ReadI();
         _info.Stats.Exp = reader.ReadLOther();
         _info.Stats.Level = reader.ReadI();
-        _info.Stats.MaxMp = (int)selectChar.MaxMp;
-        _info.Stats.MaxHp = (int)selectChar.MaxHp;
+        if (selectChar != null)
+        {
+            _info.Stats.MaxMp = (int)selectChar.MaxMp;
+            _info.Stats.MaxHp = (int)selectChar.MaxHp;
+        }
+        else
+        {
+            _info.Stats.MaxMp = PlayerResourceCaps.EffectiveMax(0, _info.Status.GetMp());
+            _info.Stats.MaxHp = PlayerResourceCaps.EffectiveMax(0, _info.Status.GetHp());
+        }
+
+        if (_info.Stats.MaxCp <= 0)
+            _info.Stats.MaxCp = System.Math.Max(_info.Status.Cp, 100);
+
+        PlayerResourceCaps.EnsureMaxAtLeastCurrent(_info.Stats, _info.Status);
         _info.Stats.MaxExp = LevelServer.GetExp(_info.Stats.Level + 1);
 
         _info.Stats.Karma = reader.ReadI();
@@ -119,5 +131,21 @@
         int empty14 = reader.ReadI();
 
         // Debug.Log("");
+    }
+
+    static CharSelectInfoPackage ResolveSelectChar()
+    {
+        if (CharSelectWindow.Instance != null)
+        {
+            CharSelectInfoPackage fromWindow = CharSelectWindow.Instance.GetSelectChar();
+            if (fromWindow != null)
+                return fromWindow;
+        }
+
+        CharacterSelector selector = CharacterSelector.Instance;
+        if (selector != null)
+            return selector.SelectedInterludeCharacter;
+
+        return null;
     }
 }
