@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Buff panel apply hub (#142 batch slice 161; UI leaf slice 182).
+/// Buff panel apply hub (#142 batch slice 161; buffer orchestration slice 189).
 /// </summary>
 public static class BufferApplyIncomingPacketServices
 {

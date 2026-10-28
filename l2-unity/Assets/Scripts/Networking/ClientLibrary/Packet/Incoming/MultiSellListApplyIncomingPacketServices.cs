@@ -8,12 +8,12 @@ using System;
 /// </summary>
 public static class MultiSellListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => MultiSellApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyMultiSellList(MultiSellListDto packet) =>
         Queue(() =>
         {
-            UiApplyIncomingPacketServices.MultiSell.AddData(packet.GetOnlyItems(), packet);
-            UiApplyIncomingPacketServices.MultiSell.ShowWindow();
+            MultiSellApplyIncomingPacketServices.MultiSell.AddData(packet.GetOnlyItems(), packet);
+            MultiSellApplyIncomingPacketServices.MultiSell.ShowWindow();
         });
 }

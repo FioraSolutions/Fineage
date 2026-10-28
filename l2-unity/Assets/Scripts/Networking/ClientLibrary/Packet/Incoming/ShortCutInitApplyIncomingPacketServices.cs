@@ -6,9 +6,9 @@ using System;
 /// </summary>
 public static class ShortCutInitApplyIncomingPacketServices
 {
-    public static PlayerShortcuts Shortcuts => UiApplyIncomingPacketServices.Shortcuts;
+    public static PlayerShortcuts Shortcuts => ShortcutApplyIncomingPacketServices.Shortcuts;
 
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => ShortcutApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyInit(ShortCutInitDto packet) =>
         Queue(() => Shortcuts.SetShortcutList(packet.ShortCuts));

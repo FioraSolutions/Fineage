@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Skill learn/list UI apply hub (#142 batch slice 161; UI hub slice 176).
+/// Skill learn/list UI apply hub (#142 batch slice 161; skill orchestration slice 189).
 /// </summary>
 public static class SkillApplyIncomingPacketServices
 {

@@ -7,13 +7,13 @@ using System;
 /// </summary>
 public static class AcquireSkillInfoApplyIncomingPacketServices
 {
-    public static void Queue(System.Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(System.Action action) => SkillApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyAcquireSkillInfo(AcquireSkillInfoDto packet) =>
         Queue(() =>
         {
-            UiApplyIncomingPacketServices.SkillLearn.HideWindow();
-            UiApplyIncomingPacketServices.SkillDesc.AddData(packet);
-            UiApplyIncomingPacketServices.SkillDesc.ShowWindow();
+            SkillApplyIncomingPacketServices.SkillLearn.HideWindow();
+            SkillApplyIncomingPacketServices.SkillDesc.AddData(packet);
+            SkillApplyIncomingPacketServices.SkillDesc.ShowWindow();
         });
 }
