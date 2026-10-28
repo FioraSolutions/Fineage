@@ -46,7 +46,9 @@ def resolve_version(ref_type: str, ref_name: str, describe: str, sha: str) -> st
 def release_tag(ref_type: str, ref_name: str, version: str) -> tuple[str, bool]:
     if ref_type == "tag" and ref_name:
         return ref_name, False
-    return f"playtest-{version}", True
+    # Playtest builds are the public download. Publish them as the latest release
+    # so GET /releases/latest does not skip them.
+    return f"playtest-{version}", False
 
 
 def git_output(repo: Path, args: list[str], *, check: bool = True) -> str:
@@ -189,7 +191,7 @@ def self_test() -> int:
     assert resolve_version("branch", "main", "abc", "abc123456789").startswith("0.0.0-")
     assert unity_bundle_version("0.4.1-2-gabcdef") == "0.4.1"
     assert release_tag("tag", "v1.2.3", "1.2.3") == ("v1.2.3", False)
-    assert release_tag("branch", "main", "0.0.0-abc") == ("playtest-0.0.0-abc", True)
+    assert release_tag("branch", "main", "0.0.0-abc") == ("playtest-0.0.0-abc", False)
 
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp) / "repo"
@@ -210,6 +212,8 @@ def self_test() -> int:
         out = Path(tmp) / "out"
         notes = write_notes(repo, out, env)
         assert str(notes["version"]).startswith("0.0.0-")
+        assert notes["prerelease"] is False
+        assert str(notes["releaseTag"]).startswith("playtest-")
         assert notes["host"] == "play.test"
         assert notes["loginHost"] == "login.fineage.evpoint.by"
         assert notes["gameHost"] == "game.fineage.evpoint.by"
