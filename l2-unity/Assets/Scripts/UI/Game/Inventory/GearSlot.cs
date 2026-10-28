@@ -15,11 +15,15 @@ public class GearSlot : InventorySlot
     {
         if (_slotDragManipulator != null && _slotDragManipulator.dragged)
             return;
+        if (TryGiveToEnchant())
+            return;
         UnequipWorn();
     }
 
     protected override void HandleRightClick()
     {
+        if (TryGiveToEnchant())
+            return;
         UnequipWorn();
     }
 

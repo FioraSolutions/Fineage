@@ -51,7 +51,8 @@ public static class ZoneV2InventoryBook
             Kind = string.IsNullOrEmpty(change.Kind) ? "etc" : change.Kind,
             Icon = change.Icon ?? "",
             WeaponType = change.WeaponType ?? "",
-            ArmorType = change.ArmorType ?? ""
+            ArmorType = change.ArmorType ?? "",
+            EnchantLevel = change.EnchantLevel
         };
     }
 }

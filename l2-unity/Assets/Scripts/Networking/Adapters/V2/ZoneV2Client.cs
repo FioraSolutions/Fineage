@@ -572,6 +572,30 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.PartyKickRequest, body);
     }
 
+    public void SendEnchantRequest(int scrollObjectId)
+    {
+        if (!Connected || _stream == null || scrollObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeEnchantRequest(scrollObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.EnchantRequest, body);
+    }
+
+    public void SendEnchantConfirm(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeEnchantConfirm(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.EnchantConfirm, body);
+    }
+
+    public void SendEnchantCancel()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeEnchantCancel();
+        _ = SendFireAndForget(ZoneV2MsgType.EnchantCancel, body);
+    }
+
     public void SendSay(string text, int chatType)
     {
         if (!Connected || _stream == null)
@@ -888,6 +912,26 @@ public sealed class ZoneV2Client : MonoBehaviour
                         });
                         break;
 
+                    case ZoneV2MsgType.EnchantResult:
+                        ZoneV2EnchantResult enchantResult;
+                        if (!ZoneV2Messages.TryDecodeEnchantResult(f.Body, out enchantResult))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad EnchantResult body"));
+                            break;
+                        }
+
+                        ZoneV2EnchantResult enchantCopy = enchantResult;
+                        Post(() =>
+                        {
+                            Debug.Log("[ZoneV2] EnchantResult result=" + enchantCopy.Result
+                                + " level=" + enchantCopy.EnchantLevel
+                                + " object=" + enchantCopy.ObjectId);
+                            EnchantWindow window = EnchantWindow.Instance;
+                            if (window != null)
+                                window.ApplyZoneResult(enchantCopy);
+                        });
+                        break;
+
                     case ZoneV2MsgType.Error:
                         string code, msg;
                         if (!ZoneV2Messages.TryDecodeError(f.Body, out code, out msg))
@@ -896,8 +940,17 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
-                        string line = ZoneV2EquipNotices.Line(code, msg);
-                        Post(() => ShowServerLine(line));
+                        string line = ZoneV2Enchant.Notice(code, msg);
+                        bool closeEnchant = ZoneV2Enchant.ClearsWindow(code);
+                        Post(() =>
+                        {
+                            ShowServerLine(line);
+                            if (!closeEnchant)
+                                return;
+                            EnchantWindow window = EnchantWindow.Instance;
+                            if (window != null)
+                                window.AbortZone();
+                        });
                         break;
                 }
             }

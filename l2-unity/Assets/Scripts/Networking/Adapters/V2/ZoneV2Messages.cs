@@ -179,6 +179,24 @@ public static class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
     }
 
+    /// <summary>MessagePack array [scrollObjectId] — Fineage-Backend <c>EnchantRequestMsg</c>.</summary>
+    public static byte[] EncodeEnchantRequest(int scrollObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, scrollObjectId), 1);
+    }
+
+    /// <summary>MessagePack array [targetObjectId] — Fineage-Backend <c>EnchantConfirmMsg</c>.</summary>
+    public static byte[] EncodeEnchantConfirm(int targetObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
+    }
+
+    /// <summary>Empty MessagePack array — Fineage-Backend <c>EnchantCancelMsg</c>.</summary>
+    public static byte[] EncodeEnchantCancel()
+    {
+        return ZoneV2MsgPack.WriteArray(_ => { }, 0);
+    }
+
     public static bool TryDecodePartyAskJoin(byte[] body, out ZoneV2PartyAskJoin ask)
     {
         ask = default;
@@ -413,12 +431,64 @@ public static class ZoneV2Messages
                 Z = ZoneV2MsgPack.ReadInt(body, ref i),
                 ClassId = ZoneV2MsgPack.ReadInt(body, ref i)
             };
-            // Key 6 is optional. Older zone servers stop at class id.
-            if (n >= 7 && !ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            int used = 6;
+            // Key 6 is the paperdoll. Older zone servers stop at class id.
+            // Keys 7–8 are clan id and crest. Key 9 is the enchant of each paperdoll slot.
+            if (n > used)
             {
-                info.PaperdollItemIds = ZoneV2MsgPack.ReadIntArray(body, ref i);
-                info.HasPaperdoll = true;
+                if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+                {
+                }
+                else if (ZoneV2MsgPack.IsArray(body, i))
+                {
+                    info.PaperdollItemIds = ZoneV2MsgPack.ReadIntArray(body, ref i);
+                    info.HasPaperdoll = true;
+                }
+                else
+                {
+                    ZoneV2MsgPack.SkipValue(body, ref i);
+                }
+
+                used++;
             }
+
+            if (n > used)
+            {
+                if (ZoneV2MsgPack.IsInt(body, i))
+                    info.ClanId = ZoneV2MsgPack.ReadInt(body, ref i);
+                else
+                    ZoneV2MsgPack.SkipValue(body, ref i);
+                used++;
+            }
+
+            if (n > used)
+            {
+                if (ZoneV2MsgPack.IsInt(body, i))
+                    info.ClanCrestId = ZoneV2MsgPack.ReadInt(body, ref i);
+                else
+                    ZoneV2MsgPack.SkipValue(body, ref i);
+                used++;
+            }
+
+            if (n > used)
+            {
+                if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+                {
+                }
+                else if (ZoneV2MsgPack.IsArray(body, i))
+                {
+                    info.PaperdollEnchant = ZoneV2MsgPack.ReadIntArray(body, ref i);
+                }
+                else
+                {
+                    ZoneV2MsgPack.SkipValue(body, ref i);
+                }
+
+                used++;
+            }
+
+            if (n > used)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - used);
 
             return true;
         }
@@ -1054,6 +1124,12 @@ public static class ZoneV2Messages
                 used++;
             }
 
+            if (n >= 3 && ZoneV2MsgPack.IsInt(body, i))
+            {
+                slots[s].EnchantLevel = ZoneV2MsgPack.ReadInt(body, ref i);
+                used++;
+            }
+
             if (n > used)
                 ZoneV2MsgPack.SkipValues(body, ref i, n - used);
         }
@@ -1117,6 +1193,15 @@ public static class ZoneV2Messages
         if (n >= 9)
         {
             entry.ArmorType = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 10)
+        {
+            if (ZoneV2MsgPack.IsInt(body, i))
+                entry.EnchantLevel = ZoneV2MsgPack.ReadInt(body, ref i);
+            else
+                ZoneV2MsgPack.SkipValue(body, ref i);
             used++;
         }
 
@@ -1185,9 +1270,64 @@ public static class ZoneV2Messages
             used++;
         }
 
+        if (n >= 11)
+        {
+            if (ZoneV2MsgPack.IsInt(body, i))
+                change.EnchantLevel = ZoneV2MsgPack.ReadInt(body, ref i);
+            else
+                ZoneV2MsgPack.SkipValue(body, ref i);
+            used++;
+        }
+
         if (n > used)
             ZoneV2MsgPack.SkipValues(body, ref i, n - used);
         return true;
+    }
+
+    public static bool TryDecodeEnchantResult(byte[] body, out ZoneV2EnchantResult result)
+    {
+        result = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 3)
+                return false;
+            result = new ZoneV2EnchantResult
+            {
+                Result = ZoneV2MsgPack.ReadInt(body, ref i),
+                EnchantLevel = ZoneV2MsgPack.ReadInt(body, ref i),
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            int used = 3;
+            if (n >= 4)
+            {
+                result.CrystalItemId = ZoneV2MsgPack.ReadInt(body, ref i);
+                used++;
+            }
+
+            if (n >= 5)
+            {
+                result.CrystalCount = ZoneV2MsgPack.ReadInt(body, ref i);
+                used++;
+            }
+
+            if (n > used)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - used);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
     }
 
     public static bool TryDecodeAbnormalStatusUpdate(byte[] body, out ZoneV2AbnormalStatusUpdate update)
@@ -1342,6 +1482,10 @@ public struct ZoneV2CharInfo
     public int ClassId;
     public bool HasPaperdoll;
     public int[] PaperdollItemIds;
+    public int ClanId;
+    public int ClanCrestId;
+    /// <summary>Enchant of each paperdoll slot, parallel to <see cref="PaperdollItemIds"/>. Key 9.</summary>
+    public int[] PaperdollEnchant;
 }
 
 /// <summary>
@@ -1458,6 +1602,7 @@ public struct ZoneV2PaperdollSlot
 {
     public int ObjectId;
     public int ItemId;
+    public int EnchantLevel;
 }
 
 public struct ZoneV2UserInfo
@@ -1522,6 +1667,7 @@ public struct ZoneV2ItemEntry
     public string Icon;
     public string WeaponType;
     public string ArmorType;
+    public int EnchantLevel;
 }
 
 public struct ZoneV2SpawnItem
@@ -1561,6 +1707,16 @@ public struct ZoneV2InventoryChange
     public string Icon;
     public string WeaponType;
     public string ArmorType;
+    public int EnchantLevel;
+}
+
+public struct ZoneV2EnchantResult
+{
+    public int Result;
+    public int EnchantLevel;
+    public int ObjectId;
+    public int CrystalItemId;
+    public int CrystalCount;
 }
 
 public struct ZoneV2AbnormalStatusUpdate

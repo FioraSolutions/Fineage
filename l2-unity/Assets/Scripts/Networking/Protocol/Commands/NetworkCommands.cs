@@ -25,6 +25,17 @@ public sealed class UseItemCommand : INetworkCommand
     }
 }
 
+/// <summary>Zone V2 TX opcode 39 — select an enchant scroll and open the window.</summary>
+public sealed class ZoneEnchantRequestCommand : INetworkCommand
+{
+    public int ScrollObjectId;
+
+    public ZoneEnchantRequestCommand(int scrollObjectId)
+    {
+        ScrollObjectId = scrollObjectId;
+    }
+}
+
 /// <summary>Zone V2 TX opcode 16 — clear paperdoll index 0..16.</summary>
 public sealed class UnequipItemCommand : INetworkCommand
 {

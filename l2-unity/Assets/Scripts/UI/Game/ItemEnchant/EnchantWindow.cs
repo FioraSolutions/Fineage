@@ -37,6 +37,16 @@ public class EnchantWindow : L2PopupWindow
     private EnchantSlot _enchant1;
     private EnchantSlot _enchant2;
     private ItemInstance _selectItem;
+    private bool _zoneWire;
+    private bool _closingFromServer;
+    private bool _awaitingRoll;
+    private int _scrollObjectId;
+    private bool _frameCloseWired;
+
+    public bool AcceptsTarget
+    {
+        get { return _zoneWire && !_isWindowHidden; }
+    }
 
 
     public static EnchantWindow Instance
@@ -122,6 +132,7 @@ public class EnchantWindow : L2PopupWindow
         RegisterClickWindowEvent(_windowEle, dragArea);
         buttonStart.RegisterCallback<ClickEvent>((evt) => OnClick(evt));
         closeButton.RegisterCallback<ClickEvent>((evt) => OnCancel(evt));
+        WireFrameClose();
 
         _slot1 = GetElementById("slot1");
         _slot2 = GetElementById("slot2");
@@ -175,14 +186,28 @@ public class EnchantWindow : L2PopupWindow
 
     public void AddEnchantItem(int objectId)
     {
-        ItemInstance itemInstance = PlayerInventory.Instance.GetItem(objectId);
-       
+        if (_zoneWire && (objectId <= 0 || objectId == _scrollObjectId))
+            return;
+
+        PlayerInventory inventory = PlayerInventory.Instance;
+        if (inventory == null)
+            return;
+        ItemInstance itemInstance = inventory.GetItem(objectId);
+        if (itemInstance == null)
+        {
+            Dictionary<int, ItemInstance> worn = inventory.GetPlayerEquipInventory();
+            if (worn != null)
+                worn.TryGetValue(objectId, out itemInstance);
+        }
+
         if (itemInstance != null)
         {
             _selectItem = itemInstance;
             _slot2.Clear();
             _enchant2 = ChangeSlotBoxType(_slot2, _enchant2);
             _enchant2.AssignItem(itemInstance);
+            if (_textLabel != null)
+                _textLabel.text = ZoneV2Enchant.WithLevel(itemInstance.GetName(), itemInstance.EnchantLevel);
         }
         else
         {
@@ -205,15 +230,105 @@ public class EnchantWindow : L2PopupWindow
         return new EnchantSlot(i, slotElement, null, slotType, false);
     }
    
-    private async void OnClick(ClickEvent evt)
+    private void OnClick(ClickEvent evt)
     {
- 
-         RequestEnchantItem(_selectItem.ObjectId);
+        if (_awaitingRoll)
+            return;
+        if (_selectItem == null || (_zoneWire && _selectItem.ObjectId == _scrollObjectId))
+        {
+            if (_textLabel != null)
+                _textLabel.text = "Select an item to enchant.";
+            return;
+        }
+
+        if (_zoneWire)
+            _awaitingRoll = true;
+        RequestEnchantItem(_selectItem.ObjectId);
     }
 
-    private async void OnCancel(ClickEvent evt)
+    private void OnCancel(ClickEvent evt)
     {
+        if (_zoneWire)
+        {
+            HideWindow();
+            return;
+        }
+
         RequestEnchantItem(-1);
+    }
+
+    public void BeginZoneSelect(ItemInstance scroll)
+    {
+        _zoneWire = true;
+        _scrollObjectId = scroll != null ? scroll.ObjectId : 0;
+        _selectItem = null;
+        if (_enchant1 == null || scroll == null)
+            return;
+
+        ShowWindow(scroll);
+        if (_textLabel != null)
+            _textLabel.text = "Select an item to enchant.";
+        SetWindowTitle("Enchant");
+    }
+
+    public void ApplyZoneResult(ZoneV2EnchantResult result)
+    {
+        ZoneV2Enchant.View view = ZoneV2Enchant.ViewOf(result);
+        if (view.RemoveItem || view.ShowEnchant || view.CloseWindow)
+            CloseFromServer();
+    }
+
+    public void AbortZone()
+    {
+        if (!_zoneWire)
+            return;
+        CloseFromServer();
+    }
+
+    void CloseFromServer()
+    {
+        _closingFromServer = true;
+        HideWindow();
+        _closingFromServer = false;
+    }
+
+    public override void HideWindow()
+    {
+        if (_isWindowHidden)
+            return;
+
+        bool cancel = _zoneWire && !_closingFromServer;
+        _zoneWire = false;
+        _awaitingRoll = false;
+        _scrollObjectId = 0;
+        _selectItem = null;
+        base.HideWindow();
+        if (!cancel)
+            return;
+
+        GameClient game = Game;
+        if (game != null)
+            game.Send(new RequestEnchantItemCommand(-1));
+    }
+
+    void WireFrameClose()
+    {
+        if (_frameCloseWired || _windowEle == null)
+            return;
+        VisualElement frameClose = GetElementByClass("btn-close-frame");
+        if (frameClose == null)
+            return;
+        frameClose.RegisterCallback<MouseUpEvent>(evt => OnCancel(null));
+        _frameCloseWired = true;
+    }
+
+    void SetWindowTitle(string title)
+    {
+        if (_windowEle == null)
+            return;
+        Label label = _windowEle.Q<Label>("windows-name-label");
+        if (label != null)
+            label.text = title;
     }
 
 

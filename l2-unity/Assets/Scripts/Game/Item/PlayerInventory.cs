@@ -537,7 +537,27 @@ public class PlayerInventory : MonoBehaviour
         GameClient game = Game;
         if (game == null)
             return;
+        if (FineageWireConfig.IsZoneV2 && TryBeginEnchant(game, objectId))
+            return;
         game.Send(new UseItemCommand(objectId, 0));
+    }
+
+    bool TryBeginEnchant(GameClient game, int objectId)
+    {
+        if (!TryGetItem(objectId, out ItemInstance item))
+            return false;
+        string etcType = null;
+        EtcItem etc = item.ItemData as EtcItem;
+        if (etc != null && etc.EtcItemgrp != null)
+            etcType = etc.EtcItemgrp.EtcItemType;
+        if (!ZoneV2Enchant.IsScrollType(etcType))
+            return false;
+
+        game.Send(new ZoneEnchantRequestCommand(objectId));
+        EnchantWindow window = EnchantWindow.Instance;
+        if (window != null)
+            window.BeginZoneSelect(item);
+        return true;
     }
 
     private void SetupMessageWindow()
