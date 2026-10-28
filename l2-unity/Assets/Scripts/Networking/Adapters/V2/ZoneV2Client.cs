@@ -198,6 +198,22 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.MoveTo, body);
     }
 
+    public void SendSelectTarget(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeSelectTarget(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.SelectTarget, body);
+    }
+
+    public void SendAttackRequest(int targetObjectId)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeAttackRequest(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.AttackRequest, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -303,6 +319,76 @@ public sealed class ZoneV2Client : MonoBehaviour
                                     NetworkingPacketServices.ApplyWorld(a =>
                                         a.MoveTo(domainMove.ObjectId, domainMove.Destination, domainMove.Origin, domainMove.InterludeDto));
                             }
+                        });
+                        break;
+
+                    case ZoneV2MsgType.CharInfo:
+                        ZoneV2CharInfo charInfo;
+                        if (!ZoneV2Messages.TryDecodeCharInfo(f.Body, out charInfo))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad CharInfo body"));
+                            break;
+                        }
+
+                        CharInfoDto charDto = ZoneV2DomainMap.ToCharInfoDto(charInfo);
+                        Post(() => CharInfoApplyIncomingPacketServices.ApplyCharInfo(charDto));
+                        break;
+
+                    case ZoneV2MsgType.NpcInfo:
+                        ZoneV2NpcInfo npcInfo;
+                        if (!ZoneV2Messages.TryDecodeNpcInfo(f.Body, out npcInfo))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad NpcInfo body"));
+                            break;
+                        }
+
+                        NpcInfoDto npcDto = ZoneV2DomainMap.ToNpcInfoDto(npcInfo);
+                        Post(() => NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(npcDto));
+                        break;
+
+                    case ZoneV2MsgType.DeleteObject:
+                        int deleteId;
+                        if (!ZoneV2Messages.TryDecodeDeleteObject(f.Body, out deleteId))
+                            break;
+                        DeleteObjectDto deleteDto = new DeleteObjectDto { ObjectId = deleteId };
+                        Post(() => DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(deleteDto));
+                        break;
+
+                    case ZoneV2MsgType.MyTargetSelected:
+                        ZoneV2MyTargetSelected myTarget;
+                        if (!ZoneV2Messages.TryDecodeMyTargetSelected(f.Body, out myTarget))
+                            break;
+                        Post(() =>
+                        {
+                            MyTargetSelectDto targetDto = MyTargetSelectDto.FromZoneV2(myTarget.ObjectId, myTarget.ColorHint);
+                            MyTargetSelectedApplyIncomingPacketServices.ApplyMyTargetSelected(targetDto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.Attack:
+                        ZoneV2Attack attack;
+                        if (!ZoneV2Messages.TryDecodeAttack(f.Body, out attack))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad Attack body"));
+                            break;
+                        }
+
+                        AttackDto attackDto = ZoneV2DomainMap.ToAttackDto(attack);
+                        Post(() => AttackApplyIncomingPacketServices.ApplyAttack(attackDto));
+                        break;
+
+                    case ZoneV2MsgType.StatusUpdate:
+                        ZoneV2StatusUpdate status;
+                        if (!ZoneV2Messages.TryDecodeStatusUpdate(f.Body, out status))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad StatusUpdate body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            var attributes = ZoneV2DomainMap.ToStatusAttributes(status);
+                            StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate(status.ObjectId, attributes);
                         });
                         break;
 

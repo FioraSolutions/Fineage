@@ -201,6 +201,26 @@ public static class ZoneV2MsgPack
         throw new InvalidDataException("expected bool, got 0x" + b.ToString("X2"));
     }
 
+    public static int[] ReadIntArray(byte[] buf, ref int i)
+    {
+        int n = ReadArrayHeader(buf, ref i);
+        if (n <= 0)
+            return Array.Empty<int>();
+        var values = new int[n];
+        for (int j = 0; j < n; j++)
+            values[j] = ReadInt(buf, ref i);
+        return values;
+    }
+
+    public static void WriteIntArray(BinaryWriter w, int[] values)
+    {
+        if (values == null)
+            values = Array.Empty<int>();
+        WriteArrayHeader(w, values.Length);
+        for (int j = 0; j < values.Length; j++)
+            WriteInt(w, values[j]);
+    }
+
     static void WriteBe16(BinaryWriter w, ushort v)
     {
         w.Write((byte)(v >> 8));
