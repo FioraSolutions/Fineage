@@ -46,6 +46,14 @@ public class ZoneV2InventoryWireTests
     }
 
     [Fact]
+    public void Pickup_request_body_is_messagepack_object_id()
+    {
+        byte[] body = ZoneV2Messages.EncodePickupRequest(100_001);
+        var msg = MessagePackSerializer.Deserialize<PickupRequestTestMsg>(body);
+        Assert.Equal(100_001, msg.ObjectId);
+    }
+
+    [Fact]
     public void Item_list_marks_the_squire_sword_equipped_in_the_right_hand()
     {
         var list = new BackendItemListMsg
@@ -365,6 +373,12 @@ public sealed partial class BackendSpawnItemMsg
     [Key(5)] public bool Stackable { get; set; }
     [Key(6)] public int Count { get; set; } = 1;
     [Key(7)] public int Unknown { get; set; }
+}
+
+[MessagePackObject]
+public sealed partial class PickupRequestTestMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
 }
 
 [MessagePackObject]
