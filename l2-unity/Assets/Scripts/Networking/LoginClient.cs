@@ -1,12 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using L2_login;
-using VContainer;
 
 public class LoginClient : DefaultClient {
-    [Inject] GameManager _gameManager;
-    [Inject] LoginWindow _loginWindow;
-
     private GameManager Manager => NetworkingPacketServices.Manager;
 
     private LoginWindow LoginWindowUi => NetworkingPacketServices.LoginWindow;
@@ -65,7 +61,9 @@ public class LoginClient : DefaultClient {
     }
 
     private void Awake() {
-        NetworkingPacketServices.Bind(manager: _gameManager, login: this, loginWindow: _loginWindow);
+        GameManager manager = GameManager.Instance;
+        if (manager != null)
+            NetworkingPacketServices.Bind(manager: manager, login: this);
         if (_instance == null) {
             _instance = this;
         } else if (_instance != this) {
@@ -114,11 +112,6 @@ public class LoginClient : DefaultClient {
     {
         return _sessionId;
     }
-    protected override void ApplyPlaytestEndpoint()
-    {
-        PlaytestEndpointRuntime.ApplyLogin(this);
-    }
-
     protected override void CreateAsyncClient() {
         if (_client != null && !_client.IsConnected)
             _client = null;

@@ -1,4 +1,7 @@
-/// <summary>Must stay in sync with tools/zone-server Wire/MsgType.cs.</summary>
+/// <summary>
+/// Zone opcodes match tools/zone-server Wire/MsgType.cs.
+/// Login opcodes match Fineage-Backend Fineage.Protocol.MsgType.
+/// </summary>
 public enum ZoneV2MsgType : ushort
 {
     Hello = 1,
@@ -7,6 +10,11 @@ public enum ZoneV2MsgType : ushort
     MoveTo = 4,
     SelectTarget = 5,
     AttackRequest = 6,
+
+    Register = 20,
+    CreateCharacter = 21,
+    ListCharacters = 22,
+    SelectCharacter = 23,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -18,5 +26,12 @@ public enum ZoneV2MsgType : ushort
     MyTargetSelected = 1008,
     Attack = 1009,
     StatusUpdate = 1010,
+
+    RegisterOk = 1020,
+    CharacterCreated = 1021,
+    CharacterList = 1022,
+    Handoff = 1023,
+    LoginOk = 1024,
+
     Error = 1099
 }

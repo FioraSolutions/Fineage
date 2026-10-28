@@ -21,10 +21,6 @@ public sealed class LoginRuntime
             _loginClient = loginClient;
         if (manager != null)
             _manager = manager;
-        DiRuntimePacketServices.Bind(
-            game: _game ?? Get<GameClient>(),
-            login: _loginClient ?? Get<LoginClient>(),
-            manager: _manager ?? Get<GameManager>());
     }
 
     public L2LoginUI Ui { get { return Get<L2LoginUI>() ?? L2LoginUI.Instance; } }
@@ -37,11 +33,20 @@ public sealed class LoginRuntime
     public CharacterSelector Selector { get { return Get<CharacterSelector>() ?? CharacterSelector.Instance; } }
     public CharacterCreator Creator { get { return Get<CharacterCreator>() ?? CharacterCreator.Instance; } }
 
-    public GameClient Game => DiRuntimePacketServices.Game;
+    public GameClient Game
+    {
+        get { return _game ?? Get<GameClient>() ?? IncomingPacketActions.Game; }
+    }
 
-    public LoginClient LoginClient => DiRuntimePacketServices.Login;
+    public LoginClient LoginClient
+    {
+        get { return _loginClient ?? Get<LoginClient>() ?? IncomingPacketActions.Login; }
+    }
 
-    public GameManager Manager => DiRuntimePacketServices.Manager;
+    public GameManager Manager
+    {
+        get { return _manager ?? Get<GameManager>() ?? IncomingPacketActions.Manager; }
+    }
 
     private T Get<T>() where T : class
     {

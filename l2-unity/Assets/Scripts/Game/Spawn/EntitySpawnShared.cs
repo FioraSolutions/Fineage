@@ -139,7 +139,7 @@ public static class EntitySpawnShared
 
         MonoBehaviour host = go.GetComponent<Entity>();
         if (host == null)
-            host = GamePacketServices.GameWorld;
+            host = World.Instance;
         if (host != null)
             host.StartCoroutine(RetryGroundSnap(go, identity));
     }
@@ -210,7 +210,9 @@ public static class EntitySpawnShared
             CharacterController cc = controllers[i];
             if (cc == null)
                 continue;
-            cc.stepOffset = 0f;
+            float maxStep = Mathf.Max(0f, cc.height - 0.01f);
+            if (cc.stepOffset > maxStep)
+                cc.stepOffset = maxStep;
         }
     }
 

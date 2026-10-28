@@ -4,7 +4,7 @@
 /// </summary>
 public static class GGAuthParsedApplyIncomingPacketServices
 {
-    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
 
     public static void OnGGAuthParsed(GGAuthDto packet)
     {

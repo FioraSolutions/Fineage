@@ -14,11 +14,13 @@ public class TargetManager : MonoBehaviour
     public const int KindCreature = 6;
 
     [Inject] GameClient _gameClient;
-    [Inject] World _world;
 
-    private World GameWorld => CombatPacketServices.GameWorld;
+    private World GameWorld => IncomingPacketActions.GameWorld;
 
-    private GameClient Game => CombatPacketServices.Game;
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
 
     private TargetData _target = null;
     private TargetData _attackTarget = null;
@@ -53,7 +55,6 @@ public class TargetManager : MonoBehaviour
         {
             _instance = this;
             _considerCandidate = ConsiderCandidate;
-            WireCombatPacketServices();
         }
         else
         {
@@ -63,15 +64,8 @@ public class TargetManager : MonoBehaviour
 
     private void Start()
     {
-        WireCombatPacketServices();
         _target = null;
         _attackTarget = null;
-    }
-
-    private void WireCombatPacketServices()
-    {
-        CombatPacketServices.Bind(game: _gameClient, gameWorld: _world);
-        GameEventPacketServices.Bind(targets: this);
     }
 
     void OnDestroy()

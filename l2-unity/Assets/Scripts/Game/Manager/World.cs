@@ -29,7 +29,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     [Inject] private GravityNpc _gravityNpc;
     [Inject] private DeadManager _deadManager;
     [Inject] private AppearFadeService _appearFade;
-    [Inject] private ClickManager _clicks;
     [Inject] private CameraController _camera;
     [Inject] private IAnimationManager _animations;
     [Inject] private GameClient _gameClient;
@@ -54,7 +53,10 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         get { return _characterInfo != null ? _characterInfo : CharacterInfoWindow.Instance; }
     }
 
-    public IAnimationManager Animations => WorldPacketServices.Animations;
+    public IAnimationManager Animations
+    {
+        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+    }
 
     public Transform UsersContainer
     {
@@ -97,6 +99,18 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     [System.Obsolete("Use [Inject] instead")]
     public static World Instance { get { return _instance; } }
 
+    static bool ShouldEnsureGameScope()
+    {
+        if (L2GameUI.Instance != null)
+            return true;
+
+        GameManager manager = GameManager.Instance;
+        if (manager != null && manager.GameState == GameState.LOGIN_SCREEN)
+            return false;
+
+        return true;
+    }
+
     private void Awake() {
         if (_instance == null) {
             _instance = this;
@@ -105,7 +119,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             return;
         }
 
-        DiBootstrap.EnsureGameScope();
+        if (ShouldEnsureGameScope())
+            DiBootstrap.EnsureGameScope();
         if (_eventProcessor == null)
             _eventProcessor = EventProcessor.Instance;
         _playerPlaceholder = Resources.Load<GameObject>("Prefab/Player_FDarkElf");
@@ -123,7 +138,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         }
 
         BindItemDropPresentationRunner();
-        WireWorldPacketServices();
     }
 
     [Inject]
@@ -143,30 +157,20 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     }
 
     void Start() {
-        WireWorldPacketServices();
         if (_deadManager != null)
             _deadManager.OnReadyToRemove += RemoveObject;
         UpdateMasks();
-    }
-
-    private void WireWorldPacketServices()
-    {
-        WorldPacketServices.Bind(
-            animations: _animations,
-            game: _gameClient,
-            manager: _gameManager,
-            worldApply: _worldApply);
-        GamePacketServices.Bind(gameWorld: this);
     }
 
     public void UpdateMasks() {
         NameplatesManager.Instance.SetMask(_entityMask);
         if (_geodata != null)
             _geodata.ObstacleMask = _obstacleMask;
-        if (_clicks != null)
+        ClickManager clicks = ClickManager.Instance;
+        if (clicks != null)
         {
             LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
-            _clicks.SetMasks(_entityClickAreaMask | dropMask, _clickThroughMask);
+            clicks.SetMasks(_entityClickAreaMask | dropMask, _clickThroughMask);
         }
         if (_camera != null)
             _camera.SetMask(_obstacleMask);
@@ -637,7 +641,10 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             game.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
     }
 
-    private GameClient Game => WorldPacketServices.Game;
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+    }
 
     private void SendAppearing()
     {
@@ -857,8 +864,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = WorldPacketServices.Manager;
-        WorldPacketApply apply = WorldPacketServices.WorldApply;
+        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
+        WorldPacketApply apply = _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
         return manager != null && manager.WorldSpawnReady && apply != null;
     }
 }

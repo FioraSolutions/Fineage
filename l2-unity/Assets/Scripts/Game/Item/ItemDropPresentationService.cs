@@ -45,7 +45,6 @@ public sealed class ItemDropPresentationService
     readonly ItemDropWeaponAligner _weapons;
     readonly ItemDropLayerService _layers;
     readonly ItemDropGrpCatalog _grp;
-    readonly World _world;
     readonly IAnimationManager _animations;
     readonly EffectManager _effects;
 
@@ -54,7 +53,6 @@ public sealed class ItemDropPresentationService
         ItemDropWeaponAligner weapons,
         ItemDropLayerService layers,
         ItemDropGrpCatalog grp,
-        World world,
         IAnimationManager animations,
         EffectManager effects)
     {
@@ -62,20 +60,24 @@ public sealed class ItemDropPresentationService
         _weapons = weapons;
         _layers = layers;
         _grp = grp;
-        _world = world;
         _animations = animations;
         _effects = effects;
-        ItemPacketServices.Bind(gameWorld: world, animations: animations, effects: effects);
     }
 
-    private World GameWorld =>
-        _world != null ? _world : ItemPacketServices.GameWorld;
+    private World GameWorld
+    {
+        get { return IncomingPacketActions.GameWorld; }
+    }
 
-    private IAnimationManager Animations =>
-        _animations != null ? _animations : ItemPacketServices.Animations;
+    private IAnimationManager Animations
+    {
+        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+    }
 
-    private EffectManager Effects =>
-        _effects != null ? _effects : ItemPacketServices.Effects;
+    private EffectManager Effects
+    {
+        get { return _effects != null ? _effects : IncomingPacketActions.Effects; }
+    }
 
     public void Tick(float deltaTime)
     {

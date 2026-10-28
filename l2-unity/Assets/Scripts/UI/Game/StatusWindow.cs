@@ -210,10 +210,9 @@ public class StatusWindow : L2Window
         }
 
         if(_CPBarBG != null && _CPBar != null) {
-            float cMaxCP = (float)PlayerResourceCaps.EffectiveMax(stats.MaxCp, status.Cp);
+            float cMaxCP = (float)stats.MaxCp;
             if (cMaxCP > 0f) {
                 float cpRatio = (float)status.Cp / cMaxCP;
-                cpRatio = UnityEngine.Mathf.Min(1f, cpRatio);
                 float bgWidth = _CPBarBG.resolvedStyle.width;
                 if (bgWidth > 1f && float.IsFinite(bgWidth)) {
                     _CPBar.style.width = bgWidth * cpRatio;
@@ -222,10 +221,9 @@ public class StatusWindow : L2Window
         }
 
         if(_HPBarBG != null && _HPBar != null) {
-            float hpMax = (float)PlayerResourceCaps.EffectiveMax(stats.MaxHp, status.GetHp());
+            float hpMax = (float)stats.MaxHp;
             if (hpMax > 0f) {
                 float hpRatio = (float)status.GetHp() / hpMax;
-                hpRatio = UnityEngine.Mathf.Min(1f, hpRatio);
                 float bgWidth = _HPBarBG.resolvedStyle.width;
                 if (bgWidth > 1f && float.IsFinite(bgWidth)) {
                     _HPBar.style.width = bgWidth * hpRatio;
@@ -234,10 +232,9 @@ public class StatusWindow : L2Window
         }
 
         if(_MPBarBG != null && _MPBar != null) {
-            float mpMax = (float)PlayerResourceCaps.EffectiveMax(stats.MaxMp, status.GetMp());
+            float mpMax = (float)stats.MaxMp;
             if (mpMax > 0f) {
                 float mpRatio = (float)status.GetMp() / mpMax;
-                mpRatio = UnityEngine.Mathf.Min(1f, mpRatio);
                 float bgWidth = _MPBarBG.resolvedStyle.width;
                 if (bgWidth > 1f && float.IsFinite(bgWidth)) {
                     _MPBar.style.width = bgWidth * mpRatio;
