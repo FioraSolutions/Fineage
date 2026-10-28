@@ -1,6 +1,14 @@
-# L2-Unity-L2J Acis
+# Fineage
 
-Это отдельная ветка созданная на основе исходной https://gitlab.com/shnok (последняя синхронизация была 25.09.2024 года)
+Unity-клиент Fineage (этот репозиторий — [FioraSolutions/Fineage](https://github.com/FioraSolutions/Fineage)).
+
+Игровой сервер — свой **C# (.NET) Login + Zone**: [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend). Основной протокол — **V2 MessagePack**, мост **Interlude** — для совместимости. Продуктовый сервер — не Java L2J / Mobius.
+
+`tools/login-stub` и `tools/zone-server` — локальные мосты и помощники совместимости, не долгосрочный продуктовый сервер.
+
+Клиент начат с форка/основы более ранней Unity-работы по L2 (линия [shnok](https://gitlab.com/shnok) / L2-Unity; последняя синхронизация с исходником — 25.09.2024). Дальше Fineage переработал сеть и продолжает клиентский Interlude-совместимый инжект.
+
+## Заметки по клиенту
 
 Обновление: 27.08.2026:
 
@@ -25,10 +33,7 @@
 
 
 
-Основной упор делается на поддержку Lineage 2 Java 
-
-В данный момент проверено 2 версии разных серверов:
-Поддерживается Mobius и Acis  (Interlude)
+Ранние проверки клиента шли против Java-серверов Mobius и Acis (провод Interlude). Сейчас продуктовый сервер — свой C# Login + Zone (см. начало файла); ниже — клиентские возможности и отличия того периода.
 
 Видео работа с луком(Анимация + контроль снарядов) [video1](https://disk.yandex.ru/i/PFP7tHJV4AlTUg)  
 Видео базового функционала [video2](https://jmp.sh/70qYH2gU)   
