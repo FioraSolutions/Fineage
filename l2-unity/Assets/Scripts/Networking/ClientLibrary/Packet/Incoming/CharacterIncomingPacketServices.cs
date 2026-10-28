@@ -5,7 +5,11 @@ using System;
 /// Per-packet Apply* encapsulation completed in sub-slice 75.
 /// Henna apply lives on <see cref="HennaIncomingPacketServices"/> (sub-slice 99).
 /// Char create ok apply lives on <see cref="CharCreateOkIncomingPacketServices"/> (sub-slice 100).
+<<<<<<< HEAD
 /// Char create fail apply lives on <see cref="CharCreateFailIncomingPacketServices"/> (sub-slice 101).
+=======
+/// Char template apply lives on <see cref="CharTemplateIncomingPacketServices"/> (sub-slice 102).
+>>>>>>> a897fea01 (chore(#142): thin inject slice 102 — char template incoming facade)
 /// </summary>
 public static class CharacterIncomingPacketServices
 {
@@ -88,7 +92,12 @@ public static class CharacterIncomingPacketServices
         Manager.OnCharacterSelect();
     }
 
+<<<<<<< HEAD
     public static void ApplyCharTemplate(CharTemplatesDto templates) =>
         Queue(() => Manager.OnCreateUser(templates.PlayerTemplates));
+=======
+    public static void ApplyCharCreateFail(CharCreateFailDto packet) =>
+        Queue(() => Manager.OnCreateUserFail(packet.Text));
+>>>>>>> a897fea01 (chore(#142): thin inject slice 102 — char template incoming facade)
 
 }
