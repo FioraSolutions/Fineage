@@ -137,4 +137,16 @@ public static class ZoneV2DomainMap
             list.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
         return list;
     }
+
+    public static CreatureMessage ToCreatureMessage(ZoneV2CreatureSay say)
+    {
+        ChatTypeData data = ChatTypes.GetById(say.ChatType);
+        if (data == null)
+            data = ChatTypes.GetById(0);
+        string name = string.IsNullOrEmpty(say.Name) ? "Unknown" : say.Name;
+        string text = say.Text ?? "";
+        if (data != null && (data.Type == 10 || data.Type == 18))
+            return new CreatureMessage("Announcements", text, data);
+        return new CreatureMessage(name, text, data);
+    }
 }

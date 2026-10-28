@@ -10,6 +10,7 @@ public enum ZoneV2MsgType : ushort
     MoveTo = 4,
     SelectTarget = 5,
     AttackRequest = 6,
+    Say = 8,
 
     Register = 20,
     CreateCharacter = 21,
@@ -26,6 +27,7 @@ public enum ZoneV2MsgType : ushort
     MyTargetSelected = 1008,
     Attack = 1009,
     StatusUpdate = 1010,
+    CreatureSay = 1012,
 
     RegisterOk = 1020,
     CharacterCreated = 1021,

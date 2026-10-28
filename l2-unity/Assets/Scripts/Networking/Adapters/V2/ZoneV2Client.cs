@@ -214,6 +214,16 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.AttackRequest, body);
     }
 
+    public void SendSay(string text, int chatType)
+    {
+        if (!Connected || _stream == null)
+            return;
+        if (string.IsNullOrWhiteSpace(text))
+            return;
+        byte[] body = ZoneV2Messages.EncodeSay(text.Trim(), chatType);
+        _ = SendFireAndForget(ZoneV2MsgType.Say, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -389,6 +399,21 @@ public sealed class ZoneV2Client : MonoBehaviour
                         {
                             var attributes = ZoneV2DomainMap.ToStatusAttributes(status);
                             StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate(status.ObjectId, attributes);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.CreatureSay:
+                        ZoneV2CreatureSay creatureSay;
+                        if (!ZoneV2Messages.TryDecodeCreatureSay(f.Body, out creatureSay))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad CreatureSay body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            CreatureMessage message = ZoneV2DomainMap.ToCreatureMessage(creatureSay);
+                            CreatureSayApplyIncomingPacketServices.ApplyCreatureSay(message);
                         });
                         break;
 

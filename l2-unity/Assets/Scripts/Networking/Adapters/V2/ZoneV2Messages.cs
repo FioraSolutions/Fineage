@@ -50,6 +50,15 @@ public static class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
     }
 
+    public static byte[] EncodeSay(string text, int chatType)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteString(w, text ?? "");
+            ZoneV2MsgPack.WriteInt(w, chatType);
+        }, 2);
+    }
+
     public static bool TryDecodeHelloAck(byte[] body, out int protocolVersion, out string serverName)
     {
         protocolVersion = 0;
@@ -310,6 +319,30 @@ public static class ZoneV2Messages
             return false;
         }
     }
+
+    public static bool TryDecodeCreatureSay(byte[] body, out ZoneV2CreatureSay say)
+    {
+        say = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 4)
+                return false;
+            say = new ZoneV2CreatureSay
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Name = ZoneV2MsgPack.ReadString(body, ref i),
+                Text = ZoneV2MsgPack.ReadString(body, ref i),
+                ChatType = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
 }
 
 public struct ZoneV2PlayerSpawned
@@ -379,4 +412,12 @@ public struct ZoneV2StatusUpdate
     public int ObjectId;
     public int[] AttributeIds;
     public int[] Values;
+}
+
+public struct ZoneV2CreatureSay
+{
+    public int ObjectId;
+    public string Name;
+    public string Text;
+    public int ChatType;
 }
