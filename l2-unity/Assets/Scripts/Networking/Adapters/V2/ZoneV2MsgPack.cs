@@ -21,9 +21,22 @@ public static class ZoneV2MsgPack
 
     public static void WriteArrayHeader(BinaryWriter w, int count)
     {
-        if (count < 0 || count > 15)
-            throw new ArgumentOutOfRangeException(nameof(count), "fixarray only (0..15)");
-        w.Write((byte)(0x90 | count));
+        if (count < 0)
+            throw new ArgumentOutOfRangeException(nameof(count));
+        if (count <= 15)
+        {
+            w.Write((byte)(0x90 | count));
+            return;
+        }
+
+        if (count <= ushort.MaxValue)
+        {
+            w.Write((byte)0xdc);
+            WriteBe16(w, (ushort)count);
+            return;
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(count), "array32 is not written");
     }
 
     public static void WriteInt(BinaryWriter w, int value)
@@ -127,7 +140,168 @@ public static class ZoneV2MsgPack
             return n;
         }
 
+        if (b == 0xdd)
+        {
+            uint n = ReadBe32(buf, ref i);
+            if (n > int.MaxValue)
+                throw new InvalidDataException("array too large");
+            return (int)n;
+        }
+
         throw new InvalidDataException("expected array header, got 0x" + b.ToString("X2"));
+    }
+
+    public static bool TryConsumeNil(byte[] buf, ref int i)
+    {
+        if (buf == null || i >= buf.Length || buf[i] != 0xc0)
+            return false;
+        i++;
+        return true;
+    }
+
+    /// <summary>True when the next value is a string or nil. Used to tell a name apart from an int.</summary>
+    public static bool IsStringOrNil(byte[] buf, int index)
+    {
+        if (buf == null || index < 0 || index >= buf.Length)
+            return false;
+        byte b = buf[index];
+        return b == 0xc0 || (b & 0xe0) == 0xa0 || b == 0xd9 || b == 0xda || b == 0xdb;
+    }
+
+    public static void SkipValues(byte[] buf, ref int i, int count)
+    {
+        for (int n = 0; n < count; n++)
+            SkipValue(buf, ref i);
+    }
+
+    public static void SkipValue(byte[] buf, ref int i)
+    {
+        if (buf == null || i >= buf.Length)
+            throw new InvalidDataException("truncated msgpack");
+        byte b = buf[i++];
+        if (b <= 0x7f || b >= 0xe0)
+            return;
+        if ((b & 0xf0) == 0x80)
+        {
+            SkipPairs(buf, ref i, b & 0x0f);
+            return;
+        }
+
+        if ((b & 0xf0) == 0x90)
+        {
+            SkipValues(buf, ref i, b & 0x0f);
+            return;
+        }
+
+        if ((b & 0xe0) == 0xa0)
+        {
+            i += b & 0x1f;
+            EnsureRemaining(buf, i);
+            return;
+        }
+
+        switch (b)
+        {
+            case 0xc0:
+            case 0xc2:
+            case 0xc3:
+                return;
+            case 0xc4:
+                SkipBytes(buf, ref i, ReadLen8(buf, ref i));
+                return;
+            case 0xc5:
+                SkipBytes(buf, ref i, ReadBe16(buf, ref i));
+                return;
+            case 0xc6:
+                SkipBytes(buf, ref i, (int)ReadBe32(buf, ref i));
+                return;
+            case 0xc7:
+                int ext8 = ReadLen8(buf, ref i);
+                i++;
+                SkipBytes(buf, ref i, ext8);
+                return;
+            case 0xc8:
+                int ext16 = ReadBe16(buf, ref i);
+                i++;
+                SkipBytes(buf, ref i, ext16);
+                return;
+            case 0xc9:
+                int ext32 = (int)ReadBe32(buf, ref i);
+                i++;
+                SkipBytes(buf, ref i, ext32);
+                return;
+            case 0xca:
+                i += 4;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xcb:
+                i += 8;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xcc:
+            case 0xd0:
+                i += 1;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xcd:
+            case 0xd1:
+                i += 2;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xce:
+            case 0xd2:
+                i += 4;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xcf:
+            case 0xd3:
+                i += 8;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xd4:
+                i += 2;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xd5:
+                i += 3;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xd6:
+                i += 5;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xd7:
+                i += 9;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xd8:
+                i += 17;
+                EnsureRemaining(buf, i);
+                return;
+            case 0xd9:
+                SkipBytes(buf, ref i, ReadLen8(buf, ref i));
+                return;
+            case 0xda:
+                SkipBytes(buf, ref i, ReadBe16(buf, ref i));
+                return;
+            case 0xdb:
+                SkipBytes(buf, ref i, (int)ReadBe32(buf, ref i));
+                return;
+            case 0xdc:
+                SkipValues(buf, ref i, ReadBe16(buf, ref i));
+                return;
+            case 0xdd:
+                SkipValues(buf, ref i, (int)ReadBe32(buf, ref i));
+                return;
+            case 0xde:
+                SkipPairs(buf, ref i, ReadBe16(buf, ref i));
+                return;
+            case 0xdf:
+                SkipPairs(buf, ref i, (int)ReadBe32(buf, ref i));
+                return;
+            default:
+                throw new InvalidDataException("cannot skip msgpack 0x" + b.ToString("X2"));
+        }
     }
 
     public static int ReadInt(byte[] buf, ref int i)
@@ -219,6 +393,36 @@ public static class ZoneV2MsgPack
         WriteArrayHeader(w, values.Length);
         for (int j = 0; j < values.Length; j++)
             WriteInt(w, values[j]);
+    }
+
+    static void EnsureRemaining(byte[] buf, int index)
+    {
+        if (index > buf.Length)
+            throw new InvalidDataException("truncated msgpack");
+    }
+
+    static int ReadLen8(byte[] buf, ref int i)
+    {
+        if (i >= buf.Length)
+            throw new InvalidDataException("truncated msgpack");
+        return buf[i++];
+    }
+
+    static void SkipBytes(byte[] buf, ref int i, int length)
+    {
+        if (length < 0)
+            throw new InvalidDataException("bad length");
+        i += length;
+        EnsureRemaining(buf, i);
+    }
+
+    static void SkipPairs(byte[] buf, ref int i, int count)
+    {
+        for (int n = 0; n < count; n++)
+        {
+            SkipValue(buf, ref i);
+            SkipValue(buf, ref i);
+        }
     }
 
     static void WriteBe16(BinaryWriter w, ushort v)
