@@ -65,6 +65,9 @@ public class AsynchronousClient
 
     public async Task<bool> Connect()
     {
+        if (Volatile.Read(ref _state) == 2)
+            return true;
+
         if (Interlocked.CompareExchange(ref _state, 1, 0) != 0)
             return false;
 

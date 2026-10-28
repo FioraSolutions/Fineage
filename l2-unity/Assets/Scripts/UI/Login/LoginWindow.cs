@@ -133,6 +133,9 @@ public class LoginWindow : L2Window
     }
 
     private void LoginButtonPressed() {
+        if (Login.IsConnected || Login.IsConnecting)
+            return;
+
         string account = _userInput.value.ToLower().Trim();
         string password = _passwordInput.value.Trim();
 
