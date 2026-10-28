@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// World AOI / ground item apply hub (#142 batch slice 163; world hub slice 177).
+/// World AOI / ground item apply hub (#142 batch slice 163; world orchestration slice 180).
 /// </summary>
 public static class PresenceApplyIncomingPacketServices
 {

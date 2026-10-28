@@ -1,20 +1,20 @@
 using System;
 
 /// <summary>
-/// Char info wire packet handler entry (#142 batch slice 147; character hub slice 178).
+/// Char info wire packet handler entry (#142 batch slice 147; world hub slice 180).
 /// Re-homes char-info apply from <see cref="CharInfoIncomingPacketServices"/>; splits from <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
 /// </summary>
 public static class CharInfoApplyIncomingPacketServices
 {
-    public static IWorldDomainSink Domain => CharacterApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => CharacterApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        CharacterApplyIncomingPacketServices.QueueDomain(apply);
+        WorldApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        CharacterApplyIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void ApplyCharInfo(CharInfoDto packet)
     {
