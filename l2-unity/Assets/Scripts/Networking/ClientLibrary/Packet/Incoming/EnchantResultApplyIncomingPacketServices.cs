@@ -2,8 +2,9 @@ using System;
 
 /// <summary>
 /// Enchant result wire packet handler entry (#142 batch slice 144).
+/// Apply facade (#142 batch slice 154). Re-homes from <see cref="EnchantResultIncomingPacketServices"/>.
 /// </summary>
-public static class EnchantResultIncomingPacketServices
+public static class EnchantResultApplyIncomingPacketServices
 {
     public static EnchantWindow Enchant => ItemEnchantPacketServices.Enchant;
 

@@ -2,5 +2,5 @@
 public sealed class EnchantResultIncoming : IncomingWirePacket<EnchantResultDto>
 {
     public override void Apply(EnchantResultDto packet) =>
-        EnchantResultIncomingPacketServices.ApplyEnchantResult(packet);
+        EnchantResultApplyIncomingPacketServices.ApplyEnchantResult(packet);
 }
