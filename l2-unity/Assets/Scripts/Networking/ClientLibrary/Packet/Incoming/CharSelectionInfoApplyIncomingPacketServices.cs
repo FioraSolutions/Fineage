@@ -16,7 +16,7 @@ public static class CharSelectionInfoApplyIncomingPacketServices
 
     public static CharacterSelector Characters => LoginPacketServices.Characters;
 
-    public static void Queue(Action action) => IncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyCharSelectionInfo(CharSelectionInfoDto packet)
     {

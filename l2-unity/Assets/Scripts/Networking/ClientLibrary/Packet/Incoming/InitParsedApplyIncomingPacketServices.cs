@@ -1,8 +1,8 @@
 /// <summary>
-/// Init wire parse hook (#142 batch slice 146).
+/// Init wire parse hook (#142 batch slice 146; apply facade rename slice 158).
 /// Splits parse out of <see cref="InitIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
-public static class InitParsedIncomingPacketServices
+public static class InitParsedApplyIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 

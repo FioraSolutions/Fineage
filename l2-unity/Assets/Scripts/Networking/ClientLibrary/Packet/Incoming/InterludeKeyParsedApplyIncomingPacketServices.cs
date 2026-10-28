@@ -2,7 +2,7 @@
 /// InterludeKey wire parse hook (#142 batch slice 146).
 /// Splits parse out of <see cref="InterludeKeyIncomingPacketServices"/> (sub-slices 53 / 76).
 /// </summary>
-public static class InterludeKeyParsedIncomingPacketServices
+public static class InterludeKeyParsedApplyIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 

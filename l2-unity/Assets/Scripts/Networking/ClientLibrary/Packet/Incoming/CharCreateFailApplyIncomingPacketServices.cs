@@ -8,7 +8,7 @@ public static class CharCreateFailApplyIncomingPacketServices
 {
     public static GameManager Manager => LoginPacketServices.Manager;
 
-    public static void Queue(Action action) => IncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyCharCreateFail(CharCreateFailDto packet) =>
         Queue(() => Manager.OnCreateUserFail(packet.Text));
