@@ -45,7 +45,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     [Inject] private ModelTable _models;
     [Inject] private CharacterInfoWindow _characterInfo;
     [Inject] private GameManager _gameManager;
-    [Inject] private WorldPacketApply _worldApply;
     [Inject] private PacketApplyQueue _applyQueue;
 
     private CharacterInfoWindow CharacterInfo
@@ -865,7 +864,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     private bool IsWorldSpawnReady()
     {
         GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
-        WorldPacketApply apply = _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
+        WorldPacketApply apply = IncomingPacketActions.WorldApply;
         return manager != null && manager.WorldSpawnReady && apply != null;
     }
 }
