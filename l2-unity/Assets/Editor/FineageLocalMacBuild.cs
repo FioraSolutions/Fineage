@@ -14,13 +14,32 @@ public static class FineageLocalMacBuild
 {
     const string RequestPath = "/tmp/fineage-local-build.request";
 
+    static bool _updateHooked;
+
     static FineageLocalMacBuild()
     {
         EditorApplication.delayCall += TryConsumeRequest;
+        if (!_updateHooked)
+        {
+            _updateHooked = true;
+            EditorApplication.update += PollBuildRequest;
+        }
+    }
+
+    static double _nextPollTime;
+
+    static void PollBuildRequest()
+    {
+        if (EditorApplication.timeSinceStartup < _nextPollTime)
+            return;
+        _nextPollTime = EditorApplication.timeSinceStartup + 2.0;
+        if (File.Exists(RequestPath))
+            TryConsumeRequest();
     }
 
     static void TryConsumeRequest()
     {
+        // Re-run after script reload when /tmp/fineage-local-build.request exists.
         if (!File.Exists(RequestPath))
             return;
 

@@ -16,7 +16,6 @@ public sealed class ZoneV2Client : MonoBehaviour
     static ZoneV2Client _instance;
     public static ZoneV2Client Instance { get { return _instance; } }
 
-    [Inject] GameManager _gameManager;
     IWorldDomainSink _domain;
     WorldPacketApply _worldApply;
 
@@ -26,10 +25,11 @@ public sealed class ZoneV2Client : MonoBehaviour
             _domain = domain;
         if (worldApply != null)
             _worldApply = worldApply;
+        GameManager manager = GameManager.Instance;
         NetworkingPacketServices.Bind(
             domain: _domain,
             worldApply: _worldApply,
-            manager: _gameManager);
+            manager: manager);
     }
 
     private GameManager Manager => NetworkingPacketServices.Manager;
@@ -58,7 +58,9 @@ public sealed class ZoneV2Client : MonoBehaviour
 
     void Awake()
     {
-        NetworkingPacketServices.Bind(manager: _gameManager);
+        GameManager manager = GameManager.Instance;
+        if (manager != null)
+            NetworkingPacketServices.Bind(manager: manager);
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
