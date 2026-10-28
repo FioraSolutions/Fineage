@@ -95,6 +95,17 @@ public static class ZoneV2DomainMap
     }
 
     /// <summary>Thin Zone v2 NpcInfo (1006) → Interlude-shaped DTO (Gremlins, guards, …).</summary>
+    public static SpawnItemDto ToSpawnItemDto(ZoneV2SpawnItem item) =>
+        SpawnItemDto.FromZoneV2(
+            item.ObjectId,
+            item.ItemId,
+            item.X,
+            item.Y,
+            item.Z,
+            item.Stackable,
+            item.Count,
+            item.Unknown);
+
     public static NpcInfoDto ToNpcInfoDto(ZoneV2NpcInfo info)
     {
         NpcInfoDto dto = new NpcInfoDto();

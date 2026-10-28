@@ -364,6 +364,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(deleteDto));
                         break;
 
+                    case ZoneV2MsgType.SpawnItem:
+                        ZoneV2SpawnItem ground;
+                        if (!ZoneV2Messages.TryDecodeSpawnItem(f.Body, out ground))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad SpawnItem body"));
+                            break;
+                        }
+
+                        SpawnItemDto spawnDto = ZoneV2DomainMap.ToSpawnItemDto(ground);
+                        Post(() => SpawnItemApplyIncomingPacketServices.ApplySpawnItem(spawnDto));
+                        break;
+
                     case ZoneV2MsgType.MyTargetSelected:
                         ZoneV2MyTargetSelected myTarget;
                         if (!ZoneV2Messages.TryDecodeMyTargetSelected(f.Body, out myTarget))

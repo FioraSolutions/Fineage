@@ -254,6 +254,40 @@ public static class ZoneV2Messages
         }
     }
 
+    /// <summary>Backend <c>SpawnItemMsg</c> keys 0–7 (MessagePack array).</summary>
+    public static bool TryDecodeSpawnItem(byte[] body, out ZoneV2SpawnItem item)
+    {
+        item = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 7)
+                return false;
+            item = new ZoneV2SpawnItem
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
+                X = ZoneV2MsgPack.ReadInt(body, ref i),
+                Y = ZoneV2MsgPack.ReadInt(body, ref i),
+                Z = ZoneV2MsgPack.ReadInt(body, ref i),
+                Stackable = ZoneV2MsgPack.ReadBool(body, ref i),
+                Count = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            if (n >= 8)
+                item.Unknown = ZoneV2MsgPack.ReadInt(body, ref i);
+            else
+                item.Unknown = 0;
+            if (n > 8)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 8);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
     public static bool TryDecodeError(byte[] body, out string code, out string message)
     {
         code = "";
@@ -824,6 +858,18 @@ public struct ZoneV2ItemEntry
     public string Icon;
     public string WeaponType;
     public string ArmorType;
+}
+
+public struct ZoneV2SpawnItem
+{
+    public int ObjectId;
+    public int ItemId;
+    public int X;
+    public int Y;
+    public int Z;
+    public bool Stackable;
+    public int Count;
+    public int Unknown;
 }
 
 public struct ZoneV2InventoryChange

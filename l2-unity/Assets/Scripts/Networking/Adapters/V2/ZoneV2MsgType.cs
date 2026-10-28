@@ -35,6 +35,8 @@ public enum ZoneV2MsgType : ushort
     InventoryUpdate = 1015,
     UserInfo = 1016,
     AbnormalStatusUpdate = 1017,
+    /// <summary>Ground item in AOI. Keys match Backend <c>SpawnItemMsg</c> / Interlude <c>SpawnItemDto</c>.</summary>
+    SpawnItem = 1018,
 
     RegisterOk = 1020,
     CharacterCreated = 1021,
