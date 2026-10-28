@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Core world session locator + queue hub (#142 batch slice 171).
+/// Core world session locator + queue hub (#142 batch slice 171; world orchestration slice 177).
 /// </summary>
 public static class WorldSessionApplyIncomingPacketServices
 {
