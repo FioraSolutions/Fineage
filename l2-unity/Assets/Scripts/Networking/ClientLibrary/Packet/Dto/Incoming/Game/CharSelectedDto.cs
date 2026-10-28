@@ -73,9 +73,10 @@
         int z = reader.ReadI();
         _info.Identity.SetL2jPos(x, y, z);
 
-        _info.Status.SetHp(reader.ReadD());
-        _info.Status.SetMp(reader.ReadD());
-        _info.Status.Cp = reader.ReadI();
+        // Interlude CharSelected: writeF(currentHp), writeF(currentMp), writeD(sp)
+        _info.Status.SetHp(reader.ReadF());
+        _info.Status.SetMp(reader.ReadF());
+        _info.Stats.Sp = reader.ReadI();
         _info.Stats.Exp = reader.ReadLOther();
         _info.Stats.Level = reader.ReadI();
         if (selectChar != null)
