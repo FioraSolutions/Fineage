@@ -5,17 +5,17 @@ using System;
 /// </summary>
 public static class LoginApplyIncomingPacketServices
 {
-    public static LoginClient Login => IncomingPacketLocatorApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LocatorApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => IncomingPacketLocatorApplyIncomingPacketServices.Game;
+    public static GameClient Game => LocatorApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => IncomingPacketLocatorApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LocatorApplyIncomingPacketServices.Manager;
 
-    public static LoginWindow LoginWindow => IncomingPacketLocatorApplyIncomingPacketServices.LoginWindow;
+    public static LoginWindow LoginWindow => LocatorApplyIncomingPacketServices.LoginWindow;
 
-    public static CharSelectWindow CharSelect => IncomingPacketLocatorApplyIncomingPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => LocatorApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => IncomingPacketLocatorApplyIncomingPacketServices.Characters;
+    public static CharacterSelector Characters => LocatorApplyIncomingPacketServices.Characters;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

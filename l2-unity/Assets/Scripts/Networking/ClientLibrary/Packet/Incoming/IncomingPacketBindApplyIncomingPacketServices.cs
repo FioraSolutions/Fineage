@@ -41,7 +41,7 @@ public static class IncomingPacketBindApplyIncomingPacketServices
         SellCropListWindow sellCrop = null,
         BufferPanel buffer = null)
     {
-        IncomingPacketLocatorApplyIncomingPacketServices.Bind(
+        LocatorApplyIncomingPacketServices.Bind(
             game: game,
             login: login,
             manager: manager,

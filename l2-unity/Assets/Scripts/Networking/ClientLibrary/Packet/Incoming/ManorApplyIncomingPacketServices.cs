@@ -5,9 +5,9 @@ using System;
 /// </summary>
 public static class ManorApplyIncomingPacketServices
 {
-    public static SeedInfoWindow SeedInfo => IncomingPacketLocatorApplyIncomingPacketServices.SeedInfo;
+    public static SeedInfoWindow SeedInfo => LocatorApplyIncomingPacketServices.SeedInfo;
 
-    public static SellCropListWindow SellCrop => IncomingPacketLocatorApplyIncomingPacketServices.SellCrop;
+    public static SellCropListWindow SellCrop => LocatorApplyIncomingPacketServices.SellCrop;
 
     public static void Queue(Action action) => WorldSessionApplyIncomingPacketServices.Queue(action);
 }

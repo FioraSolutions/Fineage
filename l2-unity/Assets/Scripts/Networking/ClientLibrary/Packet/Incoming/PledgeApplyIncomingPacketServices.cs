@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class PledgeApplyIncomingPacketServices
 {
-    public static ClanWindow Clan => IncomingPacketLocatorApplyIncomingPacketServices.Clan;
+    public static ClanWindow Clan => LocatorApplyIncomingPacketServices.Clan;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

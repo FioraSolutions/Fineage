@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class ShortcutApplyIncomingPacketServices
 {
-    public static PlayerShortcuts Shortcuts => IncomingPacketLocatorApplyIncomingPacketServices.Shortcuts;
+    public static PlayerShortcuts Shortcuts => LocatorApplyIncomingPacketServices.Shortcuts;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

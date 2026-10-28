@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class HtmlApplyIncomingPacketServices
 {
-    public static HtmlWindow Html => IncomingPacketLocatorApplyIncomingPacketServices.Html;
+    public static HtmlWindow Html => LocatorApplyIncomingPacketServices.Html;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

@@ -6,7 +6,7 @@ using System;
 public static class PartyApplyIncomingPacketServices
 {
     public static PartyInvitationWindow PartyInvite =>
-        IncomingPacketLocatorApplyIncomingPacketServices.PartyInvite;
+        LocatorApplyIncomingPacketServices.PartyInvite;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

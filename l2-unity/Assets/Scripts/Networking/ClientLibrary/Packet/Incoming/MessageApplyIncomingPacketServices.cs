@@ -6,7 +6,7 @@ using System;
 public static class MessageApplyIncomingPacketServices
 {
     public static MessagePacketApply MessageApply =>
-        IncomingPacketLocatorApplyIncomingPacketServices.MessageApply;
+        LocatorApplyIncomingPacketServices.MessageApply;
 
     public static void ApplyMessage(Action<MessagePacketApply> apply) =>
         QueueApplyIncomingPacketServices.ApplyMessage(apply);

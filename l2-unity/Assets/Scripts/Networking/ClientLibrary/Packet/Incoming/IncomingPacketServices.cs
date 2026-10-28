@@ -81,88 +81,88 @@ public static class IncomingPacketServices
             buffer: buffer);
     }
 
-    public static GameClient Game => IncomingPacketLocatorApplyIncomingPacketServices.Game;
+    public static GameClient Game => LocatorApplyIncomingPacketServices.Game;
 
-    public static LoginClient Login => IncomingPacketLocatorApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LocatorApplyIncomingPacketServices.Login;
 
-    public static GameManager Manager => IncomingPacketLocatorApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LocatorApplyIncomingPacketServices.Manager;
 
-    public static World GameWorld => IncomingPacketLocatorApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => LocatorApplyIncomingPacketServices.GameWorld;
 
-    public static WorldPacketApply WorldApply => IncomingPacketLocatorApplyIncomingPacketServices.WorldApply;
+    public static WorldPacketApply WorldApply => LocatorApplyIncomingPacketServices.WorldApply;
 
-    public static MessagePacketApply MessageApply => IncomingPacketLocatorApplyIncomingPacketServices.MessageApply;
+    public static MessagePacketApply MessageApply => LocatorApplyIncomingPacketServices.MessageApply;
 
-    public static IWorldDomainSink Domain => IncomingPacketLocatorApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => LocatorApplyIncomingPacketServices.Domain;
 
-    public static PlayerInventory Inventory => IncomingPacketLocatorApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => LocatorApplyIncomingPacketServices.Inventory;
 
-    public static TargetManager Targets => IncomingPacketLocatorApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => LocatorApplyIncomingPacketServices.Targets;
 
-    public static PlayerShortcuts Shortcuts => IncomingPacketLocatorApplyIncomingPacketServices.Shortcuts;
+    public static PlayerShortcuts Shortcuts => LocatorApplyIncomingPacketServices.Shortcuts;
 
     public static PositionValidationController PositionValidation =>
-        IncomingPacketLocatorApplyIncomingPacketServices.PositionValidation;
+        LocatorApplyIncomingPacketServices.PositionValidation;
 
-    public static LoginWindow LoginWindow => IncomingPacketLocatorApplyIncomingPacketServices.LoginWindow;
+    public static LoginWindow LoginWindow => LocatorApplyIncomingPacketServices.LoginWindow;
 
-    public static CharSelectWindow CharSelect => IncomingPacketLocatorApplyIncomingPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => LocatorApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => IncomingPacketLocatorApplyIncomingPacketServices.Characters;
+    public static CharacterSelector Characters => LocatorApplyIncomingPacketServices.Characters;
 
-    public static HtmlWindow Html => IncomingPacketLocatorApplyIncomingPacketServices.Html;
+    public static HtmlWindow Html => LocatorApplyIncomingPacketServices.Html;
 
-    public static DealerWindow Dealer => IncomingPacketLocatorApplyIncomingPacketServices.Dealer;
+    public static DealerWindow Dealer => LocatorApplyIncomingPacketServices.Dealer;
 
-    public static MultiSellWindow MultiSell => IncomingPacketLocatorApplyIncomingPacketServices.MultiSell;
+    public static MultiSellWindow MultiSell => LocatorApplyIncomingPacketServices.MultiSell;
 
-    public static TradeWindow Trade => IncomingPacketLocatorApplyIncomingPacketServices.Trade;
+    public static TradeWindow Trade => LocatorApplyIncomingPacketServices.Trade;
 
-    public static TradeRequestWindow TradeRequest => IncomingPacketLocatorApplyIncomingPacketServices.TradeRequest;
+    public static TradeRequestWindow TradeRequest => LocatorApplyIncomingPacketServices.TradeRequest;
 
-    public static PartyInvitationWindow PartyInvite => IncomingPacketLocatorApplyIncomingPacketServices.PartyInvite;
+    public static PartyInvitationWindow PartyInvite => LocatorApplyIncomingPacketServices.PartyInvite;
 
-    public static EnchantWindow Enchant => IncomingPacketLocatorApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => LocatorApplyIncomingPacketServices.Enchant;
 
-    public static RecipeBookWindow RecipeBook => IncomingPacketLocatorApplyIncomingPacketServices.RecipeBook;
+    public static RecipeBookWindow RecipeBook => LocatorApplyIncomingPacketServices.RecipeBook;
 
-    public static CraftingItemWindow Crafting => IncomingPacketLocatorApplyIncomingPacketServices.Crafting;
+    public static CraftingItemWindow Crafting => LocatorApplyIncomingPacketServices.Crafting;
 
-    public static SkillLearnWindow SkillLearn => IncomingPacketLocatorApplyIncomingPacketServices.SkillLearn;
+    public static SkillLearnWindow SkillLearn => LocatorApplyIncomingPacketServices.SkillLearn;
 
-    public static DescriptionSkillWindow SkillDesc => IncomingPacketLocatorApplyIncomingPacketServices.SkillDesc;
+    public static DescriptionSkillWindow SkillDesc => LocatorApplyIncomingPacketServices.SkillDesc;
 
-    public static SkillListWindow SkillList => IncomingPacketLocatorApplyIncomingPacketServices.SkillList;
+    public static SkillListWindow SkillList => LocatorApplyIncomingPacketServices.SkillList;
 
-    public static QuestWindow Quest => IncomingPacketLocatorApplyIncomingPacketServices.Quest;
+    public static QuestWindow Quest => LocatorApplyIncomingPacketServices.Quest;
 
-    public static QuestListWindow QuestList => IncomingPacketLocatorApplyIncomingPacketServices.QuestList;
+    public static QuestListWindow QuestList => LocatorApplyIncomingPacketServices.QuestList;
 
-    public static ClanWindow Clan => IncomingPacketLocatorApplyIncomingPacketServices.Clan;
+    public static ClanWindow Clan => LocatorApplyIncomingPacketServices.Clan;
 
-    public static ShowListWindow ShowList => IncomingPacketLocatorApplyIncomingPacketServices.ShowList;
+    public static ShowListWindow ShowList => LocatorApplyIncomingPacketServices.ShowList;
 
-    public static SeedInfoWindow SeedInfo => IncomingPacketLocatorApplyIncomingPacketServices.SeedInfo;
+    public static SeedInfoWindow SeedInfo => LocatorApplyIncomingPacketServices.SeedInfo;
 
-    public static SellCropListWindow SellCrop => IncomingPacketLocatorApplyIncomingPacketServices.SellCrop;
+    public static SellCropListWindow SellCrop => LocatorApplyIncomingPacketServices.SellCrop;
 
-    public static BufferPanel Buffer => IncomingPacketLocatorApplyIncomingPacketServices.Buffer;
+    public static BufferPanel Buffer => LocatorApplyIncomingPacketServices.Buffer;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
+        QueueApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
+        QueueApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void ApplyDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyDomain(apply);
+        QueueApplyIncomingPacketServices.ApplyDomain(apply);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
+        QueueApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void ApplyMessage(Action<MessagePacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyMessage(apply);
+        QueueApplyIncomingPacketServices.ApplyMessage(apply);
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }
