@@ -169,6 +169,27 @@ public static class ZoneV2DomainMap
     public static AskJoinPartyDto ToAskJoinPartyDto(ZoneV2PartyAskJoin ask) =>
         AskJoinPartyDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName, ask.ItemDistribution);
 
+    public static SendTradeRequestDto ToSendTradeRequestDto(ZoneV2TradeAsk ask) =>
+        SendTradeRequestDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName);
+
+    public static TradeStartDto ToTradeStartDto(ZoneV2TradeStart start) =>
+        TradeStartDto.FromZoneV2(start.PartnerObjectId, start.PartnerName);
+
+    public static ItemInstance ToTradeOfferItem(in ZoneV2TradeOfferUpdate update)
+    {
+        return new ItemInstance(
+            update.InventoryObjectId,
+            update.ItemId,
+            ItemLocation.Trade,
+            0,
+            update.Count < 1 ? 1 : update.Count,
+            ItemCategory.Item,
+            false,
+            ItemSlot.none,
+            update.EnchantLevel,
+            9999);
+    }
+
     public static ItemListDto ToItemListDto(ZoneV2ItemEntry[] rows)
     {
         var bag = new Dictionary<int, ItemInstance>();

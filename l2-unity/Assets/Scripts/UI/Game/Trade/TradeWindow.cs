@@ -21,6 +21,7 @@ public class TradeWindow : L2PopupWindow
     private Button _cancelButton;
 
     private List<ExchangeSlot> _exchangeSlots;
+    private List<ExchangeSlot> _partnerExchangeSlots;
     private string _playerName;
     private List<ItemInstance> _exchangeItems;
 
@@ -39,6 +40,7 @@ public class TradeWindow : L2PopupWindow
         {
             _instance = this;
             _exchangeSlots = new List<ExchangeSlot>();
+            _partnerExchangeSlots = new List<ExchangeSlot>();
             _exchangeItems = new List<ItemInstance>();
             WireTradePacketServices();
         }
@@ -90,7 +92,8 @@ public class TradeWindow : L2PopupWindow
         _cancelButton = (Button)GetElementById("CancelButton");
 
         // Инициализация слотов обмена
-        InitializeExchangeSlots();
+        InitializeExchangeSlots(GetElementById("PlayerOfferContent"), _exchangeSlots);
+        InitializeExchangeSlots(GetElementById("OtherPlayerOfferContent"), _partnerExchangeSlots);
 
         // Подписываемся на события кнопок
         _okButton.AddManipulator(new ButtonClickSoundManipulator(_okButton));
@@ -128,24 +131,53 @@ public class TradeWindow : L2PopupWindow
         OnCenterScreen(root);
     }
 
-    private void InitializeExchangeSlots()
+    private void InitializeExchangeSlots(VisualElement content, List<ExchangeSlot> slots)
     {
-        _exchangeSlots.Clear();
+        slots.Clear();
+        if (content == null)
+            return;
 
-        for (int i = 1; i <= 8; i++)
+        content.Clear();
+        for (int i = 0; i < 8; i++)
         {
-            var slotElement = GetElementById($"exchangeSlot{i}");
-            if (slotElement != null)
-            {
-                var slot = CreateExchangeSlot(i - 1, slotElement);
-                _exchangeSlots.Add(slot);
-            }
+            var slotElement = new VisualElement { name = "exchangeSlot" + (i + 1) };
+            slotElement.style.width = 36;
+            slotElement.style.height = 36;
+            slotElement.style.marginRight = 4;
+            content.Add(slotElement);
+            slots.Add(new ExchangeSlot(i, slotElement, SlotType.Trade));
         }
     }
 
-    private ExchangeSlot CreateExchangeSlot(int index, VisualElement slotElement)
+    public void ApplyOwnOfferItem(ItemInstance item)
     {
-        return new ExchangeSlot(index, slotElement, SlotType.Trade);
+        if (item == null)
+            return;
+        ExchangeSlot empty = _exchangeSlots.Find(slot => slot.IsEmpty);
+        if (empty == null)
+            return;
+        empty.AssignItem(item);
+        if (!_exchangeItems.Exists(existing => existing.ObjectId == item.ObjectId))
+            _exchangeItems.Add(item);
+    }
+
+    public void ApplyPartnerOfferItem(ItemInstance item)
+    {
+        if (item == null)
+            return;
+        ExchangeSlot empty = _partnerExchangeSlots.Find(slot => slot.IsEmpty);
+        empty?.AssignItem(item);
+    }
+
+    public void SetOwnConfirmState(bool confirmed)
+    {
+        if (_okButton != null)
+            _okButton.SetEnabled(!confirmed);
+    }
+
+    public void SetPartnerConfirmState(bool confirmed)
+    {
+        // Partner confirm is shown on their client; no separate control in this window.
     }
 
     public void ShowWindow(string playerName)
@@ -156,21 +188,32 @@ public class TradeWindow : L2PopupWindow
 
         UpdatePlayerName();
         ClearAllExchangeSlots();
-
+        if (_okButton != null)
+            _okButton.SetEnabled(true);
     }
 
     private void UpdatePlayerName()
     {
-        _playerNameLabel.text = _playerName;
+        if (_playerNameLabel != null)
+            _playerNameLabel.text = _playerName;
+        Label otherLabel = (Label)GetElementById("OtherPlayerOfferLabel");
+        if (otherLabel != null && !string.IsNullOrEmpty(_playerName))
+            otherLabel.text = _playerName + "'s Offer";
     }
 
     private void ClearAllExchangeSlots()
     {
-        foreach (var slot in _exchangeSlots)
-        {
-            slot.AssignEmpty();
-        }
+        ClearSlotList(_exchangeSlots);
+        ClearSlotList(_partnerExchangeSlots);
         _exchangeItems.Clear();
+    }
+
+    static void ClearSlotList(List<ExchangeSlot> slots)
+    {
+        if (slots == null)
+            return;
+        foreach (var slot in slots)
+            slot.AssignEmpty();
     }
 
     public void AddExchangeItem(ItemInstance item)
@@ -209,7 +252,6 @@ public class TradeWindow : L2PopupWindow
     private void OnOkClicked(ClickEvent evt)
     {
         SendOkResponse();
-        HideWindow();
     }
 
     private void OnCancelClicked(ClickEvent evt)

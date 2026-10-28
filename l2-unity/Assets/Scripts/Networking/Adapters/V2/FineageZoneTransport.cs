@@ -247,6 +247,35 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        RequestTradeCommand requestTrade = command as RequestTradeCommand;
+        if (requestTrade != null)
+        {
+            ZoneV2Client.Ensure().SendTradeRequest(requestTrade.TargetObjectId);
+            return true;
+        }
+
+        AnswerTradeRequestCommand answerTrade = command as AnswerTradeRequestCommand;
+        if (answerTrade != null)
+        {
+            if (answerTrade.RequestorObjectId > 0)
+                ZoneV2Client.Ensure().SendTradeAnswerRequest(answerTrade.RequestorObjectId, answerTrade.Response);
+            return true;
+        }
+
+        AddTradeItemCommand addTrade = command as AddTradeItemCommand;
+        if (addTrade != null)
+        {
+            ZoneV2Client.Ensure().SendTradeAddItemRequest(addTrade.ObjectId, addTrade.Count);
+            return true;
+        }
+
+        TradeDoneCommand tradeDone = command as TradeDoneCommand;
+        if (tradeDone != null)
+        {
+            ZoneV2Client.Ensure().SendTradeDoneRequest(tradeDone.Response);
+            return true;
+        }
+
         ClanCreateRequestCommand createClan = command as ClanCreateRequestCommand;
         if (createClan != null)
         {
@@ -315,6 +344,8 @@ public sealed class FineageZoneTransport : IZoneTransport
         {
             if (TrySendPartyUserCommand(userCommand.Id))
                 return true;
+            if (TrySendTradeUserCommand(userCommand.Id))
+                return true;
         }
 
         // Other Interlude game commands are no-ops on ZoneV2 until wired.
@@ -342,6 +373,17 @@ public sealed class FineageZoneTransport : IZoneTransport
             default:
                 return false;
         }
+    }
+
+    static bool TrySendTradeUserCommand(int commandId)
+    {
+        if (commandId != (int)PlayerCommand.TRADE)
+            return false;
+        int targetId = ResolveSelectedTargetObjectId();
+        if (targetId <= 0)
+            return true;
+        ZoneV2Client.Ensure().SendTradeRequest(targetId);
+        return true;
     }
 
     static int ResolveSelectedTargetObjectId()

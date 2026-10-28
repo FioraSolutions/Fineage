@@ -38,6 +38,10 @@ public enum ZoneV2MsgType : ushort
     PartyLeaveRequest = 26,
     /// <summary>Leader kick. Backend <c>PartyKickRequestMsg</c> key 0 targetObjectId.</summary>
     PartyKickRequest = 27,
+    /// <summary>Request trade with a visible player. Backend <c>TradeRequestMsg</c> key 0 targetObjectId.</summary>
+    TradeRequest = 28,
+    /// <summary>Accept or decline a pending trade ask. Backend <c>TradeAnswerRequestMsg</c>.</summary>
+    TradeAnswerRequest = 29,
     /// <summary>Create a clan. Backend <c>ClanCreateRequestMsg</c> key 0 name.</summary>
     ClanCreateRequest = 32,
     /// <summary>Invite a visible player. Backend <c>ClanInviteRequestMsg</c> keys 0 targetObjectId, 1 pledgeType.</summary>
@@ -72,6 +76,10 @@ public enum ZoneV2MsgType : ushort
     ReviveRequest = 52,
     /// <summary>Admin kill (empty body). Backend <c>AdminKillPlayerMsg</c>.</summary>
     AdminKillPlayer = 53,
+    /// <summary>Add an inventory row to the active trade offer. Backend <c>TradeAddItemRequestMsg</c>.</summary>
+    TradeAddItemRequest = 54,
+    /// <summary>Confirm or cancel the trade window. Backend <c>TradeDoneRequestMsg</c> key 0 response.</summary>
+    TradeDoneRequest = 55,
     /// <summary>NPC HTML link. Backend <c>BypassRequestMsg</c> keys 0 npcObjectId, 1 command.</summary>
     BypassRequest = 95,
     /// <summary>Buy from the open buylist. Backend <c>RequestBuyItemMsg</c>.</summary>
@@ -159,6 +167,18 @@ public enum ZoneV2MsgType : ushort
     Revive = 1071,
     /// <summary>Instant relocation (respawn, …). Backend <c>TeleportToLocationMsg</c>.</summary>
     TeleportToLocation = 1072,
+    /// <summary>Incoming trade ask. Backend <c>TradeAskMsg</c>.</summary>
+    TradeAsk = 1073,
+    /// <summary>Trade ask outcome for the requestor. Backend <c>TradeRequestResultMsg</c>.</summary>
+    TradeRequestResult = 1074,
+    /// <summary>Trade session opened. Backend <c>TradeStartMsg</c>.</summary>
+    TradeStart = 1075,
+    /// <summary>Offer column update. Backend <c>TradeOfferUpdateMsg</c>.</summary>
+    TradeOfferUpdate = 1076,
+    /// <summary>Dual confirm flags. Backend <c>TradeConfirmStateMsg</c>.</summary>
+    TradeConfirmState = 1077,
+    /// <summary>Trade session ended. Backend <c>TradeFinishedMsg</c>.</summary>
+    TradeFinished = 1078,
     /// <summary>NPC page. Backend <c>NpcHtmlMsg</c>. Quest steps stay on <see cref="QuestDialog"/>.</summary>
     NpcHtml = 1094,
     /// <summary>Merchant buylist. Backend <c>BuyListMsg</c>.</summary>

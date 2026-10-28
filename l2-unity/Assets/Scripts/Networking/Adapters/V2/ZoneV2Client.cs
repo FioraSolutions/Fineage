@@ -593,6 +593,38 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.PartyKickRequest, body);
     }
 
+    public void SendTradeRequest(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeRequest(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeRequest, body);
+    }
+
+    public void SendTradeAnswerRequest(int requestorObjectId, int response)
+    {
+        if (!Connected || _stream == null || requestorObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeAnswerRequest(requestorObjectId, response);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeAnswerRequest, body);
+    }
+
+    public void SendTradeAddItemRequest(int inventoryObjectId, int count)
+    {
+        if (!Connected || _stream == null || inventoryObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeAddItemRequest(inventoryObjectId, count);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeAddItemRequest, body);
+    }
+
+    public void SendTradeDoneRequest(int response)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeDoneRequest(response);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeDoneRequest, body);
+    }
+
     public void SendClanCreateRequest(string name)
     {
         if (!Connected || _stream == null)
@@ -1172,6 +1204,95 @@ public sealed class ZoneV2Client : MonoBehaviour
                         }
 
                         Post(() => PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(partyList));
+                        break;
+
+                    case ZoneV2MsgType.TradeAsk:
+                        ZoneV2TradeAsk tradeAsk;
+                        if (!ZoneV2Messages.TryDecodeTradeAsk(f.Body, out tradeAsk))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeAsk body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            SendTradeRequestDto dto = ZoneV2DomainMap.ToSendTradeRequestDto(tradeAsk);
+                            SendTradeRequestApplyIncomingPacketServices.ApplySendTradeRequest(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeRequestResult:
+                        int tradeAskResult;
+                        if (!ZoneV2Messages.TryDecodeTradeRequestResult(f.Body, out tradeAskResult))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeRequestResult body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            if (tradeAskResult == 0)
+                                ZoneV2ChatFeed.NoteSystem("Trade request declined.");
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeStart:
+                        ZoneV2TradeStart tradeStart;
+                        if (!ZoneV2Messages.TryDecodeTradeStart(f.Body, out tradeStart))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeStart body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            TradeStartDto dto = ZoneV2DomainMap.ToTradeStartDto(tradeStart);
+                            TradeStartApplyIncomingPacketServices.ApplyTradeStart(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeOfferUpdate:
+                        ZoneV2TradeOfferUpdate tradeOffer;
+                        if (!ZoneV2Messages.TryDecodeTradeOfferUpdate(f.Body, out tradeOffer))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeOfferUpdate body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            ItemInstance item = ZoneV2DomainMap.ToTradeOfferItem(tradeOffer);
+                            if (tradeOffer.IsOwn != 0)
+                                TradeOwnAddApplyIncomingPacketServices.ApplyOwnAdd(item);
+                            else
+                                TradeOtherAddApplyIncomingPacketServices.ApplyOtherAdd(item);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeConfirmState:
+                        ZoneV2TradeConfirmState tradeConfirm;
+                        if (!ZoneV2Messages.TryDecodeTradeConfirmState(f.Body, out tradeConfirm))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeConfirmState body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            TradePressOwnOkApplyIncomingPacketServices.ApplyPressOwnOk(tradeConfirm.SelfConfirmed != 0);
+                            TradePressOtherOkApplyIncomingPacketServices.ApplyPressOtherOk(tradeConfirm.PartnerConfirmed != 0);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeFinished:
+                        int tradeFinished;
+                        if (!ZoneV2Messages.TryDecodeTradeFinished(f.Body, out tradeFinished))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeFinished body"));
+                            break;
+                        }
+
+                        Post(() => TradeDoneApplyIncomingPacketServices.ApplyTradeDone());
                         break;
 
                     case ZoneV2MsgType.ClanAskJoin:

@@ -14,4 +14,7 @@ public static class TradeOwnAddApplyIncomingPacketServices
     public static void ApplyOwnAdd(TradeOwnAddIncomingDto dto)
     {
     }
+
+    public static void ApplyOwnAdd(ItemInstance item) =>
+        Queue(() => Trade?.ApplyOwnOfferItem(item));
 }

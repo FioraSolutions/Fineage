@@ -13,6 +13,10 @@ public static class TradeStartApplyIncomingPacketServices
         Queue(() =>
         {
             LocatorApplyIncomingPacketServices.Trade.AddData(packet);
-            LocatorApplyIncomingPacketServices.Trade.ShowWindow();
+            string partner = packet.PartnerName;
+            if (!string.IsNullOrEmpty(partner))
+                LocatorApplyIncomingPacketServices.Trade.ShowWindow(partner);
+            else
+                LocatorApplyIncomingPacketServices.Trade.ShowWindow("Partner");
         });
 }
