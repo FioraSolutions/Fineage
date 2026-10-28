@@ -2,8 +2,8 @@
 public sealed class InterludeKeyIncoming : IncomingWirePacket<InterludeKeyDto>
 {
     protected override void OnParsed(InterludeKeyDto packet) =>
-        LobbyWireIncomingPacketServices.OnInterludeKeyParsed(packet);
+        InterludeKeyIncomingPacketServices.OnInterludeKeyParsed(packet);
 
     public override void Apply(InterludeKeyDto packet) =>
-        LobbyWireIncomingPacketServices.ApplyInterludeKey(packet);
+        InterludeKeyIncomingPacketServices.ApplyInterludeKey(packet);
 }
