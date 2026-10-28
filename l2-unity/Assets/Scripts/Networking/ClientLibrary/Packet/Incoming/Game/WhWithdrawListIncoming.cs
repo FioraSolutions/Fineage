@@ -3,5 +3,5 @@
 public sealed class WhWithdrawListIncoming : IncomingWirePacket<WarehouseWithdrawListDto>
 {
     public override void Apply(WarehouseWithdrawListDto packet) =>
-        WarehouseIncomingPacketServices.ApplyWhWithdrawList(packet);
+        WhWithdrawListIncomingPacketServices.ApplyWhWithdrawList(packet);
 }
