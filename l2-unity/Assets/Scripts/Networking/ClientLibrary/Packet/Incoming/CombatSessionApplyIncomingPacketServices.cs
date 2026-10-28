@@ -1,15 +1,15 @@
 using System;
 
 /// <summary>
-/// Combat session orchestration hub (#142 batch slice 172; combat packet relay slice 200).
+/// Combat session orchestration hub (#142 batch slice 172; combat leaf hub slice 211).
 /// </summary>
 public static class CombatSessionApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => CombatPacketApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => InventoryApplyIncomingPacketServices.Inventory;
 
-    public static EnchantWindow Enchant => CombatPacketApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => EnchantApplyIncomingPacketServices.Enchant;
 
-    public static TargetManager Targets => CombatPacketApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
         CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
