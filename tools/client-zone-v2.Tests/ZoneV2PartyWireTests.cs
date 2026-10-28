@@ -1,6 +1,4 @@
 using MessagePack;
-using MessagePackObject = MessagePack.MessagePackObjectAttribute;
-using Key = MessagePack.KeyAttribute;
 using Xunit;
 
 namespace Fineage.Client.ZoneV2.Tests;
