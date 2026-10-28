@@ -233,6 +233,12 @@ public class L2GameUI : L2UI
             PartyInvitationWindow.Instance.HideWindow();
         }
 
+        EnsurePartyMemberListWindow();
+        if (PartyMemberListWindow.Instance != null)
+        {
+            PartyMemberListWindow.Instance.AddWindow(_rootVisualContainer);
+        }
+
         if (ClanAskJoinWindow.Instance != null)
         {
             ClanAskJoinWindow.Instance.AddWindow(_rootVisualContainer);
@@ -359,5 +365,12 @@ public class L2GameUI : L2UI
             UnityEngine.Cursor.visible = false;
             UnityEngine.Cursor.lockState = CursorLockMode.Confined;
         }
+    }
+
+    static void EnsurePartyMemberListWindow()
+    {
+        if (PartyMemberListWindow.Instance != null || Instance == null)
+            return;
+        Instance.gameObject.AddComponent<PartyMemberListWindow>();
     }
 }

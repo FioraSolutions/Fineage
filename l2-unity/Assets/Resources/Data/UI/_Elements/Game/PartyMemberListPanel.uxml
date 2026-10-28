@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="party-member-list-root" style="position: absolute; left: 8px; top: 108px; min-width: 150px; max-width: 220px; background-color: rgba(0, 0, 0, 0.5); padding: 4px 6px; border-width: 1px; border-color: rgba(80, 78, 70, 0.8);">
+        <ui:Label name="PartyTitle" text="Party" style="color: rgb(196, 196, 180); font-size: 11px; margin-bottom: 4px;" />
+        <ui:VisualElement name="MemberRows" style="flex-direction: column;" />
+    </ui:VisualElement>
+</ui:UXML>
