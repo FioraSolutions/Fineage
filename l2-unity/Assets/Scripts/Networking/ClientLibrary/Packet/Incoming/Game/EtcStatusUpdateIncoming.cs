@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.EtcStatusUpdate)]
 public sealed class EtcStatusUpdateIncoming : IncomingWirePacket<EtcStatusUpdateDto>

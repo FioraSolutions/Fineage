@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.RecipeBookItemList)]
 public sealed class RecipeBookItemListIncoming : IncomingWirePacket<RecipeBookItemListDto>

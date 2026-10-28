@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.AcquireSkillList)]
 public sealed class AcquireSkillListIncoming : IncomingWirePacket<AcquireSkillListDto>

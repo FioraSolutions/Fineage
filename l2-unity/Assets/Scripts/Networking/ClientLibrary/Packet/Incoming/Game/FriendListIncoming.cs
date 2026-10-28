@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-[IncomingGamePacket(GameServerPacketType.FriendList)]
+﻿[IncomingGamePacket(GameServerPacketType.FriendList)]
 public sealed class FriendListIncoming : IncomingPacket<FriendListIncomingDto>
 {
     public override FriendListIncomingDto Read(PacketReader reader)
