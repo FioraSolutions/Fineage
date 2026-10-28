@@ -13,6 +13,8 @@ public static class AbnormalStatusUpdateApplyIncomingPacketServices
         {
             if (Buffer == null)
                 return;
+            if (packet.FullEffectSnapshot)
+                Buffer.RemoveAllEffects();
             foreach (var item in packet.ListEffect)
                 Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
         });
