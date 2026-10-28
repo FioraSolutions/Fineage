@@ -360,6 +360,19 @@ public class ChatWindow : L2Window
         }
     }
 
+    public void AppendSystemLine(string text)
+    {
+        if (string.IsNullOrEmpty(text) || _tabs == null || _tabs.Count == 0)
+            return;
+
+        string line = "<color=#E6D38A>" + text + "</color>";
+        for (int i = 0; i < _tabs.Count; i++)
+        {
+            if (_tabs[i] != null)
+                _tabs[i].ConcatMessage(line);
+        }
+    }
+
 
 
     internal void ScrollDown(Scroller scroller)

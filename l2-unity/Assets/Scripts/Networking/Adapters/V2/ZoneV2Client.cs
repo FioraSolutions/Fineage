@@ -514,6 +514,30 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.PickupRequest, body);
     }
 
+    public void SendUseItem(int objectId)
+    {
+        if (!Connected || _stream == null || objectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeUseItem(objectId);
+        _ = SendFireAndForget(ZoneV2MsgType.UseItem, body);
+    }
+
+    public void SendUnequipItem(int paperdollSlot)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeUnequipItem(paperdollSlot);
+        _ = SendFireAndForget(ZoneV2MsgType.UnequipItem, body);
+    }
+
+    public void SendGiveItem(int itemId, int count)
+    {
+        if (!Connected || _stream == null || itemId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeGiveItem(itemId, count);
+        _ = SendFireAndForget(ZoneV2MsgType.GiveItem, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -755,8 +779,14 @@ public sealed class ZoneV2Client : MonoBehaviour
 
                     case ZoneV2MsgType.Error:
                         string code, msg;
-                        ZoneV2Messages.TryDecodeError(f.Body, out code, out msg);
-                        Post(() => Debug.LogError("[ZoneV2] server error " + code + ": " + msg));
+                        if (!ZoneV2Messages.TryDecodeError(f.Body, out code, out msg))
+                        {
+                            Post(() => ShowServerLine(ZoneV2EquipNotices.Line("", "")));
+                            break;
+                        }
+
+                        string line = ZoneV2EquipNotices.Line(code, msg);
+                        Post(() => ShowServerLine(line));
                         break;
                 }
             }
@@ -777,6 +807,24 @@ public sealed class ZoneV2Client : MonoBehaviour
         finally
         {
             Connected = false;
+        }
+    }
+
+    static void ShowServerLine(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return;
+        Debug.LogWarning("[ZoneV2] " + text);
+        ChatWindow chat = ChatWindow.Instance;
+        if (chat == null)
+            return;
+        try
+        {
+            chat.AppendSystemLine(text);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[ZoneV2] system line skipped: " + ex.Message);
         }
     }
 

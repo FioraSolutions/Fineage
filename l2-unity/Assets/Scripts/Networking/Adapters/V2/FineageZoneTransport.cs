@@ -80,6 +80,29 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        UseItemCommand useItem = command as UseItemCommand;
+        if (useItem != null)
+        {
+            ZoneV2Client.Ensure().SendUseItem(useItem.ObjectId);
+            return true;
+        }
+
+        UnequipItemCommand unequip = command as UnequipItemCommand;
+        if (unequip != null)
+        {
+            ZoneV2Client.Ensure().SendUnequipItem(unequip.PaperdollSlot);
+            return true;
+        }
+
+        RequestBypassToServerCommand bypass = command as RequestBypassToServerCommand;
+        int giveItemId;
+        int giveCount;
+        if (bypass != null && ZoneV2GiveCommand.TryParse(bypass.Bypass, out giveItemId, out giveCount))
+        {
+            ZoneV2Client.Ensure().SendGiveItem(giveItemId, giveCount);
+            return true;
+        }
+
         // Other Interlude game commands are no-ops on ZoneV2 until wired.
         return true;
     }

@@ -1,6 +1,4 @@
-﻿
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 
 public class GearSlot : InventorySlot
@@ -8,42 +6,55 @@ public class GearSlot : InventorySlot
     private VisualElement _blackElement;
     private string _blackElementName = "backOverlay";
 
-    public GearSlot(int position, VisualElement slotElement, InventoryGearTab tab, SlotType slotType) : base(position, slotElement, tab, slotType , false)
+    public GearSlot(int position, VisualElement slotElement, InventoryGearTab tab, SlotType slotType) : base(position, slotElement, tab, slotType, false, true)
     {
         _blackElement = CreateBlack(_blackElementName);
     }
 
+    protected override void HandleLeftClick()
+    {
+        if (_slotDragManipulator != null && _slotDragManipulator.dragged)
+            return;
+        UnequipWorn();
+    }
+
     protected override void HandleRightClick()
     {
-        UseItem();
+        UnequipWorn();
     }
 
     public override void UseItem()
     {
-        //if (!_empty)
-        //{
-            ItemInstance item = PlayerInventory.Instance.GetItemEquip(ObjectId);
-
-            if (item != null)
-            {
-                AddCacheName(item, ObjectId);
-
-                InventoryPacketServices.Game.Send(new UseItemCommand(ObjectId, 0));
-            }
-            else
-            {
-                AssignEmpty();
-            }
-
-        //}
+        UnequipWorn();
     }
 
-    private void AddCacheName(ItemInstance item , int objectId)
+    void UnequipWorn()
     {
-        if (item != null)
+        PlayerInventory inventory = PlayerInventory.Instance;
+        ItemInstance item = inventory != null ? inventory.GetItemEquip(ObjectId) : null;
+        if (item == null)
         {
-           // StorageVariable.getInstance().AddS1Items(new VariableItem(item.ItemData.ItemName.Name, objectId));
+            AssignEmpty();
+            return;
         }
+
+        GameClient game = InventoryPacketServices.Game;
+        if (game == null)
+            return;
+
+        if (FineageWireConfig.IsZoneV2)
+        {
+            InventoryGearTab gearTab = _currentTab as InventoryGearTab;
+            ItemSlot cell = gearTab != null ? gearTab.CellSlot(_position) : ItemSlot.none;
+            int slot = ZoneV2Paperdoll.UnequipIndex(ZoneV2Paperdoll.IndexForGearCell(cell.ToString()), item.BodyPart.ToString());
+            if (slot >= 0)
+            {
+                game.Send(new UnequipItemCommand(slot));
+                return;
+            }
+        }
+
+        game.Send(new UseItemCommand(ObjectId, 0));
     }
 
     private VisualElement CreateBlack(string name)

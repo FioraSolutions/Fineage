@@ -14,6 +14,12 @@ public enum ZoneV2MsgType : ushort
     GrantItemRequest = 13,
     /// <summary>Pick up a visible ground item. Backend <c>PickupRequestMsg</c> key 0 objectId.</summary>
     PickupRequest = 14,
+    /// <summary>Equip a bag item, or unequip it when it is already worn. Backend <c>UseItemMsg</c> key 0 objectId.</summary>
+    UseItem = 15,
+    /// <summary>Clear one paperdoll index (0..16). Backend <c>UnequipItemMsg</c> key 0 paperdollSlot.</summary>
+    UnequipItem = 16,
+    /// <summary>Admin bag grant. Backend <c>GiveItemMsg</c> keys 0 itemId, 1 count. The zone rejects it unless admin commands are on.</summary>
+    GiveItem = 17,
 
     Register = 20,
     CreateCharacter = 21,

@@ -123,6 +123,30 @@ public static class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, groundObjectId), 1);
     }
 
+    /// <summary>MessagePack array [objectId] — Fineage-Backend <c>UseItemMsg</c>.</summary>
+    public static byte[] EncodeUseItem(int objectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, objectId), 1);
+    }
+
+    /// <summary>MessagePack array [paperdollSlot] — Fineage-Backend <c>UnequipItemMsg</c>.</summary>
+    public static byte[] EncodeUnequipItem(int paperdollSlot)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, paperdollSlot), 1);
+    }
+
+    /// <summary>MessagePack array [itemId, count] — Fineage-Backend <c>GiveItemMsg</c>.</summary>
+    public static byte[] EncodeGiveItem(int itemId, int count)
+    {
+        if (count < 1)
+            count = 1;
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, itemId);
+            ZoneV2MsgPack.WriteInt(w, count);
+        }, 2);
+    }
+
     public static bool TryDecodeHelloAck(byte[] body, out int protocolVersion, out string serverName)
     {
         protocolVersion = 0;
@@ -1131,6 +1155,66 @@ public static class ZoneV2Paperdoll
         for (int i = 0; i < slots.Length; i++)
             ids[i] = slots[i].ItemId;
         return ids;
+    }
+
+    /// <summary>Inventory paperdoll cell name (ItemSlot) to the zone index. Unknown cells are -1.</summary>
+    public static int IndexForGearCell(string cell)
+    {
+        if (string.IsNullOrEmpty(cell))
+            return -1;
+        switch (cell)
+        {
+            case "underwear":
+                return Under;
+            case "lear":
+                return LeftEar;
+            case "rear":
+                return RightEar;
+            case "neck":
+                return Neck;
+            case "lfinger":
+                return LeftFinger;
+            case "rfinger":
+                return RightFinger;
+            case "head":
+                return Head;
+            case "rhand":
+                return RightHand;
+            case "lhand":
+                return LeftHand;
+            case "gloves":
+                return Gloves;
+            case "chest":
+                return Chest;
+            case "legs":
+                return Legs;
+            case "feet":
+            case "boots":
+                return Feet;
+            case "hat1":
+            case "hair":
+                return Hair;
+            case "hat2":
+            case "hair2":
+                return Hair2;
+            default:
+                return -1;
+        }
+    }
+
+    /// <summary>
+    /// Two-handed weapons occupy the right hand. Full armor and formal wear occupy the chest.
+    /// A ghost icon on the other cell still clears that primary slot.
+    /// </summary>
+    public static int UnequipIndex(int cellIndex, string bodySlot)
+    {
+        if (bodySlot == "lrhand")
+            return RightHand;
+        if (bodySlot == "fullarmor" || bodySlot == "alldress")
+            return Chest;
+        if (cellIndex < 0 || cellIndex >= Count)
+            return -1;
+        return cellIndex;
     }
 }
 

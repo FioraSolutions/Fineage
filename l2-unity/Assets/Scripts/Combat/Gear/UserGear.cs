@@ -202,6 +202,7 @@ public class UserGear : Gear
 
     void ReportMissingArmorAndReset(Armor armor, ItemSlot slotArmor, int itemId)
     {
+        EquipmentMeshLog.Once("armor", itemId);
         // string visual = GearFlowLog.ArmorVisual(armor, _raceId, itemId, slotArmor);
         // GearFlowLog.Info("Missing mesh/texture, reset to naked " + visual);
 

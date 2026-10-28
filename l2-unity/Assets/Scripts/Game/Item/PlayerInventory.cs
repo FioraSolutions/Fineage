@@ -250,7 +250,9 @@ public class PlayerInventory : MonoBehaviour
                 _playerInventory.Remove(item.ObjectId);
                 RefreshPosition(_playerInventory);
             }
-            
+
+            if (_playerEquipInventory != null && _playerEquipInventory.ContainsKey(item.ObjectId))
+                RemoveGearInventory(_playerEquipInventory, _playerEquipInventory[item.ObjectId]);
         }
         else if(item.LastChange == (int)InventoryChange.ADDED)
         {
@@ -338,7 +340,15 @@ public class PlayerInventory : MonoBehaviour
 
     private void UpdateInventoryEquip(Dictionary<int, ItemInstance> playerInventory, Dictionary<int, ItemInstance> playerEquipInventory, ItemInstance item)
     {
-     
+        if (item.LastChange == (int)InventoryChange.REMOVED)
+        {
+            if (playerInventory != null && playerInventory.ContainsKey(item.ObjectId))
+                RemoveInventory(playerInventory, playerInventory[item.ObjectId]);
+            if (playerEquipInventory != null && playerEquipInventory.ContainsKey(item.ObjectId))
+                RemoveGearInventory(playerEquipInventory, playerEquipInventory[item.ObjectId]);
+            return;
+        }
+
         if(playerInventory.ContainsKey(item.ObjectId) & item.Equipped == true)
         {
             ItemInstance del_item = playerInventory[item.ObjectId];
@@ -354,6 +364,10 @@ public class PlayerInventory : MonoBehaviour
         else if (!playerEquipInventory.ContainsKey(item.ObjectId) & item.Equipped == true)
         {
             playerEquipInventory.Add(item.ObjectId, item);
+        }
+        else if (playerEquipInventory.ContainsKey(item.ObjectId) & item.Equipped == true)
+        {
+            playerEquipInventory[item.ObjectId].Update(item);
         }
     }
 

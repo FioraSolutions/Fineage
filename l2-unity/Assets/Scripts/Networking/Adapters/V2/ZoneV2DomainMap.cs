@@ -238,23 +238,16 @@ public static class ZoneV2DomainMap
     static int MapZoneInventoryChange(int zoneChange)
     {
         // Fineage.Protocol.InventoryChange: 0 add, 1 modify, 2 remove.
-        switch (zoneChange)
-        {
-            case 0:
-                return (int)PlayerInventory.InventoryChange.ADDED;
-            case 1:
-                return (int)PlayerInventory.InventoryChange.MODIFIED;
-            case 2:
-                return (int)PlayerInventory.InventoryChange.REMOVED;
-            default:
-                return (int)PlayerInventory.InventoryChange.MODIFIED;
-        }
+        // PlayerInventory.InventoryChange stores those as 1, 2, and 3.
+        return ZoneV2InventoryBook.ToClientChange(zoneChange);
     }
 
     static ItemCategory CategoryFromZone(ZoneV2ItemEntry row)
     {
         if (row.ItemId == 57)
             return ItemCategory.Adena;
+        if (IsJewelBody(row.BodySlot))
+            return ItemCategory.Jewel;
         string kind = row.Kind ?? "";
         if (kind == "weapon")
             return ItemCategory.Weapon;
@@ -297,8 +290,38 @@ public static class ZoneV2DomainMap
                 return ItemSlot.lfinger;
             case "rfinger":
                 return ItemSlot.rfinger;
+            case "underwear":
+                return ItemSlot.underwear;
+            case "both_ears":
+                return ItemSlot.lear;
+            case "both_fingers":
+                return ItemSlot.lfinger;
+            case "hair":
+            case "hairall":
+                return ItemSlot.hat1;
+            case "hair2":
+                return ItemSlot.hat2;
+            case "alldress":
+                return ItemSlot.chest;
             default:
                 return ItemSlot.none;
+        }
+    }
+
+    static bool IsJewelBody(string bodySlot)
+    {
+        switch (bodySlot)
+        {
+            case "neck":
+            case "lear":
+            case "rear":
+            case "both_ears":
+            case "lfinger":
+            case "rfinger":
+            case "both_fingers":
+                return true;
+            default:
+                return false;
         }
     }
 
