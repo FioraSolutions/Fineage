@@ -6,14 +6,14 @@ using System;
 /// </summary>
 public static class ShortBuffStatusUpdateApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => BufferApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyShortBuffStatusUpdate(ShortBuffStatusUpdateDto packet) =>
         Queue(() =>
         {
-            if (UiApplyIncomingPacketServices.Buffer == null || packet.Effect == null)
+            if (BufferApplyIncomingPacketServices.Buffer == null || packet.Effect == null)
                 return;
             var item = packet.Effect;
-            UiApplyIncomingPacketServices.Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
+            BufferApplyIncomingPacketServices.Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
         });
 }
