@@ -76,11 +76,11 @@ public static class FineageLocalMacBuild
         string previousName = PlayerSettings.productName;
         int previousWidth = PlayerSettings.defaultScreenWidth;
         int previousHeight = PlayerSettings.defaultScreenHeight;
-        FullScreenMode previousFullScreen = PlayerSettings.fullscreenMode;
+        FullScreenMode previousFullScreen = PlayerSettings.fullScreenMode;
         PlayerSettings.productName = "Fineage";
         PlayerSettings.defaultScreenWidth = FineageLocalBackend.PlaytestScreenWidth;
         PlayerSettings.defaultScreenHeight = FineageLocalBackend.PlaytestScreenHeight;
-        PlayerSettings.fullscreenMode = FullScreenMode.Windowed;
+        PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
         try
         {
             string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray();
@@ -110,7 +110,7 @@ public static class FineageLocalMacBuild
             PlayerSettings.productName = previousName;
             PlayerSettings.defaultScreenWidth = previousWidth;
             PlayerSettings.defaultScreenHeight = previousHeight;
-            PlayerSettings.fullscreenMode = previousFullScreen;
+            PlayerSettings.fullScreenMode = previousFullScreen;
         }
     }
 
