@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Combat incoming packet handler access via session hub (#142 sub-slices 48, 77, 78; slice 172).
+/// Combat incoming packet handler access via session hub (#142 sub-slices 48, 77, 78; session slice 180).
 /// </summary>
 public static class CombatApplyIncomingPacketServices
 {

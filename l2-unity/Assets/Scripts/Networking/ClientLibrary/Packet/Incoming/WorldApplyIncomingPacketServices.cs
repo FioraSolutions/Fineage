@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// World presence / AOI incoming handler access via domain facades (#142 sub-slice 52; queue orchestration slice 177).
+/// World presence / AOI incoming handler access via domain facades (#142 sub-slice 52; orchestration slice 180).
 /// </summary>
 public static class WorldApplyIncomingPacketServices
 {

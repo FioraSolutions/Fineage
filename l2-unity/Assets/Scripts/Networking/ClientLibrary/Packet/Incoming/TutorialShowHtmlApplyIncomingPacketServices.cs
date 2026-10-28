@@ -6,12 +6,12 @@ using System;
 /// </summary>
 public static class TutorialShowHtmlApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => HtmlApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyTutorialShowHtml(TutorialShowHtmlDto packet) =>
         Queue(() =>
         {
-            HtmlApplyIncomingPacketServices.Html.InjectToWindow(packet.Html);
-            HtmlApplyIncomingPacketServices.Html.ShowWindowToCenter();
+            UiApplyIncomingPacketServices.Html.InjectToWindow(packet.Html);
+            UiApplyIncomingPacketServices.Html.ShowWindowToCenter();
         });
 }

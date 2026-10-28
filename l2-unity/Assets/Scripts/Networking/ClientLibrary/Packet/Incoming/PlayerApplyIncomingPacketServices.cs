@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Player session apply hub (#142 batch slice 164; world orchestration slice 179).
+/// Player session apply hub (#142 batch slice 164; compat pass-through slice 180).
 /// </summary>
 public static class PlayerApplyIncomingPacketServices
 {
