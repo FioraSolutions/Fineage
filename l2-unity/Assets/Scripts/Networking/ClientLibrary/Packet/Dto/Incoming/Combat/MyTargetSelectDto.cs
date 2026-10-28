@@ -1,7 +1,3 @@
-using System.Drawing;
-using System;
-using System.Xml.Serialization;
-
 public class MyTargetSelectDto : IWireDto
 {
     private int _objectId;

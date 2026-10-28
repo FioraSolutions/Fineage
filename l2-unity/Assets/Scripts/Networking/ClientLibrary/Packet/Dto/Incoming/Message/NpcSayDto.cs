@@ -1,5 +1,3 @@
-using System.Security.Principal;
-
 public class NpcSayDto : IWireDto
 {
     private int _objectId;
