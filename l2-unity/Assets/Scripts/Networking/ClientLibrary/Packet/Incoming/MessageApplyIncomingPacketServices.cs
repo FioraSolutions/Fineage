@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Message packet apply hub (#142 batch slice 159; chat orchestration slice 177).
+/// Message packet apply hub (#142 batch slice 159; chat orchestration slice 178).
 /// </summary>
 public static class MessageApplyIncomingPacketServices
 {
@@ -9,8 +9,8 @@ public static class MessageApplyIncomingPacketServices
         LocatorApplyIncomingPacketServices.MessageApply;
 
     public static void ApplyMessage(Action<MessagePacketApply> apply) =>
-        QueueApplyIncomingPacketServices.ApplyMessage(apply);
+        ChatApplyIncomingPacketServices.ApplyMessage(apply);
 
     public static void Queue(Action action) =>
-        QueueApplyIncomingPacketServices.Queue(action);
+        ChatApplyIncomingPacketServices.Queue(action);
 }

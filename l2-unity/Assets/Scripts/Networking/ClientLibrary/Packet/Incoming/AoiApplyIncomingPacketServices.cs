@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// World AOI apply hub (#142 batch slice 163; world hub slice 177).
+/// World AOI apply hub (#142 batch slice 163; world orchestration slice 178).
 /// </summary>
 public static class AoiApplyIncomingPacketServices
 {

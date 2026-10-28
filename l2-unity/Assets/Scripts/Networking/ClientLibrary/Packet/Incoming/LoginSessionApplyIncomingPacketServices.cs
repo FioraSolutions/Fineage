@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Login-session wire apply hub (#142 batch slice 169; login hub slice 174–175).
+/// Login-session wire apply hub (#142 batch slice 169; compat pass-through slice 178).
 /// </summary>
 public static class LoginSessionApplyIncomingPacketServices
 {
