@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-
-public class CreatureMessage : SystemMessage
+﻿public class CreatureMessage : SystemMessage
 {
     private string sendName;
     private string _text;
