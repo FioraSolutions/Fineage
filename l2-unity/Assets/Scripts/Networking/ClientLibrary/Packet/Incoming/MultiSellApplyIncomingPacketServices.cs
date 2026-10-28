@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class MultiSellApplyIncomingPacketServices
 {
-    public static MultiSellWindow MultiSell => UiApplyIncomingPacketServices.MultiSell;
+    public static MultiSellWindow MultiSell => IncomingPacketLocatorApplyIncomingPacketServices.MultiSell;
 
     public static void Queue(Action action) =>
         IncomingPacketQueueApplyIncomingPacketServices.Queue(action);

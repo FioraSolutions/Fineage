@@ -6,12 +6,12 @@ using System;
 /// </summary>
 public static class MyTargetSelectedApplyIncomingPacketServices
 {
-    public static TargetManager Targets => CombatPacketServices.Targets;
+    public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
 
-    public static void Queue(Action action) => WorldApplyPacketServices.Queue(action);
+    public static void Queue(Action action) => TargetApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        WorldApplyPacketServices.ApplyWorld(apply);
+        TargetApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void ApplyMyTargetSelected(MyTargetSelectDto packet)
     {

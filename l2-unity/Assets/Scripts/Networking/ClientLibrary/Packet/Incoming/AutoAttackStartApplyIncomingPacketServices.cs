@@ -7,5 +7,5 @@ using System;
 public static class AutoAttackStartApplyIncomingPacketServices
 {
     public static void ApplyAutoAttackStart(AutoAttackStartDto packet) =>
-        WorldApplyPacketServices.ApplyWorld(apply => apply.AutoAttackStart(packet));
+        CombatApplyIncomingPacketServices.ApplyWorld(apply => apply.AutoAttackStart(packet));
 }

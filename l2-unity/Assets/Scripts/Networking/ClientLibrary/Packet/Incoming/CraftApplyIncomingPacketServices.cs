@@ -5,9 +5,9 @@ using System;
 /// </summary>
 public static class CraftApplyIncomingPacketServices
 {
-    public static RecipeBookWindow RecipeBook => UiApplyIncomingPacketServices.RecipeBook;
+    public static RecipeBookWindow RecipeBook => IncomingPacketLocatorApplyIncomingPacketServices.RecipeBook;
 
-    public static CraftingItemWindow Crafting => UiApplyIncomingPacketServices.Crafting;
+    public static CraftingItemWindow Crafting => IncomingPacketLocatorApplyIncomingPacketServices.Crafting;
 
     public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

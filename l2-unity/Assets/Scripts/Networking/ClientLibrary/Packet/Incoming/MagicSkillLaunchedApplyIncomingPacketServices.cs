@@ -11,6 +11,6 @@ public static class MagicSkillLaunchedApplyIncomingPacketServices
         if (packet == null)
             return;
 
-        WorldApplyPacketServices.QueueWorld(apply => apply.MagicSkillLaunched(packet));
+        CombatApplyIncomingPacketServices.QueueWorld(apply => apply.MagicSkillLaunched(packet));
     }
 }
