@@ -37,6 +37,12 @@ public static class FineageLocalMacBuild
         Build();
     }
 
+    [MenuItem("Fineage/Build Local macOS Player")]
+    public static void BuildFromMenu()
+    {
+        Build();
+    }
+
     public static void Build()
     {
         string dir = Environment.GetEnvironmentVariable("FINEAGE_LOCAL_OUT");
