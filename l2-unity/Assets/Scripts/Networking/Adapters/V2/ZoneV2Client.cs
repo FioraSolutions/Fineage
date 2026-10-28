@@ -239,6 +239,38 @@ public sealed class ZoneV2Client : MonoBehaviour
                         });
                         break;
 
+                    case ZoneV2MsgType.CharInfo:
+                        ZoneV2CharInfo charInfo;
+                        if (!ZoneV2Messages.TryDecodeCharInfo(f.Body, out charInfo))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad CharInfo body"));
+                            break;
+                        }
+
+                        CharInfoDto charDto = ZoneV2DomainMap.ToCharInfoDto(charInfo);
+                        Post(() => CharInfoApplyIncomingPacketServices.ApplyCharInfo(charDto));
+                        break;
+
+                    case ZoneV2MsgType.NpcInfo:
+                        ZoneV2NpcInfo npcInfo;
+                        if (!ZoneV2Messages.TryDecodeNpcInfo(f.Body, out npcInfo))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad NpcInfo body"));
+                            break;
+                        }
+
+                        NpcInfoDto npcDto = ZoneV2DomainMap.ToNpcInfoDto(npcInfo);
+                        Post(() => NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(npcDto));
+                        break;
+
+                    case ZoneV2MsgType.DeleteObject:
+                        int deleteId;
+                        if (!ZoneV2Messages.TryDecodeDeleteObject(f.Body, out deleteId))
+                            break;
+                        DeleteObjectDto deleteDto = new DeleteObjectDto { ObjectId = deleteId };
+                        Post(() => DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(deleteDto));
+                        break;
+
                     case ZoneV2MsgType.Error:
                         string code, msg;
                         ZoneV2Messages.TryDecodeError(f.Body, out code, out msg);
