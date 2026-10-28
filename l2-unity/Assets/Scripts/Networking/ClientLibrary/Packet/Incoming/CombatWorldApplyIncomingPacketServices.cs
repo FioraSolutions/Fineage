@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Combat world dispatch hub for wire apply facades (#142 batch slice 171; queue relay slice 174).
+/// Combat world dispatch hub for wire apply facades (#142 batch slice 171; session leaf slice 179).
 /// </summary>
 public static class CombatWorldApplyIncomingPacketServices
 {

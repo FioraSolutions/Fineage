@@ -1,17 +1,17 @@
 using System;
 
 /// <summary>
-/// My-target-selected wire packet handler entry (#142 batch slice 144; target hub slice 175).
+/// My-target-selected wire packet handler entry (#142 batch slice 144; combat packet slice 179).
 /// Apply facade (#142 batch slice 153). Re-homes from <see cref="MyTargetSelectedIncomingPacketServices"/>.
 /// </summary>
 public static class MyTargetSelectedApplyIncomingPacketServices
 {
-    public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => CombatPacketApplyIncomingPacketServices.Targets;
 
-    public static void Queue(Action action) => TargetApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        TargetApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void ApplyMyTargetSelected(MyTargetSelectDto packet)
     {
