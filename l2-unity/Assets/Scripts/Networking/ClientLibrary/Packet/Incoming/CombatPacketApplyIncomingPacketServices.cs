@@ -1,15 +1,15 @@
 using System;
 
 /// <summary>
-/// Combat apply relay in Incoming namespace (#142 batch slice 165; queue relay slice 166).
+/// Combat apply relay in Incoming namespace (#142 batch slice 165; orchestration slice 171).
 /// </summary>
 public static class CombatPacketApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => IncomingPacketLocatorApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => InventoryApplyIncomingPacketServices.Inventory;
 
-    public static EnchantWindow Enchant => IncomingPacketLocatorApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => EnchantApplyIncomingPacketServices.Enchant;
 
-    public static TargetManager Targets => IncomingPacketLocatorApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
         IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
