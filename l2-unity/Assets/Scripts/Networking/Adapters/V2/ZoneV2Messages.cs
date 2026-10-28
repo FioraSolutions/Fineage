@@ -164,6 +164,13 @@ public static class ZoneV2Messages
                 Z = ZoneV2MsgPack.ReadInt(body, ref i),
                 ClassId = ZoneV2MsgPack.ReadInt(body, ref i)
             };
+            // Key 6 is optional. Older zone servers stop at class id.
+            if (n >= 7 && !ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            {
+                info.PaperdollItemIds = ZoneV2MsgPack.ReadIntArray(body, ref i);
+                info.HasPaperdoll = true;
+            }
+
             return true;
         }
         catch (InvalidDataException)
@@ -181,13 +188,33 @@ public static class ZoneV2Messages
             int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
             if (n < 5)
                 return false;
+            int objectId = ZoneV2MsgPack.ReadInt(body, ref i);
+            int templateId = ZoneV2MsgPack.ReadInt(body, ref i);
+            int x;
+            int y;
+            int z;
+            // Fineage-Backend key 2 is the npc name. Legacy zone-server key 2 is x.
+            if (n >= 6 && ZoneV2MsgPack.IsStringOrNil(body, i))
+            {
+                ZoneV2MsgPack.ReadString(body, ref i);
+                x = ZoneV2MsgPack.ReadInt(body, ref i);
+                y = ZoneV2MsgPack.ReadInt(body, ref i);
+                z = ZoneV2MsgPack.ReadInt(body, ref i);
+            }
+            else
+            {
+                x = ZoneV2MsgPack.ReadInt(body, ref i);
+                y = ZoneV2MsgPack.ReadInt(body, ref i);
+                z = ZoneV2MsgPack.ReadInt(body, ref i);
+            }
+
             info = new ZoneV2NpcInfo
             {
-                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
-                NpcTemplateId = ZoneV2MsgPack.ReadInt(body, ref i),
-                X = ZoneV2MsgPack.ReadInt(body, ref i),
-                Y = ZoneV2MsgPack.ReadInt(body, ref i),
-                Z = ZoneV2MsgPack.ReadInt(body, ref i)
+                ObjectId = objectId,
+                NpcTemplateId = templateId,
+                X = x,
+                Y = y,
+                Z = z
             };
             return true;
         }
@@ -321,6 +348,12 @@ public static class ZoneV2Messages
             int outer = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
             if (outer < 1)
                 return false;
+            if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            {
+                items = Array.Empty<ZoneV2ItemEntry>();
+                return true;
+            }
+
             int rowCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
             if (rowCount <= 0)
             {
@@ -353,6 +386,12 @@ public static class ZoneV2Messages
             int outer = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
             if (outer < 1)
                 return false;
+            if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            {
+                changes = Array.Empty<ZoneV2InventoryChange>();
+                return true;
+            }
+
             int rowCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
             if (rowCount <= 0)
             {
@@ -376,24 +415,133 @@ public static class ZoneV2Messages
         }
     }
 
+    public static bool TryDecodeUserInfo(byte[] body, out ZoneV2UserInfo info)
+    {
+        info = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 9)
+                return false;
+            info = new ZoneV2UserInfo
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Name = ZoneV2MsgPack.ReadString(body, ref i),
+                ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+                X = ZoneV2MsgPack.ReadInt(body, ref i),
+                Y = ZoneV2MsgPack.ReadInt(body, ref i),
+                Z = ZoneV2MsgPack.ReadInt(body, ref i),
+                RunSpeed = ZoneV2MsgPack.ReadFloat(body, ref i),
+                WalkSpeed = ZoneV2MsgPack.ReadFloat(body, ref i),
+                Running = ZoneV2MsgPack.ReadBool(body, ref i)
+            };
+            if (n >= 10 && !ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            {
+                info.Paperdoll = ReadPaperdoll(body, ref i);
+                info.HasPaperdoll = true;
+            }
+
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    static ZoneV2PaperdollSlot[] ReadPaperdoll(byte[] body, ref int i)
+    {
+        int count = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (count <= 0)
+            return Array.Empty<ZoneV2PaperdollSlot>();
+        var slots = new ZoneV2PaperdollSlot[count];
+        for (int s = 0; s < count; s++)
+        {
+            if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+                continue;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            int used = 0;
+            if (n >= 1)
+            {
+                slots[s].ObjectId = ZoneV2MsgPack.ReadInt(body, ref i);
+                used++;
+            }
+
+            if (n >= 2)
+            {
+                slots[s].ItemId = ZoneV2MsgPack.ReadInt(body, ref i);
+                used++;
+            }
+
+            if (n > used)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - used);
+        }
+
+        return slots;
+    }
+
     static bool TryReadItemEntry(byte[] body, ref int i, out ZoneV2ItemEntry entry)
     {
         entry = default;
         int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
-        if (n < 9)
+        if (n < 3)
+        {
+            ZoneV2MsgPack.SkipValues(body, ref i, n);
             return false;
+        }
+
         entry = new ZoneV2ItemEntry
         {
             ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
             ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
             Count = ZoneV2MsgPack.ReadInt(body, ref i),
-            EquippedSlot = ZoneV2MsgPack.ReadInt(body, ref i),
-            BodySlot = ZoneV2MsgPack.ReadString(body, ref i),
-            Kind = ZoneV2MsgPack.ReadString(body, ref i),
-            Icon = ZoneV2MsgPack.ReadString(body, ref i),
-            WeaponType = ZoneV2MsgPack.ReadString(body, ref i),
-            ArmorType = ZoneV2MsgPack.ReadString(body, ref i)
+            EquippedSlot = -1,
+            BodySlot = "none",
+            Kind = "etc",
+            Icon = "",
+            WeaponType = "",
+            ArmorType = ""
         };
+        int used = 3;
+        if (n >= 4)
+        {
+            entry.EquippedSlot = ZoneV2MsgPack.ReadInt(body, ref i);
+            used++;
+        }
+
+        if (n >= 5)
+        {
+            entry.BodySlot = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 6)
+        {
+            entry.Kind = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 7)
+        {
+            entry.Icon = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 8)
+        {
+            entry.WeaponType = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 9)
+        {
+            entry.ArmorType = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n > used)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - used);
         return true;
     }
 
@@ -401,21 +549,64 @@ public static class ZoneV2Messages
     {
         change = default;
         int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
-        if (n < 10)
+        if (n < 4)
+        {
+            ZoneV2MsgPack.SkipValues(body, ref i, n);
             return false;
+        }
+
         change = new ZoneV2InventoryChange
         {
             Change = ZoneV2MsgPack.ReadInt(body, ref i),
             ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
             ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
             Count = ZoneV2MsgPack.ReadInt(body, ref i),
-            EquippedSlot = ZoneV2MsgPack.ReadInt(body, ref i),
-            BodySlot = ZoneV2MsgPack.ReadString(body, ref i),
-            Kind = ZoneV2MsgPack.ReadString(body, ref i),
-            Icon = ZoneV2MsgPack.ReadString(body, ref i),
-            WeaponType = ZoneV2MsgPack.ReadString(body, ref i),
-            ArmorType = ZoneV2MsgPack.ReadString(body, ref i)
+            EquippedSlot = -1,
+            BodySlot = "none",
+            Kind = "etc",
+            Icon = "",
+            WeaponType = "",
+            ArmorType = ""
         };
+        int used = 4;
+        if (n >= 5)
+        {
+            change.EquippedSlot = ZoneV2MsgPack.ReadInt(body, ref i);
+            used++;
+        }
+
+        if (n >= 6)
+        {
+            change.BodySlot = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 7)
+        {
+            change.Kind = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 8)
+        {
+            change.Icon = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 9)
+        {
+            change.WeaponType = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n >= 10)
+        {
+            change.ArmorType = ZoneV2MsgPack.ReadString(body, ref i);
+            used++;
+        }
+
+        if (n > used)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - used);
         return true;
     }
 }
@@ -451,6 +642,79 @@ public struct ZoneV2CharInfo
     public int Y;
     public int Z;
     public int ClassId;
+    public bool HasPaperdoll;
+    public int[] PaperdollItemIds;
+}
+
+/// <summary>
+/// Paperdoll indexes from Fineage-Backend. Right hand is 7 (Squire's Sword 2369, Apprentice's Wand 6).
+/// Missing indexes read as empty.
+/// </summary>
+public static class ZoneV2Paperdoll
+{
+    public const int Count = 17;
+    public const int Under = 0;
+    public const int LeftEar = 1;
+    public const int RightEar = 2;
+    public const int Neck = 3;
+    public const int LeftFinger = 4;
+    public const int RightFinger = 5;
+    public const int Head = 6;
+    public const int RightHand = 7;
+    public const int LeftHand = 8;
+    public const int Gloves = 9;
+    public const int Chest = 10;
+    public const int Legs = 11;
+    public const int Feet = 12;
+    public const int Cloak = 13;
+    public const int Face = 14;
+    public const int Hair = 15;
+    public const int Hair2 = 16;
+
+    public static int ItemIdAt(int[] itemIds, int slot)
+    {
+        if (itemIds == null || slot < 0 || slot >= itemIds.Length)
+            return 0;
+        return itemIds[slot];
+    }
+
+    public static int RightHandItemId(ZoneV2PaperdollSlot[] slots)
+    {
+        if (slots == null || slots.Length <= RightHand)
+            return 0;
+        return slots[RightHand].ItemId;
+    }
+
+    public static int[] ItemIds(ZoneV2PaperdollSlot[] slots)
+    {
+        if (slots == null || slots.Length == 0)
+            return Array.Empty<int>();
+        var ids = new int[slots.Length];
+        for (int i = 0; i < slots.Length; i++)
+            ids[i] = slots[i].ItemId;
+        return ids;
+    }
+}
+
+public struct ZoneV2PaperdollSlot
+{
+    public int ObjectId;
+    public int ItemId;
+}
+
+public struct ZoneV2UserInfo
+{
+    public int ObjectId;
+    public string Name;
+    public int ClassId;
+    public int X;
+    public int Y;
+    public int Z;
+    public float RunSpeed;
+    public float WalkSpeed;
+    public bool Running;
+    public bool HasPaperdoll;
+    public ZoneV2PaperdollSlot[] Paperdoll;
 }
 
 public struct ZoneV2NpcInfo
