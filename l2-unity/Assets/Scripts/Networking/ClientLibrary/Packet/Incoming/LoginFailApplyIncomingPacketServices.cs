@@ -4,9 +4,9 @@
 /// </summary>
 public static class LoginFailApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
 
-    public static LoginWindow LoginWindow => LoginApplyIncomingPacketServices.LoginWindow;
+    public static LoginWindow LoginWindow => LoginSessionApplyIncomingPacketServices.LoginWindow;
 
     public static void ApplyLoginFail(LoginFailDto packet)
     {
