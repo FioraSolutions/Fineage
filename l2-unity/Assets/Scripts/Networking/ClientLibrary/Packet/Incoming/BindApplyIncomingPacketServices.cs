@@ -1,5 +1,5 @@
 /// <summary>
-/// DI bind facade for incoming handler hubs (#142 batch slice 174).
+/// DI bind facade for incoming handler hubs (#142 batch slice 174; lifetime bind slice 175).
 /// </summary>
 public static class BindApplyIncomingPacketServices
 {

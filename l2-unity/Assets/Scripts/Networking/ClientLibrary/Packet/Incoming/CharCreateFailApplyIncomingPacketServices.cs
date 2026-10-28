@@ -6,9 +6,9 @@ using System;
 /// </summary>
 public static class CharCreateFailApplyIncomingPacketServices
 {
-    public static GameManager Manager => LoginSessionApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LoginApplyIncomingPacketServices.Manager;
 
-    public static void Queue(Action action) => LoginSessionApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => LoginApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyCharCreateFail(CharCreateFailDto packet) =>
         Queue(() => Manager.OnCreateUserFail(packet.Text));

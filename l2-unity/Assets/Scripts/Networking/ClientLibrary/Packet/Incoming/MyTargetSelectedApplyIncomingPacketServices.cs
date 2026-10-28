@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// My-target-selected wire packet handler entry (#142 batch slice 144).
+/// My-target-selected wire packet handler entry (#142 batch slice 144; target hub slice 175).
 /// Apply facade (#142 batch slice 153). Re-homes from <see cref="MyTargetSelectedIncomingPacketServices"/>.
 /// </summary>
 public static class MyTargetSelectedApplyIncomingPacketServices

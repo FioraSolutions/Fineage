@@ -4,7 +4,7 @@
 /// </summary>
 public static class LoginOkApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
 
     public static void ApplyLoginOk(LoginOkDto packet)
     {
