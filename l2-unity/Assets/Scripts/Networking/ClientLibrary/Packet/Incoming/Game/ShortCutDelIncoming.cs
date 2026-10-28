@@ -3,5 +3,5 @@
 public sealed class ShortCutDelIncoming : IncomingWirePacket<ShortCutDelDto>
 {
     public override void Apply(ShortCutDelDto packet) =>
-        ShortcutIncomingPacketServices.ApplyDel(packet);
+        ShortCutDelIncomingPacketServices.ApplyDel(packet);
 }

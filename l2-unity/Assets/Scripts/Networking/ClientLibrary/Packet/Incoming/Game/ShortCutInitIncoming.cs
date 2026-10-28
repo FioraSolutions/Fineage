@@ -2,5 +2,5 @@
 public sealed class ShortCutInitIncoming : IncomingWirePacket<ShortCutInitDto>
 {
     public override void Apply(ShortCutInitDto packet) =>
-        ShortcutIncomingPacketServices.ApplyInit(packet);
+        ShortCutInitIncomingPacketServices.ApplyInit(packet);
 }
