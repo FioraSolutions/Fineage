@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using static UnityEngine.ProBuilder.AutoUnwrapSettings;
 
 public class ExShowSeedInfoDto : IWireDto
 {
