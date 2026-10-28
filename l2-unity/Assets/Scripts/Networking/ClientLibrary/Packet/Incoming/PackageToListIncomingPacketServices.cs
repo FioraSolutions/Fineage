@@ -1,9 +1,10 @@
 using System;
 
 /// <summary>
-/// Package-to-list / show-list wire packet handler access via UiIncomingPacketServices (#142 sub-slice 74).
+/// Package-to-list wire packet handler entry (#142 batch slice 145).
+/// Re-homes apply from <see cref="ShowListIncomingPacketServices"/> (sub-slice 74).
 /// </summary>
-public static class ShowListIncomingPacketServices
+public static class PackageToListIncomingPacketServices
 {
     public static void Queue(Action action) => UiIncomingPacketServices.Queue(action);
 

@@ -2,5 +2,5 @@
 public sealed class ItemListIncoming : IncomingWirePacket<ItemListDto>
 {
     public override void Apply(ItemListDto packet) =>
-        CombatIncomingPacketServices.ApplyItemList(packet);
+        ItemListIncomingPacketServices.ApplyItemList(packet);
 }
