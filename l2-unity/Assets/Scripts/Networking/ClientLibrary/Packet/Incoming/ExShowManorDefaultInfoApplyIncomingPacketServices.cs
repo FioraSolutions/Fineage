@@ -15,3 +15,5 @@ public static class ExShowManorDefaultInfoApplyIncomingPacketServices
             WorldApplyIncomingPacketServices.SeedInfo.SetDataDefaultManorInfo(packet.List);
             WorldApplyIncomingPacketServices.SeedInfo.ShowWindowActiveTabAllDefault();
         });
+
+}

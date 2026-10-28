@@ -198,7 +198,7 @@ public class TerrainConverter : MonoBehaviour {
         if(safenet) {
             filename = "Safenet_Mesh.asset";
         }
-        string saveMeshPath = Path.Combine(filename);
+        string saveMeshPath = Path.Combine(saveFolder, filename).Replace("\\", "/");
         MeshSaverEditor.SaveMeshToPath(convertedTerrainMesh, saveMeshPath, false, true);
     }
 

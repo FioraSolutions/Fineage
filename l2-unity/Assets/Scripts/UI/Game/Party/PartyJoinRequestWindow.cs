@@ -156,8 +156,6 @@ public class PartyInvitationWindow : L2PopupWindow
         HideWindow();
     }
 
-    private int _requestorObjectId;
-
     private void SendAcceptResponse()
     {
         Game.Send(new RequestAnswerJoinPartyCommand(1, _requestorObjectId));

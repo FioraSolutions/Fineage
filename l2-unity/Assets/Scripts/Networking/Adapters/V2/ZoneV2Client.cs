@@ -1147,7 +1147,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
                         string clanLine;
                         bool clan = ZoneV2ClanNotices.TryLine(code, msg, out clanLine);
-                        string skillLine;
+                        string skillLine = string.Empty;
                         bool skill = !clan && ZoneV2SkillNotices.TryLine(code, msg, out skillLine);
                         string line = clan ? clanLine : skill ? skillLine : ZoneV2Enchant.Notice(code, msg);
                         bool closeEnchant = !clan && ZoneV2Enchant.ClearsWindow(code);
