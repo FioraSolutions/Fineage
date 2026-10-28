@@ -105,6 +105,8 @@ public sealed class ZoneV2Client : MonoBehaviour
     public void BeginSession(string account, string password)
     {
         Disconnect();
+        ZoneV2ClanBook.Shared.Reset();
+        ClanPacketServices.RefreshWindow();
         _preselectId = 0;
         _selectGeneration++;
         _cts = new CancellationTokenSource();
@@ -572,6 +574,62 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.PartyKickRequest, body);
     }
 
+    public void SendClanCreateRequest(string name)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanCreateRequest(name);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanCreateRequest, body);
+    }
+
+    public void SendClanInviteRequest(int targetObjectId, int pledgeType)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanInviteRequest(targetObjectId, pledgeType);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanInviteRequest, body);
+    }
+
+    public void SendClanAnswerJoinRequest(int requestorObjectId, int response)
+    {
+        if (!Connected || _stream == null || requestorObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanAnswerJoinRequest(requestorObjectId, response);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanAnswerJoinRequest, body);
+    }
+
+    public void SendClanLeaveRequest()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanLeaveRequest();
+        _ = SendFireAndForget(ZoneV2MsgType.ClanLeaveRequest, body);
+    }
+
+    public void SendClanKickRequest(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanKickRequest(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanKickRequest, body);
+    }
+
+    public void SendClanDissolveRequest()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanDissolveRequest();
+        _ = SendFireAndForget(ZoneV2MsgType.ClanDissolveRequest, body);
+    }
+
+    public void SendClanCancelDissolveRequest()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanCancelDissolveRequest();
+        _ = SendFireAndForget(ZoneV2MsgType.ClanCancelDissolveRequest, body);
+    }
+
     public void SendSay(string text, int chatType)
     {
         if (!Connected || _stream == null)
@@ -856,6 +914,54 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(partyList));
                         break;
 
+                    case ZoneV2MsgType.ClanAskJoin:
+                        ZoneV2ClanAskJoin clanAsk;
+                        if (!ZoneV2Messages.TryDecodeClanAskJoin(f.Body, out clanAsk))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad ClanAskJoin body"));
+                            break;
+                        }
+
+                        ZoneV2ClanAskJoin clanAskCopy = clanAsk;
+                        Post(() => ClanPacketServices.ApplyAskJoin(clanAskCopy));
+                        break;
+
+                    case ZoneV2MsgType.PledgeStatusChanged:
+                        ZoneV2PledgeStatus pledgeStatus;
+                        if (!ZoneV2Messages.TryDecodePledgeStatusChanged(f.Body, out pledgeStatus))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad PledgeStatusChanged body"));
+                            break;
+                        }
+
+                        ZoneV2PledgeStatus pledgeStatusCopy = pledgeStatus;
+                        Post(() => ClanPacketServices.ApplyStatus(pledgeStatusCopy));
+                        break;
+
+                    case ZoneV2MsgType.PledgeMemberList:
+                        ZoneV2PledgeMemberList pledgeMembers;
+                        if (!ZoneV2Messages.TryDecodePledgeMemberList(f.Body, out pledgeMembers))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad PledgeMemberList body"));
+                            break;
+                        }
+
+                        ZoneV2PledgeMemberList pledgeMembersCopy = pledgeMembers;
+                        Post(() => ClanPacketServices.ApplyMembers(pledgeMembersCopy));
+                        break;
+
+                    case ZoneV2MsgType.ClanJoinResult:
+                        int clanJoin;
+                        if (!ZoneV2Messages.TryDecodeClanJoinResult(f.Body, out clanJoin))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad ClanJoinResult body"));
+                            break;
+                        }
+
+                        int clanJoinCopy = clanJoin;
+                        Post(() => Debug.Log("[ZoneV2] ClanJoinResult response=" + clanJoinCopy));
+                        break;
+
                     case ZoneV2MsgType.CreatureSay:
                         ZoneV2CreatureSay said;
                         if (!ZoneV2Messages.TryDecodeCreatureSay(f.Body, out said))
@@ -896,7 +1002,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
-                        string line = ZoneV2EquipNotices.Line(code, msg);
+                        string line = ZoneV2ClanNotices.LineOrEquip(code, msg);
                         Post(() => ShowServerLine(line));
                         break;
                 }

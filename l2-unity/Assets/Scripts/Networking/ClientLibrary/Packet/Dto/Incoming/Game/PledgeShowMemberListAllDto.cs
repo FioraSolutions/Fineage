@@ -62,7 +62,17 @@ public class PledgeShowMemberListAllDto : IWireDto
     }
     public bool IsWar => _isWar;
 
-    
+    public void ApplyZoneSnapshot(int clanId, string pledgeName, int level, string leaderName, int leaderId, int crestId, System.Collections.Generic.List<ClanMember> members)
+    {
+        _clanId = clanId;
+        _pledgeName = pledgeName ?? "";
+        _level = level;
+        _subPledgeLeaderName = leaderName ?? "";
+        _leadernId = leaderId;
+        _crestId = crestId;
+        _members = members ?? new System.Collections.Generic.List<ClanMember>();
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         _pledgeTypeEnabled = reader.ReadI();

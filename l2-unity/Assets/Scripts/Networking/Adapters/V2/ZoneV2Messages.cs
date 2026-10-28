@@ -179,6 +179,56 @@ public static class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
     }
 
+    /// <summary>MessagePack array [name] — Fineage-Backend <c>ClanCreateRequestMsg</c>.</summary>
+    public static byte[] EncodeClanCreateRequest(string name)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteString(w, name ?? ""), 1);
+    }
+
+    /// <summary>MessagePack array [targetObjectId, pledgeType]. Pledge type 0 is the main clan.</summary>
+    public static byte[] EncodeClanInviteRequest(int targetObjectId, int pledgeType)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, targetObjectId);
+            ZoneV2MsgPack.WriteInt(w, pledgeType);
+        }, 2);
+    }
+
+    /// <summary>MessagePack array [requestorObjectId, response]. Response 0 declines. Any other value accepts.</summary>
+    public static byte[] EncodeClanAnswerJoinRequest(int requestorObjectId, int response)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, requestorObjectId);
+            ZoneV2MsgPack.WriteInt(w, response);
+        }, 2);
+    }
+
+    /// <summary>Empty MessagePack array — Fineage-Backend <c>ClanLeaveRequestMsg</c>.</summary>
+    public static byte[] EncodeClanLeaveRequest()
+    {
+        return ZoneV2MsgPack.WriteArray(_ => { }, 0);
+    }
+
+    /// <summary>MessagePack array [targetObjectId].</summary>
+    public static byte[] EncodeClanKickRequest(int targetObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
+    }
+
+    /// <summary>Empty MessagePack array — Fineage-Backend <c>ClanDissolveRequestMsg</c>.</summary>
+    public static byte[] EncodeClanDissolveRequest()
+    {
+        return ZoneV2MsgPack.WriteArray(_ => { }, 0);
+    }
+
+    /// <summary>Empty MessagePack array — Fineage-Backend <c>ClanCancelDissolveRequestMsg</c>.</summary>
+    public static byte[] EncodeClanCancelDissolveRequest()
+    {
+        return ZoneV2MsgPack.WriteArray(_ => { }, 0);
+    }
+
     public static bool TryDecodePartyAskJoin(byte[] body, out ZoneV2PartyAskJoin ask)
     {
         ask = default;
@@ -413,13 +463,46 @@ public static class ZoneV2Messages
                 Z = ZoneV2MsgPack.ReadInt(body, ref i),
                 ClassId = ZoneV2MsgPack.ReadInt(body, ref i)
             };
-            // Key 6 is optional. Older zone servers stop at class id.
-            if (n >= 7 && !ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            // Key 6 is paperdoll. Keys 7–8 are clan id and crest. A non-int key 7 is ignored
+            // so older bodies that appended a string still decode.
+            int consumed = 6;
+            if (n >= 7)
             {
-                info.PaperdollItemIds = ZoneV2MsgPack.ReadIntArray(body, ref i);
-                info.HasPaperdoll = true;
+                consumed = 7;
+                if (!ZoneV2MsgPack.TryConsumeNil(body, ref i))
+                {
+                    info.PaperdollItemIds = ZoneV2MsgPack.ReadIntArray(body, ref i);
+                    info.HasPaperdoll = true;
+                }
             }
 
+            if (n >= 8)
+            {
+                if (!IsMsgPackInt(body, i))
+                {
+                    ZoneV2MsgPack.SkipValues(body, ref i, n - consumed);
+                    return true;
+                }
+
+                info.ClanId = ZoneV2MsgPack.ReadInt(body, ref i);
+                info.HasClan = true;
+                consumed = 8;
+            }
+
+            if (n >= 9)
+            {
+                if (!IsMsgPackInt(body, i))
+                {
+                    ZoneV2MsgPack.SkipValues(body, ref i, n - consumed);
+                    return true;
+                }
+
+                info.ClanCrestId = ZoneV2MsgPack.ReadInt(body, ref i);
+                consumed = 9;
+            }
+
+            if (n > consumed)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - consumed);
             return true;
         }
         catch (InvalidDataException)
@@ -1009,12 +1092,52 @@ public static class ZoneV2Messages
                 info.HasPaperdoll = true;
             }
 
+            // Keys 10–12 are expertise. Keys 13–14 are clan id and crest. Older bodies stop earlier.
+            if (n > 10)
+                ReadUserClanKeys(body, ref i, n, ref info);
             return true;
         }
         catch (InvalidDataException)
         {
             return false;
         }
+    }
+
+    static void ReadUserClanKeys(byte[] body, ref int i, int n, ref ZoneV2UserInfo info)
+    {
+        for (int key = 10; key < n && key <= 14; key++)
+        {
+            if (!IsMsgPackInt(body, i))
+            {
+                ZoneV2MsgPack.SkipValues(body, ref i, n - key);
+                return;
+            }
+
+            int value = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (key == 13)
+            {
+                info.ClanId = value;
+                info.HasClan = true;
+            }
+            else if (key == 14)
+            {
+                info.ClanCrestId = value;
+            }
+        }
+
+        if (n > 15)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - 15);
+    }
+
+    static bool IsMsgPackInt(byte[] buf, int index)
+    {
+        if (buf == null || index < 0 || index >= buf.Length)
+            return false;
+        byte b = buf[index];
+        if (b <= 0x7f || b >= 0xe0)
+            return true;
+        return b == 0xcc || b == 0xcd || b == 0xce || b == 0xcf
+            || b == 0xd0 || b == 0xd1 || b == 0xd2 || b == 0xd3;
     }
 
     static ZoneV2PaperdollSlot[] ReadPaperdoll(byte[] body, ref int i)
@@ -1280,6 +1403,179 @@ public static class ZoneV2Messages
         }
     }
 
+    public static bool TryDecodeClanAskJoin(byte[] body, out ZoneV2ClanAskJoin ask)
+    {
+        ask = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 5)
+                return false;
+            ask = new ZoneV2ClanAskJoin
+            {
+                RequestorObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                RequestorName = ZoneV2MsgPack.ReadString(body, ref i) ?? "",
+                ClanId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ClanName = ZoneV2MsgPack.ReadString(body, ref i) ?? "",
+                PledgeType = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            if (n > 5)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 5);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodePledgeStatusChanged(byte[] body, out ZoneV2PledgeStatus status)
+    {
+        status = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 8)
+                return false;
+            status = new ZoneV2PledgeStatus
+            {
+                ClanId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Name = ZoneV2MsgPack.ReadString(body, ref i) ?? "",
+                Level = ZoneV2MsgPack.ReadInt(body, ref i),
+                LeaderObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                CrestId = ZoneV2MsgPack.ReadInt(body, ref i),
+                MemberCount = ZoneV2MsgPack.ReadInt(body, ref i),
+                DissolvingExpiryUnixMs = ZoneV2MsgPack.ReadInt64(body, ref i),
+                CharPenaltyExpiryUnixMs = ZoneV2MsgPack.ReadInt64(body, ref i)
+            };
+            if (n > 8)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 8);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodePledgeMemberList(byte[] body, out ZoneV2PledgeMemberList list)
+    {
+        list = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 3)
+                return false;
+            list.ClanId = ZoneV2MsgPack.ReadInt(body, ref i);
+            list.LeaderObjectId = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            {
+                list.Members = Array.Empty<ZoneV2PledgeMember>();
+                return true;
+            }
+
+            int rowCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (rowCount <= 0)
+            {
+                list.Members = Array.Empty<ZoneV2PledgeMember>();
+                if (n > 3)
+                    ZoneV2MsgPack.SkipValues(body, ref i, n - 3);
+                return true;
+            }
+
+            var rows = new ZoneV2PledgeMember[rowCount];
+            for (int r = 0; r < rowCount; r++)
+            {
+                if (!TryReadPledgeMember(body, ref i, out rows[r]))
+                    return false;
+            }
+
+            list.Members = rows;
+            if (n > 3)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 3);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    static bool TryReadPledgeMember(byte[] body, ref int i, out ZoneV2PledgeMember member)
+    {
+        member = default;
+        int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (n < 6)
+            return false;
+        member = new ZoneV2PledgeMember
+        {
+            ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Name = ZoneV2MsgPack.ReadString(body, ref i) ?? "",
+            ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Level = ZoneV2MsgPack.ReadInt(body, ref i),
+            Online = ZoneV2MsgPack.ReadBool(body, ref i),
+            PledgeType = ZoneV2MsgPack.ReadInt(body, ref i)
+        };
+        if (n > 6)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - 6);
+        return true;
+    }
+
+    public static bool TryDecodeClanJoinResult(byte[] body, out int response)
+    {
+        response = 0;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            response = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (n > 1)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 1);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
     static bool TryReadAbnormalEffect(byte[] body, ref int i, out ZoneV2AbnormalEffect effect)
     {
         effect = default;
@@ -1329,6 +1625,9 @@ public struct ZoneV2CharInfo
     public int ClassId;
     public bool HasPaperdoll;
     public int[] PaperdollItemIds;
+    public bool HasClan;
+    public int ClanId;
+    public int ClanCrestId;
 }
 
 /// <summary>
@@ -1460,6 +1759,9 @@ public struct ZoneV2UserInfo
     public bool Running;
     public bool HasPaperdoll;
     public ZoneV2PaperdollSlot[] Paperdoll;
+    public bool HasClan;
+    public int ClanId;
+    public int ClanCrestId;
 }
 
 public struct ZoneV2NpcInfo
@@ -1587,6 +1889,44 @@ public struct ZoneV2PartyMemberList
     public int LeaderObjectId;
     public int PartyId;
     public ZoneV2PartyMemberEntry[] Members;
+}
+
+public struct ZoneV2ClanAskJoin
+{
+    public int RequestorObjectId;
+    public string RequestorName;
+    public int ClanId;
+    public string ClanName;
+    public int PledgeType;
+}
+
+public struct ZoneV2PledgeStatus
+{
+    public int ClanId;
+    public string Name;
+    public int Level;
+    public int LeaderObjectId;
+    public int CrestId;
+    public int MemberCount;
+    public long DissolvingExpiryUnixMs;
+    public long CharPenaltyExpiryUnixMs;
+}
+
+public struct ZoneV2PledgeMember
+{
+    public int ObjectId;
+    public string Name;
+    public int ClassId;
+    public int Level;
+    public bool Online;
+    public int PledgeType;
+}
+
+public struct ZoneV2PledgeMemberList
+{
+    public int ClanId;
+    public int LeaderObjectId;
+    public ZoneV2PledgeMember[] Members;
 }
 
 /// <summary>

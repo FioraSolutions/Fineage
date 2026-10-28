@@ -38,6 +38,20 @@ public enum ZoneV2MsgType : ushort
     PartyLeaveRequest = 26,
     /// <summary>Leader kick. Backend <c>PartyKickRequestMsg</c> key 0 targetObjectId.</summary>
     PartyKickRequest = 27,
+    /// <summary>Create a clan. Backend <c>ClanCreateRequestMsg</c> key 0 name.</summary>
+    ClanCreateRequest = 32,
+    /// <summary>Invite a visible player. Backend <c>ClanInviteRequestMsg</c> keys 0 targetObjectId, 1 pledgeType.</summary>
+    ClanInviteRequest = 33,
+    /// <summary>Accept or decline a pending clan invite. Backend <c>ClanAnswerJoinRequestMsg</c>.</summary>
+    ClanAnswerJoinRequest = 34,
+    /// <summary>Leave the current clan. Empty body. The leader cannot leave.</summary>
+    ClanLeaveRequest = 35,
+    /// <summary>Leader dismisses a member. Backend <c>ClanKickRequestMsg</c> key 0 targetObjectId.</summary>
+    ClanKickRequest = 36,
+    /// <summary>Leader registers dissolution. Empty body.</summary>
+    ClanDissolveRequest = 37,
+    /// <summary>Leader cancels a pending dissolution. Empty body.</summary>
+    ClanCancelDissolveRequest = 38,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -76,6 +90,14 @@ public enum ZoneV2MsgType : ushort
     PartyMemberList = 1029,
     /// <summary>System line. Keys 0 id, 1 params, 2 text. Chat band 1040–1049; 1041–1049 are reserved.</summary>
     SystemMessage = 1040,
+    /// <summary>Pending clan invite. Backend <c>ClanAskJoinMsg</c>. Clan band 1050–1059; 1054–1059 are reserved.</summary>
+    ClanAskJoin = 1050,
+    /// <summary>Clan snapshot. Backend <c>PledgeStatusChangedMsg</c>. Clan id 0 clears the pledge.</summary>
+    PledgeStatusChanged = 1051,
+    /// <summary>Full clan member list. Backend <c>PledgeMemberListMsg</c>.</summary>
+    PledgeMemberList = 1052,
+    /// <summary>Invite outcome for the requestor. Backend <c>ClanJoinResultMsg</c>. 0 declined.</summary>
+    ClanJoinResult = 1053,
 
     Error = 1099
 }

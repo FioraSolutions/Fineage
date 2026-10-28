@@ -82,6 +82,8 @@ public static class ZoneV2DomainMap
         dto.Identity.EntityType = EntityType.User;
         dto.Identity.SetL2jPos(info.X, info.Y, info.Z);
         dto.Identity.PlayerClass = info.ClassId;
+        if (info.HasClan)
+            dto.Identity.ClanId = info.ClanId;
         dto.Appearance.BaseClass = info.ClassId;
         dto.Appearance.Running = true;
         dto.Stats.BaseRunSpeed = 120;
@@ -362,6 +364,8 @@ public static class ZoneV2DomainMap
         }
 
         info.Appearance.Running = user.Running;
+        if (user.HasClan)
+            info.Identity.ClanId = user.ClanId;
         if (user.HasPaperdoll)
             ApplyUserPaperdoll(info.Appearance, user.Paperdoll);
     }

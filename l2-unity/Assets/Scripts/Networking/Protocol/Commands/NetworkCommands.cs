@@ -304,6 +304,69 @@ public sealed class RequestQuestAbortCommand : INetworkCommand
     }
 }
 
+/// <summary>Zone V2 TX opcode 32. Body key 0 is the clan name.</summary>
+public sealed class ClanCreateRequestCommand : INetworkCommand
+{
+    public string Name;
+
+    public ClanCreateRequestCommand(string name)
+    {
+        Name = name ?? "";
+    }
+}
+
+/// <summary>Zone V2 TX opcode 33. Pledge type 0 is the main clan.</summary>
+public sealed class ClanInviteRequestCommand : INetworkCommand
+{
+    public int TargetObjectId;
+    public int PledgeType;
+
+    public ClanInviteRequestCommand(int targetObjectId, int pledgeType = 0)
+    {
+        TargetObjectId = targetObjectId;
+        PledgeType = pledgeType;
+    }
+}
+
+/// <summary>Zone V2 TX opcode 34. Response 0 declines. Any other value accepts.</summary>
+public sealed class ClanAnswerJoinRequestCommand : INetworkCommand
+{
+    public int RequestorObjectId;
+    public int Response;
+
+    public ClanAnswerJoinRequestCommand(int requestorObjectId, int response)
+    {
+        RequestorObjectId = requestorObjectId;
+        Response = response;
+    }
+}
+
+/// <summary>Zone V2 TX opcode 35. Empty body.</summary>
+public sealed class ClanLeaveRequestCommand : INetworkCommand
+{
+}
+
+/// <summary>Zone V2 TX opcode 36.</summary>
+public sealed class ClanKickRequestCommand : INetworkCommand
+{
+    public int TargetObjectId;
+
+    public ClanKickRequestCommand(int targetObjectId)
+    {
+        TargetObjectId = targetObjectId;
+    }
+}
+
+/// <summary>Zone V2 TX opcode 37. Empty body.</summary>
+public sealed class ClanDissolveRequestCommand : INetworkCommand
+{
+}
+
+/// <summary>Zone V2 TX opcode 38. Empty body.</summary>
+public sealed class ClanCancelDissolveRequestCommand : INetworkCommand
+{
+}
+
 public sealed class RequestJoinPledgeCommand : INetworkCommand
 {
     public int ObjectId;
