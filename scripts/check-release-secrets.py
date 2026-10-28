@@ -16,11 +16,15 @@ def problems(env: Mapping[str, str]) -> list[str]:
     password = bool(env.get("UNITY_PASSWORD", "").strip())
     license_file = bool(env.get("UNITY_LICENSE", "").strip())
     serial = bool(env.get("UNITY_SERIAL", "").strip())
-    personal = license_file and email and password
+    # Personal accounts cannot download an offline .ulf. game-ci accepts a
+    # floating Personal login from email + password alone.
+    personal_login = email and password
+    personal_ulf = license_file and email and password
     professional = serial and email and password
-    if not personal and not professional:
+    if not (personal_login or personal_ulf or professional):
         missing.append(
-            "Unity license: UNITY_LICENSE + UNITY_EMAIL + UNITY_PASSWORD (Personal .ulf), "
+            "Unity license: UNITY_EMAIL + UNITY_PASSWORD (Personal login), "
+            "UNITY_LICENSE + UNITY_EMAIL + UNITY_PASSWORD (Personal .ulf), "
             "or UNITY_SERIAL + UNITY_EMAIL + UNITY_PASSWORD (Pro/Plus)"
         )
     return missing
@@ -51,6 +55,12 @@ def self_test() -> int:
     assert problems({"FINEAGE_PUBLIC_HOST": "play.example"})
     assert not problems(
         {
+            "UNITY_EMAIL": "dev@example.com",
+            "UNITY_PASSWORD": canary,
+        }
+    )
+    assert not problems(
+        {
             "UNITY_LICENSE": canary,
             "UNITY_EMAIL": "dev@example.com",
             "UNITY_PASSWORD": canary,
@@ -63,6 +73,14 @@ def self_test() -> int:
             "UNITY_SERIAL": canary,
             "UNITY_EMAIL": "dev@example.com",
             "UNITY_PASSWORD": canary,
+        }
+    )
+    assert problems({"UNITY_EMAIL": "dev@example.com"})
+    assert problems({"UNITY_PASSWORD": canary})
+    assert problems(
+        {
+            "UNITY_EMAIL": "   ",
+            "UNITY_PASSWORD": "   ",
         }
     )
     assert problems(

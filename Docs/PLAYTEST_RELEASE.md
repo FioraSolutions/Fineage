@@ -95,15 +95,15 @@ A zip over 2 GiB cannot be a GitHub Release asset. The workflow artifact is stil
 
 Repository secrets (Settings → Secrets and variables → Actions). The prepare job exits before Unity starts when these are missing, and the log points at this file. Values are not printed.
 
-Personal license ([game-ci activation](https://game.ci/docs/github/activation)):
+Personal ([game-ci activation](https://game.ci/docs/github/activation)) can use `UNITY_EMAIL` + `UNITY_PASSWORD` alone. game-ci/unity-builder signs in and takes a floating Personal license. Unity blocks Personal offline activation on license.unity3d.com, so a `.ulf` is often unavailable. `UNITY_LICENSE` (base64 `.ulf`) stays optional and is preferred when you already have one.
 
 | Secret | Value |
 | --- | --- |
-| `UNITY_LICENSE` | Base64 of the `.ulf` from activation. `base64 -w 0 Unity_lic.ulf` on Linux, `base64 -i Unity_lic.ulf \| tr -d '\n'` on macOS. |
-| `UNITY_EMAIL` | Unity account email. |
-| `UNITY_PASSWORD` | Unity account password. game-ci has seen failures when the password contains special characters; use a mixed-case alphanumeric password. |
+| `UNITY_EMAIL` | Unity account email. Required. |
+| `UNITY_PASSWORD` | Unity account password. Required. game-ci has seen failures when the password contains special characters; use a mixed-case alphanumeric password. |
+| `UNITY_LICENSE` | Optional, preferred when available. Base64 of a `.ulf`. `base64 -w 0 Unity_lic.ulf` on Linux, `base64 -i Unity_lic.ulf \| tr -d '\n'` on macOS. Personal accounts cannot download this file from license.unity3d.com. |
 
-Pro/Plus can use `UNITY_SERIAL` + `UNITY_EMAIL` + `UNITY_PASSWORD` instead of `UNITY_LICENSE`. Do not commit the `.ulf`.
+Pro/Plus can use `UNITY_SERIAL` + `UNITY_EMAIL` + `UNITY_PASSWORD` instead of a Personal login or `UNITY_LICENSE`. Do not commit the `.ulf`.
 
 Playtest host secrets are optional. Unset means the Cloudflare defaults above.
 
