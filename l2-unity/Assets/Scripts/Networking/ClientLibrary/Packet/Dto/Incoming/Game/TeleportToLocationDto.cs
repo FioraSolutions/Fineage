@@ -14,6 +14,19 @@ public class TeleportToLocationDto : IWireDto
     public int X { get => _x; }
     public int Y { get => _y; }
     public int Z { get => _z; }
+
+    /// <summary>Zone V2 <see cref="ZoneV2MsgType.TeleportToLocation"/> (1072).</summary>
+    public static TeleportToLocationDto FromZoneWire(int objectId, int x, int y, int z, int heading)
+    {
+        var dto = new TeleportToLocationDto();
+        dto._targetObjId = objectId;
+        dto._x = x;
+        dto._y = y;
+        dto._z = z;
+        dto._heading = heading;
+        dto._telePos = VectorUtils.ConvertPosToUnity(new Vector3(x, y, z));
+        return dto;
+    }
     
 
     public void ReadFrom(PacketReader reader)

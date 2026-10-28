@@ -117,7 +117,17 @@ public class BufferPanel : L2Window
 
             if (skillLevel == 0) return;
             if (_content.style.opacity == 0) _content.style.opacity = 1;
-            if (_filterData.IsContain(skillId)) return;
+            if (_filterData.IsContain(skillId))
+            {
+                DataCell existing = _filterData.FilterBySkillId(skillId);
+                if (existing != null && time > 0)
+                {
+                    existing.SetActiveTime(time);
+                    _bLink.StartBlinking(existing);
+                }
+
+                return;
+            }
 
             RebindCellElseOnlyPenalty();
             DataCell data = _filterData.GetEmptyCell();
