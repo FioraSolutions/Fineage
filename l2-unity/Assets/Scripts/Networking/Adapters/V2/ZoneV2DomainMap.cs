@@ -183,6 +183,9 @@ public static class ZoneV2DomainMap
         return InventoryUpdateDto.FromZoneChanges(bag, equip);
     }
 
+    public static AbnormalStatusUpdateDto ToAbnormalStatusUpdateDto(ZoneV2AbnormalStatusUpdate update) =>
+        AbnormalStatusUpdateDto.FromZoneEffects(update.Effects);
+
     static void AddZoneRow(
         ZoneV2ItemEntry row,
         int zoneChange,

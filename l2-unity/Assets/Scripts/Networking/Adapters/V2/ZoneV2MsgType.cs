@@ -33,6 +33,7 @@ public enum ZoneV2MsgType : ushort
     ItemList = 1014,
     InventoryUpdate = 1015,
     UserInfo = 1016,
+    AbnormalStatusUpdate = 1017,
 
     RegisterOk = 1020,
     CharacterCreated = 1021,
