@@ -2,8 +2,8 @@
 public sealed class LoginOkIncoming : IncomingWirePacket<LoginOkDto>
 {
     protected override void OnParsed(LoginOkDto packet) =>
-        LoginOkIncomingPacketServices.OnLoginOkParsed(packet);
+        LoginOkParsedIncomingPacketServices.OnLoginOkParsed(packet);
 
     public override void Apply(LoginOkDto packet) =>
-        LoginOkIncomingPacketServices.ApplyLoginOk(packet);
+        LoginOkApplyIncomingPacketServices.ApplyLoginOk(packet);
 }

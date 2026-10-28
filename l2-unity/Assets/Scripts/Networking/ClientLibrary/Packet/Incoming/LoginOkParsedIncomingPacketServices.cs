@@ -1,8 +1,8 @@
 /// <summary>
-/// LoginOk wire packet handler entry (#142 sub-slice 111).
-/// Splits login-ok parse/apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
+/// LoginOk wire parse hook (#142 batch slice 146).
+/// Splits parse out of <see cref="LoginOkIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
-public static class LoginOkIncomingPacketServices
+public static class LoginOkParsedIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 
@@ -14,10 +14,5 @@ public static class LoginOkIncomingPacketServices
         Login.SessionKey2 = packet.SessionKey2;
         Game.SessionKey1 = packet.SessionKey1;
         Game.SessionKey2 = packet.SessionKey2;
-    }
-
-    public static void ApplyLoginOk(LoginOkDto packet)
-    {
-        Login.OnAuthAllowed();
     }
 }

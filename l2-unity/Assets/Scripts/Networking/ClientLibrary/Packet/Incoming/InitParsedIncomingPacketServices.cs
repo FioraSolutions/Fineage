@@ -1,8 +1,8 @@
 /// <summary>
-/// Init wire packet handler entry (#142 sub-slice 107).
-/// Splits init parse/apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
+/// Init wire parse hook (#142 batch slice 146).
+/// Splits parse out of <see cref="InitIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
-public static class InitIncomingPacketServices
+public static class InitParsedIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 
@@ -13,9 +13,5 @@ public static class InitIncomingPacketServices
         Login.SetSessionId(packet.SessionId);
         Login.CompleteInitPacket();
         Login.Send(new AuthGameGuardCommand(packet.SessionId, packet.GG));
-    }
-
-    public static void ApplyInit(InitDto packet)
-    {
     }
 }

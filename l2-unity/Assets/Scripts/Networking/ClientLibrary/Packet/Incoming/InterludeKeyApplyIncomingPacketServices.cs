@@ -1,28 +1,12 @@
 /// <summary>
-/// InterludeKey / AuthLogin wire packet handler entry (#142 sub-slice 106).
-/// Splits interlude-key parse/apply out of <see cref="LobbyWireIncomingPacketServices"/> (sub-slices 53 / 76 encapsulation).
+/// InterludeKey wire apply hook (#142 batch slice 146).
+/// Splits apply out of <see cref="InterludeKeyIncomingPacketServices"/> (sub-slices 53 / 76).
 /// </summary>
-public static class InterludeKeyIncomingPacketServices
+public static class InterludeKeyApplyIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 
     public static GameClient Game => LoginPacketServices.Game;
-
-    public static void OnInterludeKeyParsed(InterludeKeyDto packet)
-    {
-        // Handler instance is a registry singleton — never gate AuthLogin on sticky fields
-        // (that skipped AuthLogin after ServerList Confirm → PlayOk on every reconnect).
-        if (!packet.AuthAllowed)
-            return;
-
-        // Crypt must arm on the parse thread before later encrypted RX; AuthLogin itself
-        // is sent from Apply (main/apply queue) so it cannot race SendGame.Stop/replace.
-        if (!packet.UseBlowfish)
-            return;
-
-        byte[] equalsKey = BlowFishStaticKey.GetCreateFullKeyBlowFish(packet.BlowFishKey);
-        Game.EnableCrypt(equalsKey);
-    }
 
     public static void ApplyInterludeKey(InterludeKeyDto packet)
     {

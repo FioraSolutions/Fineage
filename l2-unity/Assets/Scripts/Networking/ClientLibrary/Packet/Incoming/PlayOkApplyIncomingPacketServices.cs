@@ -1,20 +1,14 @@
 /// <summary>
-/// PlayOk wire packet handler entry (#142 sub-slice 112).
-/// Splits play-ok parse/apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
+/// PlayOk wire apply hook (#142 batch slice 146).
+/// Splits apply out of <see cref="PlayOkIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
-public static class PlayOkIncomingPacketServices
+public static class PlayOkApplyIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 
     public static GameClient Game => LoginPacketServices.Game;
 
     public static GameManager Manager => LoginPacketServices.Manager;
-
-    public static void OnPlayOkParsed(PlayOkDto packet)
-    {
-        Game.PlayKey1 = packet.PlayOk1;
-        Game.PlayKey2 = packet.PlayOk2;
-    }
 
     public static void ApplyPlayOk(PlayOkDto packet)
     {
