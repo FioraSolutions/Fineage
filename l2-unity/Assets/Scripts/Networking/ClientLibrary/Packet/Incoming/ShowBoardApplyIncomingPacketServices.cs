@@ -6,7 +6,7 @@ public static class ShowBoardApplyIncomingPacketServices
 {
     public static void ApplyShowBoard(ShowCBoardDto dto)
     {
-        if (WorldEffectApplyIncomingPacketServices.GameWorld == null || !dto.ReadyToOpen)
+        if (WorldApplyIncomingPacketServices.GameWorld == null || !dto.ReadyToOpen)
             return;
 
         UiApplyIncomingPacketServices.Html.InjectToCommunityWindow(dto.Html);
