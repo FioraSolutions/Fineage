@@ -116,8 +116,11 @@ public sealed class SkillListEntryTestMsg
 }
 
 [MessagePackObject]
-public sealed class SkillListEntryExtraTestMsg : SkillListEntryTestMsg
+public sealed class SkillListEntryExtraTestMsg
 {
+    [Key(0)] public int SkillId { get; set; }
+    [Key(1)] public int Level { get; set; }
+    [Key(2)] public int ReuseDelayMs { get; set; }
     [Key(3)] public string Future { get; set; } = "";
 }
 
