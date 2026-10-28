@@ -61,7 +61,16 @@ public class InventoryUpdateDto : IWireDto
         }
     }
 
-
+    /// <summary>Built from Zone V2 <see cref="ZoneV2MsgType.InventoryUpdate"/>.</summary>
+    public static InventoryUpdateDto FromZoneChanges(
+        Dictionary<int, ItemInstance> bag,
+        Dictionary<int, ItemInstance> equip)
+    {
+        var dto = new InventoryUpdateDto();
+        dto.items = bag ?? new Dictionary<int, ItemInstance>();
+        dto.equipItems = equip ?? new Dictionary<int, ItemInstance>();
+        return dto;
+    }
 }
 
 
