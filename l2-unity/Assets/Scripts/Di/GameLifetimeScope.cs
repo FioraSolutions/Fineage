@@ -13,6 +13,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<TargetManager>(builder);
         RegisterIfFound<HitManager>(builder);
         RegisterIfFound<ClickManager>(builder);
+        RegisterIfFound<KeyboardMoveController>(builder);
         RegisterIfFound<NpcCursorManager>(builder);
         RegisterIfFound<PlayerInventory>(builder);
         RegisterIfFound<PlayerShortcuts>(builder);

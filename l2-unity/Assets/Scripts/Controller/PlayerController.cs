@@ -200,16 +200,24 @@ public partial class PlayerController : MonoBehaviour
 
     private void NotifyEvent(PlayerState state)
     {
+        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        if (stateMachine == null)
+            return;
+
         if (state == PlayerState.RUNNING | state == PlayerState.WALKING)
         {
-            PlayerStateMachine.Instance.NotifyEvent(Event.ARRIVED);
+            stateMachine.NotifyEvent(Event.ARRIVED);
         }
     }
 
 
     public void RestartMoveElseMoveToPawnTrue(ref bool _isMove)
     {
-        if (PlayerStateMachine.Instance.IsMoveToPawn & _isMove == false)
+        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        if (stateMachine == null || _movementTarget == null)
+            return;
+
+        if (stateMachine.IsMoveToPawn & _isMove == false)
         {
             Vector3 targetPosition = VectorUtils.To2D(_movementTarget.GetTarget());
             float distance = VectorUtils.Distance2D(transform.position, targetPosition);
@@ -253,8 +261,11 @@ public partial class PlayerController : MonoBehaviour
             return;
 
         _switchWalkToRun = true;
-        PlayerStateMachine.Instance.ChangeState(PlayerState.RUNNING);
-        PlayerStateMachine.Instance.NotifyEvent(Event.MOVE_TO);
+        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        if (stateMachine == null)
+            return;
+        stateMachine.ChangeState(PlayerState.RUNNING);
+        stateMachine.NotifyEvent(Event.MOVE_TO);
     }
 
     private bool RunMode()

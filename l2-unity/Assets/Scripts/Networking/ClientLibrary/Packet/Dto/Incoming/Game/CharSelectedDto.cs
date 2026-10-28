@@ -83,8 +83,18 @@ public class CharSelectedDto : IWireDto
         _info.Status.Cp = reader.ReadI();
         _info.Stats.Exp = reader.ReadLOther();
         _info.Stats.Level = reader.ReadI();
-        _info.Stats.MaxMp = (int)selectChar.MaxMp;
-        _info.Stats.MaxHp = (int)selectChar.MaxHp;
+        if (selectChar != null)
+        {
+            _info.Stats.MaxMp = (int)selectChar.MaxMp;
+            _info.Stats.MaxHp = (int)selectChar.MaxHp;
+        }
+        else
+        {
+            _info.Stats.MaxMp = 50;
+            _info.Stats.MaxHp = 200;
+        }
+        if (_info.Stats.MaxCp <= 0)
+            _info.Stats.MaxCp = System.Math.Max(_info.Status.Cp, 100);
         _info.Stats.MaxExp = LevelServer.GetExp(_info.Stats.Level + 1);
 
         _info.Stats.Karma = reader.ReadI();

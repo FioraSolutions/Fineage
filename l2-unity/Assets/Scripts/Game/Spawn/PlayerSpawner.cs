@@ -106,6 +106,7 @@ public sealed class PlayerSpawner
 
         if (_characterInfo != null)
             _characterInfo.UpdateValues();
+        PlayerStateMachine.AdoptFromPlayer(player);
         if (PlayerStateMachine.Instance != null)
             PlayerStateMachine.Instance.Player = player;
 
