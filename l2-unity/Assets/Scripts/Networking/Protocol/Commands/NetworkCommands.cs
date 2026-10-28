@@ -38,6 +38,17 @@ public sealed class ZoneGrantItemCommand : INetworkCommand
     }
 }
 
+/// <summary>Zone V2 TX opcode 14 — pick up ground item (Backend C2 / #125).</summary>
+public sealed class ZonePickupRequestCommand : INetworkCommand
+{
+    public int GroundObjectId;
+
+    public ZonePickupRequestCommand(int groundObjectId)
+    {
+        GroundObjectId = groundObjectId;
+    }
+}
+
 public sealed class ClickActionCommand : INetworkCommand
 {
     public int ObjectId;

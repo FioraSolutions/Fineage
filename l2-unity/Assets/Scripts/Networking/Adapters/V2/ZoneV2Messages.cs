@@ -63,6 +63,12 @@ public static class ZoneV2Messages
         }, 2);
     }
 
+    /// <summary>MessagePack array [objectId] — Fineage-Backend <c>PickupRequestMsg</c>.</summary>
+    public static byte[] EncodePickupRequest(int groundObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, groundObjectId), 1);
+    }
+
     public static bool TryDecodeHelloAck(byte[] body, out int protocolVersion, out string serverName)
     {
         protocolVersion = 0;

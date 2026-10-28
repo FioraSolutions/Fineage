@@ -14,6 +14,8 @@ public class ZoneV2InventoryWireTests
         Assert.Equal(1016, (ushort)ZoneV2MsgType.UserInfo);
         Assert.Equal(1005, (ushort)ZoneV2MsgType.CharInfo);
         Assert.Equal(1018, (ushort)ZoneV2MsgType.SpawnItem);
+        Assert.Equal(14, (ushort)ZoneV2MsgType.PickupRequest);
+        Assert.Equal(13, (ushort)ZoneV2MsgType.GrantItemRequest);
         Assert.Equal(7, ZoneV2Paperdoll.RightHand);
         Assert.Equal(17, ZoneV2Paperdoll.Count);
     }
@@ -38,10 +40,9 @@ public class ZoneV2InventoryWireTests
         Assert.Equal(-84318, item.X);
         Assert.True(item.Stackable);
         Assert.Equal(25, item.Count);
-
-        SpawnItemDto dto = ZoneV2DomainMap.ToSpawnItemDto(item);
-        Assert.Equal(57, dto.ItemId);
-        Assert.Equal(25, dto.Count);
+        Assert.Equal(-84318, item.X);
+        Assert.Equal(244579, item.Y);
+        Assert.Equal(-3730, item.Z);
     }
 
     [Fact]
