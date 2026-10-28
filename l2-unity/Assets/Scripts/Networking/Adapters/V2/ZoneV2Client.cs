@@ -402,6 +402,36 @@ public sealed class ZoneV2Client : MonoBehaviour
                         });
                         break;
 
+                    case ZoneV2MsgType.ItemList:
+                        ZoneV2ItemEntry[] itemRows;
+                        if (!ZoneV2Messages.TryDecodeItemList(f.Body, out itemRows))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad ItemList body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            ItemListDto listDto = ZoneV2DomainMap.ToItemListDto(itemRows);
+                            ItemListApplyIncomingPacketServices.ApplyItemList(listDto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.InventoryUpdate:
+                        ZoneV2InventoryChange[] invChanges;
+                        if (!ZoneV2Messages.TryDecodeInventoryUpdate(f.Body, out invChanges))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad InventoryUpdate body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            InventoryUpdateDto updateDto = ZoneV2DomainMap.ToInventoryUpdateDto(invChanges);
+                            InventoryUpdateApplyIncomingPacketServices.ApplyInventoryUpdate(updateDto);
+                        });
+                        break;
+
                     case ZoneV2MsgType.CreatureSay:
                         ZoneV2CreatureSay creatureSay;
                         if (!ZoneV2Messages.TryDecodeCreatureSay(f.Body, out creatureSay))

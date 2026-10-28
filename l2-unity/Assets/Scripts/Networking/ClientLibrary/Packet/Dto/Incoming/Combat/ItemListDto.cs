@@ -97,5 +97,22 @@ public class ItemListDto : IWireDto
         return (item != null) ? item.Count : 0;
     }
 
+    /// <summary>Built from Zone V2 <see cref="ZoneV2MsgType.ItemList"/> (no open-window flag on wire).</summary>
+    public static ItemListDto FromZoneInventory(
+        Dictionary<int, ItemInstance> bag,
+        Dictionary<int, ItemInstance> equip)
+    {
+        var dto = new ItemListDto();
+        dto.items = bag ?? new Dictionary<int, ItemInstance>();
+        dto.equip = equip ?? new Dictionary<int, ItemInstance>();
+        dto.showWindow = false;
+        dto._adenaCount = GetAdenaCountStatic(dto.items.Values.ToList());
+        return dto;
+    }
 
+    static int GetAdenaCountStatic(List<ItemInstance> allItems)
+    {
+        ItemInstance item = allItems.FirstOrDefault(o => o.Category == ItemCategory.Adena);
+        return item != null ? item.Count : 0;
+    }
 }

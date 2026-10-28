@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 /// <summary>MessagePack array bodies matching tools/zone-server Wire/Messages.cs.</summary>
@@ -343,6 +344,113 @@ public static class ZoneV2Messages
             return false;
         }
     }
+
+    public static bool TryDecodeItemList(byte[] body, out ZoneV2ItemEntry[] items)
+    {
+        items = Array.Empty<ZoneV2ItemEntry>();
+        try
+        {
+            int i = 0;
+            int outer = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (outer < 1)
+                return false;
+            int rowCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (rowCount <= 0)
+            {
+                items = Array.Empty<ZoneV2ItemEntry>();
+                return true;
+            }
+
+            var rows = new ZoneV2ItemEntry[rowCount];
+            for (int r = 0; r < rowCount; r++)
+            {
+                if (!TryReadItemEntry(body, ref i, out rows[r]))
+                    return false;
+            }
+
+            items = rows;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeInventoryUpdate(byte[] body, out ZoneV2InventoryChange[] changes)
+    {
+        changes = Array.Empty<ZoneV2InventoryChange>();
+        try
+        {
+            int i = 0;
+            int outer = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (outer < 1)
+                return false;
+            int rowCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (rowCount <= 0)
+            {
+                changes = Array.Empty<ZoneV2InventoryChange>();
+                return true;
+            }
+
+            var rows = new ZoneV2InventoryChange[rowCount];
+            for (int r = 0; r < rowCount; r++)
+            {
+                if (!TryReadInventoryChange(body, ref i, out rows[r]))
+                    return false;
+            }
+
+            changes = rows;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    static bool TryReadItemEntry(byte[] body, ref int i, out ZoneV2ItemEntry entry)
+    {
+        entry = default;
+        int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (n < 9)
+            return false;
+        entry = new ZoneV2ItemEntry
+        {
+            ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+            ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Count = ZoneV2MsgPack.ReadInt(body, ref i),
+            EquippedSlot = ZoneV2MsgPack.ReadInt(body, ref i),
+            BodySlot = ZoneV2MsgPack.ReadString(body, ref i),
+            Kind = ZoneV2MsgPack.ReadString(body, ref i),
+            Icon = ZoneV2MsgPack.ReadString(body, ref i),
+            WeaponType = ZoneV2MsgPack.ReadString(body, ref i),
+            ArmorType = ZoneV2MsgPack.ReadString(body, ref i)
+        };
+        return true;
+    }
+
+    static bool TryReadInventoryChange(byte[] body, ref int i, out ZoneV2InventoryChange change)
+    {
+        change = default;
+        int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (n < 10)
+            return false;
+        change = new ZoneV2InventoryChange
+        {
+            Change = ZoneV2MsgPack.ReadInt(body, ref i),
+            ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+            ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Count = ZoneV2MsgPack.ReadInt(body, ref i),
+            EquippedSlot = ZoneV2MsgPack.ReadInt(body, ref i),
+            BodySlot = ZoneV2MsgPack.ReadString(body, ref i),
+            Kind = ZoneV2MsgPack.ReadString(body, ref i),
+            Icon = ZoneV2MsgPack.ReadString(body, ref i),
+            WeaponType = ZoneV2MsgPack.ReadString(body, ref i),
+            ArmorType = ZoneV2MsgPack.ReadString(body, ref i)
+        };
+        return true;
+    }
 }
 
 public struct ZoneV2PlayerSpawned
@@ -420,4 +528,31 @@ public struct ZoneV2CreatureSay
     public string Name;
     public string Text;
     public int ChatType;
+}
+
+public struct ZoneV2ItemEntry
+{
+    public int ObjectId;
+    public int ItemId;
+    public int Count;
+    public int EquippedSlot;
+    public string BodySlot;
+    public string Kind;
+    public string Icon;
+    public string WeaponType;
+    public string ArmorType;
+}
+
+public struct ZoneV2InventoryChange
+{
+    public int Change;
+    public int ObjectId;
+    public int ItemId;
+    public int Count;
+    public int EquippedSlot;
+    public string BodySlot;
+    public string Kind;
+    public string Icon;
+    public string WeaponType;
+    public string ArmorType;
 }
