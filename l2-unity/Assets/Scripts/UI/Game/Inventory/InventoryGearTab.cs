@@ -212,6 +212,13 @@ public class InventoryGearTab : L2Tab
     }
 
   
+    public ItemSlot CellSlot(int position)
+    {
+        if (_gearCellIds != null && _gearCellIds.ContainsKey(position))
+            return _gearCellIds[position];
+        return ItemSlot.none;
+    }
+
     public GearItem ConvertIdToGearType(int slotPosition)
     {
         if (_gearCellIds.ContainsKey(slotPosition))

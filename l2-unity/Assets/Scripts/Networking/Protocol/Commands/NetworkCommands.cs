@@ -25,6 +25,17 @@ public sealed class UseItemCommand : INetworkCommand
     }
 }
 
+/// <summary>Zone V2 TX opcode 16 — clear paperdoll index 0..16.</summary>
+public sealed class UnequipItemCommand : INetworkCommand
+{
+    public int PaperdollSlot;
+
+    public UnequipItemCommand(int paperdollSlot)
+    {
+        PaperdollSlot = paperdollSlot;
+    }
+}
+
 /// <summary>Zone V2 TX opcode 13 — server grants into bag via InventoryUpdate (Backend #120).</summary>
 public sealed class ZoneGrantItemCommand : INetworkCommand
 {

@@ -17,8 +17,8 @@ public class InventorySlot : L2DraggableSlot
     public int ObjectId { get { return _objectId; } }
     public int ItemId { get { return _id; } }
 
-    public InventorySlot(int position, VisualElement slotElement, L2Tab tab, SlotType slotType , bool rightMouseup)
-    : base(position, slotElement, slotType, false, rightMouseup)
+    public InventorySlot(int position, VisualElement slotElement, L2Tab tab, SlotType slotType , bool rightMouseup, bool leftMouseUp = false)
+    : base(position, slotElement, slotType, leftMouseUp, rightMouseup)
     {
         _currentTab = tab;
         _empty = true;
@@ -325,12 +325,21 @@ public class InventorySlot : L2DraggableSlot
         }
     }
     public bool IsEmpty { get { return _empty; } }
+    float _useClickAt;
+
     protected override void HandleLeftClick()
     {
         if (_currentTab != null)
         {
             _currentTab.SelectSlot(_position);
         }
+
+        if (_empty)
+            return;
+
+        if (Time.time - _useClickAt < 0.3f)
+            UseItem();
+        _useClickAt = Time.time;
     }
 
     protected override void HandleRightClick()
