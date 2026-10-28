@@ -16,24 +16,42 @@ public class SceneLoader : MonoBehaviour
     private bool _worldStreaming;
     private bool _streamingBusy;
 
-    [Inject] GameManager _gameManager;
+    GameManager _gameManager;
     [Inject] GameClient _gameClient;
-    [Inject] World _world;
-    [Inject] L2GameUI _gameUi;
 
     private GameManager Manager
     {
-        get { return _gameManager != null ? _gameManager : GamePacketServices.Manager; }
+        get
+        {
+            if (_gameManager != null)
+                return _gameManager;
+            if (GameManager.Instance != null)
+                return GameManager.Instance;
+            return IncomingPacketActions.Manager;
+        }
     }
 
     private GameClient Game
     {
-        get { return _gameClient != null ? _gameClient : GamePacketServices.Game; }
+        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
     }
 
     private World GameWorld
     {
-        get { return _world != null ? _world : GamePacketServices.GameWorld; }
+        get
+        {
+            if (App.GameContainer != null)
+            {
+                try
+                {
+                    return App.GameContainer.Resolve<World>();
+                }
+                catch
+                {
+                }
+            }
+            return IncomingPacketActions.GameWorld;
+        }
     }
 
     public string GameScene { get { return _gameScene; } }
@@ -51,25 +69,6 @@ public class SceneLoader : MonoBehaviour
         {
             Destroy(this);
         }
-
-        WireGamePacketServices();
-        WireSceneLoaderUiPacketServices();
-    }
-
-    private void Start()
-    {
-        WireGamePacketServices();
-        WireSceneLoaderUiPacketServices();
-    }
-
-    private void WireGamePacketServices()
-    {
-        GamePacketServices.Bind(manager: _gameManager, game: _gameClient, gameWorld: _world);
-    }
-
-    private void WireSceneLoaderUiPacketServices()
-    {
-        SceneLoaderUiPacketServices.Bind(gameUi: _gameUi);
     }
 
     public void LoadMenu()
@@ -339,9 +338,10 @@ public class SceneLoader : MonoBehaviour
 
     private static L2GameUI GetGameUi()
     {
-        L2GameUI ui = SceneLoaderUiPacketServices.GameUi;
-        if (ui != null)
-            return ui;
+        if (L2GameUI.Instance != null)
+        {
+            return L2GameUI.Instance;
+        }
 
         return FindFirstObjectByType<L2GameUI>(FindObjectsInactive.Include);
     }

@@ -22,6 +22,8 @@ public class PathFinderFactory : MonoBehaviour {
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            _currentJobs = new List<PathFinder>();
+            _todoJobs = new List<PathFinder>();
         } else {
             Destroy(this);
         }
@@ -35,10 +37,13 @@ public class PathFinderFactory : MonoBehaviour {
     void Start() {
         _currentJobs = new List<PathFinder>();
         _todoJobs = new List<PathFinder>();
-        _nodeSize = Geodata.Instance.NodeSize;
+        if (Geodata.Instance != null)
+            _nodeSize = Geodata.Instance.NodeSize;
     }
 
     void Update() {
+        if (_currentJobs == null || _todoJobs == null)
+            return;
         /*
          * Another way to keep track of the threads we have open would have been to create 
          * a new thread for it but we can also just use Unity's main thread too since this class

@@ -5,9 +5,7 @@ using VContainer;
 
 public abstract class DefaultClient : MonoBehaviour
 {
-    [Inject] protected NetworkRuntime _network;
-    [Inject] protected GameManager _gameManager;
-    [Inject] protected World _world;
+    protected NetworkRuntime _network;
     [Header("Connection")]
     [SerializeField] protected string _serverIp = "127.0.0.1";
     [SerializeField] protected int _serverPort = 11000;
@@ -40,31 +38,26 @@ public abstract class DefaultClient : MonoBehaviour
 
     private void Start()
     {
-        NetworkingPacketServices.Bind(world: _world, manager: _gameManager);
+        GameManager manager = GameManager.Instance;
         World world = GameWorld;
+        if (manager != null || world != null)
+            NetworkingPacketServices.Bind(world: world, manager: manager);
         if (world != null && world.OfflineMode)
         {
             this.enabled = false;
         }
     }
 
-    /// <summary>
-    /// Release builds point login/game sockets at the shared playtest host.
-    /// Editor play keeps the serialized address when no host is configured.
-    /// </summary>
-    protected virtual void ApplyPlaytestEndpoint()
-    {
-    }
-
     public async void Connect()
     {
-        ApplyPlaytestEndpoint();
         _connected = false;
         if (_connecting)
         {
             LobbyFlowLog.Warn(GetType().Name + ".Connect skipped — already connecting");
             return;
         }
+
+        ApplyFineageLoginEndpointIfNeeded();
 
         // Arm guard before CreateAsyncClient so a re-entrant Connect cannot replace the socket mid-flight.
         _connecting = true;
@@ -126,6 +119,18 @@ public abstract class DefaultClient : MonoBehaviour
     protected virtual void WhileConnecting()
     {
         _connecting = true;
+    }
+
+    /// <summary>
+    /// Local macOS / Fineage-Backend playtest: inspector may still show Interlude 2106.
+    /// </summary>
+    protected void ApplyFineageLoginEndpointIfNeeded()
+    {
+        if (!(this is LoginClient) || !FineageWireConfig.UseLoginHandoff)
+            return;
+
+        _serverIp = FineageWireConfig.LoginHost;
+        _serverPort = FineageWireConfig.LoginPort;
     }
 
     protected abstract void CreateAsyncClient();
@@ -193,7 +198,7 @@ public abstract class DefaultClient : MonoBehaviour
             NetworkRuntime runtime = Network;
             if (runtime != null && runtime.Events != null)
                 return runtime.Events;
-            return NetworkingPacketServices.Events;
+            return EventProcessor.Instance;
         }
     }
 

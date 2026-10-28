@@ -15,17 +15,13 @@ public sealed class EntityActionMachine : ITickable
     public EntityActionMachine(
         L2PawnRange pawnRange,
         L2PawnYaw pawnYaw,
-        World gameWorld,
         IAnimationManager animations,
         EffectManager effects,
         MoveAllCharacters moves,
-        GameClient game,
-        PacketApplyQueue applyQueue)
+        GameClient game)
     {
         Instance = this;
-        AnimationPacketServices.Bind(animations: animations, applyQueue: applyQueue);
         ControllerPacketServices.Bind(
-            gameWorld: gameWorld,
             animations: animations,
             effects: effects,
             moves: moves,

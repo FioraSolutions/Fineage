@@ -11,7 +11,6 @@ public sealed class AppLifetimeScope : LifetimeScope
         RegisterIfFound<SceneLoader>(builder);
         RegisterIfFound<GameClient>(builder);
         RegisterIfFound<LoginClient>(builder);
-        RegisterIfFound<L2LoginUI>(builder);
 
         builder.Register<TableInitializer>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton);
