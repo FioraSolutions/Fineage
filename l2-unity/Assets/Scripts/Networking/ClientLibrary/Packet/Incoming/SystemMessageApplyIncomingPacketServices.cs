@@ -11,7 +11,7 @@ public static class SystemMessageApplyIncomingPacketServices
     {
         try
         {
-            ChatApplyIncomingPacketServices.ApplyMessage(apply => apply.SystemMessage(packet));
+            MessageApplyIncomingPacketServices.ApplyMessage(apply => apply.SystemMessage(packet));
         }
         catch (Exception)
         {
