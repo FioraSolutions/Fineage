@@ -12,11 +12,11 @@ public static class CombatPacketApplyIncomingPacketServices
     public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        CombatWorldApplyIncomingPacketServices.ApplyWorld(apply);
+        QueueApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        CombatWorldApplyIncomingPacketServices.QueueWorld(apply);
+        QueueApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void Queue(Action action) =>
-        CombatWorldApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }
