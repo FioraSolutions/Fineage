@@ -7,7 +7,7 @@ using VContainer;
 [RequireComponent(typeof(NetworkTransformShare)), RequireComponent(typeof(CharacterController))]
 public class NetworkCharacterControllerShare : MonoBehaviour {
     [Inject] World _world;
-    [Inject] PlayerController _player;
+    [Inject(Optional = true)] PlayerController _player;
 
     private World GameWorld => NetworkingPacketServices.GameWorld;
 

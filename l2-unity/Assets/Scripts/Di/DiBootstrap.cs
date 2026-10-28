@@ -39,6 +39,13 @@ public static class DiBootstrap
         GameObject go = new GameObject("GameLifetimeScope");
         using (LifetimeScope.EnqueueParent(app))
             go.AddComponent<GameLifetimeScope>();
+
+        GameLifetimeScope built = go.GetComponent<GameLifetimeScope>();
+        if (!IsGameScopeReady(built))
+        {
+            Object.DestroyImmediate(go);
+            App.GameContainer = null;
+        }
     }
 
     public static void EnsureLoginScope()

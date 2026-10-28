@@ -1,40 +1,30 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Local player packet apply. No VContainer ctor deps — hero spawns after GameScope build.
+/// </summary>
 public sealed class PlayerWorldApply : EntityWorldApply
 {
-    private readonly SkillbarWindow _skillbar;
-    private readonly EffectManager _effects;
-    private readonly EventBus _bus;
-
-    public PlayerWorldApply(SkillbarWindow skillbar, EffectManager effects, EventBus bus)
-    {
-        _skillbar = skillbar;
-        _effects = effects;
-        _bus = bus;
-    }
-
     private SkillbarWindow Skillbar =>
-        _skillbar != null ? _skillbar : SkillbarWindow.Instance;
+        IncomingPacketActions.Skillbar != null
+            ? IncomingPacketActions.Skillbar
+            : SkillbarWindow.Instance;
 
     private EffectManager Effects =>
-        _effects != null ? _effects : EffectManager.Instance;
+        IncomingPacketActions.Effects != null
+            ? IncomingPacketActions.Effects
+            : EffectManager.Instance;
 
     private PlayerController Player => IncomingPacketActions.Player;
 
     private EventBus Bus =>
-        _bus != null ? _bus : IncomingPacketActions.Bus;
+        IncomingPacketActions.Bus != null ? IncomingPacketActions.Bus : EventBus.Instance;
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
     {
         if (entity != null && entity.IsDead())
             return;
 
-        // ReplayAttackTrace.Write(
-            // "PLAYER_MOVE",
-            // entity,
-            // entity != null ? entity.GetTargetEntity() : null,
-            // "state=" + (PlayerStateMachine.Instance != null ? PlayerStateMachine.Instance.State.ToString() : "none") +
-            // " destination=" + destination);
         if (PlayerStateMachine.Instance != null)
             PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_MOVE_TO, dto);
     }
@@ -101,7 +91,6 @@ public sealed class PlayerWorldApply : EntityWorldApply
             return;
         }
 
-        // Herb/potion: FX only. Stay in current SM state so pickup can CrossFade wait.
         if (SetupDurationHelper.IsUsePotion(dto))
         {
             SetupDurationHelper.PlayPotionEffect(entity, dto);

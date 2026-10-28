@@ -16,7 +16,7 @@ public class ThirdPersonListener : MonoBehaviour
     private static ThirdPersonListener _instance;
     public static ThirdPersonListener Instance { get { return _instance; } }
 
-    [Inject] PlayerController _playerController;
+    [Inject(Optional = true)] PlayerController _playerController;
 
     private PlayerController ResolvedPlayer
     {

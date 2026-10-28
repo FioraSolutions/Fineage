@@ -25,7 +25,7 @@ public sealed class CombatFacingService : MonoBehaviour
 
     [Inject] WeapongrpTable _weaponGrps;
     [Inject] L2PawnYaw _pawnYaw;
-    [Inject] PlayerController _player;
+    [Inject(Optional = true)] PlayerController _player;
 
     private PlayerController Player
     {

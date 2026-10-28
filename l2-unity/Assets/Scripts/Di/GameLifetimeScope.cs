@@ -7,7 +7,7 @@ public sealed class GameLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
-        RegisterLiveMono<PlayerController>(builder);
+        GameScopePlayerControllerRegistration.Register(builder);
         RegisterIfFound<World>(builder);
         RegisterIfFound<WorldCombat>(builder);
         RegisterIfFound<TargetManager>(builder);
@@ -113,7 +113,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<EntityActionMachine>().AsSelf();
         builder.RegisterEntryPoint<StriderRideService>().AsSelf();
         builder.RegisterEntryPoint<UnityChainTicker>();
-        builder.Register<PlayerWorldApply>(Lifetime.Singleton);
+        builder.Register(_ => new PlayerWorldApply(), Lifetime.Singleton);
         builder.Register<NpcWorldApply>(Lifetime.Singleton);
         builder.Register<MonsterWorldApply>(Lifetime.Singleton);
         builder.Register<UserWorldApply>(Lifetime.Singleton);
@@ -227,6 +227,10 @@ public sealed class GameLifetimeScope : LifetimeScope
             catch (Exception ex)
             {
                 Debug.LogError("GameLifetimeScope BindGame failed: " + ex);
+                App.GameContainer = null;
+                GameLifetimeScope broken = Object.FindFirstObjectByType<GameLifetimeScope>();
+                if (broken != null)
+                    Object.DestroyImmediate(broken.gameObject);
             }
         });
     }
@@ -260,8 +264,6 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (found != null)
             return found;
 
-        if (typeof(T) == typeof(PlayerController))
-            return PlayerController.Instance;
         if (typeof(T) == typeof(MoveAllCharacters))
             return MoveAllCharacters.Instance as T;
         if (typeof(T) == typeof(EffectManager))
