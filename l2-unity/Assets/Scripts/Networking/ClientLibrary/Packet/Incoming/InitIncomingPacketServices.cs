@@ -1,6 +1,6 @@
 /// <summary>
 /// Init wire packet handler entry (#142 sub-slice 107).
-/// Splits init parse/apply out of <see cref="LoginServerIncomingPacketServices"/> (sub-slice 58 encapsulation).
+/// Splits init parse/apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
 /// </summary>
 public static class InitIncomingPacketServices
 {

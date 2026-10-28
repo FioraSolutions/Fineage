@@ -1,6 +1,6 @@
 /// <summary>
 /// LoginOk wire packet handler entry (#142 sub-slice 111).
-/// Splits login-ok parse/apply out of <see cref="LoginServerIncomingPacketServices"/> (sub-slice 58 encapsulation).
+/// Splits login-ok parse/apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
 /// </summary>
 public static class LoginOkIncomingPacketServices
 {

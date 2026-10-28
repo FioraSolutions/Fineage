@@ -1,6 +1,6 @@
 /// <summary>
 /// LoginFail wire packet handler entry (#142 sub-slice 109).
-/// Splits login-fail apply out of <see cref="LoginServerIncomingPacketServices"/> (sub-slice 58 encapsulation).
+/// Splits login-fail apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
 /// </summary>
 public static class LoginFailIncomingPacketServices
 {

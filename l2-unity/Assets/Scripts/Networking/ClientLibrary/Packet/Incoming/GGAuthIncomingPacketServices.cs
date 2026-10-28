@@ -1,6 +1,6 @@
 /// <summary>
 /// GGAuth wire packet handler entry (#142 sub-slice 108).
-/// Splits GGAuth parse/apply out of <see cref="LoginServerIncomingPacketServices"/> (sub-slice 58 encapsulation).
+/// Splits GGAuth parse/apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
 /// </summary>
 public static class GGAuthIncomingPacketServices
 {
