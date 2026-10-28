@@ -35,4 +35,13 @@ public static class ItemPacketServices
 
     public static EffectManager Effects =>
         _effects != null ? _effects : IncomingPacketActions.Effects;
+
+    /// <summary>Zone V2 grant (opcode 13); server replies with InventoryUpdate.</summary>
+    public static void SendZoneGrantItem(int itemId, int count = 1)
+    {
+        GameClient game = Game;
+        if (game == null)
+            return;
+        game.Send(new ZoneGrantItemCommand(itemId, count));
+    }
 }
