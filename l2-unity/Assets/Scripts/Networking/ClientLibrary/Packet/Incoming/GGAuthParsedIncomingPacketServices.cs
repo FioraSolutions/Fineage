@@ -1,8 +1,8 @@
 /// <summary>
-/// GGAuth wire packet handler entry (#142 sub-slice 108).
-/// Splits GGAuth parse/apply out of <see cref="LoginPacketServices"/> (sub-slice 58 encapsulation).
+/// GGAuth wire parse hook (#142 batch slice 146).
+/// Splits parse out of <see cref="GGAuthIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
-public static class GGAuthIncomingPacketServices
+public static class GGAuthParsedIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 
@@ -13,9 +13,5 @@ public static class GGAuthIncomingPacketServices
             Login.Account,
             Login.Password,
             packet.Response));
-    }
-
-    public static void ApplyGGAuth(GGAuthDto packet)
-    {
     }
 }
