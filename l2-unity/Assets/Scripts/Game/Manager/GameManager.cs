@@ -78,6 +78,11 @@ public class GameManager : MonoBehaviour, IGameManager {
     }
 
     private void Start() {
+        if (_tableInitializer == null)
+        {
+            Debug.LogError("[GameManager] TableInitializer missing — AppLifetimeScope failed to build.");
+            return;
+        }
         _tableInitializer.LoadTables();
         Scenes.LoadMenu();
         string account;
