@@ -31,6 +31,16 @@ public static class PlayerResourceCaps
         return max >= cur ? max : cur;
     }
 
+    /// <summary>UI bar fill in [0,1] when max can lag current (StatusUpdate / stub spawn).</summary>
+    public static float BarFillRatio(double current, int max)
+    {
+        int effectiveMax = EffectiveMax(max, current);
+        if (effectiveMax <= 0)
+            return 0f;
+        float ratio = (float)CeilingPositive(current) / effectiveMax;
+        return ratio > 1f ? 1f : ratio;
+    }
+
     static int CeilingPositive(double value)
     {
         if (value <= 0)

@@ -121,18 +121,10 @@ public class WorldCombat : MonoBehaviour {
                     ((PlayerStats) stats).Men = (byte)attribute.value;
                     break;
                 case AttributeType.CUR_HP:
-                    if (status != null)
-                        status.SetHp(attribute.value);
-                    break;
                 case AttributeType.MAX_HP:
-                    if (stats != null)
-                        stats.MaxHp = attribute.value;
-                    break;
                 case AttributeType.CUR_MP:
-                    status.SetMp(attribute.value);
-                    break;
                 case AttributeType.MAX_MP:
-                    stats.MaxMp = attribute.value;
+                    StatusUpdateVitalAttributes.TryApply(status, stats, attribute.id, attribute.value);
                     break;
                 case AttributeType.SP:
                     ((PlayerStats) stats).Sp = attribute.value;
@@ -192,5 +184,7 @@ public class WorldCombat : MonoBehaviour {
                     break;
             }
         }
+
+        StatusUpdateVitalAttributes.ReconcilePlayerCaps(entity.Status, entity.Stats);
     }
 }
