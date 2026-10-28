@@ -1,21 +1,21 @@
 using System;
 
 /// <summary>
-/// Character lobby / selection apply hub (#142 batch slice 159; character orchestration slice 184).
+/// Character lobby / selection apply hub (#142 batch slice 159; login session orchestration slice 193).
 /// </summary>
 public static class CharacterApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginSessionApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LoginApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LoginSessionApplyIncomingPacketServices.Manager;
 
-    public static LoginWindow LoginWindow => LoginApplyIncomingPacketServices.LoginWindow;
+    public static LoginWindow LoginWindow => LoginSessionApplyIncomingPacketServices.LoginWindow;
 
-    public static CharSelectWindow CharSelect => LoginApplyIncomingPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => LoginSessionApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => LoginApplyIncomingPacketServices.Characters;
+    public static CharacterSelector Characters => LoginSessionApplyIncomingPacketServices.Characters;
 
     public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
