@@ -3,5 +3,5 @@
 public sealed class ShopPreviewListIncoming : IncomingWirePacket<ShopPreviewListDto>
 {
     public override void Apply(ShopPreviewListDto packet) =>
-        ShopListIncomingPacketServices.ApplyShopPreviewList(packet);
+        ShopPreviewListIncomingPacketServices.ApplyShopPreviewList(packet);
 }
