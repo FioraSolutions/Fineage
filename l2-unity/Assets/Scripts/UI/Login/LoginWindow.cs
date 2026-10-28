@@ -147,6 +147,8 @@ public class LoginWindow : L2Window
         IZoneTransport transport = _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
         if (transport != null && transport.BypassesInterludeLogin)
         {
+            if (FineageWireConfig.UseLoginHandoff)
+                ShowErrorText("Connecting to " + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort);
             transport.BeginSession(account, password);
             return;
         }

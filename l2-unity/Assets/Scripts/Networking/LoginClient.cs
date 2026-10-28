@@ -4,7 +4,6 @@ using L2_login;
 using VContainer;
 
 public class LoginClient : DefaultClient {
-    [Inject] GameManager _gameManager;
     [Inject] LoginWindow _loginWindow;
 
     private GameManager Manager => NetworkingPacketServices.Manager;

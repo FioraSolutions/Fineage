@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 /// <summary>MessagePack array bodies matching tools/zone-server Wire/Messages.cs.</summary>
@@ -135,6 +136,97 @@ public static class ZoneV2Messages
         }
     }
 
+    public static byte[] EncodeSelectCharacter(int characterId, string name)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, characterId);
+            ZoneV2MsgPack.WriteString(w, name ?? "");
+        }, 2);
+    }
+
+    public static bool TryDecodeLoginOk(byte[] body, out string account)
+    {
+        account = "";
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            account = ZoneV2MsgPack.ReadString(body, ref i);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeCharacterList(byte[] body, out ZoneV2CharacterSummary[] characters)
+    {
+        characters = Array.Empty<ZoneV2CharacterSummary>();
+        try
+        {
+            int i = 0;
+            int outer = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (outer < 1)
+                return false;
+            int count = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            ZoneV2CharacterSummary[] list = new ZoneV2CharacterSummary[count];
+            for (int c = 0; c < count; c++)
+            {
+                int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+                if (n < 6)
+                    return false;
+                ZoneV2CharacterSummary row = new ZoneV2CharacterSummary
+                {
+                    CharacterId = ZoneV2MsgPack.ReadInt(body, ref i),
+                    Name = ZoneV2MsgPack.ReadString(body, ref i),
+                    ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+                    Race = ZoneV2MsgPack.ReadInt(body, ref i),
+                    Sex = ZoneV2MsgPack.ReadInt(body, ref i),
+                    Level = ZoneV2MsgPack.ReadInt(body, ref i)
+                };
+                list[c] = row;
+            }
+
+            characters = list;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeHandoff(byte[] body, out ZoneV2Handoff handoff)
+    {
+        handoff = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 7)
+                return false;
+            handoff = new ZoneV2Handoff
+            {
+                Account = ZoneV2MsgPack.ReadString(body, ref i),
+                CharacterName = ZoneV2MsgPack.ReadString(body, ref i),
+                CharacterId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Token = ZoneV2MsgPack.ReadString(body, ref i),
+                ZoneHost = ZoneV2MsgPack.ReadString(body, ref i),
+                ZonePort = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return !string.IsNullOrEmpty(handoff.Token);
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
     public static bool TryDecodeError(byte[] body, out string code, out string message)
     {
         code = "";
@@ -177,4 +269,25 @@ public struct ZoneV2MoveTo
     public int OriginX;
     public int OriginY;
     public int OriginZ;
+}
+
+public struct ZoneV2CharacterSummary
+{
+    public int CharacterId;
+    public string Name;
+    public int ClassId;
+    public int Race;
+    public int Sex;
+    public int Level;
+}
+
+public struct ZoneV2Handoff
+{
+    public string Account;
+    public string CharacterName;
+    public int CharacterId;
+    public int ClassId;
+    public string Token;
+    public string ZoneHost;
+    public int ZonePort;
 }

@@ -3,7 +3,6 @@ using VContainer;
 
 public class GameClient : DefaultClient {
     [Inject] IZoneTransport _zoneTransport;
-    [Inject] GameManager _gameManager;
 
     private GameManager Manager => NetworkingPacketServices.Manager;
     protected PlayerInfoInterlude _playerInfo;

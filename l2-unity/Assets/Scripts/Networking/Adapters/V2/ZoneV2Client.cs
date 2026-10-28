@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
@@ -95,9 +96,57 @@ public sealed class ZoneV2Client : MonoBehaviour
         Disconnect();
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
+        if (FineageWireConfig.UseLoginHandoff)
+        {
+            string loginHost = FineageWireConfig.LoginHost;
+            int loginPort = FineageWireConfig.LoginPort;
+            string character = FineageLocalBackend.CharacterHint;
+            Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
+            return;
+        }
+
         string host = FineageWireConfig.ZoneHost;
         int port = FineageWireConfig.ZonePort;
         Task.Run(() => RunSessionAsync(host, port, account, password, ct));
+    }
+
+    async Task RunLoginThenZoneAsync(
+        string loginHost,
+        int loginPort,
+        string account,
+        string password,
+        string character,
+        CancellationToken ct)
+    {
+        ZoneV2Handoff handoff;
+        try
+        {
+            handoff = await FineageLoginSession.LoginAndSelectAsync(
+                loginHost,
+                loginPort,
+                account,
+                password,
+                character,
+                message => Post(() => Debug.Log(message)),
+                ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception ex)
+        {
+            Post(() =>
+            {
+                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                if (LoginWindow.Instance != null)
+                    LoginWindow.Instance.ShowErrorText(ex.Message);
+            });
+            return;
+        }
+
+        await RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct)
+            .ConfigureAwait(false);
     }
 
     public void Disconnect()
@@ -195,11 +244,16 @@ public sealed class ZoneV2Client : MonoBehaviour
                 switch (f.Type)
                 {
                     case ZoneV2MsgType.HelloAck:
+                        string credential = password != null && password.StartsWith("fa1.", StringComparison.Ordinal)
+                            ? "handoff-token"
+                            : "password";
+                        Post(() => Debug.Log("[ZoneV2] Auth account=" + account + " credential=" + credential));
                         await ZoneV2FrameIO.SendAsync(stream, ZoneV2MsgType.Auth, ZoneV2Messages.EncodeAuth(account, password), ct)
                             .ConfigureAwait(false);
                         break;
 
                     case ZoneV2MsgType.AuthOk:
+                        Post(() => Debug.Log("[ZoneV2] EnterWorld " + host + ":" + port));
                         await ZoneV2FrameIO.SendAsync(stream, ZoneV2MsgType.EnterWorld, ZoneV2Messages.EncodeEnterWorld(0), ct)
                             .ConfigureAwait(false);
                         break;
@@ -214,7 +268,20 @@ public sealed class ZoneV2Client : MonoBehaviour
 
                         SessionObjectId = spawned.ObjectId;
                         PlayerInfoInterlude info = ZoneV2DomainMap.ToPlayerInfo(spawned);
-                        Post(() => OnPlayerSpawnedMain(info));
+                        int objectId = spawned.ObjectId;
+                        int spawnX = spawned.X;
+                        int spawnY = spawned.Y;
+                        int spawnZ = spawned.Z;
+                        string spawnName = info.Identity != null ? info.Identity.Name : "";
+                        Post(() =>
+                        {
+                            Debug.Log("[ZoneV2] PlayerSpawned name=" + spawnName
+                                + " objectId=" + objectId
+                                + " x=" + spawnX
+                                + " y=" + spawnY
+                                + " z=" + spawnZ);
+                            OnPlayerSpawnedMain(info);
+                        });
                         break;
 
                     case ZoneV2MsgType.MoveToAck:
@@ -280,6 +347,15 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
 
         manager.OnCharacterSelect();
+        if (FineageLocalBackend.QuitAfterSpawn)
+            StartCoroutine(QuitAfterSpawnRoutine());
+    }
+
+    IEnumerator QuitAfterSpawnRoutine()
+    {
+        yield return new WaitForSeconds(2f);
+        Debug.Log("[FineageLocal] quit after spawn");
+        Application.Quit();
     }
 
     void Post(Action action)

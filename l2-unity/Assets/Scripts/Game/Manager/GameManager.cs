@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
@@ -62,6 +63,8 @@ public class GameManager : MonoBehaviour, IGameManager {
         else
             FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
 
+        FineageLocalBackend.ApplyIfRequested();
+
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
     }
@@ -76,6 +79,23 @@ public class GameManager : MonoBehaviour, IGameManager {
     private void Start() {
         _tableInitializer.LoadTables();
         Scenes.LoadMenu();
+        string account;
+        string password;
+        if (FineageLocalBackend.TryGetAutoLogin(out account, out password))
+            StartCoroutine(AutoLoginLocalBackend(account, password));
+    }
+
+    private IEnumerator AutoLoginLocalBackend(string account, string password)
+    {
+        for (int i = 0; i < 30 && !App.HasContainer; i++)
+            yield return null;
+
+        if (!App.HasContainer || !FineageWireConfig.UseLoginHandoff)
+            yield break;
+
+        Debug.Log("[FineageLocal] auto-login account=" + account);
+        IZoneTransport transport = App.Resolve<IZoneTransport>();
+        transport.BeginSession(account, password);
     }
 
     #endregion
