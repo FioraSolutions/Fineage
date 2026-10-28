@@ -15,7 +15,7 @@ public static class WorldApplyIncomingPacketServices
 
     public static SellCropListWindow SellCrop => ManorApplyIncomingPacketServices.SellCrop;
 
-    public static BufferPanel Buffer => BufferApplyIncomingPacketServices.Buffer;
+    public static BufferPanel Buffer => UiApplyIncomingPacketServices.Buffer;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
         WorldSessionApplyIncomingPacketServices.ApplyWorld(apply);
