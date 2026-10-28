@@ -3,7 +3,7 @@
 /// </summary>
 public static class LoginWindowApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
 
-    public static LoginWindow LoginWindow => LoginApplyIncomingPacketServices.LoginWindow;
+    public static LoginWindow LoginWindow => LobbyApplyIncomingPacketServices.LoginWindow;
 }
