@@ -9,6 +9,10 @@ using UnityEngine;
 public static class FineageLocalBackend
 {
     public const string PrefKey = "Fineage.LocalBackend";
+    public const int PlaytestScreenWidth = 1920;
+    public const int PlaytestScreenHeight = 1080;
+
+    public static readonly string PlaytestScreenArgs = "-screen-width 1920 -screen-height 1080 -screen-fullscreen 0";
 
     public static bool IsRequested()
     {
@@ -43,8 +47,33 @@ public static class FineageLocalBackend
         string zoneHost = FirstNonEmpty(ArgValue("-fineageZoneHost"), FineageWireConfig.DefaultZoneHost);
         int zonePort = ParsePort(ArgValue("-fineageZonePort"), FineageWireConfig.DefaultZonePort);
         FineageWireConfig.EnableLocalBackend(loginHost, loginPort, zoneHost, zonePort);
+        ApplyPlaytestWindow();
         Debug.Log("[FineageLocal] mode=local-backend login=" + loginHost + ":" + loginPort
             + " zone=" + zoneHost + ":" + zonePort);
+    }
+
+    /// <summary>Large windowed playtest on Mac Standalone (ProjectSettings are also set at local build time).</summary>
+    static void ApplyPlaytestWindow()
+    {
+#if UNITY_STANDALONE
+        if (HasArg("-screen-fullscreen") && ArgValue("-screen-fullscreen") == "1")
+            return;
+
+        int width = PlaytestScreenWidth;
+        int height = PlaytestScreenHeight;
+        string widthArg = ArgValue("-screen-width");
+        string heightArg = ArgValue("-screen-height");
+        if (!string.IsNullOrEmpty(widthArg) && int.TryParse(widthArg, out int parsedW) && parsedW > 0)
+            width = parsedW;
+        if (!string.IsNullOrEmpty(heightArg) && int.TryParse(heightArg, out int parsedH) && parsedH > 0)
+            height = parsedH;
+
+        if (Screen.fullScreen || Screen.width != width || Screen.height != height)
+        {
+            Screen.SetResolution(width, height, FullScreenMode.Windowed);
+            Debug.Log("[FineageLocal] window " + width + "x" + height + " windowed");
+        }
+#endif
     }
 
     public static string CharacterHint

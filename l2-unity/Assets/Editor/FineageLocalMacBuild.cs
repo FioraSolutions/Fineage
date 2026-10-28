@@ -49,7 +49,13 @@ public static class FineageLocalMacBuild
             Directory.Delete(app, true);
 
         string previousName = PlayerSettings.productName;
+        int previousWidth = PlayerSettings.defaultScreenWidth;
+        int previousHeight = PlayerSettings.defaultScreenHeight;
+        FullScreenMode previousFullScreen = PlayerSettings.fullscreenMode;
         PlayerSettings.productName = "Fineage";
+        PlayerSettings.defaultScreenWidth = FineageLocalBackend.PlaytestScreenWidth;
+        PlayerSettings.defaultScreenHeight = FineageLocalBackend.PlaytestScreenHeight;
+        PlayerSettings.fullscreenMode = FullScreenMode.Windowed;
         try
         {
             string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray();
@@ -77,11 +83,16 @@ public static class FineageLocalMacBuild
         finally
         {
             PlayerSettings.productName = previousName;
+            PlayerSettings.defaultScreenWidth = previousWidth;
+            PlayerSettings.defaultScreenHeight = previousHeight;
+            PlayerSettings.fullscreenMode = previousFullScreen;
         }
     }
 
     static string LaunchText(string app)
     {
+        string bin = app + "/Contents/MacOS/Fineage";
+        string screen = FineageLocalBackend.PlaytestScreenArgs;
         return "Fineage local macOS client\n"
             + "This build logs into the C# Fineage-Backend on this Mac.\n"
             + "\n"
@@ -91,15 +102,22 @@ public static class FineageLocalMacBuild
             + "\n"
             + "Account localtest\n"
             + "Password localtest1\n"
-            + "Character Hero (used when it is the only character, or pass -fineageChar Hero)\n"
+            + "Character Hero (only char, or pass -fineageChar Hero)\n"
             + "\n"
-            + "Launch:\n"
+            + "Window: 1920x1080 windowed (Mac display ~2560x1440). Baked into this build; Unity also accepts:\n"
+            + "  " + screen + "\n"
+            + "\n"
+            + "Launch (recommended — big window):\n"
+            + "  \"" + bin + "\" " + screen + "\n"
+            + "\n"
+            + "Auto-login + big window:\n"
+            + "  \"" + bin + "\" " + screen
+            + " -fineageUser localtest -fineagePass localtest1 -fineageChar Hero\n"
+            + "\n"
+            + "Simple open (uses baked 1920x1080 default from build; may differ if macOS restored another size):\n"
             + "  open \"" + app + "\"\n"
             + "\n"
-            + "Auto-login:\n"
-            + "  \"" + app + "/Contents/MacOS/Fineage\" -fineageUser localtest -fineagePass localtest1 -fineageChar Hero\n"
-            + "\n"
-            + "This player defaults to 127.0.0.1. Pass -fineagePublic to use the Interlude client path instead.\n"
-            + "Other builds stay on their current endpoints unless started with -fineageLocal.\n";
+            + "This player defaults to 127.0.0.1. Pass -fineagePublic for Interlude endpoints.\n"
+            + "Other builds keep their defaults unless started with -fineageLocal.\n";
     }
 }
