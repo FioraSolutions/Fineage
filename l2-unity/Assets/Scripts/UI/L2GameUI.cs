@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 public class L2GameUI : L2UI
 {
-    private NativeCoords _lastMousePosition;
+    private NativeFunctions.NativeCoords _lastMousePosition;
     [SerializeField] private bool _mouseEnabled = true;
 
     private List<L2PopupWindow> _openedWindows;
