@@ -12,5 +12,5 @@ public static class MessageApplyIncomingPacketServices
         ChatApplyIncomingPacketServices.ApplyMessage(apply);
 
     public static void Queue(Action action) =>
-        ChatApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }
