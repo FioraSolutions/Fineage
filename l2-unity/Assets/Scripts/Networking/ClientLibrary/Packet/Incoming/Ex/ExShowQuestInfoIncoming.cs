@@ -2,5 +2,5 @@
 public sealed class ExShowQuestInfoIncoming : IncomingWirePacket<ExShowQuestInfoDto>
 {
     public override void Apply(ExShowQuestInfoDto packet) =>
-        QuestIncomingPacketServices.ApplyExShowQuestInfo(packet);
+        ExShowQuestInfoIncomingPacketServices.ApplyExShowQuestInfo(packet);
 }
