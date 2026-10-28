@@ -58,6 +58,8 @@ public enum ZoneV2MsgType : ushort
     EnchantConfirm = 40,
     /// <summary>Close the enchant window. Backend <c>EnchantCancelMsg</c> is an empty array.</summary>
     EnchantCancel = 41,
+    /// <summary>Use a known skill. Backend <c>SkillUseRequestMsg</c> keys 0 skillId, 1 targetObjectId, 2 ctrl.</summary>
+    SkillUseRequest = 50,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -109,6 +111,10 @@ public enum ZoneV2MsgType : ushort
     /// Result 0 cancel, 1 success, 2 keep, 3 reset, 4 crystallize.
     /// </summary>
     EnchantResult = 1060,
+    /// <summary>Known skills after <see cref="ItemList"/> on enter. Backend <c>SkillListMsg</c>.</summary>
+    SkillList = 1065,
+    /// <summary>Skill cast fan-out. Backend <c>MagicSkillUseMsg</c>.</summary>
+    MagicSkillUse = 1066,
 
     Error = 1099
 }

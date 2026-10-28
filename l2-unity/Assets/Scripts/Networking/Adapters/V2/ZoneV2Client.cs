@@ -662,6 +662,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.Say, body);
     }
 
+    public void SendSkillUseRequest(int skillId, int targetObjectId, bool ctrlPressed)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeSkillUseRequest(skillId, targetObjectId, ctrlPressed);
+        _ = SendFireAndForget(ZoneV2MsgType.SkillUseRequest, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -886,6 +894,36 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => ZoneV2GearSession.NoteUserInfo(userInfo));
                         break;
 
+                    case ZoneV2MsgType.SkillList:
+                        ZoneV2SkillEntry[] skillRows;
+                        if (!ZoneV2Messages.TryDecodeSkillList(f.Body, out skillRows))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad SkillList body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            SkillListDto list = ZoneV2DomainMap.ToSkillListDto(skillRows);
+                            SkillListApplyIncomingPacketServices.ApplySkillList(list);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.MagicSkillUse:
+                        ZoneV2MagicSkillUse magicUse;
+                        if (!ZoneV2Messages.TryDecodeMagicSkillUse(f.Body, out magicUse))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad MagicSkillUse body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            MagicSkillUseDto dto = ZoneV2DomainMap.ToMagicSkillUseDto(magicUse);
+                            MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
+                        });
+                        break;
+
                     case ZoneV2MsgType.AbnormalStatusUpdate:
                         ZoneV2AbnormalStatusUpdate abnormal;
                         if (!ZoneV2Messages.TryDecodeAbnormalStatusUpdate(f.Body, out abnormal))
@@ -1048,7 +1086,9 @@ public sealed class ZoneV2Client : MonoBehaviour
 
                         string clanLine;
                         bool clan = ZoneV2ClanNotices.TryLine(code, msg, out clanLine);
-                        string line = clan ? clanLine : ZoneV2Enchant.Notice(code, msg);
+                        string skillLine;
+                        bool skill = !clan && ZoneV2SkillNotices.TryLine(code, msg, out skillLine);
+                        string line = clan ? clanLine : skill ? skillLine : ZoneV2Enchant.Notice(code, msg);
                         bool closeEnchant = !clan && ZoneV2Enchant.ClearsWindow(code);
                         Post(() =>
                         {

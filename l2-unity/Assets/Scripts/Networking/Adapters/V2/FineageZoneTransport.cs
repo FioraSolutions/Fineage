@@ -119,6 +119,15 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        RequestMagicSkillUseCommand skillUse = command as RequestMagicSkillUseCommand;
+        if (skillUse != null)
+        {
+            int targetId = ResolveSelectedTargetObjectId();
+            bool ctrl = skillUse.CtrlPressed != 0;
+            ZoneV2Client.Ensure().SendSkillUseRequest(skillUse.SkillId, targetId, ctrl);
+            return true;
+        }
+
         RequestBypassToServerCommand bypass = command as RequestBypassToServerCommand;
         int giveItemId;
         int giveCount;

@@ -212,6 +212,41 @@ public static class ZoneV2DomainMap
     public static AbnormalStatusUpdateDto ToAbnormalStatusUpdateDto(ZoneV2AbnormalStatusUpdate update) =>
         AbnormalStatusUpdateDto.FromZoneEffects(update.Effects);
 
+    public static SkillListDto ToSkillListDto(ZoneV2SkillEntry[] rows)
+    {
+        var dto = new SkillListDto();
+        if (rows == null)
+            return dto;
+        for (int i = 0; i < rows.Length; i++)
+        {
+            ZoneV2SkillEntry row = rows[i];
+            bool passive = IsPassiveSkill(row.SkillId, row.Level);
+            bool disabled = row.ReuseDelayMs > 0;
+            dto.Skills.Add(new SkillInstance(row.SkillId, row.Level, passive, disabled));
+        }
+
+        return dto;
+    }
+
+    public static MagicSkillUseDto ToMagicSkillUseDto(ZoneV2MagicSkillUse use)
+    {
+        var dto = new MagicSkillUseDto();
+        dto.InitFromZoneV2(
+            use.CasterObjectId,
+            use.TargetObjectId,
+            use.SkillId,
+            use.SkillLevel,
+            use.HitTimeMs,
+            use.ReuseDelayMs);
+        return dto;
+    }
+
+    static bool IsPassiveSkill(int skillId, int level)
+    {
+        Skillgrp skill = SkillgrpTable.Instance != null ? SkillgrpTable.Instance.GetSkill(skillId, level) : null;
+        return skill != null && skill.OperateType == 2;
+    }
+
     static void AddZoneRow(
         ZoneV2ItemEntry row,
         int zoneChange,
