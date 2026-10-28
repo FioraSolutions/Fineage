@@ -3,5 +3,5 @@
 public sealed class CharCreateOkIncoming : IncomingWirePacket<CharCreateOkDto>
 {
     public override void Apply(CharCreateOkDto packet) =>
-        CharacterIncomingPacketServices.ApplyCharCreateOk(packet);
+        CharCreateOkIncomingPacketServices.ApplyCharCreateOk(packet);
 }
