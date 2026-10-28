@@ -2,5 +2,5 @@
 public sealed class CharCreateFailIncoming : IncomingWirePacket<CharCreateFailDto>
 {
     public override void Apply(CharCreateFailDto packet) =>
-        CharCreateFailIncomingPacketServices.ApplyCharCreateFail(packet);
+        CharCreateFailApplyIncomingPacketServices.ApplyCharCreateFail(packet);
 }

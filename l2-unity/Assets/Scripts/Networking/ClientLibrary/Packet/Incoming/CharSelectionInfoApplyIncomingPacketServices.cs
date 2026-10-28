@@ -1,10 +1,10 @@
 using System;
 
 /// <summary>
-/// Char selection info wire packet handler entry (#142 sub-slice 104).
-/// Splits char-selection-info apply out of <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
+/// Char selection info wire packet handler entry (#142 batch slice 147).
+/// Re-homes char-selection-info apply from <see cref="CharSelectionInfoIncomingPacketServices"/>; splits from <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
 /// </summary>
-public static class CharSelectionInfoIncomingPacketServices
+public static class CharSelectionInfoApplyIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 

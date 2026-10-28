@@ -1,10 +1,10 @@
 using System;
 
 /// <summary>
-/// Character template wire packet handler entry (#142 sub-slice 102).
-/// Splits char-template apply out of <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
+/// Character template wire packet handler entry (#142 batch slice 147).
+/// Re-homes char-template apply from <see cref="CharTemplateIncomingPacketServices"/>; splits from <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
 /// </summary>
-public static class CharTemplateIncomingPacketServices
+public static class CharTemplateApplyIncomingPacketServices
 {
     public static GameManager Manager => LoginPacketServices.Manager;
 
