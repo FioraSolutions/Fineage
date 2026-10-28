@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// World presence / AOI incoming handler access via domain facades (#142 sub-slice 52; locator orchestration slice 183).
+/// World presence / AOI incoming handler access via domain facades (#142 sub-slice 52; world locator orchestration slice 199).
 /// </summary>
 public static class WorldApplyIncomingPacketServices
 {
@@ -11,11 +11,11 @@ public static class WorldApplyIncomingPacketServices
 
     public static IWorldDomainSink Domain => WorldSessionApplyIncomingPacketServices.Domain;
 
-    public static SeedInfoWindow SeedInfo => LocatorApplyIncomingPacketServices.SeedInfo;
+    public static SeedInfoWindow SeedInfo => ManorApplyIncomingPacketServices.SeedInfo;
 
-    public static SellCropListWindow SellCrop => LocatorApplyIncomingPacketServices.SellCrop;
+    public static SellCropListWindow SellCrop => ManorApplyIncomingPacketServices.SellCrop;
 
-    public static BufferPanel Buffer => LocatorApplyIncomingPacketServices.Buffer;
+    public static BufferPanel Buffer => BufferApplyIncomingPacketServices.Buffer;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
         WorldSessionApplyIncomingPacketServices.ApplyWorld(apply);
