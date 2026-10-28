@@ -1,21 +1,21 @@
 using System;
 
 /// <summary>
-/// Combat session orchestration hub (#142 batch slice 172; combat leaf hub slice 211).
+/// Combat session orchestration hub (#142 batch slice 172; CombatPacket relay slice 221).
 /// </summary>
 public static class CombatSessionApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => InventoryApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => CombatPacketApplyIncomingPacketServices.Inventory;
 
-    public static EnchantWindow Enchant => EnchantApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => CombatPacketApplyIncomingPacketServices.Enchant;
 
-    public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => CombatPacketApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        QueueApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        QueueApplyIncomingPacketServices.QueueWorld(apply);
+        CombatPacketApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void Queue(Action action) => QueueApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
 }
