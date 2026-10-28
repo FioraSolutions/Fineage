@@ -2,5 +2,5 @@
 public sealed class DieIncoming : IncomingWirePacket<DieDto>
 {
     public override void Apply(DieDto packet) =>
-        CombatIncomingPacketServices.ApplyDie(packet);
+        DieIncomingPacketServices.ApplyDie(packet);
 }

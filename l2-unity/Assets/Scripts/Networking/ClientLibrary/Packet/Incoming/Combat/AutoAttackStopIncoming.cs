@@ -2,5 +2,5 @@
 public sealed class AutoAttackStopIncoming : IncomingWirePacket<AutoAttackStopDto>
 {
     public override void Apply(AutoAttackStopDto packet) =>
-        CombatIncomingPacketServices.ApplyAutoAttackStop(packet);
+        AutoAttackStopIncomingPacketServices.ApplyAutoAttackStop(packet);
 }
