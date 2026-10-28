@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Login / char-select lobby apply hub (#142 batch slice 162; login hub slice 174).
+/// Login / char-select lobby apply hub (#142 batch slice 162; login compat slice 182).
 /// </summary>
 public static class LobbyApplyIncomingPacketServices
 {
