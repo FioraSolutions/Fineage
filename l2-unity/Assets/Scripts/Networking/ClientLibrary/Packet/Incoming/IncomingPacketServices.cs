@@ -43,7 +43,7 @@ public static class IncomingPacketServices
         SellCropListWindow sellCrop = null,
         BufferPanel buffer = null)
     {
-        IncomingPacketLocatorApplyIncomingPacketServices.Bind(
+        IncomingPacketBindApplyIncomingPacketServices.Bind(
             game: game,
             login: login,
             manager: manager,
@@ -51,6 +51,8 @@ public static class IncomingPacketServices
             worldApply: worldApply,
             messageApply: messageApply,
             domain: domain,
+            applyQueue: applyQueue,
+            events: events,
             inventory: inventory,
             targets: targets,
             shortcuts: shortcuts,
@@ -77,7 +79,6 @@ public static class IncomingPacketServices
             seedInfo: seedInfo,
             sellCrop: sellCrop,
             buffer: buffer);
-        IncomingPacketQueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
     }
 
     public static GameClient Game => IncomingPacketLocatorApplyIncomingPacketServices.Game;

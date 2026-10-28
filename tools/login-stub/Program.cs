@@ -7,7 +7,8 @@ using Fineage.LoginStub;
 using Fineage.LoginStub.Crypto;
 using Fineage.ZoneServer.Accounts;
 
-// Fineage login+game stub: Init/Blowfish auth → ServerList → PlayOk → CharSelectionInfo.
+// Interlude overnight stub (2106/7777). Canonical V2 Login and Zone:
+// https://github.com/FioraSolutions/Fineage-Backend — Login :9106, Zone :9777.
 const int LoginPort = 2106;
 const int GamePort = 7777;
 StubLog.Configure(args.Contains("--verbose") || args.Contains("-v"));
