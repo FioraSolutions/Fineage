@@ -1,9 +1,11 @@
 using System;
 
 /// <summary>
+/// Apply facade (#142 batch slice 152). Re-homes from <see cref="CreatureSayIncomingPacketServices"/>.
+/// 
 /// Creature say wire packet handler entry (#142 batch slice 143).
 /// </summary>
-public static class CreatureSayIncomingPacketServices
+public static class CreatureSayApplyIncomingPacketServices
 {
     public static void ApplyCreatureSay(CreatureSayDto packet)
     {

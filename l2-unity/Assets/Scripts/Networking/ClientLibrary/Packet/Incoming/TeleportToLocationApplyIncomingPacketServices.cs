@@ -1,9 +1,11 @@
 using System;
 
 /// <summary>
+/// Apply facade (#142 batch slice 152). Re-homes from <see cref="TeleportToLocationIncomingPacketServices"/>.
+/// 
 /// Teleport-to-location wire packet handler entry (#142 batch slice 143).
 /// </summary>
-public static class TeleportToLocationIncomingPacketServices
+public static class TeleportToLocationApplyIncomingPacketServices
 {
     public static World GameWorld => WorldIncomingPacketServices.GameWorld;
 

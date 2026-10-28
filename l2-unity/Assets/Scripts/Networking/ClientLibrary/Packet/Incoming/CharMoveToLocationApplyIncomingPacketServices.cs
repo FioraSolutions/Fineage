@@ -1,7 +1,9 @@
 /// <summary>
+/// Apply facade (#142 batch slice 152). Re-homes from <see cref="CharMoveToLocationIncomingPacketServices"/>.
+/// 
 /// Char move-to-location wire packet handler entry (#142 batch slice 141).
 /// </summary>
-public static class CharMoveToLocationIncomingPacketServices
+public static class CharMoveToLocationApplyIncomingPacketServices
 {
     public static void ApplyMove(CharMoveToLocationDto packet)
     {

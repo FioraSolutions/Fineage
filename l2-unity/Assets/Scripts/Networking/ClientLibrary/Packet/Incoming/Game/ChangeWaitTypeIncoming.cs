@@ -2,5 +2,5 @@
 public sealed class ChangeWaitTypeIncoming : IncomingWirePacket<ChangeWaitTypeDto>
 {
     public override void Apply(ChangeWaitTypeDto packet) =>
-        ChangeWaitTypeIncomingPacketServices.ApplyChangeWaitType(packet);
+        ChangeWaitTypeApplyIncomingPacketServices.ApplyChangeWaitType(packet);
 }
