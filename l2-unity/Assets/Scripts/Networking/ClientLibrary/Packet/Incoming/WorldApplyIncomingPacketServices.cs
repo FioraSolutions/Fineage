@@ -6,17 +6,17 @@ using System;
 /// </summary>
 public static class WorldApplyIncomingPacketServices
 {
-    public static GameClient Game => GamePacketServices.Game;
+    public static GameClient Game => IncomingPacketLocatorApplyIncomingPacketServices.Game;
 
-    public static World GameWorld => WorldApplyPacketServices.GameWorld;
+    public static World GameWorld => IncomingPacketLocatorApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => WorldApplyPacketServices.Domain;
+    public static IWorldDomainSink Domain => IncomingPacketLocatorApplyIncomingPacketServices.Domain;
 
-    public static SeedInfoWindow SeedInfo => AuxiliaryGameUIPacketServices.SeedInfo;
+    public static SeedInfoWindow SeedInfo => IncomingPacketLocatorApplyIncomingPacketServices.SeedInfo;
 
-    public static SellCropListWindow SellCrop => AuxiliaryGameUIPacketServices.SellCrop;
+    public static SellCropListWindow SellCrop => IncomingPacketLocatorApplyIncomingPacketServices.SellCrop;
 
-    public static BufferPanel Buffer => AuxiliaryGameUIPacketServices.Buffer;
+    public static BufferPanel Buffer => IncomingPacketLocatorApplyIncomingPacketServices.Buffer;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
         IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
