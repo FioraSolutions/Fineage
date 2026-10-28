@@ -18,6 +18,22 @@ on:
     tags: ["v*", "playtest-*"]
   workflow_dispatch:
     inputs:
+      mode:
+        description: >-
+          full — Win + release + Linux + macOS (default).
+          macos-only — rebuild Fineage-macOS.zip and attach to an existing release (no Windows/Linux).
+        required: false
+        type: choice
+        options:
+          - full
+          - macos-only
+        default: full
+      release_tag:
+        description: >-
+          For macos-only — GitHub release tag to attach to (e.g. playtest-0.0.3).
+          Empty uses the newest playtest-X.Y.Z tag in the repo.
+        required: false
+        type: string
       public_host:
         description: Override landing host (default fineage.evpoint.by)
         required: false
@@ -39,7 +55,7 @@ on:
         required: false
         type: string
       create_release:
-        description: Publish a GitHub Release
+        description: Publish a GitHub Release (full mode only)
         required: false
         type: boolean
         default: true
@@ -93,6 +109,9 @@ jobs:
           FINEAGE_GAME_PORT: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
           RELEASE_REF_TYPE: ${{ github.ref_type }}
           RELEASE_REF_NAME: ${{ github.ref_name }}
+          RELEASE_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'full' }}
+          RELEASE_ATTACH_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || '' }}
+          RELEASE_BUILT_AT: ${{ github.run_started_at }}
         run: python3 scripts/release-notes.py --output dist
 
       - uses: actions/upload-artifact@v4
@@ -106,6 +125,9 @@ jobs:
   build-windows:
     name: Fineage-Windows-x64
     needs: prepare
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      inputs.mode == 'full'
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -140,6 +162,7 @@ jobs:
     if: >-
       needs.prepare.result == 'success' &&
       needs.build-windows.result == 'success' &&
+      (github.event_name != 'workflow_dispatch' || inputs.mode == 'full') &&
       (github.event_name != 'workflow_dispatch' || inputs.create_release)
     runs-on: ubuntu-latest
     permissions:
@@ -172,31 +195,19 @@ jobs:
             artifacts/notes/CHANGELOG.md
             artifacts/notes/version.json
 
-  build-extra:
-    name: ${{ matrix.artifact }}
+  build-linux:
+    name: Fineage-Linux-x64
     needs: [prepare, build-windows, publish]
     if: >-
       always() &&
       needs.prepare.result == 'success' &&
       needs.build-windows.result == 'success' &&
-      (needs.publish.result == 'success' || needs.publish.result == 'skipped')
-    runs-on: ${{ matrix.runsOn }}
+      (needs.publish.result == 'success' || needs.publish.result == 'skipped') &&
+      (github.event_name != 'workflow_dispatch' || inputs.mode == 'full')
+    runs-on: ubuntu-latest
     timeout-minutes: 360
-    continue-on-error: true
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        include:
-          - targetPlatform: StandaloneOSX
-            runsOn: macos-latest
-            artifact: Fineage-macOS
-          - targetPlatform: StandaloneLinux64
-            runsOn: ubuntu-latest
-            artifact: Fineage-Linux-x64
     steps:
       - name: Free disk space
-        if: runner.os == 'Linux'
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
             /usr/local/share/boost /usr/local/share/powershell /usr/share/swift \
@@ -209,8 +220,74 @@ jobs:
 
       - uses: ./.github/actions/build-playtest-client
         with:
-          targetPlatform: ${{ matrix.targetPlatform }}
-          artifact: ${{ matrix.artifact }}
+          targetPlatform: StandaloneLinux64
+          artifact: Fineage-Linux-x64
+          unityVersion: ${{ needs.prepare.outputs.unity_version }}
+          publicHost: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
+          loginHost: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
+          gameHost: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
+          loginPort: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
+          gamePort: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
+          unityEmail: ${{ secrets.UNITY_EMAIL }}
+          unityPassword: ${{ secrets.UNITY_PASSWORD }}
+          unitySerial: ${{ secrets.UNITY_SERIAL }}
+
+  build-macos:
+    name: Fineage-macOS
+    needs: [prepare, build-windows, publish, build-linux]
+    if: >-
+      always() &&
+      needs.prepare.result == 'success' &&
+      (
+        (
+          needs.build-windows.result == 'success' &&
+          (needs.publish.result == 'success' || needs.publish.result == 'skipped') &&
+          (needs.build-linux.result == 'success' || needs.build-linux.result == 'skipped') &&
+          (github.event_name != 'workflow_dispatch' || inputs.mode == 'full')
+        ) ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.mode == 'macos-only'
+        )
+      )
+    runs-on: macos-latest
+    timeout-minutes: 360
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/build-playtest-client
+        with:
+          targetPlatform: StandaloneOSX
+          artifact: Fineage-macOS
+          unityVersion: ${{ needs.prepare.outputs.unity_version }}
+          publicHost: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
+          loginHost: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
+          gameHost: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
+          loginPort: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
+          gamePort: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
+          unityEmail: ${{ secrets.UNITY_EMAIL }}
+          unityPassword: ${{ secrets.UNITY_PASSWORD }}
+          unitySerial: ${{ secrets.UNITY_SERIAL }}
+
+  build-macos-retry:
+    name: Fineage-macOS (runner retry)
+    needs: [prepare, build-macos]
+    if: >-
+      always() &&
+      needs.prepare.result == 'success' &&
+      needs.build-macos.result != 'success' &&
+      needs.build-macos.result != 'skipped'
+    runs-on: macos-14
+    timeout-minutes: 360
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/build-playtest-client
+        with:
+          targetPlatform: StandaloneOSX
+          artifact: Fineage-macOS
           unityVersion: ${{ needs.prepare.outputs.unity_version }}
           publicHost: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
           loginHost: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
@@ -223,12 +300,18 @@ jobs:
 
   attach:
     name: Attach macOS and Linux
-    needs: [prepare, publish, build-extra]
+    needs: [prepare, publish, build-linux, build-macos, build-macos-retry]
     if: >-
       always() &&
       needs.prepare.result == 'success' &&
-      needs.publish.result == 'success' &&
-      needs.build-extra.result != 'cancelled'
+      (
+        needs.publish.result == 'success' ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.mode == 'macos-only' &&
+          (needs.build-macos.result == 'success' || needs.build-macos-retry.result == 'success')
+        )
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -242,15 +325,25 @@ jobs:
       - name: Collect extra client zips
         id: extras
         run: |
-          shopt -s nullglob
-          files=(artifacts/Fineage-macOS/*.zip artifacts/Fineage-Linux-x64/*.zip)
-          if [ ${#files[@]} -eq 0 ]; then
+          shopt -s nullglob globstar
+          mkdir -p attach
+          found=0
+          for name in Fineage-macOS.zip Fineage-Linux-x64.zip; do
+            for path in artifacts/**/"$name"; do
+              if [ -f "$path" ]; then
+                cp -f "$path" "attach/$name"
+                found=1
+                break
+              fi
+            done
+          done
+          if [ "$found" -eq 0 ]; then
             echo "present=false" >> "$GITHUB_OUTPUT"
             echo "No macOS or Linux zip to attach. The Windows release is unchanged."
             exit 0
           fi
           echo "present=true" >> "$GITHUB_OUTPUT"
-          printf '%s\n' "${files[@]}"
+          ls -la attach/
 
       - uses: softprops/action-gh-release@v2
         if: steps.extras.outputs.present == 'true'
@@ -258,5 +351,5 @@ jobs:
           tag_name: ${{ needs.prepare.outputs.release_tag }}
           fail_on_unmatched_files: false
           files: |
-            artifacts/Fineage-macOS/Fineage-macOS.zip
-            artifacts/Fineage-Linux-x64/Fineage-Linux-x64.zip
+            attach/Fineage-macOS.zip
+            attach/Fineage-Linux-x64.zip
