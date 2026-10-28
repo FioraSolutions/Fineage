@@ -3,5 +3,5 @@
 public sealed class ManagePledgePowerIncoming : IncomingWirePacket<ManagePledgePowerDto>
 {
     public override void Apply(ManagePledgePowerDto packet) =>
-        ManagePledgePowerIncomingPacketServices.ApplyManagePledgePower(packet);
+        ManagePledgePowerApplyIncomingPacketServices.ApplyManagePledgePower(packet);
 }

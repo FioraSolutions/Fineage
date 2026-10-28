@@ -3,5 +3,5 @@
 public sealed class PledgeShowMemberListDeleteIncoming : IncomingWirePacket<PledgeShowMemberListDeleteDto>
 {
     public override void Apply(PledgeShowMemberListDeleteDto packet) =>
-        PledgeShowMemberListDeleteIncomingPacketServices.ApplyPledgeShowMemberListDelete(packet);
+        PledgeShowMemberListDeleteApplyIncomingPacketServices.ApplyPledgeShowMemberListDelete(packet);
 }
