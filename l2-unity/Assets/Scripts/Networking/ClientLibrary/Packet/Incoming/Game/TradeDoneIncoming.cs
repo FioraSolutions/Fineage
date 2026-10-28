@@ -7,5 +7,5 @@ public sealed class TradeDoneIncoming : IncomingPacket<TradeDoneIncomingDto>
     }
 
     public override void Apply(TradeDoneIncomingDto dto) =>
-        TradeOpenIncomingPacketServices.ApplyTradeDone();
+        TradeDoneIncomingPacketServices.ApplyTradeDone();
 }
