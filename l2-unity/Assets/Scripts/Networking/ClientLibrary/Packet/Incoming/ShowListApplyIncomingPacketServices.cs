@@ -1,11 +1,12 @@
 using System;
 
 /// <summary>
-/// Show-list UI apply hub (#142 batch slice 162; UI hub slice 167).
+/// Show-list UI apply hub (#142 batch slice 162; locator slice 170).
 /// </summary>
 public static class ShowListApplyIncomingPacketServices
 {
-    public static ShowListWindow ShowList => UiApplyIncomingPacketServices.ShowList;
+    public static ShowListWindow ShowList => IncomingPacketLocatorApplyIncomingPacketServices.ShowList;
 
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

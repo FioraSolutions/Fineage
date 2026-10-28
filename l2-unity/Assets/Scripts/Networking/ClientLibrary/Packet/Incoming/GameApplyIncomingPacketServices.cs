@@ -1,22 +1,21 @@
 using System;
 
 /// <summary>
-/// Game incoming packet handler access via locator-backed domain facades (#142 sub-slice 49; slice 165).
+/// Game incoming packet handler access via domain apply hubs (#142 sub-slice 49; orchestration slice 170).
 /// </summary>
 public static class GameApplyIncomingPacketServices
 {
-    public static ClanWindow Clan => IncomingPacketLocatorApplyIncomingPacketServices.Clan;
+    public static ClanWindow Clan => PledgeApplyIncomingPacketServices.Clan;
 
-    public static DealerWindow Dealer => IncomingPacketLocatorApplyIncomingPacketServices.Dealer;
+    public static DealerWindow Dealer => MerchantApplyIncomingPacketServices.Dealer;
 
-    public static TradeWindow Trade => IncomingPacketLocatorApplyIncomingPacketServices.Trade;
+    public static TradeWindow Trade => TradeApplyIncomingPacketServices.Trade;
 
-    public static TradeRequestWindow TradeRequest =>
-        IncomingPacketLocatorApplyIncomingPacketServices.TradeRequest;
+    public static TradeRequestWindow TradeRequest => TradeApplyIncomingPacketServices.TradeRequest;
 
-    public static QuestWindow Quest => IncomingPacketLocatorApplyIncomingPacketServices.Quest;
+    public static QuestWindow Quest => QuestApplyIncomingPacketServices.Quest;
 
-    public static QuestListWindow QuestList => IncomingPacketLocatorApplyIncomingPacketServices.QuestList;
+    public static QuestListWindow QuestList => QuestApplyIncomingPacketServices.QuestList;
 
     public static void Queue(Action action) =>
         IncomingPacketQueueApplyIncomingPacketServices.Queue(action);

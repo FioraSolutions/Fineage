@@ -1,13 +1,14 @@
 using System;
 
 /// <summary>
-/// Quest UI apply hub (#142 batch slice 160; game hub slice 167).
+/// Quest UI apply hub (#142 batch slice 160; locator slice 170).
 /// </summary>
 public static class QuestApplyIncomingPacketServices
 {
-    public static QuestWindow Quest => GameApplyIncomingPacketServices.Quest;
+    public static QuestWindow Quest => IncomingPacketLocatorApplyIncomingPacketServices.Quest;
 
-    public static QuestListWindow QuestList => GameApplyIncomingPacketServices.QuestList;
+    public static QuestListWindow QuestList => IncomingPacketLocatorApplyIncomingPacketServices.QuestList;
 
-    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }
