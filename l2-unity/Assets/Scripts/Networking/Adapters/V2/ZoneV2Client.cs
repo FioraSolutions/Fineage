@@ -95,9 +95,57 @@ public sealed class ZoneV2Client : MonoBehaviour
         Disconnect();
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
+        if (FineageWireConfig.UseLoginHandoff)
+        {
+            string loginHost = FineageWireConfig.LoginHost;
+            int loginPort = FineageWireConfig.LoginPort;
+            string character = FineageLocalBackend.CharacterHint;
+            Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
+            return;
+        }
+
         string host = FineageWireConfig.ZoneHost;
         int port = FineageWireConfig.ZonePort;
         Task.Run(() => RunSessionAsync(host, port, account, password, ct));
+    }
+
+    async Task RunLoginThenZoneAsync(
+        string loginHost,
+        int loginPort,
+        string account,
+        string password,
+        string character,
+        CancellationToken ct)
+    {
+        ZoneV2Handoff handoff;
+        try
+        {
+            handoff = await FineageLoginSession.LoginAndSelectAsync(
+                loginHost,
+                loginPort,
+                account,
+                password,
+                character,
+                message => Post(() => Debug.Log(message)),
+                ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception ex)
+        {
+            Post(() =>
+            {
+                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                if (LoginWindow.Instance != null)
+                    LoginWindow.Instance.ShowErrorText(ex.Message);
+            });
+            return;
+        }
+
+        await RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct)
+            .ConfigureAwait(false);
     }
 
     public void Disconnect()

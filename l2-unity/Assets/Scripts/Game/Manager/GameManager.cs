@@ -62,6 +62,8 @@ public class GameManager : MonoBehaviour, IGameManager {
         else
             FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
 
+        FineageLocalBackend.ApplyIfRequested();
+
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
     }
