@@ -271,8 +271,18 @@ public sealed class NameplateEntryStore
             ch = entity.Appearance.CollisionHeight;
         }
 
+        // CharInfo / UserEntity: CC disabled for L2PawnWalk — capsule top sits at ~neck.
+        // L2 anchor is feet + 2×CollisionHeight (+ offset), same as DrawTargetName.
+        CharacterController cc = entry.CC;
+        CapsuleCollider capsule = entry.Capsule;
+        if (entity is UserEntity)
+        {
+            cc = null;
+            capsule = null;
+        }
+
         return L2NameplateAnchor.GetHeadWorldPos(
-            entry.Target, entry.CC, entry.Capsule, ch, headHeightOffset);
+            entry.Target, cc, capsule, ch, headHeightOffset);
     }
 
     private bool IsNameplateVisible(

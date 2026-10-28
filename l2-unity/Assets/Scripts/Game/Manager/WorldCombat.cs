@@ -192,5 +192,8 @@ public class WorldCombat : MonoBehaviour {
                     break;
             }
         }
+
+        if (entity.Stats is PlayerStats playerStats && entity.Status is PlayerStatus playerStatus)
+            PlayerResourceCaps.EnsureMaxAtLeastCurrent(playerStats, playerStatus);
     }
 }
