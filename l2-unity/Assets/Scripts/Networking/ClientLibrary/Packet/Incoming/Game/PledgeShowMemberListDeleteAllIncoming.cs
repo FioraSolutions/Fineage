@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.PledgeShowMemberListDeleteAll)]
 public sealed class PledgeShowMemberListDeleteAllIncoming : IncomingWirePacket<PledgeShowMemberListDeleteAllDto>

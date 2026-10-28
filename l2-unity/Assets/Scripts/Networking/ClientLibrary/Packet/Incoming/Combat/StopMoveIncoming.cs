@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.StopMove)]
 public sealed class StopMoveIncoming : IncomingWirePacket<StopMoveDto>

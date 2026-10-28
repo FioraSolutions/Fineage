@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.PledgeShowMemberListAdd)]
 public sealed class PledgeShowMemberListAddIncoming : IncomingWirePacket<PledgeShowMemberListAddDto>

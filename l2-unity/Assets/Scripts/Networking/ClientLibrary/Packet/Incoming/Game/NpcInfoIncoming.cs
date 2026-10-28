@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.NpcInfo)]
 public sealed class NpcInfoIncoming : IncomingWirePacket<NpcInfoDto>

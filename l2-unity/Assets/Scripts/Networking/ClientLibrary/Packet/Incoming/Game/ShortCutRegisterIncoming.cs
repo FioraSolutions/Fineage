@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.ShortCutRegister)]
 public sealed class ShortCutRegisterIncoming : IncomingWirePacket<ShortCutRegisterDto>

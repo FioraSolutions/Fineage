@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.TradeStart)]
 public sealed class TradeStartIncoming : IncomingWirePacket<TradeStartDto>

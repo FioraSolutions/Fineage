@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingExPacket(GameExServerPacketType.ExOnExPledgePowerGradeList)]
 public sealed class ExPledgePowerGradeListIncoming : IncomingWirePacket<PledgePowerGradeListDto>

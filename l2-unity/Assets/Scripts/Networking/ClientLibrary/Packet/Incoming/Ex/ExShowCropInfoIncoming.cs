@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingExPacket(GameExServerPacketType.ExShowCropInfo)]
 public sealed class ExShowCropInfoIncoming : IncomingWirePacket<ExShowCropInfoDto>

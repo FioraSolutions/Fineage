@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.ShortCutDel)]
 public sealed class ShortCutDelIncoming : IncomingWirePacket<ShortCutDelDto>
