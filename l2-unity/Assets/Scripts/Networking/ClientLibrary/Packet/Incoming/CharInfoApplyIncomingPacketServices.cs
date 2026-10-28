@@ -6,15 +6,15 @@ using System;
 /// </summary>
 public static class CharInfoApplyIncomingPacketServices
 {
-    public static IWorldDomainSink Domain => CharacterApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => PlayerApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => CharacterApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => PlayerApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        CharacterApplyIncomingPacketServices.QueueDomain(apply);
+        PlayerApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        CharacterApplyIncomingPacketServices.QueueWorld(apply);
+        PlayerApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void ApplyCharInfo(CharInfoDto packet)
     {
