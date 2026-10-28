@@ -6,12 +6,12 @@ using System;
 /// </summary>
 public static class AskJoinPartyApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => UiIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyAskJoinParty(AskJoinPartyDto packet) =>
         Queue(() =>
         {
-            UiIncomingPacketServices.PartyInvite.AddData(packet);
-            UiIncomingPacketServices.PartyInvite.ShowWindow();
+            UiApplyIncomingPacketServices.PartyInvite.AddData(packet);
+            UiApplyIncomingPacketServices.PartyInvite.ShowWindow();
         });
 }

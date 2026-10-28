@@ -8,8 +8,8 @@ using System;
 /// </summary>
 public static class QuestListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyQuestList(QuestListDto packet) =>
-        Queue(() => GameIncomingPacketServices.Quest.AddData(packet.Quest));
+        Queue(() => GameApplyIncomingPacketServices.Quest.AddData(packet.Quest));
 }

@@ -7,5 +7,5 @@ using System;
 /// </summary>
 public static class TradeDoneApplyIncomingPacketServices
 {
-    public static void ApplyTradeDone() => GameIncomingPacketServices.Trade.HideWindow();
+    public static void ApplyTradeDone() => GameApplyIncomingPacketServices.Trade.HideWindow();
 }
