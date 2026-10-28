@@ -5,7 +5,7 @@
 /// </summary>
 public static class ItemListApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => CombatPacketApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => CombatSessionApplyIncomingPacketServices.Inventory;
 
     public static void ApplyItemList(ItemListDto packet) =>
         Inventory.SetInventory(
