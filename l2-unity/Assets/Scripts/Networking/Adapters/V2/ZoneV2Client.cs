@@ -280,6 +280,22 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.SkillUseRequest, body);
     }
 
+    public void SendReviveRequest(int action = ZoneV2Death.ReviveToVillage)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeReviveRequest(action);
+        _ = SendFireAndForget(ZoneV2MsgType.ReviveRequest, body);
+    }
+
+    public void SendAdminKillPlayer()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeAdminKillPlayer();
+        _ = SendFireAndForget(ZoneV2MsgType.AdminKillPlayer, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -557,6 +573,51 @@ public sealed class ZoneV2Client : MonoBehaviour
                         {
                             MagicSkillUseDto dto = ZoneV2DomainMap.ToMagicSkillUseDto(magicUse);
                             MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.Die:
+                        ZoneV2Die dieWire;
+                        if (!ZoneV2Messages.TryDecodeDie(f.Body, out dieWire))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad Die body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            DieDto dto = ZoneV2DomainMap.ToDieDto(dieWire);
+                            DieApplyIncomingPacketServices.ApplyDie(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.Revive:
+                        ZoneV2Revive reviveWire;
+                        if (!ZoneV2Messages.TryDecodeRevive(f.Body, out reviveWire))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad Revive body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            ReviveDto dto = ZoneV2DomainMap.ToReviveDto(reviveWire);
+                            ReviveApplyIncomingPacketServices.ApplyRevive(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TeleportToLocation:
+                        ZoneV2TeleportToLocation teleportWire;
+                        if (!ZoneV2Messages.TryDecodeTeleportToLocation(f.Body, out teleportWire))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TeleportToLocation body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            TeleportToLocationDto dto = ZoneV2DomainMap.ToTeleportToLocationDto(teleportWire);
+                            TeleportToLocationApplyIncomingPacketServices.ApplyTeleportToLocation(dto);
                         });
                         break;
 
