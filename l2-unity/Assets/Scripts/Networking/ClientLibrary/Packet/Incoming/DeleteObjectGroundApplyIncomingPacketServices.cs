@@ -5,7 +5,7 @@
 /// </summary>
 public static class DeleteObjectGroundApplyIncomingPacketServices
 {
-    public static World GameWorld => WorldIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
     public static void ApplyDeleteObject(DeleteObjectDto dto)
     {

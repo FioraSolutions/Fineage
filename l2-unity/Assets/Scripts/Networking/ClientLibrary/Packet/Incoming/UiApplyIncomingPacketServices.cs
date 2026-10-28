@@ -3,7 +3,7 @@ using System;
 /// <summary>
 /// UI-domain incoming packet handler access via facades and IncomingPacketServices queue fallback (#142 sub-slice 50).
 /// </summary>
-public static class UiIncomingPacketServices
+public static class UiApplyIncomingPacketServices
 {
     public static SkillLearnWindow SkillLearn => SkillLearnPacketServices.SkillLearn;
 

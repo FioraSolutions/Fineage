@@ -3,7 +3,7 @@ using System;
 /// <summary>
 /// Game incoming packet handler access via UI domain facades and IncomingPacketServices queue fallback (#142 sub-slice 49).
 /// </summary>
-public static class GameIncomingPacketServices
+public static class GameApplyIncomingPacketServices
 {
     public static ClanWindow Clan => ClanPacketServices.Clan;
 

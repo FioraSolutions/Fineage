@@ -3,7 +3,7 @@ using System;
 /// <summary>
 /// Combat incoming packet handler access via domain facades and IncomingPacketActions fallback (#142 sub-slices 48, 77, 78).
 /// </summary>
-public static class CombatIncomingPacketServices
+public static class CombatApplyIncomingPacketServices
 {
     public static PlayerInventory Inventory => InventoryPacketServices.Inventory;
 

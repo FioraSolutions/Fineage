@@ -7,13 +7,13 @@ using System;
 /// </summary>
 public static class UserInfoApplyIncomingPacketServices
 {
-    public static GameClient Game => WorldIncomingPacketServices.Game;
+    public static GameClient Game => WorldApplyIncomingPacketServices.Game;
 
-    public static World GameWorld => WorldIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => WorldIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => WorldIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
     public static UserInfoDto CreateUserInfoDto() => new UserInfoDto(Game.PlayerInfo);
 

@@ -7,11 +7,11 @@ using System;
 /// </summary>
 public static class ExShowManorDefaultInfoApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => WorldIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyExShowManorDefaultInfo(ExShowManorDefaultInfoDto packet) =>
         Queue(() =>
         {
-            WorldIncomingPacketServices.SeedInfo.SetDataDefaultManorInfo(packet.List);
-            WorldIncomingPacketServices.SeedInfo.ShowWindowActiveTabAllDefault();
+            WorldApplyIncomingPacketServices.SeedInfo.SetDataDefaultManorInfo(packet.List);
+            WorldApplyIncomingPacketServices.SeedInfo.ShowWindowActiveTabAllDefault();
         });

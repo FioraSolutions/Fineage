@@ -9,7 +9,7 @@ public static class ShowBoardApplyIncomingPacketServices
         if (IncomingPacketServices.GameWorld == null || !dto.ReadyToOpen)
             return;
 
-        UiIncomingPacketServices.Html.InjectToCommunityWindow(dto.Html);
-        UiIncomingPacketServices.Html.ToggleCommunityBoard(false);
+        UiApplyIncomingPacketServices.Html.InjectToCommunityWindow(dto.Html);
+        UiApplyIncomingPacketServices.Html.ToggleCommunityBoard(false);
     }
 }

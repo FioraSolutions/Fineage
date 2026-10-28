@@ -2,8 +2,9 @@ using System;
 
 /// <summary>
 /// World presence / AOI incoming handler access via domain facades and queue fallbacks (#142 sub-slice 52).
+/// Apply facade hub (#142 batch slice 157). Re-homes from <see cref="WorldIncomingPacketServices"/>.
 /// </summary>
-public static class WorldIncomingPacketServices
+public static class WorldApplyIncomingPacketServices
 {
     public static GameClient Game => GamePacketServices.Game;
 

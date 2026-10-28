@@ -48,7 +48,7 @@ public sealed class AppLifetimeScope : LifetimeScope
                 manager,
                 animations,
                 container.Resolve<PacketApplyQueue>());
-            AppLoginIncomingPacketServices.BindApp(
+            AppLoginApplyIncomingPacketServices.BindApp(
                 container.Resolve<GameClient>(),
                 container.Resolve<LoginClient>(),
                 manager,
