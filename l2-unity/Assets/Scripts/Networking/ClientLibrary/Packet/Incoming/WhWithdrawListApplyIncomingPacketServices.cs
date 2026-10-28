@@ -6,18 +6,18 @@ using System;
 /// </summary>
 public static class WhWithdrawListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => MerchantListApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWhWithdrawList(WarehouseWithdrawListDto packet) =>
         Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            MerchantListApplyIncomingPacketServices.Dealer.SetWindowName("Personal storage");
-            MerchantListApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Items in Warehouse");
-            MerchantListApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items taken away");
-            MerchantListApplyIncomingPacketServices.Dealer.SetProductType(ProductType.WHWithdrawList);
-            MerchantListApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
-            MerchantListApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            MerchantListApplyIncomingPacketServices.Dealer.ShowWindow();
+            GameApplyIncomingPacketServices.Dealer.SetWindowName("Personal storage");
+            GameApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Items in Warehouse");
+            GameApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items taken away");
+            GameApplyIncomingPacketServices.Dealer.SetProductType(ProductType.WHWithdrawList);
+            GameApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
+            GameApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            GameApplyIncomingPacketServices.Dealer.ShowWindow();
         });
 }

@@ -7,17 +7,17 @@ using System;
 /// </summary>
 public static class ShopPreviewListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => MerchantListApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyShopPreviewList(ShopPreviewListDto packet) =>
         Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            MerchantListApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Attempt");
-            MerchantListApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Selection list");
-            MerchantListApplyIncomingPacketServices.Dealer.SetProductType(ProductType.WEAR);
-            MerchantListApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, false, packet.ListID);
-            MerchantListApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            MerchantListApplyIncomingPacketServices.Dealer.ShowWindowToCenter();
+            GameApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Attempt");
+            GameApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Selection list");
+            GameApplyIncomingPacketServices.Dealer.SetProductType(ProductType.WEAR);
+            GameApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, false, packet.ListID);
+            GameApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            GameApplyIncomingPacketServices.Dealer.ShowWindowToCenter();
         });
 }
