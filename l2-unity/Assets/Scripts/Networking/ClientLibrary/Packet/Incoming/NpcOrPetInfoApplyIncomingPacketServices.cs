@@ -5,15 +5,15 @@ using System;
 /// </summary>
 internal static class NpcOrPetInfoApplyIncomingPacketServices
 {
-    public static World GameWorld => PlayerApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => PlayerApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        PlayerApplyIncomingPacketServices.QueueDomain(apply);
+        WorldApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        PlayerApplyIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void Apply(NpcInfoDto packet)
     {
