@@ -11,5 +11,5 @@ public static class SkillApplyIncomingPacketServices
 
     public static SkillListWindow SkillList => UiApplyIncomingPacketServices.SkillList;
 
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

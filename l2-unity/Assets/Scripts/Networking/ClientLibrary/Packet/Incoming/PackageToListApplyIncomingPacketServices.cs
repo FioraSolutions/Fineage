@@ -9,12 +9,12 @@ using System;
 /// </summary>
 public static class PackageToListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => ShowListApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyPackageToList(PackageToListDto packet) =>
         Queue(() =>
         {
-            UiApplyIncomingPacketServices.ShowList.AddList(packet.Players);
-            UiApplyIncomingPacketServices.ShowList.ShowWindow();
+            ShowListApplyIncomingPacketServices.ShowList.AddList(packet.Players);
+            ShowListApplyIncomingPacketServices.ShowList.ShowWindow();
         });
 }

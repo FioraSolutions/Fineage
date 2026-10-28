@@ -5,7 +5,7 @@
 /// </summary>
 public static class InventoryUpdateApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => InventoryPacketServices.Inventory;
+    public static PlayerInventory Inventory => InventoryApplyIncomingPacketServices.Inventory;
 
     public static void ApplyInventoryUpdate(InventoryUpdateDto packet) =>
         Inventory.UpdateInventory(packet.Items, packet.EquipItems);
