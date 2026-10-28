@@ -2,6 +2,10 @@
 
 Minimal .NET zone process for the modern protocol path. Speaks **length-prefix + MessagePack**, not Interlude Blowfish/XOR.
 
+## Canonical V2 Login and Zone
+
+Login and zone for the V2 path are [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend): `src/Fineage.Login` on **9106**, `src/Fineage.Zone` on **9777**. Zone there checks the login HMAC handoff and enters Talking Island. This project remains the local skeleton below.
+
 Maps to client domain events from `#3` (`PlayerSpawned`, `MoveTo`, …). Unity dual-adapter is **not** wired yet — use `--selftest` or a future v2 client flag.
 
 ## Ports
@@ -9,7 +13,8 @@ Maps to client domain events from `#3` (`PlayerSpawned`, `MoveTo`, …). Unity d
 | Role | Port | Notes |
 |------|------|--------|
 | Interlude stub | 2106 / 7777 | `tools/login-stub` (unchanged) |
-| ZoneServer v2 | **9777** (game) | Auth on same socket for MVP; 9106 reserved |
+| ZoneServer v2 | **9777** (game) | Local skeleton. Canonical zone is Fineage-Backend `:9777` |
+| Login | **9106** | [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend) `src/Fineage.Login` |
 
 ## Run
 
