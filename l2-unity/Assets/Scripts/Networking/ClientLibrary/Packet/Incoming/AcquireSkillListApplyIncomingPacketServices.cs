@@ -12,7 +12,7 @@ public static class AcquireSkillListApplyIncomingPacketServices
     public static void ApplyAcquireSkillList(AcquireSkillListDto packet) =>
         Queue(() =>
         {
-            SkillApplyIncomingPacketServices.SkillLearn.AddData(packet.AcquireList);
-            SkillApplyIncomingPacketServices.SkillLearn.ShowWindow();
+            UiApplyIncomingPacketServices.SkillLearn.AddData(packet.AcquireList);
+            UiApplyIncomingPacketServices.SkillLearn.ShowWindow();
         });
 }

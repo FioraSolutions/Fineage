@@ -12,8 +12,8 @@ public static class AcquireSkillInfoApplyIncomingPacketServices
     public static void ApplyAcquireSkillInfo(AcquireSkillInfoDto packet) =>
         Queue(() =>
         {
-            SkillApplyIncomingPacketServices.SkillLearn.HideWindow();
-            SkillApplyIncomingPacketServices.SkillDesc.AddData(packet);
-            SkillApplyIncomingPacketServices.SkillDesc.ShowWindow();
+            UiApplyIncomingPacketServices.SkillLearn.HideWindow();
+            UiApplyIncomingPacketServices.SkillDesc.AddData(packet);
+            UiApplyIncomingPacketServices.SkillDesc.ShowWindow();
         });
 }

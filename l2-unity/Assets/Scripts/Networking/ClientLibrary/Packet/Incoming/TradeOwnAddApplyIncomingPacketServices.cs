@@ -7,9 +7,9 @@ using System;
 /// </summary>
 public static class TradeOwnAddApplyIncomingPacketServices
 {
-    public static TradeWindow Trade => TradeApplyIncomingPacketServices.Trade;
+    public static TradeWindow Trade => GameApplyIncomingPacketServices.Trade;
 
-    public static void Queue(Action action) => TradeApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyOwnAdd(TradeOwnAddIncomingDto dto)
     {
