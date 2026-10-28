@@ -16,18 +16,37 @@ public class L2T3DStaticMeshImporter : AssetImporter {
         string directory = Path.Combine(Application.dataPath, "Data/Maps");
         string extension = "txt,t3d";
 
-        string dataFolder = @"D:\Stock\Projects\L2-Unity\umodel_win32\export";
+        string dataFolder = L2InterludeClientSettings.UModelExportRoot;
+        if (string.IsNullOrEmpty(dataFolder)) {
+            dataFolder = @"D:\Stock\Projects\L2-Unity\umodel_win32\export";
+        }
         bool overwrite = false;
 
         string fileToProcess = EditorUtility.OpenFilePanel(title, directory, extension);
 
         if(!string.IsNullOrEmpty(fileToProcess)) {
-            // Debug.Log("Selected file: " + fileToProcess);
-            L2TerrainInfo terrainInfo = L2T3DInfoParser.LoadStaticMeshInfo(fileToProcess);
-            List<string> files = ProcessStaticMeshInfo(dataFolder, terrainInfo.staticMeshes);
-            //List<string> files = ProcessDataFile(dataFolder, fileToProcess);
-            ImportFiles(dataFolder, files, overwrite);
+            ImportFromListFile(fileToProcess, overwrite);
         }
+    }
+
+    public static void ImportFromT3d(string t3dAbsolutePath, bool overwrite) {
+        L2TerrainInfo terrainInfo = L2T3DInfoParser.LoadStaticMeshInfo(t3dAbsolutePath);
+        ImportFromMeshInfo(terrainInfo, overwrite);
+    }
+
+    public static void ImportFromListFile(string listAbsolutePath, bool overwrite) {
+        L2TerrainInfo terrainInfo = L2T3DInfoParser.LoadStaticMeshInfo(listAbsolutePath);
+        ImportFromMeshInfo(terrainInfo, overwrite);
+    }
+
+    static void ImportFromMeshInfo(L2TerrainInfo terrainInfo, bool overwrite) {
+        string dataFolder = L2InterludeClientSettings.UModelExportRoot;
+        if (string.IsNullOrEmpty(dataFolder)) {
+            dataFolder = @"D:\Stock\Projects\L2-Unity\umodel_win32\export";
+        }
+
+        List<string> files = ProcessStaticMeshInfo(dataFolder, terrainInfo.staticMeshes);
+        ImportFiles(dataFolder, files, overwrite);
     }
 
     private static List<string> ProcessStaticMeshInfo(string dataFolder, List<L2StaticMesh> staticMeshes) {

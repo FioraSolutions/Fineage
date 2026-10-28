@@ -14,10 +14,21 @@ public class AmbientDataContainer {
 
 public class L2JSONAmbientSoundImporter : AssetImporter {
 
-    // umodel export folder
-    static string dataFolder = @"D:\Stock\Projects\L2-Unity\umodel_win32\export_sound";
-    // copy ambient sounds to
-    static string scriptExportFolder = @"D:\Stock\Projects\L2-Unity\umodel_win32\export_sound\unityexport";
+    static string ResolveSoundExportFolder() {
+        if (!string.IsNullOrEmpty(L2InterludeClientSettings.UModelSoundExportRoot)) {
+            return L2InterludeClientSettings.UModelSoundExportRoot;
+        }
+
+        return @"D:\Stock\Projects\L2-Unity\umodel_win32\export_sound";
+    }
+
+    static string ResolveSoundUnityExportFolder() {
+        if (!string.IsNullOrEmpty(L2InterludeClientSettings.UModelSoundUnityExportRoot)) {
+            return L2InterludeClientSettings.UModelSoundUnityExportRoot;
+        }
+
+        return Path.Combine(ResolveSoundExportFolder(), "unityexport");
+    }
 
     [MenuItem("Shnok/[AmbientSound] (JSON) Import sounds")]
     static void ImportSoundsMenu() {
@@ -30,7 +41,7 @@ public class L2JSONAmbientSoundImporter : AssetImporter {
         if(!string.IsNullOrEmpty(fileToProcess)) {
             // Debug.Log("Selected file: " + fileToProcess);
             AmbientSound[] sounds = L2TerrainInfoParser.ParseAmbientSoundFile(fileToProcess);
-            ImportAmbientSoundFiles(sounds, dataFolder);
+            ImportAmbientSoundFiles(sounds, ResolveSoundExportFolder());
         }
     }
 
@@ -44,11 +55,13 @@ public class L2JSONAmbientSoundImporter : AssetImporter {
         string fileToProcess = EditorUtility.OpenFilePanel(title, directory, extension);
 
         if (!string.IsNullOrEmpty(fileToProcess)) {
-            // Debug.Log("Selected file: " + fileToProcess);
-
-            List<AmbientSound> sounds = L2T3DInfoParser.ParseAmbientSounds(fileToProcess);
-            ImportAmbientSoundFiles(sounds.ToArray(), dataFolder);
+            ImportFromT3d(fileToProcess);
         }
+    }
+
+    public static void ImportFromT3d(string t3dAbsolutePath) {
+        List<AmbientSound> sounds = L2T3DInfoParser.ParseAmbientSounds(t3dAbsolutePath);
+        ImportAmbientSoundFiles(sounds.ToArray(), ResolveSoundExportFolder());
     }
 
     private static void ImportAmbientSoundFiles(AmbientSound[] sounds, string dataFolder) {
@@ -69,7 +82,7 @@ public class L2JSONAmbientSoundImporter : AssetImporter {
             if(!File.Exists(fileToCopy)) {
                 // Debug.LogError($"File missing at {fileToCopy}");
             } else {
-                string outputFolder = Path.Combine(scriptExportFolder, parts[0]);
+                string outputFolder = Path.Combine(ResolveSoundUnityExportFolder(), parts[0]);
                 string outputFile = Path.Combine(outputFolder, parts[1] + ".wav");
                 if(!Directory.Exists(outputFolder)) {
                     Directory.CreateDirectory(outputFolder);

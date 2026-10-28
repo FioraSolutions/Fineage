@@ -1,6 +1,7 @@
 ﻿#if (UNITY_EDITOR) 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.ProBuilder;
@@ -32,13 +33,16 @@ public class L2BrushBuilder {
         string fileToProcess = EditorUtility.OpenFilePanel(title, directory, extension);
 
         if (!string.IsNullOrEmpty(fileToProcess)) {
-            // Debug.Log("Selected file: " + fileToProcess);
-            Brush[] brushes = L2T3DInfoParser.ParseBrushInfo(fileToProcess).ToArray();
-            Build(brushes);
+            BuildBrushesFromT3d(fileToProcess);
         }
     }
 
-    static void Build(Brush[] brushes) {
+    public static GameObject BuildBrushesFromT3d(string t3dAbsolutePath) {
+        Brush[] brushes = L2T3DInfoParser.ParseBrushInfo(t3dAbsolutePath).ToArray();
+        return Build(brushes);
+    }
+
+    static GameObject Build(Brush[] brushes) {
         GameObject brushContainer = new GameObject("Brushes");
 
         foreach(Brush b in brushes) {
@@ -94,6 +98,7 @@ public class L2BrushBuilder {
             }
         }
 
+        return brushContainer;
     }
 
     static GameObject createProbuilderMesh(string csgOper, PolyData polyData, int index) {

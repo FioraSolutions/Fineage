@@ -18,16 +18,27 @@ public class L2JSONBrushImporter : AssetImporter {
         string directory = Path.Combine(Application.dataPath, "Data/Maps");
         string extension = "json";
 
-        string dataFolder = @"D:\Stock\Projects\L2-Unity\Tools\umodel_win32\export";
+        string dataFolder = L2InterludeClientSettings.UModelExportRoot;
+        if (string.IsNullOrEmpty(dataFolder)) {
+            dataFolder = @"D:\Stock\Projects\L2-Unity\Tools\umodel_win32\export";
+        }
         bool overwrite = false;
 
         string fileToProcess = EditorUtility.OpenFilePanel(title, directory, extension);
 
         if(!string.IsNullOrEmpty(fileToProcess)) {
-            // Debug.Log("Selected file: " + fileToProcess);
-            List<string> files = ProcessDataFile(dataFolder, fileToProcess);
-            ImportFiles(dataFolder, files, overwrite);
+            ImportBrushTexturesFromJson(fileToProcess, overwrite);
         }
+    }
+
+    public static void ImportBrushTexturesFromJson(string brushJsonAbsolutePath, bool overwrite) {
+        string dataFolder = L2InterludeClientSettings.UModelExportRoot;
+        if (string.IsNullOrEmpty(dataFolder)) {
+            dataFolder = @"D:\Stock\Projects\L2-Unity\Tools\umodel_win32\export";
+        }
+
+        List<string> files = ProcessDataFile(dataFolder, brushJsonAbsolutePath);
+        ImportFiles(dataFolder, files, overwrite);
     }
 
     private static List<string> ProcessDataFile(string dataFolder, string fileToProcess) {
