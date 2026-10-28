@@ -6,9 +6,9 @@ using System;
 /// </summary>
 public static class EnchantResultApplyIncomingPacketServices
 {
-    public static EnchantWindow Enchant => CombatPacketApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => CombatSessionApplyIncomingPacketServices.Enchant;
 
-    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyEnchantResult(EnchantResultDto packet) =>
         Queue(() => Enchant.EnchantResult(packet.Result));

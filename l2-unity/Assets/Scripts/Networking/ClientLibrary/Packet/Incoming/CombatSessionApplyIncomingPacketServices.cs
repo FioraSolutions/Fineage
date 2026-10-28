@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Combat session orchestration hub (#142 batch slice 172; combat wire slice 179).
+/// Combat session orchestration hub (#142 batch slice 172; combat session wire slice 195).
 /// </summary>
 public static class CombatSessionApplyIncomingPacketServices
 {
