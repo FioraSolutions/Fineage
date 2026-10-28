@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.SkillCoolTime)]
 public sealed class SkillCoolTimeIncoming : IncomingWirePacket<SkillCoolTimeDto>

@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.ValidateLocation)]
 public sealed class ValidateLocationIncoming : IncomingWirePacket<ValidateLocationDto>

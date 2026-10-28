@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.BuyListSeed)]
 public sealed class BuyListSeedIncoming : IncomingWirePacket<BuyListSeedDto>

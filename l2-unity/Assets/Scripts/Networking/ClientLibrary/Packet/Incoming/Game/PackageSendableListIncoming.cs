@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.PackageSendableList)]
 public sealed class PackageSendableListIncoming : IncomingWirePacket<PackageSendableListDto>

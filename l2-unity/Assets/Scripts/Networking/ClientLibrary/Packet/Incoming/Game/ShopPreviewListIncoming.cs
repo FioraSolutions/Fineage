@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.ShopPreviewList)]
 public sealed class ShopPreviewListIncoming : IncomingWirePacket<ShopPreviewListDto>

@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.ActionFailed)]
 public sealed class ActionFailedIncoming : IncomingWirePacket<ActionFailedDto>

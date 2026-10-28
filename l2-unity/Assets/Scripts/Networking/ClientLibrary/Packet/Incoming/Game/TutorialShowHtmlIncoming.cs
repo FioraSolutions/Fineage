@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.TutorialShowHtml)]
 public sealed class TutorialShowHtmlIncoming : IncomingWirePacket<TutorialShowHtmlDto>

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-[IncomingGamePacket(GameServerPacketType.ShopPreviewInfo)]
+﻿[IncomingGamePacket(GameServerPacketType.ShopPreviewInfo)]
 public sealed class ShopPreviewInfoIncoming : IncomingWirePacket<ShopPreviewInfoDto>
 {
     public override void Apply(ShopPreviewInfoDto packet) =>

@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.WhWithdrawList)]
 public sealed class WhWithdrawListIncoming : IncomingWirePacket<WarehouseWithdrawListDto>

@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.WhDepositList)]
 public sealed class WhDepositListIncoming : IncomingWirePacket<WarehouseDepositListDto>

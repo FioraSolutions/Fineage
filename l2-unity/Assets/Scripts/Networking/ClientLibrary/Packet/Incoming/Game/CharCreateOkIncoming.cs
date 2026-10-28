@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.CharCreateOk)]
 public sealed class CharCreateOkIncoming : IncomingWirePacket<CharCreateOkDto>

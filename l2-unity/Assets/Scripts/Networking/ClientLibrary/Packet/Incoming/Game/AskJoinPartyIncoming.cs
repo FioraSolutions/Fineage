@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.AskJoinParty)]
 public sealed class AskJoinPartyIncoming : IncomingWirePacket<AskJoinPartyDto>

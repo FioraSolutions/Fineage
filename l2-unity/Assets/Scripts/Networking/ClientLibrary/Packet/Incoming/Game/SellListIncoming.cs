@@ -1,4 +1,3 @@
-using UnityEngine;
 
 [IncomingGamePacket(GameServerPacketType.SellList)]
 public sealed class SellListIncoming : IncomingWirePacket<SellListDto>
