@@ -3,5 +3,5 @@
 public sealed class RecipeItemMakeInfoIncoming : IncomingWirePacket<RecipeItemMakeInfoDto>
 {
     public override void Apply(RecipeItemMakeInfoDto packet) =>
-        CraftIncomingPacketServices.ApplyRecipeItemMakeInfo(packet);
+        RecipeItemMakeInfoIncomingPacketServices.ApplyRecipeItemMakeInfo(packet);
 }

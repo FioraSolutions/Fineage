@@ -1,9 +1,9 @@
 using System;
 
 /// <summary>
-/// Buffer panel wire packet handler access via UiIncomingPacketServices (#142 sub-slice 72).
+/// Short buff status wire packet handler entry (#142 batch slice 140).
 /// </summary>
-public static class BufferIncomingPacketServices
+public static class ShortBuffStatusUpdateIncomingPacketServices
 {
     public static void Queue(Action action) => UiIncomingPacketServices.Queue(action);
 
@@ -14,12 +14,5 @@ public static class BufferIncomingPacketServices
                 return;
             var item = packet.Effect;
             UiIncomingPacketServices.Buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
-        });
-
-    public static void ApplyEtcStatusUpdate(EtcStatusUpdateDto packet) =>
-        Queue(() =>
-        {
-            if (UiIncomingPacketServices.Buffer != null)
-                UiIncomingPacketServices.Buffer.RefreshPenalty(packet);
         });
 }

@@ -3,5 +3,5 @@
 public sealed class ActionFailedIncoming : IncomingWirePacket<ActionFailedDto>
 {
     public override void Apply(ActionFailedDto packet) =>
-        CombatFeedbackIncomingPacketServices.ApplyActionFailed(packet);
+        ActionFailedIncomingPacketServices.ApplyActionFailed(packet);
 }
