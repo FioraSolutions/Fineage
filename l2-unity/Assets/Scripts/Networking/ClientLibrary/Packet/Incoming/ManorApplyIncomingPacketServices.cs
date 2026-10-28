@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Manor / crop UI apply hub (#142 batch slice 161; locator slice 169).
+/// Manor / crop UI apply hub (#142 batch slice 161; world hub slice 177).
 /// </summary>
 public static class ManorApplyIncomingPacketServices
 {
@@ -9,5 +9,5 @@ public static class ManorApplyIncomingPacketServices
 
     public static SellCropListWindow SellCrop => LocatorApplyIncomingPacketServices.SellCrop;
 
-    public static void Queue(Action action) => WorldSessionApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 }

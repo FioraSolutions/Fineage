@@ -1,15 +1,15 @@
 using System;
 
 /// <summary>
-/// Player session apply hub (#142 batch slice 164; world session slice 171).
+/// Player session apply hub (#142 batch slice 164; world hub slice 177).
 /// </summary>
 public static class PlayerApplyIncomingPacketServices
 {
-    public static GameClient Game => WorldSessionApplyIncomingPacketServices.Game;
+    public static GameClient Game => WorldApplyIncomingPacketServices.Game;
 
-    public static World GameWorld => WorldSessionApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => WorldSessionApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => WorldSessionApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 }

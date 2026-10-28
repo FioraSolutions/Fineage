@@ -1,12 +1,12 @@
 /// <summary>
-/// LoginOk wire parse hook (#142 batch slice 146).
+/// LoginOk wire parse hook (#142 batch slice 146; login hub slice 177).
 /// Splits parse out of <see cref="LoginOkIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
 public static class LoginOkParsedApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginParsedApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginParsedApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginApplyIncomingPacketServices.Game;
 
     public static void OnLoginOkParsed(LoginOkDto packet)
     {
