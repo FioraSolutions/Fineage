@@ -24,12 +24,6 @@ public static class LoginServerIncomingPacketServices
         Login.OnAuthAllowed();
     }
 
-    public static void ApplyLoginFail(LoginFailDto packet)
-    {
-        LoginWindow.ShowErrorText(packet.Message);
-        Login.Disconnect();
-    }
-
     public static void OnPlayOkParsed(PlayOkDto packet)
     {
         Game.PlayKey1 = packet.PlayOk1;
