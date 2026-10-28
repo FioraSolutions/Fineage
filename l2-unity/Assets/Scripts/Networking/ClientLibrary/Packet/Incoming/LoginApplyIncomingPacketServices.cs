@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Login / char-select locator hub (#142 batch slice 168).
+/// Login / char-select locator hub (#142 batch slice 168; bind facade slice 174).
 /// </summary>
 public static class LoginApplyIncomingPacketServices
 {

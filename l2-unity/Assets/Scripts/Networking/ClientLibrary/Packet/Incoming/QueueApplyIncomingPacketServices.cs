@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Apply queue relay facade for incoming handler hubs (#142 batch slice 172).
+/// Apply queue relay facade for incoming handler hubs (#142 batch slice 172; bind via <see cref="BindApplyIncomingPacketServices"/> slice 174).
 /// </summary>
 public static class QueueApplyIncomingPacketServices
 {

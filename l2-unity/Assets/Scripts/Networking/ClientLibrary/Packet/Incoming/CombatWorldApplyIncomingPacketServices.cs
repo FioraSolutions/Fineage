@@ -1,15 +1,15 @@
 using System;
 
 /// <summary>
-/// Combat world dispatch hub for wire apply facades (#142 batch slice 171).
+/// Combat world dispatch hub for wire apply facades (#142 batch slice 171; queue relay slice 174).
 /// </summary>
 public static class CombatWorldApplyIncomingPacketServices
 {
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
+        QueueApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        CombatPacketApplyIncomingPacketServices.QueueWorld(apply);
+        QueueApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => QueueApplyIncomingPacketServices.Queue(action);
 }
