@@ -41,6 +41,7 @@ public static class ZoneV2DomainMap
         status.SetHp(100);
         status.SetMp(100);
         status.Cp = 100;
+        PlayerResourceCaps.EnsureMaxAtLeastCurrent(stats, status);
 
         return new PlayerInfoInterlude
         {
@@ -89,6 +90,9 @@ public static class ZoneV2DomainMap
         dto.Stats.WalkRealSpeed = 80f;
         dto.Status.SetHp(100);
         dto.Status.SetMp(100);
+        dto.Stats.MaxHp = PlayerResourceCaps.EffectiveMax(0, dto.Status.GetHp());
+        dto.Stats.MaxMp = PlayerResourceCaps.EffectiveMax(0, dto.Status.GetMp());
+        PlayerResourceCaps.EnsureMaxAtLeastCurrent(dto.Stats, dto.Status);
         if (info.HasPaperdoll)
             ApplyItemIds(dto.Appearance, info.PaperdollItemIds);
         return dto;

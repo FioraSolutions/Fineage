@@ -231,9 +231,16 @@ public class CharacterInfoWindow : L2PopupWindow
 
     private void UpdateBarsInterlude(PlayerStatus status, PlayerStats stats)
     {
-        _hpLabel.text = $"{status.GetHp()}/{stats.MaxHp}";
-        _mpLabel.text = $"{status.GetMp()}/{stats.MaxMp}";
-        _cpLabel.text = $"{status.Cp}/{stats.MaxCp}";
+        int hpMax = PlayerResourceCaps.EffectiveMax(stats.MaxHp, status.GetHp());
+        int hpCur = PlayerResourceCaps.DisplayCurrent(status.GetHp(), hpMax);
+        int mpMax = PlayerResourceCaps.EffectiveMax(stats.MaxMp, status.GetMp());
+        int mpCur = PlayerResourceCaps.DisplayCurrent(status.GetMp(), mpMax);
+        int cpMax = PlayerResourceCaps.EffectiveMax(stats.MaxCp, status.Cp);
+        int cpCur = PlayerResourceCaps.DisplayCurrent(status.Cp, cpMax);
+
+        _hpLabel.text = $"{hpCur}/{hpMax}";
+        _mpLabel.text = $"{mpCur}/{mpMax}";
+        _cpLabel.text = $"{cpCur}/{cpMax}";
         _spLabel.text = stats.Sp.ToString();
 
         if (stats.MaxExp > 0)
@@ -258,41 +265,22 @@ public class CharacterInfoWindow : L2PopupWindow
 
         if (_hpBarBg != null && _hpBar != null)
         {
-            double hpRatio = (float)status.GetHp() / stats.MaxHp;
-            // float bgWidth = _hpBarBg.resolvedStyle.width;
-            //resolvedStyle.width no calc set static
             float bgWidth = 141;
-            double barWidth = bgWidth * hpRatio;
-            if (stats.MaxHp == 0)
-            {
-                barWidth = 0;
-            }
+            double barWidth = bgWidth * PlayerResourceCaps.BarFillRatio(status.GetHp(), stats.MaxHp);
             _hpBar.style.width = Convert.ToSingle(barWidth);
         }
 
         if (_mpBarBg != null && _mpBar != null)
         {
-            double mpRatio = (float)status.GetMp() / stats.MaxMp;
-            //float bgWidth = _mpBarBg.resolvedStyle.width;
             float bgWidth = 141;
-            double barWidth = bgWidth * mpRatio;
-            if (stats.MaxMp == 0)
-            {
-                barWidth = 0;
-            }
+            double barWidth = bgWidth * PlayerResourceCaps.BarFillRatio(status.GetMp(), stats.MaxMp);
             _mpBar.style.width = Convert.ToSingle(barWidth);
         }
 
         if (_cpBarBg != null && _cpBar != null)
         {
-            //float bgWidth = _cpBarBg.resolvedStyle.width;
             float bgWidth = 128;
-            double cpRatio = (float)status.Cp / stats.MaxCp;
-            double barWidth = bgWidth * cpRatio;
-            if (stats.MaxCp == 0)
-            {
-                barWidth = 0;
-            }
+            double barWidth = bgWidth * PlayerResourceCaps.BarFillRatio(status.Cp, stats.MaxCp);
             _cpBar.style.width = Convert.ToSingle(barWidth);
         }
 
