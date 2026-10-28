@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
-CLIENT="${L2_INTERLUDE_CLIENT_ROOT:-/Users/nikitarakitin/Downloads/L2_Interlude_Client/Lineage II}"
-EXPORT="${L2_UMODEL_EXPORT_DIR:-$REPO/.work/umodel-export-22_22}"
+TILE="${FINEAGE_INTERLUDE_TILE:-22_22}"
+CLIENT="${L2_INTERLUDE_CLIENT_ROOT:-}"
+if [[ -z "$CLIENT" ]]; then
+  echo "Set L2_INTERLUDE_CLIENT_ROOT to your Lineage II client folder." >&2
+  exit 1
+fi
+EXPORT="${L2_UMODEL_EXPORT_DIR:-$REPO/.work/umodel-export-$TILE}"
 UMODEL="$REPO/l2-unity/External/UEViewer/umodel"
-STATIC_JSON="$REPO/.work/interlude-extract/22_22/staticmeshes.json"
+STATIC_JSON="$REPO/.work/interlude-extract/$TILE/staticmeshes.json"
 REPO_SM="$REPO/l2-unity/Assets/Resources/Data/StaticMeshes"
 
 mkdir -p "$EXPORT"
+if [[ ! -f "$STATIC_JSON" ]]; then
+  echo "Missing $STATIC_JSON — run Phase A (prepare_interlude_tile / L2TerrainExtractor) first." >&2
+  exit 1
+fi
 export REPO EXPORT CLIENT STATIC_JSON REPO_SM
 
 python3 <<'PY'

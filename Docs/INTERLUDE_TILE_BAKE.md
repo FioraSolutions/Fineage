@@ -72,9 +72,38 @@ Implementation: `L2InterludeTileBakePipeline`, `L2InterludeClientSettings`, `L2I
 
 Refresh after each batch or via **Shnok/0.1**.
 
-## Already imported in repo (TI smoke)
+## Already imported in repo
 
-Partial/full TI squares: `16_24`, `16_25`, `17_24`, `17_25` (+ lobby `l2_lobby`). Target next: race village `22_22` per #476 acceptance.
+| Tile | Status | Notes |
+|------|--------|--------|
+| `16_24`, `16_25`, `17_24`, `17_25` | full | TI smoke |
+| `22_22` | full | Race village core (#490) |
+| `22_21` | missing | West-adjacent to `22_22`; Mac bake only (see below) |
+
+## Mac one-tile recipe (#476 — e.g. `22_21`)
+
+Prerequisites: Interlude client on disk (not in git), `l2-unity/External/L2TerrainExtractor` built locally (Gradle; not vendored in repo), Docker (Linux UModel export) or native UModel, Blender, Unity Editor matching the project.
+
+```bash
+export L2_INTERLUDE_CLIENT_ROOT="$HOME/Downloads/L2_Interlude_Client/Lineage II"
+export FINEAGE_INTERLUDE_TILE=22_21
+
+# Phase A + mesh export + Unity batch (or run steps individually)
+chmod +x tools/interlude/run_mac_tile_bake.sh
+./tools/interlude/run_mac_tile_bake.sh all
+```
+
+Equivalent manual steps (same as #490 / `22_22`):
+
+1. **L2TerrainExtractor** — output to `.work/interlude-extract/22_21/` (`22_21_metadata.txt`, height raw, splat PNGs, `staticmeshes.json`).
+2. **`python3 tools/interlude/prepare_interlude_tile.py 22_21`** — writes `Maps/22_21/Meta/*` and `Textures/T_22_21/*`.
+3. **`export_tile_staticmeshes.sh`** + **`link_export_package_dirs.py`** + **`pskx_to_fbx_batch.py`** — populate `L2_UMODEL_EXPORT_DIR` (default `.work/umodel-export-22_21`).
+4. **Unity batchmode** — `FINEAGE_INTERLUDE_TILE=22_21`, `L2_INTERLUDE_CLIENT_ROOT`, `L2_UMODEL_EXPORT_DIR`; `-executeMethod L2InterludeTileBatchCli.RunTileBakeCli`.
+5. Commit `Assets/Resources/Data/Maps/22_21/`, new textures under `T_22_21/`, any new static mesh FBX; run **Shnok/0.1** or rely on batch CLI manifest write.
+
+Cloud agents cannot run steps 1–4 without the client; land tooling/docs + honest manifest until a Mac bake completes.
+
+Helper scripts live under `tools/interlude/` (`prepare_interlude_tile.py`, `export_tile_staticmeshes.sh`, `run_mac_tile_bake.sh`).
 
 ## Constraints
 
