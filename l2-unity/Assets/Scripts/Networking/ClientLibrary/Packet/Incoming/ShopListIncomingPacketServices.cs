@@ -7,22 +7,10 @@ using System;
 /// sell list on <see cref="SellListIncomingPacketServices"/> (sub-slice 113),
 /// buy list on <see cref="BuyListIncomingPacketServices"/> (sub-slice 114),
 /// buy-list seed (manor estate) on <see cref="BuyListSeedIncomingPacketServices"/> (sub-slice 115),
-/// and shop preview list on <see cref="ShopPreviewListIncomingPacketServices"/> (sub-slice 116).
+/// shop preview list on <see cref="ShopPreviewListIncomingPacketServices"/> (sub-slice 116),
+/// and package sendable (parcel) list on <see cref="PackageSendableListIncomingPacketServices"/> (sub-slice 117).
 /// </summary>
 public static class ShopListIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
-
-    public static void ApplyPackageSendableList(PackageSendableListDto packet) =>
-        Queue(() =>
-        {
-            UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            GameIncomingPacketServices.Dealer.SetWindowName("Send a parcel");
-            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
-            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Shipping list");
-            GameIncomingPacketServices.Dealer.SetProductType(ProductType.PackageSendableList);
-            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Items, true, packet.PlayerObject);
-            GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            GameIncomingPacketServices.Dealer.ShowWindow();
-        });
 }
