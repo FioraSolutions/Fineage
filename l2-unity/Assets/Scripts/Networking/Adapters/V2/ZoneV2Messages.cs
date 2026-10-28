@@ -418,6 +418,54 @@ public static class ZoneV2Messages
         };
         return true;
     }
+
+    public static bool TryDecodeAbnormalStatusUpdate(byte[] body, out ZoneV2AbnormalStatusUpdate update)
+    {
+        update = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 2)
+                return false;
+            update.ObjectId = ZoneV2MsgPack.ReadInt(body, ref i);
+            int effectCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (effectCount <= 0)
+            {
+                update.Effects = Array.Empty<ZoneV2AbnormalEffect>();
+                return true;
+            }
+
+            var effects = new ZoneV2AbnormalEffect[effectCount];
+            for (int r = 0; r < effectCount; r++)
+            {
+                if (!TryReadAbnormalEffect(body, ref i, out effects[r]))
+                    return false;
+            }
+
+            update.Effects = effects;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    static bool TryReadAbnormalEffect(byte[] body, ref int i, out ZoneV2AbnormalEffect effect)
+    {
+        effect = default;
+        int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (n < 3)
+            return false;
+        effect = new ZoneV2AbnormalEffect
+        {
+            Id = ZoneV2MsgPack.ReadInt(body, ref i),
+            Value = ZoneV2MsgPack.ReadInt(body, ref i),
+            DurationSeconds = ZoneV2MsgPack.ReadInt(body, ref i)
+        };
+        return true;
+    }
 }
 
 public struct ZoneV2PlayerSpawned
@@ -514,4 +562,17 @@ public struct ZoneV2InventoryChange
     public string Icon;
     public string WeaponType;
     public string ArmorType;
+}
+
+public struct ZoneV2AbnormalStatusUpdate
+{
+    public int ObjectId;
+    public ZoneV2AbnormalEffect[] Effects;
+}
+
+public struct ZoneV2AbnormalEffect
+{
+    public int Id;
+    public int Value;
+    public int DurationSeconds;
 }
