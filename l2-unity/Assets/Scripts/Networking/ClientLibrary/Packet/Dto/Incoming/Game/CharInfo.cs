@@ -1,7 +1,4 @@
 ﻿
-//using System;
-//using static UnityEngine.ProBuilder.AutoUnwrapSettings;
-
 //public class CharInfo : IWireDto
 //{
 //    public EntityIdentity Identity { get; private set; }
