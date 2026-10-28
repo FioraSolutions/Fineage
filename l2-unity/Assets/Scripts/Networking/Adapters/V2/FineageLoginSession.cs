@@ -5,7 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 /// <summary>
-/// Fineage-Backend login TCP: Hello, Auth, ListCharacters, SelectCharacter, Handoff.
+/// Headless Fineage-Backend login: Hello, Auth, ListCharacters, SelectCharacter, Handoff.
+/// Used when <c>-fineageChar</c> is set. The lobby UI uses <see cref="FineageLobbySession"/> instead.
 /// The handoff token is the zone Auth password. The account password never goes to the zone.
 /// </summary>
 public static class FineageLoginSession
@@ -33,7 +34,7 @@ public static class FineageLoginSession
                 ZoneV2Messages.EncodeHello(1, "unity"),
                 ct).ConfigureAwait(false);
 
-            await ReadExpectedAsync(stream, ZoneV2MsgType.HelloAck, ct).ConfigureAwait(false);
+            await FineageLobbySession.ReadExpectedAsync(stream, ZoneV2MsgType.HelloAck, ct).ConfigureAwait(false);
 
             await ZoneV2FrameIO.SendAsync(
                 stream,
@@ -41,7 +42,7 @@ public static class FineageLoginSession
                 ZoneV2Messages.EncodeAuth(account, password),
                 ct).ConfigureAwait(false);
 
-            ZoneV2Frame loginOk = await ReadExpectedAsync(stream, ZoneV2MsgType.LoginOk, ct).ConfigureAwait(false);
+            ZoneV2Frame loginOk = await FineageLobbySession.ReadExpectedAsync(stream, ZoneV2MsgType.LoginOk, ct).ConfigureAwait(false);
             string canonical;
             if (!ZoneV2Messages.TryDecodeLoginOk(loginOk.Body, out canonical) || string.IsNullOrEmpty(canonical))
                 canonical = account;
@@ -54,7 +55,7 @@ public static class FineageLoginSession
                 Array.Empty<byte>(),
                 ct).ConfigureAwait(false);
 
-            ZoneV2Frame listFrame = await ReadExpectedAsync(stream, ZoneV2MsgType.CharacterList, ct).ConfigureAwait(false);
+            ZoneV2Frame listFrame = await FineageLobbySession.ReadExpectedAsync(stream, ZoneV2MsgType.CharacterList, ct).ConfigureAwait(false);
             ZoneV2CharacterSummary[] characters;
             if (!ZoneV2Messages.TryDecodeCharacterList(listFrame.Body, out characters))
                 throw new InvalidDataException("Character list was not readable.");
@@ -63,16 +64,19 @@ public static class FineageLoginSession
             if (!TryPickCharacter(characters, characterName, out selected))
                 throw new InvalidOperationException(CharacterPickError(characters, characterName));
 
+            if (selected.DeleteSecondsLeft > 0)
+                throw new InvalidOperationException("That character is pending deletion.");
+
             if (log != null)
                 log("[FineageLocal] select character=" + selected.Name + " id=" + selected.CharacterId);
 
             await ZoneV2FrameIO.SendAsync(
                 stream,
                 ZoneV2MsgType.SelectCharacter,
-                ZoneV2Messages.EncodeSelectCharacter(selected.CharacterId, selected.Name),
+                ZoneV2Messages.EncodeSelectCharacter(selected.CharacterId, selected.Name, -1),
                 ct).ConfigureAwait(false);
 
-            ZoneV2Frame handoffFrame = await ReadExpectedAsync(stream, ZoneV2MsgType.Handoff, ct).ConfigureAwait(false);
+            ZoneV2Frame handoffFrame = await FineageLobbySession.ReadExpectedAsync(stream, ZoneV2MsgType.Handoff, ct).ConfigureAwait(false);
             ZoneV2Handoff handoff;
             if (!ZoneV2Messages.TryDecodeHandoff(handoffFrame.Body, out handoff))
                 throw new InvalidDataException("Handoff ticket was not readable.");
@@ -150,27 +154,5 @@ public static class FineageLoginSession
         }
 
         return "Multiple characters (" + names + "). Pass -fineageChar <name>.";
-    }
-
-    static async Task<ZoneV2Frame> ReadExpectedAsync(NetworkStream stream, ZoneV2MsgType expected, CancellationToken ct)
-    {
-        ZoneV2Frame? frame = await ZoneV2FrameIO.TryReadAsync(stream, ct).ConfigureAwait(false);
-        if (frame == null)
-            throw new IOException("Login server closed the connection while waiting for " + expected + ".");
-
-        ZoneV2Frame got = frame.Value;
-        if (got.Type == ZoneV2MsgType.Error)
-        {
-            string code;
-            string message;
-            ZoneV2Messages.TryDecodeError(got.Body, out code, out message);
-            throw new InvalidOperationException(
-                (string.IsNullOrEmpty(code) ? "login_error" : code) + ": " + message);
-        }
-
-        if (got.Type != expected)
-            throw new InvalidOperationException("Unexpected login message " + (ushort)got.Type + " while waiting for " + expected + ".");
-
-        return got;
     }
 }

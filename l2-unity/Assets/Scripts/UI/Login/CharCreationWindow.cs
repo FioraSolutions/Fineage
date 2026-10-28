@@ -280,6 +280,13 @@ public class CharCreationWindow : L2Window {
         string race = raceManipulator.Value;
         string name = userInputField.value;
 
+        if (FineageWireConfig.UseLoginHandoff)
+        {
+            // #435 sends CreateCharacter on the lobby socket. Do not emit an Interlude packet here.
+            SetlabelError("Character creation is not available yet.");
+            return;
+        }
+
         var sendPaket = new CharacterCreateCommand(_playerTemplates , class1, sex , hairColor , hairStyle , face , race , name);
         Game.Send(sendPaket);
         //Debug.Log("Button click ButtonPressed");

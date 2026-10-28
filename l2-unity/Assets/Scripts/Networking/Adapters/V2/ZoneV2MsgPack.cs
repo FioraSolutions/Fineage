@@ -304,6 +304,30 @@ public static class ZoneV2MsgPack
         }
     }
 
+    /// <summary>Int64, or any smaller int MessagePack would use for a long.</summary>
+    public static long ReadInt64(byte[] buf, ref int i)
+    {
+        if (buf == null || i >= buf.Length)
+            throw new InvalidDataException("truncated msgpack");
+        byte b = buf[i];
+        if (b == 0xd3)
+        {
+            i++;
+            return unchecked((long)ReadBe64(buf, ref i));
+        }
+
+        if (b == 0xcf)
+        {
+            i++;
+            ulong raw = ReadBe64(buf, ref i);
+            if (raw > (ulong)long.MaxValue)
+                throw new InvalidDataException("uint64 too large for int64");
+            return (long)raw;
+        }
+
+        return ReadInt(buf, ref i);
+    }
+
     public static int ReadInt(byte[] buf, ref int i)
     {
         byte b = buf[i++];
@@ -450,6 +474,16 @@ public static class ZoneV2MsgPack
     {
         uint v = ((uint)buf[i] << 24) | ((uint)buf[i + 1] << 16) | ((uint)buf[i + 2] << 8) | buf[i + 3];
         i += 4;
+        return v;
+    }
+
+    static ulong ReadBe64(byte[] buf, ref int i)
+    {
+        if (i + 8 > buf.Length)
+            throw new InvalidDataException("truncated msgpack");
+        ulong v = 0;
+        for (int b = 0; b < 8; b++)
+            v = (v << 8) | buf[i++];
         return v;
     }
 }
