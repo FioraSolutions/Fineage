@@ -92,9 +92,9 @@ public class TargetWindow : L2Window {
             }
             if(_HPBarBG != null && _HPBar != null) {
 
-                // 1. Проверяем MaxHp, чтобы избежать деления на ноль или NaN
-                float maxHp = targetData.Stats.MaxHp;
-                float hpRatio = (maxHp > 0) ? Mathf.Clamp01((float)targetData.Status.GetHp() / maxHp) : 0f;
+                float hpRatio = PlayerResourceCaps.BarFillRatio(
+                    targetData.Status.GetHp(),
+                    targetData.Stats.MaxHp);
 
                 // 2. Получаем ширину подложки и проверяем, что она корректна (больше нуля и не NaN)
                 float bgWidth = _HPBarBG.resolvedStyle.width;
