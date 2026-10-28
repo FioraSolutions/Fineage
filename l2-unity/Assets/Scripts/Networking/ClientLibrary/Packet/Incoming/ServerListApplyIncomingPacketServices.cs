@@ -4,7 +4,7 @@
 /// </summary>
 public static class ServerListApplyIncomingPacketServices
 {
-    public static LoginClient Login => CharacterApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
 
     public static void ApplyServerList(ServerListDto packet)
     {

@@ -16,5 +16,5 @@ public static class CreatureSayApplyIncomingPacketServices
     }
 
     public static void ApplyCreatureSay(CreatureMessage message) =>
-        MessageApplyIncomingPacketServices.ApplyMessage(apply => apply.CreatureSay(message));
+        ChatApplyIncomingPacketServices.ApplyMessage(apply => apply.CreatureSay(message));
 }
