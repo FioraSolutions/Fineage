@@ -10,5 +10,5 @@ public sealed class PetDeleteIncoming : IncomingPacket<DeleteObjectDto>
     }
 
     public override void Apply(DeleteObjectDto dto) =>
-        NpcIncomingPacketServices.ApplyPetDelete(dto);
+        PetDeleteIncomingPacketServices.ApplyPetDelete(dto);
 }
