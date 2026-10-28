@@ -4,24 +4,12 @@ using System;
 /// Dealer shop list wire packet handler access via GameIncomingPacketServices (#142 sub-slice 84).
 /// Complements warehouse list handlers on <see cref="WarehouseIncomingPacketServices"/> (sub-slice 83),
 /// shop preview on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98),
-/// and sell list on <see cref="SellListIncomingPacketServices"/> (sub-slice 113).
+/// sell list on <see cref="SellListIncomingPacketServices"/> (sub-slice 113),
+/// and buy list on <see cref="BuyListIncomingPacketServices"/> (sub-slice 114).
 /// </summary>
 public static class ShopListIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
-
-    public static void ApplyBuyList(BuyListDto packet) =>
-        Queue(() =>
-        {
-            UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            GameIncomingPacketServices.Dealer.SetWindowName("Shop");
-            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Sell");
-            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Buy");
-            GameIncomingPacketServices.Dealer.SetProductType(ProductType.BUY);
-            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, false, packet.ListID);
-            GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            GameIncomingPacketServices.Dealer.ShowWindowToCenter();
-        });
 
     public static void ApplyBuyListSeed(BuyListSeedDto packet) =>
         Queue(() =>
