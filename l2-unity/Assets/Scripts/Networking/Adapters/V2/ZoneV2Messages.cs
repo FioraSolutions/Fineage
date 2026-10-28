@@ -266,8 +266,6 @@ public static class ZoneV2Messages
                 item.Unknown = ZoneV2MsgPack.ReadInt(body, ref i);
             else
                 item.Unknown = 0;
-            if (n > 8)
-                ZoneV2MsgPack.SkipValues(body, ref i, n - 8);
             return true;
         }
         catch (InvalidDataException)
