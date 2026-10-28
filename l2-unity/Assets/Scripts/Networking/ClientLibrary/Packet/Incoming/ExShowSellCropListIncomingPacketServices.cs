@@ -1,0 +1,16 @@
+using System;
+
+/// <summary>
+/// Ex show-sell-crop-list wire packet handler entry (#142 batch slice 138).
+/// Splits apply out of <see cref="ManorIncomingPacketServices"/> (sub-slice 64).
+/// </summary>
+public static class ExShowSellCropListIncomingPacketServices
+{
+    public static void Queue(Action action) => WorldIncomingPacketServices.Queue(action);
+
+    public static void ApplyExShowSellCropList(ExShowSellCropListDto packet) =>
+        Queue(() =>
+        {
+            WorldIncomingPacketServices.SellCrop.ShowWindow();
+            WorldIncomingPacketServices.SellCrop.SetDataTable(packet);
+        });

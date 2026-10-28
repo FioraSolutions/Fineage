@@ -1,9 +1,9 @@
 using System;
 
 /// <summary>
-/// NPC / pet presence incoming handler access via WorldIncomingPacketServices (#142 sub-slice 65).
+/// Shared NPC/pet presence apply (#142 batch slice 138).
 /// </summary>
-public static class NpcIncomingPacketServices
+internal static class NpcOrPetInfoIncomingPacketServices
 {
     public static World GameWorld => WorldIncomingPacketServices.GameWorld;
 
@@ -15,21 +15,7 @@ public static class NpcIncomingPacketServices
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
         WorldIncomingPacketServices.QueueWorld(apply);
 
-    public static void ApplyNpcHtmlMessage(NpcHtmlMessageDto packet) =>
-        QueueWorld(apply => apply.ShowNpcHtml(packet));
-
-    public static void ApplyNpcInfo(NpcInfoDto packet) => ApplyNpcOrPetInfo(packet);
-
-    public static void ApplyPetInfo(NpcInfoDto packet) => ApplyNpcOrPetInfo(packet);
-
-    public static void ApplyPetDelete(DeleteObjectDto dto)
-    {
-        SpawnFrameBudget.Cancel(dto.ObjectId);
-        if (GameWorld != null)
-            GameWorld.DeleteObject(dto.ObjectId);
-    }
-
-    static void ApplyNpcOrPetInfo(NpcInfoDto packet)
+    public static void Apply(NpcInfoDto packet)
     {
         if (packet.Identity != null)
             SpawnFrameBudget.ClearCancel(packet.Identity.Id);

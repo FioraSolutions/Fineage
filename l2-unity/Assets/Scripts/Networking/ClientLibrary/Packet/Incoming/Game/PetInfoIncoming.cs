@@ -9,5 +9,5 @@ public sealed class PetInfoIncoming : IncomingPacket<NpcInfoDto>
     }
 
     public override void Apply(NpcInfoDto packet) =>
-        NpcIncomingPacketServices.ApplyPetInfo(packet);
+        PetInfoIncomingPacketServices.ApplyPetInfo(packet);
 }
