@@ -90,8 +90,77 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        RequestJoinPartyCommand joinParty = command as RequestJoinPartyCommand;
+        if (joinParty != null)
+        {
+            ZoneV2Client.Ensure().SendPartyInviteRequest(joinParty.TargetObjectId, joinParty.ItemDistribution);
+            return true;
+        }
+
+        RequestAnswerJoinPartyCommand answerParty = command as RequestAnswerJoinPartyCommand;
+        if (answerParty != null)
+        {
+            if (answerParty.RequestorObjectId > 0)
+                ZoneV2Client.Ensure().SendPartyAnswerJoinRequest(answerParty.RequestorObjectId, answerParty.Response);
+            return true;
+        }
+
+        if (command is RequestWithdrawalPartyCommand)
+        {
+            ZoneV2Client.Ensure().SendPartyLeaveRequest();
+            return true;
+        }
+
+        RequestOustPartyMemberCommand oustParty = command as RequestOustPartyMemberCommand;
+        if (oustParty != null)
+        {
+            ZoneV2Client.Ensure().SendPartyKickRequest(oustParty.TargetObjectId);
+            return true;
+        }
+
+        RequestUserCommandCommand userCommand = command as RequestUserCommandCommand;
+        if (userCommand != null)
+        {
+            if (TrySendPartyUserCommand(userCommand.Id))
+                return true;
+        }
+
         // Other Interlude game commands are no-ops on ZoneV2 until wired.
         return true;
+    }
+
+    static bool TrySendPartyUserCommand(int commandId)
+    {
+        int targetId = ResolveSelectedTargetObjectId();
+        switch (commandId)
+        {
+            case 16: // PlayerCommand.INVITE — /Invite
+                if (targetId <= 0)
+                    return true;
+                ZoneV2Client.Ensure().SendPartyInviteRequest(targetId, 0);
+                return true;
+            case 17: // PlayerCommand.LEAVE — /Leave
+                ZoneV2Client.Ensure().SendPartyLeaveRequest();
+                return true;
+            case 18: // PlayerCommand.DISMISS — leader kick selected member
+                if (targetId <= 0)
+                    return true;
+                ZoneV2Client.Ensure().SendPartyKickRequest(targetId);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static int ResolveSelectedTargetObjectId()
+    {
+        TargetManager targets = ControllerPacketServices.Targets;
+        if (targets == null)
+            return 0;
+        TargetData target = targets.Target ?? targets.AttackTarget;
+        if (target?.Identity != null)
+            return target.Identity.Id;
+        return 0;
     }
 
     public void BeginSession(string account, string password)

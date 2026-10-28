@@ -164,6 +164,9 @@ public static class ZoneV2DomainMap
         return new CreatureMessage(name, text, data);
     }
 
+    public static AskJoinPartyDto ToAskJoinPartyDto(ZoneV2PartyAskJoin ask) =>
+        AskJoinPartyDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName, ask.ItemDistribution);
+
     public static ItemListDto ToItemListDto(ZoneV2ItemEntry[] rows)
     {
         var bag = new Dictionary<int, ItemInstance>();

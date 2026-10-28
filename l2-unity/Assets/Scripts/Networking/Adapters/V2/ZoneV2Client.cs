@@ -240,6 +240,38 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.PickupRequest, body);
     }
 
+    public void SendPartyInviteRequest(int targetObjectId, int itemDistribution = 0)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodePartyInviteRequest(targetObjectId, itemDistribution);
+        _ = SendFireAndForget(ZoneV2MsgType.PartyInviteRequest, body);
+    }
+
+    public void SendPartyAnswerJoinRequest(int requestorObjectId, int response)
+    {
+        if (!Connected || _stream == null || requestorObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodePartyAnswerJoinRequest(requestorObjectId, response);
+        _ = SendFireAndForget(ZoneV2MsgType.PartyAnswerJoinRequest, body);
+    }
+
+    public void SendPartyLeaveRequest()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodePartyLeaveRequest();
+        _ = SendFireAndForget(ZoneV2MsgType.PartyLeaveRequest, body);
+    }
+
+    public void SendPartyKickRequest(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodePartyKickRequest(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.PartyKickRequest, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -488,6 +520,43 @@ public sealed class ZoneV2Client : MonoBehaviour
                             AbnormalStatusUpdateDto dto = ZoneV2DomainMap.ToAbnormalStatusUpdateDto(abnormal);
                             AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
                         });
+                        break;
+
+                    case ZoneV2MsgType.PartyAskJoin:
+                        ZoneV2PartyAskJoin partyAsk;
+                        if (!ZoneV2Messages.TryDecodePartyAskJoin(f.Body, out partyAsk))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad PartyAskJoin body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            AskJoinPartyDto dto = ZoneV2DomainMap.ToAskJoinPartyDto(partyAsk);
+                            AskJoinPartyApplyIncomingPacketServices.ApplyAskJoinParty(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.PartyJoinResult:
+                        int joinResult;
+                        if (!ZoneV2Messages.TryDecodePartyJoinResult(f.Body, out joinResult))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad PartyJoinResult body"));
+                            break;
+                        }
+
+                        Post(() => PartyJoinResultApplyIncomingPacketServices.ApplyPartyJoinResult(joinResult));
+                        break;
+
+                    case ZoneV2MsgType.PartyMemberList:
+                        ZoneV2PartyMemberList partyList;
+                        if (!ZoneV2Messages.TryDecodePartyMemberList(f.Body, out partyList))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad PartyMemberList body"));
+                            break;
+                        }
+
+                        Post(() => PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(partyList));
                         break;
 
                     case ZoneV2MsgType.Error:

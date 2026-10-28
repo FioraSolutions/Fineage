@@ -132,6 +132,149 @@ public static class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, groundObjectId), 1);
     }
 
+    /// <summary>MessagePack array [targetObjectId, itemDistribution].</summary>
+    public static byte[] EncodePartyInviteRequest(int targetObjectId, int itemDistribution)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, targetObjectId);
+            ZoneV2MsgPack.WriteInt(w, itemDistribution);
+        }, 2);
+    }
+
+    /// <summary>MessagePack array [requestorObjectId, response]. Response 1 accept, 0 decline.</summary>
+    public static byte[] EncodePartyAnswerJoinRequest(int requestorObjectId, int response)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, requestorObjectId);
+            ZoneV2MsgPack.WriteInt(w, response);
+        }, 2);
+    }
+
+    /// <summary>Empty MessagePack array — Fineage-Backend <c>PartyLeaveRequestMsg</c>.</summary>
+    public static byte[] EncodePartyLeaveRequest()
+    {
+        return ZoneV2MsgPack.WriteArray(_ => { }, 0);
+    }
+
+    /// <summary>MessagePack array [targetObjectId].</summary>
+    public static byte[] EncodePartyKickRequest(int targetObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
+    }
+
+    public static bool TryDecodePartyAskJoin(byte[] body, out ZoneV2PartyAskJoin ask)
+    {
+        ask = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 3)
+                return false;
+            ask = new ZoneV2PartyAskJoin
+            {
+                RequestorObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                RequestorName = ZoneV2MsgPack.ReadString(body, ref i),
+                ItemDistribution = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodePartyJoinResult(byte[] body, out int response)
+    {
+        response = 0;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            response = ZoneV2MsgPack.ReadInt(body, ref i);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodePartyMemberList(byte[] body, out ZoneV2PartyMemberList list)
+    {
+        list = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 3)
+                return false;
+            list.LeaderObjectId = ZoneV2MsgPack.ReadInt(body, ref i);
+            list.PartyId = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            {
+                list.Members = Array.Empty<ZoneV2PartyMemberEntry>();
+                return true;
+            }
+
+            int rowCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (rowCount <= 0)
+            {
+                list.Members = Array.Empty<ZoneV2PartyMemberEntry>();
+                return true;
+            }
+
+            var rows = new ZoneV2PartyMemberEntry[rowCount];
+            for (int r = 0; r < rowCount; r++)
+            {
+                if (!TryReadPartyMemberEntry(body, ref i, out rows[r]))
+                    return false;
+            }
+
+            list.Members = rows;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    static bool TryReadPartyMemberEntry(byte[] body, ref int i, out ZoneV2PartyMemberEntry entry)
+    {
+        entry = default;
+        int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (n < 8)
+            return false;
+        entry = new ZoneV2PartyMemberEntry
+        {
+            ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Name = ZoneV2MsgPack.ReadString(body, ref i),
+            ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Level = ZoneV2MsgPack.ReadInt(body, ref i),
+            CurHp = ZoneV2MsgPack.ReadInt(body, ref i),
+            MaxHp = ZoneV2MsgPack.ReadInt(body, ref i),
+            CurMp = ZoneV2MsgPack.ReadInt(body, ref i),
+            MaxMp = ZoneV2MsgPack.ReadInt(body, ref i)
+        };
+        return true;
+    }
+
+    public static string FormatPartyMemberList(in ZoneV2PartyMemberList list)
+    {
+        if (list.Members == null || list.Members.Length == 0)
+            return "Party: (none)";
+        var names = new string[list.Members.Length];
+        for (int i = 0; i < list.Members.Length; i++)
+            names[i] = list.Members[i].Name ?? "?";
+        return "Party (" + list.Members.Length + "): " + string.Join(", ", names);
+    }
+
     public static bool TryDecodeHelloAck(byte[] body, out int protocolVersion, out string serverName)
     {
         protocolVersion = 0;
@@ -1005,6 +1148,32 @@ public struct ZoneV2InventoryChange
     public string Icon;
     public string WeaponType;
     public string ArmorType;
+}
+
+public struct ZoneV2PartyAskJoin
+{
+    public int RequestorObjectId;
+    public string RequestorName;
+    public int ItemDistribution;
+}
+
+public struct ZoneV2PartyMemberEntry
+{
+    public int ObjectId;
+    public string Name;
+    public int ClassId;
+    public int Level;
+    public int CurHp;
+    public int MaxHp;
+    public int CurMp;
+    public int MaxMp;
+}
+
+public struct ZoneV2PartyMemberList
+{
+    public int LeaderObjectId;
+    public int PartyId;
+    public ZoneV2PartyMemberEntry[] Members;
 }
 
 public struct ZoneV2AbnormalStatusUpdate

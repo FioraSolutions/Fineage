@@ -19,4 +19,11 @@ public static class PartyPacketServices
 
     public static PartyInvitationWindow PartyInvite =>
         _partyInvite != null ? _partyInvite : IncomingPacketActions.PartyInvite;
+
+    public static ZoneV2PartyMemberList LastMemberList { get; private set; }
+
+    public static void ApplyMemberList(ZoneV2PartyMemberList list)
+    {
+        LastMemberList = list;
+    }
 }
