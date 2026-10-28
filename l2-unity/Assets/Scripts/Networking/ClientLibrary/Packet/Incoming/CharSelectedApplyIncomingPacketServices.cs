@@ -4,9 +4,9 @@
 /// </summary>
 public static class CharSelectedApplyIncomingPacketServices
 {
-    public static GameClient Game => LoginApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginSessionApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LoginApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LoginSessionApplyIncomingPacketServices.Manager;
 
     public static void ApplyCharSelected(CharSelectedDto packet)
     {
