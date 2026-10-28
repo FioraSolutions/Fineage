@@ -12,6 +12,8 @@ public enum ZoneV2MsgType : ushort
     SelectTarget = 5,
     AttackRequest = 6,
     GrantItemRequest = 13,
+    /// <summary>Pick up a visible ground item. Backend <c>PickupRequestMsg</c> key 0 objectId.</summary>
+    PickupRequest = 14,
 
     Register = 20,
     CreateCharacter = 21,

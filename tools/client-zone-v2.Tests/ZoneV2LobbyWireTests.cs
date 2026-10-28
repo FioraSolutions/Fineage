@@ -33,10 +33,20 @@ public class ZoneV2LobbyWireTests
         Assert.Equal(1014, (ushort)ZoneV2MsgType.ItemList);
         Assert.Equal(1015, (ushort)ZoneV2MsgType.InventoryUpdate);
         Assert.Equal(1016, (ushort)ZoneV2MsgType.UserInfo);
+        Assert.Equal(14, (ushort)ZoneV2MsgType.PickupRequest);
+        Assert.Equal(13, (ushort)ZoneV2MsgType.GrantItemRequest);
         Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), (ushort)1030));
         Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), (ushort)1031));
         Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), (ushort)1032));
         Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), (ushort)1033));
+    }
+
+    [Fact]
+    public void Pickup_request_body_is_messagepack_object_id()
+    {
+        byte[] body = ZoneV2Messages.EncodePickupRequest(100_001);
+        var msg = MessagePackSerializer.Deserialize<PickupRequestTestMsg>(body);
+        Assert.Equal(100_001, msg.ObjectId);
     }
 
     [Fact]
@@ -425,4 +435,10 @@ public sealed partial class BackendCharacterDeleteFailedMsg
     [Key(1)] public int CharacterId { get; set; }
     [Key(2)] public string Code { get; set; } = "";
     [Key(3)] public string Message { get; set; } = "";
+}
+
+[MessagePackObject]
+public sealed partial class PickupRequestTestMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
 }

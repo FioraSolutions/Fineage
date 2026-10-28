@@ -484,6 +484,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.GrantItemRequest, body);
     }
 
+    public void SendPickupRequest(int groundObjectId)
+    {
+        if (!Connected || _stream == null || groundObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodePickupRequest(groundObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.PickupRequest, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
