@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Clan / pledge apply hub (#142 batch slice 160; game hub slice 176).
+/// Clan / pledge apply hub (#142 batch slice 160; game leaf slice 181).
 /// </summary>
 public static class PledgeApplyIncomingPacketServices
 {

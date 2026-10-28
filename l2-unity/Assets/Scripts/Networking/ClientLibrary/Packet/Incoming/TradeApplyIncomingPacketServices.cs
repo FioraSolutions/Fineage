@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Trade-session apply hub (#142 batch slice 159; game hub slice 176).
+/// Trade-session apply hub (#142 batch slice 159; game leaf slice 181).
 /// </summary>
 public static class TradeApplyIncomingPacketServices
 {
