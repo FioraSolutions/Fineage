@@ -7,7 +7,7 @@ using System;
 public static class NpcHtmlMessageApplyIncomingPacketServices
 {
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        WorldIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void ApplyNpcHtmlMessage(NpcHtmlMessageDto packet) =>
         QueueWorld(apply => apply.ShowNpcHtml(packet));

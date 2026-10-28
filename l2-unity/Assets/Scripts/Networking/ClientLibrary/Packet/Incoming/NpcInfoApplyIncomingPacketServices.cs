@@ -7,5 +7,5 @@ using System;
 public static class NpcInfoApplyIncomingPacketServices
 {
     public static void ApplyNpcInfo(NpcInfoDto packet) =>
-        NpcOrPetInfoIncomingPacketServices.Apply(packet);
+        NpcOrPetInfoApplyIncomingPacketServices.Apply(packet);
 }

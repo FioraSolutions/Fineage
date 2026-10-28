@@ -6,12 +6,12 @@ using System;
 /// </summary>
 public static class RecipeBookItemListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => UiIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyRecipeBookItemList(RecipeBookItemListDto packet) =>
         Queue(() =>
         {
-            UiIncomingPacketServices.RecipeBook.AddData(packet);
-            UiIncomingPacketServices.RecipeBook.ShowWindow();
+            UiApplyIncomingPacketServices.RecipeBook.AddData(packet);
+            UiApplyIncomingPacketServices.RecipeBook.ShowWindow();
         });
 }

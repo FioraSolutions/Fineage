@@ -1,7 +1,7 @@
 /// <summary>
 /// App and login lifetime wiring for incoming handler services (#142 sub-slice 54).
 /// </summary>
-public static class AppLoginIncomingPacketServices
+public static class AppLoginApplyIncomingPacketServices
 {
     public static void BindApp(
         GameClient game,
