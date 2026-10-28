@@ -3,5 +3,5 @@
 public sealed class ExPledgeReceivePowerInfoIncoming : IncomingWirePacket<PledgeReceivePowerInfoDto>
 {
     public override void Apply(PledgeReceivePowerInfoDto packet) =>
-        PledgeIncomingPacketServices.ApplyExPledgeReceivePowerInfo(packet);
+        ExPledgeReceivePowerInfoIncomingPacketServices.ApplyExPledgeReceivePowerInfo(packet);
 }
