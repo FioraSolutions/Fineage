@@ -5,7 +5,7 @@
 /// </summary>
 public static class StatusUpdateApplyIncomingPacketServices
 {
-    public static World GameWorld => GroundItemApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => PresenceApplyIncomingPacketServices.GameWorld;
 
     public static void ApplyStatusUpdate(int objectId, System.Collections.Generic.List<StatusUpdate.Attribute> attributes)
     {
