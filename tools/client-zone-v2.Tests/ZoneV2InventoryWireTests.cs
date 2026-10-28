@@ -35,14 +35,14 @@ public class ZoneV2InventoryWireTests
         };
 
         Assert.True(ZoneV2Messages.TryDecodeSpawnItem(Pack(msg), out ZoneV2SpawnItem item));
-        Assert.Equal(100_001, item.ObjectId);
-        Assert.Equal(57, item.ItemId);
-        Assert.Equal(-84318, item.X);
-        Assert.True(item.Stackable);
-        Assert.Equal(25, item.Count);
-        Assert.Equal(-84318, item.X);
-        Assert.Equal(244579, item.Y);
-        Assert.Equal(-3730, item.Z);
+        SpawnItemApplyFields fields = ZoneV2Messages.ToSpawnItemApplyFields(item);
+        Assert.Equal(100_001, fields.ObjectId);
+        Assert.Equal(57, fields.ItemId);
+        Assert.Equal(-84318, fields.X);
+        Assert.True(fields.Stackable);
+        Assert.Equal(25, fields.Count);
+        Assert.Equal(244579, fields.Y);
+        Assert.Equal(-3730, fields.Z);
     }
 
     [Fact]

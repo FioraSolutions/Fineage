@@ -294,6 +294,20 @@ public static class ZoneV2Messages
         }
     }
 
+    /// <summary>Normalized spawn fields shared with <see cref="ZoneV2DomainMap.ToSpawnItemDto"/> (testable without Unity DTOs).</summary>
+    public static SpawnItemApplyFields ToSpawnItemApplyFields(ZoneV2SpawnItem item) =>
+        new SpawnItemApplyFields
+        {
+            ObjectId = item.ObjectId,
+            ItemId = item.ItemId,
+            X = item.X,
+            Y = item.Y,
+            Z = item.Z,
+            Stackable = item.Stackable,
+            Count = item.Count,
+            Unknown = item.Unknown
+        };
+
     public static bool TryDecodeError(byte[] body, out string code, out string message)
     {
         code = "";
@@ -867,6 +881,19 @@ public struct ZoneV2ItemEntry
 }
 
 public struct ZoneV2SpawnItem
+{
+    public int ObjectId;
+    public int ItemId;
+    public int X;
+    public int Y;
+    public int Z;
+    public bool Stackable;
+    public int Count;
+    public int Unknown;
+}
+
+/// <summary>Wire spawn row after decode — same field set as Interlude <c>SpawnItemDto</c> apply.</summary>
+public struct SpawnItemApplyFields
 {
     public int ObjectId;
     public int ItemId;
