@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 public class ExShowManorDefaultInfoDto : IWireDto
 {
