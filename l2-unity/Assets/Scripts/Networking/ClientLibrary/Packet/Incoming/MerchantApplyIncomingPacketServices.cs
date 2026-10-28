@@ -8,5 +8,5 @@ public static class MerchantApplyIncomingPacketServices
     public static DealerWindow Dealer => LocatorApplyIncomingPacketServices.Dealer;
 
     public static void Queue(Action action) =>
-        GameApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

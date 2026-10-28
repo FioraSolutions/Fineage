@@ -9,5 +9,5 @@ public static class ManorApplyIncomingPacketServices
 
     public static SellCropListWindow SellCrop => LocatorApplyIncomingPacketServices.SellCrop;
 
-    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => QueueApplyIncomingPacketServices.Queue(action);
 }
