@@ -3,5 +3,5 @@
 public sealed class ShortBuffStatusUpdateIncoming : IncomingWirePacket<ShortBuffStatusUpdateDto>
 {
     public override void Apply(ShortBuffStatusUpdateDto packet) =>
-        ShortBuffStatusUpdateIncomingPacketServices.ApplyShortBuffStatusUpdate(packet);
+        ShortBuffStatusUpdateApplyIncomingPacketServices.ApplyShortBuffStatusUpdate(packet);
 }

@@ -2,8 +2,9 @@ using System;
 
 /// <summary>
 /// Short buff status wire packet handler entry (#142 batch slice 140).
+/// Apply facade (#142 batch slice 155). Re-homes from <see cref="ShortBuffStatusUpdateIncomingPacketServices"/>.
 /// </summary>
-public static class ShortBuffStatusUpdateIncomingPacketServices
+public static class ShortBuffStatusUpdateApplyIncomingPacketServices
 {
     public static void Queue(Action action) => UiIncomingPacketServices.Queue(action);
 
