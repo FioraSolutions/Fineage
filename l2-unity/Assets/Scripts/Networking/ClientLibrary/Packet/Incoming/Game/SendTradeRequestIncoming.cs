@@ -3,5 +3,5 @@
 public sealed class SendTradeRequestIncoming : IncomingWirePacket<SendTradeRequestDto>
 {
     public override void Apply(SendTradeRequestDto packet) =>
-        TradeOpenIncomingPacketServices.ApplySendTradeRequest(packet);
+        SendTradeRequestIncomingPacketServices.ApplySendTradeRequest(packet);
 }
