@@ -7,12 +7,12 @@ using System;
 /// </summary>
 public static class SendTradeRequestApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => TradeApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplySendTradeRequest(SendTradeRequestDto packet) =>
         Queue(() =>
         {
-            TradeApplyIncomingPacketServices.TradeRequest.AddData(packet);
-            TradeApplyIncomingPacketServices.TradeRequest.ShowWindow();
+            GameApplyIncomingPacketServices.TradeRequest.AddData(packet);
+            GameApplyIncomingPacketServices.TradeRequest.ShowWindow();
         });
 }
