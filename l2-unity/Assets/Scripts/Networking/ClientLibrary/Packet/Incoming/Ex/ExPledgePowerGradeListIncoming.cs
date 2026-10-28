@@ -3,5 +3,5 @@
 public sealed class ExPledgePowerGradeListIncoming : IncomingWirePacket<PledgePowerGradeListDto>
 {
     public override void Apply(PledgePowerGradeListDto packet) =>
-        ExPledgePowerGradeListIncomingPacketServices.ApplyExPledgePowerGradeList(packet);
+        ExPledgePowerGradeListApplyIncomingPacketServices.ApplyExPledgePowerGradeList(packet);
 }
