@@ -55,6 +55,16 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        RequestSay2Command say = command as RequestSay2Command;
+        if (say != null)
+        {
+            if (!string.IsNullOrEmpty(say.TargetName))
+                return true;
+            int chatType = say.Data != null ? say.Data.Id : 0;
+            ZoneV2Client.Ensure().SendSay(say.Message, chatType);
+            return true;
+        }
+
         // Other Interlude game commands are no-ops on ZoneV2 until wired.
         return true;
     }
