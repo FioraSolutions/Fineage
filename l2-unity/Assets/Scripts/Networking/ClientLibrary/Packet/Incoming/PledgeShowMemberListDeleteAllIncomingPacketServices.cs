@@ -1,0 +1,13 @@
+using System;
+
+/// <summary>
+/// Pledge show-member-list-delete-all wire packet handler entry (#142 sub-slice 126).
+/// Splits member-list-delete-all apply out of <see cref="PledgeIncomingPacketServices"/> (sub-slice 60 encapsulation).
+/// </summary>
+public static class PledgeShowMemberListDeleteAllIncomingPacketServices
+{
+    public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
+
+    public static void ApplyPledgeShowMemberListDeleteAll() =>
+        Queue(() => GameIncomingPacketServices.Clan.DeleteMemberData());
+}
