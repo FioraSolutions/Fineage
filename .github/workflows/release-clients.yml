@@ -50,7 +50,9 @@ permissions:
 
 concurrency:
   group: release-clients
-  cancel-in-progress: false
+  # A newer tag or main push replaces an in-progress client build so a Personal
+  # seat is not held by a stale run. GitHub's API token here cannot cancel runs.
+  cancel-in-progress: true
 
 jobs:
   prepare:

@@ -87,7 +87,7 @@ Version comes from the tag, otherwise `git describe` (`0.4.1-2-gabcdef`), otherw
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
-The Windows player is built first and is the zip the release is created with. macOS and Linux start only after that release exists, one at a time, so a Personal seat is only activated once. If macOS or Linux fails, the Windows release stays up. `continue-on-error` on those two jobs keeps the workflow green when Windows published.
+The Windows player is built first and is the zip the release is created with. macOS and Linux start only after that release exists, one at a time, so a Personal seat is only activated once. If macOS or Linux fails, the Windows release stays up. `continue-on-error` on those two jobs keeps the workflow green when Windows published. A newer `release-clients` run cancels an in-progress one, so a new tag does not wait behind a stale build.
 
 `game-ci/unity-builder@v4` cannot activate a Personal seat with email and password. The build action is `game-ci/unity-builder@v6.0.0` with CLI `v0.1.72`, which signs in and takes a Personal seat. The build does not forward `UNITY_LICENSE`. A stale `.ulf` secret would otherwise select offline activation and skip that login. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
 
