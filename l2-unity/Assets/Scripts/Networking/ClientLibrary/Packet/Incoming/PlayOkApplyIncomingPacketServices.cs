@@ -1,14 +1,14 @@
 /// <summary>
-/// PlayOk wire apply hook (#142 batch slice 146).
+/// PlayOk wire apply hook (#142 batch slice 146; login hub slice 175).
 /// Splits apply out of <see cref="PlayOkIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
 public static class PlayOkApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginSessionApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LoginSessionApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LoginApplyIncomingPacketServices.Manager;
 
     public static void ApplyPlayOk(PlayOkDto packet)
     {
