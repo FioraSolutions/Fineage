@@ -1,11 +1,10 @@
 using System;
 
 /// <summary>
-/// Personal warehouse wire packet handler access via GameIncomingPacketServices (#142 sub-slice 83).
-/// Warehouse list handlers split from merchant apply paths (sub-slice 61) in sub-slice 83.
-/// WH deposit list on <see cref="WhDepositListIncomingPacketServices"/> (sub-slice 120).
+/// Personal warehouse withdraw-list wire packet handler entry (#142 sub-slice 121).
+/// Splits WH withdraw-list apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 83 encapsulation).
 /// </summary>
-public static class WarehouseIncomingPacketServices
+public static class WhWithdrawListIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
 
