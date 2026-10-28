@@ -2,5 +2,5 @@
 public sealed class SpawnItemIncoming : IncomingWirePacket<SpawnItemDto>
 {
     public override void Apply(SpawnItemDto dto) =>
-        SpawnItemIncomingPacketServices.ApplySpawnItem(dto);
+        SpawnItemApplyIncomingPacketServices.ApplySpawnItem(dto);
 }

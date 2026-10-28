@@ -23,7 +23,7 @@ public sealed class LoginLifetimeScope : LifetimeScope
         {
             LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
             IncomingPacketActions.BindLogin(loginRuntime);
-            AppLoginIncomingPacketServices.BindLogin(loginRuntime);
+            AppLoginApplyIncomingPacketServices.BindLogin(loginRuntime);
             if (App.Container != null)
             {
                 try

@@ -8,7 +8,7 @@ using System;
 /// </summary>
 public static class ExPledgeReceivePowerInfoApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyExPledgeReceivePowerInfo(PledgeReceivePowerInfoDto packet) =>
-        Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+        Queue(() => GameApplyIncomingPacketServices.Clan.UpdateDetailedInfo(packet));

@@ -2,5 +2,5 @@
 public sealed class ChooseInventoryItemIncoming : IncomingWirePacket<ChooseInventoryItemDto>
 {
     public override void Apply(ChooseInventoryItemDto packet) =>
-        ChooseInventoryItemIncomingPacketServices.ApplyChooseInventoryItem(packet);
+        ChooseInventoryItemApplyIncomingPacketServices.ApplyChooseInventoryItem(packet);
 }

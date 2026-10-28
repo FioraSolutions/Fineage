@@ -5,11 +5,11 @@
 /// </summary>
 public static class AbnormalStatusUpdateApplyIncomingPacketServices
 {
-    public static BufferPanel Buffer => WorldIncomingPacketServices.Buffer;
+    public static BufferPanel Buffer => WorldApplyIncomingPacketServices.Buffer;
 
     public static void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateDto packet)
     {
-        WorldIncomingPacketServices.Queue(() =>
+        WorldApplyIncomingPacketServices.Queue(() =>
         {
             if (Buffer == null)
                 return;
