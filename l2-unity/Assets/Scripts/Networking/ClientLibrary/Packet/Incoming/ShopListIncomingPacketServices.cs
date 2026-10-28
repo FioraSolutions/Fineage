@@ -3,26 +3,15 @@ using System;
 /// <summary>
 /// Dealer shop list wire packet handler access via GameIncomingPacketServices (#142 sub-slice 84).
 /// Complements warehouse list handlers on <see cref="WarehouseIncomingPacketServices"/> (sub-slice 83),
-/// shop preview on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98),
+/// unwired shop preview info on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98),
 /// sell list on <see cref="SellListIncomingPacketServices"/> (sub-slice 113),
 /// buy list on <see cref="BuyListIncomingPacketServices"/> (sub-slice 114),
-/// and buy-list seed (manor estate) on <see cref="BuyListSeedIncomingPacketServices"/> (sub-slice 115).
+/// buy-list seed (manor estate) on <see cref="BuyListSeedIncomingPacketServices"/> (sub-slice 115),
+/// and shop preview list on <see cref="ShopPreviewListIncomingPacketServices"/> (sub-slice 116).
 /// </summary>
 public static class ShopListIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
-
-    public static void ApplyShopPreviewList(ShopPreviewListDto packet) =>
-        Queue(() =>
-        {
-            UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Attempt");
-            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Selection list");
-            GameIncomingPacketServices.Dealer.SetProductType(ProductType.WEAR);
-            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, false, packet.ListID);
-            GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            GameIncomingPacketServices.Dealer.ShowWindowToCenter();
-        });
 
     public static void ApplyPackageSendableList(PackageSendableListDto packet) =>
         Queue(() =>
