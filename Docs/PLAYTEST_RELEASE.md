@@ -43,7 +43,7 @@ The socket accepts a DNS name, not only a dotted IP. IPv4 is preferred. The clie
 - `l2-unity/Assets/StreamingAssets/fineage-endpoint.json` (shipped, editable in the player)
 - `l2-unity/Assets/Resources/FineagePlaytest.json` (baked fallback)
 
-`scripts/bake-playtest-endpoint.py` rewrites both before a release build. Empty environment variables keep these defaults. A set variable replaces that one field.
+`scripts/bake-playtest-endpoint.py` rewrites both before a release build. Empty environment variables keep these defaults. A set variable replaces that one field. The bake refuses to write either file when a host contains `127.0.0.1` or `localhost`, when the login port is `9106`, or when the game port is `9777`. Those values are the local Fineage-Backend, not the public playtest.
 
 ## Override order
 
@@ -105,7 +105,7 @@ Personal ([game-ci activation](https://game.ci/docs/github/activation)) can use 
 
 Pro/Plus can use `UNITY_SERIAL` + `UNITY_EMAIL` + `UNITY_PASSWORD` instead of a Personal login or `UNITY_LICENSE`. Do not commit the `.ulf`.
 
-Playtest host secrets are optional. Unset means the Cloudflare defaults above.
+Playtest host secrets are optional. Unset means the Cloudflare defaults above. Leave them unset unless the public hosts change. Do not point a release at `127.0.0.1`, `localhost`, login port `9106`, or game port `9777`.
 
 | Secret | Override for |
 | --- | --- |
@@ -115,7 +115,7 @@ Playtest host secrets are optional. Unset means the Cloudflare defaults above.
 | `FINEAGE_LOGIN_PORT` | Login port. Default 2106. |
 | `FINEAGE_GAME_PORT` | Game port. Default 7777. |
 
-`workflow_dispatch` inputs override the matching secrets for that run.
+`workflow_dispatch` inputs override the matching secrets for that run. The prepare job (`scripts/check-release-secrets.py`) fails before Unity starts when any of those hosts contains `127.0.0.1` or `localhost`, or when the ports are the local backend ports `9106` / `9777`. `scripts/release-notes.py` and `scripts/bake-playtest-endpoint.py` refuse to write `version.json` or the shipped endpoint JSON in the same cases. `FineagePlaytest.json` in git stays on the Cloudflare hosts.
 
 ## Path from `dev`
 

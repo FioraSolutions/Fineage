@@ -12,7 +12,18 @@ import sys
 import tempfile
 from pathlib import Path
 
-from playtest_hosts import LANDING_URL, endpoint_defaults
+from playtest_hosts import (
+    GAME_HOST,
+    GAME_PORT,
+    LANDING_URL,
+    LOCAL_GAME_PORT,
+    LOCAL_LOGIN_PORT,
+    LOGIN_HOST,
+    LOGIN_PORT,
+    PUBLIC_HOST,
+    endpoint_defaults,
+    refuse_shipped_loopback,
+)
 
 ASSETS = [
     {"id": "windows", "file": "Fineage-Windows-x64.zip"},
@@ -169,6 +180,7 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
 
 def write_notes(repo: Path, output: Path, env: dict[str, str]) -> dict[str, object]:
     notes = build_notes(repo, env)
+    refuse_shipped_loopback(notes)
     markdown = str(notes.pop("_markdown"))
     output.mkdir(parents=True, exist_ok=True)
     (output / "CHANGELOG.md").write_text(markdown, encoding="utf-8")
@@ -244,6 +256,61 @@ def self_test() -> int:
         assert notes["prerelease"] is False
         assert notes["releaseTag"] == "v0.2.0"
         assert notes["gamePort"] == 4000
+
+        public = {
+            "FINEAGE_PUBLIC_HOST": PUBLIC_HOST,
+            "FINEAGE_LOGIN_HOST": LOGIN_HOST,
+            "FINEAGE_GAME_HOST": GAME_HOST,
+            "FINEAGE_LOGIN_PORT": str(LOGIN_PORT),
+            "FINEAGE_GAME_PORT": str(GAME_PORT),
+            "RELEASE_REF_TYPE": "tag",
+            "RELEASE_REF_NAME": "v0.2.0",
+        }
+        notes = write_notes(repo, out, public)
+        version_text = (out / "version.json").read_text(encoding="utf-8")
+        assert notes["loginHost"] == LOGIN_HOST
+        assert notes["gameHost"] == GAME_HOST
+        assert notes["loginPort"] == LOGIN_PORT
+        assert notes["gamePort"] == GAME_PORT
+        for banned in ("127.0.0.1", "localhost", str(LOCAL_LOGIN_PORT), str(LOCAL_GAME_PORT)):
+            assert banned not in version_text
+
+        empty = {
+            "RELEASE_REF_TYPE": "tag",
+            "RELEASE_REF_NAME": "v0.2.0",
+        }
+        notes = write_notes(repo, out, empty)
+        assert notes["host"] == PUBLIC_HOST
+        assert notes["loginHost"] == LOGIN_HOST
+        assert notes["gameHost"] == GAME_HOST
+        assert notes["loginPort"] == LOGIN_PORT
+        assert notes["gamePort"] == GAME_PORT
+
+        for bad_env in (
+            {"FINEAGE_LOGIN_HOST": "127.0.0.1"},
+            {"FINEAGE_GAME_HOST": "localhost"},
+            {"FINEAGE_LOGIN_PORT": str(LOCAL_LOGIN_PORT)},
+            {"FINEAGE_GAME_PORT": str(LOCAL_GAME_PORT)},
+        ):
+            bad_out = Path(tmp) / "bad-notes"
+            try:
+                write_notes(
+                    repo,
+                    bad_out,
+                    {
+                        **bad_env,
+                        "RELEASE_REF_TYPE": "tag",
+                        "RELEASE_REF_NAME": "v0.2.0",
+                    },
+                )
+            except SystemExit:
+                pass
+            else:
+                print(f"release notes must refuse {bad_env}", file=sys.stderr)
+                return 1
+            if (bad_out / "version.json").exists() or (bad_out / "CHANGELOG.md").exists():
+                print(f"release notes wrote files for {bad_env}", file=sys.stderr)
+                return 1
 
     print("release-notes self-test OK")
     return 0
