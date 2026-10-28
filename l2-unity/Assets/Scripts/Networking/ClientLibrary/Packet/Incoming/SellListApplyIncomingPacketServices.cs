@@ -6,18 +6,18 @@ using System;
 /// </summary>
 public static class SellListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => MerchantApplyIncomingPacketServices.Queue(action);
 
     public static void ApplySellList(SellListDto packet) =>
         Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            GameApplyIncomingPacketServices.Dealer.SetWindowName("Shop");
-            GameApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
-            GameApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Sell");
-            GameApplyIncomingPacketServices.Dealer.SetProductType(ProductType.SELL);
-            GameApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, packet.ListID);
-            GameApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            GameApplyIncomingPacketServices.Dealer.ShowWindow();
+            MerchantApplyIncomingPacketServices.Dealer.SetWindowName("Shop");
+            MerchantApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
+            MerchantApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Sell");
+            MerchantApplyIncomingPacketServices.Dealer.SetProductType(ProductType.SELL);
+            MerchantApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, packet.ListID);
+            MerchantApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            MerchantApplyIncomingPacketServices.Dealer.ShowWindow();
         });
 }
