@@ -1,7 +1,7 @@
 /// <summary>
 /// Unwired game/combat incoming packet handler entry points (#142 sub-slice 57).
 /// Stubs reserve facade wiring before UI or world apply is implemented.
-/// Character create ok, henna, shop preview, macro list (sub-slice 80) and
+/// Character create ok, shop preview, macro list (sub-slice 80); henna (sub-slice 99) and
 /// friend list, target unselected, skill cool time (sub-slice 81) re-homed to domain facades.
 /// Action failed and setup gauge (sub-slice 82) re-homed to <see cref="CombatFeedbackIncomingPacketServices"/>.
 /// </summary>

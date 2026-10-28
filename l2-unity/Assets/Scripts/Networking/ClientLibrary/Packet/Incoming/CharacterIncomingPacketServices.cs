@@ -3,6 +3,7 @@ using System;
 /// <summary>
 /// Character lobby / selection incoming handler access via LoginPacketServices and queue fallbacks (#142 sub-slice 51).
 /// Per-packet Apply* encapsulation completed in sub-slice 75.
+/// Henna apply lives on <see cref="HennaIncomingPacketServices"/> (sub-slice 99).
 /// </summary>
 public static class CharacterIncomingPacketServices
 {
@@ -92,10 +93,6 @@ public static class CharacterIncomingPacketServices
         Queue(() => Manager.OnCreateUser(templates.PlayerTemplates));
 
     public static void ApplyCharCreateOk(CharCreateOkDto packet)
-    {
-    }
-
-    public static void ApplyHennaInfo(HennaInfoDto packet)
     {
     }
 }
