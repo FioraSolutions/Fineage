@@ -6,13 +6,11 @@ using System;
 /// Pledge status-changed on <see cref="PledgeStatusChangedIncomingPacketServices"/> (sub-slice 123).
 /// Pledge show-member-list-add on <see cref="PledgeShowMemberListAddIncomingPacketServices"/> (sub-slice 124).
 /// Pledge show-member-list-all on <see cref="PledgeShowMemberListAllIncomingPacketServices"/> (sub-slice 125).
+/// Pledge show-member-list-delete-all on <see cref="PledgeShowMemberListDeleteAllIncomingPacketServices"/> (sub-slice 126).
 /// </summary>
 public static class PledgeIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
-
-    public static void ApplyPledgeShowMemberListDeleteAll() =>
-        Queue(() => GameIncomingPacketServices.Clan.DeleteMemberData());
 
     public static void ApplyPledgeShowMemberListDelete(PledgeShowMemberListDeleteDto packet) =>
         Queue(() => GameIncomingPacketServices.Clan.DeleteMemberData(packet));
