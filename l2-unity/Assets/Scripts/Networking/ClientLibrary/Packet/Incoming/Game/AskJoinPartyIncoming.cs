@@ -2,5 +2,5 @@
 [IncomingGamePacket(GameServerPacketType.AskJoinParty)]
 public sealed class AskJoinPartyIncoming : IncomingWirePacket<AskJoinPartyDto>
 {
-    public override void Apply(AskJoinPartyDto packet) => AskJoinPartyIncomingPacketServices.ApplyAskJoinParty(packet);
+    public override void Apply(AskJoinPartyDto packet) => AskJoinPartyApplyIncomingPacketServices.ApplyAskJoinParty(packet);
 }

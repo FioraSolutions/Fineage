@@ -1,10 +1,10 @@
 using System;
 
 /// <summary>
-/// Buy-list seed (manor estate) wire packet handler entry (#142 sub-slice 115).
+/// Buy-list seed (manor estate) wire packet handler entry (#142 batch slice 148).
 /// Splits dealer buy-list seed apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 84 encapsulation).
 /// </summary>
-public static class BuyListSeedIncomingPacketServices
+public static class BuyListSeedApplyIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
 
