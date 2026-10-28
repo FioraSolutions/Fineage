@@ -4,9 +4,9 @@
 /// </summary>
 public static class InterludeKeyParsedApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginParsedApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginParsedApplyIncomingPacketServices.Game;
 
     public static void OnInterludeKeyParsed(InterludeKeyDto packet)
     {
