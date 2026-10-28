@@ -27,44 +27,47 @@ public class L2TerrainGeneratorTool : MonoBehaviour {
 
     [MenuItem("Shnok/4. [Terrain] Generate terrain")]
     static void GenerateTerrain() {
+        GenerateTerrainForMap("l2_lobby");
+    }
+
+    [MenuItem("Shnok/3. [StaticMeshes] Generate staticmeshes")]
+    static void GenerateStaticMeshes() {
+        GenerateStaticMeshesForMap("l2_lobby");
+    }
+
+    public static Terrain GenerateTerrainForMap(string mapName) {
         List<MapGenerationData> mapsToGenerate = new List<MapGenerationData>();
         MapGenerationData data = new MapGenerationData();
-
-        data.mapName = "l2_lobby";
+        data.mapName = mapName;
         data.generateDecoLayers = true;
         data.generateUVLayers = true;
         data.generateHeightmaps = true;
         data.generateStaticMeshes = false;
         data.generationMode = GenerationMode.Generate;
         mapsToGenerate.Add(data);
-
-        GenerateMap(mapsToGenerate);
-
+        return GenerateMap(mapsToGenerate);
     }
 
-    [MenuItem("Shnok/3. [StaticMeshes] Generate staticmeshes")]
-    static void GenerateStaticMeshes() {
+    public static void GenerateStaticMeshesForMap(string mapName) {
         List<MapGenerationData> mapsToGenerate = new List<MapGenerationData>();
         MapGenerationData data = new MapGenerationData();
-
-        data.mapName = "l2_lobby";
+        data.mapName = mapName;
         data.generateDecoLayers = false;
         data.generateUVLayers = false;
         data.generateHeightmaps = false;
         data.generateStaticMeshes = true;
         data.generationMode = GenerationMode.Generate;
         mapsToGenerate.Add(data);
-
         GenerateMap(mapsToGenerate);
-
     }
 
-    private static void GenerateMap(List<MapGenerationData> mapsToGenerate) {
+    private static Terrain GenerateMap(List<MapGenerationData> mapsToGenerate) {
         L2TerrainGenerator generator = new L2TerrainGenerator();
         terrainInfos = new List<L2TerrainInfo>();
         terrains = new List<Terrain>();
         terrainsDict = new Dictionary<string, Terrain>();
 
+        Terrain lastTerrain = null;
         for (int i = 0; i < mapsToGenerate.Count; i++) {
 
             if (!mapsToGenerate[i].enabled) {
@@ -77,12 +80,14 @@ public class L2TerrainGeneratorTool : MonoBehaviour {
             Terrain terrain = generator.InstantiateTerrain(mapsToGenerate[i], terrainInfo);
 
             terrains.Add(terrain);
+            lastTerrain = terrain;
 
             terrainsDict.Add(mapsToGenerate[i].mapName, terrain);
         }
 
         // generator.StitchTerrainSeams(terrainsDict);
         //   generator.StitchTerrainSeams(terrainsDict);
+        return lastTerrain;
     }
 }
 #endif

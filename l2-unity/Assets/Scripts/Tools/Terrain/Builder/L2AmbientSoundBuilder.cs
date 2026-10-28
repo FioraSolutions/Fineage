@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -34,13 +35,16 @@ public class L2AmbientSoundBuilder : MonoBehaviour
         string fileToProcess = EditorUtility.OpenFilePanel(title, directory, extension);
 
         if (!string.IsNullOrEmpty(fileToProcess)) {
-            // Debug.Log("Selected file: " + fileToProcess);
-            AmbientSound[] sounds = L2T3DInfoParser.ParseAmbientSounds(fileToProcess).ToArray();
-            BuildAmbientSounds(sounds);
+            BuildAmbientSoundsFromT3d(fileToProcess);
         }
     }
 
-    private static void BuildAmbientSounds(AmbientSound[] sounds) {
+    public static GameObject BuildAmbientSoundsFromT3d(string t3dAbsolutePath) {
+        AmbientSound[] sounds = L2T3DInfoParser.ParseAmbientSounds(t3dAbsolutePath).ToArray();
+        return BuildAmbientSounds(sounds);
+    }
+
+    private static GameObject BuildAmbientSounds(AmbientSound[] sounds) {
         GameObject container = new GameObject("AmbientSounds");
 
         foreach (AmbientSound ambientSound in sounds) {
@@ -50,7 +54,7 @@ public class L2AmbientSoundBuilder : MonoBehaviour
             soundObject.transform.parent = container.transform;
         }
 
-        // Debug.Log($"Need to {sounds.Length} load ambient sounds.");
+        return container;
     }
 
     private static GameObject BuildAmbientSoundGameObject(AmbientSound ambientSound) {
