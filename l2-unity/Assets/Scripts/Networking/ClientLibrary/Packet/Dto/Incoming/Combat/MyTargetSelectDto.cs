@@ -1,6 +1,5 @@
 using System.Drawing;
 using System;
-using UnityEngine;
 using System.Xml.Serialization;
 
 public class MyTargetSelectDto : IWireDto

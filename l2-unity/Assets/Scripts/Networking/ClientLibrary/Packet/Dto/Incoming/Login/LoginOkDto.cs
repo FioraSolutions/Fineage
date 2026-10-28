@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public sealed class LoginOkDto : IWireDto
+﻿public sealed class LoginOkDto : IWireDto
 {
     public int SessionKey1;
     public int SessionKey2;

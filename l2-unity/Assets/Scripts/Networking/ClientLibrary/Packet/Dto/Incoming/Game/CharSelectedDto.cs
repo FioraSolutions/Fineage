@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-
-
-public class CharSelectedDto : IWireDto
+﻿public class CharSelectedDto : IWireDto
 {
 
     private PlayerInfoInterlude _info;

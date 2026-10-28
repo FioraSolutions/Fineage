@@ -1,5 +1,4 @@
 using System.Security.Principal;
-using UnityEngine;
 
 public class NpcSayDto : IWireDto
 {
