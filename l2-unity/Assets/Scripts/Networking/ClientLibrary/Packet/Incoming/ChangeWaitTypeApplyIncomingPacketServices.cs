@@ -6,5 +6,5 @@
 public static class ChangeWaitTypeApplyIncomingPacketServices
 {
     public static void ApplyChangeWaitType(ChangeWaitTypeDto packet) =>
-        WorldEffectApplyIncomingPacketServices.ApplyWorld(apply => apply.ChangeWaitType(packet));
+        WorldApplyIncomingPacketServices.ApplyWorld(apply => apply.ChangeWaitType(packet));
 }
