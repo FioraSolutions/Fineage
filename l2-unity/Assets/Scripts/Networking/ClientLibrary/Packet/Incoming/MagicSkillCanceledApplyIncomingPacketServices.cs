@@ -7,5 +7,5 @@ using System;
 public static class MagicSkillCanceledApplyIncomingPacketServices
 {
     public static void ApplyMagicSkillCanceled(MagicSkillCanceledDto packet) =>
-        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply => apply.MagicSkillCanceled(packet));
+        CombatSessionApplyIncomingPacketServices.ApplyWorld(apply => apply.MagicSkillCanceled(packet));
 }
