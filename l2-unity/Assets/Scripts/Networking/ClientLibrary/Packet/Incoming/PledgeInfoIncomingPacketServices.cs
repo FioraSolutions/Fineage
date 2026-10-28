@@ -1,0 +1,13 @@
+using System;
+
+/// <summary>
+/// Pledge info wire packet handler entry (#142 sub-slice 122).
+/// Splits pledge-info apply out of <see cref="PledgeIncomingPacketServices"/> (sub-slice 60 encapsulation).
+/// </summary>
+public static class PledgeInfoIncomingPacketServices
+{
+    public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
+
+    public static void ApplyPledgeInfo(PledgeInfoDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdatePledge(packet));
+}
