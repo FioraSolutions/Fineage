@@ -120,6 +120,12 @@ public static class ZoneV2DomainMap
         NpcInfoDto dto = new NpcInfoDto();
         dto.Identity.Id = info.ObjectId;
         dto.Identity.NpcId = info.NpcTemplateId;
+        if (!string.IsNullOrEmpty(info.Name))
+            dto.Identity.Name = info.Name;
+        if (!string.IsNullOrEmpty(info.Title))
+            dto.Identity.Title = info.Title;
+        if (!string.IsNullOrEmpty(info.NpcType))
+            dto.Identity.NpcClass = info.NpcType;
         dto.Identity.SetHideHp(info.NpcTemplateId);
         dto.Identity.EntityType = EntityType.NPC;
         dto.Identity.SetL2jPos(info.X, info.Y, info.Z);

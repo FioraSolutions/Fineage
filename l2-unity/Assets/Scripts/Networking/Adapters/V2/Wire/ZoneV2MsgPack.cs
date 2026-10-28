@@ -429,6 +429,38 @@ public static class ZoneV2MsgPack
         return values;
     }
 
+    /// <summary>MessagePack bin8/bin16/bin32, or an array of ints. Nil is empty.</summary>
+    public static byte[] ReadBytes(byte[] buf, ref int i)
+    {
+        if (TryConsumeNil(buf, ref i))
+            return Array.Empty<byte>();
+        byte b = buf[i];
+        if (b == 0xc4 || b == 0xc5 || b == 0xc6)
+        {
+            i++;
+            int len = b == 0xc4 ? ReadLen8(buf, ref i) : b == 0xc5 ? ReadBe16(buf, ref i) : (int)ReadBe32(buf, ref i);
+            if (len < 0)
+                throw new InvalidDataException("negative bin");
+            EnsureRemaining(buf, i + len);
+            var bytes = new byte[len];
+            if (len > 0)
+                Buffer.BlockCopy(buf, i, bytes, 0, len);
+            i += len;
+            return bytes;
+        }
+
+        if ((b & 0xf0) == 0x90 || b == 0xdc || b == 0xdd)
+        {
+            int n = ReadArrayHeader(buf, ref i);
+            var bytes = new byte[n];
+            for (int k = 0; k < n; k++)
+                bytes[k] = (byte)ReadInt(buf, ref i);
+            return bytes;
+        }
+
+        throw new InvalidDataException("expected bytes, got 0x" + b.ToString("X2"));
+    }
+
     /// <summary>MessagePack string array. Nil is an empty list. A nil element is an empty string.</summary>
     public static string[] ReadStringArray(byte[] buf, ref int i)
     {

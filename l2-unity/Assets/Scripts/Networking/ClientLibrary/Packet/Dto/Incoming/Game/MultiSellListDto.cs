@@ -15,6 +15,13 @@ public class MultiSellListDto : IWireDto
     public int GetListId() { return _listId;  }
     public List<MultiSellData> GetMultiSell() { return _listMultisell; }
     public List<ItemInstance> GetOnlyItems() { return _listOnlyItem; }
+
+    public void LoadZoneV2(int listId, List<MultiSellData> rows, List<ItemInstance> items)
+    {
+        _listId = listId;
+        _listMultisell = rows ?? new List<MultiSellData>();
+        _listOnlyItem = items ?? new List<ItemInstance>();
+    }
     public MultiSellListDto()
     {
         _listOnlyItem = new List<ItemInstance>();
@@ -98,6 +105,7 @@ public class MultiSellData
 {
     private List<Ingredient> _ingredients;
     private List<ItemInstance> _itemInstance;
+    public int ZoneEntryId { get; set; }
     public MultiSellData(List<ItemInstance> itemInstance , List<Ingredient> ingredients)
     {
         _ingredients = ingredients;

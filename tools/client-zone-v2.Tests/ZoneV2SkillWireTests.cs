@@ -14,8 +14,10 @@ public class ZoneV2SkillWireTests
         Assert.Equal(50, (ushort)ZoneV2MsgType.SkillUseRequest);
         Assert.Equal(1065, (ushort)ZoneV2MsgType.SkillList);
         Assert.Equal(1066, (ushort)ZoneV2MsgType.MagicSkillUse);
-        for (ushort id = 1061; id <= 1064; id++)
-            Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), id));
+        Assert.Equal(1061, (ushort)ZoneV2MsgType.QuestList);
+        Assert.Equal(1062, (ushort)ZoneV2MsgType.QuestDialog);
+        Assert.Equal(1063, (ushort)ZoneV2MsgType.QuestSound);
+        Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), (ushort)1064));
     }
 
     [Fact]
