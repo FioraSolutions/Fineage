@@ -11,19 +11,6 @@ public static class LoginServerIncomingPacketServices
 
     public static LoginWindow LoginWindow => LoginPacketServices.LoginWindow;
 
-    public static void OnGGAuthParsed(GGAuthDto packet)
-    {
-        LobbyFlowLog.Info("TX RequestAuthLogin account=" + (Login != null ? Login.Account : "?"));
-        Login.Send(new RequestAuthLoginCommand(
-            Login.Account,
-            Login.Password,
-            packet.Response));
-    }
-
-    public static void ApplyGGAuth(GGAuthDto packet)
-    {
-    }
-
     public static void OnLoginOkParsed(LoginOkDto packet)
     {
         Login.SessionKey1 = packet.SessionKey1;
