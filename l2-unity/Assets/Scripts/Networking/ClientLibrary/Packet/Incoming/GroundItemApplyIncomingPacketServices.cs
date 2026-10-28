@@ -3,5 +3,5 @@
 /// </summary>
 public static class GroundItemApplyIncomingPacketServices
 {
-    public static World GameWorld => WorldSessionApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 }
