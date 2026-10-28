@@ -34,6 +34,8 @@ public enum ZoneV2MsgType : ushort
     PartyLeaveRequest = 26,
     /// <summary>Leader kick. Backend <c>PartyKickRequestMsg</c> key 0 targetObjectId.</summary>
     PartyKickRequest = 27,
+    /// <summary>Use a known skill. Backend <c>SkillUseRequestMsg</c> keys 0 skillId, 1 targetObjectId, 2 ctrl.</summary>
+    SkillUseRequest = 50,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -65,6 +67,10 @@ public enum ZoneV2MsgType : ushort
     PartyJoinResult = 1028,
     /// <summary>Full party roster snapshot. Backend <c>PartyMemberListMsg</c>.</summary>
     PartyMemberList = 1029,
+    /// <summary>Known skills after <see cref="ItemList"/> on enter. Backend <c>SkillListMsg</c>.</summary>
+    SkillList = 1065,
+    /// <summary>Skill cast fan-out. Backend <c>MagicSkillUseMsg</c>.</summary>
+    MagicSkillUse = 1066,
 
     Error = 1099
 }

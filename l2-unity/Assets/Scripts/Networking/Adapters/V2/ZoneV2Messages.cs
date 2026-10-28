@@ -164,6 +164,17 @@ public static class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
     }
 
+    /// <summary>MessagePack array [skillId, targetObjectId, ctrlPressed] — Backend <c>SkillUseRequestMsg</c>.</summary>
+    public static byte[] EncodeSkillUseRequest(int skillId, int targetObjectId, bool ctrlPressed)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, skillId);
+            ZoneV2MsgPack.WriteInt(w, targetObjectId);
+            ZoneV2MsgPack.WriteBool(w, ctrlPressed);
+        }, 3);
+    }
+
     public static bool TryDecodePartyAskJoin(byte[] body, out ZoneV2PartyAskJoin ask)
     {
         ask = default;
@@ -985,6 +996,110 @@ public static class ZoneV2Messages
         return true;
     }
 
+    public static bool TryDecodeSkillList(byte[] body, out ZoneV2SkillEntry[] skills)
+    {
+        skills = Array.Empty<ZoneV2SkillEntry>();
+        try
+        {
+            int i = 0;
+            int outer = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (outer < 1)
+                return false;
+            if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+                return true;
+
+            int rowCount = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (rowCount <= 0)
+                return true;
+
+            var rows = new ZoneV2SkillEntry[rowCount];
+            for (int r = 0; r < rowCount; r++)
+            {
+                if (!TryReadSkillListEntry(body, ref i, out rows[r]))
+                    return false;
+            }
+
+            skills = rows;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeMagicSkillUse(byte[] body, out ZoneV2MagicSkillUse use)
+    {
+        use = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 4)
+                return false;
+            use = new ZoneV2MagicSkillUse
+            {
+                CasterObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                TargetObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                SkillId = ZoneV2MsgPack.ReadInt(body, ref i),
+                SkillLevel = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            int used = 4;
+            if (n >= 5)
+            {
+                use.HitTimeMs = ZoneV2MsgPack.ReadInt(body, ref i);
+                used++;
+            }
+
+            if (n >= 6)
+            {
+                use.ReuseDelayMs = ZoneV2MsgPack.ReadInt(body, ref i);
+                used++;
+            }
+
+            if (n > used)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - used);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    static bool TryReadSkillListEntry(byte[] body, ref int i, out ZoneV2SkillEntry row)
+    {
+        row = default;
+        int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (n < 3)
+            return false;
+        row = new ZoneV2SkillEntry
+        {
+            SkillId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Level = ZoneV2MsgPack.ReadInt(body, ref i),
+            ReuseDelayMs = ZoneV2MsgPack.ReadInt(body, ref i)
+        };
+        if (n > 3)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - 3);
+        return true;
+    }
+
     public static bool TryDecodeAbnormalStatusUpdate(byte[] body, out ZoneV2AbnormalStatusUpdate update)
     {
         update = default;
@@ -1187,6 +1302,23 @@ public struct ZoneV2PartyMemberList
     public int LeaderObjectId;
     public int PartyId;
     public ZoneV2PartyMemberEntry[] Members;
+}
+
+public struct ZoneV2SkillEntry
+{
+    public int SkillId;
+    public int Level;
+    public int ReuseDelayMs;
+}
+
+public struct ZoneV2MagicSkillUse
+{
+    public int CasterObjectId;
+    public int TargetObjectId;
+    public int SkillId;
+    public int SkillLevel;
+    public int HitTimeMs;
+    public int ReuseDelayMs;
 }
 
 public struct ZoneV2AbnormalStatusUpdate
