@@ -55,8 +55,4 @@ public static class LoginServerIncomingPacketServices
         Game.Connect();
     }
 
-    public static void ApplyServerList(ServerListDto packet)
-    {
-        Login.OnServerListReceived(packet.LastServer, packet.ServersData, packet.CharsOnServers);
-    }
 }
