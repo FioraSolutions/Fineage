@@ -8,5 +8,5 @@ public static class EnchantApplyIncomingPacketServices
     public static EnchantWindow Enchant => IncomingPacketLocatorApplyIncomingPacketServices.Enchant;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

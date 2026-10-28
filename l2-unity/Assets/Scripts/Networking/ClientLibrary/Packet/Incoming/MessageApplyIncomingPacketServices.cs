@@ -9,8 +9,8 @@ public static class MessageApplyIncomingPacketServices
         IncomingPacketLocatorApplyIncomingPacketServices.MessageApply;
 
     public static void ApplyMessage(Action<MessagePacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyMessage(apply);
+        QueueApplyIncomingPacketServices.ApplyMessage(apply);
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

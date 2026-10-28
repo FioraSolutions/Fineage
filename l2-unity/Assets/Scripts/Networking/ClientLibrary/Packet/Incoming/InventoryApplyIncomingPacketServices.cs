@@ -6,5 +6,5 @@ public static class InventoryApplyIncomingPacketServices
     public static PlayerInventory Inventory => IncomingPacketLocatorApplyIncomingPacketServices.Inventory;
 
     public static void Queue(System.Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

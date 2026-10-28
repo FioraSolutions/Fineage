@@ -8,5 +8,5 @@ public static class MultiSellApplyIncomingPacketServices
     public static MultiSellWindow MultiSell => IncomingPacketLocatorApplyIncomingPacketServices.MultiSell;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

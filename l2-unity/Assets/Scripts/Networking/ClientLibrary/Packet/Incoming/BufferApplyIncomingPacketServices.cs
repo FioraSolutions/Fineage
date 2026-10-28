@@ -8,5 +8,5 @@ public static class BufferApplyIncomingPacketServices
     public static BufferPanel Buffer => IncomingPacketLocatorApplyIncomingPacketServices.Buffer;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

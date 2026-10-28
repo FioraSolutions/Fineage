@@ -1,22 +1,21 @@
 using System;
 
 /// <summary>
-/// Combat incoming packet handler access via locator and queue relay (#142 sub-slices 48, 77, 78; slice 166).
+/// Combat incoming packet handler access via session hub (#142 sub-slices 48, 77, 78; slice 172).
 /// </summary>
 public static class CombatApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => IncomingPacketLocatorApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => CombatSessionApplyIncomingPacketServices.Inventory;
 
-    public static EnchantWindow Enchant => IncomingPacketLocatorApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => CombatSessionApplyIncomingPacketServices.Enchant;
 
-    public static TargetManager Targets => IncomingPacketLocatorApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => CombatSessionApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatSessionApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
+        CombatSessionApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
 }

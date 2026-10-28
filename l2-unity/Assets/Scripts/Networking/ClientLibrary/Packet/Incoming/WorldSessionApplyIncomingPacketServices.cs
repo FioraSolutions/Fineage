@@ -12,14 +12,14 @@ public static class WorldSessionApplyIncomingPacketServices
     public static IWorldDomainSink Domain => IncomingPacketLocatorApplyIncomingPacketServices.Domain;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
+        QueueApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
+        QueueApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
+        QueueApplyIncomingPacketServices.QueueWorld(apply);
 }

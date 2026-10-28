@@ -8,5 +8,5 @@ public static class ShortcutApplyIncomingPacketServices
     public static PlayerShortcuts Shortcuts => IncomingPacketLocatorApplyIncomingPacketServices.Shortcuts;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }
