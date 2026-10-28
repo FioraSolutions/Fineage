@@ -8,5 +8,5 @@ public static class ShowListApplyIncomingPacketServices
     public static ShowListWindow ShowList => LocatorApplyIncomingPacketServices.ShowList;
 
     public static void Queue(Action action) =>
-        UiApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

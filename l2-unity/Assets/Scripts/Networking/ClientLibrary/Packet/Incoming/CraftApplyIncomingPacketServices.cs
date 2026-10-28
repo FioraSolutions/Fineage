@@ -10,5 +10,5 @@ public static class CraftApplyIncomingPacketServices
     public static CraftingItemWindow Crafting => LocatorApplyIncomingPacketServices.Crafting;
 
     public static void Queue(Action action) =>
-        UiApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

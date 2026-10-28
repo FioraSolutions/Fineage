@@ -8,5 +8,5 @@ public static class HtmlApplyIncomingPacketServices
     public static HtmlWindow Html => LocatorApplyIncomingPacketServices.Html;
 
     public static void Queue(Action action) =>
-        UiApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }
