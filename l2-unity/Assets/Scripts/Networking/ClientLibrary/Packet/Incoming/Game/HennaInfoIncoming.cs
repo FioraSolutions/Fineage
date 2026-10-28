@@ -3,5 +3,5 @@
 public sealed class HennaInfoIncoming : IncomingWirePacket<HennaInfoDto>
 {
     public override void Apply(HennaInfoDto packet) =>
-        HennaIncomingPacketServices.ApplyHennaInfo(packet);
+        HennaInfoIncomingPacketServices.ApplyHennaInfo(packet);
 }

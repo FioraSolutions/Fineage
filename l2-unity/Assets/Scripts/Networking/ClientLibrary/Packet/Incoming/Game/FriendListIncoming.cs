@@ -7,5 +7,5 @@ public sealed class FriendListIncoming : IncomingPacket<FriendListIncomingDto>
     }
 
     public override void Apply(FriendListIncomingDto dto) =>
-        SocialIncomingPacketServices.ApplyFriendList(dto);
+        FriendListIncomingPacketServices.ApplyFriendList(dto);
 }

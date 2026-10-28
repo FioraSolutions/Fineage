@@ -3,5 +3,5 @@
 public sealed class MacroListIncoming : IncomingWirePacket<MacroListDto>
 {
     public override void Apply(MacroListDto packet) =>
-        MacroIncomingPacketServices.ApplyMacroList(packet);
+        MacroListIncomingPacketServices.ApplyMacroList(packet);
 }

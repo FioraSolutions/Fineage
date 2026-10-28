@@ -2,5 +2,5 @@
 public sealed class TargetUnselectedIncoming : IncomingWirePacket<TargetUnselectedDto>
 {
     public override void Apply(TargetUnselectedDto dto) =>
-        TargetIncomingPacketServices.ApplyTargetUnselected(dto);
+        TargetUnselectedIncomingPacketServices.ApplyTargetUnselected(dto);
 }
