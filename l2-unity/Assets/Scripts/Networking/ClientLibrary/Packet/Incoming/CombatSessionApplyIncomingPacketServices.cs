@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Combat session orchestration hub (#142 batch slice 172; combat session wire slice 195).
+/// Combat session orchestration hub (#142 batch slice 172; combat packet relay slice 200).
 /// </summary>
 public static class CombatSessionApplyIncomingPacketServices
 {
@@ -12,10 +12,10 @@ public static class CombatSessionApplyIncomingPacketServices
     public static TargetManager Targets => CombatPacketApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        CombatWorldApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        CombatWorldApplyIncomingPacketServices.QueueWorld(apply);
+        CombatPacketApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void Queue(Action action) => CombatWorldApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
 }
