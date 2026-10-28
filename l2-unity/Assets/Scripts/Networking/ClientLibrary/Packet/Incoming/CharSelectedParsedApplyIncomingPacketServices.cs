@@ -1,10 +1,10 @@
 /// <summary>
-/// Char selected wire parse hook (#142 batch slice 147; login hub slice 177).
+/// Char selected wire parse hook (#142 batch slice 147; locator queue slice 255).
 /// Splits parse out of <see cref="CharSelectedIncomingPacketServices"/> (sub-slice 75).
 /// </summary>
 public static class CharSelectedParsedApplyIncomingPacketServices
 {
-    public static GameClient Game => LoginSessionApplyIncomingPacketServices.Game;
+    public static GameClient Game => LocatorApplyIncomingPacketServices.Game;
 
     public static void OnCharSelectedParsed(CharSelectedDto packet)
     {
