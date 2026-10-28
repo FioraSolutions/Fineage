@@ -1,90 +1,109 @@
 # Fineage
 
-Unity-клиент Fineage (этот репозиторий — [FioraSolutions/Fineage](https://github.com/FioraSolutions/Fineage)).
+Unity client for Fineage. This repository is [FioraSolutions/Fineage](https://github.com/FioraSolutions/Fineage).
 
-Игровой сервер — свой **C# (.NET) Login + Zone**: [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend). Основной протокол — **V2 MessagePack**, мост **Interlude** — для совместимости. Продуктовый сервер — не Java L2J / Mobius.
+The client started from an earlier Unity L2 project (the [shnok](https://gitlab.com/shnok) / L2-Unity line; last sync with that source was 25 September 2024). Fineage then reworked networking and continues the Interlude-compatible client.
 
-`tools/login-stub` и `tools/zone-server` — локальные мосты и помощники совместимости, не долгосрочный продуктовый сервер.
+The game server is a separate repository: our own **C# (.NET) Login + Zone** in [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend). **V2 MessagePack** is the primary protocol. An **Interlude** bridge remains for wire compatibility.
 
-Клиент начат с форка/основы более ранней Unity-работы по L2 (линия [shnok](https://gitlab.com/shnok) / L2-Unity; последняя синхронизация с исходником — 25.09.2024). Дальше Fineage переработал сеть и продолжает клиентский Interlude-совместимый инжект.
+`tools/login-stub` and `tools/zone-server` in this repo are local bridge helpers for compatibility checks. The product Login and Zone processes are [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend).
 
-## Заметки по клиенту
+## Links
 
-Обновление: 27.08.2026:
+- Client: https://github.com/FioraSolutions/Fineage
+- Product server: https://github.com/FioraSolutions/Fineage-Backend
+- Delivery board: https://github.com/orgs/FioraSolutions/projects/7
+- Upstream client line: https://gitlab.com/shnok
+- Packet and layout notes: https://github.com/gawric/Guide-L2Unity
+- Discussion: https://t.me/l2unityForL2j
 
-Фарм мобов: [video1](https://jumpshare.com/share/ps2GNwqncomBju1oNrLD)  
+Pull requests target the `dev` branch. Branch and worktree rules are in [AGENTS.md](AGENTS.md).
 
-1. Библиотека для эффектов покрывает многие скиллы. Создаются через скрипт. Работает с эффектами из высших хроник.
-2. Новый менеджер анимаций: все через 4 states, остальное подменяется.
-3. VContainer для работы с кодом
-4. Полный UI Toolkit для локального пользователя. (В будущем еще 2 доп. библиотеки для повторения интерфейса из высших хроник).
-5. Мультипакетность: можно подключать пакеты из других хроник. Формирование пакетов отделено от мира Unity, можно менять пакеты на разные хроники.
-6. 400 новых текстур и мешей (мечи, броня, и т. д.)
-7. Синхронизация боя (2 игрока фармят мобов).
-8. Загрузка всего мира в момент запуска игры. Загрузка карты за 400 мс
-9. Загрузка только квадратов, в которых находится локальный игрок.
-10. Кеширование Mesh / NPC / Monster / DropItems
-11. Новая система NamePlates (все ники рисуются в 1 DrawCall).
-12. Доработана система ParticlesGroup: теперь частицы из единого материала рисуются на GPU в едином DrawCall.
-13. Доработаны MFighter и MMagic как основы для других: бафаются, стреляют магией, используют soulshots, стреляют из луков, используют SpSkills, видят и дропают вещи.  
+## Open and build the client
 
-<img src="https://i.ibb.co/zW8hVgnH/farm-1-2.png" alt="Preview0" width="300">   
+The Unity project is the `l2-unity/` folder. In Unity Hub, add that folder as the project.
 
+1. Install Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). The project uses URP.
+2. Open `l2-unity`. The first import resolves packages and can take a long time. `Assets/` is on the order of 2.4 GB.
+3. Open `Assets/Resources/Scenes/Menu.unity` and enter Play to reach the login screen. The walkthrough is [RUN.md](RUN.md).
+4. Login and game hosts come from `l2-unity/Assets/StreamingAssets/fineage-endpoint.json`. The file in git points at the public dev server: login `login.fineage.evpoint.by:2106`, game `game.fineage.evpoint.by:7777`. Override those hosts when you want a process on your own machine. See [Docs/PLAYTEST_RELEASE.md](Docs/PLAYTEST_RELEASE.md).
+5. Standalone players: **File → Build Settings** in the editor (Windows, macOS, or Linux). Automated playtest builds are in [Docs/PLAYTEST_RELEASE.md](Docs/PLAYTEST_RELEASE.md).
 
+Local helpers are for compatibility checks on your machine. The product Login and Zone processes are Fineage-Backend.
 
+| Tool | Protocol | Ports |
+| --- | --- | --- |
+| [`tools/login-stub`](tools/login-stub/README.md) | Interlude | 2106 login, 7777 game |
+| [`tools/zone-server`](tools/zone-server/README.md) | V2 MessagePack | 9777 |
 
-Ранние проверки клиента шли против Java-серверов Mobius и Acis (провод Interlude). Сейчас продуктовый сервер — свой C# Login + Zone (см. начало файла); ниже — клиентские возможности и отличия того периода.
+Pull-request CI does not start Unity. It builds and tests `tools/Fineage.Tools.sln` (**.NET 10**):
 
-Видео работа с луком(Анимация + контроль снарядов) [video1](https://disk.yandex.ru/i/PFP7tHJV4AlTUg)  
-Видео базового функционала [video2](https://jmp.sh/70qYH2gU)   
-Видео синхронизации движения клиента и сервера (3 vs1 ) [video2](https://jmp.sh/GX3m6XIs)    
-UI Inventory (Полная реализация) [Картинки в примерах](https://github.com/gawric/Unity-Client-for-L2J/blob/main/Docs/Ui.md)     
-UI Interface [Картинки в примерах](https://github.com/gawric/Unity-Client-for-L2J/blob/main/Docs/Ui_Interface.md)       
-### Основные отличия:    
-Система движения персонажей как у оригинального клиента  
-Система синхронизации персонажа с сервером  
-Боевая система (только Patk)  
-Система обработка html файлов от сервера  
-Вход в систему с шифрованием как l2j   
-Вся система движения монстров     
-Вся система движения npc  
-Система атаки player vs npc как у оригинала  
-Изменена графика в более легкий вариант   
-Система использование скилов (пока в базовом варианте реализовал пару скилов но основные классы уже есть)  
-Система покупки итемов в магазине  
-Система обмена сообщениями сервер <-> клиент что-бы контролировать обмен  
-Частично переделан Аниматор убраны старые анимации и добавлены новые т.к старая система была не поворотлива и начинала вызывать проблемы при 50+ монстрах  
-Система цвета ников  
-Изменение мышки при клике по персонажу  
-Информацию о персонаже (все основные параметры обновляются)  
-Система определения оружия (список для магазина посылает id но не посылает определения что это за оружие (sword/blunt))  
-Систему ToolTip для магазинов, скилов, итемов  
-Систему использование итемов(только базовые классы)  
+```bash
+dotnet test tools/Fineage.Tools.sln
+```
 
-Добавлено 150 новых моделей(Ноги,Руки,Голова) для персонажей  
-Добавлено 10 новых эффектов (только для теста) к примеру (Заточка для мечей, Молнии при ударе по npc)  
-Добавлено 900 новых текстур  
-Добавлены 100 пакетов для работы с сервером  
-Добавлено режим работы с шифрованием или без него  
-Добавлены анимации для магов и войнов (людей и эльфов)  
-Добавлена анимация исчезновения npc но на уровне unity > update  без использование шейдеров (как тестовый вариант)  
+## Documentation
 
-и еще не меньше 800 комитов которые не попали в систему учета гит  
+| Path | Contents |
+| --- | --- |
+| [Docs/ARCHITECTURE_NET.md](Docs/ARCHITECTURE_NET.md) | Target login, gateway, and zone architecture |
+| [Docs/PLAYTEST_RELEASE.md](Docs/PLAYTEST_RELEASE.md) | Playtest players, public hosts, endpoint overrides |
+| [Docs/CI_AND_TESTING.md](Docs/CI_AND_TESTING.md) | GitHub Actions and `dotnet test` |
+| [RUN.md](RUN.md) | Local path from the editor to the login screen |
+| [ROADMAP.md](ROADMAP.md) | Protocol and content phases |
+| [AGENTS.md](AGENTS.md) | Contributor and agent branch rules |
+| [Docs/Ui.md](Docs/Ui.md), [Docs/Ui_Interface.md](Docs/Ui_Interface.md) | Inventory and interface captures |
+| [l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md](l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md) | Client module boundaries |
+| [l2-unity/docs/LOGGING.md](l2-unity/docs/LOGGING.md) | Client and helper logs |
+| [l2-unity/docs/CONTENT_PREVIEW.md](l2-unity/docs/CONTENT_PREVIEW.md) | Offline character and NPC preview |
+| [tools/login-stub/README.md](tools/login-stub/README.md), [tools/zone-server/README.md](tools/zone-server/README.md) | Local bridge helpers |
 
+Shader and VFX notes live under `l2-unity/docs/`.
 
-В данный момент я усиленно работаю на синхронизацией персонажей,npc,монстров. После этого я завершу все макеты для магазинов и скилов  
+## Client notes
 
-<img src="https://i.ibb.co/fVPrb7m2/base-walpepr-2.png" alt="Preview0" style="max-width: 75%; height: auto;">  
-<img src="https://i.ibb.co/js319yZ/sword-glow.png" alt="Preview0" style="max-width: 75%; height: auto;">  
-<img src="https://i.postimg.cc/RhzrQjzS/buy-sell.png" alt="Preview0" style="max-width: 75%; height: auto;">  
+Early checks of this client ran against the Java servers Mobius and Acis on the Interlude wire. The product Login + Zone is now [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend). The notes below are client capabilities from that work and from the 27 August 2026 update.
 
-## Telegram  
-Группа в телеграме для обсуждения: [t.me/l2unityForL2j](https://t.me/l2unityForL2j).  
+**Movement, combat, and UI (earlier pass)**
 
-Внутренний чат / тред с ассетами (челы пушили модели/текстуры и т.п. — пока просто закладка, нужна ли нам эта пачка ещё не разбирали):  
-https://t.me/c/l2unityForL2j/1  
+- Character, monster, and NPC movement in the style of the original client, with server sync (including a 3-vs-1 movement check).
+- Physical-attack combat, a basic skill path and item use, shops, server HTML, nick colors, and tooltips.
+- Login encryption compatible with the L2J-style handshake, and a mode without encryption.
+- Animator rework. The previous clip set struggled past roughly 50 monsters.
+- About 150 new character-part models, about 10 test effects, about 900 textures, about 100 server packets, and fighter and mage animations for humans and elves.
+- Inventory and interface captures: [Docs/Ui.md](Docs/Ui.md), [Docs/Ui_Interface.md](Docs/Ui_Interface.md).
 
+Videos: [bow animation and projectiles](https://disk.yandex.ru/i/PFP7tHJV4AlTUg), [basic flow](https://jmp.sh/70qYH2gU), [movement sync](https://jmp.sh/GX3m6XIs).
 
+**Update, 27 August 2026**
 
-## Гайд  
-Здесь я размещаю интересные заметки (Разбор пакетов, Примеры верстки окон, Разбор скорости , Синхронизаци)  [L2Guid](https://github.com/gawric/Guide-L2Unity).  
+Farming: [video](https://jumpshare.com/share/ps2GNwqncomBju1oNrLD).
+
+- Effect library covering many skills, built from scripts, including effects from later chronicles.
+- Animation manager with four states; other clips are substituted onto those states.
+- [VContainer](https://github.com/hadashiA/VContainer) for composition.
+- UI Toolkit for the local user. Two further libraries were planned so the interface can follow later chronicles.
+- Packet codecs kept separate from the Unity world, so packets from other chronicles can be attached.
+- About 400 new textures and meshes (weapons, armor, and similar).
+- Combat sync while two players farm.
+- World available at startup. Map load around 400 ms. Only the squares around the local player are loaded.
+- Caches for meshes, NPCs, monsters, and dropped items.
+- Nameplates in a single draw call.
+- Particles that share one material are drawn on the GPU in one draw call (`ParticlesGroup`).
+- `MFighter` and `MMagic` as bases for other classes: buffs, magic, soulshots, bows, SP skills, and seeing and dropping items.
+
+<img src="https://i.ibb.co/zW8hVgnH/farm-1-2.png" alt="Two players farming" width="300">
+
+<img src="https://i.ibb.co/fVPrb7m2/base-walpepr-2.png" alt="Character in the world" width="480">
+<img src="https://i.ibb.co/js319yZ/sword-glow.png" alt="Weapon glow" width="480">
+<img src="https://i.postimg.cc/RhzrQjzS/buy-sell.png" alt="Buy and sell window" width="480">
+
+An asset thread in the Telegram group is bookmarked here (models and textures were posted; whether that pack is still needed was not sorted): https://t.me/c/l2unityForL2j/1
+
+## По-русски
+
+Этот репозиторий — Unity-клиент Fineage. Основа — более ранняя Unity-работа по L2 (линия [shnok](https://gitlab.com/shnok) / L2-Unity, последняя синхронизация 25.09.2024). Дальше Fineage переработал сеть и продолжает Interlude-совместимый клиент.
+
+Игровой сервер — свой **C# (.NET) Login + Zone**: [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend). Основной протокол — **V2 MessagePack**, мост **Interlude** — для совместимости.
+
+`tools/login-stub` и `tools/zone-server` — локальные мосты. Как открыть клиент — в разделе **Open and build the client**. Подробности — в `Docs/`, `RUN.md` и `ROADMAP.md`.
