@@ -1,10 +1,10 @@
 using System;
 
 /// <summary>
-/// Char info wire packet handler entry (#142 sub-slice 103).
-/// Splits char-info apply out of <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
+/// Char info wire packet handler entry (#142 batch slice 147).
+/// Re-homes char-info apply from <see cref="CharInfoIncomingPacketServices"/>; splits from <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
 /// </summary>
-public static class CharInfoIncomingPacketServices
+public static class CharInfoApplyIncomingPacketServices
 {
     public static IWorldDomainSink Domain => IncomingPacketServices.Domain;
 

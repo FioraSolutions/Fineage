@@ -2,5 +2,5 @@
 public sealed class CharTemplateIncoming : IncomingWirePacket<CharTemplatesDto>
 {
     public override void Apply(CharTemplatesDto templates) =>
-        CharTemplateIncomingPacketServices.ApplyCharTemplate(templates);
+        CharTemplateApplyIncomingPacketServices.ApplyCharTemplate(templates);
 }
