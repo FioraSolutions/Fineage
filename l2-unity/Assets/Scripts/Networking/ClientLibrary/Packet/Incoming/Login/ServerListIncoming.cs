@@ -2,5 +2,5 @@
 public sealed class ServerListIncoming : IncomingWirePacket<ServerListDto>
 {
     public override void Apply(ServerListDto packet) =>
-        LoginServerIncomingPacketServices.ApplyServerList(packet);
+        ServerListIncomingPacketServices.ApplyServerList(packet);
 }
