@@ -1,32 +1,32 @@
 using System;
 
 /// <summary>
-/// UI-domain incoming packet handler access via domain apply hubs (#142 sub-slice 50; UI domain orchestration slice 202).
+/// UI-domain incoming packet handler access via domain apply hubs (#142 sub-slice 50; UI locator hub slice 251).
 /// </summary>
 public static class UiApplyIncomingPacketServices
 {
-    public static SkillLearnWindow SkillLearn => SkillApplyIncomingPacketServices.SkillLearn;
+    public static SkillLearnWindow SkillLearn => LocatorApplyIncomingPacketServices.SkillLearn;
 
-    public static DescriptionSkillWindow SkillDesc => SkillApplyIncomingPacketServices.SkillDesc;
+    public static DescriptionSkillWindow SkillDesc => LocatorApplyIncomingPacketServices.SkillDesc;
 
-    public static SkillListWindow SkillList => SkillApplyIncomingPacketServices.SkillList;
+    public static SkillListWindow SkillList => LocatorApplyIncomingPacketServices.SkillList;
 
     public static PartyInvitationWindow PartyInvite =>
-        PartyApplyIncomingPacketServices.PartyInvite;
+        LocatorApplyIncomingPacketServices.PartyInvite;
 
-    public static RecipeBookWindow RecipeBook => CraftApplyIncomingPacketServices.RecipeBook;
+    public static RecipeBookWindow RecipeBook => LocatorApplyIncomingPacketServices.RecipeBook;
 
-    public static CraftingItemWindow Crafting => CraftApplyIncomingPacketServices.Crafting;
+    public static CraftingItemWindow Crafting => LocatorApplyIncomingPacketServices.Crafting;
 
-    public static MultiSellWindow MultiSell => MultiSellApplyIncomingPacketServices.MultiSell;
+    public static MultiSellWindow MultiSell => LocatorApplyIncomingPacketServices.MultiSell;
 
-    public static HtmlWindow Html => HtmlApplyIncomingPacketServices.Html;
+    public static HtmlWindow Html => LocatorApplyIncomingPacketServices.Html;
 
-    public static ShowListWindow ShowList => ShowListApplyIncomingPacketServices.ShowList;
+    public static ShowListWindow ShowList => LocatorApplyIncomingPacketServices.ShowList;
 
-    public static PlayerShortcuts Shortcuts => ShortcutApplyIncomingPacketServices.Shortcuts;
+    public static PlayerShortcuts Shortcuts => LocatorApplyIncomingPacketServices.Shortcuts;
 
-    public static BufferPanel Buffer => BufferApplyIncomingPacketServices.Buffer;
+    public static BufferPanel Buffer => LocatorApplyIncomingPacketServices.Buffer;
 
     public static PositionValidationController PositionValidation =>
         LocatorApplyIncomingPacketServices.PositionValidation;
