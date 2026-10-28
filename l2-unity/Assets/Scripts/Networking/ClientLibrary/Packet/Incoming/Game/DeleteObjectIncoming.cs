@@ -10,5 +10,5 @@ public sealed class DeleteObjectIncoming : IncomingPacket<DeleteObjectDto>
     }
 
     public override void Apply(DeleteObjectDto dto) =>
-        GroundItemIncomingPacketServices.ApplyDeleteObject(dto);
+        DeleteObjectGroundIncomingPacketServices.ApplyDeleteObject(dto);
 }

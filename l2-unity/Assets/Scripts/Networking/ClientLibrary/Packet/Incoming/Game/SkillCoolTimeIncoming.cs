@@ -3,5 +3,5 @@
 public sealed class SkillCoolTimeIncoming : IncomingWirePacket<SkillCoolTimeDto>
 {
     public override void Apply(SkillCoolTimeDto packet) =>
-        SkillLearnIncomingPacketServices.ApplySkillCoolTime(packet);
+        SkillCoolTimeIncomingPacketServices.ApplySkillCoolTime(packet);
 }

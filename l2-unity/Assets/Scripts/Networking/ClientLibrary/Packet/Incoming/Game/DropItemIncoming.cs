@@ -2,5 +2,5 @@
 public sealed class DropItemIncoming : IncomingWirePacket<DropItemDto>
 {
     public override void Apply(DropItemDto dto) =>
-        GroundItemIncomingPacketServices.ApplyDropItem(dto);
+        DropItemIncomingPacketServices.ApplyDropItem(dto);
 }
