@@ -8,8 +8,8 @@ public static class TargetApplyIncomingPacketServices
     public static TargetManager Targets => LocatorApplyIncomingPacketServices.Targets;
 
     public static void Queue(Action action) =>
-        CombatPacketApplyIncomingPacketServices.Queue(action);
+        CombatSessionApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatSessionApplyIncomingPacketServices.ApplyWorld(apply);
 }

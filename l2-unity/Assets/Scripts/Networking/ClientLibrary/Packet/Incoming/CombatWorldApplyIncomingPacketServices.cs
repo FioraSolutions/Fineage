@@ -6,10 +6,10 @@ using System;
 public static class CombatWorldApplyIncomingPacketServices
 {
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatSessionApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        CombatPacketApplyIncomingPacketServices.QueueWorld(apply);
+        CombatSessionApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
 }
