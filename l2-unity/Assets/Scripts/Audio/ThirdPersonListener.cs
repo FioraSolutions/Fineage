@@ -16,12 +16,7 @@ public class ThirdPersonListener : MonoBehaviour
     private static ThirdPersonListener _instance;
     public static ThirdPersonListener Instance { get { return _instance; } }
 
-    [Inject(Optional = true)] PlayerController _playerController;
-
-    private PlayerController ResolvedPlayer
-    {
-        get { return _playerController != null ? _playerController : AudioPacketServices.Player; }
-    }
+    private PlayerController ResolvedPlayer => AudioPacketServices.Player;
 
     private void Awake() {
         if (_instance == null) {
@@ -47,7 +42,7 @@ public class ThirdPersonListener : MonoBehaviour
 
     private void WireAudioPacketServices()
     {
-        AudioPacketServices.Bind(player: _playerController);
+        AudioPacketServices.Bind(player: ResolvedPlayer);
     }
 
     private void OnDisable() {

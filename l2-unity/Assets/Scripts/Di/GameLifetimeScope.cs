@@ -228,9 +228,9 @@ public sealed class GameLifetimeScope : LifetimeScope
             {
                 Debug.LogError("GameLifetimeScope BindGame failed: " + ex);
                 App.GameContainer = null;
-                GameLifetimeScope broken = Object.FindFirstObjectByType<GameLifetimeScope>();
+                GameLifetimeScope broken = UnityEngine.Object.FindFirstObjectByType<GameLifetimeScope>();
                 if (broken != null)
-                    Object.DestroyImmediate(broken.gameObject);
+                    UnityEngine.Object.DestroyImmediate(broken.gameObject);
             }
         });
     }
@@ -267,23 +267,23 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(MoveAllCharacters))
             return MoveAllCharacters.Instance as T;
         if (typeof(T) == typeof(EffectManager))
-            return EffectManager.Instance;
+            return EffectManager.Instance as T;
         if (typeof(T) == typeof(EventBus))
-            return EventBus.Instance;
+            return EventBus.Instance as T;
         if (typeof(T) == typeof(SkillbarWindow))
-            return SkillbarWindow.Instance;
+            return SkillbarWindow.Instance as T;
         if (typeof(T) == typeof(ChatWindow))
-            return ChatWindow.Instance;
+            return ChatWindow.Instance as T;
         if (typeof(T) == typeof(HtmlWindow))
-            return HtmlWindow.Instance;
+            return HtmlWindow.Instance as T;
         if (typeof(T) == typeof(SystemMessageWindow))
-            return SystemMessageWindow.Instance;
+            return SystemMessageWindow.Instance as T;
         if (typeof(T) == typeof(CameraController))
-            return CameraController.Instance;
+            return CameraController.Instance as T;
         if (typeof(T) == typeof(CharacterInfoWindow))
-            return CharacterInfoWindow.Instance;
+            return CharacterInfoWindow.Instance as T;
         if (typeof(T) == typeof(CharacterBuilder))
-            return CharacterBuilder.Instance;
+            return CharacterBuilder.Instance as T;
 
         return null;
     }

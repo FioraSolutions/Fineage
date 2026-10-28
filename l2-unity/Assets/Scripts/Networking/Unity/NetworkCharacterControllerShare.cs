@@ -7,7 +7,6 @@ using VContainer;
 [RequireComponent(typeof(NetworkTransformShare)), RequireComponent(typeof(CharacterController))]
 public class NetworkCharacterControllerShare : MonoBehaviour {
     [Inject] World _world;
-    [Inject(Optional = true)] PlayerController _player;
 
     private World GameWorld => NetworkingPacketServices.GameWorld;
 
@@ -35,7 +34,7 @@ public class NetworkCharacterControllerShare : MonoBehaviour {
     }
 
     void Start() {
-        NetworkingPacketServices.Bind(world: _world, player: _player);
+        NetworkingPacketServices.Bind(world: _world, player: LocalPlayer);
         _characterController = GetComponent<CharacterController>();
         World world = GameWorld;
         if(_characterController == null || (world != null && world.OfflineMode)) {

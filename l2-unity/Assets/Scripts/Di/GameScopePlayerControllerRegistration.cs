@@ -1,5 +1,6 @@
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 /// <summary>
 /// Ensures <see cref="PlayerController"/> is always registered in GameScope before component injection.
