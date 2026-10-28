@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Incoming handler access to game services with DI wiring and IncomingPacketActions fallback (#142).
-/// Locator and queue apply facades re-homed in batch slices 158–159; this type remains the compatibility entry.
+/// Locator, queue, and bind apply facades re-homed in batch slices 158–159 and 174; compatibility entry.
 /// </summary>
 public static class IncomingPacketServices
 {
@@ -43,7 +43,7 @@ public static class IncomingPacketServices
         SellCropListWindow sellCrop = null,
         BufferPanel buffer = null)
     {
-        IncomingPacketBindApplyIncomingPacketServices.Bind(
+        BindApplyIncomingPacketServices.Bind(
             game: game,
             login: login,
             manager: manager,

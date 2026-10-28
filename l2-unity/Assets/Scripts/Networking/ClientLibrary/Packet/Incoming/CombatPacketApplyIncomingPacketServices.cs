@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Combat apply relay in Incoming namespace (#142 batch slice 165; orchestration slice 171).
+/// Combat apply relay in Incoming namespace (#142 batch slice 165; combat world slice 174).
 /// </summary>
 public static class CombatPacketApplyIncomingPacketServices
 {
@@ -12,11 +12,11 @@ public static class CombatPacketApplyIncomingPacketServices
     public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        QueueApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatWorldApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        QueueApplyIncomingPacketServices.QueueWorld(apply);
+        CombatWorldApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void Queue(Action action) =>
-        QueueApplyIncomingPacketServices.Queue(action);
+        CombatWorldApplyIncomingPacketServices.Queue(action);
 }

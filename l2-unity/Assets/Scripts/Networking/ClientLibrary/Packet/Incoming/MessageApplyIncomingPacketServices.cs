@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Message packet apply hub (#142 batch slice 159; queue slice 166).
+/// Message packet apply hub (#142 batch slice 159; chat hub slice 174).
 /// </summary>
 public static class MessageApplyIncomingPacketServices
 {

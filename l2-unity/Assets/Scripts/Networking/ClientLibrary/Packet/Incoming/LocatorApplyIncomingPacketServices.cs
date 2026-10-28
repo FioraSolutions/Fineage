@@ -1,5 +1,5 @@
 /// <summary>
-/// DI locator facade for incoming handler hubs (#142 batch slice 173).
+/// DI locator facade for incoming handler hubs (#142 batch slice 173; bind via <see cref="BindApplyIncomingPacketServices"/> slice 174).
 /// </summary>
 public static class LocatorApplyIncomingPacketServices
 {

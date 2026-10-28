@@ -1,6 +1,6 @@
 /// <summary>
-/// Incoming handler DI bind orchestration (#142 batch slice 162).
-/// Re-homes bind wiring from <see cref="IncomingPacketServices"/>.
+/// Incoming handler DI bind orchestration (#142 batch slice 162; facade slice 174).
+/// Locator and queue bind via <see cref="LocatorApplyIncomingPacketServices"/> / <see cref="QueueApplyIncomingPacketServices"/>.
 /// </summary>
 public static class IncomingPacketBindApplyIncomingPacketServices
 {
