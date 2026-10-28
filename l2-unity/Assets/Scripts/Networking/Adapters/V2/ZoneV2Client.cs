@@ -50,6 +50,7 @@ public sealed class ZoneV2Client : MonoBehaviour
     int _lobbyEpoch;
     volatile bool _zoneStarted;
     bool _selectUiShown;
+    bool _returnToSelectOnRoster;
 
     public bool Connected { get; private set; }
     public int SessionObjectId { get; private set; } = 1;
@@ -209,7 +210,9 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (CharSelectWindow.Instance != null)
             CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, preselect));
 
-        if (_selectUiShown)
+        bool returnFromCreate = _returnToSelectOnRoster;
+        _returnToSelectOnRoster = false;
+        if (_selectUiShown && !returnFromCreate)
             return;
         _selectUiShown = true;
         GameManager manager = Manager;
@@ -254,6 +257,17 @@ public sealed class ZoneV2Client : MonoBehaviour
         _selectGeneration++;
         string text = LobbyCharacterText.ErrorMessage(code, message);
         Debug.LogWarning("[FineageLocal] lobby " + code + ": " + message);
+        if (_returnToSelectOnRoster)
+        {
+            _returnToSelectOnRoster = false;
+            CharCreationWindow creation = CharCreationWindow.Instance;
+            if (creation != null && creation.IsOpen)
+            {
+                creation.SetlabelError(text);
+                return;
+            }
+        }
+
         if (CharSelectWindow.Instance != null)
         {
             CharSelectWindow.Instance.ShowLobbyStatus(text);
@@ -337,12 +351,19 @@ public sealed class ZoneV2Client : MonoBehaviour
             session.SendRestore(character.Slot, 0);
     }
 
-    public void CreateLobbyCharacter(string name, int classId, int race, int sex, int hairStyle, int hairColor, int face)
+    public bool CreateLobbyCharacter(string name, int classId, int race, int sex, int hairStyle, int hairColor, int face)
     {
         FineageLobbySession session = Lobby;
         if (session == null)
-            return;
+            return false;
+        _returnToSelectOnRoster = true;
         session.SendCreate(name, classId, race, sex, hairStyle, hairColor, face);
+        return true;
+    }
+
+    public void CancelLobbyCreate()
+    {
+        _returnToSelectOnRoster = false;
     }
 
     public void CloseLobby()
@@ -412,6 +433,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         CloseLobby();
         _selectUiShown = false;
         _zoneStarted = false;
+        _returnToSelectOnRoster = false;
         try
         {
             _cts?.Cancel();
