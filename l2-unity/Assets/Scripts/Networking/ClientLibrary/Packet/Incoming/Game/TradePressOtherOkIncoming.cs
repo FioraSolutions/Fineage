@@ -7,5 +7,5 @@ public sealed class TradePressOtherOkIncoming : IncomingPacket<TradePressOtherOk
     }
 
     public override void Apply(TradePressOtherOkIncomingDto dto) =>
-        TradePressOtherOkIncomingPacketServices.ApplyPressOtherOk(dto);
+        TradePressOtherOkApplyIncomingPacketServices.ApplyPressOtherOk(dto);
 }
