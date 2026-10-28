@@ -11,6 +11,7 @@ public enum ZoneV2MsgType : ushort
     MoveTo = 4,
     SelectTarget = 5,
     AttackRequest = 6,
+    GrantItemRequest = 13,
 
     Register = 20,
     CreateCharacter = 21,
