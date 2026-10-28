@@ -8,5 +8,5 @@ using System;
 public static class AttackApplyIncomingPacketServices
 {
     public static void ApplyAttack(AttackDto packet) =>
-        CombatApplyIncomingPacketServices.ApplyWorld(apply => apply.Attack(packet));
+        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply => apply.Attack(packet));
 }
