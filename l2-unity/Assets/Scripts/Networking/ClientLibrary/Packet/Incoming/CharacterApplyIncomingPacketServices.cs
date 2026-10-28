@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Character lobby / selection apply hub (#142 batch slice 159; login session orchestration slice 193).
+/// Character lobby / selection apply hub (#142 batch slice 159; world session orchestration slice 194).
 /// </summary>
 public static class CharacterApplyIncomingPacketServices
 {
@@ -17,13 +17,13 @@ public static class CharacterApplyIncomingPacketServices
 
     public static CharacterSelector Characters => LoginSessionApplyIncomingPacketServices.Characters;
 
-    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldSessionApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldSessionApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        WorldApplyIncomingPacketServices.QueueDomain(apply);
+        WorldSessionApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        WorldApplyIncomingPacketServices.QueueWorld(apply);
+        WorldSessionApplyIncomingPacketServices.QueueWorld(apply);
 }
