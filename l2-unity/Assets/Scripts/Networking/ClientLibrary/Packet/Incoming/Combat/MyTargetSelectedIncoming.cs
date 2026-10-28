@@ -2,5 +2,5 @@
 public sealed class MyTargetSelectedIncoming : IncomingWirePacket<MyTargetSelectDto>
 {
     public override void Apply(MyTargetSelectDto packet) =>
-        MyTargetSelectedIncomingPacketServices.ApplyMyTargetSelected(packet);
+        MyTargetSelectedApplyIncomingPacketServices.ApplyMyTargetSelected(packet);
 }
