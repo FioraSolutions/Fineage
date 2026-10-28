@@ -243,6 +243,16 @@ public sealed class NameplateEntryStore
                 {
                     e.TitleColor = StringUtils.HexToColor(idn.TitleColor);
                 }
+
+                if (idn.ClanId > 0)
+                {
+                    string clanName = ZoneV2ClanBook.Shared.NameFor(idn.ClanId);
+                    if (!string.IsNullOrEmpty(clanName))
+                    {
+                        e.Title = clanName;
+                        e.TitleColor = new Color(0.4f, 0.8f, 1f, 1f);
+                    }
+                }
             }
 
             bool isLocal = PlayerEntity.Instance != null && e.Entity == PlayerEntity.Instance;
