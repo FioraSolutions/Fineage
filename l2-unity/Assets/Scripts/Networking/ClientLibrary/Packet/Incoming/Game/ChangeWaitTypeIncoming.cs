@@ -2,5 +2,5 @@
 public sealed class ChangeWaitTypeIncoming : IncomingWirePacket<ChangeWaitTypeDto>
 {
     public override void Apply(ChangeWaitTypeDto packet) =>
-        EntityAnimIncomingPacketServices.ApplyChangeWaitType(packet);
+        ChangeWaitTypeIncomingPacketServices.ApplyChangeWaitType(packet);
 }

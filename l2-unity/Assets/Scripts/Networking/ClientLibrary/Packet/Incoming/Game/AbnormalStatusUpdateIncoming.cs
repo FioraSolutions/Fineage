@@ -2,5 +2,5 @@
 public sealed class AbnormalStatusUpdateIncoming : IncomingWirePacket<AbnormalStatusUpdateDto>
 {
     public override void Apply(AbnormalStatusUpdateDto packet) =>
-        EntityAnimIncomingPacketServices.ApplyAbnormalStatusUpdate(packet);
+        AbnormalStatusUpdateIncomingPacketServices.ApplyAbnormalStatusUpdate(packet);
 }

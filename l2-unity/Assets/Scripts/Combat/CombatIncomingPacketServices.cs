@@ -86,10 +86,10 @@ public static class CombatIncomingPacketServices
             packet.Items.Count + packet.EquipItems.Count);
 
     public static void ApplyMoveToPawn(MoveToPawnDto packet) =>
-        MovementIncomingPacketServices.ApplyPawn(packet);
+        MoveToPawnIncomingPacketServices.ApplyPawn(packet);
 
     public static void ApplyStopMove(StopMoveDto packet) =>
-        MovementIncomingPacketServices.ApplyStop(packet);
+        StopMoveIncomingPacketServices.ApplyStop(packet);
 
     public static void ApplySetupGauge(SetupGaugeDto packet) =>
         SetupGaugeIncomingPacketServices.ApplySetupGauge(packet);
