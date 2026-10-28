@@ -6,18 +6,18 @@ using System;
 /// </summary>
 public static class WhDepositListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => MerchantListApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWhDepositList(WarehouseDepositListDto packet) =>
         Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            MerchantListApplyIncomingPacketServices.Dealer.SetWindowName("Personal storage");
-            MerchantListApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
-            MerchantListApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items in stock");
-            MerchantListApplyIncomingPacketServices.Dealer.SetProductType(ProductType.WHDepositList);
-            MerchantListApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
-            MerchantListApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            MerchantListApplyIncomingPacketServices.Dealer.ShowWindow();
+            GameApplyIncomingPacketServices.Dealer.SetWindowName("Personal storage");
+            GameApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
+            GameApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items in stock");
+            GameApplyIncomingPacketServices.Dealer.SetProductType(ProductType.WHDepositList);
+            GameApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
+            GameApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            GameApplyIncomingPacketServices.Dealer.ShowWindow();
         });
 }
