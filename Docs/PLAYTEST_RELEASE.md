@@ -79,15 +79,19 @@ Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineag
 | --- | --- |
 | Push to `main` | Build all three players. Prerelease tag `playtest-<version>`. |
 | Tag `v*` | Build all three. Full release on that tag. `releases/latest` points here. |
-| `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. |
+| `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. Use **mode `macos-only`** to rebuild `Fineage-macOS.zip` and attach it to an existing release without rebuilding Windows or Linux (optional `release_tag`, e.g. `playtest-0.0.3`; empty picks the newest `playtest-X.Y.Z` tag). |
 
-Version comes from the tag (`v1.2.3` → `1.2.3`, `playtest-0.0.5` → `0.0.5`). On an untagged `main` push, the script finds the highest existing `vX.Y.Z` or `playtest-X.Y.Z` tag and uses the next patch (`0.0.1` when none exist). Unity's bundle version is the same `X.Y.Z`. `version.json` keeps the full version, commit, host, ports, and asset names. GitHub release title is `Fineage X.Y.Z`; the playtest git tag is `playtest-X.Y.Z`. `CHANGELOG.md` lists up to 100 commits since the previous tag.
+Version comes from the tag (`v1.2.3` → `1.2.3`, `playtest-0.0.5` → `0.0.5`). On an untagged `main` push, the script finds the highest existing `vX.Y.Z` or `playtest-X.Y.Z` tag and uses the next patch (`0.0.1` when none exist). Legacy date-only or sha-suffixed playtest tags are ignored for bumping. Unity's bundle version is the same `X.Y.Z`. `version.json` keeps the full version, commit, ISO build time (`builtAt`, `builtAtLocal`, `builtAtDisplay` in Europe/Minsk), host, ports, and asset names. GitHub release title is `Fineage X.Y.Z`; the playtest git tag is `playtest-X.Y.Z`. `CHANGELOG.md` lists up to 100 commits since the previous tag and a **Built:** line with local date/time.
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
-Builds are serialized (`max-parallel: 1`) so a personal Unity seat is only activated once per job matrix within a run. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+After Windows is published, **Linux builds first**, then **macOS** on `macos-latest`. If the macOS job fails or is cancelled (including GitHub hosted capacity / runner not acquired), a second job retries on **`macos-14`**. Linux and macOS are separate jobs so a macOS cancellation no longer skips the attach step when Linux succeeded. Use **workflow_dispatch → mode `macos-only`** to attach a fresh Mac zip to the latest playtest release without a full rebuild. macOS jobs use `continue-on-error: true`; the attach job uploads whichever extra zips exist.
+
+Builds are serialized across Unity jobs (`Linux` then `macOS`, then optional macOS retry) so a personal Unity seat is only activated once at a time within a run.
 
 Workflow concurrency uses group `release-clients` with `cancel-in-progress: false`. A started run is allowed to finish attaching Windows, macOS, and Linux even if another push to `main` starts a newer run. That avoids Windows-only prereleases when `main` moves quickly; the tradeoff is that two overlapping runs can briefly hold two Personal seats until the older run completes.
+
+The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
 
 `Assets/` is about 2.4 GB. The Linux jobs delete preinstalled SDKs first. If a hosted runner still runs out of disk, change that matrix `runsOn` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
 
@@ -159,6 +163,6 @@ https://github.com/FioraSolutions/Fineage/releases/download/<tag>/<file>
 
 The landing page is `https://fineage.evpoint.by`. It should link the zips from the GitHub Release, not proxy the game TCP ports.
 
-`version.json` fields: `version`, `unityVersion`, `commit`, `ref`, `releaseTag`, `prerelease`, `host`, `landingUrl`, `loginHost`, `gameHost`, `loginPort`, `gamePort`, `gamePortMeaning` (`override` when the client forces the game port, which the default 7777 does), `assets[]` (`id`, `file`).
+`version.json` fields: `version`, `unityVersion`, `commit`, `ref`, `releaseTag`, `prerelease`, `builtAt` (UTC ISO-8601), `builtAtLocal` (Europe/Minsk ISO-8601), `builtAtDisplay` (human local time), `host`, `landingUrl`, `loginHost`, `gameHost`, `loginPort`, `gamePort`, `gamePortMeaning` (`override` when the client forces the game port, which the default 7777 does), `assets[]` (`id`, `file`).
 
 Read `version.json` before linking the zips so the page can show the build version, changelog, and which login and game hosts that client was baked for.

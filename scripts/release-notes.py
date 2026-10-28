@@ -10,7 +10,9 @@ import re
 import subprocess
 import sys
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from playtest_hosts import LANDING_URL, endpoint_defaults
 
@@ -19,6 +21,63 @@ ASSETS = [
     {"id": "macos", "file": "Fineage-macOS.zip"},
     {"id": "linux", "file": "Fineage-Linux-x64.zip"},
 ]
+
+BUILD_TZ = ZoneInfo("Europe/Minsk")
+
+
+def highest_playtest_release_tag(repo: Path) -> str | None:
+    """Newest playtest-X.Y.Z tag by semver (ignores legacy date/sha tags)."""
+    tags = git_output(repo, ["tag", "-l", "playtest-*"], check=False)
+    found: list[tuple[tuple[int, int, int], str]] = []
+    for line in tags.splitlines():
+        tag = line.strip()
+        parsed = parse_release_semver(tag)
+        if parsed:
+            found.append((parsed, tag))
+    if not found:
+        return None
+    return max(found, key=lambda item: item[0])[1]
+
+
+def built_at_fields(env: dict[str, str]) -> dict[str, str]:
+    raw = env.get("RELEASE_BUILT_AT", "").strip()
+    if raw:
+        normalized = raw.replace("Z", "+00:00")
+        try:
+            instant = datetime.fromisoformat(normalized)
+        except ValueError:
+            instant = None
+    else:
+        instant = None
+    if instant is None:
+        instant = datetime.now(timezone.utc)
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=timezone.utc)
+    local = instant.astimezone(BUILD_TZ)
+    return {
+        "builtAt": instant.isoformat(),
+        "builtAtLocal": local.isoformat(),
+        "builtAtDisplay": local.strftime("%Y-%m-%d %H:%M %Z"),
+    }
+
+
+def resolve_release_ref(env: dict[str, str], repo: Path) -> tuple[str, str]:
+    """Return (ref_type, ref_name) used for version and release_tag."""
+    ref_type = env.get("RELEASE_REF_TYPE", "").strip()
+    ref_name = env.get("RELEASE_REF_NAME", "").strip()
+    mode = env.get("RELEASE_MODE", "full").strip()
+    attach_tag = env.get("RELEASE_ATTACH_TAG", "").strip()
+
+    if mode == "macos-only":
+        if attach_tag:
+            return "tag", attach_tag
+        latest = highest_playtest_release_tag(repo)
+        if latest:
+            return "tag", latest
+        raise ValueError(
+            "macos-only release needs release_tag input or an existing playtest-X.Y.Z tag"
+        )
+    return ref_type, ref_name
 
 
 def sanitize_token(value: str) -> str:
@@ -117,7 +176,12 @@ def changelog_range_start(repo: Path) -> str:
     return git_output(repo, ["describe", "--tags", "--abbrev=0"], check=False)
 
 
-def changelog_markdown(repo: Path, version: str, endpoint: dict[str, object]) -> str:
+def changelog_markdown(
+    repo: Path,
+    version: str,
+    endpoint: dict[str, object],
+    build: dict[str, str],
+) -> str:
     previous = changelog_range_start(repo)
 
     log_args = ["log", "--pretty=format:- %s (%h)", "-n", "100"]
@@ -141,6 +205,7 @@ def changelog_markdown(repo: Path, version: str, endpoint: dict[str, object]) ->
 
     return (
         f"# Fineage {version}\n\n"
+        f"Built: {build['builtAtDisplay']} ({build['builtAtLocal']})\n\n"
         "Shared playtest client for the one public dev server.\n\n"
         f"- Landing: `{endpoint['landingUrl']}`\n"
         f"- Public host: `{host}`\n"
@@ -182,14 +247,14 @@ def port_or_zero(raw: str) -> int:
 
 
 def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
-    ref_type = env.get("RELEASE_REF_TYPE", "").strip()
-    ref_name = env.get("RELEASE_REF_NAME", "").strip()
+    ref_type, ref_name = resolve_release_ref(env, repo)
     sha = git_output(repo, ["rev-parse", "--short=12", "HEAD"])
     full_sha = git_output(repo, ["rev-parse", "HEAD"])
     describe = git_output(repo, ["describe", "--tags", "--always"], check=False)
     version = resolve_version(ref_type, ref_name, describe, sha, repo=repo)
     tag, prerelease = release_tag(ref_type, ref_name, version)
     endpoint = endpoint_summary(env)
+    build = built_at_fields(env)
     return {
         "version": version,
         "unityVersion": unity_bundle_version(version),
@@ -197,6 +262,9 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
         "ref": ref_name,
         "releaseTag": tag,
         "prerelease": prerelease,
+        "builtAt": build["builtAt"],
+        "builtAtLocal": build["builtAtLocal"],
+        "builtAtDisplay": build["builtAtDisplay"],
         "host": endpoint["host"],
         "landingUrl": endpoint["landingUrl"],
         "loginHost": endpoint["loginHost"],
@@ -207,7 +275,7 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
         "assets": ASSETS,
         "changelog": "CHANGELOG.md",
         "versionFile": "version.json",
-        "_markdown": changelog_markdown(repo, version, endpoint),
+        "_markdown": changelog_markdown(repo, version, endpoint, build),
     }
 
 
@@ -238,6 +306,10 @@ def self_test() -> int:
     assert unity_bundle_version("0.0.3") == "0.0.3"
     assert release_tag("tag", "v1.2.3", "1.2.3") == ("v1.2.3", False)
     assert release_tag("branch", "main", "0.0.3") == ("playtest-0.0.3", True)
+    build = built_at_fields({"RELEASE_BUILT_AT": "2026-10-28T16:30:00Z"})
+    assert build["builtAt"].startswith("2026-10-28T16:30:00")
+    assert "+03:00" in build["builtAtLocal"]
+    assert "2026-10-28" in build["builtAtDisplay"]
 
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp) / "repo"
@@ -254,12 +326,14 @@ def self_test() -> int:
             "FINEAGE_PUBLIC_HOST": "play.test",
             "RELEASE_REF_TYPE": "branch",
             "RELEASE_REF_NAME": "main",
+            "RELEASE_BUILT_AT": "2026-10-28T12:00:00Z",
         }
         out = Path(tmp) / "out"
         notes = write_notes(repo, out, env)
         assert notes["version"] == "0.0.1"
         assert notes["unityVersion"] == "0.0.1"
         assert notes["releaseTag"] == "playtest-0.0.1"
+        assert notes["builtAt"].startswith("2026-10-28T12:00:00")
         assert notes["host"] == "play.test"
         assert notes["loginHost"] == "login.fineage.evpoint.by"
         assert notes["gameHost"] == "game.fineage.evpoint.by"
@@ -270,6 +344,7 @@ def self_test() -> int:
         assert "Initial client" in changelog
         assert "play.test" in changelog
         assert "login.fineage.evpoint.by:2106" in changelog
+        assert "Built:" in changelog
 
         subprocess.check_call(["git", "tag", "v0.2.0"], cwd=repo)
         readme.write_text("hi2\n", encoding="utf-8")
@@ -299,6 +374,17 @@ def self_test() -> int:
         assert notes["prerelease"] is False
         assert notes["releaseTag"] == "v0.2.0"
         assert notes["gamePort"] == 4000
+
+        mac_env = {
+            "FINEAGE_PUBLIC_HOST": "play.test",
+            "RELEASE_MODE": "macos-only",
+            "RELEASE_ATTACH_TAG": "playtest-0.2.2",
+            "RELEASE_REF_TYPE": "branch",
+            "RELEASE_REF_NAME": "main",
+        }
+        notes = write_notes(repo, out, mac_env)
+        assert notes["version"] == "0.2.2"
+        assert notes["releaseTag"] == "playtest-0.2.2"
 
     print("release-notes self-test OK")
     return 0
