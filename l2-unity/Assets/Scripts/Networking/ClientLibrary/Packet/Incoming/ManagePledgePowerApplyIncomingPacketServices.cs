@@ -10,3 +10,4 @@ public static class ManagePledgePowerApplyIncomingPacketServices
 
     public static void ApplyManagePledgePower(ManagePledgePowerDto packet) =>
         Queue(() => GameApplyIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+}

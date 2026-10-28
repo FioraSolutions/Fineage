@@ -10,3 +10,4 @@ public static class ExPledgeReceiveMemberInfoApplyIncomingPacketServices
 
     public static void ApplyExPledgeReceiveMemberInfo(PledgeReceiveMemberInfoDto packet) =>
         Queue(() => GameApplyIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+}

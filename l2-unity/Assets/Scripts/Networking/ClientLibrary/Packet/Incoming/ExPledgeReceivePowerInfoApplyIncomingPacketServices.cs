@@ -12,3 +12,4 @@ public static class ExPledgeReceivePowerInfoApplyIncomingPacketServices
 
     public static void ApplyExPledgeReceivePowerInfo(PledgeReceivePowerInfoDto packet) =>
         Queue(() => GameApplyIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
+}

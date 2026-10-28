@@ -15,3 +15,4 @@ public static class ExShowSeedInfoApplyIncomingPacketServices
             WorldApplyIncomingPacketServices.SeedInfo.ShowWindowActiveTabSeed();
             WorldApplyIncomingPacketServices.SeedInfo.SetDataSeedInfo(packet.List);
         });
+}
