@@ -85,7 +85,9 @@ Version comes from the tag, otherwise `git describe` (`0.4.1-2-gabcdef`), otherw
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
-Builds are serialized (`max-parallel: 1`) so a personal Unity seat is only activated once. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+Builds are serialized (`max-parallel: 1`) so a personal Unity seat is only activated once per job matrix within a run. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+
+Workflow concurrency uses group `release-clients` with `cancel-in-progress: false`. A started run is allowed to finish attaching Windows, macOS, and Linux even if another push to `main` starts a newer run. That avoids Windows-only prereleases when `main` moves quickly; the tradeoff is that two overlapping runs can briefly hold two Personal seats until the older run completes.
 
 `Assets/` is about 2.4 GB. The Linux jobs delete preinstalled SDKs first. If a hosted runner still runs out of disk, change that matrix `runsOn` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
 

@@ -50,9 +50,12 @@ permissions:
 
 concurrency:
   group: release-clients
-  # A newer tag or main push replaces an in-progress client build so a Personal
-  # seat is not held by a stale run. GitHub's API token here cannot cancel runs.
-  cancel-in-progress: true
+  # Do not cancel in-progress runs: publish creates the GitHub Release (Windows
+  # only) before macOS/Linux finish; cancellation mid-run leaves prereleases
+  # with a single zip. Overlapping runs are possible if main is pushed again
+  # before the prior run finishes — rare, and each run still serializes Unity
+  # (max-parallel: 1) so at worst two Personal seats briefly contend.
+  cancel-in-progress: false
 
 jobs:
   prepare:
