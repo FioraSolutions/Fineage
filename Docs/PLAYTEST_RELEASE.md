@@ -77,7 +77,7 @@ Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineag
 
 | Trigger | Result |
 | --- | --- |
-| Push to `main` | Build all three players. Prerelease tag `playtest-<version>`. |
+| Push to `main` | Build all three players. Tag `playtest-<version>`, published as the latest release. |
 | Tag `v*` | Build all three. Full release on that tag. `releases/latest` points here. |
 | `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. |
 
@@ -123,7 +123,7 @@ Playtest host secrets are optional. Unset means the Cloudflare defaults above.
 2. Merge `dev` → `main`. The push to `main` runs `release-clients`.
 3. GitHub only lists `workflow_dispatch` after the workflow file exists on the default branch. After the first merge to `main`, Actions → release-clients → Run workflow can target `dev` and build that branch without another merge. Secrets are repository secrets, so every ref sees them.
 
-Cutting a stable download later is a `v*` tag on the commit you want (`v0.2.0`). Pushes to `main` stay prereleases and do not replace `releases/latest`.
+Cutting a stable download later is a `v*` tag on the commit you want (`v0.2.0`). Pushes to `main` publish `playtest-<version>` as a normal release and replace `releases/latest`.
 
 ## How landing consumes the release
 
@@ -137,19 +137,13 @@ Asset names are stable:
 | `CHANGELOG.md` | Notes, also the release body |
 | `version.json` | Version, commit, host, ports, asset names |
 
-Stable tag release:
+Playtest from `main` and `v*` tags are both full releases. The landing page reads the latest one:
 
 ```http
 GET https://api.github.com/repos/FioraSolutions/Fineage/releases/latest
 ```
 
-Playtest from `main` (prerelease, tag `playtest-<version>`):
-
-```http
-GET https://api.github.com/repos/FioraSolutions/Fineage/releases?per_page=20
-```
-
-Use the newest release whose `tag_name` starts with `playtest-`. Download:
+Playtest tags look like `playtest-<version>`. Download:
 
 ```text
 https://github.com/FioraSolutions/Fineage/releases/download/<tag>/<file>
