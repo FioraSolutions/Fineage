@@ -6,7 +6,7 @@ using System;
 /// </summary>
 public static class ChooseInventoryItemApplyIncomingPacketServices
 {
-    public static EnchantWindow Enchant => CombatSessionApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => EnchantApplyIncomingPacketServices.Enchant;
 
     public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
 

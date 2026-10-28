@@ -6,7 +6,7 @@ using System;
 /// </summary>
 public static class MyTargetSelectedApplyIncomingPacketServices
 {
-    public static TargetManager Targets => CombatSessionApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => TargetApplyIncomingPacketServices.Targets;
 
     public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
 
