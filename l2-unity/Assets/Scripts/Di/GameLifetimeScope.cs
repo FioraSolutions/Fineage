@@ -65,6 +65,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<TradeWindow>(builder);
         RegisterIfFound<TradeRequestWindow>(builder);
         RegisterIfFound<PartyInvitationWindow>(builder);
+        RegisterIfFound<PartyMemberListWindow>(builder);
         RegisterIfFound<EnchantWindow>(builder);
         RegisterIfFound<RecipeBookWindow>(builder);
         RegisterIfFound<CraftingItemWindow>(builder);
