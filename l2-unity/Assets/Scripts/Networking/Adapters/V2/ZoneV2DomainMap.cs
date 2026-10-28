@@ -65,4 +65,45 @@ public static class ZoneV2DomainMap
     {
         return InterludeDomainMap.PlayerSpawned(info);
     }
+
+    /// <summary>Thin Zone v2 CharInfo (1005) → Interlude-shaped DTO for knownlist spawn.</summary>
+    public static CharInfoDto ToCharInfoDto(ZoneV2CharInfo info)
+    {
+        CharInfoDto dto = new CharInfoDto();
+        dto.Identity.Id = info.ObjectId;
+        dto.Identity.Name = string.IsNullOrEmpty(info.Name) ? "Unknown" : info.Name;
+        dto.Identity.EntityType = EntityType.User;
+        dto.Identity.SetL2jPos(info.X, info.Y, info.Z);
+        dto.Identity.PlayerClass = info.ClassId;
+        dto.Appearance.BaseClass = info.ClassId;
+        dto.Appearance.Running = true;
+        dto.Stats.BaseRunSpeed = 120;
+        dto.Stats.BaseWalkingSpeed = 80;
+        dto.Stats.RunRealSpeed = 120f;
+        dto.Stats.WalkRealSpeed = 80f;
+        dto.Status.SetHp(100);
+        dto.Status.SetMp(100);
+        return dto;
+    }
+
+    /// <summary>Thin Zone v2 NpcInfo (1006) → Interlude-shaped DTO (Gremlins, guards, …).</summary>
+    public static NpcInfoDto ToNpcInfoDto(ZoneV2NpcInfo info)
+    {
+        NpcInfoDto dto = new NpcInfoDto();
+        dto.Identity.Id = info.ObjectId;
+        dto.Identity.NpcId = info.NpcTemplateId;
+        dto.Identity.SetHideHp(info.NpcTemplateId);
+        dto.Identity.EntityType = EntityType.NPC;
+        dto.Identity.SetL2jPos(info.X, info.Y, info.Z);
+        dto.Stats.Level = 1;
+        dto.Status.SetHp(100);
+        dto.Stats.MaxHp = 100;
+        dto.Stats.BaseRunSpeed = 120;
+        dto.Stats.BaseWalkingSpeed = 80;
+        dto.Stats.WalkRealSpeed = 80f;
+        dto.Stats.RunRealSpeed = 120f;
+        dto.Appearance.CollisionRadius = 10f;
+        dto.Appearance.CollisionHeight = 22f;
+        return dto;
+    }
 }

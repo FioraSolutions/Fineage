@@ -79,6 +79,8 @@ public class WorldCombat : MonoBehaviour {
         stats.MaxMp = pis.MaxMp;
         stats.Sp = pis.Sp;
 
+        PlayerResourceCaps.EnsureMaxAtLeastCurrent(stats, status);
+
         stats.CurrWeight = pis.CurrWeight;
         stats.MaxWeight = pis.MaxWeight;
 
