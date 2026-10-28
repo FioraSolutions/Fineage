@@ -46,9 +46,7 @@ public class ZoneV2PartyWireTests
         Assert.True(ZoneV2Messages.TryDecodePartyAskJoin(Pack(ask), out ZoneV2PartyAskJoin decodedAsk));
         Assert.Equal(1001, decodedAsk.RequestorObjectId);
         Assert.Equal("Hero", decodedAsk.RequestorName);
-
-        AskJoinPartyDto dto = AskJoinPartyDto.FromZoneV2(decodedAsk.RequestorObjectId, decodedAsk.RequestorName, decodedAsk.ItemDistribution);
-        Assert.Equal(1001, dto.RequestorObjectId);
+        Assert.Equal(0, decodedAsk.ItemDistribution);
 
         var list = new PartyMemberListTestMsg
         {
@@ -97,53 +95,53 @@ public class ZoneV2PartyWireTests
     }
 
     static byte[] Pack<T>(T msg) => MessagePackSerializer.Serialize(msg);
+}
 
-    [MessagePackObject]
-    sealed class PartyInviteTestMsg
-    {
-        [Key(0)] public int TargetObjectId { get; set; }
-        [Key(1)] public int ItemDistribution { get; set; }
-    }
+[MessagePackObject]
+public sealed partial class PartyInviteTestMsg
+{
+    [Key(0)] public int TargetObjectId { get; set; }
+    [Key(1)] public int ItemDistribution { get; set; }
+}
 
-    [MessagePackObject]
-    sealed class PartyAnswerTestMsg
-    {
-        [Key(0)] public int RequestorObjectId { get; set; }
-        [Key(1)] public int Response { get; set; }
-    }
+[MessagePackObject]
+public sealed partial class PartyAnswerTestMsg
+{
+    [Key(0)] public int RequestorObjectId { get; set; }
+    [Key(1)] public int Response { get; set; }
+}
 
-    [MessagePackObject]
-    sealed class PartyAskJoinTestMsg
-    {
-        [Key(0)] public int RequestorObjectId { get; set; }
-        [Key(1)] public string RequestorName { get; set; }
-        [Key(2)] public int ItemDistribution { get; set; }
-    }
+[MessagePackObject]
+public sealed partial class PartyAskJoinTestMsg
+{
+    [Key(0)] public int RequestorObjectId { get; set; }
+    [Key(1)] public string RequestorName { get; set; }
+    [Key(2)] public int ItemDistribution { get; set; }
+}
 
-    [MessagePackObject]
-    sealed class PartyJoinResultTestMsg
-    {
-        [Key(0)] public int Response { get; set; }
-    }
+[MessagePackObject]
+public sealed partial class PartyJoinResultTestMsg
+{
+    [Key(0)] public int Response { get; set; }
+}
 
-    [MessagePackObject]
-    sealed class PartyMemberListTestMsg
-    {
-        [Key(0)] public int LeaderObjectId { get; set; }
-        [Key(1)] public int PartyId { get; set; }
-        [Key(2)] public PartyMemberEntryTestMsg[] Members { get; set; }
-    }
+[MessagePackObject]
+public sealed partial class PartyMemberListTestMsg
+{
+    [Key(0)] public int LeaderObjectId { get; set; }
+    [Key(1)] public int PartyId { get; set; }
+    [Key(2)] public PartyMemberEntryTestMsg[] Members { get; set; }
+}
 
-    [MessagePackObject]
-    sealed class PartyMemberEntryTestMsg
-    {
-        [Key(0)] public int ObjectId { get; set; }
-        [Key(1)] public string Name { get; set; }
-        [Key(2)] public int ClassId { get; set; }
-        [Key(3)] public int Level { get; set; }
-        [Key(4)] public int CurHp { get; set; }
-        [Key(5)] public int MaxHp { get; set; }
-        [Key(6)] public int CurMp { get; set; }
-        [Key(7)] public int MaxMp { get; set; }
-    }
+[MessagePackObject]
+public sealed partial class PartyMemberEntryTestMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
+    [Key(1)] public string Name { get; set; }
+    [Key(2)] public int ClassId { get; set; }
+    [Key(3)] public int Level { get; set; }
+    [Key(4)] public int CurHp { get; set; }
+    [Key(5)] public int MaxHp { get; set; }
+    [Key(6)] public int CurMp { get; set; }
+    [Key(7)] public int MaxMp { get; set; }
 }
