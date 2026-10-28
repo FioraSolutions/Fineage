@@ -120,10 +120,12 @@ public sealed class ZoneV2Client : MonoBehaviour
             string character = FineageLocalBackend.CharacterHint;
             if (!string.IsNullOrEmpty(character))
             {
+                Debug.Log("[FineageLocal] auto-pick character='" + character + "'");
                 Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
                 return;
             }
 
+            Debug.Log("[FineageLocal] lobby login " + loginHost + ":" + loginPort);
             Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
             return;
         }
@@ -220,11 +222,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (_selectUiShown && !returnFromCreate)
             return;
         _selectUiShown = true;
+        if (LoginWindow.Instance != null)
+            LoginWindow.Instance.ShowErrorText("");
         GameManager manager = Manager;
         if (manager != null)
             manager.OnAuthAllowed();
         else
             Debug.LogError("[FineageLocal] GameManager missing; character select was not shown.");
+        Debug.Log("[FineageLocal] roster count=" + (characters != null ? characters.Length : 0));
     }
 
     void HandleLobbyHandoff(ZoneV2Handoff handoff, CancellationToken ct)
@@ -415,6 +420,18 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
         catch (OperationCanceledException)
         {
+            return;
+        }
+        catch (FineageEmptyRosterException)
+        {
+            Post(() =>
+            {
+                Debug.Log("[FineageLocal] empty roster → CharSelect");
+                FineageLocalBackend.ClearCharacterHint();
+                if (LoginWindow.Instance != null)
+                    LoginWindow.Instance.ShowErrorText("");
+            });
+            await OpenLobbyAsync(loginHost, loginPort, account, password, ct).ConfigureAwait(false);
             return;
         }
         catch (Exception ex)

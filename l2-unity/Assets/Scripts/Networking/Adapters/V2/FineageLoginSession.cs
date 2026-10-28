@@ -62,7 +62,11 @@ public static class FineageLoginSession
 
             ZoneV2CharacterSummary selected;
             if (!TryPickCharacter(characters, characterName, out selected))
+            {
+                if (characters == null || characters.Length == 0)
+                    throw new FineageEmptyRosterException();
                 throw new InvalidOperationException(CharacterPickError(characters, characterName));
+            }
 
             if (selected.DeleteSecondsLeft > 0)
                 throw new InvalidOperationException("That character is pending deletion.");
@@ -154,5 +158,17 @@ public static class FineageLoginSession
         }
 
         return "Multiple characters (" + names + "). Pass -fineageChar <name>.";
+    }
+}
+
+/// <summary>
+/// Login succeeded and the account has no characters. The lobby UI must open CharSelect.
+/// </summary>
+public sealed class FineageEmptyRosterException : InvalidOperationException
+{
+    public const string Text = "No characters on this account.";
+
+    public FineageEmptyRosterException() : base(Text)
+    {
     }
 }

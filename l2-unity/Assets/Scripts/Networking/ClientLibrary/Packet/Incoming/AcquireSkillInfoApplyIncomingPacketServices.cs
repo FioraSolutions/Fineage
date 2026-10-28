@@ -3,17 +3,17 @@ using System;
 /// <summary>
 /// Skill learn wire packet handler entry (#142 batch slice 139).
 /// Splits apply out of <see cref="SkillLearnIncomingPacketServices"/> (sub-slice 69).
-/// Apply facade (#142 batch slice 154). Re-homes from <see cref="AcquireSkillInfoIncomingPacketServices"/>.
+/// Apply facade (#142 batch slice 154; locator queue slice 258). Re-homes from <see cref="AcquireSkillInfoIncomingPacketServices"/>.
 /// </summary>
 public static class AcquireSkillInfoApplyIncomingPacketServices
 {
-    public static void Queue(System.Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(System.Action action) => QueueApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyAcquireSkillInfo(AcquireSkillInfoDto packet) =>
         Queue(() =>
         {
-            UiApplyIncomingPacketServices.SkillLearn.HideWindow();
-            UiApplyIncomingPacketServices.SkillDesc.AddData(packet);
-            UiApplyIncomingPacketServices.SkillDesc.ShowWindow();
+            LocatorApplyIncomingPacketServices.SkillLearn.HideWindow();
+            LocatorApplyIncomingPacketServices.SkillDesc.AddData(packet);
+            LocatorApplyIncomingPacketServices.SkillDesc.ShowWindow();
         });
 }
