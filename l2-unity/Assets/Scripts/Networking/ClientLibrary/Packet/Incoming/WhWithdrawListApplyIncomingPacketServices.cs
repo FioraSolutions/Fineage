@@ -1,23 +1,25 @@
 using System;
 
 /// <summary>
-/// Personal warehouse withdraw-list wire packet handler entry (#142 batch slice 148).
+/// Personal warehouse withdraw-list wire packet handler entry (#142 batch slice 148; locator queue slice 260).
 /// Splits WH withdraw-list apply out of merchant list hub (sub-slice 83 encapsulation).
 /// </summary>
 public static class WhWithdrawListApplyIncomingPacketServices
 {
+    public static DealerWindow Dealer => LocatorApplyIncomingPacketServices.Dealer;
+
     public static void Queue(Action action) => QueueApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWhWithdrawList(WarehouseWithdrawListDto packet) =>
         Queue(() =>
         {
             UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            LocatorApplyIncomingPacketServices.Dealer.SetWindowName("Personal storage");
-            LocatorApplyIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Items in Warehouse");
-            LocatorApplyIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Items taken away");
-            LocatorApplyIncomingPacketServices.Dealer.SetProductType(ProductType.WHWithdrawList);
-            LocatorApplyIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, -1);
-            LocatorApplyIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            LocatorApplyIncomingPacketServices.Dealer.ShowWindow();
+            Dealer.SetWindowName("Personal storage");
+            Dealer.SetHeaderNameSellPanel("Items in Warehouse");
+            Dealer.SetHeaderNameBuyPanel("Items taken away");
+            Dealer.SetProductType(ProductType.WHWithdrawList);
+            Dealer.UpdateBuyData(packet.Products, true, -1);
+            Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
+            Dealer.ShowWindow();
         });
 }
