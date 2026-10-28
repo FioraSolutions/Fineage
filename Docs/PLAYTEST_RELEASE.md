@@ -77,17 +77,23 @@ Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineag
 
 | Trigger | Result |
 | --- | --- |
-| Push to `main` | Build all three players. Prerelease tag `playtest-<version>`. |
-| Tag `v*` | Build all three. Full release on that tag. `releases/latest` points here. |
-| `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. |
+| Push to `main` | Build players. Prerelease tag `playtest-<version>`. |
+| Tag `playtest-*` | Build the tagged commit. Prerelease on that tag. Works before this file is on `main`. |
+| Tag `vX.Y.Z` (no hyphen) | Build the tagged commit. Stable release. `releases/latest` points here. |
+| Tag `vX.Y.Z-*` | Build the tagged commit. Prerelease on that tag. Does not replace `releases/latest`. |
+| `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. The Actions button exists only after this file is on the default branch (`main`). |
 
 Version comes from the tag, otherwise `git describe` (`0.4.1-2-gabcdef`), otherwise `0.0.0-<sha>`. Unity's bundle version is the numeric `major.minor.patch` only. `version.json` keeps the full version, commit, host, ports, and asset names. `CHANGELOG.md` lists up to 100 commits since the previous tag.
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
-Builds are serialized (`max-parallel: 1`) so a personal Unity seat is only activated once. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+The Windows player is built first and is the zip the release is created with. macOS and Linux start only after that release exists, one at a time, so a Personal seat is only activated once. If macOS or Linux fails, the Windows release stays up. `continue-on-error` on those two jobs keeps the workflow green when Windows published.
 
-`Assets/` is about 2.4 GB. The Linux jobs delete preinstalled SDKs first. If a hosted runner still runs out of disk, change that matrix `runsOn` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
+`game-ci/unity-builder@v4` cannot activate a Personal seat with email and password. The build action is `game-ci/unity-builder@v6.0.0` with CLI `v0.1.72`, which signs in and takes a Personal seat. The build does not forward `UNITY_LICENSE`. A stale `.ulf` secret would otherwise select offline activation and skip that login. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+
+Editor images for Unity **6000.3.27f1** (`l2-unity/ProjectSettings/ProjectVersion.txt`) are on Docker Hub: `unityci/editor:6000.3.27f1-windows-mono-3` and `unityci/editor:6000.3.27f1-linux-il2cpp-3`. `unityVersion: auto` reads the project version. A missing image fails that build when the container is pulled.
+
+`Assets/` is about 2.4 GB. The Linux jobs delete preinstalled SDKs before checkout. If a hosted runner still runs out of disk, move that job to a larger runner or a self-hosted machine with Unity **6000.3.27f1**.
 
 A zip over 2 GiB cannot be a GitHub Release asset. The workflow artifact is still uploaded. `scripts/pack-client.py` prints a warning.
 
@@ -95,13 +101,13 @@ A zip over 2 GiB cannot be a GitHub Release asset. The workflow artifact is stil
 
 Repository secrets (Settings → Secrets and variables → Actions). The prepare job exits before Unity starts when these are missing, and the log points at this file. Values are not printed.
 
-Personal ([game-ci activation](https://game.ci/docs/github/activation)) can use `UNITY_EMAIL` + `UNITY_PASSWORD` alone. game-ci/unity-builder signs in and takes a floating Personal license. Unity blocks Personal offline activation on license.unity3d.com, so a `.ulf` is often unavailable. `UNITY_LICENSE` (base64 `.ulf`) stays optional and is preferred when you already have one.
+Personal ([game-ci activation](https://game.ci/docs/github/activation)) uses `UNITY_EMAIL` + `UNITY_PASSWORD`. `game-ci/unity-builder@v6.0.0` (CLI `v0.1.72`) signs in and takes a Personal seat. Unity blocks Personal offline activation on license.unity3d.com, so a `.ulf` is often unavailable. The build job does not read `UNITY_LICENSE`. The prepare check still accepts a `.ulf` or a Pro/Plus serial so a mis-set account fails before the editor image is pulled.
 
 | Secret | Value |
 | --- | --- |
 | `UNITY_EMAIL` | Unity account email. Required. |
 | `UNITY_PASSWORD` | Unity account password. Required. game-ci has seen failures when the password contains special characters; use a mixed-case alphanumeric password. |
-| `UNITY_LICENSE` | Optional, preferred when available. Base64 of a `.ulf`. `base64 -w 0 Unity_lic.ulf` on Linux, `base64 -i Unity_lic.ulf \| tr -d '\n'` on macOS. Personal accounts cannot download this file from license.unity3d.com. |
+| `UNITY_LICENSE` | Not read by the build. Personal CI uses email and password only. A `.ulf` is optional for the prepare check and is not forwarded into Unity. |
 
 Pro/Plus can use `UNITY_SERIAL` + `UNITY_EMAIL` + `UNITY_PASSWORD` instead of a Personal login or `UNITY_LICENSE`. Do not commit the `.ulf`.
 
@@ -119,11 +125,34 @@ Playtest host secrets are optional. Unset means the Cloudflare defaults above.
 
 ## Path from `dev`
 
-1. Merge the workflow to `dev` (this PR). That does not build clients.
-2. Merge `dev` → `main`. The push to `main` runs `release-clients`.
-3. GitHub only lists `workflow_dispatch` after the workflow file exists on the default branch. After the first merge to `main`, Actions → release-clients → Run workflow can target `dev` and build that branch without another merge. Secrets are repository secrets, so every ref sees them.
+`release-clients.yml` does not run on pull requests. It also does not appear under Actions → Run workflow until the file is on the default branch (`main`). A tag push does not wait for that.
 
-Cutting a stable download later is a `v*` tag on the commit you want (`v0.2.0`). Pushes to `main` stay prereleases and do not replace `releases/latest`.
+Publish the client that is already on a commit which contains this workflow:
+
+```bash
+git fetch origin
+git tag playtest-20261028 <commit>
+git push origin playtest-20261028
+```
+
+That starts `release-clients` on the tagged commit. The Windows zip is attached to a prerelease named `playtest-20261028` as soon as that build finishes. macOS and Linux are added to the same release afterwards when those builds succeed.
+
+Download:
+
+```text
+https://github.com/FioraSolutions/Fineage/releases/download/playtest-20261028/Fineage-Windows-x64.zip
+```
+
+`GET /releases/latest` ignores prereleases. The landing playtest button should use the newest release whose `tag_name` starts with `playtest-`, not `releases/latest`.
+
+Other ways to run it:
+
+1. Merge to `dev`. That still does not build clients.
+2. Merge `dev` → `main`. The push to `main` runs `release-clients` and publishes `playtest-<version>`.
+3. After the file is on `main`, Actions → release-clients → Run workflow can target `dev`. Secrets are repository secrets, so every ref sees them.
+4. A stable download is a tag with no hyphen (`v0.2.0`) on the commit you want. That release becomes `releases/latest`.
+
+Pushes to `main` stay prereleases and do not replace `releases/latest`.
 
 ## How landing consumes the release
 

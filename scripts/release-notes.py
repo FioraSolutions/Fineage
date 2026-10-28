@@ -45,7 +45,10 @@ def resolve_version(ref_type: str, ref_name: str, describe: str, sha: str) -> st
 
 def release_tag(ref_type: str, ref_name: str, version: str) -> tuple[str, bool]:
     if ref_type == "tag" and ref_name:
-        return ref_name, False
+        # v1.2.3 is a stable release. playtest-* and v1.2.3-rc.1 stay prereleases
+        # so they do not replace releases/latest.
+        prerelease = ref_name.startswith("playtest") or "-" in ref_name
+        return ref_name, prerelease
     return f"playtest-{version}", True
 
 
@@ -189,6 +192,8 @@ def self_test() -> int:
     assert resolve_version("branch", "main", "abc", "abc123456789").startswith("0.0.0-")
     assert unity_bundle_version("0.4.1-2-gabcdef") == "0.4.1"
     assert release_tag("tag", "v1.2.3", "1.2.3") == ("v1.2.3", False)
+    assert release_tag("tag", "v1.2.3-playtest.1", "1.2.3-playtest.1") == ("v1.2.3-playtest.1", True)
+    assert release_tag("tag", "playtest-20261028", "playtest-20261028") == ("playtest-20261028", True)
     assert release_tag("branch", "main", "0.0.0-abc") == ("playtest-0.0.0-abc", True)
 
     with tempfile.TemporaryDirectory() as tmp:

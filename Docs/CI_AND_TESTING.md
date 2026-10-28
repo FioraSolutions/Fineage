@@ -25,7 +25,7 @@ Not required for merge (advisory only).
 
 **File:** `.github/workflows/release-clients.yml`
 
-Builds the Windows, macOS, and Linux playtest clients, plus `version.json` and `CHANGELOG.md`. It does not run on pull requests. Setup, secrets, the `dev` → `main` path, and how a landing page reads the release assets are in [PLAYTEST_RELEASE.md](PLAYTEST_RELEASE.md).
+Builds the playtest clients, plus `version.json` and `CHANGELOG.md`. It does not run on pull requests. A `playtest-*` or `v*` tag on a commit that contains the workflow publishes a GitHub Release without waiting for `main`. Windows is published first; macOS and Linux are attached after. Setup, secrets, and how a landing page reads the release assets are in [PLAYTEST_RELEASE.md](PLAYTEST_RELEASE.md).
 
 `build-and-test` also runs the playtest helper self-tests (`scripts/check-release-secrets.py`, `scripts/bake-playtest-endpoint.py`, `scripts/release-notes.py`, `scripts/pack-client.py`) and `tools/playtest-endpoint.Tests`. Those do not start Unity.
 
