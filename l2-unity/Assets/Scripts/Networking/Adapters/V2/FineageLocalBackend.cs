@@ -2,9 +2,10 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Local C# Fineage-Backend (login TCP 9106, zone TCP 9777) without changing the public default.
-/// On for a player built with FINEAGE_LOCAL_BACKEND, or when -fineageLocal / FINEAGE_LOCAL_BACKEND=1 /
-/// PlayerPrefs Fineage.LocalBackend=1 is set. -fineagePublic and FINEAGE_LOCAL_BACKEND=0 turn it off.
+/// Local C# Fineage-Backend (login TCP 9106, zone TCP 9777) or the public playtest wire.
+/// Local is on for a player built with FINEAGE_LOCAL_BACKEND, or when -fineageLocal /
+/// FINEAGE_LOCAL_BACKEND=1 / PlayerPrefs Fineage.LocalBackend=1 is set.
+/// -fineagePublic and FINEAGE_LOCAL_BACKEND=0 turn local off; public then uses ZoneV2 login handoff.
 /// </summary>
 public static class FineageLocalBackend
 {
@@ -50,6 +51,40 @@ public static class FineageLocalBackend
         ApplyPlaytestWindow();
         Debug.Log("[FineageLocal] mode=local-backend login=" + loginHost + ":" + loginPort
             + " zone=" + zoneHost + ":" + zonePort);
+    }
+
+    /// <summary>
+    /// Editor Play RP, -fineagePublic, and release builds: same ZoneV2 handoff as local,
+    /// with hosts from the resolved playtest endpoint (defaults are the public tunnel).
+    /// No-op when <see cref="FineageWireConfig.UseLoginHandoff"/> is already set.
+    /// </summary>
+    public static void ApplyPublicPlaytestIfNeeded()
+    {
+        if (FineageWireConfig.UseLoginHandoff)
+            return;
+
+        string loginHost = PlaytestEndpoint.DefaultLoginHost;
+        int loginPort = PlaytestEndpoint.DefaultLoginPort;
+        string zoneHost = PlaytestEndpoint.DefaultGameHost;
+        int zonePort = PlaytestEndpoint.DefaultGamePort;
+
+        PlaytestEndpoint endpoint = PlaytestEndpointRuntime.Current;
+        if (endpoint != null)
+        {
+            if (!string.IsNullOrWhiteSpace(endpoint.LoginHost))
+                loginHost = endpoint.LoginHost;
+            if (endpoint.LoginPort > 0)
+                loginPort = endpoint.LoginPort;
+            if (!string.IsNullOrWhiteSpace(endpoint.GameHost))
+                zoneHost = endpoint.GameHost;
+            if (endpoint.GamePort > 0)
+                zonePort = endpoint.GamePort;
+        }
+
+        FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, zoneHost, zonePort);
+        Debug.Log("[Fineage] mode=public-playtest login=" + FineageWireConfig.LoginHost + ":"
+            + FineageWireConfig.LoginPort + " zone=" + FineageWireConfig.ZoneHost + ":"
+            + FineageWireConfig.ZonePort);
     }
 
     /// <summary>Large windowed playtest on Mac Standalone (ProjectSettings are also set at local build time).</summary>
