@@ -29,7 +29,7 @@ public static class UiApplyIncomingPacketServices
     public static BufferPanel Buffer => BufferApplyIncomingPacketServices.Buffer;
 
     public static PositionValidationController PositionValidation =>
-        PositionApplyIncomingPacketServices.PositionValidation;
+        LocatorApplyIncomingPacketServices.PositionValidation;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

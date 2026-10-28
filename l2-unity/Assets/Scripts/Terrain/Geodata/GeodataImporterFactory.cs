@@ -21,6 +21,7 @@ public class GeodataImporterFactory : MonoBehaviour {
             _instance = this;
         } else {
             Destroy(this);
+            return;
         }
 
         _currentJobs = new List<GeodataImporter>();
@@ -32,6 +33,8 @@ public class GeodataImporterFactory : MonoBehaviour {
     }
 
     void Update() {
+        if (_currentJobs == null || _todoJobs == null)
+            return;
         int i = 0;
 
         while(i < _currentJobs.Count) {

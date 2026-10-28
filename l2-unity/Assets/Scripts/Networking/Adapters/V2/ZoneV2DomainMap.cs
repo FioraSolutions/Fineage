@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>ZoneServer v2 wire → domain events.</summary>
@@ -19,7 +20,11 @@ public static class ZoneV2DomainMap
             BaseRunSpeed = Mathf.RoundToInt(spawned.RunSpeed > 0.001f ? spawned.RunSpeed : 120f),
             BaseWalkingSpeed = Mathf.RoundToInt(spawned.WalkSpeed > 0.001f ? spawned.WalkSpeed : 80f),
             RunRealSpeed = spawned.RunSpeed > 0.001f ? spawned.RunSpeed : 120f,
-            WalkRealSpeed = spawned.WalkSpeed > 0.001f ? spawned.WalkSpeed : 80f
+            WalkRealSpeed = spawned.WalkSpeed > 0.001f ? spawned.WalkSpeed : 80f,
+            MaxHp = 200,
+            MaxMp = 50,
+            MaxCp = 100,
+            Level = 1
         };
 
         PlayerAppearance appearance = new PlayerAppearance
@@ -35,6 +40,7 @@ public static class ZoneV2DomainMap
         PlayerStatus status = new PlayerStatus();
         status.SetHp(100);
         status.SetMp(100);
+        status.Cp = 100;
 
         return new PlayerInfoInterlude
         {
@@ -105,5 +111,30 @@ public static class ZoneV2DomainMap
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
         return dto;
+    }
+
+    public static AttackDto ToAttackDto(ZoneV2Attack attack)
+    {
+        var dto = new AttackDto();
+        dto.InitFromZoneV2(
+            attack.AttackerObjectId,
+            attack.TargetObjectId,
+            attack.Damage,
+            attack.Flags,
+            attack.AttackerX,
+            attack.AttackerY,
+            attack.AttackerZ,
+            attack.TargetX,
+            attack.TargetY,
+            attack.TargetZ);
+        return dto;
+    }
+
+    public static List<StatusUpdate.Attribute> ToStatusAttributes(ZoneV2StatusUpdate status)
+    {
+        var list = new List<StatusUpdate.Attribute>(status.AttributeIds.Length);
+        for (int i = 0; i < status.AttributeIds.Length; i++)
+            list.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
+        return list;
     }
 }

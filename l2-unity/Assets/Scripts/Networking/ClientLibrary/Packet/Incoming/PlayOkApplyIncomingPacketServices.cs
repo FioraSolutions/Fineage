@@ -4,11 +4,11 @@
 /// </summary>
 public static class PlayOkApplyIncomingPacketServices
 {
-    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginSessionApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LobbyApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LoginSessionApplyIncomingPacketServices.Manager;
 
     public static void ApplyPlayOk(PlayOkDto packet)
     {

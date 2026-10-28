@@ -37,6 +37,35 @@ public class AttackDto : IWireDto
 
     
 
+    /// <summary>Zone V2 <c>Attack</c> (1009) — no Interlude multi-hit block.</summary>
+    public void InitFromZoneV2(
+        int attackerObjId,
+        int targetObjId,
+        int damage,
+        int flags,
+        int ax,
+        int ay,
+        int az,
+        int tx,
+        int ty,
+        int tz)
+    {
+        _attackerObjId = attackerObjId;
+        _targetObjId = targetObjId;
+        _damage = damage;
+        Flags = flags;
+        _aX = ax;
+        _aY = ay;
+        _aZ = az;
+        _tX = tx;
+        _tY = ty;
+        _tZ = tz;
+        _firstHit = new Hit(targetObjId, damage, flags);
+        array = new Hit[] { _firstHit };
+        _attackerPos = VectorUtils.ConvertPosToUnity(new Vector3(ax, ay, az));
+        _targetPos = VectorUtils.ConvertPosToUnity(new Vector3(tx, ty, tz));
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         _attackerObjId = reader.ReadI();
