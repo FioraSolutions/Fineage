@@ -1,7 +1,8 @@
 /// <summary>
-/// InterludeKey / AuthLogin wire path incoming handler access via LoginPacketServices (#142 sub-slice 53, Apply encapsulation sub-slice 76).
+/// InterludeKey / AuthLogin wire packet handler entry (#142 sub-slice 106).
+/// Splits interlude-key parse/apply out of <see cref="LobbyWireIncomingPacketServices"/> (sub-slices 53 / 76 encapsulation).
 /// </summary>
-public static class LobbyWireIncomingPacketServices
+public static class InterludeKeyIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 
