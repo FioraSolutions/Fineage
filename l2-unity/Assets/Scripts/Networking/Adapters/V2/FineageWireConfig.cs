@@ -42,11 +42,28 @@ public static class FineageWireConfig
         string zoneHost,
         int zonePort)
     {
+        EnablePlaytestBackend(
+            string.IsNullOrWhiteSpace(loginHost) ? LocalLoginHost : loginHost,
+            loginPort > 0 ? loginPort : LocalLoginPort,
+            string.IsNullOrWhiteSpace(zoneHost) ? LocalZoneHost : zoneHost,
+            zonePort > 0 ? zonePort : LocalZonePort);
+    }
+
+    /// <summary>
+    /// ZoneV2 login handoff for Fineage-Backend. Empty hosts use the public playtest endpoints.
+    /// Interlude Blowfish login hangs on this TCP service.
+    /// </summary>
+    public static void EnablePlaytestBackend(
+        string loginHost,
+        int loginPort,
+        string zoneHost,
+        int zonePort)
+    {
         SetOverride(Mode.ZoneV2);
-        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? LocalLoginHost : loginHost;
-        LoginPort = loginPort > 0 ? loginPort : LocalLoginPort;
-        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? LocalZoneHost : zoneHost;
-        ZonePort = zonePort > 0 ? zonePort : LocalZonePort;
+        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? PlaytestEndpoint.DefaultLoginHost : loginHost;
+        LoginPort = loginPort > 0 ? loginPort : PlaytestEndpoint.DefaultLoginPort;
+        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? PlaytestEndpoint.DefaultGameHost : zoneHost;
+        ZonePort = zonePort > 0 ? zonePort : PlaytestEndpoint.DefaultGamePort;
         UseLoginHandoff = true;
     }
 

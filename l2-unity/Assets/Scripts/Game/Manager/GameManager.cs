@@ -66,6 +66,19 @@ public class GameManager : MonoBehaviour, IGameManager {
 
         FineageLocalBackend.ApplyIfRequested();
 
+        // Play RP / -fineagePublic: ZoneV2 handoff on the public login, not Interlude Blowfish.
+        if (!FineageWireConfig.UseLoginHandoff && FineageLocalBackend.PublicPlaytestRequested())
+        {
+            FineageWireConfig.EnablePlaytestBackend(
+                PlaytestEndpoint.DefaultLoginHost,
+                PlaytestEndpoint.DefaultLoginPort,
+                PlaytestEndpoint.DefaultGameHost,
+                PlaytestEndpoint.DefaultGamePort);
+            Debug.Log("[Fineage] mode=public-playtest login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+        }
+
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
     }

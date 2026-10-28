@@ -473,9 +473,10 @@ public class CharSelectWindow : L2Window {
     }
 
     private void CreatePressed() {
-        if (_lobbyCharacters != null)
+        if (_lobbyCharacters != null || FineageWireConfig.UseLoginHandoff)
         {
-            if (!LobbyCharacterText.CanCreate(_lobbyCharacters.Count))
+            int count = _lobbyCharacters != null ? _lobbyCharacters.Count : 0;
+            if (!LobbyCharacterText.CanCreate(count))
             {
                 ShowLobbyStatus(LobbyCharacterText.ErrorMessage("character_limit", null));
                 return;
