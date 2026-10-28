@@ -1,5 +1,6 @@
 /// <summary>
-/// Zone opcodes match tools/zone-server Wire/MsgType.cs.
+/// Zone opcodes match Fineage-Backend <c>Fineage.Protocol.MsgType</c>
+/// (and legacy tools/zone-server where ids overlap).
 /// Login opcodes match Fineage-Backend Fineage.Protocol.MsgType.
 /// </summary>
 public enum ZoneV2MsgType : ushort
@@ -26,6 +27,12 @@ public enum ZoneV2MsgType : ushort
     MyTargetSelected = 1008,
     Attack = 1009,
     StatusUpdate = 1010,
+    /// <summary>Zone chat fan-out (see also legacy Interlude CreatureSay).</summary>
+    CreatureSay = 1012,
+    Pong = 1013,
+    ItemList = 1014,
+    InventoryUpdate = 1015,
+    UserInfo = 1016,
 
     RegisterOk = 1020,
     CharacterCreated = 1021,

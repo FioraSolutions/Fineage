@@ -137,4 +137,149 @@ public static class ZoneV2DomainMap
             list.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
         return list;
     }
+
+    public static ItemListDto ToItemListDto(ZoneV2ItemEntry[] rows)
+    {
+        var bag = new Dictionary<int, ItemInstance>();
+        var equip = new Dictionary<int, ItemInstance>();
+        int indexBag = 0;
+        int indexEquip = 0;
+        if (rows != null)
+        {
+            for (int i = 0; i < rows.Length; i++)
+                AddZoneRow(rows[i], -1, bag, equip, ref indexBag, ref indexEquip);
+        }
+
+        return ItemListDto.FromZoneInventory(bag, equip);
+    }
+
+    public static InventoryUpdateDto ToInventoryUpdateDto(ZoneV2InventoryChange[] rows)
+    {
+        var bag = new Dictionary<int, ItemInstance>();
+        var equip = new Dictionary<int, ItemInstance>();
+        int indexBag = 0;
+        int indexEquip = 0;
+        if (rows != null)
+        {
+            for (int i = 0; i < rows.Length; i++)
+            {
+                ZoneV2InventoryChange row = rows[i];
+                var entry = new ZoneV2ItemEntry
+                {
+                    ObjectId = row.ObjectId,
+                    ItemId = row.ItemId,
+                    Count = row.Count,
+                    EquippedSlot = row.EquippedSlot,
+                    BodySlot = row.BodySlot,
+                    Kind = row.Kind,
+                    Icon = row.Icon,
+                    WeaponType = row.WeaponType,
+                    ArmorType = row.ArmorType
+                };
+                AddZoneRow(entry, row.Change, bag, equip, ref indexBag, ref indexEquip);
+            }
+        }
+
+        return InventoryUpdateDto.FromZoneChanges(bag, equip);
+    }
+
+    static void AddZoneRow(
+        ZoneV2ItemEntry row,
+        int zoneChange,
+        Dictionary<int, ItemInstance> bag,
+        Dictionary<int, ItemInstance> equip,
+        ref int indexBag,
+        ref int indexEquip)
+    {
+        bool worn = row.EquippedSlot >= 0;
+        ItemCategory category = CategoryFromZone(row);
+        ItemSlot slot = SlotFromBodyToken(row.BodySlot);
+        ItemLocation location = worn ? ItemLocation.Equipped : ItemLocation.Inventory;
+        int index = worn ? indexEquip++ : indexBag++;
+        var item = new ItemInstance(
+            row.ObjectId,
+            row.ItemId,
+            location,
+            index,
+            row.Count,
+            category,
+            worn,
+            slot,
+            0,
+            9999);
+        if (zoneChange >= 0)
+            item.LastChange = MapZoneInventoryChange(zoneChange);
+
+        if (worn)
+            equip[row.ObjectId] = item;
+        else
+            bag[row.ObjectId] = item;
+    }
+
+    static int MapZoneInventoryChange(int zoneChange)
+    {
+        // Fineage.Protocol.InventoryChange: 0 add, 1 modify, 2 remove.
+        switch (zoneChange)
+        {
+            case 0:
+                return (int)PlayerInventory.InventoryChange.ADDED;
+            case 1:
+                return (int)PlayerInventory.InventoryChange.MODIFIED;
+            case 2:
+                return (int)PlayerInventory.InventoryChange.REMOVED;
+            default:
+                return (int)PlayerInventory.InventoryChange.MODIFIED;
+        }
+    }
+
+    static ItemCategory CategoryFromZone(ZoneV2ItemEntry row)
+    {
+        if (row.ItemId == 57)
+            return ItemCategory.Adena;
+        string kind = row.Kind ?? "";
+        if (kind == "weapon")
+            return ItemCategory.Weapon;
+        if (kind == "armor")
+            return ItemCategory.ShieldArmor;
+        return ItemCategory.Item;
+    }
+
+    static ItemSlot SlotFromBodyToken(string bodySlot)
+    {
+        if (string.IsNullOrEmpty(bodySlot) || bodySlot == "none")
+            return ItemSlot.none;
+        switch (bodySlot)
+        {
+            case "neck":
+                return ItemSlot.neck;
+            case "head":
+                return ItemSlot.head;
+            case "lhand":
+                return ItemSlot.lhand;
+            case "gloves":
+                return ItemSlot.gloves;
+            case "chest":
+                return ItemSlot.chest;
+            case "rhand":
+                return ItemSlot.rhand;
+            case "lear":
+                return ItemSlot.lear;
+            case "feet":
+                return ItemSlot.feet;
+            case "legs":
+                return ItemSlot.legs;
+            case "lrhand":
+                return ItemSlot.lrhand;
+            case "fullarmor":
+                return ItemSlot.fullarmor;
+            case "rear":
+                return ItemSlot.rear;
+            case "lfinger":
+                return ItemSlot.lfinger;
+            case "rfinger":
+                return ItemSlot.rfinger;
+            default:
+                return ItemSlot.none;
+        }
+    }
 }
