@@ -7,8 +7,8 @@ public abstract class DefaultClient : MonoBehaviour
 {
     protected NetworkRuntime _network;
     [Header("Connection")]
-    [SerializeField] protected string _serverIp = "127.0.0.1";
-    [SerializeField] protected int _serverPort = 11000;
+    [SerializeField] protected string _serverIp = PlaytestEndpoint.DefaultLoginHost;
+    [SerializeField] protected int _serverPort = PlaytestEndpoint.DefaultLoginPort;
 
     protected AsynchronousClient _client;
     protected int _connectionTimeoutMs = 10000;
@@ -57,7 +57,7 @@ public abstract class DefaultClient : MonoBehaviour
             return;
         }
 
-        ApplyFineageLoginEndpointIfNeeded();
+        ApplyEndpointBeforeConnect();
 
         // Arm guard before CreateAsyncClient so a re-entrant Connect cannot replace the socket mid-flight.
         _connecting = true;
@@ -122,15 +122,51 @@ public abstract class DefaultClient : MonoBehaviour
     }
 
     /// <summary>
-    /// Local macOS / Fineage-Backend playtest: inspector may still show Interlude 2106.
+    /// Public playtest: resolved endpoint before TCP connect. Local Mac uses WireConfig (9106/9777).
     /// </summary>
+    protected void ApplyEndpointBeforeConnect()
+    {
+        if (this is LoginClient)
+            ApplyFineageLoginEndpointIfNeeded();
+        else if (this is GameClient)
+            ApplyFineageGameEndpointIfNeeded();
+    }
+
     protected void ApplyFineageLoginEndpointIfNeeded()
     {
-        if (!(this is LoginClient) || !FineageWireConfig.UseLoginHandoff)
+        if (!(this is LoginClient))
             return;
 
-        _serverIp = FineageWireConfig.LoginHost;
-        _serverPort = FineageWireConfig.LoginPort;
+        if (FineageLocalBackend.IsRequested())
+        {
+            _serverIp = FineageWireConfig.LoginHost;
+            _serverPort = FineageWireConfig.LoginPort;
+            LobbyFlowLog.Info("Playtest login (local) " + _serverIp + ":" + _serverPort);
+            return;
+        }
+
+        PlaytestEndpointRuntime.ApplyLogin(this);
+        if (string.IsNullOrWhiteSpace(_serverIp) || _serverIp == "127.0.0.1")
+        {
+            _serverIp = PlaytestEndpoint.DefaultLoginHost;
+            _serverPort = PlaytestEndpoint.DefaultLoginPort;
+        }
+    }
+
+    protected void ApplyFineageGameEndpointIfNeeded()
+    {
+        if (!(this is GameClient))
+            return;
+
+        if (FineageLocalBackend.IsRequested())
+        {
+            _serverIp = FineageWireConfig.ZoneHost;
+            _serverPort = FineageWireConfig.ZonePort;
+            LobbyFlowLog.Info("Playtest game (local) " + _serverIp + ":" + _serverPort);
+            return;
+        }
+
+        PlaytestEndpointRuntime.ApplyGame(this);
     }
 
     protected abstract void CreateAsyncClient();

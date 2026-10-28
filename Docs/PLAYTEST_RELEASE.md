@@ -14,7 +14,7 @@ PR CI (`.github/workflows/build-and-test.yml`) does not run Unity. The release w
 
 ## Where the client connects
 
-Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unity/Assets/Resources/Prefab/Networking.prefab` (`127.0.0.1:2106`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`). `AsynchronousClient` then dials TCP.
+Login defaults are `login.fineage.evpoint.by:2106` on `LoginClient` (prefab + `Connect()` applies `PlaytestEndpointRuntime`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`), then `Connect()` may replace the host with `game.fineage.evpoint.by`. `AsynchronousClient` then dials TCP.
 
 `PlaytestEndpointRuntime` runs at the start of `Connect()`:
 
