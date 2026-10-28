@@ -13,6 +13,8 @@ public enum ZoneV2MsgType : ushort
     AttackRequest = 6,
     Say = 8,
     GrantItemRequest = 13,
+    /// <summary>Pick up a visible ground item. Backend <c>PickupRequestMsg</c> key 0 objectId.</summary>
+    PickupRequest = 14,
 
     Register = 20,
     CreateCharacter = 21,
@@ -35,6 +37,8 @@ public enum ZoneV2MsgType : ushort
     InventoryUpdate = 1015,
     UserInfo = 1016,
     AbnormalStatusUpdate = 1017,
+    /// <summary>Ground item in AOI. Keys match Backend <c>SpawnItemMsg</c> / Interlude <c>SpawnItemDto</c>.</summary>
+    SpawnItem = 1018,
 
     RegisterOk = 1020,
     CharacterCreated = 1021,
