@@ -77,5 +77,25 @@ public class MagicSkillUseDto : IWireDto
         _skillGrp = SkillgrpTable.Instance.GetSkill(_skillId, _skilllvl);
     }
 
+    /// <summary>Zone V2 <c>MagicSkillUse</c> (1066) — positions come from entities at apply time.</summary>
+    public void InitFromZoneV2(
+        int casterObjectId,
+        int targetObjectId,
+        int skillId,
+        int skillLevel,
+        int hitTimeMs,
+        int reuseDelayMs)
+    {
+        _attackerObjId = casterObjectId;
+        _targetObjId = targetObjectId;
+        _skillId = skillId;
+        _skilllvl = skillLevel;
+        _hittime = hitTimeMs;
+        _reusedelay = reuseDelayMs;
+        _skillGrp = SkillgrpTable.Instance != null
+            ? SkillgrpTable.Instance.GetSkill(_skillId, _skilllvl)
+            : null;
+    }
+
 
 }

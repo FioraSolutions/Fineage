@@ -272,6 +272,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.PartyKickRequest, body);
     }
 
+    public void SendSkillUseRequest(int skillId, int targetObjectId, bool ctrlPressed)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeSkillUseRequest(skillId, targetObjectId, ctrlPressed);
+        _ = SendFireAndForget(ZoneV2MsgType.SkillUseRequest, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -522,6 +530,36 @@ public sealed class ZoneV2Client : MonoBehaviour
                         });
                         break;
 
+                    case ZoneV2MsgType.SkillList:
+                        ZoneV2SkillEntry[] skillRows;
+                        if (!ZoneV2Messages.TryDecodeSkillList(f.Body, out skillRows))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad SkillList body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            SkillListDto list = ZoneV2DomainMap.ToSkillListDto(skillRows);
+                            SkillListApplyIncomingPacketServices.ApplySkillList(list);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.MagicSkillUse:
+                        ZoneV2MagicSkillUse magicUse;
+                        if (!ZoneV2Messages.TryDecodeMagicSkillUse(f.Body, out magicUse))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad MagicSkillUse body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            MagicSkillUseDto dto = ZoneV2DomainMap.ToMagicSkillUseDto(magicUse);
+                            MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
+                        });
+                        break;
+
                     case ZoneV2MsgType.PartyAskJoin:
                         ZoneV2PartyAskJoin partyAsk;
                         if (!ZoneV2Messages.TryDecodePartyAskJoin(f.Body, out partyAsk))
@@ -561,7 +599,19 @@ public sealed class ZoneV2Client : MonoBehaviour
 
                     case ZoneV2MsgType.Error:
                         string code, msg;
-                        ZoneV2Messages.TryDecodeError(f.Body, out code, out msg);
+                        if (!ZoneV2Messages.TryDecodeError(f.Body, out code, out msg))
+                        {
+                            Post(() => Debug.LogError("[ZoneV2] server error (undecodable body)"));
+                            break;
+                        }
+
+                        string skillLine;
+                        if (ZoneV2SkillNotices.TryLine(code, msg, out skillLine))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] " + skillLine));
+                            break;
+                        }
+
                         Post(() => Debug.LogError("[ZoneV2] server error " + code + ": " + msg));
                         break;
                 }
