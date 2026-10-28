@@ -2,11 +2,22 @@
 
 Local Blowfish login on **2106** and game on **7777** for the Unity client.
 
-## Canonical V2 login
+## Canonical V2 Login and Zone
 
-Account register, Human fighter/mystic create, and the zone handoff token belong in [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend). This process remains the Interlude listener for overnight Unity play, including the in-memory Human Fighter create path below. Do not add another account store here.
+Login and zone for the V2 path are [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend):
 
-A handoff from that server is a zone `Auth` message to `127.0.0.1:9777`: the account name, and the issued token as the password. ZoneServer accepts that shape today.
+| Process | Project | Port |
+|---------|---------|------|
+| Login | `src/Fineage.Login` | **9106** |
+| Zone | `src/Fineage.Zone` | **9777** |
+
+Login registers an account, creates a male Human fighter or mystic, and returns an HMAC handoff token. Zone checks that token (`Auth.Account` plus the token as `Auth.Password`) and enters Talking Island. This process remains the Interlude listener for overnight Unity play on **2106** / **7777**, including the in-memory Human Fighter create path below.
+
+```bash
+# Fineage-Backend checkout
+dotnet run --project src/Fineage.Login -- --port 9106
+dotnet run --project src/Fineage.Zone -- --port 9777
+```
 
 ## Run
 
