@@ -168,7 +168,7 @@ public class TradeRequestWindow : L2PopupWindow
     private void SendAcceptResponse()
     {
         // Отправляем пакет подтверждения торговли
-        Game.Send(new AnswerTradeRequestCommand(1));
+        Game.Send(new AnswerTradeRequestCommand(1, _senderId));
 
         OnTradeResponse?.Invoke(true);
     }
@@ -176,7 +176,7 @@ public class TradeRequestWindow : L2PopupWindow
     private void SendDeclineResponse()
     {
         // Отправляем пакет отклонения торговли
-        Game.Send(new AnswerTradeRequestCommand(0));
+        Game.Send(new AnswerTradeRequestCommand(0, _senderId));
 
         OnTradeResponse?.Invoke(false);
     }

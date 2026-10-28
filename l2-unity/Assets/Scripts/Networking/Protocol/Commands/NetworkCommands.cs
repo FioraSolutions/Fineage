@@ -574,10 +574,23 @@ public sealed class RequestOustPartyMemberCommand : INetworkCommand
 public sealed class AnswerTradeRequestCommand : INetworkCommand
 {
     public int Response;
+    /// <summary>Zone V2 requestor object id; zero on Interlude wire.</summary>
+    public int RequestorObjectId;
 
-    public AnswerTradeRequestCommand(int response)
+    public AnswerTradeRequestCommand(int response, int requestorObjectId = 0)
     {
         Response = response;
+        RequestorObjectId = requestorObjectId;
+    }
+}
+
+public sealed class RequestTradeCommand : INetworkCommand
+{
+    public int TargetObjectId;
+
+    public RequestTradeCommand(int targetObjectId)
+    {
+        TargetObjectId = targetObjectId;
     }
 }
 

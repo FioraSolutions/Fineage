@@ -14,4 +14,7 @@ public static class TradePressOtherOkApplyIncomingPacketServices
     public static void ApplyPressOtherOk(TradePressOtherOkIncomingDto dto)
     {
     }
+
+    public static void ApplyPressOtherOk(bool confirmed) =>
+        Queue(() => Trade?.SetPartnerConfirmState(confirmed));
 }

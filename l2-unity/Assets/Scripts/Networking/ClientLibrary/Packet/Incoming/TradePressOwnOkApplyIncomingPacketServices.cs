@@ -14,4 +14,7 @@ public static class TradePressOwnOkApplyIncomingPacketServices
     public static void ApplyPressOwnOk(TradePressOwnOkIncomingDto dto)
     {
     }
+
+    public static void ApplyPressOwnOk(bool confirmed) =>
+        Queue(() => Trade?.SetOwnConfirmState(confirmed));
 }

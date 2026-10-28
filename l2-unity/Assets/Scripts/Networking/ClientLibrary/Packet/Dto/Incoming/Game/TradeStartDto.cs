@@ -10,6 +10,18 @@ public class TradeStartDto : IWireDto
 
     public int PlayerId { get => _player; }
     public List<ItemInstance> ItemList { get => _itemList; }
+    public string PartnerName { get => _partnerName; }
+
+    private string _partnerName;
+
+    /// <summary>Build from Zone V2 <see cref="ZoneV2MsgType.TradeStart"/> (1075).</summary>
+    public static TradeStartDto FromZoneV2(int partnerObjectId, string partnerName)
+    {
+        var dto = new TradeStartDto();
+        dto._player = partnerObjectId;
+        dto._partnerName = partnerName ?? "";
+        return dto;
+    }
 
     
 

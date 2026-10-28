@@ -179,6 +179,40 @@ public static partial class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
     }
 
+    /// <summary>MessagePack array [targetObjectId] — Fineage-Backend <c>TradeRequestMsg</c>.</summary>
+    public static byte[] EncodeTradeRequest(int targetObjectId)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, targetObjectId), 1);
+    }
+
+    /// <summary>MessagePack array [requestorObjectId, response]. Response 1 accept, 0 decline.</summary>
+    public static byte[] EncodeTradeAnswerRequest(int requestorObjectId, int response)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, requestorObjectId);
+            ZoneV2MsgPack.WriteInt(w, response);
+        }, 2);
+    }
+
+    /// <summary>MessagePack array [inventoryObjectId, count].</summary>
+    public static byte[] EncodeTradeAddItemRequest(int inventoryObjectId, int count)
+    {
+        if (count < 1)
+            count = 1;
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, inventoryObjectId);
+            ZoneV2MsgPack.WriteInt(w, count);
+        }, 2);
+    }
+
+    /// <summary>MessagePack array [response]. Response 1 confirm, 0 cancel.</summary>
+    public static byte[] EncodeTradeDoneRequest(int response)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, response), 1);
+    }
+
     /// <summary>MessagePack array [name] — Fineage-Backend <c>ClanCreateRequestMsg</c>.</summary>
     public static byte[] EncodeClanCreateRequest(string name)
     {
@@ -450,6 +484,133 @@ public static partial class ZoneV2Messages
         for (int i = 0; i < list.Members.Length; i++)
             names[i] = list.Members[i].Name ?? "?";
         return "Party (" + list.Members.Length + "): " + string.Join(", ", names);
+    }
+
+    public static bool TryDecodeTradeAsk(byte[] body, out ZoneV2TradeAsk ask)
+    {
+        ask = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 2)
+                return false;
+            ask = new ZoneV2TradeAsk
+            {
+                RequestorObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                RequestorName = ZoneV2MsgPack.ReadString(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeTradeRequestResult(byte[] body, out int response)
+    {
+        response = 0;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            response = ZoneV2MsgPack.ReadInt(body, ref i);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeTradeStart(byte[] body, out ZoneV2TradeStart start)
+    {
+        start = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 2)
+                return false;
+            start = new ZoneV2TradeStart
+            {
+                PartnerObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                PartnerName = ZoneV2MsgPack.ReadString(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeTradeOfferUpdate(byte[] body, out ZoneV2TradeOfferUpdate update)
+    {
+        update = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 5)
+                return false;
+            update = new ZoneV2TradeOfferUpdate
+            {
+                IsOwn = ZoneV2MsgPack.ReadInt(body, ref i),
+                InventoryObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Count = ZoneV2MsgPack.ReadInt(body, ref i),
+                EnchantLevel = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeTradeConfirmState(byte[] body, out ZoneV2TradeConfirmState state)
+    {
+        state = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 2)
+                return false;
+            state = new ZoneV2TradeConfirmState
+            {
+                SelfConfirmed = ZoneV2MsgPack.ReadInt(body, ref i),
+                PartnerConfirmed = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeTradeFinished(byte[] body, out int response)
+    {
+        response = 0;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            response = ZoneV2MsgPack.ReadInt(body, ref i);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
     }
 
     /// <summary>MessagePack array [text, chatType] — Fineage-Backend <c>SayMsg</c> opcode 8. No whisper-target key.</summary>
@@ -2317,6 +2478,33 @@ public struct ZoneV2PartyMemberList
     public int LeaderObjectId;
     public int PartyId;
     public ZoneV2PartyMemberEntry[] Members;
+}
+
+public struct ZoneV2TradeAsk
+{
+    public int RequestorObjectId;
+    public string RequestorName;
+}
+
+public struct ZoneV2TradeStart
+{
+    public int PartnerObjectId;
+    public string PartnerName;
+}
+
+public struct ZoneV2TradeOfferUpdate
+{
+    public int IsOwn;
+    public int InventoryObjectId;
+    public int ItemId;
+    public int Count;
+    public int EnchantLevel;
+}
+
+public struct ZoneV2TradeConfirmState
+{
+    public int SelfConfirmed;
+    public int PartnerConfirmed;
 }
 
 public struct ZoneV2ClanAskJoin
