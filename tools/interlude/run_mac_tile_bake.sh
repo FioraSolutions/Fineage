@@ -4,7 +4,7 @@
 #
 # Usage:
 #   export L2_INTERLUDE_CLIENT_ROOT="/path/to/Lineage II"
-#   export FINEAGE_INTERLUDE_TILE=22_21
+#   export FINEAGE_INTERLUDE_TILE=21_22   # or 22_21, etc.
 #   ./tools/interlude/run_mac_tile_bake.sh phase-a    # extractor + prepare_interlude_tile.py
 #   ./tools/interlude/run_mac_tile_bake.sh meshes     # umodel export + blender fbx
 #   ./tools/interlude/run_mac_tile_bake.sh unity      # Unity batchmode Shnok pipeline
@@ -87,7 +87,7 @@ case "$cmd" in
     unity_bake
     ;;
   *)
-    echo "Usage: FINEAGE_INTERLUDE_TILE=22_21 L2_INTERLUDE_CLIENT_ROOT=... $0 {phase-a|meshes|unity|all}" >&2
+    echo "Usage: FINEAGE_INTERLUDE_TILE=21_22 L2_INTERLUDE_CLIENT_ROOT=... $0 {phase-a|meshes|unity|all}" >&2
     exit 1
     ;;
 esac
