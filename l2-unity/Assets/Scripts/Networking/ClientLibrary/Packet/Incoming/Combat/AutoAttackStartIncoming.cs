@@ -2,5 +2,5 @@
 public sealed class AutoAttackStartIncoming : IncomingWirePacket<AutoAttackStartDto>
 {
     public override void Apply(AutoAttackStartDto packet) =>
-        CombatIncomingPacketServices.ApplyAutoAttackStart(packet);
+        AutoAttackStartIncomingPacketServices.ApplyAutoAttackStart(packet);
 }
