@@ -1,17 +1,17 @@
 using System;
 
 /// <summary>
-/// NPC/pet AOI knownlist apply hub (#142 batch slice 164).
+/// World AOI apply hub (#142 batch slice 163; world hub slice 167).
 /// </summary>
 public static class AoiApplyIncomingPacketServices
 {
-    public static World GameWorld => IncomingPacketLocatorApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => IncomingPacketLocatorApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
+        WorldApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 }

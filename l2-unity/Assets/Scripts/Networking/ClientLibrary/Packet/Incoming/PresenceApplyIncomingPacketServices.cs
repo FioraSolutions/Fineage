@@ -1,18 +1,17 @@
 using System;
 
 /// <summary>
-/// World AOI / ground item apply hub (#142 batch slice 163).
+/// World AOI / ground item apply hub (#142 batch slice 163; world hub slice 167).
 /// </summary>
 public static class PresenceApplyIncomingPacketServices
 {
-    public static World GameWorld => IncomingPacketLocatorApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
-    public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
+        WorldApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 }

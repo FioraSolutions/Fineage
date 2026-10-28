@@ -1,13 +1,13 @@
 using System;
 
 /// <summary>
-/// Recipe book / crafting apply hub (#142 batch slice 161).
+/// Crafting UI apply hub (#142 batch slice 161; UI hub slice 167).
 /// </summary>
 public static class CraftApplyIncomingPacketServices
 {
-    public static RecipeBookWindow RecipeBook => IncomingPacketLocatorApplyIncomingPacketServices.RecipeBook;
+    public static RecipeBookWindow RecipeBook => UiApplyIncomingPacketServices.RecipeBook;
 
-    public static CraftingItemWindow Crafting => IncomingPacketLocatorApplyIncomingPacketServices.Crafting;
+    public static CraftingItemWindow Crafting => UiApplyIncomingPacketServices.Crafting;
 
-    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
 }

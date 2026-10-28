@@ -1,13 +1,13 @@
 using System;
 
 /// <summary>
-/// Manor / seed UI apply hub (#142 batch slice 161).
+/// Manor / crop UI apply hub (#142 batch slice 161; world hub slice 167).
 /// </summary>
 public static class ManorApplyIncomingPacketServices
 {
-    public static SeedInfoWindow SeedInfo => IncomingPacketLocatorApplyIncomingPacketServices.SeedInfo;
+    public static SeedInfoWindow SeedInfo => WorldApplyIncomingPacketServices.SeedInfo;
 
-    public static SellCropListWindow SellCrop => IncomingPacketLocatorApplyIncomingPacketServices.SellCrop;
+    public static SellCropListWindow SellCrop => WorldApplyIncomingPacketServices.SellCrop;
 
-    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 }
