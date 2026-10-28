@@ -52,6 +52,12 @@ public enum ZoneV2MsgType : ushort
     ClanDissolveRequest = 37,
     /// <summary>Leader cancels a pending dissolution. Empty body.</summary>
     ClanCancelDissolveRequest = 38,
+    /// <summary>Select an enchant scroll. Backend <c>EnchantRequestMsg</c> key 0 scroll object id.</summary>
+    EnchantRequest = 39,
+    /// <summary>Enchant the chosen weapon or armor. Backend <c>EnchantConfirmMsg</c> key 0 target object id.</summary>
+    EnchantConfirm = 40,
+    /// <summary>Close the enchant window. Backend <c>EnchantCancelMsg</c> is an empty array.</summary>
+    EnchantCancel = 41,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -98,6 +104,11 @@ public enum ZoneV2MsgType : ushort
     PledgeMemberList = 1052,
     /// <summary>Invite outcome for the requestor. Backend <c>ClanJoinResultMsg</c>. 0 declined.</summary>
     ClanJoinResult = 1053,
+    /// <summary>
+    /// Enchant roll or cancel. Keys 0 result, 1 level after the attempt, 2 target object id, 3 crystal item id, 4 crystal count.
+    /// Result 0 cancel, 1 success, 2 keep, 3 reset, 4 crystallize.
+    /// </summary>
+    EnchantResult = 1060,
 
     Error = 1099
 }
