@@ -19,13 +19,14 @@ public static class WorldApplyIncomingPacketServices
     public static BufferPanel Buffer => AuxiliaryGameUIPacketServices.Buffer;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketServices.ApplyWorld(apply);
+        IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
 
-    public static void Queue(Action action) => IncomingPacketServices.Queue(action);
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketServices.QueueDomain(apply);
+        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketServices.QueueWorld(apply);
+        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
 }
