@@ -78,19 +78,24 @@ Refresh after each batch or via **Shnok/0.1**.
 |------|--------|--------|
 | `16_24`, `16_25`, `17_24`, `17_25` | full | TI smoke |
 | `22_22` | full | Race village core (#490) |
-| `22_21` | missing | West-adjacent to `22_22`; Mac bake only (see below) |
+| `21_21` | missing | Northwest-adjacent to `22_22`; Mac bake only (see below) |
 | `21_22` | missing | North-adjacent to `22_22`; Mac bake only (see below) |
+| `21_23` | missing | Northeast-adjacent to `22_22`; Mac bake only (see below) |
+| `22_21` | missing | West-adjacent to `22_22`; Mac bake only (see below) |
 | `22_23` | missing | East-adjacent to `22_22`; Mac bake only (see below) |
+| `23_21` | missing | Southwest-adjacent to `22_22`; Mac bake only (see below) |
+| `23_22` | missing | South-adjacent to `22_22`; Mac bake only (see below) |
+| `23_23` | missing | Southeast-adjacent to `22_22`; Mac bake only (see below) |
 
-## Mac one-tile recipe (#476 — `22_21`, `21_22`, `22_23`, …)
+## Mac one-tile recipe (#476 — 3×3 ring around `22_22`)
 
 Prerequisites: Interlude client on disk (not in git), `l2-unity/External/L2TerrainExtractor` built locally (Gradle; not vendored in repo), Docker (Linux UModel export) or native UModel, Blender, Unity Editor matching the project.
 
-Set `FINEAGE_INTERLUDE_TILE` to the map square id (`XX_YY`). Examples below use `22_23` (east of `22_22`), `22_21` (west), and `21_22` (north).
+Set `FINEAGE_INTERLUDE_TILE` to the map square id (`XX_YY`). The eight neighbors of full `22_22` are `21_21` … `23_23` (excluding center). Examples below use `22_23` (east), `22_21` (west), and `21_22` (north); the same env applies to `21_21`, `21_23`, `23_21`, `23_22`, and `23_23`.
 
 ```bash
 export L2_INTERLUDE_CLIENT_ROOT="$HOME/Downloads/L2_Interlude_Client/Lineage II"
-export FINEAGE_INTERLUDE_TILE=22_23   # or 21_22, 22_21, etc.
+export FINEAGE_INTERLUDE_TILE=22_23   # or 21_21, 21_22, 21_23, 22_21, 23_21, 23_22, 23_23, etc.
 
 # Phase A + mesh export + Unity batch (or run steps individually)
 chmod +x tools/interlude/run_mac_tile_bake.sh
@@ -108,6 +113,18 @@ Equivalent manual steps (same as #490 / `22_22`; substitute `XX_YY` / `T_XX_YY`)
 **`22_23` check:** client needs `maps/22_23.unr` and `textures/t_22_23.utx`; after bake, manifest entry `22_23` should move to `full` like `22_22`.
 
 **`21_22` check:** client needs `maps/21_22.unr` and `textures/t_21_22.utx`; after bake, manifest entry `21_22` should move to `full` like `22_22`.
+
+**`22_21` check:** client needs `maps/22_21.unr` and `textures/t_22_21.utx`; after bake, manifest entry `22_21` should move to `full` like `22_22`.
+
+**`21_21` check:** client needs `maps/21_21.unr` and `textures/t_21_21.utx`; after bake, manifest entry `21_21` should move to `full` like `22_22`.
+
+**`21_23` check:** client needs `maps/21_23.unr` and `textures/t_21_23.utx`; after bake, manifest entry `21_23` should move to `full` like `22_22`.
+
+**`23_21` check:** client needs `maps/23_21.unr` and `textures/t_23_21.utx`; after bake, manifest entry `23_21` should move to `full` like `22_22`.
+
+**`23_22` check:** client needs `maps/23_22.unr` and `textures/t_23_22.utx`; after bake, manifest entry `23_22` should move to `full` like `22_22`.
+
+**`23_23` check:** client needs `maps/23_23.unr` and `textures/t_23_23.utx`; after bake, manifest entry `23_23` should move to `full` like `22_22`.
 
 Cloud agents cannot run steps 1–4 without the client; land tooling/docs + honest manifest until a Mac bake completes.
 

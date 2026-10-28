@@ -4,7 +4,7 @@
 #
 # Usage:
 #   export L2_INTERLUDE_CLIENT_ROOT="/path/to/Lineage II"
-#   export FINEAGE_INTERLUDE_TILE=22_23   # or 21_22, 22_21, etc.
+#   export FINEAGE_INTERLUDE_TILE=22_23   # 3×3 ring: 21_21…23_23 around 22_22
 #   ./tools/interlude/run_mac_tile_bake.sh phase-a    # extractor + prepare_interlude_tile.py
 #   ./tools/interlude/run_mac_tile_bake.sh meshes     # umodel export + blender fbx
 #   ./tools/interlude/run_mac_tile_bake.sh unity      # Unity batchmode Shnok pipeline
