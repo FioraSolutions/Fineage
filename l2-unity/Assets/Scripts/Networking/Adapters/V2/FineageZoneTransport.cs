@@ -119,6 +119,12 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        if (command is RequestRestartPointCommand)
+        {
+            ZoneV2Client.Ensure().SendReviveRequest(ZoneV2Death.ReviveToVillage);
+            return true;
+        }
+
         RequestMagicSkillUseCommand skillUse = command as RequestMagicSkillUseCommand;
         if (skillUse != null)
         {

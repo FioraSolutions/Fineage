@@ -258,6 +258,89 @@ public static class ZoneV2Messages
         }, 3);
     }
 
+    /// <summary>MessagePack array [action] — Backend <c>ReviveRequestMsg</c>.</summary>
+    public static byte[] EncodeReviveRequest(int action)
+    {
+        return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, action), 1);
+    }
+
+    /// <summary>Empty MessagePack array — Backend <c>AdminKillPlayerMsg</c>.</summary>
+    public static byte[] EncodeAdminKillPlayer()
+    {
+        return ZoneV2MsgPack.WriteArray(_ => { }, 0);
+    }
+
+    public static bool TryDecodeDie(byte[] body, out ZoneV2Die die)
+    {
+        die = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            die = new ZoneV2Die
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                KillerObjectId = n > 1 ? ZoneV2MsgPack.ReadInt(body, ref i) : 0
+            };
+            if (n > 2)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 2);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeRevive(byte[] body, out ZoneV2Revive revive)
+    {
+        revive = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            revive = new ZoneV2Revive { ObjectId = ZoneV2MsgPack.ReadInt(body, ref i) };
+            if (n > 1)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 1);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeTeleportToLocation(byte[] body, out ZoneV2TeleportToLocation teleport)
+    {
+        teleport = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 4)
+                return false;
+            teleport = new ZoneV2TeleportToLocation
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                X = ZoneV2MsgPack.ReadInt(body, ref i),
+                Y = ZoneV2MsgPack.ReadInt(body, ref i),
+                Z = ZoneV2MsgPack.ReadInt(body, ref i),
+                Heading = n > 4 ? ZoneV2MsgPack.ReadInt(body, ref i) : 0
+            };
+            if (n > 5)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 5);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
     public static bool TryDecodePartyAskJoin(byte[] body, out ZoneV2PartyAskJoin ask)
     {
         ask = default;
@@ -2121,6 +2204,26 @@ public struct ZoneV2MagicSkillUse
     public int SkillLevel;
     public int HitTimeMs;
     public int ReuseDelayMs;
+}
+
+public struct ZoneV2Die
+{
+    public int ObjectId;
+    public int KillerObjectId;
+}
+
+public struct ZoneV2Revive
+{
+    public int ObjectId;
+}
+
+public struct ZoneV2TeleportToLocation
+{
+    public int ObjectId;
+    public int X;
+    public int Y;
+    public int Z;
+    public int Heading;
 }
 
 public struct ZoneV2AbnormalStatusUpdate

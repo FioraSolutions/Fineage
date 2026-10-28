@@ -6,6 +6,14 @@ public class DieDto : IWireDto
     public bool _allowFixedRes;
     public int ObjectId { get =>_objectId; }
 
+    /// <summary>Zone V2 <see cref="ZoneV2MsgType.Die"/> — Interlude restart flags are not on the wire.</summary>
+    public static DieDto FromZoneWire(int objectId)
+    {
+        var dto = new DieDto();
+        dto._objectId = objectId;
+        return dto;
+    }
+
     
 
     public void ReadFrom(PacketReader reader)

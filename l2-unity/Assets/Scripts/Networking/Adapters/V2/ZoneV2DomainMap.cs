@@ -212,6 +212,13 @@ public static class ZoneV2DomainMap
     public static AbnormalStatusUpdateDto ToAbnormalStatusUpdateDto(ZoneV2AbnormalStatusUpdate update) =>
         AbnormalStatusUpdateDto.FromZoneEffects(update.Effects);
 
+    public static DieDto ToDieDto(ZoneV2Die die) => DieDto.FromZoneWire(die.ObjectId);
+
+    public static ReviveDto ToReviveDto(ZoneV2Revive revive) => new ReviveDto { ObjectId = revive.ObjectId };
+
+    public static TeleportToLocationDto ToTeleportToLocationDto(ZoneV2TeleportToLocation teleport) =>
+        TeleportToLocationDto.FromZoneWire(teleport.ObjectId, teleport.X, teleport.Y, teleport.Z, teleport.Heading);
+
     public static SkillListDto ToSkillListDto(ZoneV2SkillEntry[] rows)
     {
         var dto = new SkillListDto();

@@ -60,6 +60,9 @@ public sealed class PlayerWorldApply : EntityWorldApply
     public override void OnRevive(Entity entity, ReviveDto dto)
     {
         entity.SetDead(false);
+        DeadWindow dead = ControllerPacketServices.Dead;
+        if (dead != null)
+            dead.HideWindow();
         if (PlayerStateMachine.Instance != null)
         {
             PlayerStateMachine.Instance.ChangeState(PlayerState.REBIRTH);

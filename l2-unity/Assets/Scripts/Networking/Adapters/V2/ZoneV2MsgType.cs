@@ -60,6 +60,10 @@ public enum ZoneV2MsgType : ushort
     EnchantCancel = 41,
     /// <summary>Use a known skill. Backend <c>SkillUseRequestMsg</c> keys 0 skillId, 1 targetObjectId, 2 ctrl.</summary>
     SkillUseRequest = 50,
+    /// <summary>Respawn after death. Backend <c>ReviveRequestMsg</c> key 0 action (<see cref="ZoneV2Death.ReviveToVillage"/>).</summary>
+    ReviveRequest = 52,
+    /// <summary>Admin kill (empty body). Backend <c>AdminKillPlayerMsg</c>.</summary>
+    AdminKillPlayer = 53,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -115,6 +119,12 @@ public enum ZoneV2MsgType : ushort
     SkillList = 1065,
     /// <summary>Skill cast fan-out. Backend <c>MagicSkillUseMsg</c>.</summary>
     MagicSkillUse = 1066,
+    /// <summary>Creature died. Backend <c>DieMsg</c>. See <c>DeathProtocol</c>.</summary>
+    Die = 1070,
+    /// <summary>Creature revived. Backend <c>ReviveMsg</c>.</summary>
+    Revive = 1071,
+    /// <summary>Instant relocation (respawn, …). Backend <c>TeleportToLocationMsg</c>.</summary>
+    TeleportToLocation = 1072,
 
     Error = 1099
 }
