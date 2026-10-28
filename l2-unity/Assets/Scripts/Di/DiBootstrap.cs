@@ -47,6 +47,12 @@ public static class DiBootstrap
             return;
 
         EnsureAppScope();
+        if (!App.HasContainer)
+        {
+            Debug.LogError("[DiBootstrap] EnsureLoginScope: AppLifetimeScope failed to build.");
+            return;
+        }
+
         AppLifetimeScope app = Object.FindFirstObjectByType<AppLifetimeScope>();
         L2LoginUI ui = Object.FindFirstObjectByType<L2LoginUI>(FindObjectsInactive.Include);
         GameObject go = new GameObject("LoginLifetimeScope");
