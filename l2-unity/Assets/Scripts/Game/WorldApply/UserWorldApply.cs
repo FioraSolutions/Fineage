@@ -3,18 +3,13 @@
 public sealed class UserWorldApply : EntityWorldApply
 {
     private readonly EntityActionMachine _actions;
-    private readonly World _world;
 
-    public UserWorldApply(EntityActionMachine actions, World world)
+    public UserWorldApply(EntityActionMachine actions)
     {
         _actions = actions;
-        _world = world;
     }
 
-    private World GameWorld
-    {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
-    }
+    private World GameWorld => IncomingPacketActions.GameWorld;
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
     {
