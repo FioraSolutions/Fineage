@@ -14,7 +14,7 @@ public static class MessagePacketServices
     }
 
     public static MessagePacketApply MessageApply =>
-        _messageApply != null ? _messageApply : IncomingPacketServices.MessageApply;
+        _messageApply != null ? _messageApply : IncomingPacketLocatorApplyIncomingPacketServices.MessageApply;
 
     public static void ApplyMessage(Action<MessagePacketApply> apply)
     {
