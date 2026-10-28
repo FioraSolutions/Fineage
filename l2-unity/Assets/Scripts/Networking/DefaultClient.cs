@@ -30,6 +30,7 @@ public abstract class DefaultClient : MonoBehaviour
     public int SessionKey1 { get { return _sessionKey1; } set { _sessionKey1 = value; } }
     public int SessionKey2 { get { return _sessionKey2; } set { _sessionKey2 = value; } }
     public bool IsConnected { get { return _connected; } }
+    public bool IsConnecting => _connecting;
     public int Ping { get { return _ping; } set { _ping = value; } }
 
     private GameManager Manager => NetworkingPacketServices.Manager;
@@ -50,10 +51,15 @@ public abstract class DefaultClient : MonoBehaviour
 
     public async void Connect()
     {
-        _connected = false;
         if (_connecting)
         {
             LobbyFlowLog.Warn(GetType().Name + ".Connect skipped — already connecting");
+            return;
+        }
+
+        if (_connected || (_client != null && _client.IsConnected))
+        {
+            LobbyFlowLog.Warn(GetType().Name + ".Connect skipped — already connected");
             return;
         }
 
