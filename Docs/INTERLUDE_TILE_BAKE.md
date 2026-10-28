@@ -79,27 +79,32 @@ Refresh after each batch or via **Shnok/0.1**.
 | `16_24`, `16_25`, `17_24`, `17_25` | full | TI smoke |
 | `22_22` | full | Race village core (#490) |
 | `22_21` | missing | West-adjacent to `22_22`; Mac bake only (see below) |
+| `21_22` | missing | North-adjacent to `22_22`; Mac bake only (see below) |
 
-## Mac one-tile recipe (#476 — e.g. `22_21`)
+## Mac one-tile recipe (#476 — `22_21`, `21_22`, …)
 
 Prerequisites: Interlude client on disk (not in git), `l2-unity/External/L2TerrainExtractor` built locally (Gradle; not vendored in repo), Docker (Linux UModel export) or native UModel, Blender, Unity Editor matching the project.
 
+Set `FINEAGE_INTERLUDE_TILE` to the map square id (`XX_YY`). Examples below use `22_21` (west of `22_22`) and `21_22` (north of `22_22`).
+
 ```bash
 export L2_INTERLUDE_CLIENT_ROOT="$HOME/Downloads/L2_Interlude_Client/Lineage II"
-export FINEAGE_INTERLUDE_TILE=22_21
+export FINEAGE_INTERLUDE_TILE=21_22   # or 22_21, etc.
 
 # Phase A + mesh export + Unity batch (or run steps individually)
 chmod +x tools/interlude/run_mac_tile_bake.sh
 ./tools/interlude/run_mac_tile_bake.sh all
 ```
 
-Equivalent manual steps (same as #490 / `22_22`):
+Equivalent manual steps (same as #490 / `22_22`; substitute `XX_YY` / `T_XX_YY`):
 
-1. **L2TerrainExtractor** — output to `.work/interlude-extract/22_21/` (`22_21_metadata.txt`, height raw, splat PNGs, `staticmeshes.json`).
-2. **`python3 tools/interlude/prepare_interlude_tile.py 22_21`** — writes `Maps/22_21/Meta/*` and `Textures/T_22_21/*`.
-3. **`export_tile_staticmeshes.sh`** + **`link_export_package_dirs.py`** + **`pskx_to_fbx_batch.py`** — populate `L2_UMODEL_EXPORT_DIR` (default `.work/umodel-export-22_21`).
-4. **Unity batchmode** — `FINEAGE_INTERLUDE_TILE=22_21`, `L2_INTERLUDE_CLIENT_ROOT`, `L2_UMODEL_EXPORT_DIR`; `-executeMethod L2InterludeTileBatchCli.RunTileBakeCli`.
-5. Commit `Assets/Resources/Data/Maps/22_21/`, new textures under `T_22_21/`, any new static mesh FBX; run **Shnok/0.1** or rely on batch CLI manifest write.
+1. **L2TerrainExtractor** — output to `.work/interlude-extract/XX_YY/` (`XX_YY_metadata.txt`, height raw, splat PNGs, `staticmeshes.json`).
+2. **`python3 tools/interlude/prepare_interlude_tile.py XX_YY`** — writes `Maps/XX_YY/Meta/*` and `Textures/T_XX_YY/*`.
+3. **`export_tile_staticmeshes.sh`** + **`link_export_package_dirs.py`** + **`pskx_to_fbx_batch.py`** — populate `L2_UMODEL_EXPORT_DIR` (default `.work/umodel-export-XX_YY`).
+4. **Unity batchmode** — `FINEAGE_INTERLUDE_TILE=XX_YY`, `L2_INTERLUDE_CLIENT_ROOT`, `L2_UMODEL_EXPORT_DIR`; `-executeMethod L2InterludeTileBatchCli.RunTileBakeCli`.
+5. Commit `Assets/Resources/Data/Maps/XX_YY/`, new textures under `T_XX_YY/`, any new static mesh FBX; run **Shnok/0.1** or rely on batch CLI manifest write.
+
+**`21_22` check:** client needs `maps/21_22.unr` and `textures/t_21_22.utx`; after bake, manifest entry `21_22` should move to `full` like `22_22`.
 
 Cloud agents cannot run steps 1–4 without the client; land tooling/docs + honest manifest until a Mac bake completes.
 
