@@ -7,24 +7,25 @@ public sealed class GameLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
+        GameScopePlayerControllerRegistration.Register(builder);
         RegisterIfFound<World>(builder);
-        RegisterIfFound<PlayerController>(builder);
         RegisterIfFound<WorldCombat>(builder);
         RegisterIfFound<TargetManager>(builder);
         RegisterIfFound<HitManager>(builder);
         RegisterIfFound<ClickManager>(builder);
+        RegisterIfFound<KeyboardMoveController>(builder);
         RegisterIfFound<NpcCursorManager>(builder);
         RegisterIfFound<PlayerInventory>(builder);
         RegisterIfFound<PlayerShortcuts>(builder);
-        RegisterIfFound<EffectManager>(builder);
+        RegisterLiveMono<EffectManager>(builder);
         RegisterIfFound<ProjectileManager>(builder);
         RegisterIfFound<ObjectPoolManager>(builder);
-        RegisterIfFound<CameraController>(builder);
+        RegisterLiveMono<CameraController>(builder);
         RegisterIfFound<InputManager>(builder);
         RegisterIfFound<PositionValidationController>(builder);
         RegisterIfFound<SkillExecutor>(builder);
         RegisterIfFound<CombatFacingService>(builder);
-        RegisterIfFound<EventBus>(builder);
+        RegisterLiveMono<EventBus>(builder);
         builder.Register<GameEventBus>(Lifetime.Singleton).As<IGameEventBus>();
         builder.Register<TargetClearOnEntityDiedListener>(Lifetime.Singleton);
         builder.Register<PlayerAttackClearOnEntityDiedListener>(Lifetime.Singleton);
@@ -35,7 +36,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.Register<HomeProjectileService>(Lifetime.Singleton).As<IHomeProjectileService>();
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
-        RegisterIfFound<MoveAllCharacters>(builder);
+        RegisterLiveMono<MoveAllCharacters>(builder);
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
         RegisterIfFound<NetworkTransformShare>(builder);
@@ -53,12 +54,12 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<SkillsManager>(builder);
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
-        RegisterIfFound<CharacterBuilder>(builder);
+        RegisterLiveMono<CharacterBuilder>(builder);
 
         RegisterIfFound<L2GameUI>(builder);
         RegisterIfFound<L2SlotManager>(builder);
-        RegisterIfFound<ChatWindow>(builder);
-        RegisterIfFound<HtmlWindow>(builder);
+        RegisterLiveMono<ChatWindow>(builder);
+        RegisterLiveMono<HtmlWindow>(builder);
         RegisterIfFound<DealerWindow>(builder);
         RegisterIfFound<MultiSellWindow>(builder);
         RegisterIfFound<TradeWindow>(builder);
@@ -76,13 +77,13 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<ShowListWindow>(builder);
         RegisterIfFound<SeedInfoWindow>(builder);
         RegisterIfFound<SellCropListWindow>(builder);
-        RegisterIfFound<SkillbarWindow>(builder);
-        RegisterIfFound<SystemMessageWindow>(builder);
+        RegisterLiveMono<SkillbarWindow>(builder);
+        RegisterLiveMono<SystemMessageWindow>(builder);
         RegisterIfFound<BufferPanel>(builder);
         RegisterIfFound<InventoryWindow>(builder);
         RegisterIfFound<DeadWindow>(builder);
         RegisterIfFound<StatusWindow>(builder);
-        RegisterIfFound<CharacterInfoWindow>(builder);
+        RegisterLiveMono<CharacterInfoWindow>(builder);
 
         builder.Register<PlayerSpawner>(Lifetime.Singleton);
         builder.Register<BowArrowVisual>(Lifetime.Singleton);
@@ -113,7 +114,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<EntityActionMachine>().AsSelf();
         builder.RegisterEntryPoint<StriderRideService>().AsSelf();
         builder.RegisterEntryPoint<UnityChainTicker>();
-        builder.Register<PlayerWorldApply>(Lifetime.Singleton);
+        builder.Register(_ => new PlayerWorldApply(), Lifetime.Singleton);
         builder.Register<NpcWorldApply>(Lifetime.Singleton);
         builder.Register<MonsterWorldApply>(Lifetime.Singleton);
         builder.Register<UserWorldApply>(Lifetime.Singleton);
@@ -166,6 +167,20 @@ public sealed class GameLifetimeScope : LifetimeScope
                     seedInfo: runtime.SeedInfo,
                     sellCrop: runtime.SellCrop,
                     buffer: runtime.Buffer);
+                ControllerPacketServices.Bind(
+                    game: runtime.Game,
+                    player: runtime.Player,
+                    targets: runtime.Targets,
+                    input: runtime.Input);
+                NetworkingPacketServices.Bind(
+                    world: runtime.World,
+                    worldApply: worldApply,
+                    domain: domain,
+                    manager: runtime.Manager,
+                    player: runtime.Player);
+                AudioPacketServices.Bind(
+                    gameWorld: runtime.World,
+                    player: runtime.Player);
                 MovementPacketLatest.Wire(domain);
                 World world = container.Resolve<World>();
                 MoveCostLog.Wire(world);
@@ -213,6 +228,10 @@ public sealed class GameLifetimeScope : LifetimeScope
             catch (Exception ex)
             {
                 Debug.LogError("GameLifetimeScope BindGame failed: " + ex);
+                App.GameContainer = null;
+                GameLifetimeScope broken = UnityEngine.Object.FindFirstObjectByType<GameLifetimeScope>();
+                if (broken != null)
+                    UnityEngine.Object.DestroyImmediate(broken.gameObject);
             }
         });
     }
@@ -222,5 +241,51 @@ public sealed class GameLifetimeScope : LifetimeScope
         T component = FindFirstObjectByType<T>(FindObjectsInactive.Include);
         if (component != null)
             builder.RegisterComponent(component);
+    }
+
+    /// <summary>
+    /// Registers a scene MonoBehaviour when present; otherwise a live singleton that resolves
+    /// FindInScene → static Instance (spawn-deferred types like <see cref="PlayerController"/>).
+    /// </summary>
+    private void RegisterLiveMono<T>(IContainerBuilder builder) where T : MonoBehaviour
+    {
+        T inScene = FindFirstObjectByType<T>(FindObjectsInactive.Include);
+        if (inScene != null)
+        {
+            builder.RegisterComponent(inScene);
+            return;
+        }
+
+        builder.Register<T>(_ => ResolveLiveMono<T>(), Lifetime.Singleton);
+    }
+
+    private static T ResolveLiveMono<T>() where T : MonoBehaviour
+    {
+        T found = UnityEngine.Object.FindFirstObjectByType<T>(FindObjectsInactive.Include);
+        if (found != null)
+            return found;
+
+        if (typeof(T) == typeof(MoveAllCharacters))
+            return MoveAllCharacters.Instance as T;
+        if (typeof(T) == typeof(EffectManager))
+            return EffectManager.Instance as T;
+        if (typeof(T) == typeof(EventBus))
+            return EventBus.Instance as T;
+        if (typeof(T) == typeof(SkillbarWindow))
+            return SkillbarWindow.Instance as T;
+        if (typeof(T) == typeof(ChatWindow))
+            return ChatWindow.Instance as T;
+        if (typeof(T) == typeof(HtmlWindow))
+            return HtmlWindow.Instance as T;
+        if (typeof(T) == typeof(SystemMessageWindow))
+            return SystemMessageWindow.Instance as T;
+        if (typeof(T) == typeof(CameraController))
+            return CameraController.Instance as T;
+        if (typeof(T) == typeof(CharacterInfoWindow))
+            return CharacterInfoWindow.Instance as T;
+        if (typeof(T) == typeof(CharacterBuilder))
+            return CharacterBuilder.Instance as T;
+
+        return null;
     }
 }

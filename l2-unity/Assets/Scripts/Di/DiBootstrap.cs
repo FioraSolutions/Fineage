@@ -39,6 +39,13 @@ public static class DiBootstrap
         GameObject go = new GameObject("GameLifetimeScope");
         using (LifetimeScope.EnqueueParent(app))
             go.AddComponent<GameLifetimeScope>();
+
+        GameLifetimeScope built = go.GetComponent<GameLifetimeScope>();
+        if (!IsGameScopeReady(built))
+        {
+            Object.DestroyImmediate(go);
+            App.GameContainer = null;
+        }
     }
 
     public static void EnsureLoginScope()
@@ -69,7 +76,13 @@ public static class DiBootstrap
 
         try
         {
-            return scope.Container.Resolve<World>() != null;
+            if (scope.Container.Resolve<World>() == null)
+                return false;
+            scope.Container.Resolve<WorldPacketApply>();
+            scope.Container.Resolve<MessagePacketApply>();
+            scope.Container.Resolve<IWorldDomainSink>();
+            scope.Container.Resolve<EntityActionMachine>();
+            return true;
         }
         catch
         {

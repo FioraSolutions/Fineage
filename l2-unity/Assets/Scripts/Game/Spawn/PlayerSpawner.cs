@@ -43,6 +43,7 @@ public sealed class PlayerSpawner
         if (go == null)
             return null;
 
+        EntitySpawnShared.SanitizeCharacterControllerStepOffset(go);
         EntitySpawnShared.Place(go, world.UsersContainer, identity.Position, identity.Heading, identity.Name);
 
         PlayerEntity player = go.GetComponent<PlayerEntity>();
@@ -105,10 +106,12 @@ public sealed class PlayerSpawner
 
         if (_characterInfo != null)
             _characterInfo.UpdateValues();
+        PlayerStateMachine.AdoptFromPlayer(player);
         if (PlayerStateMachine.Instance != null)
             PlayerStateMachine.Instance.Player = player;
 
         world.RegisterPlayer(player);
+        DiBootstrap.EnsureGameScope();
         return player;
     }
 

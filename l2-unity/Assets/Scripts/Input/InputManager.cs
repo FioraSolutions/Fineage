@@ -91,6 +91,11 @@ public class InputManager : MonoBehaviour
 
     private void SetupInputActions()
     {
+        if (_playerInput == null)
+            _playerInput = GetComponent<PlayerInput>();
+        if (_playerInput == null || _playerInput.actions == null)
+            return;
+
         _leftClickAction = _playerInput.actions["LeftClick"];
         _rightClickAction = _playerInput.actions["RightClick"];
 
@@ -130,6 +135,13 @@ public class InputManager : MonoBehaviour
 
     private void UpdateInputs()
     {
+        if (_moveAction == null)
+        {
+            SetupInputActions();
+            if (_moveAction == null)
+                return;
+        }
+
         CameraAxis = _cameraAxisAction.ReadValue<Vector2>();
         CameraMoving = CameraAxis.y != 0 || CameraAxis.x != 0;
 
@@ -142,12 +154,15 @@ public class InputManager : MonoBehaviour
         CloseWindow = _closeWindowAction.WasPerformedThisFrame();
         Validate = _validateAction.WasPerformedThisFrame();
 
-        if (!L2GameUI.Instance.MouseOverUI)
+        L2GameUI gameUi = L2GameUI.Instance;
+        bool mouseOverUi = gameUi != null && gameUi.MouseOverUI;
+
+        if (!mouseOverUi)
         {
             if (RightClickHeld && CameraMoving)
             {
                 TurnCamera = true;
-                L2GameUI.Instance.DisableMouse();
+                gameUi?.DisableMouse();
             }
 
             ZoomAxis = _zoomAxisAction.ReadValue<float>();
@@ -156,10 +171,12 @@ public class InputManager : MonoBehaviour
         if (RightClickUp)
         {
             TurnCamera = false;
-            L2GameUI.Instance.EnableMouse();
+            gameUi?.EnableMouse();
         }
 
-        if (!ChatWindow.Instance.ChatOpened)
+        ChatWindow chat = ChatWindow.Instance;
+        bool chatOpen = chat != null && chat.ChatOpened;
+        if (!chatOpen)
         {
             MoveInput = _moveAction.ReadValue<Vector2>();
             Jump = _jumpAction.WasPerformedThisFrame();
@@ -179,6 +196,9 @@ public class InputManager : MonoBehaviour
 
         MoveForward = LeftClickHeld && RightClickHeld;
         Move = MoveInput.y != 0 || MoveInput.x != 0 || MoveForward;
+
+        if (SkillbarActions == null || SkillbarInputs == null)
+            return;
 
         for (int skillbar = 0; skillbar < 5; skillbar++)
         {

@@ -113,6 +113,9 @@ public class NameplatesManager : MonoBehaviour
 
     private void ApplySettingsToSubsystems()
     {
+        if (_pixelSnap == null || _textDrawer == null || _bubbleDrawer == null)
+            return;
+
         _pixelSnap.HysteresisPx = _snapHysteresisPx;
         _textDrawer.ConfigurePaths(_atlasResourcePath, _csvResourcePath);
         _textDrawer.PixelScale = _pixelScale;
@@ -124,6 +127,9 @@ public class NameplatesManager : MonoBehaviour
 
     private void EnsureResources()
     {
+        if (_pixelSnap == null || _textDrawer == null || _bubbleDrawer == null || _entryStore == null)
+            return;
+
         ApplySettingsToSubsystems();
         _textDrawer.EnsureResources();
         _bubbleDrawer.EnsureResources();
@@ -147,6 +153,9 @@ public class NameplatesManager : MonoBehaviour
                 return;
             }
         }
+
+        if (_entryStore == null || _pixelSnap == null)
+            return;
 
         _entitiesInRange = Physics.OverlapSphere(
             _playerTransform.position,

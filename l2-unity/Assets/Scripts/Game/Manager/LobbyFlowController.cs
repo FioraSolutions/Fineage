@@ -153,7 +153,9 @@ public sealed class LobbyFlowController
         L2GameUI ui = GameUi;
         if (ui != null)
             ui.StopLoading();
-        PlayerStateMachine.Instance.enabled = true;
+        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        if (stateMachine != null)
+            stateMachine.enabled = true;
         _game.WorldSpawnReady = true;
         if (_zoneTransport == null || _zoneTransport.AllowsInterludeGameSocketAuth)
             FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
@@ -170,8 +172,11 @@ public sealed class LobbyFlowController
         }
         Game.EndLoadWorld();
 
-        PlayerStateMachine.Instance.ChangeState(PlayerState.IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.ENTER_WORLD);
+        if (stateMachine != null)
+        {
+            stateMachine.ChangeState(PlayerState.IDLE);
+            stateMachine.NotifyEvent(Event.ENTER_WORLD);
+        }
     }
 
     public void OnLoginServerConnected()
