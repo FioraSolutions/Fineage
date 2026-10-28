@@ -5,7 +5,7 @@
 /// </summary>
 public static class DropItemApplyIncomingPacketServices
 {
-    public static World GameWorld => GroundItemApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => PlayerApplyIncomingPacketServices.GameWorld;
 
     public static void ApplyDropItem(DropItemDto dto)
     {
