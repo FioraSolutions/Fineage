@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// World packet-apply dispatch hub (#142 batch slice 164; compat pass-through slice 181).
+/// World packet-apply dispatch hub (#142 batch slice 164; world-effect orchestration slice 186).
 /// </summary>
 public static class WorldEffectApplyIncomingPacketServices
 {
