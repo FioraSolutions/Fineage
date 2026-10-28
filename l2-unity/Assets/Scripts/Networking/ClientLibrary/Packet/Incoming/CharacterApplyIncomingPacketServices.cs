@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Character lobby / selection apply hub (#142 batch slice 159; login/world compat slice 182).
+/// Character lobby / selection apply hub (#142 batch slice 159; character orchestration slice 184).
 /// </summary>
 public static class CharacterApplyIncomingPacketServices
 {

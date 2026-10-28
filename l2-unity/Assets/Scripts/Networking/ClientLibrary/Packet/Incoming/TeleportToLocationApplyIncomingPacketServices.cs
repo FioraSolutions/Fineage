@@ -7,9 +7,9 @@ using System;
 /// </summary>
 public static class TeleportToLocationApplyIncomingPacketServices
 {
-    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => PresenceApplyIncomingPacketServices.GameWorld;
 
-    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => PresenceApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyTeleportToLocation(TeleportToLocationDto packet)
     {

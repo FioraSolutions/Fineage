@@ -5,13 +5,13 @@ using System;
 /// </summary>
 public static class WorldEffectApplyIncomingPacketServices
 {
-    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => PresenceApplyIncomingPacketServices.GameWorld;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        WorldApplyIncomingPacketServices.ApplyWorld(apply);
+        PresenceApplyIncomingPacketServices.ApplyWorld(apply);
 
-    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => PresenceApplyIncomingPacketServices.Queue(action);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        WorldApplyIncomingPacketServices.QueueWorld(apply);
+        PresenceApplyIncomingPacketServices.QueueWorld(apply);
 }
