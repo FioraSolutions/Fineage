@@ -6,9 +6,9 @@ using System;
 /// </summary>
 public static class ChooseInventoryItemApplyIncomingPacketServices
 {
-    public static EnchantWindow Enchant => EnchantApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => CombatPacketApplyIncomingPacketServices.Enchant;
 
-    public static void Queue(Action action) => EnchantApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyChooseInventoryItem(ChooseInventoryItemDto packet) =>
         Queue(() => Enchant.ShowWindow(packet.Item));
