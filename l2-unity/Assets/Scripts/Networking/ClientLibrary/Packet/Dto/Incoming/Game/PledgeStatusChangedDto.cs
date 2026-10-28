@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class PledgeStatusChangedDto : IWireDto
+﻿public class PledgeStatusChangedDto : IWireDto
 {
     private int _leaderId;
 

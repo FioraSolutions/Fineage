@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public sealed class InitDto : IWireDto
+﻿public sealed class InitDto : IWireDto
 {
     public int SessionId;
     public int Protocol;

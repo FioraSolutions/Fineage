@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class ShortCutDelDto : IWireDto
+﻿public class ShortCutDelDto : IWireDto
 {
     private int _slot;
 
