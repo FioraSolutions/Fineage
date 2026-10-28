@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Manor / crop UI apply hub (#142 batch slice 161; world hub slice 177).
+/// Manor / crop UI apply hub (#142 batch slice 161; world leaf slice 182).
 /// </summary>
 public static class ManorApplyIncomingPacketServices
 {

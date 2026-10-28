@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Crafting UI apply hub (#142 batch slice 161; UI hub slice 176).
+/// Crafting UI apply hub (#142 batch slice 161; UI leaf slice 182).
 /// </summary>
 public static class CraftApplyIncomingPacketServices
 {
