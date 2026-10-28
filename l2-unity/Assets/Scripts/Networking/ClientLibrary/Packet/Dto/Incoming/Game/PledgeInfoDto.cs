@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 public class PledgeInfoDto : IWireDto
 {
     private int _clanId;
