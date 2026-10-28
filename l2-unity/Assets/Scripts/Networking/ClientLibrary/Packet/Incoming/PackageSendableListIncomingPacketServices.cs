@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Package sendable (parcel shipping) list wire packet handler entry (#142 sub-slice 117).
-/// Splits parcel sendable list apply out of <see cref="ShopListIncomingPacketServices"/> (sub-slice 84 encapsulation).
+/// Splits parcel sendable list apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 84 encapsulation).
 /// </summary>
 public static class PackageSendableListIncomingPacketServices
 {

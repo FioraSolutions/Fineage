@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Buy-list seed (manor estate) wire packet handler entry (#142 sub-slice 115).
-/// Splits dealer buy-list seed apply out of <see cref="ShopListIncomingPacketServices"/> (sub-slice 84 encapsulation).
+/// Splits dealer buy-list seed apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 84 encapsulation).
 /// </summary>
 public static class BuyListSeedIncomingPacketServices
 {

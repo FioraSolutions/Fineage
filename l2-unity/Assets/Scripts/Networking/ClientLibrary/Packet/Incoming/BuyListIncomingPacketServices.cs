@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Buy list wire packet handler entry (#142 sub-slice 114).
-/// Splits dealer buy-list apply out of <see cref="ShopListIncomingPacketServices"/> (sub-slice 84 encapsulation).
+/// Splits dealer buy-list apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 84 encapsulation).
 /// </summary>
 public static class BuyListIncomingPacketServices
 {
