@@ -1,11 +1,12 @@
 using System;
 
 /// <summary>
-/// Clan / pledge apply hub (#142 batch slice 160; game hub slice 167).
+/// Clan / pledge apply hub (#142 batch slice 160; locator slice 170).
 /// </summary>
 public static class PledgeApplyIncomingPacketServices
 {
-    public static ClanWindow Clan => GameApplyIncomingPacketServices.Clan;
+    public static ClanWindow Clan => IncomingPacketLocatorApplyIncomingPacketServices.Clan;
 
-    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

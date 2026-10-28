@@ -1,11 +1,13 @@
 using System;
 
 /// <summary>
-/// Party invitation apply hub (#142 batch slice 161; UI hub slice 167).
+/// Party invitation apply hub (#142 batch slice 161; locator slice 170).
 /// </summary>
 public static class PartyApplyIncomingPacketServices
 {
-    public static PartyInvitationWindow PartyInvite => UiApplyIncomingPacketServices.PartyInvite;
+    public static PartyInvitationWindow PartyInvite =>
+        IncomingPacketLocatorApplyIncomingPacketServices.PartyInvite;
 
-    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

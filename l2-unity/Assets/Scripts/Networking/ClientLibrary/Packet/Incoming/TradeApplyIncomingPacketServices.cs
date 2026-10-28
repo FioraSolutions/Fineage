@@ -1,13 +1,15 @@
 using System;
 
 /// <summary>
-/// Trade-session apply hub (#142 batch slice 159; game hub slice 167).
+/// Trade-session apply hub (#142 batch slice 159; locator slice 170).
 /// </summary>
 public static class TradeApplyIncomingPacketServices
 {
-    public static TradeWindow Trade => GameApplyIncomingPacketServices.Trade;
+    public static TradeWindow Trade => IncomingPacketLocatorApplyIncomingPacketServices.Trade;
 
-    public static TradeRequestWindow TradeRequest => GameApplyIncomingPacketServices.TradeRequest;
+    public static TradeRequestWindow TradeRequest =>
+        IncomingPacketLocatorApplyIncomingPacketServices.TradeRequest;
 
-    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }
