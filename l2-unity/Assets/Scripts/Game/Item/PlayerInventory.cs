@@ -201,6 +201,8 @@ public class PlayerInventory : MonoBehaviour
                 if(_currentUser == null) _currentUser =  StorageNpc.getInstance().GetFirstUser();
                 int userId = _currentUser.PlayerInfoInterlude.Identity.Id;
                 UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                    if (InventoryWindow.Instance == null)
+                        return;
                     InventoryWindow.Instance.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);
                     InventoryWindow.Instance.RemoveOldEquipItemOrNoQuipItem(_changeInventoryData , userId);
                 });
@@ -263,7 +265,9 @@ public class PlayerInventory : MonoBehaviour
 
     private void AddInventory(ItemInstance item)
     {
-        int slot = InventoryWindow.Instance.GetEmptySlot();
+        int slot = InventoryWindow.Instance != null
+            ? InventoryWindow.Instance.GetEmptySlot()
+            : _playerInventory.Count;
         item.SetSlot(slot);
         _playerInventory.Add(item.ObjectId, item);
 

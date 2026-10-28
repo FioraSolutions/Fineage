@@ -214,6 +214,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.AttackRequest, body);
     }
 
+    public void SendGrantItemRequest(int itemId, int count)
+    {
+        if (!Connected || _stream == null || itemId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeGrantItemRequest(itemId, count);
+        _ = SendFireAndForget(ZoneV2MsgType.GrantItemRequest, body);
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try

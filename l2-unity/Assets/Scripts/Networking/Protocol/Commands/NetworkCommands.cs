@@ -25,6 +25,19 @@ public sealed class UseItemCommand : INetworkCommand
     }
 }
 
+/// <summary>Zone V2 TX opcode 13 — server grants into bag via InventoryUpdate (Backend #120).</summary>
+public sealed class ZoneGrantItemCommand : INetworkCommand
+{
+    public int ItemId;
+    public int Count;
+
+    public ZoneGrantItemCommand(int itemId, int count = 1)
+    {
+        ItemId = itemId;
+        Count = count < 1 ? 1 : count;
+    }
+}
+
 public sealed class ClickActionCommand : INetworkCommand
 {
     public int ObjectId;

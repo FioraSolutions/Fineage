@@ -55,6 +55,13 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        ZoneGrantItemCommand grant = command as ZoneGrantItemCommand;
+        if (grant != null)
+        {
+            ZoneV2Client.Ensure().SendGrantItemRequest(grant.ItemId, grant.Count);
+            return true;
+        }
+
         // Other Interlude game commands are no-ops on ZoneV2 until wired.
         return true;
     }
