@@ -20,6 +20,10 @@ public enum ZoneV2MsgType : ushort
     UnequipItem = 16,
     /// <summary>Admin bag grant. Backend <c>GiveItemMsg</c> keys 0 itemId, 1 count. The zone rejects it unless admin commands are on.</summary>
     GiveItem = 17,
+    /// <summary>Party invite. Backend <c>PartyInviteRequestMsg</c> keys 0 targetObjectId, 1 itemDistribution.</summary>
+    PartyInviteRequest = 18,
+    /// <summary>Accept or decline pending invite. Backend <c>PartyAnswerJoinRequestMsg</c>.</summary>
+    PartyAnswerJoinRequest = 19,
 
     Register = 20,
     CreateCharacter = 21,
@@ -28,6 +32,10 @@ public enum ZoneV2MsgType : ushort
     /// <summary>Lobby delete. Do not reuse zone CharInfo/NpcInfo/DeleteObject (1005–1007) or V2 lobby 1030–1033.</summary>
     DeleteCharacter = 24,
     RestoreCharacter = 25,
+    /// <summary>Leave current party. Backend <c>PartyLeaveRequestMsg</c> (empty).</summary>
+    PartyLeaveRequest = 26,
+    /// <summary>Leader kick. Backend <c>PartyKickRequestMsg</c> key 0 targetObjectId.</summary>
+    PartyKickRequest = 27,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -58,6 +66,12 @@ public enum ZoneV2MsgType : ushort
     CharacterDeleted = 1025,
     /// <summary>Delete rejected. The roster is not resent.</summary>
     CharacterDeleteFailed = 1026,
+    /// <summary>Party invite prompt. Backend <c>PartyAskJoinMsg</c>.</summary>
+    PartyAskJoin = 1027,
+    /// <summary>Invite result to inviter. Backend <c>PartyJoinResultMsg</c>.</summary>
+    PartyJoinResult = 1028,
+    /// <summary>Full party roster snapshot. Backend <c>PartyMemberListMsg</c>.</summary>
+    PartyMemberList = 1029,
 
     Error = 1099
 }
