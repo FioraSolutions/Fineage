@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-public class PaperDollSelection
+﻿public class PaperDollSelection
 {
     private int ObjId_PAPERDOLL_UNDER;
     private int ObjId_PAPERDOLL_REAR;

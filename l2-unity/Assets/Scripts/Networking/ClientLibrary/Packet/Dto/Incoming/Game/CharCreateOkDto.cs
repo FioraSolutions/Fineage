@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 public class CharCreateOkDto : IWireDto
 {
     private bool _isCreate = false;
