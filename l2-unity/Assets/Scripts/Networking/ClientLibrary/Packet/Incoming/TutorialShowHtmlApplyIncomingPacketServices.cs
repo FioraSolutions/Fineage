@@ -4,7 +4,7 @@ using System;
 /// Tutorial HTML wire packet handler entry (#142 batch slice 140).
 /// Apply facade (#142 batch slice 156). Re-homes from <see cref="TutorialShowHtmlIncomingPacketServices"/>.
 /// </summary>
-public static class TutorialShowUiApplyIncomingPacketServices
+public static class TutorialShowHtmlApplyIncomingPacketServices
 {
     public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
 
