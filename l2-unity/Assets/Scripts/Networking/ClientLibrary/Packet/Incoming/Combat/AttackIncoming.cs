@@ -2,5 +2,5 @@
 public sealed class AttackIncoming : IncomingWirePacket<AttackDto>
 {
     public override void Apply(AttackDto packet) =>
-        AttackIncomingPacketServices.ApplyAttack(packet);
+        AttackApplyIncomingPacketServices.ApplyAttack(packet);
 }

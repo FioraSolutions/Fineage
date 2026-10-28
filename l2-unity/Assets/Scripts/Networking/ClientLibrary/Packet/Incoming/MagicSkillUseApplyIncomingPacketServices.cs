@@ -2,8 +2,9 @@ using System;
 
 /// <summary>
 /// Magic skill use wire packet handler entry (#142 batch slice 144).
+/// Apply facade (#142 batch slice 153). Re-homes from <see cref="MagicSkillUseIncomingPacketServices"/>.
 /// </summary>
-public static class MagicSkillUseIncomingPacketServices
+public static class MagicSkillUseApplyIncomingPacketServices
 {
     public static void ApplyMagicSkillUse(MagicSkillUseDto packet)
     {
