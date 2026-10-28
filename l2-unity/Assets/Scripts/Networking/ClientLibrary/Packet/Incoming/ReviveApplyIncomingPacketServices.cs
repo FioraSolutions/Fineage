@@ -6,5 +6,5 @@
 public static class ReviveApplyIncomingPacketServices
 {
     public static void ApplyRevive(ReviveDto dto) =>
-        WorldApplyIncomingPacketServices.ApplyWorld(apply => apply.Revive(dto));
+        WorldSessionApplyIncomingPacketServices.ApplyWorld(apply => apply.Revive(dto));
 }
