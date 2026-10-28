@@ -8,13 +8,12 @@ using System;
 /// Pledge show-member-list-all on <see cref="PledgeShowMemberListAllIncomingPacketServices"/> (sub-slice 125).
 /// Pledge show-member-list-delete-all on <see cref="PledgeShowMemberListDeleteAllIncomingPacketServices"/> (sub-slice 126).
 /// Pledge show-member-list-delete on <see cref="PledgeShowMemberListDeleteIncomingPacketServices"/> (sub-slice 127).
+/// Pledge show-member-list-update on <see cref="PledgeShowMemberListUpdateIncomingPacketServices"/> (sub-slice 128).
 /// </summary>
 public static class PledgeIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
 
-    public static void ApplyPledgeShowMemberListUpdate(PledgeShowMemberListUpdateDto packet) =>
-        Queue(() => GameIncomingPacketServices.Clan.UpdateMemberData(packet));
 
     public static void ApplyManagePledgePower(ManagePledgePowerDto packet) =>
         Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));

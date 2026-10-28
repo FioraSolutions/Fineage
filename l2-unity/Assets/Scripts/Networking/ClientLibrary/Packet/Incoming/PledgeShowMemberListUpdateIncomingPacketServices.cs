@@ -1,0 +1,12 @@
+using System;
+
+/// <summary>
+/// Pledge show-member-list-update wire packet handler entry (#142 sub-slice 128).
+/// Splits apply out of <see cref="PledgeIncomingPacketServices"/> (sub-slice 60 encapsulation).
+/// </summary>
+public static class PledgeShowMemberListUpdateIncomingPacketServices
+{
+    public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
+
+    public static void ApplyPledgeShowMemberListUpdate(PledgeShowMemberListUpdateDto packet) =>
+        Queue(() => GameIncomingPacketServices.Clan.UpdateMemberData(packet));
