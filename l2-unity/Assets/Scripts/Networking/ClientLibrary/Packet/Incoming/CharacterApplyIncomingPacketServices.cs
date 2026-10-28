@@ -17,13 +17,13 @@ public static class CharacterApplyIncomingPacketServices
 
     public static CharacterSelector Characters => LoginSessionApplyIncomingPacketServices.Characters;
 
-    public static IWorldDomainSink Domain => WorldSessionApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => WorldSessionApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        WorldSessionApplyIncomingPacketServices.QueueDomain(apply);
+        WorldApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        WorldSessionApplyIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 }
