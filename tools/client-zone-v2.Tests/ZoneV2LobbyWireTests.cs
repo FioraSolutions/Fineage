@@ -271,6 +271,35 @@ public class ZoneV2LobbyWireTests
         Assert.Equal("That character is pending deletion.", LobbyCharacterText.ErrorMessage("character_pending_delete", null));
     }
 
+    [Fact]
+    public void Create_validation_matches_human_fighter_and_mystic_rules()
+    {
+        Assert.Null(LobbyCharacterCreate.Validate("Aria", 0, 0, 0, 4, 3, 2));
+        Assert.Null(LobbyCharacterCreate.Validate("Mystic1", 10, 0, 1, 6, 0, 0));
+        Assert.Equal(5, LobbyCharacterCreate.HairLabels(LobbyCharacterCreate.SexMale).Length);
+        Assert.Equal(7, LobbyCharacterCreate.HairLabels(LobbyCharacterCreate.SexFemale).Length);
+        Assert.Equal(4, LobbyCharacterCreate.MaxHairStyle(0));
+        Assert.Equal(6, LobbyCharacterCreate.MaxHairStyle(1));
+        Assert.Equal(0, LobbyCharacterCreate.ClampAppearance(-1, 4));
+        Assert.Equal(4, LobbyCharacterCreate.ClampAppearance(9, 4));
+
+        Assert.Equal("name_too_long", LobbyCharacterCreate.Validate("", 0, 0, 0, 0, 0, 0));
+        Assert.Equal("name_too_long", LobbyCharacterCreate.Validate("   ", 0, 0, 0, 0, 0, 0));
+        Assert.Equal("name_too_long", LobbyCharacterCreate.Validate("ABCDEFGHIJKLMNOPQ", 0, 0, 0, 0, 0, 0));
+        Assert.Equal("invalid_name", LobbyCharacterCreate.Validate("Bad Name", 0, 0, 0, 0, 0, 0));
+        Assert.Equal("invalid_name", LobbyCharacterCreate.Validate("xxAnnouxx", 0, 0, 0, 0, 0, 0));
+        Assert.Equal("creation_failed", LobbyCharacterCreate.Validate("Aria", 0, 0, 0, 5, 0, 0));
+        Assert.Equal("creation_failed", LobbyCharacterCreate.Validate("Aria", 0, 0, 1, 7, 0, 0));
+        Assert.Equal("creation_failed", LobbyCharacterCreate.Validate("Aria", 0, 0, 0, 0, 4, 0));
+        Assert.Equal("creation_failed", LobbyCharacterCreate.Validate("Aria", 0, 0, 0, 0, 0, 3));
+        Assert.Equal("class_not_supported", LobbyCharacterCreate.Validate("Aria", 1, 0, 0, 0, 0, 0));
+        Assert.Equal("race_not_supported", LobbyCharacterCreate.Validate("Aria", 0, 1, 0, 0, 0, 0));
+        Assert.Equal("sex_not_supported", LobbyCharacterCreate.Validate("Aria", 0, 0, 2, 0, 0, 0));
+        Assert.Equal("This name already exists.", LobbyCharacterText.ErrorMessage("name_taken", null));
+        Assert.Equal("Character creation failed.", LobbyCharacterText.ErrorMessage("creation_failed", null));
+        Assert.Equal("Characters cannot be created on this server.", LobbyCharacterText.ErrorMessage("create_not_allowed", null));
+    }
+
     static byte[] Pack<T>(T message)
     {
         return MessagePackSerializer.Serialize(message);
