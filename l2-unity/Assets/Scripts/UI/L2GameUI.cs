@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static NativeFunctions;
 
 public class L2GameUI : L2UI
 {
@@ -259,7 +258,9 @@ public class L2GameUI : L2UI
         if (!_mouseEnabled)
         {
             _mouseEnabled = true;
+#if UNITY_STANDALONE_WIN
             NativeFunctions.SetCursorPos(_lastMousePosition.X, _lastMousePosition.Y);
+#endif
         }
     }
 
@@ -267,7 +268,9 @@ public class L2GameUI : L2UI
     {
         if (_mouseEnabled)
         {
+#if UNITY_STANDALONE_WIN
             NativeFunctions.GetCursorPos(out _lastMousePosition);
+#endif
             _mouseEnabled = false;
         }
     }

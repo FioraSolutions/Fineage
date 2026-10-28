@@ -43,6 +43,7 @@ public sealed class PlayerSpawner
         if (go == null)
             return null;
 
+        EntitySpawnShared.SanitizeCharacterControllerStepOffset(go);
         EntitySpawnShared.Place(go, world.UsersContainer, identity.Position, identity.Heading, identity.Name);
 
         PlayerEntity player = go.GetComponent<PlayerEntity>();

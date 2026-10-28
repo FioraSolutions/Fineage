@@ -45,7 +45,6 @@ public sealed class ItemDropPresentationService
     readonly ItemDropWeaponAligner _weapons;
     readonly ItemDropLayerService _layers;
     readonly ItemDropGrpCatalog _grp;
-    readonly World _world;
     readonly IAnimationManager _animations;
     readonly EffectManager _effects;
 
@@ -54,7 +53,6 @@ public sealed class ItemDropPresentationService
         ItemDropWeaponAligner weapons,
         ItemDropLayerService layers,
         ItemDropGrpCatalog grp,
-        World world,
         IAnimationManager animations,
         EffectManager effects)
     {
@@ -62,14 +60,13 @@ public sealed class ItemDropPresentationService
         _weapons = weapons;
         _layers = layers;
         _grp = grp;
-        _world = world;
         _animations = animations;
         _effects = effects;
     }
 
     private World GameWorld
     {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
+        get { return IncomingPacketActions.GameWorld; }
     }
 
     private IAnimationManager Animations
