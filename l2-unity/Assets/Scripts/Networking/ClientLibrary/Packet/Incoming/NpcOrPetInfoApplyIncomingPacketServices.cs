@@ -1,19 +1,19 @@
 using System;
 
 /// <summary>
-/// Shared NPC/pet presence apply (#142 batch slice 138).
+/// Shared NPC/pet presence apply (#142 batch slice 138; world hub slice 178).
 /// </summary>
 internal static class NpcOrPetInfoApplyIncomingPacketServices
 {
-    public static World GameWorld => AoiApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => AoiApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        AoiApplyIncomingPacketServices.QueueDomain(apply);
+        WorldApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        AoiApplyIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void Apply(NpcInfoDto packet)
     {

@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Combat apply relay in Incoming namespace (#142 batch slice 165; inventory hub slice 176).
+/// Combat apply relay in Incoming namespace (#142 batch slice 165; wire hub slice 178).
 /// </summary>
 public static class CombatPacketApplyIncomingPacketServices
 {

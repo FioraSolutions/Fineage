@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Char info wire packet handler entry (#142 batch slice 147).
+/// Char info wire packet handler entry (#142 batch slice 147; character hub slice 178).
 /// Re-homes char-info apply from <see cref="CharInfoIncomingPacketServices"/>; splits from <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
 /// </summary>
 public static class CharInfoApplyIncomingPacketServices
