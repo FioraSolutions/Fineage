@@ -357,7 +357,7 @@ public class InventorySlot : L2DraggableSlot
         if (mark == null)
         {
             mark = new Label { name = "EnchantMark", pickingMode = PickingMode.Ignore };
-            mark.style.position = Position.Absolute;
+            mark.style.position = UnityEngine.UIElements.Position.Absolute;
             mark.style.left = 1;
             mark.style.top = 0;
             mark.style.fontSize = 10;

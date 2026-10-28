@@ -10,3 +10,5 @@ public static class ExPledgePowerGradeListApplyIncomingPacketServices
 
     public static void ApplyExPledgePowerGradeList(PledgePowerGradeListDto packet) =>
         Queue(() => GameApplyIncomingPacketServices.Clan.ShowGradeInfo(packet));
+
+}

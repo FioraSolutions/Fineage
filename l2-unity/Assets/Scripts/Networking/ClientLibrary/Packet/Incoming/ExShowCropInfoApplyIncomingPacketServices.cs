@@ -15,3 +15,5 @@ public static class ExShowCropInfoApplyIncomingPacketServices
             WorldApplyIncomingPacketServices.SeedInfo.SetDataCropInfo(packet.List);
             WorldApplyIncomingPacketServices.SeedInfo.ShowWindow();
         });
+
+}
