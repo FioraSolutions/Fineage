@@ -3,5 +3,5 @@
 public sealed class PackageSendableListIncoming : IncomingWirePacket<PackageSendableListDto>
 {
     public override void Apply(PackageSendableListDto packet) =>
-        ShopListIncomingPacketServices.ApplyPackageSendableList(packet);
+        PackageSendableListIncomingPacketServices.ApplyPackageSendableList(packet);
 }
