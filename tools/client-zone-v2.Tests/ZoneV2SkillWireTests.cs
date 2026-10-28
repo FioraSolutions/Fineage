@@ -58,7 +58,7 @@ public class ZoneV2SkillWireTests
             ReuseDelayMs = 0,
             Future = "later"
         };
-        var list = new SkillListTestMsg { Skills = [extra] };
+        var list = new SkillListExtraTestMsg { Skills = [extra] };
 
         Assert.True(ZoneV2Messages.TryDecodeSkillList(Pack(list), out ZoneV2SkillEntry[] rows));
         Assert.Single(rows);
@@ -128,6 +128,12 @@ public sealed class SkillListEntryExtraTestMsg
 public sealed class SkillListTestMsg
 {
     [Key(0)] public SkillListEntryTestMsg[] Skills { get; set; } = [];
+}
+
+[MessagePackObject]
+public sealed class SkillListExtraTestMsg
+{
+    [Key(0)] public SkillListEntryExtraTestMsg[] Skills { get; set; } = [];
 }
 
 [MessagePackObject]
