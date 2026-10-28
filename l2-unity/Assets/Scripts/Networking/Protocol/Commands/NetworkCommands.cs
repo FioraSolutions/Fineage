@@ -457,10 +457,39 @@ public sealed class RequestAcquireSkillInfoCommand : INetworkCommand
 public sealed class RequestAnswerJoinPartyCommand : INetworkCommand
 {
     public int Response;
+    /// <summary>Zone V2 inviter object id from <see cref="AskJoinPartyDto.RequestorObjectId"/>; 0 on Interlude.</summary>
+    public int RequestorObjectId;
 
-    public RequestAnswerJoinPartyCommand(int response)
+    public RequestAnswerJoinPartyCommand(int response, int requestorObjectId = 0)
     {
         Response = response;
+        RequestorObjectId = requestorObjectId;
+    }
+}
+
+public sealed class RequestJoinPartyCommand : INetworkCommand
+{
+    public int TargetObjectId;
+    public int ItemDistribution;
+
+    public RequestJoinPartyCommand(int targetObjectId, int itemDistribution = 0)
+    {
+        TargetObjectId = targetObjectId;
+        ItemDistribution = itemDistribution;
+    }
+}
+
+public sealed class RequestWithdrawalPartyCommand : INetworkCommand
+{
+}
+
+public sealed class RequestOustPartyMemberCommand : INetworkCommand
+{
+    public int TargetObjectId;
+
+    public RequestOustPartyMemberCommand(int targetObjectId)
+    {
+        TargetObjectId = targetObjectId;
     }
 }
 

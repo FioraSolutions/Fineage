@@ -4,9 +4,23 @@ public class AskJoinPartyDto : IWireDto
 {
     private string _requestorName;
     private PartyDistributionType _partyDistributionType;
+    private int _requestorObjectId;
 
     public string RequestorName => _requestorName;
     public PartyDistributionType DistributionType => _partyDistributionType;
+    /// <summary>Zone V2 inviter object id; zero on Interlude wire.</summary>
+    public int RequestorObjectId => _requestorObjectId;
+
+    /// <summary>Build from Zone V2 <see cref="ZoneV2MsgType.PartyAskJoin"/> (1027).</summary>
+    public static AskJoinPartyDto FromZoneV2(int requestorObjectId, string requestorName, int itemDistribution)
+    {
+        var dto = new AskJoinPartyDto();
+        dto._requestorObjectId = requestorObjectId;
+        dto._requestorName = requestorName ?? "";
+        dto._partyDistributionType = PartyDistributionTypeExtensions.FindById(itemDistribution) ??
+                                       PartyDistributionType.FindersKeepers;
+        return dto;
+    }
 
     
 

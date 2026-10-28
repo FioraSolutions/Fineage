@@ -19,6 +19,7 @@ public class PartyInvitationWindow : L2PopupWindow
 
     private string _inviterName;
     private string _lootDistribution;
+    private int _requestorObjectId;
     private float _timeoutSeconds = 20f;
     private Coroutine _countdownCoroutine;
 
@@ -56,6 +57,7 @@ public class PartyInvitationWindow : L2PopupWindow
     {
         _inviterName = request.RequestorName;
         _lootDistribution = request.DistributionType.ToString();
+        _requestorObjectId = request.RequestorObjectId;
     }
 
     protected override void LoadAssets()
@@ -154,16 +156,18 @@ public class PartyInvitationWindow : L2PopupWindow
         HideWindow();
     }
 
+    private int _requestorObjectId;
+
     private void SendAcceptResponse()
     {
-        Game.Send(new RequestAnswerJoinPartyCommand(1));
+        Game.Send(new RequestAnswerJoinPartyCommand(1, _requestorObjectId));
 
         OnInvitationResponse?.Invoke(true);
     }
 
     private void SendDeclineResponse()
     {
-        Game.Send(new RequestAnswerJoinPartyCommand(0));
+        Game.Send(new RequestAnswerJoinPartyCommand(0, _requestorObjectId));
 
         OnInvitationResponse?.Invoke(false);
     }
