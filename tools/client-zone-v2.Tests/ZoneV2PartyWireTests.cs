@@ -10,10 +10,13 @@ public class ZoneV2PartyWireTests
     [Fact]
     public void Opcodes_match_the_backend_contract()
     {
-        Assert.Equal(15, (ushort)ZoneV2MsgType.PartyInviteRequest);
-        Assert.Equal(16, (ushort)ZoneV2MsgType.PartyAnswerJoinRequest);
-        Assert.Equal(17, (ushort)ZoneV2MsgType.PartyLeaveRequest);
-        Assert.Equal(18, (ushort)ZoneV2MsgType.PartyKickRequest);
+        Assert.Equal(15, (ushort)ZoneV2MsgType.UseItem);
+        Assert.Equal(16, (ushort)ZoneV2MsgType.UnequipItem);
+        Assert.Equal(17, (ushort)ZoneV2MsgType.GiveItem);
+        Assert.Equal(18, (ushort)ZoneV2MsgType.PartyInviteRequest);
+        Assert.Equal(19, (ushort)ZoneV2MsgType.PartyAnswerJoinRequest);
+        Assert.Equal(26, (ushort)ZoneV2MsgType.PartyLeaveRequest);
+        Assert.Equal(27, (ushort)ZoneV2MsgType.PartyKickRequest);
         Assert.Equal(1027, (ushort)ZoneV2MsgType.PartyAskJoin);
         Assert.Equal(1028, (ushort)ZoneV2MsgType.PartyJoinResult);
         Assert.Equal(1029, (ushort)ZoneV2MsgType.PartyMemberList);
