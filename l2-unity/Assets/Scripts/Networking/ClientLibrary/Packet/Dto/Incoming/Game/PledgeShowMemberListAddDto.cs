@@ -1,7 +1,3 @@
-using Org.BouncyCastle.Utilities.Encoders;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
-
 public class PledgeShowMemberListAddDto : IWireDto
 {
     private string _memberName;

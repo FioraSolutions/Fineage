@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Security.Principal;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 
 public class NpcInfoDto : IWireDto
 {
