@@ -1,22 +1,21 @@
 using System;
 
 /// <summary>
-/// Login / char-select locator hub (#142 batch slice 168; parsed + wire slice 178).
+/// Login / char-select compat shell (#142 batch slice 168; LoginSession orchestration slice 206).
 /// </summary>
 public static class LoginApplyIncomingPacketServices
 {
-    public static LoginClient Login => LocatorApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LocatorApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginSessionApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LocatorApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LoginSessionApplyIncomingPacketServices.Manager;
 
-    public static LoginWindow LoginWindow => LocatorApplyIncomingPacketServices.LoginWindow;
+    public static LoginWindow LoginWindow => LoginSessionApplyIncomingPacketServices.LoginWindow;
 
-    public static CharSelectWindow CharSelect => LocatorApplyIncomingPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => LoginSessionApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => LocatorApplyIncomingPacketServices.Characters;
+    public static CharacterSelector Characters => LoginSessionApplyIncomingPacketServices.Characters;
 
-    public static void Queue(Action action) =>
-        QueueApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => LoginSessionApplyIncomingPacketServices.Queue(action);
 }
