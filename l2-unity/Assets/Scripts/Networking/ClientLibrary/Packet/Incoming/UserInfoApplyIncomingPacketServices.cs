@@ -1,9 +1,11 @@
 using System;
 
 /// <summary>
+/// Apply facade (#142 batch slice 151). Re-homes from <see cref="UserInfoIncomingPacketServices"/>.
+/// 
 /// User info wire packet handler entry (#142 batch slice 143).
 /// </summary>
-public static class UserInfoIncomingPacketServices
+public static class UserInfoApplyIncomingPacketServices
 {
     public static GameClient Game => WorldIncomingPacketServices.Game;
 
