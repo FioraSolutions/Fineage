@@ -38,15 +38,53 @@ public class PlayerStateMachine : MonoBehaviour
             _instance = this;
          
         }
+        else if (TryClaimInstanceFromPlayerEntity())
+        {
+            // Prefer PlayerStateMachine on the spawned player over the scene stub.
+        }
         else
         {
             Destroy(this);
+            return;
         }
 
         InitializeState();
         InitializeIntention();
 
         this.enabled = false;
+    }
+
+    /// <summary>
+    /// Scene "Game" stub carries PlayerStateMachine for edit-mode; live player must own Instance.
+    /// </summary>
+    bool TryClaimInstanceFromPlayerEntity()
+    {
+        if (GetComponentInParent<PlayerEntity>() == null)
+            return false;
+
+        PlayerStateMachine previous = _instance;
+        _instance = this;
+        if (previous != null && previous != this && previous.GetComponentInParent<PlayerEntity>() == null)
+            Destroy(previous);
+        return true;
+    }
+
+    public static void AdoptFromPlayer(PlayerEntity player)
+    {
+        if (player == null)
+            return;
+
+        PlayerStateMachine onPlayer = player.GetComponent<PlayerStateMachine>();
+        if (onPlayer == null)
+            return;
+
+        if (_instance != null && _instance != onPlayer && _instance.GetComponentInParent<PlayerEntity>() == null)
+            Destroy(_instance);
+
+        _instance = onPlayer;
+        onPlayer.enabled = true;
+        if (PlayerEntity.Instance != null)
+            onPlayer.Player = PlayerEntity.Instance;
     }
 
 

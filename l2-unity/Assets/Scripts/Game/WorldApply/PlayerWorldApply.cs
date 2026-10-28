@@ -1,45 +1,30 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Local player packet apply. No VContainer ctor deps — hero spawns after GameScope build.
+/// </summary>
 public sealed class PlayerWorldApply : EntityWorldApply
 {
-    private readonly SkillbarWindow _skillbar;
-    private readonly EffectManager _effects;
-    private readonly PlayerController _player;
-    private readonly EventBus _bus;
+    private SkillbarWindow Skillbar =>
+        IncomingPacketActions.Skillbar != null
+            ? IncomingPacketActions.Skillbar
+            : SkillbarWindow.Instance;
 
-    public PlayerWorldApply(
-        SkillbarWindow skillbar,
-        EffectManager effects,
-        PlayerController player,
-        EventBus bus)
-    {
-        _skillbar = skillbar;
-        _effects = effects;
-        _player = player;
-        _bus = bus;
-    }
+    private EffectManager Effects =>
+        IncomingPacketActions.Effects != null
+            ? IncomingPacketActions.Effects
+            : EffectManager.Instance;
 
-    private PlayerController Player
-    {
-        get { return _player != null ? _player : IncomingPacketActions.Player; }
-    }
+    private PlayerController Player => IncomingPacketActions.Player;
 
-    private EventBus Bus
-    {
-        get { return _bus != null ? _bus : IncomingPacketActions.Bus; }
-    }
+    private EventBus Bus =>
+        IncomingPacketActions.Bus != null ? IncomingPacketActions.Bus : EventBus.Instance;
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
     {
         if (entity != null && entity.IsDead())
             return;
 
-        // ReplayAttackTrace.Write(
-            // "PLAYER_MOVE",
-            // entity,
-            // entity != null ? entity.GetTargetEntity() : null,
-            // "state=" + (PlayerStateMachine.Instance != null ? PlayerStateMachine.Instance.State.ToString() : "none") +
-            // " destination=" + destination);
         if (PlayerStateMachine.Instance != null)
             PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_MOVE_TO, dto);
     }
@@ -96,8 +81,9 @@ public sealed class PlayerWorldApply : EntityWorldApply
 
     public override void OnMagicSkillUse(Entity entity, MagicSkillUseDto dto)
     {
-        if (_skillbar != null)
-            _skillbar.ShowCooldown(dto.SkillId, Shortcut.TYPE_SKILL, dto.Reusedelay);
+        SkillbarWindow skillbar = Skillbar;
+        if (skillbar != null)
+            skillbar.ShowCooldown(dto.SkillId, Shortcut.TYPE_SKILL, dto.Reusedelay);
 
         if (WeaponChargeSkill.IsCharge(dto.SkillId))
         {
@@ -105,7 +91,6 @@ public sealed class PlayerWorldApply : EntityWorldApply
             return;
         }
 
-        // Herb/potion: FX only. Stay in current SM state so pickup can CrossFade wait.
         if (SetupDurationHelper.IsUsePotion(dto))
         {
             SetupDurationHelper.PlayPotionEffect(entity, dto);
@@ -129,7 +114,10 @@ public sealed class PlayerWorldApply : EntityWorldApply
             return;
 
         player.IsSoulshotCharged = true;
-        WeaponChargeSkill.Play(_effects, useSkill.SkillId, player.GetWeaponTransform(), player.transform);
+        EffectManager effects = Effects;
+        if (effects == null)
+            return;
+        WeaponChargeSkill.Play(effects, useSkill.SkillId, player.GetWeaponTransform(), player.transform);
     }
 
     public override void OnAutoAttackStart(Entity entity, AutoAttackStartDto dto)

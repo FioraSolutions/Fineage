@@ -14,12 +14,8 @@ public class TargetManager : MonoBehaviour
     public const int KindCreature = 6;
 
     [Inject] GameClient _gameClient;
-    [Inject] World _world;
 
-    private World GameWorld
-    {
-        get { return _world != null ? _world : IncomingPacketActions.GameWorld; }
-    }
+    private World GameWorld => IncomingPacketActions.GameWorld;
 
     private GameClient Game
     {

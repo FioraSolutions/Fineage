@@ -17,8 +17,8 @@ public sealed class MessagePacketApply
         SystemMessageTable systemMessages,
         SkillNameTable skillNames)
     {
-        _chat = chat;
-        _systemMessageUi = systemMessageUi;
+        _chat = chat != null ? chat : ChatWindow.Instance;
+        _systemMessageUi = systemMessageUi != null ? systemMessageUi : SystemMessageWindow.Instance;
         _queue = queue;
         _systemMessages = systemMessages;
         _skillNames = skillNames;
@@ -39,6 +39,12 @@ public sealed class MessagePacketApply
 
     public void CreatureSay(CreatureMessage message)
     {
+        if (_chat == null)
+        {
+            ReceiveSystem(message);
+            return;
+        }
+
         _queue.Queue(() =>
         {
             try
@@ -59,6 +65,9 @@ public sealed class MessagePacketApply
 
     public void ReceiveSystem(SystemMessage message)
     {
+        if (_chat == null)
+            return;
+
         _queue.Queue(() =>
         {
             try

@@ -15,7 +15,6 @@ public sealed class EntityActionMachine : ITickable
     public EntityActionMachine(
         L2PawnRange pawnRange,
         L2PawnYaw pawnYaw,
-        World gameWorld,
         IAnimationManager animations,
         EffectManager effects,
         MoveAllCharacters moves,
@@ -23,7 +22,6 @@ public sealed class EntityActionMachine : ITickable
     {
         Instance = this;
         ControllerPacketServices.Bind(
-            gameWorld: gameWorld,
             animations: animations,
             effects: effects,
             moves: moves,

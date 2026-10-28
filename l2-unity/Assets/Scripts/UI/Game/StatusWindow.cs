@@ -205,24 +205,35 @@ public class StatusWindow : L2Window
 
         if(_CPBarBG != null && _CPBar != null) {
             float cMaxCP = (float)stats.MaxCp;
-            float cpRatio = (float)status.Cp / cMaxCP;
-            float bgWidth = _CPBarBG.resolvedStyle.width;
-            float barWidth = bgWidth * cpRatio;
-            _CPBar.style.width = barWidth;
+            if (cMaxCP > 0f) {
+                float cpRatio = (float)status.Cp / cMaxCP;
+                float bgWidth = _CPBarBG.resolvedStyle.width;
+                if (bgWidth > 1f && float.IsFinite(bgWidth)) {
+                    _CPBar.style.width = bgWidth * cpRatio;
+                }
+            }
         }
 
         if(_HPBarBG != null && _HPBar != null) {
-            float hpRatio = (float)status.GetHp() / (float)stats.MaxHp;
-            float bgWidth = _HPBarBG.resolvedStyle.width;
-            float barWidth = bgWidth * hpRatio;
-            _HPBar.style.width = barWidth;
+            float hpMax = (float)stats.MaxHp;
+            if (hpMax > 0f) {
+                float hpRatio = (float)status.GetHp() / hpMax;
+                float bgWidth = _HPBarBG.resolvedStyle.width;
+                if (bgWidth > 1f && float.IsFinite(bgWidth)) {
+                    _HPBar.style.width = bgWidth * hpRatio;
+                }
+            }
         }
 
         if(_MPBarBG != null && _MPBar != null) {
-            float mpRatio = (float)status.GetMp() / (float)stats.MaxMp;
-            float bgWidth = _MPBarBG.resolvedStyle.width;
-            float barWidth = bgWidth * mpRatio;
-            _MPBar.style.width = barWidth;
+            float mpMax = (float)stats.MaxMp;
+            if (mpMax > 0f) {
+                float mpRatio = (float)status.GetMp() / mpMax;
+                float bgWidth = _MPBarBG.resolvedStyle.width;
+                if (bgWidth > 1f && float.IsFinite(bgWidth)) {
+                    _MPBar.style.width = bgWidth * mpRatio;
+                }
+            }
         }
     }
 }
