@@ -3,17 +3,17 @@ using System;
 /// <summary>
 /// Apply facade (#142 batch slice 151). Re-homes from <see cref="UserInfoIncomingPacketServices"/>.
 /// 
-/// User info wire packet handler entry (#142 batch slice 143; player hub slice 178).
+/// User info wire packet handler entry (#142 batch slice 143; world hub slice 179).
 /// </summary>
 public static class UserInfoApplyIncomingPacketServices
 {
-    public static GameClient Game => PlayerApplyIncomingPacketServices.Game;
+    public static GameClient Game => WorldApplyIncomingPacketServices.Game;
 
-    public static World GameWorld => PlayerApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;
 
-    public static IWorldDomainSink Domain => PlayerApplyIncomingPacketServices.Domain;
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => PlayerApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
     public static UserInfoDto CreateUserInfoDto() => new UserInfoDto(Game.PlayerInfo);
 

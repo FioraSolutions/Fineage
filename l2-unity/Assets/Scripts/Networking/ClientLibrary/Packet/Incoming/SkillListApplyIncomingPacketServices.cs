@@ -7,7 +7,7 @@ using System;
 /// </summary>
 public static class SkillListApplyIncomingPacketServices
 {
-    public static void Queue(System.Action action) => SkillApplyIncomingPacketServices.Queue(action);
+    public static void Queue(System.Action action) => UiApplyIncomingPacketServices.Queue(action);
 
     public static void ApplySkillList(SkillListDto packet) =>
         Queue(() => SkillApplyIncomingPacketServices.SkillList.UpdateSkillList(packet.Skills));
