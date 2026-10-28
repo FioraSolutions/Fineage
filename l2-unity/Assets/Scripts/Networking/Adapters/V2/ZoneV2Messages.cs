@@ -27,6 +27,60 @@ public static class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, characterSlot), 1);
     }
 
+    /// <summary>
+    /// SelectCharacter keys 0 id, 1 name, 2 slot. A positive id wins. Slot −1 means unspecified.
+    /// </summary>
+    public static byte[] EncodeSelectCharacter(int characterId, string name, int slot)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, characterId);
+            ZoneV2MsgPack.WriteString(w, name ?? "");
+            ZoneV2MsgPack.WriteInt(w, slot);
+        }, 3);
+    }
+
+    public static byte[] EncodeSelectCharacter(int characterId, string name)
+    {
+        return EncodeSelectCharacter(characterId, name, -1);
+    }
+
+    /// <summary>Delete or restore: 0 slot (−1 when using id), 1 characterId (0 when using slot). A positive id wins.</summary>
+    public static byte[] EncodeDeleteCharacter(int slot, int characterId)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, slot);
+            ZoneV2MsgPack.WriteInt(w, characterId);
+        }, 2);
+    }
+
+    public static byte[] EncodeRestoreCharacter(int slot, int characterId)
+    {
+        return EncodeDeleteCharacter(slot, characterId);
+    }
+
+    /// <summary>CreateCharacter keys 0 name, 1 classId, 2 race, 3 sex, 4 hairStyle, 5 hairColor, 6 face.</summary>
+    public static byte[] EncodeCreateCharacter(string name, int classId, int race, int sex, int hairStyle, int hairColor, int face)
+    {
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteString(w, name ?? "");
+            ZoneV2MsgPack.WriteInt(w, classId);
+            ZoneV2MsgPack.WriteInt(w, race);
+            ZoneV2MsgPack.WriteInt(w, sex);
+            ZoneV2MsgPack.WriteInt(w, hairStyle);
+            ZoneV2MsgPack.WriteInt(w, hairColor);
+            ZoneV2MsgPack.WriteInt(w, face);
+        }, 7);
+    }
+
+    /// <summary>Zone Auth password is the handoff token. The account password must not be passed here.</summary>
+    public static byte[] EncodeZoneAuth(ZoneV2Handoff handoff)
+    {
+        return EncodeAuth(handoff.Account, handoff.Token ?? "");
+    }
+
     public static byte[] EncodeMoveTo(int objectId, int destX, int destY, int destZ, int originX, int originY, int originZ)
     {
         return ZoneV2MsgPack.WriteArray(w =>
@@ -266,12 +320,282 @@ public static class ZoneV2Messages
                 return false;
             code = ZoneV2MsgPack.ReadString(body, ref i);
             message = ZoneV2MsgPack.ReadString(body, ref i);
+            if (n > 2)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 2);
             return true;
         }
         catch (InvalidDataException)
         {
             return false;
         }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeLoginOk(byte[] body, out string account)
+    {
+        account = "";
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            account = ZoneV2MsgPack.ReadString(body, ref i);
+            if (n > 1)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 1);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeCharacterList(byte[] body, out ZoneV2CharacterSummary[] characters)
+    {
+        characters = Array.Empty<ZoneV2CharacterSummary>();
+        try
+        {
+            int i = 0;
+            int outer = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (outer < 1)
+                return false;
+            if (ZoneV2MsgPack.TryConsumeNil(body, ref i))
+            {
+                characters = Array.Empty<ZoneV2CharacterSummary>();
+                return true;
+            }
+
+            int count = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (count < 0)
+                return false;
+            ZoneV2CharacterSummary[] list = new ZoneV2CharacterSummary[count];
+            for (int c = 0; c < count; c++)
+            {
+                if (!TryReadCharacterSummary(body, ref i, out list[c]))
+                    return false;
+            }
+
+            if (outer > 1)
+                ZoneV2MsgPack.SkipValues(body, ref i, outer - 1);
+            characters = list;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeHandoff(byte[] body, out ZoneV2Handoff handoff)
+    {
+        handoff = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 7)
+                return false;
+            handoff = new ZoneV2Handoff
+            {
+                Account = ZoneV2MsgPack.ReadString(body, ref i),
+                CharacterName = ZoneV2MsgPack.ReadString(body, ref i),
+                CharacterId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Token = ZoneV2MsgPack.ReadString(body, ref i),
+                ZoneHost = ZoneV2MsgPack.ReadString(body, ref i),
+                ZonePort = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            if (n >= 8)
+                handoff.ExpiresUnixSeconds = ZoneV2MsgPack.ReadInt64(body, ref i);
+            if (n > 8)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 8);
+            return !string.IsNullOrEmpty(handoff.Token);
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeCharacterCreated(byte[] body, out ZoneV2CharacterCreated created)
+    {
+        created = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 8)
+                return false;
+            created = new ZoneV2CharacterCreated
+            {
+                CharacterId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Name = ZoneV2MsgPack.ReadString(body, ref i),
+                ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Race = ZoneV2MsgPack.ReadInt(body, ref i),
+                Sex = ZoneV2MsgPack.ReadInt(body, ref i),
+                HairStyle = ZoneV2MsgPack.ReadInt(body, ref i),
+                HairColor = ZoneV2MsgPack.ReadInt(body, ref i),
+                Face = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            if (n >= 9)
+                created.X = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (n >= 10)
+                created.Y = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (n >= 11)
+                created.Z = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (n > 11)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 11);
+            return created.CharacterId > 0;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeCharacterDeleted(byte[] body, out ZoneV2CharacterDeleted deleted)
+    {
+        deleted = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 3)
+                return false;
+            deleted = new ZoneV2CharacterDeleted
+            {
+                Slot = ZoneV2MsgPack.ReadInt(body, ref i),
+                CharacterId = ZoneV2MsgPack.ReadInt(body, ref i),
+                HardDeleted = ZoneV2MsgPack.ReadBool(body, ref i)
+            };
+            if (n > 3)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 3);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeCharacterDeleteFailed(byte[] body, out ZoneV2CharacterDeleteFailed failed)
+    {
+        failed = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 4)
+                return false;
+            failed = new ZoneV2CharacterDeleteFailed
+            {
+                Slot = ZoneV2MsgPack.ReadInt(body, ref i),
+                CharacterId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Code = ZoneV2MsgPack.ReadString(body, ref i),
+                Message = ZoneV2MsgPack.ReadString(body, ref i)
+            };
+            if (n > 4)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 4);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            return false;
+        }
+    }
+
+    static bool TryReadCharacterSummary(byte[] body, ref int i, out ZoneV2CharacterSummary row)
+    {
+        row = default;
+        int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+        if (n < 6)
+            return false;
+        row = new ZoneV2CharacterSummary
+        {
+            CharacterId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Name = ZoneV2MsgPack.ReadString(body, ref i),
+            ClassId = ZoneV2MsgPack.ReadInt(body, ref i),
+            Race = ZoneV2MsgPack.ReadInt(body, ref i),
+            Sex = ZoneV2MsgPack.ReadInt(body, ref i),
+            Level = ZoneV2MsgPack.ReadInt(body, ref i)
+        };
+        if (n >= 7)
+            row.Slot = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 8)
+            row.HairStyle = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 9)
+            row.HairColor = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 10)
+            row.Face = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 11)
+            row.X = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 12)
+            row.Y = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 13)
+            row.Z = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 14)
+            row.DeleteSecondsLeft = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 15)
+            row.IsLastPlayed = ZoneV2MsgPack.ReadBool(body, ref i);
+        if (n > 15)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - 15);
+        return true;
     }
 
     public static bool TryDecodeMyTargetSelected(byte[] body, out ZoneV2MyTargetSelected selected)
@@ -851,4 +1175,70 @@ public struct ZoneV2AbnormalEffect
     public int Id;
     public int Value;
     public int DurationSeconds;
+}
+
+/// <summary>
+/// Login roster row. Keys 0–5 are id, name, class, race, sex, level.
+/// Keys 6–14 are slot, appearance, position, delete timer, and last-played.
+/// </summary>
+public struct ZoneV2CharacterSummary
+{
+    public int CharacterId;
+    public string Name;
+    public int ClassId;
+    public int Race;
+    public int Sex;
+    public int Level;
+    public int Slot;
+    public int HairStyle;
+    public int HairColor;
+    public int Face;
+    public int X;
+    public int Y;
+    public int Z;
+    public int DeleteSecondsLeft;
+    public bool IsLastPlayed;
+}
+
+/// <summary>Character select ticket. <see cref="Token"/> is the zone Auth password.</summary>
+public struct ZoneV2Handoff
+{
+    public string Account;
+    public string CharacterName;
+    public int CharacterId;
+    public int ClassId;
+    public string Token;
+    public string ZoneHost;
+    public int ZonePort;
+    public long ExpiresUnixSeconds;
+}
+
+public struct ZoneV2CharacterCreated
+{
+    public int CharacterId;
+    public string Name;
+    public int ClassId;
+    public int Race;
+    public int Sex;
+    public int HairStyle;
+    public int HairColor;
+    public int Face;
+    public int X;
+    public int Y;
+    public int Z;
+}
+
+public struct ZoneV2CharacterDeleted
+{
+    public int Slot;
+    public int CharacterId;
+    public bool HardDeleted;
+}
+
+public struct ZoneV2CharacterDeleteFailed
+{
+    public int Slot;
+    public int CharacterId;
+    public string Code;
+    public string Message;
 }
