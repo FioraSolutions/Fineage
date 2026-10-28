@@ -2,8 +2,9 @@ using System;
 
 /// <summary>
 /// Dealer shop list wire packet handler access via GameIncomingPacketServices (#142 sub-slice 84).
-/// Complements warehouse list handlers on <see cref="WarehouseIncomingPacketServices"/> (sub-slice 83)
-/// and shop preview on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98).
+/// Complements warehouse list handlers on <see cref="WarehouseIncomingPacketServices"/> (sub-slice 83),
+/// shop preview on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98),
+/// and sell list on <see cref="SellListIncomingPacketServices"/> (sub-slice 113).
 /// </summary>
 public static class ShopListIncomingPacketServices
 {
@@ -31,19 +32,6 @@ public static class ShopListIncomingPacketServices
             GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Purchase");
             GameIncomingPacketServices.Dealer.SetProductType(ProductType.BUY_SEED);
             GameIncomingPacketServices.Dealer.UpdateBuyData(packet.List, true, packet.ManorId);
-            GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            GameIncomingPacketServices.Dealer.ShowWindow();
-        });
-
-    public static void ApplySellList(SellListDto packet) =>
-        Queue(() =>
-        {
-            UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            GameIncomingPacketServices.Dealer.SetWindowName("Shop");
-            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Inventory");
-            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Sell");
-            GameIncomingPacketServices.Dealer.SetProductType(ProductType.SELL);
-            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.Products, true, packet.ListID);
             GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
             GameIncomingPacketServices.Dealer.ShowWindow();
         });
