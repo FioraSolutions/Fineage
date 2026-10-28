@@ -4,7 +4,7 @@
 /// </summary>
 public static class PlayOkParsedApplyIncomingPacketServices
 {
-    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
+    public static GameClient Game => CharacterApplyIncomingPacketServices.Game;
 
     public static void OnPlayOkParsed(PlayOkDto packet)
     {

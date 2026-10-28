@@ -4,7 +4,7 @@
 /// </summary>
 public static class InitParsedApplyIncomingPacketServices
 {
-    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
+    public static LoginClient Login => CharacterApplyIncomingPacketServices.Login;
 
     public static void OnInitParsed(InitDto packet)
     {
