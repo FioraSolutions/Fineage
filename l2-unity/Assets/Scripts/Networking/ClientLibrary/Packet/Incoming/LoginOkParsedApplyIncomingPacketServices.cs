@@ -4,9 +4,9 @@
 /// </summary>
 public static class LoginOkParsedApplyIncomingPacketServices
 {
-    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
+    public static LoginClient Login => CharacterApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
+    public static GameClient Game => CharacterApplyIncomingPacketServices.Game;
 
     public static void OnLoginOkParsed(LoginOkDto packet)
     {

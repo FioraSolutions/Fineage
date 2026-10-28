@@ -6,7 +6,7 @@ using System;
 /// </summary>
 public static class CharCreateFailApplyIncomingPacketServices
 {
-    public static GameManager Manager => LobbyApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => CharacterApplyIncomingPacketServices.Manager;
 
     public static void Queue(Action action) => CharacterApplyIncomingPacketServices.Queue(action);
 

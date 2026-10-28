@@ -12,7 +12,7 @@ public static class ExShowQuestInfoApplyIncomingPacketServices
 
     public static void ApplyExShowQuestInfo(ExShowQuestInfoDto packet)
     {
-        if (PresenceApplyIncomingPacketServices.GameWorld == null)
+        if (WorldApplyIncomingPacketServices.GameWorld == null)
             return;
 
         Queue(() => QuestApplyIncomingPacketServices.QuestList.ShowWindow());
