@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Quest UI apply hub (#142 batch slice 160; game leaf slice 180).
+/// Quest UI apply hub (#142 batch slice 160; quest orchestration slice 186).
 /// </summary>
 public static class QuestApplyIncomingPacketServices
 {

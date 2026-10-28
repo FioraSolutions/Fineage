@@ -8,13 +8,13 @@ using System;
 /// </summary>
 public static class ExShowQuestInfoApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => QuestApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyExShowQuestInfo(ExShowQuestInfoDto packet)
     {
         if (PresenceApplyIncomingPacketServices.GameWorld == null)
             return;
 
-        Queue(() => GameApplyIncomingPacketServices.QuestList.ShowWindow());
+        Queue(() => QuestApplyIncomingPacketServices.QuestList.ShowWindow());
     }
 }

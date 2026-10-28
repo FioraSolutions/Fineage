@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Merchant / dealer window apply hub (#142 batch slice 160; game hub slice 176).
+/// Merchant / dealer window apply hub (#142 batch slice 160; merchant orchestration slice 186).
 /// </summary>
 public static class MerchantApplyIncomingPacketServices
 {
