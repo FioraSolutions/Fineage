@@ -881,6 +881,19 @@ public static class ZoneV2Messages
         }
     }
 
+    public static byte[] EncodeStatusUpdate(int objectId, int[] attributeIds, int[] values)
+    {
+        if (attributeIds == null || values == null || attributeIds.Length != values.Length)
+            throw new ArgumentException("attributeIds and values must be the same length");
+
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, objectId);
+            ZoneV2MsgPack.WriteIntArray(w, attributeIds);
+            ZoneV2MsgPack.WriteIntArray(w, values);
+        }, 3);
+    }
+
     public static bool TryDecodeStatusUpdate(byte[] body, out ZoneV2StatusUpdate status)
     {
         status = default;
