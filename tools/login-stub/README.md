@@ -2,6 +2,12 @@
 
 Local Blowfish login on **2106** and game on **7777** for the Unity client.
 
+## Canonical V2 login
+
+Account register, Human fighter/mystic create, and the zone handoff token belong in [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend). This process remains the Interlude listener for overnight Unity play, including the in-memory Human Fighter create path below. Do not add another account store here.
+
+A handoff from that server is a zone `Auth` message to `127.0.0.1:9777`: the account name, and the issued token as the password. ZoneServer accepts that shape today.
+
 ## Run
 
 ```bash
