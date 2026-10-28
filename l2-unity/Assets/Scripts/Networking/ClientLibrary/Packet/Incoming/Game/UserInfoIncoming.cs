@@ -1,8 +1,8 @@
 ﻿[IncomingGamePacket(GameServerPacketType.UserInfo)]
 public sealed class UserInfoIncoming : IncomingWirePacket<UserInfoDto>
 {
-    protected override UserInfoDto CreateDto() => PlayerWorldIncomingPacketServices.CreateUserInfoDto();
+    protected override UserInfoDto CreateDto() => UserInfoIncomingPacketServices.CreateUserInfoDto();
 
     public override void Apply(UserInfoDto userInfo) =>
-        PlayerWorldIncomingPacketServices.ApplyUserInfo(userInfo);
+        UserInfoIncomingPacketServices.ApplyUserInfo(userInfo);
 }

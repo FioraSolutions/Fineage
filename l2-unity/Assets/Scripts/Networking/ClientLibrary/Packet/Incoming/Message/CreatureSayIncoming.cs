@@ -2,5 +2,5 @@
 public sealed class CreatureSayIncoming : IncomingWirePacket<CreatureSayDto>
 {
     public override void Apply(CreatureSayDto packet) =>
-        MessageIncomingPacketServices.ApplyCreatureSay(packet);
+        CreatureSayIncomingPacketServices.ApplyCreatureSay(packet);
 }

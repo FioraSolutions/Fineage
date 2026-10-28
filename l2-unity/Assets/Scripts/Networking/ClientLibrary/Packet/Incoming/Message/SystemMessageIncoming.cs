@@ -2,5 +2,5 @@
 public sealed class SystemMessageIncoming : IncomingWirePacket<SystemMessageDto>
 {
     public override void Apply(SystemMessageDto packet) =>
-        MessageIncomingPacketServices.ApplySystemMessage(packet);
+        SystemMessageIncomingPacketServices.ApplySystemMessage(packet);
 }
