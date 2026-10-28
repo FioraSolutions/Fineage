@@ -33,14 +33,60 @@ def unity_bundle_version(version: str) -> str:
     return ".".join(match.groups())
 
 
-def resolve_version(ref_type: str, ref_name: str, describe: str, sha: str) -> str:
+def parse_release_semver(tag: str) -> tuple[int, int, int] | None:
+    """Semver from stable vX.Y.Z or playtest-X.Y.Z tags; ignores legacy non-semver tags."""
+    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag)
+    if match:
+        return tuple(int(part) for part in match.groups())  # type: ignore[return-value]
+    match = re.fullmatch(r"playtest-(\d+)\.(\d+)\.(\d+)", tag)
+    if match:
+        return tuple(int(part) for part in match.groups())  # type: ignore[return-value]
+    return None
+
+
+def highest_release_semver(repo: Path) -> tuple[int, int, int] | None:
+    tags = git_output(repo, ["tag", "-l"], check=False)
+    found: list[tuple[int, int, int]] = []
+    for line in tags.splitlines():
+        parsed = parse_release_semver(line.strip())
+        if parsed:
+            found.append(parsed)
+    return max(found) if found else None
+
+
+def playtest_next_version(repo: Path) -> str:
+    """Next patch after the highest vX.Y.Z or playtest-X.Y.Z tag (0.0.1 if none)."""
+    highest = highest_release_semver(repo)
+    if highest is None:
+        return "0.0.1"
+    major, minor, patch = highest
+    return f"{major}.{minor}.{patch + 1}"
+
+
+def version_from_ref_name(ref_name: str) -> str:
+    name = ref_name
+    if name.startswith("v"):
+        name = name[1:]
+    elif name.startswith("playtest-"):
+        name = name[len("playtest-") :]
+    return sanitize_token(name)
+
+
+def resolve_version(
+    ref_type: str,
+    ref_name: str,
+    describe: str,
+    sha: str,
+    *,
+    repo: Path | None = None,
+) -> str:
+    # Untagged main pushes: bump patch from the highest vX.Y.Z / playtest-X.Y.Z tag (else 0.0.1).
+    del describe, sha
     if ref_type == "tag" and ref_name:
-        return sanitize_token(ref_name[1:] if ref_name.startswith("v") else ref_name)
-    # git describe --always prints a sha when there is no tag. That is not a semver.
-    if describe.startswith("v") or re.match(r"^\d+\.\d+", describe):
-        text = describe[1:] if describe.startswith("v") else describe
-        return sanitize_token(text)
-    return sanitize_token(f"0.0.0-{sha}")
+        return version_from_ref_name(ref_name)
+    if repo is None:
+        raise ValueError("repo is required to resolve an untagged playtest version")
+    return sanitize_token(playtest_next_version(repo))
 
 
 def release_tag(ref_type: str, ref_name: str, version: str) -> tuple[str, bool]:
@@ -141,7 +187,7 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
     sha = git_output(repo, ["rev-parse", "--short=12", "HEAD"])
     full_sha = git_output(repo, ["rev-parse", "HEAD"])
     describe = git_output(repo, ["describe", "--tags", "--always"], check=False)
-    version = resolve_version(ref_type, ref_name, describe, sha)
+    version = resolve_version(ref_type, ref_name, describe, sha, repo=repo)
     tag, prerelease = release_tag(ref_type, ref_name, version)
     endpoint = endpoint_summary(env)
     return {
@@ -184,12 +230,14 @@ def write_notes(repo: Path, output: Path, env: dict[str, str]) -> dict[str, obje
 
 def self_test() -> int:
     assert resolve_version("tag", "v1.2.3", "v1.2.3", "abc") == "1.2.3"
-    assert resolve_version("branch", "main", "v0.4.1-2-gabcdef", "abcdef") == "0.4.1-2-gabcdef"
-    assert resolve_version("branch", "main", "abc123", "abc123").startswith("0.0.0-")
-    assert resolve_version("branch", "main", "abc", "abc123456789").startswith("0.0.0-")
+    assert resolve_version("tag", "playtest-0.0.5", "ignored", "abc") == "0.0.5"
+    assert parse_release_semver("v1.2.3") == (1, 2, 3)
+    assert parse_release_semver("playtest-0.0.2") == (0, 0, 2)
+    assert parse_release_semver("playtest-20261028") is None
     assert unity_bundle_version("0.4.1-2-gabcdef") == "0.4.1"
+    assert unity_bundle_version("0.0.3") == "0.0.3"
     assert release_tag("tag", "v1.2.3", "1.2.3") == ("v1.2.3", False)
-    assert release_tag("branch", "main", "0.0.0-abc") == ("playtest-0.0.0-abc", True)
+    assert release_tag("branch", "main", "0.0.3") == ("playtest-0.0.3", True)
 
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp) / "repo"
@@ -209,7 +257,9 @@ def self_test() -> int:
         }
         out = Path(tmp) / "out"
         notes = write_notes(repo, out, env)
-        assert str(notes["version"]).startswith("0.0.0-")
+        assert notes["version"] == "0.0.1"
+        assert notes["unityVersion"] == "0.0.1"
+        assert notes["releaseTag"] == "playtest-0.0.1"
         assert notes["host"] == "play.test"
         assert notes["loginHost"] == "login.fineage.evpoint.by"
         assert notes["gameHost"] == "game.fineage.evpoint.by"
@@ -225,8 +275,17 @@ def self_test() -> int:
         readme.write_text("hi2\n", encoding="utf-8")
         subprocess.check_call(["git", "commit", "-am", "Add login host override"], cwd=repo)
         notes = write_notes(repo, out, env)
-        assert str(notes["version"]).startswith("0.2.0-")
+        assert notes["version"] == "0.2.1"
+        assert notes["unityVersion"] == "0.2.1"
+        assert notes["releaseTag"] == "playtest-0.2.1"
         assert "Add login host override" in (out / "CHANGELOG.md").read_text(encoding="utf-8")
+
+        subprocess.check_call(["git", "tag", "playtest-0.2.1"], cwd=repo)
+        readme.write_text("hi3\n", encoding="utf-8")
+        subprocess.check_call(["git", "commit", "-am", "Third commit"], cwd=repo)
+        notes = write_notes(repo, out, env)
+        assert notes["version"] == "0.2.2"
+        assert notes["releaseTag"] == "playtest-0.2.2"
 
         env = {
             "FINEAGE_PUBLIC_HOST": "play.test",
