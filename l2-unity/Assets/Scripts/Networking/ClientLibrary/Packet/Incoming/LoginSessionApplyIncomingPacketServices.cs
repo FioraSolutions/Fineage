@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Login-session wire apply hub (#142 batch slice 169; char UI slice 170).
+/// Login-session wire apply hub (#142 batch slice 169; window slice 172).
 /// </summary>
 public static class LoginSessionApplyIncomingPacketServices
 {
@@ -10,6 +10,8 @@ public static class LoginSessionApplyIncomingPacketServices
     public static GameClient Game => LoginApplyIncomingPacketServices.Game;
 
     public static GameManager Manager => LoginApplyIncomingPacketServices.Manager;
+
+    public static LoginWindow LoginWindow => LoginApplyIncomingPacketServices.LoginWindow;
 
     public static CharSelectWindow CharSelect => LoginApplyIncomingPacketServices.CharSelect;
 

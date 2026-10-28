@@ -18,5 +18,5 @@ public static class GameApplyIncomingPacketServices
     public static QuestListWindow QuestList => QuestApplyIncomingPacketServices.QuestList;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

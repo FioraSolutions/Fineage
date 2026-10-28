@@ -8,5 +8,5 @@ public static class PledgeApplyIncomingPacketServices
     public static ClanWindow Clan => IncomingPacketLocatorApplyIncomingPacketServices.Clan;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

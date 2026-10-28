@@ -75,6 +75,6 @@ public static class IncomingPacketBindApplyIncomingPacketServices
             seedInfo: seedInfo,
             sellCrop: sellCrop,
             buffer: buffer);
-        IncomingPacketQueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
+        QueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
     }
 }
