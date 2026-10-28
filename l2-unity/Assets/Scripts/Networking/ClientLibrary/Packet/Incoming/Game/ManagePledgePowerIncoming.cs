@@ -3,8 +3,6 @@ using UnityEngine;
 [IncomingGamePacket(GameServerPacketType.ManagePledgePower)]
 public sealed class ManagePledgePowerIncoming : IncomingWirePacket<ManagePledgePowerDto>
 {
-    public override void Apply(ManagePledgePowerDto packet)
-    {
+    public override void Apply(ManagePledgePowerDto packet) =>
         PledgeIncomingPacketServices.ApplyManagePledgePower(packet);
-    }
 }

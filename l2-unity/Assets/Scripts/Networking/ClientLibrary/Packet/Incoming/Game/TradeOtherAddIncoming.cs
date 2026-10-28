@@ -6,8 +6,6 @@ public sealed class TradeOtherAddIncoming : IncomingPacket<TradeOtherAddIncoming
         return new TradeOtherAddIncomingDto();
     }
 
-    public override void Apply(TradeOtherAddIncomingDto dto)
-    {
+    public override void Apply(TradeOtherAddIncomingDto dto) =>
         TradeSessionIncomingPacketServices.ApplyOtherAdd(dto);
-    }
 }
