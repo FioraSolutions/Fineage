@@ -2,8 +2,9 @@ using System;
 
 /// <summary>
 /// Shortcut register wire packet handler entry (#142 batch slice 141).
+/// Apply facade (#142 batch slice 155). Re-homes from <see cref="ShortCutRegisterIncomingPacketServices"/>.
 /// </summary>
-public static class ShortCutRegisterIncomingPacketServices
+public static class ShortCutRegisterApplyIncomingPacketServices
 {
     public static PlayerShortcuts Shortcuts => UiIncomingPacketServices.Shortcuts;
 
