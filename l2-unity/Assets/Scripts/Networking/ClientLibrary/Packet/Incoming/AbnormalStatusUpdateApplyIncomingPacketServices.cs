@@ -1,7 +1,9 @@
 /// <summary>
+/// Apply facade (#142 batch slice 152). Re-homes from <see cref="AbnormalStatusUpdateIncomingPacketServices"/>.
+/// 
 /// Abnormal status update wire packet handler entry (#142 batch slice 141).
 /// </summary>
-public static class AbnormalStatusUpdateIncomingPacketServices
+public static class AbnormalStatusUpdateApplyIncomingPacketServices
 {
     public static BufferPanel Buffer => WorldIncomingPacketServices.Buffer;
 

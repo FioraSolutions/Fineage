@@ -15,5 +15,5 @@ public sealed class StatusUpdateIncoming : IncomingPacket<StatusUpdateDto>
     }
 
     public override void Apply(StatusUpdateDto dto) =>
-        StatusUpdateIncomingPacketServices.ApplyStatusUpdate(dto.ObjectId, dto.Attributes);
+        StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate(dto.ObjectId, dto.Attributes);
 }
