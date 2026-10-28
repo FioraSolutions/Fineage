@@ -39,10 +39,18 @@ public sealed class ZoneV2Client : MonoBehaviour
     private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 
     readonly ConcurrentQueue<Action> _main = new ConcurrentQueue<Action>();
+    readonly object _lobbyGate = new object();
     CancellationTokenSource _cts;
     TcpClient _tcp;
     NetworkStream _stream;
     readonly object _sendLock = new object();
+    FineageLobbySession _lobby;
+    int _preselectId;
+    int _selectGeneration;
+    int _lobbyEpoch;
+    volatile bool _zoneStarted;
+    bool _selectUiShown;
+    bool _returnToSelectOnRoster;
 
     public bool Connected { get; private set; }
     public int SessionObjectId { get; private set; } = 1;
@@ -96,6 +104,8 @@ public sealed class ZoneV2Client : MonoBehaviour
     public void BeginSession(string account, string password)
     {
         Disconnect();
+        _preselectId = 0;
+        _selectGeneration++;
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
         if (FineageWireConfig.UseLoginHandoff)
@@ -103,13 +113,279 @@ public sealed class ZoneV2Client : MonoBehaviour
             string loginHost = FineageWireConfig.LoginHost;
             int loginPort = FineageWireConfig.LoginPort;
             string character = FineageLocalBackend.CharacterHint;
-            Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
+            if (!string.IsNullOrEmpty(character))
+            {
+                Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
+                return;
+            }
+
+            Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
             return;
         }
 
         string host = FineageWireConfig.ZoneHost;
         int port = FineageWireConfig.ZonePort;
         Task.Run(() => RunSessionAsync(host, port, account, password, ct));
+    }
+
+    async Task OpenLobbyAsync(string loginHost, int loginPort, string account, string password, CancellationToken ct)
+    {
+        int epoch = _lobbyEpoch;
+        FineageLobbySession session = new FineageLobbySession(ct);
+        session.Roster = rows => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            ApplyLobbyRoster(rows);
+        });
+        session.Handoff = handoff =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            HandleLobbyHandoff(handoff, ct);
+        };
+        session.Failed = (code, message) => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            ShowLobbyError(code, message);
+        });
+        session.Created = created => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            _preselectId = created.CharacterId;
+        });
+        session.DeleteFailed = failed => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            ShowLobbyError(failed.Code, failed.Message);
+        });
+        session.Lost = reason => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            OnLobbyLost(reason);
+        });
+        lock (_lobbyGate)
+            _lobby = session;
+
+        try
+        {
+            await session.ConnectAsync(loginHost, loginPort, account, password).ConfigureAwait(false);
+            Post(() => Debug.Log("[FineageLocal] lobby ready account=" + session.Account));
+        }
+        catch (OperationCanceledException)
+        {
+            session.Close();
+        }
+        catch (Exception ex)
+        {
+            session.Close();
+            lock (_lobbyGate)
+            {
+                if (_lobby == session)
+                    _lobby = null;
+            }
+
+            Post(() =>
+            {
+                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                if (LoginWindow.Instance != null)
+                    LoginWindow.Instance.ShowErrorText(ex.Message);
+            });
+        }
+    }
+
+    void ApplyLobbyRoster(ZoneV2CharacterSummary[] rows)
+    {
+        LobbyCharacter[] characters = LobbyCharacterMap.FromSummaries(rows);
+        int preselect = _preselectId;
+        _preselectId = 0;
+        if (CharSelectWindow.Instance != null)
+            CharSelectWindow.Instance.SetLobbyCharacters(characters);
+        if (CharacterSelector.Instance != null)
+            CharacterSelector.Instance.SetLobbyCharacters(characters, preselect);
+        if (CharSelectWindow.Instance != null)
+            CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, preselect));
+
+        bool returnFromCreate = _returnToSelectOnRoster;
+        _returnToSelectOnRoster = false;
+        if (_selectUiShown && !returnFromCreate)
+            return;
+        _selectUiShown = true;
+        GameManager manager = Manager;
+        if (manager != null)
+            manager.OnAuthAllowed();
+        else
+            Debug.LogError("[FineageLocal] GameManager missing; character select was not shown.");
+    }
+
+    void HandleLobbyHandoff(ZoneV2Handoff handoff, CancellationToken ct)
+    {
+        if (_zoneStarted)
+            return;
+        _zoneStarted = true;
+        _selectGeneration++;
+        if (string.IsNullOrWhiteSpace(handoff.ZoneHost))
+            handoff.ZoneHost = FineageWireConfig.ZoneHost;
+        if (handoff.ZonePort <= 0)
+            handoff.ZonePort = FineageWireConfig.ZonePort;
+
+        string prefix = handoff.Token != null && handoff.Token.StartsWith("fa1.", StringComparison.Ordinal)
+            ? "fa1."
+            : "missing";
+        int tokenLength = handoff.Token != null ? handoff.Token.Length : 0;
+        Post(() =>
+        {
+            Debug.Log("[FineageLocal] handoff character=" + handoff.CharacterName
+                + " zone=" + handoff.ZoneHost + ":" + handoff.ZonePort
+                + " tokenPrefix=" + prefix
+                + " tokenLength=" + tokenLength);
+            if (CharSelectWindow.Instance != null)
+                CharSelectWindow.Instance.ShowLobbyStatus("Entering the world...");
+        });
+
+        CloseLobby();
+        // Zone Auth uses the handoff token. The account password is not in this call.
+        Task.Run(() => RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct));
+    }
+
+    void ShowLobbyError(string code, string message)
+    {
+        _selectGeneration++;
+        string text = LobbyCharacterText.ErrorMessage(code, message);
+        Debug.LogWarning("[FineageLocal] lobby " + code + ": " + message);
+        if (_returnToSelectOnRoster)
+        {
+            _returnToSelectOnRoster = false;
+            CharCreationWindow creation = CharCreationWindow.Instance;
+            if (creation != null && creation.IsOpen)
+            {
+                creation.SetlabelError(text);
+                return;
+            }
+        }
+
+        if (CharSelectWindow.Instance != null)
+        {
+            CharSelectWindow.Instance.ShowLobbyStatus(text);
+            CharSelectWindow.Instance.RefreshLobbyActions();
+        }
+        else if (LoginWindow.Instance != null)
+            LoginWindow.Instance.ShowErrorText(text);
+    }
+
+    void OnLobbyLost(string reason)
+    {
+        if (_zoneStarted)
+            return;
+        Debug.LogWarning("[FineageLocal] lobby closed: " + reason);
+        CloseLobby();
+        if (CharSelectWindow.Instance != null)
+            CharSelectWindow.Instance.ShowLobbyStatus(reason);
+        GameManager manager = Manager;
+        if (manager != null && _selectUiShown)
+            manager.OnRelogin();
+        else if (LoginWindow.Instance != null)
+            LoginWindow.Instance.ShowErrorText(reason);
+    }
+
+    public void SelectLobbyCharacter(LobbyCharacter character)
+    {
+        if (character == null || !LobbyCharacterText.CanEnter(character))
+            return;
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return;
+        int generation = ++_selectGeneration;
+        session.SendSelect(character.Id > 0 ? character.Id : 0, character.Name, character.Id > 0 ? -1 : character.Slot);
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(2000).ConfigureAwait(false);
+            }
+            catch
+            {
+                return;
+            }
+
+            Post(() =>
+            {
+                if (generation != _selectGeneration || _zoneStarted)
+                    return;
+                if (CharSelectWindow.Instance != null)
+                {
+                    CharSelectWindow.Instance.ShowLobbyStatus("The server did not enter the world. Try again.");
+                    CharSelectWindow.Instance.RefreshLobbyActions();
+                }
+            });
+        });
+    }
+
+    public void DeleteLobbyCharacter(LobbyCharacter character)
+    {
+        if (character == null)
+            return;
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return;
+        if (character.Id > 0)
+            session.SendDelete(-1, character.Id);
+        else
+            session.SendDelete(character.Slot, 0);
+    }
+
+    public void RestoreLobbyCharacter(LobbyCharacter character)
+    {
+        if (character == null)
+            return;
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return;
+        if (character.Id > 0)
+            session.SendRestore(-1, character.Id);
+        else
+            session.SendRestore(character.Slot, 0);
+    }
+
+    public bool CreateLobbyCharacter(string name, int classId, int race, int sex, int hairStyle, int hairColor, int face)
+    {
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return false;
+        _returnToSelectOnRoster = true;
+        session.SendCreate(name, classId, race, sex, hairStyle, hairColor, face);
+        return true;
+    }
+
+    public void CancelLobbyCreate()
+    {
+        _returnToSelectOnRoster = false;
+    }
+
+    public void CloseLobby()
+    {
+        FineageLobbySession session;
+        lock (_lobbyGate)
+        {
+            session = _lobby;
+            _lobby = null;
+        }
+
+        if (session != null)
+            session.Close();
+    }
+
+    FineageLobbySession Lobby
+    {
+        get
+        {
+            lock (_lobbyGate)
+                return _lobby;
+        }
     }
 
     async Task RunLoginThenZoneAsync(
@@ -153,6 +429,11 @@ public sealed class ZoneV2Client : MonoBehaviour
 
     public void Disconnect()
     {
+        _lobbyEpoch++;
+        CloseLobby();
+        _selectUiShown = false;
+        _zoneStarted = false;
+        _returnToSelectOnRoster = false;
         try
         {
             _cts?.Cancel();
@@ -279,11 +560,13 @@ public sealed class ZoneV2Client : MonoBehaviour
                 switch (f.Type)
                 {
                     case ZoneV2MsgType.HelloAck:
-                        string credential = password != null && password.StartsWith("fa1.", StringComparison.Ordinal)
-                            ? "handoff-token"
-                            : "password";
+                        bool handoffToken = password != null && password.StartsWith("fa1.", StringComparison.Ordinal);
+                        string credential = handoffToken ? "handoff-token" : "password";
                         Post(() => Debug.Log("[ZoneV2] Auth account=" + account + " credential=" + credential));
-                        await ZoneV2FrameIO.SendAsync(stream, ZoneV2MsgType.Auth, ZoneV2Messages.EncodeAuth(account, password), ct)
+                        byte[] authBody = handoffToken
+                            ? ZoneV2Messages.EncodeZoneAuth(new ZoneV2Handoff { Account = account, Token = password })
+                            : ZoneV2Messages.EncodeAuth(account, password);
+                        await ZoneV2FrameIO.SendAsync(stream, ZoneV2MsgType.Auth, authBody, ct)
                             .ConfigureAwait(false);
                         break;
 

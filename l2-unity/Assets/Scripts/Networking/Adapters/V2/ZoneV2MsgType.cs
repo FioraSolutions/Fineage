@@ -19,6 +19,9 @@ public enum ZoneV2MsgType : ushort
     CreateCharacter = 21,
     ListCharacters = 22,
     SelectCharacter = 23,
+    /// <summary>Lobby delete. Do not reuse zone CharInfo/NpcInfo/DeleteObject (1005–1007) or V2 lobby 1030–1033.</summary>
+    DeleteCharacter = 24,
+    RestoreCharacter = 25,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -45,6 +48,10 @@ public enum ZoneV2MsgType : ushort
     CharacterList = 1022,
     Handoff = 1023,
     LoginOk = 1024,
+    /// <summary>Always followed by a fresh <see cref="CharacterList"/>.</summary>
+    CharacterDeleted = 1025,
+    /// <summary>Delete rejected. The roster is not resent.</summary>
+    CharacterDeleteFailed = 1026,
 
     Error = 1099
 }
