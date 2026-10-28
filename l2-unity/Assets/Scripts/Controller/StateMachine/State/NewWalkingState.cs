@@ -20,10 +20,10 @@
                     DebugLineDraw.RemoveDrawLineDebug(PlayerEntity.Instance.Identity.Id);
                     break;
                 case Event.MOVE_TO:
-                    IncomingPacketActions.Animations.PlayAnimation(_stateMachine.GetObjectId() , ForRide(AnimationNames.WALK).ToString(), true);
+                    ControllerPacketServices.Animations.PlayAnimation(_stateMachine.GetObjectId() , ForRide(AnimationNames.WALK).ToString(), true);
                 break;
                 case Event.RIDE:
-                    IncomingPacketActions.Animations.PlayAnimation(_stateMachine.GetObjectId() , ForRide(AnimationNames.WALK).ToString(), true);
+                    ControllerPacketServices.Animations.PlayAnimation(_stateMachine.GetObjectId() , ForRide(AnimationNames.WALK).ToString(), true);
                 break;
             }
     }

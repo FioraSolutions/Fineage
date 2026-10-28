@@ -30,7 +30,7 @@ public class NewMoveToIntention : IntentionBase
 
             DebugLineDraw.ShowDrawLineDebug(PlayerEntity.Instance.Identity.Id, oldPosition, newPosition, Color.red);
 
-            float dist = VectorUtils.Distance2D(IncomingPacketActions.Player.transform.position, newPosition);
+            float dist = VectorUtils.Distance2D(ControllerPacketServices.Player.transform.position, newPosition);
 
             //Debug.Log("NewMoveToIntention> to dict " + distTest + " original " + distTest2);
 
@@ -45,7 +45,7 @@ public class NewMoveToIntention : IntentionBase
 
             
             //PlayerController.Instance.MoveToPoint((Vector3)arg0, 0.1f);
-            IncomingPacketActions.Player.MoveToPoint(new MovementTarget(newPosition, 0.1f , PlayerEntity.Instance.Running));
+            ControllerPacketServices.Player.MoveToPoint(new MovementTarget(newPosition, 0.1f , PlayerEntity.Instance.Running));
             StartAnimMoveTo();
         }
     }

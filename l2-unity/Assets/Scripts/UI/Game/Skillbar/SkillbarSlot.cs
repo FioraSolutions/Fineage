@@ -69,7 +69,7 @@ public class SkillbarSlot : L2ClickableSlot
 
     public void AssignItem(int objectId)
     {
-        ItemInstance item = PlayerInventory.Instance.FindByAllInventory(objectId);
+        ItemInstance item = SkillbarPacketServices.Inventory.FindByAllInventory(objectId);
         _innerSlot = new InventorySlot(_position, _slotElement, SlotType.SkillBar);
         ((InventorySlot)_innerSlot).AssignItem(item);
         ((L2ClickableSlot)_innerSlot).UnregisterClickableCallback();
@@ -100,7 +100,7 @@ public class SkillbarSlot : L2ClickableSlot
     {
         _slotElement.RemoveFromClassList("empty");
 
-        string key = PlayerShortcuts.Instance.GetKeybindForShortcut(_skillbarId, _slot);
+        string key = SkillbarPacketServices.Shortcuts.GetKeybindForShortcut(_skillbarId, _slot);
 
         //Debug.Log("UpdateInputInfo поиску по KeyImageTable");
         Texture2D inputTexture = KeyImageTable.Instance.LoadTextureByKey(key);
@@ -134,7 +134,7 @@ public class SkillbarSlot : L2ClickableSlot
         if (_shortcut != null)
         {
             // Debug.LogWarning($"Use bar slot {_position}.");
-            PlayerShortcuts.Instance.UseShortcut(_shortcut);
+            SkillbarPacketServices.Shortcuts.UseShortcut(_shortcut);
         }
     }
 

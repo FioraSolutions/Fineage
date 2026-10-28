@@ -24,11 +24,22 @@ public class QuestListWindow : L2PopupWindow
         {
             _creatorTableWindows = new CreatorTableWindows();
             _instance = this;
+            WireAuxiliaryGameUIPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireAuxiliaryGameUIPacketServices();
+    }
+
+    private void WireAuxiliaryGameUIPacketServices()
+    {
+        AuxiliaryGameUIPacketServices.Bind(questList: this);
     }
 
     protected override void LoadAssets()

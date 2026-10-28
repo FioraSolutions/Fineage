@@ -1,10 +1,6 @@
-﻿using UnityEngine;
-
-[IncomingGamePacket(GameServerPacketType.ShopPreviewInfo)]
+﻿[IncomingGamePacket(GameServerPacketType.ShopPreviewInfo)]
 public sealed class ShopPreviewInfoIncoming : IncomingWirePacket<ShopPreviewInfoDto>
 {
-    public override void Apply(ShopPreviewInfoDto packet)
-    {
-        // Debug.Log("There is no implementation of this package.> OnShopPreviewInfo");
-    }
+    public override void Apply(ShopPreviewInfoDto packet) =>
+        ShopPreviewApplyIncomingPacketServices.ApplyShopPreviewInfo(packet);
 }

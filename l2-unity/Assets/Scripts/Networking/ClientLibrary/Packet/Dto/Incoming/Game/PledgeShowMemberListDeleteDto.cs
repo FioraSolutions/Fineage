@@ -1,6 +1,3 @@
-using UnityEngine;
-using UnityEngine.ProBuilder.MeshOperations;
-
 public class PledgeShowMemberListDeleteDto : IWireDto
 {
     private string _memberName;

@@ -37,8 +37,8 @@ public class NewPhysicalSkillsIntention : IntentionBase
             }
 
             int objectId = _stateMachine.Player.Identity.Id;
-            IncomingPacketActions.Animations.SetSpTimeAtk(objectId , useSkill.HitTime);
-            Entity targetEntity = IncomingPacketActions.GameWorld.GetEntityNoLockSync(useSkill.TargetId);
+            ControllerPacketServices.Animations.SetSpTimeAtk(objectId , useSkill.HitTime);
+            Entity targetEntity = ControllerPacketServices.GameWorld.GetEntityNoLockSync(useSkill.TargetId);
             // Bow SpAtk: live follow until shoot. Other phys skills: one-shot snapshot.
             if (objectId != useSkill.TargetId &&
                 targetEntity != null &&
@@ -46,13 +46,13 @@ public class NewPhysicalSkillsIntention : IntentionBase
             {
                 CombatFacingService.Ensure().BeginFollow(
                     objectId,
-                    IncomingPacketActions.Player.transform,
+                    ControllerPacketServices.Player.transform,
                     targetEntity.transform);
             }
             else if (targetEntity != null)
             {
                 CombatFacingService.Instance?.EndFollow(objectId, "non-bow-phys");
-                IncomingPacketActions.Player.RotateToAttacker(targetEntity.transform.position);
+                ControllerPacketServices.Player.RotateToAttacker(targetEntity.transform.position);
             }
 
             IfUseSelf(objectId, useSkill);
@@ -66,7 +66,7 @@ public class NewPhysicalSkillsIntention : IntentionBase
 
         _stateMachine.Player.IsSoulshotCharged = true;
         WeaponChargeSkill.Play(
-            IncomingPacketActions.Effects,
+            ControllerPacketServices.Effects,
             useSkill.SkillId,
             _stateMachine.Player.GetWeaponTransform(),
             _stateMachine.Player.transform);

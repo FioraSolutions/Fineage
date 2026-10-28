@@ -7,6 +7,8 @@ using UnityEngine.UIElements;
 
 public class RankingPrivelege : AbstractClanContent
 {
+
+    private GameClient Game => ClanPacketServices.Game;
     private ICreatorTables _creatorTableWindows;
     private Func<string, VisualTreeAsset> _loaderFunc;
     private const string master_table_content = "Content";
@@ -77,7 +79,7 @@ public class RankingPrivelege : AbstractClanContent
         if (_selectRank != null)
         {
 
-            IncomingPacketActions.Game.Send(new RequestPledgePowerCommand(_selectRank.GetRank(), 1, _selectRank.GetPower()));
+            Game.Send(new RequestPledgePowerCommand(_selectRank.GetRank(), 1, _selectRank.GetPower()));
 
             //OnSwitchRank?.Invoke(EDIT_MODE_ALL_NOT_CHECKED);
 

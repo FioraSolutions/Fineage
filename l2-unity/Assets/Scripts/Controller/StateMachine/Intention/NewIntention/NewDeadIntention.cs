@@ -9,8 +9,8 @@ public class NewDeadIntention : IntentionBase
         if (arg0.GetType() == typeof(DieDto))
         {
             DieDto myModel = (DieDto)arg0;
-            IncomingPacketActions.Buffer.RemoveAllEffects();
-            IncomingPacketActions.Dead.ShowWindow();
+            ControllerPacketServices.Buffer.RemoveAllEffects();
+            ControllerPacketServices.Dead.ShowWindow();
 
             _stateMachine.ChangeState(PlayerState.DEAD);
             _stateMachine.NotifyEvent(Event.DEAD);

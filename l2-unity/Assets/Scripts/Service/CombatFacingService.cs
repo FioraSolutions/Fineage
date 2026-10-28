@@ -25,6 +25,10 @@ public sealed class CombatFacingService : MonoBehaviour
 
     [Inject] WeapongrpTable _weaponGrps;
     [Inject] L2PawnYaw _pawnYaw;
+    [Inject] PlayerController _player;
+
+    private PlayerController Player =>
+        _player != null ? _player : ServicePacketServices.Player;
 
     private static WeapongrpTable Weapons
     {
@@ -82,6 +86,12 @@ public sealed class CombatFacingService : MonoBehaviour
         }
 
         Instance = this;
+        WireServicePacketServices();
+    }
+
+    private void WireServicePacketServices()
+    {
+        ServicePacketServices.Bind(player: _player);
     }
 
     private void OnDestroy()
@@ -169,7 +179,7 @@ public sealed class CombatFacingService : MonoBehaviour
         }
 
         int localId = ResolveLocalObjectId();
-        PlayerController player = IncomingPacketActions.Player;
+        PlayerController player = Player;
         bool localMoving = player != null && player.RunningToDestination;
 
         // Snapshot keys — ApplyYaw may write entry back; shoot/Exit may EndFollow mid-frame.

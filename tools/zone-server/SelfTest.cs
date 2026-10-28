@@ -1,5 +1,7 @@
 using System.Net.Sockets;
+using Fineage.ZoneServer.Combat;
 using Fineage.ZoneServer.Session;
+using Fineage.ZoneServer.World;
 using Fineage.ZoneServer.Wire;
 using MessagePack;
 
@@ -8,6 +10,8 @@ static class SelfTest
     public static async Task RunAsync()
     {
         const int port = 9777;
+        var world = new ZoneWorld();
+        world.SeedTalkingIslandNpcs();
         TcpListener? local = null;
         try
         {
@@ -16,7 +20,7 @@ static class SelfTest
             _ = Task.Run(async () =>
             {
                 var c = await local.AcceptTcpClientAsync().ConfigureAwait(false);
-                await new PlayerSession(c, 1).RunAsync(CancellationToken.None).ConfigureAwait(false);
+                await new PlayerSession(c, 1, world).RunAsync(CancellationToken.None).ConfigureAwait(false);
             });
             Console.WriteLine("[selftest] started ephemeral ZoneServer");
         }
@@ -45,6 +49,9 @@ static class SelfTest
             var spawned = MessagePackSerializer.Deserialize<PlayerSpawnedMsg>(spawn);
             Console.WriteLine($"[selftest] PlayerSpawned id={spawned.ObjectId} @ {spawned.X},{spawned.Y},{spawned.Z}");
 
+            for (int i = 0; i < 2; i++)
+                await ExpectAsync(stream, MsgType.NpcInfo).ConfigureAwait(false);
+
             await SendAsync(stream, MsgType.MoveTo, new MoveToMsg
             {
                 ObjectId = spawned.ObjectId,
@@ -57,7 +64,24 @@ static class SelfTest
             }).ConfigureAwait(false);
             await ExpectAsync(stream, MsgType.MoveToAck).ConfigureAwait(false);
 
-            Console.WriteLine("[selftest] OK Hello→Auth→EnterWorld→Move");
+            await SendAsync(stream, MsgType.SelectTarget, new SelectTargetMsg
+            {
+                TargetObjectId = ZoneWorld.SwordMobObjectId
+            }).ConfigureAwait(false);
+            await ExpectAsync(stream, MsgType.MyTargetSelected).ConfigureAwait(false);
+
+            await SendAsync(stream, MsgType.AttackRequest, new AttackRequestMsg()).ConfigureAwait(false);
+            var attackBody = await ExpectAsync(stream, MsgType.Attack).ConfigureAwait(false);
+            var attack = MessagePackSerializer.Deserialize<AttackMsg>(attackBody);
+            if (attack.TargetObjectId != ZoneWorld.SwordMobObjectId)
+                throw new Exception($"attack target {attack.TargetObjectId}");
+            var statusBody = await ExpectAsync(stream, MsgType.StatusUpdate).ConfigureAwait(false);
+            var status = MessagePackSerializer.Deserialize<StatusUpdateMsg>(statusBody);
+            if (status.ObjectId != ZoneWorld.SwordMobObjectId ||
+                status.Values[0] != ZoneWorld.SwordMobMaxHp - ZoneCombat.SampleMeleeDamage)
+                throw new Exception($"HP sync cur={status.Values[0]}");
+
+            Console.WriteLine("[selftest] OK Hello→Auth→EnterWorld→Move→Target→Melee→HP");
         }
         finally
         {

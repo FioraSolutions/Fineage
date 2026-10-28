@@ -58,11 +58,22 @@ public class SeedInfoWindow : L2PopupWindow
             _instance = this;
             _creatorWindow =  new CreatorTabsWindows();
             _creatorTable = new CreatorTableWindows();
+            WireAuxiliaryGameUIPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireAuxiliaryGameUIPacketServices();
+    }
+
+    private void WireAuxiliaryGameUIPacketServices()
+    {
+        AuxiliaryGameUIPacketServices.Bind(seedInfo: this);
     }
 
     protected override IEnumerator BuildWindow(VisualElement root)

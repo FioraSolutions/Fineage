@@ -1,15 +1,21 @@
 ﻿public class NextTargetAction : L2Action
 {
-    public NextTargetAction() : base() { }
+    private TargetManager _targets;
 
-    // Local action
+    public void Bind(TargetManager targets)
+    {
+        _targets = targets;
+    }
+
+    private TargetManager Targets
+    {
+        get { return _targets != null ? _targets : ActionPacketServices.Targets; }
+    }
+
     public override void UseAction()
     {
-        if (PlayerStateMachine.Instance.State == PlayerState.DEAD)
-        {
-            return;
-        }
-
-        IncomingPacketActions.Targets.NextTarget();
+        TargetManager targets = Targets;
+        if (targets != null)
+            targets.NextTarget();
     }
 }

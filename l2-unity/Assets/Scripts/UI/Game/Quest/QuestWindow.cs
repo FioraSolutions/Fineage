@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class QuestWindow : L2TwoPanels
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => QuestPacketServices.Game;
 
     private static QuestWindow _instance;
     private BuilderTabs _builderTabs;
@@ -54,12 +59,22 @@ public class QuestWindow : L2TwoPanels
             _questTabPanelRepeat = new QuestTabPanel();
             _dataProvider = new DataProviderDetailedInfo();
             _creatorRewardTables = new CreatorVerticalScrollWindows();
-
+            WireQuestPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireQuestPacketServices();
+    }
+
+    private void WireQuestPacketServices()
+    {
+        QuestPacketServices.Bind(game: _gameClient, quest: this);
     }
 
     private void OnDestroy()
@@ -272,7 +287,7 @@ public class QuestWindow : L2TwoPanels
     {
         if(_selectQuest != null)
         {
-            IncomingPacketActions.Game.Send(new RequestQuestAbortCommand(_selectQuest.QuestID));
+            Game.Send(new RequestQuestAbortCommand(_selectQuest.QuestID));
             CancelEvent();
         }
 

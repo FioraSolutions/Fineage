@@ -8,6 +8,9 @@ public sealed class WorldPacketApply
     private readonly World _world;
     private readonly HtmlWindow _html;
     private readonly PlayerPositionSender _positionSender;
+    private readonly GameManager _gameManager;
+    private readonly PacketApplyQueue _applyQueue;
+    private readonly IGameEventBus _gameEvents;
 
     public WorldPacketApply(
         World world,
@@ -16,11 +19,17 @@ public sealed class WorldPacketApply
         PlayerWorldApply playerApply,
         NpcWorldApply npcApply,
         MonsterWorldApply monsterApply,
-        UserWorldApply userApply)
+        UserWorldApply userApply,
+        GameManager gameManager,
+        PacketApplyQueue applyQueue,
+        IGameEventBus gameEvents)
     {
         _world = world;
         _html = html;
         _positionSender = positionSender;
+        _gameManager = gameManager;
+        _applyQueue = applyQueue;
+        _gameEvents = gameEvents;
         Register<PlayerEntity>(playerApply);
         Register<NpcEntity>(npcApply);
         Register<MonsterEntity>(monsterApply);
@@ -36,7 +45,7 @@ public sealed class WorldPacketApply
     {
         if (_world == null || npcInfo == null || npcInfo.Identity == null)
             return;
-        if (!IncomingPacketActions.IsWorldSpawnReady())
+        if (!IsWorldSpawnReady())
             return;
 
         Entity entity = _world.GetEntityNoLockSync(npcInfo.Identity.Id);
@@ -46,10 +55,11 @@ public sealed class WorldPacketApply
                 return;
             if (!SpawnFrameBudget.TryConsumeSpawn())
             {
-                IncomingPacketActions.QueueWorldNextFrame(apply => apply.UpdateNpc(npcInfo));
+                QueueWorldNextFrame(apply => apply.UpdateNpc(npcInfo));
                 return;
             }
             _world.SpawnNpc(npcInfo.Identity, npcInfo.Status, npcInfo.Stats);
+            _gameEvents?.Publish(new EntitySpawnedEvent(npcInfo.Identity.Id));
         }
         else
             _world.UpdateNpc(entity, npcInfo);
@@ -74,7 +84,7 @@ public sealed class WorldPacketApply
             // GearFlowLog.Warn("UpdateUser abort world/info null");
             return;
         }
-        if (!IncomingPacketActions.IsWorldSpawnReady())
+        if (!IsWorldSpawnReady())
         {
             // GearFlowLog.Warn("UpdateUser abort world not ready id=" + info.Identity.Id +
                 // " nick=" + info.Identity.Name + " " + GearFlowLog.Paperdoll(info.Appearance));
@@ -95,10 +105,11 @@ public sealed class WorldPacketApply
                 return;
             if (!SpawnFrameBudget.TryConsumeSpawn())
             {
-                IncomingPacketActions.QueueWorldNextFrame(apply => apply.UpdateUser(info));
+                QueueWorldNextFrame(apply => apply.UpdateUser(info));
                 return;
             }
             _world.SpawnUser(info);
+            _gameEvents?.Publish(new EntitySpawnedEvent(info.Identity.Id));
             return;
         }
 
@@ -187,6 +198,7 @@ public sealed class WorldPacketApply
             // " dead=" + entity.IsDead() +
             // " type=" + entity.GetType().Name);
         apply.OnDie(entity, dto);
+        _gameEvents?.Publish(new EntityDiedEvent(dto.ObjectId));
         // UnityChainLog.OnDie(entity, dto);
         // UnityReplaySession.OnDie(entity);
     }
@@ -400,5 +412,21 @@ public sealed class WorldPacketApply
 
         apply = null;
         return false;
+    }
+
+    private bool IsWorldSpawnReady()
+    {
+        GameManager manager = _gameManager != null ? _gameManager : WorldApplyPacketServices.Manager;
+        return manager != null && manager.WorldSpawnReady && _world != null;
+    }
+
+    private void QueueWorldNextFrame(System.Action<WorldPacketApply> apply)
+    {
+        if (apply == null)
+            return;
+        if (_applyQueue != null)
+            _applyQueue.QueueNextFrame(() => apply(this));
+        else
+            WorldApplyPacketServices.QueueWorldNextFrame(apply);
     }
 }

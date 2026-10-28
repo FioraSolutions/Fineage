@@ -35,7 +35,7 @@ public class NewMoveToPawnIntention : IntentionBase
                 L2PawnRange.IgnorePawnCollision(PlayerEntity.Instance, model.TarEntity());
                 PlayerStateMachine.Instance.IsMoveToPawn = true;
                 bool running = PlayerEntity.Instance != null && PlayerEntity.Instance.Running;
-                IncomingPacketActions.Player.MoveToPoint(new MovementTarget(model.TarEntity().transform, model.Distance(), running));
+                ControllerPacketServices.Player.MoveToPoint(new MovementTarget(model.TarEntity().transform, model.Distance(), running));
                 StartAnimMoveTo();
             }
             else

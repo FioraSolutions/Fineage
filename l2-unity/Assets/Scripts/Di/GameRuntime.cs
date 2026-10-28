@@ -1,3 +1,5 @@
+using VContainer;
+
 public sealed class GameRuntime
 {
     private PlayerController _player;
@@ -12,6 +14,7 @@ public sealed class GameRuntime
     private PositionValidationController _positionValidation;
     private EffectManager _effects;
     private EventBus _bus;
+    private IGameEventBus _gameEvents;
     private CameraController _camera;
     private IMoveAllCharacters _moves;
     private CombatFacingService _facing;
@@ -46,10 +49,22 @@ public sealed class GameRuntime
     private DeadWindow _dead;
     private StatusWindow _status;
 
-    public EventProcessor Events { get; }
-    public GameClient Game { get; }
-    public LoginClient Login { get; }
-    public GameManager Manager { get; }
+    private EventProcessor _events;
+    private GameClient _game;
+    private LoginClient _login;
+    private GameManager _manager;
+
+    public EventProcessor Events
+    {
+        get { return _events != null ? _events : EventProcessor.Instance; }
+    }
+
+    public GameClient Game => DiRuntimePacketServices.Game;
+
+    public LoginClient Login => DiRuntimePacketServices.Login;
+
+    public GameManager Manager => DiRuntimePacketServices.Manager;
+
     public World World { get { return Live(ref _world, global::World.Instance); } }
     public PlayerInventory Inventory { get { return Live(ref _inventory, PlayerInventory.Instance); } }
     public TargetManager Targets { get { return Live(ref _targets, TargetManager.Instance); } }
@@ -60,6 +75,7 @@ public sealed class GameRuntime
     public PositionValidationController PositionValidation { get { return Live(ref _positionValidation, PositionValidationController.Instance); } }
     public EffectManager Effects { get { return Live(ref _effects, EffectManager.Instance); } }
     public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }
+    public IGameEventBus GameEvents => _gameEvents;
     public CameraController Camera { get { return Live(ref _camera, CameraController.Instance); } }
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharacters.Instance); } }
     public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
@@ -107,12 +123,25 @@ public sealed class GameRuntime
         get { return _actions != null ? _actions : (_actions = PlayerActions.Instance); }
     }
 
-    public GameRuntime()
+    [Inject]
+    public void Construct(
+        EventProcessor events,
+        GameClient game,
+        LoginClient login,
+        GameManager manager,
+        IGameEventBus gameEvents)
     {
-        Events = EventProcessor.Instance;
-        Game = GameClient.Instance;
-        Login = LoginClient.Instance;
-        Manager = GameManager.Instance;
+        if (events != null)
+            _events = events;
+        if (game != null)
+            _game = game;
+        if (login != null)
+            _login = login;
+        if (manager != null)
+            _manager = manager;
+        if (gameEvents != null)
+            _gameEvents = gameEvents;
+        DiRuntimePacketServices.Bind(game: _game, login: _login, manager: _manager);
     }
 
     public void BindApply(WorldPacketApply worldApply, MessagePacketApply messageApply)

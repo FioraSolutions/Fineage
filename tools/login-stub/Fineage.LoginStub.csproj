@@ -9,4 +9,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Fineage.LoginStub.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\zone-server\Fineage.ZoneServer.csproj" />
+  </ItemGroup>
 </Project>

@@ -8,6 +8,9 @@ using VContainer;
 public class LoginWindow : L2Window
 {
     [Inject] LoginRuntime _login;
+    [Inject] IZoneTransport _zoneTransport;
+
+    private LoginClient Login => LoginPacketServices.LoginClient;
     private VisualElement _logo;
     private TextField _userInput;
     private TextField _passwordInput;
@@ -19,9 +22,20 @@ public class LoginWindow : L2Window
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            WireLoginPacketServices();
         } else {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireLoginPacketServices();
+    }
+
+    private void WireLoginPacketServices()
+    {
+        LoginPacketServices.Bind(login: _login);
     }
 
     private void OnDestroy() {
@@ -122,24 +136,24 @@ public class LoginWindow : L2Window
         string account = _userInput.value.ToLower().Trim();
         string password = _passwordInput.value.Trim();
 
-        LoginClient client = _login != null && _login.LoginClient != null ? _login.LoginClient : IncomingPacketActions.Login;
         if (string.IsNullOrEmpty(account))
-            account = (client.Account ?? string.Empty).ToLower().Trim();
+            account = (Login.Account ?? string.Empty).ToLower().Trim();
         if (string.IsNullOrEmpty(password))
-            password = (client.Password ?? string.Empty).Trim();
+            password = (Login.Password ?? string.Empty).Trim();
 
         if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
             return;
 
-        if (FineageWireConfig.IsZoneV2)
+        IZoneTransport transport = _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
+        if (transport != null && transport.BypassesInterludeLogin)
         {
-            ZoneV2Client.Ensure().BeginSession(account, password);
+            transport.BeginSession(account, password);
             return;
         }
 
-        client.Account = account;
-        client.Password = password;
-        client.Connect();
+        Login.Account = account;
+        Login.Password = password;
+        Login.Connect();
     }
 
     private void ExitButtonPressed() {

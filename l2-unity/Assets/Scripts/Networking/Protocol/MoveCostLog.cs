@@ -12,6 +12,17 @@ using Debug = UnityEngine.Debug;
 /// </summary>
 public static class MoveCostLog
 {
+    static World _world;
+
+    public static void Wire(World world)
+    {
+        if (world != null)
+        {
+            _world = world;
+            NetworkingPacketServices.Bind(world: world);
+        }
+    }
+
     static string LogPath => L2DiagPaths.DiagFile("moveTick.txt");
     const float FlushSec = 1f;
 
@@ -163,7 +174,7 @@ public static class MoveCostLog
 
     static int WorldCount()
     {
-        World world = IncomingPacketActions.GameWorld;
+        World world = NetworkingPacketServices.GameWorld;
         if (world == null)
             return 0;
         int n = 0;

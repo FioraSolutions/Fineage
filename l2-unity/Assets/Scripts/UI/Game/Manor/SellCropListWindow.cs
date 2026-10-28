@@ -18,12 +18,23 @@ public class SellCropListWindow : L2PopupWindow
         {
             _creatorTableWindows = new CreatorTableWindows();
             _instance = this;
+            WireAuxiliaryGameUIPacketServices();
         }
         else
         {
             _creatorTableWindows.DestroyTable();
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireAuxiliaryGameUIPacketServices();
+    }
+
+    private void WireAuxiliaryGameUIPacketServices()
+    {
+        AuxiliaryGameUIPacketServices.Bind(sellCrop: this);
     }
 
     protected override void LoadAssets()

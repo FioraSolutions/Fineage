@@ -5,10 +5,15 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
 using Debug = UnityEngine.Debug;
+using VContainer;
 
 
 public class DealerWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => MerchantPacketServices.Game;
 
 
     private static DealerWindow _instance;
@@ -54,11 +59,22 @@ public class DealerWindow : L2PopupWindow
             _itemEvalutor = new ShopItemEvaluator(_instance);
             _shopCellCreator = new ShopInventoryController(_instance , _defaultCount);
             _tradeItemMover = new TradeItemMover(this , _shopCellCreator, _itemEvalutor);
+            WireMerchantPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireMerchantPacketServices();
+    }
+
+    private void WireMerchantPacketServices()
+    {
+        MerchantPacketServices.Bind(game: _gameClient, dealer: this);
     }
 
     private void OnDestroy()
@@ -485,7 +501,7 @@ public class DealerWindow : L2PopupWindow
 
     private void SendServer(INetworkCommand packet)
     {
-        IncomingPacketActions.Game.Send(packet);
+        Game.Send(packet);
     }
 
     private void OkWear()

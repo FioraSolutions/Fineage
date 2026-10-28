@@ -6,10 +6,15 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static EnchantResultDto;
 using static L2Slot;
+using VContainer;
 
 
 public class EnchantWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => ItemEnchantPacketServices.Game;
     private static EnchantWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
     private VisualTreeAsset _inventorySlotChoiceTemplate;
@@ -47,6 +52,7 @@ public class EnchantWindow : L2PopupWindow
             _loadingAnimSuccessPng = new List<Texture2D>();
             _loadingAnimFailPng = new List<Texture2D>();
             CacheTexture();
+            WireItemEnchantPacketServices();
         }
         else
         {
@@ -54,6 +60,15 @@ public class EnchantWindow : L2PopupWindow
         }
     }
 
+    private void Start()
+    {
+        WireItemEnchantPacketServices();
+    }
+
+    private void WireItemEnchantPacketServices()
+    {
+        ItemEnchantPacketServices.Bind(game: _gameClient, enchant: this);
+    }
 
     protected override void LoadAssets()
     {
@@ -206,7 +221,7 @@ public class EnchantWindow : L2PopupWindow
     {
         //if (_selectItem != null)
         //{
-            IncomingPacketActions.Game.Send(new RequestEnchantItemCommand(objectId));
+            Game.Send(new RequestEnchantItemCommand(objectId));
         //}
     }
 

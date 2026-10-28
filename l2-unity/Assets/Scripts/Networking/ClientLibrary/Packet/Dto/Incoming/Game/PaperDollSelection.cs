@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class PaperDollSelection
+﻿public class PaperDollSelection
 {
     private int ObjId_PAPERDOLL_UNDER;
     private int ObjId_PAPERDOLL_REAR;

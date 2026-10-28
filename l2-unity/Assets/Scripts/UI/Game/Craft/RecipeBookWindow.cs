@@ -4,9 +4,14 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
+using VContainer;
 
 public class RecipeBookWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => CraftPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualElement _inventoryTabView;
@@ -22,12 +27,22 @@ public class RecipeBookWindow : L2PopupWindow
         {
             _instance = this;
             _creatorWindow = new CreatorTradingWindowsWithTabs();
-
+            WireCraftPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireCraftPacketServices();
+    }
+
+    private void WireCraftPacketServices()
+    {
+        CraftPacketServices.Bind(game: _gameClient, recipeBook: this);
     }
 
     protected override void LoadAssets()
@@ -91,7 +106,7 @@ public class RecipeBookWindow : L2PopupWindow
 
     private void SendRequestOpenCraftWindow(int recipeId)
     {
-        IncomingPacketActions.Game.Send(new RequestRecipeItemMakeInfoCommand(recipeId));
+        Game.Send(new RequestRecipeItemMakeInfoCommand(recipeId));
     }
 
     private void UpdateSizeLabel(Label sizeLabel , RecipeBookItemListDto packet)

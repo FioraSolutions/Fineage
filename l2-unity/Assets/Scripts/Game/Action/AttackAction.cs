@@ -3,51 +3,49 @@ using static AttackingState;
 
 public class AttackAction : L2Action
 {
+    private TargetManager _targets;
+    private GameClient _game;
+
+    public void Bind(TargetManager targets, GameClient game)
+    {
+        _targets = targets;
+        _game = game;
+    }
+
+    private TargetManager Targets
+    {
+        get { return _targets != null ? _targets : ActionPacketServices.Targets; }
+    }
+
+    private GameClient Game
+    {
+        get { return _game != null ? _game : ActionPacketServices.Game; }
+    }
+
     public AttackAction() : base() { }
-
-    //backup
-    // Local action
-    //public override void UseAction()
-    // {
-    //    Debug.LogWarning("Use attack action.");
-
-    //   if (TargetManager.Instance.HasTarget())
-    //   {
-    //      if (!PlayerEntity.Instance.IsAttack && PlayerStateMachine.Instance.State != PlayerState.DEAD)
-    //       {
-    //          var target = PlayerEntity.Instance.GetTargetEntity();
-    //           if (target != null && !target.IsDead())
-    //         {
-    //              Debug.LogWarning("Trying To Attack");
-    //              ClickManager.Instance.OnClickOnEntity();
-    //         }
-    //      }
-    //  }
-    // }
 
     public override void UseAction()
     {
-        // Debug.Log("Use attack action.");
+        TargetManager targets = Targets;
+        if (targets == null || !targets.HasTarget())
+            return;
 
-        if (IncomingPacketActions.Targets.HasTarget())
+        if (!PlayerEntity.Instance.IsAttack && PlayerStateMachine.Instance.State != PlayerState.DEAD)
         {
-            if (!PlayerEntity.Instance.IsAttack && PlayerStateMachine.Instance.State != PlayerState.DEAD)
+            TargetData target = targets.Target;
+
+            if (target != null && !target.IsDead())
             {
-                TargetData target = IncomingPacketActions.Targets.Target;
-
-                if (target != null && !target.IsDead())
+                Entity entity = target.GetEntity();
+                if (entity is MonsterEntity)
                 {
-                    Entity entity = target.GetEntity();
-                    if (entity is MonsterEntity)
-                    {
-                        // Debug.Log("Trying To Attack");
-                        // Melee attack intent (hotkey) — red while closing distance.
-                        IncomingPacketActions.Targets.SetAttackTarget();
-                    }
-
-                    var l2jpos = target.Identity.GetL2jPos();
-                    IncomingPacketActions.Game.Send(new ClickActionCommand(target.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
+                    targets.SetAttackTarget();
                 }
+
+                var l2jpos = target.Identity.GetL2jPos();
+                GameClient game = Game;
+                if (game != null)
+                    game.Send(new ClickActionCommand(target.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
             }
         }
     }

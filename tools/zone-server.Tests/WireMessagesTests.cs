@@ -83,8 +83,12 @@ public class WireMessagesTests
         var msg = new MoveToMsg
         {
             ObjectId = 1,
-            DestX = 100, DestY = 200, DestZ = 300,
-            OriginX = 10, OriginY = 20, OriginZ = 30
+            DestX = 100,
+            DestY = 200,
+            DestZ = 300,
+            OriginX = 10,
+            OriginY = 20,
+            OriginZ = 30
         };
         var bytes = MessagePackSerializer.Serialize(msg);
         var decoded = MessagePackSerializer.Deserialize<MoveToMsg>(bytes);
@@ -126,10 +130,72 @@ public class WireMessagesTests
         Assert.Equal(2, (ushort)MsgType.Auth);
         Assert.Equal(3, (ushort)MsgType.EnterWorld);
         Assert.Equal(4, (ushort)MsgType.MoveTo);
+        Assert.Equal(5, (ushort)MsgType.SelectTarget);
+        Assert.Equal(6, (ushort)MsgType.AttackRequest);
         Assert.Equal(1001, (ushort)MsgType.HelloAck);
         Assert.Equal(1002, (ushort)MsgType.AuthOk);
         Assert.Equal(1003, (ushort)MsgType.PlayerSpawned);
         Assert.Equal(1004, (ushort)MsgType.MoveToAck);
+        Assert.Equal(1005, (ushort)MsgType.CharInfo);
+        Assert.Equal(1006, (ushort)MsgType.NpcInfo);
+        Assert.Equal(1007, (ushort)MsgType.DeleteObject);
+        Assert.Equal(1008, (ushort)MsgType.MyTargetSelected);
+        Assert.Equal(1009, (ushort)MsgType.Attack);
+        Assert.Equal(1010, (ushort)MsgType.StatusUpdate);
         Assert.Equal(1099, (ushort)MsgType.Error);
+    }
+
+    [Fact]
+    public void CombatMsgs_RoundTrip()
+    {
+        var target = new MyTargetSelectedMsg { ObjectId = 20_003, ColorHint = 11 };
+        var attack = new AttackMsg
+        {
+            AttackerObjectId = 1,
+            TargetObjectId = 20_003,
+            Damage = 32,
+            AttackerX = 1,
+            AttackerY = 2,
+            AttackerZ = 3,
+            TargetX = 4,
+            TargetY = 5,
+            TargetZ = 6
+        };
+        var status = new StatusUpdateMsg
+        {
+            ObjectId = 20_003,
+            AttributeIds = new[] { 0x09, 0x0a },
+            Values = new[] { 64, 96 }
+        };
+
+        Assert.Equal(20_003,
+            MessagePackSerializer.Deserialize<MyTargetSelectedMsg>(MessagePackSerializer.Serialize(target)).ObjectId);
+        Assert.Equal(32,
+            MessagePackSerializer.Deserialize<AttackMsg>(MessagePackSerializer.Serialize(attack)).Damage);
+        Assert.Equal(64,
+            MessagePackSerializer.Deserialize<StatusUpdateMsg>(MessagePackSerializer.Serialize(status)).Values[0]);
+    }
+
+    [Fact]
+    public void PresenceMsgs_RoundTrip()
+    {
+        var charInfo = new CharInfoMsg
+        {
+            ObjectId = 9,
+            Name = "Hero",
+            X = 1,
+            Y = 2,
+            Z = 3,
+            ClassId = 10
+        };
+        var npc = new NpcInfoMsg { ObjectId = 20_001, NpcTemplateId = 30_001, X = 4, Y = 5, Z = 6 };
+        var del = new DeleteObjectMsg { ObjectId = 99 };
+
+        Assert.Equal(charInfo.ObjectId,
+            MessagePackSerializer.Deserialize<CharInfoMsg>(MessagePackSerializer.Serialize(charInfo)).ObjectId);
+        Assert.Equal(npc.NpcTemplateId,
+            MessagePackSerializer.Deserialize<NpcInfoMsg>(MessagePackSerializer.Serialize(npc)).NpcTemplateId);
+        Assert.Equal(del.ObjectId,
+            MessagePackSerializer.Deserialize<DeleteObjectMsg>(MessagePackSerializer.Serialize(del)).ObjectId);
     }
 }

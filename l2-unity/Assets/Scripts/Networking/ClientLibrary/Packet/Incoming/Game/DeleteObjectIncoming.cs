@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-[IncomingGamePacket(GameServerPacketType.DeleteObject)]
+﻿[IncomingGamePacket(GameServerPacketType.DeleteObject)]
 public sealed class DeleteObjectIncoming : IncomingPacket<DeleteObjectDto>
 {
     public override DeleteObjectDto Read(PacketReader reader)
@@ -11,10 +9,6 @@ public sealed class DeleteObjectIncoming : IncomingPacket<DeleteObjectDto>
         return dto;
     }
 
-    public override void Apply(DeleteObjectDto dto)
-    {
-        SpawnFrameBudget.Cancel(dto.ObjectId);
-        if (IncomingPacketActions.GameWorld != null)
-            IncomingPacketActions.GameWorld.DeleteObject(dto.ObjectId);
-    }
+    public override void Apply(DeleteObjectDto dto) =>
+        DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
 }

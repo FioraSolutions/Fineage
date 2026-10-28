@@ -6,8 +6,6 @@ public sealed class TradeDoneIncoming : IncomingPacket<TradeDoneIncomingDto>
         return new TradeDoneIncomingDto();
     }
 
-    public override void Apply(TradeDoneIncomingDto dto)
-    {
-        IncomingPacketActions.Trade.HideWindow();
-    }
+    public override void Apply(TradeDoneIncomingDto dto) =>
+        TradeDoneApplyIncomingPacketServices.ApplyTradeDone();
 }

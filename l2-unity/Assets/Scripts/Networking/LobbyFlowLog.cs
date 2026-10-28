@@ -10,11 +10,18 @@ public static class LobbyFlowLog
 {
     public const string Tag = "[LOBBY]";
 
+    public static void Wire(GameManager manager)
+    {
+        NetworkingPacketServices.Bind(manager: manager);
+    }
+
+    static GameManager Manager => NetworkingPacketServices.Manager;
+
     public static bool Active
     {
         get
         {
-            GameManager manager = IncomingPacketActions.Manager;
+            GameManager manager = Manager;
             return manager == null || manager.GameState < GameState.IN_GAME;
         }
     }

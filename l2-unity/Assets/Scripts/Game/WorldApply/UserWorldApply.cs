@@ -3,10 +3,17 @@
 public sealed class UserWorldApply : EntityWorldApply
 {
     private readonly EntityActionMachine _actions;
+    private readonly World _world;
 
-    public UserWorldApply(EntityActionMachine actions)
+    public UserWorldApply(EntityActionMachine actions, World world)
     {
         _actions = actions;
+        _world = world;
+    }
+
+    private World GameWorld
+    {
+        get { return _world != null ? _world : WorldApplyPacketServices.GameWorld; }
     }
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
@@ -120,8 +127,9 @@ public sealed class UserWorldApply : EntityWorldApply
     {
         if (entity == null || entity.IsDead())
             return;
-        Entity pawn = IncomingPacketActions.GameWorld != null
-            ? IncomingPacketActions.GameWorld.GetEntityNoLockSync(dto.TarObjid)
+        World world = GameWorld;
+        Entity pawn = world != null
+            ? world.GetEntityNoLockSync(dto.TarObjid)
             : null;
         Vector3 origin = dto.ObjPos;
         Vector3 now = entity.transform.position;

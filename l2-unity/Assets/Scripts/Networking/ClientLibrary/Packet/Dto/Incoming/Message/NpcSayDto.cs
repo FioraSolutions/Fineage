@@ -1,6 +1,3 @@
-using System.Security.Principal;
-using UnityEngine;
-
 public class NpcSayDto : IWireDto
 {
     private int _objectId;

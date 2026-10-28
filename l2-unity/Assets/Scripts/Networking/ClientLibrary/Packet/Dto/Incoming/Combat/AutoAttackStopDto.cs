@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 public class AutoAttackStopDto : IWireDto {
     public int EntityId { get; private set; }

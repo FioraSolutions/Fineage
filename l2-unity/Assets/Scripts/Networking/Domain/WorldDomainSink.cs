@@ -5,11 +5,13 @@ public sealed class WorldDomainSink : IWorldDomainSink
 {
     private readonly WorldPacketApply _worldApply;
     private readonly World _world;
+    private readonly IGameEventBus _gameEvents;
 
-    public WorldDomainSink(WorldPacketApply worldApply, World world)
+    public WorldDomainSink(WorldPacketApply worldApply, World world, IGameEventBus gameEvents)
     {
         _worldApply = worldApply;
         _world = world;
+        _gameEvents = gameEvents;
     }
 
     public void ApplyMoveTo(DomainMoveTo move)
@@ -23,6 +25,7 @@ public sealed class WorldDomainSink : IWorldDomainSink
             dto = CharMoveToLocationDto.FromUnity(move.ObjectId, move.Destination, move.Origin);
 
         _worldApply.MoveTo(move.ObjectId, move.Destination, move.Origin, dto);
+        _gameEvents?.Publish(new PlayerMovedEvent(move.ObjectId, move.Destination, move.Origin));
     }
 
     public void ApplyStopMove(DomainStopMove stop)
@@ -51,6 +54,7 @@ public sealed class WorldDomainSink : IWorldDomainSink
         if (spawned.Identity == null)
             return;
         _world.SpawnPlayer(spawned.Identity, spawned.Status, spawned.Stats, spawned.Appearance);
+        _gameEvents?.Publish(new EntitySpawnedEvent(spawned.Identity.Id));
     }
 
     public void ApplyStatsChanged(DomainStatsChanged changed)
@@ -60,8 +64,9 @@ public sealed class WorldDomainSink : IWorldDomainSink
 
         UserInfoDto userInfo = changed.InterludeUserInfo;
         _world.UserInfoUpdateCharacter(userInfo);
-        if (PlayerEntity.Instance != null)
-            _world.UpdateUserInfo(PlayerEntity.Instance, userInfo);
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
+        if (local != null)
+            _world.UpdateUserInfo(local, userInfo);
     }
 
     public void FlushKnownlist()

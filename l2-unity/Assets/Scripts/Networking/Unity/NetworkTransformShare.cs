@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
+using VContainer;
 
 [RequireComponent(typeof(CharacterController))]
 public class NetworkTransformShare : MonoBehaviour
 {
+    [Inject] World _world;
+
+    private World GameWorld => NetworkingPacketServices.GameWorld;
     private CharacterController _characterController;
     private Vector3 _lastPos, _lastRot;
     private float _lastSharedPosTime;
@@ -30,7 +34,8 @@ public class NetworkTransformShare : MonoBehaviour
 
     void Start()
     {
-        World world = IncomingPacketActions.GameWorld;
+        NetworkingPacketServices.Bind(world: _world);
+        World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
             enabled = false;

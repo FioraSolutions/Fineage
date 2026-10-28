@@ -3,9 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class ChatWindow : L2Window
 {
+
+    [Inject] GameClient _gameClient;
+    [Inject] MessagePacketApply _messageApply;
+
+    private GameClient Game => ChatPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _messageLabelTemplate;
@@ -34,11 +40,23 @@ public class ChatWindow : L2Window
         if (_instance == null)
         {
             _instance = this;
+            WireChatPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireChatPacketServices();
+    }
+
+    private void WireChatPacketServices()
+    {
+        ChatPacketServices.Bind(game: _gameClient);
+        MessagePacketServices.Bind(messageApply: _messageApply);
     }
 
     private void OnDestroy()
@@ -198,7 +216,7 @@ public class ChatWindow : L2Window
                         String prefix = "admin_";
                         string gmCommand = text.Substring(2);
                         string command = prefix + gmCommand;
-                        IncomingPacketActions.Game.Send(new RequestBypassToServerCommand(command));
+                        Game.Send(new RequestBypassToServerCommand(command));
                         // Debug.Log("ChatWindow: requested admin command :" + command);
                     }
                     else
@@ -206,7 +224,7 @@ public class ChatWindow : L2Window
                         var commands = PlayerCommands.FindByText(text);
                         if (commands != null)
                         {
-                            IncomingPacketActions.Game.Send(new RequestUserCommandCommand(commands.Id));
+                            Game.Send(new RequestUserCommandCommand(commands.Id));
                             // Debug.Log("ChatWindow: requested player command :" + commands  + " id: " + commands.Id);
                         }
                         else
@@ -288,12 +306,12 @@ public class ChatWindow : L2Window
                 string targetName = text.Substring(0, spaceIndex);
                 string message = text.Substring(spaceIndex + 1);
 
-                IncomingPacketActions.Game.Send(new RequestSay2Command(ChatTypes.GetById(2), message, targetName));
+                Game.Send(new RequestSay2Command(ChatTypes.GetById(2), message, targetName));
                 // Debug.Log("whisper chat: sending to :" + targetName + " message: " + message);
             }
             else
             {
-                IncomingPacketActions.Game.Send(new RequestSay2Command(data, text, ""));
+                Game.Send(new RequestSay2Command(data, text, ""));
             }
         }
         else

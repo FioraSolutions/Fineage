@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-/**
+﻿/**
  * @author AbsolutePower
  */
 public class ShowCBoardDto : IWireDto

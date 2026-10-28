@@ -19,6 +19,9 @@ public class TradeRequestWindow : L2PopupWindow
     private Coroutine _countdownCoroutine;
 
     [Inject] World _world;
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => TradePacketServices.Game;
 
     private World Worlds
     {
@@ -37,11 +40,22 @@ public class TradeRequestWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireTradePacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireTradePacketServices();
+    }
+
+    private void WireTradePacketServices()
+    {
+        TradePacketServices.Bind(game: _gameClient, tradeRequest: this);
     }
 
     public void AddData(SendTradeRequestDto request)
@@ -154,7 +168,7 @@ public class TradeRequestWindow : L2PopupWindow
     private void SendAcceptResponse()
     {
         // Отправляем пакет подтверждения торговли
-        IncomingPacketActions.Game.Send(new AnswerTradeRequestCommand(1));
+        Game.Send(new AnswerTradeRequestCommand(1));
 
         OnTradeResponse?.Invoke(true);
     }
@@ -162,7 +176,7 @@ public class TradeRequestWindow : L2PopupWindow
     private void SendDeclineResponse()
     {
         // Отправляем пакет отклонения торговли
-        IncomingPacketActions.Game.Send(new AnswerTradeRequestCommand(0));
+        Game.Send(new AnswerTradeRequestCommand(0));
 
         OnTradeResponse?.Invoke(false);
     }

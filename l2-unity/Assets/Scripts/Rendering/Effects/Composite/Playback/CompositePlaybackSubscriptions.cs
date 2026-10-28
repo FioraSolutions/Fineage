@@ -9,6 +9,7 @@ public static class CompositePlaybackSubscriptions
         EffectResolveContext context,
         List<AnimationEventsBase> shootEventSources,
         Action<string> handler,
+        IAnimationManager animations,
         out AnimationEventsBase animationEvents,
         ref bool isSubscribedToAnyShoot)
     {
@@ -20,13 +21,14 @@ public static class CompositePlaybackSubscriptions
             return;
         }
 
-        if (context?.CasterEntity?.Identity == null || IncomingPacketActions.Animations == null)
+        IAnimationManager animationManager = animations != null ? animations : RenderingPacketServices.Animations;
+        if (context?.CasterEntity?.Identity == null || animationManager == null)
         {
             return;
         }
 
         int casterId = context.CasterEntity.Identity.Id;
-        animationEvents = IncomingPacketActions.Animations.GetAnimationEvents(casterId);
+        animationEvents = animationManager.GetAnimationEvents(casterId);
         TrySubscribeShootSource(shootEventSources, animationEvents, handler);
         isSubscribedToAnyShoot = true;
     }

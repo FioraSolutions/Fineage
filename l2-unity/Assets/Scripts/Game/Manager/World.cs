@@ -45,16 +45,16 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     [Inject] private NpcNameTable _npcNames;
     [Inject] private ModelTable _models;
     [Inject] private CharacterInfoWindow _characterInfo;
+    [Inject] private GameManager _gameManager;
+    [Inject] private WorldPacketApply _worldApply;
+    [Inject] private PacketApplyQueue _applyQueue;
 
     private CharacterInfoWindow CharacterInfo
     {
         get { return _characterInfo != null ? _characterInfo : CharacterInfoWindow.Instance; }
     }
 
-    public IAnimationManager Animations
-    {
-        get { return IncomingPacketActions.Animations != null ? IncomingPacketActions.Animations : _animations; }
-    }
+    public IAnimationManager Animations => WorldPacketServices.Animations;
 
     public Transform UsersContainer
     {
@@ -94,6 +94,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     public LayerMask GroundMask { get { return _groundMask; } }
 
     private static World _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static World Instance { get { return _instance; } }
 
     private void Awake() {
@@ -122,6 +123,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         }
 
         BindItemDropPresentationRunner();
+        WireWorldPacketServices();
     }
 
     [Inject]
@@ -141,9 +143,20 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     }
 
     void Start() {
+        WireWorldPacketServices();
         if (_deadManager != null)
             _deadManager.OnReadyToRemove += RemoveObject;
         UpdateMasks();
+    }
+
+    private void WireWorldPacketServices()
+    {
+        WorldPacketServices.Bind(
+            animations: _animations,
+            game: _gameClient,
+            manager: _gameManager,
+            worldApply: _worldApply);
+        GamePacketServices.Bind(gameWorld: this);
     }
 
     public void UpdateMasks() {
@@ -398,7 +411,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         Vector3 unityPos,
         int charObjId)
     {
-        if (!IncomingPacketActions.IsWorldSpawnReady())
+        if (!IsWorldSpawnReady())
             return;
 
         Entity existing = GetEntityNoLockSync(objectId);
@@ -619,14 +632,16 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private void SendValidatePosition(Vector3 position, int heading)
     {
-        GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+        GameClient game = Game;
         if (game != null)
             game.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
     }
 
+    private GameClient Game => WorldPacketServices.Game;
+
     private void SendAppearing()
     {
-        GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+        GameClient game = Game;
         if (game != null)
             game.Send(new AppearingCommand());
     }
@@ -838,5 +853,12 @@ public class World : MonoBehaviour, IWorldSpawnContext {
                 // Debug.LogWarning($"Operation failed - Target {id1} or {id2} - Error {ex.Message}");
             }
         }
+    }
+
+    private bool IsWorldSpawnReady()
+    {
+        GameManager manager = WorldPacketServices.Manager;
+        WorldPacketApply apply = WorldPacketServices.WorldApply;
+        return manager != null && manager.WorldSpawnReady && apply != null;
     }
 }

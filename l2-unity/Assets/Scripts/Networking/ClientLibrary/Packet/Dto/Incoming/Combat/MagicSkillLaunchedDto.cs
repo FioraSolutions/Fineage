@@ -1,7 +1,4 @@
-﻿using System;
-using UnityEngine;
-
-public class MagicSkillLaunchedDto : IWireDto
+﻿public class MagicSkillLaunchedDto : IWireDto
 {
     private int _objectId;
     private int _skillId;

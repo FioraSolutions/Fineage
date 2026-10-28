@@ -28,7 +28,7 @@ public class GearSlot : InventorySlot
             {
                 AddCacheName(item, ObjectId);
 
-                IncomingPacketActions.Game.Send(new UseItemCommand(ObjectId, 0));
+                InventoryPacketServices.Game.Send(new UseItemCommand(ObjectId, 0));
             }
             else
             {
@@ -83,4 +83,5 @@ public class GearSlot : InventorySlot
         }
 
     }
+
 }

@@ -8,13 +8,28 @@ public class EffectManager : MonoBehaviour
     public EffectDatabase database;
     [SerializeField] private Transform _activeEffectsContainer;
     [Inject] IObjectResolver _container;
+    [Inject] IAnimationManager _animations;
     private const string IMPACT_DEBUG_TAG = "[HIT_DEBUG]";
     private int _impactSpawnCounter = 0;
     private readonly System.Collections.Generic.Dictionary<string, (int count, float windowStartSec)> _impactWindowByPoint
         = new System.Collections.Generic.Dictionary<string, (int count, float windowStartSec)>();
     private const float IMPACT_WINDOW_SEC = 0.35f;
 
-    void Awake() => Instance = this;
+    void Awake()
+    {
+        Instance = this;
+        WireGamePacketServices();
+    }
+
+    private void Start()
+    {
+        WireGamePacketServices();
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(animations: _animations);
+    }
 
 
     public void PlayEffect(int id, Transform target, MagicCastData castData = null)
@@ -115,7 +130,8 @@ public class EffectManager : MonoBehaviour
         Transform weapon = entity.GetWeaponTransform();
 
         Transform attach = weapon != null ? weapon : entity.transform;
-        MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo);
+        IAnimationManager animations = _animations != null ? _animations : GamePacketServices.Animations;
+        MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo, animations);
         PlayEffect(effectId, attach, castData);
     }
 

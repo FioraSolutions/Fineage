@@ -2,11 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VContainer;
 
 using UnityEngine.UIElements;
 
 public class ClanWindow : L2TwoPanels
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => ClanPacketServices.Game;
    
     private static ClanWindow _instance;
     private MasterClan _masterClan;
@@ -45,11 +50,22 @@ public class ClanWindow : L2TwoPanels
 
             _dataProviderClanInfo = new DataProviderClanInfo();
             _detailedClan = new ClanDetailedInfo(_dataProviderClanInfo);
+            WireClanPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireClanPacketServices();
+    }
+
+    private void WireClanPacketServices()
+    {
+        ClanPacketServices.Bind(game: _gameClient, clan: this);
     }
 
     protected override void LoadAssets()
@@ -239,7 +255,7 @@ public class ClanWindow : L2TwoPanels
     {
         //if (!string.IsNullOrEmpty(_masterClan.GetSelectMemberName()))
         //{
-        //    IncomingPacketActions.Game.Send(//        new RequestPledgePowerGradeList());
+        //    Game.Send(//        new RequestPledgePowerGradeList());
         //}
 
     }
@@ -287,7 +303,7 @@ public class ClanWindow : L2TwoPanels
     private void OnClickPenalty(ClickEvent evt)
     {
 
-            IncomingPacketActions.Game.Send(new RequestUserCommandCommand(100));
+            Game.Send(new RequestUserCommandCommand(100));
         
     }
 
@@ -408,7 +424,7 @@ public class ClanWindow : L2TwoPanels
 
     private void OkLeave()
     {
-        IncomingPacketActions.Game.Send(new RequestWithdrawPledgeCommand());
+        Game.Send(new RequestWithdrawPledgeCommand());
         CancelEvent();
     }
 
@@ -418,7 +434,7 @@ public class ClanWindow : L2TwoPanels
         {
             int id = TargetManager.Instance.Target != null ? TargetManager.Instance.Target.GetEntity().Identity.Id : 0;
 
-            IncomingPacketActions.Game.Send(new RequestJoinPledgeCommand(id));
+            Game.Send(new RequestJoinPledgeCommand(id));
         }
 
         CancelEvent();

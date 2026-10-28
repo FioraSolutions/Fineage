@@ -3,9 +3,21 @@ using UnityEngine;
 
 public class LoginClientPacketHandler : ClientPacketHandler
 {
+    readonly LoginClient _login;
+
+    public LoginClientPacketHandler(LoginClient login)
+    {
+        _login = login;
+    }
+
+    LoginClient Login
+    {
+        get { return _login != null ? _login : NetworkingPacketServices.Login; }
+    }
+
     public override void SendPacket(IOutgoingPacket packet)
     {
-        if (IncomingPacketActions.Login.LogSentPackets)
+        if (Login.LogSentPackets)
             Debug.Log("[" + Thread.CurrentThread.ManagedThreadId + "] [LoginServer] Sending packet:" + (LoginClientPacketType)packet.GetPacketType());
 
         _client.SendPacket(packet);

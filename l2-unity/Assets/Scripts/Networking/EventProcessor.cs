@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using UnityEngine;
+using VContainer;
 
 public class EventProcessor : MonoBehaviour
 {
+    [Inject] World _world;
+    WorldPacketApply _worldApply;
     private static EventProcessor _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static EventProcessor Instance { get { return _instance; } }
 
     // Closed batch for one frame. The reader fills only the write buffer.
@@ -32,9 +36,28 @@ public class EventProcessor : MonoBehaviour
             Destroy(this);
     }
 
+    public void WireGameApply(WorldPacketApply worldApply)
+    {
+        if (worldApply != null)
+        {
+            _worldApply = worldApply;
+            WireNetworkingPacketServices();
+        }
+    }
+
+    void WireNetworkingPacketServices()
+    {
+        NetworkingPacketServices.Bind(world: _world, worldApply: _worldApply, events: this);
+    }
+
+    private World GameWorld => NetworkingPacketServices.GameWorld;
+
+    private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
+
     private void Start()
     {
-        World world = IncomingPacketActions.GameWorld;
+        WireNetworkingPacketServices();
+        World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
             this.enabled = false;
@@ -83,9 +106,18 @@ public class EventProcessor : MonoBehaviour
 
         int pendingMoves = MovementPacketLatest.Count;
         long flushStart = System.Diagnostics.Stopwatch.GetTimestamp();
-        PacketApplyLog.Time("MoveLatestFlush", () => IncomingPacketActions.ApplyWorld(MovementPacketLatest.Flush));
+        PacketApplyLog.Time("MoveLatestFlush", FlushMovementLatest);
         double flushMs = (System.Diagnostics.Stopwatch.GetTimestamp() - flushStart) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
         MoveCostLog.NoteFlush(pendingMoves, flushMs);
         PacketApplyLog.EndBatch();
+    }
+
+    private void FlushMovementLatest()
+    {
+        WorldPacketApply apply = WorldApply;
+        if (apply != null)
+            MovementPacketLatest.Flush(apply);
+        else
+            NetworkingPacketServices.ApplyWorld(MovementPacketLatest.Flush);
     }
 }

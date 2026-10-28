@@ -11,6 +11,12 @@ public class CharacterCreator : MonoBehaviour
     [Inject] private ModelTable _models;
     [Inject] private CharacterBuilder _characterBuilder;
     [Inject] private LogongrpTable _logonGrps;
+    [Inject] private IAnimationManager _animations;
+
+    private IAnimationManager Animations
+    {
+        get { return _animations != null ? _animations : CharacterPacketServices.Animations; }
+    }
 
     private ModelTable Models
     {
@@ -47,6 +53,18 @@ public class CharacterCreator : MonoBehaviour
         } else if(_instance != this) {
             Destroy(gameObject);
         }
+
+        WireCharacterPacketServices();
+    }
+
+    private void Start()
+    {
+        WireCharacterPacketServices();
+    }
+
+    private void WireCharacterPacketServices()
+    {
+        CharacterPacketServices.Bind(animations: _animations);
     }
 
     private void Update() {
@@ -210,7 +228,9 @@ public class CharacterCreator : MonoBehaviour
         animController.Initialize();
         // Unarmed starter → wait_hand; armed → wait_1HS / wait_bow / …
         string waitState = AnimationNames.WAIT.ToString() + gear.WeaponAnim;
-        IncomingPacketActions.Animations.PlayLobbyLocomotion(animController, waitState);
+        IAnimationManager animations = Animations;
+        if (animations != null)
+            animations.PlayLobbyLocomotion(animController, waitState);
     }
 
     public void UpdatePawnPosAndRot(GameObject pawnObject, Logongrp pawnData) {

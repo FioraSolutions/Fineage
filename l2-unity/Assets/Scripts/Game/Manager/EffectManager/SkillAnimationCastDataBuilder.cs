@@ -6,7 +6,7 @@
 /// </summary>
 public static class SkillAnimationCastDataBuilder
 {
-    public static MagicCastData Build(Entity entity, int hitTimeMs, AnimationCombo animCombo)
+    public static MagicCastData Build(Entity entity, int hitTimeMs, AnimationCombo animCombo, IAnimationManager animations = null)
     {
         MagicCastData castData = new MagicCastData
         {
@@ -25,7 +25,8 @@ public static class SkillAnimationCastDataBuilder
         }
 
         Animator animator = null;
-        if (IncomingPacketActions.Animations is BaseAnimationManager animMgr && entity.Identity != null)
+        IAnimationManager animationManager = animations != null ? animations : GamePacketServices.Animations;
+        if (animationManager is BaseAnimationManager animMgr && entity.Identity != null)
         {
             IAnimationController registered = animMgr.GetRegisteredController(entity.Identity.Id);
             if (registered != null)

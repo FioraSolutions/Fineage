@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public sealed class GGAuthDto : IWireDto
+﻿public sealed class GGAuthDto : IWireDto
 {
     public int Response;
 

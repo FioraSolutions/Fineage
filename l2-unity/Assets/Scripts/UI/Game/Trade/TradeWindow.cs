@@ -5,9 +5,14 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
+using VContainer;
 
 public class TradeWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => TradePacketServices.Game;
     private static TradeWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
 
@@ -35,11 +40,22 @@ public class TradeWindow : L2PopupWindow
             _instance = this;
             _exchangeSlots = new List<ExchangeSlot>();
             _exchangeItems = new List<ItemInstance>();
+            WireTradePacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireTradePacketServices();
+    }
+
+    private void WireTradePacketServices()
+    {
+        TradePacketServices.Bind(game: _gameClient, trade: this);
     }
 
     public void AddData(TradeStartDto data)
@@ -167,7 +183,7 @@ public class TradeWindow : L2PopupWindow
             _exchangeItems.Add(item);
 
             // Отправляем пакет добавления предмета в обмен
-            IncomingPacketActions.Game.Send(new AddTradeItemCommand(0, item.ObjectId, item.Count));
+            Game.Send(new AddTradeItemCommand(0, item.ObjectId, item.Count));
         }
         else
         {
@@ -205,7 +221,7 @@ public class TradeWindow : L2PopupWindow
     private void SendOkResponse()
     {
         // Отправляем пакет подтверждения обмена
-        IncomingPacketActions.Game.Send(new TradeDoneCommand(1));
+        Game.Send(new TradeDoneCommand(1));
 
         OnExchangeResponse?.Invoke(true);
     }
@@ -213,7 +229,7 @@ public class TradeWindow : L2PopupWindow
     private void SendCancelResponse()
     {
         // Отправляем пакет отмены обмена
-        IncomingPacketActions.Game.Send(new TradeDoneCommand(0));
+        Game.Send(new TradeDoneCommand(0));
 
         OnExchangeResponse?.Invoke(false);
     }

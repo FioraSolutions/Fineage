@@ -28,6 +28,10 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
     public event Action<CompositePrefabEffect, EffectResolveContext> StartSpawn;
 
     [Inject] IHomeProjectileService _homeProjectiles;
+    [Inject] IAnimationManager _animations;
+
+    protected IAnimationManager Animations => RenderingPacketServices.Animations;
+
     readonly IEffectAttachmentResolver _resolver = new DefaultEffectAttachmentResolver();
     protected EffectResolveContext _context;
     readonly List<PendingCompositePart> _pendingParts = new List<PendingCompositePart>();
@@ -52,6 +56,11 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
     protected IHomeProjectileService HomeProjectiles =>
         CompositeHomeProjectileAccess.Resolve(ref _homeProjectiles);
 
+    private void WireRenderingPacketServices()
+    {
+        RenderingPacketServices.Bind(animations: _animations);
+    }
+
     protected override string DebugPrefix => "[CompositePrefabEffect]";
     protected override float RuntimeLifeTimeTailSeconds => _serverHitLifetimeTailSeconds;
     protected bool SkipDestroyCompositeByLifetime => _skipDestroyCompositeByLifetime;
@@ -72,6 +81,7 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
 
     public override void Setup(EffectSettings settings, MagicCastData castData, Transform owner)
     {
+        WireRenderingPacketServices();
         base.Setup(settings, castData, owner);
         InitializeTimedComposite(settings, castData);
         _context = CompositeEffectUtilities.BuildContext(owner, castData);
@@ -266,6 +276,7 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
             _context,
             _shootEventSources,
             HandleAnimationShoot,
+            Animations,
             out _animationEvents,
             ref _isSubscribedToAnyShoot);
     }

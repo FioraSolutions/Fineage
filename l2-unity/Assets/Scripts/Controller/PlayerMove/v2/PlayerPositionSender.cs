@@ -5,7 +5,16 @@ public class PlayerPositionSender
     // ALineagePlayerController+0xA00, period dbl_1F44120
     public const float Interval = 1.2f;
 
+    private readonly GameClient _gameClient;
     private float _timer;
+
+    public PlayerPositionSender(GameClient gameClient = null)
+    {
+        _gameClient = gameClient;
+    }
+
+    private GameClient Game =>
+        _gameClient != null ? _gameClient : ControllerPacketServices.Game;
 
     public void TickWhileMoving(Vector3 playerPosition, int heading, float deltaTime)
     {
@@ -27,9 +36,10 @@ public class PlayerPositionSender
 
     public void SendData(Vector3 playerPosition, int heading)
     {
-        if (IncomingPacketActions.Game == null)
+        GameClient game = Game;
+        if (game == null)
             return;
-        IncomingPacketActions.Game.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
+        game.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
     }
 
     public static int ToL2Heading(float yawDegrees)

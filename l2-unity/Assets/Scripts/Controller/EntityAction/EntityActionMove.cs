@@ -114,8 +114,8 @@ public sealed class EntityActionMove : IEntityActionProcess
 
     void StartMoveToPawn(Entity entity, MoveToPawnDto dto)
     {
-        Entity pawn = IncomingPacketActions.GameWorld != null
-            ? IncomingPacketActions.GameWorld.GetEntityNoLockSync(dto.TarObjid)
+        Entity pawn = ControllerPacketServices.GameWorld != null
+            ? ControllerPacketServices.GameWorld.GetEntityNoLockSync(dto.TarObjid)
             : null;
         if (pawn == null)
         {

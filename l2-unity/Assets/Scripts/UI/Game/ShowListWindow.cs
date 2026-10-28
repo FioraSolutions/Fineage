@@ -5,12 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using VContainer;
 
 using UnityEngine.UIElements;
 
 
 public class ShowListWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => GameWindowPacketServices.Game;
     private static ShowListWindow _instance;
     public static ShowListWindow Instance { get { return _instance; } }
     private Button _СЃancelButton;
@@ -23,11 +28,22 @@ public class ShowListWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireGameWindowPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireGameWindowPacketServices();
+    }
+
+    private void WireGameWindowPacketServices()
+    {
+        GameWindowPacketServices.Bind(game: _gameClient, showList: this);
     }
 
     protected override void LoadAssets()
@@ -86,7 +102,7 @@ public class ShowListWindow : L2PopupWindow
         if (_players.ContainsKey(_select))
         {
             int objectId = _players[_select];
-            IncomingPacketActions.Game.Send(new RequestPackageSendableItemListCommand(objectId));
+            Game.Send(new RequestPackageSendableItemListCommand(objectId));
             HideWindow();
         }
     }

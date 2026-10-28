@@ -1,17 +1,9 @@
-using UnityEngine;
-
 [IncomingGamePacket(GameServerPacketType.CharSelected)]
 public sealed class CharSelectedIncoming : IncomingWirePacket<CharSelectedDto>
 {
-    protected override void OnParsed(CharSelectedDto packet)
-    {
-        IncomingPacketActions.Game.PlayerInfo = packet.PlayeInfo;
-        IncomingPacketActions.Game.SetDataPreparationCompleted(false);
-    }
+    protected override void OnParsed(CharSelectedDto packet) =>
+        CharSelectedParsedApplyIncomingPacketServices.OnCharSelectedParsed(packet);
 
-    public override void Apply(CharSelectedDto packet)
-    {
-        IncomingPacketActions.Game.PlayerInfo = packet.PlayeInfo;
-        IncomingPacketActions.Manager.OnCharacterSelect();
-    }
+    public override void Apply(CharSelectedDto packet) =>
+        CharSelectedApplyIncomingPacketServices.ApplyCharSelected(packet);
 }

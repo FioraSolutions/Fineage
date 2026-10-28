@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 public class SceneLoader : MonoBehaviour
 {
@@ -15,9 +16,24 @@ public class SceneLoader : MonoBehaviour
     private bool _worldStreaming;
     private bool _streamingBusy;
 
+    [Inject] GameManager _gameManager;
+    [Inject] GameClient _gameClient;
+    [Inject] World _world;
+    [Inject] L2GameUI _gameUi;
+
     private GameManager Manager
     {
-        get { return IncomingPacketActions.Manager; }
+        get { return _gameManager != null ? _gameManager : GamePacketServices.Manager; }
+    }
+
+    private GameClient Game
+    {
+        get { return _gameClient != null ? _gameClient : GamePacketServices.Game; }
+    }
+
+    private World GameWorld
+    {
+        get { return _world != null ? _world : GamePacketServices.GameWorld; }
     }
 
     public string GameScene { get { return _gameScene; } }
@@ -35,6 +51,25 @@ public class SceneLoader : MonoBehaviour
         {
             Destroy(this);
         }
+
+        WireGamePacketServices();
+        WireSceneLoaderUiPacketServices();
+    }
+
+    private void Start()
+    {
+        WireGamePacketServices();
+        WireSceneLoaderUiPacketServices();
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(manager: _gameManager, game: _gameClient, gameWorld: _world);
+    }
+
+    private void WireSceneLoaderUiPacketServices()
+    {
+        SceneLoaderUiPacketServices.Bind(gameUi: _gameUi);
     }
 
     public void LoadMenu()
@@ -77,13 +112,14 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadSWMap()
     {
-        if (IncomingPacketActions.Game == null || IncomingPacketActions.Game.PlayerInfo.Identity == null)
+        GameClient game = Game;
+        if (game == null || game.PlayerInfo.Identity == null)
         {
             // Debug.LogError("LoadSWMap: no player xyz");
             return;
         }
 
-        Vector3 l2Pos = IncomingPacketActions.Game.PlayerInfo.Identity.GetL2jPos();
+        Vector3 l2Pos = game.PlayerInfo.Identity.GetL2jPos();
         StartCoroutine(LoadSWMapRoutine(l2Pos));
     }
 
@@ -121,7 +157,7 @@ public class SceneLoader : MonoBehaviour
 
     private void FinishLoadSWMap()
     {
-        if (IncomingPacketActions.GameWorld != null)
+        if (GameWorld != null)
         {
             Manager.OnWorldSceneLoaded();
         }
@@ -303,10 +339,9 @@ public class SceneLoader : MonoBehaviour
 
     private static L2GameUI GetGameUi()
     {
-        if (L2GameUI.Instance != null)
-        {
-            return L2GameUI.Instance;
-        }
+        L2GameUI ui = SceneLoaderUiPacketServices.GameUi;
+        if (ui != null)
+            return ui;
 
         return FindFirstObjectByType<L2GameUI>(FindObjectsInactive.Include);
     }

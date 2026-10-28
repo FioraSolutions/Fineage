@@ -1,0 +1,204 @@
+# Playtest clients for the one shared public dev server.
+# Push to main, or a v* tag, builds Win/macOS/Linux and publishes a GitHub Release.
+# workflow_dispatch can build another ref (including dev) once this file is on the default branch.
+# Missing Unity license fails in prepare, before Unity is pulled.
+# Host defaults: fineage.evpoint.by, login.fineage.evpoint.by:2106, game.fineage.evpoint.by:7777.
+# See Docs/PLAYTEST_RELEASE.md.
+
+name: release-clients
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      public_host:
+        description: Override landing host (default fineage.evpoint.by)
+        required: false
+        type: string
+      login_host:
+        description: Override login host (default login.fineage.evpoint.by)
+        required: false
+        type: string
+      game_host:
+        description: Override game host (default game.fineage.evpoint.by)
+        required: false
+        type: string
+      login_port:
+        description: Override login TCP port (default 2106)
+        required: false
+        type: string
+      game_port:
+        description: Override game TCP port (default 7777)
+        required: false
+        type: string
+      create_release:
+        description: Publish a GitHub Release
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: release-clients
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: version and secrets
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.notes.outputs.version }}
+      unity_version: ${{ steps.notes.outputs.unity_version }}
+      release_tag: ${{ steps.notes.outputs.release_tag }}
+      prerelease: ${{ steps.notes.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Check Unity license and playtest host
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          FINEAGE_PUBLIC_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
+          FINEAGE_LOGIN_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
+          FINEAGE_GAME_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
+        run: python3 scripts/check-release-secrets.py
+
+      - name: Version and changelog
+        id: notes
+        env:
+          FINEAGE_PUBLIC_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
+          FINEAGE_LOGIN_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
+          FINEAGE_GAME_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
+          FINEAGE_LOGIN_PORT: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
+          FINEAGE_GAME_PORT: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
+          RELEASE_REF_TYPE: ${{ github.ref_type }}
+          RELEASE_REF_NAME: ${{ github.ref_name }}
+        run: python3 scripts/release-notes.py --output dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: |
+            dist/CHANGELOG.md
+            dist/version.json
+          retention-days: 90
+
+  build:
+    name: ${{ matrix.artifact }}
+    needs: prepare
+    runs-on: ${{ matrix.runsOn }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      # One Unity seat at a time. Raise max-parallel if the license allows concurrent activations.
+      max-parallel: 1
+      matrix:
+        include:
+          # Standalone scripting backend is Mono, so the Windows player cross-compiles on Linux.
+          - targetPlatform: StandaloneWindows64
+            runsOn: ubuntu-latest
+            artifact: Fineage-Windows-x64
+          - targetPlatform: StandaloneOSX
+            runsOn: macos-latest
+            artifact: Fineage-macOS
+          - targetPlatform: StandaloneLinux64
+            runsOn: ubuntu-latest
+            artifact: Fineage-Linux-x64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        if: runner.os == 'Linux'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost || true
+          if [ -n "${AGENT_TOOLSDIRECTORY:-}" ]; then
+            sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+          fi
+          df -h
+
+      - name: Bake playtest endpoint
+        env:
+          FINEAGE_PUBLIC_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
+          FINEAGE_LOGIN_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
+          FINEAGE_GAME_HOST: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
+          FINEAGE_LOGIN_PORT: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
+          FINEAGE_GAME_PORT: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
+        run: python3 scripts/bake-playtest-endpoint.py
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes
+
+      - name: Build ${{ matrix.targetPlatform }}
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          projectPath: l2-unity
+          targetPlatform: ${{ matrix.targetPlatform }}
+          unityVersion: auto
+          buildName: Fineage
+          buildsPath: build
+          versioning: Custom
+          version: ${{ needs.prepare.outputs.unity_version }}
+          allowDirtyBuild: true
+
+      - name: Zip client
+        run: python3 scripts/pack-client.py --build build --notes release-notes --output "dist/${{ matrix.artifact }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}.zip
+          retention-days: 90
+
+  publish:
+    name: GitHub Release
+    needs: [prepare, build]
+    if: >-
+      needs.prepare.result == 'success' &&
+      needs.build.result == 'success' &&
+      (github.event_name != 'workflow_dispatch' || inputs.create_release)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: Fineage-*
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: artifacts/notes
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.release_tag }}
+          name: Fineage ${{ needs.prepare.outputs.version }}
+          body_path: artifacts/notes/CHANGELOG.md
+          prerelease: ${{ needs.prepare.outputs.prerelease == 'true' }}
+          make_latest: ${{ needs.prepare.outputs.prerelease != 'true' }}
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/Fineage-Windows-x64/Fineage-Windows-x64.zip
+            artifacts/Fineage-macOS/Fineage-macOS.zip
+            artifacts/Fineage-Linux-x64/Fineage-Linux-x64.zip
+            artifacts/notes/CHANGELOG.md
+            artifacts/notes/version.json

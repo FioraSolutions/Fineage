@@ -45,18 +45,37 @@ public sealed class ItemDropPresentationService
     readonly ItemDropWeaponAligner _weapons;
     readonly ItemDropLayerService _layers;
     readonly ItemDropGrpCatalog _grp;
+    readonly World _world;
+    readonly IAnimationManager _animations;
+    readonly EffectManager _effects;
 
     public ItemDropPresentationService(
         ItemDropClickAreaService clickArea,
         ItemDropWeaponAligner weapons,
         ItemDropLayerService layers,
-        ItemDropGrpCatalog grp)
+        ItemDropGrpCatalog grp,
+        World world,
+        IAnimationManager animations,
+        EffectManager effects)
     {
         _clickArea = clickArea;
         _weapons = weapons;
         _layers = layers;
         _grp = grp;
+        _world = world;
+        _animations = animations;
+        _effects = effects;
+        ItemPacketServices.Bind(gameWorld: world, animations: animations, effects: effects);
     }
+
+    private World GameWorld =>
+        _world != null ? _world : ItemPacketServices.GameWorld;
+
+    private IAnimationManager Animations =>
+        _animations != null ? _animations : ItemPacketServices.Animations;
+
+    private EffectManager Effects =>
+        _effects != null ? _effects : ItemPacketServices.Effects;
 
     public void Tick(float deltaTime)
     {
@@ -285,7 +304,7 @@ public sealed class ItemDropPresentationService
         if (itemTransform == null || ItemDropPresentationIds.LandBurstEffectId <= 0)
             return;
 
-        EffectManager effects = IncomingPacketActions.Effects;
+        EffectManager effects = Effects;
         if (effects == null)
             return;
 
@@ -348,28 +367,31 @@ public sealed class ItemDropPresentationService
         return landPos + Vector3.up * ItemDropPresentationIds.DropThrowStartHeightMeters;
     }
 
-    static Entity ResolveEntity(int objectId)
+    Entity ResolveEntity(int objectId)
     {
-        if (objectId == 0 || IncomingPacketActions.GameWorld == null)
+        World world = GameWorld;
+        if (objectId == 0 || world == null)
             return null;
-        return IncomingPacketActions.GameWorld.GetEntityNoLockSync(objectId);
+        return world.GetEntityNoLockSync(objectId);
     }
 
-    static void PlayActorAnimation(int objectId, string trigger)
+    void PlayActorAnimation(int objectId, string trigger)
     {
-        if (objectId == 0 || IncomingPacketActions.Animations == null)
+        IAnimationManager animations = Animations;
+        if (objectId == 0 || animations == null)
             return;
-        IncomingPacketActions.Animations.PlayAnimationTrigger(objectId, trigger);
+        animations.PlayAnimationTrigger(objectId, trigger);
     }
 
-    static void PlayActorCrossFade(int objectId, string stateName)
+    void PlayActorCrossFade(int objectId, string stateName)
     {
-        if (objectId == 0 || IncomingPacketActions.Animations == null)
+        IAnimationManager animations = Animations;
+        if (objectId == 0 || animations == null)
             return;
-        IncomingPacketActions.Animations.PlayExactAnimatorState(objectId, stateName);
+        animations.PlayExactAnimatorState(objectId, stateName);
     }
 
-    static void PlayEffect(int effectId, Transform target, string label)
+    void PlayEffect(int effectId, Transform target, string label)
     {
         if (effectId <= 0 || target == null)
         {
@@ -377,7 +399,7 @@ public sealed class ItemDropPresentationService
             return;
         }
 
-        EffectManager effects = IncomingPacketActions.Effects;
+        EffectManager effects = Effects;
         if (effects == null)
             return;
 
@@ -396,7 +418,7 @@ public sealed class ItemDropPresentationService
         effects.PlayEffect(effectId, playTarget);
     }
 
-    static void PlayEffect(int effectId, Vector3 point, string label)
+    void PlayEffect(int effectId, Vector3 point, string label)
     {
         if (effectId <= 0)
         {
@@ -404,7 +426,7 @@ public sealed class ItemDropPresentationService
             return;
         }
 
-        EffectManager effects = IncomingPacketActions.Effects;
+        EffectManager effects = Effects;
         if (effects == null)
             return;
 

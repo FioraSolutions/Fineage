@@ -6,6 +6,8 @@ using VContainer;
 public abstract class DefaultClient : MonoBehaviour
 {
     [Inject] protected NetworkRuntime _network;
+    [Inject] protected GameManager _gameManager;
+    [Inject] protected World _world;
     [Header("Connection")]
     [SerializeField] protected string _serverIp = "127.0.0.1";
     [SerializeField] protected int _serverPort = 11000;
@@ -32,17 +34,31 @@ public abstract class DefaultClient : MonoBehaviour
     public bool IsConnected { get { return _connected; } }
     public int Ping { get { return _ping; } set { _ping = value; } }
 
+    private GameManager Manager => NetworkingPacketServices.Manager;
+
+    private World GameWorld => NetworkingPacketServices.GameWorld;
+
     private void Start()
     {
-        World world = IncomingPacketActions.GameWorld;
+        NetworkingPacketServices.Bind(world: _world, manager: _gameManager);
+        World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
             this.enabled = false;
         }
     }
 
+    /// <summary>
+    /// Release builds point login/game sockets at the shared playtest host.
+    /// Editor play keeps the serialized address when no host is configured.
+    /// </summary>
+    protected virtual void ApplyPlaytestEndpoint()
+    {
+    }
+
     public async void Connect()
     {
+        ApplyPlaytestEndpoint();
         _connected = false;
         if (_connecting)
         {
@@ -79,7 +95,7 @@ public abstract class DefaultClient : MonoBehaviour
         _connecting = false;
         EventProcessor events = Events;
         LobbyFlowLog.Info(GetType().Name + ".Connect socketResult=" + connected +
-            " events=" + (events != null) + " manager=" + (IncomingPacketActions.Manager != null));
+            " events=" + (events != null) + " manager=" + (Manager != null));
 
         if (connected)
         {
@@ -155,8 +171,9 @@ public abstract class DefaultClient : MonoBehaviour
             return;
 
         _client = null;
-        if (IncomingPacketActions.Manager != null)
-            IncomingPacketActions.Manager.OnDisconnect();
+        GameManager manager = Manager;
+        if (manager != null)
+            manager.OnDisconnect();
     }
 
     protected NetworkRuntime Network
@@ -176,7 +193,7 @@ public abstract class DefaultClient : MonoBehaviour
             NetworkRuntime runtime = Network;
             if (runtime != null && runtime.Events != null)
                 return runtime.Events;
-            return EventProcessor.Instance;
+            return NetworkingPacketServices.Events;
         }
     }
 

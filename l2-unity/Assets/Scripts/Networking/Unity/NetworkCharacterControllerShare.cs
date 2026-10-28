@@ -2,9 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 
 [RequireComponent(typeof(NetworkTransformShare)), RequireComponent(typeof(CharacterController))]
 public class NetworkCharacterControllerShare : MonoBehaviour {
+    [Inject] World _world;
+    [Inject] PlayerController _player;
+
+    private World GameWorld => NetworkingPacketServices.GameWorld;
+
+    private PlayerController LocalPlayer => NetworkingPacketServices.Player;
+
     private CharacterController _characterController;
     private NetworkTransformShare _networkTransformShare;
     [SerializeField] private int _sharingLoopDelayMs = 100;
@@ -27,8 +35,10 @@ public class NetworkCharacterControllerShare : MonoBehaviour {
     }
 
     void Start() {
+        NetworkingPacketServices.Bind(world: _world, player: _player);
         _characterController = GetComponent<CharacterController>();
-        if(_characterController == null || (IncomingPacketActions.GameWorld != null && IncomingPacketActions.GameWorld.OfflineMode)) {
+        World world = GameWorld;
+        if(_characterController == null || (world != null && world.OfflineMode)) {
             this.enabled = false;
             return;
         }
@@ -39,7 +49,7 @@ public class NetworkCharacterControllerShare : MonoBehaviour {
     }
 
     private void FixedUpdate() {
-        Vector3 newDirection = IncomingPacketActions.Player.MoveDirection.normalized;
+        Vector3 newDirection = LocalPlayer.MoveDirection.normalized;
         long now = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         if (ShouldShareMoveDirection(newDirection, now)) {
             _lastSharingTimestamp = now;
@@ -80,6 +90,6 @@ public class NetworkCharacterControllerShare : MonoBehaviour {
     }
 
     public void ForceShareMoveDirection() {
-        ShareMoveDirection(IncomingPacketActions.Player.MoveDirection.normalized);
+        ShareMoveDirection(LocalPlayer.MoveDirection.normalized);
     }
 }

@@ -3,10 +3,28 @@ using VContainer;
 public sealed class LoginRuntime
 {
     private readonly IObjectResolver _resolver;
+    private GameClient _game;
+    private LoginClient _loginClient;
+    private GameManager _manager;
 
     public LoginRuntime(IObjectResolver resolver)
     {
         _resolver = resolver;
+    }
+
+    [Inject]
+    public void Construct(GameClient game, LoginClient loginClient, GameManager manager)
+    {
+        if (game != null)
+            _game = game;
+        if (loginClient != null)
+            _loginClient = loginClient;
+        if (manager != null)
+            _manager = manager;
+        DiRuntimePacketServices.Bind(
+            game: _game ?? Get<GameClient>(),
+            login: _loginClient ?? Get<LoginClient>(),
+            manager: _manager ?? Get<GameManager>());
     }
 
     public L2LoginUI Ui { get { return Get<L2LoginUI>() ?? L2LoginUI.Instance; } }
@@ -18,9 +36,12 @@ public sealed class LoginRuntime
     public LoginCameraManager Camera { get { return Get<LoginCameraManager>() ?? LoginCameraManager.Instance; } }
     public CharacterSelector Selector { get { return Get<CharacterSelector>() ?? CharacterSelector.Instance; } }
     public CharacterCreator Creator { get { return Get<CharacterCreator>() ?? CharacterCreator.Instance; } }
-    public GameClient Game { get { return Get<GameClient>() ?? IncomingPacketActions.Game; } }
-    public LoginClient LoginClient { get { return Get<LoginClient>() ?? IncomingPacketActions.Login; } }
-    public GameManager Manager { get { return Get<GameManager>() ?? IncomingPacketActions.Manager; } }
+
+    public GameClient Game => DiRuntimePacketServices.Game;
+
+    public LoginClient LoginClient => DiRuntimePacketServices.Login;
+
+    public GameManager Manager => DiRuntimePacketServices.Manager;
 
     private T Get<T>() where T : class
     {

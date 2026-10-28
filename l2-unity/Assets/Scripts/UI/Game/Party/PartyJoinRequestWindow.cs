@@ -2,9 +2,14 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class PartyInvitationWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => PartyPacketServices.Game;
     private static PartyInvitationWindow _instance;
     private VisualElement _progressBar;
     private VisualElement _progressBarBg;
@@ -27,13 +32,24 @@ public class PartyInvitationWindow : L2PopupWindow
     private void Awake()
     {
         if (_instance == null)
-        { 
+        {
             _instance = this;
+            WirePartyPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WirePartyPacketServices();
+    }
+
+    private void WirePartyPacketServices()
+    {
+        PartyPacketServices.Bind(game: _gameClient, partyInvite: this);
     }
 
     public void AddData(AskJoinPartyDto request)
@@ -140,14 +156,14 @@ public class PartyInvitationWindow : L2PopupWindow
 
     private void SendAcceptResponse()
     {
-        IncomingPacketActions.Game.Send(new RequestAnswerJoinPartyCommand(1));
+        Game.Send(new RequestAnswerJoinPartyCommand(1));
 
         OnInvitationResponse?.Invoke(true);
     }
 
     private void SendDeclineResponse()
     {
-        IncomingPacketActions.Game.Send(new RequestAnswerJoinPartyCommand(0));
+        Game.Send(new RequestAnswerJoinPartyCommand(0));
 
         OnInvitationResponse?.Invoke(false);
     }

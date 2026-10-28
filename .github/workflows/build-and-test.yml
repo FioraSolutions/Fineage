@@ -18,6 +18,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check frozen IncomingPacketActions surface
+        run: python3 scripts/check-frozen-incoming-packet-actions.py
+
+      - name: Check playtest release helpers
+        run: |
+          python3 scripts/check-release-secrets.py --self-test
+          python3 scripts/bake-playtest-endpoint.py --self-test
+          python3 scripts/release-notes.py --self-test
+          python3 scripts/pack-client.py --self-test
+
+      - name: Check client asmdef layout (#139)
+        run: python3 scripts/check-client-asmdef-layout.py
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:

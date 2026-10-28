@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class ShortCutRegisterDto : IWireDto
+﻿public class ShortCutRegisterDto : IWireDto
 {
     private Shortcut shortcut;
     

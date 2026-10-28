@@ -4,9 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class MultiSellWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game =>
+        _gameClient != null ? _gameClient : IncomingPacketActions.Game;
     private static MultiSellWindow _instance;
     private ICreatorTradeTab _creatorWindow;
 
@@ -37,7 +43,7 @@ public class MultiSellWindow : L2PopupWindow
             _creatorWindow = new CreatorTradingWindowsWithTabs();
             _dataProvider = new TooltipDataProvider();
             _toolTips = new MultiSellToolTips(_dataProvider);
-
+            WireMultiSellPacketServices();
         }
         else
         {
@@ -45,6 +51,15 @@ public class MultiSellWindow : L2PopupWindow
         }
     }
 
+    private void Start()
+    {
+        WireMultiSellPacketServices();
+    }
+
+    private void WireMultiSellPacketServices()
+    {
+        MultiSellPacketServices.Bind(multiSell: this);
+    }
 
     protected override void LoadAssets()
     {
@@ -278,7 +293,7 @@ public class MultiSellWindow : L2PopupWindow
     private void OkExchange()
     {
         string value = ToolTipsUtils.ConvertPriceToNormal(_userInput.value);
-        IncomingPacketActions.Game.Send(new MultiSellChooseCommand(_listId, _entryId, int.Parse(value)));
+        Game.Send(new MultiSellChooseCommand(_listId, _entryId, int.Parse(value)));
         CancelEvent();
     }
 

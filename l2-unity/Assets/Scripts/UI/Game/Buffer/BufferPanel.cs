@@ -39,6 +39,7 @@ public class BufferPanel : L2Window
             _dictElement = new Dictionary<int, DataCell>();
             _filterData = new FilterData(_dictElement);
             _bLink = new BLink(this);
+            WireAuxiliaryGameUIPacketServices();
         }
         else
         {
@@ -46,6 +47,15 @@ public class BufferPanel : L2Window
         }
     }
 
+    private void Start()
+    {
+        WireAuxiliaryGameUIPacketServices();
+    }
+
+    private void WireAuxiliaryGameUIPacketServices()
+    {
+        AuxiliaryGameUIPacketServices.Bind(buffer: this);
+    }
 
     protected override void LoadAssets()
     {

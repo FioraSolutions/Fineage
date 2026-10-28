@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -9,6 +10,10 @@ public class PlayerStatePickup : StateMachineBehaviour
 {
     const float FinishNorm = 0.95f;
     bool _switched;
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
+
+    static void QueueOnMain(Action action) => AnimationPacketServices.QueueOnMain(action);
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -26,7 +31,8 @@ public class PlayerStatePickup : StateMachineBehaviour
     {
         _switched = true;
         int objectId = AnimatorUtils.GetObjectId(animator);
-        if (IncomingPacketActions.Animations == null || objectId == 0)
+        IAnimationManager animations = Animations;
+        if (animations == null || objectId == 0)
             return;
 
         bool local = AnimatorUtils.IsLocalPlayerAnimator(animator);
@@ -47,9 +53,9 @@ public class PlayerStatePickup : StateMachineBehaviour
             }
         }
 
-        IncomingPacketActions.Queue(() =>
+        QueueOnMain(() =>
         {
-            IncomingPacketActions.Animations.PlayAnimation(
+            animations.PlayAnimation(
                 objectId, AnimationNames.WAIT.ToString(), true);
         });
     }

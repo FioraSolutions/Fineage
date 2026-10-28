@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// TCP client for Fineage ZoneServer v2 (MessagePack frames on :9777).
@@ -13,6 +14,28 @@ public sealed class ZoneV2Client : MonoBehaviour
 {
     static ZoneV2Client _instance;
     public static ZoneV2Client Instance { get { return _instance; } }
+
+    [Inject] GameManager _gameManager;
+    IWorldDomainSink _domain;
+    WorldPacketApply _worldApply;
+
+    public void WireGame(IWorldDomainSink domain, WorldPacketApply worldApply)
+    {
+        if (domain != null)
+            _domain = domain;
+        if (worldApply != null)
+            _worldApply = worldApply;
+        NetworkingPacketServices.Bind(
+            domain: _domain,
+            worldApply: _worldApply,
+            manager: _gameManager);
+    }
+
+    private GameManager Manager => NetworkingPacketServices.Manager;
+
+    private IWorldDomainSink Domain => NetworkingPacketServices.Domain;
+
+    private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 
     readonly ConcurrentQueue<Action> _main = new ConcurrentQueue<Action>();
     CancellationTokenSource _cts;
@@ -34,6 +57,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
     void Awake()
     {
+        NetworkingPacketServices.Bind(manager: _gameManager);
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
@@ -200,12 +224,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                         DomainMoveTo domainMove = ZoneV2DomainMap.Move(move);
                         Post(() =>
                         {
-                            IWorldDomainSink domain = IncomingPacketActions.Domain;
+                            IWorldDomainSink domain = Domain;
                             if (domain != null && domainMove != null)
                                 domain.ApplyMoveTo(domainMove);
                             else if (domainMove != null && domainMove.InterludeDto != null)
-                                IncomingPacketActions.ApplyWorld(a =>
-                                    a.MoveTo(domainMove.ObjectId, domainMove.Destination, domainMove.Origin, domainMove.InterludeDto));
+                            {
+                                WorldPacketApply apply = WorldApply;
+                                if (apply != null)
+                                    apply.MoveTo(domainMove.ObjectId, domainMove.Destination, domainMove.Origin, domainMove.InterludeDto);
+                                else
+                                    NetworkingPacketServices.ApplyWorld(a =>
+                                        a.MoveTo(domainMove.ObjectId, domainMove.Destination, domainMove.Origin, domainMove.InterludeDto));
+                            }
                         });
                         break;
 
@@ -242,7 +272,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (game != null)
             game.PlayerInfo = info;
 
-        GameManager manager = IncomingPacketActions.Manager;
+        GameManager manager = Manager;
         if (manager == null)
         {
             Debug.LogError("[ZoneV2] GameManager missing after PlayerSpawned");

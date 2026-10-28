@@ -8,8 +8,5 @@ public sealed class ReviveIncoming : IncomingPacket<ReviveDto>
         return dto;
     }
 
-    public override void Apply(ReviveDto dto)
-    {
-        IncomingPacketActions.ApplyWorld(apply => apply.Revive(dto));
-    }
+    public override void Apply(ReviveDto dto) => ReviveApplyIncomingPacketServices.ApplyRevive(dto);
 }

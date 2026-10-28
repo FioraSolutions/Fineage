@@ -8,6 +8,12 @@ public class ClickManager : MonoBehaviour
     [Inject] TargetManager _targets;
     [Inject] GameClient _gameClient;
     [Inject] ItemDropPicker _dropPicker;
+
+    private ItemDropPicker DropPicker
+    {
+        get { return _dropPicker != null ? _dropPicker : ManagerInteractionPacketServices.DropPicker; }
+    }
+
     [SerializeField] private GameObject _locator;
     [SerializeField] private ObjectData _targetObjectData;
     [SerializeField] private ObjectData _hoverObjectData;
@@ -23,17 +29,17 @@ public class ClickManager : MonoBehaviour
 
     private InputManager GameInput
     {
-        get { return _input != null ? _input : IncomingPacketActions.Input; }
+        get { return _input != null ? _input : ControllerPacketServices.Input; }
     }
 
     private TargetManager Targets
     {
-        get { return _targets != null ? _targets : IncomingPacketActions.Targets; }
+        get { return _targets != null ? _targets : ControllerPacketServices.Targets; }
     }
 
     private GameClient Game
     {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+        get { return _gameClient != null ? _gameClient : ControllerPacketServices.Game; }
     }
 
     // L2 FindMouseTargetObject far = 10000 UU.
@@ -45,6 +51,8 @@ public class ClickManager : MonoBehaviour
         {
             _instance = this;
             uiDocument = GetComponent<UIDocument>();
+            App.InjectGameObject(gameObject);
+            WireManagerInteractionPacketServices();
         }
         else
         {
@@ -59,6 +67,7 @@ public class ClickManager : MonoBehaviour
 
     void Start()
     {
+        WireManagerInteractionPacketServices();
         _locator = GameObject.Find("Locator");
         HideLocator();
     }
@@ -83,8 +92,9 @@ public class ClickManager : MonoBehaviour
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
             stickyDrop = _hoverObjectData.ObjectTransform.GetComponent<ItemEntity>();
 
-        if (_dropPicker != null &&
-            _dropPicker.TryPick(ray, MousePickDistance, stickyDrop, out ItemEntity dropItem, out _))
+        ItemDropPicker dropPicker = DropPicker;
+        if (dropPicker != null &&
+            dropPicker.TryPick(ray, MousePickDistance, stickyDrop, out ItemEntity dropItem, out _))
         {
             Transform root = dropItem.transform;
             _hoverObjectData = new ObjectData(root.gameObject);
@@ -227,5 +237,10 @@ public class ClickManager : MonoBehaviour
         }
 
         _locator.SetActive(false);
+    }
+
+    private void WireManagerInteractionPacketServices()
+    {
+        ManagerInteractionPacketServices.Bind(dropPicker: _dropPicker);
     }
 }

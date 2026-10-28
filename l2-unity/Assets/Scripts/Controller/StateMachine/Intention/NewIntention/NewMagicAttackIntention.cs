@@ -19,14 +19,14 @@ public class NewMagicAttackIntention : IntentionBase
             }
 
             int objectId = _stateMachine.Player.Identity.Id;
-            IncomingPacketActions.Animations.SetSpTimeAtk(objectId, useSkill.HitTime);
-            Entity targetEntity = IncomingPacketActions.GameWorld.GetEntityNoLockSync(useSkill.TargetId);
+            ControllerPacketServices.Animations.SetSpTimeAtk(objectId, useSkill.HitTime);
+            Entity targetEntity = ControllerPacketServices.GameWorld.GetEntityNoLockSync(useSkill.TargetId);
             // Live follow until shoot; self-cast skips facing.
             if (objectId != useSkill.TargetId && targetEntity != null)
             {
                 CombatFacingService.Ensure().BeginFollow(
                     objectId,
-                    IncomingPacketActions.Player.transform,
+                    ControllerPacketServices.Player.transform,
                     targetEntity.transform,
                     L2PawnYaw.MagicRotationRateYaw);
             }
@@ -50,7 +50,7 @@ public class NewMagicAttackIntention : IntentionBase
         }
         else
         {
-            IncomingPacketActions.Targets.SetTarget(new ObjectData(_stateMachine.Player.gameObject), "#ffffff");
+            ControllerPacketServices.Targets.SetTarget(new ObjectData(_stateMachine.Player.gameObject), "#ffffff");
             _stateMachine.ChangeState(PlayerState.MAGIC_SKILLS);
             _stateMachine.NotifyEvent(Event.APPLY_SELF_SKILL, useSkill);
         }

@@ -6,7 +6,6 @@ public sealed class TradeOwnAddIncoming : IncomingPacket<TradeOwnAddIncomingDto>
         return new TradeOwnAddIncomingDto();
     }
 
-    public override void Apply(TradeOwnAddIncomingDto dto)
-    {
-    }
+    public override void Apply(TradeOwnAddIncomingDto dto) =>
+        TradeOwnAddApplyIncomingPacketServices.ApplyOwnAdd(dto);
 }

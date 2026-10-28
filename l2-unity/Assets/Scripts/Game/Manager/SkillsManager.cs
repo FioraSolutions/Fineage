@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
-
+using VContainer;
 
 public class SkillsManager : MonoBehaviour
 {
+    [Inject] EffectSkillsmanager _effectSkills;
     private static SkillsManager _instance;
 
     public static SkillsManager Instance { get { return _instance; } }
@@ -28,7 +29,7 @@ public class SkillsManager : MonoBehaviour
 
     public void Start()
     {
-        
+        WireGamePacketServices();
     }
 
 
@@ -37,12 +38,19 @@ public class SkillsManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            App.InjectGameObject(gameObject);
         }
         else if (_instance != this)
         {
             Destroy(this);
         }
 
+        WireGamePacketServices();
+    }
+
+    private void WireGamePacketServices()
+    {
+        GamePacketServices.Bind(effectSkills: _effectSkills);
     }
 
     public void Update()
@@ -59,7 +67,9 @@ public class SkillsManager : MonoBehaviour
         if (!_enabled) return;
 
         _elapsedTime = (Time.time * 1000) - _starttime;
-        IncomingPacketActions.EffectSkills.UpdateWorldTime(_elapsedTime);
+        EffectSkillsmanager effectSkills = _effectSkills != null ? _effectSkills : GamePacketServices.EffectSkills;
+        if (effectSkills != null)
+            effectSkills.UpdateWorldTime(_elapsedTime);
 
         if(_elapsedTime >_hitTime * 2 ) _enabled = false;
 

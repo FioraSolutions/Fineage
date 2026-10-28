@@ -8,6 +8,7 @@ public sealed class GameLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         RegisterIfFound<World>(builder);
+        RegisterIfFound<PlayerController>(builder);
         RegisterIfFound<WorldCombat>(builder);
         RegisterIfFound<TargetManager>(builder);
         RegisterIfFound<HitManager>(builder);
@@ -24,6 +25,9 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<SkillExecutor>(builder);
         RegisterIfFound<CombatFacingService>(builder);
         RegisterIfFound<EventBus>(builder);
+        builder.Register<GameEventBus>(Lifetime.Singleton).As<IGameEventBus>();
+        builder.Register<TargetClearOnEntityDiedListener>(Lifetime.Singleton);
+        builder.Register<PlayerAttackClearOnEntityDiedListener>(Lifetime.Singleton);
         builder.Register<L2ActorFade>(Lifetime.Singleton);
         builder.Register<DefaultEffectAttachmentResolver>(Lifetime.Singleton).As<IEffectAttachmentResolver>();
         builder.Register<HomeProjectileDualFlightRoots>(Lifetime.Singleton);
@@ -32,6 +36,10 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
         RegisterIfFound<MoveAllCharacters>(builder);
+        RegisterIfFound<NetworkCharacterControllerShare>(builder);
+        RegisterIfFound<NetworkTransformReceive>(builder);
+        RegisterIfFound<NetworkTransformShare>(builder);
+        RegisterIfFound<ZoneV2Client>(builder);
         RegisterIfFound<GravityNpc>(builder);
         RegisterIfFound<FNManagerLight>(builder);
         RegisterIfFound<SwordCollisionService>(builder);
@@ -40,12 +48,15 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<Geodata>(builder);
         RegisterIfFound<AudioManager>(builder);
         RegisterIfFound<MusicManager>(builder);
+        RegisterIfFound<SurfaceDetector>(builder);
+        RegisterIfFound<ThirdPersonListener>(builder);
         RegisterIfFound<SkillsManager>(builder);
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterIfFound<CharacterBuilder>(builder);
 
         RegisterIfFound<L2GameUI>(builder);
+        RegisterIfFound<L2SlotManager>(builder);
         RegisterIfFound<ChatWindow>(builder);
         RegisterIfFound<HtmlWindow>(builder);
         RegisterIfFound<DealerWindow>(builder);
@@ -117,11 +128,94 @@ public sealed class GameLifetimeScope : LifetimeScope
             try
             {
                 GameRuntime runtime = container.Resolve<GameRuntime>();
+                container.Resolve<TargetClearOnEntityDiedListener>();
+                container.Resolve<PlayerAttackClearOnEntityDiedListener>();
                 WorldPacketApply worldApply = container.Resolve<WorldPacketApply>();
                 MessagePacketApply messageApply = container.Resolve<MessagePacketApply>();
                 IWorldDomainSink domain = container.Resolve<IWorldDomainSink>();
                 runtime.BindApply(worldApply, messageApply);
                 IncomingPacketActions.BindGame(runtime, worldApply, messageApply, domain);
+                IncomingPacketServices.Bind(
+                    game: runtime.Game,
+                    login: runtime.Login,
+                    manager: runtime.Manager,
+                    gameWorld: runtime.World,
+                    worldApply: worldApply,
+                    messageApply: messageApply,
+                    domain: domain,
+                    inventory: runtime.Inventory,
+                    targets: runtime.Targets,
+                    shortcuts: runtime.Shortcuts,
+                    positionValidation: runtime.PositionValidation,
+                    html: runtime.Html,
+                    dealer: runtime.Dealer,
+                    multiSell: runtime.MultiSell,
+                    trade: runtime.Trade,
+                    tradeRequest: runtime.TradeRequest,
+                    partyInvite: runtime.PartyInvite,
+                    enchant: runtime.Enchant,
+                    recipeBook: runtime.RecipeBook,
+                    crafting: runtime.Crafting,
+                    skillLearn: runtime.SkillLearn,
+                    skillDesc: runtime.SkillDesc,
+                    skillList: runtime.SkillList,
+                    quest: runtime.Quest,
+                    questList: runtime.QuestList,
+                    clan: runtime.Clan,
+                    showList: runtime.ShowList,
+                    seedInfo: runtime.SeedInfo,
+                    sellCrop: runtime.SellCrop,
+                    buffer: runtime.Buffer);
+                World world = container.Resolve<World>();
+                WorldApplyPacketServices.Bind(
+                    player: runtime.Player,
+                    bus: runtime.Bus,
+                    gameWorld: world,
+                    manager: runtime.Manager,
+                    domain: domain,
+                    worldApply: worldApply);
+                MovementPacketLatest.Wire(domain);
+                MoveCostLog.Wire(world);
+                if (App.Container != null)
+                {
+                    try
+                    {
+                        EventProcessor events = App.Container.Resolve<EventProcessor>();
+                        events.WireGameApply(worldApply);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                try
+                {
+                    ZoneV2Client zoneV2 = container.Resolve<ZoneV2Client>();
+                    zoneV2.WireGame(domain, worldApply);
+                }
+                catch
+                {
+                }
+
+                if (App.Container != null)
+                {
+                    try
+                    {
+                        LobbyFlowController lobby = App.Container.Resolve<LobbyFlowController>();
+                        lobby.WireGame(
+                            container.Resolve<World>(),
+                            domain,
+                            worldApply,
+                            container.Resolve<PacketApplyQueue>(),
+                            runtime.Ui);
+                        GameManager manager = App.Container.Resolve<GameManager>();
+                        if (runtime.Ui != null)
+                            manager.WireGameUi(runtime.Ui);
+                    }
+                    catch
+                    {
+                    }
+                }
             }
             catch (Exception ex)
             {

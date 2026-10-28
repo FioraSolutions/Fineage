@@ -12,6 +12,11 @@ public class DeadManager : MonoBehaviour, IDead
 
     [Inject] private L2ActorFade _actorFade;
 
+    private L2ActorFade ActorFade
+    {
+        get { return _actorFade != null ? _actorFade : ManagerInteractionPacketServices.ActorFade; }
+    }
+
     private Dictionary<int, DeadData> _dict;
     private List<int> _remove = new List<int>();
 
@@ -22,11 +27,18 @@ public class DeadManager : MonoBehaviour, IDead
             _instance = this;
             _dict = new Dictionary<int, DeadData>();
             _remove = new List<int>();
+            App.InjectGameObject(gameObject);
+            WireManagerInteractionPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireManagerInteractionPacketServices();
     }
 
     void Update()
@@ -45,6 +57,13 @@ public class DeadManager : MonoBehaviour, IDead
                 continue;
             }
 
+            L2ActorFade fade = ActorFade;
+            if (fade == null)
+            {
+                _remove.Add(kvp.Key);
+                continue;
+            }
+
             data.AddElapsed(Time.deltaTime);
             if (data.Elapsed > L2ActorFade.DurationSeconds)
             {
@@ -53,7 +72,7 @@ public class DeadManager : MonoBehaviour, IDead
                 continue;
             }
 
-            data.SetAlphaByte(_actorFade, _actorFade.AlphaByte(data.Elapsed));
+            data.SetAlphaByte(fade, fade.AlphaByte(data.Elapsed));
         }
 
         Remove(_remove);
@@ -66,7 +85,8 @@ public class DeadManager : MonoBehaviour, IDead
             return;
         }
 
-        if (!data.TryBeginFade(_actorFade))
+        L2ActorFade fade = ActorFade;
+        if (fade == null || !data.TryBeginFade(fade))
         {
             OnReadyToRemove?.Invoke(id);
             return;
@@ -77,7 +97,7 @@ public class DeadManager : MonoBehaviour, IDead
             NameplatesManager.Instance.Remove(data.GetIdEntity());
         }
 
-        data.SetAlphaByte(_actorFade, 255);
+        data.SetAlphaByte(fade, 255);
         _dict.Add(id, data);
     }
 
@@ -98,5 +118,10 @@ public class DeadManager : MonoBehaviour, IDead
         }
 
         remove.Clear();
+    }
+
+    private void WireManagerInteractionPacketServices()
+    {
+        ManagerInteractionPacketServices.Bind(actorFade: _actorFade);
     }
 }

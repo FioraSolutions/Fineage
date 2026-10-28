@@ -8,6 +8,11 @@ using System.Collections.Generic;
 /// </summary>
 public static class MovementPacketLatest
 {
+    public static void Wire(IWorldDomainSink domain)
+    {
+        WorldApplyPacketServices.Bind(domain: domain);
+    }
+
     enum Kind
     {
         Move,
@@ -54,7 +59,7 @@ public static class MovementPacketLatest
         if (Ids.Count == 0)
             return;
 
-        IWorldDomainSink domain = IncomingPacketActions.Domain;
+        IWorldDomainSink domain = WorldApplyPacketServices.Domain;
 
         for (int i = 0; i < Ids.Count; i++)
         {

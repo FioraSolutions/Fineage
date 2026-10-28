@@ -139,7 +139,7 @@ public static class EntitySpawnShared
 
         MonoBehaviour host = go.GetComponent<Entity>();
         if (host == null)
-            host = World.Instance;
+            host = GamePacketServices.GameWorld;
         if (host != null)
             host.StartCoroutine(RetryGroundSnap(go, identity));
     }

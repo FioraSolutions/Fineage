@@ -21,7 +21,23 @@ public sealed class LoginLifetimeScope : LifetimeScope
 
         builder.RegisterBuildCallback(container =>
         {
-            IncomingPacketActions.BindLogin(container.Resolve<LoginRuntime>());
+            LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
+            IncomingPacketActions.BindLogin(loginRuntime);
+            AppLoginApplyIncomingPacketServices.BindLogin(loginRuntime);
+            if (App.Container != null)
+            {
+                try
+                {
+                    LobbyFlowController lobby = App.Container.Resolve<LobbyFlowController>();
+                    lobby.WireLogin(loginRuntime);
+                    GameManager manager = App.Container.Resolve<GameManager>();
+                    if (loginRuntime.Ui != null)
+                        manager.WireLoginUi(loginRuntime.Ui);
+                }
+                catch
+                {
+                }
+            }
         });
     }
 

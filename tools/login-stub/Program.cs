@@ -5,8 +5,10 @@ using System.Security.Cryptography;
 using System.Text;
 using Fineage.LoginStub;
 using Fineage.LoginStub.Crypto;
+using Fineage.ZoneServer.Accounts;
 
-// Fineage login+game stub: Init/Blowfish auth → ServerList → PlayOk → CharSelectionInfo.
+// Interlude overnight stub (2106/7777). Canonical V2 Login and Zone:
+// https://github.com/FioraSolutions/Fineage-Backend — Login :9106, Zone :9777.
 const int LoginPort = 2106;
 const int GamePort = 7777;
 StubLog.Configure(args.Contains("--verbose") || args.Contains("-v"));
@@ -218,14 +220,18 @@ static async Task HandleGameAsync(TcpClient client)
                 return;
             }
             account = TryParseAuthLoginAccount(rx) ?? "?";
-            StubLog.Milestone($"RX AuthLogin account={account} remote={ep}", rx);
+            string accountKey = account == "?" ? "test" : account;
+            StubLog.Milestone($"RX AuthLogin account={accountKey} remote={ep}", rx);
 
-            await Framed.SendAsync(stream, PadGame(BuildCharSelectionInfo("Test", account == "?" ? "test" : account)));
-            StubLog.Info($"TX CharSelectionInfo char=Test account={account}");
+            var roster = AccountCharacterStore.Shared.GetCharacters(accountKey);
+            await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharSelectionInfo(accountKey, roster)));
+            StubLog.Info($"TX CharSelectionInfo chars={roster.Count} account={accountKey}");
 
             int curX = SpawnX, curY = SpawnY, curZ = SpawnZ;
             bool entered = false;
-            string ctx = $"account={account}";
+            string selectedName = roster.Count > 0 ? roster[0].Name : "";
+            int selectedObjectId = roster.Count > 0 ? roster[0].ObjectId : PlayerObjectId;
+            string ctx = $"account={accountKey}";
 
             while (client.Connected)
             {
@@ -236,11 +242,79 @@ static async Task HandleGameAsync(TcpClient client)
                 byte op = rx[0];
                 switch (op)
                 {
-                    case 0x0D: // CharacterSelect
-                        StubLog.Info($"RX CharacterSelect {ctx}");
-                        await Framed.SendAsync(stream, PadGame(BuildCharSelected("Test", PlayerObjectId, curX, curY, curZ)));
-                        StubLog.Info($"TX CharSelected {ctx} @ {curX},{curY},{curZ} (17_25)");
+                    case 0x0E: // NewCharacter
+                        StubLog.Info($"RX NewCharacter {ctx}");
+                        await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharTemplatesHumanFighter()));
+                        StubLog.Info($"TX CharTemplate (Human Fighter) {ctx}");
                         break;
+
+                    case 0x0B: // CharacterCreate
+                        StubLog.Info($"RX CharacterCreate {ctx}");
+                        if (!InterludeGamePackets.TryParseCharacterCreate(rx, out var createReq))
+                        {
+                            StubLog.Warn($"CharacterCreate parse failed {ctx}");
+                            await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharCreateFail(
+                                InterludeGamePackets.CharCreateFailReasonIncorrectName)));
+                            break;
+                        }
+
+                        var createResult = AccountCharacterStore.Shared.TryCreate(
+                            accountKey,
+                            createReq.Name,
+                            createReq.Race,
+                            createReq.Female,
+                            createReq.ClassId,
+                            createReq.HairStyle,
+                            createReq.HairColor,
+                            createReq.Face,
+                            out var created);
+
+                        switch (createResult)
+                        {
+                            case StubCreateResult.Ok:
+                                await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharCreateOk()));
+                                roster = AccountCharacterStore.Shared.GetCharacters(accountKey);
+                                await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharSelectionInfo(accountKey, roster)));
+                                selectedName = created!.Name;
+                                selectedObjectId = created.ObjectId;
+                                StubLog.Info($"TX CharCreateOk + CharSelectionInfo name={selectedName} {ctx}");
+                                break;
+                            case StubCreateResult.TooManyCharacters:
+                                await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharCreateFail(
+                                    InterludeGamePackets.CharCreateFailReasonTooMany)));
+                                break;
+                            case StubCreateResult.NameAlreadyExists:
+                                await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharCreateFail(
+                                    InterludeGamePackets.CharCreateFailReasonNameExists)));
+                                break;
+                            case StubCreateResult.NotHumanFighter:
+                                await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharCreateFail(
+                                    InterludeGamePackets.CharCreateFailReasonNotAllowed)));
+                                break;
+                            default:
+                                await Framed.SendAsync(stream, PadGame(InterludeGamePackets.BuildCharCreateFail(
+                                    InterludeGamePackets.CharCreateFailReasonIncorrectName)));
+                                break;
+                        }
+
+                        break;
+
+                    case 0x0D: // CharacterSelect
+                        {
+                            int slot = rx.Length >= 5 ? BinaryPrimitives.ReadInt32LittleEndian(rx.AsSpan(1)) : 0;
+                            StubLog.Info($"RX CharacterSelect slot={slot} {ctx}");
+                            if (!AccountCharacterStore.Shared.TryGetBySlot(accountKey, slot, out var picked) || picked == null)
+                            {
+                                StubLog.Warn($"CharacterSelect invalid slot={slot} {ctx}");
+                                break;
+                            }
+
+                            selectedName = picked.Name;
+                            selectedObjectId = picked.ObjectId;
+                            await Framed.SendAsync(stream, PadGame(BuildCharSelected(selectedName, selectedObjectId, curX, curY, curZ)));
+                            StubLog.Info($"TX CharSelected name={selectedName} {ctx} @ {curX},{curY},{curZ} (17_25)");
+                            break;
+                        }
 
                     case 0x03: // EnterWorld
                         StubLog.Info($"RX EnterWorld {ctx}");
@@ -387,55 +461,3 @@ static byte[] BuildCharMove(int objectId, int xDst, int yDst, int zDst, int x, i
         .ToArray();
 }
 
-static byte[] BuildCharSelectionInfo(string name, string account)
-{
-    // Matches CharSelectionInfoDto.ReadFrom field order (Interlude).
-    var p = new PacketBuilder()
-        .C(0x13)
-        .D(1); // size
-
-    p.S(name)
-        .D(1)          // objId
-        .S(account)
-        .D(1)          // accountId
-        .D(0)          // clanId
-        .D(0)          // buildLvl
-        .D(0)          // sex male
-        .D(0)          // race human
-        .D(0)          // classId human fighter
-        .D(1)          // gsName / active
-        .D(0).D(0).D(0)
-        .F(200.0)      // hp
-        .F(50.0)       // mp
-        .D(0)          // sp
-        .Q(0)          // exp
-        .D(1)          // lvl
-        .D(0);         // karma
-
-    for (int i = 0; i < 9; i++)
-        p.D(0);
-
-    // paperdoll object ids (17) + item ids ... follow reader carefully
-    // Obj: Under, Pear, Lear, Neck, RFinger, LFinger, Head, RHand, LHand, Gloves, Chest, Legs, Feet, Cloak, RHand, Hair, Hair2 = 17
-    for (int i = 0; i < 17; i++)
-        p.D(0);
-
-    // Item: Under, Rear, Lear, Neck, RFinger, LFinger, Head, RHand, LHand, Gloves = 10
-    for (int i = 0; i < 10; i++)
-        p.D(0);
-
-    // Appearance Chest, Legs
-    p.D(0).D(0);
-    // Item Feet, Cloak, RHand, Hair, Hair2
-    p.D(0).D(0).D(0).D(0).D(0);
-
-    p.D(0).D(0).D(0); // hairStyle, hairColor, face
-    p.F(200.0).F(50.0); // maxHp maxMp
-    p.D(0);             // delete timer
-    p.D(0);             // classId again
-    p.D(1);             // selected
-    p.C(0);             // enchant
-    p.D(0);             // augmentation
-
-    return p.ToArray();
-}

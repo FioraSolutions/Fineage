@@ -11,7 +11,7 @@ public class RunningState : StateBase
         switch (evt)
         {
             case Event.ARRIVED:
-                if (IncomingPacketActions.Targets.HasAttackTarget())
+                if (ControllerPacketServices.Targets.HasAttackTarget())
                 {
                     //_stateMachine.ChangeIntention(Intention.INTENTION_ATTACK, AttackIntentionType.TargetReached);
                 }
@@ -35,29 +35,29 @@ public class RunningState : StateBase
     public override void Update()
     {
         //Arrived to destination
-        if (!IncomingPacketActions.Input.Move && !IncomingPacketActions.Player.RunningToDestination)
+        if (!ControllerPacketServices.Input.Move && !ControllerPacketServices.Player.RunningToDestination)
         {
             ////Debug.Log("Input event Move" + InputManager.Instance.Move);
             //Debug.Log("Input event RunningToDestination" + PlayerController.Instance.RunningToDestination);
 
             // Debug.Log("Character position : x " + PlayerController.Instance.GetPlayerPosition().x + " y " + PlayerController.Instance.GetPlayerPosition().y + PlayerController.Instance.GetPlayerPosition().z);
-            SendValidatePosition(IncomingPacketActions.Player.GetPlayerPosition());
+            SendValidatePosition(ControllerPacketServices.Player.GetPlayerPosition());
             _stateMachine.NotifyEvent(Event.ARRIVED);
         }
 
         // If move input is pressed while running to target
-        if (IncomingPacketActions.Targets.HasAttackTarget() && IncomingPacketActions.Input.Move)
+        if (ControllerPacketServices.Targets.HasAttackTarget() && ControllerPacketServices.Input.Move)
         {
             // Cancel follow target
-            IncomingPacketActions.Targets.ClearAttackTarget();
+            ControllerPacketServices.Targets.ClearAttackTarget();
         }
     }
 
     private void SendValidatePosition(Vector3 playerPosition)
     {
         int heading = 0;
-        if (IncomingPacketActions.Player != null)
-            heading = PlayerPositionSender.ToL2Heading(IncomingPacketActions.Player.transform.eulerAngles.y);
-        IncomingPacketActions.Game.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
+        if (ControllerPacketServices.Player != null)
+            heading = PlayerPositionSender.ToL2Heading(ControllerPacketServices.Player.transform.eulerAngles.y);
+        ControllerPacketServices.Game.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
     }
 }

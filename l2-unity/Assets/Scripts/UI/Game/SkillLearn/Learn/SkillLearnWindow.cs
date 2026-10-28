@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using VContainer;
 
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,6 +9,10 @@ using UnityEngine.UIElements;
 
 public class SkillLearnWindow : L2PopupWindow
 {
+
+    [Inject] GameClient _gameClient;
+
+    private GameClient Game => SkillLearnPacketServices.Game;
     private static SkillLearnWindow _instance;
     protected VisualTreeAsset _rowsTemplate;
     private ICreatorVerticalScroll _creatorWindow;
@@ -22,11 +27,22 @@ public class SkillLearnWindow : L2PopupWindow
         {
             _instance = this;
             _creatorWindow = new CreatorVerticalScrollWindows();
+            WireSkillLearnPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireSkillLearnPacketServices();
+    }
+
+    private void WireSkillLearnPacketServices()
+    {
+        SkillLearnPacketServices.Bind(game: _gameClient, skillLearn: this);
     }
 
     protected override void LoadAssets()
@@ -71,7 +87,7 @@ public class SkillLearnWindow : L2PopupWindow
        if(model != null)
        {
             //base.OnlyHideWindow();
-            IncomingPacketActions.Game.Send(new RequestAcquireSkillInfoCommand(model.GetId(), model.GetValue1(), model.GetAcqType()));
+            Game.Send(new RequestAcquireSkillInfoCommand(model.GetId(), model.GetValue1(), model.GetAcqType()));
         }
 
     }

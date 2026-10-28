@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using VContainer;
 
 public class NetworkTransformReceive : MonoBehaviour {
+    [Inject] World _world;
+
+    private World GameWorld => NetworkingPacketServices.GameWorld;
     [SerializeField] private Vector3 _serverPosition;
     private Vector3 _lastPos;
     private float _newRotation;
@@ -18,7 +22,8 @@ public class NetworkTransformReceive : MonoBehaviour {
     private long _maximumAllowedDesyncTimeMs = 0;
 
     void Start() {
-        World world = IncomingPacketActions.GameWorld;
+        NetworkingPacketServices.Bind(world: _world);
+        World world = GameWorld;
         if(world != null && world.OfflineMode) {
             this.enabled = false;
             return;
@@ -41,7 +46,7 @@ public class NetworkTransformReceive : MonoBehaviour {
     /* Set new theorical position */
     public void SetNewPosition(Vector3 pos) {
         /* adjust y to ground height */
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         if (world != null)
             pos.y = world.GetGroundHeight(pos);
 

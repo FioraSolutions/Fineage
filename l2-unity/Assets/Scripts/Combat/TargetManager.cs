@@ -14,6 +14,12 @@ public class TargetManager : MonoBehaviour
     public const int KindCreature = 6;
 
     [Inject] GameClient _gameClient;
+    [Inject] World _world;
+
+    private World GameWorld => CombatPacketServices.GameWorld;
+
+    private GameClient Game => CombatPacketServices.Game;
+
     private TargetData _target = null;
     private TargetData _attackTarget = null;
     private Transform _playerTransform;
@@ -47,6 +53,7 @@ public class TargetManager : MonoBehaviour
         {
             _instance = this;
             _considerCandidate = ConsiderCandidate;
+            WireCombatPacketServices();
         }
         else
         {
@@ -56,8 +63,15 @@ public class TargetManager : MonoBehaviour
 
     private void Start()
     {
+        WireCombatPacketServices();
         _target = null;
         _attackTarget = null;
+    }
+
+    private void WireCombatPacketServices()
+    {
+        CombatPacketServices.Bind(game: _gameClient, gameWorld: _world);
+        GameEventPacketServices.Bind(targets: this);
     }
 
     void OnDestroy()
@@ -167,7 +181,7 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         if (world == null)
         {
             return;
@@ -218,7 +232,7 @@ public class TargetManager : MonoBehaviour
 
     public void NextTargetById(int id , string hexColor)
     {
-        World world = IncomingPacketActions.GameWorld;
+        World world = GameWorld;
         Entity found = world != null ? world.GetEntityNoLockSync(id) : null;
         if (found == null &&
             PlayerEntity.Instance != null &&
@@ -308,7 +322,7 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+        GameClient game = Game;
         if (game == null)
         {
             return;
@@ -398,7 +412,7 @@ public class TargetManager : MonoBehaviour
         {
             if (PlayerEntity.Instance.TargetId != -1)
             {
-                GameClient game = _gameClient != null ? _gameClient : IncomingPacketActions.Game;
+                GameClient game = Game;
                 if (game != null)
                     game.Send(new RequestTargetCanceldCommand());
                 PlayerEntity.Instance.TargetId = -1;
