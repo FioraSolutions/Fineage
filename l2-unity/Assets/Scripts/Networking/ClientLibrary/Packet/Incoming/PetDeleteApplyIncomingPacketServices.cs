@@ -6,7 +6,7 @@ using System;
 /// </summary>
 public static class PetDeleteApplyIncomingPacketServices
 {
-    public static World GameWorld => GroundItemApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => PresenceApplyIncomingPacketServices.GameWorld;
 
     public static void ApplyPetDelete(DeleteObjectDto dto)
     {

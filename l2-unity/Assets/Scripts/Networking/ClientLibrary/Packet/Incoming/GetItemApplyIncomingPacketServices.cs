@@ -5,7 +5,7 @@
 /// </summary>
 public static class GetItemApplyIncomingPacketServices
 {
-    public static World GameWorld => GroundItemApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => PresenceApplyIncomingPacketServices.GameWorld;
 
     public static void ApplyGetItem(GetItemDto dto)
     {
