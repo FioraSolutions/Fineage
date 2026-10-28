@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Personal warehouse wire packet handler access via GameIncomingPacketServices (#142 sub-slice 83).
-/// Splits warehouse list handlers out of MerchantIncomingPacketServices (sub-slice 61).
+/// Warehouse list handlers split from merchant apply paths (sub-slice 61) in sub-slice 83.
 /// </summary>
 public static class WarehouseIncomingPacketServices
 {

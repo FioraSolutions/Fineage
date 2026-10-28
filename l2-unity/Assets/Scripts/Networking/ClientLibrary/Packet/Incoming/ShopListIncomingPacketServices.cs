@@ -2,7 +2,8 @@ using System;
 
 /// <summary>
 /// Dealer shop list wire packet handler access via GameIncomingPacketServices (#142 sub-slice 84).
-/// Complements warehouse list handlers on <see cref="MerchantIncomingPacketServices"/> (sub-slice 61).
+/// Complements warehouse list handlers on <see cref="WarehouseIncomingPacketServices"/> (sub-slice 83)
+/// and shop preview on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98).
 /// </summary>
 public static class ShopListIncomingPacketServices
 {
