@@ -9,7 +9,7 @@ public static class TradeOwnAddApplyIncomingPacketServices
 {
     public static TradeWindow Trade => IncomingPacketServices.Trade;
 
-    public static void Queue(Action action) => IncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyOwnAdd(TradeOwnAddIncomingDto dto)
     {

@@ -30,5 +30,6 @@ public static class UiApplyIncomingPacketServices
     public static PositionValidationController PositionValidation =>
         ControllerPacketServices.PositionValidation;
 
-    public static void Queue(Action action) => IncomingPacketServices.Queue(action);
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

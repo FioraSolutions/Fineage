@@ -2,7 +2,7 @@
 /// GGAuth wire parse hook (#142 batch slice 146).
 /// Splits parse out of <see cref="GGAuthIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
-public static class GGAuthParsedIncomingPacketServices
+public static class GGAuthParsedApplyIncomingPacketServices
 {
     public static LoginClient Login => LoginPacketServices.LoginClient;
 

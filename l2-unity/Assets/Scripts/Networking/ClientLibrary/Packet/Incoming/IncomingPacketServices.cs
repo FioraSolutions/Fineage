@@ -12,8 +12,6 @@ public static class IncomingPacketServices
     private static WorldPacketApply _worldApply;
     private static MessagePacketApply _messageApply;
     private static IWorldDomainSink _domain;
-    private static PacketApplyQueue _applyQueue;
-    private static EventProcessor _events;
     private static PlayerInventory _inventory;
     private static TargetManager _targets;
     private static PlayerShortcuts _shortcuts;
@@ -92,10 +90,7 @@ public static class IncomingPacketServices
             _messageApply = messageApply;
         if (domain != null)
             _domain = domain;
-        if (applyQueue != null)
-            _applyQueue = applyQueue;
-        if (events != null)
-            _events = events;
+        IncomingPacketQueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
         if (inventory != null)
             _inventory = inventory;
         if (targets != null)
@@ -249,53 +244,21 @@ public static class IncomingPacketServices
     public static BufferPanel Buffer =>
         _buffer != null ? _buffer : IncomingPacketActions.Buffer;
 
-    public static void ApplyWorld(Action<WorldPacketApply> apply)
-    {
-        WorldPacketApply worldApply = WorldApply;
-        if (worldApply != null && apply != null)
-            apply(worldApply);
-    }
+    public static void ApplyWorld(Action<WorldPacketApply> apply) =>
+        IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
 
-    public static void QueueWorld(Action<WorldPacketApply> apply)
-    {
-        if (apply == null)
-            return;
-        Queue(() => ApplyWorld(apply));
-    }
+    public static void QueueWorld(Action<WorldPacketApply> apply) =>
+        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void ApplyDomain(Action<IWorldDomainSink> apply)
-    {
-        IWorldDomainSink domain = Domain;
-        if (domain != null && apply != null)
-            apply(domain);
-    }
+    public static void ApplyDomain(Action<IWorldDomainSink> apply) =>
+        IncomingPacketQueueApplyIncomingPacketServices.ApplyDomain(apply);
 
-    public static void QueueDomain(Action<IWorldDomainSink> apply)
-    {
-        if (apply == null)
-            return;
-        Queue(() => ApplyDomain(apply));
-    }
+    public static void QueueDomain(Action<IWorldDomainSink> apply) =>
+        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
 
-    public static void ApplyMessage(Action<MessagePacketApply> apply)
-    {
-        MessagePacketApply messageApply = MessageApply;
-        if (messageApply != null && apply != null)
-            apply(messageApply);
-    }
+    public static void ApplyMessage(Action<MessagePacketApply> apply) =>
+        IncomingPacketQueueApplyIncomingPacketServices.ApplyMessage(apply);
 
-    public static void Queue(Action action)
-    {
-        if (_applyQueue != null)
-        {
-            _applyQueue.Queue(action);
-            return;
-        }
-
-        EventProcessor processor = _events != null ? _events : EventProcessor.Instance;
-        if (processor != null)
-            processor.QueueEvent(action);
-        else
-            IncomingPacketActions.Queue(action);
-    }
+    public static void Queue(Action action) =>
+        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

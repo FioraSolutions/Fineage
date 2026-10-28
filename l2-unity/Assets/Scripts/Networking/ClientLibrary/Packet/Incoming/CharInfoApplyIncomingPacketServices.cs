@@ -8,13 +8,13 @@ public static class CharInfoApplyIncomingPacketServices
 {
     public static IWorldDomainSink Domain => IncomingPacketServices.Domain;
 
-    public static void Queue(Action action) => IncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketServices.QueueDomain(apply);
+        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketServices.QueueWorld(apply);
+        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
 
     public static void ApplyCharInfo(CharInfoDto packet)
     {
