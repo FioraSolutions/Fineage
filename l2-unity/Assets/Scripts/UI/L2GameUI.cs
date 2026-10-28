@@ -232,8 +232,6 @@ public class L2GameUI : L2UI
             PartyInvitationWindow.Instance.AddWindow(_rootVisualContainer);
             PartyInvitationWindow.Instance.HideWindow();
         }
-<<<<<<< HEAD
-=======
 
         EnsurePartyMemberListWindow();
         if (PartyMemberListWindow.Instance != null)
@@ -241,13 +239,6 @@ public class L2GameUI : L2UI
             PartyMemberListWindow.Instance.AddWindow(_rootVisualContainer);
         }
 
-        if (ClanAskJoinWindow.Instance != null)
-        {
-            ClanAskJoinWindow.Instance.AddWindow(_rootVisualContainer);
-            ClanAskJoinWindow.Instance.HideWindow();
-        }
->>>>>>> c0da9d7f0 (feat(client): party member list click sets target assist (#483))
-        
         if (TradeRequestWindow.Instance != null)
         {
             TradeRequestWindow.Instance.AddWindow(_rootVisualContainer);
