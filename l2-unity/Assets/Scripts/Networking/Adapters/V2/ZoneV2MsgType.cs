@@ -15,11 +15,25 @@ public enum ZoneV2MsgType : ushort
     GrantItemRequest = 13,
     /// <summary>Pick up a visible ground item. Backend <c>PickupRequestMsg</c> key 0 objectId.</summary>
     PickupRequest = 14,
+    /// <summary>Equip bag item / toggle worn. Backend <c>UseItemMsg</c> (client TX wired on inventory D2).</summary>
+    UseItem = 15,
+    /// <summary>Clear paperdoll slot. Backend <c>UnequipItemMsg</c> (client TX wired on inventory D2).</summary>
+    UnequipItem = 16,
+    /// <summary>Admin bag grant. Backend <c>GiveItemMsg</c> (client TX wired on inventory D2).</summary>
+    GiveItem = 17,
+    /// <summary>Party invite. Backend <c>PartyInviteRequestMsg</c>.</summary>
+    PartyInviteRequest = 18,
+    /// <summary>Accept or decline pending invite. Backend <c>PartyAnswerJoinRequestMsg</c>.</summary>
+    PartyAnswerJoinRequest = 19,
 
     Register = 20,
     CreateCharacter = 21,
     ListCharacters = 22,
     SelectCharacter = 23,
+    /// <summary>Leave current party. Backend <c>PartyLeaveRequestMsg</c> (empty).</summary>
+    PartyLeaveRequest = 26,
+    /// <summary>Leader kick. Backend <c>PartyKickRequestMsg</c> key 0 targetObjectId.</summary>
+    PartyKickRequest = 27,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -45,6 +59,12 @@ public enum ZoneV2MsgType : ushort
     CharacterList = 1022,
     Handoff = 1023,
     LoginOk = 1024,
+    /// <summary>Party invite prompt. Backend <c>PartyAskJoinMsg</c>.</summary>
+    PartyAskJoin = 1027,
+    /// <summary>Invite result to inviter. Backend <c>PartyJoinResultMsg</c>.</summary>
+    PartyJoinResult = 1028,
+    /// <summary>Full party roster snapshot. Backend <c>PartyMemberListMsg</c>.</summary>
+    PartyMemberList = 1029,
 
     Error = 1099
 }
