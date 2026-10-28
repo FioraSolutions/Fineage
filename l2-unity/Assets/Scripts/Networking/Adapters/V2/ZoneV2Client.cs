@@ -427,6 +427,21 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => ZoneV2GearSession.NoteUserInfo(userInfo));
                         break;
 
+                    case ZoneV2MsgType.AbnormalStatusUpdate:
+                        ZoneV2AbnormalStatusUpdate abnormal;
+                        if (!ZoneV2Messages.TryDecodeAbnormalStatusUpdate(f.Body, out abnormal))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad AbnormalStatusUpdate body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            AbnormalStatusUpdateDto dto = ZoneV2DomainMap.ToAbnormalStatusUpdateDto(abnormal);
+                            AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
+                        });
+                        break;
+
                     case ZoneV2MsgType.Error:
                         string code, msg;
                         ZoneV2Messages.TryDecodeError(f.Body, out code, out msg);

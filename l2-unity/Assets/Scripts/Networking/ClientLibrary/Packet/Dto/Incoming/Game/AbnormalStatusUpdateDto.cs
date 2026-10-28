@@ -24,6 +24,23 @@ public class AbnormalStatusUpdateDto : IWireDto
         //Debug.Log("AbnormalStatusUpdate update data");
     }
 
+    /// <summary>Built from Zone V2 <see cref="ZoneV2MsgType.AbnormalStatusUpdate"/> (1017).</summary>
+    public static AbnormalStatusUpdateDto FromZoneEffects(ZoneV2AbnormalEffect[] effects)
+    {
+        var dto = new AbnormalStatusUpdateDto { FullEffectSnapshot = true };
+        if (effects == null)
+            return dto;
+        for (int i = 0; i < effects.Length; i++)
+        {
+            ZoneV2AbnormalEffect effect = effects[i];
+            dto.ListEffect.Add(new EffectHolder(effect.Id, effect.Value, effect.DurationSeconds));
+        }
+
+        return dto;
+    }
+
+    /// <summary>Zone wire replaces the full effect list (including empty on clear).</summary>
+    public bool FullEffectSnapshot { get; set; }
 }
 
 public class EffectHolder
