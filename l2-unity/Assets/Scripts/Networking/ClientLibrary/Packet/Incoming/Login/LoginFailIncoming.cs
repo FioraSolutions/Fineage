@@ -2,5 +2,5 @@
 public sealed class LoginFailIncoming : IncomingWirePacket<LoginFailDto>
 {
     public override void Apply(LoginFailDto packet) =>
-        LoginServerIncomingPacketServices.ApplyLoginFail(packet);
+        LoginFailIncomingPacketServices.ApplyLoginFail(packet);
 }
