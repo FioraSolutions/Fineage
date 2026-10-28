@@ -5,11 +5,11 @@ using System;
 /// </summary>
 public static class CombatApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => InventoryPacketServices.Inventory;
+    public static PlayerInventory Inventory => IncomingPacketLocatorApplyIncomingPacketServices.Inventory;
 
-    public static EnchantWindow Enchant => ItemEnchantPacketServices.Enchant;
+    public static EnchantWindow Enchant => IncomingPacketLocatorApplyIncomingPacketServices.Enchant;
 
-    public static TargetManager Targets => CombatPacketServices.Targets;
+    public static TargetManager Targets => IncomingPacketLocatorApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
         WorldApplyPacketServices.ApplyWorld(apply);

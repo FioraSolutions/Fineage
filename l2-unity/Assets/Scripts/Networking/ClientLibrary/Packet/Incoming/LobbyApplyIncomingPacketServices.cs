@@ -1,21 +1,21 @@
 using System;
 
 /// <summary>
-/// Login / char-select lobby apply hub (#142 batch slice 162).
+/// Login / char-select lobby apply hub (#142 batch slice 162; locator backing slice 165).
 /// </summary>
 public static class LobbyApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginPacketServices.LoginClient;
+    public static LoginClient Login => IncomingPacketLocatorApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginPacketServices.Game;
+    public static GameClient Game => IncomingPacketLocatorApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LoginPacketServices.Manager;
+    public static GameManager Manager => IncomingPacketLocatorApplyIncomingPacketServices.Manager;
 
-    public static LoginWindow LoginWindow => LoginPacketServices.LoginWindow;
+    public static LoginWindow LoginWindow => IncomingPacketLocatorApplyIncomingPacketServices.LoginWindow;
 
-    public static CharSelectWindow CharSelect => LoginPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => IncomingPacketLocatorApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => LoginPacketServices.Characters;
+    public static CharacterSelector Characters => IncomingPacketLocatorApplyIncomingPacketServices.Characters;
 
     public static void Queue(Action action) => CharacterApplyIncomingPacketServices.Queue(action);
 }

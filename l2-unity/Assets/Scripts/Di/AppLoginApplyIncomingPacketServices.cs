@@ -12,7 +12,7 @@ public static class AppLoginApplyIncomingPacketServices
     {
         DiRuntimePacketServices.Bind(game: game, login: login, manager: manager);
         NetworkingPacketServices.Bind(manager: manager, login: login, events: events);
-        IncomingPacketServices.Bind(
+        IncomingPacketBindApplyIncomingPacketServices.Bind(
             game: game,
             login: login,
             manager: manager,
@@ -26,7 +26,7 @@ public static class AppLoginApplyIncomingPacketServices
             return;
 
         LoginPacketServices.Bind(login: loginRuntime);
-        IncomingPacketServices.Bind(
+        IncomingPacketBindApplyIncomingPacketServices.Bind(
             game: loginRuntime.Game,
             login: loginRuntime.LoginClient,
             manager: loginRuntime.Manager,
