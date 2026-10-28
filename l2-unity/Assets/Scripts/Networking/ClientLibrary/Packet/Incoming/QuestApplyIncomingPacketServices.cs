@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Quest UI apply hub (#142 batch slice 160; locator slice 170).
+/// Quest UI apply hub (#142 batch slice 160; game hub slice 176).
 /// </summary>
 public static class QuestApplyIncomingPacketServices
 {
@@ -10,5 +10,5 @@ public static class QuestApplyIncomingPacketServices
     public static QuestListWindow QuestList => LocatorApplyIncomingPacketServices.QuestList;
 
     public static void Queue(Action action) =>
-        QueueApplyIncomingPacketServices.Queue(action);
+        GameApplyIncomingPacketServices.Queue(action);
 }

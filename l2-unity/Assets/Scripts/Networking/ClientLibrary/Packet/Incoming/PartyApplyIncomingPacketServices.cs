@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Party invitation apply hub (#142 batch slice 161; locator slice 170).
+/// Party invitation apply hub (#142 batch slice 161; UI hub slice 176).
 /// </summary>
 public static class PartyApplyIncomingPacketServices
 {
@@ -9,5 +9,5 @@ public static class PartyApplyIncomingPacketServices
         LocatorApplyIncomingPacketServices.PartyInvite;
 
     public static void Queue(Action action) =>
-        QueueApplyIncomingPacketServices.Queue(action);
+        UiApplyIncomingPacketServices.Queue(action);
 }

@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Parsed login wire apply hub (#142 batch slice 169; queue slice 170).
+/// Parsed login wire apply hub (#142 batch slice 169; login hub slice 176).
 /// </summary>
 public static class LoginParsedApplyIncomingPacketServices
 {
