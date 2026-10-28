@@ -5,24 +5,12 @@ using System;
 /// Complements warehouse list handlers on <see cref="WarehouseIncomingPacketServices"/> (sub-slice 83),
 /// shop preview on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98),
 /// sell list on <see cref="SellListIncomingPacketServices"/> (sub-slice 113),
-/// and buy list on <see cref="BuyListIncomingPacketServices"/> (sub-slice 114).
+/// buy list on <see cref="BuyListIncomingPacketServices"/> (sub-slice 114),
+/// and buy-list seed (manor estate) on <see cref="BuyListSeedIncomingPacketServices"/> (sub-slice 115).
 /// </summary>
 public static class ShopListIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
-
-    public static void ApplyBuyListSeed(BuyListSeedDto packet) =>
-        Queue(() =>
-        {
-            UserInfoDto info = StorageNpc.getInstance().GetFirstUser();
-            GameIncomingPacketServices.Dealer.SetWindowName("Estate");
-            GameIncomingPacketServices.Dealer.SetHeaderNameSellPanel("Sale");
-            GameIncomingPacketServices.Dealer.SetHeaderNameBuyPanel("Purchase");
-            GameIncomingPacketServices.Dealer.SetProductType(ProductType.BUY_SEED);
-            GameIncomingPacketServices.Dealer.UpdateBuyData(packet.List, true, packet.ManorId);
-            GameIncomingPacketServices.Dealer.UpdateDataForm(packet.CurrentMoney, info.PlayerInfoInterlude.Stats.WeightPercent(), info.PlayerInfoInterlude.Stats.CurrWeight, info.PlayerInfoInterlude.Stats.MaxWeight);
-            GameIncomingPacketServices.Dealer.ShowWindow();
-        });
 
     public static void ApplyShopPreviewList(ShopPreviewListDto packet) =>
         Queue(() =>
