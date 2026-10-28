@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
@@ -256,4 +257,5 @@ public static class L2InstancedPropBaker
         return set;
     }
 }
+#endif
 #endif

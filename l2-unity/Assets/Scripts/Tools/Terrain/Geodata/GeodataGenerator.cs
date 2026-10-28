@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if(UNITY_EDITOR)
 using UnityEngine;
 using System.Collections;
@@ -207,4 +208,5 @@ public class GeodataGenerator : MonoBehaviour {
 		} 
 	}
 }
+#endif
 #endif

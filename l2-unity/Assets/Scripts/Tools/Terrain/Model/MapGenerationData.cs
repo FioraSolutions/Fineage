@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 public enum GenerationMode {
     Load,
@@ -15,4 +16,5 @@ public class MapGenerationData {
     public bool generateStaticMeshes = true;
     public bool generateBrushes = true;
 }
+#endif
 #endif

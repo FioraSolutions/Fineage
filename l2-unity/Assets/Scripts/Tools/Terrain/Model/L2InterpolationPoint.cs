@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,4 +9,5 @@ public class L2InterpolationPoint {
     public Vector3 position;
     public Vector3 eulerAngles;
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -62,4 +63,5 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
         }
     }
 }
+#endif
 #endif

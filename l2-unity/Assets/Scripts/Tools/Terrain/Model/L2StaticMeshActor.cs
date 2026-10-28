@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using System.Collections.Generic;
 
@@ -12,4 +13,5 @@ public class L2StaticMeshActor {
         return "Position: (" + x + "," + y + "," + z + ")\n" + "StatishMesh count: " + staticMeshes.Count;
     }
 }
+#endif
 #endif

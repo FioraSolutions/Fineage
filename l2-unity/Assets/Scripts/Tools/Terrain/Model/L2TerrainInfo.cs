@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,4 +17,5 @@ public class L2TerrainInfo {
     public List<L2InterpolationPoint> interpolationPoints { get; set; }
     public List<AmbientSound> ambientSounds { get; set; }
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using System.IO;
 using UnityEngine;
@@ -78,4 +79,5 @@ public class TerrainToTexture : MonoBehaviour {
 
     }
 }
+#endif
 #endif

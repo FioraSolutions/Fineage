@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using FMODUnity;
 using System;
@@ -83,4 +84,5 @@ public class L2JSONAmbientSoundImporter : AssetImporter {
     }
 
 }
+#endif
 #endif

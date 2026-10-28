@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if UNITY_EDITOR
 using FMODUnity;
 using System;
@@ -101,4 +102,5 @@ public class L2AmbientSoundBuilder : MonoBehaviour
         return go;
     }
 }
+#endif
 #endif

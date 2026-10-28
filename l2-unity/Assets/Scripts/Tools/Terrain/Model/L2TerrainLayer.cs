@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using UnityEngine;
 
@@ -8,4 +9,5 @@ public class L2TerrainLayer {
     public float uScale { get; set; }
     public float vScale { get; set; }
 }
+#endif
 #endif

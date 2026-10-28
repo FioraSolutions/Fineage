@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using UnityEngine;
 
@@ -17,4 +18,5 @@ public class PolyData {
         return $"polyIndex: {polyIndex}, texture: {texture}, origin: {origin}, normal: {normal}, textureU: {textureU}, textureV: {textureV}, vertexCount: {vertexCount}";
     }
 }
+#endif
 #endif

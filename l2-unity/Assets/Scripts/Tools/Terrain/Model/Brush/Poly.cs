@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 [System.Serializable]
 public class Poly {
@@ -12,4 +13,5 @@ public class Poly {
         return $"Name: {name}, polyCount: {polyCount}, polyData: {polyDataString}";
     }
 }
+#endif
 #endif

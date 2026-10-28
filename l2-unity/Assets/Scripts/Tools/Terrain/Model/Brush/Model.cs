@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using UnityEngine;
 
@@ -10,4 +11,5 @@ public class Model {
     public float f1;
     public Poly poly;
 }
+#endif
 #endif

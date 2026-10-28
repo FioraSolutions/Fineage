@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using UnityEngine;
 
@@ -17,4 +18,5 @@ public class Brush {
         return $"Name: {name}, csgOper: {csgOper}, group: {group}, mainScale: {mainScale}";
     }
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using System.IO;
 using UnityEditor;
@@ -103,4 +104,5 @@ public class TextureUtils {
         return Path.Combine("Assets/Resources/Data/Textures", folderTexture[0], "Height." + folderTexture[1] + ".bmp");
     }
 }
+#endif
 #endif

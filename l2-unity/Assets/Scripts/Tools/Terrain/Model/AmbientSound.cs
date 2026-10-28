@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 ﻿#if (UNITY_EDITOR) 
 using UnityEngine;
 
@@ -27,4 +28,5 @@ public class AmbientSound {
             $"groupName: {groupName}";
     }
 }
+#endif
 #endif
