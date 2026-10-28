@@ -5,11 +5,9 @@ using System;
 /// Per-packet Apply* encapsulation completed in sub-slice 75.
 /// Henna apply lives on <see cref="HennaIncomingPacketServices"/> (sub-slice 99).
 /// Char create ok apply lives on <see cref="CharCreateOkIncomingPacketServices"/> (sub-slice 100).
-<<<<<<< HEAD
 /// Char create fail apply lives on <see cref="CharCreateFailIncomingPacketServices"/> (sub-slice 101).
-=======
 /// Char template apply lives on <see cref="CharTemplateIncomingPacketServices"/> (sub-slice 102).
->>>>>>> a897fea01 (chore(#142): thin inject slice 102 — char template incoming facade)
+/// Char info apply lives on <see cref="CharInfoIncomingPacketServices"/> (sub-slice 103).
 /// </summary>
 public static class CharacterIncomingPacketServices
 {
@@ -23,34 +21,7 @@ public static class CharacterIncomingPacketServices
 
     public static CharacterSelector Characters => LoginPacketServices.Characters;
 
-    public static IWorldDomainSink Domain => IncomingPacketServices.Domain;
-
     public static void Queue(Action action) => IncomingPacketServices.Queue(action);
-
-    public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketServices.QueueDomain(apply);
-
-    public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketServices.QueueWorld(apply);
-
-    public static void ApplyCharInfo(CharInfoDto packet)
-    {
-        if (packet == null || packet.Identity == null)
-            return;
-
-        PlayerEntity local = PlayerEntity.Instance;
-        if (local != null && local.Identity != null && local.Identity.Id == packet.Identity.Id)
-            return;
-
-        MoveCostLog.NoteCharInfo();
-        SpawnFrameBudget.ClearCancel(packet.Identity.Id);
-        StorageNpc.getInstance().AddCharInfo(packet);
-        DomainKnownlistAdd add = InterludeDomainMap.Char(packet);
-        if (Domain != null && add != null)
-            QueueDomain(domain => domain.ApplyKnownlistAdd(add));
-        else
-            QueueWorld(apply => apply.UpdateUser(packet));
-    }
 
     public static void ApplyCharSelectionInfo(CharSelectionInfoDto packet)
     {
@@ -91,13 +62,4 @@ public static class CharacterIncomingPacketServices
         Game.PlayerInfo = packet.PlayeInfo;
         Manager.OnCharacterSelect();
     }
-
-<<<<<<< HEAD
-    public static void ApplyCharTemplate(CharTemplatesDto templates) =>
-        Queue(() => Manager.OnCreateUser(templates.PlayerTemplates));
-=======
-    public static void ApplyCharCreateFail(CharCreateFailDto packet) =>
-        Queue(() => Manager.OnCreateUserFail(packet.Text));
->>>>>>> a897fea01 (chore(#142): thin inject slice 102 — char template incoming facade)
-
 }
