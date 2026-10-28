@@ -4,30 +4,25 @@ public sealed class PlayerWorldApply : EntityWorldApply
 {
     private readonly SkillbarWindow _skillbar;
     private readonly EffectManager _effects;
-    private readonly PlayerController _player;
     private readonly EventBus _bus;
 
-    public PlayerWorldApply(
-        SkillbarWindow skillbar,
-        EffectManager effects,
-        PlayerController player,
-        EventBus bus)
+    public PlayerWorldApply(SkillbarWindow skillbar, EffectManager effects, EventBus bus)
     {
         _skillbar = skillbar;
         _effects = effects;
-        _player = player;
         _bus = bus;
     }
 
-    private PlayerController Player
-    {
-        get { return _player != null ? _player : IncomingPacketActions.Player; }
-    }
+    private SkillbarWindow Skillbar =>
+        _skillbar != null ? _skillbar : SkillbarWindow.Instance;
 
-    private EventBus Bus
-    {
-        get { return _bus != null ? _bus : IncomingPacketActions.Bus; }
-    }
+    private EffectManager Effects =>
+        _effects != null ? _effects : EffectManager.Instance;
+
+    private PlayerController Player => IncomingPacketActions.Player;
+
+    private EventBus Bus =>
+        _bus != null ? _bus : IncomingPacketActions.Bus;
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
     {
@@ -96,8 +91,9 @@ public sealed class PlayerWorldApply : EntityWorldApply
 
     public override void OnMagicSkillUse(Entity entity, MagicSkillUseDto dto)
     {
-        if (_skillbar != null)
-            _skillbar.ShowCooldown(dto.SkillId, Shortcut.TYPE_SKILL, dto.Reusedelay);
+        SkillbarWindow skillbar = Skillbar;
+        if (skillbar != null)
+            skillbar.ShowCooldown(dto.SkillId, Shortcut.TYPE_SKILL, dto.Reusedelay);
 
         if (WeaponChargeSkill.IsCharge(dto.SkillId))
         {
@@ -129,7 +125,10 @@ public sealed class PlayerWorldApply : EntityWorldApply
             return;
 
         player.IsSoulshotCharged = true;
-        WeaponChargeSkill.Play(_effects, useSkill.SkillId, player.GetWeaponTransform(), player.transform);
+        EffectManager effects = Effects;
+        if (effects == null)
+            return;
+        WeaponChargeSkill.Play(effects, useSkill.SkillId, player.GetWeaponTransform(), player.transform);
     }
 
     public override void OnAutoAttackStart(Entity entity, AutoAttackStartDto dto)

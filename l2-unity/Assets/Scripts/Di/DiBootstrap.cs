@@ -69,7 +69,13 @@ public static class DiBootstrap
 
         try
         {
-            return scope.Container.Resolve<World>() != null;
+            if (scope.Container.Resolve<World>() == null)
+                return false;
+            scope.Container.Resolve<WorldPacketApply>();
+            scope.Container.Resolve<MessagePacketApply>();
+            scope.Container.Resolve<IWorldDomainSink>();
+            scope.Container.Resolve<EntityActionMachine>();
+            return true;
         }
         catch
         {

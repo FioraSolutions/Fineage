@@ -110,6 +110,7 @@ public sealed class PlayerSpawner
             PlayerStateMachine.Instance.Player = player;
 
         world.RegisterPlayer(player);
+        DiBootstrap.EnsureGameScope();
         return player;
     }
 
