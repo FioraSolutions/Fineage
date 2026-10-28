@@ -11,9 +11,9 @@ public static class WorldApplyIncomingPacketServices
 
     public static IWorldDomainSink Domain => WorldSessionApplyIncomingPacketServices.Domain;
 
-    public static SeedInfoWindow SeedInfo => ManorApplyIncomingPacketServices.SeedInfo;
+    public static SeedInfoWindow SeedInfo => LocatorApplyIncomingPacketServices.SeedInfo;
 
-    public static SellCropListWindow SellCrop => ManorApplyIncomingPacketServices.SellCrop;
+    public static SellCropListWindow SellCrop => LocatorApplyIncomingPacketServices.SellCrop;
 
     public static BufferPanel Buffer => UiApplyIncomingPacketServices.Buffer;
 
