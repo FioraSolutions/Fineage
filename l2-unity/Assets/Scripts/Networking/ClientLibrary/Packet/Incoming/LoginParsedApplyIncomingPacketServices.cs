@@ -5,9 +5,9 @@ using System;
 /// </summary>
 public static class LoginParsedApplyIncomingPacketServices
 {
-    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
+    public static GameClient Game => LoginApplyIncomingPacketServices.Game;
 
-    public static void Queue(Action action) => LobbyApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => LoginApplyIncomingPacketServices.Queue(action);
 }
