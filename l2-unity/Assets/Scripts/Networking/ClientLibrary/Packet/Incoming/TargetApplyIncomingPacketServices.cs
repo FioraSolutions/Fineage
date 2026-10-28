@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class TargetApplyIncomingPacketServices
 {
-    public static TargetManager Targets => IncomingPacketLocatorApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => LocatorApplyIncomingPacketServices.Targets;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

@@ -3,7 +3,7 @@
 /// </summary>
 public static class InventoryApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => IncomingPacketLocatorApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => LocatorApplyIncomingPacketServices.Inventory;
 
     public static void Queue(System.Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

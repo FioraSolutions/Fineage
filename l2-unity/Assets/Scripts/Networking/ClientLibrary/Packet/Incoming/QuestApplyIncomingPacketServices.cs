@@ -5,9 +5,9 @@ using System;
 /// </summary>
 public static class QuestApplyIncomingPacketServices
 {
-    public static QuestWindow Quest => IncomingPacketLocatorApplyIncomingPacketServices.Quest;
+    public static QuestWindow Quest => LocatorApplyIncomingPacketServices.Quest;
 
-    public static QuestListWindow QuestList => IncomingPacketLocatorApplyIncomingPacketServices.QuestList;
+    public static QuestListWindow QuestList => LocatorApplyIncomingPacketServices.QuestList;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

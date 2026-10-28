@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class EnchantApplyIncomingPacketServices
 {
-    public static EnchantWindow Enchant => IncomingPacketLocatorApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => LocatorApplyIncomingPacketServices.Enchant;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

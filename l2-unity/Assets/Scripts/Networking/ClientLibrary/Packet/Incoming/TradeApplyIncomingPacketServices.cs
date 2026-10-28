@@ -5,10 +5,10 @@ using System;
 /// </summary>
 public static class TradeApplyIncomingPacketServices
 {
-    public static TradeWindow Trade => IncomingPacketLocatorApplyIncomingPacketServices.Trade;
+    public static TradeWindow Trade => LocatorApplyIncomingPacketServices.Trade;
 
     public static TradeRequestWindow TradeRequest =>
-        IncomingPacketLocatorApplyIncomingPacketServices.TradeRequest;
+        LocatorApplyIncomingPacketServices.TradeRequest;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);

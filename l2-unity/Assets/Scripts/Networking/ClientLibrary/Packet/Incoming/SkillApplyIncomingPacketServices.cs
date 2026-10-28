@@ -5,11 +5,11 @@ using System;
 /// </summary>
 public static class SkillApplyIncomingPacketServices
 {
-    public static SkillLearnWindow SkillLearn => IncomingPacketLocatorApplyIncomingPacketServices.SkillLearn;
+    public static SkillLearnWindow SkillLearn => LocatorApplyIncomingPacketServices.SkillLearn;
 
-    public static DescriptionSkillWindow SkillDesc => IncomingPacketLocatorApplyIncomingPacketServices.SkillDesc;
+    public static DescriptionSkillWindow SkillDesc => LocatorApplyIncomingPacketServices.SkillDesc;
 
-    public static SkillListWindow SkillList => IncomingPacketLocatorApplyIncomingPacketServices.SkillList;
+    public static SkillListWindow SkillList => LocatorApplyIncomingPacketServices.SkillList;
 
     public static void Queue(Action action) =>
         QueueApplyIncomingPacketServices.Queue(action);
