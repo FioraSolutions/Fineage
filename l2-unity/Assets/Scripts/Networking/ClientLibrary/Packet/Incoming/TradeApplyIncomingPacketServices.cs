@@ -11,5 +11,5 @@ public static class TradeApplyIncomingPacketServices
         LocatorApplyIncomingPacketServices.TradeRequest;
 
     public static void Queue(Action action) =>
-        QueueApplyIncomingPacketServices.Queue(action);
+        GameApplyIncomingPacketServices.Queue(action);
 }
