@@ -11,6 +11,8 @@ public enum ZoneV2MsgType : ushort
     MoveTo = 4,
     SelectTarget = 5,
     AttackRequest = 6,
+    /// <summary>Zone chat. Body is text (key 0) and chat type (key 1). Fan-out is <see cref="CreatureSay"/>.</summary>
+    Say = 8,
     GrantItemRequest = 13,
     /// <summary>Pick up a visible ground item. Backend <c>PickupRequestMsg</c> key 0 objectId.</summary>
     PickupRequest = 14,
@@ -47,7 +49,7 @@ public enum ZoneV2MsgType : ushort
     MyTargetSelected = 1008,
     Attack = 1009,
     StatusUpdate = 1010,
-    /// <summary>Zone chat fan-out (see also legacy Interlude CreatureSay).</summary>
+    /// <summary>Zone chat fan-out. Keys 0 objectId, 1 name, 2 text, 3 chatType.</summary>
     CreatureSay = 1012,
     Pong = 1013,
     ItemList = 1014,
@@ -72,6 +74,8 @@ public enum ZoneV2MsgType : ushort
     PartyJoinResult = 1028,
     /// <summary>Full party roster snapshot. Backend <c>PartyMemberListMsg</c>.</summary>
     PartyMemberList = 1029,
+    /// <summary>System line. Keys 0 id, 1 params, 2 text. Chat band 1040–1049; 1041–1049 are reserved.</summary>
+    SystemMessage = 1040,
 
     Error = 1099
 }

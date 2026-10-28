@@ -99,6 +99,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
 
         ZoneV2GearSession.FlushPending();
+        ZoneV2ChatFeed.Flush();
     }
 
     public void BeginSession(string account, string password)
@@ -466,6 +467,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         _stream = null;
         _tcp = null;
         ZoneV2GearSession.Reset();
+        ZoneV2ChatFeed.Reset();
     }
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)
@@ -568,6 +570,14 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         byte[] body = ZoneV2Messages.EncodePartyKickRequest(targetObjectId);
         _ = SendFireAndForget(ZoneV2MsgType.PartyKickRequest, body);
+    }
+
+    public void SendSay(string text, int chatType)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeSay(text ?? "", chatType);
+        _ = SendFireAndForget(ZoneV2MsgType.Say, body);
     }
 
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
@@ -846,6 +856,38 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(partyList));
                         break;
 
+                    case ZoneV2MsgType.CreatureSay:
+                        ZoneV2CreatureSay said;
+                        if (!ZoneV2Messages.TryDecodeCreatureSay(f.Body, out said))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad CreatureSay body"));
+                            break;
+                        }
+
+                        ZoneV2CreatureSay saidCopy = said;
+                        Post(() =>
+                        {
+                            Debug.Log("[ZoneV2] CreatureSay type=" + saidCopy.ChatType + " name=" + saidCopy.Name);
+                            ZoneV2ChatFeed.NoteSay(saidCopy.Name, saidCopy.Text, saidCopy.ChatType);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.SystemMessage:
+                        ZoneV2SystemMessage system;
+                        if (!ZoneV2Messages.TryDecodeSystemMessage(f.Body, out system))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad SystemMessage body"));
+                            break;
+                        }
+
+                        ZoneV2SystemMessage systemCopy = system;
+                        Post(() =>
+                        {
+                            Debug.Log("[ZoneV2] SystemMessage id=" + systemCopy.Id + " text=" + systemCopy.Text);
+                            ZoneV2ChatFeed.NoteSystem(systemCopy.Text);
+                        });
+                        break;
+
                     case ZoneV2MsgType.Error:
                         string code, msg;
                         if (!ZoneV2Messages.TryDecodeError(f.Body, out code, out msg))
@@ -884,17 +926,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (string.IsNullOrEmpty(text))
             return;
         Debug.LogWarning("[ZoneV2] " + text);
-        ChatWindow chat = ChatWindow.Instance;
-        if (chat == null)
-            return;
-        try
-        {
-            chat.AppendSystemLine(text);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogWarning("[ZoneV2] system line skipped: " + ex.Message);
-        }
+        ZoneV2ChatFeed.NoteSystem(text);
     }
 
     void OnPlayerSpawnedMain(PlayerInfoInterlude info)

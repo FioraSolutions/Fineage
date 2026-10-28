@@ -94,6 +94,14 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        RequestSay2Command say = command as RequestSay2Command;
+        if (say != null)
+        {
+            int chatType = say.Data != null ? say.Data.Type : ZoneV2Chat.All;
+            ZoneV2Client.Ensure().SendSay(say.Message, chatType);
+            return true;
+        }
+
         RequestBypassToServerCommand bypass = command as RequestBypassToServerCommand;
         int giveItemId;
         int giveCount;
