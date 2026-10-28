@@ -305,6 +305,10 @@ public sealed class RequestEnchantItemCommand : INetworkCommand
     }
 }
 
+public sealed class RequestQuestListCommand : INetworkCommand
+{
+}
+
 public sealed class RequestQuestAbortCommand : INetworkCommand
 {
     public int QuestId;

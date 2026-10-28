@@ -100,11 +100,13 @@ public sealed class ZoneV2Client : MonoBehaviour
 
         ZoneV2GearSession.FlushPending();
         ZoneV2ChatFeed.Flush();
+        ZoneV2NpcWindows.Tick();
     }
 
     public void BeginSession(string account, string password)
     {
         Disconnect();
+        ZoneV2NpcSession.Reset();
         ZoneV2ClanBook.Shared.Reset();
         ClanPacketServices.RefreshWindow();
         _preselectId = 0;
@@ -686,6 +688,119 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.AdminKillPlayer, body);
     }
 
+    public void SendRequestQuestList()
+    {
+        if (!Connected || _stream == null)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestQuestList, ZoneV2Messages.EncodeRequestQuestList());
+    }
+
+    public void SendRequestQuestAbort(int questId)
+    {
+        if (!Connected || _stream == null || questId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestQuestAbort, ZoneV2Messages.EncodeRequestQuestAbort(questId));
+    }
+
+    public void SendNpcTalk(int npcObjectId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.NpcTalk, ZoneV2Messages.EncodeNpcTalk(npcObjectId));
+    }
+
+    public void SendBypass(int npcObjectId, string command)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.BypassRequest, ZoneV2Messages.EncodeBypassRequest(npcObjectId, command));
+    }
+
+    public void SendNpcLink(int npcObjectId, string command)
+    {
+        string list;
+        int location;
+        switch (ZoneV2Bypass.Classify(command, out list, out location))
+        {
+            case ZoneV2Bypass.Teleport:
+                SendTeleportSelect(npcObjectId, list, location);
+                return;
+            case ZoneV2Bypass.SupportMagic:
+                SendSupportMagic(npcObjectId);
+                return;
+            case ZoneV2Bypass.GiveBlessing:
+                SendGiveBlessing(npcObjectId);
+                return;
+            default:
+                SendBypass(npcObjectId, ZoneV2Bypass.Normalize(command));
+                return;
+        }
+    }
+
+    public void SendRequestBuyItem(int npcObjectId, int listId, ZoneV2IdCount[] items)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestBuyItem, ZoneV2Messages.EncodeRequestBuyItem(npcObjectId, listId, items));
+    }
+
+    public void SendRequestSellItem(int npcObjectId, ZoneV2IdCount[] items)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestSellItem, ZoneV2Messages.EncodeRequestSellItem(npcObjectId, items));
+    }
+
+    public void SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0 || entryId <= 0 || amount <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestMultiSellChoose,
+            ZoneV2Messages.EncodeRequestMultiSellChoose(npcObjectId, listId, entryId, amount));
+    }
+
+    public void SendRequestPreviewItem(int npcObjectId, int listId, int itemId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0 || itemId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestPreviewItem, ZoneV2Messages.EncodeRequestPreviewItem(npcObjectId, listId, itemId));
+    }
+
+    public void SendTeleportSelect(int npcObjectId, string listName, int locationId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.TeleportSelectRequest, ZoneV2Messages.EncodeTeleportSelect(npcObjectId, listName, locationId));
+    }
+
+    public void SendWarehouseDeposit(int npcObjectId, ZoneV2IdCount[] lines)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.WarehouseDepositRequest, ZoneV2Messages.EncodeWarehouseDeposit(npcObjectId, lines));
+    }
+
+    public void SendWarehouseWithdraw(int npcObjectId, ZoneV2IdCount[] lines)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.WarehouseWithdrawRequest, ZoneV2Messages.EncodeWarehouseWithdraw(npcObjectId, lines));
+    }
+
+    public void SendSupportMagic(int npcObjectId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.SupportMagicRequest, ZoneV2Messages.EncodeSupportMagic(npcObjectId));
+    }
+
+    public void SendGiveBlessing(int npcObjectId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.GiveBlessingRequest, ZoneV2Messages.EncodeGiveBlessing(npcObjectId));
+    }
+
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
     {
         try
@@ -728,6 +843,9 @@ public sealed class ZoneV2Client : MonoBehaviour
                 if (frame == null)
                     break;
                 ZoneV2Frame f = frame.Value;
+
+                if (ZoneV2NpcWindows.TryTake(f.Type, f.Body, Post))
+                    continue;
 
                 switch (f.Type)
                 {
@@ -815,6 +933,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
+                        ZoneV2NpcSession.RememberNpc(npcInfo.ObjectId, npcInfo.Name, npcInfo.Attackable);
                         NpcInfoDto npcDto = ZoneV2DomainMap.ToNpcInfoDto(npcInfo);
                         Post(() => NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(npcDto));
                         break;
@@ -823,6 +942,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                         int deleteId;
                         if (!ZoneV2Messages.TryDecodeDeleteObject(f.Body, out deleteId))
                             break;
+                        ZoneV2NpcSession.Forget(deleteId);
                         DeleteObjectDto deleteDto = new DeleteObjectDto { ObjectId = deleteId };
                         Post(() => DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(deleteDto));
                         break;
@@ -1112,8 +1232,9 @@ public sealed class ZoneV2Client : MonoBehaviour
                         ZoneV2SystemMessage systemCopy = system;
                         Post(() =>
                         {
-                            Debug.Log("[ZoneV2] SystemMessage id=" + systemCopy.Id + " text=" + systemCopy.Text);
-                            ZoneV2ChatFeed.NoteSystem(systemCopy.Text);
+                            string shown = ZoneV2SystemLines.Resolve(systemCopy.Id, systemCopy.Text, systemCopy.Params);
+                            Debug.Log("[ZoneV2] SystemMessage id=" + systemCopy.Id + " text=" + shown);
+                            ZoneV2ChatFeed.NoteSystem(shown);
                         });
                         break;
 
@@ -1205,6 +1326,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
 
         manager.OnCharacterSelect();
+        SendRequestQuestList();
         if (FineageLocalBackend.QuitAfterSpawn)
             StartCoroutine(QuitAfterSpawnRoutine());
     }

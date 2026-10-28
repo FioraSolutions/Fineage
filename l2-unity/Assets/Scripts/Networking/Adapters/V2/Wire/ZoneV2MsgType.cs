@@ -58,12 +58,40 @@ public enum ZoneV2MsgType : ushort
     EnchantConfirm = 40,
     /// <summary>Close the enchant window. Backend <c>EnchantCancelMsg</c> is an empty array.</summary>
     EnchantCancel = 41,
+    /// <summary>Ask for the journal. Backend <c>RequestQuestListMsg</c> is an empty array.</summary>
+    RequestQuestList = 42,
+    /// <summary>Abort a started quest. Backend <c>RequestQuestAbortMsg</c> key 0 questId.</summary>
+    RequestQuestAbort = 43,
+    /// <summary>Talk to a non-attackable NPC. Backend <c>NpcTalkMsg</c> key 0 npcObjectId.</summary>
+    NpcTalk = 44,
+    /// <summary>Quest talk or adv-event. Backend <c>QuestEventMsg</c>.</summary>
+    QuestEvent = 45,
     /// <summary>Use a known skill. Backend <c>SkillUseRequestMsg</c> keys 0 skillId, 1 targetObjectId, 2 ctrl.</summary>
     SkillUseRequest = 50,
     /// <summary>Respawn after death. Backend <c>ReviveRequestMsg</c> key 0 action (<see cref="ZoneV2Death.ReviveToVillage"/>).</summary>
     ReviveRequest = 52,
     /// <summary>Admin kill (empty body). Backend <c>AdminKillPlayerMsg</c>.</summary>
     AdminKillPlayer = 53,
+    /// <summary>NPC HTML link. Backend <c>BypassRequestMsg</c> keys 0 npcObjectId, 1 command.</summary>
+    BypassRequest = 95,
+    /// <summary>Buy from the open buylist. Backend <c>RequestBuyItemMsg</c>.</summary>
+    RequestBuyItem = 96,
+    /// <summary>Sell to the open merchant. Backend <c>RequestSellItemMsg</c>.</summary>
+    RequestSellItem = 97,
+    /// <summary>Choose a multisell row. Backend <c>RequestMultiSellChooseMsg</c>.</summary>
+    RequestMultiSellChoose = 98,
+    /// <summary>Wear preview. Backend replies with system message 189. <c>RequestPreviewItemMsg</c>.</summary>
+    RequestPreviewItem = 99,
+    /// <summary>Pick a gatekeeper destination. Backend <c>TeleportSelectRequestMsg</c>.</summary>
+    TeleportSelectRequest = 105,
+    /// <summary>Deposit into the private warehouse. Backend <c>WarehouseDepositRequestMsg</c>.</summary>
+    WarehouseDepositRequest = 106,
+    /// <summary>Withdraw from the private warehouse. Backend <c>WarehouseWithdrawRequestMsg</c>.</summary>
+    WarehouseWithdrawRequest = 107,
+    /// <summary>Newbie Helper supplemental magic. Backend <c>SupportMagicRequestMsg</c>.</summary>
+    SupportMagicRequest = 108,
+    /// <summary>Blessing of Protection. Backend <c>GiveBlessingRequestMsg</c>.</summary>
+    GiveBlessingRequest = 109,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -115,6 +143,12 @@ public enum ZoneV2MsgType : ushort
     /// Result 0 cancel, 1 success, 2 keep, 3 reset, 4 crystallize.
     /// </summary>
     EnchantResult = 1060,
+    /// <summary>Started quests and the one-time mask. Backend <c>QuestListMsg</c>.</summary>
+    QuestList = 1061,
+    /// <summary>Quest HTML step. Backend <c>QuestDialogMsg</c>.</summary>
+    QuestDialog = 1062,
+    /// <summary>Quest stinger. Backend <c>QuestSoundMsg</c> key 0 name.</summary>
+    QuestSound = 1063,
     /// <summary>Known skills after <see cref="ItemList"/> on enter. Backend <c>SkillListMsg</c>.</summary>
     SkillList = 1065,
     /// <summary>Skill cast fan-out. Backend <c>MagicSkillUseMsg</c>.</summary>
@@ -125,6 +159,26 @@ public enum ZoneV2MsgType : ushort
     Revive = 1071,
     /// <summary>Instant relocation (respawn, …). Backend <c>TeleportToLocationMsg</c>.</summary>
     TeleportToLocation = 1072,
+    /// <summary>NPC page. Backend <c>NpcHtmlMsg</c>. Quest steps stay on <see cref="QuestDialog"/>.</summary>
+    NpcHtml = 1094,
+    /// <summary>Merchant buylist. Backend <c>BuyListMsg</c>.</summary>
+    BuyList = 1095,
+    /// <summary>Items the merchant will buy. Backend <c>SellListMsg</c>.</summary>
+    SellList = 1096,
+    /// <summary>Exchange list. Backend <c>MultiSellListMsg</c>.</summary>
+    MultiSellList = 1097,
+    /// <summary>Adena, weight, and slots for the open shop. Backend <c>ShopBalanceMsg</c>.</summary>
+    ShopBalance = 1098,
+    /// <summary>Gatekeeper destinations. Backend <c>TeleportListMsg</c>.</summary>
+    TeleportList = 1105,
+    /// <summary>Private warehouse deposit rows. Backend <c>WarehouseDepositListMsg</c>.</summary>
+    WarehouseDepositList = 1106,
+    /// <summary>Private warehouse withdraw rows. Backend <c>WarehouseWithdrawListMsg</c>.</summary>
+    WarehouseWithdrawList = 1107,
+    /// <summary>Supplemental magic outcome. Backend <c>NewbieBuffResultMsg</c>.</summary>
+    NewbieBuffResult = 1108,
+    /// <summary>Blessing of Protection outcome. Backend <c>BlessingResultMsg</c>.</summary>
+    BlessingResult = 1109,
 
     Error = 1099
 }

@@ -2,7 +2,7 @@ using System;
 using System.IO;
 
 /// <summary>MessagePack array bodies matching tools/zone-server Wire/Messages.cs.</summary>
-public static class ZoneV2Messages
+public static partial class ZoneV2Messages
 {
     public static byte[] EncodeHello(int protocolVersion, string clientBuild)
     {
@@ -661,28 +661,77 @@ public static class ZoneV2Messages
             int x;
             int y;
             int z;
+            string name = "";
+            int used;
+            bool attackable = true;
+            string title = "";
+            string npcType = "";
             // Fineage-Backend key 2 is the npc name. Legacy zone-server key 2 is x.
             if (n >= 6 && ZoneV2MsgPack.IsStringOrNil(body, i))
             {
-                ZoneV2MsgPack.ReadString(body, ref i);
+                name = ZoneV2MsgPack.ReadString(body, ref i) ?? "";
                 x = ZoneV2MsgPack.ReadInt(body, ref i);
                 y = ZoneV2MsgPack.ReadInt(body, ref i);
                 z = ZoneV2MsgPack.ReadInt(body, ref i);
+                used = 6;
+                if (n > used)
+                {
+                    ZoneV2MsgPack.ReadInt(body, ref i);
+                    used++;
+                }
+
+                if (n > used)
+                {
+                    attackable = ZoneV2MsgPack.ReadBool(body, ref i);
+                    used++;
+                }
+
+                if (n > used)
+                {
+                    ZoneV2MsgPack.ReadFloat(body, ref i);
+                    used++;
+                }
+
+                if (n > used)
+                {
+                    ZoneV2MsgPack.ReadFloat(body, ref i);
+                    used++;
+                }
+
+                if (n > used)
+                {
+                    title = ZoneV2MsgPack.ReadString(body, ref i) ?? "";
+                    used++;
+                }
+
+                if (n > used)
+                {
+                    npcType = ZoneV2MsgPack.ReadString(body, ref i) ?? "";
+                    used++;
+                }
             }
             else
             {
                 x = ZoneV2MsgPack.ReadInt(body, ref i);
                 y = ZoneV2MsgPack.ReadInt(body, ref i);
                 z = ZoneV2MsgPack.ReadInt(body, ref i);
+                used = 5;
             }
+
+            if (n > used)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - used);
 
             info = new ZoneV2NpcInfo
             {
                 ObjectId = objectId,
                 NpcTemplateId = templateId,
+                Name = name,
                 X = x,
                 Y = y,
-                Z = z
+                Z = z,
+                Attackable = attackable,
+                Title = title,
+                NpcType = npcType
             };
             return true;
         }
@@ -2094,9 +2143,14 @@ public struct ZoneV2NpcInfo
 {
     public int ObjectId;
     public int NpcTemplateId;
+    public string Name;
     public int X;
     public int Y;
     public int Z;
+    /// <summary>Legacy five-int rows stay attackable. Backend key 7 is the real flag.</summary>
+    public bool Attackable;
+    public string Title;
+    public string NpcType;
 }
 
 public struct ZoneV2MyTargetSelected

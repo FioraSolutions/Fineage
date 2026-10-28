@@ -56,6 +56,17 @@ public sealed class FineageZoneTransport : IZoneTransport
                     ZoneV2Client.Ensure().SendPickupRequest(action.ObjectId);
                     return true;
                 }
+
+                if (clicked is NpcEntity && !ZoneV2NpcSession.IsAttackable(action.ObjectId, clicked is MonsterEntity))
+                {
+                    ZoneV2Client zoneTalk = ZoneV2Client.Ensure();
+                    zoneTalk.SendSelectTarget(action.ObjectId);
+                    if (ZoneV2NpcWindows.InRange(clicked))
+                        zoneTalk.SendNpcTalk(action.ObjectId);
+                    else
+                        ZoneV2ChatFeed.NoteSystem("You are too far away.");
+                    return true;
+                }
             }
 
             ZoneV2Client zone = ZoneV2Client.Ensure();
@@ -140,6 +151,71 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (bypass != null && ZoneV2GiveCommand.TryParse(bypass.Bypass, out giveItemId, out giveCount))
         {
             ZoneV2Client.Ensure().SendGiveItem(giveItemId, giveCount);
+            return true;
+        }
+
+        if (bypass != null)
+        {
+            int npcId = ZoneV2NpcSession.ActiveNpcObjectId;
+            if (npcId > 0)
+                ZoneV2Client.Ensure().SendNpcLink(npcId, bypass.Bypass);
+            return true;
+        }
+
+        if (command is RequestQuestListCommand)
+        {
+            ZoneV2Client.Ensure().SendRequestQuestList();
+            return true;
+        }
+
+        RequestQuestAbortCommand abortQuest = command as RequestQuestAbortCommand;
+        if (abortQuest != null)
+        {
+            ZoneV2Client.Ensure().SendRequestQuestAbort(abortQuest.QuestId);
+            return true;
+        }
+
+        RequestBuyItemCommand buy = command as RequestBuyItemCommand;
+        if (buy != null)
+        {
+            ZoneV2Client.Ensure().SendRequestBuyItem(ZoneV2NpcSession.ShopNpcObjectId, buy.ListId, ZoneV2NpcOrders.ItemCounts(buy.BuyList));
+            return true;
+        }
+
+        RequestSellItemCommand sell = command as RequestSellItemCommand;
+        if (sell != null)
+        {
+            ZoneV2Client.Ensure().SendRequestSellItem(ZoneV2NpcSession.ShopNpcObjectId, ZoneV2NpcOrders.ObjectCounts(sell.SellList));
+            return true;
+        }
+
+        MultiSellChooseCommand multi = command as MultiSellChooseCommand;
+        if (multi != null)
+        {
+            ZoneV2Client.Ensure().SendRequestMultiSellChoose(ZoneV2NpcSession.ShopNpcObjectId, multi.ListId, multi.EntryId, multi.Amount);
+            return true;
+        }
+
+        RequestPreviewItemCommand preview = command as RequestPreviewItemCommand;
+        if (preview != null)
+        {
+            ZoneV2IdCount[] worn = ZoneV2NpcOrders.ItemCounts(preview.BuyList);
+            int itemId = worn.Length > 0 ? worn[0].Id : 0;
+            ZoneV2Client.Ensure().SendRequestPreviewItem(ZoneV2NpcSession.ShopNpcObjectId, preview.ListId, itemId);
+            return true;
+        }
+
+        SendWarehouseDepositListCommand deposit = command as SendWarehouseDepositListCommand;
+        if (deposit != null)
+        {
+            ZoneV2Client.Ensure().SendWarehouseDeposit(ZoneV2NpcSession.ShopNpcObjectId, ZoneV2NpcOrders.ObjectCounts(deposit.SellList));
+            return true;
+        }
+
+        SendWarehouseWithdrawListCommand withdraw = command as SendWarehouseWithdrawListCommand;
+        if (withdraw != null)
+        {
+            ZoneV2Client.Ensure().SendWarehouseWithdraw(ZoneV2NpcSession.ShopNpcObjectId, ZoneV2NpcOrders.ObjectCounts(withdraw.SellList));
             return true;
         }
 
