@@ -5,7 +5,6 @@ using UnityEngine;
 public sealed class WorldPacketApply
 {
     private readonly Dictionary<Type, EntityWorldApply> _byType = new Dictionary<Type, EntityWorldApply>();
-    private readonly World _world;
     private readonly HtmlWindow _html;
     private readonly PlayerPositionSender _positionSender;
     private readonly GameManager _gameManager;
@@ -13,7 +12,6 @@ public sealed class WorldPacketApply
     private readonly IGameEventBus _gameEvents;
 
     public WorldPacketApply(
-        World world,
         HtmlWindow html,
         PlayerPositionSender positionSender,
         PlayerWorldApply playerApply,
@@ -24,7 +22,6 @@ public sealed class WorldPacketApply
         PacketApplyQueue applyQueue,
         IGameEventBus gameEvents)
     {
-        _world = world;
         _html = html;
         _positionSender = positionSender;
         _gameManager = gameManager;
@@ -36,6 +33,8 @@ public sealed class WorldPacketApply
         Register<UserEntity>(userApply);
     }
 
+    private World GameWorld => IncomingPacketActions.GameWorld;
+
     public void Register<TEntity>(EntityWorldApply apply) where TEntity : Entity
     {
         _byType[typeof(TEntity)] = apply;
@@ -43,12 +42,12 @@ public sealed class WorldPacketApply
 
     public void UpdateNpc(NpcInfoDto npcInfo)
     {
-        if (_world == null || npcInfo == null || npcInfo.Identity == null)
+        if (GameWorld == null || npcInfo == null || npcInfo.Identity == null)
             return;
         if (!IsWorldSpawnReady())
             return;
 
-        Entity entity = _world.GetEntityNoLockSync(npcInfo.Identity.Id);
+        Entity entity = GameWorld.GetEntityNoLockSync(npcInfo.Identity.Id);
         if (entity == null)
         {
             if (SpawnFrameBudget.IsCancelled(npcInfo.Identity.Id))
@@ -58,11 +57,11 @@ public sealed class WorldPacketApply
                 QueueWorldNextFrame(apply => apply.UpdateNpc(npcInfo));
                 return;
             }
-            _world.SpawnNpc(npcInfo.Identity, npcInfo.Status, npcInfo.Stats);
+            GameWorld.SpawnNpc(npcInfo.Identity, npcInfo.Status, npcInfo.Stats);
             _gameEvents?.Publish(new EntitySpawnedEvent(npcInfo.Identity.Id));
         }
         else
-            _world.UpdateNpc(entity, npcInfo);
+            GameWorld.UpdateNpc(entity, npcInfo);
     }
 
     public void FlushKnownlist()
@@ -79,7 +78,7 @@ public sealed class WorldPacketApply
 
     public void UpdateUser(CharInfoDto info)
     {
-        if (_world == null || info == null || info.Identity == null)
+        if (GameWorld == null || info == null || info.Identity == null)
         {
             // GearFlowLog.Warn("UpdateUser abort world/info null");
             return;
@@ -98,7 +97,7 @@ public sealed class WorldPacketApply
             return;
         }
 
-        Entity entity = _world.GetEntityNoLockSync(info.Identity.Id);
+        Entity entity = GameWorld.GetEntityNoLockSync(info.Identity.Id);
         if (entity == null)
         {
             if (SpawnFrameBudget.IsCancelled(info.Identity.Id))
@@ -108,7 +107,7 @@ public sealed class WorldPacketApply
                 QueueWorldNextFrame(apply => apply.UpdateUser(info));
                 return;
             }
-            _world.SpawnUser(info);
+            GameWorld.SpawnUser(info);
             _gameEvents?.Publish(new EntitySpawnedEvent(info.Identity.Id));
             return;
         }
@@ -120,7 +119,7 @@ public sealed class WorldPacketApply
                 // " type=" + entity.GetType().Name +
                 // " have " + GearFlowLog.Paperdoll(entity) +
                 // " want " + GearFlowLog.Paperdoll(info.Appearance));
-            _world.UpdateUser(entity, info);
+            GameWorld.UpdateUser(entity, info);
             return;
         }
 
@@ -218,11 +217,11 @@ public sealed class WorldPacketApply
 
     public void Attack(AttackDto dto)
     {
-        if (_world == null)
+        if (GameWorld == null)
             return;
 
-        Entity target = _world.GetEntityNoLockSync(dto.TargetId);
-        Entity attacker = _world.GetEntityNoLockSync(dto.AttackerObjId);
+        Entity target = GameWorld.GetEntityNoLockSync(dto.TargetId);
+        Entity attacker = GameWorld.GetEntityNoLockSync(dto.AttackerObjId);
         // if (NpcCombatTrace.IsCombatNpc(attacker))
             // NpcCombatTrace.Write(attacker.IsDead() || target == null ? "ATTACK_SKIP" : "ATTACK",
                 // attacker, target,
@@ -397,7 +396,7 @@ public sealed class WorldPacketApply
 
     private Entity GetEntity(int objId)
     {
-        return _world == null ? null : _world.GetEntityNoLockSync(objId);
+        return GameWorld == null ? null : GameWorld.GetEntityNoLockSync(objId);
     }
 
     private bool TryResolve(Entity entity, out EntityWorldApply apply)
@@ -416,8 +415,8 @@ public sealed class WorldPacketApply
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : WorldApplyPacketServices.Manager;
-        return manager != null && manager.WorldSpawnReady && _world != null;
+        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
+        return manager != null && manager.WorldSpawnReady && GameWorld != null;
     }
 
     private void QueueWorldNextFrame(System.Action<WorldPacketApply> apply)
@@ -427,6 +426,6 @@ public sealed class WorldPacketApply
         if (_applyQueue != null)
             _applyQueue.QueueNextFrame(() => apply(this));
         else
-            WorldApplyPacketServices.QueueWorldNextFrame(apply);
+            IncomingPacketActions.QueueWorldNextFrame(apply);
     }
 }

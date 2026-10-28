@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
@@ -62,6 +64,8 @@ public class GameManager : MonoBehaviour, IGameManager {
         else
             FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
 
+        FineageLocalBackend.ApplyIfRequested();
+
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
     }
@@ -74,8 +78,45 @@ public class GameManager : MonoBehaviour, IGameManager {
     }
 
     private void Start() {
+        if (_tableInitializer == null)
+        {
+            Debug.LogError("[GameManager] TableInitializer missing — AppLifetimeScope failed to build.");
+            return;
+        }
         _tableInitializer.LoadTables();
         Scenes.LoadMenu();
+        string account;
+        string password;
+        if (FineageLocalBackend.TryGetAutoLogin(out account, out password))
+            StartCoroutine(AutoLoginLocalBackend(account, password));
+    }
+
+    private IEnumerator AutoLoginLocalBackend(string account, string password)
+    {
+        for (int i = 0; i < 30 && !App.HasContainer; i++)
+            yield return null;
+
+        if (!FineageWireConfig.UseLoginHandoff)
+            yield break;
+
+        Debug.Log("[FineageLocal] auto-login account=" + account);
+        IZoneTransport transport = null;
+        if (App.HasContainer)
+        {
+            try
+            {
+                transport = App.Resolve<IZoneTransport>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[FineageLocal] IZoneTransport resolve failed: " + ex.Message);
+            }
+        }
+
+        if (transport != null)
+            transport.BeginSession(account, password);
+        else
+            ZoneV2Client.Ensure().BeginSession(account, password);
     }
 
     #endregion
@@ -123,14 +164,12 @@ public class GameManager : MonoBehaviour, IGameManager {
     {
         if (loginUi != null)
             _loginUi = loginUi;
-        LobbyUiPacketServices.Bind(loginUi: _loginUi);
     }
 
     public void WireGameUi(L2GameUI gameUi)
     {
         if (gameUi != null)
             _gameUi = gameUi;
-        LobbyUiPacketServices.Bind(gameUi: _gameUi);
     }
 
     #endregion
@@ -144,10 +183,10 @@ public class GameManager : MonoBehaviour, IGameManager {
             _loadingCamera.enabled = true;
         }
 
-        L2GameUI ui = LobbyUiPacketServices.GameUi;
+        L2GameUI ui = _gameUi != null ? _gameUi : IncomingPacketActions.Ui;
         if (ui != null)
             ui.StartLoading();
-        L2LoginUI loginUi = LobbyUiPacketServices.LoginUi;
+        L2LoginUI loginUi = _loginUi != null ? _loginUi : IncomingPacketActions.LoginUi;
         if (loginUi != null)
             loginUi.StartLoading();
     }

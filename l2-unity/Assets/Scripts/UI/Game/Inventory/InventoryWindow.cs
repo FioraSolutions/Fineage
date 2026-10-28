@@ -465,15 +465,18 @@ public class InventoryWindow : L2PopupWindow
  
     public void ToggleHideWindowManual()
     {
+        if (PlayerInventory.Instance == null)
+            return;
 
         Dictionary<int, ItemInstance> allItems = GetInventoryItems();
         Dictionary<int, ItemInstance> equipItems = GetInventoryEquipItems();
-        int adenaCount = GetAdenaCount(allItems.Values.ToList());
+        if (allItems == null || equipItems == null)
+            return;
 
+        int adenaCount = GetAdenaCount(allItems.Values.ToList());
 
         if (_isWindowHidden)
         {
-
              PlayerInventory.Instance.SetInventory(allItems, equipItems , true, adenaCount , allItems.Count + equipItems.Count);
         }
         else

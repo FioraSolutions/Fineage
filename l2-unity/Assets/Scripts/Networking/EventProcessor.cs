@@ -5,7 +5,6 @@ using VContainer;
 
 public class EventProcessor : MonoBehaviour
 {
-    [Inject] World _world;
     WorldPacketApply _worldApply;
     private static EventProcessor _instance;
     [System.Obsolete("Use [Inject] instead")]
@@ -41,13 +40,8 @@ public class EventProcessor : MonoBehaviour
         if (worldApply != null)
         {
             _worldApply = worldApply;
-            WireNetworkingPacketServices();
+            NetworkingPacketServices.Bind(worldApply: worldApply);
         }
-    }
-
-    void WireNetworkingPacketServices()
-    {
-        NetworkingPacketServices.Bind(world: _world, worldApply: _worldApply, events: this);
     }
 
     private World GameWorld => NetworkingPacketServices.GameWorld;
@@ -56,8 +50,8 @@ public class EventProcessor : MonoBehaviour
 
     private void Start()
     {
-        WireNetworkingPacketServices();
         World world = GameWorld;
+        NetworkingPacketServices.Bind(world: world, worldApply: _worldApply);
         if (world != null && world.OfflineMode)
         {
             this.enabled = false;
