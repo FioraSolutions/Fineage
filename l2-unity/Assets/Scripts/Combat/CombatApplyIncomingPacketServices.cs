@@ -5,17 +5,17 @@ using System;
 /// </summary>
 public static class CombatApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => CombatSessionApplyIncomingPacketServices.Inventory;
+    public static PlayerInventory Inventory => CombatPacketApplyIncomingPacketServices.Inventory;
 
-    public static EnchantWindow Enchant => CombatSessionApplyIncomingPacketServices.Enchant;
+    public static EnchantWindow Enchant => CombatPacketApplyIncomingPacketServices.Enchant;
 
-    public static TargetManager Targets => CombatSessionApplyIncomingPacketServices.Targets;
+    public static TargetManager Targets => CombatPacketApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        CombatSessionApplyIncomingPacketServices.ApplyWorld(apply);
+        CombatPacketApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        CombatSessionApplyIncomingPacketServices.QueueWorld(apply);
+        CombatPacketApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatPacketApplyIncomingPacketServices.Queue(action);
 }
