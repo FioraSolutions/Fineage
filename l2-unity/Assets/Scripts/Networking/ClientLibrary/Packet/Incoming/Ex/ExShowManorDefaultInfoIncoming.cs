@@ -3,5 +3,5 @@
 public sealed class ExShowManorDefaultInfoIncoming : IncomingWirePacket<ExShowManorDefaultInfoDto>
 {
     public override void Apply(ExShowManorDefaultInfoDto packet) =>
-        ExShowManorDefaultInfoIncomingPacketServices.ApplyExShowManorDefaultInfo(packet);
+        ExShowManorDefaultInfoApplyIncomingPacketServices.ApplyExShowManorDefaultInfo(packet);
 }

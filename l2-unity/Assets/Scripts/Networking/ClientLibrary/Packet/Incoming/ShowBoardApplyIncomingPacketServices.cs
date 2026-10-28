@@ -1,7 +1,8 @@
 /// <summary>
 /// Community board HTML wire packet handler entry (#142 batch slice 140).
+/// Apply facade (#142 batch slice 156). Re-homes from <see cref="ShowBoardIncomingPacketServices"/>.
 /// </summary>
-public static class ShowBoardIncomingPacketServices
+public static class ShowBoardApplyIncomingPacketServices
 {
     public static void ApplyShowBoard(ShowCBoardDto dto)
     {

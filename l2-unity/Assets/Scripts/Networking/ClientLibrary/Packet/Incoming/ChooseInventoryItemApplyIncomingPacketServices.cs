@@ -2,8 +2,9 @@ using System;
 
 /// <summary>
 /// Choose-inventory-item wire packet handler entry (#142 batch slice 144).
+/// Apply facade (#142 batch slice 156). Re-homes from <see cref="ChooseInventoryItemIncomingPacketServices"/>.
 /// </summary>
-public static class ChooseInventoryItemIncomingPacketServices
+public static class ChooseInventoryItemApplyIncomingPacketServices
 {
     public static EnchantWindow Enchant => ItemEnchantPacketServices.Enchant;
 

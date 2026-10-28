@@ -3,5 +3,5 @@
 public sealed class NpcHtmlMessageIncoming : IncomingWirePacket<NpcHtmlMessageDto>
 {
     public override void Apply(NpcHtmlMessageDto packet) =>
-        NpcHtmlMessageIncomingPacketServices.ApplyNpcHtmlMessage(packet);
+        NpcHtmlMessageApplyIncomingPacketServices.ApplyNpcHtmlMessage(packet);
 }
