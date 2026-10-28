@@ -3,5 +3,5 @@
 public sealed class ExPledgeReceiveMemberInfoIncoming : IncomingWirePacket<PledgeReceiveMemberInfoDto>
 {
     public override void Apply(PledgeReceiveMemberInfoDto packet) =>
-        PledgeIncomingPacketServices.ApplyExPledgeReceiveMemberInfo(packet);
+        ExPledgeReceiveMemberInfoIncomingPacketServices.ApplyExPledgeReceiveMemberInfo(packet);
 }

@@ -11,6 +11,7 @@ using System;
 /// Pledge show-member-list-update on <see cref="PledgeShowMemberListUpdateIncomingPacketServices"/> (sub-slice 128).
 /// Manage pledge power on <see cref="ManagePledgePowerIncomingPacketServices"/> (sub-slice 129).
 /// Ex pledge power-grade-list on <see cref="ExPledgePowerGradeListIncomingPacketServices"/> (sub-slice 130).
+/// Ex pledge receive-member-info on <see cref="ExPledgeReceiveMemberInfoIncomingPacketServices"/> (sub-slice 131).
 /// </summary>
 public static class PledgeIncomingPacketServices
 {
@@ -19,8 +20,6 @@ public static class PledgeIncomingPacketServices
 
 
 
-    public static void ApplyExPledgeReceiveMemberInfo(PledgeReceiveMemberInfoDto packet) =>
-        Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
 
     public static void ApplyExPledgeReceivePowerInfo(PledgeReceivePowerInfoDto packet) =>
         Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
