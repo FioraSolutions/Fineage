@@ -1,5 +1,5 @@
 /// <summary>
-/// Init wire parse hook (#142 batch slice 146; apply facade rename slice 158).
+/// Init wire parse hook (#142 batch slice 146; login hub slice 177).
 /// Splits parse out of <see cref="InitIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
 public static class InitParsedApplyIncomingPacketServices

@@ -8,7 +8,7 @@ public static class CharTemplateApplyIncomingPacketServices
 {
     public static GameManager Manager => LobbyApplyIncomingPacketServices.Manager;
 
-    public static void Queue(Action action) => CharacterApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => LobbyApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyCharTemplate(CharTemplatesDto templates) =>
         Queue(() => Manager.OnCreateUser(templates.PlayerTemplates));

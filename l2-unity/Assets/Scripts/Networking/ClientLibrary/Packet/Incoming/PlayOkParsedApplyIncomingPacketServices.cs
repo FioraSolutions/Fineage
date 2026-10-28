@@ -1,5 +1,5 @@
 /// <summary>
-/// PlayOk wire parse hook (#142 batch slice 146).
+/// PlayOk wire parse hook (#142 batch slice 146; login hub slice 177).
 /// Splits parse out of <see cref="PlayOkIncomingPacketServices"/> (sub-slice 58).
 /// </summary>
 public static class PlayOkParsedApplyIncomingPacketServices

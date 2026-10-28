@@ -6,5 +6,5 @@
 public static class SocialActionApplyIncomingPacketServices
 {
     public static void ApplySocialAction(SocialActionDto packet) =>
-        WorldApplyIncomingPacketServices.ApplyWorld(apply => apply.SocialAction(packet));
+        WorldEffectApplyIncomingPacketServices.ApplyWorld(apply => apply.SocialAction(packet));
 }

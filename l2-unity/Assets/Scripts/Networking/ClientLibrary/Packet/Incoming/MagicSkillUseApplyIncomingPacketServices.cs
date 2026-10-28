@@ -13,6 +13,6 @@ public static class MagicSkillUseApplyIncomingPacketServices
         if (packet == null)
             return;
 
-        CombatApplyIncomingPacketServices.QueueWorld(apply => apply.MagicSkillUse(packet));
+        CombatSessionApplyIncomingPacketServices.QueueWorld(apply => apply.MagicSkillUse(packet));
     }
 }

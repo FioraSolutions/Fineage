@@ -7,12 +7,12 @@ using System;
 /// </summary>
 public static class ExShowSeedInfoApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => ManorApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyExShowSeedInfo(ExShowSeedInfoDto packet) =>
         Queue(() =>
         {
-            ManorApplyIncomingPacketServices.SeedInfo.ShowWindowActiveTabSeed();
-            ManorApplyIncomingPacketServices.SeedInfo.SetDataSeedInfo(packet.List);
+            WorldApplyIncomingPacketServices.SeedInfo.ShowWindowActiveTabSeed();
+            WorldApplyIncomingPacketServices.SeedInfo.SetDataSeedInfo(packet.List);
         });
 }

@@ -6,8 +6,8 @@ using System;
 /// </summary>
 public static class ExPledgePowerGradeListApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => PledgeApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyExPledgePowerGradeList(PledgePowerGradeListDto packet) =>
-        Queue(() => PledgeApplyIncomingPacketServices.Clan.ShowGradeInfo(packet));
+        Queue(() => GameApplyIncomingPacketServices.Clan.ShowGradeInfo(packet));
 }

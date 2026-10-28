@@ -6,8 +6,8 @@ using System;
 /// </summary>
 public static class PledgeShowMemberListDeleteApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => PledgeApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyPledgeShowMemberListDelete(PledgeShowMemberListDeleteDto packet) =>
-        Queue(() => PledgeApplyIncomingPacketServices.Clan.DeleteMemberData(packet));
+        Queue(() => GameApplyIncomingPacketServices.Clan.DeleteMemberData(packet));
 }

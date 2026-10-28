@@ -16,5 +16,5 @@ public static class NpcSayApplyIncomingPacketServices
     }
 
     public static void ApplyNpcSay(SystemMessage npcMessage) =>
-        MessageApplyIncomingPacketServices.ApplyMessage(apply => apply.NpcSay(npcMessage));
+        ChatApplyIncomingPacketServices.ApplyMessage(apply => apply.NpcSay(npcMessage));
 }

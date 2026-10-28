@@ -3,7 +3,7 @@ using System;
 /// <summary>
 /// Apply facade (#142 batch slice 151). Re-homes from <see cref="UserInfoIncomingPacketServices"/>.
 /// 
-/// User info wire packet handler entry (#142 batch slice 143).
+/// User info wire packet handler entry (#142 batch slice 143; world hub slice 179).
 /// </summary>
 public static class UserInfoApplyIncomingPacketServices
 {

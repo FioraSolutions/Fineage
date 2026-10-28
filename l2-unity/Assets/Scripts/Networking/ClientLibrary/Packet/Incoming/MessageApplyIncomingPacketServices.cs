@@ -1,13 +1,16 @@
 using System;
 
 /// <summary>
-/// Message packet apply hub (#142 batch slice 159).
+/// Message packet apply hub (#142 batch slice 159; queue relay orchestration slice 196).
 /// </summary>
 public static class MessageApplyIncomingPacketServices
 {
     public static MessagePacketApply MessageApply =>
-        IncomingPacketLocatorApplyIncomingPacketServices.MessageApply;
+        LocatorApplyIncomingPacketServices.MessageApply;
 
     public static void ApplyMessage(Action<MessagePacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyMessage(apply);
+        QueueApplyIncomingPacketServices.ApplyMessage(apply);
+
+    public static void Queue(Action action) =>
+        QueueApplyIncomingPacketServices.Queue(action);
 }

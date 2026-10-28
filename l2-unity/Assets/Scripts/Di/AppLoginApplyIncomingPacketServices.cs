@@ -1,5 +1,5 @@
 /// <summary>
-/// App and login lifetime wiring for incoming handler services (#142 sub-slice 54).
+/// App and login lifetime wiring for incoming handler services (#142 sub-slice 54; bind facade slice 174–175).
 /// </summary>
 public static class AppLoginApplyIncomingPacketServices
 {
@@ -12,7 +12,7 @@ public static class AppLoginApplyIncomingPacketServices
     {
         DiRuntimePacketServices.Bind(game: game, login: login, manager: manager);
         NetworkingPacketServices.Bind(manager: manager, login: login, events: events);
-        IncomingPacketServices.Bind(
+        AppLoginBindApplyIncomingPacketServices.BindApp(
             game: game,
             login: login,
             manager: manager,
@@ -26,12 +26,6 @@ public static class AppLoginApplyIncomingPacketServices
             return;
 
         LoginPacketServices.Bind(login: loginRuntime);
-        IncomingPacketServices.Bind(
-            game: loginRuntime.Game,
-            login: loginRuntime.LoginClient,
-            manager: loginRuntime.Manager,
-            loginWindow: loginRuntime.LoginWindow,
-            charSelect: loginRuntime.CharSelect,
-            characters: loginRuntime.Selector);
+        AppLoginBindApplyIncomingPacketServices.BindLogin(loginRuntime);
     }
 }

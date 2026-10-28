@@ -7,12 +7,12 @@ using System;
 /// </summary>
 public static class ExShowManorDefaultInfoApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => ManorApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => GameApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyExShowManorDefaultInfo(ExShowManorDefaultInfoDto packet) =>
         Queue(() =>
         {
-            ManorApplyIncomingPacketServices.SeedInfo.SetDataDefaultManorInfo(packet.List);
-            ManorApplyIncomingPacketServices.SeedInfo.ShowWindowActiveTabAllDefault();
+            WorldApplyIncomingPacketServices.SeedInfo.SetDataDefaultManorInfo(packet.List);
+            WorldApplyIncomingPacketServices.SeedInfo.ShowWindowActiveTabAllDefault();
         });
 }

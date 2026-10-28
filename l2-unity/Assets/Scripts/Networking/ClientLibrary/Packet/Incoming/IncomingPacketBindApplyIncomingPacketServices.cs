@@ -1,6 +1,6 @@
 /// <summary>
-/// Incoming handler DI bind orchestration (#142 batch slice 162).
-/// Re-homes bind wiring from <see cref="IncomingPacketServices"/>.
+/// Incoming handler DI bind orchestration (#142 batch slice 162; facade slice 174).
+/// Locator and queue bind via <see cref="LocatorApplyIncomingPacketServices"/> / <see cref="QueueApplyIncomingPacketServices"/>.
 /// </summary>
 public static class IncomingPacketBindApplyIncomingPacketServices
 {
@@ -41,7 +41,7 @@ public static class IncomingPacketBindApplyIncomingPacketServices
         SellCropListWindow sellCrop = null,
         BufferPanel buffer = null)
     {
-        IncomingPacketLocatorApplyIncomingPacketServices.Bind(
+        LocatorApplyIncomingPacketServices.Bind(
             game: game,
             login: login,
             manager: manager,
@@ -75,6 +75,6 @@ public static class IncomingPacketBindApplyIncomingPacketServices
             seedInfo: seedInfo,
             sellCrop: sellCrop,
             buffer: buffer);
-        IncomingPacketQueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
+        QueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
     }
 }
