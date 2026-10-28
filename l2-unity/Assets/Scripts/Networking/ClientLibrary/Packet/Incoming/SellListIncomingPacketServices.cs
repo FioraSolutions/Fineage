@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Sell list wire packet handler entry (#142 sub-slice 113).
-/// Splits sell-list apply out of <see cref="ShopListIncomingPacketServices"/> (sub-slice 84 encapsulation).
+/// Splits sell-list apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 84 encapsulation).
 /// </summary>
 public static class SellListIncomingPacketServices
 {

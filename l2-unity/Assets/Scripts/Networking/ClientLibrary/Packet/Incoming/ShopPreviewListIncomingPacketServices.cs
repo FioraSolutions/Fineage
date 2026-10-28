@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// Shop preview list wire packet handler entry (#142 sub-slice 116).
-/// Splits preview-wear list apply out of <see cref="ShopListIncomingPacketServices"/> (sub-slice 84 encapsulation).
+/// Splits preview-wear list apply out of <see cref="GameIncomingPacketServices"/> (sub-slice 84 encapsulation).
 /// Complements unwired preview info on <see cref="ShopPreviewIncomingPacketServices"/> (sub-slice 98).
 /// </summary>
 public static class ShopPreviewListIncomingPacketServices
