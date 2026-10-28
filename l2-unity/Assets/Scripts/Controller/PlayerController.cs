@@ -115,6 +115,7 @@ public partial class PlayerController : MonoBehaviour
             _controller = GetComponent<CharacterController>();
         if (_controller != null && !_controller.enabled)
             _controller.enabled = true;
+        EntitySpawnShared.SanitizeCharacterControllerStepOffset(gameObject);
     }
 
 

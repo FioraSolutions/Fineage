@@ -166,6 +166,11 @@ public sealed class GameLifetimeScope : LifetimeScope
                     seedInfo: runtime.SeedInfo,
                     sellCrop: runtime.SellCrop,
                     buffer: runtime.Buffer);
+                ControllerPacketServices.Bind(
+                    game: runtime.Game,
+                    player: runtime.Player,
+                    targets: runtime.Targets,
+                    input: runtime.Input);
                 MovementPacketLatest.Wire(domain);
                 World world = container.Resolve<World>();
                 MoveCostLog.Wire(world);

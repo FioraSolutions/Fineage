@@ -33,7 +33,15 @@ public class ClickManager : MonoBehaviour
 
     private GameClient Game
     {
-        get { return _gameClient != null ? _gameClient : ControllerPacketServices.Game; }
+        get
+        {
+            if (_gameClient != null)
+                return _gameClient;
+            GameClient fromController = ControllerPacketServices.Game;
+            if (fromController != null)
+                return fromController;
+            return IncomingPacketActions.Game;
+        }
     }
 
     // L2 FindMouseTargetObject far = 10000 UU.
@@ -61,6 +69,16 @@ public class ClickManager : MonoBehaviour
     {
         _locator = GameObject.Find("Locator");
         HideLocator();
+        WireClickPacketServices();
+    }
+
+    [Inject]
+    void WireClickPacketServices()
+    {
+        ControllerPacketServices.Bind(
+            game: Game,
+            input: GameInput,
+            targets: Targets);
     }
 
     public void SetMasks(LayerMask entityMask, LayerMask clickThroughMask)
@@ -180,7 +198,36 @@ public class ClickManager : MonoBehaviour
 
     private void SendPacketMoveToLocation(Vector3 lastClickPosition)
     {
-        Game.Send(new MoveToCommand(PlayerEntity.Instance.transform.position, lastClickPosition));
+        GameClient game = Game;
+        if (game == null)
+            return;
+
+        if (!TryResolveMoveOrigin(out Vector3 from))
+            return;
+
+        game.Send(new MoveToCommand(from, lastClickPosition));
+    }
+
+    static bool TryResolveMoveOrigin(out Vector3 from)
+    {
+        PlayerEntity player = PlayerEntity.Instance;
+        if (player != null)
+        {
+            from = player.transform.position;
+            return true;
+        }
+
+        PlayerController controller = IncomingPacketActions.Player;
+        if (controller == null)
+            controller = PlayerController.Instance;
+        if (controller != null)
+        {
+            from = controller.transform.position;
+            return true;
+        }
+
+        from = default;
+        return false;
     }
 
     public void OnClickOnEntity()
@@ -190,6 +237,10 @@ public class ClickManager : MonoBehaviour
         {
             return;
         }
+
+        GameClient game = Game;
+        if (game == null)
+            return;
 
         // Already selected monster → melee attack intent. NPCs = talk, stay Target (blue).
         if (Targets != null &&
@@ -204,7 +255,7 @@ public class ClickManager : MonoBehaviour
         }
 
         var l2jpos = clickTarget.Identity.GetL2jPos();
-        Game.Send(new ClickActionCommand(
+        game.Send(new ClickActionCommand(
             clickTarget.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
     }
 
