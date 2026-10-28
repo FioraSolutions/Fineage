@@ -3,13 +3,11 @@ using System;
 /// <summary>
 /// Pledge/clan wire packet handler access via GameIncomingPacketServices (#142 sub-slice 60).
 /// Pledge info on <see cref="PledgeInfoIncomingPacketServices"/> (sub-slice 122).
+/// Pledge status-changed on <see cref="PledgeStatusChangedIncomingPacketServices"/> (sub-slice 123).
 /// </summary>
 public static class PledgeIncomingPacketServices
 {
     public static void Queue(Action action) => GameIncomingPacketServices.Queue(action);
-
-    public static void ApplyPledgeStatusChanged(PledgeStatusChangedDto packet) =>
-        Queue(() => GameIncomingPacketServices.Clan.UpdateClanIdInfo(packet));
 
     public static void ApplyPledgeShowMemberListAdd(PledgeShowMemberListAddDto packet) =>
         Queue(() => GameIncomingPacketServices.Clan.AddMemberData(packet));
