@@ -7,5 +7,5 @@ using System;
 public static class DieApplyIncomingPacketServices
 {
     public static void ApplyDie(DieDto packet) =>
-        WorldApplyPacketServices.ApplyWorld(apply => apply.Die(packet));
+        CombatSessionApplyIncomingPacketServices.ApplyWorld(apply => apply.Die(packet));
 }

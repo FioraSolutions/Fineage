@@ -153,6 +153,7 @@ public class CharSelectWindow : L2Window {
             _karmaLabel.text = "0";
             _charNameManipulator.ClearInput();
         } else if(slot < _charactersInterlude.Count) {
+            _selectChar = _charactersInterlude[slot];
             _levelLabel.text = _charactersInterlude[slot].Lvl.ToString();
             _classLabel.text =  ((CharacterClass)(_characters[slot].ClassId)).ToString();
             _hpLabel.text = $"{_charactersInterlude[slot].Hp}/{_charactersInterlude[slot].MaxHp}";

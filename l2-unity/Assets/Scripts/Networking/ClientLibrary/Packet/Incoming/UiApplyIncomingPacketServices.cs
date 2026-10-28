@@ -1,35 +1,36 @@
 using System;
 
 /// <summary>
-/// UI-domain incoming packet handler access via facades and IncomingPacketServices queue fallback (#142 sub-slice 50).
+/// UI-domain incoming packet handler access via domain apply hubs (#142 sub-slice 50; UI domain orchestration slice 202).
 /// </summary>
 public static class UiApplyIncomingPacketServices
 {
-    public static SkillLearnWindow SkillLearn => SkillLearnPacketServices.SkillLearn;
+    public static SkillLearnWindow SkillLearn => SkillApplyIncomingPacketServices.SkillLearn;
 
-    public static DescriptionSkillWindow SkillDesc => SkillLearnPacketServices.SkillDesc;
+    public static DescriptionSkillWindow SkillDesc => SkillApplyIncomingPacketServices.SkillDesc;
 
-    public static SkillListWindow SkillList => SkillLearnPacketServices.SkillList;
+    public static SkillListWindow SkillList => SkillApplyIncomingPacketServices.SkillList;
 
-    public static PartyInvitationWindow PartyInvite => PartyPacketServices.PartyInvite;
+    public static PartyInvitationWindow PartyInvite =>
+        PartyApplyIncomingPacketServices.PartyInvite;
 
-    public static RecipeBookWindow RecipeBook => CraftPacketServices.RecipeBook;
+    public static RecipeBookWindow RecipeBook => CraftApplyIncomingPacketServices.RecipeBook;
 
-    public static CraftingItemWindow Crafting => CraftPacketServices.Crafting;
+    public static CraftingItemWindow Crafting => CraftApplyIncomingPacketServices.Crafting;
 
-    public static MultiSellWindow MultiSell => MultiSellPacketServices.MultiSell;
+    public static MultiSellWindow MultiSell => MultiSellApplyIncomingPacketServices.MultiSell;
 
-    public static HtmlWindow Html => GameWindowPacketServices.Html;
+    public static HtmlWindow Html => HtmlApplyIncomingPacketServices.Html;
 
-    public static ShowListWindow ShowList => GameWindowPacketServices.ShowList;
+    public static ShowListWindow ShowList => ShowListApplyIncomingPacketServices.ShowList;
 
-    public static PlayerShortcuts Shortcuts => ShortcutPacketServices.Shortcuts;
+    public static PlayerShortcuts Shortcuts => ShortcutApplyIncomingPacketServices.Shortcuts;
 
-    public static BufferPanel Buffer => AuxiliaryGameUIPacketServices.Buffer;
+    public static BufferPanel Buffer => BufferApplyIncomingPacketServices.Buffer;
 
     public static PositionValidationController PositionValidation =>
-        ControllerPacketServices.PositionValidation;
+        PositionApplyIncomingPacketServices.PositionValidation;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

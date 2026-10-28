@@ -1,12 +1,12 @@
 /// <summary>
-/// InterludeKey wire apply hook (#142 batch slice 146).
+/// InterludeKey wire apply hook (#142 batch slice 146; login hub slice 176).
 /// Splits apply out of <see cref="InterludeKeyIncomingPacketServices"/> (sub-slices 53 / 76).
 /// </summary>
 public static class InterludeKeyApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginPacketServices.LoginClient;
+    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginPacketServices.Game;
+    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
 
     public static void ApplyInterludeKey(InterludeKeyDto packet)
     {

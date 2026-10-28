@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Shared NPC/pet presence apply (#142 batch slice 138).
+/// Shared NPC/pet presence apply (#142 batch slice 138; world hub slice 178).
 /// </summary>
 internal static class NpcOrPetInfoApplyIncomingPacketServices
 {

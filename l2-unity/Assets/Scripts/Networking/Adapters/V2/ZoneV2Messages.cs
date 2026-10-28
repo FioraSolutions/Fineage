@@ -135,6 +135,75 @@ public static class ZoneV2Messages
         }
     }
 
+    public static bool TryDecodeCharInfo(byte[] body, out ZoneV2CharInfo info)
+    {
+        info = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 6)
+                return false;
+            info = new ZoneV2CharInfo
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                Name = ZoneV2MsgPack.ReadString(body, ref i),
+                X = ZoneV2MsgPack.ReadInt(body, ref i),
+                Y = ZoneV2MsgPack.ReadInt(body, ref i),
+                Z = ZoneV2MsgPack.ReadInt(body, ref i),
+                ClassId = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeNpcInfo(byte[] body, out ZoneV2NpcInfo info)
+    {
+        info = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 5)
+                return false;
+            info = new ZoneV2NpcInfo
+            {
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                NpcTemplateId = ZoneV2MsgPack.ReadInt(body, ref i),
+                X = ZoneV2MsgPack.ReadInt(body, ref i),
+                Y = ZoneV2MsgPack.ReadInt(body, ref i),
+                Z = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
+    public static bool TryDecodeDeleteObject(byte[] body, out int objectId)
+    {
+        objectId = 0;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 1)
+                return false;
+            objectId = ZoneV2MsgPack.ReadInt(body, ref i);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
     public static bool TryDecodeError(byte[] body, out string code, out string message)
     {
         code = "";
@@ -177,4 +246,23 @@ public struct ZoneV2MoveTo
     public int OriginX;
     public int OriginY;
     public int OriginZ;
+}
+
+public struct ZoneV2CharInfo
+{
+    public int ObjectId;
+    public string Name;
+    public int X;
+    public int Y;
+    public int Z;
+    public int ClassId;
+}
+
+public struct ZoneV2NpcInfo
+{
+    public int ObjectId;
+    public int NpcTemplateId;
+    public int X;
+    public int Y;
+    public int Z;
 }

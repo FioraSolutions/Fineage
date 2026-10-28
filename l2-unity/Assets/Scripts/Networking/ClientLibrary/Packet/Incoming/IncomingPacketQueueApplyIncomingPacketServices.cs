@@ -19,7 +19,7 @@ public static class IncomingPacketQueueApplyIncomingPacketServices
 
     public static void ApplyWorld(Action<WorldPacketApply> apply)
     {
-        WorldPacketApply worldApply = IncomingPacketLocatorApplyIncomingPacketServices.WorldApply;
+        WorldPacketApply worldApply = LocatorApplyIncomingPacketServices.WorldApply;
         if (worldApply != null && apply != null)
             apply(worldApply);
     }
@@ -33,7 +33,7 @@ public static class IncomingPacketQueueApplyIncomingPacketServices
 
     public static void ApplyDomain(Action<IWorldDomainSink> apply)
     {
-        IWorldDomainSink domain = IncomingPacketLocatorApplyIncomingPacketServices.Domain;
+        IWorldDomainSink domain = LocatorApplyIncomingPacketServices.Domain;
         if (domain != null && apply != null)
             apply(domain);
     }
@@ -47,7 +47,7 @@ public static class IncomingPacketQueueApplyIncomingPacketServices
 
     public static void ApplyMessage(Action<MessagePacketApply> apply)
     {
-        MessagePacketApply messageApply = IncomingPacketLocatorApplyIncomingPacketServices.MessageApply;
+        MessagePacketApply messageApply = LocatorApplyIncomingPacketServices.MessageApply;
         if (messageApply != null && apply != null)
             apply(messageApply);
     }

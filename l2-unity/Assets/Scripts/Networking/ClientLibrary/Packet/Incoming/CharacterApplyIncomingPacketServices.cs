@@ -1,18 +1,29 @@
 using System;
 
 /// <summary>
-/// Character lobby / selection apply hub (#142 batch slice 159).
+/// Character lobby / selection apply hub (#142 batch slice 159; world session orchestration slice 194).
 /// </summary>
 public static class CharacterApplyIncomingPacketServices
 {
-    public static IWorldDomainSink Domain => IncomingPacketLocatorApplyIncomingPacketServices.Domain;
+    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
 
-    public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
+
+    public static GameManager Manager => LobbyApplyIncomingPacketServices.Manager;
+
+    public static LoginWindow LoginWindow => LobbyApplyIncomingPacketServices.LoginWindow;
+
+    public static CharSelectWindow CharSelect => LobbyApplyIncomingPacketServices.CharSelect;
+
+    public static CharacterSelector Characters => LobbyApplyIncomingPacketServices.Characters;
+
+    public static IWorldDomainSink Domain => WorldApplyIncomingPacketServices.Domain;
+
+    public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
     public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
+        WorldApplyIncomingPacketServices.QueueDomain(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
+        WorldApplyIncomingPacketServices.QueueWorld(apply);
 }

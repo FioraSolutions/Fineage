@@ -6,12 +6,12 @@ using System;
 /// </summary>
 public static class EtcStatusUpdateApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => BufferApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyEtcStatusUpdate(EtcStatusUpdateDto packet) =>
         Queue(() =>
         {
-            if (BufferApplyIncomingPacketServices.Buffer != null)
-                BufferApplyIncomingPacketServices.Buffer.RefreshPenalty(packet);
+            if (UiApplyIncomingPacketServices.Buffer != null)
+                UiApplyIncomingPacketServices.Buffer.RefreshPenalty(packet);
         });
 }

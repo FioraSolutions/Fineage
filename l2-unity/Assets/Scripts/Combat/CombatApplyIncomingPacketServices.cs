@@ -1,22 +1,21 @@
 using System;
 
 /// <summary>
-/// Combat incoming packet handler access via domain facades and IncomingPacketActions fallback (#142 sub-slices 48, 77, 78).
+/// Combat incoming packet handler access via session hub (#142 sub-slices 48, 77, 78; session slice 180).
 /// </summary>
 public static class CombatApplyIncomingPacketServices
 {
-    public static PlayerInventory Inventory => InventoryPacketServices.Inventory;
+    public static PlayerInventory Inventory => CombatSessionApplyIncomingPacketServices.Inventory;
 
-    public static EnchantWindow Enchant => ItemEnchantPacketServices.Enchant;
+    public static EnchantWindow Enchant => CombatSessionApplyIncomingPacketServices.Enchant;
 
-    public static TargetManager Targets => CombatPacketServices.Targets;
+    public static TargetManager Targets => CombatSessionApplyIncomingPacketServices.Targets;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        WorldApplyPacketServices.ApplyWorld(apply);
+        CombatSessionApplyIncomingPacketServices.ApplyWorld(apply);
 
     public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        WorldApplyPacketServices.QueueWorld(apply);
+        CombatSessionApplyIncomingPacketServices.QueueWorld(apply);
 
-    public static void Queue(Action action) =>
-        WorldApplyPacketServices.Queue(action);
+    public static void Queue(Action action) => CombatSessionApplyIncomingPacketServices.Queue(action);
 }

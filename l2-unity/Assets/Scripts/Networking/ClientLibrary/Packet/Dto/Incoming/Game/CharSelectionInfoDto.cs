@@ -37,8 +37,8 @@ public class CharSelectionInfoDto : IWireDto
             int empty2 = reader.ReadI();//0
             int empty3 = reader.ReadI();//0
 
-            character.Hp = reader.ReadD();
-            character.Mp = reader.ReadD();
+            character.Hp = reader.ReadF();
+            character.Mp = reader.ReadF();
             character.Sp = reader.ReadI();
             character.Exp = reader.ReadLOther();
 
@@ -111,8 +111,8 @@ public class CharSelectionInfoDto : IWireDto
             character.HairStyle = reader.ReadI();
             character.HairColor = reader.ReadI();
             character.Face = reader.ReadI();
-            character.MaxHp = reader.ReadD();
-            character.MaxMp = reader.ReadD();
+            character.MaxHp = reader.ReadF();
+            character.MaxMp = reader.ReadF();
 
             character.DlTimer = reader.ReadI();
             character.ClassId = reader.ReadI();

@@ -1,22 +1,23 @@
 using System;
 
 /// <summary>
-/// Game incoming packet handler access via UI domain facades and IncomingPacketServices queue fallback (#142 sub-slice 49).
+/// Game incoming packet handler access via domain apply hubs (#142 sub-slice 49; game domain orchestration slice 201).
 /// </summary>
 public static class GameApplyIncomingPacketServices
 {
-    public static ClanWindow Clan => ClanPacketServices.Clan;
+    public static ClanWindow Clan => PledgeApplyIncomingPacketServices.Clan;
 
-    public static DealerWindow Dealer => MerchantPacketServices.Dealer;
+    public static DealerWindow Dealer => MerchantApplyIncomingPacketServices.Dealer;
 
-    public static TradeWindow Trade => TradePacketServices.Trade;
+    public static TradeWindow Trade => TradeApplyIncomingPacketServices.Trade;
 
-    public static TradeRequestWindow TradeRequest => TradePacketServices.TradeRequest;
+    public static TradeRequestWindow TradeRequest =>
+        TradeApplyIncomingPacketServices.TradeRequest;
 
-    public static QuestWindow Quest => QuestPacketServices.Quest;
+    public static QuestWindow Quest => QuestApplyIncomingPacketServices.Quest;
 
-    public static QuestListWindow QuestList => AuxiliaryGameUIPacketServices.QuestList;
+    public static QuestListWindow QuestList => QuestApplyIncomingPacketServices.QuestList;
 
     public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+        QueueApplyIncomingPacketServices.Queue(action);
 }

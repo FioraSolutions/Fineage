@@ -1,12 +1,12 @@
 /// <summary>
-/// InterludeKey wire parse hook (#142 batch slice 146).
+/// InterludeKey wire parse hook (#142 batch slice 146; login hub slice 176).
 /// Splits parse out of <see cref="InterludeKeyIncomingPacketServices"/> (sub-slices 53 / 76).
 /// </summary>
 public static class InterludeKeyParsedApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginPacketServices.LoginClient;
+    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginPacketServices.Game;
+    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
 
     public static void OnInterludeKeyParsed(InterludeKeyDto packet)
     {

@@ -6,13 +6,13 @@ using System;
 /// </summary>
 public static class RecipeItemMakeInfoApplyIncomingPacketServices
 {
-    public static void Queue(Action action) => CraftApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => UiApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyRecipeItemMakeInfo(RecipeItemMakeInfoDto packet) =>
         Queue(() =>
         {
-            CraftApplyIncomingPacketServices.RecipeBook.HideWindow();
-            CraftApplyIncomingPacketServices.Crafting.AddData(packet);
-            CraftApplyIncomingPacketServices.Crafting.ShowWindow();
+            UiApplyIncomingPacketServices.RecipeBook.HideWindow();
+            UiApplyIncomingPacketServices.Crafting.AddData(packet);
+            UiApplyIncomingPacketServices.Crafting.ShowWindow();
         });
 }
