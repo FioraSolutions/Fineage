@@ -10,6 +10,7 @@ using System;
 /// Pledge show-member-list-delete on <see cref="PledgeShowMemberListDeleteIncomingPacketServices"/> (sub-slice 127).
 /// Pledge show-member-list-update on <see cref="PledgeShowMemberListUpdateIncomingPacketServices"/> (sub-slice 128).
 /// Manage pledge power on <see cref="ManagePledgePowerIncomingPacketServices"/> (sub-slice 129).
+/// Ex pledge power-grade-list on <see cref="ExPledgePowerGradeListIncomingPacketServices"/> (sub-slice 130).
 /// </summary>
 public static class PledgeIncomingPacketServices
 {
@@ -17,8 +18,6 @@ public static class PledgeIncomingPacketServices
 
 
 
-    public static void ApplyExPledgePowerGradeList(PledgePowerGradeListDto packet) =>
-        Queue(() => GameIncomingPacketServices.Clan.ShowGradeInfo(packet));
 
     public static void ApplyExPledgeReceiveMemberInfo(PledgeReceiveMemberInfoDto packet) =>
         Queue(() => GameIncomingPacketServices.Clan.UpdateDetailedInfo(packet));
