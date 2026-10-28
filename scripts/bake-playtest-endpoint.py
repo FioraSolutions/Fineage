@@ -10,7 +10,18 @@ import sys
 import tempfile
 from pathlib import Path
 
-from playtest_hosts import GAME_HOST, LOGIN_HOST, LOGIN_PORT, PUBLIC_HOST, endpoint_defaults
+from playtest_hosts import (
+    GAME_HOST,
+    GAME_PORT,
+    LOCAL_GAME_PORT,
+    LOCAL_LOGIN_PORT,
+    LOGIN_HOST,
+    LOGIN_PORT,
+    PUBLIC_HOST,
+    endpoint_defaults,
+    refuse_shipped_loopback,
+    shipped_endpoint_problems,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STREAMING = REPO_ROOT / "l2-unity/Assets/StreamingAssets/fineage-endpoint.json"
@@ -79,6 +90,24 @@ def self_test() -> int:
             return 1
 
     assert endpoint_from_env({}) == defaults
+    assert shipped_endpoint_problems(endpoint_from_env({})) == []
+
+    public_env = {
+        "FINEAGE_PUBLIC_HOST": PUBLIC_HOST,
+        "FINEAGE_LOGIN_HOST": LOGIN_HOST,
+        "FINEAGE_GAME_HOST": GAME_HOST,
+        "FINEAGE_LOGIN_PORT": str(LOGIN_PORT),
+        "FINEAGE_GAME_PORT": str(GAME_PORT),
+    }
+    assert endpoint_from_env(public_env) == defaults
+    assert shipped_endpoint_problems(endpoint_from_env(public_env)) == []
+
+    for path in (STREAMING, RESOURCES):
+        text = path.read_text(encoding="utf-8")
+        for banned in ("127.0.0.1", "localhost", str(LOCAL_LOGIN_PORT), str(LOCAL_GAME_PORT)):
+            if banned in text:
+                print(f"{path} must not ship {banned}", file=sys.stderr)
+                return 1
 
     payload = endpoint_from_env(
         {
@@ -96,6 +125,41 @@ def self_test() -> int:
         write_endpoint(Path(tmp), payload)
         baked = json.loads((Path(tmp) / "FineagePlaytest.json").read_text(encoding="utf-8"))
         assert baked == payload
+        baked_text = (Path(tmp) / "fineage-endpoint.json").read_text(encoding="utf-8")
+        for banned in ("127.0.0.1", "localhost", str(LOCAL_LOGIN_PORT), str(LOCAL_GAME_PORT)):
+            assert banned not in baked_text
+
+    loopback_envs = (
+        {"FINEAGE_PUBLIC_HOST": "127.0.0.1"},
+        {"FINEAGE_LOGIN_HOST": "127.0.0.1"},
+        {"FINEAGE_GAME_HOST": "localhost"},
+        {"FINEAGE_LOGIN_HOST": "http://127.0.0.1:9106"},
+        {"FINEAGE_LOGIN_PORT": str(LOCAL_LOGIN_PORT)},
+        {"FINEAGE_GAME_PORT": str(LOCAL_GAME_PORT)},
+        {
+            "FINEAGE_PUBLIC_HOST": PUBLIC_HOST,
+            "FINEAGE_LOGIN_HOST": LOGIN_HOST,
+            "FINEAGE_GAME_HOST": "localhost",
+            "FINEAGE_LOGIN_PORT": str(LOGIN_PORT),
+            "FINEAGE_GAME_PORT": str(GAME_PORT),
+        },
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        dest = Path(tmp)
+        for env in loopback_envs:
+            baked = endpoint_from_env(env)
+            assert shipped_endpoint_problems(baked), env
+            try:
+                refuse_shipped_loopback(baked)
+                write_endpoint(dest, baked)
+            except SystemExit:
+                pass
+            else:
+                print(f"loopback bake must fail for {env}", file=sys.stderr)
+                return 1
+            if (dest / "fineage-endpoint.json").exists() or (dest / "FineagePlaytest.json").exists():
+                print(f"loopback bake wrote JSON for {env}", file=sys.stderr)
+                return 1
 
     print("bake-playtest-endpoint self-test OK")
     return 0
@@ -113,6 +177,7 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv)
     payload = endpoint_from_env(dict(os.environ))
+    refuse_shipped_loopback(payload)
     write_endpoint(args.output_dir, payload)
     return 0
 
