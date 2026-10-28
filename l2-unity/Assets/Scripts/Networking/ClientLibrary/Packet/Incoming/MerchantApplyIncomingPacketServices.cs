@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class MerchantApplyIncomingPacketServices
 {
-    public static DealerWindow Dealer => GameApplyIncomingPacketServices.Dealer;
+    public static DealerWindow Dealer => IncomingPacketLocatorApplyIncomingPacketServices.Dealer;
 
     public static void Queue(Action action) =>
         IncomingPacketQueueApplyIncomingPacketServices.Queue(action);

@@ -4,5 +4,5 @@
 public static class PositionApplyIncomingPacketServices
 {
     public static PositionValidationController PositionValidation =>
-        UiApplyIncomingPacketServices.PositionValidation;
+        IncomingPacketLocatorApplyIncomingPacketServices.PositionValidation;
 }
