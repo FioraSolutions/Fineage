@@ -87,6 +87,23 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        ZoneEnchantRequestCommand enchantRequest = command as ZoneEnchantRequestCommand;
+        if (enchantRequest != null)
+        {
+            ZoneV2Client.Ensure().SendEnchantRequest(enchantRequest.ScrollObjectId);
+            return true;
+        }
+
+        RequestEnchantItemCommand enchantItem = command as RequestEnchantItemCommand;
+        if (enchantItem != null)
+        {
+            if (enchantItem.ObjectId < 0)
+                ZoneV2Client.Ensure().SendEnchantCancel();
+            else
+                ZoneV2Client.Ensure().SendEnchantConfirm(enchantItem.ObjectId);
+            return true;
+        }
+
         UnequipItemCommand unequip = command as UnequipItemCommand;
         if (unequip != null)
         {

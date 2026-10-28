@@ -197,7 +197,8 @@ public static class ZoneV2DomainMap
                     Kind = row.Kind,
                     Icon = row.Icon,
                     WeaponType = row.WeaponType,
-                    ArmorType = row.ArmorType
+                    ArmorType = row.ArmorType,
+                    EnchantLevel = row.EnchantLevel
                 };
                 AddZoneRow(entry, row.Change, bag, equip, ref indexBag, ref indexEquip);
             }
@@ -231,7 +232,7 @@ public static class ZoneV2DomainMap
             category,
             worn,
             slot,
-            0,
+            row.EnchantLevel,
             9999);
         if (zoneChange >= 0)
             item.LastChange = MapZoneInventoryChange(zoneChange);

@@ -168,6 +168,25 @@ public static class ZoneV2MsgPack
         return b == 0xc0 || (b & 0xe0) == 0xa0 || b == 0xd9 || b == 0xda || b == 0xdb;
     }
 
+    /// <summary>True when the next value is an int (fixint, int8/16/32, uint8/16/32). A string at the same key is left for the caller to skip.</summary>
+    public static bool IsInt(byte[] buf, int index)
+    {
+        if (buf == null || index < 0 || index >= buf.Length)
+            return false;
+        byte b = buf[index];
+        if (b <= 0x7f || b >= 0xe0)
+            return true;
+        return b == 0xd0 || b == 0xd1 || b == 0xd2 || b == 0xcc || b == 0xcd || b == 0xce;
+    }
+
+    public static bool IsArray(byte[] buf, int index)
+    {
+        if (buf == null || index < 0 || index >= buf.Length)
+            return false;
+        byte b = buf[index];
+        return (b & 0xf0) == 0x90 || b == 0xdc || b == 0xdd;
+    }
+
     public static void SkipValues(byte[] buf, ref int i, int count)
     {
         for (int n = 0; n < count; n++)

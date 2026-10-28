@@ -38,6 +38,12 @@ public enum ZoneV2MsgType : ushort
     PartyLeaveRequest = 26,
     /// <summary>Leader kick. Backend <c>PartyKickRequestMsg</c> key 0 targetObjectId.</summary>
     PartyKickRequest = 27,
+    /// <summary>Select an enchant scroll. Backend <c>EnchantRequestMsg</c> key 0 scroll object id.</summary>
+    EnchantRequest = 39,
+    /// <summary>Enchant the chosen weapon or armor. Backend <c>EnchantConfirmMsg</c> key 0 target object id.</summary>
+    EnchantConfirm = 40,
+    /// <summary>Close the enchant window. Backend <c>EnchantCancelMsg</c> is an empty array.</summary>
+    EnchantCancel = 41,
 
     HelloAck = 1001,
     AuthOk = 1002,
@@ -76,6 +82,11 @@ public enum ZoneV2MsgType : ushort
     PartyMemberList = 1029,
     /// <summary>System line. Keys 0 id, 1 params, 2 text. Chat band 1040–1049; 1041–1049 are reserved.</summary>
     SystemMessage = 1040,
+    /// <summary>
+    /// Enchant roll or cancel. Keys 0 result, 1 level after the attempt, 2 target object id, 3 crystal item id, 4 crystal count.
+    /// Result 0 cancel, 1 success, 2 keep, 3 reset, 4 crystallize.
+    /// </summary>
+    EnchantResult = 1060,
 
     Error = 1099
 }
