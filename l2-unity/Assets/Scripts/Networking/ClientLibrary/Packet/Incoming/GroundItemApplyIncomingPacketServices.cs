@@ -1,7 +1,7 @@
 /// <summary>
-/// Ground-item world apply hub (#142 batch slice 165; locator slice 166).
+/// Ground-item world apply hub (#142 batch slice 165; presence hub slice 167).
 /// </summary>
 public static class GroundItemApplyIncomingPacketServices
 {
-    public static World GameWorld => IncomingPacketLocatorApplyIncomingPacketServices.GameWorld;
+    public static World GameWorld => PresenceApplyIncomingPacketServices.GameWorld;
 }
