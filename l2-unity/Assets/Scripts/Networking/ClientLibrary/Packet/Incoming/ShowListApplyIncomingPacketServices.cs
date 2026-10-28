@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class ShowListApplyIncomingPacketServices
 {
-    public static ShowListWindow ShowList => UiApplyIncomingPacketServices.ShowList;
+    public static ShowListWindow ShowList => IncomingPacketLocatorApplyIncomingPacketServices.ShowList;
 
     public static void Queue(Action action) =>
         IncomingPacketQueueApplyIncomingPacketServices.Queue(action);

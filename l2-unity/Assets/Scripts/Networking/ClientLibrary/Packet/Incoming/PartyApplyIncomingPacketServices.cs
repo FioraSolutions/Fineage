@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class PartyApplyIncomingPacketServices
 {
-    public static PartyInvitationWindow PartyInvite => UiApplyIncomingPacketServices.PartyInvite;
+    public static PartyInvitationWindow PartyInvite => IncomingPacketLocatorApplyIncomingPacketServices.PartyInvite;
 
     public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }

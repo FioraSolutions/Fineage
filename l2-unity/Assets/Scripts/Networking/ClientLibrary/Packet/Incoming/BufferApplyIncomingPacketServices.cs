@@ -5,7 +5,7 @@ using System;
 /// </summary>
 public static class BufferApplyIncomingPacketServices
 {
-    public static BufferPanel Buffer => UiApplyIncomingPacketServices.Buffer;
+    public static BufferPanel Buffer => IncomingPacketLocatorApplyIncomingPacketServices.Buffer;
 
     public static void Queue(Action action) => IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
 }
