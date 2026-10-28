@@ -6,17 +6,17 @@ using System;
 /// </summary>
 public static class CharSelectionInfoApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LobbyApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginApplyIncomingPacketServices.Game;
+    public static GameClient Game => LobbyApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LoginApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LobbyApplyIncomingPacketServices.Manager;
 
-    public static CharSelectWindow CharSelect => LoginApplyIncomingPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => LobbyApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => LoginApplyIncomingPacketServices.Characters;
+    public static CharacterSelector Characters => LobbyApplyIncomingPacketServices.Characters;
 
-    public static void Queue(Action action) => LoginApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => LobbyApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyCharSelectionInfo(CharSelectionInfoDto packet)
     {
