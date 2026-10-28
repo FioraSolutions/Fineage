@@ -16,13 +16,19 @@ public class SceneLoader : MonoBehaviour
     private bool _worldStreaming;
     private bool _streamingBusy;
 
-    [Inject] GameManager _gameManager;
+    GameManager _gameManager;
     [Inject] GameClient _gameClient;
-    [Inject] World _world;
 
     private GameManager Manager
     {
-        get { return _gameManager != null ? _gameManager : IncomingPacketActions.Manager; }
+        get
+        {
+            if (_gameManager != null)
+                return _gameManager;
+            if (GameManager.Instance != null)
+                return GameManager.Instance;
+            return IncomingPacketActions.Manager;
+        }
     }
 
     private GameClient Game
@@ -34,8 +40,6 @@ public class SceneLoader : MonoBehaviour
     {
         get
         {
-            if (_world != null)
-                return _world;
             if (App.GameContainer != null)
             {
                 try

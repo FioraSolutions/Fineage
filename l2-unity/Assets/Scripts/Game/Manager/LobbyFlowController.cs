@@ -19,7 +19,6 @@ public sealed class LobbyFlowController
     LoginClient Login => LoginClient.Instance;
 
     [Inject] IZoneTransport _zoneTransport;
-    [Inject] SceneLoader _sceneLoader;
 
     public void Attach(GameManager game)
     {
@@ -47,7 +46,7 @@ public sealed class LobbyFlowController
 
     private SceneLoader Scenes
     {
-        get { return _sceneLoader != null ? _sceneLoader : SceneLoader.Instance; }
+        get { return SceneLoader.Instance; }
     }
 
     private L2LoginUI LoginUi
