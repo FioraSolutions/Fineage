@@ -10,3 +10,5 @@ public static class PledgeShowMemberListDeleteApplyIncomingPacketServices
 
     public static void ApplyPledgeShowMemberListDelete(PledgeShowMemberListDeleteDto packet) =>
         Queue(() => GameApplyIncomingPacketServices.Clan.DeleteMemberData(packet));
+
+}

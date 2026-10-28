@@ -10,3 +10,5 @@ public static class PledgeShowMemberListUpdateApplyIncomingPacketServices
 
     public static void ApplyPledgeShowMemberListUpdate(PledgeShowMemberListUpdateDto packet) =>
         Queue(() => GameApplyIncomingPacketServices.Clan.UpdateMemberData(packet));
+
+}
