@@ -23,8 +23,16 @@ public static class LoginPacketServices
     public static GameClient Game =>
         _login != null ? _login.Game : IncomingPacketActions.Game;
 
-    public static GameManager Manager =>
-        _login != null ? _login.Manager : IncomingPacketActions.Manager;
+    public static GameManager Manager
+    {
+        get
+        {
+            GameManager manager = _login != null ? _login.Manager : IncomingPacketActions.Manager;
+            if (manager != null)
+                return manager;
+            return NetworkingPacketServices.Manager;
+        }
+    }
 
     public static LoginWindow LoginWindow =>
         _login != null ? _login.LoginWindow : IncomingPacketActions.LoginWindow;

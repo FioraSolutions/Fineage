@@ -9,6 +9,8 @@ using UnityEngine;
 public static class FineageLocalBackend
 {
     public const string PrefKey = "Fineage.LocalBackend";
+    public const string CharacterPrefKey = "Fineage.LocalCharacter";
+    public const string PublicPlaytestPrefKey = "Fineage.PublicPlaytest";
     public const int PlaytestScreenWidth = 1920;
     public const int PlaytestScreenHeight = 1080;
 
@@ -83,8 +85,31 @@ public static class FineageLocalBackend
             return FirstNonEmpty(
                 ArgValue("-fineageChar"),
                 Environment.GetEnvironmentVariable("FINEAGE_LOCAL_CHAR"),
-                PlayerPrefs.GetString("Fineage.LocalCharacter", ""));
+                PlayerPrefs.GetString(CharacterPrefKey, ""));
         }
+    }
+
+    /// <summary>
+    /// Editor Play RP and <c>-fineagePublic</c>. Headless <c>-fineageChar</c> still auto-enters.
+    /// </summary>
+    public static bool PublicPlaytestRequested()
+    {
+        if (HasArg("-fineagePublic"))
+            return true;
+        return PlayerPrefs.GetInt(PublicPlaytestPrefKey, 0) == 1;
+    }
+
+    /// <summary>
+    /// Drop a leftover character name so the next login opens the lobby instead of auto-pick.
+    /// Call from the main thread. Does not remove an explicit <c>-fineageChar</c> argument.
+    /// </summary>
+    public static void ClearCharacterHint()
+    {
+        Environment.SetEnvironmentVariable("FINEAGE_LOCAL_CHAR", null);
+        if (!PlayerPrefs.HasKey(CharacterPrefKey))
+            return;
+        PlayerPrefs.DeleteKey(CharacterPrefKey);
+        PlayerPrefs.Save();
     }
 
     public static bool QuitAfterSpawn
