@@ -28,7 +28,9 @@ public class GameClient : DefaultClient {
     public static GameClient Instance { get { return _instance; } }
 
     private void Awake() {
-        NetworkingPacketServices.Bind(manager: _gameManager);
+        GameManager manager = GameManager.Instance;
+        if (manager != null)
+            NetworkingPacketServices.Bind(manager: manager);
         if (_instance == null) {
             _instance = this;
         } else if (_instance != this) {

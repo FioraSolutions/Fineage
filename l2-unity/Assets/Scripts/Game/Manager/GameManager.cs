@@ -90,12 +90,27 @@ public class GameManager : MonoBehaviour, IGameManager {
         for (int i = 0; i < 30 && !App.HasContainer; i++)
             yield return null;
 
-        if (!App.HasContainer || !FineageWireConfig.UseLoginHandoff)
+        if (!FineageWireConfig.UseLoginHandoff)
             yield break;
 
         Debug.Log("[FineageLocal] auto-login account=" + account);
-        IZoneTransport transport = App.Resolve<IZoneTransport>();
-        transport.BeginSession(account, password);
+        IZoneTransport transport = null;
+        if (App.HasContainer)
+        {
+            try
+            {
+                transport = App.Resolve<IZoneTransport>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[FineageLocal] IZoneTransport resolve failed: " + ex.Message);
+            }
+        }
+
+        if (transport != null)
+            transport.BeginSession(account, password);
+        else
+            ZoneV2Client.Ensure().BeginSession(account, password);
     }
 
     #endregion

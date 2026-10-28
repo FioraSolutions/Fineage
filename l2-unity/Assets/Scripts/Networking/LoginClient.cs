@@ -64,7 +64,9 @@ public class LoginClient : DefaultClient {
     }
 
     private void Awake() {
-        NetworkingPacketServices.Bind(manager: _gameManager, login: this, loginWindow: _loginWindow);
+        GameManager manager = GameManager.Instance;
+        if (manager != null)
+            NetworkingPacketServices.Bind(manager: manager, login: this, loginWindow: _loginWindow);
         if (_instance == null) {
             _instance = this;
         } else if (_instance != this) {

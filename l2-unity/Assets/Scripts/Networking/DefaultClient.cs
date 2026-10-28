@@ -6,7 +6,6 @@ using VContainer;
 public abstract class DefaultClient : MonoBehaviour
 {
     [Inject] protected NetworkRuntime _network;
-    [Inject] protected GameManager _gameManager;
     [Inject] protected World _world;
     [Header("Connection")]
     [SerializeField] protected string _serverIp = "127.0.0.1";
@@ -40,7 +39,9 @@ public abstract class DefaultClient : MonoBehaviour
 
     private void Start()
     {
-        NetworkingPacketServices.Bind(world: _world, manager: _gameManager);
+        GameManager manager = GameManager.Instance;
+        if (manager != null)
+            NetworkingPacketServices.Bind(world: _world, manager: manager);
         World world = GameWorld;
         if (world != null && world.OfflineMode)
         {
