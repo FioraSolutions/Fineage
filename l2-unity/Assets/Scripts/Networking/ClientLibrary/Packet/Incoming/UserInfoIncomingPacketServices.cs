@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 
 /// <summary>
-/// Player character world-state incoming handler access via WorldIncomingPacketServices (#142 sub-slice 67).
+/// User info wire packet handler entry (#142 batch slice 143).
 /// </summary>
-public static class PlayerWorldIncomingPacketServices
+public static class UserInfoIncomingPacketServices
 {
     public static GameClient Game => WorldIncomingPacketServices.Game;
 
@@ -13,9 +12,6 @@ public static class PlayerWorldIncomingPacketServices
     public static IWorldDomainSink Domain => WorldIncomingPacketServices.Domain;
 
     public static void Queue(Action action) => WorldIncomingPacketServices.Queue(action);
-
-    public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        WorldIncomingPacketServices.ApplyWorld(apply);
 
     public static UserInfoDto CreateUserInfoDto() => new UserInfoDto(Game.PlayerInfo);
 
@@ -39,17 +35,4 @@ public static class PlayerWorldIncomingPacketServices
                 Game.Send(new RequestPledgeInfoCommand(userInfo.PlayerInfoInterlude.Identity.ClanId));
         });
     }
-
-    public static void ApplyStatusUpdate(int objectId, List<StatusUpdate.Attribute> attributes)
-    {
-        if (GameWorld != null)
-            GameWorld.StatusUpdate(objectId, attributes);
-    }
-
-    public static void ApplyTeleportToLocation(TeleportToLocationDto packet)
-    {
-        Queue(() => GameWorld.TeleportTo(packet.TarObjId, packet.TeleportPos));
-    }
-
-    public static void ApplyRevive(ReviveDto dto) => ApplyWorld(apply => apply.Revive(dto));
 }

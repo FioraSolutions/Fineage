@@ -2,5 +2,5 @@
 public sealed class NpcSayIncoming : IncomingWirePacket<NpcSayDto>
 {
     public override void Apply(NpcSayDto packet) =>
-        MessageIncomingPacketServices.ApplyNpcSay(packet);
+        NpcSayIncomingPacketServices.ApplyNpcSay(packet);
 }
