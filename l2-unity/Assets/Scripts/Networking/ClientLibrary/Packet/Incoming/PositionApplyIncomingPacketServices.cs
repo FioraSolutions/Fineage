@@ -1,5 +1,5 @@
 /// <summary>
-/// Position validation apply hub (#142 batch slice 162; locator slice 170).
+/// Position validation apply hub (#142 batch slice 162; position orchestration slice 196).
 /// </summary>
 public static class PositionApplyIncomingPacketServices
 {

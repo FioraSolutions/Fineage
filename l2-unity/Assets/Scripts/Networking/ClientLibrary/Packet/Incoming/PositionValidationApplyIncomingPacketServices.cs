@@ -6,5 +6,5 @@
 public static class PositionValidationApplyIncomingPacketServices
 {
     public static void ApplyValidateLocation(ValidateLocationDto packet) =>
-        UiApplyIncomingPacketServices.PositionValidation.AddValidateLocation(packet);
+        PositionApplyIncomingPacketServices.PositionValidation.AddValidateLocation(packet);
 }
