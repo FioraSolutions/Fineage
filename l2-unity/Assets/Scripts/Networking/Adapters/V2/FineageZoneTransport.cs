@@ -156,6 +156,69 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        ClanCreateRequestCommand createClan = command as ClanCreateRequestCommand;
+        if (createClan != null)
+        {
+            ZoneV2Client.Ensure().SendClanCreateRequest(createClan.Name);
+            return true;
+        }
+
+        ClanInviteRequestCommand inviteClan = command as ClanInviteRequestCommand;
+        if (inviteClan != null)
+        {
+            ZoneV2Client.Ensure().SendClanInviteRequest(inviteClan.TargetObjectId, inviteClan.PledgeType);
+            return true;
+        }
+
+        RequestJoinPledgeCommand joinPledge = command as RequestJoinPledgeCommand;
+        if (joinPledge != null)
+        {
+            ZoneV2Client.Ensure().SendClanInviteRequest(joinPledge.ObjectId, ZoneV2ClanBook.MainPledge);
+            return true;
+        }
+
+        ClanAnswerJoinRequestCommand answerClan = command as ClanAnswerJoinRequestCommand;
+        if (answerClan != null)
+        {
+            if (answerClan.RequestorObjectId > 0)
+                ZoneV2Client.Ensure().SendClanAnswerJoinRequest(answerClan.RequestorObjectId, answerClan.Response);
+            return true;
+        }
+
+        if (command is ClanLeaveRequestCommand || command is RequestWithdrawPledgeCommand)
+        {
+            ZoneV2Client.Ensure().SendClanLeaveRequest();
+            return true;
+        }
+
+        ClanKickRequestCommand kickClan = command as ClanKickRequestCommand;
+        if (kickClan != null)
+        {
+            ZoneV2Client.Ensure().SendClanKickRequest(kickClan.TargetObjectId);
+            return true;
+        }
+
+        RequestOustPledgeMemberCommand oustPledge = command as RequestOustPledgeMemberCommand;
+        if (oustPledge != null)
+        {
+            ZoneV2PledgeMember member;
+            if (ZoneV2ClanBook.Shared.TryMemberByName(oustPledge.MemberName, out member))
+                ZoneV2Client.Ensure().SendClanKickRequest(member.ObjectId);
+            return true;
+        }
+
+        if (command is ClanDissolveRequestCommand)
+        {
+            ZoneV2Client.Ensure().SendClanDissolveRequest();
+            return true;
+        }
+
+        if (command is ClanCancelDissolveRequestCommand)
+        {
+            ZoneV2Client.Ensure().SendClanCancelDissolveRequest();
+            return true;
+        }
+
         RequestUserCommandCommand userCommand = command as RequestUserCommandCommand;
         if (userCommand != null)
         {
