@@ -117,6 +117,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         {
             string loginHost = FineageWireConfig.LoginHost;
             int loginPort = FineageWireConfig.LoginPort;
+            if (FineageWireConfig.IsPublicLoginHost(loginHost))
+            {
+                FineageLocalBackend.ClearCharacterHint();
+                Debug.Log("[FineageLocal] public lobby login " + loginHost + ":" + loginPort);
+                Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
+                return;
+            }
+
             string character = FineageLocalBackend.CharacterHint;
             if (!string.IsNullOrEmpty(character))
             {

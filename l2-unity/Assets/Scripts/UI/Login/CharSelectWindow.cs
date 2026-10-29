@@ -179,7 +179,7 @@ public class CharSelectWindow : L2Window {
         if (index < 0 || index >= _lobbyCharacters.Count)
         {
             SetEmptyData();
-            ShowLobbyStatus(_lobbyCharacters.Count == 0 ? "No characters yet." : "");
+            ShowLobbyStatus(_lobbyCharacters.Count == 0 ? LobbyCharacterText.EmptyRosterStatus : "");
             RefreshLobbyActions();
             return;
         }
@@ -246,7 +246,7 @@ public class CharSelectWindow : L2Window {
         if (_lobbyCharacters.Count == 0)
         {
             SetEmptyData();
-            ShowLobbyStatus("No characters yet.");
+            ShowLobbyStatus(LobbyCharacterText.EmptyRosterStatus);
         }
 
         RefreshLobbyActions();

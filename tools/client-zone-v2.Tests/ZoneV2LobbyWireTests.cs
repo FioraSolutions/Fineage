@@ -300,6 +300,27 @@ public class ZoneV2LobbyWireTests
         Assert.Equal("Characters cannot be created on this server.", LobbyCharacterText.ErrorMessage("create_not_allowed", null));
     }
 
+    [Fact]
+    public void Empty_roster_maps_to_create_ui_status_not_login_overlay()
+    {
+        LobbyCharacter[] empty = LobbyCharacterMap.FromSummaries(Array.Empty<ZoneV2CharacterSummary>());
+        Assert.Empty(empty);
+        Assert.Equal(-1, LobbyCharacterMap.PreferredIndex(empty, 0));
+        Assert.True(LobbyCharacterText.CanCreate(0));
+        Assert.Equal("No characters yet.", LobbyCharacterText.EmptyRosterStatus);
+        Assert.NotEqual("No characters on this account.", LobbyCharacterText.EmptyRosterStatus);
+    }
+
+    [Fact]
+    public void Public_login_host_is_evpoint_not_loopback()
+    {
+        Assert.True(FineageWireConfig.IsPublicLoginHost(PlaytestEndpoint.DefaultLoginHost));
+        Assert.Equal("login.fineage.evpoint.by", PlaytestEndpoint.DefaultLoginHost);
+        Assert.Equal(2106, PlaytestEndpoint.DefaultLoginPort);
+        Assert.False(FineageWireConfig.IsPublicLoginHost("127.0.0.1"));
+        Assert.False(FineageWireConfig.IsPublicLoginHost("localhost"));
+    }
+
     static byte[] Pack<T>(T message)
     {
         return MessagePackSerializer.Serialize(message);
