@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -60,9 +61,9 @@ public static class FineageWireConfig
         int zonePort)
     {
         SetOverride(Mode.ZoneV2);
-        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? PlaytestEndpoint.DefaultLoginHost : loginHost;
+        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? PlaytestEndpoint.DefaultLoginHost : loginHost.Trim();
         LoginPort = loginPort > 0 ? loginPort : PlaytestEndpoint.DefaultLoginPort;
-        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? PlaytestEndpoint.DefaultGameHost : zoneHost;
+        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? PlaytestEndpoint.DefaultGameHost : zoneHost.Trim();
         ZonePort = zonePort > 0 ? zonePort : PlaytestEndpoint.DefaultGamePort;
         UseLoginHandoff = true;
     }
@@ -95,5 +96,27 @@ public static class FineageWireConfig
     public static bool IsZoneV2
     {
         get { return Current == Mode.ZoneV2; }
+    }
+
+    /// <summary>Public playtest login TCP (e.g. login.fineage.evpoint.by:2106). Not loopback or localhost.</summary>
+    public static bool IsPublicLoginHost(string host)
+    {
+        if (string.IsNullOrWhiteSpace(host))
+            return false;
+        string trimmed = host.Trim();
+        if (trimmed == "127.0.0.1" || trimmed == "::1" || trimmed == "0.0.0.0")
+            return false;
+        if (trimmed.StartsWith("127.", StringComparison.Ordinal))
+            return false;
+        return !string.Equals(trimmed, "localhost", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Log In must call zone <c>BeginSession</c> when ZoneV2, login handoff, or the
+    /// transport bypasses Interlude — even if <c>LoginClient</c> is already connected.
+    /// </summary>
+    public static bool LoginPressStartsZoneSession(bool transportBypassesInterludeLogin)
+    {
+        return UseLoginHandoff || IsZoneV2 || transportBypassesInterludeLogin;
     }
 }

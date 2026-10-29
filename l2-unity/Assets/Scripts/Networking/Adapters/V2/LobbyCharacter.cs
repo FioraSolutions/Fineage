@@ -90,6 +90,7 @@ public static class LobbyCharacterMap
 public static class LobbyCharacterText
 {
     public const int CharMaxNumber = 7;
+    public const string EmptyRosterStatus = "No characters yet.";
     public const int RaceHuman = 0;
     public const int ClassFighter = 0;
     public const int ClassMystic = 10;
