@@ -121,4 +121,13 @@ public static class FineageWireConfig
     {
         get { return Current == Mode.ZoneV2; }
     }
+
+    /// <summary>
+    /// Log In must call zone <c>BeginSession</c> when ZoneV2, login handoff, or the
+    /// transport bypasses Interlude — even if <c>LoginClient</c> is already connected.
+    /// </summary>
+    public static bool LoginPressStartsZoneSession(bool transportBypassesInterludeLogin)
+    {
+        return UseLoginHandoff || IsZoneV2 || transportBypassesInterludeLogin;
+    }
 }
