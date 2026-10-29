@@ -57,6 +57,10 @@ def zip_tree(source: Path, output: Path) -> None:
             mode = stat.S_IMODE(path.stat().st_mode)
             info.create_system = 3
             info.external_attr = (mode & 0xFFFF) << 16
+            # ZipInfo.from_file defaults to ZIP_STORED; archive.open(info) honours the
+            # entry's compress_type, not the archive default. Without this the Windows
+            # zip exceeded GitHub's 2 GiB release-asset limit.
+            info.compress_type = zipfile.ZIP_DEFLATED
             with archive.open(info, "w") as dest, path.open("rb") as src:
                 while True:
                     chunk = src.read(1024 * 1024)
