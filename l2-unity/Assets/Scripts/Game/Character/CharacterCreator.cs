@@ -268,13 +268,11 @@ public class CharacterCreator : MonoBehaviour
         {
             var hair1M = Models.GetHair(raceId, hairStyle, hairColor, false);
             var hair2M = Models.GetHair(raceId, hairStyle, hairColor, true);
-            if(hair1M != null & hair2M != null)
+            if (hair1M != null || hair2M != null)
             {
-                GameObject hair1 = Instantiate(hair1M);
-                GameObject hair2 = Instantiate(hair2M);
+                GameObject hair1 = hair1M != null ? Instantiate(hair1M) : null;
+                GameObject hair2 = hair2M != null ? Instantiate(hair2M) : null;
                 UserGear gear = pawnObject.GetComponent<UserGear>();
-                //GameObject face = Instantiate(ModelTable.Instance.GetFace(raceId, hair1));
-                // gear.EquipHair1(hair1);
                 gear.EquipHair(hair1, hair2);
             }
 

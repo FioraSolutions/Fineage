@@ -28,8 +28,6 @@ public class NpcStateBase : StateMachineBehaviour {
     }
 
     public void SetBool(string name, bool value) {
-        if(animator.GetBool(name) != value) {
-            animator.SetBool(name, value);
-        }
+        AnimatorBoolSet.SetIfExists(animator, name, value);
     }
 }

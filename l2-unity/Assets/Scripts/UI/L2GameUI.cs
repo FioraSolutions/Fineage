@@ -239,6 +239,12 @@ public class L2GameUI : L2UI
             PartyMemberListWindow.Instance.AddWindow(_rootVisualContainer);
         }
 
+        if (ClanAskJoinWindow.Instance != null)
+        {
+            ClanAskJoinWindow.Instance.AddWindow(_rootVisualContainer);
+            ClanAskJoinWindow.Instance.HideWindow();
+        }
+        
         if (TradeRequestWindow.Instance != null)
         {
             TradeRequestWindow.Instance.AddWindow(_rootVisualContainer);

@@ -224,8 +224,8 @@ public class MemberInfoContent : AbstractClanContent
     {
         if (items == null)
         {
-            dropdown.value = null;
-            dropdown.choices = null;
+            dropdown.choices = new List<string>();
+            dropdown.SetValueWithoutNotify(string.Empty);
         }
         else
         {

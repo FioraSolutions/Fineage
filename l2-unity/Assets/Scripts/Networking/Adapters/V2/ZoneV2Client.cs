@@ -39,10 +39,18 @@ public sealed class ZoneV2Client : MonoBehaviour
     private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 
     readonly ConcurrentQueue<Action> _main = new ConcurrentQueue<Action>();
+    readonly object _lobbyGate = new object();
     CancellationTokenSource _cts;
     TcpClient _tcp;
     NetworkStream _stream;
     readonly object _sendLock = new object();
+    FineageLobbySession _lobby;
+    int _preselectId;
+    int _selectGeneration;
+    int _lobbyEpoch;
+    volatile bool _zoneStarted;
+    bool _selectUiShown;
+    bool _returnToSelectOnRoster;
 
     public bool Connected { get; private set; }
     public int SessionObjectId { get; private set; } = 1;
@@ -89,25 +97,320 @@ public sealed class ZoneV2Client : MonoBehaviour
                 Debug.LogError("[ZoneV2] main-thread: " + ex);
             }
         }
+
+        ZoneV2GearSession.FlushPending();
+        ZoneV2ChatFeed.Flush();
+        ZoneV2NpcWindows.Tick();
     }
 
     public void BeginSession(string account, string password)
     {
         Disconnect();
+        ZoneV2NpcSession.Reset();
+        ZoneV2ClanBook.Shared.Reset();
+        try
+        {
+            ClanPacketServices.RefreshWindow();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[ZoneV2] clan window refresh skipped: " + ex.Message);
+        }
+        _preselectId = 0;
+        _selectGeneration++;
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
         if (FineageWireConfig.UseLoginHandoff)
         {
             string loginHost = FineageWireConfig.LoginHost;
             int loginPort = FineageWireConfig.LoginPort;
+            if (FineageWireConfig.IsPublicLoginHost(loginHost))
+            {
+                FineageLocalBackend.ClearCharacterHint();
+                Debug.Log("[FineageLocal] public lobby login " + loginHost + ":" + loginPort);
+                Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
+                return;
+            }
+
             string character = FineageLocalBackend.CharacterHint;
-            Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
+            if (!string.IsNullOrEmpty(character))
+            {
+                Debug.Log("[FineageLocal] auto-pick character='" + character + "'");
+                Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
+                return;
+            }
+
+            Debug.Log("[FineageLocal] lobby login " + loginHost + ":" + loginPort);
+            Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
             return;
         }
 
         string host = FineageWireConfig.ZoneHost;
         int port = FineageWireConfig.ZonePort;
         Task.Run(() => RunSessionAsync(host, port, account, password, ct));
+    }
+
+    async Task OpenLobbyAsync(string loginHost, int loginPort, string account, string password, CancellationToken ct)
+    {
+        int epoch = _lobbyEpoch;
+        FineageLobbySession session = new FineageLobbySession(ct);
+        session.Roster = rows => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            ApplyLobbyRoster(rows);
+        });
+        session.Handoff = handoff =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            HandleLobbyHandoff(handoff, ct);
+        };
+        session.Failed = (code, message) => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            ShowLobbyError(code, message);
+        });
+        session.Created = created => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            _preselectId = created.CharacterId;
+        });
+        session.DeleteFailed = failed => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            ShowLobbyError(failed.Code, failed.Message);
+        });
+        session.Lost = reason => Post(() =>
+        {
+            if (epoch != _lobbyEpoch)
+                return;
+            OnLobbyLost(reason);
+        });
+        lock (_lobbyGate)
+            _lobby = session;
+
+        try
+        {
+            await session.ConnectAsync(loginHost, loginPort, account, password).ConfigureAwait(false);
+            Post(() => Debug.Log("[FineageLocal] lobby ready account=" + session.Account));
+        }
+        catch (OperationCanceledException)
+        {
+            session.Close();
+        }
+        catch (Exception ex)
+        {
+            session.Close();
+            lock (_lobbyGate)
+            {
+                if (_lobby == session)
+                    _lobby = null;
+            }
+
+            Post(() =>
+            {
+                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                if (LoginWindow.Instance != null)
+                    LoginWindow.Instance.ShowErrorText(ex.Message);
+            });
+        }
+    }
+
+    void ApplyLobbyRoster(ZoneV2CharacterSummary[] rows)
+    {
+        LobbyCharacter[] characters = LobbyCharacterMap.FromSummaries(rows);
+        int preselect = _preselectId;
+        _preselectId = 0;
+        if (CharSelectWindow.Instance != null)
+            CharSelectWindow.Instance.SetLobbyCharacters(characters);
+        if (CharacterSelector.Instance != null)
+            CharacterSelector.Instance.SetLobbyCharacters(characters, preselect);
+        if (CharSelectWindow.Instance != null)
+            CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, preselect));
+
+        bool returnFromCreate = _returnToSelectOnRoster;
+        _returnToSelectOnRoster = false;
+        if (_selectUiShown && !returnFromCreate)
+            return;
+        _selectUiShown = true;
+        if (LoginWindow.Instance != null)
+            LoginWindow.Instance.ShowErrorText("");
+        GameManager manager = Manager;
+        if (manager != null)
+            manager.OnAuthAllowed();
+        else
+            Debug.LogError("[FineageLocal] GameManager missing; character select was not shown.");
+        Debug.Log("[FineageLocal] roster count=" + (characters != null ? characters.Length : 0));
+    }
+
+    void HandleLobbyHandoff(ZoneV2Handoff handoff, CancellationToken ct)
+    {
+        if (_zoneStarted)
+            return;
+        _zoneStarted = true;
+        _selectGeneration++;
+        if (string.IsNullOrWhiteSpace(handoff.ZoneHost))
+            handoff.ZoneHost = FineageWireConfig.ZoneHost;
+        if (handoff.ZonePort <= 0)
+            handoff.ZonePort = FineageWireConfig.ZonePort;
+
+        string prefix = handoff.Token != null && handoff.Token.StartsWith("fa1.", StringComparison.Ordinal)
+            ? "fa1."
+            : "missing";
+        int tokenLength = handoff.Token != null ? handoff.Token.Length : 0;
+        Post(() =>
+        {
+            Debug.Log("[FineageLocal] handoff character=" + handoff.CharacterName
+                + " zone=" + handoff.ZoneHost + ":" + handoff.ZonePort
+                + " tokenPrefix=" + prefix
+                + " tokenLength=" + tokenLength);
+            if (CharSelectWindow.Instance != null)
+                CharSelectWindow.Instance.ShowLobbyStatus("Entering the world...");
+        });
+
+        CloseLobby();
+        // Zone Auth uses the handoff token. The account password is not in this call.
+        Task.Run(() => RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct));
+    }
+
+    void ShowLobbyError(string code, string message)
+    {
+        _selectGeneration++;
+        string text = LobbyCharacterText.ErrorMessage(code, message);
+        Debug.LogWarning("[FineageLocal] lobby " + code + ": " + message);
+        if (_returnToSelectOnRoster)
+        {
+            _returnToSelectOnRoster = false;
+            CharCreationWindow creation = CharCreationWindow.Instance;
+            if (creation != null && creation.IsOpen)
+            {
+                creation.SetlabelError(text);
+                return;
+            }
+        }
+
+        if (CharSelectWindow.Instance != null)
+        {
+            CharSelectWindow.Instance.ShowLobbyStatus(text);
+            CharSelectWindow.Instance.RefreshLobbyActions();
+        }
+        else if (LoginWindow.Instance != null)
+            LoginWindow.Instance.ShowErrorText(text);
+    }
+
+    void OnLobbyLost(string reason)
+    {
+        if (_zoneStarted)
+            return;
+        Debug.LogWarning("[FineageLocal] lobby closed: " + reason);
+        CloseLobby();
+        if (CharSelectWindow.Instance != null)
+            CharSelectWindow.Instance.ShowLobbyStatus(reason);
+        GameManager manager = Manager;
+        if (manager != null && _selectUiShown)
+            manager.OnRelogin();
+        else if (LoginWindow.Instance != null)
+            LoginWindow.Instance.ShowErrorText(reason);
+    }
+
+    public void SelectLobbyCharacter(LobbyCharacter character)
+    {
+        if (character == null || !LobbyCharacterText.CanEnter(character))
+            return;
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return;
+        int generation = ++_selectGeneration;
+        session.SendSelect(character.Id > 0 ? character.Id : 0, character.Name, character.Id > 0 ? -1 : character.Slot);
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(2000).ConfigureAwait(false);
+            }
+            catch
+            {
+                return;
+            }
+
+            Post(() =>
+            {
+                if (generation != _selectGeneration || _zoneStarted)
+                    return;
+                if (CharSelectWindow.Instance != null)
+                {
+                    CharSelectWindow.Instance.ShowLobbyStatus("The server did not enter the world. Try again.");
+                    CharSelectWindow.Instance.RefreshLobbyActions();
+                }
+            });
+        });
+    }
+
+    public void DeleteLobbyCharacter(LobbyCharacter character)
+    {
+        if (character == null)
+            return;
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return;
+        if (character.Id > 0)
+            session.SendDelete(-1, character.Id);
+        else
+            session.SendDelete(character.Slot, 0);
+    }
+
+    public void RestoreLobbyCharacter(LobbyCharacter character)
+    {
+        if (character == null)
+            return;
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return;
+        if (character.Id > 0)
+            session.SendRestore(-1, character.Id);
+        else
+            session.SendRestore(character.Slot, 0);
+    }
+
+    public bool CreateLobbyCharacter(string name, int classId, int race, int sex, int hairStyle, int hairColor, int face)
+    {
+        FineageLobbySession session = Lobby;
+        if (session == null)
+            return false;
+        _returnToSelectOnRoster = true;
+        session.SendCreate(name, classId, race, sex, hairStyle, hairColor, face);
+        return true;
+    }
+
+    public void CancelLobbyCreate()
+    {
+        _returnToSelectOnRoster = false;
+    }
+
+    public void CloseLobby()
+    {
+        FineageLobbySession session;
+        lock (_lobbyGate)
+        {
+            session = _lobby;
+            _lobby = null;
+        }
+
+        if (session != null)
+            session.Close();
+    }
+
+    FineageLobbySession Lobby
+    {
+        get
+        {
+            lock (_lobbyGate)
+                return _lobby;
+        }
     }
 
     async Task RunLoginThenZoneAsync(
@@ -134,6 +437,18 @@ public sealed class ZoneV2Client : MonoBehaviour
         {
             return;
         }
+        catch (FineageEmptyRosterException)
+        {
+            Post(() =>
+            {
+                Debug.Log("[FineageLocal] empty roster → CharSelect");
+                FineageLocalBackend.ClearCharacterHint();
+                if (LoginWindow.Instance != null)
+                    LoginWindow.Instance.ShowErrorText("");
+            });
+            await OpenLobbyAsync(loginHost, loginPort, account, password, ct).ConfigureAwait(false);
+            return;
+        }
         catch (Exception ex)
         {
             Post(() =>
@@ -151,6 +466,11 @@ public sealed class ZoneV2Client : MonoBehaviour
 
     public void Disconnect()
     {
+        _lobbyEpoch++;
+        CloseLobby();
+        _selectUiShown = false;
+        _zoneStarted = false;
+        _returnToSelectOnRoster = false;
         try
         {
             _cts?.Cancel();
@@ -182,6 +502,8 @@ public sealed class ZoneV2Client : MonoBehaviour
 
         _stream = null;
         _tcp = null;
+        ZoneV2GearSession.Reset();
+        ZoneV2ChatFeed.Reset();
     }
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)
@@ -214,16 +536,6 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.AttackRequest, body);
     }
 
-    public void SendSay(string text, int chatType)
-    {
-        if (!Connected || _stream == null)
-            return;
-        if (string.IsNullOrWhiteSpace(text))
-            return;
-        byte[] body = ZoneV2Messages.EncodeSay(text.Trim(), chatType);
-        _ = SendFireAndForget(ZoneV2MsgType.Say, body);
-    }
-
     public void SendGrantItemRequest(int itemId, int count)
     {
         if (!Connected || _stream == null || itemId <= 0)
@@ -238,6 +550,30 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         byte[] body = ZoneV2Messages.EncodePickupRequest(groundObjectId);
         _ = SendFireAndForget(ZoneV2MsgType.PickupRequest, body);
+    }
+
+    public void SendUseItem(int objectId)
+    {
+        if (!Connected || _stream == null || objectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeUseItem(objectId);
+        _ = SendFireAndForget(ZoneV2MsgType.UseItem, body);
+    }
+
+    public void SendUnequipItem(int paperdollSlot)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeUnequipItem(paperdollSlot);
+        _ = SendFireAndForget(ZoneV2MsgType.UnequipItem, body);
+    }
+
+    public void SendGiveItem(int itemId, int count)
+    {
+        if (!Connected || _stream == null || itemId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeGiveItem(itemId, count);
+        _ = SendFireAndForget(ZoneV2MsgType.GiveItem, body);
     }
 
     public void SendPartyInviteRequest(int targetObjectId, int itemDistribution = 0)
@@ -272,6 +608,126 @@ public sealed class ZoneV2Client : MonoBehaviour
         _ = SendFireAndForget(ZoneV2MsgType.PartyKickRequest, body);
     }
 
+    public void SendTradeRequest(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeRequest(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeRequest, body);
+    }
+
+    public void SendTradeAnswerRequest(int requestorObjectId, int response)
+    {
+        if (!Connected || _stream == null || requestorObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeAnswerRequest(requestorObjectId, response);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeAnswerRequest, body);
+    }
+
+    public void SendTradeAddItemRequest(int inventoryObjectId, int count)
+    {
+        if (!Connected || _stream == null || inventoryObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeAddItemRequest(inventoryObjectId, count);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeAddItemRequest, body);
+    }
+
+    public void SendTradeDoneRequest(int response)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeTradeDoneRequest(response);
+        _ = SendFireAndForget(ZoneV2MsgType.TradeDoneRequest, body);
+    }
+
+    public void SendClanCreateRequest(string name)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanCreateRequest(name);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanCreateRequest, body);
+    }
+
+    public void SendClanInviteRequest(int targetObjectId, int pledgeType)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanInviteRequest(targetObjectId, pledgeType);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanInviteRequest, body);
+    }
+
+    public void SendClanAnswerJoinRequest(int requestorObjectId, int response)
+    {
+        if (!Connected || _stream == null || requestorObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanAnswerJoinRequest(requestorObjectId, response);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanAnswerJoinRequest, body);
+    }
+
+    public void SendClanLeaveRequest()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanLeaveRequest();
+        _ = SendFireAndForget(ZoneV2MsgType.ClanLeaveRequest, body);
+    }
+
+    public void SendClanKickRequest(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanKickRequest(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.ClanKickRequest, body);
+    }
+
+    public void SendClanDissolveRequest()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanDissolveRequest();
+        _ = SendFireAndForget(ZoneV2MsgType.ClanDissolveRequest, body);
+    }
+
+    public void SendClanCancelDissolveRequest()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeClanCancelDissolveRequest();
+        _ = SendFireAndForget(ZoneV2MsgType.ClanCancelDissolveRequest, body);
+    }
+
+    public void SendEnchantRequest(int scrollObjectId)
+    {
+        if (!Connected || _stream == null || scrollObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeEnchantRequest(scrollObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.EnchantRequest, body);
+    }
+
+    public void SendEnchantConfirm(int targetObjectId)
+    {
+        if (!Connected || _stream == null || targetObjectId <= 0)
+            return;
+        byte[] body = ZoneV2Messages.EncodeEnchantConfirm(targetObjectId);
+        _ = SendFireAndForget(ZoneV2MsgType.EnchantConfirm, body);
+    }
+
+    public void SendEnchantCancel()
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeEnchantCancel();
+        _ = SendFireAndForget(ZoneV2MsgType.EnchantCancel, body);
+    }
+
+    public void SendSay(string text, int chatType)
+    {
+        if (!Connected || _stream == null)
+            return;
+        byte[] body = ZoneV2Messages.EncodeSay(text ?? "", chatType);
+        _ = SendFireAndForget(ZoneV2MsgType.Say, body);
+    }
+
     public void SendSkillUseRequest(int skillId, int targetObjectId, bool ctrlPressed)
     {
         if (!Connected || _stream == null)
@@ -294,6 +750,119 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         byte[] body = ZoneV2Messages.EncodeAdminKillPlayer();
         _ = SendFireAndForget(ZoneV2MsgType.AdminKillPlayer, body);
+    }
+
+    public void SendRequestQuestList()
+    {
+        if (!Connected || _stream == null)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestQuestList, ZoneV2Messages.EncodeRequestQuestList());
+    }
+
+    public void SendRequestQuestAbort(int questId)
+    {
+        if (!Connected || _stream == null || questId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestQuestAbort, ZoneV2Messages.EncodeRequestQuestAbort(questId));
+    }
+
+    public void SendNpcTalk(int npcObjectId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.NpcTalk, ZoneV2Messages.EncodeNpcTalk(npcObjectId));
+    }
+
+    public void SendBypass(int npcObjectId, string command)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.BypassRequest, ZoneV2Messages.EncodeBypassRequest(npcObjectId, command));
+    }
+
+    public void SendNpcLink(int npcObjectId, string command)
+    {
+        string list;
+        int location;
+        switch (ZoneV2Bypass.Classify(command, out list, out location))
+        {
+            case ZoneV2Bypass.Teleport:
+                SendTeleportSelect(npcObjectId, list, location);
+                return;
+            case ZoneV2Bypass.SupportMagic:
+                SendSupportMagic(npcObjectId);
+                return;
+            case ZoneV2Bypass.GiveBlessing:
+                SendGiveBlessing(npcObjectId);
+                return;
+            default:
+                SendBypass(npcObjectId, ZoneV2Bypass.Normalize(command));
+                return;
+        }
+    }
+
+    public void SendRequestBuyItem(int npcObjectId, int listId, ZoneV2IdCount[] items)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestBuyItem, ZoneV2Messages.EncodeRequestBuyItem(npcObjectId, listId, items));
+    }
+
+    public void SendRequestSellItem(int npcObjectId, ZoneV2IdCount[] items)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestSellItem, ZoneV2Messages.EncodeRequestSellItem(npcObjectId, items));
+    }
+
+    public void SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0 || entryId <= 0 || amount <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestMultiSellChoose,
+            ZoneV2Messages.EncodeRequestMultiSellChoose(npcObjectId, listId, entryId, amount));
+    }
+
+    public void SendRequestPreviewItem(int npcObjectId, int listId, int itemId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0 || itemId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.RequestPreviewItem, ZoneV2Messages.EncodeRequestPreviewItem(npcObjectId, listId, itemId));
+    }
+
+    public void SendTeleportSelect(int npcObjectId, string listName, int locationId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.TeleportSelectRequest, ZoneV2Messages.EncodeTeleportSelect(npcObjectId, listName, locationId));
+    }
+
+    public void SendWarehouseDeposit(int npcObjectId, ZoneV2IdCount[] lines)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.WarehouseDepositRequest, ZoneV2Messages.EncodeWarehouseDeposit(npcObjectId, lines));
+    }
+
+    public void SendWarehouseWithdraw(int npcObjectId, ZoneV2IdCount[] lines)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.WarehouseWithdrawRequest, ZoneV2Messages.EncodeWarehouseWithdraw(npcObjectId, lines));
+    }
+
+    public void SendSupportMagic(int npcObjectId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.SupportMagicRequest, ZoneV2Messages.EncodeSupportMagic(npcObjectId));
+    }
+
+    public void SendGiveBlessing(int npcObjectId)
+    {
+        if (!Connected || _stream == null || npcObjectId <= 0)
+            return;
+        _ = SendFireAndForget(ZoneV2MsgType.GiveBlessingRequest, ZoneV2Messages.EncodeGiveBlessing(npcObjectId));
     }
 
     async Task SendFireAndForget(ZoneV2MsgType type, byte[] body)
@@ -339,14 +908,19 @@ public sealed class ZoneV2Client : MonoBehaviour
                     break;
                 ZoneV2Frame f = frame.Value;
 
+                if (ZoneV2NpcWindows.TryTake(f.Type, f.Body, Post))
+                    continue;
+
                 switch (f.Type)
                 {
                     case ZoneV2MsgType.HelloAck:
-                        string credential = password != null && password.StartsWith("fa1.", StringComparison.Ordinal)
-                            ? "handoff-token"
-                            : "password";
+                        bool handoffToken = password != null && password.StartsWith("fa1.", StringComparison.Ordinal);
+                        string credential = handoffToken ? "handoff-token" : "password";
                         Post(() => Debug.Log("[ZoneV2] Auth account=" + account + " credential=" + credential));
-                        await ZoneV2FrameIO.SendAsync(stream, ZoneV2MsgType.Auth, ZoneV2Messages.EncodeAuth(account, password), ct)
+                        byte[] authBody = handoffToken
+                            ? ZoneV2Messages.EncodeZoneAuth(new ZoneV2Handoff { Account = account, Token = password })
+                            : ZoneV2Messages.EncodeAuth(account, password);
+                        await ZoneV2FrameIO.SendAsync(stream, ZoneV2MsgType.Auth, authBody, ct)
                             .ConfigureAwait(false);
                         break;
 
@@ -365,12 +939,11 @@ public sealed class ZoneV2Client : MonoBehaviour
                         }
 
                         SessionObjectId = spawned.ObjectId;
-                        PlayerInfoInterlude info = ZoneV2DomainMap.ToPlayerInfo(spawned);
                         int objectId = spawned.ObjectId;
                         int spawnX = spawned.X;
                         int spawnY = spawned.Y;
                         int spawnZ = spawned.Z;
-                        string spawnName = info.Identity != null ? info.Identity.Name : "";
+                        string spawnName = spawned.Name;
                         Post(() =>
                         {
                             Debug.Log("[ZoneV2] PlayerSpawned name=" + spawnName
@@ -378,7 +951,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                                 + " x=" + spawnX
                                 + " y=" + spawnY
                                 + " z=" + spawnZ);
-                            OnPlayerSpawnedMain(info);
+                            OnPlayerSpawnedMain(ZoneV2GearSession.PrepareSpawn(spawned));
                         });
                         break;
 
@@ -424,6 +997,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
+                        ZoneV2NpcSession.RememberNpc(npcInfo.ObjectId, npcInfo.Name, npcInfo.Attackable);
                         NpcInfoDto npcDto = ZoneV2DomainMap.ToNpcInfoDto(npcInfo);
                         Post(() => NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(npcDto));
                         break;
@@ -432,6 +1006,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                         int deleteId;
                         if (!ZoneV2Messages.TryDecodeDeleteObject(f.Body, out deleteId))
                             break;
+                        ZoneV2NpcSession.Forget(deleteId);
                         DeleteObjectDto deleteDto = new DeleteObjectDto { ObjectId = deleteId };
                         Post(() => DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(deleteDto));
                         break;
@@ -494,11 +1069,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
-                        Post(() =>
-                        {
-                            ItemListDto listDto = ZoneV2DomainMap.ToItemListDto(itemRows);
-                            ItemListApplyIncomingPacketServices.ApplyItemList(listDto);
-                        });
+                        Post(() => ZoneV2GearSession.NoteItemList(itemRows));
                         break;
 
                     case ZoneV2MsgType.InventoryUpdate:
@@ -509,41 +1080,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                             break;
                         }
 
-                        Post(() =>
-                        {
-                            InventoryUpdateDto updateDto = ZoneV2DomainMap.ToInventoryUpdateDto(invChanges);
-                            InventoryUpdateApplyIncomingPacketServices.ApplyInventoryUpdate(updateDto);
-                        });
+                        Post(() => ZoneV2GearSession.NoteInventoryUpdate(invChanges));
                         break;
 
-                    case ZoneV2MsgType.CreatureSay:
-                        ZoneV2CreatureSay creatureSay;
-                        if (!ZoneV2Messages.TryDecodeCreatureSay(f.Body, out creatureSay))
+                    case ZoneV2MsgType.UserInfo:
+                        ZoneV2UserInfo userInfo;
+                        if (!ZoneV2Messages.TryDecodeUserInfo(f.Body, out userInfo))
                         {
-                            Post(() => Debug.LogWarning("[ZoneV2] bad CreatureSay body"));
+                            Post(() => Debug.LogWarning("[ZoneV2] bad UserInfo body"));
                             break;
                         }
 
-                        Post(() =>
-                        {
-                            CreatureMessage message = ZoneV2DomainMap.ToCreatureMessage(creatureSay);
-                            CreatureSayApplyIncomingPacketServices.ApplyCreatureSay(message);
-                        });
-                        break;
-
-                    case ZoneV2MsgType.AbnormalStatusUpdate:
-                        ZoneV2AbnormalStatusUpdate abnormal;
-                        if (!ZoneV2Messages.TryDecodeAbnormalStatusUpdate(f.Body, out abnormal))
-                        {
-                            Post(() => Debug.LogWarning("[ZoneV2] bad AbnormalStatusUpdate body"));
-                            break;
-                        }
-
-                        Post(() =>
-                        {
-                            AbnormalStatusUpdateDto dto = ZoneV2DomainMap.ToAbnormalStatusUpdateDto(abnormal);
-                            AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
-                        });
+                        Post(() => ZoneV2GearSession.NoteUserInfo(userInfo));
                         break;
 
                     case ZoneV2MsgType.SkillList:
@@ -621,6 +1169,21 @@ public sealed class ZoneV2Client : MonoBehaviour
                         });
                         break;
 
+                    case ZoneV2MsgType.AbnormalStatusUpdate:
+                        ZoneV2AbnormalStatusUpdate abnormal;
+                        if (!ZoneV2Messages.TryDecodeAbnormalStatusUpdate(f.Body, out abnormal))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad AbnormalStatusUpdate body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            AbnormalStatusUpdateDto dto = ZoneV2DomainMap.ToAbnormalStatusUpdateDto(abnormal);
+                            AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
+                        });
+                        break;
+
                     case ZoneV2MsgType.PartyAskJoin:
                         ZoneV2PartyAskJoin partyAsk;
                         if (!ZoneV2Messages.TryDecodePartyAskJoin(f.Body, out partyAsk))
@@ -658,22 +1221,219 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(partyList));
                         break;
 
+                    case ZoneV2MsgType.TradeAsk:
+                        ZoneV2TradeAsk tradeAsk;
+                        if (!ZoneV2Messages.TryDecodeTradeAsk(f.Body, out tradeAsk))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeAsk body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            SendTradeRequestDto dto = ZoneV2DomainMap.ToSendTradeRequestDto(tradeAsk);
+                            SendTradeRequestApplyIncomingPacketServices.ApplySendTradeRequest(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeRequestResult:
+                        int tradeAskResult;
+                        if (!ZoneV2Messages.TryDecodeTradeRequestResult(f.Body, out tradeAskResult))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeRequestResult body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            if (tradeAskResult == 0)
+                                ZoneV2ChatFeed.NoteSystem("Trade request declined.");
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeStart:
+                        ZoneV2TradeStart tradeStart;
+                        if (!ZoneV2Messages.TryDecodeTradeStart(f.Body, out tradeStart))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeStart body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            TradeStartDto dto = ZoneV2DomainMap.ToTradeStartDto(tradeStart);
+                            TradeStartApplyIncomingPacketServices.ApplyTradeStart(dto);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeOfferUpdate:
+                        ZoneV2TradeOfferUpdate tradeOffer;
+                        if (!ZoneV2Messages.TryDecodeTradeOfferUpdate(f.Body, out tradeOffer))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeOfferUpdate body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            ItemInstance item = ZoneV2DomainMap.ToTradeOfferItem(tradeOffer);
+                            if (tradeOffer.IsOwn != 0)
+                                TradeOwnAddApplyIncomingPacketServices.ApplyOwnAdd(item);
+                            else
+                                TradeOtherAddApplyIncomingPacketServices.ApplyOtherAdd(item);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeConfirmState:
+                        ZoneV2TradeConfirmState tradeConfirm;
+                        if (!ZoneV2Messages.TryDecodeTradeConfirmState(f.Body, out tradeConfirm))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeConfirmState body"));
+                            break;
+                        }
+
+                        Post(() =>
+                        {
+                            TradePressOwnOkApplyIncomingPacketServices.ApplyPressOwnOk(tradeConfirm.SelfConfirmed != 0);
+                            TradePressOtherOkApplyIncomingPacketServices.ApplyPressOtherOk(tradeConfirm.PartnerConfirmed != 0);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.TradeFinished:
+                        int tradeFinished;
+                        if (!ZoneV2Messages.TryDecodeTradeFinished(f.Body, out tradeFinished))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad TradeFinished body"));
+                            break;
+                        }
+
+                        Post(() => TradeDoneApplyIncomingPacketServices.ApplyTradeDone());
+                        break;
+
+                    case ZoneV2MsgType.ClanAskJoin:
+                        ZoneV2ClanAskJoin clanAsk;
+                        if (!ZoneV2Messages.TryDecodeClanAskJoin(f.Body, out clanAsk))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad ClanAskJoin body"));
+                            break;
+                        }
+
+                        ZoneV2ClanAskJoin clanAskCopy = clanAsk;
+                        Post(() => ClanPacketServices.ApplyAskJoin(clanAskCopy));
+                        break;
+
+                    case ZoneV2MsgType.PledgeStatusChanged:
+                        ZoneV2PledgeStatus pledgeStatus;
+                        if (!ZoneV2Messages.TryDecodePledgeStatusChanged(f.Body, out pledgeStatus))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad PledgeStatusChanged body"));
+                            break;
+                        }
+
+                        ZoneV2PledgeStatus pledgeStatusCopy = pledgeStatus;
+                        Post(() => ClanPacketServices.ApplyStatus(pledgeStatusCopy));
+                        break;
+
+                    case ZoneV2MsgType.PledgeMemberList:
+                        ZoneV2PledgeMemberList pledgeMembers;
+                        if (!ZoneV2Messages.TryDecodePledgeMemberList(f.Body, out pledgeMembers))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad PledgeMemberList body"));
+                            break;
+                        }
+
+                        ZoneV2PledgeMemberList pledgeMembersCopy = pledgeMembers;
+                        Post(() => ClanPacketServices.ApplyMembers(pledgeMembersCopy));
+                        break;
+
+                    case ZoneV2MsgType.ClanJoinResult:
+                        int clanJoin;
+                        if (!ZoneV2Messages.TryDecodeClanJoinResult(f.Body, out clanJoin))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad ClanJoinResult body"));
+                            break;
+                        }
+
+                        int clanJoinCopy = clanJoin;
+                        Post(() => Debug.Log("[ZoneV2] ClanJoinResult response=" + clanJoinCopy));
+                        break;
+
+                    case ZoneV2MsgType.CreatureSay:
+                        ZoneV2CreatureSay said;
+                        if (!ZoneV2Messages.TryDecodeCreatureSay(f.Body, out said))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad CreatureSay body"));
+                            break;
+                        }
+
+                        ZoneV2CreatureSay saidCopy = said;
+                        Post(() =>
+                        {
+                            Debug.Log("[ZoneV2] CreatureSay type=" + saidCopy.ChatType + " name=" + saidCopy.Name);
+                            ZoneV2ChatFeed.NoteSay(saidCopy.Name, saidCopy.Text, saidCopy.ChatType);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.SystemMessage:
+                        ZoneV2SystemMessage system;
+                        if (!ZoneV2Messages.TryDecodeSystemMessage(f.Body, out system))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad SystemMessage body"));
+                            break;
+                        }
+
+                        ZoneV2SystemMessage systemCopy = system;
+                        Post(() =>
+                        {
+                            string shown = ZoneV2SystemLines.Resolve(systemCopy.Id, systemCopy.Text, systemCopy.Params);
+                            Debug.Log("[ZoneV2] SystemMessage id=" + systemCopy.Id + " text=" + shown);
+                            ZoneV2ChatFeed.NoteSystem(shown);
+                        });
+                        break;
+
+                    case ZoneV2MsgType.EnchantResult:
+                        ZoneV2EnchantResult enchantResult;
+                        if (!ZoneV2Messages.TryDecodeEnchantResult(f.Body, out enchantResult))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad EnchantResult body"));
+                            break;
+                        }
+
+                        ZoneV2EnchantResult enchantCopy = enchantResult;
+                        Post(() =>
+                        {
+                            Debug.Log("[ZoneV2] EnchantResult result=" + enchantCopy.Result
+                                + " level=" + enchantCopy.EnchantLevel
+                                + " object=" + enchantCopy.ObjectId);
+                            EnchantWindow window = EnchantWindow.Instance;
+                            if (window != null)
+                                window.ApplyZoneResult(enchantCopy);
+                        });
+                        break;
+
                     case ZoneV2MsgType.Error:
                         string code, msg;
                         if (!ZoneV2Messages.TryDecodeError(f.Body, out code, out msg))
                         {
-                            Post(() => Debug.LogError("[ZoneV2] server error (undecodable body)"));
+                            Post(() => ShowServerLine(ZoneV2EquipNotices.Line("", "")));
                             break;
                         }
 
-                        string skillLine;
-                        if (ZoneV2SkillNotices.TryLine(code, msg, out skillLine))
+                        string clanLine;
+                        bool clan = ZoneV2ClanNotices.TryLine(code, msg, out clanLine);
+                        string skillLine = string.Empty;
+                        bool skill = !clan && ZoneV2SkillNotices.TryLine(code, msg, out skillLine);
+                        string line = clan ? clanLine : skill ? skillLine : ZoneV2Enchant.Notice(code, msg);
+                        bool closeEnchant = !clan && ZoneV2Enchant.ClearsWindow(code);
+                        Post(() =>
                         {
-                            Post(() => Debug.LogWarning("[ZoneV2] " + skillLine));
-                            break;
-                        }
-
-                        Post(() => Debug.LogError("[ZoneV2] server error " + code + ": " + msg));
+                            ShowServerLine(line);
+                            if (!closeEnchant)
+                                return;
+                            EnchantWindow window = EnchantWindow.Instance;
+                            if (window != null)
+                                window.AbortZone();
+                        });
                         break;
                 }
             }
@@ -697,6 +1457,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
     }
 
+    static void ShowServerLine(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return;
+        Debug.LogWarning("[ZoneV2] " + text);
+        ZoneV2ChatFeed.NoteSystem(text);
+    }
+
     void OnPlayerSpawnedMain(PlayerInfoInterlude info)
     {
         GameClient game = GameClient.Instance;
@@ -711,6 +1479,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
 
         manager.OnCharacterSelect();
+        SendRequestQuestList();
         if (FineageLocalBackend.QuitAfterSpawn)
             StartCoroutine(QuitAfterSpawnRoutine());
     }

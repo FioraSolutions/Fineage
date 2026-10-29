@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour, IGameManager {
     [SerializeField] private GameState _gameState = GameState.LOGIN_SCREEN;
     private bool _gameReady = false;
     [SerializeField] private Camera _loadingCamera;
-    [Tooltip("Zone v2 login handoff. Runtime playtest enable still applies when this is off.")]
-    [SerializeField] private bool _useZoneServerV2 = true;
+    [Tooltip("Connect login button to ZoneServer v2 (:9777) instead of Interlude stub.")]
+    [SerializeField] private bool _useZoneServerV2 = false;
 
     #endregion
 
@@ -59,15 +59,25 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        // Fresh each enter-play. A leftover static must not keep loopback on a public session.
-        FineageWireConfig.UseLoginHandoff = false;
         if (_useZoneServerV2)
             FineageWireConfig.SetOverride(FineageWireConfig.Mode.ZoneV2);
         else
             FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
 
         FineageLocalBackend.ApplyIfRequested();
-        FineageLocalBackend.ApplyPublicPlaytestIfNeeded();
+
+        // Play RP / -fineagePublic: ZoneV2 handoff on the public login, not Interlude Blowfish.
+        if (!FineageWireConfig.UseLoginHandoff && FineageLocalBackend.PublicPlaytestRequested())
+        {
+            FineageWireConfig.EnablePlaytestBackend(
+                PlaytestEndpoint.DefaultLoginHost,
+                PlaytestEndpoint.DefaultLoginPort,
+                PlaytestEndpoint.DefaultGameHost,
+                PlaytestEndpoint.DefaultGamePort);
+            Debug.Log("[Fineage] mode=public-playtest login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+        }
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();

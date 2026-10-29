@@ -14,7 +14,7 @@ PR CI (`.github/workflows/build-and-test.yml`) does not run Unity. The release w
 
 ## Where the client connects
 
-Login defaults are `login.fineage.evpoint.by:2106` on `LoginClient` (prefab + `Connect()` applies `PlaytestEndpointRuntime`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`), then `Connect()` may replace the host with `game.fineage.evpoint.by`. `AsynchronousClient` then dials TCP.
+Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unity/Assets/Resources/Prefab/Networking.prefab` (`127.0.0.1:2106`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`). `AsynchronousClient` then dials TCP.
 
 `PlaytestEndpointRuntime` runs at the start of `Connect()`:
 
@@ -43,7 +43,7 @@ The socket accepts a DNS name, not only a dotted IP. IPv4 is preferred. The clie
 - `l2-unity/Assets/StreamingAssets/fineage-endpoint.json` (shipped, editable in the player)
 - `l2-unity/Assets/Resources/FineagePlaytest.json` (baked fallback)
 
-`scripts/bake-playtest-endpoint.py` rewrites both before a release build. Empty environment variables keep these defaults. A set variable replaces that one field.
+`scripts/bake-playtest-endpoint.py` rewrites both before a release build. Empty environment variables keep these defaults. A set variable replaces that one field. The bake refuses to write either file when a host contains `127.0.0.1` or `localhost`, when the login port is `9106`, or when the game port is `9777`. Those values are the local Fineage-Backend, not the public playtest.
 
 ## Override order
 
@@ -77,21 +77,15 @@ Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineag
 
 | Trigger | Result |
 | --- | --- |
-| Push to `main` | Build all three players. Prerelease tag `playtest-<version>`. |
+| Push to `main` | Build all three players. Tag `playtest-<version>`, published as the latest release. |
 | Tag `v*` | Build all three. Full release on that tag. `releases/latest` points here. |
-| `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. Use **mode `macos-only`** to rebuild `Fineage-macOS.zip` and attach it to an existing release without rebuilding Windows or Linux (optional `release_tag`, e.g. `playtest-0.0.3`; empty picks the newest `playtest-X.Y.Z` tag). |
+| `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. |
 
-Version comes from the tag (`v1.2.3` → `1.2.3`, `playtest-0.0.5` → `0.0.5`). On an untagged `main` push, the script finds the highest existing `vX.Y.Z` or `playtest-X.Y.Z` tag and uses the next patch (`0.0.1` when none exist). Legacy date-only or sha-suffixed playtest tags are ignored for bumping. Unity's bundle version is the same `X.Y.Z`. `version.json` keeps the full version, commit, ISO build time (`builtAt`, `builtAtLocal`, `builtAtDisplay` in Europe/Minsk), host, ports, and asset names. GitHub release title is `Fineage X.Y.Z`; the playtest git tag is `playtest-X.Y.Z`. `CHANGELOG.md` lists up to 100 commits since the previous tag and a **Built:** line with local date/time.
+Version comes from the tag, otherwise `git describe` (`0.4.1-2-gabcdef`), otherwise `0.0.0-<sha>`. Unity's bundle version is the numeric `major.minor.patch` only. `version.json` keeps the full version, commit, host, ports, and asset names. `CHANGELOG.md` lists up to 100 commits since the previous tag.
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
-After Windows is published, **Linux builds first**, then **macOS** on `macos-latest`. If the macOS job fails or is cancelled (including GitHub hosted capacity / runner not acquired), a second job retries on **`macos-14`**. Linux and macOS are separate jobs so a macOS cancellation no longer skips the attach step when Linux succeeded. Use **workflow_dispatch → mode `macos-only`** to attach a fresh Mac zip to the latest playtest release without a full rebuild. macOS jobs use `continue-on-error: true`; the attach job uploads whichever extra zips exist.
-
-Builds are serialized across Unity jobs (`Linux` then `macOS`, then optional macOS retry) so a personal Unity seat is only activated once at a time within a run.
-
-Workflow concurrency uses group `release-clients` with `cancel-in-progress: false`. A started run is allowed to finish attaching Windows, macOS, and Linux even if another push to `main` starts a newer run. That avoids Windows-only prereleases when `main` moves quickly; the tradeoff is that two overlapping runs can briefly hold two Personal seats until the older run completes.
-
-The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+Builds are serialized (`max-parallel: 1`) so a personal Unity seat is only activated once. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
 
 `Assets/` is about 2.4 GB. The Linux jobs delete preinstalled SDKs first. If a hosted runner still runs out of disk, change that matrix `runsOn` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
 
@@ -111,7 +105,7 @@ Personal ([game-ci activation](https://game.ci/docs/github/activation)) can use 
 
 Pro/Plus can use `UNITY_SERIAL` + `UNITY_EMAIL` + `UNITY_PASSWORD` instead of a Personal login or `UNITY_LICENSE`. Do not commit the `.ulf`.
 
-Playtest host secrets are optional. Unset means the Cloudflare defaults above.
+Playtest host secrets are optional. Unset means the Cloudflare defaults above. Leave them unset unless the public hosts change. Do not point a release at `127.0.0.1`, `localhost`, login port `9106`, or game port `9777`.
 
 | Secret | Override for |
 | --- | --- |
@@ -121,7 +115,7 @@ Playtest host secrets are optional. Unset means the Cloudflare defaults above.
 | `FINEAGE_LOGIN_PORT` | Login port. Default 2106. |
 | `FINEAGE_GAME_PORT` | Game port. Default 7777. |
 
-`workflow_dispatch` inputs override the matching secrets for that run.
+`workflow_dispatch` inputs override the matching secrets for that run. The prepare job (`scripts/check-release-secrets.py`) fails before Unity starts when any of those hosts contains `127.0.0.1` or `localhost`, or when the ports are the local backend ports `9106` / `9777`. `scripts/release-notes.py` and `scripts/bake-playtest-endpoint.py` refuse to write `version.json` or the shipped endpoint JSON in the same cases. `FineagePlaytest.json` in git stays on the Cloudflare hosts.
 
 ## Path from `dev`
 
@@ -129,7 +123,7 @@ Playtest host secrets are optional. Unset means the Cloudflare defaults above.
 2. Merge `dev` → `main`. The push to `main` runs `release-clients`.
 3. GitHub only lists `workflow_dispatch` after the workflow file exists on the default branch. After the first merge to `main`, Actions → release-clients → Run workflow can target `dev` and build that branch without another merge. Secrets are repository secrets, so every ref sees them.
 
-Cutting a stable download later is a `v*` tag on the commit you want (`v0.2.0`). Pushes to `main` stay prereleases and do not replace `releases/latest`.
+Cutting a stable download later is a `v*` tag on the commit you want (`v0.2.0`). Pushes to `main` publish `playtest-<version>` as a normal release and replace `releases/latest`.
 
 ## How landing consumes the release
 
@@ -143,19 +137,13 @@ Asset names are stable:
 | `CHANGELOG.md` | Notes, also the release body |
 | `version.json` | Version, commit, host, ports, asset names |
 
-Stable tag release:
+Playtest from `main` and `v*` tags are both full releases. The landing page reads the latest one:
 
 ```http
 GET https://api.github.com/repos/FioraSolutions/Fineage/releases/latest
 ```
 
-Playtest from `main` (prerelease, tag `playtest-<version>`):
-
-```http
-GET https://api.github.com/repos/FioraSolutions/Fineage/releases?per_page=20
-```
-
-Use the newest release whose `tag_name` starts with `playtest-`. Download:
+Playtest tags look like `playtest-<version>`. Download:
 
 ```text
 https://github.com/FioraSolutions/Fineage/releases/download/<tag>/<file>
@@ -163,6 +151,6 @@ https://github.com/FioraSolutions/Fineage/releases/download/<tag>/<file>
 
 The landing page is `https://fineage.evpoint.by`. It should link the zips from the GitHub Release, not proxy the game TCP ports.
 
-`version.json` fields: `version`, `unityVersion`, `commit`, `ref`, `releaseTag`, `prerelease`, `builtAt` (UTC ISO-8601), `builtAtLocal` (Europe/Minsk ISO-8601), `builtAtDisplay` (human local time), `host`, `landingUrl`, `loginHost`, `gameHost`, `loginPort`, `gamePort`, `gamePortMeaning` (`override` when the client forces the game port, which the default 7777 does), `assets[]` (`id`, `file`).
+`version.json` fields: `version`, `unityVersion`, `commit`, `ref`, `releaseTag`, `prerelease`, `host`, `landingUrl`, `loginHost`, `gameHost`, `loginPort`, `gamePort`, `gamePortMeaning` (`override` when the client forces the game port, which the default 7777 does), `assets[]` (`id`, `file`).
 
 Read `version.json` before linking the zips so the page can show the build version, changelog, and which login and game hosts that client was baked for.

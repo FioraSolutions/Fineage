@@ -5,6 +5,7 @@ public class QuestInstance
     private int _questID;
     private int _flags;
     private int _repeat;
+    private string _wireName = "";
 
     public int QuestID => _questID;
     public int Status => _flags;
@@ -23,6 +24,14 @@ public class QuestInstance
         _repeat = repeat;
     }
 
+    public QuestInstance(int qId, int flags, int repeat, string wireName)
+    {
+        _questID = qId;
+        _flags = flags;
+        _repeat = repeat;
+        _wireName = wireName ?? "";
+    }
+
     public bool IsComplete()
     {
         return _flags == 0;
@@ -38,7 +47,12 @@ public class QuestInstance
         return GetQuestName()?.Repeat == 1;
     }
 
-    public string QuestName() => GetQuestName()?.Main_name ?? "";
+    public string QuestName()
+    {
+        if (!string.IsNullOrEmpty(_wireName))
+            return _wireName;
+        return GetQuestName()?.Main_name ?? "";
+    }
 
     public string LevelRange() => GetQuestName()?.GetLevelRange() ?? "";
 

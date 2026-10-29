@@ -88,6 +88,8 @@ public class L2LoginUI : L2UI
         ServerWin.HideWindow();
         // Early pass (menu-only). SceneLoader runs a second pass after additive l2_lobby.
         LobbyBrokenMaterialHider.HideBrokenRenderers("login_ui_load");
+        InterludeSplashPlayer.Present(RootElement);
+        InterludeLoginProof.Arm(RootElement);
         StartCoroutine(ShowLoginWhenReady());
         try
         {
@@ -128,6 +130,7 @@ public class L2LoginUI : L2UI
     }
 
     public void ShowCharSelectWindow() {
+        LoginWin.ShowErrorText("");
         LoginWin.HideWindow();
         CharCreateWin.HideWindow();
         CharSelectWin.ShowWindow();

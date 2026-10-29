@@ -142,8 +142,7 @@ public static class FineageLocalMacBuild
             + "Simple open (uses baked 1920x1080 default from build; may differ if macOS restored another size):\n"
             + "  open \"" + app + "\"\n"
             + "\n"
-            + "This player defaults to 127.0.0.1. Pass -fineagePublic for public playtest ZoneV2 handoff ("
-            + PlaytestEndpoint.DefaultLoginHost + ":" + PlaytestEndpoint.DefaultLoginPort + ").\n"
-            + "Release builds and editor Play RP use that public handoff. -fineageLocal selects 127.0.0.1.\n";
+            + "This player defaults to 127.0.0.1. Pass -fineagePublic for Interlude endpoints.\n"
+            + "Other builds keep their defaults unless started with -fineageLocal.\n";
     }
 }

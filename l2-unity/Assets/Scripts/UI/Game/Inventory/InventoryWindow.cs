@@ -49,10 +49,13 @@ public class InventoryWindow : L2PopupWindow
     public int SlotCount { get { return _slotCount; } }
 
     private static InventoryWindow _instance;
+    bool _itemSurfaceReady;
     public static InventoryWindow Instance
     {
         get { return _instance; }
     }
+
+    public bool IsItemSurfaceReady { get { return _itemSurfaceReady; } }
 
     private void Awake()
     {
@@ -284,6 +287,7 @@ public class InventoryWindow : L2PopupWindow
 
         _gearTab = new InventoryGearTab();
         _gearTab.Initialize(_windowEle, null, null , true , true);
+        _itemSurfaceReady = true;
 
         _maximumWeight = 10000;
         _weightLabel.text = "00.00%";

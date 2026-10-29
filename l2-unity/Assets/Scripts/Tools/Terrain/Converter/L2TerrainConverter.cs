@@ -38,6 +38,48 @@ public class TerrainConverter : MonoBehaviour {
         }
     }
 
+    public static bool ConvertTerrainToMeshForMap(string mapName) {
+        string t3dAbs = L2InterludeMapPaths.T3dAbsolutePath(mapName);
+        if (!File.Exists(t3dAbs)) {
+            return false;
+        }
+
+        mapToConvert = mapName;
+        convertTerrain = true;
+        convertDecoLayer = false;
+        createMapSafenet = true;
+        optimizeMesh = true;
+
+        L2TerrainInfo terrainInfo = L2T3DInfoParser.LoadMetadata(mapName);
+        if (terrainInfo == null) {
+            return false;
+        }
+
+        ConvertTerrainToMesh(terrainInfo);
+        return true;
+    }
+
+    public static bool GenerateDecoLayerMeshForMap(string mapName) {
+        string t3dAbs = L2InterludeMapPaths.T3dAbsolutePath(mapName);
+        if (!File.Exists(t3dAbs)) {
+            return false;
+        }
+
+        mapToConvert = mapName;
+        optimizeMesh = false;
+        convertTerrain = false;
+        convertDecoLayer = true;
+        createMapSafenet = false;
+
+        L2TerrainInfo terrainInfo = L2T3DInfoParser.LoadMetadata(mapName);
+        if (terrainInfo == null) {
+            return false;
+        }
+
+        ConvertTerrainToMesh(terrainInfo);
+        return true;
+    }
+
     [MenuItem("Shnok/7. [Terrain] Generate deco layer mesh")]
     static void DecoLayers() {
         string title = "Select terrain t3d";
@@ -74,7 +116,7 @@ public class TerrainConverter : MonoBehaviour {
             }
         }
 
-        string mapFolder = Path.Combine("Assets", "Resources", "Data", "Maps", mapToConvert, "TerrainData");
+        string mapFolder = L2InterludeMapPaths.ResolveTerrainPrefabAssetFolder(mapToConvert);
         GameObject map = AssetDatabase.LoadAssetAtPath<GameObject>(Path.Combine(mapFolder, mapToConvert + ".prefab"));
         if(map != null) {
             map = Instantiate(map);
@@ -156,7 +198,7 @@ public class TerrainConverter : MonoBehaviour {
         if(safenet) {
             filename = "Safenet_Mesh.asset";
         }
-        string saveMeshPath = Path.Combine(filename);
+        string saveMeshPath = Path.Combine(saveFolder, filename).Replace("\\", "/");
         MeshSaverEditor.SaveMeshToPath(convertedTerrainMesh, saveMeshPath, false, true);
     }
 

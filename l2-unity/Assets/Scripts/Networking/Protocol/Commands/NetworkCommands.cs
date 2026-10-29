@@ -25,6 +25,28 @@ public sealed class UseItemCommand : INetworkCommand
     }
 }
 
+/// <summary>Zone V2 TX opcode 39 — select an enchant scroll and open the window.</summary>
+public sealed class ZoneEnchantRequestCommand : INetworkCommand
+{
+    public int ScrollObjectId;
+
+    public ZoneEnchantRequestCommand(int scrollObjectId)
+    {
+        ScrollObjectId = scrollObjectId;
+    }
+}
+
+/// <summary>Zone V2 TX opcode 16 — clear paperdoll index 0..16.</summary>
+public sealed class UnequipItemCommand : INetworkCommand
+{
+    public int PaperdollSlot;
+
+    public UnequipItemCommand(int paperdollSlot)
+    {
+        PaperdollSlot = paperdollSlot;
+    }
+}
+
 /// <summary>Zone V2 TX opcode 13 — server grants into bag via InventoryUpdate (Backend #120).</summary>
 public sealed class ZoneGrantItemCommand : INetworkCommand
 {
@@ -283,6 +305,10 @@ public sealed class RequestEnchantItemCommand : INetworkCommand
     }
 }
 
+public sealed class RequestQuestListCommand : INetworkCommand
+{
+}
+
 public sealed class RequestQuestAbortCommand : INetworkCommand
 {
     public int QuestId;
@@ -291,6 +317,69 @@ public sealed class RequestQuestAbortCommand : INetworkCommand
     {
         QuestId = questId;
     }
+}
+
+/// <summary>Zone V2 TX opcode 32. Body key 0 is the clan name.</summary>
+public sealed class ClanCreateRequestCommand : INetworkCommand
+{
+    public string Name;
+
+    public ClanCreateRequestCommand(string name)
+    {
+        Name = name ?? "";
+    }
+}
+
+/// <summary>Zone V2 TX opcode 33. Pledge type 0 is the main clan.</summary>
+public sealed class ClanInviteRequestCommand : INetworkCommand
+{
+    public int TargetObjectId;
+    public int PledgeType;
+
+    public ClanInviteRequestCommand(int targetObjectId, int pledgeType = 0)
+    {
+        TargetObjectId = targetObjectId;
+        PledgeType = pledgeType;
+    }
+}
+
+/// <summary>Zone V2 TX opcode 34. Response 0 declines. Any other value accepts.</summary>
+public sealed class ClanAnswerJoinRequestCommand : INetworkCommand
+{
+    public int RequestorObjectId;
+    public int Response;
+
+    public ClanAnswerJoinRequestCommand(int requestorObjectId, int response)
+    {
+        RequestorObjectId = requestorObjectId;
+        Response = response;
+    }
+}
+
+/// <summary>Zone V2 TX opcode 35. Empty body.</summary>
+public sealed class ClanLeaveRequestCommand : INetworkCommand
+{
+}
+
+/// <summary>Zone V2 TX opcode 36.</summary>
+public sealed class ClanKickRequestCommand : INetworkCommand
+{
+    public int TargetObjectId;
+
+    public ClanKickRequestCommand(int targetObjectId)
+    {
+        TargetObjectId = targetObjectId;
+    }
+}
+
+/// <summary>Zone V2 TX opcode 37. Empty body.</summary>
+public sealed class ClanDissolveRequestCommand : INetworkCommand
+{
+}
+
+/// <summary>Zone V2 TX opcode 38. Empty body.</summary>
+public sealed class ClanCancelDissolveRequestCommand : INetworkCommand
+{
 }
 
 public sealed class RequestJoinPledgeCommand : INetworkCommand
@@ -485,10 +574,23 @@ public sealed class RequestOustPartyMemberCommand : INetworkCommand
 public sealed class AnswerTradeRequestCommand : INetworkCommand
 {
     public int Response;
+    /// <summary>Zone V2 requestor object id; zero on Interlude wire.</summary>
+    public int RequestorObjectId;
 
-    public AnswerTradeRequestCommand(int response)
+    public AnswerTradeRequestCommand(int response, int requestorObjectId = 0)
     {
         Response = response;
+        RequestorObjectId = requestorObjectId;
+    }
+}
+
+public sealed class RequestTradeCommand : INetworkCommand
+{
+    public int TargetObjectId;
+
+    public RequestTradeCommand(int targetObjectId)
+    {
+        TargetObjectId = targetObjectId;
     }
 }
 

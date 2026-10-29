@@ -10,74 +10,26 @@ import re
 import subprocess
 import sys
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
-from playtest_hosts import LANDING_URL, endpoint_defaults
+from playtest_hosts import (
+    GAME_HOST,
+    GAME_PORT,
+    LANDING_URL,
+    LOCAL_GAME_PORT,
+    LOCAL_LOGIN_PORT,
+    LOGIN_HOST,
+    LOGIN_PORT,
+    PUBLIC_HOST,
+    endpoint_defaults,
+    refuse_shipped_loopback,
+)
 
 ASSETS = [
     {"id": "windows", "file": "Fineage-Windows-x64.zip"},
     {"id": "macos", "file": "Fineage-macOS.zip"},
     {"id": "linux", "file": "Fineage-Linux-x64.zip"},
 ]
-
-BUILD_TZ = ZoneInfo("Europe/Minsk")
-
-
-def highest_playtest_release_tag(repo: Path) -> str | None:
-    """Newest playtest-X.Y.Z tag by semver (ignores legacy date/sha tags)."""
-    tags = git_output(repo, ["tag", "-l", "playtest-*"], check=False)
-    found: list[tuple[tuple[int, int, int], str]] = []
-    for line in tags.splitlines():
-        tag = line.strip()
-        parsed = parse_release_semver(tag)
-        if parsed:
-            found.append((parsed, tag))
-    if not found:
-        return None
-    return max(found, key=lambda item: item[0])[1]
-
-
-def built_at_fields(env: dict[str, str]) -> dict[str, str]:
-    raw = env.get("RELEASE_BUILT_AT", "").strip()
-    if raw:
-        normalized = raw.replace("Z", "+00:00")
-        try:
-            instant = datetime.fromisoformat(normalized)
-        except ValueError:
-            instant = None
-    else:
-        instant = None
-    if instant is None:
-        instant = datetime.now(timezone.utc)
-    if instant.tzinfo is None:
-        instant = instant.replace(tzinfo=timezone.utc)
-    local = instant.astimezone(BUILD_TZ)
-    return {
-        "builtAt": instant.isoformat(),
-        "builtAtLocal": local.isoformat(),
-        "builtAtDisplay": local.strftime("%Y-%m-%d %H:%M %Z"),
-    }
-
-
-def resolve_release_ref(env: dict[str, str], repo: Path) -> tuple[str, str]:
-    """Return (ref_type, ref_name) used for version and release_tag."""
-    ref_type = env.get("RELEASE_REF_TYPE", "").strip()
-    ref_name = env.get("RELEASE_REF_NAME", "").strip()
-    mode = env.get("RELEASE_MODE", "full").strip()
-    attach_tag = env.get("RELEASE_ATTACH_TAG", "").strip()
-
-    if mode == "macos-only":
-        if attach_tag:
-            return "tag", attach_tag
-        latest = highest_playtest_release_tag(repo)
-        if latest:
-            return "tag", latest
-        raise ValueError(
-            "macos-only release needs release_tag input or an existing playtest-X.Y.Z tag"
-        )
-    return ref_type, ref_name
 
 
 def sanitize_token(value: str) -> str:
@@ -92,66 +44,22 @@ def unity_bundle_version(version: str) -> str:
     return ".".join(match.groups())
 
 
-def parse_release_semver(tag: str) -> tuple[int, int, int] | None:
-    """Semver from stable vX.Y.Z or playtest-X.Y.Z tags; ignores legacy non-semver tags."""
-    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag)
-    if match:
-        return tuple(int(part) for part in match.groups())  # type: ignore[return-value]
-    match = re.fullmatch(r"playtest-(\d+)\.(\d+)\.(\d+)", tag)
-    if match:
-        return tuple(int(part) for part in match.groups())  # type: ignore[return-value]
-    return None
-
-
-def highest_release_semver(repo: Path) -> tuple[int, int, int] | None:
-    tags = git_output(repo, ["tag", "-l"], check=False)
-    found: list[tuple[int, int, int]] = []
-    for line in tags.splitlines():
-        parsed = parse_release_semver(line.strip())
-        if parsed:
-            found.append(parsed)
-    return max(found) if found else None
-
-
-def playtest_next_version(repo: Path) -> str:
-    """Next patch after the highest vX.Y.Z or playtest-X.Y.Z tag (0.0.1 if none)."""
-    highest = highest_release_semver(repo)
-    if highest is None:
-        return "0.0.1"
-    major, minor, patch = highest
-    return f"{major}.{minor}.{patch + 1}"
-
-
-def version_from_ref_name(ref_name: str) -> str:
-    name = ref_name
-    if name.startswith("v"):
-        name = name[1:]
-    elif name.startswith("playtest-"):
-        name = name[len("playtest-") :]
-    return sanitize_token(name)
-
-
-def resolve_version(
-    ref_type: str,
-    ref_name: str,
-    describe: str,
-    sha: str,
-    *,
-    repo: Path | None = None,
-) -> str:
-    # Untagged main pushes: bump patch from the highest vX.Y.Z / playtest-X.Y.Z tag (else 0.0.1).
-    del describe, sha
+def resolve_version(ref_type: str, ref_name: str, describe: str, sha: str) -> str:
     if ref_type == "tag" and ref_name:
-        return version_from_ref_name(ref_name)
-    if repo is None:
-        raise ValueError("repo is required to resolve an untagged playtest version")
-    return sanitize_token(playtest_next_version(repo))
+        return sanitize_token(ref_name[1:] if ref_name.startswith("v") else ref_name)
+    # git describe --always prints a sha when there is no tag. That is not a semver.
+    if describe.startswith("v") or re.match(r"^\d+\.\d+", describe):
+        text = describe[1:] if describe.startswith("v") else describe
+        return sanitize_token(text)
+    return sanitize_token(f"0.0.0-{sha}")
 
 
 def release_tag(ref_type: str, ref_name: str, version: str) -> tuple[str, bool]:
     if ref_type == "tag" and ref_name:
         return ref_name, False
-    return f"playtest-{version}", True
+    # Playtest builds are the public download. Publish them as the latest release
+    # so GET /releases/latest does not skip them.
+    return f"playtest-{version}", False
 
 
 def git_output(repo: Path, args: list[str], *, check: bool = True) -> str:
@@ -176,12 +84,7 @@ def changelog_range_start(repo: Path) -> str:
     return git_output(repo, ["describe", "--tags", "--abbrev=0"], check=False)
 
 
-def changelog_markdown(
-    repo: Path,
-    version: str,
-    endpoint: dict[str, object],
-    build: dict[str, str],
-) -> str:
+def changelog_markdown(repo: Path, version: str, endpoint: dict[str, object]) -> str:
     previous = changelog_range_start(repo)
 
     log_args = ["log", "--pretty=format:- %s (%h)", "-n", "100"]
@@ -205,7 +108,6 @@ def changelog_markdown(
 
     return (
         f"# Fineage {version}\n\n"
-        f"Built: {build['builtAtDisplay']} ({build['builtAtLocal']})\n\n"
         "Shared playtest client for the one public dev server.\n\n"
         f"- Landing: `{endpoint['landingUrl']}`\n"
         f"- Public host: `{host}`\n"
@@ -247,14 +149,14 @@ def port_or_zero(raw: str) -> int:
 
 
 def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
-    ref_type, ref_name = resolve_release_ref(env, repo)
+    ref_type = env.get("RELEASE_REF_TYPE", "").strip()
+    ref_name = env.get("RELEASE_REF_NAME", "").strip()
     sha = git_output(repo, ["rev-parse", "--short=12", "HEAD"])
     full_sha = git_output(repo, ["rev-parse", "HEAD"])
     describe = git_output(repo, ["describe", "--tags", "--always"], check=False)
-    version = resolve_version(ref_type, ref_name, describe, sha, repo=repo)
+    version = resolve_version(ref_type, ref_name, describe, sha)
     tag, prerelease = release_tag(ref_type, ref_name, version)
     endpoint = endpoint_summary(env)
-    build = built_at_fields(env)
     return {
         "version": version,
         "unityVersion": unity_bundle_version(version),
@@ -262,9 +164,6 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
         "ref": ref_name,
         "releaseTag": tag,
         "prerelease": prerelease,
-        "builtAt": build["builtAt"],
-        "builtAtLocal": build["builtAtLocal"],
-        "builtAtDisplay": build["builtAtDisplay"],
         "host": endpoint["host"],
         "landingUrl": endpoint["landingUrl"],
         "loginHost": endpoint["loginHost"],
@@ -275,12 +174,13 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
         "assets": ASSETS,
         "changelog": "CHANGELOG.md",
         "versionFile": "version.json",
-        "_markdown": changelog_markdown(repo, version, endpoint, build),
+        "_markdown": changelog_markdown(repo, version, endpoint),
     }
 
 
 def write_notes(repo: Path, output: Path, env: dict[str, str]) -> dict[str, object]:
     notes = build_notes(repo, env)
+    refuse_shipped_loopback(notes)
     markdown = str(notes.pop("_markdown"))
     output.mkdir(parents=True, exist_ok=True)
     (output / "CHANGELOG.md").write_text(markdown, encoding="utf-8")
@@ -298,18 +198,12 @@ def write_notes(repo: Path, output: Path, env: dict[str, str]) -> dict[str, obje
 
 def self_test() -> int:
     assert resolve_version("tag", "v1.2.3", "v1.2.3", "abc") == "1.2.3"
-    assert resolve_version("tag", "playtest-0.0.5", "ignored", "abc") == "0.0.5"
-    assert parse_release_semver("v1.2.3") == (1, 2, 3)
-    assert parse_release_semver("playtest-0.0.2") == (0, 0, 2)
-    assert parse_release_semver("playtest-20261028") is None
+    assert resolve_version("branch", "main", "v0.4.1-2-gabcdef", "abcdef") == "0.4.1-2-gabcdef"
+    assert resolve_version("branch", "main", "abc123", "abc123").startswith("0.0.0-")
+    assert resolve_version("branch", "main", "abc", "abc123456789").startswith("0.0.0-")
     assert unity_bundle_version("0.4.1-2-gabcdef") == "0.4.1"
-    assert unity_bundle_version("0.0.3") == "0.0.3"
     assert release_tag("tag", "v1.2.3", "1.2.3") == ("v1.2.3", False)
-    assert release_tag("branch", "main", "0.0.3") == ("playtest-0.0.3", True)
-    build = built_at_fields({"RELEASE_BUILT_AT": "2026-10-28T16:30:00Z"})
-    assert build["builtAt"].startswith("2026-10-28T16:30:00")
-    assert "+03:00" in build["builtAtLocal"]
-    assert "2026-10-28" in build["builtAtDisplay"]
+    assert release_tag("branch", "main", "0.0.0-abc") == ("playtest-0.0.0-abc", False)
 
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp) / "repo"
@@ -326,14 +220,12 @@ def self_test() -> int:
             "FINEAGE_PUBLIC_HOST": "play.test",
             "RELEASE_REF_TYPE": "branch",
             "RELEASE_REF_NAME": "main",
-            "RELEASE_BUILT_AT": "2026-10-28T12:00:00Z",
         }
         out = Path(tmp) / "out"
         notes = write_notes(repo, out, env)
-        assert notes["version"] == "0.0.1"
-        assert notes["unityVersion"] == "0.0.1"
-        assert notes["releaseTag"] == "playtest-0.0.1"
-        assert notes["builtAt"].startswith("2026-10-28T12:00:00")
+        assert str(notes["version"]).startswith("0.0.0-")
+        assert notes["prerelease"] is False
+        assert str(notes["releaseTag"]).startswith("playtest-")
         assert notes["host"] == "play.test"
         assert notes["loginHost"] == "login.fineage.evpoint.by"
         assert notes["gameHost"] == "game.fineage.evpoint.by"
@@ -344,23 +236,13 @@ def self_test() -> int:
         assert "Initial client" in changelog
         assert "play.test" in changelog
         assert "login.fineage.evpoint.by:2106" in changelog
-        assert "Built:" in changelog
 
         subprocess.check_call(["git", "tag", "v0.2.0"], cwd=repo)
         readme.write_text("hi2\n", encoding="utf-8")
         subprocess.check_call(["git", "commit", "-am", "Add login host override"], cwd=repo)
         notes = write_notes(repo, out, env)
-        assert notes["version"] == "0.2.1"
-        assert notes["unityVersion"] == "0.2.1"
-        assert notes["releaseTag"] == "playtest-0.2.1"
+        assert str(notes["version"]).startswith("0.2.0-")
         assert "Add login host override" in (out / "CHANGELOG.md").read_text(encoding="utf-8")
-
-        subprocess.check_call(["git", "tag", "playtest-0.2.1"], cwd=repo)
-        readme.write_text("hi3\n", encoding="utf-8")
-        subprocess.check_call(["git", "commit", "-am", "Third commit"], cwd=repo)
-        notes = write_notes(repo, out, env)
-        assert notes["version"] == "0.2.2"
-        assert notes["releaseTag"] == "playtest-0.2.2"
 
         env = {
             "FINEAGE_PUBLIC_HOST": "play.test",
@@ -375,16 +257,60 @@ def self_test() -> int:
         assert notes["releaseTag"] == "v0.2.0"
         assert notes["gamePort"] == 4000
 
-        mac_env = {
-            "FINEAGE_PUBLIC_HOST": "play.test",
-            "RELEASE_MODE": "macos-only",
-            "RELEASE_ATTACH_TAG": "playtest-0.2.2",
-            "RELEASE_REF_TYPE": "branch",
-            "RELEASE_REF_NAME": "main",
+        public = {
+            "FINEAGE_PUBLIC_HOST": PUBLIC_HOST,
+            "FINEAGE_LOGIN_HOST": LOGIN_HOST,
+            "FINEAGE_GAME_HOST": GAME_HOST,
+            "FINEAGE_LOGIN_PORT": str(LOGIN_PORT),
+            "FINEAGE_GAME_PORT": str(GAME_PORT),
+            "RELEASE_REF_TYPE": "tag",
+            "RELEASE_REF_NAME": "v0.2.0",
         }
-        notes = write_notes(repo, out, mac_env)
-        assert notes["version"] == "0.2.2"
-        assert notes["releaseTag"] == "playtest-0.2.2"
+        notes = write_notes(repo, out, public)
+        version_text = (out / "version.json").read_text(encoding="utf-8")
+        assert notes["loginHost"] == LOGIN_HOST
+        assert notes["gameHost"] == GAME_HOST
+        assert notes["loginPort"] == LOGIN_PORT
+        assert notes["gamePort"] == GAME_PORT
+        for banned in ("127.0.0.1", "localhost", str(LOCAL_LOGIN_PORT), str(LOCAL_GAME_PORT)):
+            assert banned not in version_text
+
+        empty = {
+            "RELEASE_REF_TYPE": "tag",
+            "RELEASE_REF_NAME": "v0.2.0",
+        }
+        notes = write_notes(repo, out, empty)
+        assert notes["host"] == PUBLIC_HOST
+        assert notes["loginHost"] == LOGIN_HOST
+        assert notes["gameHost"] == GAME_HOST
+        assert notes["loginPort"] == LOGIN_PORT
+        assert notes["gamePort"] == GAME_PORT
+
+        for bad_env in (
+            {"FINEAGE_LOGIN_HOST": "127.0.0.1"},
+            {"FINEAGE_GAME_HOST": "localhost"},
+            {"FINEAGE_LOGIN_PORT": str(LOCAL_LOGIN_PORT)},
+            {"FINEAGE_GAME_PORT": str(LOCAL_GAME_PORT)},
+        ):
+            bad_out = Path(tmp) / "bad-notes"
+            try:
+                write_notes(
+                    repo,
+                    bad_out,
+                    {
+                        **bad_env,
+                        "RELEASE_REF_TYPE": "tag",
+                        "RELEASE_REF_NAME": "v0.2.0",
+                    },
+                )
+            except SystemExit:
+                pass
+            else:
+                print(f"release notes must refuse {bad_env}", file=sys.stderr)
+                return 1
+            if (bad_out / "version.json").exists() or (bad_out / "CHANGELOG.md").exists():
+                print(f"release notes wrote files for {bad_env}", file=sys.stderr)
+                return 1
 
     print("release-notes self-test OK")
     return 0

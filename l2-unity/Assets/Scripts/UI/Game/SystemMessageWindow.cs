@@ -134,11 +134,12 @@ public class SystemMessageWindow : L2PopupWindow
 
     public void SetDropdownList(DropdownField dropdown, List<string> list)
     {
-        if (list == null && list.Count ==0)
+        if (list == null || list.Count == 0)
         {
-            dropdown.value = null;
-            dropdown.choices = null;
-            _listDropDown = list;
+            var empty = new List<string>();
+            dropdown.choices = empty;
+            dropdown.SetValueWithoutNotify(string.Empty);
+            _listDropDown = empty;
         }
         else
         {

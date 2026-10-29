@@ -2,6 +2,7 @@ using System;
 
 /// <summary>
 /// World presence / AOI incoming handler access via domain facades (#142 sub-slice 52; session hub slice 221).
+/// UI locators removed in locator queue slice 260 (use per-packet apply facades + <see cref="LocatorApplyIncomingPacketServices"/>).
 /// </summary>
 public static class WorldApplyIncomingPacketServices
 {
@@ -10,12 +11,6 @@ public static class WorldApplyIncomingPacketServices
     public static World GameWorld => WorldSessionApplyIncomingPacketServices.GameWorld;
 
     public static IWorldDomainSink Domain => WorldSessionApplyIncomingPacketServices.Domain;
-
-    public static SeedInfoWindow SeedInfo => ManorApplyIncomingPacketServices.SeedInfo;
-
-    public static SellCropListWindow SellCrop => ManorApplyIncomingPacketServices.SellCrop;
-
-    public static BufferPanel Buffer => UiApplyIncomingPacketServices.Buffer;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply) =>
         WorldSessionApplyIncomingPacketServices.ApplyWorld(apply);
