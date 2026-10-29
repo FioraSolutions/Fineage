@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 /// <summary>MessagePack array bodies matching tools/zone-server Wire/Messages.cs.</summary>
@@ -1254,18 +1254,26 @@ public static partial class ZoneV2Messages
         if (n >= 15)
             row.IsLastPlayed = ZoneV2MsgPack.ReadBool(body, ref i);
         // Optional lobby stats (forward-compatible; older servers send 15).
-        if (n >= 16) row.CurHp = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 17) row.MaxHp = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 18) row.CurMp = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 19) row.MaxMp = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 20) row.CurCp = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 21) row.MaxCp = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 22) row.Exp = ZoneV2MsgPack.ReadInt64(body, ref i);
-        if (n >= 23) row.Sp = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 24) row.Karma = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n >= 25) row.WeaponItemId = ZoneV2MsgPack.ReadInt(body, ref i);
-        if (n > 25)
-            ZoneV2MsgPack.SkipValues(body, ref i, n - 25);
+        // Optional lobby stats (forward-compatible; older servers send 15; unknown types are skipped).
+        int read = 15;
+        long[] extra = new long[10];
+        while (read < n && read < 25 && (ZoneV2MsgPack.IsInt(body, i) || (i < body.Length && (body[i] == 0xcf || body[i] == 0xd3))))
+        {
+            extra[read - 15] = read == 21 ? ZoneV2MsgPack.ReadInt64(body, ref i) : ZoneV2MsgPack.ReadInt(body, ref i);
+            read++;
+        }
+        if (read > 15) row.CurHp = (int)extra[0];
+        if (read > 16) row.MaxHp = (int)extra[1];
+        if (read > 17) row.CurMp = (int)extra[2];
+        if (read > 18) row.MaxMp = (int)extra[3];
+        if (read > 19) row.CurCp = (int)extra[4];
+        if (read > 20) row.MaxCp = (int)extra[5];
+        if (read > 21) row.Exp = extra[6];
+        if (read > 22) row.Sp = (int)extra[7];
+        if (read > 23) row.Karma = (int)extra[8];
+        if (read > 24) row.WeaponItemId = (int)extra[9];
+        if (n > read)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - read);
         return true;
     }
 

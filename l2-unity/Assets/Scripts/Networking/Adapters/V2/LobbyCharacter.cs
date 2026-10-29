@@ -52,10 +52,15 @@ public static class LobbyCharacterMap
             Z = row.Z,
             DeleteSecondsLeft = row.DeleteSecondsLeft,
             IsLastPlayed = row.IsLastPlayed,
-            CurHp = row.CurHp, MaxHp = row.MaxHp,
-            CurMp = row.CurMp, MaxMp = row.MaxMp,
-            CurCp = row.CurCp, MaxCp = row.MaxCp,
-            Exp = row.Exp, Sp = row.Sp, Karma = row.Karma,
+            CurHp = row.CurHp,
+            MaxHp = row.MaxHp,
+            CurMp = row.CurMp,
+            MaxMp = row.MaxMp,
+            CurCp = row.CurCp,
+            MaxCp = row.MaxCp,
+            Exp = row.Exp,
+            Sp = row.Sp,
+            Karma = row.Karma,
             WeaponItemId = row.WeaponItemId
         };
     }
