@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -21,6 +21,9 @@ public sealed class LobbyCharacter
     public int Z;
     public int DeleteSecondsLeft;
     public bool IsLastPlayed;
+    public int CurHp, MaxHp, CurMp, MaxMp, CurCp, MaxCp;
+    public long Exp;
+    public int Sp, Karma, WeaponItemId;
 
     public bool PendingDelete
     {
@@ -48,7 +51,17 @@ public static class LobbyCharacterMap
             Y = row.Y,
             Z = row.Z,
             DeleteSecondsLeft = row.DeleteSecondsLeft,
-            IsLastPlayed = row.IsLastPlayed
+            IsLastPlayed = row.IsLastPlayed,
+            CurHp = row.CurHp,
+            MaxHp = row.MaxHp,
+            CurMp = row.CurMp,
+            MaxMp = row.MaxMp,
+            CurCp = row.CurCp,
+            MaxCp = row.MaxCp,
+            Exp = row.Exp,
+            Sp = row.Sp,
+            Karma = row.Karma,
+            WeaponItemId = row.WeaponItemId
         };
     }
 

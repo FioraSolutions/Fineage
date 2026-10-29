@@ -59,6 +59,7 @@ public class L2SlotManager : L2PopupWindow
         _windowEle.usageHints = UsageHints.None;
         _windowEle.pickingMode = PickingMode.Ignore;
         _windowEle.style.position = Position.Absolute;
+        _windowEle.Query<VisualElement>().ForEach(e => e.pickingMode = PickingMode.Ignore);
     }
 
     public void SetHoverSlot(L2Slot slot)
@@ -91,6 +92,16 @@ public class L2SlotManager : L2PopupWindow
                 _dragSlotData.SlotBg.style.backgroundImage = background;
             }
         }
+    }
+
+    internal void DragSlotAt(Vector2 panelPos, float width, float height)
+    {
+        ShowWindow();
+        _windowEle.style.right = StyleKeyword.Null;
+        _windowEle.style.bottom = StyleKeyword.Null;
+        _windowEle.style.left = panelPos.x - width / 2f;
+        _windowEle.style.top = panelPos.y - height / 2f;
+        _windowEle.BringToFront();
     }
 
     internal void DragSlot(float right, float bottom)

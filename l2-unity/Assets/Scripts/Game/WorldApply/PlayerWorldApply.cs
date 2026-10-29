@@ -100,6 +100,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
             return;
         }
 
+        CastMoveLock.Begin(dto.HitTime);
+
         if (PlayerStateMachine.Instance == null)
             return;
 
@@ -176,6 +178,7 @@ public sealed class PlayerWorldApply : EntityWorldApply
 
     public override void OnMagicSkillCanceled(Entity entity, MagicSkillCanceledDto dto)
     {
+        CastMoveLock.Clear();
         if (PlayerStateMachine.Instance != null)
             PlayerStateMachine.Instance.NotifyEvent(Event.CANCEL);
     }
