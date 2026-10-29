@@ -215,16 +215,9 @@ public class CharCreationWindow : L2Window {
         });
         classInput.AddManipulator(classManipulator);
 
-        raceManipulator = new ArrowInputManipulator(raceInput, "Race", new string[] { "Human", "Elf", "Dark Elf", "Orc", "Dwarf" }, -1, (index, value) => {
-            if (FineageWireConfig.UseLoginHandoff && value != "Human")
-            {
-                raceManipulator.SelectIndex(0);
-                SetlabelError("Only Human characters can be created on this server.");
-                return;
-            }
-
+        raceManipulator = new ArrowInputManipulator(raceInput, "Race", LobbyRaceCatalog.RaceNames, -1, (index, value) => {
             LoginCamera.SwitchCamera(value);
-            classManipulator.ClearInput();
+            classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames(value));
             genderManipulator.ClearInput();
             hairstyleManipulator.ClearInput();
             hairColorManipulator.ClearInput();
@@ -232,7 +225,7 @@ public class CharCreationWindow : L2Window {
 
             HideRotatePawnWindow();
             Creator.ResetPawnSelection();
- 
+            SetlabelError("");
         });
         raceInput.AddManipulator(raceManipulator);
 
@@ -302,8 +295,10 @@ public class CharCreationWindow : L2Window {
     {
         if (raceManipulator == null)
             return;
-        raceManipulator.UpdateValues(new string[] { "Human" });
+        raceManipulator.UpdateValues(LobbyRaceCatalog.RaceNames);
         raceManipulator.ResetInput();
+        if (classManipulator != null)
+            classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames("Human"));
         if (LoginCamera != null)
             LoginCamera.SwitchCamera("Human");
         if (hairstyleManipulator != null)
@@ -354,11 +349,9 @@ public class CharCreationWindow : L2Window {
             return;
         }
 
-        int classId = className == "Mystic"
-            ? LobbyCharacterText.ClassMystic
-            : className == "Fighter"
-                ? LobbyCharacterText.ClassFighter
-                : -1;
+        string raceName = raceManipulator != null ? raceManipulator.Value : "";
+        int classId = LobbyRaceCatalog.ClassIdFor(raceName, className);
+        int raceId = LobbyRaceCatalog.RaceId(raceName);
         int sex = sexName == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale;
         int hairStyle = LobbyCharacterCreate.ClampAppearance(
             hairstyleManipulator != null ? hairstyleManipulator.Index : 0,
@@ -366,7 +359,7 @@ public class CharCreationWindow : L2Window {
         int hairColor = LobbyCharacterCreate.ClampAppearance(hairColorManipulator != null ? hairColorManipulator.Index : 0, 3);
         int face = LobbyCharacterCreate.ClampAppearance(faceManipulator != null ? faceManipulator.Index : 0, 2);
         string name = userInputField != null && userInputField.value != null ? userInputField.value.Trim() : "";
-        string code = LobbyCharacterCreate.Validate(name, classId, LobbyCharacterText.RaceHuman, sex, hairStyle, hairColor, face);
+        string code = LobbyCharacterCreate.Validate(name, classId, raceId, sex, hairStyle, hairColor, face);
         if (code != null)
         {
             SetlabelError(LobbyCharacterText.ErrorMessage(code, null));
@@ -374,7 +367,7 @@ public class CharCreationWindow : L2Window {
         }
 
         ZoneV2Client zone = ZoneV2Client.Instance;
-        if (zone == null || !zone.CreateLobbyCharacter(name, classId, LobbyCharacterText.RaceHuman, sex, hairStyle, hairColor, face))
+        if (zone == null || !zone.CreateLobbyCharacter(name, classId, raceId, sex, hairStyle, hairColor, face))
         {
             SetlabelError(LobbyCharacterText.ErrorMessage("auth_required", null));
             return;
