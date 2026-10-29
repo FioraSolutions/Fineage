@@ -1,9 +1,9 @@
 {
     "schemaVersion": "1",
-    "updatedUtc": "2026-10-29T06:47:36.0000000Z",
+    "updatedUtc": "2026-10-29T07:27:55.7992510Z",
     "clientRootHint": "(local only \u2014 not stored)",
     "clientMapCount": 153,
-    "importedFullCount": 8,
+    "importedFullCount": 11,
     "importedPartialCount": 0,
     "tiles": [
         {
@@ -608,9 +608,15 @@
         {
             "id": "20_22",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
+            "inRepo": true,
+            "importStatus": "full",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/20_22/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/20_22/Meta/20_22.t3d",
+                "Assets/Resources/Data/Maps/20_22/20_22.prefab",
+                "Assets/Resources/Data/Maps/20_22/UnityTerrain/20_22.prefab",
+                "Assets/Resources/Data/Maps/20_22/StaticMeshes.prefab"
+            ],
             "notes": ""
         },
         {
@@ -726,10 +732,16 @@
         {
             "id": "21_23",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": "Mac bake pending (#476). Northeast-adjacent to full 22_22. See Docs/INTERLUDE_TILE_BAKE.md and tools/interlude/run_mac_tile_bake.sh (FINEAGE_INTERLUDE_TILE=21_23)."
+            "inRepo": true,
+            "importStatus": "full",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/21_23/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/21_23/Meta/21_23.t3d",
+                "Assets/Resources/Data/Maps/21_23/21_23.prefab",
+                "Assets/Resources/Data/Maps/21_23/UnityTerrain/21_23.prefab",
+                "Assets/Resources/Data/Maps/21_23/StaticMeshes.prefab"
+            ],
+            "notes": ""
         },
         {
             "id": "21_24",
@@ -976,10 +988,16 @@
         {
             "id": "23_22",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": "Mac bake pending (#476). South-adjacent to full 22_22. See Docs/INTERLUDE_TILE_BAKE.md and tools/interlude/run_mac_tile_bake.sh (FINEAGE_INTERLUDE_TILE=23_22)."
+            "inRepo": true,
+            "importStatus": "full",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/23_22/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/23_22/Meta/23_22.t3d",
+                "Assets/Resources/Data/Maps/23_22/23_22.prefab",
+                "Assets/Resources/Data/Maps/23_22/UnityTerrain/23_22.prefab",
+                "Assets/Resources/Data/Maps/23_22/StaticMeshes.prefab"
+            ],
+            "notes": ""
         },
         {
             "id": "23_23",

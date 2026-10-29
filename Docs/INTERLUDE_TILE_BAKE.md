@@ -77,14 +77,15 @@ Refresh after each batch or via **Shnok/0.1**.
 | Tile | Status | Notes |
 |------|--------|--------|
 | `16_24`, `16_25`, `17_24`, `17_25` | full | TI smoke |
-| `22_22` | full | Race village core (#490) |
+| `22_22` | full | Giran town (#490) |
+| `22_21` | full | West of Giran (#510) |
+| `22_23` | full | East of Giran (#512) |
+| `21_22` | full | North of Giran (#512) |
+| `21_23` | full | Giran harbor |
+| `23_22` | full | Giran castle |
+| `20_22` | full | Dion |
 | `21_21` | missing | Northwest-adjacent to `22_22`; Mac bake only (see below) |
-| `21_22` | missing | North-adjacent to `22_22`; Mac bake only (see below) |
-| `21_23` | missing | Northeast-adjacent to `22_22`; Mac bake only (see below) |
-| `22_21` | missing | West-adjacent to `22_22`; Mac bake only (see below) |
-| `22_23` | missing | East-adjacent to `22_22`; Mac bake only (see below) |
 | `23_21` | missing | Southwest-adjacent to `22_22`; Mac bake only (see below) |
-| `23_22` | missing | South-adjacent to `22_22`; Mac bake only (see below) |
 | `23_23` | missing | Southeast-adjacent to `22_22`; Mac bake only (see below) |
 
 ## Mac one-tile recipe (#476 — 3×3 ring around `22_22`)
