@@ -10,7 +10,6 @@ public sealed class AppLifetimeScope : LifetimeScope
         RegisterIfFound<GameManager>(builder);
         RegisterIfFound<SceneLoader>(builder);
         RegisterIfFound<GameClient>(builder);
-        RegisterIfFound<LoginClient>(builder);
 
         builder.Register<TableInitializer>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton);
@@ -27,8 +26,6 @@ public sealed class AppLifetimeScope : LifetimeScope
         builder.Register<NetworkDispatcher>(Lifetime.Singleton).As<INetworkDispatcher>().AsSelf();
         builder.Register<IncomingGameQueue>(Lifetime.Singleton);
         builder.Register<SendGameDataQueue>(Lifetime.Singleton);
-        builder.Register<IncomingLoginDataQueue>(Lifetime.Singleton);
-        builder.Register<SendLoginDataQueue>(Lifetime.Singleton);
         builder.Register<NetworkRuntime>(Lifetime.Singleton);
         builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
         builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().AsSelf();
@@ -43,13 +40,11 @@ public sealed class AppLifetimeScope : LifetimeScope
             IncomingPacketActions.BindApp(
                 container.Resolve<EventProcessor>(),
                 container.Resolve<GameClient>(),
-                container.Resolve<LoginClient>(),
                 manager,
                 animations,
                 container.Resolve<PacketApplyQueue>());
             AppLoginSessionApplyIncomingPacketServices.BindApp(
                 container.Resolve<GameClient>(),
-                container.Resolve<LoginClient>(),
                 manager,
                 container.Resolve<PacketApplyQueue>(),
                 container.Resolve<EventProcessor>());

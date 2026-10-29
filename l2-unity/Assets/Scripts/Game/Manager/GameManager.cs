@@ -104,16 +104,11 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     public void OnWorldSceneLoaded() => _lobbyFlow.OnWorldSceneLoaded();
 
-    public void OnLoginServerConnected() => _lobbyFlow.OnLoginServerConnected();
-
-    public void OnLoginServerAuthAllowed() => _lobbyFlow.OnLoginServerAuthAllowed();
-
-    public void OnLoginServerPlayOk() => _lobbyFlow.OnLoginServerPlayOk();
-
     public void OnConnectingToGameServer() => _lobbyFlow.OnConnectingToGameServer();
 
-    public void OnReceivedServerList(byte lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers) =>
-        _lobbyFlow.OnReceivedServerList(lastServer, serverData, charsOnServers);
+    public void OnLobbyReady(IReadOnlyList<LobbyServer> servers) => _lobbyFlow.OnLobbyReady(servers);
+
+    public void OnLicenseAccepted() => _lobbyFlow.OnLicenseAccepted();
 
     public void OnAuthAllowed() => _lobbyFlow.OnAuthAllowed();
 

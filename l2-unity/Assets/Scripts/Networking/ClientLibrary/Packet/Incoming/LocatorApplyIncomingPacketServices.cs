@@ -5,7 +5,6 @@ public static class LocatorApplyIncomingPacketServices
 {
     public static void Bind(
         GameClient game = null,
-        LoginClient login = null,
         GameManager manager = null,
         World gameWorld = null,
         WorldPacketApply worldApply = null,
@@ -39,7 +38,6 @@ public static class LocatorApplyIncomingPacketServices
         BufferPanel buffer = null) =>
         IncomingPacketLocatorApplyIncomingPacketServices.Bind(
             game: game,
-            login: login,
             manager: manager,
             gameWorld: gameWorld,
             worldApply: worldApply,
@@ -73,8 +71,6 @@ public static class LocatorApplyIncomingPacketServices
             buffer: buffer);
 
     public static GameClient Game => IncomingPacketLocatorApplyIncomingPacketServices.Game;
-
-    public static LoginClient Login => IncomingPacketLocatorApplyIncomingPacketServices.Login;
 
     public static GameManager Manager => IncomingPacketLocatorApplyIncomingPacketServices.Manager;
 

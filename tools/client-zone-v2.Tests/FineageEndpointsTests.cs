@@ -103,4 +103,15 @@ public class FineageEndpointsTests
         FineageWireConfig.Use(FineageEndpoints.PublicDefault());
         Assert.True(FineageWireConfig.Endpoints.IsPublic);
     }
+
+    [Fact]
+    public void Server_list_has_one_online_world_behind_the_zone()
+    {
+        var servers = LobbyServer.FromEndpoints(FineageEndpoints.PublicDefault(), 2);
+
+        LobbyServer only = Assert.Single(servers);
+        Assert.True(only.Online);
+        Assert.Equal(2, only.CharacterCount);
+        Assert.Equal("game.fineage.evpoint.by:7777", only.Zone.ToString());
+    }
 }

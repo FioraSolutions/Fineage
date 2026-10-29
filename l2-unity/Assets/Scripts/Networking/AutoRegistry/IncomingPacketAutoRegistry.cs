@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +6,6 @@ using UnityEngine;
 public sealed class IncomingPacketAutoRegistry : PacketAutoRegistry, IIncomingPacketAutoRegistry
 {
     private readonly Dictionary<byte, IIncomingPacketBinding> _game = new Dictionary<byte, IIncomingPacketBinding>();
-    private readonly Dictionary<byte, IIncomingPacketBinding> _login = new Dictionary<byte, IIncomingPacketBinding>();
     private readonly Dictionary<int, IIncomingPacketBinding> _ex = new Dictionary<int, IIncomingPacketBinding>();
     private readonly Dictionary<Type, IIncomingPacketBinding> _byModel = new Dictionary<Type, IIncomingPacketBinding>();
 
@@ -22,15 +21,6 @@ public sealed class IncomingPacketAutoRegistry : PacketAutoRegistry, IIncomingPa
         {
             IncomingGamePacketAttribute attr = (IncomingGamePacketAttribute)gameAttrs[0];
             TryAddUnique(_game, (byte)attr.Opcode, CreateBinding(type), type,
-                "incoming packet opcode 0x" + ((byte)attr.Opcode).ToString("X2"));
-            return;
-        }
-
-        object[] loginAttrs = type.GetCustomAttributes(typeof(IncomingLoginPacketAttribute), false);
-        if (loginAttrs.Length > 0)
-        {
-            IncomingLoginPacketAttribute attr = (IncomingLoginPacketAttribute)loginAttrs[0];
-            TryAddUnique(_login, (byte)attr.Opcode, CreateBinding(type), type,
                 "incoming packet opcode 0x" + ((byte)attr.Opcode).ToString("X2"));
             return;
         }
@@ -84,17 +74,6 @@ public sealed class IncomingPacketAutoRegistry : PacketAutoRegistry, IIncomingPa
         }
 
         model = binding.Parse(data);
-        return model != null;
-    }
-
-    public bool TryParseLogin(ItemLogin item, out INetworkModel model)
-    {
-        model = null;
-        IIncomingPacketBinding binding;
-        if (!_login.TryGetValue((byte)item.PaketType(), out binding))
-            return false;
-
-        model = binding.Parse(item.DecodeData());
         return model != null;
     }
 

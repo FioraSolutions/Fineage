@@ -6,8 +6,6 @@ using System;
 /// </summary>
 public static class CharSelectionInfoApplyIncomingPacketServices
 {
-    public static LoginClient Login => LocatorApplyIncomingPacketServices.Login;
-
     public static GameClient Game => LocatorApplyIncomingPacketServices.Game;
 
     public static GameManager Manager => LocatorApplyIncomingPacketServices.Manager;
@@ -33,7 +31,6 @@ public static class CharSelectionInfoApplyIncomingPacketServices
                 Characters.SetCharacterInterludeList(packet.Characters);
                 Characters.SelectInterludeCharacter(packet.SelectedSlotId);
 
-                Login.Disconnect();
                 LobbyFlowLog.Info("CharSelectionInfo → Game.OnAuthAllowed (show char select)");
                 Game.OnAuthAllowed();
                 LobbyFlowLog.Info("CharSelectionInfo DONE state=" +

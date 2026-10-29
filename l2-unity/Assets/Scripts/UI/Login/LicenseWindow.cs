@@ -8,7 +8,7 @@ public class LicenseWindow : L2Window
 {
     [Inject] LoginRuntime _login;
 
-    private LoginClient Login => LoginPacketServices.LoginClient;
+    private GameManager Manager => LoginPacketServices.Manager;
 
     private static LicenseWindow _instance;
     public static LicenseWindow Instance { get { return _instance; } }
@@ -84,11 +84,10 @@ public class LicenseWindow : L2Window
     }
 
     private void AgreeButtonPressed() {
-        //LoginClient.Instance.ClientPacketHandler.SendPacket()
-        Login.Send(new RequestServerListCommand(Login.SessionKey1 , Login.SessionKey2));
+        Manager?.OnLicenseAccepted();
     }
 
     private void DisagreeButtonPressed() {
-        Login.Disconnect();
+        Manager?.LogOut();
     }
 }

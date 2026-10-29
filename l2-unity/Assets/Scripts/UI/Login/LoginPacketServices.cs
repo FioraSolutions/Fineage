@@ -17,9 +17,6 @@ public static class LoginPacketServices
         IncomingPacketActions.BindLogin(null);
     }
 
-    public static LoginClient LoginClient =>
-        _login != null ? _login.LoginClient : IncomingPacketActions.Login;
-
     public static GameClient Game =>
         _login != null ? _login.Game : IncomingPacketActions.Game;
 

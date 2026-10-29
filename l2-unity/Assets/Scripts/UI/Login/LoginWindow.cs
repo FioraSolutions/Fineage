@@ -129,7 +129,7 @@ public class LoginWindow : L2Window
 
     /// <summary>
     /// Log In always goes through the Fineage-Backend: login lobby on <see cref="FineageWireConfig.Endpoints"/>,
-    /// then the handoff ticket opens the zone. The legacy Interlude LoginClient is not used from here.
+    /// then the handoff ticket opens the zone.
     /// </summary>
     private void LoginButtonPressed() {
         string account = _userInput.value.ToLower().Trim();

@@ -4,6 +4,8 @@ using VContainer;
 
 /// <summary>
 /// Lobby and login flow callbacks. Extracted from <see cref="GameManager"/> (#141).
+/// Login screen → (Fineage login lobby authed) License → Server select → Character select → world.
+/// The network side lives in <see cref="ZoneV2Client"/>; this class only drives UI and <see cref="GameState"/>.
 /// </summary>
 public sealed class LobbyFlowController
 {
@@ -16,7 +18,7 @@ public sealed class LobbyFlowController
     private L2GameUI _gameUi;
 
     GameClient Game => GameClient.Instance;
-    LoginClient Login => LoginClient.Instance;
+    IReadOnlyList<LobbyServer> _servers = System.Array.Empty<LobbyServer>();
 
     [Inject] IZoneTransport _zoneTransport;
 
@@ -133,9 +135,14 @@ public sealed class LobbyFlowController
     {
     }
 
+    /// <summary>Leave the lobby (License "Disagree", Server select "Cancel") and return to the login screen.</summary>
     public void LogOut()
     {
-        Login.Disconnect();
+        ZoneV2Client zone = ZoneV2Client.Instance;
+        if (zone != null)
+            zone.Disconnect();
+        _servers = System.Array.Empty<LobbyServer>();
+        OnRelogin();
     }
 
     public void OnWorldSceneLoaded()
@@ -179,35 +186,35 @@ public sealed class LobbyFlowController
         }
     }
 
-    public void OnLoginServerConnected()
+    /// <summary>Login server accepted the account and sent the roster: show the license, then the server list.</summary>
+    public void OnLobbyReady(IReadOnlyList<LobbyServer> servers)
     {
-        _game.GameState = GameState.LOGIN_CONNECTED;
-    }
-
-    public void OnLoginServerAuthAllowed()
-    {
+        _servers = servers ?? System.Array.Empty<LobbyServer>();
         _game.GameState = GameState.READING_LICENSE;
-
         LoginUi.ShowLicenseWindow();
     }
 
-    public void OnLoginServerPlayOk()
+    public void OnLicenseAccepted()
     {
-        _game.GameState = GameState.READY_TO_CONNECT;
+        _game.GameState = GameState.SERVER_LIST;
+        LoginUi.ShowServerSelectWindow();
+        ServerSelect.ShowServers(_servers, ConfirmServer, LogOut);
+    }
+
+    void ConfirmServer(LobbyServer server)
+    {
+        ZoneV2Client zone = ZoneV2Client.Instance;
+        if (zone == null)
+        {
+            LogOut();
+            return;
+        }
+        zone.ConfirmServer(server);
     }
 
     public void OnConnectingToGameServer()
     {
         _game.GameState = GameState.CONNECTING_TO_GAMESERVER;
-    }
-
-    public void OnReceivedServerList(byte lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers)
-    {
-        _game.GameState = GameState.SERVER_LIST;
-
-        LoginUi.ShowServerSelectWindow();
-
-        ServerSelect.UpdateServerList(lastServer, serverData, charsOnServers);
     }
 
     public void OnAuthAllowed()
@@ -283,7 +290,7 @@ public sealed class LobbyFlowController
             MusicManager.Instance.Clear();
             Scenes.LoadMenu();
         }
-        else if (_game.GameState > GameState.LOGIN_SCREEN && !Game.IsConnected && !Login.IsConnected)
+        else if (_game.GameState > GameState.LOGIN_SCREEN && !Game.IsConnected)
         {
             OnRelogin();
         }

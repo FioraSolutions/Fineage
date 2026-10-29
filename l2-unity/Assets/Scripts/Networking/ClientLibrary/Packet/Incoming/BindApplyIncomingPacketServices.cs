@@ -5,7 +5,6 @@ public static class BindApplyIncomingPacketServices
 {
     public static void Bind(
         GameClient game = null,
-        LoginClient login = null,
         GameManager manager = null,
         World gameWorld = null,
         WorldPacketApply worldApply = null,
@@ -41,7 +40,6 @@ public static class BindApplyIncomingPacketServices
         BufferPanel buffer = null) =>
         IncomingPacketBindApplyIncomingPacketServices.Bind(
             game: game,
-            login: login,
             manager: manager,
             gameWorld: gameWorld,
             worldApply: worldApply,

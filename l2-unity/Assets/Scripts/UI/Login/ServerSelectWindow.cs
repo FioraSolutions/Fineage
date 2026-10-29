@@ -8,18 +8,13 @@ public class ServerSelectWindow : L2Window
 {
     [Inject] LoginRuntime _login;
 
-    private GameClient Game => LoginPacketServices.Game;
-
-    private LoginClient Login => LoginPacketServices.LoginClient;
-
-    private LoginWindow LoginWin => LoginPacketServices.LoginWindow;
-
     private VisualTreeAsset _serverElementTemplate;
     private VisualElement _listContentContainer;
-    private List<VisualElement> _serverElements;
-    private List<ServerData> _serverData;
-    private int _selectedServerId = -1;
-    private ServerData _selectServerData;
+    private List<VisualElement> _serverElements = new List<VisualElement>();
+    private IReadOnlyList<LobbyServer> _servers = System.Array.Empty<LobbyServer>();
+    private int _selectedIndex = -1;
+    private System.Action<LobbyServer> _onConfirm;
+    private System.Action _onCancel;
 
     private static ServerSelectWindow _instance;
     public static ServerSelectWindow Instance { get { return _instance; } }
@@ -109,37 +104,31 @@ public class ServerSelectWindow : L2Window
 
         _listContentContainer = _windowEle.Q<VisualElement>("ServerContainer");
 
-        _serverElements = new List<VisualElement>();
-
         root.Add(_windowEle);
 
         yield return new WaitForEndOfFrame();
     }
 
-    public void UpdateServerList(int lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers) {
+    /// <summary>Fill the list and remember what Confirm / Cancel do. The first online server is preselected.</summary>
+    public void ShowServers(IReadOnlyList<LobbyServer> servers, System.Action<LobbyServer> onConfirm, System.Action onCancel)
+    {
         ResetWindow();
+        _servers = servers ?? System.Array.Empty<LobbyServer>();
+        _onConfirm = onConfirm;
+        _onCancel = onCancel;
 
-        _serverData = serverData;
-
-        for (int i = 0; i < serverData.Count; i++) {
-            charsOnServers.TryGetValue(serverData[i].serverId, out int charCount);
-
-            AddServerRow(i, ParseServerName(serverData[i].serverId), ParseServerPing(serverData[i].status), ParseServerStatus(serverData[i].status), charCount);
-
-            if (serverData[i].serverId == lastServer) {
+        for (int i = 0; i < _servers.Count; i++)
+            AddServerRow(i, _servers[i]);
+        for (int i = 0; i < _servers.Count; i++)
+        {
+            if (_servers[i].Online)
+            {
                 SelectServer(i);
+                break;
             }
         }
 
-        for(int i = serverData.Count; i < 20; i++) {
-            //AddServerRow(i, "", "", "" ,  -1);
-        }
-
-        if(lastServer == 0 && _serverData != null && _serverData.Count > 0) {
-            SelectServer(0);
-        }
-
-        if (FineageDev.AutoAdvanceLobby && _serverData != null && _serverData.Count > 0)
+        if (FineageDev.AutoAdvanceLobby && _selectedIndex >= 0)
             StartCoroutine(AutoConfirm());
     }
 
@@ -150,164 +139,58 @@ public class ServerSelectWindow : L2Window
             ConfirmButtonPressed();
     }
 
-    public void SelectServer(int rowId) {
-        for (int i = 0; i < _serverElements.Count; i++) {
+    private void SelectServer(int index) {
+        if (index < 0 || index >= _serverElements.Count)
+            return;
+        for (int i = 0; i < _serverElements.Count; i++)
             _serverElements[i].RemoveFromClassList("selected");
-        }
-
-        if(_serverElements.Count - 1 < rowId) {
-            return;
-        }
-
-        _serverElements[rowId].AddToClassList("selected");
-
-        if(_serverData == null || _serverData.Count == 0 
-            || _serverData.Count - 1 < rowId || _serverData[rowId].ip == null) {
-            return;
-        }
-
-        _selectServerData = _serverData[rowId];
-        SetServerId(_serverData[rowId].serverId);
-
-        //Debug.Log("Server selected: " + _selectedServerId);
-
-        Game.ServerIp = StringUtils.ByteArrayToIpAddress(_serverData[rowId].ip);
-        Game.ServerPort = _serverData[rowId].port;
+        _serverElements[index].AddToClassList("selected");
+        _selectedIndex = index;
     }
 
-    private string ParseServerName(int serverId) {
-        return ServerNameDAO.GetServer(serverId);
-    }
-
-    private string ParseServerPing(int status) {
-        switch (status) {
-            case 0: return "Light";
-            case 1: return "Good";
-            case 2: return "Heavy";
-            case 3: return "Full";
-            case 4: return "Down";
-            case 5: return "GM Only";
-            default: return "Unknown";
-        }
-    }
-
-    private string ParseServerStatus(int status)
-    {
-        switch (status)
-        {
-            case 0: return "Down";
-            case 1: return "Normal";
-            default: return "Unknown";
-        }
-    }
-
-    private string GetPingClass(string status) {
-        switch (status) {
-            case "Light": return "light";
-            case "Good": return "light";
-            case "Heavy": return "heavy";
-            case "Full":
-            case "Down":
-            case "GM Only": return "full";
-            default: return "normal";
-        }
-    }
-
-    private string GetStatusClass(string status)
-    {
-        switch (status)
-        {
-            case "Down": return "heavy";
-            case "Normal": return "normal";
-            default: return "normal";
-        }
-    }
-
-    private void AddServerRow(int id, string serverName, string ping , string status  , int charCount) {
+    private void AddServerRow(int index, LobbyServer server) {
         VisualElement row = _serverElementTemplate.Instantiate()[0];
-        Label serverNameLabel = row.Q<Label>("ServerName");
-        Label serverStatusLabel = row.Q<Label>("ServerStatus");
+        Label nameLabel = row.Q<Label>("ServerName");
+        Label loadLabel = row.Q<Label>("ServerStatus");
+        Label statusLabel = row.Q<Label>("ServerStatusJ");
         Label charCountLabel = row.Q<Label>("CharacterCount");
-        Label serverStatusJ = row.Q<Label>("ServerStatusJ");
 
-        serverStatusLabel.AddToClassList(GetPingClass(ping));
-        serverStatusJ.AddToClassList(GetStatusClass(status));
+        nameLabel.text = server.Name;
+        loadLabel.text = server.Online ? "Light" : "Down";
+        loadLabel.AddToClassList(server.Online ? "light" : "full");
+        statusLabel.text = server.Online ? "Normal" : "Down";
+        statusLabel.AddToClassList(server.Online ? "normal" : "heavy");
+        charCountLabel.text = server.CharacterCount.ToString();
 
-        serverNameLabel.text = serverName;
-        serverStatusLabel.text = ping;
-
-        serverStatusJ.text = status;
-
-
-
-
-        if (charCount >= 0) {
-            charCountLabel.text = charCount.ToString();
-        } else {
-            charCountLabel.text = "";
-        }
-
-        if (id % 2 == 1) {
+        if (index % 2 == 1)
             row.AddToClassList("odd");
-        }
 
-        if(charCount >= 0) {
-            int rowId = id;
-            row.RegisterCallback<ClickEvent>((evt) => {
-                SelectServer(rowId);
-            });
-            row.AddManipulator(new SlotClickSoundManipulator(row));
-        }
+        row.RegisterCallback<ClickEvent>(evt => SelectServer(index));
+        row.AddManipulator(new SlotClickSoundManipulator(row));
 
         _listContentContainer.Add(row);
-
         _serverElements.Add(row);
     }
 
     private void ResetWindow() {
-        _serverElements.ForEach((x) => {
-            x.RemoveFromHierarchy();
-        });
+        foreach (VisualElement row in _serverElements)
+            row.RemoveFromHierarchy();
         _serverElements.Clear();
-        if(_serverData != null) {
-            _serverData.Clear();
-            _serverData = null;
-        }
-
-        SetServerId(-1);
-    }
-
-    private void SetServerId(int id) {
-        _selectedServerId = id;
-        Game.ServerId = id;
+        _servers = System.Array.Empty<LobbyServer>();
+        _selectedIndex = -1;
     }
 
     private void ConfirmButtonPressed() {
-        if (Login == null)
-        {
-            LobbyFlowLog.Error("Confirm: LoginClient null");
+        if (_selectedIndex < 0 || _selectedIndex >= _servers.Count)
             return;
-        }
-
-        // L2J ServerList status byte: 0 = down, non-zero = up (stub sends 1).
-        bool online = _selectServerData != null && _selectServerData.status != 0 && _selectedServerId >= 0;
-        LobbyFlowLog.Info("Confirm serverId=" + _selectedServerId +
-                  " status=" + (_selectServerData != null ? _selectServerData.status.ToString() : "null") +
-                  " online=" + online);
-
-        if (online) {
-            Login.OnServerSelected(_selectedServerId);
-        }
-        else
-        {
-            LobbyFlowLog.Warn("Confirm rejected — server offline/invalid; disconnect login");
-            if (LoginWin != null)
-                LoginWin.ShowErrorText("Your login attempt failed due to high server load. Please try again later");
-            Login.Disconnect();
-        }
+        LobbyServer server = _servers[_selectedIndex];
+        if (!server.Online)
+            return;
+        LobbyFlowLog.Info("ServerSelect confirm id=" + server.Id + " zone=" + server.Zone);
+        _onConfirm?.Invoke(server);
     }
 
     private void CancelButtonPressed() {
-        Login.Disconnect();
+        _onCancel?.Invoke();
     }
 }

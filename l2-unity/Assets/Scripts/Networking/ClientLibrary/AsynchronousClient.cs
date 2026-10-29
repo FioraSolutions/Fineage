@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
+/// <summary>Legacy Interlude game-socket client (used only by <see cref="GameClient"/>; login is Fineage-Backend).</summary>
 public class AsynchronousClient
 {
     private System.Threading.CancellationTokenSource _cts;
@@ -20,7 +21,6 @@ public class AsynchronousClient
 
     private ClientPacketHandler _clientPacketHandler;
     private ServerPacketHandler _serverPacketHandler;
-    private LoginClientReceiving _loginReceiving;
     private GameClientReceiving _gameReceiving;
 
     private bool _cryptEnabled = false;
@@ -58,9 +58,9 @@ public class AsynchronousClient
         _initPacket = enableInitPacket;
         _network = network;
 
-        var isLogin = IsLoginClient(client);
-        SetQueue(isLogin);
-        SetReceiving(isLogin);
+        _network.SendGame.SetPacketHandler(_clientPacketHandler);
+        _network.IncomingGame.SetPacketHandler(_serverPacketHandler);
+        _gameReceiving = new GameClientReceiving(this, _network.IncomingGame);
     }
 
     public async Task<bool> Connect()
@@ -69,7 +69,6 @@ public class AsynchronousClient
             return false;
 
         _cts = new CancellationTokenSource();
-        var isLogin = IsLoginClient(_client);
 
         try
         {
@@ -81,26 +80,20 @@ public class AsynchronousClient
             if (_initPacketEnabled)
                 _initPacket = true;
 
-            // Debug.Log("Connecting to " + (isLogin ? "LoginServer" : "GameServer") + " " + ipStr + ":" + port);
             await _socket.ConnectAsync(ip, port);
 
             _stream = new NetworkStream(_socket, ownsSocket: false);
 
             Volatile.Write(ref _state, 2);
 
-            // Debug.Log("Connection success for: " + (isLogin ? " LoginClient." : " GameClient."));
-
-            if (isLogin)
-                _loginReceiving.StartReceiving(_socket, _cts.Token);
-            else
-                _gameReceiving.StartReceiving(_socket, _cts.Token);
+            _gameReceiving.StartReceiving(_socket, _cts.Token);
 
             return true;
         }
         catch (Exception ex)
         {
             string host = _client != null && !string.IsNullOrWhiteSpace(_client.ServerIp) ? _client.ServerIp : _ip;
-            Debug.LogWarning("Connection failed for " + (isLogin ? "login" : "game") + " " + host + ": " + ex.Message);
+            Debug.LogWarning("Game connection failed for " + host + ": " + ex.Message);
             Disconnect();
             EventProcessor events = _network != null ? _network.Events : NetworkingPacketServices.Events;
             events.QueueEvent(() => _client.OnConnectionFailed());
@@ -126,23 +119,12 @@ public class AsynchronousClient
         events.QueueEvent(() => owner.OnDisconnectFrom(this));
 
         Interlocked.Exchange(ref _state, 0);
-
-        var isLogin = IsLoginClient(_client);
-        // Debug.LogWarning((isLogin ? " LoginClient:" : " GameClient:") + " Disconnected.");
     }
 
     private void DisposeQueue()
     {
-        if (IsLoginClient(_client))
-        {
-            _network.IncomingLogin.Stop();
-            _network.SendLogin.Stop();
-        }
-        else
-        {
-            _network.SendGame.Stop();
-            _network.IncomingGame.Stop();
-        }
+        _network.SendGame.Stop();
+        _network.IncomingGame.Stop();
     }
 
     public void SendPacket(IOutgoingPacket packet)
@@ -186,28 +168,6 @@ public class AsynchronousClient
         }
     }
 
-    private void SetReceiving(bool isLoginClient)
-    {
-        if (isLoginClient)
-            _loginReceiving = new LoginClientReceiving(this, _network.IncomingLogin);
-        else
-            _gameReceiving = new GameClientReceiving(this, _network.IncomingGame);
-    }
-
-    private void SetQueue(bool isLoginClient)
-    {
-        if (isLoginClient)
-        {
-            _network.SendLogin.SetPacketHandler(_clientPacketHandler);
-            _network.IncomingLogin.SetPacketHandler(_serverPacketHandler);
-        }
-        else
-        {
-            _network.SendGame.SetPacketHandler(_clientPacketHandler);
-            _network.IncomingGame.SetPacketHandler(_serverPacketHandler);
-        }
-    }
-
     private void CloseSocket()
     {
         try { _serverPacketHandler.CancelTokens(); } catch { }
@@ -218,10 +178,5 @@ public class AsynchronousClient
         try { _socket?.Dispose(); } catch { }
         _stream = null;
         _socket = null;
-    }
-
-    private bool IsLoginClient(DefaultClient client)
-    {
-        return client.GetType() == typeof(LoginClient);
     }
 }

@@ -179,24 +179,6 @@ public sealed class CharacterCreateCommand : INetworkCommand
     }
 }
 
-public sealed class AuthLoginCommand : INetworkCommand
-{
-    public string Account;
-    public int PlayKey1;
-    public int PlayKey2;
-    public int LoginKey1;
-    public int LoginKey2;
-
-    public AuthLoginCommand(string account, int playKey1, int playKey2, int loginKey1, int loginKey2)
-    {
-        Account = account;
-        PlayKey1 = playKey1;
-        PlayKey2 = playKey2;
-        LoginKey1 = loginKey1;
-        LoginKey2 = loginKey2;
-    }
-}
-
 public sealed class RequestSkillCoolTimeCommand : INetworkCommand
 {
 }
@@ -710,54 +692,3 @@ public sealed class RequestPackageSendableItemListCommand : INetworkCommand
     }
 }
 
-public sealed class AuthGameGuardCommand : INetworkCommand
-{
-    public int SessionId;
-    public int[] Gg;
-
-    public AuthGameGuardCommand(int sessionId, int[] gg)
-    {
-        SessionId = sessionId;
-        Gg = gg;
-    }
-}
-
-public sealed class RequestAuthLoginCommand : INetworkCommand
-{
-    public string Account;
-    public string Password;
-    public int Response;
-
-    public RequestAuthLoginCommand(string account, string password, int response)
-    {
-        Account = account;
-        Password = password;
-        Response = response;
-    }
-}
-
-public sealed class RequestServerListCommand : INetworkCommand
-{
-    public int SessionKey1;
-    public int SessionKey2;
-
-    public RequestServerListCommand(int sessionKey1, int sessionKey2)
-    {
-        SessionKey1 = sessionKey1;
-        SessionKey2 = sessionKey2;
-    }
-}
-
-public sealed class RequestServerLoginCommand : INetworkCommand
-{
-    public int ServerId;
-    public int SessionKey1;
-    public int SessionKey2;
-
-    public RequestServerLoginCommand(int serverId, int sessionKey1, int sessionKey2)
-    {
-        ServerId = serverId;
-        SessionKey1 = sessionKey1;
-        SessionKey2 = sessionKey2;
-    }
-}

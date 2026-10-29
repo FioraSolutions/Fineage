@@ -12,11 +12,9 @@ public interface IGameManager
     bool IsSwitchingServer { get; set; }
     bool WorldSpawnReady { get; }
 
-    void OnLoginServerConnected();
-    void OnLoginServerAuthAllowed();
-    void OnLoginServerPlayOk();
     void OnConnectingToGameServer();
-    void OnReceivedServerList(byte lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers);
+    void OnLobbyReady(IReadOnlyList<LobbyServer> servers);
+    void OnLicenseAccepted();
     void OnAuthAllowed();
     void OnCharacterSelect();
     void OnCreateUser(List<PlayerTemplates> playerTemplates);

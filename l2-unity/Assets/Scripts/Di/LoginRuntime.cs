@@ -4,7 +4,6 @@ public sealed class LoginRuntime
 {
     private readonly IObjectResolver _resolver;
     private GameClient _game;
-    private LoginClient _loginClient;
     private GameManager _manager;
 
     public LoginRuntime(IObjectResolver resolver)
@@ -13,12 +12,10 @@ public sealed class LoginRuntime
     }
 
     [Inject]
-    public void Construct(GameClient game, LoginClient loginClient, GameManager manager)
+    public void Construct(GameClient game, GameManager manager)
     {
         if (game != null)
             _game = game;
-        if (loginClient != null)
-            _loginClient = loginClient;
         if (manager != null)
             _manager = manager;
     }
@@ -36,11 +33,6 @@ public sealed class LoginRuntime
     public GameClient Game
     {
         get { return _game ?? Get<GameClient>() ?? IncomingPacketActions.Game; }
-    }
-
-    public LoginClient LoginClient
-    {
-        get { return _loginClient ?? Get<LoginClient>() ?? IncomingPacketActions.Login; }
     }
 
     public GameManager Manager

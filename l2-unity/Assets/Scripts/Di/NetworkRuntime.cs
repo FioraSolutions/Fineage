@@ -5,8 +5,6 @@ public sealed class NetworkRuntime
     public INetworkDispatcher Dispatcher { get; }
     public IncomingGameQueue IncomingGame { get; }
     public SendGameDataQueue SendGame { get; }
-    public IncomingLoginDataQueue IncomingLogin { get; }
-    public SendLoginDataQueue SendLogin { get; }
     public EventProcessor Events { get; }
 
     public NetworkRuntime(
@@ -15,8 +13,6 @@ public sealed class NetworkRuntime
         INetworkDispatcher dispatcher,
         IncomingGameQueue incomingGame,
         SendGameDataQueue sendGame,
-        IncomingLoginDataQueue incomingLogin,
-        SendLoginDataQueue sendLogin,
         EventProcessor events)
     {
         Packets = packets;
@@ -24,8 +20,6 @@ public sealed class NetworkRuntime
         Dispatcher = dispatcher;
         IncomingGame = incomingGame;
         SendGame = sendGame;
-        IncomingLogin = incomingLogin;
-        SendLogin = sendLogin;
         Events = events;
     }
 }

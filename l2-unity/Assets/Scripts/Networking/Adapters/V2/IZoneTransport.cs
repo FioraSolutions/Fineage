@@ -10,9 +10,6 @@ using UnityEngine;
 /// </summary>
 public interface IZoneTransport
 {
-    /// <summary>When true, login UI uses <see cref="BeginSession"/> instead of Interlude LoginClient.</summary>
-    bool BypassesInterludeLogin { get; }
-
     /// <summary>When false, <see cref="GameClient.SendAuthLoginNow"/> is blocked (zone session owns auth).</summary>
     bool AllowsInterludeGameSocketAuth { get; }
 

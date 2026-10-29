@@ -8,8 +8,6 @@ public interface IIncomingPacketAutoRegistry : INetworkHandlers
     bool IsGameOpcode(byte opcode);
 
     bool TryParseGame(ItemServer item, out INetworkModel model);
-
-    bool TryParseLogin(ItemLogin item, out INetworkModel model);
 }
 
 public interface IOutgoingPacketAutoRegistry

@@ -11,7 +11,6 @@ public static class IncomingPacketActions
     private static EventProcessor _events;
     private static World _world;
     private static GameClient _game;
-    private static LoginClient _login;
     private static GameManager _manager;
     private static GameRuntime _runtime;
     private static LoginRuntime _loginRuntime;
@@ -20,7 +19,6 @@ public static class IncomingPacketActions
     public static void BindApp(
         EventProcessor events,
         GameClient game,
-        LoginClient login,
         GameManager manager,
         IAnimationManager animations,
         PacketApplyQueue applyQueue)
@@ -29,8 +27,6 @@ public static class IncomingPacketActions
             _events = events;
         if (game != null)
             _game = game;
-        if (login != null)
-            _login = login;
         if (manager != null)
             _manager = manager;
         if (animations != null)
@@ -77,11 +73,6 @@ public static class IncomingPacketActions
     public static GameClient Game
     {
         get { return Live(_runtime != null ? _runtime.Game : null, _game != null ? _game : GameClient.Instance); }
-    }
-
-    public static LoginClient Login
-    {
-        get { return Live(_runtime != null ? _runtime.Login : null, _login != null ? _login : LoginClient.Instance); }
     }
 
     public static GameManager Manager

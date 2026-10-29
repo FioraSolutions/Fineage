@@ -9,8 +9,6 @@ public sealed class FineageZoneTransport : IZoneTransport
 {
     public event Action OnDisconnected;
 
-    public bool BypassesInterludeLogin => FineageWireConfig.IsZoneV2;
-
     public bool AllowsInterludeGameSocketAuth => !FineageWireConfig.IsZoneV2;
 
     public bool Connected

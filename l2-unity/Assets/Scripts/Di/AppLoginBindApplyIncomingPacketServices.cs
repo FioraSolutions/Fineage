@@ -5,13 +5,11 @@ public static class AppLoginBindApplyIncomingPacketServices
 {
     public static void BindApp(
         GameClient game,
-        LoginClient login,
         GameManager manager,
         PacketApplyQueue applyQueue,
         EventProcessor events) =>
         BindApplyIncomingPacketServices.Bind(
             game: game,
-            login: login,
             manager: manager,
             applyQueue: applyQueue,
             events: events);
@@ -23,7 +21,6 @@ public static class AppLoginBindApplyIncomingPacketServices
 
         BindApplyIncomingPacketServices.Bind(
             game: loginRuntime.Game,
-            login: loginRuntime.LoginClient,
             manager: loginRuntime.Manager,
             loginWindow: loginRuntime.LoginWindow,
             charSelect: loginRuntime.CharSelect,

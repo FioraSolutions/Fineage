@@ -10,7 +10,6 @@ public static class NetworkingPacketServices
     static WorldPacketApply _worldApply;
     static IWorldDomainSink _domain;
     static GameManager _manager;
-    static LoginClient _login;
     static LoginWindow _loginWindow;
     static PlayerController _player;
     static EventProcessor _events;
@@ -20,7 +19,6 @@ public static class NetworkingPacketServices
         WorldPacketApply worldApply = null,
         IWorldDomainSink domain = null,
         GameManager manager = null,
-        LoginClient login = null,
         LoginWindow loginWindow = null,
         PlayerController player = null,
         EventProcessor events = null)
@@ -33,8 +31,6 @@ public static class NetworkingPacketServices
             _domain = domain;
         if (manager != null)
             _manager = manager;
-        if (login != null)
-            _login = login;
         if (loginWindow != null)
             _loginWindow = loginWindow;
         if (player != null)
@@ -57,9 +53,6 @@ public static class NetworkingPacketServices
 
     public static GameManager Manager =>
         _manager != null ? _manager : ResolveFromApp<GameManager>() ?? IncomingPacketActions.Manager;
-
-    public static LoginClient Login =>
-        _login != null ? _login : ResolveFromApp<LoginClient>() ?? IncomingPacketActions.Login;
 
     public static LoginWindow LoginWindow =>
         _loginWindow != null ? _loginWindow : ResolveFromApp<LoginWindow>() ?? IncomingPacketActions.LoginWindow;

@@ -10,7 +10,6 @@ public static class GameRuntimeBindApplyIncomingPacketServices
         IWorldDomainSink domain) =>
         BindApplyIncomingPacketServices.Bind(
             game: runtime.Game,
-            login: runtime.Login,
             manager: runtime.Manager,
             gameWorld: runtime.World,
             worldApply: worldApply,

@@ -7,16 +7,12 @@ public class GameClient : DefaultClient {
     private GameManager Manager => NetworkingPacketServices.Manager;
     protected PlayerInfoInterlude _playerInfo;
     protected int _serverId;
-    private int _playKey1;
-    private int _playKey2;
     private readonly object syncLock = new object();
     private bool _isLoadComplete { get; set; }
 
     public PlayerInfoInterlude PlayerInfo { get { return _playerInfo; } set { _playerInfo = value; } }
     public string CurrentPlayer { get { return _playerInfo.Identity.Name; } }
     public int ServerId { get { return _serverId; } set { _serverId = value; } }
-    public int PlayKey1 { get { return _playKey1; } set { _playKey1 = value; } }
-    public int PlayKey2 { get { return _playKey2; } set { _playKey2 = value; } } 
 
     private GameClientPacketHandler clientPacketHandler;
     private GameServerPacketHandler serverPacketHandler;
@@ -101,55 +97,6 @@ public class GameClient : DefaultClient {
     public void SendPlain(INetworkCommand command)
     {
         EnqueueGame(command, false);
-    }
-
-    /// <summary>
-    /// Encode + write AuthLogin on the current game socket immediately (no SendGame queue).
-    /// Used right after InterludeKey so lobby cannot stall when the queue worker is stale.
-    /// </summary>
-    public bool SendAuthLoginNow(string account, int playKey1, int playKey2, int loginKey1, int loginKey2)
-    {
-        IZoneTransport transport = ResolveZoneTransport();
-        if (transport != null && !transport.AllowsInterludeGameSocketAuth)
-        {
-            LobbyFlowLog.Error("SendAuthLoginNow blocked — zone transport owns auth (Interlude game socket path required)");
-            return false;
-        }
-
-        if (Network == null || Network.Protocol == null)
-        {
-            LobbyFlowLog.Error("SendAuthLoginNow failed — NetworkRuntime/Protocol null");
-            return false;
-        }
-
-        if (_client == null || !_client.IsConnected)
-        {
-            LobbyFlowLog.Error("SendAuthLoginNow failed — game socket null/disconnected");
-            return false;
-        }
-
-        try
-        {
-            IOutgoingPacket packet = Network.Protocol.EncodeGame(
-                new AuthLoginCommand(account, playKey1, playKey2, loginKey1, loginKey2),
-                encrypt: false);
-            if (packet == null)
-            {
-                LobbyFlowLog.Error("SendAuthLoginNow failed — EncodeGame returned null");
-                return false;
-            }
-
-            byte[] data = packet.GetData();
-            int bodyLen = data != null ? data.Length : 0;
-            bool ok = _client.TrySendPacket(packet);
-            LobbyFlowLog.Info("SendAuthLoginNow bodyLen=" + bodyLen + " wrote=" + ok);
-            return ok;
-        }
-        catch (System.Exception ex)
-        {
-            LobbyFlowLog.Exception("SendAuthLoginNow", ex);
-            return false;
-        }
     }
 
     private void EnqueueGame(INetworkCommand command, bool crypt)

@@ -6,10 +6,7 @@ public sealed class InterludeProtocol : IProtocol
     private readonly IIncomingPacketAutoRegistry _packets;
     private readonly IOutgoingPacketAutoRegistry _outgoing;
     private readonly object _gameCryptLock = new object();
-    private readonly object _loginCryptLock = new object();
     private GameCrypt _gameCrypt;
-    private BlowfishEngine _loginEncrypt;
-    private BlowfishEngine _loginDecrypt;
 
     public InterludeProtocol(IIncomingPacketAutoRegistry packets, IOutgoingPacketAutoRegistry outgoing)
     {
@@ -31,33 +28,6 @@ public sealed class InterludeProtocol : IProtocol
                 if (_gameCrypt != null)
                     _gameCrypt.Encrypt(data, 0, data.Length);
             }
-        }
-
-        return packet;
-    }
-
-    public IOutgoingPacket EncodeLogin(INetworkCommand command)
-    {
-        IOutgoingPacket packet = ToPacket(command);
-        if (packet == null)
-            return null;
-
-        byte[] data = packet.GetData();
-        byte type = packet.GetPacketType();
-        // BuildLogin already appends checksum via PacketWriter.WriteChecksum.
-        // Only re-checksum packets that still use non-Login framing (legacy).
-        if (type != (byte)LoginClientPacketType.AuthGameGuard
-            && type != (byte)LoginClientPacketType.RequestAuthLogin
-            && type != (byte)LoginClientPacketType.RequestServerList
-            && type != (byte)LoginClientPacketType.RequestServerLogin)
-        {
-            NewCrypt.appendChecksum(data);
-        }
-
-        lock (_loginCryptLock)
-        {
-            if (_loginEncrypt != null)
-                _loginEncrypt.processBigBlock(data, 0, data, 0, data.Length);
         }
 
         return packet;
@@ -105,55 +75,12 @@ public sealed class InterludeProtocol : IProtocol
         return parsed;
     }
 
-    public bool TryParseLogin(byte[] raw, bool init, bool cryptEnabled, out INetworkModel model)
-    {
-        model = null;
-        if (raw == null || raw.Length == 0)
-            return false;
-
-        if (cryptEnabled)
-        {
-            lock (_loginCryptLock)
-            {
-                if (_loginDecrypt != null)
-                    _loginDecrypt.processBigBlock(raw, 0, raw, 0, raw.Length);
-            }
-
-            if (init)
-            {
-                if (!NewCrypt.decXORPass(raw))
-                {
-                    // Debug.LogError("Packet XOR could not be decoded.");
-                    return false;
-                }
-            }
-            else if (!NewCrypt.verifyChecksum(raw))
-            {
-                // Debug.LogError("Packet checksum is wrong. Ignoring packet... length " + raw.Length);
-                return false;
-            }
-        }
-
-        return _packets.TryParseLogin(new ItemLogin(raw), out model);
-    }
-
     public void SetGameCryptKey(byte[] key)
     {
         lock (_gameCryptLock)
         {
             _gameCrypt = new GameCrypt();
             _gameCrypt.SetKey(key);
-        }
-    }
-
-    public void SetLoginBlowfishKey(byte[] key)
-    {
-        lock (_loginCryptLock)
-        {
-            _loginDecrypt = new BlowfishEngine();
-            _loginDecrypt.init(false, key);
-            _loginEncrypt = new BlowfishEngine();
-            _loginEncrypt.init(true, key);
         }
     }
 

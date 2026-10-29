@@ -8,7 +8,6 @@ public static class IncomingPacketServices
 {
     public static void Bind(
         GameClient game = null,
-        LoginClient login = null,
         GameManager manager = null,
         World gameWorld = null,
         WorldPacketApply worldApply = null,
@@ -45,7 +44,6 @@ public static class IncomingPacketServices
     {
         BindApplyIncomingPacketServices.Bind(
             game: game,
-            login: login,
             manager: manager,
             gameWorld: gameWorld,
             worldApply: worldApply,
@@ -82,8 +80,6 @@ public static class IncomingPacketServices
     }
 
     public static GameClient Game => LocatorApplyIncomingPacketServices.Game;
-
-    public static LoginClient Login => LocatorApplyIncomingPacketServices.Login;
 
     public static GameManager Manager => LocatorApplyIncomingPacketServices.Manager;
 

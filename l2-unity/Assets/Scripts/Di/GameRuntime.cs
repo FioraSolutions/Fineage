@@ -51,7 +51,6 @@ public sealed class GameRuntime
 
     private EventProcessor _events;
     private GameClient _game;
-    private LoginClient _login;
     private GameManager _manager;
 
     public EventProcessor Events
@@ -60,8 +59,6 @@ public sealed class GameRuntime
     }
 
     public GameClient Game => DiRuntimePacketServices.Game;
-
-    public LoginClient Login => DiRuntimePacketServices.Login;
 
     public GameManager Manager => DiRuntimePacketServices.Manager;
 
@@ -127,7 +124,6 @@ public sealed class GameRuntime
     public void Construct(
         EventProcessor events,
         GameClient game,
-        LoginClient login,
         GameManager manager,
         IGameEventBus gameEvents)
     {
@@ -135,13 +131,11 @@ public sealed class GameRuntime
             _events = events;
         if (game != null)
             _game = game;
-        if (login != null)
-            _login = login;
         if (manager != null)
             _manager = manager;
         if (gameEvents != null)
             _gameEvents = gameEvents;
-        DiRuntimePacketServices.Bind(game: _game, login: _login, manager: _manager);
+        DiRuntimePacketServices.Bind(game: _game, manager: _manager);
     }
 
     public void BindApply(WorldPacketApply worldApply, MessagePacketApply messageApply)

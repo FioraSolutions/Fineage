@@ -50,6 +50,7 @@ public sealed class ZoneV2Client : MonoBehaviour
     int _lobbyEpoch;
     volatile bool _zoneStarted;
     bool _selectUiShown;
+    bool _serverConfirmed;
     bool _returnToSelectOnRoster;
 
     public bool Connected { get; private set; }
@@ -220,19 +221,46 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (CharSelectWindow.Instance != null)
             CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, preselect));
 
+        int count = characters != null ? characters.Length : 0;
+        Debug.Log("[Fineage] roster count=" + count);
+
         bool returnFromCreate = _returnToSelectOnRoster;
         _returnToSelectOnRoster = false;
         if (_selectUiShown && !returnFromCreate)
             return;
-        _selectUiShown = true;
+
+        GameManager manager = Manager;
+        if (manager == null)
+        {
+            Debug.LogError("[Fineage] GameManager missing; lobby UI was not shown.");
+            return;
+        }
+
         if (LoginWindow.Instance != null)
             LoginWindow.Instance.ShowErrorText("");
+
+        // First roster after login: License → Server select. ConfirmServer then opens character select.
+        if (!_serverConfirmed)
+        {
+            manager.OnLobbyReady(LobbyServer.FromEndpoints(FineageWireConfig.Endpoints, count));
+            return;
+        }
+
+        _selectUiShown = true;
+        manager.OnAuthAllowed();
+    }
+
+    /// <summary>Server select "Confirm": the roster is already loaded, so go straight to character select.</summary>
+    public void ConfirmServer(LobbyServer server)
+    {
+        if (server == null || _serverConfirmed)
+            return;
+        _serverConfirmed = true;
+        _selectUiShown = true;
+        Debug.Log("[Fineage] server selected id=" + server.Id + " name=" + server.Name);
         GameManager manager = Manager;
         if (manager != null)
             manager.OnAuthAllowed();
-        else
-            Debug.LogError("[FineageLocal] GameManager missing; character select was not shown.");
-        Debug.Log("[FineageLocal] roster count=" + (characters != null ? characters.Length : 0));
     }
 
     void HandleLobbyHandoff(ZoneV2Handoff handoff, CancellationToken ct)
@@ -454,6 +482,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         _lobbyEpoch++;
         CloseLobby();
         _selectUiShown = false;
+        _serverConfirmed = false;
         _zoneStarted = false;
         _returnToSelectOnRoster = false;
         try
