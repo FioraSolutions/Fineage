@@ -20,7 +20,7 @@ on:
     inputs:
       mode:
         description: >-
-          full — Win + release + Linux + macOS (default).
+          full — Win + macOS in parallel, release on Win (default). Linux is disabled for now.
           macos-only — rebuild Fineage-macOS.zip and attach to an existing release (no Windows/Linux).
         required: false
         type: choice
@@ -206,7 +206,9 @@ jobs:
   build-linux:
     name: Fineage-Linux-x64
     needs: [prepare, build-windows, publish]
+    # Linux disabled for now (not on the critical path). Flip `false &&` to re-enable.
     if: >-
+      false &&
       always() &&
       needs.prepare.result == 'success' &&
       needs.build-windows.result == 'success' &&
@@ -242,15 +244,14 @@ jobs:
 
   build-macos:
     name: Fineage-macOS
-    needs: [prepare, build-windows, publish, build-linux]
+    # Runs in parallel with build-windows (only needs prepare). Same Unity Personal
+    # account activates on two runners at once; if seat contention bites, macOS retry covers it.
+    needs: [prepare]
     if: >-
       always() &&
       needs.prepare.result == 'success' &&
       (
         (
-          needs.build-windows.result == 'success' &&
-          (needs.publish.result == 'success' || needs.publish.result == 'skipped') &&
-          (needs.build-linux.result == 'success' || needs.build-linux.result == 'skipped') &&
           (github.event_name != 'workflow_dispatch' || inputs.mode == 'full')
         ) ||
         (
