@@ -182,17 +182,25 @@ jobs:
       - name: Require the Windows zip
         run: test -f artifacts/Fineage-Windows-x64/Fineage-Windows-x64.zip
 
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.prepare.outputs.release_tag }}
-          name: Fineage ${{ needs.prepare.outputs.version }}
-          body_path: artifacts/notes/CHANGELOG.md
-          prerelease: ${{ needs.prepare.outputs.prerelease == 'true' }}
-          make_latest: ${{ needs.prepare.outputs.prerelease != 'true' }}
-          fail_on_unmatched_files: true
-          files: |
-            artifacts/Fineage-Windows-x64/Fineage-Windows-x64.zip
-            artifacts/notes/CHANGELOG.md
+      - name: Publish GitHub release (gh CLI, idempotent)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.prepare.outputs.release_tag }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          PRERELEASE: ${{ needs.prepare.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          flags=()
+          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease --latest=false); else flags+=(--latest); fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "Fineage $VERSION" --notes-file artifacts/notes/CHANGELOG.md --draft=false "${flags[@]}"
+          else
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "Fineage $VERSION" --notes-file artifacts/notes/CHANGELOG.md "${flags[@]}"
+          fi
+          gh release upload "$TAG" --clobber \
+            artifacts/Fineage-Windows-x64/Fineage-Windows-x64.zip \
+            artifacts/notes/CHANGELOG.md \
             artifacts/notes/version.json
 
   build-linux:
@@ -345,11 +353,13 @@ jobs:
           echo "present=true" >> "$GITHUB_OUTPUT"
           ls -la attach/
 
-      - uses: softprops/action-gh-release@v2
+      - name: Attach extra client zips (gh CLI)
         if: steps.extras.outputs.present == 'true'
-        with:
-          tag_name: ${{ needs.prepare.outputs.release_tag }}
-          fail_on_unmatched_files: false
-          files: |
-            attach/Fineage-macOS.zip
-            attach/Fineage-Linux-x64.zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.prepare.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          gh release upload "$TAG" --clobber attach/*.zip
