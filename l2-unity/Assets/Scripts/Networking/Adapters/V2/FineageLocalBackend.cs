@@ -94,6 +94,11 @@ public static class FineageLocalBackend
     /// </summary>
     public static bool PublicPlaytestRequested()
     {
+#if FINEAGE_PUBLIC_PLAYTEST
+        // Standalone baked for the public RP. -fineageLocal still wins via ApplyIfRequested.
+        if (!HasArg("-fineageLocal"))
+            return true;
+#endif
         if (HasArg("-fineagePublic"))
             return true;
         return PlayerPrefs.GetInt(PublicPlaytestPrefKey, 0) == 1;
