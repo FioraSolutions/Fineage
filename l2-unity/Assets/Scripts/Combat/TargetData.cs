@@ -12,8 +12,8 @@ public class TargetData
     [SerializeField] private ObjectData _data;
     [SerializeField] private float _distance;
     private string hexColor;
-    public Status Status { get { return _status; } }
-    public Stats Stats { get { return _stats; } }
+    public Status Status { get { return _entity != null && _entity.Status != null ? _entity.Status : _status; } }
+    public Stats Stats { get { return _entity != null && _entity.Stats != null ? _entity.Stats : _stats; } }
     public EntityIdentity Identity { get { return _identity; } }
     public ObjectData Data { get { return _data; } }
     public float Distance { get { return _distance; } set { _distance = value; } }
