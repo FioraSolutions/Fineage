@@ -90,7 +90,10 @@ public sealed class InterludeSplashPlayer : MonoBehaviour
         _frame.style.right = 0;
         _frame.style.bottom = 0;
         _frame.style.backgroundColor = Color.black;
-        _frame.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
+        _frame.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
+        _frame.style.backgroundPositionX = new BackgroundPosition(BackgroundPositionKeyword.Center);
+        _frame.style.backgroundPositionY = new BackgroundPosition(BackgroundPositionKeyword.Center);
+        _frame.style.backgroundRepeat = new BackgroundRepeat(Repeat.NoRepeat, Repeat.NoRepeat);
         _overlay.Add(_frame);
         documentRoot.Add(_overlay);
         _overlay.BringToFront();
@@ -110,6 +113,7 @@ public sealed class InterludeSplashPlayer : MonoBehaviour
             _music.spatialBlend = 0f;
             _music.playOnAwake = false;
             _music.Play();
+            Debug.Log("[InterludeSplash] playing intro " + clip.length.ToString("0.0") + "s");
         }
         else
         {

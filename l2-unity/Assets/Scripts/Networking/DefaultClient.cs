@@ -30,6 +30,7 @@ public abstract class DefaultClient : MonoBehaviour
     public int SessionKey1 { get { return _sessionKey1; } set { _sessionKey1 = value; } }
     public int SessionKey2 { get { return _sessionKey2; } set { _sessionKey2 = value; } }
     public bool IsConnected { get { return _connected; } }
+    public bool IsConnecting { get { return _connecting; } }
     public int Ping { get { return _ping; } set { _ping = value; } }
 
     private GameManager Manager => NetworkingPacketServices.Manager;
