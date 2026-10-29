@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using VContainer;
 
 /// <summary>
@@ -36,7 +36,7 @@ public sealed class KeyboardMoveController : MonoBehaviour
             return;
 
         L2GameUI ui = L2GameUI.Instance;
-        if (ui != null && ui.MouseOverUI)
+        if (ui != null && (ui.MouseOverUI || ui.IsPointerOverPanel()))
             return;
 
         ChatWindow chat = ChatWindow.Instance;

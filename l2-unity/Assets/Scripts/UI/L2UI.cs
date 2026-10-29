@@ -63,15 +63,29 @@ public abstract class L2UI : MonoBehaviour
             return;
         if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
             return;
+        if (!IsPointerOverPanel())
+            _mouseOverUI = false;
+    }
+
+    /// <summary>Fresh check: is the cursor over a real (non-background) UI Toolkit element right now.</summary>
+    public bool IsPointerOverPanel()
+    {
+        if (_rootElement == null || _rootElement.panel == null)
+            return false;
         Vector3 m = Input.mousePosition;
         Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(_rootElement.panel, new Vector2(m.x, Screen.height - m.y));
         VisualElement picked = _rootElement.panel.Pick(panelPos);
-        if (picked == null || IsBackgroundContainer(picked))
-            _mouseOverUI = false;
+        return picked != null && !IsBackgroundContainer(picked);
     }
 
     bool IsBackgroundContainer(VisualElement ve)
     {
+        if (ve == null) return true;
+        // Full-screen transparent wrappers (window roots/containers) must not swallow world clicks.
+        Rect pb = _rootElement.worldBound;
+        Rect b = ve.worldBound;
+        if (pb.width > 0 && pb.height > 0 && b.width >= pb.width * 0.9f && b.height >= pb.height * 0.9f)
+            return true;
         return ve == _rootElement
             || ve == _rootVisualContainer
             || ve == _popupVisualContainer
