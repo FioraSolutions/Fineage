@@ -20,8 +20,8 @@ on:
     inputs:
       mode:
         description: >-
-          full — Win + macOS in parallel, release on Win (default). Linux is disabled for now.
-          macos-only — rebuild Fineage-macOS.zip and attach to an existing release (no Windows/Linux).
+          full — Win + macOS in parallel, release on Win (default).
+          macos-only — rebuild Fineage-macOS.zip and attach to an existing release (no Windows).
         required: false
         type: choice
         options:
@@ -67,7 +67,7 @@ permissions:
 concurrency:
   group: release-clients
   # Do not cancel in-progress runs: publish creates the GitHub Release (Windows
-  # only) before macOS/Linux finish; cancellation mid-run leaves prereleases
+  # only) before macOS finishes; cancellation mid-run leaves prereleases
   # with a single zip. Overlapping runs are possible if main is pushed again
   # before the prior run finishes — rare, and each run still serializes Unity
   # (max-parallel: 1) so at worst two Personal seats briefly contend.
@@ -203,49 +203,10 @@ jobs:
             artifacts/notes/CHANGELOG.md \
             artifacts/notes/version.json
 
-  build-linux:
-    name: Fineage-Linux-x64
-    needs: [prepare, build-windows, publish]
-    # Linux disabled for now (not on the critical path). Flip `false &&` to re-enable.
-    if: >-
-      false &&
-      always() &&
-      needs.prepare.result == 'success' &&
-      needs.build-windows.result == 'success' &&
-      (needs.publish.result == 'success' || needs.publish.result == 'skipped') &&
-      (github.event_name != 'workflow_dispatch' || inputs.mode == 'full')
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    steps:
-      - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-            /usr/local/share/boost /usr/local/share/powershell /usr/share/swift \
-            /usr/local/.ghcup /opt/hostedtoolcache || true
-          sudo docker image prune --all --force || true
-          sudo apt-get clean || true
-          df -h
-
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/build-playtest-client
-        with:
-          targetPlatform: StandaloneLinux64
-          artifact: Fineage-Linux-x64
-          unityVersion: ${{ needs.prepare.outputs.unity_version }}
-          publicHost: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
-          loginHost: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
-          gameHost: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
-          loginPort: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
-          gamePort: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
-          unityEmail: ${{ secrets.UNITY_EMAIL }}
-          unityPassword: ${{ secrets.UNITY_PASSWORD }}
-          unitySerial: ${{ secrets.UNITY_SERIAL }}
-
   build-macos:
     name: Fineage-macOS
     # Runs in parallel with build-windows (only needs prepare). Same Unity Personal
-    # account activates on two runners at once; if seat contention bites, macOS retry covers it.
+    # account activates on two runners at once.
     needs: [prepare]
     if: >-
       always() &&
@@ -279,37 +240,9 @@ jobs:
           unityPassword: ${{ secrets.UNITY_PASSWORD }}
           unitySerial: ${{ secrets.UNITY_SERIAL }}
 
-  build-macos-retry:
-    name: Fineage-macOS (runner retry)
-    needs: [prepare, build-macos]
-    if: >-
-      always() &&
-      needs.prepare.result == 'success' &&
-      needs.build-macos.result != 'success' &&
-      needs.build-macos.result != 'skipped'
-    runs-on: macos-14
-    timeout-minutes: 360
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/build-playtest-client
-        with:
-          targetPlatform: StandaloneOSX
-          artifact: Fineage-macOS
-          unityVersion: ${{ needs.prepare.outputs.unity_version }}
-          publicHost: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
-          loginHost: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
-          gameHost: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
-          loginPort: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
-          gamePort: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
-          unityEmail: ${{ secrets.UNITY_EMAIL }}
-          unityPassword: ${{ secrets.UNITY_PASSWORD }}
-          unitySerial: ${{ secrets.UNITY_SERIAL }}
-
   attach:
-    name: Attach macOS and Linux
-    needs: [prepare, publish, build-linux, build-macos, build-macos-retry]
+    name: Attach macOS
+    needs: [prepare, publish, build-macos]
     if: >-
       always() &&
       needs.prepare.result == 'success' &&
@@ -318,7 +251,7 @@ jobs:
         (
           github.event_name == 'workflow_dispatch' &&
           inputs.mode == 'macos-only' &&
-          (needs.build-macos.result == 'success' || needs.build-macos-retry.result == 'success')
+          needs.build-macos.result == 'success'
         )
       )
     runs-on: ubuntu-latest
@@ -337,7 +270,7 @@ jobs:
           shopt -s nullglob globstar
           mkdir -p attach
           found=0
-          for name in Fineage-macOS.zip Fineage-Linux-x64.zip; do
+          for name in Fineage-macOS.zip; do
             for path in artifacts/**/"$name"; do
               if [ -f "$path" ]; then
                 cp -f "$path" "attach/$name"
@@ -348,7 +281,7 @@ jobs:
           done
           if [ "$found" -eq 0 ]; then
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "No macOS or Linux zip to attach. The Windows release is unchanged."
+            echo "No macOS zip to attach. The Windows release is unchanged."
             exit 0
           fi
           echo "present=true" >> "$GITHUB_OUTPUT"
