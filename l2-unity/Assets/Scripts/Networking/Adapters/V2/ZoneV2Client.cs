@@ -108,7 +108,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         Disconnect();
         ZoneV2NpcSession.Reset();
         ZoneV2ClanBook.Shared.Reset();
-        ClanPacketServices.RefreshWindow();
+        try
+        {
+            ClanPacketServices.RefreshWindow();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[ZoneV2] clan window refresh skipped: " + ex.Message);
+        }
         _preselectId = 0;
         _selectGeneration++;
         _cts = new CancellationTokenSource();

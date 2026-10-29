@@ -44,9 +44,12 @@ public class MasterClan
     {
         if (string.IsNullOrEmpty(clanName))
         {
-            dropdown.value = null;
-            dropdown.choices = null;
-            return null;
+            // UI Toolkit throws ArgumentNullException("value") if choices is null.
+            // Login calls this with an empty pledge name before the socket opens.
+            var empty = new List<string>();
+            dropdown.choices = empty;
+            dropdown.SetValueWithoutNotify(string.Empty);
+            return empty;
         }
         else
         {
