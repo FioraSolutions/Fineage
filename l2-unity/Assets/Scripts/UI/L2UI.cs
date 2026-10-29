@@ -48,7 +48,36 @@ public abstract class L2UI : MonoBehaviour
         if (_uiLoaded)
         {
             _focusedElement = _rootElement.focusController.focusedElement;
+            HealStuckMouseOver();
         }
+    }
+
+    /// <summary>
+    /// MouseOverUI is a global flag toggled by enter/leave manipulators. When a window is hidden
+    /// or rebuilt under the cursor, PointerLeave never fires and the flag sticks true, killing all
+    /// world clicks (targeting/move) until restart. Re-validate against a real panel pick.
+    /// </summary>
+    void HealStuckMouseOver()
+    {
+        if (!_mouseOverUI || _rootElement == null || _rootElement.panel == null)
+            return;
+        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+            return;
+        Vector3 m = Input.mousePosition;
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(_rootElement.panel, new Vector2(m.x, Screen.height - m.y));
+        VisualElement picked = _rootElement.panel.Pick(panelPos);
+        if (picked == null || IsBackgroundContainer(picked))
+            _mouseOverUI = false;
+    }
+
+    bool IsBackgroundContainer(VisualElement ve)
+    {
+        return ve == _rootElement
+            || ve == _rootVisualContainer
+            || ve == _popupVisualContainer
+            || ve == _tooltipVisualContainer
+            || ve == _slotVisualContainer
+            || ve == _rootElement.parent;
     }
 
     public void BlurFocus()

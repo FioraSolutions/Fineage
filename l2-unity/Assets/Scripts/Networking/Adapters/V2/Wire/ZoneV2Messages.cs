@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 
 /// <summary>MessagePack array bodies matching tools/zone-server Wire/Messages.cs.</summary>
@@ -1253,8 +1253,19 @@ public static partial class ZoneV2Messages
             row.DeleteSecondsLeft = ZoneV2MsgPack.ReadInt(body, ref i);
         if (n >= 15)
             row.IsLastPlayed = ZoneV2MsgPack.ReadBool(body, ref i);
-        if (n > 15)
-            ZoneV2MsgPack.SkipValues(body, ref i, n - 15);
+        // Optional lobby stats (forward-compatible; older servers send 15).
+        if (n >= 16) row.CurHp = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 17) row.MaxHp = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 18) row.CurMp = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 19) row.MaxMp = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 20) row.CurCp = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 21) row.MaxCp = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 22) row.Exp = ZoneV2MsgPack.ReadInt64(body, ref i);
+        if (n >= 23) row.Sp = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 24) row.Karma = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n >= 25) row.WeaponItemId = ZoneV2MsgPack.ReadInt(body, ref i);
+        if (n > 25)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - 25);
         return true;
     }
 
@@ -2566,6 +2577,9 @@ public struct ZoneV2CharacterSummary
     public int Z;
     public int DeleteSecondsLeft;
     public bool IsLastPlayed;
+    public int CurHp, MaxHp, CurMp, MaxMp, CurCp, MaxCp;
+    public long Exp;
+    public int Sp, Karma, WeaponItemId;
 }
 
 /// <summary>Character select ticket. <see cref="Token"/> is the zone Auth password.</summary>
