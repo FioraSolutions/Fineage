@@ -315,6 +315,8 @@ public sealed class WorldPacketApply
         EntityWorldApply apply;
         if (entity == null || !TryResolve(entity, out apply))
             return;
+        if (entity == PlayerEntity.Instance)
+            CastBarOverlay.Cancel();
         apply.OnMagicSkillCanceled(entity, dto);
     }
 
@@ -342,6 +344,8 @@ public sealed class WorldPacketApply
         try
         {
             apply.OnMagicSkillUse(entity, dto);
+            if (entity == PlayerEntity.Instance)
+                try { CastBarOverlay.Begin(dto.HitTime); } catch (Exception bar) { Debug.LogWarning("[CastBar] " + bar.Message); }
             try { SkillCastSound.OnMagicSkillUse(entity, dto); } catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] " + sfx.Message); }
             if (dto.SkillId == 4247)
                 Debug.Log("[WINDSTRIKE] OnMagicSkillUse returned");
