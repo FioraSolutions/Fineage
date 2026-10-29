@@ -56,8 +56,8 @@ public class LoginClient : DefaultClient {
     public static LoginClient Instance { get { return _instance; } }
 
     private void Reset() {
-        _serverIp = "127.0.0.1";
-        _serverPort = 2106;
+        _serverIp = PlaytestEndpoint.DefaultLoginHost;
+        _serverPort = PlaytestEndpoint.DefaultLoginPort;
     }
 
     private void Awake() {
