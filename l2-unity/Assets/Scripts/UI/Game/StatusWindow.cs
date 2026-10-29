@@ -22,6 +22,9 @@ public class StatusWindow : L2Window
     private VisualElement _HPBarBG;
     private VisualElement _MPBar;
     private VisualElement _MPBarBG;
+    private VisualElement _EXPBar;
+    private VisualElement _EXPBarBG;
+    private Label _EXPTextLabel;
 
     [SerializeField] private float _statusWindowMinWidth = 175.0f;
     [SerializeField] private float _statusWindowMaxWidth = 400.0f;
@@ -121,6 +124,10 @@ public class StatusWindow : L2Window
         if(_MPBarBG == null) {
             // Debug.LogError("Status window MPBarBG is null");
         }
+
+        _EXPBar = GetElementById("EXPBar");
+        _EXPBarBG = GetElementById("EXPBarBG");
+        _EXPTextLabel = (Label)GetElementById("EXPText");
 
         _MPBar = GetElementById("MPBar");
         if(_MPBar == null) {
@@ -232,5 +239,29 @@ public class StatusWindow : L2Window
                 _MPBar.style.width = bgWidth * mpRatio;
             }
         }
+
+        float expRatio = LevelExpRatio(stats);
+        if (_EXPTextLabel != null) {
+            _EXPTextLabel.text = (expRatio * 100f).ToString("0.00") + "%";
+        }
+        if(_EXPBarBG != null && _EXPBar != null) {
+            float bgWidth = _EXPBarBG.resolvedStyle.width;
+            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
+                _EXPBar.style.width = bgWidth * expRatio;
+            }
+        }
+    }
+
+    /// <summary>L2-style progress inside the current level (0..1).</summary>
+    static float LevelExpRatio(PlayerStats stats)
+    {
+        int lvl = stats.Level;
+        long cur = LevelServer.GetExp(lvl);
+        long next = LevelServer.GetExp(lvl + 1);
+        if (cur < 0 || next <= cur)
+            return 0f;
+        double r = (stats.Exp - cur) / (double)(next - cur);
+        if (double.IsNaN(r)) return 0f;
+        return Mathf.Clamp01((float)r);
     }
 }

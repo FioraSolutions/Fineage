@@ -32,6 +32,9 @@ public sealed class KeyboardMoveController : MonoBehaviour
         if (input == null || !input.Move || input.TurnCamera)
             return;
 
+        if (CastMoveLock.IsLocked)
+            return;
+
         L2GameUI ui = L2GameUI.Instance;
         if (ui != null && ui.MouseOverUI)
             return;

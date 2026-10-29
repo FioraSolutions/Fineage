@@ -164,6 +164,9 @@ public class ClickManager : MonoBehaviour
 
     public void OnClickToMove(RaycastHit hit)
     {
+        if (CastMoveLock.IsLocked)
+            return;
+
         _lastClickPosition = hit.point;
 
         StopFollow();
@@ -261,6 +264,7 @@ public class ClickManager : MonoBehaviour
 
     public void PlaceLocator(Vector3 position)
     {
+        EnsureLocator();
         if (_locator == null)
         {
             return;
@@ -268,6 +272,21 @@ public class ClickManager : MonoBehaviour
 
         _locator.SetActive(true);
         _locator.transform.position = position;
+    }
+
+    void EnsureLocator()
+    {
+        if (_locator != null)
+            return;
+        _locator = GameObject.Find("Locator");
+        if (_locator != null)
+            return;
+        GameObject prefab = Resources.Load<GameObject>("Data/Effects/locator/Locator");
+        if (prefab == null)
+            return;
+        _locator = Instantiate(prefab);
+        _locator.name = "Locator";
+        _locator.SetActive(false);
     }
 
     public void HideLocator()
