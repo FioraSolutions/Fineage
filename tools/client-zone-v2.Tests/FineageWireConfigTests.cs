@@ -57,6 +57,37 @@ public class FineageWireConfigTests
     }
 
     [Fact]
+    public void Login_press_starts_zone_session_when_playtest_handoff_is_on()
+    {
+        FineageWireConfig.EnablePlaytestBackend(null, 0, null, 0);
+
+        Assert.True(FineageWireConfig.LoginPressStartsZoneSession(transportBypassesInterludeLogin: false));
+        Assert.Equal("login.fineage.evpoint.by", FineageWireConfig.LoginHost);
+        Assert.Equal(2106, FineageWireConfig.LoginPort);
+        Assert.NotEqual("127.0.0.1", FineageWireConfig.LoginHost);
+        Assert.NotEqual("127.0.0.1", FineageWireConfig.ZoneHost);
+    }
+
+    [Fact]
+    public void Login_press_starts_zone_session_from_handoff_or_transport_alone()
+    {
+        FineageWireConfig.UseLoginHandoff = true;
+        Assert.False(FineageWireConfig.IsZoneV2);
+        Assert.True(FineageWireConfig.LoginPressStartsZoneSession(transportBypassesInterludeLogin: false));
+
+        FineageWireConfig.UseLoginHandoff = false;
+        Assert.True(FineageWireConfig.LoginPressStartsZoneSession(transportBypassesInterludeLogin: true));
+    }
+
+    [Fact]
+    public void Login_press_stays_on_interlude_connect_when_zone_flags_are_off()
+    {
+        Assert.False(FineageWireConfig.UseLoginHandoff);
+        Assert.False(FineageWireConfig.IsZoneV2);
+        Assert.False(FineageWireConfig.LoginPressStartsZoneSession(transportBypassesInterludeLogin: false));
+    }
+
+    [Fact]
     public void Playtest_backend_replaces_loopback_hosts()
     {
         FineageWireConfig.EnableLocalBackend(null, 0, null, 0);

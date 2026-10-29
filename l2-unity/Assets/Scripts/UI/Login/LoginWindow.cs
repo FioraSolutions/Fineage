@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -133,32 +134,62 @@ public class LoginWindow : L2Window
     }
 
     private void LoginButtonPressed() {
-        if (Login.IsConnected || Login.IsConnecting)
-            return;
-
+        LoginClient login = Login;
         string account = _userInput.value.ToLower().Trim();
         string password = _passwordInput.value.Trim();
 
-        if (string.IsNullOrEmpty(account))
-            account = (Login.Account ?? string.Empty).ToLower().Trim();
-        if (string.IsNullOrEmpty(password))
-            password = (Login.Password ?? string.Empty).Trim();
+        if (string.IsNullOrEmpty(account) && login != null)
+            account = (login.Account ?? string.Empty).ToLower().Trim();
+        if (string.IsNullOrEmpty(password) && login != null)
+            password = (login.Password ?? string.Empty).Trim();
 
         if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
             return;
 
         IZoneTransport transport = _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
-        if (transport != null && transport.BypassesInterludeLogin)
+        bool bypassesInterlude = transport != null && transport.BypassesInterludeLogin;
+        // #491 ignores a second Interlude Connect. ZoneV2 handoff must still Auth if that socket is already up.
+        if (FineageWireConfig.LoginPressStartsZoneSession(bypassesInterlude))
         {
+            if (login != null && login.IsConnected)
+            {
+                Debug.Log("[Login] closing stuck login socket before ZoneV2 handoff");
+                login.Disconnect();
+            }
+
             if (FineageWireConfig.UseLoginHandoff)
                 ShowErrorText("Connecting to " + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort);
-            transport.BeginSession(account, password);
+
+            try
+            {
+                if (transport != null && FineageWireConfig.IsZoneV2)
+                    transport.BeginSession(account, password);
+                else
+                    ZoneV2Client.Ensure().BeginSession(account, password);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[Login] BeginSession failed: " + ex.Message);
+                ShowErrorText(ex.Message);
+            }
             return;
         }
 
-        Login.Account = account;
-        Login.Password = password;
-        Login.Connect();
+        if (login == null)
+        {
+            ShowErrorText("Login client is not ready.");
+            return;
+        }
+
+        if (login.IsConnected || login.IsConnecting)
+        {
+            ShowErrorText("Already connected to the login server.");
+            return;
+        }
+
+        login.Account = account;
+        login.Password = password;
+        login.Connect();
     }
 
     private void ExitButtonPressed() {
