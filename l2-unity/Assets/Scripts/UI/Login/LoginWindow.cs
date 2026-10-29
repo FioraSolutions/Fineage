@@ -61,24 +61,20 @@ public class LoginWindow : L2Window
         exitButton.AddManipulator(new ButtonClickSoundManipulator(exitButton));
         exitButton.RegisterCallback<ClickEvent>(evt => ExitButtonPressed());
 
-        VisualElement userInputBg = GetElementById("UserInputBg");
         _userInput = (TextField) GetElementById("UserInputField");
         _userInput.RegisterCallback<FocusEvent>((evt) => OnInputFocus(evt, _userInput));
         _userInput.RegisterCallback<BlurEvent>((evt) => OnInputBlur(evt, _userInput));
         _userInput.maxLength = 16;
         _userInput.RegisterValueChangedCallback(OnLoginInputChanged);
 
-        _userInput.AddManipulator(new HighlightedInputFieldManipulator(_userInput, userInputBg, 20));
         _userInput.AddManipulator(new BlinkingCursorManipulator(_userInput));
         _userInput.RegisterCallback<KeyDownEvent>((evt) => OnKeyPressed(evt, _userInput));
 
-        VisualElement passwordInputBg = GetElementById("PasswordInputBg");
         _passwordInput = (TextField)GetElementById("PasswordInputField");
         _passwordInput.RegisterCallback<FocusEvent>((evt) => OnInputFocus(evt, _passwordInput));
         _passwordInput.RegisterCallback<BlurEvent>((evt) => OnInputBlur(evt, _passwordInput));
         _passwordInput.maxLength = 16;
 
-        _passwordInput.AddManipulator(new HighlightedInputFieldManipulator(_passwordInput, passwordInputBg, 20));
         _passwordInput.AddManipulator(new BlinkingCursorManipulator(_passwordInput));
         _passwordInput.RegisterCallback<KeyDownEvent>((evt) => OnKeyPressed(evt, _passwordInput));
 

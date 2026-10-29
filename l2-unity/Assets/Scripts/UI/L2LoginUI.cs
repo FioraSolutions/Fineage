@@ -89,6 +89,7 @@ public class L2LoginUI : L2UI
         // Early pass (menu-only). SceneLoader runs a second pass after additive l2_lobby.
         LobbyBrokenMaterialHider.HideBrokenRenderers("login_ui_load");
         InterludeSplashPlayer.Present(RootElement);
+        InterludeLoginProof.Arm(RootElement);
         StartCoroutine(ShowLoginWhenReady());
         try
         {
