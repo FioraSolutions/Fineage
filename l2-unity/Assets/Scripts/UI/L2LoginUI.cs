@@ -128,7 +128,11 @@ public class L2LoginUI : L2UI
     }
 
     public void ShowCharSelectWindow() {
-        LoginWin.HideWindow();
+        if (LoginWin != null)
+        {
+            LoginWin.ShowErrorText("");
+            LoginWin.HideWindow();
+        }
         CharCreateWin.HideWindow();
         CharSelectWin.ShowWindow();
         ServerWin.HideWindow();

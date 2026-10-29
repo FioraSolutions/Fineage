@@ -8,7 +8,10 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField] private CharSelectionInfoPackage _selectedCharacter;
     [SerializeField] private CharSelectInfoPackage _selectedCharacterInterlude;
     [SerializeField] private List<CharSelectionInfoPackage> _characters;
-    [SerializeField] private List<CharSelectInfoPackage> _charactersInterlude;
+    [SerializeField]     private List<CharSelectInfoPackage> _charactersInterlude;
+    private List<LobbyCharacter> _lobbyCharacters;
+    private int _selectedLobbyIndex = -1;
+    private bool _lobbyMode;
     [SerializeField] private LayerMask _characterMask;
     [SerializeField] private Camera _charSelectCamera;
     private Dictionary<int, float> dict;
@@ -101,6 +104,7 @@ public class CharacterSelector : MonoBehaviour
             });
         }
 
+        _lobbyMode = false;
         _charactersInterlude = characters;
         _pawnData = LogonGrps;
         _characterGameObjects = new List<GameObject>();
@@ -110,6 +114,140 @@ public class CharacterSelector : MonoBehaviour
         {
             SpawnInterludeCharacterSlot(i);
         }
+    }
+
+    public void SetLobbyCharacters(IReadOnlyList<LobbyCharacter> characters, int preselectId)
+    {
+        _lobbyMode = true;
+        _lobbyCharacters = characters == null
+            ? new List<LobbyCharacter>()
+            : new List<LobbyCharacter>(characters);
+        if (_container == null)
+            _container = new GameObject("Characters");
+
+        if (_characterGameObjects != null)
+        {
+            _characterGameObjects.ForEach((go) =>
+            {
+                if (go != null)
+                    Destroy(go);
+            });
+        }
+
+        LogongrpTable table = _logonGrps != null ? _logonGrps : LogongrpTable.Instance;
+        _pawnData = table != null ? table.LogonGrps : null;
+        _characterGameObjects = new List<GameObject>();
+        _selectedCharacterSlot = -1;
+        _selectedLobbyIndex = -1;
+        if (_pawnData == null || _pawnData.Count < 8)
+        {
+            Debug.LogError("[Lobby] character slot layout is missing.");
+            return;
+        }
+
+        for (int i = 0; i < _lobbyCharacters.Count && i < 7; i++)
+            SpawnLobbyCharacterSlot(i);
+
+        int index = LobbyCharacterMap.PreferredIndex(_lobbyCharacters, preselectId);
+        if (index >= 0)
+            SelectLobbyCharacter(index);
+    }
+
+    public void SpawnLobbyCharacterSlot(int index)
+    {
+        LobbyCharacter character = _lobbyCharacters[index];
+        CharSelectInfoPackage info = ToSelectPackage(character);
+        CharacterCreator creator = CharacterCreator.Instance;
+        if (creator == null)
+        {
+            _characterGameObjects.Add(null);
+            return;
+        }
+
+        GameObject pawnObject = creator.CreatePawnInterlude(info.CharacterRaceAnimation, info.Appreance);
+        _characterGameObjects.Add(pawnObject);
+        if (pawnObject == null)
+            return;
+
+        SelectableCharacterEntity entity = pawnObject.GetComponent<SelectableCharacterEntity>();
+        if (entity != null)
+        {
+            entity.CharacterInfoInterlude = info;
+            UserGear gear = pawnObject.GetComponent<UserGear>();
+            if (gear != null)
+                entity.WeaponAnim = gear.WeaponAnim;
+        }
+
+        creator.PlacePawn(pawnObject, _pawnData[index], character.Name, _container);
+    }
+
+    public void SelectLobbyCharacter(int index)
+    {
+        if (!_lobbyMode || _lobbyCharacters == null || index < 0 || index >= _lobbyCharacters.Count)
+            return;
+        if (_selectedLobbyIndex == index)
+            return;
+        if (_pawnData == null || _pawnData.Count < 8)
+            return;
+
+        if (_selectedLobbyIndex != -1)
+            MoveLobbyPawn(_selectedLobbyIndex, _selectedLobbyIndex);
+
+        MoveLobbyPawn(index, 7);
+        _selectedLobbyIndex = index;
+        _selectedCharacterSlot = _lobbyCharacters[index].Slot;
+        if (CharSelectWindow.Instance != null)
+            CharSelectWindow.Instance.SelectLobbySlot(index);
+    }
+
+    static CharSelectInfoPackage ToSelectPackage(LobbyCharacter character)
+    {
+        CharSelectInfoPackage info = new CharSelectInfoPackage();
+        info.Name = character.Name;
+        info.Slot = character.Slot;
+        info.ObjId = character.Id;
+        info.ClassId = character.ClassId;
+        info.Race = character.Race;
+        info.Sex = character.Sex;
+        info.Lvl = character.Level;
+        info.HairStyle = character.HairStyle;
+        info.HairColor = character.HairColor;
+        info.Face = character.Face;
+        int baseClass = (int)BaseClass.Fighter;
+        if (character.ClassId >= 0 && character.ClassId <= byte.MaxValue &&
+            CharacterClassParser.IsMage((CharacterClass)character.ClassId))
+            baseClass = (int)BaseClass.MMagic;
+        info.Appreance.BaseClass = baseClass;
+        CharacterRace race = character.Race >= 0 && character.Race <= (int)CharacterRace.Dwarf
+            ? (CharacterRace)character.Race
+            : CharacterRace.Human;
+        info.CharacterRaceAnimation = CharacterRaceAnimationParser.ParseRaceInterlude(race, character.Sex, baseClass);
+        return info;
+    }
+
+    void MoveLobbyPawn(int characterIndex, int pawnDataIndex)
+    {
+        if (_characterGameObjects == null || characterIndex < 0 || characterIndex >= _characterGameObjects.Count)
+            return;
+        GameObject pawn = _characterGameObjects[characterIndex];
+        if (pawn == null || _pawnData == null || pawnDataIndex < 0 || pawnDataIndex >= _pawnData.Count)
+            return;
+        SelectableCharacterEntity entity = pawn.GetComponent<SelectableCharacterEntity>();
+        if (entity != null)
+            entity.SetDestination(_pawnData[pawnDataIndex]);
+    }
+
+    int IndexOfLobbySlot(int slot)
+    {
+        if (_lobbyCharacters == null)
+            return -1;
+        for (int i = 0; i < _lobbyCharacters.Count; i++)
+        {
+            if (_lobbyCharacters[i] != null && _lobbyCharacters[i].Slot == slot)
+                return i;
+        }
+
+        return -1;
     }
 
    
@@ -232,8 +370,19 @@ public class CharacterSelector : MonoBehaviour
             if (Physics.Raycast(ray, out hit, 1000f)) {
                 int hitLayer = hit.collider.gameObject.layer;
                 if (_characterMask == (_characterMask | (1 << hitLayer))) {
-                    CharSelectInfoPackage hitInfo = hit.transform.parent.GetComponent<SelectableCharacterEntity>().CharacterInfoInterlude;
-                    SelectInterludeCharacter(hitInfo.Slot);
+                    SelectableCharacterEntity entity = hit.transform.parent != null
+                        ? hit.transform.parent.GetComponent<SelectableCharacterEntity>()
+                        : null;
+                    if (entity == null || entity.CharacterInfoInterlude == null)
+                        return;
+                    if (_lobbyMode)
+                    {
+                        int index = IndexOfLobbySlot(entity.CharacterInfoInterlude.Slot);
+                        if (index >= 0)
+                            SelectLobbyCharacter(index);
+                    }
+                    else
+                        SelectInterludeCharacter(entity.CharacterInfoInterlude.Slot);
                 }
             }
         }

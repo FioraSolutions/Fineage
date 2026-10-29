@@ -5,12 +5,92 @@ using System.Threading;
 using System.Threading.Tasks;
 
 /// <summary>
-/// Fineage-Backend login TCP: Hello, Auth, ListCharacters, SelectCharacter, Handoff.
+/// What to do after LoginOk + CharacterList. An empty roster is CharSelect, never a login error.
+/// </summary>
+public enum FineageLoginPlan
+{
+    /// <summary>A character was chosen. SelectCharacter + Handoff may run.</summary>
+    Handoff = 0,
+    /// <summary>Show the church CharSelect. Empty rosters use Create. Do not hand off yet.</summary>
+    CharacterSelect = 1,
+    Failed = 2
+}
+
+/// <summary>
+/// Result of <see cref="FineageLoginSession.LoginAndSelectAsync"/>.
+/// <see cref="HasHandoff"/> is false when the player must use CharSelect (including zero characters).
+/// </summary>
+public readonly struct FineageLoginSelection
+{
+    public readonly bool HasHandoff;
+    public readonly ZoneV2Handoff Handoff;
+    public readonly string Account;
+    public readonly ZoneV2CharacterSummary[] Characters;
+
+    public FineageLoginSelection(bool hasHandoff, ZoneV2Handoff handoff, string account, ZoneV2CharacterSummary[] characters)
+    {
+        HasHandoff = hasHandoff;
+        Handoff = handoff;
+        Account = account ?? "";
+        Characters = characters ?? Array.Empty<ZoneV2CharacterSummary>();
+    }
+
+    public static FineageLoginSelection CharacterSelect(string account, ZoneV2CharacterSummary[] characters)
+    {
+        return new FineageLoginSelection(false, default, account, characters);
+    }
+}
+
+/// <summary>
+/// Fineage-Backend login TCP: Hello, Auth, ListCharacters, then SelectCharacter + Handoff
+/// only when a character is already chosen. An empty list returns to CharSelect / Create.
 /// The handoff token is the zone Auth password. The account password never goes to the zone.
 /// </summary>
 public static class FineageLoginSession
 {
-    public static async Task<ZoneV2Handoff> LoginAndSelectAsync(
+    public static bool IsPublicLoginHost(string host)
+    {
+        if (string.IsNullOrWhiteSpace(host))
+            return false;
+        string trimmed = host.Trim();
+        if (trimmed == "127.0.0.1" || trimmed == "::1" || trimmed == "0.0.0.0")
+            return false;
+        if (trimmed.StartsWith("127.", StringComparison.Ordinal))
+            return false;
+        if (string.Equals(trimmed, "localhost", StringComparison.OrdinalIgnoreCase))
+            return false;
+        return true;
+    }
+
+    /// <summary>
+    /// Empty roster always plans CharSelect (Create). It does not produce an error.
+    /// <paramref name="playerPicksInUi"/> keeps a non-empty roster on CharSelect until the player picks.
+    /// </summary>
+    public static FineageLoginPlan Plan(
+        ZoneV2CharacterSummary[] characters,
+        string characterName,
+        bool playerPicksInUi,
+        out ZoneV2CharacterSummary selected,
+        out string error)
+    {
+        selected = default;
+        error = null;
+        if (characters == null || characters.Length == 0)
+            return FineageLoginPlan.CharacterSelect;
+
+        if (playerPicksInUi)
+            return FineageLoginPlan.CharacterSelect;
+
+        if (!TryPickCharacter(characters, characterName, out selected))
+        {
+            error = CharacterPickError(characters, characterName);
+            return FineageLoginPlan.Failed;
+        }
+
+        return FineageLoginPlan.Handoff;
+    }
+
+    public static async Task<FineageLoginSelection> LoginAndSelectAsync(
         string host,
         int port,
         string account,
@@ -60,8 +140,18 @@ public static class FineageLoginSession
                 throw new InvalidDataException("Character list was not readable.");
 
             ZoneV2CharacterSummary selected;
-            if (!TryPickCharacter(characters, characterName, out selected))
-                throw new InvalidOperationException(CharacterPickError(characters, characterName));
+            string pickError;
+            FineageLoginPlan plan = Plan(characters, characterName, false, out selected, out pickError);
+            if (plan == FineageLoginPlan.CharacterSelect)
+            {
+                int count = characters != null ? characters.Length : 0;
+                if (log != null)
+                    log("[FineageLocal] roster count=" + count + " → CharSelect");
+                return FineageLoginSelection.CharacterSelect(canonical, characters);
+            }
+
+            if (plan != FineageLoginPlan.Handoff)
+                throw new InvalidOperationException(string.IsNullOrEmpty(pickError) ? "Character was not selected." : pickError);
 
             if (log != null)
                 log("[FineageLocal] select character=" + selected.Name + " id=" + selected.CharacterId);
@@ -96,7 +186,7 @@ public static class FineageLoginSession
                     + " tokenLength=" + tokenLength);
             }
 
-            return handoff;
+            return new FineageLoginSelection(true, handoff, handoff.Account, characters);
         }
         finally
         {
@@ -136,7 +226,7 @@ public static class FineageLoginSession
     static string CharacterPickError(ZoneV2CharacterSummary[] characters, string characterName)
     {
         if (characters == null || characters.Length == 0)
-            return "No characters on this account.";
+            return null;
 
         if (!string.IsNullOrWhiteSpace(characterName))
             return "Character '" + characterName.Trim() + "' was not found.";

@@ -175,6 +175,8 @@ public class CharCreationWindow : L2Window {
                 LoginCamera.SwitchCamera(cam);
             }
 
+            if (FineageWireConfig.UseLoginHandoff)
+                hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale));
             hairstyleManipulator.ResetInput();
             hairColorManipulator.ResetInput();
             faceManipulator.ResetInput();
@@ -214,6 +216,13 @@ public class CharCreationWindow : L2Window {
         classInput.AddManipulator(classManipulator);
 
         raceManipulator = new ArrowInputManipulator(raceInput, "Race", new string[] { "Human", "Elf", "Dark Elf", "Orc", "Dwarf" }, -1, (index, value) => {
+            if (FineageWireConfig.UseLoginHandoff && value != "Human")
+            {
+                raceManipulator.SelectIndex(0);
+                SetlabelError("Only Human characters can be created on this server.");
+                return;
+            }
+
             LoginCamera.SwitchCamera(value);
             classManipulator.ClearInput();
             genderManipulator.ClearInput();
@@ -239,19 +248,34 @@ public class CharCreationWindow : L2Window {
 
     private void RefreshFace(CharacterRaceAnimation raceId , string face)
     {
-        byte iFace = ConvertType.ConvertTypeToByte(face);
-   
+        byte iFace = FineageWireConfig.UseLoginHandoff
+            ? (byte)LobbyCharacterCreate.ClampAppearance(faceManipulator != null ? faceManipulator.Index : 0, 2)
+            : ConvertType.ConvertTypeToByte(face);
 
         Creator.ReBuildFace(raceId, iFace);
     }
 
     private void RefreshHair(CharacterRaceAnimation raceId,  string hairColor, string hairStyle)
     {
-        //byte iFace = ConvertType.ConvertTypeToByte(face);
-        byte typeHairColor = ConvertType.ConvertTypeToByte(hairColor);
-        byte typeHairStyle = ConvertType.ConvertTypeToByte(hairStyle);
+        byte typeHairColor;
+        byte typeHairStyle;
+        if (FineageWireConfig.UseLoginHandoff)
+        {
+            int sex = genderManipulator != null && genderManipulator.Index == LobbyCharacterCreate.SexFemale
+                ? LobbyCharacterCreate.SexFemale
+                : LobbyCharacterCreate.SexMale;
+            typeHairColor = (byte)LobbyCharacterCreate.ClampAppearance(hairColorManipulator != null ? hairColorManipulator.Index : 0, 3);
+            typeHairStyle = (byte)LobbyCharacterCreate.ClampAppearance(
+                hairstyleManipulator != null ? hairstyleManipulator.Index : 0,
+                LobbyCharacterCreate.MaxHairStyle(sex));
+        }
+        else
+        {
+            typeHairColor = ConvertType.ConvertTypeToByte(hairColor);
+            typeHairStyle = ConvertType.ConvertTypeToByte(hairStyle);
+        }
 
-        Creator.ReBuildHair(raceId,  typeHairColor , typeHairStyle);
+        Creator.ReBuildHair(raceId, typeHairColor, typeHairStyle);
     }
 
     public void Init()
@@ -263,9 +287,40 @@ public class CharCreationWindow : L2Window {
         }
     }
 
+    public bool IsOpen
+    {
+        get { return !_isWindowHidden; }
+    }
+
+    public override void ShowWindow()
+    {
+        base.ShowWindow();
+        if (FineageWireConfig.UseLoginHandoff)
+            ApplyLobbyCreationDefaults();
+    }
+
+    void ApplyLobbyCreationDefaults()
+    {
+        if (raceManipulator == null)
+            return;
+        raceManipulator.UpdateValues(new string[] { "Human" });
+        raceManipulator.ResetInput();
+        if (LoginCamera != null)
+            LoginCamera.SwitchCamera("Human");
+        if (hairstyleManipulator != null)
+        {
+            int sex = genderManipulator != null && genderManipulator.Value == "Female"
+                ? LobbyCharacterCreate.SexFemale
+                : LobbyCharacterCreate.SexMale;
+            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(sex));
+            hairstyleManipulator.ResetInput();
+        }
+    }
+
     public void SetlabelError(string error)
     {
-        labelError.text = error;
+        if (labelError != null)
+            labelError.text = error ?? "";
     }
     private void CreateButtonPressed()
     {
@@ -280,10 +335,53 @@ public class CharCreationWindow : L2Window {
         string race = raceManipulator.Value;
         string name = userInputField.value;
 
+        if (FineageWireConfig.UseLoginHandoff)
+        {
+            SubmitLobbyCreate(class1, sex);
+            return;
+        }
+
         var sendPaket = new CharacterCreateCommand(_playerTemplates , class1, sex , hairColor , hairStyle , face , race , name);
         Game.Send(sendPaket);
         //Debug.Log("Button click ButtonPressed");
         //Debug.Log("");
+    }
+
+    void SubmitLobbyCreate(string className, string sexName)
+    {
+        if (classManipulator == null || classManipulator.Index < 0 || genderManipulator == null || genderManipulator.Index < 0)
+        {
+            SetlabelError("Choose a class and gender.");
+            return;
+        }
+
+        int classId = className == "Mystic"
+            ? LobbyCharacterText.ClassMystic
+            : className == "Fighter"
+                ? LobbyCharacterText.ClassFighter
+                : -1;
+        int sex = sexName == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale;
+        int hairStyle = LobbyCharacterCreate.ClampAppearance(
+            hairstyleManipulator != null ? hairstyleManipulator.Index : 0,
+            LobbyCharacterCreate.MaxHairStyle(sex));
+        int hairColor = LobbyCharacterCreate.ClampAppearance(hairColorManipulator != null ? hairColorManipulator.Index : 0, 3);
+        int face = LobbyCharacterCreate.ClampAppearance(faceManipulator != null ? faceManipulator.Index : 0, 2);
+        string name = userInputField != null && userInputField.value != null ? userInputField.value.Trim() : "";
+        string code = LobbyCharacterCreate.Validate(name, classId, LobbyCharacterText.RaceHuman, sex, hairStyle, hairColor, face);
+        if (code != null)
+        {
+            SetlabelError(LobbyCharacterText.ErrorMessage(code, null));
+            return;
+        }
+
+        ZoneV2Client zone = ZoneV2Client.Instance;
+        if (zone == null || !zone.CreateLobbyCharacter(name, classId, LobbyCharacterText.RaceHuman, sex, hairStyle, hairColor, face))
+        {
+            SetlabelError(LobbyCharacterText.ErrorMessage("auth_required", null));
+            return;
+        }
+
+        SetlabelError("");
     }
 
     public void Clear()
@@ -299,6 +397,13 @@ public class CharCreationWindow : L2Window {
     }
 
     private void PreviousButtonPressed() {
+        if (FineageWireConfig.UseLoginHandoff)
+        {
+            ZoneV2Client zone = ZoneV2Client.Instance;
+            if (zone != null)
+                zone.CancelLobbyCreate();
+        }
+
         classManipulator.ClearInput();
         genderManipulator.ClearInput();
         hairstyleManipulator.ClearInput();

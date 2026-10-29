@@ -10,6 +10,7 @@ using UnityEngine;
 public static class FineageLocalBackend
 {
     public const string PrefKey = "Fineage.LocalBackend";
+    public const string CharacterPrefKey = "Fineage.LocalCharacter";
     public const int PlaytestScreenWidth = 1920;
     public const int PlaytestScreenHeight = 1080;
 
@@ -121,8 +122,21 @@ public static class FineageLocalBackend
             return FirstNonEmpty(
                 ArgValue("-fineageChar"),
                 Environment.GetEnvironmentVariable("FINEAGE_LOCAL_CHAR"),
-                PlayerPrefs.GetString("Fineage.LocalCharacter", ""));
+                PlayerPrefs.GetString(CharacterPrefKey, ""));
         }
+    }
+
+    /// <summary>
+    /// Drop a leftover character name so the next public login opens CharSelect instead of auto-pick.
+    /// Does not remove an explicit <c>-fineageChar</c> argument. Call from the main thread.
+    /// </summary>
+    public static void ClearCharacterHint()
+    {
+        Environment.SetEnvironmentVariable("FINEAGE_LOCAL_CHAR", null);
+        if (!PlayerPrefs.HasKey(CharacterPrefKey))
+            return;
+        PlayerPrefs.DeleteKey(CharacterPrefKey);
+        PlayerPrefs.Save();
     }
 
     public static bool QuitAfterSpawn

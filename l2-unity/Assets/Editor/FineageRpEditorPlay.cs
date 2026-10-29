@@ -103,14 +103,18 @@ public static class FineageRpEditorPlay
         EditorApplication.isPlaying = true;
     }
 
-    /// <summary>Public dev RP — not the local C# backend path.</summary>
+    /// <summary>Public dev RP — not the local C# backend path. Clears a stale character hint.</summary>
     static void EnsurePublicRpMode()
     {
+        Environment.SetEnvironmentVariable("FINEAGE_LOCAL_BACKEND", "0");
+        Environment.SetEnvironmentVariable("FINEAGE_LOCAL_CHAR", null);
         if (PlayerPrefs.GetInt(FineageLocalBackend.PrefKey, 0) != 0)
-        {
             PlayerPrefs.DeleteKey(FineageLocalBackend.PrefKey);
-            PlayerPrefs.Save();
-        }
+        FineageLocalBackend.ClearCharacterHint();
+        PlayerPrefs.Save();
+        Debug.Log("[FineageRP] Editor Play → public RP ("
+            + PlaytestEndpoint.DefaultLoginHost + ":" + PlaytestEndpoint.DefaultLoginPort
+            + "). Character hint cleared.");
     }
 
     static void LogPublicLoginEndpoint()

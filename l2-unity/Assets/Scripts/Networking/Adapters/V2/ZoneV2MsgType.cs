@@ -30,6 +30,9 @@ public enum ZoneV2MsgType : ushort
     CreateCharacter = 21,
     ListCharacters = 22,
     SelectCharacter = 23,
+    /// <summary>Lobby delete. Do not reuse zone CharInfo/NpcInfo/DeleteObject.</summary>
+    DeleteCharacter = 24,
+    RestoreCharacter = 25,
     /// <summary>Leave current party. Backend <c>PartyLeaveRequestMsg</c> (empty).</summary>
     PartyLeaveRequest = 26,
     /// <summary>Leader kick. Backend <c>PartyKickRequestMsg</c> key 0 targetObjectId.</summary>
@@ -65,6 +68,9 @@ public enum ZoneV2MsgType : ushort
     CharacterList = 1022,
     Handoff = 1023,
     LoginOk = 1024,
+    CharacterDeleted = 1025,
+    /// <summary>Delete rejected. The roster is not resent.</summary>
+    CharacterDeleteFailed = 1026,
     /// <summary>Party invite prompt. Backend <c>PartyAskJoinMsg</c>.</summary>
     PartyAskJoin = 1027,
     /// <summary>Invite result to inviter. Backend <c>PartyJoinResultMsg</c>.</summary>
