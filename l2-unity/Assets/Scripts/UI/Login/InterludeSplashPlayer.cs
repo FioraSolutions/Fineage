@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -6,7 +7,8 @@ using UnityEngine.UIElements;
 /// <summary>
 /// Retail Interlude startup splash. Frames are systextures/sp_32b_01..11
 /// (Lineage2Ver121), flattened from the client extract. Music is music/intro.ogg.
-/// Click, a key, or the end of the cycle dismisses it. Once per process.
+/// Off unless <c>-fineageSplash</c>, <c>FINEAGE_SPLASH=1</c>, or the proof shot
+/// file exists. Normal play goes straight to the login window.
 /// </summary>
 public sealed class InterludeSplashPlayer : MonoBehaviour
 {
@@ -41,7 +43,7 @@ public sealed class InterludeSplashPlayer : MonoBehaviour
 
     public static void Present(VisualElement documentRoot)
     {
-        if (_played || documentRoot == null)
+        if (!ShouldPlay() || _played || documentRoot == null)
             return;
         if (documentRoot.Q("InterludeSplash") != null)
             return;
@@ -65,6 +67,33 @@ public sealed class InterludeSplashPlayer : MonoBehaviour
         var host = new GameObject("InterludeSplash");
         var player = host.AddComponent<InterludeSplashPlayer>();
         player.Begin(documentRoot, textures);
+    }
+
+    /// <summary>Proof shots and <c>-fineageSplash</c> still play the intro. Everyone else skips it.</summary>
+    static bool ShouldPlay()
+    {
+        try
+        {
+            if (File.Exists(ShotPathFile))
+                return true;
+        }
+        catch (IOException)
+        {
+            /* play stays off */
+        }
+
+        string env = Environment.GetEnvironmentVariable("FINEAGE_SPLASH");
+        if (env == "1" || string.Equals(env, "true", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        string[] args = Environment.GetCommandLineArgs();
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "-fineageSplash")
+                return true;
+        }
+
+        return false;
     }
 
     void Begin(VisualElement documentRoot, Texture2D[] textures)
