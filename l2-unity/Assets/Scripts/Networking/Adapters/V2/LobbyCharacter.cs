@@ -107,10 +107,9 @@ public static class LobbyCharacterText
 
     public static string ClassLabel(int classId)
     {
-        if (classId == ClassFighter)
-            return "Human Fighter";
-        if (classId == ClassMystic)
-            return "Human Mystic";
+        string label = LobbyRaceCatalog.ClassLabel(classId);
+        if (label != null)
+            return label;
         return "Class " + classId;
     }
 
@@ -172,7 +171,7 @@ public static class LobbyCharacterText
 }
 
 /// <summary>
-/// Client-side create checks for the Human Fighter/Mystic lobby. The server stays authoritative.
+/// Client-side create checks for the five Interlude races. The server stays authoritative.
 /// Appearance ranges match Fineage-Backend: hair 0–4 male / 0–6 female, color 0–3, face 0–2.
 /// </summary>
 public static class LobbyCharacterCreate
@@ -228,9 +227,9 @@ public static class LobbyCharacterCreate
             return "creation_failed";
         if (hairStyle < 0 || hairStyle > MaxHairStyle(sex))
             return "creation_failed";
-        if (classId != LobbyCharacterText.ClassFighter && classId != LobbyCharacterText.ClassMystic)
+        if (!LobbyRaceCatalog.IsBaseClass(classId))
             return "class_not_supported";
-        if (race != LobbyCharacterText.RaceHuman)
+        if (!LobbyRaceCatalog.RaceMatchesClass(classId, race))
             return "race_not_supported";
         return null;
     }
@@ -259,5 +258,142 @@ public static class LobbyCharacterCreate
         }
 
         return name.Length > 0;
+    }
+}
+
+/// <summary>
+/// Interlude base races and classes the character-create UI can send.
+/// Race ids are 0 Human, 1 Elf, 2 Dark Elf, 3 Orc, 4 Dwarf.
+/// Class ids are the Interlude base classes (Human Fighter 0, Orc Fighter 44, Dwarf Fighter 53, …).
+/// </summary>
+public static class LobbyRaceCatalog
+{
+    public static readonly string[] RaceNames = { "Human", "Elf", "Dark Elf", "Orc", "Dwarf" };
+    public static readonly string[] FighterAndMystic = { "Fighter", "Mystic" };
+    public static readonly string[] FighterOnly = { "Fighter" };
+
+    public const int HumanFighter = 0;
+    public const int HumanMystic = 10;
+    public const int ElfFighter = 18;
+    public const int ElfMystic = 25;
+    public const int DarkElfFighter = 31;
+    public const int DarkElfMystic = 38;
+    public const int OrcFighter = 44;
+    public const int OrcMystic = 49;
+    public const int DwarfFighter = 53;
+
+    public static string[] ClassNames(string raceName)
+    {
+        if (raceName == "Dwarf")
+            return FighterOnly;
+        return FighterAndMystic;
+    }
+
+    public static int RaceId(string raceName)
+    {
+        switch (raceName)
+        {
+            case "Human": return 0;
+            case "Elf": return 1;
+            case "Dark Elf": return 2;
+            case "Orc": return 3;
+            case "Dwarf": return 4;
+            default: return -1;
+        }
+    }
+
+    public static int ClassIdFor(string raceName, string className)
+    {
+        bool fighter = className == "Fighter";
+        bool mystic = className == "Mystic";
+        switch (raceName)
+        {
+            case "Human":
+                if (fighter) return HumanFighter;
+                if (mystic) return HumanMystic;
+                return -1;
+            case "Elf":
+                if (fighter) return ElfFighter;
+                if (mystic) return ElfMystic;
+                return -1;
+            case "Dark Elf":
+                if (fighter) return DarkElfFighter;
+                if (mystic) return DarkElfMystic;
+                return -1;
+            case "Orc":
+                if (fighter) return OrcFighter;
+                if (mystic) return OrcMystic;
+                return -1;
+            case "Dwarf":
+                if (fighter) return DwarfFighter;
+                return -1;
+            default:
+                return -1;
+        }
+    }
+
+    public static bool IsBaseClass(int classId)
+    {
+        switch (classId)
+        {
+            case HumanFighter:
+            case HumanMystic:
+            case ElfFighter:
+            case ElfMystic:
+            case DarkElfFighter:
+            case DarkElfMystic:
+            case OrcFighter:
+            case OrcMystic:
+            case DwarfFighter:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static int RaceForClass(int classId)
+    {
+        switch (classId)
+        {
+            case HumanFighter:
+            case HumanMystic:
+                return 0;
+            case ElfFighter:
+            case ElfMystic:
+                return 1;
+            case DarkElfFighter:
+            case DarkElfMystic:
+                return 2;
+            case OrcFighter:
+            case OrcMystic:
+                return 3;
+            case DwarfFighter:
+                return 4;
+            default:
+                return -1;
+        }
+    }
+
+    public static bool RaceMatchesClass(int classId, int race)
+    {
+        int expected = RaceForClass(classId);
+        return expected >= 0 && expected == race;
+    }
+
+    public static string ClassLabel(int classId)
+    {
+        switch (classId)
+        {
+            case HumanFighter: return "Human Fighter";
+            case HumanMystic: return "Human Mystic";
+            case ElfFighter: return "Elf Fighter";
+            case ElfMystic: return "Elf Mystic";
+            case DarkElfFighter: return "Dark Elf Fighter";
+            case DarkElfMystic: return "Dark Elf Mystic";
+            case OrcFighter: return "Orc Fighter";
+            case OrcMystic: return "Orc Mystic";
+            case DwarfFighter: return "Dwarf Fighter";
+            default: return null;
+        }
     }
 }
