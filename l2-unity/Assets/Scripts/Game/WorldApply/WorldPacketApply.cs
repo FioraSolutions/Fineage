@@ -342,6 +342,7 @@ public sealed class WorldPacketApply
         try
         {
             apply.OnMagicSkillUse(entity, dto);
+            try { SkillCastSound.OnMagicSkillUse(entity, dto); } catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] " + sfx.Message); }
             if (dto.SkillId == 4247)
                 Debug.Log("[WINDSTRIKE] OnMagicSkillUse returned");
         }
