@@ -50,9 +50,9 @@ public class CharacterBuilder : MonoBehaviour
             return entity;
         }
 
-        GameObject face = Instantiate(Models.GetFace(raceId, appearance.FaceByte), container, false);
-        GameObject hair1 = Instantiate(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false), container, false);
-        GameObject hair2 = Instantiate(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true), container, false);
+        GameObject face = SpawnPiece(Models.GetFace(raceId, appearance.FaceByte), container);
+        GameObject hair1 = SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false), container);
+        GameObject hair2 = SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true), container);
 
         if (gear != null)
             gear.AddUserGearLink(face, hair1, hair2);
@@ -106,20 +106,19 @@ public class CharacterBuilder : MonoBehaviour
 
         if (!sameFace)
         {
-            GameObject face = Instantiate(models.GetFace(raceId, appearance.FaceByte), container, false);
-            gear.EquipFace(face);
+            GameObject face = SpawnPiece(models.GetFace(raceId, appearance.FaceByte), container);
+            if (face != null)
+                gear.EquipFace(face);
         }
 
         if (!sameHair)
         {
-            GameObject hair1 = Instantiate(
+            GameObject hair1 = SpawnPiece(
                 models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false),
-                container,
-                false);
-            GameObject hair2 = Instantiate(
+                container);
+            GameObject hair2 = SpawnPiece(
                 models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true),
-                container,
-                false);
+                container);
             gear.EquipHair(hair1, hair2);
         }
 
@@ -148,9 +147,9 @@ public class CharacterBuilder : MonoBehaviour
         GameObject entity = Instantiate(Models.GetContainer(raceId, EntityType.Pawn));
 
         Transform container = entity.transform;
-        Instantiate(Models.GetFace(raceId, _face), container, false);
-        Instantiate(Models.GetHair(raceId, hairStyle, hairColor, false), container, false);
-        Instantiate(Models.GetHair(raceId, hairStyle, hairColor, true), container, false);
+        SpawnPiece(Models.GetFace(raceId, _face), container);
+        SpawnPiece(Models.GetHair(raceId, hairStyle, hairColor, false), container);
+        SpawnPiece(Models.GetHair(raceId, hairStyle, hairColor, true), container);
 
         return entity;
     }
@@ -166,11 +165,18 @@ public class CharacterBuilder : MonoBehaviour
             entity.transform.GetChild(0) :
             entity.transform;
 
-        Instantiate(Models.GetFace(raceId, appearance.FaceByte), container, false);
-        Instantiate(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false), container, false);
-        Instantiate(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true), container, false);
+        SpawnPiece(Models.GetFace(raceId, appearance.FaceByte), container);
+        SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false), container);
+        SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true), container);
 
         return entity;
+    }
+
+    static GameObject SpawnPiece(GameObject source, Transform parent)
+    {
+        if (source == null || parent == null)
+            return null;
+        return Instantiate(source, parent, false);
     }
 
 

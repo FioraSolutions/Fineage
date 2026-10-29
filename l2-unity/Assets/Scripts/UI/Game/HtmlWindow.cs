@@ -155,6 +155,23 @@ public class HtmlWindow : L2PopupWindow
         RenderHtml(_normalHtml, "");
     }
 
+    public void ShowNpcDialog(int npcObjectId, int npcId, string html)
+    {
+        ZoneV2NpcSession.OpenDialog(npcObjectId);
+        string titled = html ?? "";
+        if (string.IsNullOrEmpty(ExtractTitle(titled)))
+        {
+            string name = ZoneV2NpcSession.NameOf(npcObjectId);
+            if (string.IsNullOrEmpty(name))
+                name = "NPC";
+            titled = "<title>" + name + "</title>" + titled;
+        }
+
+        _ = npcId;
+        InjectToWindow(titled);
+        Show();
+    }
+
     public void InjectToCommunityWindow(string html)
     {
         _communityHtml = html ?? "";

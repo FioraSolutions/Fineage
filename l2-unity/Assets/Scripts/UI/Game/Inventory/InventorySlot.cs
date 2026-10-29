@@ -17,8 +17,8 @@ public class InventorySlot : L2DraggableSlot
     public int ObjectId { get { return _objectId; } }
     public int ItemId { get { return _id; } }
 
-    public InventorySlot(int position, VisualElement slotElement, L2Tab tab, SlotType slotType , bool rightMouseup)
-    : base(position, slotElement, slotType, false, rightMouseup)
+    public InventorySlot(int position, VisualElement slotElement, L2Tab tab, SlotType slotType , bool rightMouseup, bool leftMouseUp = false)
+    : base(position, slotElement, slotType, leftMouseUp, rightMouseup)
     {
         _currentTab = tab;
         _empty = true;
@@ -48,6 +48,7 @@ public class InventorySlot : L2DraggableSlot
         _product = null;
         _objectId = 0;
         _enchantLevel = 0;
+        RefreshEnchantMark();
         if (_slotElement != null)
         {
             StyleBackground background = new StyleBackground(IconManager.Instance.GetInvetoryDefaultBackground());
@@ -149,6 +150,7 @@ public class InventorySlot : L2DraggableSlot
         _id = item.ItemId;
         _remainingTime = item.RemainingTime;
         _empty = false;
+        RefreshEnchantMark();
 
         if (_slotElement != null)
         {
@@ -174,6 +176,7 @@ public class InventorySlot : L2DraggableSlot
         _remainingTime = item.RemainingTime;
         _empty = false;
         _enchantLevel = item.EnchantLevel;
+        RefreshEnchantMark();
 
         if (_slotElement != null)
         {
@@ -199,6 +202,7 @@ public class InventorySlot : L2DraggableSlot
         _remainingTime = item.RemainingTime;
         _enchantLevel = item.EnchantLevel;
         _empty = false;
+        RefreshEnchantMark();
 
         if (_slotElement != null)
         {
@@ -217,7 +221,7 @@ public class InventorySlot : L2DraggableSlot
         if (item.ItemData != null)
         {
             _id = item.ItemData.Id;
-            _name = item.ItemData.ItemName.Name;
+            _name = ZoneV2Enchant.WithLevel(item.ItemData.ItemName.Name, item.EnchantLevel);
             _description = item.ItemData.ItemName.Description;
             _icon = item.ItemData.Icon;
             _objectId = item.ObjectId;
@@ -325,16 +329,68 @@ public class InventorySlot : L2DraggableSlot
         }
     }
     public bool IsEmpty { get { return _empty; } }
+    float _useClickAt;
+
+    protected bool TryGiveToEnchant()
+    {
+        if (_empty || _objectId <= 0)
+            return false;
+        EnchantWindow window = EnchantWindow.Instance;
+        if (window == null || !window.AcceptsTarget)
+            return false;
+        window.AddEnchantItem(_objectId);
+        return true;
+    }
+
+    void RefreshEnchantMark()
+    {
+        if (_slotElement == null)
+            return;
+        Label mark = _slotElement.Q<Label>("EnchantMark");
+        if (_enchantLevel <= 0)
+        {
+            if (mark != null)
+                mark.RemoveFromHierarchy();
+            return;
+        }
+
+        if (mark == null)
+        {
+            mark = new Label { name = "EnchantMark", pickingMode = PickingMode.Ignore };
+            mark.style.position = UnityEngine.UIElements.Position.Absolute;
+            mark.style.left = 1;
+            mark.style.top = 0;
+            mark.style.fontSize = 10;
+            mark.style.color = new StyleColor(new Color(1f, 0.92f, 0.45f));
+            mark.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _slotElement.Add(mark);
+        }
+
+        mark.text = "+" + _enchantLevel;
+    }
+
     protected override void HandleLeftClick()
     {
         if (_currentTab != null)
         {
             _currentTab.SelectSlot(_position);
         }
+
+        if (_empty)
+            return;
+
+        if (TryGiveToEnchant())
+            return;
+
+        if (Time.time - _useClickAt < 0.3f)
+            UseItem();
+        _useClickAt = Time.time;
     }
 
     protected override void HandleRightClick()
     {
+        if (TryGiveToEnchant())
+            return;
         UseItem();
     }
 

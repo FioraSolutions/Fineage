@@ -309,6 +309,8 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
 
     void DriveBool(string paramName, bool value)
     {
+        if (!AnimatorBoolSet.HasBool(_animator, paramName))
+            return;
         _animator.SetBool(paramName, value);
         _castPlayable?.SetBool(paramName, value);
     }

@@ -202,6 +202,7 @@ public class UserGear : Gear
 
     void ReportMissingArmorAndReset(Armor armor, ItemSlot slotArmor, int itemId)
     {
+        EquipmentMeshLog.Once("armor", itemId);
         // string visual = GearFlowLog.ArmorVisual(armor, _raceId, itemId, slotArmor);
         // GearFlowLog.Info("Missing mesh/texture, reset to naked " + visual);
 
@@ -275,20 +276,19 @@ public class UserGear : Gear
     public void EquipHairTest(GameObject hair1Piece , GameObject hair2Piece)
     {
         if (Hair1 != null)
-        {
             DestroyImmediate(Hair1);
+        if (Hair2 != null)
             DestroyImmediate(Hair2);
 
-            Hair1 = null;
-            Hair2 = null;
-
-        }
+        Hair1 = null;
+        Hair2 = null;
         var tr = _container.transform;
         Hair1 = hair1Piece;
-        Hair1.transform.SetParent(tr, false);
-
         Hair2 = hair2Piece;
-        Hair2.transform.SetParent(tr, false);
+        if (Hair1 != null)
+            Hair1.transform.SetParent(tr, false);
+        if (Hair2 != null)
+            Hair2.transform.SetParent(tr, false);
 
         _skinnedMeshSync.SyncMesh();
     }

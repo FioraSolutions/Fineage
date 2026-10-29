@@ -41,6 +41,7 @@ public static class ZoneV2DomainMap
         status.SetHp(100);
         status.SetMp(100);
         status.Cp = 100;
+        PlayerResourceCaps.EnsureMaxAtLeastCurrent(stats, status);
 
         return new PlayerInfoInterlude
         {
@@ -81,6 +82,8 @@ public static class ZoneV2DomainMap
         dto.Identity.EntityType = EntityType.User;
         dto.Identity.SetL2jPos(info.X, info.Y, info.Z);
         dto.Identity.PlayerClass = info.ClassId;
+        if (info.HasClan)
+            dto.Identity.ClanId = info.ClanId;
         dto.Appearance.BaseClass = info.ClassId;
         dto.Appearance.Running = true;
         dto.Stats.BaseRunSpeed = 120;
@@ -89,6 +92,11 @@ public static class ZoneV2DomainMap
         dto.Stats.WalkRealSpeed = 80f;
         dto.Status.SetHp(100);
         dto.Status.SetMp(100);
+        dto.Stats.MaxHp = PlayerResourceCaps.EffectiveMax(0, dto.Status.GetHp());
+        dto.Stats.MaxMp = PlayerResourceCaps.EffectiveMax(0, dto.Status.GetMp());
+        PlayerResourceCaps.EnsureMaxAtLeastCurrent(dto.Stats, dto.Status);
+        if (info.HasPaperdoll)
+            ApplyItemIds(dto.Appearance, info.PaperdollItemIds);
         return dto;
     }
 
@@ -112,6 +120,12 @@ public static class ZoneV2DomainMap
         NpcInfoDto dto = new NpcInfoDto();
         dto.Identity.Id = info.ObjectId;
         dto.Identity.NpcId = info.NpcTemplateId;
+        if (!string.IsNullOrEmpty(info.Name))
+            dto.Identity.Name = info.Name;
+        if (!string.IsNullOrEmpty(info.Title))
+            dto.Identity.Title = info.Title;
+        if (!string.IsNullOrEmpty(info.NpcType))
+            dto.Identity.NpcClass = info.NpcType;
         dto.Identity.SetHideHp(info.NpcTemplateId);
         dto.Identity.EntityType = EntityType.NPC;
         dto.Identity.SetL2jPos(info.X, info.Y, info.Z);
@@ -152,20 +166,29 @@ public static class ZoneV2DomainMap
         return list;
     }
 
-    public static CreatureMessage ToCreatureMessage(ZoneV2CreatureSay say)
-    {
-        ChatTypeData data = ChatTypes.GetById(say.ChatType);
-        if (data == null)
-            data = ChatTypes.GetById(0);
-        string name = string.IsNullOrEmpty(say.Name) ? "Unknown" : say.Name;
-        string text = say.Text ?? "";
-        if (data != null && (data.Type == 10 || data.Type == 18))
-            return new CreatureMessage("Announcements", text, data);
-        return new CreatureMessage(name, text, data);
-    }
-
     public static AskJoinPartyDto ToAskJoinPartyDto(ZoneV2PartyAskJoin ask) =>
         AskJoinPartyDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName, ask.ItemDistribution);
+
+    public static SendTradeRequestDto ToSendTradeRequestDto(ZoneV2TradeAsk ask) =>
+        SendTradeRequestDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName);
+
+    public static TradeStartDto ToTradeStartDto(ZoneV2TradeStart start) =>
+        TradeStartDto.FromZoneV2(start.PartnerObjectId, start.PartnerName);
+
+    public static ItemInstance ToTradeOfferItem(in ZoneV2TradeOfferUpdate update)
+    {
+        return new ItemInstance(
+            update.InventoryObjectId,
+            update.ItemId,
+            ItemLocation.Trade,
+            0,
+            update.Count < 1 ? 1 : update.Count,
+            ItemCategory.Item,
+            false,
+            ItemSlot.none,
+            update.EnchantLevel,
+            9999);
+    }
 
     public static ItemListDto ToItemListDto(ZoneV2ItemEntry[] rows)
     {
@@ -203,7 +226,8 @@ public static class ZoneV2DomainMap
                     Kind = row.Kind,
                     Icon = row.Icon,
                     WeaponType = row.WeaponType,
-                    ArmorType = row.ArmorType
+                    ArmorType = row.ArmorType,
+                    EnchantLevel = row.EnchantLevel
                 };
                 AddZoneRow(entry, row.Change, bag, equip, ref indexBag, ref indexEquip);
             }
@@ -279,7 +303,7 @@ public static class ZoneV2DomainMap
             category,
             worn,
             slot,
-            0,
+            row.EnchantLevel,
             9999);
         if (zoneChange >= 0)
             item.LastChange = MapZoneInventoryChange(zoneChange);
@@ -293,23 +317,16 @@ public static class ZoneV2DomainMap
     static int MapZoneInventoryChange(int zoneChange)
     {
         // Fineage.Protocol.InventoryChange: 0 add, 1 modify, 2 remove.
-        switch (zoneChange)
-        {
-            case 0:
-                return (int)PlayerInventory.InventoryChange.ADDED;
-            case 1:
-                return (int)PlayerInventory.InventoryChange.MODIFIED;
-            case 2:
-                return (int)PlayerInventory.InventoryChange.REMOVED;
-            default:
-                return (int)PlayerInventory.InventoryChange.MODIFIED;
-        }
+        // PlayerInventory.InventoryChange stores those as 1, 2, and 3.
+        return ZoneV2InventoryBook.ToClientChange(zoneChange);
     }
 
     static ItemCategory CategoryFromZone(ZoneV2ItemEntry row)
     {
         if (row.ItemId == 57)
             return ItemCategory.Adena;
+        if (IsJewelBody(row.BodySlot))
+            return ItemCategory.Jewel;
         string kind = row.Kind ?? "";
         if (kind == "weapon")
             return ItemCategory.Weapon;
@@ -352,8 +369,178 @@ public static class ZoneV2DomainMap
                 return ItemSlot.lfinger;
             case "rfinger":
                 return ItemSlot.rfinger;
+            case "underwear":
+                return ItemSlot.underwear;
+            case "both_ears":
+                return ItemSlot.lear;
+            case "both_fingers":
+                return ItemSlot.lfinger;
+            case "hair":
+            case "hairall":
+                return ItemSlot.hat1;
+            case "hair2":
+                return ItemSlot.hat2;
+            case "alldress":
+                return ItemSlot.chest;
             default:
                 return ItemSlot.none;
+        }
+    }
+
+    static bool IsJewelBody(string bodySlot)
+    {
+        switch (bodySlot)
+        {
+            case "neck":
+            case "lear":
+            case "rear":
+            case "both_ears":
+            case "lfinger":
+            case "rfinger":
+            case "both_fingers":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Copies UserInfo class, speeds, and paperdoll onto a spawn record.
+    /// Position stays on the spawn packet.
+    /// </summary>
+    public static void OverlayUserInfo(PlayerInfoInterlude info, ZoneV2UserInfo user)
+    {
+        if (info.Identity == null || info.Appearance == null || info.Stats == null)
+            return;
+
+        info.Identity.PlayerClass = user.ClassId;
+        info.Appearance.Race = (int)MapClassId.GetCharacterRace(user.ClassId);
+        bool mage = CharacterClassParser.IsMage((CharacterClass)user.ClassId);
+        info.Appearance.BaseClass = mage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
+        if (!string.IsNullOrEmpty(user.Name))
+            info.Identity.Name = user.Name;
+        if (user.RunSpeed > 0.001f)
+        {
+            int run = Mathf.RoundToInt(user.RunSpeed);
+            info.Stats.BaseRunSpeed = run;
+            info.Stats.RunRealSpeed = user.RunSpeed;
+            info.Stats.Speed = run;
+        }
+
+        if (user.WalkSpeed > 0.001f)
+        {
+            info.Stats.BaseWalkingSpeed = Mathf.RoundToInt(user.WalkSpeed);
+            info.Stats.WalkRealSpeed = user.WalkSpeed;
+        }
+
+        info.Appearance.Running = user.Running;
+        if (user.HasClan)
+            info.Identity.ClanId = user.ClanId;
+        if (user.HasPaperdoll)
+            ApplyUserPaperdoll(info.Appearance, user.Paperdoll);
+    }
+
+    public static void ApplyUserPaperdoll(PlayerAppearance appearance, ZoneV2PaperdollSlot[] slots)
+    {
+        if (appearance == null || slots == null)
+            return;
+        ApplyObjectIds(appearance.PaperDoll, slots);
+        ApplyItemIds(appearance, ZoneV2Paperdoll.ItemIds(slots));
+    }
+
+    public static void ApplyItemIds(PlayerAppearance appearance, int[] itemIds)
+    {
+        if (appearance == null || itemIds == null)
+            return;
+
+        PaperDollSelection doll = appearance.PaperDoll;
+        doll.Item_Under = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Under);
+        doll.Item_Lear = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftEar);
+        doll.Item_Rear = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightEar);
+        doll.Item_Neck = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Neck);
+        doll.Item_LFinger = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftFinger);
+        doll.Item_RFinger = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightFinger);
+        doll.Item_Head = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Head);
+        doll.Item_RHand = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightHand);
+        doll.Item_LHand = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftHand);
+        doll.Item_Gloves = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Gloves);
+        doll.Item_Chest = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Chest);
+        doll.Item_Legs = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Legs);
+        doll.Item_Feet = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Feet);
+        doll.Item_Cloak = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Cloak);
+        doll.Item_Face = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Face);
+        doll.Item_Hair = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Hair);
+        doll.Item_Hair2 = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Hair2);
+        appearance.RHand = doll.Item_RHand;
+        appearance.LHand = doll.Item_LHand;
+        appearance.Gloves = doll.Item_Gloves;
+        appearance.Chest = doll.Item_Chest;
+        appearance.Legs = doll.Item_Legs;
+        appearance.Feet = doll.Item_Feet;
+        appearance.PaperdollReady = true;
+    }
+
+    static void ApplyObjectIds(PaperDollSelection doll, ZoneV2PaperdollSlot[] slots)
+    {
+        if (doll == null || slots == null)
+            return;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            int objectId = slots[i].ObjectId;
+            switch (i)
+            {
+                case ZoneV2Paperdoll.Under:
+                    doll.Obj_Under = objectId;
+                    break;
+                case ZoneV2Paperdoll.LeftEar:
+                    doll.Obj_Lear = objectId;
+                    break;
+                case ZoneV2Paperdoll.RightEar:
+                    doll.Obj_Pear = objectId;
+                    break;
+                case ZoneV2Paperdoll.Neck:
+                    doll.Obj_Neck = objectId;
+                    break;
+                case ZoneV2Paperdoll.LeftFinger:
+                    doll.Obj_LFinger = objectId;
+                    break;
+                case ZoneV2Paperdoll.RightFinger:
+                    doll.Obj_RFinger = objectId;
+                    break;
+                case ZoneV2Paperdoll.Head:
+                    doll.Obj_Head = objectId;
+                    break;
+                case ZoneV2Paperdoll.RightHand:
+                    doll.Obj_RHand = objectId;
+                    break;
+                case ZoneV2Paperdoll.LeftHand:
+                    doll.Obj_LHand = objectId;
+                    break;
+                case ZoneV2Paperdoll.Gloves:
+                    doll.Obj_Gloves = objectId;
+                    break;
+                case ZoneV2Paperdoll.Chest:
+                    doll.Obj_Chest = objectId;
+                    break;
+                case ZoneV2Paperdoll.Legs:
+                    doll.Obj_Legs = objectId;
+                    break;
+                case ZoneV2Paperdoll.Feet:
+                    doll.Obj_Feet = objectId;
+                    break;
+                case ZoneV2Paperdoll.Cloak:
+                    doll.Obj_Cloak = objectId;
+                    break;
+                case ZoneV2Paperdoll.Face:
+                    doll.Obj_Face = objectId;
+                    break;
+                case ZoneV2Paperdoll.Hair:
+                    doll.Obj_Hair = objectId;
+                    break;
+                case ZoneV2Paperdoll.Hair2:
+                    doll.Obj_Hair2 = objectId;
+                    break;
+            }
         }
     }
 }

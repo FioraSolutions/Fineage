@@ -5,7 +5,7 @@ using System;
 /// 
 /// System message wire packet handler entry (#142 batch slice 143).
 /// </summary>
-public static class SystemMessageApplyIncomingPacketServices
+public static class SystemChatApplyIncomingPacketServices
 {
     public static void ApplySystemMessage(SystemMessageDto packet)
     {

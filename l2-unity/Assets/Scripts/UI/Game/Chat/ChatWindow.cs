@@ -31,6 +31,9 @@ public class ChatWindow : L2Window
 
     public bool ChatOpened { get { return _chatOpened; } }
 
+    /// <summary>True after the tab labels exist. Zone chat lines wait for this.</summary>
+    public bool Ready { get; private set; }
+
     private static ChatWindow _instance;
     public static ChatWindow Instance { get { return _instance; } }
 
@@ -62,7 +65,9 @@ public class ChatWindow : L2Window
 
     private void OnDestroy()
     {
-        _instance = null;
+        Ready = false;
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets()
@@ -75,6 +80,7 @@ public class ChatWindow : L2Window
 
     protected override IEnumerator BuildWindow(VisualElement root)
     {
+        Ready = false;
         InitWindow(root);
 
         yield return new WaitForEndOfFrame();
@@ -96,7 +102,10 @@ public class ChatWindow : L2Window
         _chatInput = (TextField)GetElementById("ChatInputField");
         _chatInput.RegisterCallback<FocusEvent>(OnChatInputFocus);
         _chatInput.RegisterCallback<BlurEvent>(OnChatInputBlur);
-        _chatInput.maxLength = _chatInputCharacterLimit;
+        int limit = _chatInputCharacterLimit;
+        if (FineageWireConfig.IsZoneV2 && limit < ZoneV2Chat.InputLimit)
+            limit = ZoneV2Chat.InputLimit;
+        _chatInput.maxLength = limit;
 
         var enlargeTextBtn = (Button)GetElementById("EnlargeTextBtn");
         enlargeTextBtn.AddManipulator(new ButtonClickSoundManipulator(enlargeTextBtn));
@@ -155,6 +164,9 @@ public class ChatWindow : L2Window
         {
             SwitchTab(_tabs[0]);
         }
+
+        Ready = true;
+        ZoneV2ChatFeed.Flush();
     }
 
     public bool SwitchTab(ChatTab switchTo)
@@ -210,7 +222,7 @@ public class ChatWindow : L2Window
             string text = _chatInput.text;
             if (text.Length > 0)
             {
-                if (CanSend(1100))
+                if (FineageWireConfig.IsZoneV2 || CanSend(1100))
                 {
                     if (IsGmCommand(text))
                     {
@@ -291,6 +303,17 @@ public class ChatWindow : L2Window
 
     public void SendChatMessage(ChatTab tab, string text)
     {
+        if (FineageWireConfig.IsZoneV2)
+        {
+            int fallback = tab != null ? tab.TabId : ZoneV2Chat.All;
+            string body;
+            int chatType;
+            ZoneV2Chat.Split(text, fallback, out body, out chatType);
+            ZoneV2Client zone = ZoneV2Client.Instance != null ? ZoneV2Client.Instance : ZoneV2Client.Ensure();
+            zone.SendSay(body, chatType);
+            return;
+        }
+
         ChatTypeData data = ChatTypes.GetById(tab.TabId);
         if (data != null)
         {
@@ -357,6 +380,53 @@ public class ChatWindow : L2Window
             // }
             // }
             _tabs[i].ConcatMessage(message.ToString());
+        }
+    }
+
+    public void ReceiveZoneSay(string name, string text, int chatType)
+    {
+        if (_tabs == null || _tabs.Count == 0)
+            return;
+
+        string line = ZoneV2Chat.FormatLine(name, text, chatType);
+        bool shown = false;
+        for (int i = 0; i < _tabs.Count; i++)
+        {
+            ChatTab tab = _tabs[i];
+            if (tab == null)
+                continue;
+            bool match = tab.TabId == chatType;
+            bool onAll = tab.ChatType == ChatType.GENERAL && ZoneV2Chat.ShowsOnAllTab(chatType);
+            if (!match && !onAll)
+                continue;
+            tab.ConcatMessage(line);
+            shown = true;
+        }
+
+        if (shown)
+            return;
+
+        for (int i = 0; i < _tabs.Count; i++)
+        {
+            ChatTab tab = _tabs[i];
+            if (tab != null && tab.ChatType == ChatType.GENERAL)
+            {
+                tab.ConcatMessage(line);
+                return;
+            }
+        }
+    }
+
+    public void AppendSystemLine(string text)
+    {
+        if (string.IsNullOrEmpty(text) || _tabs == null || _tabs.Count == 0)
+            return;
+
+        string line = ZoneV2Chat.FormatSystem(text);
+        for (int i = 0; i < _tabs.Count; i++)
+        {
+            if (_tabs[i] != null)
+                _tabs[i].ConcatMessage(line);
         }
     }
 

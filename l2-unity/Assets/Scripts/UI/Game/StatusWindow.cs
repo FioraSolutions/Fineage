@@ -210,35 +210,26 @@ public class StatusWindow : L2Window
         }
 
         if(_CPBarBG != null && _CPBar != null) {
-            float cMaxCP = (float)stats.MaxCp;
-            if (cMaxCP > 0f) {
-                float cpRatio = (float)status.Cp / cMaxCP;
-                float bgWidth = _CPBarBG.resolvedStyle.width;
-                if (bgWidth > 1f && float.IsFinite(bgWidth)) {
-                    _CPBar.style.width = bgWidth * cpRatio;
-                }
+            float cpRatio = PlayerResourceCaps.BarFillRatio(status.Cp, stats.MaxCp);
+            float bgWidth = _CPBarBG.resolvedStyle.width;
+            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
+                _CPBar.style.width = bgWidth * cpRatio;
             }
         }
 
         if(_HPBarBG != null && _HPBar != null) {
-            float hpMax = (float)stats.MaxHp;
-            if (hpMax > 0f) {
-                float hpRatio = (float)status.GetHp() / hpMax;
-                float bgWidth = _HPBarBG.resolvedStyle.width;
-                if (bgWidth > 1f && float.IsFinite(bgWidth)) {
-                    _HPBar.style.width = bgWidth * hpRatio;
-                }
+            float hpRatio = PlayerResourceCaps.BarFillRatio(status.GetHp(), stats.MaxHp);
+            float bgWidth = _HPBarBG.resolvedStyle.width;
+            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
+                _HPBar.style.width = bgWidth * hpRatio;
             }
         }
 
         if(_MPBarBG != null && _MPBar != null) {
-            float mpMax = (float)stats.MaxMp;
-            if (mpMax > 0f) {
-                float mpRatio = (float)status.GetMp() / mpMax;
-                float bgWidth = _MPBarBG.resolvedStyle.width;
-                if (bgWidth > 1f && float.IsFinite(bgWidth)) {
-                    _MPBar.style.width = bgWidth * mpRatio;
-                }
+            float mpRatio = PlayerResourceCaps.BarFillRatio(status.GetMp(), stats.MaxMp);
+            float bgWidth = _MPBarBG.resolvedStyle.width;
+            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
+                _MPBar.style.width = bgWidth * mpRatio;
             }
         }
     }

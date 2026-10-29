@@ -243,6 +243,16 @@ public sealed class NameplateEntryStore
                 {
                     e.TitleColor = StringUtils.HexToColor(idn.TitleColor);
                 }
+
+                if (idn.ClanId > 0)
+                {
+                    string clanName = ZoneV2ClanBook.Shared.NameFor(idn.ClanId);
+                    if (!string.IsNullOrEmpty(clanName))
+                    {
+                        e.Title = clanName;
+                        e.TitleColor = new Color(0.4f, 0.8f, 1f, 1f);
+                    }
+                }
             }
 
             bool isLocal = PlayerEntity.Instance != null && e.Entity == PlayerEntity.Instance;
@@ -271,8 +281,18 @@ public sealed class NameplateEntryStore
             ch = entity.Appearance.CollisionHeight;
         }
 
+        // CharInfo / UserEntity: CC disabled for L2PawnWalk — capsule top sits at ~neck.
+        // L2 anchor is feet + 2×CollisionHeight (+ offset), same as DrawTargetName.
+        CharacterController cc = entry.CC;
+        CapsuleCollider capsule = entry.Capsule;
+        if (entity is UserEntity)
+        {
+            cc = null;
+            capsule = null;
+        }
+
         return L2NameplateAnchor.GetHeadWorldPos(
-            entry.Target, entry.CC, entry.Capsule, ch, headHeightOffset);
+            entry.Target, cc, capsule, ch, headHeightOffset);
     }
 
     private bool IsNameplateVisible(

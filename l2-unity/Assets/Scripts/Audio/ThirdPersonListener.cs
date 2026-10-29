@@ -69,15 +69,21 @@ public class ThirdPersonListener : MonoBehaviour
     }
 
     void Update() {
-        if(_player == null) {
+        if (_player == null) {
             PlayerController playerController = ResolvedPlayer;
-            if (playerController != null) {
+            if (playerController != null)
                 _player = playerController.gameObject;
-            }
-        } else {
-            _attributes.position = FMODUnity.RuntimeUtils.ToFMODVector(_player.transform.position);
         }
-        
+
+        if (_cam == null && Camera.main != null)
+            _cam = Camera.main.gameObject;
+
+        if (_player != null)
+            _attributes.position = FMODUnity.RuntimeUtils.ToFMODVector(_player.transform.position);
+
+        if (_cam == null)
+            return;
+
         _attributes.forward = FMODUnity.RuntimeUtils.ToFMODVector(_cam.transform.forward);
         _attributes.up = FMODUnity.RuntimeUtils.ToFMODVector(_cam.transform.up);
         FMODUnity.RuntimeManager.StudioSystem.setListenerAttributes(_listener, _attributes);

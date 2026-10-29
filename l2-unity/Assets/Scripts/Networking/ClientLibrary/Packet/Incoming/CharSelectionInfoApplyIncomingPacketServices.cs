@@ -1,22 +1,22 @@
 using System;
 
 /// <summary>
-/// Char selection info wire packet handler entry (#142 batch slice 147; login hub slice 175).
+/// Char selection info wire packet handler entry (#142 batch slice 147; locator queue slice 255).
 /// Re-homes char-selection-info apply from <see cref="CharSelectionInfoIncomingPacketServices"/>; splits from <see cref="CharacterIncomingPacketServices"/> (sub-slice 75 encapsulation).
 /// </summary>
 public static class CharSelectionInfoApplyIncomingPacketServices
 {
-    public static LoginClient Login => LoginSessionApplyIncomingPacketServices.Login;
+    public static LoginClient Login => LocatorApplyIncomingPacketServices.Login;
 
-    public static GameClient Game => LoginSessionApplyIncomingPacketServices.Game;
+    public static GameClient Game => LocatorApplyIncomingPacketServices.Game;
 
-    public static GameManager Manager => LoginSessionApplyIncomingPacketServices.Manager;
+    public static GameManager Manager => LocatorApplyIncomingPacketServices.Manager;
 
-    public static CharSelectWindow CharSelect => LoginSessionApplyIncomingPacketServices.CharSelect;
+    public static CharSelectWindow CharSelect => LocatorApplyIncomingPacketServices.CharSelect;
 
-    public static CharacterSelector Characters => LoginSessionApplyIncomingPacketServices.Characters;
+    public static CharacterSelector Characters => LocatorApplyIncomingPacketServices.Characters;
 
-    public static void Queue(Action action) => LoginSessionApplyIncomingPacketServices.Queue(action);
+    public static void Queue(Action action) => QueueApplyIncomingPacketServices.Queue(action);
 
     public static void ApplyCharSelectionInfo(CharSelectionInfoDto packet)
     {

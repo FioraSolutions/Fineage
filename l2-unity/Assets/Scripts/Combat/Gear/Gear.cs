@@ -64,6 +64,9 @@ public class Gear : AbstractMeshManager
         Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
         ErrorPrint(weapon, weaponId);
 
+        if (weaponId != 0 && weapon == null)
+            EquipmentMeshLog.Once("weapon", weaponId);
+
         if (weaponId == 0 | IsShieldEquipped(weaponId) | weapon == null)
         {
             return;
@@ -73,7 +76,10 @@ public class Gear : AbstractMeshManager
 
         GameObject weaponPrefab = (GameObject)LoadMesh(EquipmentCategory.Weapon, weaponId);
         if (weaponPrefab == null)
+        {
+            EquipmentMeshLog.Once("weapon", weaponId);
             return;
+        }
         _origShieldPrefabName = weaponPrefab.name;
         WeaponType type = WeaponType.none;
         RefreshDataShield(weapon , WeaponType.shield);
@@ -110,6 +116,8 @@ public class Gear : AbstractMeshManager
         if (weaponId == 0 | weapon == null) {
             // GearFlowLog.Warn("EquipWeapon abort id=" + weaponId +
                 // " owner=" + _ownerId + " nullWeapon=" + (weapon == null));
+            if (weaponId != 0)
+                EquipmentMeshLog.Once("weapon", weaponId);
             return;
         }
 
@@ -129,6 +137,7 @@ public class Gear : AbstractMeshManager
         if (weaponPrefab == null)
         {
             // GearFlowLog.Warn("EquipWeapon mesh null id=" + weaponId + " owner=" + _ownerId);
+            EquipmentMeshLog.Once("weapon", weaponId);
             return;
         }
 
@@ -171,7 +180,11 @@ public class Gear : AbstractMeshManager
         }
 
         GameObject etcItemPrefab = (GameObject)LoadMesh(EquipmentCategory.EtcItem, etcId);
-        if (etcItemPrefab == null) return;
+        if (etcItemPrefab == null)
+        {
+            EquipmentMeshLog.Once("item", etcId);
+            return;
+        }
 
         var etcIdNameAndId = etcName + etcId;
         Transform[] refreshAllBone = RefreshBone(allBone);
@@ -191,6 +204,8 @@ public class Gear : AbstractMeshManager
 
         if (weaponId == 0 | weapon == null)
         {
+            if (weaponId != 0)
+                EquipmentMeshLog.Once("weapon", weaponId);
             return;
         }
 
@@ -202,6 +217,11 @@ public class Gear : AbstractMeshManager
         ClearHandsForNewWeapon(false, true);
 
         GameObject weaponPrefab = (GameObject)LoadMesh(EquipmentCategory.Weapon, weaponId);
+        if (weaponPrefab == null)
+        {
+            EquipmentMeshLog.Once("weapon", weaponId);
+            return;
+        }
         //GameObject weaponPrefabRight = (GameObject)LoadMesh(EquipmentCategory.Weapon, weaponId);
 
         //_origWeaponPrefabName = weaponPrefab.name;

@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 /// <summary>
 /// Feature flag for Interlude stub vs Fineage ZoneServer v2.
-/// Public playtest calls <see cref="EnablePlaytestBackend"/> (ZoneV2 + login handoff).
+/// Public playtest hosts come from <see cref="PlaytestEndpoint"/> defaults.
 /// <see cref="FineageLocalBackend"/> opt-in calls <see cref="EnableLocalBackend"/> for 127.0.0.1.
 /// </summary>
 public static class FineageWireConfig
@@ -36,9 +37,22 @@ public static class FineageWireConfig
     /// </summary>
     public static bool UseLoginHandoff;
 
+    public static void EnableLocalBackend(
+        string loginHost,
+        int loginPort,
+        string zoneHost,
+        int zonePort)
+    {
+        EnablePlaytestBackend(
+            string.IsNullOrWhiteSpace(loginHost) ? LocalLoginHost : loginHost,
+            loginPort > 0 ? loginPort : LocalLoginPort,
+            string.IsNullOrWhiteSpace(zoneHost) ? LocalZoneHost : zoneHost,
+            zonePort > 0 ? zonePort : LocalZonePort);
+    }
+
     /// <summary>
-    /// Public Fineage login + zone. ZoneV2 and login handoff, with playtest hosts.
-    /// Empty values fall back to <see cref="PlaytestEndpoint"/> defaults, not loopback.
+    /// ZoneV2 login handoff for Fineage-Backend. Empty hosts use the public playtest endpoints.
+    /// Interlude Blowfish login hangs on this TCP service.
     /// </summary>
     public static void EnablePlaytestBackend(
         string loginHost,
@@ -46,49 +60,11 @@ public static class FineageWireConfig
         string zoneHost,
         int zonePort)
     {
-        ApplyZoneV2Handoff(
-            loginHost,
-            loginPort,
-            zoneHost,
-            zonePort,
-            PlaytestEndpoint.DefaultLoginHost,
-            PlaytestEndpoint.DefaultLoginPort,
-            PlaytestEndpoint.DefaultGameHost,
-            PlaytestEndpoint.DefaultGamePort);
-    }
-
-    public static void EnableLocalBackend(
-        string loginHost,
-        int loginPort,
-        string zoneHost,
-        int zonePort)
-    {
-        ApplyZoneV2Handoff(
-            loginHost,
-            loginPort,
-            zoneHost,
-            zonePort,
-            LocalLoginHost,
-            LocalLoginPort,
-            LocalZoneHost,
-            LocalZonePort);
-    }
-
-    static void ApplyZoneV2Handoff(
-        string loginHost,
-        int loginPort,
-        string zoneHost,
-        int zonePort,
-        string fallbackLoginHost,
-        int fallbackLoginPort,
-        string fallbackZoneHost,
-        int fallbackZonePort)
-    {
         SetOverride(Mode.ZoneV2);
-        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? fallbackLoginHost : loginHost.Trim();
-        LoginPort = loginPort > 0 ? loginPort : fallbackLoginPort;
-        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? fallbackZoneHost : zoneHost.Trim();
-        ZonePort = zonePort > 0 ? zonePort : fallbackZonePort;
+        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? PlaytestEndpoint.DefaultLoginHost : loginHost.Trim();
+        LoginPort = loginPort > 0 ? loginPort : PlaytestEndpoint.DefaultLoginPort;
+        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? PlaytestEndpoint.DefaultGameHost : zoneHost.Trim();
+        ZonePort = zonePort > 0 ? zonePort : PlaytestEndpoint.DefaultGamePort;
         UseLoginHandoff = true;
     }
 
@@ -120,6 +96,19 @@ public static class FineageWireConfig
     public static bool IsZoneV2
     {
         get { return Current == Mode.ZoneV2; }
+    }
+
+    /// <summary>Public playtest login TCP (e.g. login.fineage.evpoint.by:2106). Not loopback or localhost.</summary>
+    public static bool IsPublicLoginHost(string host)
+    {
+        if (string.IsNullOrWhiteSpace(host))
+            return false;
+        string trimmed = host.Trim();
+        if (trimmed == "127.0.0.1" || trimmed == "::1" || trimmed == "0.0.0.0")
+            return false;
+        if (trimmed.StartsWith("127.", StringComparison.Ordinal))
+            return false;
+        return !string.Equals(trimmed, "localhost", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

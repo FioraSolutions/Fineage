@@ -206,7 +206,7 @@ public class MultiSellWindow : L2PopupWindow
             bool result =  listItem.Any(x => x.ItemId == itemId);
             if (result)
             {
-                _entryId = index;
+                _entryId = item.ZoneEntryId != 0 ? item.ZoneEntryId : index;
                 return item.IngredientList;
             }
             index++;
@@ -232,7 +232,7 @@ public class MultiSellWindow : L2PopupWindow
     {
         if(ArrayUtils.IsValidIndexList(data, index))
         {
-            _entryId = index;
+            _entryId = data[index].ZoneEntryId != 0 ? data[index].ZoneEntryId : index;
             return data[index].IngredientList;
         }
         return null;

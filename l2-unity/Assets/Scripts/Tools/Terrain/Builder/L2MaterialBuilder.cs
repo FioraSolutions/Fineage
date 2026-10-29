@@ -6,8 +6,11 @@ using UnityEngine;
 public class L2MaterialBuilder {
 
     [MenuItem("Shnok/2. [Material] Generate staticmesh materials")]
-    static void SetupMaterials() {
+    static void SetupMaterialsMenu() {
+        RunSetupMaterials();
+    }
 
+    public static void RunSetupMaterials() {
         bool overwrite = false;
         if(overwrite) {
             ClearMaterials();

@@ -7,8 +7,8 @@ public abstract class DefaultClient : MonoBehaviour
 {
     protected NetworkRuntime _network;
     [Header("Connection")]
-    [SerializeField] protected string _serverIp = PlaytestEndpoint.DefaultLoginHost;
-    [SerializeField] protected int _serverPort = PlaytestEndpoint.DefaultLoginPort;
+    [SerializeField] protected string _serverIp = "127.0.0.1";
+    [SerializeField] protected int _serverPort = 11000;
 
     protected AsynchronousClient _client;
     protected int _connectionTimeoutMs = 10000;
@@ -30,7 +30,7 @@ public abstract class DefaultClient : MonoBehaviour
     public int SessionKey1 { get { return _sessionKey1; } set { _sessionKey1 = value; } }
     public int SessionKey2 { get { return _sessionKey2; } set { _sessionKey2 = value; } }
     public bool IsConnected { get { return _connected; } }
-    public bool IsConnecting => _connecting;
+    public bool IsConnecting { get { return _connecting; } }
     public int Ping { get { return _ping; } set { _ping = value; } }
 
     private GameManager Manager => NetworkingPacketServices.Manager;
@@ -51,19 +51,14 @@ public abstract class DefaultClient : MonoBehaviour
 
     public async void Connect()
     {
+        _connected = false;
         if (_connecting)
         {
             LobbyFlowLog.Warn(GetType().Name + ".Connect skipped — already connecting");
             return;
         }
 
-        if (_connected || (_client != null && _client.IsConnected))
-        {
-            LobbyFlowLog.Warn(GetType().Name + ".Connect skipped — already connected");
-            return;
-        }
-
-        ApplyEndpointBeforeConnect();
+        ApplyFineageLoginEndpointIfNeeded();
 
         // Arm guard before CreateAsyncClient so a re-entrant Connect cannot replace the socket mid-flight.
         _connecting = true;
@@ -128,51 +123,15 @@ public abstract class DefaultClient : MonoBehaviour
     }
 
     /// <summary>
-    /// Public playtest: resolved endpoint before TCP connect. Local Mac uses WireConfig (9106/9777).
+    /// Local macOS / Fineage-Backend playtest: inspector may still show Interlude 2106.
     /// </summary>
-    protected void ApplyEndpointBeforeConnect()
-    {
-        if (this is LoginClient)
-            ApplyFineageLoginEndpointIfNeeded();
-        else if (this is GameClient)
-            ApplyFineageGameEndpointIfNeeded();
-    }
-
     protected void ApplyFineageLoginEndpointIfNeeded()
     {
-        if (!(this is LoginClient))
+        if (!(this is LoginClient) || !FineageWireConfig.UseLoginHandoff)
             return;
 
-        if (FineageLocalBackend.IsRequested())
-        {
-            _serverIp = FineageWireConfig.LoginHost;
-            _serverPort = FineageWireConfig.LoginPort;
-            LobbyFlowLog.Info("Playtest login (local) " + _serverIp + ":" + _serverPort);
-            return;
-        }
-
-        PlaytestEndpointRuntime.ApplyLogin(this);
-        if (string.IsNullOrWhiteSpace(_serverIp) || _serverIp == "127.0.0.1")
-        {
-            _serverIp = PlaytestEndpoint.DefaultLoginHost;
-            _serverPort = PlaytestEndpoint.DefaultLoginPort;
-        }
-    }
-
-    protected void ApplyFineageGameEndpointIfNeeded()
-    {
-        if (!(this is GameClient))
-            return;
-
-        if (FineageLocalBackend.IsRequested())
-        {
-            _serverIp = FineageWireConfig.ZoneHost;
-            _serverPort = FineageWireConfig.ZonePort;
-            LobbyFlowLog.Info("Playtest game (local) " + _serverIp + ":" + _serverPort);
-            return;
-        }
-
-        PlaytestEndpointRuntime.ApplyGame(this);
+        _serverIp = FineageWireConfig.LoginHost;
+        _serverPort = FineageWireConfig.LoginPort;
     }
 
     protected abstract void CreateAsyncClient();

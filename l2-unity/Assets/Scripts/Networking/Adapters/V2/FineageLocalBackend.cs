@@ -2,14 +2,15 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Local C# Fineage-Backend (login TCP 9106, zone TCP 9777) or the public playtest wire.
-/// Local is on for a player built with FINEAGE_LOCAL_BACKEND, or when -fineageLocal /
-/// FINEAGE_LOCAL_BACKEND=1 / PlayerPrefs Fineage.LocalBackend=1 is set.
-/// -fineagePublic and FINEAGE_LOCAL_BACKEND=0 turn local off; public then uses ZoneV2 login handoff.
+/// Local C# Fineage-Backend (login TCP 9106, zone TCP 9777) without changing the public default.
+/// On for a player built with FINEAGE_LOCAL_BACKEND, or when -fineageLocal / FINEAGE_LOCAL_BACKEND=1 /
+/// PlayerPrefs Fineage.LocalBackend=1 is set. -fineagePublic and FINEAGE_LOCAL_BACKEND=0 turn it off.
 /// </summary>
 public static class FineageLocalBackend
 {
     public const string PrefKey = "Fineage.LocalBackend";
+    public const string CharacterPrefKey = "Fineage.LocalCharacter";
+    public const string PublicPlaytestPrefKey = "Fineage.PublicPlaytest";
     public const int PlaytestScreenWidth = 1920;
     public const int PlaytestScreenHeight = 1080;
 
@@ -53,43 +54,6 @@ public static class FineageLocalBackend
             + " zone=" + zoneHost + ":" + zonePort);
     }
 
-    /// <summary>
-    /// Editor Play RP, -fineagePublic, and release builds: same ZoneV2 handoff as local,
-    /// with hosts from the resolved playtest endpoint (defaults are the public tunnel).
-    /// Applies the existing 1920x1080 windowed playtest size on Standalone.
-    /// Host enable is a no-op when <see cref="FineageWireConfig.UseLoginHandoff"/> is already set.
-    /// </summary>
-    public static void ApplyPublicPlaytestIfNeeded()
-    {
-        if (!FineageWireConfig.UseLoginHandoff)
-        {
-            string loginHost = PlaytestEndpoint.DefaultLoginHost;
-            int loginPort = PlaytestEndpoint.DefaultLoginPort;
-            string zoneHost = PlaytestEndpoint.DefaultGameHost;
-            int zonePort = PlaytestEndpoint.DefaultGamePort;
-
-            PlaytestEndpoint endpoint = PlaytestEndpointRuntime.Current;
-            if (endpoint != null)
-            {
-                if (!string.IsNullOrWhiteSpace(endpoint.LoginHost))
-                    loginHost = endpoint.LoginHost;
-                if (endpoint.LoginPort > 0)
-                    loginPort = endpoint.LoginPort;
-                if (!string.IsNullOrWhiteSpace(endpoint.GameHost))
-                    zoneHost = endpoint.GameHost;
-                if (endpoint.GamePort > 0)
-                    zonePort = endpoint.GamePort;
-            }
-
-            FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, zoneHost, zonePort);
-            Debug.Log("[Fineage] mode=public-playtest login=" + FineageWireConfig.LoginHost + ":"
-                + FineageWireConfig.LoginPort + " zone=" + FineageWireConfig.ZoneHost + ":"
-                + FineageWireConfig.ZonePort);
-        }
-
-        ApplyPlaytestWindow();
-    }
-
     /// <summary>Large windowed playtest on Mac Standalone (ProjectSettings are also set at local build time).</summary>
     static void ApplyPlaytestWindow()
     {
@@ -121,8 +85,36 @@ public static class FineageLocalBackend
             return FirstNonEmpty(
                 ArgValue("-fineageChar"),
                 Environment.GetEnvironmentVariable("FINEAGE_LOCAL_CHAR"),
-                PlayerPrefs.GetString("Fineage.LocalCharacter", ""));
+                PlayerPrefs.GetString(CharacterPrefKey, ""));
         }
+    }
+
+    /// <summary>
+    /// Editor Play RP and <c>-fineagePublic</c>. Headless <c>-fineageChar</c> still auto-enters.
+    /// </summary>
+    public static bool PublicPlaytestRequested()
+    {
+#if FINEAGE_PUBLIC_PLAYTEST
+        // Standalone baked for the public RP. -fineageLocal still wins via ApplyIfRequested.
+        if (!HasArg("-fineageLocal"))
+            return true;
+#endif
+        if (HasArg("-fineagePublic"))
+            return true;
+        return PlayerPrefs.GetInt(PublicPlaytestPrefKey, 0) == 1;
+    }
+
+    /// <summary>
+    /// Drop a leftover character name so the next login opens the lobby instead of auto-pick.
+    /// Call from the main thread. Does not remove an explicit <c>-fineageChar</c> argument.
+    /// </summary>
+    public static void ClearCharacterHint()
+    {
+        Environment.SetEnvironmentVariable("FINEAGE_LOCAL_CHAR", null);
+        if (!PlayerPrefs.HasKey(CharacterPrefKey))
+            return;
+        PlayerPrefs.DeleteKey(CharacterPrefKey);
+        PlayerPrefs.Save();
     }
 
     public static bool QuitAfterSpawn
