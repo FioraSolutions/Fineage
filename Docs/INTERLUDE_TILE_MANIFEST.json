@@ -1,9 +1,9 @@
 {
     "schemaVersion": "1",
-    "updatedUtc": "2026-10-29T06:25:35.0000000Z",
+    "updatedUtc": "2026-10-29T06:47:36.0000000Z",
     "clientRootHint": "(local only \u2014 not stored)",
     "clientMapCount": 153,
-    "importedFullCount": 6,
+    "importedFullCount": 8,
     "importedPartialCount": 0,
     "tiles": [
         {
@@ -712,10 +712,16 @@
         {
             "id": "21_22",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": "Mac bake pending (#476). North-adjacent to full 22_22. See Docs/INTERLUDE_TILE_BAKE.md and tools/interlude/run_mac_tile_bake.sh (FINEAGE_INTERLUDE_TILE=21_22)."
+            "inRepo": true,
+            "importStatus": "full",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/21_22/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/21_22/Meta/21_22.t3d",
+                "Assets/Resources/Data/Maps/21_22/21_22.prefab",
+                "Assets/Resources/Data/Maps/21_22/UnityTerrain/21_22.prefab",
+                "Assets/Resources/Data/Maps/21_22/StaticMeshes.prefab"
+            ],
+            "notes": "Full Mac bake (#476). North of 22_22."
         },
         {
             "id": "21_23",
@@ -836,10 +842,16 @@
         {
             "id": "22_23",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": "Mac bake pending (#476). East-adjacent to full 22_22. See Docs/INTERLUDE_TILE_BAKE.md and tools/interlude/run_mac_tile_bake.sh (FINEAGE_INTERLUDE_TILE=22_23)."
+            "inRepo": true,
+            "importStatus": "full",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/22_23/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/22_23/Meta/22_23.t3d",
+                "Assets/Resources/Data/Maps/22_23/22_23.prefab",
+                "Assets/Resources/Data/Maps/22_23/UnityTerrain/22_23.prefab",
+                "Assets/Resources/Data/Maps/22_23/StaticMeshes.prefab"
+            ],
+            "notes": "Full Mac bake (#476). East of 22_22."
         },
         {
             "id": "22_24",
