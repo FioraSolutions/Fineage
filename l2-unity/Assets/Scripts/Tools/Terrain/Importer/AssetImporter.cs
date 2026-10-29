@@ -19,7 +19,11 @@ public abstract class AssetImporter {
                 }
             }
 
-            string relativePath = Path.GetRelativePath(inputFolder, path.Replace("\\Texture", string.Empty));
+            // UModel writes PNGs under a Texture/ folder. Windows paths use
+            // backslashes; Mac batch bakes use forward slashes. Strip either so
+            // files land at Textures/{package}/{name}.png (Shnok lookup layout).
+            string flattened = path.Replace("\\Texture", string.Empty).Replace("/Texture", string.Empty);
+            string relativePath = Path.GetRelativePath(inputFolder, flattened);
             string destination = null;
             if(Path.GetExtension(path).ToLower() == ".fbx") {
                 destination = Path.Combine("Assets", "Resources", "Data", "StaticMeshes", relativePath);
