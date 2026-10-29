@@ -1,0 +1,23 @@
+Materials[3] =
+{
+    Materials[0] =
+    {
+        Material = Texture'LandMark.Primitive_INBDtree_01'
+        EnableCollision = true
+    }
+    Materials[1] =
+    {
+        Material = Texture'LandMark.Primitive_INBDtree_02'
+        EnableCollision = true
+    }
+    Materials[2] =
+    {
+        Material = Shader'LandMark.Primitive_INBDtree_03_1'
+        EnableCollision = false
+    }
+}
+UseSimpleLineCollision = false
+UseSimpleBoxCollision = false
+UseSimpleKarmaCollision = false
+UseVertexColor = false
+InternalVersion = 0

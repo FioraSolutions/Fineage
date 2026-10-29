@@ -1,0 +1,38 @@
+Materials[6] =
+{
+    Materials[0] =
+    {
+        Material = Texture'LandMark.Primitive_INtree_bark02'
+        EnableCollision = true
+    }
+    Materials[1] =
+    {
+        Material = Texture'LandMark.Primitive_INtree_bark01'
+        EnableCollision = true
+    }
+    Materials[2] =
+    {
+        Material = Shader'LandMark.Primitive_INtree_leaf03_1'
+        EnableCollision = false
+    }
+    Materials[3] =
+    {
+        Material = Shader'LandMark.Primitive_INtree_leaf01_1'
+        EnableCollision = false
+    }
+    Materials[4] =
+    {
+        Material = Shader'LandMark.Primitive_INtree_leaf02_1'
+        EnableCollision = false
+    }
+    Materials[5] =
+    {
+        Material = Shader'LandMark.Primitive_tunnel_treeDeco03_1'
+        EnableCollision = false
+    }
+}
+UseSimpleLineCollision = false
+UseSimpleBoxCollision = false
+UseSimpleKarmaCollision = false
+UseVertexColor = false
+InternalVersion = 0

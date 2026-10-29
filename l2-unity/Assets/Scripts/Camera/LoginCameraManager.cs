@@ -28,6 +28,7 @@ public class LoginCameraManager : MonoBehaviour
         cameras.Add("Elf", GameObject.Find("Elf").GetComponent<Camera>());
         cameras.Add("Human", GameObject.Find("Human").GetComponent<Camera>());
 
+        LoginForestPresenter.Present(cameras["Login"]);
         DisableCameras();
         SwitchCamera("Login");
     }
