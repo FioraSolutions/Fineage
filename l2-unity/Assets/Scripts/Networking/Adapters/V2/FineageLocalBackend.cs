@@ -2,15 +2,16 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Local C# Fineage-Backend (login TCP 9106, zone TCP 9777) without changing the public default.
+/// Explicit opt-in for the local C# Fineage-Backend (login TCP 9106, zone TCP 9777).
 /// On for a player built with FINEAGE_LOCAL_BACKEND, or when -fineageLocal / FINEAGE_LOCAL_BACKEND=1 /
-/// PlayerPrefs Fineage.LocalBackend=1 is set. -fineagePublic and FINEAGE_LOCAL_BACKEND=0 turn it off.
+/// PlayerPrefs Fineage.LocalBackend=1 is set. -fineagePublic and FINEAGE_LOCAL_BACKEND=0 always win.
+/// Without an opt-in the client uses the public RP (<see cref="FineageConnection"/>).
+/// Also holds the local-only dev helpers: auto-login, character hint, playtest window size.
 /// </summary>
 public static class FineageLocalBackend
 {
     public const string PrefKey = "Fineage.LocalBackend";
     public const string CharacterPrefKey = "Fineage.LocalCharacter";
-    public const string PublicPlaytestPrefKey = "Fineage.PublicPlaytest";
     public const int PlaytestScreenWidth = 1920;
     public const int PlaytestScreenHeight = 1080;
 
@@ -39,19 +40,20 @@ public static class FineageLocalBackend
 #endif
     }
 
-    public static void ApplyIfRequested()
+    /// <summary>Local endpoints when the local backend was requested; false means "use the public RP".</summary>
+    public static bool TryGetEndpoints(out FineageEndpoints endpoints)
     {
+        endpoints = null;
         if (!IsRequested())
-            return;
+            return false;
 
-        string loginHost = FirstNonEmpty(ArgValue("-fineageLoginHost"), FineageWireConfig.LocalLoginHost);
-        int loginPort = ParsePort(ArgValue("-fineageLoginPort"), FineageWireConfig.LocalLoginPort);
-        string zoneHost = FirstNonEmpty(ArgValue("-fineageZoneHost"), FineageWireConfig.LocalZoneHost);
-        int zonePort = ParsePort(ArgValue("-fineageZonePort"), FineageWireConfig.LocalZonePort);
-        FineageWireConfig.EnableLocalBackend(loginHost, loginPort, zoneHost, zonePort);
+        endpoints = FineageEndpoints.Local(
+            ArgValue("-fineageLoginHost"),
+            ParsePort(ArgValue("-fineageLoginPort"), 0),
+            ArgValue("-fineageZoneHost"),
+            ParsePort(ArgValue("-fineageZonePort"), 0));
         ApplyPlaytestWindow();
-        Debug.Log("[FineageLocal] mode=local-backend login=" + loginHost + ":" + loginPort
-            + " zone=" + zoneHost + ":" + zonePort);
+        return true;
     }
 
     /// <summary>Large windowed playtest on Mac Standalone (ProjectSettings are also set at local build time).</summary>
@@ -87,21 +89,6 @@ public static class FineageLocalBackend
                 Environment.GetEnvironmentVariable("FINEAGE_LOCAL_CHAR"),
                 PlayerPrefs.GetString(CharacterPrefKey, ""));
         }
-    }
-
-    /// <summary>
-    /// Editor Play RP and <c>-fineagePublic</c>. Headless <c>-fineageChar</c> still auto-enters.
-    /// </summary>
-    public static bool PublicPlaytestRequested()
-    {
-#if FINEAGE_PUBLIC_PLAYTEST
-        // Standalone baked for the public RP. -fineageLocal still wins via ApplyIfRequested.
-        if (!HasArg("-fineageLocal"))
-            return true;
-#endif
-        if (HasArg("-fineagePublic"))
-            return true;
-        return PlayerPrefs.GetInt(PublicPlaytestPrefKey, 0) == 1;
     }
 
     /// <summary>

@@ -58,8 +58,6 @@ public abstract class DefaultClient : MonoBehaviour
             return;
         }
 
-        ApplyFineageLoginEndpointIfNeeded();
-
         // Arm guard before CreateAsyncClient so a re-entrant Connect cannot replace the socket mid-flight.
         _connecting = true;
         LobbyFlowLog.Info(GetType().Name + ".Connect start ip=" + _serverIp + " port=" + _serverPort);
@@ -120,28 +118,6 @@ public abstract class DefaultClient : MonoBehaviour
     protected virtual void WhileConnecting()
     {
         _connecting = true;
-    }
-
-    /// <summary>
-    /// Local macOS / Fineage-Backend playtest: inspector may still show Interlude 2106.
-    /// </summary>
-    protected void ApplyFineageLoginEndpointIfNeeded()
-    {
-        if (!(this is LoginClient))
-            return;
-        if (!FineageWireConfig.UseLoginHandoff)
-        {
-            // Never dial loopback from a public build (prefab/inspector leftovers).
-            if (!FineageLocalBackend.IsRequested() && !FineageWireConfig.IsPublicLoginHost(_serverIp))
-            {
-                _serverIp = PlaytestEndpoint.DefaultLoginHost;
-                _serverPort = PlaytestEndpoint.DefaultLoginPort;
-            }
-            return;
-        }
-
-        _serverIp = FineageWireConfig.LoginHost;
-        _serverPort = FineageWireConfig.LoginPort;
     }
 
     protected abstract void CreateAsyncClient();

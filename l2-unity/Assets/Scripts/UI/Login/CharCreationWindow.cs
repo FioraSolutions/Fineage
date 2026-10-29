@@ -14,7 +14,6 @@ public class CharCreationWindow : L2Window {
 
     private LoginCameraManager LoginCamera => LoginPacketServices.LoginCamera;
 
-    private GameClient Game => LoginPacketServices.Game;
 
     private GameManager Manager => LoginPacketServices.Manager;
 
@@ -175,8 +174,7 @@ public class CharCreationWindow : L2Window {
                 LoginCamera.SwitchCamera(cam);
             }
 
-            if (FineageWireConfig.UseLoginHandoff)
-                hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale));
+            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale));
             hairstyleManipulator.ResetInput();
             hairColorManipulator.ResetInput();
             faceManipulator.ResetInput();
@@ -241,31 +239,19 @@ public class CharCreationWindow : L2Window {
 
     private void RefreshFace(CharacterRaceAnimation raceId , string face)
     {
-        byte iFace = FineageWireConfig.UseLoginHandoff
-            ? (byte)LobbyCharacterCreate.ClampAppearance(faceManipulator != null ? faceManipulator.Index : 0, 2)
-            : ConvertType.ConvertTypeToByte(face);
+        byte iFace = (byte)LobbyCharacterCreate.ClampAppearance(faceManipulator != null ? faceManipulator.Index : 0, 2);
         Creator.ReBuildFace(raceId, iFace);
     }
 
     private void RefreshHair(CharacterRaceAnimation raceId,  string hairColor, string hairStyle)
     {
-        byte typeHairColor;
-        byte typeHairStyle;
-        if (FineageWireConfig.UseLoginHandoff)
-        {
-            int sex = genderManipulator != null && genderManipulator.Index == LobbyCharacterCreate.SexFemale
-                ? LobbyCharacterCreate.SexFemale
-                : LobbyCharacterCreate.SexMale;
-            typeHairColor = (byte)LobbyCharacterCreate.ClampAppearance(hairColorManipulator != null ? hairColorManipulator.Index : 0, 3);
-            typeHairStyle = (byte)LobbyCharacterCreate.ClampAppearance(
-                hairstyleManipulator != null ? hairstyleManipulator.Index : 0,
-                LobbyCharacterCreate.MaxHairStyle(sex));
-        }
-        else
-        {
-            typeHairColor = ConvertType.ConvertTypeToByte(hairColor);
-            typeHairStyle = ConvertType.ConvertTypeToByte(hairStyle);
-        }
+        int sex = genderManipulator != null && genderManipulator.Index == LobbyCharacterCreate.SexFemale
+            ? LobbyCharacterCreate.SexFemale
+            : LobbyCharacterCreate.SexMale;
+        byte typeHairColor = (byte)LobbyCharacterCreate.ClampAppearance(hairColorManipulator != null ? hairColorManipulator.Index : 0, 3);
+        byte typeHairStyle = (byte)LobbyCharacterCreate.ClampAppearance(
+            hairstyleManipulator != null ? hairstyleManipulator.Index : 0,
+            LobbyCharacterCreate.MaxHairStyle(sex));
 
         Creator.ReBuildHair(raceId, typeHairColor, typeHairStyle);
     }
@@ -287,8 +273,7 @@ public class CharCreationWindow : L2Window {
     public override void ShowWindow()
     {
         base.ShowWindow();
-        if (FineageWireConfig.UseLoginHandoff)
-            ApplyLobbyCreationDefaults();
+        ApplyLobbyCreationDefaults();
     }
 
     void ApplyLobbyCreationDefaults()
@@ -318,27 +303,7 @@ public class CharCreationWindow : L2Window {
     }
     private void CreateButtonPressed()
     {
-
-        // Debug.Log("event create button");
-
-        string class1 = classManipulator.Value;
-        string sex = genderManipulator.Value;
-        string hairStyle = hairstyleManipulator.Value;
-        string hairColor = hairColorManipulator.Value;
-        string face = faceManipulator.Value;
-        string race = raceManipulator.Value;
-        string name = userInputField.value;
-
-        if (FineageWireConfig.UseLoginHandoff)
-        {
-            SubmitLobbyCreate(class1, sex);
-            return;
-        }
-
-        var sendPaket = new CharacterCreateCommand(_playerTemplates , class1, sex , hairColor , hairStyle , face , race , name);
-        Game.Send(sendPaket);
-        //Debug.Log("Button click ButtonPressed");
-        //Debug.Log("");
+        SubmitLobbyCreate(classManipulator.Value, genderManipulator.Value);
     }
 
     void SubmitLobbyCreate(string className, string sexName)
@@ -389,12 +354,9 @@ public class CharCreationWindow : L2Window {
     }
 
     private void PreviousButtonPressed() {
-        if (FineageWireConfig.UseLoginHandoff)
-        {
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null)
-                zone.CancelLobbyCreate();
-        }
+        ZoneV2Client zone = ZoneV2Client.Instance;
+        if (zone != null)
+            zone.CancelLobbyCreate();
 
         classManipulator.ClearInput();
         genderManipulator.ClearInput();

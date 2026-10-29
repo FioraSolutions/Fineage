@@ -473,7 +473,7 @@ public class CharSelectWindow : L2Window {
     }
 
     private void CreatePressed() {
-        if (_lobbyCharacters != null || FineageWireConfig.UseLoginHandoff)
+        if (_lobbyCharacters != null || FineageWireConfig.IsZoneV2)
         {
             int count = _lobbyCharacters != null ? _lobbyCharacters.Count : 0;
             if (!LobbyCharacterText.CanCreate(count))

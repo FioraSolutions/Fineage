@@ -120,37 +120,25 @@ public sealed class ZoneV2Client : MonoBehaviour
         _selectGeneration++;
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
-        if (FineageWireConfig.UseLoginHandoff)
+        FineageEndpoints endpoints = FineageWireConfig.Endpoints;
+        HostPort login = endpoints.Login;
+
+        // Local dev only: -fineageChar / FINEAGE_LOCAL_CHAR skips the lobby and enters the world directly.
+        string character = endpoints.IsPublic ? null : FineageLocalBackend.CharacterHint;
+        if (!string.IsNullOrEmpty(character))
         {
-            string loginHost = FineageWireConfig.LoginHost;
-            int loginPort = FineageWireConfig.LoginPort;
-            if (FineageWireConfig.IsPublicLoginHost(loginHost))
-            {
-                FineageLocalBackend.ClearCharacterHint();
-                Debug.Log("[FineageLocal] public lobby login " + loginHost + ":" + loginPort);
-                Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
-                return;
-            }
-
-            string character = FineageLocalBackend.CharacterHint;
-            if (!string.IsNullOrEmpty(character))
-            {
-                Debug.Log("[FineageLocal] auto-pick character='" + character + "'");
-                Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
-                return;
-            }
-
-            Debug.Log("[FineageLocal] lobby login " + loginHost + ":" + loginPort);
-            Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
+            Debug.Log("[Fineage] login " + login + " auto-pick character='" + character + "'");
+            Task.Run(() => RunLoginThenZoneAsync(login, account, password, character, ct));
             return;
         }
 
-        string host = FineageWireConfig.ZoneHost;
-        int port = FineageWireConfig.ZonePort;
-        Task.Run(() => RunSessionAsync(host, port, account, password, ct));
+        if (endpoints.IsPublic)
+            FineageLocalBackend.ClearCharacterHint();
+        Debug.Log("[Fineage] lobby login " + login);
+        Task.Run(() => OpenLobbyAsync(login, account, password, ct));
     }
 
-    async Task OpenLobbyAsync(string loginHost, int loginPort, string account, string password, CancellationToken ct)
+    async Task OpenLobbyAsync(HostPort login, string account, string password, CancellationToken ct)
     {
         int epoch = _lobbyEpoch;
         FineageLobbySession session = new FineageLobbySession(ct);
@@ -195,7 +183,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
         try
         {
-            await session.ConnectAsync(loginHost, loginPort, account, password).ConfigureAwait(false);
+            await session.ConnectAsync(login, account, password).ConfigureAwait(false);
             Post(() => Debug.Log("[FineageLocal] lobby ready account=" + session.Account));
         }
         catch (OperationCanceledException)
@@ -253,10 +241,7 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         _zoneStarted = true;
         _selectGeneration++;
-        if (string.IsNullOrWhiteSpace(handoff.ZoneHost))
-            handoff.ZoneHost = FineageWireConfig.ZoneHost;
-        if (handoff.ZonePort <= 0)
-            handoff.ZonePort = FineageWireConfig.ZonePort;
+        HostPort zone = FineageWireConfig.Endpoints.ZoneForHandoff(handoff.ZoneHost, handoff.ZonePort);
 
         string prefix = handoff.Token != null && handoff.Token.StartsWith("fa1.", StringComparison.Ordinal)
             ? "fa1."
@@ -265,7 +250,8 @@ public sealed class ZoneV2Client : MonoBehaviour
         Post(() =>
         {
             Debug.Log("[FineageLocal] handoff character=" + handoff.CharacterName
-                + " zone=" + handoff.ZoneHost + ":" + handoff.ZonePort
+                + " zone=" + zone
+                + " advertised=" + handoff.ZoneHost + ":" + handoff.ZonePort
                 + " tokenPrefix=" + prefix
                 + " tokenLength=" + tokenLength);
             if (CharSelectWindow.Instance != null)
@@ -274,7 +260,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
         CloseLobby();
         // Zone Auth uses the handoff token. The account password is not in this call.
-        Task.Run(() => RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct));
+        Task.Run(() => RunSessionAsync(zone, handoff.Account, handoff.Token, ct));
     }
 
     void ShowLobbyError(string code, string message)
@@ -414,8 +400,7 @@ public sealed class ZoneV2Client : MonoBehaviour
     }
 
     async Task RunLoginThenZoneAsync(
-        string loginHost,
-        int loginPort,
+        HostPort login,
         string account,
         string password,
         string character,
@@ -425,8 +410,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         try
         {
             handoff = await FineageLoginSession.LoginAndSelectAsync(
-                loginHost,
-                loginPort,
+                login,
                 account,
                 password,
                 character,
@@ -446,7 +430,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText("");
             });
-            await OpenLobbyAsync(loginHost, loginPort, account, password, ct).ConfigureAwait(false);
+            await OpenLobbyAsync(login, account, password, ct).ConfigureAwait(false);
             return;
         }
         catch (Exception ex)
@@ -460,7 +444,8 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         }
 
-        await RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct)
+        HostPort zone = FineageWireConfig.Endpoints.ZoneForHandoff(handoff.ZoneHost, handoff.ZonePort);
+        await RunSessionAsync(zone, handoff.Account, handoff.Token, ct)
             .ConfigureAwait(false);
     }
 
@@ -886,12 +871,13 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
     }
 
-    async Task RunSessionAsync(string host, int port, string account, string password, CancellationToken ct)
+    async Task RunSessionAsync(HostPort zone, string account, string password, CancellationToken ct)
     {
+        string host = zone.Host;
+        int port = zone.Port;
         try
         {
-            TcpClient tcp = new TcpClient();
-            await tcp.ConnectAsync(host, port).ConfigureAwait(false);
+            TcpClient tcp = await FineageTcp.ConnectAsync("zone", zone, ct).ConfigureAwait(false);
             NetworkStream stream = tcp.GetStream();
             _tcp = tcp;
             _stream = stream;

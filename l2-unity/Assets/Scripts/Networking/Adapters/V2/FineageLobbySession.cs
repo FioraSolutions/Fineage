@@ -32,10 +32,9 @@ public sealed class FineageLobbySession
         _ct = ct;
     }
 
-    public async Task ConnectAsync(string host, int port, string account, string password)
+    public async Task ConnectAsync(HostPort login, string account, string password)
     {
-        _tcp = new TcpClient();
-        await _tcp.ConnectAsync(host, port).ConfigureAwait(false);
+        _tcp = await FineageTcp.ConnectAsync("login", login, _ct).ConfigureAwait(false);
         _stream = _tcp.GetStream();
 
         await ZoneV2FrameIO.SendAsync(

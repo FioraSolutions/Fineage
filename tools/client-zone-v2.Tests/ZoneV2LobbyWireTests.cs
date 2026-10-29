@@ -332,11 +332,11 @@ public class ZoneV2LobbyWireTests
     [Fact]
     public void Public_login_host_is_evpoint_not_loopback()
     {
-        Assert.True(FineageWireConfig.IsPublicLoginHost(PlaytestEndpoint.DefaultLoginHost));
+        Assert.False(FineageEndpoints.IsLoopbackOrUnspecified(PlaytestEndpoint.DefaultLoginHost));
         Assert.Equal("login.fineage.evpoint.by", PlaytestEndpoint.DefaultLoginHost);
         Assert.Equal(2106, PlaytestEndpoint.DefaultLoginPort);
-        Assert.False(FineageWireConfig.IsPublicLoginHost("127.0.0.1"));
-        Assert.False(FineageWireConfig.IsPublicLoginHost("localhost"));
+        Assert.True(FineageEndpoints.IsLoopbackOrUnspecified("127.0.0.1"));
+        Assert.True(FineageEndpoints.IsLoopbackOrUnspecified("localhost"));
     }
 
     static byte[] Pack<T>(T message)

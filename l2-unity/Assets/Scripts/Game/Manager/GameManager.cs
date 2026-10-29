@@ -12,8 +12,6 @@ public class GameManager : MonoBehaviour, IGameManager {
     [SerializeField] private GameState _gameState = GameState.LOGIN_SCREEN;
     private bool _gameReady = false;
     [SerializeField] private Camera _loadingCamera;
-    [Tooltip("Connect login button to ZoneServer v2 (:9777) instead of Interlude stub.")]
-    [SerializeField] private bool _useZoneServerV2 = false;
 
     #endregion
 
@@ -59,31 +57,8 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        if (_useZoneServerV2)
-            FineageWireConfig.SetOverride(FineageWireConfig.Mode.ZoneV2);
-        else
-            FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
-
-        FineageLocalBackend.ApplyIfRequested();
-
-        // Play RP / -fineagePublic: ZoneV2 handoff on the public login, not Interlude Blowfish.
-        // Shipped players ALWAYS use the public RP unless local backend was explicitly requested.
-        bool wantPublic = !FineageLocalBackend.IsRequested();
-#if UNITY_EDITOR
-        wantPublic = wantPublic && FineageLocalBackend.PublicPlaytestRequested();
-#endif
-        if (!FineageWireConfig.UseLoginHandoff && wantPublic)
-        {
-            PlaytestEndpoint ep = PlaytestEndpointRuntime.Current;
-            FineageWireConfig.EnablePlaytestBackend(
-                FineageWireConfig.IsPublicLoginHost(ep.LoginHost) ? ep.LoginHost : PlaytestEndpoint.DefaultLoginHost,
-                ep.LoginPort,
-                FineageWireConfig.IsPublicLoginHost(ep.GameHost) ? ep.GameHost : PlaytestEndpoint.DefaultGameHost,
-                ep.GamePort);
-            Debug.Log("[Fineage] mode=public-playtest login="
-                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
-        }
+        // Decide public RP vs explicit local backend once, before any UI can press Log In.
+        FineageConnection.Initialize();
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
@@ -115,27 +90,8 @@ public class GameManager : MonoBehaviour, IGameManager {
         for (int i = 0; i < 30 && !App.HasContainer; i++)
             yield return null;
 
-        if (!FineageWireConfig.UseLoginHandoff)
-            yield break;
-
         Debug.Log("[FineageLocal] auto-login account=" + account);
-        IZoneTransport transport = null;
-        if (App.HasContainer)
-        {
-            try
-            {
-                transport = App.Resolve<IZoneTransport>();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("[FineageLocal] IZoneTransport resolve failed: " + ex.Message);
-            }
-        }
-
-        if (transport != null)
-            transport.BeginSession(account, password);
-        else
-            ZoneV2Client.Ensure().BeginSession(account, password);
+        ZoneV2Client.Ensure().BeginSession(account, password);
     }
 
     #endregion

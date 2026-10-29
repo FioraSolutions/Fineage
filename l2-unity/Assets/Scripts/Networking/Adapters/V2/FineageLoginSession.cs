@@ -12,20 +12,18 @@ using System.Threading.Tasks;
 public static class FineageLoginSession
 {
     public static async Task<ZoneV2Handoff> LoginAndSelectAsync(
-        string host,
-        int port,
+        HostPort login,
         string account,
         string password,
         string characterName,
         Action<string> log,
         CancellationToken ct)
     {
-        TcpClient tcp = new TcpClient();
+        TcpClient tcp = await FineageTcp.ConnectAsync("login", login, ct).ConfigureAwait(false);
         try
         {
-            await tcp.ConnectAsync(host, port).ConfigureAwait(false);
             if (log != null)
-                log("[FineageLocal] login tcp connected " + host + ":" + port);
+                log("[Fineage] login tcp connected " + login);
 
             NetworkStream stream = tcp.GetStream();
             await ZoneV2FrameIO.SendAsync(
@@ -85,10 +83,6 @@ public static class FineageLoginSession
             if (!ZoneV2Messages.TryDecodeHandoff(handoffFrame.Body, out handoff))
                 throw new InvalidDataException("Handoff ticket was not readable.");
 
-            if (string.IsNullOrWhiteSpace(handoff.ZoneHost))
-                handoff.ZoneHost = FineageWireConfig.ZoneHost;
-            if (handoff.ZonePort <= 0)
-                handoff.ZonePort = FineageWireConfig.ZonePort;
             if (string.IsNullOrEmpty(handoff.Account))
                 handoff.Account = canonical;
 

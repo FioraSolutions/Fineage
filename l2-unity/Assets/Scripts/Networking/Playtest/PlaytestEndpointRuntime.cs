@@ -5,8 +5,8 @@ using System.IO;
 using UnityEngine;
 
 /// <summary>
-/// Loads the shared playtest endpoint and applies it to login/game sockets.
-/// Shipped default is the JSON baked by CI. Command line, user file, and env override it.
+/// Reads optional public-RP host/port overrides (baked JSON, StreamingAssets, env, sidecar,
+/// user file, command line). <see cref="FineageEndpoints.Public"/> turns them into endpoints.
 /// </summary>
 public static class PlaytestEndpointRuntime
 {
@@ -23,37 +23,6 @@ public static class PlaytestEndpointRuntime
                 _current = ResolveSafe();
             return _current;
         }
-    }
-
-    public static void ApplyLogin(DefaultClient client)
-    {
-        if (client == null)
-            return;
-
-        PlaytestEndpoint endpoint = Current;
-        if (!endpoint.OverrideLogin)
-            return;
-
-        client.ServerIp = endpoint.LoginHost;
-        client.ServerPort = endpoint.LoginPort;
-        LobbyFlowLog.Info("Playtest login " + endpoint.LoginHost + ":" + endpoint.LoginPort);
-    }
-
-    public static void ApplyGame(DefaultClient client)
-    {
-        if (client == null)
-            return;
-
-        PlaytestEndpoint endpoint = Current;
-        if (!endpoint.OverrideGameHost && !endpoint.OverrideGamePort)
-            return;
-
-        // ServerList often advertises a LAN address. One public host replaces it.
-        if (endpoint.OverrideGameHost)
-            client.ServerIp = endpoint.GameHost;
-        if (endpoint.OverrideGamePort)
-            client.ServerPort = endpoint.GamePort;
-        LobbyFlowLog.Info("Playtest game " + client.ServerIp + ":" + client.ServerPort);
     }
 
     static PlaytestEndpoint ResolveSafe()

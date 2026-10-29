@@ -200,7 +200,7 @@ public static class FineageRpEditorPlay
         Environment.SetEnvironmentVariable("FINEAGE_LOCAL_CHAR", null);
         PlayerPrefs.SetInt(FineageLocalBackend.PrefKey, 0);
         PlayerPrefs.DeleteKey(FineageLocalBackend.CharacterPrefKey);
-        PlayerPrefs.SetInt(FineageLocalBackend.PublicPlaytestPrefKey, 1);
+        PlayerPrefs.DeleteKey("Fineage.PublicPlaytest"); // retired flag; public RP is the default now
         PlayerPrefs.Save();
 
         Debug.Log("[FineageRP] Editor Play → public RP ("
@@ -268,7 +268,7 @@ public static class FineageRpEditorPlay
             return;
         if (LoginWindow.Instance == null || CharSelectWindow.Instance == null)
             return;
-        if (!FineageWireConfig.UseLoginHandoff)
+        if (!FineageWireConfig.IsZoneV2)
             return;
 
         if (!_loginSent)
