@@ -4099,5 +4099,186 @@
     background-image: resource('Data/UI/Assets/Tab/Table/ListCTRL_DF_Title_Over');
 }
 
+/* Interlude credentials window (L2UI_CH3.LoginWnd). Scoped so other l2-button users stay on Button_DF. */
+.il-login {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 256px;
+    align-items: center;
+    margin-top: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.il-login-frame {
+    width: 256px;
+    height: 108px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Login/Interlude/logon_back');
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 18px;
+    padding-right: 12px;
+    padding-bottom: 8px;
+    padding-left: 12px;
+}
+
+.il-login-row {
+    flex-direction: row;
+    align-items: center;
+    height: 18px;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+}
+
+.il-login-label {
+    width: 70px;
+    flex-shrink: 0;
+    margin-right: 6px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    font-size: 11px;
+    color: rgb(214, 202, 170);
+    -unity-text-align: middle-right;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-font-definition: resource('Data/UI/Font/tahoma Light');
+    letter-spacing: 0;
+}
+
+.il-field {
+    flex-grow: 1;
+    height: 17px;
+    position: relative;
+}
+
+.il-edit {
+    flex-direction: row;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 17px;
+}
+
+.il-edit-l {
+    width: 8px;
+    height: 17px;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Login/Interlude/inputbox1');
+}
+
+.il-edit-m {
+    flex-grow: 1;
+    height: 17px;
+    background-image: resource('Data/UI/Login/Interlude/inputbox2');
+}
+
+.il-edit-r {
+    width: 8px;
+    height: 17px;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Login/Interlude/inputbox3');
+}
+
+.il-login .il-login-input {
+    position: absolute;
+    left: 8px;
+    right: 4px;
+    top: 0;
+    height: 17px;
+    min-height: 0;
+    max-height: 17px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-font-definition: resource('Data/UI/Font/tahoma Light');
+    font-size: 11px;
+    color: rgb(236, 232, 216);
+    -unity-text-align: middle-left;
+    letter-spacing: 0;
+}
+
+.il-login-buttons {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 23px;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.il-login .il-login-btn {
+    width: 96px;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    letter-spacing: 0;
+    font-size: 11px;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-font-definition: resource('Data/UI/Font/tahoma Light');
+}
+
+.il-login .il-login-btn .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton');
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 23px;
+    min-height: 0;
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    -unity-slice-bottom: 0;
+}
+
+.il-login .il-login-btn:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_over');
+}
+
+.il-login .il-login-btn:active .l2-button-bg,
+.il-login .il-login-btn:active:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
+}
+
+.il-login .il-login-btn-label {
+    font-size: 11px;
+    letter-spacing: 0;
+    color: rgba(255, 244, 214, 0.96);
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-font-definition: resource('Data/UI/Font/tahoma Light');
+}
+
+.il-login-error {
+    color: rgb(255, 220, 210);
+    margin-top: 8px;
+    font-size: 12px;
+    -unity-text-align: upper-center;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    white-space: normal;
+    width: 256px;
+}
+
 
 
