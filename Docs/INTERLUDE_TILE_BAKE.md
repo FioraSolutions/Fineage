@@ -84,9 +84,9 @@ Refresh after each batch or via **Shnok/0.1**.
 | `21_23` | full | Giran harbor |
 | `23_22` | full | Giran castle |
 | `20_22` | full | Dion |
-| `21_21` | missing | Northwest-adjacent to `22_22`; Mac bake only (see below) |
-| `23_21` | missing | Southwest-adjacent to `22_22`; Mac bake only (see below) |
-| `23_23` | missing | Southeast-adjacent to `22_22`; Mac bake only (see below) |
+| `21_21` | full | Northwest of Giran |
+| `23_21` | full | Southwest of Giran (toward Hunter) |
+| `23_23` | full | Southeast of Giran (toward Heine) |
 
 ## Mac one-tile recipe (#476 — 3×3 ring around `22_22`)
 
