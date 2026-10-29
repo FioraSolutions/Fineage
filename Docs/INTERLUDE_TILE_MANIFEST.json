@@ -1,9 +1,9 @@
 {
     "schemaVersion": "1",
-    "updatedUtc": "2026-10-28T19:50:00.0000000Z",
-    "clientRootHint": "(local only — not stored)",
+    "updatedUtc": "2026-10-29T06:25:35.0000000Z",
+    "clientRootHint": "(local only \u2014 not stored)",
     "clientMapCount": 153,
-    "importedFullCount": 5,
+    "importedFullCount": 6,
     "importedPartialCount": 0,
     "tiles": [
         {
@@ -808,10 +808,16 @@
         {
             "id": "22_21",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": "Mac bake pending (#476). Adjacent west of full 22_22. See Docs/INTERLUDE_TILE_BAKE.md and tools/interlude/run_mac_tile_bake.sh (FINEAGE_INTERLUDE_TILE=22_21)."
+            "inRepo": true,
+            "importStatus": "full",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/22_21/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/22_21/Meta/22_21.t3d",
+                "Assets/Resources/Data/Maps/22_21/22_21.prefab",
+                "Assets/Resources/Data/Maps/22_21/UnityTerrain/22_21.prefab",
+                "Assets/Resources/Data/Maps/22_21/StaticMeshes.prefab"
+            ],
+            "notes": "Full Mac bake (#476). West of 22_22."
         },
         {
             "id": "22_22",
