@@ -101,7 +101,8 @@ public class ClickManager : MonoBehaviour
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
             stickyDrop = _hoverObjectData.ObjectTransform.GetComponent<ItemEntity>();
 
-        if (_dropPicker != null &&
+        bool overUi = L2GameUI.Instance != null && L2GameUI.Instance.IsPointerOverPanel();
+        if (!overUi && _dropPicker != null &&
             _dropPicker.TryPick(ray, MousePickDistance, stickyDrop, out ItemEntity dropItem, out _))
         {
             Transform root = dropItem.transform;
@@ -118,7 +119,8 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        if (L2GameUI.Instance != null && L2GameUI.Instance.MouseOverUI)
+        if (L2GameUI.Instance != null &&
+            (L2GameUI.Instance.MouseOverUI || L2GameUI.Instance.IsPointerOverPanel()))
         {
             _hoverObjectData = null;
             return;
@@ -164,6 +166,9 @@ public class ClickManager : MonoBehaviour
 
     public void OnClickToMove(RaycastHit hit)
     {
+        if (CastMoveLock.IsLocked)
+            return;
+
         _lastClickPosition = hit.point;
 
         StopFollow();
@@ -261,6 +266,7 @@ public class ClickManager : MonoBehaviour
 
     public void PlaceLocator(Vector3 position)
     {
+        EnsureLocator();
         if (_locator == null)
         {
             return;
@@ -268,6 +274,21 @@ public class ClickManager : MonoBehaviour
 
         _locator.SetActive(true);
         _locator.transform.position = position;
+    }
+
+    void EnsureLocator()
+    {
+        if (_locator != null)
+            return;
+        _locator = GameObject.Find("Locator");
+        if (_locator != null)
+            return;
+        GameObject prefab = Resources.Load<GameObject>("Data/Effects/locator/Locator");
+        if (prefab == null)
+            return;
+        _locator = Instantiate(prefab);
+        _locator.name = "Locator";
+        _locator.SetActive(false);
     }
 
     public void HideLocator()

@@ -1253,8 +1253,27 @@ public static partial class ZoneV2Messages
             row.DeleteSecondsLeft = ZoneV2MsgPack.ReadInt(body, ref i);
         if (n >= 15)
             row.IsLastPlayed = ZoneV2MsgPack.ReadBool(body, ref i);
-        if (n > 15)
-            ZoneV2MsgPack.SkipValues(body, ref i, n - 15);
+        // Optional lobby stats (forward-compatible; older servers send 15).
+        // Optional lobby stats (forward-compatible; older servers send 15; unknown types are skipped).
+        int read = 15;
+        long[] extra = new long[10];
+        while (read < n && read < 25 && (ZoneV2MsgPack.IsInt(body, i) || (i < body.Length && (body[i] == 0xcf || body[i] == 0xd3))))
+        {
+            extra[read - 15] = read == 21 ? ZoneV2MsgPack.ReadInt64(body, ref i) : ZoneV2MsgPack.ReadInt(body, ref i);
+            read++;
+        }
+        if (read > 15) row.CurHp = (int)extra[0];
+        if (read > 16) row.MaxHp = (int)extra[1];
+        if (read > 17) row.CurMp = (int)extra[2];
+        if (read > 18) row.MaxMp = (int)extra[3];
+        if (read > 19) row.CurCp = (int)extra[4];
+        if (read > 20) row.MaxCp = (int)extra[5];
+        if (read > 21) row.Exp = extra[6];
+        if (read > 22) row.Sp = (int)extra[7];
+        if (read > 23) row.Karma = (int)extra[8];
+        if (read > 24) row.WeaponItemId = (int)extra[9];
+        if (n > read)
+            ZoneV2MsgPack.SkipValues(body, ref i, n - read);
         return true;
     }
 
@@ -2566,6 +2585,9 @@ public struct ZoneV2CharacterSummary
     public int Z;
     public int DeleteSecondsLeft;
     public bool IsLastPlayed;
+    public int CurHp, MaxHp, CurMp, MaxMp, CurCp, MaxCp;
+    public long Exp;
+    public int Sp, Karma, WeaponItemId;
 }
 
 /// <summary>Character select ticket. <see cref="Token"/> is the zone Auth password.</summary>

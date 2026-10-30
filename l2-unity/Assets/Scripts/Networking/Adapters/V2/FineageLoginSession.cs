@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,10 +21,11 @@ public static class FineageLoginSession
         Action<string> log,
         CancellationToken ct)
     {
-        TcpClient tcp = new TcpClient();
+        IPAddress ip = EndpointAddress.Resolve(host);
+        TcpClient tcp = new TcpClient(ip.AddressFamily);
         try
         {
-            await tcp.ConnectAsync(host, port).ConfigureAwait(false);
+            await tcp.ConnectAsync(ip, port).ConfigureAwait(false);
             if (log != null)
                 log("[FineageLocal] login tcp connected " + host + ":" + port);
 

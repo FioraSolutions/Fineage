@@ -8,7 +8,7 @@ public class SlotDragManipulator : PointerManipulator
     private Vector2 _startPosition;
     private L2Slot _slot;
     public bool dragged = false;
-    public bool enabled = false;
+    public bool enabled = true;
 
     public SlotDragManipulator(VisualElement target, L2Slot slot)
     {
@@ -68,11 +68,15 @@ public class SlotDragManipulator : PointerManipulator
 
         if (_root.HasPointerCapture(evt.pointerId))
         {
+            Vector2 pos = new Vector2(evt.position.x, evt.position.y);
+            if (!dragged && (pos - _startMousePosition).sqrMagnitude < 9f)
+            {
+                evt.StopPropagation();
+                return;
+            }
             dragged = true;
-            Vector2 diff = _startMousePosition
-            - new Vector2(evt.position.x, evt.position.y) // Apply mouse movement delta
-            + new Vector2(_root.layout.width / 2f, _root.layout.height / 2f); // center the slot
-            DragFlotatingSlot(diff);
+            // Center the floating icon under the cursor (panel space).
+            L2SlotManager.Instance.DragSlotAt(pos, _root.layout.width, _root.layout.height);
         }
         evt.StopPropagation();
     }
@@ -96,6 +100,9 @@ public class SlotDragManipulator : PointerManipulator
             _root.ReleasePointer(evt.pointerId);
             if (dragged)
             {
+                dragged = false;
+                L2Slot drop = SlotHoverDetectManipulator.PickSlot(_root.panel, new Vector2(evt.position.x, evt.position.y));
+                L2SlotManager.Instance.SetHoverSlot(drop);
                 L2SlotManager.Instance.ReleaseDrag();
             }
         }

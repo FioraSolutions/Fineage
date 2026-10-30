@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,8 +35,9 @@ public sealed class FineageLobbySession
 
     public async Task ConnectAsync(string host, int port, string account, string password)
     {
-        _tcp = new TcpClient();
-        await _tcp.ConnectAsync(host, port).ConfigureAwait(false);
+        IPAddress ip = EndpointAddress.Resolve(host);
+        _tcp = new TcpClient(ip.AddressFamily);
+        await _tcp.ConnectAsync(ip, port).ConfigureAwait(false);
         _stream = _tcp.GetStream();
 
         await ZoneV2FrameIO.SendAsync(

@@ -48,7 +48,50 @@ public abstract class L2UI : MonoBehaviour
         if (_uiLoaded)
         {
             _focusedElement = _rootElement.focusController.focusedElement;
+            HealStuckMouseOver();
         }
+    }
+
+    /// <summary>
+    /// MouseOverUI is a global flag toggled by enter/leave manipulators. When a window is hidden
+    /// or rebuilt under the cursor, PointerLeave never fires and the flag sticks true, killing all
+    /// world clicks (targeting/move) until restart. Re-validate against a real panel pick.
+    /// </summary>
+    void HealStuckMouseOver()
+    {
+        if (!_mouseOverUI || _rootElement == null || _rootElement.panel == null)
+            return;
+        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+            return;
+        if (!IsPointerOverPanel())
+            _mouseOverUI = false;
+    }
+
+    /// <summary>Fresh check: is the cursor over a real (non-background) UI Toolkit element right now.</summary>
+    public bool IsPointerOverPanel()
+    {
+        if (_rootElement == null || _rootElement.panel == null)
+            return false;
+        Vector3 m = Input.mousePosition;
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(_rootElement.panel, new Vector2(m.x, Screen.height - m.y));
+        VisualElement picked = _rootElement.panel.Pick(panelPos);
+        return picked != null && !IsBackgroundContainer(picked);
+    }
+
+    bool IsBackgroundContainer(VisualElement ve)
+    {
+        if (ve == null) return true;
+        // Full-screen transparent wrappers (window roots/containers) must not swallow world clicks.
+        Rect pb = _rootElement.worldBound;
+        Rect b = ve.worldBound;
+        if (pb.width > 0 && pb.height > 0 && b.width >= pb.width * 0.9f && b.height >= pb.height * 0.9f)
+            return true;
+        return ve == _rootElement
+            || ve == _rootVisualContainer
+            || ve == _popupVisualContainer
+            || ve == _tooltipVisualContainer
+            || ve == _slotVisualContainer
+            || ve == _rootElement.parent;
     }
 
     public void BlurFocus()

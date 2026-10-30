@@ -25,6 +25,13 @@ public static class PlaytestEndpointRuntime
         }
     }
 
+    /// <summary>Drop the cached endpoint so the next read reloads JSON / env / cmdline layers.</summary>
+    public static PlaytestEndpoint Reload()
+    {
+        _current = null;
+        return Current;
+    }
+
     public static void ApplyLogin(DefaultClient client)
     {
         if (client == null)

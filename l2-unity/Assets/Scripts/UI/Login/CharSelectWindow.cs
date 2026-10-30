@@ -189,11 +189,12 @@ public class CharSelectWindow : L2Window {
             _deleteArmed = false;
         _levelLabel.text = character.Level.ToString();
         _classLabel.text = LobbyCharacterText.ClassLabel(character.ClassId);
-        _hpLabel.text = "-";
-        _mpLabel.text = "-";
-        _expLabel.text = "-";
-        _spLabel.text = "-";
-        _karmaLabel.text = "-";
+        bool hasStats = character.MaxHp > 0;
+        _hpLabel.text = hasStats ? $"{character.CurHp}/{character.MaxHp}" : "-";
+        _mpLabel.text = hasStats ? $"{character.CurMp}/{character.MaxMp}" : "-";
+        _expLabel.text = hasStats ? LobbyExpPercent(character).ToString("0.00") + "%" : "-";
+        _spLabel.text = hasStats ? character.Sp.ToString() : "-";
+        _karmaLabel.text = hasStats ? character.Karma.ToString() : "-";
         if (index != _charNameManipulator.Index)
             _charNameManipulator.SelectIndex(index);
 
@@ -205,6 +206,14 @@ public class CharSelectWindow : L2Window {
             ShowLobbyStatus("");
 
         RefreshLobbyActions();
+    }
+
+    static float LobbyExpPercent(LobbyCharacter c)
+    {
+        long cur = LevelServer.GetExp(c.Level);
+        long next = LevelServer.GetExp(c.Level + 1);
+        if (cur < 0 || next <= cur) return 0f;
+        return Mathf.Clamp01((float)((c.Exp - cur) / (double)(next - cur))) * 100f;
     }
 
     public void ShowLobbyStatus(string text)
