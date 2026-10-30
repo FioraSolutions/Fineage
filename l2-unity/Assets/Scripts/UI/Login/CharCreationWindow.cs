@@ -408,7 +408,7 @@ public class CharCreationWindow : L2Window {
         Manager.OnAuthAllowed();
     }
 
-    void ReleaseCreatePawns()
+    public void ReleaseCreatePawns()
     {
         if (Creator != null)
             Creator.DestroyAllPawns();
