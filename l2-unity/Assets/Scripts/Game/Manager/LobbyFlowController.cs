@@ -140,6 +140,7 @@ public sealed class LobbyFlowController
 
     public void OnWorldSceneLoaded()
     {
+        ClearLobbyPawnGalleries();
         L2LoginUI loginUi = LoginUi;
         if (loginUi != null)
             GameObject.Destroy(loginUi.gameObject);
@@ -223,6 +224,7 @@ public sealed class LobbyFlowController
         _game.GameState = GameState.IN_GAME;
         _game.WorldSpawnReady = false;
 
+        ClearLobbyPawnGalleries();
         LoginUi.StartLoading();
         Scenes.LoadSWMap();
     }
@@ -307,8 +309,19 @@ public sealed class LobbyFlowController
                 loginUi.StopLoading();
                 loginUi.SetLoading(true);
             }
-
-            Creator.SpawnAllPawns();
+            // Do not SpawnAllPawns here — Logongrp gallery shares world space with
+            // Talking Island spawn and Menu is kept loaded for SceneLoader.
         }
+    }
+
+    void ClearLobbyPawnGalleries()
+    {
+        CharacterCreator creator = Creator;
+        if (creator != null)
+            creator.DestroyAllPawns();
+
+        CharacterSelector selector = CharacterSelector.Instance;
+        if (selector != null)
+            selector.ClearLobbyVisuals();
     }
 }
