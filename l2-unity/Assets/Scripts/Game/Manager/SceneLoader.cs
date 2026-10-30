@@ -405,6 +405,9 @@ public class SceneLoader : MonoBehaviour
         CharacterCreator creator = CharacterCreator.Instance;
         if (creator != null)
             creator.DestroyAllPawns();
+
+        // Textbook isolation: even if a pawn survives DDOL, world cameras must not draw LoginBG.
+        LobbyPresentation.ExcludeFromWorldCameras();
     }
 
     public void SwitchScene(string sceneName, Action<AsyncOperation> p)

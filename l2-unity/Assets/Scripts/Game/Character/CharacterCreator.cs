@@ -135,6 +135,7 @@ public class CharacterCreator : MonoBehaviour
         DestroyAllPawns();
         _pawnContainer = new GameObject("Pawns");
         _pawnContainer.transform.SetParent(transform, false);
+        LobbyPresentation.ApplyLayer(_pawnContainer);
     }
 
     public GameObject SpawnPawnWithAppearance(CharacterRaceAnimation raceId , int id , PlayerAppearance appearance) {
@@ -247,6 +248,7 @@ public class CharacterCreator : MonoBehaviour
         pawnObject.transform.name = name;
         pawnObject.transform.parent = container.transform;
         pawnObject.SetActive(true);
+        LobbyPresentation.ApplyLayer(pawnObject);
 
         UserGear gear = pawnObject.GetComponent<UserGear>();
         BaseAnimationController animController = pawnObject.GetComponent<BaseAnimationController>();
@@ -282,6 +284,7 @@ public class CharacterCreator : MonoBehaviour
             UserGear gear = pawnObject.GetComponent<UserGear>();
             GameObject face = Instantiate(Models.GetFace(raceId, _face));
             gear.EquipFace(face);
+            LobbyPresentation.ApplyLayer(pawnObject);
         }
     }
 
@@ -299,6 +302,7 @@ public class CharacterCreator : MonoBehaviour
                 GameObject hair2 = hair2M != null ? Instantiate(hair2M) : null;
                 UserGear gear = pawnObject.GetComponent<UserGear>();
                 gear.EquipHair(hair1, hair2);
+                LobbyPresentation.ApplyLayer(pawnObject);
             }
 
         }

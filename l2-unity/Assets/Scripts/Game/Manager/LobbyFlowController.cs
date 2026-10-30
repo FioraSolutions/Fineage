@@ -322,5 +322,7 @@ public sealed class LobbyFlowController
         CharacterCreator creator = CharacterCreator.Instance;
         if (creator != null)
             creator.DestroyAllPawns();
+
+        LobbyPresentation.ExcludeFromWorldCameras();
     }
 }

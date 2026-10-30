@@ -155,6 +155,7 @@ public class CharacterSelector : MonoBehaviour
         {
             _container = new GameObject("Characters");
             _container.transform.SetParent(transform, false);
+            LobbyPresentation.ApplyLayer(_container);
         }
 
         if (_characterGameObjects == null)
