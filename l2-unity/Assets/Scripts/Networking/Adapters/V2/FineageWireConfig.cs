@@ -91,7 +91,7 @@ public static class FineageWireConfig
             {
                 _prefsCache = (Mode)PlayerPrefs.GetInt(PrefKey, (int)Mode.Interlude);
             }
-            catch (UnityException)
+            catch (Exception)
             {
                 return Mode.Interlude;
             }
@@ -106,7 +106,7 @@ public static class FineageWireConfig
                 PlayerPrefs.SetInt(PrefKey, (int)value);
                 PlayerPrefs.Save();
             }
-            catch (UnityException)
+            catch (Exception)
             {
                 /* ignore off-thread */
             }
