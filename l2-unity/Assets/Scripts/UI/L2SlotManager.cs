@@ -94,19 +94,31 @@ public class L2SlotManager : L2PopupWindow
         }
     }
 
-    internal void DragSlotAt(Vector2 panelPos, float width, float height)
+    /// <summary>
+    /// Places the floating drag icon so <paramref name="grabOffset"/> (local to the source slot)
+    /// stays under the pointer. <paramref name="panelPos"/> is UI Toolkit panel space.
+    /// </summary>
+    internal void DragSlotAt(Vector2 panelPos, Vector2 grabOffset)
     {
         ShowWindow();
         _windowEle.style.right = StyleKeyword.Null;
         _windowEle.style.bottom = StyleKeyword.Null;
-        _windowEle.style.left = panelPos.x - width / 2f;
-        _windowEle.style.top = panelPos.y - height / 2f;
+
+        Vector2 local = panelPos;
+        VisualElement parent = _windowEle.parent;
+        if (parent != null)
+            local = parent.WorldToLocal(panelPos);
+
+        _windowEle.style.left = local.x - grabOffset.x;
+        _windowEle.style.top = local.y - grabOffset.y;
         _windowEle.BringToFront();
     }
 
     internal void DragSlot(float right, float bottom)
     {
         ShowWindow();
+        _windowEle.style.left = StyleKeyword.Null;
+        _windowEle.style.top = StyleKeyword.Null;
         _windowEle.style.right = right;
         _windowEle.style.bottom = bottom;
     }
