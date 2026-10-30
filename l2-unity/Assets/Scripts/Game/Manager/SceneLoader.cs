@@ -393,6 +393,7 @@ public class SceneLoader : MonoBehaviour
         CharacterSelector selector = CharacterSelector.Instance;
         if (selector != null)
             selector.ForgetLobbyVisuals();
+        LobbyPresentation.ForgetRoot();
     }
 
     public void SwitchScene(string sceneName, Action<AsyncOperation> p)

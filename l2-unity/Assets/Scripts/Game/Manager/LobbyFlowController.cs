@@ -299,15 +299,13 @@ public sealed class LobbyFlowController
 
     public void OnGameLaunched()
     {
-        if (GameState.IN_GAME == _game.GameState)
-        {
-            L2LoginUI loginUi = LoginUi;
-            if (loginUi != null)
-            {
-                loginUi.StopLoading();
-                loginUi.SetLoading(true);
-            }
-            // Do not SpawnAllPawns here — Logongrp poses share world space with the map.
-        }
+        if (_game.GameState != GameState.IN_GAME)
+            return;
+
+        L2LoginUI loginUi = LoginUi;
+        if (loginUi == null)
+            return;
+        loginUi.StopLoading();
+        loginUi.SetLoading(true);
     }
 }

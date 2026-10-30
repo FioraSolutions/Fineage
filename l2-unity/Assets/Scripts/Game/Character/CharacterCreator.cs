@@ -82,17 +82,6 @@ public class CharacterCreator : MonoBehaviour
         }
     }
 
-    public void SpawnAllPawns() {
-        EnsurePawnContainer();
-        List<Logongrp> pawnData = LogonGrps;
-
-        for (var i = 8; i < pawnData.Count; i++) {
-             GameObject pawnObject = CreatePawn(CharacterRaceAnimation.FDarkElf, new PlayerAppearance());
-             pawns[i] = pawnObject;
-             PlacePawn(pawnObject, pawnData[i], "Pawn" + i, _pawnContainer);
-        }
-    }
-
     public void SpawnAllCharCreatePawns()
     {
         EnsurePawnContainer();
@@ -134,16 +123,6 @@ public class CharacterCreator : MonoBehaviour
         DestroyAllPawns();
         _pawnContainer = new GameObject("Pawns");
         LobbyPresentation.Host(_pawnContainer);
-    }
-
-    public GameObject SpawnPawnWithAppearance(CharacterRaceAnimation raceId , int id , PlayerAppearance appearance) {
-        List<Logongrp> pawnData = LogonGrps;
-
-        GameObject pawnObject = CreatePawn(raceId, appearance);
-        PlacePawn(pawnObject, pawnData[id], "Pawn" + id, _pawnContainer);
-        pawnObject.SetActive(false);
-        
-        return pawnObject;
     }
 
     public void SpawnPawnWithId(int id) {
@@ -244,7 +223,7 @@ public class CharacterCreator : MonoBehaviour
     public void PlacePawn(GameObject pawnObject, Logongrp pawnData, string name, GameObject container) {
         UpdatePawnPosAndRot(pawnObject, pawnData);
         pawnObject.transform.name = name;
-        pawnObject.transform.parent = container.transform;
+        pawnObject.transform.SetParent(container.transform, true);
         pawnObject.SetActive(true);
         LobbyPresentation.ApplyLayer(pawnObject);
 

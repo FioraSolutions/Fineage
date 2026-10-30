@@ -2,9 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Char-select / create presentation: owned by the unloadable Lobby hierarchy,
-/// drawn only on layer <c>CharSelect</c>. Gameplay cameras omit that layer.
-/// Primary cleanup is Menu / l2_lobby unload — not Destroy sweeps.
+/// Char-select / create meshes are parented under Menu <c>Lobby/LobbyPresentationRoot</c>
+/// on layer <c>CharSelect</c>. Gameplay cameras omit that layer; Menu unload is cleanup.
 /// </summary>
 public static class LobbyPresentation
 {
@@ -12,6 +11,7 @@ public static class LobbyPresentation
     public const string RootName = "LobbyPresentationRoot";
 
     static int _layer = int.MinValue;
+    static Transform _root;
 
     public static int Layer
     {
@@ -23,29 +23,36 @@ public static class LobbyPresentation
         }
     }
 
-    /// <summary>
-    /// Parent under Menu's Lobby → LobbyPresentationRoot (scene unload removes it).
-    /// </summary>
     public static Transform GetOrCreateRoot()
     {
-        Transform lobby = FindLobbyTransform();
-        if (lobby == null)
+        if (_root != null)
+            return _root;
+
+        Transform lobby = ResolveLobbyTransform();
+        if (lobby != null)
         {
-            Debug.LogWarning("[LobbyPresentation] Lobby root missing; creating orphan root in Menu.");
-            GameObject orphan = new GameObject(RootName);
-            ApplyLayer(orphan);
-            MoveToMenuIfPossible(orphan);
-            return orphan.transform;
+            Transform existing = lobby.Find(RootName);
+            if (existing != null)
+            {
+                _root = existing;
+                return _root;
+            }
+
+            GameObject rootGo = new GameObject(RootName);
+            rootGo.transform.SetParent(lobby, false);
+            ApplyLayer(rootGo);
+            _root = rootGo.transform;
+            return _root;
         }
 
-        Transform existing = lobby.Find(RootName);
-        if (existing != null)
-            return existing;
-
-        GameObject root = new GameObject(RootName);
-        root.transform.SetParent(lobby, false);
-        ApplyLayer(root);
-        return root.transform;
+        Debug.LogWarning("[LobbyPresentation] Lobby missing; staging root in Menu scene.");
+        GameObject orphan = new GameObject(RootName);
+        ApplyLayer(orphan);
+        Scene menu = SceneManager.GetSceneByName("Menu");
+        if (menu.IsValid() && menu.isLoaded)
+            SceneManager.MoveGameObjectToScene(orphan, menu);
+        _root = orphan.transform;
+        return _root;
     }
 
     public static void Host(GameObject presentationRoot)
@@ -53,9 +60,14 @@ public static class LobbyPresentation
         if (presentationRoot == null)
             return;
 
-        Transform stage = GetOrCreateRoot();
-        presentationRoot.transform.SetParent(stage, true);
+        presentationRoot.transform.SetParent(GetOrCreateRoot(), true);
         ApplyLayer(presentationRoot);
+    }
+
+    /// <summary>Drop cached root after Menu unload (Unity fake-nulls the Transform).</summary>
+    public static void ForgetRoot()
+    {
+        _root = null;
     }
 
     public static void ApplyLayer(GameObject root)
@@ -74,21 +86,11 @@ public static class LobbyPresentation
         cam.cullingMask |= 1 << layer;
     }
 
-    static Transform FindLobbyTransform()
+    static Transform ResolveLobbyTransform()
     {
+        // CharacterCreator lives on the Menu Lobby object.
         CharacterCreator creator = CharacterCreator.Instance;
-        if (creator != null)
-            return creator.transform;
-
-        GameObject lobby = GameObject.Find("Lobby");
-        return lobby != null ? lobby.transform : null;
-    }
-
-    static void MoveToMenuIfPossible(GameObject go)
-    {
-        Scene menu = SceneManager.GetSceneByName("Menu");
-        if (menu.IsValid() && menu.isLoaded)
-            SceneManager.MoveGameObjectToScene(go, menu);
+        return creator != null ? creator.transform : null;
     }
 
     static void SetLayerRecursively(Transform root, int layer)
