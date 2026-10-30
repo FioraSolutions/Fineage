@@ -64,6 +64,10 @@ public class SceneLoader : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            // Game.prefab already has DontDestroyOnLoad; keep bootstrap alive so Menu can unload.
+            if (transform.parent != null)
+                transform.SetParent(null, true);
+            DontDestroyOnLoad(gameObject);
         }
         else if (_instance != this)
         {
@@ -124,8 +128,8 @@ public class SceneLoader : MonoBehaviour
 
     private IEnumerator LoadSWMapRoutine(Vector3 l2Pos)
     {
-        // Char-create pawns share world space with Talking Island; wipe before map shows.
-        CharacterCreator.DestroyOrphanLobbyGalleries();
+        // Select/create pawns live at Logongrp world coords; drop owned lobby visuals first.
+        ClearLobbyPresentation();
 
         yield return LoadSceneAdditiveIfNeeded(_gameScene);
         SetSceneRootsActive(_gameScene, true, true);
@@ -153,8 +157,6 @@ public class SceneLoader : MonoBehaviour
 
         FinishLoadSWMap();
         UnloadLobbyScenes();
-        // Menu often stays loaded for SceneLoader — sweep again after lobby unload.
-        CharacterCreator.DestroyOrphanLobbyGalleries();
         WorldClock.EnsurePersistent();
         _worldStreaming = true;
     }
@@ -383,15 +385,26 @@ public class SceneLoader : MonoBehaviour
 
     private void UnloadLobbyScenes()
     {
+        ClearLobbyPresentation();
+
         SetSceneRootsActive(_lobbyScene, false);
         UnloadScene(_lobbyScene);
 
-        Scene loaderScene = gameObject.scene;
-        if (loaderScene.IsValid() && loaderScene.name != _menuScene)
-        {
-            SetSceneRootsActive(_menuScene, false);
-            UnloadScene(_menuScene);
-        }
+        // Bootstrap (this Game object) is DontDestroyOnLoad — Menu must always unload
+        // so lobby cameras / create pawns cannot remain in world space.
+        SetSceneRootsActive(_menuScene, false);
+        UnloadScene(_menuScene);
+    }
+
+    static void ClearLobbyPresentation()
+    {
+        CharacterSelector selector = CharacterSelector.Instance;
+        if (selector != null)
+            selector.ClearLobbyVisuals();
+
+        CharacterCreator creator = CharacterCreator.Instance;
+        if (creator != null)
+            creator.DestroyAllPawns();
     }
 
     public void SwitchScene(string sceneName, Action<AsyncOperation> p)
