@@ -890,8 +890,9 @@ public sealed class ZoneV2Client : MonoBehaviour
     {
         try
         {
-            TcpClient tcp = new TcpClient();
-            await tcp.ConnectAsync(host, port).ConfigureAwait(false);
+            System.Net.IPAddress ip = EndpointAddress.Resolve(host);
+            TcpClient tcp = new TcpClient(ip.AddressFamily);
+            await tcp.ConnectAsync(ip, port).ConfigureAwait(false);
             NetworkStream stream = tcp.GetStream();
             _tcp = tcp;
             _stream = stream;
