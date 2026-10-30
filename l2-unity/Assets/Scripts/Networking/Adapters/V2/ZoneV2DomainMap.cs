@@ -132,10 +132,17 @@ public static class ZoneV2DomainMap
         dto.Stats.Level = 1;
         dto.Status.SetHp(100);
         dto.Stats.MaxHp = 100;
-        dto.Stats.BaseRunSpeed = 120;
-        dto.Stats.BaseWalkingSpeed = 80;
-        dto.Stats.WalkRealSpeed = 80f;
-        dto.Stats.RunRealSpeed = 120f;
+        // Zone V2 NpcInfo has no PAtkSpd key yet — Interlude default so MonsterStateAtk
+        // does not freeze at patkspd=0 (CalculateTimeL2j(0) → Inf).
+        const int defaultPAtkSpd = 253;
+        dto.Stats.PAtkSpd = defaultPAtkSpd;
+        dto.Stats.PAtkRealSpeed = defaultPAtkSpd;
+        float run = info.RunSpeed > 0.001f ? info.RunSpeed : 120f;
+        float walk = info.WalkSpeed > 0.001f ? info.WalkSpeed : 80f;
+        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
+        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
+        dto.Stats.WalkRealSpeed = walk;
+        dto.Stats.RunRealSpeed = run;
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
         return dto;

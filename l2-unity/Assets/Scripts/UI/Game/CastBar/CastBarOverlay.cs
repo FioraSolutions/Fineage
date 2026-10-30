@@ -1,20 +1,23 @@
 using UnityEngine;
 
 /// <summary>
-/// Local player's casting gauge, driven by MagicSkillUse.HitTime (Mobius sends hitTime in ms;
-/// damage lands when it elapses). Uses the Interlude DF MP gauge textures already shipped in
-/// Resources/Data/UI/Assets/Status/Gauge. Hidden for instant skills (hitTime &lt; 200 ms).
+/// Local player cast gauge above the head (Interlude HeadDisplay 128×8).
+/// Countdown: full at cast start → empty at hit. Instant skills (&lt;200 ms) skip.
 /// </summary>
 public sealed class CastBarOverlay : MonoBehaviour
 {
-    const string GaugeRoot = "Data/UI/Assets/Status/Gauge/Gauge_DF_Large_MP/";
-    const float Width = 220f;
-    const float Height = 12f;
+    const string GaugeRoot = "Data/UI/Assets/Target/HeadDisplay_DF_Gauge_HP/";
+    const float Width = 128f;
+    const float Height = 8f;
+    /// <summary>GUI points above the head screen point.</summary>
+    const float GuiYAboveHead = 10f;
+    const float WorldYAboveNameplateMeters = 0.22f;
 
     static CastBarOverlay _instance;
 
-    Texture2D _bgLeft, _bgCenter, _bgRight, _fillLeft, _fillCenter, _fillRight;
-    float _startTime;
+    Texture2D _bg;
+    Texture2D _fill;
+    float _endTime;
     float _duration;
     bool _active;
 
@@ -24,12 +27,15 @@ public sealed class CastBarOverlay : MonoBehaviour
             return;
         if (_instance == null)
         {
-            var go = new GameObject("CastBarOverlay");
+            var go = new GameObject(nameof(CastBarOverlay));
             DontDestroyOnLoad(go);
             _instance = go.AddComponent<CastBarOverlay>();
         }
-        _instance._startTime = Time.unscaledTime;
-        _instance._duration = hitTimeMs / 1000f;
+
+        float duration = hitTimeMs / 1000f;
+        _instance._duration = duration;
+        // End-time based so remaining falls every frame from the first repaint.
+        _instance._endTime = Time.unscaledTime + duration;
         _instance._active = true;
     }
 
@@ -41,46 +47,76 @@ public sealed class CastBarOverlay : MonoBehaviour
 
     void Awake()
     {
-        _bgLeft = Resources.Load<Texture2D>(GaugeRoot + "Gauge_DF_Large_MP_bg_Left");
-        _bgCenter = Resources.Load<Texture2D>(GaugeRoot + "Gauge_DF_Large_MP_bg_Center");
-        _bgRight = Resources.Load<Texture2D>(GaugeRoot + "Gauge_DF_Large_MP_bg_Right");
-        _fillLeft = Resources.Load<Texture2D>(GaugeRoot + "Gauge_DF_Large_MP_Left");
-        _fillCenter = Resources.Load<Texture2D>(GaugeRoot + "Gauge_DF_Large_MP_Center");
-        _fillRight = Resources.Load<Texture2D>(GaugeRoot + "Gauge_DF_Large_MP_Right");
+        _bg = Resources.Load<Texture2D>(GaugeRoot + "HeadDisplay_DF_Gauge_HP_Bg");
+        _fill = Resources.Load<Texture2D>(GaugeRoot + "HeadDisplay_DF_Gauge_HP");
     }
 
     void OnGUI()
     {
-        if (!_active)
+        // Project has a global Event enum — qualify UnityEngine.Event.
+        UnityEngine.Event ev = UnityEngine.Event.current;
+        if (ev == null || ev.type != EventType.Repaint)
             return;
-        float t = _duration <= 0f ? 1f : (Time.unscaledTime - _startTime) / _duration;
-        if (t >= 1f)
+        if (!_active || _bg == null || _fill == null)
+            return;
+
+        float remainingSec = _endTime - Time.unscaledTime;
+        if (remainingSec <= 0f || _duration <= 0f)
         {
             _active = false;
             return;
         }
 
-        float x = (Screen.width - Width) * 0.5f;
-        float y = Screen.height * 0.72f;
-        DrawGauge(new Rect(x, y, Width, Height), _bgLeft, _bgCenter, _bgRight, Color.white);
-        DrawGauge(new Rect(x, y, Width * Mathf.Clamp01(t), Height), _fillLeft, _fillCenter, _fillRight, Color.white);
+        float remaining = Mathf.Clamp01(remainingSec / _duration);
+
+        if (!TryGetHeadGui(out float guiX, out float guiY))
+            return;
+
+        float x = guiX - Width * 0.5f;
+        float y = guiY - Height - GuiYAboveHead;
+
+        GUI.DrawTexture(new Rect(x, y, Width, Height), _bg);
+
+        float fillW = Width * remaining;
+        if (fillW < 1f)
+            return;
+
+        // Left-aligned remaining slice (empties from the right as cast progresses).
+        Rect dst = new Rect(x, y, fillW, Height);
+        Rect uv = new Rect(0f, 0f, remaining, 1f);
+        GUI.DrawTextureWithTexCoords(dst, _fill, uv);
     }
 
-    static void DrawGauge(Rect r, Texture2D left, Texture2D center, Texture2D right, Color tint)
+    static bool TryGetHeadGui(out float guiX, out float guiY)
     {
-        if (r.width <= 0f)
-            return;
-        GUI.color = tint;
-        if (left == null || center == null || right == null)
-        {
-            GUI.DrawTexture(r, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            return;
-        }
-        float cap = Mathf.Min(left.width, r.width * 0.5f);
-        GUI.DrawTexture(new Rect(r.x, r.y, cap, r.height), left);
-        GUI.DrawTexture(new Rect(r.x + cap, r.y, Mathf.Max(0f, r.width - 2f * cap), r.height), center);
-        GUI.DrawTexture(new Rect(r.xMax - cap, r.y, cap, r.height), right);
-        GUI.color = Color.white;
+        guiX = guiY = 0f;
+        Transform player = PlayerEntity.Instance != null ? PlayerEntity.Instance.transform : null;
+        if (player == null)
+            return false;
+
+        Camera cam = null;
+        if (CameraController.Instance != null)
+            cam = CameraController.Instance.GetComponent<Camera>();
+        if (cam == null)
+            cam = Camera.main;
+        if (cam == null)
+            return false;
+
+        Vector3 head = L2NameplateAnchor.GetHeadWorldPos(
+            player,
+            L2NameplateAnchor.DefaultCollisionHeightMeters,
+            L2NameplateAnchor.DefaultHeadHeightOffsetMeters);
+        head += Vector3.up * WorldYAboveNameplateMeters;
+
+        Vector3 sp = cam.WorldToScreenPoint(head);
+        if (sp.z <= 0f)
+            return false;
+
+        // Unity 6: GUIUtility.pixelsPerPoint is editor-only; ScreenToGUIPoint
+        // flips Y and applies the GUI scale (Retina) for OnGUI coords.
+        Vector2 gui = GUIUtility.ScreenToGUIPoint(new Vector2(sp.x, sp.y));
+        guiX = gui.x;
+        guiY = gui.y;
+        return true;
     }
 }
