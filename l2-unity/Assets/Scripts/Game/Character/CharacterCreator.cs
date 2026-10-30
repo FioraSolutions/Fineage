@@ -82,17 +82,6 @@ public class CharacterCreator : MonoBehaviour
         }
     }
 
-    public void SpawnAllPawns() {
-        EnsurePawnContainer();
-        List<Logongrp> pawnData = LogonGrps;
-
-        for (var i = 8; i < pawnData.Count; i++) {
-             GameObject pawnObject = CreatePawn(CharacterRaceAnimation.FDarkElf, new PlayerAppearance());
-             pawns[i] = pawnObject;
-             PlacePawn(pawnObject, pawnData[i], "Pawn" + i, _pawnContainer);
-        }
-    }
-
     public void SpawnAllCharCreatePawns()
     {
         EnsurePawnContainer();
@@ -111,14 +100,13 @@ public class CharacterCreator : MonoBehaviour
     }
 
     /// <summary>
-    /// Drop create-gallery pawns. Call when leaving create UI or before world enter;
-    /// Menu unload also destroys Creator when it is not on the DDOL Game root.
+    /// Drop create-gallery while still in lobby (back to select). World enter unloads Menu.
     /// </summary>
     public void DestroyAllPawns()
     {
         if (_pawnContainer != null)
         {
-            Object.DestroyImmediate(_pawnContainer);
+            Object.Destroy(_pawnContainer);
             _pawnContainer = null;
         }
 
@@ -134,17 +122,7 @@ public class CharacterCreator : MonoBehaviour
     {
         DestroyAllPawns();
         _pawnContainer = new GameObject("Pawns");
-        _pawnContainer.transform.SetParent(transform, false);
-    }
-
-    public GameObject SpawnPawnWithAppearance(CharacterRaceAnimation raceId , int id , PlayerAppearance appearance) {
-        List<Logongrp> pawnData = LogonGrps;
-
-        GameObject pawnObject = CreatePawn(raceId, appearance);
-        PlacePawn(pawnObject, pawnData[id], "Pawn" + id, _pawnContainer);
-        pawnObject.SetActive(false);
-        
-        return pawnObject;
+        LobbyPresentation.Host(_pawnContainer);
     }
 
     public void SpawnPawnWithId(int id) {
@@ -245,8 +223,9 @@ public class CharacterCreator : MonoBehaviour
     public void PlacePawn(GameObject pawnObject, Logongrp pawnData, string name, GameObject container) {
         UpdatePawnPosAndRot(pawnObject, pawnData);
         pawnObject.transform.name = name;
-        pawnObject.transform.parent = container.transform;
+        pawnObject.transform.SetParent(container.transform, true);
         pawnObject.SetActive(true);
+        LobbyPresentation.ApplyLayer(pawnObject);
 
         UserGear gear = pawnObject.GetComponent<UserGear>();
         BaseAnimationController animController = pawnObject.GetComponent<BaseAnimationController>();
@@ -280,8 +259,11 @@ public class CharacterCreator : MonoBehaviour
         if (pawnObject != null)
         {
             UserGear gear = pawnObject.GetComponent<UserGear>();
-            GameObject face = Instantiate(Models.GetFace(raceId, _face));
+            // Parent immediately — unparented Instantiate lands in the active scene
+            // (can be Game) and survives Menu unload as a floating mesh.
+            GameObject face = Instantiate(Models.GetFace(raceId, _face), pawnObject.transform, false);
             gear.EquipFace(face);
+            LobbyPresentation.ApplyLayer(pawnObject);
         }
     }
 
@@ -295,10 +277,15 @@ public class CharacterCreator : MonoBehaviour
             var hair2M = Models.GetHair(raceId, hairStyle, hairColor, true);
             if (hair1M != null || hair2M != null)
             {
-                GameObject hair1 = hair1M != null ? Instantiate(hair1M) : null;
-                GameObject hair2 = hair2M != null ? Instantiate(hair2M) : null;
+                GameObject hair1 = hair1M != null
+                    ? Instantiate(hair1M, pawnObject.transform, false)
+                    : null;
+                GameObject hair2 = hair2M != null
+                    ? Instantiate(hair2M, pawnObject.transform, false)
+                    : null;
                 UserGear gear = pawnObject.GetComponent<UserGear>();
                 gear.EquipHair(hair1, hair2);
+                LobbyPresentation.ApplyLayer(pawnObject);
             }
 
         }

@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using UnityEngine;
-using VContainer;
 
+/// <summary>
+/// Main-thread packet/world apply pump. Owned by <see cref="DiBootstrap.EnsureAppScope"/>
+/// on the AppLifetimeScope DontDestroyOnLoad object — not Menu, Networking, or Game prefabs.
+/// </summary>
 public class EventProcessor : MonoBehaviour
 {
     WorldPacketApply _worldApply;
     private static EventProcessor _instance;
+
     [System.Obsolete("Use [Inject] instead")]
     public static EventProcessor Instance { get { return _instance; } }
 
@@ -29,10 +33,23 @@ public class EventProcessor : MonoBehaviour
 
     private void Awake()
     {
-        if (_instance == null)
-            _instance = this;
-        else if (_instance != this)
+        if (_instance != null && _instance != this)
+        {
+            Debug.LogError(
+                "[EventProcessor] Duplicate on '" + name + "' scene=" + gameObject.scene.name
+                + ". Only AppLifetimeScope may host EventProcessor. Destroying this duplicate.");
             Destroy(this);
+            return;
+        }
+
+        _instance = this;
+        NetworkingPacketServices.Bind(events: this);
+    }
+
+    void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     public void WireGameApply(WorldPacketApply worldApply)
@@ -61,6 +78,8 @@ public class EventProcessor : MonoBehaviour
 
     public void QueueEvent(Action action)
     {
+        if (action == null)
+            return;
         lock (_batchGate)
         {
             _batches[_writeBatch].Enqueue(action);
@@ -93,8 +112,7 @@ public class EventProcessor : MonoBehaviour
             }
             catch (Exception ex)
             {
-                // Debug.LogError("Критическая ошибка EventProcessor: " + ex);
-                // LobbyFlowLog.Exception("EventProcessor.Update (Apply on main thread)", ex);
+                Debug.LogException(ex);
             }
         }
 

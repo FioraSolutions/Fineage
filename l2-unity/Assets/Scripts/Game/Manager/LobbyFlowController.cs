@@ -140,7 +140,6 @@ public sealed class LobbyFlowController
 
     public void OnWorldSceneLoaded()
     {
-        ClearLobbyPresentation();
         L2LoginUI loginUi = LoginUi;
         if (loginUi != null)
             GameObject.Destroy(loginUi.gameObject);
@@ -224,7 +223,6 @@ public sealed class LobbyFlowController
         _game.GameState = GameState.IN_GAME;
         _game.WorldSpawnReady = false;
 
-        ClearLobbyPresentation();
         LoginUi.StartLoading();
         Scenes.LoadSWMap();
     }
@@ -301,26 +299,13 @@ public sealed class LobbyFlowController
 
     public void OnGameLaunched()
     {
-        if (GameState.IN_GAME == _game.GameState)
-        {
-            L2LoginUI loginUi = LoginUi;
-            if (loginUi != null)
-            {
-                loginUi.StopLoading();
-                loginUi.SetLoading(true);
-            }
-            // Do not SpawnAllPawns here — Logongrp poses share world space with the map.
-        }
-    }
+        if (_game.GameState != GameState.IN_GAME)
+            return;
 
-    static void ClearLobbyPresentation()
-    {
-        CharacterSelector selector = CharacterSelector.Instance;
-        if (selector != null)
-            selector.ClearLobbyVisuals();
-
-        CharacterCreator creator = CharacterCreator.Instance;
-        if (creator != null)
-            creator.DestroyAllPawns();
+        L2LoginUI loginUi = LoginUi;
+        if (loginUi == null)
+            return;
+        loginUi.StopLoading();
+        loginUi.SetLoading(true);
     }
 }

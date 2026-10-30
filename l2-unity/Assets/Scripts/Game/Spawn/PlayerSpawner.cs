@@ -100,6 +100,9 @@ public sealed class PlayerSpawner
         if (camera != null)
         {
             camera.enabled = true;
+            Camera unityCam = camera.GetComponent<Camera>();
+            if (unityCam != null)
+                unityCam.enabled = true;
             camera.SetTarget(go);
             camera.SetHeading(identity.OrigHeading);
         }

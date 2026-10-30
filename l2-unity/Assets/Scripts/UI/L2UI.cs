@@ -81,6 +81,21 @@ public abstract class L2UI : MonoBehaviour
     bool IsBackgroundContainer(VisualElement ve)
     {
         if (ve == null) return true;
+
+        // Loading overlay / layout spacers must never swallow world input.
+        // pick=UI-container/UIContainer/Spacer was blocking click-to-move and WASD.
+        for (VisualElement p = ve; p != null; p = p.parent)
+        {
+            if (p == _loadingElement || p.name == "Loading")
+                return true;
+            if (p.name == "Spacer"
+                && (p.parent == _rootVisualContainer
+                    || (p.parent != null && (p.parent.name == "UIContainer" || p.parent.name == "UI-container"))))
+                return true;
+            if (p == _rootElement)
+                break;
+        }
+
         // Full-screen transparent wrappers (window roots/containers) must not swallow world clicks.
         Rect pb = _rootElement.worldBound;
         Rect b = ve.worldBound;
