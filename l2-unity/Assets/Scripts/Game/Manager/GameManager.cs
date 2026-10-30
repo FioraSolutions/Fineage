@@ -66,17 +66,24 @@ public class GameManager : MonoBehaviour, IGameManager {
 
         FineageLocalBackend.ApplyIfRequested();
 
-        // Play RP / -fineagePublic: ZoneV2 handoff on the resolved playtest endpoint (hostnames from
-        // StreamingAssets / Resources / env), not Interlude Blowfish and not hardcoded IPs.
-        if (!FineageWireConfig.UseLoginHandoff && FineageLocalBackend.PublicPlaytestRequested())
+        // Play RP / public playtest: ZoneV2 handoff on resolved playtest hostnames (StreamingAssets /
+        // Resources / env). Shipped players always use public RP unless local backend was requested.
+        bool wantPublic = !FineageLocalBackend.IsRequested();
+#if UNITY_EDITOR
+        wantPublic = wantPublic && FineageLocalBackend.PublicPlaytestRequested();
+#endif
+        if (!FineageWireConfig.UseLoginHandoff && wantPublic)
         {
-            PlaytestEndpoint endpoint = PlaytestEndpointRuntime.Reload();
-            int gamePort = endpoint.GamePort > 0 ? endpoint.GamePort : PlaytestEndpoint.DefaultGamePort;
-            FineageWireConfig.EnablePlaytestBackend(
-                endpoint.LoginHost,
-                endpoint.LoginPort,
-                endpoint.GameHost,
-                gamePort);
+            PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
+            string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
+                ? ep.LoginHost
+                : PlaytestEndpoint.DefaultLoginHost;
+            string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
+                ? ep.GameHost
+                : PlaytestEndpoint.DefaultGameHost;
+            int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
+            int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
+            FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
             Debug.Log("[Fineage] mode=public-playtest login="
                 + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
                 + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
