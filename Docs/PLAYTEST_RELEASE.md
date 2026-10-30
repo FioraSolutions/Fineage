@@ -77,17 +77,17 @@ Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineag
 
 | Trigger | Result |
 | --- | --- |
-| Push to `main` | Build all three players. Tag `playtest-<version>`, published as the latest release. |
-| Tag `v*` | Build all three. Full release on that tag. `releases/latest` points here. |
+| Push to `main` | Build Windows + macOS in parallel. Tag `playtest-<version>`; GitHub Release is created only after both zips exist. |
+| Tag `v*` | Build Windows + macOS in parallel. Full release on that tag after both finish. `releases/latest` points here. |
 | `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. |
 
 Version comes from the tag, otherwise `git describe` (`0.4.1-2-gabcdef`), otherwise `0.0.0-<sha>`. Unity's bundle version is the numeric `major.minor.patch` only. `version.json` keeps the full version, commit, host, ports, and asset names. `CHANGELOG.md` lists up to 100 commits since the previous tag.
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
-Builds are serialized (`max-parallel: 1`) so a personal Unity seat is only activated once. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+Windows and macOS build in parallel (same Unity Personal account on two runners). The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`. GitHub Release waits for both jobs and uploads both zips together — it never publishes Windows alone while macOS is still running.
 
-`Assets/` is about 2.4 GB. The Linux jobs delete preinstalled SDKs first. If a hosted runner still runs out of disk, change that matrix `runsOn` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
+`Assets/` is about 2.4 GB. The Windows job deletes preinstalled SDKs first. If a hosted runner still runs out of disk, change that job `runs-on` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
 
 A zip over 2 GiB cannot be a GitHub Release asset. The workflow artifact is still uploaded. `scripts/pack-client.py` prints a warning.
 
@@ -133,7 +133,6 @@ Asset names are stable:
 | --- | --- |
 | `Fineage-Windows-x64.zip` | Windows |
 | `Fineage-macOS.zip` | macOS |
-| `Fineage-Linux-x64.zip` | Linux |
 | `CHANGELOG.md` | Notes, also the release body |
 | `version.json` | Version, commit, host, ports, asset names |
 

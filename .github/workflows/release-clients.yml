@@ -20,7 +20,7 @@ on:
     inputs:
       mode:
         description: >-
-          full — Win + macOS in parallel, release on Win (default).
+          full — Win + macOS in parallel, release after both finish (default).
           macos-only — rebuild Fineage-macOS.zip and attach to an existing release (no Windows).
         required: false
         type: choice
@@ -66,11 +66,10 @@ permissions:
 
 concurrency:
   group: release-clients
-  # Do not cancel in-progress runs: publish creates the GitHub Release (Windows
-  # only) before macOS finishes; cancellation mid-run leaves prereleases
-  # with a single zip. Overlapping runs are possible if main is pushed again
-  # before the prior run finishes — rare, and each run still serializes Unity
-  # (max-parallel: 1) so at worst two Personal seats briefly contend.
+  # Do not cancel in-progress runs: publish waits for both Win and macOS, then
+  # creates one release with both zips. Cancelling mid-build would leave a
+  # half-finished Unity job and no release. Overlapping runs are rare; at worst
+  # two Personal seats briefly contend.
   cancel-in-progress: false
 
 jobs:
@@ -156,12 +155,52 @@ jobs:
           unityPassword: ${{ secrets.UNITY_PASSWORD }}
           unitySerial: ${{ secrets.UNITY_SERIAL }}
 
+  build-macos:
+    name: Fineage-macOS
+    # Runs in parallel with build-windows (only needs prepare). Same Unity Personal
+    # account activates on two runners at once. No continue-on-error: a failed
+    # macOS build must block GitHub Release so we never ship Win-only by mistake.
+    needs: [prepare]
+    if: >-
+      always() &&
+      needs.prepare.result == 'success' &&
+      (
+        (
+          (github.event_name != 'workflow_dispatch' || inputs.mode == 'full')
+        ) ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          inputs.mode == 'macos-only'
+        )
+      )
+    runs-on: macos-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/build-playtest-client
+        with:
+          targetPlatform: StandaloneOSX
+          artifact: Fineage-macOS
+          unityVersion: ${{ needs.prepare.outputs.unity_version }}
+          publicHost: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
+          loginHost: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
+          gameHost: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
+          loginPort: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
+          gamePort: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
+          unityEmail: ${{ secrets.UNITY_EMAIL }}
+          unityPassword: ${{ secrets.UNITY_PASSWORD }}
+          unitySerial: ${{ secrets.UNITY_SERIAL }}
+
   publish:
     name: GitHub Release
-    needs: [prepare, build-windows]
+    # Wait for BOTH clients so the release never goes out Win-only while macOS
+    # is still building. Builds stay parallel (each only needs prepare).
+    needs: [prepare, build-windows, build-macos]
     if: >-
       needs.prepare.result == 'success' &&
       needs.build-windows.result == 'success' &&
+      needs.build-macos.result == 'success' &&
       (github.event_name != 'workflow_dispatch' || inputs.mode == 'full') &&
       (github.event_name != 'workflow_dispatch' || inputs.create_release)
     runs-on: ubuntu-latest
@@ -176,11 +215,18 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
+          name: Fineage-macOS
+          path: artifacts/Fineage-macOS
+
+      - uses: actions/download-artifact@v4
+        with:
           name: release-notes
           path: artifacts/notes
 
-      - name: Require the Windows zip
-        run: test -f artifacts/Fineage-Windows-x64/Fineage-Windows-x64.zip
+      - name: Require both client zips
+        run: |
+          test -f artifacts/Fineage-Windows-x64/Fineage-Windows-x64.zip
+          test -f artifacts/Fineage-macOS/Fineage-macOS.zip
 
       - name: Publish GitHub release (gh CLI, idempotent)
         env:
@@ -200,60 +246,21 @@ jobs:
           fi
           gh release upload "$TAG" --clobber \
             artifacts/Fineage-Windows-x64/Fineage-Windows-x64.zip \
+            artifacts/Fineage-macOS/Fineage-macOS.zip \
             artifacts/notes/CHANGELOG.md \
             artifacts/notes/version.json
 
-  build-macos:
-    name: Fineage-macOS
-    # Runs in parallel with build-windows (only needs prepare). Same Unity Personal
-    # account activates on two runners at once.
-    needs: [prepare]
-    if: >-
-      always() &&
-      needs.prepare.result == 'success' &&
-      (
-        (
-          (github.event_name != 'workflow_dispatch' || inputs.mode == 'full')
-        ) ||
-        (
-          github.event_name == 'workflow_dispatch' &&
-          inputs.mode == 'macos-only'
-        )
-      )
-    runs-on: macos-latest
-    timeout-minutes: 360
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/build-playtest-client
-        with:
-          targetPlatform: StandaloneOSX
-          artifact: Fineage-macOS
-          unityVersion: ${{ needs.prepare.outputs.unity_version }}
-          publicHost: ${{ github.event_name == 'workflow_dispatch' && inputs.public_host || secrets.FINEAGE_PUBLIC_HOST }}
-          loginHost: ${{ github.event_name == 'workflow_dispatch' && inputs.login_host || secrets.FINEAGE_LOGIN_HOST }}
-          gameHost: ${{ github.event_name == 'workflow_dispatch' && inputs.game_host || secrets.FINEAGE_GAME_HOST }}
-          loginPort: ${{ github.event_name == 'workflow_dispatch' && inputs.login_port || secrets.FINEAGE_LOGIN_PORT }}
-          gamePort: ${{ github.event_name == 'workflow_dispatch' && inputs.game_port || secrets.FINEAGE_GAME_PORT }}
-          unityEmail: ${{ secrets.UNITY_EMAIL }}
-          unityPassword: ${{ secrets.UNITY_PASSWORD }}
-          unitySerial: ${{ secrets.UNITY_SERIAL }}
-
   attach:
     name: Attach macOS
-    needs: [prepare, publish, build-macos]
+    # macos-only mode: attach Fineage-macOS.zip to an existing release tag.
+    # Full mode uploads both zips in the publish job — no late attach.
+    needs: [prepare, build-macos]
     if: >-
       always() &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'macos-only' &&
       needs.prepare.result == 'success' &&
-      (
-        needs.publish.result == 'success' ||
-        (
-          github.event_name == 'workflow_dispatch' &&
-          inputs.mode == 'macos-only' &&
-          needs.build-macos.result == 'success'
-        )
-      )
+      needs.build-macos.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -264,7 +271,7 @@ jobs:
           path: artifacts
           pattern: Fineage-*
 
-      - name: Collect extra client zips
+      - name: Collect macOS zip
         id: extras
         run: |
           shopt -s nullglob globstar
@@ -281,13 +288,13 @@ jobs:
           done
           if [ "$found" -eq 0 ]; then
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "No macOS zip to attach. The Windows release is unchanged."
-            exit 0
+            echo "No macOS zip to attach."
+            exit 1
           fi
           echo "present=true" >> "$GITHUB_OUTPUT"
           ls -la attach/
 
-      - name: Attach extra client zips (gh CLI)
+      - name: Attach macOS zip (gh CLI)
         if: steps.extras.outputs.present == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
