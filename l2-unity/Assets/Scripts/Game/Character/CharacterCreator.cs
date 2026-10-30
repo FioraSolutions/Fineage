@@ -83,9 +83,8 @@ public class CharacterCreator : MonoBehaviour
     }
 
     public void SpawnAllPawns() {
+        EnsurePawnContainer();
         List<Logongrp> pawnData = LogonGrps;
-
-        _pawnContainer = new GameObject("Pawns");
 
         for (var i = 8; i < pawnData.Count; i++) {
              GameObject pawnObject = CreatePawn(CharacterRaceAnimation.FDarkElf, new PlayerAppearance());
@@ -96,8 +95,7 @@ public class CharacterCreator : MonoBehaviour
 
     public void SpawnAllCharCreatePawns()
     {
-        _pawnContainer = new GameObject("Pawns");
-
+        EnsurePawnContainer();
         List<Logongrp> pawnData = LogonGrps;
         for (var i = 8; i < pawnData.Count; i++)
         {
@@ -110,6 +108,33 @@ public class CharacterCreator : MonoBehaviour
             pawns[i] = pawnObject;
             PlacePawn(pawnObject, logonGrp, "Pawn" + i, _pawnContainer);
         }
+    }
+
+    /// <summary>
+    /// Menu stays loaded while SceneLoader lives there, so char-create gallery
+    /// must be destroyed explicitly before the world is shown.
+    /// </summary>
+    public void DestroyAllPawns()
+    {
+        if (_pawnContainer != null)
+        {
+            Destroy(_pawnContainer);
+            _pawnContainer = null;
+        }
+
+        for (int i = 0; i < pawns.Length; i++)
+            pawns[i] = null;
+
+        currentPawn = null;
+        currentPawnIndex = -1;
+        _pawnRotating = false;
+    }
+
+    void EnsurePawnContainer()
+    {
+        DestroyAllPawns();
+        _pawnContainer = new GameObject("Pawns");
+        _pawnContainer.transform.SetParent(transform, false);
     }
 
     public GameObject SpawnPawnWithAppearance(CharacterRaceAnimation raceId , int id , PlayerAppearance appearance) {

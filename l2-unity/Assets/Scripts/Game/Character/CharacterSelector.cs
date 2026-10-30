@@ -70,19 +70,11 @@ public class CharacterSelector : MonoBehaviour
     }
 
     public void SetCharacterList(List<CharSelectionInfoPackage> characters) {
-        if(_container == null) {
-            _container = new GameObject("Characters");
-        }
-
-        if (_characterGameObjects != null) {
-            _characterGameObjects.ForEach((go) => {
-                Destroy(go);
-            });
-        }
+        ClearLobbyVisuals();
+        EnsureCharacterContainer();
 
         _characters = characters;
         _pawnData = LogonGrps;
-        _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
 
         for (int i = 0; i < characters.Count; i++) {
@@ -92,21 +84,11 @@ public class CharacterSelector : MonoBehaviour
 
     public void SetCharacterInterludeList(List<CharSelectInfoPackage> characters)
     {
-        if (_container == null)
-        {
-            _container = new GameObject("Characters");
-        }
-
-        if (_characterGameObjects != null)
-        {
-            _characterGameObjects.ForEach((go) => {
-                Destroy(go);
-            });
-        }
+        ClearLobbyVisuals();
+        EnsureCharacterContainer();
 
         _charactersInterlude = characters;
         _pawnData = LogonGrps;
-        _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
 
         for (int i = 0; i < characters.Count; i++)
@@ -121,20 +103,10 @@ public class CharacterSelector : MonoBehaviour
         _lobbyCharacters = characters == null
             ? new List<LobbyCharacter>()
             : new List<LobbyCharacter>(characters);
-        if (_container == null)
-            _container = new GameObject("Characters");
-
-        if (_characterGameObjects != null)
-        {
-            _characterGameObjects.ForEach((go) =>
-            {
-                if (go != null)
-                    Destroy(go);
-            });
-        }
+        ClearLobbyVisuals();
+        EnsureCharacterContainer();
 
         _pawnData = LogonGrps;
-        _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
         _selectedLobbyIndex = -1;
         if (_pawnData == null || _pawnData.Count < 8)
@@ -149,6 +121,43 @@ public class CharacterSelector : MonoBehaviour
         int index = LobbyCharacterMap.PreferredIndex(_lobbyCharacters, preselectId);
         if (index >= 0)
             SelectLobbyCharacter(index);
+    }
+
+    /// <summary>
+    /// Menu may stay loaded with SceneLoader; clear select-row pawns before world show.
+    /// </summary>
+    public void ClearLobbyVisuals()
+    {
+        if (_characterGameObjects != null)
+        {
+            for (int i = 0; i < _characterGameObjects.Count; i++)
+            {
+                if (_characterGameObjects[i] != null)
+                    Destroy(_characterGameObjects[i]);
+            }
+        }
+
+        if (_container != null)
+        {
+            Destroy(_container);
+            _container = null;
+        }
+
+        _characterGameObjects = new List<GameObject>();
+        _selectedCharacterSlot = -1;
+        _selectedLobbyIndex = -1;
+    }
+
+    void EnsureCharacterContainer()
+    {
+        if (_container == null)
+        {
+            _container = new GameObject("Characters");
+            _container.transform.SetParent(transform, false);
+        }
+
+        if (_characterGameObjects == null)
+            _characterGameObjects = new List<GameObject>();
     }
 
     public void SpawnLobbyCharacterSlot(int index)
