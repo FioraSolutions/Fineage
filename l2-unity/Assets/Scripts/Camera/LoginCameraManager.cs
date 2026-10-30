@@ -70,6 +70,7 @@ public class LoginCameraManager : MonoBehaviour
     public void SwitchCamera(Camera camera) {
         DisableMainCamera();
 
+        LobbyPresentation.EnsureCameraSeesLobby(camera);
         camera.enabled = true;
         _activeCamera = camera;
 
@@ -83,6 +84,7 @@ public class LoginCameraManager : MonoBehaviour
         if (cameras.TryGetValue(camera, out Camera obj))
          {
             // Debug.Log(camera + " camera enabled.");
+            LobbyPresentation.EnsureCameraSeesLobby(obj);
             obj.enabled = true;
             _activeCamera = obj;
 

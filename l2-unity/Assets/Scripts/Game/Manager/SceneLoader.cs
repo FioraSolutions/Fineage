@@ -128,9 +128,6 @@ public class SceneLoader : MonoBehaviour
 
     private IEnumerator LoadSWMapRoutine(Vector3 l2Pos)
     {
-        // Select/create pawns live at Logongrp world coords; drop owned lobby visuals first.
-        ClearLobbyPresentation();
-
         yield return LoadSceneAdditiveIfNeeded(_gameScene);
         SetSceneRootsActive(_gameScene, true, true);
 
@@ -385,29 +382,17 @@ public class SceneLoader : MonoBehaviour
 
     private void UnloadLobbyScenes()
     {
-        ClearLobbyPresentation();
-
         SetSceneRootsActive(_lobbyScene, false);
         UnloadScene(_lobbyScene);
 
-        // Bootstrap (this Game object) is DontDestroyOnLoad — Menu must always unload
-        // so lobby cameras / create pawns cannot remain in world space.
+        // Bootstrap Game is DontDestroyOnLoad. Lobby visuals live in Menu / l2_lobby
+        // (LoginBG); unloading those scenes is the cleanup.
         SetSceneRootsActive(_menuScene, false);
         UnloadScene(_menuScene);
-    }
 
-    static void ClearLobbyPresentation()
-    {
         CharacterSelector selector = CharacterSelector.Instance;
         if (selector != null)
-            selector.ClearLobbyVisuals();
-
-        CharacterCreator creator = CharacterCreator.Instance;
-        if (creator != null)
-            creator.DestroyAllPawns();
-
-        // Textbook isolation: even if a pawn survives DDOL, world cameras must not draw LoginBG.
-        LobbyPresentation.ExcludeFromWorldCameras();
+            selector.ForgetLobbyVisuals();
     }
 
     public void SwitchScene(string sceneName, Action<AsyncOperation> p)

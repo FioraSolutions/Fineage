@@ -124,8 +124,8 @@ public class CharacterSelector : MonoBehaviour
     }
 
     /// <summary>
-    /// CharacterSelector lives on the DDOL Game root, so select-row pawns survive
-    /// Menu unload and must be cleared explicitly before the world is shown.
+    /// Drop select-row visuals while still in lobby (roster refresh). Uses normal Destroy.
+    /// World enter relies on Menu unload + LoginBG, not this.
     /// </summary>
     public void ClearLobbyVisuals()
     {
@@ -134,16 +134,25 @@ public class CharacterSelector : MonoBehaviour
             for (int i = 0; i < _characterGameObjects.Count; i++)
             {
                 if (_characterGameObjects[i] != null)
-                    Object.DestroyImmediate(_characterGameObjects[i]);
+                    Object.Destroy(_characterGameObjects[i]);
             }
         }
 
         if (_container != null)
         {
-            Object.DestroyImmediate(_container);
+            Object.Destroy(_container);
             _container = null;
         }
 
+        ForgetLobbyVisuals();
+    }
+
+    /// <summary>
+    /// After Menu unload the scene objects are gone; only drop local refs.
+    /// </summary>
+    public void ForgetLobbyVisuals()
+    {
+        _container = null;
         _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
         _selectedLobbyIndex = -1;
@@ -153,9 +162,9 @@ public class CharacterSelector : MonoBehaviour
     {
         if (_container == null)
         {
+            // Not parented under DDOL Game — lives in Menu and dies with scene unload.
             _container = new GameObject("Characters");
-            _container.transform.SetParent(transform, false);
-            LobbyPresentation.ApplyLayer(_container);
+            LobbyPresentation.HostInLobbyScene(_container);
         }
 
         if (_characterGameObjects == null)

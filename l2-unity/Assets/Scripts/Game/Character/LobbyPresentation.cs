@@ -1,12 +1,16 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Lobby select/create pawns share Logongrp world coordinates with Talking Island.
-/// Keep them on <c>LoginBG</c> so only login cameras draw them; gameplay cameras exclude the layer.
+/// Lobby select/create presentation shares Logongrp coordinates with the game map.
+/// Host visuals in unloadable lobby scenes and on <c>LoginBG</c>; gameplay cameras
+/// omit that layer (see <see cref="CameraController"/>). No Find/Destroy sweeps.
 /// </summary>
 public static class LobbyPresentation
 {
     public const string LayerName = "LoginBG";
+    const string MenuScene = "Menu";
+    const string LobbyScene = "l2_lobby";
 
     static int _layer = int.MinValue;
 
@@ -20,6 +24,29 @@ public static class LobbyPresentation
         }
     }
 
+    /// <summary>
+    /// Put a lobby-only root into Menu (preferred) or l2_lobby and mark LoginBG.
+    /// Unloading those scenes removes the objects; DDOL Game must not own them.
+    /// </summary>
+    public static void HostInLobbyScene(GameObject root)
+    {
+        if (root == null)
+            return;
+
+        ApplyLayer(root);
+
+        Scene menu = SceneManager.GetSceneByName(MenuScene);
+        if (menu.IsValid() && menu.isLoaded)
+        {
+            SceneManager.MoveGameObjectToScene(root, menu);
+            return;
+        }
+
+        Scene lobby = SceneManager.GetSceneByName(LobbyScene);
+        if (lobby.IsValid() && lobby.isLoaded)
+            SceneManager.MoveGameObjectToScene(root, lobby);
+    }
+
     public static void ApplyLayer(GameObject root)
     {
         int layer = Layer;
@@ -28,35 +55,12 @@ public static class LobbyPresentation
         SetLayerRecursively(root.transform, layer);
     }
 
-    public static void ExcludeFromWorldCameras()
+    public static void EnsureCameraSeesLobby(Camera cam)
     {
         int layer = Layer;
-        if (layer < 0)
+        if (cam == null || layer < 0)
             return;
-
-        Camera[] cameras = Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = 0; i < cameras.Length; i++)
-        {
-            Camera cam = cameras[i];
-            if (cam == null || IsLoginCamera(cam))
-                continue;
-            cam.cullingMask &= ~(1 << layer);
-        }
-    }
-
-    static bool IsLoginCamera(Camera cam)
-    {
-        // LoginCameraManager owns Login / CharSelect / race cameras in l2_lobby.
-        Transform t = cam.transform;
-        while (t != null)
-        {
-            string n = t.name;
-            if (n == "Login" || n == "CharSelect" || n == "Human" || n == "Elf" ||
-                n == "DarkElf" || n == "Orc" || n == "Dwarf" || n == "Cameras")
-                return true;
-            t = t.parent;
-        }
-        return false;
+        cam.cullingMask |= 1 << layer;
     }
 
     static void SetLayerRecursively(Transform root, int layer)

@@ -111,14 +111,13 @@ public class CharacterCreator : MonoBehaviour
     }
 
     /// <summary>
-    /// Drop create-gallery pawns. Call when leaving create UI or before world enter;
-    /// Menu unload also destroys Creator when it is not on the DDOL Game root.
+    /// Drop create-gallery while still in lobby (back to select). World enter unloads Menu.
     /// </summary>
     public void DestroyAllPawns()
     {
         if (_pawnContainer != null)
         {
-            Object.DestroyImmediate(_pawnContainer);
+            Object.Destroy(_pawnContainer);
             _pawnContainer = null;
         }
 
@@ -134,6 +133,7 @@ public class CharacterCreator : MonoBehaviour
     {
         DestroyAllPawns();
         _pawnContainer = new GameObject("Pawns");
+        // Creator already lives on Menu Lobby; keep container there for scene unload.
         _pawnContainer.transform.SetParent(transform, false);
         LobbyPresentation.ApplyLayer(_pawnContainer);
     }
