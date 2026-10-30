@@ -133,9 +133,7 @@ public class CharacterCreator : MonoBehaviour
     {
         DestroyAllPawns();
         _pawnContainer = new GameObject("Pawns");
-        // Creator already lives on Menu Lobby; keep container there for scene unload.
-        _pawnContainer.transform.SetParent(transform, false);
-        LobbyPresentation.ApplyLayer(_pawnContainer);
+        LobbyPresentation.Host(_pawnContainer);
     }
 
     public GameObject SpawnPawnWithAppearance(CharacterRaceAnimation raceId , int id , PlayerAppearance appearance) {

@@ -385,8 +385,8 @@ public class SceneLoader : MonoBehaviour
         SetSceneRootsActive(_lobbyScene, false);
         UnloadScene(_lobbyScene);
 
-        // Bootstrap Game is DontDestroyOnLoad. Lobby visuals live in Menu / l2_lobby
-        // (LoginBG); unloading those scenes is the cleanup.
+        // Bootstrap Game is DontDestroyOnLoad. Lobby visuals live under Menu/Lobby
+        // (CharSelect layer); unloading Menu / l2_lobby is the cleanup.
         SetSceneRootsActive(_menuScene, false);
         UnloadScene(_menuScene);
 

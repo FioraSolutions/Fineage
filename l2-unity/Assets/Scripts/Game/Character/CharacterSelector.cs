@@ -125,7 +125,7 @@ public class CharacterSelector : MonoBehaviour
 
     /// <summary>
     /// Drop select-row visuals while still in lobby (roster refresh). Uses normal Destroy.
-    /// World enter relies on Menu unload + LoginBG, not this.
+    /// World enter relies on Menu unload, not this.
     /// </summary>
     public void ClearLobbyVisuals()
     {
@@ -162,9 +162,8 @@ public class CharacterSelector : MonoBehaviour
     {
         if (_container == null)
         {
-            // Not parented under DDOL Game — lives in Menu and dies with scene unload.
             _container = new GameObject("Characters");
-            LobbyPresentation.HostInLobbyScene(_container);
+            LobbyPresentation.Host(_container);
         }
 
         if (_characterGameObjects == null)
