@@ -12,12 +12,12 @@ public class ZoneV2TradeWireTests
         Assert.Equal(29, (ushort)ZoneV2MsgType.TradeAnswerRequest);
         Assert.Equal(54, (ushort)ZoneV2MsgType.TradeAddItemRequest);
         Assert.Equal(55, (ushort)ZoneV2MsgType.TradeDoneRequest);
-        Assert.Equal(1073, (ushort)ZoneV2MsgType.TradeAsk);
-        Assert.Equal(1074, (ushort)ZoneV2MsgType.TradeRequestResult);
-        Assert.Equal(1075, (ushort)ZoneV2MsgType.TradeStart);
-        Assert.Equal(1076, (ushort)ZoneV2MsgType.TradeOfferUpdate);
-        Assert.Equal(1077, (ushort)ZoneV2MsgType.TradeConfirmState);
-        Assert.Equal(1078, (ushort)ZoneV2MsgType.TradeFinished);
+        Assert.Equal(1077, (ushort)ZoneV2MsgType.TradeAsk);
+        Assert.Equal(1078, (ushort)ZoneV2MsgType.TradeRequestResult);
+        Assert.Equal(1079, (ushort)ZoneV2MsgType.TradeStart);
+        Assert.Equal(1080, (ushort)ZoneV2MsgType.TradeOfferUpdate);
+        Assert.Equal(1081, (ushort)ZoneV2MsgType.TradeConfirmState);
+        Assert.Equal(1082, (ushort)ZoneV2MsgType.TradeFinished);
     }
 
     [Fact]

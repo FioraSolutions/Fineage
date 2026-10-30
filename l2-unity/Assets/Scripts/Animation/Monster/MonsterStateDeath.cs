@@ -10,6 +10,12 @@ public class MonsterStateDeath : MonsterStateBase
     {
         LoadComponents(animator);
         StopAnimationTrigger(animator, parameterName);
+        // Unstick after a frozen atk (patkspd=0 from missing Zone PAtk).
+        if (_networkAnimationController != null)
+            _networkAnimationController.SetPAtkSpeed(1f);
+        SetSpeed(animator, 1f);
+        if (audioHandler != null)
+            audioHandler.PlaySoundAtRatio(MonsterSoundEvent.Death, audioHandler.DeathRatio);
 
         if (IsPoseHeld())
             SetSpeed(animator, 0f);

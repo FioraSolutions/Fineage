@@ -18,6 +18,16 @@ public class MonsterAnimationAudioHandler : BaseAnimationAudioHandler
             }
         }
 
+        if (string.IsNullOrEmpty(_monsterName) && _animator != null &&
+            _animator.runtimeAnimatorController != null)
+        {
+            // Override controllers are named "gremlin" etc.
+            _monsterName = _animator.runtimeAnimatorController.name.ToLowerInvariant();
+            int cut = _monsterName.IndexOf('.');
+            if (cut >= 0)
+                _monsterName = _monsterName.Substring(0, cut);
+        }
+
         if (string.IsNullOrEmpty(_monsterName)) {
             // Debug.LogWarning("AnimationAudioHandler could not load monster name name");
             this.enabled = false;
