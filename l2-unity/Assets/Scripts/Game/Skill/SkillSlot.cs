@@ -13,6 +13,12 @@ public class SkillSlot : L2DraggableSlot
     {
         _slotElement = slotElement;
         _position = position;
+        // GroupBox defaults to focusable and can steal pointer from SlotDragManipulator.
+        if (_slotElement != null)
+            _slotElement.focusable = false;
+        // Skillbar slots are Buttons — Clickable fights pointer capture and sticks the drag ghost.
+        if (_slotElement is Button button)
+            button.clickable = null;
     }
 
     protected override void HandleRightClick()

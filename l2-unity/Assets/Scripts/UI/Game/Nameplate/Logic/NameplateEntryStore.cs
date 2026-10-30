@@ -281,11 +281,11 @@ public sealed class NameplateEntryStore
             ch = entity.Appearance.CollisionHeight;
         }
 
-        // CharInfo / UserEntity: CC disabled for L2PawnWalk — capsule top sits at ~neck.
-        // L2 anchor is feet + 2×CollisionHeight (+ offset), same as DrawTargetName.
+        // CC/capsule top on NPC (and UserEntity with disabled CC) sits near the neck.
+        // Use feet + 2×CollisionHeight so the plate hangs above the head like mobs/players.
         CharacterController cc = entry.CC;
         CapsuleCollider capsule = entry.Capsule;
-        if (entity is UserEntity)
+        if (entity is UserEntity || entity is NpcEntity)
         {
             cc = null;
             capsule = null;

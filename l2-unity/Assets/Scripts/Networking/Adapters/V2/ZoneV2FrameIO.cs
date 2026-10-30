@@ -28,6 +28,7 @@ public static class ZoneV2FrameIO
         if (body.Length > 0)
             Buffer.BlockCopy(body, 0, packet, HeaderSize, body.Length);
 
+        ZoneV2WireLog.Tx(type, body);
         await stream.WriteAsync(packet, 0, packet.Length, ct).ConfigureAwait(false);
         await stream.FlushAsync(ct).ConfigureAwait(false);
     }
@@ -48,7 +49,9 @@ public static class ZoneV2FrameIO
         if (bodyLen > 0 && !await ReadExactAsync(stream, body, ct).ConfigureAwait(false))
             return null;
 
-        return new ZoneV2Frame((ZoneV2MsgType)type, body);
+        var frame = new ZoneV2Frame((ZoneV2MsgType)type, body);
+        ZoneV2WireLog.Rx(frame.Type, frame.Body);
+        return frame;
     }
 
     static async Task<bool> ReadExactAsync(NetworkStream stream, byte[] buffer, CancellationToken ct)

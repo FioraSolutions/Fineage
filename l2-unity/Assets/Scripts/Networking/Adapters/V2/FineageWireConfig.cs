@@ -17,6 +17,7 @@ public static class FineageWireConfig
     }
 
     static Mode? _override;
+    static Mode? _prefsCache;
 
     /// <summary>Local C# Fineage-Backend login (only after <see cref="EnableLocalBackend"/>).</summary>
     public const string LocalLoginHost = "127.0.0.1";
@@ -84,12 +85,31 @@ public static class FineageWireConfig
         {
             if (_override.HasValue)
                 return _override.Value;
-            return (Mode)PlayerPrefs.GetInt(PrefKey, (int)Mode.Interlude);
+            if (_prefsCache.HasValue)
+                return _prefsCache.Value;
+            try
+            {
+                _prefsCache = (Mode)PlayerPrefs.GetInt(PrefKey, (int)Mode.Interlude);
+            }
+            catch (UnityException)
+            {
+                return Mode.Interlude;
+            }
+
+            return _prefsCache.Value;
         }
         set
         {
-            PlayerPrefs.SetInt(PrefKey, (int)value);
-            PlayerPrefs.Save();
+            _prefsCache = value;
+            try
+            {
+                PlayerPrefs.SetInt(PrefKey, (int)value);
+                PlayerPrefs.Save();
+            }
+            catch (UnityException)
+            {
+                /* ignore off-thread */
+            }
         }
     }
 

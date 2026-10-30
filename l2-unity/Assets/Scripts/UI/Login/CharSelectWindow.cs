@@ -189,12 +189,16 @@ public class CharSelectWindow : L2Window {
             _deleteArmed = false;
         _levelLabel.text = character.Level.ToString();
         _classLabel.text = LobbyCharacterText.ClassLabel(character.ClassId);
-        bool hasStats = character.MaxHp > 0;
-        _hpLabel.text = hasStats ? $"{character.CurHp}/{character.MaxHp}" : "-";
-        _mpLabel.text = hasStats ? $"{character.CurMp}/{character.MaxMp}" : "-";
-        _expLabel.text = hasStats ? LobbyExpPercent(character).ToString("0.00") + "%" : "-";
-        _spLabel.text = hasStats ? character.Sp.ToString() : "-";
-        _karmaLabel.text = hasStats ? character.Karma.ToString() : "-";
+        int maxHp = character.MaxHp > 0 ? character.MaxHp : 0;
+        int maxMp = character.MaxMp > 0 ? character.MaxMp : 0;
+        int curHp = maxHp > 0 ? Mathf.Clamp(character.CurHp, 0, maxHp) : character.CurHp;
+        int curMp = maxMp > 0 ? Mathf.Clamp(character.CurMp, 0, maxMp) : character.CurMp;
+        _hpLabel.text = maxHp > 0 ? $"{curHp}/{maxHp}" : "0/0";
+        _mpLabel.text = maxMp > 0 ? $"{curMp}/{maxMp}" : "0/0";
+        _expLabel.text = LobbyExpPercent(character).ToString("0.00") + "%";
+        _spLabel.text = character.Sp.ToString();
+        _karmaLabel.text = character.Karma.ToString();
+        StartCoroutine(UpdateLobbyBars(curHp, maxHp, curMp, maxMp, LobbyExpPercent(character) / 100f));
         if (index != _charNameManipulator.Index)
             _charNameManipulator.SelectIndex(index);
 
@@ -417,32 +421,36 @@ public class CharSelectWindow : L2Window {
 
     IEnumerator UpdateBarsInterlude(int slot)
     {
-
         yield return new WaitForEndOfFrame();
+        float hpRatio = _charactersInterlude[slot].MaxHp > 0
+            ? (float)_charactersInterlude[slot].Hp / (float)_charactersInterlude[slot].MaxHp
+            : 0f;
+        float mpRatio = _charactersInterlude[slot].MaxMp > 0
+            ? (float)_charactersInterlude[slot].Mp / (float)_charactersInterlude[slot].MaxMp
+            : 0f;
+        double maxExp = _charactersInterlude[slot].MaxExp();
+        float expRatio = maxExp > 0
+            ? (float)(_charactersInterlude[slot].Exp / maxExp)
+            : 0f;
+        ApplyBarWidths(hpRatio, mpRatio, expRatio);
+    }
+
+    IEnumerator UpdateLobbyBars(int curHp, int maxHp, int curMp, int maxMp, float expRatio)
+    {
+        yield return new WaitForEndOfFrame();
+        float hpRatio = maxHp > 0 ? (float)curHp / maxHp : 0f;
+        float mpRatio = maxMp > 0 ? (float)curMp / maxMp : 0f;
+        ApplyBarWidths(hpRatio, mpRatio, Mathf.Clamp01(expRatio));
+    }
+
+    void ApplyBarWidths(float hpRatio, float mpRatio, float expRatio)
+    {
         if (_HPBarBG != null && _HPBar != null)
-        {
-            float hpRatio = (float)_charactersInterlude[slot].Hp / (float) _charactersInterlude[slot].MaxHp;
-            float bgWidth = _HPBarBG.resolvedStyle.width;
-            float barWidth = bgWidth * hpRatio;
-            _HPBar.style.width = barWidth;
-        }
-
+            _HPBar.style.width = _HPBarBG.resolvedStyle.width * Mathf.Clamp01(hpRatio);
         if (_MPBarBG != null && _MPBar != null)
-        {
-            float mpRatio = (float)_charactersInterlude[slot].Mp / (float) _charactersInterlude[slot].MaxMp;
-            float bgWidth = _MPBarBG.resolvedStyle.width;
-            float barWidth = bgWidth * mpRatio;
-            _MPBar.style.width = barWidth;
-        }
-
+            _MPBar.style.width = _MPBarBG.resolvedStyle.width * Mathf.Clamp01(mpRatio);
         if (_ExpBarBG != null && _ExpBar != null)
-        {
-            float bgWidth = _ExpBarBG.resolvedStyle.width;
-            //  float procent = (float)_charactersInterlude[slot].ExpProcent;
-            float expRatio = (float)_charactersInterlude[slot].Exp / (float)_charactersInterlude[slot].MaxExp();
-            float barWidth = bgWidth * expRatio;
-            _ExpBar.style.width = barWidth;
-        }
+            _ExpBar.style.width = _ExpBarBG.resolvedStyle.width * Mathf.Clamp01(expRatio);
     }
 
     public CharSelectInfoPackage GetSelectChar()

@@ -123,6 +123,21 @@ public static partial class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(w => ZoneV2MsgPack.WriteInt(w, groundObjectId), 1);
     }
 
+    /// <summary>MessagePack array [objectId, count, x, y, z] — Backend <c>DropItemRequestMsg</c>.</summary>
+    public static byte[] EncodeDropItemRequest(int objectId, int count, int x, int y, int z)
+    {
+        if (count < 1)
+            count = 1;
+        return ZoneV2MsgPack.WriteArray(w =>
+        {
+            ZoneV2MsgPack.WriteInt(w, objectId);
+            ZoneV2MsgPack.WriteInt(w, count);
+            ZoneV2MsgPack.WriteInt(w, x);
+            ZoneV2MsgPack.WriteInt(w, y);
+            ZoneV2MsgPack.WriteInt(w, z);
+        }, 5);
+    }
+
     /// <summary>MessagePack array [objectId] — Fineage-Backend <c>UseItemMsg</c>.</summary>
     public static byte[] EncodeUseItem(int objectId)
     {
@@ -954,6 +969,41 @@ public static partial class ZoneV2Messages
         }
     }
 
+    /// <summary>Backend <c>DropItemMsg</c> keys 0–8 (MessagePack array).</summary>
+    public static bool TryDecodeDropItem(byte[] body, out ZoneV2DropItem item)
+    {
+        item = default;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 8)
+                return false;
+            item = new ZoneV2DropItem
+            {
+                CharObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ObjectId = ZoneV2MsgPack.ReadInt(body, ref i),
+                ItemId = ZoneV2MsgPack.ReadInt(body, ref i),
+                X = ZoneV2MsgPack.ReadInt(body, ref i),
+                Y = ZoneV2MsgPack.ReadInt(body, ref i),
+                Z = ZoneV2MsgPack.ReadInt(body, ref i),
+                Stackable = ZoneV2MsgPack.ReadBool(body, ref i),
+                Count = ZoneV2MsgPack.ReadInt(body, ref i)
+            };
+            if (n >= 9)
+                item.Unknown = ZoneV2MsgPack.ReadInt(body, ref i);
+            else
+                item.Unknown = 0;
+            if (n > 9)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 9);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
     /// <summary>Normalized spawn fields shared with <see cref="ZoneV2DomainMap.ToSpawnItemDto"/> (testable without Unity DTOs).</summary>
     public static SpawnItemApplyFields ToSpawnItemApplyFields(ZoneV2SpawnItem item) =>
         new SpawnItemApplyFields
@@ -1253,25 +1303,56 @@ public static partial class ZoneV2Messages
             row.DeleteSecondsLeft = ZoneV2MsgPack.ReadInt(body, ref i);
         if (n >= 15)
             row.IsLastPlayed = ZoneV2MsgPack.ReadBool(body, ref i);
-        // Optional lobby stats (forward-compatible; older servers send 15).
-        // Optional lobby stats (forward-compatible; older servers send 15; unknown types are skipped).
-        int read = 15;
-        long[] extra = new long[10];
-        while (read < n && read < 25 && (ZoneV2MsgPack.IsInt(body, i) || (i < body.Length && (body[i] == 0xcf || body[i] == 0xd3))))
+        // LobbyProtocol CharacterSummaryMsg keys 15–25 (vitals + paperdoll). Contract length is 26.
+        // Older logins stop at 15 or 25; n>=25 always carries vitals — read them without soft-skip.
+        if (n >= 25)
         {
-            extra[read - 15] = read == 21 ? ZoneV2MsgPack.ReadInt64(body, ref i) : ZoneV2MsgPack.ReadInt(body, ref i);
+            row.CurHp = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.MaxHp = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.CurMp = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.MaxMp = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.CurCp = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.MaxCp = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.Exp = ZoneV2MsgPack.ReadInt64(body, ref i);
+            row.Sp = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.Karma = ZoneV2MsgPack.ReadInt(body, ref i);
+            row.WeaponItemId = ZoneV2MsgPack.ReadInt(body, ref i);
+            if (n >= 26)
+            {
+                row.Paperdoll = ZoneV2MsgPack.ReadIntArray(body, ref i);
+                if (n > 26)
+                    ZoneV2MsgPack.SkipValues(body, ref i, n - 26);
+            }
+            else if (n > 25)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 25);
+            return true;
+        }
+
+        // Partial / experimental lengths between 16 and 24: only consume leading ints.
+        int read = 15;
+        while (read < n)
+        {
+            if (!ZoneV2MsgPack.IsInt(body, i) &&
+                !(read == 21 && i < body.Length && (body[i] == 0xcf || body[i] == 0xd3)))
+                break;
+            long value = read == 21
+                ? ZoneV2MsgPack.ReadInt64(body, ref i)
+                : ZoneV2MsgPack.ReadInt(body, ref i);
+            switch (read)
+            {
+                case 15: row.CurHp = (int)value; break;
+                case 16: row.MaxHp = (int)value; break;
+                case 17: row.CurMp = (int)value; break;
+                case 18: row.MaxMp = (int)value; break;
+                case 19: row.CurCp = (int)value; break;
+                case 20: row.MaxCp = (int)value; break;
+                case 21: row.Exp = value; break;
+                case 22: row.Sp = (int)value; break;
+                case 23: row.Karma = (int)value; break;
+                case 24: row.WeaponItemId = (int)value; break;
+            }
             read++;
         }
-        if (read > 15) row.CurHp = (int)extra[0];
-        if (read > 16) row.MaxHp = (int)extra[1];
-        if (read > 17) row.CurMp = (int)extra[2];
-        if (read > 18) row.MaxMp = (int)extra[3];
-        if (read > 19) row.CurCp = (int)extra[4];
-        if (read > 20) row.MaxCp = (int)extra[5];
-        if (read > 21) row.Exp = extra[6];
-        if (read > 22) row.Sp = (int)extra[7];
-        if (read > 23) row.Karma = (int)extra[8];
-        if (read > 24) row.WeaponItemId = (int)extra[9];
         if (n > read)
             ZoneV2MsgPack.SkipValues(body, ref i, n - read);
         return true;
@@ -1470,9 +1551,9 @@ public static partial class ZoneV2Messages
                 info.HasPaperdoll = true;
             }
 
-            // Keys 10–12 are expertise. Keys 13–14 are clan id and crest. Older bodies stop earlier.
+            // Keys 10–12 expertise, 13–14 clan, 15–37 vitals/stats. Older bodies stop earlier.
             if (n > 10)
-                ReadUserClanKeys(body, ref i, n, ref info);
+                ReadUserInfoTail(body, ref i, n, ref info);
             return true;
         }
         catch (InvalidDataException)
@@ -1481,10 +1562,20 @@ public static partial class ZoneV2Messages
         }
     }
 
-    static void ReadUserClanKeys(byte[] body, ref int i, int n, ref ZoneV2UserInfo info)
+    static void ReadUserInfoTail(byte[] body, ref int i, int n, ref ZoneV2UserInfo info)
     {
-        for (int key = 10; key < n && key <= 14; key++)
+        for (int key = 10; key < n; key++)
         {
+            if (key == 22)
+            {
+                // Exp is int64 on the wire.
+                if (i >= body.Length)
+                    return;
+                info.Exp = ZoneV2MsgPack.ReadInt64(body, ref i);
+                info.HasVitals = true;
+                continue;
+            }
+
             if (!IsMsgPackInt(body, i))
             {
                 ZoneV2MsgPack.SkipValues(body, ref i, n - key);
@@ -1492,19 +1583,42 @@ public static partial class ZoneV2Messages
             }
 
             int value = ZoneV2MsgPack.ReadInt(body, ref i);
-            if (key == 13)
+            switch (key)
             {
-                info.ClanId = value;
-                info.HasClan = true;
-            }
-            else if (key == 14)
-            {
-                info.ClanCrestId = value;
+                case 13:
+                    info.ClanId = value;
+                    info.HasClan = true;
+                    break;
+                case 14:
+                    info.ClanCrestId = value;
+                    break;
+                case 15:
+                    info.Level = value;
+                    info.HasVitals = true;
+                    break;
+                case 16: info.CurHp = value; info.HasVitals = true; break;
+                case 17: info.MaxHp = value; info.HasVitals = true; break;
+                case 18: info.CurMp = value; info.HasVitals = true; break;
+                case 19: info.MaxMp = value; info.HasVitals = true; break;
+                case 20: info.CurCp = value; info.HasVitals = true; break;
+                case 21: info.MaxCp = value; info.HasVitals = true; break;
+                case 23: info.Sp = value; info.HasVitals = true; break;
+                case 24: info.Str = value; info.HasStats = true; break;
+                case 25: info.Dex = value; info.HasStats = true; break;
+                case 26: info.Con = value; info.HasStats = true; break;
+                case 27: info.Int = value; info.HasStats = true; break;
+                case 28: info.Wit = value; info.HasStats = true; break;
+                case 29: info.Men = value; info.HasStats = true; break;
+                case 30: info.PAtk = value; info.HasStats = true; break;
+                case 31: info.MAtk = value; info.HasStats = true; break;
+                case 32: info.PDef = value; info.HasStats = true; break;
+                case 33: info.MDef = value; info.HasStats = true; break;
+                case 34: info.PAtkSpd = value; info.HasStats = true; break;
+                case 35: info.MAtkSpd = value; info.HasStats = true; break;
+                case 36: info.Accuracy = value; info.HasStats = true; break;
+                case 37: info.CritRate = value; info.HasStats = true; break;
             }
         }
-
-        if (n > 15)
-            ZoneV2MsgPack.SkipValues(body, ref i, n - 15);
     }
 
     static bool IsMsgPackInt(byte[] buf, int index)
@@ -2317,6 +2431,14 @@ public struct ZoneV2UserInfo
     public bool HasClan;
     public int ClanId;
     public int ClanCrestId;
+    public bool HasVitals;
+    public int Level;
+    public int CurHp, MaxHp, CurMp, MaxMp, CurCp, MaxCp;
+    public long Exp;
+    public int Sp;
+    public bool HasStats;
+    public int Str, Dex, Con, Int, Wit, Men;
+    public int PAtk, MAtk, PDef, MDef, PAtkSpd, MAtkSpd, Accuracy, CritRate;
 }
 
 public struct ZoneV2NpcInfo
@@ -2376,6 +2498,19 @@ public struct ZoneV2ItemEntry
 
 public struct ZoneV2SpawnItem
 {
+    public int ObjectId;
+    public int ItemId;
+    public int X;
+    public int Y;
+    public int Z;
+    public bool Stackable;
+    public int Count;
+    public int Unknown;
+}
+
+public struct ZoneV2DropItem
+{
+    public int CharObjectId;
     public int ObjectId;
     public int ItemId;
     public int X;
@@ -2565,8 +2700,9 @@ public struct ZoneV2PledgeMemberList
 }
 
 /// <summary>
-/// Login roster row. Keys 0–5 are id, name, class, race, sex, level.
-/// Keys 6–14 are slot, appearance, position, delete timer, and last-played.
+/// Login roster row (<c>CharacterSummaryMsg</c>). Keys 0–14 identity/appearance/position;
+/// keys 15–24 CharSelect vitals (cur/max HP MP CP, exp, sp, karma, weaponItemId);
+/// key 25 paperdoll int[17]. Array length 26.
 /// </summary>
 public struct ZoneV2CharacterSummary
 {
@@ -2588,6 +2724,8 @@ public struct ZoneV2CharacterSummary
     public int CurHp, MaxHp, CurMp, MaxMp, CurCp, MaxCp;
     public long Exp;
     public int Sp, Karma, WeaponItemId;
+    /// <summary>Equipped item ids by paperdoll slot (length 17). Null when the login did not send key 25.</summary>
+    public int[] Paperdoll;
 }
 
 /// <summary>Character select ticket. <see cref="Token"/> is the zone Auth password.</summary>

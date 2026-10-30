@@ -361,6 +361,71 @@ public class ZoneV2InventoryWireTests
     }
 
     [Fact]
+    public void User_info_vitals_and_template_stats_decode()
+    {
+        var slots = new BackendPaperdollSlotMsg[ZoneV2Paperdoll.Count];
+        for (int i = 0; i < slots.Length; i++)
+            slots[i] = new BackendPaperdollSlotMsg();
+        slots[ZoneV2Paperdoll.RightHand] = new BackendPaperdollSlotMsg { ObjectId = 100001, ItemId = 6 };
+
+        var user = new BackendUserInfoWithVitalsMsg
+        {
+            ObjectId = 9,
+            Name = "lol1",
+            ClassId = 10,
+            X = 1,
+            Y = 2,
+            Z = 3,
+            RunSpeed = 120f,
+            WalkSpeed = 80f,
+            Running = true,
+            Paperdoll = slots,
+            WeaponGradePenalty = 0,
+            ArmorGradePenalty = 0,
+            GradePenalty = 0,
+            ClanId = 0,
+            ClanCrestId = 0,
+            Level = 1,
+            CurHp = 126,
+            MaxHp = 126,
+            CurMp = 149,
+            MaxMp = 149,
+            CurCp = 50,
+            MaxCp = 50,
+            Exp = 42,
+            Sp = 7,
+            Str = 20,
+            Dex = 21,
+            Con = 22,
+            Int = 40,
+            Wit = 30,
+            Men = 35,
+            PAtk = 5,
+            MAtk = 12,
+            PDef = 40,
+            MDef = 30,
+            PAtkSpd = 300,
+            MAtkSpd = 333,
+            Accuracy = 10,
+            CritRate = 40
+        };
+
+        Assert.True(ZoneV2Messages.TryDecodeUserInfo(Pack(user), out ZoneV2UserInfo info));
+        Assert.True(info.HasVitals);
+        Assert.Equal(1, info.Level);
+        Assert.Equal(126, info.CurHp);
+        Assert.Equal(126, info.MaxHp);
+        Assert.Equal(149, info.CurMp);
+        Assert.Equal(149, info.MaxMp);
+        Assert.Equal(42, info.Exp);
+        Assert.Equal(7, info.Sp);
+        Assert.True(info.HasStats);
+        Assert.Equal(40, info.Int);
+        Assert.Equal(12, info.MAtk);
+        Assert.Equal(6, ZoneV2Paperdoll.RightHandItemId(info.Paperdoll));
+    }
+
+    [Fact]
     public void User_info_without_paperdoll_still_decodes()
     {
         var user = new UserInfoWithoutPaperdollMsg
@@ -656,6 +721,49 @@ public sealed partial class BackendUserInfoMsg
     [Key(7)] public float WalkSpeed { get; set; }
     [Key(8)] public bool Running { get; set; }
     [Key(9)] public BackendPaperdollSlotMsg[] Paperdoll { get; set; } = [];
+}
+
+[MessagePackObject]
+public sealed partial class BackendUserInfoWithVitalsMsg
+{
+    [Key(0)] public int ObjectId { get; set; }
+    [Key(1)] public string Name { get; set; } = "";
+    [Key(2)] public int ClassId { get; set; }
+    [Key(3)] public int X { get; set; }
+    [Key(4)] public int Y { get; set; }
+    [Key(5)] public int Z { get; set; }
+    [Key(6)] public float RunSpeed { get; set; }
+    [Key(7)] public float WalkSpeed { get; set; }
+    [Key(8)] public bool Running { get; set; }
+    [Key(9)] public BackendPaperdollSlotMsg[] Paperdoll { get; set; } = [];
+    [Key(10)] public int WeaponGradePenalty { get; set; }
+    [Key(11)] public int ArmorGradePenalty { get; set; }
+    [Key(12)] public int GradePenalty { get; set; }
+    [Key(13)] public int ClanId { get; set; }
+    [Key(14)] public int ClanCrestId { get; set; }
+    [Key(15)] public int Level { get; set; }
+    [Key(16)] public int CurHp { get; set; }
+    [Key(17)] public int MaxHp { get; set; }
+    [Key(18)] public int CurMp { get; set; }
+    [Key(19)] public int MaxMp { get; set; }
+    [Key(20)] public int CurCp { get; set; }
+    [Key(21)] public int MaxCp { get; set; }
+    [Key(22)] public long Exp { get; set; }
+    [Key(23)] public int Sp { get; set; }
+    [Key(24)] public int Str { get; set; }
+    [Key(25)] public int Dex { get; set; }
+    [Key(26)] public int Con { get; set; }
+    [Key(27)] public int Int { get; set; }
+    [Key(28)] public int Wit { get; set; }
+    [Key(29)] public int Men { get; set; }
+    [Key(30)] public int PAtk { get; set; }
+    [Key(31)] public int MAtk { get; set; }
+    [Key(32)] public int PDef { get; set; }
+    [Key(33)] public int MDef { get; set; }
+    [Key(34)] public int PAtkSpd { get; set; }
+    [Key(35)] public int MAtkSpd { get; set; }
+    [Key(36)] public int Accuracy { get; set; }
+    [Key(37)] public int CritRate { get; set; }
 }
 
 [MessagePackObject]

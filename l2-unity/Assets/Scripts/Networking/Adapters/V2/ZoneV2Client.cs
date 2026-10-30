@@ -54,6 +54,8 @@ public sealed class ZoneV2Client : MonoBehaviour
 
     public bool Connected { get; private set; }
     public int SessionObjectId { get; private set; } = 1;
+    /// <summary>Stable lobby character id (not zone object id). Used for local shortcut prefs.</summary>
+    public int CharacterId { get; private set; }
 
     public static ZoneV2Client Ensure()
     {
@@ -108,6 +110,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         Disconnect();
         ZoneV2NpcSession.Reset();
         ZoneV2ClanBook.Shared.Reset();
+        ZoneV2WireLog.Warmup();
         try
         {
             ClanPacketServices.RefreshWindow();
@@ -117,6 +120,7 @@ public sealed class ZoneV2Client : MonoBehaviour
             Debug.LogWarning("[ZoneV2] clan window refresh skipped: " + ex.Message);
         }
         _preselectId = 0;
+        CharacterId = 0;
         _selectGeneration++;
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
@@ -253,6 +257,8 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         _zoneStarted = true;
         _selectGeneration++;
+        if (handoff.CharacterId > 0)
+            CharacterId = handoff.CharacterId;
         if (string.IsNullOrWhiteSpace(handoff.ZoneHost))
             handoff.ZoneHost = FineageWireConfig.ZoneHost;
         if (handoff.ZonePort <= 0)
@@ -324,6 +330,8 @@ public sealed class ZoneV2Client : MonoBehaviour
         FineageLobbySession session = Lobby;
         if (session == null)
             return;
+        if (character.Id > 0)
+            CharacterId = character.Id;
         int generation = ++_selectGeneration;
         session.SendSelect(character.Id > 0 ? character.Id : 0, character.Name, character.Id > 0 ? -1 : character.Slot);
         Task.Run(async () =>
@@ -460,6 +468,8 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         }
 
+        if (handoff.CharacterId > 0)
+            CharacterId = handoff.CharacterId;
         await RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct)
             .ConfigureAwait(false);
     }
@@ -550,6 +560,14 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         byte[] body = ZoneV2Messages.EncodePickupRequest(groundObjectId);
         _ = SendFireAndForget(ZoneV2MsgType.PickupRequest, body);
+    }
+
+    public void SendDropItemRequest(int objectId, int count, int x, int y, int z)
+    {
+        if (!Connected || _stream == null || objectId <= 0 || count < 1)
+            return;
+        byte[] body = ZoneV2Messages.EncodeDropItemRequest(objectId, count, x, y, z);
+        _ = SendFireAndForget(ZoneV2MsgType.DropItemRequest, body);
     }
 
     public void SendUseItem(int objectId)
@@ -1024,6 +1042,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => SpawnItemApplyIncomingPacketServices.ApplySpawnItem(spawnDto));
                         break;
 
+                    case ZoneV2MsgType.DropItem:
+                        ZoneV2DropItem dropped;
+                        if (!ZoneV2Messages.TryDecodeDropItem(f.Body, out dropped))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad DropItem body"));
+                            break;
+                        }
+
+                        DropItemDto dropDto = ZoneV2DomainMap.ToDropItemDto(dropped);
+                        Post(() => DropItemApplyIncomingPacketServices.ApplyDropItem(dropDto));
+                        break;
+
                     case ZoneV2MsgType.MyTargetSelected:
                         ZoneV2MyTargetSelected myTarget;
                         if (!ZoneV2Messages.TryDecodeMyTargetSelected(f.Body, out myTarget))
@@ -1107,6 +1137,9 @@ public sealed class ZoneV2Client : MonoBehaviour
                         {
                             SkillListDto list = ZoneV2DomainMap.ToSkillListDto(skillRows);
                             SkillListApplyIncomingPacketServices.ApplySkillList(list);
+                            // Zone V2 has no ShortCutInit — restore the bar from local prefs.
+                            if (PlayerShortcuts.Instance != null)
+                                PlayerShortcuts.Instance.LoadPersistedLocal();
                         });
                         break;
 

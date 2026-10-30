@@ -16,6 +16,9 @@ public static class FineageLocalBackend
 
     public static readonly string PlaytestScreenArgs = "-screen-width 1920 -screen-height 1080 -screen-fullscreen 0";
 
+    static bool? _prefsRequested;
+    static string _characterHintCache;
+
     public static bool IsRequested()
     {
         if (HasArg("-fineagePublic"))
@@ -29,8 +32,18 @@ public static class FineageLocalBackend
             return true;
         if (env == "1" || string.Equals(env, "true", StringComparison.OrdinalIgnoreCase))
             return true;
-        if (PlayerPrefs.GetInt(PrefKey, 0) == 1)
-            return true;
+        if (_prefsRequested.HasValue)
+            return _prefsRequested.Value;
+        try
+        {
+            _prefsRequested = PlayerPrefs.GetInt(PrefKey, 0) == 1;
+            if (_prefsRequested.Value)
+                return true;
+        }
+        catch (UnityException)
+        {
+            /* off main thread — fall through */
+        }
 
 #if FINEAGE_LOCAL_BACKEND
         return true;
@@ -41,6 +54,7 @@ public static class FineageLocalBackend
 
     public static void ApplyIfRequested()
     {
+        ZoneV2WireLog.Warmup();
         if (!IsRequested())
             return;
 
@@ -82,10 +96,23 @@ public static class FineageLocalBackend
     {
         get
         {
-            return FirstNonEmpty(
+            string fromArg = FirstNonEmpty(
                 ArgValue("-fineageChar"),
-                Environment.GetEnvironmentVariable("FINEAGE_LOCAL_CHAR"),
-                PlayerPrefs.GetString(CharacterPrefKey, ""));
+                Environment.GetEnvironmentVariable("FINEAGE_LOCAL_CHAR"));
+            if (!string.IsNullOrEmpty(fromArg))
+                return fromArg;
+            if (_characterHintCache != null)
+                return _characterHintCache;
+            try
+            {
+                _characterHintCache = PlayerPrefs.GetString(CharacterPrefKey, "") ?? "";
+            }
+            catch (UnityException)
+            {
+                return "";
+            }
+
+            return _characterHintCache;
         }
     }
 
@@ -101,7 +128,14 @@ public static class FineageLocalBackend
 #endif
         if (HasArg("-fineagePublic"))
             return true;
-        return PlayerPrefs.GetInt(PublicPlaytestPrefKey, 0) == 1;
+        try
+        {
+            return PlayerPrefs.GetInt(PublicPlaytestPrefKey, 0) == 1;
+        }
+        catch (UnityException)
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -111,10 +145,18 @@ public static class FineageLocalBackend
     public static void ClearCharacterHint()
     {
         Environment.SetEnvironmentVariable("FINEAGE_LOCAL_CHAR", null);
-        if (!PlayerPrefs.HasKey(CharacterPrefKey))
-            return;
-        PlayerPrefs.DeleteKey(CharacterPrefKey);
-        PlayerPrefs.Save();
+        _characterHintCache = "";
+        try
+        {
+            if (!PlayerPrefs.HasKey(CharacterPrefKey))
+                return;
+            PlayerPrefs.DeleteKey(CharacterPrefKey);
+            PlayerPrefs.Save();
+        }
+        catch (UnityException)
+        {
+            /* ignore off-thread */
+        }
     }
 
     public static bool QuitAfterSpawn

@@ -84,6 +84,18 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        RequestDropItemCommand dropItem = command as RequestDropItemCommand;
+        if (dropItem != null)
+        {
+            ZoneV2Client.Ensure().SendDropItemRequest(
+                dropItem.ObjectId,
+                dropItem.Count,
+                dropItem.X,
+                dropItem.Y,
+                dropItem.Z);
+            return true;
+        }
+
         ZoneGrantItemCommand grant = command as ZoneGrantItemCommand;
         if (grant != null)
         {
@@ -144,6 +156,10 @@ public sealed class FineageZoneTransport : IZoneTransport
             ZoneV2Client.Ensure().SendSkillUseRequest(skillUse.SkillId, targetId, ctrl);
             return true;
         }
+
+        // Shortcuts are applied client-side on Zone V2 (see PlayerShortcuts).
+        if (command is RequestShortCutRegCommand || command is RequestShortCutDelCommand)
+            return true;
 
         RequestBypassToServerCommand bypass = command as RequestBypassToServerCommand;
         int giveItemId;
