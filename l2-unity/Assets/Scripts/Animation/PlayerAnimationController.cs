@@ -41,12 +41,10 @@ public class PlayerAnimationController : BaseAnimationController
     }
     public void SetBool(string name, bool value, bool share)
     {
+        if (_animator == null || !AnimatorBoolSet.HasBool(_animator, name))
+            return;
         if (_animator.GetBool(name) != value)
-        {
-            // Debug.LogWarning($"Player Animatorr Cntoller: Set bool {name}={value}");
-
             SetBool(name, value);
-        }
     }
 
     public Dictionary<string, float> GetParametrs()

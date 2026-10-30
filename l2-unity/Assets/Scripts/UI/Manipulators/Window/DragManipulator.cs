@@ -1,61 +1,59 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Drags a window in UI Toolkit panel space. Uses left/top only so the grab point
-/// stays under the cursor (no Screen.width/height mix, no mid-drag anchor flips).
+/// Window drag in panel space (left/top). Skips <see cref="Button"/> picks under the
+/// handle so title-bar close keeps <c>Clickable</c> (UITK pointer capture rules).
 /// </summary>
 public class DragManipulator : PointerManipulator
 {
-    private VisualElement _root;
-    private Vector2 _startMousePosition;
-    private Vector2 _startPosition;
-    public bool dragged = false;
+    readonly VisualElement _root;
+    Vector2 _startMousePosition;
+    Vector2 _startPosition;
+    public bool dragged;
 
-    public DragManipulator(VisualElement target, VisualElement root)
+    public DragManipulator(VisualElement handle, VisualElement windowRoot)
     {
-        this.target = target;
-        _root = root;
+        target = handle;
+        _root = windowRoot;
+        activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
     }
 
     protected override void RegisterCallbacksOnTarget()
     {
-        target.RegisterCallback<PointerDownEvent>(PointerDownHandler, TrickleDown.TrickleDown);
-        target.RegisterCallback<PointerMoveEvent>(PointerMoveHandler);
-        target.RegisterCallback<PointerUpEvent>(PointerUpHandler);
+        target.RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
+        target.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        target.RegisterCallback<PointerUpEvent>(OnPointerUp);
+        target.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
     }
 
     protected override void UnregisterCallbacksFromTarget()
     {
-        target.UnregisterCallback<PointerDownEvent>(PointerDownHandler);
-        target.UnregisterCallback<PointerMoveEvent>(PointerMoveHandler);
-        target.UnregisterCallback<PointerUpEvent>(PointerUpHandler);
+        target.UnregisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
+        target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
+        target.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+        target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
     }
 
-    public void PointerDownHandler(PointerDownEvent evt)
+    void OnPointerDown(PointerDownEvent evt)
     {
-        if (evt.button != 0)
+        if (!CanStartManipulation(evt) || IsUnderButton(evt.target as VisualElement))
             return;
 
         dragged = false;
         _startMousePosition = evt.position;
-        // layout.x/y are parent-local; pointer events are panel coords. Fineage roots
-        // sit at the panel origin, so the delta matches 1:1 for absolute children.
         _startPosition = new Vector2(_root.layout.x, _root.layout.y);
         target.CapturePointer(evt.pointerId);
         evt.StopPropagation();
     }
 
-    public void PointerMoveHandler(PointerMoveEvent evt)
+    void OnPointerMove(PointerMoveEvent evt)
     {
         if (!target.HasPointerCapture(evt.pointerId))
-        {
-            evt.StopPropagation();
             return;
-        }
 
         dragged = true;
-        Vector2 delta = new Vector2(evt.position.x, evt.position.y) - _startMousePosition;
+        Vector2 delta = (Vector2)evt.position - _startMousePosition;
         _root.style.left = _startPosition.x + delta.x;
         _root.style.top = _startPosition.y + delta.y;
         _root.style.right = StyleKeyword.Null;
@@ -63,10 +61,27 @@ public class DragManipulator : PointerManipulator
         evt.StopPropagation();
     }
 
-    public void PointerUpHandler(PointerUpEvent evt)
+    void OnPointerUp(PointerUpEvent evt)
     {
-        if (target.HasPointerCapture(evt.pointerId))
-            target.ReleasePointer(evt.pointerId);
+        if (!target.HasPointerCapture(evt.pointerId) || !CanStopManipulation(evt))
+            return;
+
+        target.ReleasePointer(evt.pointerId);
         evt.StopPropagation();
+    }
+
+    void OnPointerCaptureOut(PointerCaptureOutEvent _)
+    {
+        dragged = false;
+    }
+
+    bool IsUnderButton(VisualElement ve)
+    {
+        for (; ve != null && ve != target; ve = ve.parent)
+        {
+            if (ve is Button)
+                return true;
+        }
+        return false;
     }
 }

@@ -303,6 +303,8 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
     // in place; they do not create a graph.
     void DriveFloat(string paramName, float value)
     {
+        if (!AnimatorBoolSet.HasFloat(_animator, paramName))
+            return;
         _animator.SetFloat(paramName, value);
         _castPlayable?.SetFloat(paramName, value);
     }
@@ -317,18 +319,24 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
 
     void DriveInt(string paramName, int value)
     {
+        if (!AnimatorBoolSet.Has(_animator, paramName, AnimatorControllerParameterType.Int))
+            return;
         _animator.SetInteger(paramName, value);
         _castPlayable?.SetInteger(paramName, value);
     }
 
     void DriveTrigger(string paramName)
     {
+        if (!AnimatorBoolSet.Has(_animator, paramName, AnimatorControllerParameterType.Trigger))
+            return;
         _animator.SetTrigger(paramName);
         _castPlayable?.SetTrigger(paramName);
     }
 
     void DriveResetTrigger(string paramName)
     {
+        if (!AnimatorBoolSet.Has(_animator, paramName, AnimatorControllerParameterType.Trigger))
+            return;
         _animator.ResetTrigger(paramName);
         _castPlayable?.ResetTrigger(paramName);
     }
@@ -380,6 +388,8 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
     public bool GetBool(string name)
     {
         if (!TryGetAnimator())
+            return false;
+        if (!AnimatorBoolSet.HasBool(_animator, name))
             return false;
         return _animator.GetBool(name);
     }
@@ -486,7 +496,9 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
     {
         if (!TryGetAnimator())
             return 0f;
-        return  _animator.GetFloat(_animator.name);
+        if (!AnimatorBoolSet.HasFloat(_animator, name))
+            return 0f;
+        return _animator.GetFloat(name);
     }
 
     public void SetInt(string name, int value)
@@ -500,7 +512,9 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
     {
         if (!TryGetAnimator())
             return 0;
-        return _animator.GetInteger(_animator.name);
+        if (!AnimatorBoolSet.Has(_animator, name, AnimatorControllerParameterType.Int))
+            return 0;
+        return _animator.GetInteger(name);
     }
 
     public void SetAnimatorSpeed(float value)

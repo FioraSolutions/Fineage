@@ -1035,7 +1035,8 @@
     transform-origin: left top;
     min-width: 175px;
     max-width: 165px;
-    max-height: 90px;
+    /* 2×4 Interlude menu icons; 90px clipped the bottom row to ~6 visible. */
+    max-height: none;
     flex-grow: 0;
     flex-shrink: 1;
     overflow: hidden;
@@ -1189,6 +1190,7 @@
 .button-label {
     -unity-font: resource('Data/UI/Assets/Font/tahoma');
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma Light');
+    picking-mode: ignore;
 }
 
 .button-label-yellow {
