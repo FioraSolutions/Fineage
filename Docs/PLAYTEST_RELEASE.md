@@ -81,7 +81,7 @@ Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineag
 | Tag `v*` | Build Windows + macOS in parallel. Full release on that tag after both finish. `releases/latest` points here. |
 | `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. |
 
-Version comes from the tag, otherwise `git describe` (`0.4.1-2-gabcdef`), otherwise `0.0.0-<sha>`. Unity's bundle version is the numeric `major.minor.patch` only. `version.json` keeps the full version, commit, host, ports, and asset names. `CHANGELOG.md` lists up to 100 commits since the previous tag.
+Stable tags `vX.Y.Z` use that version. Pushes to `main` mint the next `playtest-X.Y.Z` (patch++ from the newest clean playtest tag, or `0.1.0` if none). Junk `playtest-0.0.0-<sha>` tags are ignored. Unity's bundle version is the numeric `major.minor.patch` only. `version.json` keeps the full version, commit, host, ports, and asset names. `CHANGELOG.md` lists up to 100 commits since the previous tag.
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
