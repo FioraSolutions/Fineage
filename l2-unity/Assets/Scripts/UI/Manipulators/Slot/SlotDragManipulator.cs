@@ -5,7 +5,7 @@ public class SlotDragManipulator : PointerManipulator
 {
     private VisualElement _root;
     private Vector2 _startMousePosition;
-    private Vector2 _startPosition;
+    private Vector2 _grabOffset;
     private L2Slot _slot;
     public bool dragged = false;
     public bool enabled = true;
@@ -17,7 +17,7 @@ public class SlotDragManipulator : PointerManipulator
         this.target = target;
     }
 
-    public SlotDragManipulator(VisualElement target, L2Slot slot , bool isEnabled)
+    public SlotDragManipulator(VisualElement target, L2Slot slot, bool isEnabled)
     {
         _slot = slot;
         _root = target;
@@ -41,19 +41,16 @@ public class SlotDragManipulator : PointerManipulator
 
     public void PointerDownHandler(PointerDownEvent evt)
     {
- 
         if (!enabled)
-        {
             return;
-        }
 
         if (evt.button == 0)
         {
             UpdateFlotatingSlotAppearance();
             dragged = false;
             _startMousePosition = evt.position;
-            _startPosition = _root.worldBound.position // Element position on screen
-            - (_root.worldBound.position - _startMousePosition); // Adjust start position to mouse position
+            // Keep the click point inside the slot under the cursor while dragging.
+            _grabOffset = evt.localPosition;
             _root.CapturePointer(evt.pointerId);
         }
         evt.StopPropagation();
@@ -62,9 +59,7 @@ public class SlotDragManipulator : PointerManipulator
     public void PointerMoveHandler(PointerMoveEvent evt)
     {
         if (!enabled)
-        {
             return;
-        }
 
         if (_root.HasPointerCapture(evt.pointerId))
         {
@@ -75,8 +70,7 @@ public class SlotDragManipulator : PointerManipulator
                 return;
             }
             dragged = true;
-            // Center the floating icon under the cursor (panel space).
-            L2SlotManager.Instance.DragSlotAt(pos, _root.layout.width, _root.layout.height);
+            L2SlotManager.Instance.DragSlotAt(pos, _grabOffset);
         }
         evt.StopPropagation();
     }
@@ -84,13 +78,6 @@ public class SlotDragManipulator : PointerManipulator
     private void UpdateFlotatingSlotAppearance()
     {
         L2SlotManager.Instance.SetDraggedSlot(_slot);
-    }
-
-    private void DragFlotatingSlot(Vector2 diff)
-    {
-        float right = Screen.width - _startPosition.x - _root.layout.width + diff.x;
-        float bottom = Screen.height - _startPosition.y - _root.layout.height + diff.y;
-        L2SlotManager.Instance.DragSlot(right, bottom);
     }
 
     public void PointerUpHandler(PointerUpEvent evt)
