@@ -12,6 +12,7 @@ public class MonsterStateAtk : MonsterStateBase
     private bool _loggedSkillHold;
     private bool _loggedSkillStuck;
     private int _swingId;
+    private float _lastNormalizedTime;
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
         _isSwitchIdle = false;
@@ -54,6 +55,12 @@ public class MonsterStateAtk : MonsterStateBase
         {
             // MobSkillLog.Enter(_entity, timeAnimation, timeAtk, animator.GetFloat("patkspd"));
         }
+        _lastNormalizedTime = 0f;
+        if (audioHandler != null)
+        {
+            audioHandler.PlaySoundAtRatio(MonsterSoundEvent.Atk, audioHandler.AtkRatio);
+            audioHandler.PlaySoundAtRatio(MonsterSoundEvent.Swish, audioHandler.SwishRatio);
+        }
         StopAnimationTrigger(animator, parameterName);
     }
 
@@ -67,6 +74,13 @@ public class MonsterStateAtk : MonsterStateBase
         }
         if (IsStaleSwing())
             return;
+
+        if (audioHandler != null && (stateInfo.normalizedTime - _lastNormalizedTime) >= 1f)
+        {
+            _lastNormalizedTime = stateInfo.normalizedTime;
+            audioHandler.PlaySoundAtRatio(MonsterSoundEvent.Atk, audioHandler.AtkRatio);
+            audioHandler.PlaySoundAtRatio(MonsterSoundEvent.Swish, audioHandler.SwishRatio);
+        }
 
         float currentTime = Time.time;
         float timeOut = currentTime - _startTime;

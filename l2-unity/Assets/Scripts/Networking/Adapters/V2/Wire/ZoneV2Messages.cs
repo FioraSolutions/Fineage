@@ -319,6 +319,28 @@ public static partial class ZoneV2Messages
         return ZoneV2MsgPack.WriteArray(_ => { }, 0);
     }
 
+    public static bool TryDecodeChangeMoveType(byte[] body, out int objectId, out bool running)
+    {
+        objectId = 0;
+        running = true;
+        try
+        {
+            int i = 0;
+            int n = ZoneV2MsgPack.ReadArrayHeader(body, ref i);
+            if (n < 2)
+                return false;
+            objectId = ZoneV2MsgPack.ReadInt(body, ref i);
+            running = ZoneV2MsgPack.ReadBool(body, ref i);
+            if (n > 2)
+                ZoneV2MsgPack.SkipValues(body, ref i, n - 2);
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
+        }
+    }
+
     public static bool TryDecodeDie(byte[] body, out ZoneV2Die die)
     {
         die = default;
@@ -862,15 +884,17 @@ public static partial class ZoneV2Messages
                     used++;
                 }
 
+                float runSpeed = 0f;
+                float walkSpeed = 0f;
                 if (n > used)
                 {
-                    ZoneV2MsgPack.ReadFloat(body, ref i);
+                    runSpeed = ZoneV2MsgPack.ReadFloat(body, ref i);
                     used++;
                 }
 
                 if (n > used)
                 {
-                    ZoneV2MsgPack.ReadFloat(body, ref i);
+                    walkSpeed = ZoneV2MsgPack.ReadFloat(body, ref i);
                     used++;
                 }
 
@@ -885,6 +909,25 @@ public static partial class ZoneV2Messages
                     npcType = ZoneV2MsgPack.ReadString(body, ref i) ?? "";
                     used++;
                 }
+
+                if (n > used)
+                    ZoneV2MsgPack.SkipValues(body, ref i, n - used);
+
+                info = new ZoneV2NpcInfo
+                {
+                    ObjectId = objectId,
+                    NpcTemplateId = templateId,
+                    Name = name,
+                    X = x,
+                    Y = y,
+                    Z = z,
+                    Attackable = attackable,
+                    RunSpeed = runSpeed,
+                    WalkSpeed = walkSpeed,
+                    Title = title,
+                    NpcType = npcType
+                };
+                return true;
             }
             else
             {
@@ -2451,6 +2494,10 @@ public struct ZoneV2NpcInfo
     public int Z;
     /// <summary>Legacy five-int rows stay attackable. Backend key 7 is the real flag.</summary>
     public bool Attackable;
+    /// <summary>Backend key 8; 0 when the wire omitted speeds.</summary>
+    public float RunSpeed;
+    /// <summary>Backend key 9; 0 when the wire omitted speeds.</summary>
+    public float WalkSpeed;
     public string Title;
     public string NpcType;
 }

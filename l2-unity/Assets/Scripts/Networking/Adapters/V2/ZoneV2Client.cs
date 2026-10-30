@@ -1158,6 +1158,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                         });
                         break;
 
+                    case ZoneV2MsgType.ChangeMoveType:
+                        int moveTypeId;
+                        bool moveTypeRunning;
+                        if (!ZoneV2Messages.TryDecodeChangeMoveType(f.Body, out moveTypeId, out moveTypeRunning))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad ChangeMoveType body"));
+                            break;
+                        }
+
+                        Post(() => ApplyNpcMoveType(moveTypeId, moveTypeRunning));
+                        break;
+
                     case ZoneV2MsgType.Die:
                         ZoneV2Die dieWire;
                         if (!ZoneV2Messages.TryDecodeDie(f.Body, out dieWire))
@@ -1529,5 +1541,28 @@ public sealed class ZoneV2Client : MonoBehaviour
     {
         if (action != null)
             _main.Enqueue(action);
+    }
+
+    /// <summary>
+    /// Mobius ChangeMoveType for remote pawns (mob aggro -> run). Local player gait stays on its own path.
+    /// A chase already in flight switches gait in place so client speed matches the server chase.
+    /// </summary>
+    static void ApplyNpcMoveType(int objectId, bool running)
+    {
+        World world = ControllerPacketServices.GameWorld;
+        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
+        if (entity == null || entity is PlayerEntity || entity.IsDead())
+            return;
+        if (entity.Identity != null)
+            entity.Identity.IsRunning = running;
+        entity.UpdateMoveType(running);
+        MovementData move = entity.Identity != null && MoveAllCharacters.Instance != null
+            ? MoveAllCharacters.Instance.GetMove(entity.Identity.Id)
+            : null;
+        if (move != null && move.IsMove() && !(entity is UserEntity))
+        {
+            move.RetargetPoint(entity.ActionSlot.Destination, running);
+            EntityActionVisual.StartMove(entity, !running);
+        }
     }
 }
