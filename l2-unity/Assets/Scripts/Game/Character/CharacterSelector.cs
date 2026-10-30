@@ -124,7 +124,8 @@ public class CharacterSelector : MonoBehaviour
     }
 
     /// <summary>
-    /// Menu may stay loaded with SceneLoader; clear select-row pawns before world show.
+    /// CharacterSelector lives on the DDOL Game root, so select-row pawns survive
+    /// Menu unload and must be cleared explicitly before the world is shown.
     /// </summary>
     public void ClearLobbyVisuals()
     {
