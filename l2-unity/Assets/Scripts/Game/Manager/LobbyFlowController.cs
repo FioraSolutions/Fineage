@@ -316,12 +316,10 @@ public sealed class LobbyFlowController
 
     void ClearLobbyPawnGalleries()
     {
-        CharacterCreator creator = Creator;
-        if (creator != null)
-            creator.DestroyAllPawns();
-
         CharacterSelector selector = CharacterSelector.Instance;
         if (selector != null)
             selector.ClearLobbyVisuals();
+
+        CharacterCreator.DestroyOrphanLobbyGalleries();
     }
 }
