@@ -16,7 +16,7 @@ public class ZoneV2ChatWireTests
         Assert.Equal(1012, (ushort)ZoneV2MsgType.CreatureSay);
         Assert.Equal(1040, (ushort)ZoneV2MsgType.SystemMessage);
         Assert.Equal(1099, (ushort)ZoneV2MsgType.Error);
-        Assert.Equal(1019, (ushort)ZoneV2MsgType.DropItem);
+        Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), (ushort)1019));
         for (ushort id = 1041; id <= 1049; id++)
             Assert.False(Enum.IsDefined(typeof(ZoneV2MsgType), id));
     }
