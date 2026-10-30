@@ -156,6 +156,7 @@ public class CharacterSelector : MonoBehaviour
         _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
         _selectedLobbyIndex = -1;
+        _charSelectCamera = null;
     }
 
     void EnsureCharacterContainer()

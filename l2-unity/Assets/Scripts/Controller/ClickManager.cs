@@ -23,7 +23,14 @@ public class ClickManager : MonoBehaviour
 
     private InputManager GameInput
     {
-        get { return _input != null ? _input : ControllerPacketServices.Input; }
+        get
+        {
+            if (_input != null)
+                return _input;
+            if (ControllerPacketServices.Input != null)
+                return ControllerPacketServices.Input;
+            return InputManager.Instance;
+        }
     }
 
     private TargetManager Targets
@@ -89,13 +96,14 @@ public class ClickManager : MonoBehaviour
 
     void Update()
     {
-        if (Camera.main == null)
+        Camera cam = ResolvePickCamera();
+        if (cam == null)
         {
             _hoverObjectData = null;
             return;
         }
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         ItemEntity stickyDrop = null;
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
@@ -162,6 +170,19 @@ public class ClickManager : MonoBehaviour
         {
             _hoverObjectData = null;
         }
+    }
+
+    static Camera ResolvePickCamera()
+    {
+        CameraController controller = CameraController.Instance;
+        if (controller != null)
+        {
+            Camera cam = controller.GetComponent<Camera>();
+            if (cam != null && cam.enabled && cam.gameObject.activeInHierarchy)
+                return cam;
+        }
+
+        return Camera.main;
     }
 
     public void OnClickToMove(RaycastHit hit)

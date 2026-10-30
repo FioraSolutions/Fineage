@@ -64,10 +64,8 @@ public class SceneLoader : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
-            // Game.prefab already has DontDestroyOnLoad; keep bootstrap alive so Menu can unload.
-            if (transform.parent != null)
-                transform.SetParent(null, true);
-            DontDestroyOnLoad(gameObject);
+            // Stay on Game.prefab — that root already has DontDestroyOnLoad.
+            // Do not unparent into a second DDOL object (that leaked LoadingCamera).
         }
         else if (_instance != this)
         {
@@ -107,10 +105,16 @@ public class SceneLoader : MonoBehaviour
     private IEnumerator PreloadGameScene()
     {
         yield return LoadSceneAdditiveIfNeeded(_gameScene);
+        // Hide world (incl. Main Camera) immediately so login SwitchCamera cannot
+        // treat the gameplay camera as Camera.main during WaitGameUiBuilt.
+        SetSceneRootsActive(_gameScene, false, true);
         yield return WaitGameUiBuilt();
         SetGameHudVisible(false);
-        SetSceneRootsActive(_gameScene, false, true);
-        // Debug.Log("Game scene cached (inactive).");
+        // Keep Menu active while lobby Instantiates run — parentless clones land in
+        // the active scene; if Game were active they would survive Menu unload.
+        Scene menu = SceneManager.GetSceneByName(_menuScene);
+        if (menu.IsValid() && menu.isLoaded)
+            SceneManager.SetActiveScene(menu);
     }
 
     public void LoadSWMap()
@@ -128,8 +132,12 @@ public class SceneLoader : MonoBehaviour
 
     private IEnumerator LoadSWMapRoutine(Vector3 l2Pos)
     {
+        // Textbook: drop lobby island first. No Menu/l2_lobby overlap with world tile load.
+        yield return UnloadLobbyScenesRoutine();
+
         yield return LoadSceneAdditiveIfNeeded(_gameScene);
         SetSceneRootsActive(_gameScene, true, true);
+        EnsureGameplayCamera();
 
         Scene game = SceneManager.GetSceneByName(_gameScene);
         if (game.IsValid() && game.isLoaded)
@@ -139,10 +147,9 @@ public class SceneLoader : MonoBehaviour
 
         Manager.OnWorldLoading();
         SetGameHudVisible(true);
-        SetSceneRootsActive(_lobbyScene, false);
 
         string tile = VectorUtils.GetSwMapName(l2Pos);
-        // Debug.Log("LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
+        FineageLog.Info(FineageLog.Category.World, "LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
 
         if (Geodata.Instance != null)
         {
@@ -153,10 +160,47 @@ public class SceneLoader : MonoBehaviour
         _loadedTiles.Add(tile);
 
         FinishLoadSWMap();
-        UnloadLobbyScenes();
+        EnsureGameplayCamera();
         WorldClock.EnsurePersistent();
         _worldStreaming = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        StartCoroutine(WorldEnterDiagDelayed());
+#endif
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    private IEnumerator WorldEnterDiagDelayed()
+    {
+        yield return null;
+        yield return null;
+        SafeWorldSnapshot("LoadSWMap +2 frames");
+        yield return new WaitForSecondsRealtime(1f);
+        SafeWorldSnapshot("LoadSWMap +1s");
+        try
+        {
+            LobbyCleanGate.Report report = LobbyCleanGate.Evaluate();
+            FineageLog.Info(
+                FineageLog.Category.World,
+                (report.Ok ? "LobbyClean PASS " : "LobbyClean FAIL ") + report.Detail);
+        }
+        catch (System.Exception ex)
+        {
+            FineageLog.Exception(FineageLog.Category.World, "LobbyCleanGate", ex);
+        }
+    }
+
+    static void SafeWorldSnapshot(string phase)
+    {
+        try
+        {
+            WorldEnterDiag.Snapshot(phase);
+        }
+        catch (System.Exception ex)
+        {
+            FineageLog.Exception(FineageLog.Category.World, "WorldEnterDiag." + phase, ex);
+        }
+    }
+#endif
 
     private void FinishLoadSWMap()
     {
@@ -355,6 +399,15 @@ public class SceneLoader : MonoBehaviour
         return root != null && root.GetComponentInChildren<L2GameUI>(true) != null;
     }
 
+    /// <summary>
+    /// Game.unity ships an inactive <c>Prefabs</c> catalog (faces/hair/npc meshes parked
+    /// near the school). It must stay off — enabling all Game roots would show them in-world.
+    /// </summary>
+    private static bool IsSceneCatalogRoot(GameObject root)
+    {
+        return root != null && root.name == "Prefabs";
+    }
+
     private void SetSceneRootsActive(string sceneName, bool active, bool keepGameUi = false)
     {
         Scene scene = SceneManager.GetSceneByName(sceneName);
@@ -371,6 +424,14 @@ public class SceneLoader : MonoBehaviour
                 continue;
             }
 
+            // Catalog stays inactive whether we are showing or hiding the world.
+            if (IsSceneCatalogRoot(roots[i]))
+            {
+                if (roots[i].activeSelf)
+                    roots[i].SetActive(false);
+                continue;
+            }
+
             if (keepGameUi && IsGameUiRoot(roots[i]))
             {
                 continue;
@@ -380,20 +441,96 @@ public class SceneLoader : MonoBehaviour
         }
     }
 
-    private void UnloadLobbyScenes()
+    /// <summary>
+    /// Destroy lobby presentation, then unload Menu + l2_lobby and wait until gone.
+    /// </summary>
+    private IEnumerator UnloadLobbyScenesRoutine()
     {
-        SetSceneRootsActive(_lobbyScene, false);
-        UnloadScene(_lobbyScene);
-
-        // Bootstrap Game is DontDestroyOnLoad. Lobby visuals live under Menu/Lobby
-        // (CharSelect layer); unloading Menu / l2_lobby is the cleanup.
-        SetSceneRootsActive(_menuScene, false);
-        UnloadScene(_menuScene);
-
         CharacterSelector selector = CharacterSelector.Instance;
+        if (selector != null)
+            selector.ClearLobbyVisuals();
+        CharacterCreator creator = CharacterCreator.Instance;
+        if (creator != null)
+            creator.DestroyAllPawns();
+
+        // Hide immediately so nothing renders during async unload.
+        SetSceneRootsActive(_lobbyScene, false);
+        SetSceneRootsActive(_menuScene, false);
+
+        yield return UnloadSceneCompleted(_lobbyScene);
+        yield return UnloadSceneCompleted(_menuScene);
+
         if (selector != null)
             selector.ForgetLobbyVisuals();
         LobbyPresentation.ForgetRoot();
+
+        FineageLog.Info(
+            FineageLog.Category.World,
+            "Lobby unloaded. MenuLoaded="
+            + SceneManager.GetSceneByName(_menuScene).isLoaded
+            + " LobbyLoaded="
+            + SceneManager.GetSceneByName(_lobbyScene).isLoaded);
+    }
+
+    private IEnumerator UnloadSceneCompleted(string sceneName)
+    {
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        if (!scene.IsValid() || !scene.isLoaded)
+            yield break;
+
+        AsyncOperation op = SceneManager.UnloadSceneAsync(sceneName);
+        if (op == null)
+            yield break;
+        while (!op.isDone)
+            yield return null;
+    }
+
+    /// <summary>Enable gameplay follow-cam; it must own Camera.main after lobby is gone.</summary>
+    static void EnsureGameplayCamera()
+    {
+        CameraController controller = CameraController.Instance;
+        if (controller == null)
+            controller = UnityEngine.Object.FindFirstObjectByType<CameraController>(FindObjectsInactive.Include);
+        if (controller == null)
+        {
+            FineageLog.Warn(FineageLog.Category.World, "EnsureGameplayCamera: CameraController missing");
+            return;
+        }
+
+        controller.enabled = true;
+        Camera gameplay = controller.GetComponent<Camera>();
+        if (gameplay != null)
+        {
+            gameplay.enabled = true;
+            if (!gameplay.CompareTag("MainCamera"))
+                gameplay.tag = "MainCamera";
+        }
+
+        // Strip accidental MainCamera tags — Menu cams die with Menu unload (no DDOL).
+        Camera[] cameras = UnityEngine.Object.FindObjectsByType<Camera>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            Camera other = cameras[i];
+            if (other == null || other == gameplay || !other.CompareTag("MainCamera"))
+                continue;
+            other.tag = "Untagged";
+            other.enabled = false;
+            FineageLog.Warn(
+                FineageLog.Category.World,
+                "EnsureGameplayCamera demoted extra MainCamera=" + other.name
+                + " scene=" + other.gameObject.scene.name);
+        }
+
+        if (NameplatesManager.Instance != null && gameplay != null)
+            NameplatesManager.Instance.Camera = gameplay;
+
+        FineageLog.Info(
+            FineageLog.Category.World,
+            "EnsureGameplayCamera ok name=" + controller.name
+            + " camEn=" + (gameplay != null && gameplay.enabled)
+            + " Camera.main=" + (Camera.main != null ? Camera.main.name : "null"));
     }
 
     public void SwitchScene(string sceneName, Action<AsyncOperation> p)
@@ -412,13 +549,8 @@ public class SceneLoader : MonoBehaviour
 
     private void UnloadScene(string sceneName)
     {
-        // Debug.Log("Unoading scene " + sceneName);
-
         if (!SceneManager.GetSceneByName(sceneName).IsValid())
-        {
             return;
-        }
-
         SceneManager.UnloadSceneAsync(sceneName);
     }
 }

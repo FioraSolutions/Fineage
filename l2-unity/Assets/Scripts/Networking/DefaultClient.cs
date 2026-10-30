@@ -93,19 +93,18 @@ public abstract class DefaultClient : MonoBehaviour
 
         if (connected)
         {
-            if (events != null)
+            if (events == null)
             {
-                events.QueueEvent(() =>
-                {
-                    LobbyFlowLog.Info(GetType().Name + ".OnConnectionSuccess (EventProcessor)");
-                    OnConnectionSuccess();
-                });
+                LobbyFlowLog.Error(
+                    GetType().Name + ".Connect connected but EventProcessor missing — drop OnConnectionSuccess");
+                return;
             }
-            else
+
+            events.QueueEvent(() =>
             {
-                LobbyFlowLog.Warn(GetType().Name + ".Connect no EventProcessor — OnConnectionSuccess inline");
+                LobbyFlowLog.Info(GetType().Name + ".OnConnectionSuccess (EventProcessor)");
                 OnConnectionSuccess();
-            }
+            });
         }
         else if (events != null)
         {
