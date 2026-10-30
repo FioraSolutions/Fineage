@@ -124,6 +124,9 @@ public class SceneLoader : MonoBehaviour
 
     private IEnumerator LoadSWMapRoutine(Vector3 l2Pos)
     {
+        // Char-create pawns share world space with Talking Island; wipe before map shows.
+        CharacterCreator.DestroyOrphanLobbyGalleries();
+
         yield return LoadSceneAdditiveIfNeeded(_gameScene);
         SetSceneRootsActive(_gameScene, true, true);
 
@@ -150,6 +153,8 @@ public class SceneLoader : MonoBehaviour
 
         FinishLoadSWMap();
         UnloadLobbyScenes();
+        // Menu often stays loaded for SceneLoader — sweep again after lobby unload.
+        CharacterCreator.DestroyOrphanLobbyGalleries();
         WorldClock.EnsurePersistent();
         _worldStreaming = true;
     }

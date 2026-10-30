@@ -133,13 +133,13 @@ public class CharacterSelector : MonoBehaviour
             for (int i = 0; i < _characterGameObjects.Count; i++)
             {
                 if (_characterGameObjects[i] != null)
-                    Destroy(_characterGameObjects[i]);
+                    Object.DestroyImmediate(_characterGameObjects[i]);
             }
         }
 
         if (_container != null)
         {
-            Destroy(_container);
+            Object.DestroyImmediate(_container);
             _container = null;
         }
 

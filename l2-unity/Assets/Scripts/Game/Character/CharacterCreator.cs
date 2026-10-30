@@ -118,16 +118,67 @@ public class CharacterCreator : MonoBehaviour
     {
         if (_pawnContainer != null)
         {
-            Destroy(_pawnContainer);
+            DestroyLobbyObject(_pawnContainer);
             _pawnContainer = null;
         }
 
         for (int i = 0; i < pawns.Length; i++)
+        {
+            if (pawns[i] != null)
+                DestroyLobbyObject(pawns[i]);
             pawns[i] = null;
+        }
 
         currentPawn = null;
         currentPawnIndex = -1;
         _pawnRotating = false;
+    }
+
+    /// <summary>
+    /// Belt-and-suspenders: Creator may be null/destroyed while orphan
+    /// <c>Pawns</c> roots still sit in the kept-alive Menu scene.
+    /// </summary>
+    public static int DestroyOrphanLobbyGalleries()
+    {
+        CharacterCreator creator = Instance;
+        if (creator != null)
+            creator.DestroyAllPawns();
+
+        System.Collections.Generic.List<GameObject> doomed =
+            new System.Collections.Generic.List<GameObject>();
+        Transform[] transforms = Object.FindObjectsByType<Transform>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            Transform t = transforms[i];
+            if (t == null)
+                continue;
+            string n = t.name;
+            if (n != "Pawns" && n != "Characters")
+                continue;
+            doomed.Add(t.gameObject);
+        }
+
+        int removed = 0;
+        for (int i = 0; i < doomed.Count; i++)
+        {
+            if (doomed[i] == null)
+                continue;
+            DestroyLobbyObject(doomed[i]);
+            removed++;
+        }
+
+        if (removed > 0)
+            Debug.Log("[CharacterCreator] destroyed lobby galleries count=" + removed);
+        return removed;
+    }
+
+    static void DestroyLobbyObject(GameObject go)
+    {
+        if (go == null)
+            return;
+        // Immediate: deferred Destroy leaves meshes visible across LoadSWMap yields.
+        Object.DestroyImmediate(go);
     }
 
     void EnsurePawnContainer()
