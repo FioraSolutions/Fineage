@@ -114,15 +114,6 @@ public class L2SlotManager : L2PopupWindow
         _windowEle.BringToFront();
     }
 
-    internal void DragSlot(float right, float bottom)
-    {
-        ShowWindow();
-        _windowEle.style.left = StyleKeyword.Null;
-        _windowEle.style.top = StyleKeyword.Null;
-        _windowEle.style.right = right;
-        _windowEle.style.bottom = bottom;
-    }
-
     public void ReleaseDrag()
     {
 
