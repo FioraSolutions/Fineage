@@ -13,9 +13,9 @@ public class ZoneV2DeathWireTests
     {
         Assert.Equal(52, (ushort)ZoneV2MsgType.ReviveRequest);
         Assert.Equal(53, (ushort)ZoneV2MsgType.AdminKillPlayer);
-        Assert.Equal(1070, (ushort)ZoneV2MsgType.Die);
-        Assert.Equal(1071, (ushort)ZoneV2MsgType.Revive);
-        Assert.Equal(1072, (ushort)ZoneV2MsgType.TeleportToLocation);
+        Assert.Equal(1074, (ushort)ZoneV2MsgType.Die);
+        Assert.Equal(1075, (ushort)ZoneV2MsgType.Revive);
+        Assert.Equal(1076, (ushort)ZoneV2MsgType.TeleportToLocation);
     }
 
     [Fact]
