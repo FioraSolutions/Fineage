@@ -7,6 +7,9 @@ public class CalcBaseParam
 
     public static float CalculateTimeL2j(float patkSpeed)
     {
+        // Zone V2 NpcInfo may omit PAtkSpd (0). Treat as Interlude default 253.
+        if (patkSpeed <= 0.001f)
+            patkSpeed = 253f;
         return Math.Max(100, 500000 / patkSpeed);
     }
 

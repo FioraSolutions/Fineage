@@ -115,6 +115,20 @@ public static class ZoneV2DomainMap
             fields.Unknown);
     }
 
+    public static DropItemDto ToDropItemDto(ZoneV2DropItem item)
+    {
+        return DropItemDto.FromZoneV2(
+            item.CharObjectId,
+            item.ObjectId,
+            item.ItemId,
+            item.X,
+            item.Y,
+            item.Z,
+            item.Stackable,
+            item.Count,
+            item.Unknown);
+    }
+
     public static NpcInfoDto ToNpcInfoDto(ZoneV2NpcInfo info)
     {
         NpcInfoDto dto = new NpcInfoDto();
@@ -132,10 +146,17 @@ public static class ZoneV2DomainMap
         dto.Stats.Level = 1;
         dto.Status.SetHp(100);
         dto.Stats.MaxHp = 100;
-        dto.Stats.BaseRunSpeed = 120;
-        dto.Stats.BaseWalkingSpeed = 80;
-        dto.Stats.WalkRealSpeed = 80f;
-        dto.Stats.RunRealSpeed = 120f;
+        // Zone V2 NpcInfo has no PAtkSpd key yet — Interlude default so MonsterStateAtk
+        // does not freeze at patkspd=0 (CalculateTimeL2j(0) → Inf).
+        const int defaultPAtkSpd = 253;
+        dto.Stats.PAtkSpd = defaultPAtkSpd;
+        dto.Stats.PAtkRealSpeed = defaultPAtkSpd;
+        float run = info.RunSpeed > 0.001f ? info.RunSpeed : 120f;
+        float walk = info.WalkSpeed > 0.001f ? info.WalkSpeed : 80f;
+        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
+        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
+        dto.Stats.WalkRealSpeed = walk;
+        dto.Stats.RunRealSpeed = run;
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
         return dto;
@@ -405,7 +426,7 @@ public static class ZoneV2DomainMap
     }
 
     /// <summary>
-    /// Copies UserInfo class, speeds, and paperdoll onto a spawn record.
+    /// Copies UserInfo class, speeds, paperdoll, vitals, and template stats onto a spawn record.
     /// Position stays on the spawn packet.
     /// </summary>
     public static void OverlayUserInfo(PlayerInfoInterlude info, ZoneV2UserInfo user)
@@ -438,6 +459,47 @@ public static class ZoneV2DomainMap
             info.Identity.ClanId = user.ClanId;
         if (user.HasPaperdoll)
             ApplyUserPaperdoll(info.Appearance, user.Paperdoll);
+
+        if (user.HasVitals)
+        {
+            if (user.Level > 0)
+                info.Stats.Level = user.Level;
+            if (user.MaxHp > 0)
+                info.Stats.MaxHp = user.MaxHp;
+            if (user.MaxMp > 0)
+                info.Stats.MaxMp = user.MaxMp;
+            if (user.MaxCp > 0)
+                info.Stats.MaxCp = user.MaxCp;
+            info.Stats.Exp = user.Exp;
+            info.Stats.Sp = user.Sp;
+            if (info.Status != null)
+            {
+                if (user.MaxHp > 0 || user.CurHp > 0)
+                    info.Status.SetHp(user.CurHp);
+                if (user.MaxMp > 0 || user.CurMp > 0)
+                    info.Status.SetMp(user.CurMp);
+                info.Status.Cp = user.CurCp;
+                PlayerResourceCaps.EnsureMaxAtLeastCurrent(info.Stats, info.Status);
+            }
+        }
+
+        if (user.HasStats)
+        {
+            info.Stats.Str = user.Str;
+            info.Stats.Dex = user.Dex;
+            info.Stats.Con = user.Con;
+            info.Stats.Int = user.Int;
+            info.Stats.Wit = user.Wit;
+            info.Stats.Men = user.Men;
+            info.Stats.PAtk = user.PAtk;
+            info.Stats.MAtk = user.MAtk;
+            info.Stats.PDef = user.PDef;
+            info.Stats.MDef = user.MDef;
+            info.Stats.PAtkSpd = user.PAtkSpd;
+            info.Stats.MAtkSpd = user.MAtkSpd;
+            info.Stats.PAccuracy = user.Accuracy;
+            info.Stats.PCritical = user.CritRate;
+        }
     }
 
     public static void ApplyUserPaperdoll(PlayerAppearance appearance, ZoneV2PaperdollSlot[] slots)

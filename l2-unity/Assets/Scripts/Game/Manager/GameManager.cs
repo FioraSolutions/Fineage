@@ -12,8 +12,6 @@ public class GameManager : MonoBehaviour, IGameManager {
     [SerializeField] private GameState _gameState = GameState.LOGIN_SCREEN;
     private bool _gameReady = false;
     [SerializeField] private Camera _loadingCamera;
-    [Tooltip("Connect login button to ZoneServer v2 (:9777) instead of Interlude stub.")]
-    [SerializeField] private bool _useZoneServerV2 = false;
 
     #endregion
 
@@ -59,28 +57,20 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        if (_useZoneServerV2)
-            FineageWireConfig.SetOverride(FineageWireConfig.Mode.ZoneV2);
-        else
-            FineageWireConfig.SetOverride(FineageWireConfig.Mode.Interlude);
-
-        FineageLocalBackend.ApplyIfRequested();
-
-        // Play RP / -fineagePublic: ZoneV2 handoff on the resolved playtest endpoint (hostnames from
-        // StreamingAssets / Resources / env), not Interlude Blowfish and not hardcoded IPs.
-        if (!FineageWireConfig.UseLoginHandoff && FineageLocalBackend.PublicPlaytestRequested())
-        {
-            PlaytestEndpoint endpoint = PlaytestEndpointRuntime.Reload();
-            int gamePort = endpoint.GamePort > 0 ? endpoint.GamePort : PlaytestEndpoint.DefaultGamePort;
-            FineageWireConfig.EnablePlaytestBackend(
-                endpoint.LoginHost,
-                endpoint.LoginPort,
-                endpoint.GameHost,
-                gamePort);
-            Debug.Log("[Fineage] mode=public-playtest login="
-                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
-        }
+        // Every build (Editor and Standalone) dials the public RP only — no loopback / local backend.
+        PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
+        string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
+            ? ep.LoginHost
+            : PlaytestEndpoint.DefaultLoginHost;
+        string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
+            ? ep.GameHost
+            : PlaytestEndpoint.DefaultGameHost;
+        int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
+        int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
+        FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
+        Debug.Log("[Fineage] mode=public-playtest login="
+            + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+            + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
@@ -103,11 +93,11 @@ public class GameManager : MonoBehaviour, IGameManager {
         Scenes.LoadMenu();
         string account;
         string password;
-        if (FineageLocalBackend.TryGetAutoLogin(out account, out password))
-            StartCoroutine(AutoLoginLocalBackend(account, password));
+        if (FineageLaunchArgs.TryGetAutoLogin(out account, out password))
+            StartCoroutine(AutoLoginFromArgs(account, password));
     }
 
-    private IEnumerator AutoLoginLocalBackend(string account, string password)
+    private IEnumerator AutoLoginFromArgs(string account, string password)
     {
         for (int i = 0; i < 30 && !App.HasContainer; i++)
             yield return null;
@@ -115,7 +105,7 @@ public class GameManager : MonoBehaviour, IGameManager {
         if (!FineageWireConfig.UseLoginHandoff)
             yield break;
 
-        Debug.Log("[FineageLocal] auto-login account=" + account);
+        Debug.Log("[Fineage] auto-login account=" + account);
         IZoneTransport transport = null;
         if (App.HasContainer)
         {
@@ -125,7 +115,7 @@ public class GameManager : MonoBehaviour, IGameManager {
             }
             catch (Exception ex)
             {
-                Debug.LogWarning("[FineageLocal] IZoneTransport resolve failed: " + ex.Message);
+                Debug.LogWarning("[Fineage] IZoneTransport resolve failed: " + ex.Message);
             }
         }
 

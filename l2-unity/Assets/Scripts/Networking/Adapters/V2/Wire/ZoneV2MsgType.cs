@@ -80,6 +80,8 @@ public enum ZoneV2MsgType : ushort
     TradeAddItemRequest = 54,
     /// <summary>Confirm or cancel the trade window. Backend <c>TradeDoneRequestMsg</c> key 0 response.</summary>
     TradeDoneRequest = 55,
+    /// <summary>Drop bag item onto the ground. Backend <c>DropItemRequestMsg</c> keys 0–4 objectId,count,x,y,z.</summary>
+    DropItemRequest = 56,
     /// <summary>NPC HTML link. Backend <c>BypassRequestMsg</c> keys 0 npcObjectId, 1 command.</summary>
     BypassRequest = 95,
     /// <summary>Buy from the open buylist. Backend <c>RequestBuyItemMsg</c>.</summary>
@@ -120,6 +122,8 @@ public enum ZoneV2MsgType : ushort
     AbnormalStatusUpdate = 1017,
     /// <summary>Ground item in AOI. Keys match Backend <c>SpawnItemMsg</c> / Interlude <c>SpawnItemDto</c>.</summary>
     SpawnItem = 1018,
+    /// <summary>Ground drop with dropper for FX. Backend <c>DropItemMsg</c> / Interlude <c>DropItemDto</c>.</summary>
+    DropItem = 1019,
 
     RegisterOk = 1020,
     CharacterCreated = 1021,
@@ -161,24 +165,26 @@ public enum ZoneV2MsgType : ushort
     SkillList = 1065,
     /// <summary>Skill cast fan-out. Backend <c>MagicSkillUseMsg</c>.</summary>
     MagicSkillUse = 1066,
+    /// <summary>Run/walk toggle. Backend <c>ChangeMoveTypeMsg</c> [ObjectId, Running]. Mobius mob setRunning on aggro.</summary>
+    ChangeMoveType = 1069,
     /// <summary>Creature died. Backend <c>DieMsg</c>. See <c>DeathProtocol</c>.</summary>
-    Die = 1070,
+    Die = 1074,
     /// <summary>Creature revived. Backend <c>ReviveMsg</c>.</summary>
-    Revive = 1071,
+    Revive = 1075,
     /// <summary>Instant relocation (respawn, …). Backend <c>TeleportToLocationMsg</c>.</summary>
-    TeleportToLocation = 1072,
+    TeleportToLocation = 1076,
     /// <summary>Incoming trade ask. Backend <c>TradeAskMsg</c>.</summary>
-    TradeAsk = 1073,
+    TradeAsk = 1077,
     /// <summary>Trade ask outcome for the requestor. Backend <c>TradeRequestResultMsg</c>.</summary>
-    TradeRequestResult = 1074,
+    TradeRequestResult = 1078,
     /// <summary>Trade session opened. Backend <c>TradeStartMsg</c>.</summary>
-    TradeStart = 1075,
+    TradeStart = 1079,
     /// <summary>Offer column update. Backend <c>TradeOfferUpdateMsg</c>.</summary>
-    TradeOfferUpdate = 1076,
+    TradeOfferUpdate = 1080,
     /// <summary>Dual confirm flags. Backend <c>TradeConfirmStateMsg</c>.</summary>
-    TradeConfirmState = 1077,
+    TradeConfirmState = 1081,
     /// <summary>Trade session ended. Backend <c>TradeFinishedMsg</c>.</summary>
-    TradeFinished = 1078,
+    TradeFinished = 1082,
     /// <summary>NPC page. Backend <c>NpcHtmlMsg</c>. Quest steps stay on <see cref="QuestDialog"/>.</summary>
     NpcHtml = 1094,
     /// <summary>Merchant buylist. Backend <c>BuyListMsg</c>.</summary>

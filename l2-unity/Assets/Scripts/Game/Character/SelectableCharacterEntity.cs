@@ -61,20 +61,20 @@ public class SelectableCharacterEntity : MonoBehaviour
         }
     }
     //Movement speed to the target without taking into account animation speed
-    private float GetWalkSpeedPoint(CharSelectInfoPackage _characterInfoInterlude)
+    private float GetWalkSpeedPoint(CharSelectInfoPackage info)
     {
-        var race = _characterInfoInterlude.CharacterRaceAnimation;
-        if (race == CharacterRaceAnimation.FFighter | 
-            race == CharacterRaceAnimation.MFighter | 
-            race ==  CharacterRaceAnimation.FMagic | 
+        if (info == null)
+            return 1.2f;
+        var race = info.CharacterRaceAnimation;
+        if (race == CharacterRaceAnimation.FFighter ||
+            race == CharacterRaceAnimation.MFighter ||
+            race == CharacterRaceAnimation.FMagic ||
             race == CharacterRaceAnimation.MMagic)
         {
             return 1.2f;
         }
-        else
-        {
-            return 1.5f;
-        }
+
+        return 1.5f;
     }
     //animation speed
     private void SetWalkSpeedModel()

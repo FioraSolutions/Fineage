@@ -303,6 +303,9 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
     // in place; they do not create a graph.
     void DriveFloat(string paramName, float value)
     {
+        // Standalone: SetFloat on a missing param logs every frame (alloc + GC pressure).
+        if (!AnimatorBoolSet.HasFloat(_animator, paramName))
+            return;
         _animator.SetFloat(paramName, value);
         _castPlayable?.SetFloat(paramName, value);
     }

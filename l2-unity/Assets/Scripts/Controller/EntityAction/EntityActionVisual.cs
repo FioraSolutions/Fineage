@@ -259,7 +259,15 @@ public static class EntityActionVisual
         }
 
         if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
+        {
+            NetworkAnimationController nac = monster.GetAnimatorController();
+            if (nac != null)
+            {
+                nac.SetPAtkSpeed(1f);
+                nac.SetAnimatorSpeed(1f);
+            }
             ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, AnimationNames.DEAD.ToString());
+        }
     }
 
     static void PlayUserLocomotion(UserEntity user, string move, float? fadeDuration = null, bool force = false)

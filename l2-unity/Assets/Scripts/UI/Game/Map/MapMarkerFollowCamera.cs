@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 
-public class MapMarkerFollowCamera : MonoBehaviour
+public class MapMarkerFollowCamera
 {
     public Camera targetCamera;
     private VisualElement _marker;

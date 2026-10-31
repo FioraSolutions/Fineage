@@ -7,7 +7,7 @@ public abstract class DefaultClient : MonoBehaviour
 {
     protected NetworkRuntime _network;
     [Header("Connection")]
-    [SerializeField] protected string _serverIp = "127.0.0.1";
+    [SerializeField] protected string _serverIp = PlaytestEndpoint.DefaultLoginHost;
     [SerializeField] protected int _serverPort = 11000;
 
     protected AsynchronousClient _client;
@@ -122,12 +122,22 @@ public abstract class DefaultClient : MonoBehaviour
     }
 
     /// <summary>
-    /// Local macOS / Fineage-Backend playtest: inspector may still show Interlude 2106.
+    /// Always public RP: inspector leftovers are replaced by playtest endpoints.
     /// </summary>
     protected void ApplyFineageLoginEndpointIfNeeded()
     {
-        if (!(this is LoginClient) || !FineageWireConfig.UseLoginHandoff)
+        if (!(this is LoginClient))
             return;
+        if (!FineageWireConfig.UseLoginHandoff)
+        {
+            // Never dial loopback from a public build (prefab/inspector leftovers).
+            if (!FineageWireConfig.IsPublicLoginHost(_serverIp))
+            {
+                _serverIp = PlaytestEndpoint.DefaultLoginHost;
+                _serverPort = PlaytestEndpoint.DefaultLoginPort;
+            }
+            return;
+        }
 
         _serverIp = FineageWireConfig.LoginHost;
         _serverPort = FineageWireConfig.LoginPort;

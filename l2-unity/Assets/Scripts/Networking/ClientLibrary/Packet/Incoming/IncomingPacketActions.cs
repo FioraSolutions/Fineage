@@ -381,14 +381,9 @@ public static class IncomingPacketActions
         }
 
         EventProcessor processor = _events != null ? _events : (_runtime != null ? _runtime.Events : EventProcessor.Instance);
-        if (processor != null)
-        {
-            processor.QueueEvent(action);
-            return;
-        }
-
-        Debug.LogError(
-            "[IncomingPacketActions] QueueWorldNextFrame dropped work: EventProcessor missing.");
+        if (processor == null)
+            processor = EventProcessor.EnsureInstance();
+        processor.QueueEvent(action);
     }
 
     public static void ApplyDomain(Action<IWorldDomainSink> apply)

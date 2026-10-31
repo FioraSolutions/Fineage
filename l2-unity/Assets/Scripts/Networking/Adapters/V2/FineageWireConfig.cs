@@ -4,7 +4,6 @@ using UnityEngine;
 /// <summary>
 /// Feature flag for Interlude stub vs Fineage ZoneServer v2.
 /// Public playtest hosts come from <see cref="PlaytestEndpoint"/> defaults.
-/// <see cref="FineageLocalBackend"/> opt-in calls <see cref="EnableLocalBackend"/> for 127.0.0.1.
 /// </summary>
 public static class FineageWireConfig
 {
@@ -17,12 +16,7 @@ public static class FineageWireConfig
     }
 
     static Mode? _override;
-
-    /// <summary>Local C# Fineage-Backend login (only after <see cref="EnableLocalBackend"/>).</summary>
-    public const string LocalLoginHost = "127.0.0.1";
-    public const int LocalLoginPort = 9106;
-    public const string LocalZoneHost = "127.0.0.1";
-    public const int LocalZonePort = 9777;
+    static Mode? _prefsCache;
 
     public static string ZoneHost = PlaytestEndpoint.DefaultGameHost;
     public static int ZonePort = PlaytestEndpoint.DefaultGamePort;
@@ -36,19 +30,6 @@ public static class FineageWireConfig
     /// and sends the handoff token as the zone Auth password.
     /// </summary>
     public static bool UseLoginHandoff;
-
-    public static void EnableLocalBackend(
-        string loginHost,
-        int loginPort,
-        string zoneHost,
-        int zonePort)
-    {
-        EnablePlaytestBackend(
-            string.IsNullOrWhiteSpace(loginHost) ? LocalLoginHost : loginHost,
-            loginPort > 0 ? loginPort : LocalLoginPort,
-            string.IsNullOrWhiteSpace(zoneHost) ? LocalZoneHost : zoneHost,
-            zonePort > 0 ? zonePort : LocalZonePort);
-    }
 
     /// <summary>
     /// ZoneV2 login handoff for Fineage-Backend. Empty hosts use the public playtest endpoints.
@@ -84,12 +65,31 @@ public static class FineageWireConfig
         {
             if (_override.HasValue)
                 return _override.Value;
-            return (Mode)PlayerPrefs.GetInt(PrefKey, (int)Mode.Interlude);
+            if (_prefsCache.HasValue)
+                return _prefsCache.Value;
+            try
+            {
+                _prefsCache = (Mode)PlayerPrefs.GetInt(PrefKey, (int)Mode.Interlude);
+            }
+            catch (Exception)
+            {
+                return Mode.Interlude;
+            }
+
+            return _prefsCache.Value;
         }
         set
         {
-            PlayerPrefs.SetInt(PrefKey, (int)value);
-            PlayerPrefs.Save();
+            _prefsCache = value;
+            try
+            {
+                PlayerPrefs.SetInt(PrefKey, (int)value);
+                PlayerPrefs.Save();
+            }
+            catch (Exception)
+            {
+                /* ignore off-thread */
+            }
         }
     }
 

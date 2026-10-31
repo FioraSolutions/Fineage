@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,40 +6,24 @@ public abstract class L2PopupWindow : L2Window
 {
     protected void RegisterCloseWindowEvent(string closeButtonClass)
     {
-        Button closeButton = (Button)GetElementByClass(closeButtonClass);
-        if (closeButton == null)
-        {
-            // Debug.LogWarning($"Cant find close button with className: {closeButtonClass}.");
-            return;
-        }
-
-        ButtonClickSoundManipulator buttonClickSoundManipulator = new ButtonClickSoundManipulator(closeButton);
-        closeButton.AddManipulator(buttonClickSoundManipulator);
-
-        closeButton.RegisterCallback<MouseUpEvent>(evt =>
-        {
-            AudioManager.Instance.PlayUISound("window_close");
-            HideWindow();
-        });
+        if (GetElementByClass(closeButtonClass) is Button closeButton)
+            WireCloseButton(closeButton);
     }
 
     protected void RegisterCloseWindowEventByName(string closeButtonName)
     {
-        Button closeButton = (Button)GetElementById(closeButtonName);
-        if (closeButton == null)
-        {
-            // Debug.LogWarning($"Cant find close button with className: {closeButtonName}.");
-            return;
-        }
+        if (GetElementById(closeButtonName) is Button closeButton)
+            WireCloseButton(closeButton);
+    }
 
-        ButtonClickSoundManipulator buttonClickSoundManipulator = new ButtonClickSoundManipulator(closeButton);
-        closeButton.AddManipulator(buttonClickSoundManipulator);
-
-        closeButton.RegisterCallback<MouseUpEvent>(evt =>
+    void WireCloseButton(Button closeButton)
+    {
+        closeButton.AddManipulator(new ButtonClickSoundManipulator(closeButton));
+        closeButton.clicked += () =>
         {
             AudioManager.Instance.PlayUISound("window_close");
             HideWindow();
-        });
+        };
     }
 
     public void RegisterClickWindowEvent(VisualElement windowEle, VisualElement dragEle)

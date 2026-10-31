@@ -227,6 +227,14 @@ public class CharacterSelector : MonoBehaviour
         info.HairStyle = character.HairStyle;
         info.HairColor = character.HairColor;
         info.Face = character.Face;
+        info.Hp = character.CurHp;
+        info.MaxHp = character.MaxHp;
+        info.Mp = character.CurMp;
+        info.MaxMp = character.MaxMp;
+        info.Exp = character.Exp;
+        info.Sp = character.Sp;
+        info.Karma = character.Karma;
+        ApplyLobbyPaperdoll(info.Appreance, character);
         int baseClass = (int)BaseClass.Fighter;
         if (character.ClassId >= 0 && character.ClassId <= byte.MaxValue &&
             CharacterClassParser.IsMage((CharacterClass)character.ClassId))
@@ -237,6 +245,27 @@ public class CharacterSelector : MonoBehaviour
             : CharacterRace.Human;
         info.CharacterRaceAnimation = CharacterRaceAnimationParser.ParseRaceInterlude(race, character.Sex, baseClass);
         return info;
+    }
+
+    /// <summary>
+    /// Maps login paperdoll (or legacy WeaponItemId) onto CharSelect appearance.
+    /// CreatePawnInterlude then SyncEquippedArmor + EquipWeapon from these fields.
+    /// </summary>
+    static void ApplyLobbyPaperdoll(PlayerAppearance appearance, LobbyCharacter character)
+    {
+        int[] doll = character.Paperdoll;
+        if (doll != null && doll.Length > ZoneV2Paperdoll.Feet)
+        {
+            appearance.RHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.RightHand);
+            appearance.LHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.LeftHand);
+            appearance.Gloves = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Gloves);
+            appearance.Chest = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Chest);
+            appearance.Legs = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Legs);
+            appearance.Feet = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Feet);
+        }
+
+        if (appearance.RHand == 0 && character.WeaponItemId > 0)
+            appearance.RHand = character.WeaponItemId;
     }
 
     void MoveLobbyPawn(int characterIndex, int pawnDataIndex)

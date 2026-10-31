@@ -26,17 +26,27 @@ public sealed partial class ZoneWorld
             return false;
         if (!TryGetEntity(targetObjectId, out ZoneEntity? target) || target == null)
             return false;
-        if (!target.IsAliveNpc)
-            return false;
 
-        if (!IsVisibleTo(playerObjectId, targetObjectId))
-            return false;
+        // Interlude: click own pawn → target self (AOI never lists the observer).
+        bool selfTarget = targetObjectId == playerObjectId;
+        if (selfTarget)
+        {
+            if (player.CurHp <= 0)
+                return false;
+        }
+        else
+        {
+            if (!target.IsAliveNpc)
+                return false;
+            if (!IsVisibleTo(playerObjectId, targetObjectId))
+                return false;
+        }
 
         session.SelectedTargetId = targetObjectId;
         await session.SendWireAsync(MsgType.MyTargetSelected, new MyTargetSelectedMsg
         {
             ObjectId = targetObjectId,
-            ColorHint = InterludeStatus.TargetColorHostile
+            ColorHint = selfTarget ? 0 : InterludeStatus.TargetColorHostile
         }, ct).ConfigureAwait(false);
         return true;
     }

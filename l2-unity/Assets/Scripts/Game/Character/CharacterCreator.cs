@@ -82,21 +82,57 @@ public class CharacterCreator : MonoBehaviour
         }
     }
 
+    public void SpawnAllPawns() {
+        List<Logongrp> pawnData = LogonGrps;
+
+        EnsurePawnContainer();
+
+        for (var i = 8; i < pawnData.Count; i++) {
+             GameObject pawnObject = CreatePawn(CharacterRaceAnimation.FDarkElf, new PlayerAppearance());
+             pawns[i] = pawnObject;
+             PlacePawn(pawnObject, pawnData[i], "Pawn" + i, _pawnContainer);
+        }
+    }
+
+    /// <summary>
+    /// Char create: spawn pawns lazily (on <see cref="SelectPawn"/>). Instantiating all 18 race/class
+    /// pawns in one frame native-crashed UnityPlayer on Windows D3D12 playtest builds.
+    /// </summary>
     public void SpawnAllCharCreatePawns()
     {
         EnsurePawnContainer();
+    }
+
+    GameObject EnsureCharCreatePawn(int index)
+    {
+        if (index < 0 || index >= pawns.Length)
+            return null;
+        if (pawns[index] != null)
+            return pawns[index];
         List<Logongrp> pawnData = LogonGrps;
-        for (var i = 8; i < pawnData.Count; i++)
-        {
-            Logongrp logonGrp = pawnData[i];
-            GameObject pawnObject = CreatePawn(logonGrp.RaceId, new PlayerAppearance());
-            if (pawnObject == null) {
-                pawnObject = FallbackPawn();
-            }
-            
-            pawns[i] = pawnObject;
-            PlacePawn(pawnObject, logonGrp, "Pawn" + i, _pawnContainer);
+        if (pawnData == null || index >= pawnData.Count)
+            return null;
+        if (_pawnContainer == null) {
+            _pawnContainer = new GameObject("Pawns");
+            LobbyPresentation.Host(_pawnContainer);
         }
+
+        Logongrp logonGrp = pawnData[index];
+        GameObject pawnObject = null;
+        try {
+            pawnObject = CreatePawn(logonGrp.RaceId, new PlayerAppearance());
+        } catch (System.Exception e) {
+            Debug.LogWarning("[CharCreate] pawn " + index + " " + logonGrp.RaceId + " failed: " + e.Message);
+        }
+        if (pawnObject == null) {
+            try { pawnObject = FallbackPawn(); } catch (System.Exception e) { Debug.LogWarning("[CharCreate] fallback failed: " + e.Message); }
+        }
+        if (pawnObject == null)
+            return null;
+
+        pawns[index] = pawnObject;
+        PlacePawn(pawnObject, logonGrp, "Pawn" + index, _pawnContainer);
+        return pawnObject;
     }
 
     /// <summary>
@@ -168,15 +204,16 @@ public class CharacterCreator : MonoBehaviour
         }
 
         currentPawnIndex = index;
-        currentPawn = pawns[index];
+        currentPawn = EnsureCharCreatePawn(index);
     }
 
     public void ResetPawnSelection() {
         if (currentPawn != null) {
             // Restore pawn appearance and rotation
+            // Restore lazily: next SelectPawn rebuilds a fresh pawn for this slot.
             Destroy(currentPawn);
-
-            SpawnPawnWithId(currentPawnIndex);
+            if (currentPawnIndex >= 0 && currentPawnIndex < pawns.Length)
+                pawns[currentPawnIndex] = null;
         }
 
         currentPawn = null;

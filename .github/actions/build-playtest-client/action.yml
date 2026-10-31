@@ -1,0 +1,93 @@
+name: Build playtest client
+description: Bake the playtest endpoint, build one Unity player, and upload a zip artifact.
+
+inputs:
+  targetPlatform:
+    description: Unity target platform (StandaloneWindows64, StandaloneOSX, StandaloneLinux64)
+    required: true
+  artifact:
+    description: Zip and artifact name, without .zip
+    required: true
+  unityVersion:
+    description: Numeric Unity PlayerSettings bundle version (major.minor.patch)
+    required: true
+  publicHost:
+    description: Landing host override. Empty keeps the Cloudflare default.
+    required: false
+    default: ""
+  loginHost:
+    description: Login TCP host override. Empty keeps the Cloudflare default.
+    required: false
+    default: ""
+  gameHost:
+    description: Game TCP host override. Empty keeps the Cloudflare default.
+    required: false
+    default: ""
+  loginPort:
+    description: Login TCP port override. Empty keeps 2106.
+    required: false
+    default: ""
+  gamePort:
+    description: Game TCP port override. Empty keeps 7777.
+    required: false
+    default: ""
+  unityEmail:
+    description: Unity account email (Personal or Pro/Plus)
+    required: true
+  unityPassword:
+    description: Unity account password
+    required: true
+  unitySerial:
+    description: Pro/Plus serial. Empty selects the Personal email/password seat.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Bake playtest endpoint
+      shell: bash
+      env:
+        FINEAGE_PUBLIC_HOST: ${{ inputs.publicHost }}
+        FINEAGE_LOGIN_HOST: ${{ inputs.loginHost }}
+        FINEAGE_GAME_HOST: ${{ inputs.gameHost }}
+        FINEAGE_LOGIN_PORT: ${{ inputs.loginPort }}
+        FINEAGE_GAME_PORT: ${{ inputs.gamePort }}
+      run: python3 scripts/bake-playtest-endpoint.py
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: release-notes
+        path: release-notes
+
+    # v4 cannot activate a Personal seat without a .ulf. v6.0.0 shells out to
+    # game-ci/cli, which takes a Personal seat from UNITY_EMAIL + UNITY_PASSWORD.
+    # UNITY_LICENSE is intentionally not forwarded: a stale .ulf would select
+    # file activation and skip the Personal login this repo uses.
+    - name: Build ${{ inputs.targetPlatform }}
+      uses: game-ci/unity-builder@v6.0.0
+      env:
+        UNITY_EMAIL: ${{ inputs.unityEmail }}
+        UNITY_PASSWORD: ${{ inputs.unityPassword }}
+        UNITY_SERIAL: ${{ inputs.unitySerial }}
+      with:
+        cliVersion: v0.1.72
+        projectPath: l2-unity
+        targetPlatform: ${{ inputs.targetPlatform }}
+        unityVersion: auto
+        buildName: Fineage
+        buildsPath: build
+        versioning: Custom
+        version: ${{ inputs.unityVersion }}
+        allowDirtyBuild: true
+
+    - name: Zip client
+      shell: bash
+      run: python3 scripts/pack-client.py --build build --notes release-notes --output "dist/${{ inputs.artifact }}.zip"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact }}
+        path: dist/${{ inputs.artifact }}.zip
+        if-no-files-found: error
+        retention-days: 90

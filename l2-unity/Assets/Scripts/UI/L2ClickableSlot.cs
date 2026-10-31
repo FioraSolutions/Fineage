@@ -124,7 +124,8 @@ public class L2ClickableSlot : L2Slot
     {
         UnsetActive();
 
-        if (!_hoverManipulator.Hovering)
+        // Hover manipulator can be cleared (e.g. skillbar reassign) while click handlers remain.
+        if (_hoverManipulator != null && !_hoverManipulator.Hovering)
         {
             return;
         }

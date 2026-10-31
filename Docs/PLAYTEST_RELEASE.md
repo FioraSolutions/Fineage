@@ -14,7 +14,7 @@ PR CI (`.github/workflows/build-and-test.yml`) does not run Unity. The release w
 
 ## Where the client connects
 
-Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unity/Assets/Resources/Prefab/Networking.prefab` (`127.0.0.1:2106`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`). `AsynchronousClient` then dials TCP.
+Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unity/Assets/Resources/Prefab/Networking.prefab` (`login.fineage.evpoint.by:2106`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`). `AsynchronousClient` then dials TCP.
 
 `PlaytestEndpointRuntime` runs at the start of `Connect()`:
 
@@ -59,11 +59,7 @@ Highest priority first. An empty field does not clear a lower layer.
 5. `StreamingAssets/fineage-endpoint.json` inside the build.
 6. Resources asset `FineagePlaytest`.
 
-Local loopback (the prefab still says `127.0.0.1`; the playtest config replaces it unless you override):
-
-```bash
-Fineage.exe -fineageLoginHost 127.0.0.1 -fineageGameHost 127.0.0.1 -fineageLoginPort 2106 -fineageGamePort 7777
-```
+Loopback / `localhost` hosts are ignored by the client (`GameManager` falls back to the public RP defaults). There is no local-backend mode in the client.
 
 A one-off public host:
 
@@ -77,17 +73,17 @@ Revert a local bake with `git checkout -- l2-unity/Assets/StreamingAssets/fineag
 
 | Trigger | Result |
 | --- | --- |
-| Push to `main` | Build all three players. Tag `playtest-<version>`, published as the latest release. |
-| Tag `v*` | Build all three. Full release on that tag. `releases/latest` points here. |
+| Push to `main` | Build Windows + macOS in parallel. Tag `playtest-<version>`; GitHub Release is created only after both zips exist. |
+| Tag `v*` | Build Windows + macOS in parallel. Full release on that tag after both finish. `releases/latest` points here. |
 | `workflow_dispatch` | Build the selected ref. Release is on unless `create_release` is false. |
 
-Version comes from the tag, otherwise `git describe` (`0.4.1-2-gabcdef`), otherwise `0.0.0-<sha>`. Unity's bundle version is the numeric `major.minor.patch` only. `version.json` keeps the full version, commit, host, ports, and asset names. `CHANGELOG.md` lists up to 100 commits since the previous tag.
+Stable tags `vX.Y.Z` use that version. Pushes to `main` mint the next `playtest-X.Y.Z` (patch++ from the newest clean playtest tag, or `0.1.0` if none). Junk `playtest-0.0.0-<sha>` tags are ignored. Unity's bundle version is the numeric `major.minor.patch` only. `version.json` keeps the full version, commit, host, ports, and asset names. `CHANGELOG.md` lists up to 100 commits since the previous tag.
 
 Each zip has the player plus those two files at the top. The same two files are separate release assets. Workflow artifacts are kept for 90 days even if the GitHub Release step is skipped.
 
-Builds are serialized (`max-parallel: 1`) so a personal Unity seat is only activated once. The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`.
+Windows and macOS build in parallel (same Unity Personal account on two runners). The Windows player is Mono and is cross-compiled on Linux. Switching Standalone to IL2CPP means moving that job to `windows-latest`. GitHub Release waits for both jobs and uploads both zips together — it never publishes Windows alone while macOS is still running.
 
-`Assets/` is about 2.4 GB. The Linux jobs delete preinstalled SDKs first. If a hosted runner still runs out of disk, change that matrix `runsOn` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
+`Assets/` is about 2.4 GB. The Windows job deletes preinstalled SDKs first. If a hosted runner still runs out of disk, change that job `runs-on` to a larger runner or a self-hosted machine with Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). `unityVersion: auto` reads that file. game-ci must have published an editor image for it; a missing image fails the build job when the container is pulled.
 
 A zip over 2 GiB cannot be a GitHub Release asset. The workflow artifact is still uploaded. `scripts/pack-client.py` prints a warning.
 
@@ -133,7 +129,6 @@ Asset names are stable:
 | --- | --- |
 | `Fineage-Windows-x64.zip` | Windows |
 | `Fineage-macOS.zip` | macOS |
-| `Fineage-Linux-x64.zip` | Linux |
 | `CHANGELOG.md` | Notes, also the release body |
 | `version.json` | Version, commit, host, ports, asset names |
 

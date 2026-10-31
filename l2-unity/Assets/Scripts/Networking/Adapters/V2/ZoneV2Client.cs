@@ -54,6 +54,8 @@ public sealed class ZoneV2Client : MonoBehaviour
 
     public bool Connected { get; private set; }
     public int SessionObjectId { get; private set; } = 1;
+    /// <summary>Stable lobby character id (not zone object id). Used for local shortcut prefs.</summary>
+    public int CharacterId { get; private set; }
 
     public static ZoneV2Client Ensure()
     {
@@ -108,6 +110,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         Disconnect();
         ZoneV2NpcSession.Reset();
         ZoneV2ClanBook.Shared.Reset();
+        ZoneV2WireLog.Warmup();
         try
         {
             ClanPacketServices.RefreshWindow();
@@ -117,6 +120,7 @@ public sealed class ZoneV2Client : MonoBehaviour
             Debug.LogWarning("[ZoneV2] clan window refresh skipped: " + ex.Message);
         }
         _preselectId = 0;
+        CharacterId = 0;
         _selectGeneration++;
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
@@ -126,21 +130,21 @@ public sealed class ZoneV2Client : MonoBehaviour
             int loginPort = FineageWireConfig.LoginPort;
             if (FineageWireConfig.IsPublicLoginHost(loginHost))
             {
-                FineageLocalBackend.ClearCharacterHint();
-                Debug.Log("[FineageLocal] public lobby login " + loginHost + ":" + loginPort);
+                FineageLaunchArgs.ClearCharacterHint();
+                Debug.Log("[Fineage] public lobby login " + loginHost + ":" + loginPort);
                 Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
                 return;
             }
 
-            string character = FineageLocalBackend.CharacterHint;
+            string character = FineageLaunchArgs.CharacterHint;
             if (!string.IsNullOrEmpty(character))
             {
-                Debug.Log("[FineageLocal] auto-pick character='" + character + "'");
+                Debug.Log("[Fineage] auto-pick character='" + character + "'");
                 Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
                 return;
             }
 
-            Debug.Log("[FineageLocal] lobby login " + loginHost + ":" + loginPort);
+            Debug.Log("[Fineage] lobby login " + loginHost + ":" + loginPort);
             Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
             return;
         }
@@ -196,7 +200,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         try
         {
             await session.ConnectAsync(loginHost, loginPort, account, password).ConfigureAwait(false);
-            Post(() => Debug.Log("[FineageLocal] lobby ready account=" + session.Account));
+            Post(() => Debug.Log("[Fineage] lobby ready account=" + session.Account));
         }
         catch (OperationCanceledException)
         {
@@ -213,7 +217,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
             Post(() =>
             {
-                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                Debug.LogError("[Fineage] login failed: " + ex.Message);
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText(ex.Message);
             });
@@ -243,8 +247,8 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (manager != null)
             manager.OnAuthAllowed();
         else
-            Debug.LogError("[FineageLocal] GameManager missing; character select was not shown.");
-        Debug.Log("[FineageLocal] roster count=" + (characters != null ? characters.Length : 0));
+            Debug.LogError("[Fineage] GameManager missing; character select was not shown.");
+        Debug.Log("[Fineage] roster count=" + (characters != null ? characters.Length : 0));
     }
 
     void HandleLobbyHandoff(ZoneV2Handoff handoff, CancellationToken ct)
@@ -253,6 +257,8 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         _zoneStarted = true;
         _selectGeneration++;
+        if (handoff.CharacterId > 0)
+            CharacterId = handoff.CharacterId;
         if (string.IsNullOrWhiteSpace(handoff.ZoneHost))
             handoff.ZoneHost = FineageWireConfig.ZoneHost;
         if (handoff.ZonePort <= 0)
@@ -264,7 +270,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         int tokenLength = handoff.Token != null ? handoff.Token.Length : 0;
         Post(() =>
         {
-            Debug.Log("[FineageLocal] handoff character=" + handoff.CharacterName
+            Debug.Log("[Fineage] handoff character=" + handoff.CharacterName
                 + " zone=" + handoff.ZoneHost + ":" + handoff.ZonePort
                 + " tokenPrefix=" + prefix
                 + " tokenLength=" + tokenLength);
@@ -281,7 +287,7 @@ public sealed class ZoneV2Client : MonoBehaviour
     {
         _selectGeneration++;
         string text = LobbyCharacterText.ErrorMessage(code, message);
-        Debug.LogWarning("[FineageLocal] lobby " + code + ": " + message);
+        Debug.LogWarning("[Fineage] lobby " + code + ": " + message);
         if (_returnToSelectOnRoster)
         {
             _returnToSelectOnRoster = false;
@@ -306,7 +312,7 @@ public sealed class ZoneV2Client : MonoBehaviour
     {
         if (_zoneStarted)
             return;
-        Debug.LogWarning("[FineageLocal] lobby closed: " + reason);
+        Debug.LogWarning("[Fineage] lobby closed: " + reason);
         CloseLobby();
         if (CharSelectWindow.Instance != null)
             CharSelectWindow.Instance.ShowLobbyStatus(reason);
@@ -324,6 +330,8 @@ public sealed class ZoneV2Client : MonoBehaviour
         FineageLobbySession session = Lobby;
         if (session == null)
             return;
+        if (character.Id > 0)
+            CharacterId = character.Id;
         int generation = ++_selectGeneration;
         session.SendSelect(character.Id > 0 ? character.Id : 0, character.Name, character.Id > 0 ? -1 : character.Slot);
         Task.Run(async () =>
@@ -441,8 +449,8 @@ public sealed class ZoneV2Client : MonoBehaviour
         {
             Post(() =>
             {
-                Debug.Log("[FineageLocal] empty roster → CharSelect");
-                FineageLocalBackend.ClearCharacterHint();
+                Debug.Log("[Fineage] empty roster → CharSelect");
+                FineageLaunchArgs.ClearCharacterHint();
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText("");
             });
@@ -453,13 +461,15 @@ public sealed class ZoneV2Client : MonoBehaviour
         {
             Post(() =>
             {
-                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                Debug.LogError("[Fineage] login failed: " + ex.Message);
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText(ex.Message);
             });
             return;
         }
 
+        if (handoff.CharacterId > 0)
+            CharacterId = handoff.CharacterId;
         await RunSessionAsync(handoff.ZoneHost, handoff.ZonePort, handoff.Account, handoff.Token, ct)
             .ConfigureAwait(false);
     }
@@ -550,6 +560,14 @@ public sealed class ZoneV2Client : MonoBehaviour
             return;
         byte[] body = ZoneV2Messages.EncodePickupRequest(groundObjectId);
         _ = SendFireAndForget(ZoneV2MsgType.PickupRequest, body);
+    }
+
+    public void SendDropItemRequest(int objectId, int count, int x, int y, int z)
+    {
+        if (!Connected || _stream == null || objectId <= 0 || count < 1)
+            return;
+        byte[] body = ZoneV2Messages.EncodeDropItemRequest(objectId, count, x, y, z);
+        _ = SendFireAndForget(ZoneV2MsgType.DropItemRequest, body);
     }
 
     public void SendUseItem(int objectId)
@@ -1024,6 +1042,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                         Post(() => SpawnItemApplyIncomingPacketServices.ApplySpawnItem(spawnDto));
                         break;
 
+                    case ZoneV2MsgType.DropItem:
+                        ZoneV2DropItem dropped;
+                        if (!ZoneV2Messages.TryDecodeDropItem(f.Body, out dropped))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad DropItem body"));
+                            break;
+                        }
+
+                        DropItemDto dropDto = ZoneV2DomainMap.ToDropItemDto(dropped);
+                        Post(() => DropItemApplyIncomingPacketServices.ApplyDropItem(dropDto));
+                        break;
+
                     case ZoneV2MsgType.MyTargetSelected:
                         ZoneV2MyTargetSelected myTarget;
                         if (!ZoneV2Messages.TryDecodeMyTargetSelected(f.Body, out myTarget))
@@ -1107,6 +1137,9 @@ public sealed class ZoneV2Client : MonoBehaviour
                         {
                             SkillListDto list = ZoneV2DomainMap.ToSkillListDto(skillRows);
                             SkillListApplyIncomingPacketServices.ApplySkillList(list);
+                            // Zone V2 has no ShortCutInit — restore the bar from local prefs.
+                            if (PlayerShortcuts.Instance != null)
+                                PlayerShortcuts.Instance.LoadPersistedLocal();
                         });
                         break;
 
@@ -1123,6 +1156,18 @@ public sealed class ZoneV2Client : MonoBehaviour
                             MagicSkillUseDto dto = ZoneV2DomainMap.ToMagicSkillUseDto(magicUse);
                             MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
                         });
+                        break;
+
+                    case ZoneV2MsgType.ChangeMoveType:
+                        int moveTypeId;
+                        bool moveTypeRunning;
+                        if (!ZoneV2Messages.TryDecodeChangeMoveType(f.Body, out moveTypeId, out moveTypeRunning))
+                        {
+                            Post(() => Debug.LogWarning("[ZoneV2] bad ChangeMoveType body"));
+                            break;
+                        }
+
+                        Post(() => ApplyNpcMoveType(moveTypeId, moveTypeRunning));
                         break;
 
                     case ZoneV2MsgType.Die:
@@ -1481,14 +1526,14 @@ public sealed class ZoneV2Client : MonoBehaviour
 
         manager.OnCharacterSelect();
         SendRequestQuestList();
-        if (FineageLocalBackend.QuitAfterSpawn)
+        if (FineageLaunchArgs.QuitAfterSpawn)
             StartCoroutine(QuitAfterSpawnRoutine());
     }
 
     IEnumerator QuitAfterSpawnRoutine()
     {
         yield return new WaitForSeconds(2f);
-        Debug.Log("[FineageLocal] quit after spawn");
+        Debug.Log("[Fineage] quit after spawn");
         Application.Quit();
     }
 
@@ -1496,5 +1541,28 @@ public sealed class ZoneV2Client : MonoBehaviour
     {
         if (action != null)
             _main.Enqueue(action);
+    }
+
+    /// <summary>
+    /// Mobius ChangeMoveType for remote pawns (mob aggro -> run). Local player gait stays on its own path.
+    /// A chase already in flight switches gait in place so client speed matches the server chase.
+    /// </summary>
+    static void ApplyNpcMoveType(int objectId, bool running)
+    {
+        World world = ControllerPacketServices.GameWorld;
+        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
+        if (entity == null || entity is PlayerEntity || entity.IsDead())
+            return;
+        if (entity.Identity != null)
+            entity.Identity.IsRunning = running;
+        entity.UpdateMoveType(running);
+        MovementData move = entity.Identity != null && MoveAllCharacters.Instance != null
+            ? MoveAllCharacters.Instance.GetMove(entity.Identity.Id)
+            : null;
+        if (move != null && move.IsMove() && !(entity is UserEntity))
+        {
+            move.RetargetPoint(entity.ActionSlot.Destination, running);
+            EntityActionVisual.StartMove(entity, !running);
+        }
     }
 }

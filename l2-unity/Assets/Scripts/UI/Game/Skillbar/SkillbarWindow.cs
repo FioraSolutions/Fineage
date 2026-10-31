@@ -103,7 +103,9 @@ public class SkillbarWindow : L2PopupWindow
             AddSkillbar();
         }
 
-
+        // Zone V2: no ShortCutInit from server — restore icons after the bar UI exists.
+        if (FineageWireConfig.IsZoneV2 && PlayerShortcuts.Instance != null)
+            PlayerShortcuts.Instance.LoadPersistedLocal();
     }
 
 

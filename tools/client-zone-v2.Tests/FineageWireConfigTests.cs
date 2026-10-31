@@ -41,22 +41,6 @@ public class FineageWireConfigTests
     }
 
     [Fact]
-    public void Local_backend_uses_loopback_ports()
-    {
-        FineageWireConfig.EnableLocalBackend(null, 0, null, 0);
-
-        Assert.Equal(FineageWireConfig.LocalLoginHost, FineageWireConfig.LoginHost);
-        Assert.Equal(FineageWireConfig.LocalLoginPort, FineageWireConfig.LoginPort);
-        Assert.Equal(FineageWireConfig.LocalZoneHost, FineageWireConfig.ZoneHost);
-        Assert.Equal(FineageWireConfig.LocalZonePort, FineageWireConfig.ZonePort);
-        Assert.Equal("127.0.0.1", FineageWireConfig.LoginHost);
-        Assert.Equal(9106, FineageWireConfig.LoginPort);
-        Assert.Equal(9777, FineageWireConfig.ZonePort);
-        Assert.True(FineageWireConfig.IsZoneV2);
-        Assert.True(FineageWireConfig.UseLoginHandoff);
-    }
-
-    [Fact]
     public void Login_press_starts_zone_session_when_playtest_handoff_is_on()
     {
         FineageWireConfig.EnablePlaytestBackend(null, 0, null, 0);
@@ -90,7 +74,7 @@ public class FineageWireConfigTests
     [Fact]
     public void Playtest_backend_replaces_loopback_hosts()
     {
-        FineageWireConfig.EnableLocalBackend(null, 0, null, 0);
+        FineageWireConfig.EnablePlaytestBackend("127.0.0.1", 9106, "127.0.0.1", 9777);
         FineageWireConfig.UseLoginHandoff = false;
         FineageWireConfig.EnablePlaytestBackend(null, 0, null, 0);
 

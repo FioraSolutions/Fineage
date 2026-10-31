@@ -23,6 +23,10 @@ public class SkillbarSlot : L2ClickableSlot
         _keyElement = _slotElement.Q<VisualElement>("Key");
         _reuseElement = _slotElement.Q<VisualElement>("ReuseBg");
         _rechargeMaskBg = _slotElement.Q<VisualElement>("RechargeMaskBg");
+        // UITK Button.Clickable steals pointer capture from SlotDragManipulator and leaves the
+        // floating skill icon stuck to the cursor. Clicks go through L2ClickableSlot callbacks.
+        if (_slotElement is Button button)
+            button.clickable = null;
     }
 
 
@@ -44,10 +48,21 @@ public class SkillbarSlot : L2ClickableSlot
 
     public void AssignShortcut(Shortcut shortcut)
     {
-        ClearManipulators();
+        ClearInnerSlot();
+        // Do not ClearManipulators() here — that nulls SkillbarSlot._hoverManipulator while
+        // MouseUp handlers stay registered → NRE in HandleSlotClickUp and dead clicks.
+        if (_buttonClickSoundManipulator != null)
+        {
+            _slotElement.RemoveManipulator(_buttonClickSoundManipulator);
+            _buttonClickSoundManipulator = null;
+        }
 
         _shortcut = shortcut;
+        // Re-assert: UITK may reattach Clickable on Button targets.
+        if (_slotElement is Button button)
+            button.clickable = null;
         _buttonClickSoundManipulator = new ButtonClickSoundManipulator(_slotElement);
+        _slotElement.AddManipulator(_buttonClickSoundManipulator);
 
         switch (shortcut.Type)
         {
@@ -67,8 +82,24 @@ public class SkillbarSlot : L2ClickableSlot
         }
     }
 
+    void ClearInnerSlot()
+    {
+        if (_innerSlot == null)
+            return;
+
+        if (_innerSlot is L2DraggableSlot)
+            _innerSlot.ClearManipulators();
+        else if (_innerSlot is L2ClickableSlot clickable)
+            clickable.ClearManipulators();
+        else
+            _innerSlot.ClearManipulators();
+
+        _innerSlot = null;
+    }
+
     public void AssignItem(int objectId)
     {
+        ClearInnerSlot();
         ItemInstance item = SkillbarPacketServices.Inventory.FindByAllInventory(objectId);
         _innerSlot = new InventorySlot(_position, _slotElement, SlotType.SkillBar);
         ((InventorySlot)_innerSlot).AssignItem(item);
@@ -79,7 +110,7 @@ public class SkillbarSlot : L2ClickableSlot
 
     public void AssignSkill(int objectId , int level)
     {
-       
+        ClearInnerSlot();
         _innerSlot = new SkillSlot(_slotElement, _position, SlotType.SkillBar);
         ((SkillSlot)_innerSlot).AssignSkill(objectId , level , false);
         ((L2ClickableSlot)_innerSlot).UnregisterClickableCallback();
@@ -89,6 +120,7 @@ public class SkillbarSlot : L2ClickableSlot
 
     public void AssignAction(int objectId)
     {
+        ClearInnerSlot();
         _innerSlot = new ActionSlot(_slotElement, _position, SlotType.SkillBar);
         ((ActionSlot)_innerSlot).AssignAction((ActionType)objectId);
         ((L2ClickableSlot)_innerSlot).UnregisterClickableCallback();

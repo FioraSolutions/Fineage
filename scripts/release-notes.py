@@ -54,6 +54,29 @@ def resolve_version(ref_type: str, ref_name: str, describe: str, sha: str) -> st
     return sanitize_token(f"0.0.0-{sha}")
 
 
+# When every playtest-* tag is junk (playtest-0.0.0-<sha>), start clean here.
+PLAYTEST_VERSION_FLOOR = (0, 1, 0)
+
+
+def next_playtest_version(tags: list[str]) -> str:
+    """Patch++ from the newest playtest-X.Y.Z tag.
+
+    Ignores playtest-0.0.0-<sha> and other non-semver playtest tags. If none
+    remain (e.g. after deleting 0.0.1–0.0.4), returns 0.1.0 — never 0.0.0-sha.
+    """
+    best = None
+    for tag in tags:
+        m = re.fullmatch(r"playtest-(\d+)\.(\d+)\.(\d+)", tag.strip())
+        if not m:
+            continue
+        v = tuple(int(x) for x in m.groups())
+        if best is None or v > best:
+            best = v
+    if best is None:
+        return f"{PLAYTEST_VERSION_FLOOR[0]}.{PLAYTEST_VERSION_FLOOR[1]}.{PLAYTEST_VERSION_FLOOR[2]}"
+    return f"{best[0]}.{best[1]}.{best[2] + 1}"
+
+
 def release_tag(ref_type: str, ref_name: str, version: str) -> tuple[str, bool]:
     if ref_type == "tag" and ref_name:
         return ref_name, False
@@ -155,6 +178,12 @@ def build_notes(repo: Path, env: dict[str, str]) -> dict[str, object]:
     full_sha = git_output(repo, ["rev-parse", "HEAD"])
     describe = git_output(repo, ["describe", "--tags", "--always"], check=False)
     version = resolve_version(ref_type, ref_name, describe, sha)
+    if ref_type != "tag":
+        # Always take the next clean playtest semver. Never ship 0.0.0-<sha>
+        # just because git describe landed on a junk tag or all X.Y.Z tags
+        # were deleted.
+        tags = git_output(repo, ["tag", "--list", "playtest-*"], check=False).splitlines()
+        version = next_playtest_version(tags)
     tag, prerelease = release_tag(ref_type, ref_name, version)
     endpoint = endpoint_summary(env)
     return {
@@ -202,8 +231,12 @@ def self_test() -> int:
     assert resolve_version("branch", "main", "abc123", "abc123").startswith("0.0.0-")
     assert resolve_version("branch", "main", "abc", "abc123456789").startswith("0.0.0-")
     assert unity_bundle_version("0.4.1-2-gabcdef") == "0.4.1"
+    assert next_playtest_version(["playtest-0.0.4", "playtest-0.0.10", "playtest-0.0.0-abc"]) == "0.0.11"
+    assert next_playtest_version([]) == "0.1.0"
+    assert next_playtest_version(["playtest-0.0.0-deadbeef", "playtest-20261028"]) == "0.1.0"
+    assert next_playtest_version(["playtest-0.1.0", "playtest-0.0.0-abc"]) == "0.1.1"
     assert release_tag("tag", "v1.2.3", "1.2.3") == ("v1.2.3", False)
-    assert release_tag("branch", "main", "0.0.0-abc") == ("playtest-0.0.0-abc", False)
+    assert release_tag("branch", "main", "0.1.0") == ("playtest-0.1.0", False)
 
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp) / "repo"
@@ -223,9 +256,9 @@ def self_test() -> int:
         }
         out = Path(tmp) / "out"
         notes = write_notes(repo, out, env)
-        assert str(notes["version"]).startswith("0.0.0-")
+        assert notes["version"] == "0.1.0"
         assert notes["prerelease"] is False
-        assert str(notes["releaseTag"]).startswith("playtest-")
+        assert notes["releaseTag"] == "playtest-0.1.0"
         assert notes["host"] == "play.test"
         assert notes["loginHost"] == "login.fineage.evpoint.by"
         assert notes["gameHost"] == "game.fineage.evpoint.by"
@@ -241,8 +274,17 @@ def self_test() -> int:
         readme.write_text("hi2\n", encoding="utf-8")
         subprocess.check_call(["git", "commit", "-am", "Add login host override"], cwd=repo)
         notes = write_notes(repo, out, env)
-        assert str(notes["version"]).startswith("0.2.0-")
+        # Branch / main pushes always use playtest-X.Y.Z (floor 0.1.0), not git describe.
+        assert notes["version"] == "0.1.0"
+        assert notes["releaseTag"] == "playtest-0.1.0"
         assert "Add login host override" in (out / "CHANGELOG.md").read_text(encoding="utf-8")
+
+        subprocess.check_call(["git", "tag", "playtest-0.1.0"], cwd=repo)
+        readme.write_text("hi3\n", encoding="utf-8")
+        subprocess.check_call(["git", "commit", "-am", "Bump after playtest tag"], cwd=repo)
+        notes = write_notes(repo, out, env)
+        assert notes["version"] == "0.1.1"
+        assert notes["releaseTag"] == "playtest-0.1.1"
 
         env = {
             "FINEAGE_PUBLIC_HOST": "play.test",
