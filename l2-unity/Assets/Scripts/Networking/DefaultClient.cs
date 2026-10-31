@@ -123,7 +123,7 @@ public abstract class DefaultClient : MonoBehaviour
     }
 
     /// <summary>
-    /// Local macOS / Fineage-Backend playtest: inspector may still show Interlude 2106.
+    /// Always public RP: inspector leftovers are replaced by playtest endpoints.
     /// </summary>
     protected void ApplyFineageLoginEndpointIfNeeded()
     {
@@ -132,7 +132,7 @@ public abstract class DefaultClient : MonoBehaviour
         if (!FineageWireConfig.UseLoginHandoff)
         {
             // Never dial loopback from a public build (prefab/inspector leftovers).
-            if (!FineageLocalBackend.IsRequested() && !FineageWireConfig.IsPublicLoginHost(_serverIp))
+            if (!FineageWireConfig.IsPublicLoginHost(_serverIp))
             {
                 _serverIp = PlaytestEndpoint.DefaultLoginHost;
                 _serverPort = PlaytestEndpoint.DefaultLoginPort;

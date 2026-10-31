@@ -110,14 +110,14 @@ public static class FineageRpEditorPlay
     {
         if (string.IsNullOrEmpty(condition))
             return;
-        if (condition.IndexOf("[FineageLocal] login failed:", StringComparison.Ordinal) >= 0)
+        if (condition.IndexOf("[Fineage] login failed:", StringComparison.Ordinal) >= 0)
             _badLog = condition;
-        if (condition.IndexOf("[FineageLocal] roster count=0", StringComparison.Ordinal) >= 0)
+        if (condition.IndexOf("[Fineage] roster count=0", StringComparison.Ordinal) >= 0)
             _sawEmptyRoster = true;
-        if (condition.IndexOf("[FineageLocal] lobby login", StringComparison.Ordinal) >= 0
-            || condition.IndexOf("[FineageLocal] empty roster", StringComparison.Ordinal) >= 0
-            || condition.IndexOf("[FineageLocal] lobby ready", StringComparison.Ordinal) >= 0
-            || condition.IndexOf("[FineageLocal] auto-pick", StringComparison.Ordinal) >= 0)
+        if (condition.IndexOf("[Fineage] lobby login", StringComparison.Ordinal) >= 0
+            || condition.IndexOf("[Fineage] empty roster", StringComparison.Ordinal) >= 0
+            || condition.IndexOf("[Fineage] lobby ready", StringComparison.Ordinal) >= 0
+            || condition.IndexOf("[Fineage] auto-pick", StringComparison.Ordinal) >= 0)
             _pathLog = condition;
     }
 
@@ -196,11 +196,9 @@ public static class FineageRpEditorPlay
     [MenuItem("Fineage/Play RP")]
     public static void PlayRp()
     {
-        Environment.SetEnvironmentVariable("FINEAGE_LOCAL_BACKEND", "0");
-        Environment.SetEnvironmentVariable("FINEAGE_LOCAL_CHAR", null);
-        PlayerPrefs.SetInt(FineageLocalBackend.PrefKey, 0);
-        PlayerPrefs.DeleteKey(FineageLocalBackend.CharacterPrefKey);
-        PlayerPrefs.SetInt(FineageLocalBackend.PublicPlaytestPrefKey, 1);
+        PlayerPrefs.DeleteKey("Fineage.LocalBackend");
+        PlayerPrefs.DeleteKey("Fineage.PublicPlaytest");
+        PlayerPrefs.DeleteKey(FineageLaunchArgs.CharacterPrefKey);
         PlayerPrefs.Save();
 
         Debug.Log("[FineageRP] Editor Play → public RP ("
