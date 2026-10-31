@@ -184,8 +184,8 @@ public static class L2InterludeMaterialBinder
             m.SetOverrideTag("RenderType", "Transparent");
             m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
             m.SetFloat("_Cull", 0f);
-            m.SetColor("_BaseColor", new Color(0.75f, 0.85f, 0.9f, 0.7f));
-            m.SetColor("_Color", new Color(0.75f, 0.85f, 0.9f, 0.7f));
+            m.SetColor("_BaseColor", new Color(0.85f, 0.95f, 1f, 0.55f));
+            m.SetColor("_Color", new Color(0.85f, 0.95f, 1f, 0.55f));
             m.SetFloat("_Smoothness", 0.85f);
             m.SetFloat("_SpecularHighlights", 1f); m.DisableKeyword("_SPECULARHIGHLIGHTS_OFF");
             m.SetFloat("_EnvironmentReflections", 1f); m.DisableKeyword("_ENVIRONMENTREFLECTIONS_OFF");

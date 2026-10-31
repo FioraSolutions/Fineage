@@ -7,6 +7,14 @@ using UnityEngine;
 #if UNITY_EDITOR
 public class L2MapStaticMeshBuilder : MonoBehaviour
 {
+    /// <summary>
+    /// Interlude FBX (umodel .pskx -> Blender psk import -> FBX) keep UE local X on Unity X, while placement maps
+    /// UE X -> Unity Z ((y,z,x)/52.5). Net effect: every mesh was turned -90 deg about Y around its own pivot
+    /// (Mother Tree ring/house/bridge at 21_19). Interlude bake sets this to +90 = mesh-local pre-rotation.
+    /// Original Shnok assets keep 0.
+    /// </summary>
+    public static float MeshLocalYawFix = 0f;
+
     [MenuItem("Shnok/[StaticMeshes] (JSON) Build static meshes")]
     static void BuildSoundsMenu() {
         string title = "Select ambient sound list";
@@ -41,7 +49,8 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
         GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(meshPath);
         if (go != null) {
             Vector3 position = new Vector3(staticMesh.y, staticMesh.z, staticMesh.x) * (1/52.5f) * L2TerrainGeneratorTool.MAP_SCALE;
-            Vector3 eulerAngles = go.transform.eulerAngles + VectorUtils.ConvertRotToUnity(staticMesh.eulerAngles);
+            Quaternion rot = Quaternion.Euler(VectorUtils.ConvertRotToUnity(staticMesh.eulerAngles)) *
+                             Quaternion.Euler(0f, MeshLocalYawFix, 0f) * go.transform.rotation;
 
             float meshDataScaleMultiplier = staticMesh.scale != 0 ? staticMesh.scale : 1f;
             float meshDataScaleX = staticMesh.scaleX != 0 ? staticMesh.scaleX : 1f;
@@ -49,7 +58,7 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
             float meshDataScaleZ = staticMesh.scaleZ != 0 ? staticMesh.scaleZ : 1f;
             Vector3 meshDataScale = new Vector3(meshDataScaleX, meshDataScaleY, meshDataScaleZ);
 
-            GameObject instantiated = GameObject.Instantiate(go, position + basePosition, Quaternion.Euler(eulerAngles));
+            GameObject instantiated = GameObject.Instantiate(go, position + basePosition, rot);
             instantiated.name = staticMesh.staticMesh;
             instantiated.transform.localScale = Vector3.Scale(instantiated.transform.localScale, meshDataScale) *
                 meshDataScaleMultiplier *

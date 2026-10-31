@@ -120,7 +120,7 @@ public static class L2InterludeWaterVolumes
     {
         const string path = "Assets/Resources/Data/Maps/L2WaterSurface.mat";
         var m = AssetDatabase.LoadAssetAtPath<Material>(path);
-        if (m != null) return m;
+        if (m != null) { Tint(m); EditorUtility.SetDirty(m); return m; }
         m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "L2WaterSurface" };
         Texture2D t = null;
         foreach (var g in AssetDatabase.FindAssets("Water02 t:Texture2D", new[] { "Assets/Resources/Data/Textures" }))
@@ -135,10 +135,18 @@ public static class L2InterludeWaterVolumes
         m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         m.SetOverrideTag("RenderType", "Transparent");
         m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-        var c = new Color(0.45f, 0.65f, 0.75f, 0.65f);
-        m.SetColor("_BaseColor", c); m.SetColor("_Color", c);
-        m.SetFloat("_Smoothness", 0.9f);
+        Tint(m);
         AssetDatabase.CreateAsset(m, path);
         return m;
+    }
+
+    /// <summary>Light blue-gray, see-through (old 0.45/0.65/0.75 read too dark in Play).</summary>
+    static void Tint(Material m)
+    {
+        var c = new Color(0.72f, 0.88f, 0.96f, 0.5f);
+        m.SetColor("_BaseColor", c); m.SetColor("_Color", c);
+        m.SetFloat("_Smoothness", 0.7f);
+        m.EnableKeyword("_EMISSION");
+        m.SetColor("_EmissionColor", new Color(0.08f, 0.12f, 0.15f));
     }
 }

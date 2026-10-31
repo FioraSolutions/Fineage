@@ -148,7 +148,9 @@ public static class L2InterludeTileBakePipeline
 
             if ((steps & L2InterludeBakeStep.GenerateStaticMeshScene) != 0 && hasT3d)
             {
-                L2TerrainGeneratorTool.GenerateStaticMeshesForMap(tileId);
+                L2MapStaticMeshBuilder.MeshLocalYawFix = 90f; // Interlude FBX axis (see builder)
+                try { L2TerrainGeneratorTool.GenerateStaticMeshesForMap(tileId); }
+                finally { L2MapStaticMeshBuilder.MeshLocalYawFix = 0f; }
                 SaveScenePrefab(tileId, "StaticMeshes", "StaticMeshes.prefab");
                 result.log.Add("Shnok/3 static mesh scene");
             }
