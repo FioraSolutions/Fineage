@@ -14,6 +14,9 @@ public static class ZoneV2DomainMap
             PlayerClass = 0
         };
         identity.SetL2jPos(spawned.X, spawned.Y, spawned.Z);
+        // EntityActionMove / UserSpawner read Identity.IsRunning (not Appearance.Running):
+        // without this a remote player walks until a ChangeMoveType arrives.
+        identity.IsRunning = spawned.Running;
 
         PlayerStats stats = new PlayerStats
         {
@@ -86,6 +89,7 @@ public static class ZoneV2DomainMap
             dto.Identity.ClanId = info.ClanId;
         dto.Appearance.BaseClass = info.ClassId;
         dto.Appearance.Running = true;
+        dto.Identity.IsRunning = true;
         dto.Stats.BaseRunSpeed = 120;
         dto.Stats.BaseWalkingSpeed = 80;
         dto.Stats.RunRealSpeed = 120f;
@@ -455,6 +459,7 @@ public static class ZoneV2DomainMap
         }
 
         info.Appearance.Running = user.Running;
+        info.Identity.IsRunning = user.Running;
         if (user.HasClan)
             info.Identity.ClanId = user.ClanId;
         if (user.HasPaperdoll)
