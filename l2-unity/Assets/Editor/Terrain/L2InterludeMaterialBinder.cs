@@ -247,7 +247,7 @@ public static class L2InterludeMaterialBinder
             if (texPath != null) t = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
             if (t == null && m.HasProperty("_MainTex")) t = m.GetTexture("_MainTex");
             if (t == null) continue;
-            bool hasAlpha = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(t)) is TextureImporter ti && ti.DoesSourceTextureHaveAlpha()
+            bool hasAlpha = UnityEditor.AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(t)) is TextureImporter ti && ti.DoesSourceTextureHaveAlpha()
                             && ti.alphaSource != TextureImporterAlphaSource.None;
 
             m.shader = lit;
