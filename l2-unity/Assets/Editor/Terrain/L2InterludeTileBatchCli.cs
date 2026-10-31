@@ -43,6 +43,12 @@ public static class L2InterludeTileBatchCli
         List<L2InterludeTileBakeResult> results =
             L2InterludeTileBakePipeline.RunTiles(new[] { tileId }, steps, true);
 
+        // Same post-step as Auto-Bake window: bind StaticMesh textures + water/translucent fix (Shnok 0.1/0.2).
+        var matLog = new List<string>();
+        string er = L2InterludeClientSettings.UModelExportRoot;
+        L2InterludeMaterialBinder.Bind(!string.IsNullOrEmpty(er) && System.IO.Directory.Exists(er) ? new[] { er } : null, matLog);
+        foreach (string l in matLog) Debug.Log("[Interlude bake] materials: " + l);
+
         L2InterludeTileManifest.WriteToRepo(L2InterludeTileManifest.Build());
 
         foreach (L2InterludeTileBakeResult result in results)
