@@ -236,7 +236,9 @@ public class TerrainConverter : MonoBehaviour {
 
             //terrainMat.SetTexture("_Layer_" + i, terrainInfo.uvLayers[i].texture);
             //terrainMat.SetTextureScale("_Layer_" + i, new Vector2(terrainInfo.uvLayers[i].uScale, terrainInfo.uvLayers[i].vScale));
-            terrainMat.SetVector("_Layer_" + i + "_UV", new Vector2(terrainInfo.uvLayers[i].uScale, terrainInfo.uvLayers[i].vScale));
+            L2TerrainLayer uvl = terrainInfo.uvLayers[i];
+            float us = uvl.uScale == 0 ? 1f : uvl.uScale, vs = uvl.vScale == 0 ? 1f : uvl.vScale;
+            terrainMat.SetVector("_Layer_" + i + "_UV", new Vector4(uvl.uScale, uvl.vScale, uvl.uOffset / us, uvl.vOffset / vs));
         }
 
         // Build Texture2D array for textures
@@ -273,6 +275,14 @@ public class TerrainConverter : MonoBehaviour {
     private static void SaveTerrain(string saveFolder, GameObject destObject) {
         // Save terrain Prefab
         string prefabPath = Path.Combine(saveFolder, mapToConvert + ".prefab");
+        // Ground collider for client-side gravity (mobs/NPC snap); non-convex, uses persisted mesh.
+        MeshFilter mf = destObject.GetComponent<MeshFilter>();
+        if (mf != null && mf.sharedMesh != null) {
+            MeshCollider mc = destObject.GetComponent<MeshCollider>();
+            if (mc == null) mc = destObject.AddComponent<MeshCollider>();
+            mc.convex = false;
+            mc.sharedMesh = mf.sharedMesh;
+        }
         PrefabUtility.SaveAsPrefabAsset(destObject, prefabPath);
     }
 }
