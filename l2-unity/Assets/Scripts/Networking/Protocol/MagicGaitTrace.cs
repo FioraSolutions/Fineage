@@ -197,8 +197,10 @@ public static class MagicGaitTrace
             .Append(" normT=").Append(norm.ToString("F3"))
             .Append(" normD=").Append(normD.ToString("F3"))
             .Append(" animSpeed=").Append(anm.speed.ToString("F2"))
-            .Append(" runSpeed=").Append(anm.GetFloat("run_speed").ToString("F3"))
-            .Append(" walkSpeed=").Append(anm.GetFloat("walk_speed").ToString("F3"))
+            .Append(" runSpeed=").Append(
+                (AnimatorBoolSet.HasFloat(anm, "run_speed") ? anm.GetFloat("run_speed") : 0f).ToString("F3"))
+            .Append(" walkSpeed=").Append(
+                (AnimatorBoolSet.HasFloat(anm, "walk_speed") ? anm.GetFloat("walk_speed") : 0f).ToString("F3"))
             .Append(" castClip=").Append(castActive)
             .Append(" cull=").Append(anm.cullingMode)
             .Append(" enabled=").Append(anm.enabled)

@@ -70,19 +70,11 @@ public class CharacterSelector : MonoBehaviour
     }
 
     public void SetCharacterList(List<CharSelectionInfoPackage> characters) {
-        if(_container == null) {
-            _container = new GameObject("Characters");
-        }
-
-        if (_characterGameObjects != null) {
-            _characterGameObjects.ForEach((go) => {
-                Destroy(go);
-            });
-        }
+        ClearLobbyVisuals();
+        EnsureCharacterContainer();
 
         _characters = characters;
         _pawnData = LogonGrps;
-        _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
 
         for (int i = 0; i < characters.Count; i++) {
@@ -92,21 +84,11 @@ public class CharacterSelector : MonoBehaviour
 
     public void SetCharacterInterludeList(List<CharSelectInfoPackage> characters)
     {
-        if (_container == null)
-        {
-            _container = new GameObject("Characters");
-        }
-
-        if (_characterGameObjects != null)
-        {
-            _characterGameObjects.ForEach((go) => {
-                Destroy(go);
-            });
-        }
+        ClearLobbyVisuals();
+        EnsureCharacterContainer();
 
         _charactersInterlude = characters;
         _pawnData = LogonGrps;
-        _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
 
         for (int i = 0; i < characters.Count; i++)
@@ -121,20 +103,10 @@ public class CharacterSelector : MonoBehaviour
         _lobbyCharacters = characters == null
             ? new List<LobbyCharacter>()
             : new List<LobbyCharacter>(characters);
-        if (_container == null)
-            _container = new GameObject("Characters");
-
-        if (_characterGameObjects != null)
-        {
-            _characterGameObjects.ForEach((go) =>
-            {
-                if (go != null)
-                    Destroy(go);
-            });
-        }
+        ClearLobbyVisuals();
+        EnsureCharacterContainer();
 
         _pawnData = LogonGrps;
-        _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
         _selectedLobbyIndex = -1;
         if (_pawnData == null || _pawnData.Count < 8)
@@ -149,6 +121,54 @@ public class CharacterSelector : MonoBehaviour
         int index = LobbyCharacterMap.PreferredIndex(_lobbyCharacters, preselectId);
         if (index >= 0)
             SelectLobbyCharacter(index);
+    }
+
+    /// <summary>
+    /// Drop select-row visuals while still in lobby (roster refresh). Uses normal Destroy.
+    /// World enter relies on Menu unload, not this.
+    /// </summary>
+    public void ClearLobbyVisuals()
+    {
+        if (_characterGameObjects != null)
+        {
+            for (int i = 0; i < _characterGameObjects.Count; i++)
+            {
+                if (_characterGameObjects[i] != null)
+                    Object.Destroy(_characterGameObjects[i]);
+            }
+        }
+
+        if (_container != null)
+        {
+            Object.Destroy(_container);
+            _container = null;
+        }
+
+        ForgetLobbyVisuals();
+    }
+
+    /// <summary>
+    /// After Menu unload the scene objects are gone; only drop local refs.
+    /// </summary>
+    public void ForgetLobbyVisuals()
+    {
+        _container = null;
+        _characterGameObjects = new List<GameObject>();
+        _selectedCharacterSlot = -1;
+        _selectedLobbyIndex = -1;
+        _charSelectCamera = null;
+    }
+
+    void EnsureCharacterContainer()
+    {
+        if (_container == null)
+        {
+            _container = new GameObject("Characters");
+            LobbyPresentation.Host(_container);
+        }
+
+        if (_characterGameObjects == null)
+            _characterGameObjects = new List<GameObject>();
     }
 
     public void SpawnLobbyCharacterSlot(int index)
@@ -207,6 +227,14 @@ public class CharacterSelector : MonoBehaviour
         info.HairStyle = character.HairStyle;
         info.HairColor = character.HairColor;
         info.Face = character.Face;
+        info.Hp = character.CurHp;
+        info.MaxHp = character.MaxHp;
+        info.Mp = character.CurMp;
+        info.MaxMp = character.MaxMp;
+        info.Exp = character.Exp;
+        info.Sp = character.Sp;
+        info.Karma = character.Karma;
+        ApplyLobbyPaperdoll(info.Appreance, character);
         int baseClass = (int)BaseClass.Fighter;
         if (character.ClassId >= 0 && character.ClassId <= byte.MaxValue &&
             CharacterClassParser.IsMage((CharacterClass)character.ClassId))
@@ -217,6 +245,27 @@ public class CharacterSelector : MonoBehaviour
             : CharacterRace.Human;
         info.CharacterRaceAnimation = CharacterRaceAnimationParser.ParseRaceInterlude(race, character.Sex, baseClass);
         return info;
+    }
+
+    /// <summary>
+    /// Maps login paperdoll (or legacy WeaponItemId) onto CharSelect appearance.
+    /// CreatePawnInterlude then SyncEquippedArmor + EquipWeapon from these fields.
+    /// </summary>
+    static void ApplyLobbyPaperdoll(PlayerAppearance appearance, LobbyCharacter character)
+    {
+        int[] doll = character.Paperdoll;
+        if (doll != null && doll.Length > ZoneV2Paperdoll.Feet)
+        {
+            appearance.RHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.RightHand);
+            appearance.LHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.LeftHand);
+            appearance.Gloves = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Gloves);
+            appearance.Chest = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Chest);
+            appearance.Legs = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Legs);
+            appearance.Feet = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Feet);
+        }
+
+        if (appearance.RHand == 0 && character.WeaponItemId > 0)
+            appearance.RHand = character.WeaponItemId;
     }
 
     void MoveLobbyPawn(int characterIndex, int pawnDataIndex)

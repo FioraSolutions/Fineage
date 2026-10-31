@@ -77,6 +77,10 @@ public class CameraController : MonoBehaviour
             _instance = this;
             _camera = GetComponent<Camera>();
             _resolvedPlayerHeight = _unityPlayerHeight;
+            // Char-select presentation uses CharSelect layer; gameplay must not draw it.
+            int lobbyLayer = LobbyPresentation.Layer;
+            if (_camera != null && lobbyLayer >= 0)
+                _camera.cullingMask &= ~(1 << lobbyLayer);
         }
         else
         {

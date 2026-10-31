@@ -116,6 +116,55 @@ public class ZoneV2LobbyWireTests
     }
 
     [Fact]
+    public void Character_list_round_trips_char_select_vitals_and_weapon()
+    {
+        var list = new BackendCharacterListMsg
+        {
+            Characters =
+            [
+                new BackendCharacterSummaryMsg
+                {
+                    CharacterId = 7,
+                    Name = "lol1",
+                    ClassId = 10,
+                    Race = 0,
+                    Sex = 0,
+                    Level = 1,
+                    Slot = 0,
+                    IsLastPlayed = true,
+                    CurHp = 126,
+                    MaxHp = 126,
+                    CurMp = 149,
+                    MaxMp = 149,
+                    CurCp = 50,
+                    MaxCp = 50,
+                    Exp = 0,
+                    Sp = 0,
+                    Karma = 0,
+                    WeaponItemId = 6,
+                    Paperdoll = MysticStarterPaperdoll()
+                }
+            ]
+        };
+
+        Assert.True(ZoneV2Messages.TryDecodeCharacterList(Pack(list), out ZoneV2CharacterSummary[] rows));
+        Assert.Equal(126, rows[0].MaxHp);
+        Assert.Equal(126, rows[0].CurHp);
+        Assert.Equal(149, rows[0].MaxMp);
+        Assert.Equal(149, rows[0].CurMp);
+        Assert.Equal(0, rows[0].Exp);
+        Assert.Equal(6, rows[0].WeaponItemId);
+        Assert.NotNull(rows[0].Paperdoll);
+        Assert.Equal(6, ZoneV2Paperdoll.ItemIdAt(rows[0].Paperdoll, ZoneV2Paperdoll.RightHand));
+        Assert.Equal(425, ZoneV2Paperdoll.ItemIdAt(rows[0].Paperdoll, ZoneV2Paperdoll.Chest));
+        Assert.Equal(461, ZoneV2Paperdoll.ItemIdAt(rows[0].Paperdoll, ZoneV2Paperdoll.Legs));
+        LobbyCharacter mapped = LobbyCharacterMap.FromSummary(rows[0]);
+        Assert.Equal(126, mapped.MaxHp);
+        Assert.Equal(6, mapped.WeaponItemId);
+        Assert.Equal(425, ZoneV2Paperdoll.ItemIdAt(mapped.Paperdoll, ZoneV2Paperdoll.Chest));
+    }
+
+    [Fact]
     public void Short_summary_and_an_extra_key_still_decode()
     {
         var shortList = new ShortCharacterListMsg
@@ -339,6 +388,15 @@ public class ZoneV2LobbyWireTests
         Assert.False(FineageWireConfig.IsPublicLoginHost("localhost"));
     }
 
+    static int[] MysticStarterPaperdoll()
+    {
+        int[] doll = new int[ZoneV2Paperdoll.Count];
+        doll[ZoneV2Paperdoll.RightHand] = 6;
+        doll[ZoneV2Paperdoll.Chest] = 425;
+        doll[ZoneV2Paperdoll.Legs] = 461;
+        return doll;
+    }
+
     static byte[] Pack<T>(T message)
     {
         return MessagePackSerializer.Serialize(message);
@@ -363,6 +421,17 @@ public sealed partial class BackendCharacterSummaryMsg
     [Key(12)] public int Z { get; set; }
     [Key(13)] public int DeleteSecondsLeft { get; set; }
     [Key(14)] public bool IsLastPlayed { get; set; }
+    [Key(15)] public int CurHp { get; set; }
+    [Key(16)] public int MaxHp { get; set; }
+    [Key(17)] public int CurMp { get; set; }
+    [Key(18)] public int MaxMp { get; set; }
+    [Key(19)] public int CurCp { get; set; }
+    [Key(20)] public int MaxCp { get; set; }
+    [Key(21)] public long Exp { get; set; }
+    [Key(22)] public int Sp { get; set; }
+    [Key(23)] public int Karma { get; set; }
+    [Key(24)] public int WeaponItemId { get; set; }
+    [Key(25)] public int[] Paperdoll { get; set; } = [];
 }
 
 [MessagePackObject]

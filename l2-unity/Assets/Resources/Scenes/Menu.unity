@@ -1172,10 +1172,9 @@ GameObject:
   - component: {fileID: 1469263349}
   - component: {fileID: 1469263348}
   - component: {fileID: 1469263347}
-  - component: {fileID: 1469263350}
   m_Layer: 0
   m_Name: LoadingCamera
-  m_TagString: MainCamera
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1290,18 +1289,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1469263350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1469263346}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c0b294c4f11da043a50af17e2d967fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!21 &1496955915
 Material:
   serializedVersion: 8

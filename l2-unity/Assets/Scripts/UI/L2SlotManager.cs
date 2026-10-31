@@ -60,6 +60,8 @@ public class L2SlotManager : L2PopupWindow
         _windowEle.pickingMode = PickingMode.Ignore;
         _windowEle.style.position = Position.Absolute;
         _windowEle.Query<VisualElement>().ForEach(e => e.pickingMode = PickingMode.Ignore);
+        // Start hidden — ShowWindow only flips opacity/display during an active drag.
+        HideWindow();
     }
 
     public void SetHoverSlot(L2Slot slot)
@@ -94,21 +96,24 @@ public class L2SlotManager : L2PopupWindow
         }
     }
 
-    internal void DragSlotAt(Vector2 panelPos, float width, float height)
+    /// <summary>
+    /// Places the floating drag icon so <paramref name="grabOffset"/> (local to the source slot)
+    /// stays under the pointer. <paramref name="panelPos"/> is UI Toolkit panel space.
+    /// </summary>
+    internal void DragSlotAt(Vector2 panelPos, Vector2 grabOffset)
     {
         ShowWindow();
         _windowEle.style.right = StyleKeyword.Null;
         _windowEle.style.bottom = StyleKeyword.Null;
-        _windowEle.style.left = panelPos.x - width / 2f;
-        _windowEle.style.top = panelPos.y - height / 2f;
-        _windowEle.BringToFront();
-    }
 
-    internal void DragSlot(float right, float bottom)
-    {
-        ShowWindow();
-        _windowEle.style.right = right;
-        _windowEle.style.bottom = bottom;
+        Vector2 local = panelPos;
+        VisualElement parent = _windowEle.parent;
+        if (parent != null)
+            local = parent.WorldToLocal(panelPos);
+
+        _windowEle.style.left = local.x - grabOffset.x;
+        _windowEle.style.top = local.y - grabOffset.y;
+        _windowEle.BringToFront();
     }
 
     public void ReleaseDrag()
@@ -123,6 +128,13 @@ public class L2SlotManager : L2PopupWindow
         }
 
         HandleDragRelease();
+        ResetSlots();
+    }
+
+    /// <summary>Abort an in-progress or primed slot drag without applying a drop.</summary>
+    public void CancelDrag()
+    {
+        HideWindow();
         ResetSlots();
     }
 
@@ -230,14 +242,17 @@ public class L2SlotManager : L2PopupWindow
 
     private void HandleSkillWindowDrag()
     {
-        if (_hoverSlot == null | SkillbarWindow.Instance.Locked)
-        {
+        if (_hoverSlot == null || SkillbarWindow.Instance == null || SkillbarWindow.Instance.Locked)
             return;
-        }
 
+        if (_hoverSlot.Type != L2Slot.SlotType.SkillBar)
+            return;
 
         int position = _hoverSlot.Position;
         SkillSlot sourceSlot = (SkillSlot)_draggedSlot;
+        if (sourceSlot == null || sourceSlot.Id <= 0)
+            return;
+
         PlayerShortcuts.Instance.AddShortcut(position, sourceSlot.Id, Shortcut.TYPE_SKILL, sourceSlot.Level);
     }
 
@@ -538,11 +553,19 @@ public class L2SlotManager : L2PopupWindow
 
     public override void ShowWindow()
     {
+        if (_windowEle == null)
+            return;
+        _windowEle.style.display = DisplayStyle.Flex;
         _windowEle.style.opacity = 1;
     }
 
     public override void HideWindow()
     {
+        if (_windowEle == null)
+            return;
         _windowEle.style.opacity = 0;
+        _windowEle.style.display = DisplayStyle.None;
+        _windowEle.style.left = -10000;
+        _windowEle.style.top = -10000;
     }
 }

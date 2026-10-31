@@ -68,8 +68,9 @@ public class LoginCameraManager : MonoBehaviour
     }
 
     public void SwitchCamera(Camera camera) {
-        DisableMainCamera();
+        DisableLoginCameras();
 
+        LobbyPresentation.EnsureCameraSeesLobby(camera);
         camera.enabled = true;
         _activeCamera = camera;
 
@@ -78,11 +79,12 @@ public class LoginCameraManager : MonoBehaviour
 
     public void SwitchCamera(string camera)
      {
-        DisableMainCamera();
+        DisableLoginCameras();
 
         if (cameras.TryGetValue(camera, out Camera obj))
          {
             // Debug.Log(camera + " camera enabled.");
+            LobbyPresentation.EnsureCameraSeesLobby(obj);
             obj.enabled = true;
             _activeCamera = obj;
 
@@ -121,13 +123,14 @@ public class LoginCameraManager : MonoBehaviour
         }
     }
 
-    public void DisableMainCamera() {
-        if (Camera.main != null) {
-            // Debug.Log("Disabling camera " + Camera.main.transform);
-            Camera.main.enabled = false;
-        } else if(_activeCamera != null) {
+    /// <summary>
+    /// Only login/char-select cameras. Never touch gameplay <see cref="CameraController"/> —
+    /// <c>Camera.main</c> can be the world camera while Game is preloaded.
+    /// </summary>
+    public void DisableLoginCameras() {
+        if (_activeCamera != null)
             _activeCamera.enabled = false;
-        }
+        DisableCameras();
     }
 
     private void UpdateListenerPosition() {

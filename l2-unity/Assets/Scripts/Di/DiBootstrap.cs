@@ -6,11 +6,19 @@ public static class DiBootstrap
 {
     public static void EnsureAppScope()
     {
-        if (Object.FindFirstObjectByType<AppLifetimeScope>() != null)
+        AppLifetimeScope existing = Object.FindFirstObjectByType<AppLifetimeScope>();
+        if (existing != null)
+        {
+            if (existing.GetComponent<EventProcessor>() == null)
+                existing.gameObject.AddComponent<EventProcessor>();
             return;
+        }
 
+        // App owns the main-thread apply pump. Not Menu/Networking/Game prefabs —
+        // those are unloaded or duplicated and must not host EventProcessor.
         GameObject go = new GameObject("AppLifetimeScope");
         Object.DontDestroyOnLoad(go);
+        go.AddComponent<EventProcessor>();
         go.AddComponent<AppLifetimeScope>();
     }
 

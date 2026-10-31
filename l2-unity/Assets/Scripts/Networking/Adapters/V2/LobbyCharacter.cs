@@ -24,6 +24,8 @@ public sealed class LobbyCharacter
     public int CurHp, MaxHp, CurMp, MaxMp, CurCp, MaxCp;
     public long Exp;
     public int Sp, Karma, WeaponItemId;
+    /// <summary>Equipped item ids by paperdoll slot (length 17). Null when login omitted key 25.</summary>
+    public int[] Paperdoll;
 
     public bool PendingDelete
     {
@@ -61,7 +63,8 @@ public static class LobbyCharacterMap
             Exp = row.Exp,
             Sp = row.Sp,
             Karma = row.Karma,
-            WeaponItemId = row.WeaponItemId
+            WeaponItemId = row.WeaponItemId,
+            Paperdoll = row.Paperdoll
         };
     }
 

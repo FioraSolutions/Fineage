@@ -1,19 +1,26 @@
 using System;
+using UnityEngine;
 
+/// <summary>
+/// Main-thread apply queue backed by app-lifetime <see cref="EventProcessor"/>
+/// (hosted on AppLifetimeScope). Deferred work must never run inline — that recurses
+/// when <see cref="SpawnFrameBudget"/> is exhausted.
+/// </summary>
 public sealed class PacketApplyQueue
 {
     [ThreadStatic]
     private static int _applyDepth;
 
-    private readonly EventProcessor _events;
-
     public PacketApplyQueue(EventProcessor events)
     {
-        _events = events;
+        if (events != null)
+            NetworkingPacketServices.Bind(events: events);
     }
 
     public void Queue(Action action)
     {
+        if (action == null)
+            return;
         if (_applyDepth > 0)
         {
             action();
@@ -24,20 +31,29 @@ public sealed class PacketApplyQueue
     }
 
     /// <summary>
-    /// Always enqueue for the next EventProcessor batch. Does not run inline
-    /// during QueueApply (needed to defer CharInfo spawn without looping).
+    /// Enqueue for the next EventProcessor batch. Never runs synchronously.
     /// </summary>
     public void QueueNextFrame(Action action)
     {
-        EventProcessor processor = _events != null ? _events : NetworkingPacketServices.Events;
-        if (processor != null)
-            processor.QueueEvent(action);
-        else
-            action();
+        if (action == null)
+            return;
+
+        EventProcessor processor = NetworkingPacketServices.Events;
+        if (processor == null)
+        {
+            Debug.LogError(
+                "[PacketApplyQueue] QueueNextFrame dropped work: EventProcessor missing. "
+                + "Expected on AppLifetimeScope (DiBootstrap.EnsureAppScope).");
+            return;
+        }
+
+        processor.QueueEvent(action);
     }
 
     public void QueueApply(Action action)
     {
+        if (action == null)
+            return;
         Queue(() =>
         {
             _applyDepth++;

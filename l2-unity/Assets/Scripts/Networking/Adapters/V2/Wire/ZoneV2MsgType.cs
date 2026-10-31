@@ -80,6 +80,8 @@ public enum ZoneV2MsgType : ushort
     TradeAddItemRequest = 54,
     /// <summary>Confirm or cancel the trade window. Backend <c>TradeDoneRequestMsg</c> key 0 response.</summary>
     TradeDoneRequest = 55,
+    /// <summary>Drop bag item onto the ground. Backend <c>DropItemRequestMsg</c> keys 0–4 objectId,count,x,y,z.</summary>
+    DropItemRequest = 56,
     /// <summary>NPC HTML link. Backend <c>BypassRequestMsg</c> keys 0 npcObjectId, 1 command.</summary>
     BypassRequest = 95,
     /// <summary>Buy from the open buylist. Backend <c>RequestBuyItemMsg</c>.</summary>
@@ -120,6 +122,8 @@ public enum ZoneV2MsgType : ushort
     AbnormalStatusUpdate = 1017,
     /// <summary>Ground item in AOI. Keys match Backend <c>SpawnItemMsg</c> / Interlude <c>SpawnItemDto</c>.</summary>
     SpawnItem = 1018,
+    /// <summary>Ground drop with dropper for FX. Backend <c>DropItemMsg</c> / Interlude <c>DropItemDto</c>.</summary>
+    DropItem = 1019,
 
     RegisterOk = 1020,
     CharacterCreated = 1021,

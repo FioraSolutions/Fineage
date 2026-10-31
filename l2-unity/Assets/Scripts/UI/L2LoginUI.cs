@@ -133,6 +133,7 @@ public class L2LoginUI : L2UI
         LoginWin.ShowErrorText("");
         LoginWin.HideWindow();
         CharCreateWin.HideWindow();
+        CharCreateWin.ReleaseCreatePawns();
         CharSelectWin.ShowWindow();
         ServerWin.HideWindow();
     }

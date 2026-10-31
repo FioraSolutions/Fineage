@@ -354,7 +354,8 @@ public partial class PlayerController : MonoBehaviour
     public void StopMove()
     {
         _isMove = false;
-        ClickManager.Instance.HideLocator();
+        if (ClickManager.Instance != null)
+            ClickManager.Instance.HideLocator();
         _moveTimer = 0f;
         _switchWalkToRun = false;
 

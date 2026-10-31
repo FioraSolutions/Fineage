@@ -85,7 +85,7 @@ public class CharacterCreator : MonoBehaviour
     public void SpawnAllPawns() {
         List<Logongrp> pawnData = LogonGrps;
 
-        _pawnContainer = new GameObject("Pawns");
+        EnsurePawnContainer();
 
         for (var i = 8; i < pawnData.Count; i++) {
              GameObject pawnObject = CreatePawn(CharacterRaceAnimation.FDarkElf, new PlayerAppearance());
@@ -100,8 +100,7 @@ public class CharacterCreator : MonoBehaviour
     /// </summary>
     public void SpawnAllCharCreatePawns()
     {
-        if (_pawnContainer == null)
-            _pawnContainer = new GameObject("Pawns");
+        EnsurePawnContainer();
     }
 
     GameObject EnsureCharCreatePawn(int index)
@@ -113,8 +112,10 @@ public class CharacterCreator : MonoBehaviour
         List<Logongrp> pawnData = LogonGrps;
         if (pawnData == null || index >= pawnData.Count)
             return null;
-        if (_pawnContainer == null)
+        if (_pawnContainer == null) {
             _pawnContainer = new GameObject("Pawns");
+            LobbyPresentation.Host(_pawnContainer);
+        }
 
         Logongrp logonGrp = pawnData[index];
         GameObject pawnObject = null;
@@ -134,14 +135,30 @@ public class CharacterCreator : MonoBehaviour
         return pawnObject;
     }
 
-    public GameObject SpawnPawnWithAppearance(CharacterRaceAnimation raceId , int id , PlayerAppearance appearance) {
-        List<Logongrp> pawnData = LogonGrps;
+    /// <summary>
+    /// Drop create-gallery while still in lobby (back to select). World enter unloads Menu.
+    /// </summary>
+    public void DestroyAllPawns()
+    {
+        if (_pawnContainer != null)
+        {
+            Object.Destroy(_pawnContainer);
+            _pawnContainer = null;
+        }
 
-        GameObject pawnObject = CreatePawn(raceId, appearance);
-        PlacePawn(pawnObject, pawnData[id], "Pawn" + id, _pawnContainer);
-        pawnObject.SetActive(false);
-        
-        return pawnObject;
+        for (int i = 0; i < pawns.Length; i++)
+            pawns[i] = null;
+
+        currentPawn = null;
+        currentPawnIndex = -1;
+        _pawnRotating = false;
+    }
+
+    void EnsurePawnContainer()
+    {
+        DestroyAllPawns();
+        _pawnContainer = new GameObject("Pawns");
+        LobbyPresentation.Host(_pawnContainer);
     }
 
     public void SpawnPawnWithId(int id) {
@@ -243,8 +260,9 @@ public class CharacterCreator : MonoBehaviour
     public void PlacePawn(GameObject pawnObject, Logongrp pawnData, string name, GameObject container) {
         UpdatePawnPosAndRot(pawnObject, pawnData);
         pawnObject.transform.name = name;
-        pawnObject.transform.parent = container.transform;
+        pawnObject.transform.SetParent(container.transform, true);
         pawnObject.SetActive(true);
+        LobbyPresentation.ApplyLayer(pawnObject);
 
         UserGear gear = pawnObject.GetComponent<UserGear>();
         BaseAnimationController animController = pawnObject.GetComponent<BaseAnimationController>();
@@ -278,8 +296,11 @@ public class CharacterCreator : MonoBehaviour
         if (pawnObject != null)
         {
             UserGear gear = pawnObject.GetComponent<UserGear>();
-            GameObject face = Instantiate(Models.GetFace(raceId, _face));
+            // Parent immediately — unparented Instantiate lands in the active scene
+            // (can be Game) and survives Menu unload as a floating mesh.
+            GameObject face = Instantiate(Models.GetFace(raceId, _face), pawnObject.transform, false);
             gear.EquipFace(face);
+            LobbyPresentation.ApplyLayer(pawnObject);
         }
     }
 
@@ -293,10 +314,15 @@ public class CharacterCreator : MonoBehaviour
             var hair2M = Models.GetHair(raceId, hairStyle, hairColor, true);
             if (hair1M != null || hair2M != null)
             {
-                GameObject hair1 = hair1M != null ? Instantiate(hair1M) : null;
-                GameObject hair2 = hair2M != null ? Instantiate(hair2M) : null;
+                GameObject hair1 = hair1M != null
+                    ? Instantiate(hair1M, pawnObject.transform, false)
+                    : null;
+                GameObject hair2 = hair2M != null
+                    ? Instantiate(hair2M, pawnObject.transform, false)
+                    : null;
                 UserGear gear = pawnObject.GetComponent<UserGear>();
                 gear.EquipHair(hair1, hair2);
+                LobbyPresentation.ApplyLayer(pawnObject);
             }
 
         }
