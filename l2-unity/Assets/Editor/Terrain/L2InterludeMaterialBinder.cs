@@ -100,6 +100,7 @@ public static class L2InterludeMaterialBinder
         log.Add("materials bound: " + fixedN + ", still untextured: " + missing +
                 (missingNames.Count > 0 ? " (e.g. " + string.Join(", ", missingNames) + ")" : ""));
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
+        log.Add(L2InterludeStaticMeshColliders.Run(null));
     }
 
     [MenuItem("Shnok/0.2. [Interlude] Fix water / translucent StaticMesh materials")]
