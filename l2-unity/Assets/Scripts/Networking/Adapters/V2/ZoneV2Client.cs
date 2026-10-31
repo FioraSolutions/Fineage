@@ -120,6 +120,9 @@ public sealed class ZoneV2Client : MonoBehaviour
         _selectGeneration++;
         _cts = new CancellationTokenSource();
         CancellationToken ct = _cts.Token;
+        // Capture the epoch here (not inside the task) so a stale attempt can never
+        // adopt the epoch of a newer BeginSession and reuse its lobby.
+        int epoch = _lobbyEpoch;
         if (FineageWireConfig.UseLoginHandoff)
         {
             string loginHost = FineageWireConfig.LoginHost;
@@ -128,7 +131,7 @@ public sealed class ZoneV2Client : MonoBehaviour
             {
                 FineageLocalBackend.ClearCharacterHint();
                 Debug.Log("[FineageLocal] public lobby login " + loginHost + ":" + loginPort);
-                Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
+                Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, epoch, ct));
                 return;
             }
 
@@ -136,12 +139,12 @@ public sealed class ZoneV2Client : MonoBehaviour
             if (!string.IsNullOrEmpty(character))
             {
                 Debug.Log("[FineageLocal] auto-pick character='" + character + "'");
-                Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
+                Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, epoch, ct));
                 return;
             }
 
             Debug.Log("[FineageLocal] lobby login " + loginHost + ":" + loginPort);
-            Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
+            Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, epoch, ct));
             return;
         }
 
@@ -150,9 +153,10 @@ public sealed class ZoneV2Client : MonoBehaviour
         Task.Run(() => RunSessionAsync(host, port, account, password, ct));
     }
 
-    async Task OpenLobbyAsync(string loginHost, int loginPort, string account, string password, CancellationToken ct)
+    async Task OpenLobbyAsync(string loginHost, int loginPort, string account, string password, int epoch, CancellationToken ct)
     {
-        int epoch = _lobbyEpoch;
+        if (ct.IsCancellationRequested || epoch != _lobbyEpoch)
+            return;
         FineageLobbySession session = new FineageLobbySession(ct);
         session.Roster = rows => Post(() =>
         {
@@ -191,7 +195,15 @@ public sealed class ZoneV2Client : MonoBehaviour
             OnLobbyLost(reason);
         });
         lock (_lobbyGate)
+        {
+            if (epoch != _lobbyEpoch)
+            {
+                session.Close();
+                return;
+            }
+
             _lobby = session;
+        }
 
         try
         {
@@ -200,23 +212,42 @@ public sealed class ZoneV2Client : MonoBehaviour
         }
         catch (OperationCanceledException)
         {
-            session.Close();
+            DropLobby(session);
         }
         catch (Exception ex)
         {
-            session.Close();
-            lock (_lobbyGate)
-            {
-                if (_lobby == session)
-                    _lobby = null;
-            }
-
+            DropLobby(session);
             Post(() =>
             {
                 Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                if (epoch != _lobbyEpoch)
+                    return;
                 if (LoginWindow.Instance != null)
+                {
                     LoginWindow.Instance.ShowErrorText(ex.Message);
+                    LoginWindow.Instance.SetLoginBusy(false);
+                }
             });
+        }
+    }
+
+    // Close a failed/cancelled session and forget it so the next attempt builds a fresh
+    // FineageLobbySession/TcpClient instead of touching a disposed socket.
+    void DropLobby(FineageLobbySession session)
+    {
+        lock (_lobbyGate)
+        {
+            if (_lobby == session)
+                _lobby = null;
+        }
+
+        try
+        {
+            session.Close();
+        }
+        catch
+        {
+            /* ignore */
         }
     }
 
@@ -299,7 +330,10 @@ public sealed class ZoneV2Client : MonoBehaviour
             CharSelectWindow.Instance.RefreshLobbyActions();
         }
         else if (LoginWindow.Instance != null)
+        {
             LoginWindow.Instance.ShowErrorText(text);
+            LoginWindow.Instance.SetLoginBusy(false);
+        }
     }
 
     void OnLobbyLost(string reason)
@@ -314,7 +348,10 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (manager != null && _selectUiShown)
             manager.OnRelogin();
         else if (LoginWindow.Instance != null)
+        {
             LoginWindow.Instance.ShowErrorText(reason);
+            LoginWindow.Instance.SetLoginBusy(false);
+        }
     }
 
     public void SelectLobbyCharacter(LobbyCharacter character)
@@ -419,6 +456,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         string account,
         string password,
         string character,
+        int epoch,
         CancellationToken ct)
     {
         ZoneV2Handoff handoff;
@@ -446,7 +484,7 @@ public sealed class ZoneV2Client : MonoBehaviour
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText("");
             });
-            await OpenLobbyAsync(loginHost, loginPort, account, password, ct).ConfigureAwait(false);
+            await OpenLobbyAsync(loginHost, loginPort, account, password, epoch, ct).ConfigureAwait(false);
             return;
         }
         catch (Exception ex)
@@ -454,8 +492,13 @@ public sealed class ZoneV2Client : MonoBehaviour
             Post(() =>
             {
                 Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                if (epoch != _lobbyEpoch)
+                    return;
                 if (LoginWindow.Instance != null)
+                {
                     LoginWindow.Instance.ShowErrorText(ex.Message);
+                    LoginWindow.Instance.SetLoginBusy(false);
+                }
             });
             return;
         }
@@ -1461,7 +1504,10 @@ public sealed class ZoneV2Client : MonoBehaviour
             {
                 Debug.LogError("[ZoneV2] session failed: " + ex.Message);
                 if (LoginWindow.Instance != null)
+                {
                     LoginWindow.Instance.ShowErrorText("ZoneV2: " + ex.Message);
+                    LoginWindow.Instance.SetLoginBusy(false);
+                }
             });
         }
         finally

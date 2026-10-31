@@ -16,6 +16,8 @@ public class LoginWindow : L2Window
     private TextField _userInput;
     private TextField _passwordInput;
     private Label _labelError;
+    private Button _loginButton;
+    private bool _loginBusy;
 
     private static LoginWindow _instance;
     public static LoginWindow Instance { get { return _instance; } }
@@ -53,9 +55,9 @@ public class LoginWindow : L2Window
         yield return new WaitForEndOfFrame();
 
         _labelError = (Label)GetElementById("LabelError");
-        Button loginButton = (Button) GetElementById("LoginButton");
-        loginButton.AddManipulator(new ButtonClickSoundManipulator(loginButton));
-        loginButton.RegisterCallback<ClickEvent>(evt => LoginButtonPressed());
+        _loginButton = (Button) GetElementById("LoginButton");
+        _loginButton.AddManipulator(new ButtonClickSoundManipulator(_loginButton));
+        _loginButton.RegisterCallback<ClickEvent>(evt => LoginButtonPressed());
 
         Button exitButton = (Button)GetElementById("ExitButton");
         exitButton.AddManipulator(new ButtonClickSoundManipulator(exitButton));
@@ -130,6 +132,10 @@ public class LoginWindow : L2Window
     }
 
     private void LoginButtonPressed() {
+        // Ignore repeated clicks/Enter while a login attempt is in flight.
+        if (_loginBusy)
+            return;
+
         LoginClient login = Login;
         string account = _userInput.value.ToLower().Trim();
         string password = _passwordInput.value.Trim();
@@ -146,6 +152,7 @@ public class LoginWindow : L2Window
         bool bypassesInterlude = transport != null && transport.BypassesInterludeLogin;
         if (FineageWireConfig.LoginPressStartsZoneSession(bypassesInterlude))
         {
+            SetLoginBusy(true);
             if (login != null && login.IsConnected)
             {
                 Debug.Log("[Login] closing stuck login socket before ZoneV2 handoff");
@@ -166,6 +173,7 @@ public class LoginWindow : L2Window
             {
                 Debug.LogError("[Login] BeginSession failed: " + ex.Message);
                 ShowErrorText(ex.Message);
+                SetLoginBusy(false);
             }
             return;
         }
@@ -192,6 +200,15 @@ public class LoginWindow : L2Window
     }
 
 
+    /// <summary>Disable Login (and inputs) while a session attempt is in flight; re-enable on failure.</summary>
+    public void SetLoginBusy(bool busy)
+    {
+        _loginBusy = busy;
+        _loginButton?.SetEnabled(!busy);
+        _userInput?.SetEnabled(!busy);
+        _passwordInput?.SetEnabled(!busy);
+    }
+
     public void ShowErrorText(string text)
     {
         if (_labelError != null)
@@ -206,6 +223,7 @@ public class LoginWindow : L2Window
 
     public override void ShowWindow() {
         base.ShowWindow();
+        SetLoginBusy(false);
         if (_logo != null)
             _logo.style.display = DisplayStyle.Flex;
         _userInput?.Focus();
