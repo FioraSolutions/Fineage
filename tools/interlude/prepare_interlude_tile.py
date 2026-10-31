@@ -110,6 +110,11 @@ def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str) -> str:
         idx += 1
     for i in range(64):
         lines.append(f"QuadVisibilityBitmap({i})=-1")
+    # World placement: without these the Unity terrain bakes at origin (#559 / Elven Village).
+    lx, ly, lz = meta["location"]
+    lines.append("GeneratedSectorCounter=256")
+    lines.append(f"Location=(X={lx:.6f},Y={ly:.6f},Z={lz:.6f})")
+    lines.append("DrawScale=10.000000")
     return "\n".join(lines) + "\n"
 
 
@@ -118,7 +123,7 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
     for line in terrain_info0.splitlines():
         if line.startswith("TerrainMap=") or line.startswith("TerrainScale=") or line.startswith("Layers("):
             out.append("    " + line)
-        elif line.startswith("DecoLayers("):
+        elif line.startswith(("DecoLayers(", "GeneratedSectorCounter=", "Location=", "DrawScale=")):
             out.append("    " + line)
     out.append("End Actor")
     individuals: list[str] = []
