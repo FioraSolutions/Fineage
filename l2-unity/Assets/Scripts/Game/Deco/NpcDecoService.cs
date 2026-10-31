@@ -23,8 +23,21 @@ public sealed class NpcDecoService
         _hostSettings.hideTime = 0f;
     }
 
+    /// <summary>
+    /// NPC deco is the known EnterWorld SIGSEGV source in Mac Standalone (Mono GC during spawn).
+    /// Off outside the Editor until fixed; pass -npcdeco to force on.
+    /// </summary>
+    public static readonly bool Enabled =
+#if UNITY_EDITOR
+        true;
+#else
+        Array.IndexOf(Environment.GetCommandLineArgs(), "-npcdeco") >= 0;
+#endif
+
     public void Start(Entity entity)
     {
+        if (!Enabled)
+            return;
         if (entity == null || entity.Identity == null)
             return;
 

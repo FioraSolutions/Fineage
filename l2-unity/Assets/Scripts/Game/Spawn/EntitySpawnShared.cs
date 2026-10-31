@@ -210,7 +210,12 @@ public static class EntitySpawnShared
             CharacterController cc = controllers[i];
             if (cc == null)
                 continue;
-            float maxStep = Mathf.Max(0f, cc.height - 0.01f);
+            if (cc.radius <= 0f)
+                cc.radius = 0.1f;
+            if (cc.height < cc.radius * 2f)
+                cc.height = cc.radius * 2f;
+            // Unity: stepOffset <= height + 2*radius; keep well inside to avoid the warning on scaled rigs.
+            float maxStep = Mathf.Max(0f, Mathf.Min(cc.height * 0.5f, cc.height + cc.radius * 2f - 0.01f));
             if (cc.stepOffset > maxStep)
                 cc.stepOffset = maxStep;
         }
