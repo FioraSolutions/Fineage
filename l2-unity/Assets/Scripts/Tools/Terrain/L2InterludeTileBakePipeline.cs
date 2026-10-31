@@ -148,7 +148,7 @@ public static class L2InterludeTileBakePipeline
 
             if ((steps & L2InterludeBakeStep.GenerateStaticMeshScene) != 0 && hasT3d)
             {
-                L2MapStaticMeshBuilder.MeshLocalYawFix = 90f; // Interlude FBX axis (see builder)
+                L2MapStaticMeshBuilder.MeshLocalYawFix = -90f; // Interlude FBX axis (see builder); +90 was 180 off
                 try { L2TerrainGeneratorTool.GenerateStaticMeshesForMap(tileId); }
                 finally { L2MapStaticMeshBuilder.MeshLocalYawFix = 0f; }
                 SaveScenePrefab(tileId, "StaticMeshes", "StaticMeshes.prefab");
@@ -258,18 +258,28 @@ public static class L2InterludeTileBakePipeline
     {
         string folder = L2InterludeMapPaths.TileAssetFolder(tileId);
         string prefabPath = Path.Combine(folder, prefabFileName).Replace("\\", "/");
+        // Break Prefab Variant chains between tiles (same hierarchy name "StaticMeshes").
+        if (PrefabUtility.IsPartOfPrefabInstance(root))
+            PrefabUtility.UnpackPrefabInstance(root, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+        if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(prefabPath) != null)
+            AssetDatabase.DeleteAsset(prefabPath);
         PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+        UnityEngine.Object.DestroyImmediate(root);
     }
 
     static void SaveScenePrefab(string tileId, string childName, string prefabFileName)
     {
-        GameObject existing = GameObject.Find(childName);
-        if (existing == null)
+        // Prefer densest root named childName — not an empty leftover Variant.
+        GameObject best = null;
+        int bestCount = -1;
+        foreach (var t in UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
-            return;
+            if (t == null || t.parent != null || t.name != childName) continue;
+            int n = t.GetComponentsInChildren<MeshFilter>(true).Length;
+            if (n > bestCount) { bestCount = n; best = t.gameObject; }
         }
-
-        SaveScenePrefab(tileId, existing, prefabFileName);
+        if (best == null) return;
+        SaveScenePrefab(tileId, best, prefabFileName);
     }
 }
 #endif
