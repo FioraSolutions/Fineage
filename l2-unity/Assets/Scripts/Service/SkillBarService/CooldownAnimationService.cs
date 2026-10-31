@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class CooldownAnimationService : MonoBehaviour
+public class CooldownAnimationService
 {
     public IEnumerator CooldownCoroutine(VisualElement _reuseElement , VisualElement _rechargeMaskBg,  float durationMs)
     {

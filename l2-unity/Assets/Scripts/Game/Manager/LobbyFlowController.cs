@@ -299,16 +299,13 @@ public sealed class LobbyFlowController
 
     public void OnGameLaunched()
     {
-        if (GameState.IN_GAME == _game.GameState)
-        {
-            L2LoginUI loginUi = LoginUi;
-            if (loginUi != null)
-            {
-                loginUi.StopLoading();
-                loginUi.SetLoading(true);
-            }
+        if (_game.GameState != GameState.IN_GAME)
+            return;
 
-            Creator.SpawnAllPawns();
-        }
+        L2LoginUI loginUi = LoginUi;
+        if (loginUi == null)
+            return;
+        loginUi.StopLoading();
+        loginUi.SetLoading(true);
     }
 }

@@ -288,8 +288,8 @@ public class MovementData
                 clip = clips != null && clips.Length > 0 && clips[0].clip != null
                     ? clips[0].clip.name : "<none>";
                 animSpeed = anm.speed;
-                runSpeed = anm.GetFloat("run_speed");
-                walkSpeed = anm.GetFloat("walk_speed");
+                runSpeed = AnimatorBoolSet.HasFloat(anm, "run_speed") ? anm.GetFloat("run_speed") : 0f;
+                walkSpeed = AnimatorBoolSet.HasFloat(anm, "walk_speed") ? anm.GetFloat("walk_speed") : 0f;
                 AnimatorStateInfo st = anm.GetCurrentAnimatorStateInfo(0);
                 normTime = st.normalizedTime;
                 inTrans = anm.IsInTransition(0);

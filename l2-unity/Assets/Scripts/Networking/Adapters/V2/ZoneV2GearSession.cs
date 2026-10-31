@@ -113,6 +113,7 @@ public static class ZoneV2GearSession
     {
         PlayerAppearance appearance = player.Appearance as PlayerAppearance;
         PlayerStats stats = player.Stats as PlayerStats;
+        PlayerStatus status = player.Status as PlayerStatus;
         if (player.Identity == null || appearance == null || stats == null)
             return;
 
@@ -120,7 +121,8 @@ public static class ZoneV2GearSession
         {
             Identity = player.Identity,
             Appearance = appearance,
-            Stats = stats
+            Stats = stats,
+            Status = status
         };
         ZoneV2DomainMap.OverlayUserInfo(info, user);
         player.Running = appearance.Running;
@@ -129,6 +131,9 @@ public static class ZoneV2GearSession
         if (stats.WalkRealSpeed > 0.001f)
             player.UpdateWalkSpeed(stats.WalkRealSpeed);
         player.RefreshVisuals();
+        CharacterInfoWindow characterInfo = CharacterInfoWindow.Instance;
+        if (characterInfo != null)
+            characterInfo.UpdateValues();
     }
 
     static bool CanApplyInventory()

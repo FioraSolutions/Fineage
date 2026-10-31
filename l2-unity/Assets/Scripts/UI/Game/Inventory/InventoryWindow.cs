@@ -134,24 +134,6 @@ public class InventoryWindow : L2PopupWindow
         _weightLabel = GetLabelById("CurrentWeight");
     }
 
-    protected void RegisterCloseWindowEvent(string closeButtonClass)
-    {
-        Button closeButton = (Button)GetElementByClass(closeButtonClass);
-        if (closeButton == null)
-        {
-            // Debug.LogWarning($"Cant find close button with className: {closeButtonClass}.");
-            return;
-        }
-
-        ButtonClickSoundManipulator buttonClickSoundManipulator = new ButtonClickSoundManipulator(closeButton);
-        closeButton.AddManipulator(buttonClickSoundManipulator);
-
-        closeButton.RegisterCallback<MouseUpEvent>(evt =>
-        {
-            AudioManager.Instance.PlayUISound("window_close");
-            HideWindow();
-        });
-    }
 
     protected override IEnumerator BuildWindow(VisualElement root)
     {

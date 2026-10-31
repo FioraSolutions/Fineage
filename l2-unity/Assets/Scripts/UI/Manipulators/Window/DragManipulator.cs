@@ -1,101 +1,87 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Window drag in panel space (left/top). Skips <see cref="Button"/> picks under the
+/// handle so title-bar close keeps <c>Clickable</c> (UITK pointer capture rules).
+/// </summary>
 public class DragManipulator : PointerManipulator
 {
-    private VisualElement _root;
-    private Vector2 _startMousePosition;
-    private Vector2 _startPosition;
+    readonly VisualElement _root;
+    Vector2 _startMousePosition;
+    Vector2 _startPosition;
+    public bool dragged;
 
-    private bool _rightAnchor = true;
-    private bool _bottomAnchor = true;
-    public bool dragged = false;
-
-    public DragManipulator(VisualElement target, VisualElement root)
+    public DragManipulator(VisualElement handle, VisualElement windowRoot)
     {
-        this.target = target;
-        this._root = root;
-        UpdateAnchorType();
+        target = handle;
+        _root = windowRoot;
+        activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
     }
 
     protected override void RegisterCallbacksOnTarget()
     {
-        target.RegisterCallback<PointerDownEvent>(PointerDownHandler, TrickleDown.TrickleDown);
-        target.RegisterCallback<PointerMoveEvent>(PointerMoveHandler);
-        target.RegisterCallback<PointerUpEvent>(PointerUpHandler);
+        target.RegisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
+        target.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        target.RegisterCallback<PointerUpEvent>(OnPointerUp);
+        target.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
     }
 
     protected override void UnregisterCallbacksFromTarget()
     {
-        target.UnregisterCallback<PointerDownEvent>(PointerDownHandler);
-        target.UnregisterCallback<PointerMoveEvent>(PointerMoveHandler);
-        target.UnregisterCallback<PointerUpEvent>(PointerUpHandler);
+        target.UnregisterCallback<PointerDownEvent>(OnPointerDown, TrickleDown.TrickleDown);
+        target.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
+        target.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+        target.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
     }
 
-    public void PointerDownHandler(PointerDownEvent evt)
+    void OnPointerDown(PointerDownEvent evt)
     {
-        if (evt.button == 0)
-        {
-            dragged = false;
-            _startMousePosition = evt.position;
-            _startPosition = _root.layout.position;// + target.layout.position;
-            target.CapturePointer(evt.pointerId);
-        }
-    }
+        if (!CanStartManipulation(evt) || IsUnderButton(evt.target as VisualElement))
+            return;
 
-    public void PointerMoveHandler(PointerMoveEvent evt)
-    {
-        if (target.HasPointerCapture(evt.pointerId))
-        {
-            dragged = true;
-            Vector2 diff = _startMousePosition - new Vector2(evt.position.x, evt.position.y);
-            DragWindow(diff);
-        }
+        dragged = false;
+        _startMousePosition = evt.position;
+        _startPosition = new Vector2(_root.layout.x, _root.layout.y);
+        target.CapturePointer(evt.pointerId);
         evt.StopPropagation();
     }
 
-    public void PointerUpHandler(PointerUpEvent evt)
+    void OnPointerMove(PointerMoveEvent evt)
     {
-        if (target.HasPointerCapture(evt.pointerId))
-        {
-            target.ReleasePointer(evt.pointerId);
-        }
+        if (!target.HasPointerCapture(evt.pointerId))
+            return;
 
-        UpdateAnchorType();
+        dragged = true;
+        Vector2 delta = (Vector2)evt.position - _startMousePosition;
+        _root.style.left = _startPosition.x + delta.x;
+        _root.style.top = _startPosition.y + delta.y;
+        _root.style.right = StyleKeyword.Null;
+        _root.style.bottom = StyleKeyword.Null;
+        evt.StopPropagation();
     }
 
-    // Apply drag
-    private void DragWindow(Vector2 diff)
+    void OnPointerUp(PointerUpEvent evt)
     {
-        UpdateAnchorType();
+        if (!target.HasPointerCapture(evt.pointerId) || !CanStopManipulation(evt))
+            return;
 
-        if (_rightAnchor)
-        {
-            _root.style.right = Screen.width - _startPosition.x - _root.layout.width + diff.x;
-            _root.style.left = StyleKeyword.Null;
-        }
-        else
-        {
-            _root.style.left = _startPosition.x - diff.x;
-            _root.style.right = StyleKeyword.Null;
-        }
-
-        if (_bottomAnchor)
-        {
-            _root.style.bottom = Screen.height - _startPosition.y - _root.layout.height + diff.y;
-            _root.style.top = StyleKeyword.Null;
-        }
-        else
-        {
-            _root.style.top = _startPosition.y - diff.y;
-            _root.style.bottom = StyleKeyword.Null;
-        }
+        target.ReleasePointer(evt.pointerId);
+        evt.StopPropagation();
     }
 
-    // Update the anchor based on the window position ratio
-    private void UpdateAnchorType()
+    void OnPointerCaptureOut(PointerCaptureOutEvent _)
     {
-        _rightAnchor = _root.layout.position.x + (_root.layout.width / 2f) >= Screen.width / 2f;
-        _bottomAnchor = _root.layout.position.y + (_root.layout.height / 2f) >= Screen.height / 2f;
+        dragged = false;
+    }
+
+    bool IsUnderButton(VisualElement ve)
+    {
+        for (; ve != null && ve != target; ve = ve.parent)
+        {
+            if (ve is Button)
+                return true;
+        }
+        return false;
     }
 }

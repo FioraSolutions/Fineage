@@ -112,9 +112,10 @@ public class L2Slot
             _tooltipManipulator = null;
         }
 
-        if (_hoverManipulator == null)
+        if (_hoverManipulator != null)
         {
             _slotElement.RemoveManipulator(_hoverManipulator);
+            _hoverManipulator = null;
         }
     }
 }

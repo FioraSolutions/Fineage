@@ -1,5 +1,6 @@
 // FROZEN — no new members (#137)
 using System;
+using UnityEngine;
 
 public static class IncomingPacketActions
 {
@@ -374,9 +375,15 @@ public static class IncomingPacketActions
             return;
         Action action = () => ApplyWorld(apply);
         if (_applyQueue != null)
+        {
             _applyQueue.QueueNextFrame(action);
-        else
-            Queue(action);
+            return;
+        }
+
+        EventProcessor processor = _events != null ? _events : (_runtime != null ? _runtime.Events : EventProcessor.Instance);
+        if (processor == null)
+            processor = EventProcessor.EnsureInstance();
+        processor.QueueEvent(action);
     }
 
     public static void ApplyDomain(Action<IWorldDomainSink> apply)
@@ -400,6 +407,8 @@ public static class IncomingPacketActions
 
     public static void Queue(Action action)
     {
+        if (action == null)
+            return;
         if (_applyQueue != null)
         {
             _applyQueue.Queue(action);
@@ -408,9 +417,12 @@ public static class IncomingPacketActions
 
         EventProcessor processor = _events != null ? _events : (_runtime != null ? _runtime.Events : EventProcessor.Instance);
         if (processor != null)
+        {
             processor.QueueEvent(action);
-        else
-            action();
+            return;
+        }
+
+        Debug.LogError("[IncomingPacketActions] Queue dropped work: EventProcessor missing.");
     }
 
     public static void QueueApply(Action action)

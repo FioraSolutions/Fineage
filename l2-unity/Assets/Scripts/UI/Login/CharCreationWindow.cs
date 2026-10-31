@@ -404,7 +404,15 @@ public class CharCreationWindow : L2Window {
         raceManipulator.ClearInput();
         userInputField.value = "";
         SetlabelError("");
+        ReleaseCreatePawns();
         Manager.OnAuthAllowed();
+    }
+
+    public void ReleaseCreatePawns()
+    {
+        if (Creator != null)
+            Creator.DestroyAllPawns();
+        isInit = false;
     }
 
     private void ShowRotatePawnWindow() {

@@ -23,7 +23,14 @@ public class ClickManager : MonoBehaviour
 
     private InputManager GameInput
     {
-        get { return _input != null ? _input : ControllerPacketServices.Input; }
+        get
+        {
+            if (_input != null)
+                return _input;
+            if (ControllerPacketServices.Input != null)
+                return ControllerPacketServices.Input;
+            return InputManager.Instance;
+        }
     }
 
     private TargetManager Targets
@@ -67,8 +74,7 @@ public class ClickManager : MonoBehaviour
 
     void Start()
     {
-        _locator = GameObject.Find("Locator");
-        HideLocator();
+        _locator = null;
         WireClickPacketServices();
     }
 
@@ -89,13 +95,14 @@ public class ClickManager : MonoBehaviour
 
     void Update()
     {
-        if (Camera.main == null)
+        Camera cam = ResolvePickCamera();
+        if (cam == null)
         {
             _hoverObjectData = null;
             return;
         }
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         ItemEntity stickyDrop = null;
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
@@ -162,6 +169,19 @@ public class ClickManager : MonoBehaviour
         {
             _hoverObjectData = null;
         }
+    }
+
+    static Camera ResolvePickCamera()
+    {
+        CameraController controller = CameraController.Instance;
+        if (controller != null)
+        {
+            Camera cam = controller.GetComponent<Camera>();
+            if (cam != null && cam.enabled && cam.gameObject.activeInHierarchy)
+                return cam;
+        }
+
+        return Camera.main;
     }
 
     public void OnClickToMove(RaycastHit hit)
@@ -268,7 +288,12 @@ public class ClickManager : MonoBehaviour
     {
         EnsureLocator();
         if (_locator == null)
+            return;
+
+        ClickMoveLocator mark = _locator.GetComponent<ClickMoveLocator>();
+        if (mark != null)
         {
+            mark.PlaceAt(position);
             return;
         }
 
@@ -280,23 +305,33 @@ public class ClickManager : MonoBehaviour
     {
         if (_locator != null)
             return;
-        _locator = GameObject.Find("Locator");
-        if (_locator != null)
-            return;
-        GameObject prefab = Resources.Load<GameObject>("Data/Effects/locator/Locator");
+
+        // Prefer generated Interlude move-click (Tools/L2 Effects/Build Move Click).
+        GameObject prefab = Resources.Load<GameObject>("Data/Effects/locator/e_u093_a/e_u093_a");
+        if (prefab == null)
+            prefab = Resources.Load<GameObject>("Data/Effects/locator/e_u093_a_composite");
+        if (prefab == null)
+            prefab = Resources.Load<GameObject>("Data/Effects/locator/Locator");
         if (prefab == null)
             return;
+
         _locator = Instantiate(prefab);
-        _locator.name = "Locator";
+        _locator.name = "ClickMoveMark";
+        if (_locator.GetComponent<ClickMoveLocator>() == null)
+            _locator.AddComponent<ClickMoveLocator>();
+
+        // Keep alive until HideLocator — L2Particle would otherwise self-destroy on Play.
+        BaseEffect effect = _locator.GetComponentInChildren<BaseEffect>(true);
+        if (effect != null)
+            effect.BindLifetimeToHost();
+
         _locator.SetActive(false);
     }
 
     public void HideLocator()
     {
         if (_locator == null)
-        {
             return;
-        }
 
         _locator.SetActive(false);
     }

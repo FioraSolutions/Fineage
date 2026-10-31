@@ -6,7 +6,7 @@ public sealed class AppLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
-        RegisterIfFound<EventProcessor>(builder);
+        RegisterAppEventProcessor(builder);
         RegisterIfFound<GameManager>(builder);
         RegisterIfFound<SceneLoader>(builder);
         RegisterIfFound<GameClient>(builder);
@@ -81,6 +81,14 @@ public sealed class AppLifetimeScope : LifetimeScope
         builder.RegisterInstance(ModelTable.Instance);
         builder.RegisterInstance(LogongrpTable.Instance);
         builder.RegisterInstance(SystemMessageTable.Instance);
+    }
+
+    private void RegisterAppEventProcessor(IContainerBuilder builder)
+    {
+        EventProcessor events = GetComponent<EventProcessor>();
+        if (events == null)
+            events = gameObject.AddComponent<EventProcessor>();
+        builder.RegisterComponent(events);
     }
 
     private T ResolveComponent<T>() where T : MonoBehaviour

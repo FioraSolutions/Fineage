@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using UnityEngine;
-using VContainer;
 
+/// <summary>
+/// Main-thread packet/world apply pump. Owned by <see cref="DiBootstrap.EnsureAppScope"/>
+/// on the AppLifetimeScope DontDestroyOnLoad object — not Menu, Networking, or Game prefabs.
+/// </summary>
 public class EventProcessor : MonoBehaviour
 {
     WorldPacketApply _worldApply;
     private static EventProcessor _instance;
+
     [System.Obsolete("Use [Inject] instead")]
     public static EventProcessor Instance { get { return _instance; } }
 
@@ -27,12 +31,48 @@ public class EventProcessor : MonoBehaviour
         get { return System.Threading.Volatile.Read(ref _pending); }
     }
 
+    /// <summary>
+    /// Deferred apply must always have a pump. If DI has not produced one yet,
+    /// create an app-lifetime host instead of running work inline.
+    /// </summary>
+    public static EventProcessor EnsureInstance()
+    {
+        if (_instance != null)
+            return _instance;
+        EventProcessor found = FindAnyObjectByType<EventProcessor>();
+        if (found != null)
+        {
+            _instance = found;
+            return found;
+        }
+
+        GameObject host = new GameObject("EventProcessor (fallback)");
+        DontDestroyOnLoad(host);
+        EventProcessor created = host.AddComponent<EventProcessor>();
+        _instance = created;
+        Debug.LogWarning("[EventProcessor] none bound; created app-lifetime fallback pump.");
+        return created;
+    }
+
     private void Awake()
     {
-        if (_instance == null)
-            _instance = this;
-        else if (_instance != this)
+        if (_instance != null && _instance != this)
+        {
+            Debug.LogError(
+                "[EventProcessor] Duplicate on '" + name + "' scene=" + gameObject.scene.name
+                + ". Only AppLifetimeScope may host EventProcessor. Destroying this duplicate.");
             Destroy(this);
+            return;
+        }
+
+        _instance = this;
+        NetworkingPacketServices.Bind(events: this);
+    }
+
+    void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     public void WireGameApply(WorldPacketApply worldApply)
@@ -61,6 +101,8 @@ public class EventProcessor : MonoBehaviour
 
     public void QueueEvent(Action action)
     {
+        if (action == null)
+            return;
         lock (_batchGate)
         {
             _batches[_writeBatch].Enqueue(action);
@@ -93,8 +135,7 @@ public class EventProcessor : MonoBehaviour
             }
             catch (Exception ex)
             {
-                // Debug.LogError("Критическая ошибка EventProcessor: " + ex);
-                // LobbyFlowLog.Exception("EventProcessor.Update (Apply on main thread)", ex);
+                Debug.LogException(ex);
             }
         }
 

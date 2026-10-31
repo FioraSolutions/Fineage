@@ -27,4 +27,30 @@ public sealed class DropItemDto : IWireDto
         Unknown = reader.ReadI();
         UnityPos = VectorUtils.ConvertPosToUnity(new Vector3(X, Y, Z));
     }
+
+    /// <summary>Zone V2 <see cref="ZoneV2MsgType.DropItem"/> (1019).</summary>
+    public static DropItemDto FromZoneV2(
+        int charObjectId,
+        int objectId,
+        int itemId,
+        int x,
+        int y,
+        int z,
+        bool stackable,
+        int count,
+        int unknown = 0)
+    {
+        var dto = new DropItemDto();
+        dto.CharObjId = charObjectId;
+        dto.ObjectId = objectId;
+        dto.ItemId = itemId;
+        dto.X = x;
+        dto.Y = y;
+        dto.Z = z;
+        dto.Stackable = stackable;
+        dto.Count = count;
+        dto.Unknown = unknown;
+        dto.UnityPos = VectorUtils.ConvertPosToUnity(new Vector3(x, y, z));
+        return dto;
+    }
 }
