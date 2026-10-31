@@ -132,7 +132,14 @@ public class TerrainConverter : MonoBehaviour {
             GameObject destObject = GenerateMesh(terrainToConvert, terrainMat, true);
 
             if(saveAssets) {
-                //SaveMesh(saveFolder, destObject, false);
+                // Persist heightmap mesh and bind it before prefab save; otherwise prefab
+                // keeps MeshFilter.m_Mesh {fileID:0} (runtime-only mesh) => white void.
+                Mesh savedMesh = SaveMesh(saveFolder, destObject, false);
+                if (savedMesh != null) {
+                    destObject.GetComponent<MeshFilter>().sharedMesh = savedMesh;
+                    MeshCollider mc = destObject.GetComponent<MeshCollider>();
+                    if (mc != null) mc.sharedMesh = savedMesh;
+                }
                 SaveMaterial(saveFolder, terrainMat);
                 SaveTerrain(saveFolder, destObject);
             }
@@ -192,14 +199,18 @@ public class TerrainConverter : MonoBehaviour {
         return destObject;
     }
 
-    private static void SaveMesh(string saveFolder, GameObject destObject, bool safenet) {
-        Mesh convertedTerrainMesh = destObject.GetComponent<MeshFilter>().mesh;
+    private static Mesh SaveMesh(string saveFolder, GameObject destObject, bool safenet) {
+        Mesh convertedTerrainMesh = destObject.GetComponent<MeshFilter>().sharedMesh;
         string filename = mapToConvert + "_Mesh.asset";
         if(safenet) {
             filename = "Safenet_Mesh.asset";
         }
         string saveMeshPath = Path.Combine(saveFolder, filename).Replace("\\", "/");
+        if (AssetDatabase.LoadAssetAtPath<Mesh>(saveMeshPath) != null) {
+            AssetDatabase.DeleteAsset(saveMeshPath);
+        }
         MeshSaverEditor.SaveMeshToPath(convertedTerrainMesh, saveMeshPath, false, true);
+        return AssetDatabase.LoadAssetAtPath<Mesh>(saveMeshPath);
     }
 
     private static Material GenerateMaterial(string saveFolder, L2TerrainInfo terrainInfo) {
