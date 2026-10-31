@@ -14,7 +14,7 @@ PR CI (`.github/workflows/build-and-test.yml`) does not run Unity. The release w
 
 ## Where the client connects
 
-Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unity/Assets/Resources/Prefab/Networking.prefab` (`127.0.0.1:2106`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`). `AsynchronousClient` then dials TCP.
+Login is the serialized `_serverIp` / `_serverPort` on `LoginClient` in `l2-unity/Assets/Resources/Prefab/Networking.prefab` (`login.fineage.evpoint.by:2106`). The game address is whatever the login server puts in ServerList (`ServerSelectWindow` copies that IP and port onto `GameClient`). `AsynchronousClient` then dials TCP.
 
 `PlaytestEndpointRuntime` runs at the start of `Connect()`:
 
@@ -59,11 +59,7 @@ Highest priority first. An empty field does not clear a lower layer.
 5. `StreamingAssets/fineage-endpoint.json` inside the build.
 6. Resources asset `FineagePlaytest`.
 
-Local loopback (the prefab still says `127.0.0.1`; the playtest config replaces it unless you override):
-
-```bash
-Fineage.exe -fineageLoginHost 127.0.0.1 -fineageGameHost 127.0.0.1 -fineageLoginPort 2106 -fineageGamePort 7777
-```
+Loopback / `localhost` hosts are ignored by the client (`GameManager` falls back to the public RP defaults). There is no local-backend mode in the client.
 
 A one-off public host:
 

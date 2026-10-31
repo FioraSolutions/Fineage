@@ -27,7 +27,7 @@ public static class FineageLoginSession
         {
             await tcp.ConnectAsync(ip, port).ConfigureAwait(false);
             if (log != null)
-                log("[FineageLocal] login tcp connected " + host + ":" + port);
+                log("[Fineage] login tcp connected " + host + ":" + port);
 
             NetworkStream stream = tcp.GetStream();
             await ZoneV2FrameIO.SendAsync(
@@ -49,7 +49,7 @@ public static class FineageLoginSession
             if (!ZoneV2Messages.TryDecodeLoginOk(loginOk.Body, out canonical) || string.IsNullOrEmpty(canonical))
                 canonical = account;
             if (log != null)
-                log("[FineageLocal] login ok account=" + canonical);
+                log("[Fineage] login ok account=" + canonical);
 
             await ZoneV2FrameIO.SendAsync(
                 stream,
@@ -74,7 +74,7 @@ public static class FineageLoginSession
                 throw new InvalidOperationException("That character is pending deletion.");
 
             if (log != null)
-                log("[FineageLocal] select character=" + selected.Name + " id=" + selected.CharacterId);
+                log("[Fineage] select character=" + selected.Name + " id=" + selected.CharacterId);
 
             await ZoneV2FrameIO.SendAsync(
                 stream,
@@ -100,7 +100,7 @@ public static class FineageLoginSession
             int tokenLength = handoff.Token != null ? handoff.Token.Length : 0;
             if (log != null)
             {
-                log("[FineageLocal] handoff character=" + handoff.CharacterName
+                log("[Fineage] handoff character=" + handoff.CharacterName
                     + " zone=" + handoff.ZoneHost + ":" + handoff.ZonePort
                     + " tokenPrefix=" + prefix
                     + " tokenLength=" + tokenLength);

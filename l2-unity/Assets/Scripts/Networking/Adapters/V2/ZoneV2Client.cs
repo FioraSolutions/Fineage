@@ -126,21 +126,21 @@ public sealed class ZoneV2Client : MonoBehaviour
             int loginPort = FineageWireConfig.LoginPort;
             if (FineageWireConfig.IsPublicLoginHost(loginHost))
             {
-                FineageLocalBackend.ClearCharacterHint();
-                Debug.Log("[FineageLocal] public lobby login " + loginHost + ":" + loginPort);
+                FineageLaunchArgs.ClearCharacterHint();
+                Debug.Log("[Fineage] public lobby login " + loginHost + ":" + loginPort);
                 Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
                 return;
             }
 
-            string character = FineageLocalBackend.CharacterHint;
+            string character = FineageLaunchArgs.CharacterHint;
             if (!string.IsNullOrEmpty(character))
             {
-                Debug.Log("[FineageLocal] auto-pick character='" + character + "'");
+                Debug.Log("[Fineage] auto-pick character='" + character + "'");
                 Task.Run(() => RunLoginThenZoneAsync(loginHost, loginPort, account, password, character, ct));
                 return;
             }
 
-            Debug.Log("[FineageLocal] lobby login " + loginHost + ":" + loginPort);
+            Debug.Log("[Fineage] lobby login " + loginHost + ":" + loginPort);
             Task.Run(() => OpenLobbyAsync(loginHost, loginPort, account, password, ct));
             return;
         }
@@ -196,7 +196,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         try
         {
             await session.ConnectAsync(loginHost, loginPort, account, password).ConfigureAwait(false);
-            Post(() => Debug.Log("[FineageLocal] lobby ready account=" + session.Account));
+            Post(() => Debug.Log("[Fineage] lobby ready account=" + session.Account));
         }
         catch (OperationCanceledException)
         {
@@ -213,7 +213,7 @@ public sealed class ZoneV2Client : MonoBehaviour
 
             Post(() =>
             {
-                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                Debug.LogError("[Fineage] login failed: " + ex.Message);
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText(ex.Message);
             });
@@ -243,8 +243,8 @@ public sealed class ZoneV2Client : MonoBehaviour
         if (manager != null)
             manager.OnAuthAllowed();
         else
-            Debug.LogError("[FineageLocal] GameManager missing; character select was not shown.");
-        Debug.Log("[FineageLocal] roster count=" + (characters != null ? characters.Length : 0));
+            Debug.LogError("[Fineage] GameManager missing; character select was not shown.");
+        Debug.Log("[Fineage] roster count=" + (characters != null ? characters.Length : 0));
     }
 
     void HandleLobbyHandoff(ZoneV2Handoff handoff, CancellationToken ct)
@@ -264,7 +264,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         int tokenLength = handoff.Token != null ? handoff.Token.Length : 0;
         Post(() =>
         {
-            Debug.Log("[FineageLocal] handoff character=" + handoff.CharacterName
+            Debug.Log("[Fineage] handoff character=" + handoff.CharacterName
                 + " zone=" + handoff.ZoneHost + ":" + handoff.ZonePort
                 + " tokenPrefix=" + prefix
                 + " tokenLength=" + tokenLength);
@@ -281,7 +281,7 @@ public sealed class ZoneV2Client : MonoBehaviour
     {
         _selectGeneration++;
         string text = LobbyCharacterText.ErrorMessage(code, message);
-        Debug.LogWarning("[FineageLocal] lobby " + code + ": " + message);
+        Debug.LogWarning("[Fineage] lobby " + code + ": " + message);
         if (_returnToSelectOnRoster)
         {
             _returnToSelectOnRoster = false;
@@ -306,7 +306,7 @@ public sealed class ZoneV2Client : MonoBehaviour
     {
         if (_zoneStarted)
             return;
-        Debug.LogWarning("[FineageLocal] lobby closed: " + reason);
+        Debug.LogWarning("[Fineage] lobby closed: " + reason);
         CloseLobby();
         if (CharSelectWindow.Instance != null)
             CharSelectWindow.Instance.ShowLobbyStatus(reason);
@@ -441,8 +441,8 @@ public sealed class ZoneV2Client : MonoBehaviour
         {
             Post(() =>
             {
-                Debug.Log("[FineageLocal] empty roster → CharSelect");
-                FineageLocalBackend.ClearCharacterHint();
+                Debug.Log("[Fineage] empty roster → CharSelect");
+                FineageLaunchArgs.ClearCharacterHint();
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText("");
             });
@@ -453,7 +453,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         {
             Post(() =>
             {
-                Debug.LogError("[FineageLocal] login failed: " + ex.Message);
+                Debug.LogError("[Fineage] login failed: " + ex.Message);
                 if (LoginWindow.Instance != null)
                     LoginWindow.Instance.ShowErrorText(ex.Message);
             });
@@ -1493,14 +1493,14 @@ public sealed class ZoneV2Client : MonoBehaviour
 
         manager.OnCharacterSelect();
         SendRequestQuestList();
-        if (FineageLocalBackend.QuitAfterSpawn)
+        if (FineageLaunchArgs.QuitAfterSpawn)
             StartCoroutine(QuitAfterSpawnRoutine());
     }
 
     IEnumerator QuitAfterSpawnRoutine()
     {
         yield return new WaitForSeconds(2f);
-        Debug.Log("[FineageLocal] quit after spawn");
+        Debug.Log("[Fineage] quit after spawn");
         Application.Quit();
     }
 

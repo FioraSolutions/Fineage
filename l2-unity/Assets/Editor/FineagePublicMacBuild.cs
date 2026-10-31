@@ -6,7 +6,7 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 /// <summary>
-/// StandaloneOSX player for the public RP. No FINEAGE_LOCAL_BACKEND.
+/// StandaloneOSX player for the public RP.
 /// Hosts stay the committed playtest endpoints (login/game/api on evpoint.by).
 /// </summary>
 public static class FineagePublicMacBuild
