@@ -40,7 +40,7 @@ public sealed class PacketApplyQueue
 
         // Never run inline: UpdateNpc re-queues itself when SpawnFrameBudget is exhausted,
         // so an inline fallback recursed until the main-thread stack overflowed (Standalone SIGSEGV).
-        EventProcessor processor = _events != null ? _events : NetworkingPacketServices.Events;
+        EventProcessor processor = NetworkingPacketServices.Events;
         if (processor == null)
             processor = EventProcessor.EnsureInstance();
         processor.QueueEvent(action);
