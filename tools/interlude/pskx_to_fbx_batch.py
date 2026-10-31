@@ -49,12 +49,17 @@ def main() -> None:
             if name.endswith(".pskx"):
                 model_files.append(os.path.join(dirpath, name))
     model_files.sort()
+    failed = []
     print("converting", len(model_files), "pskx files under", root)
     for i, path in enumerate(model_files, 1):
         if i % 25 == 0:
             print(i, "/", len(model_files), path)
-        convert_one(path)
-    print("done")
+        try:
+            convert_one(path)
+        except Exception as exc:  # one broken pskx must not abort the whole tile
+            failed.append(path)
+            print("FAILED", path, exc)
+    print("done, failed:", len(failed))
 
 
 if __name__ == "__main__":

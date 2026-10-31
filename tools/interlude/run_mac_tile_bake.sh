@@ -41,7 +41,16 @@ phase_a() {
   fi
   mkdir -p "$EXTRACT"
   echo "== Phase A: L2TerrainExtractor -> $EXTRACT/$TILE"
-  (cd "$EXTRACTOR" && ./gradlew run --args="--client-root $CLIENT --map $TILE --output $EXTRACT/$TILE --static-meshes")
+  local jar
+  jar="$(ls "$EXTRACTOR"/build/libs/*-all.jar 2>/dev/null | head -1 || true)"
+  if [[ -f "$EXTRACT/$TILE/${TILE}_metadata.txt" && -f "$EXTRACT/$TILE/staticmeshes.json" ]]; then
+    echo "extract cache hit: $EXTRACT/$TILE"
+  elif [[ -n "$jar" ]]; then
+    # Extractor writes <out>/<XX_YY>/... for every tile it finds (one pass covers all tiles).
+    (cd "$EXTRACTOR" && java -jar "$jar" "$CLIENT/textures" -p "t_${TILE}.utx" --maps="$CLIENT/maps" --detail-maps="$CLIENT/textures" --static-meshes --terrain-textures -o "$EXTRACT")
+  else
+    (cd "$EXTRACTOR" && ./gradlew run --args="--client-root $CLIENT --map $TILE --output $EXTRACT/$TILE --static-meshes")
+  fi
   echo "== Phase A: prepare_interlude_tile.py"
   python3 "$REPO/tools/interlude/prepare_interlude_tile.py" "$TILE" --extract-dir "$EXTRACT"
 }
