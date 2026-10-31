@@ -252,7 +252,7 @@ public class TerrainConverter : MonoBehaviour {
             texture2DArrayGenerator.sourceTextures = alphaMaps;
             string saveAlphamapPath = Path.Combine(saveFolder, mapToConvert + "_Alphamap.asset");
             Texture2DArray alphamaps = texture2DArrayGenerator.GenerateTexture2DArray(saveAlphamapPath);
-            terrainMat.SetTexture("_SplatMaps", alphamaps);
+            terrainMat.SetTexture("_Splatmaps", alphamaps);
         }
 
         terrainMat.SetVector("_Global_UV_Size", new Vector2(uvScale, uvScale));
