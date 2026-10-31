@@ -38,15 +38,11 @@ public sealed class PacketApplyQueue
         if (action == null)
             return;
 
-        EventProcessor processor = NetworkingPacketServices.Events;
+        // Never run inline: UpdateNpc re-queues itself when SpawnFrameBudget is exhausted,
+        // so an inline fallback recursed until the main-thread stack overflowed (Standalone SIGSEGV).
+        EventProcessor processor = _events != null ? _events : NetworkingPacketServices.Events;
         if (processor == null)
-        {
-            Debug.LogError(
-                "[PacketApplyQueue] QueueNextFrame dropped work: EventProcessor missing. "
-                + "Expected on AppLifetimeScope (DiBootstrap.EnsureAppScope).");
-            return;
-        }
-
+            processor = EventProcessor.EnsureInstance();
         processor.QueueEvent(action);
     }
 
