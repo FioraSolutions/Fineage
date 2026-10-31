@@ -87,6 +87,7 @@ Refresh after each batch or via **Shnok/0.1**.
 | `21_21` | full | Northwest of Giran |
 | `23_21` | full | Southwest of Giran (toward Hunter) |
 | `23_23` | full | Southeast of Giran (toward Heine) |
+| `21_19` | full | Elven Village (#559) — first tile with world Location + streamable scene |
 
 ## Mac one-tile recipe (#476 — 3×3 ring around `22_22`)
 
@@ -135,3 +136,16 @@ Helper scripts live under `tools/interlude/` (`prepare_interlude_tile.py`, `expo
 
 - Do not commit NCSoft client binaries.
 - Mac/local Editor owns actual bakes; this document + Editor tooling are safe to land via PR without a client on CI/ cloud VMs.
+
+## World placement + streaming scene (Elven Village `21_19`)
+
+`prepare_interlude_tile.py` now writes `GeneratedSectorCounter` and `Location` (from the extractor metadata) into `TerrainInfo0` / T3D. Without them the terrain bakes at the Unity origin instead of its world square — **tiles baked before this fix (Giran ring, Dion) sit at origin and need a re-bake**.
+
+Streaming in Play Mode needs `Assets/Resources/Scenes/XX_YY.unity` in Build Settings (SceneLoader uses `Application.CanStreamedLevelBeLoaded`). Generate it after the bake:
+
+```bash
+FINEAGE_INTERLUDE_TILES=21_19 Unity -batchmode -nographics -quit -projectPath l2-unity \
+  -executeMethod L2InterludeTileSceneCli.RunCli
+```
+
+Extractor note: run the jar directly (`java -jar External/L2TerrainExtractor/build/libs/l2terrain-1.0.0-all.jar "$CLIENT/textures" -p t_XX_YY.utx --maps "$CLIENT/maps" --static-meshes -o out`); it writes `out/XX_YY/…`. `run_mac_tile_bake.sh phase-a` gradle args are stale.
