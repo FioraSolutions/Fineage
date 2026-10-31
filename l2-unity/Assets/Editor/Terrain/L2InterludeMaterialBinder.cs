@@ -100,6 +100,7 @@ public static class L2InterludeMaterialBinder
         log.Add("materials bound: " + fixedN + ", still untextured: " + missing +
                 (missingNames.Count > 0 ? " (e.g. " + string.Join(", ", missingNames) + ")" : ""));
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
+        log.Add("SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
         log.Add(L2InterludeStaticMeshColliders.Run(null));
         log.Add(L2InterludeWaterVolumes.Run(null));
     }
@@ -113,6 +114,7 @@ public static class L2InterludeMaterialBinder
             foreach (var f in Directory.GetFiles(r, "*.props.txt", SearchOption.AllDirectories))
                 props[Path.GetFileName(f).Replace(".props.txt", "")] = f;
         Debug.Log("[MatBinder] translucent (water) materials fixed: " + FixTranslucent(props));
+        Debug.Log("[MatBinder] SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
         Debug.Log("[Water] " + L2InterludeWaterVolumes.Run(null));
     }
 
@@ -198,6 +200,83 @@ public static class L2InterludeMaterialBinder
                 ti.alphaSource = TextureImporterAlphaSource.None;
                 ti.SaveAndReimport();
             }
+            EditorUtility.SetDirty(m);
+            n++;
+        }
+        AssetDatabase.SaveAssets();
+        return n;
+    }
+
+    /// <summary>
+    /// UE Shader mats (e.g. oren_hev_t elf_vi_0002 = Elven Village stair/bridge deck) were imported onto
+    /// URP SpeedTree8 shadergraph (meant for leaves). On a plain StaticMesh its wind/billboard vertex path
+    /// collapses the geometry => deck invisible while railings (Lit) render. Here: any SpeedTree mat whose
+    /// L2 Shader props say AlphaTest=false + ZWrite=true (solid surface, not foliage/water) -> URP Lit opaque
+    /// (alpha clip only if the diffuse texture actually has alpha), two-sided per TwoSided.
+    /// </summary>
+    static int FixSpeedTreeOpaque(Dictionary<string, string> props)
+    {
+        int n = 0;
+        Shader lit = Shader.Find("Universal Render Pipeline/Lit");
+        if (lit == null) return 0;
+        Dictionary<string, List<string>> tex = null;
+        foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
+        {
+            string mp = AssetDatabase.GUIDToAssetPath(g);
+            var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+            if (m == null || m.shader == null || m.shader.name.IndexOf("SpeedTree", StringComparison.OrdinalIgnoreCase) < 0) continue;
+            if (Regex.IsMatch(m.name, "water|leaf|leaves|grass|bush", RegexOptions.IgnoreCase)) continue;
+            if (!props.TryGetValue(m.name, out var pf)) continue;
+            string txt = File.ReadAllText(pf);
+            if (!Regex.IsMatch(txt, @"^\s*AlphaTest\s*=\s*false", RegexOptions.Multiline)) continue;
+            if (!Regex.IsMatch(txt, @"^\s*ZWrite\s*=\s*true", RegexOptions.Multiline)) continue;
+            if (tex == null)
+            {
+                tex = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var tg in AssetDatabase.FindAssets("t:Texture2D", new[] { TexRoot }))
+                {
+                    string tp = AssetDatabase.GUIDToAssetPath(tg);
+                    string tn = Path.GetFileNameWithoutExtension(tp);
+                    if (!tex.TryGetValue(tn, out var tl)) tex[tn] = tl = new List<string>();
+                    tl.Add(tp);
+                }
+            }
+            var info = Resolve(m.name, props, tex, 0);
+            Texture t = null;
+            string texPath = Pick(info.tex, tex, mp);
+            if (texPath != null) t = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+            if (t == null && m.HasProperty("_MainTex")) t = m.GetTexture("_MainTex");
+            if (t == null) continue;
+            bool hasAlpha = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(t)) is TextureImporter ti && ti.DoesSourceTextureHaveAlpha()
+                            && ti.alphaSource != TextureImporterAlphaSource.None;
+
+            m.shader = lit;
+            m.shaderKeywords = new string[0];
+            m.SetTexture("_BaseMap", t);
+            m.SetTexture("_MainTex", t);
+            m.SetColor("_BaseColor", Color.white);
+            m.SetColor("_Color", Color.white);
+            m.SetFloat("_Surface", 0f);
+            m.SetFloat("_ZWrite", 1f);
+            m.SetFloat("_SrcBlend", 1f); m.SetFloat("_DstBlend", 0f);
+            m.SetFloat("_Smoothness", 0f);
+            m.SetFloat("_SpecularHighlights", 0f); m.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
+            m.SetFloat("_EnvironmentReflections", 0f); m.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+            if (hasAlpha)
+            {
+                m.SetFloat("_AlphaClip", 1f); m.SetFloat("_Cutoff", 0.5f); m.EnableKeyword("_ALPHATEST_ON");
+                m.SetOverrideTag("RenderType", "TransparentCutout");
+                m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+            }
+            else
+            {
+                m.SetFloat("_AlphaClip", 0f); m.DisableKeyword("_ALPHATEST_ON");
+                m.SetOverrideTag("RenderType", "Opaque");
+                m.renderQueue = -1;
+            }
+            bool two = Regex.IsMatch(txt, @"^\s*(TwoSided|TreatAsTwoSided)\s*=\s*true", RegexOptions.Multiline);
+            m.SetFloat("_Cull", two ? 0f : 2f);
+            m.doubleSidedGI = two;
             EditorUtility.SetDirty(m);
             n++;
         }
