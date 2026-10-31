@@ -119,8 +119,11 @@ public class L2InterludeAutoBakeWindow : EditorWindow
         finally
         {
             EditorUtility.ClearProgressBar();
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            if (!diagnoseOnly)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
         }
         Log("Done. Log also in Console.");
     }
@@ -157,11 +160,18 @@ public class L2InterludeAutoBakeWindow : EditorWindow
             if (Directory.Exists(exportDir)) L2InterludeClientSettings.UModelExportRoot = exportDir;
             L2InterludeClientSettings.ClientRoot = clientRoot;
             var steps = L2InterludeTileBakePipeline.DefaultSteps;
-            if (withMaterials) steps |= L2InterludeBakeStep.GenerateMaterials;
+            if (withMaterials)
+            {
+                steps |= L2InterludeBakeStep.GenerateMaterials;
+                Log(tile + ": GenerateMaterials (global) — Editor may Import many .mat; watch Console");
+            }
             var r = L2InterludeTileBakePipeline.RunSingleTile(tile, steps);
             foreach (string l in r.log) Log("  " + l);
             ok = r.success;
             Log(tile + ": pipeline " + (ok ? "OK" : "FAIL"));
+            var mlog = new List<string>();
+            L2InterludeMaterialBinder.Bind(Directory.Exists(exportDir) ? new[] { exportDir } : null, mlog);
+            foreach (string l in mlog) Log("  materials: " + l);
         }
         if (runScene && ok)
         {
