@@ -148,7 +148,7 @@ public static class L2InterludeTileBakePipeline
 
             if ((steps & L2InterludeBakeStep.GenerateStaticMeshScene) != 0 && hasT3d)
             {
-                L2MapStaticMeshBuilder.MeshLocalYawFix = 0f; // yaw override disabled: original (pre-e9acde033) orientation was correct
+                L2MapStaticMeshBuilder.MeshLocalYawFix = 90f; // +90 confirmed correct by visual check (bridge/ring)
                 try { L2TerrainGeneratorTool.GenerateStaticMeshesForMap(tileId); }
                 finally { L2MapStaticMeshBuilder.MeshLocalYawFix = 0f; }
                 SaveScenePrefab(tileId, "StaticMeshes", "StaticMeshes.prefab");
