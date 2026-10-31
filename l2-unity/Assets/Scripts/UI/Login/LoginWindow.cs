@@ -16,6 +16,8 @@ public class LoginWindow : L2Window
     private TextField _userInput;
     private TextField _passwordInput;
     private Label _labelError;
+    private Button _loginButton;
+    private bool _loginBusy;
 
     private static LoginWindow _instance;
     public static LoginWindow Instance { get { return _instance; } }
@@ -53,9 +55,10 @@ public class LoginWindow : L2Window
         yield return new WaitForEndOfFrame();
 
         _labelError = (Label)GetElementById("LabelError");
-        Button loginButton = (Button) GetElementById("LoginButton");
-        loginButton.AddManipulator(new ButtonClickSoundManipulator(loginButton));
-        loginButton.RegisterCallback<ClickEvent>(evt => LoginButtonPressed());
+        _loginButton = (Button) GetElementById("LoginButton");
+        _loginButton.AddManipulator(new ButtonClickSoundManipulator(_loginButton));
+        _loginButton.RegisterCallback<ClickEvent>(evt => LoginButtonPressed());
+        SetLoginBusy(false);
 
         Button exitButton = (Button)GetElementById("ExitButton");
         exitButton.AddManipulator(new ButtonClickSoundManipulator(exitButton));
@@ -130,6 +133,9 @@ public class LoginWindow : L2Window
     }
 
     private void LoginButtonPressed() {
+        if (_loginBusy)
+            return;
+
         LoginClient login = Login;
         string account = _userInput.value.ToLower().Trim();
         string password = _passwordInput.value.Trim();
@@ -142,6 +148,8 @@ public class LoginWindow : L2Window
         if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
             return;
 
+        SetLoginBusy(true);
+
         IZoneTransport transport = _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
         bool bypassesInterlude = transport != null && transport.BypassesInterludeLogin;
         if (FineageWireConfig.LoginPressStartsZoneSession(bypassesInterlude))
@@ -153,7 +161,7 @@ public class LoginWindow : L2Window
             }
 
             if (FineageWireConfig.UseLoginHandoff)
-                ShowErrorText("Connecting to " + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort);
+                ShowStatusText("Connecting to " + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort);
 
             try
             {
@@ -187,6 +195,13 @@ public class LoginWindow : L2Window
         login.Connect();
     }
 
+    void SetLoginBusy(bool busy)
+    {
+        _loginBusy = busy;
+        if (_loginButton != null)
+            _loginButton.SetEnabled(!busy);
+    }
+
     private void ExitButtonPressed() {
         Application.Quit();
     }
@@ -194,8 +209,15 @@ public class LoginWindow : L2Window
 
     public void ShowErrorText(string text)
     {
+        ShowStatusText(text);
+        // Failures / clear — allow another attempt. In-flight status uses ShowStatusText only.
+        SetLoginBusy(false);
+    }
+
+    public void ShowStatusText(string text)
+    {
         if (_labelError != null)
-            _labelError.text = text;
+            _labelError.text = text ?? string.Empty;
     }
 
     public override void HideWindow() {
@@ -208,6 +230,7 @@ public class LoginWindow : L2Window
         base.ShowWindow();
         if (_logo != null)
             _logo.style.display = DisplayStyle.Flex;
+        SetLoginBusy(false);
         _userInput?.Focus();
     }
 }
