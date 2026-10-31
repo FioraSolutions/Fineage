@@ -376,7 +376,7 @@ public static class IncomingPacketActions
         if (_applyQueue != null)
             _applyQueue.QueueNextFrame(action);
         else
-            Queue(action);
+            EventProcessor.EnsureInstance().QueueEvent(action);
     }
 
     public static void ApplyDomain(Action<IWorldDomainSink> apply)

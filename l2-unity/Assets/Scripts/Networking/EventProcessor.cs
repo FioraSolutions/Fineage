@@ -27,6 +27,29 @@ public class EventProcessor : MonoBehaviour
         get { return System.Threading.Volatile.Read(ref _pending); }
     }
 
+    /// <summary>
+    /// Deferred apply must always have a pump. If DI has not produced one yet,
+    /// create an app-lifetime host instead of running work inline.
+    /// </summary>
+    public static EventProcessor EnsureInstance()
+    {
+        if (_instance != null)
+            return _instance;
+        EventProcessor found = FindAnyObjectByType<EventProcessor>();
+        if (found != null)
+        {
+            _instance = found;
+            return found;
+        }
+
+        GameObject host = new GameObject("EventProcessor (fallback)");
+        DontDestroyOnLoad(host);
+        EventProcessor created = host.AddComponent<EventProcessor>();
+        _instance = created;
+        Debug.LogWarning("[EventProcessor] none bound; created app-lifetime fallback pump.");
+        return created;
+    }
+
     private void Awake()
     {
         if (_instance == null)
