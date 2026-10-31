@@ -157,7 +157,7 @@ public static class L2InterludeMaterialBinder
 
             // water diffuse alpha is ~0 in the UT2 dumps; drop it so opacity comes from _BaseColor.a
             var t = m.GetTexture("_BaseMap");
-            if (t != null && AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(t)) is TextureImporter ti &&
+            if (t != null && UnityEditor.AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(t)) is TextureImporter ti &&
                 ti.alphaSource != TextureImporterAlphaSource.None)
             {
                 ti.alphaSource = TextureImporterAlphaSource.None;
