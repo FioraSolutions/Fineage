@@ -27,31 +27,6 @@ public static class AnimatorBoolSet
         return map.TryGetValue(hash, out AnimatorControllerParameterType found) && found == type;
     }
 
-    static readonly Dictionary<long, HashSet<int>> Floats = new Dictionary<long, HashSet<int>>();
-
-    public static bool HasFloat(Animator animator, string name)
-    {
-        if (animator == null || string.IsNullOrEmpty(name) || animator.runtimeAnimatorController == null)
-            return false;
-
-        long key = KeyOf(animator);
-        HashSet<int> names;
-        if (!Floats.TryGetValue(key, out names))
-        {
-            names = new HashSet<int>();
-            AnimatorControllerParameter[] parameters = animator.parameters;
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                if (parameters[i].type == AnimatorControllerParameterType.Float)
-                    names.Add(parameters[i].nameHash);
-            }
-
-            Floats[key] = names;
-        }
-
-        return names.Contains(Animator.StringToHash(name));
-    }
-
     public static void SetIfExists(Animator animator, string name, bool value)
     {
         if (!HasBool(animator, name))
