@@ -50,6 +50,17 @@ def write_height_bmp(raw_path: Path, bmp_path: Path) -> None:
     bmp_path.write_bytes(out)
 
 
+def find_ground_texture(extract_dir: Path, ground: str) -> Path | None:
+    d = extract_dir / "terraintextures"
+    if not d.is_dir():
+        return None
+    want = ground.lower() + ".png"
+    for f in d.iterdir():
+        if f.name.lower() == want:
+            return f
+    return None
+
+
 def parse_metadata(meta_path: Path) -> dict:
     splats: list[tuple[int, str, str]] = []
     loc = (0.0, 0.0, 0.0)
@@ -110,6 +121,11 @@ def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str) -> str:
         idx += 1
     for i in range(64):
         lines.append(f"QuadVisibilityBitmap({i})=-1")
+    # World placement: without these the Unity terrain bakes at origin (#559 / Elven Village).
+    lx, ly, lz = meta["location"]
+    lines.append("GeneratedSectorCounter=256")
+    lines.append(f"Location=(X={lx:.6f},Y={ly:.6f},Z={lz:.6f})")
+    lines.append("DrawScale=10.000000")
     return "\n".join(lines) + "\n"
 
 
@@ -118,7 +134,7 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
     for line in terrain_info0.splitlines():
         if line.startswith("TerrainMap=") or line.startswith("TerrainScale=") or line.startswith("Layers("):
             out.append("    " + line)
-        elif line.startswith("DecoLayers("):
+        elif line.startswith(("DecoLayers(", "GeneratedSectorCounter=", "Location=", "DrawScale=")):
             out.append("    " + line)
     out.append("End Actor")
     individuals: list[str] = []
@@ -200,10 +216,16 @@ def main() -> None:
             continue
         alpha_name = f"{tile_id}_splat{layer_num}"
         shutil.copy2(splat_file, tex_dir / f"{alpha_name}.png")
-        # Ground tiling texture placeholder name; umodel/Unity import fills PNG.
+        # Ground diffuse comes from the extractor's terraintextures/ dump. Never fall back to the
+        # splat PNG: that made _Layer.asset == _Alphamap.asset (grayscale masks as ground diffuse)
+        # => black/dark holes on the ground (Elven 20_19..21_20).
         ground_png = tex_dir / f"{ground}.png"
-        if not ground_png.exists():
-            shutil.copy2(splat_file, ground_png)
+        ground_src = find_ground_texture(args.extract_dir, ground)
+        if ground_src is not None:
+            if not ground_png.exists() or ground_png.read_bytes() == splat_file.read_bytes():
+                shutil.copy2(ground_src, ground_png)
+        elif not ground_png.exists():
+            print(f"WARN {tile_id}: ground texture {ground} not in terraintextures/ (layer will be gray)")
 
     terrain_info0 = build_terrain_info0(tile_id, meta, tile_tex)
     (meta_dir / "TerrainInfo0.txt").write_text(terrain_info0, encoding="utf-8")

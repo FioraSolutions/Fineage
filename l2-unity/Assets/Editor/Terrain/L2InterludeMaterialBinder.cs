@@ -99,6 +99,75 @@ public static class L2InterludeMaterialBinder
         AssetDatabase.SaveAssets();
         log.Add("materials bound: " + fixedN + ", still untextured: " + missing +
                 (missingNames.Count > 0 ? " (e.g. " + string.Join(", ", missingNames) + ")" : ""));
+        log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
+    }
+
+    [MenuItem("Shnok/0.2. [Interlude] Fix water / translucent StaticMesh materials")]
+    public static void FixWaterMenu()
+    {
+        string repo = RepoRoot;
+        var props = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var r in Directory.GetDirectories(Path.Combine(repo, ".work"), "umodel-export-*"))
+            foreach (var f in Directory.GetFiles(r, "*.props.txt", SearchOption.AllDirectories))
+                props[Path.GetFileName(f).Replace(".props.txt", "")] = f;
+        Debug.Log("[MatBinder] translucent (water) materials fixed: " + FixTranslucent(props));
+    }
+
+    /// <summary>
+    /// L2 water (Oren_HEV_S WaterShader01 / WaterShaderPan01, FX_E_S elf_water_01sh...) is a Shader with
+    /// Opacity texture + ZWrite=false + AlphaTest=false, i.e. alpha-blended. The generic bind treated
+    /// "Opacity=" as cutout (clip 0.5) and the water diffuse alpha is low => whole surface clipped => no water.
+    /// Here: URP Lit Transparent, alpha from _BaseColor (texture alpha ignored), two-sided, glossy.
+    /// </summary>
+    static int FixTranslucent(Dictionary<string, string> props)
+    {
+        int n = 0;
+        foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot }))
+        {
+            string mp = AssetDatabase.GUIDToAssetPath(g);
+            var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+            if (m == null || m.shader == null || m.shader.name != "Universal Render Pipeline/Lit") continue;
+            if (!props.TryGetValue(m.name, out var pf)) continue;
+            string txt = File.ReadAllText(pf);
+            bool noZ = Regex.IsMatch(txt, @"^\s*ZWrite\s*=\s*false", RegexOptions.Multiline);
+            bool alphaTest = Regex.IsMatch(txt, @"^\s*AlphaTest\s*=\s*true", RegexOptions.Multiline);
+            bool opacity = Regex.IsMatch(txt, @"^\s*Opacity\s*=\s*\w+'", RegexOptions.Multiline);
+            bool water = Regex.IsMatch(m.name, "water", RegexOptions.IgnoreCase);
+            if (!(noZ && opacity && !alphaTest) && !(water && !alphaTest && opacity)) continue;
+            if (m.GetFloat("_Surface") == 1f && m.renderQueue == (int)UnityEngine.Rendering.RenderQueue.Transparent) continue;
+
+            m.SetFloat("_Surface", 1f);
+            m.SetFloat("_Blend", 0f);
+            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            m.SetFloat("_SrcBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
+            m.SetFloat("_DstBlendAlpha", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            m.SetFloat("_ZWrite", 0f);
+            m.SetFloat("_AlphaClip", 0f);
+            m.DisableKeyword("_ALPHATEST_ON");
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            m.SetFloat("_Cull", 0f);
+            m.SetColor("_BaseColor", new Color(0.75f, 0.85f, 0.9f, 0.7f));
+            m.SetColor("_Color", new Color(0.75f, 0.85f, 0.9f, 0.7f));
+            m.SetFloat("_Smoothness", 0.85f);
+            m.SetFloat("_SpecularHighlights", 1f); m.DisableKeyword("_SPECULARHIGHLIGHTS_OFF");
+            m.SetFloat("_EnvironmentReflections", 1f); m.DisableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
+
+            // water diffuse alpha is ~0 in the UT2 dumps; drop it so opacity comes from _BaseColor.a
+            var t = m.GetTexture("_BaseMap");
+            if (t != null && AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(t)) is TextureImporter ti &&
+                ti.alphaSource != TextureImporterAlphaSource.None)
+            {
+                ti.alphaSource = TextureImporterAlphaSource.None;
+                ti.SaveAndReimport();
+            }
+            EditorUtility.SetDirty(m);
+            n++;
+        }
+        AssetDatabase.SaveAssets();
+        return n;
     }
 
     struct Info { public string tex; public bool cutout, twoSided; }
