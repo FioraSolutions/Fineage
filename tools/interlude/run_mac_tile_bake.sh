@@ -43,13 +43,19 @@ phase_a() {
   echo "== Phase A: L2TerrainExtractor -> $EXTRACT/$TILE"
   local jar
   jar="$(ls "$EXTRACTOR"/build/libs/*-all.jar 2>/dev/null | head -1 || true)"
-  if [[ -f "$EXTRACT/$TILE/${TILE}_metadata.txt" && -f "$EXTRACT/$TILE/staticmeshes.json" ]]; then
+  # Require heightmap.raw — metadata+json alone can be a stale/partial extract.
+  if [[ -f "$EXTRACT/$TILE/${TILE}_metadata.txt" && -f "$EXTRACT/$TILE/staticmeshes.json" && -f "$EXTRACT/$TILE/${TILE}_heightmap.raw" ]]; then
     echo "extract cache hit: $EXTRACT/$TILE"
   elif [[ -n "$jar" ]]; then
     # Extractor writes <out>/<XX_YY>/... for every tile it finds (one pass covers all tiles).
     (cd "$EXTRACTOR" && java -jar "$jar" "$CLIENT/textures" -p "t_${TILE}.utx" --maps="$CLIENT/maps" --detail-maps="$CLIENT/textures" --static-meshes --terrain-textures -o "$EXTRACT")
   else
     (cd "$EXTRACTOR" && ./gradlew run --args="--client-root $CLIENT --map $TILE --output $EXTRACT/$TILE --static-meshes")
+  fi
+  # WaterVolume brushes (pools/sea are not StaticMeshes) -> watervolumes.json for Unity L2InterludeWaterVolumes.
+  if [[ -n "$jar" && ! -f "$EXTRACT/$TILE/watervolumes.json" ]]; then
+    java -cp "$jar" "$REPO/tools/interlude/WaterVolumeDump.java" "$unr" "$EXTRACT/$TILE/watervolumes.json" \
+      || echo "WARN: WaterVolumeDump failed for $TILE (no water surfaces)" >&2
   fi
   echo "== Phase A: prepare_interlude_tile.py"
   python3 "$REPO/tools/interlude/prepare_interlude_tile.py" "$TILE" --extract-dir "$EXTRACT"

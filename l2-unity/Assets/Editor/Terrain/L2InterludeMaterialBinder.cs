@@ -101,6 +101,7 @@ public static class L2InterludeMaterialBinder
                 (missingNames.Count > 0 ? " (e.g. " + string.Join(", ", missingNames) + ")" : ""));
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
         log.Add(L2InterludeStaticMeshColliders.Run(null));
+        log.Add(L2InterludeWaterVolumes.Run(null));
     }
 
     [MenuItem("Shnok/0.2. [Interlude] Fix water / translucent StaticMesh materials")]
@@ -112,6 +113,7 @@ public static class L2InterludeMaterialBinder
             foreach (var f in Directory.GetFiles(r, "*.props.txt", SearchOption.AllDirectories))
                 props[Path.GetFileName(f).Replace(".props.txt", "")] = f;
         Debug.Log("[MatBinder] translucent (water) materials fixed: " + FixTranslucent(props));
+        Debug.Log("[Water] " + L2InterludeWaterVolumes.Run(null));
     }
 
     /// <summary>
