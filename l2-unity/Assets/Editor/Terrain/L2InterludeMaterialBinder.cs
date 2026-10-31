@@ -122,19 +122,51 @@ public static class L2InterludeMaterialBinder
     static int FixTranslucent(Dictionary<string, string> props)
     {
         int n = 0;
+        Shader lit = Shader.Find("Universal Render Pipeline/Lit");
+        Dictionary<string, List<string>> tex = null;
         foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot }))
         {
             string mp = AssetDatabase.GUIDToAssetPath(g);
             var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
-            if (m == null || m.shader == null || m.shader.name != "Universal Render Pipeline/Lit") continue;
+            if (m == null || m.shader == null) continue;
             if (!props.TryGetValue(m.name, out var pf)) continue;
+            bool isLit = m.shader.name == "Universal Render Pipeline/Lit";
+            // O_E_Water's FBX slot is "waterfall001_shader" -> pre-existing field_deco_S mat on custom
+            // TextureAnimAlpha shadergraph with empty _FramesArray => invisible. Convert such water mats to Lit.
+            bool emptyCustom = !isLit && Regex.IsMatch(m.name, "water", RegexOptions.IgnoreCase)
+                && (!m.HasProperty("_FramesArray") || m.GetTexture("_FramesArray") == null)
+                && (!m.HasProperty("_BaseMap") || m.GetTexture("_BaseMap") == null);
+            if (!isLit && !emptyCustom) continue;
             string txt = File.ReadAllText(pf);
             bool noZ = Regex.IsMatch(txt, @"^\s*ZWrite\s*=\s*false", RegexOptions.Multiline);
             bool alphaTest = Regex.IsMatch(txt, @"^\s*AlphaTest\s*=\s*true", RegexOptions.Multiline);
             bool opacity = Regex.IsMatch(txt, @"^\s*Opacity\s*=\s*\w+'", RegexOptions.Multiline);
             bool water = Regex.IsMatch(m.name, "water", RegexOptions.IgnoreCase);
-            if (!(noZ && opacity && !alphaTest) && !(water && !alphaTest && opacity)) continue;
-            if (m.GetFloat("_Surface") == 1f && m.renderQueue == (int)UnityEngine.Rendering.RenderQueue.Transparent) continue;
+            if (!(noZ && opacity && !alphaTest) && !(water && !alphaTest && (opacity || noZ))) continue;
+            if (isLit && m.GetFloat("_Surface") == 1f && m.renderQueue == (int)UnityEngine.Rendering.RenderQueue.Transparent) continue;
+            if (!isLit)
+            {
+                if (lit == null) continue;
+                if (tex == null)
+                {
+                    tex = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var tg in AssetDatabase.FindAssets("t:Texture2D", new[] { TexRoot }))
+                    {
+                        string tp = AssetDatabase.GUIDToAssetPath(tg);
+                        string tn = Path.GetFileNameWithoutExtension(tp);
+                        if (!tex.TryGetValue(tn, out var tl)) tex[tn] = tl = new List<string>();
+                        tl.Add(tp);
+                    }
+                }
+                string texPath = Pick(Resolve(m.name, props, tex, 0).tex, tex, mp);
+                m.shader = lit;
+                if (texPath != null)
+                {
+                    var wt = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+                    m.SetTexture("_BaseMap", wt);
+                    m.SetTexture("_MainTex", wt);
+                }
+            }
 
             m.SetFloat("_Surface", 1f);
             m.SetFloat("_Blend", 0f);
