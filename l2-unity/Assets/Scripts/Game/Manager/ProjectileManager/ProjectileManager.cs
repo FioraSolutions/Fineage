@@ -32,7 +32,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
 
     private void Awake()
     {
-        if (Instance != null)
+        if ((Instance as UnityEngine.Object) != null && !ReferenceEquals(Instance, this))
         {
             Destroy(gameObject);
             return;

@@ -8,7 +8,7 @@ using UnityEngine.SocialPlatforms;
 public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 {
     private static IMoveAllCharacters _instance;
-    public static IMoveAllCharacters Instance { get { return _instance; } }
+    public static IMoveAllCharacters Instance { get { return (_instance as UnityEngine.Object) != null ? _instance : null; } }
 
     private Dictionary<int, MovementData> _moveDict;
     private Dictionary<int, RotateData> _rotateDict;
