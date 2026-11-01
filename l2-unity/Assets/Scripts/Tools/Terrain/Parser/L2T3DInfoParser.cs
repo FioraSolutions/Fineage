@@ -70,6 +70,11 @@ public class L2T3DInfoParser {
                             mesh.scaleY = float.Parse(parts[1]);
                             mesh.scaleZ = float.Parse(parts[1]);
                         }
+
+                        if (line.StartsWith("DrawScale3D=")) {
+                            mesh.drawScale3D = L2MetaDataUtils.ParseVector3(line);
+                            mesh.hasDrawScale3D = true;
+                        }
                     }
                     terrainInfo.staticMeshes.Add(mesh);
                 }

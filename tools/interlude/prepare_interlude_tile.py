@@ -147,7 +147,7 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
         yaw = unreal_rotator(float(rot.get("yaw", 0)))
         roll = unreal_rotator(float(rot.get("roll", 0)))
         scale = mesh.get("scale") or {}
-        draw = float(scale.get("uniform") or scale.get("x") or 1.0)
+        draw = float(scale.get("uniform") or 1.0)
         rot_parts = []
         if pitch:
             rot_parts.append(f"Pitch={pitch}")
@@ -163,6 +163,11 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
         )
         out.append(f"    SwayRotationOrig=({rot_str})")
         out.append(f"    DrawScale={draw:.6f}")
+        # DrawScale3D carries mirroring (e.g. X=-1 on Elven plaza pillars); dropping it
+        # rendered mirrored instances 90deg off along the curb.
+        sx = float(scale.get("x", 1.0)); sy = float(scale.get("y", 1.0)); sz = float(scale.get("z", 1.0))
+        if (sx, sy, sz) != (1.0, 1.0, 1.0) and not (sx == sy == sz == draw):
+            out.append(f"    DrawScale3D=(X={sx:.6f},Y={sy:.6f},Z={sz:.6f})")
         out.append("End Actor")
         individuals.append(mesh_path)
     out.append("End Map")

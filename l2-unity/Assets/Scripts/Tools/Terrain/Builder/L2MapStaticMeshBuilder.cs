@@ -43,6 +43,13 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
         }
     }
 
+    static void ApplyAxisScale(ref Vector3 s, Vector3 localAxis, float v) {
+        Vector3 a = new Vector3(Mathf.Abs(localAxis.x), Mathf.Abs(localAxis.y), Mathf.Abs(localAxis.z));
+        if (a.x >= a.y && a.x >= a.z) s.x *= v;
+        else if (a.y >= a.z) s.y *= v;
+        else s.z *= v;
+    }
+
     public static void BuildSingleStaticMesh(L2StaticMesh staticMesh, GameObject container) {
         Vector3 basePosition = Vector3.zero;
         string meshPath = StaticMeshUtils.GetMeshPath(staticMesh.staticMesh);
@@ -57,6 +64,16 @@ public class L2MapStaticMeshBuilder : MonoBehaviour
             float meshDataScaleY = staticMesh.scaleY != 0 ? staticMesh.scaleY : 1f;
             float meshDataScaleZ = staticMesh.scaleZ != 0 ? staticMesh.scaleZ : 1f;
             Vector3 meshDataScale = new Vector3(meshDataScaleX, meshDataScaleY, meshDataScaleZ);
+            if (staticMesh.hasDrawScale3D) {
+                // UE actor-local X/Y/Z == converted frame Z/X/Y (same swap as positions).
+                // Map each onto the instance-local axis it lands on after MeshLocalYawFix * go.rotation.
+                Quaternion inv = Quaternion.Inverse(Quaternion.Euler(0f, MeshLocalYawFix, 0f) * go.transform.rotation);
+                Vector3 s3 = Vector3.one;
+                ApplyAxisScale(ref s3, inv * Vector3.forward, staticMesh.drawScale3D.x);
+                ApplyAxisScale(ref s3, inv * Vector3.right, staticMesh.drawScale3D.y);
+                ApplyAxisScale(ref s3, inv * Vector3.up, staticMesh.drawScale3D.z);
+                meshDataScale = Vector3.Scale(meshDataScale, s3);
+            }
 
             GameObject instantiated = GameObject.Instantiate(go, position + basePosition, rot);
             instantiated.name = staticMesh.staticMesh;
