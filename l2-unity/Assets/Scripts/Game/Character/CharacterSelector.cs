@@ -410,10 +410,11 @@ public class CharacterSelector : MonoBehaviour
         if(Input.GetMouseButtonDown(0)) {
             Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 1000f)) {
-                int hitLayer = hit.collider.gameObject.layer;
-                if (_characterMask == (_characterMask | (1 << hitLayer))) {
-                    SelectableCharacterEntity entity = hit.transform.parent.GetComponent<SelectableCharacterEntity>();
+            // Only the EntityClick click_area can select: pawn CharacterControllers / stage colliders in front
+            // of it used to swallow the first hit, so the click did nothing.
+            if (Physics.Raycast(ray, out hit, 1000f, _characterMask, QueryTriggerInteraction.Collide)) {
+                {
+                    SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();
                     if (entity == null || entity.CharacterInfoInterlude == null)
                         return;
                     if (_lobbyMode)
