@@ -24,7 +24,6 @@
                     <ui:TextField password="true" tabindex="2" max-length="16" name="PasswordInputField" class="login-input il-login-input" />
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Toggle label="Remember login" name="RememberToggle" focusable="false" class="il-login-remember" style="align-self: center; margin-top: 2px; margin-bottom: 2px; color: rgb(220, 210, 180); font-size: 11px;" />
             <ui:VisualElement name="Buttons" picking-mode="Ignore" class="il-login-buttons">
                 <ui:Button text="Login" name="LoginButton" focusable="false" class="l2-button il-login-btn">
                     <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
@@ -36,6 +35,7 @@
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
+        <ui:Toggle label="Remember login" name="RememberToggle" focusable="false" class="il-login-remember" />
         <ui:Label tabindex="-1" name="LabelError" class="il-login-error" />
     </ui:VisualElement>
 </ui:UXML>
