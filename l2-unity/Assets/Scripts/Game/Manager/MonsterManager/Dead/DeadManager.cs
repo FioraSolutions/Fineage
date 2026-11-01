@@ -22,7 +22,7 @@ public class DeadManager : MonoBehaviour, IDead
 
     private void Awake()
     {
-        if (_instance == null)
+        if ((_instance as UnityEngine.Object) == null)
         {
             _instance = this;
             _dict = new Dictionary<int, DeadData>();
@@ -123,5 +123,11 @@ public class DeadManager : MonoBehaviour, IDead
     private void WireManagerInteractionPacketServices()
     {
         ManagerInteractionPacketServices.Bind(actorFade: _actorFade);
+    }
+
+    void OnDestroy()
+    {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
     }
 }

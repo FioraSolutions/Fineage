@@ -23,7 +23,7 @@ public class GravityNpc : MonoBehaviour, IGravity
 
     private void Awake()
     {
-        if (_instance == null)
+        if ((_instance as UnityEngine.Object) == null)
         {
             _instance = this;
             _dict = new Dictionary<int, GravityData>();
@@ -94,4 +94,10 @@ public class GravityNpc : MonoBehaviour, IGravity
     //    _isSync = true;
     //}
 
+
+    void OnDestroy()
+    {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
+    }
 }
