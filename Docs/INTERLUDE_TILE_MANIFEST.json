@@ -1,9 +1,9 @@
 {
     "schemaVersion": "1",
-    "updatedUtc": "2026-10-29T07:53:13.7644880Z",
-    "clientRootHint": "(local only \u2014 not stored)",
+    "updatedUtc": "2026-10-31T13:23:33.0265590Z",
+    "clientRootHint": "(local only — not stored)",
     "clientMapCount": 153,
-    "importedFullCount": 14,
+    "importedFullCount": 15,
     "importedPartialCount": 0,
     "tiles": [
         {
@@ -694,9 +694,15 @@
         {
             "id": "21_19",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
+            "inRepo": true,
+            "importStatus": "full",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/21_19/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/21_19/Meta/21_19.t3d",
+                "Assets/Resources/Data/Maps/21_19/21_19.prefab",
+                "Assets/Resources/Data/Maps/21_19/UnityTerrain/21_19.prefab",
+                "Assets/Resources/Data/Maps/21_19/StaticMeshes.prefab"
+            ],
             "notes": ""
         },
         {
@@ -733,7 +739,7 @@
                 "Assets/Resources/Data/Maps/21_22/UnityTerrain/21_22.prefab",
                 "Assets/Resources/Data/Maps/21_22/StaticMeshes.prefab"
             ],
-            "notes": "Full Mac bake (#476). North of 22_22."
+            "notes": ""
         },
         {
             "id": "21_23",
@@ -841,7 +847,7 @@
                 "Assets/Resources/Data/Maps/22_21/UnityTerrain/22_21.prefab",
                 "Assets/Resources/Data/Maps/22_21/StaticMeshes.prefab"
             ],
-            "notes": "Full Mac bake (#476). West of 22_22."
+            "notes": ""
         },
         {
             "id": "22_22",
@@ -869,7 +875,7 @@
                 "Assets/Resources/Data/Maps/22_23/UnityTerrain/22_23.prefab",
                 "Assets/Resources/Data/Maps/22_23/StaticMeshes.prefab"
             ],
-            "notes": "Full Mac bake (#476). East of 22_22."
+            "notes": ""
         },
         {
             "id": "22_24",
