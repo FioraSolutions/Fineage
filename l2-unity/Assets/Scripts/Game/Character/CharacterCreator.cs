@@ -279,6 +279,10 @@ public class CharacterCreator : MonoBehaviour
         pawnPosition = VectorUtils.ConvertPosToUnity(pawnPosition);
         pawnObject.transform.position = pawnPosition;
         pawnObject.transform.eulerAngles = new Vector3(0, 360.00f * pawnData.Yaw / 65536, 0);
+        // Pin the slot as destination so a pawn never slides back to its Instantiate origin.
+        SelectableCharacterEntity selectable = pawnObject.GetComponent<SelectableCharacterEntity>();
+        if (selectable != null)
+            selectable.SetDestination(pawnData);
     }
 
     public void RotatePawn(bool right) {

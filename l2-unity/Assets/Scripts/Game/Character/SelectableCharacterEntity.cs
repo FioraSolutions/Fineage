@@ -34,6 +34,8 @@ public class SelectableCharacterEntity : MonoBehaviour
         _characterController = GetComponent<CharacterController>();
         _baseAnimationController = GetComponent<BaseAnimationController>();
         _destination = transform.position;
+        if (_characterController != null)
+            _characterController.enabled = false;
         App.InjectGameObject(gameObject);
         WireCharacterPacketServices();
     }
@@ -61,7 +63,10 @@ public class SelectableCharacterEntity : MonoBehaviour
             if (to.sqrMagnitude > 1e-6f)
                 transform.rotation = Quaternion.RotateTowards(
                     transform.rotation, Quaternion.LookRotation(to), LobbyTurnDegPerSec * Time.deltaTime);
-            _characterController.Move(transform.forward.normalized * Time.deltaTime * GetWalkSpeedPoint(_characterInfoInterlude));
+            // Lobby pawns don't use CharacterController.Move: their capsules shoved each other
+            // (selected pawn walking through a neighbour piled them up). Slide straight to the slot.
+            transform.position = Vector3.MoveTowards(
+                transform.position, _destination, Time.deltaTime * GetWalkSpeedPoint(_characterInfoInterlude));
            
         } else {
             if (_walking)
