@@ -80,6 +80,9 @@ public static class LobbyCharacterMap
 
     public static LobbyCharacter FromNetSummary(Fineage.Net.Contract.CharacterSummaryNet row)
     {
+        int deleteSeconds = row.DeleteSecondsLeft;
+        if (deleteSeconds <= 0 && row.PendingDelete)
+            deleteSeconds = 1;
         return new LobbyCharacter
         {
             Id = row.CharacterId,
@@ -92,11 +95,22 @@ public static class LobbyCharacterMap
             HairStyle = row.HairStyle,
             HairColor = row.HairColor,
             Face = row.Face,
+            X = row.X,
+            Y = row.Y,
+            Z = row.Z,
+            DeleteSecondsLeft = deleteSeconds,
+            IsLastPlayed = row.IsLastPlayed,
             CurHp = row.Hp,
             MaxHp = row.MaxHp,
             CurMp = row.Mp,
             MaxMp = row.MaxMp,
-            DeleteSecondsLeft = row.PendingDelete ? 1 : 0
+            CurCp = row.CurCp,
+            MaxCp = row.MaxCp,
+            Exp = row.Exp,
+            Sp = row.Sp,
+            Karma = row.Karma,
+            WeaponItemId = row.WeaponItemId,
+            Paperdoll = row.Paperdoll
         };
     }
 
