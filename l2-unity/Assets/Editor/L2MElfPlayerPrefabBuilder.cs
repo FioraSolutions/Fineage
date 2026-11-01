@@ -36,6 +36,7 @@ public static class L2MElfPlayerPrefabBuilder
     public static string Run()
     {
         var log = new List<string>();
+        log.Add("actor materials: " + L2ActorRaceMaterials.MigrateRace("MElf"));
         var oc = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(MElfOc);
 
         // 0) MElf_anim_user.prefab was an empty holder (no skeleton/mesh) -> SkinnedMeshSync NRE + clips bind nothing.
@@ -66,6 +67,7 @@ public static class L2MElfPlayerPrefabBuilder
             // re-point object refs that pointed into MMagic_anim_player at our own components
             foreach (var mb in ap.GetComponents<MonoBehaviour>()) Repoint(mb, mmAp, ap);
             ap.name = "MElf_anim_player";
+            L2ActorRaceMaterials.HideSkeletonPlaceholder(ap);
             PrefabUtility.SaveAsPrefabAsset(ap, MElfAnimPlayer);
             log.Add("MElf_anim_player: " + string.Join(",", ap.GetComponents<Component>().Select(c => c.GetType().Name)));
         }
@@ -113,6 +115,13 @@ public static class L2MElfPlayerPrefabBuilder
 
     const string MElfFbx = R + "Elf/MElf/Models/anim/MElf_anim_user.fbx";
     static string EnsureSkeleton(GameObject root)
+    {
+        var r = EnsureSkeletonInner(root);
+        L2ActorRaceMaterials.HideSkeletonPlaceholder(root);
+        return r;
+    }
+
+    static string EnsureSkeletonInner(GameObject root)
     {
         if (root.GetComponentInChildren<SkinnedMeshRenderer>(true) != null) return "already";
         var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(MElfFbx);
