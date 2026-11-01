@@ -144,7 +144,9 @@ public class CharacterSelector : MonoBehaviour
             _container = null;
         }
 
-        ForgetLobbyVisuals();
+        // Roster refresh stays in lobby: keep _charSelectCamera (SwitchCamera("CharSelect") already ran and
+        // won't run again, so nulling it here made Update() bail and clicks did nothing).
+        ResetLobbyRefs();
     }
 
     /// <summary>
@@ -152,11 +154,16 @@ public class CharacterSelector : MonoBehaviour
     /// </summary>
     public void ForgetLobbyVisuals()
     {
+        ResetLobbyRefs();
+        _charSelectCamera = null;
+    }
+
+    void ResetLobbyRefs()
+    {
         _container = null;
         _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
         _selectedLobbyIndex = -1;
-        _charSelectCamera = null;
     }
 
     void EnsureCharacterContainer()
@@ -402,17 +409,23 @@ public class CharacterSelector : MonoBehaviour
 
 
     void Update() {
+        if(!Input.GetMouseButtonDown(0))
+            return;
         if(_charSelectCamera == null) {
+            Debug.Log("[LobbyClick] no camera (lobbyMode=" + _lobbyMode + ")");
             return;
         }
 
-
-        if(Input.GetMouseButtonDown(0)) {
+        {
             Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             // Only the EntityClick click_area can select: pawn CharacterControllers / stage colliders in front
             // of it used to swallow the first hit, so the click did nothing.
-            if (Physics.Raycast(ray, out hit, 1000f, _characterMask, QueryTriggerInteraction.Collide)) {
+            bool got = Physics.Raycast(ray, out hit, 1000f, _characterMask, QueryTriggerInteraction.Collide);
+            Debug.Log("[LobbyClick] cam=" + _charSelectCamera.name + " mask=" + _characterMask.value + " hit=" +
+                      (got ? hit.collider.name + " layer=" + LayerMask.LayerToName(hit.collider.gameObject.layer) +
+                             " entity=" + (hit.collider.GetComponentInParent<SelectableCharacterEntity>() != null) : "none"));
+            if (got) {
                 {
                     SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();
                     if (entity == null || entity.CharacterInfoInterlude == null)
