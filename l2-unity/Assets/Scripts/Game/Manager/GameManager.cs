@@ -57,7 +57,18 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        // Every build (Editor and Standalone) dials the public RP only — no loopback / local backend.
+        // Players always dial public RP. Editor may opt into Local via Fineage/Play Local (compiled out of builds).
+        FineageServerProfile.Refresh();
+        if (FineageServerProfile.IsLocalActive)
+        {
+            FineageWireConfig.EnablePlaytestBackend(FineageServerProfile.LocalHost, FineageServerProfile.LocalLoginPort,
+                FineageServerProfile.LocalHost, FineageServerProfile.LocalGamePort);
+            Debug.LogWarning("[Fineage] mode=LOCAL-EDITOR login=" + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort + " (Fineage/Play RP to switch back)");
+            if (FindFirstObjectByType<AppLifetimeScope>() == null)
+                gameObject.AddComponent<AppLifetimeScope>();
+            return;
+        }
         PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
         string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
             ? ep.LoginHost
