@@ -71,10 +71,6 @@ public class SelectableCharacterEntity : MonoBehaviour
         } else {
             if (_walking) {
                 StopWalking();
-                if (_celebrateOnArrive) {
-                    _celebrateOnArrive = false;
-                    PlayVictory();
-                }
             }
             if (_hasDestYaw)
                 transform.rotation = Quaternion.RotateTowards(
@@ -138,12 +134,14 @@ public class SelectableCharacterEntity : MonoBehaviour
                 _baseAnimationController, AnimationNames.WAIT.ToString() + WeaponAnim);
     }
 
-    bool _celebrateOnArrive;
+    public bool IsWalking => _walking;
 
-    /// <summary>Selected pawn: Interlude raises an arm (Social_victory) once it reaches the Start slot.</summary>
-    public void SetDestination(Logongrp destination, bool celebrateOnArrive) {
-        SetDestination(destination);
-        _celebrateOnArrive = celebrateOnArrive;
+    /// <summary>Lobby click on a standing selected pawn: Social_victory once. Ignored while walking.</summary>
+    public bool TryPlayVictory() {
+        if (_walking)
+            return false;
+        PlayVictory();
+        return true;
     }
 
     void PlayVictory() {
@@ -169,7 +167,6 @@ public class SelectableCharacterEntity : MonoBehaviour
     }
 
     public void SetDestination(Logongrp destination) {
-        _celebrateOnArrive = false;
         Vector3 pawnPosition = new Vector3(destination.X, destination.Y, destination.Z);
         _destination = VectorUtils.ConvertPosToUnity(pawnPosition);
         _destEulerAngles = new Vector3(0, 360.00f * destination.Yaw / 65536, 0);

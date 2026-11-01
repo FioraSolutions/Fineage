@@ -284,7 +284,7 @@ public class CharacterSelector : MonoBehaviour
             return;
         SelectableCharacterEntity entity = pawn.GetComponent<SelectableCharacterEntity>();
         if (entity != null)
-            entity.SetDestination(_pawnData[pawnDataIndex], pawnDataIndex == 7);
+            entity.SetDestination(_pawnData[pawnDataIndex]);
     }
 
    
@@ -360,7 +360,7 @@ public class CharacterSelector : MonoBehaviour
                 _characterGameObjects[_selectedCharacterSlot].GetComponent<SelectableCharacterEntity>().SetDestination(_pawnData[_selectedCharacterSlot]);
             }
 
-            _characterGameObjects[slot].GetComponent<SelectableCharacterEntity>().SetDestination(_pawnData[7], true);
+            _characterGameObjects[slot].GetComponent<SelectableCharacterEntity>().SetDestination(_pawnData[7]);
 
             _selectedCharacterSlot = slot;
             _selectedCharacterInterlude = _charactersInterlude[slot];
@@ -426,6 +426,11 @@ public class CharacterSelector : MonoBehaviour
                     SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();
                     if (entity == null || entity.CharacterInfoInterlude == null)
                         return;
+                    if (entity.CharacterInfoInterlude.Slot == _selectedCharacterSlot)
+                    {
+                        entity.TryPlayVictory();
+                        return;
+                    }
                     if (_lobbyMode)
                     {
                         int index = IndexOfLobbySlot(entity.CharacterInfoInterlude.Slot);
