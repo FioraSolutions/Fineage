@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour, IGameManager {
 
         // Local Net (PacketEnvelope): FINEAGE_NET_CLIENT=1, or Editor default (Dock has no env).
         // Standalone still defaults to public V2 playtest unless the env is set.
+        // Fineage/Play Local (FineageServerProfile) is V2-ports legacy; Net path wins when enabled.
         string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
         bool useNet = netClient == "1"
             || string.Equals(netClient, "true", System.StringComparison.OrdinalIgnoreCase)
@@ -77,19 +78,32 @@ public class GameManager : MonoBehaviour, IGameManager {
         }
         else
         {
-            PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
-            string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
-                ? ep.LoginHost
-                : PlaytestEndpoint.DefaultLoginHost;
-            string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
-                ? ep.GameHost
-                : PlaytestEndpoint.DefaultGameHost;
-            int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
-            int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
-            FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
-            Debug.Log("[Fineage] mode=public-playtest login="
-                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+#if UNITY_EDITOR
+            FineageServerProfile.Refresh();
+            if (FineageServerProfile.IsLocalActive)
+            {
+                FineageWireConfig.EnablePlaytestBackend(FineageServerProfile.LocalHost, FineageServerProfile.LocalLoginPort,
+                    FineageServerProfile.LocalHost, FineageServerProfile.LocalGamePort);
+                Debug.LogWarning("[Fineage] mode=LOCAL-EDITOR login=" + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                    + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort + " (Fineage/Play RP to switch back)");
+            }
+            else
+#endif
+            {
+                PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
+                string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
+                    ? ep.LoginHost
+                    : PlaytestEndpoint.DefaultLoginHost;
+                string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
+                    ? ep.GameHost
+                    : PlaytestEndpoint.DefaultGameHost;
+                int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
+                int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
+                FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
+                Debug.Log("[Fineage] mode=public-playtest login="
+                    + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                    + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+            }
         }
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
@@ -152,6 +166,39 @@ public class GameManager : MonoBehaviour, IGameManager {
     public void LogIn() => _lobbyFlow.LogIn();
 
     public void LogOut() => _lobbyFlow.LogOut();
+
+    /// <summary>Interlude System Menu → Restart: leave world, back to character select.</summary>
+    public void RestartToCharacterSelect()
+    {
+        StartCoroutine(RestartRoutine());
+    }
+
+    /// <summary>Interlude System Menu → Exit: close the client.</summary>
+    public void QuitGame()
+    {
+        Debug.Log("[Fineage] exit game");
+        ZoneV2Client.Ensure().Disconnect();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    IEnumerator RestartRoutine()
+    {
+        // Back to the login screen only — no auto-submit (auto re-enter broke textures).
+        // Remember-login checkbox prefills the fields; user presses Login.
+        Debug.Log("[Fineage] restart → login screen");
+        ZoneV2Client.Ensure().Disconnect();
+        IsSwitchingServer = false;
+        WorldSpawnReady = false;
+        GameState = GameState.LOGIN_SCREEN;
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.Clear();
+        Scenes.LoadMenu();
+        yield break;
+    }
 
     public void OnWorldSceneLoaded() => _lobbyFlow.OnWorldSceneLoaded();
 

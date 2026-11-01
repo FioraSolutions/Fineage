@@ -38,7 +38,7 @@ public class CameraController : MonoBehaviour
 
     [Header("Zoom controls")]
     [SerializeField] private float _minDistance = L2MinDistanceMeters * (0.85f / L2ReferencePlayerHeight);
-    [SerializeField] private float _maxDistance = 8f;
+    [SerializeField] private float _maxDistance = 14f;
     [SerializeField] private float _zoomSpeed = 5f;
     [SerializeField] private float _camDistance = L2DistanceMeters * (0.85f / L2ReferencePlayerHeight) + 0.5f;
     [SerializeField] private float _currentDistance = 0;

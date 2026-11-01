@@ -15,6 +15,11 @@ public class LoginWindow : L2Window
     private VisualElement _logo;
     private TextField _userInput;
     private TextField _passwordInput;
+    private Toggle _rememberToggle;
+    // Local playtest convenience only (PlayerPrefs on this machine).
+    const string RememberKey = "fineage.login.remember";
+    const string RememberAccountKey = "fineage.login.account";
+    const string RememberPasswordKey = "fineage.login.password";
     private Label _labelError;
     private Button _loginButton;
     private bool _loginBusy;
@@ -84,6 +89,23 @@ public class LoginWindow : L2Window
 
         _logo = root.Q<VisualElement>("L2Logo");
 
+        _rememberToggle = root.Q<Toggle>("RememberToggle");
+        bool remember = PlayerPrefs.GetInt(RememberKey, 0) == 1;
+        if (_rememberToggle != null)
+        {
+            _rememberToggle.SetValueWithoutNotify(remember);
+            _rememberToggle.RegisterValueChangedCallback(evt =>
+            {
+                if (!evt.newValue)
+                    StoreRemembered(false, null, null);
+            });
+        }
+        if (remember)
+        {
+            _userInput.SetValueWithoutNotify(PlayerPrefs.GetString(RememberAccountKey, ""));
+            _passwordInput.SetValueWithoutNotify(PlayerPrefs.GetString(RememberPasswordKey, ""));
+        }
+
         _userInput.Focus();
     }
 
@@ -147,6 +169,8 @@ public class LoginWindow : L2Window
 
         if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
             return;
+
+        StoreRemembered(_rememberToggle != null && _rememberToggle.value, account, password);
 
         SetLoginBusy(true);
 
@@ -234,5 +258,22 @@ public class LoginWindow : L2Window
             _logo.style.display = DisplayStyle.Flex;
         SetLoginBusy(false);
         _userInput?.Focus();
+    }
+
+    static void StoreRemembered(bool remember, string account, string password)
+    {
+        if (remember)
+        {
+            PlayerPrefs.SetInt(RememberKey, 1);
+            PlayerPrefs.SetString(RememberAccountKey, account ?? "");
+            PlayerPrefs.SetString(RememberPasswordKey, password ?? "");
+        }
+        else
+        {
+            PlayerPrefs.DeleteKey(RememberKey);
+            PlayerPrefs.DeleteKey(RememberAccountKey);
+            PlayerPrefs.DeleteKey(RememberPasswordKey);
+        }
+        PlayerPrefs.Save();
     }
 }

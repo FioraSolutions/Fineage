@@ -8,7 +8,7 @@ public class DeadManager : MonoBehaviour, IDead
     public event Action<int> OnReadyToRemove;
 
     private static IDead _instance;
-    public static IDead Instance { get { return _instance; } }
+    public static IDead Instance { get { return (_instance as UnityEngine.Object) != null ? _instance : null; } }
 
     [Inject] private L2ActorFade _actorFade;
 
@@ -22,7 +22,7 @@ public class DeadManager : MonoBehaviour, IDead
 
     private void Awake()
     {
-        if (_instance == null)
+        if ((_instance as UnityEngine.Object) == null)
         {
             _instance = this;
             _dict = new Dictionary<int, DeadData>();
@@ -123,5 +123,11 @@ public class DeadManager : MonoBehaviour, IDead
     private void WireManagerInteractionPacketServices()
     {
         ManagerInteractionPacketServices.Bind(actorFade: _actorFade);
+    }
+
+    void OnDestroy()
+    {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
     }
 }

@@ -272,6 +272,12 @@ public class CharacterCreator : MonoBehaviour
         IAnimationManager animations = Animations;
         if (animations != null)
             animations.PlayLobbyLocomotion(animController, waitState);
+        // TEMP diag (restart → missing torso): list body/armor renderers on each lobby pawn.
+        var sb = new System.Text.StringBuilder();
+        foreach (Renderer r in pawnObject.GetComponentsInChildren<Renderer>(true))
+            sb.Append(r.name).Append(r.enabled && r.gameObject.activeInHierarchy ? "+" : "-")
+              .Append(r.sharedMaterial == null ? "(nomat)" : "").Append(' ');
+        Debug.Log("[LobbyPawn] " + name + " renderers: " + sb);
     }
 
     public void UpdatePawnPosAndRot(GameObject pawnObject, Logongrp pawnData) {
@@ -279,6 +285,10 @@ public class CharacterCreator : MonoBehaviour
         pawnPosition = VectorUtils.ConvertPosToUnity(pawnPosition);
         pawnObject.transform.position = pawnPosition;
         pawnObject.transform.eulerAngles = new Vector3(0, 360.00f * pawnData.Yaw / 65536, 0);
+        // Pin the slot as destination so a pawn never slides back to its Instantiate origin.
+        SelectableCharacterEntity selectable = pawnObject.GetComponent<SelectableCharacterEntity>();
+        if (selectable != null)
+            selectable.SetDestination(pawnData);
     }
 
     public void RotatePawn(bool right) {

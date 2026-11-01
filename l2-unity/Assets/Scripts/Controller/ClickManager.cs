@@ -187,7 +187,9 @@ public class ClickManager : MonoBehaviour
     public void OnClickToMove(RaycastHit hit)
     {
         if (CastMoveLock.IsLocked)
+        {
             return;
+        }
 
         _lastClickPosition = hit.point;
 
@@ -288,7 +290,10 @@ public class ClickManager : MonoBehaviour
     {
         EnsureLocator();
         if (_locator == null)
+        {
+            Debug.LogWarning("[MoveMark] locator prefab not loaded");
             return;
+        }
 
         ClickMoveLocator mark = _locator.GetComponent<ClickMoveLocator>();
         if (mark != null)

@@ -4188,8 +4188,8 @@
 
 .il-login .il-login-input {
     position: absolute;
-    left: 8px;
-    right: 4px;
+    left: 0;
+    right: 0;
     top: 0;
     height: 17px;
     min-height: 0;
@@ -4284,3 +4284,53 @@
 
 
 
+
+/* Whole input box clickable (no dead caps); text inset lives inside the inner field. */
+.il-login .il-login-input > #unity-text-input {
+    margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;
+    padding-top: 0; padding-right: 4px; padding-bottom: 0; padding-left: 8px;
+    border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    height: 17px;
+}
+
+/* Remember login: small Interlude-style checkbox under the logon frame. */
+.il-login .il-login-remember {
+    flex-direction: row;
+    align-self: center;
+    height: 14px;
+    margin-top: 3px; margin-bottom: 0; margin-left: 0; margin-right: 0;
+    padding-top: 0; padding-bottom: 0; padding-left: 0; padding-right: 0;
+}
+.il-login .il-login-remember > .unity-toggle__input {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 0;
+}
+.il-login .il-login-remember .unity-toggle__checkmark {
+    width: 12px; height: 12px; min-width: 12px;
+    margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 0;
+    border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-image: resource('Data/UI/Quest/CheckBox_uncheked');
+}
+.il-login .il-login-remember:hover .unity-toggle__checkmark {
+    background-image: resource('Data/UI/Quest/CheckBox_hover');
+}
+.il-login .il-login-remember:checked .unity-toggle__checkmark {
+    background-image: resource('Data/UI/Quest/CheckBox_checked');
+}
+.il-login .il-login-remember > .unity-label,
+.il-login .il-login-remember .unity-toggle__label {
+    min-width: 0;
+    width: auto;
+    margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;
+    padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-font-definition: resource('Data/UI/Font/tahoma Light');
+    font-size: 11px;
+    color: rgb(220, 205, 160);
+    -unity-text-align: middle-left;
+}

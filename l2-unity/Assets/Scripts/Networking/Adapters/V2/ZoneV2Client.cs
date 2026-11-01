@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
@@ -105,8 +105,14 @@ public sealed class ZoneV2Client : MonoBehaviour
         ZoneV2NpcWindows.Tick();
     }
 
+    // In-memory only (never persisted): lets in-world Restart re-open the lobby like Interlude.
+    public static string LastAccount { get; private set; }
+    public static string LastPassword { get; private set; }
+
     public void BeginSession(string account, string password)
     {
+        LastAccount = account;
+        LastPassword = password;
         Disconnect();
         ZoneV2NpcSession.Reset();
         ZoneV2ClanBook.Shared.Reset();
@@ -128,7 +134,7 @@ public sealed class ZoneV2Client : MonoBehaviour
         {
             string loginHost = FineageWireConfig.LoginHost;
             int loginPort = FineageWireConfig.LoginPort;
-            if (FineageWireConfig.IsPublicLoginHost(loginHost))
+            if (FineageServerProfile.IsAllowedHost(loginHost))
             {
                 FineageLaunchArgs.ClearCharacterHint();
                 Debug.Log("[Fineage] public lobby login " + loginHost + ":" + loginPort);

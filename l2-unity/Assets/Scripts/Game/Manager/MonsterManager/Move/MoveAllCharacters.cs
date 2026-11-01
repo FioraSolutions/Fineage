@@ -8,7 +8,7 @@ using UnityEngine.SocialPlatforms;
 public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 {
     private static IMoveAllCharacters _instance;
-    public static IMoveAllCharacters Instance { get { return _instance; } }
+    public static IMoveAllCharacters Instance { get { return (_instance as UnityEngine.Object) != null ? _instance : null; } }
 
     private Dictionary<int, MovementData> _moveDict;
     private Dictionary<int, RotateData> _rotateDict;
@@ -19,7 +19,7 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 
     private void Awake()
     {
-        if (_instance == null)
+        if ((_instance as UnityEngine.Object) == null)
         {
             _instance = this;
             _moveDict = new Dictionary<int, MovementData>();
@@ -337,6 +337,10 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 
     public void OnDestroy()
     {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
+        if (_moveDict == null)
+            return; // duplicate destroyed in Awake: never initialized
         _moveDict.Clear();
         _rotateDict.Clear();
         _removeListMove.Clear(); 

@@ -108,6 +108,13 @@ public class L2TerrainInfoParser {
         layer.uScale = uScale;
         layer.vScale = vScale;
 
+        // TerrainMatrix WPlane X/Y = UV offset of the tile matrix (TI bake stores offset/scale in _Layer_N_UV.zw)
+        var wm = System.Text.RegularExpressions.Regex.Match(line, @"WPlane=\(W=[-0-9.]+,X=([-0-9.]+),Y=([-0-9.]+)");
+        if (wm.Success) {
+            layer.uOffset = float.Parse(wm.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            layer.vOffset = float.Parse(wm.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
         return layer;
     }
 

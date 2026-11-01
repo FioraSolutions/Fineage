@@ -19,36 +19,26 @@ public class Texture2DArrayGenerator : MonoBehaviour {
         GenerateTexture2DArray(Path.Combine("Assets", "array.asset"));
     }
 
+    // CPU-side fill: Graphics.CopyTexture is GPU-only, and the following Apply() re-uploaded the
+    // uninitialised CPU buffer (0xCD) -> saved array was garbage => white/flat ground.
     public Texture2DArray GenerateTexture2DArray(string path) {
         int width = sourceTextures[0].width;
         int height = sourceTextures[0].height;
-        Texture2DArray textureArray = new Texture2DArray(width, height, sourceTextures.Length, format, generateMipmaps);
+        Texture2DArray textureArray = new Texture2DArray(width, height, sourceTextures.Length, TextureFormat.RGBA32, generateMipmaps);
 
-        // Assign each texture to the Texture2DArray layers
-        if(generateMipmaps) {
-            for(int i = 0; i < sourceTextures.Length; i++) {
-                Texture2D newTex = Resize(sourceTextures[i], width, height);
-                for(int mip = 0; mip < sourceTextures[i].mipmapCount; mip++) {
-                    Graphics.CopyTexture(newTex, 0, mip, textureArray, i, mip);
-                }
-
-            }
-        } else {
-            for(int i = 0; i < sourceTextures.Length; i++) {
-                Texture2D newTex = Resize(sourceTextures[i], width, height);
-
-                Graphics.CopyTexture(newTex, 0, 0, textureArray, i, 0);
-            }
+        for(int i = 0; i < sourceTextures.Length; i++) {
+            Texture2D newTex = Resize(sourceTextures[i], width, height);
+            textureArray.SetPixels32(newTex.GetPixels32(0), i, 0);
+            Object.DestroyImmediate(newTex);
         }
 
-        textureArray.Apply(true);
+        textureArray.Apply(generateMipmaps, false);
 
-
-        // Set filter and wrap mode as needed
         textureArray.filterMode = FilterMode.Bilinear;
         textureArray.wrapMode = TextureWrapMode.Repeat;
         textureArray.mipMapBias = 0;
 
+        if (AssetDatabase.LoadAssetAtPath<Texture2DArray>(path) != null) AssetDatabase.DeleteAsset(path);
         AssetDatabase.CreateAsset(textureArray, path);
         AssetDatabase.SaveAssets();
 
@@ -59,9 +49,11 @@ public class Texture2DArrayGenerator : MonoBehaviour {
         RenderTexture rt = new RenderTexture(targetX, targetY, 24);
         RenderTexture.active = rt;
         Graphics.Blit(texture2D, rt);
-        Texture2D result = new Texture2D(targetX, targetY);
+        Texture2D result = new Texture2D(targetX, targetY, TextureFormat.RGBA32, false);
         result.ReadPixels(new Rect(0, 0, targetX, targetY), 0, 0);
         result.Apply();
+        RenderTexture.active = null;
+        rt.Release();
         return result;
     }
 }

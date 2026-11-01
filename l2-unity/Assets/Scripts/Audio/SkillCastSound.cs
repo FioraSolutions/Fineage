@@ -239,6 +239,7 @@ public static class SkillCastSound
     {
         if (clip == null)
             return;
+        volume *= GameSettings.Sfx;
         EnsureVoiceSource();
         if (_voice2D == null)
         {

@@ -15,5 +15,8 @@ public class L2StaticMesh {
     public float scaleX { get; set; }
     public float scaleY { get; set; }
     public float scaleZ { get; set; }
+    // UE DrawScale3D (actor-local X,Y,Z); may be negative = mirrored
+    public Vector3 drawScale3D = Vector3.one;
+    public bool hasDrawScale3D;
 }
 #endif

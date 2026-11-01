@@ -42,7 +42,9 @@ public class Geodata : MonoBehaviour {
     }
 
     void OnDestroy() {
-        _geodata.Clear();
+        if (_instance != this)
+            return; // duplicate destroyed in Awake
+        _geodata?.Clear();
         _instance = null;
     }
 

@@ -50,6 +50,17 @@ def write_height_bmp(raw_path: Path, bmp_path: Path) -> None:
     bmp_path.write_bytes(out)
 
 
+def find_ground_texture(extract_dir: Path, ground: str) -> Path | None:
+    d = extract_dir / "terraintextures"
+    if not d.is_dir():
+        return None
+    want = ground.lower() + ".png"
+    for f in d.iterdir():
+        if f.name.lower() == want:
+            return f
+    return None
+
+
 def parse_metadata(meta_path: Path) -> dict:
     splats: list[tuple[int, str, str]] = []
     loc = (0.0, 0.0, 0.0)
@@ -110,6 +121,11 @@ def build_terrain_info0(tile_id: str, meta: dict, tile_tex_pkg: str) -> str:
         idx += 1
     for i in range(64):
         lines.append(f"QuadVisibilityBitmap({i})=-1")
+    # World placement: without these the Unity terrain bakes at origin (#559 / Elven Village).
+    lx, ly, lz = meta["location"]
+    lines.append("GeneratedSectorCounter=256")
+    lines.append(f"Location=(X={lx:.6f},Y={ly:.6f},Z={lz:.6f})")
+    lines.append("DrawScale=10.000000")
     return "\n".join(lines) + "\n"
 
 
@@ -118,7 +134,7 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
     for line in terrain_info0.splitlines():
         if line.startswith("TerrainMap=") or line.startswith("TerrainScale=") or line.startswith("Layers("):
             out.append("    " + line)
-        elif line.startswith("DecoLayers("):
+        elif line.startswith(("DecoLayers(", "GeneratedSectorCounter=", "Location=", "DrawScale=")):
             out.append("    " + line)
     out.append("End Actor")
     individuals: list[str] = []
@@ -131,7 +147,7 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
         yaw = unreal_rotator(float(rot.get("yaw", 0)))
         roll = unreal_rotator(float(rot.get("roll", 0)))
         scale = mesh.get("scale") or {}
-        draw = float(scale.get("uniform") or scale.get("x") or 1.0)
+        draw = float(scale.get("uniform") or 1.0)
         rot_parts = []
         if pitch:
             rot_parts.append(f"Pitch={pitch}")
@@ -147,6 +163,11 @@ def build_t3d(tile_id: str, terrain_info0: str, static_meshes: list[dict]) -> tu
         )
         out.append(f"    SwayRotationOrig=({rot_str})")
         out.append(f"    DrawScale={draw:.6f}")
+        # DrawScale3D carries mirroring (e.g. X=-1 on Elven plaza pillars); dropping it
+        # rendered mirrored instances 90deg off along the curb.
+        sx = float(scale.get("x", 1.0)); sy = float(scale.get("y", 1.0)); sz = float(scale.get("z", 1.0))
+        if (sx, sy, sz) != (1.0, 1.0, 1.0) and not (sx == sy == sz == draw):
+            out.append(f"    DrawScale3D=(X={sx:.6f},Y={sy:.6f},Z={sz:.6f})")
         out.append("End Actor")
         individuals.append(mesh_path)
     out.append("End Map")
@@ -200,15 +221,29 @@ def main() -> None:
             continue
         alpha_name = f"{tile_id}_splat{layer_num}"
         shutil.copy2(splat_file, tex_dir / f"{alpha_name}.png")
-        # Ground tiling texture placeholder name; umodel/Unity import fills PNG.
+        # Ground diffuse comes from the extractor's terraintextures/ dump. Never fall back to the
+        # splat PNG: that made _Layer.asset == _Alphamap.asset (grayscale masks as ground diffuse)
+        # => black/dark holes on the ground (Elven 20_19..21_20).
         ground_png = tex_dir / f"{ground}.png"
-        if not ground_png.exists():
-            shutil.copy2(splat_file, ground_png)
+        ground_src = find_ground_texture(args.extract_dir, ground)
+        if ground_src is not None:
+            if not ground_png.exists() or ground_png.read_bytes() == splat_file.read_bytes():
+                shutil.copy2(ground_src, ground_png)
+        elif not ground_png.exists():
+            print(f"WARN {tile_id}: ground texture {ground} not in terraintextures/ (layer will be gray)")
 
     terrain_info0 = build_terrain_info0(tile_id, meta, tile_tex)
     (meta_dir / "TerrainInfo0.txt").write_text(terrain_info0, encoding="utf-8")
 
     t3d_body, individuals = build_t3d(tile_id, terrain_info0, static_meshes)
+    # BSP brushes (tools/interlude/BrushDump.java -> <extract>/<tile>/brushes.t3d): walk decks/floors that are not
+    # StaticMeshes (e.g. Elven Village bridge decks over O_E_Brg). L2BrushBuilder bakes them into Brushes.prefab.
+    brushes_t3d = src / "brushes.t3d"
+    if brushes_t3d.is_file():
+        t3d_body = t3d_body.rstrip("\n") + "\n" + brushes_t3d.read_text(encoding="utf-8")
+        print(f"{tile_id}: appended BSP brushes from {brushes_t3d}")
+    else:
+        print(f"WARN {tile_id}: no {brushes_t3d} (BSP decks/floors will be missing)")
     (meta_dir / f"{tile_id}.t3d").write_text(t3d_body, encoding="utf-8")
     uniq_individuals = sorted(set(individuals))
     (meta_dir / "StaticMeshActorIndividuals.txt").write_text(

@@ -9,7 +9,7 @@ public class RotationService : MonoBehaviour , IRotation
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if ((Instance as UnityEngine.Object) == null) Instance = this;
         else Destroy(gameObject);
     }
 

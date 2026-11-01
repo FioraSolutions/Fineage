@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -113,7 +113,11 @@ public static class LobbyPresentation
 
     static void SetLayerRecursively(Transform root, int layer)
     {
-        root.gameObject.layer = layer;
+        // Keep EntityClick click_area: CharacterSelector raycasts only that layer; repainting it to
+        // CharSelect made every lobby click hit=none.
+        int click = LayerMask.NameToLayer("EntityClick");
+        if (click < 0 || root.gameObject.layer != click)
+            root.gameObject.layer = layer;
         for (int i = 0; i < root.childCount; i++)
             SetLayerRecursively(root.GetChild(i), layer);
     }
