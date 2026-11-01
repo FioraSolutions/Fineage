@@ -129,10 +129,14 @@ public static class L2MElfAnimImporter
                 var nb = b; nb.path = np;
                 AnimationUtility.SetEditorCurve(dst, nb, AnimationUtility.GetEditorCurve(src, b));
             }
-            bool willLoop = seq.StartsWith("wait") || seq.StartsWith("walk") || seq.StartsWith("run") || seq.StartsWith("atkwait")
-                        || seq.Contains("sitwait") || seq.Contains("deathwait") || seq.StartsWith("swim") || seq.Contains("loop")
-                        || seq.StartsWith("castmid") || seq.StartsWith("castlong");
-            if (willLoop) CloseLoop(dst, 1f / Mathf.Max(1f, src.frameRate));
+            // Loop flags mirror the working MMagic clip of the same sequence (CastMid/CastLong one-shot, CastEnd holds/loops).
+            AnimationClip mmRef; mmagic.TryGetValue(seq.Replace("spatk0", "spatk00"), out mmRef);
+            if (mmRef == null) mmagic.TryGetValue(seq, out mmRef);
+            bool willLoop = mmRef != null ? AnimationUtility.GetAnimationClipSettings(mmRef).loopTime
+                : (seq.StartsWith("wait") || seq.StartsWith("walk") || seq.StartsWith("run") || seq.StartsWith("atkwait")
+                   || seq.Contains("sitwait") || seq.Contains("deathwait") || seq.StartsWith("swim"));
+            // seamless closing key only for locomotion/idle loops, never for cast phases
+            if (willLoop && !seq.StartsWith("cast") && !seq.StartsWith("magic")) CloseLoop(dst, 1f / Mathf.Max(1f, src.frameRate));
             var st = AnimationUtility.GetAnimationClipSettings(dst);
             st.loopTime = willLoop; st.loopBlend = false;
             AnimationUtility.SetAnimationClipSettings(dst, st);
