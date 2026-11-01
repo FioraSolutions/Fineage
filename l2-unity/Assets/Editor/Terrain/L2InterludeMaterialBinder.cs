@@ -101,6 +101,7 @@ public static class L2InterludeMaterialBinder
                 (missingNames.Count > 0 ? " (e.g. " + string.Join(", ", missingNames) + ")" : ""));
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
         log.Add("SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
+        log.Add("elven bridge/stair mats forced opaque two-sided: " + FixElvenBridgeDeck());
         log.Add(L2InterludeStaticMeshColliders.Run(null));
         log.Add(L2InterludeWaterVolumes.Run(null));
     }
@@ -115,6 +116,7 @@ public static class L2InterludeMaterialBinder
                 props[Path.GetFileName(f).Replace(".props.txt", "")] = f;
         Debug.Log("[MatBinder] translucent (water) materials fixed: " + FixTranslucent(props));
         Debug.Log("[MatBinder] SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
+        Debug.Log("[MatBinder] elven bridge/stair mats forced opaque two-sided: " + FixElvenBridgeDeck());
         Debug.Log("[Water] " + L2InterludeWaterVolumes.Run(null));
     }
 
@@ -247,8 +249,6 @@ public static class L2InterludeMaterialBinder
             if (texPath != null) t = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
             if (t == null && m.HasProperty("_MainTex")) t = m.GetTexture("_MainTex");
             if (t == null) continue;
-            bool hasAlpha = UnityEditor.AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(t)) is TextureImporter ti && ti.DoesSourceTextureHaveAlpha()
-                            && ti.alphaSource != TextureImporterAlphaSource.None;
 
             m.shader = lit;
             m.shaderKeywords = new string[0];
@@ -262,21 +262,44 @@ public static class L2InterludeMaterialBinder
             m.SetFloat("_Smoothness", 0f);
             m.SetFloat("_SpecularHighlights", 0f); m.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
             m.SetFloat("_EnvironmentReflections", 0f); m.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
-            if (hasAlpha)
-            {
-                m.SetFloat("_AlphaClip", 1f); m.SetFloat("_Cutoff", 0.5f); m.EnableKeyword("_ALPHATEST_ON");
-                m.SetOverrideTag("RenderType", "TransparentCutout");
-                m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
-            }
-            else
-            {
-                m.SetFloat("_AlphaClip", 0f); m.DisableKeyword("_ALPHATEST_ON");
-                m.SetOverrideTag("RenderType", "Opaque");
-                m.renderQueue = -1;
-            }
+            // AlphaTest=false in L2 => solid: never alpha-clip (diffuse alpha is garbage on these, clipped the whole surface)
+            m.SetFloat("_AlphaClip", 0f); m.DisableKeyword("_ALPHATEST_ON");
+            m.SetOverrideTag("RenderType", "Opaque");
+            m.renderQueue = -1;
             bool two = Regex.IsMatch(txt, @"^\s*(TwoSided|TreatAsTwoSided)\s*=\s*true", RegexOptions.Multiline);
             m.SetFloat("_Cull", two ? 0f : 2f);
             m.doubleSidedGI = two;
+            EditorUtility.SetDirty(m);
+            n++;
+        }
+        AssetDatabase.SaveAssets();
+        return n;
+    }
+
+    /// <summary>
+    /// Oren_HEV_S O_E_Brg / O_E_BrgT / O_E_Bridge / O_E_Stair: walk deck is a single-sided plane (elf_vi_117,
+    /// upward faces), invisible in Unity with Cull Back (railings elf_vi_0002 are two-sided so they showed).
+    /// Force these mats URP Lit opaque, no clip, Cull Off.
+    /// </summary>
+    static readonly HashSet<string> ElvenBridgeMats = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        { "elf_vi_117", "elf_vi_0002", "elf_vi_003", "elf_vi_001", "elf_vi_004" };
+
+    static int FixElvenBridgeDeck()
+    {
+        int n = 0;
+        Shader lit = Shader.Find("Universal Render Pipeline/Lit");
+        foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
+        {
+            string mp = AssetDatabase.GUIDToAssetPath(g);
+            if (!ElvenBridgeMats.Contains(Path.GetFileNameWithoutExtension(mp))) continue;
+            var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+            if (m == null || lit == null || m.shader != lit) continue;
+            m.SetFloat("_Surface", 0f); m.SetFloat("_ZWrite", 1f);
+            m.SetFloat("_AlphaClip", 0f); m.DisableKeyword("_ALPHATEST_ON");
+            m.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.SetOverrideTag("RenderType", "Opaque");
+            m.renderQueue = -1;
+            m.SetFloat("_Cull", 0f); m.doubleSidedGI = true;
             EditorUtility.SetDirty(m);
             n++;
         }
