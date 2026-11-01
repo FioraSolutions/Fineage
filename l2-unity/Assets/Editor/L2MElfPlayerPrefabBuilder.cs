@@ -38,6 +38,14 @@ public static class L2MElfPlayerPrefabBuilder
         var log = new List<string>();
         var oc = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(MElfOc);
 
+        // 0) MElf_anim_user.prefab was an empty holder (no skeleton/mesh) -> SkinnedMeshSync NRE + clips bind nothing.
+        //    Add MElf_m000_b.ao + MElf_m000_b.mo from MElf_anim_user.fbx, like MMagic_anim_* (root children .ao/.mo).
+        {
+            var u = PrefabUtility.LoadPrefabContents(MElfUser);
+            try { log.Add("MElf_anim_user skeleton: " + EnsureSkeleton(u)); PrefabUtility.SaveAsPrefabAsset(u, MElfUser); }
+            finally { PrefabUtility.UnloadPrefabContents(u); }
+        }
+
         // 1) MElf_anim_player
         var mmAp = AssetDatabase.LoadAssetAtPath<GameObject>(MMagicAnimPlayer);
         var ap = PrefabUtility.LoadPrefabContents(MElfUser);
@@ -99,6 +107,19 @@ public static class L2MElfPlayerPrefabBuilder
         finally { PrefabUtility.UnloadPrefabContents(root); }
         AssetDatabase.SaveAssets();
         return string.Join(" | ", log);
+    }
+
+    const string MElfFbx = R + "Elf/MElf/Models/anim/MElf_anim_user.fbx";
+    static string EnsureSkeleton(GameObject root)
+    {
+        if (root.GetComponentInChildren<SkinnedMeshRenderer>(true) != null) return "already";
+        var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(MElfFbx);
+        var inst = (GameObject)PrefabUtility.InstantiatePrefab(fbx);
+        PrefabUtility.UnpackPrefabInstance(inst, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+        var kids = new List<Transform>(); foreach (Transform c in inst.transform) kids.Add(c);
+        foreach (var c in kids) c.SetParent(root.transform, false);
+        UnityEngine.Object.DestroyImmediate(inst);
+        return "added " + string.Join(",", kids.Select(k => k.name));
     }
 
     // object refs into `from` hierarchy -> same-named/same-type object under `to`
