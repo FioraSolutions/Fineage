@@ -188,7 +188,6 @@ public class ClickManager : MonoBehaviour
     {
         if (CastMoveLock.IsLocked)
         {
-            Debug.Log("[MoveMark] click ignored: CastMoveLock");
             return;
         }
 
@@ -203,8 +202,6 @@ public class ClickManager : MonoBehaviour
         }
 
         float angle = Vector3.Angle(hit.normal, Vector3.up);
-        Debug.Log("[MoveMark] click hit=" + hit.collider.name + " layer=" + LayerMask.LayerToName(hit.collider.gameObject.layer) +
-                  " angle=" + angle.ToString("F1") + " pos=" + hit.point);
         if (angle < 85f)
         {
             PlaceLocator(_lastClickPosition);
@@ -341,8 +338,6 @@ public class ClickManager : MonoBehaviour
         if (_locator == null)
             return;
 
-        if (_locator.activeSelf)
-            Debug.Log("[MoveMark] hide\n" + System.Environment.StackTrace);
         _locator.SetActive(false);
     }
 }
