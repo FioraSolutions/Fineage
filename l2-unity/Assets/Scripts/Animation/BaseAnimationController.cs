@@ -115,6 +115,13 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
         return _castPlayable.TryPlay(overrideAnimName, phaseTriggerName);
     }
 
+    /// <summary>Lobby: play a social clip once over the controller, then hand back to it.</summary>
+    public bool TryPlayOneShot(AnimationClip clip)
+    {
+        EnsureCastPlayable();
+        return _castPlayable != null && _castPlayable.PlayOneShot(clip);
+    }
+
     public void StopCastClip()
     {
         if (_castPlayable != null && _castPlayable.IsActive)

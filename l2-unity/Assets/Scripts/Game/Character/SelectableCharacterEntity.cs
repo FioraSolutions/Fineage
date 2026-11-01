@@ -69,8 +69,13 @@ public class SelectableCharacterEntity : MonoBehaviour
                 transform.position, _destination, Time.deltaTime * GetWalkSpeedPoint(_characterInfoInterlude));
            
         } else {
-            if (_walking)
+            if (_walking) {
                 StopWalking();
+                if (_celebrateOnArrive) {
+                    _celebrateOnArrive = false;
+                    PlayVictory();
+                }
+            }
             if (_hasDestYaw)
                 transform.rotation = Quaternion.RotateTowards(
                 transform.rotation, Quaternion.Euler(_destEulerAngles), LobbyTurnDegPerSec * Time.deltaTime);
@@ -133,7 +138,38 @@ public class SelectableCharacterEntity : MonoBehaviour
                 _baseAnimationController, AnimationNames.WAIT.ToString() + WeaponAnim);
     }
 
+    bool _celebrateOnArrive;
+
+    /// <summary>Selected pawn: Interlude raises an arm (Social_victory) once it reaches the Start slot.</summary>
+    public void SetDestination(Logongrp destination, bool celebrateOnArrive) {
+        SetDestination(destination);
+        _celebrateOnArrive = celebrateOnArrive;
+    }
+
+    void PlayVictory() {
+        if (_baseAnimationController == null || _characterInfoInterlude == null)
+            return;
+        CharacterRaceAnimation raceAnim = _characterInfoInterlude.CharacterRaceAnimation;
+        string race = raceAnim.ToString();
+        string folder = "Data/Animations/" + CharacterRaceParser.ParseRace(raceAnim) + "/" + race + "/Clips/";
+        string[] names = {
+            race + "_m000_b.ao_Social_victory_" + race,
+            race + "_M000_b.ao_Social_victory_" + race,
+            race + "_m000_b.ao_Social_Victory_" + race,
+            race + "_M000_b.ao_Social_Victory_" + race,
+        };
+        for (int i = 0; i < names.Length; i++) {
+            AnimationClip clip = Resources.Load<AnimationClip>(folder + names[i]);
+            if (clip != null) {
+                _baseAnimationController.TryPlayOneShot(clip);
+                return;
+            }
+        }
+        Debug.Log("[LobbyVictory] no Social_victory clip for " + race + " in " + folder);
+    }
+
     public void SetDestination(Logongrp destination) {
+        _celebrateOnArrive = false;
         Vector3 pawnPosition = new Vector3(destination.X, destination.Y, destination.Z);
         _destination = VectorUtils.ConvertPosToUnity(pawnPosition);
         _destEulerAngles = new Vector3(0, 360.00f * destination.Yaw / 65536, 0);

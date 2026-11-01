@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
@@ -233,8 +233,45 @@ public sealed class CastClipPlayable
 
     public bool IsActive => _active;
 
+    bool _oneShot;
+
+    /// <summary>Plain one-shot (lobby social victory). No cast events / magic shot bookkeeping.</summary>
+    public bool PlayOneShot(AnimationClip clip)
+    {
+        if (!IsGraphAlive)
+            Bind(_owner, _animator);
+        if (!IsGraphAlive || clip == null)
+            return false;
+        ReleaseLongHold();
+        if (_clipPlayable.IsValid())
+        {
+            _mixer.DisconnectInput(1);
+            _graph.DestroyPlayable(_clipPlayable);
+        }
+        _clipPlayable = AnimationClipPlayable.Create(_graph, clip);
+        _clipPlayable.SetApplyFootIK(false);
+        _clipPlayable.SetSpeed(1f);
+        _graph.Connect(_clipPlayable, 0, _mixer, 1);
+        _mixer.SetInputWeight(0, 0f);
+        _mixer.SetInputWeight(1, 1f);
+        _oneShot = true;
+        _speed = 1f;
+        _clipLength = clip.length;
+        _enterTime = Time.time;
+        _lastSample = 0f;
+        _finalShot = false;
+        _longPhase = false;
+        _holdForShot = false;
+        _events = null;
+        _eventFired = null;
+        _finished = false;
+        _active = true;
+        return true;
+    }
+
     public void Stop()
     {
+        _oneShot = false;
         MagicGaitTrace.EventId(_objectId, "CastClip.Stop",
             "finishName=" + _finishName + " finalShot=" + _finalShot + " keepGraph=True");
         ReleaseLongHold();
@@ -267,6 +304,13 @@ public sealed class CastClipPlayable
     {
         if (!_active || _finished || !_clipPlayable.IsValid())
         {
+            return;
+        }
+
+        if (_oneShot)
+        {
+            if (Time.time - _enterTime >= _clipLength)
+                Stop();
             return;
         }
 

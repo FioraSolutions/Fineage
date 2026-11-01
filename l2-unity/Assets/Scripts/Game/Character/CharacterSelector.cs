@@ -284,7 +284,7 @@ public class CharacterSelector : MonoBehaviour
             return;
         SelectableCharacterEntity entity = pawn.GetComponent<SelectableCharacterEntity>();
         if (entity != null)
-            entity.SetDestination(_pawnData[pawnDataIndex]);
+            entity.SetDestination(_pawnData[pawnDataIndex], pawnDataIndex == 7);
     }
 
    
@@ -360,7 +360,7 @@ public class CharacterSelector : MonoBehaviour
                 _characterGameObjects[_selectedCharacterSlot].GetComponent<SelectableCharacterEntity>().SetDestination(_pawnData[_selectedCharacterSlot]);
             }
 
-            _characterGameObjects[slot].GetComponent<SelectableCharacterEntity>().SetDestination(_pawnData[7]);
+            _characterGameObjects[slot].GetComponent<SelectableCharacterEntity>().SetDestination(_pawnData[7], true);
 
             _selectedCharacterSlot = slot;
             _selectedCharacterInterlude = _charactersInterlude[slot];
