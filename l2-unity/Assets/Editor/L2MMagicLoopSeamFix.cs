@@ -58,9 +58,11 @@ public static class L2MMagicLoopSeamFix
     {
         foreach (var b in AnimationUtility.GetCurveBindings(c))
         {
-            if (b.propertyName.StartsWith("m_LocalRotation")) continue; // sign may be flipped
             var cv = AnimationUtility.GetEditorCurve(c, b);
-            if (cv.length > 1 && Mathf.Abs(cv[0].value - cv[cv.length - 1].value) > 1e-4f) return false;
+            if (cv.length < 2) continue;
+            float a = cv[0].value, z = cv[cv.length - 1].value;
+            if (b.propertyName.StartsWith("m_LocalRotation")) { a = Mathf.Abs(a); z = Mathf.Abs(z); } // quaternion sign
+            if (Mathf.Abs(a - z) > 1e-4f) return false;
         }
         return true;
     }
