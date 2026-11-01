@@ -19,6 +19,8 @@ public static class L2InterludeStaticMeshesCli
         foreach (var r in L2InterludeTileBakePipeline.RunTiles(list, L2InterludeBakeStep.GenerateStaticMeshScene, false))
             Debug.Log("[StaticMeshesCli] " + string.Join(" | ", r.log));
         Debug.Log("[StaticMeshesCli] colliders: " + L2InterludeStaticMeshColliders.Run(list));
+        // Water quads live as child "L2WaterVolumes" of StaticMeshes.prefab; a fresh prefab drops them.
+        Debug.Log("[StaticMeshesCli] " + L2InterludeWaterVolumes.Run(list));
         foreach (var t in list)
             if (!L2InterludeTileSceneCli.BuildScene(t)) { Debug.LogError("[StaticMeshesCli] scene failed " + t); ok = false; }
         AssetDatabase.SaveAssets();
