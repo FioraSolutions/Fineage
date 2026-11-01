@@ -312,10 +312,11 @@ public class BufferPanel : L2Window
     }
     private void OnDestroy()
     {
-        _instance = null;
-        _dictElement.Clear();
+        if (_instance == this)
+            _instance = null;
+        _dictElement?.Clear();
         _dictElement = null;
-        _bLink.OnDisable();
+        _bLink?.OnDisable();
     }
 
 }

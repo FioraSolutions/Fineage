@@ -45,7 +45,7 @@ public abstract class L2UI : MonoBehaviour
                 _rootElement = doc.rootVisualElement;
         }
 
-        if (_uiLoaded)
+        if (_uiLoaded && _rootElement != null && _rootElement.focusController != null)
         {
             _focusedElement = _rootElement.focusController.focusedElement;
             HealStuckMouseOver();
