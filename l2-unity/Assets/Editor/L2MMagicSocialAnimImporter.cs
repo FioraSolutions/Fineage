@@ -44,9 +44,9 @@ public static class L2MMagicSocialAnimImporter
     public static string Run()
     {
         if (!File.Exists(Src)) return "missing " + Src;
-        var refImp = (ModelImporter)AssetImporter.GetAtPath(RefFbx);
-        var imp = (ModelImporter)AssetImporter.GetAtPath(Src);
-        if (imp == null) { AssetDatabase.ImportAsset(Src); imp = (ModelImporter)AssetImporter.GetAtPath(Src); }
+        var refImp = (ModelImporter)UnityEditor.AssetImporter.GetAtPath(RefFbx);
+        var imp = (ModelImporter)UnityEditor.AssetImporter.GetAtPath(Src);
+        if (imp == null) { AssetDatabase.ImportAsset(Src); imp = (ModelImporter)UnityEditor.AssetImporter.GetAtPath(Src); }
         if (imp == null) return "importer null for " + Src;
         imp.globalScale = refImp.globalScale; imp.useFileScale = refImp.useFileScale; imp.useFileUnits = refImp.useFileUnits;
         imp.bakeAxisConversion = refImp.bakeAxisConversion;
