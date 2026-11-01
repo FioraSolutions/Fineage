@@ -391,6 +391,9 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
     {
         if (!TryGetAnimator())
             return false;
+        // Races without that weapon set (MMagic has no wait_1HS) spammed "Parameter does not exist".
+        if (!AnimatorBoolSet.HasBool(_animator, name))
+            return false;
         return _animator.GetBool(name);
     }
 

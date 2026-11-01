@@ -414,6 +414,9 @@ public class CharacterSelector : MonoBehaviour
         if(_charSelectCamera == null) {
             return;
         }
+        // Start / other lobby buttons over a pawn: UI Toolkit click must not fall through to the hero (victory/select).
+        if (L2LoginUI.Instance != null && L2LoginUI.Instance.IsPointerOverPanel())
+            return;
 
         {
             Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
