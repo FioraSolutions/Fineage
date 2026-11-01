@@ -57,6 +57,11 @@ phase_a() {
     java -cp "$jar" "$REPO/tools/interlude/WaterVolumeDump.java" "$unr" "$EXTRACT/$TILE/watervolumes.json" \
       || echo "WARN: WaterVolumeDump failed for $TILE (no water surfaces)" >&2
   fi
+  # BSP brushes (bridge decks, floors) -> brushes.t3d, appended to the tile t3d by prepare_interlude_tile.py.
+  if [[ -n "$jar" ]]; then
+    java -cp "$jar" "$REPO/tools/interlude/BrushDump.java" "$unr" "$EXTRACT/$TILE/brushes.t3d" \
+      || echo "WARN: BrushDump failed for $TILE (no BSP brushes)" >&2
+  fi
   echo "== Phase A: prepare_interlude_tile.py"
   python3 "$REPO/tools/interlude/prepare_interlude_tile.py" "$TILE" --extract-dir "$EXTRACT"
 }

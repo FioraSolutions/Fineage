@@ -231,6 +231,14 @@ def main() -> None:
     (meta_dir / "TerrainInfo0.txt").write_text(terrain_info0, encoding="utf-8")
 
     t3d_body, individuals = build_t3d(tile_id, terrain_info0, static_meshes)
+    # BSP brushes (tools/interlude/BrushDump.java -> <extract>/<tile>/brushes.t3d): walk decks/floors that are not
+    # StaticMeshes (e.g. Elven Village bridge decks over O_E_Brg). L2BrushBuilder bakes them into Brushes.prefab.
+    brushes_t3d = src / "brushes.t3d"
+    if brushes_t3d.is_file():
+        t3d_body = t3d_body.rstrip("\n") + "\n" + brushes_t3d.read_text(encoding="utf-8")
+        print(f"{tile_id}: appended BSP brushes from {brushes_t3d}")
+    else:
+        print(f"WARN {tile_id}: no {brushes_t3d} (BSP decks/floors will be missing)")
     (meta_dir / f"{tile_id}.t3d").write_text(t3d_body, encoding="utf-8")
     uniq_individuals = sorted(set(individuals))
     (meta_dir / "StaticMeshActorIndividuals.txt").write_text(

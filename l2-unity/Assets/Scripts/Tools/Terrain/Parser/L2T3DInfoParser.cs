@@ -175,13 +175,13 @@ public class L2T3DInfoParser {
                                     polydata.origin = L2MetaDataUtils.ParseVector3Poly(line.Replace("Origin", "").Trim());
                                 }
                                 if (line.Contains("TextureU")) {
-                                    polydata.origin = L2MetaDataUtils.ParseVector3Poly(line.Replace("TextureU", "").Trim());
+                                    polydata.textureU = L2MetaDataUtils.ParseVector3Poly(line.Replace("TextureU", "").Trim());
                                 }
                                 if (line.Contains("TextureV")) {
-                                    polydata.origin = L2MetaDataUtils.ParseVector3Poly(line.Replace("TextureV", "").Trim());
+                                    polydata.textureV = L2MetaDataUtils.ParseVector3Poly(line.Replace("TextureV", "").Trim());
                                 }
                                 if (line.Contains("Normal")) {
-                                    polydata.origin = L2MetaDataUtils.ParseVector3Poly(line.Replace("Normal", "").Trim());
+                                    polydata.normal = L2MetaDataUtils.ParseVector3Poly(line.Replace("Normal", "").Trim());
                                 }
                                 if (line.Contains("Vertex")) {
                                     vertices.Add(L2MetaDataUtils.ParseVector3Poly(line.Replace("Vertex", "").Trim()));
