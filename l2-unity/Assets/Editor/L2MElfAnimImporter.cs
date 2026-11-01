@@ -45,6 +45,40 @@ public static class L2MElfAnimImporter
         return n.ToLowerInvariant();
     }
 
+    // "FDarkElf_m001_b.ao_MagicShot_A_FDarkElf" -> "magicshot"
+    static string SlotSeq(string n)
+    {
+        int i = n.IndexOf(".ao_", StringComparison.OrdinalIgnoreCase); if (i >= 0) n = n.Substring(i + 4);
+        int j = n.LastIndexOf('_'); if (j > 0) n = n.Substring(0, j);
+        n = n.ToLowerInvariant();
+        if (n.EndsWith("_a")) n = n.Substring(0, n.Length - 2);
+        return n;
+    }
+
+    // UE loops interpolate last->first; Unity stops at the last key. Append the first pose one frame later.
+    static void CloseLoop(AnimationClip c, float dt)
+    {
+        var binds = AnimationUtility.GetCurveBindings(c);
+        float end = 0f;
+        foreach (var b in binds) { var cv = AnimationUtility.GetEditorCurve(c, b); if (cv.length > 0) end = Mathf.Max(end, cv[cv.length - 1].time); }
+        float t = end + dt;
+        var flip = new Dictionary<string, bool>();
+        foreach (var g in binds.Where(b => b.propertyName.StartsWith("m_LocalRotation")).GroupBy(b => b.path))
+        {
+            float dot = 0f;
+            foreach (var b in g) { var cv = AnimationUtility.GetEditorCurve(c, b); if (cv.length > 0) dot += cv[0].value * cv[cv.length - 1].value; }
+            flip[g.Key] = dot < 0f;
+        }
+        foreach (var b in binds)
+        {
+            var cv = AnimationUtility.GetEditorCurve(c, b); if (cv.length == 0) continue;
+            float v = cv[0].value;
+            if (b.propertyName.StartsWith("m_LocalRotation") && flip.TryGetValue(b.path, out var f) && f) v = -v;
+            cv.AddKey(new Keyframe(t, v));
+            AnimationUtility.SetEditorCurve(c, b, cv);
+        }
+    }
+
     public static string Run()
     {
         var log = new List<string>();
@@ -95,10 +129,12 @@ public static class L2MElfAnimImporter
                 var nb = b; nb.path = np;
                 AnimationUtility.SetEditorCurve(dst, nb, AnimationUtility.GetEditorCurve(src, b));
             }
-            var st = AnimationUtility.GetAnimationClipSettings(src);
-            bool loop = seq.StartsWith("wait") || seq.StartsWith("walk") || seq.StartsWith("run") || seq.StartsWith("atkwait")
-                        || seq.Contains("sitwait") || seq.Contains("deathwait") || seq.StartsWith("swim") || seq.Contains("loop");
-            st.loopTime = loop;
+            bool willLoop = seq.StartsWith("wait") || seq.StartsWith("walk") || seq.StartsWith("run") || seq.StartsWith("atkwait")
+                        || seq.Contains("sitwait") || seq.Contains("deathwait") || seq.StartsWith("swim") || seq.Contains("loop")
+                        || seq.StartsWith("castmid") || seq.StartsWith("castlong");
+            if (willLoop) CloseLoop(dst, 1f / Mathf.Max(1f, src.frameRate));
+            var st = AnimationUtility.GetAnimationClipSettings(dst);
+            st.loopTime = willLoop; st.loopBlend = false;
             AnimationUtility.SetAnimationClipSettings(dst, st);
             if (mmagic.TryGetValue(seq, out var mm) && mm.length > 0)
             {
@@ -130,7 +166,8 @@ public static class L2MElfAnimImporter
             // MMagic uses SpAtk001/002, the elf package SpAtk01/02
             string alias = ms.Replace("spatk00", "spatk0");
             if (kv.Value != null && (melf.TryGetValue(ms, out var c) || melf.TryGetValue(alias, out c))) o = c;
-            else if (melf.TryGetValue(Seq(kv.Key.name, "", ""), out var c2)) o = c2;
+            if (o == null && melf.TryGetValue(SlotSeq(kv.Key.name), out var c2)) o = c2;
+            if (o == null && melf.TryGetValue(SlotSeq(kv.Key.name).Replace("spatk00", "spatk0"), out var c3)) o = c3;
             if (o == null && kv.Value != null) miss.Add(kv.Value.name);
             pairs.Add(new KeyValuePair<AnimationClip, AnimationClip>(kv.Key, o));
         }

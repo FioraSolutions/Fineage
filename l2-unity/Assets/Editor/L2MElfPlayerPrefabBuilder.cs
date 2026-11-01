@@ -105,6 +105,8 @@ public static class L2MElfPlayerPrefabBuilder
             log.Add("Player_MElf rebuilt (refs repointed " + rp + ", race fields " + raceSet + ")");
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
+        // 3) Pawn_MElf (lobby / create screen) used FElf_anim_user -> slid without walking. Mirror Pawn_MMagic.
+        log.Add(SwapNested(R + "Human/MMagic/Pawn_MMagic.prefab", R + "Magic/MMagic/MMagic_anim_user.prefab", MElfUser, R + "Elf/MElf/Pawn_MElf.prefab", "Pawn_MElf"));
         AssetDatabase.SaveAssets();
         return string.Join(" | ", log);
     }
@@ -120,6 +122,43 @@ public static class L2MElfPlayerPrefabBuilder
         foreach (var c in kids) c.SetParent(root.transform, false);
         UnityEngine.Object.DestroyImmediate(inst);
         return "added " + string.Join(",", kids.Select(k => k.name));
+    }
+
+    static string SwapNested(string srcPrefab, string oldNested, string newNested, string dstPrefab, string name)
+    {
+        var root = PrefabUtility.LoadPrefabContents(srcPrefab);
+        try
+        {
+            GameObject oldInst = null;
+            foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+            {
+                if (!PrefabUtility.IsOutermostPrefabInstanceRoot(t.gameObject)) continue;
+                var src = PrefabUtility.GetCorrespondingObjectFromSource(t.gameObject);
+                if (src != null && AssetDatabase.GetAssetPath(src) == oldNested) { oldInst = t.gameObject; break; }
+            }
+            if (oldInst == null) return name + ": nested " + oldNested + " not found";
+            var ni = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(newNested), oldInst.transform.parent);
+            ni.transform.localPosition = oldInst.transform.localPosition; ni.transform.localRotation = oldInst.transform.localRotation;
+            ni.transform.localScale = oldInst.transform.localScale; ni.transform.SetSiblingIndex(oldInst.transform.GetSiblingIndex());
+            ni.tag = oldInst.tag; ni.layer = oldInst.layer;
+            int rp = 0;
+            foreach (var mb in root.GetComponentsInChildren<MonoBehaviour>(true))
+                if (mb != null && !mb.transform.IsChildOf(oldInst.transform)) rp += Repoint(mb, oldInst, ni);
+            UnityEngine.Object.DestroyImmediate(oldInst);
+            int raceSet = 0;
+            foreach (var mb in root.GetComponents<MonoBehaviour>())
+            {
+                if (mb == null) continue;
+                var so = new SerializedObject(mb);
+                var p = so.FindProperty("_race"); if (p != null) { p.intValue = (int)CharacterRace.Elf; raceSet++; }
+                var q = so.FindProperty("_raceId"); if (q != null) { q.intValue = (int)CharacterRaceAnimation.MElf; raceSet++; }
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+            root.name = name;
+            PrefabUtility.SaveAsPrefabAsset(root, dstPrefab);
+            return name + " rebuilt from " + System.IO.Path.GetFileName(srcPrefab) + " (refs " + rp + ", race " + raceSet + ")";
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
     }
 
     // object refs into `from` hierarchy -> same-named/same-type object under `to`
