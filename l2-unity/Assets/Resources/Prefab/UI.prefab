@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1950824200004992236}
   - component: {fileID: 9166659596877626494}
   - component: {fileID: 1625420868165748363}
-  - component: {fileID: 4240694135666102512}
   - component: {fileID: 5054604499374613714}
   - component: {fileID: 8375159366462154550}
   - component: {fileID: 1516610631782782226}
@@ -92,27 +91,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _statusWindowMinWidth: 175
   _statusWindowMaxWidth: 400
---- !u!114 &4240694135666102512
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8310766140472177322}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90c3fb83fa7e05d4e85e87bffbb0b9f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _chatWindowMinWidth: 225
-  _chatWindowMaxWidth: 500
-  _chatWindowMinHeight: 175
-  _chatWindowMaxHeight: 600
-  _tabs:
-  - _tabName: All
-  - _tabName: System
-  _chatOpened: 0
-  _chatInputCharacterLimit: 64
 --- !u!114 &5054604499374613714
 MonoBehaviour:
   m_ObjectHideFlags: 0

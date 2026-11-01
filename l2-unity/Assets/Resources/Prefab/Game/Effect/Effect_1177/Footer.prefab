@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5341844108502141936}
   - component: {fileID: 4573172481430345651}
   - component: {fileID: 4472202542123052989}
-  - component: {fileID: 4529827308146510467}
   m_Layer: 0
   m_Name: auraplane00
   m_TagString: Untagged
@@ -110,19 +109,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &4529827308146510467
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4151970392448642146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f599ef9e14f7094eb0aa12e4a343e77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  partType: 2
 --- !u!1 &4738729730818304031
 GameObject:
   m_ObjectHideFlags: 0
@@ -242,20 +228,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 94feba6238aade2468ccf84fee64ed5f, type: 3}
   m_PrefabInstance: {fileID: 5427477604626723568}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3754277623617572968
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5157518714666799009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 863a06f61b6cc914fb1d854384725563, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  partType: 3
-  linkedPart: {fileID: 1290314426389622892}
 --- !u!4 &5537456518436525339 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 94feba6238aade2468ccf84fee64ed5f, type: 3}
@@ -342,19 +314,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 94feba6238aade2468ccf84fee64ed5f, type: 3}
   m_PrefabInstance: {fileID: 5583324969603598238}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1290314426389622892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4736271318092593871}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39c3f19b3a812644eb0e595b0e0186c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  partType: 4
 --- !u!4 &5400182121064554613 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 94feba6238aade2468ccf84fee64ed5f, type: 3}
