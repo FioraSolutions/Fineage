@@ -153,9 +153,9 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     IEnumerator RestartRoutine()
     {
-        Debug.Log("[Fineage] restart → character select");
-        string account = ZoneV2Client.LastAccount;
-        string password = ZoneV2Client.LastPassword;
+        // Back to the login screen only — no auto-submit (auto re-enter broke textures).
+        // Remember-login checkbox prefills the fields; user presses Login.
+        Debug.Log("[Fineage] restart → login screen");
         ZoneV2Client.Ensure().Disconnect();
         IsSwitchingServer = false;
         WorldSpawnReady = false;
@@ -163,20 +163,7 @@ public class GameManager : MonoBehaviour, IGameManager {
         if (MusicManager.Instance != null)
             MusicManager.Instance.Clear();
         Scenes.LoadMenu();
-
-        float until = Time.realtimeSinceStartup + 30f;
-        while (LoginWindow.Instance == null && Time.realtimeSinceStartup < until)
-            yield return null;
-        for (int i = 0; i < 10; i++)
-            yield return null;
-
-        if (string.IsNullOrEmpty(account))
-        {
-            Debug.LogWarning("[Fineage] restart: no cached account, staying on login");
-            yield break;
-        }
-
-        yield return AutoLoginFromArgs(account, password);
+        yield break;
     }
 
     public void OnWorldSceneLoaded() => _lobbyFlow.OnWorldSceneLoaded();
