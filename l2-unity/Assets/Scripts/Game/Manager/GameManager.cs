@@ -133,6 +133,52 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     public void LogOut() => _lobbyFlow.LogOut();
 
+    /// <summary>Interlude System Menu → Restart: leave world, back to character select.</summary>
+    public void RestartToCharacterSelect()
+    {
+        StartCoroutine(RestartRoutine());
+    }
+
+    /// <summary>Interlude System Menu → Exit: close the client.</summary>
+    public void QuitGame()
+    {
+        Debug.Log("[Fineage] exit game");
+        ZoneV2Client.Ensure().Disconnect();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    IEnumerator RestartRoutine()
+    {
+        Debug.Log("[Fineage] restart → character select");
+        string account = ZoneV2Client.LastAccount;
+        string password = ZoneV2Client.LastPassword;
+        ZoneV2Client.Ensure().Disconnect();
+        IsSwitchingServer = false;
+        WorldSpawnReady = false;
+        GameState = GameState.LOGIN_SCREEN;
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.Clear();
+        Scenes.LoadMenu();
+
+        float until = Time.realtimeSinceStartup + 30f;
+        while (LoginWindow.Instance == null && Time.realtimeSinceStartup < until)
+            yield return null;
+        for (int i = 0; i < 10; i++)
+            yield return null;
+
+        if (string.IsNullOrEmpty(account))
+        {
+            Debug.LogWarning("[Fineage] restart: no cached account, staying on login");
+            yield break;
+        }
+
+        yield return AutoLoginFromArgs(account, password);
+    }
+
     public void OnWorldSceneLoaded() => _lobbyFlow.OnWorldSceneLoaded();
 
     public void OnLoginServerConnected() => _lobbyFlow.OnLoginServerConnected();

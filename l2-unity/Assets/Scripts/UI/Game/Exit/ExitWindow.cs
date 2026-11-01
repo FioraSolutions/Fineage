@@ -128,14 +128,16 @@ public class ExitWindow : L2PopupWindow
     private void HandleRestartButtonClick()
     {
         HideWindow();
-        //GameClient.Instance.ClientPacketHandler.RequestRestart();
-        // Debug.Log("Restart pressed");
+        if (GameManager.Instance != null)
+            GameManager.Instance.RestartToCharacterSelect();
     }
 
     private void HandleExitButtonClick()
     {
         HideWindow();
-        // Debug.Log("Exit pressed");
-        //GameClient.Instance.ClientPacketHandler.RequestDisconnect();
+        if (GameManager.Instance != null)
+            GameManager.Instance.QuitGame();
+        else
+            Application.Quit();
     }
 }
