@@ -27,6 +27,9 @@ public class SelectableCharacterEntity : MonoBehaviour
 
     public string WeaponAnim { get { return _weaponAnim; } set { _weaponAnim = value; } }
 
+    const float LobbyTurnDegPerSec = 360f;
+    bool _hasDestYaw;
+
     private void Awake() {
         _characterController = GetComponent<CharacterController>();
         _baseAnimationController = GetComponent<BaseAnimationController>();
@@ -53,11 +56,19 @@ public class SelectableCharacterEntity : MonoBehaviour
                 SetWalkSpeedModel();
             }
             
-            transform.LookAt(new Vector3(_destination.x, transform.position.y, _destination.z));
+            // Turn over time (L2 pawns rotate, they don't snap); walk along the current facing.
+            Vector3 to = new Vector3(_destination.x - transform.position.x, 0f, _destination.z - transform.position.z);
+            if (to.sqrMagnitude > 1e-6f)
+                transform.rotation = Quaternion.RotateTowards(
+                    transform.rotation, Quaternion.LookRotation(to), LobbyTurnDegPerSec * Time.deltaTime);
             _characterController.Move(transform.forward.normalized * Time.deltaTime * GetWalkSpeedPoint(_characterInfoInterlude));
            
-        } else if(_walking) {
-            StopWalking();
+        } else {
+            if (_walking)
+                StopWalking();
+            if (_hasDestYaw)
+                transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, Quaternion.Euler(_destEulerAngles), LobbyTurnDegPerSec * Time.deltaTime);
         }
     }
     //Movement speed to the target without taking into account animation speed
@@ -115,12 +126,12 @@ public class SelectableCharacterEntity : MonoBehaviour
         if (animations != null)
             animations.PlayLobbyLocomotion(
                 _baseAnimationController, AnimationNames.WAIT.ToString() + WeaponAnim);
-        transform.eulerAngles = _destEulerAngles;
     }
 
     public void SetDestination(Logongrp destination) {
         Vector3 pawnPosition = new Vector3(destination.X, destination.Y, destination.Z);
         _destination = VectorUtils.ConvertPosToUnity(pawnPosition);
         _destEulerAngles = new Vector3(0, 360.00f * destination.Yaw / 65536, 0);
+        _hasDestYaw = true;
     }
 }

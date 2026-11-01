@@ -412,7 +412,6 @@ public class CharacterSelector : MonoBehaviour
         if(!Input.GetMouseButtonDown(0))
             return;
         if(_charSelectCamera == null) {
-            Debug.Log("[LobbyClick] no camera (lobbyMode=" + _lobbyMode + ")");
             return;
         }
 
@@ -422,9 +421,6 @@ public class CharacterSelector : MonoBehaviour
             // Only the EntityClick click_area can select: pawn CharacterControllers / stage colliders in front
             // of it used to swallow the first hit, so the click did nothing.
             bool got = Physics.Raycast(ray, out hit, 1000f, _characterMask, QueryTriggerInteraction.Collide);
-            Debug.Log("[LobbyClick] cam=" + _charSelectCamera.name + " mask=" + _characterMask.value + " hit=" +
-                      (got ? hit.collider.name + " layer=" + LayerMask.LayerToName(hit.collider.gameObject.layer) +
-                             " entity=" + (hit.collider.GetComponentInParent<SelectableCharacterEntity>() != null) : "none"));
             if (got) {
                 {
                     SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();
