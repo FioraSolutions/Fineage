@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -57,20 +57,40 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        // Every build (Editor and Standalone) dials the public RP only — no loopback / local backend.
-        PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
-        string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
-            ? ep.LoginHost
-            : PlaytestEndpoint.DefaultLoginHost;
-        string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
-            ? ep.GameHost
-            : PlaytestEndpoint.DefaultGameHost;
-        int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
-        int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
-        FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
-        Debug.Log("[Fineage] mode=public-playtest login="
-            + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-            + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+        // Local Net (PacketEnvelope): FINEAGE_NET_CLIENT=1, or Editor default (Dock has no env).
+        // Standalone still defaults to public V2 playtest unless the env is set.
+        string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
+        bool useNet = netClient == "1"
+            || string.Equals(netClient, "true", System.StringComparison.OrdinalIgnoreCase)
+#if UNITY_EDITOR
+            || string.IsNullOrEmpty(netClient) // Editor Play → local Net 9106/9777
+#endif
+            ;
+        if (netClient == "0" || string.Equals(netClient, "false", System.StringComparison.OrdinalIgnoreCase))
+            useNet = false;
+        if (useNet)
+        {
+            FineageWireConfig.EnableLocalNetBackend();
+            Debug.Log("[Fineage] mode=local-net login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+        }
+        else
+        {
+            PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
+            string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
+                ? ep.LoginHost
+                : PlaytestEndpoint.DefaultLoginHost;
+            string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
+                ? ep.GameHost
+                : PlaytestEndpoint.DefaultGameHost;
+            int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
+            int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
+            FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
+            Debug.Log("[Fineage] mode=public-playtest login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+        }
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();

@@ -12,7 +12,9 @@ public static class FineageWireConfig
     public enum Mode
     {
         Interlude = 0,
-        ZoneV2 = 1
+        ZoneV2 = 1,
+        /// <summary>Parallel Fineage Net (PacketEnvelope) on forwarded ports 9106/9777 by default.</summary>
+        Net = 2
     }
 
     static Mode? _override;
@@ -41,11 +43,34 @@ public static class FineageWireConfig
         string zoneHost,
         int zonePort)
     {
+#if FINEAGE_V2_WIRE
         SetOverride(Mode.ZoneV2);
         LoginHost = string.IsNullOrWhiteSpace(loginHost) ? PlaytestEndpoint.DefaultLoginHost : loginHost.Trim();
         LoginPort = loginPort > 0 ? loginPort : PlaytestEndpoint.DefaultLoginPort;
         ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? PlaytestEndpoint.DefaultGameHost : zoneHost.Trim();
         ZonePort = zonePort > 0 ? zonePort : PlaytestEndpoint.DefaultGamePort;
+        UseLoginHandoff = true;
+#else
+        // V2 MessagePack playtest path disabled — fall back to local Net.
+        EnableLocalNetBackend();
+#endif
+    }
+
+    /// <summary>
+    /// Local Fineage Net path (PacketEnvelope). Requires backend <c>FINEAGE_NET_ENABLE=1</c>
+    /// on the forwarded ports 9106/9777 (legacy V2 sits on 9206/9877).
+    /// </summary>
+    public static void EnableLocalNetBackend(
+        string loginHost = "127.0.0.1",
+        int loginPort = 9106,
+        string zoneHost = "127.0.0.1",
+        int zonePort = 9777)
+    {
+        SetOverride(Mode.Net);
+        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? "127.0.0.1" : loginHost.Trim();
+        LoginPort = loginPort > 0 ? loginPort : 9106;
+        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? "127.0.0.1" : zoneHost.Trim();
+        ZonePort = zonePort > 0 ? zonePort : 9777;
         UseLoginHandoff = true;
     }
 
@@ -95,7 +120,20 @@ public static class FineageWireConfig
 
     public static bool IsZoneV2
     {
-        get { return Current == Mode.ZoneV2; }
+        get
+        {
+#if FINEAGE_V2_WIRE
+            return Current == Mode.ZoneV2;
+#else
+            // V2 MessagePack entry points are compile-time off; Net is the live path.
+            return false;
+#endif
+        }
+    }
+
+    public static bool IsNet
+    {
+        get { return Current == Mode.Net; }
     }
 
     /// <summary>Public playtest login TCP (e.g. login.fineage.evpoint.by:2106). Not loopback or localhost.</summary>
@@ -117,6 +155,7 @@ public static class FineageWireConfig
     /// </summary>
     public static bool LoginPressStartsZoneSession(bool transportBypassesInterludeLogin)
     {
-        return UseLoginHandoff || IsZoneV2 || transportBypassesInterludeLogin;
+        return UseLoginHandoff || IsZoneV2 || IsNet || transportBypassesInterludeLogin;
     }
 }
+

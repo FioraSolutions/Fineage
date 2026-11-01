@@ -466,6 +466,12 @@ public class CharSelectWindow : L2Window {
                 return;
             if (_startButton != null)
                 _startButton.SetEnabled(false);
+            if (FineageWireConfig.IsNet)
+            {
+                NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
+                return;
+            }
+
             ZoneV2Client zone = ZoneV2Client.Instance;
             if (zone != null)
                 zone.SelectLobbyCharacter(selected);

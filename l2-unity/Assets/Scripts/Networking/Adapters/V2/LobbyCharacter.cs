@@ -78,6 +78,38 @@ public static class LobbyCharacterMap
         return list;
     }
 
+    public static LobbyCharacter FromNetSummary(Fineage.Net.Contract.CharacterSummaryNet row)
+    {
+        return new LobbyCharacter
+        {
+            Id = row.CharacterId,
+            Name = row.Name ?? "",
+            ClassId = row.ClassId,
+            Race = row.Race,
+            Sex = row.Sex,
+            Level = row.Level,
+            Slot = row.Slot,
+            HairStyle = row.HairStyle,
+            HairColor = row.HairColor,
+            Face = row.Face,
+            CurHp = row.Hp,
+            MaxHp = row.MaxHp,
+            CurMp = row.Mp,
+            MaxMp = row.MaxMp,
+            DeleteSecondsLeft = row.PendingDelete ? 1 : 0
+        };
+    }
+
+    public static LobbyCharacter[] FromNetRoster(Fineage.Net.Contract.CharacterRosterMsg roster)
+    {
+        if (roster?.Characters == null || roster.Characters.Length == 0)
+            return Array.Empty<LobbyCharacter>();
+        LobbyCharacter[] list = new LobbyCharacter[roster.Characters.Length];
+        for (int i = 0; i < roster.Characters.Length; i++)
+            list[i] = FromNetSummary(roster.Characters[i]);
+        return list;
+    }
+
     /// <summary>New character id, otherwise the last-played row, otherwise the first slot.</summary>
     public static int PreferredIndex(IReadOnlyList<LobbyCharacter> rows, int preselectId)
     {

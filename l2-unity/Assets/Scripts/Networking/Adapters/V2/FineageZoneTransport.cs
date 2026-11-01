@@ -9,14 +9,16 @@ public sealed class FineageZoneTransport : IZoneTransport
 {
     public event Action OnDisconnected;
 
-    public bool BypassesInterludeLogin => FineageWireConfig.IsZoneV2;
+    public bool BypassesInterludeLogin => FineageWireConfig.IsZoneV2 || FineageWireConfig.IsNet;
 
-    public bool AllowsInterludeGameSocketAuth => !FineageWireConfig.IsZoneV2;
+    public bool AllowsInterludeGameSocketAuth => !FineageWireConfig.IsZoneV2 && !FineageWireConfig.IsNet;
 
     public bool Connected
     {
         get
         {
+            if (FineageWireConfig.IsNet)
+                return NetSession.Instance != null;
             ZoneV2Client zone = ActiveZoneClient;
             return zone != null && zone.Connected;
         }
@@ -33,6 +35,19 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public bool TrySendGameCommand(INetworkCommand command)
     {
+        if (FineageWireConfig.IsNet)
+        {
+            MoveToCommand netMove = command as MoveToCommand;
+            if (netMove != null)
+            {
+                SendMove(netMove.From, netMove.To);
+                return true;
+            }
+
+            // Net bootstrap: consume other commands as no-ops so Interlude path is not used.
+            return true;
+        }
+
         if (!FineageWireConfig.IsZoneV2)
             return false;
 
@@ -415,6 +430,12 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void BeginSession(string account, string password)
     {
+        if (FineageWireConfig.IsNet)
+        {
+            NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+            return;
+        }
+
         if (!FineageWireConfig.IsZoneV2)
             return;
 
@@ -423,6 +444,16 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)
     {
+        if (FineageWireConfig.IsNet)
+        {
+            Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(toUnity);
+            NetSession.Ensure().SendMove(
+                Mathf.RoundToInt(l2.x),
+                Mathf.RoundToInt(l2.y),
+                Mathf.RoundToInt(l2.z));
+            return;
+        }
+
         if (!FineageWireConfig.IsZoneV2)
             return;
 
@@ -431,6 +462,13 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void Disconnect()
     {
+        if (FineageWireConfig.IsNet)
+        {
+            if (NetSession.Instance != null)
+                UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+            return;
+        }
+
         if (!FineageWireConfig.IsZoneV2)
             return;
 

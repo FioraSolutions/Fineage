@@ -19,8 +19,9 @@ single-process `ZoneServer` skeleton.
 | 2 | **One writer per piece of state** | Every entity (player, NPC, item) has exactly one authoritative process. No distributed locks on hot paths. |
 | 3 | **Server-authoritative simulation** | Clients send intent (MoveTo, UseSkill); the server decides outcomes. Client-side prediction hides latency. |
 | 4 | **Interface now, implementation later** | Abstractions for sessions, cache, AOI, and transport are defined early. Swap in-memory stubs for Redis/grid implementations when scale demands it. |
-| 5 | **Interlude path stays working** | Dual-adapter (Interlude wire + V2 MessagePack) remains; V2 is the future, but Interlude regression must not break. |
+| 5 | **Net wire is primary** | Fineage Net (`PacketEnvelope`) is the live client path. V2 MessagePack adapters remain in-tree as reference for domain behaviour; they are off by default (`FINEAGE_V2_WIRE`). |
 | 6 | **Observe, then scale** | Add metrics/counters before adding nodes. Know where the bottleneck is before splitting. |
+| 7 | **Postgres early, cluster late** | Durable `IAccountStore` on PostgreSQL is foundation now. Gateway / Redis / multi-zone wait until CCU demands them — interfaces first (`IHandoffStore`). |
 
 ---
 
@@ -235,11 +236,11 @@ game logic.
 
 | Phase | CCU target | What changes | What stays |
 |-------|-----------|-------------|------------|
-| **0 (this PR)** | 1–10 | Abstractions: ISession, ISessionStore, IMessageRegistry, IAoiProvider, IDistributedCache. In-memory impls. Client IZoneTransport. | PlayerSession logic, wire format, selftest |
+| **0** | 1–10 | Net `PacketEnvelope`, `IAccountStore` + **PostgreSQL** (JSON for tests), `IHandoffStore` memory, client NetSession | Login+Zone single process each |
 | **1 (v0.4–v0.5)** | 10–100 | GridAoiProvider, NpcInfo broadcast, combat tick loop, bounded inbound queue | Single process, TCP |
 | **2 (v0.7)** | 100–1000 | Metrics (Prometheus), backpressure policy, connection rate limit, load-test harness | Single process |
-| **3** | 1000–5000 | Gateway process (TLS termination, routing), Redis session directory, separate zone processes per region | Wire format unchanged |
-| **4** | 5000–20000 | Multi-zone cluster, cross-zone AOI, PostgreSQL persistence, QUIC transport option, auto-scaling | Core game logic unchanged |
+| **3** | 1000–5000 | Gateway process (TLS termination, routing), Redis session directory (`IHandoffStore`), separate zone processes per region | Net wire unchanged |
+| **4** | 5000–20000 | Multi-zone cluster, cross-zone AOI, QUIC transport option, auto-scaling | Core game logic unchanged |
 
 ---
 

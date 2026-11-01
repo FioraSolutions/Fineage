@@ -165,8 +165,10 @@ public class LoginWindow : L2Window
 
             try
             {
-                if (transport != null && FineageWireConfig.IsZoneV2)
+                if (transport != null && (FineageWireConfig.IsZoneV2 || FineageWireConfig.IsNet))
                     transport.BeginSession(account, password);
+                else if (FineageWireConfig.IsNet)
+                    NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
                 else
                     ZoneV2Client.Ensure().BeginSession(account, password);
             }
