@@ -187,7 +187,10 @@ public class ClickManager : MonoBehaviour
     public void OnClickToMove(RaycastHit hit)
     {
         if (CastMoveLock.IsLocked)
+        {
+            Debug.Log("[MoveMark] click ignored: CastMoveLock");
             return;
+        }
 
         _lastClickPosition = hit.point;
 
@@ -200,6 +203,8 @@ public class ClickManager : MonoBehaviour
         }
 
         float angle = Vector3.Angle(hit.normal, Vector3.up);
+        Debug.Log("[MoveMark] click hit=" + hit.collider.name + " layer=" + LayerMask.LayerToName(hit.collider.gameObject.layer) +
+                  " angle=" + angle.ToString("F1") + " pos=" + hit.point);
         if (angle < 85f)
         {
             PlaceLocator(_lastClickPosition);
@@ -288,7 +293,10 @@ public class ClickManager : MonoBehaviour
     {
         EnsureLocator();
         if (_locator == null)
+        {
+            Debug.LogWarning("[MoveMark] locator prefab not loaded");
             return;
+        }
 
         ClickMoveLocator mark = _locator.GetComponent<ClickMoveLocator>();
         if (mark != null)
@@ -333,6 +341,8 @@ public class ClickManager : MonoBehaviour
         if (_locator == null)
             return;
 
+        if (_locator.activeSelf)
+            Debug.Log("[MoveMark] hide\n" + System.Environment.StackTrace);
         _locator.SetActive(false);
     }
 }
