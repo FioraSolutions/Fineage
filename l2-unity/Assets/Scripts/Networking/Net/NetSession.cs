@@ -207,6 +207,43 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendDropItemRequest(int objectId, int count, int x, int y, int z)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.DropItemRequest,
+            NetCodec.EncodeDropItemRequest(new DropItemRequestNetMsg
+            {
+                ObjectId = objectId,
+                Count = count,
+                X = x,
+                Y = y,
+                Z = z
+            }),
+            NextSeq());
+    }
+
+    public async void SendUseItem(int objectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.UseItem,
+            NetCodec.EncodeUseItem(new UseItemNetMsg { ObjectId = objectId }),
+            NextSeq());
+    }
+
+    public async void SendUnequipItem(int paperdollSlot)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.UnequipItem,
+            NetCodec.EncodeUnequipItem(new UnequipItemNetMsg { PaperdollSlot = paperdollSlot }),
+            NextSeq());
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(

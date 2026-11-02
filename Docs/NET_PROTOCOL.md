@@ -24,7 +24,8 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 5. Click NPC → `SelectTarget` / `AttackRequest` → `TargetSelected` / `AttackState` / `StatusUpdate`.
 6. Kill → `EntityDie` + `DropItem`; corpse decay / leave → `EntityDespawn`.
 7. Click ground loot → `PickupRequest` → `InventoryUpdate` + `EntityDespawn`.
-8. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
+8. Bag drop / equip / unequip → `DropItemRequest` / `UseItem` / `UnequipItem` → `InventoryUpdate` (+ `DropItem` for drops).
+9. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
 
 Editor Play defaults to local Net. V2 MessagePack adapters stay in `Adapters/V2` as reference; enable only with scripting define `FINEAGE_V2_WIRE`.
 

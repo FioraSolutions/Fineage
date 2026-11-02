@@ -72,6 +72,28 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            RequestDropItemCommand netDrop = command as RequestDropItemCommand;
+            if (netDrop != null)
+            {
+                NetSession.Ensure().SendDropItemRequest(
+                    netDrop.ObjectId, netDrop.Count, netDrop.X, netDrop.Y, netDrop.Z);
+                return true;
+            }
+
+            UseItemCommand netUse = command as UseItemCommand;
+            if (netUse != null)
+            {
+                NetSession.Ensure().SendUseItem(netUse.ObjectId);
+                return true;
+            }
+
+            UnequipItemCommand netUnequip = command as UnequipItemCommand;
+            if (netUnequip != null)
+            {
+                NetSession.Ensure().SendUnequipItem(netUnequip.PaperdollSlot);
+                return true;
+            }
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }
