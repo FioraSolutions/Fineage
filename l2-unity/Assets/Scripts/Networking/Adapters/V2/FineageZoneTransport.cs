@@ -206,6 +206,38 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            RequestJoinPartyCommand netJoinParty = command as RequestJoinPartyCommand;
+            if (netJoinParty != null)
+            {
+                NetSession.Ensure().SendPartyInviteRequest(netJoinParty.TargetObjectId, netJoinParty.ItemDistribution);
+                return true;
+            }
+
+            RequestAnswerJoinPartyCommand netAnswerParty = command as RequestAnswerJoinPartyCommand;
+            if (netAnswerParty != null)
+            {
+                if (netAnswerParty.RequestorObjectId > 0)
+                    NetSession.Ensure().SendPartyAnswerJoinRequest(netAnswerParty.RequestorObjectId, netAnswerParty.Response);
+                return true;
+            }
+
+            if (command is RequestWithdrawalPartyCommand)
+            {
+                NetSession.Ensure().SendPartyLeaveRequest();
+                return true;
+            }
+
+            RequestOustPartyMemberCommand netOustParty = command as RequestOustPartyMemberCommand;
+            if (netOustParty != null)
+            {
+                NetSession.Ensure().SendPartyKickRequest(netOustParty.TargetObjectId);
+                return true;
+            }
+
+            RequestUserCommandCommand netUserCommand = command as RequestUserCommandCommand;
+            if (netUserCommand != null && TrySendNetPartyUserCommand(netUserCommand.Id))
+                return true;
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }
@@ -562,6 +594,29 @@ public sealed class FineageZoneTransport : IZoneTransport
                 if (targetId <= 0)
                     return true;
                 ZoneV2Client.Ensure().SendPartyKickRequest(targetId);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static bool TrySendNetPartyUserCommand(int commandId)
+    {
+        int targetId = ResolveSelectedTargetObjectId();
+        switch (commandId)
+        {
+            case 16:
+                if (targetId <= 0)
+                    return true;
+                NetSession.Ensure().SendPartyInviteRequest(targetId, 0);
+                return true;
+            case 17:
+                NetSession.Ensure().SendPartyLeaveRequest();
+                return true;
+            case 18:
+                if (targetId <= 0)
+                    return true;
+                NetSession.Ensure().SendPartyKickRequest(targetId);
                 return true;
             default:
                 return false;

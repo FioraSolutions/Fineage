@@ -413,6 +413,51 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendPartyInviteRequest(int targetObjectId, int itemDistribution = 0)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.PartyInviteRequest,
+            NetCodec.EncodePartyInviteRequest(new PartyInviteRequestNetMsg
+            {
+                TargetObjectId = targetObjectId,
+                ItemDistribution = itemDistribution
+            }),
+            NextSeq());
+    }
+
+    public async void SendPartyAnswerJoinRequest(int requestorObjectId, int response)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.PartyAnswerJoinRequest,
+            NetCodec.EncodePartyAnswerJoinRequest(new PartyAnswerJoinRequestNetMsg
+            {
+                RequestorObjectId = requestorObjectId,
+                Response = response
+            }),
+            NextSeq());
+    }
+
+    public async void SendPartyLeaveRequest()
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(NetOpcode.PartyLeaveRequest, NetCodec.EncodePartyLeaveRequest(), NextSeq());
+    }
+
+    public async void SendPartyKickRequest(int targetObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.PartyKickRequest,
+            NetCodec.EncodePartyKickRequest(new PartyKickRequestNetMsg { TargetObjectId = targetObjectId }),
+            NextSeq());
+    }
+
     static ShopCountNet[] MapShopCounts(ZoneV2IdCount[] items)
     {
         if (items == null || items.Length == 0)
@@ -630,6 +675,15 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.QuestList:
                 ApplyQuestList(NetCodec.DecodeQuestList(envelope.Payload));
+                break;
+            case NetOpcode.PartyAskJoin:
+                ApplyPartyAskJoin(NetCodec.DecodePartyAskJoin(envelope.Payload));
+                break;
+            case NetOpcode.PartyJoinResult:
+                ApplyPartyJoinResult(NetCodec.DecodePartyJoinResult(envelope.Payload));
+                break;
+            case NetOpcode.PartyMemberList:
+                ApplyPartyMemberList(NetCodec.DecodePartyMemberList(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -1090,6 +1144,48 @@ public sealed class NetSession : MonoBehaviour
             CompletedMask = list.CompletedMask ?? System.Array.Empty<byte>(),
             CompletedQuestIds = list.CompletedQuestIds ?? System.Array.Empty<int>(),
             MaxActive = list.MaxActive
+        });
+    }
+
+    void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)
+    {
+        var dto = ZoneV2DomainMap.ToAskJoinPartyDto(new ZoneV2PartyAskJoin
+        {
+            RequestorObjectId = ask.RequestorObjectId,
+            RequestorName = ask.RequestorName ?? "",
+            ItemDistribution = ask.ItemDistribution
+        });
+        AskJoinPartyApplyIncomingPacketServices.ApplyAskJoinParty(dto);
+    }
+
+    void ApplyPartyJoinResult(PartyJoinResultNetMsg result) =>
+        PartyJoinResultApplyIncomingPacketServices.ApplyPartyJoinResult(result.Response);
+
+    void ApplyPartyMemberList(PartyMemberListNetMsg list)
+    {
+        PartyMemberEntryNet[] members = list.Members ?? System.Array.Empty<PartyMemberEntryNet>();
+        var rows = new ZoneV2PartyMemberEntry[members.Length];
+        for (int i = 0; i < members.Length; i++)
+        {
+            PartyMemberEntryNet row = members[i] ?? new PartyMemberEntryNet();
+            rows[i] = new ZoneV2PartyMemberEntry
+            {
+                ObjectId = row.ObjectId,
+                Name = row.Name ?? "",
+                ClassId = row.ClassId,
+                Level = row.Level,
+                CurHp = row.CurHp,
+                MaxHp = row.MaxHp,
+                CurMp = row.CurMp,
+                MaxMp = row.MaxMp
+            };
+        }
+
+        PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(new ZoneV2PartyMemberList
+        {
+            LeaderObjectId = list.LeaderObjectId,
+            PartyId = list.PartyId,
+            Members = rows
         });
     }
 

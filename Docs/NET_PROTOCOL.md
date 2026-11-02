@@ -34,7 +34,8 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 15. Shop → `BuyList` / `SellList` / `MultiSellList` / `ShopBalance` + buy/sell/multisell requests.
 16. Warehouse → deposit/withdraw lists + requests.
 17. Quests → `RequestQuestList` / `RequestQuestAbort` / `QuestList` (dialog HTML still `NpcHtml`).
-18. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
+18. Party → invite/answer/leave/kick + `PartyAskJoin` / `PartyJoinResult` / `PartyMemberList`.
+19. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
 
 Editor Play defaults to local Net. V2 MessagePack adapters stay in `Adapters/V2` as reference; enable only with scripting define `FINEAGE_V2_WIRE`.
 
