@@ -94,6 +94,14 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            RequestSay2Command netSay = command as RequestSay2Command;
+            if (netSay != null)
+            {
+                int chatType = netSay.Data != null ? netSay.Data.Type : ZoneV2Chat.All;
+                NetSession.Ensure().SendSay(netSay.Message, chatType);
+                return true;
+            }
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }

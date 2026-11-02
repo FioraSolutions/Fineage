@@ -244,6 +244,16 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendSay(string text, int chatType)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.Say,
+            NetCodec.EncodeSay(new SayNetMsg { Text = text ?? "", ChatType = chatType }),
+            NextSeq());
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(
@@ -399,6 +409,12 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.InventoryUpdate:
                 ApplyInventoryUpdate(NetCodec.DecodeInventoryUpdate(envelope.Payload));
+                break;
+            case NetOpcode.CreatureSay:
+                ApplyCreatureSay(NetCodec.DecodeCreatureSay(envelope.Payload));
+                break;
+            case NetOpcode.SystemMessage:
+                ApplySystemMessage(NetCodec.DecodeSystemMessage(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -635,6 +651,17 @@ public sealed class NetSession : MonoBehaviour
         }
 
         ZoneV2GearSession.NoteInventoryUpdate(rows);
+    }
+
+    void ApplyCreatureSay(CreatureSayNetMsg say)
+    {
+        ZoneV2ChatFeed.NoteSay(say.Name, say.Text, say.ChatType);
+    }
+
+    void ApplySystemMessage(SystemMessageNetMsg message)
+    {
+        string shown = ZoneV2SystemLines.Resolve(message.Id, message.Text, message.Params);
+        ZoneV2ChatFeed.NoteSystem(shown);
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
