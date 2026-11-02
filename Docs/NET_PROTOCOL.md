@@ -21,7 +21,8 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 2. CharSelect Start → `SelectCharacter` → `Handoff` → zone Hello/Auth/EnterWorld.
 3. `EntitySpawn` (self) + `PlayerStats` + `ItemList` / `SkillList` → local enter; remote player `EntitySpawn` → CharInfo; NPC `EntitySpawn` (`Kind=Npc`) → NpcInfo.
 4. Click move → `FineageZoneTransport.SendMove` → `MoveInput` → `MoveState` (self + peers). `EntityDespawn` removes forgotten peers/NPCs. NPC chase also sends `MoveState`.
-5. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
+5. Click NPC → `SelectTarget` / `AttackRequest` → `TargetSelected` / `AttackState` / `StatusUpdate`.
+6. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
 
 Editor Play defaults to local Net. V2 MessagePack adapters stay in `Adapters/V2` as reference; enable only with scripting define `FINEAGE_V2_WIRE`.
 

@@ -44,7 +44,17 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
-            // Net bootstrap: consume other commands as no-ops so Interlude path is not used.
+            ClickActionCommand netAction = command as ClickActionCommand;
+            if (netAction != null)
+            {
+                NetSession.Ensure().SendSelectTarget(netAction.ObjectId);
+                TargetManager targets = ControllerPacketServices.Targets;
+                if (targets != null && targets.IsAttackTargetSet())
+                    NetSession.Ensure().SendAttackRequest(netAction.ObjectId);
+                return true;
+            }
+
+            // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }
 

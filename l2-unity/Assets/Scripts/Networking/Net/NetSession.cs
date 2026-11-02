@@ -177,6 +177,26 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendSelectTarget(int targetObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.SelectTarget,
+            NetCodec.EncodeSelectTarget(new SelectTargetNetMsg { TargetObjectId = targetObjectId }),
+            NextSeq());
+    }
+
+    public async void SendAttackRequest(int targetObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.AttackRequest,
+            NetCodec.EncodeAttackRequest(new AttackRequestNetMsg { TargetObjectId = targetObjectId }),
+            NextSeq());
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(
@@ -314,6 +334,15 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.MoveState:
                 ApplyMoveState(NetCodec.DecodeMoveState(envelope.Payload));
+                break;
+            case NetOpcode.TargetSelected:
+                ApplyTargetSelected(NetCodec.DecodeTargetSelected(envelope.Payload));
+                break;
+            case NetOpcode.AttackState:
+                ApplyAttackState(NetCodec.DecodeAttackState(envelope.Payload));
+                break;
+            case NetOpcode.StatusUpdate:
+                ApplyStatusUpdate(NetCodec.DecodeStatusUpdate(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -470,6 +499,40 @@ public sealed class NetSession : MonoBehaviour
     {
         var dto = new DeleteObjectDto { ObjectId = (int)despawn.EntityValue };
         DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
+    }
+
+    void ApplyTargetSelected(TargetSelectedNetMsg msg)
+    {
+        MyTargetSelectedApplyIncomingPacketServices.ApplyMyTargetSelected(
+            MyTargetSelectDto.FromZoneV2(msg.TargetObjectId, msg.ColorHint));
+    }
+
+    void ApplyAttackState(AttackStateMsg attack)
+    {
+        var dto = new AttackDto();
+        dto.InitFromZoneV2(
+            (int)attack.AttackerValue,
+            (int)attack.TargetValue,
+            attack.Damage,
+            attack.Flags,
+            attack.AttackerX,
+            attack.AttackerY,
+            attack.AttackerZ,
+            attack.TargetX,
+            attack.TargetY,
+            attack.TargetZ);
+        AttackApplyIncomingPacketServices.ApplyAttack(dto);
+    }
+
+    void ApplyStatusUpdate(StatusUpdateNetMsg status)
+    {
+        var attributes = new System.Collections.Generic.List<StatusUpdate.Attribute>();
+        int n = status.AttributeIds == null || status.Values == null
+            ? 0
+            : Mathf.Min(status.AttributeIds.Length, status.Values.Length);
+        for (int i = 0; i < n; i++)
+            attributes.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
+        StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate((int)status.EntityValue, attributes);
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
