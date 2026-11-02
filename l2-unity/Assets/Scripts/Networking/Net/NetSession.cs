@@ -197,6 +197,16 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendPickupRequest(int groundObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.PickupRequest,
+            NetCodec.EncodePickupRequest(new PickupRequestNetMsg { GroundObjectId = groundObjectId }),
+            NextSeq());
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(
@@ -349,6 +359,9 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.DropItem:
                 ApplyDropItem(NetCodec.DecodeDropItem(envelope.Payload));
+                break;
+            case NetOpcode.InventoryUpdate:
+                ApplyInventoryUpdate(NetCodec.DecodeInventoryUpdate(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -559,6 +572,32 @@ public sealed class NetSession : MonoBehaviour
             drop.Count,
             0);
         DropItemApplyIncomingPacketServices.ApplyDropItem(dto);
+    }
+
+    void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
+    {
+        InventoryUpdateEntryNet[] src = update.Changes ?? System.Array.Empty<InventoryUpdateEntryNet>();
+        var rows = new ZoneV2InventoryChange[src.Length];
+        for (int i = 0; i < src.Length; i++)
+        {
+            InventoryUpdateEntryNet row = src[i];
+            rows[i] = new ZoneV2InventoryChange
+            {
+                Change = row.Change,
+                ObjectId = row.ObjectId,
+                ItemId = row.ItemId,
+                Count = row.Count,
+                EquippedSlot = row.EquippedSlot,
+                EnchantLevel = row.EnchantLevel,
+                BodySlot = "",
+                Kind = "",
+                Icon = "",
+                WeaponType = "",
+                ArmorType = ""
+            };
+        }
+
+        ZoneV2GearSession.NoteInventoryUpdate(rows);
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)

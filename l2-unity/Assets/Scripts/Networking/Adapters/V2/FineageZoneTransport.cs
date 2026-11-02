@@ -47,10 +47,28 @@ public sealed class FineageZoneTransport : IZoneTransport
             ClickActionCommand netAction = command as ClickActionCommand;
             if (netAction != null)
             {
+                World world = WorldApplyIncomingPacketServices.GameWorld;
+                if (world != null)
+                {
+                    Entity clicked = world.GetEntityNoLockSync(netAction.ObjectId);
+                    if (clicked is ItemEntity)
+                    {
+                        NetSession.Ensure().SendPickupRequest(netAction.ObjectId);
+                        return true;
+                    }
+                }
+
                 NetSession.Ensure().SendSelectTarget(netAction.ObjectId);
                 TargetManager targets = ControllerPacketServices.Targets;
                 if (targets != null && targets.IsAttackTargetSet())
                     NetSession.Ensure().SendAttackRequest(netAction.ObjectId);
+                return true;
+            }
+
+            ZonePickupRequestCommand netPickup = command as ZonePickupRequestCommand;
+            if (netPickup != null)
+            {
+                NetSession.Ensure().SendPickupRequest(netPickup.GroundObjectId);
                 return true;
             }
 
