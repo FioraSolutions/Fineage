@@ -111,6 +111,12 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            if (command is RequestRestartPointCommand)
+            {
+                NetSession.Ensure().SendReviveRequest(ZoneV2Death.ReviveToVillage);
+                return true;
+            }
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }

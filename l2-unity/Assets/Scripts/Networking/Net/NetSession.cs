@@ -269,6 +269,16 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendReviveRequest(int action)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.ReviveRequest,
+            NetCodec.EncodeReviveRequest(new ReviveRequestNetMsg { Action = action }),
+            NextSeq());
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(
@@ -433,6 +443,12 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.MagicSkillUse:
                 ApplyMagicSkillUse(NetCodec.DecodeMagicSkillUse(envelope.Payload));
+                break;
+            case NetOpcode.Revive:
+                ApplyRevive(NetCodec.DecodeRevive(envelope.Payload));
+                break;
+            case NetOpcode.TeleportToLocation:
+                ApplyTeleportToLocation(NetCodec.DecodeTeleportToLocation(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -695,6 +711,25 @@ public sealed class NetSession : MonoBehaviour
         };
         MagicSkillUseDto dto = ZoneV2DomainMap.ToMagicSkillUseDto(mapped);
         MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
+    }
+
+    void ApplyRevive(ReviveNetMsg revive)
+    {
+        ReviveDto dto = ZoneV2DomainMap.ToReviveDto(new ZoneV2Revive { ObjectId = revive.ObjectId });
+        ReviveApplyIncomingPacketServices.ApplyRevive(dto);
+    }
+
+    void ApplyTeleportToLocation(TeleportToLocationNetMsg teleport)
+    {
+        TeleportToLocationDto dto = ZoneV2DomainMap.ToTeleportToLocationDto(new ZoneV2TeleportToLocation
+        {
+            ObjectId = teleport.ObjectId,
+            X = teleport.X,
+            Y = teleport.Y,
+            Z = teleport.Z,
+            Heading = teleport.Heading
+        });
+        TeleportToLocationApplyIncomingPacketServices.ApplyTeleportToLocation(dto);
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
