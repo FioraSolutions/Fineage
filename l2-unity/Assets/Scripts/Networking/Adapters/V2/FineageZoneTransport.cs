@@ -56,6 +56,17 @@ public sealed class FineageZoneTransport : IZoneTransport
                         NetSession.Ensure().SendPickupRequest(netAction.ObjectId);
                         return true;
                     }
+
+                    if (clicked is NpcEntity &&
+                        !ZoneV2NpcSession.IsAttackable(netAction.ObjectId, clicked is MonsterEntity))
+                    {
+                        NetSession.Ensure().SendSelectTarget(netAction.ObjectId);
+                        if (ZoneV2NpcWindows.InRange(clicked))
+                            NetSession.Ensure().SendNpcTalk(netAction.ObjectId);
+                        else
+                            ZoneV2ChatFeed.NoteSystem("You are too far away.");
+                        return true;
+                    }
                 }
 
                 NetSession.Ensure().SendSelectTarget(netAction.ObjectId);
@@ -114,6 +125,23 @@ public sealed class FineageZoneTransport : IZoneTransport
             if (command is RequestRestartPointCommand)
             {
                 NetSession.Ensure().SendReviveRequest(ZoneV2Death.ReviveToVillage);
+                return true;
+            }
+
+            RequestBypassToServerCommand netBypass = command as RequestBypassToServerCommand;
+            int giveItemId;
+            int giveCount;
+            if (netBypass != null && ZoneV2GiveCommand.TryParse(netBypass.Bypass, out giveItemId, out giveCount))
+            {
+                // Grant-item admin bypass: still V2-only until a Net grant opcode exists.
+                return true;
+            }
+
+            if (netBypass != null)
+            {
+                int npcId = ZoneV2NpcSession.ActiveNpcObjectId;
+                if (npcId > 0)
+                    NetSession.Ensure().SendNpcLink(npcId, netBypass.Bypass);
                 return true;
             }
 

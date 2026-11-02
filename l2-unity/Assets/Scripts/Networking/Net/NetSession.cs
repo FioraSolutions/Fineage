@@ -279,6 +279,48 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendNpcTalk(int npcObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.NpcTalk,
+            NetCodec.EncodeNpcTalk(new NpcTalkNetMsg { NpcObjectId = npcObjectId }),
+            NextSeq());
+    }
+
+    public async void SendBypassRequest(int npcObjectId, string command)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.BypassRequest,
+            NetCodec.EncodeBypassRequest(new BypassRequestNetMsg
+            {
+                NpcObjectId = npcObjectId,
+                Command = command ?? ""
+            }),
+            NextSeq());
+    }
+
+    public void SendNpcLink(int npcObjectId, string command)
+    {
+        string list;
+        int location;
+        switch (ZoneV2Bypass.Classify(command, out list, out location))
+        {
+            case ZoneV2Bypass.Teleport:
+            case ZoneV2Bypass.SupportMagic:
+            case ZoneV2Bypass.GiveBlessing:
+                // Same bypass verb as V2; specialized opcodes come later.
+                SendBypassRequest(npcObjectId, ZoneV2Bypass.Normalize(command));
+                return;
+            default:
+                SendBypassRequest(npcObjectId, ZoneV2Bypass.Normalize(command));
+                return;
+        }
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(
@@ -453,6 +495,9 @@ public sealed class NetSession : MonoBehaviour
             case NetOpcode.AbnormalStatusUpdate:
                 ApplyAbnormalStatusUpdate(NetCodec.DecodeAbnormalStatusUpdate(envelope.Payload));
                 break;
+            case NetOpcode.NpcHtml:
+                ApplyNpcHtml(NetCodec.DecodeNpcHtml(envelope.Payload));
+                break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
                 break;
@@ -578,8 +623,9 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyNpcSpawn(EntitySpawnMsg spawn)
     {
+        int objectId = (int)spawn.EntityValue;
         NpcInfoDto dto = new NpcInfoDto();
-        dto.Identity.Id = (int)spawn.EntityValue;
+        dto.Identity.Id = objectId;
         dto.Identity.NpcId = spawn.TemplateId;
         if (!string.IsNullOrEmpty(spawn.Name))
             dto.Identity.Name = spawn.Name;
@@ -601,12 +647,15 @@ public sealed class NetSession : MonoBehaviour
         dto.Stats.RunRealSpeed = run;
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
+        ZoneV2NpcSession.RememberNpc(objectId, spawn.Name, spawn.Attackable);
         NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
     }
 
     void ApplyEntityDespawn(EntityDespawnMsg despawn)
     {
-        var dto = new DeleteObjectDto { ObjectId = (int)despawn.EntityValue };
+        int objectId = (int)despawn.EntityValue;
+        ZoneV2NpcSession.Forget(objectId);
+        var dto = new DeleteObjectDto { ObjectId = objectId };
         DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
     }
 
@@ -756,6 +805,14 @@ public sealed class NetSession : MonoBehaviour
             Effects = effects
         });
         AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
+    }
+
+    void ApplyNpcHtml(NpcHtmlNetMsg html)
+    {
+        HtmlWindow window = HtmlWindow.Instance;
+        if (window == null)
+            return;
+        window.ShowNpcDialog(html.NpcObjectId, html.NpcId, html.Html ?? "");
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
