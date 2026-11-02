@@ -193,6 +193,19 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            if (command is RequestQuestListCommand)
+            {
+                NetSession.Ensure().SendRequestQuestList();
+                return true;
+            }
+
+            RequestQuestAbortCommand netAbortQuest = command as RequestQuestAbortCommand;
+            if (netAbortQuest != null)
+            {
+                NetSession.Ensure().SendRequestQuestAbort(netAbortQuest.QuestId);
+                return true;
+            }
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }

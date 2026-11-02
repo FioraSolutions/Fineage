@@ -396,6 +396,23 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendRequestQuestList()
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(NetOpcode.RequestQuestList, NetCodec.EncodeRequestQuestList(), NextSeq());
+    }
+
+    public async void SendRequestQuestAbort(int questId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestQuestAbort,
+            NetCodec.EncodeRequestQuestAbort(new RequestQuestAbortNetMsg { QuestId = questId }),
+            NextSeq());
+    }
+
     static ShopCountNet[] MapShopCounts(ZoneV2IdCount[] items)
     {
         if (items == null || items.Length == 0)
@@ -610,6 +627,9 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.WarehouseWithdrawList:
                 ApplyWarehouseWithdrawList(NetCodec.DecodeWarehouseWithdrawList(envelope.Payload));
+                break;
+            case NetOpcode.QuestList:
+                ApplyQuestList(NetCodec.DecodeQuestList(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -1042,6 +1062,34 @@ public sealed class NetSession : MonoBehaviour
             CurrentWeight = list.CurrentWeight,
             MaxWeight = list.MaxWeight,
             Items = MapWarehouseItems(list.Items)
+        });
+    }
+
+    void ApplyQuestList(QuestListNetMsg list)
+    {
+        QuestJournalEntryNet[] active = list.Active ?? System.Array.Empty<QuestJournalEntryNet>();
+        var rows = new ZoneV2QuestJournal[active.Length];
+        for (int i = 0; i < active.Length; i++)
+        {
+            QuestJournalEntryNet row = active[i] ?? new QuestJournalEntryNet();
+            rows[i] = new ZoneV2QuestJournal
+            {
+                QuestId = row.QuestId,
+                Name = row.Name ?? "",
+                State = row.State,
+                Cond = row.Cond,
+                ProgressFlags = row.ProgressFlags,
+                JournalWord = row.JournalWord,
+                Repeatable = row.Repeatable
+            };
+        }
+
+        ZoneV2NpcWindows.ApplyQuestList(new ZoneV2QuestList
+        {
+            Active = rows,
+            CompletedMask = list.CompletedMask ?? System.Array.Empty<byte>(),
+            CompletedQuestIds = list.CompletedQuestIds ?? System.Array.Empty<int>(),
+            MaxActive = list.MaxActive
         });
     }
 

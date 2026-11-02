@@ -309,7 +309,7 @@ namespace Fineage.Net.Contract
             return msg;
         }
 
-        public static byte[] EncodePlayerStats        public static byte[] EncodePlayerStats(PlayerStatsMsg m) => Write(w =>
+        public static byte[] EncodePlayerStats(PlayerStatsMsg m) => Write(w =>
         {
             w.WriteUInt64(m.EntityValue);
             w.WriteUInt32(m.EntityGeneration);
@@ -487,11 +487,11 @@ namespace Fineage.Net.Contract
 
         public static byte[] EncodeSelectTarget(SelectTargetNetMsg m) => Write(w => w.WriteInt32(m.TargetObjectId));
         public static SelectTargetNetMsg DecodeSelectTarget(ReadOnlySpan<byte> p) =>
-            new SelectTargetNetMsg { TargetObjectId = new Reader(p).ReadInt32() };
+            new() { TargetObjectId = new Reader(p).ReadInt32() };
 
         public static byte[] EncodeAttackRequest(AttackRequestNetMsg m) => Write(w => w.WriteInt32(m.TargetObjectId));
         public static AttackRequestNetMsg DecodeAttackRequest(ReadOnlySpan<byte> p) =>
-            new AttackRequestNetMsg { TargetObjectId = new Reader(p).ReadInt32() };
+            new() { TargetObjectId = new Reader(p).ReadInt32() };
 
         public static byte[] EncodeTargetSelected(TargetSelectedNetMsg m) => Write(w =>
         {
@@ -545,9 +545,9 @@ namespace Fineage.Net.Contract
         {
             w.WriteUInt64(m.EntityValue);
             w.WriteUInt32(m.EntityGeneration);
-            var ids = m.AttributeIds ?? System.Array.Empty<int>();
-            var vals = m.Values ?? System.Array.Empty<int>();
-            int n = System.Math.Min(ids.Length, vals.Length);
+            var ids = m.AttributeIds ?? Array.Empty<int>();
+            var vals = m.Values ?? Array.Empty<int>();
+            int n = Math.Min(ids.Length, vals.Length);
             w.WriteInt32(n);
             for (int i = 0; i < n; i++)
             {
@@ -631,11 +631,11 @@ namespace Fineage.Net.Contract
 
         public static byte[] EncodePickupRequest(PickupRequestNetMsg m) => Write(w => w.WriteInt32(m.GroundObjectId));
         public static PickupRequestNetMsg DecodePickupRequest(ReadOnlySpan<byte> p) =>
-            new PickupRequestNetMsg { GroundObjectId = new Reader(p).ReadInt32() };
+            new() { GroundObjectId = new Reader(p).ReadInt32() };
 
         public static byte[] EncodeInventoryUpdate(InventoryUpdateNetMsg m) => Write(w =>
         {
-            var rows = m.Changes ?? System.Array.Empty<InventoryUpdateEntryNet>();
+            var rows = m.Changes ?? Array.Empty<InventoryUpdateEntryNet>();
             w.WriteInt32(rows.Length);
             for (int i = 0; i < rows.Length; i++)
             {
@@ -696,11 +696,11 @@ namespace Fineage.Net.Contract
 
         public static byte[] EncodeUseItem(UseItemNetMsg m) => Write(w => w.WriteInt32(m.ObjectId));
         public static UseItemNetMsg DecodeUseItem(ReadOnlySpan<byte> p) =>
-            new UseItemNetMsg { ObjectId = new Reader(p).ReadInt32() };
+            new() { ObjectId = new Reader(p).ReadInt32() };
 
         public static byte[] EncodeUnequipItem(UnequipItemNetMsg m) => Write(w => w.WriteInt32(m.PaperdollSlot));
         public static UnequipItemNetMsg DecodeUnequipItem(ReadOnlySpan<byte> p) =>
-            new UnequipItemNetMsg { PaperdollSlot = new Reader(p).ReadInt32() };
+            new() { PaperdollSlot = new Reader(p).ReadInt32() };
 
         public static byte[] EncodeSay(SayNetMsg m) => Write(w =>
         {
@@ -738,7 +738,7 @@ namespace Fineage.Net.Contract
         {
             w.WriteInt32(m.Id);
             w.WriteString(m.Text ?? "");
-            var pars = m.Params ?? System.Array.Empty<string>();
+            var pars = m.Params ?? Array.Empty<string>();
             w.WriteInt32(pars.Length);
             for (int i = 0; i < pars.Length; i++)
                 w.WriteString(pars[i] ?? "");
@@ -1256,6 +1256,77 @@ namespace Fineage.Net.Contract
         {
             var dep = DecodeWarehouseDepositRequest(p);
             return new WarehouseWithdrawRequestNetMsg { NpcObjectId = dep.NpcObjectId, Lines = dep.Lines };
+        }
+
+        public static byte[] EncodeRequestQuestList() => Array.Empty<byte>();
+        public static void DecodeRequestQuestList(ReadOnlySpan<byte> _) { }
+
+        public static byte[] EncodeRequestQuestAbort(RequestQuestAbortNetMsg m) => Write(w => w.WriteInt32(m.QuestId));
+        public static RequestQuestAbortNetMsg DecodeRequestQuestAbort(ReadOnlySpan<byte> p) =>
+            new() { QuestId = new Reader(p).ReadInt32() };
+
+        public static byte[] EncodeQuestList(QuestListNetMsg m) => Write(w =>
+        {
+            var active = m.Active ?? Array.Empty<QuestJournalEntryNet>();
+            w.WriteInt32(active.Length);
+            for (int i = 0; i < active.Length; i++)
+            {
+                var row = active[i] ?? new QuestJournalEntryNet();
+                w.WriteInt32(row.QuestId);
+                w.WriteString(row.Name ?? "");
+                w.WriteInt32(row.State);
+                w.WriteInt32(row.Cond);
+                w.WriteInt32(row.ProgressFlags);
+                w.WriteInt32(row.JournalWord);
+                w.WriteByte(row.Repeatable ? (byte)1 : (byte)0);
+            }
+            var mask = m.CompletedMask ?? Array.Empty<byte>();
+            w.WriteInt32(mask.Length);
+            for (int i = 0; i < mask.Length; i++)
+                w.WriteByte(mask[i]);
+            var done = m.CompletedQuestIds ?? Array.Empty<int>();
+            w.WriteInt32(done.Length);
+            for (int i = 0; i < done.Length; i++)
+                w.WriteInt32(done[i]);
+            w.WriteInt32(m.MaxActive);
+        });
+
+        public static QuestListNetMsg DecodeQuestList(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            int n = r.ReadInt32();
+            if (n < 0) n = 0;
+            var active = new QuestJournalEntryNet[n];
+            for (int i = 0; i < n; i++)
+            {
+                active[i] = new QuestJournalEntryNet
+                {
+                    QuestId = r.ReadInt32(),
+                    Name = r.ReadString(),
+                    State = r.ReadInt32(),
+                    Cond = r.ReadInt32(),
+                    ProgressFlags = r.ReadInt32(),
+                    JournalWord = r.ReadInt32(),
+                    Repeatable = r.ReadByte() != 0
+                };
+            }
+            int maskLen = r.ReadInt32();
+            if (maskLen < 0) maskLen = 0;
+            var mask = new byte[maskLen];
+            for (int i = 0; i < maskLen; i++)
+                mask[i] = r.ReadByte();
+            int doneLen = r.ReadInt32();
+            if (doneLen < 0) doneLen = 0;
+            var done = new int[doneLen];
+            for (int i = 0; i < doneLen; i++)
+                done[i] = r.ReadInt32();
+            return new QuestListNetMsg
+            {
+                Active = active,
+                CompletedMask = mask,
+                CompletedQuestIds = done,
+                MaxActive = r.ReadInt32()
+            };
         }
 
         public static PositionCorrectionMsg DecodePositionCorrection(ReadOnlySpan<byte> p)

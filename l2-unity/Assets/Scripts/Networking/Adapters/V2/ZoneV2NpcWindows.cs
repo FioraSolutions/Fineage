@@ -233,6 +233,7 @@ public static class ZoneV2NpcWindows
     public static void ApplyShopBalance(ZoneV2ShopBalance balance) => ApplyBalance(balance);
     public static void ApplyWarehouseDepositList(ZoneV2WarehouseDepositList list) => ShowDeposit(list);
     public static void ApplyWarehouseWithdrawList(ZoneV2WarehouseWithdrawList list) => ShowWithdraw(list);
+    public static void ApplyQuestList(ZoneV2QuestList list) => ShowQuests(list);
 
     static void ShowBuy(ZoneV2BuyList list)
     {
