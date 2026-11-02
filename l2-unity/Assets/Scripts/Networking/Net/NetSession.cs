@@ -344,6 +344,12 @@ public sealed class NetSession : MonoBehaviour
             case NetOpcode.StatusUpdate:
                 ApplyStatusUpdate(NetCodec.DecodeStatusUpdate(envelope.Payload));
                 break;
+            case NetOpcode.EntityDie:
+                ApplyEntityDie(NetCodec.DecodeEntityDie(envelope.Payload));
+                break;
+            case NetOpcode.DropItem:
+                ApplyDropItem(NetCodec.DecodeDropItem(envelope.Payload));
+                break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
                 break;
@@ -533,6 +539,26 @@ public sealed class NetSession : MonoBehaviour
         for (int i = 0; i < n; i++)
             attributes.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
         StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate((int)status.EntityValue, attributes);
+    }
+
+    void ApplyEntityDie(EntityDieMsg die)
+    {
+        DieApplyIncomingPacketServices.ApplyDie(DieDto.FromZoneWire((int)die.EntityValue));
+    }
+
+    void ApplyDropItem(DropItemNetMsg drop)
+    {
+        DropItemDto dto = DropItemDto.FromZoneV2(
+            drop.DropperObjectId,
+            (int)drop.EntityValue,
+            drop.ItemId,
+            drop.X,
+            drop.Y,
+            drop.Z,
+            drop.Stackable,
+            drop.Count,
+            0);
+        DropItemApplyIncomingPacketServices.ApplyDropItem(dto);
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
