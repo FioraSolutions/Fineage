@@ -458,6 +458,54 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendTradeRequest(int targetObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.TradeRequest,
+            NetCodec.EncodeTradeRequest(new TradeRequestNetMsg { TargetObjectId = targetObjectId }),
+            NextSeq());
+    }
+
+    public async void SendTradeAnswerRequest(int requestorObjectId, int response)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.TradeAnswerRequest,
+            NetCodec.EncodeTradeAnswerRequest(new TradeAnswerRequestNetMsg
+            {
+                RequestorObjectId = requestorObjectId,
+                Response = response
+            }),
+            NextSeq());
+    }
+
+    public async void SendTradeAddItemRequest(int inventoryObjectId, int count)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.TradeAddItemRequest,
+            NetCodec.EncodeTradeAddItemRequest(new TradeAddItemRequestNetMsg
+            {
+                InventoryObjectId = inventoryObjectId,
+                Count = count
+            }),
+            NextSeq());
+    }
+
+    public async void SendTradeDoneRequest(int response)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.TradeDoneRequest,
+            NetCodec.EncodeTradeDoneRequest(new TradeDoneRequestNetMsg { Response = response }),
+            NextSeq());
+    }
+
     static ShopCountNet[] MapShopCounts(ZoneV2IdCount[] items)
     {
         if (items == null || items.Length == 0)
@@ -684,6 +732,24 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.PartyMemberList:
                 ApplyPartyMemberList(NetCodec.DecodePartyMemberList(envelope.Payload));
+                break;
+            case NetOpcode.TradeAsk:
+                ApplyTradeAsk(NetCodec.DecodeTradeAsk(envelope.Payload));
+                break;
+            case NetOpcode.TradeRequestResult:
+                ApplyTradeRequestResult(NetCodec.DecodeTradeRequestResult(envelope.Payload));
+                break;
+            case NetOpcode.TradeStart:
+                ApplyTradeStart(NetCodec.DecodeTradeStart(envelope.Payload));
+                break;
+            case NetOpcode.TradeOfferUpdate:
+                ApplyTradeOfferUpdate(NetCodec.DecodeTradeOfferUpdate(envelope.Payload));
+                break;
+            case NetOpcode.TradeConfirmState:
+                ApplyTradeConfirmState(NetCodec.DecodeTradeConfirmState(envelope.Payload));
+                break;
+            case NetOpcode.TradeFinished:
+                ApplyTradeFinished(NetCodec.DecodeTradeFinished(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -1188,6 +1254,57 @@ public sealed class NetSession : MonoBehaviour
             Members = rows
         });
     }
+
+    void ApplyTradeAsk(TradeAskNetMsg ask)
+    {
+        SendTradeRequestDto dto = ZoneV2DomainMap.ToSendTradeRequestDto(new ZoneV2TradeAsk
+        {
+            RequestorObjectId = ask.RequestorObjectId,
+            RequestorName = ask.RequestorName ?? ""
+        });
+        SendTradeRequestApplyIncomingPacketServices.ApplySendTradeRequest(dto);
+    }
+
+    void ApplyTradeRequestResult(TradeRequestResultNetMsg result)
+    {
+        if (result.Response == 0)
+            ZoneV2ChatFeed.NoteSystem("Trade request declined.");
+    }
+
+    void ApplyTradeStart(TradeStartNetMsg start)
+    {
+        TradeStartDto dto = ZoneV2DomainMap.ToTradeStartDto(new ZoneV2TradeStart
+        {
+            PartnerObjectId = start.PartnerObjectId,
+            PartnerName = start.PartnerName ?? ""
+        });
+        TradeStartApplyIncomingPacketServices.ApplyTradeStart(dto);
+    }
+
+    void ApplyTradeOfferUpdate(TradeOfferUpdateNetMsg update)
+    {
+        ItemInstance item = ZoneV2DomainMap.ToTradeOfferItem(new ZoneV2TradeOfferUpdate
+        {
+            IsOwn = update.IsOwn,
+            InventoryObjectId = update.InventoryObjectId,
+            ItemId = update.ItemId,
+            Count = (int)update.Count,
+            EnchantLevel = update.EnchantLevel
+        });
+        if (update.IsOwn != 0)
+            TradeOwnAddApplyIncomingPacketServices.ApplyOwnAdd(item);
+        else
+            TradeOtherAddApplyIncomingPacketServices.ApplyOtherAdd(item);
+    }
+
+    void ApplyTradeConfirmState(TradeConfirmStateNetMsg state)
+    {
+        TradePressOwnOkApplyIncomingPacketServices.ApplyPressOwnOk(state.SelfConfirmed != 0);
+        TradePressOtherOkApplyIncomingPacketServices.ApplyPressOtherOk(state.PartnerConfirmed != 0);
+    }
+
+    void ApplyTradeFinished(TradeFinishedNetMsg _) =>
+        TradeDoneApplyIncomingPacketServices.ApplyTradeDone();
 
     static ZoneV2ItemEntry[] MapWarehouseItems(ItemListEntryNet[] items)
     {

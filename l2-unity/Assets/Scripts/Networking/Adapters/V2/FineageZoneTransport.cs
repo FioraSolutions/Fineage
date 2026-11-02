@@ -234,9 +234,43 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
-            RequestUserCommandCommand netUserCommand = command as RequestUserCommandCommand;
-            if (netUserCommand != null && TrySendNetPartyUserCommand(netUserCommand.Id))
+            RequestTradeCommand netRequestTrade = command as RequestTradeCommand;
+            if (netRequestTrade != null)
+            {
+                NetSession.Ensure().SendTradeRequest(netRequestTrade.TargetObjectId);
                 return true;
+            }
+
+            AnswerTradeRequestCommand netAnswerTrade = command as AnswerTradeRequestCommand;
+            if (netAnswerTrade != null)
+            {
+                if (netAnswerTrade.RequestorObjectId > 0)
+                    NetSession.Ensure().SendTradeAnswerRequest(netAnswerTrade.RequestorObjectId, netAnswerTrade.Response);
+                return true;
+            }
+
+            AddTradeItemCommand netAddTrade = command as AddTradeItemCommand;
+            if (netAddTrade != null)
+            {
+                NetSession.Ensure().SendTradeAddItemRequest(netAddTrade.ObjectId, netAddTrade.Count);
+                return true;
+            }
+
+            TradeDoneCommand netTradeDone = command as TradeDoneCommand;
+            if (netTradeDone != null)
+            {
+                NetSession.Ensure().SendTradeDoneRequest(netTradeDone.Response);
+                return true;
+            }
+
+            RequestUserCommandCommand netUserCommand = command as RequestUserCommandCommand;
+            if (netUserCommand != null)
+            {
+                if (TrySendNetPartyUserCommand(netUserCommand.Id))
+                    return true;
+                if (TrySendNetTradeUserCommand(netUserCommand.Id))
+                    return true;
+            }
 
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
@@ -631,6 +665,17 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (targetId <= 0)
             return true;
         ZoneV2Client.Ensure().SendTradeRequest(targetId);
+        return true;
+    }
+
+    static bool TrySendNetTradeUserCommand(int commandId)
+    {
+        if (commandId != (int)PlayerCommand.TRADE)
+            return false;
+        int targetId = ResolveSelectedTargetObjectId();
+        if (targetId <= 0)
+            return true;
+        NetSession.Ensure().SendTradeRequest(targetId);
         return true;
     }
 
