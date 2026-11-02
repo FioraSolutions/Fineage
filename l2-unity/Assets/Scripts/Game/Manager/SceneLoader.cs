@@ -122,7 +122,7 @@ public class SceneLoader : MonoBehaviour
         GameClient game = Game;
         if (game == null || game.PlayerInfo.Identity == null)
         {
-            // Debug.LogError("LoadSWMap: no player xyz");
+            Debug.LogError("LoadSWMap: no player xyz (PlayerInfo.Identity null) — loading UI will stick");
             return;
         }
 

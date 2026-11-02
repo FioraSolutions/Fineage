@@ -56,6 +56,9 @@ public sealed class NetSession : MonoBehaviour
             try { action(); }
             catch (Exception ex) { Debug.LogException(ex); }
         }
+
+        // ItemList may arrive before the local player / inventory UI exist (same as ZoneV2).
+        ZoneV2GearSession.FlushPending();
     }
 
     public void BindDomainSink(IWorldDomainSink sink) => _sink = sink;
@@ -63,6 +66,7 @@ public sealed class NetSession : MonoBehaviour
     public async void BeginLobby(string account, string password, bool registerIfMissing = false)
     {
         _account = account;
+        ZoneV2GearSession.Reset();
         try
         {
             _lobby?.Dispose();
@@ -296,8 +300,17 @@ public sealed class NetSession : MonoBehaviour
             case NetOpcode.EntitySpawn:
                 ApplyEntitySpawn(NetCodec.DecodeEntitySpawn(envelope.Payload));
                 break;
+            case NetOpcode.EntityDespawn:
+                ApplyEntityDespawn(NetCodec.DecodeEntityDespawn(envelope.Payload));
+                break;
             case NetOpcode.PlayerStats:
                 ApplyPlayerStats(NetCodec.DecodePlayerStats(envelope.Payload));
+                break;
+            case NetOpcode.ItemList:
+                ApplyItemList(NetCodec.DecodeItemList(envelope.Payload));
+                break;
+            case NetOpcode.SkillList:
+                ApplySkillList(NetCodec.DecodeSkillList(envelope.Payload));
                 break;
             case NetOpcode.MoveState:
                 ApplyMoveState(NetCodec.DecodeMoveState(envelope.Payload));
@@ -323,8 +336,20 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyEntitySpawn(EntitySpawnMsg spawn)
     {
-        if (!spawn.IsSelf || spawn.Kind != EntityKindNet.Player)
+        if (spawn.Kind == EntityKindNet.Npc)
+        {
+            ApplyNpcSpawn(spawn);
             return;
+        }
+
+        if (spawn.Kind != EntityKindNet.Player)
+            return;
+
+        if (!spawn.IsSelf)
+        {
+            ApplyRemotePlayerSpawn(spawn);
+            return;
+        }
 
         var identity = new EntityIdentity
         {
@@ -358,37 +383,108 @@ public sealed class NetSession : MonoBehaviour
             Race = spawn.Race,
             Sex = spawn.Sex,
             Running = spawn.Running,
-            BaseClass = spawn.ClassId
+            // BaseClass is Fighter/Mystic (0/1), not L2 classId — ResolveRaceAnimation uses PlayerClass.
+            BaseClass = 0
         };
 
-        var domain = new DomainPlayerSpawned
+        // Match ZoneV2: stash PlayerInfo then OnCharacterSelect → LoadSWMap.
+        // Spawning happens in OnWorldSceneLoaded once the tile is ready.
+        // Without PlayerInfo.Identity, LoadSWMap returns immediately and loading never ends.
+        GameClient game = GameClient.Instance;
+        if (game != null)
         {
-            ObjectId = identity.Id,
-            Identity = identity,
-            Status = status,
-            Stats = stats,
-            Appearance = appearance
-        };
-
-        if (_sink != null)
-            _sink.ApplyPlayerSpawned(domain);
+            game.PlayerInfo = new PlayerInfoInterlude
+            {
+                Identity = identity,
+                Status = status,
+                Stats = stats,
+                Appearance = appearance
+            };
+        }
         else
-            World.Instance?.SpawnPlayer(identity, status, stats, appearance);
+            Debug.LogWarning("[Net] GameClient missing on EntitySpawn — world load will stall");
 
-        // Match V2 enter: notify GameManager character select / world load.
         if (GameManager.Instance != null)
             GameManager.Instance.OnCharacterSelect();
+        else
+            Debug.LogWarning("[Net] GameManager missing on EntitySpawn — world load will stall");
 
         EnteredWorld?.Invoke();
     }
 
+    void ApplyRemotePlayerSpawn(EntitySpawnMsg spawn)
+    {
+        CharInfoDto dto = new CharInfoDto();
+        dto.Identity.Id = (int)spawn.EntityValue;
+        dto.Identity.Name = string.IsNullOrEmpty(spawn.Name) ? "Unknown" : spawn.Name;
+        dto.Identity.EntityType = EntityType.User;
+        dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
+        dto.Identity.PlayerClass = spawn.ClassId;
+        dto.Identity.IsRunning = spawn.Running;
+        dto.Appearance.Race = spawn.Race;
+        dto.Appearance.Sex = spawn.Sex;
+        dto.Appearance.BaseClass = spawn.ClassId;
+        dto.Appearance.Running = spawn.Running;
+        float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
+        float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
+        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
+        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
+        dto.Stats.RunRealSpeed = run;
+        dto.Stats.WalkRealSpeed = walk;
+        dto.Status.SetHp(100);
+        dto.Status.SetMp(100);
+        dto.Stats.MaxHp = 100;
+        dto.Stats.MaxMp = 100;
+        CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
+    }
+
+    void ApplyNpcSpawn(EntitySpawnMsg spawn)
+    {
+        NpcInfoDto dto = new NpcInfoDto();
+        dto.Identity.Id = (int)spawn.EntityValue;
+        dto.Identity.NpcId = spawn.TemplateId;
+        if (!string.IsNullOrEmpty(spawn.Name))
+            dto.Identity.Name = spawn.Name;
+        dto.Identity.SetHideHp(spawn.TemplateId);
+        dto.Identity.EntityType = EntityType.NPC;
+        dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
+        dto.Identity.IsRunning = spawn.Running;
+        dto.Stats.Level = 1;
+        dto.Status.SetHp(100);
+        dto.Stats.MaxHp = 100;
+        const int defaultPAtkSpd = 253;
+        dto.Stats.PAtkSpd = defaultPAtkSpd;
+        dto.Stats.PAtkRealSpeed = defaultPAtkSpd;
+        float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
+        float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
+        dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
+        dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
+        dto.Stats.WalkRealSpeed = walk;
+        dto.Stats.RunRealSpeed = run;
+        dto.Appearance.CollisionRadius = 10f;
+        dto.Appearance.CollisionHeight = 22f;
+        NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
+    }
+
+    void ApplyEntityDespawn(EntityDespawnMsg despawn)
+    {
+        var dto = new DeleteObjectDto { ObjectId = (int)despawn.EntityValue };
+        DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
+    }
+
     void ApplyPlayerStats(PlayerStatsMsg msg)
     {
+        // Prefer live entity; if world tile not loaded yet, patch stashed PlayerInfo for spawn.
         PlayerEntity local = DomainPacketServices.LocalPlayer;
-        if (local == null || local.Stats == null)
-            return;
+        PlayerStats stats = local != null ? local.Stats as PlayerStats : null;
+        PlayerStatus status = local != null ? local.Status as PlayerStatus : null;
 
-        var stats = local.Stats as PlayerStats;
+        GameClient game = GameClient.Instance;
+        if (stats == null && game != null && game.PlayerInfo.Stats != null)
+            stats = game.PlayerInfo.Stats;
+        if (status == null && game != null && game.PlayerInfo.Status != null)
+            status = game.PlayerInfo.Status;
+
         if (stats == null)
             return;
 
@@ -399,13 +495,73 @@ public sealed class NetSession : MonoBehaviour
         stats.MaxMp = msg.MaxMp;
         stats.MaxCp = msg.MaxCp;
         stats.Cp = msg.Cp;
-        if (local.Status != null)
+        if (status != null)
         {
-            local.Status.SetHp(msg.Hp);
-            local.Status.SetMp(msg.Mp);
-            if (local.Status is PlayerStatus ps)
-                ps.Cp = msg.Cp;
+            status.SetHp(msg.Hp);
+            status.SetMp(msg.Mp);
+            status.Cp = msg.Cp;
         }
+    }
+
+    void ApplyItemList(ItemListNetMsg list)
+    {
+        // Reuse V2 gear session: ItemList often arrives before the world scene / inventory UI exist.
+        ZoneV2ItemEntry[] rows = MapItemList(list);
+        ZoneV2GearSession.NoteItemList(rows);
+        Debug.Log("[Net] ItemList count=" + rows.Length);
+    }
+
+    void ApplySkillList(SkillListNetMsg list)
+    {
+        ZoneV2SkillEntry[] rows = MapSkillList(list);
+        SkillListDto dto = ZoneV2DomainMap.ToSkillListDto(rows);
+        SkillListApplyIncomingPacketServices.ApplySkillList(dto);
+        Debug.Log("[Net] SkillList count=" + rows.Length);
+    }
+
+    static ZoneV2ItemEntry[] MapItemList(ItemListNetMsg list)
+    {
+        if (list?.Items == null || list.Items.Length == 0)
+            return System.Array.Empty<ZoneV2ItemEntry>();
+        var rows = new ZoneV2ItemEntry[list.Items.Length];
+        for (int i = 0; i < list.Items.Length; i++)
+        {
+            ItemListEntryNet src = list.Items[i];
+            rows[i] = new ZoneV2ItemEntry
+            {
+                ObjectId = src.ObjectId,
+                ItemId = src.ItemId,
+                Count = src.Count,
+                EquippedSlot = src.EquippedSlot,
+                EnchantLevel = src.EnchantLevel,
+                BodySlot = "",
+                Kind = "",
+                Icon = "",
+                WeaponType = "",
+                ArmorType = ""
+            };
+        }
+
+        return rows;
+    }
+
+    static ZoneV2SkillEntry[] MapSkillList(SkillListNetMsg list)
+    {
+        if (list?.Skills == null || list.Skills.Length == 0)
+            return System.Array.Empty<ZoneV2SkillEntry>();
+        var rows = new ZoneV2SkillEntry[list.Skills.Length];
+        for (int i = 0; i < list.Skills.Length; i++)
+        {
+            SkillListEntryNet src = list.Skills[i];
+            rows[i] = new ZoneV2SkillEntry
+            {
+                SkillId = src.SkillId,
+                Level = src.Level,
+                ReuseDelayMs = src.ReuseRemainingMs
+            };
+        }
+
+        return rows;
     }
 
     void ApplyMoveState(MoveStateMsg move)
