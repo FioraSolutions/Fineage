@@ -102,6 +102,15 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            RequestMagicSkillUseCommand netSkill = command as RequestMagicSkillUseCommand;
+            if (netSkill != null)
+            {
+                int targetId = ResolveSelectedTargetObjectId();
+                bool ctrl = netSkill.CtrlPressed != 0;
+                NetSession.Ensure().SendUseSkill(netSkill.SkillId, targetId, ctrl);
+                return true;
+            }
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }

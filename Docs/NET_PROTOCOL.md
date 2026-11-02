@@ -26,7 +26,8 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 7. Click ground loot → `PickupRequest` → `InventoryUpdate` + `EntityDespawn`.
 8. Bag drop / equip / unequip → `DropItemRequest` / `UseItem` / `UnequipItem` → `InventoryUpdate` (+ `DropItem` for drops).
 9. Chat → `Say` / `CreatureSay`; welcome + notices → `SystemMessage`.
-10. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
+10. Skills → `UseSkill` / `MagicSkillUse` (+ `StatusUpdate` for MP/heal).
+11. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
 
 Editor Play defaults to local Net. V2 MessagePack adapters stay in `Adapters/V2` as reference; enable only with scripting define `FINEAGE_V2_WIRE`.
 

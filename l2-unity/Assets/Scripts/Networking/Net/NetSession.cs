@@ -254,6 +254,21 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendUseSkill(int skillId, int targetObjectId, bool ctrlPressed)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.UseSkill,
+            NetCodec.EncodeUseSkill(new UseSkillNetMsg
+            {
+                SkillId = skillId,
+                TargetObjectId = targetObjectId,
+                CtrlPressed = ctrlPressed
+            }),
+            NextSeq());
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(
@@ -415,6 +430,9 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.SystemMessage:
                 ApplySystemMessage(NetCodec.DecodeSystemMessage(envelope.Payload));
+                break;
+            case NetOpcode.MagicSkillUse:
+                ApplyMagicSkillUse(NetCodec.DecodeMagicSkillUse(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -662,6 +680,21 @@ public sealed class NetSession : MonoBehaviour
     {
         string shown = ZoneV2SystemLines.Resolve(message.Id, message.Text, message.Params);
         ZoneV2ChatFeed.NoteSystem(shown);
+    }
+
+    void ApplyMagicSkillUse(MagicSkillUseNetMsg use)
+    {
+        var mapped = new ZoneV2MagicSkillUse
+        {
+            CasterObjectId = use.CasterObjectId,
+            TargetObjectId = use.TargetObjectId,
+            SkillId = use.SkillId,
+            SkillLevel = use.SkillLevel,
+            HitTimeMs = use.HitTimeMs,
+            ReuseDelayMs = use.ReuseDelayMs
+        };
+        MagicSkillUseDto dto = ZoneV2DomainMap.ToMagicSkillUseDto(mapped);
+        MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
