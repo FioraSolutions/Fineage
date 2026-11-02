@@ -450,6 +450,9 @@ public sealed class NetSession : MonoBehaviour
             case NetOpcode.TeleportToLocation:
                 ApplyTeleportToLocation(NetCodec.DecodeTeleportToLocation(envelope.Payload));
                 break;
+            case NetOpcode.AbnormalStatusUpdate:
+                ApplyAbnormalStatusUpdate(NetCodec.DecodeAbnormalStatusUpdate(envelope.Payload));
+                break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
                 break;
@@ -730,6 +733,29 @@ public sealed class NetSession : MonoBehaviour
             Heading = teleport.Heading
         });
         TeleportToLocationApplyIncomingPacketServices.ApplyTeleportToLocation(dto);
+    }
+
+    void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateNetMsg update)
+    {
+        AbnormalEffectNet[] src = update.Effects ?? System.Array.Empty<AbnormalEffectNet>();
+        var effects = new ZoneV2AbnormalEffect[src.Length];
+        for (int i = 0; i < src.Length; i++)
+        {
+            AbnormalEffectNet e = src[i] ?? new AbnormalEffectNet();
+            effects[i] = new ZoneV2AbnormalEffect
+            {
+                Id = e.Id,
+                Value = e.Value,
+                DurationSeconds = e.DurationSeconds
+            };
+        }
+
+        AbnormalStatusUpdateDto dto = ZoneV2DomainMap.ToAbnormalStatusUpdateDto(new ZoneV2AbnormalStatusUpdate
+        {
+            ObjectId = update.ObjectId,
+            Effects = effects
+        });
+        AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
