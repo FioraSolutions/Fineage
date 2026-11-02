@@ -175,6 +175,24 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            SendWarehouseDepositListCommand netDeposit = command as SendWarehouseDepositListCommand;
+            if (netDeposit != null)
+            {
+                NetSession.Ensure().SendWarehouseDeposit(
+                    ZoneV2NpcSession.ShopNpcObjectId,
+                    ZoneV2NpcOrders.ObjectCounts(netDeposit.SellList));
+                return true;
+            }
+
+            SendWarehouseWithdrawListCommand netWithdraw = command as SendWarehouseWithdrawListCommand;
+            if (netWithdraw != null)
+            {
+                NetSession.Ensure().SendWarehouseWithdraw(
+                    ZoneV2NpcSession.ShopNpcObjectId,
+                    ZoneV2NpcOrders.ObjectCounts(netWithdraw.SellList));
+                return true;
+            }
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }

@@ -368,6 +368,34 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    public async void SendWarehouseDeposit(int npcObjectId, ZoneV2IdCount[] lines)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.WarehouseDepositRequest,
+            NetCodec.EncodeWarehouseDepositRequest(new WarehouseDepositRequestNetMsg
+            {
+                NpcObjectId = npcObjectId,
+                Lines = MapShopObjectCounts(lines)
+            }),
+            NextSeq());
+    }
+
+    public async void SendWarehouseWithdraw(int npcObjectId, ZoneV2IdCount[] lines)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.WarehouseWithdrawRequest,
+            NetCodec.EncodeWarehouseWithdrawRequest(new WarehouseWithdrawRequestNetMsg
+            {
+                NpcObjectId = npcObjectId,
+                Lines = MapShopObjectCounts(lines)
+            }),
+            NextSeq());
+    }
+
     static ShopCountNet[] MapShopCounts(ZoneV2IdCount[] items)
     {
         if (items == null || items.Length == 0)
@@ -576,6 +604,12 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.ShopBalance:
                 ApplyShopBalance(NetCodec.DecodeShopBalance(envelope.Payload));
+                break;
+            case NetOpcode.WarehouseDepositList:
+                ApplyWarehouseDepositList(NetCodec.DecodeWarehouseDepositList(envelope.Payload));
+                break;
+            case NetOpcode.WarehouseWithdrawList:
+                ApplyWarehouseWithdrawList(NetCodec.DecodeWarehouseWithdrawList(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -981,6 +1015,59 @@ public sealed class NetSession : MonoBehaviour
             BaseTaxPercent = balance.BaseTaxPercent,
             CastleTaxPercent = balance.CastleTaxPercent
         });
+    }
+
+    void ApplyWarehouseDepositList(WarehouseDepositListNetMsg list)
+    {
+        ZoneV2NpcWindows.ApplyWarehouseDepositList(new ZoneV2WarehouseDepositList
+        {
+            NpcObjectId = list.NpcObjectId,
+            FeePerLine = list.FeePerLine,
+            SlotsUsed = list.SlotsUsed,
+            SlotsMax = list.SlotsMax,
+            Adena = list.Adena,
+            Items = MapWarehouseItems(list.Items)
+        });
+    }
+
+    void ApplyWarehouseWithdrawList(WarehouseWithdrawListNetMsg list)
+    {
+        ZoneV2NpcWindows.ApplyWarehouseWithdrawList(new ZoneV2WarehouseWithdrawList
+        {
+            NpcObjectId = list.NpcObjectId,
+            SlotsUsed = list.SlotsUsed,
+            SlotsMax = list.SlotsMax,
+            InventorySlotsUsed = list.InventorySlotsUsed,
+            InventorySlotsMax = list.InventorySlotsMax,
+            CurrentWeight = list.CurrentWeight,
+            MaxWeight = list.MaxWeight,
+            Items = MapWarehouseItems(list.Items)
+        });
+    }
+
+    static ZoneV2ItemEntry[] MapWarehouseItems(ItemListEntryNet[] items)
+    {
+        if (items == null || items.Length == 0)
+            return System.Array.Empty<ZoneV2ItemEntry>();
+        var rows = new ZoneV2ItemEntry[items.Length];
+        for (int i = 0; i < items.Length; i++)
+        {
+            rows[i] = new ZoneV2ItemEntry
+            {
+                ObjectId = items[i].ObjectId,
+                ItemId = items[i].ItemId,
+                Count = items[i].Count,
+                EquippedSlot = items[i].EquippedSlot,
+                EnchantLevel = items[i].EnchantLevel,
+                BodySlot = "none",
+                Kind = "etc",
+                Icon = "",
+                WeaponType = "",
+                ArmorType = ""
+            };
+        }
+
+        return rows;
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
