@@ -227,6 +227,11 @@ public static class ZoneV2NpcWindows
         }
     }
 
+    public static void ApplyBuyList(ZoneV2BuyList list) => ShowBuy(list);
+    public static void ApplySellList(ZoneV2SellList list) => ShowSell(list);
+    public static void ApplyMultiSellList(ZoneV2MultiSellList list) => ShowMulti(list);
+    public static void ApplyShopBalance(ZoneV2ShopBalance balance) => ApplyBalance(balance);
+
     static void ShowBuy(ZoneV2BuyList list)
     {
         ZoneV2NpcSession.OpenShop(list.NpcObjectId, list.ListId);

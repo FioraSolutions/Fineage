@@ -145,6 +145,36 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
+            RequestBuyItemCommand netBuy = command as RequestBuyItemCommand;
+            if (netBuy != null)
+            {
+                NetSession.Ensure().SendRequestBuyItem(
+                    ZoneV2NpcSession.ShopNpcObjectId,
+                    netBuy.ListId,
+                    ZoneV2NpcOrders.ItemCounts(netBuy.BuyList));
+                return true;
+            }
+
+            RequestSellItemCommand netSell = command as RequestSellItemCommand;
+            if (netSell != null)
+            {
+                NetSession.Ensure().SendRequestSellItem(
+                    ZoneV2NpcSession.ShopNpcObjectId,
+                    ZoneV2NpcOrders.ObjectCounts(netSell.SellList));
+                return true;
+            }
+
+            RequestMultiSellChooseCommand netMulti = command as RequestMultiSellChooseCommand;
+            if (netMulti != null)
+            {
+                NetSession.Ensure().SendRequestMultiSellChoose(
+                    ZoneV2NpcSession.ShopNpcObjectId,
+                    netMulti.ListId,
+                    netMulti.EntryId,
+                    netMulti.Amount);
+                return true;
+            }
+
             // Other Interlude commands stay no-ops until Net opcodes exist.
             return true;
         }

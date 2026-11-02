@@ -321,6 +321,73 @@ public sealed class NetSession : MonoBehaviour
         }
     }
 
+    public async void SendRequestBuyItem(int npcObjectId, int listId, ZoneV2IdCount[] items)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        ShopCountNet[] rows = MapShopCounts(items);
+        await _zone.SendAsync(
+            NetOpcode.RequestBuyItem,
+            NetCodec.EncodeRequestBuyItem(new RequestBuyItemNetMsg
+            {
+                NpcObjectId = npcObjectId,
+                ListId = listId,
+                Items = rows
+            }),
+            NextSeq());
+    }
+
+    public async void SendRequestSellItem(int npcObjectId, ZoneV2IdCount[] items)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        ShopObjectCountNet[] rows = MapShopObjectCounts(items);
+        await _zone.SendAsync(
+            NetOpcode.RequestSellItem,
+            NetCodec.EncodeRequestSellItem(new RequestSellItemNetMsg
+            {
+                NpcObjectId = npcObjectId,
+                Items = rows
+            }),
+            NextSeq());
+    }
+
+    public async void SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestMultiSellChoose,
+            NetCodec.EncodeRequestMultiSellChoose(new RequestMultiSellChooseNetMsg
+            {
+                NpcObjectId = npcObjectId,
+                ListId = listId,
+                EntryId = entryId,
+                Amount = amount
+            }),
+            NextSeq());
+    }
+
+    static ShopCountNet[] MapShopCounts(ZoneV2IdCount[] items)
+    {
+        if (items == null || items.Length == 0)
+            return System.Array.Empty<ShopCountNet>();
+        var rows = new ShopCountNet[items.Length];
+        for (int i = 0; i < items.Length; i++)
+            rows[i] = new ShopCountNet { ItemId = items[i].Id, Count = items[i].Count };
+        return rows;
+    }
+
+    static ShopObjectCountNet[] MapShopObjectCounts(ZoneV2IdCount[] items)
+    {
+        if (items == null || items.Length == 0)
+            return System.Array.Empty<ShopObjectCountNet>();
+        var rows = new ShopObjectCountNet[items.Length];
+        for (int i = 0; i < items.Length; i++)
+            rows[i] = new ShopObjectCountNet { ObjectId = items[i].Id, Count = items[i].Count };
+        return rows;
+    }
+
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
         await transport.SendAsync(
@@ -497,6 +564,18 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.NpcHtml:
                 ApplyNpcHtml(NetCodec.DecodeNpcHtml(envelope.Payload));
+                break;
+            case NetOpcode.BuyList:
+                ApplyBuyList(NetCodec.DecodeBuyList(envelope.Payload));
+                break;
+            case NetOpcode.SellList:
+                ApplySellList(NetCodec.DecodeSellList(envelope.Payload));
+                break;
+            case NetOpcode.MultiSellList:
+                ApplyMultiSellList(NetCodec.DecodeMultiSellList(envelope.Payload));
+                break;
+            case NetOpcode.ShopBalance:
+                ApplyShopBalance(NetCodec.DecodeShopBalance(envelope.Payload));
                 break;
             case NetOpcode.PositionCorrection:
                 ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
@@ -813,6 +892,95 @@ public sealed class NetSession : MonoBehaviour
         if (window == null)
             return;
         window.ShowNpcDialog(html.NpcObjectId, html.NpcId, html.Html ?? "");
+    }
+
+    void ApplyBuyList(BuyListNetMsg list)
+    {
+        BuyListItemNet[] src = list.Items ?? System.Array.Empty<BuyListItemNet>();
+        var items = new ZoneV2BuyItem[src.Length];
+        for (int i = 0; i < src.Length; i++)
+            items[i] = new ZoneV2BuyItem { ItemId = src[i].ItemId, Price = src[i].Price, Count = src[i].Count };
+        ZoneV2NpcWindows.ApplyBuyList(new ZoneV2BuyList
+        {
+            NpcObjectId = list.NpcObjectId,
+            ListId = list.ListId,
+            BaseTaxPercent = list.BaseTaxPercent,
+            CastleTaxPercent = list.CastleTaxPercent,
+            Items = items
+        });
+    }
+
+    void ApplySellList(SellListNetMsg list)
+    {
+        SellListItemNet[] src = list.Items ?? System.Array.Empty<SellListItemNet>();
+        var items = new ZoneV2SellItem[src.Length];
+        for (int i = 0; i < src.Length; i++)
+        {
+            items[i] = new ZoneV2SellItem
+            {
+                ObjectId = src[i].ObjectId,
+                ItemId = src[i].ItemId,
+                Count = src[i].Count,
+                Price = src[i].Price,
+                EnchantLevel = src[i].EnchantLevel
+            };
+        }
+
+        ZoneV2NpcWindows.ApplySellList(new ZoneV2SellList { NpcObjectId = list.NpcObjectId, Items = items });
+    }
+
+    void ApplyMultiSellList(MultiSellListNetMsg list)
+    {
+        MultiSellEntryNet[] src = list.Entries ?? System.Array.Empty<MultiSellEntryNet>();
+        var entries = new ZoneV2MultiSellEntry[src.Length];
+        for (int i = 0; i < src.Length; i++)
+        {
+            entries[i] = new ZoneV2MultiSellEntry
+            {
+                EntryId = src[i].EntryId,
+                Ingredients = MapMultiParts(src[i].Ingredients),
+                Products = MapMultiParts(src[i].Products)
+            };
+        }
+
+        ZoneV2NpcWindows.ApplyMultiSellList(new ZoneV2MultiSellList
+        {
+            NpcObjectId = list.NpcObjectId,
+            ListId = list.ListId,
+            MaintainEnchantment = list.MaintainEnchantment,
+            InventoryOnly = list.InventoryOnly,
+            CastleTaxPercent = list.CastleTaxPercent,
+            Entries = entries
+        });
+    }
+
+    static ZoneV2MultiPart[] MapMultiParts(MultiSellPartNet[] parts)
+    {
+        if (parts == null || parts.Length == 0)
+            return System.Array.Empty<ZoneV2MultiPart>();
+        var rows = new ZoneV2MultiPart[parts.Length];
+        for (int i = 0; i < parts.Length; i++)
+            rows[i] = new ZoneV2MultiPart
+            {
+                ItemId = parts[i].ItemId,
+                Count = parts[i].Count,
+                EnchantLevel = parts[i].EnchantLevel
+            };
+        return rows;
+    }
+
+    void ApplyShopBalance(ShopBalanceNetMsg balance)
+    {
+        ZoneV2NpcWindows.ApplyShopBalance(new ZoneV2ShopBalance
+        {
+            Adena = balance.Adena,
+            Weight = balance.Weight,
+            MaxWeight = balance.MaxWeight,
+            Slots = balance.Slots,
+            MaxSlots = balance.MaxSlots,
+            BaseTaxPercent = balance.BaseTaxPercent,
+            CastleTaxPercent = balance.CastleTaxPercent
+        });
     }
 
     void ApplyPlayerStats(PlayerStatsMsg msg)
