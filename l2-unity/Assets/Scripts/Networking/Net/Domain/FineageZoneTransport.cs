@@ -285,8 +285,85 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
-        RequestTradeCommand netRequestTrade = command as RequestTradeCommand;
-        if (netRequestTrade != null)
+        // Mobius clan window: the seven pledge opcodes travel as their own request opcodes.
+        ClanCreateRequestCommand netClanCreate = command as ClanCreateRequestCommand;
+        if (netClanCreate != null)
+        {
+            NetSession.Ensure().SendClanCreateRequest(netClanCreate.Name);
+            return true;
+        }
+
+        // RequestJoinPledge and ClanInviteRequestCommand are the same Mobius opcode: the clan
+        // owner invites the target, and a clanless player asks the owner to take them in.
+        ClanInviteRequestCommand netClanInvite = command as ClanInviteRequestCommand;
+        if (netClanInvite != null)
+        {
+            NetSession.Ensure().SendClanInviteRequest(netClanInvite.TargetObjectId);
+            return true;
+        }
+
+        RequestJoinPledgeCommand netClanJoin = command as RequestJoinPledgeCommand;
+        if (netClanJoin != null)
+        {
+            NetSession.Ensure().SendClanInviteRequest(netClanJoin.ObjectId);
+            return true;
+        }
+
+        ClanAnswerJoinRequestCommand netClanAnswer = command as ClanAnswerJoinRequestCommand;
+        if (netClanAnswer != null)
+        {
+            if (netClanAnswer.RequestorObjectId > 0)
+                NetSession.Ensure().SendClanAnswerJoinRequest(netClanAnswer.RequestorObjectId, netClanAnswer.Response);
+            return true;
+        }
+
+        RequestWithdrawPledgeCommand netClanLeave = command as RequestWithdrawPledgeCommand;
+        if (netClanLeave != null)
+        {
+            NetSession.Ensure().SendClanLeaveRequest();
+            return true;
+        }
+
+        ClanLeaveRequestCommand netClanLeaveExplicit = command as ClanLeaveRequestCommand;
+        if (netClanLeaveExplicit != null)
+        {
+            NetSession.Ensure().SendClanLeaveRequest();
+            return true;
+        }
+
+        ClanKickRequestCommand netClanKick = command as ClanKickRequestCommand;
+        if (netClanKick != null)
+        {
+            NetSession.Ensure().SendClanKickRequest(netClanKick.TargetObjectId);
+            return true;
+        }
+
+        // RequestOustPledgeMember is the Interlude name and carries a name; the Net opcode
+        // takes the object id, so resolve it through the roster the zone just sent.
+        RequestOustPledgeMemberCommand netClanOust = command as RequestOustPledgeMemberCommand;
+        if (netClanOust != null)
+        {
+            NetPledgeMember member;
+            if (NetClanBook.Shared.TryMemberByName(netClanOust.MemberName, out member))
+                NetSession.Ensure().SendClanKickRequest(member.ObjectId);
+            return true;
+        }
+
+        ClanDissolveRequestCommand netClanDissolve = command as ClanDissolveRequestCommand;
+        if (netClanDissolve != null)
+        {
+            NetSession.Ensure().SendClanDissolveRequest();
+            return true;
+        }
+
+        ClanCancelDissolveRequestCommand netClanCancel = command as ClanCancelDissolveRequestCommand;
+        if (netClanCancel != null)
+        {
+            NetSession.Ensure().SendClanCancelDissolveRequest();
+            return true;
+        }
+
+        RequestTradeCommand netRequestTrade = command as RequestTradeCommand;        if (netRequestTrade != null)
         {
             NetSession.Ensure().SendTradeRequest(netRequestTrade.TargetObjectId);
             return true;

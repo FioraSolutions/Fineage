@@ -747,6 +747,74 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    /// <summary>Mobius <c>RequestCreatePledge</c>: found a clan with this name.</summary>
+    public async void SendClanCreateRequest(string name)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.ClanCreateRequest,
+            NetCodec.EncodeClanCreateRequest(new ClanCreateRequestNetMsg { Name = name ?? "" }),
+            NextSeq());
+    }
+
+    /// <summary>Mobius <c>RequestJoinPledge</c>: ask the owner of this clan to enrol the player.</summary>
+    public async void SendClanInviteRequest(int targetObjectId)
+    {
+        if (_zone == null || !_zone.Connected || targetObjectId <= 0)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.ClanInviteRequest,
+            NetCodec.EncodeClanInviteRequest(new ClanInviteRequestNetMsg { TargetObjectId = targetObjectId }),
+            NextSeq());
+    }
+
+    /// <summary>Mobius <c>RequestAnswerJoinPledge</c>. Response 0 declines.</summary>
+    public async void SendClanAnswerJoinRequest(int requestorObjectId, int response)
+    {
+        if (_zone == null || !_zone.Connected || requestorObjectId <= 0)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.ClanAnswerJoinRequest,
+            NetCodec.EncodeClanAnswer(new ClanAnswerNetMsg { RequestorObjectId = requestorObjectId, Response = response }),
+            NextSeq());
+    }
+
+    /// <summary>Mobius <c>RequestWithdrawalPledge</c>.</summary>
+    public async void SendClanLeaveRequest()
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(NetOpcode.ClanLeaveRequest, System.Array.Empty<byte>(), NextSeq());
+    }
+
+    /// <summary>Mobius <c>RequestOustPledgeMember</c>, by object id.</summary>
+    public async void SendClanKickRequest(int targetObjectId)
+    {
+        if (_zone == null || !_zone.Connected || targetObjectId <= 0)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.ClanKickRequest,
+            NetCodec.EncodeClanKickRequest(new ClanKickRequestNetMsg { TargetObjectId = targetObjectId }),
+            NextSeq());
+    }
+
+    /// <summary>Mobius <c>RequestDissolvePledge</c>.</summary>
+    public async void SendClanDissolveRequest()
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(NetOpcode.ClanDissolveRequest, System.Array.Empty<byte>(), NextSeq());
+    }
+
+    /// <summary>Mobius <c>RequestPledgeReorganizeMember</c>-side cancel of a running dissolution.</summary>
+    public async void SendClanCancelDissolveRequest()
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(NetOpcode.ClanCancelDissolveRequest, System.Array.Empty<byte>(), NextSeq());
+    }
+
     static ShopCountNet[] MapShopCounts(NetIdCount[] items)
     {
         if (items == null || items.Length == 0)
@@ -1006,6 +1074,18 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.EnchantResult:
                 ApplyEnchantResult(NetCodec.DecodeEnchantResult(envelope.Payload));
+                break;
+            case NetOpcode.PledgeStatus:
+                ApplyPledgeStatus(NetCodec.DecodePledgeStatus(envelope.Payload));
+                break;
+            case NetOpcode.PledgeMemberList:
+                ApplyPledgeMemberList(NetCodec.DecodePledgeMemberList(envelope.Payload));
+                break;
+            case NetOpcode.ClanAskJoin:
+                ApplyClanAskJoin(NetCodec.DecodeClanAskJoin(envelope.Payload));
+                break;
+            case NetOpcode.ClanJoinResult:
+                ApplyClanJoinResult(NetCodec.DecodeClanJoinResult(envelope.Payload));
                 break;
             case NetOpcode.PartyAskJoin:
                 ApplyPartyAskJoin(NetCodec.DecodePartyAskJoin(envelope.Payload));
@@ -1592,6 +1672,64 @@ public sealed class NetSession : MonoBehaviour
             CrystalItemId = result.CrystalItemId,
             CrystalCount = result.CrystalCount
         });
+    }
+
+    void ApplyPledgeStatus(PledgeStatusNetMsg status)
+    {
+        ClanPacketServices.ApplyStatus(new NetPledgeStatus
+        {
+            ClanId = status.ClanId,
+            Name = status.Name ?? "",
+            Level = status.Level,
+            LeaderObjectId = status.LeaderObjectId,
+            CrestId = status.CrestId,
+            MemberCount = status.MemberCount,
+            DissolvingExpiryUnixMs = status.DissolvingExpiryUnixMs,
+            CharPenaltyExpiryUnixMs = status.CharPenaltyExpiryUnixMs
+        });
+    }
+
+    void ApplyPledgeMemberList(PledgeMemberListNetMsg list)
+    {
+        PledgeMemberNet[] rows = list.Members ?? System.Array.Empty<PledgeMemberNet>();
+        var members = new NetPledgeMember[rows.Length];
+        for (int i = 0; i < rows.Length; i++)
+        {
+            PledgeMemberNet row = rows[i] ?? new PledgeMemberNet();
+            members[i] = new NetPledgeMember
+            {
+                ObjectId = row.ObjectId,
+                Name = row.Name ?? "",
+                ClassId = row.ClassId,
+                Level = row.Level,
+                Online = row.Online,
+                PledgeType = row.PledgeType
+            };
+        }
+
+        ClanPacketServices.ApplyMembers(new NetPledgeMemberList
+        {
+            ClanId = list.ClanId,
+            LeaderObjectId = list.LeaderObjectId,
+            Members = members
+        });
+    }
+
+    void ApplyClanAskJoin(ClanAskJoinNetMsg ask)
+    {
+        ClanPacketServices.ApplyAskJoin(new NetClanAskJoin
+        {
+            RequestorObjectId = ask.RequestorObjectId,
+            RequestorName = ask.RequestorName ?? "",
+            ClanId = ask.ClanId,
+            ClanName = ask.ClanName ?? "",
+            PledgeType = ask.PledgeType
+        });
+    }
+
+    void ApplyClanJoinResult(ClanJoinResultNetMsg result)
+    {
+        ClanPacketServices.ApplyJoinResult(result.Response);
     }
 
     void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)
