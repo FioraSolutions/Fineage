@@ -1,37 +1,57 @@
-using System;
+using VContainer;
 
 /// <summary>
 /// Trade window apply set (start / confirm / offer / done), constructed by the container
-/// instead of reached through static facades (#142 slice 3).
+/// instead of reached through static facades (#142 slice 3). <see cref="TradeWindow"/>
+/// arrives through <see cref="ILateBound{T}"/> (#142 slice 4).
 /// </summary>
 public sealed class TradeApplyService
 {
+    private readonly ILateBound<TradeWindow> _trade;
+
+    [Inject]
+    public TradeApplyService(ILateBound<TradeWindow> trade)
+    {
+        _trade = trade;
+    }
+
+    public TradeWindow Trade => _trade != null ? _trade.Value : null;
+
     public void ApplyStart(TradeStartDto packet) =>
         QueueApplyIncomingPacketServices.Queue(() =>
         {
-            LocatorApplyIncomingPacketServices.Trade.AddData(packet);
+            TradeWindow trade = Trade;
+            if (trade == null)
+                return;
+
+            trade.AddData(packet);
             string partner = packet.PartnerName;
             if (!string.IsNullOrEmpty(partner))
-                LocatorApplyIncomingPacketServices.Trade.ShowWindow(partner);
+                trade.ShowWindow(partner);
             else
-                LocatorApplyIncomingPacketServices.Trade.ShowWindow("Partner");
+                trade.ShowWindow("Partner");
         });
 
     public void ApplyPressOwnOk(bool confirmed) =>
         QueueApplyIncomingPacketServices.Queue(
-            () => LocatorApplyIncomingPacketServices.Trade?.SetOwnConfirmState(confirmed));
+            () => Trade?.SetOwnConfirmState(confirmed));
 
     public void ApplyPressOtherOk(bool confirmed) =>
         QueueApplyIncomingPacketServices.Queue(
-            () => LocatorApplyIncomingPacketServices.Trade?.SetPartnerConfirmState(confirmed));
+            () => Trade?.SetPartnerConfirmState(confirmed));
 
     public void ApplyOwnAdd(ItemInstance item) =>
         QueueApplyIncomingPacketServices.Queue(
-            () => LocatorApplyIncomingPacketServices.Trade?.ApplyOwnOfferItem(item));
+            () => Trade?.ApplyOwnOfferItem(item));
 
     public void ApplyOtherAdd(ItemInstance item) =>
         QueueApplyIncomingPacketServices.Queue(
-            () => LocatorApplyIncomingPacketServices.Trade?.ApplyPartnerOfferItem(item));
+            () => Trade?.ApplyPartnerOfferItem(item));
 
-    public void ApplyDone() => LocatorApplyIncomingPacketServices.Trade.HideWindow();
+    public void ApplyDone()
+    {
+        TradeWindow trade = Trade;
+        if (trade != null)
+            trade.HideWindow();
+    }
 }

@@ -1,16 +1,29 @@
-using System;
+using VContainer;
 
 /// <summary>
 /// Party apply set (invitation, join result, roster), constructed by the container instead
-/// of reached through static facades (#142 slice 3).
+/// of reached through static facades (#142 slice 3). <see cref="PartyInvitationWindow"/>
+/// arrives through <see cref="ILateBound{T}"/> (#142 slice 4).
 /// </summary>
 public sealed class PartyApplyService
 {
+    private readonly ILateBound<PartyInvitationWindow> _partyInvite;
+
+    [Inject]
+    public PartyApplyService(ILateBound<PartyInvitationWindow> partyInvite)
+    {
+        _partyInvite = partyInvite;
+    }
+
     public void ApplyAskJoinParty(AskJoinPartyDto packet) =>
         QueueApplyIncomingPacketServices.Queue(() =>
         {
-            LocatorApplyIncomingPacketServices.PartyInvite.AddData(packet);
-            LocatorApplyIncomingPacketServices.PartyInvite.ShowWindow();
+            PartyInvitationWindow invite = _partyInvite != null ? _partyInvite.Value : null;
+            if (invite == null)
+                return;
+
+            invite.AddData(packet);
+            invite.ShowWindow();
         });
 
     public void ApplyPartyJoinResult(int response)
