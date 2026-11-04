@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,10 +7,6 @@ using VContainer;
 
 public class QuestWindow : L2TwoPanels
 {
-
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => QuestPacketServices.Game;
 
     private static QuestWindow _instance;
     private BuilderTabs _builderTabs;
@@ -74,7 +70,7 @@ public class QuestWindow : L2TwoPanels
 
     private void WireQuestPacketServices()
     {
-        QuestPacketServices.Bind(game: _gameClient, quest: this);
+        QuestPacketServices.Bind(quest: this);
     }
 
     private void OnDestroy()
@@ -145,8 +141,6 @@ public class QuestWindow : L2TwoPanels
         //_creatorRewardTables.InitTradeTabs(new string[] { "ALL", "Other" });
         _creatorRewardTables.CreateTabs(_detailedInfoElement, null, _rowsTemplate);
 
-
-
         _questTabPanelSingle.SetTemplateContent(_tabContenTemplate , new List<VisualTreeAsset>() { _singleInsideContentTemplate , _toggleButtonTemplate });
         _questTabPanelRepeat.SetTemplateContent(_tabContenTemplate, new List<VisualTreeAsset>() { _singleInsideContentTemplate, _toggleButtonTemplate });
 
@@ -184,7 +178,6 @@ public class QuestWindow : L2TwoPanels
         } 
     }
 
-  
     private void OnSwitchEventOut(ITab tab, bool isTrade)
     {
         var tabName = tab.GetTabName();
@@ -230,8 +223,6 @@ public class QuestWindow : L2TwoPanels
             _detailedInfoElement.style.display = DisplayStyle.None;
         }
     }
-
-
 
     private void AddTestRewardData()
     {

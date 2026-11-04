@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,9 +12,6 @@ using VContainer;
 public class EnchantWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => ItemEnchantPacketServices.Game;
     private static EnchantWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
     private VisualTreeAsset _inventorySlotChoiceTemplate;
@@ -77,7 +74,7 @@ public class EnchantWindow : L2PopupWindow
 
     private void WireItemEnchantPacketServices()
     {
-        ItemEnchantPacketServices.Bind(game: _gameClient, enchant: this);
+        ItemEnchantPacketServices.Bind(enchant: this);
     }
 
     protected override void LoadAssets()
@@ -142,7 +139,6 @@ public class EnchantWindow : L2PopupWindow
         OnCenterScreen(root);
 
     }
-
 
     private void OnDestroy()
     {
@@ -356,16 +352,10 @@ public class EnchantWindow : L2PopupWindow
         _isRun = false ;
     }
 
-
-
-
-
     private void SetPb0(VisualElement pbGauge)
     {
         pbGauge.style.width = Convert.ToSingle(0);
     }
-    
-
 
     private IEnumerator MoveElementsToCenter(VisualElement element1, VisualElement element2 , bool isSuccess)
     {
@@ -580,9 +570,6 @@ public class EnchantWindow : L2PopupWindow
 
         return true;
     }
-
-
-    
 
     private void AlphaChanged(float fadeStartTime , float elapsedTime , VisualElement element1)
     {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +8,9 @@ using VContainer;
 
 public class PlayerShortcuts : MonoBehaviour
 {
-    [Inject] GameClient _gameClient;
     [Inject] PlayerInventory _inventory;
     [Inject] InputManager _input;
     [Inject] PlayerActions _actions;
-
-    private GameClient Game => ShortcutPacketServices.Game;
 
     private InputManager Input => ShortcutPacketServices.Input;
 
@@ -57,7 +54,6 @@ public class PlayerShortcuts : MonoBehaviour
     private void WireShortcutPacketServices()
     {
         ShortcutPacketServices.Bind(
-            game: _gameClient,
             inventory: _inventory,
             input: _input,
             actions: _actions,
@@ -134,7 +130,6 @@ public class PlayerShortcuts : MonoBehaviour
         }
     }
 
-   
     public void SetShortcutList(List<Shortcut> shortcuts)
     {
         if (_shortcuts == null)

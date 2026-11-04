@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -6,9 +6,6 @@ using VContainer;
 public class DescriptionSkillWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => SkillLearnPacketServices.Game;
     private static DescriptionSkillWindow _instance;
     public static DescriptionSkillWindow Instance { get { return _instance; } }
     private DataProviderWindows _dataProvider;
@@ -38,7 +35,7 @@ public class DescriptionSkillWindow : L2PopupWindow
 
     private void WireSkillLearnPacketServices()
     {
-        SkillLearnPacketServices.Bind(game: _gameClient, skillDesc: this);
+        SkillLearnPacketServices.Bind(skillDesc: this);
     }
 
     protected override void LoadAssets()

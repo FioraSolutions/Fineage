@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -8,9 +8,6 @@ using VContainer;
 public class StatusWindow : L2Window
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     private Label _nameLabel;
     private Label _levelLabel;
     private Label _HPTextLabel;
@@ -48,7 +45,7 @@ public class StatusWindow : L2Window
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient);
+        GameWindowPacketServices.Bind();
     }
 
     private void OnDestroy() {
@@ -160,7 +157,7 @@ public class StatusWindow : L2Window
 
     private void SendSelfTargetAction(PlayerEntity player)
     {
-        if (player.Identity == null || Game == null)
+        if (player.Identity == null || !ZoneCommands.IsConnected)
         {
             return;
         }

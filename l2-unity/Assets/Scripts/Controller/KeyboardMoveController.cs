@@ -7,7 +7,6 @@ using VContainer;
 public sealed class KeyboardMoveController : MonoBehaviour
 {
     [Inject] InputManager _input;
-    [Inject] GameClient _gameClient;
 
     [SerializeField] private float _stepMeters = 2.5f;
     [SerializeField] private float _sendIntervalSeconds = 0.12f;
@@ -17,13 +16,10 @@ public sealed class KeyboardMoveController : MonoBehaviour
     private InputManager GameInput =>
         _input != null ? _input : ControllerPacketServices.Input;
 
-    private GameClient Game =>
-        _gameClient != null ? _gameClient : ControllerPacketServices.Game;
-
     [Inject]
     void WireServices()
     {
-        ControllerPacketServices.Bind(input: GameInput, game: Game);
+        ControllerPacketServices.Bind(input: GameInput);
     }
 
     void Update()

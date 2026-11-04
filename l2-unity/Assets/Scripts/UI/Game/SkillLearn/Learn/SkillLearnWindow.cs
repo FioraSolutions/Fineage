@@ -1,4 +1,4 @@
-
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using VContainer;
@@ -10,9 +10,6 @@ using UnityEngine.UIElements;
 public class SkillLearnWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => SkillLearnPacketServices.Game;
     private static SkillLearnWindow _instance;
     protected VisualTreeAsset _rowsTemplate;
     private ICreatorVerticalScroll _creatorWindow;
@@ -42,7 +39,7 @@ public class SkillLearnWindow : L2PopupWindow
 
     private void WireSkillLearnPacketServices()
     {
-        SkillLearnPacketServices.Bind(game: _gameClient, skillLearn: this);
+        SkillLearnPacketServices.Bind(skillLearn: this);
     }
 
     protected override void LoadAssets()
@@ -91,8 +88,6 @@ public class SkillLearnWindow : L2PopupWindow
         }
 
     }
-
-    
 
     public AcquireData FilterBySKillId(List<OtherModel> list , int skillId)
     {

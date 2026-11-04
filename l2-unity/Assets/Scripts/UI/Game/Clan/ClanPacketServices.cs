@@ -1,25 +1,19 @@
-/// <summary>
+﻿/// <summary>
 /// Clan UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 16).
 /// Zone pledge snapshots land here so the clan window does not need a new locator member.
 /// </summary>
 public static class ClanPacketServices
 {
-    private static GameClient _game;
     private static ClanWindow _clan;
     private static ClanAskJoinWindow _ask;
 
-    public static void Bind(GameClient game = null, ClanWindow clan = null, ClanAskJoinWindow ask = null)
+    public static void Bind(ClanWindow clan = null, ClanAskJoinWindow ask = null)
     {
-        if (game != null)
-            _game = game;
         if (clan != null)
             _clan = clan;
         if (ask != null)
             _ask = ask;
     }
-
-    public static GameClient Game =>
-        _game != null ? _game : IncomingPacketActions.Game;
 
     public static ClanWindow Clan =>
         _clan != null ? _clan : IncomingPacketActions.Clan;

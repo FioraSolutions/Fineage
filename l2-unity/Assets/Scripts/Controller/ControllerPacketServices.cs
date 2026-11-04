@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using VContainer;
 
 /// <summary>
@@ -10,7 +10,6 @@ public static class ControllerPacketServices
     private static PlayerController _player;
     private static TargetManager _targets;
     private static InputManager _input;
-    private static GameClient _game;
     private static IAnimationManager _animations;
     private static IMoveAllCharacters _moves;
     private static EffectManager _effects;
@@ -26,7 +25,6 @@ public static class ControllerPacketServices
         PlayerController player = null,
         TargetManager targets = null,
         InputManager input = null,
-        GameClient game = null,
         IAnimationManager animations = null,
         IMoveAllCharacters moves = null,
         EffectManager effects = null,
@@ -45,8 +43,6 @@ public static class ControllerPacketServices
             _targets = targets;
         if (input != null)
             _input = input;
-        if (game != null)
-            _game = game;
         if (animations != null)
             _animations = animations;
         if (moves != null)
@@ -78,9 +74,6 @@ public static class ControllerPacketServices
 
     public static InputManager Input =>
         _input != null ? _input : IncomingPacketActions.Input;
-
-    public static GameClient Game =>
-        _game != null ? _game : IncomingPacketActions.Game;
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : IncomingPacketActions.Animations;
@@ -122,7 +115,6 @@ public sealed partial class PlayerController
     [Inject] World _packetWorld;
     [Inject] TargetManager _packetTargets;
     [Inject] InputManager _packetInput;
-    [Inject] GameClient _packetGame;
     [Inject] IAnimationManager _packetAnimations;
     [Inject] MoveAllCharacters _packetMoves;
     [Inject] EffectManager _packetEffects;
@@ -144,7 +136,6 @@ public sealed partial class PlayerController
             player: this,
             targets: _packetTargets,
             input: _packetInput,
-            game: _packetGame,
             animations: _packetAnimations,
             moves: _packetMoves,
             effects: _packetEffects,

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -8,9 +8,6 @@ using VContainer;
 public class HtmlWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     private Label _titleLabel;
     private static HtmlWindow _instance;
     public static HtmlWindow Instance => _instance;
@@ -46,7 +43,7 @@ public class HtmlWindow : L2PopupWindow
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient, html: this);
+        GameWindowPacketServices.Bind(html: this);
     }
 
     private void Update()

@@ -11,9 +11,7 @@ using VContainer;
 public class DealerWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
 
-    private GameClient Game => MerchantPacketServices.Game;
 
 
     private static DealerWindow _instance;
@@ -74,7 +72,7 @@ public class DealerWindow : L2PopupWindow
 
     private void WireMerchantPacketServices()
     {
-        MerchantPacketServices.Bind(game: _gameClient, dealer: this);
+        MerchantPacketServices.Bind(dealer: this);
     }
 
     private void OnDestroy()

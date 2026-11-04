@@ -1,4 +1,4 @@
-using FMOD;
+﻿using FMOD;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,13 +9,9 @@ using VContainer;
 
 using UnityEngine.UIElements;
 
-
 public class ShowListWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     private static ShowListWindow _instance;
     public static ShowListWindow Instance { get { return _instance; } }
     private Button _СЃancelButton;
@@ -43,7 +39,7 @@ public class ShowListWindow : L2PopupWindow
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient, showList: this);
+        GameWindowPacketServices.Bind(showList: this);
     }
 
     protected override void LoadAssets()
@@ -69,7 +65,6 @@ public class ShowListWindow : L2PopupWindow
         dragArea.AddManipulator(drag);
         DisableEventOnOver(_dropdown);
 
-
         _dropdown.RegisterValueChangedCallback(OnDropdownValueChanged);
 
         _okButton.RegisterCallback<ClickEvent>((evt) => OnClick(evt));
@@ -87,8 +82,6 @@ public class ShowListWindow : L2PopupWindow
         _dropdown.choices = list;
         _players = players;
     }
-
-
 
     private void OnDropdownValueChanged(ChangeEvent<string> evt)
     {
@@ -112,10 +105,6 @@ public class ShowListWindow : L2PopupWindow
     {
         HideWindow();
     }
-
-
-
-
 
     private void OnDestroy()
     {

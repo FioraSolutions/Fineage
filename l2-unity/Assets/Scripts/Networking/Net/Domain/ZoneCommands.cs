@@ -5,16 +5,11 @@ using VContainer;
 /// The one way to send a game command.
 ///
 /// <para>
-/// This used to be <c>GameClient.Send</c>, reached through a <c>Game</c> property that 37
-/// <c>*PacketServices</c> classes each re-declared. <c>GameClient</c> is a socket client: it
-/// owns an <c>AsynchronousClient</c>, a Blowfish crypt key, and a PlayOk handshake. None of
-/// that is reachable — Fineage Net owns the session — but every UI button still routed
-/// through it, so the dead socket could not be deleted without touching 149 files.
-/// </para>
-///
-/// <para>
-/// Sending a command only ever needed <see cref="IZoneTransport"/>. This is that, with a
-/// container fallback for the call sites that run before DI is up.
+/// This used to be <c>GameClient.Send</c>, reached through a <c>Game</c> property that dozens
+/// of <c>*PacketServices</c> classes each re-declared. That property led to the Interlude
+/// socket client — an <c>AsynchronousClient</c>, a Blowfish key, and a PlayOk handshake — none
+/// of which Fineage Net uses. Sending a command only ever needed <see cref="IZoneTransport"/>:
+/// this is that, with a container fallback for call sites that run before DI is up.
 /// </para>
 /// </summary>
 public static class ZoneCommands

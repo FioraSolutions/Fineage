@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,8 +9,6 @@ public class CharSelectWindow : L2Window {
     [Inject] LoginRuntime _login;
 
     private CharacterSelector Characters => LoginPacketServices.Characters;
-
-    private GameClient Game => LoginPacketServices.Game;
 
     private GameManager Manager => LoginPacketServices.Manager;
 
@@ -416,8 +414,6 @@ public class CharSelectWindow : L2Window {
         //    _charNameManipulator.SelectIndex(slot);
        // }
     //}
-
-  
 
     IEnumerator UpdateBarsInterlude(int slot)
     {

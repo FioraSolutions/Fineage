@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,7 +17,6 @@ public class SceneLoader : MonoBehaviour
     private bool _streamingBusy;
 
     GameManager _gameManager;
-    [Inject] GameClient _gameClient;
 
     private GameManager Manager
     {
@@ -29,11 +28,6 @@ public class SceneLoader : MonoBehaviour
                 return GameManager.Instance;
             return IncomingPacketActions.Manager;
         }
-    }
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
     }
 
     private World GameWorld

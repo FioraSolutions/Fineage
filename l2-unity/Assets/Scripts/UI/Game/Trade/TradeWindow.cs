@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +10,6 @@ using VContainer;
 public class TradeWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => TradePacketServices.Game;
     private static TradeWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
 
@@ -57,7 +54,7 @@ public class TradeWindow : L2PopupWindow
 
     private void WireTradePacketServices()
     {
-        TradePacketServices.Bind(game: _gameClient, trade: this);
+        TradePacketServices.Bind(trade: this);
     }
 
     public void AddData(TradeStartDto data)

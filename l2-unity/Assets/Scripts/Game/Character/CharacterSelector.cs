@@ -20,12 +20,6 @@ public class CharacterSelector : MonoBehaviour
     private List<GameObject> _characterGameObjects;
 
     [Inject] private LogongrpTable _logonGrps;
-    [Inject] private GameClient _gameClient;
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : CharacterPacketServices.Game; }
-    }
 
     private List<Logongrp> LogonGrps
     {
@@ -66,7 +60,7 @@ public class CharacterSelector : MonoBehaviour
 
     private void WireCharacterPacketServices()
     {
-        CharacterPacketServices.Bind(game: _gameClient);
+        CharacterPacketServices.Bind();
     }
 
     public void SetCharacterList(List<CharSelectionInfoPackage> characters) {

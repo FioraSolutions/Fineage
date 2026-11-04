@@ -1,4 +1,4 @@
-
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +9,6 @@ using VContainer;
 public class MultiSellWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game =>
-        _gameClient != null ? _gameClient : IncomingPacketActions.Game;
     private static MultiSellWindow _instance;
     private ICreatorTradeTab _creatorWindow;
 
@@ -91,7 +87,6 @@ public class MultiSellWindow : L2PopupWindow
 
         _scrollView1 = (ScrollView)GetElementById("1Panel-ScrollView");
         _scrollView2 = (ScrollView)GetElementById("2Panel-ScrollView");
-        
 
              //_createScroller.RegisterPlayerScrollEvent(_scrollView1, _scrollView1.verticalScroller);
         _contentPanel1 = _scrollView1.contentContainer;
@@ -152,7 +147,6 @@ public class MultiSellWindow : L2PopupWindow
             _contentPanel1.Add(_selectContainer);
             _selectContainer.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
 
-
             _contentPanel2.Clear();
 
             List<MultiSellData> data = _listMultisell.GetMultiSell();
@@ -212,8 +206,6 @@ public class MultiSellWindow : L2PopupWindow
             index++;
         }
 
-        
-
         return null;
     }
 
@@ -237,8 +229,6 @@ public class MultiSellWindow : L2PopupWindow
         }
         return null;
     }
-
-  
 
     private void OnValueChanged(ChangeEvent<string> evt)
     {

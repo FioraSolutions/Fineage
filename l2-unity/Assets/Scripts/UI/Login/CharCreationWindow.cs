@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-
 using UnityEngine;
 
 using UnityEngine.UIElements;
@@ -13,8 +12,6 @@ public class CharCreationWindow : L2Window {
     private CharacterCreator Creator => LoginPacketServices.Creator;
 
     private LoginCameraManager LoginCamera => LoginPacketServices.LoginCamera;
-
-    private GameClient Game => LoginPacketServices.Game;
 
     private GameManager Manager => LoginPacketServices.Manager;
 
@@ -78,8 +75,6 @@ public class CharCreationWindow : L2Window {
 
         userInputField = (TextField) GetElementById("UserInputField");
         userInputField.AddManipulator(new BlinkingCursorManipulator(userInputField));
-
-       
 
         Button createButton = (Button) GetElementById("CreateButton");
         createButton.AddManipulator(new ButtonClickSoundManipulator(createButton));

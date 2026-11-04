@@ -9,7 +9,6 @@ using UnityEngine.UIElements;
 public class ClanDetailedInfo
 {
 
-    private GameClient Game => ClanPacketServices.Game;
     private const string _templateNameClanInfo = "Data/UI/_Elements/Game/Clan/DetailedContent/ClanInfoContent";
     private const string _templateNamePrivilegesInfo = "Data/UI/_Elements/Game/Clan/DetailedContent/PrivilegesInfoContent";
     private const string _templateNameRankingPrivelege = "Data/UI/_Elements/Game/Clan/DetailedContent/RankingPrivilege";

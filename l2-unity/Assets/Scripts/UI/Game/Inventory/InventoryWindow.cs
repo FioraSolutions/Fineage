@@ -8,7 +8,6 @@ using VContainer;
 
 public class InventoryWindow : L2PopupWindow
 {
-    [Inject] GameClient _gameClient;
     public static int PLAYER_INVENTORY_SIZE = 81;
 
     private VisualTreeAsset _tabTemplate;
@@ -78,7 +77,7 @@ public class InventoryWindow : L2PopupWindow
 
     private void WireInventoryPacketServices()
     {
-        InventoryPacketServices.Bind(game: _gameClient);
+        InventoryPacketServices.Bind();
     }
 
     private void OnDestroy()

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -7,8 +7,6 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements.Experimental;
 using VContainer;
-
-
 
 public class World : MonoBehaviour, IWorldSpawnContext {
     [SerializeField] private GameObject _player;
@@ -31,7 +29,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     [Inject] private AppearFadeService _appearFade;
     [Inject] private CameraController _camera;
     [Inject] private IAnimationManager _animations;
-    [Inject] private GameClient _gameClient;
     [Inject] private PlayerSpawner _playerSpawner;
     [Inject] private UserSpawner _userSpawner;
     [Inject] private NpcSpawner _npcSpawner;
@@ -615,8 +612,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         //});
     }
 
-
-
     public Task TeleportTo(int id, Vector3 position)
     {
         return ExecuteWithEntityAsync(id, entity => {
@@ -640,19 +635,12 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             ZoneCommands.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
     }
 
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
-
     private void SendAppearing()
     {
         IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
             ZoneCommands.Send(new AppearingCommand());
     }
-
-
 
     public Task UpdateObjectRotation(int id, float angle) {
         return ExecuteWithEntityAsync(id, e => { });
@@ -733,10 +721,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         });
     }
 
-
-
-  
-
     public async Task Revive(int dieObj)
     {
         Entity entity = await GetEntityNoLock(dieObj);
@@ -802,8 +786,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
                 action(pair.Value);
         }
     }
-
-
 
     // Wait for entity to be fully loaded
     public async Task<Entity> GetEntityAsync(int id) {
