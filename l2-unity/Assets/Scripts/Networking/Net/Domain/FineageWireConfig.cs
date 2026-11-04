@@ -2,7 +2,8 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Feature flag for Interlude stub vs Fineage ZoneServer v2.
+/// Client wire selection: Interlude stub vs Fineage Net (<c>PacketEnvelope</c>).
+/// The MessagePack V2 mode is gone; <see cref="Mode.Net"/> is the only Fineage path.
 /// Public playtest hosts come from <see cref="PlaytestEndpoint"/> defaults.
 /// </summary>
 public static class FineageWireConfig
@@ -11,9 +12,10 @@ public static class FineageWireConfig
 
     public enum Mode
     {
+        /// <summary>Interlude login stub (Blowfish) plus the Interlude game socket.</summary>
         Interlude = 0,
-        ZoneV2 = 1,
-        /// <summary>Parallel Fineage Net (PacketEnvelope) on forwarded ports 9106/9777 by default.</summary>
+
+        /// <summary>Fineage Net on 9106/9777 locally, or the tunnel hosts on a playtest build.</summary>
         Net = 2
     }
 
@@ -34,8 +36,9 @@ public static class FineageWireConfig
     public static bool UseLoginHandoff;
 
     /// <summary>
-    /// ZoneV2 login handoff for Fineage-Backend. Empty hosts use the public playtest endpoints.
-    /// Interlude Blowfish login hangs on this TCP service.
+    /// Fineage Net against the given hosts (local profile or public playtest tunnel).
+    /// Empty hosts fall back to the public playtest endpoints. Blowfish login hangs on
+    /// this TCP service, so the handoff token is always used.
     /// </summary>
     public static void EnablePlaytestBackend(
         string loginHost,
@@ -43,22 +46,17 @@ public static class FineageWireConfig
         string zoneHost,
         int zonePort)
     {
-#if FINEAGE_V2_WIRE
-        SetOverride(Mode.ZoneV2);
+        SetOverride(Mode.Net);
         LoginHost = string.IsNullOrWhiteSpace(loginHost) ? PlaytestEndpoint.DefaultLoginHost : loginHost.Trim();
         LoginPort = loginPort > 0 ? loginPort : PlaytestEndpoint.DefaultLoginPort;
         ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? PlaytestEndpoint.DefaultGameHost : zoneHost.Trim();
         ZonePort = zonePort > 0 ? zonePort : PlaytestEndpoint.DefaultGamePort;
         UseLoginHandoff = true;
-#else
-        // V2 MessagePack playtest path disabled — fall back to local Net.
-        EnableLocalNetBackend();
-#endif
     }
 
     /// <summary>
     /// Local Fineage Net path (PacketEnvelope). Requires backend <c>FINEAGE_NET_ENABLE=1</c>
-    /// on the forwarded ports 9106/9777 (legacy V2 sits on 9206/9877).
+    /// on the forwarded ports 9106/9777.
     /// </summary>
     public static void EnableLocalNetBackend(
         string loginHost = "127.0.0.1",
@@ -94,7 +92,7 @@ public static class FineageWireConfig
                 return _prefsCache.Value;
             try
             {
-                _prefsCache = (Mode)PlayerPrefs.GetInt(PrefKey, (int)Mode.Interlude);
+                _prefsCache = Normalize(PlayerPrefs.GetInt(PrefKey, (int)Mode.Interlude));
             }
             catch (Exception)
             {
@@ -118,17 +116,13 @@ public static class FineageWireConfig
         }
     }
 
-    public static bool IsZoneV2
+    /// <summary>
+    /// Prefs written by older builds may still hold the retired <c>ZoneV2 = 1</c> value.
+    /// Map anything unknown onto <see cref="Mode.Interlude"/> instead of failing to parse.
+    /// </summary>
+    static Mode Normalize(int stored)
     {
-        get
-        {
-#if FINEAGE_V2_WIRE
-            return Current == Mode.ZoneV2;
-#else
-            // V2 MessagePack entry points are compile-time off; Net is the live path.
-            return false;
-#endif
-        }
+        return stored == (int)Mode.Net ? Mode.Net : Mode.Interlude;
     }
 
     public static bool IsNet
@@ -150,12 +144,11 @@ public static class FineageWireConfig
     }
 
     /// <summary>
-    /// Log In must call zone <c>BeginSession</c> when ZoneV2, login handoff, or the
-    /// transport bypasses Interlude — even if <c>LoginClient</c> is already connected.
+    /// Log In must call zone <c>BeginSession</c> when a Net handoff is configured, or when the
+    /// transport bypasses the Interlude login — even if <c>LoginClient</c> is already connected.
     /// </summary>
     public static bool LoginPressStartsZoneSession(bool transportBypassesInterludeLogin)
     {
-        return UseLoginHandoff || IsZoneV2 || IsNet || transportBypassesInterludeLogin;
+        return UseLoginHandoff || IsNet || transportBypassesInterludeLogin;
     }
 }
-

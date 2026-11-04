@@ -263,32 +263,5 @@ public class PlayerShortcuts : MonoBehaviour
             game.Send(new RequestShortCutDelCommand(oldSlot));
     }
 
-    /// <summary>Restore bar from PlayerPrefs after enter-world (Zone V2 only).</summary>
-    public void LoadPersistedLocal()
-    {
-        if (!FineageWireConfig.IsZoneV2)
-            return;
-        int characterId = ResolveCharacterObjectId();
-        if (characterId <= 0)
-            return;
-        List<Shortcut> loaded = NetShortcutStore.Load(characterId);
-        if (loaded == null || loaded.Count == 0)
-            return;
-        SetShortcutList(loaded);
-    }
-
-    static int ResolveCharacterObjectId()
-    {
-        // Prefer the stable lobby CharacterId — SessionObjectId changes every EnterWorld.
-        NetSession net = NetSession.Instance;
-        if (net != null && net.CharacterId > 0)
-            return net.CharacterId;
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null)
-            return PlayerEntity.Instance.Identity.Id;
-        if (net != null && net.SessionObjectId > 0)
-            return net.SessionObjectId;
-        return 0;
-    }
-
     #endregion
 }
