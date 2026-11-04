@@ -815,6 +815,14 @@ public sealed class NetSession : MonoBehaviour
         await _zone.SendAsync(NetOpcode.ClanCancelDissolveRequest, System.Array.Empty<byte>(), NextSeq());
     }
 
+    /// <summary>Mobius <c>RequestTargetCanceld</c>: drop the selection on the zone side too.</summary>
+    public async void SendTargetCancel()
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(NetOpcode.TargetCancelRequest, System.Array.Empty<byte>(), NextSeq());
+    }
+
     static ShopCountNet[] MapShopCounts(NetIdCount[] items)
     {
         if (items == null || items.Length == 0)
@@ -1008,6 +1016,9 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.TargetSelected:
                 ApplyTargetSelected(NetCodec.DecodeTargetSelected(envelope.Payload));
+                break;
+            case NetOpcode.TargetUnselected:
+                ApplyTargetUnselected(NetCodec.DecodeTargetUnselected(envelope.Payload));
                 break;
             case NetOpcode.AttackState:
                 ApplyAttackState(NetCodec.DecodeAttackState(envelope.Payload));
@@ -1293,6 +1304,16 @@ public sealed class NetSession : MonoBehaviour
         MyTargetSelectDto dto = MyTargetSelectDto.FromNet(msg.TargetObjectId, msg.ColorHint);
         if (_combatTarget != null) _combatTarget.ApplyMyTargetSelected(dto);
         else MyTargetSelectedApplyIncomingPacketServices.ApplyMyTargetSelected(dto);
+    }
+
+    /// <summary>
+    /// The zone dropped the selection. Clear the target window and nameplate without echoing another
+    /// <c>RequestTargetCanceld</c> back: this arrived because that request was already answered.
+    /// </summary>
+    void ApplyTargetUnselected(TargetUnselectedNetMsg msg)
+    {
+        if (_combatTarget != null) _combatTarget.ClearTargetFromZone();
+        else TargetManager.Instance?.ClearTargetSilently();
     }
 
     void ApplyAttackState(AttackStateMsg attack)

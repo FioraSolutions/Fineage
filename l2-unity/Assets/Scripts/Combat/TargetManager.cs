@@ -410,4 +410,21 @@ public class TargetManager : MonoBehaviour
             _attackTarget = null;
         }
     }
+
+    /// <summary>
+    /// Drop the selection because the zone said so (<c>TargetUnselected</c>). Same local clear as
+    /// <see cref="ClearTarget"/>, but it must not send <c>RequestTargetCanceld</c> back: the packet is the
+    /// answer to that very request, and echoing it would ping-pong two clients' cancels forever.
+    /// </summary>
+    public void ClearTargetSilently()
+    {
+        if (PlayerEntity.Instance != null)
+        {
+            PlayerEntity.Instance.TargetId = -1;
+            PlayerEntity.Instance.Target = null;
+        }
+
+        _target = null;
+        _attackTarget = null;
+    }
 }
