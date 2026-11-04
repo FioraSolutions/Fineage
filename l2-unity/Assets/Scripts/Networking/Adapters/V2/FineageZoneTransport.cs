@@ -129,9 +129,9 @@ public sealed class FineageZoneTransport : IZoneTransport
             }
 
             RequestBypassToServerCommand netBypass = command as RequestBypassToServerCommand;
-            int giveItemId;
-            int giveCount;
-            if (netBypass != null && ZoneV2GiveCommand.TryParse(netBypass.Bypass, out giveItemId, out giveCount))
+            int netGiveItemId;
+            int netGiveCount;
+            if (netBypass != null && ZoneV2GiveCommand.TryParse(netBypass.Bypass, out netGiveItemId, out netGiveCount))
             {
                 // Grant-item admin bypass: still V2-only until a Net grant opcode exists.
                 return true;
@@ -164,7 +164,7 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
             }
 
-            RequestMultiSellChooseCommand netMulti = command as RequestMultiSellChooseCommand;
+            MultiSellChooseCommand netMulti = command as MultiSellChooseCommand;
             if (netMulti != null)
             {
                 NetSession.Ensure().SendRequestMultiSellChoose(
