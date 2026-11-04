@@ -89,6 +89,44 @@ public static class NetNpcWindows
     public static void ApplyWarehouseWithdrawList(NetWarehouseWithdrawList list) => ShowWithdraw(list);
     public static void ApplyQuestList(NetQuestList list) => ShowQuests(list);
 
+    /// <summary>
+    /// Net <c>AcquireSkillList</c>: fill the trainer window (Mobius <c>Folk.showSkillList</c> answer).
+    /// The window's own learn flow then sends <c>RequestAcquireSkillInfo</c> / <c>RequestAcquireSkill</c>.
+    /// </summary>
+    public static void ApplyAcquireSkillList(AcquireSkillListDto list)
+    {
+        SkillLearnWindow window = SkillLearnPacketServices.SkillLearn;
+        if (window == null || list == null || list.AcquireList == null)
+            return;
+        Close();
+        try
+        {
+            window.ShowWindow();
+            window.AddData(list.AcquireList);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[Net] acquire skill list: " + ex.Message);
+        }
+    }
+
+    /// <summary>Net <c>AcquireSkillInfo</c>: the confirmation page (Mobius <c>AcquireSkillInfo</c>).</summary>
+    public static void ApplyAcquireSkillInfo(AcquireSkillInfoDto info)
+    {
+        DescriptionSkillWindow window = SkillLearnPacketServices.SkillDesc;
+        if (window == null || info == null)
+            return;
+        try
+        {
+            window.ShowWindow();
+            window.AddData(info);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[Net] acquire skill info: " + ex.Message);
+        }
+    }
+
     static void ShowBuy(NetBuyList list)
     {
         NetNpcSession.OpenShop(list.NpcObjectId, list.ListId);

@@ -465,6 +465,31 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    /// <summary>
+    /// Mobius <c>RequestAcquireSkillInfo</c>: ask the zone for the confirmation page of one trainer offer.
+    /// Called by the trainer window when a row is clicked.
+    /// </summary>
+    public async void SendRequestAcquireSkillInfo(int skillId, int level, int skillType)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestAcquireSkillInfo,
+            NetCodec.EncodeAcquireSkillRequest(skillId, level, skillType),
+            NextSeq());
+    }
+
+    /// <summary>Mobius <c>RequestAcquireSkill</c>: buy the offer (SP is spent by the zone).</summary>
+    public async void SendRequestAcquireSkill(int skillId, int level, int skillType)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestAcquireSkill,
+            NetCodec.EncodeAcquireSkillRequest(skillId, level, skillType),
+            NextSeq());
+    }
+
     public async void SendNpcTalk(int npcObjectId)
     {
         if (_zone == null || !_zone.Connected)
@@ -942,6 +967,12 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.QuestList:
                 ApplyQuestList(NetCodec.DecodeQuestList(envelope.Payload));
+                break;
+            case NetOpcode.AcquireSkillList:
+                ApplyAcquireSkillList(NetCodec.DecodeAcquireSkillList(envelope.Payload));
+                break;
+            case NetOpcode.AcquireSkillInfo:
+                ApplyAcquireSkillInfo(NetCodec.DecodeAcquireSkillInfo(envelope.Payload));
                 break;
             case NetOpcode.PartyAskJoin:
                 ApplyPartyAskJoin(NetCodec.DecodePartyAskJoin(envelope.Payload));
@@ -1474,6 +1505,48 @@ public sealed class NetSession : MonoBehaviour
             CompletedQuestIds = list.CompletedQuestIds ?? System.Array.Empty<int>(),
             MaxActive = list.MaxActive
         });
+    }
+
+    void ApplyAcquireSkillList(AcquireSkillListNetMsg list)
+    {
+        AcquireSkillEntryNet[] rows = list.Skills ?? System.Array.Empty<AcquireSkillEntryNet>();
+        var ids = new int[rows.Length];
+        var next = new int[rows.Length];
+        var max = new int[rows.Length];
+        var sp = new int[rows.Length];
+        var requirements = new int[rows.Length];
+        for (int i = 0; i < rows.Length; i++)
+        {
+            AcquireSkillEntryNet row = rows[i] ?? new AcquireSkillEntryNet();
+            ids[i] = row.SkillId;
+            next[i] = row.NextLevel;
+            max[i] = row.MaxLevel;
+            sp[i] = row.SpCost;
+            requirements[i] = row.Requirements;
+        }
+
+        NetNpcWindows.ApplyAcquireSkillList(
+            AcquireSkillListDto.FromNet(list.SkillType, ids, next, max, sp, requirements));
+    }
+
+    void ApplyAcquireSkillInfo(AcquireSkillInfoNetMsg info)
+    {
+        AcquireSkillRequirementNet[] reqs = info.Requirements ?? System.Array.Empty<AcquireSkillRequirementNet>();
+        var types = new int[reqs.Length];
+        var itemIds = new int[reqs.Length];
+        var counts = new long[reqs.Length];
+        var unks = new int[reqs.Length];
+        for (int i = 0; i < reqs.Length; i++)
+        {
+            AcquireSkillRequirementNet req = reqs[i] ?? new AcquireSkillRequirementNet();
+            types[i] = req.Type;
+            itemIds[i] = req.ItemId;
+            counts[i] = req.Count;
+            unks[i] = req.Unk;
+        }
+
+        NetNpcWindows.ApplyAcquireSkillInfo(
+            AcquireSkillInfoDto.FromNet(info.SkillId, info.Level, info.SpCost, info.SkillType, types, itemIds, counts, unks));
     }
 
     void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)

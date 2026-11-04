@@ -9,6 +9,18 @@ public class AcquireSkillListDto : IWireDto
         _acquireList = new List<OtherModel>();
     }
 
+    /// <summary>
+    /// Net <c>AcquireSkillList</c> (0x0360): the trainer's learnable rows. Mirrors the V2 wire parse
+    /// (type, count, [id, nextLevel, maxLevel, spCost, requirements]) so the windows get the same model.
+    /// </summary>
+    public static AcquireSkillListDto FromNet(int skillType, int[] skillIds, int[] nextLevels, int[] maxLevels, int[] spCosts, int[] requirements)
+    {
+        var dto = new AcquireSkillListDto();
+        for (int i = 0; i < skillIds.Length; i++)
+            dto._acquireList.Add(new OtherModel(new AcquireData(skillIds[i], nextLevels[i], maxLevels[i], spCosts[i], skillType)));
+        return dto;
+    }
+
 
     public void ReadFrom(PacketReader reader)
     {

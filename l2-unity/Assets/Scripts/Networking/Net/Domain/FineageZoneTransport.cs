@@ -151,6 +151,23 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        // Mobius trainer window: RequestAcquireSkillInfo / RequestAcquireSkill go straight to the zone.
+        RequestAcquireSkillInfoCommand netSkillInfo = command as RequestAcquireSkillInfoCommand;
+        if (netSkillInfo != null)
+        {
+            NetSession.Ensure().SendRequestAcquireSkillInfo(
+                netSkillInfo.SkillId, netSkillInfo.SkillLevel, netSkillInfo.SkillType);
+            return true;
+        }
+
+        RequestAcquireSkillCommand netSkillLearn = command as RequestAcquireSkillCommand;
+        if (netSkillLearn != null)
+        {
+            NetSession.Ensure().SendRequestAcquireSkill(
+                netSkillLearn.SkillId, netSkillLearn.SkillLevel, netSkillLearn.SkillType);
+            return true;
+        }
+
         RequestBypassToServerCommand netBypass = command as RequestBypassToServerCommand;
         int netGiveItemId;
         int netGiveCount;

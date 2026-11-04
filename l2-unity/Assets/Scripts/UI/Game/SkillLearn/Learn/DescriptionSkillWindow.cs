@@ -93,7 +93,7 @@ public class DescriptionSkillWindow : L2PopupWindow
         // 2 - Pledge skills
         if (_packet != null)
         {
-            ZoneCommands.Send(new RequestAcquireSkillCommand(_packet.GetId(), _packet.GetLevel(), 0));
+            ZoneCommands.Send(new RequestAcquireSkillCommand(_packet.GetId(), _packet.GetLevel(), _packet.GetMode()));
         }
         base.HideWindow();
     }
