@@ -123,6 +123,13 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.Register<MessagePacketApply>(Lifetime.Singleton);
         builder.Register<GameRuntime>(Lifetime.Singleton);
 
+        // #142 slice 3 pilot: packet applies constructed by the container rather than reached
+        // through the static *ApplyIncomingPacketServices relay.
+        builder.Register<CombatAttackApplyService>(Lifetime.Singleton);
+        builder.Register<CombatDieApplyService>(Lifetime.Singleton);
+        builder.Register<StatusUpdateApplyService>(Lifetime.Singleton);
+        builder.Register<DeleteObjectGroundApplyService>(Lifetime.Singleton);
+
         builder.RegisterBuildCallback(container =>
         {
             App.GameContainer = container;
@@ -155,6 +162,16 @@ public sealed class GameLifetimeScope : LifetimeScope
                     effects: runtime.Effects);
                 MovementPacketLatest.Wire(domain);
                 MoveCostLog.Wire(world);
+
+                // #142 slice 3 pilot: hand NetSession the container-built applies.
+                NetSession netSession = NetSession.Instance;
+                if (netSession == null)
+                    netSession = NetSession.Ensure();
+                netSession.BindApplyServices(
+                    combatAttack: container.Resolve<CombatAttackApplyService>(),
+                    combatDie: container.Resolve<CombatDieApplyService>(),
+                    statusUpdate: container.Resolve<StatusUpdateApplyService>(),
+                    deleteObjectGround: container.Resolve<DeleteObjectGroundApplyService>());
                 if (App.Container != null)
                 {
                     try
