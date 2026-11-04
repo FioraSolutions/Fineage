@@ -139,20 +139,6 @@ public class EventProcessor : MonoBehaviour
             }
         }
 
-        int pendingMoves = MovementPacketLatest.Count;
-        long flushStart = System.Diagnostics.Stopwatch.GetTimestamp();
-        PacketApplyLog.Time("MoveLatestFlush", FlushMovementLatest);
-        double flushMs = (System.Diagnostics.Stopwatch.GetTimestamp() - flushStart) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
-        MoveCostLog.NoteFlush(pendingMoves, flushMs);
         PacketApplyLog.EndBatch();
-    }
-
-    private void FlushMovementLatest()
-    {
-        WorldPacketApply apply = WorldApply;
-        if (apply != null)
-            MovementPacketLatest.Flush(apply);
-        else
-            NetworkingPacketServices.ApplyWorld(MovementPacketLatest.Flush);
     }
 }

@@ -172,7 +172,6 @@ public sealed class GameLifetimeScope : LifetimeScope
                     gameWorld: world,
                     animations: runtime.Animations,
                     effects: runtime.Effects);
-                MovementPacketLatest.Wire(domain);
                 MoveCostLog.Wire(world);
 
                 // #142 slice 3: hand NetSession the container-built applies via [Inject].
