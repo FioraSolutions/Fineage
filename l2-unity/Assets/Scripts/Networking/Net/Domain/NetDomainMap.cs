@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Fineage.Net.Contract;
 using UnityEngine;
 
 /// <summary>ZoneServer v2 wire → domain events.</summary>
@@ -630,5 +631,82 @@ public static class NetDomainMap
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// <c>UserInfo</c> wire → <see cref="NetUserInfo"/>, the shape
+    /// <see cref="NetGearSession.NoteUserInfo"/> and <see cref="OverlayUserInfo"/> consume.
+    ///
+    /// <para>
+    /// Every flag is set from the message rather than guessed: the zone server always
+    /// populates vitals, stats and clan (0 meaning "none"), and an empty paperdoll is a
+    /// legitimate answer for an unequipped character, not a missing tail.
+    /// </para>
+    /// </summary>
+    public static NetUserInfo ToUserInfo(UserInfoNetMsg msg)
+    {
+        var user = new NetUserInfo
+        {
+            ObjectId = (int)msg.EntityValue,
+            Name = msg.Name,
+            ClassId = msg.ClassId,
+            X = msg.X,
+            Y = msg.Y,
+            Z = msg.Z,
+            RunSpeed = msg.RunSpeed,
+            WalkSpeed = msg.WalkSpeed,
+            Running = msg.Running,
+            HasClan = true,
+            ClanId = msg.ClanId,
+            HasVitals = true,
+            Level = msg.Level,
+            CurHp = msg.CurHp,
+            MaxHp = msg.MaxHp,
+            CurMp = msg.CurMp,
+            MaxMp = msg.MaxMp,
+            CurCp = msg.CurCp,
+            MaxCp = msg.MaxCp,
+            Exp = msg.Exp,
+            Sp = msg.Sp,
+            HasStats = true,
+            Str = msg.Str,
+            Dex = msg.Dex,
+            Con = msg.Con,
+            Int = msg.Int,
+            Wit = msg.Wit,
+            Men = msg.Men,
+            PAtk = msg.PAtk,
+            MAtk = msg.MAtk,
+            PDef = msg.PDef,
+            MDef = msg.MDef,
+            PAtkSpd = msg.PAtkSpd,
+            MAtkSpd = msg.MAtkSpd,
+            Accuracy = msg.Accuracy,
+            CritRate = msg.CritRate
+        };
+
+        PaperdollSlotNet[] slots = msg.Paperdoll;
+        if (slots == null || slots.Length == 0)
+        {
+            user.HasPaperdoll = false;
+            user.Paperdoll = System.Array.Empty<NetPaperdollSlot>();
+            return user;
+        }
+
+        var paperdoll = new NetPaperdollSlot[slots.Length];
+        for (int i = 0; i < slots.Length; i++)
+        {
+            PaperdollSlotNet src = slots[i];
+            paperdoll[i] = new NetPaperdollSlot
+            {
+                ObjectId = src?.ObjectId ?? 0,
+                ItemId = src?.ItemId ?? 0,
+                EnchantLevel = src?.EnchantLevel ?? 0
+            };
+        }
+
+        user.HasPaperdoll = true;
+        user.Paperdoll = paperdoll;
+        return user;
     }
 }

@@ -76,6 +76,8 @@ public sealed class NetSession : MonoBehaviour
 
         // ItemList may arrive before the local player / inventory UI exist (same as the legacy bridge).
         NetGearSession.FlushPending();
+        // Same for the hotbar: ShortCutInit lands during EnterWorld, before the skillbar.
+        NetShortCutReceiver.FlushPending();
     }
 
     public void BindDomainSink(IWorldDomainSink sink) => _sink = sink;
@@ -86,6 +88,7 @@ public sealed class NetSession : MonoBehaviour
         CharacterId = 0;
         SessionObjectId = 0;
         NetGearSession.Reset();
+        NetShortCutReceiver.Reset();
         try
         {
             _lobby?.Dispose();
@@ -729,8 +732,26 @@ public sealed class NetSession : MonoBehaviour
             case NetOpcode.SkillList:
                 ApplySkillList(NetCodec.DecodeSkillList(envelope.Payload));
                 break;
+            case NetOpcode.UserInfo:
+                ApplyUserInfo(NetCodec.DecodeUserInfo(envelope.Payload));
+                break;
+            case NetOpcode.ShortCutInit:
+                NetShortCutReceiver.ApplyInit(NetCodec.DecodeShortCutInit(envelope.Payload));
+                break;
+            case NetOpcode.ShortCutRegister:
+                NetShortCutReceiver.ApplyRegister(NetCodec.DecodeShortCut(envelope.Payload));
+                break;
+            case NetOpcode.ShortCutDelete:
+                NetShortCutReceiver.ApplyDelete(NetCodec.DecodeShortCutDel(envelope.Payload));
+                break;
+            case NetOpcode.EtcStatusUpdate:
+                NetShortCutReceiver.ApplyEtcStatus(NetCodec.DecodeEtcStatusUpdate(envelope.Payload));
+                break;
             case NetOpcode.MoveState:
                 ApplyMoveState(NetCodec.DecodeMoveState(envelope.Payload));
+                break;
+            case NetOpcode.ChangeMoveType:
+                NetShortCutReceiver.ApplyChangeMoveType(NetCodec.DecodeChangeMoveType(envelope.Payload));
                 break;
             case NetOpcode.TargetSelected:
                 ApplyTargetSelected(NetCodec.DecodeTargetSelected(envelope.Payload));
@@ -1433,9 +1454,18 @@ public sealed class NetSession : MonoBehaviour
         }
     }
 
+    void ApplyUserInfo(UserInfoNetMsg msg)
+    {
+        // The zone server sends UserInfo right after the self EntitySpawn, while the
+        // world scene is still loading. NoteUserInfo stashes it and overlays the live
+        // player / stashed PlayerInfo as those appear, so the paperdoll and stats are
+        // not lost to the load order.
+        NetUserInfo user = NetDomainMap.ToUserInfo(msg);
+        NetGearSession.NoteUserInfo(user);
+    }
+
     void ApplyItemList(ItemListNetMsg list)
     {
-        // Reuse V2 gear session: ItemList often arrives before the world scene / inventory UI exist.
         NetItemEntry[] rows = MapItemList(list);
         NetGearSession.NoteItemList(rows);
         Debug.Log("[Net] ItemList count=" + rows.Length);
