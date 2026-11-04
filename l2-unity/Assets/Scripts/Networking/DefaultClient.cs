@@ -128,22 +128,8 @@ public abstract class DefaultClient : MonoBehaviour
     {
         if (!(this is LoginClient))
             return;
-        if (!FineageWireConfig.UseLoginHandoff)
-        {
-            // Never dial loopback from a public build (prefab/inspector leftovers).
-            if (FineageServerProfile.IsLocalActive)
-            {
-                _serverIp = FineageWireConfig.LoginHost;
-                _serverPort = FineageWireConfig.LoginPort;
-            }
-            else if (!FineageWireConfig.IsPublicLoginHost(_serverIp))
-            {
-                _serverIp = PlaytestEndpoint.DefaultLoginHost;
-                _serverPort = PlaytestEndpoint.DefaultLoginPort;
-            }
-            return;
-        }
 
+        // Net owns the login: always dial the configured backend, never an inspector leftover.
         _serverIp = FineageWireConfig.LoginHost;
         _serverPort = FineageWireConfig.LoginPort;
     }

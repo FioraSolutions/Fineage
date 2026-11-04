@@ -109,6 +109,8 @@ def main() -> int:
                 f"asmdef must not be attached to legacy folder {folder}/ yet (use Fineage.{folder}/ scaffold)"
             )
 
+    errors.extend(check_retired_wire_selector())
+
     if errors:
         print("Client asmdef layout check failed:", file=sys.stderr)
         for item in errors:
@@ -117,6 +119,43 @@ def main() -> int:
 
     print("Client asmdef layout OK (#139 scaffold).")
     return 0
+
+
+RETIRED_WIRE_SYMBOLS = (
+    "UseLoginHandoff",
+    "LoginPressStartsZoneSession",
+    "BypassesInterludeLogin",
+    "AllowsInterludeGameSocketAuth",
+    "Mode.Interlude",
+)
+
+
+def check_retired_wire_selector() -> list[str]:
+    """The client has one wire. Guard the selector that tried to offer two.
+
+    ``FineageWireConfig`` used to expose ``Mode``/``IsNet``/``UseLoginHandoff`` with an
+    ``Interlude`` default. Every entry point set Net immediately, so the "other" branch
+    was unreachable -- but it still compiled, and an editor script happily gated
+    auto-login on a flag that was always true. Net is now unconditional; reintroducing
+    any of these names means someone is re-adding a mode switch, which is the thing that
+    let a dead path rot in place.
+    """
+    errors: list[str] = []
+    roots = (SCRIPTS, REPO_ROOT / "l2-unity/Assets/Editor")
+
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for source in root.rglob("*.cs"):
+            text = source.read_text(encoding="utf-8-sig", errors="ignore")
+            for symbol in RETIRED_WIRE_SYMBOLS:
+                if symbol in text:
+                    errors.append(
+                        f"{source.relative_to(REPO_ROOT)}: {symbol} was retired with the "
+                        f"wire selector (Net is the only wire)"
+                    )
+
+    return errors
 
 
 if __name__ == "__main__":

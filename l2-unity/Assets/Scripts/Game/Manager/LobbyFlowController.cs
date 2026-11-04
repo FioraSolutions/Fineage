@@ -157,8 +157,8 @@ public sealed class LobbyFlowController
         if (stateMachine != null)
             stateMachine.enabled = true;
         _game.WorldSpawnReady = true;
-        if (_zoneTransport == null || _zoneTransport.AllowsInterludeGameSocketAuth)
-            FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
+        // Net owns the session: no Interlude EnterWorld packet goes on the wire.
+        FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
         Game.Send(new EnterWorldCommand());
         if (domain != null)
             domain.FlushKnownlist();

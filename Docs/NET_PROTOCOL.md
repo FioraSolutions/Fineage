@@ -2,10 +2,14 @@
 
 Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Interlude DTO bridge.
 
-## Mode
+## Wire
 
-- `FineageWireConfig.Mode.Net` via `EnableLocalNetBackend()` or env `FINEAGE_NET_CLIENT=1` (see `GameManager.Awake`).
-- Login **9106**, Zone **9777** (forwarded / loopback). Legacy V2 uses 9206/9877.
+- Fineage Net is the only wire. There is no mode switch: `FineageWireConfig` only carries
+  the login/zone hosts.
+- Editor Play defaults to loopback (`EnableLocalNetBackend()`); a build uses the public
+  tunnel (`EnablePlaytestBackend`). `FINEAGE_NET_CLIENT=0` pins a public-playtest run
+  while developing locally. See `GameManager.ConfigureBackend`.
+- Login **9106**, Zone **9777** (forwarded / loopback).
 
 ## Types
 
