@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -54,7 +54,7 @@ public class HtmlWindow : L2PopupWindow
         if (Input.GetKeyDown(KeyCode.B) && CanSend(1100))
         {
             // Debug.Log("Requesting : ShowBoard");
-            Game.Send(new RequestShowBoardCommand());
+            ZoneCommands.Send(new RequestShowBoardCommand());
         }
     }
 
@@ -323,7 +323,7 @@ public class HtmlWindow : L2PopupWindow
         if (string.IsNullOrEmpty(action))
             return;
 
-        Game.Send(new RequestBypassToServerCommand(action));
+        ZoneCommands.Send(new RequestBypassToServerCommand(action));
     }
 
     public void UseActionCommand(string command)

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
@@ -225,14 +225,14 @@ public class ClickManager : MonoBehaviour
 
     private void SendPacketMoveToLocation(Vector3 lastClickPosition)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
 
         if (!TryResolveMoveOrigin(out Vector3 from))
             return;
 
-        game.Send(new MoveToCommand(from, lastClickPosition));
+        ZoneCommands.Send(new MoveToCommand(from, lastClickPosition));
     }
 
     static bool TryResolveMoveOrigin(out Vector3 from)
@@ -265,7 +265,7 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
 
@@ -282,7 +282,7 @@ public class ClickManager : MonoBehaviour
         }
 
         var l2jpos = clickTarget.Identity.GetL2jPos();
-        game.Send(new ClickActionCommand(
+        ZoneCommands.Send(new ClickActionCommand(
             clickTarget.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
     }
 

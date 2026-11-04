@@ -87,7 +87,7 @@ public class SkillLearnWindow : L2PopupWindow
        if(model != null)
        {
             //base.OnlyHideWindow();
-            Game.Send(new RequestAcquireSkillInfoCommand(model.GetId(), model.GetValue1(), model.GetAcqType()));
+            ZoneCommands.Send(new RequestAcquireSkillInfoCommand(model.GetId(), model.GetValue1(), model.GetAcqType()));
         }
 
     }

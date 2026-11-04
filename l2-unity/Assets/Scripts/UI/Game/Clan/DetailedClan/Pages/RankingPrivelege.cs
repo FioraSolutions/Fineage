@@ -79,7 +79,7 @@ public class RankingPrivelege : AbstractClanContent
         if (_selectRank != null)
         {
 
-            Game.Send(new RequestPledgePowerCommand(_selectRank.GetRank(), 1, _selectRank.GetPower()));
+            ZoneCommands.Send(new RequestPledgePowerCommand(_selectRank.GetRank(), 1, _selectRank.GetPower()));
 
             //OnSwitchRank?.Invoke(EDIT_MODE_ALL_NOT_CHECKED);
 

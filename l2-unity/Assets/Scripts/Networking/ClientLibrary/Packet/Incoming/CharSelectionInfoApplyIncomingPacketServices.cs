@@ -34,8 +34,10 @@ public static class CharSelectionInfoApplyIncomingPacketServices
                 Characters.SelectInterludeCharacter(packet.SelectedSlotId);
 
                 Login.Disconnect();
-                LobbyFlowLog.Info("CharSelectionInfo → Game.OnAuthAllowed (show char select)");
-                Game.OnAuthAllowed();
+                LobbyFlowLog.Info("CharSelectionInfo → OnAuthAllowed (show char select)");
+                GameManager manager = NetworkingPacketServices.Manager;
+                if (manager != null)
+                    manager.OnAuthAllowed();
                 LobbyFlowLog.Info("CharSelectionInfo DONE state=" +
                     (Manager != null ? Manager.GameState.ToString() : "null"));
             }

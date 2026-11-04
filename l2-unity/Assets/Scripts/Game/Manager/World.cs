@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -635,9 +635,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private void SendValidatePosition(Vector3 position, int heading)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
+            ZoneCommands.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
     }
 
     private GameClient Game
@@ -647,9 +647,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private void SendAppearing()
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new AppearingCommand());
+            ZoneCommands.Send(new AppearingCommand());
     }
 
 

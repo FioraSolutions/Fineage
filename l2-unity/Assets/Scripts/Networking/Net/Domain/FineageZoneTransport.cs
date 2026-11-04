@@ -11,6 +11,12 @@ public sealed class FineageZoneTransport : IZoneTransport
 {
     public event Action OnDisconnected;
 
+    /// <summary>
+    /// The local player profile. NetSession writes this when the character is selected and
+    /// when the server sends UserInfo; the world scene reads it to spawn the player.
+    /// </summary>
+    public PlayerInfoInterlude PlayerInfo { get; set; } = new PlayerInfoInterlude();
+
     public bool Connected
     {
         get { return NetSession.Instance != null; }

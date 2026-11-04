@@ -8,7 +8,6 @@ public static class CharSelectedParsedApplyIncomingPacketServices
 
     public static void OnCharSelectedParsed(CharSelectedDto packet)
     {
-        Game.PlayerInfo = packet.PlayeInfo;
-        Game.SetDataPreparationCompleted(false);
+        ZoneCommands.Transport.PlayerInfo = packet.PlayeInfo;
     }
 }

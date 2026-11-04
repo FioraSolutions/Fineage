@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -214,9 +214,9 @@ public class PlayerShortcuts : MonoBehaviour
         }
         
         //GameClient.Instance.ClientPacketHandler.RequestAddShortcut(type, id, slot);
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestShortCutRegCommand(type, slot, id, level));
+            ZoneCommands.Send(new RequestShortCutRegCommand(type, slot, id, level));
     }
 
     // Shortcut dragged within bar
@@ -235,15 +235,15 @@ public class PlayerShortcuts : MonoBehaviour
 
 
         // Debug.Log("Event Reuqets Add ShrtCut 2 ");
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestShortCutRegCommand(oldShortcut.Type, newSlot, oldShortcut.Id, oldShortcut.Level));
+            ZoneCommands.Send(new RequestShortCutRegCommand(oldShortcut.Type, newSlot, oldShortcut.Id, oldShortcut.Level));
 
         // Swap slots
         if (newShortcut != null)
         {
             if (game != null)
-                game.Send(new RequestShortCutRegCommand(newShortcut.Type, oldSlot, newShortcut.Id, newShortcut.Level));
+                ZoneCommands.Send(new RequestShortCutRegCommand(newShortcut.Type, oldSlot, newShortcut.Id, newShortcut.Level));
         }
         else
         {
@@ -258,9 +258,9 @@ public class PlayerShortcuts : MonoBehaviour
 
         // Debug.Log("Нужно реализовать удаление shortcut");
         //GameClient.Instance.ClientPacketHandler.RequestRemoveShortcut(oldSlot);
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestShortCutDelCommand(oldSlot));
+            ZoneCommands.Send(new RequestShortCutDelCommand(oldSlot));
     }
 
     #endregion

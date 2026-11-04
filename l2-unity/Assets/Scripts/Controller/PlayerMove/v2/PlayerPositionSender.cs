@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class PlayerPositionSender
 {
@@ -36,10 +36,10 @@ public class PlayerPositionSender
 
     public void SendData(Vector3 playerPosition, int heading)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
-        game.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
+        ZoneCommands.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
     }
 
     public static int ToL2Heading(float yawDegrees)

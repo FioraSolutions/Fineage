@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public class GearSlot : InventorySlot
@@ -46,7 +46,7 @@ public class GearSlot : InventorySlot
         if (game == null)
             return;
 
-        game.Send(new UseItemCommand(ObjectId, 0));
+        ZoneCommands.Send(new UseItemCommand(ObjectId, 0));
     }
 
     private VisualElement CreateBlack(string name)

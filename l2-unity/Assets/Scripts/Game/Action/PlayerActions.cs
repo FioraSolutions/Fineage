@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -92,6 +92,6 @@ public class PlayerActions : MonoBehaviour
         GameClient game = _gameClient != null ? _gameClient : ActionPacketServices.Game;
         if (game == null)
             return;
-        game.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));
+        ZoneCommands.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));
     }
 }

@@ -293,7 +293,7 @@ public class MultiSellWindow : L2PopupWindow
     private void OkExchange()
     {
         string value = ToolTipsUtils.ConvertPriceToNormal(_userInput.value);
-        Game.Send(new MultiSellChooseCommand(_listId, _entryId, int.Parse(value)));
+        ZoneCommands.Send(new MultiSellChooseCommand(_listId, _entryId, int.Parse(value)));
         CancelEvent();
     }
 

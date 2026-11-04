@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -60,7 +60,7 @@ public class MenuWindow : L2Window
             // Routes through IZoneTransport.TrySendGameCommand -> NetSession.SendRequestQuestList.
             GameClient game = QuestPacketServices.Game;
             if (game != null)
-                game.Send(new RequestQuestListCommand());
+                ZoneCommands.Send(new RequestQuestListCommand());
             QuestWindow.Instance.ToggleHideWindow();
         });
 

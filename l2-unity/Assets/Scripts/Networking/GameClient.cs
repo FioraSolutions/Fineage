@@ -86,21 +86,7 @@ public class GameClient : DefaultClient {
 
         int protocol = manager != null ? manager.ProtocolVersion : 746;
         LobbyFlowLog.Info("TX ProtocolVersion=" + protocol + " crypt=" + IsCryptEnabled());
-        SendPlain(new ProtocolVersionCommand(protocol));
-    }
-
-    public void Send(INetworkCommand command)
-    {
-        IZoneTransport transport = ResolveZoneTransport();
-        if (transport != null && transport.TrySendGameCommand(command))
-            return;
-
-        EnqueueGame(command, IsCryptEnabled());
-    }
-
-    public void SendPlain(INetworkCommand command)
-    {
-        EnqueueGame(command, false);
+        EnqueueGame(new ProtocolVersionCommand(protocol), false);
     }
 
     /// <summary>
@@ -172,7 +158,7 @@ public class GameClient : DefaultClient {
 
     public void EndLoadWorld()
     {
-        Send(new RequestSkillCoolTimeCommand());
+        ZoneCommands.Send(new RequestSkillCoolTimeCommand());
     }
 
     public override void OnConnectionFailed() {

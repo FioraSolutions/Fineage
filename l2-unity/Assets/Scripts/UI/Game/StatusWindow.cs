@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -168,7 +168,7 @@ public class StatusWindow : L2Window
         var position = player.transform.position;
         var l2jpos = VectorUtils.ConvertPosUnityToL2j(position);
 
-        Game.Send(new ClickActionCommand(
+        ZoneCommands.Send(new ClickActionCommand(
             player.Identity.Id,
             (int)l2jpos.x,
             (int)l2jpos.y,

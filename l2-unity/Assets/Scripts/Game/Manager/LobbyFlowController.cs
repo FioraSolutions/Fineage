@@ -143,7 +143,7 @@ public sealed class LobbyFlowController
         L2LoginUI loginUi = LoginUi;
         if (loginUi != null)
             GameObject.Destroy(loginUi.gameObject);
-        PlayerInfoInterlude playerInfo = Game.PlayerInfo;
+        PlayerInfoInterlude playerInfo = _zoneTransport != null ? _zoneTransport.PlayerInfo : default;
         DomainPlayerSpawned spawned = InterludeDomainMap.PlayerSpawned(playerInfo);
         IWorldDomainSink domain = Domain;
         if (domain != null && spawned != null)
@@ -159,7 +159,7 @@ public sealed class LobbyFlowController
         _game.WorldSpawnReady = true;
         // Net owns the session: no Interlude EnterWorld packet goes on the wire.
         FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
-        Game.Send(new EnterWorldCommand());
+        ZoneCommands.Send(new EnterWorldCommand());
         if (domain != null)
             domain.FlushKnownlist();
         else
@@ -170,7 +170,7 @@ public sealed class LobbyFlowController
             else
                 IncomingPacketActions.ApplyWorld(a => a.FlushKnownlist());
         }
-        Game.EndLoadWorld();
+        ZoneCommands.Send(new RequestSkillCoolTimeCommand());
 
         if (stateMachine != null)
         {
@@ -283,7 +283,7 @@ public sealed class LobbyFlowController
             MusicManager.Instance.Clear();
             Scenes.LoadMenu();
         }
-        else if (_game.GameState > GameState.LOGIN_SCREEN && !Game.IsConnected && !Login.IsConnected)
+        else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected && !Login.IsConnected)
         {
             OnRelogin();
         }

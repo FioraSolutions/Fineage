@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
@@ -375,9 +375,9 @@ public class CharacterSelector : MonoBehaviour
             // Debug.LogWarning("Please select a character");
             return;
         }
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new CharacterSelectCommand(SelectedSlot));
+            ZoneCommands.Send(new CharacterSelectCommand(SelectedSlot));
        // GameClient.Instance.ClientPacketHandler.SendRequestSelectCharacter(SelectedSlot);
     }
 
@@ -388,9 +388,9 @@ public class CharacterSelector : MonoBehaviour
                 // Debug.LogWarning("Please select a character");
                 return;
             }
-            GameClient game = Game;
+            IZoneTransport game = ZoneCommands.Transport;
             if (game != null)
-                game.Send(new CharacterDeleteCommand(SelectedSlot));
+                ZoneCommands.Send(new CharacterDeleteCommand(SelectedSlot));
             // Debug.LogWarning("Requesting delete character , slot: " + SelectedSlot);
     }
 

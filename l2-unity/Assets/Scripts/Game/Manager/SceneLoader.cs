@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -119,14 +119,14 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadSWMap()
     {
-        GameClient game = Game;
-        if (game == null || game.PlayerInfo.Identity == null)
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport == null || transport.PlayerInfo.Identity == null)
         {
             Debug.LogError("LoadSWMap: no player xyz (PlayerInfo.Identity null) — loading UI will stick");
             return;
         }
 
-        Vector3 l2Pos = game.PlayerInfo.Identity.GetL2jPos();
+        Vector3 l2Pos = transport.PlayerInfo.Identity.GetL2jPos();
         StartCoroutine(LoadSWMapRoutine(l2Pos));
     }
 

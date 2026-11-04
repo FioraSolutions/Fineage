@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using VContainer;
 
 /// <summary>
@@ -80,11 +80,11 @@ public sealed class KeyboardMoveController : MonoBehaviour
         Vector3 from = player.transform.position;
         Vector3 to = from + direction * _stepMeters;
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
 
         _nextSendTime = Time.time + _sendIntervalSeconds;
-        game.Send(new MoveToCommand(from, to));
+        ZoneCommands.Send(new MoveToCommand(from, to));
     }
 }

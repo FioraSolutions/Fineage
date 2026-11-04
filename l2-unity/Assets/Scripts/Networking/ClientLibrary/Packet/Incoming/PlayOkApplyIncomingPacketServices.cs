@@ -25,20 +25,15 @@ public static class PlayOkApplyIncomingPacketServices
 
         Manager.OnLoginServerPlayOk();
 
-        if (Manager.GameState != GameState.READY_TO_CONNECT)
+        // This is the Interlude login-server → game-socket handoff: PlayOk carries the
+        // Blowfish key, then Connect() opens a second socket and sends AuthLogin on it.
+        // Fineage Net has no such handoff -- the lobby token is the zone password and
+        // NetSession owns the only socket -- so there is nothing left to connect to.
+        // Bridge the state so a stray PlayOk cannot wedge the lobby.
+        if (Manager.GameState == GameState.READY_TO_CONNECT)
         {
-            LobbyFlowLog.Warn("PlayOk skip Game.Connect — GameState=" + Manager.GameState);
-            return;
+            LobbyFlowLog.Info("PlayOk on Net wire — no Interlude game socket to connect, skipping handoff");
+            Manager.IsSwitchingServer = false;
         }
-        if (Manager.IsSwitchingServer)
-        {
-            LobbyFlowLog.Warn("PlayOk skip Game.Connect — already switching server");
-            return;
-        }
-
-        Manager.IsSwitchingServer = true;
-        Login.Disconnect();
-        LobbyFlowLog.Info("PlayOk → Login.Disconnect + Game.Connect");
-        Game.Connect();
     }
 }

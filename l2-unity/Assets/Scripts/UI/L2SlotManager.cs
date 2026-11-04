@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -276,7 +276,7 @@ public class L2SlotManager : L2PopupWindow
 
     private void OkDestroyRecipe()
     {
-        Game.Send(new RequestRecipeBookDestroyCommand(_recipeId));
+        ZoneCommands.Send(new RequestRecipeBookDestroyCommand(_recipeId));
         CleanupMessageWindow();
     }
 

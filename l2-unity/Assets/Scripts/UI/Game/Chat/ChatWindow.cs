@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -227,7 +227,7 @@ public class ChatWindow : L2Window
                         String prefix = "admin_";
                         string gmCommand = text.Substring(2);
                         string command = prefix + gmCommand;
-                        Game.Send(new RequestBypassToServerCommand(command));
+                        ZoneCommands.Send(new RequestBypassToServerCommand(command));
                         // Debug.Log("ChatWindow: requested admin command :" + command);
                     }
                     else
@@ -235,7 +235,7 @@ public class ChatWindow : L2Window
                         var commands = PlayerCommands.FindByText(text);
                         if (commands != null)
                         {
-                            Game.Send(new RequestUserCommandCommand(commands.Id));
+                            ZoneCommands.Send(new RequestUserCommandCommand(commands.Id));
                             // Debug.Log("ChatWindow: requested player command :" + commands  + " id: " + commands.Id);
                         }
                         else
@@ -317,12 +317,12 @@ public class ChatWindow : L2Window
                 string targetName = text.Substring(0, spaceIndex);
                 string message = text.Substring(spaceIndex + 1);
 
-                Game.Send(new RequestSay2Command(ChatTypes.GetById(2), message, targetName));
+                ZoneCommands.Send(new RequestSay2Command(ChatTypes.GetById(2), message, targetName));
                 // Debug.Log("whisper chat: sending to :" + targetName + " message: " + message);
             }
             else
             {
-                Game.Send(new RequestSay2Command(data, text, ""));
+                ZoneCommands.Send(new RequestSay2Command(data, text, ""));
             }
         }
         else

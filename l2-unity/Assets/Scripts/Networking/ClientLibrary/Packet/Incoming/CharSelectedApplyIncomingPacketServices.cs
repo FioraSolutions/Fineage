@@ -10,7 +10,7 @@ public static class CharSelectedApplyIncomingPacketServices
 
     public static void ApplyCharSelected(CharSelectedDto packet)
     {
-        Game.PlayerInfo = packet.PlayeInfo;
+        ZoneCommands.Transport.PlayerInfo = packet.PlayeInfo;
         Manager.OnCharacterSelect();
     }
 }
