@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Clan snapshot for the zone wire. Layout matches Fineage-Backend <c>ClanProtocol</c>
 /// (opcodes 32–38 and 1050–1053). Unity EditMode cannot reference this assembly;
-/// <c>tools/client-zone-v2.Tests</c> compiles this file directly.
+/// <c>tools/client-domain.Tests</c> compiles this file directly.
 /// </summary>
 public sealed class ZoneV2ClanBook
 {

@@ -107,7 +107,17 @@ public static class ZoneV2DomainMap
     /// <summary>Thin Zone v2 NpcInfo (1006) → Interlude-shaped DTO (Gremlins, guards, …).</summary>
     public static SpawnItemDto ToSpawnItemDto(ZoneV2SpawnItem item)
     {
-        SpawnItemApplyFields fields = ZoneV2Messages.ToSpawnItemApplyFields(item);
+        SpawnItemApplyFields fields = new SpawnItemApplyFields
+        {
+            ObjectId = item.ObjectId,
+            ItemId = item.ItemId,
+            X = item.X,
+            Y = item.Y,
+            Z = item.Z,
+            Stackable = item.Stackable,
+            Count = item.Count,
+            Unknown = item.Unknown
+        };
         return SpawnItemDto.FromZoneV2(
             fields.ObjectId,
             fields.ItemId,
@@ -193,6 +203,17 @@ public static class ZoneV2DomainMap
 
     public static AskJoinPartyDto ToAskJoinPartyDto(ZoneV2PartyAskJoin ask) =>
         AskJoinPartyDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName, ask.ItemDistribution);
+
+    /// <summary>One-line party roster summary for chat feedback. Display only — no wire codec.</summary>
+    public static string FormatPartyMemberList(in ZoneV2PartyMemberList list)
+    {
+        if (list.Members == null || list.Members.Length == 0)
+            return "Party: (none)";
+        var names = new string[list.Members.Length];
+        for (int i = 0; i < list.Members.Length; i++)
+            names[i] = list.Members[i].Name ?? "?";
+        return "Party (" + list.Members.Length + "): " + string.Join(", ", names);
+    }
 
     public static SendTradeRequestDto ToSendTradeRequestDto(ZoneV2TradeAsk ask) =>
         SendTradeRequestDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName);
