@@ -262,9 +262,11 @@ public sealed class FineageZoneTransport : IZoneTransport
                 return true;
         }
 
-        // Other Interlude commands stay no-ops until Net opcodes exist.
+        // No Net opcode exists for this command yet. Returning true still drops it, but say
+        // so: returning true silently is how a clan invite or a recipe-book open vanishes
+        // with no trace, and the caller has no way to tell it apart from a delivered command.
+        FineageLog.Warn(FineageLog.Category.GameNet, "TX dropped (no Net opcode): " + command.GetType().Name);
         return true;
-        return false;
     }
 
     static bool TrySendNetPartyUserCommand(int commandId)
