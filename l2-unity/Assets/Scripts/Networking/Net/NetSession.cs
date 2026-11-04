@@ -952,6 +952,7 @@ public sealed class NetSession : MonoBehaviour
             {
                 var reject = NetCodec.DecodeReject(envelope.Payload);
                 Debug.LogWarning($"[Net] zone reject {reject.Code}: {reject.Message}");
+                NoteReject(reject.Code, reject.Message);
                 break;
             }
         }
@@ -1208,6 +1209,14 @@ public sealed class NetSession : MonoBehaviour
     {
         string shown = NetSystemLines.Resolve(message.Id, message.Text, message.Params);
         NetChatFeed.NoteSystem(shown);
+    }
+
+    /// <summary>A refused action now says why in chat instead of only logging.</summary>
+    static void NoteReject(string code, string message)
+    {
+        string line = NetRejectLines.Resolve(code, message);
+        if (!string.IsNullOrEmpty(line))
+            NetChatFeed.NoteSystem(line);
     }
 
     void ApplyMagicSkillUse(MagicSkillUseNetMsg use)
