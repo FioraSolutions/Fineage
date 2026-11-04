@@ -182,7 +182,7 @@ public class ClanWindow : L2TwoPanels
 
     public void ApplyZoneBook()
     {
-        if (!FineageWireConfig.IsZoneV2 || _windowEle == null || _dropdown == null)
+        if (_windowEle == null || _dropdown == null)
             return;
 
         NetClanBook book = NetClanBook.Shared;

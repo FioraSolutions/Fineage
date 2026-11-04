@@ -19,7 +19,7 @@ single-process `ZoneServer` skeleton.
 | 2 | **One writer per piece of state** | Every entity (player, NPC, item) has exactly one authoritative process. No distributed locks on hot paths. |
 | 3 | **Server-authoritative simulation** | Clients send intent (MoveTo, UseSkill); the server decides outcomes. Client-side prediction hides latency. |
 | 4 | **Interface now, implementation later** | Abstractions for sessions, cache, AOI, and transport are defined early. Swap in-memory stubs for Redis/grid implementations when scale demands it. |
-| 5 | **Net wire is primary** | Fineage Net (`PacketEnvelope`) is the live client path. V2 MessagePack adapters remain in-tree as reference for domain behaviour; they are off by default (`FINEAGE_V2_WIRE`). |
+| 5 | **Net wire is primary** | Fineage Net (`PacketEnvelope`) is the only client path. The MessagePack V2 adapters and the `FINEAGE_V2_WIRE` flag were retired in #562–#568. |
 | 6 | **Observe, then scale** | Add metrics/counters before adding nodes. Know where the bottleneck is before splitting. |
 | 7 | **Postgres early, cluster late** | Durable `IAccountStore` on PostgreSQL is foundation now. Gateway / Redis / multi-zone wait until CCU demands them — interfaces first (`IHandoffStore`). |
 
