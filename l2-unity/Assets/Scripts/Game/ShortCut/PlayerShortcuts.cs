@@ -217,13 +217,6 @@ public class PlayerShortcuts : MonoBehaviour
         GameClient game = Game;
         if (game != null)
             game.Send(new RequestShortCutRegCommand(type, slot, id, level));
-
-        // Zone V2 has no ShortCutReg wire yet — apply locally so drag-to-bar works.
-        if (FineageWireConfig.IsZoneV2)
-        {
-            ApplyLocalRegister(slot, id, type, level);
-            PersistLocal();
-        }
     }
 
     // Shortcut dragged within bar
@@ -256,19 +249,6 @@ public class PlayerShortcuts : MonoBehaviour
         {
             DeleteShortcut(oldSlot, true);
         }
-
-        if (FineageWireConfig.IsZoneV2)
-        {
-            if (SkillbarWindow.Instance != null)
-            {
-                SkillbarWindow.Instance.RemoveShortcut(oldSlot);
-                SkillbarWindow.Instance.RemoveShortcut(newSlot);
-            }
-            ApplyLocalRegister(newSlot, oldShortcut.Id, oldShortcut.Type, oldShortcut.Level);
-            if (newShortcut != null)
-                ApplyLocalRegister(oldSlot, newShortcut.Id, newShortcut.Type, newShortcut.Level);
-            PersistLocal();
-        }
     }
 
     // Shortcut dragged out of bar
@@ -281,28 +261,6 @@ public class PlayerShortcuts : MonoBehaviour
         GameClient game = Game;
         if (game != null)
             game.Send(new RequestShortCutDelCommand(oldSlot));
-
-        if (FineageWireConfig.IsZoneV2)
-            PersistLocal();
-    }
-
-    void ApplyLocalRegister(int worldSlot, int id, int type, int level)
-    {
-        int slot = worldSlot % MAXIMUM_SHORTCUTS_PER_BAR;
-        int page = worldSlot / MAXIMUM_SHORTCUTS_PER_BAR;
-        if (_shortcuts != null && _shortcuts.ContainsKey(worldSlot))
-            _shortcuts.Remove(worldSlot);
-        if (SkillbarWindow.Instance != null)
-            SkillbarWindow.Instance.RemoveShortcut(worldSlot);
-        RegisterShortcut(new Shortcut(slot, page, type, id, level));
-    }
-
-    void PersistLocal()
-    {
-        int characterId = ResolveCharacterObjectId();
-        if (characterId <= 0 || _shortcuts == null)
-            return;
-        ZoneV2ShortcutStore.Save(characterId, _shortcuts.Values);
     }
 
     /// <summary>Restore bar from PlayerPrefs after enter-world (Zone V2 only).</summary>

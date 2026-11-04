@@ -103,8 +103,6 @@ public class ChatWindow : L2Window
         _chatInput.RegisterCallback<FocusEvent>(OnChatInputFocus);
         _chatInput.RegisterCallback<BlurEvent>(OnChatInputBlur);
         int limit = _chatInputCharacterLimit;
-        if (FineageWireConfig.IsZoneV2 && limit < ZoneV2Chat.InputLimit)
-            limit = ZoneV2Chat.InputLimit;
         _chatInput.maxLength = limit;
 
         var enlargeTextBtn = (Button)GetElementById("EnlargeTextBtn");
@@ -222,7 +220,7 @@ public class ChatWindow : L2Window
             string text = _chatInput.text;
             if (text.Length > 0)
             {
-                if (FineageWireConfig.IsZoneV2 || CanSend(1100))
+                if (CanSend(1100))
                 {
                     if (IsGmCommand(text))
                     {
@@ -303,17 +301,6 @@ public class ChatWindow : L2Window
 
     public void SendChatMessage(ChatTab tab, string text)
     {
-        if (FineageWireConfig.IsZoneV2)
-        {
-            int fallback = tab != null ? tab.TabId : ZoneV2Chat.All;
-            string body;
-            int chatType;
-            ZoneV2Chat.Split(text, fallback, out body, out chatType);
-            ZoneV2Client zone = ZoneV2Client.Instance != null ? ZoneV2Client.Instance : ZoneV2Client.Ensure();
-            zone.SendSay(body, chatType);
-            return;
-        }
-
         ChatTypeData data = ChatTypes.GetById(tab.TabId);
         if (data != null)
         {

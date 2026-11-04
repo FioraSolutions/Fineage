@@ -170,9 +170,7 @@ public class ClanWindow : L2TwoPanels
         OnCenterScreen(_root);
         EnabledUnkButtons();
 
-        if (FineageWireConfig.IsZoneV2)
-            ApplyZoneBook();
-        else if (_packet != null)
+        if (_packet != null)
             ApplyClanData(_packet);
     }
 
@@ -314,14 +312,6 @@ public class ClanWindow : L2TwoPanels
 
     private void OnClickLeave(ClickEvent evt)
     {
-        if (FineageWireConfig.IsZoneV2)
-        {
-            if (!ZoneV2ClanBook.Shared.HasClan || ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
-                return;
-            Confirm("Are you sure you want to leave the clan?", OkLeave);
-            return;
-        }
-
         if(_packet != null && !IsLeader(_packet.SubPledgeLeaderName))
         {
             SystemMessageWindow.Instance.OnButtonOk += OkLeave;
@@ -333,21 +323,6 @@ public class ClanWindow : L2TwoPanels
 
     private void OnClickInvite(ClickEvent evt)
     {
-        if (FineageWireConfig.IsZoneV2)
-        {
-            if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
-                return;
-            int id = CurrentTargetId();
-            if (id <= 0)
-            {
-                ZoneV2ChatFeed.NoteSystem("Select a player to invite.");
-                return;
-            }
-
-            Game.Send(new ClanInviteRequestCommand(id, ZoneV2ClanBook.MainPledge));
-            return;
-        }
-
         if (_packet != null && IsLeader(_packet.SubPledgeLeaderName))
         {
             SystemMessageWindow.Instance.ShowWindowDialogDropdownYesOrNot(" Select a Unit " , new List<string> { _packet.PledgeName});
@@ -498,10 +473,7 @@ public class ClanWindow : L2TwoPanels
 
     private void OkLeave()
     {
-        if (FineageWireConfig.IsZoneV2)
-            Game.Send(new ClanLeaveRequestCommand());
-        else
-            Game.Send(new RequestWithdrawPledgeCommand());
+        Game.Send(new RequestWithdrawPledgeCommand());
         CancelEvent();
     }
 
@@ -607,48 +579,7 @@ public class ClanWindow : L2TwoPanels
     {
         if (_zoneActions == null)
             return;
-        bool zone = FineageWireConfig.IsZoneV2;
-        _zoneActions.style.display = zone ? DisplayStyle.Flex : DisplayStyle.None;
-        if (!zone)
-            return;
-
-        bool inClan = book != null && book.HasClan;
-        bool leader = inClan && book.IsLeader(SelfObjectId());
-        bool dissolving = inClan && book.Dissolving;
-        ShowZone(_clanNameCaption, !inClan);
-        ShowZone(_clanNameField, !inClan);
-        ShowZone(_createClanButton, !inClan);
-        ShowZone(_kickButton, leader);
-        ShowZone(_dissolveButton, leader && !dissolving);
-        ShowZone(_cancelDissolveButton, leader && dissolving);
-
-        if (!inClan || leader)
-        {
-            if (_labelLeave != null)
-            {
-                _labelLeave.AddToClassList(USS_STYLE_DISABLED);
-                _labelLeave.RemoveFromClassList(USS_STYLE_YELLOW);
-            }
-        }
-
-        if (!inClan && _labelInvite != null)
-        {
-            _labelInvite.AddToClassList(USS_STYLE_DISABLED);
-            _labelInvite.RemoveFromClassList(USS_STYLE_YELLOW);
-        }
-
-        if (_labelInvite != null && inClan && leader)
-        {
-            _labelInvite.RemoveFromClassList(USS_STYLE_DISABLED);
-            _labelInvite.AddToClassList(USS_STYLE_YELLOW);
-        }
-    }
-
-    static void ShowZone(VisualElement element, bool show)
-    {
-        if (element == null)
-            return;
-        element.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+        _zoneActions.style.display = DisplayStyle.None;
     }
 
     void OnZoneRowClicked(int index, string text)
@@ -737,16 +668,6 @@ public class ClanWindow : L2TwoPanels
             return Game.PlayerInfo.Identity.Id;
         ZoneV2Client zone = ZoneV2Client.Instance;
         return zone != null ? zone.SessionObjectId : 0;
-    }
-
-    int CurrentTargetId()
-    {
-        if (TargetManager.Instance == null || !TargetManager.Instance.HasTarget())
-            return 0;
-        if (TargetManager.Instance.Target == null || TargetManager.Instance.Target.GetEntity() == null)
-            return 0;
-        EntityIdentity identity = TargetManager.Instance.Target.GetEntity().Identity;
-        return identity != null ? identity.Id : 0;
     }
 
     private void OnDestroy()
