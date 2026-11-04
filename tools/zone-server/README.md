@@ -55,5 +55,5 @@ On `EnterWorld`, the server sends `NpcInfo` / `CharInfo` for entities in grid AO
 
 - TLS on the channel
 - Separate login listener
-- Client `Adapters/V2` → `IWorldDomainSink`
+- Client `Net/Domain` → `IWorldDomainSink`
 - Tick loop / AI

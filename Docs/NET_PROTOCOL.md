@@ -38,6 +38,6 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 19. Trade → request/answer/add/done + ask/start/offer/confirm/finished.
 20. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
 
-Editor Play defaults to local Net. V2 MessagePack adapters stay in `Adapters/V2` as reference; enable only with scripting define `FINEAGE_V2_WIRE`.
+Editor Play defaults to local Net. The legacy V2 MessagePack codec has been retired; the payload rows it used to decode live in `Net/Domain/ZoneV2DomainStructs.cs` and only the Net path is live.
 
 Backend durable store: `FINEAGE_STORE=postgres` + `FINEAGE_DATABASE_URL` (see `docker-compose.yml` / `scripts/run-local-net.sh`).
