@@ -127,6 +127,23 @@ public static class NetNpcWindows
         }
     }
 
+    /// <summary>
+    /// Net <c>EnchantResult</c>: hand the finished roll to the enchant window, then let the
+    /// following <c>InventoryUpdate</c> land the level and crystal rows.
+    /// </summary>
+    public static void ApplyEnchantResult(NetEnchantResult result)
+    {
+        EnchantWindow window = ItemEnchantPacketServices.Enchant;
+        try
+        {
+            window?.ApplyZoneResult(result);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[Net] enchant result: " + ex.Message);
+        }
+    }
+
     static void ShowBuy(NetBuyList list)
     {
         NetNpcSession.OpenShop(list.NpcObjectId, list.ListId);

@@ -521,12 +521,32 @@ public class PlayerInventory : MonoBehaviour
         {
             UseRecipeItem(_objectIdEtcType , objectId, isShortCut);
         }
+        else if (IsEnchantScroll(item))
+        {
+            // Mobius RequestEnchantItem: the scroll selects itself; the window then asks for a target.
+            EnchantWindow window = EnchantWindow.Instance;
+            if (window != null)
+                window.BeginZoneSelect(item);
+            RequestEnchantItem(objectId);
+        }
         else
         {
             SendUseItemPacket(objectId);
         }
 
         return true;
+    }
+
+    void RequestEnchantItem(int objectId)
+    {
+        ZoneCommands.Send(new RequestEnchantItemCommand(objectId));
+    }
+
+    static bool IsEnchantScroll(ItemInstance item)
+    {
+        if (item.ItemData is EtcItem etcItem)
+            return NetEnchant.IsScrollType(etcItem.EtcItemgrp.EtcItemType.ToString());
+        return false;
     }
 
     private void UseRecipeItem(int objectIdEtcType , int objectId, bool isShortCut)

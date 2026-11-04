@@ -490,6 +490,36 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    /// <summary>Mobius <c>RequestEnchantItem</c>: the bag scroll the player clicked opens the window.</summary>
+    public async void SendEnchantRequest(int scrollObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.EnchantRequest,
+            NetCodec.EncodeEnchantRequest(new EnchantRequestNetMsg { ScrollObjectId = scrollObjectId }),
+            NextSeq());
+    }
+
+    /// <summary>The item placed in the enchant slot; the zone rolls the scroll against it.</summary>
+    public async void SendEnchantConfirm(int targetObjectId)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.EnchantConfirm,
+            NetCodec.EncodeEnchantConfirm(new EnchantConfirmNetMsg { TargetObjectId = targetObjectId }),
+            NextSeq());
+    }
+
+    /// <summary>The player closed the window without rolling. The zone clears the scroll.</summary>
+    public async void SendEnchantCancel()
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(NetOpcode.EnchantCancel, System.Array.Empty<byte>(), NextSeq());
+    }
+
     public async void SendNpcTalk(int npcObjectId)
     {
         if (_zone == null || !_zone.Connected)
@@ -973,6 +1003,9 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.AcquireSkillInfo:
                 ApplyAcquireSkillInfo(NetCodec.DecodeAcquireSkillInfo(envelope.Payload));
+                break;
+            case NetOpcode.EnchantResult:
+                ApplyEnchantResult(NetCodec.DecodeEnchantResult(envelope.Payload));
                 break;
             case NetOpcode.PartyAskJoin:
                 ApplyPartyAskJoin(NetCodec.DecodePartyAskJoin(envelope.Payload));
@@ -1547,6 +1580,18 @@ public sealed class NetSession : MonoBehaviour
 
         NetNpcWindows.ApplyAcquireSkillInfo(
             AcquireSkillInfoDto.FromNet(info.SkillId, info.Level, info.SpCost, info.SkillType, types, itemIds, counts, unks));
+    }
+
+    void ApplyEnchantResult(EnchantResultNetMsg result)
+    {
+        NetNpcWindows.ApplyEnchantResult(new NetEnchantResult
+        {
+            Result = result.Result,
+            EnchantLevel = result.EnchantLevel,
+            ObjectId = result.ObjectId,
+            CrystalItemId = result.CrystalItemId,
+            CrystalCount = result.CrystalCount
+        });
     }
 
     void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)

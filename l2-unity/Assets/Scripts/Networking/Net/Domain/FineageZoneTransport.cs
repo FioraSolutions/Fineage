@@ -87,6 +87,17 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        // Mobius enchant window: the scroll click and the roll travel as their own opcodes.
+        RequestEnchantItemCommand netEnchant = command as RequestEnchantItemCommand;
+        if (netEnchant != null)
+        {
+            if (netEnchant.ObjectId > 0)
+                NetSession.Ensure().SendEnchantRequest(netEnchant.ObjectId);
+            else
+                NetSession.Ensure().SendEnchantCancel();
+            return true;
+        }
+
         UseItemCommand netUse = command as UseItemCommand;
         if (netUse != null)
         {
