@@ -10,12 +10,16 @@ public sealed class GameLifetimeScope : LifetimeScope
         GameScopePlayerControllerRegistration.Register(builder);
         RegisterIfFound<World>(builder);
         RegisterIfFound<WorldCombat>(builder);
-        RegisterIfFound<TargetManager>(builder);
+        // Late-bound after the scope (#142 slice 4): these live in Input.prefab / UI.prefab
+        // and are only searchable once the prefab is instantiated.
+        RegisterLateBound<TargetManager>(builder);
         RegisterIfFound<HitManager>(builder);
         RegisterIfFound<ClickManager>(builder);
         RegisterIfFound<KeyboardMoveController>(builder);
         RegisterIfFound<NpcCursorManager>(builder);
-        RegisterIfFound<PlayerInventory>(builder);
+        // Late-bound after the scope (#142 slice 4): these live in Input.prefab / UI.prefab
+        // and are only searchable once the prefab is instantiated.
+        RegisterLateBound<PlayerInventory>(builder);
         RegisterIfFound<PlayerShortcuts>(builder);
         RegisterLiveMono<EffectManager>(builder);
         RegisterIfFound<ProjectileManager>(builder);
@@ -231,6 +235,30 @@ public sealed class GameLifetimeScope : LifetimeScope
     }
 
     /// <summary>
+    /// Registers a type that is created after the scope is built (prefab-instantiated
+    /// MonoBehaviours such as <see cref="PlayerInventory"/> / <see cref="TargetManager"/>).
+    /// The concrete registration is still offered when one exists now; the
+    /// <see cref="ILateBound{T}"/> registration is unconditional so consumers can always
+    /// inject a provider and read null until the object appears (#142 slice 4).
+    /// </summary>
+    private void RegisterLateBound<T>(IContainerBuilder builder) where T : MonoBehaviour
+    {
+        T inScene = FindFirstObjectByType<T>(FindObjectsInactive.Include);
+        if (inScene != null)
+        {
+            builder.RegisterComponent(inScene);
+            builder.RegisterInstance<ILateBound<T>>(new LateBoundMono<T>(() => inScene));
+            return;
+        }
+
+        // Not in the scene: the prefab instantiates it after the scope. Register the
+        // concrete type lazily too, because other classes [Inject] it directly, and add
+        // the provider whose Value is null until the object exists.
+        builder.Register<T>(_ => ResolveLiveMono<T>(), Lifetime.Singleton);
+        builder.RegisterInstance<ILateBound<T>>(new LateBoundMono<T>(() => ResolveLiveMono<T>()));
+    }
+
+    /// <summary>
     /// Registers a scene MonoBehaviour when present; otherwise a live singleton that resolves
     /// FindInScene → static Instance (spawn-deferred types like <see cref="PlayerController"/>).
     /// </summary>
@@ -252,6 +280,10 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (found != null)
             return found;
 
+        if (typeof(T) == typeof(PlayerInventory))
+            return PlayerInventory.Instance as T;
+        if (typeof(T) == typeof(TargetManager))
+            return TargetManager.Instance as T;
         if (typeof(T) == typeof(MoveAllCharacters))
             return MoveAllCharacters.Instance as T;
         if (typeof(T) == typeof(EffectManager))
