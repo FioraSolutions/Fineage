@@ -57,10 +57,12 @@ public class MenuWindow : L2Window
         questBtn.AddManipulator(new ButtonClickSoundManipulator(questBtn));
         questBtn.RegisterCallback<ClickEvent>((evt) =>
         {
+            // Open first, then ask: the QuestList reply applies into a visible window.
+            QuestWindow questWindow = QuestWindow.Instance;
+            questWindow?.ToggleHideWindow();
             // Routes through IZoneTransport.TrySendGameCommand -> NetSession.SendRequestQuestList.
             if (ZoneCommands.IsConnected)
                 ZoneCommands.Send(new RequestQuestListCommand());
-            QuestWindow.Instance.ToggleHideWindow();
         });
 
         var clanBtn = _windowEle.Q<Button>("ClanButton");

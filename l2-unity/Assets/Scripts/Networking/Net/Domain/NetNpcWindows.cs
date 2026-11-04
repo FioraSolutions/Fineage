@@ -73,6 +73,9 @@ public static class NetNpcWindows
 
         try
         {
+            // RequestQuestList is sent by the menu button, so the reply can land before the window is
+            // toggled. AddData only fills the tabs; without this the journal looked empty.
+            window.ShowWindowToCenter();
             window.AddData(quests);
         }
         catch (Exception ex)
