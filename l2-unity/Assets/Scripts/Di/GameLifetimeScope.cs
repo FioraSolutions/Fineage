@@ -65,16 +65,16 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterLiveMono<HtmlWindow>(builder);
         RegisterIfFound<DealerWindow>(builder);
         RegisterIfFound<MultiSellWindow>(builder);
-        RegisterIfFound<TradeWindow>(builder);
-        RegisterIfFound<TradeRequestWindow>(builder);
-        RegisterIfFound<PartyInvitationWindow>(builder);
+        RegisterLateBound<TradeWindow>(builder);
+        RegisterLateBound<TradeRequestWindow>(builder);
+        RegisterLateBound<PartyInvitationWindow>(builder);
         RegisterIfFound<PartyMemberListWindow>(builder);
         RegisterIfFound<EnchantWindow>(builder);
         RegisterIfFound<RecipeBookWindow>(builder);
         RegisterIfFound<CraftingItemWindow>(builder);
         RegisterIfFound<SkillLearnWindow>(builder);
         RegisterIfFound<DescriptionSkillWindow>(builder);
-        RegisterIfFound<SkillListWindow>(builder);
+        RegisterLateBound<SkillListWindow>(builder);
         RegisterIfFound<QuestWindow>(builder);
         RegisterIfFound<QuestListWindow>(builder);
         RegisterIfFound<ClanWindow>(builder);
@@ -83,7 +83,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<SellCropListWindow>(builder);
         RegisterLiveMono<SkillbarWindow>(builder);
         RegisterLiveMono<SystemMessageWindow>(builder);
-        RegisterIfFound<BufferPanel>(builder);
+        RegisterLateBound<BufferPanel>(builder);
         RegisterIfFound<InventoryWindow>(builder);
         RegisterIfFound<DeadWindow>(builder);
         RegisterIfFound<StatusWindow>(builder);
@@ -284,6 +284,16 @@ public sealed class GameLifetimeScope : LifetimeScope
             return PlayerInventory.Instance as T;
         if (typeof(T) == typeof(TargetManager))
             return TargetManager.Instance as T;
+        if (typeof(T) == typeof(TradeWindow))
+            return TradeWindow.Instance as T;
+        if (typeof(T) == typeof(TradeRequestWindow))
+            return TradeRequestWindow.Instance as T;
+        if (typeof(T) == typeof(PartyInvitationWindow))
+            return PartyInvitationWindow.Instance as T;
+        if (typeof(T) == typeof(SkillListWindow))
+            return SkillListWindow.Instance as T;
+        if (typeof(T) == typeof(BufferPanel))
+            return BufferPanel.Instance as T;
         if (typeof(T) == typeof(MoveAllCharacters))
             return MoveAllCharacters.Instance as T;
         if (typeof(T) == typeof(EffectManager))
