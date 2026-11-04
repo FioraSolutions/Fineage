@@ -73,7 +73,7 @@ Below are the findings grouped by severity.
 | **Files** | `GameManager.cs` (3 checks), `GameClient.cs` (2 checks), `LoginWindow.cs` (1 check) |
 | **Problem** | Protocol-specific branches are scattered as `if (FineageWireConfig.IsZoneV2)` inside methods that otherwise handle Interlude logic. Adding a third protocol or a feature flag will double the branch count. |
 | **Recommendation** | `GameClient.Send()` should delegate to an `ITransport` strategy injected by DI, selected by `FineageWireConfig.Current`. The inline checks collapse. |
-| **Progress** | PR #111 introduced `IZoneTransport` interface (`Networking/Adapters/V2/IZoneTransport.cs`) — the right abstraction for V2 transport. Next step: wire `GameClient.Send()` to delegate through it and remove inline `IsZoneV2` branches. |
+| **Progress** | PR #111 introduced `IZoneTransport` interface (`Networking/Net/Domain/IZoneTransport.cs`) — the right abstraction for V2 transport. Next step: wire `GameClient.Send()` to delegate through it and remove inline `IsZoneV2` branches. |
 
 #### P1-3: `GameRuntime` and `LoginRuntime` are hand-rolled service locators
 
