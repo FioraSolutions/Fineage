@@ -280,6 +280,8 @@ namespace Fineage.Net.Contract
             w.WriteFloat(m.WalkSpeed);
             w.WriteByte(m.Running ? (byte)1 : (byte)0);
             w.WriteByte(m.Attackable ? (byte)1 : (byte)0);
+            w.WriteInt32Array(m.Paperdoll);
+            w.WriteByte(m.Dead ? (byte)1 : (byte)0);
         });
 
         public static EntitySpawnMsg DecodeEntitySpawn(ReadOnlySpan<byte> p)
@@ -306,6 +308,10 @@ namespace Fineage.Net.Contract
             };
             if (r.Remaining > 0)
                 msg.Attackable = r.ReadByte() != 0;
+            if (r.Remaining > 0)
+                msg.Paperdoll = r.ReadInt32Array();
+            if (r.Remaining > 0)
+                msg.Dead = r.ReadByte() != 0;
             return msg;
         }
 
@@ -424,6 +430,270 @@ namespace Fineage.Net.Contract
         {
             var r = new Reader(p);
             return new MoveInputMsg { DestX = r.ReadInt32(), DestY = r.ReadInt32(), DestZ = r.ReadInt32() };
+        }
+
+        public static byte[] EncodeValidatePosition(ValidatePositionMsg m) => Write(w =>
+        {
+            w.WriteInt32(m.X);
+            w.WriteInt32(m.Y);
+            w.WriteInt32(m.Z);
+            w.WriteInt32(m.Heading);
+        });
+
+        public static ValidatePositionMsg DecodeValidatePosition(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new ValidatePositionMsg { X = r.ReadInt32(), Y = r.ReadInt32(), Z = r.ReadInt32(), Heading = r.ReadInt32() };
+        }
+
+        public static byte[] EncodeActionUse(ActionUseNetMsg m) => Write(w =>
+        {
+            w.WriteInt32(m.ActionId);
+            w.WriteByte(m.CtrlPressed ? (byte)1 : (byte)0);
+            w.WriteByte(m.ShiftPressed ? (byte)1 : (byte)0);
+        });
+
+        public static ActionUseNetMsg DecodeActionUse(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new ActionUseNetMsg { ActionId = r.ReadInt32(), CtrlPressed = r.ReadByte() != 0, ShiftPressed = r.ReadByte() != 0 };
+        }
+
+        public static byte[] EncodeChangeMoveType(ChangeMoveTypeNetMsg m) => Write(w =>
+        {
+            w.WriteUInt64(m.EntityValue);
+            w.WriteUInt32(m.EntityGeneration);
+            w.WriteByte(m.Running ? (byte)1 : (byte)0);
+            w.WriteFloat(m.RunSpeed);
+            w.WriteFloat(m.WalkSpeed);
+            w.WriteByte(m.InWater ? (byte)1 : (byte)0);
+        });
+
+        public static ChangeMoveTypeNetMsg DecodeChangeMoveType(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new ChangeMoveTypeNetMsg
+            {
+                EntityValue = r.ReadUInt64(),
+                EntityGeneration = r.ReadUInt32(),
+                Running = r.ReadByte() != 0,
+                RunSpeed = r.ReadFloat(),
+                WalkSpeed = r.ReadFloat(),
+                InWater = r.ReadByte() != 0
+            };
+        }
+
+        /// <summary>Mobius <c>EtcStatusUpdate</c> field order (<c>EtcStatusUpdate.java:39-45</c>).</summary>
+        public static byte[] EncodeEtcStatusUpdate(EtcStatusUpdateNetMsg m) => Write(w =>
+        {
+            w.WriteUInt64(m.EntityValue);
+            w.WriteUInt32(m.EntityGeneration);
+            w.WriteInt32(m.Charges);
+            w.WriteInt32(m.WeightPenalty);
+            w.WriteByte(m.ChatBlocked ? (byte)1 : (byte)0);
+            w.WriteByte(m.DangerArea ? (byte)1 : (byte)0);
+            w.WriteByte(m.GradePenalty ? (byte)1 : (byte)0);
+            w.WriteByte(m.CharmOfCourage ? (byte)1 : (byte)0);
+            w.WriteInt32(m.DeathPenalty);
+        });
+
+        public static EtcStatusUpdateNetMsg DecodeEtcStatusUpdate(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new EtcStatusUpdateNetMsg
+            {
+                EntityValue = r.ReadUInt64(),
+                EntityGeneration = r.ReadUInt32(),
+                Charges = r.ReadInt32(),
+                WeightPenalty = r.ReadInt32(),
+                ChatBlocked = r.ReadByte() != 0,
+                DangerArea = r.ReadByte() != 0,
+                GradePenalty = r.ReadByte() != 0,
+                CharmOfCourage = r.ReadByte() != 0,
+                DeathPenalty = r.ReadInt32()
+            };
+        }
+
+        public static byte[] EncodeAttackStance(AttackStanceNetMsg m) => Write(w =>
+        {
+            w.WriteUInt64(m.EntityValue);
+            w.WriteUInt32(m.EntityGeneration);
+        });
+
+        public static AttackStanceNetMsg DecodeAttackStance(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new AttackStanceNetMsg { EntityValue = r.ReadUInt64(), EntityGeneration = r.ReadUInt32() };
+        }
+
+        public static byte[] EncodeAutoSoulShot(AutoSoulShotNetMsg m) => Write(w =>
+        {
+            w.WriteInt32(m.ItemId);
+            w.WriteByte(m.Enabled ? (byte)1 : (byte)0);
+        });
+
+        public static AutoSoulShotNetMsg DecodeAutoSoulShot(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new AutoSoulShotNetMsg { ItemId = r.ReadInt32(), Enabled = r.ReadByte() != 0 };
+        }
+
+        public static byte[] EncodeShortCut(ShortCutNetMsg m) => Write(w => WriteShortCut(w, m));
+
+        public static ShortCutNetMsg DecodeShortCut(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return ReadShortCut(ref r);
+        }
+
+        public static byte[] EncodeShortCutInit(ShortCutInitNetMsg m) => Write(w =>
+        {
+            var rows = m.Shortcuts ?? Array.Empty<ShortCutNetMsg>();
+            w.WriteInt32(rows.Length);
+            for (int i = 0; i < rows.Length; i++)
+                WriteShortCut(w, rows[i]);
+        });
+
+        public static ShortCutInitNetMsg DecodeShortCutInit(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            int n = r.ReadInt32();
+            if (n < 0 || n > 1024)
+                throw new InvalidDataException("shortcut list length");
+            var rows = new ShortCutNetMsg[n];
+            for (int i = 0; i < n; i++)
+                rows[i] = ReadShortCut(ref r);
+            return new ShortCutInitNetMsg { Shortcuts = rows };
+        }
+
+        public static byte[] EncodeShortCutDel(ShortCutDelNetMsg m) => Write(w => w.WriteInt32(m.Slot));
+
+        public static ShortCutDelNetMsg DecodeShortCutDel(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            return new ShortCutDelNetMsg { Slot = r.ReadInt32() };
+        }
+
+        static void WriteShortCut(Writer w, ShortCutNetMsg m)
+        {
+            w.WriteInt32(m.Type);
+            w.WriteInt32(m.Slot);
+            w.WriteInt32(m.Id);
+            w.WriteInt32(m.Level);
+        }
+
+        static ShortCutNetMsg ReadShortCut(ref Reader r) => new ShortCutNetMsg
+        {
+            Type = r.ReadInt32(),
+            Slot = r.ReadInt32(),
+            Id = r.ReadInt32(),
+            Level = r.ReadInt32()
+        };
+
+        public static byte[] EncodeUserInfo(UserInfoNetMsg m) => Write(w =>
+        {
+            w.WriteUInt64(m.EntityValue);
+            w.WriteUInt32(m.EntityGeneration);
+            w.WriteString(m.Name);
+            w.WriteInt32(m.ClassId);
+            w.WriteInt32(m.Race);
+            w.WriteInt32(m.Sex);
+            w.WriteInt32(m.X);
+            w.WriteInt32(m.Y);
+            w.WriteInt32(m.Z);
+            w.WriteFloat(m.RunSpeed);
+            w.WriteFloat(m.WalkSpeed);
+            w.WriteByte(m.Running ? (byte)1 : (byte)0);
+            w.WriteInt32(m.Level);
+            w.WriteInt64(m.Exp);
+            w.WriteInt32(m.Sp);
+            w.WriteInt32(m.CurHp);
+            w.WriteInt32(m.MaxHp);
+            w.WriteInt32(m.CurMp);
+            w.WriteInt32(m.MaxMp);
+            w.WriteInt32(m.CurCp);
+            w.WriteInt32(m.MaxCp);
+            w.WriteInt32(m.Str);
+            w.WriteInt32(m.Dex);
+            w.WriteInt32(m.Con);
+            w.WriteInt32(m.Int);
+            w.WriteInt32(m.Wit);
+            w.WriteInt32(m.Men);
+            w.WriteInt32(m.PAtk);
+            w.WriteInt32(m.MAtk);
+            w.WriteInt32(m.PDef);
+            w.WriteInt32(m.MDef);
+            w.WriteInt32(m.PAtkSpd);
+            w.WriteInt32(m.MAtkSpd);
+            w.WriteInt32(m.Accuracy);
+            w.WriteInt32(m.Evasion);
+            w.WriteInt32(m.CritRate);
+            w.WriteInt32(m.WeaponGradePenalty);
+            w.WriteInt32(m.ArmorGradePenalty);
+            w.WriteInt32(m.ClanId);
+            var slots = m.Paperdoll ?? Array.Empty<PaperdollSlotNet>();
+            w.WriteInt32(slots.Length);
+            for (int i = 0; i < slots.Length; i++)
+            {
+                w.WriteInt32(slots[i]?.ObjectId ?? 0);
+                w.WriteInt32(slots[i]?.ItemId ?? 0);
+                w.WriteInt32(slots[i]?.EnchantLevel ?? 0);
+            }
+        });
+
+        public static UserInfoNetMsg DecodeUserInfo(ReadOnlySpan<byte> p)
+        {
+            var r = new Reader(p);
+            var m = new UserInfoNetMsg
+            {
+                EntityValue = r.ReadUInt64(),
+                EntityGeneration = r.ReadUInt32(),
+                Name = r.ReadString(),
+                ClassId = r.ReadInt32(),
+                Race = r.ReadInt32(),
+                Sex = r.ReadInt32(),
+                X = r.ReadInt32(),
+                Y = r.ReadInt32(),
+                Z = r.ReadInt32(),
+                RunSpeed = r.ReadFloat(),
+                WalkSpeed = r.ReadFloat(),
+                Running = r.ReadByte() != 0,
+                Level = r.ReadInt32(),
+                Exp = r.ReadInt64(),
+                Sp = r.ReadInt32(),
+                CurHp = r.ReadInt32(),
+                MaxHp = r.ReadInt32(),
+                CurMp = r.ReadInt32(),
+                MaxMp = r.ReadInt32(),
+                CurCp = r.ReadInt32(),
+                MaxCp = r.ReadInt32(),
+                Str = r.ReadInt32(),
+                Dex = r.ReadInt32(),
+                Con = r.ReadInt32(),
+                Int = r.ReadInt32(),
+                Wit = r.ReadInt32(),
+                Men = r.ReadInt32(),
+                PAtk = r.ReadInt32(),
+                MAtk = r.ReadInt32(),
+                PDef = r.ReadInt32(),
+                MDef = r.ReadInt32(),
+                PAtkSpd = r.ReadInt32(),
+                MAtkSpd = r.ReadInt32(),
+                Accuracy = r.ReadInt32(),
+                Evasion = r.ReadInt32(),
+                CritRate = r.ReadInt32(),
+                WeaponGradePenalty = r.ReadInt32(),
+                ArmorGradePenalty = r.ReadInt32(),
+                ClanId = r.ReadInt32()
+            };
+            int n = r.ReadInt32();
+            if (n < 0 || n > 64)
+                throw new InvalidDataException("paperdoll length");
+            var slots = new PaperdollSlotNet[n];
+            for (int i = 0; i < n; i++)
+                slots[i] = new PaperdollSlotNet { ObjectId = r.ReadInt32(), ItemId = r.ReadInt32(), EnchantLevel = r.ReadInt32() };
+            m.Paperdoll = slots;
+            return m;
         }
 
         public static byte[] EncodeStopMove(StopMoveMsg _) => Array.Empty<byte>();

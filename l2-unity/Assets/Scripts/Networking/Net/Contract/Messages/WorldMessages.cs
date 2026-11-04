@@ -46,6 +46,10 @@ namespace Fineage.Net.Contract
         public bool Running { get; set; } = true;
         /// <summary>NPC only: true when the entity is combat-attackable (mobs).</summary>
         public bool Attackable { get; set; }
+        /// <summary>Player only (Mobius CharInfo): equipped item ids per paperdoll slot; empty for NPCs / old peers.</summary>
+        public int[] Paperdoll { get; set; } = System.Array.Empty<int>();
+        /// <summary>Mobius isAlikeDead: the entity is a corpse when it enters view (late observer sees it lying, not standing).</summary>
+        public bool Dead { get; set; }
     }
 
     public sealed class PlayerStatsMsg
@@ -74,6 +78,14 @@ namespace Fineage.Net.Contract
     {
     }
 
+    public sealed class ValidatePositionMsg
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
+        public int Heading { get; set; }
+    }
+
     public sealed class MoveStateMsg
     {
         public ulong EntityValue { get; set; }
@@ -85,6 +97,91 @@ namespace Fineage.Net.Contract
         public int DestY { get; set; }
         public int DestZ { get; set; }
         public bool Running { get; set; } = true;
+    }
+
+    public sealed class ActionUseNetMsg
+    {
+        public int ActionId { get; set; }
+        public bool CtrlPressed { get; set; }
+        public bool ShiftPressed { get; set; }
+    }
+
+    /// <summary>Payload of <c>AutoAttackStart</c> / <c>AutoAttackStop</c>.</summary>
+    public sealed class AttackStanceNetMsg
+    {
+        public ulong EntityValue { get; set; }
+        public uint EntityGeneration { get; set; }
+    }
+
+    /// <summary>Payload of <c>RequestAutoSoulShot</c> and <c>AutoSoulShot</c>.</summary>
+    public sealed class AutoSoulShotNetMsg
+    {
+        public int ItemId { get; set; }
+        public bool Enabled { get; set; }
+    }
+
+    /// <summary>
+    /// One Mobius shortcut. <see cref="Slot"/> is the client world slot (slot + page * 12).
+    /// <see cref="Type"/>: 1 item (id = item object id), 2 skill (id = skill id), 3 action, 4 macro, 5 recipe.
+    /// Payload of <c>RequestShortCutReg</c> and <c>ShortCutRegister</c>; rows of <c>ShortCutInit</c>.
+    /// </summary>
+    public sealed class ShortCutNetMsg
+    {
+        public int Type { get; set; }
+        public int Slot { get; set; }
+        public int Id { get; set; }
+        public int Level { get; set; }
+    }
+
+    /// <summary>Payload of <c>ShortCutInit</c>: every saved slot for the character.</summary>
+    public sealed class ShortCutInitNetMsg
+    {
+        public ShortCutNetMsg[] Shortcuts { get; set; } = System.Array.Empty<ShortCutNetMsg>();
+    }
+
+    /// <summary>Payload of <c>RequestShortCutDel</c> and <c>ShortCutDelete</c> (world slot).</summary>
+    public sealed class ShortCutDelNetMsg
+    {
+        public int Slot { get; set; }
+    }
+
+    public sealed class ChangeMoveTypeNetMsg
+    {
+        public ulong EntityValue { get; set; }
+        public uint EntityGeneration { get; set; }
+        public bool Running { get; set; } = true;
+        /// <summary>Effective L2 run speed now (swim speed when <see cref="InWater"/>).</summary>
+        public float RunSpeed { get; set; }
+        /// <summary>Effective L2 walk speed now (swim speed when <see cref="InWater"/>).</summary>
+        public float WalkSpeed { get; set; }
+        public bool InWater { get; set; }
+    }
+
+    /// <summary>
+    /// Mobius <c>EtcStatusUpdate</c> (<c>EtcStatusUpdate.java:32-45</c>): the status-bar oddities. The client needs the
+    /// weight penalty level to draw the overload icon and HP-bar tint, and the grade-penalty flag for its own icon.
+    /// Sent to the owner only.
+    /// </summary>
+    public sealed class EtcStatusUpdateNetMsg
+    {
+        public ulong EntityValue { get; set; }
+        public uint EntityGeneration { get; set; }
+        /// <summary>1–7 increase-force charges. Always 0 until the force system exists.</summary>
+        public int Charges { get; set; }
+        /// <summary>0 none, 1 ≥50%, 2 ≥66.6%, 3 ≥80%, 4 ≥100% of the load limit (Mobius skill 4270 level).</summary>
+        public int WeightPenalty { get; set; }
+        /// <summary>Mobius writes 1 when chat is refused, banned, or in silence mode.</summary>
+        public bool ChatBlocked { get; set; }
+        /// <summary>Inside a Mobius DANGER_AREA zone.</summary>
+        public bool DangerArea { get; set; }
+        /// <summary>
+        /// Mobius writes 1 when either expertise penalty is above 0 (the packet field is a flag, not the 1–4 level).
+        /// </summary>
+        public bool GradePenalty { get; set; }
+        /// <summary>Charm of Courage: allows resurrection on the same spot during a siege.</summary>
+        public bool CharmOfCourage { get; set; }
+        /// <summary>1–15 death-penalty buff level.</summary>
+        public int DeathPenalty { get; set; }
     }
 
     public sealed class PositionCorrectionMsg
@@ -590,5 +687,60 @@ namespace Fineage.Net.Contract
     public sealed class TradeFinishedNetMsg
     {
         public int Response { get; set; }
+    }
+
+    public sealed class PaperdollSlotNet
+    {
+        public int ObjectId { get; set; }
+        public int ItemId { get; set; }
+        public int EnchantLevel { get; set; }
+    }
+
+    /// <summary>
+    /// Mobius UserInfo for the owner: full character sheet (vitals, base stats, combat stats from the live
+    /// server stat pipeline, speeds and paperdoll). Sent on enter and whenever gear/buffs/level change the sheet.
+    /// </summary>
+    public sealed class UserInfoNetMsg
+    {
+        public ulong EntityValue { get; set; }
+        public uint EntityGeneration { get; set; }
+        public string Name { get; set; } = "";
+        public int ClassId { get; set; }
+        public int Race { get; set; }
+        public int Sex { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
+        public float RunSpeed { get; set; }
+        public float WalkSpeed { get; set; }
+        public bool Running { get; set; } = true;
+        public int Level { get; set; } = 1;
+        public long Exp { get; set; }
+        public int Sp { get; set; }
+        public int CurHp { get; set; }
+        public int MaxHp { get; set; }
+        public int CurMp { get; set; }
+        public int MaxMp { get; set; }
+        public int CurCp { get; set; }
+        public int MaxCp { get; set; }
+        public int Str { get; set; }
+        public int Dex { get; set; }
+        public int Con { get; set; }
+        public int Int { get; set; }
+        public int Wit { get; set; }
+        public int Men { get; set; }
+        public int PAtk { get; set; }
+        public int MAtk { get; set; }
+        public int PDef { get; set; }
+        public int MDef { get; set; }
+        public int PAtkSpd { get; set; }
+        public int MAtkSpd { get; set; }
+        public int Accuracy { get; set; }
+        public int Evasion { get; set; }
+        public int CritRate { get; set; }
+        public int WeaponGradePenalty { get; set; }
+        public int ArmorGradePenalty { get; set; }
+        public int ClanId { get; set; }
+        public PaperdollSlotNet[] Paperdoll { get; set; } = System.Array.Empty<PaperdollSlotNet>();
     }
 }
