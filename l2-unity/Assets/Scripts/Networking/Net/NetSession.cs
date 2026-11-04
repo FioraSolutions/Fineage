@@ -23,6 +23,14 @@ public sealed class NetSession : MonoBehaviour
 
     public bool HasHandoff => _handoff != null;
     public HandoffMsg LastHandoff => _handoff;
+
+    /// <summary>
+    /// Zone object id of the local player, captured from the self <c>EntitySpawn</c>
+    /// received after EnterWorld. Zero until the world spawn arrives, and reset when a
+    /// new lobby or zone session begins. Mirrors <c>ZoneV2Client.SessionObjectId</c> so
+    /// callers such as <c>PlayerShortcuts</c> and <c>ClanWindow</c> read one source.
+    /// </summary>
+    public int SessionObjectId { get; private set; }
     public event Action<CharacterRosterMsg> RosterReceived;
     public event Action<AuthResultMsg> AuthResultReceived;
     public event Action<HandoffMsg> HandoffReceived;
@@ -66,6 +74,7 @@ public sealed class NetSession : MonoBehaviour
     public async void BeginLobby(string account, string password, bool registerIfMissing = false)
     {
         _account = account;
+        SessionObjectId = 0;
         ZoneV2GearSession.Reset();
         try
         {
@@ -145,6 +154,7 @@ public sealed class NetSession : MonoBehaviour
     public async void EnterZoneWithHandoff(HandoffMsg handoff)
     {
         _handoff = handoff;
+        SessionObjectId = 0;
         try
         {
             _lobby?.Dispose();
@@ -786,6 +796,9 @@ public sealed class NetSession : MonoBehaviour
             ApplyRemotePlayerSpawn(spawn);
             return;
         }
+
+        // Zone object id of the local player; same role as ZoneV2Client.SessionObjectId.
+        SessionObjectId = (int)spawn.EntityValue;
 
         var identity = new EntityIdentity
         {

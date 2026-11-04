@@ -189,12 +189,14 @@ public class LoginWindow : L2Window
 
             try
             {
-                if (transport != null && (FineageWireConfig.IsZoneV2 || FineageWireConfig.IsNet))
-                    transport.BeginSession(account, password);
-                else if (FineageWireConfig.IsNet)
-                    NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
-                else
-                    ZoneV2Client.Ensure().BeginSession(account, password);
+                // Zone V2 wire is compile-time off: the zone transport routes Net only.
+                if (FineageWireConfig.IsNet)
+                {
+                    if (transport != null)
+                        transport.BeginSession(account, password);
+                    else
+                        NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+                }
             }
             catch (Exception ex)
             {
