@@ -101,6 +101,33 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        RequestShortCutRegCommand netShortCutReg = command as RequestShortCutRegCommand;
+        if (netShortCutReg != null)
+        {
+            NetSession.Ensure().SendShortCutReg(
+                netShortCutReg.TypeId, netShortCutReg.WorldSlot, netShortCutReg.Id, netShortCutReg.Level);
+            return true;
+        }
+
+        RequestShortCutDelCommand netShortCutDel = command as RequestShortCutDelCommand;
+        if (netShortCutDel != null)
+        {
+            NetSession.Ensure().SendShortCutDel(netShortCutDel.WorldSlot);
+            return true;
+        }
+
+        ValidatePositionCommand netValidate = command as ValidatePositionCommand;
+        if (netValidate != null)
+        {
+            Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(new Vector3(netValidate.X, netValidate.Y, netValidate.Z));
+            NetSession.Ensure().SendValidatePosition(
+                Mathf.RoundToInt(l2.x),
+                Mathf.RoundToInt(l2.y),
+                Mathf.RoundToInt(l2.z),
+                netValidate.Heading);
+            return true;
+        }
+
         RequestSay2Command netSay = command as RequestSay2Command;
         if (netSay != null)
         {

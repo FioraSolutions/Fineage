@@ -339,6 +339,11 @@ public static class NetDomainMap
         bool worn = row.EquippedSlot >= 0;
         ItemCategory category = CategoryFromZone(row);
         ItemSlot slot = SlotFromBodyToken(row.BodySlot);
+        // The Net ItemList row only carries the paperdoll index, not the body token or kind, so resolve
+        // both from the local grp tables. Without this every item was ItemCategory.Item / ItemSlot.none,
+        // and the equipped weapon never reached the paperdoll: the bag had items, the weapon did not.
+        if (category == ItemCategory.Item && slot == ItemSlot.none)
+            ResolveFromLocalTables(row.ItemId, ref category, ref slot);
         ItemLocation location = worn ? ItemLocation.Equipped : ItemLocation.Inventory;
         int index = worn ? indexEquip++ : indexBag++;
         var item = new ItemInstance(
@@ -366,6 +371,36 @@ public static class NetDomainMap
         // Fineage.Protocol.InventoryChange: 0 add, 1 modify, 2 remove.
         // PlayerInventory.InventoryChange stores those as 1, 2, and 3.
         return NetInventoryBook.ToClientChange(zoneChange);
+    }
+
+    /// <summary>
+    /// Fills category/body slot from the client's own weapongrp / armorgrp tables when the wire row
+    /// did not carry them. Net ItemList sends ObjectId, ItemId, Count, EnchantLevel and EquippedSlot only.
+    /// </summary>
+    static void ResolveFromLocalTables(int itemId, ref ItemCategory category, ref ItemSlot slot)
+    {
+        ItemTable table = ItemTable.Instance;
+        if (table == null)
+            return;
+
+        Weapon weapon = table.GetWeapon(itemId);
+        if (weapon != null && weapon.Weapongrp != null)
+        {
+            category = ItemCategory.Weapon;
+            slot = weapon.Weapongrp.BodyPart;
+            return;
+        }
+
+        Armor armor = table.GetArmor(itemId);
+        if (armor != null && armor.Armorgrp != null)
+        {
+            category = ItemCategory.ShieldArmor;
+            slot = armor.Armorgrp.BodyPart;
+            return;
+        }
+
+        if (table.GetEtcItem(itemId) != null)
+            category = itemId == 57 ? ItemCategory.Adena : ItemCategory.Item;
     }
 
     static ItemCategory CategoryFromZone(NetItemEntry row)

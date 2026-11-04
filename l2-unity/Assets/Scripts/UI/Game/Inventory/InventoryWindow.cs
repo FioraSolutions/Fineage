@@ -272,6 +272,11 @@ public class InventoryWindow : L2PopupWindow
 
         _maximumWeight = 10000;
         _weightLabel.text = "00.00%";
+
+        // ItemList normally arrives during EnterWorld, before this window is built, so the
+        // rows are cached in PlayerInventory. Push them now that the tabs exist.
+        if (PlayerInventory.Instance != null)
+            PlayerInventory.Instance.RefreshWindow();
     }
 
     public int GetEmptySlot()
@@ -455,8 +460,12 @@ public class InventoryWindow : L2PopupWindow
 
         Dictionary<int, ItemInstance> allItems = GetInventoryItems();
         Dictionary<int, ItemInstance> equipItems = GetInventoryEquipItems();
-        if (allItems == null || equipItems == null)
-            return;
+        // Empty is fine; only a null dictionary means the snapshot never arrived. Both start
+        // empty in PlayerInventory.Awake now, so an empty bag simply opens empty.
+        if (allItems == null)
+            allItems = new Dictionary<int, ItemInstance>();
+        if (equipItems == null)
+            equipItems = new Dictionary<int, ItemInstance>();
 
         int adenaCount = GetAdenaCount(allItems.Values.ToList());
 
