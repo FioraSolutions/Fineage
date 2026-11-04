@@ -408,4 +408,143 @@ public class NetWireContractTests
 
         Assert.True(seen.Count > 90, $"expected the full opcode set, saw {seen.Count}");
     }
+
+    /// <summary>
+    /// The zone server puts a <b>world slot</b> (page * 12 + slot) on the wire, matching
+    /// Mobius. <c>Shortcut</c> wants slot and page split apart, and
+    /// <c>PlayerShortcuts</c> recombines them with its own 12-slot bar constant. Getting
+    /// this wrong puts every bar-2 icon on bar 1, so pin the arithmetic both ways.
+    /// </summary>
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(7, 0, 7)]
+    [InlineData(12, 1, 0)]
+    [InlineData(23, 1, 11)]
+    [InlineData(24, 2, 0)]
+    public void WorldSlot_splits_into_page_and_bar_slot(int worldSlot, int page, int barSlot)
+    {
+        const int SlotsPerPage = 12;
+
+        Assert.Equal(barSlot, worldSlot % SlotsPerPage);
+        Assert.Equal(page, worldSlot / SlotsPerPage);
+
+        // Round trip: PlayerShortcuts keys its dictionary by slot + page * 12.
+        Assert.Equal(worldSlot, barSlot + page * SlotsPerPage);
+    }
+
+    /// <summary>
+    /// UserInfo is the packet that dresses the local player. The old client dropped it,
+    /// so the paperdoll and template stats never reached the spawn record and the
+    /// character rendered in default gear.
+    /// </summary>
+    [Fact]
+    public void UserInfo_roundtrips_every_field_the_spawn_overlay_reads()
+    {
+        var sent = new UserInfoNetMsg
+        {
+            EntityValue = 0x0000_0001_0000_002A,
+            EntityGeneration = 3,
+            Name = "Elf",
+            ClassId = 25,
+            Race = 1,
+            Sex = 1,
+            X = 45000,
+            Y = 46000,
+            Z = -3500,
+            RunSpeed = 125.5f,
+            WalkSpeed = 80.25f,
+            Running = false,
+            Level = 42,
+            Exp = 9_000_000_001L,
+            Sp = 1234,
+            CurHp = 700,
+            MaxHp = 800,
+            CurMp = 300,
+            MaxMp = 400,
+            CurCp = 50,
+            MaxCp = 60,
+            Str = 21,
+            Dex = 25,
+            Con = 20,
+            Int = 30,
+            Wit = 15,
+            Men = 18,
+            PAtk = 100,
+            MAtk = 200,
+            PDef = 150,
+            MDef = 160,
+            PAtkSpd = 300,
+            MAtkSpd = 250,
+            Accuracy = 40,
+            Evasion = 41,
+            CritRate = 42,
+            WeaponGradePenalty = 1,
+            ArmorGradePenalty = 0,
+            ClanId = 77,
+            Paperdoll = new[]
+            {
+                new PaperdollSlotNet { ObjectId = 11, ItemId = 22, EnchantLevel = 3 },
+                new PaperdollSlotNet { ObjectId = 33, ItemId = 44, EnchantLevel = 0 }
+            }
+        };
+
+        UserInfoNetMsg got = NetCodec.DecodeUserInfo(NetCodec.EncodeUserInfo(sent));
+
+        // Truncated to the fields NetDomainMap.ToUserInfo actually copies.
+        Assert.Equal((int)sent.EntityValue, (int)got.EntityValue);
+        Assert.Equal(sent.Name, got.Name);
+        Assert.Equal(sent.ClassId, got.ClassId);
+        Assert.Equal(sent.X, got.X);
+        Assert.Equal(sent.Y, got.Y);
+        Assert.Equal(sent.Z, got.Z);
+        Assert.Equal(sent.RunSpeed, got.RunSpeed);
+        Assert.Equal(sent.WalkSpeed, got.WalkSpeed);
+        Assert.Equal(sent.Running, got.Running);
+        Assert.Equal(sent.Level, got.Level);
+        Assert.Equal(sent.Exp, got.Exp);
+        Assert.Equal(sent.MaxCp, got.MaxCp);
+        Assert.Equal(sent.Men, got.Men);
+        Assert.Equal(sent.PAtkSpd, got.PAtkSpd);
+        Assert.Equal(sent.ClanId, got.ClanId);
+        Assert.Equal(2, got.Paperdoll.Length);
+        Assert.Equal(22, got.Paperdoll[0].ItemId);
+        Assert.Equal(3, got.Paperdoll[0].EnchantLevel);
+        Assert.Equal(33, got.Paperdoll[1].ObjectId);
+    }
+
+    /// <summary>
+    /// An unequipped character sends a zero-length paperdoll. That is a valid answer,
+    /// not a missing tail — the client must read it back as empty rather than throwing.
+    /// </summary>
+    [Fact]
+    public void UserInfo_accepts_an_empty_paperdoll()
+    {
+        UserInfoNetMsg got = NetCodec.DecodeUserInfo(
+            NetCodec.EncodeUserInfo(new UserInfoNetMsg { Name = "Naked", ClassId = 0 }));
+
+        Assert.NotNull(got.Paperdoll);
+        Assert.Empty(got.Paperdoll);
+    }
+
+    /// <summary>
+    /// The weight grade is what draws the overload icon. Mobius reports it as the level
+    /// of skill 4270 (0 none, 4 at 100% of the limit).
+    /// </summary>
+    [Fact]
+    public void EtcStatusUpdate_carries_the_weight_grade()
+    {
+        byte[] payload = NetCodec.EncodeEtcStatusUpdate(new EtcStatusUpdateNetMsg
+        {
+            EntityValue = 42,
+            Charges = 3,
+            WeightPenalty = 4,
+            ChatBlocked = true
+        });
+
+        EtcStatusUpdateNetMsg got = NetCodec.DecodeEtcStatusUpdate(payload);
+
+        Assert.Equal(3, got.Charges);
+        Assert.Equal(4, got.WeightPenalty);
+        Assert.True(got.ChatBlocked);
+    }
 }
