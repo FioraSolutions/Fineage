@@ -354,6 +354,58 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    /// <summary>
+    /// Registers one hotbar slot. <paramref name="worldSlot"/> is the client world slot
+    /// (slot + page * 12); the zone echoes the result as <c>ShortCutRegister</c> or
+    /// <c>ShortCutDelete</c>.
+    /// </summary>
+    public async void SendShortCutReg(int type, int worldSlot, int id, int level)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestShortCutReg,
+            NetCodec.EncodeShortCut(new ShortCutNetMsg
+            {
+                Type = type,
+                Slot = worldSlot,
+                Id = id,
+                Level = level
+            }),
+            NextSeq());
+    }
+
+    /// <summary>Clears one hotbar slot (world slot = slot + page * 12).</summary>
+    public async void SendShortCutDel(int worldSlot)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestShortCutDel,
+            NetCodec.EncodeShortCutDel(new ShortCutDelNetMsg { Slot = worldSlot }),
+            NextSeq());
+    }
+
+    /// <summary>
+    /// Position heartbeat (L2 coordinates + heading). The zone reconciles the client's
+    /// position against its own copy; without it a walk drifts and then snaps back.
+    /// </summary>
+    public async void SendValidatePosition(int x, int y, int z, int heading)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.ValidatePosition,
+            NetCodec.EncodeValidatePosition(new ValidatePositionMsg
+            {
+                X = x,
+                Y = y,
+                Z = z,
+                Heading = heading
+            }),
+            NextSeq());
+    }
+
     public async void SendSay(string text, int chatType)
     {
         if (_zone == null || !_zone.Connected)
@@ -1571,8 +1623,8 @@ public sealed class NetSession : MonoBehaviour
                 Count = src.Count,
                 EquippedSlot = src.EquippedSlot,
                 EnchantLevel = src.EnchantLevel,
-                BodySlot = "",
-                Kind = "",
+                BodySlot = src.BodySlot ?? "",
+                Kind = src.Kind ?? "",
                 Icon = "",
                 WeaponType = "",
                 ArmorType = ""
@@ -1611,12 +1663,14 @@ public sealed class NetSession : MonoBehaviour
             ObjectId = objectId,
             Destination = dest,
             Origin = origin,
-            InterludeDto = null
+            // The intention layer (NewMoveToIntention) reads the Interlude DTO and bails out when it is
+            // null, so the local player stayed put even though MoveState arrived. Synthesize it here.
+            InterludeDto = CharMoveToLocationDto.FromUnity(objectId, dest, origin)
         };
         if (_sink != null)
             _sink.ApplyMoveTo(domain);
         else if (WorldApplyPacketServices.WorldApply != null)
-            WorldApplyPacketServices.WorldApply.MoveTo(objectId, dest, origin, null);
+            WorldApplyPacketServices.WorldApply.MoveTo(objectId, dest, origin, domain.InterludeDto);
     }
 
     void ApplyCorrection(PositionCorrectionMsg corr)
@@ -1628,7 +1682,7 @@ public sealed class NetSession : MonoBehaviour
             ObjectId = objectId,
             Destination = pos,
             Origin = pos,
-            InterludeDto = null
+            InterludeDto = CharMoveToLocationDto.FromUnity(objectId, pos, pos)
         };
         if (_sink != null)
             _sink.ApplyMoveTo(domain);

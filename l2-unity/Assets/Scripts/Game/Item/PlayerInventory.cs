@@ -122,6 +122,10 @@ public class PlayerInventory : MonoBehaviour
         //_tempForRemoveAndAdd = new List<ItemInstance>();
         //_tempForModified = new List<ItemInstance>();
         _playerInventory = new Dictionary<int, ItemInstance>();
+        // Equip starts empty, not null: the inventory window reads both dictionaries as soon
+        // as it is built, which happens before the zone sends ItemList. Leaving this null
+        // made ToggleHideWindowManual bail out and the window could never open at all.
+        _playerEquipInventory = new Dictionary<int, ItemInstance>();
     }
 
     private void Start()
@@ -154,17 +158,56 @@ public class PlayerInventory : MonoBehaviour
         //    equip_collect = _playerEquipInventory.Values.ToList();
         // }
         if (_currentUser == null) _currentUser = StorageNpc.getInstance().GetFirstUser();
-        int userId1 = _currentUser.PlayerInfoInterlude.Identity.Id;
 
         UnityMainThreadDispatcher.Instance().Enqueue(() =>
         {
-            InventoryWindow.Instance.SetItemList(items_collect, equip_collect, adenaCount , usedSlot , userId1);
+            // The window may not be built yet (it is created on first UI load). The data above
+            // is already stored, and RefreshWindow pushes it once the window exists, so a
+            // missing window must not throw away the snapshot.
+            InventoryWindow window = InventoryWindow.Instance;
+            if (window == null)
+                return;
+
+            int userId = _currentUser != null && _currentUser.PlayerInfoInterlude.Identity != null
+                ? _currentUser.PlayerInfoInterlude.Identity.Id
+                : 0;
+            window.SetItemList(items_collect, equip_collect, adenaCount , usedSlot , userId);
 
             if (openInventory)
             {
-                InventoryWindow.Instance.ShowWindow();
+                window.ShowWindow();
             }
         });
+    }
+
+    /// <summary>
+    /// Re-pushes the cached snapshot into the inventory window. Called when the window is
+    /// finally built: ItemList usually arrives before the UI exists, and without this the
+    /// window opens empty.
+    /// </summary>
+    public void RefreshWindow()
+    {
+        InventoryWindow window = InventoryWindow.Instance;
+        if (window == null || !window.IsItemSurfaceReady)
+            return;
+        if (_playerInventory == null)
+            return;
+
+        if (_currentUser == null) _currentUser = StorageNpc.getInstance().GetFirstUser();
+        if (_currentUser == null || _currentUser.PlayerInfoInterlude.Identity == null)
+            return;
+
+        List<ItemInstance> items = _playerInventory.Values.ToList();
+        List<ItemInstance> equip = _playerEquipInventory != null
+            ? _playerEquipInventory.Values.ToList()
+            : new List<ItemInstance>();
+
+        window.SetItemList(
+            items,
+            equip,
+            GetAdenaCount(items),
+            _playerInventory.Count + equip.Count,
+            _currentUser.PlayerInfoInterlude.Identity.Id);
     }
 
     private readonly object _lock = new object();
@@ -194,6 +237,8 @@ public class PlayerInventory : MonoBehaviour
                 if(_currentUser == null) _currentUser =  StorageNpc.getInstance().GetFirstUser();
                 int userId = _currentUser.PlayerInfoInterlude.Identity.Id;
                 UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                    // Same reason as SetInventory: the window may not exist yet. The change data
+                    // is applied to _playerInventory above, so only the redraw is skipped.
                     if (InventoryWindow.Instance == null)
                         return;
                     InventoryWindow.Instance.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);

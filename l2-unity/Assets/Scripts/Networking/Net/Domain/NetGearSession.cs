@@ -43,6 +43,44 @@ public static class NetGearSession
         PlayerEntity player = PlayerEntity.Instance;
         if (player != null && player.Identity != null && player.Identity.Id == user.ObjectId)
             ApplyToLivePlayer(player, user);
+
+        // StorageNpc is how the rest of the client (inventory, clan, status) looks up "me".
+        // It used to be filled only from PrepareSpawn, which nothing calls any more, so the
+        // store stayed empty and every GetFirstUser() returned null -- the inventory never
+        // applied its snapshot because of it.
+        RegisterSelfInStorage(user, transport, player);
+    }
+
+    /// <summary>
+    /// Publishes the local player into <see cref="StorageNpc"/>. Prefers the transport's
+    /// PlayerInfo (the full record the zone filled in), falling back to the live PlayerEntity
+    /// and finally to a minimal record built from the UserInfo message itself.
+    /// </summary>
+    static void RegisterSelfInStorage(NetUserInfo user, IZoneTransport transport, PlayerEntity player)
+    {
+        PlayerInfoInterlude info;
+        if (transport != null && transport.PlayerInfo.Identity != null)
+        {
+            info = transport.PlayerInfo;
+        }
+        else
+        {
+            // Last resort: the identity is all the inventory window needs to key its rows.
+            info = new PlayerInfoInterlude
+            {
+                Identity = new EntityIdentity
+                {
+                    Id = user.ObjectId,
+                    Name = user.Name,
+                    PlayerClass = user.ClassId
+                }
+            };
+        }
+
+        if (info.Identity == null)
+            return;
+
+        StorageNpc.getInstance().AddUserInfo(new UserInfoDto(info));
     }
 
     public static PlayerInfoInterlude PrepareSpawn(NetPlayerSpawned spawned)
@@ -144,15 +182,45 @@ public static class NetGearSession
     static bool CanApplyInventory()
     {
         if (PlayerInventory.Instance == null)
+        {
+            WarnBlocked("PlayerInventory");
             return false;
-        InventoryWindow window = InventoryWindow.Instance;
-        if (window == null || !window.IsItemSurfaceReady)
-            return false;
+        }
+        // The inventory window used to be a precondition here. That made the snapshot wait for
+        // a window which itself stays empty until the snapshot arrives -- nobody could ever
+        // open the bag. PlayerInventory now caches the rows and pushes them into the window
+        // once it exists, so the data path no longer depends on the UI being built.
         if (!UnityMainThreadDispatcher.Exists() || EventBus.Instance == null)
+        {
+            WarnBlocked("dispatcher/EventBus");
             return false;
+        }
         if (ItemTable.Instance.Weapons.Count == 0)
+        {
+            WarnBlocked("ItemTable.Weapons");
             return false;
+        }
         UserInfoDto user = StorageNpc.getInstance().GetFirstUser();
-        return user != null && user.PlayerInfoInterlude.Identity != null;
+        if (user == null)
+        {
+            WarnBlocked("StorageNpc user");
+            return false;
+        }
+        if (user.PlayerInfoInterlude.Identity == null)
+        {
+            WarnBlocked("user identity");
+            return false;
+        }
+        return true;
+    }
+
+    static string _lastBlock;
+
+    static void WarnBlocked(string reason)
+    {
+        if (_lastBlock == reason)
+            return;
+        _lastBlock = reason;
+        UnityEngine.Debug.Log("[Net] inventory apply blocked by: " + reason);
     }
 }
