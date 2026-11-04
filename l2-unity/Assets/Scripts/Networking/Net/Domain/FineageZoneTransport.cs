@@ -349,6 +349,14 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        // Mobius RequestTargetCanceld: an empty body. The client clears its own selection in
+        // TargetManager; this is what tells the zone, so the next untargeted skill stops aiming there.
+        if (command is RequestTargetCanceldCommand)
+        {
+            NetSession.Ensure().SendTargetCancel();
+            return true;
+        }
+
         ClanDissolveRequestCommand netClanDissolve = command as ClanDissolveRequestCommand;
         if (netClanDissolve != null)
         {

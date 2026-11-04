@@ -35,4 +35,16 @@ public sealed class CombatTargetApplyService
                 QueueApplyIncomingPacketServices.ApplyWorld(apply => apply.SendArrivedPosition());
             }
         });
+
+    /// <summary>
+    /// The zone dropped the selection (Mobius <c>TargetUnselected</c>). Clear locally without sending
+    /// another <c>RequestTargetCanceld</c>: this packet is the answer to that request.
+    /// </summary>
+    public void ClearTargetFromZone() =>
+        QueueApplyIncomingPacketServices.Queue(() =>
+        {
+            TargetManager targets = _targets != null ? _targets.Value : null;
+            if (targets != null)
+                targets.ClearTargetSilently();
+        });
 }
