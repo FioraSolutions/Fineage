@@ -7,144 +7,6 @@ using UnityEngine;
 /// </summary>
 public static class ZoneV2NpcWindows
 {
-    public static bool TryTake(ZoneV2MsgType type, byte[] body, Action<Action> post)
-    {
-        if (post == null)
-            return false;
-        switch (type)
-        {
-            case ZoneV2MsgType.NpcHtml:
-                ZoneV2NpcHtml html;
-                if (!ZoneV2Messages.TryDecodeNpcHtml(body, out html))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad NpcHtml body"));
-                    return true;
-                }
-
-                ZoneV2NpcHtml htmlCopy = html;
-                post(() => ShowHtml(htmlCopy.NpcObjectId, htmlCopy.NpcId, htmlCopy.Html));
-                return true;
-            case ZoneV2MsgType.QuestList:
-                ZoneV2QuestList quests;
-                if (!ZoneV2Messages.TryDecodeQuestList(body, out quests))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad QuestList body"));
-                    return true;
-                }
-
-                ZoneV2QuestList questCopy = quests;
-                post(() => ShowQuests(questCopy));
-                return true;
-            case ZoneV2MsgType.QuestDialog:
-                ZoneV2QuestDialog dialog;
-                if (!ZoneV2Messages.TryDecodeQuestDialog(body, out dialog))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad QuestDialog body"));
-                    return true;
-                }
-
-                ZoneV2QuestDialog dialogCopy = dialog;
-                post(() => ShowHtml(dialogCopy.NpcObjectId, dialogCopy.NpcId, dialogCopy.Html));
-                return true;
-            case ZoneV2MsgType.QuestSound:
-                string sound;
-                if (!ZoneV2Messages.TryDecodeQuestSound(body, out sound))
-                    return true;
-                post(() => Debug.Log("[ZoneV2] QuestSound " + sound));
-                return true;
-            case ZoneV2MsgType.BuyList:
-                ZoneV2BuyList buy;
-                if (!ZoneV2Messages.TryDecodeBuyList(body, out buy))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad BuyList body"));
-                    return true;
-                }
-
-                ZoneV2BuyList buyCopy = buy;
-                post(() => ShowBuy(buyCopy));
-                return true;
-            case ZoneV2MsgType.SellList:
-                ZoneV2SellList sell;
-                if (!ZoneV2Messages.TryDecodeSellList(body, out sell))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad SellList body"));
-                    return true;
-                }
-
-                ZoneV2SellList sellCopy = sell;
-                post(() => ShowSell(sellCopy));
-                return true;
-            case ZoneV2MsgType.MultiSellList:
-                ZoneV2MultiSellList multi;
-                if (!ZoneV2Messages.TryDecodeMultiSellList(body, out multi))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad MultiSellList body"));
-                    return true;
-                }
-
-                ZoneV2MultiSellList multiCopy = multi;
-                post(() => ShowMulti(multiCopy));
-                return true;
-            case ZoneV2MsgType.ShopBalance:
-                ZoneV2ShopBalance balance;
-                if (!ZoneV2Messages.TryDecodeShopBalance(body, out balance))
-                    return true;
-                ZoneV2ShopBalance balanceCopy = balance;
-                post(() => ApplyBalance(balanceCopy));
-                return true;
-            case ZoneV2MsgType.TeleportList:
-                ZoneV2TeleportList teleport;
-                if (!ZoneV2Messages.TryDecodeTeleportList(body, out teleport))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad TeleportList body"));
-                    return true;
-                }
-
-                ZoneV2TeleportList teleportCopy = teleport;
-                post(() => ZoneV2NpcSession.OpenDialog(teleportCopy.NpcObjectId));
-                return true;
-            case ZoneV2MsgType.WarehouseDepositList:
-                ZoneV2WarehouseDepositList deposit;
-                if (!ZoneV2Messages.TryDecodeWarehouseDepositList(body, out deposit))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad WarehouseDepositList body"));
-                    return true;
-                }
-
-                ZoneV2WarehouseDepositList depositCopy = deposit;
-                post(() => ShowDeposit(depositCopy));
-                return true;
-            case ZoneV2MsgType.WarehouseWithdrawList:
-                ZoneV2WarehouseWithdrawList withdraw;
-                if (!ZoneV2Messages.TryDecodeWarehouseWithdrawList(body, out withdraw))
-                {
-                    post(() => Debug.LogWarning("[ZoneV2] bad WarehouseWithdrawList body"));
-                    return true;
-                }
-
-                ZoneV2WarehouseWithdrawList withdrawCopy = withdraw;
-                post(() => ShowWithdraw(withdrawCopy));
-                return true;
-            case ZoneV2MsgType.NewbieBuffResult:
-                ZoneV2NewbieBuffResult buff;
-                if (!ZoneV2Messages.TryDecodeNewbieBuffResult(body, out buff))
-                    return true;
-                ZoneV2NewbieBuffResult buffCopy = buff;
-                post(() => ShowBuff(buffCopy));
-                return true;
-            case ZoneV2MsgType.BlessingResult:
-                ZoneV2BlessingResult blessing;
-                if (!ZoneV2Messages.TryDecodeBlessingResult(body, out blessing))
-                    return true;
-                if (!blessing.Accepted)
-                    return true;
-                post(() => ZoneV2ChatFeed.NoteSystem("The Blessing of Protection is upon you."));
-                return true;
-            default:
-                return false;
-        }
-    }
-
     public static void Tick()
     {
         if (!ZoneV2NpcSession.WindowsOpen)
@@ -193,14 +55,6 @@ public static class ZoneV2NpcWindows
 
     static ZoneV2ShopBalance _balance;
     static bool _hasBalance;
-
-    static void ShowHtml(int npcObjectId, int npcId, string html)
-    {
-        HtmlWindow window = HtmlWindow.Instance;
-        if (window == null)
-            return;
-        window.ShowNpcDialog(npcObjectId, npcId, html);
-    }
 
     static void ShowQuests(ZoneV2QuestList list)
     {
@@ -342,21 +196,6 @@ public static class ZoneV2NpcWindows
         {
             Debug.LogWarning("[ZoneV2] shop balance: " + ex.Message);
         }
-    }
-
-    static void ShowBuff(ZoneV2NewbieBuffResult result)
-    {
-        ZoneV2NpcSession.OpenDialog(result.NpcObjectId);
-        if (!string.IsNullOrEmpty(result.Refusal))
-        {
-            string line = ZoneV2SystemLines.BuffRefusal(result.Refusal);
-            if (!string.IsNullOrEmpty(line))
-                ZoneV2ChatFeed.NoteSystem(line);
-            return;
-        }
-
-        if (result.SkillIds != null && result.SkillIds.Length > 0)
-            ZoneV2ChatFeed.NoteSystem("Supplemental magic has been granted.");
     }
 
     static void OpenDealer(string title, string sellHeader, string buyHeader, ProductType type, List<Product> products, bool modifySell, int listId, int adena)

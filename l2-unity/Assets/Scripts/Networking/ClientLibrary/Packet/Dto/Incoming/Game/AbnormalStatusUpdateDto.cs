@@ -24,7 +24,7 @@ public class AbnormalStatusUpdateDto : IWireDto
         //Debug.Log("AbnormalStatusUpdate update data");
     }
 
-    /// <summary>Built from Zone V2 <see cref="ZoneV2MsgType.AbnormalStatusUpdate"/> (1017).</summary>
+    /// <summary>Built from the Zone V2 abnormal status update row (1017).</summary>
     public static AbnormalStatusUpdateDto FromZoneEffects(ZoneV2AbnormalEffect[] effects)
     {
         var dto = new AbnormalStatusUpdateDto { FullEffectSnapshot = true };

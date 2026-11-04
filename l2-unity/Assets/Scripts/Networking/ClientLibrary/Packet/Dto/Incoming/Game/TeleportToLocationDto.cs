@@ -15,7 +15,7 @@ public class TeleportToLocationDto : IWireDto
     public int Y { get => _y; }
     public int Z { get => _z; }
 
-    /// <summary>Zone V2 <see cref="ZoneV2MsgType.TeleportToLocation"/> (1072).</summary>
+    /// <summary>Zone V2 teleport-to-location row (1072).</summary>
     public static TeleportToLocationDto FromZoneWire(int objectId, int x, int y, int z, int heading)
     {
         var dto = new TeleportToLocationDto();

@@ -28,7 +28,7 @@ public sealed class DropItemDto : IWireDto
         UnityPos = VectorUtils.ConvertPosToUnity(new Vector3(X, Y, Z));
     }
 
-    /// <summary>Zone V2 <see cref="ZoneV2MsgType.DropItem"/> (1019).</summary>
+    /// <summary>Zone V2 drop item row (1019).</summary>
     public static DropItemDto FromZoneV2(
         int charObjectId,
         int objectId,

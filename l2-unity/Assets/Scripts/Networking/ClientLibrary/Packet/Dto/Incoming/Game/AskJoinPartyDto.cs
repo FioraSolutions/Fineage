@@ -11,7 +11,7 @@ public class AskJoinPartyDto : IWireDto
     /// <summary>Zone V2 inviter object id; zero on Interlude wire.</summary>
     public int RequestorObjectId => _requestorObjectId;
 
-    /// <summary>Build from Zone V2 <see cref="ZoneV2MsgType.PartyAskJoin"/> (1027).</summary>
+    /// <summary>Build from the Zone V2 party ask-join row (1027).</summary>
     public static AskJoinPartyDto FromZoneV2(int requestorObjectId, string requestorName, int itemDistribution)
     {
         var dto = new AskJoinPartyDto();

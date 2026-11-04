@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Minimal party roster from Zone V2 <see cref="ZoneV2MsgType.PartyMemberList"/> (1029).
+/// Minimal party roster from the Zone V2 party member list (1029).
 /// Click a member to set target + attack target (assist).
 /// </summary>
 public class PartyMemberListWindow : L2Window
