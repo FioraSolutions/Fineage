@@ -40,6 +40,7 @@ public sealed class NetSession : MonoBehaviour
     /// </summary>
     public int SessionObjectId { get; private set; }
     public event Action<CharacterRosterMsg> RosterReceived;
+    public event Action<DeleteResultMsg> DeleteResultReceived;
     public event Action<AuthResultMsg> AuthResultReceived;
     public event Action<HandoffMsg> HandoffReceived;
     public event Action EnteredWorld;
@@ -156,6 +157,44 @@ public sealed class NetSession : MonoBehaviour
                 HairStyle = hairStyle,
                 HairColor = hairColor,
                 Face = face
+            }),
+            NextSeq());
+    }
+
+    /// <summary>Deletes a character by id (slot = -1) or by roster slot (id = 0).</summary>
+    public async void DeleteCharacter(int characterId, int slot = -1)
+    {
+        if (_lobby == null || !_lobby.Connected)
+        {
+            Debug.LogWarning("[Net] DeleteCharacter: lobby not connected");
+            return;
+        }
+
+        await _lobby.SendAsync(
+            NetOpcode.DeleteCharacter,
+            NetCodec.EncodeDeleteCharacter(new DeleteCharacterMsg
+            {
+                CharacterId = characterId,
+                Slot = slot
+            }),
+            NextSeq());
+    }
+
+    /// <summary>Clears a pending delete timer. Same identifying convention as <see cref="DeleteCharacter"/>.</summary>
+    public async void RestoreCharacter(int characterId, int slot = -1)
+    {
+        if (_lobby == null || !_lobby.Connected)
+        {
+            Debug.LogWarning("[Net] RestoreCharacter: lobby not connected");
+            return;
+        }
+
+        await _lobby.SendAsync(
+            NetOpcode.RestoreCharacter,
+            NetCodec.EncodeRestoreCharacter(new RestoreCharacterMsg
+            {
+                CharacterId = characterId,
+                Slot = slot
             }),
             NextSeq());
     }
@@ -613,6 +652,15 @@ public sealed class NetSession : MonoBehaviour
                 if (CharCreationWindow.Instance != null)
                     CharCreationWindow.Instance.HideWindow();
                 RequestRoster();
+                break;
+            }
+            case NetOpcode.DeleteResult:
+            {
+                var deleted = NetCodec.DecodeDeleteResult(envelope.Payload);
+                if (!deleted.Ok)
+                    Debug.LogWarning($"[Net] delete/restore failed {deleted.Code}: {deleted.Message}");
+                DeleteResultReceived?.Invoke(deleted);
+                // Success also carries a fresh roster, so the UI redraws from server truth.
                 break;
             }
             case NetOpcode.Handoff:

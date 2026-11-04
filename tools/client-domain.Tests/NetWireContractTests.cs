@@ -317,6 +317,51 @@ public class NetWireContractTests
     }
 
     [Fact]
+    public void Delete_and_restore_bodies_share_one_layout_so_either_identifier_works()
+    {
+        // The service resolves id-or-slot, so delete and restore must agree byte-for-byte.
+        byte[] byId = NetCodec.EncodeDeleteCharacter(new DeleteCharacterMsg
+        {
+            Slot = -1,
+            CharacterId = 1234
+        });
+        byte[] restoreById = NetCodec.EncodeRestoreCharacter(new RestoreCharacterMsg
+        {
+            Slot = -1,
+            CharacterId = 1234
+        });
+
+        Assert.Equal(byId, restoreById);
+        Assert.Equal(8, byId.Length);
+
+        DeleteCharacterMsg decoded = NetCodec.DecodeDeleteCharacter(byId);
+        Assert.Equal(-1, decoded.Slot);
+        Assert.Equal(1234, decoded.CharacterId);
+
+        byte[] bySlot = NetCodec.EncodeDeleteCharacter(new DeleteCharacterMsg { Slot = 3 });
+        DeleteCharacterMsg decodedSlot = NetCodec.DecodeDeleteCharacter(bySlot);
+        Assert.Equal(3, decodedSlot.Slot);
+        Assert.Equal(0, decodedSlot.CharacterId);
+    }
+
+    [Fact]
+    public void Delete_result_carries_the_failure_code_the_client_localizes()
+    {
+        DeleteResultMsg decoded = NetCodec.DecodeDeleteResult(NetCodec.EncodeDeleteResult(new DeleteResultMsg
+        {
+            Ok = false,
+            Code = "character_not_found",
+            Message = "Character was not found on this account.",
+            Slot = -1,
+            CharacterId = 99
+        }));
+
+        Assert.False(decoded.Ok);
+        Assert.Equal("character_not_found", decoded.Code);
+        Assert.Equal(99, decoded.CharacterId);
+    }
+
+    [Fact]
     public void Opcode_values_match_the_documented_net_protocol()
     {
         // Pinned so a renumbering on either side is caught here, not in a playtest.
@@ -334,6 +379,13 @@ public class NetWireContractTests
         Assert.Equal(0x035B, NetOpcode.ShortCutRegister);
         Assert.Equal(0x035C, NetOpcode.ShortCutDelete);
         Assert.Equal(0x035D, NetOpcode.EtcStatusUpdate);
+
+        // Lobby 0x02xx
+        Assert.Equal(0x0207, NetOpcode.SelectCharacter);
+        Assert.Equal(0x0208, NetOpcode.Handoff);
+        Assert.Equal(0x0209, NetOpcode.DeleteCharacter);
+        Assert.Equal(0x020A, NetOpcode.DeleteResult);
+        Assert.Equal(0x020B, NetOpcode.RestoreCharacter);
     }
 
     [Fact]
