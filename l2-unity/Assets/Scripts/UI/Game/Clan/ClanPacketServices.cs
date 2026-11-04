@@ -35,6 +35,23 @@ public static class ClanPacketServices
         RefreshWindow();
     }
 
+    /// <summary>
+    /// Mobius <c>JoinPledge</c>. The window is only refreshed, never forced open: an accept
+    /// arrives while the player is already looking at the invite popup, and a decline just
+    /// needs to stop the wait.
+    /// </summary>
+    public static void ApplyJoinResult(int response)
+    {
+        if (response == 0)
+        {
+            NetChatFeed.NoteSystem("Your request to join the clan was declined.");
+            return;
+        }
+
+        NetChatFeed.NoteSystem("You have joined the clan.");
+        RefreshWindow();
+    }
+
     public static void ApplyAskJoin(NetClanAskJoin ask)
     {
         NetClanBook.Shared.NoteName(ask.ClanId, ask.ClanName);
