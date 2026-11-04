@@ -46,18 +46,6 @@ public class GearSlot : InventorySlot
         if (game == null)
             return;
 
-        if (FineageWireConfig.IsZoneV2)
-        {
-            InventoryGearTab gearTab = _currentTab as InventoryGearTab;
-            ItemSlot cell = gearTab != null ? gearTab.CellSlot(_position) : ItemSlot.none;
-            int slot = ZoneV2Paperdoll.UnequipIndex(ZoneV2Paperdoll.IndexForGearCell(cell.ToString()), item.BodyPart.ToString());
-            if (slot >= 0)
-            {
-                game.Send(new UnequipItemCommand(slot));
-                return;
-            }
-        }
-
         game.Send(new UseItemCommand(ObjectId, 0));
     }
 
