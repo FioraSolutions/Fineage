@@ -11,7 +11,7 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 
 | Path | Role |
 |------|------|
-| `Assets/Scripts/Networking/Net/Contract/**` | Symlinked sources from Backend `Fineage.Net.Contract` |
+| `Assets/Scripts/Networking/Net/Contract/**` | Verbatim copy of Backend `Fineage.Net.Contract`, kept in sync by `scripts/sync-net-contract.py` |
 | `NetTransport.cs` | TCP + `NetFraming` |
 | `NetSession.cs` | Lobby + zone session → `IWorldDomainSink` / spawn / move |
 
