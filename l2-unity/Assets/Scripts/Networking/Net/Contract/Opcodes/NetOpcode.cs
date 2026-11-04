@@ -86,5 +86,34 @@ namespace Fineage.Net.Contract
         public const ushort TradeOfferUpdate = 0x0341;
         public const ushort TradeConfirmState = 0x0342;
         public const ushort TradeFinished = 0x0343;
+        // 0x0344..0x034F reserved (clan WIP)
+        /// <summary>Client → zone: Mobius ValidatePosition heartbeat (L2 XYZ + heading).</summary>
+        public const ushort ValidatePosition = 0x0350;
+        /// <summary>Client → zone: Mobius RequestActionUse (action id; Net handles 1 = walk/run toggle).</summary>
+        public const ushort RequestActionUse = 0x0351;
+        /// <summary>Zone → client: Mobius ChangeMoveType + effective run/walk speed (swim speed while in water).</summary>
+        public const ushort ChangeMoveType = 0x0352;
+        /// <summary>Zone → client: Mobius AutoAttackStart (entity enters attack stance).</summary>
+        public const ushort AutoAttackStart = 0x0353;
+        /// <summary>Zone → client: Mobius AutoAttackStop (stance ended: 15 s without combat, or mob lost its target).</summary>
+        public const ushort AutoAttackStop = 0x0354;
+        /// <summary>Client → zone: Mobius RequestAutoSoulShot (shot item id, enable/disable).</summary>
+        public const ushort RequestAutoSoulShot = 0x0355;
+        /// <summary>Zone → client: Mobius ExAutoSoulShot (shot item id, auto now on/off).</summary>
+        public const ushort AutoSoulShot = 0x0356;
+        /// <summary>Zone → client: Mobius UserInfo (owner sheet: vitals, base + combat stats, speeds, paperdoll).</summary>
+        public const ushort UserInfo = 0x0357;
+        /// <summary>Client → zone: Mobius RequestShortCutReg (type, world slot = slot + page*12, id, level).</summary>
+        public const ushort RequestShortCutReg = 0x0358;
+        /// <summary>Client → zone: Mobius RequestShortCutDel (world slot).</summary>
+        public const ushort RequestShortCutDel = 0x0359;
+        /// <summary>Zone → client: Mobius ShortCutInit (full hotbar on enter world, after ItemList / SkillList).</summary>
+        public const ushort ShortCutInit = 0x035A;
+        /// <summary>Zone → client: Mobius ShortCutRegister (one slot set; reply to RequestShortCutReg).</summary>
+        public const ushort ShortCutRegister = 0x035B;
+        /// <summary>Zone → client: slot cleared (reply to RequestShortCutDel, rejected reg, or item gone).</summary>
+        public const ushort ShortCutDelete = 0x035C;
+        /// <summary>Zone → client: Mobius EtcStatusUpdate (weight/grade penalty flags and levels).</summary>
+        public const ushort EtcStatusUpdate = 0x035D;
     }
 }
