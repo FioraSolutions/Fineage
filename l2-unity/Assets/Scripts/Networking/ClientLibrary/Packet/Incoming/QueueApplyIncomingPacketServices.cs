@@ -1,28 +1,68 @@
 using System;
 
 /// <summary>
-/// Apply queue relay facade for incoming handler hubs (#142 batch slice 172; bind via <see cref="BindApplyIncomingPacketServices"/> slice 174).
+/// Queue and world/domain/message apply dispatch for incoming handlers (#142 batch slice 158).
 /// </summary>
 public static class QueueApplyIncomingPacketServices
 {
-    public static void ApplyWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyWorld(apply);
+    private static PacketApplyQueue _applyQueue;
+    private static EventProcessor _events;
 
-    public static void QueueWorld(Action<WorldPacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueWorld(apply);
+    public static void Bind(PacketApplyQueue applyQueue = null, EventProcessor events = null)
+    {
+        if (applyQueue != null)
+            _applyQueue = applyQueue;
+        if (events != null)
+            _events = events;
+    }
 
-    public static void ApplyDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyDomain(apply);
+    public static void ApplyWorld(Action<WorldPacketApply> apply)
+    {
+        WorldPacketApply worldApply = LocatorApplyIncomingPacketServices.WorldApply;
+        if (worldApply != null && apply != null)
+            apply(worldApply);
+    }
 
-    public static void QueueDomain(Action<IWorldDomainSink> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.QueueDomain(apply);
+    public static void QueueWorld(Action<WorldPacketApply> apply)
+    {
+        if (apply == null)
+            return;
+        Queue(() => ApplyWorld(apply));
+    }
 
-    public static void ApplyMessage(Action<MessagePacketApply> apply) =>
-        IncomingPacketQueueApplyIncomingPacketServices.ApplyMessage(apply);
+    public static void ApplyDomain(Action<IWorldDomainSink> apply)
+    {
+        IWorldDomainSink domain = LocatorApplyIncomingPacketServices.Domain;
+        if (domain != null && apply != null)
+            apply(domain);
+    }
 
-    public static void Queue(Action action) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Queue(action);
+    public static void QueueDomain(Action<IWorldDomainSink> apply)
+    {
+        if (apply == null)
+            return;
+        Queue(() => ApplyDomain(apply));
+    }
 
-    public static void Bind(PacketApplyQueue applyQueue = null, EventProcessor events = null) =>
-        IncomingPacketQueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
+    public static void ApplyMessage(Action<MessagePacketApply> apply)
+    {
+        MessagePacketApply messageApply = LocatorApplyIncomingPacketServices.MessageApply;
+        if (messageApply != null && apply != null)
+            apply(messageApply);
+    }
+
+    public static void Queue(Action action)
+    {
+        if (_applyQueue != null)
+        {
+            _applyQueue.Queue(action);
+            return;
+        }
+
+        EventProcessor processor = _events != null ? _events : EventProcessor.Instance;
+        if (processor != null)
+            processor.QueueEvent(action);
+        else
+            IncomingPacketActions.Queue(action);
+    }
 }
