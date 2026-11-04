@@ -109,10 +109,11 @@ public class GameClient : DefaultClient {
     /// </summary>
     public bool SendAuthLoginNow(string account, int playKey1, int playKey2, int loginKey1, int loginKey2)
     {
+        // Fineage Net owns zone auth: the Interlude AuthLogin packet must never go out.
         IZoneTransport transport = ResolveZoneTransport();
-        if (transport != null && !transport.AllowsInterludeGameSocketAuth)
+        if (transport != null)
         {
-            LobbyFlowLog.Error("SendAuthLoginNow blocked — zone transport owns auth (Interlude game socket path required)");
+            LobbyFlowLog.Error("SendAuthLoginNow blocked — Net owns zone auth");
             return false;
         }
 

@@ -175,52 +175,29 @@ public class LoginWindow : L2Window
         SetLoginBusy(true);
 
         IZoneTransport transport = _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
-        bool bypassesInterlude = transport != null && transport.BypassesInterludeLogin;
-        if (FineageWireConfig.LoginPressStartsZoneSession(bypassesInterlude))
+
+        // Fineage Net owns the login, so Log In always starts a zone session. A stale
+        // Interlude login socket would only hold the port, so close it first.
+        if (login != null && login.IsConnected)
         {
-            if (login != null && login.IsConnected)
-            {
-                Debug.Log("[Login] closing stuck login socket before Net handoff");
-                login.Disconnect();
-            }
-
-            if (FineageWireConfig.UseLoginHandoff)
-                ShowStatusText("Connecting to " + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort);
-
-            try
-            {
-                // Zone V2 wire is compile-time off: the zone transport routes Net only.
-                if (FineageWireConfig.IsNet)
-                {
-                    if (transport != null)
-                        transport.BeginSession(account, password);
-                    else
-                        NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("[Login] BeginSession failed: " + ex.Message);
-                ShowErrorText(ex.Message);
-            }
-            return;
+            Debug.Log("[Login] closing stuck login socket before Net handoff");
+            login.Disconnect();
         }
 
-        if (login == null)
-        {
-            ShowErrorText("Login client is not ready.");
-            return;
-        }
+        ShowStatusText("Connecting to " + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort);
 
-        if (login.IsConnected || login.IsConnecting)
+        try
         {
-            ShowErrorText("Already connected to the login server.");
-            return;
+            if (transport != null)
+                transport.BeginSession(account, password);
+            else
+                NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
         }
-
-        login.Account = account;
-        login.Password = password;
-        login.Connect();
+        catch (Exception ex)
+        {
+            Debug.LogError("[Login] BeginSession failed: " + ex.Message);
+            ShowErrorText(ex.Message);
+        }
     }
 
     void SetLoginBusy(bool busy)

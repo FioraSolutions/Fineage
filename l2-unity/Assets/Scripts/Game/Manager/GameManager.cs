@@ -57,57 +57,74 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        // Local Net (PacketEnvelope): FINEAGE_NET_CLIENT=1, or Editor default (Dock has no env).
-        // Standalone still defaults to public V2 playtest unless the env is set.
-        // Fineage/Play Local (FineageServerProfile) is V2-ports legacy; Net path wins when enabled.
-        string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
-        bool useNet = netClient == "1"
-            || string.Equals(netClient, "true", System.StringComparison.OrdinalIgnoreCase)
-#if UNITY_EDITOR
-            || string.IsNullOrEmpty(netClient) // Editor Play → local Net 9106/9777
-#endif
-            ;
-        if (netClient == "0" || string.Equals(netClient, "false", System.StringComparison.OrdinalIgnoreCase))
-            useNet = false;
-        if (useNet)
-        {
-            FineageWireConfig.EnableLocalNetBackend();
-            Debug.Log("[Fineage] mode=local-net login="
-                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
-        }
-        else
-        {
-#if UNITY_EDITOR
-            FineageServerProfile.Refresh();
-            if (FineageServerProfile.IsLocalActive)
-            {
-                FineageWireConfig.EnablePlaytestBackend(FineageServerProfile.LocalHost, FineageServerProfile.LocalLoginPort,
-                    FineageServerProfile.LocalHost, FineageServerProfile.LocalGamePort);
-                Debug.LogWarning("[Fineage] mode=LOCAL-EDITOR login=" + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-                    + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort + " (Fineage/Play RP to switch back)");
-            }
-            else
-#endif
-            {
-                PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
-                string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
-                    ? ep.LoginHost
-                    : PlaytestEndpoint.DefaultLoginHost;
-                string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
-                    ? ep.GameHost
-                    : PlaytestEndpoint.DefaultGameHost;
-                int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
-                int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
-                FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
-                Debug.Log("[Fineage] mode=public-playtest login="
-                    + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-                    + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
-            }
-        }
+        ConfigureBackend();
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
+    }
+
+    /// <summary>
+    /// Pick the backend the client dials. Net is the only wire, so this chooses hosts, not
+    /// a protocol.
+    ///
+    /// <para>
+    /// Precedence: an explicit <c>FINEAGE_NET_CLIENT=0</c> still wins, because that is how a
+    /// developer pins a public-playtest build while testing locally. Otherwise the Editor
+    /// defaults to loopback (the Dock has no environment) unless Fineage/Play Local selects
+    /// the tunnel profile.
+    /// </para>
+    /// </summary>
+    static void ConfigureBackend()
+    {
+        string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
+        bool pinnedToPublic = netClient == "0"
+            || string.Equals(netClient, "false", System.StringComparison.OrdinalIgnoreCase);
+
+#if UNITY_EDITOR
+        bool useLocal = !pinnedToPublic;
+#else
+        bool useLocal = false;
+#endif
+
+        if (useLocal)
+        {
+            FineageWireConfig.EnableLocalNetBackend();
+            Debug.Log("[Fineage] backend=local login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+            return;
+        }
+
+#if UNITY_EDITOR
+        FineageServerProfile.Refresh();
+        if (!pinnedToPublic && FineageServerProfile.IsLocalActive)
+        {
+            FineageWireConfig.EnablePlaytestBackend(
+                FineageServerProfile.LocalHost,
+                FineageServerProfile.LocalLoginPort,
+                FineageServerProfile.LocalHost,
+                FineageServerProfile.LocalGamePort);
+            Debug.LogWarning("[Fineage] backend=tunnel-profile login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+            return;
+        }
+#endif
+
+        PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
+        string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
+            ? ep.LoginHost
+            : PlaytestEndpoint.DefaultLoginHost;
+        string gameHost = FineageWireConfig.IsPublicLoginHost(ep.GameHost)
+            ? ep.GameHost
+            : PlaytestEndpoint.DefaultGameHost;
+        int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
+        int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
+
+        FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
+        Debug.Log("[Fineage] backend=public-playtest login="
+            + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+            + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
     }
 
     [Inject]
@@ -136,9 +153,7 @@ public class GameManager : MonoBehaviour, IGameManager {
         for (int i = 0; i < 30 && !App.HasContainer; i++)
             yield return null;
 
-        if (!FineageWireConfig.UseLoginHandoff)
-            yield break;
-
+        // Net owns the login, so an auto-login from launch args always has somewhere to go.
         Debug.Log("[Fineage] auto-login account=" + account);
         IZoneTransport transport = null;
         if (App.HasContainer)
@@ -169,8 +184,6 @@ public class GameManager : MonoBehaviour, IGameManager {
     /// </summary>
     static void DisconnectZoneSession()
     {
-        if (!FineageWireConfig.IsNet)
-            return;
         if (NetSession.Instance != null)
             UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
     }

@@ -459,23 +459,12 @@ public class CharSelectWindow : L2Window {
     }
     private void StartGamePressed()
     {
-        if (_lobbyCharacters != null)
-        {
-            LobbyCharacter selected = SelectedLobbyCharacter();
-            if (!LobbyCharacterText.CanEnter(selected))
-                return;
-            if (_startButton != null)
-                _startButton.SetEnabled(false);
-            if (FineageWireConfig.IsNet)
-            {
-                NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
-                return;
-            }
-
+        LobbyCharacter selected = SelectedLobbyCharacter();
+        if (!LobbyCharacterText.CanEnter(selected))
             return;
-        }
-
-        Characters.ConfirmSelection();
+        if (_startButton != null)
+            _startButton.SetEnabled(false);
+        NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
     }
 
     private void ReLoginPressed() {
@@ -490,22 +479,16 @@ public class CharSelectWindow : L2Window {
     }
 
     private void CreatePressed() {
-        if (_lobbyCharacters != null || FineageWireConfig.UseLoginHandoff)
+        int count = _lobbyCharacters != null ? _lobbyCharacters.Count : 0;
+        if (!LobbyCharacterText.CanCreate(count))
         {
-            int count = _lobbyCharacters != null ? _lobbyCharacters.Count : 0;
-            if (!LobbyCharacterText.CanCreate(count))
-            {
-                ShowLobbyStatus(LobbyCharacterText.ErrorMessage("character_limit", null));
-                return;
-            }
-
-            GameManager manager = Manager;
-            if (manager != null)
-                manager.OnCreateUser(null);
+            ShowLobbyStatus(LobbyCharacterText.ErrorMessage("character_limit", null));
             return;
         }
 
-        Game.Send(new NewCharacterCommand());
+        GameManager manager = Manager;
+        if (manager != null)
+            manager.OnCreateUser(null);
     }
 
     private void DeletePressed()

@@ -370,8 +370,6 @@ public static class FineageRpEditorPlay
                 return;
             if (LoginWindow.Instance == null || CharSelectWindow.Instance == null)
                 return;
-            if (!FineageWireConfig.UseLoginHandoff)
-                return;
 
             string user;
             string pass;

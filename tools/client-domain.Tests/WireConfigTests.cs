@@ -3,10 +3,14 @@ using Xunit;
 namespace Fineage.Client.Domain.Tests;
 
 /// <summary>
-/// Wire selection after the V2 MessagePack mode was retired. The important case is
-/// <see cref="FineageWireConfig.EnablePlaytestBackend"/>: a release build calls it with the
-/// public tunnel hosts, and it used to silently fall back to <c>127.0.0.1</c> because the
-/// body was guarded by the (always undefined) <c>FINEAGE_V2_WIRE</c> define.
+/// <see cref="FineageWireConfig"/> now only chooses hosts — Net is the sole wire.
+///
+/// <para>
+/// It used to be a wire selector with an <c>Interlude</c> default that could never be
+/// observed, because every entry point set Net straight away. These tests pin the two
+/// things that actually matter: a profile writes the hosts it was given, and a public
+/// profile never resolves to loopback.
+/// </para>
 /// </summary>
 public class WireConfigTests
 {
@@ -19,9 +23,6 @@ public class WireConfigTests
             PlaytestEndpoint.DefaultGameHost,
             PlaytestEndpoint.DefaultGamePort);
 
-        Assert.Equal(FineageWireConfig.Mode.Net, FineageWireConfig.Current);
-        Assert.True(FineageWireConfig.IsNet);
-        Assert.True(FineageWireConfig.UseLoginHandoff);
         Assert.Equal(PlaytestEndpoint.DefaultLoginHost, FineageWireConfig.LoginHost);
         Assert.Equal(PlaytestEndpoint.DefaultLoginPort, FineageWireConfig.LoginPort);
         Assert.Equal(PlaytestEndpoint.DefaultGameHost, FineageWireConfig.ZoneHost);
@@ -48,20 +49,29 @@ public class WireConfigTests
     {
         FineageWireConfig.EnableLocalNetBackend();
 
-        Assert.True(FineageWireConfig.IsNet);
         Assert.Equal("127.0.0.1", FineageWireConfig.LoginHost);
         Assert.Equal(9106, FineageWireConfig.LoginPort);
         Assert.Equal("127.0.0.1", FineageWireConfig.ZoneHost);
         Assert.Equal(9777, FineageWireConfig.ZonePort);
-        Assert.True(FineageWireConfig.UseLoginHandoff);
     }
 
+    /// <summary>
+    /// Whichever profile ran last wins. Without this a stale local override would leak into a
+    /// public build that calls <c>EnablePlaytestBackend</c> at startup.
+    /// </summary>
     [Fact]
-    public void Login_press_starts_a_zone_session_when_net_owns_the_login()
+    public void The_last_profile_applied_wins()
     {
         FineageWireConfig.EnableLocalNetBackend();
-        Assert.True(FineageWireConfig.LoginPressStartsZoneSession(false));
-        Assert.True(FineageWireConfig.LoginPressStartsZoneSession(true));
+        FineageWireConfig.EnablePlaytestBackend(
+            PlaytestEndpoint.DefaultLoginHost,
+            PlaytestEndpoint.DefaultLoginPort,
+            PlaytestEndpoint.DefaultGameHost,
+            PlaytestEndpoint.DefaultGamePort);
+
+        Assert.Equal(PlaytestEndpoint.DefaultLoginHost, FineageWireConfig.LoginHost);
+        Assert.Equal(PlaytestEndpoint.DefaultGamePort, FineageWireConfig.ZonePort);
+        Assert.True(FineageWireConfig.IsPublicLoginHost(FineageWireConfig.LoginHost));
     }
 
     [Fact]
