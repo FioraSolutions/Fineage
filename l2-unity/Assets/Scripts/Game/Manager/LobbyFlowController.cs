@@ -135,7 +135,9 @@ public sealed class LobbyFlowController
 
     public void LogOut()
     {
-        Login.Disconnect();
+        IZoneTransport transport = _zoneTransport ?? ZoneCommands.Transport;
+        if (transport != null)
+            transport.Disconnect();
     }
 
     public void OnWorldSceneLoaded()
@@ -283,7 +285,7 @@ public sealed class LobbyFlowController
             MusicManager.Instance.Clear();
             Scenes.LoadMenu();
         }
-        else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected && !Login.IsConnected)
+        else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected)
         {
             OnRelogin();
         }

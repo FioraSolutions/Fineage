@@ -918,10 +918,10 @@ public sealed class NetSession : MonoBehaviour
         // Stash PlayerInfo then OnCharacterSelect → LoadSWMap.
         // Spawning happens in OnWorldSceneLoaded once the tile is ready.
         // Without PlayerInfo.Identity, LoadSWMap returns immediately and loading never ends.
-        GameClient game = GameClient.Instance;
-        if (game != null)
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport != null)
         {
-            game.PlayerInfo = new PlayerInfoInterlude
+            transport.PlayerInfo = new PlayerInfoInterlude
             {
                 Identity = identity,
                 Status = status,
@@ -930,7 +930,7 @@ public sealed class NetSession : MonoBehaviour
             };
         }
         else
-            Debug.LogWarning("[Net] GameClient missing on EntitySpawn — world load will stall");
+            Debug.LogWarning("[Net] Zone transport missing on EntitySpawn — world load will stall");
 
         if (GameManager.Instance != null)
             GameManager.Instance.OnCharacterSelect();
@@ -1430,11 +1430,11 @@ public sealed class NetSession : MonoBehaviour
         PlayerStats stats = local != null ? local.Stats as PlayerStats : null;
         PlayerStatus status = local != null ? local.Status as PlayerStatus : null;
 
-        GameClient game = GameClient.Instance;
-        if (stats == null && game != null && game.PlayerInfo.Stats != null)
-            stats = game.PlayerInfo.Stats;
-        if (status == null && game != null && game.PlayerInfo.Status != null)
-            status = game.PlayerInfo.Status;
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (stats == null && transport != null && transport.PlayerInfo.Stats != null)
+            stats = transport.PlayerInfo.Stats;
+        if (status == null && transport != null && transport.PlayerInfo.Status != null)
+            status = transport.PlayerInfo.Status;
 
         if (stats == null)
             return;

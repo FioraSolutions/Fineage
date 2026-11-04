@@ -7,8 +7,6 @@ public abstract class OutgoingWirePacket<TDto> : IOutgoingPacket where TDto : cl
 
     protected virtual OutgoingBuildKind BuildKind => OutgoingBuildKind.GamePad;
 
-    protected virtual int LoginExtraZeroBytes => 0;
-
     public byte GetPacketType()
     {
         return Opcode;
@@ -30,9 +28,6 @@ public abstract class OutgoingWirePacket<TDto> : IOutgoingPacket where TDto : cl
                 break;
             case OutgoingBuildKind.GameOverwriteOpcode:
                 _built = writer.BuildGameOverwriteOpcode(Opcode);
-                break;
-            case OutgoingBuildKind.Login:
-                _built = writer.BuildLogin(Opcode, LoginExtraZeroBytes);
                 break;
             default:
                 _built = writer.BuildGame(Opcode);

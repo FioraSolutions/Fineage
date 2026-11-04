@@ -1,200 +1,52 @@
 ﻿using UnityEngine;
-using VContainer;
 
-public class GameClient : DefaultClient {
-    [Inject] IZoneTransport _zoneTransport;
-
-    private GameManager Manager => NetworkingPacketServices.Manager;
-    protected PlayerInfoInterlude _playerInfo;
-    protected int _serverId;
+/// <summary>
+/// Zone-session facts that outlived the Interlude game socket: the server row the player
+/// picked, the PlayOk keys, and whether world data has finished loading.
+///
+/// <para>
+/// This used to be a <c>DefaultClient</c> — an <see cref="AsynchronousClient"/> with its own
+/// send queue, Blowfish crypt key, and PlayOk → Connect handshake. Fineage Net owns the only
+/// zone socket (<c>NetSession</c>), so none of that ran. Commands go through
+/// <see cref="ZoneCommands"/> and profile state lives on <see cref="IZoneTransport"/>; what is
+/// left here is the handful of fields the packet layer still assigns.
+/// </para>
+///
+/// <para>
+/// The class stays because <c>IncomingPacketActions.Game</c> is frozen (#137) and names it.
+/// </para>
+/// </summary>
+public class GameClient : MonoBehaviour
+{
+    private int _serverId;
     private int _playKey1;
     private int _playKey2;
-    private readonly object syncLock = new object();
-    private bool _isLoadComplete { get; set; }
 
-    public PlayerInfoInterlude PlayerInfo { get { return _playerInfo; } set { _playerInfo = value; } }
-    public string CurrentPlayer { get { return _playerInfo.Identity.Name; } }
     public int ServerId { get { return _serverId; } set { _serverId = value; } }
     public int PlayKey1 { get { return _playKey1; } set { _playKey1 = value; } }
-    public int PlayKey2 { get { return _playKey2; } set { _playKey2 = value; } } 
-
-    private GameClientPacketHandler clientPacketHandler;
-    private GameServerPacketHandler serverPacketHandler;
-
-    public GameClientPacketHandler ClientPacketHandler { get { return clientPacketHandler; } }
-    public GameServerPacketHandler ServerPacketHandler { get { return serverPacketHandler; } }
+    public int PlayKey2 { get { return _playKey2; } set { _playKey2 = value; } }
 
     private static GameClient _instance;
     public static GameClient Instance { get { return _instance; } }
 
-    private void Awake() {
-        GameManager manager = GameManager.Instance;
-        if (manager != null)
-            NetworkingPacketServices.Bind(manager: manager);
-        if (_instance == null) {
-            _instance = this;
-        } else if (_instance != this) {
-            Destroy(this);
-        }
-    }
-
-    protected override void CreateAsyncClient() {
-        // Always replace prior game socket before PlayOk→Connect (half-open after skipped AuthLogin).
-        AsynchronousClient previous = _client;
-        _client = null;
-        if (previous != null)
-        {
-            try { previous.Disconnect(); } catch { /* ignore */ }
-        }
-
-        if (Network == null)
-            throw new System.InvalidOperationException("NetworkRuntime not ready (AppLifetimeScope)");
-
-        clientPacketHandler = new GameClientPacketHandler();
-        serverPacketHandler = new GameServerPacketHandler(Network.Protocol, Network.Dispatcher);
-
-        _client = new AsynchronousClient(_serverIp, _serverPort, this, clientPacketHandler, serverPacketHandler, false, Network);
-    }
-
-    public void EnableCrypt(byte[] key) {
-        if (Network != null && Network.Protocol != null)
-            Network.Protocol.SetGameCryptKey(key);
-        _client.CryptEnabled = true;
-    }
-
-    public bool IsCryptEnabled()
+    private void Awake()
     {
-        return _client != null && _client.CryptEnabled;
-    }
-
-
-    protected override void WhileConnecting() {
-        base.WhileConnecting();
-
-        Manager.OnConnectingToGameServer();
-    }
-
-    protected override void OnConnectionSuccess() {
-        base.OnConnectionSuccess();
-        LobbyFlowLog.Info("GameClient.OnConnectionSuccess — send ProtocolVersion");
-
-        GameManager manager = Manager;
-        if (manager != null)
-            manager.IsSwitchingServer = false;
-        else
-            LobbyFlowLog.Error("GameClient.OnConnectionSuccess Manager is null");
-
-        int protocol = manager != null ? manager.ProtocolVersion : 746;
-        LobbyFlowLog.Info("TX ProtocolVersion=" + protocol + " crypt=" + IsCryptEnabled());
-        EnqueueGame(new ProtocolVersionCommand(protocol), false);
+        if (_instance == null)
+            _instance = this;
+        else if (_instance != this)
+            Destroy(this);
     }
 
     /// <summary>
-    /// Encode + write AuthLogin on the current game socket immediately (no SendGame queue).
-    /// Used right after InterludeKey so lobby cannot stall when the queue worker is stale.
+    /// Ask the zone for the remaining skill cooldowns after a world load.
+    ///
+    /// <para>
+    /// This lived on the socket client because that is where <c>Send</c> used to be. It is a
+    /// plain zone command, so it goes through the same path as everything else.
+    /// </para>
     /// </summary>
-    public bool SendAuthLoginNow(string account, int playKey1, int playKey2, int loginKey1, int loginKey2)
-    {
-        // Fineage Net owns zone auth: the Interlude AuthLogin packet must never go out.
-        IZoneTransport transport = ResolveZoneTransport();
-        if (transport != null)
-        {
-            LobbyFlowLog.Error("SendAuthLoginNow blocked — Net owns zone auth");
-            return false;
-        }
-
-        if (Network == null || Network.Protocol == null)
-        {
-            LobbyFlowLog.Error("SendAuthLoginNow failed — NetworkRuntime/Protocol null");
-            return false;
-        }
-
-        if (_client == null || !_client.IsConnected)
-        {
-            LobbyFlowLog.Error("SendAuthLoginNow failed — game socket null/disconnected");
-            return false;
-        }
-
-        try
-        {
-            IOutgoingPacket packet = Network.Protocol.EncodeGame(
-                new AuthLoginCommand(account, playKey1, playKey2, loginKey1, loginKey2),
-                encrypt: false);
-            if (packet == null)
-            {
-                LobbyFlowLog.Error("SendAuthLoginNow failed — EncodeGame returned null");
-                return false;
-            }
-
-            byte[] data = packet.GetData();
-            int bodyLen = data != null ? data.Length : 0;
-            bool ok = _client.TrySendPacket(packet);
-            LobbyFlowLog.Info("SendAuthLoginNow bodyLen=" + bodyLen + " wrote=" + ok);
-            return ok;
-        }
-        catch (System.Exception ex)
-        {
-            LobbyFlowLog.Exception("SendAuthLoginNow", ex);
-            return false;
-        }
-    }
-
-    private void EnqueueGame(INetworkCommand command, bool crypt)
-    {
-        if (command == null || Network == null)
-            return;
-
-        Network.SendGame.AddItem(command, crypt);
-    }
-
-    private IZoneTransport ResolveZoneTransport()
-    {
-        if (_zoneTransport != null)
-            return _zoneTransport;
-        if (App.HasContainer)
-            return App.Resolve<IZoneTransport>();
-        return null;
-    }
-
     public void EndLoadWorld()
     {
         ZoneCommands.Send(new RequestSkillCoolTimeCommand());
-    }
-
-    public override void OnConnectionFailed() {
-        LobbyFlowLog.Warn("GameClient.OnConnectionFailed ip=" + _serverIp + " port=" + _serverPort);
-        base.OnConnectionFailed();
-        GameManager manager = Manager;
-        if (manager != null)
-        {
-            manager.IsSwitchingServer = false;
-            manager.OnRelogin();
-        }
-    }
-
-    public override void OnAuthAllowed() {
-        GameManager manager = Manager;
-        if (manager != null)
-            manager.OnAuthAllowed();
-    }
-
-    public override void OnDisconnect() {
-        LobbyFlowLog.Info("GameClient.Disconnect");
-        base.OnDisconnect();
-    }
-
-   public bool DataPreparationCompleted()
-    {
-        lock (syncLock) {
-           return _isLoadComplete;
-        }
-    }
-
-    public bool SetDataPreparationCompleted(bool isComplete)
-    {
-        lock (syncLock)
-        {
-            return _isLoadComplete = isComplete;
-        }
     }
 }
