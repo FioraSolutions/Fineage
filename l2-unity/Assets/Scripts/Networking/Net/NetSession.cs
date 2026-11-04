@@ -1070,6 +1070,10 @@ public sealed class NetSession : MonoBehaviour
         dto.Status.SetMp(100);
         dto.Stats.MaxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         dto.Stats.MaxMp = 100;
+        // Paperdoll is what makes peers visible in gear: without it every other player spawns
+        // undressed while the wearer sees their own kit (UserInfo path).
+        if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)
+            NetDomainMap.ApplyItemIds(dto.Appearance, spawn.Paperdoll);
         if (_presence != null) _presence.ApplyCharInfo(dto);
         else CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
     }
