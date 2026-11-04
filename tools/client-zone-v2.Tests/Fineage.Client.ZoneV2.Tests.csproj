@@ -6,6 +6,10 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>Fineage.Client.ZoneV2.Tests</RootNamespace>
+    <!-- This host exercises the V2 MessagePack adapters, which Unity compiles with the
+         FINEAGE_V2_WIRE define. Without it the linked FineageWireConfig falls back to Net
+         and the V2 playtest-host assertions fail. -->
+    <DefineConstants>$(DefineConstants);FINEAGE_V2_WIRE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="3.1.12" />
@@ -18,6 +22,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\zone-server\Fineage.ZoneServer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Linked client adapters can reference Fineage.Net.Contract types; link the whole folder
+         so the next such dependency does not re-break this test project. -->
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Contract\**\*.cs"
+             Link="Client\Net.Contract\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Adapters\V2\ZoneV2Chat.cs" Link="Client\ZoneV2Chat.cs" />
