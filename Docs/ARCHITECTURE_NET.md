@@ -269,7 +269,8 @@ tools/zone-server/
 
 Client side (Unity):
 ```
-l2-unity/Assets/Scripts/Networking/Adapters/V2/
+l2-unity/Assets/Scripts/Networking/Net/Domain/
 ├── IZoneTransport.cs           # transport abstraction for GameManager
-└── ... existing files unchanged
+├── FineageZoneTransport.cs     # live Net transport (registered in DI as IZoneTransport)
+└── ... shared domain/adapter layer
 ```
