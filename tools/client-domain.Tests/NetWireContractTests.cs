@@ -306,14 +306,18 @@ public class NetWireContractTests
             Attackable = true
         });
 
-        // Trailing bytes for an empty paperdoll array (ushort count 0) + the Dead flag.
-        byte[] older = full.AsSpan(0, full.Length - 3).ToArray();
+        // Trailing bytes for an empty paperdoll array (ushort count 0) + the Dead flag,
+        // plus the Level/MaxHp tail added later.
+        const int newerTail = 4 + 4;
+        byte[] older = full.AsSpan(0, full.Length - 3 - newerTail).ToArray();
 
         EntitySpawnMsg decoded = NetCodec.DecodeEntitySpawn(older);
         Assert.Equal("Wolf", decoded.Name);
         Assert.True(decoded.Attackable);
         Assert.False(decoded.Dead);
         Assert.Empty(decoded.Paperdoll);
+        Assert.Equal(0, decoded.Level); // added after Dead; absent means older frame
+        Assert.Equal(0, decoded.MaxHp);
     }
 
     [Fact]

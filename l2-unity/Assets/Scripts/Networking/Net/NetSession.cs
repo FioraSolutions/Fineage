@@ -1001,8 +1001,8 @@ public sealed class NetSession : MonoBehaviour
 
         var stats = new PlayerStats
         {
-            Level = 1,
-            MaxHp = 100,
+            Level = spawn.Level > 0 ? spawn.Level : 1,
+            MaxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100,
             MaxMp = 50,
             MaxCp = 0,
             BaseRunSpeed = Mathf.RoundToInt(spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f),
@@ -1064,9 +1064,10 @@ public sealed class NetSession : MonoBehaviour
         dto.Stats.BaseWalkingSpeed = Mathf.RoundToInt(walk);
         dto.Stats.RunRealSpeed = run;
         dto.Stats.WalkRealSpeed = walk;
+        dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         dto.Status.SetHp(100);
         dto.Status.SetMp(100);
-        dto.Stats.MaxHp = 100;
+        dto.Stats.MaxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         dto.Stats.MaxMp = 100;
         if (_presence != null) _presence.ApplyCharInfo(dto);
         else CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
@@ -1084,9 +1085,9 @@ public sealed class NetSession : MonoBehaviour
         dto.Identity.EntityType = EntityType.NPC;
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
         dto.Identity.IsRunning = spawn.Running;
-        dto.Stats.Level = 1;
+        dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         dto.Status.SetHp(100);
-        dto.Stats.MaxHp = 100;
+        dto.Stats.MaxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         const int defaultPAtkSpd = 253;
         dto.Stats.PAtkSpd = defaultPAtkSpd;
         dto.Stats.PAtkRealSpeed = defaultPAtkSpd;
