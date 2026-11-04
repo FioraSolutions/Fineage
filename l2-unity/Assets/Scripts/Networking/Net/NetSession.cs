@@ -392,6 +392,25 @@ public sealed class NetSession : MonoBehaviour
     }
 
     /// <summary>
+    /// Mobius <c>RequestActionUse</c>: 0 = sit/stand, 1 = walk/run, 12/13/14 = social gestures.
+    /// The zone answers with ChangeWaitType / ChangeMoveType / SocialAction.
+    /// </summary>
+    public async void SendActionUse(int actionId, bool ctrlPressed = false, bool shiftPressed = false)
+    {
+        if (_zone == null || !_zone.Connected)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestActionUse,
+            NetCodec.EncodeActionUse(new ActionUseNetMsg
+            {
+                ActionId = actionId,
+                CtrlPressed = ctrlPressed,
+                ShiftPressed = shiftPressed
+            }),
+            NextSeq());
+    }
+
+    /// <summary>
     /// Position heartbeat (L2 coordinates + heading). The zone reconciles the client's
     /// position against its own copy; without it a walk drifts and then snaps back.
     /// </summary>
@@ -858,6 +877,12 @@ public sealed class NetSession : MonoBehaviour
             case NetOpcode.ChangeMoveType:
                 NetShortCutReceiver.ApplyChangeMoveType(NetCodec.DecodeChangeMoveType(envelope.Payload));
                 break;
+            case NetOpcode.ChangeWaitType:
+                ApplyChangeWaitType(NetCodec.DecodeChangeWaitType(envelope.Payload));
+                break;
+            case NetOpcode.SocialAction:
+                ApplySocialAction(NetCodec.DecodeSocialAction(envelope.Payload));
+                break;
             case NetOpcode.TargetSelected:
                 ApplyTargetSelected(NetCodec.DecodeTargetSelected(envelope.Payload));
                 break;
@@ -1154,6 +1179,20 @@ public sealed class NetSession : MonoBehaviour
             attributes.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
         if (_statusUpdate != null) _statusUpdate.Apply((int)status.EntityValue, attributes);
         else StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate((int)status.EntityValue, attributes);
+    }
+
+    /// <summary>Mobius ChangeWaitType: sit/stand on the actor, self included so a sit is acknowledged.</summary>
+    void ApplyChangeWaitType(ChangeWaitTypeNetMsg msg)
+    {
+        ChangeWaitTypeDto dto = ChangeWaitTypeDto.FromNet((int)msg.EntityValue, msg.WaitType, msg.X, msg.Y, msg.Z);
+        WorldApplyIncomingPacketServices.QueueWorld(apply => apply.ChangeWaitType(dto));
+    }
+
+    /// <summary>Mobius SocialAction: a gesture on the actor (15 = level up).</summary>
+    void ApplySocialAction(SocialActionNetMsg msg)
+    {
+        SocialActionDto dto = SocialActionDto.FromNet((int)msg.EntityValue, msg.ActionId);
+        WorldApplyIncomingPacketServices.QueueWorld(apply => apply.SocialAction(dto));
     }
 
     void ApplyEntityDie(EntityDieMsg die)

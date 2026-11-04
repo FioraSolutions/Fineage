@@ -8,17 +8,8 @@ public class StandIntention : IntentionBase
 
     public override void Enter(object arg0)
     {
-        // Debug.Log("");
-        //if (!_stateMachine.WaitingForServerReply)
-        //{
-          //  _stateMachine.SetWaitingForServerReply(true);
-          //  Debug.Log("Здесь должно сработать Stand Intention");
-           // GameClient.Instance.ClientPacketHandler.RequestActionUse((int)ActionType.Sit);
-        //}
-        //else
-        //{
-            ControllerPacketServices.Player.StopMove();
-        //}
+        // Mobius RequestActionUse 0 again: the zone toggles and answers ChangeWaitType(WT_STANDING).
+        NetSession.Ensure().SendActionUse(0);
     }
 
     public override void Exit() { }
