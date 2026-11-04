@@ -182,7 +182,7 @@ public class GameManager : MonoBehaviour, IGameManager {
     /// <see cref="FineageZoneTransport.Disconnect"/> (destroy the <see cref="NetSession"/>
     /// GameObject) so QuitGame and RestartRoutine never leave a dangling socket.
     /// </summary>
-    static void DisconnectZoneSession()
+    public static void DisconnectZoneSession()
     {
         if (NetSession.Instance != null)
             UnityEngine.Object.Destroy(NetSession.Instance.gameObject);

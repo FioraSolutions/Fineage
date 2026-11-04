@@ -29,7 +29,7 @@ public interface IZoneTransport
     /// session was owned by the dead Interlude socket client.
     /// </para>
     /// </summary>
-    PlayerInfoInterlude PlayerInfo { get; }
+    PlayerInfoInterlude PlayerInfo { get; set; }
 
     /// <summary>Begin a new session (connect + Hello + Auth + EnterWorld).</summary>
     void BeginSession(string account, string password);

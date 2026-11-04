@@ -664,8 +664,9 @@ public class ClanWindow : L2TwoPanels
 
     int SelfObjectId()
     {
-        if (Game != null && Game.PlayerInfo.Identity != null && Game.PlayerInfo.Identity.Id > 0)
-            return Game.PlayerInfo.Identity.Id;
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport != null && transport.PlayerInfo.Identity != null && transport.PlayerInfo.Identity.Id > 0)
+            return transport.PlayerInfo.Identity.Id;
         NetSession net = NetSession.Instance;
         return net != null ? net.SessionObjectId : 0;
     }

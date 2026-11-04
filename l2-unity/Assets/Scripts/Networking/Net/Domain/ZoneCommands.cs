@@ -53,6 +53,19 @@ public static class ZoneCommands
     }
 
     /// <summary>
+    /// True while a zone session exists. Replaces <c>GameClient.IsConnected</c>, which asked
+    /// whether the dead Interlude game socket was connected.
+    /// </summary>
+    public static bool IsConnected
+    {
+        get
+        {
+            IZoneTransport transport = Transport;
+            return transport != null && transport.Connected;
+        }
+    }
+
+    /// <summary>
     /// Send a command to the zone. Returns false when no transport is available, which means
     /// the command was not delivered — callers that care can surface that instead of assuming
     /// success.

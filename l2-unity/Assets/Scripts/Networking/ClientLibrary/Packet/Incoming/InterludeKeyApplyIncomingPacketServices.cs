@@ -13,7 +13,7 @@ public static class InterludeKeyApplyIncomingPacketServices
         if (!packet.AuthAllowed)
         {
             LobbyFlowLog.Warn("InterludeKey AuthAllowed=false → disconnect");
-            Game.Disconnect();
+            GameManager.DisconnectZoneSession();
             Login.Disconnect();
             return;
         }

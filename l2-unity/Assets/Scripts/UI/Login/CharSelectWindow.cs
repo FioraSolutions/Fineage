@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -475,7 +475,7 @@ public class CharSelectWindow : L2Window {
         }
 
         Manager.OnRelogin();
-        Game.Disconnect();
+        GameManager.DisconnectZoneSession();
     }
 
     private void CreatePressed() {

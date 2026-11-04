@@ -15,12 +15,11 @@ public static class UserInfoApplyIncomingPacketServices
 
     public static void Queue(Action action) => WorldApplyIncomingPacketServices.Queue(action);
 
-    public static UserInfoDto CreateUserInfoDto() => new UserInfoDto(Game.PlayerInfo);
+    public static UserInfoDto CreateUserInfoDto() => new UserInfoDto(ZoneCommands.Transport.PlayerInfo);
 
     public static void ApplyUserInfo(UserInfoDto userInfo)
     {
         StorageNpc.getInstance().AddUserInfo(userInfo);
-        Game.SetDataPreparationCompleted(true);
         Queue(() =>
         {
             DomainStatsChanged changed = InterludeDomainMap.Stats(userInfo);
