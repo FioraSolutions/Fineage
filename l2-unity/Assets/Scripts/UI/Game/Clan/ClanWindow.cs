@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,10 +9,6 @@ using UnityEngine.UIElements;
 public class ClanWindow : L2TwoPanels
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => ClanPacketServices.Game;
-   
     private static ClanWindow _instance;
     private MasterClan _masterClan;
     private ClanDetailedInfo _detailedClan;
@@ -75,7 +71,7 @@ public class ClanWindow : L2TwoPanels
 
     private void WireClanPacketServices()
     {
-        ClanPacketServices.Bind(game: _gameClient, clan: this);
+        ClanPacketServices.Bind(clan: this);
     }
 
     protected override void LoadAssets()
@@ -86,9 +82,7 @@ public class ClanWindow : L2TwoPanels
     protected override IEnumerator BuildWindow(VisualElement root)
     {
 
-
         InitWindow(root);
-
 
         yield return new WaitForEndOfFrame();
 
@@ -105,7 +99,6 @@ public class ClanWindow : L2TwoPanels
         DisableEventOnOver(_dropdown);
         _dropdown.RegisterCallback<PointerDownEvent>(OnDropdownPointer, TrickleDown.TrickleDown);
 
-
         var master_table_content = GetElementByClass("master-table-list");
 
         _creatorTableWindows.InitTable(master_table_content);
@@ -115,8 +108,6 @@ public class ClanWindow : L2TwoPanels
         _creatorTableWindows.OnRowClicked += SelectMember;
 
         _detailedClan.LoadAssets(LoadAsset);
-
-
 
         var memberButton = (UnityEngine.UIElements.Button)GetElementById("MemberButton");
         memberButton?.RegisterCallback<ClickEvent>(evt => OnClickShowMember(evt));
@@ -129,8 +120,6 @@ public class ClanWindow : L2TwoPanels
 
         var clanInfo = (UnityEngine.UIElements.Button)GetElementById("ClanInoButton");
         clanInfo?.RegisterCallback<ClickEvent>(evt => OnClickClanInfo(evt));
-
-
 
         var penaltyButton = (UnityEngine.UIElements.Button)GetElementById("PenaltyButton");
         penaltyButton?.RegisterCallback<ClickEvent>(evt => OnClickPenalty(evt));
@@ -297,9 +286,6 @@ public class ClanWindow : L2TwoPanels
     {
     }
 
-
-
-
     private void OnClickEditAuthButton(ClickEvent evt)
     {
         //if (!string.IsNullOrEmpty(_masterClan.GetSelectMemberName()))
@@ -308,7 +294,6 @@ public class ClanWindow : L2TwoPanels
         //}
 
     }
-
 
     private void OnClickLeave(ClickEvent evt)
     {
@@ -383,9 +368,6 @@ public class ClanWindow : L2TwoPanels
             }
         }
     }
-
-
-
 
     private const string USS_STYLE_YELLOW = "button-label-yellow";
     private const string USS_STYLE_DISABLED = "button-label-disabled";

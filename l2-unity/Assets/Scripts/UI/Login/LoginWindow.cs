@@ -176,14 +176,6 @@ public class LoginWindow : L2Window
 
         IZoneTransport transport = _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
 
-        // Fineage Net owns the login, so Log In always starts a zone session. A stale
-        // Interlude login socket would only hold the port, so close it first.
-        if (login != null && login.IsConnected)
-        {
-            Debug.Log("[Login] closing stuck login socket before Net handoff");
-            login.Disconnect();
-        }
-
         ShowStatusText("Connecting to " + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort);
 
         try

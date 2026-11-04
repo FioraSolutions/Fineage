@@ -17,15 +17,13 @@ public sealed class EntityActionMachine : ITickable
         L2PawnYaw pawnYaw,
         IAnimationManager animations,
         EffectManager effects,
-        MoveAllCharacters moves,
-        GameClient game)
+        MoveAllCharacters moves)
     {
         Instance = this;
         ControllerPacketServices.Bind(
             animations: animations,
             effects: effects,
-            moves: moves,
-            game: game);
+            moves: moves);
         _pawnRange = pawnRange;
         _processes = new Dictionary<EntityActionKind, IEntityActionProcess>
         {

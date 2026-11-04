@@ -15,21 +15,7 @@ public sealed class AppLifetimeScope : LifetimeScope
         builder.Register<TableInitializer>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton);
 
-        builder.Register<IncomingPacketAutoRegistry>(Lifetime.Singleton)
-            .AsSelf()
-            .As<IIncomingPacketAutoRegistry>()
-            .As<INetworkHandlers>();
-        builder.Register<OutgoingPacketAutoRegistry>(Lifetime.Singleton)
-            .AsSelf()
-            .As<IOutgoingPacketAutoRegistry>();
-        builder.Register<InterludeProtocol>(Lifetime.Singleton).As<IProtocol>().AsSelf();
         builder.Register<PacketApplyQueue>(Lifetime.Singleton);
-        builder.Register<NetworkDispatcher>(Lifetime.Singleton).As<INetworkDispatcher>().AsSelf();
-        builder.Register<IncomingGameQueue>(Lifetime.Singleton);
-        builder.Register<SendGameDataQueue>(Lifetime.Singleton);
-        builder.Register<IncomingLoginDataQueue>(Lifetime.Singleton);
-        builder.Register<SendLoginDataQueue>(Lifetime.Singleton);
-        builder.Register<NetworkRuntime>(Lifetime.Singleton);
         builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
         builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().AsSelf();
         RegisterDatTables(builder);

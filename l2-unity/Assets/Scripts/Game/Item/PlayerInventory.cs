@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,9 +6,6 @@ using VContainer;
 
 public class PlayerInventory : MonoBehaviour
 {
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => ItemPacketServices.Game;
 
     public enum InventoryChange
     {
@@ -110,8 +107,6 @@ public class PlayerInventory : MonoBehaviour
         return false;
     }
 
-
-
     private void Awake()
     {
         if (_instance == null)
@@ -137,8 +132,8 @@ public class PlayerInventory : MonoBehaviour
 
     private void WireItemPacketServices()
     {
-        ItemPacketServices.Bind(game: _gameClient);
-        InventoryPacketServices.Bind(game: _gameClient, inventory: this);
+        ItemPacketServices.Bind();
+        InventoryPacketServices.Bind(inventory: this);
     }
 
     private void OnDestroy()
@@ -172,8 +167,6 @@ public class PlayerInventory : MonoBehaviour
         });
     }
 
-
-
     private readonly object _lock = new object();
 
     public void UpdateInventory(Dictionary<int, ItemInstance> items , Dictionary<int, ItemInstance> equipitems)
@@ -206,7 +199,6 @@ public class PlayerInventory : MonoBehaviour
                     InventoryWindow.Instance.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);
                     InventoryWindow.Instance.RemoveOldEquipItemOrNoQuipItem(_changeInventoryData , userId);
                 });
-            
 
             }
             catch (Exception ex)
@@ -214,8 +206,7 @@ public class PlayerInventory : MonoBehaviour
                 // Debug.LogError("PlayerInventory Errors: " + ex.StackTrace);
             }
         }
-        
-  
+
     }
     private int GetAdenaCount(List<ItemInstance> modified)
     {
@@ -236,8 +227,6 @@ public class PlayerInventory : MonoBehaviour
             Modified(_playerInventory, _playerEquipInventory , listEquip , item_m);
         }
     }
-
- 
 
     private void AddAndRemove(Dictionary<int, ItemInstance> _playerInventory , ItemInstance item)
     {
@@ -371,10 +360,6 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-
-
-
-
     private void RemoveInventory(Dictionary<int, ItemInstance> playerInventory , ItemInstance del_item)
     {
         
@@ -393,7 +378,6 @@ public class PlayerInventory : MonoBehaviour
             playerEquipInventory.Remove(del_item.ObjectId);
         }
 
-
     }
 
     private void GearReplaceSlot(Dictionary<int, ItemInstance> playerEquipInventory, ItemInstance sourceItem , ItemInstance gearItem)
@@ -401,8 +385,6 @@ public class PlayerInventory : MonoBehaviour
         if(playerEquipInventory.ContainsKey(gearItem.ObjectId)) playerEquipInventory.Remove(gearItem.ObjectId);
         _changeInventoryData.AddReplaceGear(sourceItem, gearItem);
     }
-
-
 
     private void UpdateEquip(Dictionary<int, ItemInstance> playerInventory, Dictionary<int, ItemInstance> playerEquipInventory, ItemInstance item)
     {
@@ -458,7 +440,6 @@ public class PlayerInventory : MonoBehaviour
         return items.Where(item =>
         item.LastChange == (int)InventoryChange.MODIFIED).ToList();
     }
- 
 
     public void ChangeItemOrder(int fromSlot, int toSlot)
     {
@@ -490,8 +471,6 @@ public class PlayerInventory : MonoBehaviour
         {
             return false;
         }
-
-
 
         if (IsRecipeItem(item))
         {
@@ -557,8 +536,6 @@ public class PlayerInventory : MonoBehaviour
         return true;
     }
 
-
-
     private void OkUse()
     {
         SendUseItemPacket(_objectIdEtcType);
@@ -575,10 +552,6 @@ public class PlayerInventory : MonoBehaviour
     {
         SystemMessageUtils.CancelEvent(SystemMessageWindow.Instance, OkUse, OnCancel);
     }
-
-
-
-
 
     public void DestroyItem(int objectId, int quantity)
     {

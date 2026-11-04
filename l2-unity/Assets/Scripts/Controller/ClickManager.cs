@@ -6,7 +6,6 @@ public class ClickManager : MonoBehaviour
 {
     [Inject] InputManager _input;
     [Inject] TargetManager _targets;
-    [Inject] GameClient _gameClient;
     [Inject] ItemDropPicker _dropPicker;
     [SerializeField] private GameObject _locator;
     [SerializeField] private ObjectData _targetObjectData;
@@ -36,19 +35,6 @@ public class ClickManager : MonoBehaviour
     private TargetManager Targets
     {
         get { return _targets != null ? _targets : ControllerPacketServices.Targets; }
-    }
-
-    private GameClient Game
-    {
-        get
-        {
-            if (_gameClient != null)
-                return _gameClient;
-            GameClient fromController = ControllerPacketServices.Game;
-            if (fromController != null)
-                return fromController;
-            return IncomingPacketActions.Game;
-        }
     }
 
     // L2 FindMouseTargetObject far = 10000 UU.
@@ -82,7 +68,6 @@ public class ClickManager : MonoBehaviour
     void WireClickPacketServices()
     {
         ControllerPacketServices.Bind(
-            game: Game,
             input: GameInput,
             targets: Targets);
     }

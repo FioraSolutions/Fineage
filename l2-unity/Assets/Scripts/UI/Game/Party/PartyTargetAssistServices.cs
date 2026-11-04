@@ -16,12 +16,9 @@ public static class PartyTargetAssistServices
         return TargetManager.Instance;
     }
 
-    public static GameClient ResolveGame()
+    public static bool HasSession()
     {
-        GameClient game = ActionPacketServices.Game;
-        if (game != null)
-            return game;
-        return PartyPacketServices.Game;
+        return ZoneCommands.IsConnected;
     }
 
     /// <summary>Target a party member by object id and mark attack target for assist-style play.</summary>
@@ -41,8 +38,7 @@ public static class PartyTargetAssistServices
         targets.SetAttackTarget();
 
         Entity entity = targets.Target != null ? targets.Target.GetEntity() : null;
-        GameClient game = ResolveGame();
-        if (entity != null && entity.Identity != null && game != null)
+        if (entity != null && entity.Identity != null && HasSession())
         {
             var l2jpos = entity.Identity.GetL2jPos();
             ZoneCommands.Send(new ClickActionCommand(

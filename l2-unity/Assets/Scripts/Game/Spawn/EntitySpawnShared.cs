@@ -1,8 +1,14 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class EntitySpawnShared
 {
+    /// <summary>npcIds already reported as unresolvable, so a repeated NpcInfo does not spam logs.</summary>
+    static readonly HashSet<int> ReportedUnresolvedNpcIds = new HashSet<int>();
+    const int MaxUnresolvedReports = 20;
+    static bool _unresolvedReportsSuppressed;
+
     public static bool TryResolveNpc(
         EntityIdentity identity,
         NpcgrpTable npcGrps,
@@ -28,15 +34,19 @@ public static class EntitySpawnShared
             npcName = npcNames.GetNpcName(visualNpcId);
         if (npcName == null || npcgrp == null)
         {
-            // Debug.LogError("Npc " + identity.NpcId + " could not be loaded correctly.");
+            ReportUnresolved(
+                identity.NpcId,
+                "no entry in Npcgrp_Classic.txt / NpcName_Classic-eu.txt");
             return false;
         }
 
         GameObject prefab = models.GetNpc(npcgrp.Mesh);
         if (prefab == null)
         {
-            // Debug.LogWarning(
-                // "NPC Not Found Nps!!!!! Need add server ID " + identity.Id + " Npc Id " + identity.NpcId);
+            ReportUnresolved(
+                identity.NpcId,
+                "mesh '" + npcgrp.Mesh + "' has no prefab at Resources/Data/Animations/"
+                + npcgrp.Mesh.Replace('.', '/'));
             return false;
         }
 
@@ -55,6 +65,32 @@ public static class EntitySpawnShared
             Prefab = prefab
         };
         return true;
+    }
+
+    /// <summary>
+    /// One line per npcId when the client cannot build a spawn request. Without this the NPC
+    /// silently disappears, which looks identical to the server never sending NpcInfo.
+    /// </summary>
+    static void ReportUnresolved(int npcId, string reason)
+    {
+        if (!ReportedUnresolvedNpcIds.Add(npcId))
+            return;
+
+        if (_unresolvedReportsSuppressed)
+            return;
+        if (ReportedUnresolvedNpcIds.Count > MaxUnresolvedReports)
+        {
+            _unresolvedReportsSuppressed = true;
+            FineageLog.Warn(
+                FineageLog.Category.World,
+                "NpcInfo unresolved reports capped at " + MaxUnresolvedReports
+                + " distinct npcIds; further ids are not logged.");
+            return;
+        }
+
+        FineageLog.Warn(
+            FineageLog.Category.World,
+            "NpcInfo npcId=" + npcId + " not rendered: " + reason);
     }
 
     public static EntityType ResolveEntityType(GameObject prefab, string className)

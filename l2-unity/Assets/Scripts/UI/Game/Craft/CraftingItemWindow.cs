@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,9 +8,6 @@ using VContainer;
 public class CraftingItemWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => CraftPacketServices.Game;
     private ICreatorSimpleTrade _creatorSimpleTrade;
     private static CraftingItemWindow _instance;
     private RecipeItemMakeInfoDto _packet;
@@ -42,7 +39,7 @@ public class CraftingItemWindow : L2PopupWindow
 
     private void WireCraftPacketServices()
     {
-        CraftPacketServices.Bind(game: _gameClient, crafting: this);
+        CraftPacketServices.Bind(crafting: this);
     }
 
     protected override void LoadAssets()
@@ -51,8 +48,6 @@ public class CraftingItemWindow : L2PopupWindow
         _creatorSimpleTrade.LoadAsset(LoadAsset);
 
     }
-
-
 
     protected override IEnumerator BuildWindow(VisualElement root)
     {

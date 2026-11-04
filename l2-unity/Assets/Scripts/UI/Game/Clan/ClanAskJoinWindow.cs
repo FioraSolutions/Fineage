@@ -130,8 +130,7 @@ public class ClanAskJoinWindow : L2PopupWindow
     {
         if (_requestorObjectId <= 0)
             return;
-        GameClient game = ClanPacketServices.Game;
-        if (game != null)
+        if (ZoneCommands.IsConnected)
             ZoneCommands.Send(new ClanAnswerJoinRequestCommand(_requestorObjectId, response));
         _requestorObjectId = 0;
     }

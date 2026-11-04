@@ -6,7 +6,6 @@ using static UnityEngine.GraphicsBuffer;
 
 public class PlayerActions : MonoBehaviour
 {
-    [Inject] GameClient _gameClient;
     [Inject] InputManager _input;
     [Inject] TargetManager _targets;
     private Dictionary<ActionType, L2Action> _actions;
@@ -32,7 +31,7 @@ public class PlayerActions : MonoBehaviour
 
         _actions = new Dictionary<ActionType, L2Action>();
         AttackAction attack = new AttackAction();
-        attack.Bind(_targets, _gameClient);
+        attack.Bind(_targets);
         _actions.Add(ActionType.Attack, attack);
         _actions.Add(ActionType.Sit, new SitStandAction());
         _actions.Add(ActionType.WalkRun, new WalkRunAction());
@@ -49,7 +48,7 @@ public class PlayerActions : MonoBehaviour
 
     private void WireActionPacketServices()
     {
-        ActionPacketServices.Bind(game: _gameClient, input: _input, targets: _targets);
+        ActionPacketServices.Bind(input: _input, targets: _targets);
     }
 
     private void OnDestroy()
@@ -89,8 +88,7 @@ public class PlayerActions : MonoBehaviour
 
     public void UseSkill(int skillId)
     {
-        GameClient game = _gameClient != null ? _gameClient : ActionPacketServices.Game;
-        if (game == null)
+        if (!ZoneCommands.IsConnected)
             return;
         ZoneCommands.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));
     }

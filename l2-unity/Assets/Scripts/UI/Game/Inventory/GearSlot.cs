@@ -42,8 +42,7 @@ public class GearSlot : InventorySlot
             return;
         }
 
-        GameClient game = InventoryPacketServices.Game;
-        if (game == null)
+        if (!ZoneCommands.IsConnected)
             return;
 
         ZoneCommands.Send(new UseItemCommand(ObjectId, 0));

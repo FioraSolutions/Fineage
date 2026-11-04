@@ -1,4 +1,4 @@
-/// <summary>
+﻿/// <summary>
 /// Game-layer access to shared services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 35).
 /// </summary>
 public static class GamePacketServices
@@ -7,7 +7,6 @@ public static class GamePacketServices
     private static EventBus _bus;
     private static EffectSkillsmanager _effectSkills;
     private static GameManager _manager;
-    private static GameClient _game;
     private static IAnimationManager _animations;
 
     public static void Bind(
@@ -15,7 +14,6 @@ public static class GamePacketServices
         EventBus bus = null,
         EffectSkillsmanager effectSkills = null,
         GameManager manager = null,
-        GameClient game = null,
         IAnimationManager animations = null)
     {
         if (gameWorld != null)
@@ -26,8 +24,6 @@ public static class GamePacketServices
             _effectSkills = effectSkills;
         if (manager != null)
             _manager = manager;
-        if (game != null)
-            _game = game;
         if (animations != null)
             _animations = animations;
     }
@@ -43,9 +39,6 @@ public static class GamePacketServices
 
     public static GameManager Manager =>
         _manager != null ? _manager : IncomingPacketActions.Manager;
-
-    public static GameClient Game =>
-        _game != null ? _game : IncomingPacketActions.Game;
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : IncomingPacketActions.Animations;

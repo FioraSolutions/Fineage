@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -19,9 +19,6 @@ public class TradeRequestWindow : L2PopupWindow
     private Coroutine _countdownCoroutine;
 
     [Inject] World _world;
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => TradePacketServices.Game;
 
     private World Worlds
     {
@@ -55,7 +52,7 @@ public class TradeRequestWindow : L2PopupWindow
 
     private void WireTradePacketServices()
     {
-        TradePacketServices.Bind(game: _gameClient, tradeRequest: this);
+        TradePacketServices.Bind(tradeRequest: this);
     }
 
     public void AddData(SendTradeRequestDto request)

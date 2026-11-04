@@ -35,9 +35,10 @@ public static class NetGearSession
             + " class=" + user.ClassId
             + " rhand=" + rhand);
 
-        GameClient game = GameClient.Instance;
-        if (game != null && game.PlayerInfo.Identity != null && game.PlayerInfo.Identity.Id == user.ObjectId)
-            NetDomainMap.OverlayUserInfo(game.PlayerInfo, user);
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport != null && transport.PlayerInfo.Identity != null &&
+            transport.PlayerInfo.Identity.Id == user.ObjectId)
+            NetDomainMap.OverlayUserInfo(transport.PlayerInfo, user);
 
         PlayerEntity player = PlayerEntity.Instance;
         if (player != null && player.Identity != null && player.Identity.Id == user.ObjectId)

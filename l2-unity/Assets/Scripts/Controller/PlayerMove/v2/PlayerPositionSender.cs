@@ -5,16 +5,7 @@ public class PlayerPositionSender
     // ALineagePlayerController+0xA00, period dbl_1F44120
     public const float Interval = 1.2f;
 
-    private readonly GameClient _gameClient;
     private float _timer;
-
-    public PlayerPositionSender(GameClient gameClient = null)
-    {
-        _gameClient = gameClient;
-    }
-
-    private GameClient Game =>
-        _gameClient != null ? _gameClient : ControllerPacketServices.Game;
 
     public void TickWhileMoving(Vector3 playerPosition, int heading, float deltaTime)
     {

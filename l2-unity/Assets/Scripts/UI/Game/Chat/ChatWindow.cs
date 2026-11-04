@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,9 +8,6 @@ using VContainer;
 public class ChatWindow : L2Window
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => ChatPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _messageLabelTemplate;
@@ -26,8 +23,6 @@ public class ChatWindow : L2Window
     [SerializeField] public List<ChatTab> _tabs;
     [SerializeField] private bool _chatOpened = false;
     [SerializeField] private int _chatInputCharacterLimit = 64;
-
-
 
     public bool ChatOpened { get { return _chatOpened; } }
 
@@ -57,7 +52,6 @@ public class ChatWindow : L2Window
 
     private void WireChatPacketServices()
     {
-        ChatPacketServices.Bind(game: _gameClient);
         MessagePacketApply messageApply = IncomingPacketActions.MessageApply;
         if (messageApply != null)
             MessagePacketServices.Bind(messageApply: messageApply);
@@ -121,7 +115,6 @@ public class ChatWindow : L2Window
         diagonalResizeManipulator.SnapSize();
 
     }
-
 
     private void CreateTabs()
     {
@@ -416,8 +409,6 @@ public class ChatWindow : L2Window
                 _tabs[i].ConcatMessage(line);
         }
     }
-
-
 
     internal void ScrollDown(Scroller scroller)
     {

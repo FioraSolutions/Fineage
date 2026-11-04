@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using VContainer;
 
@@ -13,14 +13,7 @@ public class TargetManager : MonoBehaviour
     public const int KindNpc = 5;
     public const int KindCreature = 6;
 
-    [Inject] GameClient _gameClient;
-
     private World GameWorld => IncomingPacketActions.GameWorld;
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
 
     private TargetData _target = null;
     private TargetData _attackTarget = null;

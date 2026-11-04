@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -9,9 +9,6 @@ using VContainer;
 public class RecipeBookWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => CraftPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualElement _inventoryTabView;
@@ -42,7 +39,7 @@ public class RecipeBookWindow : L2PopupWindow
 
     private void WireCraftPacketServices()
     {
-        CraftPacketServices.Bind(game: _gameClient, recipeBook: this);
+        CraftPacketServices.Bind(recipeBook: this);
     }
 
     protected override void LoadAssets()

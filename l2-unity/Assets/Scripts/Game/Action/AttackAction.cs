@@ -4,22 +4,15 @@ using static AttackingState;
 public class AttackAction : L2Action
 {
     private TargetManager _targets;
-    private GameClient _game;
 
-    public void Bind(TargetManager targets, GameClient game)
+    public void Bind(TargetManager targets)
     {
         _targets = targets;
-        _game = game;
     }
 
     private TargetManager Targets
     {
         get { return _targets != null ? _targets : ActionPacketServices.Targets; }
-    }
-
-    private GameClient Game
-    {
-        get { return _game != null ? _game : ActionPacketServices.Game; }
     }
 
     public AttackAction() : base() { }

@@ -8,7 +8,10 @@ public class LicenseWindow : L2Window
 {
     [Inject] LoginRuntime _login;
 
-    private LoginClient Login => LoginPacketServices.LoginClient;
+    [Inject] IZoneTransport _zoneTransport;
+
+    private IZoneTransport Transport =>
+        _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
 
     private static LicenseWindow _instance;
     public static LicenseWindow Instance { get { return _instance; } }
@@ -84,11 +87,15 @@ public class LicenseWindow : L2Window
     }
 
     private void AgreeButtonPressed() {
-        //LoginClient.Instance.ClientPacketHandler.SendPacket()
-        Login.Send(new RequestServerListCommand(Login.SessionKey1 , Login.SessionKey2));
+        // The Interlude license handshake (Init → GGAuth → LoginOk → RequestServerList) is gone:
+        // Fineage Net authenticates on the zone socket and has no license step. This window is
+        // unreachable from the Net lobby, so just record the click.
+        LobbyFlowLog.Warn("LicenseWindow: legacy Interlude license handshake has no Net equivalent");
     }
 
     private void DisagreeButtonPressed() {
-        Login.Disconnect();
+        IZoneTransport transport = Transport;
+        if (transport != null)
+            transport.Disconnect();
     }
 }
