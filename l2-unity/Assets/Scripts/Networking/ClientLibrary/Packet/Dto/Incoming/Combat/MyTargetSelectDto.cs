@@ -9,7 +9,7 @@ public class MyTargetSelectDto : IWireDto
     
 
     /// <summary>Zone V2 <c>MyTargetSelected</c> (1008) color hint.</summary>
-    public static MyTargetSelectDto FromZoneV2(int objectId, int colorHint)
+    public static MyTargetSelectDto FromNet(int objectId, int colorHint)
     {
         var dto = new MyTargetSelectDto();
         dto._objectId = objectId;

@@ -35,7 +35,7 @@ public sealed class LobbyCharacter
 
 public static class LobbyCharacterMap
 {
-    public static LobbyCharacter FromSummary(ZoneV2CharacterSummary row)
+    public static LobbyCharacter FromSummary(NetCharacterSummary row)
     {
         return new LobbyCharacter
         {
@@ -68,7 +68,7 @@ public static class LobbyCharacterMap
         };
     }
 
-    public static LobbyCharacter[] FromSummaries(ZoneV2CharacterSummary[] rows)
+    public static LobbyCharacter[] FromSummaries(NetCharacterSummary[] rows)
     {
         if (rows == null || rows.Length == 0)
             return Array.Empty<LobbyCharacter>();

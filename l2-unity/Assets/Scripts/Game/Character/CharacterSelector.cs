@@ -261,14 +261,14 @@ public class CharacterSelector : MonoBehaviour
     static void ApplyLobbyPaperdoll(PlayerAppearance appearance, LobbyCharacter character)
     {
         int[] doll = character.Paperdoll;
-        if (doll != null && doll.Length > ZoneV2Paperdoll.Feet)
+        if (doll != null && doll.Length > NetPaperdoll.Feet)
         {
-            appearance.RHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.RightHand);
-            appearance.LHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.LeftHand);
-            appearance.Gloves = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Gloves);
-            appearance.Chest = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Chest);
-            appearance.Legs = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Legs);
-            appearance.Feet = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Feet);
+            appearance.RHand = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.RightHand);
+            appearance.LHand = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.LeftHand);
+            appearance.Gloves = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Gloves);
+            appearance.Chest = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Chest);
+            appearance.Legs = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Legs);
+            appearance.Feet = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Feet);
         }
 
         if (appearance.RHand == 0 && character.WeaponItemId > 0)

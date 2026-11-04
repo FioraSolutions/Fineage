@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// Change codes match Fineage-Backend <c>InventoryChange</c> (0 add, 1 modify, 2 remove).
 /// Client inventory flags match <c>PlayerInventory.InventoryChange</c> (added 1, modified 2, removed 3).
 /// </summary>
-public static class ZoneV2InventoryBook
+public static class NetInventoryBook
 {
     public const int Add = 0;
     public const int Modify = 1;
@@ -31,7 +31,7 @@ public static class ZoneV2InventoryBook
         }
     }
 
-    public static void Apply(Dictionary<int, ZoneV2ItemEntry> items, ZoneV2InventoryChange change)
+    public static void Apply(Dictionary<int, NetItemEntry> items, NetInventoryChange change)
     {
         if (items == null)
             return;
@@ -41,7 +41,7 @@ public static class ZoneV2InventoryBook
             return;
         }
 
-        items[change.ObjectId] = new ZoneV2ItemEntry
+        items[change.ObjectId] = new NetItemEntry
         {
             ObjectId = change.ObjectId,
             ItemId = change.ItemId,
@@ -58,7 +58,7 @@ public static class ZoneV2InventoryBook
 }
 
 /// <summary>Short lines for zone <c>Error</c> 1099. A server message wins when the body included one.</summary>
-public static class ZoneV2EquipNotices
+public static class NetEquipNotices
 {
     public static string Line(string code, string message)
     {
@@ -92,7 +92,7 @@ public static class ZoneV2EquipNotices
 }
 
 /// <summary>Chat <c>//give itemId [count]</c> becomes bypass <c>admin_give</c>. Admin-only on the zone.</summary>
-public static class ZoneV2GiveCommand
+public static class NetGiveCommand
 {
     public static bool TryParse(string bypass, out int itemId, out int count)
     {

@@ -5,13 +5,13 @@ using System;
 /// Engine-free: no UnityEngine references.
 /// </summary>
 
-public struct ZoneV2IdCount
+public struct NetIdCount
 {
     public int Id;
     public int Count;
 }
 
-public struct ZoneV2NpcHtml
+public struct NetNpcHtml
 {
     public int NpcObjectId;
     public int NpcId;
@@ -19,7 +19,7 @@ public struct ZoneV2NpcHtml
     public int ItemId;
 }
 
-public struct ZoneV2QuestJournal
+public struct NetQuestJournal
 {
     public int QuestId;
     public string Name;
@@ -30,15 +30,15 @@ public struct ZoneV2QuestJournal
     public bool Repeatable;
 }
 
-public struct ZoneV2QuestList
+public struct NetQuestList
 {
-    public ZoneV2QuestJournal[] Active;
+    public NetQuestJournal[] Active;
     public byte[] CompletedMask;
     public int[] CompletedQuestIds;
     public int MaxActive;
 }
 
-public struct ZoneV2QuestDialog
+public struct NetQuestDialog
 {
     public int NpcObjectId;
     public int NpcId;
@@ -48,23 +48,23 @@ public struct ZoneV2QuestDialog
     public string Html;
 }
 
-public struct ZoneV2BuyItem
+public struct NetBuyItem
 {
     public int ItemId;
     public int Price;
     public int Count;
 }
 
-public struct ZoneV2BuyList
+public struct NetBuyList
 {
     public int NpcObjectId;
     public int ListId;
     public int BaseTaxPercent;
     public int CastleTaxPercent;
-    public ZoneV2BuyItem[] Items;
+    public NetBuyItem[] Items;
 }
 
-public struct ZoneV2SellItem
+public struct NetSellItem
 {
     public int ObjectId;
     public int ItemId;
@@ -73,37 +73,37 @@ public struct ZoneV2SellItem
     public int EnchantLevel;
 }
 
-public struct ZoneV2SellList
+public struct NetSellList
 {
     public int NpcObjectId;
-    public ZoneV2SellItem[] Items;
+    public NetSellItem[] Items;
 }
 
-public struct ZoneV2MultiPart
+public struct NetMultiPart
 {
     public int ItemId;
     public int Count;
     public int EnchantLevel;
 }
 
-public struct ZoneV2MultiSellEntry
+public struct NetMultiSellEntry
 {
     public int EntryId;
-    public ZoneV2MultiPart[] Ingredients;
-    public ZoneV2MultiPart[] Products;
+    public NetMultiPart[] Ingredients;
+    public NetMultiPart[] Products;
 }
 
-public struct ZoneV2MultiSellList
+public struct NetMultiSellList
 {
     public int NpcObjectId;
     public int ListId;
     public bool MaintainEnchantment;
     public bool InventoryOnly;
     public int CastleTaxPercent;
-    public ZoneV2MultiSellEntry[] Entries;
+    public NetMultiSellEntry[] Entries;
 }
 
-public struct ZoneV2ShopBalance
+public struct NetShopBalance
 {
     public int Adena;
     public int Weight;
@@ -114,7 +114,7 @@ public struct ZoneV2ShopBalance
     public int CastleTaxPercent;
 }
 
-public struct ZoneV2TeleportLocation
+public struct NetTeleportLocation
 {
     public int Id;
     public string Name;
@@ -125,25 +125,25 @@ public struct ZoneV2TeleportLocation
     public int FeeCount;
 }
 
-public struct ZoneV2TeleportList
+public struct NetTeleportList
 {
     public int NpcObjectId;
     public string ListName;
     public string ListType;
-    public ZoneV2TeleportLocation[] Locations;
+    public NetTeleportLocation[] Locations;
 }
 
-public struct ZoneV2WarehouseDepositList
+public struct NetWarehouseDepositList
 {
     public int NpcObjectId;
     public int FeePerLine;
     public int SlotsUsed;
     public int SlotsMax;
     public int Adena;
-    public ZoneV2ItemEntry[] Items;
+    public NetItemEntry[] Items;
 }
 
-public struct ZoneV2WarehouseWithdrawList
+public struct NetWarehouseWithdrawList
 {
     public int NpcObjectId;
     public int SlotsUsed;
@@ -152,24 +152,24 @@ public struct ZoneV2WarehouseWithdrawList
     public int InventorySlotsMax;
     public int CurrentWeight;
     public int MaxWeight;
-    public ZoneV2ItemEntry[] Items;
+    public NetItemEntry[] Items;
 }
 
-public struct ZoneV2NewbieBuffResult
+public struct NetNewbieBuffResult
 {
     public int NpcObjectId;
     public int[] SkillIds;
     public string Refusal;
 }
 
-public struct ZoneV2BlessingResult
+public struct NetBlessingResult
 {
     public int NpcObjectId;
     public int SkillId;
     public bool Accepted;
 }
 
-public struct ZoneV2PlayerSpawned
+public struct NetPlayerSpawned
 {
     public int ObjectId;
     public string Name;
@@ -181,7 +181,7 @@ public struct ZoneV2PlayerSpawned
     public bool Running;
 }
 
-public struct ZoneV2MoveTo
+public struct NetMoveTo
 {
     public int ObjectId;
     public int DestX;
@@ -192,7 +192,7 @@ public struct ZoneV2MoveTo
     public int OriginZ;
 }
 
-public struct ZoneV2CharInfo
+public struct NetCharInfo
 {
     public int ObjectId;
     public string Name;
@@ -213,7 +213,7 @@ public struct ZoneV2CharInfo
 /// Paperdoll indexes from Fineage-Backend. Right hand is 7 (Squire's Sword 2369, Apprentice's Wand 6).
 /// Missing indexes read as empty.
 /// </summary>
-public static class ZoneV2Paperdoll
+public static class NetPaperdoll
 {
     public const int Count = 17;
     public const int Under = 0;
@@ -241,14 +241,14 @@ public static class ZoneV2Paperdoll
         return itemIds[slot];
     }
 
-    public static int RightHandItemId(ZoneV2PaperdollSlot[] slots)
+    public static int RightHandItemId(NetPaperdollSlot[] slots)
     {
         if (slots == null || slots.Length <= RightHand)
             return 0;
         return slots[RightHand].ItemId;
     }
 
-    public static int[] ItemIds(ZoneV2PaperdollSlot[] slots)
+    public static int[] ItemIds(NetPaperdollSlot[] slots)
     {
         if (slots == null || slots.Length == 0)
             return Array.Empty<int>();
@@ -319,14 +319,14 @@ public static class ZoneV2Paperdoll
     }
 }
 
-public struct ZoneV2PaperdollSlot
+public struct NetPaperdollSlot
 {
     public int ObjectId;
     public int ItemId;
     public int EnchantLevel;
 }
 
-public struct ZoneV2UserInfo
+public struct NetUserInfo
 {
     public int ObjectId;
     public string Name;
@@ -338,7 +338,7 @@ public struct ZoneV2UserInfo
     public float WalkSpeed;
     public bool Running;
     public bool HasPaperdoll;
-    public ZoneV2PaperdollSlot[] Paperdoll;
+    public NetPaperdollSlot[] Paperdoll;
     public bool HasClan;
     public int ClanId;
     public int ClanCrestId;
@@ -352,7 +352,7 @@ public struct ZoneV2UserInfo
     public int PAtk, MAtk, PDef, MDef, PAtkSpd, MAtkSpd, Accuracy, CritRate;
 }
 
-public struct ZoneV2NpcInfo
+public struct NetNpcInfo
 {
     public int ObjectId;
     public int NpcTemplateId;
@@ -370,13 +370,13 @@ public struct ZoneV2NpcInfo
     public string NpcType;
 }
 
-public struct ZoneV2MyTargetSelected
+public struct NetMyTargetSelected
 {
     public int ObjectId;
     public int ColorHint;
 }
 
-public struct ZoneV2Attack
+public struct NetAttack
 {
     public int AttackerObjectId;
     public int TargetObjectId;
@@ -390,14 +390,14 @@ public struct ZoneV2Attack
     public int TargetZ;
 }
 
-public struct ZoneV2StatusUpdate
+public struct NetStatusUpdate
 {
     public int ObjectId;
     public int[] AttributeIds;
     public int[] Values;
 }
 
-public struct ZoneV2ItemEntry
+public struct NetItemEntry
 {
     public int ObjectId;
     public int ItemId;
@@ -411,7 +411,7 @@ public struct ZoneV2ItemEntry
     public int EnchantLevel;
 }
 
-public struct ZoneV2SpawnItem
+public struct NetSpawnItem
 {
     public int ObjectId;
     public int ItemId;
@@ -423,7 +423,7 @@ public struct ZoneV2SpawnItem
     public int Unknown;
 }
 
-public struct ZoneV2DropItem
+public struct NetDropItem
 {
     public int CharObjectId;
     public int ObjectId;
@@ -449,7 +449,7 @@ public struct SpawnItemApplyFields
     public int Unknown;
 }
 
-public struct ZoneV2InventoryChange
+public struct NetInventoryChange
 {
     public int Change;
     public int ObjectId;
@@ -464,7 +464,7 @@ public struct ZoneV2InventoryChange
     public int EnchantLevel;
 }
 
-public struct ZoneV2EnchantResult
+public struct NetEnchantResult
 {
     public int Result;
     public int EnchantLevel;
@@ -473,14 +473,14 @@ public struct ZoneV2EnchantResult
     public int CrystalCount;
 }
 
-public struct ZoneV2SkillEntry
+public struct NetSkillEntry
 {
     public int SkillId;
     public int Level;
     public int ReuseDelayMs;
 }
 
-public struct ZoneV2MagicSkillUse
+public struct NetMagicSkillUse
 {
     public int CasterObjectId;
     public int TargetObjectId;
@@ -490,18 +490,18 @@ public struct ZoneV2MagicSkillUse
     public int ReuseDelayMs;
 }
 
-public struct ZoneV2Die
+public struct NetDie
 {
     public int ObjectId;
     public int KillerObjectId;
 }
 
-public struct ZoneV2Revive
+public struct NetRevive
 {
     public int ObjectId;
 }
 
-public struct ZoneV2TeleportToLocation
+public struct NetTeleportToLocation
 {
     public int ObjectId;
     public int X;
@@ -510,27 +510,27 @@ public struct ZoneV2TeleportToLocation
     public int Heading;
 }
 
-public struct ZoneV2AbnormalStatusUpdate
+public struct NetAbnormalStatusUpdate
 {
     public int ObjectId;
-    public ZoneV2AbnormalEffect[] Effects;
+    public NetAbnormalEffect[] Effects;
 }
 
-public struct ZoneV2AbnormalEffect
+public struct NetAbnormalEffect
 {
     public int Id;
     public int Value;
     public int DurationSeconds;
 }
 
-public struct ZoneV2PartyAskJoin
+public struct NetPartyAskJoin
 {
     public int RequestorObjectId;
     public string RequestorName;
     public int ItemDistribution;
 }
 
-public struct ZoneV2PartyMemberEntry
+public struct NetPartyMemberEntry
 {
     public int ObjectId;
     public string Name;
@@ -542,26 +542,26 @@ public struct ZoneV2PartyMemberEntry
     public int MaxMp;
 }
 
-public struct ZoneV2PartyMemberList
+public struct NetPartyMemberList
 {
     public int LeaderObjectId;
     public int PartyId;
-    public ZoneV2PartyMemberEntry[] Members;
+    public NetPartyMemberEntry[] Members;
 }
 
-public struct ZoneV2TradeAsk
+public struct NetTradeAsk
 {
     public int RequestorObjectId;
     public string RequestorName;
 }
 
-public struct ZoneV2TradeStart
+public struct NetTradeStart
 {
     public int PartnerObjectId;
     public string PartnerName;
 }
 
-public struct ZoneV2TradeOfferUpdate
+public struct NetTradeOfferUpdate
 {
     public int IsOwn;
     public int InventoryObjectId;
@@ -570,13 +570,13 @@ public struct ZoneV2TradeOfferUpdate
     public int EnchantLevel;
 }
 
-public struct ZoneV2TradeConfirmState
+public struct NetTradeConfirmState
 {
     public int SelfConfirmed;
     public int PartnerConfirmed;
 }
 
-public struct ZoneV2ClanAskJoin
+public struct NetClanAskJoin
 {
     public int RequestorObjectId;
     public string RequestorName;
@@ -585,7 +585,7 @@ public struct ZoneV2ClanAskJoin
     public int PledgeType;
 }
 
-public struct ZoneV2PledgeStatus
+public struct NetPledgeStatus
 {
     public int ClanId;
     public string Name;
@@ -597,7 +597,7 @@ public struct ZoneV2PledgeStatus
     public long CharPenaltyExpiryUnixMs;
 }
 
-public struct ZoneV2PledgeMember
+public struct NetPledgeMember
 {
     public int ObjectId;
     public string Name;
@@ -607,11 +607,11 @@ public struct ZoneV2PledgeMember
     public int PledgeType;
 }
 
-public struct ZoneV2PledgeMemberList
+public struct NetPledgeMemberList
 {
     public int ClanId;
     public int LeaderObjectId;
-    public ZoneV2PledgeMember[] Members;
+    public NetPledgeMember[] Members;
 }
 
 /// <summary>
@@ -619,7 +619,7 @@ public struct ZoneV2PledgeMemberList
 /// keys 15–24 CharSelect vitals (cur/max HP MP CP, exp, sp, karma, weaponItemId);
 /// key 25 paperdoll int[17]. Array length 26.
 /// </summary>
-public struct ZoneV2CharacterSummary
+public struct NetCharacterSummary
 {
     public int CharacterId;
     public string Name;
@@ -644,7 +644,7 @@ public struct ZoneV2CharacterSummary
 }
 
 /// <summary>Character select ticket. <see cref="Token"/> is the zone Auth password.</summary>
-public struct ZoneV2Handoff
+public struct NetHandoff
 {
     public string Account;
     public string CharacterName;
@@ -656,7 +656,7 @@ public struct ZoneV2Handoff
     public long ExpiresUnixSeconds;
 }
 
-public struct ZoneV2CharacterCreated
+public struct NetCharacterCreated
 {
     public int CharacterId;
     public string Name;
@@ -671,14 +671,14 @@ public struct ZoneV2CharacterCreated
     public int Z;
 }
 
-public struct ZoneV2CharacterDeleted
+public struct NetCharacterDeleted
 {
     public int Slot;
     public int CharacterId;
     public bool HardDeleted;
 }
 
-public struct ZoneV2CharacterDeleteFailed
+public struct NetCharacterDeleteFailed
 {
     public int Slot;
     public int CharacterId;
@@ -687,7 +687,7 @@ public struct ZoneV2CharacterDeleteFailed
 }
 
 /// <summary>Opcode 1012. <see cref="ChatType"/> is the type the speaker sent (0 all, 1 shout).</summary>
-public struct ZoneV2CreatureSay
+public struct NetCreatureSay
 {
     public int ObjectId;
     public string Name;
@@ -696,7 +696,7 @@ public struct ZoneV2CreatureSay
 }
 
 /// <summary>Opcode 1040. <see cref="Text"/> is the line to show. Id 0 means show it as written.</summary>
-public struct ZoneV2SystemMessage
+public struct NetSystemMessage
 {
     public int Id;
     public string[] Params;

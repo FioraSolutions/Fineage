@@ -157,11 +157,11 @@ public class HtmlWindow : L2PopupWindow
 
     public void ShowNpcDialog(int npcObjectId, int npcId, string html)
     {
-        ZoneV2NpcSession.OpenDialog(npcObjectId);
+        NetNpcSession.OpenDialog(npcObjectId);
         string titled = html ?? "";
         if (string.IsNullOrEmpty(ExtractTitle(titled)))
         {
-            string name = ZoneV2NpcSession.NameOf(npcObjectId);
+            string name = NetNpcSession.NameOf(npcObjectId);
             if (string.IsNullOrEmpty(name))
                 name = "NPC";
             titled = "<title>" + name + "</title>" + titled;

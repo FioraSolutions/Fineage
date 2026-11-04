@@ -27,23 +27,23 @@ public static class ClanPacketServices
     public static ClanAskJoinWindow Ask =>
         _ask != null ? _ask : ClanAskJoinWindow.Instance;
 
-    public static void ApplyStatus(ZoneV2PledgeStatus status)
+    public static void ApplyStatus(NetPledgeStatus status)
     {
-        ZoneV2ClanBook.Shared.ApplyStatus(status);
-        NoteLocalClan(ZoneV2ClanBook.Shared.HasClan ? ZoneV2ClanBook.Shared.ClanId : 0);
+        NetClanBook.Shared.ApplyStatus(status);
+        NoteLocalClan(NetClanBook.Shared.HasClan ? NetClanBook.Shared.ClanId : 0);
         RefreshWindow();
     }
 
-    public static void ApplyMembers(ZoneV2PledgeMemberList list)
+    public static void ApplyMembers(NetPledgeMemberList list)
     {
-        ZoneV2ClanBook.Shared.ApplyMembers(list);
-        NoteLocalClan(ZoneV2ClanBook.Shared.HasClan ? ZoneV2ClanBook.Shared.ClanId : 0);
+        NetClanBook.Shared.ApplyMembers(list);
+        NoteLocalClan(NetClanBook.Shared.HasClan ? NetClanBook.Shared.ClanId : 0);
         RefreshWindow();
     }
 
-    public static void ApplyAskJoin(ZoneV2ClanAskJoin ask)
+    public static void ApplyAskJoin(NetClanAskJoin ask)
     {
-        ZoneV2ClanBook.Shared.NoteName(ask.ClanId, ask.ClanName);
+        NetClanBook.Shared.NoteName(ask.ClanId, ask.ClanName);
         ClanWindow clan = Clan;
         if (clan != null)
             clan.EnsureAskJoinWindow();

@@ -56,13 +56,13 @@ public sealed class FineageZoneTransport : IZoneTransport
                     }
 
                     if (clicked is NpcEntity &&
-                        !ZoneV2NpcSession.IsAttackable(netAction.ObjectId, clicked is MonsterEntity))
+                        !NetNpcSession.IsAttackable(netAction.ObjectId, clicked is MonsterEntity))
                     {
                         NetSession.Ensure().SendSelectTarget(netAction.ObjectId);
-                        if (ZoneV2NpcWindows.InRange(clicked))
+                        if (NetNpcWindows.InRange(clicked))
                             NetSession.Ensure().SendNpcTalk(netAction.ObjectId);
                         else
-                            ZoneV2ChatFeed.NoteSystem("You are too far away.");
+                            NetChatFeed.NoteSystem("You are too far away.");
                         return true;
                     }
                 }
@@ -106,7 +106,7 @@ public sealed class FineageZoneTransport : IZoneTransport
             RequestSay2Command netSay = command as RequestSay2Command;
             if (netSay != null)
             {
-                int chatType = netSay.Data != null ? netSay.Data.Type : ZoneV2Chat.All;
+                int chatType = netSay.Data != null ? netSay.Data.Type : NetChat.All;
                 NetSession.Ensure().SendSay(netSay.Message, chatType);
                 return true;
             }
@@ -129,7 +129,7 @@ public sealed class FineageZoneTransport : IZoneTransport
             RequestBypassToServerCommand netBypass = command as RequestBypassToServerCommand;
             int netGiveItemId;
             int netGiveCount;
-            if (netBypass != null && ZoneV2GiveCommand.TryParse(netBypass.Bypass, out netGiveItemId, out netGiveCount))
+            if (netBypass != null && NetGiveCommand.TryParse(netBypass.Bypass, out netGiveItemId, out netGiveCount))
             {
                 // Grant-item admin bypass: still V2-only until a Net grant opcode exists.
                 return true;
@@ -137,7 +137,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
             if (netBypass != null)
             {
-                int npcId = ZoneV2NpcSession.ActiveNpcObjectId;
+                int npcId = NetNpcSession.ActiveNpcObjectId;
                 if (npcId > 0)
                     NetSession.Ensure().SendNpcLink(npcId, netBypass.Bypass);
                 return true;
@@ -147,9 +147,9 @@ public sealed class FineageZoneTransport : IZoneTransport
             if (netBuy != null)
             {
                 NetSession.Ensure().SendRequestBuyItem(
-                    ZoneV2NpcSession.ShopNpcObjectId,
+                    NetNpcSession.ShopNpcObjectId,
                     netBuy.ListId,
-                    ZoneV2NpcOrders.ItemCounts(netBuy.BuyList));
+                    NetNpcOrders.ItemCounts(netBuy.BuyList));
                 return true;
             }
 
@@ -157,8 +157,8 @@ public sealed class FineageZoneTransport : IZoneTransport
             if (netSell != null)
             {
                 NetSession.Ensure().SendRequestSellItem(
-                    ZoneV2NpcSession.ShopNpcObjectId,
-                    ZoneV2NpcOrders.ObjectCounts(netSell.SellList));
+                    NetNpcSession.ShopNpcObjectId,
+                    NetNpcOrders.ObjectCounts(netSell.SellList));
                 return true;
             }
 
@@ -166,7 +166,7 @@ public sealed class FineageZoneTransport : IZoneTransport
             if (netMulti != null)
             {
                 NetSession.Ensure().SendRequestMultiSellChoose(
-                    ZoneV2NpcSession.ShopNpcObjectId,
+                    NetNpcSession.ShopNpcObjectId,
                     netMulti.ListId,
                     netMulti.EntryId,
                     netMulti.Amount);
@@ -177,8 +177,8 @@ public sealed class FineageZoneTransport : IZoneTransport
             if (netDeposit != null)
             {
                 NetSession.Ensure().SendWarehouseDeposit(
-                    ZoneV2NpcSession.ShopNpcObjectId,
-                    ZoneV2NpcOrders.ObjectCounts(netDeposit.SellList));
+                    NetNpcSession.ShopNpcObjectId,
+                    NetNpcOrders.ObjectCounts(netDeposit.SellList));
                 return true;
             }
 
@@ -186,8 +186,8 @@ public sealed class FineageZoneTransport : IZoneTransport
             if (netWithdraw != null)
             {
                 NetSession.Ensure().SendWarehouseWithdraw(
-                    ZoneV2NpcSession.ShopNpcObjectId,
-                    ZoneV2NpcOrders.ObjectCounts(netWithdraw.SellList));
+                    NetNpcSession.ShopNpcObjectId,
+                    NetNpcOrders.ObjectCounts(netWithdraw.SellList));
                 return true;
             }
 

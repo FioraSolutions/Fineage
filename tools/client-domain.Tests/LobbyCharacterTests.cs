@@ -74,7 +74,7 @@ public class LobbyCharacterTests
     [Fact]
     public void Empty_roster_maps_to_create_ui_status_not_login_overlay()
     {
-        LobbyCharacter[] empty = LobbyCharacterMap.FromSummaries(Array.Empty<ZoneV2CharacterSummary>());
+        LobbyCharacter[] empty = LobbyCharacterMap.FromSummaries(Array.Empty<NetCharacterSummary>());
         Assert.Empty(empty);
         Assert.Equal(-1, LobbyCharacterMap.PreferredIndex(empty, 0));
         Assert.True(LobbyCharacterText.CanCreate(0));

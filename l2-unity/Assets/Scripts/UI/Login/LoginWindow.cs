@@ -180,7 +180,7 @@ public class LoginWindow : L2Window
         {
             if (login != null && login.IsConnected)
             {
-                Debug.Log("[Login] closing stuck login socket before ZoneV2 handoff");
+                Debug.Log("[Login] closing stuck login socket before Net handoff");
                 login.Disconnect();
             }
 

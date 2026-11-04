@@ -7,7 +7,7 @@ using UnityEngine;
 /// Zone V2 has no ShortCutReg/Init wire yet (<see cref="FineageZoneTransport"/> swallows those commands).
 /// Persist the bar locally per stable lobby character id so icons survive re-login on this client.
 /// </summary>
-public static class ZoneV2ShortcutStore
+public static class NetShortcutStore
 {
     const string PrefPrefix = "Fineage.Shortcuts.";
 
@@ -37,7 +37,7 @@ public static class ZoneV2ShortcutStore
 
         PlayerPrefs.SetString(PrefPrefix + characterId, sb.ToString());
         PlayerPrefs.Save();
-        Debug.Log("[ZoneV2] shortcuts saved char=" + characterId + " payload=" + sb);
+        Debug.Log("[Net] shortcuts saved char=" + characterId + " payload=" + sb);
     }
 
     public static List<Shortcut> Load(int characterId)
@@ -69,7 +69,7 @@ public static class ZoneV2ShortcutStore
             list.Add(new Shortcut(slot, page, type, id, level));
         }
 
-        Debug.Log("[ZoneV2] shortcuts loaded char=" + characterId + " count=" + list.Count);
+        Debug.Log("[Net] shortcuts loaded char=" + characterId + " count=" + list.Count);
         return list;
     }
 }

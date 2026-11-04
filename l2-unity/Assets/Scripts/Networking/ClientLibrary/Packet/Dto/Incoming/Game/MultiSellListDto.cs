@@ -16,7 +16,7 @@ public class MultiSellListDto : IWireDto
     public List<MultiSellData> GetMultiSell() { return _listMultisell; }
     public List<ItemInstance> GetOnlyItems() { return _listOnlyItem; }
 
-    public void LoadZoneV2(int listId, List<MultiSellData> rows, List<ItemInstance> items)
+    public void LoadNet(int listId, List<MultiSellData> rows, List<ItemInstance> items)
     {
         _listId = listId;
         _listMultisell = rows ?? new List<MultiSellData>();

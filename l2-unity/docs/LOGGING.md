@@ -10,7 +10,7 @@
 | Zone server v2 | `tools/zone-server/logs/zone.log` | Hello → Auth → EnterWorld → MoveTo |
 | Unity Editor | `~/Library/Logs/Unity/Editor.log` (macOS) | Engine + URP; can grow huge |
 
-Console filters: `[LOBBY]`, `[LoginNet]`, `[GameNet]`, `[ZoneV2]`, `[World]`, `[STUB]`, `[ZONE]`.
+Console filters: `[LOBBY]`, `[LoginNet]`, `[GameNet]`, `[Net]`, `[World]`, `[STUB]`, `[ZONE]`.
 
 Files rotate at ~3MB (one `.1` backup kept). `logs/` dirs are gitignored.
 

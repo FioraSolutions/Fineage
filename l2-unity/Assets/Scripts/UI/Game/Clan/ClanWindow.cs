@@ -185,7 +185,7 @@ public class ClanWindow : L2TwoPanels
         if (!FineageWireConfig.IsZoneV2 || _windowEle == null || _dropdown == null)
             return;
 
-        ZoneV2ClanBook book = ZoneV2ClanBook.Shared;
+        NetClanBook book = NetClanBook.Shared;
         if (!book.HasClan)
         {
             _packet = null;
@@ -196,10 +196,10 @@ public class ClanWindow : L2TwoPanels
         }
 
         var members = new List<ClanMember>();
-        ZoneV2PledgeMember[] rows = book.Members;
+        NetPledgeMember[] rows = book.Members;
         for (int i = 0; i < rows.Length; i++)
         {
-            ZoneV2PledgeMember row = rows[i];
+            NetPledgeMember row = rows[i];
             members.Add(new ClanMember(row.Name, row.Level, row.ClassId, 0, 0, row.Online ? 1 : 0, row.PledgeType));
         }
 
@@ -541,7 +541,7 @@ public class ClanWindow : L2TwoPanels
             box.Insert(box.IndexOf(footer), _zoneActions);
         else
             footer.Insert(0, _zoneActions);
-        TuneZoneButtons(ZoneV2ClanBook.Shared);
+        TuneZoneButtons(NetClanBook.Shared);
     }
 
     static Button MakeZoneButton(string text, System.Action click)
@@ -575,7 +575,7 @@ public class ClanWindow : L2TwoPanels
             label.text = text;
     }
 
-    void TuneZoneButtons(ZoneV2ClanBook book)
+    void TuneZoneButtons(NetClanBook book)
     {
         if (_zoneActions == null)
             return;
@@ -588,8 +588,8 @@ public class ClanWindow : L2TwoPanels
         if (_masterClan == null)
             return;
         string name = _masterClan.GetSelectMemberName();
-        ZoneV2PledgeMember member;
-        if (ZoneV2ClanBook.Shared.TryMemberByName(name, out member))
+        NetPledgeMember member;
+        if (NetClanBook.Shared.TryMemberByName(name, out member))
             _selectedMemberId = member.ObjectId;
     }
 
@@ -599,7 +599,7 @@ public class ClanWindow : L2TwoPanels
         name = name != null ? name.Trim() : "";
         if (name.Length == 0)
         {
-            ZoneV2ChatFeed.NoteSystem("Enter a clan name.");
+            NetChatFeed.NoteSystem("Enter a clan name.");
             return;
         }
 
@@ -608,17 +608,17 @@ public class ClanWindow : L2TwoPanels
 
     void OnKick()
     {
-        if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
+        if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
         if (_selectedMemberId <= 0)
         {
-            ZoneV2ChatFeed.NoteSystem("Select a clan member to dismiss.");
+            NetChatFeed.NoteSystem("Select a clan member to dismiss.");
             return;
         }
 
         if (_selectedMemberId == SelfObjectId())
         {
-            ZoneV2ChatFeed.NoteSystem(ZoneV2ClanNotices.Map("clan_dismiss_self"));
+            NetChatFeed.NoteSystem(NetClanNotices.Map("clan_dismiss_self"));
             return;
         }
 
@@ -628,14 +628,14 @@ public class ClanWindow : L2TwoPanels
 
     void OnDissolve()
     {
-        if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
+        if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
         Confirm("Register clan dissolution? The clan remains for 7 days.", () => Game.Send(new ClanDissolveRequestCommand()));
     }
 
     void OnCancelDissolve()
     {
-        if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
+        if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
         Confirm("Cancel the clan dissolution?", () => Game.Send(new ClanCancelDissolveRequestCommand()));
     }

@@ -5,7 +5,7 @@ using UnityEngine;
 /// Holds zone chat lines until <see cref="ChatWindow"/> has built its tabs.
 /// The welcome <c>SystemMessage</c> is the last packet of enter world, before the game UI exists.
 /// </summary>
-public static class ZoneV2ChatFeed
+public static class NetChatFeed
 {
     struct Line
     {
@@ -63,7 +63,7 @@ public static class ZoneV2ChatFeed
         }
         catch (System.Exception ex)
         {
-            Debug.LogWarning("[ZoneV2] chat line skipped: " + ex.Message);
+            Debug.LogWarning("[Net] chat line skipped: " + ex.Message);
         }
     }
 }

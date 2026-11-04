@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 /// </summary>
 public class ClanAskJoinWindow : L2PopupWindow
 {
-    const float TimeoutSeconds = ZoneV2ClanBook.InviteTimeoutSeconds;
+    const float TimeoutSeconds = NetClanBook.InviteTimeoutSeconds;
 
     static ClanAskJoinWindow _instance;
     VisualElement _progressBar;
@@ -39,7 +39,7 @@ public class ClanAskJoinWindow : L2PopupWindow
         ClanPacketServices.Bind(ask: this);
     }
 
-    public void Present(ZoneV2ClanAskJoin ask)
+    public void Present(NetClanAskJoin ask)
     {
         _requestorObjectId = ask.RequestorObjectId;
         string who = string.IsNullOrEmpty(ask.RequestorName) ? "A player" : ask.RequestorName;

@@ -246,7 +246,7 @@ public sealed class NameplateEntryStore
 
                 if (idn.ClanId > 0)
                 {
-                    string clanName = ZoneV2ClanBook.Shared.NameFor(idn.ClanId);
+                    string clanName = NetClanBook.Shared.NameFor(idn.ClanId);
                     if (!string.IsNullOrEmpty(clanName))
                     {
                         e.Title = clanName;
