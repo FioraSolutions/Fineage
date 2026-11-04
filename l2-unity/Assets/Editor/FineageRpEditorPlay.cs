@@ -394,7 +394,7 @@ public static class FineageRpEditorPlay
                 if (transport != null)
                     transport.BeginSession(user, pass);
                 else
-                    ZoneV2Client.Ensure().BeginSession(user, pass);
+                    Finish(false, "no IZoneTransport resolved — the legacy Zone V2 client was removed");
             }
             catch (Exception ex)
             {

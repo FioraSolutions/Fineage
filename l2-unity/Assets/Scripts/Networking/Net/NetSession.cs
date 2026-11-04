@@ -25,10 +25,18 @@ public sealed class NetSession : MonoBehaviour
     public HandoffMsg LastHandoff => _handoff;
 
     /// <summary>
+    /// Stable lobby character id of the selected character, captured from the handoff in
+    /// <see cref="EnterZoneWithHandoff"/>. Unlike <see cref="SessionObjectId"/> it does not
+    /// change on every EnterWorld, so callers keyed by character (shortcuts, preferences)
+    /// prefer it. Zero until a character has been selected, and reset in <see cref="BeginLobby"/>.
+    /// </summary>
+    public int CharacterId { get; private set; }
+
+    /// <summary>
     /// Zone object id of the local player, captured from the self <c>EntitySpawn</c>
     /// received after EnterWorld. Zero until the world spawn arrives, and reset when a
-    /// new lobby or zone session begins. Mirrors <c>ZoneV2Client.SessionObjectId</c> so
-    /// callers such as <c>PlayerShortcuts</c> and <c>ClanWindow</c> read one source.
+    /// new lobby or zone session begins. Mirrors the old V2 session id so callers such as
+    /// <c>PlayerShortcuts</c> and <c>ClanWindow</c> read one source.
     /// </summary>
     public int SessionObjectId { get; private set; }
     public event Action<CharacterRosterMsg> RosterReceived;
@@ -74,6 +82,7 @@ public sealed class NetSession : MonoBehaviour
     public async void BeginLobby(string account, string password, bool registerIfMissing = false)
     {
         _account = account;
+        CharacterId = 0;
         SessionObjectId = 0;
         ZoneV2GearSession.Reset();
         try
@@ -154,6 +163,7 @@ public sealed class NetSession : MonoBehaviour
     public async void EnterZoneWithHandoff(HandoffMsg handoff)
     {
         _handoff = handoff;
+        CharacterId = handoff != null ? handoff.CharacterId : 0;
         SessionObjectId = 0;
         try
         {
@@ -797,7 +807,7 @@ public sealed class NetSession : MonoBehaviour
             return;
         }
 
-        // Zone object id of the local player; same role as ZoneV2Client.SessionObjectId.
+        // Zone object id of the local player; stable only for this EnterWorld (see CharacterId).
         SessionObjectId = (int)spawn.EntityValue;
 
         var identity = new EntityIdentity

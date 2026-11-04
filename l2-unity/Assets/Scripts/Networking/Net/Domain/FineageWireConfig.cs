@@ -28,7 +28,7 @@ public static class FineageWireConfig
     public static int LoginPort = PlaytestEndpoint.DefaultLoginPort;
 
     /// <summary>
-    /// When true, <see cref="ZoneV2Client.BeginSession"/> logs in on <see cref="LoginHost"/>
+    /// When true, <see cref="FineageZoneTransport.BeginSession"/> logs in on <see cref="LoginHost"/>
     /// and sends the handoff token as the zone Auth password.
     /// </summary>
     public static bool UseLoginHandoff;

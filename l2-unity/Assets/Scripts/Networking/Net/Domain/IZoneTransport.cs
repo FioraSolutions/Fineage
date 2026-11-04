@@ -2,11 +2,11 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Thin transport abstraction for Zone V2 communication.
-/// <see cref="ZoneV2Client"/> implements the wire protocol today over raw TCP.
+/// Thin transport abstraction for Zone communication.
+/// <see cref="FineageZoneTransport"/> implements it over the Fineage Net protocol (raw TCP).
 /// Future implementations may use QUIC, WebSocket, or a gateway relay.
 /// GameManager and other systems should depend on this interface,
-/// not on <see cref="ZoneV2Client"/> directly.
+/// not on <see cref="FineageZoneTransport"/> directly.
 /// </summary>
 public interface IZoneTransport
 {
