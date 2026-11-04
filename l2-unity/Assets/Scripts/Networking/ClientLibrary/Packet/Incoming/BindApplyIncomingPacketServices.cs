@@ -1,5 +1,6 @@
 /// <summary>
-/// DI bind facade for incoming handler hubs (#142 batch slice 174; lifetime bind slice 175).
+/// Incoming handler DI bind orchestration (#142 batch slice 162).
+/// Locator and queue bind via <see cref="LocatorApplyIncomingPacketServices"/> / <see cref="QueueApplyIncomingPacketServices"/>.
 /// </summary>
 public static class BindApplyIncomingPacketServices
 {
@@ -38,8 +39,9 @@ public static class BindApplyIncomingPacketServices
         ShowListWindow showList = null,
         SeedInfoWindow seedInfo = null,
         SellCropListWindow sellCrop = null,
-        BufferPanel buffer = null) =>
-        IncomingPacketBindApplyIncomingPacketServices.Bind(
+        BufferPanel buffer = null)
+    {
+        LocatorApplyIncomingPacketServices.Bind(
             game: game,
             login: login,
             manager: manager,
@@ -47,8 +49,6 @@ public static class BindApplyIncomingPacketServices
             worldApply: worldApply,
             messageApply: messageApply,
             domain: domain,
-            applyQueue: applyQueue,
-            events: events,
             inventory: inventory,
             targets: targets,
             shortcuts: shortcuts,
@@ -75,4 +75,6 @@ public static class BindApplyIncomingPacketServices
             seedInfo: seedInfo,
             sellCrop: sellCrop,
             buffer: buffer);
+        QueueApplyIncomingPacketServices.Bind(applyQueue: applyQueue, events: events);
+    }
 }
