@@ -156,10 +156,24 @@ public class GameManager : MonoBehaviour, IGameManager {
         if (transport != null)
             transport.BeginSession(account, password);
         else
-            ZoneV2Client.Ensure().BeginSession(account, password);
+            Debug.LogError("[Fineage] auto-login: no IZoneTransport resolved — cannot begin a session "
+                + "(the legacy Zone V2 client has been removed).");
     }
 
     #endregion
+
+    /// <summary>
+    /// Tear down the live Net session. Same teardown as
+    /// <see cref="FineageZoneTransport.Disconnect"/> (destroy the <see cref="NetSession"/>
+    /// GameObject) so QuitGame and RestartRoutine never leave a dangling socket.
+    /// </summary>
+    static void DisconnectZoneSession()
+    {
+        if (!FineageWireConfig.IsNet)
+            return;
+        if (NetSession.Instance != null)
+            UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+    }
 
     #region Lobby flow (delegates to LobbyFlowController)
 
@@ -177,7 +191,7 @@ public class GameManager : MonoBehaviour, IGameManager {
     public void QuitGame()
     {
         Debug.Log("[Fineage] exit game");
-        ZoneV2Client.Ensure().Disconnect();
+        DisconnectZoneSession();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -190,7 +204,7 @@ public class GameManager : MonoBehaviour, IGameManager {
         // Back to the login screen only — no auto-submit (auto re-enter broke textures).
         // Remember-login checkbox prefills the fields; user presses Login.
         Debug.Log("[Fineage] restart → login screen");
-        ZoneV2Client.Ensure().Disconnect();
+        DisconnectZoneSession();
         IsSwitchingServer = false;
         WorldSpawnReady = false;
         GameState = GameState.LOGIN_SCREEN;

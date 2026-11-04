@@ -279,13 +279,14 @@ public class PlayerShortcuts : MonoBehaviour
 
     static int ResolveCharacterObjectId()
     {
-        // Prefer stable lobby CharacterId — SessionObjectId changes every EnterWorld.
-        if (ZoneV2Client.Instance != null && ZoneV2Client.Instance.CharacterId > 0)
-            return ZoneV2Client.Instance.CharacterId;
+        // Prefer the stable lobby CharacterId — SessionObjectId changes every EnterWorld.
+        NetSession net = NetSession.Instance;
+        if (net != null && net.CharacterId > 0)
+            return net.CharacterId;
         if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null)
             return PlayerEntity.Instance.Identity.Id;
-        if (ZoneV2Client.Instance != null && ZoneV2Client.Instance.SessionObjectId > 0)
-            return ZoneV2Client.Instance.SessionObjectId;
+        if (net != null && net.SessionObjectId > 0)
+            return net.SessionObjectId;
         return 0;
     }
 

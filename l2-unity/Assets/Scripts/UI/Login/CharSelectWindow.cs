@@ -472,9 +472,6 @@ public class CharSelectWindow : L2Window {
                 return;
             }
 
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null)
-                zone.SelectLobbyCharacter(selected);
             return;
         }
 
@@ -484,9 +481,6 @@ public class CharSelectWindow : L2Window {
     private void ReLoginPressed() {
         if (_lobbyCharacters != null)
         {
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null)
-                zone.CloseLobby();
             Manager.OnRelogin();
             return;
         }
@@ -521,14 +515,14 @@ public class CharSelectWindow : L2Window {
             LobbyCharacter selected = SelectedLobbyCharacter();
             if (selected == null)
                 return;
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone == null)
-                return;
+            // TODO(#131): the Net contract has no DeleteCharacter/RestoreCharacter opcode yet
+            // (only the legacy MsgType lobby protocol has them). Character delete/restore is
+            // therefore an explicit no-op on Net until a backend contract PR adds the opcodes.
+            // The arm/disarm confirmation UX is kept intact so it works once they exist.
             if (selected.PendingDelete)
             {
                 _deleteArmed = false;
-                zone.RestoreLobbyCharacter(selected);
-                ShowLobbyStatus("Restoring " + selected.Name + "...");
+                ShowLobbyStatus("Character restore is not available on this server yet.");
                 return;
             }
 
@@ -542,8 +536,7 @@ public class CharSelectWindow : L2Window {
             }
 
             _deleteArmed = false;
-            zone.DeleteLobbyCharacter(selected);
-            ShowLobbyStatus("Deleting " + selected.Name + "...");
+            ShowLobbyStatus("Character delete is not available on this server yet.");
             RefreshLobbyActions();
             return;
         }

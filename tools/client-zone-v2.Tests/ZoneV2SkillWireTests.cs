@@ -89,15 +89,6 @@ public class ZoneV2SkillWireTests
         Assert.Equal(3000, use.ReuseDelayMs);
     }
 
-    [Fact]
-    public void Skill_error_notices_map_known_codes()
-    {
-        Assert.Equal("Not enough MP.", ZoneV2SkillNotices.Notice("skill_mp", ""));
-        Assert.True(ZoneV2SkillNotices.TryLine("skill_reuse", null, out string line));
-        Assert.Equal("Skill is not ready yet.", line);
-        Assert.False(ZoneV2SkillNotices.TryLine("party_full", "", out _));
-    }
-
     static byte[] Pack<T>(T message) => MessagePackSerializer.Serialize(message);
 }
 

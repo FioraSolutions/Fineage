@@ -40,7 +40,6 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
         RegisterIfFound<NetworkTransformShare>(builder);
-        RegisterIfFound<ZoneV2Client>(builder);
         RegisterIfFound<GravityNpc>(builder);
         RegisterIfFound<FNManagerLight>(builder);
         RegisterIfFound<SwordCollisionService>(builder);
@@ -166,15 +165,6 @@ public sealed class GameLifetimeScope : LifetimeScope
                     catch
                     {
                     }
-                }
-
-                try
-                {
-                    ZoneV2Client zoneV2 = container.Resolve<ZoneV2Client>();
-                    zoneV2.WireGame(domain, worldApply);
-                }
-                catch
-                {
                 }
 
                 if (App.Container != null)

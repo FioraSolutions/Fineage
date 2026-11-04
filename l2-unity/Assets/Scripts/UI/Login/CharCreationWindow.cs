@@ -373,18 +373,7 @@ public class CharCreationWindow : L2Window {
             return;
         }
 
-#if FINEAGE_V2_WIRE
-        ZoneV2Client zone = ZoneV2Client.Instance;
-        if (zone == null || !zone.CreateLobbyCharacter(name, classId, raceId, sex, hairStyle, hairColor, face))
-        {
-            SetlabelError(LobbyCharacterText.ErrorMessage("auth_required", null));
-            return;
-        }
-
-        SetlabelError("");
-#else
         SetlabelError(LobbyCharacterText.ErrorMessage("auth_required", null));
-#endif
     }
 
     public void Clear()
@@ -400,13 +389,6 @@ public class CharCreationWindow : L2Window {
     }
 
     private void PreviousButtonPressed() {
-        if (FineageWireConfig.UseLoginHandoff)
-        {
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null)
-                zone.CancelLobbyCreate();
-        }
-
         classManipulator.ClearInput();
         genderManipulator.ClearInput();
         hairstyleManipulator.ClearInput();

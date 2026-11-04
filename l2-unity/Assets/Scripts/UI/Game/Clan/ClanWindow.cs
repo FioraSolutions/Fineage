@@ -666,8 +666,8 @@ public class ClanWindow : L2TwoPanels
     {
         if (Game != null && Game.PlayerInfo.Identity != null && Game.PlayerInfo.Identity.Id > 0)
             return Game.PlayerInfo.Identity.Id;
-        ZoneV2Client zone = ZoneV2Client.Instance;
-        return zone != null ? zone.SessionObjectId : 0;
+        NetSession net = NetSession.Instance;
+        return net != null ? net.SessionObjectId : 0;
     }
 
     private void OnDestroy()

@@ -57,9 +57,10 @@ public class MenuWindow : L2Window
         questBtn.AddManipulator(new ButtonClickSoundManipulator(questBtn));
         questBtn.RegisterCallback<ClickEvent>((evt) =>
         {
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null && zone.Connected)
-                zone.SendRequestQuestList();
+            // Routes through IZoneTransport.TrySendGameCommand -> NetSession.SendRequestQuestList.
+            GameClient game = QuestPacketServices.Game;
+            if (game != null)
+                game.Send(new RequestQuestListCommand());
             QuestWindow.Instance.ToggleHideWindow();
         });
 
