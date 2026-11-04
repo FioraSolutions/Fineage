@@ -1,6 +1,6 @@
 /// <summary>
 /// DI-backed service locator for incoming packet handlers (#142 batch slice 159).
-/// Re-homes bind state and accessors from <see cref="IncomingPacketServices"/>.
+/// Holds bind state and accessors for the incoming apply facades.
 /// </summary>
 public static class IncomingPacketLocatorApplyIncomingPacketServices
 {
