@@ -515,14 +515,13 @@ public class CharSelectWindow : L2Window {
             LobbyCharacter selected = SelectedLobbyCharacter();
             if (selected == null)
                 return;
-            // TODO(#131): the Net contract has no DeleteCharacter/RestoreCharacter opcode yet
-            // (only the legacy MsgType lobby protocol has them). Character delete/restore is
-            // therefore an explicit no-op on Net until a backend contract PR adds the opcodes.
-            // The arm/disarm confirmation UX is kept intact so it works once they exist.
+            // Net lobby: a row already flagged PendingDelete restores, otherwise the two-press
+            // confirm deletes. The server replies with DeleteResult and then a fresh roster.
             if (selected.PendingDelete)
             {
+                NetSession.Ensure().RestoreCharacter(selected.Id, selected.Slot);
                 _deleteArmed = false;
-                ShowLobbyStatus("Character restore is not available on this server yet.");
+                ShowLobbyStatus("Restoring " + selected.Name + "...");
                 return;
             }
 
@@ -536,7 +535,8 @@ public class CharSelectWindow : L2Window {
             }
 
             _deleteArmed = false;
-            ShowLobbyStatus("Character delete is not available on this server yet.");
+            NetSession.Ensure().DeleteCharacter(selected.Id, selected.Slot);
+            ShowLobbyStatus("Deleting " + selected.Name + "...");
             RefreshLobbyActions();
             return;
         }
