@@ -114,7 +114,8 @@ public sealed class NetSession : MonoBehaviour
         InventoryApplyService inventory,
         PartyApplyService party,
         TradeApplyService trade,
-        TradeRequestApplyService tradeRequest)
+        TradeRequestApplyService tradeRequest,
+        IWorldDomainSink domain)
     {
         _combatAttack = combatAttack;
         _combatDie = combatDie;
@@ -128,6 +129,10 @@ public sealed class NetSession : MonoBehaviour
         _party = party;
         _trade = trade;
         _tradeRequest = tradeRequest;
+        // The sink used to be injected into the static facades only, so this seam never ran.
+        // Wire it here as well: with a sink bound, NetSession applies domain moves directly.
+        if (domain != null)
+            BindDomainSink(domain);
     }
 
     public async void BeginLobby(string account, string password, bool registerIfMissing = false)
@@ -1686,6 +1691,8 @@ public sealed class NetSession : MonoBehaviour
         };
         if (_sink != null)
             _sink.ApplyMoveTo(domain);
+        else if (WorldApplyPacketServices.WorldApply != null)
+            WorldApplyPacketServices.WorldApply.MoveTo(objectId, pos, pos, domain.InterludeDto);
     }
 
     uint NextSeq() => _seq++;
