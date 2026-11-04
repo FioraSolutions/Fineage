@@ -16,6 +16,10 @@ public sealed class NetSession : MonoBehaviour
     NetTransport _zone;
     uint _seq = 1;
     IWorldDomainSink _sink;
+    CombatAttackApplyService _combatAttack;
+    CombatDieApplyService _combatDie;
+    StatusUpdateApplyService _statusUpdate;
+    DeleteObjectGroundApplyService _deleteObjectGround;
     string _account;
     HandoffMsg _handoff;
     bool _helloLobby;
@@ -81,6 +85,27 @@ public sealed class NetSession : MonoBehaviour
     }
 
     public void BindDomainSink(IWorldDomainSink sink) => _sink = sink;
+
+    /// <summary>
+    /// Packet applies are container-constructed (#142 slice 3 pilot). NetSession is a
+    /// <c>NetSession.Ensure()</c> MonoBehaviour outside the container, so it is handed the
+    /// instances instead of injecting them; null keeps the legacy static relay.
+    /// </summary>
+    public void BindApplyServices(
+        CombatAttackApplyService combatAttack = null,
+        CombatDieApplyService combatDie = null,
+        StatusUpdateApplyService statusUpdate = null,
+        DeleteObjectGroundApplyService deleteObjectGround = null)
+    {
+        if (combatAttack != null)
+            _combatAttack = combatAttack;
+        if (combatDie != null)
+            _combatDie = combatDie;
+        if (statusUpdate != null)
+            _statusUpdate = statusUpdate;
+        if (deleteObjectGround != null)
+            _deleteObjectGround = deleteObjectGround;
+    }
 
     public async void BeginLobby(string account, string password, bool registerIfMissing = false)
     {
@@ -1001,7 +1026,9 @@ public sealed class NetSession : MonoBehaviour
         int objectId = (int)despawn.EntityValue;
         NetNpcSession.Forget(objectId);
         var dto = new DeleteObjectDto { ObjectId = objectId };
-        DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
+        DeleteObjectGroundApplyService deleteObjectGround = _deleteObjectGround;
+        if (deleteObjectGround != null) deleteObjectGround.Apply(dto);
+        else DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
     }
 
     void ApplyTargetSelected(TargetSelectedNetMsg msg)
@@ -1024,7 +1051,8 @@ public sealed class NetSession : MonoBehaviour
             attack.TargetX,
             attack.TargetY,
             attack.TargetZ);
-        AttackApplyIncomingPacketServices.ApplyAttack(dto);
+        if (_combatAttack != null) _combatAttack.Apply(dto);
+        else AttackApplyIncomingPacketServices.ApplyAttack(dto);
     }
 
     void ApplyStatusUpdate(StatusUpdateNetMsg status)
@@ -1035,14 +1063,16 @@ public sealed class NetSession : MonoBehaviour
             : Mathf.Min(status.AttributeIds.Length, status.Values.Length);
         for (int i = 0; i < n; i++)
             attributes.Add(new StatusUpdate.Attribute(status.AttributeIds[i], status.Values[i]));
-        StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate((int)status.EntityValue, attributes);
+        if (_statusUpdate != null) _statusUpdate.Apply((int)status.EntityValue, attributes);
+        else StatusUpdateApplyIncomingPacketServices.ApplyStatusUpdate((int)status.EntityValue, attributes);
     }
 
     void ApplyEntityDie(EntityDieMsg die)
     {
-        DieApplyIncomingPacketServices.ApplyDie(DieDto.FromZoneWire((int)die.EntityValue));
+        DieDto dieDto = DieDto.FromZoneWire((int)die.EntityValue);
+        if (_combatDie != null) _combatDie.Apply(dieDto);
+        else DieApplyIncomingPacketServices.ApplyDie(dieDto);
     }
-
     void ApplyDropItem(DropItemNetMsg drop)
     {
         DropItemDto dto = DropItemDto.FromNet(
