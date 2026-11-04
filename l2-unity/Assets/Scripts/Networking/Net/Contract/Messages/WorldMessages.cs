@@ -273,6 +273,12 @@ namespace Fineage.Net.Contract
 
     public sealed class ReviveRequestNetMsg
     {
+        /// <summary>
+        /// Revive action "to village". Matches Fineage-Backend <c>DeathProtocol</c>
+        /// (same value as the legacy <c>ZoneV2Death.ReviveToVillage</c>).
+        /// </summary>
+        public const int ReviveToVillage = 0;
+
         public int Action { get; set; }
     }
 

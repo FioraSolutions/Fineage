@@ -1,4 +1,5 @@
 using System;
+using Fineage.Net.Contract;
 using UnityEngine;
 
 /// <summary>
@@ -124,7 +125,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
             if (command is RequestRestartPointCommand)
             {
-                NetSession.Ensure().SendReviveRequest(ZoneV2Death.ReviveToVillage);
+                NetSession.Ensure().SendReviveRequest(ReviveRequestNetMsg.ReviveToVillage);
                 return true;
             }
 
