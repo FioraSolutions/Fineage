@@ -87,6 +87,14 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        // Mobius RequestDestroyItem: the trash basket. It shares nothing with a drop, so it needs its own opcode.
+        RequestDestroyItemCommand netDestroy = command as RequestDestroyItemCommand;
+        if (netDestroy != null)
+        {
+            NetSession.Ensure().SendDestroyItemRequest(netDestroy.ObjectId, netDestroy.Count);
+            return true;
+        }
+
         // Mobius enchant window: the scroll click and the roll travel as their own opcodes.
         RequestEnchantItemCommand netEnchant = command as RequestEnchantItemCommand;
         if (netEnchant != null)

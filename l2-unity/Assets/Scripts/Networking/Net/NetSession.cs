@@ -339,6 +339,17 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
+    /// <summary>Mobius <c>RequestDestroyItem</c>: delete the bag slot, no ground spawn.</summary>
+    public async void SendDestroyItemRequest(int objectId, int count)
+    {
+        if (_zone == null || !_zone.Connected || objectId <= 0)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.DestroyItemRequest,
+            NetCodec.EncodeDestroyItemRequest(new DestroyItemRequestMsg { ObjectId = objectId, Count = count }),
+            NextSeq());
+    }
+
     public async void SendUseItem(int objectId)
     {
         if (_zone == null || !_zone.Connected)
