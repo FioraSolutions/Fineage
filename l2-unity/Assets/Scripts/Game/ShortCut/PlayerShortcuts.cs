@@ -271,7 +271,7 @@ public class PlayerShortcuts : MonoBehaviour
         int characterId = ResolveCharacterObjectId();
         if (characterId <= 0)
             return;
-        List<Shortcut> loaded = ZoneV2ShortcutStore.Load(characterId);
+        List<Shortcut> loaded = NetShortcutStore.Load(characterId);
         if (loaded == null || loaded.Count == 0)
             return;
         SetShortcutList(loaded);

@@ -4,7 +4,7 @@ using System;
 /// Zone chat helpers that match Fineage-Backend <c>ChatProtocol</c> and the client <c>ChatTypes</c> colors.
 /// Say is opcode 8. CreatureSay is 1012. SystemMessage is 1040.
 /// </summary>
-public static class ZoneV2Chat
+public static class NetChat
 {
     public const int All = 0;
     public const int Shout = 1;

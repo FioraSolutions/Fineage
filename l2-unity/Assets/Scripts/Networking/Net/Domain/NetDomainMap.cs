@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>ZoneServer v2 wire → domain events.</summary>
-public static class ZoneV2DomainMap
+public static class NetDomainMap
 {
-    public static PlayerInfoInterlude ToPlayerInfo(ZoneV2PlayerSpawned spawned)
+    public static PlayerInfoInterlude ToPlayerInfo(NetPlayerSpawned spawned)
     {
         EntityIdentity identity = new EntityIdentity
         {
@@ -56,7 +56,7 @@ public static class ZoneV2DomainMap
         };
     }
 
-    public static DomainMoveTo Move(ZoneV2MoveTo move)
+    public static DomainMoveTo Move(NetMoveTo move)
     {
         CharMoveToLocationDto dto = CharMoveToLocationDto.FromL2(
             move.ObjectId,
@@ -77,7 +77,7 @@ public static class ZoneV2DomainMap
     }
 
     /// <summary>Thin Zone v2 CharInfo (1005) → Interlude-shaped DTO for knownlist spawn.</summary>
-    public static CharInfoDto ToCharInfoDto(ZoneV2CharInfo info)
+    public static CharInfoDto ToCharInfoDto(NetCharInfo info)
     {
         CharInfoDto dto = new CharInfoDto();
         dto.Identity.Id = info.ObjectId;
@@ -105,7 +105,7 @@ public static class ZoneV2DomainMap
     }
 
     /// <summary>Thin Zone v2 NpcInfo (1006) → Interlude-shaped DTO (Gremlins, guards, …).</summary>
-    public static SpawnItemDto ToSpawnItemDto(ZoneV2SpawnItem item)
+    public static SpawnItemDto ToSpawnItemDto(NetSpawnItem item)
     {
         SpawnItemApplyFields fields = new SpawnItemApplyFields
         {
@@ -118,7 +118,7 @@ public static class ZoneV2DomainMap
             Count = item.Count,
             Unknown = item.Unknown
         };
-        return SpawnItemDto.FromZoneV2(
+        return SpawnItemDto.FromNet(
             fields.ObjectId,
             fields.ItemId,
             fields.X,
@@ -129,9 +129,9 @@ public static class ZoneV2DomainMap
             fields.Unknown);
     }
 
-    public static DropItemDto ToDropItemDto(ZoneV2DropItem item)
+    public static DropItemDto ToDropItemDto(NetDropItem item)
     {
-        return DropItemDto.FromZoneV2(
+        return DropItemDto.FromNet(
             item.CharObjectId,
             item.ObjectId,
             item.ItemId,
@@ -143,7 +143,7 @@ public static class ZoneV2DomainMap
             item.Unknown);
     }
 
-    public static NpcInfoDto ToNpcInfoDto(ZoneV2NpcInfo info)
+    public static NpcInfoDto ToNpcInfoDto(NetNpcInfo info)
     {
         NpcInfoDto dto = new NpcInfoDto();
         dto.Identity.Id = info.ObjectId;
@@ -176,10 +176,10 @@ public static class ZoneV2DomainMap
         return dto;
     }
 
-    public static AttackDto ToAttackDto(ZoneV2Attack attack)
+    public static AttackDto ToAttackDto(NetAttack attack)
     {
         var dto = new AttackDto();
-        dto.InitFromZoneV2(
+        dto.InitFromNet(
             attack.AttackerObjectId,
             attack.TargetObjectId,
             attack.Damage,
@@ -193,7 +193,7 @@ public static class ZoneV2DomainMap
         return dto;
     }
 
-    public static List<StatusUpdate.Attribute> ToStatusAttributes(ZoneV2StatusUpdate status)
+    public static List<StatusUpdate.Attribute> ToStatusAttributes(NetStatusUpdate status)
     {
         var list = new List<StatusUpdate.Attribute>(status.AttributeIds.Length);
         for (int i = 0; i < status.AttributeIds.Length; i++)
@@ -201,11 +201,11 @@ public static class ZoneV2DomainMap
         return list;
     }
 
-    public static AskJoinPartyDto ToAskJoinPartyDto(ZoneV2PartyAskJoin ask) =>
-        AskJoinPartyDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName, ask.ItemDistribution);
+    public static AskJoinPartyDto ToAskJoinPartyDto(NetPartyAskJoin ask) =>
+        AskJoinPartyDto.FromNet(ask.RequestorObjectId, ask.RequestorName, ask.ItemDistribution);
 
     /// <summary>One-line party roster summary for chat feedback. Display only — no wire codec.</summary>
-    public static string FormatPartyMemberList(in ZoneV2PartyMemberList list)
+    public static string FormatPartyMemberList(in NetPartyMemberList list)
     {
         if (list.Members == null || list.Members.Length == 0)
             return "Party: (none)";
@@ -215,13 +215,13 @@ public static class ZoneV2DomainMap
         return "Party (" + list.Members.Length + "): " + string.Join(", ", names);
     }
 
-    public static SendTradeRequestDto ToSendTradeRequestDto(ZoneV2TradeAsk ask) =>
-        SendTradeRequestDto.FromZoneV2(ask.RequestorObjectId, ask.RequestorName);
+    public static SendTradeRequestDto ToSendTradeRequestDto(NetTradeAsk ask) =>
+        SendTradeRequestDto.FromNet(ask.RequestorObjectId, ask.RequestorName);
 
-    public static TradeStartDto ToTradeStartDto(ZoneV2TradeStart start) =>
-        TradeStartDto.FromZoneV2(start.PartnerObjectId, start.PartnerName);
+    public static TradeStartDto ToTradeStartDto(NetTradeStart start) =>
+        TradeStartDto.FromNet(start.PartnerObjectId, start.PartnerName);
 
-    public static ItemInstance ToTradeOfferItem(in ZoneV2TradeOfferUpdate update)
+    public static ItemInstance ToTradeOfferItem(in NetTradeOfferUpdate update)
     {
         return new ItemInstance(
             update.InventoryObjectId,
@@ -236,7 +236,7 @@ public static class ZoneV2DomainMap
             9999);
     }
 
-    public static ItemListDto ToItemListDto(ZoneV2ItemEntry[] rows)
+    public static ItemListDto ToItemListDto(NetItemEntry[] rows)
     {
         var bag = new Dictionary<int, ItemInstance>();
         var equip = new Dictionary<int, ItemInstance>();
@@ -251,7 +251,7 @@ public static class ZoneV2DomainMap
         return ItemListDto.FromZoneInventory(bag, equip);
     }
 
-    public static InventoryUpdateDto ToInventoryUpdateDto(ZoneV2InventoryChange[] rows)
+    public static InventoryUpdateDto ToInventoryUpdateDto(NetInventoryChange[] rows)
     {
         var bag = new Dictionary<int, ItemInstance>();
         var equip = new Dictionary<int, ItemInstance>();
@@ -261,8 +261,8 @@ public static class ZoneV2DomainMap
         {
             for (int i = 0; i < rows.Length; i++)
             {
-                ZoneV2InventoryChange row = rows[i];
-                var entry = new ZoneV2ItemEntry
+                NetInventoryChange row = rows[i];
+                var entry = new NetItemEntry
                 {
                     ObjectId = row.ObjectId,
                     ItemId = row.ItemId,
@@ -282,24 +282,24 @@ public static class ZoneV2DomainMap
         return InventoryUpdateDto.FromZoneChanges(bag, equip);
     }
 
-    public static AbnormalStatusUpdateDto ToAbnormalStatusUpdateDto(ZoneV2AbnormalStatusUpdate update) =>
+    public static AbnormalStatusUpdateDto ToAbnormalStatusUpdateDto(NetAbnormalStatusUpdate update) =>
         AbnormalStatusUpdateDto.FromZoneEffects(update.Effects);
 
-    public static DieDto ToDieDto(ZoneV2Die die) => DieDto.FromZoneWire(die.ObjectId);
+    public static DieDto ToDieDto(NetDie die) => DieDto.FromZoneWire(die.ObjectId);
 
-    public static ReviveDto ToReviveDto(ZoneV2Revive revive) => new ReviveDto { ObjectId = revive.ObjectId };
+    public static ReviveDto ToReviveDto(NetRevive revive) => new ReviveDto { ObjectId = revive.ObjectId };
 
-    public static TeleportToLocationDto ToTeleportToLocationDto(ZoneV2TeleportToLocation teleport) =>
+    public static TeleportToLocationDto ToTeleportToLocationDto(NetTeleportToLocation teleport) =>
         TeleportToLocationDto.FromZoneWire(teleport.ObjectId, teleport.X, teleport.Y, teleport.Z, teleport.Heading);
 
-    public static SkillListDto ToSkillListDto(ZoneV2SkillEntry[] rows)
+    public static SkillListDto ToSkillListDto(NetSkillEntry[] rows)
     {
         var dto = new SkillListDto();
         if (rows == null)
             return dto;
         for (int i = 0; i < rows.Length; i++)
         {
-            ZoneV2SkillEntry row = rows[i];
+            NetSkillEntry row = rows[i];
             bool passive = IsPassiveSkill(row.SkillId, row.Level);
             bool disabled = row.ReuseDelayMs > 0;
             dto.Skills.Add(new SkillInstance(row.SkillId, row.Level, passive, disabled));
@@ -308,10 +308,10 @@ public static class ZoneV2DomainMap
         return dto;
     }
 
-    public static MagicSkillUseDto ToMagicSkillUseDto(ZoneV2MagicSkillUse use)
+    public static MagicSkillUseDto ToMagicSkillUseDto(NetMagicSkillUse use)
     {
         var dto = new MagicSkillUseDto();
-        dto.InitFromZoneV2(
+        dto.InitFromNet(
             use.CasterObjectId,
             use.TargetObjectId,
             use.SkillId,
@@ -328,7 +328,7 @@ public static class ZoneV2DomainMap
     }
 
     static void AddZoneRow(
-        ZoneV2ItemEntry row,
+        NetItemEntry row,
         int zoneChange,
         Dictionary<int, ItemInstance> bag,
         Dictionary<int, ItemInstance> equip,
@@ -364,10 +364,10 @@ public static class ZoneV2DomainMap
     {
         // Fineage.Protocol.InventoryChange: 0 add, 1 modify, 2 remove.
         // PlayerInventory.InventoryChange stores those as 1, 2, and 3.
-        return ZoneV2InventoryBook.ToClientChange(zoneChange);
+        return NetInventoryBook.ToClientChange(zoneChange);
     }
 
-    static ItemCategory CategoryFromZone(ZoneV2ItemEntry row)
+    static ItemCategory CategoryFromZone(NetItemEntry row)
     {
         if (row.ItemId == 57)
             return ItemCategory.Adena;
@@ -454,7 +454,7 @@ public static class ZoneV2DomainMap
     /// Copies UserInfo class, speeds, paperdoll, vitals, and template stats onto a spawn record.
     /// Position stays on the spawn packet.
     /// </summary>
-    public static void OverlayUserInfo(PlayerInfoInterlude info, ZoneV2UserInfo user)
+    public static void OverlayUserInfo(PlayerInfoInterlude info, NetUserInfo user)
     {
         if (info.Identity == null || info.Appearance == null || info.Stats == null)
             return;
@@ -528,12 +528,12 @@ public static class ZoneV2DomainMap
         }
     }
 
-    public static void ApplyUserPaperdoll(PlayerAppearance appearance, ZoneV2PaperdollSlot[] slots)
+    public static void ApplyUserPaperdoll(PlayerAppearance appearance, NetPaperdollSlot[] slots)
     {
         if (appearance == null || slots == null)
             return;
         ApplyObjectIds(appearance.PaperDoll, slots);
-        ApplyItemIds(appearance, ZoneV2Paperdoll.ItemIds(slots));
+        ApplyItemIds(appearance, NetPaperdoll.ItemIds(slots));
     }
 
     public static void ApplyItemIds(PlayerAppearance appearance, int[] itemIds)
@@ -542,23 +542,23 @@ public static class ZoneV2DomainMap
             return;
 
         PaperDollSelection doll = appearance.PaperDoll;
-        doll.Item_Under = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Under);
-        doll.Item_Lear = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftEar);
-        doll.Item_Rear = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightEar);
-        doll.Item_Neck = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Neck);
-        doll.Item_LFinger = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftFinger);
-        doll.Item_RFinger = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightFinger);
-        doll.Item_Head = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Head);
-        doll.Item_RHand = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.RightHand);
-        doll.Item_LHand = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.LeftHand);
-        doll.Item_Gloves = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Gloves);
-        doll.Item_Chest = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Chest);
-        doll.Item_Legs = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Legs);
-        doll.Item_Feet = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Feet);
-        doll.Item_Cloak = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Cloak);
-        doll.Item_Face = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Face);
-        doll.Item_Hair = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Hair);
-        doll.Item_Hair2 = ZoneV2Paperdoll.ItemIdAt(itemIds, ZoneV2Paperdoll.Hair2);
+        doll.Item_Under = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Under);
+        doll.Item_Lear = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.LeftEar);
+        doll.Item_Rear = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.RightEar);
+        doll.Item_Neck = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Neck);
+        doll.Item_LFinger = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.LeftFinger);
+        doll.Item_RFinger = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.RightFinger);
+        doll.Item_Head = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Head);
+        doll.Item_RHand = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.RightHand);
+        doll.Item_LHand = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.LeftHand);
+        doll.Item_Gloves = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Gloves);
+        doll.Item_Chest = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Chest);
+        doll.Item_Legs = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Legs);
+        doll.Item_Feet = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Feet);
+        doll.Item_Cloak = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Cloak);
+        doll.Item_Face = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Face);
+        doll.Item_Hair = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Hair);
+        doll.Item_Hair2 = NetPaperdoll.ItemIdAt(itemIds, NetPaperdoll.Hair2);
         appearance.RHand = doll.Item_RHand;
         appearance.LHand = doll.Item_LHand;
         appearance.Gloves = doll.Item_Gloves;
@@ -568,7 +568,7 @@ public static class ZoneV2DomainMap
         appearance.PaperdollReady = true;
     }
 
-    static void ApplyObjectIds(PaperDollSelection doll, ZoneV2PaperdollSlot[] slots)
+    static void ApplyObjectIds(PaperDollSelection doll, NetPaperdollSlot[] slots)
     {
         if (doll == null || slots == null)
             return;
@@ -577,55 +577,55 @@ public static class ZoneV2DomainMap
             int objectId = slots[i].ObjectId;
             switch (i)
             {
-                case ZoneV2Paperdoll.Under:
+                case NetPaperdoll.Under:
                     doll.Obj_Under = objectId;
                     break;
-                case ZoneV2Paperdoll.LeftEar:
+                case NetPaperdoll.LeftEar:
                     doll.Obj_Lear = objectId;
                     break;
-                case ZoneV2Paperdoll.RightEar:
+                case NetPaperdoll.RightEar:
                     doll.Obj_Pear = objectId;
                     break;
-                case ZoneV2Paperdoll.Neck:
+                case NetPaperdoll.Neck:
                     doll.Obj_Neck = objectId;
                     break;
-                case ZoneV2Paperdoll.LeftFinger:
+                case NetPaperdoll.LeftFinger:
                     doll.Obj_LFinger = objectId;
                     break;
-                case ZoneV2Paperdoll.RightFinger:
+                case NetPaperdoll.RightFinger:
                     doll.Obj_RFinger = objectId;
                     break;
-                case ZoneV2Paperdoll.Head:
+                case NetPaperdoll.Head:
                     doll.Obj_Head = objectId;
                     break;
-                case ZoneV2Paperdoll.RightHand:
+                case NetPaperdoll.RightHand:
                     doll.Obj_RHand = objectId;
                     break;
-                case ZoneV2Paperdoll.LeftHand:
+                case NetPaperdoll.LeftHand:
                     doll.Obj_LHand = objectId;
                     break;
-                case ZoneV2Paperdoll.Gloves:
+                case NetPaperdoll.Gloves:
                     doll.Obj_Gloves = objectId;
                     break;
-                case ZoneV2Paperdoll.Chest:
+                case NetPaperdoll.Chest:
                     doll.Obj_Chest = objectId;
                     break;
-                case ZoneV2Paperdoll.Legs:
+                case NetPaperdoll.Legs:
                     doll.Obj_Legs = objectId;
                     break;
-                case ZoneV2Paperdoll.Feet:
+                case NetPaperdoll.Feet:
                     doll.Obj_Feet = objectId;
                     break;
-                case ZoneV2Paperdoll.Cloak:
+                case NetPaperdoll.Cloak:
                     doll.Obj_Cloak = objectId;
                     break;
-                case ZoneV2Paperdoll.Face:
+                case NetPaperdoll.Face:
                     doll.Obj_Face = objectId;
                     break;
-                case ZoneV2Paperdoll.Hair:
+                case NetPaperdoll.Hair:
                     doll.Obj_Hair = objectId;
                     break;
-                case ZoneV2Paperdoll.Hair2:
+                case NetPaperdoll.Hair2:
                     doll.Obj_Hair2 = objectId;
                     break;
             }

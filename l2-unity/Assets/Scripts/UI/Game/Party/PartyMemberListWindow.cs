@@ -57,14 +57,14 @@ public class PartyMemberListWindow : L2Window
         yield return new WaitForEndOfFrame();
     }
 
-    public void RefreshFromList(in ZoneV2PartyMemberList list)
+    public void RefreshFromList(in NetPartyMemberList list)
     {
         if (_memberRows == null)
             return;
 
         _memberRows.Clear();
 
-        ZoneV2PartyMemberEntry[] members = list.Members;
+        NetPartyMemberEntry[] members = list.Members;
         int count = members != null ? members.Length : 0;
         if (_windowEle != null)
             _windowEle.style.display = count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
@@ -78,7 +78,7 @@ public class PartyMemberListWindow : L2Window
         int leaderId = list.LeaderObjectId;
         for (int i = 0; i < members.Length; i++)
         {
-            ZoneV2PartyMemberEntry entry = members[i];
+            NetPartyMemberEntry entry = members[i];
             if (entry.ObjectId <= 0)
                 continue;
 

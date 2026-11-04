@@ -22,14 +22,13 @@
              Link="Client\Net.Contract\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\FineageWireConfig.cs" Link="Client\FineageWireConfig.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\LobbyCharacter.cs" Link="Client\LobbyCharacter.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2Chat.cs" Link="Client\ZoneV2Chat.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2Clan.cs" Link="Client\ZoneV2Clan.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2Death.cs" Link="Client\ZoneV2Death.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2DomainStructs.cs" Link="Client\ZoneV2DomainStructs.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2Enchant.cs" Link="Client\ZoneV2Enchant.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2Equip.cs" Link="Client\ZoneV2Equip.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2NpcSession.cs" Link="Client\ZoneV2NpcSession.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\ZoneV2SystemLines.cs" Link="Client\ZoneV2SystemLines.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetChat.cs" Link="Client\NetChat.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetClan.cs" Link="Client\NetClan.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetDomainStructs.cs" Link="Client\NetDomainStructs.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetEnchant.cs" Link="Client\NetEnchant.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetEquip.cs" Link="Client\NetEquip.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetNpcSession.cs" Link="Client\NetNpcSession.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetSystemLines.cs" Link="Client\NetSystemLines.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Playtest\PlaytestEndpoint.cs" Link="Client\PlaytestEndpoint.cs" />
   </ItemGroup>
 </Project>

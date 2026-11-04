@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// Fineage Net session: lobby + zone over PacketEnvelope. Maps inbound events to
-/// <see cref="IWorldDomainSink"/> — no ZoneV2DomainMap / Interlude DTO bridge.
+/// <see cref="IWorldDomainSink"/> — no NetDomainMap / Interlude DTO bridge.
 /// </summary>
 public sealed class NetSession : MonoBehaviour
 {
@@ -73,8 +73,8 @@ public sealed class NetSession : MonoBehaviour
             catch (Exception ex) { Debug.LogException(ex); }
         }
 
-        // ItemList may arrive before the local player / inventory UI exist (same as ZoneV2).
-        ZoneV2GearSession.FlushPending();
+        // ItemList may arrive before the local player / inventory UI exist (same as the legacy bridge).
+        NetGearSession.FlushPending();
     }
 
     public void BindDomainSink(IWorldDomainSink sink) => _sink = sink;
@@ -84,7 +84,7 @@ public sealed class NetSession : MonoBehaviour
         _account = account;
         CharacterId = 0;
         SessionObjectId = 0;
-        ZoneV2GearSession.Reset();
+        NetGearSession.Reset();
         try
         {
             _lobby?.Dispose();
@@ -327,21 +327,21 @@ public sealed class NetSession : MonoBehaviour
     {
         string list;
         int location;
-        switch (ZoneV2Bypass.Classify(command, out list, out location))
+        switch (NetBypass.Classify(command, out list, out location))
         {
-            case ZoneV2Bypass.Teleport:
-            case ZoneV2Bypass.SupportMagic:
-            case ZoneV2Bypass.GiveBlessing:
+            case NetBypass.Teleport:
+            case NetBypass.SupportMagic:
+            case NetBypass.GiveBlessing:
                 // Same bypass verb as V2; specialized opcodes come later.
-                SendBypassRequest(npcObjectId, ZoneV2Bypass.Normalize(command));
+                SendBypassRequest(npcObjectId, NetBypass.Normalize(command));
                 return;
             default:
-                SendBypassRequest(npcObjectId, ZoneV2Bypass.Normalize(command));
+                SendBypassRequest(npcObjectId, NetBypass.Normalize(command));
                 return;
         }
     }
 
-    public async void SendRequestBuyItem(int npcObjectId, int listId, ZoneV2IdCount[] items)
+    public async void SendRequestBuyItem(int npcObjectId, int listId, NetIdCount[] items)
     {
         if (_zone == null || !_zone.Connected)
             return;
@@ -357,7 +357,7 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void SendRequestSellItem(int npcObjectId, ZoneV2IdCount[] items)
+    public async void SendRequestSellItem(int npcObjectId, NetIdCount[] items)
     {
         if (_zone == null || !_zone.Connected)
             return;
@@ -388,7 +388,7 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void SendWarehouseDeposit(int npcObjectId, ZoneV2IdCount[] lines)
+    public async void SendWarehouseDeposit(int npcObjectId, NetIdCount[] lines)
     {
         if (_zone == null || !_zone.Connected)
             return;
@@ -402,7 +402,7 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void SendWarehouseWithdraw(int npcObjectId, ZoneV2IdCount[] lines)
+    public async void SendWarehouseWithdraw(int npcObjectId, NetIdCount[] lines)
     {
         if (_zone == null || !_zone.Connected)
             return;
@@ -526,7 +526,7 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    static ShopCountNet[] MapShopCounts(ZoneV2IdCount[] items)
+    static ShopCountNet[] MapShopCounts(NetIdCount[] items)
     {
         if (items == null || items.Length == 0)
             return System.Array.Empty<ShopCountNet>();
@@ -536,7 +536,7 @@ public sealed class NetSession : MonoBehaviour
         return rows;
     }
 
-    static ShopObjectCountNet[] MapShopObjectCounts(ZoneV2IdCount[] items)
+    static ShopObjectCountNet[] MapShopObjectCounts(NetIdCount[] items)
     {
         if (items == null || items.Length == 0)
             return System.Array.Empty<ShopObjectCountNet>();
@@ -846,7 +846,7 @@ public sealed class NetSession : MonoBehaviour
             BaseClass = 0
         };
 
-        // Match ZoneV2: stash PlayerInfo then OnCharacterSelect → LoadSWMap.
+        // Stash PlayerInfo then OnCharacterSelect → LoadSWMap.
         // Spawning happens in OnWorldSceneLoaded once the tile is ready.
         // Without PlayerInfo.Identity, LoadSWMap returns immediately and loading never ends.
         GameClient game = GameClient.Instance;
@@ -923,14 +923,14 @@ public sealed class NetSession : MonoBehaviour
         dto.Stats.RunRealSpeed = run;
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
-        ZoneV2NpcSession.RememberNpc(objectId, spawn.Name, spawn.Attackable);
+        NetNpcSession.RememberNpc(objectId, spawn.Name, spawn.Attackable);
         NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
     }
 
     void ApplyEntityDespawn(EntityDespawnMsg despawn)
     {
         int objectId = (int)despawn.EntityValue;
-        ZoneV2NpcSession.Forget(objectId);
+        NetNpcSession.Forget(objectId);
         var dto = new DeleteObjectDto { ObjectId = objectId };
         DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
     }
@@ -938,13 +938,13 @@ public sealed class NetSession : MonoBehaviour
     void ApplyTargetSelected(TargetSelectedNetMsg msg)
     {
         MyTargetSelectedApplyIncomingPacketServices.ApplyMyTargetSelected(
-            MyTargetSelectDto.FromZoneV2(msg.TargetObjectId, msg.ColorHint));
+            MyTargetSelectDto.FromNet(msg.TargetObjectId, msg.ColorHint));
     }
 
     void ApplyAttackState(AttackStateMsg attack)
     {
         var dto = new AttackDto();
-        dto.InitFromZoneV2(
+        dto.InitFromNet(
             (int)attack.AttackerValue,
             (int)attack.TargetValue,
             attack.Damage,
@@ -976,7 +976,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyDropItem(DropItemNetMsg drop)
     {
-        DropItemDto dto = DropItemDto.FromZoneV2(
+        DropItemDto dto = DropItemDto.FromNet(
             drop.DropperObjectId,
             (int)drop.EntityValue,
             drop.ItemId,
@@ -992,11 +992,11 @@ public sealed class NetSession : MonoBehaviour
     void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
     {
         InventoryUpdateEntryNet[] src = update.Changes ?? System.Array.Empty<InventoryUpdateEntryNet>();
-        var rows = new ZoneV2InventoryChange[src.Length];
+        var rows = new NetInventoryChange[src.Length];
         for (int i = 0; i < src.Length; i++)
         {
             InventoryUpdateEntryNet row = src[i];
-            rows[i] = new ZoneV2InventoryChange
+            rows[i] = new NetInventoryChange
             {
                 Change = row.Change,
                 ObjectId = row.ObjectId,
@@ -1012,23 +1012,23 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        ZoneV2GearSession.NoteInventoryUpdate(rows);
+        NetGearSession.NoteInventoryUpdate(rows);
     }
 
     void ApplyCreatureSay(CreatureSayNetMsg say)
     {
-        ZoneV2ChatFeed.NoteSay(say.Name, say.Text, say.ChatType);
+        NetChatFeed.NoteSay(say.Name, say.Text, say.ChatType);
     }
 
     void ApplySystemMessage(SystemMessageNetMsg message)
     {
-        string shown = ZoneV2SystemLines.Resolve(message.Id, message.Text, message.Params);
-        ZoneV2ChatFeed.NoteSystem(shown);
+        string shown = NetSystemLines.Resolve(message.Id, message.Text, message.Params);
+        NetChatFeed.NoteSystem(shown);
     }
 
     void ApplyMagicSkillUse(MagicSkillUseNetMsg use)
     {
-        var mapped = new ZoneV2MagicSkillUse
+        var mapped = new NetMagicSkillUse
         {
             CasterObjectId = use.CasterObjectId,
             TargetObjectId = use.TargetObjectId,
@@ -1037,19 +1037,19 @@ public sealed class NetSession : MonoBehaviour
             HitTimeMs = use.HitTimeMs,
             ReuseDelayMs = use.ReuseDelayMs
         };
-        MagicSkillUseDto dto = ZoneV2DomainMap.ToMagicSkillUseDto(mapped);
+        MagicSkillUseDto dto = NetDomainMap.ToMagicSkillUseDto(mapped);
         MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
     }
 
     void ApplyRevive(ReviveNetMsg revive)
     {
-        ReviveDto dto = ZoneV2DomainMap.ToReviveDto(new ZoneV2Revive { ObjectId = revive.ObjectId });
+        ReviveDto dto = NetDomainMap.ToReviveDto(new NetRevive { ObjectId = revive.ObjectId });
         ReviveApplyIncomingPacketServices.ApplyRevive(dto);
     }
 
     void ApplyTeleportToLocation(TeleportToLocationNetMsg teleport)
     {
-        TeleportToLocationDto dto = ZoneV2DomainMap.ToTeleportToLocationDto(new ZoneV2TeleportToLocation
+        TeleportToLocationDto dto = NetDomainMap.ToTeleportToLocationDto(new NetTeleportToLocation
         {
             ObjectId = teleport.ObjectId,
             X = teleport.X,
@@ -1063,11 +1063,11 @@ public sealed class NetSession : MonoBehaviour
     void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateNetMsg update)
     {
         AbnormalEffectNet[] src = update.Effects ?? System.Array.Empty<AbnormalEffectNet>();
-        var effects = new ZoneV2AbnormalEffect[src.Length];
+        var effects = new NetAbnormalEffect[src.Length];
         for (int i = 0; i < src.Length; i++)
         {
             AbnormalEffectNet e = src[i] ?? new AbnormalEffectNet();
-            effects[i] = new ZoneV2AbnormalEffect
+            effects[i] = new NetAbnormalEffect
             {
                 Id = e.Id,
                 Value = e.Value,
@@ -1075,7 +1075,7 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        AbnormalStatusUpdateDto dto = ZoneV2DomainMap.ToAbnormalStatusUpdateDto(new ZoneV2AbnormalStatusUpdate
+        AbnormalStatusUpdateDto dto = NetDomainMap.ToAbnormalStatusUpdateDto(new NetAbnormalStatusUpdate
         {
             ObjectId = update.ObjectId,
             Effects = effects
@@ -1094,10 +1094,10 @@ public sealed class NetSession : MonoBehaviour
     void ApplyBuyList(BuyListNetMsg list)
     {
         BuyListItemNet[] src = list.Items ?? System.Array.Empty<BuyListItemNet>();
-        var items = new ZoneV2BuyItem[src.Length];
+        var items = new NetBuyItem[src.Length];
         for (int i = 0; i < src.Length; i++)
-            items[i] = new ZoneV2BuyItem { ItemId = src[i].ItemId, Price = src[i].Price, Count = src[i].Count };
-        ZoneV2NpcWindows.ApplyBuyList(new ZoneV2BuyList
+            items[i] = new NetBuyItem { ItemId = src[i].ItemId, Price = src[i].Price, Count = src[i].Count };
+        NetNpcWindows.ApplyBuyList(new NetBuyList
         {
             NpcObjectId = list.NpcObjectId,
             ListId = list.ListId,
@@ -1110,10 +1110,10 @@ public sealed class NetSession : MonoBehaviour
     void ApplySellList(SellListNetMsg list)
     {
         SellListItemNet[] src = list.Items ?? System.Array.Empty<SellListItemNet>();
-        var items = new ZoneV2SellItem[src.Length];
+        var items = new NetSellItem[src.Length];
         for (int i = 0; i < src.Length; i++)
         {
-            items[i] = new ZoneV2SellItem
+            items[i] = new NetSellItem
             {
                 ObjectId = src[i].ObjectId,
                 ItemId = src[i].ItemId,
@@ -1123,16 +1123,16 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        ZoneV2NpcWindows.ApplySellList(new ZoneV2SellList { NpcObjectId = list.NpcObjectId, Items = items });
+        NetNpcWindows.ApplySellList(new NetSellList { NpcObjectId = list.NpcObjectId, Items = items });
     }
 
     void ApplyMultiSellList(MultiSellListNetMsg list)
     {
         MultiSellEntryNet[] src = list.Entries ?? System.Array.Empty<MultiSellEntryNet>();
-        var entries = new ZoneV2MultiSellEntry[src.Length];
+        var entries = new NetMultiSellEntry[src.Length];
         for (int i = 0; i < src.Length; i++)
         {
-            entries[i] = new ZoneV2MultiSellEntry
+            entries[i] = new NetMultiSellEntry
             {
                 EntryId = src[i].EntryId,
                 Ingredients = MapMultiParts(src[i].Ingredients),
@@ -1140,7 +1140,7 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        ZoneV2NpcWindows.ApplyMultiSellList(new ZoneV2MultiSellList
+        NetNpcWindows.ApplyMultiSellList(new NetMultiSellList
         {
             NpcObjectId = list.NpcObjectId,
             ListId = list.ListId,
@@ -1151,13 +1151,13 @@ public sealed class NetSession : MonoBehaviour
         });
     }
 
-    static ZoneV2MultiPart[] MapMultiParts(MultiSellPartNet[] parts)
+    static NetMultiPart[] MapMultiParts(MultiSellPartNet[] parts)
     {
         if (parts == null || parts.Length == 0)
-            return System.Array.Empty<ZoneV2MultiPart>();
-        var rows = new ZoneV2MultiPart[parts.Length];
+            return System.Array.Empty<NetMultiPart>();
+        var rows = new NetMultiPart[parts.Length];
         for (int i = 0; i < parts.Length; i++)
-            rows[i] = new ZoneV2MultiPart
+            rows[i] = new NetMultiPart
             {
                 ItemId = parts[i].ItemId,
                 Count = parts[i].Count,
@@ -1168,7 +1168,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyShopBalance(ShopBalanceNetMsg balance)
     {
-        ZoneV2NpcWindows.ApplyShopBalance(new ZoneV2ShopBalance
+        NetNpcWindows.ApplyShopBalance(new NetShopBalance
         {
             Adena = balance.Adena,
             Weight = balance.Weight,
@@ -1182,7 +1182,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyWarehouseDepositList(WarehouseDepositListNetMsg list)
     {
-        ZoneV2NpcWindows.ApplyWarehouseDepositList(new ZoneV2WarehouseDepositList
+        NetNpcWindows.ApplyWarehouseDepositList(new NetWarehouseDepositList
         {
             NpcObjectId = list.NpcObjectId,
             FeePerLine = list.FeePerLine,
@@ -1195,7 +1195,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyWarehouseWithdrawList(WarehouseWithdrawListNetMsg list)
     {
-        ZoneV2NpcWindows.ApplyWarehouseWithdrawList(new ZoneV2WarehouseWithdrawList
+        NetNpcWindows.ApplyWarehouseWithdrawList(new NetWarehouseWithdrawList
         {
             NpcObjectId = list.NpcObjectId,
             SlotsUsed = list.SlotsUsed,
@@ -1211,11 +1211,11 @@ public sealed class NetSession : MonoBehaviour
     void ApplyQuestList(QuestListNetMsg list)
     {
         QuestJournalEntryNet[] active = list.Active ?? System.Array.Empty<QuestJournalEntryNet>();
-        var rows = new ZoneV2QuestJournal[active.Length];
+        var rows = new NetQuestJournal[active.Length];
         for (int i = 0; i < active.Length; i++)
         {
             QuestJournalEntryNet row = active[i] ?? new QuestJournalEntryNet();
-            rows[i] = new ZoneV2QuestJournal
+            rows[i] = new NetQuestJournal
             {
                 QuestId = row.QuestId,
                 Name = row.Name ?? "",
@@ -1227,7 +1227,7 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        ZoneV2NpcWindows.ApplyQuestList(new ZoneV2QuestList
+        NetNpcWindows.ApplyQuestList(new NetQuestList
         {
             Active = rows,
             CompletedMask = list.CompletedMask ?? System.Array.Empty<byte>(),
@@ -1238,7 +1238,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)
     {
-        var dto = ZoneV2DomainMap.ToAskJoinPartyDto(new ZoneV2PartyAskJoin
+        var dto = NetDomainMap.ToAskJoinPartyDto(new NetPartyAskJoin
         {
             RequestorObjectId = ask.RequestorObjectId,
             RequestorName = ask.RequestorName ?? "",
@@ -1253,11 +1253,11 @@ public sealed class NetSession : MonoBehaviour
     void ApplyPartyMemberList(PartyMemberListNetMsg list)
     {
         PartyMemberEntryNet[] members = list.Members ?? System.Array.Empty<PartyMemberEntryNet>();
-        var rows = new ZoneV2PartyMemberEntry[members.Length];
+        var rows = new NetPartyMemberEntry[members.Length];
         for (int i = 0; i < members.Length; i++)
         {
             PartyMemberEntryNet row = members[i] ?? new PartyMemberEntryNet();
-            rows[i] = new ZoneV2PartyMemberEntry
+            rows[i] = new NetPartyMemberEntry
             {
                 ObjectId = row.ObjectId,
                 Name = row.Name ?? "",
@@ -1270,7 +1270,7 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(new ZoneV2PartyMemberList
+        PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(new NetPartyMemberList
         {
             LeaderObjectId = list.LeaderObjectId,
             PartyId = list.PartyId,
@@ -1280,7 +1280,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTradeAsk(TradeAskNetMsg ask)
     {
-        SendTradeRequestDto dto = ZoneV2DomainMap.ToSendTradeRequestDto(new ZoneV2TradeAsk
+        SendTradeRequestDto dto = NetDomainMap.ToSendTradeRequestDto(new NetTradeAsk
         {
             RequestorObjectId = ask.RequestorObjectId,
             RequestorName = ask.RequestorName ?? ""
@@ -1291,12 +1291,12 @@ public sealed class NetSession : MonoBehaviour
     void ApplyTradeRequestResult(TradeRequestResultNetMsg result)
     {
         if (result.Response == 0)
-            ZoneV2ChatFeed.NoteSystem("Trade request declined.");
+            NetChatFeed.NoteSystem("Trade request declined.");
     }
 
     void ApplyTradeStart(TradeStartNetMsg start)
     {
-        TradeStartDto dto = ZoneV2DomainMap.ToTradeStartDto(new ZoneV2TradeStart
+        TradeStartDto dto = NetDomainMap.ToTradeStartDto(new NetTradeStart
         {
             PartnerObjectId = start.PartnerObjectId,
             PartnerName = start.PartnerName ?? ""
@@ -1306,7 +1306,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTradeOfferUpdate(TradeOfferUpdateNetMsg update)
     {
-        ItemInstance item = ZoneV2DomainMap.ToTradeOfferItem(new ZoneV2TradeOfferUpdate
+        ItemInstance item = NetDomainMap.ToTradeOfferItem(new NetTradeOfferUpdate
         {
             IsOwn = update.IsOwn,
             InventoryObjectId = update.InventoryObjectId,
@@ -1329,14 +1329,14 @@ public sealed class NetSession : MonoBehaviour
     void ApplyTradeFinished(TradeFinishedNetMsg _) =>
         TradeDoneApplyIncomingPacketServices.ApplyTradeDone();
 
-    static ZoneV2ItemEntry[] MapWarehouseItems(ItemListEntryNet[] items)
+    static NetItemEntry[] MapWarehouseItems(ItemListEntryNet[] items)
     {
         if (items == null || items.Length == 0)
-            return System.Array.Empty<ZoneV2ItemEntry>();
-        var rows = new ZoneV2ItemEntry[items.Length];
+            return System.Array.Empty<NetItemEntry>();
+        var rows = new NetItemEntry[items.Length];
         for (int i = 0; i < items.Length; i++)
         {
-            rows[i] = new ZoneV2ItemEntry
+            rows[i] = new NetItemEntry
             {
                 ObjectId = items[i].ObjectId,
                 ItemId = items[i].ItemId,
@@ -1388,28 +1388,28 @@ public sealed class NetSession : MonoBehaviour
     void ApplyItemList(ItemListNetMsg list)
     {
         // Reuse V2 gear session: ItemList often arrives before the world scene / inventory UI exist.
-        ZoneV2ItemEntry[] rows = MapItemList(list);
-        ZoneV2GearSession.NoteItemList(rows);
+        NetItemEntry[] rows = MapItemList(list);
+        NetGearSession.NoteItemList(rows);
         Debug.Log("[Net] ItemList count=" + rows.Length);
     }
 
     void ApplySkillList(SkillListNetMsg list)
     {
-        ZoneV2SkillEntry[] rows = MapSkillList(list);
-        SkillListDto dto = ZoneV2DomainMap.ToSkillListDto(rows);
+        NetSkillEntry[] rows = MapSkillList(list);
+        SkillListDto dto = NetDomainMap.ToSkillListDto(rows);
         SkillListApplyIncomingPacketServices.ApplySkillList(dto);
         Debug.Log("[Net] SkillList count=" + rows.Length);
     }
 
-    static ZoneV2ItemEntry[] MapItemList(ItemListNetMsg list)
+    static NetItemEntry[] MapItemList(ItemListNetMsg list)
     {
         if (list?.Items == null || list.Items.Length == 0)
-            return System.Array.Empty<ZoneV2ItemEntry>();
-        var rows = new ZoneV2ItemEntry[list.Items.Length];
+            return System.Array.Empty<NetItemEntry>();
+        var rows = new NetItemEntry[list.Items.Length];
         for (int i = 0; i < list.Items.Length; i++)
         {
             ItemListEntryNet src = list.Items[i];
-            rows[i] = new ZoneV2ItemEntry
+            rows[i] = new NetItemEntry
             {
                 ObjectId = src.ObjectId,
                 ItemId = src.ItemId,
@@ -1427,15 +1427,15 @@ public sealed class NetSession : MonoBehaviour
         return rows;
     }
 
-    static ZoneV2SkillEntry[] MapSkillList(SkillListNetMsg list)
+    static NetSkillEntry[] MapSkillList(SkillListNetMsg list)
     {
         if (list?.Skills == null || list.Skills.Length == 0)
-            return System.Array.Empty<ZoneV2SkillEntry>();
-        var rows = new ZoneV2SkillEntry[list.Skills.Length];
+            return System.Array.Empty<NetSkillEntry>();
+        var rows = new NetSkillEntry[list.Skills.Length];
         for (int i = 0; i < list.Skills.Length; i++)
         {
             SkillListEntryNet src = list.Skills[i];
-            rows[i] = new ZoneV2SkillEntry
+            rows[i] = new NetSkillEntry
             {
                 SkillId = src.SkillId,
                 Level = src.Level,

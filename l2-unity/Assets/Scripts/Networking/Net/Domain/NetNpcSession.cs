@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// Talk range and the NPC the open dialog, shop, or warehouse belongs to.
 /// Attackable is remembered from <c>NpcInfo</c> so a click can talk instead of swing.
 /// </summary>
-public static class ZoneV2NpcSession
+public static class NetNpcSession
 {
     public const int InteractionDistance = 150;
 
@@ -103,7 +103,7 @@ public static class ZoneV2NpcSession
 }
 
 /// <summary>HTML bypass strings the renderer already stripped of a leading <c>bypass -h</c>.</summary>
-public static class ZoneV2Bypass
+public static class NetBypass
 {
     public const int Talk = 0;
     public const int Teleport = 1;

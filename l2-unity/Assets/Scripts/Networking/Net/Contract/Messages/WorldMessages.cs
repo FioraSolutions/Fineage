@@ -275,7 +275,7 @@ namespace Fineage.Net.Contract
     {
         /// <summary>
         /// Revive action "to village". Matches Fineage-Backend <c>DeathProtocol</c>
-        /// (same value as the legacy <c>ZoneV2Death.ReviveToVillage</c>).
+        /// (same value as the retired <c>ZoneV2Death.ReviveToVillage</c> constant).
         /// </summary>
         public const int ReviveToVillage = 0;
 

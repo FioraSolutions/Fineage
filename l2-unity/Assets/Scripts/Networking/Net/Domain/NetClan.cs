@@ -6,15 +6,15 @@ using System.Collections.Generic;
 /// (opcodes 32–38 and 1050–1053). Unity EditMode cannot reference this assembly;
 /// <c>tools/client-domain.Tests</c> compiles this file directly.
 /// </summary>
-public sealed class ZoneV2ClanBook
+public sealed class NetClanBook
 {
     public const int InviteTimeoutSeconds = 15;
     public const int MainPledge = 0;
 
-    public static readonly ZoneV2ClanBook Shared = new ZoneV2ClanBook();
+    public static readonly NetClanBook Shared = new NetClanBook();
 
     readonly Dictionary<int, string> _names = new Dictionary<int, string>();
-    ZoneV2PledgeMember[] _members = Array.Empty<ZoneV2PledgeMember>();
+    NetPledgeMember[] _members = Array.Empty<NetPledgeMember>();
 
     public int ClanId { get; private set; }
     public string Name { get; private set; } = "";
@@ -24,7 +24,7 @@ public sealed class ZoneV2ClanBook
     public int MemberCount { get; private set; }
     public long DissolvingExpiryUnixMs { get; private set; }
     public long CharPenaltyExpiryUnixMs { get; private set; }
-    public ZoneV2PledgeMember[] Members => _members;
+    public NetPledgeMember[] Members => _members;
 
     public bool HasClan => ClanId != 0;
 
@@ -36,7 +36,7 @@ public sealed class ZoneV2ClanBook
         _names.Clear();
     }
 
-    public void ApplyStatus(ZoneV2PledgeStatus status)
+    public void ApplyStatus(NetPledgeStatus status)
     {
         if (status.ClanId == 0)
         {
@@ -55,7 +55,7 @@ public sealed class ZoneV2ClanBook
         NoteName(status.ClanId, Name);
     }
 
-    public void ApplyMembers(ZoneV2PledgeMemberList list)
+    public void ApplyMembers(NetPledgeMemberList list)
     {
         if (list.ClanId == 0)
         {
@@ -65,8 +65,8 @@ public sealed class ZoneV2ClanBook
 
         ClanId = list.ClanId;
         LeaderObjectId = list.LeaderObjectId;
-        ZoneV2PledgeMember[] rows = list.Members ?? Array.Empty<ZoneV2PledgeMember>();
-        var copy = new ZoneV2PledgeMember[rows.Length];
+        NetPledgeMember[] rows = list.Members ?? Array.Empty<NetPledgeMember>();
+        var copy = new NetPledgeMember[rows.Length];
         Array.Copy(rows, copy, rows.Length);
         _members = copy;
         if (MemberCount < copy.Length)
@@ -99,13 +99,13 @@ public sealed class ZoneV2ClanBook
 
     public string LeaderName()
     {
-        ZoneV2PledgeMember leader;
+        NetPledgeMember leader;
         if (TryMember(LeaderObjectId, out leader) && !string.IsNullOrEmpty(leader.Name))
             return leader.Name;
         return "";
     }
 
-    public bool TryMember(int objectId, out ZoneV2PledgeMember member)
+    public bool TryMember(int objectId, out NetPledgeMember member)
     {
         for (int i = 0; i < _members.Length; i++)
         {
@@ -120,7 +120,7 @@ public sealed class ZoneV2ClanBook
         return false;
     }
 
-    public bool TryMemberByName(string name, out ZoneV2PledgeMember member)
+    public bool TryMemberByName(string name, out NetPledgeMember member)
     {
         if (!string.IsNullOrEmpty(name))
         {
@@ -160,19 +160,19 @@ public sealed class ZoneV2ClanBook
         MemberCount = 0;
         DissolvingExpiryUnixMs = 0;
         CharPenaltyExpiryUnixMs = 0;
-        _members = Array.Empty<ZoneV2PledgeMember>();
+        _members = Array.Empty<NetPledgeMember>();
     }
 }
 
 /// <summary>Readable lines for clan <c>Error</c> 1099 codes. A full server sentence wins.</summary>
-public static class ZoneV2ClanNotices
+public static class NetClanNotices
 {
     public static string LineOrEquip(string code, string message)
     {
         string clan;
         if (TryLine(code, message, out clan))
             return clan;
-        return ZoneV2EquipNotices.Line(code, message);
+        return NetEquipNotices.Line(code, message);
     }
 
     public static bool TryLine(string code, string message, out string line)

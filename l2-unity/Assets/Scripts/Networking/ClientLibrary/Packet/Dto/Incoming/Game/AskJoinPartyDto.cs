@@ -12,7 +12,7 @@ public class AskJoinPartyDto : IWireDto
     public int RequestorObjectId => _requestorObjectId;
 
     /// <summary>Build from the Zone V2 party ask-join row (1027).</summary>
-    public static AskJoinPartyDto FromZoneV2(int requestorObjectId, string requestorName, int itemDistribution)
+    public static AskJoinPartyDto FromNet(int requestorObjectId, string requestorName, int itemDistribution)
     {
         var dto = new AskJoinPartyDto();
         dto._requestorObjectId = requestorObjectId;

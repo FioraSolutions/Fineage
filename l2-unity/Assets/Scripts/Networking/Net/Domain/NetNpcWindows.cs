@@ -5,11 +5,11 @@ using UnityEngine;
 /// <summary>
 /// Applies NPC HTML, quest, shop, and service packets onto the existing windows.
 /// </summary>
-public static class ZoneV2NpcWindows
+public static class NetNpcWindows
 {
     public static void Tick()
     {
-        if (!ZoneV2NpcSession.WindowsOpen)
+        if (!NetNpcSession.WindowsOpen)
             return;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -17,7 +17,7 @@ public static class ZoneV2NpcWindows
             return;
         }
 
-        int npcId = ZoneV2NpcSession.ActiveNpcObjectId;
+        int npcId = NetNpcSession.ActiveNpcObjectId;
         if (npcId <= 0)
             return;
         World world = WorldApplyIncomingPacketServices.GameWorld;
@@ -38,13 +38,13 @@ public static class ZoneV2NpcWindows
         float dx = from.x - to.x;
         float dy = from.y - to.y;
         float dz = from.z - to.z;
-        float limit = ZoneV2NpcSession.InteractionDistance;
+        float limit = NetNpcSession.InteractionDistance;
         return dx * dx + dy * dy + dz * dz <= limit * limit;
     }
 
     public static void Close()
     {
-        ZoneV2NpcSession.CloseWindows();
+        NetNpcSession.CloseWindows();
         if (HtmlWindow.Instance != null)
             HtmlWindow.Instance.HideWindow();
         if (DealerWindow.Instance != null)
@@ -53,10 +53,10 @@ public static class ZoneV2NpcWindows
             MultiSellWindow.Instance.HideWindow();
     }
 
-    static ZoneV2ShopBalance _balance;
+    static NetShopBalance _balance;
     static bool _hasBalance;
 
-    static void ShowQuests(ZoneV2QuestList list)
+    static void ShowQuests(NetQuestList list)
     {
         QuestWindow window = QuestWindow.Instance;
         if (window == null || list.Active == null)
@@ -64,7 +64,7 @@ public static class ZoneV2NpcWindows
         var quests = new List<QuestInstance>(list.Active.Length);
         for (int i = 0; i < list.Active.Length; i++)
         {
-            ZoneV2QuestJournal row = list.Active[i];
+            NetQuestJournal row = list.Active[i];
             int flags = row.JournalWord != 0 ? row.JournalWord : row.Cond;
             if (flags == 0)
                 flags = 1;
@@ -77,27 +77,27 @@ public static class ZoneV2NpcWindows
         }
         catch (Exception ex)
         {
-            Debug.LogWarning("[ZoneV2] quest list: " + ex.Message);
+            Debug.LogWarning("[Net] quest list: " + ex.Message);
         }
     }
 
-    public static void ApplyBuyList(ZoneV2BuyList list) => ShowBuy(list);
-    public static void ApplySellList(ZoneV2SellList list) => ShowSell(list);
-    public static void ApplyMultiSellList(ZoneV2MultiSellList list) => ShowMulti(list);
-    public static void ApplyShopBalance(ZoneV2ShopBalance balance) => ApplyBalance(balance);
-    public static void ApplyWarehouseDepositList(ZoneV2WarehouseDepositList list) => ShowDeposit(list);
-    public static void ApplyWarehouseWithdrawList(ZoneV2WarehouseWithdrawList list) => ShowWithdraw(list);
-    public static void ApplyQuestList(ZoneV2QuestList list) => ShowQuests(list);
+    public static void ApplyBuyList(NetBuyList list) => ShowBuy(list);
+    public static void ApplySellList(NetSellList list) => ShowSell(list);
+    public static void ApplyMultiSellList(NetMultiSellList list) => ShowMulti(list);
+    public static void ApplyShopBalance(NetShopBalance balance) => ApplyBalance(balance);
+    public static void ApplyWarehouseDepositList(NetWarehouseDepositList list) => ShowDeposit(list);
+    public static void ApplyWarehouseWithdrawList(NetWarehouseWithdrawList list) => ShowWithdraw(list);
+    public static void ApplyQuestList(NetQuestList list) => ShowQuests(list);
 
-    static void ShowBuy(ZoneV2BuyList list)
+    static void ShowBuy(NetBuyList list)
     {
-        ZoneV2NpcSession.OpenShop(list.NpcObjectId, list.ListId);
+        NetNpcSession.OpenShop(list.NpcObjectId, list.ListId);
         var products = new List<Product>();
         if (list.Items != null)
         {
             for (int i = 0; i < list.Items.Length; i++)
             {
-                ZoneV2BuyItem row = list.Items[i];
+                NetBuyItem row = list.Items[i];
                 int count = row.Count < 0 ? 10000 : row.Count;
                 products.Add(new Product(0, 0, count, (int)EnumType2.TYPE2_OTHER, 0, 0, 0, row.Price, row.ItemId));
             }
@@ -106,31 +106,31 @@ public static class ZoneV2NpcWindows
         OpenDealer("Shop", "Sell", "Buy", ProductType.BUY, products, false, list.ListId, _hasBalance ? _balance.Adena : 0);
     }
 
-    static void ShowSell(ZoneV2SellList list)
+    static void ShowSell(NetSellList list)
     {
-        ZoneV2NpcSession.OpenShop(list.NpcObjectId, 0);
+        NetNpcSession.OpenShop(list.NpcObjectId, 0);
         OpenDealer("Shop", "Inventory", "Sell", ProductType.SELL, SellProducts(list.Items), true, 0, _hasBalance ? _balance.Adena : 0);
     }
 
-    static void ShowDeposit(ZoneV2WarehouseDepositList list)
+    static void ShowDeposit(NetWarehouseDepositList list)
     {
-        ZoneV2NpcSession.OpenShop(list.NpcObjectId, 0);
+        NetNpcSession.OpenShop(list.NpcObjectId, 0);
         string title = "Private Warehouse (" + list.FeePerLine + " adena)";
         OpenDealer(title, "Inventory", "Deposit", ProductType.WHDepositList, BagProducts(list.Items), true, 0, list.Adena);
     }
 
-    static void ShowWithdraw(ZoneV2WarehouseWithdrawList list)
+    static void ShowWithdraw(NetWarehouseWithdrawList list)
     {
-        ZoneV2NpcSession.OpenShop(list.NpcObjectId, 0);
+        NetNpcSession.OpenShop(list.NpcObjectId, 0);
         _balance.Weight = list.CurrentWeight;
         _balance.MaxWeight = list.MaxWeight;
         _hasBalance = true;
         OpenDealer("Private Warehouse", "Warehouse", "Withdraw", ProductType.WHWithdrawList, BagProducts(list.Items), true, 0, _hasBalance ? _balance.Adena : 0);
     }
 
-    static void ShowMulti(ZoneV2MultiSellList list)
+    static void ShowMulti(NetMultiSellList list)
     {
-        ZoneV2NpcSession.OpenShop(list.NpcObjectId, list.ListId);
+        NetNpcSession.OpenShop(list.NpcObjectId, list.ListId);
         MultiSellWindow window = MultiSellWindow.Instance;
         if (window == null || list.Entries == null)
             return;
@@ -138,13 +138,13 @@ public static class ZoneV2NpcWindows
         var products = new List<ItemInstance>();
         for (int i = 0; i < list.Entries.Length; i++)
         {
-            ZoneV2MultiSellEntry entry = list.Entries[i];
+            NetMultiSellEntry entry = list.Entries[i];
             var made = new List<ItemInstance>();
             if (entry.Products != null)
             {
                 for (int p = 0; p < entry.Products.Length; p++)
                 {
-                    ZoneV2MultiPart part = entry.Products[p];
+                    NetMultiPart part = entry.Products[p];
                     var item = new ItemInstance(0, part.ItemId, ItemLocation.Trade, products.Count, part.Count,
                         ItemsType.ParceCategory((int)EnumType2.TYPE2_OTHER), false, ItemSlot.none, part.EnchantLevel, 9999);
                     made.Add(item);
@@ -157,7 +157,7 @@ public static class ZoneV2NpcWindows
             {
                 for (int g = 0; g < entry.Ingredients.Length; g++)
                 {
-                    ZoneV2MultiPart part = entry.Ingredients[g];
+                    NetMultiPart part = entry.Ingredients[g];
                     ingredients.Add(new Ingredient(part.ItemId, (int)EnumType2.TYPE2_OTHER, part.Count, part.EnchantLevel));
                 }
             }
@@ -168,7 +168,7 @@ public static class ZoneV2NpcWindows
         }
 
         var dto = new MultiSellListDto();
-        dto.LoadZoneV2(list.ListId, rows, products);
+        dto.LoadNet(list.ListId, rows, products);
         try
         {
             window.AddData(products, dto);
@@ -176,11 +176,11 @@ public static class ZoneV2NpcWindows
         }
         catch (Exception ex)
         {
-            Debug.LogWarning("[ZoneV2] multisell: " + ex.Message);
+            Debug.LogWarning("[Net] multisell: " + ex.Message);
         }
     }
 
-    static void ApplyBalance(ZoneV2ShopBalance balance)
+    static void ApplyBalance(NetShopBalance balance)
     {
         _balance = balance;
         _hasBalance = true;
@@ -194,7 +194,7 @@ public static class ZoneV2NpcWindows
         }
         catch (Exception ex)
         {
-            Debug.LogWarning("[ZoneV2] shop balance: " + ex.Message);
+            Debug.LogWarning("[Net] shop balance: " + ex.Message);
         }
     }
 
@@ -218,32 +218,32 @@ public static class ZoneV2NpcWindows
         }
         catch (Exception ex)
         {
-            Debug.LogWarning("[ZoneV2] shop window: " + ex.Message);
+            Debug.LogWarning("[Net] shop window: " + ex.Message);
         }
     }
 
-    static List<Product> SellProducts(ZoneV2SellItem[] items)
+    static List<Product> SellProducts(NetSellItem[] items)
     {
         var products = new List<Product>();
         if (items == null)
             return products;
         for (int i = 0; i < items.Length; i++)
         {
-            ZoneV2SellItem row = items[i];
+            NetSellItem row = items[i];
             products.Add(new Product(0, row.ObjectId, row.Count, (int)EnumType2.TYPE2_OTHER, 0, 0, row.EnchantLevel, row.Price, row.ItemId));
         }
 
         return products;
     }
 
-    static List<Product> BagProducts(ZoneV2ItemEntry[] items)
+    static List<Product> BagProducts(NetItemEntry[] items)
     {
         var products = new List<Product>();
         if (items == null)
             return products;
         for (int i = 0; i < items.Length; i++)
         {
-            ZoneV2ItemEntry row = items[i];
+            NetItemEntry row = items[i];
             if (row.EquippedSlot >= 0)
                 continue;
             products.Add(new Product(0, row.ObjectId, row.Count, (int)EnumType2.TYPE2_OTHER, 0, 0, row.EnchantLevel, 0, row.ItemId));
@@ -253,23 +253,23 @@ public static class ZoneV2NpcWindows
     }
 }
 
-public static class ZoneV2NpcOrders
+public static class NetNpcOrders
 {
-    public static ZoneV2IdCount[] ItemCounts(List<Product> products)
+    public static NetIdCount[] ItemCounts(List<Product> products)
     {
         return Counts(products, true);
     }
 
-    public static ZoneV2IdCount[] ObjectCounts(List<Product> products)
+    public static NetIdCount[] ObjectCounts(List<Product> products)
     {
         return Counts(products, false);
     }
 
-    static ZoneV2IdCount[] Counts(List<Product> products, bool itemId)
+    static NetIdCount[] Counts(List<Product> products, bool itemId)
     {
         if (products == null || products.Count == 0)
-            return Array.Empty<ZoneV2IdCount>();
-        var rows = new List<ZoneV2IdCount>(products.Count);
+            return Array.Empty<NetIdCount>();
+        var rows = new List<NetIdCount>(products.Count);
         for (int i = 0; i < products.Count; i++)
         {
             Product product = products[i];
@@ -278,7 +278,7 @@ public static class ZoneV2NpcOrders
             int id = itemId ? product.ItemId : product.ObjId;
             if (id <= 0)
                 continue;
-            rows.Add(new ZoneV2IdCount { Id = id, Count = product.Count });
+            rows.Add(new NetIdCount { Id = id, Count = product.Count });
         }
 
         return rows.ToArray();

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// The server normally sends the line already written. Ids 30–38 are quests,
 /// 180–189 are shops, and 190–209 are gatekeeper, warehouse, and newbie magic.
 /// </summary>
-public static class ZoneV2SystemLines
+public static class NetSystemLines
 {
     static readonly Dictionary<int, string> Lines = new Dictionary<int, string>
     {

@@ -29,7 +29,7 @@ public sealed class DropItemDto : IWireDto
     }
 
     /// <summary>Zone V2 drop item row (1019).</summary>
-    public static DropItemDto FromZoneV2(
+    public static DropItemDto FromNet(
         int charObjectId,
         int objectId,
         int itemId,

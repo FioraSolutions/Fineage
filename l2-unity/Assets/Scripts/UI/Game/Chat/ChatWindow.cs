@@ -164,7 +164,7 @@ public class ChatWindow : L2Window
         }
 
         Ready = true;
-        ZoneV2ChatFeed.Flush();
+        NetChatFeed.Flush();
     }
 
     public bool SwitchTab(ChatTab switchTo)
@@ -375,7 +375,7 @@ public class ChatWindow : L2Window
         if (_tabs == null || _tabs.Count == 0)
             return;
 
-        string line = ZoneV2Chat.FormatLine(name, text, chatType);
+        string line = NetChat.FormatLine(name, text, chatType);
         bool shown = false;
         for (int i = 0; i < _tabs.Count; i++)
         {
@@ -383,7 +383,7 @@ public class ChatWindow : L2Window
             if (tab == null)
                 continue;
             bool match = tab.TabId == chatType;
-            bool onAll = tab.ChatType == ChatType.GENERAL && ZoneV2Chat.ShowsOnAllTab(chatType);
+            bool onAll = tab.ChatType == ChatType.GENERAL && NetChat.ShowsOnAllTab(chatType);
             if (!match && !onAll)
                 continue;
             tab.ConcatMessage(line);
@@ -409,7 +409,7 @@ public class ChatWindow : L2Window
         if (string.IsNullOrEmpty(text) || _tabs == null || _tabs.Count == 0)
             return;
 
-        string line = ZoneV2Chat.FormatSystem(text);
+        string line = NetChat.FormatSystem(text);
         for (int i = 0; i < _tabs.Count; i++)
         {
             if (_tabs[i] != null)

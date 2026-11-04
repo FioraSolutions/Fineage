@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// The scroll is chosen with <c>EnchantRequest</c>. Confirm and cancel follow. A rejection is <c>Error</c> 1099
 /// and does not consume the scroll.
 /// </summary>
-public static class ZoneV2Enchant
+public static class NetEnchant
 {
     public const int ResultCancel = 0;
     public const int ResultSuccess = 1;
@@ -61,7 +61,7 @@ public static class ZoneV2Enchant
             && session.TargetObjectId != session.ScrollObjectId;
     }
 
-    public static View ViewOf(ZoneV2EnchantResult result)
+    public static View ViewOf(NetEnchantResult result)
     {
         var view = new View
         {
@@ -90,7 +90,7 @@ public static class ZoneV2Enchant
     /// Success, keep, and reset write the level from the result. Crystallize removes the target.
     /// Crystals arrive on the following <c>InventoryUpdate</c>.
     /// </summary>
-    public static void Apply(Dictionary<int, ZoneV2ItemEntry> items, ZoneV2EnchantResult result)
+    public static void Apply(Dictionary<int, NetItemEntry> items, NetEnchantResult result)
     {
         if (items == null)
             return;
@@ -103,7 +103,7 @@ public static class ZoneV2Enchant
 
         if (!view.ShowEnchant)
             return;
-        ZoneV2ItemEntry item;
+        NetItemEntry item;
         if (!items.TryGetValue(view.ObjectId, out item))
             return;
         item.EnchantLevel = view.EnchantLevel;
@@ -176,7 +176,7 @@ public static class ZoneV2Enchant
             case "not_owned":
                 return "That item is not in your inventory.";
             default:
-                return ZoneV2EquipNotices.Line(code, message);
+                return NetEquipNotices.Line(code, message);
         }
     }
 }

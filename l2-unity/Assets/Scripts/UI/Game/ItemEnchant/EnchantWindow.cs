@@ -207,7 +207,7 @@ public class EnchantWindow : L2PopupWindow
             _enchant2 = ChangeSlotBoxType(_slot2, _enchant2);
             _enchant2.AssignItem(itemInstance);
             if (_textLabel != null)
-                _textLabel.text = ZoneV2Enchant.WithLevel(itemInstance.GetName(), itemInstance.EnchantLevel);
+                _textLabel.text = NetEnchant.WithLevel(itemInstance.GetName(), itemInstance.EnchantLevel);
         }
         else
         {
@@ -271,9 +271,9 @@ public class EnchantWindow : L2PopupWindow
         SetWindowTitle("Enchant");
     }
 
-    public void ApplyZoneResult(ZoneV2EnchantResult result)
+    public void ApplyZoneResult(NetEnchantResult result)
     {
-        ZoneV2Enchant.View view = ZoneV2Enchant.ViewOf(result);
+        NetEnchant.View view = NetEnchant.ViewOf(result);
         if (view.RemoveItem || view.ShowEnchant || view.CloseWindow)
             CloseFromServer();
     }

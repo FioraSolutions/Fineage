@@ -221,7 +221,7 @@ public class InventorySlot : L2DraggableSlot
         if (item.ItemData != null)
         {
             _id = item.ItemData.Id;
-            _name = ZoneV2Enchant.WithLevel(item.ItemData.ItemName.Name, item.EnchantLevel);
+            _name = NetEnchant.WithLevel(item.ItemData.ItemName.Name, item.EnchantLevel);
             _description = item.ItemData.ItemName.Description;
             _icon = item.ItemData.Icon;
             _objectId = item.ObjectId;

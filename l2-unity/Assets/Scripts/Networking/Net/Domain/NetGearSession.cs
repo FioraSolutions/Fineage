@@ -5,14 +5,14 @@ using UnityEngine;
 /// Holds zone enter gear until the local player and inventory window exist.
 /// UserInfo and ItemList arrive before the world scene is loaded.
 /// </summary>
-public static class ZoneV2GearSession
+public static class NetGearSession
 {
     static bool _hasUser;
-    static ZoneV2UserInfo _user;
+    static NetUserInfo _user;
     static bool _hasItems;
     static bool _itemsApplied;
-    static ZoneV2ItemEntry[] _items;
-    static readonly List<ZoneV2InventoryChange[]> _updates = new List<ZoneV2InventoryChange[]>();
+    static NetItemEntry[] _items;
+    static readonly List<NetInventoryChange[]> _updates = new List<NetInventoryChange[]>();
     static bool _warned;
 
     public static void Reset()
@@ -26,46 +26,46 @@ public static class ZoneV2GearSession
         _warned = false;
     }
 
-    public static void NoteUserInfo(ZoneV2UserInfo user)
+    public static void NoteUserInfo(NetUserInfo user)
     {
         _user = user;
         _hasUser = true;
-        int rhand = user.HasPaperdoll ? ZoneV2Paperdoll.RightHandItemId(user.Paperdoll) : 0;
-        Debug.Log("[ZoneV2] UserInfo objectId=" + user.ObjectId
+        int rhand = user.HasPaperdoll ? NetPaperdoll.RightHandItemId(user.Paperdoll) : 0;
+        Debug.Log("[Net] UserInfo objectId=" + user.ObjectId
             + " class=" + user.ClassId
             + " rhand=" + rhand);
 
         GameClient game = GameClient.Instance;
         if (game != null && game.PlayerInfo.Identity != null && game.PlayerInfo.Identity.Id == user.ObjectId)
-            ZoneV2DomainMap.OverlayUserInfo(game.PlayerInfo, user);
+            NetDomainMap.OverlayUserInfo(game.PlayerInfo, user);
 
         PlayerEntity player = PlayerEntity.Instance;
         if (player != null && player.Identity != null && player.Identity.Id == user.ObjectId)
             ApplyToLivePlayer(player, user);
     }
 
-    public static PlayerInfoInterlude PrepareSpawn(ZoneV2PlayerSpawned spawned)
+    public static PlayerInfoInterlude PrepareSpawn(NetPlayerSpawned spawned)
     {
-        PlayerInfoInterlude info = ZoneV2DomainMap.ToPlayerInfo(spawned);
+        PlayerInfoInterlude info = NetDomainMap.ToPlayerInfo(spawned);
         if (_hasUser)
-            ZoneV2DomainMap.OverlayUserInfo(info, _user);
+            NetDomainMap.OverlayUserInfo(info, _user);
         StorageNpc.getInstance().AddUserInfo(new UserInfoDto(info));
         int rhand = info.Appearance != null ? info.Appearance.RHand : 0;
         int classId = info.Identity != null ? info.Identity.PlayerClass : 0;
-        Debug.Log("[ZoneV2] spawn class=" + classId + " rhand=" + rhand);
+        Debug.Log("[Net] spawn class=" + classId + " rhand=" + rhand);
         return info;
     }
 
-    public static void NoteItemList(ZoneV2ItemEntry[] rows)
+    public static void NoteItemList(NetItemEntry[] rows)
     {
-        _items = rows ?? System.Array.Empty<ZoneV2ItemEntry>();
+        _items = rows ?? System.Array.Empty<NetItemEntry>();
         _hasItems = true;
         _itemsApplied = false;
         _updates.Clear();
         FlushPending();
     }
 
-    public static void NoteInventoryUpdate(ZoneV2InventoryChange[] rows)
+    public static void NoteInventoryUpdate(NetInventoryChange[] rows)
     {
         if (rows == null || rows.Length == 0)
             return;
@@ -82,10 +82,10 @@ public static class ZoneV2GearSession
         {
             if (_hasItems && !_itemsApplied)
             {
-                ItemListDto list = ZoneV2DomainMap.ToItemListDto(_items);
+                ItemListDto list = NetDomainMap.ToItemListDto(_items);
                 ItemListApplyIncomingPacketServices.ApplyItemList(list);
                 _itemsApplied = true;
-                Debug.Log("[ZoneV2] ItemList rows=" + _items.Length);
+                Debug.Log("[Net] ItemList rows=" + _items.Length);
             }
 
             if (!_itemsApplied)
@@ -93,7 +93,7 @@ public static class ZoneV2GearSession
 
             for (int i = 0; i < _updates.Count; i++)
             {
-                InventoryUpdateDto update = ZoneV2DomainMap.ToInventoryUpdateDto(_updates[i]);
+                InventoryUpdateDto update = NetDomainMap.ToInventoryUpdateDto(_updates[i]);
                 InventoryUpdateApplyIncomingPacketServices.ApplyInventoryUpdate(update);
             }
 
@@ -103,13 +103,13 @@ public static class ZoneV2GearSession
         {
             if (!_warned)
             {
-                Debug.LogWarning("[ZoneV2] inventory apply deferred: " + ex.Message);
+                Debug.LogWarning("[Net] inventory apply deferred: " + ex.Message);
                 _warned = true;
             }
         }
     }
 
-    static void ApplyToLivePlayer(PlayerEntity player, ZoneV2UserInfo user)
+    static void ApplyToLivePlayer(PlayerEntity player, NetUserInfo user)
     {
         PlayerAppearance appearance = player.Appearance as PlayerAppearance;
         PlayerStats stats = player.Stats as PlayerStats;
@@ -124,7 +124,7 @@ public static class ZoneV2GearSession
             Stats = stats,
             Status = status
         };
-        ZoneV2DomainMap.OverlayUserInfo(info, user);
+        NetDomainMap.OverlayUserInfo(info, user);
         player.Running = appearance.Running;
         if (stats.RunRealSpeed > 0.001f)
             player.UpdateRunSpeed(stats.RunRealSpeed);
