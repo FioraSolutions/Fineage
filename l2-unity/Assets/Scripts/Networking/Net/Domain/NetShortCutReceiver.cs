@@ -169,7 +169,9 @@ public static class NetShortCutReceiver
         if (msg.ChatBlocked)
             dto.ChatBanned = 1;
 
-        EtcStatusUpdateApplyIncomingPacketServices.ApplyEtcStatusUpdate(dto);
+        StatusApplyService status = ApplyServices.Status;
+        if (status != null) status.ApplyEtcStatusUpdate(dto);
+        else EtcStatusUpdateApplyIncomingPacketServices.ApplyEtcStatusUpdate(dto);
     }
 
     public static void ApplyChangeMoveType(ChangeMoveTypeNetMsg msg)

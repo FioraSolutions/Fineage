@@ -18,8 +18,16 @@ public sealed class NetSession : MonoBehaviour
     IWorldDomainSink _sink;
     CombatAttackApplyService _combatAttack;
     CombatDieApplyService _combatDie;
+    CombatTargetApplyService _combatTarget;
     StatusUpdateApplyService _statusUpdate;
     DeleteObjectGroundApplyService _deleteObjectGround;
+    StatusApplyService _status;
+    SkillApplyService _skills;
+    PresenceApplyService _presence;
+    InventoryApplyService _inventoryApply;
+    PartyApplyService _party;
+    TradeApplyService _trade;
+    TradeRequestApplyService _tradeRequest;
     string _account;
     HandoffMsg _handoff;
     bool _helloLobby;
@@ -87,24 +95,39 @@ public sealed class NetSession : MonoBehaviour
     public void BindDomainSink(IWorldDomainSink sink) => _sink = sink;
 
     /// <summary>
-    /// Packet applies are container-constructed (#142 slice 3 pilot). NetSession is a
-    /// <c>NetSession.Ensure()</c> MonoBehaviour outside the container, so it is handed the
-    /// instances instead of injecting them; null keeps the legacy static relay.
+    /// Packet applies are container-constructed (#142 slice 3). NetSession is created by
+    /// <see cref="Ensure"/> outside the VContainer scope, so the composition root calls
+    /// <see cref="VContainer.IObjectResolver.InjectGameObject"/> on it — which fills the
+    /// <c>[Inject]</c> members below. Each is null until then, and every call site keeps the
+    /// legacy static facade as a fallback for that window.
     /// </summary>
-    public void BindApplyServices(
-        CombatAttackApplyService combatAttack = null,
-        CombatDieApplyService combatDie = null,
-        StatusUpdateApplyService statusUpdate = null,
-        DeleteObjectGroundApplyService deleteObjectGround = null)
+    [VContainer.Inject]
+    public void ConstructApplyServices(
+        CombatAttackApplyService combatAttack,
+        CombatDieApplyService combatDie,
+        CombatTargetApplyService combatTarget,
+        StatusUpdateApplyService statusUpdate,
+        DeleteObjectGroundApplyService deleteObjectGround,
+        StatusApplyService status,
+        SkillApplyService skills,
+        PresenceApplyService presence,
+        InventoryApplyService inventory,
+        PartyApplyService party,
+        TradeApplyService trade,
+        TradeRequestApplyService tradeRequest)
     {
-        if (combatAttack != null)
-            _combatAttack = combatAttack;
-        if (combatDie != null)
-            _combatDie = combatDie;
-        if (statusUpdate != null)
-            _statusUpdate = statusUpdate;
-        if (deleteObjectGround != null)
-            _deleteObjectGround = deleteObjectGround;
+        _combatAttack = combatAttack;
+        _combatDie = combatDie;
+        _combatTarget = combatTarget;
+        _statusUpdate = statusUpdate;
+        _deleteObjectGround = deleteObjectGround;
+        _status = status;
+        _skills = skills;
+        _presence = presence;
+        _inventoryApply = inventory;
+        _party = party;
+        _trade = trade;
+        _tradeRequest = tradeRequest;
     }
 
     public async void BeginLobby(string account, string password, bool registerIfMissing = false)
@@ -988,7 +1011,8 @@ public sealed class NetSession : MonoBehaviour
         dto.Status.SetMp(100);
         dto.Stats.MaxHp = 100;
         dto.Stats.MaxMp = 100;
-        CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
+        if (_presence != null) _presence.ApplyCharInfo(dto);
+        else CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
     }
 
     void ApplyNpcSpawn(EntitySpawnMsg spawn)
@@ -1018,7 +1042,8 @@ public sealed class NetSession : MonoBehaviour
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
         NetNpcSession.RememberNpc(objectId, spawn.Name, spawn.Attackable);
-        NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
+        if (_presence != null) _presence.ApplyNpcInfo(dto);
+        else NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
     }
 
     void ApplyEntityDespawn(EntityDespawnMsg despawn)
@@ -1033,8 +1058,9 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTargetSelected(TargetSelectedNetMsg msg)
     {
-        MyTargetSelectedApplyIncomingPacketServices.ApplyMyTargetSelected(
-            MyTargetSelectDto.FromNet(msg.TargetObjectId, msg.ColorHint));
+        MyTargetSelectDto dto = MyTargetSelectDto.FromNet(msg.TargetObjectId, msg.ColorHint);
+        if (_combatTarget != null) _combatTarget.ApplyMyTargetSelected(dto);
+        else MyTargetSelectedApplyIncomingPacketServices.ApplyMyTargetSelected(dto);
     }
 
     void ApplyAttackState(AttackStateMsg attack)
@@ -1085,7 +1111,8 @@ public sealed class NetSession : MonoBehaviour
             drop.Stackable,
             drop.Count,
             0);
-        DropItemApplyIncomingPacketServices.ApplyDropItem(dto);
+        if (_presence != null) _presence.ApplyDropItem(dto);
+        else DropItemApplyIncomingPacketServices.ApplyDropItem(dto);
     }
 
     void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
@@ -1137,13 +1164,15 @@ public sealed class NetSession : MonoBehaviour
             ReuseDelayMs = use.ReuseDelayMs
         };
         MagicSkillUseDto dto = NetDomainMap.ToMagicSkillUseDto(mapped);
-        MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
+        if (_skills != null) _skills.ApplyMagicSkillUse(dto);
+        else MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
     }
 
     void ApplyRevive(ReviveNetMsg revive)
     {
         ReviveDto dto = NetDomainMap.ToReviveDto(new NetRevive { ObjectId = revive.ObjectId });
-        ReviveApplyIncomingPacketServices.ApplyRevive(dto);
+        if (_presence != null) _presence.ApplyRevive(dto);
+        else ReviveApplyIncomingPacketServices.ApplyRevive(dto);
     }
 
     void ApplyTeleportToLocation(TeleportToLocationNetMsg teleport)
@@ -1156,7 +1185,8 @@ public sealed class NetSession : MonoBehaviour
             Z = teleport.Z,
             Heading = teleport.Heading
         });
-        TeleportToLocationApplyIncomingPacketServices.ApplyTeleportToLocation(dto);
+        if (_presence != null) _presence.ApplyTeleportToLocation(dto);
+        else TeleportToLocationApplyIncomingPacketServices.ApplyTeleportToLocation(dto);
     }
 
     void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateNetMsg update)
@@ -1179,7 +1209,8 @@ public sealed class NetSession : MonoBehaviour
             ObjectId = update.ObjectId,
             Effects = effects
         });
-        AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
+        if (_status != null) _status.ApplyAbnormalStatusUpdate(dto);
+        else AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
     }
 
     void ApplyNpcHtml(NpcHtmlNetMsg html)
@@ -1343,11 +1374,15 @@ public sealed class NetSession : MonoBehaviour
             RequestorName = ask.RequestorName ?? "",
             ItemDistribution = ask.ItemDistribution
         });
-        AskJoinPartyApplyIncomingPacketServices.ApplyAskJoinParty(dto);
+        if (_party != null) _party.ApplyAskJoinParty(dto);
+        else AskJoinPartyApplyIncomingPacketServices.ApplyAskJoinParty(dto);
     }
 
-    void ApplyPartyJoinResult(PartyJoinResultNetMsg result) =>
-        PartyJoinResultApplyIncomingPacketServices.ApplyPartyJoinResult(result.Response);
+    void ApplyPartyJoinResult(PartyJoinResultNetMsg result)
+    {
+        if (_party != null) _party.ApplyPartyJoinResult(result.Response);
+        else PartyJoinResultApplyIncomingPacketServices.ApplyPartyJoinResult(result.Response);
+    }
 
     void ApplyPartyMemberList(PartyMemberListNetMsg list)
     {
@@ -1369,12 +1404,14 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(new NetPartyMemberList
+        var roster = new NetPartyMemberList
         {
             LeaderObjectId = list.LeaderObjectId,
             PartyId = list.PartyId,
             Members = rows
-        });
+        };
+        if (_party != null) _party.ApplyPartyMemberList(roster);
+        else PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(roster);
     }
 
     void ApplyTradeAsk(TradeAskNetMsg ask)
@@ -1384,7 +1421,8 @@ public sealed class NetSession : MonoBehaviour
             RequestorObjectId = ask.RequestorObjectId,
             RequestorName = ask.RequestorName ?? ""
         });
-        SendTradeRequestApplyIncomingPacketServices.ApplySendTradeRequest(dto);
+        if (_tradeRequest != null) _tradeRequest.ApplySendTradeRequest(dto);
+        else SendTradeRequestApplyIncomingPacketServices.ApplySendTradeRequest(dto);
     }
 
     void ApplyTradeRequestResult(TradeRequestResultNetMsg result)
@@ -1400,7 +1438,8 @@ public sealed class NetSession : MonoBehaviour
             PartnerObjectId = start.PartnerObjectId,
             PartnerName = start.PartnerName ?? ""
         });
-        TradeStartApplyIncomingPacketServices.ApplyTradeStart(dto);
+        if (_trade != null) _trade.ApplyStart(dto);
+        else TradeStartApplyIncomingPacketServices.ApplyTradeStart(dto);
     }
 
     void ApplyTradeOfferUpdate(TradeOfferUpdateNetMsg update)
@@ -1414,19 +1453,26 @@ public sealed class NetSession : MonoBehaviour
             EnchantLevel = update.EnchantLevel
         });
         if (update.IsOwn != 0)
-            TradeOwnAddApplyIncomingPacketServices.ApplyOwnAdd(item);
+            if (_trade != null) _trade.ApplyOwnAdd(item);
+            else TradeOwnAddApplyIncomingPacketServices.ApplyOwnAdd(item);
         else
-            TradeOtherAddApplyIncomingPacketServices.ApplyOtherAdd(item);
+            if (_trade != null) _trade.ApplyOtherAdd(item);
+            else TradeOtherAddApplyIncomingPacketServices.ApplyOtherAdd(item);
     }
 
     void ApplyTradeConfirmState(TradeConfirmStateNetMsg state)
     {
-        TradePressOwnOkApplyIncomingPacketServices.ApplyPressOwnOk(state.SelfConfirmed != 0);
-        TradePressOtherOkApplyIncomingPacketServices.ApplyPressOtherOk(state.PartnerConfirmed != 0);
+        if (_trade != null) _trade.ApplyPressOwnOk(state.SelfConfirmed != 0);
+        else TradePressOwnOkApplyIncomingPacketServices.ApplyPressOwnOk(state.SelfConfirmed != 0);
+        if (_trade != null) _trade.ApplyPressOtherOk(state.PartnerConfirmed != 0);
+        else TradePressOtherOkApplyIncomingPacketServices.ApplyPressOtherOk(state.PartnerConfirmed != 0);
     }
 
-    void ApplyTradeFinished(TradeFinishedNetMsg _) =>
-        TradeDoneApplyIncomingPacketServices.ApplyTradeDone();
+    void ApplyTradeFinished(TradeFinishedNetMsg _)
+    {
+        if (_trade != null) _trade.ApplyDone();
+        else TradeDoneApplyIncomingPacketServices.ApplyTradeDone();
+    }
 
     static NetItemEntry[] MapWarehouseItems(ItemListEntryNet[] items)
     {
@@ -1505,7 +1551,8 @@ public sealed class NetSession : MonoBehaviour
     {
         NetSkillEntry[] rows = MapSkillList(list);
         SkillListDto dto = NetDomainMap.ToSkillListDto(rows);
-        SkillListApplyIncomingPacketServices.ApplySkillList(dto);
+        if (_skills != null) _skills.ApplySkillList(dto);
+        else SkillListApplyIncomingPacketServices.ApplySkillList(dto);
         Debug.Log("[Net] SkillList count=" + rows.Length);
     }
 

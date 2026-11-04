@@ -84,7 +84,9 @@ public static class NetGearSession
             if (_hasItems && !_itemsApplied)
             {
                 ItemListDto list = NetDomainMap.ToItemListDto(_items);
-                ItemListApplyIncomingPacketServices.ApplyItemList(list);
+                InventoryApplyService inventory = ApplyServices.Inventory;
+                if (inventory != null) inventory.ApplyItemList(list);
+                else ItemListApplyIncomingPacketServices.ApplyItemList(list);
                 _itemsApplied = true;
                 Debug.Log("[Net] ItemList rows=" + _items.Length);
             }
@@ -95,7 +97,9 @@ public static class NetGearSession
             for (int i = 0; i < _updates.Count; i++)
             {
                 InventoryUpdateDto update = NetDomainMap.ToInventoryUpdateDto(_updates[i]);
-                InventoryUpdateApplyIncomingPacketServices.ApplyInventoryUpdate(update);
+                InventoryApplyService inventory = ApplyServices.Inventory;
+                if (inventory != null) inventory.ApplyInventoryUpdate(update);
+                else InventoryUpdateApplyIncomingPacketServices.ApplyInventoryUpdate(update);
             }
 
             _updates.Clear();

@@ -127,8 +127,16 @@ public sealed class GameLifetimeScope : LifetimeScope
         // through the static *ApplyIncomingPacketServices relay.
         builder.Register<CombatAttackApplyService>(Lifetime.Singleton);
         builder.Register<CombatDieApplyService>(Lifetime.Singleton);
+        builder.Register<CombatTargetApplyService>(Lifetime.Singleton);
         builder.Register<StatusUpdateApplyService>(Lifetime.Singleton);
         builder.Register<DeleteObjectGroundApplyService>(Lifetime.Singleton);
+        builder.Register<StatusApplyService>(Lifetime.Singleton);
+        builder.Register<SkillApplyService>(Lifetime.Singleton);
+        builder.Register<PresenceApplyService>(Lifetime.Singleton);
+        builder.Register<InventoryApplyService>(Lifetime.Singleton);
+        builder.Register<PartyApplyService>(Lifetime.Singleton);
+        builder.Register<TradeApplyService>(Lifetime.Singleton);
+        builder.Register<TradeRequestApplyService>(Lifetime.Singleton);
 
         builder.RegisterBuildCallback(container =>
         {
@@ -163,15 +171,15 @@ public sealed class GameLifetimeScope : LifetimeScope
                 MovementPacketLatest.Wire(domain);
                 MoveCostLog.Wire(world);
 
-                // #142 slice 3 pilot: hand NetSession the container-built applies.
+                // #142 slice 3: hand NetSession the container-built applies via [Inject].
+                // NetSession lives outside the scope, so it must be injected explicitly.
                 NetSession netSession = NetSession.Instance;
                 if (netSession == null)
                     netSession = NetSession.Ensure();
-                netSession.BindApplyServices(
-                    combatAttack: container.Resolve<CombatAttackApplyService>(),
-                    combatDie: container.Resolve<CombatDieApplyService>(),
-                    statusUpdate: container.Resolve<StatusUpdateApplyService>(),
-                    deleteObjectGround: container.Resolve<DeleteObjectGroundApplyService>());
+                container.InjectGameObject(netSession.gameObject);
+                ApplyServices.Bind(
+                    inventory: container.Resolve<InventoryApplyService>(),
+                    status: container.Resolve<StatusApplyService>());
                 if (App.Container != null)
                 {
                     try
