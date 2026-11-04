@@ -31,6 +31,11 @@ jobs:
       - name: Check client asmdef layout (#139)
         run: python3 scripts/check-client-asmdef-layout.py
 
+      - name: Check Net contract is in sync with the backend
+        # Only runs when a sibling Fineage-Backend checkout exists; a client-only
+        # CI checkout passes with a notice. See scripts/sync-net-contract.py.
+        run: python3 scripts/sync-net-contract.py --check
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:

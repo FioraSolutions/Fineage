@@ -74,16 +74,16 @@ namespace Fineage.Net.Contract
         public int DestZ { get; set; }
     }
 
-    public sealed class StopMoveMsg
-    {
-    }
-
     public sealed class ValidatePositionMsg
     {
         public int X { get; set; }
         public int Y { get; set; }
         public int Z { get; set; }
         public int Heading { get; set; }
+    }
+
+    public sealed class StopMoveMsg
+    {
     }
 
     public sealed class MoveStateMsg
@@ -370,10 +370,7 @@ namespace Fineage.Net.Contract
 
     public sealed class ReviveRequestNetMsg
     {
-        /// <summary>
-        /// Revive action "to village". Matches Fineage-Backend <c>DeathProtocol</c>
-        /// (same value as the retired <c>ZoneV2Death.ReviveToVillage</c> constant).
-        /// </summary>
+        /// <summary>Restart to village. Matches Backend <c>Fineage.Protocol.DeathProtocol.ReviveToVillage</c>.</summary>
         public const int ReviveToVillage = 0;
 
         public int Action { get; set; }
@@ -689,6 +686,7 @@ namespace Fineage.Net.Contract
         public int Response { get; set; }
     }
 
+    /// <summary>One paperdoll slot (Mobius UserInfo / CharInfo order, 17 slots, right hand = 7). Zeros when empty.</summary>
     public sealed class PaperdollSlotNet
     {
         public int ObjectId { get; set; }
