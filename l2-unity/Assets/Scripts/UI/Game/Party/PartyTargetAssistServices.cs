@@ -45,7 +45,7 @@ public static class PartyTargetAssistServices
         if (entity != null && entity.Identity != null && game != null)
         {
             var l2jpos = entity.Identity.GetL2jPos();
-            game.Send(new ClickActionCommand(
+            ZoneCommands.Send(new ClickActionCommand(
                 entity.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
         }
 

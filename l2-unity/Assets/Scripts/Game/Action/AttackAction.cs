@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using static AttackingState;
 
 public class AttackAction : L2Action
@@ -43,9 +43,9 @@ public class AttackAction : L2Action
                 }
 
                 var l2jpos = target.Identity.GetL2jPos();
-                GameClient game = Game;
+                IZoneTransport game = ZoneCommands.Transport;
                 if (game != null)
-                    game.Send(new ClickActionCommand(target.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
+                    ZoneCommands.Send(new ClickActionCommand(target.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
             }
         }
     }

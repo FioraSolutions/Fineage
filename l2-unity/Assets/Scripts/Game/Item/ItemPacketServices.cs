@@ -39,18 +39,18 @@ public static class ItemPacketServices
     /// <summary>Zone V2 grant (opcode 13); server replies with InventoryUpdate.</summary>
     public static void SendZoneGrantItem(int itemId, int count = 1)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
-        game.Send(new ZoneGrantItemCommand(itemId, count));
+        ZoneCommands.Send(new ZoneGrantItemCommand(itemId, count));
     }
 
     /// <summary>Zone V2 pickup (opcode 14); server replies with InventoryUpdate + DeleteObject fan-out.</summary>
     public static void SendZonePickup(int groundObjectId)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null || groundObjectId <= 0)
             return;
-        game.Send(new ZonePickupRequestCommand(groundObjectId));
+        ZoneCommands.Send(new ZonePickupRequestCommand(groundObjectId));
     }
 }

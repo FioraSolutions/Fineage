@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -208,7 +208,7 @@ public class TradeWindow : L2PopupWindow
             _exchangeItems.Add(item);
 
             // Отправляем пакет добавления предмета в обмен
-            Game.Send(new AddTradeItemCommand(0, item.ObjectId, item.Count));
+            ZoneCommands.Send(new AddTradeItemCommand(0, item.ObjectId, item.Count));
         }
         else
         {
@@ -245,7 +245,7 @@ public class TradeWindow : L2PopupWindow
     private void SendOkResponse()
     {
         // Отправляем пакет подтверждения обмена
-        Game.Send(new TradeDoneCommand(1));
+        ZoneCommands.Send(new TradeDoneCommand(1));
 
         OnExchangeResponse?.Invoke(true);
     }
@@ -253,7 +253,7 @@ public class TradeWindow : L2PopupWindow
     private void SendCancelResponse()
     {
         // Отправляем пакет отмены обмена
-        Game.Send(new TradeDoneCommand(0));
+        ZoneCommands.Send(new TradeDoneCommand(0));
 
         OnExchangeResponse?.Invoke(false);
     }

@@ -94,7 +94,7 @@ public class CraftingItemWindow : L2PopupWindow
     {
         if (_packet != null)
         {
-            Game.Send(new RequestRecipeItemMakeSelfCommand(_packet.RecipeId));
+            ZoneCommands.Send(new RequestRecipeItemMakeSelfCommand(_packet.RecipeId));
         }
     }
 
@@ -103,7 +103,7 @@ public class CraftingItemWindow : L2PopupWindow
 
         if (_packet != null)
         {
-            Game.Send(new RequestRecipeBookOpenCommand(_packet.IsDwarvenRecipe));
+            ZoneCommands.Send(new RequestRecipeBookOpenCommand(_packet.IsDwarvenRecipe));
         }
 
         HideWindow();

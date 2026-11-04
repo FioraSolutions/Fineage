@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -287,7 +287,7 @@ public class QuestWindow : L2TwoPanels
     {
         if(_selectQuest != null)
         {
-            Game.Send(new RequestQuestAbortCommand(_selectQuest.QuestID));
+            ZoneCommands.Send(new RequestQuestAbortCommand(_selectQuest.QuestID));
             CancelEvent();
         }
 

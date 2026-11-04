@@ -159,7 +159,7 @@ public sealed class LobbyFlowController
         _game.WorldSpawnReady = true;
         // Net owns the session: no Interlude EnterWorld packet goes on the wire.
         FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
-        Game.Send(new EnterWorldCommand());
+        ZoneCommands.Send(new EnterWorldCommand());
         if (domain != null)
             domain.FlushKnownlist();
         else

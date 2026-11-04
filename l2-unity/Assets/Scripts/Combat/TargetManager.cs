@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using VContainer;
 
@@ -316,14 +316,14 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
         {
             return;
         }
 
         var l2jpos = entity.Identity.GetL2jPos();
-        game.Send(new ClickActionCommand(
+        ZoneCommands.Send(new ClickActionCommand(
             entity.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
     }
 
@@ -406,9 +406,9 @@ public class TargetManager : MonoBehaviour
         {
             if (PlayerEntity.Instance.TargetId != -1)
             {
-                GameClient game = Game;
+                IZoneTransport game = ZoneCommands.Transport;
                 if (game != null)
-                    game.Send(new RequestTargetCanceldCommand());
+                    ZoneCommands.Send(new RequestTargetCanceldCommand());
                 PlayerEntity.Instance.TargetId = -1;
                 PlayerEntity.Instance.Target = null;
             }

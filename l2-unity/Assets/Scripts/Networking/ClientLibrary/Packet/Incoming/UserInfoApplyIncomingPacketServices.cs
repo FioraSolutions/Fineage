@@ -34,7 +34,7 @@ public static class UserInfoApplyIncomingPacketServices
             }
 
             if (userInfo.PlayerInfoInterlude.Identity.ClanId != 0)
-                Game.Send(new RequestPledgeInfoCommand(userInfo.PlayerInfoInterlude.Identity.ClanId));
+                ZoneCommands.Send(new RequestPledgeInfoCommand(userInfo.PlayerInfoInterlude.Identity.ClanId));
         });
     }
 }

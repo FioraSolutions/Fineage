@@ -158,14 +158,14 @@ public class PartyInvitationWindow : L2PopupWindow
 
     private void SendAcceptResponse()
     {
-        Game.Send(new RequestAnswerJoinPartyCommand(1, _requestorObjectId));
+        ZoneCommands.Send(new RequestAnswerJoinPartyCommand(1, _requestorObjectId));
 
         OnInvitationResponse?.Invoke(true);
     }
 
     private void SendDeclineResponse()
     {
-        Game.Send(new RequestAnswerJoinPartyCommand(0, _requestorObjectId));
+        ZoneCommands.Send(new RequestAnswerJoinPartyCommand(0, _requestorObjectId));
 
         OnInvitationResponse?.Invoke(false);
     }

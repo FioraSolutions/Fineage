@@ -61,9 +61,9 @@ public static class ClanPacketServices
 
     static void NoteLocalClan(int clanId)
     {
-        GameClient game = Game;
-        if (game != null && game.PlayerInfo.Identity != null)
-            game.PlayerInfo.Identity.ClanId = clanId;
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport != null && transport.PlayerInfo.Identity != null)
+            transport.PlayerInfo.Identity.ClanId = clanId;
         PlayerEntity player = PlayerEntity.Instance;
         if (player != null && player.Identity != null)
             player.Identity.ClanId = clanId;

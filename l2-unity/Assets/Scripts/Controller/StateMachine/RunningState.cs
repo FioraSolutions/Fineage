@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class RunningState : StateBase
 {
@@ -58,6 +58,6 @@ public class RunningState : StateBase
         int heading = 0;
         if (ControllerPacketServices.Player != null)
             heading = PlayerPositionSender.ToL2Heading(ControllerPacketServices.Player.transform.eulerAngles.y);
-        ControllerPacketServices.Game.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
+        ZoneCommands.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
     }
 }

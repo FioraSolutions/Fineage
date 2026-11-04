@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -501,7 +501,7 @@ public class DealerWindow : L2PopupWindow
 
     private void SendServer(INetworkCommand packet)
     {
-        Game.Send(packet);
+        ZoneCommands.Send(packet);
     }
 
     private void OkWear()

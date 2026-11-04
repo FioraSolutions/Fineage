@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -534,10 +534,10 @@ public class PlayerInventory : MonoBehaviour
 
     private void SendUseItemPacket(int objectId)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
-        game.Send(new UseItemCommand(objectId, 0));
+        ZoneCommands.Send(new UseItemCommand(objectId, 0));
     }
 
     private void SetupMessageWindow()
@@ -591,10 +591,10 @@ public class PlayerInventory : MonoBehaviour
             ItemInstance item = _playerInventory[objectId];
             //getInstance().AddS1Items(new VariableItem(item.ItemData.ItemName.Name, objectId));
             //AudioManager.Instance.PlayEquipSound("trash_basket");
-            GameClient game = Game;
+            IZoneTransport game = ZoneCommands.Transport;
             if (game == null)
                 return;
-            game.Send(new RequestDestroyItemCommand(objectId, quantity));
+            ZoneCommands.Send(new RequestDestroyItemCommand(objectId, quantity));
         }
         else
         {
@@ -614,7 +614,7 @@ public class PlayerInventory : MonoBehaviour
             return;
         }
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null || PlayerEntity.Instance == null)
             return;
 
@@ -623,7 +623,7 @@ public class PlayerInventory : MonoBehaviour
 
         Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(dropPos);
         // Debug.Log($"DropItem obj={objectId} qty={quantity} world={dropPos} l2=({(int)l2.x},{(int)l2.y},{(int)l2.z})");
-        game.Send(new RequestDropItemCommand(
+        ZoneCommands.Send(new RequestDropItemCommand(
             objectId,
             quantity,
             (int)l2.x,

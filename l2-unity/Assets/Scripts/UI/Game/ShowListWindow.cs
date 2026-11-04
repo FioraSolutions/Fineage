@@ -1,4 +1,4 @@
-﻿using FMOD;
+using FMOD;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -102,7 +102,7 @@ public class ShowListWindow : L2PopupWindow
         if (_players.ContainsKey(_select))
         {
             int objectId = _players[_select];
-            Game.Send(new RequestPackageSendableItemListCommand(objectId));
+            ZoneCommands.Send(new RequestPackageSendableItemListCommand(objectId));
             HideWindow();
         }
     }

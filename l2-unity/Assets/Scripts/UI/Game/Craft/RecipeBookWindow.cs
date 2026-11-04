@@ -106,7 +106,7 @@ public class RecipeBookWindow : L2PopupWindow
 
     private void SendRequestOpenCraftWindow(int recipeId)
     {
-        Game.Send(new RequestRecipeItemMakeInfoCommand(recipeId));
+        ZoneCommands.Send(new RequestRecipeItemMakeInfoCommand(recipeId));
     }
 
     private void UpdateSizeLabel(Label sizeLabel , RecipeBookItemListDto packet)

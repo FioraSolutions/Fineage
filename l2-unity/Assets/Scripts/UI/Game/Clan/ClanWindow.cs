@@ -304,7 +304,7 @@ public class ClanWindow : L2TwoPanels
     {
         //if (!string.IsNullOrEmpty(_masterClan.GetSelectMemberName()))
         //{
-        //    Game.Send(//        new RequestPledgePowerGradeList());
+        //    ZoneCommands.Send(//        new RequestPledgePowerGradeList());
         //}
 
     }
@@ -352,7 +352,7 @@ public class ClanWindow : L2TwoPanels
     private void OnClickPenalty(ClickEvent evt)
     {
 
-            Game.Send(new RequestUserCommandCommand(100));
+            ZoneCommands.Send(new RequestUserCommandCommand(100));
         
     }
 
@@ -473,7 +473,7 @@ public class ClanWindow : L2TwoPanels
 
     private void OkLeave()
     {
-        Game.Send(new RequestWithdrawPledgeCommand());
+        ZoneCommands.Send(new RequestWithdrawPledgeCommand());
         CancelEvent();
     }
 
@@ -483,7 +483,7 @@ public class ClanWindow : L2TwoPanels
         {
             int id = TargetManager.Instance.Target != null ? TargetManager.Instance.Target.GetEntity().Identity.Id : 0;
 
-            Game.Send(new RequestJoinPledgeCommand(id));
+            ZoneCommands.Send(new RequestJoinPledgeCommand(id));
         }
 
         CancelEvent();
@@ -603,7 +603,7 @@ public class ClanWindow : L2TwoPanels
             return;
         }
 
-        Game.Send(new ClanCreateRequestCommand(name));
+        ZoneCommands.Send(new ClanCreateRequestCommand(name));
     }
 
     void OnKick()
@@ -623,21 +623,21 @@ public class ClanWindow : L2TwoPanels
         }
 
         int target = _selectedMemberId;
-        Confirm("Dismiss this member from the clan?", () => Game.Send(new ClanKickRequestCommand(target)));
+        Confirm("Dismiss this member from the clan?", () => ZoneCommands.Send(new ClanKickRequestCommand(target)));
     }
 
     void OnDissolve()
     {
         if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
-        Confirm("Register clan dissolution? The clan remains for 7 days.", () => Game.Send(new ClanDissolveRequestCommand()));
+        Confirm("Register clan dissolution? The clan remains for 7 days.", () => ZoneCommands.Send(new ClanDissolveRequestCommand()));
     }
 
     void OnCancelDissolve()
     {
         if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
-        Confirm("Cancel the clan dissolution?", () => Game.Send(new ClanCancelDissolveRequestCommand()));
+        Confirm("Cancel the clan dissolution?", () => ZoneCommands.Send(new ClanCancelDissolveRequestCommand()));
     }
 
     void Confirm(string text, System.Action ok)

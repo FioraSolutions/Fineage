@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -306,9 +306,9 @@ public class EnchantWindow : L2PopupWindow
         if (!cancel)
             return;
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestEnchantItemCommand(-1));
+            ZoneCommands.Send(new RequestEnchantItemCommand(-1));
     }
 
     void WireFrameClose()
@@ -336,7 +336,7 @@ public class EnchantWindow : L2PopupWindow
     {
         //if (_selectItem != null)
         //{
-            Game.Send(new RequestEnchantItemCommand(objectId));
+            ZoneCommands.Send(new RequestEnchantItemCommand(objectId));
         //}
     }
 
