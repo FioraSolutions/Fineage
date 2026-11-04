@@ -1630,9 +1630,9 @@ public sealed class NetSession : MonoBehaviour
                 EnchantLevel = src.EnchantLevel,
                 BodySlot = src.BodySlot ?? "",
                 Kind = src.Kind ?? "",
-                Icon = "",
-                WeaponType = "",
-                ArmorType = ""
+                Icon = src.Icon ?? "",
+                WeaponType = src.WeaponType ?? "",
+                ArmorType = src.ArmorType ?? ""
             };
         }
 
