@@ -101,6 +101,10 @@ public sealed class PlayerWorldApply : EntityWorldApply
         }
 
         CastMoveLock.Begin(dto.HitTime);
+        // The zone halted its own timed move in StopForCast and deliberately sends the caster
+        // nothing, so the local pawn must stop here or it drifts until PositionCorrection
+        // rubber-bands the hero back to the cast origin.
+        LocalCastStop.HaltForCast();
 
         if (PlayerStateMachine.Instance == null)
             return;

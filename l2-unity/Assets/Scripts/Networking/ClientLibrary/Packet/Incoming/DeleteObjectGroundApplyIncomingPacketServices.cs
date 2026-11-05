@@ -10,6 +10,8 @@ public static class DeleteObjectGroundApplyIncomingPacketServices
     public static void ApplyDeleteObject(DeleteObjectDto dto)
     {
         SpawnFrameBudget.Cancel(dto.ObjectId);
+        StorageNpc.getInstance().RemoveNpc(dto.ObjectId);
+        StorageNpc.getInstance().RemoveChar(dto.ObjectId);
         if (GameWorld != null)
             GameWorld.DeleteObject(dto.ObjectId);
     }

@@ -12,6 +12,7 @@ public class MapWindow : L2PopupWindow
     private const string _mapTemplateName = "Data/UI/_Elements/Game/Map/MapAdenTemplate";
     private MapPanner _mapPanner;
     private MapMarkerFollowCamera _mapMarkerFollowCamera;
+    private TownMapOverlay _townMap;
     public static MapWindow Instance { get { return _instance; } }
 
     private void Awake()
@@ -59,6 +60,10 @@ public class MapWindow : L2PopupWindow
         _mapPanner.SetElements(elements[0], elements[1] , elements[2] , button);
         _mapPanner.RegisterCallback();
 
+        // "+" buttons next to the starter towns open the regional plan from town_map.utx.
+        // Created after the map element exists so their absolute positions are in map pixels.
+        _townMap = new TownMapOverlay(elements[1], GetElementById("town-map-layer"));
+
         _mapMarkerFollowCamera.SetElement(elements[2]);
 
         RegisterCloseWindowEvent("btn-close-frame");
@@ -75,6 +80,7 @@ public class MapWindow : L2PopupWindow
         if (_mapPanner == null)
             return;
         _mapPanner.UpdateMarker(_isWindowHidden);
+        _townMap?.UpdateMarker();
     }
 
     public void TurnMarker(Camera targetCamera)

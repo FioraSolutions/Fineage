@@ -103,3 +103,12 @@ l2-unity/C:*/
 # Local external extracts (umodel / decompile / viewer) — not in git
 l2-unity/External/
 *.slnx
+
+# Local working scratch (umodel exports, tile bakes, logs) — not in git
+.work/
+*.pyc
+__pycache__/
+
+# Unity crash-recovery scratch scenes
+l2-unity/Assets/_Recovery/
+l2-unity/Assets/_Recovery.meta

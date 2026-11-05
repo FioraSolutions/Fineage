@@ -158,6 +158,10 @@ public sealed class FineageZoneTransport : IZoneTransport
         RequestMagicSkillUseCommand netSkill = command as RequestMagicSkillUseCommand;
         if (netSkill != null)
         {
+            // Mobius Player.useMagic: the caster stops the moment the cast is ordered, before
+            // the zone answers with MagicSkillUse. Waiting for the reply let the client walk a
+            // few metres past the cast origin, then PositionCorrection snapped it back.
+            LocalCastStop.Halt();
             int targetId = ResolveSelectedTargetObjectId();
             bool ctrl = netSkill.CtrlPressed != 0;
             NetSession.Ensure().SendUseSkill(netSkill.SkillId, targetId, ctrl);

@@ -55,6 +55,43 @@ public class StorageNpc
         }
     }
 
+    /// <summary>
+    /// Drop one object from the knownlist cache. Without this the dictionaries only ever grow:
+    /// <see cref="AddNpcInfo"/> is called for every NpcInfo the zone sends, but nothing removed the
+    /// entry when the object left the knownlist, so every later <c>FlushKnownlist</c> walked
+    /// thousands of stale rows and re-queued spawns for objects that no longer exist.
+    /// </summary>
+    public void RemoveNpc(int objectId)
+    {
+        lock (_sync)
+        {
+            if (npcs != null)
+                npcs.Remove(objectId);
+        }
+    }
+
+    public void RemoveChar(int objectId)
+    {
+        lock (_sync)
+        {
+            if (chars != null)
+                chars.Remove(objectId);
+        }
+    }
+
+    /// <summary>
+    /// Wipe the whole knownlist cache. Used when a zone session ends, so a reconnect does not inherit
+    /// the previous session's objects.
+    /// </summary>
+    public void ClearKnownlist()
+    {
+        lock (_sync)
+        {
+            npcs?.Clear();
+            chars?.Clear();
+        }
+    }
+
     public NpcInfoDto[] CopyNpcs()
     {
         lock (_sync)
