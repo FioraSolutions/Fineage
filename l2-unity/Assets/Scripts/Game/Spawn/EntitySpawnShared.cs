@@ -41,13 +41,19 @@ public static class EntitySpawnShared
         }
 
         GameObject prefab = models.GetNpc(npcgrp.Mesh);
+        string usedMesh = npcgrp.Mesh;
         if (prefab == null)
         {
-            ReportUnresolved(
-                identity.NpcId,
-                "mesh '" + npcgrp.Mesh + "' has no prefab at Resources/Data/Animations/"
-                + npcgrp.Mesh.Replace('.', '/'));
-            return false;
+            if (!TryResolveFallbackNpcPrefab(models, npcgrp.Mesh, out prefab, out usedMesh))
+            {
+                ReportUnresolved(
+                    identity.NpcId,
+                    "mesh '" + npcgrp.Mesh + "' has no prefab at Resources/Data/Animations/"
+                    + npcgrp.Mesh.Replace('.', '/')
+                    + " and no fallback mesh resolved");
+                return false;
+            }
+            ReportSubstituted(identity.NpcId, npcgrp.Mesh, usedMesh);
         }
 
         identity.EntityType = ResolveEntityType(prefab, npcgrp.ClassName);
@@ -92,6 +98,93 @@ public static class EntitySpawnShared
             FineageLog.Category.World,
             "NpcInfo npcId=" + npcId + " not rendered: " + reason);
     }
+
+    /// <summary>
+    /// Reported once per substituted mesh so a missing asset pack variant is visible in the
+    /// log instead of being silently papered over.
+    /// </summary>
+    static void ReportSubstituted(int npcId, string wanted, string used)
+    {
+        string key = wanted + " -> " + used;
+        if (!ReportedSubstitutedMeshes.Add(key))
+            return;
+        FineageLog.Warn(
+            FineageLog.Category.World,
+            "NpcInfo npcId=" + npcId + " mesh '" + wanted + "' missing; rendering '"
+            + used + "' instead");
+    }
+
+    /// <summary>
+    /// The client ships only part of the Interlude NPC art. Elven Village alone asks for
+    /// <c>a_teleporter_FElf_m00</c> and <c>a_guard_MElf_m00</c>, which have no prefab, so the
+    /// gatekeeper and the newbie guide were dropped on spawn while the server kept them alive.
+    /// Rather than hide the NPC, substitute an existing rig in this order: same outfit on a
+    /// shipped race, then the same race's generic townsfolk body.
+    /// </summary>
+    static bool TryResolveFallbackNpcPrefab(
+        ModelTable models,
+        string wantedMesh,
+        out GameObject prefab,
+        out string usedMesh)
+    {
+        prefab = null;
+        usedMesh = null;
+        if (models == null || string.IsNullOrEmpty(wantedMesh))
+            return false;
+
+        int dot = wantedMesh.IndexOf('.');
+        if (dot <= 0 || dot == wantedMesh.Length - 1)
+            return false;
+
+        string package = wantedMesh.Substring(0, dot);
+        string asset = wantedMesh.Substring(dot + 1);
+
+        for (int i = 0; i < FallbackRaceNames.Length; i++)
+        {
+            string candidate = asset;
+            for (int r = 0; r < MissingRaceNames.Length; r++)
+                candidate = candidate.Replace(MissingRaceNames[r], FallbackRaceNames[i]);
+            if (candidate == asset)
+                continue;
+            prefab = models.GetNpc(package + "." + candidate);
+            if (prefab != null)
+            {
+                usedMesh = package + "." + candidate;
+                return true;
+            }
+        }
+
+        // Last resort: the race's generic townsfolk body keeps the NPC visible and clickable.
+        bool male = asset.IndexOf('M') >= 0 && asset.Contains("_M");
+        string[] generic =
+        {
+            package + ".a_common_people_" + (male ? "MElf" : "FElf") + "_m00",
+            package + ".a_common_people_" + (male ? "MHuman" : "FHuman") + "_m00",
+            package + ".a_common_peopleA_" + (male ? "MHuman" : "FHuman") + "_m00"
+        };
+        for (int i = 0; i < generic.Length; i++)
+        {
+            prefab = models.GetNpc(generic[i]);
+            if (prefab != null)
+            {
+                usedMesh = generic[i];
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Race tags used inside LineageNPCs mesh names that the client art pack omits.</summary>
+    static readonly string[] MissingRaceNames = { "_FElf_", "_MElf_", "_FDarkElf_", "_MDarkElf_" };
+
+    /// <summary>Race tags the client art pack actually ships for NPC outfits, in preference order.</summary>
+    static readonly string[] FallbackRaceNames =
+    {
+        "_FHuman_", "_MHuman_", "_FDwarf_", "_MDwarf_", "_FFighter_", "_MFighter_"
+    };
+
+    static readonly HashSet<string> ReportedSubstitutedMeshes = new HashSet<string>();
 
     public static EntityType ResolveEntityType(GameObject prefab, string className)
     {
