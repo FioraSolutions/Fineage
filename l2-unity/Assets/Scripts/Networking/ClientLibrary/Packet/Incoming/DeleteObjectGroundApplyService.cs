@@ -9,6 +9,8 @@ public sealed class DeleteObjectGroundApplyService
     public void Apply(DeleteObjectDto dto)
     {
         SpawnFrameBudget.Cancel(dto.ObjectId);
+        StorageNpc.getInstance().RemoveNpc(dto.ObjectId);
+        StorageNpc.getInstance().RemoveChar(dto.ObjectId);
         World gameWorld = GameWorld;
         if (gameWorld != null)
             gameWorld.DeleteObject(dto.ObjectId);

@@ -47,6 +47,16 @@ public static class SpawnFrameBudget
         return true;
     }
 
+    /// <summary>
+    /// True while this frame can still afford a spawn. Callers that walk a batch use this to stop
+    /// without consuming budget, so one batch continuation replaces thousands of re-queued rows.
+    /// </summary>
+    public static bool HasBudget()
+    {
+        Sync();
+        return _used < MaxSpawnsPerFrame;
+    }
+
     public static void NoteReused()
     {
         Sync();

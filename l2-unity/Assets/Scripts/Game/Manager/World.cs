@@ -467,6 +467,21 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     public void SpawnNpc(EntityIdentity identity, NpcStatusInterlude status, Stats stats)
     {
+        SpawnNpc(identity, status, stats, out _);
+    }
+
+    /// <summary>
+    /// Spawns an NPC and reports whether the failure was permanent. A missing npcgrp mesh or an
+    /// absent prefab can never succeed on retry, while a spawner that is not wired yet can, so the
+    /// caller needs to tell those apart before dropping a knownlist row.
+    /// </summary>
+    public void SpawnNpc(
+        EntityIdentity identity,
+        NpcStatusInterlude status,
+        Stats stats,
+        out bool unresolvable)
+    {
+        unresolvable = false;
         if (identity == null || ContainsNpc(identity.Id))
             return;
 
@@ -475,7 +490,10 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
         NpcSpawnRequest request;
         if (!EntitySpawnShared.TryResolveNpc(identity, _npcGrps, _npcNames, _models, out request))
+        {
+            unresolvable = true;
             return;
+        }
 
         request.Status = status;
         request.Stats = stats;
