@@ -29,8 +29,7 @@ regenerating them would break every serialized reference to these types.
 from __future__ import annotations
 
 import argparse
-import filecmp
-import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -58,42 +57,72 @@ def backend_root(explicit: str | None) -> Path:
     return Path(explicit).resolve() if explicit else BACKEND
 
 
-def compare(source: Path, target: Path) -> tuple[list[str], list[str]]:
+def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
+    """Contents of `rel` at `ref` in `repo`, or None when unavailable."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(repo), "show", f"{ref}:{rel}"],
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    return out.stdout if out.returncode == 0 else None
+
+
+def read_source(source: Path, rel: str, ref: str | None) -> bytes | None:
+    """
+    The bytes this file should have on the client.
+
+    With a `ref`, the backend's committed version wins over whatever is checked out.
+    That matters: syncing from a stale working tree (an old feature branch, a rebase
+    mid-flight) silently reverts opcodes the client already merged, and the client
+    stays green until the next Unity compile fails on a missing type.
+    """
+    if ref:
+        data = _git_source(source, ref, rel)
+        if data is not None:
+            return data
+    path = source / rel
+    return path.read_bytes() if path.is_file() else None
+
+
+def compare(source: Path, target: Path, ref: str | None) -> tuple[list[str], list[str]]:
     """Return (missing, differing) relative paths."""
     missing: list[str] = []
     differing: list[str] = []
 
     for rel in FILES:
-        src = source / rel
+        data = read_source(source, rel, ref)
         dst = target / rel
-        if not src.is_file():
+        if data is None:
             missing.append(rel)
             continue
         if not dst.is_file():
             differing.append(rel)
             continue
-        if not filecmp.cmp(src, dst, shallow=False):
+        if dst.read_bytes() != data:
             differing.append(rel)
 
     return missing, differing
 
 
-def write_contract(source: Path, target: Path) -> int:
+def write_contract(source: Path, target: Path, ref: str | None) -> int:
     """Copy the backend sources over the client copies, preserving .meta files."""
     changed = 0
 
     for rel in FILES:
-        src = source / rel
+        data = read_source(source, rel, ref)
         dst = target / rel
-        if not src.is_file():
+        if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        if dst.is_file() and filecmp.cmp(src, dst, shallow=False):
+        if dst.is_file() and dst.read_bytes() == data:
             continue
 
         dst.parent.mkdir(parents=True, exist_ok=True)
-        # copy2 keeps mtime current, which is what Unity's importer keys on.
-        shutil.copy2(src, dst)
+        # write_bytes keeps mtime current, which is what Unity's importer keys on.
+        dst.write_bytes(data)
         print(f"updated {rel}")
         changed += 1
 
@@ -110,21 +139,32 @@ def main() -> int:
         default=None,
         help="path to Fineage.Net.Contract (defaults to the sibling checkout)",
     )
+    parser.add_argument(
+        "--ref",
+        default="origin/main",
+        help="backend ref to read from (default origin/main; pass '' to read the working tree)",
+    )
     args = parser.parse_args()
 
     source = backend_root(args.backend)
+    ref = args.ref or None
 
     if not source.is_dir():
         # CI checks out one repo; a missing neighbour is not a client failure.
         print(f"note: backend contract not found at {source}; skipping sync check")
         return 0
 
+    backend_repo = source.parents[1] if len(source.parents) > 1 else None
+    if ref and backend_repo is not None and not (backend_repo / ".git").exists():
+        print(f"note: {backend_repo} is not a git checkout; reading the working tree")
+        ref = None
+
     if args.write:
-        changed = write_contract(source, CLIENT)
+        changed = write_contract(source, CLIENT, ref)
         print("contract already in sync" if changed == 0 else f"synced {changed} file(s)")
         return 0
 
-    missing, differing = compare(source, CLIENT)
+    missing, differing = compare(source, CLIENT, ref)
 
     if missing:
         # A file exists in the client but not the backend: it was added client-side
