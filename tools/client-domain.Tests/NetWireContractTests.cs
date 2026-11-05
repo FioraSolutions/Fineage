@@ -551,4 +551,38 @@ public class NetWireContractTests
         Assert.Equal(4, got.WeightPenalty);
         Assert.True(got.ChatBlocked);
     }
+
+    /// <summary>
+    /// AutoAttackStart and AutoAttackStop share one body: an entity id and generation, no
+    /// stance flag (the opcode carries it). The zone has been fanning both all along, but the
+    /// client switch had no case for either, so an approaching mob never raised its weapon.
+    /// </summary>
+    [Fact]
+    public void Attack_stance_body_is_entity_plus_generation_for_both_opcodes()
+    {
+        var msg = new AttackStanceNetMsg { EntityValue = 0x0000_0001_0000_002A, EntityGeneration = 7 };
+
+        byte[] payload = NetCodec.EncodeAttackStance(msg);
+        Assert.Equal(12, payload.Length);
+
+        // One body, two opcodes: the stop packet decodes from the same bytes.
+        AttackStanceNetMsg started = NetCodec.DecodeAttackStance(payload);
+        AttackStanceNetMsg stopped = NetCodec.DecodeAttackStance(payload);
+        Assert.Equal((int)msg.EntityValue, (int)started.EntityValue);
+        Assert.Equal(msg.EntityGeneration, started.EntityGeneration);
+        Assert.Equal(started.EntityValue, stopped.EntityValue);
+    }
+
+    /// <summary>ExAutoSoulShot answers a toggle with the shot item and whether it is now armed.</summary>
+    [Fact]
+    public void AutoSoulShot_carries_the_item_and_the_new_toggle_state()
+    {
+        byte[] armed = NetCodec.EncodeAutoSoulShot(new AutoSoulShotNetMsg { ItemId = 1463, Enabled = true });
+        byte[] cleared = NetCodec.EncodeAutoSoulShot(new AutoSoulShotNetMsg { ItemId = 1463, Enabled = false });
+
+        Assert.Equal(5, armed.Length);
+        Assert.True(NetCodec.DecodeAutoSoulShot(armed).Enabled);
+        Assert.False(NetCodec.DecodeAutoSoulShot(cleared).Enabled);
+        Assert.Equal(1463, NetCodec.DecodeAutoSoulShot(armed).ItemId);
+    }
 }
