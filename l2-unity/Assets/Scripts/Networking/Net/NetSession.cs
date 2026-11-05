@@ -1034,6 +1034,19 @@ public sealed class NetSession : MonoBehaviour
             case NetOpcode.AttackState:
                 ApplyAttackState(NetCodec.DecodeAttackState(envelope.Payload));
                 break;
+            case NetOpcode.AutoAttackStart:
+                ApplyAutoAttackStart((int)NetCodec.DecodeAttackStance(envelope.Payload).EntityValue);
+                break;
+            case NetOpcode.AutoAttackStop:
+                ApplyAutoAttackStop((int)NetCodec.DecodeAttackStance(envelope.Payload).EntityValue);
+                break;
+            case NetOpcode.AutoSoulShot:
+            {
+                // The zone confirms a shot toggle (weapon swap clears it server-side). No client-side
+                // shot button exists yet, so this only keeps the contract honest for when one lands.
+                _ = NetCodec.DecodeAutoSoulShot(envelope.Payload);
+                break;
+            }
             case NetOpcode.StatusUpdate:
                 ApplyStatusUpdate(NetCodec.DecodeStatusUpdate(envelope.Payload));
                 break;
@@ -1344,6 +1357,24 @@ public sealed class NetSession : MonoBehaviour
         if (_combatAttack != null) _combatAttack.Apply(dto);
         else AttackApplyIncomingPacketServices.ApplyAttack(dto);
     }
+
+    /// <summary>
+    /// Mobius <c>AutoAttackStart</c>: the pawn raises its weapon. The zone was already fanning this,
+    /// but with no case here a Net client never put an actor into attack stance.
+    /// </summary>
+    void ApplyAutoAttackStart(int entityId)
+    {
+        AutoAttackStartDto dto = AutoAttackStartDto.FromNet(entityId);
+        WorldApplyIncomingPacketServices.QueueWorld(apply => apply.AutoAttackStart(dto));
+    }
+
+    /// <summary>Mobius <c>AutoAttackStop</c>: stance ended, so the pawn drops back to its wait pose.</summary>
+    void ApplyAutoAttackStop(int entityId)
+    {
+        AutoAttackStopDto dto = AutoAttackStopDto.FromNet(entityId);
+        WorldApplyIncomingPacketServices.QueueWorld(apply => apply.AutoAttackStop(dto));
+    }
+
 
     void ApplyStatusUpdate(StatusUpdateNetMsg status)
     {
