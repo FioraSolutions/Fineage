@@ -30,9 +30,7 @@ public static class EntityPawnLookup
 
     public static Entity FindNearDest(Vector3 dest, Entity skip, float radius)
     {
-        World world = ControllerPacketServices.GameWorld != null
-            ? ControllerPacketServices.GameWorld
-            : World.Instance;
+        World world = ControllerPacketServices.GameWorld;
         if (world == null)
             return null;
         Entity found = null;

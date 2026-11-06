@@ -20,8 +20,9 @@ public class PlayerPositionSender
     public void SendServerArrivedPosition(Vector3 playerPosition)
     {
         int heading = 0;
-        if (PlayerController.Instance != null)
-            heading = ToL2Heading(PlayerController.Instance.transform.eulerAngles.y);
+        PlayerController player = ControllerPacketServices.Player;
+        if (player != null)
+            heading = ToL2Heading(player.transform.eulerAngles.y);
         SendData(playerPosition, heading);
     }
 

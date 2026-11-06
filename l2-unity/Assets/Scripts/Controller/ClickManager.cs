@@ -18,6 +18,7 @@ public class ClickManager : MonoBehaviour
     [SerializeField] private LayerMask _clickThroughMask;
     private UIDocument uiDocument;
     private static ClickManager _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static ClickManager Instance => _instance;
 
     private InputManager GameInput
@@ -69,7 +70,8 @@ public class ClickManager : MonoBehaviour
     {
         ControllerPacketServices.Bind(
             input: GameInput,
-            targets: Targets);
+            targets: Targets,
+            player: ControllerPacketServices.Player);
     }
 
     public void SetMasks(LayerMask entityMask, LayerMask clickThroughMask)
@@ -229,9 +231,7 @@ public class ClickManager : MonoBehaviour
             return true;
         }
 
-        PlayerController controller = IncomingPacketActions.Player;
-        if (controller == null)
-            controller = PlayerController.Instance;
+        PlayerController controller = ControllerPacketServices.Player;
         if (controller != null)
         {
             from = controller.transform.position;

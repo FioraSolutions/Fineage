@@ -9,7 +9,7 @@ public class PositionValidationController : MonoBehaviour
 
     private World GameWorld
     {
-        get { return _world != null ? _world : World.Instance; }
+        get { return _world != null ? _world : ControllerPacketServices.GameWorld; }
     }
 
     private IAnimationManager Animations
@@ -19,7 +19,7 @@ public class PositionValidationController : MonoBehaviour
 
     private PlayerController Player
     {
-        get { return PlayerController.Instance; }
+        get { return ControllerPacketServices.Player; }
     }
     //<197 unit - он передвигается пешком(игнорирует если он двигается)
     //>197 unit он прыгает останавливая движение и возвращая его когда будет перемещен
@@ -32,6 +32,7 @@ public class PositionValidationController : MonoBehaviour
     private float _trigger = 3.743f;
 
     private static PositionValidationController _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static PositionValidationController Instance { get { return _instance; } }
 
     private void Awake()
@@ -50,9 +51,13 @@ public class PositionValidationController : MonoBehaviour
         }
     }
 
-    private void WireControllerPacketServices()
+    [Inject]
+    void WireControllerPacketServices()
     {
-        ControllerPacketServices.Bind(positionValidation: this);
+        ControllerPacketServices.Bind(
+            positionValidation: this,
+            gameWorld: GameWorld,
+            animations: Animations);
     }
 
     void Update()
