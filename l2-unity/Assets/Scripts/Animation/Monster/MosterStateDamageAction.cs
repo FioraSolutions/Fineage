@@ -114,10 +114,12 @@ public class MonsterStateDamageACtion : MonsterStateBase
 
     private void StopAnimationTrigger(Animator animator, string parameterName)
     {
-        if (animator.GetBool(parameterName) != false)
-        {
-            AnimationManager.Instance.StopMonsterCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
-        }
-
+        if (string.IsNullOrEmpty(parameterName) || !AnimatorBoolSet.HasBool(animator, parameterName))
+            return;
+        if (!animator.GetBool(parameterName))
+            return;
+        if (AnimationManager.Instance != null)
+            AnimationManager.Instance.StopMonsterCurrentAnimation(
+                animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 }

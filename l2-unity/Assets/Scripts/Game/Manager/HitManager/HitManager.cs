@@ -217,19 +217,16 @@ public class HitManager : MonoBehaviour
         if (attaker != null && attaker.IsSoulshotCharged)
         {
             LogSoulshotImpactOrientation(attaker, targetEntity, hitCollider, spawnPoint, impactDir);
-            // Debug.Log(
-                // $"[HIT_FX] 6.HitManager → EffectManager.PlayerImpactEffect " +
-                // $"id={SoulshotImpactEffectId} (soulshot) spawn={spawnPoint} dir={impactDir}");
             EffectManager.Instance.PlayerImpactEffect(SoulshotImpactEffectId, spawnPoint, impactDir);
             attaker.IsSoulshotCharged = false;
+            return;
         }
-        else
-        {
-            // Debug.Log(
-                // $"[HIT_FX] 6.HitManager → EffectManager.PlayerImpactEffect " +
-                // $"id={NormalImpactEffectId} (normal) spawn={spawnPoint} dir={impactDir}");
-            EffectManager.Instance.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, impactDir);
-        }
+
+        // Spiritshot only charges the weapon cast; never show melee SoulshotImpact on the mob.
+        if (attaker != null && attaker.IsSpiritshotCharged)
+            attaker.IsSpiritshotCharged = false;
+
+        EffectManager.Instance.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, impactDir);
     }
 
     /// <summary>
@@ -269,11 +266,12 @@ public class HitManager : MonoBehaviour
         if (target == null || target == attacker)
             return;
 
+        // Only true soulshot charge may arm the melee SS impact; spiritshot is weapon-only.
         ArmRemoteMeleeHit(
             attacker,
             target,
             miss: false,
-            soulshot: attacker != null && attacker.IsSoulshotCharged,
+            soulshot: attacker != null && attacker.IsSoulshotCharged && !attacker.IsSpiritshotCharged,
             hitTimeMs: magic != null ? magic.HitTime : 0);
     }
 
@@ -555,12 +553,13 @@ public class HitManager : MonoBehaviour
         {
             EffectManager.Instance.PlayerImpactEffect(SoulshotImpactEffectId, spawnPoint, resolvedHitDirection);
             attackerEntity.IsSoulshotCharged = false;
-        }
-        else
-        {
-            EffectManager.Instance.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, resolvedHitDirection);
+            return true;
         }
 
+        if (attackerEntity != null && attackerEntity.IsSpiritshotCharged)
+            attackerEntity.IsSpiritshotCharged = false;
+
+        EffectManager.Instance.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, resolvedHitDirection);
         return true;
     }
 

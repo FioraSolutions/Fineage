@@ -289,6 +289,13 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
             projectile.hitPointCollider = projectile.hitPoint;
             LogProjectileImpactTiming(projectile);
 
+            // skillsoundgrp *_explotion when the orb reaches the target (not MagicSkillLaunched/release).
+            try
+            {
+                SkillCastSound.OnProjectileImpact(projectile.attackerEntityId, projectile.hitPoint);
+            }
+            catch (Exception) { }
+
             if (projectile.impactType == ProjectileImpactType.EffectOnly)
             {
                 bool hasSubscribers = OnHitEffectProjectile != null;

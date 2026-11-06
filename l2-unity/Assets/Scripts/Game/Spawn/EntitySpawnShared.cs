@@ -524,6 +524,7 @@ public static class EntitySpawnShared
         npc.Running = npc.Identity != null && npc.Identity.IsRunning;
         npc.InCombat = false;
         npc.IsSoulshotCharged = false;
+        npc.IsSpiritshotCharged = false;
         npc.TargetId = 0;
         npc.Target = null;
         npc.LastTarget = null;

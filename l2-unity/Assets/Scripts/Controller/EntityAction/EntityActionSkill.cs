@@ -184,16 +184,23 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (entity == null || magic == null || !WeaponChargeSkill.IsCharge(magic.SkillId))
             return false;
 
-        entity.IsSoulshotCharged = true;
+        if (WeaponChargeSkill.IsSpirit(magic.SkillId))
+        {
+            entity.IsSpiritshotCharged = true;
+            entity.IsSoulshotCharged = false;
+        }
+        else
+        {
+            entity.IsSoulshotCharged = true;
+            entity.IsSpiritshotCharged = false;
+        }
+
         WeaponChargeSkill.Play(
             ControllerPacketServices.Effects,
             magic.SkillId,
             entity.GetWeaponTransform(),
             entity.transform);
 
-        // EntityActionCombatLog.LogCiPawn(entity,
-            // "Skill CHARGE nick=" + EntityActionCombatLog.NameOf(entity) +
-            // " skill=" + magic.SkillId);
         return true;
     }
 

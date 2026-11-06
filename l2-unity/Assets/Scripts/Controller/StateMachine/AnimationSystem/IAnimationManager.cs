@@ -42,6 +42,9 @@ public interface IAnimationManager
     float ApplyLinearMeleePAtkSpeed(int objectId, string animName, float clipLengthSec);
     void SetPAtkSpeed(int objectId, float patkspd);
     void PlayLobbyLocomotion(IAnimationController controller, string stateOrPrefixWithWeapon);
+    /// <summary>Raw animator state (death/rebirth/etc). Prefer <see cref="PlayGesture"/> for social/pickup.</summary>
     float PlayExactAnimatorState(int objectId, string stateName, bool snapToEnd = false);
+    /// <summary>Gesture channel (<see cref="AnimPlayback"/>): pickup, social — authored timing, not run/atk speed.</summary>
+    float PlayGesture(int objectId, string stateName);
 }
 

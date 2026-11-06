@@ -93,29 +93,11 @@ public class SelectableCharacterEntity : MonoBehaviour
 
         return 1.5f;
     }
-    //animation speed
-    private void SetWalkSpeedModel()
+    void SetWalkSpeedModel()
     {
-        var race = _characterInfoInterlude.CharacterRaceAnimation;
-        if (race == CharacterRaceAnimation.FFighter | race == CharacterRaceAnimation.MFighter)
-        {
-            _baseAnimationController.SetWalkSpeedLobby(0.5f);
-        }else if (race == CharacterRaceAnimation.FMagic | race == CharacterRaceAnimation.MMagic)
-        {
-            _baseAnimationController.SetWalkSpeedLobby(0.5f);
-        }
-        else if (race == CharacterRaceAnimation.FElf )
-        {
-            _baseAnimationController.SetWalkSpeedLobby(0.6f);
-        }
-        else if (race == CharacterRaceAnimation.MElf | race == CharacterRaceAnimation.MDarkElf)
-        {
-            _baseAnimationController.SetWalkSpeedLobby(0.5f);
-        }
-        else if (race == CharacterRaceAnimation.MDwarf)
-        {
-            _baseAnimationController.SetWalkSpeedLobby(0.35f);
-        }
+        if (_baseAnimationController == null)
+            return;
+        _baseAnimationController.SetWalkSpeedLobby(CharacterAnimPaths.LobbyWalkSpeed);
     }
 
     private void StartWalking() {
@@ -149,7 +131,7 @@ public class SelectableCharacterEntity : MonoBehaviour
             return;
         CharacterRaceAnimation raceAnim = _characterInfoInterlude.CharacterRaceAnimation;
         string race = raceAnim.ToString();
-        string folder = "Data/Animations/" + CharacterRaceParser.ParseRace(raceAnim) + "/" + race + "/Clips/";
+        string folder = CharacterAnimPaths.ClipsFolder(raceAnim);
         string[] names = {
             race + "_m000_b.ao_Social_victory_" + race,
             race + "_M000_b.ao_Social_victory_" + race,
@@ -159,6 +141,7 @@ public class SelectableCharacterEntity : MonoBehaviour
         for (int i = 0; i < names.Length; i++) {
             AnimationClip clip = Resources.Load<AnimationClip>(folder + names[i]);
             if (clip != null) {
+                // Gesture channel: CastClipPlayable one-shot at AnimPlayback.GestureRate.
                 _baseAnimationController.TryPlayOneShot(clip);
                 return;
             }

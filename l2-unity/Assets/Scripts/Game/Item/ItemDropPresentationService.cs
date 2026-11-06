@@ -390,7 +390,8 @@ public sealed class ItemDropPresentationService
         IAnimationManager animations = Animations;
         if (objectId == 0 || animations == null)
             return;
-        animations.PlayExactAnimatorState(objectId, stateName);
+        // Pickup is a gesture — must not inherit run_speed / patkspd (see AnimPlayback).
+        animations.PlayGesture(objectId, stateName);
     }
 
     void PlayEffect(int effectId, Transform target, string label)

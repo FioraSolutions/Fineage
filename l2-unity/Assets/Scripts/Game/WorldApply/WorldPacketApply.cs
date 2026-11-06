@@ -389,10 +389,11 @@ public sealed class WorldPacketApply
         if (dto == null)
             return;
         Entity entity = GetEntity(dto.ObjectId);
-        // EntityActionCombatLog.LogIfWatch(entity,
-            // "packet Social IGNORE name=" + EntityActionCombatLog.NameOf(entity) +
-            // " id=" + dto.ObjectId +
-            // " actionId=" + dto.ActionId);
+        EntityWorldApply apply;
+        if (entity == null || !TryResolve(entity, out apply))
+            return;
+        // Mobius SocialAction — gesture ids 2–14, 15 = level-up (SocialAction.LEVEL_UP).
+        apply.OnSocialAction(entity, dto);
     }
 
     public void ChangeWaitType(ChangeWaitTypeDto dto)
@@ -442,22 +443,19 @@ public sealed class WorldPacketApply
         MagicSkillUseTrace.Begin(dto.SkillId);
         try
         {
+            // Local player: presentation is inside PlayerWorldApply → MagicSkillPresentation.
+            // CharInfo / NPC: apply only (EntityActionSkill owns remote anim + SkillCastSound there).
             apply.OnMagicSkillUse(entity, dto);
-            if (entity == PlayerEntity.Instance)
-                try { CastBarOverlay.Begin(dto.HitTime); } catch (Exception bar) { Debug.LogWarning("[CastBar] " + bar.Message); }
-            try { SkillCastSound.OnMagicSkillUse(entity, dto); } catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] " + sfx.Message); }
-            if (dto.SkillId == 4247)
-                Debug.Log("[WINDSTRIKE] OnMagicSkillUse returned");
-        }
-        catch (Exception)
-        {
-            throw;
+            if (entity != PlayerEntity.Instance)
+            {
+                try { SkillCastSound.OnMagicSkillUse(entity, dto); }
+                catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] " + sfx.Message); }
+            }
         }
         finally
         {
             MagicSkillUseTrace.End();
         }
-        // UnityReplaySession.OnMagicSkillUse(entity, dto);
     }
 
     public void MagicSkillLaunched(MagicSkillLaunchedDto dto)
@@ -470,6 +468,10 @@ public sealed class WorldPacketApply
             entity = PlayerEntity.Instance;
         if (entity == null)
             return;
+
+        // skillsoundgrp spelleffect_sound_3 (*_explotion) on impact.
+        try { SkillCastSound.OnMagicSkillLaunched(entity, dto); }
+        catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] launched " + sfx.Message); }
         // UnityReplaySession.OnMagicLaunched(entity, dto);
     }
 

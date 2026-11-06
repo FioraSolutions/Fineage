@@ -105,14 +105,12 @@ public static class MonsterAnim
     }
 
     /// <summary>
-    /// Attack one-shots (atk / spatk) restart even if already in that state.
-    /// Death is also a one-shot, but must not rewind: client predict + Die packet would restart the corpse.
-    /// Looping locomotion may skip CrossFade when already playing.
+    /// Attack swings that must restart from 0 on every trigger.
+    /// Death is terminal (see <see cref="MonsterCrossFade"/>) — not a retriggerable one-shot.
     /// </summary>
     public static bool IsOneShot(MonsterAnimState family)
     {
         return family == MonsterAnimState.Atk01
-            || family == MonsterAnimState.SpAtk01
-            || family == MonsterAnimState.Death;
+            || family == MonsterAnimState.SpAtk01;
     }
 }

@@ -23,6 +23,7 @@ public static class ItemDropPresentationIds
     /// <summary>Player throws item from inventory (ASM drop gesture).</summary>
     public const string DropAnimationTrigger = "drop";
     /// <summary>Player_Basic state name (CrossFade, no weapon suffix).</summary>
+    /// <summary>Animator gesture state — must stay on the gesture speed channel (<see cref="AnimPlayback"/>).</summary>
     public const string PickupAnimationState = "pickup";
 
     /// <summary>e_u056_b spawn window: 30 particles at 2/s plus lifetime/delay (~17s).</summary>
