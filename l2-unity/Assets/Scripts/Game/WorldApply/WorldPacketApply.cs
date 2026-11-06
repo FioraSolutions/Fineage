@@ -40,7 +40,7 @@ public sealed class WorldPacketApply
         Register<UserEntity>(userApply);
     }
 
-    private World GameWorld => IncomingPacketActions.GameWorld;
+    private World GameWorld => WorldApplyPacketServices.GameWorld;
 
     public void Register<TEntity>(EntityWorldApply apply) where TEntity : Entity
     {
@@ -477,7 +477,7 @@ public sealed class WorldPacketApply
 
     public void SendArrivedPosition()
     {
-        PlayerController player = PlayerController.Instance;
+        PlayerController player = WorldApplyPacketServices.Player;
         if (player == null)
             return;
 
@@ -505,7 +505,7 @@ public sealed class WorldPacketApply
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
+        GameManager manager = _gameManager != null ? _gameManager : WorldApplyPacketServices.Manager;
         return manager != null && manager.WorldSpawnReady && GameWorld != null;
     }
 
@@ -516,6 +516,6 @@ public sealed class WorldPacketApply
         if (_applyQueue != null)
             _applyQueue.QueueNextFrame(() => apply(this));
         else
-            IncomingPacketActions.QueueWorldNextFrame(apply);
+            WorldApplyPacketServices.QueueWorldNextFrame(apply);
     }
 }

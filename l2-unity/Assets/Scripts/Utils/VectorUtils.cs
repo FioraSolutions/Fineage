@@ -80,7 +80,10 @@ public class VectorUtils : MonoBehaviour {
     {
 
         RaycastHit hit;
-        bool isGrounded = Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, World.Instance.GroundMask);
+        World world = WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
+        int groundMask = world != null ? world.GroundMask : 0;
+        bool isGrounded = groundMask != 0 &&
+            Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, groundMask);
 
         if (isGrounded)
         {
@@ -96,7 +99,7 @@ public class VectorUtils : MonoBehaviour {
         }
 
         // Дополнительно проверяем, не опустился ли игрок ниже уровня земли
-        if (position.y < hit.point.y)
+        if (isGrounded && position.y < hit.point.y)
         {
             position.y = hit.point.y;
             _verticalVelocity = 0;

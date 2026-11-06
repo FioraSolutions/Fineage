@@ -31,7 +31,8 @@ public class PlayerStateSpAtkBow : StateMachineBehaviour
 
         int objectId = AnimatorUtils.GetObjectId(animator);
         int serverTimeMs = animator.GetInteger("sptimeatk");
-        Entity entity = World.Instance != null ? World.Instance.GetEntityNoLockSync(objectId) : null;
+        World world = WorldApplyPacketServices.GameWorld;
+        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
         float cycleMs = serverTimeMs > 0
             ? serverTimeMs
             : AttackTimingHelper.ResolveAttackCycleMs(entity, parameterName);

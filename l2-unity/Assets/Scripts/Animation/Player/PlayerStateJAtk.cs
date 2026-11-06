@@ -327,7 +327,8 @@ public class PlayerStateJAtk : StateMachineBehaviour
 
     private bool IsDieTarget()
     {
-        if (PlayerEntity.Instance == null || World.Instance == null)
+        World world = WorldApplyPacketServices.GameWorld;
+        if (PlayerEntity.Instance == null || world == null)
         {
             return false;
         }
@@ -339,7 +340,7 @@ public class PlayerStateJAtk : StateMachineBehaviour
         }
 
         // Despawned after DieDto → null; treat as dead so we still leave jatk.
-        Entity entity = World.Instance.GetEntityNoLockSync(targetId);
+        Entity entity = world.GetEntityNoLockSync(targetId);
         return entity == null || entity.IsDead();
     }
 
@@ -424,8 +425,9 @@ public class PlayerStateJAtk : StateMachineBehaviour
     private float GetFullAttackCycleMs(int objectId, string animName)
     {
         Entity entity = null;
-        if (World.Instance != null && objectId > 0)
-            entity = World.Instance.GetEntityNoLockSync(objectId);
+        World world = WorldApplyPacketServices.GameWorld;
+        if (world != null && objectId > 0)
+            entity = world.GetEntityNoLockSync(objectId);
         if (entity == null)
             entity = PlayerEntity.Instance;
 

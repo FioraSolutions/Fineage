@@ -276,11 +276,12 @@ public class Geodata : MonoBehaviour {
     }
 
     private void DrawGizmosAroundPlayer() {
-        if(PlayerController.Instance == null) {
+        PlayerController player = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
+        if(player == null) {
             return;
         }
 
-        Vector3 playerPos = PlayerController.Instance.transform.position;
+        Vector3 playerPos = player.transform.position;
         Vector3 cubeSize = new Vector3(_nodeSize - _nodeSize / 10f, 0.1f, _nodeSize - _nodeSize / 10f);
         Gizmos.color = Color.green;
 

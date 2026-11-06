@@ -168,9 +168,10 @@ public class NameplatesManager : MonoBehaviour
         // CharacterController disabled, so OverlapSphere cannot find them. Upsert
         // every registered user directly from World so their nameplates stay visible
         // even when not hovered. Distance cull still happens in RefreshVisibility.
-        if (World.Instance != null)
+        World world = WorldApplyPacketServices.GameWorld;
+        if (world != null)
         {
-            World.Instance.ForEachUser(user => _entryStore.UpsertEntry(user, _defaultNameColor));
+            world.ForEachUser(user => _entryStore.UpsertEntry(user, _defaultNameColor));
         }
 
         _entryStore.EnsureHoverAndTarget(_entityMask, _defaultNameColor);

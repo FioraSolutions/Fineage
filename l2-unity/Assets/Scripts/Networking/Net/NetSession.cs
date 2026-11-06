@@ -975,8 +975,9 @@ public sealed class NetSession : MonoBehaviour
             CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, 0));
         if (LoginWindow.Instance != null)
             LoginWindow.Instance.ShowErrorText("");
-        if (GameManager.Instance != null)
-            GameManager.Instance.OnAuthAllowed();
+        GameManager manager = NetworkingPacketServices.Manager ?? GamePacketServices.Manager;
+        if (manager != null)
+            manager.OnAuthAllowed();
         Debug.Log("[Net] roster count=" + characters.Length);
     }
 
@@ -1260,8 +1261,9 @@ public sealed class NetSession : MonoBehaviour
         else
             Debug.LogWarning("[Net] Zone transport missing on EntitySpawn — world load will stall");
 
-        if (GameManager.Instance != null)
-            GameManager.Instance.OnCharacterSelect();
+        GameManager gameManager = NetworkingPacketServices.Manager ?? GamePacketServices.Manager;
+        if (gameManager != null)
+            gameManager.OnCharacterSelect();
         else
             Debug.LogWarning("[Net] GameManager missing on EntitySpawn — world load will stall");
 

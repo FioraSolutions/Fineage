@@ -131,7 +131,8 @@ public class PlayerStateSpAtk : StateMachineBehaviour
         }
         else
         {
-            Entity entity = World.Instance != null ? World.Instance.GetEntityNoLockSync(objectId) : null;
+            World world = WorldApplyPacketServices.GameWorld;
+            Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
             _linearPatkSpd = AnimationManager.Instance.ApplyLinearMeleePAtkSpeed(
                 objectId, motionName, clipLength);
             float cycleMs = AttackTimingHelper.ResolveAttackCycleMs(entity, motionName);

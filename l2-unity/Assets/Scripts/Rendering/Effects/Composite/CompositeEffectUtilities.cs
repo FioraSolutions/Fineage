@@ -76,9 +76,10 @@ public static class CompositeEffectUtilities
                 resolvedTargetId = casterEntity.TargetId;
             }
 
-            if (resolvedTargetId > 0 && World.Instance != null)
+            World world = WorldApplyPacketServices.GameWorld;
+            if (resolvedTargetId > 0 && world != null)
             {
-                Entity targetEntity = World.Instance.GetEntityNoLockSync(resolvedTargetId);
+                Entity targetEntity = world.GetEntityNoLockSync(resolvedTargetId);
                 if (targetEntity != null)
                 {
                     context.TargetEntity = targetEntity;
