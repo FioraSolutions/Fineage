@@ -107,6 +107,7 @@ public static class GroundSnapHelper
 
         RaycastHit best = default;
         float bestDelta = float.MaxValue;
+        int bestRank = int.MinValue;
         bool found = false;
         for (int i = 0; i < hits.Length; i++)
         {
@@ -115,16 +116,26 @@ public static class GroundSnapHelper
                 continue;
 
             float dy = hit.point.y - position.y;
-            if (dy > MaxLift || dy < -MaxDrop)
+            int rank = GroundHitRank(hit.collider.gameObject.layer);
+            // Shop/guild StaticMesh floors sit several meters above terrain geodata Y.
+            // MaxLift 1.25 kept merchants on terrain under the raised interior ("underground").
+            float maxLift = rank >= 2 ? 8f : MaxLift;
+            if (dy > maxLift || dy < -MaxDrop)
                 continue;
 
             float abs = dy < 0f ? -dy : dy;
-            if (abs < bestDelta)
-            {
-                bestDelta = abs;
-                best = hit;
-                found = true;
-            }
+            // Prefer StaticMesh/Brush floors over Terrain so shop NPCs do not snap into
+            // heightmap under Elven Village interiors (merchants "underground").
+            bool better = !found
+                || rank > bestRank
+                || (rank == bestRank && abs < bestDelta);
+            if (!better)
+                continue;
+
+            bestDelta = abs;
+            bestRank = rank;
+            best = hit;
+            found = true;
         }
 
         if (!found)
@@ -132,5 +143,19 @@ public static class GroundSnapHelper
 
         snapped = new Vector3(position.x, best.point.y, position.z);
         return true;
+    }
+
+    /// <summary>Higher = preferred walk surface when several hits are near server Y.</summary>
+    static int GroundHitRank(int layer)
+    {
+        if (layer == LayerMask.NameToLayer("StaticMesh"))
+            return 3;
+        if (layer == LayerMask.NameToLayer("Brush") || layer == LayerMask.NameToLayer("AllowWalk"))
+            return 2;
+        if (layer == LayerMask.NameToLayer("Deco") || layer == LayerMask.NameToLayer("Obstacle"))
+            return 1;
+        if (layer == LayerMask.NameToLayer("Terrain"))
+            return 0;
+        return 1;
     }
 }

@@ -51,16 +51,39 @@ public class L2BrushBuilder {
     /// Interlude BSP (tools/interlude/BrushDump.java -> Brush actors in the tile t3d): one merged Mesh asset
     /// (submesh per material, UVs from UE TextureU/V, both windings so decks render + collide from either side)
     /// with a MeshCollider on layer Brush. The old ProBuilder path left meshes unsaved in the prefab and no colliders.
-    /// CSG is not evaluated: additive brush hulls are drawn as-is (L2 BSP brushes are mostly decks/floors/stairs).
+    /// Full CSG is not evaluated. <c>CSG_Subtract</c> brushes are not emitted as solid.
+    /// Thin ZonePortal doorway subtracts cull only near-vertical ADD wall tris (opens guild/shop arches
+    /// without eating terrace floors / railings — large room subtracts are excluded).
     /// </summary>
     public static GameObject BuildMerged(Brush[] brushes, string tileAssetFolder) {
+        // Narrow doorway-only cull (EV baseline that opened guild/armory without eating railings).
+        const bool cullDoorwayWalls = true;
+
         var matCache = new Dictionary<string, Material>();
         var subs = new Dictionary<Material, List<int>>();
         var verts = new List<Vector3>(); var norms = new List<Vector3>(); var uvs = new List<Vector2>();
-        int polyN = 0, skippedBrush = 0;
+        int polyN = 0, skippedBrush = 0, skippedSubtract = 0, culledBySubtract = 0, doorwaySubtracts = 0;
+
+        var subtractBounds = new List<Bounds>();
+        foreach (Brush b in brushes) {
+            if (!string.Equals(b.csgOper, "CSG_Subtract", System.StringComparison.OrdinalIgnoreCase)) continue;
+            if (b.position == Vector3.zero || b.model?.poly?.polyData == null) continue;
+            skippedSubtract++;
+            if (cullDoorwayWalls && TryDoorwaySubtractBounds(b, out Bounds bb))
+            {
+                subtractBounds.Add(bb);
+                doorwaySubtracts++;
+            }
+        }
+
         foreach (Brush b in brushes) {
             if (b.position == Vector3.zero || b.model?.poly?.polyData == null) { skippedBrush++; continue; }
             if (b.polyFlags != null && (b.polyFlags.Contains("PF_Invisible") || b.polyFlags.Contains("PF_NotSolid"))) { skippedBrush++; continue; }
+            if (string.Equals(b.csgOper, "CSG_Subtract", System.StringComparison.OrdinalIgnoreCase))
+            {
+                skippedBrush++;
+                continue;
+            }
             Vector3 basePos = b.position - b.prePivot;
             bool huge = false;
             foreach (var pd in b.model.poly.polyData) foreach (var v in pd.vertices) if (Mathf.Abs(v.x) > 60000 || Mathf.Abs(v.y) > 60000 || Mathf.Abs(v.z) > 60000) huge = true;
@@ -72,17 +95,25 @@ public class L2BrushBuilder {
                 string tex = pd.texture;
                 if (string.IsNullOrEmpty(tex) || tex.StartsWith("L2_Skies") || tex.StartsWith("L2_ETC_Textures") || tex.StartsWith("Engine.")
                     || tex.IndexOf("Water", System.StringComparison.OrdinalIgnoreCase) >= 0) continue;
-                if (!matCache.TryGetValue(tex, out var mat)) { mat = FindMaterial(tex); matCache[tex] = mat; }
-                float tw = 256f, th = 256f;
-                var mt = mat != null && mat.HasProperty("_BaseMap") ? mat.GetTexture("_BaseMap") : mat != null ? mat.mainTexture : null;
-                if (mt != null) { tw = mt.width; th = mt.height; }
-                int start = verts.Count, n = pd.vertices.Length;
+                int n = pd.vertices.Length;
                 var w = new Vector3[n];
-                for (int i = 0; i < n; i++) w[i] = VectorUtils.ConvertPosToUnity(basePos + pd.vertices[i]) * L2TerrainGeneratorTool.MAP_SCALE;
+                Vector3 center = Vector3.zero;
+                for (int i = 0; i < n; i++) {
+                    w[i] = VectorUtils.ConvertPosToUnity(basePos + pd.vertices[i]) * L2TerrainGeneratorTool.MAP_SCALE;
+                    center += w[i];
+                }
+                center /= n;
                 Vector3 nrm = Vector3.Cross(w[1] - w[0], w[2] - w[0]);
                 for (int i = 3; nrm.sqrMagnitude < 1e-10f && i < n; i++) nrm = Vector3.Cross(w[1] - w[0], w[i] - w[0]);
                 if (nrm.sqrMagnitude < 1e-10f) continue;
                 nrm.Normalize();
+                // Optional narrow doorway wall cull (off by default — see cullDoorwayWalls).
+                if (cullDoorwayWalls && Mathf.Abs(nrm.y) < 0.2f && IsInsideAny(subtractBounds, center))
+                { culledBySubtract++; continue; }
+                if (!matCache.TryGetValue(tex, out var mat)) { mat = FindMaterial(tex); matCache[tex] = mat; }
+                float tw = 256f, th = 256f;
+                var mt = mat != null && mat.HasProperty("_BaseMap") ? mat.GetTexture("_BaseMap") : mat != null ? mat.mainTexture : null;
+                if (mt != null) { tw = mt.width; th = mt.height; }
                 if (!subs.TryGetValue(mat, out var tris)) subs[mat] = tris = new List<int>();
                 for (int side = 0; side < 2; side++) {
                     int s0 = verts.Count;
@@ -122,8 +153,52 @@ public class L2BrushBuilder {
         go.AddComponent<MeshRenderer>().sharedMaterials = mats.ToArray();
         go.AddComponent<MeshCollider>().sharedMesh = mesh;
         go.isStatic = true;
-        Debug.Log("[Brushes] BSP polys " + polyN + ", materials " + mats.Count + ", brushes " + brushes.Length + " (skipped " + skippedBrush + ") -> " + meshPath);
+        Debug.Log("[Brushes] BSP polys " + polyN + ", materials " + mats.Count
+            + ", brushes " + brushes.Length
+            + " (skipped " + skippedBrush + ", subtract " + skippedSubtract
+            + ", doorwaySubtracts " + doorwaySubtracts
+            + ", culledBySubtract " + culledBySubtract + ", subtractBounds " + subtractBounds.Count
+            + ") -> " + meshPath);
         return root;
+    }
+
+    /// <summary>
+    /// Doorway CSG_Subtract brushes are thin cutting slabs (~2 UU deep, ~door width/height). Large room
+    /// subtracts must not drive AABB cull — they punched holes in EV railings/walls.
+    /// </summary>
+    static bool TryDoorwaySubtractBounds(Brush b, out Bounds bounds) {
+        bounds = new Bounds();
+        bool any = false;
+        Vector3 basePos = b.position - b.prePivot;
+        float scale = L2TerrainGeneratorTool.MAP_SCALE;
+        foreach (PolyData pd in b.model.poly.polyData) {
+            if (pd.vertices == null) continue;
+            foreach (var v in pd.vertices) {
+                if (Mathf.Abs(v.x) > 60000 || Mathf.Abs(v.y) > 60000 || Mathf.Abs(v.z) > 60000) return false;
+                Vector3 u = VectorUtils.ConvertPosToUnity(basePos + v) * scale;
+                if (!any) { bounds = new Bounds(u, Vector3.zero); any = true; }
+                else bounds.Encapsulate(u);
+            }
+        }
+        if (!any) return false;
+        Vector3 size = bounds.size;
+        float minAx = Mathf.Min(size.x, Mathf.Min(size.y, size.z));
+        float maxAx = Mathf.Max(size.x, Mathf.Max(size.y, size.z));
+        // Thin slab + door-sized: ~2 UU depth before scale ≈ 0.04u; after convert door ~1.5–3u wide/tall.
+        if (minAx > 0.55f || maxAx > 5.5f) return false;
+        const float minAxis = 1.0f;
+        Vector3 expand = new Vector3(
+            Mathf.Max(0f, (minAxis - size.x) * 0.5f) + 0.08f,
+            Mathf.Max(0f, (minAxis - size.y) * 0.5f) + 0.08f,
+            Mathf.Max(0f, (minAxis - size.z) * 0.5f) + 0.08f);
+        bounds.Expand(expand * 2f);
+        return true;
+    }
+
+    static bool IsInsideAny(List<Bounds> list, Vector3 p) {
+        for (int i = 0; i < list.Count; i++)
+            if (list[i].Contains(p)) return true;
+        return false;
     }
 
     static Material _fallback;

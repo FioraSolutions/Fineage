@@ -102,11 +102,13 @@ public static class L2InterludeMaterialBinder
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
         log.Add("SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
         log.Add("elven bridge/stair mats forced opaque two-sided: " + FixElvenBridgeDeck());
+        log.Add("elven Opacity panels (door arch black quads) fixed: " + FixOpacityAlphaBlend(props));
         log.Add(L2InterludeStaticMeshColliders.Run(null));
         log.Add(L2InterludeWaterVolumes.Run(null));
     }
 
-    [MenuItem("Shnok/0.2. [Interlude] Fix water / translucent StaticMesh materials")]
+    // Do not put '/' in the MenuItem path — Unity treats it as a submenu.
+    [MenuItem("Shnok/0.2. [Interlude] Fix water and translucent StaticMesh materials")]
     public static void FixWaterMenu()
     {
         string repo = RepoRoot;
@@ -117,6 +119,7 @@ public static class L2InterludeMaterialBinder
         Debug.Log("[MatBinder] translucent (water) materials fixed: " + FixTranslucent(props));
         Debug.Log("[MatBinder] SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
         Debug.Log("[MatBinder] elven bridge/stair mats forced opaque two-sided: " + FixElvenBridgeDeck());
+        Debug.Log("[MatBinder] elven Opacity panels fixed: " + FixOpacityAlphaBlend(props));
         Debug.Log("[Water] " + L2InterludeWaterVolumes.Run(null));
     }
 
@@ -277,12 +280,14 @@ public static class L2InterludeMaterialBinder
     }
 
     /// <summary>
-    /// Oren_HEV_S O_E_Brg / O_E_BrgT / O_E_Bridge / O_E_Stair: walk deck is a single-sided plane (elf_vi_117,
-    /// upward faces), invisible in Unity with Cull Back (railings elf_vi_0002 are two-sided so they showed).
-    /// Force these mats URP Lit opaque, no clip, Cull Off.
+    /// Oren_HEV_S O_E_Brg / O_E_BrgT / O_E_Bridge / O_E_Stair / O_E_GDS_Ent: walk deck is a single-sided plane
+    /// (elf_vi_117 / elf_vi_111, upward faces), invisible in Unity with Cull Back. elf_vi_0002 is the walk deck
+    /// too — its diffuse alpha is garbage (Opacity in props); Transparent/Cutout punches holes in streets and
+    /// you fall through. Force these mats URP Lit opaque, no clip, Cull Off. Decorative arch filigree is
+    /// *_shader only (see FixOpacityAlphaBlend).
     /// </summary>
     static readonly HashSet<string> ElvenBridgeMats = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        { "elf_vi_117", "elf_vi_0002", "elf_vi_003", "elf_vi_001", "elf_vi_004" };
+        { "elf_vi_117", "elf_vi_111", "elf_vi_0002", "elf_vi_0006", "elf_vi_003", "elf_vi_001", "elf_vi_004" };
 
     static int FixElvenBridgeDeck()
     {
@@ -307,6 +312,83 @@ public static class L2InterludeMaterialBinder
         return n;
     }
 
+    /// <summary>
+    /// Decorative L2 Opacity shaders only (name ends with _shader): door-arch filigree.
+    /// Use AlphaClip (not Transparent) — URP Premultiply path paints solid black curtains.
+    /// Never touch elf_vi_0002 / 0006 — those are walk decks.
+    /// Runs after FixElvenBridgeDeck.
+    /// </summary>
+    static int FixOpacityAlphaBlend(Dictionary<string, string> props)
+    {
+        int n = 0;
+        Shader lit = Shader.Find("Universal Render Pipeline/Lit");
+        if (lit == null) return 0;
+        foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
+        {
+            string mp = AssetDatabase.GUIDToAssetPath(g);
+            var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+            if (m == null) continue;
+            string matName = Path.GetFileNameWithoutExtension(mp);
+            // Walk decks / non-shader Opacity props must stay opaque (see ElvenBridgeMats).
+            if (!matName.EndsWith("_shader", StringComparison.OrdinalIgnoreCase)
+                && !matName.StartsWith("efl_vi_", StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (ElvenBridgeMats.Contains(matName)) continue;
+            if (!props.TryGetValue(m.name, out var pf)
+                && !props.TryGetValue(matName, out pf))
+                continue;
+            string txt = File.ReadAllText(pf);
+            if (!Regex.IsMatch(txt, @"^\s*Opacity\s*=\s*\w+'", RegexOptions.Multiline)) continue;
+            if (Regex.IsMatch(txt, @"^\s*AlphaTest\s*=\s*true", RegexOptions.Multiline)) continue;
+            if (Regex.IsMatch(m.name, "water", RegexOptions.IgnoreCase)) continue;
+            // Water path uses ZWrite=false; keep that in FixTranslucent.
+            if (Regex.IsMatch(txt, @"^\s*ZWrite\s*=\s*false", RegexOptions.Multiline)) continue;
+
+            if (m.shader != lit) m.shader = lit;
+            // Door filigree textures are binary alpha (~70% a=0). URP Transparent+Premultiply paints
+            // solid black curtains in the arch; AlphaClip matches the art and stays stable.
+            m.SetFloat("_Surface", 0f);
+            m.SetFloat("_Blend", 0f);
+            if (m.HasProperty("_BlendModePreserveSpecular")) m.SetFloat("_BlendModePreserveSpecular", 0f);
+            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
+            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.Zero);
+            m.SetFloat("_ZWrite", 1f);
+            m.SetFloat("_AlphaClip", 1f);
+            m.SetFloat("_Cutoff", 0.5f);
+            m.EnableKeyword("_ALPHATEST_ON");
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            m.DisableKeyword("_ALPHAMODULATE_ON");
+            m.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.EnableKeyword("_SURFACE_TYPE_OPAQUE");
+            m.SetOverrideTag("RenderType", "TransparentCutout");
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+            m.SetFloat("_Cull", 0f);
+            m.doubleSidedGI = true;
+            if (m.HasProperty("_BaseColor"))
+            {
+                Color c = m.GetColor("_BaseColor");
+                c.a = 1f;
+                m.SetColor("_BaseColor", c);
+            }
+            var t = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") : null;
+            if (t != null)
+            {
+                string tp = AssetDatabase.GetAssetPath(t);
+                if (!string.IsNullOrEmpty(tp)
+                    && UnityEditor.AssetImporter.GetAtPath(tp) is TextureImporter ti
+                    && !ti.alphaIsTransparency)
+                {
+                    ti.alphaIsTransparency = true;
+                    ti.SaveAndReimport();
+                }
+            }
+            EditorUtility.SetDirty(m);
+            n++;
+        }
+        AssetDatabase.SaveAssets();
+        return n;
+    }
+
     struct Info { public string tex; public bool cutout, twoSided; }
 
     static readonly Regex Ref = new Regex(@"^\s*(Diffuse|Material|Texture|Material1|Material2|SelfIllumination|FallbackMaterial)\s*=\s*\w+'(?:[\w]+\.)*([\w]+)'", RegexOptions.Multiline);
@@ -317,8 +399,8 @@ public static class L2InterludeMaterialBinder
         if (depth < 6 && props.TryGetValue(name, out var pf))
         {
             string txt = File.ReadAllText(pf);
+            // Cutout only when L2 says AlphaTest — Opacity alone is alpha blend (door filigree).
             info.cutout = Regex.IsMatch(txt, @"^\s*AlphaTest\s*=\s*true", RegexOptions.Multiline)
-                          || Regex.IsMatch(txt, @"^\s*Opacity\s*=\s*\w+'", RegexOptions.Multiline)
                           || Regex.IsMatch(txt, @"^\s*bAlphaTest\s*=\s*true", RegexOptions.Multiline);
             info.twoSided = Regex.IsMatch(txt, @"^\s*(TwoSided|TreatAsTwoSided)\s*=\s*true", RegexOptions.Multiline);
             foreach (Match mm in Ref.Matches(txt))
