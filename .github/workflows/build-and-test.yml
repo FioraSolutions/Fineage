@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check frozen IncomingPacketActions surface
+      - name: Check IncomingPacketActions stays deleted (#142)
         run: python3 scripts/check-frozen-incoming-packet-actions.py
 
       - name: Check playtest release helpers

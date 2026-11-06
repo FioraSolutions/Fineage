@@ -2,7 +2,7 @@ using System;
 using VContainer;
 
 /// <summary>
-/// Networking-layer service access with optional Bind wiring and IncomingPacketActions fallback (#142).
+/// Networking-layer service access with optional Bind wiring and container/live fallback (#142).
 /// </summary>
 public static class NetworkingPacketServices
 {
@@ -49,7 +49,7 @@ public static class NetworkingPacketServices
             : ResolveFromApp<EventProcessor>() ?? EventProcessor.Instance;
 
     public static PlayerController Player =>
-        _player != null ? _player : ResolveFromGameContainer<PlayerController>() ?? IncomingPacketActions.Player;
+        _player != null ? _player : ResolveFromGameContainer<PlayerController>();
 
     public static World GameWorld => ResolveWorld();
 
@@ -58,7 +58,7 @@ public static class NetworkingPacketServices
     public static IWorldDomainSink Domain => ResolveDomain();
 
     public static GameManager Manager =>
-        _manager != null ? _manager : ResolveFromApp<GameManager>() ?? IncomingPacketActions.Manager;
+        _manager != null ? _manager : ResolveFromApp<GameManager>();
 
     public static LoginClient Login =>
         _login != null ? _login : ResolveFromApp<LoginClient>() ?? LoginClient.Instance;
@@ -111,30 +111,21 @@ public static class NetworkingPacketServices
     {
         if (_world != null)
             return _world;
-        World fromGame = ResolveFromGameContainer<World>();
-        if (fromGame != null)
-            return fromGame;
-        return IncomingPacketActions.GameWorld;
+        return ResolveFromGameContainer<World>();
     }
 
     static WorldPacketApply ResolveWorldApply()
     {
         if (_worldApply != null)
             return _worldApply;
-        WorldPacketApply fromGame = ResolveFromGameContainer<WorldPacketApply>();
-        if (fromGame != null)
-            return fromGame;
-        return IncomingPacketActions.WorldApply;
+        return ResolveFromGameContainer<WorldPacketApply>();
     }
 
     static IWorldDomainSink ResolveDomain()
     {
         if (_domain != null)
             return _domain;
-        IWorldDomainSink fromGame = ResolveFromGameContainer<IWorldDomainSink>();
-        if (fromGame != null)
-            return fromGame;
-        return IncomingPacketActions.Domain;
+        return ResolveFromGameContainer<IWorldDomainSink>();
     }
 
     static T ResolveFromGameContainer<T>() where T : class

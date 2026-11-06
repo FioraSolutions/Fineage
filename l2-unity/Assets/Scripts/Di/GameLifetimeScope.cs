@@ -154,13 +154,19 @@ public sealed class GameLifetimeScope : LifetimeScope
                 MessagePacketApply messageApply = container.Resolve<MessagePacketApply>();
                 IWorldDomainSink domain = container.Resolve<IWorldDomainSink>();
                 runtime.BindApply(worldApply, messageApply);
-                IncomingPacketActions.BindGame(runtime, worldApply, messageApply, domain);
                 GameRuntimeBindApplyIncomingPacketServices.BindIncoming(
                     runtime: runtime,
                     worldApply: worldApply,
                     messageApply: messageApply,
                     domain: domain);
                 World world = container.Resolve<World>();
+                NetworkingPacketServices.Bind(
+                    world: world,
+                    worldApply: worldApply,
+                    domain: domain,
+                    manager: runtime.Manager,
+                    player: runtime.Player,
+                    events: runtime.Events);
                 WorldApplyPacketServices.Bind(
                     player: runtime.Player,
                     bus: runtime.Bus,

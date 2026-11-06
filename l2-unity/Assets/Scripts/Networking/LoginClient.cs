@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// Remnant of the Interlude login socket, kept only because <c>IncomingPacketActions.Login</c>
-/// is frozen (#137) and its type names this class.
+/// Remnant of the Interlude login socket; kept for serialized account fields the login UI reads.
 ///
 /// <para>
 /// It used to be a <c>DefaultClient</c>: a Blowfish socket with a send queue, a receive thread,
