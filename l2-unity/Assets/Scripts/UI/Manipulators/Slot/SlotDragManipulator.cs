@@ -17,6 +17,13 @@ public class SlotDragManipulator : PointerManipulator
     public bool dragged = false;
     public bool enabled = true;
 
+    /// <summary>
+    /// True from the moment a real drag completes until the next press. The click callbacks fire after
+    /// <see cref="PointerUpHandler"/> has already reset <see cref="dragged"/>, so slot click handlers use
+    /// this to tell "the user dragged me somewhere" from "the user clicked me".
+    /// </summary>
+    public bool DragCompleted { get; private set; }
+
     public SlotDragManipulator(VisualElement target, L2Slot slot)
     {
         _slot = slot;
@@ -86,6 +93,7 @@ public class SlotDragManipulator : PointerManipulator
         dragged = false;
         _finishing = false;
         _pointerDown = true;
+        DragCompleted = false;
         _activePointerId = evt.pointerId;
         _startMousePosition = evt.position;
         _grabOffset = evt.localPosition;
@@ -184,6 +192,7 @@ public class SlotDragManipulator : PointerManipulator
 
         bool wasDragging = dragged;
         dragged = false;
+        DragCompleted = wasDragging;
         _pointerDown = false;
         int pointerId = _activePointerId;
         _activePointerId = -1;

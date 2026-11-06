@@ -80,9 +80,20 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
    
 
 
+    /// <summary>
+    /// Interlude client: a left click on a slot selects it <b>and</b> shows the item description.
+    /// The hover tooltip only sets the content up; without this the click looked like it did
+    /// nothing but frame the slot, and gear slots went further and unequipped the item.
+    /// </summary>
     public void EventLeftClickSlot(VisualElement ve)
     {
+        if (ve == null || _windowEle == null)
+            return;
+
         string[] ids = GetUniquePosition(ve);
+        if (ids == null || ids.Length < 2)
+            return;
+
         var template = SwitchToolTip(ids, true);
 
         if(template != null)
@@ -95,8 +106,17 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
             if(data != null)
             {
                 AddData(data, template);
+                _selectShow = ve;
+                _windowEle.style.display = DisplayStyle.Flex;
+                _showToolTip.Show(ve, GetForceBelow(ids));
+                return;
             }
         }
+
+        // Nothing to describe (empty bag / gear slot): the click must not leave a stale tooltip.
+        // Only the panel is hidden here — Hide() also drops the buff countdown subscriptions of
+        // whatever tooltip the pointer was on, and a click on an empty cell must not do that.
+        _windowEle.style.display = DisplayStyle.None;
     }
 
 
@@ -416,63 +436,60 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
 
     private TemplateContainer GetGearContainer(GearItem gearItem)
     {
-        if (gearItem != null && gearItem.GetItemId() != 0)
+        ItemInstance assignItem = GetGearTooltipItem(gearItem);
+        if (assignItem == null)
+            return null;
+
+        if (assignItem.BodyPart == ItemSlot.fullarmor)
         {
-            int objectId = gearItem.GetObjectId();
-
-            ItemInstance assignItem = PlayerInventory.Instance.GetItemEquip(objectId);
-
-            if (assignItem.BodyPart == ItemSlot.fullarmor)
-            {
-                if (gearItem.GetSlotType() != ItemSlot.legs)
-                {
-                    return GetInventoryContainer(assignItem);
-                }
-            }
-            else if (assignItem.BodyPart == ItemSlot.lrhand)
-            {
-                if (gearItem.GetSlotType() != ItemSlot.lhand)
-                {
-                    return GetInventoryContainer(assignItem);
-                }
-            }
-            else
-            {
+            if (gearItem.GetSlotType() != ItemSlot.legs)
                 return GetInventoryContainer(assignItem);
-            }
-
+        }
+        else if (assignItem.BodyPart == ItemSlot.lrhand)
+        {
+            if (gearItem.GetSlotType() != ItemSlot.lhand)
+                return GetInventoryContainer(assignItem);
+        }
+        else
+        {
+            return GetInventoryContainer(assignItem);
         }
 
         return null;
     }
 
+    /// <summary>
+    /// Resolves the worn item behind a gear cell, or null when the paperdoll cell is filled but the
+    /// item is no longer in the equip map (a replace that has not been re-applied yet). Callers must
+    /// tolerate null: dereferencing it here used to throw on a plain click on a worn slot.
+    /// </summary>
+    private static ItemInstance GetGearTooltipItem(GearItem gearItem)
+    {
+        if (gearItem == null || gearItem.GetItemId() == 0)
+            return null;
+        PlayerInventory inventory = PlayerInventory.Instance;
+        return inventory != null ? inventory.GetItemEquip(gearItem.GetObjectId()) : null;
+    }
+
     private TemplateContainer GetGearStringContainer(GearItem gearItem)
     {
-        if (gearItem != null && gearItem.GetItemId() != 0)
+        ItemInstance assignItem = GetGearTooltipItem(gearItem);
+        if (assignItem == null)
+            return null;
+
+        if (assignItem.BodyPart == ItemSlot.fullarmor)
         {
-            int objectId = gearItem.GetObjectId();
-
-            ItemInstance assignItem = PlayerInventory.Instance.GetItemEquip(objectId);
-
-            if (assignItem.BodyPart == ItemSlot.fullarmor)
-            {
-                if (gearItem.GetSlotType() != ItemSlot.legs)
-                {
-                    return SwitchToString();
-                }
-            }
-            else if (assignItem.BodyPart == ItemSlot.lrhand)
-            {
-                if (gearItem.GetSlotType() != ItemSlot.lhand)
-                {
-                    return SwitchToString();
-                }
-            }
-            else
-            {
+            if (gearItem.GetSlotType() != ItemSlot.legs)
                 return SwitchToString();
-            }
-
+        }
+        else if (assignItem.BodyPart == ItemSlot.lrhand)
+        {
+            if (gearItem.GetSlotType() != ItemSlot.lhand)
+                return SwitchToString();
+        }
+        else
+        {
+            return SwitchToString();
         }
 
         return null;
@@ -507,13 +524,9 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 return SkillListWindow.Instance.GetSkillInstanceBySkillId(position);
 
             case SlotType.Gear:
-                GearItem gearItem = InventoryWindow.Instance.GetGearPosition(position);
-                if (gearItem != null && gearItem.GetItemId() != 0)
-                {
-                    int objectId = gearItem.GetObjectId();
-                    return PlayerInventory.Instance.GetItemEquip(objectId);
-                }
-                return null;
+                return GetGearTooltipItem(InventoryWindow.Instance != null
+                    ? InventoryWindow.Instance.GetGearPosition(position)
+                    : null);
 
             default:
                 return null;
@@ -685,16 +698,8 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 SetBuffPanelToolTip(instance, template);
                 break;
             case (int)SlotType.Gear:
-                GearItem gearItem = InventoryWindow.Instance.GetGearPosition(position);
-
-                if (gearItem != null && gearItem.GetItemId() != 0)
-                {
-                    int objectId = gearItem.GetObjectId();
-
-                    ItemInstance assignItem = PlayerInventory.Instance.GetItemEquip(objectId);
-                    SetSimpleItemSingleToolTip(assignItem, template);
-                }
-                
+                SetSimpleItemSingleToolTip(GetGearTooltipItem(
+                    InventoryWindow.Instance != null ? InventoryWindow.Instance.GetGearPosition(position) : null), template);
                 break;
         }
     }

@@ -113,6 +113,15 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
+        // Mobius RequestAutoSoulShot: the hotbar right-click toggle for soulshots / spiritshots.
+        RequestAutoSoulShotCommand netAutoShot = command as RequestAutoSoulShotCommand;
+        if (netAutoShot != null)
+        {
+            if (netAutoShot.ItemId > 0)
+                NetSession.Ensure().SendRequestAutoSoulShot(netAutoShot.ItemId, netAutoShot.Enabled);
+            return true;
+        }
+
         UnequipItemCommand netUnequip = command as UnequipItemCommand;
         if (netUnequip != null)
         {
