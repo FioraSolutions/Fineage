@@ -39,6 +39,9 @@ public class PlayerActions : MonoBehaviour
         nextTarget.Bind(_targets);
         _actions.Add(ActionType.NextTarget, nextTarget);
         _actions.Add(ActionType.RideStrider, new RideStriderAction());
+        _actions.Add(ActionType.SocialGreeting, new SocialActionUse((int)ActionType.SocialGreeting));
+        _actions.Add(ActionType.SocialVictory, new SocialActionUse((int)ActionType.SocialVictory));
+        _actions.Add(ActionType.SocialAdvance, new SocialActionUse((int)ActionType.SocialAdvance));
     }
 
     private void Start()
