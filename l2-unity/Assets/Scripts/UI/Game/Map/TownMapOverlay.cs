@@ -93,6 +93,38 @@ public sealed class TownMapOverlay
 
     public bool IsOpen => _openTown != null;
 
+    /// <summary>Starter town containing the given L2 XY, or null if outside every plan square.</summary>
+    public static Town FindTownAt(float l2X, float l2Y)
+    {
+        for (int i = 0; i < Towns.Length; i++)
+        {
+            Town town = Towns[i];
+            if (l2X >= town.MinX && l2X <= town.MaxX &&
+                l2Y >= town.MinY && l2Y <= town.MaxY)
+                return town;
+        }
+
+        return null;
+    }
+
+    /// <summary>Open the plan for the hero's current starter village when they stand inside one.</summary>
+    public bool TryOpenForPlayer()
+    {
+        PlayerController player = ControllerPacketServices.Player;
+        if (player == null)
+            return false;
+
+        Vector3 worldPos = player.GetPlayerPosition();
+        float l2X = worldPos.z * 52.5f;
+        float l2Y = worldPos.x * 52.5f;
+        Town town = FindTownAt(l2X, l2Y);
+        if (town == null)
+            return false;
+
+        Open(town);
+        return true;
+    }
+
     static Vector2 WorldToMapPixel(float l2X, float l2Y)
     {
         float nx = Mathf.InverseLerp(MapPanner.MapL2MinX, MapPanner.MapL2MaxX, l2X);
