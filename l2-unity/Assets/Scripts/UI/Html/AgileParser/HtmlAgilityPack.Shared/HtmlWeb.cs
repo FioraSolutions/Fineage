@@ -1747,7 +1747,7 @@ namespace HtmlAgilityPack
                 ? Encoding.GetEncoding(html ? characterSet : resp.ContentEncoding)
                 : null; 
             }
-            catch (Exception e )
+            catch (Exception)
 			{
 
 			} 

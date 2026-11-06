@@ -866,10 +866,10 @@
 
 .menu-btn {
     flex-direction: column;
-    margin-top: 3px;
-    margin-right: 2px;
+    margin-top: 0;
+    margin-right: 0;
     margin-bottom: 0;
-    margin-left: 2px;
+    margin-left: 0;
     padding-top: 0;
     padding-right: 0;
     padding-bottom: 0;
@@ -882,8 +882,12 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
-    width: 36px;
-    height: 36px;
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    max-width: 64px;
+    max-height: 64px;
     background-image: none;
     -unity-slice-left: 0;
     -unity-slice-top: 0;
@@ -891,7 +895,10 @@
     -unity-slice-bottom: 0;
     -unity-slice-scale: 1px;
     -unity-background-scale-mode: scale-to-fit;
-    background-color: rgba(188, 188, 188, 0);
+    background-color: rgba(0, 0, 0, 0);
+    overflow: hidden;
+    position: relative;
+    display: flex;
 }
 
 #CharacterButton .menu-button-bg {
@@ -1033,28 +1040,74 @@
     padding-left: 0;
     background-color: rgba(0, 0, 0, 0);
     transform-origin: left top;
-    /* 2×4 Interlude menu docked bottom-right (skillbar sits to its left).
-       Hit targets stay 36×36; ButtonBG artwork is 64×64 and must not be clipped. */
-    width: 168px;
-    min-width: 168px;
-    max-width: 168px;
-    height: auto;
+    /* Interlude MenuWnd: 4 columns × 2 rows (horizontal strip), native 64px icons. */
+    width: 256px;
+    min-width: 256px;
+    max-width: 256px;
+    height: 128px;
+    min-height: 128px;
+    max-height: 128px;
     flex-grow: 0;
     flex-shrink: 0;
-    overflow: visible;
+    overflow: hidden;
     position: absolute;
     right: 0;
     bottom: 0;
 }
 
-.menu-btn {
-    overflow: visible;
-}
-
 .menu-button-bg {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 64px;
     height: 64px;
     flex-shrink: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+/* Interlude SystemMsgWnd ? L2UI chatting_system chrome, fixed height, above ChatWnd. */
+.system-msg-window {
+    position: absolute;
+    width: 375px;
+    height: 110px;
+    min-height: 110px;
+    max-height: 110px;
+    padding-top: 6px;
+    padding-right: 8px;
+    padding-bottom: 6px;
+    padding-left: 8px;
+    background-image: resource('Data/UI/Assets/Chat/chatting_system');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 16;
+    -unity-slice-top: 16;
+    -unity-slice-right: 16;
+    -unity-slice-bottom: 16;
+    overflow: hidden;
+}
+
+.system-msg-list {
+    flex-grow: 1;
+    height: 100%;
+}
+
+.system-msg-content {
+    flex-grow: 0;
+    flex-direction: column;
+}
+
+.system-msg-line {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 1px;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 2px;
+    padding-bottom: 0;
+    padding-left: 0;
+    font-size: 11px;
+    color: rgb(220, 220, 220);
+    white-space: normal;
+    -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
 }
 
 .login-window .unity-base-text-field__input {
@@ -3347,26 +3400,26 @@
 }
 
 .menu-btn-grp {
-    margin-top: 5px;
+    margin-top: 0;
     margin-right: 0;
     margin-bottom: 0;
-    margin-left: 5px;
+    margin-left: 0;
     padding-top: 0;
     padding-right: 0;
     padding-bottom: 0;
     padding-left: 0;
     flex-grow: 0;
-    height: auto;
+    height: 128px;
     flex-direction: row;
     flex-shrink: 0;
     flex-wrap: wrap;
-    width: 161px;
-    overflow: visible;
+    /* Exactly four 64px icons per row ? wraps to Interlude 4×2. */
+    width: 256px;
+    overflow: hidden;
     display: flex;
     opacity: 1;
+    background-color: rgba(0, 0, 0, 0);
 }
-
-/* Keep a single .menu-window rule above ? do not re-split right/min/max here. */
 
 .menu-window-container {
     flex-grow: 0;
@@ -3383,20 +3436,11 @@
     border-right-width: 0;
     border-bottom-width: 0;
     border-left-width: 0;
-    border-left-color: rgb(72, 65, 47);
-    border-right-color: rgb(72, 65, 47);
-    border-top-color: rgb(72, 65, 47);
-    border-bottom-color: rgb(72, 65, 47);
     overflow: hidden;
-    width: 166px;
-    background-color: rgba(19, 19, 19, 0);
+    width: 256px;
+    height: 128px;
+    background-color: rgba(0, 0, 0, 0);
     background-image: none;
-    -unity-slice-left: 11;
-    -unity-slice-top: 11;
-    -unity-slice-right: 11;
-    -unity-slice-bottom: 11;
-    -unity-slice-scale: 0.3px;
-    height: 86px;
 }
 
 .menu-window-bg {

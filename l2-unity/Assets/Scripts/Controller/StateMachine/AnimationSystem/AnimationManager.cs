@@ -219,16 +219,8 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
         string resolvedStateName)
     {
         string stateName = null;
-        string family = null;
-        if (PlayerBasicAttackAnim.TryResolve(resolvedStateName, out stateName))
-        {
-            family = "basicAtk";
-        }
-        else if (PlayerSpAtkAnim.TryResolve(resolvedStateName, out stateName))
-        {
-            family = "spAtk";
-        }
-        else
+        if (!PlayerBasicAttackAnim.TryResolve(resolvedStateName, out stateName) &&
+            !PlayerSpAtkAnim.TryResolve(resolvedStateName, out stateName))
         {
             return false;
         }

@@ -36,7 +36,7 @@ public class GeodataImporter
             byte[] data = null;
             try {
                 //data = GetGeodataBinaryForMap(_mapId);
-            } catch(Exception e) {
+            } catch (Exception) {
                 // Debug.LogWarning(e.Message);
             }
 
@@ -44,7 +44,7 @@ public class GeodataImporter
                 // Debug.Log("WARNING GEODATA Disabled....................");
                // _mapNodes = LoadMapGeodata(data, _origin, _nodeSize);
             }
-        } catch(Exception e) {
+        } catch (Exception) {
             // Debug.LogWarning("Error while finding path: " + e.Message);
         }
 

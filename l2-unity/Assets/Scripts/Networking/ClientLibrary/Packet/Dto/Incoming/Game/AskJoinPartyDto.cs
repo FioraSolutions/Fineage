@@ -36,7 +36,7 @@ public class AskJoinPartyDto : IWireDto
             _partyDistributionType = PartyDistributionTypeExtensions.FindById(distributionTypeId) ??
                                    PartyDistributionType.FindersKeepers;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError($"[AskJoinParty] Parse error: {ex.Message}");
             _requestorName = string.Empty;

@@ -53,7 +53,7 @@ public class SystemMessageDto : IWireDto
                 _params[i] = param;
             }
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // Debug.LogError(e);
         }

@@ -93,7 +93,6 @@ public class SystemMenuWindow : L2PopupWindow
         HideWindow();
     }
 
-    private VisualElement _root;
     private OptionsPanel _options;
 
     private void HandleOptionsButtonClick()

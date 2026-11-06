@@ -27,7 +27,7 @@ public class PathFinder
     public void FindPath() {
         try {
             _foundPath = SearchByClosest(_startPosition, _endPosition);
-        } catch (Exception e) {
+        } catch (Exception) {
             // Debug.LogWarning("Error while finding path: " + e.Message);
         }
 

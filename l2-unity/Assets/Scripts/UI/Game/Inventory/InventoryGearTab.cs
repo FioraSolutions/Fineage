@@ -100,7 +100,7 @@ public class InventoryGearTab : L2Tab
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError($"InventoryGearTab> UpdateEquipList : {ex.Message}");
         }

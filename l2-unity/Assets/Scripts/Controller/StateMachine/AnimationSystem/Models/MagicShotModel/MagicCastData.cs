@@ -16,7 +16,7 @@ public class MagicCastData
     /// Код penalty в <c>else</c> намеренно не удалён, чтобы можно было вернуть без восстановления из git.
     /// </para>
     /// </summary>
-    private const bool MagicCastWallPenaltyDisabledForTesting = true;
+    private static bool MagicCastWallPenaltyDisabledForTesting = true;
 
     /// <summary>
     /// Фиксированный сдвиг окна до выстрела (сек): вычитается из номинального <c>serverTimeToShoot</c>,
@@ -295,7 +295,6 @@ public class MagicCastData
             : durEnd / Mathf.Max(SpeedEnd, 0.0001f);
         float wallNotify = durShotToEvent / Mathf.Max(SpeedShot, 0.0001f);
 
-        string wallPenaltyDisabledLabel = MagicCastWallPenaltyDisabledForTesting ? "YES" : "NO";
         // Debug.Log(
             // $"[CAST_WALL_PENALTY] DISABLED={wallPenaltyDisabledLabel} offsetMs={(MagicCastWallPenaltyDisabledForTesting ? CastShootWindowFixedOffsetSeconds : 0f) * 1000f:F0} " +
             // $"penaltyMs={AnimatorWallPenaltySeconds * 1000f:F2} curveT={penaltyT:F3} tLin={penaltyTLinear:F3} " +

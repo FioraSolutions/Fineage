@@ -117,7 +117,7 @@ public abstract class L2Window : MonoBehaviour
 
             root.Add(_windowEle);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogException(ex);
         }
@@ -220,7 +220,7 @@ public abstract class L2Window : MonoBehaviour
             _windowEle.style.display = DisplayStyle.None;
             _mouseOverDetection.Disable();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogException(ex);
         }
@@ -240,7 +240,7 @@ public abstract class L2Window : MonoBehaviour
             _windowEle.style.display = DisplayStyle.Flex;
             _mouseOverDetection.Enable();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogException(ex);
         }

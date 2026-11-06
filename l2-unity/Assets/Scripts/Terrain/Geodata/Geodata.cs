@@ -72,7 +72,7 @@ public class Geodata : MonoBehaviour {
             try {
                 origin = GeodataImporter.LoadMapOrigin(mapId, _nodeSize);
                 _mapsOrigin.Add(mapId, origin);
-            } catch(Exception e) {
+            } catch (Exception) {
                 // Debug.LogError(e.Message);
                 continue;
             }

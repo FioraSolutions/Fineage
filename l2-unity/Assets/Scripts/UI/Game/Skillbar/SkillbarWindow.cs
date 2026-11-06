@@ -7,6 +7,11 @@ using VContainer;
 
 public class SkillbarWindow : L2PopupWindow
 {
+    const string PrefLeft = "fineage.ui.skillbar.left";
+    const string PrefTop = "fineage.ui.skillbar.top";
+    /// <summary>Interlude MenuWnd width: 4×2 horizontal strip of 64px icons (see .menu-window).</summary>
+    const float MenuDockWidth = 256f;
+
     [Inject] PlayerShortcuts _shortcuts;
     [Inject] PlayerInventory _inventory;
 
@@ -81,12 +86,6 @@ public class SkillbarWindow : L2PopupWindow
 
         yield return new WaitForEndOfFrame();
 
-        // Dock against the 2×4 MenuWindow on the right (Interlude bottom strip).
-        _windowEle.style.left = StyleKeyword.Undefined;
-        _windowEle.style.right = 168;
-        _windowEle.style.bottom = 0;
-        _windowEle.style.translate = StyleKeyword.Null;
-
         RegisterClickWindowEvent(_windowEle, null);
         _skillbarContainerHorizontal = GetElementById("SkillbarContainerHorizontal");
         _skillbarContainerVertical = GetElementById("SkillbarContainerVertical");
@@ -95,7 +94,6 @@ public class SkillbarWindow : L2PopupWindow
         _skillbars = new List<AbstractSkillbar>();
 
         InitializeSkillbars();
-       
 
         yield return new WaitForEndOfFrame();
 
@@ -103,6 +101,51 @@ public class SkillbarWindow : L2PopupWindow
         {
             AddSkillbar();
         }
+
+        yield return new WaitForEndOfFrame();
+        ApplyPosition();
+    }
+
+    /// <summary>Restore last drag from PlayerPrefs, else dock flush left of the bottom-right menu.</summary>
+    public void ApplyPosition()
+    {
+        if (_windowEle == null)
+            return;
+
+        _windowEle.style.translate = StyleKeyword.Null;
+        _windowEle.style.bottom = StyleKeyword.Null;
+        _windowEle.style.right = StyleKeyword.Null;
+
+        if (PlayerPrefs.HasKey(PrefLeft) && PlayerPrefs.HasKey(PrefTop))
+        {
+            _windowEle.style.left = PlayerPrefs.GetFloat(PrefLeft);
+            _windowEle.style.top = PlayerPrefs.GetFloat(PrefTop);
+            return;
+        }
+
+        // right-edge dock: bar width (~506) sits immediately left of the 2×4 menu.
+        float barWidth = _windowEle.resolvedStyle.width;
+        if (barWidth <= 0f)
+            barWidth = 506f;
+        float parentWidth = _windowEle.parent != null ? _windowEle.parent.resolvedStyle.width : Screen.width;
+        _windowEle.style.left = Mathf.Max(0f, parentWidth - MenuDockWidth - barWidth);
+        _windowEle.style.top = StyleKeyword.Null;
+        _windowEle.style.bottom = 0;
+    }
+
+    public void PersistPosition()
+    {
+        if (_windowEle == null)
+            return;
+
+        float left = _windowEle.resolvedStyle.left;
+        float top = _windowEle.resolvedStyle.top;
+        if (float.IsNaN(left) || float.IsNaN(top))
+            return;
+
+        PlayerPrefs.SetFloat(PrefLeft, left);
+        PlayerPrefs.SetFloat(PrefTop, top);
+        PlayerPrefs.Save();
     }
 
 

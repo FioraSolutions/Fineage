@@ -13,6 +13,6 @@ public static class DeleteObjectGroundApplyIncomingPacketServices
         StorageNpc.getInstance().RemoveNpc(dto.ObjectId);
         StorageNpc.getInstance().RemoveChar(dto.ObjectId);
         if (GameWorld != null)
-            GameWorld.DeleteObject(dto.ObjectId);
+            _ = GameWorld.DeleteObject(dto.ObjectId);
     }
 }

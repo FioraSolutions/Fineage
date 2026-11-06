@@ -24,7 +24,7 @@ public class PlayerAnimationController : BaseAnimationController
         _instance = this;
     }
 
-    void OnDestroy()
+    new void OnDestroy()
     {
         base.OnDestroy();
         if (_instance == this)

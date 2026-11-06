@@ -81,7 +81,7 @@ public class QuestNameTable
             //ReadArmorInterlude(dataPathR);
             //DebugPrint();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError($"Failed to initialize QuestNameTable: {ex.Message}");
         }

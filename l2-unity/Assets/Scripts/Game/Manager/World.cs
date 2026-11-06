@@ -759,12 +759,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         }
     }
 
-    public async Task<Entity> GetEntityNoLock(int id)
+    public Task<Entity> GetEntityNoLock(int id)
     {
-        if (_objects.ContainsKey(id)){
-            return _objects[id];
-        }
-        return null;
+        return System.Threading.Tasks.Task.FromResult(GetEntityNoLockSync(id));
     }
 
     public Entity GetEntityNoLockSync(int id)
@@ -837,7 +834,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (entity != null) {
             try {
                 _eventProcessor.QueueEvent(() => action(entity));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 // Debug.LogWarning($"Operation failed - Target {id} - Error {ex.Message}");
             }
         }
@@ -856,7 +853,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (entity1 != null && entity2 != null) {
             try {
                 _eventProcessor.QueueEvent(() => action(entity1, entity2));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 // Debug.LogWarning($"Operation failed - Target {id1} or {id2} - Error {ex.Message}");
             }
         }

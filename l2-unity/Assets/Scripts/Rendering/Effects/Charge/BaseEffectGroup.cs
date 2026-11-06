@@ -95,7 +95,7 @@ public abstract class BaseEffectGroup : EffectPart
 
             _particleIndex++;
         }
-        catch(IndexOutOfRangeException ex)
+        catch (IndexOutOfRangeException)
         {
             // Debug.LogWarning("BaseEffectGroup>ActivateParticle: ошибка не смогли активировать частицу " + ex.Message);
         }
@@ -111,7 +111,6 @@ public abstract class BaseEffectGroup : EffectPart
         foreach (var inst in _effectInstances) inst.Deactivate();
     }
 
-    protected float Now() => Application.isPlaying ? Time.time : Time.realtimeSinceStartup;
     public override void StopPart() => StopEffect();
 
     public override void Setup(EffectSettings settings, MagicCastData castData)

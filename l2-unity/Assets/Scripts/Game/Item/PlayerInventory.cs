@@ -246,7 +246,7 @@ public class PlayerInventory : MonoBehaviour
                 });
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Debug.LogError("PlayerInventory Errors: " + ex.StackTrace);
             }

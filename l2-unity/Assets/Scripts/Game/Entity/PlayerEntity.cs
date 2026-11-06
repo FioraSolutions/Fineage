@@ -46,7 +46,7 @@ public class PlayerEntity : Entity
 
     //private readonly Animation[] pAtkList = {  AnimationNames.ATK01 };
 
-    private void Awake()
+    private new void Awake()
     {
         if (_instance == null)
         {
@@ -285,7 +285,7 @@ public class PlayerEntity : Entity
             Transform bone = _gear.GetSpineBone();
             SpineProceduralController.Instance.SetBoneMod(bone, new BoneModification(rotation, Vector3.zero, 1.0f));
         }
-        catch(Exception ex)
+        catch (Exception)
         {
             // Debug.LogError("");
         }
@@ -300,7 +300,7 @@ public class PlayerEntity : Entity
             Transform upperArm = _gear.GetRightUpperArm();
             SpineProceduralController.Instance.SetBoneMod(upperArm, new BoneModification(rotation, Vector3.zero, 1.0f));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError("");
         }

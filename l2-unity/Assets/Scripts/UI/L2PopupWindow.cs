@@ -129,7 +129,7 @@ public abstract class L2PopupWindow : L2Window
             _isReg = false;
             _root.Add(_windowEle);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogException(ex);
         }

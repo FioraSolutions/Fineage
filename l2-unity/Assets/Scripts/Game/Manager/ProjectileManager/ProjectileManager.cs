@@ -72,10 +72,8 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
         float distance = Vector3.Distance(startPos, adjustedTarget);
         bool isArrowStick = settings != null && settings.impactType == ProjectileImpactType.ArrowStick;
 
-        float speed;
         float flightTime;
         // NArrow + skill bolt share ANProjectile accel (dirMul=3000).
-        speed = ProjectileFlightTimeCalculator.L2ProjectileAccelUnityPerSec2;
         flightTime = ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance);
         if (isArrowStick)
         {
@@ -216,12 +214,12 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
                     projectilesToRemove.Add(projectileId);
                 }
             }
-            catch (InvalidCastException ex)
+            catch (InvalidCastException)
             {
                 // Debug.LogError($"Error updating projectile {projectileId}: {ex.Message}");
                 projectilesToRemove.Add(projectileId);
             }
-            catch (MissingReferenceException ex)
+            catch (MissingReferenceException)
             {
                 // Debug.LogError(
                     // $"[ProjectileUpdateException] MissingReference id={projectileId} " +

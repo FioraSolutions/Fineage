@@ -87,7 +87,7 @@ public class RequiredSkillInfo
         return _count;
     }
 
-    public int GetType()
+    public new int GetType()
     {
         return _type;
     }

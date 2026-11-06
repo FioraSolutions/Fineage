@@ -109,11 +109,15 @@ public class ChatWindow : L2Window
 
         _chatInputContainer = GetElementById("InnerBar");
 
+        // Interlude SystemMsgWnd above ChatWnd (C4+). Start before tabs so Flush can queue into it.
+        SystemMsgWindow sysMsg = SystemMsgWindow.Ensure();
+        sysMsg.AddWindow(root);
+        sysMsg.DockAboveChat(_windowEle);
+
         CreateTabs();
 
         yield return new WaitForEndOfFrame();
         diagonalResizeManipulator.SnapSize();
-
     }
 
     private void CreateTabs()
@@ -346,21 +350,8 @@ public class ChatWindow : L2Window
     public void ReceiveSystemMessage(SystemMessage message)
     {
         if (message == null)
-        {
             return;
-        }
-
-        for (int i = 0; i < _tabs.Count; i++)
-        {
-            //if(_tabs[i].FilteredMessages.Count > 0)
-            // {
-            // if (_tabs[i].FilteredMessages.Contains(message.MessageType))
-            // {
-            // ConcatMessage(_tabs[i].Content, message.ToString());
-            // }
-            // }
-            _tabs[i].ConcatMessage(message.ToString());
-        }
+        AppendSystemLine(message.ToString());
     }
 
     public void ReceiveZoneSay(string name, string text, int chatType)
@@ -399,15 +390,8 @@ public class ChatWindow : L2Window
 
     public void AppendSystemLine(string text)
     {
-        if (string.IsNullOrEmpty(text) || _tabs == null || _tabs.Count == 0)
-            return;
-
-        string line = NetChat.FormatSystem(text);
-        for (int i = 0; i < _tabs.Count; i++)
-        {
-            if (_tabs[i] != null)
-                _tabs[i].ConcatMessage(line);
-        }
+        // Interlude: system lines go to SystemMsgWnd, not ChatWnd tabs.
+        SystemMsgWindow.Ensure().AppendLine(text);
     }
 
     internal void ScrollDown(Scroller scroller)

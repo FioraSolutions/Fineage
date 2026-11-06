@@ -89,7 +89,7 @@ public class ShowListWindow : L2PopupWindow
         _select = playeName;
     }
 
-    private async void OnClick(ClickEvent evt)
+    private void OnClick(ClickEvent evt)
     {
 
         if (_players.ContainsKey(_select))
@@ -101,7 +101,7 @@ public class ShowListWindow : L2PopupWindow
     }
 
 
-    private async void OnCancel(ClickEvent evt)
+    private void OnCancel(ClickEvent evt)
     {
         HideWindow();
     }

@@ -56,7 +56,7 @@ public class RecipeItemMakeInfoDto : IWireDto
             }
 
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError($"[RecipeItemMakeInfo] Parse error: {ex.Message}");
             _recipeId = -1;

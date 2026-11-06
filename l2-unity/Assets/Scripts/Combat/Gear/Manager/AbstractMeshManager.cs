@@ -47,12 +47,7 @@ public class AbstractMeshManager : MonoBehaviour
                     // Debug.LogWarning("Unknown equipment category");
                     return null;
             }
-        } catch (System.Exception ex) {
-            int failedId = itemIds != null && itemIds.Length > 0 ? itemIds[0] : 0;
-            // GearFlowLog.Info("LoadMesh failed id=" + failedId + " category=" + category + " " + ex.Message);
-            // Debug.LogWarning(
-                // $"AbstractMeshManager-> LoadMesh не смогли загрузить нужную Mesh !!! ArmorID {failedId} Type {category} error print: ->\n" +
-                // ex.ToString());
+        } catch (System.Exception) {
             return null;
         }
     }

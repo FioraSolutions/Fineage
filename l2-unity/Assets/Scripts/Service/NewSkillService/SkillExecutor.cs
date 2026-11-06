@@ -54,7 +54,7 @@ public class SkillExecutor : MonoBehaviour
         // _emitter.SetupActions(actions);
 
         string[] cycle = animationCombo.GetAnimCycle();
-        _animRunner.StartRun(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
+        await _animRunner.StartRun(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
     }
 
     public async Task ExecuteSkillOverride(Skillgrp skill, Entity entity, AnimationCombo animationCombo, AnimationEventsBase actions, bool isLong = false)
@@ -82,11 +82,11 @@ public class SkillExecutor : MonoBehaviour
         }
         if (isLong)
         {
-            _animRunner.StartRunLongOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
+            await _animRunner.StartRunLongOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
         }
         else
         {
-            _animRunner.StartRunOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
+            await _animRunner.StartRunOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
         }
     }
 

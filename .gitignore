@@ -104,6 +104,10 @@ l2-unity/C:*/
 l2-unity/External/
 *.slnx
 
+# Original Interlude / Mobius trees (local SoT for agents; do not commit)
+ref/**
+!ref/README.md
+
 # Local working scratch (umodel exports, tile bakes, logs) — not in git
 .work/
 *.pyc

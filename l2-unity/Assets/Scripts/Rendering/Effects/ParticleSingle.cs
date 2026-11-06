@@ -568,7 +568,6 @@ public class ParticleSingle : EffectPart
     // Debug snapshot lived in ParticleSingleLifetimeDebug, which was moved out.
     // private ParticleSingleDebugSnapshot BuildDebugSnapshot(float now) { ... }
 
-    private float Now() => Application.isPlaying ? Time.time : Time.realtimeSinceStartup;
 
     private void UpdateOwnerWorldPos()
     {
