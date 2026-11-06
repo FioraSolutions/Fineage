@@ -324,6 +324,12 @@ public class L2GameUI : L2UI
             }
         }
 
+        if (InputManager.Instance.OpenMap)
+        {
+            if (MapWindow.Instance != null)
+                MapWindow.Instance.ToggleHideWindow();
+        }
+
         if (InputManager.Instance.CloseWindow)
         {
             if (ChatWindow.Instance != null && ChatWindow.Instance.ChatOpened)
