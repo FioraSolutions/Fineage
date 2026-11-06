@@ -24,9 +24,7 @@ public class SceneLoader : MonoBehaviour
         {
             if (_gameManager != null)
                 return _gameManager;
-            if (GameManager.Instance != null)
-                return GameManager.Instance;
-            return IncomingPacketActions.Manager;
+            return GamePacketServices.Manager ?? WorldPacketServices.Manager;
         }
     }
 
@@ -44,7 +42,7 @@ public class SceneLoader : MonoBehaviour
                 {
                 }
             }
-            return IncomingPacketActions.GameWorld;
+            return WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
         }
     }
 
@@ -206,12 +204,13 @@ public class SceneLoader : MonoBehaviour
 
     private void Update()
     {
-        if (!_worldStreaming || _streamingBusy || PlayerController.Instance == null)
+        PlayerController player = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
+        if (!_worldStreaming || _streamingBusy || player == null)
         {
             return;
         }
 
-        Vector3 l2Pos = VectorUtils.ConvertPosUnityToL2j(PlayerController.Instance.transform.position);
+        Vector3 l2Pos = VectorUtils.ConvertPosUnityToL2j(player.transform.position);
         List<string> wanted = ResolveSeamlessTiles(l2Pos);
         if (wanted.Count == 0)
         {

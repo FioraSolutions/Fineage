@@ -22,7 +22,7 @@ public class TradeRequestWindow : L2PopupWindow
 
     private World Worlds
     {
-        get { return _world != null ? _world : World.Instance; }
+        get { return _world != null ? _world : WorldApplyPacketServices.GameWorld; }
     }
 
     public static TradeRequestWindow Instance

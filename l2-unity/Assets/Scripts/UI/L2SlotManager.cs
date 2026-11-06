@@ -400,7 +400,8 @@ public class L2SlotManager : L2PopupWindow
 
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         const float pickDistance = 10000f;
-        int groundMask = World.Instance != null ? World.Instance.GroundMask : 0;
+        World world = WorldApplyPacketServices.GameWorld;
+        int groundMask = world != null ? world.GroundMask : 0;
         if (groundMask != 0 && Physics.Raycast(ray, out RaycastHit groundHit, pickDistance, groundMask))
         {
             worldPos = groundHit.point;

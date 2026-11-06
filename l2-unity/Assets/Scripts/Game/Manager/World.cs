@@ -51,7 +51,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     public IAnimationManager Animations
     {
-        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+        get { return _animations != null ? _animations : WorldPacketServices.Animations; }
     }
 
     public Transform UsersContainer
@@ -100,7 +100,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (L2GameUI.Instance != null)
             return true;
 
-        GameManager manager = GameManager.Instance;
+        GameManager manager = WorldPacketServices.Manager ?? GamePacketServices.Manager;
         if (manager != null && manager.GameState == GameState.LOGIN_SCREEN)
             return false;
 
@@ -117,8 +117,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
         if (ShouldEnsureGameScope())
             DiBootstrap.EnsureGameScope();
+        // Prefer [Inject] EventProcessor; NetworkingPacketServices is the #142 fallback bridge.
         if (_eventProcessor == null)
-            _eventProcessor = EventProcessor.Instance;
+            _eventProcessor = NetworkingPacketServices.Events;
         _playerPlaceholder = Resources.Load<GameObject>("Prefab/Player_FDarkElf");
         _userPlaceholder = Resources.Load<GameObject>("Prefab/User_FDarkElf");
         _npcPlaceHolder = Resources.Load<GameObject>("Prefab/Npc");
@@ -863,8 +864,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
-        WorldPacketApply apply = IncomingPacketActions.WorldApply;
+        GameManager manager = _gameManager != null ? _gameManager : WorldPacketServices.Manager;
+        WorldPacketApply apply = WorldPacketServices.WorldApply;
         return manager != null && manager.WorldSpawnReady && apply != null;
     }
 }
