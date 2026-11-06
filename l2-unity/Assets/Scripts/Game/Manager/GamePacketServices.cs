@@ -1,5 +1,7 @@
-﻿/// <summary>
-/// Game-layer access to shared services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 35).
+﻿using VContainer;
+
+/// <summary>
+/// Game-layer access to shared services with [Inject] wiring and Networking/container fallback (#142).
 /// </summary>
 public static class GamePacketServices
 {
@@ -29,17 +31,36 @@ public static class GamePacketServices
     }
 
     public static World GameWorld =>
-        _gameWorld != null ? _gameWorld : IncomingPacketActions.GameWorld;
+        _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
     public static EventBus Bus =>
-        _bus != null ? _bus : IncomingPacketActions.Bus;
+        _bus != null ? _bus : ResolveFromGame<EventBus>() ?? IncomingPacketActions.Bus;
 
     public static EffectSkillsmanager EffectSkills =>
-        _effectSkills != null ? _effectSkills : IncomingPacketActions.EffectSkills;
+        _effectSkills != null
+            ? _effectSkills
+            : ResolveFromGame<EffectSkillsmanager>() ?? IncomingPacketActions.EffectSkills;
 
     public static GameManager Manager =>
-        _manager != null ? _manager : IncomingPacketActions.Manager;
+        _manager != null ? _manager : NetworkingPacketServices.Manager;
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null
+            ? _animations
+            : ResolveFromGame<IAnimationManager>() ?? IncomingPacketActions.Animations;
+
+    static T ResolveFromGame<T>() where T : class
+    {
+        if (App.GameContainer == null)
+            return null;
+
+        try
+        {
+            return App.GameContainer.Resolve<T>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

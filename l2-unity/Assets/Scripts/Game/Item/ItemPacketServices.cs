@@ -21,13 +21,13 @@ public static class ItemPacketServices
     }
 
     public static World GameWorld =>
-        _gameWorld != null ? _gameWorld : IncomingPacketActions.GameWorld;
+        _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null ? _animations : GamePacketServices.Animations;
 
     public static EffectManager Effects =>
-        _effects != null ? _effects : IncomingPacketActions.Effects;
+        _effects != null ? _effects : ControllerPacketServices.Effects;
 
     /// <summary>Zone V2 grant (opcode 13); server replies with InventoryUpdate.</summary>
     public static void SendZoneGrantItem(int itemId, int count = 1)

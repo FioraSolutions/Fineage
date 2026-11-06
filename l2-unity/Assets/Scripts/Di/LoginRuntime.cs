@@ -32,12 +32,12 @@ public sealed class LoginRuntime
 
     public LoginClient LoginClient
     {
-        get { return _loginClient ?? Get<LoginClient>() ?? IncomingPacketActions.Login; }
+        get { return _loginClient ?? Get<LoginClient>() ?? NetworkingPacketServices.Login; }
     }
 
     public GameManager Manager
     {
-        get { return _manager ?? Get<GameManager>() ?? IncomingPacketActions.Manager; }
+        get { return _manager ?? Get<GameManager>() ?? NetworkingPacketServices.Manager; }
     }
 
     private T Get<T>() where T : class

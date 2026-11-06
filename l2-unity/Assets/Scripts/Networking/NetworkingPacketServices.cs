@@ -44,7 +44,9 @@ public static class NetworkingPacketServices
     }
 
     public static EventProcessor Events =>
-        _events != null ? _events : EventProcessor.Instance;
+        _events != null
+            ? _events
+            : ResolveFromApp<EventProcessor>() ?? EventProcessor.Instance;
 
     public static PlayerController Player =>
         _player != null ? _player : ResolveFromGameContainer<PlayerController>() ?? IncomingPacketActions.Player;
@@ -69,6 +71,38 @@ public static class NetworkingPacketServices
         WorldPacketApply worldApply = WorldApply;
         if (worldApply != null && apply != null)
             apply(worldApply);
+    }
+
+    public static void Queue(Action action)
+    {
+        if (action == null)
+            return;
+
+        PacketApplyQueue applyQueue = ResolveFromApp<PacketApplyQueue>();
+        if (applyQueue != null)
+        {
+            applyQueue.Queue(action);
+            return;
+        }
+
+        EventProcessor processor = Events;
+        if (processor != null)
+            processor.QueueEvent(action);
+    }
+
+    public static void QueueNextFrame(Action action)
+    {
+        if (action == null)
+            return;
+
+        PacketApplyQueue applyQueue = ResolveFromApp<PacketApplyQueue>();
+        if (applyQueue != null)
+        {
+            applyQueue.QueueNextFrame(action);
+            return;
+        }
+
+        Queue(action);
     }
 
     static World ResolveWorld()
