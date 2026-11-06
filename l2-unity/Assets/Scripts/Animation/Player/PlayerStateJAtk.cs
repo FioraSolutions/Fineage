@@ -281,26 +281,17 @@ public class PlayerStateJAtk : StateMachineBehaviour
     {
         // Only called after wall-clock attack cycle ends. Do not also require anim norm —
         // pole/slow clips can still be <0.9 when server cycle is done; that skipped WAIT_RETURN.
-        bool dieTarget = IsDieTarget();
-        bool isAttack = PlayerEntity.Instance != null && PlayerEntity.Instance.IsAttack;
-        bool canSwitch = !_isSwitchIdle && (dieTarget || !isAttack);
-        if (!canSwitch)
-        {
-            _lastSwitchDenyReason =
-                $"already={_isSwitchIdle} dieTarget={dieTarget} isAttack={isAttack} " +
-                $"animNorm={_lastAnimNormalized:F3}";
-            if (IsDual(parameterName))
-            {
-                // Debug.Log(
-                    // $"{JATK_EARLY_LOG} SwitchToIdle DENY anim={parameterName} {_lastSwitchDenyReason}");
-            }
+        //
+        // Always leave the swing when the server cycle is done. Guarding on !IsAttack created a
+        // deadlock: NewAttackIntention sets IsAttack, and only this method cleared it — so the
+        // pawn froze in jatk until a second click (#522). The next AttackDto starts the next swing.
+        if (_isSwitchIdle)
             return;
-        }
 
         float elapsedMs = TimeUtils.ConvertSecToMs(Time.time - _startTime);
         // Debug.Log(
             // $"{JATK_EARLY_LOG} SwitchToIdle FIRE anim={parameterName} " +
-            // $"reason={(dieTarget ? "dieTarget" : "!isAttack")} " +
+            // $"reason={(IsDieTarget() ? "dieTarget" : "cycle-end")} " +
             // $"wallElapsedMs={elapsedMs:F1}/{_fullCycleMs:F1} animNorm={_lastAnimNormalized:F3} " +
             // $"clipLenSec={_clipLengthSec:F3}");
 
