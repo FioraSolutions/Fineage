@@ -61,6 +61,8 @@ public class GameManager : MonoBehaviour, IGameManager {
 
         if (FindFirstObjectByType<AppLifetimeScope>() == null)
             gameObject.AddComponent<AppLifetimeScope>();
+        // AppLifetimeScope may already exist on this GO — still need FMOD listener before lobby.
+        DiBootstrap.EnsureAppScope();
     }
 
     /// <summary>

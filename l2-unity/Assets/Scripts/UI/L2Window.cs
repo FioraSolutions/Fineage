@@ -92,6 +92,9 @@ public abstract class L2Window : MonoBehaviour
     {
         // Subclasses often override Awake without calling base; Start may also
         // not have run yet when L2UI.LoadUI attaches windows on first Update.
+        // Coroutines require an active host (SystemMsgWindow was created mid-load inactive).
+        if (!gameObject.activeInHierarchy)
+            gameObject.SetActive(true);
         EnsureAssetsLoaded();
         if (_windowTemplate == null)
         {

@@ -29,8 +29,15 @@ public class SystemMsgWindow : L2Window
     public static SystemMsgWindow Ensure()
     {
         if (_instance != null)
+        {
+            // Lobby→world can disable UI hosts; coroutines need an active GO.
+            if (!_instance.gameObject.activeInHierarchy)
+                _instance.gameObject.SetActive(true);
             return _instance;
+        }
         var go = new GameObject(nameof(SystemMsgWindow));
+        if (L2GameUI.Instance != null)
+            go.transform.SetParent(L2GameUI.Instance.transform, false);
         return go.AddComponent<SystemMsgWindow>();
     }
 
@@ -38,10 +45,12 @@ public class SystemMsgWindow : L2Window
     {
         if (_instance != null && _instance != this)
         {
-            Destroy(this);
+            Destroy(gameObject);
             return;
         }
         _instance = this;
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
     }
 
     void OnDestroy()
@@ -84,15 +93,21 @@ public class SystemMsgWindow : L2Window
 
     void BindDock(VisualElement chat)
     {
-        if (_docked || chat == null || _windowEle == null)
+        if (chat == null || _windowEle == null)
             return;
-        _docked = true;
-        chat.RegisterCallback<GeometryChangedEvent>(_ => SyncDock());
-        _windowEle.RegisterCallback<GeometryChangedEvent>(_ => SyncDock());
+        if (!_docked)
+        {
+            _docked = true;
+            chat.RegisterCallback<GeometryChangedEvent>(_ => SyncDock());
+            _windowEle.RegisterCallback<GeometryChangedEvent>(_ => SyncDock());
+        }
         SyncDock();
+        // One-frame defer: ChatWnd SnapSize / tab layout often finishes after first bind.
+        _windowEle.schedule.Execute(SyncDock).ExecuteLater(0);
+        _windowEle.schedule.Execute(SyncDock).ExecuteLater(1);
     }
 
-    void SyncDock()
+    public void SyncDock()
     {
         if (_windowEle == null || _chatAnchor == null || _windowEle.parent == null)
             return;
@@ -103,8 +118,15 @@ public class SystemMsgWindow : L2Window
         if (height <= 0f)
             height = DefaultHeight;
 
+        // Prefer layout width — worldBound can lag one frame behind style.width after resize.
+        float width = _chatAnchor.resolvedStyle.width;
+        if (width <= 1f)
+            width = chat.width;
+
         _windowEle.style.left = chat.x - parent.x;
-        _windowEle.style.width = chat.width;
+        _windowEle.style.width = width;
+        _windowEle.style.minWidth = width;
+        _windowEle.style.maxWidth = width;
         _windowEle.style.top = chat.y - parent.y - height - GapAboveChat;
         _windowEle.style.bottom = StyleKeyword.Null;
         _windowEle.style.right = StyleKeyword.Null;
@@ -145,13 +167,19 @@ public class SystemMsgWindow : L2Window
         label.text = line;
         _content.Add(label);
         _lines.Add(label);
-        StartCoroutine(ScrollListDown());
+        ScheduleScrollDown();
     }
 
-    IEnumerator ScrollListDown()
+    void ScheduleScrollDown()
     {
-        yield return null;
-        if (_list != null)
-            _list.verticalScroller.value = _list.verticalScroller.highValue;
+        if (_list == null)
+            return;
+        // UI Toolkit schedule — safe when this MonoBehaviour GO is briefly inactive.
+        _list.schedule.Execute(() =>
+        {
+            if (_list != null)
+                _list.verticalScroller.value = _list.verticalScroller.highValue;
+        });
     }
+
 }

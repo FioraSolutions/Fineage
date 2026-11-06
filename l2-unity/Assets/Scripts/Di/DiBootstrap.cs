@@ -11,6 +11,7 @@ public static class DiBootstrap
         {
             if (existing.GetComponent<EventProcessor>() == null)
                 existing.gameObject.AddComponent<EventProcessor>();
+            EnsureFmodStudioListener(existing.gameObject);
             return;
         }
 
@@ -20,6 +21,20 @@ public static class DiBootstrap
         Object.DontDestroyOnLoad(go);
         go.AddComponent<EventProcessor>();
         go.AddComponent<AppLifetimeScope>();
+        // LoginCameras live in additive l2_lobby; FMOD warns before that loads.
+        EnsureFmodStudioListener(go);
+    }
+
+    /// <summary>
+    /// Keep at least one FMOD StudioListener alive from app boot so RuntimeManager
+    /// does not spam the login console before lobby cameras exist.
+    /// </summary>
+    static void EnsureFmodStudioListener(GameObject host)
+    {
+        if (host == null)
+            return;
+        if (host.GetComponent<FMODUnity.StudioListener>() == null)
+            host.AddComponent<FMODUnity.StudioListener>();
     }
 
     public static void EnsureGameScope()

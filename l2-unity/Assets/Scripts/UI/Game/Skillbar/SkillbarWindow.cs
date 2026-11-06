@@ -9,8 +9,8 @@ public class SkillbarWindow : L2PopupWindow
 {
     const string PrefLeft = "fineage.ui.skillbar.left";
     const string PrefTop = "fineage.ui.skillbar.top";
-    /// <summary>Interlude MenuWnd width: 4×2 horizontal strip of 64px icons (see .menu-window).</summary>
-    const float MenuDockWidth = 256f;
+    /// <summary>Interlude MenuWnd width: 4×2 @ 34px pitch 37 (see .menu-window).</summary>
+    const float MenuDockWidth = 152f;
 
     [Inject] PlayerShortcuts _shortcuts;
     [Inject] PlayerInventory _inventory;
@@ -104,6 +104,16 @@ public class SkillbarWindow : L2PopupWindow
 
         yield return new WaitForEndOfFrame();
         ApplyPosition();
+        // Prefs / dock need resolved parent size — re-clamp after first layout pass.
+        _windowEle.RegisterCallback<GeometryChangedEvent>(OnSkillbarGeometryChanged);
+    }
+
+    void OnSkillbarGeometryChanged(GeometryChangedEvent evt)
+    {
+        if (_windowEle == null)
+            return;
+        _windowEle.UnregisterCallback<GeometryChangedEvent>(OnSkillbarGeometryChanged);
+        ApplyPosition();
     }
 
     /// <summary>Restore last drag from PlayerPrefs, else dock flush left of the bottom-right menu.</summary>
@@ -113,24 +123,67 @@ public class SkillbarWindow : L2PopupWindow
             return;
 
         _windowEle.style.translate = StyleKeyword.Null;
-        _windowEle.style.bottom = StyleKeyword.Null;
         _windowEle.style.right = StyleKeyword.Null;
+
+        float parentWidth = ResolveParentWidth();
+        float parentHeight = ResolveParentHeight();
+        float barWidth = _windowEle.resolvedStyle.width;
+        if (barWidth <= 1f)
+            barWidth = 500f;
+        float barHeight = _windowEle.resolvedStyle.height;
+        if (barHeight <= 1f)
+            barHeight = 46f;
 
         if (PlayerPrefs.HasKey(PrefLeft) && PlayerPrefs.HasKey(PrefTop))
         {
-            _windowEle.style.left = PlayerPrefs.GetFloat(PrefLeft);
-            _windowEle.style.top = PlayerPrefs.GetFloat(PrefTop);
-            return;
+            float left = PlayerPrefs.GetFloat(PrefLeft);
+            float top = PlayerPrefs.GetFloat(PrefTop);
+            // Stale prefs (e.g. top past panel bottom after resize) hide the bar entirely.
+            if (IsOnScreen(left, top, barWidth, barHeight, parentWidth, parentHeight))
+            {
+                _windowEle.style.bottom = StyleKeyword.Null;
+                _windowEle.style.left = left;
+                _windowEle.style.top = top;
+                return;
+            }
+
+            PlayerPrefs.DeleteKey(PrefLeft);
+            PlayerPrefs.DeleteKey(PrefTop);
+            PlayerPrefs.Save();
         }
 
-        // right-edge dock: bar width (~506) sits immediately left of the 2×4 menu.
-        float barWidth = _windowEle.resolvedStyle.width;
-        if (barWidth <= 0f)
-            barWidth = 506f;
-        float parentWidth = _windowEle.parent != null ? _windowEle.parent.resolvedStyle.width : Screen.width;
+        DockDefault(parentWidth, barWidth);
+    }
+
+    static bool IsOnScreen(float left, float top, float barWidth, float barHeight, float parentWidth, float parentHeight)
+    {
+        if (float.IsNaN(left) || float.IsNaN(top) || parentWidth <= 1f || parentHeight <= 1f)
+            return false;
+        // Keep at least half the bar inside the panel so it stays findable/draggable.
+        float visibleW = Mathf.Min(left + barWidth, parentWidth) - Mathf.Max(left, 0f);
+        float visibleH = Mathf.Min(top + barHeight, parentHeight) - Mathf.Max(top, 0f);
+        return visibleW >= barWidth * 0.5f && visibleH >= barHeight * 0.5f;
+    }
+
+    void DockDefault(float parentWidth, float barWidth)
+    {
         _windowEle.style.left = Mathf.Max(0f, parentWidth - MenuDockWidth - barWidth);
         _windowEle.style.top = StyleKeyword.Null;
         _windowEle.style.bottom = 0;
+    }
+
+    float ResolveParentWidth()
+    {
+        if (_windowEle.parent != null && _windowEle.parent.resolvedStyle.width > 1f)
+            return _windowEle.parent.resolvedStyle.width;
+        return Screen.width;
+    }
+
+    float ResolveParentHeight()
+    {
+        if (_windowEle.parent != null && _windowEle.parent.resolvedStyle.height > 1f)
+            return _windowEle.parent.resolvedStyle.height;
+        return Screen.height;
     }
 
     public void PersistPosition()
@@ -141,6 +194,13 @@ public class SkillbarWindow : L2PopupWindow
         float left = _windowEle.resolvedStyle.left;
         float top = _windowEle.resolvedStyle.top;
         if (float.IsNaN(left) || float.IsNaN(top))
+            return;
+
+        float parentWidth = ResolveParentWidth();
+        float parentHeight = ResolveParentHeight();
+        float barWidth = _windowEle.resolvedStyle.width > 1f ? _windowEle.resolvedStyle.width : 500f;
+        float barHeight = _windowEle.resolvedStyle.height > 1f ? _windowEle.resolvedStyle.height : 46f;
+        if (!IsOnScreen(left, top, barWidth, barHeight, parentWidth, parentHeight))
             return;
 
         PlayerPrefs.SetFloat(PrefLeft, left);

@@ -111,10 +111,12 @@ public static class EntitySpawnShared
         string key = wanted + " -> " + used;
         if (!ReportedSubstitutedMeshes.Add(key))
             return;
-        FineageLog.Warn(
+        // Art-pack gap (prefab absent under Resources/Data/Animations/...), not a broken texture.
+        // Once per wanted→used pair per play session so enter-world knownlist does not flood the console.
+        FineageLog.Info(
             FineageLog.Category.World,
-            "NpcInfo npcId=" + npcId + " mesh '" + wanted + "' missing; rendering '"
-            + used + "' instead");
+            "NpcInfo npcId=" + npcId + " art pack missing mesh '" + wanted
+            + "'; stand-in '" + used + "'");
     }
 
     /// <summary>
@@ -246,17 +248,21 @@ public static class EntitySpawnShared
     /// </summary>
     static string[] MonsterStandInMeshes(string asset)
     {
-        // Tree spirit / dryad family: humanoid trunk with a hollow torso.
-        if (Has(asset, "dryad") || Has(asset, "ti_mi_tran") || Has(asset, "ti_mi_riran") || Has(asset, "treant"))
+        // Tall treant / ti_mi_tran (~90 collision height): stone golem is the only shipped bulky rig.
+        if (Has(asset, "ti_mi_tran") || Has(asset, "ti_mi_riran") || Has(asset, "treant"))
             return new[] { "stone_golem_m00", "orc_fighter_m00", "goblin_m00" };
+
+        // Dryad / lirein-sized tree spirits (~15 height): golem was absurd; use a small humanoid.
+        if (Has(asset, "dryad") || Has(asset, "lirein"))
+            return new[] { "orc_fighter_m00", "goblin_m00", "elpy_m00" };
 
         // Fungus / slime family: short, wide, no weapon.
         if (Has(asset, "fungus") || Has(asset, "slime") || Has(asset, "mushroom"))
             return new[] { "poison_toad_m00", "elpy_m00", "goblin_m00" };
 
-        // Winged spirit family (Lirein / Pixy / Sylph): tall, hovering, thin.
+        // Winged spirit family (Pixy / Sylph): prefer elpy over hatchling (less dragon-like).
         if (Has(asset, "sylph") || Has(asset, "pixy") || Has(asset, "fairy") || Has(asset, "spirit"))
-            return new[] { "hatchling_m00", "wyvern_m00", "elpy_m00" };
+            return new[] { "elpy_m00", "hatchling_m00", "wyvern_m00" };
 
         // Biped orc / goblinoid brute.
         if (Has(asset, "orc") || Has(asset, "goblin") || Has(asset, "bugbear") || Has(asset, "ogre"))

@@ -16,10 +16,13 @@ public class LoginCameraManager : MonoBehaviour
             _instance = this;
         } else if (_instance != this) {
             Destroy(this);
+            return;
         }
-    }
 
-    private void Start() {
+        // Always-on listener on this manager (cameras get enabled/disabled; FMOD counts OnEnable).
+        if (GetComponent<FMODUnity.StudioListener>() == null)
+            gameObject.AddComponent<FMODUnity.StudioListener>();
+
         cameras.Add("Login", GameObject.Find("Login").GetComponent<Camera>());
         cameras.Add("CharSelect", GameObject.Find("CharSelect").GetComponent<Camera>());
         cameras.Add("Dark Elf", GameObject.Find("DarkElf").GetComponent<Camera>());
@@ -30,6 +33,12 @@ public class LoginCameraManager : MonoBehaviour
 
         DisableCameras();
         SwitchCamera("Login");
+    }
+
+    private void Start() {
+        // Cameras wired in Awake so StudioListener exists before FMOD's first Update.
+        EnsureStudioListener(_activeCamera);
+        UpdateListenerPosition();
     }
 
     public Camera SelectClassCamera(string race, string charClass) {
@@ -74,6 +83,7 @@ public class LoginCameraManager : MonoBehaviour
         camera.enabled = true;
         _activeCamera = camera;
 
+        EnsureStudioListener(camera);
         UpdateListenerPosition();
     }
 
@@ -113,6 +123,7 @@ public class LoginCameraManager : MonoBehaviour
                 }
             }
 
+            EnsureStudioListener(obj);
             UpdateListenerPosition();
         }
     }
@@ -134,12 +145,28 @@ public class LoginCameraManager : MonoBehaviour
     }
 
     private void UpdateListenerPosition() {
-        if (ThirdPersonListener.Instance == null || _activeCamera == null) {
+        if (_activeCamera == null)
             return;
-        }
+
+        EnsureStudioListener(_activeCamera);
+
+        if (ThirdPersonListener.Instance == null)
+            return;
 
         ThirdPersonListener.Instance.transform.position = _activeCamera.transform.position;
         ThirdPersonListener.Instance.Cam = _activeCamera.gameObject;
+    }
+
+    /// <summary>
+    /// Menu scene often has no ThirdPersonListener; FMOD still needs a StudioListener
+    /// or RuntimeManager spams the console on login.
+    /// </summary>
+    static void EnsureStudioListener(Camera cam)
+    {
+        if (cam == null)
+            return;
+        if (cam.GetComponent<FMODUnity.StudioListener>() == null)
+            cam.gameObject.AddComponent<FMODUnity.StudioListener>();
     }
 
     public void ZoomIn() {

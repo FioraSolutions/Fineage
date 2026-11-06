@@ -159,9 +159,10 @@ public sealed class LobbyFlowController
         if (stateMachine != null)
             stateMachine.enabled = true;
         _game.WorldSpawnReady = true;
-        // Net owns the session: no Interlude EnterWorld packet goes on the wire.
-        FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
-        ZoneCommands.Send(new EnterWorldCommand());
+        // NetSession already sent NetOpcode.EnterWorld on ZoneAuthResult.
+        // Do not re-fire Interlude EnterWorldCommand / RequestSkillCoolTimeCommand —
+        // FineageZoneTransport has no Net mapping and only spam-warns "TX dropped".
+        FineageLog.Info(FineageLog.Category.GameNet, "world spawn ready (Net EnterWorld already sent)");
         if (domain != null)
             domain.FlushKnownlist();
         else
@@ -170,7 +171,6 @@ public sealed class LobbyFlowController
             if (apply != null)
                 apply.FlushKnownlist();
         }
-        ZoneCommands.Send(new RequestSkillCoolTimeCommand());
 
         if (stateMachine != null)
         {
