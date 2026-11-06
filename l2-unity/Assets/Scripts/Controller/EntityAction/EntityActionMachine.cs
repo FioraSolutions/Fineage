@@ -198,9 +198,7 @@ public sealed class EntityActionMachine : ITickable
         List<Entity> attackers = new List<Entity>();
         CollectAttackersOf(dead, _active, attackers);
 
-        World world = ControllerPacketServices.GameWorld != null
-            ? ControllerPacketServices.GameWorld
-            : World.Instance;
+        World world = ControllerPacketServices.GameWorld;
         if (world != null)
             world.ForEachEntity(entity => CollectAttacker(dead, entity, attackers));
 

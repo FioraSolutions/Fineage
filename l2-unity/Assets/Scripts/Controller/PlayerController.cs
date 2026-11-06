@@ -400,7 +400,7 @@ public partial class PlayerController : MonoBehaviour
 
     public void InitMoveToPawn(MoveToPawnDto moveToPawnPacket)
     {
-        World world = World.Instance;
+        World world = _packetWorld != null ? _packetWorld : ControllerPacketServices.GameWorld;
         if (world == null || PlayerEntity.Instance == null)
             return;
 

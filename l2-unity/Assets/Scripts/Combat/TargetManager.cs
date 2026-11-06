@@ -13,7 +13,10 @@ public class TargetManager : MonoBehaviour
     public const int KindNpc = 5;
     public const int KindCreature = 6;
 
-    private World GameWorld => IncomingPacketActions.GameWorld;
+    [Inject] World _world;
+
+    private World GameWorld =>
+        _world != null ? _world : ControllerPacketServices.GameWorld;
 
     private TargetData _target = null;
     private TargetData _attackTarget = null;
@@ -40,6 +43,7 @@ public class TargetManager : MonoBehaviour
     public TargetData AttackTarget { get { return _attackTarget; } }
 
     private static TargetManager _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static TargetManager Instance { get { return _instance; } }
 
     private void Awake()
@@ -59,6 +63,13 @@ public class TargetManager : MonoBehaviour
     {
         _target = null;
         _attackTarget = null;
+        WireControllerPacketServices();
+    }
+
+    [Inject]
+    void WireControllerPacketServices()
+    {
+        ControllerPacketServices.Bind(targets: this, gameWorld: GameWorld);
     }
 
     void OnDestroy()
@@ -87,7 +98,7 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        PlayerController player = PlayerController.Instance;
+        PlayerController player = ControllerPacketServices.Player;
         if (player == null)
         {
             return;
@@ -125,9 +136,10 @@ public class TargetManager : MonoBehaviour
 
         // Local player is never registered in World as a target candidate;
         // anything else must still exist in the world registry.
+        World world = GameWorld;
         if (entity != PlayerEntity.Instance &&
-            World.Instance != null &&
-            World.Instance.GetEntityNoLockSync(entity.Identity != null ? entity.Identity.Id : 0) == null)
+            world != null &&
+            world.GetEntityNoLockSync(entity.Identity != null ? entity.Identity.Id : 0) == null)
         {
             return true;
         }
