@@ -1033,16 +1033,28 @@
     padding-left: 0;
     background-color: rgba(0, 0, 0, 0);
     transform-origin: left top;
-    min-width: 175px;
-    max-width: 165px;
-    /* 2×4 Interlude menu icons; 90px clipped the bottom row to ~6 visible. */
-    max-height: none;
+    /* Compact 2×4 Interlude menu docked bottom-right (skillbar sits to its left). */
+    width: 168px;
+    min-width: 168px;
+    max-width: 168px;
+    height: 86px;
+    max-height: 86px;
     flex-grow: 0;
-    flex-shrink: 1;
+    flex-shrink: 0;
     overflow: hidden;
     position: absolute;
-    right: -8px;
+    right: 0;
     bottom: 0;
+}
+
+.menu-btn {
+    overflow: hidden;
+}
+
+.menu-button-bg {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
 }
 
 .login-window .unity-base-text-field__input {
@@ -3354,11 +3366,7 @@
     opacity: 1;
 }
 
-.menu-window {
-    right: 0;
-    min-width: auto;
-    max-width: 168px;
-}
+/* Keep a single .menu-window rule above ? do not re-split right/min/max here. */
 
 .menu-window-container {
     flex-grow: 0;
