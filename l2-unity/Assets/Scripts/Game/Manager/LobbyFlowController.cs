@@ -55,7 +55,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Ui != null)
                 return _loginRuntime.Ui;
-            return IncomingPacketActions.LoginUi;
+            return LobbyUiPacketServices.LoginUi;
         }
     }
 
@@ -65,7 +65,7 @@ public sealed class LobbyFlowController
         {
             if (_gameUi != null)
                 return _gameUi;
-            return IncomingPacketActions.Ui;
+            return LobbyUiPacketServices.GameUi;
         }
     }
 
@@ -75,7 +75,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Servers != null)
                 return _loginRuntime.Servers;
-            return IncomingPacketActions.ServerSelect;
+            return LoginPacketServices.ServerSelect;
         }
     }
 
@@ -85,7 +85,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Camera != null)
                 return _loginRuntime.Camera;
-            return IncomingPacketActions.LoginCamera;
+            return LoginPacketServices.LoginCamera;
         }
     }
 
@@ -95,7 +95,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Creator != null)
                 return _loginRuntime.Creator;
-            return IncomingPacketActions.Creator;
+            return LoginPacketServices.Creator;
         }
     }
 
@@ -105,7 +105,7 @@ public sealed class LobbyFlowController
         {
             if (_world != null)
                 return _world;
-            return IncomingPacketActions.GameWorld;
+            return WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
         }
     }
 
@@ -115,7 +115,7 @@ public sealed class LobbyFlowController
         {
             if (_domain != null)
                 return _domain;
-            return IncomingPacketActions.Domain;
+            return WorldApplyPacketServices.Domain;
         }
     }
 
@@ -125,7 +125,7 @@ public sealed class LobbyFlowController
         {
             if (_worldApply != null)
                 return _worldApply;
-            return IncomingPacketActions.WorldApply;
+            return WorldApplyPacketServices.WorldApply ?? WorldPacketServices.WorldApply;
         }
     }
 
@@ -169,8 +169,6 @@ public sealed class LobbyFlowController
             WorldPacketApply apply = WorldApply;
             if (apply != null)
                 apply.FlushKnownlist();
-            else
-                IncomingPacketActions.ApplyWorld(a => a.FlushKnownlist());
         }
         ZoneCommands.Send(new RequestSkillCoolTimeCommand());
 
