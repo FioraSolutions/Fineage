@@ -79,7 +79,7 @@ public class VectorUtils : MonoBehaviour {
     public static Vector3 ApplyGravityGround(Vector3 position, float elapsedTime)
     {
 
-        RaycastHit hit;
+        RaycastHit hit = default;
         World world = WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
         int groundMask = world != null ? world.GroundMask : 0;
         bool isGrounded = groundMask != 0 &&
