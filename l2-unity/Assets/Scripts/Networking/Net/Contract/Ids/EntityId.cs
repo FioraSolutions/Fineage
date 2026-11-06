@@ -1,3 +1,4 @@
+#nullable enable
 namespace Fineage.Net.Contract
 {
     /// <summary>Authoritative entity reference. Generation guards stale IDs after reuse.</summary>

@@ -43,7 +43,7 @@ public abstract class AssetImporter {
 
                 try {
                     File.Copy(path, destination, overwrite);
-                } catch(IOException e) {
+                } catch (IOException) {
                     // Debug.LogWarning(destination + " already exists or " + e.Message);
                 }
 
@@ -62,9 +62,9 @@ public abstract class AssetImporter {
             } else {
                 // Debug.Log("File not found in the specified directory.");
             }
-        } catch(DirectoryNotFoundException e) {
+        } catch (DirectoryNotFoundException) {
             // Debug.Log("Directory not found: " + e.Message);
-        } catch(Exception ex) {
+        } catch (Exception) {
             // Debug.LogError("An error occurred: " + ex.Message);
         }
 

@@ -72,7 +72,7 @@ public static class ControllerPacketServices
     public static TargetManager Targets =>
         _targets != null
             ? _targets
-            : ResolveFromGame<TargetManager>() ?? TargetManager.Instance;
+            : ResolveFromGame<TargetManager>() ?? LegacyTargetManagerInstance();
 
     public static InputManager Input =>
         _input != null
@@ -117,7 +117,7 @@ public static class ControllerPacketServices
         _positionValidation != null
             ? _positionValidation
             : ResolveFromGame<PositionValidationController>()
-              ?? PositionValidationController.Instance;
+              ?? LegacyPositionValidationInstance();
 
     public static void Queue(Action action) => NetworkingPacketServices.Queue(action);
 
@@ -135,6 +135,13 @@ public static class ControllerPacketServices
             return null;
         }
     }
+
+#pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    static TargetManager LegacyTargetManagerInstance() => TargetManager.Instance;
+
+    static PositionValidationController LegacyPositionValidationInstance() =>
+        PositionValidationController.Instance;
+#pragma warning restore CS0618
 }
 
 /// <summary>
@@ -154,6 +161,7 @@ public sealed partial class PlayerController
     [Inject] DeadWindow _packetDead;
     [Inject] EventBus _packetBus;
     [Inject] PlayerPositionSender _injectedPositionSender;
+    [Inject] ClickManager _packetClicks;
 
     void WireControllerPacketServices()
     {

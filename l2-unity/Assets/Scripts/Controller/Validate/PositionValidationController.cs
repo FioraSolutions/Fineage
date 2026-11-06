@@ -128,7 +128,7 @@ public class PositionValidationController : MonoBehaviour
 
             _validateRemove.Clear();
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
             // Debug.LogError(e);
         }

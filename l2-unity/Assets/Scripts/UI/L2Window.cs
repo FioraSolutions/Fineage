@@ -92,6 +92,9 @@ public abstract class L2Window : MonoBehaviour
     {
         // Subclasses often override Awake without calling base; Start may also
         // not have run yet when L2UI.LoadUI attaches windows on first Update.
+        // Coroutines require an active host (SystemMsgWindow was created mid-load inactive).
+        if (!gameObject.activeInHierarchy)
+            gameObject.SetActive(true);
         EnsureAssetsLoaded();
         if (_windowTemplate == null)
         {
@@ -117,7 +120,7 @@ public abstract class L2Window : MonoBehaviour
 
             root.Add(_windowEle);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogException(ex);
         }
@@ -220,7 +223,7 @@ public abstract class L2Window : MonoBehaviour
             _windowEle.style.display = DisplayStyle.None;
             _mouseOverDetection.Disable();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogException(ex);
         }
@@ -240,7 +243,7 @@ public abstract class L2Window : MonoBehaviour
             _windowEle.style.display = DisplayStyle.Flex;
             _mouseOverDetection.Enable();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogException(ex);
         }

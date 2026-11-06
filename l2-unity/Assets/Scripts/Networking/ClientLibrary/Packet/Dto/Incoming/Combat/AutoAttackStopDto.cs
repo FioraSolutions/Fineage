@@ -10,7 +10,7 @@ public class AutoAttackStopDto : IWireDto {
     public void ReadFrom(PacketReader reader) {
         try {
             EntityId = reader.ReadI();
-        } catch (Exception e) {
+        } catch (Exception) {
             // Debug.LogError(e);
         }
     }

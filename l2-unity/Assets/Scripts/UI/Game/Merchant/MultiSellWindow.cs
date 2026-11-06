@@ -126,7 +126,7 @@ public class MultiSellWindow : L2PopupWindow
         _entryId = 1;
     }
 
-    public void ShowWindow()
+    public override void ShowWindow()
     {
         _userInput.value = "1";
         base.ShowWindow();

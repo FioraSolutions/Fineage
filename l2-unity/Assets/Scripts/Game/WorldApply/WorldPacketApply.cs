@@ -449,7 +449,7 @@ public sealed class WorldPacketApply
             if (dto.SkillId == 4247)
                 Debug.Log("[WINDSTRIKE] OnMagicSkillUse returned");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }

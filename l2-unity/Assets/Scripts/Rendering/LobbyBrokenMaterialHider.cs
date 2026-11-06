@@ -23,9 +23,12 @@ public static class LobbyBrokenMaterialHider
             hidden++;
         }
 
-        Debug.Log("[LobbyBrokenMaterialHider] hidden=" + hidden +
-                  " scanned=" + rends.Length +
-                  (string.IsNullOrEmpty(reason) ? "" : " reason=" + reason));
+        if (hidden > 0)
+        {
+            Debug.Log("[LobbyBrokenMaterialHider] hidden=" + hidden +
+                      " scanned=" + rends.Length +
+                      (string.IsNullOrEmpty(reason) ? "" : " reason=" + reason));
+        }
         return hidden;
     }
 

@@ -79,7 +79,7 @@ public class L2JSONBrushImporter : AssetImporter {
             DataContainer brushes = JsonUtility.FromJson<DataContainer>(json);
             return brushes.data;
 
-        } catch(IOException e) {
+        } catch (IOException) {
             // Debug.LogError("An error occurred: " + e.Message);
         }
 

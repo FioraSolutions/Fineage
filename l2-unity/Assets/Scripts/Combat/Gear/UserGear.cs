@@ -154,9 +154,8 @@ public class UserGear : Gear
                 ReportMissingArmorAndReset(armor, slotArmor, itemId);
             }
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
-            // Debug.LogError($"UserGear-> EquipFullArmor: Error equipping armor {itemId}: {e.Message}");
             ReportMissingArmorAndReset(armor, slotArmor, itemId);
         }
     }
@@ -193,9 +192,8 @@ public class UserGear : Gear
                 ReportMissingArmorAndReset(armor, slotArmor, itemId);
             }
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
-            // Debug.LogError($"UserGear-> Error equipping armor {itemId}: {e.Message}");
             ReportMissingArmorAndReset(armor, slotArmor, itemId);
         }
     }

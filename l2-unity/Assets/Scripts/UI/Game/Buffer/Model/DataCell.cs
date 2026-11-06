@@ -5,9 +5,7 @@ public class DataCell : L2Slot
 {
     private bool _isBusy;
     private int _idSkill;
-    private int _level;
     private VisualElement _element;
-    private int _position = 0;
     private Skillgrp _skill;
     private float _activeTime = 0;
     private float _startTime;

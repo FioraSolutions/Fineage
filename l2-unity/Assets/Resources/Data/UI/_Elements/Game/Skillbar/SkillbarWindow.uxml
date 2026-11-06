@@ -2,7 +2,7 @@
     <ui:Template name="SkillBarHorizontal" src="project://database/Assets/Resources/Data/UI/_Elements/Game/Skillbar/SkillBarHorizontal.uxml" />
     <ui:Template name="SkillBarVertical" src="project://database/Assets/Resources/Data/UI/_Elements/Game/Skillbar/SkillBarVertical.uxml" />
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss" />
-    <ui:VisualElement name="SkillbarWindow" class="skillbar-window" style="height: 0; bottom: 0; flex-direction: column-reverse; width: 500px;">
+    <ui:VisualElement name="SkillbarWindow" class="skillbar-window" style="height: 46px; bottom: 0; flex-direction: column-reverse; width: 500px;">
         <ui:VisualElement name="SkillbarContainerHorizontal" class="skillbar-container" style="position: absolute;">
             <ui:Instance template="SkillBarHorizontal" name="SkillBarHorizontal" style="display: none;" />
         </ui:VisualElement>

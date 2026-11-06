@@ -314,7 +314,7 @@ public partial class PlayerController : MonoBehaviour
 
   
 
-    protected float GetFinalAngle(Vector3 targetPosition, Vector3 currentPosition)
+    private float GetFinalAngle(Vector3 targetPosition, Vector3 currentPosition)
     {
         Vector3 relativeDirection = targetPosition - currentPosition;
         float angleInRadians = Mathf.Atan2(relativeDirection.x, relativeDirection.z);
@@ -354,8 +354,8 @@ public partial class PlayerController : MonoBehaviour
     public void StopMove()
     {
         _isMove = false;
-        if (ClickManager.Instance != null)
-            ClickManager.Instance.HideLocator();
+        if (_packetClicks != null)
+            _packetClicks.HideLocator();
         _moveTimer = 0f;
         _switchWalkToRun = false;
 

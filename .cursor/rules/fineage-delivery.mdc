@@ -9,6 +9,7 @@ alwaysApply: true
 
 - Work in **`/Users/nikitarakitin/Projects/Fineage`** and **`/Users/nikitarakitin/Projects/Fineage-Backend`**.
 - Do not create sibling worktrees (`Fineage-net`, etc.) unless the user asks for parallel agents.
+- **Parity:** server logic, client behavior, and client UI must match originals under gitignored `ref/` — `ref/mobius-ct0-interlude/` (Mobius CT0) and `ref/l2-interlude-client/` (Interlude client). Do not invent HUD/menu when the original exists. See `AGENTS.md`.
 
 ## Models
 

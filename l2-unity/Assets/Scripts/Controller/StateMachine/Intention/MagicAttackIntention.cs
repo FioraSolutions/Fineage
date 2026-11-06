@@ -25,13 +25,10 @@ public class MagicAttackIntention : IntentionBase
         }
     }
 
-    private async void WaitAndStart(MagicSkillUseDto useSkill , AnimationCombo anim , float distance)
+    private void WaitAndStart(MagicSkillUseDto useSkill , AnimationCombo anim , float distance)
     {
-        var timeout = Task.Delay(500);
-
         while (ControllerPacketServices.Player.IsTurnsAround())
         {
-           // if (await Task.WhenAny(timeout) == timeout) break;
            // Debug.LogWarning("Player turns around");
         }
 

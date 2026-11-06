@@ -11,14 +11,12 @@ public class L2ClickableSlot : L2Slot
 {
     private bool _leftMouseUp;
     private bool _rightMouseup;
-    private SlotType _slotType;
     private const float doubleClickThreshold = 0.3f; //Time Double click event
     private float clickTime;
     public L2ClickableSlot(VisualElement slotElement, int position, SlotType type, bool leftMouseUp, bool rightMouseup) : base(slotElement, position, type)
     {
         _leftMouseUp = leftMouseUp;
         _rightMouseup = rightMouseup;
-        _slotType = type;
         RegisterClickableCallback();
     }
 

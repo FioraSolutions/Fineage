@@ -188,7 +188,7 @@ public class L2TerrainInfoParser {
             AmbientDataContainer sounds = JsonUtility.FromJson<AmbientDataContainer>(json);
             return sounds.data;
 
-        } catch (IOException e) {
+        } catch (IOException) {
             // Debug.LogError("An error occurred: " + e.Message);
         }
 

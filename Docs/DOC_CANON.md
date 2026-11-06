@@ -35,19 +35,21 @@ Backend `docs/*-v2-protocol.md` keep **payload semantics** and feature scope. Op
 
 ## External sources of truth (not in git)
 
-| Source | Typical local path | Use |
-|--------|-------------------|-----|
-| L2J Mobius CT0 Interlude | `~/Downloads/L2J_Mobius_CT_0_Interlude_src` or Backend `ref/mobius-ct0-interlude` (gitignored) | Server formulas, XML datapack, AI |
-| L2 Interlude client | `~/Downloads/L2_Interlude_Client` | Client assets / DAT reference |
-| Fineage-Backend `data/*.json` | In Backend repo | Runtime catalog after MobiusImport |
+| Source | Workspace path (gitignored) | Upstream copy | Use |
+|--------|----------------------------|---------------|-----|
+| L2J Mobius CT0 Interlude | `Fineage/ref/mobius-ct0-interlude/` and `Fineage-Backend/ref/mobius-ct0-interlude/` | `~/Downloads/L2J_Mobius_CT_0_Interlude_src` | Server formulas, XML datapack, AI |
+| L2 Interlude client | `Fineage/ref/l2-interlude-client/` | `~/Downloads/L2_Interlude_Client` | Client UI / textures / DAT reference |
+| Fineage-Backend `data/*.json` | In Backend repo | — | Runtime catalog after MobiusImport |
 
-Do not copy full Mobius trees into git. Sync Net contract with `python3 scripts/sync-net-contract.py` (client) against Backend `src/Fineage.Net.Contract`.
+**Parity:** server logic, client behavior, and client appearance must match these originals unless a ticket records an intentional divergence. Do not invent HUD/menu/system-msg layouts when Interface / client trees exist under `ref/`.
+
+Do not commit `ref/` trees. Sync Net contract with `python3 scripts/sync-net-contract.py` (client) against Backend `src/Fineage.Net.Contract`.
 
 ## Stabilize Interlude (current program)
 
 1. Keep Fineage Net as the only client wire; do not revive MessagePack V2 or native L2 TCP as play path.
 2. Prefer epic **#131** (client architecture) before packing more Gremlin/content onto the monolith (**#129**).
-3. Treat Mobius CT0 as gameplay SoT; refresh parity docs against current `dev` when claiming gaps.
+3. Treat Mobius CT0 + Interlude client under `ref/` as SoT; refresh parity docs against current `dev` when claiming gaps.
 4. Land WIP in **small PRs**; do not mix doc sync with feature piles.
 5. Chronicle / High Five versioning stays **deferred** — no HF datapack or DTO sprawl until Interlude is stable.
 

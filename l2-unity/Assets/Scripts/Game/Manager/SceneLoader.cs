@@ -519,6 +519,10 @@ public class SceneLoader : MonoBehaviour
         if (NameplatesManager.Instance != null && gameplay != null)
             NameplatesManager.Instance.Camera = gameplay;
 
+        // FMOD StudioEventEmitter distance checks require a StudioListener in the scene.
+        if (gameplay != null && gameplay.GetComponent<FMODUnity.StudioListener>() == null)
+            gameplay.gameObject.AddComponent<FMODUnity.StudioListener>();
+
         FineageLog.Info(
             FineageLog.Category.World,
             "EnsureGameplayCamera ok name=" + controller.name

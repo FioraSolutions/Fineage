@@ -252,7 +252,7 @@ public class DayNightCycle : MonoBehaviour
             _appliedHours = _clock.WorldHours;
             _skyReady = true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // Debug.LogException(e);
         }

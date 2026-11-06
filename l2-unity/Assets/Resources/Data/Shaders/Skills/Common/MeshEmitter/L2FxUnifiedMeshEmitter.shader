@@ -73,7 +73,7 @@ Shader "L2/Effects/MeshEmitter"
         _StartVelocityRangeZUc ("StartVelocity Z Min Max", Vector) = (0, 0, 0, 0)
         _AccelerationUc ("Acceleration UC XYZ", Vector) = (0, 0, 0, 0)
         _VelocityLossRangeUc ("VelocityLoss UC XYZ", Vector) = (0, 0, 0, 0)
-        [Enum(Independent,0,Relative,1,Absolute,2,RelativeRotation,3,Spray,4,RelativePosition,5,ScreenAbsolute,6,ScreenRelative,7)] _CoordinateSystem ("CoordinateSystem", Float) = 1
+        [Enum(Independent, Relative, Absolute, RelativeRotation, Spray, RelativePosition, ScreenAbsolute, ScreenRelative)] _CoordinateSystem ("CoordinateSystem", Float) = 1
         [Toggle] _IndependentSprayAccel ("IndependentSprayAccel", Float) = 0
         _MaxAbsVelocityUc ("MaxAbsVelocity XYZ", Vector) = (10000, 10000, 10000, 0)
         [Toggle] _UseVelocityScale ("Use VelocityScale", Float) = 0

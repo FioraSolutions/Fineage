@@ -4,6 +4,17 @@ Default workspace: **`/Users/nikitarakitin/Projects/Fineage`** (client) and **`/
 
 Do not push to `main`/`dev` directly — land via PR into **`dev`** (client) / **`dev`** (backend; `main` is protected deploy). Doc triage: [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md).
 
+## Parity with originals (hard rule)
+
+Fineage **server business logic**, **client behavior**, and **client look** must match the Interlude originals unless a ticket explicitly documents a deliberate divergence. Do not invent UI layouts, HUD chrome, or gameplay rules when the original exists.
+
+| SoT | Local path (gitignored under `ref/`) |
+|-----|--------------------------------------|
+| L2J Mobius CT0 Interlude (server) | `Fineage/ref/mobius-ct0-interlude/` and `Fineage-Backend/ref/mobius-ct0-interlude/` |
+| L2 Interlude client (UI / assets) | `Fineage/ref/l2-interlude-client/` |
+
+Before changing HUD, MenuWnd, SystemMsgWnd, skillbar, chat, combat formulas, spawns, etc.: **open the matching original** (Interface / Mobius Java / datapack) and match it. See [`ref/README.md`](ref/README.md) and [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md).
+
 ## Model selection
 
 | Work | Model |

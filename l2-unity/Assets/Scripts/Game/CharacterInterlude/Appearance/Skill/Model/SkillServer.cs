@@ -19,7 +19,7 @@ public class SkillServer : AbstractSkill
     }
 
     public int Id { get { return _id; } }
-    public int Level { get { return _level; } }
+    public new int Level { get { return _level; } }
     public bool Passive { get { return _passive; } }
     public bool Disable { get { return _disabled; } }
 }

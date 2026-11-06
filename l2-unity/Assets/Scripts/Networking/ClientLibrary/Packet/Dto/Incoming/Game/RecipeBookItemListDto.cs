@@ -66,7 +66,7 @@ public class RecipeInstance :ItemInstance
         return this;
     }
 
-    public int GetPosition()
+    public new int GetPosition()
     {
         return _position;
     }

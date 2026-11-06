@@ -12,7 +12,6 @@ public class HtmlWindow : L2PopupWindow
     private static HtmlWindow _instance;
     public static HtmlWindow Instance => _instance;
 
-    private VisualElement _root;
     private VisualElement _content;
     private ScrollView _scrollView;
     private VisualElement _communityTopButtons;
@@ -69,8 +68,6 @@ public class HtmlWindow : L2PopupWindow
     protected override void InitWindow(VisualElement root)
     {
         base.InitWindow(root);
-
-        _root = root;
 
         VisualElement dragArea = GetElementByClass("drag-area");
 

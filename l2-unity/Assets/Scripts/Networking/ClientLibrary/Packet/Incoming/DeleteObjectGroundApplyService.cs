@@ -24,6 +24,6 @@ public sealed class DeleteObjectGroundApplyService
             return;
         }
 
-        gameWorld.DeleteObject(dto.ObjectId);
+        _ = gameWorld.DeleteObject(dto.ObjectId);
     }
 }

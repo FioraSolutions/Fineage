@@ -17,7 +17,6 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
     /// </summary>
     private const float ForceSyncMinServerHitTimeSeconds = 2f;
     private const string ShotSourceForceSync = "ForceSync";
-    private const string MagicSpeedTraceTag = "[MAGIC_SPEED_TRACE]";
 
     private const string MagicExitLogTag = "[MAGIC_SMB_EXIT]";
     /// <summary>
@@ -85,45 +84,6 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
             // $"exitGate=wall|norm>={PhaseDoneNormalizedTime:F2}→NotifyPhase{(isFinalShotState ? "+SwitchToIdle" : "")} " +
             // $"animId={animator.GetInstanceID()}");
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        float globalSinceCastStart = (_castData != null) ? (Time.time - _castData.StartTime) : -1f;
-        string clipName = (clip != null) ? clip.name : "null";
-        if (_castData != null)
-        {
-            // Debug.Log(
-                // $"[CastDataSnapshot] state='{parameterName}' idx={stateIndex} " +
-                // $"startTime={_castData.StartTime:F3}s now={Time.time:F3}s globalSinceStart={globalSinceCastStart:F3}s " +
-                // $"hit={_castData.HitTime:F3}s flight={_castData.FlightTime:F3}s serverShoot={_castData.serverTimeToShoot:F3}s " +
-                // $"shotEvent={_castData.shotEventTime:F3}s speedMid={_castData.SpeedMid:F3} " +
-                // $"speedEnd={_castData.SpeedEnd:F3} speedShot={_castData.SpeedShot:F3}.");
-
-            // Debug.Log(
-                // $"{MagicSpeedTraceTag} ENTER state={parameterName} idx={stateIndex} final={isFinalShotState} " +
-                // $"appliedSpeed={targetSpeed:F3} speedMid={_castData.SpeedMid:F3} speedEnd={_castData.SpeedEnd:F3} speedShot={_castData.SpeedShot:F3} " +
-                // $"shootAt={_castData.serverTimeToShoot:F3}s shotEvent={_castData.shotEventTime:F3}s");
-
-            if (stateIndex == 1)
-            {
-                if (!EnableForceSync)
-                {
-                    // Debug.Log(
-                        // $"{MagicSpeedTraceTag} ForceSync OFF globally (runner-only); serverHit={_castData.HitTime:F3}s.");
-                }
-                else if (!IsHitTimeInsideForceSyncBand(_castData))
-                {
-                    // Debug.Log(
-                        // $"{MagicSpeedTraceTag} ForceSync skipped serverHit={_castData.HitTime:F3}s " +
-                        // $"(need HitTime>={ForceSyncMinServerHitTimeSeconds:F0}s); runner-only.");
-                }
-            }
-        }
-
-        // Debug.Log(
-            // $"[AnimStateEnter] state='{parameterName}' idx={stateIndex} final={isFinalShotState} " +
-            // $"globalSinceCastStart={globalSinceCastStart:F3}s speed={animator.speed:F3} " +
-            // $"eventTimeInClip={_eventTimeInClip:F3}s clip='{clipName}' normalized={stateInfo.normalizedTime:F3} " +
-            // $"layer={layerIndex} animatorInstanceId={animator.GetInstanceID()}");
-#endif
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

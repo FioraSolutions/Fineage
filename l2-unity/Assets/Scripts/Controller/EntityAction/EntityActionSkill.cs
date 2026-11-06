@@ -313,7 +313,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         AnimationCombo combo = GetCombo(magic);
         if (combo != null && SkillExecutor.Instance != null)
         {
-            SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
+            _ = SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
             if (magic.SkillId == 3 && EffectManager.Instance != null)
             {
                 EffectManager.Instance.PlayEffectSyncedToSkillAnimation(
@@ -382,7 +382,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, targetTransform);
         entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic));
 
-        SkillExecutor.Instance.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
+        _ = SkillExecutor.Instance.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
     }
 
     static void ExecuteSelfSkill(Entity entity, MagicSkillUseDto magic)
@@ -398,7 +398,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
             int objectId = entity.Identity.Id;
             SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(magic, objectId, entity, selfCombo);
-            SkillExecutor.Instance.ExecuteSkillOverride(
+            _ = SkillExecutor.Instance.ExecuteSkillOverride(
                 magic.SkillGrp, entity, selfCombo, ResolveEvents(entity), isLong: true);
             return;
         }
@@ -416,7 +416,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
             {
                 int objectId = entity.Identity.Id;
                 SetupDurationHelper.SetupDurationIfHitTimeNot0(magic, objectId, entity, combo);
-                SkillExecutor.Instance.ExecuteSkillOverride(
+                _ = SkillExecutor.Instance.ExecuteSkillOverride(
                     magic.SkillGrp, entity, combo, ResolveEvents(entity));
                 return;
             }
@@ -428,7 +428,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         {
             SetupDurationHelper.SetupDurationIfHitTimeNot0(
                 magic, entity.Identity.Id, entity, castCombo);
-            SkillExecutor.Instance.ExecuteSkillOverride(
+            _ = SkillExecutor.Instance.ExecuteSkillOverride(
                 magic.SkillGrp, entity, castCombo, ResolveEvents(entity));
             return;
         }
@@ -438,7 +438,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         {
             AnimationCombo combo = new AnimationCombo(
                 "-1", new[] { skillgrp.GetAnimOperationType3() }, "");
-            SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
+            _ = SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
             return;
         }
 
