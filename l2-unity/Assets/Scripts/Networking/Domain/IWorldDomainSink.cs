@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Wire-agnostic entry into the live Unity world. Interlude Incoming packets and a
 /// future v2 ZoneServer adapter both publish here; <see cref="WorldDomainSink"/>
@@ -6,6 +8,7 @@
 public interface IWorldDomainSink
 {
     void ApplyMoveTo(DomainMoveTo move);
+    void ApplyPositionCorrection(int objectId, Vector3 position);
     void ApplyStopMove(DomainStopMove stop);
     void ApplyKnownlistAdd(DomainKnownlistAdd add);
     void ApplyPlayerSpawned(DomainPlayerSpawned spawned);

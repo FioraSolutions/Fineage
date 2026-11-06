@@ -28,6 +28,13 @@ public sealed class PlayerWorldApply : EntityWorldApply
             PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_MOVE_TO, dto);
     }
 
+    public override void OnPositionCorrection(Entity entity, Vector3 position)
+    {
+        SnapTransform(entity, position);
+        // Drop any local MoveTo that was racing ValidatePosition rubber-bands.
+        LocalCastStop.Halt();
+    }
+
     public override void OnStopMove(Entity entity, StopMoveDto dto)
     {
         if (PlayerStateMachine.Instance == null || PlayerStateMachine.Instance.State == PlayerState.DEAD)

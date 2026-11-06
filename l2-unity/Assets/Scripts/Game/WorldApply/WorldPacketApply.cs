@@ -229,6 +229,20 @@ public sealed class WorldPacketApply
         // UnityReplaySession.OnMoveTo(entity, destination);
     }
 
+    /// <summary>Authoritative snap from zone ValidatePosition drift — not a MoveTo order.</summary>
+    public void ApplyPositionCorrection(int objId, Vector3 position)
+    {
+        Entity entity = GetEntity(objId);
+        if (entity == null)
+            return;
+
+        EntityWorldApply apply;
+        if (TryResolve(entity, out apply))
+            apply.OnPositionCorrection(entity, position);
+        else
+            EntityWorldApply.SnapTransform(entity, position);
+    }
+
     public void StopMove(StopMoveDto dto)
     {
         if (dto == null)
