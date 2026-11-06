@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Combat layer access to shared services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 32).
+/// Combat layer access to shared services with [Inject] wiring and peer fallback (#142).
 /// </summary>
 public static class CombatPacketServices
 {
@@ -15,8 +15,8 @@ public static class CombatPacketServices
     }
 
     public static World GameWorld =>
-        _gameWorld != null ? _gameWorld : IncomingPacketActions.GameWorld;
+        _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
     public static TargetManager Targets =>
-        _targets != null ? _targets : IncomingPacketActions.Targets;
+        _targets != null ? _targets : ControllerPacketServices.Targets;
 }

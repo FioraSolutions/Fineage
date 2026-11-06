@@ -64,47 +64,65 @@ public static class ControllerPacketServices
     }
 
     public static World GameWorld =>
-        _gameWorld != null ? _gameWorld : IncomingPacketActions.GameWorld;
+        _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
     public static PlayerController Player =>
-        _player != null ? _player : IncomingPacketActions.Player;
+        _player != null ? _player : NetworkingPacketServices.Player;
 
     public static TargetManager Targets =>
-        _targets != null ? _targets : IncomingPacketActions.Targets;
+        _targets != null ? _targets : ResolveFromGame<TargetManager>() ?? IncomingPacketActions.Targets;
 
     public static InputManager Input =>
-        _input != null ? _input : IncomingPacketActions.Input;
+        _input != null ? _input : ResolveFromGame<InputManager>() ?? IncomingPacketActions.Input;
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null ? _animations : GamePacketServices.Animations;
 
     public static IMoveAllCharacters Moves =>
-        _moves != null ? _moves : IncomingPacketActions.Moves;
+        _moves != null ? _moves : ResolveFromGame<IMoveAllCharacters>() ?? IncomingPacketActions.Moves;
 
     public static EffectManager Effects =>
-        _effects != null ? _effects : IncomingPacketActions.Effects;
+        _effects != null
+            ? _effects
+            : ResolveFromGame<EffectManager>() ?? IncomingPacketActions.Effects;
 
     public static EffectSkillsmanager EffectSkills =>
-        _effectSkills != null ? _effectSkills : IncomingPacketActions.EffectSkills;
+        _effectSkills != null ? _effectSkills : GamePacketServices.EffectSkills;
 
     public static SkillsManager SkillCombos =>
-        _skillCombos != null ? _skillCombos : IncomingPacketActions.SkillCombos;
+        _skillCombos != null ? _skillCombos : ResolveFromGame<SkillsManager>() ?? IncomingPacketActions.SkillCombos;
 
     public static BufferPanel Buffer =>
-        _buffer != null ? _buffer : IncomingPacketActions.Buffer;
+        _buffer != null ? _buffer : ResolveFromGame<BufferPanel>() ?? IncomingPacketActions.Buffer;
 
     public static DeadWindow Dead =>
-        _dead != null ? _dead : IncomingPacketActions.Dead;
+        _dead != null ? _dead : ResolveFromGame<DeadWindow>() ?? IncomingPacketActions.Dead;
 
     public static EventBus Bus =>
-        _bus != null ? _bus : IncomingPacketActions.Bus;
+        _bus != null ? _bus : GamePacketServices.Bus;
 
     public static PositionValidationController PositionValidation =>
         _positionValidation != null
             ? _positionValidation
-            : IncomingPacketActions.PositionValidation;
+            : ResolveFromGame<PositionValidationController>()
+              ?? IncomingPacketActions.PositionValidation;
 
-    public static void Queue(Action action) => IncomingPacketActions.Queue(action);
+    public static void Queue(Action action) => NetworkingPacketServices.Queue(action);
+
+    static T ResolveFromGame<T>() where T : class
+    {
+        if (App.GameContainer == null)
+            return null;
+
+        try
+        {
+            return App.GameContainer.Resolve<T>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
 
 /// <summary>

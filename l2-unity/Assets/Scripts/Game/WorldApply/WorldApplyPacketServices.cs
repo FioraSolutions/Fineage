@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// World-apply layer access to game services with DI wiring and IncomingPacketActions fallback (#142 sub-slice 29).
+/// World-apply layer access to game services with DI wiring and NetworkingPacketServices fallback (#142).
 /// </summary>
 public static class WorldApplyPacketServices
 {
@@ -35,22 +35,22 @@ public static class WorldApplyPacketServices
     }
 
     public static PlayerController Player =>
-        _player != null ? _player : IncomingPacketActions.Player;
+        _player != null ? _player : NetworkingPacketServices.Player;
 
     public static EventBus Bus =>
-        _bus != null ? _bus : IncomingPacketActions.Bus;
+        _bus != null ? _bus : GamePacketServices.Bus;
 
     public static World GameWorld =>
-        _gameWorld != null ? _gameWorld : IncomingPacketActions.GameWorld;
+        _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
     public static GameManager Manager =>
-        _manager != null ? _manager : IncomingPacketActions.Manager;
+        _manager != null ? _manager : NetworkingPacketServices.Manager;
 
     public static IWorldDomainSink Domain =>
-        _domain != null ? _domain : IncomingPacketActions.Domain;
+        _domain != null ? _domain : NetworkingPacketServices.Domain;
 
     public static WorldPacketApply WorldApply =>
-        _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
+        _worldApply != null ? _worldApply : NetworkingPacketServices.WorldApply;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply)
     {
@@ -66,13 +66,12 @@ public static class WorldApplyPacketServices
         Queue(() => ApplyWorld(apply));
     }
 
-    public static void Queue(Action action)
-    {
-        IncomingPacketActions.Queue(action);
-    }
+    public static void Queue(Action action) => NetworkingPacketServices.Queue(action);
 
     public static void QueueWorldNextFrame(Action<WorldPacketApply> apply)
     {
-        IncomingPacketActions.QueueWorldNextFrame(apply);
+        if (apply == null)
+            return;
+        NetworkingPacketServices.QueueNextFrame(() => ApplyWorld(apply));
     }
 }

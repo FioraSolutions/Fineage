@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// World runtime access to shared services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 40).
+/// World runtime access to shared services with [Inject] wiring and Networking fallback (#142).
 /// </summary>
 public static class WorldPacketServices
 {
@@ -21,11 +21,11 @@ public static class WorldPacketServices
     }
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null ? _animations : GamePacketServices.Animations;
 
     public static GameManager Manager =>
-        _manager != null ? _manager : IncomingPacketActions.Manager;
+        _manager != null ? _manager : NetworkingPacketServices.Manager;
 
     public static WorldPacketApply WorldApply =>
-        _worldApply != null ? _worldApply : IncomingPacketActions.WorldApply;
+        _worldApply != null ? _worldApply : NetworkingPacketServices.WorldApply;
 }

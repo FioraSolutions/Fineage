@@ -13,5 +13,5 @@ public static class CharacterPacketServices
     }
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null ? _animations : GamePacketServices.Animations;
 }
