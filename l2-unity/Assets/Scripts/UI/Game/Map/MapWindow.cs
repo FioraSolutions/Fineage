@@ -93,14 +93,16 @@ public class MapWindow : L2PopupWindow
         _mapPanner.SetDisabled(false);
         _mapPanner.SetManualUpdate(true);
         _mapMarkerFollowCamera.ManualTurnUpdate();
+        // MVP (#559): in a starter village, jump straight to that town plan + hero pin.
+        _townMap?.TryOpenForPlayer();
         base.ShowWindow();
-
     }
 
     public override void HideWindow()
     {
         _mapPanner.SetDisabled(true);
         _mapPanner.MoveMarkerToOrigin();
+        _townMap?.Close();
         base.HideWindow();
     }
 }
