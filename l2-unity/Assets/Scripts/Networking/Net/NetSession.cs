@@ -1478,6 +1478,8 @@ public sealed class NetSession : MonoBehaviour
     void ApplyCreatureSay(CreatureSayNetMsg say)
     {
         NetChatFeed.NoteSay(say.Name, say.Text, say.ChatType);
+        // Chat log does not use ObjectId; overhead bubble does (#521).
+        OverheadChatSay.Show(say.ObjectId, say.Text, say.ChatType);
     }
 
     void ApplySystemMessage(SystemMessageNetMsg message)
