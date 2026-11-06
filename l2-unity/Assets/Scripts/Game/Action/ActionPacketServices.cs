@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Game action layer access to shared services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 26).
+/// Game action layer access with [Inject] wiring and Controller fallback (#142).
 /// </summary>
 public static class ActionPacketServices
 {
@@ -17,8 +17,8 @@ public static class ActionPacketServices
     }
 
     public static InputManager Input =>
-        _input != null ? _input : IncomingPacketActions.Input;
+        _input != null ? _input : ControllerPacketServices.Input;
 
     public static TargetManager Targets =>
-        _targets != null ? _targets : IncomingPacketActions.Targets;
+        _targets != null ? _targets : ControllerPacketServices.Targets;
 }

@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Game shortcut-layer access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 30).
+/// Game shortcut-layer access with [Inject] wiring and peer/live fallback (#142).
 /// </summary>
 public static class ShortcutPacketServices
 {
@@ -25,14 +25,14 @@ public static class ShortcutPacketServices
     }
 
     public static PlayerInventory Inventory =>
-        _inventory != null ? _inventory : IncomingPacketActions.Inventory;
+        _inventory != null ? _inventory : InventoryPacketServices.Inventory;
 
     public static InputManager Input =>
-        _input != null ? _input : IncomingPacketActions.Input;
+        _input != null ? _input : ControllerPacketServices.Input;
 
     public static PlayerActions Actions =>
-        _actions != null ? _actions : IncomingPacketActions.Actions;
+        _actions != null ? _actions : PlayerActions.Instance;
 
     public static PlayerShortcuts Shortcuts =>
-        _shortcuts != null ? _shortcuts : IncomingPacketActions.Shortcuts;
+        _shortcuts != null ? _shortcuts : PlayerShortcuts.Instance;
 }

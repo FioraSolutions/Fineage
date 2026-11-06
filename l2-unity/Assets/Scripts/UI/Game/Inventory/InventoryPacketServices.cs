@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Inventory UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 20).
+/// Inventory UI access with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class InventoryPacketServices
 {
@@ -12,5 +12,5 @@ public static class InventoryPacketServices
     }
 
     public static PlayerInventory Inventory =>
-        _inventory != null ? _inventory : IncomingPacketActions.Inventory;
+        _inventory != null ? _inventory : PlayerInventory.Instance;
 }
