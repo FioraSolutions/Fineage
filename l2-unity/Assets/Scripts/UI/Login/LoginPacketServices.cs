@@ -14,7 +14,6 @@ public static class LoginPacketServices
     public static void ClearLoginRuntime()
     {
         _login = null;
-        IncomingPacketActions.BindLogin(null);
     }
 
     public static LoginClient LoginClient =>

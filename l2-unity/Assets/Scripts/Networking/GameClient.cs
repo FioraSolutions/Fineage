@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// Remnant of the Interlude game socket, kept only because <c>IncomingPacketActions.Game</c>
-/// is frozen (#137) and its type names this class.
+/// Remnant of the Interlude game socket; kept as a MonoBehaviour shell for DI / scene wiring.
 ///
 /// <para>
 /// It used to be a socket client with its own send queue, Blowfish crypt, and PlayOk

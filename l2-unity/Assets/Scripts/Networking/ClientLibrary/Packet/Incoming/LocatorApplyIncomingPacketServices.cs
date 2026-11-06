@@ -1,6 +1,6 @@
 /// <summary>
 /// DI-backed service locator for incoming packet handlers (#142).
-/// Holds bind state; peer PacketServices are the fallback (IPA only for MessageApply).
+/// Holds bind state; peer PacketServices / live Instances are the fallback.
 /// </summary>
 public static class LocatorApplyIncomingPacketServices
 {
@@ -157,8 +157,7 @@ public static class LocatorApplyIncomingPacketServices
         _worldApply != null ? _worldApply : NetworkingPacketServices.WorldApply;
 
     // Bound here first; avoid MessagePacketServices (it falls back to this locator).
-    public static MessagePacketApply MessageApply =>
-        _messageApply != null ? _messageApply : IncomingPacketActions.MessageApply;
+    public static MessagePacketApply MessageApply => _messageApply;
 
     public static IWorldDomainSink Domain =>
         _domain != null ? _domain : NetworkingPacketServices.Domain;

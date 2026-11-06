@@ -22,7 +22,6 @@ public sealed class LoginLifetimeScope : LifetimeScope
         builder.RegisterBuildCallback(container =>
         {
             LoginRuntime loginRuntime = container.Resolve<LoginRuntime>();
-            IncomingPacketActions.BindLogin(loginRuntime);
             AppLoginSessionApplyIncomingPacketServices.BindLogin(loginRuntime);
             if (App.Container != null)
             {

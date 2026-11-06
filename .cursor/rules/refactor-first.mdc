@@ -5,7 +5,7 @@ Until epic [#131](https://github.com/FioraSolutions/Fineage/issues/131) P0 items
 ## Active policy
 
 1. **Pause `smoke:gremlin`** (epic [#129](https://github.com/FioraSolutions/Fineage/issues/129)) — content delivery is blocked pending CI + refactor base.
-2. **Do not add new members** to `IncomingPacketActions.cs` — surface is frozen per [#137](https://github.com/FioraSolutions/Fineage/issues/137).
+2. **Do not restore** `IncomingPacketActions.cs` — deleted under [#142](https://github.com/FioraSolutions/Fineage/issues/142) after the [#137](https://github.com/FioraSolutions/Fineage/issues/137) freeze.
 3. **Do not expand `GameManager`** responsibilities. Extract to focused classes per [#141](https://github.com/FioraSolutions/Fineage/issues/141).
 4. **New networking code** must go through `IZoneTransport` interface, not inline `IsZoneV2` checks.
 5. **New code must be testable** — prefer constructor/method injection over `static Instance` singletons.
