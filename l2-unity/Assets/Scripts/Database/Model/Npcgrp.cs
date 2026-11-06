@@ -23,6 +23,9 @@ public class Npcgrp {
     [SerializeField] private float _maxMp;
     [SerializeField] private string _npcType;
     [SerializeField] private NpcDecoEffect _deco;
+    /// <summary>Interlude npcgrp property_list as skillId/level pairs (race 4416 + passives).</summary>
+    [SerializeField] private int[] _propertySkillIds;
+    [SerializeField] private int[] _propertySkillLevels;
 
     public int NpcId { get { return _npcId; } set { _npcId = value; } }
     public string ClassName { get => _className; set => _className = value; }
@@ -45,4 +48,6 @@ public class Npcgrp {
 
     public string Type { get => _npcType; set => _npcType = value; }
     public NpcDecoEffect Deco { get => _deco; set => _deco = value; }
+    public int[] PropertySkillIds { get => _propertySkillIds; set => _propertySkillIds = value; }
+    public int[] PropertySkillLevels { get => _propertySkillLevels; set => _propertySkillLevels = value; }
 }
