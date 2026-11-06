@@ -1,5 +1,5 @@
 /// <summary>
-/// Skillbar UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 27).
+/// Skillbar UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class SkillbarPacketServices
 {
@@ -21,11 +21,11 @@ public static class SkillbarPacketServices
     }
 
     public static SkillbarWindow Skillbar =>
-        _skillbar != null ? _skillbar : IncomingPacketActions.Skillbar;
+        _skillbar != null ? _skillbar : SkillbarWindow.Instance;
 
     public static PlayerShortcuts Shortcuts =>
-        _shortcuts != null ? _shortcuts : IncomingPacketActions.Shortcuts;
+        _shortcuts != null ? _shortcuts : ShortcutPacketServices.Shortcuts;
 
     public static PlayerInventory Inventory =>
-        _inventory != null ? _inventory : IncomingPacketActions.Inventory;
+        _inventory != null ? _inventory : InventoryPacketServices.Inventory;
 }

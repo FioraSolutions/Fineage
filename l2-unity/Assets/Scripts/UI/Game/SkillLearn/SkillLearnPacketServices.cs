@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Skill learn UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 21).
+/// Skill learn UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class SkillLearnPacketServices
 {
@@ -21,11 +21,11 @@ public static class SkillLearnPacketServices
     }
 
     public static SkillLearnWindow SkillLearn =>
-        _skillLearn != null ? _skillLearn : IncomingPacketActions.SkillLearn;
+        _skillLearn != null ? _skillLearn : SkillLearnWindow.Instance;
 
     public static DescriptionSkillWindow SkillDesc =>
-        _skillDesc != null ? _skillDesc : IncomingPacketActions.SkillDesc;
+        _skillDesc != null ? _skillDesc : DescriptionSkillWindow.Instance;
 
     public static SkillListWindow SkillList =>
-        _skillList != null ? _skillList : IncomingPacketActions.SkillList;
+        _skillList != null ? _skillList : SkillListWindow.Instance;
 }

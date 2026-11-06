@@ -1,5 +1,5 @@
 /// <summary>
-/// Multi-sell UI access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 50).
+/// Multi-sell UI access with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class MultiSellPacketServices
 {
@@ -12,5 +12,5 @@ public static class MultiSellPacketServices
     }
 
     public static MultiSellWindow MultiSell =>
-        _multiSell != null ? _multiSell : IncomingPacketActions.MultiSell;
+        _multiSell != null ? _multiSell : MultiSellWindow.Instance;
 }

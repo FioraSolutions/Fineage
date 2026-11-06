@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Party UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 15).
+/// Party UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class PartyPacketServices
 {
@@ -17,7 +17,7 @@ public static class PartyPacketServices
     }
 
     public static PartyInvitationWindow PartyInvite =>
-        _partyInvite != null ? _partyInvite : IncomingPacketActions.PartyInvite;
+        _partyInvite != null ? _partyInvite : PartyInvitationWindow.Instance;
 
     public static NetPartyMemberList LastMemberList { get; private set; }
 

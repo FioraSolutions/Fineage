@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Root-level game UI window access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 24).
+/// Root-level game UI window access with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class GameWindowPacketServices
 {
@@ -17,8 +17,8 @@ public static class GameWindowPacketServices
     }
 
     public static HtmlWindow Html =>
-        _html != null ? _html : IncomingPacketActions.Html;
+        _html != null ? _html : HtmlWindow.Instance;
 
     public static ShowListWindow ShowList =>
-        _showList != null ? _showList : IncomingPacketActions.ShowList;
+        _showList != null ? _showList : ShowListWindow.Instance;
 }
