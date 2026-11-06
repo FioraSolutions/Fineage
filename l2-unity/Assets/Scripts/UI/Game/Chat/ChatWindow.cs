@@ -52,7 +52,7 @@ public class ChatWindow : L2Window
 
     private void WireChatPacketServices()
     {
-        MessagePacketApply messageApply = IncomingPacketActions.MessageApply;
+        MessagePacketApply messageApply = MessagePacketServices.MessageApply;
         if (messageApply != null)
             MessagePacketServices.Bind(messageApply: messageApply);
     }

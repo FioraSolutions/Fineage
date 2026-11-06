@@ -6,19 +6,18 @@
 public sealed class PlayerWorldApply : EntityWorldApply
 {
     private SkillbarWindow Skillbar =>
-        IncomingPacketActions.Skillbar != null
-            ? IncomingPacketActions.Skillbar
-            : SkillbarWindow.Instance;
+        SkillbarPacketServices.Skillbar ?? SkillbarWindow.Instance;
 
     private EffectManager Effects =>
-        IncomingPacketActions.Effects != null
-            ? IncomingPacketActions.Effects
-            : EffectManager.Instance;
+        ControllerPacketServices.Effects
+        ?? GlobalEffectsPacketServices.Effects
+        ?? EffectManager.Instance;
 
-    private PlayerController Player => IncomingPacketActions.Player;
+    private PlayerController Player =>
+        WorldApplyPacketServices.Player ?? ControllerPacketServices.Player;
 
     private EventBus Bus =>
-        IncomingPacketActions.Bus != null ? IncomingPacketActions.Bus : EventBus.Instance;
+        WorldApplyPacketServices.Bus ?? GamePacketServices.Bus ?? EventBus.Instance;
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
     {
