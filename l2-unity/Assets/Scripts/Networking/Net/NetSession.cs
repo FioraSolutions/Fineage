@@ -51,6 +51,13 @@ public sealed class NetSession : MonoBehaviour
     /// <c>PlayerShortcuts</c> and <c>ClanWindow</c> read one source.
     /// </summary>
     public int SessionObjectId { get; private set; }
+
+    /// <summary>
+    /// Ground item object id from the last <see cref="SendPickupRequest"/>, so
+    /// <c>EntityDespawn</c> can play the pickup gesture instead of a silent delete.
+    /// </summary>
+    int _pendingPickupObjectId;
+
     public event Action<CharacterRosterMsg> RosterReceived;
     public event Action<DeleteResultMsg> DeleteResultReceived;
     public event Action<AuthResultMsg> AuthResultReceived;
@@ -317,10 +324,25 @@ public sealed class NetSession : MonoBehaviour
     {
         if (_zone == null || !_zone.Connected)
             return;
+        if (groundObjectId > 0)
+            _pendingPickupObjectId = groundObjectId;
         await _zone.SendAsync(
             NetOpcode.PickupRequest,
             NetCodec.EncodePickupRequest(new PickupRequestNetMsg { GroundObjectId = groundObjectId }),
             NextSeq());
+    }
+
+    /// <summary>
+    /// True when <paramref name="groundObjectId"/> matches the outstanding pickup request.
+    /// Clears the pending id so a later despawn of the same object is a normal delete.
+    /// </summary>
+    public bool TryTakePendingPickup(int groundObjectId, out int pickerObjectId)
+    {
+        pickerObjectId = SessionObjectId;
+        if (groundObjectId <= 0 || groundObjectId != _pendingPickupObjectId || pickerObjectId <= 0)
+            return false;
+        _pendingPickupObjectId = 0;
+        return true;
     }
 
     public async void SendDropItemRequest(int objectId, int count, int x, int y, int z)
