@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Lobby character layer access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 28).
+/// Lobby character layer access with [Inject] wiring and Game fallback (#142).
 /// </summary>
 public static class CharacterPacketServices
 {
