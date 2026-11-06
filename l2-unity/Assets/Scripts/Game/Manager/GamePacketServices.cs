@@ -34,12 +34,12 @@ public static class GamePacketServices
         _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
     public static EventBus Bus =>
-        _bus != null ? _bus : ResolveFromGame<EventBus>() ?? IncomingPacketActions.Bus;
+        _bus != null ? _bus : ResolveFromGame<EventBus>() ?? EventBus.Instance;
 
     public static EffectSkillsmanager EffectSkills =>
         _effectSkills != null
             ? _effectSkills
-            : ResolveFromGame<EffectSkillsmanager>() ?? IncomingPacketActions.EffectSkills;
+            : ResolveFromGame<EffectSkillsmanager>() ?? EffectSkillsmanager.Instance;
 
     public static GameManager Manager =>
         _manager != null ? _manager : NetworkingPacketServices.Manager;
@@ -47,7 +47,7 @@ public static class GamePacketServices
     public static IAnimationManager Animations =>
         _animations != null
             ? _animations
-            : ResolveFromGame<IAnimationManager>() ?? IncomingPacketActions.Animations;
+            : ResolveFromGame<IAnimationManager>() ?? AnimationManager.Instance;
 
     static T ResolveFromGame<T>() where T : class
     {

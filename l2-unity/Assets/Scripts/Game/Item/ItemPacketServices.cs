@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Game item-layer access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 25).
+/// Game item-layer access with [Inject] wiring and Networking/peer fallback (#142).
 /// </summary>
 public static class ItemPacketServices
 {

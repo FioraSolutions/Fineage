@@ -2,7 +2,7 @@
 using VContainer;
 
 /// <summary>
-/// Controller-layer access to game services with [Inject] wiring and IncomingPacketActions fallback (#142).
+/// Controller-layer access to game services with [Inject] wiring and live/peer fallback (#142).
 /// </summary>
 public static class ControllerPacketServices
 {
@@ -70,33 +70,45 @@ public static class ControllerPacketServices
         _player != null ? _player : NetworkingPacketServices.Player;
 
     public static TargetManager Targets =>
-        _targets != null ? _targets : ResolveFromGame<TargetManager>() ?? IncomingPacketActions.Targets;
+        _targets != null
+            ? _targets
+            : ResolveFromGame<TargetManager>() ?? TargetManager.Instance;
 
     public static InputManager Input =>
-        _input != null ? _input : ResolveFromGame<InputManager>() ?? IncomingPacketActions.Input;
+        _input != null
+            ? _input
+            : ResolveFromGame<InputManager>() ?? InputManager.Instance;
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
 
     public static IMoveAllCharacters Moves =>
-        _moves != null ? _moves : ResolveFromGame<IMoveAllCharacters>() ?? IncomingPacketActions.Moves;
+        _moves != null
+            ? _moves
+            : ResolveFromGame<IMoveAllCharacters>() ?? MoveAllCharacters.Instance;
 
     public static EffectManager Effects =>
         _effects != null
             ? _effects
-            : ResolveFromGame<EffectManager>() ?? IncomingPacketActions.Effects;
+            : ResolveFromGame<EffectManager>() ?? EffectManager.Instance;
 
     public static EffectSkillsmanager EffectSkills =>
         _effectSkills != null ? _effectSkills : GamePacketServices.EffectSkills;
 
     public static SkillsManager SkillCombos =>
-        _skillCombos != null ? _skillCombos : ResolveFromGame<SkillsManager>() ?? IncomingPacketActions.SkillCombos;
+        _skillCombos != null
+            ? _skillCombos
+            : ResolveFromGame<SkillsManager>() ?? SkillsManager.Instance;
 
     public static BufferPanel Buffer =>
-        _buffer != null ? _buffer : ResolveFromGame<BufferPanel>() ?? IncomingPacketActions.Buffer;
+        _buffer != null
+            ? _buffer
+            : ResolveFromGame<BufferPanel>() ?? BufferPanel.Instance;
 
     public static DeadWindow Dead =>
-        _dead != null ? _dead : ResolveFromGame<DeadWindow>() ?? IncomingPacketActions.Dead;
+        _dead != null
+            ? _dead
+            : ResolveFromGame<DeadWindow>() ?? DeadWindow.Instance;
 
     public static EventBus Bus =>
         _bus != null ? _bus : GamePacketServices.Bus;
@@ -105,7 +117,7 @@ public static class ControllerPacketServices
         _positionValidation != null
             ? _positionValidation
             : ResolveFromGame<PositionValidationController>()
-              ?? IncomingPacketActions.PositionValidation;
+              ?? PositionValidationController.Instance;
 
     public static void Queue(Action action) => NetworkingPacketServices.Queue(action);
 

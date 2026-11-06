@@ -61,10 +61,12 @@ public static class NetworkingPacketServices
         _manager != null ? _manager : ResolveFromApp<GameManager>() ?? IncomingPacketActions.Manager;
 
     public static LoginClient Login =>
-        _login != null ? _login : ResolveFromApp<LoginClient>() ?? IncomingPacketActions.Login;
+        _login != null ? _login : ResolveFromApp<LoginClient>() ?? LoginClient.Instance;
 
     public static LoginWindow LoginWindow =>
-        _loginWindow != null ? _loginWindow : ResolveFromApp<LoginWindow>() ?? IncomingPacketActions.LoginWindow;
+        _loginWindow != null
+            ? _loginWindow
+            : ResolveFromApp<LoginWindow>() ?? LoginWindow.Instance;
 
     public static void ApplyWorld(Action<WorldPacketApply> apply)
     {
