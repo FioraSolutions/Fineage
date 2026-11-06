@@ -44,8 +44,8 @@ single-process `ZoneServer` skeleton.
 
 ```mermaid
 flowchart TB
-    subgraph clients["Clients (Unity)"]
-        C1[Player 1<br/>Interlude or V2]
+    subgraph clients["Clients (Unity Fineage Net)"]
+        C1[Player 1]
         C2[Player 2]
         CN[Player N]
     end
@@ -163,16 +163,18 @@ allows:
 
 ## Message Codec & Registry
 
-The existing `MsgType` enum + `[MessagePackObject]` classes work well.
-The foundation adds:
+**Live wire:** `Fineage.Net.Contract` — `PacketEnvelope`, `NetOpcode`, `NetCodec` / framing.
+Unity keeps a verbatim copy under `Assets/Scripts/Networking/Net/Contract/**`, synced by
+`scripts/sync-net-contract.py`.
 
-- **`IMessageRegistry`** — maps `ushort msgType` ↔ `Type` for dispatch.
-- **Protocol version in Hello** — already present (`ProtocolVersion` field).
-  The registry can gate which messages are valid for a given version.
-- **Versioning hook**: when adding fields to a MessagePack object, append new
-  `[Key(N+1)]` — MessagePack skips unknown keys, so old clients decode fine.
+**Retired:** MessagePack Zone V2 (`MsgType` + `[MessagePackObject]` as the client transport).
+`Fineage.Protocol.MsgType` remains on the backend as legacy numbering for `*-v2-protocol.md`
+semantics docs only — not the on-wire table.
 
-No breaking changes to existing wire format.
+Versioning hook for Net: append fields carefully in contract DTOs; gate with Hello /
+`ProtocolVersion` when layouts diverge. Target chronicle is **Interlude** until that
+slice is stable — see [DOC_CANON.md](DOC_CANON.md). Do not open a second chronicle
+in the contract until then.
 
 ---
 

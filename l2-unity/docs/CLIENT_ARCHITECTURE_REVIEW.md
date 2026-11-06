@@ -1,9 +1,20 @@
 # Fineage Unity Client — Architecture Review
 
-> **Date:** 2026-10-27
+> **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
+> Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
+
+### Status Now (2026-11)
+
+- Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
+- `IncomingPacketActions` is **frozen** (#137); migration toward `[Inject]` / `*PacketServices` is **#142** (still in progress; locator refs remain).
+- `GameManager` / `World` `Instance` getters are `[Obsolete]`; ~140 other singletons still exist.
+- Six `Fineage.*` asmdef folders exist but are mostly empty — scripts still compile as `Assembly-CSharp`.
+- Domain apply path is Interlude-shaped via `NetDomainMap` → `IWorldDomainSink` / `WorldPacketApply`.
+
+> **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
 > Game, Controller, UI, and cross-cutting concerns.
-> **Codebase size:** ~1 329 C# files, 145 MonoBehaviours, ~140 singleton instances.
+> **Codebase size (then):** ~1 329 C# files, 145 MonoBehaviours, ~140 singleton instances.
 
 ---
 
