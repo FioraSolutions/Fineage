@@ -1,5 +1,5 @@
 /// <summary>
-/// Service-layer access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 31).
+/// Service-layer access with [Inject] wiring and peer PacketServices fallback (#142).
 /// </summary>
 public static class ServicePacketServices
 {
@@ -21,11 +21,11 @@ public static class ServicePacketServices
     }
 
     public static PlayerController Player =>
-        _player != null ? _player : IncomingPacketActions.Player;
+        _player != null ? _player : NetworkingPacketServices.Player;
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null ? _animations : GamePacketServices.Animations;
 
     public static EffectManager Effects =>
-        _effects != null ? _effects : IncomingPacketActions.Effects;
+        _effects != null ? _effects : ControllerPacketServices.Effects;
 }

@@ -18,5 +18,5 @@ public static class GlobalEffectsPacketServices
         _bus != null ? _bus : GamePacketServices.Bus;
 
     public static EffectManager Effects =>
-        _effects != null ? _effects : IncomingPacketActions.Effects;
+        _effects != null ? _effects : ControllerPacketServices.Effects;
 }
