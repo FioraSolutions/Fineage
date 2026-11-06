@@ -9,6 +9,9 @@ public class SkillSlot : L2DraggableSlot
     private bool _empty = false;
     public event Action<int> EventLeftClick;
     private bool _isPassive = false;
+    private VisualElement _reuseElement;
+    private VisualElement _rechargeMaskBg;
+
     public SkillSlot(VisualElement slotElement, int position, SlotType slotType) : base(position, slotElement, slotType, true, false)
     {
         _slotElement = slotElement;
@@ -19,7 +22,12 @@ public class SkillSlot : L2DraggableSlot
         // Skillbar slots are Buttons — Clickable fights pointer capture and sticks the drag ghost.
         if (_slotElement is Button button)
             button.clickable = null;
+        _reuseElement = _slotElement?.Q<VisualElement>("ReuseBg");
+        _rechargeMaskBg = _slotElement?.Q<VisualElement>("RechargeMaskBg");
     }
+
+    public VisualElement GetReuseElement() => _reuseElement;
+    public VisualElement GetRechargeMaskElement() => _rechargeMaskBg;
 
     protected override void HandleRightClick()
     {

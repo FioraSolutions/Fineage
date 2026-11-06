@@ -187,6 +187,20 @@ public class SkillListWindow : L2PopupWindow
         return skill; 
     }
 
+    readonly CooldownAnimationService _cooldownAnimationService = new CooldownAnimationService();
+
+    /// <summary>Reuse overlay on the skills window slot (same frames as the skillbar).</summary>
+    public void ShowCooldown(int skillId, int reuseDelayMs)
+    {
+        if (reuseDelayMs <= 0 || !gameObject.activeInHierarchy)
+            return;
+        SkillSlot slot = _supportActiveSkills != null ? _supportActiveSkills.GetSlot(skillId) : null;
+        if (slot == null || slot.GetReuseElement() == null)
+            return;
+        StartCoroutine(_cooldownAnimationService.CooldownCoroutine(
+            slot.GetReuseElement(), slot.GetRechargeMaskElement(), reuseDelayMs));
+    }
+
     private void CopyInDictionry(List<SkillInstance> list)
     {
         if (_allSkills.Count == 0) _allSkills.Clear();

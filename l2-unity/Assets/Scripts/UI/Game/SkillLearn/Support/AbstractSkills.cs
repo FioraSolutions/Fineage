@@ -13,6 +13,13 @@ public class AbstractSkills
     protected const string _rowNameInnerPanel = "RowsVirtual";
     protected Dictionary<int, SkillSlot> _allSlots;
     protected int skillsPerPanel = 7;
+    public SkillSlot GetSlot(int skillId)
+    {
+        if (_allSlots != null && _allSlots.TryGetValue(skillId, out SkillSlot slot))
+            return slot;
+        return null;
+    }
+
     public void SetAllSlots(Dictionary<int, SkillSlot> allSlots)
     {
         if (allSlots != null) _allSlots = null;

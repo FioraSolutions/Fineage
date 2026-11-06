@@ -2081,17 +2081,24 @@ public sealed class NetSession : MonoBehaviour
     {
         int objectId = (int)corr.EntityValue;
         Vector3 pos = VectorUtils.ConvertPosToUnity(new Vector3(corr.X, corr.Y, corr.Z));
-        var domain = new DomainMoveTo
+        // Snap — do not feed INTENTION_MOVE_TO with dest==origin (that fights approach MoveState
+        // and looks like run-in-place while ValidatePosition rubber-bands every tick).
+        Post(() =>
         {
-            ObjectId = objectId,
-            Destination = pos,
-            Origin = pos,
-            InterludeDto = CharMoveToLocationDto.FromUnity(objectId, pos, pos)
-        };
-        if (_sink != null)
-            _sink.ApplyMoveTo(domain);
-        else if (WorldApplyPacketServices.WorldApply != null)
-            WorldApplyPacketServices.WorldApply.MoveTo(objectId, pos, pos, domain.InterludeDto);
+            World world = WorldApplyPacketServices.GameWorld ?? NetworkingPacketServices.GameWorld;
+            Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
+            if (entity == null)
+                return;
+            CharacterController cc = entity.GetComponent<CharacterController>();
+            if (cc != null && cc.enabled)
+                cc.enabled = false;
+            entity.transform.position = pos;
+            if (cc != null)
+                cc.enabled = true;
+            PlayerController local = entity.GetComponent<PlayerController>();
+            if (local != null)
+                LocalCastStop.Halt();
+        });
     }
 
     uint NextSeq() => _seq++;
