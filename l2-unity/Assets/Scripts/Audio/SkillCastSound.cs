@@ -147,14 +147,15 @@ public static class SkillCastSound
         CharacterRace race = (CharacterRace)appearance.Race;
         CharacterRaceAnimation resolved = CharacterRaceAnimationParser.ResolveRaceAnimation(
             race, appearance, playerClass);
-        // Prefab default is FElf=0. Also fix Human fighter mesh wrongly used for a mystic class.
+        // Prefab default is FElf=0; CharSelected can leave a fighter mesh on a mystic.
+        // Always prefer the class-resolved mage bank so Wind Strike etc. get M/F_HMagician voice (#522).
+        bool resolvedMage =
+            resolved == CharacterRaceAnimation.MMagic || resolved == CharacterRaceAnimation.FMagic;
         bool looksUnset = raceId == CharacterRaceAnimation.FElf && race != CharacterRace.Elf;
-        bool mysticAsFighter =
-            (resolved == CharacterRaceAnimation.MMagic || resolved == CharacterRaceAnimation.FMagic) &&
-            (raceId == CharacterRaceAnimation.MFighter || raceId == CharacterRaceAnimation.FFighter);
-        if (looksUnset || mysticAsFighter)
+        if (resolvedMage || looksUnset)
         {
-            caster.RaceId = resolved;
+            if (raceId != resolved)
+                caster.RaceId = resolved;
             return resolved;
         }
         return raceId;
