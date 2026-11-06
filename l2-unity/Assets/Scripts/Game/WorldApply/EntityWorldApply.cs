@@ -6,6 +6,27 @@ public abstract class EntityWorldApply
     {
     }
 
+    /// <summary>
+    /// Server PositionCorrection: snap the entity to the authoritative point.
+    /// Must not go through <see cref="OnMoveTo"/> (dest==origin fights approach locomotion).
+    /// </summary>
+    public virtual void OnPositionCorrection(Entity entity, Vector3 position)
+    {
+        SnapTransform(entity, position);
+    }
+
+    public static void SnapTransform(Entity entity, Vector3 position)
+    {
+        if (entity == null)
+            return;
+        CharacterController cc = entity.GetComponent<CharacterController>();
+        if (cc != null && cc.enabled)
+            cc.enabled = false;
+        entity.transform.position = position;
+        if (cc != null)
+            cc.enabled = true;
+    }
+
     public virtual void OnStopMove(Entity entity, StopMoveDto dto)
     {
     }
