@@ -2,7 +2,7 @@
 
 Default workspace: **`/Users/nikitarakitin/Projects/Fineage`** (client) and **`/Users/nikitarakitin/Projects/Fineage-Backend`** (server). Work in these primary folders. Do not invent sibling worktrees unless the user explicitly asks for parallel agents.
 
-Do not push to `main`/`dev` directly — land via PR into **`dev`** (client) / **`main`** (backend, until a `dev` branch exists).
+Do not push to `main`/`dev` directly — land via PR into **`dev`** (client) / **`dev`** (backend; `main` is protected deploy). Doc triage: [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md).
 
 ## Model selection
 

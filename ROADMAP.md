@@ -16,24 +16,23 @@ Issues + milestones в репо — источник правды для аге�
 
 ## Sources of truth (что откуда брать)
 
-Полного исходника клиента L2 **в репо нет**. Слои:
+Doc triage: [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md). Живой клиентский wire — **Fineage Net** (`PacketEnvelope`), не native Interlude TCP и не MessagePack V2.
 
 | Слой | Где | Что брать |
 |------|-----|-----------|
-| **Клиентские таблицы / grp** | `l2-unity/Assets/Scripts/Database/*Table.cs`, StreamingAssets Meta, UI в `Resources/Data/UI/` | Имена, иконки, skillgrp/npcgrp/itemname, quest name — отображение на клиенте |
-| **Карты / геодата** | `StreamingAssets/Data/Maps/` (+ Geodata `16_24`…`17_25`), `Resources/Data/Maps/` | TI sample сейчас; остальные локации — импорт карт/гео, не выдумывать |
-| **VFX / emitters** | `.uc` в `Resources/Data/Effects/`, формулы в `…/Decompile_Common/` | Визуал скиллов; чинить математику в Common, не хаками в эффектах. Гайд: `l2-unity/docs/metrics/L2_UC_TO_UNITY_AI_GUIDE.md` |
-| **Сеть / opcodes Interlude** | `Assets/Scripts/Networking/` (+ Guide-L2Unity) | Поведение пакетов; ориентация на Acis/Mobius Interlude wire |
-| **Серверная бизнес-логика** | **Не в git.** Ориентир: L2J **Acis / Mobius Interlude** datapack (skills XML, npc XML, HTML quests, items, multisell, spawns) — подключать как **внешний SoT** / submodule / `External/` | Квесты, AI мобов, формулы боя, Olympiad, Seven Seals, RB, clan/castle |
-| **Внешние дампы автора** | `External/decompile` или env `L2_DECOMPILE_ROOT` (см. `.gitignore` → `l2-unity/External/`), diag: `logs/diag/` | Frida/move logs, umodel, bridge extract — **сейчас в рабочей копии отсутствует** |
-| **Свои stubs** | `tools/login-stub`, `tools/zone-server` | Пока нет datapack-рантайма — минимальные hardcoded ответы |
+| **Net contract** | Backend `src/Fineage.Net.Contract` → client `Assets/Scripts/Networking/Net/Contract/**` via `scripts/sync-net-contract.py` | Live opcodes / codec; SoT: Backend `docs/net-protocol.md` |
+| **Клиентские таблицы / grp** | `l2-unity/Assets/Scripts/Database/*Table.cs`, StreamingAssets Meta, UI в `Resources/Data/UI/` | Имена, иконки, skillgrp/npcgrp/itemname, quest name — отображение |
+| **Карты / геодата** | `StreamingAssets/Data/Maps/` (+ Geodata), `Resources/Data/Maps/` | TI + baked tiles; остальные локации — импорт, не выдумывать |
+| **VFX / emitters** | `.uc` в `Resources/Data/Effects/`, формулы в `…/Decompile_Common/` | Визуал скиллов; чинить Common, не хаками. Гайд: `l2-unity/docs/metrics/L2_UC_TO_UNITY_AI_GUIDE.md` |
+| **Apply / Interlude DTOs** | `Networking/ClientLibrary`, `NetDomainMap` → `IWorldDomainSink` | Presentation всё ещё Interlude-shaped; Net мапится сюда |
+| **Серверная бизнес-логика** | Fineage-Backend `ZoneWorld*` / `Combat/` + `data/*.json` | Runtime; эталон формул — Mobius CT0 |
+| **Mobius CT0 (внешний SoT)** | `~/Downloads/L2J_Mobius_CT_0_Interlude_src` или Backend `ref/mobius-ct0-interlude` (gitignored) | XML datapack → `Fineage.MobiusImport` → `data/` |
+| **L2 Interlude client** | `~/Downloads/L2_Interlude_Client` | Ассеты / DAT reference |
+| **Legacy stubs** | `tools/login-stub`, `tools/zone-server` | Исторические / diag; **не** основной play path |
 
-**Правило:** не копировать тысячи XML в issues. Импортёр читает datapack → нормализованный Fineage schema → ZoneServer runtime. Клиентские grp/UI уже частично есть — сервер должен отдавать id, которые клиент умеет резолвить.
+**Правило:** не копировать тысячи XML в issues. Импортёр читает datapack → нормализованный Fineage schema → Zone runtime. Клиентские grp/UI уже частично есть — сервер отдаёт id, которые клиент резолвит.
 
-**Сейчас отсутствует в репо (нужно принести локально / submodule):**
-- L2J/Mobius/Acis Interlude **datapack** (quests HTML, skills, npc, items, spawns)
-- Полный **decompile** tree (`L2_DECOMPILE_ROOT` / `External/decompile`)
-- Полный набор **карт** за пределами TI (`16_24`–`17_25`)
+**Локально (не в git):** полный Mobius tree, полный decompile (`L2_DECOMPILE_ROOT` / `External/decompile`), карты за пределами текущего bake.
 
 ---
 
@@ -41,18 +40,22 @@ Issues + milestones в репо — источник правды для аге�
 
 | Что | Где |
 |-----|-----|
-| Unity **6000.3.27f1** + URP 17.3 | `main` / `dev` |
-| Login stub → CharSelect → EnterWorld → run | `tools/login-stub` |
-| Domain facade + Zone V2 client adapter | `dev` (PR #39 и др.) |
-| ZoneServer v2 skeleton (MessagePack enter/move) | `tools/zone-server` |
+| Unity **6000.3.x** + URP | `dev` |
+| Fineage Net Login+Zone (PacketEnvelope) | Fineage-Backend `dev` + client `Networking/Net/` |
+| Domain sink + `NetDomainMap` → Interlude apply | `IWorldDomainSink`, `WorldPacketApply` |
+| MobiusImport → `data/*.json` | Fineage-Backend |
 | Portable diag paths | `L2DiagPaths` |
-| ROADMAP Phase A (v0.1–v0.7) | merged via PR #37 на `main` |
+| Legacy MessagePack V2 / login-stub | retired as play path; stubs remain under `tools/` for hist/diag |
 
 ---
 
 ## Phase A — Protocol / engine MVP (v0.1–v0.7)
 
-Сохраняем как есть. Issues уже на доске Project #7.
+> **Superseded by Fineage Net (2026-11).** Phase A MessagePack “V2” / login-stub matrix below is **historical**.
+> Live path: Fineage-Backend Login+Zone + client `Networking/Net/`. Track remaining work on Project #7
+> (epic **#131** arch, **#129** Gremlin smoke) and Backend `docs/net-protocol.md`.
+
+Сохраняем таблицу как архив. Не открывать новые issues под MessagePack V2.
 
 ### Матрица (Client / ZoneServer / Datapack / Tools)
 

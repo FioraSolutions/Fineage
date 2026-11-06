@@ -1,15 +1,17 @@
 # Fineage Net (client)
 
-Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Interlude DTO bridge.
+Unity path for `PacketEnvelope` Net. MessagePack Zone V2 is retired; Fineage Net is the only live wire.
+
+Server wire SoT: [Fineage-Backend `docs/net-protocol.md`](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/net-protocol.md). Doc triage: [DOC_CANON.md](DOC_CANON.md).
 
 ## Wire
 
-- Fineage Net is the only wire. There is no mode switch: `FineageWireConfig` only carries
-  the login/zone hosts.
+- Fineage Net is the only wire. There is no protocol mode switch: `FineageWireConfig` only carries
+  the login/zone hosts (`Networking/Net/Domain/FineageWireConfig.cs`).
 - Editor Play defaults to loopback (`EnableLocalNetBackend()`); a build uses the public
   tunnel (`EnablePlaytestBackend`). `FINEAGE_NET_CLIENT=0` pins a public-playtest run
   while developing locally. See `GameManager.ConfigureBackend`.
-- Login **9106**, Zone **9777** (forwarded / loopback).
+- Login **9106**, Zone **9777** (forwarded / loopback). Public Pi remap: **2106** / **7777**.
 
 ## Types
 
@@ -17,7 +19,11 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 |------|------|
 | `Assets/Scripts/Networking/Net/Contract/**` | Verbatim copy of Backend `Fineage.Net.Contract`, kept in sync by `scripts/sync-net-contract.py` |
 | `NetTransport.cs` | TCP + `NetFraming` |
-| `NetSession.cs` | Lobby + zone session → `IWorldDomainSink` / spawn / move |
+| `NetSession.cs` | Lobby + zone session → domain sink / spawn / move |
+| `FineageZoneTransport` / `IZoneTransport` | Sole zone command path (DI + `ZoneCommands.Transport` fallback) |
+| `Net/Domain/NetDomainMap.cs` | Maps Net contract payloads → Interlude-shaped apply DTOs (`PlayerInfoInterlude`, move/chat/combat DTOs) for `IWorldDomainSink` / `WorldPacketApply` |
+
+The presentation layer is still Interlude-era (client protocol identity **746**, `ClientLibrary` DTOs). Net is a custom envelope into that apply path — not a second wire and not “no DTO bridge.”
 
 ## Flow
 
@@ -42,6 +48,4 @@ Parallel client path for PacketEnvelope Net — **no** `ZoneV2DomainMap` / Inter
 19. Trade → request/answer/add/done + ask/start/offer/confirm/finished.
 20. AOI on the zone server: `FINEAGE_ZONE_AOI_CELL` (grid) or whole-zone SingleCell by default.
 
-Editor Play defaults to local Net. The legacy V2 MessagePack codec has been retired; the payload rows it used to decode live in `Net/Domain/ZoneV2DomainStructs.cs` and only the Net path is live.
-
-Backend durable store: `FINEAGE_STORE=postgres` + `FINEAGE_DATABASE_URL` (see `docker-compose.yml` / `scripts/run-local-net.sh`).
+Backend durable store: PostgreSQL via `FINEAGE_DATABASE_URL` (see Backend `docker-compose.yml` / `scripts/run-local-net.sh`). There is no file-backed account store.

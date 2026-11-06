@@ -23,10 +23,11 @@ alwaysApply: true
 ## CI and landing
 
 - Target branch for client feature work: **`dev`** via PR only. Never push to `main`/`dev`.
-- Backend: PR into **`main`** (or repo `dev` if/when it exists). Never push to protected defaults directly.
+- Backend: PR into **`dev`** (`main` is protected deploy). Never push to protected defaults directly.
 - **Green GitHub Actions** before merge. Fix red CI on the PR branch.
 
 ## Coordination links
 
 - Repo agent entry: `AGENTS.md`
+- Doc triage: `Docs/DOC_CANON.md`
 - GitHub Project: https://github.com/orgs/FioraSolutions/projects/7
