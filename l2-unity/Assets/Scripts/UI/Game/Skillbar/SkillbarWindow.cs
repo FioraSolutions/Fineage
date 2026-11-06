@@ -290,6 +290,17 @@ public class SkillbarWindow : L2PopupWindow
         UpdateBarShortcut(shortcut);
     }
 
+    /// <summary>
+    /// Repaints every shot slot after the zone confirms an auto-shot toggle (or clears one on a
+    /// weapon swap / empty stack). Called from the <c>AutoSoulShot</c> apply path.
+    /// </summary>
+    public void RefreshAutoShotMarks()
+    {
+        if (_skillbars == null)
+            return;
+        _skillbars.ForEach(skillbar => skillbar.RefreshSlotMarks());
+    }
+
     public void RemoveShortcut(int oldSlot)
     {
         int slot = oldSlot % PlayerShortcuts.MAXIMUM_SHORTCUTS_PER_BAR;

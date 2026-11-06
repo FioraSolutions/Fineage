@@ -140,6 +140,14 @@ public class InventorySlot : L2DraggableSlot
     }
     public void AssignItem(ItemInstance item)
     {
+        // A shortcut can point at an objectId the bag no longer holds (stack used up before the bar
+        // refreshed). Rendering an empty cell is right; dereferencing the missing row is not.
+        if (item == null)
+        {
+            AssignEmpty();
+            return;
+        }
+
         _slotElement.RemoveFromClassList("empty");
 
         AddDataItem(item);

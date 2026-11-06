@@ -11,13 +11,24 @@ public class GearSlot : InventorySlot
         _blackElement = CreateBlack(_blackElementName);
     }
 
+    /// <summary>
+    /// Interlude client inventory semantics: a single left click only selects the slot and shows the
+    /// item description (the base handler calls <c>SelectSlot</c>, which raises
+    /// <c>ToolTipSimple.EventLeftClickSlot</c>). The double click — two clicks inside
+    /// <c>InventorySlot</c>'s 0.3s window — routes to <see cref="UseItem"/> → <see cref="UnequipWorn"/>,
+    /// and the right click unequips immediately.
+    ///
+    /// <para>
+    /// This used to call <c>UnequipWorn()</c> on every left click, so inspecting a worn item
+    /// silently took it off instead of showing what it was.
+    /// </para>
+    /// </summary>
     protected override void HandleLeftClick()
     {
-        if (_slotDragManipulator != null && _slotDragManipulator.dragged)
+        // A completed drag is not a click: the drop already equipped/unequipped it.
+        if (_slotDragManipulator != null && (_slotDragManipulator.dragged || _slotDragManipulator.DragCompleted))
             return;
-        if (TryGiveToEnchant())
-            return;
-        UnequipWorn();
+        base.HandleLeftClick();
     }
 
     protected override void HandleRightClick()

@@ -111,10 +111,26 @@ public class PlayerShortcuts : MonoBehaviour
         switch (shortcut.Type)
         {
             case Shortcut.TYPE_ITEM:
+            {
                 PlayerInventory inventory = Inventory;
-                if (inventory != null)
-                    inventory.UseItem(shortcut.Id, true);
+                if (inventory == null)
+                    break;
+
+                // The original client treats a soulshot / spiritshot shortcut as an auto-use switch: the
+                // click or the key arms automatic charging instead of spending a single shot by hand.
+                ItemInstance item = inventory.FindByAllInventory(shortcut.Id);
+                if (item != null && NetAutoShot.IsShotItem(item.ItemId))
+                {
+                    NetAutoShot.Toggle(item.ItemId);
+                    SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+                    if (skillbar != null)
+                        skillbar.RefreshAutoShotMarks();
+                    break;
+                }
+
+                inventory.UseItem(shortcut.Id, true);
                 break;
+            }
             case Shortcut.TYPE_ACTION:
                 PlayerActions actions = Actions;
                 if (actions != null)

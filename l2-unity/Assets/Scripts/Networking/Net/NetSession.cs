@@ -142,6 +142,7 @@ public sealed class NetSession : MonoBehaviour
         SessionObjectId = 0;
         NetGearSession.Reset();
         NetShortCutReceiver.Reset();
+        NetAutoShot.Reset();
         try
         {
             _lobby?.Dispose();
@@ -357,6 +358,20 @@ public sealed class NetSession : MonoBehaviour
         await _zone.SendAsync(
             NetOpcode.UseItem,
             NetCodec.EncodeUseItem(new UseItemNetMsg { ObjectId = objectId }),
+            NextSeq());
+    }
+
+    /// <summary>
+    /// Mobius <c>RequestAutoSoulShot</c>: right-clicking a shot on the hotbar turns automatic use on/off.
+    /// <paramref name="itemId"/> is the shot template id the client carries.
+    /// </summary>
+    public async void SendRequestAutoSoulShot(int itemId, bool enabled)
+    {
+        if (_zone == null || !_zone.Connected || itemId <= 0)
+            return;
+        await _zone.SendAsync(
+            NetOpcode.RequestAutoSoulShot,
+            NetCodec.EncodeAutoSoulShot(new AutoSoulShotNetMsg { ItemId = itemId, Enabled = enabled }),
             NextSeq());
     }
 
@@ -1042,9 +1057,12 @@ public sealed class NetSession : MonoBehaviour
                 break;
             case NetOpcode.AutoSoulShot:
             {
-                // The zone confirms a shot toggle (weapon swap clears it server-side). No client-side
-                // shot button exists yet, so this only keeps the contract honest for when one lands.
-                _ = NetCodec.DecodeAutoSoulShot(envelope.Payload);
+                AutoSoulShotNetMsg shot = NetCodec.DecodeAutoSoulShot(envelope.Payload);
+                NetAutoShot.Apply(shot.ItemId, shot.Enabled);
+                // The hotbar shows the armed state on the shot slot itself.
+                SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+                if (skillbar != null)
+                    skillbar.RefreshAutoShotMarks();
                 break;
             }
             case NetOpcode.StatusUpdate:

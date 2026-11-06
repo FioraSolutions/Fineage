@@ -71,6 +71,22 @@ public sealed class ZonePickupRequestCommand : INetworkCommand
     }
 }
 
+/// <summary>
+/// Mobius <c>RequestAutoSoulShot</c>: toggle automatic shot use for a carried shot item.
+/// The zone answers with <c>AutoSoulShot</c> and then recharges the weapon after every swing.
+/// </summary>
+public sealed class RequestAutoSoulShotCommand : INetworkCommand
+{
+    public int ItemId;
+    public bool Enabled;
+
+    public RequestAutoSoulShotCommand(int itemId, bool enabled)
+    {
+        ItemId = itemId;
+        Enabled = enabled;
+    }
+}
+
 public sealed class ClickActionCommand : INetworkCommand
 {
     public int ObjectId;
