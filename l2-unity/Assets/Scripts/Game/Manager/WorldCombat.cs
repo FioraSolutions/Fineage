@@ -176,8 +176,8 @@ public class WorldCombat : MonoBehaviour {
                 case AttributeType.KARMA:
                     break;
                 case AttributeType.CUR_CP:
-                    PlayerStatus test = (PlayerStatus)status;
-                    test.Cp = attribute.value;
+                    if (status is PlayerStatus playerCp)
+                        playerCp.Cp = attribute.value;
                     break;
                 case AttributeType.MAX_CP:
                     stats.MaxCp = attribute.value;

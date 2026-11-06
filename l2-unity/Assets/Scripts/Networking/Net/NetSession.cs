@@ -1290,9 +1290,10 @@ public sealed class NetSession : MonoBehaviour
         dto.Stats.RunRealSpeed = run;
         dto.Stats.WalkRealSpeed = walk;
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
-        dto.Status.SetHp(100);
+        int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
+        dto.Stats.MaxHp = maxHp;
+        dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
         dto.Status.SetMp(100);
-        dto.Stats.MaxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         dto.Stats.MaxMp = 100;
         // Paperdoll is what makes peers visible in gear: without it every other player spawns
         // undressed while the wearer sees their own kit (UserInfo path).
@@ -1315,8 +1316,12 @@ public sealed class NetSession : MonoBehaviour
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
         dto.Identity.IsRunning = spawn.Running;
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
-        dto.Status.SetHp(100);
-        dto.Stats.MaxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
+        // Wire carries MaxHp only; alive NPCs spawn at full HP. Stubbing CurHp=100 while MaxHp is
+        // the real template value made TargetWindow BarFillRatio stick at 1 until a StatusUpdate
+        // arrived — and look broken when updates lagged (#522).
+        int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
+        dto.Stats.MaxHp = maxHp;
+        dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
         const int defaultPAtkSpd = 253;
         dto.Stats.PAtkSpd = defaultPAtkSpd;
         dto.Stats.PAtkRealSpeed = defaultPAtkSpd;
