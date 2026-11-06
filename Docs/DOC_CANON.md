@@ -18,6 +18,7 @@ Which docs agents and humans should trust.
 | [Backend docs/combat-parity.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/combat-parity.md) | Backend | Combat checklist vs Mobius |
 | [l2-unity/docs/LOGGING.md](../l2-unity/docs/LOGGING.md) | Client | Client logging |
 | [WIP_DEEPSEEK_REVIEW.md](WIP_DEEPSEEK_REVIEW.md) | Client | Review of local uncommitted feature piles (not canon wire) |
+| [SMOKE_GREMLIN.md](SMOKE_GREMLIN.md) | Client | Manual + Backend `--selftest` Gremlin smoke (#129 / #138) |
 
 Backend README must stay Net-accurate; prefer `docs/net-protocol.md` over any leftover MsgType tables elsewhere.
 
