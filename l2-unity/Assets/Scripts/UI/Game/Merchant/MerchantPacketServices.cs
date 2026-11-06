@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Merchant UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 18).
+/// Merchant UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class MerchantPacketServices
 {
@@ -12,5 +12,5 @@ public static class MerchantPacketServices
     }
 
     public static DealerWindow Dealer =>
-        _dealer != null ? _dealer : IncomingPacketActions.Dealer;
+        _dealer != null ? _dealer : DealerWindow.Instance;
 }

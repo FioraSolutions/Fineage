@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Quest UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 17).
+/// Quest UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class QuestPacketServices
 {
@@ -12,5 +12,5 @@ public static class QuestPacketServices
     }
 
     public static QuestWindow Quest =>
-        _quest != null ? _quest : IncomingPacketActions.Quest;
+        _quest != null ? _quest : QuestWindow.Instance;
 }

@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Trade UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 19).
+/// Trade UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class TradePacketServices
 {
@@ -17,8 +17,8 @@ public static class TradePacketServices
     }
 
     public static TradeWindow Trade =>
-        _trade != null ? _trade : IncomingPacketActions.Trade;
+        _trade != null ? _trade : TradeWindow.Instance;
 
     public static TradeRequestWindow TradeRequest =>
-        _tradeRequest != null ? _tradeRequest : IncomingPacketActions.TradeRequest;
+        _tradeRequest != null ? _tradeRequest : TradeRequestWindow.Instance;
 }

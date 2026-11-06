@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Item enchant UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 23).
+/// Item enchant UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class ItemEnchantPacketServices
 {
@@ -12,5 +12,5 @@ public static class ItemEnchantPacketServices
     }
 
     public static EnchantWindow Enchant =>
-        _enchant != null ? _enchant : IncomingPacketActions.Enchant;
+        _enchant != null ? _enchant : EnchantWindow.Instance;
 }
