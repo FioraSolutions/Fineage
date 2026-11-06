@@ -59,10 +59,10 @@ public static class QueueApplyIncomingPacketServices
             return;
         }
 
-        EventProcessor processor = _events != null ? _events : EventProcessor.Instance;
+        EventProcessor processor = _events != null ? _events : NetworkingPacketServices.Events;
         if (processor != null)
             processor.QueueEvent(action);
         else
-            IncomingPacketActions.Queue(action);
+            NetworkingPacketServices.Queue(action);
     }
 }
