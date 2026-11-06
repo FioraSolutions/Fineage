@@ -15,6 +15,7 @@ Which docs agents and humans should trust.
 | [NET_PROTOCOL.md](NET_PROTOCOL.md) | Client | Client Net flow + `scripts/sync-net-contract.py` |
 | [ARCHITECTURE_NET.md](ARCHITECTURE_NET.md) | Client | Target scale (gateway / AOI / 20k) — design, not “already shipped” |
 | [Backend docs/MOBIUS_XML_REF.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/MOBIUS_XML_REF.md) | Backend | Mobius CT0 XML → `data/` |
+| [Backend docs/mobius-parity-matrix.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/mobius-parity-matrix.md) | Backend | **Live** Mobius ↔ Fineage feature matrix (tracker [#174](https://github.com/FioraSolutions/Fineage-Backend/issues/174)) |
 | [Backend docs/combat-parity.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/combat-parity.md) | Backend | Combat checklist vs Mobius |
 | [l2-unity/docs/LOGGING.md](../l2-unity/docs/LOGGING.md) | Client | Client logging |
 | [WIP_DEEPSEEK_REVIEW.md](WIP_DEEPSEEK_REVIEW.md) | Client | Review of local uncommitted feature piles (not canon wire) |
