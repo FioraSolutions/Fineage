@@ -1033,27 +1033,27 @@
     padding-left: 0;
     background-color: rgba(0, 0, 0, 0);
     transform-origin: left top;
-    /* Compact 2×4 Interlude menu docked bottom-right (skillbar sits to its left). */
+    /* 2×4 Interlude menu docked bottom-right (skillbar sits to its left).
+       Hit targets stay 36×36; ButtonBG artwork is 64×64 and must not be clipped. */
     width: 168px;
     min-width: 168px;
     max-width: 168px;
-    height: 86px;
-    max-height: 86px;
+    height: auto;
     flex-grow: 0;
     flex-shrink: 0;
-    overflow: hidden;
+    overflow: visible;
     position: absolute;
     right: 0;
     bottom: 0;
 }
 
 .menu-btn {
-    overflow: hidden;
+    overflow: visible;
 }
 
 .menu-button-bg {
-    width: 36px;
-    height: 36px;
+    width: 64px;
+    height: 64px;
     flex-shrink: 0;
 }
 
