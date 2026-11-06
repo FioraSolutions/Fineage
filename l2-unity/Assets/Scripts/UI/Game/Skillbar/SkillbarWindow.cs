@@ -81,10 +81,11 @@ public class SkillbarWindow : L2PopupWindow
 
         yield return new WaitForEndOfFrame();
 
-        // Center window
-        _windowEle.style.left = new Length(50, LengthUnit.Percent);
-        _windowEle.style.right = StyleKeyword.Undefined;
-        _windowEle.style.translate = new StyleTranslate(new Translate(new Length(-50, LengthUnit.Percent), 0));
+        // Dock against the 2×4 MenuWindow on the right (Interlude bottom strip).
+        _windowEle.style.left = StyleKeyword.Undefined;
+        _windowEle.style.right = 168;
+        _windowEle.style.bottom = 0;
+        _windowEle.style.translate = StyleKeyword.Null;
 
         RegisterClickWindowEvent(_windowEle, null);
         _skillbarContainerHorizontal = GetElementById("SkillbarContainerHorizontal");

@@ -57,10 +57,9 @@ public class MenuWindow : L2Window
         questBtn.AddManipulator(new ButtonClickSoundManipulator(questBtn));
         questBtn.RegisterCallback<ClickEvent>((evt) =>
         {
-            // Open first, then ask: the QuestList reply applies into a visible window.
+            // Open first: enter-world already prefills via QuestList without showing the window.
             QuestWindow questWindow = QuestWindow.Instance;
             questWindow?.ToggleHideWindow();
-            // Routes through IZoneTransport.TrySendGameCommand -> NetSession.SendRequestQuestList.
             if (ZoneCommands.IsConnected)
                 ZoneCommands.Send(new RequestQuestListCommand());
         });

@@ -73,9 +73,8 @@ public static class NetNpcWindows
 
         try
         {
-            // RequestQuestList is sent by the menu button, so the reply can land before the window is
-            // toggled. AddData only fills the tabs; without this the journal looked empty.
-            window.ShowWindowToCenter();
+            // Enter-world also pushes QuestList to prefill the journal — never auto-open here.
+            // MenuWindow toggles the window before RequestQuestList; AddData fills whatever is visible.
             window.AddData(quests);
         }
         catch (Exception ex)
