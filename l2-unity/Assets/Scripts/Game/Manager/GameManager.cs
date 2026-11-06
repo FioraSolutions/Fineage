@@ -283,10 +283,10 @@ public class GameManager : MonoBehaviour, IGameManager {
             _loadingCamera.enabled = true;
         }
 
-        L2GameUI ui = _gameUi != null ? _gameUi : IncomingPacketActions.Ui;
+        L2GameUI ui = _gameUi != null ? _gameUi : LobbyUiPacketServices.GameUi;
         if (ui != null)
             ui.StartLoading();
-        L2LoginUI loginUi = _loginUi != null ? _loginUi : IncomingPacketActions.LoginUi;
+        L2LoginUI loginUi = _loginUi != null ? _loginUi : LobbyUiPacketServices.LoginUi;
         if (loginUi != null)
             loginUi.StartLoading();
     }
