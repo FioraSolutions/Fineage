@@ -201,19 +201,22 @@ public sealed class FineageZoneTransport : IZoneTransport
         }
 
         RequestBypassToServerCommand netBypass = command as RequestBypassToServerCommand;
-        int netGiveItemId;
-        int netGiveCount;
-        if (netBypass != null && NetGiveCommand.TryParse(netBypass.Bypass, out netGiveItemId, out netGiveCount))
-        {
-            // Grant-item admin bypass: still V2-only until a Net grant opcode exists.
-            return true;
-        }
-
         if (netBypass != null)
         {
+            string bypass = netBypass.Bypass ?? "";
+            // Mobius admin_* (//gmshop, //give, HTML admin_buy): no NPC — zone gates by KuK + FINEAGE_ZONE_ADMIN.
+            if (IsAdminBypass(bypass))
+            {
+                // //give → admin_give; zone also accepts admin_create_item.
+                if (NetGiveCommand.TryParse(bypass, out int giveItemId, out int giveCount))
+                    bypass = "admin_create_item " + giveItemId + " " + giveCount;
+                NetSession.Ensure().SendNpcLink(0, bypass);
+                return true;
+            }
+
             int npcId = NetNpcSession.ActiveNpcObjectId;
             if (npcId > 0)
-                NetSession.Ensure().SendNpcLink(npcId, netBypass.Bypass);
+                NetSession.Ensure().SendNpcLink(npcId, bypass);
             return true;
         }
 
@@ -479,6 +482,24 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (target?.Identity != null)
             return target.Identity.Id;
         return 0;
+    }
+
+    static bool IsAdminBypass(string bypass)
+    {
+        if (string.IsNullOrWhiteSpace(bypass))
+            return false;
+        string text = bypass.Trim();
+        if (text.StartsWith("bypass -h ", System.StringComparison.OrdinalIgnoreCase))
+            text = text.Substring("bypass -h ".Length).TrimStart();
+        else if (text.StartsWith("bypass ", System.StringComparison.OrdinalIgnoreCase))
+            text = text.Substring("bypass ".Length).TrimStart();
+        if (text.StartsWith("npc_", System.StringComparison.OrdinalIgnoreCase))
+        {
+            int split = text.IndexOf('_', 4);
+            if (split > 4)
+                text = text.Substring(split + 1).TrimStart();
+        }
+        return text.StartsWith("admin_", System.StringComparison.OrdinalIgnoreCase);
     }
 
     public void BeginSession(string account, string password)
