@@ -86,6 +86,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
         SkillbarWindow skillbar = Skillbar;
         if (skillbar != null)
             skillbar.ShowCooldown(dto.SkillId, Shortcut.TYPE_SKILL, dto.Reusedelay);
+        if (SkillListWindow.Instance != null)
+            SkillListWindow.Instance.ShowCooldown(dto.SkillId, dto.Reusedelay);
 
         if (WeaponChargeSkill.IsCharge(dto.SkillId))
         {

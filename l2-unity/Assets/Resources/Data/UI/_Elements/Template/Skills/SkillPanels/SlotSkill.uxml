@@ -2,6 +2,8 @@
     <engine:GroupBox name="Slot" class="grow0" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 2px; padding-top: 0; padding-bottom: 0; padding-left: 0; width: 34px; height: 34px; background-image: none; align-self: flex-start; align-items: center; display: flex; flex-shrink: 1;">
         <engine:VisualElement name="SlotBorder" class="slot-border" style="flex-grow: 1; background-image: resource(&apos;Data/UI/Assets/SkillBar/FrameSkill&apos;); -unity-slice-left: 6; -unity-slice-top: 6; -unity-slice-right: 6; -unity-slice-bottom: 6; width: auto; height: auto; align-self: center; justify-content: center; align-items: center; align-content: center; -unity-slice-scale: 1px; padding-top: 2px; padding-right: 1px; padding-bottom: 2px; padding-left: 1px;">
             <engine:GroupBox name="SlotBg" class="slot-bg" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; align-self: center; justify-content: flex-end; height: 32px; background-image: none; width: 32px; align-items: flex-end;" />
+            <engine:VisualElement name="ReuseBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 1px; top: 2px; width: 32px; height: 32px; display: none; background-color: rgba(0, 0, 0, 0.55);" />
+            <engine:VisualElement name="RechargeMaskBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 1px; top: 2px; width: 32px; height: 32px; display: none;" />
         </engine:VisualElement>
     </engine:GroupBox>
 </engine:UXML>

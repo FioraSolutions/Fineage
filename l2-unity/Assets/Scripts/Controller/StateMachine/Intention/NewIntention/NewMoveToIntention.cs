@@ -30,12 +30,20 @@ public class NewMoveToIntention : IntentionBase
 
             DebugLineDraw.ShowDrawLineDebug(PlayerEntity.Instance.Identity.Id, oldPosition, newPosition, Color.red);
 
-            float dist = VectorUtils.Distance2D(ControllerPacketServices.Player.transform.position, newPosition);
+            PlayerController player = ControllerPacketServices.Player;
+            if (player == null)
+                return;
+
+            float distToDest = VectorUtils.Distance2D(player.transform.position, newPosition);
+            float packetSpan = VectorUtils.Distance2D(oldPosition, newPosition);
 
             //Debug.Log("NewMoveToIntention> to dict " + distTest + " original " + distTest2);
 
             L2PawnRange.ClearIgnoredPawn(PlayerEntity.Instance);
-            if (dist <= 0.12f)
+            // Only skip when the packet itself is a zero-length stop AND we are already there.
+            // Approach MoveState can arrive while the transform still sits on the previous
+            // PositionCorrection — treating that as "arrived" left run-anim with no locomotion.
+            if (distToDest <= 0.12f && packetSpan <= 0.12f)
             {
                 StandIfSeated();
                 return;
@@ -44,8 +52,7 @@ public class NewMoveToIntention : IntentionBase
             if (PlayerStateMachine.Instance.IsMoveToPawn) PlayerStateMachine.Instance.IsMoveToPawn = false;
 
             
-            //PlayerController.Instance.MoveToPoint((Vector3)arg0, 0.1f);
-            ControllerPacketServices.Player.MoveToPoint(new MovementTarget(newPosition, 0.1f , PlayerEntity.Instance.Running));
+            player.MoveToPoint(new MovementTarget(newPosition, 0.1f, PlayerEntity.Instance != null && PlayerEntity.Instance.Running));
             StartAnimMoveTo();
         }
     }
