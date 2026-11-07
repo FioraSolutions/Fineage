@@ -279,7 +279,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
 
 
         SetDataTooTip(DataEmpty(hp), DataEmpty(mp), DataEmpty(radius), desc, DataEmpty(time), nameActiveSkill , name, level);
-        _icon.style.backgroundImage = IconManager.Instance.LoadTextureByName(skillgrp.Icon);
+        L2SlotIconView.SetNamedIcon(_icon, skillgrp.Icon);
         HideEmptyData(DataEmpty(hp), DataEmpty(mp), DataEmpty(radius), desc, DataEmpty(time), nameActiveSkill, name, level);
         ShowHidenData(DataEmpty(hp), DataEmpty(mp), DataEmpty(radius), desc, DataEmpty(time), nameActiveSkill, name, level);
     }

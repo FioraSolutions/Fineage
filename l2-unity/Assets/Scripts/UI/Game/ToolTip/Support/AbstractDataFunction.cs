@@ -30,8 +30,20 @@ public abstract class AbstractDataFunction
         else
         {
             groupElement.style.display = DisplayStyle.None;
-            icon.style.backgroundImage = null;
+            L2SlotIconView.Clear(icon);
         }
+    }
+
+    protected void AddNamedIconIfPresent(VisualElement groupElement, VisualElement icon, string iconName)
+    {
+        if (L2SlotIconView.TrySetNamedIcon(icon, iconName))
+        {
+            groupElement.style.display = DisplayStyle.Flex;
+            return;
+        }
+
+        groupElement.style.display = DisplayStyle.None;
+        L2SlotIconView.Clear(icon);
     }
 
     protected void AddElementPriceifNot0(VisualElement groupPriceLabel, Label priceLabel, int price)

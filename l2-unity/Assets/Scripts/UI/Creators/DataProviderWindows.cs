@@ -11,8 +11,7 @@ public class DataProviderWindows :AbstractDataProvider
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
         VisualElement icon = container.Q<VisualElement>("icon");
-        Texture2D texture = IconManager.Instance.LoadTextureByName(demoNameTexture);
-        AddElementIfNotNull(groupBoxIcon, icon, texture);
+        AddNamedIconIfPresent(groupBoxIcon, icon, demoNameTexture);
 
         VisualElement groupDesc = container.Q<VisualElement>("GrowDesc");
         Label descLabel = container.Q<Label>("descLabel");
@@ -30,8 +29,7 @@ public class DataProviderWindows :AbstractDataProvider
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
         VisualElement icon = container.Q<VisualElement>("icon");
-        Texture2D texture = IconManager.Instance.LoadTextureByName(skill.Icon);
-        AddElementIfNotNull(groupBoxIcon, icon, texture);
+        AddNamedIconIfPresent(groupBoxIcon, icon, skill != null ? skill.Icon : null);
 
         Label nameLabel = container.Q<Label>("nameLabel");
         Label levelLabel = container.Q<Label>("settingLevel");
@@ -51,8 +49,7 @@ public class DataProviderWindows :AbstractDataProvider
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
         VisualElement icon = container.Q<VisualElement>("icon");
-        Texture2D texture = IconManager.Instance.LoadTextureByName(skill.Icon);
-        AddElementIfNotNull(groupBoxIcon, icon, texture);
+        AddNamedIconIfPresent(groupBoxIcon, icon, skill != null ? skill.Icon : null);
 
         Label skillNameLabel = container.Q<Label>("skillNameLabel");
         Label skillLevelLabel = container.Q<Label>("skillSettingLevel");
@@ -102,8 +99,7 @@ public class DataProviderWindows :AbstractDataProvider
                 //set icon
                 VisualElement groupBoxIcon = container.Q<VisualElement>("RequiredItem");
                 VisualElement icon = container.Q<VisualElement>("iconItem");
-                Texture2D texture = IconManager.Instance.LoadTextureByName(item.Icon);
-                AddElementIfNotNull(groupBoxIcon, icon, texture);
+                AddNamedIconIfPresent(groupBoxIcon, icon, item.Icon);
             }
             else
             {
