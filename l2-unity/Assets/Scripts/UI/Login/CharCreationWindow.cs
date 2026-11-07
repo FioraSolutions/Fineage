@@ -339,7 +339,7 @@ public class CharCreationWindow : L2Window {
             return;
         }
 
-        NetSession.Ensure().CreateCharacter(name, classId, raceId, sex, hairStyle, hairColor, face);
+        _ = NetSession.Ensure().CreateCharacter(name, classId, raceId, sex, hairStyle, hairColor, face);
         SetlabelError("");
     }
 

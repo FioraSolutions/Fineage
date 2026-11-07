@@ -484,7 +484,7 @@ public class CharSelectWindow : L2Window {
             return;
         if (_startButton != null)
             _startButton.SetEnabled(false);
-        NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
+        _ = NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
     }
 
     private void ReLoginPressed() {
@@ -522,7 +522,7 @@ public class CharSelectWindow : L2Window {
             // confirm deletes. The server replies with DeleteResult and then a fresh roster.
             if (selected.PendingDelete)
             {
-                NetSession.Ensure().RestoreCharacter(selected.Id, selected.Slot);
+                _ = NetSession.Ensure().RestoreCharacter(selected.Id, selected.Slot);
                 _deleteArmed = false;
                 ShowLobbyStatus("Restoring " + selected.Name + "...");
                 return;
@@ -538,7 +538,7 @@ public class CharSelectWindow : L2Window {
             }
 
             _deleteArmed = false;
-            NetSession.Ensure().DeleteCharacter(selected.Id, selected.Slot);
+            _ = NetSession.Ensure().DeleteCharacter(selected.Id, selected.Slot);
             ShowLobbyStatus("Deleting " + selected.Name + "...");
             RefreshLobbyActions();
             return;

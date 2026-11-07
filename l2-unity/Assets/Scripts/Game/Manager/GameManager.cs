@@ -174,7 +174,7 @@ public class GameManager : MonoBehaviour, IGameManager {
             transport.BeginSession(account, password);
         else
             Debug.LogError("[Fineage] auto-login: no IZoneTransport resolved — cannot begin a session "
-                + "(the legacy Zone V2 client has been removed).");
+                + "(Fineage Net transport missing).");
     }
 
     #endregion

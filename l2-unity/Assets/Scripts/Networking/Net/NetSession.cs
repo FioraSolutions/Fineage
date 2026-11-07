@@ -156,7 +156,7 @@ public sealed class NetSession : MonoBehaviour
             BindDomainSink(domain);
     }
 
-    public async void BeginLobby(string account, string password, bool registerIfMissing = false)
+    public async Task BeginLobby(string account, string password, bool registerIfMissing = false)
     {
         _account = account;
         CharacterId = 0;
@@ -187,14 +187,14 @@ public sealed class NetSession : MonoBehaviour
         }
     }
 
-    public async void RequestRoster()
+    public async Task RequestRoster()
     {
         if (_lobby == null || !_lobby.Connected)
             return;
         await _lobby.SendAsync(NetOpcode.ListCharacters, NetCodec.EncodeListCharacters(new ListCharactersMsg()), NextSeq());
     }
 
-    public async void SelectCharacter(int characterId, string name = "", int slot = -1)
+    public async Task SelectCharacter(int characterId, string name = "", int slot = -1)
     {
         if (_lobby == null || !_lobby.Connected)
             return;
@@ -209,7 +209,7 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void CreateCharacter(
+    public async Task CreateCharacter(
         string name,
         int classId,
         int race,
@@ -240,7 +240,7 @@ public sealed class NetSession : MonoBehaviour
     }
 
     /// <summary>Deletes a character by id (slot = -1) or by roster slot (id = 0).</summary>
-    public async void DeleteCharacter(int characterId, int slot = -1)
+    public async Task DeleteCharacter(int characterId, int slot = -1)
     {
         if (_lobby == null || !_lobby.Connected)
         {
@@ -259,7 +259,7 @@ public sealed class NetSession : MonoBehaviour
     }
 
     /// <summary>Clears a pending delete timer. Same identifying convention as <see cref="DeleteCharacter"/>.</summary>
-    public async void RestoreCharacter(int characterId, int slot = -1)
+    public async Task RestoreCharacter(int characterId, int slot = -1)
     {
         if (_lobby == null || !_lobby.Connected)
         {
@@ -277,7 +277,7 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void EnterZoneWithHandoff(HandoffMsg handoff)
+    public async Task EnterZoneWithHandoff(HandoffMsg handoff)
     {
         _handoff = handoff;
         CharacterId = handoff != null ? handoff.CharacterId : 0;
@@ -563,7 +563,7 @@ public sealed class NetSession : MonoBehaviour
                 var result = NetCodec.DecodeAuthResult(envelope.Payload);
                 AuthResultReceived?.Invoke(result);
                 if (result.Ok)
-                    RequestRoster();
+                    _ = RequestRoster();
                 break;
             }
             case NetOpcode.CharacterRoster:
@@ -590,7 +590,7 @@ public sealed class NetSession : MonoBehaviour
                 Debug.Log("[Net] character created id=" + newId);
                 if (CharCreationWindow.Instance != null)
                     CharCreationWindow.Instance.HideWindow();
-                RequestRoster();
+                _ = RequestRoster();
                 break;
             }
             case NetOpcode.DeleteResult:
@@ -607,7 +607,7 @@ public sealed class NetSession : MonoBehaviour
                 var handoff = NetCodec.DecodeHandoff(envelope.Payload);
                 _handoff = handoff;
                 HandoffReceived?.Invoke(handoff);
-                EnterZoneWithHandoff(handoff);
+                _ = EnterZoneWithHandoff(handoff);
                 break;
             }
             case NetOpcode.Reject:

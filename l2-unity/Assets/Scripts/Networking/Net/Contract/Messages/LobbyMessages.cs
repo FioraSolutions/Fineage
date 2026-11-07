@@ -88,7 +88,7 @@ namespace Fineage.Net.Contract
 
     /// <summary>
     /// Opcode <c>DeleteCharacter</c>. Delete by id (client has the id) or by slot (the roster row index);
-    /// the service resolves whichever is given. Mirrors the V2 <c>DeleteCharacterMsg</c> contract.
+    /// the service resolves whichever is given. Mirrors the Net <c>DeleteCharacterMsg</c> contract.
     /// </summary>
     public sealed class DeleteCharacterMsg
     {
