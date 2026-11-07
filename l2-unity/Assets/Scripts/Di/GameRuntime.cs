@@ -63,7 +63,7 @@ public sealed class GameRuntime
     public PlayerInventory Inventory { get { return Live(ref _inventory, InventoryPacketServices.Inventory); } }
     public TargetManager Targets { get { return Live(ref _targets, TargetPacketServices.Targets); } }
     public HitManager Hits { get { return Live(ref _hits, HitManager.Instance); } }
-    public ClickManager Clicks { get { return Live(ref _clicks, ClickManager.Instance); } }
+    public ClickManager Clicks { get { return Live(ref _clicks, ControllerPacketServices.Clicks); } }
     public PlayerShortcuts Shortcuts { get { return Live(ref _shortcuts, PlayerShortcuts.Instance); } }
 #pragma warning disable CS0618 // Locator fallback until Bind covers all scopes
     public InputManager Input { get { return Live(ref _input, InputManager.Instance); } }

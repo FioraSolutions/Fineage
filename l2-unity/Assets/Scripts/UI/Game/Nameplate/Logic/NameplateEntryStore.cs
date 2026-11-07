@@ -77,9 +77,9 @@ public sealed class NameplateEntryStore
 
     public void EnsureHoverAndTarget(LayerMask entityMask, Color defaultNameColor)
     {
-        if (ClickManager.Instance != null && ClickManager.Instance.HoverObjectData != null)
+        if (ControllerPacketServices.Clicks != null && ControllerPacketServices.Clicks.HoverObjectData != null)
         {
-            ObjectData hover = ClickManager.Instance.HoverObjectData;
+            ObjectData hover = ControllerPacketServices.Clicks.HoverObjectData;
             if (hover.ObjectTransform != null &&
                 entityMask == (entityMask | (1 << hover.ObjectLayer)))
             {

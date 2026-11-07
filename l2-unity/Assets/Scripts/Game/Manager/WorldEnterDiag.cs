@@ -51,7 +51,7 @@ public static class WorldEnterDiag
                 .Append(" move=").Append(input.Move)
                 .Append(" turnCam=").Append(input.TurnCamera);
 
-        ClickManager clicks = ClickManager.Instance;
+        ClickManager clicks = ControllerPacketServices.Clicks;
         sb.Append(" ClickManager=").Append(clicks != null
             ? (clicks.isActiveAndEnabled ? "active" : "disabled")
             : "null");

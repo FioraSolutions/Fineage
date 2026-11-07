@@ -10,6 +10,7 @@ public static class ControllerPacketServices
     private static PlayerController _player;
     private static TargetManager _targets;
     private static InputManager _input;
+    private static ClickManager _clicks;
     private static IAnimationManager _animations;
     private static IMoveAllCharacters _moves;
     private static EffectManager _effects;
@@ -23,6 +24,7 @@ public static class ControllerPacketServices
         PlayerController player = null,
         TargetManager targets = null,
         InputManager input = null,
+        ClickManager clicks = null,
         IAnimationManager animations = null,
         IMoveAllCharacters moves = null,
         EffectManager effects = null,
@@ -39,6 +41,8 @@ public static class ControllerPacketServices
             _targets = targets;
         if (input != null)
             _input = input;
+        if (clicks != null)
+            _clicks = clicks;
         if (animations != null)
             _animations = animations;
         if (moves != null)
@@ -70,6 +74,11 @@ public static class ControllerPacketServices
         _input != null
             ? _input
             : ResolveFromGame<InputManager>() ?? LegacyInputManagerInstance();
+
+    public static ClickManager Clicks =>
+        _clicks != null
+            ? _clicks
+            : ResolveFromGame<ClickManager>() ?? LegacyClickManagerInstance();
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
@@ -121,6 +130,8 @@ public static class ControllerPacketServices
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
     static InputManager LegacyInputManagerInstance() => InputManager.Instance;
 
+    static ClickManager LegacyClickManagerInstance() => ClickManager.Instance;
+
     static PositionValidationController LegacyPositionValidationInstance() =>
         PositionValidationController.Instance;
 
@@ -156,6 +167,7 @@ public sealed partial class PlayerController
             player: this,
             targets: _packetTargets,
             input: _packetInput,
+            clicks: _packetClicks,
             animations: _packetAnimations,
             moves: _packetMoves,
             effects: _packetEffects,

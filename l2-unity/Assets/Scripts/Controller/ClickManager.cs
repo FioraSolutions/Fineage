@@ -18,7 +18,7 @@ public class ClickManager : MonoBehaviour
     [SerializeField] private LayerMask _clickThroughMask;
     private UIDocument uiDocument;
     private static ClickManager _instance;
-    [System.Obsolete("Use [Inject] instead")]
+    [System.Obsolete("Use [Inject] or ControllerPacketServices.Clicks instead")]
     public static ClickManager Instance => _instance;
 
     private InputManager GameInput
@@ -44,6 +44,7 @@ public class ClickManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            ControllerPacketServices.Bind(clicks: this);
             uiDocument = GetComponent<UIDocument>();
         }
         else
@@ -69,6 +70,7 @@ public class ClickManager : MonoBehaviour
         ControllerPacketServices.Bind(
             input: GameInput,
             targets: Targets,
+            clicks: this,
             player: ControllerPacketServices.Player);
     }
 
