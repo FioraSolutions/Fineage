@@ -95,7 +95,6 @@ public class ParticleSingle : EffectPart
         {
             // ParticleSingleLifetimeDebug.LogSlotOff(BuildDebugSnapshot(now), now);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // DocExtractorParticleSnapshotLogger.OnSlotOff(this);
             // DropAdenaDestroyLog.Event(
                 // "SLOT_EXPIRED",
                 // this,
@@ -134,9 +133,6 @@ public class ParticleSingle : EffectPart
         else
         {
             UpdateOwnerWorldPos();
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // DocExtractorParticleSnapshotLogger.OnFixedUpdateTick(this, now, ResolveRenderer());
-#endif
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // if (ParticleSingleLifetimeDebug.ShouldTrace(name, _owner, transform)
                 // && _lifetime.Active
@@ -270,7 +266,6 @@ public class ParticleSingle : EffectPart
             // $"slotDuration={slotDuration:F3}s delay={ReadMaxInitialDelay(slotRenderer):F3}s " +
             // $"fixed={_hasFixedDuration} maxCount={_maxCount}",
             // includeStack: false);
-        // DocExtractorParticleSnapshotLogger.OnPlayPart(this);
 #endif
     }
 
@@ -460,14 +455,6 @@ public class ParticleSingle : EffectPart
 #endif
         }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // DocExtractorParticleSnapshotLogger.OnParticleActivated(
-            // this,
-            // renderer,
-            // now,
-            // shaderStartTime,
-            // seed);
-#endif
     }
 
     private Renderer ResolveRenderer()
