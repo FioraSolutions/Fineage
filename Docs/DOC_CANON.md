@@ -51,7 +51,7 @@ Do not commit `ref/` trees. Sync Net contract with `python3 scripts/sync-net-con
 ## Stabilize Interlude (current program)
 
 1. Keep Fineage Net as the only client wire; do not revive MessagePack V2 or native L2 TCP as play path.
-2. Prefer epic **#131** (client architecture) before packing more Gremlin/content onto the monolith (**#129**). Child issues **#137–#143** are closed; live status of what remains is the **Status Now** header in [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md) (`IncomingPacketActions` gone; PacketServices Instance drain largely done; `Fineage.Networking` + first `Fineage.Game` enums live; UI/Controller/Di stubs + B4 Session/Dispatch/outbound pump still open).
+2. Prefer epic **#131** (client architecture) before packing more Gremlin/content onto the monolith (**#129**). Child issues **#137–#143** are closed; live status of what remains is the **Status Now** header in [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md) (`IncomingPacketActions` gone; PacketServices Instance drain largely done; `Fineage.Networking` / `Game` / `Controller` / `UI` seeded; `Fineage.Di` stub + B4 Session/Dispatch/outbound pump still open).
 3. Treat Mobius CT0 + Interlude client under `ref/` as SoT; refresh parity docs against current `dev` when claiming gaps.
 4. Land WIP in **small PRs**; do not mix doc sync with feature piles.
 5. Chronicle / High Five versioning stays **deferred** — no HF datapack or DTO sprawl until Interlude is stable.

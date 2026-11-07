@@ -9,9 +9,9 @@
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (PRs through **#726**). Live leftovers are mostly PacketServices / DI / LoginRuntime legacy fallbacks; `PlayerController.Instance` remains only in comments.
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
-- **Asmdef:** `Fineage.Domain` (events); `Fineage.Networking` holds engine-free Net helpers plus `NetTransport` / `NetCommandSender` and references `Fineage.Net.Contract`; `Fineage.Game` has first cycle-safe item/action/entity enums. `Fineage.UI` / `Controller` / `Di` folders still stubs — gameplay MonoBehaviours remain `Assembly-CSharp`.
+- **Asmdef:** `Fineage.Domain` (events); `Fineage.Networking` (Net helpers + `NetTransport` / `NetCommandSender`); `Fineage.Game` (item/action/entity enums + drop/effect deco constants); `Fineage.Controller` (PlayerState/Intention/Event/EntityActionKind + move gait); `Fineage.UI` (ChatType/ChatCommand/PlayerCommand + L2TargetRenderType). `Fineage.Di` still stub — gameplay MonoBehaviours remain `Assembly-CSharp`.
 - Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`.
-- Epic **#131** residual: more asmdef slices (UI/Controller/Di + remaining Game MonoBehaviours when cycle-safe), B4 Session/Dispatch type split + shared outbound pump, EventBus/MessagePipe depth. Not TLS / Phase D / #129.
+- Epic **#131** residual: more asmdef slices (remaining Game/UI/Controller MonoBehaviours when cycle-safe + Di), B4 Session/Dispatch type split + shared outbound pump, EventBus/MessagePipe depth. Not TLS / Phase D / #129.
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
