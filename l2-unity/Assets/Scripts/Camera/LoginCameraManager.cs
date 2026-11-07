@@ -152,11 +152,12 @@ public class LoginCameraManager : MonoBehaviour
 
         EnsureStudioListener(_activeCamera);
 
-        if (ThirdPersonListener.Instance == null)
+        var listener = AudioPacketServices.Listener;
+        if (listener == null)
             return;
 
-        ThirdPersonListener.Instance.transform.position = _activeCamera.transform.position;
-        ThirdPersonListener.Instance.Cam = _activeCamera.gameObject;
+        listener.transform.position = _activeCamera.transform.position;
+        listener.Cam = _activeCamera.gameObject;
     }
 
     /// <summary>
