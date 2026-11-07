@@ -92,9 +92,10 @@ public class DeadManager : MonoBehaviour, IDead
             return;
         }
 
-        if (NameplatesManager.Instance != null)
+        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        if (nameplates != null)
         {
-            NameplatesManager.Instance.Remove(data.GetIdEntity());
+            nameplates.Remove(data.GetIdEntity());
         }
 
         data.SetAlphaByte(fade, 255);

@@ -56,7 +56,7 @@ public static class WorldEnterDiag
             ? (clicks.isActiveAndEnabled ? "active" : "disabled")
             : "null");
 
-        NameplatesManager plates = NameplatesManager.Instance;
+        NameplatesManager plates = NameplatePacketServices.Nameplates;
         sb.Append(" Nameplates=");
         if (plates == null)
             sb.Append("null");

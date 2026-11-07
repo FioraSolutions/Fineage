@@ -616,8 +616,9 @@ public class SceneLoader : MonoBehaviour
                 + " scene=" + other.gameObject.scene.name);
         }
 
-        if (NameplatesManager.Instance != null && gameplay != null)
-            NameplatesManager.Instance.Camera = gameplay;
+        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        if (nameplates != null && gameplay != null)
+            nameplates.Camera = gameplay;
 
         // FMOD StudioEventEmitter distance checks require a StudioListener in the scene.
         if (gameplay != null && gameplay.GetComponent<FMODUnity.StudioListener>() == null)

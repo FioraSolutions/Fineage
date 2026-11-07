@@ -33,6 +33,8 @@ public class LobbyNameplatesManager : MonoBehaviour
     private bool _subscribed;
 
     private static LobbyNameplatesManager _instance;
+
+    [System.Obsolete("Use NameplatePacketServices.LobbyNameplates or [Inject] LobbyNameplatesManager instead")]
     public static LobbyNameplatesManager Instance => _instance;
 
     public Camera Camera
@@ -54,6 +56,7 @@ public class LobbyNameplatesManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            NameplatePacketServices.Bind(lobbyNameplates: this);
         }
         else
         {
