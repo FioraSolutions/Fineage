@@ -421,7 +421,7 @@ public static class FineageRpEditorPlay
         string loginError = LabelText(LoginWindow.Instance, "_labelError");
         if (_createSent)
         {
-            CharCreationWindow creation = CharCreationWindow.Instance;
+            CharCreationWindow creation = LoginPacketServices.CharCreate;
             bool creationOpen = creation != null && creation.IsOpen;
             if (manager.GameState == GameState.CHAR_CREATION && creationOpen)
             {

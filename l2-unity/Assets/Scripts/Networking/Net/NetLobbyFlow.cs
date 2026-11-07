@@ -228,8 +228,8 @@ public sealed class NetLobbyFlow
                 if (!created.Ok)
                 {
                     Debug.LogWarning($"[Net] create failed {created.Code}: {created.Message}");
-                    if (CharCreationWindow.Instance != null)
-                        CharCreationWindow.Instance.SetlabelError(
+                    if (LoginPacketServices.CharCreate != null)
+                        LoginPacketServices.CharCreate.SetlabelError(
                             LobbyCharacterText.ErrorMessage(created.Code, created.Message));
                     break;
                 }
@@ -237,8 +237,8 @@ public sealed class NetLobbyFlow
                 CharacterSummaryNet summary = created.Character;
                 int newId = summary != null ? summary.CharacterId : 0;
                 Debug.Log("[Net] character created id=" + newId);
-                if (CharCreationWindow.Instance != null)
-                    CharCreationWindow.Instance.HideWindow();
+                if (LoginPacketServices.CharCreate != null)
+                    LoginPacketServices.CharCreate.HideWindow();
                 _ = RequestRoster();
                 break;
             }
