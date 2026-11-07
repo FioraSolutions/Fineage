@@ -45,9 +45,6 @@ public static class NetGearSession
             ApplyToLivePlayer(player, user);
 
         // StorageNpc is how the rest of the client (inventory, clan, status) looks up "me".
-        // It used to be filled only from PrepareSpawn, which nothing calls any more, so the
-        // store stayed empty and every GetFirstUser() returned null -- the inventory never
-        // applied its snapshot because of it.
         RegisterSelfInStorage(user, transport, player);
     }
 
@@ -81,18 +78,6 @@ public static class NetGearSession
             return;
 
         StorageNpc.getInstance().AddUserInfo(new UserInfoDto(info));
-    }
-
-    public static PlayerInfoInterlude PrepareSpawn(NetPlayerSpawned spawned)
-    {
-        PlayerInfoInterlude info = NetEntityMap.ToPlayerInfo(spawned);
-        if (_hasUser)
-            NetGearMap.OverlayUserInfo(info, _user);
-        StorageNpc.getInstance().AddUserInfo(new UserInfoDto(info));
-        int rhand = info.Appearance != null ? info.Appearance.RHand : 0;
-        int classId = info.Identity != null ? info.Identity.PlayerClass : 0;
-        Debug.Log("[Net] spawn class=" + classId + " rhand=" + rhand);
-        return info;
     }
 
     public static void NoteItemList(NetItemEntry[] rows)

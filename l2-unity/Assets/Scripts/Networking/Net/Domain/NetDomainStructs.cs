@@ -170,55 +170,6 @@ public struct NetBlessingResult
 }
 
 /// <summary>
-/// Staging pose for <see cref="NetGearSession.PrepareSpawn"/> (legacy PlayerSpawned wire).
-/// Production enter-world uses <c>EntitySpawnMsg</c> in <c>NetSession</c> instead.
-/// </summary>
-public struct NetPlayerSpawned
-{
-    public int ObjectId;
-    public string Name;
-    public int ClassId;
-    public int Race;
-    public int Sex;
-    public int Level;
-    public int MaxHp;
-    public int X;
-    public int Y;
-    public int Z;
-    public float RunSpeed;
-    public float WalkSpeed;
-    public bool Running;
-}
-
-public struct NetMoveTo
-{
-    public int ObjectId;
-    public int DestX;
-    public int DestY;
-    public int DestZ;
-    public int OriginX;
-    public int OriginY;
-    public int OriginZ;
-}
-
-public struct NetCharInfo
-{
-    public int ObjectId;
-    public string Name;
-    public int X;
-    public int Y;
-    public int Z;
-    public int ClassId;
-    public bool HasPaperdoll;
-    public int[] PaperdollItemIds;
-    public bool HasClan;
-    public int ClanId;
-    public int ClanCrestId;
-    /// <summary>Enchant of each paperdoll slot, parallel to <see cref="PaperdollItemIds"/>. Key 9.</summary>
-    public int[] PaperdollEnchant;
-}
-
-/// <summary>
 /// Paperdoll indexes from Fineage-Backend. Right hand is 7 (Squire's Sword 2369, Apprentice's Wand 6).
 /// Missing indexes read as empty.
 /// </summary>
@@ -408,43 +359,7 @@ public struct NetItemEntry
     public int EnchantLevel;
 }
 
-public struct NetSpawnItem
-{
-    public int ObjectId;
-    public int ItemId;
-    public int X;
-    public int Y;
-    public int Z;
-    public bool Stackable;
-    public int Count;
-    public int Unknown;
-}
 
-public struct NetDropItem
-{
-    public int CharObjectId;
-    public int ObjectId;
-    public int ItemId;
-    public int X;
-    public int Y;
-    public int Z;
-    public bool Stackable;
-    public int Count;
-    public int Unknown;
-}
-
-/// <summary>Wire spawn row after decode — same field set as Interlude <c>SpawnItemDto</c> apply.</summary>
-public struct SpawnItemApplyFields
-{
-    public int ObjectId;
-    public int ItemId;
-    public int X;
-    public int Y;
-    public int Z;
-    public bool Stackable;
-    public int Count;
-    public int Unknown;
-}
 
 public struct NetInventoryChange
 {
