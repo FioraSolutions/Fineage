@@ -38,15 +38,31 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
         if (_instance == null)
         {
             _instance = this;
- 
-             _showToolTip = new ShowToolTip(this);
+            _showToolTip = new ShowToolTip(this);
             _dataProvider = new TooltipDataProvider();
             _calcPosition = new CalcNewPosition();
+            WireToolTipSimplePacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireToolTipSimplePacketServices();
+    }
+
+    private void WireToolTipSimplePacketServices()
+    {
+        ToolTipSimplePacketServices.Bind(window: this);
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets()

@@ -131,10 +131,10 @@ public class L2GameUI : L2UI
             DealerWindow.Instance.AddWindow(_rootVisualContainer);
             DealerWindow.Instance.HideWindow();
         }
-        if (ToolTipSimple.Instance != null)
+        if (ToolTipSimplePacketServices.Window != null)
         {
-            ToolTipSimple.Instance.AddWindow(_rootVisualContainer);
-            ToolTipSimple.Instance.HideWindow();
+            ToolTipSimplePacketServices.Window.AddWindow(_rootVisualContainer);
+            ToolTipSimplePacketServices.Window.HideWindow();
         }
         if (QuantityInputPacketServices.Window != null)
         {

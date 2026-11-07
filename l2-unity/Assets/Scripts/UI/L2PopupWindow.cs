@@ -34,7 +34,7 @@ public abstract class L2PopupWindow : L2Window
             {
 
                 BringToFront();
-                ToolTipSimple.Instance.BringToFront();
+                ToolTipSimplePacketServices.Window.BringToFront();
             }, TrickleDown.TrickleDown);
         }
 
@@ -55,7 +55,7 @@ public abstract class L2PopupWindow : L2Window
             {
 
                 BringToFront();
-                ToolTipSimple.Instance.BringToFront();
+                ToolTipSimplePacketServices.Window.BringToFront();
             }, TrickleDown.TrickleDown);
         }
 
