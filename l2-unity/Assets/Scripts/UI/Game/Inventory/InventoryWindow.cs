@@ -337,19 +337,11 @@ public class InventoryWindow : L2PopupWindow
             _maximumWeight = stats.MaxWeight;
             _weightLabel.text = stats.WeightPercent()+"%";
 
-            if(_weiBar != null & _weiBarBg != null)
-            {
-                float bgWidth = 138;
-                //float bgWidth = _expBarBg.resolvedStyle.width;
-                double expRatio = (double)stats.CurrWeight / stats.MaxWeight;
-                double barWidth = bgWidth * expRatio;
-                if (stats.MaxWeight == 0)
-                {
-                    barWidth = 0;
-                }
-                //_weiBar.style.width = Convert.ToSingle(barWidth);
-                _weiBarBg.style.width = Convert.ToSingle(barWidth);
-            }
+            // Interlude inventory UXML paints fill on WeightBg, not the gauge child.
+            float weightRatio = stats.MaxWeight > 0
+                ? (float)stats.CurrWeight / stats.MaxWeight
+                : 0f;
+            L2ResourceBarView.SetFillFixed(_weiBarBg, _weiBarBg, weightRatio, 138f);
   
         }
 

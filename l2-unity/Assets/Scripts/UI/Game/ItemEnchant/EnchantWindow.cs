@@ -344,7 +344,8 @@ public class EnchantWindow : L2PopupWindow
         while (index <= endValue)
         {
             index = index + 7;
-            ProgressBarUtils.UpdatePb(_progressBarBg, _progressBar, endValue, index, endValue);
+            float remaining = 1f - (index / endValue);
+            L2ResourceBarView.SetFillFixed(_progressBar, _progressBarBg, remaining, endValue);
             float delayPerIteration = _moveDuration / endValue * 1000;
             await Task.Delay((int)delayPerIteration);
         }
