@@ -160,7 +160,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     }
 
     public void UpdateMasks() {
-        NameplatesManager.Instance.SetMask(_entityMask);
+        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        if (nameplates != null)
+            nameplates.SetMask(_entityMask);
         if (_geodata != null)
             _geodata.ObstacleMask = _obstacleMask;
         ClickManager clicks = ControllerPacketServices.Clicks;
@@ -269,8 +271,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (_npcDeco != null)
             _npcDeco.Stop(id);
         UnregisterObject(id, entity);
-        if (NameplatesManager.Instance != null)
-            NameplatesManager.Instance.Remove(id);
+        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        if (nameplates != null)
+            nameplates.Remove(id);
         SetEntityInteraction(go, false);
 
         if (_appearFade == null || go == null)

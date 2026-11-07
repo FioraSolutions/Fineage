@@ -36,7 +36,9 @@ public class DeadMonster : MonoBehaviour
             _monsterRenderer = gameObject.GetComponentsInChildren<Renderer>();
             _isRefresh = true; 
             _useAntiGravity = false;
-            NameplatesManager.Instance.Remove(_monster_id);
+            NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+            if (nameplates != null)
+                nameplates.Remove(_monster_id);
         }
         else
         {
