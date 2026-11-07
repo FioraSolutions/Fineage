@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using VContainer;
 
 public class ObjectPoolManager : AbstractPoolManager, IPoolManager
 {
-    [Inject] ModelTable _models;
     [System.Serializable]
     public class Pool
     {
@@ -33,7 +31,6 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
     private void Awake()
     {
         Instance = this;
-        WireObjectPoolPacketServices();
     }
 
     private void OnDestroy()
@@ -45,7 +42,6 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
 
     void Start()
     {
-        WireObjectPoolPacketServices();
         poolDictionary = new Dictionary<ObjectType, Dictionary<GameObject, Queue<GameObject>>>();
         tagToPrefabMap = new Dictionary<ObjectType, GameObject>();
         createdInstancesTracker = new Dictionary<GameObject, int>();
@@ -66,11 +62,6 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
         SetupPoolHierarchy(pools, poolParent);
         PrewarmUserContainers();
         // Debug.Log($"Создание пула объектов успешно. Размер: {poolDictionary.Count}");
-    }
-
-    private void WireObjectPoolPacketServices()
-    {
-        ObjectPoolPacketServices.Bind(models: _models);
     }
 
     static readonly CharacterRaceAnimation[] UserPrewarmRaces =

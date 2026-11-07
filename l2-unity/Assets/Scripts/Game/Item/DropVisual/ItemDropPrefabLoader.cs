@@ -17,7 +17,7 @@ public sealed class ItemDropPrefabLoader
 
     public GameObject Resolve(int itemId)
     {
-        ModelTable models = _models != null ? _models : ModelTable.Instance;
+        ModelTable models = _models != null ? _models : TablePacketServices.Models;
         Abstractgrp grp = _grp.ResolveGrp(itemId);
         if (grp != null && !string.IsNullOrEmpty(grp.DropModel) &&
             !grp.DropModel.Equals("None", System.StringComparison.OrdinalIgnoreCase))

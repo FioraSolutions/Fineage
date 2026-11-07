@@ -22,7 +22,7 @@ public static class EntitySpawnShared
 
         npcGrps = npcGrps != null ? npcGrps : NpcgrpTable.Instance;
         npcNames = npcNames != null ? npcNames : NpcNameTable.Instance;
-        models = models != null ? models : ModelTable.Instance;
+        models = models != null ? models : TablePacketServices.Models;
 
         int visualNpcId = identity.NpcId;
         if (npcGrps.GetNpcgrp(visualNpcId) == null)
