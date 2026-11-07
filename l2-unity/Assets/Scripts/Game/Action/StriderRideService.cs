@@ -12,6 +12,7 @@ public sealed class StriderRideService : ILateTickable
     const string PrefabFolder = "Data/Animations/LineageMonsters/strider_m00";
     const string SeatBone = "Bone15";
 
+    [System.Obsolete("Use [Inject] or AnimationPacketServices.StriderRide instead")]
     public static StriderRideService Instance { get; private set; }
 
     struct SavedChild
@@ -41,6 +42,7 @@ public sealed class StriderRideService : ILateTickable
     public StriderRideService()
     {
         Instance = this;
+        AnimationPacketServices.Bind(striderRide: this);
     }
 
     public bool IsRiding(Entity rider)
