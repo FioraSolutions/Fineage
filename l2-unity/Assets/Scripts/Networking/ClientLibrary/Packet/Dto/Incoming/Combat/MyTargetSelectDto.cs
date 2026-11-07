@@ -8,7 +8,7 @@ public class MyTargetSelectDto : IWireDto
     public string Color { get => _color; }
     
 
-    /// <summary>Zone V2 <c>MyTargetSelected</c> (1008) color hint.</summary>
+    /// <summary>Fineage Net <c>MyTargetSelected</c> (1008) color hint.</summary>
     public static MyTargetSelectDto FromNet(int objectId, int colorHint)
     {
         var dto = new MyTargetSelectDto();

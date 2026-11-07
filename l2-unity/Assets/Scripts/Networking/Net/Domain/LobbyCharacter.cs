@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 /// <summary>
-/// Character-select row for the lobby UI. Independent of the MessagePack wire struct.
+/// Character-select row for the lobby UI (presentation shape, not a raw Net contract row).
 /// </summary>
 public sealed class LobbyCharacter
 {
