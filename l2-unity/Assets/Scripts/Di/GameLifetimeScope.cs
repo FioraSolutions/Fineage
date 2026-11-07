@@ -307,7 +307,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(ChatWindow))
             return ChatWindow.Instance as T;
         if (typeof(T) == typeof(HtmlWindow))
-            return HtmlWindow.Instance as T;
+            return GameWindowPacketServices.Html as T;
         if (typeof(T) == typeof(SystemMessageWindow))
             return SystemMessagePacketServices.Window as T;
         if (typeof(T) == typeof(CameraController))

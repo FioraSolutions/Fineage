@@ -45,11 +45,13 @@ public class StatusWindow : L2Window
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind();
+        GameWindowPacketServices.Bind(status: this);
     }
 
-    private void OnDestroy() {
-        _instance = null;
+    private void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets() {

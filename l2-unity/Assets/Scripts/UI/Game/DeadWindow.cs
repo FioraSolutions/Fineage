@@ -29,12 +29,13 @@ public class DeadWindow : L2Window
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind();
+        GameWindowPacketServices.Bind(dead: this);
     }
 
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
 

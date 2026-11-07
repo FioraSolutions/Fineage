@@ -78,7 +78,7 @@ public sealed class GameRuntime
 
     public L2GameUI Ui { get { return Live(ref _ui, L2GameUI.Instance); } }
     public ChatWindow Chat { get { return Live(ref _chat, ChatWindow.Instance); } }
-    public HtmlWindow Html { get { return Live(ref _html, HtmlWindow.Instance); } }
+    public HtmlWindow Html { get { return Live(ref _html, GameWindowPacketServices.Html); } }
     public DealerWindow Dealer { get { return Live(ref _dealer, DealerWindow.Instance); } }
     public MultiSellWindow MultiSell { get { return Live(ref _multiSell, MultiSellWindow.Instance); } }
     public TradeWindow Trade { get { return Live(ref _trade, TradeWindow.Instance); } }
@@ -92,15 +92,15 @@ public sealed class GameRuntime
     public SkillListWindow SkillList { get { return Live(ref _skillList, SkillListWindow.Instance); } }
     public QuestWindow Quest { get { return Live(ref _quest, QuestWindow.Instance); } }
     public ClanWindow Clan { get { return Live(ref _clan, ClanWindow.Instance); } }
-    public ShowListWindow ShowList { get { return Live(ref _showList, ShowListWindow.Instance); } }
+    public ShowListWindow ShowList { get { return Live(ref _showList, GameWindowPacketServices.ShowList); } }
     public SeedInfoWindow SeedInfo { get { return Live(ref _seedInfo, SeedInfoWindow.Instance); } }
     public SellCropListWindow SellCrop { get { return Live(ref _sellCrop, SellCropListWindow.Instance); } }
     public SkillbarWindow Skillbar { get { return Live(ref _skillbar, SkillbarWindow.Instance); } }
     public SystemMessageWindow SystemMessageUi { get { return Live(ref _systemMessageUi, SystemMessagePacketServices.Window); } }
     public BufferPanel Buffer { get { return Live(ref _buffer, BufferPanel.Instance); } }
     public InventoryWindow InventoryUi { get { return Live(ref _inventoryUi, InventoryWindow.Instance); } }
-    public DeadWindow Dead { get { return Live(ref _dead, DeadWindow.Instance); } }
-    public StatusWindow Status { get { return Live(ref _status, StatusWindow.Instance); } }
+    public DeadWindow Dead { get { return Live(ref _dead, GameWindowPacketServices.Dead); } }
+    public StatusWindow Status { get { return Live(ref _status, GameWindowPacketServices.Status); } }
     public WorldPacketApply WorldApply { get; private set; }
     public MessagePacketApply MessageApply { get; private set; }
 
