@@ -823,8 +823,9 @@ public class CompositeEffectV2 : CompositePrefabEffect
 
         Vector3 resolvedHitPoint = hitPoint;
         Vector3 resolvedHitDirection = hitDirection;
-        if (HitManager.Instance != null &&
-            !HitManager.Instance.TryPrepareProjectileEffectHit(
+        var hits = HitPacketServices.Hits;
+        if (hits != null &&
+            !hits.TryPrepareProjectileEffectHit(
                 projectilePrefab,
                 hitPoint,
                 hitDirection,

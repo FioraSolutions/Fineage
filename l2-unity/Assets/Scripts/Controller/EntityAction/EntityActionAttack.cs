@@ -69,8 +69,9 @@ public sealed class EntityActionAttack : IEntityActionProcess
             entity.ActionSlot.AttackSwingId++;
             EntityActionVisual.PlayMeleeAttack(entity);
 
-            if (HitManager.Instance != null)
-                HitManager.Instance.ArmRemoteMeleeHit(entity, target, attack);
+            var hits = CombatPacketServices.Hits;
+            if (hits != null)
+                hits.ArmRemoteMeleeHit(entity, target, attack);
         }
     }
 

@@ -19,4 +19,6 @@ public static class CombatPacketServices
 
     public static TargetManager Targets =>
         _targets != null ? _targets : ControllerPacketServices.Targets;
+
+    public static HitManager Hits => HitPacketServices.Hits;
 }
