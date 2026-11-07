@@ -71,8 +71,8 @@ public sealed class EntityActionMove : IEntityActionProcess
             L2PawnRange.ClearIgnoredPawn(entity);
             if (entity.Identity != null)
                 ControllerPacketServices.Moves.CancelMove(entity.Identity.Id);
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.NotifyArrived(entity);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.NotifyArrived(entity);
             return;
         }
 
@@ -165,8 +165,8 @@ public sealed class EntityActionMove : IEntityActionProcess
         {
             MagicGaitTrace.Event(entity, "move-pawn-INRANGE→NotifyArrived",
                 "toPawn=" + toPawn.ToString("F2") + " stop=" + stopDistance.ToString("F2"));
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.NotifyArrived(entity);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.NotifyArrived(entity);
             return;
         }
 

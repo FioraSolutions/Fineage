@@ -177,8 +177,8 @@ public class HitManager : MonoBehaviour
         if (monster.IsDead() || monster.CalculateRemainingHp() <= 0)
         {
             monster.SetDead(true);
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Die(monster, false, "hit_hp0");
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Die(monster, false, "hit_hp0");
         }
     }
 

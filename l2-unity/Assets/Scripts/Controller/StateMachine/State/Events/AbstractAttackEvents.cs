@@ -168,8 +168,8 @@ public abstract class AbstractAttackEvents : StateBase
             if (monsterEntity.IsDead() || monsterEntity.CalculateRemainingHp() <= 0)
             {
                 monsterEntity.SetDead(true);
-                if (EntityActionMachine.Instance != null)
-                    EntityActionMachine.Instance.Die(monsterEntity, false, "player_hit_hp0");
+                if (EntityActionPacketServices.Actions != null)
+                    EntityActionPacketServices.Actions.Die(monsterEntity, false, "player_hit_hp0");
             }
 
 

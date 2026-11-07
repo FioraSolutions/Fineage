@@ -162,8 +162,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (target != null && target != entity && target.IsDead())
         {
             MagicGaitTrace.Event(entity, "Skill.Tick-deadTarget→CancelAttackKeepStance", null);
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.CancelAttackKeepStance(entity);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.CancelAttackKeepStance(entity);
             return;
         }
 
@@ -175,8 +175,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
         user.ClearAttackVisual();
         if (entity.Identity != null)
             CombatPacketServices.Facing?.EndFollow(entity.Identity.Id, "skill-tick");
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(entity, EntityActionKind.Idle, null);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(entity, EntityActionKind.Idle, null);
     }
 
     public static bool TryApplyWeaponCharge(Entity entity, MagicSkillUseDto magic)
@@ -273,8 +273,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
             return;
         }
 
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(entity, EntityActionKind.Idle, null);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(entity, EntityActionKind.Idle, null);
     }
 
     void BeginFacing(Entity entity, MagicSkillUseDto magic, Entity target, bool selfCast)

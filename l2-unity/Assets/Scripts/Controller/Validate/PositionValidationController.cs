@@ -215,16 +215,16 @@ public class PositionValidationController : MonoBehaviour
             MonsterEntity monsterEntity = (MonsterEntity)entity;
             if (monsterEntity.ActionSlot.Action == EntityActionKind.Move)
                 return;
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Set(monsterEntity, EntityActionKind.Move, newPosition);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Set(monsterEntity, EntityActionKind.Move, newPosition);
 
         }else if (entity.GetType() == typeof(NpcEntity))
         {
             NpcEntity npcEntity = (NpcEntity)entity;
             if (npcEntity.ActionSlot.Action == EntityActionKind.Move)
                 return;
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Set(npcEntity, EntityActionKind.Move, newPosition);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Set(npcEntity, EntityActionKind.Move, newPosition);
         }
         else if (entity is UserEntity)
         {

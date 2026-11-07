@@ -253,8 +253,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         _players.Remove(id);
         _npcs.Remove(id);
         _objects.Remove(id);
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Remove(entity);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Remove(entity);
 
         if (_gravityNpc != null)
             _gravityNpc.DeleteGravity(id);
