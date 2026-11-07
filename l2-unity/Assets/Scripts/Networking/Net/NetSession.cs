@@ -6,7 +6,7 @@ using UnityEngine;
 
 /// <summary>
 /// Fineage Net session: lobby + zone over PacketEnvelope. Maps inbound events to
-/// <see cref="IWorldDomainSink"/> via NetEntity/Combat/Gear/SocialMap adapters.
+/// <see cref="IWorldDomainSink"/> via NetEntity/Gear map adapters and inline DTO construction.
 /// </summary>
 public sealed class NetSession : MonoBehaviour
 {
@@ -1167,28 +1167,29 @@ public sealed class NetSession : MonoBehaviour
             HitTimeMs = use.HitTimeMs,
             ReuseDelayMs = use.ReuseDelayMs
         };
-        MagicSkillUseDto dto = NetCombatMap.ToMagicSkillUseDto(mapped);
+        var dto = new MagicSkillUseDto();
+        dto.InitFromNet(
+            mapped.CasterObjectId,
+            mapped.TargetObjectId,
+            mapped.SkillId,
+            mapped.SkillLevel,
+            mapped.HitTimeMs,
+            mapped.ReuseDelayMs);
         if (_skills != null) _skills.ApplyMagicSkillUse(dto);
         else MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
     }
 
     void ApplyRevive(ReviveNetMsg revive)
     {
-        ReviveDto dto = NetCombatMap.ToReviveDto(new NetRevive { ObjectId = revive.ObjectId });
+        var dto = new ReviveDto { ObjectId = revive.ObjectId };
         if (_presence != null) _presence.ApplyRevive(dto);
         else ReviveApplyIncomingPacketServices.ApplyRevive(dto);
     }
 
     void ApplyTeleportToLocation(TeleportToLocationNetMsg teleport)
     {
-        TeleportToLocationDto dto = NetCombatMap.ToTeleportToLocationDto(new NetTeleportToLocation
-        {
-            ObjectId = teleport.ObjectId,
-            X = teleport.X,
-            Y = teleport.Y,
-            Z = teleport.Z,
-            Heading = teleport.Heading
-        });
+        TeleportToLocationDto dto = TeleportToLocationDto.FromZoneWire(
+            teleport.ObjectId, teleport.X, teleport.Y, teleport.Z, teleport.Heading);
         if (_presence != null) _presence.ApplyTeleportToLocation(dto);
         else TeleportToLocationApplyIncomingPacketServices.ApplyTeleportToLocation(dto);
     }
@@ -1208,11 +1209,7 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        AbnormalStatusUpdateDto dto = NetCombatMap.ToAbnormalStatusUpdateDto(new NetAbnormalStatusUpdate
-        {
-            ObjectId = update.ObjectId,
-            Effects = effects
-        });
+        AbnormalStatusUpdateDto dto = AbnormalStatusUpdateDto.FromZoneEffects(effects);
         if (_status != null) _status.ApplyAbnormalStatusUpdate(dto);
         else AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
     }
@@ -1484,12 +1481,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)
     {
-        var dto = NetSocialMap.ToAskJoinPartyDto(new NetPartyAskJoin
-        {
-            RequestorObjectId = ask.RequestorObjectId,
-            RequestorName = ask.RequestorName ?? "",
-            ItemDistribution = ask.ItemDistribution
-        });
+        var dto = AskJoinPartyDto.FromNet(ask.RequestorObjectId, ask.RequestorName ?? "", ask.ItemDistribution);
         if (_party != null) _party.ApplyAskJoinParty(dto);
         else AskJoinPartyApplyIncomingPacketServices.ApplyAskJoinParty(dto);
     }
@@ -1532,11 +1524,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTradeAsk(TradeAskNetMsg ask)
     {
-        SendTradeRequestDto dto = NetSocialMap.ToSendTradeRequestDto(new NetTradeAsk
-        {
-            RequestorObjectId = ask.RequestorObjectId,
-            RequestorName = ask.RequestorName ?? ""
-        });
+        SendTradeRequestDto dto = SendTradeRequestDto.FromNet(ask.RequestorObjectId, ask.RequestorName ?? "");
         if (_tradeRequest != null) _tradeRequest.ApplySendTradeRequest(dto);
         else SendTradeRequestApplyIncomingPacketServices.ApplySendTradeRequest(dto);
     }
@@ -1549,25 +1537,25 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTradeStart(TradeStartNetMsg start)
     {
-        TradeStartDto dto = NetSocialMap.ToTradeStartDto(new NetTradeStart
-        {
-            PartnerObjectId = start.PartnerObjectId,
-            PartnerName = start.PartnerName ?? ""
-        });
+        TradeStartDto dto = TradeStartDto.FromNet(start.PartnerObjectId, start.PartnerName ?? "");
         if (_trade != null) _trade.ApplyStart(dto);
         else TradeStartApplyIncomingPacketServices.ApplyTradeStart(dto);
     }
 
     void ApplyTradeOfferUpdate(TradeOfferUpdateNetMsg update)
     {
-        ItemInstance item = NetSocialMap.ToTradeOfferItem(new NetTradeOfferUpdate
-        {
-            IsOwn = update.IsOwn,
-            InventoryObjectId = update.InventoryObjectId,
-            ItemId = update.ItemId,
-            Count = (int)update.Count,
-            EnchantLevel = update.EnchantLevel
-        });
+        int count = (int)update.Count;
+        ItemInstance item = new ItemInstance(
+            update.InventoryObjectId,
+            update.ItemId,
+            ItemLocation.Trade,
+            0,
+            count < 1 ? 1 : count,
+            ItemCategory.Item,
+            false,
+            ItemSlot.none,
+            update.EnchantLevel,
+            9999);
         if (update.IsOwn != 0)
             if (_trade != null) _trade.ApplyOwnAdd(item);
             else TradeOwnAddApplyIncomingPacketServices.ApplyOwnAdd(item);
@@ -1666,7 +1654,7 @@ public sealed class NetSession : MonoBehaviour
     void ApplySkillList(SkillListNetMsg list)
     {
         NetSkillEntry[] rows = MapSkillList(list);
-        SkillListDto dto = NetCombatMap.ToSkillListDto(rows);
+        SkillListDto dto = MapSkillListToDto(rows);
         if (_skills != null) _skills.ApplySkillList(dto);
         else SkillListApplyIncomingPacketServices.ApplySkillList(dto);
         Debug.Log("[Net] SkillList count=" + rows.Length);
@@ -1715,6 +1703,28 @@ public sealed class NetSession : MonoBehaviour
         }
 
         return rows;
+    }
+
+    static SkillListDto MapSkillListToDto(NetSkillEntry[] rows)
+    {
+        var dto = new SkillListDto();
+        if (rows == null)
+            return dto;
+        for (int i = 0; i < rows.Length; i++)
+        {
+            NetSkillEntry row = rows[i];
+            bool passive = IsPassiveSkill(row.SkillId, row.Level);
+            bool disabled = row.ReuseDelayMs > 0;
+            dto.Skills.Add(new SkillInstance(row.SkillId, row.Level, passive, disabled));
+        }
+
+        return dto;
+    }
+
+    static bool IsPassiveSkill(int skillId, int level)
+    {
+        Skillgrp skill = SkillgrpTable.Instance != null ? SkillgrpTable.Instance.GetSkill(skillId, level) : null;
+        return skill != null && skill.OperateType == 2;
     }
 
     void ApplyMoveState(MoveStateMsg move)

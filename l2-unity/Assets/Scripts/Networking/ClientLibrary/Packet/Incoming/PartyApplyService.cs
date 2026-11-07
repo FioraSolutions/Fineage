@@ -43,7 +43,7 @@ public sealed class PartyApplyService
         QueueApplyIncomingPacketServices.Queue(() =>
         {
             PartyPacketServices.ApplyMemberList(list);
-            string summary = NetSocialMap.FormatPartyMemberList(list);
+            string summary = FormatPartyMemberList(list);
             UnityEngine.Debug.Log("[Party] " + summary);
             ChatTypeData data = ChatTypes.GetById(0);
             if (data != null)
@@ -52,4 +52,15 @@ public sealed class PartyApplyService
                 ChatApplyIncomingPacketServices.ApplyMessage(apply => apply.CreatureSay(message));
             }
         });
+
+    /// <summary>One-line party roster summary for chat feedback. Display only — no wire codec.</summary>
+    internal static string FormatPartyMemberList(in NetPartyMemberList list)
+    {
+        if (list.Members == null || list.Members.Length == 0)
+            return "Party: (none)";
+        var names = new string[list.Members.Length];
+        for (int i = 0; i < list.Members.Length; i++)
+            names[i] = list.Members[i].Name ?? "?";
+        return "Party (" + list.Members.Length + "): " + string.Join(", ", names);
+    }
 }
