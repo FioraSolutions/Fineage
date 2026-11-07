@@ -381,11 +381,11 @@ public class L2CloudSimple : MonoBehaviour
 
     Camera ResolveCamera()
     {
-        if (CameraController.Instance != null)
+        if (CameraPacketServices.Controller != null)
         {
-            Camera fromController = CameraController.Instance.GetComponent<Camera>();
+            Camera fromController = CameraPacketServices.Controller.GetComponent<Camera>();
             if (fromController == null)
-                fromController = CameraController.Instance.GetComponentInChildren<Camera>();
+                fromController = CameraPacketServices.Controller.GetComponentInChildren<Camera>();
             if (fromController != null && fromController.enabled && fromController.gameObject.activeInHierarchy)
             {
                 _cam = fromController;

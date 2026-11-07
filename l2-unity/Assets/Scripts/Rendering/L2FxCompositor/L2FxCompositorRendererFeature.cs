@@ -137,7 +137,7 @@ public sealed class L2FxCompositorRendererFeature : ScriptableRendererFeature
         }
 
         Camera renderingCamera = renderingData.cameraData.camera;
-        CameraController controller = CameraController.Instance;
+        CameraController controller = CameraPacketServices.Controller;
         if (controller == null || !controller.isActiveAndEnabled)
             return false;
 

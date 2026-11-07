@@ -351,9 +351,10 @@ public sealed class NameplateEntryStore
             return false;
         }
 
-        if (CameraController.Instance != null)
+        CameraController cameraController = CameraPacketServices.Controller;
+        if (cameraController != null)
         {
-            return CameraController.Instance.IsObjectVisible(target);
+            return cameraController.IsObjectVisible(target);
         }
 
         return true;
