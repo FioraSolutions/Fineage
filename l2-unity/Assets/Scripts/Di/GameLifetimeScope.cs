@@ -59,6 +59,7 @@ public sealed class GameLifetimeScope : LifetimeScope
 
         RegisterIfFound<L2GameUI>(builder);
         RegisterIfFound<L2SlotManager>(builder);
+        RegisterIfFound<DragIcon>(builder);
         RegisterLiveMono<ChatWindow>(builder);
         RegisterLiveMono<HtmlWindow>(builder);
         RegisterIfFound<DealerWindow>(builder);
@@ -178,7 +179,8 @@ public sealed class GameLifetimeScope : LifetimeScope
                     effects: runtime.Effects);
                 AnimationPacketServices.Bind(
                     animations: runtime.Animations,
-                    applyQueue: container.Resolve<PacketApplyQueue>());
+                    applyQueue: container.Resolve<PacketApplyQueue>(),
+                    striderRide: container.Resolve<StriderRideService>());
                 StatsConverter statsConverter = container.Resolve<StatsConverter>();
                 StatsConverterPacketServices.Bind(converter: statsConverter);
                 CombatPacketServices.Bind(statsConverter: statsConverter);

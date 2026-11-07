@@ -12,6 +12,7 @@ namespace AtmosphericHeightFog
     public class HeightFogGlobal : StyledMonoBehaviour
     {
         private static HeightFogGlobal _instance;
+        [System.Obsolete("Use [Inject] or RenderingPacketServices.HeightFog instead")]
         public static HeightFogGlobal Instance { get { return _instance; } }
 
         [StyledBanner(0.55f, 0.75f, 1f, "Height Fog Global", "", "https://docs.google.com/document/d/1pIzIHIZ-cSh2ykODSZCbAPtScJ4Jpuu7lS3rNEHCLbc/edit#heading=h.kfvqsi6kusw4")]

@@ -191,9 +191,10 @@ public class PlayerStateMachine : MonoBehaviour
     {
         get
         {
+            StriderRideService striderRide = AnimationPacketServices.StriderRide;
             return Player != null
-                && StriderRideService.Instance != null
-                && StriderRideService.Instance.IsRiding(Player);
+                && striderRide != null
+                && striderRide.IsRiding(Player);
         }
     }
 
@@ -201,7 +202,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (Player == null || _currentState == PlayerState.DEAD)
             return;
-        StriderRideService ride = StriderRideService.Instance;
+        StriderRideService ride = AnimationPacketServices.StriderRide;
         if (ride == null)
             return;
 
