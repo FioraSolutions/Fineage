@@ -593,7 +593,7 @@ public class MovementData
         if (t == null || _pawnYaw == null)
             return;
         int id = _entity.Identity != null ? _entity.Identity.Id : 0;
-        if (id != 0 && CombatFacingService.Instance != null && CombatFacingService.Instance.HasFollow(id))
+        if (id != 0 && CombatPacketServices.Facing != null && CombatPacketServices.Facing.HasFollow(id))
         {
             // CombatFacingService.ApplyYaw owns this rotation. A stale drive would
             // overwrite it from StepCharInfo when this Update runs later.

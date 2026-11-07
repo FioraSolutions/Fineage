@@ -39,14 +39,14 @@ public class NewAttackIntention : IntentionBase
                 if (CombatFacingService.IsPlayerUsingBow(PlayerEntity.Instance))
                 {
                     int localId = PlayerEntity.Instance.Identity.Id;
-                    CombatFacingService.Ensure().BeginFollow(
+                    CombatPacketServices.EnsureFacing().BeginFollow(
                         localId,
                         ControllerPacketServices.Player.transform,
                         targetEntity.transform);
                 }
                 else
                 {
-                    CombatFacingService.Instance?.EndFollowLocal("melee-snapshot");
+                    CombatPacketServices.Facing?.EndFollowLocal("melee-snapshot");
                     ControllerPacketServices.Player.RotateToAttacker(targetEntity.transform.position);
                 }
             }

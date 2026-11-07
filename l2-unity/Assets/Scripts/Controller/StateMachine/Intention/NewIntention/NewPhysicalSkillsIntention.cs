@@ -44,14 +44,14 @@ public class NewPhysicalSkillsIntention : IntentionBase
                 targetEntity != null &&
                 CombatFacingService.IsPlayerUsingBow(PlayerEntity.Instance))
             {
-                CombatFacingService.Ensure().BeginFollow(
+                CombatPacketServices.EnsureFacing().BeginFollow(
                     objectId,
                     ControllerPacketServices.Player.transform,
                     targetEntity.transform);
             }
             else if (targetEntity != null)
             {
-                CombatFacingService.Instance?.EndFollow(objectId, "non-bow-phys");
+                CombatPacketServices.Facing?.EndFollow(objectId, "non-bow-phys");
                 ControllerPacketServices.Player.RotateToAttacker(targetEntity.transform.position);
             }
 

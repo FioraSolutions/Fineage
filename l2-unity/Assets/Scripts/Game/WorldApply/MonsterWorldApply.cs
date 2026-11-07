@@ -121,7 +121,7 @@ public sealed class MonsterWorldApply : EntityWorldApply
         if (entity != null && entity.IsDead())
             return;
         if (entity != null && entity.Identity != null)
-            CombatFacingService.Instance?.EndFollow(entity.Identity.Id, "skill-canceled");
+            CombatPacketServices.Facing?.EndFollow(entity.Identity.Id, "skill-canceled");
         _actions.Set(entity, EntityActionKind.Idle, null);
     }
 }
