@@ -27,11 +27,22 @@ public class QuantityInput : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireQuantityInputPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireQuantityInputPacketServices();
+    }
+
+    private void WireQuantityInputPacketServices()
+    {
+        QuantityInputPacketServices.Bind(window: this);
     }
 
 
@@ -208,7 +219,8 @@ public class QuantityInput : L2PopupWindow
 
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
 }

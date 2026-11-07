@@ -201,9 +201,9 @@ public class DealerWindow : L2PopupWindow
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
-                QuantityInput.Instance.ShowWindow(source.Count);
-                QuantityInput.Instance.OnButtonOk += OnSelectedQuantity;
-                QuantityInput.Instance.OnButtonClose += OnCloseQuantity;
+                QuantityInputPacketServices.Window.ShowWindow(source.Count);
+                QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
+                QuantityInputPacketServices.Window.OnButtonClose += OnCloseQuantity;
             }
             else
             {
@@ -224,9 +224,9 @@ public class DealerWindow : L2PopupWindow
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
-                QuantityInput.Instance.ShowWindow(source.Count);
-                QuantityInput.Instance.OnButtonOk += OnSelectedQuantity;
-                QuantityInput.Instance.OnButtonClose += OnCloseQuantity;
+                QuantityInputPacketServices.Window.ShowWindow(source.Count);
+                QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
+                QuantityInputPacketServices.Window.OnButtonClose += OnCloseQuantity;
             }
             else
             {
@@ -246,13 +246,13 @@ public class DealerWindow : L2PopupWindow
 
     private void OnSelectedQuantity(string value)
     {
-        QuantityInput.Instance.OnButtonOk -= OnSelectedQuantity;
+        QuantityInputPacketServices.Window.OnButtonOk -= OnSelectedQuantity;
         UseSuccessInParentWindow(this, value, _listServer);
     }
 
     private void OnCloseQuantity()
     {
-        QuantityInput.Instance.OnButtonClose -= OnCloseQuantity;
+        QuantityInputPacketServices.Window.OnButtonClose -= OnCloseQuantity;
         UseCloseInParentWindow();
     }
 
