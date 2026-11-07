@@ -11,7 +11,7 @@ Restore with `git stash pop` onto a feature branch. Verdict before merge/split:
 
 | Area | Files | Verdict |
 |------|-------|---------|
-| Auto soulshot | `NetAutoShot.cs` (new), `FineageZoneTransport`, `NetSession`, `NetworkCommands`, skillbar slots/window | **Promising.** Matches Mobius RequestAutoSoulShot / ExAutoSoulShot intent; uses existing `NetOpcode.RequestAutoSoulShot`. Static `NetAutoShot` + `ZoneCommands` fits current patterns but is another locator — fine for MVP, track under #142 later. |
+| Auto soulshot | `NetAutoShot.cs` (new), `FineageZoneTransport`, `NetSession`, `NetworkCommands`, skillbar slots/window | **Promising.** Matches Mobius RequestAutoSoulShot / ExAutoSoulShot intent; uses existing `NetOpcode.RequestAutoSoulShot`. Static `NetAutoShot` + `ZoneCommands` fits current patterns but is another locator — fine for MVP; prefer `*PacketServices` / `[Inject]` if touched again (#131 residual, IPA #142 already closed). |
 | Skillbar / inventory UX | `SkillbarSlot`, `AbstractSkillbar`, inventory slots, `SlotDragManipulator`, `ToolTipSimple`, `PlayerShortcuts` | **Coupled to auto-shot.** Null-safe inventory before skillbar init is good. Right-click = left-click for shots is a Fineage UX choice — OK if intentional. |
 | Spawn | `EntitySpawnShared.cs` (~+100) | **Needs focused review** — large hunk; confirm AOI/spawn budget interaction with #601, no new `*.Instance` seams for frozen types. |
 
