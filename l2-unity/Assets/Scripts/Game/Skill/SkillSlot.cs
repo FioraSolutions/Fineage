@@ -43,7 +43,7 @@ public class SkillSlot : L2DraggableSlot
         {
             // Debug.Log("Handle Left Click");
             EventLeftClick?.Invoke(_position);
-            PlayerActions.Instance.UseSkill(_id);
+            ShortcutPacketServices.Actions.UseSkill(_id);
         }
     }
 

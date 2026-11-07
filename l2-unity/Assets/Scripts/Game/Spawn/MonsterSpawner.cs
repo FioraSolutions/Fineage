@@ -4,11 +4,13 @@ public sealed class MonsterSpawner
 {
     private readonly ObjectPoolManager _pool;
     private readonly NpcDecoService _deco;
+    private readonly IGravity _gravity;
 
-    public MonsterSpawner(ObjectPoolManager pool, NpcDecoService deco)
+    public MonsterSpawner(ObjectPoolManager pool, NpcDecoService deco, GravityNpc gravity = null)
     {
         _pool = pool;
         _deco = deco;
+        _gravity = gravity;
     }
 
     public Entity Spawn(NpcSpawnRequest request, IWorldSpawnContext world)
@@ -46,7 +48,7 @@ public sealed class MonsterSpawner
         npcGo.SetActive(true);
         EntitySpawnShared.ReapplyGroundAfterActivate(npcGo, identity);
 
-        InitMonster(npc, npcGo, world);
+        InitMonster(npc, npcGo, world, _gravity);
         PetSummonRise.TryBegin(npc);
         _deco.Start(npc);
         // CharInfoSpeedLog.LogNpcPacket(npc, "OnNpcInfo spawn");
@@ -67,7 +69,7 @@ public sealed class MonsterSpawner
         // CharInfoSpeedLog.LogNpcPacket(monster, "OnNpcInfo update");
     }
 
-    private static void InitMonster(Entity npc, GameObject npcGo, IWorldSpawnContext world)
+    private static void InitMonster(Entity npc, GameObject npcGo, IWorldSpawnContext world, IGravity gravity)
     {
         NetworkAnimationController animationController =
             EntitySpawnShared.FindOnPrefab<NetworkAnimationController>(npcGo);
@@ -82,7 +84,7 @@ public sealed class MonsterSpawner
         EntitySpawnShared.RegisterAnimation(world, npc.Identity.Id, animationController, npc);
         EntitySpawnShared.ApplyNpcMoveSpeeds(npc, true);
 
-        if (GravityNpc.Instance != null)
-            GravityNpc.Instance.AddGravity(npc.Identity.Id, new GravityData(npc));
+        if (gravity != null)
+            gravity.AddGravity(npc.Identity.Id, new GravityData(npc));
     }
 }

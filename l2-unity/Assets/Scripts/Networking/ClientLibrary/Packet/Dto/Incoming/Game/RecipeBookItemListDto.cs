@@ -30,7 +30,7 @@ public class RecipeBookItemListDto : IWireDto
             int recipeId = reader.ReadI();
             int position = reader.ReadI();
 
-            RecipeData data = RecipeTable.Instance.GetRecipeData(recipeId);
+            RecipeData data = TablePacketServices.Recipes.GetRecipeData(recipeId);
 
             if(data != null)
             {
