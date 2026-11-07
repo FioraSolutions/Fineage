@@ -26,24 +26,33 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     private int nextId = 0;
 
     #region Singleton
-    public static IProjectileManager Instance { get; private set; }
+    private static IProjectileManager _instance;
 
-
+    [System.Obsolete("Use [Inject] or ProjectilePacketServices.Projectiles instead")]
+    public static IProjectileManager Instance => _instance;
 
     private void Awake()
     {
-        if ((Instance as UnityEngine.Object) != null && !ReferenceEquals(Instance, this))
+        if ((_instance as UnityEngine.Object) != null && !ReferenceEquals(_instance, this))
         {
             Destroy(gameObject);
             return;
         }
         _entityMask = LayerMask.GetMask("EntityClick");
-        Instance = this;
+        _instance = this;
+        WireProjectilePacketServices();
         WireGamePacketServices();
+    }
+
+    void OnDestroy()
+    {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
     }
 
     private void Start()
     {
+        WireProjectilePacketServices();
         WireGamePacketServices();
         HitManager hits = _hits != null ? _hits : HitPacketServices.Hits;
         if (hits != null)
@@ -53,6 +62,11 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     private void WireGamePacketServices()
     {
         GamePacketServices.Bind(gameWorld: _world);
+    }
+
+    private void WireProjectilePacketServices()
+    {
+        ProjectilePacketServices.Bind(projectiles: this);
     }
     #endregion
 

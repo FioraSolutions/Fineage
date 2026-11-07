@@ -77,13 +77,13 @@ public static class CompositePlaybackSubscriptions
         ref bool isSubscribed)
     {
         if (!CompositePartScheduler.RequiresHitColliderSpawn(parts) ||
-            ProjectileManager.Instance == null ||
+            ProjectilePacketServices.Projectiles == null ||
             isSubscribed)
         {
             return;
         }
 
-        ProjectileManager.Instance.OnHitEffectProjectile += handler;
+        ProjectilePacketServices.Projectiles.OnHitEffectProjectile += handler;
         isSubscribed = true;
     }
 
@@ -91,9 +91,9 @@ public static class CompositePlaybackSubscriptions
         Action<GameObject, Transform, Vector3, Vector3, int> handler,
         ref bool isSubscribed)
     {
-        if (ProjectileManager.Instance != null && isSubscribed)
+        if (ProjectilePacketServices.Projectiles != null && isSubscribed)
         {
-            ProjectileManager.Instance.OnHitEffectProjectile -= handler;
+            ProjectilePacketServices.Projectiles.OnHitEffectProjectile -= handler;
         }
 
         isSubscribed = false;

@@ -703,18 +703,18 @@ public class CompositeEffectV2 : CompositePrefabEffect
             return;
         }
 
-        if (ProjectileManager.Instance != null && !_v2SubscribedHit)
+        if (ProjectilePacketServices.Projectiles != null && !_v2SubscribedHit)
         {
-            ProjectileManager.Instance.OnHitEffectProjectile += HandleV2ProjectileHit;
+            ProjectilePacketServices.Projectiles.OnHitEffectProjectile += HandleV2ProjectileHit;
             _v2SubscribedHit = true;
         }
     }
 
     void UnsubscribeV2Hit()
     {
-        if (ProjectileManager.Instance != null && _v2SubscribedHit)
+        if (ProjectilePacketServices.Projectiles != null && _v2SubscribedHit)
         {
-            ProjectileManager.Instance.OnHitEffectProjectile -= HandleV2ProjectileHit;
+            ProjectilePacketServices.Projectiles.OnHitEffectProjectile -= HandleV2ProjectileHit;
             _v2SubscribedHit = false;
         }
     }

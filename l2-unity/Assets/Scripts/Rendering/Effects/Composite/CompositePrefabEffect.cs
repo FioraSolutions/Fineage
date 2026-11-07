@@ -441,7 +441,7 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
             return;
         }
 
-        if (_context?.TargetTransform == null || ProjectileManager.Instance == null || _launchedProjectileParts.Contains(part))
+        if (_context?.TargetTransform == null || ProjectilePacketServices.Projectiles == null || _launchedProjectileParts.Contains(part))
         {
             return;
         }

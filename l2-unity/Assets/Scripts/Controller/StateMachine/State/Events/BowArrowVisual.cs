@@ -53,8 +53,8 @@ public sealed class BowArrowVisual
             // $"[BOW_ARROW] SHOOT remote id={(user.Identity != null ? user.Identity.Id : 0)} " +
             // $"anim={animName} dist3d={dist3d:F3} flyAccel={flyAccel:F3}s");
 
-        if (ProjectileManager.Instance != null)
-            ProjectileManager.Instance.LaunchProjectile(go, startPos, target, settings);
+        if (ProjectilePacketServices.Projectiles != null)
+            ProjectilePacketServices.Projectiles.LaunchProjectile(go, startPos, target, settings);
     }
 
     static bool IsBowShot(UserEntity user, string animName)

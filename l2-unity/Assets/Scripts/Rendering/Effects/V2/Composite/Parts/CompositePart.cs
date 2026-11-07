@@ -358,7 +358,7 @@ public sealed class ShotProjectilePart : CompositePart
 
     public bool TryLaunch(BaseEffect instance, EffectResolveContext context)
     {
-        if (instance == null || context == null || context.TargetTransform == null || ProjectileManager.Instance == null)
+        if (instance == null || context == null || context.TargetTransform == null || ProjectilePacketServices.Projectiles == null)
         {
             return false;
         }
@@ -383,7 +383,7 @@ public sealed class ShotProjectilePart : CompositePart
                 " start=" + startPos +
                 " target=" + context.TargetTransform.name);
         }
-        ProjectileManager.Instance.LaunchProjectile(
+        ProjectilePacketServices.Projectiles.LaunchProjectile(
             instance.gameObject,
             startPos,
             context.TargetTransform,

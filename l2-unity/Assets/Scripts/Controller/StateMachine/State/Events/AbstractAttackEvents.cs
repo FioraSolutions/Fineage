@@ -31,13 +31,13 @@ public abstract class AbstractAttackEvents : StateBase
             _events.OnAnimationAttackShot += CallBackAttackShot;
         }
 
-        if (ProjectileManager.Instance != null)
+        if (ProjectilePacketServices.Projectiles != null)
         {
             SkillExecutor executor = SkillExecutorPacketServices.Executor;
             if (executor != null)
                 executor.OnAllAnimationFinished += OnAllAnimationFinishedFromExecutor;
             // EffectOnly magic chain only — bow ArrowStick is HitManager ← OnHitMonster (persistent).
-            ProjectileManager.Instance.OnHitEffectProjectile += OnHitEffectProjectile;
+            ProjectilePacketServices.Projectiles.OnHitEffectProjectile += OnHitEffectProjectile;
         }
         if (SwordCollisionService.Instance != null)
         {
@@ -65,9 +65,9 @@ public abstract class AbstractAttackEvents : StateBase
         if (executor != null)
             executor.OnAllAnimationFinished -= OnAllAnimationFinishedFromExecutor;
 
-        if (ProjectileManager.Instance != null)
+        if (ProjectilePacketServices.Projectiles != null)
         {
-            ProjectileManager.Instance.OnHitEffectProjectile -= OnHitEffectProjectile;
+            ProjectilePacketServices.Projectiles.OnHitEffectProjectile -= OnHitEffectProjectile;
         }
         if (SwordCollisionService.Instance != null)
         {
@@ -237,7 +237,7 @@ public abstract class AbstractAttackEvents : StateBase
                         // $"dist3d={dist3d:F3} flyAccel={flyAccel:F3}s avgSpeed={avgSpeed:F3} " +
                         // $"uuAccel=3000 path=(t/T)^2 (compare vs decompile ANSkillProjectileTick.log)");
 
-                    ProjectileManager.Instance.LaunchProjectile(go, startPos, target, settings);
+                    ProjectilePacketServices.Projectiles.LaunchProjectile(go, startPos, target, settings);
                     break;
                 }
 
