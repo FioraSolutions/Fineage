@@ -70,12 +70,12 @@ public class ToolTipManager
 
     public void RegisterSimple(SlotType type , VisualElement list , int position)
     {
-        ToolTipSimple.Instance.RegisterCallback(type , list , position);
+        ToolTipSimplePacketServices.Window.RegisterCallback(type , list , position);
     }
 
     public void EventLeftClickSlot(VisualElement slotElement)
     {
-        ToolTipSimple.Instance.EventLeftClickSlot(slotElement);
+        ToolTipSimplePacketServices.Window.EventLeftClickSlot(slotElement);
     }
     //public static final int TYPE1_WEAPON_RING_EARRING_NECKLACE = 0;
     //public static final int TYPE1_SHIELD_ARMOR = 1;

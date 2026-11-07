@@ -109,7 +109,7 @@ public class InventorySlot : L2DraggableSlot
     }
     public void ManualHideToolTips()
     {
-        ToolTipSimple.Instance.ManualHide();
+        ToolTipSimplePacketServices.Window.ManualHide();
     }
 
     public void AssignUniversal(object data)
