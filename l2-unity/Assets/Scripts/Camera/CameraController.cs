@@ -198,7 +198,8 @@ public class CameraController : MonoBehaviour
 
     private void UpdateInputs()
     {
-        if (InputManager.Instance == null || !InputManager.Instance.TurnCamera)
+        InputManager input = ControllerPacketServices.Input;
+        if (input == null || !input.TurnCamera)
         {
             return;
         }
@@ -210,12 +211,13 @@ public class CameraController : MonoBehaviour
 
     private void UpdateZoom()
     {
-        if (InputManager.Instance == null)
+        InputManager input = ControllerPacketServices.Input;
+        if (input == null)
         {
             return;
         }
 
-        float scrollAxis = InputManager.Instance.ZoomAxis;
+        float scrollAxis = input.ZoomAxis;
         _camDistance = Mathf.Clamp(_camDistance - scrollAxis * _zoomSpeed * 0.1f, _minDistance, _maxDistance);
     }
 

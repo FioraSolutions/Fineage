@@ -65,7 +65,9 @@ public sealed class GameRuntime
     public HitManager Hits { get { return Live(ref _hits, HitManager.Instance); } }
     public ClickManager Clicks { get { return Live(ref _clicks, ClickManager.Instance); } }
     public PlayerShortcuts Shortcuts { get { return Live(ref _shortcuts, PlayerShortcuts.Instance); } }
+#pragma warning disable CS0618 // Locator fallback until Bind covers all scopes
     public InputManager Input { get { return Live(ref _input, InputManager.Instance); } }
+#pragma warning restore CS0618
     public PositionValidationController PositionValidation { get { return Live(ref _positionValidation, PositionValidationController.Instance); } }
     public EffectManager Effects { get { return Live(ref _effects, EffectManager.Instance); } }
     public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }

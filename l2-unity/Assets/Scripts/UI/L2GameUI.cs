@@ -48,7 +48,8 @@ public class L2GameUI : L2UI
     {
         base.Update();
 
-        if (InputManager.Instance != null && InputManager.Instance.TurnCamera)
+        InputManager input = ControllerPacketServices.Input;
+        if (input != null && input.TurnCamera)
         {
             DisableMouse();
         }
@@ -296,10 +297,11 @@ public class L2GameUI : L2UI
 
     public void CheckUIInputs()
     {
-        if (InputManager.Instance == null)
+        InputManager input = ControllerPacketServices.Input;
+        if (input == null)
             return;
 
-        if (InputManager.Instance.OpenCharacerStatus)
+        if (input.OpenCharacerStatus)
         {
             if (HudCorePacketServices.CharacterInfo != null)
             {
@@ -307,7 +309,7 @@ public class L2GameUI : L2UI
             }
         }
 
-        if (InputManager.Instance.OpenInventory)
+        if (input.OpenInventory)
         {
             if (InventoryPacketServices.Window != null)
             {
@@ -315,7 +317,7 @@ public class L2GameUI : L2UI
             }
         }
 
-        if (InputManager.Instance.OpenSystemMenu)
+        if (input.OpenSystemMenu)
         {
             if (SystemUIPacketServices.Menu != null)
             {
@@ -323,7 +325,7 @@ public class L2GameUI : L2UI
             }
         }
 
-        if (InputManager.Instance.OpenActions)
+        if (input.OpenActions)
         {
             if (HudCorePacketServices.Action != null)
             {
@@ -331,13 +333,13 @@ public class L2GameUI : L2UI
             }
         }
 
-        if (InputManager.Instance.OpenMap)
+        if (input.OpenMap)
         {
             if (HudCorePacketServices.Map != null)
                 HudCorePacketServices.Map.ToggleHideWindow();
         }
 
-        if (InputManager.Instance.CloseWindow)
+        if (input.CloseWindow)
         {
             if (MessagePacketServices.Chat != null && MessagePacketServices.Chat.ChatOpened)
             {

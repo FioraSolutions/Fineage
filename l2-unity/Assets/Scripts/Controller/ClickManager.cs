@@ -27,9 +27,7 @@ public class ClickManager : MonoBehaviour
         {
             if (_input != null)
                 return _input;
-            if (ControllerPacketServices.Input != null)
-                return ControllerPacketServices.Input;
-            return InputManager.Instance;
+            return ControllerPacketServices.Input;
         }
     }
 

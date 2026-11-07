@@ -73,6 +73,7 @@ public class InputManager : MonoBehaviour
     private PlayerInput _playerInput;
 
     private static InputManager _instance;
+    [System.Obsolete("Use ControllerPacketServices.Input instead")]
     public static InputManager Instance { get { return _instance; } }
 
     private void Awake()
@@ -80,6 +81,7 @@ public class InputManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            ControllerPacketServices.Bind(input: this);
         }
         else
         {
