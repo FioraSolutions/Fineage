@@ -65,24 +65,22 @@ public class SkillAnimationRunner
         }
 
         float chainStartTime = Time.time;
-        // Debug.Log($"[SkillRunOverride] START objectId={objectId} cycleLength={cycle.Length}");
         var validAnimations = new List<string>();
         for (int i = 0; i < cycle.Length; i++)
         {
             string animName = cycle[i];
             bool shouldSkip = ShouldSkipAnimation(animName);
-            // Debug.Log($"[SkillRunOverride] STEP objectId={objectId} idx={i} rawAnim='{animName}' shouldSkip={shouldSkip}");
             if (!shouldSkip)
             {
                 validAnimations.Add(animName.Trim());
             }
-            else
-            {
-                // Debug.Log($"[SkillRunOverride] SKIP objectId={objectId} idx={i} rawAnim='{animName}' reason=none_or_empty");
-            }
         }
 
         string[] triggerPlan = BuildTriggerPlan(validAnimations.Count);
+        Debug.Log(
+            "[CastSync] ANIM.runStart objectId=" + objectId +
+            " valid=" + string.Join(",", validAnimations) +
+            " triggers=" + string.Join(",", triggerPlan));
         if (Trace)
         {
             Debug.Log(
@@ -116,7 +114,16 @@ public class SkillAnimationRunner
             // Debug.Log(
                 // $"[SkillRunOverride] BEFORE await logicalIdx={logicalIndex} trigger='{triggerName}' override='{overrideAnimName}' " +
                 // $"sinceChainStart={Time.time - chainStartTime:F3}s objectId={objectId}");
+            Debug.Log(
+                "[CastSync] ANIM.awaitPhase t=" + (Time.time - chainStartTime).ToString("F3") +
+                " idx=" + logicalIndex +
+                " trigger=" + triggerName +
+                " override=" + overrideAnimName);
             bool phaseOk = await animationManager.AsyncPlayAnimationRaceOverrides(objectId, triggerName, overrideAnimName);
+            Debug.Log(
+                "[CastSync] ANIM.phaseDone t=" + (Time.time - chainStartTime).ToString("F3") +
+                " trigger=" + triggerName +
+                " ok=" + phaseOk);
             if (Trace)
             {
                 Debug.Log(
@@ -129,10 +136,6 @@ public class SkillAnimationRunner
             {
                 if (Trace)
                     Trace = false;
-                // Debug.Log(
-                    // $"[SkillRunOverride] ABORT superseded objectId={objectId} logicalIdx={logicalIndex} " +
-                    // $"trigger='{triggerName}' sinceChainStart={Time.time - chainStartTime:F3}s " +
-                    // $"(newer cast owns animator — no onComplete / WAIT_RETURN)");
                 return;
             }
 

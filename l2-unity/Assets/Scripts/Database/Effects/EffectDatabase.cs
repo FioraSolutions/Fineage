@@ -41,7 +41,10 @@ public class EffectDatabase : ScriptableObject
     public bool ShouldIgnoreFlightTimeForCast(int effectId)
     {
         EffectData data = effects.Find(e => e.id == effectId);
-        if(data == null) return true;
-        return data != null && data.ignoreFlightTimeForCast;
+        // Missing row: do NOT force flight=0 — Blaze/Prominence etc. still need
+        // leave (HitTime−flight) vs impact. Instant/melee must set the flag when registered.
+        if (data == null)
+            return false;
+        return data.ignoreFlightTimeForCast;
     }
 }

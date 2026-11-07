@@ -6,15 +6,18 @@ using UnityEngine;
 public class SkillAnimationDatabase
 {
     private static readonly Dictionary<string, SkillClips> _raceCacheMMagic = new Dictionary<string, SkillClips>();
+    private static readonly Dictionary<string, SkillClips> _raceCacheFMagic = new Dictionary<string, SkillClips>();
     private static readonly Dictionary<string, SkillClips> _raceCacheMFighter = new Dictionary<string, SkillClips>();
     private static readonly Dictionary<string, SkillClips> _raceCacheMElf = new Dictionary<string, SkillClips>();
     private const string  FOLDER_MElf = "Data/Animations/Elf/MElf/Clips/";
     private const string MElf = "MElf";
     private static readonly Dictionary<string, SkillClips> _raceCacheFDarkElf = new Dictionary<string, SkillClips>();
     private const string  FOLDER_MMagic = "Data/Animations/Magic/MMagic/Clips/";
+    private const string  FOLDER_FMagic = "Data/Animations/Magic/FMagic/Clips/";
     private const string  FOLDER_MFighter = "Data/Animations/Fighter/MFighter/Clips/";
     private const string  FOLDER_FDarkElf = "Data/Animations/DarkElf/FDarkElf/";
     private const string MMagic = "MMagic";
+    private const string FMagic = "FMagic";
     private const string MFighter = "MFighter";
     private const string FDarkElf = "FDarkElf";
     public class SkillClips
@@ -74,6 +77,16 @@ public class SkillAnimationDatabase
         _raceCacheMMagic.Add("MagicNotarget_" + MMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicNoTarget_MMagic"));
         _raceCacheMMagic.Add("MagicThrow_" + MMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicThrow_MMagic"));
 
+        // FMagic.overrideController: Cast* body clips are not imported yet — reuse MMagic cast
+        // poses so female mage still plays CastMid/End/Shot after MagicSkillUse (plan #mesh FX).
+        _raceCacheFMagic.Add("CastLong_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastLong_MMagic"));
+        _raceCacheFMagic.Add("CastMid_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastMid_MMagic"));
+        _raceCacheFMagic.Add("CastEnd_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastEnd_MMagic"));
+        _raceCacheFMagic.Add("MagicShot_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicShot_MMagic"));
+        _raceCacheFMagic.Add("MagicThrow_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicThrow_MMagic"));
+        _raceCacheFMagic.Add("MagicNoTarget_" + FMagic, new SkillClips(FOLDER_FMagic, "FMagic_m000_b.ao_MagicNoTarget_FMagic"));
+        _raceCacheFMagic.Add("MagicNotarget_" + FMagic, new SkillClips(FOLDER_FMagic, "FMagic_m000_b.ao_MagicNoTarget_FMagic"));
+
         _raceCacheMFighter.Add("CastMid_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_CastMid_MFighter"));
         _raceCacheMFighter.Add("CastEnd_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_CastEnd_MFighter"));
         _raceCacheMFighter.Add("MagicShot_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_MagicShot_MFighter"));
@@ -127,14 +140,23 @@ public class SkillAnimationDatabase
     static Dictionary<string, SkillClips> CacheFor(string raceName)
     {
         Initialize();
-        if (raceName == MMagic)
+        if (string.IsNullOrEmpty(raceName))
+            return null;
+        // Exact match first; then contains — overrideController names are usually "MMagic"
+        // but some prefabs report a longer controller name.
+        if (raceName == MMagic || ContainsRaceToken(raceName, MMagic))
             return _raceCacheMMagic;
-        if (raceName == MFighter)
+        if (raceName == FMagic || ContainsRaceToken(raceName, FMagic))
+            return _raceCacheFMagic;
+        if (raceName == MFighter || ContainsRaceToken(raceName, MFighter))
             return _raceCacheMFighter;
-        if (raceName == MElf)
+        if (raceName == MElf || ContainsRaceToken(raceName, MElf))
             return _raceCacheMElf;
         return null;
     }
+
+    static bool ContainsRaceToken(string raceName, string token) =>
+        raceName.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0;
 
     public static string GetAnimationClipName(string trigerName, string raceName)
     {
