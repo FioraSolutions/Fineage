@@ -874,15 +874,15 @@ public sealed class NetSession : MonoBehaviour
         };
         identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
 
+        int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         var status = new PlayerStatus();
-        status.SetHp(100);
-        status.SetMp(50);
+        status.SetHp(maxHp);
 
         var stats = new PlayerStats
         {
             Level = spawn.Level > 0 ? spawn.Level : 1,
-            MaxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100,
-            MaxMp = 50,
+            MaxHp = maxHp,
+            MaxMp = 0,
             MaxCp = 0,
             BaseRunSpeed = Mathf.RoundToInt(spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f),
             BaseWalkingSpeed = Mathf.RoundToInt(spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f),
