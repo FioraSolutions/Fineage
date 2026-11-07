@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Fineage.Net.Contract;
 using UnityEngine;
 
@@ -27,6 +28,7 @@ public sealed class NetSession : MonoBehaviour
     float _nextMainQueueDepthLogTime;
     NetTransport _lobby;
     NetTransport _zone;
+    NetCommandSender _commandSender;
     uint _seq = 1;
     IWorldDomainSink _sink;
     CombatAttackApplyService _combatAttack;
@@ -96,6 +98,7 @@ public sealed class NetSession : MonoBehaviour
         }
 
         Instance = this;
+        _commandSender = new NetCommandSender(() => _zone, NextSeq);
     }
 
     void Update()
@@ -301,35 +304,14 @@ public sealed class NetSession : MonoBehaviour
         }
     }
 
-    public async void SendMove(int destX, int destY, int destZ)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.MoveInput,
-            NetCodec.EncodeMoveInput(new MoveInputMsg { DestX = destX, DestY = destY, DestZ = destZ }),
-            NextSeq());
-    }
+    public Task SendMove(int destX, int destY, int destZ) =>
+        _commandSender.SendMoveAsync(destX, destY, destZ);
 
-    public async void SendSelectTarget(int targetObjectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.SelectTarget,
-            NetCodec.EncodeSelectTarget(new SelectTargetNetMsg { TargetObjectId = targetObjectId }),
-            NextSeq());
-    }
+    public Task SendSelectTarget(int targetObjectId) =>
+        _commandSender.SendSelectTargetAsync(targetObjectId);
 
-    public async void SendAttackRequest(int targetObjectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.AttackRequest,
-            NetCodec.EncodeAttackRequest(new AttackRequestNetMsg { TargetObjectId = targetObjectId }),
-            NextSeq());
-    }
+    public Task SendAttackRequest(int targetObjectId) =>
+        _commandSender.SendAttackRequestAsync(targetObjectId);
 
     public async void SendPickupRequest(int groundObjectId)
     {
@@ -499,20 +481,8 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void SendUseSkill(int skillId, int targetObjectId, bool ctrlPressed)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.UseSkill,
-            NetCodec.EncodeUseSkill(new UseSkillNetMsg
-            {
-                SkillId = skillId,
-                TargetObjectId = targetObjectId,
-                CtrlPressed = ctrlPressed
-            }),
-            NextSeq());
-    }
+    public Task SendUseSkill(int skillId, int targetObjectId, bool ctrlPressed) =>
+        _commandSender.SendUseSkillAsync(skillId, targetObjectId, ctrlPressed);
 
     public async void SendReviveRequest(int action)
     {
