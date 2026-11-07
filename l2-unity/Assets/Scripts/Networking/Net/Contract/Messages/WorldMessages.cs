@@ -499,12 +499,6 @@ namespace Fineage.Net.Contract
         public int Count { get; set; }
         public int EnchantLevel { get; set; }
         public int EquippedSlot { get; set; } = -1;
-        /// <summary>Same body / kind tokens as <see cref="ItemListEntryNet"/> — required so equip updates reach the paperdoll.</summary>
-        public string BodySlot { get; set; } = "";
-        public string Kind { get; set; } = "";
-        public string Icon { get; set; } = "";
-        public string WeaponType { get; set; } = "";
-        public string ArmorType { get; set; } = "";
     }
 
     public sealed class InventoryUpdateNetMsg

@@ -79,7 +79,12 @@ def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
     return out.stdout if out.returncode == 0 else None
 
 
-def read_source(source: Path, rel: str, ref: str | None) -> bytes | None:
+def read_source(
+    source: Path,
+    rel: str,
+    ref: str | None,
+    backend_repo: Path | None = None,
+) -> bytes | None:
     """
     The bytes this file should have on the client.
 
@@ -87,22 +92,36 @@ def read_source(source: Path, rel: str, ref: str | None) -> bytes | None:
     That matters: syncing from a stale working tree (an old feature branch, a rebase
     mid-flight) silently reverts opcodes the client already merged, and the client
     stays green until the next Unity compile fails on a missing type.
+
+    `git show` must run against the Backend **repo root** with a path relative to that
+    root (e.g. ``src/Fineage.Net.Contract/Opcodes/NetOpcode.cs``), not against the
+    contract folder with a bare relative path — the latter always fails and silently
+    fell back to a dirty working tree.
     """
-    if ref:
-        data = _git_source(source, ref, rel)
+    if ref and backend_repo is not None:
+        try:
+            git_rel = (source / rel).resolve().relative_to(backend_repo.resolve()).as_posix()
+        except ValueError:
+            git_rel = rel
+        data = _git_source(backend_repo, ref, git_rel)
         if data is not None:
             return data
     path = source / rel
     return path.read_bytes() if path.is_file() else None
 
 
-def compare(source: Path, target: Path, ref: str | None) -> tuple[list[str], list[str]]:
+def compare(
+    source: Path,
+    target: Path,
+    ref: str | None,
+    backend_repo: Path | None = None,
+) -> tuple[list[str], list[str]]:
     """Return (missing, differing) relative paths."""
     missing: list[str] = []
     differing: list[str] = []
 
     for rel in FILES:
-        data = read_source(source, rel, ref)
+        data = read_source(source, rel, ref, backend_repo)
         dst = target / rel
         if data is None:
             missing.append(rel)
@@ -116,12 +135,17 @@ def compare(source: Path, target: Path, ref: str | None) -> tuple[list[str], lis
     return missing, differing
 
 
-def write_contract(source: Path, target: Path, ref: str | None) -> int:
+def write_contract(
+    source: Path,
+    target: Path,
+    ref: str | None,
+    backend_repo: Path | None = None,
+) -> int:
     """Copy the backend sources over the client copies, preserving .meta files."""
     changed = 0
 
     for rel in FILES:
-        data = read_source(source, rel, ref)
+        data = read_source(source, rel, ref, backend_repo)
         dst = target / rel
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
@@ -172,16 +196,18 @@ def main() -> int:
         return 0
 
     backend_repo = source.parents[1] if len(source.parents) > 1 else None
-    if ref and backend_repo is not None and not (backend_repo / ".git").exists():
-        print(f"note: {backend_repo} is not a git checkout; reading the working tree")
+    if backend_repo is not None and not (backend_repo / ".git").exists():
+        backend_repo = None
+    if ref and backend_repo is None:
+        print(f"note: {source} is not inside a git checkout; reading the working tree")
         ref = None
 
     if args.write:
-        changed = write_contract(source, CLIENT, ref)
+        changed = write_contract(source, CLIENT, ref, backend_repo)
         print("contract already in sync" if changed == 0 else f"synced {changed} file(s)")
         return 0
 
-    missing, differing = compare(source, CLIENT, ref)
+    missing, differing = compare(source, CLIENT, ref, backend_repo)
 
     if missing:
         # A file exists in the client but not the backend: it was added client-side
