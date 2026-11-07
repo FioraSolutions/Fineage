@@ -305,8 +305,7 @@ public class TradeWindow : L2PopupWindow
 
             if (_slotElement != null && SlotBg != null)
             {
-                StyleBackground background = new StyleBackground(IconManager.Instance.GetInvetoryDefaultBackground());
-                SlotBg.style.backgroundImage = background;
+                L2SlotIconView.SetEmptyInventoryBackground(SlotBg);
                 _slotDragManipulator.enabled = false;
             }
         }
@@ -357,26 +356,13 @@ public class TradeWindow : L2PopupWindow
 
         private void AddImage(ExchangeSlot slot)
         {
-            if (SlotBg == null) return;
-
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(_id));
-            SlotBg.style.backgroundImage = background;
+            L2SlotIconView.SetItemIcon(SlotBg, _id);
         }
 
         private void AddTooltip(ItemInstance item)
         {
-            string tooltipText = $"{_name} ({_count})";
-            if (item.Category == ItemCategory.Weapon ||
-                item.Category == ItemCategory.Jewel ||
-                item.Category == ItemCategory.ShieldArmor)
-            {
-                tooltipText = _name;
-            }
-
             if (_tooltipManipulator != null)
-            {
-                _tooltipManipulator.SetText(tooltipText);
-            }
+                _tooltipManipulator.SetText(L2ItemSlotTooltip.Format(_name, _count, item.Category));
         }
 
         public override void ClearManipulators()

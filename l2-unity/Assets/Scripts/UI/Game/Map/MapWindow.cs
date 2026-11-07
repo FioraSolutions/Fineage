@@ -34,8 +34,8 @@ public class MapWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Map/MapWindow");
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
-        _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTabHeader");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
+        _tabHeaderTemplate = LoadAsset(L2InventoryUiAssets.TabHeader);
         //id 0 - Map Aden
         _creatorSimpleTab.LoadAsset(LoadAsset, new string[1] { _mapTemplateName });
     }
