@@ -29,6 +29,10 @@ public static class AnimationPacketServices
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
 
+#pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    internal static IAnimationManager LegacyAnimationManagerInstance() => AnimationManager.Instance;
+#pragma warning restore CS0618
+
     public static IMoveAllCharacters Moves =>
         _moves != null ? _moves : MoveAllCharactersPacketServices.Moves;
 

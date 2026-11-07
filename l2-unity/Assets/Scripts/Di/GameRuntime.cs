@@ -75,9 +75,7 @@ public sealed class GameRuntime
     public CameraController Camera { get { return Live(ref _camera, CameraPacketServices.Controller); } }
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharactersPacketServices.Moves); } }
     public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
-#pragma warning disable CS0618 // Locator fallback until drain completes
-    public IAnimationManager Animations { get { return Live(ref _animations, AnimationManager.Instance); } }
-#pragma warning restore CS0618
+    public IAnimationManager Animations { get { return Live(ref _animations, AnimationPacketServices.Animations); } }
     public SkillExecutor SkillRunner { get { return Live(ref _skillRunner, SkillExecutor.Instance); } }
 
     public L2GameUI Ui { get { return Live(ref _ui, SystemUIPacketServices.Ui); } }
