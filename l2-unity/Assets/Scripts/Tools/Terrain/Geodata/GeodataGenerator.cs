@@ -183,11 +183,12 @@ public class GeodataGenerator : MonoBehaviour {
 		if(terrain.Count > 0) {
 			foreach(KeyValuePair<Vector3, Node> n in terrain) {
 
-				if(PlayerController.Instance == null) {
+				PlayerController player = Object.FindFirstObjectByType<PlayerController>();
+				if(player == null) {
 					return;
                 }
 
-				if(Vector3.Distance(n.Value.center, PlayerController.Instance.transform.position) < gizmosDistance) {
+				if(Vector3.Distance(n.Value.center, player.transform.position) < gizmosDistance) {
 					Vector3 cubeSize = new Vector3(nodeSize - nodeSize / 10f, 0.02f, nodeSize - nodeSize / 10f);
 					Gizmos.color = Color.green;
 					Gizmos.DrawCube(n.Value.center, cubeSize);

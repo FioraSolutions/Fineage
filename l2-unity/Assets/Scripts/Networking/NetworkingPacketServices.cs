@@ -44,9 +44,7 @@ public static class NetworkingPacketServices
     }
 
     public static EventProcessor Events =>
-        _events != null
-            ? _events
-            : ResolveFromApp<EventProcessor>() ?? EventProcessor.Instance;
+        _events != null ? _events : ResolveFromApp<EventProcessor>();
 
     public static PlayerController Player =>
         _player != null ? _player : ResolveFromGameContainer<PlayerController>();

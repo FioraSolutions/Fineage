@@ -51,10 +51,7 @@ public sealed class GameRuntime
     private LoginClient _login;
     private GameManager _manager;
 
-    public EventProcessor Events
-    {
-        get { return _events != null ? _events : EventProcessor.Instance; }
-    }
+    public EventProcessor Events => _events;
 
     public GameClient Game => DiRuntimePacketServices.Game;
 
@@ -62,7 +59,7 @@ public sealed class GameRuntime
 
     public GameManager Manager => DiRuntimePacketServices.Manager;
 
-    public World World { get { return Live(ref _world, global::World.Instance); } }
+    public World World => _world;
     public PlayerInventory Inventory { get { return Live(ref _inventory, PlayerInventory.Instance); } }
     public TargetManager Targets { get { return Live(ref _targets, TargetManager.Instance); } }
     public HitManager Hits { get { return Live(ref _hits, HitManager.Instance); } }
@@ -107,10 +104,7 @@ public sealed class GameRuntime
     public WorldPacketApply WorldApply { get; private set; }
     public MessagePacketApply MessageApply { get; private set; }
 
-    public PlayerController Player
-    {
-        get { return _player != null ? _player : (_player = PlayerController.Instance); }
-    }
+    public PlayerController Player => _player;
 
     public PlayerActions Actions
     {
@@ -123,7 +117,9 @@ public sealed class GameRuntime
         GameClient game,
         LoginClient login,
         GameManager manager,
-        IGameEventBus gameEvents)
+        IGameEventBus gameEvents,
+        World world,
+        PlayerController player)
     {
         if (events != null)
             _events = events;
@@ -135,6 +131,10 @@ public sealed class GameRuntime
             _manager = manager;
         if (gameEvents != null)
             _gameEvents = gameEvents;
+        if (world != null)
+            _world = world;
+        if (player != null)
+            _player = player;
         DiRuntimePacketServices.Bind(game: _game, login: _login, manager: _manager);
     }
 
