@@ -61,7 +61,7 @@ public sealed class GameRuntime
 
     public World World => _world;
     public PlayerInventory Inventory { get { return Live(ref _inventory, InventoryPacketServices.Inventory); } }
-    public TargetManager Targets { get { return Live(ref _targets, TargetManager.Instance); } }
+    public TargetManager Targets { get { return Live(ref _targets, TargetPacketServices.Targets); } }
     public HitManager Hits { get { return Live(ref _hits, HitManager.Instance); } }
     public ClickManager Clicks { get { return Live(ref _clicks, ClickManager.Instance); } }
     public PlayerShortcuts Shortcuts { get { return Live(ref _shortcuts, PlayerShortcuts.Instance); } }

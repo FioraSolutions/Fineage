@@ -64,7 +64,7 @@ public static class ControllerPacketServices
     public static TargetManager Targets =>
         _targets != null
             ? _targets
-            : ResolveFromGame<TargetManager>() ?? LegacyTargetManagerInstance();
+            : ResolveFromGame<TargetManager>() ?? TargetPacketServices.Targets;
 
     public static InputManager Input =>
         _input != null
@@ -121,8 +121,6 @@ public static class ControllerPacketServices
     }
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
-    static TargetManager LegacyTargetManagerInstance() => TargetManager.Instance;
-
     static PositionValidationController LegacyPositionValidationInstance() =>
         PositionValidationController.Instance;
 
