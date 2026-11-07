@@ -50,8 +50,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
             return;
         }
 
-        bool wasMoving = entity.Identity != null && MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+        bool wasMoving = entity.Identity != null && ControllerPacketServices.Moves != null &&
+            ControllerPacketServices.Moves.IsMoving(entity.Identity.Id);
         MagicGaitTrace.Event(entity, "Skill.Enter",
             "skill=" + magic.SkillId +
             " isMagic=" + IsMagicSkill(magic) +
@@ -251,8 +251,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (user != null)
             user.ClearAttackVisual();
 
-        bool moving = entity.Identity != null && MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+        bool moving = entity.Identity != null && ControllerPacketServices.Moves != null &&
+            ControllerPacketServices.Moves.IsMoving(entity.Identity.Id);
         bool moveAction = entity.ActionSlot != null && entity.ActionSlot.Action == EntityActionKind.Move;
 
         MagicGaitTrace.BeginPostShotWatch(entity);
@@ -266,7 +266,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         {
             if (moving)
             {
-                MovementData move = MoveAllCharacters.Instance.GetMove(entity.Identity.Id);
+                MovementData move = ControllerPacketServices.Moves.GetMove(entity.Identity.Id);
                 if (move != null)
                     move.ReplayUserGait();
             }

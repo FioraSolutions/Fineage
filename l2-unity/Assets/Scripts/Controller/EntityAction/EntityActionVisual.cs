@@ -4,13 +4,13 @@ public static class EntityActionVisual
 {
     public static void CancelMove(Entity entity)
     {
-        if (entity == null || entity.Identity == null || MoveAllCharacters.Instance == null)
+        if (entity == null || entity.Identity == null || ControllerPacketServices.Moves == null)
             return;
         if (entity.Identity.Id > 0)
         {
             MagicGaitTrace.Event(entity, "CancelMove", null);
-            MoveAllCharacters.Instance.CancelMove(entity.Identity.Id);
-            MoveAllCharacters.Instance.CancelRotate(entity.Identity.Id);
+            ControllerPacketServices.Moves.CancelMove(entity.Identity.Id);
+            ControllerPacketServices.Moves.CancelRotate(entity.Identity.Id);
         }
     }
 

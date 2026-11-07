@@ -671,8 +671,8 @@ public static class EntitySpawnShared
                 clip = infos[0].clip.name;
         }
 
-        bool moving = MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+        bool moving = MoveAllCharactersPacketServices.Moves != null &&
+            MoveAllCharactersPacketServices.Moves.IsMoving(entity.Identity.Id);
         string action = entity.ActionSlot != null ? entity.ActionSlot.Action.ToString() : "-";
         Debug.Log(
             "[STRIDER_GAIT] when=" + when +

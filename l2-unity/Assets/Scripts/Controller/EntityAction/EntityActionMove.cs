@@ -13,7 +13,7 @@ public sealed class EntityActionMove : IEntityActionProcess
 
     public void Enter(Entity entity, object payload)
     {
-        if (entity == null || entity.IsDead() || MoveAllCharacters.Instance == null)
+        if (entity == null || entity.IsDead() || ControllerPacketServices.Moves == null)
             return;
 
         if (payload is CharMoveToLocationDto moveDto)
@@ -70,7 +70,7 @@ public sealed class EntityActionMove : IEntityActionProcess
             entity.ActionSlot.PawnDist = 0f;
             L2PawnRange.ClearIgnoredPawn(entity);
             if (entity.Identity != null)
-                MoveAllCharacters.Instance.CancelMove(entity.Identity.Id);
+                ControllerPacketServices.Moves.CancelMove(entity.Identity.Id);
             if (EntityActionMachine.Instance != null)
                 EntityActionMachine.Instance.NotifyArrived(entity);
             return;
@@ -81,7 +81,7 @@ public sealed class EntityActionMove : IEntityActionProcess
 
         entity.ActionSlot.Destination = destination;
         MovementData existing = entity.Identity != null
-            ? MoveAllCharacters.Instance.GetMove(entity.Identity.Id)
+            ? ControllerPacketServices.Moves.GetMove(entity.Identity.Id)
             : null;
         if (existing != null && existing.IsMove())
         {
@@ -101,7 +101,7 @@ public sealed class EntityActionMove : IEntityActionProcess
             "existing=" + (existing != null) + " isMove=" + (existing != null && existing.IsMove()));
         MovementTarget target = new MovementTarget(destination, 0.1f, entity.Running);
         MovementData data = new MovementData(entity, target, _pawnYaw);
-        MoveAllCharacters.Instance.AddMoveData(entity.Identity.Id, data);
+        ControllerPacketServices.Moves.AddMoveData(entity.Identity.Id, data);
         if (entity is UserEntity)
         {
             data.SyncUserGait();
@@ -128,7 +128,7 @@ public sealed class EntityActionMove : IEntityActionProcess
         if (pawn.IsDead())
         {
             if (entity.Identity != null)
-                MoveAllCharacters.Instance.CancelMove(entity.Identity.Id);
+                ControllerPacketServices.Moves.CancelMove(entity.Identity.Id);
             return;
         }
 
@@ -177,7 +177,7 @@ public sealed class EntityActionMove : IEntityActionProcess
         // NotifyArrived). Recreating + ForceReplay every out-of-range packet was
         // restarting MMagic run mid-stride on the chase boundary.
         MovementData existing = entity.Identity != null
-            ? MoveAllCharacters.Instance.GetMove(entity.Identity.Id)
+            ? ControllerPacketServices.Moves.GetMove(entity.Identity.Id)
             : null;
         if (existing != null)
         {
@@ -194,7 +194,7 @@ public sealed class EntityActionMove : IEntityActionProcess
 
         MovementTarget target = new MovementTarget(pawn.transform, stopDistance, entity.Running);
         MovementData data = new MovementData(entity, target, _pawnYaw);
-        MoveAllCharacters.Instance.AddMoveData(entity.Identity.Id, data);
+        ControllerPacketServices.Moves.AddMoveData(entity.Identity.Id, data);
         // Non-forcing: SyncUserGait OffGait force-replays once if still on wait.
         // Unconditional ForceReplay restarted the run clip every new chase packet.
         data.SyncUserGait();
