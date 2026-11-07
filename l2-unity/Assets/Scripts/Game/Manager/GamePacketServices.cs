@@ -38,12 +38,8 @@ public static class GamePacketServices
     public static IAnimationManager Animations =>
         _animations != null ? _animations : ResolveAnimationsFallback();
 
-    static IAnimationManager ResolveAnimationsFallback()
-    {
-#pragma warning disable CS0618 // Locator fallback until drain completes
-        return ResolveFromGame<IAnimationManager>() ?? AnimationManager.Instance;
-#pragma warning restore CS0618
-    }
+    static IAnimationManager ResolveAnimationsFallback() =>
+        ResolveFromGame<IAnimationManager>() ?? AnimationPacketServices.LegacyAnimationManagerInstance();
 
     static T ResolveFromGame<T>() where T : class
     {
