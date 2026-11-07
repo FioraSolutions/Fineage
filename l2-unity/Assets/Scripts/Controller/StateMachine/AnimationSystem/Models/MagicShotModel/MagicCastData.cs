@@ -4,10 +4,6 @@ public class MagicCastData
 {
     private const float MinPhaseWindowSeconds = 0.01f;
 
-    /// <summary>Эталонное окно до выстрела: ReferenceHitTime − CastShootWindowFixedOffset.</summary>
-    private const float ReferenceAdjustedShootWindowSeconds = 1.35f;
-    /// <summary>Эталонная пауза в стойке CastEnd2P после клипа (сек) при ReferenceHitTime.</summary>
-    private const float ReferenceTwoClipCastEndHoldSeconds = 0.4f;
     /// <summary>
     /// <b>false</b> — считать <see cref="AnimatorWallPenaltySeconds"/> по кривой ниже (<c>AdjustedShootWindow = serverTimeToShoot − penalty</c>).
     /// <para>
@@ -158,30 +154,24 @@ public class MagicCastData
 
         serverTimeToShoot = Mathf.Max(0.01f, HitTime - FlightTime);
 
-        float penaltyTLinear;
-        float penaltyT;
         if (MagicCastWallPenaltyDisabledForTesting)
         {
             AnimatorWallPenaltySeconds = 0f;
             AdjustedShootWindowSeconds = Mathf.Max(
                 0.01f,
                 serverTimeToShoot - CastShootWindowFixedOffsetSeconds);
-            penaltyTLinear = 0f;
-            penaltyT = 0f;
         }
         else
         {
             // Wall penalty (кривая по HitTime) — сейчас выключено флагом выше; ветка сохранена для возврата к динамическому штрафу.
-            float hitSeconds = HitTime;
             float hitClamped = Mathf.Clamp(
-                hitSeconds,
+                HitTime,
                 WallPenaltyClampHitMinSeconds,
                 WallPenaltyClampHitMaxSeconds);
-            penaltyTLinear = Mathf.InverseLerp(
+            float penaltyTLinear = Mathf.InverseLerp(
                 WallPenaltyClampHitMinSeconds,
                 WallPenaltyClampHitMaxSeconds,
                 hitClamped);
-            penaltyT = penaltyTLinear;
             AnimatorWallPenaltySeconds = Mathf.Lerp(WallPenaltySecondsMin, WallPenaltySecondsMax, penaltyTLinear);
 
             AdjustedShootWindowSeconds = Mathf.Max(
@@ -196,128 +186,77 @@ public class MagicCastData
         bool hasMidPhase = durMid > 0f;
         bool hasEndPhase = durEnd > 0f;
         bool hasShotPhase = durShot > 0f;
-
         bool isTwoClipCastPath = hasMidPhase && hasEndPhase && !hasShotPhase;
-        float durShotToEvent;
-        float timelineDuration;
 
-        if (isTwoClipCastPath)
-        {
-            // Two-clip override path: trigger plan is CastEnd -> MagicShot.
-            // First clip fully plays as CastEnd, second clip is MagicShot.
-            durShotToEvent = (shotEventTime > 0f) ? shotEventTime : durEnd;
-            timelineDuration = durMid + durShotToEvent;
-        }
-        else
-        {
-            durShotToEvent = (shotEventTime > 0f) ? shotEventTime : durShot;
-            timelineDuration = durMid + durEnd + durShotToEvent;
-        }
-
+        float durShotToEvent = isTwoClipCastPath
+            ? ((shotEventTime > 0f) ? shotEventTime : durEnd)
+            : ((shotEventTime > 0f) ? shotEventTime : durShot);
         this.shotEventTime = durShotToEvent;
+
+        float timelineDuration = isTwoClipCastPath
+            ? durMid + durShotToEvent
+            : durMid + durEnd + durShotToEvent;
         timelineDuration = Mathf.Max(0.01f, timelineDuration);
         float timingScale = timelineDuration / AdjustedShootWindowSeconds;
-        float timingScaleWithoutWallPenalty = timelineDuration / serverTimeToShoot;
-
         SpeedMid = timingScale;
         SpeedEnd = timingScale;
         SpeedShot = timingScale;
 
-        float firstWindow = 0f;
-        float secondWindow = 0f;
-        float twoClipFirstShare = 0f;
-        float twoClipSecondShare = 0f;
-        float twoClipAnimPlayBudget = 0f;
-        float castEndPhaseTotalSec = 0f;
-        float holdPctOfHit = 0f;
-        float castEndPlayPctOfHit = 0f;
-        float magicShotPlayPctOfHit = 0f;
+        TwoClipCastEndHoldSeconds = 0f;
         if (isTwoClipCastPath)
         {
-            // Масштабируем эталон (hit=1.5, hold=0.4, winAdj=1.35) на любое server HitTime.
-            float shootWindowScale = AdjustedShootWindowSeconds / ReferenceAdjustedShootWindowSeconds;
-            TwoClipCastEndHoldSeconds = ReferenceTwoClipCastEndHoldSeconds * shootWindowScale;
-
-            // 1) hold (стойка после CastEnd2P)  2) animPlayBudget режется по длинам клипов на CastEnd2P + MagicShot2P.
-            twoClipAnimPlayBudget = Mathf.Max(
-                MinPhaseWindowSeconds * 2f,
-                AdjustedShootWindowSeconds - TwoClipCastEndHoldSeconds);
-
-            float twoClipTimeline = durMid + durShotToEvent;
-            if (twoClipTimeline > MinPhaseWindowSeconds)
-            {
-                twoClipFirstShare = durMid / twoClipTimeline;
-                twoClipSecondShare = durShotToEvent / twoClipTimeline;
-            }
-            else
-            {
-                twoClipFirstShare = 0.5f;
-                twoClipSecondShare = 0.5f;
-            }
-
-            firstWindow = Mathf.Max(MinPhaseWindowSeconds, twoClipAnimPlayBudget * twoClipFirstShare);
-            secondWindow = Mathf.Max(MinPhaseWindowSeconds, twoClipAnimPlayBudget * twoClipSecondShare);
-
-            if (HitTime > MinPhaseWindowSeconds)
-            {
-                castEndPhaseTotalSec = firstWindow + TwoClipCastEndHoldSeconds;
-                holdPctOfHit = TwoClipCastEndHoldSeconds / HitTime * 100f;
-                castEndPlayPctOfHit = firstWindow / HitTime * 100f;
-                magicShotPlayPctOfHit = secondWindow / HitTime * 100f;
-            }
-
-            // Tags J/K/L: two sequences. InitSkillProcess writes the scaled duration
-            // into slot 0 and leaves the AttackShot clip (slot 1) at native length.
-            // Unity plays those as CastEnd2P (SpeedEnd) then MagicShot2P (SpeedShot).
-            // No extra pose hold — the client does not insert one.
-            TwoClipCastEndHoldSeconds = 0f;
+            // Tags J/K/L: CastEnd then MagicShot — speeds from ApplyClientCastSpeeds.
             ApplyClientCastSpeeds(2, durMid, durEnd, 0f, durShotToEvent, castStyle, mixCombo);
         }
         else if (hasMidPhase && hasEndPhase && hasShotPhase)
         {
-            TwoClipCastEndHoldSeconds = 0f;
             ApplyClientCastSpeeds(3, durMid, durEnd, durShot, durShotToEvent, castStyle, mixCombo);
+        }
+        else if (hasMidPhase)
+        {
+            ApplyClientCastSpeeds(1, durMid, 0f, 0f, durShotToEvent, castStyle, mixCombo);
         }
         else
         {
-            TwoClipCastEndHoldSeconds = 0f;
-            if (hasMidPhase)
-            {
-                ApplyClientCastSpeeds(1, durMid, 0f, 0f, durShotToEvent, castStyle, mixCombo);
-            }
+            Debug.LogWarning(
+                "[CastSync] ANIM.setup no mid clip hit=" + HitTime.ToString("F3") +
+                " durs=[" + durMid.ToString("F3") + "," + durEnd.ToString("F3") + "," + durShot.ToString("F3") + "]");
         }
 
-        float wallMid = isTwoClipCastPath
-            ? durMid / Mathf.Max(SpeedEnd, 0.0001f)
-            : durMid / Mathf.Max(SpeedMid, 0.0001f);
-        float wallEnd = isTwoClipCastPath
-            ? durEnd / Mathf.Max(SpeedShot, 0.0001f)
-            : durEnd / Mathf.Max(SpeedEnd, 0.0001f);
-        float wallNotify = durShotToEvent / Mathf.Max(SpeedShot, 0.0001f);
+        // Body AttackShot must land on the same leave clock as SFX (*_shot / throw voice).
+        PinAnimationShotToServerLeave();
+    }
 
-        // Debug.Log(
-            // $"[CAST_WALL_PENALTY] DISABLED={wallPenaltyDisabledLabel} offsetMs={(MagicCastWallPenaltyDisabledForTesting ? CastShootWindowFixedOffsetSeconds : 0f) * 1000f:F0} " +
-            // $"penaltyMs={AnimatorWallPenaltySeconds * 1000f:F2} curveT={penaltyT:F3} tLin={penaltyTLinear:F3} " +
-            // $"hitSec={HitTime:F3} winNomSec={serverTimeToShoot:F3} winAdjSec={AdjustedShootWindowSeconds:F3} " +
-            // $"timelineSec={timelineDuration:F3} scaleNoPenalty={timingScaleWithoutWallPenalty:F4} scaleApplied={timingScale:F4} " +
-            // $"deltaScale={(timingScale - timingScaleWithoutWallPenalty):F4} " +
-            // $"speedMid={SpeedMid:F3} speedEnd={SpeedEnd:F3} speedShot={SpeedShot:F3} " +
-            // $"clips[mid={durMid:F3},end={durEnd:F3},shot={durShot:F3},shotEvt={durShotToEvent:F3}] " +
-            // $"windows[first={firstWindow:F3},second={secondWindow:F3},clipShareFirst={twoClipFirstShare:F3},clipShareSecond={twoClipSecondShare:F3}] " +
-            // $"castEndHoldSec={TwoClipCastEndHoldSeconds:F3} animPlayBudget={twoClipAnimPlayBudget:F3} " +
-            // $"castEndPhaseTotal={castEndPhaseTotalSec:F3} pctOfHit[hold={holdPctOfHit:F1},castPlay={castEndPlayPctOfHit:F1},shotPlay={magicShotPlayPctOfHit:F1}] " +
-            // $"path={(isTwoClipCastPath ? "two_clip_castend_magicshot" : "default_three_phase")} " +
-            // $"walls[mid={wallMid:F3},end={wallEnd:F3},notify={wallNotify:F3}]");
+    /// <summary>
+    /// Uniformly rescale phase speeds so <see cref="AnimationShotAtSeconds"/> == <see cref="serverTimeToShoot"/>.
+    /// InitSkillProcess pad/filler alone drifts ~0.5s early vs HitTime−flight (see CastSync logs).
+    /// </summary>
+    private void PinAnimationShotToServerLeave()
+    {
+        if (IsLongCast)
+            return;
+        float target = serverTimeToShoot;
+        float current = AnimationShotAtSeconds;
+        if (target <= 0.01f || current <= 0.01f)
+            return;
+        if (Mathf.Abs(current - target) < 0.02f)
+            return;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // Debug.Log(
-            // $"[CastTimingSetup] hit={HitTime:F3}s flight={FlightTime:F3}s " +
-            // $"shootTargetNominal={serverTimeToShoot:F3}s wallPenalty={AnimatorWallPenaltySeconds:F3}s " +
-            // $"(curveT={penaltyT:F3} tLin={penaltyTLinear:F3}) adjustedShootWin={AdjustedShootWindowSeconds:F3}s " +
-            // $"durMid={durMid:F3}s durEnd={durEnd:F3}s durShotToEvent={durShotToEvent:F3}s shotEventResolved={this.shotEventTime:F3}s " +
-            // $"timelineDuration={timelineDuration:F3}s timingScale={timingScale:F3} " +
-            // $"speedMid={SpeedMid:F3} speedEnd={SpeedEnd:F3} speedShot={SpeedShot:F3}");
-#endif
+        float factor = current / target;
+        SpeedMid *= factor;
+        SpeedEnd *= factor;
+        SpeedShot *= factor;
+        PhaseWallMidSeconds /= factor;
+        PhaseWallEndSeconds /= factor;
+        PhaseWallShotSeconds /= factor;
+        AnimationShotAtSeconds = target;
+
+        Debug.Log(
+            "[CastSync] ANIM.pinShot current=" + current.ToString("F3") +
+            " → target=" + target.ToString("F3") +
+            " factor=" + factor.ToString("F3") +
+            " speed=[" + SpeedMid.ToString("F3") + "," + SpeedEnd.ToString("F3") + "," + SpeedShot.ToString("F3") + "]" +
+            " walls=[" + PhaseWallMidSeconds.ToString("F3") + "," + PhaseWallEndSeconds.ToString("F3") + "," + PhaseWallShotSeconds.ToString("F3") + "]");
     }
 
     /// <summary>
@@ -330,7 +269,10 @@ public class MagicCastData
     private void ApplyClientCastSpeeds(int clipCount, float dur0, float dur1, float dur2, float shotEventClipTime, int castStyle, bool mixCombo)
     {
         float pad = PadSeconds(castStyle);
-        float room = Mathf.Max(0.0001f, HitTime - pad);
+        // Budget the AttackShot notify to leave time when a projectile flight exists;
+        // otherwise keep full HitTime (heal / instant magic).
+        float roomBase = FlightTime > 0.001f ? serverTimeToShoot : HitTime;
+        float room = Mathf.Max(0.0001f, roomBase - pad);
         float headSlack = ClientChainSlackSeconds;
         float n0 = ClientNativeSeconds(dur0);
         float n1 = ClientNativeSeconds(dur1);
@@ -398,11 +340,21 @@ public class MagicCastData
         float eventWall = shotEventClipTime > 0f ? shotEventClipTime / Mathf.Max(shotSpeed, 0.0001f) : 0f;
         AnimationShotAtSeconds = beforeShot + eventWall;
 
-        // Debug.Log(
-            // $"[SkillTiming] style={castStyle} pad={pad:F2} filler={filler} rescale={(rescale ? 1 : 0)} " +
-            // $"hit={HitTime:F3} untilNotify={untilNotify:F4} " +
-            // $"play=[{play0:F4},{play1:F4},{play2:F4}] " +
-            // $"speed=[{SpeedMid:F3},{SpeedEnd:F3},{SpeedShot:F3}] shotAt={AnimationShotAtSeconds:F3}");
+        Debug.Log(
+            "[CastSync] ANIM.setup style=" + castStyle +
+            " clips=" + clipCount +
+            " pad=" + pad.ToString("F2") +
+            " filler=" + filler +
+            " rescale=" + rescale +
+            " hit=" + HitTime.ToString("F3") +
+            " roomBase=" + roomBase.ToString("F3") +
+            " shootWin=" + AdjustedShootWindowSeconds.ToString("F3") +
+            " flight=" + FlightTime.ToString("F3") +
+            " play=[" + play0.ToString("F3") + "," + play1.ToString("F3") + "," + play2.ToString("F3") + "]" +
+            " speed=[" + SpeedMid.ToString("F3") + "," + SpeedEnd.ToString("F3") + "," + SpeedShot.ToString("F3") + "]" +
+            " walls=[" + PhaseWallMidSeconds.ToString("F3") + "," + PhaseWallEndSeconds.ToString("F3") + "," + PhaseWallShotSeconds.ToString("F3") + "]" +
+            " animShotAt=" + AnimationShotAtSeconds.ToString("F3") +
+            " sfxShotAt≈" + serverTimeToShoot.ToString("F3"));
     }
 
     public float GetPhaseEndWallSeconds(int stateIndex)

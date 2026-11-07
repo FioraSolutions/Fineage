@@ -79,14 +79,19 @@ public class AbstractMeshManager : MonoBehaviour
     }
     protected GameObject GetOrCreate(GameObject originalGameObject , ObjectType type)
     {
+        if (originalGameObject == null)
+            return null;
+
         if (ObjectPoolManager.Instance != null)
         {
-            return  ObjectPoolManager.Instance.SpawnFromPool(type, originalGameObject);
+            // Pool may not know this prefab yet (fullarmor robe meshes). Grow or fall back.
+            ObjectPoolManager.Instance.AddPrefabToPool(type, originalGameObject, count: 1);
+            GameObject pooled = ObjectPoolManager.Instance.SpawnFromPool(type, originalGameObject);
+            if (pooled != null)
+                return pooled;
         }
-        else
-        {
-           return  GameObject.Instantiate(originalGameObject);
-        }
+
+        return GameObject.Instantiate(originalGameObject);
     }
 
     private GameObject LoadWeapon(Weapon weapon , int weaponId)
@@ -244,12 +249,17 @@ public class AbstractMeshManager : MonoBehaviour
         GameObject mesh = GetOrCreate(baseArmorModel, ObjectType.Armor);
         if (mesh == null)
         {
-            // Debug.LogWarning("UserGear-> Failed to create armor model copy");
+            Debug.LogWarning("[Gear] CreateArmorMesh pool/instantiate failed base=" +
+                (baseArmorModel != null ? baseArmorModel.name : "null"));
             return null;
         }
 
         if (mesh.GetComponentInChildren<SkinnedMeshRenderer>(true) == null)
+        {
+            Debug.LogWarning("[Gear] CreateArmorMesh no SkinnedMeshRenderer on " + mesh.name +
+                " children=" + mesh.transform.childCount);
             return null;
+        }
 
         L2ActorMeshPolicy.ApplyPaperdollMaterial(mesh, material);
         return mesh;

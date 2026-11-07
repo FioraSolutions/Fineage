@@ -169,8 +169,10 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
 
         if (!prefabPools.ContainsKey(prefab))
         {
-            // Debug.LogWarning($"Префаб не найден в пуле {tag}");
-            return null;
+            // First spawn of an unpooled armor/weapon prefab (e.g. onepiece robe).
+            AddPrefabToPool(tag, prefab, count: 1);
+            if (!prefabPools.ContainsKey(prefab))
+                return null;
         }
 
         Queue<GameObject> objectPool = prefabPools[prefab];

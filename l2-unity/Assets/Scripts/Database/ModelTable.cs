@@ -215,8 +215,15 @@ public class ModelTable : AbstractCache
             return;
 
         Material[] fullSet = LoadAllArmorMaterials(grp.AllTextures[raceIndex]);
-        if (fullSet.Length > 0 && grp.BodyPart == ItemSlot.fullarmor)
+        if (grp.BodyPart == ItemSlot.fullarmor)
+        {
+            // Keep at least the chest material when legs texture is None.
+            if (fullSet == null || fullSet.Length == 0 || fullSet[0] == null)
+                fullSet = new[] { material };
+            else if (fullSet[0] == null)
+                fullSet[0] = material;
             l2Armor.allMaterials[texture] = fullSet;
+        }
 
         l2Armor.materials[texture] = material;
         materialCount++;

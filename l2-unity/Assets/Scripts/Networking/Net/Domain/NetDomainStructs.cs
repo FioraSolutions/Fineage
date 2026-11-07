@@ -286,6 +286,10 @@ public static class NetPaperdoll
             case "gloves":
                 return Gloves;
             case "chest":
+            case "fullarmor":
+            case "onepiece":
+            case "alldress":
+                // Mobius full-body robes occupy the chest paperdoll cell.
                 return Chest;
             case "legs":
                 return Legs;
@@ -331,6 +335,8 @@ public struct NetUserInfo
     public int ObjectId;
     public string Name;
     public int ClassId;
+    public int Race;
+    public int Sex;
     public int X;
     public int Y;
     public int Z;
