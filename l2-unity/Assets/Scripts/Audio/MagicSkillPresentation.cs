@@ -50,7 +50,7 @@ public static class MagicSkillPresentation
 
         SkillCastSound.OnMagicSkillUse(entity, dto);
 
-        if (entity == PlayerEntity.Instance)
+        if (entity == DomainPacketServices.LocalPlayer)
         {
             try { CastBarOverlay.Begin(dto.HitTime, dto.SkillId); }
             catch (System.Exception bar) { Debug.LogWarning("[CastBar] " + bar.Message); }

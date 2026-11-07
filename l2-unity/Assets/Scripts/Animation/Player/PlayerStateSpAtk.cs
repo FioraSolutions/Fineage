@@ -185,8 +185,8 @@ public class PlayerStateSpAtk : StateMachineBehaviour
         if (!AnimatorUtils.IsLocalPlayerAnimator(animator))
             return;
 
-        if (PlayerEntity.Instance != null)
-            PlayerEntity.Instance.IsAttack = false;
+        if (DomainPacketServices.LocalPlayer != null)
+            DomainPacketServices.LocalPlayer.IsAttack = false;
         if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
             return;
         PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);

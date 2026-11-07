@@ -147,9 +147,9 @@ public class NameplatesManager : MonoBehaviour
     {
         if (_playerTransform == null)
         {
-            if (PlayerEntity.Instance != null && PlayerEntity.Instance.transform != null)
+            if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.transform != null)
             {
-                _playerTransform = PlayerEntity.Instance.transform;
+                _playerTransform = DomainPacketServices.LocalPlayer.transform;
             }
             else
             {
@@ -179,9 +179,9 @@ public class NameplatesManager : MonoBehaviour
 
         _entryStore.EnsureHoverAndTarget(_entityMask, _defaultNameColor);
 
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            _entryStore.UpsertEntry(PlayerEntity.Instance, _defaultNameColor);
+            _entryStore.UpsertEntry(DomainPacketServices.LocalPlayer, _defaultNameColor);
         }
 
         _entryStore.RefreshVisibility(_playerTransform, _nameplateViewDistance, _pixelSnap);

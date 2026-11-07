@@ -162,7 +162,7 @@ public class CharacterInfoWindow : L2PopupWindow
     }
 
     public void UpdateValues() {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
 
         if (player == null) {
             // Debug.LogWarning("Player entity is null, can't update character window");

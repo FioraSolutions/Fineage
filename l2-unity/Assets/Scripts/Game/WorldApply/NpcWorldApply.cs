@@ -73,7 +73,7 @@ public sealed class NpcWorldApply : EntityWorldApply
 
     public override void OnNpcHtml(Entity entity, NpcHtmlMessageDto dto)
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null && entity != null)
         {
             Vector3 direction = player.transform.position - entity.transform.position;

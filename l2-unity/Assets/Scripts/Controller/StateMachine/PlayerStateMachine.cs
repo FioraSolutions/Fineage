@@ -83,8 +83,8 @@ public class PlayerStateMachine : MonoBehaviour
 
         _instance = onPlayer;
         onPlayer.enabled = true;
-        if (PlayerEntity.Instance != null)
-            onPlayer.Player = PlayerEntity.Instance;
+        if (DomainPacketServices.LocalPlayer != null)
+            onPlayer.Player = DomainPacketServices.LocalPlayer;
     }
 
 

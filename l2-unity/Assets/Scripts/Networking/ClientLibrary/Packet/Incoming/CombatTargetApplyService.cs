@@ -23,10 +23,10 @@ public sealed class CombatTargetApplyService
             if (targets == null)
                 return;
 
-            if (packet.ObjectId == PlayerEntity.Instance.Identity.Id)
+            if (packet.ObjectId == DomainPacketServices.LocalPlayer.Identity.Id)
             {
                 targets.SetTarget(
-                    new ObjectData(PlayerEntity.Instance.transform.gameObject),
+                    new ObjectData(DomainPacketServices.LocalPlayer.transform.gameObject),
                     "#ffffff");
             }
             else

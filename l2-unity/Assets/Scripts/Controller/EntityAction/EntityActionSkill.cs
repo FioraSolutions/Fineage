@@ -216,10 +216,10 @@ public sealed class EntityActionSkill : IEntityActionProcess
                 return fromWorld;
         }
 
-        if (PlayerEntity.Instance != null &&
-            PlayerEntity.Instance.Identity != null &&
-            PlayerEntity.Instance.Identity.Id == objectId)
-            return PlayerEntity.Instance;
+        if (DomainPacketServices.LocalPlayer != null &&
+            DomainPacketServices.LocalPlayer.Identity != null &&
+            DomainPacketServices.LocalPlayer.Identity.Id == objectId)
+            return DomainPacketServices.LocalPlayer;
 
         return null;
     }
@@ -232,9 +232,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     public static bool IsLocalPlayer(int objectId)
     {
-        return PlayerEntity.Instance != null &&
-            PlayerEntity.Instance.Identity != null &&
-            PlayerEntity.Instance.Identity.Id == objectId;
+        return DomainPacketServices.LocalPlayer != null &&
+            DomainPacketServices.LocalPlayer.Identity != null &&
+            DomainPacketServices.LocalPlayer.Identity.Id == objectId;
     }
 
     public static void FinishRemoteCast(int objectId)

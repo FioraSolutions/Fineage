@@ -160,7 +160,7 @@ public sealed class ItemDropWeaponAligner
     static float TryEquippedWeaponWorldLength(int itemId, out string source)
     {
         source = "none";
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null)
             return 0f;
 

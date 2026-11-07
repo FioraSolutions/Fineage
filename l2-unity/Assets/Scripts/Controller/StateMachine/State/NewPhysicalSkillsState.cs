@@ -119,7 +119,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
     // Disabled with AttackTimingHelper.RotateFaceToMonster — clip pose only.
     // private void RotateFaceToMonster(Entity entity)
     // {
-    //     Transform monster = PlayerEntity.Instance.Target;
+    //     Transform monster = DomainPacketServices.LocalPlayer.Target;
     //     if (monster == null) return;
     //     RotationService.Instance.RotateTowards(entity.transform, monster.position, () =>
     //     {

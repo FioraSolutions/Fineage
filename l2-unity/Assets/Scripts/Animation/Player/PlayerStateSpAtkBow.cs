@@ -70,8 +70,8 @@ public class PlayerStateSpAtkBow : StateMachineBehaviour
             return;
 
         _isSwitchIdle = true;
-        if (PlayerEntity.Instance != null)
-            PlayerEntity.Instance.IsAttack = false;
+        if (DomainPacketServices.LocalPlayer != null)
+            DomainPacketServices.LocalPlayer.IsAttack = false;
 
         int objectId = AnimatorUtils.GetObjectId(animator);
         string phaseName = Animations != null

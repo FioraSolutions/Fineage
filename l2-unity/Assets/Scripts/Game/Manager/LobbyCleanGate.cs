@@ -59,7 +59,7 @@ public static class LobbyCleanGate
             + " faceLeftovers=" + faces
             + " charSelectLayerObjs=" + layerObjs
             + " Camera.main=" + (Camera.main != null ? Camera.main.name : "null")
-            + " Player=" + (PlayerEntity.Instance != null ? PlayerEntity.Instance.name : "null");
+            + " Player=" + (DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.name : "null");
         return r;
     }
 

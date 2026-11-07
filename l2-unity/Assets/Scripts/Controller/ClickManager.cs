@@ -224,7 +224,7 @@ public class ClickManager : MonoBehaviour
 
     static bool TryResolveMoveOrigin(out Vector3 from)
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null)
         {
             from = player.transform.position;

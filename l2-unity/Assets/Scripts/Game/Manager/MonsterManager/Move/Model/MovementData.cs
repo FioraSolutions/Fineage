@@ -618,7 +618,7 @@ public class MovementData
             return;
         }
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null)
             return;
 

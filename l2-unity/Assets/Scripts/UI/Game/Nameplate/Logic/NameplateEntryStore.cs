@@ -205,7 +205,7 @@ public sealed class NameplateEntryStore
             e.Visible = visible;
             _entries[id] = e;
 
-            bool isLocal = PlayerEntity.Instance != null && e.Entity == PlayerEntity.Instance;
+            bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
             if (!visible && !isLocal && !_resolver.IsHoverOrTarget(e.Target))
             {
                 _removeIds.Add(id);
@@ -256,7 +256,7 @@ public sealed class NameplateEntryStore
                 }
             }
 
-            bool isLocal = PlayerEntity.Instance != null && e.Entity == PlayerEntity.Instance;
+            bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
             L2TargetRenderType bubbleType = _resolver.ResolveForPaint(e.Target, isLocal);
 
             paintList.Add(new NameplatePaintItem
@@ -337,7 +337,7 @@ public sealed class NameplateEntryStore
             return false;
         }
 
-        if (PlayerEntity.Instance != null && target == PlayerEntity.Instance.transform)
+        if (DomainPacketServices.LocalPlayer != null && target == DomainPacketServices.LocalPlayer.transform)
         {
             return true;
         }

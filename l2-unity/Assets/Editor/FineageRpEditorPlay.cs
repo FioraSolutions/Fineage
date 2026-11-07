@@ -569,7 +569,7 @@ public static class FineageRpEditorPlay
         // Fallback if SceneLoader diag log was missed: assert once player + Menu gone.
         bool menuGone = !SceneManager.GetSceneByName("Menu").isLoaded;
         bool lobbyGone = !SceneManager.GetSceneByName("l2_lobby").isLoaded;
-        if (PlayerEntity.Instance == null || !menuGone || !lobbyGone)
+        if (DomainPacketServices.LocalPlayer == null || !menuGone || !lobbyGone)
             return;
         // Let WorldEnterDiagDelayed (+1s) emit LobbyClean PASS/FAIL when possible.
         if (EditorApplication.timeSinceStartup < _worldAssertNotBefore + 3.0)

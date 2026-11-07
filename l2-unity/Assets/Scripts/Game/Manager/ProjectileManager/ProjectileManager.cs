@@ -208,7 +208,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
             }
         }
 
-        return PlayerEntity.Instance != null ? PlayerEntity.Instance.GetMagicCastData() : null;
+        return DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.GetMagicCastData() : null;
     }
 
 
@@ -386,9 +386,9 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
             return ownerEntity.Identity.Id;
         }
 
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null)
+        if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Identity != null)
         {
-            return PlayerEntity.Instance.Identity.Id;
+            return DomainPacketServices.LocalPlayer.Identity.Id;
         }
 
         return 0;
@@ -487,9 +487,9 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     {
         if (objectId <= 0)
             return null;
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null &&
-            PlayerEntity.Instance.Identity.Id == objectId)
-            return PlayerEntity.Instance;
+        if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Identity != null &&
+            DomainPacketServices.LocalPlayer.Identity.Id == objectId)
+            return DomainPacketServices.LocalPlayer;
         World world = GamePacketServices.GameWorld;
         return world != null ? world.GetEntityNoLockSync(objectId) : null;
     }

@@ -140,7 +140,7 @@ public class HitManager : MonoBehaviour
 
         Entity attacker = ResolveEntityFromWorld(attackerEntityId);
         if (attacker == null)
-            attacker = PlayerEntity.Instance;
+            attacker = DomainPacketServices.LocalPlayer;
         Entity targetEntity = target != null
             ? target.GetComponentInParent<Entity>()
             : null;
@@ -447,10 +447,10 @@ public class HitManager : MonoBehaviour
 
             Entity extra = ResolveEntityFromWorld(hit.TargetId);
             if (extra == null &&
-                PlayerEntity.Instance != null &&
-                PlayerEntity.Instance.Identity != null &&
-                PlayerEntity.Instance.Identity.Id == hit.TargetId)
-                extra = PlayerEntity.Instance;
+                DomainPacketServices.LocalPlayer != null &&
+                DomainPacketServices.LocalPlayer.Identity != null &&
+                DomainPacketServices.LocalPlayer.Identity.Id == hit.TargetId)
+                extra = DomainPacketServices.LocalPlayer;
             if (extra == null || extra == attacker)
                 continue;
 
@@ -778,7 +778,7 @@ public class HitManager : MonoBehaviour
             return attacker.transform;
         }
 
-        return PlayerEntity.Instance != null ? PlayerEntity.Instance.transform : null;
+        return DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.transform : null;
     }
 
     private static Entity ResolveTargetEntity(Entity targetEntity)

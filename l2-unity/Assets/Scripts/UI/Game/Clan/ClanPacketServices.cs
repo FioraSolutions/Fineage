@@ -75,7 +75,7 @@ public static class ClanPacketServices
         IZoneTransport transport = ZoneCommands.Transport;
         if (transport != null && transport.PlayerInfo.Identity != null)
             transport.PlayerInfo.Identity.ClanId = clanId;
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null && player.Identity != null)
             player.Identity.ClanId = clanId;
     }

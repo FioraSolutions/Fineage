@@ -17,7 +17,7 @@ public class AnimatorUtils
     /// </summary>
     public static bool IsLocalPlayerAnimator(Animator animator)
     {
-        if (animator == null || PlayerEntity.Instance == null)
+        if (animator == null || DomainPacketServices.LocalPlayer == null)
             return false;
 
         PlayerAnimationController playerAnimation = AnimationPacketServices.PlayerAnimation;
@@ -28,9 +28,9 @@ public class AnimatorUtils
                 return local == animator;
         }
 
-        if (PlayerEntity.Instance.Identity == null)
+        if (DomainPacketServices.LocalPlayer.Identity == null)
             return false;
-        return animator.GetInteger(OBJECT_ID) == PlayerEntity.Instance.Identity.Id;
+        return animator.GetInteger(OBJECT_ID) == DomainPacketServices.LocalPlayer.Identity.Id;
     }
 
 }

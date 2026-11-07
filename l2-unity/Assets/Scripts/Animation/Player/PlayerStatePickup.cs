@@ -37,8 +37,8 @@ public class PlayerStatePickup : StateMachineBehaviour
 
         bool local = AnimatorUtils.IsLocalPlayerAnimator(animator);
         bool autoAttack = local
-            && PlayerEntity.Instance != null
-            && PlayerEntity.Instance.isAutoAttack;
+            && DomainPacketServices.LocalPlayer != null
+            && DomainPacketServices.LocalPlayer.isAutoAttack;
 
         if (local && PlayerStateMachine.Instance != null)
         {

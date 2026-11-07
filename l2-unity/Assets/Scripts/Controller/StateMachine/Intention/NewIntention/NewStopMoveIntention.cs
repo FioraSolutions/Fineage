@@ -13,7 +13,7 @@ public class NewStopMoveIntention : IntentionBase
             
             //Debug.Log("StopMove Dist " + VectorUtils.Distance2D(PlayerController.Instance.transform.position, stop.StopPos));
 
-            L2PawnRange.ClearIgnoredPawn(PlayerEntity.Instance);
+            L2PawnRange.ClearIgnoredPawn(DomainPacketServices.LocalPlayer);
             PlayerStateMachine.Instance.IsMoveToPawn = false;
             ControllerPacketServices.Player.StopMove();
             //Debug.Log("IsMoveToPawn Двигаемся к цели stopmove1");

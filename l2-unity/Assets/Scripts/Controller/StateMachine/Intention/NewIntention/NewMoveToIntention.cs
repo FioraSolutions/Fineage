@@ -28,7 +28,7 @@ public class NewMoveToIntention : IntentionBase
             //PlayerController.Instance.transform.position = oldVector;
             //float distTest2 = VectorUtils.Distance2D(PlayerController.Instance.transform.position, oldVector);
 
-            DebugLineDraw.ShowDrawLineDebug(PlayerEntity.Instance.Identity.Id, oldPosition, newPosition, Color.red);
+            DebugLineDraw.ShowDrawLineDebug(DomainPacketServices.LocalPlayer.Identity.Id, oldPosition, newPosition, Color.red);
 
             PlayerController player = ControllerPacketServices.Player;
             if (player == null)
@@ -39,7 +39,7 @@ public class NewMoveToIntention : IntentionBase
 
             //Debug.Log("NewMoveToIntention> to dict " + distTest + " original " + distTest2);
 
-            L2PawnRange.ClearIgnoredPawn(PlayerEntity.Instance);
+            L2PawnRange.ClearIgnoredPawn(DomainPacketServices.LocalPlayer);
             // Only skip when the packet itself is a zero-length stop AND we are already there.
             // Approach MoveState can arrive while the transform still sits on the previous
             // PositionCorrection — treating that as "arrived" left run-anim with no locomotion.
@@ -52,7 +52,7 @@ public class NewMoveToIntention : IntentionBase
             if (PlayerStateMachine.Instance.IsMoveToPawn) PlayerStateMachine.Instance.IsMoveToPawn = false;
 
             
-            player.MoveToPoint(new MovementTarget(newPosition, 0.1f, PlayerEntity.Instance != null && PlayerEntity.Instance.Running));
+            player.MoveToPoint(new MovementTarget(newPosition, 0.1f, DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Running));
             StartAnimMoveTo();
         }
     }
@@ -60,7 +60,7 @@ public class NewMoveToIntention : IntentionBase
     private void StartAnimMoveTo()
     {
         PlayerState before = _stateMachine.State;
-        bool runningFlag = PlayerEntity.Instance != null && PlayerEntity.Instance.Running;
+        bool runningFlag = DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Running;
 
         if (_stateMachine.State == PlayerState.IDLE |
             _stateMachine.State == PlayerState.ATTACKING |
@@ -71,9 +71,9 @@ public class NewMoveToIntention : IntentionBase
             _stateMachine.State == PlayerState.STANDING)
         {
             // Leaving combat/skills for locomotion — clear attack latch so WAIT_RETURN/ATK_WAIT don't stick.
-            if (PlayerEntity.Instance != null)
+            if (DomainPacketServices.LocalPlayer != null)
             {
-                PlayerEntity.Instance.IsAttack = false;
+                DomainPacketServices.LocalPlayer.IsAttack = false;
             }
 
             // Debug.Log(

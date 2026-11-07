@@ -26,6 +26,7 @@ public class PlayerEntity : Entity
     public bool isAutoAttack { get; set; }
 
     public  Animation LastAtkAnimation { get; set; }
+    [Obsolete("Use DomainPacketServices.LocalPlayer instead")]
     public static PlayerEntity Instance { get => _instance; }
 
     [Inject] PlayerController _playerController;
@@ -74,6 +75,7 @@ public class PlayerEntity : Entity
             ? _playerController
             : GetComponent<PlayerController>();
         EntityPacketServices.Bind(player: local);
+        DomainPacketServices.Bind(localPlayer: this);
         GameEventPacketServices.Bind(localPlayer: this);
     }
 
@@ -270,7 +272,7 @@ public class PlayerEntity : Entity
     public float TargetDistance()
     {
         Vector3 startPos = GetPositionRightHand();
-        Transform target = PlayerEntity.Instance.Target;
+        Transform target = Target;
 
         return VectorUtils.Distance2D(startPos , target.position);
     }

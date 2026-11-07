@@ -288,9 +288,9 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
             return;
         }
 
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            PlayerEntity.Instance.IsAttack = false;
+            DomainPacketServices.LocalPlayer.IsAttack = false;
         }
 
         // MOVE_TO after Ice Bolt already started walk/run. Do not pull that back into atkwait.

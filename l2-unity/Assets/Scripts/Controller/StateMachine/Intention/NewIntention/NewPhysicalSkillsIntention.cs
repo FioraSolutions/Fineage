@@ -42,7 +42,7 @@ public class NewPhysicalSkillsIntention : IntentionBase
             // Bow SpAtk: live follow until shoot. Other phys skills: one-shot snapshot.
             if (objectId != useSkill.TargetId &&
                 targetEntity != null &&
-                CombatFacingService.IsPlayerUsingBow(PlayerEntity.Instance))
+                CombatFacingService.IsPlayerUsingBow(DomainPacketServices.LocalPlayer))
             {
                 CombatPacketServices.EnsureFacing().BeginFollow(
                     objectId,
