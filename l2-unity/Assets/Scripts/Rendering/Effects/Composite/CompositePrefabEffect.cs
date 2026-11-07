@@ -385,12 +385,13 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
         Vector3 hitDirection,
         int attackerEntityId)
     {
-        if (_pendingHitColliderParts.Count == 0 || projectilePrefab == null || HitManager.Instance == null)
+        var hits = HitPacketServices.Hits;
+        if (_pendingHitColliderParts.Count == 0 || projectilePrefab == null || hits == null)
         {
             return;
         }
 
-        if (!HitManager.Instance.TryPrepareProjectileEffectHit(
+        if (!hits.TryPrepareProjectileEffectHit(
                 projectilePrefab,
                 hitPoint,
                 hitDirection,

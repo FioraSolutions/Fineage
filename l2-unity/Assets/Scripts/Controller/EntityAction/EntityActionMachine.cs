@@ -131,8 +131,9 @@ public sealed class EntityActionMachine : ITickable
         if (!IsAllowed(entity) || entity.IsDead())
             return;
 
-        if (HitManager.Instance != null)
-            HitManager.Instance.FlushRemoteMeleeHit(entity);
+        var hits = CombatPacketServices.Hits;
+        if (hits != null)
+            hits.FlushRemoteMeleeHit(entity);
 
         EntityActionKind action = entity.ActionSlot.Action;
         entity.InCombat = true;

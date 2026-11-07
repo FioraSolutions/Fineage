@@ -10,7 +10,10 @@ public class HitManager : MonoBehaviour
     private World GameWorld =>
         _world != null ? _world : GamePacketServices.GameWorld;
 
-    public static HitManager Instance { get; private set; }
+    private static HitManager _instance;
+
+    [System.Obsolete("Use HitPacketServices.Hits or [Inject] HitManager instead")]
+    public static HitManager Instance { get { return _instance; } }
     private const string ETC_NAME = "etc_";
     private const string IMPACT_DEBUG_TAG = "[HIT_DEBUG]";
     private const int SoulshotImpactEffectId = 99998;
@@ -40,19 +43,27 @@ public class HitManager : MonoBehaviour
     private void WireGamePacketServices()
     {
         GamePacketServices.Bind(gameWorld: _world);
+        HitPacketServices.Bind(hits: this);
     }
 
     private void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
+            _instance = this;
+            HitPacketServices.Bind(hits: this);
             DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     private void OnEnable()

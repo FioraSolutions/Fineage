@@ -60,8 +60,9 @@ public class NewAttackIntention : IntentionBase
 
             // Attack carries visual damage only. The official client changes health from
             // StatusUpdate and enters death only from Die; it doesn't predict death here.
-            if (HitManager.Instance != null)
-                HitManager.Instance.RememberLocalAttack(myModel);
+            var hits = CombatPacketServices.Hits;
+            if (hits != null)
+                hits.RememberLocalAttack(myModel);
 
             PlayerEntity.Instance.IsAttack = true;
             if (ControllerPacketServices.Targets != null)

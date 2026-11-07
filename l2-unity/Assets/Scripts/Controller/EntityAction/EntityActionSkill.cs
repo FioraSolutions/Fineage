@@ -338,7 +338,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     static void ArmPhysicalSkillHit(Entity entity, MagicSkillUseDto magic)
     {
-        if (HitManager.Instance == null || entity == null || magic == null)
+        var hits = CombatPacketServices.Hits;
+        if (hits == null || entity == null || magic == null)
             return;
 
         Entity target = entity.ActionSlot.Target;
@@ -347,7 +348,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (target == null || target == entity || target.IsDead())
             return;
 
-        HitManager.Instance.ArmRemoteSkillHit(entity, target, magic);
+        hits.ArmRemoteSkillHit(entity, target, magic);
     }
 
     static void ExecuteMagicSkill(Entity entity, MagicSkillUseDto magic, Entity target)

@@ -45,7 +45,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     private void Start()
     {
         WireGamePacketServices();
-        HitManager hits = _hits != null ? _hits : HitManager.Instance;
+        HitManager hits = _hits != null ? _hits : HitPacketServices.Hits;
         if (hits != null)
             hits.BindProjectileHits();
     }

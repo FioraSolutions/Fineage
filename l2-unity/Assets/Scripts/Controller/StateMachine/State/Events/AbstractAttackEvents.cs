@@ -300,8 +300,9 @@ public abstract class AbstractAttackEvents : StateBase
             // $"anim={animName} attackerId={attackerEntityId} targetId={targetEntityId} " +
             // $"target={target.name} → EmitHitFromAttackShot");
 
-        if (HitManager.Instance != null)
-            HitManager.Instance.FireRememberedExtraHits(player);
+        var hits = CombatPacketServices.Hits;
+        if (hits != null)
+            hits.FireRememberedExtraHits(player);
 
         if (SwordCollisionService.Instance != null &&
             attackerEntityId > 0 &&
@@ -389,16 +390,16 @@ public abstract class AbstractAttackEvents : StateBase
                     // $"[HIT_FX] 5.OnHitColliderMonster SKIP HitIsMissed=true " +
                     // $"monster={monster.name} — EffectManager NOT called");
             }
-            else if (HitManager.Instance == null)
+            else if (CombatPacketServices.Hits == null)
             {
-                // Debug.LogWarning("[HIT_FX] 5.OnHitColliderMonster SKIP HitManager.Instance=null");
+                // Debug.LogWarning("[HIT_FX] 5.OnHitColliderMonster SKIP hits=null");
             }
             else
             {
                 // Debug.Log(
                     // $"[HIT_FX] 5.OnHitColliderMonster → HitManager.HandleHitCollider " +
                     // $"monster={monster.name}");
-                HitManager.Instance.HandleHitCollider(
+                CombatPacketServices.Hits.HandleHitCollider(
                     PlayerEntity.Instance,
                     attacker,
                     monster,
