@@ -586,191 +586,67 @@ public sealed class NetSession : MonoBehaviour
     public Task SendWarehouseWithdraw(int npcObjectId, NetIdCount[] lines) =>
         _commandSender.SendWarehouseWithdrawAsync(npcObjectId, lines);
 
-    public async void SendRequestQuestList()
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(NetOpcode.RequestQuestList, NetCodec.EncodeRequestQuestList(), NextSeq());
-    }
+    public async void SendRequestQuestList() =>
+        await _commandSender.SendRequestQuestListAsync();
 
-    public async void SendRequestQuestAbort(int questId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestQuestAbort,
-            NetCodec.EncodeRequestQuestAbort(new RequestQuestAbortNetMsg { QuestId = questId }),
-            NextSeq());
-    }
+    public async void SendRequestQuestAbort(int questId) =>
+        await _commandSender.SendRequestQuestAbortAsync(questId);
 
-    public async void SendPartyInviteRequest(int targetObjectId, int itemDistribution = 0)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.PartyInviteRequest,
-            NetCodec.EncodePartyInviteRequest(new PartyInviteRequestNetMsg
-            {
-                TargetObjectId = targetObjectId,
-                ItemDistribution = itemDistribution
-            }),
-            NextSeq());
-    }
+    public async void SendPartyInviteRequest(int targetObjectId, int itemDistribution = 0) =>
+        await _commandSender.SendPartyInviteRequestAsync(targetObjectId, itemDistribution);
 
-    public async void SendPartyAnswerJoinRequest(int requestorObjectId, int response)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.PartyAnswerJoinRequest,
-            NetCodec.EncodePartyAnswerJoinRequest(new PartyAnswerJoinRequestNetMsg
-            {
-                RequestorObjectId = requestorObjectId,
-                Response = response
-            }),
-            NextSeq());
-    }
+    public async void SendPartyAnswerJoinRequest(int requestorObjectId, int response) =>
+        await _commandSender.SendPartyAnswerJoinRequestAsync(requestorObjectId, response);
 
-    public async void SendPartyLeaveRequest()
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(NetOpcode.PartyLeaveRequest, NetCodec.EncodePartyLeaveRequest(), NextSeq());
-    }
+    public async void SendPartyLeaveRequest() =>
+        await _commandSender.SendPartyLeaveRequestAsync();
 
-    public async void SendPartyKickRequest(int targetObjectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.PartyKickRequest,
-            NetCodec.EncodePartyKickRequest(new PartyKickRequestNetMsg { TargetObjectId = targetObjectId }),
-            NextSeq());
-    }
+    public async void SendPartyKickRequest(int targetObjectId) =>
+        await _commandSender.SendPartyKickRequestAsync(targetObjectId);
 
-    public async void SendTradeRequest(int targetObjectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.TradeRequest,
-            NetCodec.EncodeTradeRequest(new TradeRequestNetMsg { TargetObjectId = targetObjectId }),
-            NextSeq());
-    }
+    public async void SendTradeRequest(int targetObjectId) =>
+        await _commandSender.SendTradeRequestAsync(targetObjectId);
 
-    public async void SendTradeAnswerRequest(int requestorObjectId, int response)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.TradeAnswerRequest,
-            NetCodec.EncodeTradeAnswerRequest(new TradeAnswerRequestNetMsg
-            {
-                RequestorObjectId = requestorObjectId,
-                Response = response
-            }),
-            NextSeq());
-    }
+    public async void SendTradeAnswerRequest(int requestorObjectId, int response) =>
+        await _commandSender.SendTradeAnswerRequestAsync(requestorObjectId, response);
 
-    public async void SendTradeAddItemRequest(int inventoryObjectId, int count)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.TradeAddItemRequest,
-            NetCodec.EncodeTradeAddItemRequest(new TradeAddItemRequestNetMsg
-            {
-                InventoryObjectId = inventoryObjectId,
-                Count = count
-            }),
-            NextSeq());
-    }
+    public async void SendTradeAddItemRequest(int inventoryObjectId, int count) =>
+        await _commandSender.SendTradeAddItemRequestAsync(inventoryObjectId, count);
 
-    public async void SendTradeDoneRequest(int response)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.TradeDoneRequest,
-            NetCodec.EncodeTradeDoneRequest(new TradeDoneRequestNetMsg { Response = response }),
-            NextSeq());
-    }
+    public async void SendTradeDoneRequest(int response) =>
+        await _commandSender.SendTradeDoneRequestAsync(response);
 
     /// <summary>Mobius <c>RequestCreatePledge</c>: found a clan with this name.</summary>
-    public async void SendClanCreateRequest(string name)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.ClanCreateRequest,
-            NetCodec.EncodeClanCreateRequest(new ClanCreateRequestNetMsg { Name = name ?? "" }),
-            NextSeq());
-    }
+    public async void SendClanCreateRequest(string name) =>
+        await _commandSender.SendClanCreateRequestAsync(name);
 
     /// <summary>Mobius <c>RequestJoinPledge</c>: ask the owner of this clan to enrol the player.</summary>
-    public async void SendClanInviteRequest(int targetObjectId)
-    {
-        if (_zone == null || !_zone.Connected || targetObjectId <= 0)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.ClanInviteRequest,
-            NetCodec.EncodeClanInviteRequest(new ClanInviteRequestNetMsg { TargetObjectId = targetObjectId }),
-            NextSeq());
-    }
+    public async void SendClanInviteRequest(int targetObjectId) =>
+        await _commandSender.SendClanInviteRequestAsync(targetObjectId);
 
     /// <summary>Mobius <c>RequestAnswerJoinPledge</c>. Response 0 declines.</summary>
-    public async void SendClanAnswerJoinRequest(int requestorObjectId, int response)
-    {
-        if (_zone == null || !_zone.Connected || requestorObjectId <= 0)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.ClanAnswerJoinRequest,
-            NetCodec.EncodeClanAnswer(new ClanAnswerNetMsg { RequestorObjectId = requestorObjectId, Response = response }),
-            NextSeq());
-    }
+    public async void SendClanAnswerJoinRequest(int requestorObjectId, int response) =>
+        await _commandSender.SendClanAnswerJoinRequestAsync(requestorObjectId, response);
 
     /// <summary>Mobius <c>RequestWithdrawalPledge</c>.</summary>
-    public async void SendClanLeaveRequest()
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(NetOpcode.ClanLeaveRequest, System.Array.Empty<byte>(), NextSeq());
-    }
+    public async void SendClanLeaveRequest() =>
+        await _commandSender.SendClanLeaveRequestAsync();
 
     /// <summary>Mobius <c>RequestOustPledgeMember</c>, by object id.</summary>
-    public async void SendClanKickRequest(int targetObjectId)
-    {
-        if (_zone == null || !_zone.Connected || targetObjectId <= 0)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.ClanKickRequest,
-            NetCodec.EncodeClanKickRequest(new ClanKickRequestNetMsg { TargetObjectId = targetObjectId }),
-            NextSeq());
-    }
+    public async void SendClanKickRequest(int targetObjectId) =>
+        await _commandSender.SendClanKickRequestAsync(targetObjectId);
 
     /// <summary>Mobius <c>RequestDissolvePledge</c>.</summary>
-    public async void SendClanDissolveRequest()
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(NetOpcode.ClanDissolveRequest, System.Array.Empty<byte>(), NextSeq());
-    }
+    public async void SendClanDissolveRequest() =>
+        await _commandSender.SendClanDissolveRequestAsync();
 
     /// <summary>Mobius <c>RequestPledgeReorganizeMember</c>-side cancel of a running dissolution.</summary>
-    public async void SendClanCancelDissolveRequest()
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(NetOpcode.ClanCancelDissolveRequest, System.Array.Empty<byte>(), NextSeq());
-    }
+    public async void SendClanCancelDissolveRequest() =>
+        await _commandSender.SendClanCancelDissolveRequestAsync();
 
     /// <summary>Mobius <c>RequestTargetCanceld</c>: drop the selection on the zone side too.</summary>
-    public async void SendTargetCancel()
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(NetOpcode.TargetCancelRequest, System.Array.Empty<byte>(), NextSeq());
-    }
+    public async void SendTargetCancel() =>
+        await _commandSender.SendTargetCancelAsync();
 
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {
