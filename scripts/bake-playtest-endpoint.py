@@ -26,7 +26,7 @@ from playtest_hosts import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STREAMING = REPO_ROOT / "l2-unity/Assets/StreamingAssets/fineage-endpoint.json"
 RESOURCES = REPO_ROOT / "l2-unity/Assets/Resources/FineagePlaytest.json"
-ENDPOINT_SOURCE = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Playtest/PlaytestEndpoint.cs"
+ENDPOINT_SOURCE = REPO_ROOT / "l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpoint.cs"
 
 
 def optional_port(env: dict[str, str], name: str) -> int:
