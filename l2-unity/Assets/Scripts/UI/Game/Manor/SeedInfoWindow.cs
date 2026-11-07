@@ -45,9 +45,9 @@ public class SeedInfoWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Manor/SeedInfoWindow");
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
         _buttonTemplate = LoadAsset("Data/UI/_Elements/Template/Elements/Buttons/DefaultButton");
-        _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTabHeader");
+        _tabHeaderTemplate = LoadAsset(L2InventoryUiAssets.TabHeader);
     }
 
 

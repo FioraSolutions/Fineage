@@ -88,8 +88,8 @@ public class InventoryWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryWindow");
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
-        _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTabHeader");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
+        _tabHeaderTemplate = LoadAsset(L2InventoryUiAssets.TabHeader);
         _inventorySlotTemplate = LoadAsset("Data/UI/_Elements/Template/Slot");
         _minimizedTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryMin");
     }

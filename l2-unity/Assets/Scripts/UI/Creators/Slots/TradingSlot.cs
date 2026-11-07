@@ -83,33 +83,25 @@ public class TradingSlot : L2DraggableSlot
 
         if (_slotElement != null)
         {
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetInvetoryDefaultBackground());
-            UpdateSlotBg(background);
+            if (SlotBg != null)
+            {
+                L2SlotIconView.SetEmptyInventoryBackground(_slotBg);
+                if (_slotDragManipulator != null)
+                    _slotDragManipulator.enabled = false;
+            }
+            else
+            {
+                L2SlotIconView.Clear(_slotElement);
+            }
         }
     }
 
-    private void UpdateSlotBg(StyleBackground background)
+    private void AddImage(VisualElement slotBg, VisualElement slotElement, int id)
     {
-        if (SlotBg != null)
-        {
-            _slotBg.style.backgroundImage = background;
-            _slotDragManipulator.enabled = false;
+        if (slotBg == null && slotElement == null)
+            return;
 
-        }
-        else
-        {
-
-            _slotElement.style.backgroundImage = null;
-        }
-    }
-
-
-    private void AddImage(VisualElement slotBg , VisualElement slotElement , int id)
-    {
-        if (slotBg == null & slotElement == null) return;
-
-        StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(id));
-        slotBg.style.backgroundImage = background;
+        L2SlotIconView.SetItemIcon(slotBg, id);
     }
 
     protected override void HandleLeftClick()

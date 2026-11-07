@@ -176,12 +176,13 @@ public class DataCell : L2Slot
         return _position;
     }
 
-    public void SetIcon(int skillId  , int level)
+    public void SetIcon(int skillId, int level)
     {
-        if (_skill == null) _skill = SkillgrpTable.Instance.GetSkill(skillId , level);
-        var icon = IconManager.Instance.LoadTextureByName(_skill.Icon);
-        var foundChild = _element.Query<VisualElement>(name: "SlotBg").First();
-        if(foundChild != null) foundChild.style.backgroundImage = icon;
+        if (_skill == null)
+            _skill = SkillgrpTable.Instance.GetSkill(skillId, level);
+        VisualElement foundChild = _element.Query<VisualElement>(name: "SlotBg").First();
+        if (foundChild != null && _skill != null)
+            L2SlotIconView.SetSkillIcon(foundChild, _skill.Icon);
     }
 
     public float GetRemainingTime(float time)

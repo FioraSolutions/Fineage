@@ -145,30 +145,20 @@ public class SkillSlot : L2DraggableSlot
 
     private void AddIcon(Skillgrp skill)
     {
-        var icon = IconManager.Instance.LoadTextureByName(skill.Icon);
-        if (icon != null)
-        {
-            _slotBg.style.backgroundImage = icon;
-        }
-        else
-        {
-            // Debug.LogWarning($"AssignSkill: icon '{skill.Icon}' not found for skill id={skill.Id}");
-        }
+        L2SlotIconView.SetSkillIcon(_slotBg, skill != null ? skill.Icon : null);
     }
 
     public void ResetIcon()
     {
-
         if (SlotBg != null)
         {
-            _slotBg.style.backgroundImage = null;
-            _slotDragManipulator.enabled = false;
-
+            L2SlotIconView.Clear(_slotBg);
+            if (_slotDragManipulator != null)
+                _slotDragManipulator.enabled = false;
         }
         else
         {
-
-            _slotElement.style.backgroundImage = null;
+            L2SlotIconView.Clear(_slotElement);
         }
     }
 

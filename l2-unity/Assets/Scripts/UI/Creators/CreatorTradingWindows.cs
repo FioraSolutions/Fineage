@@ -10,7 +10,11 @@ public class CreatorTradingWindows : AbstractCreator , ICreatorTradeTab
     public event Action<int> EventSwitchTabByIndexOfTab;
     private VisualTreeAsset[] _templates;
     //tabTemplate 0 , tabHeaderTemplate 1
-    private readonly string[] loadTemplate = new string[2] { "Data/UI/_Elements/Game/Inventory/InventoryTab", "Data/UI/_Elements/Game/Inventory/InventoryTabHeader" };
+    private readonly string[] loadTemplate = new string[2]
+    {
+        L2InventoryUiAssets.Tab,
+        L2InventoryUiAssets.TabHeader,
+    };
 
     public void LoadAsset(Func<string, VisualTreeAsset> loaderFunc)
     {

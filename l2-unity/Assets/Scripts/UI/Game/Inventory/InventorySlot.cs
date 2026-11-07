@@ -51,19 +51,15 @@ public class InventorySlot : L2DraggableSlot
         RefreshEnchantMark();
         if (_slotElement != null)
         {
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetInvetoryDefaultBackground());
-            if(SlotBg != null)
+            if (SlotBg != null)
             {
-                _slotBg.style.backgroundImage = background;
+                L2SlotIconView.SetEmptyInventoryBackground(_slotBg);
                 _slotDragManipulator.enabled = false;
-                
             }
             else
             {
-               
-                _slotElement.style.backgroundImage = null;
+                L2SlotIconView.Clear(_slotElement);
             }
-
         }
     }
 
@@ -99,9 +95,8 @@ public class InventorySlot : L2DraggableSlot
         }
 
         if (_slotElement != null)
-        { 
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(_id));
-            _slotBg.style.backgroundImage = background;
+        {
+            L2SlotIconView.SetItemIcon(_slotBg, _id);
             _slotDragManipulator.enabled = false;
         }
 
@@ -252,78 +247,39 @@ public class InventorySlot : L2DraggableSlot
 
     private void AddImage(InventorySlot slot)
     {
-        if (SlotBg == null & _slotElement == null) return;
+        if (SlotBg == null && _slotElement == null)
+            return;
 
-        if (slot.GetType() == typeof(GearSlot))
-        {
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(_id));
-            _slotElement.style.backgroundImage = background;
-        }
-        else
-        {
-            if (SlotBg == null) return;
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(_id));
-            _slotBg.style.backgroundImage = background;
-        }
+        L2SlotIconView.SetInventoryStyleItemIcon(
+            SlotBg,
+            _slotElement,
+            _id,
+            slot.GetType() == typeof(GearSlot));
     }
 
-    private void AddImageAtIndex(InventorySlot slot , int indexIamge)
+    private void AddImageAtIndex(InventorySlot slot, int indexIamge)
     {
-        if (SlotBg == null & _slotElement == null) return;
+        if (SlotBg == null && _slotElement == null)
+            return;
 
-        if (slot.GetType() == typeof(GearSlot))
-        {
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetOtherIcon(_id , indexIamge));
-            _slotElement.style.backgroundImage = background;
-        }
-        else
-        {
-            if (SlotBg == null) return;
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetOtherIcon(_id, indexIamge));
-            _slotBg.style.backgroundImage = background;
-
-
-        }
+        L2SlotIconView.SetInventoryStyleItemIconAtIndex(
+            SlotBg,
+            _slotElement,
+            _id,
+            indexIamge,
+            slot.GetType() == typeof(GearSlot));
     }
 
-
-
-
-
-    //I'm not touching the alpha channel yet, but it might come in handy in the future
-    private void AddImageAlpha(InventorySlot slot , float alpha)
+    // Alpha channel unused for now; keep path shared with AddImage.
+    private void AddImageAlpha(InventorySlot slot, float alpha)
     {
-        if (SlotBg == null & _slotElement == null) return;
-
-        if (slot.GetType() == typeof(GearSlot))
-        {
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(_id));
-            _slotElement.style.backgroundImage = background;
-        }
-        else
-        {
-            if (SlotBg == null) return;
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(_id));
-            _slotBg.style.backgroundImage = background;
-        }
+        AddImage(slot);
     }
-
-   
 
     private void AddTooltip(ItemInstance item)
     {
-        string tooltipText = $"{_name} ({_count})";
-        if (item.Category == ItemCategory.Weapon ||
-            item.Category == ItemCategory.Jewel ||
-            item.Category == ItemCategory.ShieldArmor)
-        {
-            tooltipText = _name;
-        }
-
         if (_tooltipManipulator != null)
-        {
-            _tooltipManipulator.SetText(tooltipText);
-        }
+            _tooltipManipulator.SetText(L2ItemSlotTooltip.Format(_name, _count, item.Category));
     }
 
     public override void ClearManipulators()

@@ -87,7 +87,7 @@ public class SkillListWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/SkillLearn/SkillListWindow");
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
         _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/SkillLearn/SkillTabHeader");
 
         _templateActiveSkill = LoadAsset("Data/UI/_Elements/Game/SkillLearn/TabActive");

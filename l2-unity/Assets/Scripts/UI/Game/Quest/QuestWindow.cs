@@ -86,7 +86,7 @@ public class QuestWindow : L2TwoPanels
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Quest/QuestWindow");
 
 
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
         _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/SkillLearn/SkillTabHeader");
         _singleInsideContentTemplate = LoadAsset("Data/UI/_Elements/Game/Quest/AllContent/SingleInsideContent");
         _tabContenTemplate = LoadAsset("Data/UI/_Elements/Game/Quest/QuestTabContent");
