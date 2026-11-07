@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Shared UITK slot icon paint for inventory / trade / skill / buffer cells.
-/// Prefer this over repeating IconManager + StyleBackground wiring per window.
+/// Shared UITK slot/chrome icon paint for inventory, trade, skill, buffer, and DF UI.
+/// Prefer this over repeating IconManager / Resources.Load + StyleBackground per window.
 /// </summary>
 public static class L2SlotIconView
 {
@@ -24,14 +24,41 @@ public static class L2SlotIconView
             IconManager.Instance.GetOtherIcon(itemId, iconIndex));
     }
 
-    public static void SetSkillIcon(VisualElement target, string iconName)
+    /// <summary>Icon atlas entry (skills, actions, item icon names).</summary>
+    public static void SetNamedIcon(VisualElement target, string iconName)
+    {
+        TrySetNamedIcon(target, iconName);
+    }
+
+    /// <summary>Same as <see cref="SetNamedIcon"/>; kept for call-site clarity on skill slots.</summary>
+    public static void SetSkillIcon(VisualElement target, string iconName) =>
+        SetNamedIcon(target, iconName);
+
+    public static bool TrySetNamedIcon(VisualElement target, string iconName)
     {
         if (target == null || IconManager.Instance == null || string.IsNullOrEmpty(iconName))
-            return;
+            return false;
 
         Texture2D icon = IconManager.Instance.LoadTextureByName(iconName);
-        if (icon != null)
-            target.style.backgroundImage = icon;
+        if (icon == null)
+            return false;
+
+        target.style.backgroundImage = icon;
+        return true;
+    }
+
+    /// <summary>Full Resources path (SkillLearn DF buttons, etc.).</summary>
+    public static void SetResourcesBackground(VisualElement target, string resourcesPath)
+    {
+        if (target == null || string.IsNullOrEmpty(resourcesPath))
+            return;
+
+        Texture2D texture = IconManager.Instance != null
+            ? IconManager.Instance.LoadTextureOtherSources(resourcesPath)
+            : Resources.Load<Texture2D>(resourcesPath);
+
+        if (texture != null)
+            target.style.backgroundImage = new StyleBackground(texture);
     }
 
     public static void SetEmptyInventoryBackground(VisualElement target)

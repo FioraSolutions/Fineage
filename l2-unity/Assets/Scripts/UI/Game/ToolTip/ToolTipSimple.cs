@@ -863,18 +863,14 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
     }
 
 
-    private void SetIcon(VisualElement icon , VisualElement groubBoxIcon, string nameIcon)
+    private void SetIcon(VisualElement icon, VisualElement groubBoxIcon, string nameIcon)
     {
-        
-        if(nameIcon != null)
-        {
-            icon.style.backgroundImage = IconManager.Instance.LoadTextureByName(nameIcon);
-        }
-        else
-        {
+        if (L2SlotIconView.TrySetNamedIcon(icon, nameIcon))
+            return;
+
+        if (groubBoxIcon != null)
             groubBoxIcon.style.display = DisplayStyle.None;
-        }
-       
+        L2SlotIconView.Clear(icon);
     }
 
     public void SetTextEnchantIfNot0(int data , Label element)

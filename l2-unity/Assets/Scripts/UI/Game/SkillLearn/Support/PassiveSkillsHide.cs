@@ -7,7 +7,11 @@ using UnityEngine.UIElements;
 public class PassiveSkillsHide : AbstractSkills
 {
     private SkillListWindow _skillLearn;
-    private string[] fillBackgroundDf = { "Data/UI/Window/Skills/QuestWndPlusBtn_v2", "Data/UI/Window/Skills/Button_DF_Skills_Down_v3" };
+    private readonly string[] fillBackgroundDf =
+    {
+        L2SkillLearnUiAssets.ExpandButton,
+        L2SkillLearnUiAssets.CollapseButton,
+    };
     private VisualElement _passiveSkillPanel;
     private VisualTreeAsset _templateBoxPanel;
     private VisualTreeAsset _templatePanel8x1;

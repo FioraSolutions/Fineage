@@ -30,8 +30,7 @@ public class AbstractSkills
         IEnumerable<VisualElement> children = btn.Children();
         var e = children.First();
         e.style.display = DisplayStyle.Flex;
-        Texture2D iconDfNoraml = LoadTextureDF(texture);
-        SetBackgroundDf(btn, iconDfNoraml);
+        L2SlotIconView.SetResourcesBackground(btn, texture);
     }
 
     protected void ToogleHideElement(VisualElement element , bool isHide)
@@ -40,18 +39,6 @@ public class AbstractSkills
             element.style.display = DisplayStyle.Flex;
         else
             element.style.display = DisplayStyle.None;
-    }
-
-
-
-    protected void SetBackgroundDf(UnityEngine.UIElements.Button btn, Texture2D iconDfNoraml)
-    {
-        btn.style.backgroundImage = new StyleBackground(iconDfNoraml);
-    }
-
-    protected Texture2D LoadTextureDF(string path)
-    {
-        return Resources.Load<Texture2D>(path);
     }
 
     protected VisualElement GetSkillBar(VisualElement content)

@@ -46,7 +46,7 @@ public class DragIcon : L2PopupWindow
 
         icon = GetElementByClass("Icon");
         var content = GetElementByClass("drag_content");
-        icon.style.backgroundImage = IconManager.Instance.LoadTextureByName("noimage");
+        L2SlotIconView.SetNamedIcon(icon, "noimage");
         RegisterClickWindow(content);
         HideWindow();
     }

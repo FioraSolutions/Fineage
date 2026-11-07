@@ -80,7 +80,7 @@ public abstract class AbstractDataProvider : AbstractDataFunction
 
         VisualElement groupIcon = container.Q<VisualElement>("GrowIcon");
         var icon = container.Q<VisualElement>("icon");
-        AddElementIfNotNull(groupIcon, icon, IconManager.Instance.LoadTextureByName(skill.Icon()));
+        AddNamedIconIfPresent(groupIcon, icon, skill.Icon());
 
         return returnElement;
     }
@@ -150,7 +150,7 @@ public abstract class AbstractDataProvider : AbstractDataFunction
 
         VisualElement groupIcon = container.Q<VisualElement>("GrowIcon");
         var icon = container.Q<VisualElement>("icon");
-        AddElementIfNotNull(groupIcon, icon, IconManager.Instance.LoadTextureByName(weapon.Icon));
+        AddNamedIconIfPresent(groupIcon, icon, weapon.Icon);
     }
 
 
@@ -168,8 +168,7 @@ public abstract class AbstractDataProvider : AbstractDataFunction
 
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
         VisualElement icon = container.Q<VisualElement>("icon");
-        Texture2D texture = IconManager.Instance.LoadTextureByName(armor.Icon);
-        AddElementIfNotNull(groupBoxIcon, icon, texture);
+        AddNamedIconIfPresent(groupBoxIcon, icon, armor.Icon);
         AddElementIfNotEmpty(groupBoxTypeS1, typeS1, "");
 
         Label labelEnchant = container.Q<Label>("enchant");
@@ -211,8 +210,7 @@ public abstract class AbstractDataProvider : AbstractDataFunction
             //set icon
             VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
             VisualElement icon = container.Q<VisualElement>("icon");
-            Texture2D texture = IconManager.Instance.LoadTextureByName(etcIcon);
-            AddElementIfNotNull(groupBoxIcon, icon, texture);
+            AddNamedIconIfPresent(groupBoxIcon, icon, etcIcon);
 
             VisualElement gradeBox = container.Q<VisualElement>("grade");
             Texture2D grade = text.GetGradeTexture();
@@ -280,8 +278,7 @@ public abstract class AbstractDataProvider : AbstractDataFunction
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
         
         VisualElement icon = container.Q<VisualElement>("icon");
-        Texture2D texture = IconManager.Instance.LoadTextureByName(armor.Icon);
-        AddElementIfNotNull(groupBoxIcon, icon, texture);
+        AddNamedIconIfPresent(groupBoxIcon, icon, armor.Icon);
 
         container.Q<Label>("nameAccessories").text = text.GetName();
 
@@ -352,8 +349,7 @@ public abstract class AbstractDataProvider : AbstractDataFunction
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
         VisualElement icon = container.Q<VisualElement>("icon");
-        Texture2D texture = IconManager.Instance.LoadTextureByName(armor.Icon);
-        AddElementIfNotNull(groupBoxIcon, icon, texture);
+        AddNamedIconIfPresent(groupBoxIcon, icon, armor.Icon);
 
         container.Q<Label>("nameAccessories").text = text.GetName();
 
@@ -420,7 +416,7 @@ public abstract class AbstractDataProvider : AbstractDataFunction
 
         VisualElement groupIcon = container.Q<VisualElement>("GrowIcon");
         var iconElement = container.Q<VisualElement>("icon");
-        AddElementIfNotNull(groupIcon, iconElement, IconManager.Instance.LoadTextureByName(icon));
+        AddNamedIconIfPresent(groupIcon, iconElement, icon);
 
         VisualElement groupPriceLabel = container.Q<VisualElement>("GrowPrice");
         Label priceLabel = (Label)container.Q<Label>("price");
