@@ -169,10 +169,19 @@ public struct NetBlessingResult
     public bool Accepted;
 }
 
+/// <summary>
+/// Staging pose for <see cref="NetGearSession.PrepareSpawn"/> (legacy PlayerSpawned wire).
+/// Production enter-world uses <c>EntitySpawnMsg</c> in <c>NetSession</c> instead.
+/// </summary>
 public struct NetPlayerSpawned
 {
     public int ObjectId;
     public string Name;
+    public int ClassId;
+    public int Race;
+    public int Sex;
+    public int Level;
+    public int MaxHp;
     public int X;
     public int Y;
     public int Z;
@@ -356,24 +365,6 @@ public struct NetUserInfo
     public bool HasStats;
     public int Str, Dex, Con, Int, Wit, Men;
     public int PAtk, MAtk, PDef, MDef, PAtkSpd, MAtkSpd, Accuracy, CritRate;
-}
-
-public struct NetNpcInfo
-{
-    public int ObjectId;
-    public int NpcTemplateId;
-    public string Name;
-    public int X;
-    public int Y;
-    public int Z;
-    /// <summary>Legacy five-int rows stay attackable. Backend key 7 is the real flag.</summary>
-    public bool Attackable;
-    /// <summary>Backend key 8; 0 when the wire omitted speeds.</summary>
-    public float RunSpeed;
-    /// <summary>Backend key 9; 0 when the wire omitted speeds.</summary>
-    public float WalkSpeed;
-    public string Title;
-    public string NpcType;
 }
 
 public struct NetMyTargetSelected
