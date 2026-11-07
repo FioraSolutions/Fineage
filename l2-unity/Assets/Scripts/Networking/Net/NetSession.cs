@@ -337,15 +337,8 @@ public sealed class NetSession : MonoBehaviour
         _commandSender.SendDropItemRequestAsync(objectId, count, x, y, z);
 
     /// <summary>Mobius <c>RequestDestroyItem</c>: delete the bag slot, no ground spawn.</summary>
-    public async void SendDestroyItemRequest(int objectId, int count)
-    {
-        if (_zone == null || !_zone.Connected || objectId <= 0)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.DestroyItemRequest,
-            NetCodec.EncodeDestroyItemRequest(new DestroyItemRequestMsg { ObjectId = objectId, Count = count }),
-            NextSeq());
-    }
+    public async void SendDestroyItemRequest(int objectId, int count) =>
+        await _commandSender.SendDestroyItemRequestAsync(objectId, count);
 
     public Task SendUseItem(int objectId) =>
         _commandSender.SendUseItemAsync(objectId);
@@ -354,15 +347,8 @@ public sealed class NetSession : MonoBehaviour
     /// Mobius <c>RequestAutoSoulShot</c>: right-clicking a shot on the hotbar turns automatic use on/off.
     /// <paramref name="itemId"/> is the shot template id the client carries.
     /// </summary>
-    public async void SendRequestAutoSoulShot(int itemId, bool enabled)
-    {
-        if (_zone == null || !_zone.Connected || itemId <= 0)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestAutoSoulShot,
-            NetCodec.EncodeAutoSoulShot(new AutoSoulShotNetMsg { ItemId = itemId, Enabled = enabled }),
-            NextSeq());
-    }
+    public async void SendRequestAutoSoulShot(int itemId, bool enabled) =>
+        await _commandSender.SendRequestAutoSoulShotAsync(itemId, enabled);
 
     public Task SendUnequipItem(int paperdollSlot) =>
         _commandSender.SendUnequipItemAsync(paperdollSlot);
@@ -372,173 +358,64 @@ public sealed class NetSession : MonoBehaviour
     /// (slot + page * 12); the zone echoes the result as <c>ShortCutRegister</c> or
     /// <c>ShortCutDelete</c>.
     /// </summary>
-    public async void SendShortCutReg(int type, int worldSlot, int id, int level)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestShortCutReg,
-            NetCodec.EncodeShortCut(new ShortCutNetMsg
-            {
-                Type = type,
-                Slot = worldSlot,
-                Id = id,
-                Level = level
-            }),
-            NextSeq());
-    }
+    public async void SendShortCutReg(int type, int worldSlot, int id, int level) =>
+        await _commandSender.SendShortCutRegAsync(type, worldSlot, id, level);
 
     /// <summary>Clears one hotbar slot (world slot = slot + page * 12).</summary>
-    public async void SendShortCutDel(int worldSlot)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestShortCutDel,
-            NetCodec.EncodeShortCutDel(new ShortCutDelNetMsg { Slot = worldSlot }),
-            NextSeq());
-    }
+    public async void SendShortCutDel(int worldSlot) =>
+        await _commandSender.SendShortCutDelAsync(worldSlot);
 
     /// <summary>
     /// Mobius <c>RequestActionUse</c>: 0 = sit/stand, 1 = walk/run, 12/13/14 = social gestures.
     /// The zone answers with ChangeWaitType / ChangeMoveType / SocialAction.
     /// </summary>
-    public async void SendActionUse(int actionId, bool ctrlPressed = false, bool shiftPressed = false)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestActionUse,
-            NetCodec.EncodeActionUse(new ActionUseNetMsg
-            {
-                ActionId = actionId,
-                CtrlPressed = ctrlPressed,
-                ShiftPressed = shiftPressed
-            }),
-            NextSeq());
-    }
+    public async void SendActionUse(int actionId, bool ctrlPressed = false, bool shiftPressed = false) =>
+        await _commandSender.SendActionUseAsync(actionId, ctrlPressed, shiftPressed);
 
     /// <summary>
     /// Position heartbeat (L2 coordinates + heading). The zone reconciles the client's
     /// position against its own copy; without it a walk drifts and then snaps back.
     /// </summary>
-    public async void SendValidatePosition(int x, int y, int z, int heading)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.ValidatePosition,
-            NetCodec.EncodeValidatePosition(new ValidatePositionMsg
-            {
-                X = x,
-                Y = y,
-                Z = z,
-                Heading = heading
-            }),
-            NextSeq());
-    }
+    public async void SendValidatePosition(int x, int y, int z, int heading) =>
+        await _commandSender.SendValidatePositionAsync(x, y, z, heading);
 
-    public async void SendSay(string text, int chatType)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.Say,
-            NetCodec.EncodeSay(new SayNetMsg { Text = text ?? "", ChatType = chatType }),
-            NextSeq());
-    }
+    public async void SendSay(string text, int chatType) =>
+        await _commandSender.SendSayAsync(text, chatType);
 
     public Task SendUseSkill(int skillId, int targetObjectId, bool ctrlPressed) =>
         _commandSender.SendUseSkillAsync(skillId, targetObjectId, ctrlPressed);
 
-    public async void SendReviveRequest(int action)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.ReviveRequest,
-            NetCodec.EncodeReviveRequest(new ReviveRequestNetMsg { Action = action }),
-            NextSeq());
-    }
+    public async void SendReviveRequest(int action) =>
+        await _commandSender.SendReviveRequestAsync(action);
 
     /// <summary>
     /// Mobius <c>RequestAcquireSkillInfo</c>: ask the zone for the confirmation page of one trainer offer.
     /// Called by the trainer window when a row is clicked.
     /// </summary>
-    public async void SendRequestAcquireSkillInfo(int skillId, int level, int skillType)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestAcquireSkillInfo,
-            NetCodec.EncodeAcquireSkillRequest(skillId, level, skillType),
-            NextSeq());
-    }
+    public async void SendRequestAcquireSkillInfo(int skillId, int level, int skillType) =>
+        await _commandSender.SendRequestAcquireSkillInfoAsync(skillId, level, skillType);
 
     /// <summary>Mobius <c>RequestAcquireSkill</c>: buy the offer (SP is spent by the zone).</summary>
-    public async void SendRequestAcquireSkill(int skillId, int level, int skillType)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestAcquireSkill,
-            NetCodec.EncodeAcquireSkillRequest(skillId, level, skillType),
-            NextSeq());
-    }
+    public async void SendRequestAcquireSkill(int skillId, int level, int skillType) =>
+        await _commandSender.SendRequestAcquireSkillAsync(skillId, level, skillType);
 
     /// <summary>Mobius <c>RequestEnchantItem</c>: the bag scroll the player clicked opens the window.</summary>
-    public async void SendEnchantRequest(int scrollObjectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.EnchantRequest,
-            NetCodec.EncodeEnchantRequest(new EnchantRequestNetMsg { ScrollObjectId = scrollObjectId }),
-            NextSeq());
-    }
+    public async void SendEnchantRequest(int scrollObjectId) =>
+        await _commandSender.SendEnchantRequestAsync(scrollObjectId);
 
     /// <summary>The item placed in the enchant slot; the zone rolls the scroll against it.</summary>
-    public async void SendEnchantConfirm(int targetObjectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.EnchantConfirm,
-            NetCodec.EncodeEnchantConfirm(new EnchantConfirmNetMsg { TargetObjectId = targetObjectId }),
-            NextSeq());
-    }
+    public async void SendEnchantConfirm(int targetObjectId) =>
+        await _commandSender.SendEnchantConfirmAsync(targetObjectId);
 
     /// <summary>The player closed the window without rolling. The zone clears the scroll.</summary>
-    public async void SendEnchantCancel()
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(NetOpcode.EnchantCancel, System.Array.Empty<byte>(), NextSeq());
-    }
+    public async void SendEnchantCancel() =>
+        await _commandSender.SendEnchantCancelAsync();
 
-    public async void SendNpcTalk(int npcObjectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.NpcTalk,
-            NetCodec.EncodeNpcTalk(new NpcTalkNetMsg { NpcObjectId = npcObjectId }),
-            NextSeq());
-    }
+    public async void SendNpcTalk(int npcObjectId) =>
+        await _commandSender.SendNpcTalkAsync(npcObjectId);
 
-    public async void SendBypassRequest(int npcObjectId, string command)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.BypassRequest,
-            NetCodec.EncodeBypassRequest(new BypassRequestNetMsg
-            {
-                NpcObjectId = npcObjectId,
-                Command = command ?? ""
-            }),
-            NextSeq());
-    }
+    public async void SendBypassRequest(int npcObjectId, string command) =>
+        await _commandSender.SendBypassRequestAsync(npcObjectId, command);
 
     public void SendNpcLink(int npcObjectId, string command)
     {
@@ -564,21 +441,8 @@ public sealed class NetSession : MonoBehaviour
     public Task SendRequestSellItem(int npcObjectId, NetIdCount[] items) =>
         _commandSender.SendRequestSellItemAsync(npcObjectId, items);
 
-    public async void SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.RequestMultiSellChoose,
-            NetCodec.EncodeRequestMultiSellChoose(new RequestMultiSellChooseNetMsg
-            {
-                NpcObjectId = npcObjectId,
-                ListId = listId,
-                EntryId = entryId,
-                Amount = amount
-            }),
-            NextSeq());
-    }
+    public async void SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount) =>
+        await _commandSender.SendRequestMultiSellChooseAsync(npcObjectId, listId, entryId, amount);
 
     public Task SendWarehouseDeposit(int npcObjectId, NetIdCount[] lines) =>
         _commandSender.SendWarehouseDepositAsync(npcObjectId, lines);
