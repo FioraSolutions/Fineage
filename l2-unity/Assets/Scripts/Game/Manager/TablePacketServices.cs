@@ -146,8 +146,28 @@ public static class TablePacketServices
     public static QuestNameTable QuestNames =>
         _questNames != null ? _questNames : QuestNameTable.Instance;
 
-    public static RecipeTable Recipes =>
-        _recipes != null ? _recipes : RecipeTable.Instance;
+    public static RecipeTable Recipes
+    {
+        get
+        {
+            if (_recipes != null)
+                return _recipes;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<RecipeTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return RecipeTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static ActionNameTable ActionNames =>
         _actionNames != null ? _actionNames : ActionNameTable.Instance;

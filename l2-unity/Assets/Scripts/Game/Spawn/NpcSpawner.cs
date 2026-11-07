@@ -5,12 +5,14 @@ public sealed class NpcSpawner
     private readonly ObjectPoolManager _pool;
     private readonly AppearFadeService _appearFade;
     private readonly NpcDecoService _deco;
+    private readonly IGravity _gravity;
 
-    public NpcSpawner(ObjectPoolManager pool, AppearFadeService appearFade, NpcDecoService deco)
+    public NpcSpawner(ObjectPoolManager pool, AppearFadeService appearFade, NpcDecoService deco, GravityNpc gravity = null)
     {
         _pool = pool;
         _appearFade = appearFade;
         _deco = deco;
+        _gravity = gravity;
     }
 
     public Entity Spawn(NpcSpawnRequest request, IWorldSpawnContext world)
@@ -48,7 +50,7 @@ public sealed class NpcSpawner
         npcGo.SetActive(true);
         EntitySpawnShared.ReapplyGroundAfterActivate(npcGo, identity);
 
-        InitNpc(npc, npcGo, world);
+        InitNpc(npc, npcGo, world, _gravity);
         PetSummonRise.TryBegin(npc);
         _deco.Start(npc);
         world.RegisterNpc(npc);
@@ -57,7 +59,7 @@ public sealed class NpcSpawner
         return npc;
     }
 
-    private static void InitNpc(Entity npc, GameObject npcGo, IWorldSpawnContext world)
+    private static void InitNpc(Entity npc, GameObject npcGo, IWorldSpawnContext world, IGravity gravity)
     {
         NetworkAnimationController animationController =
             EntitySpawnShared.FindOnPrefab<NetworkAnimationController>(npcGo);
@@ -74,8 +76,8 @@ public sealed class NpcSpawner
 
         if (npc.name.Equals("Leandro") || npc.name.Equals("Remy"))
         {
-            if (GravityNpc.Instance != null)
-                GravityNpc.Instance.AddGravity(npc.Identity.Id, new GravityData(npc));
+            if (gravity != null)
+                gravity.AddGravity(npc.Identity.Id, new GravityData(npc));
         }
     }
 }

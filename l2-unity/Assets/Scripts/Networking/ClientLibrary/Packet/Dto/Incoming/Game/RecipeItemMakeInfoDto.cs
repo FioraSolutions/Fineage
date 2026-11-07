@@ -36,7 +36,7 @@ public class RecipeItemMakeInfoDto : IWireDto
             _maxMp = reader.ReadI();
             _status = reader.ReadI();
 
-            _data = RecipeTable.Instance.GetRecipeData(_recipeId);
+            _data = TablePacketServices.Recipes.GetRecipeData(_recipeId);
             if(_data != null)
             {
                 RecipeMaterials[] materials = _data.Materials;

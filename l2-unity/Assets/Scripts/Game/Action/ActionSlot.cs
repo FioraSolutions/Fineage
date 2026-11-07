@@ -14,7 +14,7 @@ public class ActionSlot : L2DraggableSlot
 
     protected override void HandleLeftClick()
     {
-        PlayerActions.Instance.UseAction((ActionType)ActionId);
+        ShortcutPacketServices.Actions.UseAction((ActionType)ActionId);
     }
 
     protected override void HandleRightClick()

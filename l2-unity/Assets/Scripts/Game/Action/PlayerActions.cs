@@ -11,6 +11,7 @@ public class PlayerActions : MonoBehaviour
     private Dictionary<ActionType, L2Action> _actions;
     
     private static PlayerActions _instance;
+    [System.Obsolete("Use [Inject] or ShortcutPacketServices.Actions instead")]
     public static PlayerActions Instance
     {
         get { return _instance; }
@@ -28,6 +29,7 @@ public class PlayerActions : MonoBehaviour
         }
 
         WireActionPacketServices();
+        ShortcutPacketServices.Bind(actions: this);
 
         _actions = new Dictionary<ActionType, L2Action>();
         AttackAction attack = new AttackAction();

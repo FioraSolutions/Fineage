@@ -110,10 +110,7 @@ public sealed class GameRuntime
 
     public PlayerController Player => _player;
 
-    public PlayerActions Actions
-    {
-        get { return _actions != null ? _actions : (_actions = PlayerActions.Instance); }
-    }
+    public PlayerActions Actions { get { return Live(ref _actions, ShortcutPacketServices.Actions); } }
 
     [Inject]
     public void Construct(
