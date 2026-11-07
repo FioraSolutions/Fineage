@@ -504,7 +504,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void BeginSession(string account, string password)
     {
-        NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+        _ = NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
     }
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)

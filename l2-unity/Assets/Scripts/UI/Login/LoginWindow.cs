@@ -183,7 +183,7 @@ public class LoginWindow : L2Window
             if (transport != null)
                 transport.BeginSession(account, password);
             else
-                NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+                _ = NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
         }
         catch (Exception ex)
         {
