@@ -49,12 +49,12 @@ public class TradeTab : AbstractTab, ITab
 
     private void CreateSlots(TradingSlot[] tradeSlots , VisualElement contentContainer , SlotType slotType , bool isDragged)
     {
+        VisualTreeAsset template = InventoryWindow.Instance.InventorySlotTemplate;
         for (int i = 0; i < _tradeSlots.Length; i++)
         {
-            VisualElement slotElement = CretaVisualElement();
+            VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(template, contentContainer);
             TradingSlot slot = CreateTradeSlot(new TradingSlotModel(i, isDragged, slotElement, slotType));
             slot.EventLeftClick += OnClickLeftEvent;
-            contentContainer.Add(slotElement);
             tradeSlots[i] = slot;
         }
     }
@@ -170,11 +170,6 @@ public class TradeTab : AbstractTab, ITab
 
 
 
-
-    private VisualElement CretaVisualElement()
-    {
-        return InventoryWindow.Instance.InventorySlotTemplate.Instantiate()[0];
-    }
 
     private TradingSlot CreateTradeSlot(TradingSlotModel model)
     {

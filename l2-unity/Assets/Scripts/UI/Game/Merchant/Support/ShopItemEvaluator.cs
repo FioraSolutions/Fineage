@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 public class ShopItemEvaluator
 {
@@ -19,23 +17,15 @@ public class ShopItemEvaluator
         UpdateWeightBar(_dealer, currentWeight, maxWeight);
     }
 
-
-
     public void UpdateWeightBar(DealerWindow dealer, int currentWeight, int maxWeight)
     {
-        if (dealer.GetWeiBar() != null & dealer.GetWeiBarBg() != null)
-        {
-            float bgWidth = 138;
-            //float bgWidth = _expBarBg.resolvedStyle.width;
-            double expRatio = (double)currentWeight / maxWeight;
-            double barWidth = bgWidth * expRatio;
-            if (maxWeight == 0)
-            {
-                barWidth = 0;
-            }
-            //_weiBar.style.width = Convert.ToSingle(barWidth);
-            dealer.GetWeiBarBg().style.width = Convert.ToSingle(barWidth);
-        }
+        // Dealer UXML paints fill on WeightGauge (GetWeiBarBg), matching prior behavior.
+        float weightRatio = maxWeight > 0 ? (float)currentWeight / maxWeight : 0f;
+        L2ResourceBarView.SetFillFixed(
+            dealer.GetWeiBarBg(),
+            dealer.GetWeiBarBg(),
+            weightRatio,
+            138f);
     }
 
     public void UpdateAllPrice(List<Product> _listSell)

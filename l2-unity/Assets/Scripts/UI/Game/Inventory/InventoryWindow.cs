@@ -90,7 +90,7 @@ public class InventoryWindow : L2PopupWindow
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryWindow");
         _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
         _tabHeaderTemplate = LoadAsset(L2InventoryUiAssets.TabHeader);
-        _inventorySlotTemplate = LoadAsset("Data/UI/_Elements/Template/Slot");
+        _inventorySlotTemplate = LoadAsset(L2InventoryUiAssets.Slot);
         _minimizedTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryMin");
     }
 
