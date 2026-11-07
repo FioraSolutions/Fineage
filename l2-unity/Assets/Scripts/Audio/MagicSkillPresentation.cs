@@ -65,8 +65,8 @@ public static class MagicSkillPresentation
         }
 
         Skillgrp grp = dto.SkillGrp;
-        if (grp == null && SkillgrpTable.Instance != null)
-            grp = SkillgrpTable.Instance.GetSkill(dto.SkillId, dto.SkillLvl);
+        if (grp == null && TablePacketServices.SkillGrps != null)
+            grp = TablePacketServices.SkillGrps.GetSkill(dto.SkillId, dto.SkillLvl);
 
         bool isMagic = grp == null || grp.IsMagic == 1;
         Debug.Log(

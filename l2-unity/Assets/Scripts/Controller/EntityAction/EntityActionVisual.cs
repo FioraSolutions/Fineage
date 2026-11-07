@@ -439,10 +439,10 @@ public static class EntityActionVisual
 
     static string ResolveUserPhysicalSkillTrigger(MagicSkillUseDto magic)
     {
-        if (magic == null || SkillgrpTable.Instance == null)
+        if (magic == null || TablePacketServices.SkillGrps == null)
             return UserMeleeVariants[UnityEngine.Random.Range(0, UserMeleeVariants.Length)];
 
-        AnimationCombo combo = SkillgrpTable.Instance.GetAnimComboBySkillId(magic.SkillId, magic.SkillLvl);
+        AnimationCombo combo = TablePacketServices.SkillGrps.GetAnimComboBySkillId(magic.SkillId, magic.SkillLvl);
         if (combo == null)
             return UserMeleeVariants[UnityEngine.Random.Range(0, UserMeleeVariants.Length)];
 

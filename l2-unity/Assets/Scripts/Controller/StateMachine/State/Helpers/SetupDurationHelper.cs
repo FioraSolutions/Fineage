@@ -52,10 +52,10 @@ public class SetupDurationHelper
     public static bool TryGetPlayableCombo(MagicSkillUseDto useSkill, out AnimationCombo combo)
     {
         combo = null;
-        if (useSkill == null || SkillgrpTable.Instance == null)
+        if (useSkill == null || TablePacketServices.SkillGrps == null)
             return false;
 
-        combo = SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
+        combo = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
         if (combo == null)
             return false;
 

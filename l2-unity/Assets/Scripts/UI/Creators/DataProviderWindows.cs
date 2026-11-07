@@ -23,8 +23,8 @@ public class DataProviderWindows :AbstractDataProvider
     }
    public void AddLearnSkill(int skillId , int correctCost , int level , VisualElement container)
    {
-        Skillgrp skill = SkillgrpTable.Instance.GetSkill(skillId , level);
-        SkillNameData skillName = SkillgrpTable.Instance.GetSkillName(skillId, level);
+        Skillgrp skill = TablePacketServices.SkillGrps.GetSkill(skillId , level);
+        SkillNameData skillName = TablePacketServices.SkillGrps.GetSkillName(skillId, level);
 
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
@@ -43,8 +43,8 @@ public class DataProviderWindows :AbstractDataProvider
 
     public void AddDescriptionSkill(int skillId, int correctCost, int level, VisualElement container)
     {
-        Skillgrp skill = SkillgrpTable.Instance.GetSkill(skillId, level);
-        SkillNameData skillName = SkillgrpTable.Instance.GetSkillName(skillId, level);
+        Skillgrp skill = TablePacketServices.SkillGrps.GetSkill(skillId, level);
+        SkillNameData skillName = TablePacketServices.SkillGrps.GetSkillName(skillId, level);
 
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");

@@ -119,7 +119,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
 
                             //if (skillGrp != null)
                             //{
-                              //  SkillNameData nameData = SkillgrpTable.Instance.GetSkillName(skillGrp.Id, skillGrp.Level);
+                              //  SkillNameData nameData = TablePacketServices.SkillGrps.GetSkillName(skillGrp.Id, skillGrp.Level);
                              //   if(nameData != null)
                                // {
                                //     SetData(skillGrp, nameData);
@@ -173,7 +173,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
 
                            // if (skillGrp != null)
                            // {
-                                //SkillNameData nameData = SkillgrpTable.Instance.GetSkillName(skillGrp.Id, skillGrp.Level);
+                                //SkillNameData nameData = TablePacketServices.SkillGrps.GetSkillName(skillGrp.Id, skillGrp.Level);
                                 //if (nameData != null)
                                 //{
                                  //   SetData(skillGrp, nameData);
