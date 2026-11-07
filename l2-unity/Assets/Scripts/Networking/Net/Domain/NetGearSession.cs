@@ -174,7 +174,7 @@ public static class NetGearSession
         if (stats.WalkRealSpeed > 0.001f)
             player.UpdateWalkSpeed(stats.WalkRealSpeed);
         player.RefreshVisuals();
-        CharacterInfoWindow characterInfo = CharacterInfoWindow.Instance;
+        CharacterInfoWindow characterInfo = HudCorePacketServices.CharacterInfo;
         if (characterInfo != null)
             characterInfo.UpdateValues();
     }

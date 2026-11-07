@@ -164,7 +164,7 @@ public class PlayerInventory : MonoBehaviour
             // The window may not be built yet (it is created on first UI load). The data above
             // is already stored, and RefreshWindow pushes it once the window exists, so a
             // missing window must not throw away the snapshot.
-            InventoryWindow window = InventoryWindow.Instance;
+            InventoryWindow window = InventoryPacketServices.Window;
             if (window == null)
                 return;
 
@@ -187,7 +187,7 @@ public class PlayerInventory : MonoBehaviour
     /// </summary>
     public void RefreshWindow()
     {
-        InventoryWindow window = InventoryWindow.Instance;
+        InventoryWindow window = InventoryPacketServices.Window;
         if (window == null || !window.IsItemSurfaceReady)
             return;
         if (_playerInventory == null)
@@ -239,10 +239,10 @@ public class PlayerInventory : MonoBehaviour
                 UnityMainThreadDispatcher.Instance().Enqueue(() => {
                     // Same reason as SetInventory: the window may not exist yet. The change data
                     // is applied to _playerInventory above, so only the redraw is skipped.
-                    if (InventoryWindow.Instance == null)
+                    if (InventoryPacketServices.Window == null)
                         return;
-                    InventoryWindow.Instance.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);
-                    InventoryWindow.Instance.RemoveOldEquipItemOrNoQuipItem(_changeInventoryData , userId);
+                    InventoryPacketServices.Window.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);
+                    InventoryPacketServices.Window.RemoveOldEquipItemOrNoQuipItem(_changeInventoryData , userId);
                 });
 
             }
@@ -301,8 +301,8 @@ public class PlayerInventory : MonoBehaviour
 
     private void AddInventory(ItemInstance item)
     {
-        int slot = InventoryWindow.Instance != null
-            ? InventoryWindow.Instance.GetEmptySlot()
+        int slot = InventoryPacketServices.Window != null
+            ? InventoryPacketServices.Window.GetEmptySlot()
             : _playerInventory.Count;
         item.SetSlot(slot);
         _playerInventory.Add(item.ObjectId, item);
@@ -505,7 +505,7 @@ public class PlayerInventory : MonoBehaviour
         //    orders.Add(new InventoryOrder(toItem.ObjectId, fromSlot));
         //}
 
-        //InventoryWindow.Instance.SelectSlot(toSlot);
+        //InventoryPacketServices.Window.SelectSlot(toSlot);
         // Debug.Log("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
         //GameClient.Instance.ClientPacketHandler.UpdateInventoryOrder(orders);
     }

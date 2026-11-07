@@ -57,13 +57,13 @@ public class L2GameUI : L2UI
             StartLoading();
         }
 
-        if (ChatWindow.Instance != null)
+        if (MessagePacketServices.Chat != null)
         {
-            ChatWindow.Instance.AddWindow(_rootVisualContainer);
+            MessagePacketServices.Chat.AddWindow(_rootVisualContainer);
         }
-        if (SystemMenuWindow.Instance != null)
+        if (SystemUIPacketServices.Menu != null)
         {
-            SystemMenuWindow.Instance.AddWindow(_rootVisualContainer);
+            SystemUIPacketServices.Menu.AddWindow(_rootVisualContainer);
         }
 
         if (GameWindowPacketServices.Status != null)
@@ -84,42 +84,42 @@ public class L2GameUI : L2UI
         {
             SkillbarPacketServices.Skillbar.AddWindow(_rootVisualContainer);
         }
-        if (InventoryWindow.Instance != null)
+        if (InventoryPacketServices.Window != null)
         {
-            InventoryWindow.Instance.AddWindow(_rootVisualContainer);
-            InventoryWindow.Instance.HideWindow();
+            InventoryPacketServices.Window.AddWindow(_rootVisualContainer);
+            InventoryPacketServices.Window.HideWindow();
         }
-        if (CharacterInfoWindow.Instance != null)
+        if (HudCorePacketServices.CharacterInfo != null)
         {
-            CharacterInfoWindow.Instance.AddWindow(_rootVisualContainer);
-            CharacterInfoWindow.Instance.HideWindow();
+            HudCorePacketServices.CharacterInfo.AddWindow(_rootVisualContainer);
+            HudCorePacketServices.CharacterInfo.HideWindow();
         }
-        if (ActionWindow.Instance != null)
+        if (HudCorePacketServices.Action != null)
         {
-            ActionWindow.Instance.AddWindow(_rootVisualContainer);
-            ActionWindow.Instance.HideWindow();
+            HudCorePacketServices.Action.AddWindow(_rootVisualContainer);
+            HudCorePacketServices.Action.HideWindow();
         }
-        if (TargetWindow.Instance != null)
+        if (HudCorePacketServices.Target != null)
         {
-            TargetWindow.Instance.AddWindow(_rootVisualContainer);
+            HudCorePacketServices.Target.AddWindow(_rootVisualContainer);
         }
-        if (ExitWindow.Instance != null)
+        if (SystemUIPacketServices.Exit != null)
         {
-            ExitWindow.Instance.AddWindow(_rootVisualContainer);
+            SystemUIPacketServices.Exit.AddWindow(_rootVisualContainer);
         }
-        if (L2ToolTip.Instance != null)
+        if (HudCorePacketServices.ToolTip != null)
         {
-            L2ToolTip.Instance.AddWindow(_tooltipVisualContainer);
-            L2ToolTip.Instance.HideWindow();
+            HudCorePacketServices.ToolTip.AddWindow(_tooltipVisualContainer);
+            HudCorePacketServices.ToolTip.HideWindow();
         }
-        if (L2SlotManager.Instance != null)
+        if (HudCorePacketServices.Slots != null)
         {
-            L2SlotManager.Instance.AddWindow(_slotVisualContainer);
-            L2SlotManager.Instance.HideWindow();
+            HudCorePacketServices.Slots.AddWindow(_slotVisualContainer);
+            HudCorePacketServices.Slots.HideWindow();
         }
-        if (MenuWindow.Instance != null)
+        if (HudCorePacketServices.Menu != null)
         {
-            MenuWindow.Instance.AddWindow(_rootVisualContainer);
+            HudCorePacketServices.Menu.AddWindow(_rootVisualContainer);
         }
         if(GameWindowPacketServices.Html != null)
         {
@@ -203,10 +203,10 @@ public class L2GameUI : L2UI
             AuxiliaryGameUIPacketServices.SeedInfo.HideWindow();
         }
 
-        if (MapWindow.Instance != null)
+        if (HudCorePacketServices.Map != null)
         {
-            MapWindow.Instance.AddWindow(_rootVisualContainer);
-            MapWindow.Instance.HideWindow();
+            HudCorePacketServices.Map.AddWindow(_rootVisualContainer);
+            HudCorePacketServices.Map.HideWindow();
         }
 
         if (CraftPacketServices.RecipeBook != null)
@@ -289,47 +289,47 @@ public class L2GameUI : L2UI
 
         if (InputManager.Instance.OpenCharacerStatus)
         {
-            if (CharacterInfoWindow.Instance != null)
+            if (HudCorePacketServices.CharacterInfo != null)
             {
-                CharacterInfoWindow.Instance.ToggleHideWindow();
+                HudCorePacketServices.CharacterInfo.ToggleHideWindow();
             }
         }
 
         if (InputManager.Instance.OpenInventory)
         {
-            if (InventoryWindow.Instance != null)
+            if (InventoryPacketServices.Window != null)
             {
-                InventoryWindow.Instance.ToggleHideWindowManual();
+                InventoryPacketServices.Window.ToggleHideWindowManual();
             }
         }
 
         if (InputManager.Instance.OpenSystemMenu)
         {
-            if (SystemMenuWindow.Instance != null)
+            if (SystemUIPacketServices.Menu != null)
             {
-                SystemMenuWindow.Instance.ToggleHideWindow();
+                SystemUIPacketServices.Menu.ToggleHideWindow();
             }
         }
 
         if (InputManager.Instance.OpenActions)
         {
-            if (ActionWindow.Instance != null)
+            if (HudCorePacketServices.Action != null)
             {
-                ActionWindow.Instance.ToggleHideWindow();
+                HudCorePacketServices.Action.ToggleHideWindow();
             }
         }
 
         if (InputManager.Instance.OpenMap)
         {
-            if (MapWindow.Instance != null)
-                MapWindow.Instance.ToggleHideWindow();
+            if (HudCorePacketServices.Map != null)
+                HudCorePacketServices.Map.ToggleHideWindow();
         }
 
         if (InputManager.Instance.CloseWindow)
         {
-            if (ChatWindow.Instance != null && ChatWindow.Instance.ChatOpened)
+            if (MessagePacketServices.Chat != null && MessagePacketServices.Chat.ChatOpened)
             {
-                ChatWindow.Instance.CloseChat(false);
+                MessagePacketServices.Chat.CloseChat(false);
                 return;
             }
 
@@ -339,7 +339,7 @@ public class L2GameUI : L2UI
             }
             else
             {
-                SystemMenuWindow.Instance.ToggleHideWindow();
+                SystemUIPacketServices.Menu.ToggleHideWindow();
             }
         }
     }

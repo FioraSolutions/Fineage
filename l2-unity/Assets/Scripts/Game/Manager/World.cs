@@ -46,7 +46,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private CharacterInfoWindow CharacterInfo
     {
-        get { return _characterInfo != null ? _characterInfo : CharacterInfoWindow.Instance; }
+        get { return _characterInfo != null ? _characterInfo : HudCorePacketServices.CharacterInfo; }
     }
 
     public IAnimationManager Animations

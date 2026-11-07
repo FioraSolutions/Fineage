@@ -19,6 +19,7 @@ public class L2SlotManager : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireHudCorePacketServices();
             WireGameWindowPacketServices();
         }
         else
@@ -29,7 +30,14 @@ public class L2SlotManager : L2PopupWindow
 
     private void Start()
     {
+        WireHudCorePacketServices();
         WireGameWindowPacketServices();
+    }
+
+    
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(slots: this);
     }
 
     private void WireGameWindowPacketServices()

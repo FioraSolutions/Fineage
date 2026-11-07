@@ -31,9 +31,9 @@ public class TooltipManipulator : PointerManipulator
 
     private void PointerInHandler(PointerEnterEvent evt)
     {
-        if (target != null & L2ToolTip.Instance != null) {
+        if (target != null & HudCorePacketServices.ToolTip != null) {
             if (_text.Length > 0)
-                L2ToolTip.Instance.UpdateTooltip(_text, target);
+                HudCorePacketServices.ToolTip.UpdateTooltip(_text, target);
         }
         else
         {
@@ -49,11 +49,11 @@ public class TooltipManipulator : PointerManipulator
 
     private void PointerOutHandler(PointerOutEvent evt)
     {
-        if(target != null & L2ToolTip.Instance != null)
+        if(target != null & HudCorePacketServices.ToolTip != null)
         {
             _pointerOver = false;
             if (_text.Length > 0)
-                L2ToolTip.Instance.HideWindow(target);
+                HudCorePacketServices.ToolTip.HideWindow(target);
         }
         else
         {
@@ -71,9 +71,9 @@ public class TooltipManipulator : PointerManipulator
     {
         if (_pointerOver)
         {
-            if(L2ToolTip.Instance != null)
+            if(HudCorePacketServices.ToolTip != null)
             {
-                L2ToolTip.Instance.HideWindow(target);
+                HudCorePacketServices.ToolTip.HideWindow(target);
             }
             else
             {

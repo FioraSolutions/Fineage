@@ -23,12 +23,24 @@ public class MapWindow : L2PopupWindow
             _mapPanner = new MapPanner();
             _mapMarkerFollowCamera = new MapMarkerFollowCamera();
             _instance = this;
+            WireHudCorePacketServices();
 
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    
+    private void Start()
+    {
+        WireHudCorePacketServices();
+    }
+
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(map: this);
     }
 
     protected override void LoadAssets()

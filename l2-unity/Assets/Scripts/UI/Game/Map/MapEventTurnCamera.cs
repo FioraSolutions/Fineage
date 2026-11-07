@@ -18,6 +18,6 @@ public class MapEventTurnCamera : MonoBehaviour, IRegisteredBillboard
         if (camera == null) return;
 
         //Debug.Log("Rotate Camera Is Turn");
-        MapWindow.Instance.TurnMarker(camera);
+        HudCorePacketServices.Map.TurnMarker(camera);
     }
 }

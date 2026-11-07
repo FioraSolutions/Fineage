@@ -21,6 +21,7 @@ public class ActionWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireHudCorePacketServices();
         }
         else
         {
@@ -31,6 +32,17 @@ public class ActionWindow : L2PopupWindow
     private void OnDestroy()
     {
         _instance = null;
+    }
+
+    
+    private void Start()
+    {
+        WireHudCorePacketServices();
+    }
+
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(action: this);
     }
 
     protected override void LoadAssets()
