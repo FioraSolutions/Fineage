@@ -1581,7 +1581,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyNpcHtml(NpcHtmlNetMsg html)
     {
-        HtmlWindow window = HtmlWindow.Instance;
+        HtmlWindow window = GameWindowPacketServices.Html;
         if (window == null)
             return;
         window.ShowNpcDialog(html.NpcObjectId, html.NpcId, html.Html ?? "");

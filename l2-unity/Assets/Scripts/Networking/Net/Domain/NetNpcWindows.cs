@@ -45,8 +45,8 @@ public static class NetNpcWindows
     public static void Close()
     {
         NetNpcSession.CloseWindows();
-        if (HtmlWindow.Instance != null)
-            HtmlWindow.Instance.HideWindow();
+        if (GameWindowPacketServices.Html != null)
+            GameWindowPacketServices.Html.HideWindow();
         if (DealerWindow.Instance != null)
             DealerWindow.Instance.HideWindow();
         if (MultiSellWindow.Instance != null)

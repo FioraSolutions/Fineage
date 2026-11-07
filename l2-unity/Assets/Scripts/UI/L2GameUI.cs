@@ -66,14 +66,14 @@ public class L2GameUI : L2UI
             SystemMenuWindow.Instance.AddWindow(_rootVisualContainer);
         }
 
-        if (StatusWindow.Instance != null)
+        if (GameWindowPacketServices.Status != null)
         {
-            StatusWindow.Instance.AddWindow(_rootVisualContainer);
+            GameWindowPacketServices.Status.AddWindow(_rootVisualContainer);
         }
-        if (DeadWindow.Instance != null)
+        if (GameWindowPacketServices.Dead != null)
         {
-            DeadWindow.Instance.AddWindow(_rootVisualContainer);
-            DeadWindow.Instance.HideWindow();
+            GameWindowPacketServices.Dead.AddWindow(_rootVisualContainer);
+            GameWindowPacketServices.Dead.HideWindow();
         }
         if (BufferPanel.Instance != null)
         {
@@ -121,10 +121,10 @@ public class L2GameUI : L2UI
         {
             MenuWindow.Instance.AddWindow(_rootVisualContainer);
         }
-        if(HtmlWindow.Instance != null)
+        if(GameWindowPacketServices.Html != null)
         {
-            HtmlWindow.Instance.AddWindow(_rootVisualContainer);
-            HtmlWindow.Instance.HideWindow();
+            GameWindowPacketServices.Html.AddWindow(_rootVisualContainer);
+            GameWindowPacketServices.Html.HideWindow();
         }
         if (DealerWindow.Instance != null)
         {
@@ -176,10 +176,10 @@ public class L2GameUI : L2UI
             DescriptionSkillWindow.Instance.AddWindow(_rootVisualContainer);
             DescriptionSkillWindow.Instance.HideWindow();
         }
-        if (ShowListWindow.Instance != null)
+        if (GameWindowPacketServices.ShowList != null)
         {
-            ShowListWindow.Instance.AddWindow(_rootVisualContainer);
-            ShowListWindow.Instance.HideWindow();
+            GameWindowPacketServices.ShowList.AddWindow(_rootVisualContainer);
+            GameWindowPacketServices.ShowList.HideWindow();
         }
         if (QuestWindow.Instance != null)
         {

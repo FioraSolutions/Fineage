@@ -92,7 +92,7 @@ public static class ControllerPacketServices
     public static DeadWindow Dead =>
         _dead != null
             ? _dead
-            : ResolveFromGame<DeadWindow>() ?? DeadWindow.Instance;
+            : ResolveFromGame<DeadWindow>() ?? GameWindowPacketServices.Dead;
 
     public static EventBus Bus =>
         _bus != null ? _bus : GamePacketServices.Bus;
