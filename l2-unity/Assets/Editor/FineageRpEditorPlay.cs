@@ -368,7 +368,7 @@ public static class FineageRpEditorPlay
                 return;
             if (!SceneManager.GetSceneByName("l2_lobby").isLoaded)
                 return;
-            if (LoginWindow.Instance == null || CharSelectWindow.Instance == null)
+            if (LoginWindow.Instance == null || LoginPacketServices.CharSelect == null)
                 return;
 
             string user;
@@ -414,7 +414,7 @@ public static class FineageRpEditorPlay
 
         if (!SceneManager.GetSceneByName("l2_lobby").isLoaded)
             return;
-        if (LoginWindow.Instance == null || CharSelectWindow.Instance == null)
+        if (LoginWindow.Instance == null || LoginPacketServices.CharSelect == null)
             return;
 
         bool loginHidden = WindowHidden(LoginWindow.Instance);
@@ -452,7 +452,7 @@ public static class FineageRpEditorPlay
         if (manager.GameState != GameState.CHAR_SELECT)
             return;
 
-        CharSelectWindow select = CharSelectWindow.Instance;
+        CharSelectWindow select = LoginPacketServices.CharSelect;
         Button create = Field<Button>(select, "_createButton");
         bool createEnabled = create != null && create.enabledSelf;
         string status = LabelText(select, "_lobbyStatus");
@@ -496,7 +496,7 @@ public static class FineageRpEditorPlay
             if (manager.GameState != GameState.CHAR_SELECT)
                 return;
 
-            CharSelectWindow select = CharSelectWindow.Instance;
+            CharSelectWindow select = LoginPacketServices.CharSelect;
             if (select == null)
                 return;
 

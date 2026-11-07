@@ -270,13 +270,13 @@ public sealed class NetLobbyFlow
     static void ApplyRosterUi(CharacterRosterMsg roster)
     {
         LobbyCharacter[] characters = LobbyCharacterMap.FromNetRoster(roster);
-        if (CharSelectWindow.Instance != null)
-            CharSelectWindow.Instance.SetLobbyCharacters(characters);
+        if (LoginPacketServices.CharSelect != null)
+            LoginPacketServices.CharSelect.SetLobbyCharacters(characters);
         CharacterSelector selector = LoginPacketServices.Characters;
         if (selector != null)
             selector.SetLobbyCharacters(characters, 0);
-        if (CharSelectWindow.Instance != null)
-            CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, 0));
+        if (LoginPacketServices.CharSelect != null)
+            LoginPacketServices.CharSelect.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, 0));
         if (LoginWindow.Instance != null)
             LoginWindow.Instance.ShowErrorText("");
         GameManager manager = NetworkingPacketServices.Manager ?? GamePacketServices.Manager;

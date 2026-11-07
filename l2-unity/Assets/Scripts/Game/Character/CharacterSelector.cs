@@ -206,8 +206,8 @@ public class CharacterSelector : MonoBehaviour
         MoveLobbyPawn(index, 7);
         _selectedLobbyIndex = index;
         _selectedCharacterSlot = _lobbyCharacters[index].Slot;
-        if (CharSelectWindow.Instance != null)
-            CharSelectWindow.Instance.SelectLobbySlot(index);
+        if (LoginPacketServices.CharSelect != null)
+            LoginPacketServices.CharSelect.SelectLobbySlot(index);
     }
 
     static CharSelectInfoPackage ToSelectPackage(LobbyCharacter character)
@@ -337,7 +337,7 @@ public class CharacterSelector : MonoBehaviour
             _selectedCharacterSlot = slot;
             _selectedCharacter = _characters[slot];
 
-            CharSelectWindow.Instance.SelectSlot(slot);
+            LoginPacketServices.CharSelect.SelectSlot(slot);
         }
     }
 
@@ -360,7 +360,7 @@ public class CharacterSelector : MonoBehaviour
             _selectedCharacterSlot = slot;
             _selectedCharacterInterlude = _charactersInterlude[slot];
 
-            CharSelectWindow.Instance.SelectInterludeSlot(slot);
+            LoginPacketServices.CharSelect.SelectInterludeSlot(slot);
         }
     }
 
