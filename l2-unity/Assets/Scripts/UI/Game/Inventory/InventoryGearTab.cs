@@ -92,7 +92,7 @@ public class InventoryGearTab : L2Tab
                     bool isReplace = changeInventoryData.IsReplaceSourceItem(currentSlotEquip.ObjectId);
                     if (changeInventoryData.IsReplaceSourceItem(currentSlotEquip.ObjectId)) continue;
                     EquipItem(currentSlotEquip);
-                    EventBus.Instance.Equipped(currentSlotEquip, userId);
+                    GamePacketServices.Bus?.Equipped(currentSlotEquip, userId);
                     // GearFlowLog.Info("InventoryGearTab Equipped userId=" + userId +
                         // " itemId=" + currentSlotEquip.ItemId +
                         // " body=" + currentSlotEquip.BodyPart +
@@ -123,7 +123,7 @@ public class InventoryGearTab : L2Tab
         {
             ItemInstance itemInstance = equipItems[i];
             EquipItem(itemInstance);
-            EventBus.Instance.Equipped(itemInstance, userId);
+            GamePacketServices.Bus?.Equipped(itemInstance, userId);
             // GearFlowLog.Info("InventoryGearTab EquipList userId=" + userId +
                 // " itemId=" + itemInstance.ItemId +
                 // " body=" + itemInstance.BodyPart);
@@ -188,7 +188,7 @@ public class InventoryGearTab : L2Tab
     public void ModifiedReplace(ItemInstance item , int userId)
     {
         EquipItem(item);
-        EventBus.Instance.Equipped(item, userId);
+        GamePacketServices.Bus?.Equipped(item, userId);
     }
 
  

@@ -70,7 +70,9 @@ public sealed class GameRuntime
 #pragma warning restore CS0618
     public PositionValidationController PositionValidation { get { return Live(ref _positionValidation, PositionValidationController.Instance); } }
     public EffectManager Effects { get { return Live(ref _effects, GlobalEffectsPacketServices.Effects); } }
+#pragma warning disable CS0618 // Locator fallback until Bind covers all scopes
     public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }
+#pragma warning restore CS0618
     public IGameEventBus GameEvents => _gameEvents;
     public CameraController Camera { get { return Live(ref _camera, CameraPacketServices.Controller); } }
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharactersPacketServices.Moves); } }

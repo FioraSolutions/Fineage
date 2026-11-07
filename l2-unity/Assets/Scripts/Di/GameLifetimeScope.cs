@@ -308,7 +308,11 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(EffectManager))
             return GlobalEffectsPacketServices.Effects as T;
         if (typeof(T) == typeof(EventBus))
+        {
+#pragma warning disable CS0618 // Bootstrap locator until drain completes
             return EventBus.Instance as T;
+#pragma warning restore CS0618
+        }
         if (typeof(T) == typeof(SkillbarWindow))
             return SkillbarPacketServices.Skillbar as T;
         if (typeof(T) == typeof(ChatWindow))

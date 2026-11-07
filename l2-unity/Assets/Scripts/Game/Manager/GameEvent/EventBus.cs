@@ -7,7 +7,10 @@ using UnityEngine;
 /// </summary>
 public class EventBus : MonoBehaviour
 {
-    public static EventBus Instance { get; private set; }
+    private static EventBus _instance;
+    [System.Obsolete("Use [Inject] or GamePacketServices.Bus instead")]
+    public static EventBus Instance { get { return _instance; } }
+
     public event Action<Entity, int> OnLevelUp;
     public event Action<ItemInstance , int> OnEquipped;
     public event Action<ItemInstance, int> OnWeaponChanged;
@@ -16,15 +19,22 @@ public class EventBus : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
+            _instance = this;
             DontDestroyOnLoad(gameObject);
+            GamePacketServices.Bind(bus: this);
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
 

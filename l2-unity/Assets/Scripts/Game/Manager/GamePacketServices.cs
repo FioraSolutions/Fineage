@@ -29,8 +29,20 @@ public static class GamePacketServices
     public static World GameWorld =>
         _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
-    public static EventBus Bus =>
-        _bus != null ? _bus : ResolveFromGame<EventBus>() ?? EventBus.Instance;
+    public static EventBus Bus
+    {
+        get
+        {
+            if (_bus != null)
+                return _bus;
+            EventBus resolved = ResolveFromGame<EventBus>();
+            if (resolved != null)
+                return resolved;
+#pragma warning disable CS0618 // Locator fallback until drain completes
+            return EventBus.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static GameManager Manager =>
         _manager != null ? _manager : NetworkingPacketServices.Manager;

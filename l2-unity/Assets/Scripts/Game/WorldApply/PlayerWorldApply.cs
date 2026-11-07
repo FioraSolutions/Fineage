@@ -14,7 +14,7 @@ public sealed class PlayerWorldApply : EntityWorldApply
         WorldApplyPacketServices.Player ?? ControllerPacketServices.Player;
 
     private EventBus Bus =>
-        WorldApplyPacketServices.Bus ?? GamePacketServices.Bus ?? EventBus.Instance;
+        WorldApplyPacketServices.Bus ?? GamePacketServices.Bus;
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
     {
