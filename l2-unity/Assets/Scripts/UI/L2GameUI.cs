@@ -141,10 +141,10 @@ public class L2GameUI : L2UI
             QuantityInput.Instance.AddWindow(_rootVisualContainer);
             QuantityInput.Instance.HideWindow();
         }
-        if (SystemMessageWindow.Instance != null)
+        if (SystemMessagePacketServices.Window != null)
         {
-            SystemMessageWindow.Instance.AddWindow(_rootVisualContainer);
-            SystemMessageWindow.Instance.HideWindow();
+            SystemMessagePacketServices.Window.AddWindow(_rootVisualContainer);
+            SystemMessagePacketServices.Window.HideWindow();
         }
 
         if (EnchantWindow.Instance != null)

@@ -29,11 +29,22 @@ public class SystemMessageWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireSystemMessagePacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireSystemMessagePacketServices();
+    }
+
+    private void WireSystemMessagePacketServices()
+    {
+        SystemMessagePacketServices.Bind(window: this);
     }
 
     protected override void LoadAssets()
@@ -154,7 +165,8 @@ public class SystemMessageWindow : L2PopupWindow
     
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
 }

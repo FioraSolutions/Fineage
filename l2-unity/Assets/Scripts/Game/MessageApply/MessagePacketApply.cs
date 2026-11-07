@@ -18,7 +18,7 @@ public sealed class MessagePacketApply
         SkillNameTable skillNames)
     {
         _chat = chat != null ? chat : ChatWindow.Instance;
-        _systemMessageUi = systemMessageUi != null ? systemMessageUi : SystemMessageWindow.Instance;
+        _systemMessageUi = systemMessageUi != null ? systemMessageUi : SystemMessagePacketServices.Window;
         _queue = queue;
         _systemMessages = systemMessages;
         _skillNames = skillNames;

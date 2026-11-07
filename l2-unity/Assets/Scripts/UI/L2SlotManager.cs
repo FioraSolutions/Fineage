@@ -261,9 +261,9 @@ public class L2SlotManager : L2PopupWindow
             return;
         }
 
-        SystemMessageWindow.Instance.OnButtonOk += OkDestroyRecipe;
-        SystemMessageWindow.Instance.OnButtonClosed += OnРЎancelRecipe;
-        SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Are you sure you want to destroy the recipe?");
+        SystemMessagePacketServices.Window.OnButtonOk += OkDestroyRecipe;
+        SystemMessagePacketServices.Window.OnButtonClosed += OnРЎancelRecipe;
+        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Are you sure you want to destroy the recipe?");
 
         int position = _hoverSlot.Position;
         TradingSlot sourceSlot = (TradingSlot)_draggedSlot;
@@ -285,7 +285,7 @@ public class L2SlotManager : L2PopupWindow
 
     private void CleanupMessageWindow()
     {
-        SystemMessageUtils.CancelEvent(SystemMessageWindow.Instance, OkDestroyRecipe, OnРЎancelRecipe);
+        SystemMessageUtils.CancelEvent(SystemMessagePacketServices.Window, OkDestroyRecipe, OnРЎancelRecipe);
     }
 
 
@@ -385,9 +385,9 @@ public class L2SlotManager : L2PopupWindow
             return;
         }
 
-        SystemMessageWindow.Instance.OnButtonOk += OkDrop;
-        SystemMessageWindow.Instance.OnButtonClosed += OnCancel;
-        SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Do you want to drop your " + slot.Name + "?");
+        SystemMessagePacketServices.Window.OnButtonOk += OkDrop;
+        SystemMessagePacketServices.Window.OnButtonClosed += OnCancel;
+        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Do you want to drop your " + slot.Name + "?");
     }
 
     /// <summary>Mouse ray → world hit (same idea as ClickManager move pick).</summary>
@@ -428,9 +428,9 @@ public class L2SlotManager : L2PopupWindow
         }
         else
         {
-            SystemMessageWindow.Instance.OnButtonOk += OkDestroy;
-            SystemMessageWindow.Instance.OnButtonClosed += OnCancel;
-            SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Do you want to destroy your " + slot.Name);
+            SystemMessagePacketServices.Window.OnButtonOk += OkDestroy;
+            SystemMessagePacketServices.Window.OnButtonClosed += OnCancel;
+            SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Do you want to destroy your " + slot.Name);
             
         }
     }
@@ -455,9 +455,9 @@ public class L2SlotManager : L2PopupWindow
 
     private void CancelEvent()
     {
-        SystemMessageWindow.Instance.OnButtonOk -= OkDestroy;
-        SystemMessageWindow.Instance.OnButtonOk -= OkDrop;
-        SystemMessageWindow.Instance.OnButtonClosed -= OnCancel;
+        SystemMessagePacketServices.Window.OnButtonOk -= OkDestroy;
+        SystemMessagePacketServices.Window.OnButtonOk -= OkDrop;
+        SystemMessagePacketServices.Window.OnButtonClosed -= OnCancel;
         _pendingOp = PendingItemOp.None;
         _hasPendingDropPos = false;
     }
