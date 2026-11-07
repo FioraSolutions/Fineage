@@ -22,6 +22,8 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
     // Game scene is preloaded inactive (no Awake). `Instance?.` then hit a dead pool, LoadMesh threw,
     // and every armor/weapon mesh came back missing (heads-only lobby pawns).
     static IPoolManager _instance;
+
+    [System.Obsolete("Use [Inject] or ObjectPoolPacketServices.Pool instead")]
     public static IPoolManager Instance
     {
         get { return (_instance as UnityEngine.Object) != null ? _instance : null; }
@@ -31,6 +33,7 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
     private void Awake()
     {
         Instance = this;
+        ObjectPoolPacketServices.Bind(pool: this);
     }
 
     private void OnDestroy()
