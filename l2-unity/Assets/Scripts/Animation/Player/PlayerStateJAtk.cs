@@ -81,10 +81,10 @@ public class PlayerStateJAtk : StateMachineBehaviour
         TrySubscribeSwordCollider();
 
         int entityId = ResolvePlayerEntityId();
-        if (entityId > 0 && SwordCollisionService.Instance != null)
+        if (entityId > 0 && SwordCollisionPacketServices.Collision != null)
         {
-            _attackEpoch = SwordCollisionService.Instance.GetAttackEpoch(entityId);
-            SwordCollisionService.Instance.UpdateAttackProgress(entityId, 0f);
+            _attackEpoch = SwordCollisionPacketServices.Collision.GetAttackEpoch(entityId);
+            SwordCollisionPacketServices.Collision.UpdateAttackProgress(entityId, 0f);
         }
         else
         {
@@ -181,9 +181,9 @@ public class PlayerStateJAtk : StateMachineBehaviour
         }
 
         int entityId = ResolvePlayerEntityId();
-        if (entityId > 0 && SwordCollisionService.Instance != null)
+        if (entityId > 0 && SwordCollisionPacketServices.Collision != null)
         {
-            SwordCollisionService.Instance.UpdateAttackProgress(entityId, TimeUtils.ConvertSecToMs(timeOut));
+            SwordCollisionPacketServices.Collision.UpdateAttackProgress(entityId, TimeUtils.ConvertSecToMs(timeOut));
         }
     }
 
@@ -244,9 +244,9 @@ public class PlayerStateJAtk : StateMachineBehaviour
         bool earlyWallExit = elapsedMs + 50f < expectedMs;
         float animNormRaw = stateInfo.normalizedTime;
         int entityId = ResolvePlayerEntityId();
-        if (entityId > 0 && SwordCollisionService.Instance != null)
+        if (entityId > 0 && SwordCollisionPacketServices.Collision != null)
         {
-            SwordCollisionService.Instance.EndAttack(entityId, _attackEpoch);
+            SwordCollisionPacketServices.Collision.EndAttack(entityId, _attackEpoch);
         }
 
         bool dieTarget = IsDieTarget();
@@ -354,23 +354,23 @@ public class PlayerStateJAtk : StateMachineBehaviour
 
     private void TrySubscribeSwordCollider()
     {
-        if (_isColliderSubscribed || SwordCollisionService.Instance == null)
+        if (_isColliderSubscribed || SwordCollisionPacketServices.Collision == null)
         {
             return;
         }
 
-        SwordCollisionService.Instance.OnHitCollider += OnSwordColliderHit;
+        SwordCollisionPacketServices.Collision.OnHitCollider += OnSwordColliderHit;
         _isColliderSubscribed = true;
     }
 
     private void TryUnsubscribeSwordCollider()
     {
-        if (!_isColliderSubscribed || SwordCollisionService.Instance == null)
+        if (!_isColliderSubscribed || SwordCollisionPacketServices.Collision == null)
         {
             return;
         }
 
-        SwordCollisionService.Instance.OnHitCollider -= OnSwordColliderHit;
+        SwordCollisionPacketServices.Collision.OnHitCollider -= OnSwordColliderHit;
         _isColliderSubscribed = false;
     }
 

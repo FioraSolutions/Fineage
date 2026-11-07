@@ -39,9 +39,9 @@ public abstract class AbstractAttackEvents : StateBase
             // EffectOnly magic chain only — bow ArrowStick is HitManager ← OnHitMonster (persistent).
             ProjectilePacketServices.Projectiles.OnHitEffectProjectile += OnHitEffectProjectile;
         }
-        if (SwordCollisionService.Instance != null)
+        if (SwordCollisionPacketServices.Collision != null)
         {
-            SwordCollisionService.Instance.OnHitCollider += OnHitColliderMonster;
+            SwordCollisionPacketServices.Collision.OnHitCollider += OnHitColliderMonster;
         }
     }
 
@@ -69,9 +69,9 @@ public abstract class AbstractAttackEvents : StateBase
         {
             ProjectilePacketServices.Projectiles.OnHitEffectProjectile -= OnHitEffectProjectile;
         }
-        if (SwordCollisionService.Instance != null)
+        if (SwordCollisionPacketServices.Collision != null)
         {
-            SwordCollisionService.Instance.OnHitCollider -= OnHitColliderMonster;
+            SwordCollisionPacketServices.Collision.OnHitCollider -= OnHitColliderMonster;
         }
     }
 
@@ -149,7 +149,7 @@ public abstract class AbstractAttackEvents : StateBase
         Transform[] swordBasePoints = _stateMachine.Player.GetSwordBasePoints();
         if (swordBasePoints != null && swordBasePoints.Length > 1)
         {
-            SwordCollisionService.Instance.UnregisterSword(swordBasePoints[0]);
+            SwordCollisionPacketServices.Collision.UnregisterSword(swordBasePoints[0]);
         }
 
         PlayerEntity.Instance.RemoveProceduralPose();
@@ -265,11 +265,11 @@ public abstract class AbstractAttackEvents : StateBase
         }
 
         PlayerEntity player = _stateMachine != null ? _stateMachine.Player : null;
-        if (player == null || SwordCollisionService.Instance == null)
+        if (player == null || SwordCollisionPacketServices.Collision == null)
         {
             // Debug.LogWarning(
                 // $"[HIT_FX] 2.CallBackAttackShot SKIP playerNull={player == null} " +
-                // $"swordSvcNull={SwordCollisionService.Instance == null} anim={animName}");
+                // $"swordSvcNull={SwordCollisionPacketServices.Collision == null} anim={animName}");
             return;
         }
 
@@ -304,7 +304,7 @@ public abstract class AbstractAttackEvents : StateBase
         if (hits != null)
             hits.FireRememberedExtraHits(player);
 
-        if (SwordCollisionService.Instance != null &&
+        if (SwordCollisionPacketServices.Collision != null &&
             attackerEntityId > 0 &&
             player.Stats != null)
         {
@@ -316,7 +316,7 @@ public abstract class AbstractAttackEvents : StateBase
                 // $"(compare with Enter AttackShotWallMs and Exit wallElapsedMs)");
         }
 
-        SwordCollisionService.Instance.EmitHitFromAttackShot(
+        SwordCollisionPacketServices.Collision.EmitHitFromAttackShot(
             attackerEntityId,
             targetEntityId,
             swordBasePoints[0],
@@ -356,7 +356,7 @@ public abstract class AbstractAttackEvents : StateBase
             Transform target = targetEntity != null ? targetEntity.transform : PlayerEntity.Instance.Target;
             int attackerEntityId = entity.Identity != null ? entity.Identity.Id : 0;
             int targetEntityId = targetEntity != null && targetEntity.Identity != null ? targetEntity.Identity.Id : 0;
-            SwordCollisionService.Instance.RegisterSwordByEntityId(attackerEntityId, targetEntityId, swordBase, swordTip, target, 0);
+            SwordCollisionPacketServices.Collision.RegisterSwordByEntityId(attackerEntityId, targetEntityId, swordBase, swordTip, target, 0);
         }
         else
         {

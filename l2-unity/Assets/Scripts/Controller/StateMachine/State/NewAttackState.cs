@@ -62,7 +62,7 @@ public class NewAttackState : AbstractAttackEvents
                     // $"(L2J 500000/pAtkSpd) serverHitMs={attackDurationMs * hitFraction:F1} " +
                     // $"hitFraction={hitFraction:F2} targetId={targetEntityId}");
 
-                SwordCollisionService.Instance.BeginAttack(
+                SwordCollisionPacketServices.Collision.BeginAttack(
                     _stateMachine.Player.Identity.Id,
                     targetEntityId,
                     _stateMachine.Player.transform,

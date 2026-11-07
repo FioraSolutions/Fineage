@@ -42,6 +42,10 @@ public static class CombatPacketServices
 #pragma warning restore CS0618
     }
 
+    public static HitManager Hits => HitPacketServices.Hits;
+
+    public static SwordCollisionService SwordCollision => SwordCollisionPacketServices.Collision;
+
     static T ResolveFromGame<T>() where T : class
     {
         if (App.GameContainer == null)
