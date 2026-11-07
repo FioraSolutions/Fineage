@@ -47,14 +47,12 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<GravityNpc>(builder);
         RegisterIfFound<FNManagerLight>(builder);
         RegisterIfFound<SwordCollisionService>(builder);
-        RegisterIfFound<EffectSkillsmanager>(builder);
         RegisterIfFound<PathFinderController>(builder);
         RegisterIfFound<Geodata>(builder);
         RegisterIfFound<AudioManager>(builder);
         RegisterIfFound<MusicManager>(builder);
         RegisterIfFound<SurfaceDetector>(builder);
         RegisterIfFound<ThirdPersonListener>(builder);
-        RegisterIfFound<SkillsManager>(builder);
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);
@@ -76,7 +74,6 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<DescriptionSkillWindow>(builder);
         RegisterLateBound<SkillListWindow>(builder);
         RegisterIfFound<QuestWindow>(builder);
-        RegisterIfFound<QuestListWindow>(builder);
         RegisterIfFound<ClanWindow>(builder);
         RegisterIfFound<ShowListWindow>(builder);
         RegisterIfFound<SeedInfoWindow>(builder);

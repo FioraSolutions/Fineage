@@ -468,12 +468,9 @@ public class CharSelectWindow : L2Window {
 
     void ApplyBarWidths(float hpRatio, float mpRatio, float expRatio)
     {
-        if (_HPBarBG != null && _HPBar != null)
-            _HPBar.style.width = _HPBarBG.resolvedStyle.width * Mathf.Clamp01(hpRatio);
-        if (_MPBarBG != null && _MPBar != null)
-            _MPBar.style.width = _MPBarBG.resolvedStyle.width * Mathf.Clamp01(mpRatio);
-        if (_ExpBarBG != null && _ExpBar != null)
-            _ExpBar.style.width = _ExpBarBG.resolvedStyle.width * Mathf.Clamp01(expRatio);
+        L2ResourceBarView.SetFill(_HPBar, _HPBarBG, hpRatio);
+        L2ResourceBarView.SetFill(_MPBar, _MPBarBG, mpRatio);
+        L2ResourceBarView.SetFill(_ExpBar, _ExpBarBG, expRatio);
     }
 
     public CharSelectInfoPackage GetSelectChar()

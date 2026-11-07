@@ -97,19 +97,13 @@ public class TargetWindow : L2Window {
                 _nameLabel.style.color = targetData.GetColorName();
             }
             if(_HPBarBG != null && _HPBar != null) {
-
-                float hpRatio = PlayerResourceCaps.BarFillRatio(
-                    targetData.Status.GetHp(),
-                    targetData.Stats.MaxHp);
-
-                float bgWidth = _HPBarBG.resolvedStyle.width;
-                if (float.IsNaN(bgWidth) || bgWidth <= 0)
-                {
-                    bgWidth = _targetWindowMinWidth;
-                }
-
-                float barWidth = bgWidth * hpRatio;
-                _HPBar.style.width = (barWidth > 0) ? barWidth : 0f;
+                L2ResourceBarView.SetFill(
+                    _HPBar,
+                    _HPBarBG,
+                    PlayerResourceCaps.BarFillRatio(
+                        targetData.Status.GetHp(),
+                        targetData.Stats.MaxHp),
+                    _targetWindowMinWidth);
 
                 TooogleHide(targetData.Identity.IsHideHpBar);
             }

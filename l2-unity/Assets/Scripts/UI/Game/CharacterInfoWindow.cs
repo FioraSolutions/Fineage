@@ -263,53 +263,29 @@ public class CharacterInfoWindow : L2PopupWindow
             _weightLabel.text = $"00.00%";
         }
 
-        if (_hpBarBg != null && _hpBar != null)
-        {
-            float bgWidth = 141;
-            double barWidth = bgWidth * PlayerResourceCaps.BarFillRatio(status.GetHp(), stats.MaxHp);
-            _hpBar.style.width = Convert.ToSingle(barWidth);
-        }
-
-        if (_mpBarBg != null && _mpBar != null)
-        {
-            float bgWidth = 141;
-            double barWidth = bgWidth * PlayerResourceCaps.BarFillRatio(status.GetMp(), stats.MaxMp);
-            _mpBar.style.width = Convert.ToSingle(barWidth);
-        }
-
-        if (_cpBarBg != null && _cpBar != null)
-        {
-            float bgWidth = 128;
-            double barWidth = bgWidth * PlayerResourceCaps.BarFillRatio(status.Cp, stats.MaxCp);
-            _cpBar.style.width = Convert.ToSingle(barWidth);
-        }
+        L2ResourceBarView.SetFillFixed(
+            _hpBar,
+            _hpBarBg,
+            PlayerResourceCaps.BarFillRatio(status.GetHp(), stats.MaxHp),
+            141f);
+        L2ResourceBarView.SetFillFixed(
+            _mpBar,
+            _mpBarBg,
+            PlayerResourceCaps.BarFillRatio(status.GetMp(), stats.MaxMp),
+            141f);
+        L2ResourceBarView.SetFillFixed(
+            _cpBar,
+            _cpBarBg,
+            PlayerResourceCaps.BarFillRatio(status.Cp, stats.MaxCp),
+            128f);
 
         if (_expBarBg != null && _expBar != null)
         {
-            float bgWidth = 315;
-            //float bgWidth = _expBarBg.resolvedStyle.width;
-            double expRatio = stats.Exp / stats.MaxExp;
-            double barWidth = bgWidth * expRatio;
-            if (stats.MaxExp == 0)
-            {
-                barWidth = 0;
-            }
-            _expBar.style.width = Convert.ToSingle(barWidth);
+            float expRatio = stats.MaxExp > 0 ? (float)(stats.Exp / stats.MaxExp) : 0f;
+            L2ResourceBarView.SetFillFixed(_expBar, _expBarBg, expRatio, 315f);
         }
 
-        if (_weightBarBg != null && _weightBar != null)
-        {
-            
-            float bgWidth = 128;
-            //float bgWidth = _expBarBg.resolvedStyle.width;
-            double expRatio = (float)stats.CurrWeight / stats.MaxWeight;
-            double barWidth = (double)bgWidth * expRatio;
-
-            if (stats.MaxExp == 0)
-            {
-                barWidth = 0;
-            }
-            _weightBar.style.width = Convert.ToSingle(barWidth);
-        }
+        float weightRatio = stats.MaxWeight > 0 ? (float)stats.CurrWeight / stats.MaxWeight : 0f;
+        L2ResourceBarView.SetFillFixed(_weightBar, _weightBarBg, weightRatio, 128f);
     }
 }
