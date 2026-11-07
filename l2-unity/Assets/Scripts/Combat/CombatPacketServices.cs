@@ -6,11 +6,13 @@ public static class CombatPacketServices
     private static World _gameWorld;
     private static TargetManager _targets;
     private static CombatFacingService _facing;
+    private static StatsConverter _statsConverter;
 
     public static void Bind(
         World gameWorld = null,
         TargetManager targets = null,
-        CombatFacingService facing = null)
+        CombatFacingService facing = null,
+        StatsConverter statsConverter = null)
     {
         if (gameWorld != null)
             _gameWorld = gameWorld;
@@ -18,6 +20,8 @@ public static class CombatPacketServices
             _targets = targets;
         if (facing != null)
             _facing = facing;
+        if (statsConverter != null)
+            _statsConverter = statsConverter;
     }
 
     public static World GameWorld =>
@@ -45,6 +49,9 @@ public static class CombatPacketServices
     public static HitManager Hits => HitPacketServices.Hits;
 
     public static SwordCollisionService SwordCollision => SwordCollisionPacketServices.Collision;
+
+    public static StatsConverter StatsConverter =>
+        _statsConverter != null ? _statsConverter : StatsConverterPacketServices.Converter;
 
     static T ResolveFromGame<T>() where T : class
     {

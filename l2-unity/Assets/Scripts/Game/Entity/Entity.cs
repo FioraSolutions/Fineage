@@ -279,13 +279,13 @@ public class Entity : MonoBehaviour {
 
     public virtual float UpdatePAtkSpeed(int pAtkSpd) {
         _stats.PAtkSpd = pAtkSpd;
-        //float convert =  StatsConverter.Instance.ConvertStat(Stat.PHYS_ATTACK_SPEED, pAtkSpd);
-        return  StatsConverter.Instance.ConvertStat(Stat.SPEED, pAtkSpd);
+        //float convert =  StatsConverterPacketServices.Converter.ConvertStat(Stat.PHYS_ATTACK_SPEED, pAtkSpd);
+        return  StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, pAtkSpd);
     }
 
     public virtual float UpdateMAtkSpeed(int mAtkSpd) {
         _stats.MAtkSpd = mAtkSpd;
-        return StatsConverter.Instance.ConvertStat(Stat.MAGIC_ATTACK_SPEED, mAtkSpd);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.MAGIC_ATTACK_SPEED, mAtkSpd);
     }
 
 
@@ -300,7 +300,7 @@ public class Entity : MonoBehaviour {
 
     public void UpdateNpcWalkSpd(float walkSpeed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, walkSpeed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, walkSpeed);
         float anim_converted = NpcLocomotionAnimRateForMesh("Walk");
         if (_networkAnimationReceive != null) _networkAnimationReceive.SetWalkSpeed(anim_converted);
         Stats.UnitySpeedWalking = scaled;
@@ -309,7 +309,7 @@ public class Entity : MonoBehaviour {
 
     public void UpdateNpcRunningSpd(float runSpeed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, runSpeed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, runSpeed);
         float anim_converted = NpcLocomotionAnimRateForMesh("run");
         if (_networkAnimationReceive != null) _networkAnimationReceive.SetRunSpeed(anim_converted);
         Stats.UnitySpeedRun = scaled;
@@ -344,44 +344,44 @@ public class Entity : MonoBehaviour {
 
 
     public virtual float UpdateSpeed(int speed) {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
         _stats.Speed = speed;
         _stats.ScaledSpeed = scaled;
-        return StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
 
     public virtual float UpdateRunSpeed(float speed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
         _stats.UnitySpeedRun = speed;
         return scaled;
         //_stats.ScaledRunSpeed = scaled;
-        //return StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        //return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
 
     public virtual float UpdateAnimRunSpeed(float speed)
     {
-        return StatsConverter.Instance.ConvertStat(Stat.ANIM_RUN_SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.ANIM_RUN_SPEED, speed);
     }
 
     public virtual float UpdateAnimWalkSpeed(float speed)
     {
-        return StatsConverter.Instance.ConvertStat(Stat.ANIM_WALK_SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.ANIM_WALK_SPEED, speed);
     }
 
 
     public float UpdateAnimRunMagicSpeed(float speed)
     {
-        return StatsConverter.Instance.ConvertStat(Stat.ANIM_MAGIC_RUN_SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.ANIM_MAGIC_RUN_SPEED, speed);
     }
 
     public virtual float UpdateWalkSpeed(float speed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
         _stats.UnitySpeedWalking = scaled;
         return scaled;
         //_stats.ScaledWalkSpeed = scaled;
-       // return StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+       // return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
    
     public virtual bool IsDead() {

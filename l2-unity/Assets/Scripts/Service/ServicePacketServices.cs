@@ -6,11 +6,13 @@ public static class ServicePacketServices
     private static PlayerController _player;
     private static IAnimationManager _animations;
     private static EffectManager _effects;
+    private static StatsConverter _statsConverter;
 
     public static void Bind(
         PlayerController player = null,
         IAnimationManager animations = null,
-        EffectManager effects = null)
+        EffectManager effects = null,
+        StatsConverter statsConverter = null)
     {
         if (player != null)
             _player = player;
@@ -18,6 +20,8 @@ public static class ServicePacketServices
             _animations = animations;
         if (effects != null)
             _effects = effects;
+        if (statsConverter != null)
+            _statsConverter = statsConverter;
     }
 
     public static PlayerController Player =>
@@ -28,4 +32,7 @@ public static class ServicePacketServices
 
     public static EffectManager Effects =>
         _effects != null ? _effects : ControllerPacketServices.Effects;
+
+    public static StatsConverter StatsConverter =>
+        _statsConverter != null ? _statsConverter : StatsConverterPacketServices.Converter;
 }

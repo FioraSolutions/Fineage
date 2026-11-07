@@ -95,8 +95,8 @@ public sealed class PlayerSpawner
         player.UpdateRunSpeed(run);
         player.UpdateWalkSpeed(walk);
         // Direct apply — Guarantees PlayerController has speeds even if anim path threw.
-        controller.UpdateRunSpeed(StatsConverter.Instance.ConvertStat(Stat.SPEED, run));
-        controller.UpdateWalkSpeed(StatsConverter.Instance.ConvertStat(Stat.SPEED, walk));
+        controller.UpdateRunSpeed(StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, run));
+        controller.UpdateWalkSpeed(StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, walk));
         player.UpdatePAtkSpeedPlayer((int)statsIntr.BasePAtkSpeed);
         player.UpdateMAtkSpeed((int)statsIntr.MAtkSpd);
 
