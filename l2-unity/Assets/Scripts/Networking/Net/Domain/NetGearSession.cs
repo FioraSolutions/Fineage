@@ -209,6 +209,7 @@ public static class NetGearSession
         _lastBlock = reason;
         UnityEngine.Debug.Log("[Net] inventory apply blocked by: " + reason);
     }
+
     static ItemListDto ToItemListDto(NetItemEntry[] rows)
     {
         var bag = new Dictionary<int, ItemInstance>();
