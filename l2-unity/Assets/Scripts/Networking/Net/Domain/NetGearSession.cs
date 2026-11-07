@@ -39,7 +39,7 @@ public static class NetGearSession
         IZoneTransport transport = ZoneCommands.Transport;
         if (transport != null && transport.PlayerInfo.Identity != null &&
             transport.PlayerInfo.Identity.Id == user.ObjectId)
-            NetGearMap.OverlayUserInfo(transport.PlayerInfo, user);
+            OverlayUserInfo(transport.PlayerInfo, user);
 
         PlayerEntity player = PlayerEntity.Instance;
         if (player != null && player.Identity != null && player.Identity.Id == user.ObjectId)
@@ -153,7 +153,7 @@ public static class NetGearSession
             Stats = stats,
             Status = status
         };
-        NetGearMap.OverlayUserInfo(info, user);
+        OverlayUserInfo(info, user);
         player.Running = appearance.Running;
         if (stats.RunRealSpeed > 0.001f)
             player.UpdateRunSpeed(stats.RunRealSpeed);
@@ -209,6 +209,85 @@ public static class NetGearSession
         _lastBlock = reason;
         UnityEngine.Debug.Log("[Net] inventory apply blocked by: " + reason);
     }
+
+    /// <summary>
+    /// Copies UserInfo class, speeds, paperdoll, vitals, and template stats onto a spawn record.
+    /// Position stays on the spawn packet.
+    /// </summary>
+    static void OverlayUserInfo(PlayerInfoInterlude info, NetUserInfo user)
+    {
+        if (info.Identity == null || info.Appearance == null || info.Stats == null)
+            return;
+
+        info.Identity.PlayerClass = user.ClassId;
+        info.Appearance.Race = (int)MapClassId.GetCharacterRace(user.ClassId);
+        bool mage = CharacterClassParser.IsMage((CharacterClass)user.ClassId);
+        info.Appearance.BaseClass = mage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
+        if (!string.IsNullOrEmpty(user.Name))
+            info.Identity.Name = user.Name;
+        if (user.RunSpeed > 0.001f)
+        {
+            int run = Mathf.RoundToInt(user.RunSpeed);
+            info.Stats.BaseRunSpeed = run;
+            info.Stats.RunRealSpeed = user.RunSpeed;
+            info.Stats.Speed = run;
+        }
+
+        if (user.WalkSpeed > 0.001f)
+        {
+            info.Stats.BaseWalkingSpeed = Mathf.RoundToInt(user.WalkSpeed);
+            info.Stats.WalkRealSpeed = user.WalkSpeed;
+        }
+
+        info.Appearance.Running = user.Running;
+        info.Identity.IsRunning = user.Running;
+        if (user.HasClan)
+            info.Identity.ClanId = user.ClanId;
+        if (user.HasPaperdoll)
+            NetEntityMap.ApplyUserPaperdoll(info.Appearance, user.Paperdoll);
+
+        if (user.HasVitals)
+        {
+            if (user.Level > 0)
+                info.Stats.Level = user.Level;
+            if (user.MaxHp > 0)
+                info.Stats.MaxHp = user.MaxHp;
+            if (user.MaxMp > 0)
+                info.Stats.MaxMp = user.MaxMp;
+            if (user.MaxCp > 0)
+                info.Stats.MaxCp = user.MaxCp;
+            info.Stats.Exp = user.Exp;
+            info.Stats.Sp = user.Sp;
+            if (info.Status != null)
+            {
+                if (user.MaxHp > 0 || user.CurHp > 0)
+                    info.Status.SetHp(user.CurHp);
+                if (user.MaxMp > 0 || user.CurMp > 0)
+                    info.Status.SetMp(user.CurMp);
+                info.Status.Cp = user.CurCp;
+                PlayerResourceCaps.EnsureMaxAtLeastCurrent(info.Stats, info.Status);
+            }
+        }
+
+        if (user.HasStats)
+        {
+            info.Stats.Str = user.Str;
+            info.Stats.Dex = user.Dex;
+            info.Stats.Con = user.Con;
+            info.Stats.Int = user.Int;
+            info.Stats.Wit = user.Wit;
+            info.Stats.Men = user.Men;
+            info.Stats.PAtk = user.PAtk;
+            info.Stats.MAtk = user.MAtk;
+            info.Stats.PDef = user.PDef;
+            info.Stats.MDef = user.MDef;
+            info.Stats.PAtkSpd = user.PAtkSpd;
+            info.Stats.MAtkSpd = user.MAtkSpd;
+            info.Stats.PAccuracy = user.Accuracy;
+            info.Stats.PCritical = user.CritRate;
+        }
+    }
+
 
     static ItemListDto ToItemListDto(NetItemEntry[] rows)
     {
