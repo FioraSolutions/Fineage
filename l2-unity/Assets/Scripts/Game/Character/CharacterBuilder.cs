@@ -4,6 +4,8 @@ using VContainer;
 public class CharacterBuilder : MonoBehaviour
 {
     private static CharacterBuilder _instance;
+
+    [System.Obsolete("Use [Inject] CharacterBuilder or CharacterPacketServices.Builder instead")]
     public static CharacterBuilder Instance { get { return _instance; } }
 
     [Inject] private ModelTable _models;
@@ -16,6 +18,7 @@ public class CharacterBuilder : MonoBehaviour
     void Awake() {
         if (_instance == null) {
             _instance = this;
+            CharacterPacketServices.Bind(builder: this);
         } else if (_instance != this) {
             Destroy(this);
         }

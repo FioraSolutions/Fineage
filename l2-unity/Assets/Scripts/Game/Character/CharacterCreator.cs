@@ -25,7 +25,7 @@ public class CharacterCreator : MonoBehaviour
 
     private CharacterBuilder Builder
     {
-        get { return _characterBuilder != null ? _characterBuilder : CharacterBuilder.Instance; }
+        get { return _characterBuilder != null ? _characterBuilder : CharacterPacketServices.Builder; }
     }
 
     private List<Logongrp> LogonGrps
@@ -65,7 +65,7 @@ public class CharacterCreator : MonoBehaviour
 
     private void WireCharacterPacketServices()
     {
-        CharacterPacketServices.Bind(animations: _animations);
+        CharacterPacketServices.Bind(animations: _animations, builder: _characterBuilder);
     }
 
     private void Update() {
