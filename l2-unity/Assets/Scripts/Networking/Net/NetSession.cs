@@ -26,9 +26,9 @@ public sealed class NetSession : MonoBehaviour
     const float MainThreadQueueDepthLogCooldownSeconds = 5f;
 
     float _nextMainQueueDepthLogTime;
-    NetTransport _lobby;
     NetTransport _zone;
     NetCommandSender _commandSender;
+    NetLobbyFlow _lobbyFlow;
     uint _seq = 1;
     IWorldDomainSink _sink;
     CombatAttackApplyService _combatAttack;
@@ -43,13 +43,10 @@ public sealed class NetSession : MonoBehaviour
     PartyApplyService _party;
     TradeApplyService _trade;
     TradeRequestApplyService _tradeRequest;
-    string _account;
-    HandoffMsg _handoff;
-    bool _helloLobby;
     bool _helloZone;
 
-    public bool HasHandoff => _handoff != null;
-    public HandoffMsg LastHandoff => _handoff;
+    public bool HasHandoff => _lobbyFlow != null && _lobbyFlow.HasHandoff;
+    public HandoffMsg LastHandoff => _lobbyFlow?.LastHandoff;
 
     /// <summary>
     /// Stable lobby character id of the selected character, captured from the handoff in
@@ -99,6 +96,26 @@ public sealed class NetSession : MonoBehaviour
 
         Instance = this;
         _commandSender = new NetCommandSender(() => _zone, NextSeq);
+        _lobbyFlow = new NetLobbyFlow(
+            NextSeq,
+            Post,
+            ResetLobbySessionState,
+            characterId => CharacterId = characterId,
+            () => SessionObjectId = 0,
+            ConnectZoneForHandoffAsync,
+            result => AuthResultReceived?.Invoke(result),
+            roster => RosterReceived?.Invoke(roster),
+            deleted => DeleteResultReceived?.Invoke(deleted),
+            handoff => HandoffReceived?.Invoke(handoff));
+    }
+
+    void ResetLobbySessionState()
+    {
+        CharacterId = 0;
+        SessionObjectId = 0;
+        NetGearSession.Reset();
+        NetShortCutReceiver.Reset();
+        NetAutoShot.Reset();
     }
 
     void Update()
@@ -156,152 +173,49 @@ public sealed class NetSession : MonoBehaviour
             BindDomainSink(domain);
     }
 
-    public async Task BeginLobby(string account, string password, bool registerIfMissing = false)
-    {
-        _account = account;
-        CharacterId = 0;
-        SessionObjectId = 0;
-        NetGearSession.Reset();
-        NetShortCutReceiver.Reset();
-        NetAutoShot.Reset();
-        try
-        {
-            _lobby?.Dispose();
-            _lobby = new NetTransport(OnLobbyPacket, reason => Post(() => Debug.Log("[Net] lobby " + reason)));
-            await _lobby.ConnectAsync(FineageWireConfig.LoginHost, FineageWireConfig.LoginPort);
-            await SendHelloAsync(_lobby, "unity-net");
-            await WaitUntil(() => _helloLobby, 5f);
-            await _lobby.SendAsync(
-                NetOpcode.Auth,
-                NetCodec.EncodeAuth(new AuthMsg
-                {
-                    Account = account,
-                    Password = password,
-                    RegisterIfMissing = registerIfMissing
-                }),
-                NextSeq());
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError("[Net] BeginLobby failed: " + ex.Message);
-        }
-    }
+    public Task BeginLobby(string account, string password, bool registerIfMissing = false) =>
+        _lobbyFlow.BeginLobby(account, password, registerIfMissing);
 
-    public async Task RequestRoster()
-    {
-        if (_lobby == null || !_lobby.Connected)
-            return;
-        await _lobby.SendAsync(NetOpcode.ListCharacters, NetCodec.EncodeListCharacters(new ListCharactersMsg()), NextSeq());
-    }
+    public Task RequestRoster() => _lobbyFlow.RequestRoster();
 
-    public async Task SelectCharacter(int characterId, string name = "", int slot = -1)
-    {
-        if (_lobby == null || !_lobby.Connected)
-            return;
-        await _lobby.SendAsync(
-            NetOpcode.SelectCharacter,
-            NetCodec.EncodeSelectCharacter(new SelectCharacterMsg
-            {
-                CharacterId = characterId,
-                Name = name ?? "",
-                Slot = slot
-            }),
-            NextSeq());
-    }
+    public Task SelectCharacter(int characterId, string name = "", int slot = -1) =>
+        _lobbyFlow.SelectCharacter(characterId, name, slot);
 
-    public async Task CreateCharacter(
+    public Task CreateCharacter(
         string name,
         int classId,
         int race,
         int sex,
         int hairStyle = 0,
         int hairColor = 0,
-        int face = 0)
-    {
-        if (_lobby == null || !_lobby.Connected)
-        {
-            Debug.LogWarning("[Net] CreateCharacter: lobby not connected");
-            return;
-        }
-
-        await _lobby.SendAsync(
-            NetOpcode.CreateCharacter,
-            NetCodec.EncodeCreateCharacter(new CreateCharacterMsg
-            {
-                Name = name ?? "",
-                ClassId = classId,
-                Race = race,
-                Sex = sex,
-                HairStyle = hairStyle,
-                HairColor = hairColor,
-                Face = face
-            }),
-            NextSeq());
-    }
+        int face = 0) =>
+        _lobbyFlow.CreateCharacter(name, classId, race, sex, hairStyle, hairColor, face);
 
     /// <summary>Deletes a character by id (slot = -1) or by roster slot (id = 0).</summary>
-    public async Task DeleteCharacter(int characterId, int slot = -1)
-    {
-        if (_lobby == null || !_lobby.Connected)
-        {
-            Debug.LogWarning("[Net] DeleteCharacter: lobby not connected");
-            return;
-        }
-
-        await _lobby.SendAsync(
-            NetOpcode.DeleteCharacter,
-            NetCodec.EncodeDeleteCharacter(new DeleteCharacterMsg
-            {
-                CharacterId = characterId,
-                Slot = slot
-            }),
-            NextSeq());
-    }
+    public Task DeleteCharacter(int characterId, int slot = -1) =>
+        _lobbyFlow.DeleteCharacter(characterId, slot);
 
     /// <summary>Clears a pending delete timer. Same identifying convention as <see cref="DeleteCharacter"/>.</summary>
-    public async Task RestoreCharacter(int characterId, int slot = -1)
-    {
-        if (_lobby == null || !_lobby.Connected)
-        {
-            Debug.LogWarning("[Net] RestoreCharacter: lobby not connected");
-            return;
-        }
+    public Task RestoreCharacter(int characterId, int slot = -1) =>
+        _lobbyFlow.RestoreCharacter(characterId, slot);
 
-        await _lobby.SendAsync(
-            NetOpcode.RestoreCharacter,
-            NetCodec.EncodeRestoreCharacter(new RestoreCharacterMsg
-            {
-                CharacterId = characterId,
-                Slot = slot
-            }),
+    public Task EnterZoneWithHandoff(HandoffMsg handoff) =>
+        _lobbyFlow.EnterZoneWithHandoff(handoff);
+
+    async Task ConnectZoneForHandoffAsync(HandoffMsg handoff)
+    {
+        _zone?.Dispose();
+        _helloZone = false;
+        _zone = new NetTransport(OnZonePacket, reason => Post(() => Debug.Log("[Net] zone " + reason)));
+        string host = string.IsNullOrWhiteSpace(handoff.ZoneHost) ? FineageWireConfig.ZoneHost : handoff.ZoneHost;
+        int port = handoff.ZonePort > 0 ? handoff.ZonePort : FineageWireConfig.ZonePort;
+        await _zone.ConnectAsync(host, port);
+        await SendZoneHelloAsync(_zone);
+        await WaitUntil(() => _helloZone, 5f);
+        await _zone.SendAsync(
+            NetOpcode.ZoneAuth,
+            NetCodec.EncodeZoneAuth(new ZoneAuthMsg { Account = handoff.Account, Token = handoff.Token }),
             NextSeq());
-    }
-
-    public async Task EnterZoneWithHandoff(HandoffMsg handoff)
-    {
-        _handoff = handoff;
-        CharacterId = handoff != null ? handoff.CharacterId : 0;
-        SessionObjectId = 0;
-        try
-        {
-            _lobby?.Dispose();
-            _lobby = null;
-            _zone?.Dispose();
-            _zone = new NetTransport(OnZonePacket, reason => Post(() => Debug.Log("[Net] zone " + reason)));
-            string host = string.IsNullOrWhiteSpace(handoff.ZoneHost) ? FineageWireConfig.ZoneHost : handoff.ZoneHost;
-            int port = handoff.ZonePort > 0 ? handoff.ZonePort : FineageWireConfig.ZonePort;
-            await _zone.ConnectAsync(host, port);
-            await SendHelloAsync(_zone, "unity-net-zone");
-            await WaitUntil(() => _helloZone, 5f);
-            await _zone.SendAsync(
-                NetOpcode.ZoneAuth,
-                NetCodec.EncodeZoneAuth(new ZoneAuthMsg { Account = handoff.Account, Token = handoff.Token }),
-                NextSeq());
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError("[Net] EnterZone failed: " + ex.Message);
-        }
     }
 
     public Task SendMove(int destX, int destY, int destZ) =>
@@ -512,25 +426,18 @@ public sealed class NetSession : MonoBehaviour
     public Task SendTargetCancel() =>
         _commandSender.SendTargetCancelAsync();
 
-    async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
+    async Task SendZoneHelloAsync(NetTransport transport)
     {
         await transport.SendAsync(
             NetOpcode.Hello,
             NetCodec.EncodeHello(new HelloMsg
             {
-                ClientName = clientName,
+                ClientName = "unity-net-zone",
                 FeatureFlags = ProtocolCapabilities.FeatureSession
                     | ProtocolCapabilities.FeatureLobby
                     | ProtocolCapabilities.FeatureWorldPresence
             }),
             NextSeq());
-    }
-
-    void OnLobbyPacket(PacketEnvelope envelope)
-    {
-        if (envelope.Opcode == NetOpcode.HelloAck)
-            _helloLobby = true;
-        Post(() => HandleLobby(envelope));
     }
 
     void OnZonePacket(PacketEnvelope envelope)
@@ -551,90 +458,6 @@ public sealed class NetSession : MonoBehaviour
         || opcode == NetOpcode.DropItem
         || opcode == NetOpcode.Revive
         || opcode == NetOpcode.TeleportToLocation;
-
-    void HandleLobby(PacketEnvelope envelope)
-    {
-        switch (envelope.Opcode)
-        {
-            case NetOpcode.HelloAck:
-                break;
-            case NetOpcode.AuthResult:
-            {
-                var result = NetCodec.DecodeAuthResult(envelope.Payload);
-                AuthResultReceived?.Invoke(result);
-                if (result.Ok)
-                    _ = RequestRoster();
-                break;
-            }
-            case NetOpcode.CharacterRoster:
-            {
-                var roster = NetCodec.DecodeCharacterRoster(envelope.Payload);
-                ApplyRosterUi(roster);
-                RosterReceived?.Invoke(roster);
-                break;
-            }
-            case NetOpcode.CreateResult:
-            {
-                var created = NetCodec.DecodeCreateResult(envelope.Payload);
-                if (!created.Ok)
-                {
-                    Debug.LogWarning($"[Net] create failed {created.Code}: {created.Message}");
-                    if (CharCreationWindow.Instance != null)
-                        CharCreationWindow.Instance.SetlabelError(
-                            LobbyCharacterText.ErrorMessage(created.Code, created.Message));
-                    break;
-                }
-
-                CharacterSummaryNet summary = created.Character;
-                int newId = summary != null ? summary.CharacterId : 0;
-                Debug.Log("[Net] character created id=" + newId);
-                if (CharCreationWindow.Instance != null)
-                    CharCreationWindow.Instance.HideWindow();
-                _ = RequestRoster();
-                break;
-            }
-            case NetOpcode.DeleteResult:
-            {
-                var deleted = NetCodec.DecodeDeleteResult(envelope.Payload);
-                if (!deleted.Ok)
-                    Debug.LogWarning($"[Net] delete/restore failed {deleted.Code}: {deleted.Message}");
-                DeleteResultReceived?.Invoke(deleted);
-                // Success also carries a fresh roster, so the UI redraws from server truth.
-                break;
-            }
-            case NetOpcode.Handoff:
-            {
-                var handoff = NetCodec.DecodeHandoff(envelope.Payload);
-                _handoff = handoff;
-                HandoffReceived?.Invoke(handoff);
-                _ = EnterZoneWithHandoff(handoff);
-                break;
-            }
-            case NetOpcode.Reject:
-            {
-                var reject = NetCodec.DecodeReject(envelope.Payload);
-                Debug.LogWarning($"[Net] lobby reject {reject.Code}: {reject.Message}");
-                break;
-            }
-        }
-    }
-
-    void ApplyRosterUi(CharacterRosterMsg roster)
-    {
-        LobbyCharacter[] characters = LobbyCharacterMap.FromNetRoster(roster);
-        if (CharSelectWindow.Instance != null)
-            CharSelectWindow.Instance.SetLobbyCharacters(characters);
-        if (CharacterSelector.Instance != null)
-            CharacterSelector.Instance.SetLobbyCharacters(characters, 0);
-        if (CharSelectWindow.Instance != null)
-            CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, 0));
-        if (LoginWindow.Instance != null)
-            LoginWindow.Instance.ShowErrorText("");
-        GameManager manager = NetworkingPacketServices.Manager ?? GamePacketServices.Manager;
-        if (manager != null)
-            manager.OnAuthAllowed();
-        Debug.Log("[Net] roster count=" + characters.Length);
-    }
 
     void HandleZone(PacketEnvelope envelope)
     {
@@ -1887,7 +1710,7 @@ public sealed class NetSession : MonoBehaviour
 
     void OnDestroy()
     {
-        _lobby?.Dispose();
+        _lobbyFlow?.Dispose();
         _zone?.Dispose();
         if (Instance == this)
             Instance = null;
