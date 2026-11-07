@@ -11,7 +11,7 @@
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
 - **Asmdef:** `Fineage.Domain` (events); `Fineage.Networking` (Net helpers + `NetTransport` / `NetCommandSender`); `Fineage.Game` (item/action/entity enums + drop/effect deco constants); `Fineage.Controller` (PlayerState/Intention/Event/EntityActionKind + move gait); `Fineage.UI` (ChatType/ChatCommand/PlayerCommand + L2TargetRenderType). `Fineage.Di` still stub — gameplay MonoBehaviours remain `Assembly-CSharp`.
 - Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`.
-- Epic **#131** residual: more asmdef slices (remaining Game/UI/Controller MonoBehaviours when cycle-safe + Di), B4 Session/Dispatch type split + shared outbound pump, EventBus/MessagePipe depth. Not TLS / Phase D / #129.
+- Epic **#131** residual: remaining MonoBehaviour moves (need dependency graph / no Assembly-CSharp refs) + `Fineage.Di`; B4 Session/Dispatch type split + shared outbound pump; EventBus/MessagePipe depth. Not TLS / Phase D / #129.
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
