@@ -18,6 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check out Backend (Net contract source of truth)
+        uses: actions/checkout@v4
+        with:
+          repository: FioraSolutions/Fineage-Backend
+          path: Fineage-Backend
+          ref: dev
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check IncomingPacketActions stays deleted (#142)
         run: python3 scripts/check-frozen-incoming-packet-actions.py
 
@@ -32,9 +40,10 @@ jobs:
         run: python3 scripts/check-client-asmdef-layout.py
 
       - name: Check Net contract is in sync with the backend
-        # Only runs when a sibling Fineage-Backend checkout exists; a client-only
-        # CI checkout passes with a notice. See scripts/sync-net-contract.py.
-        run: python3 scripts/sync-net-contract.py --check
+        run: |
+          FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check \
+            --backend "$GITHUB_WORKSPACE/Fineage-Backend/src/Fineage.Net.Contract" \
+            --ref ''
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4

@@ -19,8 +19,10 @@ in two ways:
   * `--write`   copy the backend sources over the client copies
 
 Both modes need a sibling `Fineage-Backend` checkout (the normal developer
-layout). When it is absent `--check` passes with a notice rather than failing:
-a client-only checkout must not go red just because the neighbour is missing.
+layout). When it is absent, local `--check` passes with a notice rather than
+failing (a client-only tree must not go red without Backend). Set env
+``FINEAGE_REQUIRE_CONTRACT_SYNC`` to ``1``/``true``/``TRUE`` (CI does this) to
+fail instead when the backend contract path is missing.
 
 `.meta` files are never touched -- they hold the Unity asset GUIDs, and
 regenerating them would break every serialized reference to these types.
@@ -29,6 +31,7 @@ regenerating them would break every serialized reference to these types.
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -55,6 +58,12 @@ FILES = (
 
 def backend_root(explicit: str | None) -> Path:
     return Path(explicit).resolve() if explicit else BACKEND
+
+
+def require_contract_sync() -> bool:
+    """True when CI (or a strict local run) must not soft-skip a missing backend."""
+    value = os.environ.get("FINEAGE_REQUIRE_CONTRACT_SYNC", "")
+    return value in ("1", "true", "TRUE")
 
 
 def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
@@ -150,7 +159,15 @@ def main() -> int:
     ref = args.ref or None
 
     if not source.is_dir():
-        # CI checks out one repo; a missing neighbour is not a client failure.
+        if require_contract_sync():
+            print(
+                "error: backend contract not found "
+                f"(required sync check): {source}\n"
+                "Set --backend to Fineage-Backend/src/Fineage.Net.Contract "
+                "or checkout the Backend repo.",
+                file=sys.stderr,
+            )
+            return 1
         print(f"note: backend contract not found at {source}; skipping sync check")
         return 0
 
