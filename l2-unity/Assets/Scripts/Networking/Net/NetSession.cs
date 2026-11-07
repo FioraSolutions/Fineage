@@ -313,16 +313,11 @@ public sealed class NetSession : MonoBehaviour
     public Task SendAttackRequest(int targetObjectId) =>
         _commandSender.SendAttackRequestAsync(targetObjectId);
 
-    public async void SendPickupRequest(int groundObjectId)
+    public Task SendPickupRequest(int groundObjectId)
     {
-        if (_zone == null || !_zone.Connected)
-            return;
-        if (groundObjectId > 0)
+        if (_zone != null && _zone.Connected && groundObjectId > 0)
             _pendingPickupObjectId = groundObjectId;
-        await _zone.SendAsync(
-            NetOpcode.PickupRequest,
-            NetCodec.EncodePickupRequest(new PickupRequestNetMsg { GroundObjectId = groundObjectId }),
-            NextSeq());
+        return _commandSender.SendPickupRequestAsync(groundObjectId);
     }
 
     /// <summary>
@@ -338,22 +333,8 @@ public sealed class NetSession : MonoBehaviour
         return true;
     }
 
-    public async void SendDropItemRequest(int objectId, int count, int x, int y, int z)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.DropItemRequest,
-            NetCodec.EncodeDropItemRequest(new DropItemRequestNetMsg
-            {
-                ObjectId = objectId,
-                Count = count,
-                X = x,
-                Y = y,
-                Z = z
-            }),
-            NextSeq());
-    }
+    public Task SendDropItemRequest(int objectId, int count, int x, int y, int z) =>
+        _commandSender.SendDropItemRequestAsync(objectId, count, x, y, z);
 
     /// <summary>Mobius <c>RequestDestroyItem</c>: delete the bag slot, no ground spawn.</summary>
     public async void SendDestroyItemRequest(int objectId, int count)
@@ -366,15 +347,8 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void SendUseItem(int objectId)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.UseItem,
-            NetCodec.EncodeUseItem(new UseItemNetMsg { ObjectId = objectId }),
-            NextSeq());
-    }
+    public Task SendUseItem(int objectId) =>
+        _commandSender.SendUseItemAsync(objectId);
 
     /// <summary>
     /// Mobius <c>RequestAutoSoulShot</c>: right-clicking a shot on the hotbar turns automatic use on/off.
@@ -390,15 +364,8 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void SendUnequipItem(int paperdollSlot)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.UnequipItem,
-            NetCodec.EncodeUnequipItem(new UnequipItemNetMsg { PaperdollSlot = paperdollSlot }),
-            NextSeq());
-    }
+    public Task SendUnequipItem(int paperdollSlot) =>
+        _commandSender.SendUnequipItemAsync(paperdollSlot);
 
     /// <summary>
     /// Registers one hotbar slot. <paramref name="worldSlot"/> is the client world slot
@@ -591,36 +558,11 @@ public sealed class NetSession : MonoBehaviour
         }
     }
 
-    public async void SendRequestBuyItem(int npcObjectId, int listId, NetIdCount[] items)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        ShopCountNet[] rows = MapShopCounts(items);
-        await _zone.SendAsync(
-            NetOpcode.RequestBuyItem,
-            NetCodec.EncodeRequestBuyItem(new RequestBuyItemNetMsg
-            {
-                NpcObjectId = npcObjectId,
-                ListId = listId,
-                Items = rows
-            }),
-            NextSeq());
-    }
+    public Task SendRequestBuyItem(int npcObjectId, int listId, NetIdCount[] items) =>
+        _commandSender.SendRequestBuyItemAsync(npcObjectId, listId, items);
 
-    public async void SendRequestSellItem(int npcObjectId, NetIdCount[] items)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        ShopObjectCountNet[] rows = MapShopObjectCounts(items);
-        await _zone.SendAsync(
-            NetOpcode.RequestSellItem,
-            NetCodec.EncodeRequestSellItem(new RequestSellItemNetMsg
-            {
-                NpcObjectId = npcObjectId,
-                Items = rows
-            }),
-            NextSeq());
-    }
+    public Task SendRequestSellItem(int npcObjectId, NetIdCount[] items) =>
+        _commandSender.SendRequestSellItemAsync(npcObjectId, items);
 
     public async void SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount)
     {
@@ -638,33 +580,11 @@ public sealed class NetSession : MonoBehaviour
             NextSeq());
     }
 
-    public async void SendWarehouseDeposit(int npcObjectId, NetIdCount[] lines)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.WarehouseDepositRequest,
-            NetCodec.EncodeWarehouseDepositRequest(new WarehouseDepositRequestNetMsg
-            {
-                NpcObjectId = npcObjectId,
-                Lines = MapShopObjectCounts(lines)
-            }),
-            NextSeq());
-    }
+    public Task SendWarehouseDeposit(int npcObjectId, NetIdCount[] lines) =>
+        _commandSender.SendWarehouseDepositAsync(npcObjectId, lines);
 
-    public async void SendWarehouseWithdraw(int npcObjectId, NetIdCount[] lines)
-    {
-        if (_zone == null || !_zone.Connected)
-            return;
-        await _zone.SendAsync(
-            NetOpcode.WarehouseWithdrawRequest,
-            NetCodec.EncodeWarehouseWithdrawRequest(new WarehouseWithdrawRequestNetMsg
-            {
-                NpcObjectId = npcObjectId,
-                Lines = MapShopObjectCounts(lines)
-            }),
-            NextSeq());
-    }
+    public Task SendWarehouseWithdraw(int npcObjectId, NetIdCount[] lines) =>
+        _commandSender.SendWarehouseWithdrawAsync(npcObjectId, lines);
 
     public async void SendRequestQuestList()
     {
@@ -850,26 +770,6 @@ public sealed class NetSession : MonoBehaviour
         if (_zone == null || !_zone.Connected)
             return;
         await _zone.SendAsync(NetOpcode.TargetCancelRequest, System.Array.Empty<byte>(), NextSeq());
-    }
-
-    static ShopCountNet[] MapShopCounts(NetIdCount[] items)
-    {
-        if (items == null || items.Length == 0)
-            return System.Array.Empty<ShopCountNet>();
-        var rows = new ShopCountNet[items.Length];
-        for (int i = 0; i < items.Length; i++)
-            rows[i] = new ShopCountNet { ItemId = items[i].Id, Count = items[i].Count };
-        return rows;
-    }
-
-    static ShopObjectCountNet[] MapShopObjectCounts(NetIdCount[] items)
-    {
-        if (items == null || items.Length == 0)
-            return System.Array.Empty<ShopObjectCountNet>();
-        var rows = new ShopObjectCountNet[items.Length];
-        for (int i = 0; i < items.Length; i++)
-            rows[i] = new ShopObjectCountNet { ObjectId = items[i].Id, Count = items[i].Count };
-        return rows;
     }
 
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
