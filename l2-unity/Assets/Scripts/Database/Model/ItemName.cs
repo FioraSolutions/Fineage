@@ -40,7 +40,7 @@ public class ItemName
             if (array == null || array.Length == 0)
                 continue;
             for (int i = 0; i < array.Length; i++)
-                _setNameScratch.Add(ItemNameTable.Instance.GetItemName(array[i]));
+                _setNameScratch.Add(TablePacketServices.ItemNames.GetItemName(array[i]));
         }
 
         return _setNameScratch.ToArray();

@@ -70,7 +70,7 @@ public class SystemMessage
     {
         try
         {
-            return ItemNameTable.Instance.GetItemName(itemId).Name;
+            return TablePacketServices.ItemNames.GetItemName(itemId).Name;
         }
         catch (Exception)
         {

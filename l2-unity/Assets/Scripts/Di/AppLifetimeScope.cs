@@ -27,6 +27,7 @@ public sealed class AppLifetimeScope : LifetimeScope
             AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);
             LogongrpTable.Bind(container.Resolve<LogongrpTable>());
+            ItemNameTable.Bind(container.Resolve<ItemNameTable>());
             SkillgrpTable.Bind(container.Resolve<SkillgrpTable>());
             ZoneCommands.Bind(container.Resolve<IZoneTransport>());
             GameManager manager = container.Resolve<GameManager>();
@@ -43,7 +44,9 @@ public sealed class AppLifetimeScope : LifetimeScope
     private static void RegisterDatTables(IContainerBuilder builder)
     {
         builder.RegisterInstance(TablePacketServices.Items);
+#pragma warning disable CS0618
         builder.RegisterInstance(ItemNameTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(ItemStatDataTable.Instance);
         builder.RegisterInstance(ArmorgrpTable.Instance);
         builder.RegisterInstance(EtcItemgrpTable.Instance);

@@ -79,9 +79,7 @@ public sealed class ItemDropGrpCatalog
 
     public bool IsHerb(int itemId)
     {
-        ItemName name = ItemNameTable.Instance != null
-            ? ItemNameTable.Instance.GetItemName(itemId)
-            : null;
+        ItemName name = TablePacketServices.ItemNames.GetItemName(itemId);
         if (name != null && !string.IsNullOrEmpty(name.Name) &&
             name.Name.IndexOf("Herb", System.StringComparison.OrdinalIgnoreCase) >= 0)
             return true;

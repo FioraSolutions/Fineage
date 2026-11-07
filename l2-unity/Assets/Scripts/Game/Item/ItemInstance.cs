@@ -273,7 +273,7 @@ public class ItemInstance : AbstractServerItem
             case ItemCategory.Item:
             case ItemCategory.Adena:
             case ItemCategory.RequiredItem:
-                return ItemNameTable.Instance.GetItemName(_itemId).Name;
+                return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
 
             default:
                 return "";
@@ -284,13 +284,13 @@ public class ItemInstance : AbstractServerItem
     {
         if (Category == ItemCategory.Weapon)
         {
-            Weapongrp weapon = WeapongrpTable.Instance.GetWeapon(_itemId);
+            Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(_itemId);
             return GetGradeImage(weapon.Grade);
         }
         else if (Category == ItemCategory.ShieldArmor | Category == ItemCategory.Jewel)
         {
-            Armorgrp armor = ArmorgrpTable.Instance.GetArmor(_itemId);
-            Weapongrp weapon = WeapongrpTable.Instance.GetWeapon(_itemId);
+            Armorgrp armor = TablePacketServices.ArmorGrps.GetArmor(_itemId);
+            Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(_itemId);
             if(armor != null) return GetGradeImage(armor.Grade);
             if(weapon != null) return GetGradeImage(weapon.Grade);
         }
