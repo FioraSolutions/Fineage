@@ -14,6 +14,7 @@ public class LicenseWindow : L2Window
         _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
 
     private static LicenseWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.LicenseWindow instead")]
     public static LicenseWindow Instance { get { return _instance; } }
 
     private void Awake() {

@@ -30,14 +30,17 @@ public static class LoginPacketServices
         }
     }
 
+    public static L2LoginUI Ui =>
+        _login != null ? _login.Ui : LegacyL2LoginUiInstance();
+
     public static LoginWindow LoginWindow =>
         _login != null ? _login.LoginWindow : NetworkingPacketServices.LoginWindow;
 
     public static LicenseWindow LicenseWindow =>
-        _login != null ? _login.License : LicenseWindow.Instance;
+        _login != null ? _login.License : LegacyLicenseWindowInstance();
 
     public static ServerSelectWindow ServerSelect =>
-        _login != null ? _login.Servers : ServerSelectWindow.Instance;
+        _login != null ? _login.Servers : LegacyServerSelectWindowInstance();
 
     public static CharSelectWindow CharSelect =>
         _login != null ? _login.CharSelect : LegacyCharSelectWindowInstance();
@@ -55,6 +58,12 @@ public static class LoginPacketServices
         _login != null ? _login.Camera : LoginCameraManager.Instance;
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    static L2LoginUI LegacyL2LoginUiInstance() => L2LoginUI.Instance;
+
+    static LicenseWindow LegacyLicenseWindowInstance() => LicenseWindow.Instance;
+
+    static ServerSelectWindow LegacyServerSelectWindowInstance() => ServerSelectWindow.Instance;
+
     static CharSelectWindow LegacyCharSelectWindowInstance() => CharSelectWindow.Instance;
 
     static CharCreationWindow LegacyCharCreationWindowInstance() => CharCreationWindow.Instance;

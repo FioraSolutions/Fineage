@@ -22,6 +22,7 @@ public class ServerSelectWindow : L2Window
     private ServerData _selectServerData;
 
     private static ServerSelectWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.ServerSelect instead")]
     public static ServerSelectWindow Instance { get { return _instance; } }
 
     private void Awake() {
