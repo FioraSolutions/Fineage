@@ -49,7 +49,10 @@ public class SwordCollisionService : MonoBehaviour
         }
     }
 
-    public static SwordCollisionService Instance { get; private set; }
+    private static SwordCollisionService _instance;
+
+    [System.Obsolete("Use SwordCollisionPacketServices.Collision or [Inject] SwordCollisionService instead")]
+    public static SwordCollisionService Instance { get { return _instance; } }
 
     public LayerMask _entityMask;
     private readonly List<TimedSwordHit> _activeTimedHits = new List<TimedSwordHit>();
@@ -194,12 +197,14 @@ public class SwordCollisionService : MonoBehaviour
     private void WireGamePacketServices()
     {
         GamePacketServices.Bind(gameWorld: _world);
+        SwordCollisionPacketServices.Bind(collision: this);
     }
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
+        if (_instance != null && _instance != this) { Destroy(gameObject); return; }
+        _instance = this;
+        SwordCollisionPacketServices.Bind(collision: this);
         _entityMask = LayerMask.GetMask("EntityClick");
     }
 
