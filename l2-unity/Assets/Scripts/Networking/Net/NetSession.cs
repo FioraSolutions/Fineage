@@ -11,7 +11,20 @@ public sealed class NetSession : MonoBehaviour
 {
     public static NetSession Instance { get; private set; }
 
+    /// <summary>
+    /// Socket thread enqueues; <see cref="Update"/> drains with a per-frame cap on normal work.
+    /// Critical queue (despawn, inventory) is drained first and is not budget-limited.
+    /// </summary>
+    readonly ConcurrentQueue<Action> _mainCritical = new ConcurrentQueue<Action>();
     readonly ConcurrentQueue<Action> _main = new ConcurrentQueue<Action>();
+
+    /// <summary>Max zone packet applies per frame excluding critical queue traffic.</summary>
+    public const int MaxNormalMainThreadActionsPerFrame = 96;
+
+    const int MainThreadQueueDepthWarnThreshold = 256;
+    const float MainThreadQueueDepthLogCooldownSeconds = 5f;
+
+    float _nextMainQueueDepthLogTime;
     NetTransport _lobby;
     NetTransport _zone;
     uint _seq = 1;
@@ -87,11 +100,9 @@ public sealed class NetSession : MonoBehaviour
 
     void Update()
     {
-        while (_main.TryDequeue(out Action action))
-        {
-            try { action(); }
-            catch (Exception ex) { Debug.LogException(ex); }
-        }
+        DrainMainThreadQueue(_mainCritical, int.MaxValue);
+        DrainMainThreadQueue(_main, MaxNormalMainThreadActionsPerFrame);
+        MaybeWarnMainThreadQueueDepth();
 
         // ItemList may arrive before the local player / inventory UI exist (same as the legacy bridge).
         NetGearSession.FlushPending();
@@ -916,8 +927,20 @@ public sealed class NetSession : MonoBehaviour
     {
         if (envelope.Opcode == NetOpcode.HelloAck)
             _helloZone = true;
-        Post(() => HandleZone(envelope));
+        if (IsCriticalZoneOpcode(envelope.Opcode))
+            PostCritical(() => HandleZone(envelope));
+        else
+            Post(() => HandleZone(envelope));
     }
+
+    static bool IsCriticalZoneOpcode(ushort opcode) =>
+        opcode == NetOpcode.EntityDespawn
+        || opcode == NetOpcode.InventoryUpdate
+        || opcode == NetOpcode.ItemList
+        || opcode == NetOpcode.EntityDie
+        || opcode == NetOpcode.DropItem
+        || opcode == NetOpcode.Revive
+        || opcode == NetOpcode.TeleportToLocation;
 
     void HandleLobby(PacketEnvelope envelope)
     {
@@ -2104,7 +2127,7 @@ public sealed class NetSession : MonoBehaviour
         int objectId = (int)corr.EntityValue;
         Vector3 pos = VectorUtils.ConvertPosToUnity(new Vector3(corr.X, corr.Y, corr.Z));
         // Domain apply — never INTENTION_MOVE_TO with dest==origin (fights approach MoveState).
-        Post(() =>
+        PostCritical(() =>
         {
             if (_sink != null)
                 _sink.ApplyPositionCorrection(objectId, pos);
@@ -2116,6 +2139,35 @@ public sealed class NetSession : MonoBehaviour
     uint NextSeq() => _seq++;
 
     void Post(Action action) => _main.Enqueue(action);
+
+    void PostCritical(Action action) => _mainCritical.Enqueue(action);
+
+    void DrainMainThreadQueue(ConcurrentQueue<Action> queue, int maxActions)
+    {
+        int remaining = maxActions;
+        while (remaining > 0 && queue.TryDequeue(out Action action))
+        {
+            remaining--;
+            try { action(); }
+            catch (Exception ex) { Debug.LogException(ex); }
+        }
+    }
+
+    void MaybeWarnMainThreadQueueDepth()
+    {
+        int depth = _main.Count + _mainCritical.Count;
+        if (depth < MainThreadQueueDepthWarnThreshold)
+            return;
+
+        float now = Time.unscaledTime;
+        if (now < _nextMainQueueDepthLogTime)
+            return;
+
+        _nextMainQueueDepthLogTime = now + MainThreadQueueDepthLogCooldownSeconds;
+        Debug.LogWarning(
+            $"[Net] main-thread packet queue depth {depth} (critical {_mainCritical.Count}, normal {_main.Count}); "
+            + $"normal applies capped at {MaxNormalMainThreadActionsPerFrame}/frame.");
+    }
 
     static async System.Threading.Tasks.Task WaitUntil(Func<bool> pred, float seconds)
     {
