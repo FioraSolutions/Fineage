@@ -33,7 +33,7 @@ public class NewMagicSkillsState  : AbstractAttackEvents
                 _ = SkillExecutor.Instance.ExecuteSkillOverride(useSkill.SkillGrp, entity, readyCombo, _events);
                 break;
             case Event.CANCEL:
-                // Debug.Log("NewMagicSkillsState Use Sate> Отмена скорее всего запрос пришел из ActionFaild");
+                MagicSkillPresentation.EndCastChannel();
                 break;
             case Event.APPLY_SELF_SKILL:
 

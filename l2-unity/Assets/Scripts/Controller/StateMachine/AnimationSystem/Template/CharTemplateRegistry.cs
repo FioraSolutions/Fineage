@@ -4,6 +4,10 @@ using Unity.Mathematics;
 using UnityEngine;
 
 
+/// <summary>
+/// Locomotion-only multipliers for Animator <c>run_speed</c> / <c>walk_speed</c>.
+/// Do not use for gestures (pickup, social) — see <see cref="AnimPlayback"/>.
+/// </summary>
 public static class CharTemplateRegistry
 {
     private static readonly Dictionary<int, BaseStatModel> Classes = new Dictionary<int, BaseStatModel>()
@@ -26,10 +30,9 @@ public static class CharTemplateRegistry
 
     public static float GetRunSpeed(int classId, int sex, float serverValue, bool isTwoHanded)
     {
-        
         if (Classes.TryGetValue(classId, out var model))
         {
-            var stats = model.GetData(sex); // Берем Male или Female данные
+            var stats = model.GetData(sex);
 
             float speed = serverValue * stats.RunK;
 

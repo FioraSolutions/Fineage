@@ -9,11 +9,26 @@
 Human / Elf / Dark Elf: `Black`, `White`, `Element`, `Call`, `Sub`, `Shot`, `Throw`, `Notarget`.
 Dwarf / Orc: `Type_A`, `Type_B`, `Type_C`, `Shot`, `Throw`, `Notarget`.
 
-Exact per-skill map is in encrypted `system/skillsoundgrp.dat` (Lineage2Ver413). Until decrypted, `SkillCastSound` picks Kind from skill name keywords.
+Exact per-skill map is Interlude `system/skillsoundgrp.dat` (Ver413). Decoded SoT:
+`tools/interlude-dat/dec-skillsoundgrp.dat` → `parse_skillsoundgrp.py` →
+`l2-unity/Assets/Resources/Data/SkillSoundGrp.json`.
+
+SFX + hero voice phases (skillsoundgrp):
+1. Start — `*_cast` SFX + race **sub** voice (`Element` / `White` / …)
+2. Release — `*_shot` SFX + race **throw** voice (`Shot` / `Throw` / `Notarget` / …)
+   - Projectile skills: Fineage `HitTime − flight` (same as MagicShot / `serverTimeToShoot`)
+   - No projectile: full packet HitTime
+3. Impact — `*_explotion` on projectile hit (when the row has it)
+
+Wind Strike: cast+`Element` → shot+`Shot` on leave → explotion on creep.
+Heal: cast+`White` → shot+`Notarget` (no explode).
 
 ## Fineage wiring
-- Clips: `l2-unity/Assets/Resources/Data/Sounds/SkillVoice/`
-- Code: `SkillCastSound.OnMagicSkillUse` plays SFX + voice via `AudioSource.PlayClipAtPoint`.
+- Clips: `l2-unity/Assets/Resources/Data/Sounds/SkillVoice/` (+ SkillSound, MonSound, ItemSound).
+- Playback hub: `InterludeSfx` (one 2D `AudioSource`). Domain wrappers: `SkillCastSound`, `MonsterCombatSound`, `HitImpactSound`, charge/level-up.
+- Local cast orchestration: `MagicSkillPresentation` (see [magic-skill-use-flow.md](magic-skill-use-flow.md)). `SkillCastSound`: cast+voice at start; `*_shot` at HitTime−flight (leave); explode at impact.
+- Monster death SFX: `EntityActionVisual.PlayDeath` → `MonsterCombatSound`.
+- PicItem: authored clip length (~0.17–0.25s), not stretched / not HitTime-bound.
 - Needs Unity audio on (`ProjectSettings/AudioManager.asset` `m_DisableAudio: 0`) and `AudioListener` on Main Camera.
 - Race prefix from `Entity.RaceId` (`CharacterRaceAnimation`).
 

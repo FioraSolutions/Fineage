@@ -14,8 +14,8 @@ public class MonsterStateDeath : MonsterStateBase
         if (_networkAnimationController != null)
             _networkAnimationController.SetPAtkSpeed(1f);
         SetSpeed(animator, 1f);
-        if (audioHandler != null)
-            audioHandler.PlaySoundAtRatio(MonsterSoundEvent.Death, audioHandler.DeathRatio);
+        // Death SFX is owned by EntityActionVisual.PlayDeath → MonsterCombatSound
+        // (CrossFade path; SMB alone was easy to miss / double).
 
         if (IsPoseHeld())
             SetSpeed(animator, 0f);
@@ -72,9 +72,13 @@ public class MonsterStateDeath : MonsterStateBase
     {
         if (string.IsNullOrEmpty(parameterName))
             return;
-        if (animator.GetBool(parameterName) != false)
-        {
-            AnimationManager.Instance.StopMonsterCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
-        }
+        // Monster controllers often drive death via CrossFade only — no "death" bool.
+        if (!AnimatorBoolSet.HasBool(animator, parameterName))
+            return;
+        if (!animator.GetBool(parameterName))
+            return;
+        if (AnimationManager.Instance != null)
+            AnimationManager.Instance.StopMonsterCurrentAnimation(
+                animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 }

@@ -96,54 +96,17 @@ public sealed class PlayerWorldApply : EntityWorldApply
         if (SkillListWindow.Instance != null)
             SkillListWindow.Instance.ShowCooldown(dto.SkillId, dto.Reusedelay);
 
-        if (WeaponChargeSkill.IsCharge(dto.SkillId))
-        {
-            ApplyWeaponChargeShot(entity, dto);
-            return;
-        }
-
-        if (SetupDurationHelper.IsUsePotion(dto))
-        {
-            SetupDurationHelper.PlayPotionEffect(entity, dto);
-            return;
-        }
-
-        CastMoveLock.Begin(dto.HitTime);
-        // The zone halted its own timed move in StopForCast and deliberately sends the caster
-        // nothing, so the local pawn must stop here or it drifts until PositionCorrection
-        // rubber-bands the hero back to the cast origin.
-        LocalCastStop.HaltForCast();
-
-        if (PlayerStateMachine.Instance == null)
-            return;
-
-        PlayerStateMachine.Instance.ChangeIntention(
-            dto.SkillGrp.IsMagic == 1 ?
-                Intention.INTENTION_MAGIC_ATTACK :
-                Intention.INTENTION_PHYSICAL_SKILLS_ATTACK,
-            dto);
-    }
-
-    private void ApplyWeaponChargeShot(Entity entity, MagicSkillUseDto useSkill)
-    {
-        PlayerEntity player = entity as PlayerEntity;
-        if (player == null || useSkill == null)
-            return;
-
-        player.IsSoulshotCharged = true;
-        EffectManager effects = Effects;
-        if (effects == null)
-            return;
-        WeaponChargeSkill.Play(effects, useSkill.SkillId, player.GetWeaponTransform(), player.transform);
+        // Cooldown UI only here. Stop/SFX/bar/intention: MagicSkillPresentation (Mobius beginCast).
+        MagicSkillPresentation.PresentLocal(entity, dto);
     }
 
     public override void OnAutoAttackStart(Entity entity, AutoAttackStartDto dto)
     {
+        // Mobius AttackStanceTaskManager: stance flag only — idle pose reads isAutoAttack.
         PlayerEntity player = entity as PlayerEntity;
         if (player == null || player.IsDead())
             return;
         player.isAutoAttack = true;
-        RefreshPlayerStandWait(player);
     }
 
     public override void OnAutoAttackStop(Entity entity, AutoAttackStopDto dto)
@@ -152,45 +115,20 @@ public sealed class PlayerWorldApply : EntityWorldApply
         if (player == null)
             return;
         player.isAutoAttack = false;
-        RefreshPlayerStandWait(player);
-    }
-
-    void RefreshPlayerStandWait(PlayerEntity player)
-    {
-        if (player == null || player.IsDead() || player.IsAttack)
-            return;
-        if (PlayerStateMachine.Instance == null)
-            return;
-
-        PlayerState state = PlayerStateMachine.Instance.State;
-        if (state == PlayerState.ATTACKING ||
-            state == PlayerState.PHYSICAL_SKILLS ||
-            state == PlayerState.MAGIC_SKILLS ||
-            state == PlayerState.ANIMATION_LOCKED ||
-            state == PlayerState.RUNNING ||
-            state == PlayerState.WALKING ||
-            state == PlayerState.SITTING ||
-            state == PlayerState.SIT_WAIT ||
-            state == PlayerState.REBIRTH ||
-            state == PlayerState.DEAD)
-            return;
-        PlayerController controller = Player;
-        if (controller != null && controller.RunningToDestination)
-            return;
-
-        PlayerStateMachine.Instance.NotifyEvent(Event.ARRIVED);
     }
 
     public override void OnSocialAction(Entity entity, SocialActionDto dto)
     {
-        EventBus bus = Bus;
-        if (dto != null && dto.ActionId == 15 && bus != null)
-            bus.LevelUp(entity, dto.ObjectId);
+        // PlaySocial fires EventBus.LevelUp for action 15 + social01 gesture.
+        if (EntityActionMachine.Instance != null)
+            EntityActionMachine.Instance.Social(entity, dto);
+        else
+            EntityActionVisual.PlaySocial(entity, dto != null ? dto.ActionId : 0);
     }
 
     public override void OnMagicSkillCanceled(Entity entity, MagicSkillCanceledDto dto)
     {
-        CastMoveLock.Clear();
+        MagicSkillPresentation.EndCastChannel();
         if (PlayerStateMachine.Instance != null)
             PlayerStateMachine.Instance.NotifyEvent(Event.CANCEL);
     }

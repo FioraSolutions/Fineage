@@ -15,6 +15,7 @@ public class SkillbarSlot : L2ClickableSlot
     private VisualElement _reuseElement;
     private VisualElement _rechargeMaskBg;
     private VisualElement _autoShotMask;
+    private IVisualElementScheduledItem _autoShotPulse;
 
     public SkillbarSlot(VisualElement slotElement, int position, int skillbarId, int slot) : base(slotElement, position, SlotType.SkillBar, true, false)
     {
@@ -226,7 +227,9 @@ public class SkillbarSlot : L2ClickableSlot
         return _itemId;
     }
 
-    /// <summary>Armed-shot marker: a subtle highlight so the player can see auto-use is on.</summary>
+    /// <summary>
+    /// Interlude ExAutoSoulShot armed mark: flowing shimmer wave (not blink).
+    /// </summary>
     public void RefreshMarks()
     {
         int itemId = ShotItemId();
@@ -234,6 +237,7 @@ public class SkillbarSlot : L2ClickableSlot
 
         if (!armed)
         {
+            StopAutoShotWave();
             if (_autoShotMask != null)
                 _autoShotMask.style.display = DisplayStyle.None;
             _slotElement?.RemoveFromClassList("auto-shot-on");
@@ -241,26 +245,18 @@ public class SkillbarSlot : L2ClickableSlot
         }
 
         _slotElement?.AddToClassList("auto-shot-on");
-        if (_autoShotMask == null)
-        {
-            _autoShotMask = new VisualElement { pickingMode = PickingMode.Ignore };
-            _autoShotMask.style.position = UnityEngine.UIElements.Position.Absolute;
-            _autoShotMask.style.left = 0;
-            _autoShotMask.style.top = 0;
-            _autoShotMask.style.right = 0;
-            _autoShotMask.style.bottom = 0;
-            _autoShotMask.style.borderLeftWidth = 1;
-            _autoShotMask.style.borderRightWidth = 1;
-            _autoShotMask.style.borderTopWidth = 1;
-            _autoShotMask.style.borderBottomWidth = 1;
-            _autoShotMask.style.borderLeftColor = new Color(1f, 0.85f, 0.25f, 0.9f);
-            _autoShotMask.style.borderRightColor = new Color(1f, 0.85f, 0.25f, 0.9f);
-            _autoShotMask.style.borderTopColor = new Color(1f, 0.85f, 0.25f, 0.9f);
-            _autoShotMask.style.borderBottomColor = new Color(1f, 0.85f, 0.25f, 0.9f);
-            _slotElement.Add(_autoShotMask);
-        }
+        AutoShotSlotGlow.EnsureOverlay(_slotElement, ref _autoShotMask);
+        if (_autoShotPulse == null)
+            _autoShotPulse = AutoShotSlotGlow.StartWave(_autoShotMask);
+    }
 
-        _autoShotMask.style.display = DisplayStyle.Flex;
+    void StopAutoShotWave()
+    {
+        if (_autoShotPulse != null)
+        {
+            _autoShotPulse.Pause();
+            _autoShotPulse = null;
+        }
     }
 
     protected override void HandleMiddleClick()

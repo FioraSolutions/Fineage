@@ -1,111 +1,286 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
 /// <summary>
-/// Interlude skill cast/shot SFX + hero skill-voice from chrsound.uax.
-/// Clips: Resources/Data/Sounds/SkillSound (*_cast/_shot) and SkillVoice (M_HMagician_Shot, …).
-/// Voice plays 2D so camera distance never mutes short chrsound clips.
+/// Interlude skill SFX + hero voice from skillsoundgrp / chrsound.
+/// <list type="number">
+/// <item><description>Start: <c>*_cast</c> SFX + race <c>sub</c> voice (e.g. Element)</description></item>
+/// <item><description>Leave (HitTime−flight): <c>*_shot</c> SFX + race <c>throw</c> voice (e.g. Shot)</description></item>
+/// <item><description>Impact: <c>*_explotion</c> when projectile hits (if present)</description></item>
+/// </list>
+/// Table: <c>Resources/Data/SkillSoundGrp.json</c>.
 /// </summary>
 public static class SkillCastSound
 {
     const string SfxRoot = "Data/Sounds/SkillSound/";
     const string VoiceRoot = "Data/Sounds/SkillVoice/";
-    static readonly Dictionary<string, AudioClip> _cache = new Dictionary<string, AudioClip>();
-    // Misses are NOT cached forever — Editor play-without-domain-reload used to poison this
-    // when SkillVoice was added mid-session, leaving mage voice silent until restart.
-    static readonly Dictionary<string, float> _missUntil = new Dictionary<string, float>();
-    const float MissRetrySeconds = 2f;
-
-    static AudioSource _voice2D;
+    const string GrpResource = "Data/SkillSoundGrp";
 
     public static float Volume = 0.8f;
     public static float VoiceVolume = 1f;
 
-    /// <summary>Known skillId → SFX stem when name table is empty or alias needed.</summary>
+    static readonly CharacterRaceAnimation[] RaceSlots =
+    {
+        CharacterRaceAnimation.MFighter,
+        CharacterRaceAnimation.FFighter,
+        CharacterRaceAnimation.MDarkElf,
+        CharacterRaceAnimation.FDarkElf,
+        CharacterRaceAnimation.MDwarf,
+        CharacterRaceAnimation.FDwarf,
+        CharacterRaceAnimation.MElf,
+        CharacterRaceAnimation.FElf,
+        CharacterRaceAnimation.MMagic,
+        CharacterRaceAnimation.FMagic,
+        CharacterRaceAnimation.MOrc,
+        CharacterRaceAnimation.FOrc,
+        CharacterRaceAnimation.MShaman,
+        CharacterRaceAnimation.FShaman,
+    };
+
     static readonly Dictionary<int, string> SkillIdSfx = new Dictionary<int, string>
     {
-        { 1011, "heal" },           // Heal
-        { 1015, "heal" },           // Battle Heal (no battle_heal clip)
-        { 1027, "heal" },           // Group Heal
-        { 1216, "heal" },           // Self Heal (mystic starter) — no self_heal_* clip
-        { 1217, "greater_heal" },   // Greater Heal
-        { 1218, "greater_heal" },   // Greater Battle Heal
-        { 1256, "heal" },           // The End / related
-        { 1311, "heal" },           // Body of Avatar etc. heal-adjacent fallback
-        { 1147, "heal" },           // Elemental Heal
-        { 6847, "heal" },           // alt Self Heal id in Classic names
-        { 1177, "wind_strike" },
-        { 1184, "ice_bolt" },
-        { 1148, "death_spike" },
-        { 1069, "sleep" },
-        { 1160, "slow" },
-        { 1164, "curse_weakness" },
-        { 1168, "curse_poison" },
-        { 1221, "curse_fear" },
-        { 1206, "wind_shackle" },
-        { 1040, "shield" },
-        { 1068, "might" },
-        { 1013, "recharge" },
-        { 1078, "concentration" },
-        { 1085, "acumen" },
-        { 1059, "empower" },
-        { 1045, "blessed_body" },
-        { 1048, "blessed_soul" },
-        { 1240, "guidance" },
-        { 1242, "death_whisper" },
-        { 1238, "freezing_shackle" },
-        { 1239, "hurricane" },
-        { 1235, "hydro_blast" },
-        { 1230, "prominence" },
-        { 1267, "shadow_flare" },
-        { 1144, "servitor_heal" },
-        { 1127, "servitor_heal" },
+        { 1011, "heal" }, { 1015, "heal" }, { 1027, "heal" }, { 1216, "heal" },
+        { 1217, "greater_heal" }, { 1218, "greater_heal" }, { 1256, "heal" },
+        { 1311, "heal" }, { 6847, "heal" },
+        { 1177, "wind_strike" }, { 1184, "ice_bolt" }, { 1148, "death_spike" },
+        { 1069, "sleep" }, { 1160, "slow" }, { 1164, "curse_weakness" },
+        { 1168, "curse_poison" }, { 1221, "curse_fear" }, { 1206, "wind_shackle" },
+        { 1040, "shield" }, { 1068, "might" }, { 1013, "recharge" },
+        { 1078, "concentration" }, { 1085, "acumen" }, { 1059, "empower" },
+        { 1045, "blessed_body" }, { 1048, "blessed_soul" }, { 1240, "guidance" },
+        { 1242, "death_whisper" }, { 1238, "freezing_shackle" }, { 1239, "hurricane" },
+        { 1235, "hydro_blast" }, { 1230, "blaze" }, { 1267, "shadow_flare" },
+        { 1144, "servitor_heal" }, { 1127, "servitor_heal" }, { 1147, "vampiric_touch" },
     };
+
+    static Dictionary<int, SkillSoundRow> _bySkill;
+    static Dictionary<long, SkillSoundRow> _bySkillLevel;
+    static readonly Dictionary<int, int> _defaultLevel = new Dictionary<int, int>();
+    static readonly Dictionary<int, PendingCast> _pending = new Dictionary<int, PendingCast>();
+    static int _localReleaseCasterId;
+    static bool _grpTried;
+
+    struct SkillSoundRow
+    {
+        public string Cast;
+        public string Shot;
+        public string Explode;
+        public string[] Kinds;       // cast-time voice (sub)
+        public string[] ThrowKinds;  // release-time voice (throw)
+    }
+
+    struct PendingCast
+    {
+        public string ShotClip;
+        public string ExplodeClip;
+        public string ThrowVoiceKind;
+        public bool ShotPlayed;
+        public bool ExplodePlayed;
+    }
 
     public static void OnMagicSkillUse(Entity caster, MagicSkillUseDto dto)
     {
         if (caster == null || dto == null)
             return;
-        string key = KeyFor(dto.SkillId, dto.SkillLvl);
+        if (WeaponChargeSkill.IsCharge(dto.SkillId))
+            return;
+
+        EnsureGrpLoaded();
         Vector3 pos = caster.transform.position;
 
-        if (!string.IsNullOrEmpty(key))
+        SkillSoundRow row;
+        bool fromGrp = TryGetRow(dto.SkillId, dto.SkillLvl, out row);
+
+        string castClip = fromGrp ? row.Cast : null;
+        string shotClip = fromGrp ? row.Shot : null;
+        string explodeClip = fromGrp ? row.Explode : null;
+        string castVoice = fromGrp ? KindForRace(row.Kinds, caster) : null;
+        string throwVoice = fromGrp ? KindForRace(row.ThrowKinds, caster) : null;
+
+        string key = KeyFor(dto.SkillId, dto.SkillLvl);
+        if (string.IsNullOrEmpty(castClip) && !string.IsNullOrEmpty(key))
+            castClip = key + "_cast";
+        if (string.IsNullOrEmpty(shotClip) && !string.IsNullOrEmpty(key))
+            shotClip = key + "_shot";
+        if (string.IsNullOrEmpty(castVoice))
+            castVoice = VoiceKindFor(key ?? StemFromClip(castClip), caster);
+        if (string.IsNullOrEmpty(throwVoice))
+            throwVoice = "Shot"; // Wind Strike-style release line when table missing
+
+        // 1) Cast SFX + cast-time hero voice (sub / Element / White / …).
+        if (!string.IsNullOrEmpty(castClip))
+            PlayCastSfx(castClip, Volume);
+        PlayVoiceKind(caster, castVoice);
+
+        // Fineage MagicCastData: packet HitTime ≈ impact; projectile leaves at HitTime − flight.
+        // Shot/throw must fire on leave — otherwise they stack on *_explotion.
+        Transform targetTf = ResolveTargetTransform(caster, dto.TargetId);
+        float flightMs = 0f;
+        if (!string.IsNullOrEmpty(explodeClip))
+            flightMs = SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
+        float shotDelay = Mathf.Max(0f, (dto.HitTime - flightMs) / 1000f);
+
+        int casterId = caster.Identity != null ? caster.Identity.Id : 0;
+        _pending[casterId] = new PendingCast
         {
-            PlaySfx(key + "_cast", pos, Volume);
-            AudioManager host = AudioManager.Instance;
-            if (host != null)
-            {
-                float delay = Mathf.Max(0f, dto.HitTime / 1000f);
-                host.StartCoroutine(PlayLater(key, caster, delay));
-            }
-            else
-                PlaySfx(key + "_shot", pos, Volume);
+            ShotClip = shotClip ?? "",
+            ExplodeClip = explodeClip ?? "",
+            ThrowVoiceKind = throwVoice ?? "",
+            ShotPlayed = false,
+            ExplodePlayed = false,
+        };
+        if (caster == PlayerEntity.Instance)
+            _localReleaseCasterId = casterId;
+
+        string shotCapture = shotClip ?? "";
+        string throwCapture = throwVoice ?? "";
+        Entity casterCapture = caster;
+        int idCapture = casterId;
+        InterludeSfx.PlayAfter(shotDelay, () =>
+            PlayRelease(idCapture, casterCapture, shotCapture, throwCapture));
+
+        // Explode backup if projectile callback missed (impact ≈ HitTime in Fineage timing).
+        if (!string.IsNullOrEmpty(explodeClip))
+        {
+            float explodeDelay = Mathf.Max(shotDelay + 0.05f, dto.HitTime / 1000f);
+            Vector3 hitPos = targetTf != null ? targetTf.position : pos;
+            InterludeSfx.PlayAfter(explodeDelay, () => TryPlayExplode(casterId, hitPos));
+        }
+    }
+
+    public static void NotifyLocalCastBarFinished()
+    {
+        if (_localReleaseCasterId <= 0)
+            return;
+        PendingCast pending;
+        string shot = "";
+        string throwKind = "";
+        if (_pending.TryGetValue(_localReleaseCasterId, out pending))
+        {
+            shot = pending.ShotClip;
+            throwKind = pending.ThrowVoiceKind;
+        }
+        PlayRelease(_localReleaseCasterId, PlayerEntity.Instance, shot, throwKind);
+    }
+
+    public static void OnMagicSkillLaunched(Entity caster, MagicSkillLaunchedDto dto)
+    {
+        // Launched is often cast-release on L2 packs — explode is projectile impact.
+    }
+
+    public static void OnProjectileImpact(int attackerEntityId, Vector3 hitPoint)
+    {
+        if (attackerEntityId <= 0)
+            return;
+        TryPlayExplode(attackerEntityId, hitPoint);
+    }
+
+    static void PlayRelease(int casterId, Entity caster, string shotClip, string throwVoiceKind)
+    {
+        PendingCast pending;
+        if (_pending.TryGetValue(casterId, out pending))
+        {
+            if (pending.ShotPlayed)
+                return;
+            pending.ShotPlayed = true;
+            if (string.IsNullOrEmpty(shotClip))
+                shotClip = pending.ShotClip;
+            if (string.IsNullOrEmpty(throwVoiceKind))
+                throwVoiceKind = pending.ThrowVoiceKind;
+            _pending[casterId] = pending;
         }
 
-        PlayVoice(caster, key, pos);
-    }
+        InterludeSfx.StopCast();
 
-    static IEnumerator PlayLater(string key, Entity caster, float delay)
-    {
-        yield return new WaitForSeconds(delay);
         Vector3 pos = caster != null ? caster.transform.position : Vector3.zero;
-        if (!PlaySfx(key + "_shot", pos, Volume))
-            PlaySfx(key + "_explotion", pos, Volume);
+        if (!string.IsNullOrEmpty(shotClip))
+            PlaySfx(shotClip, pos, Volume);
+
+        // 2) Release hero voice (throw slot: Shot / Throw / Notarget / …).
+        PlayVoiceKind(caster, throwVoiceKind);
+
+        if (caster != null && caster.IsSpiritshotCharged)
+            caster.IsSpiritshotCharged = false;
     }
 
-    static void PlayVoice(Entity caster, string skillKey, Vector3 pos)
+    static void TryPlayExplode(int casterId, Vector3 pos)
+    {
+        PendingCast pending;
+        if (!_pending.TryGetValue(casterId, out pending) || pending.ExplodePlayed)
+            return;
+        if (string.IsNullOrEmpty(pending.ExplodeClip))
+            return;
+        pending.ExplodePlayed = true;
+        _pending[casterId] = pending;
+        PlaySfx(pending.ExplodeClip, pos, Volume);
+    }
+
+    static Transform ResolveTargetTransform(Entity caster, int targetId)
+    {
+        if (targetId > 0)
+        {
+            World world = WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
+            Entity target = world != null ? world.GetEntityNoLockSync(targetId) : null;
+            if (target != null)
+                return target.transform;
+        }
+        return caster != null ? caster.Target : null;
+    }
+
+    static void PlayCastSfx(string clipName, float volume)
+    {
+        AudioClip clip = Load(SfxRoot, clipName);
+        if (clip == null && !string.IsNullOrEmpty(clipName))
+            clip = Load(SfxRoot, clipName.ToLowerInvariant());
+        if (clip == null)
+            return;
+        InterludeSfx.PlayCast(clip, volume);
+    }
+
+    static string StemFromClip(string clip)
+    {
+        if (string.IsNullOrEmpty(clip))
+            return null;
+        if (clip.EndsWith("_cast", StringComparison.Ordinal))
+            return clip.Substring(0, clip.Length - 5);
+        if (clip.EndsWith("_shot", StringComparison.Ordinal))
+            return clip.Substring(0, clip.Length - 5);
+        return clip;
+    }
+
+    static void PlayVoiceKind(Entity caster, string kind)
     {
         string prefix = VoicePrefixFor(caster);
-        if (string.IsNullOrEmpty(prefix))
+        if (string.IsNullOrEmpty(prefix) || string.IsNullOrEmpty(kind))
             return;
-        string kind = VoiceKindFor(skillKey, caster);
         if (PlayVoiceClip(prefix + "_" + kind))
             return;
-        if (kind != "Shot" && PlayVoiceClip(prefix + "_Shot"))
+        // Soft fallbacks only within the same phase family.
+        if (kind == "Notarget" && PlayVoiceClip(prefix + "_Shot"))
             return;
-        PlayVoiceClip(prefix + "_Throw");
+        if (kind == "Shot" && PlayVoiceClip(prefix + "_Throw"))
+            return;
+    }
+
+    static string KindForRace(string[] kinds, Entity caster)
+    {
+        if (kinds == null || kinds.Length == 0 || caster == null)
+            return null;
+
+        CharacterRaceAnimation raceId = ResolveRaceForVoice(caster, caster.RaceId);
+        for (int i = 0; i < RaceSlots.Length && i < kinds.Length; i++)
+        {
+            if (RaceSlots[i] == raceId && !string.IsNullOrEmpty(kinds[i]))
+                return kinds[i];
+        }
+        if (kinds.Length > 8 && !string.IsNullOrEmpty(kinds[8]))
+            return kinds[8];
+        for (int i = 0; i < kinds.Length; i++)
+            if (!string.IsNullOrEmpty(kinds[i]))
+                return kinds[i];
+        return null;
     }
 
     static string VoicePrefixFor(Entity caster)
@@ -113,10 +288,7 @@ public static class SkillCastSound
         if (caster == null)
             return null;
 
-        CharacterRaceAnimation raceId = caster.RaceId;
-        // Prefab default is FElf=0; if appearance says Human mage male, prefer Magician bank.
-        raceId = ResolveRaceForVoice(caster, raceId);
-
+        CharacterRaceAnimation raceId = ResolveRaceForVoice(caster, caster.RaceId);
         switch (raceId)
         {
             case CharacterRaceAnimation.MMagic: return "M_HMagician";
@@ -147,8 +319,6 @@ public static class SkillCastSound
         CharacterRace race = (CharacterRace)appearance.Race;
         CharacterRaceAnimation resolved = CharacterRaceAnimationParser.ResolveRaceAnimation(
             race, appearance, playerClass);
-        // Prefab default is FElf=0; CharSelected can leave a fighter mesh on a mystic.
-        // Always prefer the class-resolved mage bank so Wind Strike etc. get M/F_HMagician voice (#522).
         bool resolvedMage =
             resolved == CharacterRaceAnimation.MMagic || resolved == CharacterRaceAnimation.FMagic;
         bool looksUnset = raceId == CharacterRaceAnimation.FElf && race != CharacterRace.Elf;
@@ -201,8 +371,8 @@ public static class SkillCastSound
         switch (kind)
         {
             case "White": return "Type_A";
-            case "Black": return "Type_B";
-            case "Element":
+            case "Black":
+            case "Element": return "Type_B";
             case "Call":
             case "Sub": return "Type_C";
             default: return kind;
@@ -220,10 +390,11 @@ public static class SkillCastSound
     static bool PlaySfx(string clipName, Vector3 pos, float volume)
     {
         AudioClip clip = Load(SfxRoot, clipName);
+        if (clip == null && !string.IsNullOrEmpty(clipName))
+            clip = Load(SfxRoot, clipName.ToLowerInvariant());
         if (clip == null)
             return false;
-        // 2D for cast SFX too — L2 camera is often far enough that 3D PlayClipAtPoint is inaudible.
-        Play2D(clip, volume);
+        InterludeSfx.Play(clip, volume);
         return true;
     }
 
@@ -232,66 +403,82 @@ public static class SkillCastSound
         AudioClip clip = Load(VoiceRoot, clipName);
         if (clip == null)
             return false;
-        Play2D(clip, VoiceVolume);
+        InterludeSfx.Play(clip, VoiceVolume);
         return true;
-    }
-
-    static void Play2D(AudioClip clip, float volume)
-    {
-        if (clip == null)
-            return;
-        volume *= GameSettings.Sfx;
-        EnsureVoiceSource();
-        if (_voice2D == null)
-        {
-            AudioSource.PlayClipAtPoint(clip, Camera.main != null
-                ? Camera.main.transform.position
-                : Vector3.zero, volume);
-            return;
-        }
-        _voice2D.PlayOneShot(clip, volume);
-    }
-
-    static void EnsureVoiceSource()
-    {
-        if (_voice2D != null)
-            return;
-        GameObject go = GameObject.Find("FineageSkillAudio2D");
-        if (go == null)
-        {
-            go = new GameObject("FineageSkillAudio2D");
-            Object.DontDestroyOnLoad(go);
-        }
-        _voice2D = go.GetComponent<AudioSource>();
-        if (_voice2D == null)
-            _voice2D = go.AddComponent<AudioSource>();
-        _voice2D.playOnAwake = false;
-        _voice2D.spatialBlend = 0f;
-        _voice2D.loop = false;
-        _voice2D.volume = 1f;
     }
 
     static AudioClip Load(string root, string clipName)
     {
-        string path = root + clipName;
-        AudioClip clip;
-        if (_cache.TryGetValue(path, out clip) && clip != null)
-            return clip;
-
-        float until;
-        if (_missUntil.TryGetValue(path, out until) && Time.realtimeSinceStartup < until)
-            return null;
-
-        clip = Resources.Load<AudioClip>(path);
-        if (clip == null)
-        {
-            _missUntil[path] = Time.realtimeSinceStartup + MissRetrySeconds;
-            return null;
-        }
-        _missUntil.Remove(path);
-        _cache[path] = clip;
-        return clip;
+        return InterludeSfx.Load(root + clipName);
     }
+
+    static void EnsureGrpLoaded()
+    {
+        if (_grpTried)
+            return;
+        _grpTried = true;
+        _bySkill = new Dictionary<int, SkillSoundRow>();
+        _bySkillLevel = new Dictionary<long, SkillSoundRow>();
+
+        TextAsset asset = Resources.Load<TextAsset>(GrpResource);
+        if (asset == null || string.IsNullOrEmpty(asset.text))
+        {
+            Debug.LogWarning("[SkillCastSound] missing Resources/" + GrpResource + ".json — using name fallback");
+            return;
+        }
+
+        try
+        {
+            SkillSoundGrpDto root = JsonUtility.FromJson<SkillSoundGrpDto>(asset.text);
+            if (root == null || root.entries == null)
+                return;
+
+            for (int i = 0; i < root.entries.Length; i++)
+            {
+                SkillSoundEntryDto e = root.entries[i];
+                if (e == null)
+                    continue;
+                var row = new SkillSoundRow
+                {
+                    Cast = e.cast ?? "",
+                    Shot = e.shot ?? "",
+                    Explode = e.explode ?? "",
+                    Kinds = e.kinds ?? Array.Empty<string>(),
+                    ThrowKinds = e.throwKinds ?? Array.Empty<string>(),
+                };
+                long packed = Pack(e.skillId, e.level);
+                _bySkillLevel[packed] = row;
+                if (!_bySkill.TryGetValue(e.skillId, out _)
+                    || e.level <= LevelOfDefault(e.skillId))
+                {
+                    _bySkill[e.skillId] = row;
+                    _defaultLevel[e.skillId] = e.level;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[SkillCastSound] SkillSoundGrp parse failed: " + ex.Message);
+        }
+    }
+
+    static int LevelOfDefault(int skillId)
+    {
+        int lvl;
+        return _defaultLevel.TryGetValue(skillId, out lvl) ? lvl : int.MaxValue;
+    }
+
+    static bool TryGetRow(int skillId, int level, out SkillSoundRow row)
+    {
+        row = default;
+        if (_bySkillLevel != null && _bySkillLevel.TryGetValue(Pack(skillId, Mathf.Max(1, level)), out row))
+            return true;
+        if (_bySkill != null && _bySkill.TryGetValue(skillId, out row))
+            return true;
+        return false;
+    }
+
+    static long Pack(int skillId, int level) => ((long)skillId << 16) | (uint)level;
 
     static string KeyFor(int skillId, int level)
     {
@@ -314,7 +501,6 @@ public static class SkillCastSound
         if (string.IsNullOrEmpty(normalized))
             return null;
 
-        // Alias missing stems onto existing SkillSound files.
         if (normalized == "battle_heal" || normalized == "group_heal"
             || normalized == "elemental_heal" || normalized == "self_heal"
             || normalized == "servitor_heal" || normalized.EndsWith("_heal")
@@ -324,7 +510,6 @@ public static class SkillCastSound
             || normalized.Contains("greater_heal"))
             return "greater_heal";
 
-        // If stem has no cast clip, fall back for any *heal* name.
         if (normalized.Contains("heal") && Load(SfxRoot, normalized + "_cast") == null)
             return "heal";
 
@@ -344,5 +529,23 @@ public static class SkillCastSound
             else if (!us && sb.Length > 0) { sb.Append('_'); us = true; }
         }
         return sb.ToString().TrimEnd('_');
+    }
+
+    [Serializable]
+    class SkillSoundGrpDto
+    {
+        public SkillSoundEntryDto[] entries;
+    }
+
+    [Serializable]
+    class SkillSoundEntryDto
+    {
+        public int skillId;
+        public int level;
+        public string cast;
+        public string shot;
+        public string explode;
+        public string[] kinds;
+        public string[] throwKinds;
     }
 }

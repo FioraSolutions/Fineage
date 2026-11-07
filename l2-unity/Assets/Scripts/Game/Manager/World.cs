@@ -445,19 +445,26 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 #endif
         RemoveObject(itemObjectId);
 
-        // Pickup crossfades the actor into the "pickup" clip, which desyncs the
-        // animator from the movement gait. If the picker is still moving (running
-        // to the next point after grabbing), replay its gait so the run/walk clip
-        // resumes instead of freezing mid-pickup. Force the replay: the pickup
-        // state has no exit transition, so a normal replay can be suppressed and
-        // leave the pawn standing while it keeps translating.
+        // Let authored PicItem finish before forcing gait (do not stretch the clip).
         if (pickerCharObjId != 0 && MoveAllCharacters.Instance != null &&
             MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
         {
-            MovementData move = MoveAllCharacters.Instance.GetMove(pickerCharObjId);
-            if (move != null && move.GetEntity() is UserEntity)
-                move.ForceReplayUserGait();
+            StartCoroutine(ResumeGaitAfterPickup(pickerCharObjId));
         }
+    }
+
+    System.Collections.IEnumerator ResumeGaitAfterPickup(int pickerCharObjId)
+    {
+        yield return new WaitForSeconds(AnimPlayback.PickupFallbackSeconds);
+        if (MoveAllCharacters.Instance == null ||
+            !MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
+            yield break;
+
+        MovementData move = MoveAllCharacters.Instance.GetMove(pickerCharObjId);
+        if (move == null || move.GetEntity() == null)
+            yield break;
+
+        move.ForceReplayUserGait();
     }
 
     public void SpawnPlayer(EntityIdentity identity, PlayerStatus status, PlayerStats stats, PlayerAppearance appearance)

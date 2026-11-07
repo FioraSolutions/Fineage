@@ -154,6 +154,10 @@ public class AudioManager : MonoBehaviour
 
     public void PlayHitSound(bool criticalHit, Vector3 position)
     {
+        // FMOD path stays off — Unity Resources (same pattern as SkillCastSound / MonsterCombatSound).
+        if (HitImpactSound.Play(criticalHit))
+            return;
+
         if (_isDisabled) return;
 
         EventReference er;

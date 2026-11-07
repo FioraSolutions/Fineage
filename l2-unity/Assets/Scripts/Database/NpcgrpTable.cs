@@ -114,6 +114,9 @@ public class NpcgrpTable {
                             string type = DatUtils.CleanupString(value);
                             npcgrp.Type = type;
                             break;
+                        case "property_list":
+                            ParsePropertyList(npcgrp, value);
+                            break;
                     }
                 }
 
@@ -136,5 +139,43 @@ public class NpcgrpTable {
         }
 
         return npcgrp;
+    }
+
+    /// <summary>
+    /// property_list={4416;13;47399;1;…} — alternating skillId;level (Interlude TargetStatus icons).
+    /// </summary>
+    static void ParsePropertyList(Npcgrp npcgrp, string value)
+    {
+        if (npcgrp == null || string.IsNullOrEmpty(value))
+            return;
+        string[] parts = DatUtils.ParseArray(value);
+        if (parts == null || parts.Length < 2)
+            return;
+
+        int pairCount = parts.Length / 2;
+        int[] ids = new int[pairCount];
+        int[] levels = new int[pairCount];
+        int written = 0;
+        for (int i = 0; i + 1 < parts.Length; i += 2)
+        {
+            if (!int.TryParse(parts[i], out int skillId) || skillId <= 0)
+                continue;
+            if (!int.TryParse(parts[i + 1], out int level) || level <= 0)
+                level = 1;
+            ids[written] = skillId;
+            levels[written] = level;
+            written++;
+        }
+
+        if (written == 0)
+            return;
+        if (written != pairCount)
+        {
+            System.Array.Resize(ref ids, written);
+            System.Array.Resize(ref levels, written);
+        }
+
+        npcgrp.PropertySkillIds = ids;
+        npcgrp.PropertySkillLevels = levels;
     }
 }

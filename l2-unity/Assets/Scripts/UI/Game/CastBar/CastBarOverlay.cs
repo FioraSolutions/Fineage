@@ -63,7 +63,13 @@ public sealed class CastBarOverlay : MonoBehaviour
         float remainingSec = _endTime - Time.unscaledTime;
         if (remainingSec <= 0f || _duration <= 0f)
         {
-            _active = false;
+            if (_active)
+            {
+                _active = false;
+                // Same wall-clock as HitTime — fires *_shot if the delayed SFX coroutine was lost.
+                try { SkillCastSound.NotifyLocalCastBarFinished(); }
+                catch (System.Exception) { }
+            }
             return;
         }
 

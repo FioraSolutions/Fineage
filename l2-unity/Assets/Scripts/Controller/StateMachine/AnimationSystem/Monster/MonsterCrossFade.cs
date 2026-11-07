@@ -2,8 +2,11 @@
 
 /// <summary>
 /// CrossFade policy for Monster_Basic states.
-/// Locomotion (wait/walk/run/atkwait) and death skip when already playing.
-/// Attack one-shots (atk / spatk) always restart.
+/// <list type="bullet">
+/// <item>Locomotion (wait/walk/run/atkwait) — skip when already playing.</item>
+/// <item>Attack one-shots (atk / spatk) — always restart from 0.</item>
+/// <item>Death — terminal: CrossFade once, never rewind (predict + Die must not restart the corpse).</item>
+/// </list>
 /// </summary>
 public static class MonsterCrossFade
 {
@@ -14,15 +17,14 @@ public static class MonsterCrossFade
         float? fixedDuration = null)
     {
         if (controller == null || string.IsNullOrEmpty(stateName))
-        {
             return false;
-        }
 
         bool alreadyPlaying = PlayerLocomotionCrossFade.IsAlreadyPlaying(controller, stateName);
-        if (alreadyPlaying &&
-            (family == MonsterAnimState.Death || !MonsterAnim.IsOneShot(family)))
+        if (alreadyPlaying)
         {
-            return false;
+            // Terminal death + looping locomotion: leave the current state alone.
+            if (family == MonsterAnimState.Death || !MonsterAnim.IsOneShot(family))
+                return false;
         }
 
         float duration = fixedDuration ?? LocomotionCrossFadeSettings.ResolveDuration(stateName, controller);
@@ -31,18 +33,12 @@ public static class MonsterCrossFade
             Animator animator = controller.GetAnimator();
             if (animator == null)
                 return false;
-            int objectId = animator.GetInteger(AnimatorUtils.OBJECT_ID);
-            int hash = Animator.StringToHash(stateName);
-            bool hasState = animator.HasState(0, hash);
             animator.Play(stateName, 0, 0f);
             animator.Update(0f);
-            // Debug.Log(
-                // $"[ANIM_PLAY] id={objectId} snap state={stateName} hasState={hasState}");
             return true;
         }
 
-        // atk01 / spatk01 must rewind. Death and locomotion keep the existing clip.
-        if (family == MonsterAnimState.Atk01 || family == MonsterAnimState.SpAtk01)
+        if (MonsterAnim.IsOneShot(family))
         {
             controller.CrossFadeRestartInFixedTime(stateName, duration);
             return true;
@@ -61,9 +57,7 @@ public static class MonsterCrossFade
         float? fixedDuration = null)
     {
         if (controller == null || string.IsNullOrEmpty(stateName))
-        {
             return false;
-        }
 
         float duration = fixedDuration ?? LocomotionCrossFadeSettings.ResolveDuration(stateName, controller);
         controller.CrossFadeInFixedTime(stateName, duration);

@@ -142,7 +142,10 @@ public class Entity : MonoBehaviour {
     public Appearance Appearance { get => _appearance; set { _appearance = value; } }
     public EntityIdentity Identity { get => _identityInterlude; set => _identityInterlude = value; }
 
-    public bool IsSoulshotCharged {get;set;}
+    /// <summary>Melee/bow soulshot charge — HitManager may spawn SoulshotImpact on the target.</summary>
+    public bool IsSoulshotCharged { get; set; }
+    /// <summary>Spiritshot / blessed spiritshot charge — weapon glow only; no melee SS impact on the mob.</summary>
+    public bool IsSpiritshotCharged { get; set; }
     public int TargetId { get => _targetId; set => _targetId = value; }
 
     public Transform LastTarget { get { return _lastTarget; } set { _lastTarget = value; } }
@@ -266,7 +269,8 @@ public class Entity : MonoBehaviour {
 
     protected virtual void OnHit(bool criticalHit) {
         // TODO: Add armor type for more hit sounds
-        AudioManager.Instance.PlayHitSound(criticalHit, transform.position);
+        if (!HitImpactSound.Play(criticalHit) && AudioManager.Instance != null)
+            AudioManager.Instance.PlayHitSound(criticalHit, transform.position);
     }
 
     public virtual void OnStopMoving() {}

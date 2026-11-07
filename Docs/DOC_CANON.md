@@ -20,6 +20,7 @@ Which docs agents and humans should trust.
 | [l2-unity/docs/LOGGING.md](../l2-unity/docs/LOGGING.md) | Client | Client logging |
 | [WIP_DEEPSEEK_REVIEW.md](WIP_DEEPSEEK_REVIEW.md) | Client | Review of local uncommitted feature piles (not canon wire) |
 | [SMOKE_GREMLIN.md](SMOKE_GREMLIN.md) | Client | Manual + Backend `--selftest` Gremlin smoke (#129 / #138) |
+| [agent-tips/magic-skill-use-flow.md](agent-tips/magic-skill-use-flow.md) | Client | MagicSkillUse / stance / SFX channels vs Mobius + skillsoundgrp |
 
 Backend README must stay Net-accurate; prefer `docs/net-protocol.md` over any leftover MsgType tables elsewhere.
 

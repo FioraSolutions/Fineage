@@ -315,6 +315,9 @@ public sealed class EntityActionMachine : ITickable
 
     public void Social(Entity entity, SocialActionDto dto)
     {
+        if (entity == null || dto == null)
+            return;
+        EntityActionVisual.PlaySocial(entity, dto.ActionId);
     }
 
     public void ChangeWaitType(Entity entity, ChangeWaitTypeDto dto)
