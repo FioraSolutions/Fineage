@@ -17,7 +17,7 @@ CLIENT="${L2_INTERLUDE_CLIENT_ROOT:-}"
 EXTRACT="${L2_INTERLUDE_EXTRACT_DIR:-$REPO/.work/interlude-extract}"
 EXPORT="${L2_UMODEL_EXPORT_DIR:-$REPO/.work/umodel-export-$TILE}"
 EXTRACTOR="${L2_TERRAIN_EXTRACTOR:-$REPO/l2-unity/External/L2TerrainExtractor}"
-UNITY="${UNITY_EDITOR:-/Applications/Unity/Hub/Editor/6000.0.38f1/Unity.app/Contents/MacOS/Unity}"
+UNITY="${UNITY_EDITOR:-/Applications/Unity/Hub/Editor/6000.3.27f1/Unity.app/Contents/MacOS/Unity}"
 TEX_PKG="T_${TILE}"
 
 phase_a() {
