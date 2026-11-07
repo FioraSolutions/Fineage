@@ -18,5 +18,26 @@ public static class GlobalEffectsPacketServices
         _bus != null ? _bus : GamePacketServices.Bus;
 
     public static EffectManager Effects =>
-        _effects != null ? _effects : ControllerPacketServices.Effects;
+        _effects != null
+            ? _effects
+            : ResolveFromGame<EffectManager>() ?? LegacyEffectManagerInstance();
+
+    static T ResolveFromGame<T>() where T : class
+    {
+        if (App.GameContainer == null)
+            return null;
+
+        try
+        {
+            return App.GameContainer.Resolve<T>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+#pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    static EffectManager LegacyEffectManagerInstance() => EffectManager.Instance;
+#pragma warning restore CS0618
 }

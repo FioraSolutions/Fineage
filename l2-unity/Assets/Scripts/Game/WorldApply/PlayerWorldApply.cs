@@ -8,10 +8,7 @@ public sealed class PlayerWorldApply : EntityWorldApply
     private SkillbarWindow Skillbar =>
         SkillbarPacketServices.Skillbar ?? SkillbarPacketServices.Skillbar;
 
-    private EffectManager Effects =>
-        ControllerPacketServices.Effects
-        ?? GlobalEffectsPacketServices.Effects
-        ?? EffectManager.Instance;
+    private EffectManager Effects => GlobalEffectsPacketServices.Effects;
 
     private PlayerController Player =>
         WorldApplyPacketServices.Player ?? ControllerPacketServices.Player;

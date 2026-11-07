@@ -306,7 +306,7 @@ public sealed class GameLifetimeScope : LifetimeScope
             return MoveAllCharacters.Instance as T;
 #pragma warning restore CS0618
         if (typeof(T) == typeof(EffectManager))
-            return EffectManager.Instance as T;
+            return GlobalEffectsPacketServices.Effects as T;
         if (typeof(T) == typeof(EventBus))
             return EventBus.Instance as T;
         if (typeof(T) == typeof(SkillbarWindow))

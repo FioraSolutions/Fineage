@@ -69,7 +69,7 @@ public sealed class GameRuntime
     public InputManager Input { get { return Live(ref _input, InputManager.Instance); } }
 #pragma warning restore CS0618
     public PositionValidationController PositionValidation { get { return Live(ref _positionValidation, PositionValidationController.Instance); } }
-    public EffectManager Effects { get { return Live(ref _effects, EffectManager.Instance); } }
+    public EffectManager Effects { get { return Live(ref _effects, GlobalEffectsPacketServices.Effects); } }
     public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }
     public IGameEventBus GameEvents => _gameEvents;
     public CameraController Camera { get { return Live(ref _camera, CameraPacketServices.Controller); } }

@@ -31,11 +31,15 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 // Only skills with a ready EffectDatabase entry (e.g. Power Strike = 3).
                 if (useSkill.SkillId == 3)
                 {
-                    EffectManager.Instance.PlayEffectSyncedToSkillAnimation(
-                        useSkill.SkillId,
-                        _stateMachine.Player,
-                        useSkill.HitTime,
-                        animComboAct);
+                    EffectManager effects = ControllerPacketServices.Effects;
+                    if (effects != null)
+                    {
+                        effects.PlayEffectSyncedToSkillAnimation(
+                            useSkill.SkillId,
+                            _stateMachine.Player,
+                            useSkill.HitTime,
+                            animComboAct);
+                    }
                 }
                 break;
             case Event.CANCEL:
@@ -92,7 +96,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                     // $"intention={_stateMachine.Intention} running={_stateMachine.Player != null && _stateMachine.Player.Running}");
                 _stateMachine.Player.IsSoulshotCharged = true;
                 WeaponChargeSkill.Play(
-                    EffectManager.Instance,
+                    ControllerPacketServices.Effects,
                     useSkill.SkillId,
                     _stateMachine.Player.GetWeaponTransform(),
                     _stateMachine.Player.transform);

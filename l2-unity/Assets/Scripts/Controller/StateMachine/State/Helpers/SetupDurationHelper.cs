@@ -88,10 +88,11 @@ public class SetupDurationHelper
 
     public static void PlayPotionEffect(Entity entity, MagicSkillUseDto useSkill)
     {
-        if (entity == null || useSkill == null || EffectManager.Instance == null)
+        EffectManager effects = ControllerPacketServices.Effects;
+        if (entity == null || useSkill == null || effects == null)
             return;
 
-        EffectManager.Instance.PlayEffect(useSkill.SkillId, entity.transform, entity.GetMagicCastData());
+        effects.PlayEffect(useSkill.SkillId, entity.transform, entity.GetMagicCastData());
     }
 
     /// <summary>
@@ -198,8 +199,9 @@ public class SetupDurationHelper
     {
         const float fallbackFlightMs = 1000f;
 
-        if (EffectManager.Instance != null && EffectManager.Instance.database != null &&
-            EffectManager.Instance.database.ShouldIgnoreFlightTimeForCast(skillId))
+        EffectManager effects = ControllerPacketServices.Effects;
+        if (effects != null && effects.database != null &&
+            effects.database.ShouldIgnoreFlightTimeForCast(skillId))
         {
             return 0f;
         }
