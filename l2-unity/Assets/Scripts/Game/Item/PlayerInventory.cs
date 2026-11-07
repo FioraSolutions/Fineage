@@ -628,7 +628,7 @@ public class PlayerInventory : MonoBehaviour
 
             ItemInstance item = _playerInventory[objectId];
             //getInstance().AddS1Items(new VariableItem(item.ItemData.ItemName.Name, objectId));
-            //AudioManager.Instance.PlayEquipSound("trash_basket");
+            //AudioPacketServices.Audio.PlayEquipSound("trash_basket");
             IZoneTransport game = ZoneCommands.Transport;
             if (game == null)
                 return;

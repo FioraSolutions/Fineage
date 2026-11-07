@@ -50,7 +50,7 @@ public class ChatTab
 
         tabHeader.RegisterCallback<MouseDownEvent>(evt => {
             if(MessagePacketServices.Chat.SwitchTab(this)) {
-                AudioManager.Instance.PlayUISound("window_open");
+                AudioPacketServices.Audio.PlayUISound("window_open");
             }
         }, TrickleDown.TrickleDown);
       

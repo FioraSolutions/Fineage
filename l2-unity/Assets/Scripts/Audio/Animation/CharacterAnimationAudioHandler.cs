@@ -18,12 +18,12 @@ public class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
-        AudioManager.Instance.PlayCharacterSound(soundEvent, _race, transform.position);
+        AudioPacketServices.Audio.PlayCharacterSound(soundEvent, _race, transform.position);
     }
 
     public void PlaySoundFromAnimationClip(int type) {
         CharacterSoundEvent soundEvent = (CharacterSoundEvent)type;
-        AudioManager.Instance.PlayCharacterSound(soundEvent, _race, transform.position);
+        AudioPacketServices.Audio.PlayCharacterSound(soundEvent, _race, transform.position);
     }
 
     public void PlaySoundAtRatio(CharacterSoundEvent soundEvent, float ratio) {
@@ -47,7 +47,7 @@ public class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
         if(_surfaceDetector != null)
         {
             string currentSurface = _surfaceDetector.GetSurfaceTag();
-            AudioManager.Instance.PlayStepSound(currentSurface, transform.position);
+            AudioPacketServices.Audio.PlayStepSound(currentSurface, transform.position);
         }
       
     }

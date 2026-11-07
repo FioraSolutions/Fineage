@@ -23,7 +23,7 @@ public class SlotClickSoundManipulator : PointerManipulator
     {
         if (evt.button == 0)
         {
-            AudioManager.Instance.PlayUISound("click_03");
+            AudioPacketServices.Audio.PlayUISound("click_03");
         }
     }
 }

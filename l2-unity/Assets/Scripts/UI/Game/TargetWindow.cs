@@ -123,7 +123,7 @@ public class TargetWindow : L2Window {
             BindProperties(targetData);
         } else {
             if (!_isWindowHidden) {
-                AudioManager.Instance.PlayUISound("window_close");
+                AudioPacketServices.Audio.PlayUISound("window_close");
             }
             ClearProperties();
             HideWindow();

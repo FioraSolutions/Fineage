@@ -21,7 +21,7 @@ public abstract class L2PopupWindow : L2Window
         closeButton.AddManipulator(new ButtonClickSoundManipulator(closeButton));
         closeButton.clicked += () =>
         {
-            AudioManager.Instance.PlayUISound("window_close");
+            AudioPacketServices.Audio.PlayUISound("window_close");
             HideWindow();
         };
     }

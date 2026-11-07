@@ -18,6 +18,6 @@ public class ButtonClickSoundManipulator : PointerManipulator {
     }
 
     private void MouseDownHandler(MouseDownEvent evt) {
-        AudioManager.Instance.PlayUISound("click_01");
+        AudioPacketServices.Audio.PlayUISound("click_01");
     }
 }

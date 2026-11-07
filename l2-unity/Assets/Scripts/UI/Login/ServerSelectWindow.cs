@@ -50,10 +50,10 @@ public class ServerSelectWindow : L2Window
     private void Update() {
         if (!_isWindowHidden) {
             if (Input.GetKeyDown(KeyCode.Escape)) {
-                AudioManager.Instance.PlayUISound("click_01");
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 CancelButtonPressed();
             } else if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) {
-                AudioManager.Instance.PlayUISound("click_01");
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 ConfirmButtonPressed();
             }
         }
