@@ -5,6 +5,7 @@ using VContainer.Unity;
 
 public sealed class EntityActionMachine : ITickable
 {
+    [System.Obsolete("Use EntityActionPacketServices.Actions or [Inject] EntityActionMachine instead")]
     public static EntityActionMachine Instance { get; private set; }
 
     private readonly Dictionary<EntityActionKind, IEntityActionProcess> _processes;
@@ -20,6 +21,7 @@ public sealed class EntityActionMachine : ITickable
         MoveAllCharacters moves)
     {
         Instance = this;
+        EntityActionPacketServices.Bind(this);
         ControllerPacketServices.Bind(
             animations: animations,
             effects: effects,

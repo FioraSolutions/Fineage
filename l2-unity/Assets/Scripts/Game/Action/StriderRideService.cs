@@ -179,8 +179,8 @@ public sealed class StriderRideService : ILateTickable
             return;
         if (pet.Identity != null && MoveAllCharactersPacketServices.Moves != null)
             MoveAllCharactersPacketServices.Moves.Forget(pet.Identity.Id);
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(pet, EntityActionKind.Idle, null);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(pet, EntityActionKind.Idle, null);
         Animator animator = pet.GetComponentInChildren<Animator>(true);
         if (animator == null)
             return;

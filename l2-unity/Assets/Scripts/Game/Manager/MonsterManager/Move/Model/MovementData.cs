@@ -206,8 +206,8 @@ public class MovementData
             // " state=" + (state.IsName("run") ? "run" : "walk") +
             // " moving=false -> idle");
 
-        if (action == EntityActionKind.Move && EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(_entity, EntityActionKind.Idle, null);
+        if (action == EntityActionKind.Move && EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(_entity, EntityActionKind.Idle, null);
         else
             EntityActionVisual.PlayStandWait(_entity);
         return true;
@@ -746,8 +746,8 @@ public class MovementData
         if (entity is PlayerEntity)
             return;
 
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.NotifyArrived(entity);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.NotifyArrived(entity);
     }
     public CharacterController GetControllerToTypeEntity(Entity entity)
     {

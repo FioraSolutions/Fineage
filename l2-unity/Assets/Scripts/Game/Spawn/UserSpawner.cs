@@ -214,13 +214,13 @@ public sealed class UserSpawner
                 // " alikeDead=" + info.AlikeDead);
             if (wasCorpse)
                 return;
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Die(user, false);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Die(user, false);
             else
                 EntityActionVisual.PlayDeath(user, false);
         }
-        else if (wasCorpse && EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Revive(user);
+        else if (wasCorpse && EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Revive(user);
     }
 
     static void ResetRuntime(UserEntity user)

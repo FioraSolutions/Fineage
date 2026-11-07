@@ -54,8 +54,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
     public override void OnDie(Entity entity, DieDto dto)
     {
         entity.SetDead(true);
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Die(entity);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Die(entity);
         if (PlayerStateMachine.Instance != null)
             PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_DEAD, dto);
     }
@@ -117,8 +117,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
     public override void OnSocialAction(Entity entity, SocialActionDto dto)
     {
         // PlaySocial fires EventBus.LevelUp for action 15 + social01 gesture.
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Social(entity, dto);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Social(entity, dto);
         else
             EntityActionVisual.PlaySocial(entity, dto != null ? dto.ActionId : 0);
     }
