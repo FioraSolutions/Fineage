@@ -40,6 +40,7 @@ public class CharacterSelector : MonoBehaviour
 
 
     private static CharacterSelector _instance;
+    [System.Obsolete("Use LoginPacketServices.Characters instead")]
     public static CharacterSelector Instance { get { return _instance; } }
 
     void Awake() {
@@ -176,7 +177,7 @@ public class CharacterSelector : MonoBehaviour
     {
         LobbyCharacter character = _lobbyCharacters[index];
         CharSelectInfoPackage info = ToSelectPackage(character);
-        CharacterCreator creator = CharacterCreator.Instance;
+        CharacterCreator creator = LoginPacketServices.Creator;
         if (creator == null)
         {
             _characterGameObjects.Add(null);
@@ -286,7 +287,10 @@ public class CharacterSelector : MonoBehaviour
     public void SpawnInterludeCharacterSlot(int id)
     {
         CharSelectInfoPackage info = _charactersInterlude[id];
-        GameObject pawnObject = CharacterCreator.Instance.CreatePawnInterlude(info.CharacterRaceAnimation, info.Appreance);
+        CharacterCreator creator = LoginPacketServices.Creator;
+        if (creator == null)
+            return;
+        GameObject pawnObject = creator.CreatePawnInterlude(info.CharacterRaceAnimation, info.Appreance);
         if (pawnObject == null)
         {
             // LobbyFlowLog.Error(
@@ -298,7 +302,7 @@ public class CharacterSelector : MonoBehaviour
         pawnObject.GetComponent<SelectableCharacterEntity>().CharacterInfoInterlude = info;
         pawnObject.GetComponent<SelectableCharacterEntity>().WeaponAnim = pawnObject.GetComponent<UserGear>().WeaponAnim;
         string name = info.Name;
-        CharacterCreator.Instance.PlacePawn(pawnObject, _pawnData[id], name, _container);
+        creator.PlacePawn(pawnObject, _pawnData[id], name, _container);
         _characterGameObjects.Add(pawnObject);
         // LobbyFlowLog.Info("lobby pawn spawned slot=" + id + " name=" + name);
     }
@@ -314,10 +318,13 @@ public class CharacterSelector : MonoBehaviour
     }
 
     public void SpawnCharacterSlot(int id) {
-        GameObject pawnObject = CharacterCreator.Instance.CreatePawn(_characters[id].CharacterRaceAnimation, _characters[id].PlayerAppearance);
+        CharacterCreator creator = LoginPacketServices.Creator;
+        if (creator == null)
+            return;
+        GameObject pawnObject = creator.CreatePawn(_characters[id].CharacterRaceAnimation, _characters[id].PlayerAppearance);
         pawnObject.GetComponent<SelectableCharacterEntity>().CharacterInfo = _characters[id];
         pawnObject.GetComponent<SelectableCharacterEntity>().WeaponAnim = pawnObject.GetComponent<UserGear>().WeaponAnim;
-        CharacterCreator.Instance.PlacePawn(pawnObject, _pawnData[id], _characters[id].Name, _container);
+        creator.PlacePawn(pawnObject, _pawnData[id], _characters[id].Name, _container);
         _characterGameObjects.Add(pawnObject);
     }
 
