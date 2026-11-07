@@ -44,6 +44,7 @@ public class WorldClock : MonoBehaviour {
     }
 
     private static WorldClock _instance;
+    [System.Obsolete("Use [Inject] or WorldClockPacketServices.Clock instead")]
     public static WorldClock Instance { get { return _instance; } }
 
     bool _persistentDriver;
@@ -108,6 +109,7 @@ public class WorldClock : MonoBehaviour {
         driver.PinAtHour(13f);
 
         _instance = driver;
+        WorldClockPacketServices.Bind(clock: driver);
         _bootstrapping = false;
         // Debug.Log("[L2Clock] persistent driver started (survives Menu unload / map tiles)");
         return driver;
@@ -138,6 +140,7 @@ public class WorldClock : MonoBehaviour {
         {
             _persistentDriver = true;
             _instance = this;
+            WorldClockPacketServices.Bind(clock: this);
             return;
         }
 
@@ -146,6 +149,7 @@ public class WorldClock : MonoBehaviour {
             if (_instance == null)
             {
                 _instance = this;
+                WorldClockPacketServices.Bind(clock: this);
             }
 
             return;

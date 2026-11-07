@@ -22,7 +22,7 @@ public static class L2ActorLightCapture
 
     public static void Write()
     {
-        float hours = WorldClock.Instance != null ? WorldClock.Instance.WorldHours : -1f;
+        float hours = WorldClockPacketServices.Clock != null ? WorldClockPacketServices.Clock.WorldHours : -1f;
         L2ActorLightLut.EnsureLoaded();
         L2CelestialLut.EnsureLoaded();
 

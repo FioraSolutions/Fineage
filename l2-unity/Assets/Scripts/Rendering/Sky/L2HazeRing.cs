@@ -140,7 +140,7 @@ public class L2HazeRing : MonoBehaviour
 
         ApplyHazeLayer(_tf.gameObject);
 
-        WorldClock clock = WorldClock.Instance;
+        WorldClock clock = WorldClockPacketServices.Clock;
         if (clock == null)
         {
             clock = WorldClock.EnsurePersistent();

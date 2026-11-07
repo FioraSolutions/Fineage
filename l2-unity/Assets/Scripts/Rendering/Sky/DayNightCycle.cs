@@ -145,7 +145,7 @@ public class DayNightCycle : MonoBehaviour
             }
             if (_clock == null)
             {
-                _clock = WorldClock.Instance;
+                _clock = WorldClockPacketServices.Clock;
             }
             if (_mainLight == null)
             {
