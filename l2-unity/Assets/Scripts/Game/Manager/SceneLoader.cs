@@ -536,10 +536,10 @@ public class SceneLoader : MonoBehaviour
     /// </summary>
     private IEnumerator UnloadLobbyScenesRoutine()
     {
-        CharacterSelector selector = CharacterSelector.Instance;
+        CharacterSelector selector = LoginPacketServices.Characters;
         if (selector != null)
             selector.ClearLobbyVisuals();
-        CharacterCreator creator = CharacterCreator.Instance;
+        CharacterCreator creator = LoginPacketServices.Creator;
         if (creator != null)
             creator.DestroyAllPawns();
 

@@ -118,7 +118,7 @@ public static class LobbyPresentation
 
     static Transform ResolveLobbyTransform()
     {
-        CharacterCreator creator = CharacterCreator.Instance;
+        CharacterCreator creator = LoginPacketServices.Creator;
         return creator != null ? creator.transform : null;
     }
 

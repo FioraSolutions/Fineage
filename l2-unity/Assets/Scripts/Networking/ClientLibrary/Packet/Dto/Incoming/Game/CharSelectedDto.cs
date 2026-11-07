@@ -142,7 +142,7 @@
                 return fromWindow;
         }
 
-        CharacterSelector selector = CharacterSelector.Instance;
+        CharacterSelector selector = LoginPacketServices.Characters;
         if (selector != null)
             return selector.SelectedInterludeCharacter;
 

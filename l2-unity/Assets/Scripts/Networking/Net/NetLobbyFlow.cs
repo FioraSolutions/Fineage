@@ -272,8 +272,9 @@ public sealed class NetLobbyFlow
         LobbyCharacter[] characters = LobbyCharacterMap.FromNetRoster(roster);
         if (CharSelectWindow.Instance != null)
             CharSelectWindow.Instance.SetLobbyCharacters(characters);
-        if (CharacterSelector.Instance != null)
-            CharacterSelector.Instance.SetLobbyCharacters(characters, 0);
+        CharacterSelector selector = LoginPacketServices.Characters;
+        if (selector != null)
+            selector.SetLobbyCharacters(characters, 0);
         if (CharSelectWindow.Instance != null)
             CharSelectWindow.Instance.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, 0));
         if (LoginWindow.Instance != null)

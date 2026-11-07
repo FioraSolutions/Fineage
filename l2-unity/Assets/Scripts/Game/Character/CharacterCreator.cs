@@ -44,6 +44,7 @@ public class CharacterCreator : MonoBehaviour
     public int PawnIndex { get { return currentPawnIndex; } }
 
     private static CharacterCreator _instance;
+    [System.Obsolete("Use LoginPacketServices.Creator instead")]
     public static CharacterCreator Instance { get { return _instance; } }
 
     void Awake()
