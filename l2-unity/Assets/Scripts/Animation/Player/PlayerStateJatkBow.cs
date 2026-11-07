@@ -9,6 +9,8 @@
 /// </summary>
 public class PlayerStateJatkBow : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private float _startTime;
     private float _endTime;
     private float _releaseAt;
@@ -50,8 +52,8 @@ public class PlayerStateJatkBow : StateMachineBehaviour
 
         _releaseAt = _tweenSeconds + eventTimeInClip / _motionSpeed;
         _endTime = _tweenSeconds + clipLength / _motionSpeed;
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.SetPAtkSpeed(objectId, 0f);
+        if (Animations != null)
+            Animations.SetPAtkSpeed(objectId, 0f);
 
         // ReplayAttackTrace.Write(
             // "BOW_CLIP_ENTER",
@@ -76,7 +78,7 @@ public class PlayerStateJatkBow : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (_startTime < 0f || AnimationManager.Instance == null)
+        if (_startTime < 0f || Animations == null)
             return;
 
         int objectId = AnimatorUtils.GetObjectId(animator);
@@ -84,7 +86,7 @@ public class PlayerStateJatkBow : StateMachineBehaviour
         // UE2 starts the sequence at a negative frame during TweenTime. Holding
         // Unity on the first sample for that wall time reproduces the notify timing.
         float speed = elapsed < _tweenSeconds ? 0f : _motionSpeed;
-        AnimationManager.Instance.SetPAtkSpeed(objectId, speed);
+        Animations.SetPAtkSpeed(objectId, speed);
 
         if (!AnimatorUtils.IsLocalPlayerAnimator(animator))
             return;
@@ -95,8 +97,8 @@ public class PlayerStateJatkBow : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.SetPAtkSpeed(AnimatorUtils.GetObjectId(animator), 1f);
+        if (Animations != null)
+            Animations.SetPAtkSpeed(AnimatorUtils.GetObjectId(animator), 1f);
     }
 
     private void SwitchToIdle()
@@ -124,7 +126,7 @@ public class PlayerStateJatkBow : StateMachineBehaviour
     {
         if (animator.GetBool(animParameterName))
         {
-            AnimationManager.Instance.StopCurrentAnimation(
+            Animations.StopCurrentAnimation(
                 AnimatorUtils.GetObjectId(animator), animParameterName, "player");
         }
     }

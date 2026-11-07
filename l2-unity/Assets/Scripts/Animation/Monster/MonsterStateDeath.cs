@@ -2,6 +2,8 @@
 
 public class MonsterStateDeath : MonsterStateBase
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     public const float HoldNorm = 0.999f;
 
     public string parameterName;
@@ -77,8 +79,8 @@ public class MonsterStateDeath : MonsterStateBase
             return;
         if (!animator.GetBool(parameterName))
             return;
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.StopMonsterCurrentAnimation(
+        if (Animations != null)
+            Animations.StopMonsterCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 }

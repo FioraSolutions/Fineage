@@ -14,6 +14,8 @@ using UnityEngine.Playables;
 /// </summary>
 public sealed class CastClipPlayable
 {
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
+
     private const float PhaseDoneNormalizedTime = 1f;
     private const float LongPhaseDoneNormalizedTime = 0.95f;
 
@@ -369,9 +371,9 @@ public sealed class CastClipPlayable
             " norm=" + norm.ToString("F3") +
             " wallDone=" + wallDone);
 
-        if (AnimationManager.Instance != null)
+        if (Animations != null)
         {
-            AnimationManager.Instance.NotifyMagicPhaseFinished(_objectId, _finishName);
+            Animations.NotifyMagicPhaseFinished(_objectId, _finishName);
         }
 
         if (finishedShot)
