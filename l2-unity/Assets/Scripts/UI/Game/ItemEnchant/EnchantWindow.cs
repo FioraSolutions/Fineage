@@ -147,36 +147,32 @@ public class EnchantWindow : L2PopupWindow
 
     private EnchantSlot ChangeSlotBoxType(VisualElement slotBox , EnchantSlot enchantSlot)
     {
-        VisualElement slotElement = CretaVisualElement();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotTemplate, slotBox);
         enchantSlot = CreateEnchantSlot(1, slotElement, SlotType.Enchant);
         enchantSlot.AssignEmpty();
-        slotBox.Add(slotElement);
         return enchantSlot;
     }
 
     private EnchantSlot ChangeSlotBoxTypeChoice(VisualElement slotBox, EnchantSlot enchantSlot)
     {
-        VisualElement slotElement = CretaVisualElementChoice();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotChoiceTemplate, slotBox);
         enchantSlot = CreateEnchantSlot(1, slotElement, SlotType.Enchant);
         enchantSlot.AssignEmpty();
-        slotBox.Add(slotElement);
         return enchantSlot;
     }
 
     private void InitSlotElement1(VisualElement slotBox)
     {
-        VisualElement slotElement = CretaVisualElement();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotTemplate, slotBox);
         _enchant1 = CreateEnchantSlot(0, slotElement, SlotType.Enchant);
         _enchant1.AssignEmpty();
-        slotBox.Add(slotElement);
     }
 
     private void InitSlotElement2(VisualElement slotBox)
     {
-        VisualElement slotElement = CretaVisualElementChoice();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotChoiceTemplate, slotBox);
         _enchant2 = CreateEnchantSlot(1, slotElement, SlotType.Enchant);
         _enchant2.AssignEmpty();
-        slotBox.Add(slotElement);
     }
 
 
@@ -209,16 +205,6 @@ public class EnchantWindow : L2PopupWindow
         {
             // Debug.LogWarning("EnchantWindows error not add dropItems");
         }
-    }
-
-    private VisualElement CretaVisualElement()
-    {
-        return _inventorySlotTemplate.Instantiate()[0];
-    }
-
-    private VisualElement CretaVisualElementChoice()
-    {
-        return _inventorySlotChoiceTemplate.Instantiate()[0];
     }
 
     private EnchantSlot CreateEnchantSlot(int i, VisualElement slotElement, SlotType slotType)

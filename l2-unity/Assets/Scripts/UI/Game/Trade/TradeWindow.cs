@@ -70,7 +70,7 @@ public class TradeWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/TradeWindow");
-        _inventorySlotTemplate = LoadAsset("Data/UI/_Elements/Template/Slot");
+        _inventorySlotTemplate = LoadAsset(L2InventoryUiAssets.Slot);
     }
 
     protected override void InitWindow(VisualElement root)
