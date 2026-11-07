@@ -71,7 +71,7 @@ public class CharacterBuilder : MonoBehaviour
         if (entityType != EntityType.User)
             return Instantiate(prototype);
 
-        IPoolManager pool = ObjectPoolManager.Instance;
+        IPoolManager pool = ObjectPoolPacketServices.Pool;
         if (pool == null)
             return Instantiate(prototype);
 

@@ -385,9 +385,10 @@ public class UserGear : Gear
 
     public void OnDestroyGameObject(GameObject go)
     {
-        if(ObjectPoolManager.Instance != null)
+        IPoolManager pool = ObjectPoolPacketServices.Pool;
+        if (pool != null)
         {
-            if (!ObjectPoolManager.Instance.ReturnToPool(ObjectType.Armor , go))
+            if (!pool.ReturnToPool(ObjectType.Armor , go))
             {
                 Destroy(go);
             }

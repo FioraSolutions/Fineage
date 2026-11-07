@@ -651,10 +651,11 @@ public class Gear : AbstractMeshManager
 
     private void DestroyObject(GameObject go , string origPrefabName)
     {
-        if (ObjectPoolManager.Instance != null)
+        IPoolManager pool = ObjectPoolPacketServices.Pool;
+        if (pool != null)
         {
             go.name = origPrefabName;
-            if (!ObjectPoolManager.Instance.ReturnToPool(ObjectType.Weapon, go))
+            if (!pool.ReturnToPool(ObjectType.Weapon, go))
             {
                 Destroy(go);
             }

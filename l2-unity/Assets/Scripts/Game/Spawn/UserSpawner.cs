@@ -59,7 +59,7 @@ public sealed class UserSpawner
         UserEntity user = go.GetComponent<UserEntity>();
         if (user == null)
         {
-            IPoolManager pool = ObjectPoolManager.Instance;
+            IPoolManager pool = ObjectPoolPacketServices.Pool;
             if (pool == null || !pool.ReturnToPool(ObjectType.User, go))
                 UnityEngine.Object.Destroy(go);
             return null;

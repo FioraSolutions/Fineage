@@ -20,7 +20,7 @@ public class AbstractMeshManager : MonoBehaviour
                     int weaponId = itemIds[0];
                     Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
                     GameObject goWeapon = LoadWeapon(weapon, weaponId);
-                    if (weapon != null) ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Weapon, goWeapon);
+                    if (weapon != null) ObjectPoolPacketServices.Pool?.AddPrefabToPool(ObjectType.Weapon, goWeapon);
                     return goWeapon;
                 case EquipmentCategory.Armor:
                     int aramorId = itemIds[0];
@@ -30,7 +30,7 @@ public class AbstractMeshManager : MonoBehaviour
                     if (goArmor == null)
                         return null;
                     if (armor != null && goArmor.baseArmorModel != null)
-                        ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Armor, goArmor.baseArmorModel);
+                        ObjectPoolPacketServices.Pool?.AddPrefabToPool(ObjectType.Armor, goArmor.baseArmorModel);
                     return goArmor;
                 case EquipmentCategory.FullArmor:
                     int fullArmorId = itemIds[0];
@@ -46,7 +46,7 @@ public class AbstractMeshManager : MonoBehaviour
                     int etcId = itemIds[0];
                     EtcItem etcItem = TablePacketServices.Items.GetEtcItem(etcId);
                     GameObject goEtcItem = LoadEtcItem(etcItem, etcId);
-                    if (goEtcItem != null) ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Arrow, goEtcItem);
+                    if (goEtcItem != null) ObjectPoolPacketServices.Pool?.AddPrefabToPool(ObjectType.Arrow, goEtcItem);
                     return goEtcItem;
 
                 default:
@@ -79,7 +79,7 @@ public class AbstractMeshManager : MonoBehaviour
             for (int i = 0; i < allModels.Length; i++)
             {
                 GameObject go = allModels[i];
-                ObjectPoolManager.Instance?.AddPrefabToPool(type, go);
+                ObjectPoolPacketServices.Pool?.AddPrefabToPool(type, go);
             }
         }
     }
@@ -88,11 +88,11 @@ public class AbstractMeshManager : MonoBehaviour
         if (originalGameObject == null)
             return null;
 
-        if (ObjectPoolManager.Instance != null)
+        if (ObjectPoolPacketServices.Pool != null)
         {
             // Pool may not know this prefab yet (fullarmor robe meshes). Grow or fall back.
-            ObjectPoolManager.Instance.AddPrefabToPool(type, originalGameObject, count: 1);
-            GameObject pooled = ObjectPoolManager.Instance.SpawnFromPool(type, originalGameObject);
+            ObjectPoolPacketServices.Pool.AddPrefabToPool(type, originalGameObject, count: 1);
+            GameObject pooled = ObjectPoolPacketServices.Pool.SpawnFromPool(type, originalGameObject);
             if (pooled != null)
                 return pooled;
         }
