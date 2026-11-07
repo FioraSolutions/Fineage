@@ -244,7 +244,7 @@ public static class NetGearSession
         if (user.HasClan)
             info.Identity.ClanId = user.ClanId;
         if (user.HasPaperdoll)
-            NetEntityMap.ApplyUserPaperdoll(info.Appearance, user.Paperdoll);
+            ApplyUserPaperdoll(info.Appearance, user.Paperdoll);
 
         if (user.HasVitals)
         {
@@ -508,4 +508,7 @@ public static class NetGearSession
                 return false;
         }
     }
+
+    static void ApplyUserPaperdoll(PlayerAppearance appearance, NetPaperdollSlot[] slots) =>
+        NetPaperdollApply.ApplyUserPaperdoll(appearance, slots);
 }

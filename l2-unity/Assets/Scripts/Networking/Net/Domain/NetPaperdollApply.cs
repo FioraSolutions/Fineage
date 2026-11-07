@@ -1,5 +1,5 @@
-/// <summary>Fineage Net presence helpers — paperdoll overlay for EntitySpawn / UserInfo.</summary>
-public static class NetEntityMap
+/// <summary>Paperdoll overlay for EntitySpawn / UserInfo (uses Interlude <see cref="PlayerAppearance"/>).</summary>
+public static class NetPaperdollApply
 {
     public static void ApplyUserPaperdoll(PlayerAppearance appearance, NetPaperdollSlot[] slots)
     {

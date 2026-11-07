@@ -21,7 +21,7 @@ Server wire SoT: [Fineage-Backend `docs/net-protocol.md`](https://github.com/Fio
 | `NetTransport.cs` | TCP + `NetFraming` |
 | `NetSession.cs` | Lobby + zone session → domain sink / spawn / move |
 | `FineageZoneTransport` / `IZoneTransport` | Sole zone command path (DI + `ZoneCommands.Transport` fallback) |
-| `Net/Domain/Net{Entity,Combat,Gear,Social}Map.cs` | Maps Net contract payloads → Interlude-shaped apply DTOs (`PlayerInfoInterlude`, move/chat/combat DTOs) for `IWorldDomainSink` / `WorldPacketApply` (ex-`NetDomainMap`) |
+| `NetSession.cs`, `Net/Domain/NetGearSession.cs` | Net contract → Interlude-shaped apply DTOs (`PlayerInfoInterlude`, CharInfo/NpcInfo, inventory, skills) via colocated helpers; paperdoll overlay via `NetPaperdollApply` + slot indexes on `NetPaperdoll` (`NetDomainStructs.cs`) |
 
 The presentation layer is still Interlude-era (client protocol identity **746**, `ClientLibrary` DTOs). Net is a custom envelope into that apply path — not a second wire and not “no DTO bridge.”
 

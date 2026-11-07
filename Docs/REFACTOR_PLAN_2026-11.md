@@ -83,27 +83,27 @@ Unified plan from the GPT + DeepSeek architecture reviews, reconciled with epics
 
 ## Phase C — Client domain (#131 residual)
 
-### C1. Dissolve `NetDomainMap` (active)
-Current path:
+### C1. Dissolve `NetDomainMap` — tactics 1–4 done
+Legacy path (deleted):
 
 ```
 Fineage Net → NetSession → NetDomainMap → Interlude DTO → PacketServices / WorldPacketApply → World
 ```
 
-Target:
+Current path:
 
 ```
-Fineage Net → Domain adapters / PacketServices → World (Interlude DTO only inside legacy apply helpers)
+Fineage Net → NetSession / NetGearSession / PacketServices → Interlude DTO → WorldPacketApply → World
 ```
 
 **Tactics (small PRs, no big-bang):**
 
-1. **Split** `NetDomainMap` (~770 LOC) into focused static adapters by domain (entities, combat, gear, social) — call sites stop importing the god map.
-2. **Expand** apply services to take Net contract types (or thin domain records) so DTO construction moves next to the apply, then delete adapter methods.
+1. [x] **Split** `NetDomainMap` into domain adapters; delete `NetCombatMap`, `NetSocialMap`, `NetGearMap`, `NetEntityMap`.
+2. [x] **Expand** apply colocation — DTO construction lives on `NetSession` / `NetGearSession` / packet services; paperdoll overlay on `NetPaperdollApply` (slot constants on `NetPaperdoll`).
 3. **Kill fabricated defaults** (NPC Level=1, HP=100, fixed PAtkSpd) once wire / DAT supplies real values.
-4. Delete empty `NetDomainMap` when call count is 0; add CI grep guard like IncomingPacketActions.
+4. [x] `NetDomainMap` and split `Net*Map` types deleted; CI guard `scripts/check-frozen-net-domain-maps.py`.
 
-Call-site inventory (2026-11-07): `NetSession` (11), `NetGearSession` (6), party packet services (2).
+Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, social, combat tails), `NetGearSession` (UserInfo, inventory, skills), party/HUD packet services — no `Net*Map` imports.
 
 ### C2. DI / Instance drain
 - No new `*.Instance` for frozen seams; continue non-UI manager drain.
@@ -138,5 +138,5 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - External bind without `FINEAGE_HANDOFF_SECRET` fails closed
 - Deduper rejects pruned-window replays
 - Client CI fails if Net contract drifts vs Backend
-- `NetDomainMap.cs` gone or reduced to ≤ thin re-exports pending delete
+- `NetDomainMap.cs` and frozen `Net*Map` adapters gone (`check-frozen-net-domain-maps.py`)
 - No new world DB I/O under `_gate` on enter (Phase B)
