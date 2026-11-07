@@ -13,7 +13,7 @@ public class MouseOverDetectionManipulator : PointerManipulator
     public MouseOverDetectionManipulator(VisualElement target)
     {
         this.target = target;
-        _ui = L2GameUI.Instance != null ? L2GameUI.Instance : L2LoginUI.Instance;
+        _ui = SystemUIPacketServices.Ui != null ? SystemUIPacketServices.Ui : L2LoginUI.Instance;
     }
 
     public void RefreshTargetElement(VisualElement newTarget)

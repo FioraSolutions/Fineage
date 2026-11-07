@@ -105,7 +105,7 @@ public class TooltipDataProvider : AbstractDataProvider
         ItemInstance item1 = (ItemInstance)item;
         EtcItemgrp etcItem = item1.GetEtcItem();
         IDataTips text = ToolTipManager.GetInstance().GetProductText(item1);
-        int countInventory = PlayerInventory.Instance.GetItemByItemId(item1.ItemId) != null ? PlayerInventory.Instance.GetItemByItemId(item1.ItemId).Count : 0;
+        int countInventory = InventoryPacketServices.Inventory.GetItemByItemId(item1.ItemId) != null ? InventoryPacketServices.Inventory.GetItemByItemId(item1.ItemId).Count : 0;
         SetRequired(container, text, etcItem.Icon, 0, item1.GetTypeAccessoriesName(), etcItem.Weight.ToString() , item1.GetRequiredCount() , countInventory);
     }
 

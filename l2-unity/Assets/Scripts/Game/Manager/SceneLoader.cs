@@ -476,9 +476,9 @@ public class SceneLoader : MonoBehaviour
 
     private static L2GameUI GetGameUi()
     {
-        if (L2GameUI.Instance != null)
+        if (SystemUIPacketServices.Ui != null)
         {
-            return L2GameUI.Instance;
+            return SystemUIPacketServices.Ui;
         }
 
         return FindFirstObjectByType<L2GameUI>(FindObjectsInactive.Include);

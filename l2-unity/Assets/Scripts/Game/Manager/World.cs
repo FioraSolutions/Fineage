@@ -97,7 +97,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     static bool ShouldEnsureGameScope()
     {
-        if (L2GameUI.Instance != null)
+        if (SystemUIPacketServices.Ui != null)
             return true;
 
         GameManager manager = WorldPacketServices.Manager ?? GamePacketServices.Manager;

@@ -283,19 +283,19 @@ public sealed class GameLifetimeScope : LifetimeScope
             return found;
 
         if (typeof(T) == typeof(PlayerInventory))
-            return PlayerInventory.Instance as T;
+            return InventoryPacketServices.Inventory as T;
         if (typeof(T) == typeof(TargetManager))
             return TargetManager.Instance as T;
         if (typeof(T) == typeof(TradeWindow))
-            return TradeWindow.Instance as T;
+            return TradePacketServices.Trade as T;
         if (typeof(T) == typeof(TradeRequestWindow))
-            return TradeRequestWindow.Instance as T;
+            return TradePacketServices.TradeRequest as T;
         if (typeof(T) == typeof(PartyInvitationWindow))
-            return PartyInvitationWindow.Instance as T;
+            return PartyPacketServices.PartyInvite as T;
         if (typeof(T) == typeof(SkillListWindow))
-            return SkillListWindow.Instance as T;
+            return SkillLearnPacketServices.SkillList as T;
         if (typeof(T) == typeof(BufferPanel))
-            return BufferPanel.Instance as T;
+            return AuxiliaryGameUIPacketServices.Buffer as T;
         if (typeof(T) == typeof(MoveAllCharacters))
             return MoveAllCharacters.Instance as T;
         if (typeof(T) == typeof(EffectManager))
@@ -303,7 +303,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(EventBus))
             return EventBus.Instance as T;
         if (typeof(T) == typeof(SkillbarWindow))
-            return SkillbarWindow.Instance as T;
+            return SkillbarPacketServices.Skillbar as T;
         if (typeof(T) == typeof(ChatWindow))
             return MessagePacketServices.Chat as T;
         if (typeof(T) == typeof(HtmlWindow))

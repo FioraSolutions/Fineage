@@ -191,7 +191,7 @@ public class InventoryTab : L2Tab
             ItemInstance item = removeAndAdd[i];
             if (item.LastChange == (int)InventoryChange.ADDED)
             {   
-                if (!PlayerInventory.Instance.IsContaineInventory(item.ObjectId))
+                if (!InventoryPacketServices.Inventory.IsContaineInventory(item.ObjectId))
                 {
                     //Debug.Log("ADD Inventory Slot slot-position update inventory <<<<< " + item.Slot + " position " + item + " object id " + item.ObjectId);
 

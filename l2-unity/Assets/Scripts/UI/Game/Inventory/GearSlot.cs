@@ -45,7 +45,7 @@ public class GearSlot : InventorySlot
 
     void UnequipWorn()
     {
-        PlayerInventory inventory = PlayerInventory.Instance;
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
         ItemInstance item = inventory != null ? inventory.GetItemEquip(ObjectId) : null;
         if (item == null)
         {

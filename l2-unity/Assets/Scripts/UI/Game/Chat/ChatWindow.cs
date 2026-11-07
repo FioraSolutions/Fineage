@@ -204,7 +204,7 @@ public class ChatWindow : L2Window
     IEnumerator OpenChat()
     {
         _chatOpened = true;
-        L2GameUI.Instance.BlurFocus();
+        SystemUIPacketServices.Ui.BlurFocus();
         yield return new WaitForEndOfFrame();
         _chatInput.Focus();
     }
@@ -213,7 +213,7 @@ public class ChatWindow : L2Window
     {
         _chatOpened = false;
 
-        L2GameUI.Instance.BlurFocus();
+        SystemUIPacketServices.Ui.BlurFocus();
 
         if (sendMessage)
         {

@@ -18,6 +18,7 @@ public class L2GameUI : L2UI
         {
             _instance = this;
             DiBootstrap.EnsureGameScope();
+            WireSystemUIPacketServices();
         }
         else
         {
@@ -27,9 +28,20 @@ public class L2GameUI : L2UI
         _openedWindows = new List<L2PopupWindow>();
     }
 
+    private void Start()
+    {
+        WireSystemUIPacketServices();
+    }
+
+    private void WireSystemUIPacketServices()
+    {
+        SystemUIPacketServices.Bind(ui: this);
+    }
+
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void Update()
