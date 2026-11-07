@@ -10,7 +10,7 @@
 - UI / apply access goes through `*PacketServices` Bind + live fallback + VContainer `[Inject]` where wired. Game HUD windows (dealer, inventory, chat, confirm dialogs, quantity, tooltips, HudCore, etc.) no longer call those window `.Instance` getters outside the services themselves (PRs **#649–#656**).
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters are `[Obsolete]`; new call sites must use `[Inject]`. ~140 other `Instance` getters remain (tables, animation/combat managers, etc.).
 - Six `Fineage.*` asmdef **stubs** exist under `Assets/Scripts/Fineage.*`, but most gameplay scripts still compile as `Assembly-CSharp` — moving types into those assemblies is still open work (#139 closed as scaffolding only).
-- Domain apply path is Interlude-shaped via `NetDomainMap` → `IWorldDomainSink` / `WorldPacketApply`.
+- Domain apply path is Interlude-shaped via `Net/Domain/NetEntityMap` (and Combat/Gear/SocialMap) → `IWorldDomainSink` / `WorldPacketApply`.
 - Child issues **#137–#143** are closed on GitHub; epic **#131** stays open for remaining metrics (real asmdef split, Instance drain, EventBus/MessagePipe depth).
 
 > **Original date:** 2026-10-27

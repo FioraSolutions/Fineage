@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// Fineage Net session: lobby + zone over PacketEnvelope. Maps inbound events to
-/// <see cref="IWorldDomainSink"/> — no NetDomainMap / Interlude DTO bridge.
+/// <see cref="IWorldDomainSink"/> via NetEntity/Combat/Gear/SocialMap adapters.
 /// </summary>
 public sealed class NetSession : MonoBehaviour
 {
@@ -1320,7 +1320,7 @@ public sealed class NetSession : MonoBehaviour
         // Paperdoll is what makes peers visible in gear: without it every other player spawns
         // undressed while the wearer sees their own kit (UserInfo path).
         if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)
-            NetDomainMap.ApplyItemIds(dto.Appearance, spawn.Paperdoll);
+            NetEntityMap.ApplyItemIds(dto.Appearance, spawn.Paperdoll);
         if (_presence != null) _presence.ApplyCharInfo(dto);
         else CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
     }
@@ -1529,21 +1529,21 @@ public sealed class NetSession : MonoBehaviour
             HitTimeMs = use.HitTimeMs,
             ReuseDelayMs = use.ReuseDelayMs
         };
-        MagicSkillUseDto dto = NetDomainMap.ToMagicSkillUseDto(mapped);
+        MagicSkillUseDto dto = NetCombatMap.ToMagicSkillUseDto(mapped);
         if (_skills != null) _skills.ApplyMagicSkillUse(dto);
         else MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
     }
 
     void ApplyRevive(ReviveNetMsg revive)
     {
-        ReviveDto dto = NetDomainMap.ToReviveDto(new NetRevive { ObjectId = revive.ObjectId });
+        ReviveDto dto = NetCombatMap.ToReviveDto(new NetRevive { ObjectId = revive.ObjectId });
         if (_presence != null) _presence.ApplyRevive(dto);
         else ReviveApplyIncomingPacketServices.ApplyRevive(dto);
     }
 
     void ApplyTeleportToLocation(TeleportToLocationNetMsg teleport)
     {
-        TeleportToLocationDto dto = NetDomainMap.ToTeleportToLocationDto(new NetTeleportToLocation
+        TeleportToLocationDto dto = NetCombatMap.ToTeleportToLocationDto(new NetTeleportToLocation
         {
             ObjectId = teleport.ObjectId,
             X = teleport.X,
@@ -1570,7 +1570,7 @@ public sealed class NetSession : MonoBehaviour
             };
         }
 
-        AbnormalStatusUpdateDto dto = NetDomainMap.ToAbnormalStatusUpdateDto(new NetAbnormalStatusUpdate
+        AbnormalStatusUpdateDto dto = NetCombatMap.ToAbnormalStatusUpdateDto(new NetAbnormalStatusUpdate
         {
             ObjectId = update.ObjectId,
             Effects = effects
@@ -1846,7 +1846,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)
     {
-        var dto = NetDomainMap.ToAskJoinPartyDto(new NetPartyAskJoin
+        var dto = NetSocialMap.ToAskJoinPartyDto(new NetPartyAskJoin
         {
             RequestorObjectId = ask.RequestorObjectId,
             RequestorName = ask.RequestorName ?? "",
@@ -1894,7 +1894,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTradeAsk(TradeAskNetMsg ask)
     {
-        SendTradeRequestDto dto = NetDomainMap.ToSendTradeRequestDto(new NetTradeAsk
+        SendTradeRequestDto dto = NetSocialMap.ToSendTradeRequestDto(new NetTradeAsk
         {
             RequestorObjectId = ask.RequestorObjectId,
             RequestorName = ask.RequestorName ?? ""
@@ -1911,7 +1911,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTradeStart(TradeStartNetMsg start)
     {
-        TradeStartDto dto = NetDomainMap.ToTradeStartDto(new NetTradeStart
+        TradeStartDto dto = NetSocialMap.ToTradeStartDto(new NetTradeStart
         {
             PartnerObjectId = start.PartnerObjectId,
             PartnerName = start.PartnerName ?? ""
@@ -1922,7 +1922,7 @@ public sealed class NetSession : MonoBehaviour
 
     void ApplyTradeOfferUpdate(TradeOfferUpdateNetMsg update)
     {
-        ItemInstance item = NetDomainMap.ToTradeOfferItem(new NetTradeOfferUpdate
+        ItemInstance item = NetSocialMap.ToTradeOfferItem(new NetTradeOfferUpdate
         {
             IsOwn = update.IsOwn,
             InventoryObjectId = update.InventoryObjectId,
@@ -2014,7 +2014,7 @@ public sealed class NetSession : MonoBehaviour
         // world scene is still loading. NoteUserInfo stashes it and overlays the live
         // player / stashed PlayerInfo as those appear, so the paperdoll and stats are
         // not lost to the load order.
-        NetUserInfo user = NetDomainMap.ToUserInfo(msg);
+        NetUserInfo user = NetGearMap.ToUserInfo(msg);
         NetGearSession.NoteUserInfo(user);
     }
 
@@ -2028,7 +2028,7 @@ public sealed class NetSession : MonoBehaviour
     void ApplySkillList(SkillListNetMsg list)
     {
         NetSkillEntry[] rows = MapSkillList(list);
-        SkillListDto dto = NetDomainMap.ToSkillListDto(rows);
+        SkillListDto dto = NetCombatMap.ToSkillListDto(rows);
         if (_skills != null) _skills.ApplySkillList(dto);
         else SkillListApplyIncomingPacketServices.ApplySkillList(dto);
         Debug.Log("[Net] SkillList count=" + rows.Length);

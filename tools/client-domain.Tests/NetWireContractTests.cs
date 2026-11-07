@@ -494,7 +494,7 @@ public class NetWireContractTests
 
         UserInfoNetMsg got = NetCodec.DecodeUserInfo(NetCodec.EncodeUserInfo(sent));
 
-        // Truncated to the fields NetDomainMap.ToUserInfo actually copies.
+        // Truncated to the fields NetGearMap.ToUserInfo actually copies.
         Assert.Equal((int)sent.EntityValue, (int)got.EntityValue);
         Assert.Equal(sent.Name, got.Name);
         Assert.Equal(sent.ClassId, got.ClassId);

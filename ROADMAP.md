@@ -24,7 +24,7 @@ Doc triage: [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md). Живой клиентс�
 | **Клиентские таблицы / grp** | `l2-unity/Assets/Scripts/Database/*Table.cs`, StreamingAssets Meta, UI в `Resources/Data/UI/` | Имена, иконки, skillgrp/npcgrp/itemname, quest name — отображение |
 | **Карты / геодата** | `StreamingAssets/Data/Maps/` (+ Geodata), `Resources/Data/Maps/` | TI + baked tiles; остальные локации — импорт, не выдумывать |
 | **VFX / emitters** | `.uc` в `Resources/Data/Effects/`, формулы в `…/Decompile_Common/` | Визуал скиллов; чинить Common, не хаками. Гайд: `l2-unity/docs/metrics/L2_UC_TO_UNITY_AI_GUIDE.md` |
-| **Apply / Interlude DTOs** | `Networking/ClientLibrary`, `NetDomainMap` → `IWorldDomainSink` | Presentation всё ещё Interlude-shaped; Net мапится сюда |
+| **Apply / Interlude DTOs** | `Networking/ClientLibrary`, `Net*Map` adapters → `IWorldDomainSink` | Presentation всё ещё Interlude-shaped; Net мапится сюда |
 | **Серверная бизнес-логика** | Fineage-Backend `ZoneWorld*` / `Combat/` + `data/*.json` | Runtime; эталон формул — Mobius CT0 |
 | **Mobius CT0 (внешний SoT)** | `~/Downloads/L2J_Mobius_CT_0_Interlude_src` или Backend `ref/mobius-ct0-interlude` (gitignored) | XML datapack → `Fineage.MobiusImport` → `data/` |
 | **L2 Interlude client** | `~/Downloads/L2_Interlude_Client` | Ассеты / DAT reference |
@@ -42,7 +42,7 @@ Doc triage: [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md). Живой клиентс�
 |-----|-----|
 | Unity **6000.3.x** + URP | `dev` |
 | Fineage Net Login+Zone (PacketEnvelope) | Fineage-Backend `dev` + client `Networking/Net/` |
-| Domain sink + `NetDomainMap` → Interlude apply | `IWorldDomainSink`, `WorldPacketApply` |
+| Domain sink + `Net*Map` → Interlude apply | `IWorldDomainSink`, `WorldPacketApply` |
 | MobiusImport → `data/*.json` | Fineage-Backend |
 | Portable diag paths | `L2DiagPaths` |
 | Legacy MessagePack V2 / login-stub | retired as play path; stubs remain under `tools/` for hist/diag |

@@ -43,7 +43,7 @@ public sealed class PartyApplyService
         QueueApplyIncomingPacketServices.Queue(() =>
         {
             PartyPacketServices.ApplyMemberList(list);
-            string summary = NetDomainMap.FormatPartyMemberList(list);
+            string summary = NetSocialMap.FormatPartyMemberList(list);
             UnityEngine.Debug.Log("[Party] " + summary);
             ChatTypeData data = ChatTypes.GetById(0);
             if (data != null)
