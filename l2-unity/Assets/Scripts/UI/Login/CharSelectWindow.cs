@@ -43,6 +43,7 @@ public class CharSelectWindow : L2Window {
     private CharSelectInfoPackage _selectChar;
 
     private static CharSelectWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.CharSelect instead")]
     public static CharSelectWindow Instance { get { return _instance; } }
 
     private void Awake() {

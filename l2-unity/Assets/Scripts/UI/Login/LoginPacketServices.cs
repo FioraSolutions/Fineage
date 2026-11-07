@@ -40,7 +40,7 @@ public static class LoginPacketServices
         _login != null ? _login.Servers : ServerSelectWindow.Instance;
 
     public static CharSelectWindow CharSelect =>
-        _login != null ? _login.CharSelect : CharSelectWindow.Instance;
+        _login != null ? _login.CharSelect : LegacyCharSelectWindowInstance();
 
     public static CharCreationWindow CharCreate =>
         _login != null ? _login.CharCreate : CharCreationWindow.Instance;
@@ -53,4 +53,8 @@ public static class LoginPacketServices
 
     public static LoginCameraManager LoginCamera =>
         _login != null ? _login.Camera : LoginCameraManager.Instance;
+
+#pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    static CharSelectWindow LegacyCharSelectWindowInstance() => CharSelectWindow.Instance;
+#pragma warning restore CS0618
 }
