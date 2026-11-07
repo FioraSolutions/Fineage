@@ -1,3 +1,4 @@
+// fineage-touch 1794037730.455447
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,11 +14,11 @@ public class SceneLoader : MonoBehaviour
     [SerializeField] private float _tilePreloadDistance = 80f;
 
     private readonly HashSet<string> _loadedTiles = new HashSet<string>();
+    private readonly Dictionary<string, GameObject> _prefabTiles = new Dictionary<string, GameObject>();
     private bool _worldStreaming;
     private bool _streamingBusy;
 
     GameManager _gameManager;
-    [Inject] GameClient _gameClient;
 
     private GameManager Manager
     {
@@ -25,15 +26,8 @@ public class SceneLoader : MonoBehaviour
         {
             if (_gameManager != null)
                 return _gameManager;
-            if (GameManager.Instance != null)
-                return GameManager.Instance;
-            return IncomingPacketActions.Manager;
+            return GamePacketServices.Manager ?? WorldPacketServices.Manager;
         }
-    }
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
     }
 
     private World GameWorld
@@ -50,7 +44,7 @@ public class SceneLoader : MonoBehaviour
                 {
                 }
             }
-            return IncomingPacketActions.GameWorld;
+            return WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
         }
     }
 
@@ -78,6 +72,7 @@ public class SceneLoader : MonoBehaviour
         _worldStreaming = false;
         _streamingBusy = false;
         _loadedTiles.Clear();
+        DestroyAllPrefabTiles();
         Manager.OnStartingGame();
         if (SceneManager.GetActiveScene().name != _menuScene)
         {
@@ -119,14 +114,14 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadSWMap()
     {
-        GameClient game = Game;
-        if (game == null || game.PlayerInfo.Identity == null)
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport == null || transport.PlayerInfo.Identity == null)
         {
-            // Debug.LogError("LoadSWMap: no player xyz");
+            Debug.LogError("LoadSWMap: no player xyz (PlayerInfo.Identity null) — loading UI will stick");
             return;
         }
 
-        Vector3 l2Pos = game.PlayerInfo.Identity.GetL2jPos();
+        Vector3 l2Pos = transport.PlayerInfo.Identity.GetL2jPos();
         StartCoroutine(LoadSWMapRoutine(l2Pos));
     }
 
@@ -212,12 +207,13 @@ public class SceneLoader : MonoBehaviour
 
     private void Update()
     {
-        if (!_worldStreaming || _streamingBusy || PlayerController.Instance == null)
+        PlayerController player = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
+        if (!_worldStreaming || _streamingBusy || player == null)
         {
             return;
         }
 
-        Vector3 l2Pos = VectorUtils.ConvertPosUnityToL2j(PlayerController.Instance.transform.position);
+        Vector3 l2Pos = VectorUtils.ConvertPosUnityToL2j(player.transform.position);
         List<string> wanted = ResolveSeamlessTiles(l2Pos);
         if (wanted.Count == 0)
         {
@@ -227,7 +223,7 @@ public class SceneLoader : MonoBehaviour
         for (int i = 0; i < wanted.Count; i++)
         {
             string tile = wanted[i];
-            if (_loadedTiles.Contains(tile) || !Application.CanStreamedLevelBeLoaded(tile))
+            if (_loadedTiles.Contains(tile) || !CanLoadTile(tile))
             {
                 continue;
             }
@@ -327,11 +323,27 @@ public class SceneLoader : MonoBehaviour
     {
         _streamingBusy = true;
         // Debug.Log("UnloadSWMap tile='" + tile + "'");
-        SetSceneRootsActive(tile, false);
-        UnloadScene(tile);
+        if (_prefabTiles.ContainsKey(tile))
+        {
+            DestroyPrefabTile(tile);
+        }
+        else
+        {
+            SetSceneRootsActive(tile, false);
+            UnloadScene(tile);
+        }
+
         _loadedTiles.Remove(tile);
         _streamingBusy = false;
         yield break;
+    }
+
+    private static bool CanLoadTile(string tile)
+    {
+        if (Application.CanStreamedLevelBeLoaded(tile))
+            return true;
+        // Baked Maps/{tile}/{tile}.prefab is enough when the Unity scene was never generated.
+        return Resources.Load<GameObject>("Data/Maps/" + tile + "/" + tile) != null;
     }
 
     private IEnumerator LoadSceneAdditiveIfNeeded(string sceneName)
@@ -343,18 +355,96 @@ public class SceneLoader : MonoBehaviour
             yield break;
         }
 
-        // Debug.Log("Loading scene " + sceneName);
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-        if (asyncLoad == null)
+        if (_prefabTiles.ContainsKey(sceneName))
+            yield break;
+
+        if (Application.CanStreamedLevelBeLoaded(sceneName))
         {
-            // Debug.LogError("Failed to load scene " + sceneName);
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+            if (asyncLoad == null)
+                yield break;
+
+            while (!asyncLoad.isDone)
+                yield return null;
             yield break;
         }
 
-        while (!asyncLoad.isDone)
+        // Orc Immortal Plateau (18_14), DE (20_18), Dwarf (23_12) ship as map prefabs but
+        // often lack Build Settings scenes — without this fallback the world is a white void.
+        if (IsMapTileName(sceneName))
+            InstantiateMapTilePrefabs(sceneName);
+    }
+
+    static bool IsMapTileName(string name)
+    {
+        if (string.IsNullOrEmpty(name) || name.Length != 5 || name[2] != '_')
+            return false;
+        return char.IsDigit(name[0]) && char.IsDigit(name[1])
+            && char.IsDigit(name[3]) && char.IsDigit(name[4]);
+    }
+
+    void InstantiateMapTilePrefabs(string tile)
+    {
+        if (_prefabTiles.ContainsKey(tile))
+            return;
+
+        GameObject terrain = Resources.Load<GameObject>("Data/Maps/" + tile + "/" + tile);
+        if (terrain == null)
         {
-            yield return null;
+            FineageLog.Warn(
+                FineageLog.Category.World,
+                "LoadSWMap: no scene and no map prefab for tile '" + tile + "'");
+            return;
         }
+
+        var root = new GameObject(tile);
+        Scene game = SceneManager.GetSceneByName(_gameScene);
+        if (game.IsValid() && game.isLoaded)
+            SceneManager.MoveGameObjectToScene(root, game);
+
+        string[] parts =
+        {
+            tile,
+            tile + "_DecoLayer",
+            "StaticMeshes",
+            "Brushes",
+            tile + "_AmbientSounds"
+        };
+        int placed = 0;
+        for (int i = 0; i < parts.Length; i++)
+        {
+            GameObject prefab = Resources.Load<GameObject>("Data/Maps/" + tile + "/" + parts[i]);
+            if (prefab == null)
+                continue;
+            GameObject go = UnityEngine.Object.Instantiate(prefab, root.transform);
+            go.name = prefab.name;
+            go.transform.SetPositionAndRotation(prefab.transform.position, prefab.transform.rotation);
+            placed++;
+        }
+
+        _prefabTiles[tile] = root;
+        FineageLog.Info(
+            FineageLog.Category.World,
+            "LoadSWMap prefab-tile '" + tile + "' placed=" + placed);
+    }
+
+    void DestroyPrefabTile(string tile)
+    {
+        if (!_prefabTiles.TryGetValue(tile, out GameObject root))
+            return;
+        _prefabTiles.Remove(tile);
+        if (root != null)
+            UnityEngine.Object.Destroy(root);
+    }
+
+    void DestroyAllPrefabTiles()
+    {
+        foreach (KeyValuePair<string, GameObject> pair in _prefabTiles)
+        {
+            if (pair.Value != null)
+                UnityEngine.Object.Destroy(pair.Value);
+        }
+        _prefabTiles.Clear();
     }
 
     private IEnumerator WaitGameUiBuilt()
@@ -526,6 +616,10 @@ public class SceneLoader : MonoBehaviour
         if (NameplatesManager.Instance != null && gameplay != null)
             NameplatesManager.Instance.Camera = gameplay;
 
+        // FMOD StudioEventEmitter distance checks require a StudioListener in the scene.
+        if (gameplay != null && gameplay.GetComponent<FMODUnity.StudioListener>() == null)
+            gameplay.gameObject.AddComponent<FMODUnity.StudioListener>();
+
         FineageLog.Info(
             FineageLog.Category.World,
             "EnsureGameplayCamera ok name=" + controller.name
@@ -554,3 +648,4 @@ public class SceneLoader : MonoBehaviour
         SceneManager.UnloadSceneAsync(sceneName);
     }
 }
+

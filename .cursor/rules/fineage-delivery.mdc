@@ -1,9 +1,15 @@
 ---
-description: Fineage delivery — models, refactor-first, CI, worktrees
+description: Fineage delivery — models, refactor-first, CI, primary folders
 alwaysApply: true
 ---
 
 # Fineage delivery
+
+## Workspace
+
+- Work in **`/Users/nikitarakitin/Projects/Fineage`** and **`/Users/nikitarakitin/Projects/Fineage-Backend`**.
+- Do not create sibling worktrees (`Fineage-net`, etc.) unless the user asks for parallel agents.
+- **Parity:** server logic, client behavior, and client UI must match originals under gitignored `ref/` — `ref/mobius-ct0-interlude/` (Mobius CT0) and `ref/l2-interlude-client/` (Interlude client). Do not invent HUD/menu when the original exists. See `AGENTS.md`.
 
 ## Models
 
@@ -17,16 +23,12 @@ alwaysApply: true
 
 ## CI and landing
 
-- Target branch for feature work: **`dev`** via PR only. Never push to `main`/`dev`.
-- **Green GitHub Actions** (build-and-test / required checks) before merge. Fix red CI on the PR branch.
-
-## Worktrees and ownership
-
-- One agent → one branch → one worktree. Follow `Docs/AGENT_BRANCH_PROTOCOL.md` and `Docs/PARALLEL_AGENTS.md`.
-- Do not `git checkout` another agent’s in-flight branch; use `git worktree add`.
-- Do not amend, rebase, or force-push others’ commits.
+- Target branch for client feature work: **`dev`** via PR only. Never push to `main`/`dev`.
+- Backend: PR into **`dev`** (`main` is protected deploy). Never push to protected defaults directly.
+- **Green GitHub Actions** before merge. Fix red CI on the PR branch.
 
 ## Coordination links
 
 - Repo agent entry: `AGENTS.md`
+- Doc triage: `Docs/DOC_CANON.md`
 - GitHub Project: https://github.com/orgs/FioraSolutions/projects/7

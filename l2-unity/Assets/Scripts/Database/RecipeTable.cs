@@ -53,7 +53,7 @@ public class RecipeTable
             string dataPathE = Path.Combine(Application.streamingAssetsPath, "Data/Meta/Recipe-c_interlude.txt");
             ReadRecipeInterlude(dataPathE);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError($"Failed to initialize QuestNameTable: {ex.Message}");
         }

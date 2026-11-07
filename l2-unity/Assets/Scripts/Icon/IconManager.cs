@@ -105,26 +105,20 @@ public class IconManager
     private void LoadAllCoolTime()
     {
         int cooldownImageCount = 356;
-        string cooldownPath = "Data/UI/ShortCut/Skill_Time";
+        // Resources folder is lowercase skill_time; backslashes break Load on macOS/Linux.
+        string cooldownPath = "Data/UI/ShortCut/skill_time";
         string coolTimeName = "cooltime";
 
         for (int i = 1; i <= cooldownImageCount; i++)
         {
             string iconName = $"{coolTimeName}{i}";
-            Texture2D icon = LoadTextureByName(iconName , cooldownPath);
+            Texture2D icon = LoadTextureByName(iconName, cooldownPath);
 
-            if(icon.name == "NOIMAGE")
-            {
+            if (icon == null || icon.name == "NOIMAGE")
                 continue;
-            }
 
-            if (icon != null)
-            {
-                if (!_otherIconsCooltime.ContainsKey(i)) 
-                {
-                    _otherIconsCooltime.Add(i, icon);
-                }
-            }
+            if (!_otherIconsCooltime.ContainsKey(i))
+                _otherIconsCooltime.Add(i, icon);
         }
     }
 
@@ -160,7 +154,7 @@ public class IconManager
     {
         var folder = (iconFolder == null) ? _iconFolder : iconFolder;
 
-        string icon = folder + "\\" + CleanIconName(name);
+        string icon = folder.Replace('\\', '/') + "/" + CleanIconName(name);
 
         var result = Resources.Load<Texture2D>(icon);
 

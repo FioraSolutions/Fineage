@@ -21,6 +21,25 @@ public class AcquireSkillInfoDto : IWireDto
         _requiredSkillInfo = new List<RequiredSkillInfo>();
     }
 
+    /// <summary>
+    /// Net <c>AcquireSkillInfo</c> (0x0361): the confirmation page for one trainer offer. Same model as the V2 parse
+    /// (id, level, spCost, mode/type, requirement count, [type, itemId, count, unk]).
+    /// </summary>
+    public static AcquireSkillInfoDto FromNet(int skillId, int level, int spCost, int skillType,
+        int[] reqTypes, int[] reqItemIds, long[] reqCounts, int[] reqUnks)
+    {
+        var dto = new AcquireSkillInfoDto
+        {
+            _id = skillId,
+            _level = level,
+            _spCost = spCost,
+            _mode = skillType
+        };
+        for (int i = 0; i < reqTypes.Length; i++)
+            dto._requiredSkillInfo.Add(new RequiredSkillInfo(reqTypes[i], reqItemIds[i], (int)reqCounts[i], reqUnks[i]));
+        return dto;
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         _id = reader.ReadI();
@@ -68,7 +87,7 @@ public class RequiredSkillInfo
         return _count;
     }
 
-    public int GetType()
+    public new int GetType()
     {
         return _type;
     }

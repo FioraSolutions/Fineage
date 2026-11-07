@@ -255,9 +255,28 @@ public static class FineageRpEditorPlay
         PlayRp();
     }
 
+    [MenuItem("Fineage/Play Local (127.0.0.1:9106)")]
+    public static void PlayLocal()
+    {
+        EditorPrefs.SetBool(FineageServerProfile.EditorPrefKey, true);
+        PlayerPrefs.DeleteKey(FineageLaunchArgs.CharacterPrefKey);
+        PlayerPrefs.Save();
+        Debug.LogWarning("[FineageRP] Editor Play → LOCAL backend " + FineageServerProfile.LocalHost + ":"
+            + FineageServerProfile.LocalLoginPort + " / zone " + FineageServerProfile.LocalGamePort
+            + " (Editor only; builds always public). Start: Fineage-Backend/scripts/run-local.sh");
+        if (EditorApplication.isPlaying)
+        {
+            EditorApplication.isPlaying = false;
+            EditorApplication.delayCall += OpenMenuThenPlay;
+            return;
+        }
+        OpenMenuThenPlay();
+    }
+
     [MenuItem("Fineage/Play RP")]
     public static void PlayRp()
     {
+        EditorPrefs.SetBool(FineageServerProfile.EditorPrefKey, false);
         PlayerPrefs.DeleteKey("Fineage.LocalBackend");
         PlayerPrefs.DeleteKey("Fineage.PublicPlaytest");
         PlayerPrefs.DeleteKey(FineageLaunchArgs.CharacterPrefKey);
@@ -351,8 +370,6 @@ public static class FineageRpEditorPlay
                 return;
             if (LoginWindow.Instance == null || CharSelectWindow.Instance == null)
                 return;
-            if (!FineageWireConfig.UseLoginHandoff)
-                return;
 
             string user;
             string pass;
@@ -375,7 +392,7 @@ public static class FineageRpEditorPlay
                 if (transport != null)
                     transport.BeginSession(user, pass);
                 else
-                    ZoneV2Client.Ensure().BeginSession(user, pass);
+                    Finish(false, "no IZoneTransport resolved — the legacy Zone V2 client was removed");
             }
             catch (Exception ex)
             {

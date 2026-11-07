@@ -6,9 +6,6 @@ using VContainer;
 public class DeadWindow : L2Window
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     private static DeadWindow _instance;
     public static DeadWindow Instance { get { return _instance; } }
 
@@ -32,7 +29,7 @@ public class DeadWindow : L2Window
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient);
+        GameWindowPacketServices.Bind();
     }
 
     private void OnDestroy()
@@ -49,11 +46,9 @@ public class DeadWindow : L2Window
 
     protected override IEnumerator BuildWindow(VisualElement root)
     {
-   
 
         InitWindow(root);
 
- 
         yield return new WaitForEndOfFrame();
 
         Button toVillage = _windowEle.Q<Button>("VillageButton");
@@ -67,13 +62,11 @@ public class DeadWindow : L2Window
 
     }
 
-
-
     private void RegisterClick(Button toVillage)
     {
         toVillage.RegisterCallback<MouseUpEvent>(evt => {
 
-            Game.Send(new RequestRestartPointCommand());
+            ZoneCommands.Send(new RequestRestartPointCommand());
 
             HideWindow();
         }, TrickleDown.TrickleDown);

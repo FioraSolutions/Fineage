@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -57,7 +57,62 @@ public class GameManager : MonoBehaviour, IGameManager {
             return;
         }
 
-        // Every build (Editor and Standalone) dials the public RP only — no loopback / local backend.
+        ConfigureBackend();
+
+        if (FindFirstObjectByType<AppLifetimeScope>() == null)
+            gameObject.AddComponent<AppLifetimeScope>();
+        // AppLifetimeScope may already exist on this GO — still need FMOD listener before lobby.
+        DiBootstrap.EnsureAppScope();
+    }
+
+    /// <summary>
+    /// Pick the backend the client dials. Net is the only wire, so this chooses hosts, not
+    /// a protocol.
+    ///
+    /// <para>
+    /// Precedence: an explicit <c>FINEAGE_NET_CLIENT=0</c> still wins, because that is how a
+    /// developer pins a public-playtest build while testing locally. Otherwise the Editor
+    /// defaults to loopback (the Dock has no environment) unless Fineage/Play Local selects
+    /// the tunnel profile.
+    /// </para>
+    /// </summary>
+    static void ConfigureBackend()
+    {
+        string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
+        bool pinnedToPublic = netClient == "0"
+            || string.Equals(netClient, "false", System.StringComparison.OrdinalIgnoreCase);
+
+#if UNITY_EDITOR
+        bool useLocal = !pinnedToPublic;
+#else
+        bool useLocal = false;
+#endif
+
+        if (useLocal)
+        {
+            FineageWireConfig.EnableLocalNetBackend();
+            Debug.Log("[Fineage] backend=local login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+            return;
+        }
+
+#if UNITY_EDITOR
+        FineageServerProfile.Refresh();
+        if (!pinnedToPublic && FineageServerProfile.IsLocalActive)
+        {
+            FineageWireConfig.EnablePlaytestBackend(
+                FineageServerProfile.LocalHost,
+                FineageServerProfile.LocalLoginPort,
+                FineageServerProfile.LocalHost,
+                FineageServerProfile.LocalGamePort);
+            Debug.LogWarning("[Fineage] backend=tunnel-profile login="
+                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
+                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
+            return;
+        }
+#endif
+
         PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
         string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
             ? ep.LoginHost
@@ -67,13 +122,11 @@ public class GameManager : MonoBehaviour, IGameManager {
             : PlaytestEndpoint.DefaultGameHost;
         int loginPort = ep.LoginPort > 0 ? ep.LoginPort : PlaytestEndpoint.DefaultLoginPort;
         int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
+
         FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
-        Debug.Log("[Fineage] mode=public-playtest login="
+        Debug.Log("[Fineage] backend=public-playtest login="
             + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
             + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
-
-        if (FindFirstObjectByType<AppLifetimeScope>() == null)
-            gameObject.AddComponent<AppLifetimeScope>();
     }
 
     [Inject]
@@ -102,9 +155,7 @@ public class GameManager : MonoBehaviour, IGameManager {
         for (int i = 0; i < 30 && !App.HasContainer; i++)
             yield return null;
 
-        if (!FineageWireConfig.UseLoginHandoff)
-            yield break;
-
+        // Net owns the login, so an auto-login from launch args always has somewhere to go.
         Debug.Log("[Fineage] auto-login account=" + account);
         IZoneTransport transport = null;
         if (App.HasContainer)
@@ -122,16 +173,61 @@ public class GameManager : MonoBehaviour, IGameManager {
         if (transport != null)
             transport.BeginSession(account, password);
         else
-            ZoneV2Client.Ensure().BeginSession(account, password);
+            Debug.LogError("[Fineage] auto-login: no IZoneTransport resolved — cannot begin a session "
+                + "(the legacy Zone V2 client has been removed).");
     }
 
     #endregion
+
+    /// <summary>
+    /// Tear down the live Net session. Same teardown as
+    /// <see cref="FineageZoneTransport.Disconnect"/> (destroy the <see cref="NetSession"/>
+    /// GameObject) so QuitGame and RestartRoutine never leave a dangling socket.
+    /// </summary>
+    public static void DisconnectZoneSession()
+    {
+        if (NetSession.Instance != null)
+            UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+    }
 
     #region Lobby flow (delegates to LobbyFlowController)
 
     public void LogIn() => _lobbyFlow.LogIn();
 
     public void LogOut() => _lobbyFlow.LogOut();
+
+    /// <summary>Interlude System Menu → Restart: leave world, back to character select.</summary>
+    public void RestartToCharacterSelect()
+    {
+        StartCoroutine(RestartRoutine());
+    }
+
+    /// <summary>Interlude System Menu → Exit: close the client.</summary>
+    public void QuitGame()
+    {
+        Debug.Log("[Fineage] exit game");
+        DisconnectZoneSession();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    IEnumerator RestartRoutine()
+    {
+        // Back to the login screen only — no auto-submit (auto re-enter broke textures).
+        // Remember-login checkbox prefills the fields; user presses Login.
+        Debug.Log("[Fineage] restart → login screen");
+        DisconnectZoneSession();
+        IsSwitchingServer = false;
+        WorldSpawnReady = false;
+        GameState = GameState.LOGIN_SCREEN;
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.Clear();
+        Scenes.LoadMenu();
+        yield break;
+    }
 
     public void OnWorldSceneLoaded() => _lobbyFlow.OnWorldSceneLoaded();
 
@@ -189,10 +285,10 @@ public class GameManager : MonoBehaviour, IGameManager {
             _loadingCamera.enabled = true;
         }
 
-        L2GameUI ui = _gameUi != null ? _gameUi : IncomingPacketActions.Ui;
+        L2GameUI ui = _gameUi != null ? _gameUi : LobbyUiPacketServices.GameUi;
         if (ui != null)
             ui.StartLoading();
-        L2LoginUI loginUi = _loginUi != null ? _loginUi : IncomingPacketActions.LoginUi;
+        L2LoginUI loginUi = _loginUi != null ? _loginUi : LobbyUiPacketServices.LoginUi;
         if (loginUi != null)
             loginUi.StartLoading();
     }

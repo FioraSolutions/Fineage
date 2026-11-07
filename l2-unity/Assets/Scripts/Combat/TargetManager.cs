@@ -13,14 +13,10 @@ public class TargetManager : MonoBehaviour
     public const int KindNpc = 5;
     public const int KindCreature = 6;
 
-    [Inject] GameClient _gameClient;
+    [Inject] World _world;
 
-    private World GameWorld => IncomingPacketActions.GameWorld;
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
-    }
+    private World GameWorld =>
+        _world != null ? _world : ControllerPacketServices.GameWorld;
 
     private TargetData _target = null;
     private TargetData _attackTarget = null;
@@ -47,6 +43,7 @@ public class TargetManager : MonoBehaviour
     public TargetData AttackTarget { get { return _attackTarget; } }
 
     private static TargetManager _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static TargetManager Instance { get { return _instance; } }
 
     private void Awake()
@@ -66,6 +63,13 @@ public class TargetManager : MonoBehaviour
     {
         _target = null;
         _attackTarget = null;
+        WireControllerPacketServices();
+    }
+
+    [Inject]
+    void WireControllerPacketServices()
+    {
+        ControllerPacketServices.Bind(targets: this, gameWorld: GameWorld);
     }
 
     void OnDestroy()
@@ -94,7 +98,7 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        PlayerController player = PlayerController.Instance;
+        PlayerController player = ControllerPacketServices.Player;
         if (player == null)
         {
             return;
@@ -132,9 +136,10 @@ public class TargetManager : MonoBehaviour
 
         // Local player is never registered in World as a target candidate;
         // anything else must still exist in the world registry.
+        World world = GameWorld;
         if (entity != PlayerEntity.Instance &&
-            World.Instance != null &&
-            World.Instance.GetEntityNoLockSync(entity.Identity != null ? entity.Identity.Id : 0) == null)
+            world != null &&
+            world.GetEntityNoLockSync(entity.Identity != null ? entity.Identity.Id : 0) == null)
         {
             return true;
         }
@@ -316,14 +321,14 @@ public class TargetManager : MonoBehaviour
             return;
         }
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
         {
             return;
         }
 
         var l2jpos = entity.Identity.GetL2jPos();
-        game.Send(new ClickActionCommand(
+        ZoneCommands.Send(new ClickActionCommand(
             entity.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
     }
 
@@ -406,9 +411,9 @@ public class TargetManager : MonoBehaviour
         {
             if (PlayerEntity.Instance.TargetId != -1)
             {
-                GameClient game = Game;
+                IZoneTransport game = ZoneCommands.Transport;
                 if (game != null)
-                    game.Send(new RequestTargetCanceldCommand());
+                    ZoneCommands.Send(new RequestTargetCanceldCommand());
                 PlayerEntity.Instance.TargetId = -1;
                 PlayerEntity.Instance.Target = null;
             }
@@ -416,5 +421,22 @@ public class TargetManager : MonoBehaviour
             _target = null;
             _attackTarget = null;
         }
+    }
+
+    /// <summary>
+    /// Drop the selection because the zone said so (<c>TargetUnselected</c>). Same local clear as
+    /// <see cref="ClearTarget"/>, but it must not send <c>RequestTargetCanceld</c> back: the packet is the
+    /// answer to that very request, and echoing it would ping-pong two clients' cancels forever.
+    /// </summary>
+    public void ClearTargetSilently()
+    {
+        if (PlayerEntity.Instance != null)
+        {
+            PlayerEntity.Instance.TargetId = -1;
+            PlayerEntity.Instance.Target = null;
+        }
+
+        _target = null;
+        _attackTarget = null;
     }
 }

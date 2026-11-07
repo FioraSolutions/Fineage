@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Animation-layer access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 34).
+/// Animation-layer access with [Inject] wiring and peer PacketServices fallback (#142).
 /// </summary>
 public static class AnimationPacketServices
 {
@@ -19,7 +19,7 @@ public static class AnimationPacketServices
     }
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null ? _animations : GamePacketServices.Animations;
 
     public static void QueueOnMain(Action action)
     {
@@ -33,6 +33,6 @@ public static class AnimationPacketServices
             return;
         }
 
-        IncomingPacketActions.Queue(action);
+        NetworkingPacketServices.Queue(action);
     }
 }

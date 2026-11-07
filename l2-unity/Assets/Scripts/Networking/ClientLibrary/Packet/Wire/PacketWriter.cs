@@ -1,4 +1,3 @@
-using L2_login;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -73,11 +72,6 @@ public sealed class PacketWriter
         _buffer.AddRange(data);
     }
 
-    public void WriteChecksum()
-    {
-        NewCrypt.AppendChecksumWord(_buffer, 0, 4, true);
-    }
-
     public void InsertOpcode(byte opcode)
     {
         _buffer.Insert(0, opcode);
@@ -125,17 +119,6 @@ public sealed class PacketWriter
         else
             _buffer[0] = opcode;
         WriteZeroInt();
-        Pad8();
-        return ToArray();
-    }
-
-    public byte[] BuildLogin(byte opcode, int extraZeroBytes)
-    {
-        InsertOpcode(opcode);
-        WriteChecksum();
-        WriteZeroInt();
-        for (int i = 0; i < extraZeroBytes; i++)
-            WriteB(0);
         Pad8();
         return ToArray();
     }

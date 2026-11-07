@@ -22,7 +22,7 @@ public class CharMoveToLocationDto : IWireDto
         CreatedAt = DateTime.Now;
     }
 
-    /// <summary>Unity-space positions (already converted). Used by domain / ZoneV2.</summary>
+    /// <summary>Unity-space positions (already converted). Used by domain / Net.</summary>
     public static CharMoveToLocationDto FromUnity(int objId, Vector3 destination, Vector3 origin)
     {
         CharMoveToLocationDto dto = new CharMoveToLocationDto();

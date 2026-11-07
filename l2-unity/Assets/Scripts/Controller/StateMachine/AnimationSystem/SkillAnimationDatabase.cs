@@ -7,6 +7,9 @@ public class SkillAnimationDatabase
 {
     private static readonly Dictionary<string, SkillClips> _raceCacheMMagic = new Dictionary<string, SkillClips>();
     private static readonly Dictionary<string, SkillClips> _raceCacheMFighter = new Dictionary<string, SkillClips>();
+    private static readonly Dictionary<string, SkillClips> _raceCacheMElf = new Dictionary<string, SkillClips>();
+    private const string  FOLDER_MElf = "Data/Animations/Elf/MElf/Clips/";
+    private const string MElf = "MElf";
     private static readonly Dictionary<string, SkillClips> _raceCacheFDarkElf = new Dictionary<string, SkillClips>();
     private const string  FOLDER_MMagic = "Data/Animations/Magic/MMagic/Clips/";
     private const string  FOLDER_MFighter = "Data/Animations/Fighter/MFighter/Clips/";
@@ -76,6 +79,15 @@ public class SkillAnimationDatabase
         _raceCacheMFighter.Add("MagicShot_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_MagicShot_MFighter"));
         _raceCacheMFighter.Add("MagicThrow_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_MagicThrow_MFighter"));
 
+        // MElf (light elf male) — clips from Elf.ukx via L2MElfAnimImporter, same keys as MMagic
+        _raceCacheMElf.Add("CastLong_" + MElf, new SkillClips(FOLDER_MElf, "MElf_m000_b.ao_CastLong_MElf"));
+        _raceCacheMElf.Add("CastMid_" + MElf, new SkillClips(FOLDER_MElf, "MElf_m000_b.ao_CastMid_MElf"));
+        _raceCacheMElf.Add("CastEnd_" + MElf, new SkillClips(FOLDER_MElf, "MElf_m000_b.ao_CastEnd_MElf"));
+        _raceCacheMElf.Add("MagicShot_" + MElf, new SkillClips(FOLDER_MElf, "MElf_m000_b.ao_MagicShot_MElf"));
+        _raceCacheMElf.Add("MagicNoTarget_" + MElf, new SkillClips(FOLDER_MElf, "MElf_m000_b.ao_MagicNotarget_MElf"));
+        _raceCacheMElf.Add("MagicNotarget_" + MElf, new SkillClips(FOLDER_MElf, "MElf_m000_b.ao_MagicNotarget_MElf"));
+        _raceCacheMElf.Add("MagicThrow_" + MElf, new SkillClips(FOLDER_MElf, "MElf_m000_b.ao_MagicThrow_MElf"));
+
         //эти ролики берет для замены на свои (т.е это оригинальный аниматор)
         //FDarkElf
         _raceCacheFDarkElf.Add("CastLong_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_CastLong_FDarkElf"));
@@ -119,6 +131,8 @@ public class SkillAnimationDatabase
             return _raceCacheMMagic;
         if (raceName == MFighter)
             return _raceCacheMFighter;
+        if (raceName == MElf)
+            return _raceCacheMElf;
         return null;
     }
 

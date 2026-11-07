@@ -141,6 +141,7 @@ public sealed class InterludeSplashPlayer : MonoBehaviour
             _music.loop = false;
             _music.spatialBlend = 0f;
             _music.playOnAwake = false;
+            _music.volume = GameSettings.Music;
             _music.Play();
             Debug.Log("[InterludeSplash] playing intro " + clip.length.ToString("0.0") + "s");
         }

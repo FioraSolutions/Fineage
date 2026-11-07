@@ -8,12 +8,9 @@ using VContainer;
 
 public class PlayerShortcuts : MonoBehaviour
 {
-    [Inject] GameClient _gameClient;
     [Inject] PlayerInventory _inventory;
     [Inject] InputManager _input;
     [Inject] PlayerActions _actions;
-
-    private GameClient Game => ShortcutPacketServices.Game;
 
     private InputManager Input => ShortcutPacketServices.Input;
 
@@ -57,7 +54,6 @@ public class PlayerShortcuts : MonoBehaviour
     private void WireShortcutPacketServices()
     {
         ShortcutPacketServices.Bind(
-            game: _gameClient,
             inventory: _inventory,
             input: _input,
             actions: _actions,
@@ -115,10 +111,26 @@ public class PlayerShortcuts : MonoBehaviour
         switch (shortcut.Type)
         {
             case Shortcut.TYPE_ITEM:
+            {
                 PlayerInventory inventory = Inventory;
-                if (inventory != null)
-                    inventory.UseItem(shortcut.Id, true);
+                if (inventory == null)
+                    break;
+
+                // The original client treats a soulshot / spiritshot shortcut as an auto-use switch: the
+                // click or the key arms automatic charging instead of spending a single shot by hand.
+                ItemInstance item = inventory.FindByAllInventory(shortcut.Id);
+                if (item != null && NetAutoShot.IsShotItem(item.ItemId))
+                {
+                    NetAutoShot.Toggle(item.ItemId);
+                    SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+                    if (skillbar != null)
+                        skillbar.RefreshAutoShotMarks();
+                    break;
+                }
+
+                inventory.UseItem(shortcut.Id, true);
                 break;
+            }
             case Shortcut.TYPE_ACTION:
                 PlayerActions actions = Actions;
                 if (actions != null)
@@ -134,7 +146,6 @@ public class PlayerShortcuts : MonoBehaviour
         }
     }
 
-   
     public void SetShortcutList(List<Shortcut> shortcuts)
     {
         if (_shortcuts == null)
@@ -214,16 +225,9 @@ public class PlayerShortcuts : MonoBehaviour
         }
         
         //GameClient.Instance.ClientPacketHandler.RequestAddShortcut(type, id, slot);
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestShortCutRegCommand(type, slot, id, level));
-
-        // Zone V2 has no ShortCutReg wire yet — apply locally so drag-to-bar works.
-        if (FineageWireConfig.IsZoneV2)
-        {
-            ApplyLocalRegister(slot, id, type, level);
-            PersistLocal();
-        }
+            ZoneCommands.Send(new RequestShortCutRegCommand(type, slot, id, level));
     }
 
     // Shortcut dragged within bar
@@ -242,32 +246,19 @@ public class PlayerShortcuts : MonoBehaviour
 
 
         // Debug.Log("Event Reuqets Add ShrtCut 2 ");
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestShortCutRegCommand(oldShortcut.Type, newSlot, oldShortcut.Id, oldShortcut.Level));
+            ZoneCommands.Send(new RequestShortCutRegCommand(oldShortcut.Type, newSlot, oldShortcut.Id, oldShortcut.Level));
 
         // Swap slots
         if (newShortcut != null)
         {
             if (game != null)
-                game.Send(new RequestShortCutRegCommand(newShortcut.Type, oldSlot, newShortcut.Id, newShortcut.Level));
+                ZoneCommands.Send(new RequestShortCutRegCommand(newShortcut.Type, oldSlot, newShortcut.Id, newShortcut.Level));
         }
         else
         {
             DeleteShortcut(oldSlot, true);
-        }
-
-        if (FineageWireConfig.IsZoneV2)
-        {
-            if (SkillbarWindow.Instance != null)
-            {
-                SkillbarWindow.Instance.RemoveShortcut(oldSlot);
-                SkillbarWindow.Instance.RemoveShortcut(newSlot);
-            }
-            ApplyLocalRegister(newSlot, oldShortcut.Id, oldShortcut.Type, oldShortcut.Level);
-            if (newShortcut != null)
-                ApplyLocalRegister(oldSlot, newShortcut.Id, newShortcut.Type, newShortcut.Level);
-            PersistLocal();
         }
     }
 
@@ -278,57 +269,9 @@ public class PlayerShortcuts : MonoBehaviour
 
         // Debug.Log("Нужно реализовать удаление shortcut");
         //GameClient.Instance.ClientPacketHandler.RequestRemoveShortcut(oldSlot);
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestShortCutDelCommand(oldSlot));
-
-        if (FineageWireConfig.IsZoneV2)
-            PersistLocal();
-    }
-
-    void ApplyLocalRegister(int worldSlot, int id, int type, int level)
-    {
-        int slot = worldSlot % MAXIMUM_SHORTCUTS_PER_BAR;
-        int page = worldSlot / MAXIMUM_SHORTCUTS_PER_BAR;
-        if (_shortcuts != null && _shortcuts.ContainsKey(worldSlot))
-            _shortcuts.Remove(worldSlot);
-        if (SkillbarWindow.Instance != null)
-            SkillbarWindow.Instance.RemoveShortcut(worldSlot);
-        RegisterShortcut(new Shortcut(slot, page, type, id, level));
-    }
-
-    void PersistLocal()
-    {
-        int characterId = ResolveCharacterObjectId();
-        if (characterId <= 0 || _shortcuts == null)
-            return;
-        ZoneV2ShortcutStore.Save(characterId, _shortcuts.Values);
-    }
-
-    /// <summary>Restore bar from PlayerPrefs after enter-world (Zone V2 only).</summary>
-    public void LoadPersistedLocal()
-    {
-        if (!FineageWireConfig.IsZoneV2)
-            return;
-        int characterId = ResolveCharacterObjectId();
-        if (characterId <= 0)
-            return;
-        List<Shortcut> loaded = ZoneV2ShortcutStore.Load(characterId);
-        if (loaded == null || loaded.Count == 0)
-            return;
-        SetShortcutList(loaded);
-    }
-
-    static int ResolveCharacterObjectId()
-    {
-        // Prefer stable lobby CharacterId — SessionObjectId changes every EnterWorld.
-        if (ZoneV2Client.Instance != null && ZoneV2Client.Instance.CharacterId > 0)
-            return ZoneV2Client.Instance.CharacterId;
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null)
-            return PlayerEntity.Instance.Identity.Id;
-        if (ZoneV2Client.Instance != null && ZoneV2Client.Instance.SessionObjectId > 0)
-            return ZoneV2Client.Instance.SessionObjectId;
-        return 0;
+            ZoneCommands.Send(new RequestShortCutDelCommand(oldSlot));
     }
 
     #endregion

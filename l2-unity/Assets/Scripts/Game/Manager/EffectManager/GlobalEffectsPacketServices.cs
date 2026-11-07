@@ -1,5 +1,5 @@
 /// <summary>
-/// Global effect reactions access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 44).
+/// Global effect reactions access with [Inject] wiring and Controller/Game fallback (#142).
 /// </summary>
 public static class GlobalEffectsPacketServices
 {
@@ -18,5 +18,5 @@ public static class GlobalEffectsPacketServices
         _bus != null ? _bus : GamePacketServices.Bus;
 
     public static EffectManager Effects =>
-        _effects != null ? _effects : IncomingPacketActions.Effects;
+        _effects != null ? _effects : ControllerPacketServices.Effects;
 }

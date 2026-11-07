@@ -1,4 +1,4 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+﻿<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
     <ui:VisualElement name="LoginWindow" picking-mode="Ignore" class="login-window il-login">
         <ui:VisualElement name="LoginFrame" picking-mode="Ignore" class="il-login-frame">
@@ -35,6 +35,7 @@
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
+        <ui:Toggle label="Remember login" name="RememberToggle" focusable="false" class="il-login-remember" />
         <ui:Label tabindex="-1" name="LabelError" class="il-login-error" />
     </ui:VisualElement>
 </ui:UXML>

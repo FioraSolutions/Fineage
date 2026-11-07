@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// First consumer of domain events: maps into the existing Interlude-shaped apply path.
 /// </summary>
@@ -26,6 +28,13 @@ public sealed class WorldDomainSink : IWorldDomainSink
 
         _worldApply.MoveTo(move.ObjectId, move.Destination, move.Origin, dto);
         _gameEvents?.Publish(new PlayerMovedEvent(move.ObjectId, move.Destination, move.Origin));
+    }
+
+    public void ApplyPositionCorrection(int objectId, Vector3 position)
+    {
+        if (_worldApply == null)
+            return;
+        _worldApply.ApplyPositionCorrection(objectId, position);
     }
 
     public void ApplyStopMove(DomainStopMove stop)

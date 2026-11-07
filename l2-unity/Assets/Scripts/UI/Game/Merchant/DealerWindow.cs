@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,9 +11,7 @@ using VContainer;
 public class DealerWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
 
-    private GameClient Game => MerchantPacketServices.Game;
 
 
     private static DealerWindow _instance;
@@ -74,7 +72,7 @@ public class DealerWindow : L2PopupWindow
 
     private void WireMerchantPacketServices()
     {
-        MerchantPacketServices.Bind(game: _gameClient, dealer: this);
+        MerchantPacketServices.Bind(dealer: this);
     }
 
     private void OnDestroy()
@@ -89,7 +87,7 @@ public class DealerWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Merchant/DealerWindow");
-        _inventorySlotTemplate = LoadAsset("Data/UI/_Elements/Template/Slot");
+        _inventorySlotTemplate = LoadAsset(L2InventoryUiAssets.Slot);
     }
 
     protected override void InitWindow(VisualElement root)
@@ -111,7 +109,7 @@ public class DealerWindow : L2PopupWindow
         succesBtn.RegisterCallback<ClickEvent>((evt) => HandleSuccessButtonClick());
         RegisterCloseWindowEventByName("CloseButton");
         _panelSellHeaderName.text = "Sell";
-        _panelSellHeaderName.text = "Buy";
+        _panelBuyHeaderName.text = "Buy";
 
         DragManipulator drag = new DragManipulator(dragArea, _windowEle);
         dragArea.AddManipulator(drag);
@@ -199,7 +197,7 @@ public class DealerWindow : L2PopupWindow
 
             Product source = _listSell[position];
 
-            if (source.Count > 1 | source.GetConsumeCategory() != ConsumeCategory.Normal)
+            if (source.Count > 1 || source.GetConsumeCategory() != ConsumeCategory.Normal)
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
@@ -222,7 +220,7 @@ public class DealerWindow : L2PopupWindow
 
             if (source == null) return;
 
-            if (source.Count > 1 | source.GetConsumeCategory() != ConsumeCategory.Normal)
+            if (source.Count > 1 || source.GetConsumeCategory() != ConsumeCategory.Normal)
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
@@ -501,7 +499,7 @@ public class DealerWindow : L2PopupWindow
 
     private void SendServer(INetworkCommand packet)
     {
-        Game.Send(packet);
+        ZoneCommands.Send(packet);
     }
 
     private void OkWear()

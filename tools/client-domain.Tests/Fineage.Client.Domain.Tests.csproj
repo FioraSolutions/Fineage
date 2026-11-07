@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Fineage.Client.Domain.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Linked client domain helpers that are engine-free. Unity cannot reference
+         Assembly-CSharp from a test assembly, so this host compiles them directly. -->
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Contract\**\*.cs"
+             Link="Client\Net.Contract\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\FineageWireConfig.cs" Link="Client\FineageWireConfig.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\LobbyCharacter.cs" Link="Client\LobbyCharacter.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetChat.cs" Link="Client\NetChat.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetClan.cs" Link="Client\NetClan.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetDomainStructs.cs" Link="Client\NetDomainStructs.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetEnchant.cs" Link="Client\NetEnchant.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetEquip.cs" Link="Client\NetEquip.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetNpcSession.cs" Link="Client\NetNpcSession.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetRejectLines.cs" Link="Client\NetRejectLines.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Domain\NetSystemLines.cs" Link="Client\NetSystemLines.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Playtest\PlaytestEndpoint.cs" Link="Client\PlaytestEndpoint.cs" />
+  </ItemGroup>
+</Project>

@@ -13,8 +13,8 @@ public sealed class SpawnItemDto : IWireDto
     public int Unknown { get; private set; }
     public Vector3 UnityPos { get; private set; }
 
-    /// <summary>Zone V2 <see cref="ZoneV2MsgType.SpawnItem"/> (1018).</summary>
-    public static SpawnItemDto FromZoneV2(
+    /// <summary>Zone V2 spawn item row (1018).</summary>
+    public static SpawnItemDto FromNet(
         int objectId,
         int itemId,
         int x,

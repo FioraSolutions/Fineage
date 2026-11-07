@@ -57,6 +57,8 @@ public class MusicAreaTrigger : MonoBehaviour
     }
 
     private void OnTriggerStay(Collider other) {
+        if (MusicManager.Instance == null)
+            return;
         if(MusicManager.Instance.CurrentEventPriority > _areaPrority) {
             MusicManager.Instance.StopMusic(_enterEvent);
         } else if(MusicManager.Instance.CurrentMusicEvent.Guid != _enterEvent.Guid) {

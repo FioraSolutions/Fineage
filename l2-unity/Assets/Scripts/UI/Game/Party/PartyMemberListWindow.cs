@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Minimal party roster from Zone V2 <see cref="ZoneV2MsgType.PartyMemberList"/> (1029).
+/// Minimal party roster from the Zone V2 party member list (1029).
 /// Click a member to set target + attack target (assist).
 /// </summary>
 public class PartyMemberListWindow : L2Window
@@ -57,14 +57,14 @@ public class PartyMemberListWindow : L2Window
         yield return new WaitForEndOfFrame();
     }
 
-    public void RefreshFromList(in ZoneV2PartyMemberList list)
+    public void RefreshFromList(in NetPartyMemberList list)
     {
         if (_memberRows == null)
             return;
 
         _memberRows.Clear();
 
-        ZoneV2PartyMemberEntry[] members = list.Members;
+        NetPartyMemberEntry[] members = list.Members;
         int count = members != null ? members.Length : 0;
         if (_windowEle != null)
             _windowEle.style.display = count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
@@ -78,7 +78,7 @@ public class PartyMemberListWindow : L2Window
         int leaderId = list.LeaderObjectId;
         for (int i = 0; i < members.Length; i++)
         {
-            ZoneV2PartyMemberEntry entry = members[i];
+            NetPartyMemberEntry entry = members[i];
             if (entry.ObjectId <= 0)
                 continue;
 

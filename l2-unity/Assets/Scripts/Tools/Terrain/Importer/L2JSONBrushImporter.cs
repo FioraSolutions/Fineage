@@ -10,7 +10,7 @@ public class DataContainer {
     public Brush[] data;
 }
 
-public class L2JSONBrushImporter : AssetImporter {
+public class L2JSONBrushImporter : L2TerrainAssetImporter {
 
     [MenuItem("Shnok/[Brush] Import Textures")]
     static void ImportBrushTextures() {
@@ -79,7 +79,7 @@ public class L2JSONBrushImporter : AssetImporter {
             DataContainer brushes = JsonUtility.FromJson<DataContainer>(json);
             return brushes.data;
 
-        } catch(IOException e) {
+        } catch (IOException) {
             // Debug.LogError("An error occurred: " + e.Message);
         }
 

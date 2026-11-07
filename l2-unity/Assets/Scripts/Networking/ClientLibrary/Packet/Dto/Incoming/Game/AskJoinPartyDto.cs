@@ -11,8 +11,8 @@ public class AskJoinPartyDto : IWireDto
     /// <summary>Zone V2 inviter object id; zero on Interlude wire.</summary>
     public int RequestorObjectId => _requestorObjectId;
 
-    /// <summary>Build from Zone V2 <see cref="ZoneV2MsgType.PartyAskJoin"/> (1027).</summary>
-    public static AskJoinPartyDto FromZoneV2(int requestorObjectId, string requestorName, int itemDistribution)
+    /// <summary>Build from the Zone V2 party ask-join row (1027).</summary>
+    public static AskJoinPartyDto FromNet(int requestorObjectId, string requestorName, int itemDistribution)
     {
         var dto = new AskJoinPartyDto();
         dto._requestorObjectId = requestorObjectId;
@@ -36,7 +36,7 @@ public class AskJoinPartyDto : IWireDto
             _partyDistributionType = PartyDistributionTypeExtensions.FindById(distributionTypeId) ??
                                    PartyDistributionType.FindersKeepers;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError($"[AskJoinParty] Parse error: {ex.Message}");
             _requestorName = string.Empty;

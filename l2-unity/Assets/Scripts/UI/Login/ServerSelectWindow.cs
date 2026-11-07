@@ -7,10 +7,10 @@ using VContainer;
 public class ServerSelectWindow : L2Window
 {
     [Inject] LoginRuntime _login;
+    [Inject] IZoneTransport _zoneTransport;
 
-    private GameClient Game => LoginPacketServices.Game;
-
-    private LoginClient Login => LoginPacketServices.LoginClient;
+    private IZoneTransport Transport =>
+        _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
 
     private LoginWindow LoginWin => LoginPacketServices.LoginWindow;
 
@@ -171,8 +171,8 @@ public class ServerSelectWindow : L2Window
 
         //Debug.Log("Server selected: " + _selectedServerId);
 
-        Game.ServerIp = StringUtils.ByteArrayToIpAddress(_serverData[rowId].ip);
-        Game.ServerPort = _serverData[rowId].port;
+        // Net has no server-list step: FineageWireConfig.ZoneHost/ZonePort already point at the
+        // zone we hand off to, so the Interlude ServerIp/ServerPort stash is gone.
     }
 
     private string ParseServerName(int serverId) {
@@ -279,15 +279,9 @@ public class ServerSelectWindow : L2Window
 
     private void SetServerId(int id) {
         _selectedServerId = id;
-        Game.ServerId = id;
     }
 
     private void ConfirmButtonPressed() {
-        if (Login == null)
-        {
-            LobbyFlowLog.Error("Confirm: LoginClient null");
-            return;
-        }
 
         // L2J ServerList status byte: 0 = down, non-zero = up (stub sends 1).
         bool online = _selectServerData != null && _selectServerData.status != 0 && _selectedServerId >= 0;
@@ -295,19 +289,23 @@ public class ServerSelectWindow : L2Window
                   " status=" + (_selectServerData != null ? _selectServerData.status.ToString() : "null") +
                   " online=" + online);
 
-        if (online) {
-            Login.OnServerSelected(_selectedServerId);
-        }
+        if (online)
+            LobbyFlowLog.Warn("ServerSelect: RequestServerLogin has no Net equivalent — Net lobby skips server select");
         else
         {
-            LobbyFlowLog.Warn("Confirm rejected — server offline/invalid; disconnect login");
+            LobbyFlowLog.Warn("Confirm rejected — server offline/invalid; disconnect zone session");
             if (LoginWin != null)
                 LoginWin.ShowErrorText("Your login attempt failed due to high server load. Please try again later");
-            Login.Disconnect();
         }
+
+        IZoneTransport transport = Transport;
+        if (transport != null)
+            transport.Disconnect();
     }
 
     private void CancelButtonPressed() {
-        Login.Disconnect();
+        IZoneTransport transport = Transport;
+        if (transport != null)
+            transport.Disconnect();
     }
 }

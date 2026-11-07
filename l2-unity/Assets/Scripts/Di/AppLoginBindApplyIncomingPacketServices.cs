@@ -22,7 +22,6 @@ public static class AppLoginBindApplyIncomingPacketServices
             return;
 
         BindApplyIncomingPacketServices.Bind(
-            game: loginRuntime.Game,
             login: loginRuntime.LoginClient,
             manager: loginRuntime.Manager,
             loginWindow: loginRuntime.LoginWindow,

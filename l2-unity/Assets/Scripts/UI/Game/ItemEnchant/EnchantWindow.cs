@@ -12,9 +12,6 @@ using VContainer;
 public class EnchantWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => ItemEnchantPacketServices.Game;
     private static EnchantWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
     private VisualTreeAsset _inventorySlotChoiceTemplate;
@@ -77,7 +74,7 @@ public class EnchantWindow : L2PopupWindow
 
     private void WireItemEnchantPacketServices()
     {
-        ItemEnchantPacketServices.Bind(game: _gameClient, enchant: this);
+        ItemEnchantPacketServices.Bind(enchant: this);
     }
 
     protected override void LoadAssets()
@@ -143,7 +140,6 @@ public class EnchantWindow : L2PopupWindow
 
     }
 
-
     private void OnDestroy()
     {
         _instance = null;
@@ -151,36 +147,32 @@ public class EnchantWindow : L2PopupWindow
 
     private EnchantSlot ChangeSlotBoxType(VisualElement slotBox , EnchantSlot enchantSlot)
     {
-        VisualElement slotElement = CretaVisualElement();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotTemplate, slotBox);
         enchantSlot = CreateEnchantSlot(1, slotElement, SlotType.Enchant);
         enchantSlot.AssignEmpty();
-        slotBox.Add(slotElement);
         return enchantSlot;
     }
 
     private EnchantSlot ChangeSlotBoxTypeChoice(VisualElement slotBox, EnchantSlot enchantSlot)
     {
-        VisualElement slotElement = CretaVisualElementChoice();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotChoiceTemplate, slotBox);
         enchantSlot = CreateEnchantSlot(1, slotElement, SlotType.Enchant);
         enchantSlot.AssignEmpty();
-        slotBox.Add(slotElement);
         return enchantSlot;
     }
 
     private void InitSlotElement1(VisualElement slotBox)
     {
-        VisualElement slotElement = CretaVisualElement();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotTemplate, slotBox);
         _enchant1 = CreateEnchantSlot(0, slotElement, SlotType.Enchant);
         _enchant1.AssignEmpty();
-        slotBox.Add(slotElement);
     }
 
     private void InitSlotElement2(VisualElement slotBox)
     {
-        VisualElement slotElement = CretaVisualElementChoice();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(_inventorySlotChoiceTemplate, slotBox);
         _enchant2 = CreateEnchantSlot(1, slotElement, SlotType.Enchant);
         _enchant2.AssignEmpty();
-        slotBox.Add(slotElement);
     }
 
 
@@ -207,22 +199,12 @@ public class EnchantWindow : L2PopupWindow
             _enchant2 = ChangeSlotBoxType(_slot2, _enchant2);
             _enchant2.AssignItem(itemInstance);
             if (_textLabel != null)
-                _textLabel.text = ZoneV2Enchant.WithLevel(itemInstance.GetName(), itemInstance.EnchantLevel);
+                _textLabel.text = NetEnchant.WithLevel(itemInstance.GetName(), itemInstance.EnchantLevel);
         }
         else
         {
             // Debug.LogWarning("EnchantWindows error not add dropItems");
         }
-    }
-
-    private VisualElement CretaVisualElement()
-    {
-        return _inventorySlotTemplate.Instantiate()[0];
-    }
-
-    private VisualElement CretaVisualElementChoice()
-    {
-        return _inventorySlotChoiceTemplate.Instantiate()[0];
     }
 
     private EnchantSlot CreateEnchantSlot(int i, VisualElement slotElement, SlotType slotType)
@@ -271,9 +253,9 @@ public class EnchantWindow : L2PopupWindow
         SetWindowTitle("Enchant");
     }
 
-    public void ApplyZoneResult(ZoneV2EnchantResult result)
+    public void ApplyZoneResult(NetEnchantResult result)
     {
-        ZoneV2Enchant.View view = ZoneV2Enchant.ViewOf(result);
+        NetEnchant.View view = NetEnchant.ViewOf(result);
         if (view.RemoveItem || view.ShowEnchant || view.CloseWindow)
             CloseFromServer();
     }
@@ -306,9 +288,9 @@ public class EnchantWindow : L2PopupWindow
         if (!cancel)
             return;
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new RequestEnchantItemCommand(-1));
+            ZoneCommands.Send(new RequestEnchantItemCommand(-1));
     }
 
     void WireFrameClose()
@@ -336,7 +318,7 @@ public class EnchantWindow : L2PopupWindow
     {
         //if (_selectItem != null)
         //{
-            Game.Send(new RequestEnchantItemCommand(objectId));
+            ZoneCommands.Send(new RequestEnchantItemCommand(objectId));
         //}
     }
 
@@ -348,7 +330,8 @@ public class EnchantWindow : L2PopupWindow
         while (index <= endValue)
         {
             index = index + 7;
-            ProgressBarUtils.UpdatePb(_progressBarBg, _progressBar, endValue, index, endValue);
+            float remaining = 1f - (index / endValue);
+            L2ResourceBarView.SetFillFixed(_progressBar, _progressBarBg, remaining, endValue);
             float delayPerIteration = _moveDuration / endValue * 1000;
             await Task.Delay((int)delayPerIteration);
         }
@@ -356,16 +339,10 @@ public class EnchantWindow : L2PopupWindow
         _isRun = false ;
     }
 
-
-
-
-
     private void SetPb0(VisualElement pbGauge)
     {
         pbGauge.style.width = Convert.ToSingle(0);
     }
-    
-
 
     private IEnumerator MoveElementsToCenter(VisualElement element1, VisualElement element2 , bool isSuccess)
     {
@@ -580,9 +557,6 @@ public class EnchantWindow : L2PopupWindow
 
         return true;
     }
-
-
-    
 
     private void AlphaChanged(float fadeStartTime , float elapsedTime , VisualElement element1)
     {

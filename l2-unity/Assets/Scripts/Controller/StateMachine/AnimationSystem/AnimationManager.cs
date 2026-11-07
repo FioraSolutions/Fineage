@@ -180,8 +180,7 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
         SetRecentName(objectId, atkWaitStateName);
 
         // Leave attack playback rate so atkwait does not stay frozen at last swing speed.
-        controller.SetAnimatorSpeed(1f);
-        controller.SetPAtkSpeed(1f);
+        AnimPlayback.PrepareGesture(controller);
 
         // Always CrossFade — even if animator already in atkwait (stale transition / same pose).
         // Dual jatk often still mid-clip when wall cycle ends — longer blend softens the cut.
@@ -219,16 +218,8 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
         string resolvedStateName)
     {
         string stateName = null;
-        string family = null;
-        if (PlayerBasicAttackAnim.TryResolve(resolvedStateName, out stateName))
-        {
-            family = "basicAtk";
-        }
-        else if (PlayerSpAtkAnim.TryResolve(resolvedStateName, out stateName))
-        {
-            family = "spAtk";
-        }
-        else
+        if (!PlayerBasicAttackAnim.TryResolve(resolvedStateName, out stateName) &&
+            !PlayerSpAtkAnim.TryResolve(resolvedStateName, out stateName))
         {
             return false;
         }
@@ -839,8 +830,15 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
         controller.SetEnabled(true);
         DesableLastPlayerAnimationElseTrue(objectId, controller);
         SetRecentName(objectId, stateName);
-        controller.SetAnimatorSpeed(1f);
-        controller.SetPAtkSpeed(1f);
+
+        bool isPickup = string.Equals(stateName, "pickup", System.StringComparison.OrdinalIgnoreCase);
+        // Override clip is PicItem_*, not "pickup" — resolve by PicItem for length.
+        float clipLength = isPickup
+            ? GetClipLengthByName(objectId, "PicItem", AnimPlayback.PickupFallbackSeconds)
+            : GetClipLengthByName(objectId, stateName, 1.6f);
+
+        // PicItem: authored timing only (Interlude ~0.17–0.25s). Not bound to server clocks.
+        AnimPlayback.PrepareGesture(controller);
 
         Animator animator = controller.GetAnimator();
         if (snapToEnd && animator != null)
@@ -853,8 +851,15 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
             controller.CrossFadeInFixedTime(stateName, LocomotionCrossFadeSettings.FixedDuration);
         }
 
-        float duration = GetClipLengthByName(objectId, stateName, 1.6f);
-        return Mathf.Max(0.4f, duration);
+        if (isPickup)
+            return AnimPlayback.PickupPlaySeconds(clipLength);
+        return Mathf.Max(0.4f, clipLength);
+    }
+
+    /// <inheritdoc cref="IAnimationManager.PlayGesture"/>
+    public float PlayGesture(int objectId, string stateName)
+    {
+        return PlayExactAnimatorState(objectId, stateName, snapToEnd: false);
     }
 
     public float[] GetOverrideClipsDurations(int objectId, string[]cycle)

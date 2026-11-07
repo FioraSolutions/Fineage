@@ -78,7 +78,7 @@ public class MagicSkillUseDto : IWireDto
     }
 
     /// <summary>Zone V2 <c>MagicSkillUse</c> (1066) — positions come from entities at apply time.</summary>
-    public void InitFromZoneV2(
+    public void InitFromNet(
         int casterObjectId,
         int targetObjectId,
         int skillId,

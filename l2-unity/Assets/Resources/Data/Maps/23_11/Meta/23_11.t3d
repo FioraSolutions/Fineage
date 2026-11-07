@@ -1,0 +1,3795 @@
+Begin Map
+Begin Actor Class=TerrainInfo Name=TerrainInfo0
+    TerrainMap=Texture'T_23_11.Height.23_11'
+    TerrainScale=(X=128.000000,Y=128.000000,Z=76.000000)
+    Layers(0)=(Texture=Texture'T_texture.Texture.Base',AlphaMap=Texture'T_texture.Texture.layer0',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=128.000000,Y=128.000000,Z=76.000000),ToWorld(0)=(X=1024.000000,Y=-1536.000000,Z=32171.964844),ToWorld(1)=(X=128.000000),ToWorld(2)=(Y=128.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.007813),ToMaskmap(2)=(Y=0.007813),ToMaskmap(3)=(Z=3.368421))
+    Layers(1)=(Texture=Texture'T_23_11.SCST02',AlphaMap=Texture'T_23_11.Height.23_11_splat1',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=32.000000,Y=32.000000,Z=76.000000),ToWorld(0)=(X=4096.000000,Y=-6144.000000,Z=32171.964844),ToWorld(1)=(X=32.000000),ToWorld(2)=(Y=32.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.031250),ToMaskmap(2)=(Y=0.031250),ToMaskmap(3)=(Z=3.368421))
+    Layers(2)=(Texture=Texture'T_23_11.SCSN02',AlphaMap=Texture'T_23_11.Height.23_11_splat2',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=32.000000,Y=32.000000,Z=76.000000),ToWorld(0)=(X=4096.000000,Y=-6144.000000,Z=32171.964844),ToWorld(1)=(X=32.000000),ToWorld(2)=(Y=32.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.031250),ToMaskmap(2)=(Y=0.031250),ToMaskmap(3)=(Z=3.368421))
+    Layers(3)=(Texture=Texture'T_23_11.SCSN03',AlphaMap=Texture'T_23_11.Height.23_11_splat3',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=32.000000,Y=32.000000,Z=76.000000),ToWorld(0)=(X=4096.000000,Y=-6144.000000,Z=32171.964844),ToWorld(1)=(X=32.000000),ToWorld(2)=(Y=32.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.031250),ToMaskmap(2)=(Y=0.031250),ToMaskmap(3)=(Z=3.368421))
+    Layers(4)=(Texture=Texture'T_23_11.SCST01',AlphaMap=Texture'T_23_11.Height.23_11_splat4',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=32.000000,Y=32.000000,Z=76.000000),ToWorld(0)=(X=4096.000000,Y=-6144.000000,Z=32171.964844),ToWorld(1)=(X=32.000000),ToWorld(2)=(Y=32.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.031250),ToMaskmap(2)=(Y=0.031250),ToMaskmap(3)=(Z=3.368421))
+    Layers(5)=(Texture=Texture'T_23_11.SCS03',AlphaMap=Texture'T_23_11.Height.23_11_splat5',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=32.000000,Y=32.000000,Z=76.000000),ToWorld(0)=(X=4096.000000,Y=-6144.000000,Z=32171.964844),ToWorld(1)=(X=32.000000),ToWorld(2)=(Y=32.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.031250),ToMaskmap(2)=(Y=0.031250),ToMaskmap(3)=(Z=3.368421))
+    Layers(6)=(Texture=Texture'T_23_11.SCSN01',AlphaMap=Texture'T_23_11.Height.23_11_splat6',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=32.000000,Y=32.000000,Z=76.000000),ToWorld(0)=(X=4096.000000,Y=-6144.000000,Z=32171.964844),ToWorld(1)=(X=32.000000),ToWorld(2)=(Y=32.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.031250),ToMaskmap(2)=(Y=0.031250),ToMaskmap(3)=(Z=3.368421))
+    GeneratedSectorCounter=256
+    Location=(X=114688.000000,Y=-212992.000000,Z=160.651300)
+    DrawScale=10.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor103
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120868.078100,Y=-207382.312500,Z=-3748.964400)
+    SwayRotationOrig=(Yaw=-2640)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor106
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=117789.820300,Y=-201676.718800,Z=-3670.936000)
+    SwayRotationOrig=(Pitch=256,Roll=-544)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor126
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=116220.476600,Y=-203154.281300,Z=-3798.264200)
+    SwayRotationOrig=(Yaw=73952)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor123
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=116229.921900,Y=-199366.765600,Z=-3583.111300)
+    SwayRotationOrig=(Yaw=34528)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor132
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=118684.640600,Y=-199681.718800,Z=-3606.953600)
+    SwayRotationOrig=(Yaw=4072,Roll=848)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor134
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=124845.289100,Y=-199839.859400,Z=-3640.592500)
+    SwayRotationOrig=(Yaw=-17104)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor146
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124396.234400,Y=-206541.234400,Z=-2968.654300)
+    SwayRotationOrig=(Yaw=-45264)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor142
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=123115.890600,Y=-197368.609400,Z=-3677.123000)
+    SwayRotationOrig=(Yaw=55416)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor124
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120965.679700,Y=-201981.453100,Z=-3530.159200)
+    SwayRotationOrig=(Yaw=13200)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor135
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=118939.648400,Y=-202406.390600,Z=-3569.928200)
+    SwayRotationOrig=(Yaw=-23824)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor101
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120648.218800,Y=-202974.031300,Z=-3352.366000)
+    SwayRotationOrig=(Yaw=4992)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor121
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=116123.414100,Y=-203208.625000,Z=-3801.397700)
+    SwayRotationOrig=(Yaw=-384)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor153
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126512.078100,Y=-213647.359400,Z=-3593.144800)
+    SwayRotationOrig=(Yaw=27424)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor354
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=130269.664100,Y=-208440.125000,Z=-3608.972900)
+    SwayRotationOrig=(Yaw=-7856)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor164
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=123334.250000,Y=-207360.125000,Z=-3016.306200)
+    SwayRotationOrig=(Yaw=1200)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor149
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=123366.484400,Y=-197583.000000,Z=-3697.468800)
+    SwayRotationOrig=(Pitch=-792,Yaw=-48896,Roll=-312)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor102
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121034.789100,Y=-207077.312500,Z=-3753.543200)
+    SwayRotationOrig=(Yaw=-11328)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor140
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126973.437500,Y=-213874.984400,Z=-3621.528800)
+    SwayRotationOrig=(Pitch=3672,Yaw=35472,Roll=-5296)
+    DrawScale=1.250000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor141
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=123216.968800,Y=-197294.843800,Z=-3666.802500)
+    SwayRotationOrig=(Yaw=22656)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor160
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=123264.781300,Y=-208481.093800,Z=-3012.450700)
+    SwayRotationOrig=(Yaw=-16864)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor161
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124061.507800,Y=-209028.437500,Z=-3135.868900)
+    SwayRotationOrig=(Yaw=-26360)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor225
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129717.773400,Y=-206283.859400,Z=-3639.349600)
+    SwayRotationOrig=(Yaw=18560)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor162
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=123146.851600,Y=-208149.578100,Z=-2970.895300)
+    SwayRotationOrig=(Yaw=-11264)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor127
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=116251.015600,Y=-203234.453100,Z=-3723.462400)
+    SwayRotationOrig=(Pitch=-328,Yaw=28744,Roll=-976)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor125
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=121061.648400,Y=-202798.218800,Z=-3390.218800)
+    SwayRotationOrig=(Yaw=5840)
+    DrawScale=1.150000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor122
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=118952.687500,Y=-202022.625000,Z=-3575.500700)
+    SwayRotationOrig=(Yaw=-26096)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor4
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116634.859400,Y=-216248.843800,Z=-3729.761500)
+    SwayRotationOrig=(Yaw=-14320)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor7
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116207.968800,Y=-213855.078100,Z=-3629.441200)
+    SwayRotationOrig=(Yaw=-11088)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor19
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_stopeway'
+    Location=(X=113834.000000,Y=-201716.000000,Z=-2709.000000)
+    SwayRotationOrig=(Yaw=-21296)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor5
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116250.921900,Y=-216604.671900,Z=-3708.720200)
+    SwayRotationOrig=(Yaw=-2976)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor78
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124420.015600,Y=-215500.890600,Z=-3496.489500)
+    SwayRotationOrig=(Yaw=-4440)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor24
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=115196.000000,Y=-205984.000000,Z=-3255.000000)
+    SwayRotationOrig=(Yaw=-23432)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor9
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=126589.617200,Y=-214402.062500,Z=-3387.143100)
+    SwayRotationOrig=(Yaw=-19608)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor23
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=116554.187500,Y=-211977.343800,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=25080)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor16
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=118880.484400,Y=-217328.390600,Z=-3538.525900)
+    SwayRotationOrig=(Yaw=-4584)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor373
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126116.570300,Y=-216353.796900,Z=-3552.429900)
+    SwayRotationOrig=(Yaw=-8184)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor45
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=118739.812500,Y=-212575.578100,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=-8216)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor0
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=122023.515600,Y=-197213.953100,Z=-3672.092000)
+    SwayRotationOrig=(Yaw=-568)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor13
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=119862.523400,Y=-212365.218800,Z=-3503.071300)
+    SwayRotationOrig=(Yaw=-29920)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor36
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125160.515600,Y=-213007.000000,Z=-3745.416000)
+    SwayRotationOrig=(Pitch=552,Yaw=-20800,Roll=48)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor3
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=126724.828100,Y=-214867.359400,Z=-3396.051500)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor17
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116246.281300,Y=-214445.546900,Z=-3617.331300)
+    SwayRotationOrig=(Yaw=-2128)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor8
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116314.648400,Y=-215931.890600,Z=-3748.411100)
+    SwayRotationOrig=(Yaw=-9840)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor90
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=116305.250000,Y=-205398.578100,Z=-3706.241000)
+    SwayRotationOrig=(Yaw=-1040)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor96
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120666.562500,Y=-203391.640600,Z=-3281.174800)
+    SwayRotationOrig=(Yaw=25312)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor318
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129181.875000,Y=-204958.093800,Z=-3660.721400)
+    SwayRotationOrig=(Yaw=3232)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor21
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support01'
+    Location=(X=114973.789100,Y=-205158.828100,Z=-2816.000000)
+    SwayRotationOrig=(Yaw=-21680)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor325
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=126254.546900,Y=-203538.015600,Z=-3134.221900)
+    SwayRotationOrig=(Yaw=8784)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor363
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129117.132800,Y=-204273.125000,Z=-3531.735600)
+    SwayRotationOrig=(Yaw=9272)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor58
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=118262.289100,Y=-200080.921900,Z=-3675.106000)
+    SwayRotationOrig=(Yaw=24152)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor214
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=122495.070300,Y=-214767.984400,Z=-3571.110800)
+    SwayRotationOrig=(Yaw=2720)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor129
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=117002.835900,Y=-215229.937500,Z=-3757.720500)
+    SwayRotationOrig=(Yaw=2592)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor71
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=117232.460900,Y=-198243.843800,Z=-3721.334700)
+    SwayRotationOrig=(Pitch=184,Yaw=-40352,Roll=-1208)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor74
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124586.414100,Y=-215824.593800,Z=-3458.404500)
+    SwayRotationOrig=(Yaw=22464)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor72
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116942.054700,Y=-205481.703100,Z=-3735.825200)
+    SwayRotationOrig=(Yaw=-6000)
+    DrawScale=0.750000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor75
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117870.062500,Y=-210518.078100,Z=-3543.927000)
+    SwayRotationOrig=(Yaw=-18824)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor73
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=117136.359400,Y=-205713.437500,Z=-3759.392300)
+    SwayRotationOrig=(Yaw=24064)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor80
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120068.398400,Y=-202974.796900,Z=-3371.121100)
+    SwayRotationOrig=(Yaw=19640)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor42
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115645.242200,Y=-198717.531300,Z=-3483.710200)
+    SwayRotationOrig=(Yaw=23200)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor46
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126261.062500,Y=-213532.437500,Z=-3652.637900)
+    SwayRotationOrig=(Pitch=2568,Yaw=-17688,Roll=-144)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor391
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126680.937500,Y=-212238.796900,Z=-3718.076700)
+    SwayRotationOrig=(Yaw=-2952)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor431
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126091.304700,Y=-200381.515600,Z=-3771.230700)
+    SwayRotationOrig=(Pitch=-1088,Yaw=-1808,Roll=912)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor83
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116289.101600,Y=-208709.390600,Z=-3615.541000)
+    SwayRotationOrig=(Yaw=-8096)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor374
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126596.507800,Y=-216442.640600,Z=-3514.321800)
+    SwayRotationOrig=(Pitch=-288,Yaw=-42128,Roll=-1200)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor375
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126456.976600,Y=-216950.265600,Z=-3707.268800)
+    SwayRotationOrig=(Pitch=3576,Yaw=5776,Roll=-3016)
+    DrawScale=2.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor376
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126634.320300,Y=-216862.484400,Z=-3595.077600)
+    SwayRotationOrig=(Yaw=3104)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor377
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125179.531300,Y=-212898.421900,Z=-3772.765600)
+    SwayRotationOrig=(Yaw=-35696)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor383
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126688.546900,Y=-213489.609400,Z=-3816.191400)
+    SwayRotationOrig=(Yaw=-36264)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor386
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126924.992200,Y=-213930.703100,Z=-3548.718000)
+    SwayRotationOrig=(Pitch=736,Yaw=-19376,Roll=384)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor409
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.field_deco_Dwarf_SteamEngine5'
+    Location=(X=122550.000000,Y=-200165.000000,Z=-3826.000000)
+    SwayRotationOrig=(Yaw=-29696)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor412
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.Field_Deco_Dwarf_sawmachine3'
+    Location=(X=116333.000000,Y=-199384.000000,Z=-3592.000000)
+    SwayRotationOrig=(Pitch=14336)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor417
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=127167.890600,Y=-214777.046900,Z=-3515.956800)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor430
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=126123.218800,Y=-200339.500000,Z=-3754.805200)
+    SwayRotationOrig=(Yaw=-4144)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor432
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=126150.835900,Y=-200265.562500,Z=-3752.588100)
+    SwayRotationOrig=(Yaw=14368)
+    DrawScale=0.400000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor380
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125468.875000,Y=-213155.343800,Z=-3792.288600)
+    SwayRotationOrig=(Pitch=1912,Yaw=-21544,Roll=488)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor381
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126549.132800,Y=-213494.125000,Z=-3943.459700)
+    SwayRotationOrig=(Yaw=41936)
+    DrawScale=2.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor369
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126670.539100,Y=-216916.656300,Z=-3661.077600)
+    SwayRotationOrig=(Pitch=3792,Yaw=10192,Roll=-3888)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor326
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=126258.437500,Y=-203979.296900,Z=-3062.719500)
+    SwayRotationOrig=(Yaw=-26288)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor68
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118651.015600,Y=-198259.625000,Z=-3639.861300)
+    SwayRotationOrig=(Pitch=-2296,Yaw=-13368,Roll=-896)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor356
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=126239.343800,Y=-209703.593800,Z=-3288.838400)
+    SwayRotationOrig=(Yaw=-9920)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor357
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=127228.468800,Y=-209524.828100,Z=-3385.202100)
+    SwayRotationOrig=(Yaw=-10808)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor361
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=124756.687500,Y=-205773.312500,Z=-3037.335900)
+    SwayRotationOrig=(Yaw=13440)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor362
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=124051.304700,Y=-207035.953100,Z=-2946.833300)
+    SwayRotationOrig=(Yaw=25688)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor410
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.Field_Deco_Dwarf_sawmachine1'
+    Location=(X=116316.000000,Y=-199427.000000,Z=-3592.000000)
+    SwayRotationOrig=(Pitch=-1912,Yaw=10200,Roll=296)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor355
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129724.078100,Y=-208701.187500,Z=-3574.792500)
+    SwayRotationOrig=(Yaw=-5928)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor411
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.Field_Deco_Dwarf_sawmachine2'
+    Location=(X=116369.000000,Y=-199409.000000,Z=-3599.000000)
+    SwayRotationOrig=(Pitch=15360,Yaw=-12288,Roll=10240)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor256
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117708.570300,Y=-210177.796900,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=-9168)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor351
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129358.773400,Y=-209919.515600,Z=-3522.132800)
+    SwayRotationOrig=(Yaw=-5104)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor249
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115302.859400,Y=-210990.406300,Z=-3442.820800)
+    SwayRotationOrig=(Yaw=-9664)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor350
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=127817.085900,Y=-211575.203100,Z=-3400.441400)
+    SwayRotationOrig=(Yaw=6160)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor358
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=124001.398400,Y=-208072.531300,Z=-2936.994100)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor1
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=122272.289100,Y=-197266.875000,Z=-3668.404100)
+    SwayRotationOrig=(Yaw=18856)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor366
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129865.992200,Y=-199218.250000,Z=-3499.237800)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor11
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=119438.437500,Y=-217632.312500,Z=-3532.718800)
+    SwayRotationOrig=(Yaw=14800)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor2
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=126362.562500,Y=-214970.328100,Z=-3396.223900)
+    SwayRotationOrig=(Yaw=-2256)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor205
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116659.351600,Y=-208740.906300,Z=-3734.387200)
+    SwayRotationOrig=(Yaw=-18368)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor14
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116622.195300,Y=-212862.453100,Z=-3267.714400)
+    SwayRotationOrig=(Yaw=13872)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor209
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115900.742200,Y=-197832.156300,Z=-3493.024400)
+    SwayRotationOrig=(Yaw=20256)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor203
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=116271.671900,Y=-204287.796900,Z=-3660.520800)
+    SwayRotationOrig=(Yaw=288)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor206
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116462.632800,Y=-208326.687500,Z=-3723.552000)
+    SwayRotationOrig=(Yaw=1232)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor234
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=117452.226600,Y=-197761.359400,Z=-3724.820300)
+    SwayRotationOrig=(Yaw=20032)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor18
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116670.570300,Y=-212225.921900,Z=-3544.794900)
+    SwayRotationOrig=(Yaw=5296)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor348
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120218.796900,Y=-203294.281300,Z=-3309.133500)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor372
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126672.945300,Y=-216343.578100,Z=-3591.077600)
+    SwayRotationOrig=(Yaw=24288)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor413
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_watertank'
+    Location=(X=122705.000000,Y=-199789.000000,Z=-3588.000000)
+    SwayRotationOrig=(Yaw=-6600)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor336
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126387.125000,Y=-216749.046900,Z=-3568.077600)
+    SwayRotationOrig=(Yaw=-13472)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor371
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=126656.429700,Y=-216763.968800,Z=-3550.887000)
+    SwayRotationOrig=(Yaw=5448)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor275
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=130320.859400,Y=-202044.031300,Z=-3445.885700)
+    SwayRotationOrig=(Yaw=8928)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor280
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=122227.601600,Y=-198395.203100,Z=-3698.800000)
+    SwayRotationOrig=(Yaw=25528)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor159
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=123632.007800,Y=-208753.265600,Z=-2996.282000)
+    SwayRotationOrig=(Yaw=-23104)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor6
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116767.906300,Y=-217391.125000,Z=-3558.697800)
+    SwayRotationOrig=(Yaw=-6464)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor33
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=113188.000000,Y=-201107.000000,Z=-1717.000000)
+    SwayRotationOrig=(Yaw=-26568)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor86
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115781.429700,Y=-205206.187500,Z=-3361.498800)
+    SwayRotationOrig=(Yaw=-19672)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor85
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116225.273400,Y=-205061.843800,Z=-3657.866200)
+    SwayRotationOrig=(Yaw=-1232)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor186
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129033.242200,Y=-206922.671900,Z=-3615.952900)
+    SwayRotationOrig=(Yaw=-9328)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor268
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=125367.453100,Y=-198610.234400,Z=-3709.773900)
+    SwayRotationOrig=(Yaw=-16848)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor319
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=126671.453100,Y=-203725.218800,Z=-3179.820300)
+    SwayRotationOrig=(Yaw=3568)
+    DrawScale=1.150000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor262
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=122385.015600,Y=-198646.296900,Z=-3716.178200)
+    SwayRotationOrig=(Yaw=9024)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor321
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=118507.968800,Y=-212437.453100,Z=-3544.806200)
+    SwayRotationOrig=(Yaw=-10080)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor313
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126707.039100,Y=-216237.671900,Z=-3621.017300)
+    SwayRotationOrig=(Yaw=-36296,Roll=-3824)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor322
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=123722.898400,Y=-211820.171900,Z=-3703.598600)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor327
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129120.875000,Y=-206412.000000,Z=-3686.226100)
+    SwayRotationOrig=(Yaw=-6320)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor328
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=128726.468800,Y=-206322.250000,Z=-3732.656700)
+    SwayRotationOrig=(Yaw=16080)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor329
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129465.992200,Y=-204641.609400,Z=-3600.720500)
+    SwayRotationOrig=(Yaw=-6456)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor330
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=128527.195300,Y=-206021.375000,Z=-3749.486600)
+    SwayRotationOrig=(Yaw=-3456)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor229
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121526.398400,Y=-214555.281300,Z=-3554.496800)
+    SwayRotationOrig=(Yaw=24872)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor320
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=123789.656300,Y=-211885.250000,Z=-3654.979000)
+    SwayRotationOrig=(Pitch=1032,Yaw=22640,Roll=96)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor185
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=125421.171900,Y=-198870.234400,Z=-3727.868400)
+    SwayRotationOrig=(Yaw=-11376)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor145
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=119265.023400,Y=-202748.218800,Z=-3525.397000)
+    SwayRotationOrig=(Yaw=29776)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor204
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115486.429700,Y=-203832.093800,Z=-3486.948500)
+    SwayRotationOrig=(Yaw=-7008)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor208
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=119478.414100,Y=-209988.671900,Z=-3558.738800)
+    SwayRotationOrig=(Pitch=-416,Yaw=9872)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor332
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=120104.625000,Y=-215960.906300,Z=-3752.286600)
+    SwayRotationOrig=(Yaw=24896)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor187
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=119419.921900,Y=-206506.015600,Z=-3757.753400)
+    SwayRotationOrig=(Yaw=26024)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor221
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121174.210900,Y=-214483.765600,Z=-3562.995100)
+    SwayRotationOrig=(Yaw=24368)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor177
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=127110.531300,Y=-213983.171900,Z=-3664.263700)
+    SwayRotationOrig=(Yaw=1456,Roll=4128)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor34
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=128691.984400,Y=-198742.031300,Z=-3509.919400)
+    SwayRotationOrig=(Yaw=6304)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor207
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=117026.945300,Y=-210268.984400,Z=-3543.393800)
+    SwayRotationOrig=(Yaw=-26504)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor22
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support02'
+    Location=(X=114576.218800,Y=-204935.406300,Z=-2188.000000)
+    SwayRotationOrig=(Yaw=-21672)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor237
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=118547.343800,Y=-202106.625000,Z=-3638.266100)
+    SwayRotationOrig=(Yaw=3584)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor236
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=121732.460900,Y=-203343.703100,Z=-3276.765600)
+    SwayRotationOrig=(Yaw=3584)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor244
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116106.078100,Y=-212090.109400,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=-5728)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor243
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118966.960900,Y=-214351.562500,Z=-3762.978800)
+    SwayRotationOrig=(Yaw=16272)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor266
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124778.750000,Y=-199487.500000,Z=-3639.557400)
+    SwayRotationOrig=(Yaw=-26080)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor257
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=119894.460900,Y=-213160.937500,Z=-3649.489000)
+    SwayRotationOrig=(Yaw=-160)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor194
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115503.539100,Y=-206471.781300,Z=-3493.252700)
+    SwayRotationOrig=(Yaw=3704)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor195
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115420.640600,Y=-206829.093800,Z=-3560.679200)
+    SwayRotationOrig=(Yaw=18480)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor193
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121445.265600,Y=-202869.718800,Z=-3348.329600)
+    SwayRotationOrig=(Yaw=4768)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor191
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120842.703100,Y=-201747.921900,Z=-3546.505900)
+    SwayRotationOrig=(Yaw=8944)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor210
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118638.343800,Y=-208827.031300,Z=-3737.919700)
+    SwayRotationOrig=(Yaw=-3784)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor183
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=128640.421900,Y=-207213.796900,Z=-3562.424600)
+    SwayRotationOrig=(Yaw=15024)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor202
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115690.937500,Y=-207881.390600,Z=-3541.537600)
+    SwayRotationOrig=(Yaw=12792)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor215
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=122301.500000,Y=-214405.468800,Z=-3614.095200)
+    SwayRotationOrig=(Yaw=-12328)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor219
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=116620.109400,Y=-197879.156300,Z=-3613.028100)
+    SwayRotationOrig=(Yaw=26088)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor216
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=122730.820300,Y=-215081.109400,Z=-3543.291700)
+    SwayRotationOrig=(Yaw=-34136)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor182
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129591.460900,Y=-206682.609400,Z=-3645.894000)
+    SwayRotationOrig=(Yaw=6976)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor181
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129223.507800,Y=-210471.062500,Z=-3454.469500)
+    SwayRotationOrig=(Yaw=16960)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor233
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117440.757800,Y=-197324.562500,Z=-3696.549300)
+    SwayRotationOrig=(Yaw=29424)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor261
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115634.171900,Y=-211184.093800,Z=-3535.360100)
+    SwayRotationOrig=(Yaw=15264)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor295
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120212.710900,Y=-199234.375000,Z=-3646.077400)
+    SwayRotationOrig=(Yaw=31120)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor286
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120839.421900,Y=-199390.421900,Z=-3639.177700)
+    SwayRotationOrig=(Yaw=19504)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor311
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=125286.421900,Y=-214185.578100,Z=-3495.685500)
+    SwayRotationOrig=(Yaw=-85024)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor282
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=118897.945300,Y=-213155.031300,Z=-3624.685100)
+    SwayRotationOrig=(Yaw=2592)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor25
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=114317.000000,Y=-198783.000000,Z=-2426.000000)
+    SwayRotationOrig=(Yaw=-17464)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor94
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=115854.226600,Y=-201836.437500,Z=-3747.885000)
+    SwayRotationOrig=(Pitch=240,Yaw=14560)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor152
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=121495.281300,Y=-199687.015600,Z=-3719.223100)
+    SwayRotationOrig=(Yaw=-9880)
+    DrawScale=0.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor55
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=118347.367200,Y=-200084.828100,Z=-3632.963100)
+    SwayRotationOrig=(Yaw=34848)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor76
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=118218.476600,Y=-210314.953100,Z=-3539.927000)
+    SwayRotationOrig=(Yaw=20256)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor87
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115883.054700,Y=-204766.718800,Z=-3327.577600)
+    SwayRotationOrig=(Yaw=4496)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor230
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=118912.656300,Y=-214224.625000,Z=-3755.731700)
+    SwayRotationOrig=(Yaw=-51032)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor245
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115661.406300,Y=-211998.078100,Z=-3476.814000)
+    SwayRotationOrig=(Yaw=-11776)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor190
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117893.710900,Y=-197916.109400,Z=-3673.219000)
+    SwayRotationOrig=(Yaw=14352)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor251
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115146.484400,Y=-210512.218800,Z=-3449.634000)
+    SwayRotationOrig=(Yaw=-3264)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor67
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=118687.734400,Y=-198230.937500,Z=-3637.192100)
+    SwayRotationOrig=(Pitch=672,Yaw=17776,Roll=-712)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor82
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=124840.171900,Y=-215494.343800,Z=-3509.028300)
+    SwayRotationOrig=(Yaw=-7624)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor176
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129133.375000,Y=-210149.718800,Z=-3490.250500)
+    SwayRotationOrig=(Yaw=-7920)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor69
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=118296.164100,Y=-197949.921900,Z=-3632.779100)
+    SwayRotationOrig=(Yaw=33808)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor154
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=123539.796900,Y=-208032.953100,Z=-2938.631600)
+    SwayRotationOrig=(Yaw=-17392)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor228
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=117956.257800,Y=-197311.609400,Z=-3635.919900)
+    SwayRotationOrig=(Yaw=1280)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor231
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121422.164100,Y=-214894.390600,Z=-3535.255600)
+    SwayRotationOrig=(Yaw=37464)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor175
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=128848.750000,Y=-210444.656300,Z=-3447.367400)
+    SwayRotationOrig=(Yaw=-20136)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor178
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone07'
+    Location=(X=119373.054700,Y=-206495.750000,Z=-3825.743900)
+    SwayRotationOrig=(Yaw=-4128)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor173
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=118590.734400,Y=-208952.781300,Z=-3780.658200)
+    SwayRotationOrig=(Yaw=3856)
+    DrawScale=1.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor289
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120137.296900,Y=-197811.484400,Z=-3622.938500)
+    SwayRotationOrig=(Yaw=14832)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor288
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120210.085900,Y=-199488.421900,Z=-3651.596400)
+    SwayRotationOrig=(Yaw=-3032)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor99
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=119347.671900,Y=-202449.843800,Z=-3509.230200)
+    SwayRotationOrig=(Yaw=20360)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor93
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=117089.187500,Y=-201932.218800,Z=-3771.467800)
+    SwayRotationOrig=(Pitch=-424,Yaw=-3168,Roll=-1208)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor77
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=117284.546900,Y=-198232.671900,Z=-3739.589100)
+    SwayRotationOrig=(Pitch=-224,Yaw=4840)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor84
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116369.562500,Y=-204570.437500,Z=-3688.872800)
+    SwayRotationOrig=(Yaw=-9920)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor92
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115718.210900,Y=-205614.531300,Z=-3498.442600)
+    SwayRotationOrig=(Yaw=-15984)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor30
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=128745.921900,Y=-199073.750000,Z=-3492.149700)
+    SwayRotationOrig=(Yaw=40224)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor70
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree08'
+    Location=(X=117228.523400,Y=-215641.437500,Z=-3760.574500)
+    SwayRotationOrig=(Yaw=8232)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor91
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115860.562500,Y=-204353.531300,Z=-3490.605500)
+    SwayRotationOrig=(Yaw=28280)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor220
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=121962.023400,Y=-214958.140600,Z=-3535.324200)
+    SwayRotationOrig=(Yaw=-10576)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor97
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=118724.062500,Y=-197951.906300,Z=-3616.915800)
+    SwayRotationOrig=(Pitch=776,Yaw=17864,Roll=176)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor179
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=119302.617200,Y=-206578.093800,Z=-3757.900600)
+    SwayRotationOrig=(Yaw=-19920)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor44
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=118999.601600,Y=-214250.468800,Z=-3755.225300)
+    SwayRotationOrig=(Yaw=-10704)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor265
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=125395.093800,Y=-199578.265600,Z=-3698.412600)
+    SwayRotationOrig=(Yaw=15968)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor387
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126464.429700,Y=-211746.375000,Z=-3786.803000)
+    SwayRotationOrig=(Pitch=152,Yaw=-8648,Roll=-1920)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor47
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=119535.359400,Y=-212498.156300,Z=-3546.611300)
+    SwayRotationOrig=(Yaw=10440)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor28
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=118827.859400,Y=-214326.781300,Z=-3747.682600)
+    SwayRotationOrig=(Yaw=-107912)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor26
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127409.507800,Y=-198378.812500,Z=-3379.385000)
+    SwayRotationOrig=(Yaw=19392)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor241
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115944.570300,Y=-201278.015600,Z=-3753.884300)
+    SwayRotationOrig=(Yaw=-25128)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor240
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116357.625000,Y=-201410.296900,Z=-3751.458700)
+    SwayRotationOrig=(Yaw=-14280)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor239
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126387.460900,Y=-213548.484400,Z=-3637.528800)
+    SwayRotationOrig=(Pitch=3672,Yaw=36944,Roll=-5296)
+    DrawScale=1.250000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor238
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127743.976600,Y=-200894.312500,Z=-3751.552000)
+    SwayRotationOrig=(Yaw=9256)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor235
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117246.507800,Y=-198085.078100,Z=-3719.711200)
+    SwayRotationOrig=(Yaw=31472)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor270
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129929.132800,Y=-201899.453100,Z=-3510.242400)
+    SwayRotationOrig=(Yaw=-9336)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor227
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=121644.085900,Y=-215264.328100,Z=-3531.462400)
+    SwayRotationOrig=(Yaw=-31888)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor364
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=127137.578100,Y=-197286.468800,Z=-3373.601300)
+    SwayRotationOrig=(Yaw=-800)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor324
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=123521.585900,Y=-215584.625000,Z=-3523.210400)
+    SwayRotationOrig=(Yaw=6504)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor269
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129899.179700,Y=-200717.218800,Z=-3473.994900)
+    SwayRotationOrig=(Yaw=1968)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor156
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=118906.851600,Y=-201682.906300,Z=-3595.616700)
+    SwayRotationOrig=(Yaw=3344)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor344
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120514.382800,Y=-208484.093800,Z=-3751.462400)
+    SwayRotationOrig=(Yaw=3776)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor226
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=118240.101600,Y=-197488.734400,Z=-3612.243900)
+    SwayRotationOrig=(Yaw=11976)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor64
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=116782.664100,Y=-200655.218800,Z=-3742.852500)
+    SwayRotationOrig=(Yaw=-32528)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor35
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=128364.656300,Y=-199032.109400,Z=-3463.832000)
+    SwayRotationOrig=(Yaw=21312)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor29
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127174.507800,Y=-209095.500000,Z=-3391.240000)
+    SwayRotationOrig=(Yaw=27648)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor63
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=116411.132800,Y=-199555.328100,Z=-3626.710200)
+    SwayRotationOrig=(Yaw=9152)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor54
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118382.671900,Y=-200115.437500,Z=-3631.029300)
+    SwayRotationOrig=(Yaw=12096)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor65
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124155.257800,Y=-215875.734400,Z=-3473.154300)
+    SwayRotationOrig=(Yaw=23024)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor61
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=118220.242200,Y=-200001.234400,Z=-3629.865000)
+    SwayRotationOrig=(Yaw=2552)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor59
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=118203.382800,Y=-200021.421900,Z=-3627.328400)
+    SwayRotationOrig=(Yaw=9624)
+    DrawScale=0.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor147
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124843.585900,Y=-205420.656300,Z=-3070.678000)
+    SwayRotationOrig=(Yaw=-2640)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor143
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129951.257800,Y=-208360.062500,Z=-3578.991500)
+    SwayRotationOrig=(Yaw=9584)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor98
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=119761.234400,Y=-203179.046900,Z=-3376.538800)
+    SwayRotationOrig=(Yaw=13200)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor114
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120863.164100,Y=-208732.734400,Z=-3738.581300)
+    SwayRotationOrig=(Yaw=1200)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor62
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=116417.007800,Y=-199624.812500,Z=-3611.489000)
+    SwayRotationOrig=(Yaw=8536)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor437
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=127919.312500,Y=-200284.187500,Z=-3744.090100)
+    SwayRotationOrig=(Yaw=-6840)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor434
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=127388.687500,Y=-202580.312500,Z=-3729.441900)
+    SwayRotationOrig=(Yaw=13536)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor248
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115509.578100,Y=-210626.546900,Z=-3454.846700)
+    SwayRotationOrig=(Yaw=-42192)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor258
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=119997.125000,Y=-213210.890600,Z=-3662.879400)
+    SwayRotationOrig=(Yaw=-12880)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor384
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=126658.320300,Y=-213648.484400,Z=-3628.438200)
+    SwayRotationOrig=(Pitch=3368,Yaw=-85552,Roll=-2864)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor250
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=118940.945300,Y=-214288.671900,Z=-3700.200900)
+    SwayRotationOrig=(Yaw=-17696)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor406
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support02'
+    Location=(X=114818.000000,Y=-202282.000000,Z=-3080.000000)
+    SwayRotationOrig=(Yaw=-24744)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor389
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=126551.953100,Y=-212312.578100,Z=-3867.509800)
+    SwayRotationOrig=(Yaw=58064)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor426
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=128924.343800,Y=-201187.578100,Z=-3732.707300)
+    SwayRotationOrig=(Yaw=7064)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor345
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree08'
+    Location=(X=120374.335900,Y=-208163.718800,Z=-3752.980700)
+    SwayRotationOrig=(Yaw=-15064)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor342
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=123611.796900,Y=-211832.265600,Z=-3618.128200)
+    SwayRotationOrig=(Yaw=-1784)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor341
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126374.710900,Y=-216811.718800,Z=-3638.077600)
+    SwayRotationOrig=(Yaw=-1432)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor407
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=113767.000000,Y=-201118.000000,Z=-2048.000000)
+    SwayRotationOrig=(Yaw=-31624)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor385
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=127086.882800,Y=-214060.203100,Z=-3549.735600)
+    SwayRotationOrig=(Pitch=832,Yaw=30264,Roll=-2008)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor398
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=127201.187500,Y=-214024.015600,Z=-3778.060300)
+    SwayRotationOrig=(Pitch=1920,Yaw=-35312,Roll=-1976)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor395
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126616.968800,Y=-212096.109400,Z=-3733.976600)
+    SwayRotationOrig=(Pitch=-3848,Yaw=28512,Roll=1640)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor390
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=126469.078100,Y=-211978.718800,Z=-3873.855700)
+    SwayRotationOrig=(Yaw=-38016)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor402
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.Field_Deco_Dwarf_sawmachine3'
+    Location=(X=121393.398400,Y=-199665.250000,Z=-3707.000000)
+    SwayRotationOrig=(Pitch=14336,Yaw=7168)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor382
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126757.914100,Y=-213526.250000,Z=-3951.459700)
+    SwayRotationOrig=(Yaw=31168)
+    DrawScale=2.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor401
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.Field_Deco_Dwarf_sawmachine2'
+    Location=(X=121424.023400,Y=-199656.500000,Z=-3714.000000)
+    SwayRotationOrig=(Pitch=17912,Yaw=37640,Roll=-9680)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor424
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=126114.148400,Y=-201623.421900,Z=-3662.561800)
+    SwayRotationOrig=(Yaw=-2256)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor408
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.field_deco_Dwarf_SteamEngine1'
+    Location=(X=122493.000000,Y=-199996.000000,Z=-3541.000000)
+    SwayRotationOrig=(Yaw=-7168)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor349
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129855.898400,Y=-210013.984400,Z=-3520.567400)
+    SwayRotationOrig=(Yaw=-17392)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor397
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126814.281300,Y=-212313.093800,Z=-3670.850800)
+    SwayRotationOrig=(Yaw=-10448)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor418
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=127140.593800,Y=-214638.140600,Z=-3497.201700)
+    SwayRotationOrig=(Yaw=-29680)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor419
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=129697.546900,Y=-198689.687500,Z=-3616.155800)
+    SwayRotationOrig=(Yaw=-17272)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor422
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=130338.734400,Y=-198350.593800,Z=-3668.257100)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor423
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=126110.296900,Y=-201519.406300,Z=-3680.254200)
+    SwayRotationOrig=(Yaw=-14560)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor428
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=126569.226600,Y=-202339.453100,Z=-3624.582800)
+    SwayRotationOrig=(Yaw=-3240)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor53
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=118628.257800,Y=-199898.078100,Z=-3601.207000)
+    SwayRotationOrig=(Yaw=-1008)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor438
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=127777.921900,Y=-200243.796900,Z=-3731.130900)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor439
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=127485.546900,Y=-200216.500000,Z=-3747.038100)
+    SwayRotationOrig=(Yaw=3608)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor436
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=128946.867200,Y=-201373.562500,Z=-3742.626000)
+    SwayRotationOrig=(Yaw=-22568)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor37
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125182.695300,Y=-213180.125000,Z=-3622.416000)
+    SwayRotationOrig=(Pitch=552,Yaw=-32800,Roll=48)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor189
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124866.796900,Y=-200191.109400,Z=-3638.244600)
+    SwayRotationOrig=(Yaw=13256)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor223
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=121204.476600,Y=-209929.656300,Z=-3751.136700)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor32
+    StaticMesh=StaticMesh'Dwarf_Bridge_S.Outer_Ice.Dwarf_bridge04_ice'
+    Location=(X=115545.000000,Y=-203038.000000,Z=-3766.000000)
+    SwayRotationOrig=(Yaw=-8432)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor157
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=118422.617200,Y=-209990.906300,Z=-3731.821000)
+    SwayRotationOrig=(Yaw=11768)
+    DrawScale=2.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor49
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118320.414100,Y=-217343.687500,Z=-3549.187500)
+    SwayRotationOrig=(Yaw=16592)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor242
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=127523.875000,Y=-201289.437500,Z=-3751.552000)
+    SwayRotationOrig=(Yaw=8320)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor367
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126709.500000,Y=-216546.703100,Z=-3615.077600)
+    SwayRotationOrig=(Yaw=11696)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor323
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=123488.375000,Y=-215504.109400,Z=-3529.863800)
+    SwayRotationOrig=(Yaw=-25376)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor297
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121900.078100,Y=-198629.093800,Z=-3716.200000)
+    SwayRotationOrig=(Yaw=23216)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor285
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121261.906300,Y=-199559.343800,Z=-3697.405500)
+    SwayRotationOrig=(Yaw=10608)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor284
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121208.929700,Y=-199292.609400,Z=-3678.287600)
+    SwayRotationOrig=(Yaw=10608)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor283
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=122002.515600,Y=-199055.734400,Z=-3731.716800)
+    SwayRotationOrig=(Yaw=20800)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor287
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120859.843800,Y=-199785.125000,Z=-3669.987500)
+    SwayRotationOrig=(Yaw=17008)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor454
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121036.164100,Y=-218948.078100,Z=-3726.505900)
+    SwayRotationOrig=(Pitch=1584,Yaw=-26856,Roll=624)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor303
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127620.289100,Y=-204028.609400,Z=-3307.477300)
+    SwayRotationOrig=(Yaw=35944)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor276
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=130020.867200,Y=-201265.796900,Z=-3461.853800)
+    SwayRotationOrig=(Yaw=-10560)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor298
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=127932.062500,Y=-198358.843800,Z=-3437.213900)
+    SwayRotationOrig=(Yaw=-128)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor296
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=118518.265600,Y=-214179.937500,Z=-3720.528600)
+    SwayRotationOrig=(Pitch=1392,Yaw=-45080)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor277
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=130318.468800,Y=-200605.953100,Z=-3434.061800)
+    SwayRotationOrig=(Yaw=3576)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor278
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129814.531300,Y=-200261.437500,Z=-3440.388400)
+    SwayRotationOrig=(Yaw=42128)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor299
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=127972.500000,Y=-198962.156300,Z=-3447.312500)
+    SwayRotationOrig=(Yaw=-12792)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor271
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=130118.703100,Y=-202638.281300,Z=-3471.983900)
+    SwayRotationOrig=(Yaw=18688)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor279
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=121170.789100,Y=-214004.078100,Z=-3649.477500)
+    SwayRotationOrig=(Yaw=116184)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor291
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120045.156300,Y=-198209.562500,Z=-3641.797400)
+    SwayRotationOrig=(Yaw=30256)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor365
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=127227.265600,Y=-198089.968800,Z=-3359.152600)
+    SwayRotationOrig=(Yaw=11816)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor293
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120136.843800,Y=-198886.281300,Z=-3657.373800)
+    SwayRotationOrig=(Yaw=17608)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor300
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120164.015600,Y=-212678.437500,Z=-3551.022200)
+    SwayRotationOrig=(Yaw=17632)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor294
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120526.554700,Y=-198799.546900,Z=-3604.953100)
+    SwayRotationOrig=(Yaw=27296)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor290
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120554.757800,Y=-198005.812500,Z=-3570.263400)
+    SwayRotationOrig=(Yaw=30560)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor50
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=118579.281300,Y=-212134.562500,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=-11776)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor174
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=130128.554700,Y=-210026.046900,Z=-3550.924800)
+    SwayRotationOrig=(Yaw=-36248)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor368
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126727.492200,Y=-216764.937500,Z=-3618.077600)
+    SwayRotationOrig=(Yaw=18016)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor158
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=118450.968800,Y=-209721.765600,Z=-3744.762900)
+    SwayRotationOrig=(Yaw=-12192)
+    DrawScale=2.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor314
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120170.765600,Y=-212257.984400,Z=-3464.668500)
+    SwayRotationOrig=(Yaw=-12584)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor335
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126278.117200,Y=-216755.796900,Z=-3639.077600)
+    SwayRotationOrig=(Yaw=-11360)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor473
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=127736.125000,Y=-203900.421900,Z=-3317.365700)
+    SwayRotationOrig=(Pitch=-944,Yaw=1120,Roll=-856)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor340
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116693.796900,Y=-215610.609400,Z=-3751.938700)
+    SwayRotationOrig=(Yaw=-20736)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor333
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=120175.703100,Y=-215986.984400,Z=-3765.485400)
+    SwayRotationOrig=(Yaw=16624)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor222
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=120981.367200,Y=-209612.843800,Z=-3760.766600)
+    SwayRotationOrig=(Pitch=-1520,Yaw=-33368,Roll=912)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor316
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125583.929700,Y=-213090.312500,Z=-3835.520000)
+    SwayRotationOrig=(Yaw=30528)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor308
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=122190.062500,Y=-210744.718800,Z=-3751.326900)
+    SwayRotationOrig=(Yaw=-17696)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor315
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125334.937500,Y=-214356.562500,Z=-3511.095200)
+    SwayRotationOrig=(Yaw=14800)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor254
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=118925.375000,Y=-212988.859400,Z=-3590.766400)
+    SwayRotationOrig=(Pitch=1872,Yaw=20568)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor252
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115427.429700,Y=-210201.281300,Z=-3381.740000)
+    SwayRotationOrig=(Yaw=-9664)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor396
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126511.726600,Y=-211702.578100,Z=-3681.976600)
+    SwayRotationOrig=(Pitch=-3848,Yaw=26528,Roll=1640)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor393
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126421.664100,Y=-211608.015600,Z=-3765.716600)
+    SwayRotationOrig=(Yaw=-19368)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor392
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126502.953100,Y=-212114.281300,Z=-3851.689000)
+    SwayRotationOrig=(Yaw=-2064)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor404
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=114473.000000,Y=-198420.000000,Z=-2578.000000)
+    SwayRotationOrig=(Yaw=-15416)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor425
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=128861.500000,Y=-201098.203100,Z=-3806.196800)
+    SwayRotationOrig=(Yaw=-24328)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor56
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=118408.078100,Y=-200054.843800,Z=-3626.785900)
+    SwayRotationOrig=(Yaw=-97592)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor57
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=118684.000000,Y=-199886.625000,Z=-3605.619100)
+    SwayRotationOrig=(Yaw=-37440)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor444
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=125073.929700,Y=-207554.625000,Z=-3082.897700)
+    SwayRotationOrig=(Yaw=-46336)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor39
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127633.984400,Y=-197887.156300,Z=-3413.090800)
+    SwayRotationOrig=(Yaw=15552)
+    DrawScale=1.065000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor60
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=126276.820300,Y=-213459.421900,Z=-3708.391100)
+    SwayRotationOrig=(Pitch=-6664,Yaw=22088,Roll=-4872)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor31
+    StaticMesh=StaticMesh'Dwarf_Bridge_S.Outer_Ice.Dwarf_bridge02_ice'
+    Location=(X=115480.000000,Y=-202972.000000,Z=-2881.000000)
+    SwayRotationOrig=(Yaw=24360)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor81
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=117625.179700,Y=-198979.250000,Z=-3686.448500)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=0.400000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor360
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=124157.109400,Y=-206242.031300,Z=-2989.897700)
+    SwayRotationOrig=(Yaw=-8520)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor435
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=127338.273400,Y=-202522.359400,Z=-3719.027300)
+    SwayRotationOrig=(Yaw=-22664)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor448
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=128299.117200,Y=-207501.937500,Z=-3560.150400)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor420
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=129813.140600,Y=-198650.609400,Z=-3615.382100)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor394
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126537.234400,Y=-211897.984400,Z=-3713.261000)
+    SwayRotationOrig=(Pitch=1808,Yaw=-4632,Roll=-2080)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor120
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=120158.539100,Y=-199655.421900,Z=-3668.874000)
+    SwayRotationOrig=(Pitch=680,Yaw=-5032,Roll=-160)
+    DrawScale=0.450000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor117
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120900.906300,Y=-209258.531300,Z=-3735.654100)
+    SwayRotationOrig=(Yaw=-14832)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor415
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=113533.000000,Y=-204738.000000,Z=-1533.000000)
+    SwayRotationOrig=(Yaw=-19792)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor15
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=119404.460900,Y=-217258.062500,Z=-3580.296600)
+    SwayRotationOrig=(Yaw=20720)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor48
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=119228.726600,Y=-212010.250000,Z=-3538.927000)
+    SwayRotationOrig=(Yaw=13320)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor41
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126530.914100,Y=-213591.109400,Z=-3653.528800)
+    SwayRotationOrig=(Pitch=3672,Yaw=32760,Roll=-7568)
+    DrawScale=1.150000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor38
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127641.664100,Y=-198766.937500,Z=-3394.286900)
+    SwayRotationOrig=(Yaw=9104)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor403
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=113325.000000,Y=-202007.000000,Z=-2109.000000)
+    SwayRotationOrig=(Yaw=-12344)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor421
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=130281.789100,Y=-198432.390600,Z=-3654.510700)
+    SwayRotationOrig=(Pitch=504,Yaw=-20936,Roll=-1432)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor138
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118666.695300,Y=-199627.984400,Z=-3634.026400)
+    SwayRotationOrig=(Pitch=-1104,Yaw=-37712,Roll=280)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor217
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117346.945300,Y=-197497.343800,Z=-3705.577600)
+    SwayRotationOrig=(Yaw=-1776)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor212
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115949.929700,Y=-197429.078100,Z=-3436.188000)
+    SwayRotationOrig=(Yaw=27296)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor211
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=121032.875000,Y=-209659.937500,Z=-3751.188700)
+    SwayRotationOrig=(Yaw=72280)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor213
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=121112.679700,Y=-209694.265600,Z=-3741.928500)
+    SwayRotationOrig=(Yaw=-30032)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor111
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120589.578100,Y=-206372.187500,Z=-3747.144300)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor232
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120484.062500,Y=-212542.421900,Z=-3513.115200)
+    SwayRotationOrig=(Yaw=720)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor110
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=117900.984400,Y=-201696.265600,Z=-3664.009000)
+    SwayRotationOrig=(Yaw=-5464)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor155
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=118950.375000,Y=-201694.156300,Z=-3589.616700)
+    SwayRotationOrig=(Pitch=280,Yaw=5664,Roll=560)
+    DrawScale=0.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor148
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=123265.023400,Y=-207083.015600,Z=-3066.323500)
+    SwayRotationOrig=(Yaw=-2568)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor151
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=123457.203100,Y=-206636.828100,Z=-3045.976600)
+    SwayRotationOrig=(Yaw=-9168)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor317
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=125485.218800,Y=-213802.234400,Z=-3507.562300)
+    SwayRotationOrig=(Yaw=30896)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor399
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=127254.812500,Y=-214128.671900,Z=-3675.114300)
+    SwayRotationOrig=(Yaw=-1656)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor112
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=120762.453100,Y=-201650.890600,Z=-3565.308100)
+    SwayRotationOrig=(Pitch=392,Yaw=-33168)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor137
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116088.250000,Y=-198743.953100,Z=-3569.502700)
+    SwayRotationOrig=(Yaw=43624)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor301
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127833.984400,Y=-197631.328100,Z=-3438.456300)
+    SwayRotationOrig=(Yaw=24320)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor260
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117353.593800,Y=-210108.109400,Z=-3545.857200)
+    SwayRotationOrig=(Yaw=-9168)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor253
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=117410.148400,Y=-210438.828100,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=10288)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor247
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115421.734400,Y=-211454.953100,Z=-3474.161900)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor255
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=117148.882800,Y=-210198.640600,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=14400)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor136
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=125347.523400,Y=-198017.671900,Z=-3675.687700)
+    SwayRotationOrig=(Yaw=-25216)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor405
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support01'
+    Location=(X=114917.000000,Y=-202385.000000,Z=-3572.000000)
+    SwayRotationOrig=(Yaw=-24752)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor128
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121197.679700,Y=-203364.953100,Z=-3270.969700)
+    SwayRotationOrig=(Yaw=4768)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor246
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115853.343800,Y=-211671.125000,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor130
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=121252.265600,Y=-202491.187500,Z=-3444.792500)
+    SwayRotationOrig=(Yaw=31152)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor343
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=123342.234400,Y=-211722.859400,Z=-3606.702400)
+    SwayRotationOrig=(Yaw=-19056)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor273
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=130414.500000,Y=-200980.859400,Z=-3411.324000)
+    SwayRotationOrig=(Yaw=12272)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor66
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=116789.726600,Y=-200620.859400,Z=-3762.674100)
+    SwayRotationOrig=(Yaw=-34488)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor40
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127615.250000,Y=-197216.156300,Z=-3427.860400)
+    SwayRotationOrig=(Yaw=2744)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor456
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121330.265600,Y=-219306.250000,Z=-3762.839100)
+    SwayRotationOrig=(Pitch=-6968,Yaw=-30608,Roll=9312)
+    DrawScale=1.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor274
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129720.632800,Y=-202375.781300,Z=-3502.219500)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor334
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129253.468800,Y=-205373.125000,Z=-3724.080800)
+    SwayRotationOrig=(Yaw=20120)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor478
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=129048.726600,Y=-210869.984400,Z=-3446.425500)
+    SwayRotationOrig=(Pitch=1176,Yaw=-47528,Roll=768)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor451
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=125337.304700,Y=-206932.500000,Z=-3150.339600)
+    SwayRotationOrig=(Yaw=-13232)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor416
+    StaticMesh=StaticMesh'Schtgart_Dwarf_startpoint_s.Dwarf_startpoint_support05'
+    Location=(X=114043.000000,Y=-204423.000000,Z=-1729.000000)
+    SwayRotationOrig=(Yaw=-26504)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor414
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=127195.320300,Y=-214150.765600,Z=-3587.278100)
+    SwayRotationOrig=(Pitch=-936,Yaw=20176,Roll=-1440)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor337
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=129114.320300,Y=-205790.109400,Z=-3761.549800)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor379
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125363.289100,Y=-212981.890600,Z=-3797.111800)
+    SwayRotationOrig=(Yaw=26600)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor115
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120487.296900,Y=-208985.281300,Z=-3751.552000)
+    SwayRotationOrig=(Yaw=-23104)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor119
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120966.500000,Y=-206748.953100,Z=-3748.354200)
+    SwayRotationOrig=(Yaw=-10928)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor109
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120616.507800,Y=-206913.968800,Z=-3755.546900)
+    SwayRotationOrig=(Yaw=-14272)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor118
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=120124.828100,Y=-199683.437500,Z=-3679.476300)
+    SwayRotationOrig=(Pitch=-936,Yaw=-34960)
+    DrawScale=0.400000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor113
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120886.039100,Y=-208259.937500,Z=-3720.163300)
+    SwayRotationOrig=(Yaw=14768)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor116
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=120777.226600,Y=-201560.812500,Z=-3561.273400)
+    SwayRotationOrig=(Pitch=-424,Yaw=-31128,Roll=-240)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor108
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120724.796900,Y=-208002.156300,Z=-3746.019000)
+    SwayRotationOrig=(Yaw=-14272)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor104
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=118662.921900,Y=-197931.453100,Z=-3623.023900)
+    SwayRotationOrig=(Pitch=816,Yaw=-51424,Roll=-696)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor184
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=125188.281300,Y=-200088.250000,Z=-3641.495800)
+    SwayRotationOrig=(Yaw=-16848)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor378
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=125290.070300,Y=-213019.468800,Z=-3729.918200)
+    SwayRotationOrig=(Yaw=4016)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor440
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=125246.234400,Y=-197523.171900,Z=-3664.022900)
+    SwayRotationOrig=(Yaw=1256)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor307
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=126837.898400,Y=-204236.750000,Z=-3193.942600)
+    SwayRotationOrig=(Yaw=21200)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor306
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=122198.835900,Y=-210787.062500,Z=-3734.897700)
+    SwayRotationOrig=(Yaw=4696)
+    DrawScale=0.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor272
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=130404.125000,Y=-201578.453100,Z=-3426.220000)
+    SwayRotationOrig=(Yaw=7344)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor483
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=122079.078100,Y=-200077.609400,Z=-3739.572800)
+    SwayRotationOrig=(Pitch=-1808,Yaw=-18360,Roll=480)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor484
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=122057.351600,Y=-202732.218800,Z=-3865.765900)
+    SwayRotationOrig=(Yaw=32288)
+    DrawScale=2.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor292
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120365.148400,Y=-198532.343800,Z=-3599.417200)
+    SwayRotationOrig=(Yaw=30512)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor302
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127270.914100,Y=-203884.796900,Z=-3232.526100)
+    SwayRotationOrig=(Yaw=17664)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor305
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118499.250000,Y=-214239.640600,Z=-3749.905300)
+    SwayRotationOrig=(Pitch=144,Yaw=8640,Roll=-600)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor304
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127262.984400,Y=-204333.203100,Z=-3285.154500)
+    SwayRotationOrig=(Yaw=-6144)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor347
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=115968.906300,Y=-201623.484400,Z=-3751.552000)
+    SwayRotationOrig=(Yaw=-21680)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor575
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=116453.867200,Y=-199781.687500,Z=-3626.048600)
+    SwayRotationOrig=(Pitch=824,Yaw=-18520,Roll=360)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor352
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=129577.976600,Y=-210169.421900,Z=-3494.675000)
+    SwayRotationOrig=(Yaw=33728)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor467
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121068.406300,Y=-219318.156300,Z=-3835.839100)
+    SwayRotationOrig=(Pitch=-6656,Yaw=-29160,Roll=6120)
+    DrawScale=1.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor466
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121565.125000,Y=-219263.234400,Z=-3723.605700)
+    SwayRotationOrig=(Yaw=16056)
+    DrawScale=1.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor465
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121344.164100,Y=-219152.890600,Z=-3695.272200)
+    SwayRotationOrig=(Pitch=-16,Yaw=-28568,Roll=664)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor464
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121239.750000,Y=-219202.750000,Z=-3699.192400)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor485
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=122172.000000,Y=-202906.609400,Z=-3733.712200)
+    SwayRotationOrig=(Pitch=792,Yaw=-36176,Roll=-1200)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor197
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=116967.468800,Y=-210183.109400,Z=-3568.883300)
+    SwayRotationOrig=(Pitch=1208,Yaw=1904,Roll=-56)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor200
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115730.882800,Y=-207633.000000,Z=-3675.354500)
+    SwayRotationOrig=(Yaw=43608)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor453
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=125974.492200,Y=-209671.140600,Z=-3350.526900)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor443
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone07'
+    Location=(X=125090.140600,Y=-207389.046900,Z=-3123.180200)
+    SwayRotationOrig=(Yaw=-18112)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor449
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=128337.171900,Y=-207424.765600,Z=-3554.204300)
+    SwayRotationOrig=(Yaw=21808)
+    DrawScale=0.730000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor201
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115082.992200,Y=-206732.546900,Z=-3390.039600)
+    SwayRotationOrig=(Yaw=760)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor171
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124052.843800,Y=-206726.250000,Z=-2937.211700)
+    SwayRotationOrig=(Yaw=-24272)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor172
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=123681.914100,Y=-207063.640600,Z=-2959.082500)
+    SwayRotationOrig=(Yaw=3088)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor468
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121550.273400,Y=-219071.343800,Z=-3730.805900)
+    SwayRotationOrig=(Pitch=2608,Yaw=30368,Roll=-2544)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor477
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=123241.031300,Y=-213468.687500,Z=-3748.843300)
+    SwayRotationOrig=(Yaw=-3696)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor89
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127326.406300,Y=-200915.953100,Z=-3751.552000)
+    SwayRotationOrig=(Yaw=-14928)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor339
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116898.609400,Y=-216663.609400,Z=-3704.473100)
+    SwayRotationOrig=(Yaw=-39000)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor482
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=122022.406300,Y=-200127.875000,Z=-3826.015600)
+    SwayRotationOrig=(Yaw=-4592)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor471
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=127512.101600,Y=-202595.281300,Z=-3718.706500)
+    SwayRotationOrig=(Pitch=-888,Yaw=-32048,Roll=-1808)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor480
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=128968.273400,Y=-210930.281300,Z=-3427.723100)
+    SwayRotationOrig=(Yaw=-1152)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor445
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=125194.109400,Y=-207405.203100,Z=-3121.452100)
+    SwayRotationOrig=(Yaw=-78288)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor446
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone07'
+    Location=(X=125081.054700,Y=-207267.093800,Z=-3107.713900)
+    SwayRotationOrig=(Yaw=-3600)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor441
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=128152.125000,Y=-200489.437500,Z=-3767.283000)
+    SwayRotationOrig=(Pitch=-992,Yaw=25904,Roll=-120)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor479
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=129040.445300,Y=-211003.265600,Z=-3455.939000)
+    SwayRotationOrig=(Yaw=3496)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor481
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=122164.757800,Y=-200110.140600,Z=-3836.675500)
+    SwayRotationOrig=(Yaw=7832)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor463
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121659.546900,Y=-219451.328100,Z=-3842.839100)
+    SwayRotationOrig=(Pitch=-6656,Yaw=-86656,Roll=6120)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor198
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=114815.898400,Y=-207614.687500,Z=-3549.029100)
+    SwayRotationOrig=(Yaw=13344)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor163
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=123790.703100,Y=-206239.531300,Z=-3028.462400)
+    SwayRotationOrig=(Yaw=-20880)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor486
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=122251.953100,Y=-202854.156300,Z=-3843.712200)
+    SwayRotationOrig=(Yaw=-46888)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor447
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=124951.570300,Y=-207362.156300,Z=-3055.294400)
+    SwayRotationOrig=(Yaw=-28456)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor457
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126805.718800,Y=-216826.390600,Z=-3738.839100)
+    SwayRotationOrig=(Pitch=-9096,Yaw=-14392,Roll=7392)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor458
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=120813.929700,Y=-219002.187500,Z=-3808.515600)
+    SwayRotationOrig=(Yaw=-24)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor169
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115775.671900,Y=-199218.031300,Z=-3511.127700)
+    SwayRotationOrig=(Yaw=23600)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor168
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone01'
+    Location=(X=118616.453100,Y=-209165.593800,Z=-3739.461700)
+    SwayRotationOrig=(Pitch=-344,Yaw=13656,Roll=360)
+    DrawScale=1.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor166
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=124401.351600,Y=-208534.484400,Z=-2989.794700)
+    SwayRotationOrig=(Yaw=7472)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor196
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115308.820300,Y=-207610.468800,Z=-3713.858400)
+    SwayRotationOrig=(Yaw=11240)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor165
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=118469.203100,Y=-209657.921900,Z=-3731.617700)
+    SwayRotationOrig=(Pitch=-456,Yaw=-81760,Roll=-680)
+    DrawScale=2.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor170
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=122963.312500,Y=-214858.890600,Z=-3559.542200)
+    SwayRotationOrig=(Yaw=19472)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor199
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=114770.289100,Y=-207012.156300,Z=-3349.942100)
+    SwayRotationOrig=(Yaw=11672)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor331
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=128812.500000,Y=-204583.687500,Z=-3580.870100)
+    SwayRotationOrig=(Yaw=-9328)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor167
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=124053.179700,Y=-208461.015600,Z=-2956.719000)
+    SwayRotationOrig=(Yaw=30056)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor139
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=115769.632800,Y=-198306.921900,Z=-3509.588400)
+    SwayRotationOrig=(Yaw=37616)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor105
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=120509.273400,Y=-207243.703100,Z=-3753.728300)
+    SwayRotationOrig=(Yaw=3088)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor150
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=123360.765600,Y=-197659.265600,Z=-3681.726800)
+    SwayRotationOrig=(Yaw=24768)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor427
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126633.781300,Y=-202315.250000,Z=-3646.132800)
+    SwayRotationOrig=(Pitch=144,Yaw=31336,Roll=-1360)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor188
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=124469.578100,Y=-200131.750000,Z=-3648.899900)
+    SwayRotationOrig=(Yaw=-13744)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor388
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126755.906300,Y=-212373.906300,Z=-3731.518800)
+    SwayRotationOrig=(Pitch=336,Yaw=728,Roll=-2472)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor400
+    StaticMesh=StaticMesh'field_deco_Dwarf_S.Field_Deco_Dwarf_sawmachine1'
+    Location=(X=121395.101600,Y=-199693.562500,Z=-3694.000000)
+    SwayRotationOrig=(Pitch=-1288,Yaw=16344,Roll=520)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor359
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=124636.492200,Y=-208882.078100,Z=-3072.575900)
+    SwayRotationOrig=(Yaw=1896)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor338
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=128813.078100,Y=-205014.578100,Z=-3659.222900)
+    SwayRotationOrig=(Yaw=7264)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor429
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=126507.671900,Y=-202218.984400,Z=-3656.655500)
+    SwayRotationOrig=(Yaw=20496)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor20
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116246.218800,Y=-198114.859400,Z=-3572.137500)
+    SwayRotationOrig=(Yaw=7240)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor433
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=126025.367200,Y=-200142.890600,Z=-3756.381600)
+    SwayRotationOrig=(Yaw=-21864)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor52
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree05'
+    Location=(X=119713.007800,Y=-212016.687500,Z=-3479.143600)
+    SwayRotationOrig=(Yaw=6984)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor79
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=127245.429700,Y=-197613.062500,Z=-3376.769800)
+    SwayRotationOrig=(Yaw=13856)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor43
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=119010.070300,Y=-212352.062500,Z=-3544.927000)
+    SwayRotationOrig=(Yaw=-11776)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor51
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone05'
+    Location=(X=118204.617200,Y=-217307.656300,Z=-3539.263400)
+    SwayRotationOrig=(Yaw=4448)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor459
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121780.414100,Y=-219159.984400,Z=-3852.839100)
+    SwayRotationOrig=(Pitch=-6656,Yaw=-3504,Roll=6120)
+    DrawScale=1.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor312
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone04'
+    Location=(X=125212.289100,Y=-214341.890600,Z=-3538.679200)
+    SwayRotationOrig=(Yaw=75560)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor310
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=126802.945300,Y=-216292.406300,Z=-3783.217000)
+    SwayRotationOrig=(Yaw=-42912)
+    DrawScale=1.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor12
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=116538.882800,Y=-214225.296900,Z=-3639.423600)
+    SwayRotationOrig=(Yaw=7128)
+    DrawScale=0.800000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor192
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=128432.867200,Y=-206807.203100,Z=-3661.932100)
+    SwayRotationOrig=(Yaw=0)
+    DrawScale=0.850000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor370
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126498.578100,Y=-216892.750000,Z=-3616.077600)
+    SwayRotationOrig=(Yaw=184)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor100
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=126640.296900,Y=-209836.156300,Z=-3295.986600)
+    SwayRotationOrig=(Yaw=-432)
+    DrawScale=1.100000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor353
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=126697.351600,Y=-216430.906300,Z=-3629.077600)
+    SwayRotationOrig=(Pitch=1696,Yaw=17352,Roll=-496)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor460
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=120902.265600,Y=-219161.718800,Z=-3807.363500)
+    SwayRotationOrig=(Pitch=3432,Yaw=68920,Roll=-2216)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor346
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree03'
+    Location=(X=116279.179700,Y=-197752.062500,Z=-3595.049100)
+    SwayRotationOrig=(Yaw=-5808)
+    DrawScale=0.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor476
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=123292.781300,Y=-213506.781300,Z=-3771.814500)
+    SwayRotationOrig=(Yaw=16464)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor475
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=127357.257800,Y=-199558.453100,Z=-3435.144000)
+    SwayRotationOrig=(Pitch=-2928,Yaw=-19024,Roll=-320)
+    DrawScale=0.600000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor474
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone03'
+    Location=(X=127382.437500,Y=-199556.390600,Z=-3455.517100)
+    SwayRotationOrig=(Yaw=4144)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor472
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=127798.406300,Y=-203868.765600,Z=-3313.045200)
+    SwayRotationOrig=(Pitch=632,Yaw=-25256)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor469
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=121325.796900,Y=-218952.875000,Z=-3796.839100)
+    SwayRotationOrig=(Pitch=-6656,Yaw=1400,Roll=6120)
+    DrawScale=1.700000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor462
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=120931.390600,Y=-218843.718800,Z=-3827.839100)
+    SwayRotationOrig=(Pitch=-6656,Yaw=9480,Roll=6120)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor461
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwerf_stone08'
+    Location=(X=120901.171900,Y=-219029.375000,Z=-3746.284700)
+    SwayRotationOrig=(Yaw=33872)
+    DrawScale=1.300000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor218
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=116439.437500,Y=-197400.953100,Z=-3553.328100)
+    SwayRotationOrig=(Yaw=23264)
+    DrawScale=1.050000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor455
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone02'
+    Location=(X=126835.562500,Y=-216529.000000,Z=-3730.508800)
+    SwayRotationOrig=(Pitch=3104,Yaw=22640,Roll=-2096)
+    DrawScale=1.200000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor264
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=125073.640600,Y=-199313.218800,Z=-3649.012200)
+    SwayRotationOrig=(Yaw=-17392)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor107
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=120350.867200,Y=-206560.734400,Z=-3751.552000)
+    SwayRotationOrig=(Yaw=488)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor144
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=125579.671900,Y=-199208.203100,Z=-3736.369600)
+    SwayRotationOrig=(Yaw=952)
+    DrawScale=1.000000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor267
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=121179.757800,Y=-214068.890600,Z=-3624.003200)
+    SwayRotationOrig=(Pitch=1616,Yaw=-12672,Roll=128)
+    DrawScale=0.500000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor131
+    StaticMesh=StaticMesh'field_deco_S.Dwarf_stone.Dwarf_stone06'
+    Location=(X=116447.593800,Y=-202991.609400,Z=-3738.601100)
+    SwayRotationOrig=(Pitch=1600,Yaw=32864,Roll=224)
+    DrawScale=0.370000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor133
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=126758.054700,Y=-209289.718800,Z=-3374.828400)
+    SwayRotationOrig=(Yaw=14272)
+    DrawScale=0.950000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor259
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree07'
+    Location=(X=115872.242200,Y=-210179.656300,Z=-3487.451200)
+    SwayRotationOrig=(Yaw=624)
+    DrawScale=0.900000
+End Actor
+Begin Actor Class=StaticMeshActor Name=StaticMeshActor224
+    StaticMesh=StaticMesh'RionSctgart_tree_s.tree.Dwarftree01'
+    Location=(X=118249.125000,Y=-197889.796900,Z=-3633.623800)
+    SwayRotationOrig=(Yaw=-8048)
+    DrawScale=0.800000
+End Actor
+End Map
+Begin Actor Class=Brush Name=Brush279
+    CsgOper=CSG_Add
+    PolyFlags=8
+    Location=(X=263.000000,Y=264377.000000,Z=24470.000000)
+    Begin Brush Name=Model283
+       Begin PolyList
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00000.277016,+00008.250000,-00150.295898
+             Normal   +00000.000000,+00001.000000,+00000.000000
+             TextureU +00008.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00004.204549,+00033.626328,+00009.452854
+             Vertex   +00004.204549,+00033.626328,-00002.414795
+             Vertex   -00004.756001,+00033.626328,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   -00024.520599,+00017.041824,-00002.414795
+             Vertex   -00020.040325,+00024.801901,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   -00020.040325,+00024.801901,-00002.414795
+             Vertex   -00013.176150,+00030.561625,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV -00000.000050,-00000.062500,+00000.000000
+             Vertex   -00013.176150,+00030.561625,-00002.414795
+             Vertex   -00004.756001,+00033.626328,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   -00004.756001,+00033.626328,-00002.414795
+             Vertex   +00004.204549,+00033.626328,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   +00004.204549,+00033.626328,-00002.414795
+             Vertex   +00012.624724,+00030.561625,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   +00012.624724,+00030.561625,-00002.414795
+             Vertex   +00019.488899,+00024.801901,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   +00019.488899,+00024.801901,-00002.414795
+             Vertex   +00023.969175,+00017.041824,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV -00000.000050,-00000.062500,+00000.000000
+             Vertex   +00023.969175,+00017.041824,-00002.414795
+             Vertex   +00025.525150,+00008.217400,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV -00000.000050,-00000.062500,+00000.000000
+             Vertex   +00025.525150,+00008.217400,-00002.414795
+             Vertex   +00023.969175,-00000.607000,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   +00023.969175,-00000.607000,-00002.414795
+             Vertex   +00019.488899,-00008.367075,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   +00019.488899,-00008.367075,-00002.414795
+             Vertex   +00012.624724,-00014.126801,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV -00000.000050,-00000.062500,+00000.000000
+             Vertex   +00012.624724,-00014.126801,-00002.414795
+             Vertex   +00004.204549,-00017.191500,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   +00004.204549,-00017.191500,-00002.414795
+             Vertex   -00004.756001,-00017.191475,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   -00004.756001,-00017.191475,-00002.414795
+             Vertex   -00013.176150,-00014.126801,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   -00013.176150,-00014.126801,-00002.414795
+             Vertex   -00020.040325,-00008.367075,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000032,-00000.062500,+00000.000000
+             Vertex   -00020.040325,-00008.367075,-00002.414795
+             Vertex   -00024.520599,-00000.607000,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV -00000.000050,-00000.062500,+00000.000000
+             Vertex   -00024.520599,-00000.607000,-00002.414795
+             Vertex   -00026.076601,+00008.217425,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00022.072906,-00117.000000,-00150.294922
+             Normal   -00000.984807,+00000.173651,+00000.000000
+             TextureU +00001.389213,+00007.878457,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00026.076601,+00008.217425,+00009.452854
+             Vertex   -00024.520599,+00017.041824,+00009.452854
+             Vertex   -00026.076601,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00022.072906,-00117.000000,-00150.294922
+             Normal   -00000.984807,+00000.173651,+00000.000000
+             TextureU +00001.389213,+00007.878457,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00024.520599,+00017.041824,+00009.452854
+             Vertex   -00024.520599,+00017.041824,-00002.414795
+             Vertex   -00026.076601,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00067.748032,-00109.125000,-00150.294922
+             Normal   -00000.866026,+00000.499999,+00000.000000
+             TextureU +00003.999991,+00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00024.520599,+00017.041824,+00009.452854
+             Vertex   -00020.040325,+00024.801901,+00009.452854
+             Vertex   -00024.520599,+00017.041824,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00067.748032,-00109.125000,-00150.294922
+             Normal   -00000.866026,+00000.499999,+00000.000000
+             TextureU +00003.999991,+00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00020.040325,+00024.801901,+00009.452854
+             Vertex   -00020.040325,+00024.801901,-00002.414795
+             Vertex   -00024.520599,+00017.041824,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00109.566505,-00083.703125,-00150.294922
+             Normal   -00000.642787,+00000.766045,+00000.000000
+             TextureU +00006.128356,+00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00020.040325,+00024.801901,+00009.452854
+             Vertex   -00013.176150,+00030.561625,+00009.452854
+             Vertex   -00020.040325,+00024.801901,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00109.566505,-00083.703125,-00150.294922
+             Normal   -00000.642787,+00000.766045,+00000.000000
+             TextureU +00006.128356,+00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00013.176150,+00030.561625,+00009.452854
+             Vertex   -00013.176150,+00030.561625,-00002.414795
+             Vertex   -00020.040325,+00024.801901,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00141.632416,-00043.312500,-00150.294922
+             Normal   -00000.342022,+00000.939692,+00000.000000
+             TextureU +00007.517534,+00002.736180,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00013.176150,+00030.561625,+00009.452854
+             Vertex   -00004.756001,+00033.626328,+00009.452854
+             Vertex   -00013.176150,+00030.561625,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00141.632416,-00043.312500,-00150.294922
+             Normal   -00000.342022,+00000.939692,+00000.000000
+             TextureU +00007.517534,+00002.736180,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00004.756001,+00033.626328,+00009.452854
+             Vertex   -00004.756001,+00033.626328,-00002.414795
+             Vertex   -00013.176150,+00030.561625,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00000.277016,+00008.250000,-00150.295898
+             Normal   +00000.000000,+00001.000000,+00000.000000
+             TextureU +00008.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00004.756001,+00033.626328,+00009.452854
+             Vertex   +00004.204549,+00033.626328,+00009.452854
+             Vertex   -00004.756001,+00033.626328,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00025.631195,-00165.093750,-00002.415040
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU -00000.062500,+00000.000000,+00000.000000
+             TextureV -00000.000050,-00000.062500,+00000.000000
+             Vertex   -00026.076601,+00008.217425,-00002.414795
+             Vertex   -00024.520599,+00017.041824,-00002.414795
+             Vertex   -00000.275726,+00008.217425,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00008.666290,+00011.406250,-00150.295898
+             Normal   +00000.342021,+00000.939692,+00000.000000
+             TextureU +00007.517538,-00002.736169,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00004.204549,+00033.626328,+00009.452854
+             Vertex   +00012.624724,+00030.561625,+00009.452854
+             Vertex   +00004.204549,+00033.626328,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00008.666290,+00011.406250,-00150.295898
+             Normal   +00000.342021,+00000.939692,+00000.000000
+             TextureU +00007.517538,-00002.736169,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00012.624724,+00030.561625,+00009.452854
+             Vertex   +00012.624724,+00030.561625,-00002.414795
+             Vertex   +00004.204549,+00033.626328,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00013.972519,+00019.984375,-00150.295898
+             Normal   +00000.642787,+00000.766045,+00000.000000
+             TextureU +00006.128356,-00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00012.624724,+00030.561625,+00009.452854
+             Vertex   +00019.488899,+00024.801901,+00009.452854
+             Vertex   +00012.624724,+00030.561625,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00013.972519,+00019.984375,-00150.295898
+             Normal   +00000.642787,+00000.766045,+00000.000000
+             TextureU +00006.128356,-00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00019.488899,+00024.801901,+00009.452854
+             Vertex   +00019.488899,+00024.801901,-00002.414795
+             Vertex   +00012.624724,+00030.561625,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00013.675766,+00031.968750,-00150.295898
+             Normal   +00000.866026,+00000.499999,+00000.000000
+             TextureU +00003.999991,-00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00019.488899,+00024.801901,+00009.452854
+             Vertex   +00023.969175,+00017.041824,+00009.452854
+             Vertex   +00019.488899,+00024.801901,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00013.675766,+00031.968750,-00150.295898
+             Normal   +00000.866026,+00000.499999,+00000.000000
+             TextureU +00003.999991,-00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00023.969175,+00017.041824,+00009.452854
+             Vertex   +00023.969175,+00017.041824,-00002.414795
+             Vertex   +00019.488899,+00024.801901,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00006.309647,+00044.109375,-00150.295898
+             Normal   +00000.984808,+00000.173647,+00000.000000
+             TextureU +00001.389174,-00007.878464,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00023.969175,+00017.041824,+00009.452854
+             Vertex   +00025.525150,+00008.217400,+00009.452854
+             Vertex   +00023.969175,+00017.041824,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   -00006.309647,+00044.109375,-00150.295898
+             Normal   +00000.984808,+00000.173647,+00000.000000
+             TextureU +00001.389174,-00007.878464,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00025.525150,+00008.217400,+00009.452854
+             Vertex   +00025.525150,+00008.217400,-00002.414795
+             Vertex   +00023.969175,+00017.041824,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00007.875160,+00052.843750,-00150.295898
+             Normal   +00000.984808,-00000.173648,+00000.000000
+             TextureU -00001.389171,-00007.878464,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00025.525150,+00008.217400,+00009.452854
+             Vertex   +00023.969175,-00000.607000,+00009.452854
+             Vertex   +00025.525150,+00008.217400,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00007.875160,+00052.843750,-00150.295898
+             Normal   +00000.984808,-00000.173648,+00000.000000
+             TextureU -00001.389171,-00007.878464,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00023.969175,-00000.607000,+00009.452854
+             Vertex   +00023.969175,-00000.607000,-00002.414795
+             Vertex   +00025.525150,+00008.217400,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00026.949318,+00054.906250,-00150.295898
+             Normal   +00000.866026,-00000.500000,+00000.000000
+             TextureU -00003.999991,-00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00023.969175,-00000.607000,+00009.452854
+             Vertex   +00019.488899,-00008.367075,+00009.452854
+             Vertex   +00023.969175,-00000.607000,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00026.949318,+00054.906250,-00150.295898
+             Normal   +00000.866026,-00000.500000,+00000.000000
+             TextureU -00003.999991,-00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00019.488899,-00008.367075,+00009.452854
+             Vertex   +00019.488899,-00008.367075,-00002.414795
+             Vertex   +00023.969175,-00000.607000,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00047.608917,+00048.187500,-00150.294922
+             Normal   +00000.642788,-00000.766044,+00000.000000
+             TextureU -00006.128356,-00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00019.488899,-00008.367075,+00009.452854
+             Vertex   +00012.624724,-00014.126801,+00009.452854
+             Vertex   +00019.488899,-00008.367075,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00047.608917,+00048.187500,-00150.294922
+             Normal   +00000.642788,-00000.766044,+00000.000000
+             TextureU -00006.128356,-00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00012.624724,-00014.126801,+00009.452854
+             Vertex   +00012.624724,-00014.126801,-00002.414795
+             Vertex   +00019.488899,-00008.367075,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00066.220734,+00032.343750,-00150.294922
+             Normal   +00000.342021,-00000.939692,+00000.000000
+             TextureU -00007.517538,-00002.736169,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00012.624724,-00014.126801,+00009.452854
+             Vertex   +00004.204549,-00017.191500,+00009.452854
+             Vertex   +00012.624724,-00014.126801,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00066.220734,+00032.343750,-00150.294922
+             Normal   +00000.342021,-00000.939692,+00000.000000
+             TextureU -00007.517538,-00002.736169,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00004.204549,-00017.191500,+00009.452854
+             Vertex   +00004.204549,-00017.191500,-00002.414795
+             Vertex   +00012.624724,-00014.126801,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00079.156738,+00008.250000,-00150.294922
+             Normal   -00000.000003,-00001.000000,+00000.000000
+             TextureU -00008.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   +00004.204549,-00017.191500,+00009.452854
+             Vertex   -00004.756001,-00017.191475,+00009.452854
+             Vertex   +00004.204549,-00017.191500,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00079.156738,+00008.250000,-00150.294922
+             Normal   -00000.000003,-00001.000000,+00000.000000
+             TextureU -00008.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00004.756001,-00017.191475,+00009.452854
+             Vertex   -00004.756001,-00017.191475,-00002.414795
+             Vertex   +00004.204549,-00017.191500,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00083.110565,-00022.000000,-00150.294922
+             Normal   -00000.342019,-00000.939693,+00000.000000
+             TextureU -00007.517540,+00002.736163,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00004.756001,-00017.191475,+00009.452854
+             Vertex   -00013.176150,-00014.126801,+00009.452854
+             Vertex   -00004.756001,-00017.191475,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00083.110565,-00022.000000,-00150.294922
+             Normal   -00000.342019,-00000.939693,+00000.000000
+             TextureU -00007.517540,+00002.736163,+00000.001334
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00013.176150,-00014.126801,+00009.452854
+             Vertex   -00013.176150,-00014.126801,-00002.414795
+             Vertex   -00004.756001,-00017.191475,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00075.305298,-00054.921875,-00150.294922
+             Normal   -00000.642788,-00000.766044,+00000.000000
+             TextureU -00006.128356,+00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00013.176150,-00014.126801,+00009.452854
+             Vertex   -00020.040325,-00008.367075,+00009.452854
+             Vertex   -00013.176150,-00014.126801,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00075.305298,-00054.921875,-00150.294922
+             Normal   -00000.642788,-00000.766044,+00000.000000
+             TextureU -00006.128356,+00005.142301,+00000.001347
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00020.040325,-00008.367075,+00009.452854
+             Vertex   -00020.040325,-00008.367075,-00002.414795
+             Vertex   -00013.176150,-00014.126801,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00054.239441,-00085.671875,-00150.294922
+             Normal   -00000.866026,-00000.499999,+00000.000000
+             TextureU -00003.999991,+00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00020.040325,-00008.367075,+00009.452854
+             Vertex   -00024.520599,-00000.607000,+00009.452854
+             Vertex   -00020.040325,-00008.367075,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00054.239441,-00085.671875,-00150.294922
+             Normal   -00000.866026,-00000.499999,+00000.000000
+             TextureU -00003.999991,+00006.928208,+00000.001363
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00024.520599,-00000.607000,+00009.452854
+             Vertex   -00024.520599,-00000.607000,-00002.414795
+             Vertex   -00020.040325,-00008.367075,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00020.526649,-00108.078125,-00150.294922
+             Normal   -00000.984807,-00000.173650,+00000.000000
+             TextureU -00001.389197,+00007.878460,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00024.520599,-00000.607000,+00009.452854
+             Vertex   -00026.076601,+00008.217425,+00009.452854
+             Vertex   -00024.520599,-00000.607000,-00002.414795
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194568
+             Origin   +00020.526649,-00108.078125,-00150.294922
+             Normal   -00000.984807,-00000.173650,+00000.000000
+             TextureU -00001.389197,+00007.878460,+00000.001370
+             TextureV +00000.000000,+00000.000000,-00008.000000
+             Vertex   -00026.076601,+00008.217425,+00009.452854
+             Vertex   -00026.076601,+00008.217425,-00002.414795
+             Vertex   -00024.520599,-00000.607000,-00002.414795
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=0.018066,Y=11.000000,Z=-3.219727)
+End Actor
+Begin Actor Class=Brush Name=Brush41
+    CsgOper=CSG_Subtract
+    Location=(X=0.000000,Y=0.000000,Z=0.000000)
+    Begin Brush Name=Model27
+       Begin PolyList
+          Begin Polygon Texture=T_texture.Texture.g_01 Flags=4194432
+             Origin   -327680.000000,-262144.000000,-16384.000000
+             Normal   -00001.000000,+00000.000000,+00000.000000
+             TextureU +00000.000000,+00001.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00001.000000
+             Vertex   -327680.000000,-262144.000000,-16384.000000
+             Vertex   -327680.000000,-262144.000000,+16384.000000
+             Vertex   -327680.000000,+262144.000000,+16384.000000
+             Vertex   -327680.000000,+262144.000000,-16384.000000
+          End Polygon
+          Begin Polygon Texture=T_texture.Texture.g_01 Flags=4194432
+             Origin   -327680.000000,+262144.000000,-16384.000000
+             Normal   +00000.000000,+00001.000000,+00000.000000
+             TextureU +00001.000000,-00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00001.000000
+             Vertex   -327680.000000,+262144.000000,-16384.000000
+             Vertex   -327680.000000,+262144.000000,+16384.000000
+             Vertex   +327680.000000,+262144.000000,+16384.000000
+             Vertex   +327680.000000,+262144.000000,-16384.000000
+          End Polygon
+          Begin Polygon Texture=T_texture.Texture.g_01 Flags=4194432
+             Origin   +327680.000000,+262144.000000,-16384.000000
+             Normal   +00001.000000,+00000.000000,+00000.000000
+             TextureU +00000.000000,-00001.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00001.000000
+             Vertex   +327680.000000,+262144.000000,-16384.000000
+             Vertex   +327680.000000,+262144.000000,+16384.000000
+             Vertex   +327680.000000,-262144.000000,+16384.000000
+             Vertex   +327680.000000,-262144.000000,-16384.000000
+          End Polygon
+          Begin Polygon Texture=T_texture.Texture.g_01 Flags=4194432
+             Origin   +327680.000000,-262144.000000,-16384.000000
+             Normal   +00000.000000,-00001.000000,+00000.000000
+             TextureU -00001.000000,-00000.000000,-00000.000000
+             TextureV +00000.000000,+00000.000000,-00001.000000
+             Vertex   +327680.000000,-262144.000000,-16384.000000
+             Vertex   +327680.000000,-262144.000000,+16384.000000
+             Vertex   -327680.000000,-262144.000000,+16384.000000
+             Vertex   -327680.000000,-262144.000000,-16384.000000
+          End Polygon
+          Begin Polygon Texture=T_texture.Texture.g_01 Flags=4194432
+             Origin   -327680.000000,+262144.000000,+16384.000000
+             Normal   +00000.000000,+00000.000000,+00001.000000
+             TextureU +00001.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00001.000000,+00000.000000
+             Vertex   -327680.000000,+262144.000000,+16384.000000
+             Vertex   -327680.000000,-262144.000000,+16384.000000
+             Vertex   +327680.000000,-262144.000000,+16384.000000
+             Vertex   +327680.000000,+262144.000000,+16384.000000
+          End Polygon
+          Begin Polygon Texture=T_texture.Texture.g_01 Flags=4235264
+             Origin   -327680.000000,-262144.000000,-16384.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00001.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00001.000000,+00000.000000
+             Vertex   -327680.000000,-262144.000000,-16384.000000
+             Vertex   -327680.000000,+262144.000000,-16384.000000
+             Vertex   +327680.000000,+262144.000000,-16384.000000
+             Vertex   +327680.000000,-262144.000000,-16384.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=0.000000,Y=0.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush275
+    CsgOper=CSG_Subtract
+    Location=(X=-117.000000,Y=264760.000000,Z=24470.500000)
+    Begin Brush Name=Model3
+       Begin PolyList
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194304
+             Origin   -00256.000000,-00415.000000,+00382.500000
+             Normal   -00001.000000,+00000.000000,+00000.000000
+             TextureU +00000.000000,+00000.031250,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00000.031250
+             Vertex   -00256.000000,-00511.000000,+00414.500000
+             Vertex   -00256.000000,-00511.000000,+00611.500000
+             Vertex   -00256.000000,+00257.000000,+00611.500000
+             Vertex   -00256.000000,+00257.000000,+00414.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194304
+             Origin   -00160.000000,+00257.000000,+00382.500000
+             Normal   +00000.000000,+00001.000000,+00000.000000
+             TextureU +00000.031250,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00000.031250
+             Vertex   -00256.000000,+00257.000000,+00414.500000
+             Vertex   -00256.000000,+00257.000000,+00611.500000
+             Vertex   +00512.000000,+00257.000000,+00611.500000
+             Vertex   +00512.000000,+00257.000000,+00414.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194304
+             Origin   +00512.000000,+00161.000000,+00382.500000
+             Normal   +00001.000000,+00000.000000,+00000.000000
+             TextureU +00000.000000,-00000.031250,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00000.031250
+             Vertex   +00512.000000,+00257.000000,+00414.500000
+             Vertex   +00512.000000,+00257.000000,+00611.500000
+             Vertex   +00512.000000,-00511.000000,+00611.500000
+             Vertex   +00512.000000,-00511.000000,+00414.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194304
+             Origin   +00416.000000,-00511.000000,+00382.500000
+             Normal   +00000.000000,-00001.000000,+00000.000000
+             TextureU -00000.031250,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00000.031250
+             Vertex   +00512.000000,-00511.000000,+00414.500000
+             Vertex   +00512.000000,-00511.000000,+00611.500000
+             Vertex   -00256.000000,-00511.000000,+00611.500000
+             Vertex   -00256.000000,-00511.000000,+00414.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.SkybackgroundColor Flags=4194304
+             Origin   -00256.000000,+00257.000000,+00611.500000
+             Normal   +00000.000000,+00000.000000,+00001.000000
+             TextureU +00004.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00004.000000,+00000.000000
+             Vertex   -00256.000000,+00257.000000,+00611.500000
+             Vertex   -00256.000000,-00511.000000,+00611.500000
+             Vertex   +00512.000000,-00511.000000,+00611.500000
+             Vertex   +00512.000000,+00257.000000,+00611.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194304
+             Origin   -00256.000000,-00575.000000,+00414.500000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.031250,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.031250,+00000.000000
+             Vertex   -00256.000000,-00511.000000,+00414.500000
+             Vertex   -00256.000000,+00257.000000,+00414.500000
+             Vertex   +00512.000000,+00257.000000,+00414.500000
+             Vertex   +00512.000000,-00511.000000,+00414.500000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=-256.000000,Y=257.000000,Z=611.500000)
+End Actor
+Begin Actor Class=Brush Name=Brush6
+    CsgOper=CSG_Subtract
+    Location=(X=-117.000000,Y=264760.000000,Z=24867.500000)
+    Begin Brush Name=Model22
+       Begin PolyList
+          Begin Polygon Texture=L2_Skies.Shaders.SkybackgroundColor Flags=4194304
+             Origin   -00256.000000,-00511.000000,+00214.500000
+             Normal   -00001.000000,+00000.000000,+00000.000000
+             TextureU +00000.000000,+00004.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00007.450881
+             Vertex   -00256.000000,-00511.000000,+00214.500000
+             Vertex   -00256.000000,-00511.000000,+00611.500000
+             Vertex   -00256.000000,+00257.000000,+00611.500000
+             Vertex   -00256.000000,+00257.000000,+00214.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.SkybackgroundColor Flags=4194304
+             Origin   -00256.000000,+00257.000000,+00214.500000
+             Normal   +00000.000000,+00001.000000,+00000.000000
+             TextureU +00004.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00007.450881
+             Vertex   -00256.000000,+00257.000000,+00214.500000
+             Vertex   -00256.000000,+00257.000000,+00611.500000
+             Vertex   +00512.000000,+00257.000000,+00611.500000
+             Vertex   +00512.000000,+00257.000000,+00214.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.SkybackgroundColor Flags=4194304
+             Origin   +00512.000000,+00257.000000,+00214.500000
+             Normal   +00001.000000,+00000.000000,+00000.000000
+             TextureU +00000.000000,-00004.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00007.450881
+             Vertex   +00512.000000,+00257.000000,+00214.500000
+             Vertex   +00512.000000,+00257.000000,+00611.500000
+             Vertex   +00512.000000,-00511.000000,+00611.500000
+             Vertex   +00512.000000,-00511.000000,+00214.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.SkybackgroundColor Flags=4194304
+             Origin   +00512.000000,-00511.000000,+00214.500000
+             Normal   +00000.000000,-00001.000000,+00000.000000
+             TextureU -00004.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00000.000000,-00007.450881
+             Vertex   +00512.000000,-00511.000000,+00214.500000
+             Vertex   +00512.000000,-00511.000000,+00611.500000
+             Vertex   -00256.000000,-00511.000000,+00611.500000
+             Vertex   -00256.000000,-00511.000000,+00214.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.SkybackgroundColor Flags=4194304
+             Origin   -00256.000000,+00257.000000,+00611.500000
+             Normal   +00000.000000,+00000.000000,+00001.000000
+             TextureU +00004.000000,+00000.000000,+00000.000000
+             TextureV +00000.000000,+00004.000000,+00000.000000
+             Vertex   -00256.000000,+00257.000000,+00611.500000
+             Vertex   -00256.000000,-00511.000000,+00611.500000
+             Vertex   +00512.000000,-00511.000000,+00611.500000
+             Vertex   +00512.000000,+00257.000000,+00611.500000
+          End Polygon
+          Begin Polygon Texture=L2_Skies.Shaders.HazeRing_Final Flags=4194304
+             Origin   -00256.000000,-00575.000000,+00214.500000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.062500,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.062500,+00000.000000
+             Vertex   -00256.000000,-00511.000000,+00214.500000
+             Vertex   -00256.000000,+00257.000000,+00214.500000
+             Vertex   +00512.000000,+00257.000000,+00214.500000
+             Vertex   +00512.000000,-00511.000000,+00214.500000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=-256.000000,Y=257.000000,Z=611.500000)
+End Actor
+Begin Actor Class=Brush Name=Brush142
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=122759.000000,Y=-195502.000000,Z=-3808.000000)
+    Begin Brush Name=Model147
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +18091.000000,+21949.000000,+00000.000000
+             Vertex   +21320.000000,+26901.000000,+00000.000000
+             Vertex   +22623.000000,+24644.000000,+00000.000000
+             Vertex   +21301.000000,+22281.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=21320.000000,Y=26901.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush141
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=118206.000000,Y=-196872.000000,Z=-3808.000000)
+    Begin Brush Name=Model146
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +16932.000000,+20022.000000,+00000.000000
+             Vertex   +19072.000000,+21538.000000,+00000.000000
+             Vertex   +20850.000000,+18918.000000,+00000.000000
+             Vertex   +18773.000000,+18468.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=16768.000000,Y=25532.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush9
+    CsgOper=CSG_Add
+    PolyFlags=32
+    Location=(X=114688.000000,Y=-212992.000000,Z=-3776.000000)
+    Begin Brush Name=Model10
+       Begin PolyList
+          Begin Polygon Texture=FX_E_T.WaterSurfaceShaderSet.WaterShader01 Flags=557096
+             Origin   -16384.000000,-16384.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,+00001.000000
+             TextureU +00000.500000,+00000.000000,-00000.000000
+             TextureV +00000.000000,-00000.500000,-00000.000000
+             Vertex   +16384.000000,-16384.000000,+00000.000000
+             Vertex   +16384.000000,+16384.000000,+00000.000000
+             Vertex   -16384.000000,+16384.000000,+00000.000000
+             Vertex   -16384.000000,-16384.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=0.000000,Y=0.000000,Z=4.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush137
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=126970.000000,Y=-214163.000000,Z=-3808.000000)
+    Begin Brush Name=Model142
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +20714.000000,+06998.000000,+00000.000000
+             Vertex   +19741.000000,+12553.000000,+00000.000000
+             Vertex   +25459.000000,+08015.000000,+00000.000000
+             Vertex   +25237.000000,+05686.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=25536.000000,Y=8245.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush138
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=132087.000000,Y=-209155.000000,Z=-3808.000000)
+    Begin Brush Name=Model143
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +21288.000000,+14387.000000,+00000.000000
+             Vertex   +30478.000000,+29661.000000,+00000.000000
+             Vertex   +31061.000000,+14134.000000,+00000.000000
+             Vertex   +26711.000000,+09629.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=30652.000000,Y=13252.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush134
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=101432.000000,Y=-222410.000000,Z=-3808.000000)
+    Begin Brush Name=Model139
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +14852.000000,+04799.000000,+00000.000000
+             Vertex   +18164.000000,+07501.000000,+00000.000000
+             Vertex   +19816.000000,+07130.000000,+00000.000000
+             Vertex   +19109.000000,+04544.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=-8.000000,Y=-8.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush136
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=133377.000000,Y=-203654.000000,Z=-3808.000000)
+    Begin Brush Name=Model141
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +12866.000000,+03438.000000,+00000.000000
+             Vertex   +12984.000000,+18755.000000,+00000.000000
+             Vertex   +18798.000000,+17165.000000,+00000.000000
+             Vertex   +21447.000000,+07237.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=31944.000000,Y=18755.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush281
+    CsgOper=CSG_Add
+    PolyFlags=8
+    Location=(X=-80.000000,Y=264736.000000,Z=24480.000000)
+    Begin Brush Name=Model321
+       Begin PolyList
+          Begin Polygon Texture=L2_Skies.Shaders.Cloud_Final Flags=4194312
+             Origin   -00258.416656,-00448.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00010.000000,+00000.000000,+00000.000000
+             TextureV +00000.005040,-00009.999999,+00000.000000
+             Vertex   -00258.416656,-00447.988892,+00000.000000
+             Vertex   -00258.416656,+00256.000000,+00000.000000
+             Vertex   +00461.583313,+00256.000000,+00000.000000
+             Vertex   +00461.583313,-00447.988892,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=-248.000000,Y=262.000000,Z=-4.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush140
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=119959.000000,Y=-202666.000000,Z=-3808.000000)
+    Begin Brush Name=Model145
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +12910.000000,+21600.000000,+00000.000000
+             Vertex   +12746.000000,+27110.000000,+00000.000000
+             Vertex   +22778.000000,+26795.000000,+00000.000000
+             Vertex   +18522.000000,+19739.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=18522.000000,Y=19739.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush135
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=114621.000000,Y=-221421.000000,Z=-3808.000000)
+    Begin Brush Name=Model140
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   -05000.000000,-05000.000000,+00000.000000
+             Vertex   -05000.000000,+26151.000000,+00000.000000
+             Vertex   +13189.000000,+25862.000000,+00000.000000
+             Vertex   +13189.000000,+00989.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=13189.000000,Y=989.000000,Z=0.000000)
+End Actor
+Begin Actor Class=Brush Name=Brush139
+    CsgOper=CSG_Add
+    PolyFlags=1033
+    Location=(X=130481.000000,Y=-199201.000000,Z=-3808.000000)
+    Begin Brush Name=Model144
+       Begin PolyList
+          Begin Polygon Texture=L2_ETC_Textures.WaterAntiportal Flags=1289
+             Origin   -05000.000000,-05000.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00000.527426,+00000.000000,+00000.000000
+             TextureV +00000.000000,-00000.321017,+00000.000000
+             Vertex   +22485.000000,+21820.000000,+00000.000000
+             Vertex   +24840.000000,+26575.000000,+00000.000000
+             Vertex   +30368.000000,+26669.000000,+00000.000000
+             Vertex   +24695.000000,+18700.000000,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=29045.000000,Y=23205.000000,Z=0.000000)
+End Actor

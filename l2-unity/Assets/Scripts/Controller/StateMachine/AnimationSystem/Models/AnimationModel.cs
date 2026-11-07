@@ -25,7 +25,7 @@ public class AnimationModel
 
     public IAnimationController GetController() => _controller;
     public Entity GetEntity() => _entity;
-    public Type GetType() => _typeController;
+    public new Type GetType() => _typeController;
 
   
 

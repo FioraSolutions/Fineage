@@ -87,7 +87,7 @@ public class SkillListWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/SkillLearn/SkillListWindow");
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
         _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/SkillLearn/SkillTabHeader");
 
         _templateActiveSkill = LoadAsset("Data/UI/_Elements/Game/SkillLearn/TabActive");
@@ -185,6 +185,20 @@ public class SkillListWindow : L2PopupWindow
 
         _allSkills.TryGetValue(skillId, out var skill);
         return skill; 
+    }
+
+    readonly CooldownAnimationService _cooldownAnimationService = new CooldownAnimationService();
+
+    /// <summary>Reuse overlay on the skills window slot (same frames as the skillbar).</summary>
+    public void ShowCooldown(int skillId, int reuseDelayMs)
+    {
+        if (reuseDelayMs <= 0 || !gameObject.activeInHierarchy)
+            return;
+        SkillSlot slot = _supportActiveSkills != null ? _supportActiveSkills.GetSlot(skillId) : null;
+        if (slot == null || slot.GetReuseElement() == null)
+            return;
+        StartCoroutine(_cooldownAnimationService.CooldownCoroutine(
+            slot.GetReuseElement(), slot.GetRechargeMaskElement(), reuseDelayMs));
     }
 
     private void CopyInDictionry(List<SkillInstance> list)

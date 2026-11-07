@@ -829,6 +829,45 @@
     flex-grow: 1;
 }
 
+.target-window {
+    height: 46px;
+}
+
+.target-window.expanded {
+    height: auto;
+    min-height: 78px;
+}
+
+.target-window .target-properties-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-top: 4px;
+    min-height: 24px;
+    max-width: 147px;
+}
+
+.target-window .target-property-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.target-window .target-expand-btn {
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
+}
+
+.target-window .target-expand-btn #ButtonBg {
+    width: 12px;
+    height: 12px;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
 .close-btn {
     background-color: transparent;
     -unity-background-image-tint-color: rgb(255, 255, 255);
@@ -864,185 +903,208 @@
 .unity-group-box {
 }
 
-.menu-btn {
-    flex-direction: column;
-    margin-top: 3px;
-    margin-right: 2px;
-    margin-bottom: 0;
-    margin-left: 2px;
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 0;
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-    border-left-width: 0;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-    width: 36px;
-    height: 36px;
-    background-image: none;
-    -unity-slice-left: 0;
-    -unity-slice-top: 0;
-    -unity-slice-right: 0;
-    -unity-slice-bottom: 0;
-    -unity-slice-scale: 1px;
-    -unity-background-scale-mode: scale-to-fit;
-    background-color: rgba(188, 188, 188, 0);
+/* ---- MenuWnd (Interlude 34×34 @ pitch 37; Fineage 4×2) ---- */
+.menu-window {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 148px;
+    height: 74px;
+    min-width: 148px;
+    min-height: 74px;
+    max-width: 148px;
+    max-height: 74px;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    overflow: visible;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
-#CharacterButton .menu-button-bg {
+.menu-window-back {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 148px;
+    height: 74px;
+    background-image: resource('Data/UI/Assets/Menu/MenuWnd_Back');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 8;
+    -unity-slice-top: 8;
+    -unity-slice-right: 8;
+    -unity-slice-bottom: 8;
+}
+
+.menu-btn {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    border-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-scale-mode: scale-to-fit;
+    overflow: visible;
+}
+
+.menu-btn > .unity-button__text,
+.menu-btn > Label {
+    display: none;
+}
+
+.menu-btn-0 { left: 0; top: 0; }
+.menu-btn-1 { left: 37px; top: 0; }
+.menu-btn-2 { left: 74px; top: 0; }
+.menu-btn-3 { left: 111px; top: 0; }
+.menu-btn-4 { left: 0; top: 37px; }
+.menu-btn-5 { left: 37px; top: 37px; }
+.menu-btn-6 { left: 74px; top: 37px; }
+.menu-btn-7 { left: 111px; top: 37px; }
+
+#CharacterButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character');
 }
-
-#CharacterButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Down');
-}
-
-#CharacterButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Down');
-}
-
-#CharacterButton:hover .menu-button-bg {
+#CharacterButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Over');
 }
+#CharacterButton:active,
+#CharacterButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Down');
+}
 
-#InventoryButton .menu-button-bg {
+#InventoryButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory');
 }
-
-#InventoryButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Down');
-}
-
-#InventoryButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Down');
-}
-
-#InventoryButton:hover .menu-button-bg {
+#InventoryButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Over');
 }
+#InventoryButton:active,
+#InventoryButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Down');
+}
 
-#ActionButton .menu-button-bg {
+#ActionButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action');
 }
-
-#ActionButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Down');
-}
-
-#ActionButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Down');
-}
-
-#ActionButton:hover .menu-button-bg {
+#ActionButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Over');
 }
+#ActionButton:active,
+#ActionButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Down');
+}
 
-#SkillButton .menu-button-bg {
+#SkillButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill');
 }
-
-#SkillButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Down');
-}
-
-#SkillButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Down');
-}
-
-#SkillButton:hover .menu-button-bg {
+#SkillButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Over');
 }
+#SkillButton:active,
+#SkillButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Down');
+}
 
-#QuestButton .menu-button-bg {
+#QuestButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest');
 }
-
-#QuestButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Down');
-}
-
-#QuestButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Down');
-}
-
-#QuestButton:hover .menu-button-bg {
+#QuestButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Over');
 }
+#QuestButton:active,
+#QuestButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Down');
+}
 
-#ClanButton .menu-button-bg {
+#ClanButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan');
 }
-
-#ClanButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Down');
-}
-
-#ClanButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Down');
-}
-
-#ClanButton:hover .menu-button-bg {
+#ClanButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Over');
 }
+#ClanButton:active,
+#ClanButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Down');
+}
 
-#MapButton .menu-button-bg {
+#MapButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map');
 }
-
-#MapButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Down');
-}
-
-#MapButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Down');
-}
-
-#MapButton:hover .menu-button-bg {
+#MapButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Over');
 }
+#MapButton:active,
+#MapButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Down');
+}
 
-#SystemMenuButton .menu-button-bg {
+#SystemMenuButton {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu');
 }
-
-#SystemMenuButton:active .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Down');
-}
-
-#SystemMenuButton:active:hover .menu-button-bg {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Down');
-}
-
-#SystemMenuButton:hover .menu-button-bg {
+#SystemMenuButton:hover {
     background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Over');
 }
+#SystemMenuButton:active,
+#SystemMenuButton:active:hover {
+    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Down');
+}
 
-.menu-window {
+/* Legacy nested-bg selectors kept empty so old UXML does not break mid-reload. */
+.menu-button-bg {
+    display: none;
+}
+
+/* Interlude SystemMsgWnd ? same width as ChatWnd; chatting_system chrome. */
+.system-msg-window {
+    position: absolute;
+    width: auto;
+    min-width: 0;
+    height: 110px;
+    min-height: 110px;
+    max-height: 110px;
+    padding-top: 6px;
+    padding-right: 8px;
+    padding-bottom: 6px;
+    padding-left: 8px;
+    background-image: resource('Data/UI/Assets/Chat/chatting_system');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 16;
+    -unity-slice-top: 16;
+    -unity-slice-right: 16;
+    -unity-slice-bottom: 16;
+    overflow: hidden;
+}
+
+.system-msg-list {
+    flex-grow: 1;
+    height: 100%;
+}
+
+.system-msg-content {
+    flex-grow: 0;
+    flex-direction: column;
+}
+
+.system-msg-line {
     margin-top: 0;
     margin-right: 0;
-    margin-bottom: 0;
+    margin-bottom: 1px;
     margin-left: 0;
     padding-top: 0;
-    padding-right: 0;
+    padding-right: 2px;
     padding-bottom: 0;
     padding-left: 0;
-    background-color: rgba(0, 0, 0, 0);
-    transform-origin: left top;
-    min-width: 175px;
-    max-width: 165px;
-    /* 2×4 Interlude menu icons; 90px clipped the bottom row to ~6 visible. */
-    max-height: none;
-    flex-grow: 0;
-    flex-shrink: 1;
-    overflow: hidden;
-    position: absolute;
-    right: -8px;
-    bottom: 0;
+    font-size: 11px;
+    color: rgb(220, 220, 220);
+    white-space: normal;
+    -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
 }
 
 .login-window .unity-base-text-field__input {
@@ -1725,11 +1787,65 @@
 }
 
 .char-select-window {
-    flex-grow: 1;
-    width: 100%;
-    height: 100%;
-    justify-content: flex-end;
-    flex-direction: row;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.char-select-detail {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    width: 300px;
+    height: auto;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Windows/Windows_DF_Drawer_Bg_Darker');
+    -unity-slice-bottom: 10;
+    -unity-slice-left: 27;
+    -unity-slice-top: 10;
+    -unity-slice-right: 20;
+    padding-top: 10px;
+    padding-right: 5px;
+    padding-bottom: 12px;
+    padding-left: 5px;
+}
+
+.char-select-start {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    translate: -50% 0;
+    height: auto;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Windows/Windows_DF_Drawer_Bg_Darker');
+    -unity-slice-bottom: 10;
+    -unity-slice-left: 27;
+    -unity-slice-top: 10;
+    -unity-slice-right: 20;
+    padding-top: 10px;
+    padding-right: 5px;
+    padding-bottom: 12px;
+    padding-left: 5px;
+}
+
+.char-select-menu {
+    position: absolute;
+    right: 20px;
+    bottom: 30px;
+    width: 109px;
+    height: auto;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Windows/Windows_DF_Drawer_Bg_Darker');
+    -unity-slice-bottom: 10;
+    -unity-slice-left: 27;
+    -unity-slice-top: 10;
+    -unity-slice-right: 20;
+    padding-top: 10px;
+    padding-right: 5px;
+    padding-bottom: 12px;
+    padding-left: 5px;
 }
 
 .bar-label-numbers {
@@ -2409,6 +2525,23 @@
 .skillbar-slot .slot-bg {
     border-width: 1px;
     border-color: rgba(0, 0, 0, 0);
+}
+
+/* Interlude ExAutoSoulShot armed shortcut ? glowing select frame over the icon. */
+.skillbar-slot.auto-shot-on {
+    overflow: visible;
+}
+
+.skillbar-slot .auto-shot-glow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0, 0, 0, 0);
+    /* Sweep frames are bright ? keep them translucent over the icon. */
+    opacity: 0.72;
 }
 
 .skillbar-slot.empty .slot-bg-container {
@@ -3330,77 +3463,6 @@
     margin-top: 5px;
 }
 
-.menu-btn {
-    display: flex;
-}
-
-.menu-btn-grp {
-    margin-top: 5px;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 5px;
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 0;
-    flex-grow: 0;
-    height: auto;
-    flex-direction: row;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-    width: 161px;
-    overflow: visible;
-    display: flex;
-    opacity: 1;
-}
-
-.menu-window {
-    right: 0;
-    min-width: auto;
-    max-width: 168px;
-}
-
-.menu-window-container {
-    flex-grow: 0;
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 0;
-    flex-shrink: 0;
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-    border-left-width: 0;
-    border-left-color: rgb(72, 65, 47);
-    border-right-color: rgb(72, 65, 47);
-    border-top-color: rgb(72, 65, 47);
-    border-bottom-color: rgb(72, 65, 47);
-    overflow: hidden;
-    width: 166px;
-    background-color: rgba(19, 19, 19, 0);
-    background-image: none;
-    -unity-slice-left: 11;
-    -unity-slice-top: 11;
-    -unity-slice-right: 11;
-    -unity-slice-bottom: 11;
-    -unity-slice-scale: 0.3px;
-    height: 86px;
-}
-
-.menu-window-bg {
-    flex-grow: 1;
-    background-image: resource('Data/UI/Assets/Menu/Menu_I1');
-    height: 119px;
-    width: 1012px;
-    -unity-slice-scale: 0.4px;
-    position: absolute;
-    left: 1px;
-}
-
 .minimized {
 }
 
@@ -4188,8 +4250,8 @@
 
 .il-login .il-login-input {
     position: absolute;
-    left: 8px;
-    right: 4px;
+    left: 0;
+    right: 0;
     top: 0;
     height: 17px;
     min-height: 0;
@@ -4284,3 +4346,53 @@
 
 
 
+
+/* Whole input box clickable (no dead caps); text inset lives inside the inner field. */
+.il-login .il-login-input > #unity-text-input {
+    margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;
+    padding-top: 0; padding-right: 4px; padding-bottom: 0; padding-left: 8px;
+    border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    height: 17px;
+}
+
+/* Remember login: small Interlude-style checkbox under the logon frame. */
+.il-login .il-login-remember {
+    flex-direction: row;
+    align-self: center;
+    height: 14px;
+    margin-top: 3px; margin-bottom: 0; margin-left: 0; margin-right: 0;
+    padding-top: 0; padding-bottom: 0; padding-left: 0; padding-right: 0;
+}
+.il-login .il-login-remember > .unity-toggle__input {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 0;
+}
+.il-login .il-login-remember .unity-toggle__checkmark {
+    width: 12px; height: 12px; min-width: 12px;
+    margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 0;
+    border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-image: resource('Data/UI/Quest/CheckBox_uncheked');
+}
+.il-login .il-login-remember:hover .unity-toggle__checkmark {
+    background-image: resource('Data/UI/Quest/CheckBox_hover');
+}
+.il-login .il-login-remember:checked .unity-toggle__checkmark {
+    background-image: resource('Data/UI/Quest/CheckBox_checked');
+}
+.il-login .il-login-remember > .unity-label,
+.il-login .il-login-remember .unity-toggle__label {
+    min-width: 0;
+    width: auto;
+    margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;
+    padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-font-definition: resource('Data/UI/Font/tahoma Light');
+    font-size: 11px;
+    color: rgb(220, 205, 160);
+    -unity-text-align: middle-left;
+}

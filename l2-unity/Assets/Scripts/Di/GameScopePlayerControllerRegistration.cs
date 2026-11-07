@@ -27,7 +27,6 @@ internal static class GameScopePlayerControllerRegistration
     sealed class LivePlayerControllerAccessor
     {
         public PlayerController Current =>
-            Object.FindFirstObjectByType<PlayerController>(FindObjectsInactive.Include)
-            ?? PlayerController.Instance;
+            Object.FindFirstObjectByType<PlayerController>(FindObjectsInactive.Include);
     }
 }

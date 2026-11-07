@@ -7,11 +7,10 @@ public class CharacterDefaultEquipment
 
     public static void EquipStarterGear(UserGear gear, PlayerAppearance appearance)
     {
-
         gear.SyncEquippedArmor(appearance);
-
-        if (appearance.LHand != 0) gear.EquipWeapon(appearance.LHand, true);
-        if (appearance.RHand != 0) gear.EquipWeapon(appearance.RHand, false);
+        // Same path as Entity.EquipAllWeapons / world spawn — dual fist / lrhand
+        // only equips both meshes when SyncEquippedWeapons sees WeaponType.fist.
+        gear.SyncEquippedWeapons(appearance.RHand, appearance.LHand);
     }
 
 

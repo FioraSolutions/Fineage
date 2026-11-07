@@ -9,7 +9,8 @@ public sealed class UserWorldApply : EntityWorldApply
         _actions = actions;
     }
 
-    private World GameWorld => IncomingPacketActions.GameWorld;
+    private World GameWorld =>
+        WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
 
     public override void OnMoveTo(Entity entity, Vector3 destination, Vector3 current, CharMoveToLocationDto dto)
     {

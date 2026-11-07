@@ -132,7 +132,14 @@ public class TerrainConverter : MonoBehaviour {
             GameObject destObject = GenerateMesh(terrainToConvert, terrainMat, true);
 
             if(saveAssets) {
-                //SaveMesh(saveFolder, destObject, false);
+                // Persist heightmap mesh and bind it before prefab save; otherwise prefab
+                // keeps MeshFilter.m_Mesh {fileID:0} (runtime-only mesh) => white void.
+                Mesh savedMesh = SaveMesh(saveFolder, destObject, false);
+                if (savedMesh != null) {
+                    destObject.GetComponent<MeshFilter>().sharedMesh = savedMesh;
+                    MeshCollider mc = destObject.GetComponent<MeshCollider>();
+                    if (mc != null) mc.sharedMesh = savedMesh;
+                }
                 SaveMaterial(saveFolder, terrainMat);
                 SaveTerrain(saveFolder, destObject);
             }
@@ -192,14 +199,18 @@ public class TerrainConverter : MonoBehaviour {
         return destObject;
     }
 
-    private static void SaveMesh(string saveFolder, GameObject destObject, bool safenet) {
-        Mesh convertedTerrainMesh = destObject.GetComponent<MeshFilter>().mesh;
+    private static Mesh SaveMesh(string saveFolder, GameObject destObject, bool safenet) {
+        Mesh convertedTerrainMesh = destObject.GetComponent<MeshFilter>().sharedMesh;
         string filename = mapToConvert + "_Mesh.asset";
         if(safenet) {
             filename = "Safenet_Mesh.asset";
         }
         string saveMeshPath = Path.Combine(saveFolder, filename).Replace("\\", "/");
+        if (AssetDatabase.LoadAssetAtPath<Mesh>(saveMeshPath) != null) {
+            AssetDatabase.DeleteAsset(saveMeshPath);
+        }
         MeshSaverEditor.SaveMeshToPath(convertedTerrainMesh, saveMeshPath, false, true);
+        return AssetDatabase.LoadAssetAtPath<Mesh>(saveMeshPath);
     }
 
     private static Material GenerateMaterial(string saveFolder, L2TerrainInfo terrainInfo) {
@@ -225,7 +236,9 @@ public class TerrainConverter : MonoBehaviour {
 
             //terrainMat.SetTexture("_Layer_" + i, terrainInfo.uvLayers[i].texture);
             //terrainMat.SetTextureScale("_Layer_" + i, new Vector2(terrainInfo.uvLayers[i].uScale, terrainInfo.uvLayers[i].vScale));
-            terrainMat.SetVector("_Layer_" + i + "_UV", new Vector2(terrainInfo.uvLayers[i].uScale, terrainInfo.uvLayers[i].vScale));
+            L2TerrainLayer uvl = terrainInfo.uvLayers[i];
+            float us = uvl.uScale == 0 ? 1f : uvl.uScale, vs = uvl.vScale == 0 ? 1f : uvl.vScale;
+            terrainMat.SetVector("_Layer_" + i + "_UV", new Vector4(uvl.uScale, uvl.vScale, uvl.uOffset / us, uvl.vOffset / vs));
         }
 
         // Build Texture2D array for textures
@@ -241,7 +254,7 @@ public class TerrainConverter : MonoBehaviour {
             texture2DArrayGenerator.sourceTextures = alphaMaps;
             string saveAlphamapPath = Path.Combine(saveFolder, mapToConvert + "_Alphamap.asset");
             Texture2DArray alphamaps = texture2DArrayGenerator.GenerateTexture2DArray(saveAlphamapPath);
-            terrainMat.SetTexture("_SplatMaps", alphamaps);
+            terrainMat.SetTexture("_Splatmaps", alphamaps);
         }
 
         terrainMat.SetVector("_Global_UV_Size", new Vector2(uvScale, uvScale));
@@ -262,6 +275,14 @@ public class TerrainConverter : MonoBehaviour {
     private static void SaveTerrain(string saveFolder, GameObject destObject) {
         // Save terrain Prefab
         string prefabPath = Path.Combine(saveFolder, mapToConvert + ".prefab");
+        // Ground collider for client-side gravity (mobs/NPC snap); non-convex, uses persisted mesh.
+        MeshFilter mf = destObject.GetComponent<MeshFilter>();
+        if (mf != null && mf.sharedMesh != null) {
+            MeshCollider mc = destObject.GetComponent<MeshCollider>();
+            if (mc == null) mc = destObject.AddComponent<MeshCollider>();
+            mc.convex = false;
+            mc.sharedMesh = mf.sharedMesh;
+        }
         PrefabUtility.SaveAsPrefabAsset(destObject, prefabPath);
     }
 }

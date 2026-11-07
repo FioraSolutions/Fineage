@@ -36,7 +36,8 @@ public class PlayerStateJatkBow : StateMachineBehaviour
             eventTimeInClip = clipLength;
 
         int objectId = AnimatorUtils.GetObjectId(animator);
-        Entity entity = World.Instance != null ? World.Instance.GetEntityNoLockSync(objectId) : null;
+        World world = WorldApplyPacketServices.GameWorld;
+        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
         float unityClipFps = clip != null ? clip.frameRate : 24f;
         AttackTimingHelper.ResolveClientBowAnimation(
             entity,

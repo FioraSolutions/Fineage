@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -57,10 +57,11 @@ public class MenuWindow : L2Window
         questBtn.AddManipulator(new ButtonClickSoundManipulator(questBtn));
         questBtn.RegisterCallback<ClickEvent>((evt) =>
         {
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null && zone.Connected)
-                zone.SendRequestQuestList();
-            QuestWindow.Instance.ToggleHideWindow();
+            // Open first: enter-world already prefills via QuestList without showing the window.
+            QuestWindow questWindow = QuestWindow.Instance;
+            questWindow?.ToggleHideWindow();
+            if (ZoneCommands.IsConnected)
+                ZoneCommands.Send(new RequestQuestListCommand());
         });
 
         var clanBtn = _windowEle.Q<Button>("ClanButton");

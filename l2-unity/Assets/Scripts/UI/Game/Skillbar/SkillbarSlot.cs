@@ -10,9 +10,12 @@ public class SkillbarSlot : L2ClickableSlot
     private Shortcut _shortcut;
     private int _skillbarId;
     private int _slot;
+    private int _itemId;
     private VisualElement _keyElement;
     private VisualElement _reuseElement;
     private VisualElement _rechargeMaskBg;
+    private VisualElement _autoShotMask;
+    private IVisualElementScheduledItem _autoShotPulse;
 
     public SkillbarSlot(VisualElement slotElement, int position, int skillbarId, int slot) : base(slotElement, position, SlotType.SkillBar, true, false)
     {
@@ -58,6 +61,7 @@ public class SkillbarSlot : L2ClickableSlot
         }
 
         _shortcut = shortcut;
+        _itemId = 0;
         // Re-assert: UITK may reattach Clickable on Button targets.
         if (_slotElement is Button button)
             button.clickable = null;
@@ -100,32 +104,40 @@ public class SkillbarSlot : L2ClickableSlot
     public void AssignItem(int objectId)
     {
         ClearInnerSlot();
-        ItemInstance item = SkillbarPacketServices.Inventory.FindByAllInventory(objectId);
+        // The bar can restore shortcuts before the inventory is bound (skillbar init runs early).
+        PlayerInventory inventory = SkillbarPacketServices.Inventory;
+        ItemInstance item = inventory != null ? inventory.FindByAllInventory(objectId) : null;
+        _itemId = item != null ? item.ItemId : 0;
         _innerSlot = new InventorySlot(_position, _slotElement, SlotType.SkillBar);
         ((InventorySlot)_innerSlot).AssignItem(item);
         ((L2ClickableSlot)_innerSlot).UnregisterClickableCallback();
 
         UpdateInputInfo();
+        RefreshMarks();
     }
 
     public void AssignSkill(int objectId , int level)
     {
         ClearInnerSlot();
+        _itemId = 0;
         _innerSlot = new SkillSlot(_slotElement, _position, SlotType.SkillBar);
         ((SkillSlot)_innerSlot).AssignSkill(objectId , level , false);
         ((L2ClickableSlot)_innerSlot).UnregisterClickableCallback();
 
         UpdateInputInfo();
+        RefreshMarks();
     }
 
     public void AssignAction(int objectId)
     {
         ClearInnerSlot();
+        _itemId = 0;
         _innerSlot = new ActionSlot(_slotElement, _position, SlotType.SkillBar);
         ((ActionSlot)_innerSlot).AssignAction((ActionType)objectId);
         ((L2ClickableSlot)_innerSlot).UnregisterClickableCallback();
 
         UpdateInputInfo();
+        RefreshMarks();
     }
 
     private void UpdateInputInfo()
@@ -163,15 +175,88 @@ public class SkillbarSlot : L2ClickableSlot
 
     protected override void HandleLeftClick()
     {
-        if (_shortcut != null)
-        {
-            // Debug.LogWarning($"Use bar slot {_position}.");
-            SkillbarPacketServices.Shortcuts.UseShortcut(_shortcut);
-        }
+        if (_shortcut == null)
+            return;
+
+        // Interlude: a soulshot / spiritshot shortcut is an auto-use switch, not a "use one" button.
+        // Clicking it arms automatic charging (the icon lights up) and clicking again disarms it.
+        if (TryToggleAutoShot())
+            return;
+
+        // Debug.LogWarning($"Use bar slot {_position}.");
+        SkillbarPacketServices.Shortcuts.UseShortcut(_shortcut);
     }
 
     protected override void HandleRightClick()
     {
+        // The original client toggles shots with the left click; the right click does it too so the
+        // gesture mouse players reach for first works, and it stays a no-op for every other shortcut.
+        TryToggleAutoShot();
+    }
+
+    /// <summary>Toggles auto-use when the shortcut is a shot. Returns true when the click was consumed.</summary>
+    bool TryToggleAutoShot()
+    {
+        if (_shortcut == null || _shortcut.Type != Shortcut.TYPE_ITEM)
+            return false;
+
+        int itemId = ShotItemId();
+        if (!NetAutoShot.IsShotItem(itemId))
+            return false;
+
+        NetAutoShot.Toggle(itemId);
+        RefreshMarks();
+        return true;
+    }
+
+    /// <summary>
+    /// The shot template id for this slot. Bar shortcuts store the inventory objectId, so the
+    /// carried item is resolved back to its template; a stale shortcut with no item resolves to 0.
+    /// The resolved id wins over the cached one: when a shot stack is used up and re-bought the
+    /// objectId changes, and the old cache would point at a template nobody carries.
+    /// </summary>
+    int ShotItemId()
+    {
+        if (_shortcut != null)
+        {
+            PlayerInventory inventory = SkillbarPacketServices.Inventory;
+            ItemInstance item = inventory != null ? inventory.FindByAllInventory(_shortcut.Id) : null;
+            if (item != null)
+                return item.ItemId;
+        }
+        return _itemId;
+    }
+
+    /// <summary>
+    /// Interlude ExAutoSoulShot armed mark: flowing shimmer wave (not blink).
+    /// </summary>
+    public void RefreshMarks()
+    {
+        int itemId = ShotItemId();
+        bool armed = itemId > 0 && NetAutoShot.IsEnabled(itemId);
+
+        if (!armed)
+        {
+            StopAutoShotWave();
+            if (_autoShotMask != null)
+                _autoShotMask.style.display = DisplayStyle.None;
+            _slotElement?.RemoveFromClassList("auto-shot-on");
+            return;
+        }
+
+        _slotElement?.AddToClassList("auto-shot-on");
+        AutoShotSlotGlow.EnsureOverlay(_slotElement, ref _autoShotMask);
+        if (_autoShotPulse == null)
+            _autoShotPulse = AutoShotSlotGlow.StartWave(_autoShotMask);
+    }
+
+    void StopAutoShotWave()
+    {
+        if (_autoShotPulse != null)
+        {
+            _autoShotPulse.Pause();
+            _autoShotPulse = null;
+        }
     }
 
     protected override void HandleMiddleClick()

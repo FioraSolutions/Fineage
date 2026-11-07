@@ -25,15 +25,6 @@ public static class EffectCastDurationResolver
         float castHitDuration = castData != null && castData.HitTime > 0f ? castData.HitTime : 0f;
         float settingsDuration = settings != null && settings.defaultLifeTime > 0f ? settings.defaultLifeTime : 0f;
 
-        if (castHitDuration <= 0f && settingsDuration <= 0f && EffectSkillsmanager.Instance != null)
-        {
-            float legacyHitTimeMs = EffectSkillsmanager.Instance.HitTime();
-            if (legacyHitTimeMs > 0f)
-            {
-                legacyHitDuration = legacyHitTimeMs / 1000f;
-            }
-        }
-
         float authoritativeDuration;
         if (castHitDuration > 0f)
         {
@@ -46,7 +37,7 @@ public static class EffectCastDurationResolver
         }
         else
         {
-            authoritativeDuration = legacyHitDuration;
+            authoritativeDuration = 0f;
         }
 
         return Mathf.Max(prefabDuration, authoritativeDuration);

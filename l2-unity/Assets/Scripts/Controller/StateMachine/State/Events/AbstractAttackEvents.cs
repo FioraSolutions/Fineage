@@ -100,8 +100,8 @@ public abstract class AbstractAttackEvents : StateBase
             ControllerPacketServices.Animations.ResetPlayerAnimatorSpeed(objectId);
         }
 
+        MagicSkillPresentation.EndCastChannel();
         // Pose return is owned by combat SMB (SpAtk / Magic / jatk SwitchToIdle).
-        // Early clip-Complete used to call WAIT_RETURN here and CrossFade atkwait mid-dual.
     }
 
 

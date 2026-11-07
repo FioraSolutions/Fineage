@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
 
-public class AbstractSkills
+public class AbstractSkills : AbstractToggle
 {
     protected const float _default7CellWidth = 252;
     protected const float _default6CellWidth = 216;
@@ -13,38 +13,17 @@ public class AbstractSkills
     protected const string _rowNameInnerPanel = "RowsVirtual";
     protected Dictionary<int, SkillSlot> _allSlots;
     protected int skillsPerPanel = 7;
+    public SkillSlot GetSlot(int skillId)
+    {
+        if (_allSlots != null && _allSlots.TryGetValue(skillId, out SkillSlot slot))
+            return slot;
+        return null;
+    }
+
     public void SetAllSlots(Dictionary<int, SkillSlot> allSlots)
     {
         if (allSlots != null) _allSlots = null;
         _allSlots = allSlots;
-    }
-    protected void ChangeDfBox(Button btn, string texture)
-    {
-        IEnumerable<VisualElement> children = btn.Children();
-        var e = children.First();
-        e.style.display = DisplayStyle.Flex;
-        Texture2D iconDfNoraml = LoadTextureDF(texture);
-        SetBackgroundDf(btn, iconDfNoraml);
-    }
-
-    protected void ToogleHideElement(VisualElement element , bool isHide)
-    {
-        if(!isHide)
-            element.style.display = DisplayStyle.Flex;
-        else
-            element.style.display = DisplayStyle.None;
-    }
-
-
-
-    protected void SetBackgroundDf(UnityEngine.UIElements.Button btn, Texture2D iconDfNoraml)
-    {
-        btn.style.backgroundImage = new StyleBackground(iconDfNoraml);
-    }
-
-    protected Texture2D LoadTextureDF(string path)
-    {
-        return Resources.Load<Texture2D>(path);
     }
 
     protected VisualElement GetSkillBar(VisualElement content)

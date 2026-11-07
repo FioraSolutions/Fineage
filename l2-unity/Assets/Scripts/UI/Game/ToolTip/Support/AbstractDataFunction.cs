@@ -30,8 +30,51 @@ public abstract class AbstractDataFunction
         else
         {
             groupElement.style.display = DisplayStyle.None;
-            icon.style.backgroundImage = null;
+            L2SlotIconView.Clear(icon);
         }
+    }
+
+    protected void AddNamedIconIfPresent(VisualElement groupElement, VisualElement icon, string iconName)
+    {
+        if (L2SlotIconView.TrySetNamedIcon(icon, iconName))
+        {
+            groupElement.style.display = DisplayStyle.Flex;
+            return;
+        }
+
+        groupElement.style.display = DisplayStyle.None;
+        L2SlotIconView.Clear(icon);
+    }
+
+    protected void AddItemIconIfPresent(VisualElement groupElement, VisualElement icon, int itemId)
+    {
+        if (groupElement == null || icon == null || IconManager.Instance == null)
+        {
+            if (groupElement != null)
+                groupElement.style.display = DisplayStyle.None;
+            return;
+        }
+
+        L2SlotIconView.SetItemIcon(icon, itemId);
+        groupElement.style.display = DisplayStyle.Flex;
+    }
+
+    protected void AddResourcesIconIfPresent(
+        VisualElement groupElement,
+        VisualElement icon,
+        string resourcesPath)
+    {
+        if (groupElement == null || icon == null)
+            return;
+
+        if (L2SlotIconView.TrySetResourcesBackground(icon, resourcesPath))
+        {
+            groupElement.style.display = DisplayStyle.Flex;
+            return;
+        }
+
+        groupElement.style.display = DisplayStyle.None;
+        L2SlotIconView.Clear(icon);
     }
 
     protected void AddElementPriceifNot0(VisualElement groupPriceLabel, Label priceLabel, int price)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,14 +9,16 @@ using UnityEngine.UIElements;
 public class DragManipulator : PointerManipulator
 {
     readonly VisualElement _root;
+    readonly Action _onDragEnded;
     Vector2 _startMousePosition;
     Vector2 _startPosition;
     public bool dragged;
 
-    public DragManipulator(VisualElement handle, VisualElement windowRoot)
+    public DragManipulator(VisualElement handle, VisualElement windowRoot, Action onDragEnded = null)
     {
         target = handle;
         _root = windowRoot;
+        _onDragEnded = onDragEnded;
         activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
     }
 
@@ -66,8 +69,11 @@ public class DragManipulator : PointerManipulator
         if (!target.HasPointerCapture(evt.pointerId) || !CanStopManipulation(evt))
             return;
 
+        bool endedDrag = dragged;
         target.ReleasePointer(evt.pointerId);
         evt.StopPropagation();
+        if (endedDrag)
+            _onDragEnded?.Invoke();
     }
 
     void OnPointerCaptureOut(PointerCaptureOutEvent _)

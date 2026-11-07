@@ -42,7 +42,9 @@ public class Geodata : MonoBehaviour {
     }
 
     void OnDestroy() {
-        _geodata.Clear();
+        if (_instance != this)
+            return; // duplicate destroyed in Awake
+        _geodata?.Clear();
         _instance = null;
     }
 
@@ -70,7 +72,7 @@ public class Geodata : MonoBehaviour {
             try {
                 origin = GeodataImporter.LoadMapOrigin(mapId, _nodeSize);
                 _mapsOrigin.Add(mapId, origin);
-            } catch(Exception e) {
+            } catch (Exception) {
                 // Debug.LogError(e.Message);
                 continue;
             }
@@ -274,11 +276,12 @@ public class Geodata : MonoBehaviour {
     }
 
     private void DrawGizmosAroundPlayer() {
-        if(PlayerController.Instance == null) {
+        PlayerController player = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
+        if(player == null) {
             return;
         }
 
-        Vector3 playerPos = PlayerController.Instance.transform.position;
+        Vector3 playerPos = player.transform.position;
         Vector3 cubeSize = new Vector3(_nodeSize - _nodeSize / 10f, 0.1f, _nodeSize - _nodeSize / 10f);
         Gizmos.color = Color.green;
 

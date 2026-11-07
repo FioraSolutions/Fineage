@@ -5,6 +5,13 @@ using UnityEngine;
 public sealed class WorldPacketApply
 {
     private readonly Dictionary<Type, EntityWorldApply> _byType = new Dictionary<Type, EntityWorldApply>();
+
+    /// <summary>
+    /// Per-object spawn attempt counter. A prefab that spawns without its NpcEntity, or a spawner
+    /// that never gets wired, would otherwise be retried every frame forever.
+    /// </summary>
+    private readonly Dictionary<int, int> _spawnAttempts = new Dictionary<int, int>();
+    private const int MaxSpawnAttempts = 3;
     private readonly HtmlWindow _html;
     private readonly PlayerPositionSender _positionSender;
     private readonly GameManager _gameManager;
@@ -33,7 +40,7 @@ public sealed class WorldPacketApply
         Register<UserEntity>(userApply);
     }
 
-    private World GameWorld => IncomingPacketActions.GameWorld;
+    private World GameWorld => WorldApplyPacketServices.GameWorld;
 
     public void Register<TEntity>(EntityWorldApply apply) where TEntity : Entity
     {
@@ -47,18 +54,52 @@ public sealed class WorldPacketApply
         if (!IsWorldSpawnReady())
             return;
 
-        Entity entity = GameWorld.GetEntityNoLockSync(npcInfo.Identity.Id);
+        int objectId = npcInfo.Identity.Id;
+        Entity entity = GameWorld.GetEntityNoLockSync(objectId);
         if (entity == null)
         {
-            if (SpawnFrameBudget.IsCancelled(npcInfo.Identity.Id))
+            if (SpawnFrameBudget.IsCancelled(objectId))
                 return;
             if (!SpawnFrameBudget.TryConsumeSpawn())
             {
                 QueueWorldNextFrame(apply => apply.UpdateNpc(npcInfo));
                 return;
             }
-            GameWorld.SpawnNpc(npcInfo.Identity, npcInfo.Status, npcInfo.Stats);
-            _gameEvents?.Publish(new EntitySpawnedEvent(npcInfo.Identity.Id));
+            GameWorld.SpawnNpc(npcInfo.Identity, npcInfo.Status, npcInfo.Stats, out bool unresolvable);
+
+            // SpawnNpc bails silently when the npcgrp mesh cannot be resolved. Re-queueing such an
+            // entry re-runs the same doomed attempt forever: the deferred action is put back on the
+            // next batch, the batch is drained to the end every frame, so thousands of stale rows
+            // spun at full CPU and the queue never drained (deferred grew past 35k). Drop the entry
+            // from the knownlist instead so it stops being retried.
+            if (unresolvable)
+            {
+                StorageNpc.getInstance().RemoveNpc(objectId);
+                _spawnAttempts.Remove(objectId);
+                return;
+            }
+
+            if (GameWorld.GetEntityNoLockSync(objectId) == null)
+            {
+                // Spawner not wired yet, or the prefab lacked its NpcEntity. Retrying is right, but
+                // bounded: an unbounded retry is what turned a bad prefab into a permanent stall.
+                int attempts;
+                _spawnAttempts.TryGetValue(objectId, out attempts);
+                attempts++;
+                if (attempts > MaxSpawnAttempts)
+                {
+                    _spawnAttempts.Remove(objectId);
+                    StorageNpc.getInstance().RemoveNpc(objectId);
+                    return;
+                }
+
+                _spawnAttempts[objectId] = attempts;
+                QueueWorldNextFrame(apply => apply.UpdateNpc(npcInfo));
+                return;
+            }
+
+            _spawnAttempts.Remove(objectId);
+            _gameEvents?.Publish(new EntitySpawnedEvent(objectId));
         }
         else
             GameWorld.UpdateNpc(entity, npcInfo);
@@ -70,10 +111,54 @@ public sealed class WorldPacketApply
         NpcInfoDto[] npcs = storage.CopyNpcs();
         CharInfoDto[] chars = storage.CopyChars();
         // Debug.Log("[WorldSpawn] FlushKnownlist npcs=" + npcs.Length + " chars=" + chars.Length);
-        for (int i = 0; i < npcs.Length; i++)
-            UpdateNpc(npcs[i]);
-        for (int i = 0; i < chars.Length; i++)
-            UpdateUser(chars[i]);
+
+        // Spawning every known object in one go defeats SpawnFrameBudget: each NPC over the cap
+        // re-queues itself as its own deferred action, so a stale knownlist turns one flush into
+        // tens of thousands of queue entries that all replay on the following frame. Apply what the
+        // budget allows and hand the remainder to the next frame as a single continuation.
+        int npcIndex = 0;
+        for (; npcIndex < npcs.Length; npcIndex++)
+        {
+            if (!SpawnFrameBudget.HasBudget())
+                break;
+            UpdateNpc(npcs[npcIndex]);
+        }
+
+        int charIndex = 0;
+        for (; charIndex < chars.Length; charIndex++)
+            UpdateUser(chars[charIndex]);
+
+        if (npcIndex < npcs.Length)
+        {
+            NpcInfoDto[] remaining = new NpcInfoDto[npcs.Length - npcIndex];
+            System.Array.Copy(npcs, npcIndex, remaining, 0, remaining.Length);
+            QueueWorldNextFrame(apply => apply.UpdateNpcBatch(remaining));
+        }
+    }
+
+    /// <summary>
+    /// Applies a chunk of knownlist rows, re-queueing itself while the spawn budget is exhausted.
+    /// One continuation per frame instead of one queued action per NPC.
+    /// </summary>
+    public void UpdateNpcBatch(NpcInfoDto[] batch)
+    {
+        if (batch == null || batch.Length == 0)
+            return;
+
+        int index = 0;
+        for (; index < batch.Length; index++)
+        {
+            if (!SpawnFrameBudget.HasBudget())
+                break;
+            UpdateNpc(batch[index]);
+        }
+
+        if (index < batch.Length)
+        {
+            NpcInfoDto[] remaining = new NpcInfoDto[batch.Length - index];
+            System.Array.Copy(batch, index, remaining, 0, remaining.Length);
+            QueueWorldNextFrame(apply => apply.UpdateNpcBatch(remaining));
+        }
     }
 
     public void UpdateUser(CharInfoDto info)
@@ -142,6 +227,20 @@ public sealed class WorldPacketApply
         if (TryResolve(entity, out apply))
             apply.OnMoveTo(entity, destination, current, dto);
         // UnityReplaySession.OnMoveTo(entity, destination);
+    }
+
+    /// <summary>Authoritative snap from zone ValidatePosition drift — not a MoveTo order.</summary>
+    public void ApplyPositionCorrection(int objId, Vector3 position)
+    {
+        Entity entity = GetEntity(objId);
+        if (entity == null)
+            return;
+
+        EntityWorldApply apply;
+        if (TryResolve(entity, out apply))
+            apply.OnPositionCorrection(entity, position);
+        else
+            EntityWorldApply.SnapTransform(entity, position);
     }
 
     public void StopMove(StopMoveDto dto)
@@ -290,10 +389,11 @@ public sealed class WorldPacketApply
         if (dto == null)
             return;
         Entity entity = GetEntity(dto.ObjectId);
-        // EntityActionCombatLog.LogIfWatch(entity,
-            // "packet Social IGNORE name=" + EntityActionCombatLog.NameOf(entity) +
-            // " id=" + dto.ObjectId +
-            // " actionId=" + dto.ActionId);
+        EntityWorldApply apply;
+        if (entity == null || !TryResolve(entity, out apply))
+            return;
+        // Mobius SocialAction — gesture ids 2–14, 15 = level-up (SocialAction.LEVEL_UP).
+        apply.OnSocialAction(entity, dto);
     }
 
     public void ChangeWaitType(ChangeWaitTypeDto dto)
@@ -343,22 +443,19 @@ public sealed class WorldPacketApply
         MagicSkillUseTrace.Begin(dto.SkillId);
         try
         {
+            // Local player: presentation is inside PlayerWorldApply → MagicSkillPresentation.
+            // CharInfo / NPC: apply only (EntityActionSkill owns remote anim + SkillCastSound there).
             apply.OnMagicSkillUse(entity, dto);
-            if (entity == PlayerEntity.Instance)
-                try { CastBarOverlay.Begin(dto.HitTime); } catch (Exception bar) { Debug.LogWarning("[CastBar] " + bar.Message); }
-            try { SkillCastSound.OnMagicSkillUse(entity, dto); } catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] " + sfx.Message); }
-            if (dto.SkillId == 4247)
-                Debug.Log("[WINDSTRIKE] OnMagicSkillUse returned");
-        }
-        catch (Exception ex)
-        {
-            throw;
+            if (entity != PlayerEntity.Instance)
+            {
+                try { SkillCastSound.OnMagicSkillUse(entity, dto); }
+                catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] " + sfx.Message); }
+            }
         }
         finally
         {
             MagicSkillUseTrace.End();
         }
-        // UnityReplaySession.OnMagicSkillUse(entity, dto);
     }
 
     public void MagicSkillLaunched(MagicSkillLaunchedDto dto)
@@ -371,6 +468,10 @@ public sealed class WorldPacketApply
             entity = PlayerEntity.Instance;
         if (entity == null)
             return;
+
+        // skillsoundgrp spelleffect_sound_3 (*_explotion) on impact.
+        try { SkillCastSound.OnMagicSkillLaunched(entity, dto); }
+        catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] launched " + sfx.Message); }
         // UnityReplaySession.OnMagicLaunched(entity, dto);
     }
 
@@ -392,7 +493,7 @@ public sealed class WorldPacketApply
 
     public void SendArrivedPosition()
     {
-        PlayerController player = PlayerController.Instance;
+        PlayerController player = WorldApplyPacketServices.Player;
         if (player == null)
             return;
 
@@ -420,7 +521,7 @@ public sealed class WorldPacketApply
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
+        GameManager manager = _gameManager != null ? _gameManager : WorldApplyPacketServices.Manager;
         return manager != null && manager.WorldSpawnReady && GameWorld != null;
     }
 
@@ -431,6 +532,6 @@ public sealed class WorldPacketApply
         if (_applyQueue != null)
             _applyQueue.QueueNextFrame(() => apply(this));
         else
-            IncomingPacketActions.QueueWorldNextFrame(apply);
+            WorldApplyPacketServices.QueueWorldNextFrame(apply);
     }
 }

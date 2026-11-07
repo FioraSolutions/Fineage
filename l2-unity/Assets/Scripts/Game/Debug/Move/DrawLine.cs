@@ -91,6 +91,8 @@ public class DrawLine : MonoBehaviour
             }
             return false;
         }
+
+        public override int GetHashCode() => entity_id.GetHashCode();
      
     }
 

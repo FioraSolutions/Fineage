@@ -4,81 +4,98 @@ using UnityEngine.UIElements;
 
 public class CooldownAnimationService
 {
-    public IEnumerator CooldownCoroutine(VisualElement _reuseElement , VisualElement _rechargeMaskBg,  float durationMs)
+    public IEnumerator CooldownCoroutine(VisualElement reuseElement, VisualElement rechargeMaskBg, float durationMs)
     {
+        if (reuseElement == null)
+            yield break;
 
         float duration = TimeUtils.ConvertMsToSec(durationMs);
-        _reuseElement.style.display = DisplayStyle.Flex;
+        if (duration <= 0.05f)
+            yield break;
 
-        int silzeCooltime = IconManager.Instance.GetSizeOtherCoolTime();
+        reuseElement.style.display = DisplayStyle.Flex;
+        reuseElement.style.opacity = 1f;
 
-        float timePerImage = duration / silzeCooltime;
+        int cooltimeCount = IconManager.Instance != null ? IconManager.Instance.GetSizeOtherCoolTime() : 0;
+        if (cooltimeCount <= 1)
+        {
+            // Fallback: darken the slot for the reuse window when cooltime frames failed to load.
+            reuseElement.style.backgroundColor = new Color(0f, 0f, 0f, 0.65f);
+            reuseElement.style.backgroundImage = null;
+            yield return new WaitForSeconds(duration);
+            CleanupCompletionFrame(reuseElement, rechargeMaskBg);
+            yield break;
+        }
+
+        // Cap frame count so short CDs (e.g. Wind Strike 1s) still show a readable sweep.
+        int frameCount = Mathf.Clamp(Mathf.RoundToInt(duration * 18f), 8, cooltimeCount);
+        float timePerImage = duration / frameCount;
         float elapsed = 0f;
 
-
-        for (int i = 1; i < silzeCooltime; i++)
+        for (int step = 0; step < frameCount; step++)
         {
-            var icon = IconManager.Instance.GetOtherIconByType(i, 0);
-            if (icon == null) continue;
-            _reuseElement.style.backgroundImage = icon;
-            //_reuseElement.style.opacity = 0; ;
+            int frameId = 1 + (step * (cooltimeCount - 1)) / Mathf.Max(1, frameCount - 1);
+            var icon = IconManager.Instance.GetOtherIconByType(frameId, 0);
+            if (icon != null)
+                reuseElement.style.backgroundImage = icon;
 
-            float waitTime = i < silzeCooltime - 1 ? timePerImage : duration - elapsed;
-
-            yield return new WaitForSeconds(waitTime);
-
+            float waitTime = step < frameCount - 1 ? timePerImage : Mathf.Max(0f, duration - elapsed);
+            if (waitTime > 0f)
+                yield return new WaitForSeconds(waitTime);
             elapsed += waitTime;
         }
 
-
-        float completionDuration = 1f; // 1 second total
-        float fadeOutDuration = 0.6f; // 30% of the time
+        float completionDuration = 0.35f;
+        float fadeOutDuration = 0.25f;
         float elapsedCompletion = 0f;
 
-        SetupCompletionFrame( _reuseElement,  _rechargeMaskBg);
+        SetupCompletionFrame(reuseElement, rechargeMaskBg);
 
         while (elapsedCompletion < completionDuration)
         {
             float progress = elapsedCompletion / completionDuration;
+            float maskOpacity = elapsedCompletion < fadeOutDuration
+                ? 1f - (elapsedCompletion / fadeOutDuration)
+                : 0f;
+            float elementOpacity = 1f - progress;
 
-
-            float maskOpacity = elapsedCompletion < fadeOutDuration ?
-                1f * (1f - (elapsedCompletion / fadeOutDuration)) : 0f;
-
-
-            float elementOpacity = 1f * (1f - progress);
-
-            _reuseElement.style.opacity = elementOpacity;
-            _rechargeMaskBg.style.opacity = maskOpacity;
+            reuseElement.style.opacity = elementOpacity;
+            if (rechargeMaskBg != null)
+                rechargeMaskBg.style.opacity = maskOpacity;
 
             yield return null;
             elapsedCompletion += Time.deltaTime;
         }
 
-
-        CleanupCompletionFrame( _reuseElement,  _rechargeMaskBg);
-
+        CleanupCompletionFrame(reuseElement, rechargeMaskBg);
     }
 
-
-    private void SetupCompletionFrame(VisualElement _reuseElement, VisualElement _rechargeMaskBg)
+    private void SetupCompletionFrame(VisualElement reuseElement, VisualElement rechargeMaskBg)
     {
-        _rechargeMaskBg.style.opacity = 1;
-        _rechargeMaskBg.style.display = DisplayStyle.Flex;
-        _reuseElement.style.backgroundImage = IconManager.Instance.LoadTextureByName("Icon_dualcap");
-        _reuseElement.style.backgroundColor = new Color(0f, 0f, 0f, 0.9f);
+        if (rechargeMaskBg != null)
+        {
+            rechargeMaskBg.style.opacity = 1;
+            rechargeMaskBg.style.display = DisplayStyle.Flex;
+        }
+
+        L2SlotIconView.SetNamedIcon(reuseElement, "Icon_dualcap");
+        reuseElement.style.backgroundColor = new Color(0f, 0f, 0f, 0.9f);
     }
 
-    private void CleanupCompletionFrame(VisualElement _reuseElement, VisualElement _rechargeMaskBg)
+    private void CleanupCompletionFrame(VisualElement reuseElement, VisualElement rechargeMaskBg)
     {
-        // Reset reuse element
-        _reuseElement.style.display = DisplayStyle.None;
-        _reuseElement.style.backgroundColor = new Color(0f, 0f, 0f, 0.1f);
-        _reuseElement.style.backgroundImage = null;
-        _reuseElement.style.opacity = 1;
+        if (reuseElement != null)
+        {
+            reuseElement.style.display = DisplayStyle.None;
+            reuseElement.style.backgroundColor = new Color(0f, 0f, 0f, 0.1f);
+            reuseElement.style.backgroundImage = null;
+            reuseElement.style.opacity = 1;
+        }
 
-        // Reset mask background
-        _rechargeMaskBg.style.display = DisplayStyle.None;
-        _rechargeMaskBg.style.opacity = 1;
+        if (rechargeMaskBg != null)
+        {
+            rechargeMaskBg.style.display = DisplayStyle.None;
+            rechargeMaskBg.style.opacity = 1;
+        }
     }
 }

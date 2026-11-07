@@ -7,9 +7,6 @@ using VContainer;
 public class L2SlotManager : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     [SerializeField] private L2Slot _draggedSlot;
     [SerializeField] private L2Slot _hoverSlot;
     private L2Slot _dragSlotData;
@@ -37,7 +34,7 @@ public class L2SlotManager : L2PopupWindow
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient);
+        GameWindowPacketServices.Bind();
     }
 
     private void OnDestroy()
@@ -276,7 +273,7 @@ public class L2SlotManager : L2PopupWindow
 
     private void OkDestroyRecipe()
     {
-        Game.Send(new RequestRecipeBookDestroyCommand(_recipeId));
+        ZoneCommands.Send(new RequestRecipeBookDestroyCommand(_recipeId));
         CleanupMessageWindow();
     }
 
@@ -403,7 +400,8 @@ public class L2SlotManager : L2PopupWindow
 
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         const float pickDistance = 10000f;
-        int groundMask = World.Instance != null ? World.Instance.GroundMask : 0;
+        World world = WorldApplyPacketServices.GameWorld;
+        int groundMask = world != null ? world.GroundMask : 0;
         if (groundMask != 0 && Physics.Raycast(ray, out RaycastHit groundHit, pickDistance, groundMask))
         {
             worldPos = groundHit.point;

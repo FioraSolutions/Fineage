@@ -55,7 +55,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Ui != null)
                 return _loginRuntime.Ui;
-            return IncomingPacketActions.LoginUi;
+            return LobbyUiPacketServices.LoginUi;
         }
     }
 
@@ -65,7 +65,7 @@ public sealed class LobbyFlowController
         {
             if (_gameUi != null)
                 return _gameUi;
-            return IncomingPacketActions.Ui;
+            return LobbyUiPacketServices.GameUi;
         }
     }
 
@@ -75,7 +75,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Servers != null)
                 return _loginRuntime.Servers;
-            return IncomingPacketActions.ServerSelect;
+            return LoginPacketServices.ServerSelect;
         }
     }
 
@@ -85,7 +85,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Camera != null)
                 return _loginRuntime.Camera;
-            return IncomingPacketActions.LoginCamera;
+            return LoginPacketServices.LoginCamera;
         }
     }
 
@@ -95,7 +95,7 @@ public sealed class LobbyFlowController
         {
             if (_loginRuntime != null && _loginRuntime.Creator != null)
                 return _loginRuntime.Creator;
-            return IncomingPacketActions.Creator;
+            return LoginPacketServices.Creator;
         }
     }
 
@@ -105,7 +105,7 @@ public sealed class LobbyFlowController
         {
             if (_world != null)
                 return _world;
-            return IncomingPacketActions.GameWorld;
+            return WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
         }
     }
 
@@ -115,7 +115,7 @@ public sealed class LobbyFlowController
         {
             if (_domain != null)
                 return _domain;
-            return IncomingPacketActions.Domain;
+            return WorldApplyPacketServices.Domain;
         }
     }
 
@@ -125,7 +125,7 @@ public sealed class LobbyFlowController
         {
             if (_worldApply != null)
                 return _worldApply;
-            return IncomingPacketActions.WorldApply;
+            return WorldApplyPacketServices.WorldApply ?? WorldPacketServices.WorldApply;
         }
     }
 
@@ -135,7 +135,9 @@ public sealed class LobbyFlowController
 
     public void LogOut()
     {
-        Login.Disconnect();
+        IZoneTransport transport = _zoneTransport ?? ZoneCommands.Transport;
+        if (transport != null)
+            transport.Disconnect();
     }
 
     public void OnWorldSceneLoaded()
@@ -143,7 +145,7 @@ public sealed class LobbyFlowController
         L2LoginUI loginUi = LoginUi;
         if (loginUi != null)
             GameObject.Destroy(loginUi.gameObject);
-        PlayerInfoInterlude playerInfo = Game.PlayerInfo;
+        PlayerInfoInterlude playerInfo = _zoneTransport != null ? _zoneTransport.PlayerInfo : default;
         DomainPlayerSpawned spawned = InterludeDomainMap.PlayerSpawned(playerInfo);
         IWorldDomainSink domain = Domain;
         if (domain != null && spawned != null)
@@ -157,9 +159,10 @@ public sealed class LobbyFlowController
         if (stateMachine != null)
             stateMachine.enabled = true;
         _game.WorldSpawnReady = true;
-        if (_zoneTransport == null || _zoneTransport.AllowsInterludeGameSocketAuth)
-            FineageLog.Info(FineageLog.Category.GameNet, "TX EnterWorld");
-        Game.Send(new EnterWorldCommand());
+        // NetSession already sent NetOpcode.EnterWorld on ZoneAuthResult.
+        // Do not re-fire Interlude EnterWorldCommand / RequestSkillCoolTimeCommand —
+        // FineageZoneTransport has no Net mapping and only spam-warns "TX dropped".
+        FineageLog.Info(FineageLog.Category.GameNet, "world spawn ready (Net EnterWorld already sent)");
         if (domain != null)
             domain.FlushKnownlist();
         else
@@ -167,10 +170,7 @@ public sealed class LobbyFlowController
             WorldPacketApply apply = WorldApply;
             if (apply != null)
                 apply.FlushKnownlist();
-            else
-                IncomingPacketActions.ApplyWorld(a => a.FlushKnownlist());
         }
-        Game.EndLoadWorld();
 
         if (stateMachine != null)
         {
@@ -283,7 +283,7 @@ public sealed class LobbyFlowController
             MusicManager.Instance.Clear();
             Scenes.LoadMenu();
         }
-        else if (_game.GameState > GameState.LOGIN_SCREEN && !Game.IsConnected && !Login.IsConnected)
+        else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected)
         {
             OnRelogin();
         }

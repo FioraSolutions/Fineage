@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
@@ -6,7 +6,6 @@ public class ClickManager : MonoBehaviour
 {
     [Inject] InputManager _input;
     [Inject] TargetManager _targets;
-    [Inject] GameClient _gameClient;
     [Inject] ItemDropPicker _dropPicker;
     [SerializeField] private GameObject _locator;
     [SerializeField] private ObjectData _targetObjectData;
@@ -19,6 +18,7 @@ public class ClickManager : MonoBehaviour
     [SerializeField] private LayerMask _clickThroughMask;
     private UIDocument uiDocument;
     private static ClickManager _instance;
+    [System.Obsolete("Use [Inject] instead")]
     public static ClickManager Instance => _instance;
 
     private InputManager GameInput
@@ -36,19 +36,6 @@ public class ClickManager : MonoBehaviour
     private TargetManager Targets
     {
         get { return _targets != null ? _targets : ControllerPacketServices.Targets; }
-    }
-
-    private GameClient Game
-    {
-        get
-        {
-            if (_gameClient != null)
-                return _gameClient;
-            GameClient fromController = ControllerPacketServices.Game;
-            if (fromController != null)
-                return fromController;
-            return IncomingPacketActions.Game;
-        }
     }
 
     // L2 FindMouseTargetObject far = 10000 UU.
@@ -82,9 +69,9 @@ public class ClickManager : MonoBehaviour
     void WireClickPacketServices()
     {
         ControllerPacketServices.Bind(
-            game: Game,
             input: GameInput,
-            targets: Targets);
+            targets: Targets,
+            player: ControllerPacketServices.Player);
     }
 
     public void SetMasks(LayerMask entityMask, LayerMask clickThroughMask)
@@ -187,7 +174,9 @@ public class ClickManager : MonoBehaviour
     public void OnClickToMove(RaycastHit hit)
     {
         if (CastMoveLock.IsLocked)
+        {
             return;
+        }
 
         _lastClickPosition = hit.point;
 
@@ -223,14 +212,14 @@ public class ClickManager : MonoBehaviour
 
     private void SendPacketMoveToLocation(Vector3 lastClickPosition)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
 
         if (!TryResolveMoveOrigin(out Vector3 from))
             return;
 
-        game.Send(new MoveToCommand(from, lastClickPosition));
+        ZoneCommands.Send(new MoveToCommand(from, lastClickPosition));
     }
 
     static bool TryResolveMoveOrigin(out Vector3 from)
@@ -242,9 +231,7 @@ public class ClickManager : MonoBehaviour
             return true;
         }
 
-        PlayerController controller = IncomingPacketActions.Player;
-        if (controller == null)
-            controller = PlayerController.Instance;
+        PlayerController controller = ControllerPacketServices.Player;
         if (controller != null)
         {
             from = controller.transform.position;
@@ -263,7 +250,7 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
 
@@ -280,7 +267,7 @@ public class ClickManager : MonoBehaviour
         }
 
         var l2jpos = clickTarget.Identity.GetL2jPos();
-        game.Send(new ClickActionCommand(
+        ZoneCommands.Send(new ClickActionCommand(
             clickTarget.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
     }
 
@@ -288,7 +275,10 @@ public class ClickManager : MonoBehaviour
     {
         EnsureLocator();
         if (_locator == null)
+        {
+            Debug.LogWarning("[MoveMark] locator prefab not loaded");
             return;
+        }
 
         ClickMoveLocator mark = _locator.GetComponent<ClickMoveLocator>();
         if (mark != null)

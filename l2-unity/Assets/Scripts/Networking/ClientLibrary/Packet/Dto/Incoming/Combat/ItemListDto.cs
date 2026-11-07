@@ -97,7 +97,7 @@ public class ItemListDto : IWireDto
         return (item != null) ? item.Count : 0;
     }
 
-    /// <summary>Built from Zone V2 <see cref="ZoneV2MsgType.ItemList"/> (no open-window flag on wire).</summary>
+    /// <summary>Built from the Zone V2 item list row (no open-window flag on wire).</summary>
     public static ItemListDto FromZoneInventory(
         Dictionary<int, ItemInstance> bag,
         Dictionary<int, ItemInstance> equip)

@@ -46,7 +46,7 @@ public class DragIcon : L2PopupWindow
 
         icon = GetElementByClass("Icon");
         var content = GetElementByClass("drag_content");
-        icon.style.backgroundImage = IconManager.Instance.LoadTextureByName("noimage");
+        L2SlotIconView.SetNamedIcon(icon, "noimage");
         RegisterClickWindow(content);
         HideWindow();
     }
@@ -65,7 +65,6 @@ public class DragIcon : L2PopupWindow
                 ShowWindow();
                 _isShow = true;
             }
-            //icon.style.backgroundImage = IconManager.Instance.LoadTextureByName("skill0914");
             icon.transform.position = position;
         }
     }

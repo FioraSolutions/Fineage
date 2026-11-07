@@ -15,7 +15,6 @@ public class QuantityInput : L2PopupWindow
 {
     private static QuantityInput _instance;
     private object _parentWindow;
-    private VisualElement _root;
     private TextField _userInput;
 
     public static QuantityInput Instance { get { return _instance; } }

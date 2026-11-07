@@ -8,7 +8,6 @@ using VContainer;
 
 public class InventoryWindow : L2PopupWindow
 {
-    [Inject] GameClient _gameClient;
     public static int PLAYER_INVENTORY_SIZE = 81;
 
     private VisualTreeAsset _tabTemplate;
@@ -78,7 +77,7 @@ public class InventoryWindow : L2PopupWindow
 
     private void WireInventoryPacketServices()
     {
-        InventoryPacketServices.Bind(game: _gameClient);
+        InventoryPacketServices.Bind();
     }
 
     private void OnDestroy()
@@ -89,9 +88,9 @@ public class InventoryWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryWindow");
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
-        _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTabHeader");
-        _inventorySlotTemplate = LoadAsset("Data/UI/_Elements/Template/Slot");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
+        _tabHeaderTemplate = LoadAsset(L2InventoryUiAssets.TabHeader);
+        _inventorySlotTemplate = LoadAsset(L2InventoryUiAssets.Slot);
         _minimizedTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryMin");
     }
 
@@ -273,6 +272,11 @@ public class InventoryWindow : L2PopupWindow
 
         _maximumWeight = 10000;
         _weightLabel.text = "00.00%";
+
+        // ItemList normally arrives during EnterWorld, before this window is built, so the
+        // rows are cached in PlayerInventory. Push them now that the tabs exist.
+        if (PlayerInventory.Instance != null)
+            PlayerInventory.Instance.RefreshWindow();
     }
 
     public int GetEmptySlot()
@@ -333,19 +337,11 @@ public class InventoryWindow : L2PopupWindow
             _maximumWeight = stats.MaxWeight;
             _weightLabel.text = stats.WeightPercent()+"%";
 
-            if(_weiBar != null & _weiBarBg != null)
-            {
-                float bgWidth = 138;
-                //float bgWidth = _expBarBg.resolvedStyle.width;
-                double expRatio = (double)stats.CurrWeight / stats.MaxWeight;
-                double barWidth = bgWidth * expRatio;
-                if (stats.MaxWeight == 0)
-                {
-                    barWidth = 0;
-                }
-                //_weiBar.style.width = Convert.ToSingle(barWidth);
-                _weiBarBg.style.width = Convert.ToSingle(barWidth);
-            }
+            // Interlude inventory UXML paints fill on WeightBg, not the gauge child.
+            float weightRatio = stats.MaxWeight > 0
+                ? (float)stats.CurrWeight / stats.MaxWeight
+                : 0f;
+            L2ResourceBarView.SetFillFixed(_weiBarBg, _weiBarBg, weightRatio, 138f);
   
         }
 
@@ -456,8 +452,12 @@ public class InventoryWindow : L2PopupWindow
 
         Dictionary<int, ItemInstance> allItems = GetInventoryItems();
         Dictionary<int, ItemInstance> equipItems = GetInventoryEquipItems();
-        if (allItems == null || equipItems == null)
-            return;
+        // Empty is fine; only a null dictionary means the snapshot never arrived. Both start
+        // empty in PlayerInventory.Awake now, so an empty bag simply opens empty.
+        if (allItems == null)
+            allItems = new Dictionary<int, ItemInstance>();
+        if (equipItems == null)
+            equipItems = new Dictionary<int, ItemInstance>();
 
         int adenaCount = GetAdenaCount(allItems.Values.ToList());
 

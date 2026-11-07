@@ -9,13 +9,9 @@ using VContainer;
 
 using UnityEngine.UIElements;
 
-
 public class ShowListWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     private static ShowListWindow _instance;
     public static ShowListWindow Instance { get { return _instance; } }
     private Button _СЃancelButton;
@@ -43,7 +39,7 @@ public class ShowListWindow : L2PopupWindow
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient, showList: this);
+        GameWindowPacketServices.Bind(showList: this);
     }
 
     protected override void LoadAssets()
@@ -69,7 +65,6 @@ public class ShowListWindow : L2PopupWindow
         dragArea.AddManipulator(drag);
         DisableEventOnOver(_dropdown);
 
-
         _dropdown.RegisterValueChangedCallback(OnDropdownValueChanged);
 
         _okButton.RegisterCallback<ClickEvent>((evt) => OnClick(evt));
@@ -88,34 +83,28 @@ public class ShowListWindow : L2PopupWindow
         _players = players;
     }
 
-
-
     private void OnDropdownValueChanged(ChangeEvent<string> evt)
     {
         string playeName = evt.newValue;
         _select = playeName;
     }
 
-    private async void OnClick(ClickEvent evt)
+    private void OnClick(ClickEvent evt)
     {
 
         if (_players.ContainsKey(_select))
         {
             int objectId = _players[_select];
-            Game.Send(new RequestPackageSendableItemListCommand(objectId));
+            ZoneCommands.Send(new RequestPackageSendableItemListCommand(objectId));
             HideWindow();
         }
     }
 
 
-    private async void OnCancel(ClickEvent evt)
+    private void OnCancel(ClickEvent evt)
     {
         HideWindow();
     }
-
-
-
-
 
     private void OnDestroy()
     {

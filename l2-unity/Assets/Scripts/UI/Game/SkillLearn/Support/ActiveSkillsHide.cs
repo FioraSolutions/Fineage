@@ -11,7 +11,6 @@ using UnityEngine.UIElements;
 
 public class ActiveSkillsHide : AbstractSkills
 {
-    private string[] fillBackgroundDf = { "Data/UI/Window/Skills/QuestWndPlusBtn_v2", "Data/UI/Window/Skills/Button_DF_Skills_Down_v3" };
     private VisualElement _activeSkillPanel;
     private VisualTreeAsset _templateBoxPanel;
     private VisualTreeAsset _templatePanel8x1;
@@ -245,21 +244,14 @@ public class ActiveSkillsHide : AbstractSkills
 
     public void ClickDfPhysical(Button btn, int[] arrDfSelect)
     {
-        bool show = arrDfSelect[0] == 0;
-        ChangeDfBox(btn, fillBackgroundDf[show ? 0 : 1]);
-        arrDfSelect[0] = show ? 1 : 0;
         _rowPhysical ??= _activeSkillPanel.Q(_rowNamePhysical);
-        ToogleHideElement(_rowPhysical, show);
+        ClickDf(btn, arrDfSelect, _rowPhysical, 0);
     }
-
 
     public void ClickDfMagic(Button btn, int[] arrDfSelect)
     {
-        bool show = arrDfSelect[1] == 0;
-        ChangeDfBox(btn, fillBackgroundDf[show ? 0 : 1]);
-        arrDfSelect[1] = show ? 1 : 0;
         _rowMagical ??= _activeSkillPanel.Q(_rowNameMagical);
-        ToogleHideElement(_rowMagical, show);
+        ClickDf(btn, arrDfSelect, _rowMagical, 1);
     }
 
 }

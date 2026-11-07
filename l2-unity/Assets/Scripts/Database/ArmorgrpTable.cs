@@ -57,8 +57,6 @@ public class ArmorgrpTable {
                 string[] modTex;
 
                 string[] keyvals = line.Split('\t');
-                string armor_type = "";
-
                 for (int i = 0; i < keyvals.Length; i++) {
                     if(!keyvals[i].Contains("=")) {
                         continue;

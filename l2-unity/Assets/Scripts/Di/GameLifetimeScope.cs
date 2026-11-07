@@ -10,12 +10,16 @@ public sealed class GameLifetimeScope : LifetimeScope
         GameScopePlayerControllerRegistration.Register(builder);
         RegisterIfFound<World>(builder);
         RegisterIfFound<WorldCombat>(builder);
-        RegisterIfFound<TargetManager>(builder);
+        // Late-bound after the scope (#142 slice 4): these live in Input.prefab / UI.prefab
+        // and are only searchable once the prefab is instantiated.
+        RegisterLateBound<TargetManager>(builder);
         RegisterIfFound<HitManager>(builder);
         RegisterIfFound<ClickManager>(builder);
         RegisterIfFound<KeyboardMoveController>(builder);
         RegisterIfFound<NpcCursorManager>(builder);
-        RegisterIfFound<PlayerInventory>(builder);
+        // Late-bound after the scope (#142 slice 4): these live in Input.prefab / UI.prefab
+        // and are only searchable once the prefab is instantiated.
+        RegisterLateBound<PlayerInventory>(builder);
         RegisterIfFound<PlayerShortcuts>(builder);
         RegisterLiveMono<EffectManager>(builder);
         RegisterIfFound<ProjectileManager>(builder);
@@ -40,18 +44,15 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
         RegisterIfFound<NetworkTransformShare>(builder);
-        RegisterIfFound<ZoneV2Client>(builder);
         RegisterIfFound<GravityNpc>(builder);
         RegisterIfFound<FNManagerLight>(builder);
         RegisterIfFound<SwordCollisionService>(builder);
-        RegisterIfFound<EffectSkillsmanager>(builder);
         RegisterIfFound<PathFinderController>(builder);
         RegisterIfFound<Geodata>(builder);
         RegisterIfFound<AudioManager>(builder);
         RegisterIfFound<MusicManager>(builder);
         RegisterIfFound<SurfaceDetector>(builder);
         RegisterIfFound<ThirdPersonListener>(builder);
-        RegisterIfFound<SkillsManager>(builder);
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);
@@ -62,25 +63,24 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterLiveMono<HtmlWindow>(builder);
         RegisterIfFound<DealerWindow>(builder);
         RegisterIfFound<MultiSellWindow>(builder);
-        RegisterIfFound<TradeWindow>(builder);
-        RegisterIfFound<TradeRequestWindow>(builder);
-        RegisterIfFound<PartyInvitationWindow>(builder);
+        RegisterLateBound<TradeWindow>(builder);
+        RegisterLateBound<TradeRequestWindow>(builder);
+        RegisterLateBound<PartyInvitationWindow>(builder);
         RegisterIfFound<PartyMemberListWindow>(builder);
         RegisterIfFound<EnchantWindow>(builder);
         RegisterIfFound<RecipeBookWindow>(builder);
         RegisterIfFound<CraftingItemWindow>(builder);
         RegisterIfFound<SkillLearnWindow>(builder);
         RegisterIfFound<DescriptionSkillWindow>(builder);
-        RegisterIfFound<SkillListWindow>(builder);
+        RegisterLateBound<SkillListWindow>(builder);
         RegisterIfFound<QuestWindow>(builder);
-        RegisterIfFound<QuestListWindow>(builder);
         RegisterIfFound<ClanWindow>(builder);
         RegisterIfFound<ShowListWindow>(builder);
         RegisterIfFound<SeedInfoWindow>(builder);
         RegisterIfFound<SellCropListWindow>(builder);
         RegisterLiveMono<SkillbarWindow>(builder);
         RegisterLiveMono<SystemMessageWindow>(builder);
-        RegisterIfFound<BufferPanel>(builder);
+        RegisterLateBound<BufferPanel>(builder);
         RegisterIfFound<InventoryWindow>(builder);
         RegisterIfFound<DeadWindow>(builder);
         RegisterIfFound<StatusWindow>(builder);
@@ -124,6 +124,21 @@ public sealed class GameLifetimeScope : LifetimeScope
         builder.Register<MessagePacketApply>(Lifetime.Singleton);
         builder.Register<GameRuntime>(Lifetime.Singleton);
 
+        // #142 slice 3 pilot: packet applies constructed by the container rather than reached
+        // through the static *ApplyIncomingPacketServices relay.
+        builder.Register<CombatAttackApplyService>(Lifetime.Singleton);
+        builder.Register<CombatDieApplyService>(Lifetime.Singleton);
+        builder.Register<CombatTargetApplyService>(Lifetime.Singleton);
+        builder.Register<StatusUpdateApplyService>(Lifetime.Singleton);
+        builder.Register<DeleteObjectGroundApplyService>(Lifetime.Singleton);
+        builder.Register<StatusApplyService>(Lifetime.Singleton);
+        builder.Register<SkillApplyService>(Lifetime.Singleton);
+        builder.Register<PresenceApplyService>(Lifetime.Singleton);
+        builder.Register<InventoryApplyService>(Lifetime.Singleton);
+        builder.Register<PartyApplyService>(Lifetime.Singleton);
+        builder.Register<TradeApplyService>(Lifetime.Singleton);
+        builder.Register<TradeRequestApplyService>(Lifetime.Singleton);
+
         builder.RegisterBuildCallback(container =>
         {
             App.GameContainer = container;
@@ -136,13 +151,19 @@ public sealed class GameLifetimeScope : LifetimeScope
                 MessagePacketApply messageApply = container.Resolve<MessagePacketApply>();
                 IWorldDomainSink domain = container.Resolve<IWorldDomainSink>();
                 runtime.BindApply(worldApply, messageApply);
-                IncomingPacketActions.BindGame(runtime, worldApply, messageApply, domain);
                 GameRuntimeBindApplyIncomingPacketServices.BindIncoming(
                     runtime: runtime,
                     worldApply: worldApply,
                     messageApply: messageApply,
                     domain: domain);
                 World world = container.Resolve<World>();
+                NetworkingPacketServices.Bind(
+                    world: world,
+                    worldApply: worldApply,
+                    domain: domain,
+                    manager: runtime.Manager,
+                    player: runtime.Player,
+                    events: runtime.Events);
                 WorldApplyPacketServices.Bind(
                     player: runtime.Player,
                     bus: runtime.Bus,
@@ -154,8 +175,17 @@ public sealed class GameLifetimeScope : LifetimeScope
                     gameWorld: world,
                     animations: runtime.Animations,
                     effects: runtime.Effects);
-                MovementPacketLatest.Wire(domain);
                 MoveCostLog.Wire(world);
+
+                // #142 slice 3: hand NetSession the container-built applies via [Inject].
+                // NetSession lives outside the scope, so it must be injected explicitly.
+                NetSession netSession = NetSession.Instance;
+                if (netSession == null)
+                    netSession = NetSession.Ensure();
+                container.InjectGameObject(netSession.gameObject);
+                ApplyServices.Bind(
+                    inventory: container.Resolve<InventoryApplyService>(),
+                    status: container.Resolve<StatusApplyService>());
                 if (App.Container != null)
                 {
                     try
@@ -166,15 +196,6 @@ public sealed class GameLifetimeScope : LifetimeScope
                     catch
                     {
                     }
-                }
-
-                try
-                {
-                    ZoneV2Client zoneV2 = container.Resolve<ZoneV2Client>();
-                    zoneV2.WireGame(domain, worldApply);
-                }
-                catch
-                {
                 }
 
                 if (App.Container != null)
@@ -216,6 +237,30 @@ public sealed class GameLifetimeScope : LifetimeScope
     }
 
     /// <summary>
+    /// Registers a type that is created after the scope is built (prefab-instantiated
+    /// MonoBehaviours such as <see cref="PlayerInventory"/> / <see cref="TargetManager"/>).
+    /// The concrete registration is still offered when one exists now; the
+    /// <see cref="ILateBound{T}"/> registration is unconditional so consumers can always
+    /// inject a provider and read null until the object appears (#142 slice 4).
+    /// </summary>
+    private void RegisterLateBound<T>(IContainerBuilder builder) where T : MonoBehaviour
+    {
+        T inScene = FindFirstObjectByType<T>(FindObjectsInactive.Include);
+        if (inScene != null)
+        {
+            builder.RegisterComponent(inScene);
+            builder.RegisterInstance<ILateBound<T>>(new LateBoundMono<T>(() => inScene));
+            return;
+        }
+
+        // Not in the scene: the prefab instantiates it after the scope. Register the
+        // concrete type lazily too, because other classes [Inject] it directly, and add
+        // the provider whose Value is null until the object exists.
+        builder.Register<T>(_ => ResolveLiveMono<T>(), Lifetime.Singleton);
+        builder.RegisterInstance<ILateBound<T>>(new LateBoundMono<T>(() => ResolveLiveMono<T>()));
+    }
+
+    /// <summary>
     /// Registers a scene MonoBehaviour when present; otherwise a live singleton that resolves
     /// FindInScene → static Instance (spawn-deferred types like <see cref="PlayerController"/>).
     /// </summary>
@@ -237,6 +282,20 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (found != null)
             return found;
 
+        if (typeof(T) == typeof(PlayerInventory))
+            return PlayerInventory.Instance as T;
+        if (typeof(T) == typeof(TargetManager))
+            return TargetManager.Instance as T;
+        if (typeof(T) == typeof(TradeWindow))
+            return TradeWindow.Instance as T;
+        if (typeof(T) == typeof(TradeRequestWindow))
+            return TradeRequestWindow.Instance as T;
+        if (typeof(T) == typeof(PartyInvitationWindow))
+            return PartyInvitationWindow.Instance as T;
+        if (typeof(T) == typeof(SkillListWindow))
+            return SkillListWindow.Instance as T;
+        if (typeof(T) == typeof(BufferPanel))
+            return BufferPanel.Instance as T;
         if (typeof(T) == typeof(MoveAllCharacters))
             return MoveAllCharacters.Instance as T;
         if (typeof(T) == typeof(EffectManager))

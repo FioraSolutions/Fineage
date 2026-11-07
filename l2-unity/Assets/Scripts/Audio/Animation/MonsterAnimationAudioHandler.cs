@@ -1,21 +1,64 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine; 
+using UnityEngine;
 
 [RequireComponent(typeof(MonsterEntity), typeof(Animator))]
 public class MonsterAnimationAudioHandler : BaseAnimationAudioHandler
 {
     [SerializeField] private string _monsterName;
 
-    protected override void Initialize() {
+    protected override void Initialize()
+    {
         base.Initialize();
+        ResolveMonsterName();
+    }
 
-        string npcClassName = GetComponent<Entity>().Identity.NpcClass;
-        if (!string.IsNullOrEmpty(npcClassName)) {
+    public void PlaySound(MonsterSoundEvent soundEvent)
+    {
+        ResolveMonsterName();
+        MonsterCombatSound.Play(soundEvent, _monsterName);
+    }
+
+    public void PlaySoundAtRatio(MonsterSoundEvent soundEvent, float ratio)
+    {
+        if (ratio == 0)
+        {
+            PlaySound(soundEvent);
+            return;
+        }
+
+        if (!isActiveAndEnabled)
+        {
+            PlaySound(soundEvent);
+            return;
+        }
+
+        StartCoroutine(PlaySoundAtRatioCoroutine(soundEvent, ratio));
+    }
+
+    public IEnumerator PlaySoundAtRatioCoroutine(MonsterSoundEvent soundEvent, float ratio)
+    {
+        while ((_animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1) < ratio)
+            yield return null;
+
+        PlaySound(soundEvent);
+    }
+
+    void ResolveMonsterName()
+    {
+        if (!string.IsNullOrEmpty(_monsterName))
+            return;
+
+        Entity entity = GetComponent<Entity>();
+        string npcClassName = entity != null && entity.Identity != null
+            ? entity.Identity.NpcClass
+            : null;
+        if (!string.IsNullOrEmpty(npcClassName))
+        {
             string[] parts = npcClassName.Split('.');
-            if (parts.Length > 1) {
-                _monsterName = parts[1].ToLower();
-            }
+            if (parts.Length > 1)
+                _monsterName = parts[1].ToLowerInvariant();
+            else
+                _monsterName = npcClassName.ToLowerInvariant();
         }
 
         if (string.IsNullOrEmpty(_monsterName) && _animator != null &&
@@ -27,31 +70,5 @@ public class MonsterAnimationAudioHandler : BaseAnimationAudioHandler
             if (cut >= 0)
                 _monsterName = _monsterName.Substring(0, cut);
         }
-
-        if (string.IsNullOrEmpty(_monsterName)) {
-            // Debug.LogWarning("AnimationAudioHandler could not load monster name name");
-            this.enabled = false;
-        }
-    }
-
-    public void PlaySound(MonsterSoundEvent soundEvent) {
-        AudioManager.Instance.PlayMonsterSound(soundEvent, _monsterName, transform.position);
-    }
-
-    public void PlaySoundAtRatio(MonsterSoundEvent soundEvent, float ratio) {
-        if(ratio == 0) {
-            PlaySound(soundEvent);
-            return;
-        }
-
-        StartCoroutine(PlaySoundAtRatioCoroutine(soundEvent, ratio));
-    }
-
-    public IEnumerator PlaySoundAtRatioCoroutine(MonsterSoundEvent soundEvent, float ratio) {
-        while((_animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1) < ratio) {
-            yield return null;
-        }
-
-        PlaySound(soundEvent);
     }
 }

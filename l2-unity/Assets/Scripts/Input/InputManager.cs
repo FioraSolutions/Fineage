@@ -24,6 +24,7 @@ public class InputManager : MonoBehaviour
     private InputAction _actionsAction;
     private InputAction _closeWindowAction;
     private InputAction _systemMenuAction;
+    private InputAction _mapAction;
     private InputAction _validateAction;
 
     #endregion
@@ -60,6 +61,7 @@ public class InputManager : MonoBehaviour
     [field: SerializeField] public bool OpenCharacerStatus { get; private set; }
     [field: SerializeField] public bool OpenSystemMenu { get; private set; }
     [field: SerializeField] public bool OpenActions { get; private set; }
+    [field: SerializeField] public bool OpenMap { get; private set; }
     [field: SerializeField] public bool CloseWindow { get; private set; }
     [field: SerializeField] public bool Validate { get; private set; }
 
@@ -113,6 +115,7 @@ public class InputManager : MonoBehaviour
         _actionsAction = _playerInput.actions["Actions"];
         _closeWindowAction = _playerInput.actions["CloseWindow"];
         _systemMenuAction = _playerInput.actions["SystemMenu"];
+        _mapAction = _playerInput.actions["Map"];
         _validateAction = _playerInput.actions["Validate"];
 
         SkillbarActions = new InputAction[5, 12];
@@ -188,10 +191,12 @@ public class InputManager : MonoBehaviour
             OpenInventory = _inventoryAction.WasPerformedThisFrame();
             OpenSystemMenu = _systemMenuAction.WasPerformedThisFrame();
             OpenActions = _actionsAction.WasPerformedThisFrame();
+            OpenMap = _mapAction != null && _mapAction.WasPerformedThisFrame();
         }
         else
         {
             MoveInput = Vector2.zero;
+            OpenMap = false;
         }
 
         MoveForward = LeftClickHeld && RightClickHeld;

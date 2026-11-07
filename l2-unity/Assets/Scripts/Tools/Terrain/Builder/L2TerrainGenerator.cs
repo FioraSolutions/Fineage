@@ -258,6 +258,14 @@ public class L2TerrainGenerator {
     }
 
     public void GenerateStaticMeshes(L2TerrainInfo terrainInfo) {
+        // Multi-tile AutoBake left prior "StaticMeshes" roots in the open scene;
+        // GameObject.Find then saved Prefab Variants pointing at the wrong tile.
+        foreach (var leftover in UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            if (leftover != null && leftover.parent == null && leftover.name == "StaticMeshes")
+                UnityEngine.Object.DestroyImmediate(leftover.gameObject);
+        }
+
         GameObject staticMeshesGo = new GameObject("StaticMeshes");
 
         foreach (var staticMesh in terrainInfo.staticMeshes) {

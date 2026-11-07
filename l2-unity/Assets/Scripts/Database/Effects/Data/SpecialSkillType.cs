@@ -39,16 +39,23 @@ public static class WeaponChargeSkill
     {
         int effectId = EffectId(skillId);
         Transform target = weapon != null ? weapon : fallback;
-        // Debug.Log(
-            // "[WEAPON_SHOT] skillId=" + skillId +
-            // " effectId=" + effectId +
-            // " spirit=" + IsSpirit(skillId) +
-            // " weapon=" + (weapon != null ? weapon.name : "null") +
-            // " target=" + (target != null ? target.name : "null") +
-            // " effects=" + (effects != null));
         if (effects == null || effectId <= 0 || target == null)
             return;
 
         effects.PlayEffect(effectId, target);
+        PlayChargeSound(skillId, target.position);
+    }
+
+    /// <summary>
+    /// Interlude skillsound charge SFX (soul_shot_* / spirits_shot_cast).
+    /// Not hero Shot voice — that stays on real MagicSkillUse casts.
+    /// </summary>
+    public static void PlayChargeSound(int skillId, Vector3 worldPos)
+    {
+        string stem = IsSpirit(skillId) ? "spirits_shot_cast" : "soul_shot_cast";
+        if (InterludeSfx.Play("Data/Sounds/SkillSound/" + stem, 0.85f))
+            return;
+        if (!IsSpirit(skillId))
+            InterludeSfx.Play("Data/Sounds/SkillSound/soul_shot_shot", 0.85f);
     }
 }

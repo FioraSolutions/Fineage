@@ -20,12 +20,26 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
     [SerializeField] private Transform poolParent;
 
     #region Singleton
-    public static IPoolManager Instance;
+    // Interface-typed static: after Restart the old pool is destroyed but not C# null, and the new
+    // Game scene is preloaded inactive (no Awake). `Instance?.` then hit a dead pool, LoadMesh threw,
+    // and every armor/weapon mesh came back missing (heads-only lobby pawns).
+    static IPoolManager _instance;
+    public static IPoolManager Instance
+    {
+        get { return (_instance as UnityEngine.Object) != null ? _instance : null; }
+        set { _instance = value; }
+    }
 
     private void Awake()
     {
         Instance = this;
         WireObjectPoolPacketServices();
+    }
+
+    private void OnDestroy()
+    {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
     }
     #endregion
 

@@ -1,49 +1,60 @@
-/// <summary>
-/// Clan UI access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 16).
+﻿/// <summary>
+/// Clan UI access to game services with [Inject] wiring and live fallback (#142).
 /// Zone pledge snapshots land here so the clan window does not need a new locator member.
 /// </summary>
 public static class ClanPacketServices
 {
-    private static GameClient _game;
     private static ClanWindow _clan;
     private static ClanAskJoinWindow _ask;
 
-    public static void Bind(GameClient game = null, ClanWindow clan = null, ClanAskJoinWindow ask = null)
+    public static void Bind(ClanWindow clan = null, ClanAskJoinWindow ask = null)
     {
-        if (game != null)
-            _game = game;
         if (clan != null)
             _clan = clan;
         if (ask != null)
             _ask = ask;
     }
 
-    public static GameClient Game =>
-        _game != null ? _game : IncomingPacketActions.Game;
-
     public static ClanWindow Clan =>
-        _clan != null ? _clan : IncomingPacketActions.Clan;
+        _clan != null ? _clan : ClanWindow.Instance;
 
     public static ClanAskJoinWindow Ask =>
         _ask != null ? _ask : ClanAskJoinWindow.Instance;
 
-    public static void ApplyStatus(ZoneV2PledgeStatus status)
+    public static void ApplyStatus(NetPledgeStatus status)
     {
-        ZoneV2ClanBook.Shared.ApplyStatus(status);
-        NoteLocalClan(ZoneV2ClanBook.Shared.HasClan ? ZoneV2ClanBook.Shared.ClanId : 0);
+        NetClanBook.Shared.ApplyStatus(status);
+        NoteLocalClan(NetClanBook.Shared.HasClan ? NetClanBook.Shared.ClanId : 0);
         RefreshWindow();
     }
 
-    public static void ApplyMembers(ZoneV2PledgeMemberList list)
+    public static void ApplyMembers(NetPledgeMemberList list)
     {
-        ZoneV2ClanBook.Shared.ApplyMembers(list);
-        NoteLocalClan(ZoneV2ClanBook.Shared.HasClan ? ZoneV2ClanBook.Shared.ClanId : 0);
+        NetClanBook.Shared.ApplyMembers(list);
+        NoteLocalClan(NetClanBook.Shared.HasClan ? NetClanBook.Shared.ClanId : 0);
         RefreshWindow();
     }
 
-    public static void ApplyAskJoin(ZoneV2ClanAskJoin ask)
+    /// <summary>
+    /// Mobius <c>JoinPledge</c>. The window is only refreshed, never forced open: an accept
+    /// arrives while the player is already looking at the invite popup, and a decline just
+    /// needs to stop the wait.
+    /// </summary>
+    public static void ApplyJoinResult(int response)
     {
-        ZoneV2ClanBook.Shared.NoteName(ask.ClanId, ask.ClanName);
+        if (response == 0)
+        {
+            NetChatFeed.NoteSystem("Your request to join the clan was declined.");
+            return;
+        }
+
+        NetChatFeed.NoteSystem("You have joined the clan.");
+        RefreshWindow();
+    }
+
+    public static void ApplyAskJoin(NetClanAskJoin ask)
+    {
+        NetClanBook.Shared.NoteName(ask.ClanId, ask.ClanName);
         ClanWindow clan = Clan;
         if (clan != null)
             clan.EnsureAskJoinWindow();
@@ -61,9 +72,9 @@ public static class ClanPacketServices
 
     static void NoteLocalClan(int clanId)
     {
-        GameClient game = Game;
-        if (game != null && game.PlayerInfo.Identity != null)
-            game.PlayerInfo.Identity.ClanId = clanId;
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport != null && transport.PlayerInfo.Identity != null)
+            transport.PlayerInfo.Identity.ClanId = clanId;
         PlayerEntity player = PlayerEntity.Instance;
         if (player != null && player.Identity != null)
             player.Identity.ClanId = clanId;

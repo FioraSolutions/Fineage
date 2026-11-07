@@ -167,7 +167,7 @@ public class ItemNameTable {
 
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError("ItemNametable error parce itemName " + ex.Message);
         }

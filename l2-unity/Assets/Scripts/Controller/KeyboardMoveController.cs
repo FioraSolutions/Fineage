@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using VContainer;
 
 /// <summary>
@@ -7,7 +7,6 @@ using VContainer;
 public sealed class KeyboardMoveController : MonoBehaviour
 {
     [Inject] InputManager _input;
-    [Inject] GameClient _gameClient;
 
     [SerializeField] private float _stepMeters = 2.5f;
     [SerializeField] private float _sendIntervalSeconds = 0.12f;
@@ -17,13 +16,10 @@ public sealed class KeyboardMoveController : MonoBehaviour
     private InputManager GameInput =>
         _input != null ? _input : ControllerPacketServices.Input;
 
-    private GameClient Game =>
-        _gameClient != null ? _gameClient : ControllerPacketServices.Game;
-
     [Inject]
     void WireServices()
     {
-        ControllerPacketServices.Bind(input: GameInput, game: Game);
+        ControllerPacketServices.Bind(input: GameInput);
     }
 
     void Update()
@@ -47,8 +43,6 @@ public sealed class KeyboardMoveController : MonoBehaviour
             return;
 
         PlayerController player = ControllerPacketServices.Player;
-        if (player == null)
-            player = PlayerController.Instance;
         if (player == null)
             return;
 
@@ -80,11 +74,11 @@ public sealed class KeyboardMoveController : MonoBehaviour
         Vector3 from = player.transform.position;
         Vector3 to = from + direction * _stepMeters;
 
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
 
         _nextSendTime = Time.time + _sendIntervalSeconds;
-        game.Send(new MoveToCommand(from, to));
+        ZoneCommands.Send(new MoveToCommand(from, to));
     }
 }

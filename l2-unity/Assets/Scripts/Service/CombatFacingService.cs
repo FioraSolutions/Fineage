@@ -26,7 +26,10 @@ public sealed class CombatFacingService : MonoBehaviour
     [Inject] WeapongrpTable _weaponGrps;
     [Inject] L2PawnYaw _pawnYaw;
 
-    private PlayerController Player => IncomingPacketActions.Player;
+    private PlayerController Player =>
+        ServicePacketServices.Player
+        ?? WorldApplyPacketServices.Player
+        ?? ControllerPacketServices.Player;
 
     private static WeapongrpTable Weapons
     {

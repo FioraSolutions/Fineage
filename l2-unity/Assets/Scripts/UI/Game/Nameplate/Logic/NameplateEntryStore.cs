@@ -246,7 +246,7 @@ public sealed class NameplateEntryStore
 
                 if (idn.ClanId > 0)
                 {
-                    string clanName = ZoneV2ClanBook.Shared.NameFor(idn.ClanId);
+                    string clanName = NetClanBook.Shared.NameFor(idn.ClanId);
                     if (!string.IsNullOrEmpty(clanName))
                     {
                         e.Title = clanName;
@@ -274,6 +274,14 @@ public sealed class NameplateEntryStore
 
     private static Vector3 GetHeadWorldPos(NameplateEntry entry, float headHeightOffset)
     {
+        // Prefer live head bone (Orc/tall races): CollisionHeight alone parks the
+        // plate on the forehead when the mesh is taller than the capsule estimate.
+        if (entry.Target != null
+            && TryGetHeadBone(entry.Target, out Transform headBone))
+        {
+            return headBone.position + Vector3.up * (0.12f + headHeightOffset);
+        }
+
         float ch = L2NameplateAnchor.DefaultCollisionHeightMeters;
         Entity entity = entry.Entity;
         if (entity != null && entity.Appearance != null)
@@ -293,6 +301,29 @@ public sealed class NameplateEntryStore
 
         return L2NameplateAnchor.GetHeadWorldPos(
             entry.Target, cc, capsule, ch, headHeightOffset);
+    }
+
+    static bool TryGetHeadBone(Transform root, out Transform head)
+    {
+        head = null;
+        if (root == null)
+            return false;
+        Transform[] all = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
+        {
+            Transform t = all[i];
+            if (t == null || string.IsNullOrEmpty(t.name))
+                continue;
+            string n = t.name;
+            if (n.Equals("Bip01_head", System.StringComparison.OrdinalIgnoreCase)
+                || n.Equals("Bip01 Head", System.StringComparison.OrdinalIgnoreCase)
+                || n.Equals("Bip01_Head", System.StringComparison.OrdinalIgnoreCase))
+            {
+                head = t;
+                return true;
+            }
+        }
+        return false;
     }
 
     private bool IsNameplateVisible(

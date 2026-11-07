@@ -68,6 +68,7 @@ public class SystemMenuWindow : L2PopupWindow
     protected override IEnumerator BuildWindow(VisualElement root)
     {
         InitWindow(root);
+        _root = root;
 
         // root.Add(_windowEle);
 
@@ -76,6 +77,12 @@ public class SystemMenuWindow : L2PopupWindow
         VisualElement exitButton = GetElementByClass("exit-btn");
         exitButton.AddManipulator(new ButtonClickSoundManipulator(exitButton));
         exitButton.RegisterCallback<ClickEvent>((evt) => HandleExitButtonClick());
+        VisualElement optionsButton = GetElementByClass("options-btn");
+        if (optionsButton != null)
+        {
+            optionsButton.AddManipulator(new ButtonClickSoundManipulator(optionsButton));
+            optionsButton.RegisterCallback<ClickEvent>((evt) => HandleOptionsButtonClick());
+        }
         VisualElement restartButton = GetElementByClass("restart-btn");
         restartButton.AddManipulator(new ButtonClickSoundManipulator(restartButton));
         restartButton.RegisterCallback<ClickEvent>((evt) => HandleRestartButtonClick());
@@ -84,6 +91,16 @@ public class SystemMenuWindow : L2PopupWindow
         RegisterClickWindowEvent(_windowEle, null);
 
         HideWindow();
+    }
+
+    private OptionsPanel _options;
+
+    private void HandleOptionsButtonClick()
+    {
+        HideWindow();
+        if (_options != null && _options.parent != null) { _options.RemoveFromHierarchy(); return; }
+        _options = new OptionsPanel();
+        (_root.panel != null ? _root.panel.visualTree : _root).Add(_options);
     }
 
     private void HandleExitButtonClick()

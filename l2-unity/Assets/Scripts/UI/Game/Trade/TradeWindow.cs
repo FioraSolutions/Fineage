@@ -10,9 +10,6 @@ using VContainer;
 public class TradeWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => TradePacketServices.Game;
     private static TradeWindow _instance;
     private VisualTreeAsset _inventorySlotTemplate;
 
@@ -57,7 +54,7 @@ public class TradeWindow : L2PopupWindow
 
     private void WireTradePacketServices()
     {
-        TradePacketServices.Bind(game: _gameClient, trade: this);
+        TradePacketServices.Bind(trade: this);
     }
 
     public void AddData(TradeStartDto data)
@@ -73,7 +70,7 @@ public class TradeWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/TradeWindow");
-        _inventorySlotTemplate = LoadAsset("Data/UI/_Elements/Template/Slot");
+        _inventorySlotTemplate = LoadAsset(L2InventoryUiAssets.Slot);
     }
 
     protected override void InitWindow(VisualElement root)
@@ -208,7 +205,7 @@ public class TradeWindow : L2PopupWindow
             _exchangeItems.Add(item);
 
             // Отправляем пакет добавления предмета в обмен
-            Game.Send(new AddTradeItemCommand(0, item.ObjectId, item.Count));
+            ZoneCommands.Send(new AddTradeItemCommand(0, item.ObjectId, item.Count));
         }
         else
         {
@@ -245,7 +242,7 @@ public class TradeWindow : L2PopupWindow
     private void SendOkResponse()
     {
         // Отправляем пакет подтверждения обмена
-        Game.Send(new TradeDoneCommand(1));
+        ZoneCommands.Send(new TradeDoneCommand(1));
 
         OnExchangeResponse?.Invoke(true);
     }
@@ -253,7 +250,7 @@ public class TradeWindow : L2PopupWindow
     private void SendCancelResponse()
     {
         // Отправляем пакет отмены обмена
-        Game.Send(new TradeDoneCommand(0));
+        ZoneCommands.Send(new TradeDoneCommand(0));
 
         OnExchangeResponse?.Invoke(false);
     }
@@ -306,11 +303,11 @@ public class TradeWindow : L2PopupWindow
             _objectId = 0;
             _enchantLevel = 0;
 
-            if (_slotElement != null && SlotBg != null)
+            if (_slotElement != null)
             {
-                StyleBackground background = new StyleBackground(IconManager.Instance.GetInvetoryDefaultBackground());
-                SlotBg.style.backgroundImage = background;
-                _slotDragManipulator.enabled = false;
+                L2SlotIconView.PaintEmptyInventorySlot(SlotBg, _slotElement);
+                if (_slotDragManipulator != null)
+                    _slotDragManipulator.enabled = false;
             }
         }
 
@@ -360,26 +357,13 @@ public class TradeWindow : L2PopupWindow
 
         private void AddImage(ExchangeSlot slot)
         {
-            if (SlotBg == null) return;
-
-            StyleBackground background = new StyleBackground(IconManager.Instance.GetIcon(_id));
-            SlotBg.style.backgroundImage = background;
+            L2SlotIconView.SetItemIcon(SlotBg, _id);
         }
 
         private void AddTooltip(ItemInstance item)
         {
-            string tooltipText = $"{_name} ({_count})";
-            if (item.Category == ItemCategory.Weapon ||
-                item.Category == ItemCategory.Jewel ||
-                item.Category == ItemCategory.ShieldArmor)
-            {
-                tooltipText = _name;
-            }
-
             if (_tooltipManipulator != null)
-            {
-                _tooltipManipulator.SetText(tooltipText);
-            }
+                _tooltipManipulator.SetText(L2ItemSlotTooltip.Format(_name, _count, item.Category));
         }
 
         public override void ClearManipulators()

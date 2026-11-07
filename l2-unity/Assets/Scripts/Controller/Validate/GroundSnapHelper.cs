@@ -90,9 +90,18 @@ public static class GroundSnapHelper
     {
         snapped = position;
         Vector3 origin = new Vector3(position.x, originY, position.z);
-        RaycastHit[] hits = sphereRadius > 0.001f
-            ? Physics.SphereCastAll(origin, sphereRadius, Vector3.down, maxDistance, mask, QueryTriggerInteraction.Ignore)
-            : Physics.RaycastAll(origin, Vector3.down, maxDistance, mask, QueryTriggerInteraction.Ignore);
+        // Interlude HEV bridges (O_E_Brg/BrgT/Bridge): the top walk deck triangles can face away after the
+        // UE->FBX->Unity conversion; one-sided MeshCollider raycasts skipped them and snapped onto the underside.
+        bool prevBackfaces = Physics.queriesHitBackfaces;
+        Physics.queriesHitBackfaces = true;
+        RaycastHit[] hits;
+        try
+        {
+            hits = sphereRadius > 0.001f
+                ? Physics.SphereCastAll(origin, sphereRadius, Vector3.down, maxDistance, mask, QueryTriggerInteraction.Ignore)
+                : Physics.RaycastAll(origin, Vector3.down, maxDistance, mask, QueryTriggerInteraction.Ignore);
+        }
+        finally { Physics.queriesHitBackfaces = prevBackfaces; }
         if (hits == null || hits.Length == 0)
             return false;
 

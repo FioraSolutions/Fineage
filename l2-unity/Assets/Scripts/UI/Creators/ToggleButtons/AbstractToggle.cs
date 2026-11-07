@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public abstract class AbstractToggle
 {
-    private string[] fillBackgroundDf = { "Data/UI/Window/Skills/QuestWndPlusBtn_v2", "Data/UI/Window/Skills/Button_DF_Skills_Down_v3" };
+    private readonly string[] fillBackgroundDf =
+    {
+        L2ExpandCollapseUiAssets.ExpandButton,
+        L2ExpandCollapseUiAssets.CollapseButton,
+    };
 
     protected void ClickDf(Button btn, int[] arrDfSelect , VisualElement dataElement , int indexButton)
     {
@@ -28,17 +31,6 @@ public abstract class AbstractToggle
         IEnumerable<VisualElement> children = btn.Children();
         var e = children.First();
         e.style.display = DisplayStyle.Flex;
-        Texture2D iconDfNoraml = LoadTextureDF(texture);
-        SetBackgroundDf(btn, iconDfNoraml);
-    }
-
-    private void SetBackgroundDf(Button btn, Texture2D iconDfNoraml)
-    {
-        btn.style.backgroundImage = new StyleBackground(iconDfNoraml);
-    }
-
-    private Texture2D LoadTextureDF(string path)
-    {
-        return Resources.Load<Texture2D>(path);
+        L2SlotIconView.SetResourcesBackground(btn, texture);
     }
 }

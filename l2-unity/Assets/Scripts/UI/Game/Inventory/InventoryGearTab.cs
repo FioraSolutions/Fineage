@@ -100,7 +100,7 @@ public class InventoryGearTab : L2Tab
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Debug.LogError($"InventoryGearTab> UpdateEquipList : {ex.Message}");
         }
@@ -201,8 +201,9 @@ public class InventoryGearTab : L2Tab
         {
             if (_selectedSlot != -1)
             {
+                // The previously selected cell can be gone after an equip swap; never deref null there.
                 GearItem gearLastSelect = ConvertIdToGearType(_selectedSlot);
-                gearLastSelect.UnSelectGear();
+                gearLastSelect?.UnSelectGear();
             }
 
             gearItem.SetSelectGear();

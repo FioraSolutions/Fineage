@@ -4,14 +4,13 @@ public class WalkRunAction : L2Action
 {
     public WalkRunAction() : base() { }
 
-    // Local action
+    /// <summary>Mobius RequestActionUse 1 — zone toggles walk/run and fans ChangeMoveType (#465).</summary>
     public override void UseAction()
     {
-        if (PlayerStateMachine.Instance.State == PlayerState.DEAD)
-        {
+        if (PlayerStateMachine.Instance != null &&
+            PlayerStateMachine.Instance.State == PlayerState.DEAD)
             return;
-        }
-        // Debug.Log("Нужно создать пакет доя обработки RequestActionUse WalkRun");
-        //GameClient.Instance.ClientPacketHandler.RequestActionUse((int)ActionType.WalkRun);
+
+        NetSession.Ensure().SendActionUse((int)ActionType.WalkRun);
     }
 }

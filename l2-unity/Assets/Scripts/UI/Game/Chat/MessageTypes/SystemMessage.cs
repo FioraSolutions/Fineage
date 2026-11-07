@@ -72,7 +72,7 @@ public class SystemMessage
         {
             return ItemNameTable.Instance.GetItemName(itemId).Name;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // Debug.LogError($"Failed to get item name for ID {itemId}: {e.Message}");
             return "Unknown Item";
@@ -98,7 +98,7 @@ public class SystemMessage
 
             return "Unknown Skill Skill ID " + skillData[0] + " Level " + skillData[1];
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // Debug.LogError($"Failed to get skill name: {e.Message}");
             return "Unknown Skill";

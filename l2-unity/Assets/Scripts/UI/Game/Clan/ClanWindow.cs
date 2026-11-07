@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,10 +9,6 @@ using UnityEngine.UIElements;
 public class ClanWindow : L2TwoPanels
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => ClanPacketServices.Game;
-   
     private static ClanWindow _instance;
     private MasterClan _masterClan;
     private ClanDetailedInfo _detailedClan;
@@ -75,7 +71,7 @@ public class ClanWindow : L2TwoPanels
 
     private void WireClanPacketServices()
     {
-        ClanPacketServices.Bind(game: _gameClient, clan: this);
+        ClanPacketServices.Bind(clan: this);
     }
 
     protected override void LoadAssets()
@@ -86,9 +82,7 @@ public class ClanWindow : L2TwoPanels
     protected override IEnumerator BuildWindow(VisualElement root)
     {
 
-
         InitWindow(root);
-
 
         yield return new WaitForEndOfFrame();
 
@@ -105,7 +99,6 @@ public class ClanWindow : L2TwoPanels
         DisableEventOnOver(_dropdown);
         _dropdown.RegisterCallback<PointerDownEvent>(OnDropdownPointer, TrickleDown.TrickleDown);
 
-
         var master_table_content = GetElementByClass("master-table-list");
 
         _creatorTableWindows.InitTable(master_table_content);
@@ -115,8 +108,6 @@ public class ClanWindow : L2TwoPanels
         _creatorTableWindows.OnRowClicked += SelectMember;
 
         _detailedClan.LoadAssets(LoadAsset);
-
-
 
         var memberButton = (UnityEngine.UIElements.Button)GetElementById("MemberButton");
         memberButton?.RegisterCallback<ClickEvent>(evt => OnClickShowMember(evt));
@@ -129,8 +120,6 @@ public class ClanWindow : L2TwoPanels
 
         var clanInfo = (UnityEngine.UIElements.Button)GetElementById("ClanInoButton");
         clanInfo?.RegisterCallback<ClickEvent>(evt => OnClickClanInfo(evt));
-
-
 
         var penaltyButton = (UnityEngine.UIElements.Button)GetElementById("PenaltyButton");
         penaltyButton?.RegisterCallback<ClickEvent>(evt => OnClickPenalty(evt));
@@ -170,9 +159,7 @@ public class ClanWindow : L2TwoPanels
         OnCenterScreen(_root);
         EnabledUnkButtons();
 
-        if (FineageWireConfig.IsZoneV2)
-            ApplyZoneBook();
-        else if (_packet != null)
+        if (_packet != null)
             ApplyClanData(_packet);
     }
 
@@ -184,10 +171,10 @@ public class ClanWindow : L2TwoPanels
 
     public void ApplyZoneBook()
     {
-        if (!FineageWireConfig.IsZoneV2 || _windowEle == null || _dropdown == null)
+        if (_windowEle == null || _dropdown == null)
             return;
 
-        ZoneV2ClanBook book = ZoneV2ClanBook.Shared;
+        NetClanBook book = NetClanBook.Shared;
         if (!book.HasClan)
         {
             _packet = null;
@@ -198,10 +185,10 @@ public class ClanWindow : L2TwoPanels
         }
 
         var members = new List<ClanMember>();
-        ZoneV2PledgeMember[] rows = book.Members;
+        NetPledgeMember[] rows = book.Members;
         for (int i = 0; i < rows.Length; i++)
         {
-            ZoneV2PledgeMember row = rows[i];
+            NetPledgeMember row = rows[i];
             members.Add(new ClanMember(row.Name, row.Level, row.ClassId, 0, 0, row.Online ? 1 : 0, row.PledgeType));
         }
 
@@ -299,29 +286,17 @@ public class ClanWindow : L2TwoPanels
     {
     }
 
-
-
-
     private void OnClickEditAuthButton(ClickEvent evt)
     {
         //if (!string.IsNullOrEmpty(_masterClan.GetSelectMemberName()))
         //{
-        //    Game.Send(//        new RequestPledgePowerGradeList());
+        //    ZoneCommands.Send(//        new RequestPledgePowerGradeList());
         //}
 
     }
 
-
     private void OnClickLeave(ClickEvent evt)
     {
-        if (FineageWireConfig.IsZoneV2)
-        {
-            if (!ZoneV2ClanBook.Shared.HasClan || ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
-                return;
-            Confirm("Are you sure you want to leave the clan?", OkLeave);
-            return;
-        }
-
         if(_packet != null && !IsLeader(_packet.SubPledgeLeaderName))
         {
             SystemMessageWindow.Instance.OnButtonOk += OkLeave;
@@ -333,21 +308,6 @@ public class ClanWindow : L2TwoPanels
 
     private void OnClickInvite(ClickEvent evt)
     {
-        if (FineageWireConfig.IsZoneV2)
-        {
-            if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
-                return;
-            int id = CurrentTargetId();
-            if (id <= 0)
-            {
-                ZoneV2ChatFeed.NoteSystem("Select a player to invite.");
-                return;
-            }
-
-            Game.Send(new ClanInviteRequestCommand(id, ZoneV2ClanBook.MainPledge));
-            return;
-        }
-
         if (_packet != null && IsLeader(_packet.SubPledgeLeaderName))
         {
             SystemMessageWindow.Instance.ShowWindowDialogDropdownYesOrNot(" Select a Unit " , new List<string> { _packet.PledgeName});
@@ -377,7 +337,7 @@ public class ClanWindow : L2TwoPanels
     private void OnClickPenalty(ClickEvent evt)
     {
 
-            Game.Send(new RequestUserCommandCommand(100));
+            ZoneCommands.Send(new RequestUserCommandCommand(100));
         
     }
 
@@ -408,9 +368,6 @@ public class ClanWindow : L2TwoPanels
             }
         }
     }
-
-
-
 
     private const string USS_STYLE_YELLOW = "button-label-yellow";
     private const string USS_STYLE_DISABLED = "button-label-disabled";
@@ -498,10 +455,7 @@ public class ClanWindow : L2TwoPanels
 
     private void OkLeave()
     {
-        if (FineageWireConfig.IsZoneV2)
-            Game.Send(new ClanLeaveRequestCommand());
-        else
-            Game.Send(new RequestWithdrawPledgeCommand());
+        ZoneCommands.Send(new RequestWithdrawPledgeCommand());
         CancelEvent();
     }
 
@@ -511,7 +465,7 @@ public class ClanWindow : L2TwoPanels
         {
             int id = TargetManager.Instance.Target != null ? TargetManager.Instance.Target.GetEntity().Identity.Id : 0;
 
-            Game.Send(new RequestJoinPledgeCommand(id));
+            ZoneCommands.Send(new RequestJoinPledgeCommand(id));
         }
 
         CancelEvent();
@@ -569,7 +523,7 @@ public class ClanWindow : L2TwoPanels
             box.Insert(box.IndexOf(footer), _zoneActions);
         else
             footer.Insert(0, _zoneActions);
-        TuneZoneButtons(ZoneV2ClanBook.Shared);
+        TuneZoneButtons(NetClanBook.Shared);
     }
 
     static Button MakeZoneButton(string text, System.Action click)
@@ -603,52 +557,11 @@ public class ClanWindow : L2TwoPanels
             label.text = text;
     }
 
-    void TuneZoneButtons(ZoneV2ClanBook book)
+    void TuneZoneButtons(NetClanBook book)
     {
         if (_zoneActions == null)
             return;
-        bool zone = FineageWireConfig.IsZoneV2;
-        _zoneActions.style.display = zone ? DisplayStyle.Flex : DisplayStyle.None;
-        if (!zone)
-            return;
-
-        bool inClan = book != null && book.HasClan;
-        bool leader = inClan && book.IsLeader(SelfObjectId());
-        bool dissolving = inClan && book.Dissolving;
-        ShowZone(_clanNameCaption, !inClan);
-        ShowZone(_clanNameField, !inClan);
-        ShowZone(_createClanButton, !inClan);
-        ShowZone(_kickButton, leader);
-        ShowZone(_dissolveButton, leader && !dissolving);
-        ShowZone(_cancelDissolveButton, leader && dissolving);
-
-        if (!inClan || leader)
-        {
-            if (_labelLeave != null)
-            {
-                _labelLeave.AddToClassList(USS_STYLE_DISABLED);
-                _labelLeave.RemoveFromClassList(USS_STYLE_YELLOW);
-            }
-        }
-
-        if (!inClan && _labelInvite != null)
-        {
-            _labelInvite.AddToClassList(USS_STYLE_DISABLED);
-            _labelInvite.RemoveFromClassList(USS_STYLE_YELLOW);
-        }
-
-        if (_labelInvite != null && inClan && leader)
-        {
-            _labelInvite.RemoveFromClassList(USS_STYLE_DISABLED);
-            _labelInvite.AddToClassList(USS_STYLE_YELLOW);
-        }
-    }
-
-    static void ShowZone(VisualElement element, bool show)
-    {
-        if (element == null)
-            return;
-        element.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+        _zoneActions.style.display = DisplayStyle.None;
     }
 
     void OnZoneRowClicked(int index, string text)
@@ -657,8 +570,8 @@ public class ClanWindow : L2TwoPanels
         if (_masterClan == null)
             return;
         string name = _masterClan.GetSelectMemberName();
-        ZoneV2PledgeMember member;
-        if (ZoneV2ClanBook.Shared.TryMemberByName(name, out member))
+        NetPledgeMember member;
+        if (NetClanBook.Shared.TryMemberByName(name, out member))
             _selectedMemberId = member.ObjectId;
     }
 
@@ -668,45 +581,45 @@ public class ClanWindow : L2TwoPanels
         name = name != null ? name.Trim() : "";
         if (name.Length == 0)
         {
-            ZoneV2ChatFeed.NoteSystem("Enter a clan name.");
+            NetChatFeed.NoteSystem("Enter a clan name.");
             return;
         }
 
-        Game.Send(new ClanCreateRequestCommand(name));
+        ZoneCommands.Send(new ClanCreateRequestCommand(name));
     }
 
     void OnKick()
     {
-        if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
+        if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
         if (_selectedMemberId <= 0)
         {
-            ZoneV2ChatFeed.NoteSystem("Select a clan member to dismiss.");
+            NetChatFeed.NoteSystem("Select a clan member to dismiss.");
             return;
         }
 
         if (_selectedMemberId == SelfObjectId())
         {
-            ZoneV2ChatFeed.NoteSystem(ZoneV2ClanNotices.Map("clan_dismiss_self"));
+            NetChatFeed.NoteSystem(NetClanNotices.Map("clan_dismiss_self"));
             return;
         }
 
         int target = _selectedMemberId;
-        Confirm("Dismiss this member from the clan?", () => Game.Send(new ClanKickRequestCommand(target)));
+        Confirm("Dismiss this member from the clan?", () => ZoneCommands.Send(new ClanKickRequestCommand(target)));
     }
 
     void OnDissolve()
     {
-        if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
+        if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
-        Confirm("Register clan dissolution? The clan remains for 7 days.", () => Game.Send(new ClanDissolveRequestCommand()));
+        Confirm("Register clan dissolution? The clan remains for 7 days.", () => ZoneCommands.Send(new ClanDissolveRequestCommand()));
     }
 
     void OnCancelDissolve()
     {
-        if (!ZoneV2ClanBook.Shared.IsLeader(SelfObjectId()))
+        if (!NetClanBook.Shared.IsLeader(SelfObjectId()))
             return;
-        Confirm("Cancel the clan dissolution?", () => Game.Send(new ClanCancelDissolveRequestCommand()));
+        Confirm("Cancel the clan dissolution?", () => ZoneCommands.Send(new ClanCancelDissolveRequestCommand()));
     }
 
     void Confirm(string text, System.Action ok)
@@ -733,20 +646,11 @@ public class ClanWindow : L2TwoPanels
 
     int SelfObjectId()
     {
-        if (Game != null && Game.PlayerInfo.Identity != null && Game.PlayerInfo.Identity.Id > 0)
-            return Game.PlayerInfo.Identity.Id;
-        ZoneV2Client zone = ZoneV2Client.Instance;
-        return zone != null ? zone.SessionObjectId : 0;
-    }
-
-    int CurrentTargetId()
-    {
-        if (TargetManager.Instance == null || !TargetManager.Instance.HasTarget())
-            return 0;
-        if (TargetManager.Instance.Target == null || TargetManager.Instance.Target.GetEntity() == null)
-            return 0;
-        EntityIdentity identity = TargetManager.Instance.Target.GetEntity().Identity;
-        return identity != null ? identity.Id : 0;
+        IZoneTransport transport = ZoneCommands.Transport;
+        if (transport != null && transport.PlayerInfo.Identity != null && transport.PlayerInfo.Identity.Id > 0)
+            return transport.PlayerInfo.Identity.Id;
+        NetSession net = NetSession.Instance;
+        return net != null ? net.SessionObjectId : 0;
     }
 
     private void OnDestroy()

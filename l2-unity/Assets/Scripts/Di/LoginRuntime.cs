@@ -3,7 +3,6 @@ using VContainer;
 public sealed class LoginRuntime
 {
     private readonly IObjectResolver _resolver;
-    private GameClient _game;
     private LoginClient _loginClient;
     private GameManager _manager;
 
@@ -13,10 +12,8 @@ public sealed class LoginRuntime
     }
 
     [Inject]
-    public void Construct(GameClient game, LoginClient loginClient, GameManager manager)
+    public void Construct(LoginClient loginClient, GameManager manager)
     {
-        if (game != null)
-            _game = game;
         if (loginClient != null)
             _loginClient = loginClient;
         if (manager != null)
@@ -33,19 +30,14 @@ public sealed class LoginRuntime
     public CharacterSelector Selector { get { return Get<CharacterSelector>() ?? CharacterSelector.Instance; } }
     public CharacterCreator Creator { get { return Get<CharacterCreator>() ?? CharacterCreator.Instance; } }
 
-    public GameClient Game
-    {
-        get { return _game ?? Get<GameClient>() ?? IncomingPacketActions.Game; }
-    }
-
     public LoginClient LoginClient
     {
-        get { return _loginClient ?? Get<LoginClient>() ?? IncomingPacketActions.Login; }
+        get { return _loginClient ?? Get<LoginClient>() ?? NetworkingPacketServices.Login; }
     }
 
     public GameManager Manager
     {
-        get { return _manager ?? Get<GameManager>() ?? IncomingPacketActions.Manager; }
+        get { return _manager ?? Get<GameManager>() ?? NetworkingPacketServices.Manager; }
     }
 
     private T Get<T>() where T : class

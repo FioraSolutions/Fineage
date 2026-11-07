@@ -1,5 +1,5 @@
 /// <summary>
-/// Audio-layer access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 12).
+/// Audio-layer access to game services with [Inject] wiring and Networking fallback (#142).
 /// </summary>
 public static class AudioPacketServices
 {
@@ -15,8 +15,8 @@ public static class AudioPacketServices
     }
 
     public static World GameWorld =>
-        _gameWorld != null ? _gameWorld : IncomingPacketActions.GameWorld;
+        _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
     public static PlayerController Player =>
-        _player != null ? _player : IncomingPacketActions.Player;
+        _player != null ? _player : NetworkingPacketServices.Player;
 }

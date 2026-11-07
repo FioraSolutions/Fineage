@@ -17,15 +17,13 @@ public sealed class EntityActionMachine : ITickable
         L2PawnYaw pawnYaw,
         IAnimationManager animations,
         EffectManager effects,
-        MoveAllCharacters moves,
-        GameClient game)
+        MoveAllCharacters moves)
     {
         Instance = this;
         ControllerPacketServices.Bind(
             animations: animations,
             effects: effects,
-            moves: moves,
-            game: game);
+            moves: moves);
         _pawnRange = pawnRange;
         _processes = new Dictionary<EntityActionKind, IEntityActionProcess>
         {
@@ -200,9 +198,7 @@ public sealed class EntityActionMachine : ITickable
         List<Entity> attackers = new List<Entity>();
         CollectAttackersOf(dead, _active, attackers);
 
-        World world = ControllerPacketServices.GameWorld != null
-            ? ControllerPacketServices.GameWorld
-            : World.Instance;
+        World world = ControllerPacketServices.GameWorld;
         if (world != null)
             world.ForEachEntity(entity => CollectAttacker(dead, entity, attackers));
 
@@ -319,6 +315,9 @@ public sealed class EntityActionMachine : ITickable
 
     public void Social(Entity entity, SocialActionDto dto)
     {
+        if (entity == null || dto == null)
+            return;
+        EntityActionVisual.PlaySocial(entity, dto.ActionId);
     }
 
     public void ChangeWaitType(Entity entity, ChangeWaitTypeDto dto)

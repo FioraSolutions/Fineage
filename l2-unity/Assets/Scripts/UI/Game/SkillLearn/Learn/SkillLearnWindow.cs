@@ -1,4 +1,4 @@
-
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using VContainer;
@@ -10,9 +10,6 @@ using UnityEngine.UIElements;
 public class SkillLearnWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => SkillLearnPacketServices.Game;
     private static SkillLearnWindow _instance;
     protected VisualTreeAsset _rowsTemplate;
     private ICreatorVerticalScroll _creatorWindow;
@@ -42,7 +39,7 @@ public class SkillLearnWindow : L2PopupWindow
 
     private void WireSkillLearnPacketServices()
     {
-        SkillLearnPacketServices.Bind(game: _gameClient, skillLearn: this);
+        SkillLearnPacketServices.Bind(skillLearn: this);
     }
 
     protected override void LoadAssets()
@@ -87,12 +84,10 @@ public class SkillLearnWindow : L2PopupWindow
        if(model != null)
        {
             //base.OnlyHideWindow();
-            Game.Send(new RequestAcquireSkillInfoCommand(model.GetId(), model.GetValue1(), model.GetAcqType()));
+            ZoneCommands.Send(new RequestAcquireSkillInfoCommand(model.GetId(), model.GetValue1(), model.GetAcqType()));
         }
 
     }
-
-    
 
     public AcquireData FilterBySKillId(List<OtherModel> list , int skillId)
     {
@@ -104,7 +99,7 @@ public class SkillLearnWindow : L2PopupWindow
         return null;
 
     }
-    public void ShowWindow()
+    public override void ShowWindow()
     {
         UserInfoDto user = StorageNpc.getInstance().GetFirstUser();
         _spLabel.text = user.PlayerInfoInterlude.Stats.Sp.ToString();

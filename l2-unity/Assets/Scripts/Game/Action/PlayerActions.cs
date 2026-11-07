@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -6,7 +6,6 @@ using static UnityEngine.GraphicsBuffer;
 
 public class PlayerActions : MonoBehaviour
 {
-    [Inject] GameClient _gameClient;
     [Inject] InputManager _input;
     [Inject] TargetManager _targets;
     private Dictionary<ActionType, L2Action> _actions;
@@ -32,7 +31,7 @@ public class PlayerActions : MonoBehaviour
 
         _actions = new Dictionary<ActionType, L2Action>();
         AttackAction attack = new AttackAction();
-        attack.Bind(_targets, _gameClient);
+        attack.Bind(_targets);
         _actions.Add(ActionType.Attack, attack);
         _actions.Add(ActionType.Sit, new SitStandAction());
         _actions.Add(ActionType.WalkRun, new WalkRunAction());
@@ -40,6 +39,9 @@ public class PlayerActions : MonoBehaviour
         nextTarget.Bind(_targets);
         _actions.Add(ActionType.NextTarget, nextTarget);
         _actions.Add(ActionType.RideStrider, new RideStriderAction());
+        _actions.Add(ActionType.SocialGreeting, new SocialActionUse((int)ActionType.SocialGreeting));
+        _actions.Add(ActionType.SocialVictory, new SocialActionUse((int)ActionType.SocialVictory));
+        _actions.Add(ActionType.SocialAdvance, new SocialActionUse((int)ActionType.SocialAdvance));
     }
 
     private void Start()
@@ -49,7 +51,7 @@ public class PlayerActions : MonoBehaviour
 
     private void WireActionPacketServices()
     {
-        ActionPacketServices.Bind(game: _gameClient, input: _input, targets: _targets);
+        ActionPacketServices.Bind(input: _input, targets: _targets);
     }
 
     private void OnDestroy()
@@ -89,9 +91,8 @@ public class PlayerActions : MonoBehaviour
 
     public void UseSkill(int skillId)
     {
-        GameClient game = _gameClient != null ? _gameClient : ActionPacketServices.Game;
-        if (game == null)
+        if (!ZoneCommands.IsConnected)
             return;
-        game.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));
+        ZoneCommands.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));
     }
 }

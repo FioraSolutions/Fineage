@@ -7,7 +7,6 @@ using UnityEngine.UIElements;
 public class PassiveSkillsHide : AbstractSkills
 {
     private SkillListWindow _skillLearn;
-    private string[] fillBackgroundDf = { "Data/UI/Window/Skills/QuestWndPlusBtn_v2", "Data/UI/Window/Skills/Button_DF_Skills_Down_v3" };
     private VisualElement _passiveSkillPanel;
     private VisualTreeAsset _templateBoxPanel;
     private VisualTreeAsset _templatePanel8x1;
@@ -137,18 +136,12 @@ public class PassiveSkillsHide : AbstractSkills
 
     public void ClickDfAbility(Button btn,  int[] arrDfPassiveSelect)
     {
-        bool show = arrDfPassiveSelect[0] == 0;
-        ChangeDfBox(btn, fillBackgroundDf[show ? 0 : 1]);
-        arrDfPassiveSelect[0] = show ? 1 : 0;
-        ToogleHideElement(_rowAbility, show);
+        ClickDf(btn, arrDfPassiveSelect, _rowAbility, 0);
     }
 
     public void ClickDfSubject(Button btn,  int[] arrDfPassiveSelect)
     {
-        bool show = arrDfPassiveSelect[1] == 0;
-        ChangeDfBox(btn, fillBackgroundDf[show ? 0 : 1]);
-        arrDfPassiveSelect[1] = show ? 1 : 0;
-        ToogleHideElement(_rowSubject, show);
+        ClickDf(btn, arrDfPassiveSelect, _rowSubject, 1);
     }
 
 

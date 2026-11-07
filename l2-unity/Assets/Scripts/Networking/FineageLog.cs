@@ -22,7 +22,7 @@ public static class FineageLog
         Lobby,
         LoginNet,
         GameNet,
-        ZoneV2,
+        Net,
         World
     }
 
@@ -71,8 +71,8 @@ public static class FineageLog
                 return "[LoginNet]";
             case Category.GameNet:
                 return "[GameNet]";
-            case Category.ZoneV2:
-                return "[ZoneV2]";
+            case Category.Net:
+                return "[Net]";
             default:
                 return "[World]";
         }
@@ -118,8 +118,8 @@ public static class FineageLog
                 return "lobby-flow.txt";
             case Category.GameNet:
                 return "game-net.txt";
-            case Category.ZoneV2:
-                return "zone-v2.txt";
+            case Category.Net:
+                return "net.txt";
             default:
                 return "world.txt";
         }

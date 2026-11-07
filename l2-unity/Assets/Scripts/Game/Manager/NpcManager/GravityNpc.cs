@@ -15,7 +15,7 @@ public class GravityNpc : MonoBehaviour, IGravity
 
 
     private static IGravity _instance;
-    public static IGravity Instance { get { return _instance; } }
+    public static IGravity Instance { get { return (_instance as UnityEngine.Object) != null ? _instance : null; } }
 
 
 
@@ -23,7 +23,7 @@ public class GravityNpc : MonoBehaviour, IGravity
 
     private void Awake()
     {
-        if (_instance == null)
+        if ((_instance as UnityEngine.Object) == null)
         {
             _instance = this;
             _dict = new Dictionary<int, GravityData>();
@@ -39,7 +39,7 @@ public class GravityNpc : MonoBehaviour, IGravity
 
     private void FixedUpdate()
     {
-        if (_dict.Count == 0) return;
+        if (_dict == null || _dict.Count == 0) return;
         //Debug.Log("GravityData size " + _dict.Count);
         foreach (KeyValuePair<int, GravityData> kvp in _dict)
         {
@@ -94,4 +94,10 @@ public class GravityNpc : MonoBehaviour, IGravity
     //    _isSync = true;
     //}
 
+
+    void OnDestroy()
+    {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
+    }
 }

@@ -66,17 +66,17 @@ public sealed class ItemDropPresentationService
 
     private World GameWorld
     {
-        get { return IncomingPacketActions.GameWorld; }
+        get { return ItemPacketServices.GameWorld ?? GamePacketServices.GameWorld; }
     }
 
     private IAnimationManager Animations
     {
-        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+        get { return _animations != null ? _animations : ItemPacketServices.Animations; }
     }
 
     private EffectManager Effects
     {
-        get { return _effects != null ? _effects : IncomingPacketActions.Effects; }
+        get { return _effects != null ? _effects : ItemPacketServices.Effects; }
     }
 
     public void Tick(float deltaTime)
@@ -390,7 +390,8 @@ public sealed class ItemDropPresentationService
         IAnimationManager animations = Animations;
         if (objectId == 0 || animations == null)
             return;
-        animations.PlayExactAnimatorState(objectId, stateName);
+        // Pickup is a gesture — must not inherit run_speed / patkspd (see AnimPlayback).
+        animations.PlayGesture(objectId, stateName);
     }
 
     void PlayEffect(int effectId, Transform target, string label)

@@ -57,7 +57,7 @@ public class AudioManager : MonoBehaviour
 
     private void Update()
     {
-        if (_muteWhenNotFocused && !Application.isFocused)
+        if (GameSettings.Mute || (_muteWhenNotFocused && !Application.isFocused))
         {
             _masterBus.setVolume(0);
             _musicBus.setVolume(0);
@@ -67,11 +67,11 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            _masterBus.setVolume(_masterVolume * 0.75f);
-            _musicBus.setVolume(_musicVolume * 0.7f);
-            _SFXBus.setVolume(_SFXVolume);
-            _UIBus.setVolume(_UIVolume);
-            _ambientBus.setVolume(_ambientVolume * 0.45f);
+            _masterBus.setVolume(_masterVolume * 0.75f * GameSettings.Master);
+            _musicBus.setVolume(_musicVolume * 0.7f * GameSettings.Music);
+            _SFXBus.setVolume(_SFXVolume * GameSettings.Sfx);
+            _UIBus.setVolume(_UIVolume * GameSettings.Sfx);
+            _ambientBus.setVolume(_ambientVolume * 0.45f * GameSettings.Ambient);
         }
     }
 
@@ -154,6 +154,10 @@ public class AudioManager : MonoBehaviour
 
     public void PlayHitSound(bool criticalHit, Vector3 position)
     {
+        // FMOD path stays off — Unity Resources (same pattern as SkillCastSound / MonsterCombatSound).
+        if (HitImpactSound.Play(criticalHit))
+            return;
+
         if (_isDisabled) return;
 
         EventReference er;

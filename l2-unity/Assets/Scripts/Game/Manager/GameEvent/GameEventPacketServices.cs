@@ -1,5 +1,5 @@
 /// <summary>
-/// Game event listeners access with [Inject] wiring and singleton / IncomingPacketActions fallback (#142 sub-slice 42).
+/// Game event listeners access with [Inject] wiring and Controller/live fallback (#142).
 /// </summary>
 public static class GameEventPacketServices
 {
@@ -18,5 +18,5 @@ public static class GameEventPacketServices
         _localPlayer != null ? _localPlayer : PlayerEntity.Instance;
 
     public static TargetManager Targets =>
-        _targets != null ? _targets : IncomingPacketActions.Targets;
+        _targets != null ? _targets : ControllerPacketServices.Targets;
 }

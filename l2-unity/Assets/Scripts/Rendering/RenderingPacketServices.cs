@@ -1,5 +1,5 @@
 /// <summary>
-/// Rendering-layer access to game services with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 33).
+/// Rendering-layer access to game services with [Inject] wiring and Game fallback (#142).
 /// </summary>
 public static class RenderingPacketServices
 {
@@ -12,5 +12,5 @@ public static class RenderingPacketServices
     }
 
     public static IAnimationManager Animations =>
-        _animations != null ? _animations : IncomingPacketActions.Animations;
+        _animations != null ? _animations : GamePacketServices.Animations;
 }

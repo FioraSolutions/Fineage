@@ -1,8 +1,0 @@
-<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <engine:Template name="WindowTemplate" src="project://database/Assets/Resources/Data/UI/_Elements/Template/WindowTemplate.uxml?fileID=9197481963319205126&amp;guid=57919e48a99c2de4787ca2b8810527ea&amp;type=3#WindowTemplate" />
-    <engine:Instance name="WindowTemplate" template="WindowTemplate" style="overflow: hidden; width: 650px; height: 400px; bottom: 0; position: absolute; max-width: none; max-height: none; flex-grow: 1;">
-        <AttributeOverrides element-name="windows-name-label" text="QuestList" />
-        <engine:VisualElement name="questContent" class="quest-content" style="flex-grow: 1; position: absolute; align-self: stretch; align-content: stretch; top: 14%; left: 4%; height: 74%; width: 92%;" />
-        <engine:VisualElement name="questButton" style="flex-grow: 1; position: absolute; top: 91%; left: 10%;" />
-    </engine:Instance>
-</engine:UXML>

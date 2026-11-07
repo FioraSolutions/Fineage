@@ -34,9 +34,10 @@ public class GlobalEffectsHandler : MonoBehaviour
     private void HandleLevelUp(Entity entity, int newLevel)
     {
         EffectManager effects = GlobalEffectsPacketServices.Effects;
-        if (effects == null)
-            return;
+        if (effects != null)
+            effects.PlayEffect((int)SpecialSkillType.LevelUp, entity.transform);
 
-        effects.PlayEffect((int)SpecialSkillType.LevelUp, entity.transform);
+        // Interlude skillsound levelup.ogg — same 2D hub as skills / MonSound.
+        InterludeSfx.Play("Data/Sounds/SkillSound/levelup", 0.85f);
     }
 }

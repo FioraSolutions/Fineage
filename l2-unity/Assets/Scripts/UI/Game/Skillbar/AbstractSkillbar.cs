@@ -35,7 +35,10 @@ public abstract class AbstractSkillbar
         yield return new WaitForEndOfFrame();
 
         VisualElement dragArea = _windowEle.Q<VisualElement>("DragArea");
-        dragArea.AddManipulator(new DragManipulator(dragArea, _skillbarWindow));
+        dragArea.AddManipulator(new DragManipulator(
+            dragArea,
+            _skillbarWindow,
+            () => SkillbarPacketServices.Skillbar?.PersistPosition()));
 
         for (int i = 1; i <= 12; i++)
         {
@@ -125,6 +128,15 @@ public abstract class AbstractSkillbar
     }
 
     protected abstract void UpdateVisuals();
+
+    /// <summary>Re-applies per-slot marks (armed shots) without rebuilding the bar.</summary>
+    public void RefreshSlotMarks()
+    {
+        if (_barSlots == null)
+            return;
+        for (int i = 0; i < _barSlots.Count; i++)
+            _barSlots[i]?.RefreshMarks();
+    }
 
     public void HideBar()
     {

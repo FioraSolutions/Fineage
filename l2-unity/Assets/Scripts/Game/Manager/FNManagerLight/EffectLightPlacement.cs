@@ -226,12 +226,13 @@ public static class EffectLightPlacement
 
     private static Entity TryResolvePlayerTarget()
     {
-        if (PlayerEntity.Instance == null || PlayerEntity.Instance.TargetId <= 0 || World.Instance == null)
+        World world = WorldApplyPacketServices.GameWorld;
+        if (PlayerEntity.Instance == null || PlayerEntity.Instance.TargetId <= 0 || world == null)
         {
             return null;
         }
 
-        return World.Instance.GetEntityNoLockSync(PlayerEntity.Instance.TargetId);
+        return world.GetEntityNoLockSync(PlayerEntity.Instance.TargetId);
     }
 
     private static Vector3 FlatNormalized(Vector3 v)

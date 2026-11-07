@@ -1,25 +1,17 @@
-﻿using UnityEngine;
-using static AttackingState;
+using UnityEngine;
 
 public class AttackAction : L2Action
 {
     private TargetManager _targets;
-    private GameClient _game;
 
-    public void Bind(TargetManager targets, GameClient game)
+    public void Bind(TargetManager targets)
     {
         _targets = targets;
-        _game = game;
     }
 
     private TargetManager Targets
     {
         get { return _targets != null ? _targets : ActionPacketServices.Targets; }
-    }
-
-    private GameClient Game
-    {
-        get { return _game != null ? _game : ActionPacketServices.Game; }
     }
 
     public AttackAction() : base() { }
@@ -30,23 +22,24 @@ public class AttackAction : L2Action
         if (targets == null || !targets.HasTarget())
             return;
 
-        if (!PlayerEntity.Instance.IsAttack && PlayerStateMachine.Instance.State != PlayerState.DEAD)
-        {
-            TargetData target = targets.Target;
+        // Do not gate on IsAttack: that latch used to stick after the first swing (#522), which
+        // blocked the attack hotkey until a second entity click. Zone ignores redundant AttackRequest
+        // while already swinging the same target.
+        if (PlayerStateMachine.Instance != null &&
+            PlayerStateMachine.Instance.State == PlayerState.DEAD)
+            return;
 
-            if (target != null && !target.IsDead())
-            {
-                Entity entity = target.GetEntity();
-                if (entity is MonsterEntity)
-                {
-                    targets.SetAttackTarget();
-                }
+        TargetData target = targets.Target;
+        if (target == null || target.IsDead())
+            return;
 
-                var l2jpos = target.Identity.GetL2jPos();
-                GameClient game = Game;
-                if (game != null)
-                    game.Send(new ClickActionCommand(target.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
-            }
-        }
+        Entity entity = target.GetEntity();
+        if (entity is MonsterEntity)
+            targets.SetAttackTarget();
+
+        var l2jpos = target.Identity.GetL2jPos();
+        if (ZoneCommands.Transport != null)
+            ZoneCommands.Send(new ClickActionCommand(
+                target.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));
     }
 }

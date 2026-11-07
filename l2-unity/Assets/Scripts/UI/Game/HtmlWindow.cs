@@ -8,14 +8,10 @@ using VContainer;
 public class HtmlWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     private Label _titleLabel;
     private static HtmlWindow _instance;
     public static HtmlWindow Instance => _instance;
 
-    private VisualElement _root;
     private VisualElement _content;
     private ScrollView _scrollView;
     private VisualElement _communityTopButtons;
@@ -46,7 +42,7 @@ public class HtmlWindow : L2PopupWindow
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient, html: this);
+        GameWindowPacketServices.Bind(html: this);
     }
 
     private void Update()
@@ -54,7 +50,7 @@ public class HtmlWindow : L2PopupWindow
         if (Input.GetKeyDown(KeyCode.B) && CanSend(1100))
         {
             // Debug.Log("Requesting : ShowBoard");
-            Game.Send(new RequestShowBoardCommand());
+            ZoneCommands.Send(new RequestShowBoardCommand());
         }
     }
 
@@ -72,8 +68,6 @@ public class HtmlWindow : L2PopupWindow
     protected override void InitWindow(VisualElement root)
     {
         base.InitWindow(root);
-
-        _root = root;
 
         VisualElement dragArea = GetElementByClass("drag-area");
 
@@ -157,11 +151,11 @@ public class HtmlWindow : L2PopupWindow
 
     public void ShowNpcDialog(int npcObjectId, int npcId, string html)
     {
-        ZoneV2NpcSession.OpenDialog(npcObjectId);
+        NetNpcSession.OpenDialog(npcObjectId);
         string titled = html ?? "";
         if (string.IsNullOrEmpty(ExtractTitle(titled)))
         {
-            string name = ZoneV2NpcSession.NameOf(npcObjectId);
+            string name = NetNpcSession.NameOf(npcObjectId);
             if (string.IsNullOrEmpty(name))
                 name = "NPC";
             titled = "<title>" + name + "</title>" + titled;
@@ -323,7 +317,7 @@ public class HtmlWindow : L2PopupWindow
         if (string.IsNullOrEmpty(action))
             return;
 
-        Game.Send(new RequestBypassToServerCommand(action));
+        ZoneCommands.Send(new RequestBypassToServerCommand(action));
     }
 
     public void UseActionCommand(string command)

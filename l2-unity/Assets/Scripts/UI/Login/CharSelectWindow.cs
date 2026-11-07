@@ -10,8 +10,6 @@ public class CharSelectWindow : L2Window {
 
     private CharacterSelector Characters => LoginPacketServices.Characters;
 
-    private GameClient Game => LoginPacketServices.Game;
-
     private GameManager Manager => LoginPacketServices.Manager;
 
     private VisualTreeAsset _arrowInputTemplate;
@@ -148,6 +146,9 @@ public class CharSelectWindow : L2Window {
         if (detail != null)
             detail.Add(_lobbyStatus);
 
+        // Three full-height flex columns; only named chrome must pick so world pawn clicks work.
+        ConfigureWorldClickThrough();
+
         SetEmptyData();
         if (_lobbyCharacters != null)
         {
@@ -155,6 +156,30 @@ public class CharSelectWindow : L2Window {
             ApplyLobbyNames();
             if (selected >= 0)
                 SelectLobbySlot(selected);
+        }
+    }
+
+    void ConfigureWorldClickThrough()
+    {
+        if (_windowEle == null)
+            return;
+
+        _windowEle.pickingMode = PickingMode.Ignore;
+        foreach (VisualElement column in _windowEle.Children())
+            column.pickingMode = PickingMode.Ignore;
+
+        string[] chromeIds =
+        {
+            "CharSelectDetailWindow",
+            "StartButtonWindow",
+            "MenuWindow",
+            "UserSelectContainer",
+        };
+        for (int i = 0; i < chromeIds.Length; i++)
+        {
+            VisualElement chrome = GetElementById(chromeIds[i]);
+            if (chrome != null)
+                chrome.pickingMode = PickingMode.Position;
         }
     }
 
@@ -417,8 +442,6 @@ public class CharSelectWindow : L2Window {
        // }
     //}
 
-  
-
     IEnumerator UpdateBarsInterlude(int slot)
     {
         yield return new WaitForEndOfFrame();
@@ -445,12 +468,9 @@ public class CharSelectWindow : L2Window {
 
     void ApplyBarWidths(float hpRatio, float mpRatio, float expRatio)
     {
-        if (_HPBarBG != null && _HPBar != null)
-            _HPBar.style.width = _HPBarBG.resolvedStyle.width * Mathf.Clamp01(hpRatio);
-        if (_MPBarBG != null && _MPBar != null)
-            _MPBar.style.width = _MPBarBG.resolvedStyle.width * Mathf.Clamp01(mpRatio);
-        if (_ExpBarBG != null && _ExpBar != null)
-            _ExpBar.style.width = _ExpBarBG.resolvedStyle.width * Mathf.Clamp01(expRatio);
+        L2ResourceBarView.SetFill(_HPBar, _HPBarBG, hpRatio);
+        L2ResourceBarView.SetFill(_MPBar, _MPBarBG, mpRatio);
+        L2ResourceBarView.SetFill(_ExpBar, _ExpBarBG, expRatio);
     }
 
     public CharSelectInfoPackage GetSelectChar()
@@ -459,53 +479,36 @@ public class CharSelectWindow : L2Window {
     }
     private void StartGamePressed()
     {
-        if (_lobbyCharacters != null)
-        {
-            LobbyCharacter selected = SelectedLobbyCharacter();
-            if (!LobbyCharacterText.CanEnter(selected))
-                return;
-            if (_startButton != null)
-                _startButton.SetEnabled(false);
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null)
-                zone.SelectLobbyCharacter(selected);
+        LobbyCharacter selected = SelectedLobbyCharacter();
+        if (!LobbyCharacterText.CanEnter(selected))
             return;
-        }
-
-        Characters.ConfirmSelection();
+        if (_startButton != null)
+            _startButton.SetEnabled(false);
+        NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
     }
 
     private void ReLoginPressed() {
         if (_lobbyCharacters != null)
         {
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone != null)
-                zone.CloseLobby();
             Manager.OnRelogin();
             return;
         }
 
         Manager.OnRelogin();
-        Game.Disconnect();
+        GameManager.DisconnectZoneSession();
     }
 
     private void CreatePressed() {
-        if (_lobbyCharacters != null || FineageWireConfig.UseLoginHandoff)
+        int count = _lobbyCharacters != null ? _lobbyCharacters.Count : 0;
+        if (!LobbyCharacterText.CanCreate(count))
         {
-            int count = _lobbyCharacters != null ? _lobbyCharacters.Count : 0;
-            if (!LobbyCharacterText.CanCreate(count))
-            {
-                ShowLobbyStatus(LobbyCharacterText.ErrorMessage("character_limit", null));
-                return;
-            }
-
-            GameManager manager = Manager;
-            if (manager != null)
-                manager.OnCreateUser(null);
+            ShowLobbyStatus(LobbyCharacterText.ErrorMessage("character_limit", null));
             return;
         }
 
-        Game.Send(new NewCharacterCommand());
+        GameManager manager = Manager;
+        if (manager != null)
+            manager.OnCreateUser(null);
     }
 
     private void DeletePressed()
@@ -515,13 +518,12 @@ public class CharSelectWindow : L2Window {
             LobbyCharacter selected = SelectedLobbyCharacter();
             if (selected == null)
                 return;
-            ZoneV2Client zone = ZoneV2Client.Instance;
-            if (zone == null)
-                return;
+            // Net lobby: a row already flagged PendingDelete restores, otherwise the two-press
+            // confirm deletes. The server replies with DeleteResult and then a fresh roster.
             if (selected.PendingDelete)
             {
+                NetSession.Ensure().RestoreCharacter(selected.Id, selected.Slot);
                 _deleteArmed = false;
-                zone.RestoreLobbyCharacter(selected);
                 ShowLobbyStatus("Restoring " + selected.Name + "...");
                 return;
             }
@@ -536,7 +538,7 @@ public class CharSelectWindow : L2Window {
             }
 
             _deleteArmed = false;
-            zone.DeleteLobbyCharacter(selected);
+            NetSession.Ensure().DeleteCharacter(selected.Id, selected.Slot);
             ShowLobbyStatus("Deleting " + selected.Name + "...");
             RefreshLobbyActions();
             return;

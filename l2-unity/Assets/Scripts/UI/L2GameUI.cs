@@ -181,11 +181,6 @@ public class L2GameUI : L2UI
             ShowListWindow.Instance.AddWindow(_rootVisualContainer);
             ShowListWindow.Instance.HideWindow();
         }
-        if (QuestListWindow.Instance != null)
-        {
-            QuestListWindow.Instance.AddWindow(_rootVisualContainer);
-            QuestListWindow.Instance.HideWindow();
-        }
         if (QuestWindow.Instance != null)
         {
             QuestWindow.Instance.AddWindow(_rootVisualContainer);
@@ -322,6 +317,12 @@ public class L2GameUI : L2UI
             {
                 ActionWindow.Instance.ToggleHideWindow();
             }
+        }
+
+        if (InputManager.Instance.OpenMap)
+        {
+            if (MapWindow.Instance != null)
+                MapWindow.Instance.ToggleHideWindow();
         }
 
         if (InputManager.Instance.CloseWindow)

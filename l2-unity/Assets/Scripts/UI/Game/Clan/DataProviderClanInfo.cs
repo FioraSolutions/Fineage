@@ -35,15 +35,10 @@ public class DataProviderClanInfo : AbstractDataFunction
 
             var icon = container.Q<VisualElement>("ImageOnline");
 
-            if (countOnline == 0)
-            {
-
-                AddElementIfNotNull(icon, icon, IconManager.Instance.LoadTextureOtherSources(IMG_OFFLINE));
-            }
-            else
-            {
-                AddElementIfNotNull(icon, icon, IconManager.Instance.LoadTextureOtherSources(IMG_ONLINE));
-            }
+            AddResourcesIconIfPresent(
+                icon,
+                icon,
+                countOnline == 0 ? IMG_OFFLINE : IMG_ONLINE);
 
 
         }

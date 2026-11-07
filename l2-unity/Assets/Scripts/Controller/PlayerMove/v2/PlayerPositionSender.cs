@@ -1,20 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class PlayerPositionSender
 {
     // ALineagePlayerController+0xA00, period dbl_1F44120
     public const float Interval = 1.2f;
 
-    private readonly GameClient _gameClient;
     private float _timer;
-
-    public PlayerPositionSender(GameClient gameClient = null)
-    {
-        _gameClient = gameClient;
-    }
-
-    private GameClient Game =>
-        _gameClient != null ? _gameClient : ControllerPacketServices.Game;
 
     public void TickWhileMoving(Vector3 playerPosition, int heading, float deltaTime)
     {
@@ -29,17 +20,18 @@ public class PlayerPositionSender
     public void SendServerArrivedPosition(Vector3 playerPosition)
     {
         int heading = 0;
-        if (PlayerController.Instance != null)
-            heading = ToL2Heading(PlayerController.Instance.transform.eulerAngles.y);
+        PlayerController player = ControllerPacketServices.Player;
+        if (player != null)
+            heading = ToL2Heading(player.transform.eulerAngles.y);
         SendData(playerPosition, heading);
     }
 
     public void SendData(Vector3 playerPosition, int heading)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game == null)
             return;
-        game.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
+        ZoneCommands.Send(new ValidatePositionCommand(playerPosition.x, playerPosition.y, playerPosition.z, heading));
     }
 
     public static int ToL2Heading(float yawDegrees)

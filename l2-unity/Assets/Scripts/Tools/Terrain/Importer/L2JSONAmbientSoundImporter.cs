@@ -12,7 +12,7 @@ public class AmbientDataContainer {
     public AmbientSound[] data;
 }
 
-public class L2JSONAmbientSoundImporter : AssetImporter {
+public class L2JSONAmbientSoundImporter : L2TerrainAssetImporter {
 
     static string ResolveSoundExportFolder() {
         if (!string.IsNullOrEmpty(L2InterludeClientSettings.UModelSoundExportRoot)) {

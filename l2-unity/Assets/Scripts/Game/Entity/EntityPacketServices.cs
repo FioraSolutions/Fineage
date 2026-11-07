@@ -1,5 +1,5 @@
 /// <summary>
-/// Entity-layer access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 34).
+/// Entity-layer access with [Inject] wiring and Networking fallback (#142).
 /// </summary>
 public static class EntityPacketServices
 {
@@ -12,5 +12,5 @@ public static class EntityPacketServices
     }
 
     public static PlayerController Player =>
-        _player != null ? _player : IncomingPacketActions.Player;
+        _player != null ? _player : NetworkingPacketServices.Player;
 }

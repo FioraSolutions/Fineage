@@ -8,8 +8,6 @@ using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements.Experimental;
 using VContainer;
 
-
-
 public class World : MonoBehaviour, IWorldSpawnContext {
     [SerializeField] private GameObject _player;
     [SerializeField] private GameObject _playerPlaceholder;
@@ -31,7 +29,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     [Inject] private AppearFadeService _appearFade;
     [Inject] private CameraController _camera;
     [Inject] private IAnimationManager _animations;
-    [Inject] private GameClient _gameClient;
     [Inject] private PlayerSpawner _playerSpawner;
     [Inject] private UserSpawner _userSpawner;
     [Inject] private NpcSpawner _npcSpawner;
@@ -54,7 +51,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     public IAnimationManager Animations
     {
-        get { return _animations != null ? _animations : IncomingPacketActions.Animations; }
+        get { return _animations != null ? _animations : WorldPacketServices.Animations; }
     }
 
     public Transform UsersContainer
@@ -103,7 +100,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (L2GameUI.Instance != null)
             return true;
 
-        GameManager manager = GameManager.Instance;
+        GameManager manager = WorldPacketServices.Manager ?? GamePacketServices.Manager;
         if (manager != null && manager.GameState == GameState.LOGIN_SCREEN)
             return false;
 
@@ -120,8 +117,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
         if (ShouldEnsureGameScope())
             DiBootstrap.EnsureGameScope();
+        // Prefer [Inject] EventProcessor; NetworkingPacketServices is the #142 fallback bridge.
         if (_eventProcessor == null)
-            _eventProcessor = EventProcessor.Instance;
+            _eventProcessor = NetworkingPacketServices.Events;
         _playerPlaceholder = Resources.Load<GameObject>("Prefab/Player_FDarkElf");
         _userPlaceholder = Resources.Load<GameObject>("Prefab/User_FDarkElf");
         _npcPlaceHolder = Resources.Load<GameObject>("Prefab/Npc");
@@ -447,19 +445,26 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 #endif
         RemoveObject(itemObjectId);
 
-        // Pickup crossfades the actor into the "pickup" clip, which desyncs the
-        // animator from the movement gait. If the picker is still moving (running
-        // to the next point after grabbing), replay its gait so the run/walk clip
-        // resumes instead of freezing mid-pickup. Force the replay: the pickup
-        // state has no exit transition, so a normal replay can be suppressed and
-        // leave the pawn standing while it keeps translating.
+        // Let authored PicItem finish before forcing gait (do not stretch the clip).
         if (pickerCharObjId != 0 && MoveAllCharacters.Instance != null &&
             MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
         {
-            MovementData move = MoveAllCharacters.Instance.GetMove(pickerCharObjId);
-            if (move != null && move.GetEntity() is UserEntity)
-                move.ForceReplayUserGait();
+            StartCoroutine(ResumeGaitAfterPickup(pickerCharObjId));
         }
+    }
+
+    System.Collections.IEnumerator ResumeGaitAfterPickup(int pickerCharObjId)
+    {
+        yield return new WaitForSeconds(AnimPlayback.PickupFallbackSeconds);
+        if (MoveAllCharacters.Instance == null ||
+            !MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
+            yield break;
+
+        MovementData move = MoveAllCharacters.Instance.GetMove(pickerCharObjId);
+        if (move == null || move.GetEntity() == null)
+            yield break;
+
+        move.ForceReplayUserGait();
     }
 
     public void SpawnPlayer(EntityIdentity identity, PlayerStatus status, PlayerStats stats, PlayerAppearance appearance)
@@ -470,6 +475,21 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     public void SpawnNpc(EntityIdentity identity, NpcStatusInterlude status, Stats stats)
     {
+        SpawnNpc(identity, status, stats, out _);
+    }
+
+    /// <summary>
+    /// Spawns an NPC and reports whether the failure was permanent. A missing npcgrp mesh or an
+    /// absent prefab can never succeed on retry, while a spawner that is not wired yet can, so the
+    /// caller needs to tell those apart before dropping a knownlist row.
+    /// </summary>
+    public void SpawnNpc(
+        EntityIdentity identity,
+        NpcStatusInterlude status,
+        Stats stats,
+        out bool unresolvable)
+    {
+        unresolvable = false;
         if (identity == null || ContainsNpc(identity.Id))
             return;
 
@@ -478,7 +498,10 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
         NpcSpawnRequest request;
         if (!EntitySpawnShared.TryResolveNpc(identity, _npcGrps, _npcNames, _models, out request))
+        {
+            unresolvable = true;
             return;
+        }
 
         request.Status = status;
         request.Stats = stats;
@@ -615,8 +638,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         //});
     }
 
-
-
     public Task TeleportTo(int id, Vector3 position)
     {
         return ExecuteWithEntityAsync(id, entity => {
@@ -635,24 +656,17 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private void SendValidatePosition(Vector3 position, int heading)
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
-    }
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : IncomingPacketActions.Game; }
+            ZoneCommands.Send(new ValidatePositionCommand(position.x, position.y, position.z, heading));
     }
 
     private void SendAppearing()
     {
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new AppearingCommand());
+            ZoneCommands.Send(new AppearingCommand());
     }
-
-
 
     public Task UpdateObjectRotation(int id, float angle) {
         return ExecuteWithEntityAsync(id, e => { });
@@ -733,10 +747,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         });
     }
 
-
-
-  
-
     public async Task Revive(int dieObj)
     {
         Entity entity = await GetEntityNoLock(dieObj);
@@ -756,12 +766,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         }
     }
 
-    public async Task<Entity> GetEntityNoLock(int id)
+    public Task<Entity> GetEntityNoLock(int id)
     {
-        if (_objects.ContainsKey(id)){
-            return _objects[id];
-        }
-        return null;
+        return System.Threading.Tasks.Task.FromResult(GetEntityNoLockSync(id));
     }
 
     public Entity GetEntityNoLockSync(int id)
@@ -803,8 +810,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         }
     }
 
-
-
     // Wait for entity to be fully loaded
     public async Task<Entity> GetEntityAsync(int id) {
         Entity entity;
@@ -836,7 +841,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (entity != null) {
             try {
                 _eventProcessor.QueueEvent(() => action(entity));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 // Debug.LogWarning($"Operation failed - Target {id} - Error {ex.Message}");
             }
         }
@@ -855,7 +860,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (entity1 != null && entity2 != null) {
             try {
                 _eventProcessor.QueueEvent(() => action(entity1, entity2));
-            } catch (Exception ex) {
+            } catch (Exception) {
                 // Debug.LogWarning($"Operation failed - Target {id1} or {id2} - Error {ex.Message}");
             }
         }
@@ -863,8 +868,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private bool IsWorldSpawnReady()
     {
-        GameManager manager = _gameManager != null ? _gameManager : IncomingPacketActions.Manager;
-        WorldPacketApply apply = IncomingPacketActions.WorldApply;
+        GameManager manager = _gameManager != null ? _gameManager : WorldPacketServices.Manager;
+        WorldPacketApply apply = WorldPacketServices.WorldApply;
         return manager != null && manager.WorldSpawnReady && apply != null;
     }
 }

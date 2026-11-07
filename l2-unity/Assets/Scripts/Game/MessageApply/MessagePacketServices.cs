@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Message packet-apply access with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 46).
+/// Message packet-apply access with [Inject] wiring and LocatorApply fallback (#142).
 /// </summary>
 public static class MessagePacketServices
 {
@@ -14,7 +14,7 @@ public static class MessagePacketServices
     }
 
     public static MessagePacketApply MessageApply =>
-        _messageApply != null ? _messageApply : IncomingPacketLocatorApplyIncomingPacketServices.MessageApply;
+        _messageApply != null ? _messageApply : LocatorApplyIncomingPacketServices.MessageApply;
 
     public static void ApplyMessage(Action<MessagePacketApply> apply)
     {

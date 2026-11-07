@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Apply Zone V2 <see cref="ZoneV2MsgType.PartyJoinResult"/> (1028) to inviter-side feedback.</summary>
+/// <summary>Apply the party join result (1028) to inviter-side feedback.</summary>
 public static class PartyJoinResultApplyIncomingPacketServices
 {
     public static void ApplyPartyJoinResult(int response)

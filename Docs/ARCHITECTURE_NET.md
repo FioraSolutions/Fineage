@@ -19,8 +19,9 @@ single-process `ZoneServer` skeleton.
 | 2 | **One writer per piece of state** | Every entity (player, NPC, item) has exactly one authoritative process. No distributed locks on hot paths. |
 | 3 | **Server-authoritative simulation** | Clients send intent (MoveTo, UseSkill); the server decides outcomes. Client-side prediction hides latency. |
 | 4 | **Interface now, implementation later** | Abstractions for sessions, cache, AOI, and transport are defined early. Swap in-memory stubs for Redis/grid implementations when scale demands it. |
-| 5 | **Interlude path stays working** | Dual-adapter (Interlude wire + V2 MessagePack) remains; V2 is the future, but Interlude regression must not break. |
+| 5 | **Net wire is primary** | Fineage Net (`PacketEnvelope`) is the only client path. The MessagePack V2 adapters and the `FINEAGE_V2_WIRE` flag were retired in #562–#568. |
 | 6 | **Observe, then scale** | Add metrics/counters before adding nodes. Know where the bottleneck is before splitting. |
+| 7 | **Postgres early, cluster late** | Durable `IAccountStore` on PostgreSQL is foundation now. Gateway / Redis / multi-zone wait until CCU demands them — interfaces first (`IHandoffStore`). |
 
 ---
 
@@ -43,8 +44,8 @@ single-process `ZoneServer` skeleton.
 
 ```mermaid
 flowchart TB
-    subgraph clients["Clients (Unity)"]
-        C1[Player 1<br/>Interlude or V2]
+    subgraph clients["Clients (Unity Fineage Net)"]
+        C1[Player 1]
         C2[Player 2]
         CN[Player N]
     end
@@ -162,16 +163,18 @@ allows:
 
 ## Message Codec & Registry
 
-The existing `MsgType` enum + `[MessagePackObject]` classes work well.
-The foundation adds:
+**Live wire:** `Fineage.Net.Contract` — `PacketEnvelope`, `NetOpcode`, `NetCodec` / framing.
+Unity keeps a verbatim copy under `Assets/Scripts/Networking/Net/Contract/**`, synced by
+`scripts/sync-net-contract.py`.
 
-- **`IMessageRegistry`** — maps `ushort msgType` ↔ `Type` for dispatch.
-- **Protocol version in Hello** — already present (`ProtocolVersion` field).
-  The registry can gate which messages are valid for a given version.
-- **Versioning hook**: when adding fields to a MessagePack object, append new
-  `[Key(N+1)]` — MessagePack skips unknown keys, so old clients decode fine.
+**Retired:** MessagePack Zone V2 (`MsgType` + `[MessagePackObject]` as the client transport).
+`Fineage.Protocol.MsgType` remains on the backend as legacy numbering for `*-v2-protocol.md`
+semantics docs only — not the on-wire table.
 
-No breaking changes to existing wire format.
+Versioning hook for Net: append fields carefully in contract DTOs; gate with Hello /
+`ProtocolVersion` when layouts diverge. Target chronicle is **Interlude** until that
+slice is stable — see [DOC_CANON.md](DOC_CANON.md). Do not open a second chronicle
+in the contract until then.
 
 ---
 
@@ -235,11 +238,11 @@ game logic.
 
 | Phase | CCU target | What changes | What stays |
 |-------|-----------|-------------|------------|
-| **0 (this PR)** | 1–10 | Abstractions: ISession, ISessionStore, IMessageRegistry, IAoiProvider, IDistributedCache. In-memory impls. Client IZoneTransport. | PlayerSession logic, wire format, selftest |
+| **0** | 1–10 | Net `PacketEnvelope`, `IAccountStore` + **PostgreSQL** (JSON for tests), `IHandoffStore` memory, client NetSession | Login+Zone single process each |
 | **1 (v0.4–v0.5)** | 10–100 | GridAoiProvider, NpcInfo broadcast, combat tick loop, bounded inbound queue | Single process, TCP |
 | **2 (v0.7)** | 100–1000 | Metrics (Prometheus), backpressure policy, connection rate limit, load-test harness | Single process |
-| **3** | 1000–5000 | Gateway process (TLS termination, routing), Redis session directory, separate zone processes per region | Wire format unchanged |
-| **4** | 5000–20000 | Multi-zone cluster, cross-zone AOI, PostgreSQL persistence, QUIC transport option, auto-scaling | Core game logic unchanged |
+| **3** | 1000–5000 | Gateway process (TLS termination, routing), Redis session directory (`IHandoffStore`), separate zone processes per region | Net wire unchanged |
+| **4** | 5000–20000 | Multi-zone cluster, cross-zone AOI, QUIC transport option, auto-scaling | Core game logic unchanged |
 
 ---
 
@@ -268,7 +271,8 @@ tools/zone-server/
 
 Client side (Unity):
 ```
-l2-unity/Assets/Scripts/Networking/Adapters/V2/
+l2-unity/Assets/Scripts/Networking/Net/Domain/
 ├── IZoneTransport.cs           # transport abstraction for GameManager
-└── ... existing files unchanged
+├── FineageZoneTransport.cs     # live Net transport (registered in DI as IZoneTransport)
+└── ... shared domain/adapter layer
 ```

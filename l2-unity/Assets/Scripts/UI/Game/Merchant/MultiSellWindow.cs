@@ -1,4 +1,4 @@
-
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +9,6 @@ using VContainer;
 public class MultiSellWindow : L2PopupWindow
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game =>
-        _gameClient != null ? _gameClient : IncomingPacketActions.Game;
     private static MultiSellWindow _instance;
     private ICreatorTradeTab _creatorWindow;
 
@@ -40,7 +36,7 @@ public class MultiSellWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
-            _creatorWindow = new CreatorTradingWindowsWithTabs();
+            _creatorWindow = new CreatorTradingWindows();
             _dataProvider = new TooltipDataProvider();
             _toolTips = new MultiSellToolTips(_dataProvider);
             WireMultiSellPacketServices();
@@ -91,7 +87,6 @@ public class MultiSellWindow : L2PopupWindow
 
         _scrollView1 = (ScrollView)GetElementById("1Panel-ScrollView");
         _scrollView2 = (ScrollView)GetElementById("2Panel-ScrollView");
-        
 
              //_createScroller.RegisterPlayerScrollEvent(_scrollView1, _scrollView1.verticalScroller);
         _contentPanel1 = _scrollView1.contentContainer;
@@ -131,7 +126,7 @@ public class MultiSellWindow : L2PopupWindow
         _entryId = 1;
     }
 
-    public void ShowWindow()
+    public override void ShowWindow()
     {
         _userInput.value = "1";
         base.ShowWindow();
@@ -151,7 +146,6 @@ public class MultiSellWindow : L2PopupWindow
 
             _contentPanel1.Add(_selectContainer);
             _selectContainer.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-
 
             _contentPanel2.Clear();
 
@@ -212,8 +206,6 @@ public class MultiSellWindow : L2PopupWindow
             index++;
         }
 
-        
-
         return null;
     }
 
@@ -237,8 +229,6 @@ public class MultiSellWindow : L2PopupWindow
         }
         return null;
     }
-
-  
 
     private void OnValueChanged(ChangeEvent<string> evt)
     {
@@ -293,7 +283,7 @@ public class MultiSellWindow : L2PopupWindow
     private void OkExchange()
     {
         string value = ToolTipsUtils.ConvertPriceToNormal(_userInput.value);
-        Game.Send(new MultiSellChooseCommand(_listId, _entryId, int.Parse(value)));
+        ZoneCommands.Send(new MultiSellChooseCommand(_listId, _entryId, int.Parse(value)));
         CancelEvent();
     }
 

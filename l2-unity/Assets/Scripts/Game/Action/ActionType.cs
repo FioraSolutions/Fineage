@@ -10,5 +10,11 @@
     PartyInvite = 7,
     PartyLeave = 8,
     PartyKick = 9,
-    RideStrider = 11
+    RideStrider = 11,
+    /// <summary>Mobius RequestActionUse social: Greeting.</summary>
+    SocialGreeting = 12,
+    /// <summary>Mobius RequestActionUse social: Victory.</summary>
+    SocialVictory = 13,
+    /// <summary>Mobius RequestActionUse social: Advance.</summary>
+    SocialAdvance = 14
 }

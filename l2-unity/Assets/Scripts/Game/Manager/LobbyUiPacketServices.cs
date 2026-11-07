@@ -1,5 +1,5 @@
 /// <summary>
-/// Lobby loading UI access with wiring and IncomingPacketActions fallback (#142 sub-slice 39).
+/// Lobby loading UI access with wiring and live fallback (#142).
 /// </summary>
 public static class LobbyUiPacketServices
 {
@@ -15,8 +15,8 @@ public static class LobbyUiPacketServices
     }
 
     public static L2GameUI GameUi =>
-        _gameUi != null ? _gameUi : IncomingPacketActions.Ui;
+        _gameUi != null ? _gameUi : L2GameUI.Instance;
 
     public static L2LoginUI LoginUi =>
-        _loginUi != null ? _loginUi : IncomingPacketActions.LoginUi;
+        _loginUi != null ? _loginUi : L2LoginUI.Instance;
 }

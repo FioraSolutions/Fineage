@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
@@ -20,12 +20,6 @@ public class CharacterSelector : MonoBehaviour
     private List<GameObject> _characterGameObjects;
 
     [Inject] private LogongrpTable _logonGrps;
-    [Inject] private GameClient _gameClient;
-
-    private GameClient Game
-    {
-        get { return _gameClient != null ? _gameClient : CharacterPacketServices.Game; }
-    }
 
     private List<Logongrp> LogonGrps
     {
@@ -66,7 +60,7 @@ public class CharacterSelector : MonoBehaviour
 
     private void WireCharacterPacketServices()
     {
-        CharacterPacketServices.Bind(game: _gameClient);
+        CharacterPacketServices.Bind();
     }
 
     public void SetCharacterList(List<CharSelectionInfoPackage> characters) {
@@ -144,7 +138,9 @@ public class CharacterSelector : MonoBehaviour
             _container = null;
         }
 
-        ForgetLobbyVisuals();
+        // Roster refresh stays in lobby: keep _charSelectCamera (SwitchCamera("CharSelect") already ran and
+        // won't run again, so nulling it here made Update() bail and clicks did nothing).
+        ResetLobbyRefs();
     }
 
     /// <summary>
@@ -152,11 +148,16 @@ public class CharacterSelector : MonoBehaviour
     /// </summary>
     public void ForgetLobbyVisuals()
     {
+        ResetLobbyRefs();
+        _charSelectCamera = null;
+    }
+
+    void ResetLobbyRefs()
+    {
         _container = null;
         _characterGameObjects = new List<GameObject>();
         _selectedCharacterSlot = -1;
         _selectedLobbyIndex = -1;
-        _charSelectCamera = null;
     }
 
     void EnsureCharacterContainer()
@@ -254,14 +255,14 @@ public class CharacterSelector : MonoBehaviour
     static void ApplyLobbyPaperdoll(PlayerAppearance appearance, LobbyCharacter character)
     {
         int[] doll = character.Paperdoll;
-        if (doll != null && doll.Length > ZoneV2Paperdoll.Feet)
+        if (doll != null && doll.Length > NetPaperdoll.Feet)
         {
-            appearance.RHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.RightHand);
-            appearance.LHand = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.LeftHand);
-            appearance.Gloves = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Gloves);
-            appearance.Chest = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Chest);
-            appearance.Legs = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Legs);
-            appearance.Feet = ZoneV2Paperdoll.ItemIdAt(doll, ZoneV2Paperdoll.Feet);
+            appearance.RHand = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.RightHand);
+            appearance.LHand = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.LeftHand);
+            appearance.Gloves = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Gloves);
+            appearance.Chest = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Chest);
+            appearance.Legs = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Legs);
+            appearance.Feet = NetPaperdoll.ItemIdAt(doll, NetPaperdoll.Feet);
         }
 
         if (appearance.RHand == 0 && character.WeaponItemId > 0)
@@ -368,9 +369,9 @@ public class CharacterSelector : MonoBehaviour
             // Debug.LogWarning("Please select a character");
             return;
         }
-        GameClient game = Game;
+        IZoneTransport game = ZoneCommands.Transport;
         if (game != null)
-            game.Send(new CharacterSelectCommand(SelectedSlot));
+            ZoneCommands.Send(new CharacterSelectCommand(SelectedSlot));
        // GameClient.Instance.ClientPacketHandler.SendRequestSelectCharacter(SelectedSlot);
     }
 
@@ -381,9 +382,9 @@ public class CharacterSelector : MonoBehaviour
                 // Debug.LogWarning("Please select a character");
                 return;
             }
-            GameClient game = Game;
+            IZoneTransport game = ZoneCommands.Transport;
             if (game != null)
-                game.Send(new CharacterDeleteCommand(SelectedSlot));
+                ZoneCommands.Send(new CharacterDeleteCommand(SelectedSlot));
             // Debug.LogWarning("Requesting delete character , slot: " + SelectedSlot);
     }
 
@@ -401,33 +402,39 @@ public class CharacterSelector : MonoBehaviour
     }
 
 
-    void Update() {
-        if(_charSelectCamera == null) {
+    void Update()
+    {
+        if (!Input.GetMouseButtonDown(0) || _charSelectCamera == null)
+            return;
+
+        // CharSelectWindow marks layout spacers Ignore; real chrome stays pickable.
+        if (L2LoginUI.Instance != null && L2LoginUI.Instance.IsPointerOverPanel())
+            return;
+
+        Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
+        // EntityClick only: pawn CharacterControllers / stage colliders must not swallow the hit.
+        if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, _characterMask, QueryTriggerInteraction.Collide))
+            return;
+
+        SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();
+        if (entity == null || entity.CharacterInfoInterlude == null)
+            return;
+
+        if (entity.CharacterInfoInterlude.Slot == _selectedCharacterSlot)
+        {
+            entity.TryPlayVictory();
             return;
         }
 
-
-        if(Input.GetMouseButtonDown(0)) {
-            Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 1000f)) {
-                int hitLayer = hit.collider.gameObject.layer;
-                if (_characterMask == (_characterMask | (1 << hitLayer))) {
-                    SelectableCharacterEntity entity = hit.transform.parent.GetComponent<SelectableCharacterEntity>();
-                    if (entity == null || entity.CharacterInfoInterlude == null)
-                        return;
-                    if (_lobbyMode)
-                    {
-                        int index = IndexOfLobbySlot(entity.CharacterInfoInterlude.Slot);
-                        if (index >= 0)
-                            SelectLobbyCharacter(index);
-                    }
-                    else
-                    {
-                        SelectInterludeCharacter(entity.CharacterInfoInterlude.Slot);
-                    }
-                }
-            }
+        if (_lobbyMode)
+        {
+            int index = IndexOfLobbySlot(entity.CharacterInfoInterlude.Slot);
+            if (index >= 0)
+                SelectLobbyCharacter(index);
+        }
+        else
+        {
+            SelectInterludeCharacter(entity.CharacterInfoInterlude.Slot);
         }
     }
 }

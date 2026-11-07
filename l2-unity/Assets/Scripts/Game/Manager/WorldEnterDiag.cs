@@ -69,7 +69,7 @@ public static class WorldEnterDiag
         PlayerEntity player = PlayerEntity.Instance;
         sb.Append(" PlayerEntity=").Append(player != null ? player.name + "@" + player.transform.position : "null");
 
-        PlayerController pc = PlayerController.Instance;
+        PlayerController pc = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
         sb.Append(" PlayerController=").Append(pc != null
             ? (pc.isActiveAndEnabled ? "active" : "disabled")
             : "null");

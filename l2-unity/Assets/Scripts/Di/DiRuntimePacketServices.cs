@@ -1,5 +1,5 @@
 /// <summary>
-/// DI runtime access to core clients with [Inject] wiring and IncomingPacketActions fallback (#142 sub-slice 39).
+/// DI runtime access to core clients with [Inject] wiring and Networking/live fallback (#142).
 /// </summary>
 public static class DiRuntimePacketServices
 {
@@ -21,11 +21,11 @@ public static class DiRuntimePacketServices
     }
 
     public static GameClient Game =>
-        _game != null ? _game : IncomingPacketActions.Game;
+        _game != null ? _game : GameClient.Instance;
 
     public static LoginClient Login =>
-        _login != null ? _login : IncomingPacketActions.Login;
+        _login != null ? _login : NetworkingPacketServices.Login;
 
     public static GameManager Manager =>
-        _manager != null ? _manager : IncomingPacketActions.Manager;
+        _manager != null ? _manager : NetworkingPacketServices.Manager;
 }

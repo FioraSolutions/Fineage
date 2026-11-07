@@ -8,9 +8,6 @@ using VContainer;
 public class StatusWindow : L2Window
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => GameWindowPacketServices.Game;
     private Label _nameLabel;
     private Label _levelLabel;
     private Label _HPTextLabel;
@@ -48,7 +45,7 @@ public class StatusWindow : L2Window
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind(game: _gameClient);
+        GameWindowPacketServices.Bind();
     }
 
     private void OnDestroy() {
@@ -160,7 +157,7 @@ public class StatusWindow : L2Window
 
     private void SendSelfTargetAction(PlayerEntity player)
     {
-        if (player.Identity == null || Game == null)
+        if (player.Identity == null || !ZoneCommands.IsConnected)
         {
             return;
         }
@@ -168,7 +165,7 @@ public class StatusWindow : L2Window
         var position = player.transform.position;
         var l2jpos = VectorUtils.ConvertPosUnityToL2j(position);
 
-        Game.Send(new ClickActionCommand(
+        ZoneCommands.Send(new ClickActionCommand(
             player.Identity.Id,
             (int)l2jpos.x,
             (int)l2jpos.y,
@@ -216,40 +213,24 @@ public class StatusWindow : L2Window
             _MPTextLabel.text = mpCur + "/" + mpMax;
         }
 
-        if(_CPBarBG != null && _CPBar != null) {
-            float cpRatio = PlayerResourceCaps.BarFillRatio(status.Cp, stats.MaxCp);
-            float bgWidth = _CPBarBG.resolvedStyle.width;
-            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
-                _CPBar.style.width = bgWidth * cpRatio;
-            }
-        }
-
-        if(_HPBarBG != null && _HPBar != null) {
-            float hpRatio = PlayerResourceCaps.BarFillRatio(status.GetHp(), stats.MaxHp);
-            float bgWidth = _HPBarBG.resolvedStyle.width;
-            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
-                _HPBar.style.width = bgWidth * hpRatio;
-            }
-        }
-
-        if(_MPBarBG != null && _MPBar != null) {
-            float mpRatio = PlayerResourceCaps.BarFillRatio(status.GetMp(), stats.MaxMp);
-            float bgWidth = _MPBarBG.resolvedStyle.width;
-            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
-                _MPBar.style.width = bgWidth * mpRatio;
-            }
-        }
+        L2ResourceBarView.SetFill(
+            _CPBar,
+            _CPBarBG,
+            PlayerResourceCaps.BarFillRatio(status.Cp, stats.MaxCp));
+        L2ResourceBarView.SetFill(
+            _HPBar,
+            _HPBarBG,
+            PlayerResourceCaps.BarFillRatio(status.GetHp(), stats.MaxHp));
+        L2ResourceBarView.SetFill(
+            _MPBar,
+            _MPBarBG,
+            PlayerResourceCaps.BarFillRatio(status.GetMp(), stats.MaxMp));
 
         float expRatio = LevelExpRatio(stats);
         if (_EXPTextLabel != null) {
             _EXPTextLabel.text = (expRatio * 100f).ToString("0.00") + "%";
         }
-        if(_EXPBarBG != null && _EXPBar != null) {
-            float bgWidth = _EXPBarBG.resolvedStyle.width;
-            if (bgWidth > 1f && float.IsFinite(bgWidth)) {
-                _EXPBar.style.width = bgWidth * expRatio;
-            }
-        }
+        L2ResourceBarView.SetFill(_EXPBar, _EXPBarBG, expRatio);
     }
 
     /// <summary>L2-style progress inside the current level (0..1).</summary>

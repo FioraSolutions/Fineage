@@ -47,20 +47,18 @@ public class InventoryTab : L2Tab
             _inventorySlots = new InventorySlot[slotCount];
             //SlotType slotType = GetSlotType(MainTab);
 
+            VisualTreeAsset template = InventoryWindow.Instance.InventorySlotTemplate;
             for (int i = 0; i < _inventorySlots.Length; i++)
             {
                 if (i == _inventorySlots.Length - 1)
                 {
-                   // Debug.Log(" slot int i " + i);
-                    VisualElement disabledElement = CreateVisualElementDisabled();
+                    VisualElement disabledElement = CreateVisualElementDisabled(template);
                     _contentContainer.Add(disabledElement);
                 }
                 else
                 {
-                    VisualElement slotElement = CretaVisualElement();
-                    InventorySlot slot = CreateInventorySlot(i, slotElement, SlotType.Inventory);
-                    _contentContainer.Add(slotElement);
-                   _inventorySlots[i] = slot;
+                    VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(template, _contentContainer);
+                    _inventorySlots[i] = CreateInventorySlot(i, slotElement, SlotType.Inventory);
                 }
 
             }
@@ -69,14 +67,9 @@ public class InventoryTab : L2Tab
 
     }
 
-    private VisualElement CretaVisualElement()
+    private VisualElement CreateVisualElementDisabled(VisualTreeAsset template)
     {
-        return InventoryWindow.Instance.InventorySlotTemplate.Instantiate()[0];
-    }
-
-    private VisualElement CreateVisualElementDisabled()
-    {
-        VisualElement slotElement = CretaVisualElement();
+        VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(template, null);
         slotElement.AddToClassList("inventory-slot");
         slotElement.AddToClassList("disabled");
         return slotElement;
@@ -109,12 +102,12 @@ public class InventoryTab : L2Tab
             padSlot = rowLength - slotCount % rowLength;
         }
 
+        VisualTreeAsset template = InventoryWindow.Instance.InventorySlotTemplate;
         for (int i = 0; i < padSlot; i++)
         {
-            VisualElement slotElement = InventoryWindow.Instance.InventorySlotTemplate.Instantiate()[0];
+            VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(template, _contentContainer);
             slotElement.AddToClassList("inventory-slot");
             slotElement.AddToClassList("disabled");
-            _contentContainer.Add(slotElement);
         }
     }
     public void SetItemList(List<ItemInstance> allItems)

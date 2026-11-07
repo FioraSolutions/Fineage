@@ -8,9 +8,6 @@ using VContainer;
 public class ChatWindow : L2Window
 {
 
-    [Inject] GameClient _gameClient;
-
-    private GameClient Game => ChatPacketServices.Game;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _messageLabelTemplate;
@@ -26,8 +23,6 @@ public class ChatWindow : L2Window
     [SerializeField] public List<ChatTab> _tabs;
     [SerializeField] private bool _chatOpened = false;
     [SerializeField] private int _chatInputCharacterLimit = 64;
-
-
 
     public bool ChatOpened { get { return _chatOpened; } }
 
@@ -57,8 +52,7 @@ public class ChatWindow : L2Window
 
     private void WireChatPacketServices()
     {
-        ChatPacketServices.Bind(game: _gameClient);
-        MessagePacketApply messageApply = IncomingPacketActions.MessageApply;
+        MessagePacketApply messageApply = MessagePacketServices.MessageApply;
         if (messageApply != null)
             MessagePacketServices.Bind(messageApply: messageApply);
     }
@@ -103,8 +97,6 @@ public class ChatWindow : L2Window
         _chatInput.RegisterCallback<FocusEvent>(OnChatInputFocus);
         _chatInput.RegisterCallback<BlurEvent>(OnChatInputBlur);
         int limit = _chatInputCharacterLimit;
-        if (FineageWireConfig.IsZoneV2 && limit < ZoneV2Chat.InputLimit)
-            limit = ZoneV2Chat.InputLimit;
         _chatInput.maxLength = limit;
 
         var enlargeTextBtn = (Button)GetElementById("EnlargeTextBtn");
@@ -117,13 +109,20 @@ public class ChatWindow : L2Window
 
         _chatInputContainer = GetElementById("InnerBar");
 
+        // Interlude SystemMsgWnd above ChatWnd (C4+). Start before tabs so Flush can queue into it.
+        SystemMsgWindow sysMsg = SystemMsgWindow.Ensure();
+        sysMsg.AddWindow(root);
+        sysMsg.DockAboveChat(_windowEle);
+
         CreateTabs();
 
         yield return new WaitForEndOfFrame();
         diagonalResizeManipulator.SnapSize();
-
+        // SystemMsgWnd must match ChatWnd width after SnapSize/layout.
+        SystemMsgWindow.Instance?.SyncDock();
+        yield return null;
+        SystemMsgWindow.Instance?.SyncDock();
     }
-
 
     private void CreateTabs()
     {
@@ -166,7 +165,7 @@ public class ChatWindow : L2Window
         }
 
         Ready = true;
-        ZoneV2ChatFeed.Flush();
+        NetChatFeed.Flush();
     }
 
     public bool SwitchTab(ChatTab switchTo)
@@ -222,14 +221,14 @@ public class ChatWindow : L2Window
             string text = _chatInput.text;
             if (text.Length > 0)
             {
-                if (FineageWireConfig.IsZoneV2 || CanSend(1100))
+                if (CanSend(1100))
                 {
                     if (IsGmCommand(text))
                     {
                         String prefix = "admin_";
                         string gmCommand = text.Substring(2);
                         string command = prefix + gmCommand;
-                        Game.Send(new RequestBypassToServerCommand(command));
+                        ZoneCommands.Send(new RequestBypassToServerCommand(command));
                         // Debug.Log("ChatWindow: requested admin command :" + command);
                     }
                     else
@@ -237,7 +236,7 @@ public class ChatWindow : L2Window
                         var commands = PlayerCommands.FindByText(text);
                         if (commands != null)
                         {
-                            Game.Send(new RequestUserCommandCommand(commands.Id));
+                            ZoneCommands.Send(new RequestUserCommandCommand(commands.Id));
                             // Debug.Log("ChatWindow: requested player command :" + commands  + " id: " + commands.Id);
                         }
                         else
@@ -303,17 +302,6 @@ public class ChatWindow : L2Window
 
     public void SendChatMessage(ChatTab tab, string text)
     {
-        if (FineageWireConfig.IsZoneV2)
-        {
-            int fallback = tab != null ? tab.TabId : ZoneV2Chat.All;
-            string body;
-            int chatType;
-            ZoneV2Chat.Split(text, fallback, out body, out chatType);
-            ZoneV2Client zone = ZoneV2Client.Instance != null ? ZoneV2Client.Instance : ZoneV2Client.Ensure();
-            zone.SendSay(body, chatType);
-            return;
-        }
-
         ChatTypeData data = ChatTypes.GetById(tab.TabId);
         if (data != null)
         {
@@ -330,12 +318,12 @@ public class ChatWindow : L2Window
                 string targetName = text.Substring(0, spaceIndex);
                 string message = text.Substring(spaceIndex + 1);
 
-                Game.Send(new RequestSay2Command(ChatTypes.GetById(2), message, targetName));
+                ZoneCommands.Send(new RequestSay2Command(ChatTypes.GetById(2), message, targetName));
                 // Debug.Log("whisper chat: sending to :" + targetName + " message: " + message);
             }
             else
             {
-                Game.Send(new RequestSay2Command(data, text, ""));
+                ZoneCommands.Send(new RequestSay2Command(data, text, ""));
             }
         }
         else
@@ -366,21 +354,8 @@ public class ChatWindow : L2Window
     public void ReceiveSystemMessage(SystemMessage message)
     {
         if (message == null)
-        {
             return;
-        }
-
-        for (int i = 0; i < _tabs.Count; i++)
-        {
-            //if(_tabs[i].FilteredMessages.Count > 0)
-            // {
-            // if (_tabs[i].FilteredMessages.Contains(message.MessageType))
-            // {
-            // ConcatMessage(_tabs[i].Content, message.ToString());
-            // }
-            // }
-            _tabs[i].ConcatMessage(message.ToString());
-        }
+        AppendSystemLine(message.ToString());
     }
 
     public void ReceiveZoneSay(string name, string text, int chatType)
@@ -388,7 +363,7 @@ public class ChatWindow : L2Window
         if (_tabs == null || _tabs.Count == 0)
             return;
 
-        string line = ZoneV2Chat.FormatLine(name, text, chatType);
+        string line = NetChat.FormatLine(name, text, chatType);
         bool shown = false;
         for (int i = 0; i < _tabs.Count; i++)
         {
@@ -396,7 +371,7 @@ public class ChatWindow : L2Window
             if (tab == null)
                 continue;
             bool match = tab.TabId == chatType;
-            bool onAll = tab.ChatType == ChatType.GENERAL && ZoneV2Chat.ShowsOnAllTab(chatType);
+            bool onAll = tab.ChatType == ChatType.GENERAL && NetChat.ShowsOnAllTab(chatType);
             if (!match && !onAll)
                 continue;
             tab.ConcatMessage(line);
@@ -419,18 +394,9 @@ public class ChatWindow : L2Window
 
     public void AppendSystemLine(string text)
     {
-        if (string.IsNullOrEmpty(text) || _tabs == null || _tabs.Count == 0)
-            return;
-
-        string line = ZoneV2Chat.FormatSystem(text);
-        for (int i = 0; i < _tabs.Count; i++)
-        {
-            if (_tabs[i] != null)
-                _tabs[i].ConcatMessage(line);
-        }
+        // Interlude: system lines go to SystemMsgWnd, not ChatWnd tabs.
+        SystemMsgWindow.Ensure().AppendLine(text);
     }
-
-
 
     internal void ScrollDown(Scroller scroller)
     {

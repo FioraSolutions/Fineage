@@ -26,6 +26,8 @@ public class MusicManager : MonoBehaviour
     }
 
     void OnDestroy() {
+        if (_musicInstances == null)
+            return; // duplicate destroyed in Awake
         Clear();
     }
 
@@ -55,7 +57,7 @@ public class MusicManager : MonoBehaviour
     }
 
     public void StopMusic(EventReference musicEvent) {
-        if(_musicInstances.ContainsKey(musicEvent)) {
+        if(_musicInstances != null && _musicInstances.ContainsKey(musicEvent)) {
             _musicInstances[musicEvent].stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         }             
     }

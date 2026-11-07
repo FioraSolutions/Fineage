@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-public class L2T3DStaticMeshImporter : AssetImporter {
+public class L2T3DStaticMeshImporter : L2TerrainAssetImporter {
 
     private static int missingTexturesCount = 0;
 

@@ -12,6 +12,7 @@ public class MapWindow : L2PopupWindow
     private const string _mapTemplateName = "Data/UI/_Elements/Game/Map/MapAdenTemplate";
     private MapPanner _mapPanner;
     private MapMarkerFollowCamera _mapMarkerFollowCamera;
+    private TownMapOverlay _townMap;
     public static MapWindow Instance { get { return _instance; } }
 
     private void Awake()
@@ -33,8 +34,8 @@ public class MapWindow : L2PopupWindow
     protected override void LoadAssets()
     {
         _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Map/MapWindow");
-        _tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
-        _tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTabHeader");
+        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
+        _tabHeaderTemplate = LoadAsset(L2InventoryUiAssets.TabHeader);
         //id 0 - Map Aden
         _creatorSimpleTab.LoadAsset(LoadAsset, new string[1] { _mapTemplateName });
     }
@@ -59,6 +60,10 @@ public class MapWindow : L2PopupWindow
         _mapPanner.SetElements(elements[0], elements[1] , elements[2] , button);
         _mapPanner.RegisterCallback();
 
+        // "+" buttons next to the starter towns open the regional plan from town_map.utx.
+        // Created after the map element exists so their absolute positions are in map pixels.
+        _townMap = new TownMapOverlay(elements[1], GetElementById("town-map-layer"));
+
         _mapMarkerFollowCamera.SetElement(elements[2]);
 
         RegisterCloseWindowEvent("btn-close-frame");
@@ -75,6 +80,7 @@ public class MapWindow : L2PopupWindow
         if (_mapPanner == null)
             return;
         _mapPanner.UpdateMarker(_isWindowHidden);
+        _townMap?.UpdateMarker();
     }
 
     public void TurnMarker(Camera targetCamera)
@@ -87,14 +93,16 @@ public class MapWindow : L2PopupWindow
         _mapPanner.SetDisabled(false);
         _mapPanner.SetManualUpdate(true);
         _mapMarkerFollowCamera.ManualTurnUpdate();
+        // MVP (#559): in a starter village, jump straight to that town plan + hero pin.
+        _townMap?.TryOpenForPlayer();
         base.ShowWindow();
-
     }
 
     public override void HideWindow()
     {
         _mapPanner.SetDisabled(true);
         _mapPanner.MoveMarkerToOrigin();
+        _townMap?.Close();
         base.HideWindow();
     }
 }
