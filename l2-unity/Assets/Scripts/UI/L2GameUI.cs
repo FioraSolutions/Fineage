@@ -75,14 +75,14 @@ public class L2GameUI : L2UI
             GameWindowPacketServices.Dead.AddWindow(_rootVisualContainer);
             GameWindowPacketServices.Dead.HideWindow();
         }
-        if (BufferPanel.Instance != null)
+        if (AuxiliaryGameUIPacketServices.Buffer != null)
         {
-            BufferPanel.Instance.AddWindow(_rootVisualContainer);
-            BufferPanel.Instance.ShowWindow();
+            AuxiliaryGameUIPacketServices.Buffer.AddWindow(_rootVisualContainer);
+            AuxiliaryGameUIPacketServices.Buffer.ShowWindow();
         }
-        if (SkillbarWindow.Instance != null)
+        if (SkillbarPacketServices.Skillbar != null)
         {
-            SkillbarWindow.Instance.AddWindow(_rootVisualContainer);
+            SkillbarPacketServices.Skillbar.AddWindow(_rootVisualContainer);
         }
         if (InventoryWindow.Instance != null)
         {
@@ -126,10 +126,10 @@ public class L2GameUI : L2UI
             GameWindowPacketServices.Html.AddWindow(_rootVisualContainer);
             GameWindowPacketServices.Html.HideWindow();
         }
-        if (DealerWindow.Instance != null)
+        if (MerchantPacketServices.Dealer != null)
         {
-            DealerWindow.Instance.AddWindow(_rootVisualContainer);
-            DealerWindow.Instance.HideWindow();
+            MerchantPacketServices.Dealer.AddWindow(_rootVisualContainer);
+            MerchantPacketServices.Dealer.HideWindow();
         }
         if (ToolTipSimplePacketServices.Window != null)
         {
@@ -147,60 +147,60 @@ public class L2GameUI : L2UI
             SystemMessagePacketServices.Window.HideWindow();
         }
 
-        if (EnchantWindow.Instance != null)
+        if (ItemEnchantPacketServices.Enchant != null)
         {
-            EnchantWindow.Instance.AddWindow(_rootVisualContainer);
-            EnchantWindow.Instance.HideWindow();
+            ItemEnchantPacketServices.Enchant.AddWindow(_rootVisualContainer);
+            ItemEnchantPacketServices.Enchant.HideWindow();
         }
 
-        if (MultiSellWindow.Instance != null)
+        if (MultiSellPacketServices.MultiSell != null)
         {
-            MultiSellWindow.Instance.AddWindow(_rootVisualContainer);
-            MultiSellWindow.Instance.HideWindow();
+            MultiSellPacketServices.MultiSell.AddWindow(_rootVisualContainer);
+            MultiSellPacketServices.MultiSell.HideWindow();
         }
 
-        if (SkillLearnWindow.Instance != null)
+        if (SkillLearnPacketServices.SkillLearn != null)
         {
-            SkillLearnWindow.Instance.AddWindow(_rootVisualContainer);
-            SkillLearnWindow.Instance.HideWindow();
+            SkillLearnPacketServices.SkillLearn.AddWindow(_rootVisualContainer);
+            SkillLearnPacketServices.SkillLearn.HideWindow();
         }
 
-        if (SkillListWindow.Instance != null)
+        if (SkillLearnPacketServices.SkillList != null)
         {
-            SkillListWindow.Instance.AddWindow(_rootVisualContainer);
-            SkillListWindow.Instance.HideWindow();
+            SkillLearnPacketServices.SkillList.AddWindow(_rootVisualContainer);
+            SkillLearnPacketServices.SkillList.HideWindow();
         }
 
-        if (DescriptionSkillWindow.Instance != null)
+        if (SkillLearnPacketServices.SkillDesc != null)
         {
-            DescriptionSkillWindow.Instance.AddWindow(_rootVisualContainer);
-            DescriptionSkillWindow.Instance.HideWindow();
+            SkillLearnPacketServices.SkillDesc.AddWindow(_rootVisualContainer);
+            SkillLearnPacketServices.SkillDesc.HideWindow();
         }
         if (GameWindowPacketServices.ShowList != null)
         {
             GameWindowPacketServices.ShowList.AddWindow(_rootVisualContainer);
             GameWindowPacketServices.ShowList.HideWindow();
         }
-        if (QuestWindow.Instance != null)
+        if (QuestPacketServices.Quest != null)
         {
-            QuestWindow.Instance.AddWindow(_rootVisualContainer);
-            QuestWindow.Instance.HideWindow();
+            QuestPacketServices.Quest.AddWindow(_rootVisualContainer);
+            QuestPacketServices.Quest.HideWindow();
         }
-        if (ClanWindow.Instance != null)
+        if (ClanPacketServices.Clan != null)
         {
-            ClanWindow.Instance.AddWindow(_rootVisualContainer);
-            ClanWindow.Instance.HideWindow();
+            ClanPacketServices.Clan.AddWindow(_rootVisualContainer);
+            ClanPacketServices.Clan.HideWindow();
         }
 
-        if (SellCropListWindow.Instance != null)
+        if (AuxiliaryGameUIPacketServices.SellCrop != null)
         {
-            SellCropListWindow.Instance.AddWindow(_rootVisualContainer);
-            SellCropListWindow.Instance.HideWindow();
+            AuxiliaryGameUIPacketServices.SellCrop.AddWindow(_rootVisualContainer);
+            AuxiliaryGameUIPacketServices.SellCrop.HideWindow();
         }
-        if (SeedInfoWindow.Instance != null)
+        if (AuxiliaryGameUIPacketServices.SeedInfo != null)
         {
-            SeedInfoWindow.Instance.AddWindow(_rootVisualContainer);
-            SeedInfoWindow.Instance.HideWindow();
+            AuxiliaryGameUIPacketServices.SeedInfo.AddWindow(_rootVisualContainer);
+            AuxiliaryGameUIPacketServices.SeedInfo.HideWindow();
         }
 
         if (MapWindow.Instance != null)
@@ -209,55 +209,55 @@ public class L2GameUI : L2UI
             MapWindow.Instance.HideWindow();
         }
 
-        if (RecipeBookWindow.Instance != null)
+        if (CraftPacketServices.RecipeBook != null)
         {
-            RecipeBookWindow.Instance.AddWindow(_rootVisualContainer);
-            RecipeBookWindow.Instance.HideWindow();
+            CraftPacketServices.RecipeBook.AddWindow(_rootVisualContainer);
+            CraftPacketServices.RecipeBook.HideWindow();
         }
 
-        if (CraftingItemWindow.Instance != null)
+        if (CraftPacketServices.Crafting != null)
         {
-            CraftingItemWindow.Instance.AddWindow(_rootVisualContainer);
-            CraftingItemWindow.Instance.HideWindow();
+            CraftPacketServices.Crafting.AddWindow(_rootVisualContainer);
+            CraftPacketServices.Crafting.HideWindow();
         }
 
 
-        if (PartyInvitationWindow.Instance != null)
+        if (PartyPacketServices.PartyInvite != null)
         {
-            PartyInvitationWindow.Instance.AddWindow(_rootVisualContainer);
-            PartyInvitationWindow.Instance.HideWindow();
+            PartyPacketServices.PartyInvite.AddWindow(_rootVisualContainer);
+            PartyPacketServices.PartyInvite.HideWindow();
         }
 
         EnsurePartyMemberListWindow();
-        if (PartyMemberListWindow.Instance != null)
+        if (PartyPacketServices.MemberList != null)
         {
-            PartyMemberListWindow.Instance.AddWindow(_rootVisualContainer);
+            PartyPacketServices.MemberList.AddWindow(_rootVisualContainer);
         }
 
-        if (ClanAskJoinWindow.Instance != null)
+        if (ClanPacketServices.Ask != null)
         {
-            ClanAskJoinWindow.Instance.AddWindow(_rootVisualContainer);
-            ClanAskJoinWindow.Instance.HideWindow();
+            ClanPacketServices.Ask.AddWindow(_rootVisualContainer);
+            ClanPacketServices.Ask.HideWindow();
         }
         
-        if (TradeRequestWindow.Instance != null)
+        if (TradePacketServices.TradeRequest != null)
         {
-            TradeRequestWindow.Instance.AddWindow(_rootVisualContainer);
-            TradeRequestWindow.Instance.HideWindow();
+            TradePacketServices.TradeRequest.AddWindow(_rootVisualContainer);
+            TradePacketServices.TradeRequest.HideWindow();
         }
         
-        if (TradeWindow.Instance != null)
+        if (TradePacketServices.Trade != null)
         {
-            TradeWindow.Instance.AddWindow(_rootVisualContainer);
-            TradeWindow.Instance.HideWindow();
+            TradePacketServices.Trade.AddWindow(_rootVisualContainer);
+            TradePacketServices.Trade.HideWindow();
         }
     }
 
     public bool AreWindowsReady()
     {
         return UILoaded
-            && ClanWindow.Instance != null && ClanWindow.Instance.IsReady
-            && SkillListWindow.Instance != null && SkillListWindow.Instance.IsReady;
+            && ClanPacketServices.Clan != null && ClanPacketServices.Clan.IsReady
+            && SkillLearnPacketServices.SkillList != null && SkillLearnPacketServices.SkillList.IsReady;
     }
 
     public void EnableMouse()
@@ -370,7 +370,7 @@ public class L2GameUI : L2UI
 
     static void EnsurePartyMemberListWindow()
     {
-        if (PartyMemberListWindow.Instance != null || Instance == null)
+        if (PartyPacketServices.MemberList != null || Instance == null)
             return;
         Instance.gameObject.AddComponent<PartyMemberListWindow>();
     }
