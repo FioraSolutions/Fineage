@@ -244,9 +244,10 @@ public sealed class LobbyFlowController
 
     public void OnWorldLoading()
     {
-        if (MusicManager.Instance != null)
+        MusicManager music = MusicPacketServices.Music;
+        if (music != null)
         {
-            MusicManager.Instance.Clear();
+            music.Clear();
         }
 
         L2GameUI ui = GameUi;
@@ -280,7 +281,7 @@ public sealed class LobbyFlowController
 
         if (_game.GameState > GameState.CHAR_CREATION)
         {
-            MusicManager.Instance.Clear();
+            MusicPacketServices.Music?.Clear();
             Scenes.LoadMenu();
         }
         else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected)
