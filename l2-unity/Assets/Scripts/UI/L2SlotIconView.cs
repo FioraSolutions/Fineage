@@ -47,18 +47,40 @@ public static class L2SlotIconView
         return true;
     }
 
-    /// <summary>Full Resources path (SkillLearn DF buttons, etc.).</summary>
-    public static void SetResourcesBackground(VisualElement target, string resourcesPath)
+    /// <summary>Full Resources path (SkillLearn DF buttons, clan status, table images).</summary>
+    public static Texture2D LoadResourcesTexture(string resourcesPath)
     {
-        if (target == null || string.IsNullOrEmpty(resourcesPath))
-            return;
+        if (string.IsNullOrEmpty(resourcesPath))
+            return null;
 
-        Texture2D texture = IconManager.Instance != null
+        return IconManager.Instance != null
             ? IconManager.Instance.LoadTextureOtherSources(resourcesPath)
             : Resources.Load<Texture2D>(resourcesPath);
+    }
 
-        if (texture != null)
-            target.style.backgroundImage = new StyleBackground(texture);
+    public static void SetResourcesBackground(VisualElement target, string resourcesPath) =>
+        TrySetResourcesBackground(target, resourcesPath);
+
+    public static bool TrySetResourcesBackground(
+        VisualElement target,
+        string resourcesPath,
+        bool useNativeSize = false)
+    {
+        if (target == null)
+            return false;
+
+        Texture2D texture = LoadResourcesTexture(resourcesPath);
+        if (texture == null)
+            return false;
+
+        target.style.backgroundImage = new StyleBackground(texture);
+        if (useNativeSize)
+        {
+            target.style.width = texture.width;
+            target.style.height = texture.height;
+        }
+
+        return true;
     }
 
     public static void SetEmptyInventoryBackground(VisualElement target)

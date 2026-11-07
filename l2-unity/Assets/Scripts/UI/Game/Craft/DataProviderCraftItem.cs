@@ -24,8 +24,7 @@ public class DataProviderCraftItem : AbstractDataFunction
 
             VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
             VisualElement icon = container.Q<VisualElement>("icon");
-            Texture2D texture = IconManager.Instance.GetIcon(itemInstance.ItemId);
-            AddElementIfNotNull(groupBoxIcon, icon, texture);
+            AddItemIconIfPresent(groupBoxIcon, icon, itemInstance.ItemId);
 
             VisualElement gradeBox = container.Q<VisualElement>("grade");
             Texture2D grade = text.GetGradeTexture();

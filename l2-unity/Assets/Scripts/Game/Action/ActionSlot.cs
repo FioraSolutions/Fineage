@@ -33,8 +33,7 @@ public class ActionSlot : L2DraggableSlot
 
         ActionId = (int)actionType;
         Action = ActionNameTable.Instance.GetAction(actionType);
-        var icon = IconManager.Instance.LoadTextureByName(ConvertIcon(actionType));
-        _slotBg.style.backgroundImage = icon;
+        L2SlotIconView.SetNamedIcon(_slotBg, ConvertIcon(actionType));
 
         if (_tooltipManipulator != null)
         {

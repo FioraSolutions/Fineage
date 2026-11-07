@@ -78,8 +78,7 @@ public class CooldownAnimationService
             rechargeMaskBg.style.display = DisplayStyle.Flex;
         }
 
-        if (IconManager.Instance != null)
-            reuseElement.style.backgroundImage = IconManager.Instance.LoadTextureByName("Icon_dualcap");
+        L2SlotIconView.SetNamedIcon(reuseElement, "Icon_dualcap");
         reuseElement.style.backgroundColor = new Color(0f, 0f, 0f, 0.9f);
     }
 

@@ -219,19 +219,15 @@ public class TargetWindow : L2Window {
             : null;
 
         // Classic property_list can reference skills without Skillgrp rows — still show name if known.
-        Texture2D iconTex = null;
-        if (skill != null && !string.IsNullOrEmpty(skill.Icon) && IconManager.Instance != null)
-            iconTex = IconManager.Instance.LoadTextureByName(skill.Icon);
-        if (iconTex == null && IconManager.Instance != null)
-            iconTex = IconManager.Instance.LoadTextureByName("skill" + skillId);
-
-        if (iconTex == null && nameData == null)
-            return false;
-
         var icon = new VisualElement();
         icon.AddToClassList("target-property-icon");
-        if (iconTex != null)
-            icon.style.backgroundImage = new StyleBackground(iconTex);
+
+        bool painted = skill != null && L2SlotIconView.TrySetNamedIcon(icon, skill.Icon);
+        if (!painted)
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + skillId);
+
+        if (!painted && nameData == null)
+            return false;
 
         string tip = BuildPropertyTooltip(nameData, skillId, level);
         if (!string.IsNullOrEmpty(tip))
