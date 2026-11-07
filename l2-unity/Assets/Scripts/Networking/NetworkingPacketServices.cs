@@ -14,6 +14,7 @@ public static class NetworkingPacketServices
     static LoginWindow _loginWindow;
     static PlayerController _player;
     static EventProcessor _events;
+    static NetSession _session;
 
     public static void Bind(
         World world = null,
@@ -23,7 +24,8 @@ public static class NetworkingPacketServices
         LoginClient login = null,
         LoginWindow loginWindow = null,
         PlayerController player = null,
-        EventProcessor events = null)
+        EventProcessor events = null,
+        NetSession session = null)
     {
         if (world != null)
             _world = world;
@@ -41,6 +43,20 @@ public static class NetworkingPacketServices
             _player = player;
         if (events != null)
             _events = events;
+        if (session != null)
+            _session = session;
+    }
+
+    public static NetSession Session
+    {
+        get
+        {
+            if (_session != null)
+                return _session;
+#pragma warning disable CS0618
+            return NetSession.Instance;
+#pragma warning restore CS0618
+        }
     }
 
     public static EventProcessor Events =>

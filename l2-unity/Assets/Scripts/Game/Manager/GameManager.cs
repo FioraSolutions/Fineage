@@ -28,10 +28,7 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     #region Lifecycle
 
-    private SceneLoader Scenes
-    {
-        get { return _sceneLoader != null ? _sceneLoader : SceneLoader.Instance; }
-    }
+    private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
     public bool IsSwitchingServer { get; set; } = false;
     public bool WorldSpawnReady { get; internal set; }
@@ -134,6 +131,7 @@ public class GameManager : MonoBehaviour, IGameManager {
     {
         _lobbyFlow = lobbyFlow;
         _lobbyFlow.Attach(this);
+        LobbyFlowPacketServices.Bind(scenes: _sceneLoader);
     }
 
     private void Start() {
@@ -186,8 +184,9 @@ public class GameManager : MonoBehaviour, IGameManager {
     /// </summary>
     public static void DisconnectZoneSession()
     {
-        if (NetSession.Instance != null)
-            UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+        NetSession net = NetworkingPacketServices.Session;
+        if (net != null)
+            UnityEngine.Object.Destroy(net.gameObject);
     }
 
     #region Lobby flow (delegates to LobbyFlowController)

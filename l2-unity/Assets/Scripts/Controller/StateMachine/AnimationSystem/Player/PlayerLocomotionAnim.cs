@@ -36,7 +36,7 @@ public static class LocomotionCrossFadeSettings
     /// </summary>
     public static float ResolveDuration(string animName, IAnimationController controller = null)
     {
-        float duration = AnimTweenTable.Instance.TryGetTween(animName, out float tween)
+        float duration = TablePacketServices.AnimTweens.TryGetTween(animName, out float tween)
             ? tween
             : FixedDuration;
 

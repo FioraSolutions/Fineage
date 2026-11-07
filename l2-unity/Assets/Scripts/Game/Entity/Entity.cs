@@ -337,7 +337,7 @@ public class Entity : MonoBehaviour {
             ? controllerName
             : controllerName + "_anim";
 
-        float rate = AnimTweenTable.Instance.TryGetRate(mesh, sequence);
+        float rate = TablePacketServices.AnimTweens.TryGetRate(mesh, sequence);
         return NumberUtils.NpcLocomotionAnimRate(rate);
     } 
 
