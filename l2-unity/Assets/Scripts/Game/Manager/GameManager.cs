@@ -223,8 +223,7 @@ public class GameManager : MonoBehaviour, IGameManager {
         IsSwitchingServer = false;
         WorldSpawnReady = false;
         GameState = GameState.LOGIN_SCREEN;
-        if (MusicManager.Instance != null)
-            MusicManager.Instance.Clear();
+        MusicPacketServices.Music?.Clear();
         Scenes.LoadMenu();
         yield break;
     }

@@ -5,7 +5,6 @@ public static class LobbyFlowPacketServices
 {
     private static SceneLoader _scenes;
     private static PlayerStateMachine _playerState;
-    private static MusicManager _music;
 
     public static void Bind(
         SceneLoader scenes = null,
@@ -17,7 +16,7 @@ public static class LobbyFlowPacketServices
         if (playerState != null)
             _playerState = playerState;
         if (music != null)
-            _music = music;
+            MusicPacketServices.Bind(music: music);
     }
 
     public static SceneLoader Scenes =>
@@ -26,6 +25,5 @@ public static class LobbyFlowPacketServices
     public static PlayerStateMachine PlayerState =>
         _playerState != null ? _playerState : PlayerStateMachine.Instance;
 
-    public static MusicManager Music =>
-        _music != null ? _music : MusicManager.Instance;
+    public static MusicManager Music => MusicPacketServices.Music;
 }
