@@ -7,14 +7,28 @@ using UnityEngine;
 
 public class LogongrpTable {
     private static LogongrpTable _instance;
+
+    [System.Obsolete("Use [Inject] LogongrpTable or TablePacketServices.LogonGrps instead")]
     public static LogongrpTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<LogongrpTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new LogongrpTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(LogongrpTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     public List<Logongrp> LogonGrps { get; private set; }

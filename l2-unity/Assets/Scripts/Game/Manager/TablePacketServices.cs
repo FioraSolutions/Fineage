@@ -156,8 +156,28 @@ public static class TablePacketServices
     public static ModelTable Models =>
         _models != null ? _models : ModelTable.Instance;
 
-    public static LogongrpTable LogonGrps =>
-        _logonGrps != null ? _logonGrps : LogongrpTable.Instance;
+    public static LogongrpTable LogonGrps
+    {
+        get
+        {
+            if (_logonGrps != null)
+                return _logonGrps;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<LogongrpTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return LogongrpTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static SystemMessageTable SystemMessages =>
         _systemMessages != null ? _systemMessages : SystemMessageTable.Instance;

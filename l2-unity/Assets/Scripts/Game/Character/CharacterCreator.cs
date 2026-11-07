@@ -28,14 +28,7 @@ public class CharacterCreator : MonoBehaviour
         get { return _characterBuilder != null ? _characterBuilder : CharacterPacketServices.Builder; }
     }
 
-    private List<Logongrp> LogonGrps
-    {
-        get
-        {
-            LogongrpTable table = _logonGrps != null ? _logonGrps : LogongrpTable.Instance;
-            return table.LogonGrps;
-        }
-    }
+    private List<Logongrp> LogonGrps => TablePacketServices.LogonGrps.LogonGrps;
 
     private bool _pawnRotating = false;
     private bool _pawnRotatingRight = true;
@@ -66,6 +59,7 @@ public class CharacterCreator : MonoBehaviour
     private void WireCharacterPacketServices()
     {
         CharacterPacketServices.Bind(animations: _animations, builder: _characterBuilder);
+        TablePacketServices.Bind(logonGrps: _logonGrps);
     }
 
     private void Update() {

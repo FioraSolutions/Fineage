@@ -25,6 +25,7 @@ public sealed class AppLifetimeScope : LifetimeScope
             App.Container = container;
             AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);
+            LogongrpTable.Bind(container.Resolve<LogongrpTable>());
             ZoneCommands.Bind(container.Resolve<IZoneTransport>());
             GameManager manager = container.Resolve<GameManager>();
             AppLoginSessionApplyIncomingPacketServices.BindApp(
