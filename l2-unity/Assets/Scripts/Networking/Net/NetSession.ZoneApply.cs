@@ -188,7 +188,7 @@ public sealed partial class NetSession
     void ApplyTargetUnselected(TargetUnselectedNetMsg msg)
     {
         if (_combatTarget != null) _combatTarget.ClearTargetFromZone();
-        else TargetManager.Instance?.ClearTargetSilently();
+        else TargetPacketServices.Targets?.ClearTargetSilently();
     }
 
     void ApplyAttackState(AttackStateMsg attack)

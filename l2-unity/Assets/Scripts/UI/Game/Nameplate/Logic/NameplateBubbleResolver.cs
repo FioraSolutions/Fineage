@@ -12,12 +12,13 @@ public sealed class NameplateBubbleResolver
             return L2TargetRenderType.None;
         }
 
-        if (TargetManager.Instance != null &&
-            TargetManager.Instance.HasTarget() &&
-            TargetManager.Instance.Target.Data != null &&
-            TargetManager.Instance.Target.Data.ObjectTransform == target)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null &&
+            targets.HasTarget() &&
+            targets.Target.Data != null &&
+            targets.Target.Data.ObjectTransform == target)
         {
-            if (TargetManager.Instance.IsAttackTargetSet())
+            if (targets.IsAttackTargetSet())
             {
                 return L2TargetRenderType.Attack;
             }
@@ -63,9 +64,10 @@ public sealed class NameplateBubbleResolver
             return true;
         }
 
-        if (TargetManager.Instance != null &&
-            TargetManager.Instance.HasTarget() &&
-            TargetManager.Instance.Target.Data.ObjectTransform == target)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null &&
+            targets.HasTarget() &&
+            targets.Target.Data.ObjectTransform == target)
         {
             return true;
         }

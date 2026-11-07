@@ -69,7 +69,7 @@ public class TargetWindow : L2Window {
         var closeBtnHandle = (Button) GetElementById("CloseBtn");
         closeBtnHandle.AddManipulator(new ButtonClickSoundManipulator(closeBtnHandle));
         closeBtnHandle.RegisterCallback<MouseUpEvent>(evt => {
-            TargetManager.Instance.ClearTarget();
+            TargetPacketServices.Targets?.ClearTarget();
         });
 
         _nameLabel = (Label)GetElementById("TargetName");
@@ -99,11 +99,12 @@ public class TargetWindow : L2Window {
             return;
         }
 
-        if(TargetManager.Instance.HasTarget())
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null && targets.HasTarget())
         {
             ShowWindow();
 
-            TargetData targetData = TargetManager.Instance.Target;
+            TargetData targetData = targets.Target;
             if(_nameLabel != null) {
                 _nameLabel.text = targetData.Identity.Name;
                 _nameLabel.style.color = targetData.GetColorName();

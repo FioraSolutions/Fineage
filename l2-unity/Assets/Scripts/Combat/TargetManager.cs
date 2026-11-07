@@ -70,6 +70,7 @@ public class TargetManager : MonoBehaviour
     void WireControllerPacketServices()
     {
         ControllerPacketServices.Bind(targets: this, gameWorld: GameWorld);
+        TargetPacketServices.Bind(targets: this);
     }
 
     void OnDestroy()

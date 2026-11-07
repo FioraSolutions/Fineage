@@ -288,7 +288,9 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(PlayerInventory))
             return InventoryPacketServices.Inventory as T;
         if (typeof(T) == typeof(TargetManager))
+#pragma warning disable CS0618 // Bootstrap locator; breaks container resolve cycle
             return TargetManager.Instance as T;
+#pragma warning restore CS0618
         if (typeof(T) == typeof(TradeWindow))
             return TradePacketServices.Trade as T;
         if (typeof(T) == typeof(TradeRequestWindow))

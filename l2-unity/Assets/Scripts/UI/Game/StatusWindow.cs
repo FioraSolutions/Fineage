@@ -148,7 +148,7 @@ public class StatusWindow : L2Window
     private void SelectPlayerAsTarget()
     {
         PlayerEntity player = PlayerEntity.Instance;
-        if (player == null || TargetManager.Instance == null)
+        if (player == null || TargetPacketServices.Targets == null)
         {
             return;
         }

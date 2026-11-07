@@ -461,9 +461,10 @@ public class ClanWindow : L2TwoPanels
 
     private void OkInvite()
     {
-        if (TargetManager.Instance.HasTarget() && TargetManager.Instance.Target.GetEntity() != null)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null && targets.HasTarget() && targets.Target.GetEntity() != null)
         {
-            int id = TargetManager.Instance.Target != null ? TargetManager.Instance.Target.GetEntity().Identity.Id : 0;
+            int id = targets.Target != null ? targets.Target.GetEntity().Identity.Id : 0;
 
             ZoneCommands.Send(new RequestJoinPledgeCommand(id));
         }

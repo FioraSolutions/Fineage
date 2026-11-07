@@ -91,11 +91,12 @@ public sealed class NameplateEntryStore
             }
         }
 
-        if (TargetManager.Instance != null &&
-            TargetManager.Instance.HasTarget() &&
-            TargetManager.Instance.Target?.Data?.ObjectTransform != null)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null &&
+            targets.HasTarget() &&
+            targets.Target?.Data?.ObjectTransform != null)
         {
-            Entity e = TargetManager.Instance.Target.Data.ObjectTransform.GetComponent<Entity>();
+            Entity e = targets.Target.Data.ObjectTransform.GetComponent<Entity>();
             if (e != null)
             {
                 UpsertEntry(e, defaultNameColor);
