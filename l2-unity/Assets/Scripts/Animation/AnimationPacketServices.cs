@@ -9,12 +9,14 @@ public static class AnimationPacketServices
     private static IMoveAllCharacters _moves;
     private static PacketApplyQueue _applyQueue;
     private static PlayerAnimationController _playerAnimation;
+    private static StriderRideService _striderRide;
 
     public static void Bind(
         IAnimationManager animations = null,
         IMoveAllCharacters moves = null,
         PacketApplyQueue applyQueue = null,
-        PlayerAnimationController playerAnimation = null)
+        PlayerAnimationController playerAnimation = null,
+        StriderRideService striderRide = null)
     {
         if (animations != null)
             _animations = animations;
@@ -24,6 +26,8 @@ public static class AnimationPacketServices
             _applyQueue = applyQueue;
         if (playerAnimation != null)
             _playerAnimation = playerAnimation;
+        if (striderRide != null)
+            _striderRide = striderRide;
     }
 
     public static IAnimationManager Animations =>
@@ -40,6 +44,11 @@ public static class AnimationPacketServices
         _playerAnimation != null
             ? _playerAnimation
             : ResolveFromGame<PlayerAnimationController>() ?? LegacyPlayerAnimationInstance();
+
+    public static StriderRideService StriderRide =>
+        _striderRide != null
+            ? _striderRide
+            : ResolveFromGame<StriderRideService>() ?? LegacyStriderRideInstance();
 
     static T ResolveFromGame<T>() where T : class
     {
@@ -58,6 +67,8 @@ public static class AnimationPacketServices
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
     static PlayerAnimationController LegacyPlayerAnimationInstance() => PlayerAnimationController.Instance;
+
+    static StriderRideService LegacyStriderRideInstance() => StriderRideService.Instance;
 #pragma warning restore CS0618
 
     public static void QueueOnMain(Action action)

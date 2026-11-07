@@ -75,8 +75,9 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
 
         if (PlayerStriderAnim.TryResolve(animationName, out bool mountRunning))
         {
-            if (StriderRideService.Instance != null)
-                StriderRideService.Instance.SetMountGait(objectId, mountRunning);
+            StriderRideService striderRide = AnimationPacketServices.StriderRide;
+            if (striderRide != null)
+                striderRide.SetMountGait(objectId, mountRunning);
             if (!PlayerLocomotionCrossFade.IsAlreadyPlaying(controller, PlayerStriderAnim.State))
             {
                 DesableLastPlayerAnimationElseTrue(objectId, controller);
