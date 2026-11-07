@@ -135,14 +135,15 @@
 
     static CharSelectInfoPackage ResolveSelectChar()
     {
-        if (CharSelectWindow.Instance != null)
+        CharSelectWindow window = LocatorApplyIncomingPacketServices.CharSelect;
+        if (window != null)
         {
-            CharSelectInfoPackage fromWindow = CharSelectWindow.Instance.GetSelectChar();
+            CharSelectInfoPackage fromWindow = window.GetSelectChar();
             if (fromWindow != null)
                 return fromWindow;
         }
 
-        CharacterSelector selector = LoginPacketServices.Characters;
+        CharacterSelector selector = LocatorApplyIncomingPacketServices.Characters;
         if (selector != null)
             return selector.SelectedInterludeCharacter;
 
