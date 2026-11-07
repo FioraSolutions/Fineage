@@ -38,7 +38,7 @@ public static class NetGearSession
         IZoneTransport transport = ZoneCommands.Transport;
         if (transport != null && transport.PlayerInfo.Identity != null &&
             transport.PlayerInfo.Identity.Id == user.ObjectId)
-            NetDomainMap.OverlayUserInfo(transport.PlayerInfo, user);
+            NetGearMap.OverlayUserInfo(transport.PlayerInfo, user);
 
         PlayerEntity player = PlayerEntity.Instance;
         if (player != null && player.Identity != null && player.Identity.Id == user.ObjectId)
@@ -85,9 +85,9 @@ public static class NetGearSession
 
     public static PlayerInfoInterlude PrepareSpawn(NetPlayerSpawned spawned)
     {
-        PlayerInfoInterlude info = NetDomainMap.ToPlayerInfo(spawned);
+        PlayerInfoInterlude info = NetEntityMap.ToPlayerInfo(spawned);
         if (_hasUser)
-            NetDomainMap.OverlayUserInfo(info, _user);
+            NetGearMap.OverlayUserInfo(info, _user);
         StorageNpc.getInstance().AddUserInfo(new UserInfoDto(info));
         int rhand = info.Appearance != null ? info.Appearance.RHand : 0;
         int classId = info.Identity != null ? info.Identity.PlayerClass : 0;
@@ -121,7 +121,7 @@ public static class NetGearSession
         {
             if (_hasItems && !_itemsApplied)
             {
-                ItemListDto list = NetDomainMap.ToItemListDto(_items);
+                ItemListDto list = NetGearMap.ToItemListDto(_items);
                 InventoryApplyService inventory = ApplyServices.Inventory;
                 if (inventory != null) inventory.ApplyItemList(list);
                 else ItemListApplyIncomingPacketServices.ApplyItemList(list);
@@ -134,7 +134,7 @@ public static class NetGearSession
 
             for (int i = 0; i < _updates.Count; i++)
             {
-                InventoryUpdateDto update = NetDomainMap.ToInventoryUpdateDto(_updates[i]);
+                InventoryUpdateDto update = NetGearMap.ToInventoryUpdateDto(_updates[i]);
                 InventoryApplyService inventory = ApplyServices.Inventory;
                 if (inventory != null) inventory.ApplyInventoryUpdate(update);
                 else InventoryUpdateApplyIncomingPacketServices.ApplyInventoryUpdate(update);
@@ -167,7 +167,7 @@ public static class NetGearSession
             Stats = stats,
             Status = status
         };
-        NetDomainMap.OverlayUserInfo(info, user);
+        NetGearMap.OverlayUserInfo(info, user);
         player.Running = appearance.Running;
         if (stats.RunRealSpeed > 0.001f)
             player.UpdateRunSpeed(stats.RunRealSpeed);
