@@ -30,7 +30,7 @@ public static class WorldEnterDiag
         sb.Append(" Camera.main=");
         AppendCamera(sb, main);
 
-        CameraController cc = CameraController.Instance;
+        CameraController cc = CameraPacketServices.Controller;
         sb.Append(" CameraController=");
         if (cc == null)
             sb.Append("null");

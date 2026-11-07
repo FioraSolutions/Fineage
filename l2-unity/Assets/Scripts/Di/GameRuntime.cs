@@ -70,7 +70,7 @@ public sealed class GameRuntime
     public EffectManager Effects { get { return Live(ref _effects, EffectManager.Instance); } }
     public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }
     public IGameEventBus GameEvents => _gameEvents;
-    public CameraController Camera { get { return Live(ref _camera, CameraController.Instance); } }
+    public CameraController Camera { get { return Live(ref _camera, CameraPacketServices.Controller); } }
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharactersPacketServices.Moves); } }
     public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
 #pragma warning disable CS0618 // Locator fallback until drain completes

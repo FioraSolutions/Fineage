@@ -578,7 +578,7 @@ public class SceneLoader : MonoBehaviour
     /// <summary>Enable gameplay follow-cam; it must own Camera.main after lobby is gone.</summary>
     static void EnsureGameplayCamera()
     {
-        CameraController controller = CameraController.Instance;
+        CameraController controller = CameraPacketServices.Controller;
         if (controller == null)
             controller = UnityEngine.Object.FindFirstObjectByType<CameraController>(FindObjectsInactive.Include);
         if (controller == null)
