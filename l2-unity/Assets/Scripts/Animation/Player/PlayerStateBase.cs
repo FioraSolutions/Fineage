@@ -61,11 +61,12 @@ public class PlayerStateBase : StateMachineBehaviour
 
         //Debug.Log("player Set bool: " + name);
 
-        PlayerAnimationController.Instance.SetBool(name, value, share);
+        AnimationPacketServices.PlayerAnimation?.SetBool(name, value, share);
     }
 
     public bool GetBool(string name)
     {
-       return  PlayerAnimationController.Instance.GetBool(name);
+        PlayerAnimationController playerAnimation = AnimationPacketServices.PlayerAnimation;
+        return playerAnimation != null && playerAnimation.GetBool(name);
     }
 }

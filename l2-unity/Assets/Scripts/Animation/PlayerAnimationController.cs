@@ -9,6 +9,8 @@ using static UnityEngine.Rendering.DebugUI;
 public class PlayerAnimationController : BaseAnimationController
 {
     private static PlayerAnimationController _instance;
+
+    [System.Obsolete("Use AnimationPacketServices.PlayerAnimation or [Inject] PlayerAnimationController instead")]
     public static PlayerAnimationController Instance { get { return _instance; } }
 
     public override void Initialize()
@@ -22,6 +24,7 @@ public class PlayerAnimationController : BaseAnimationController
         }
 
         _instance = this;
+        AnimationPacketServices.Bind(playerAnimation: this);
     }
 
     new void OnDestroy()

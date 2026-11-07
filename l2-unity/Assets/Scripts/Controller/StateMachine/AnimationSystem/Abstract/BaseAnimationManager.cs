@@ -137,7 +137,7 @@ public abstract class BaseAnimationManager
             return;
         }
 
-        PlayerAnimationController.Instance.SetBool(animationName, true);
+        controller.SetBool(animationName, true);
     }
 
     public string GetFinalNameAnim(int objectId , string animationName)
