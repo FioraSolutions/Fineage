@@ -515,7 +515,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         MagicCastData cast = entity.GetMagicCastData();
         int npcId = entity.Identity != null ? entity.Identity.NpcId : 0;
         string sequence;
-        bool hasNpcOverride = MobSkillAnimgrpTable.Instance.TryGetSequence(
+        bool hasNpcOverride = TablePacketServices.MobSkillAnimGrps.TryGetSequence(
             npcId, magic.SkillId, out sequence);
         if (hasNpcOverride)
             sequence = ResolvePlayableNpcSkillSequence(entity, sequence);

@@ -118,9 +118,9 @@ public class ChatWindow : L2Window
         yield return new WaitForEndOfFrame();
         diagonalResizeManipulator.SnapSize();
         // SystemMsgWnd must match ChatWnd width after SnapSize/layout.
-        SystemMsgWindow.Instance?.SyncDock();
+        SystemMsgWindow.Ensure()?.SyncDock();
         yield return null;
-        SystemMsgWindow.Instance?.SyncDock();
+        SystemMsgWindow.Ensure()?.SyncDock();
     }
 
     private void CreateTabs()
