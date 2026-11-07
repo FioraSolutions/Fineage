@@ -24,7 +24,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
         {
             case Event.READY_TO_ACT:
 
-                AnimationCombo animComboAct = SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
+                AnimationCombo animComboAct = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
                 //not use bow atk
                 //RotateFaceToMonster(_stateMachine.Player);
                 _ = SkillExecutor.Instance.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
@@ -51,7 +51,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 //2013 scroll effect
                 if (SetupDurationHelper.IsLongCastSkill(useSkill))
                 {
-                    AnimationCombo selfCombo = SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
+                    AnimationCombo selfCombo = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
                     Entity entity = _stateMachine.Player;
                     int objectId = entity.Identity.Id;
                     SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(useSkill, objectId, entity, selfCombo);

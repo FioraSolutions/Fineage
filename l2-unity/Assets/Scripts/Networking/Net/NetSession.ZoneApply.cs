@@ -966,7 +966,7 @@ public sealed partial class NetSession
 
     static bool IsPassiveSkill(int skillId, int level)
     {
-        Skillgrp skill = SkillgrpTable.Instance != null ? SkillgrpTable.Instance.GetSkill(skillId, level) : null;
+        Skillgrp skill = TablePacketServices.SkillGrps != null ? TablePacketServices.SkillGrps.GetSkill(skillId, level) : null;
         return skill != null && skill.OperateType == 2;
     }
 

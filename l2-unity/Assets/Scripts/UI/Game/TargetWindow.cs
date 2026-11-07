@@ -224,8 +224,8 @@ public class TargetWindow : L2Window {
 
     bool TryAddPropertyIcon(int skillId, int level)
     {
-        Skillgrp skill = SkillgrpTable.Instance != null
-            ? SkillgrpTable.Instance.GetSkill(skillId, level)
+        Skillgrp skill = TablePacketServices.SkillGrps != null
+            ? TablePacketServices.SkillGrps.GetSkill(skillId, level)
             : null;
         SkillNameData nameData = SkillNameTable.Instance != null
             ? SkillNameTable.Instance.GetName(skillId, level)

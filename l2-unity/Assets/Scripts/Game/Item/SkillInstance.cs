@@ -25,30 +25,30 @@ public class SkillInstance : AbstractSkill
 
     public int GetHp()
     {
-        return SkillgrpTable.Instance.GetSkill(SkillID, Level).HpConsume;
+        return TablePacketServices.SkillGrps.GetSkill(SkillID, Level).HpConsume;
     }
 
     public int GetMp()
     {
-        return SkillgrpTable.Instance.GetSkill(SkillID, Level).MpConsume;
+        return TablePacketServices.SkillGrps.GetSkill(SkillID, Level).MpConsume;
     }
 
     public int GetRange()
     {
-        return SkillgrpTable.Instance.GetSkill(SkillID, Level).CastRange;
+        return TablePacketServices.SkillGrps.GetSkill(SkillID, Level).CastRange;
     }
     public double GetReuseTime()
     {
-        return SkillgrpTable.Instance.GetSkill(SkillID, Level).ReuseDelay;
+        return TablePacketServices.SkillGrps.GetSkill(SkillID, Level).ReuseDelay;
     }
 
     public double GetHitTime()
     {
-        return SkillgrpTable.Instance.GetSkill(SkillID, Level).HitTime;
+        return TablePacketServices.SkillGrps.GetSkill(SkillID, Level).HitTime;
     }
     public bool IsMagic()
     {
-        var skill = SkillgrpTable.Instance.GetSkill(SkillID, Level);
+        var skill = TablePacketServices.SkillGrps.GetSkill(SkillID, Level);
         if (skill == null)
             return false;
         return skill.IsMagic == 1;
@@ -56,7 +56,7 @@ public class SkillInstance : AbstractSkill
 
     public string Icon()
     {
-        return SkillgrpTable.Instance.GetSkill(SkillID, Level)?.Icon ?? "";
+        return TablePacketServices.SkillGrps.GetSkill(SkillID, Level)?.Icon ?? "";
     }
     public string GetName()
     {

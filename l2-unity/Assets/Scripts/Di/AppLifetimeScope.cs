@@ -26,6 +26,7 @@ public sealed class AppLifetimeScope : LifetimeScope
             AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);
             LogongrpTable.Bind(container.Resolve<LogongrpTable>());
+            SkillgrpTable.Bind(container.Resolve<SkillgrpTable>());
             ZoneCommands.Bind(container.Resolve<IZoneTransport>());
             GameManager manager = container.Resolve<GameManager>();
             AppLoginSessionApplyIncomingPacketServices.BindApp(
@@ -55,7 +56,9 @@ public sealed class AppLifetimeScope : LifetimeScope
         builder.RegisterInstance(AnimLeghtTable.Instance);
         builder.RegisterInstance(SysStringTable.Instance);
         builder.RegisterInstance(SkillNameTable.Instance);
+#pragma warning disable CS0618
         builder.RegisterInstance(SkillgrpTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(MobSkillAnimgrpTable.Instance);
         builder.RegisterInstance(AnimTweenTable.Instance);
         builder.RegisterInstance(EnterEventTable.Instance);

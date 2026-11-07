@@ -13,10 +13,22 @@ public class SkillgrpTable
 {
     private static SkillgrpTable _instance;
 
+    [Obsolete("Use [Inject] SkillgrpTable or TablePacketServices.SkillGrps instead")]
     public static SkillgrpTable Instance
     {
         get
         {
+            if (_instance == null && App.HasContainer)
+            {
+                try
+                {
+                    _instance = App.Resolve<SkillgrpTable>();
+                }
+                catch
+                {
+                }
+            }
+
             if (_instance == null)
             {
                 _instance = new SkillgrpTable();
@@ -24,6 +36,12 @@ public class SkillgrpTable
 
             return _instance;
         }
+    }
+
+    public static void Bind(SkillgrpTable table)
+    {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, Dictionary<int, Skillgrp>> _skills;
@@ -74,6 +92,7 @@ public class SkillgrpTable
 
     public void Initialize()
     {
+        TablePacketServices.Bind(skillGrps: this);
         _skills = new Dictionary<int, Dictionary<int, Skillgrp>>();
         _animationsCombo = new Dictionary<string, AnimationCombo>();
         ReadActions();

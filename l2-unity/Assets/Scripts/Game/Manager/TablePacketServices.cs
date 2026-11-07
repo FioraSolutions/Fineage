@@ -141,8 +141,28 @@ public static class TablePacketServices
     public static SkillNameTable SkillNames =>
         _skillNames != null ? _skillNames : SkillNameTable.Instance;
 
-    public static SkillgrpTable SkillGrps =>
-        _skillGrps != null ? _skillGrps : SkillgrpTable.Instance;
+    public static SkillgrpTable SkillGrps
+    {
+        get
+        {
+            if (_skillGrps != null)
+                return _skillGrps;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<SkillgrpTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return SkillgrpTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static MobSkillAnimgrpTable MobSkillAnimGrps =>
         _mobSkillAnimGrps != null ? _mobSkillAnimGrps : MobSkillAnimgrpTable.Instance;

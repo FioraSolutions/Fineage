@@ -74,7 +74,7 @@ public class MagicSkillUseDto : IWireDto
         _tY = reader.ReadI();
         _tZ = reader.ReadI();
         _targetPos = VectorUtils.ConvertPosToUnity(new Vector3(_tX, _tY, _tZ));
-        _skillGrp = SkillgrpTable.Instance.GetSkill(_skillId, _skilllvl);
+        _skillGrp = TablePacketServices.SkillGrps.GetSkill(_skillId, _skilllvl);
     }
 
     /// <summary>Fineage Net <c>MagicSkillUse</c> (1066) — positions come from entities at apply time.</summary>
@@ -92,8 +92,8 @@ public class MagicSkillUseDto : IWireDto
         _skilllvl = skillLevel;
         _hittime = hitTimeMs;
         _reusedelay = reuseDelayMs;
-        _skillGrp = SkillgrpTable.Instance != null
-            ? SkillgrpTable.Instance.GetSkill(_skillId, _skilllvl)
+        _skillGrp = TablePacketServices.SkillGrps != null
+            ? TablePacketServices.SkillGrps.GetSkill(_skillId, _skilllvl)
             : null;
     }
 

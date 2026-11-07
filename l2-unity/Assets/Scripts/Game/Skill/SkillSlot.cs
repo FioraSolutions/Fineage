@@ -52,7 +52,7 @@ public class SkillSlot : L2DraggableSlot
         _id = skillId;
         _level = level;
         _isPassive = isPassive;
-        var skill = SkillgrpTable.Instance.GetSkill(skillId, level);
+        var skill = TablePacketServices.SkillGrps.GetSkill(skillId, level);
         Assign(skill , _isPassive);
     }
 
@@ -65,7 +65,7 @@ public class SkillSlot : L2DraggableSlot
 
         if(_id != -1)
         {
-            var skill = SkillgrpTable.Instance.GetSkill(_id, _level);
+            var skill = TablePacketServices.SkillGrps.GetSkill(_id, _level);
             Assign(skill, _isPassive);
         }
     }

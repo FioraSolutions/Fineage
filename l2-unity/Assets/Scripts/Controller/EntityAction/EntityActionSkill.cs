@@ -618,9 +618,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     static AnimationCombo GetCombo(MagicSkillUseDto magic)
     {
-        if (magic == null || SkillgrpTable.Instance == null)
+        if (magic == null || TablePacketServices.SkillGrps == null)
             return null;
-        return SkillgrpTable.Instance.GetAnimComboBySkillId(magic.SkillId, magic.SkillLvl);
+        return TablePacketServices.SkillGrps.GetAnimComboBySkillId(magic.SkillId, magic.SkillLvl);
     }
 
     static AnimationEventsBase ResolveEvents(Entity entity)

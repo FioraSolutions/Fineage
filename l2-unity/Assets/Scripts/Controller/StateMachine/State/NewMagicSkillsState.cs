@@ -23,9 +23,9 @@ public class NewMagicSkillsState  : AbstractAttackEvents
             case Event.READY_TO_ACT:
             {
                 Skillgrp readyGrp = useSkill.SkillGrp
-                    ?? SkillgrpTable.Instance?.GetSkill(useSkill.SkillId, useSkill.SkillLvl);
-                AnimationCombo readyCombo = SkillgrpTable.Instance != null
-                    ? SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl)
+                    ?? TablePacketServices.SkillGrps?.GetSkill(useSkill.SkillId, useSkill.SkillLvl);
+                AnimationCombo readyCombo = TablePacketServices.SkillGrps != null
+                    ? TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl)
                     : null;
                 string animTag = readyGrp != null ? readyGrp.Animation : "-";
                 string cycleDump = readyCombo != null
@@ -88,9 +88,9 @@ public class NewMagicSkillsState  : AbstractAttackEvents
                 }
 
                 Skillgrp selfGrp = useSkill.SkillGrp
-                    ?? SkillgrpTable.Instance?.GetSkill(useSkill.SkillId, useSkill.SkillLvl);
-                AnimationCombo selfCombo = SkillgrpTable.Instance != null
-                    ? SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl)
+                    ?? TablePacketServices.SkillGrps?.GetSkill(useSkill.SkillId, useSkill.SkillLvl);
+                AnimationCombo selfCombo = TablePacketServices.SkillGrps != null
+                    ? TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl)
                     : null;
                 if (selfCombo == null || SkillExecutor.Instance == null)
                 {
