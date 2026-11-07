@@ -26,9 +26,9 @@ public sealed class NameplateBubbleResolver
             return L2TargetRenderType.Target;
         }
 
-        if (ClickManager.Instance != null &&
-            ClickManager.Instance.HoverObjectData != null &&
-            ClickManager.Instance.HoverObjectData.ObjectTransform == target)
+        if (ControllerPacketServices.Clicks != null &&
+            ControllerPacketServices.Clicks.HoverObjectData != null &&
+            ControllerPacketServices.Clicks.HoverObjectData.ObjectTransform == target)
         {
             return L2TargetRenderType.Normal;
         }
@@ -57,9 +57,9 @@ public sealed class NameplateBubbleResolver
             return false;
         }
 
-        if (ClickManager.Instance != null &&
-            ClickManager.Instance.HoverObjectData != null &&
-            ClickManager.Instance.HoverObjectData.ObjectTransform == target)
+        if (ControllerPacketServices.Clicks != null &&
+            ControllerPacketServices.Clicks.HoverObjectData != null &&
+            ControllerPacketServices.Clicks.HoverObjectData.ObjectTransform == target)
         {
             return true;
         }

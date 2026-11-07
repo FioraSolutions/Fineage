@@ -163,7 +163,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         NameplatesManager.Instance.SetMask(_entityMask);
         if (_geodata != null)
             _geodata.ObstacleMask = _obstacleMask;
-        ClickManager clicks = ClickManager.Instance;
+        ClickManager clicks = ControllerPacketServices.Clicks;
         if (clicks != null)
         {
             LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
