@@ -8,10 +8,10 @@ public class AskJoinPartyDto : IWireDto
 
     public string RequestorName => _requestorName;
     public PartyDistributionType DistributionType => _partyDistributionType;
-    /// <summary>Zone V2 inviter object id; zero on Interlude wire.</summary>
+    /// <summary>Fineage Net inviter object id; zero on Interlude wire.</summary>
     public int RequestorObjectId => _requestorObjectId;
 
-    /// <summary>Build from the Zone V2 party ask-join row (1027).</summary>
+    /// <summary>Build from the Fineage Net party ask-join row (1027).</summary>
     public static AskJoinPartyDto FromNet(int requestorObjectId, string requestorName, int itemDistribution)
     {
         var dto = new AskJoinPartyDto();

@@ -110,7 +110,7 @@ Call-site inventory (2026-11-07): `NetSession` (11), `NetGearSession` (6), party
 - Real asmdef moves (stubs already exist).
 
 ### C3. Doc sync
-- Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
+- [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
 
 ---
 

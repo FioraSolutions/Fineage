@@ -61,7 +61,7 @@ public class InventoryUpdateDto : IWireDto
         }
     }
 
-    /// <summary>Built from the Zone V2 inventory update row.</summary>
+    /// <summary>Built from the Fineage Net inventory update row.</summary>
     public static InventoryUpdateDto FromZoneChanges(
         Dictionary<int, ItemInstance> bag,
         Dictionary<int, ItemInstance> equip)

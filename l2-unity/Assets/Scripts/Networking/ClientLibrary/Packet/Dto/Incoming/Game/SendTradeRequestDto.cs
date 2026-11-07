@@ -6,7 +6,7 @@ public class SendTradeRequestDto : IWireDto
 
     public int SenderId { get { return _senderId; } }
 
-    /// <summary>Build from the Zone V2 trade ask row (1073).</summary>
+    /// <summary>Build from the Fineage Net trade ask row (1073).</summary>
     public static SendTradeRequestDto FromNet(int requestorObjectId, string requestorName)
     {
         var dto = new SendTradeRequestDto();

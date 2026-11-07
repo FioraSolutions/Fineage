@@ -77,7 +77,7 @@ public class MagicSkillUseDto : IWireDto
         _skillGrp = SkillgrpTable.Instance.GetSkill(_skillId, _skilllvl);
     }
 
-    /// <summary>Zone V2 <c>MagicSkillUse</c> (1066) — positions come from entities at apply time.</summary>
+    /// <summary>Fineage Net <c>MagicSkillUse</c> (1066) — positions come from entities at apply time.</summary>
     public void InitFromNet(
         int casterObjectId,
         int targetObjectId,

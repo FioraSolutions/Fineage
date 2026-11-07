@@ -37,7 +37,7 @@ public class AttackDto : IWireDto
 
     
 
-    /// <summary>Zone V2 <c>Attack</c> (1009) — no Interlude multi-hit block.</summary>
+    /// <summary>Fineage Net <c>Attack</c> (1009) — no Interlude multi-hit block.</summary>
     public void InitFromNet(
         int attackerObjId,
         int targetObjId,

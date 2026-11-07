@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Zone V2 payload rows shared by the Net domain mapping after the MessagePack codec was retired.
+/// Fineage Net payload rows shared by the Net domain mapping.
 /// Engine-free: no UnityEngine references.
 /// </summary>
 

@@ -24,7 +24,7 @@ public class AbnormalStatusUpdateDto : IWireDto
         //Debug.Log("AbnormalStatusUpdate update data");
     }
 
-    /// <summary>Built from the Zone V2 abnormal status update row (1017).</summary>
+    /// <summary>Built from the Fineage Net abnormal status update row (1017).</summary>
     public static AbnormalStatusUpdateDto FromZoneEffects(NetAbnormalEffect[] effects)
     {
         var dto = new AbnormalStatusUpdateDto { FullEffectSnapshot = true };
