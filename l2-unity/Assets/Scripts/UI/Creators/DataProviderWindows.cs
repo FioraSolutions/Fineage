@@ -92,7 +92,7 @@ public class DataProviderWindows :AbstractDataProvider
 
             if (item != null)
             {
-                ItemName itemName = ItemNameTable.Instance.GetItemName(itemInfo.GetItemId());
+                ItemName itemName = TablePacketServices.ItemNames.GetItemName(itemInfo.GetItemId());
                 Label itemNamelabel = container.Q<Label>("itemNameLabel");
                 AddElementIfNotEmpty(itemNamelabel, itemNamelabel, itemName.Name +" X " + itemInfo.GetCount());
 

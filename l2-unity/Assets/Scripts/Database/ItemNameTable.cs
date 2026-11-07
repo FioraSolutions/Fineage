@@ -10,14 +10,28 @@ using UnityEngine;
 
 public class ItemNameTable {
     private static ItemNameTable _instance;
+
+    [Obsolete("Use [Inject] ItemNameTable or TablePacketServices.ItemNames instead")]
     public static ItemNameTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<ItemNameTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new ItemNameTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(ItemNameTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, ItemName> _itemNames;

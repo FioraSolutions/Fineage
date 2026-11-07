@@ -39,7 +39,7 @@ public class SeedInfoWindow : L2PopupWindow
 
     private ItemNameTable ItemNames
     {
-        get { return _itemNames != null ? _itemNames : ItemNameTable.Instance; }
+        get { return _itemNames != null ? _itemNames : TablePacketServices.ItemNames; }
     }
 
     protected override void LoadAssets()

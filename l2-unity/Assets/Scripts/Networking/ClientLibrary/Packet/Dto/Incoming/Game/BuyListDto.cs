@@ -180,27 +180,27 @@ public class Product : AbstractServerItem
     {
         if(_itemType2 == (int)EnumType2.TYPE2_WEAPON)
         {
-            return ItemNameTable.Instance.GetItemName(_itemId).Name;
+            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
 
         }else if (_itemType2 == (int)EnumType2.TYPE2_SHIELD_ARMOR)
         {
-            return ItemNameTable.Instance.GetItemName(_itemId).Name;
+            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
         }
         else if (_itemType2 == (int)EnumType2.TYPE2_ACCESSORY)
         {
-            return ItemNameTable.Instance.GetItemName(_itemId).Name;
+            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
         }
         else if (_itemType2 == (int)EnumType2.TYPE2_QUEST)
         {
-            return ItemNameTable.Instance.GetItemName(_itemId).Name;
+            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
         }
         else if (_itemType2 == (int)EnumType2.TYPE2_MONEY)
         {
-            return ItemNameTable.Instance.GetItemName(_itemId).Name;
+            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
         }
         else if (_itemType2 == (int)EnumType2.TYPE2_OTHER)
         {
-            return ItemNameTable.Instance.GetItemName(_itemId).Name;
+            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
         }
         return "";
     }

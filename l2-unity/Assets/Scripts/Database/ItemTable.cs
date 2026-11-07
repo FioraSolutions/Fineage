@@ -93,7 +93,7 @@ public class ItemTable
 
     private void CacheWeapons()
     {
-        foreach (KeyValuePair<int, Weapongrp> kvp in WeapongrpTable.Instance.WeaponGrps)
+        foreach (KeyValuePair<int, Weapongrp> kvp in TablePacketServices.WeaponGrps.WeaponGrps)
         {
             if (_armors.ContainsKey(kvp.Key))
             {
@@ -101,7 +101,7 @@ public class ItemTable
             }
 
             Weapongrp weapongrp = kvp.Value;
-            ItemName itemName = ItemNameTable.Instance.GetItemName(kvp.Key);
+            ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
             ItemStatData itemStatData = ItemStatDataTable.Instance.GetItemStatData(kvp.Key);
 
             Weapon weapon = new Weapon(kvp.Key, itemName, itemStatData, weapongrp);
@@ -116,7 +116,7 @@ public class ItemTable
 
     private void CacheArmors()
     {
-        foreach (KeyValuePair<int, Armorgrp> kvp in ArmorgrpTable.Instance.ArmorGrps)
+        foreach (KeyValuePair<int, Armorgrp> kvp in TablePacketServices.ArmorGrps.ArmorGrps)
         {
             if (_armors.ContainsKey(kvp.Key))
             {
@@ -129,7 +129,7 @@ public class ItemTable
             }
 
             Armorgrp armorgrp = kvp.Value;
-            ItemName itemName = ItemNameTable.Instance.GetItemName(kvp.Key);
+            ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
             ItemStatData itemStatData = ItemStatDataTable.Instance.GetItemStatData(kvp.Key);
 
             Armor armor = new Armor(kvp.Key, itemName, itemStatData, armorgrp);
@@ -152,7 +152,7 @@ public class ItemTable
             }
 
             EtcItemgrp itemgrp = kvp.Value;
-            ItemName itemName = ItemNameTable.Instance.GetItemName(kvp.Key);
+            ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
             ItemStatData itemStatData = ItemStatDataTable.Instance.GetItemStatData(kvp.Key);
 
             EtcItem item = new EtcItem(kvp.Key, itemName, itemStatData, itemgrp);

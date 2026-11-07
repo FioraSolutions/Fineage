@@ -99,8 +99,28 @@ public static class TablePacketServices
     public static ItemTable Items =>
         _items != null ? _items : LegacyItemTableInstance();
 
-    public static ItemNameTable ItemNames =>
-        _itemNames != null ? _itemNames : ItemNameTable.Instance;
+    public static ItemNameTable ItemNames
+    {
+        get
+        {
+            if (_itemNames != null)
+                return _itemNames;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<ItemNameTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return ItemNameTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static ItemStatDataTable ItemStats =>
         _itemStats != null ? _itemStats : ItemStatDataTable.Instance;
