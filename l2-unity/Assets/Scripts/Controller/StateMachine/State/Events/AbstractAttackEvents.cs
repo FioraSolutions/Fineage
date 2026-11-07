@@ -33,7 +33,9 @@ public abstract class AbstractAttackEvents : StateBase
 
         if (ProjectileManager.Instance != null)
         {
-            SkillExecutor.Instance.OnAllAnimationFinished += OnAllAnimationFinishedFromExecutor;
+            SkillExecutor executor = SkillExecutorPacketServices.Executor;
+            if (executor != null)
+                executor.OnAllAnimationFinished += OnAllAnimationFinishedFromExecutor;
             // EffectOnly magic chain only — bow ArrowStick is HitManager ← OnHitMonster (persistent).
             ProjectileManager.Instance.OnHitEffectProjectile += OnHitEffectProjectile;
         }
@@ -59,7 +61,9 @@ public abstract class AbstractAttackEvents : StateBase
             _events.OnAnimationAttackShot -= CallBackAttackShot;
         }
 
-        SkillExecutor.Instance.OnAllAnimationFinished -= OnAllAnimationFinishedFromExecutor;
+        SkillExecutor executor = SkillExecutorPacketServices.Executor;
+        if (executor != null)
+            executor.OnAllAnimationFinished -= OnAllAnimationFinishedFromExecutor;
 
         if (ProjectileManager.Instance != null)
         {

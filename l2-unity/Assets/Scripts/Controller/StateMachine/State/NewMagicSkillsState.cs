@@ -39,7 +39,7 @@ public class NewMagicSkillsState  : AbstractAttackEvents
                 }
                 catch (System.Exception) { animatorName = "err"; }
 
-                if (readyCombo == null || SkillExecutor.Instance == null)
+                if (readyCombo == null || SkillExecutorPacketServices.Executor == null)
                 {
                     Debug.LogWarning(
                         "[MagicSkills] READY_TO_ACT FAIL skill=" + useSkill.SkillId +
@@ -48,7 +48,7 @@ public class NewMagicSkillsState  : AbstractAttackEvents
                         " grp=" + (readyGrp != null) +
                         " anim=[" + animTag + "]" +
                         " combo=" + (readyCombo != null) +
-                        " executor=" + (SkillExecutor.Instance != null) +
+                        " executor=" + (SkillExecutorPacketServices.Executor != null) +
                         " animator=" + animatorName);
                     break;
                 }
@@ -73,7 +73,7 @@ public class NewMagicSkillsState  : AbstractAttackEvents
 
                 entity.SetupTotalCastDuration(useSkill.HitTime, flightTimeMs, durations, shotEventTime, useSkill.TargetId, SetupDurationHelper.CastStyleOf(useSkill), SetupDurationHelper.MixComboOf(useSkill));
 
-                _ = SkillExecutor.Instance.ExecuteSkillOverride(readyGrp, entity, readyCombo, _events);
+                _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(readyGrp, entity, readyCombo, _events);
                 break;
             }
             case Event.CANCEL:
@@ -92,7 +92,7 @@ public class NewMagicSkillsState  : AbstractAttackEvents
                 AnimationCombo selfCombo = TablePacketServices.SkillGrps != null
                     ? TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl)
                     : null;
-                if (selfCombo == null || SkillExecutor.Instance == null)
+                if (selfCombo == null || SkillExecutorPacketServices.Executor == null)
                 {
                     Debug.LogWarning(
                         "[MagicSkills] APPLY_SELF missing combo/executor skill=" + useSkill.SkillId +
@@ -101,7 +101,7 @@ public class NewMagicSkillsState  : AbstractAttackEvents
                 }
 
                 SetupDurationHelper.SetupDurationIfHitTimeNot0(useSkill, objectId, entity, selfCombo);
-                _ = SkillExecutor.Instance.ExecuteSkillOverride(selfGrp, entity, selfCombo, _events);
+                _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(selfGrp, entity, selfCombo, _events);
                 break;
             }
 

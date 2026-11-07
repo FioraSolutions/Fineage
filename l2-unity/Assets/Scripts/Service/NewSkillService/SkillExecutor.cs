@@ -19,6 +19,7 @@ public class SkillExecutor : MonoBehaviour
 
     public event Action OnSkillSequenceFinished;
     public event Action<AnimationEventsBase> OnAllAnimationFinished;
+    [System.Obsolete("Use [Inject] SkillExecutor or SkillExecutorPacketServices.Executor instead")]
     public static SkillExecutor Instance { get; private set; }
 
 
@@ -42,6 +43,7 @@ public class SkillExecutor : MonoBehaviour
 
     private void WireServicePacketServices()
     {
+        SkillExecutorPacketServices.Bind(executor: this);
         ServicePacketServices.Bind(animations: _animations, effects: _effects);
     }
 
