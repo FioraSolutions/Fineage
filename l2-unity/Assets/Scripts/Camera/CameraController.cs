@@ -68,6 +68,8 @@ public class CameraController : MonoBehaviour
     }
 
     private static CameraController _instance;
+
+    [System.Obsolete("Use CameraPacketServices.Controller or [Inject] CameraController instead")]
     public static CameraController Instance { get { return _instance; } }
 
     private void Awake()
@@ -75,6 +77,7 @@ public class CameraController : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            CameraPacketServices.Bind(camera: this);
             _camera = GetComponent<Camera>();
             _resolvedPlayerHeight = _unityPlayerHeight;
             // Char-select presentation uses CharSelect layer; gameplay must not draw it.

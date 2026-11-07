@@ -54,9 +54,10 @@ public sealed class NameplateTextDrawer
         bool discardFrac = SnapAnchorToPixels && SnapDiscardSubpixelFrac;
 
         float orbitDist = 0f;
-        if (CameraController.Instance != null)
+        CameraController cameraController = CameraPacketServices.Controller;
+        if (cameraController != null)
         {
-            orbitDist = CameraController.Instance.CurrentDistance;
+            orbitDist = cameraController.CurrentDistance;
         }
 
         for (int i = 0; i < paintList.Count; i++)

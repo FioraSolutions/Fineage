@@ -160,7 +160,7 @@ public class ClickManager : MonoBehaviour
 
     static Camera ResolvePickCamera()
     {
-        CameraController controller = CameraController.Instance;
+        CameraController controller = CameraPacketServices.Controller;
         if (controller != null)
         {
             Camera cam = controller.GetComponent<Camera>();

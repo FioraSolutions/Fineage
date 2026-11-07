@@ -46,7 +46,7 @@ public sealed class KeyboardMoveController : MonoBehaviour
         if (player == null)
             return;
 
-        CameraController camera = CameraController.Instance;
+        CameraController camera = CameraPacketServices.Controller;
         if (camera == null)
             return;
 

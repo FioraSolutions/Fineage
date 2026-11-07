@@ -100,7 +100,7 @@ public sealed class PlayerSpawner
         player.UpdatePAtkSpeedPlayer((int)statsIntr.BasePAtkSpeed);
         player.UpdateMAtkSpeed((int)statsIntr.MAtkSpd);
 
-        CameraController camera = _camera != null ? _camera : CameraController.Instance;
+        CameraController camera = _camera != null ? _camera : CameraPacketServices.Controller;
         if (camera != null)
         {
             camera.enabled = true;
