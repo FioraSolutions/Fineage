@@ -23,60 +23,60 @@ Unified plan from the GPT + DeepSeek architecture reviews, reconciled with epics
 
 ## Phase A — Harden (P0 / early P1)
 
-### A1. Handoff secret fail-closed
+### A1. Handoff secret fail-closed — done
 - `HandoffTokens.FromEnvironment()` must **not** silently use `DefaultSecret` when binding non-loopback.
 - Login + Zone: missing `FINEAGE_HANDOFF_SECRET` on external bind → **refuse start**.
 - Keep `DefaultSecret` only for explicit tests / loopback / `--selftest`.
 - Test: production-path startup without secret fails.
 
-### A2. One-time handoff consume
+### A2. One-time handoff consume — done
 - `IHandoffStore` already exists but only wraps HMAC validate.
 - Add atomic consume (nonce / jti): Postgres OK for single Zone; Redis later for multi-zone.
 - Zone Auth must **consume**, not only verify signature + TTL.
 
-### A3. CommandDeduper sliding window
+### A3. CommandDeduper sliding window — done
 - After prune, replay of purged sequences is accepted today — fix.
 - Reject `sequence <= watermark` even if not in `_seen` (or keep a contiguous bit window).
 - Extend `FramingAndDedupTests`.
 
-### A4. Inbox / outbound delivery classes
+### A4. Inbox / outbound delivery classes — done (coalesce + TrySendCritical + outbound queue env)
 - **Inbox:** do not `DropOldest` for economy / trade / auth; coalesce movement; backpressure or disconnect on critical overflow.
 - **Outbound:** Critical (spawn/despawn, inventory, stats) vs Replaceable (MoveState) vs Transient (VFX). Reliable path must not die in `TrySend` before TCP.
 - Wire `FINEAGE_ZONE_OUTBOUND_QUEUE` into `NetTcpServer.RunAsync` (today logged but ignored → default 256).
 
-### A5. Contract CI truth (client)
+### A5. Contract CI truth (client) — done
 - `sync-net-contract.py --check` skips when Backend missing → false green.
 - CI: checkout Backend at pinned SHA (or `dev` tip) and fail on drift.
 - Optional later: generate client contract from Backend in CI.
 
-### A6. TLS (playtest gate)
+### A6. TLS (playtest gate) — deferred (VPN/LAN playtest)
 - Either transport TLS or Gateway termination before non-local public auth.
 - Can land after A1–A3 if playtest stays VPN/LAN.
 
-### A7. Stop leaking handler exceptions
+### A7. Stop leaking handler exceptions — done (Zone + Login)
 - `RejectAsync(..., ex.Message)` → normalized client reason; full stack only in server logs.
 
 ---
 
 ## Phase B — Simulate cleanly (P1)
 
-### B1. ZoneWorld enter path
+### B1. ZoneWorld enter path — done
 - Load character / inventory / quests / skills **async outside** `_gate`.
 - Under lock: validate session + apply snapshot only.
 - Make `TryEnterAsync` genuinely async.
 
-### B2. Toward Zone Simulation Actor
+### B2. Toward Zone Simulation Actor — later
 - Longer term: single owner of world mutation; net handlers enqueue intents.
 - Do not invent microservices; keep one process until measured pain.
 
-### B3. Client main-thread budget
+### B3. Client main-thread budget — done
 - Cap `/frame` work from `NetSession` `_main` queue; coalesce MoveState; never drop EntityDespawn / inventory.
 
-### B4. NetSession decomposition
-- Transport / Session / Commands / Dispatch / Adapters (review sketch).
-- Replace `async void` send API with `Task` + shared outbound pump (mirror server).
+### B4. NetSession decomposition — partial
+- [x] `NetCommandSender` + zone `Send*` return `Task` (async void wrappers removed).
+- Transport / Session / Commands / Dispatch split and shared outbound pump: later.
 
-### B5. State recovery
+### B5. State recovery — later
 - EnterWorld snapshot + revision; resync / reconnect path when Critical outbound was dropped.
 
 ---
@@ -100,7 +100,7 @@ Fineage Net → NetSession / NetGearSession / PacketServices → Interlude DTO �
 
 1. [x] **Split** `NetDomainMap` into domain adapters; delete `NetCombatMap`, `NetSocialMap`, `NetGearMap`, `NetEntityMap`.
 2. [x] **Expand** apply colocation — DTO construction lives on `NetSession` / `NetGearSession` / packet services; paperdoll overlay on `NetPaperdollApply` (slot constants on `NetPaperdoll`).
-3. **Kill fabricated defaults** (NPC Level=1, HP=100, fixed PAtkSpd) once wire / DAT supplies real values.
+3. [x] **Kill fabricated defaults** — EntitySpawn carries Level/MaxHp/PAtkSpd; dead NetNpcInfo stubs removed.
 4. [x] `NetDomainMap` and split `Net*Map` types deleted; CI guard `scripts/check-frozen-net-domain-maps.py`.
 
 Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, social, combat tails), `NetGearSession` (UserInfo, inventory, skills), party/HUD packet services — no `Net*Map` imports.
