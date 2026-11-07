@@ -75,6 +75,7 @@ Unified plan from the GPT + DeepSeek architecture reviews, reconciled with epics
 ### B4. NetSession decomposition — partial
 - [x] `NetCommandSender` + zone `Send*` return `Task` (async void wrappers removed).
 - [x] Lobby flow extracted to `NetLobbyFlow` (`BeginLobby`, roster CRUD, lobby dispatch, handoff enter orchestration).
+- [x] `NetSession` split into partials (`NetSession.ZoneConnect`, `NetSession.ZoneDispatch`, `NetSession.ZoneApply`).
 - Transport / Session / Commands / Dispatch split and shared outbound pump: later.
 
 ### B5. State recovery — later
