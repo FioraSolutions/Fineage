@@ -92,6 +92,20 @@ public static class L2SlotIconView
             IconManager.Instance.GetInvetoryDefaultBackground());
     }
 
+    /// <summary>
+    /// Empty inventory/trade/exchange chrome: default slot bg when present, else clear root.
+    /// </summary>
+    public static void PaintEmptyInventorySlot(VisualElement slotBg, VisualElement slotElement)
+    {
+        if (slotElement == null)
+            return;
+
+        if (slotBg != null)
+            SetEmptyInventoryBackground(slotBg);
+        else
+            Clear(slotElement);
+    }
+
     public static void Clear(VisualElement target)
     {
         if (target == null)
