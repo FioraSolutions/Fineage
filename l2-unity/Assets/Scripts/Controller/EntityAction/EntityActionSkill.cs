@@ -321,9 +321,10 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (combo != null && SkillExecutor.Instance != null)
         {
             _ = SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
-            if (magic.SkillId == 3 && EffectManager.Instance != null)
+            EffectManager effects = ControllerPacketServices.Effects;
+            if (magic.SkillId == 3 && effects != null)
             {
-                EffectManager.Instance.PlayEffectSyncedToSkillAnimation(
+                effects.PlayEffectSyncedToSkillAnimation(
                     magic.SkillId, entity, magic.HitTime, combo);
             }
             ArmPhysicalSkillHit(entity, magic);

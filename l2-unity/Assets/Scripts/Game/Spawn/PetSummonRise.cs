@@ -109,14 +109,15 @@ public sealed class PetSummonRise : MonoBehaviour
     {
         int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
         int dbRows = CountGlobalEffectRows(effectClass);
+        EffectManager manager = GlobalEffectsPacketServices.Effects;
         Debug.Log(
             "[ENTER_EVENT] database npc=" + npcId +
             " class=" + effectClass +
             " globalEffectRows=" + dbRows +
-            " manager=" + (EffectManager.Instance != null) +
-            " list=" + (EffectManager.Instance != null &&
-                       EffectManager.Instance.database != null &&
-                       EffectManager.Instance.database.effects != null));
+            " manager=" + (manager != null) +
+            " list=" + (manager != null &&
+                       manager.database != null &&
+                       manager.database.effects != null));
 
         if (!TryGetEnterEffect(effectClass, out EffectDatabase.EffectData data))
         {
@@ -161,16 +162,17 @@ public sealed class PetSummonRise : MonoBehaviour
     static bool TryGetEnterEffect(string effectClass, out EffectDatabase.EffectData data)
     {
         data = null;
+        EffectManager manager = GlobalEffectsPacketServices.Effects;
         if (string.IsNullOrEmpty(effectClass) ||
-            EffectManager.Instance == null ||
-            EffectManager.Instance.database == null ||
-            EffectManager.Instance.database.effects == null)
+            manager == null ||
+            manager.database == null ||
+            manager.database.effects == null)
         {
             return false;
         }
 
         string comment = EnterEventTable.EffectCommentPrefix + effectClass;
-        var effects = EffectManager.Instance.database.effects;
+        var effects = manager.database.effects;
         for (int i = 0; i < effects.Count; i++)
         {
             EffectDatabase.EffectData row = effects[i];
@@ -187,16 +189,17 @@ public sealed class PetSummonRise : MonoBehaviour
 
     static int CountGlobalEffectRows(string effectClass)
     {
+        EffectManager manager = GlobalEffectsPacketServices.Effects;
         if (string.IsNullOrEmpty(effectClass) ||
-            EffectManager.Instance == null ||
-            EffectManager.Instance.database == null ||
-            EffectManager.Instance.database.effects == null)
+            manager == null ||
+            manager.database == null ||
+            manager.database.effects == null)
         {
             return 0;
         }
 
         int count = 0;
-        var effects = EffectManager.Instance.database.effects;
+        var effects = manager.database.effects;
         for (int i = 0; i < effects.Count; i++)
         {
             EffectDatabase.EffectData data = effects[i];

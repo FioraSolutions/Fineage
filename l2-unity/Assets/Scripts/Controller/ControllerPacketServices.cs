@@ -80,9 +80,7 @@ public static class ControllerPacketServices
             : ResolveFromGame<IMoveAllCharacters>() ?? LegacyMoveAllCharactersInstance();
 
     public static EffectManager Effects =>
-        _effects != null
-            ? _effects
-            : ResolveFromGame<EffectManager>() ?? EffectManager.Instance;
+        _effects != null ? _effects : GlobalEffectsPacketServices.Effects;
 
     public static BufferPanel Buffer =>
         _buffer != null

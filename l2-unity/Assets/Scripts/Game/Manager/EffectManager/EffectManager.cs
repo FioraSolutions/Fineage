@@ -4,7 +4,11 @@ using VContainer.Unity;
 
 public class EffectManager : MonoBehaviour
 {
-    public static EffectManager Instance;
+    private static EffectManager _instance;
+
+    [System.Obsolete("Use GlobalEffectsPacketServices.Effects or [Inject] EffectManager instead")]
+    public static EffectManager Instance { get { return _instance; } }
+
     public EffectDatabase database;
     [SerializeField] private Transform _activeEffectsContainer;
     [Inject] IObjectResolver _container;
@@ -17,8 +21,17 @@ public class EffectManager : MonoBehaviour
 
     void Awake()
     {
-        Instance = this;
-        WireGamePacketServices();
+        if (_instance == null)
+        {
+            _instance = this;
+            GlobalEffectsPacketServices.Bind(effects: this);
+            WireGamePacketServices();
+        }
+        else if (_instance != this)
+        {
+            Destroy(this);
+            return;
+        }
     }
 
     private void Start()
