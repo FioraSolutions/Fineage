@@ -318,9 +318,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
     static void ExecutePhysicalSkill(Entity entity, MagicSkillUseDto magic)
     {
         AnimationCombo combo = GetCombo(magic);
-        if (combo != null && SkillExecutor.Instance != null)
+        if (combo != null && SkillExecutorPacketServices.Executor != null)
         {
-            _ = SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
             EffectManager effects = ControllerPacketServices.Effects;
             if (magic.SkillId == 3 && effects != null)
             {
@@ -358,11 +358,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
         {
             Debug.Log(
                 "[WINDSTRIKE] ExecuteMagic combo=" + (combo != null) +
-                " executor=" + (SkillExecutor.Instance != null) +
+                " executor=" + (SkillExecutorPacketServices.Executor != null) +
                 " skillGrp=" + (magic.SkillGrp != null) +
                 " race=" + raceName);
         }
-        if (combo == null || SkillExecutor.Instance == null || magic.SkillGrp == null)
+        if (combo == null || SkillExecutorPacketServices.Executor == null || magic.SkillGrp == null)
         {
             MagicGaitTrace.Event(entity, "ExecuteMagic-FALLBACK-phys",
                 "skill=" + magic.SkillId + " race=" + raceName +
@@ -390,7 +390,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, targetTransform);
         entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic));
 
-        _ = SkillExecutor.Instance.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
+        _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
     }
 
     static void ExecuteSelfSkill(Entity entity, MagicSkillUseDto magic)
@@ -398,7 +398,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (SetupDurationHelper.IsLongCastSkill(magic))
         {
             AnimationCombo selfCombo = GetCombo(magic);
-            if (selfCombo == null || SkillExecutor.Instance == null || magic.SkillGrp == null)
+            if (selfCombo == null || SkillExecutorPacketServices.Executor == null || magic.SkillGrp == null)
             {
                 PlaySkillEffect(entity, magic);
                 return;
@@ -406,7 +406,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
             int objectId = entity.Identity.Id;
             SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(magic, objectId, entity, selfCombo);
-            _ = SkillExecutor.Instance.ExecuteSkillOverride(
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
                 magic.SkillGrp, entity, selfCombo, ResolveEvents(entity), isLong: true);
             return;
         }
@@ -420,11 +420,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (IsMagicSkill(magic))
         {
             AnimationCombo combo = GetCombo(magic);
-            if (combo != null && SkillExecutor.Instance != null)
+            if (combo != null && SkillExecutorPacketServices.Executor != null)
             {
                 int objectId = entity.Identity.Id;
                 SetupDurationHelper.SetupDurationIfHitTimeNot0(magic, objectId, entity, combo);
-                _ = SkillExecutor.Instance.ExecuteSkillOverride(
+                _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
                     magic.SkillGrp, entity, combo, ResolveEvents(entity));
                 return;
             }
@@ -432,21 +432,21 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
         if (SetupDurationHelper.TryGetPlayableCombo(magic, out AnimationCombo castCombo) &&
             magic.SkillGrp != null &&
-            SkillExecutor.Instance != null)
+            SkillExecutorPacketServices.Executor != null)
         {
             SetupDurationHelper.SetupDurationIfHitTimeNot0(
                 magic, entity.Identity.Id, entity, castCombo);
-            _ = SkillExecutor.Instance.ExecuteSkillOverride(
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
                 magic.SkillGrp, entity, castCombo, ResolveEvents(entity));
             return;
         }
 
         Skillgrp skillgrp = magic.SkillGrp;
-        if (skillgrp != null && SkillExecutor.Instance != null)
+        if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
         {
             AnimationCombo combo = new AnimationCombo(
                 "-1", new[] { skillgrp.GetAnimOperationType3() }, "");
-            _ = SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
             return;
         }
 

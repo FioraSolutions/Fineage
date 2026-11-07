@@ -78,7 +78,7 @@ public sealed class GameRuntime
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharactersPacketServices.Moves); } }
     public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
     public IAnimationManager Animations { get { return Live(ref _animations, AnimationPacketServices.Animations); } }
-    public SkillExecutor SkillRunner { get { return Live(ref _skillRunner, SkillExecutor.Instance); } }
+    public SkillExecutor SkillRunner { get { return Live(ref _skillRunner, SkillExecutorPacketServices.Executor); } }
 
     public L2GameUI Ui { get { return Live(ref _ui, SystemUIPacketServices.Ui); } }
     public ChatWindow Chat { get { return Live(ref _chat, MessagePacketServices.Chat); } }

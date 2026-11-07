@@ -27,7 +27,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 AnimationCombo animComboAct = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
                 //not use bow atk
                 //RotateFaceToMonster(_stateMachine.Player);
-                _ = SkillExecutor.Instance.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
+                _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
                 // Only skills with a ready EffectDatabase entry (e.g. Power Strike = 3).
                 if (useSkill.SkillId == 3)
                 {
@@ -56,7 +56,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                     int objectId = entity.Identity.Id;
                     SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(useSkill, objectId, entity, selfCombo);
 
-                    _ = SkillExecutor.Instance.ExecuteSkillOverride(useSkill.SkillGrp, entity, selfCombo, _events, isLong: true);
+                    _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(useSkill.SkillGrp, entity, selfCombo, _events, isLong: true);
                 } //2031 potion heal , 2011 haste potion
                 else if (SetupDurationHelper.IsUsePotion(useSkill))
                 {
@@ -64,7 +64,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 }
                 else if (SetupDurationHelper.TryGetPlayableCombo(useSkill, out AnimationCombo castCombo) &&
                          useSkill.SkillGrp != null &&
-                         SkillExecutor.Instance != null)
+                         SkillExecutorPacketServices.Executor != null)
                 {
                     Entity entity = _stateMachine.Player;
                     if (useSkill.SkillId == 2046)
@@ -79,13 +79,13 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                     }
                     SetupDurationHelper.SetupDurationIfHitTimeNot0(
                         useSkill, entity.Identity.Id, entity, castCombo);
-                    _ = SkillExecutor.Instance.ExecuteSkillOverride(
+                    _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
                         useSkill.SkillGrp, entity, castCombo, _events);
                 }
-                else if (skillgrp != null && SkillExecutor.Instance != null)
+                else if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
                 {
                     AnimationCombo combo = new AnimationCombo("-1", new string[1] { skillgrp.GetAnimOperationType3() }, "");
-                    _ = SkillExecutor.Instance.ExecuteSkill(_stateMachine.Player, combo, _events);
+                    _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, combo, _events);
                 }
 
 
