@@ -406,7 +406,7 @@ public class ContentPreviewWindow : EditorWindow
                 gear.EquipWeapon(request.Npcgrp.Rhand, false);
             if (request.Npcgrp.Lhand != 0)
             {
-                Weapon lWeapon = ItemTable.Instance.GetWeapon(request.Npcgrp.Lhand);
+                Weapon lWeapon = TablePacketServices.Items.GetWeapon(request.Npcgrp.Lhand);
                 if (lWeapon != null && lWeapon.Weapongrp != null &&
                     lWeapon.Weapongrp.WeaponType == WeaponType.shield)
                     gear.EquipShield(request.Npcgrp.Lhand);

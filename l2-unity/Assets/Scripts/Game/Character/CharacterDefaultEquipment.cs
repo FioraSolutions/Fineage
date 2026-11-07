@@ -45,7 +45,7 @@ public class CharacterDefaultEquipment
         for (int i = 0; i < itemIds.Length; i++)
         {
             int itemId = itemIds[i];
-            armors[i] = ItemTable.Instance.GetArmor(itemId);
+            armors[i] = TablePacketServices.Items.GetArmor(itemId);
         }
 
 

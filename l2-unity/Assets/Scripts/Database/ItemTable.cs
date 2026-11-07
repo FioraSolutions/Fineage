@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ItemTable
 {
     private static ItemTable _instance;
+
+    [Obsolete("Use [Inject] ItemTable or TablePacketServices.Items instead")]
     public static ItemTable Instance
     {
         get
@@ -37,6 +40,7 @@ public class ItemTable
 
     public void Initialize()
     {
+        TablePacketServices.Bind(items: this);
         FillDataToLoad();
     }
 

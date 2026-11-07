@@ -72,7 +72,7 @@ public class UserGear : Gear
 
     public void EquipArmor(int itemId, ItemSlot slot)
     {
-        Armor armor = ItemTable.Instance.GetArmor(itemId);
+        Armor armor = TablePacketServices.Items.GetArmor(itemId);
         if (armor == null)
         {
             // Unknown paperdoll id (e.g. starter kit piece not in client table): fall back to naked
@@ -115,7 +115,7 @@ public class UserGear : Gear
         int glovesId = appearance.Gloves != 0 ? appearance.Gloves : ItemTable.NAKED_GLOVES;
         int feetId = appearance.Feet != 0 ? appearance.Feet : ItemTable.NAKED_BOOTS;
 
-        Armor chestArmor = ItemTable.Instance.GetArmor(chestId);
+        Armor chestArmor = TablePacketServices.Items.GetArmor(chestId);
         bool fullBody = chestArmor != null && chestArmor.Armorgrp != null &&
             chestArmor.Armorgrp.BodyPart == ItemSlot.fullarmor;
 
