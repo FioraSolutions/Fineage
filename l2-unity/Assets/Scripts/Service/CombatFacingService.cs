@@ -267,13 +267,13 @@ public sealed class CombatFacingService : MonoBehaviour
 
     private static int ResolveLocalObjectId()
     {
-        if (PlayerEntity.Instance == null ||
-            PlayerEntity.Instance.Identity == null)
+        if (DomainPacketServices.LocalPlayer == null ||
+            DomainPacketServices.LocalPlayer.Identity == null)
         {
             return 0;
         }
 
-        return PlayerEntity.Instance.Identity.Id;
+        return DomainPacketServices.LocalPlayer.Identity.Id;
     }
 
     /// <summary>

@@ -60,10 +60,10 @@ public class NewIdleState : StateBase
     private void HandleWaitReturn(object payload = null)
     {
         // Combat swing finished. Always leave attack latch and show wait pose.
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            PlayerEntity.Instance.IsAttack = false;
-            PlayerEntity.Instance.LastAtkAnimation = null;
+            DomainPacketServices.LocalPlayer.IsAttack = false;
+            DomainPacketServices.LocalPlayer.LastAtkAnimation = null;
         }
 
         bool fromCombatSmb = IsWaitReturnFromCombatSmb(payload);
@@ -105,12 +105,12 @@ public class NewIdleState : StateBase
 
     private static bool IsCurrentTargetDead()
     {
-        if (PlayerEntity.Instance == null || ControllerPacketServices.GameWorld == null)
+        if (DomainPacketServices.LocalPlayer == null || ControllerPacketServices.GameWorld == null)
         {
             return false;
         }
 
-        int targetId = PlayerEntity.Instance.TargetId;
+        int targetId = DomainPacketServices.LocalPlayer.TargetId;
         if (targetId == 0)
         {
             return false;

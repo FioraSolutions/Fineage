@@ -83,9 +83,9 @@ public abstract class AbstractAttackEvents : StateBase
             return _stateMachine.GetObjectId();
         }
 
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null)
+        if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Identity != null)
         {
-            return PlayerEntity.Instance.Identity.Id;
+            return DomainPacketServices.LocalPlayer.Identity.Id;
         }
 
         return 0;
@@ -152,7 +152,7 @@ public abstract class AbstractAttackEvents : StateBase
             SwordCollisionPacketServices.Collision.UnregisterSword(swordBasePoints[0]);
         }
 
-        PlayerEntity.Instance.RemoveProceduralPose();
+        DomainPacketServices.LocalPlayer.RemoveProceduralPose();
     }
 
     private void IfMonsterDead(Entity target)
@@ -182,8 +182,8 @@ public abstract class AbstractAttackEvents : StateBase
         CombatPacketServices.Facing?.EndFollow(ResolveFacingObjectId(), "shoot");
         // ReplayAttackTrace.Write(
             // "SHOOT_EVENT",
-            // PlayerEntity.Instance,
-            // PlayerEntity.Instance != null ? PlayerEntity.Instance.GetTargetEntity() : null,
+            // DomainPacketServices.LocalPlayer,
+            // DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.GetTargetEntity() : null,
             // "anim=" + animName);
 
         foreach (Animation special in _specialsBows)
@@ -193,22 +193,22 @@ public abstract class AbstractAttackEvents : StateBase
 
                 if (special.Type == TypesAnimation.BowAttack)
                 {
-                    Entity attacker = PlayerEntity.Instance;
+                    Entity attacker = DomainPacketServices.LocalPlayer;
                     // UnityReplaySession.OnBowShot(
                         // attacker,
                         // attacker != null ? attacker.GetTargetEntity() : null,
                         // attacker != null ? attacker.GetPositionRightHand() : Vector3.zero);
                     // SpAtk01_bow / jatk*_bow: same ArrowStick path. Ensure wooden arrow exists
                     // if LoadArrow notify was skipped (state exited early before equip).
-                    if (PlayerEntity.Instance.GetGoEtcItem() == null)
+                    if (DomainPacketServices.LocalPlayer.GetGoEtcItem() == null)
                     {
-                        PlayerEntity.Instance.EquipArrow(WOODEN_ARROW);
+                        DomainPacketServices.LocalPlayer.EquipArrow(WOODEN_ARROW);
                     }
 
-                    GameObject go = PlayerEntity.Instance.GetGoEtcItem();
-                    Transform target = PlayerEntity.Instance.Target;
+                    GameObject go = DomainPacketServices.LocalPlayer.GetGoEtcItem();
+                    Transform target = DomainPacketServices.LocalPlayer.Target;
 
-                    if (PlayerEntity.Instance == null ||
+                    if (DomainPacketServices.LocalPlayer == null ||
                         go == null ||
                         target == null)
                     {
@@ -218,7 +218,7 @@ public abstract class AbstractAttackEvents : StateBase
                         return;
                     }
 
-                    Vector3 startPos = PlayerEntity.Instance.GetPositionRightHand();
+                    Vector3 startPos = DomainPacketServices.LocalPlayer.GetPositionRightHand();
                     Vector3 aimPos = VectorUtils.GetCollision(startPos, target);
                     float dist3d = Vector3.Distance(startPos, aimPos);
                     // ANProjectile NArrow / s_u003_d: dirMul=3000, fly=sqrt(2·Dist/3000), path (t/T)².
@@ -247,7 +247,7 @@ public abstract class AbstractAttackEvents : StateBase
 
     private void CallBackLoadArrow(string animName)
     {
-        PlayerEntity.Instance.EquipArrow(WOODEN_ARROW);
+        DomainPacketServices.LocalPlayer.EquipArrow(WOODEN_ARROW);
     }
 
     /// <summary>
@@ -353,7 +353,7 @@ public abstract class AbstractAttackEvents : StateBase
             Transform swordBase = swordBasePoints[0];
             Transform swordTip = swordBasePoints[1];
             Entity targetEntity = entity.GetTargetEntity();
-            Transform target = targetEntity != null ? targetEntity.transform : PlayerEntity.Instance.Target;
+            Transform target = targetEntity != null ? targetEntity.transform : DomainPacketServices.LocalPlayer.Target;
             int attackerEntityId = entity.Identity != null ? entity.Identity.Id : 0;
             int targetEntityId = targetEntity != null && targetEntity.Identity != null ? targetEntity.Identity.Id : 0;
             SwordCollisionPacketServices.Collision.RegisterSwordByEntityId(attackerEntityId, targetEntityId, swordBase, swordTip, target, 0);
@@ -369,7 +369,7 @@ public abstract class AbstractAttackEvents : StateBase
         // Melee only (SwordCollisionService). Bow uses HitManager ← OnHitMonster.
         string attackerName = attacker != null ? attacker.name : "null";
         string targetName = target != null ? target.name : "null";
-        Entity entity = PlayerEntity.Instance != null ? PlayerEntity.Instance.GetTargetEntity() : null;
+        Entity entity = DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.GetTargetEntity() : null;
 
         // Debug.Log(
             // $"[HIT_FX] 5.OnHitColliderMonster frame={Time.frameCount} t={Time.time:F3} " +
@@ -400,14 +400,14 @@ public abstract class AbstractAttackEvents : StateBase
                     // $"[HIT_FX] 5.OnHitColliderMonster → HitManager.HandleHitCollider " +
                     // $"monster={monster.name}");
                 CombatPacketServices.Hits.HandleHitCollider(
-                    PlayerEntity.Instance,
+                    DomainPacketServices.LocalPlayer,
                     attacker,
                     monster,
                     hitPointCollider,
                     hitDirection);
             }
 
-            IfMonsterDead(PlayerEntity.Instance.GetTargetEntity());
+            IfMonsterDead(DomainPacketServices.LocalPlayer.GetTargetEntity());
         }
         else
         {

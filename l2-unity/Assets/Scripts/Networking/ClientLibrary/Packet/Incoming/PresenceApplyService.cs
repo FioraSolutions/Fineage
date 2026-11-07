@@ -23,7 +23,7 @@ public sealed class PresenceApplyService
         if (packet == null || packet.Identity == null)
             return;
 
-        PlayerEntity local = PlayerEntity.Instance;
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
         if (local != null && local.Identity != null && local.Identity.Id == packet.Identity.Id)
             return;
 

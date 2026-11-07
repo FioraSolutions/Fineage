@@ -30,7 +30,7 @@ public static class NetNpcWindows
 
     public static bool InRange(Entity npc)
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null || npc == null || npc.Identity == null)
             return true;
         Vector3 from = player.Identity.GetL2jPos(player.transform.position);

@@ -653,10 +653,10 @@ public class PlayerInventory : MonoBehaviour
         }
 
         IZoneTransport game = ZoneCommands.Transport;
-        if (game == null || PlayerEntity.Instance == null)
+        if (game == null || DomainPacketServices.LocalPlayer == null)
             return;
 
-        Transform player = PlayerEntity.Instance.transform;
+        Transform player = DomainPacketServices.LocalPlayer.transform;
         Vector3 dropPos = dropWorldPos ?? player.position + player.forward * 0.6f;
 
         Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(dropPos);

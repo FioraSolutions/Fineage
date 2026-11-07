@@ -17,9 +17,9 @@ public static class MyTargetSelectedApplyIncomingPacketServices
     {
         Queue(() =>
         {
-            if (packet.ObjectId == PlayerEntity.Instance.Identity.Id)
+            if (packet.ObjectId == DomainPacketServices.LocalPlayer.Identity.Id)
             {
-                Targets.SetTarget(new ObjectData(PlayerEntity.Instance.transform.gameObject), "#ffffff");
+                Targets.SetTarget(new ObjectData(DomainPacketServices.LocalPlayer.transform.gameObject), "#ffffff");
             }
             else
             {

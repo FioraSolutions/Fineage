@@ -66,7 +66,7 @@ public static class WorldEnterDiag
             AppendCamera(sb, plates.Camera != null ? plates.Camera : Camera.main);
         }
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         sb.Append(" PlayerEntity=").Append(player != null ? player.name + "@" + player.transform.position : "null");
 
         PlayerController pc = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;

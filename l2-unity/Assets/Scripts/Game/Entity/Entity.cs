@@ -419,7 +419,7 @@ public class Entity : MonoBehaviour {
         _gear.EquipArrowEtcItem(itemId, leftSlot);
     }
 
-    public bool IsUseBow() => PlayerEntity.Instance.GetCurrentAnimName().IndexOf("bow") > -1;
+    public bool IsUseBow() => DomainPacketServices.LocalPlayer.GetCurrentAnimName().IndexOf("bow") > -1;
 
     public void EquipDualWeapon(int weaponId)
     {

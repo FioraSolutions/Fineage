@@ -109,13 +109,13 @@ public class PlayerStateJatkBow : StateMachineBehaviour
         _isSwitchIdle = true;
         // ReplayAttackTrace.Write(
             // "BOW_SWITCH_IDLE",
-            // PlayerEntity.Instance,
-            // PlayerEntity.Instance != null ? PlayerEntity.Instance.GetTargetEntity() : null,
+            // DomainPacketServices.LocalPlayer,
+            // DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.GetTargetEntity() : null,
             // "elapsed=" + (Time.time - _startTime).ToString("F3") +
             // " endAt=" + _endTime.ToString("F3") +
             // " releaseAt=" + _releaseAt.ToString("F3"));
-        if (PlayerEntity.Instance != null)
-            PlayerEntity.Instance.IsAttack = false;
+        if (DomainPacketServices.LocalPlayer != null)
+            DomainPacketServices.LocalPlayer.IsAttack = false;
         if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
             return;
         PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);

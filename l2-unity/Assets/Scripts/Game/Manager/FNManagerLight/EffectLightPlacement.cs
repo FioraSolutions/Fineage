@@ -98,9 +98,9 @@ public static class EffectLightPlacement
             }
         }
 
-        if (context != null && context.HasHitPoint && PlayerEntity.Instance != null)
+        if (context != null && context.HasHitPoint && DomainPacketServices.LocalPlayer != null)
         {
-            Vector3 toHit = FlatNormalized(context.HitPoint - PlayerEntity.Instance.transform.position);
+            Vector3 toHit = FlatNormalized(context.HitPoint - DomainPacketServices.LocalPlayer.transform.position);
             if (toHit.sqrMagnitude > 0.0001f)
             {
                 return toHit;
@@ -227,12 +227,12 @@ public static class EffectLightPlacement
     private static Entity TryResolvePlayerTarget()
     {
         World world = WorldApplyPacketServices.GameWorld;
-        if (PlayerEntity.Instance == null || PlayerEntity.Instance.TargetId <= 0 || world == null)
+        if (DomainPacketServices.LocalPlayer == null || DomainPacketServices.LocalPlayer.TargetId <= 0 || world == null)
         {
             return null;
         }
 
-        return world.GetEntityNoLockSync(PlayerEntity.Instance.TargetId);
+        return world.GetEntityNoLockSync(DomainPacketServices.LocalPlayer.TargetId);
     }
 
     private static Vector3 FlatNormalized(Vector3 v)

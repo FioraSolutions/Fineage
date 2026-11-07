@@ -537,9 +537,9 @@ public sealed class CastClipPlayable
             return;
         }
 
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            PlayerEntity.Instance.IsAttack = false;
+            DomainPacketServices.LocalPlayer.IsAttack = false;
         }
 
         if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())

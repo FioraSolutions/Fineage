@@ -209,10 +209,10 @@ public class EffectManager : MonoBehaviour
         Vector3 emitterFwd = rotation * Vector3.forward;
         Vector3 playerToHit = Vector3.zero;
         Vector3 playerFwd = Vector3.zero;
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            playerToHit = hitPointFlat(point - PlayerEntity.Instance.transform.position);
-            playerFwd = hitPointFlat(PlayerEntity.Instance.transform.forward);
+            playerToHit = hitPointFlat(point - DomainPacketServices.LocalPlayer.transform.position);
+            playerFwd = hitPointFlat(DomainPacketServices.LocalPlayer.transform.forward);
         }
 
         float angDirVsPlayerToHit = AngleFlatDeg(dir, playerToHit);
@@ -274,9 +274,9 @@ public class EffectManager : MonoBehaviour
         }
 
         // L2: targetLoc - attackerLoc (horizontal).
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            Vector3 fromAttacker = hitPoint - PlayerEntity.Instance.transform.position;
+            Vector3 fromAttacker = hitPoint - DomainPacketServices.LocalPlayer.transform.position;
             fromAttacker.y = 0f;
             if (fromAttacker.sqrMagnitude > 0.0001f)
             {

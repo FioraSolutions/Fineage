@@ -41,7 +41,7 @@ public static class NetGearSession
             transport.PlayerInfo.Identity.Id == user.ObjectId)
             OverlayUserInfo(transport.PlayerInfo, user);
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null && player.Identity != null && player.Identity.Id == user.ObjectId)
             ApplyToLivePlayer(player, user);
 

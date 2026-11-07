@@ -179,7 +179,7 @@ public static class NetShortCutReceiver
         if (msg == null)
             return;
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null || player.Identity == null)
             return;
         if ((ulong)player.Identity.Id != msg.EntityValue)

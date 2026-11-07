@@ -8,7 +8,7 @@ public class NewAttackIntention : IntentionBase
 
     public override void Enter(object arg0)
     {
-        L2PawnRange.ClearIgnoredPawn(PlayerEntity.Instance);
+        L2PawnRange.ClearIgnoredPawn(DomainPacketServices.LocalPlayer);
         if (!IsSuccessAttack(arg0))
         {
             _stateMachine.ChangeIntention(Intention.INTENTION_IDLE); 
@@ -30,15 +30,15 @@ public class NewAttackIntention : IntentionBase
                 SelectPacketTarget(targetEntity);
                 // ReplayAttackTrace.Write(
                     // "TARGET_SELECTED",
-                    // PlayerEntity.Instance,
+                    // DomainPacketServices.LocalPlayer,
                     // targetEntity,
                     // "playerTarget=" +
-                    // (PlayerEntity.Instance != null && PlayerEntity.Instance.Target != null));
+                    // (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Target != null));
 
                 // Bow: live follow until OnAnimationShoot. Melee: one-shot snapshot only.
-                if (CombatFacingService.IsPlayerUsingBow(PlayerEntity.Instance))
+                if (CombatFacingService.IsPlayerUsingBow(DomainPacketServices.LocalPlayer))
                 {
-                    int localId = PlayerEntity.Instance.Identity.Id;
+                    int localId = DomainPacketServices.LocalPlayer.Identity.Id;
                     CombatPacketServices.EnsureFacing().BeginFollow(
                         localId,
                         ControllerPacketServices.Player.transform,
@@ -64,12 +64,12 @@ public class NewAttackIntention : IntentionBase
             if (hits != null)
                 hits.RememberLocalAttack(myModel);
 
-            PlayerEntity.Instance.IsAttack = true;
+            DomainPacketServices.LocalPlayer.IsAttack = true;
             if (ControllerPacketServices.Targets != null)
                 ControllerPacketServices.Targets.SetAttackTarget();
-            PlayerEntity.Instance.SetSelfHit(playerHit);
+            DomainPacketServices.LocalPlayer.SetSelfHit(playerHit);
             // AttackDto packet SS flag — recharge every swing (otherwise only first Hit shows SoulShot).
-            PlayerEntity.Instance.IsSoulshotCharged = playerHit.hasSoulshot();
+            DomainPacketServices.LocalPlayer.IsSoulshotCharged = playerHit.hasSoulshot();
             // Debug.Log(
                 // $"[ATK_HIT_CHAIN] 0.AttackPacket ss={playerHit.hasSoulshot()} miss={playerHit.isMiss()} " +
                 // $"crit={playerHit.isCrit()} dmg={playerHit.Damage}");
@@ -80,7 +80,7 @@ public class NewAttackIntention : IntentionBase
             }
             // ReplayAttackTrace.Write(
                 // "READY_TO_ACT",
-                // PlayerEntity.Instance,
+                // DomainPacketServices.LocalPlayer,
                 // targetEntity,
                 // "damage=" + playerHit.Damage);
             _stateMachine.NotifyEvent(Event.READY_TO_ACT, targetEntity);
@@ -96,10 +96,10 @@ public class NewAttackIntention : IntentionBase
             return;
         }
 
-        if (PlayerEntity.Instance == null)
+        if (DomainPacketServices.LocalPlayer == null)
             return;
-        PlayerEntity.Instance.TargetId = targetEntity.Identity != null ? targetEntity.Identity.Id : 0;
-        PlayerEntity.Instance.Target = targetEntity.transform;
+        DomainPacketServices.LocalPlayer.TargetId = targetEntity.Identity != null ? targetEntity.Identity.Id : 0;
+        DomainPacketServices.LocalPlayer.Target = targetEntity.transform;
     }
 
 

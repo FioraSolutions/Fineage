@@ -147,7 +147,7 @@ public class StatusWindow : L2Window
 
     private void SelectPlayerAsTarget()
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null || TargetPacketServices.Targets == null)
         {
             return;
@@ -177,24 +177,24 @@ public class StatusWindow : L2Window
 
     void FixedUpdate()
     {
-        if(PlayerEntity.Instance == null) { 
+        if(DomainPacketServices.LocalPlayer == null) { 
             return; 
         }
 
-        if(!(PlayerEntity.Instance.Status is PlayerStatus)) {
+        if(!(DomainPacketServices.LocalPlayer.Status is PlayerStatus)) {
             // Debug.LogWarning("Player status is not of type playerstatus");
             return;
         }
 
-        PlayerStatus status = (PlayerStatus)PlayerEntity.Instance.Status;
-        PlayerStats stats = (PlayerStats)PlayerEntity.Instance.Stats;
+        PlayerStatus status = (PlayerStatus)DomainPacketServices.LocalPlayer.Status;
+        PlayerStats stats = (PlayerStats)DomainPacketServices.LocalPlayer.Stats;
 
         if (_levelLabel != null) {
             _levelLabel.text = stats.Level.ToString();
         }
 
         if(_nameLabel != null) {
-            _nameLabel.text = PlayerEntity.Instance.Identity.Name;
+            _nameLabel.text = DomainPacketServices.LocalPlayer.Identity.Name;
         }
 
         if(_CPTextLabel != null) {

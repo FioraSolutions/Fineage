@@ -16,7 +16,7 @@ public static class AttackTimingHelper
     /// </summary>
     public static void RotateFaceToMonster(Entity entity)
     {
-        // Transform monster = PlayerEntity.Instance.Target;
+        // Transform monster = DomainPacketServices.LocalPlayer.Target;
         // if (monster == null || entity == null) return;
         //
         // RotationService.Instance.RotateTowards(entity.transform, monster.position, () =>

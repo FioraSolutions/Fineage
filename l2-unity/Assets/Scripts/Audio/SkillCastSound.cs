@@ -170,7 +170,7 @@ public static class SkillCastSound
             ShotDelaySec = shotDelay,
             SkillId = dto.SkillId,
         };
-        if (caster == PlayerEntity.Instance)
+        if (caster == DomainPacketServices.LocalPlayer)
             _localReleaseCasterId = casterId;
 
         string shotCapture = shotClip ?? "";
@@ -205,7 +205,7 @@ public static class SkillCastSound
                 " plannedShot=" + pending.ShotDelaySec.ToString("F3") +
                 " alreadyShot=" + pending.ShotPlayed);
         }
-        PlayRelease(_localReleaseCasterId, PlayerEntity.Instance, shot, throwKind, "castBar");
+        PlayRelease(_localReleaseCasterId, DomainPacketServices.LocalPlayer, shot, throwKind, "castBar");
     }
 
     public static void OnMagicSkillLaunched(Entity caster, MagicSkillLaunchedDto dto)

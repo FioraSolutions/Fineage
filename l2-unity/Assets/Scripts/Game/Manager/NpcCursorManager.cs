@@ -76,8 +76,8 @@ public class NpcCursorManager : MonoBehaviour
         Entity entity = hit.collider.GetComponentInParent<Entity>();
         if (entity != null &&
             entity.Identity != null &&
-            PlayerEntity.Instance != null &&
-            entity.Identity.Id == PlayerEntity.Instance.TargetId)
+            DomainPacketServices.LocalPlayer != null &&
+            entity.Identity.Id == DomainPacketServices.LocalPlayer.TargetId)
         {
             ApplyTargetedEntityCursor(entity);
             return;

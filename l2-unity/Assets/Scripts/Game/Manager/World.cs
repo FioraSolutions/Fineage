@@ -371,7 +371,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             return;
         }
 
-        PlayerEntity local = PlayerEntity.Instance;
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
         if (local != null && local.Identity != null && local.Identity.Id == id)
         {
             // GearFlowLog.Info("SpawnUser SKIP local PlayerEntity id=" + id);
@@ -741,9 +741,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         return ExecuteWithEntityAsync(user.PlayerInfoInterlude.Identity.Id, e => {
             if (_worldCombat != null)
                 _worldCombat.StatusUpdate(e, user.PlayerInfoInterlude.Stats, user.PlayerInfoInterlude.Status , user.PlayerInfoInterlude.Identity.Id);
-            if (e == PlayerEntity.Instance)
+            if (e == DomainPacketServices.LocalPlayer)
             {
-                PlayerEntity.Instance.Running = user.PlayerInfoInterlude.Appearance.Running;
+                DomainPacketServices.LocalPlayer.Running = user.PlayerInfoInterlude.Appearance.Running;
                 if (CharacterInfo != null)
                     CharacterInfo.UpdateValues();
             }

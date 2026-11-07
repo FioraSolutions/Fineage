@@ -143,9 +143,9 @@ public abstract class EffectPart : MonoBehaviour
 
     protected Vector3 ResolveOwnerWorldPosDefault()
     {
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            return PlayerEntity.Instance.transform.position;
+            return DomainPacketServices.LocalPlayer.transform.position;
         }
 
         if (OwnerTarget != null)

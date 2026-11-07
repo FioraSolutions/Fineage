@@ -270,8 +270,8 @@ public partial class PlayerController : MonoBehaviour
 
     private bool RunMode()
     {
-        if (PlayerEntity.Instance != null)
-            return PlayerEntity.Instance.Running;
+        if (DomainPacketServices.LocalPlayer != null)
+            return DomainPacketServices.LocalPlayer.Running;
         return _movementTarget != null && _movementTarget.IsRunningServer();
     }
 
@@ -401,7 +401,7 @@ public partial class PlayerController : MonoBehaviour
     public void InitMoveToPawn(MoveToPawnDto moveToPawnPacket)
     {
         World world = _packetWorld != null ? _packetWorld : ControllerPacketServices.GameWorld;
-        if (world == null || PlayerEntity.Instance == null)
+        if (world == null || DomainPacketServices.LocalPlayer == null)
             return;
 
         // Engine OnMoveToPawn uses the packet's pawn directly. It does not require
@@ -412,7 +412,7 @@ public partial class PlayerController : MonoBehaviour
         {
             // ReplayAttackTrace.Write(
                 // "MOVE_TO_PAWN_SKIP",
-                // PlayerEntity.Instance,
+                // DomainPacketServices.LocalPlayer,
                 // null,
                 // "targetId=" + moveToPawnPacket.TarObjid);
             return;
@@ -420,12 +420,12 @@ public partial class PlayerController : MonoBehaviour
 
         // ReplayAttackTrace.Write(
             // "MOVE_TO_PAWN",
-            // PlayerEntity.Instance,
+            // DomainPacketServices.LocalPlayer,
             // target,
             // "distanceUu=" + moveToPawnPacket.DistanceUu +
             // " distanceMeters=" + moveToPawnPacket.Distance.ToString("F3") +
-            // " selectedTargetId=" + PlayerEntity.Instance.TargetId);
-        ThinkMoveToPawn(new ModelMovePawn(PlayerEntity.Instance, target, moveToPawnPacket.Distance));
+            // " selectedTargetId=" + DomainPacketServices.LocalPlayer.TargetId);
+        ThinkMoveToPawn(new ModelMovePawn(DomainPacketServices.LocalPlayer, target, moveToPawnPacket.Distance));
     }
 
     

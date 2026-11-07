@@ -173,7 +173,7 @@ public sealed class CastBarOverlay : MonoBehaviour
     static bool TryGetHeadGui(out float guiX, out float guiY)
     {
         guiX = guiY = 0f;
-        PlayerEntity playerEntity = PlayerEntity.Instance;
+        PlayerEntity playerEntity = DomainPacketServices.LocalPlayer;
         Transform player = playerEntity != null ? playerEntity.transform : null;
         if (player == null)
             return false;

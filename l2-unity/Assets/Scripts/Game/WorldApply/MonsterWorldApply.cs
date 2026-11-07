@@ -39,7 +39,7 @@ public sealed class MonsterWorldApply : EntityWorldApply
     {
         _actions.Die(entity, false, "packet");
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         bool targetMatch = player != null && dto != null && player.TargetId == dto.ObjectId;
         if (targetMatch)
             player.IsAttack = false;
