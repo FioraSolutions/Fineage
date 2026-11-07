@@ -110,8 +110,9 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 ### C2. DI / Instance drain — largely done
 - [x] Non-UI manager / table / combat / login UI Instance drain via `*PacketServices` (through PR **#726**).
 - [x] No new `*.Instance` for frozen seams (`World` / `GameManager` / `EventProcessor` / `PlayerController`).
-- [x] First real asmdef content: `Fineage.Networking` (NetPaperdoll **#684** + engine-free Net domain batch).
-- [ ] Further asmdef slices for `Fineage.Game` / `UI` / `Controller` / `Di` when types are cycle-safe (stubs remain).
+- [x] First real asmdef content: `Fineage.Networking` (NetPaperdoll **#684** + engine-free Net domain batch + `NetTransport` / `NetCommandSender`).
+- [x] First `Fineage.Game` content: cycle-safe item / action / entity enums.
+- [ ] Further asmdef slices for remaining `Fineage.Game` / `UI` / `Controller` / `Di` when types are cycle-safe (UI/Controller/Di stubs remain).
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
