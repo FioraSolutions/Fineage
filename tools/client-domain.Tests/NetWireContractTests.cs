@@ -307,8 +307,8 @@ public class NetWireContractTests
         });
 
         // Trailing bytes for an empty paperdoll array (ushort count 0) + the Dead flag,
-        // plus the Level/MaxHp tail added later.
-        const int newerTail = 4 + 4;
+        // plus the Level/MaxHp/PAtkSpd tail added later.
+        const int newerTail = 4 + 4 + 4;
         byte[] older = full.AsSpan(0, full.Length - 3 - newerTail).ToArray();
 
         EntitySpawnMsg decoded = NetCodec.DecodeEntitySpawn(older);
@@ -318,6 +318,7 @@ public class NetWireContractTests
         Assert.Empty(decoded.Paperdoll);
         Assert.Equal(0, decoded.Level); // added after Dead; absent means older frame
         Assert.Equal(0, decoded.MaxHp);
+        Assert.Equal(0, decoded.PAtkSpd);
     }
 
     [Fact]
@@ -494,7 +495,7 @@ public class NetWireContractTests
 
         UserInfoNetMsg got = NetCodec.DecodeUserInfo(NetCodec.EncodeUserInfo(sent));
 
-        // Truncated to the fields NetDomainMap.ToUserInfo actually copies.
+        // Truncated to the fields MapUserInfo / UserInfo decode actually copies.
         Assert.Equal((int)sent.EntityValue, (int)got.EntityValue);
         Assert.Equal(sent.Name, got.Name);
         Assert.Equal(sent.ClassId, got.ClassId);

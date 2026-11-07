@@ -105,9 +105,10 @@ public class LoginCameraManager : MonoBehaviour
                     LobbyNameplatesManager.Instance.Camera = obj;
                 }
 
-                if (CharacterSelector.Instance != null)
+                CharacterSelector selector = LoginPacketServices.Characters;
+                if (selector != null)
                 {
-                    CharacterSelector.Instance.Camera = obj;
+                    selector.Camera = obj;
                 }
             }
             else
@@ -117,9 +118,10 @@ public class LoginCameraManager : MonoBehaviour
                     LobbyNameplatesManager.Instance.Camera = null;
                 }
 
-                if (CharacterSelector.Instance != null)
+                CharacterSelector selector = LoginPacketServices.Characters;
+                if (selector != null)
                 {
-                    CharacterSelector.Instance.Camera = null;
+                    selector.Camera = null;
                 }
             }
 

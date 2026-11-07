@@ -53,8 +53,7 @@ public class ChatWindow : L2Window
     private void WireChatPacketServices()
     {
         MessagePacketApply messageApply = MessagePacketServices.MessageApply;
-        if (messageApply != null)
-            MessagePacketServices.Bind(messageApply: messageApply);
+        MessagePacketServices.Bind(messageApply: messageApply, chat: this);
     }
 
     private void OnDestroy()
@@ -205,7 +204,7 @@ public class ChatWindow : L2Window
     IEnumerator OpenChat()
     {
         _chatOpened = true;
-        L2GameUI.Instance.BlurFocus();
+        SystemUIPacketServices.Ui.BlurFocus();
         yield return new WaitForEndOfFrame();
         _chatInput.Focus();
     }
@@ -214,7 +213,7 @@ public class ChatWindow : L2Window
     {
         _chatOpened = false;
 
-        L2GameUI.Instance.BlurFocus();
+        SystemUIPacketServices.Ui.BlurFocus();
 
         if (sendMessage)
         {

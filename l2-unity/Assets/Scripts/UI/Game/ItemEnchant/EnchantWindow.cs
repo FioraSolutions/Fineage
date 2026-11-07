@@ -181,7 +181,7 @@ public class EnchantWindow : L2PopupWindow
         if (_zoneWire && (objectId <= 0 || objectId == _scrollObjectId))
             return;
 
-        PlayerInventory inventory = PlayerInventory.Instance;
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
         if (inventory == null)
             return;
         ItemInstance itemInstance = inventory.GetItem(objectId);
@@ -433,7 +433,7 @@ public class EnchantWindow : L2PopupWindow
 
     private void UpdateS1()
     {
-        var itemInstance = PlayerInventory.Instance.GetItem(_selectItem.ObjectId);
+        var itemInstance = InventoryPacketServices.Inventory.GetItem(_selectItem.ObjectId);
         if (itemInstance != null && itemInstance.EnchantLevel > 0)
         {
             //StorageVariable.getInstance().AddS1Items(new VariableItem(itemInstance.Count.ToString(), itemInstance.ObjectId));
@@ -498,7 +498,7 @@ public class EnchantWindow : L2PopupWindow
                 if (isSuccess)
                 {
                     _textLabel.style.marginTop = 5;
-                    var itemInstance =  PlayerInventory.Instance.GetItem(_selectItem.ObjectId);
+                    var itemInstance =  InventoryPacketServices.Inventory.GetItem(_selectItem.ObjectId);
                     SetTextLabel(itemInstance);
                     await PlayAnim(_loadingAnimSuccessPng, animElement, 0.7f);
                 }

@@ -175,6 +175,9 @@ public sealed class GameLifetimeScope : LifetimeScope
                     gameWorld: world,
                     animations: runtime.Animations,
                     effects: runtime.Effects);
+                AnimationPacketServices.Bind(
+                    animations: runtime.Animations,
+                    applyQueue: container.Resolve<PacketApplyQueue>());
                 MoveCostLog.Wire(world);
 
                 // #142 slice 3: hand NetSession the container-built applies via [Inject].
@@ -283,37 +286,39 @@ public sealed class GameLifetimeScope : LifetimeScope
             return found;
 
         if (typeof(T) == typeof(PlayerInventory))
-            return PlayerInventory.Instance as T;
+            return InventoryPacketServices.Inventory as T;
         if (typeof(T) == typeof(TargetManager))
             return TargetManager.Instance as T;
         if (typeof(T) == typeof(TradeWindow))
-            return TradeWindow.Instance as T;
+            return TradePacketServices.Trade as T;
         if (typeof(T) == typeof(TradeRequestWindow))
-            return TradeRequestWindow.Instance as T;
+            return TradePacketServices.TradeRequest as T;
         if (typeof(T) == typeof(PartyInvitationWindow))
-            return PartyInvitationWindow.Instance as T;
+            return PartyPacketServices.PartyInvite as T;
         if (typeof(T) == typeof(SkillListWindow))
-            return SkillListWindow.Instance as T;
+            return SkillLearnPacketServices.SkillList as T;
         if (typeof(T) == typeof(BufferPanel))
-            return BufferPanel.Instance as T;
+            return AuxiliaryGameUIPacketServices.Buffer as T;
         if (typeof(T) == typeof(MoveAllCharacters))
+#pragma warning disable CS0618 // Bootstrap locator until all call sites use PacketServices / [Inject]
             return MoveAllCharacters.Instance as T;
+#pragma warning restore CS0618
         if (typeof(T) == typeof(EffectManager))
             return EffectManager.Instance as T;
         if (typeof(T) == typeof(EventBus))
             return EventBus.Instance as T;
         if (typeof(T) == typeof(SkillbarWindow))
-            return SkillbarWindow.Instance as T;
+            return SkillbarPacketServices.Skillbar as T;
         if (typeof(T) == typeof(ChatWindow))
-            return ChatWindow.Instance as T;
+            return MessagePacketServices.Chat as T;
         if (typeof(T) == typeof(HtmlWindow))
-            return HtmlWindow.Instance as T;
+            return GameWindowPacketServices.Html as T;
         if (typeof(T) == typeof(SystemMessageWindow))
             return SystemMessagePacketServices.Window as T;
         if (typeof(T) == typeof(CameraController))
             return CameraController.Instance as T;
         if (typeof(T) == typeof(CharacterInfoWindow))
-            return CharacterInfoWindow.Instance as T;
+            return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))
             return CharacterBuilder.Instance as T;
 

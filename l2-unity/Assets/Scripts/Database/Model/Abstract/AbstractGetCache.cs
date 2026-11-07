@@ -140,12 +140,24 @@ public abstract class AbstractGetCache
             return false;
         }
 
+        // Onepiece robes ship texture={t00;[None]} — cache may omit allMaterials when the
+        // first LoadArmorMaterial failed earlier. Synthesize so EquipFullArmor still dresses.
+        if (allMaterials == null || allMaterials.Length == 0)
+        {
+            allMaterials = new[] { firstMaterial };
+            if (l2Armor.allMaterials == null)
+                l2Armor.allMaterials = new Dictionary<string, Material[]>();
+            l2Armor.allMaterials[textureName] = allMaterials;
+        }
+
         return true;
     }
 
     protected Material LoadArmorMaterial(string texture)
     {
         if (string.IsNullOrEmpty(texture))
+            return null;
+        if (string.Equals(texture, "None", StringComparison.OrdinalIgnoreCase))
             return null;
 
         string[] parts = texture.Split('.');
@@ -154,39 +166,85 @@ public abstract class AbstractGetCache
 
         string folder = parts[0];
         string file = parts[1];
-        // Dat packs say LineageNPCsTex; on-disk folder is LineageNpcsTex (mac is
-        // case-insensitive, Linux CI is not).
+        // Dat packs use lowercase packages (mmagic.mmagic_m007_t90_u); Resources
+        // folders are PascalCase (MMagic/Materials/MMagic_m007_t90_u). Unity
+        // Resources.Load is case-sensitive even on macOS APFS.
+        string canonFolder = CanonicalSysTexturePackage(folder);
+        string canonFile = file;
+        if (!string.IsNullOrEmpty(folder) &&
+            file.StartsWith(folder, StringComparison.OrdinalIgnoreCase))
+            canonFile = canonFolder + file.Substring(folder.Length);
+
         string[] folders =
         {
             folder,
+            canonFolder,
             folder.Replace("NPCs", "Npcs"),
             folder.Replace("Npcs", "NPCs")
         };
+        string[] files = { file, canonFile };
+
         for (int f = 0; f < folders.Length; f++)
         {
             string fold = folders[f];
             if (string.IsNullOrEmpty(fold))
                 continue;
-            string[] candidates =
+            for (int n = 0; n < files.Length; n++)
             {
-                $"Data/SysTextures/{fold}/Materials/{file}",
-                $"Data/SysTextures/{fold}/Materials/{fold}.{file}",
-                $"Data/SysTextures/{fold}/Materials/{texture}",
-                // Fresh NPC imports often drop .mat next to the TGA, not under Materials/.
-                $"Data/SysTextures/{fold}/{file}",
-                $"Data/SysTextures/{fold}/{texture}"
-            };
+                string asset = files[n];
+                if (string.IsNullOrEmpty(asset))
+                    continue;
+                string[] candidates =
+                {
+                    $"Data/SysTextures/{fold}/Materials/{asset}",
+                    $"Data/SysTextures/{fold}/Materials/{fold}.{asset}",
+                    $"Data/SysTextures/{fold}/Materials/{texture}",
+                    // Fresh NPC imports often drop .mat next to the TGA, not under Materials/.
+                    $"Data/SysTextures/{fold}/{asset}",
+                    $"Data/SysTextures/{fold}/{texture}"
+                };
 
-            for (int i = 0; i < candidates.Length; i++)
-            {
-                Material material = Resources.Load<Material>(candidates[i]);
-                if (material != null)
-                    return material;
+                for (int i = 0; i < candidates.Length; i++)
+                {
+                    Material material = Resources.Load<Material>(candidates[i]);
+                    if (material != null)
+                        return material;
+                }
             }
         }
 
-        // Debug.LogWarning($"Can't find armor material at {candidates[0]} (also tried {folder}.{file})");
         return null;
+    }
+
+    /// <summary>
+    /// Maps armorgrp/weapongrp SysTextures package names to on-disk Resources folders.
+    /// </summary>
+    protected static string CanonicalSysTexturePackage(string folder)
+    {
+        if (string.IsNullOrEmpty(folder))
+            return folder;
+        switch (folder.ToLowerInvariant())
+        {
+            case "mmagic": return "MMagic";
+            case "fmagic": return "FMagic";
+            case "mfighter": return "MFighter";
+            case "ffighter": return "FFighter";
+            case "melf": return "MElf";
+            case "felf": return "FElf";
+            case "mdarkelf": return "MDarkElf";
+            case "fdarkelf": return "FDarkElf";
+            case "mdwarf": return "MDwarf";
+            case "fdwarf": return "FDwarf";
+            case "morc": return "MOrc";
+            case "forc": return "FOrc";
+            case "mshaman": return "MShaman";
+            case "fshaman": return "FShaman";
+            case "dropitemstex": return "DropItemsTex";
+            case "lineagenpcstex": return "LineageNpcsTex";
+            case "lineageweaponstex": return "LineageWeaponsTex";
+            default:
+                return char.ToUpperInvariant(folder[0]) + folder.Substring(1);
+        }
     }
 
     protected GameObject LoadUkxPrefab(string model)

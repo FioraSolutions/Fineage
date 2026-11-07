@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Routes <see cref="IZoneTransport"/> calls to <see cref="NetSession"/>.
 /// Keeps protocol mode checks out of GameManager, GameClient, and LoginWindow.
-/// The Zone V2 wire path is no longer reachable from here.
+/// Legacy MessagePack Zone path is gone; Fineage Net only.
 /// </summary>
 public sealed class FineageZoneTransport : IZoneTransport
 {
@@ -504,7 +504,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void BeginSession(string account, string password)
     {
-        NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+        _ = NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
     }
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)

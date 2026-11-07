@@ -49,7 +49,7 @@ public class TradeTab : AbstractTab, ITab
 
     private void CreateSlots(TradingSlot[] tradeSlots , VisualElement contentContainer , SlotType slotType , bool isDragged)
     {
-        VisualTreeAsset template = InventoryWindow.Instance.InventorySlotTemplate;
+        VisualTreeAsset template = InventoryPacketServices.Window.InventorySlotTemplate;
         for (int i = 0; i < _tradeSlots.Length; i++)
         {
             VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(template, contentContainer);
@@ -78,7 +78,7 @@ public class TradeTab : AbstractTab, ITab
             return;
         }
 
-        ItemInstance inventoryItem = PlayerInventory.Instance.GetItemByItemId(item.ItemId);
+        ItemInstance inventoryItem = InventoryPacketServices.Inventory.GetItemByItemId(item.ItemId);
 
         if (inventoryItem != null && inventoryItem.Count >= item.Count)
         {

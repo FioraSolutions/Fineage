@@ -6,7 +6,7 @@
 public sealed class PlayerWorldApply : EntityWorldApply
 {
     private SkillbarWindow Skillbar =>
-        SkillbarPacketServices.Skillbar ?? SkillbarWindow.Instance;
+        SkillbarPacketServices.Skillbar ?? SkillbarPacketServices.Skillbar;
 
     private EffectManager Effects =>
         ControllerPacketServices.Effects
@@ -93,8 +93,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
         SkillbarWindow skillbar = Skillbar;
         if (skillbar != null)
             skillbar.ShowCooldown(dto.SkillId, Shortcut.TYPE_SKILL, dto.Reusedelay);
-        if (SkillListWindow.Instance != null)
-            SkillListWindow.Instance.ShowCooldown(dto.SkillId, dto.Reusedelay);
+        if (SkillLearnPacketServices.SkillList != null)
+            SkillLearnPacketServices.SkillList.ShowCooldown(dto.SkillId, dto.Reusedelay);
 
         // Cooldown UI only here. Stop/SFX/bar/intention: MagicSkillPresentation (Mobius beginCast).
         MagicSkillPresentation.PresentLocal(entity, dto);

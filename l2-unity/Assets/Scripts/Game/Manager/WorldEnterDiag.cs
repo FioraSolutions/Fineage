@@ -74,7 +74,7 @@ public static class WorldEnterDiag
             ? (pc.isActiveAndEnabled ? "active" : "disabled")
             : "null");
 
-        L2GameUI ui = L2GameUI.Instance;
+        L2GameUI ui = SystemUIPacketServices.Ui;
         if (ui != null)
             sb.Append(" MouseOverUI=").Append(ui.MouseOverUI)
                 .Append(" OverPanel=").Append(ui.IsPointerOverPanel());

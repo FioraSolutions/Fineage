@@ -382,7 +382,7 @@ public class TradeWindow : L2PopupWindow
             // При левом клике - удаляем предмет из обмена
             if (!_empty)
             {
-                TradeWindow.Instance.RemoveExchangeItem(_objectId);
+                TradePacketServices.Trade.RemoveExchangeItem(_objectId);
             }
         }
 
@@ -391,7 +391,7 @@ public class TradeWindow : L2PopupWindow
             // То же самое для правого клика
             if (!_empty)
             {
-                TradeWindow.Instance.RemoveExchangeItem(_objectId);
+                TradePacketServices.Trade.RemoveExchangeItem(_objectId);
             }
         }
 

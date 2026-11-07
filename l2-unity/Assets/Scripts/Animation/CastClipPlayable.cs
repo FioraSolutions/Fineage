@@ -14,6 +14,8 @@ using UnityEngine.Playables;
 /// </summary>
 public sealed class CastClipPlayable
 {
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
+
     private const float PhaseDoneNormalizedTime = 1f;
     private const float LongPhaseDoneNormalizedTime = 0.95f;
 
@@ -199,6 +201,21 @@ public sealed class CastClipPlayable
         _mixer.SetInputWeight(0, 0f);
         _mixer.SetInputWeight(1, 1f);
         _active = true;
+        float sinceCast = _castData != null ? Time.time - _castData.StartTime : -1f;
+        float wallPlay = _speed > 0.0001f ? _clipLength / _speed : 0f;
+        float barRem = CastBarOverlay.Remaining01;
+        Debug.Log(
+            "[CastSync] ANIM.phase t=" + sinceCast.ToString("F3") +
+            " trigger=" + phaseTriggerName +
+            " override=" + overrideAnimName +
+            " clip=" + clip.name +
+            " len=" + _clipLength.ToString("F3") +
+            " speed=" + _speed.ToString("F3") +
+            " wallPlay=" + wallPlay.ToString("F3") +
+            " idx=" + _stateIndex +
+            " animShotAt=" + (_castData != null ? _castData.AnimationShotAtSeconds.ToString("F3") : "-") +
+            " sfxShoot=" + (_castData != null ? _castData.serverTimeToShoot.ToString("F3") : "-") +
+            " barRemainPct=" + (barRem < 0f ? -1f : barRem * 100f).ToString("F0"));
         MagicGaitTrace.EventId(_objectId, "CastClip.TryPlay",
             "phase=" + phaseTriggerName +
             " override=" + overrideAnimName +
@@ -354,9 +371,9 @@ public sealed class CastClipPlayable
             " norm=" + norm.ToString("F3") +
             " wallDone=" + wallDone);
 
-        if (AnimationManager.Instance != null)
+        if (Animations != null)
         {
-            AnimationManager.Instance.NotifyMagicPhaseFinished(_objectId, _finishName);
+            Animations.NotifyMagicPhaseFinished(_objectId, _finishName);
         }
 
         if (finishedShot)

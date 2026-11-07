@@ -83,7 +83,7 @@ public class DescriptionSkillWindow : L2PopupWindow
     private void OnBack(ClickEvent evt)
     {
         base.HideWindow();
-        SkillLearnWindow.Instance.ShowWindow();
+        SkillLearnPacketServices.SkillLearn.ShowWindow();
     }
 
     private void OnLearnSkill(ClickEvent evt)

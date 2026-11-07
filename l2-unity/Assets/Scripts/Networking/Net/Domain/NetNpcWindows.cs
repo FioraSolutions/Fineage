@@ -45,12 +45,12 @@ public static class NetNpcWindows
     public static void Close()
     {
         NetNpcSession.CloseWindows();
-        if (HtmlWindow.Instance != null)
-            HtmlWindow.Instance.HideWindow();
-        if (DealerWindow.Instance != null)
-            DealerWindow.Instance.HideWindow();
-        if (MultiSellWindow.Instance != null)
-            MultiSellWindow.Instance.HideWindow();
+        if (GameWindowPacketServices.Html != null)
+            GameWindowPacketServices.Html.HideWindow();
+        if (MerchantPacketServices.Dealer != null)
+            MerchantPacketServices.Dealer.HideWindow();
+        if (MultiSellPacketServices.MultiSell != null)
+            MultiSellPacketServices.MultiSell.HideWindow();
     }
 
     static NetShopBalance _balance;
@@ -58,7 +58,7 @@ public static class NetNpcWindows
 
     static void ShowQuests(NetQuestList list)
     {
-        QuestWindow window = QuestWindow.Instance;
+        QuestWindow window = QuestPacketServices.Quest;
         if (window == null || list.Active == null)
             return;
         var quests = new List<QuestInstance>(list.Active.Length);
@@ -190,7 +190,7 @@ public static class NetNpcWindows
     static void ShowMulti(NetMultiSellList list)
     {
         NetNpcSession.OpenShop(list.NpcObjectId, list.ListId);
-        MultiSellWindow window = MultiSellWindow.Instance;
+        MultiSellWindow window = MultiSellPacketServices.MultiSell;
         if (window == null || list.Entries == null)
             return;
         var rows = new List<MultiSellData>(list.Entries.Length);
@@ -244,7 +244,7 @@ public static class NetNpcWindows
     {
         _balance = balance;
         _hasBalance = true;
-        DealerWindow dealer = DealerWindow.Instance;
+        DealerWindow dealer = MerchantPacketServices.Dealer;
         if (dealer == null)
             return;
         double percent = balance.MaxWeight > 0 ? (balance.Weight * 100.0) / balance.MaxWeight : 0;
@@ -260,7 +260,7 @@ public static class NetNpcWindows
 
     static void OpenDealer(string title, string sellHeader, string buyHeader, ProductType type, List<Product> products, bool modifySell, int listId, int adena)
     {
-        DealerWindow dealer = DealerWindow.Instance;
+        DealerWindow dealer = MerchantPacketServices.Dealer;
         if (dealer == null)
             return;
         int weight = _hasBalance ? _balance.Weight : 0;

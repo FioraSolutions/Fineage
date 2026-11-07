@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// Zone V2 payload rows shared by the Net domain mapping after the MessagePack codec was retired.
+/// Fineage Net payload rows shared by the Net domain mapping.
 /// Engine-free: no UnityEngine references.
 /// </summary>
 
@@ -169,46 +169,6 @@ public struct NetBlessingResult
     public bool Accepted;
 }
 
-public struct NetPlayerSpawned
-{
-    public int ObjectId;
-    public string Name;
-    public int X;
-    public int Y;
-    public int Z;
-    public float RunSpeed;
-    public float WalkSpeed;
-    public bool Running;
-}
-
-public struct NetMoveTo
-{
-    public int ObjectId;
-    public int DestX;
-    public int DestY;
-    public int DestZ;
-    public int OriginX;
-    public int OriginY;
-    public int OriginZ;
-}
-
-public struct NetCharInfo
-{
-    public int ObjectId;
-    public string Name;
-    public int X;
-    public int Y;
-    public int Z;
-    public int ClassId;
-    public bool HasPaperdoll;
-    public int[] PaperdollItemIds;
-    public bool HasClan;
-    public int ClanId;
-    public int ClanCrestId;
-    /// <summary>Enchant of each paperdoll slot, parallel to <see cref="PaperdollItemIds"/>. Key 9.</summary>
-    public int[] PaperdollEnchant;
-}
-
 /// <summary>
 /// Paperdoll indexes from Fineage-Backend. Right hand is 7 (Squire's Sword 2369, Apprentice's Wand 6).
 /// Missing indexes read as empty.
@@ -286,6 +246,10 @@ public static class NetPaperdoll
             case "gloves":
                 return Gloves;
             case "chest":
+            case "fullarmor":
+            case "onepiece":
+            case "alldress":
+                // Mobius full-body robes occupy the chest paperdoll cell.
                 return Chest;
             case "legs":
                 return Legs;
@@ -331,6 +295,8 @@ public struct NetUserInfo
     public int ObjectId;
     public string Name;
     public int ClassId;
+    public int Race;
+    public int Sex;
     public int X;
     public int Y;
     public int Z;
@@ -350,24 +316,6 @@ public struct NetUserInfo
     public bool HasStats;
     public int Str, Dex, Con, Int, Wit, Men;
     public int PAtk, MAtk, PDef, MDef, PAtkSpd, MAtkSpd, Accuracy, CritRate;
-}
-
-public struct NetNpcInfo
-{
-    public int ObjectId;
-    public int NpcTemplateId;
-    public string Name;
-    public int X;
-    public int Y;
-    public int Z;
-    /// <summary>Legacy five-int rows stay attackable. Backend key 7 is the real flag.</summary>
-    public bool Attackable;
-    /// <summary>Backend key 8; 0 when the wire omitted speeds.</summary>
-    public float RunSpeed;
-    /// <summary>Backend key 9; 0 when the wire omitted speeds.</summary>
-    public float WalkSpeed;
-    public string Title;
-    public string NpcType;
 }
 
 public struct NetMyTargetSelected
@@ -411,43 +359,7 @@ public struct NetItemEntry
     public int EnchantLevel;
 }
 
-public struct NetSpawnItem
-{
-    public int ObjectId;
-    public int ItemId;
-    public int X;
-    public int Y;
-    public int Z;
-    public bool Stackable;
-    public int Count;
-    public int Unknown;
-}
 
-public struct NetDropItem
-{
-    public int CharObjectId;
-    public int ObjectId;
-    public int ItemId;
-    public int X;
-    public int Y;
-    public int Z;
-    public bool Stackable;
-    public int Count;
-    public int Unknown;
-}
-
-/// <summary>Wire spawn row after decode — same field set as Interlude <c>SpawnItemDto</c> apply.</summary>
-public struct SpawnItemApplyFields
-{
-    public int ObjectId;
-    public int ItemId;
-    public int X;
-    public int Y;
-    public int Z;
-    public bool Stackable;
-    public int Count;
-    public int Unknown;
-}
 
 public struct NetInventoryChange
 {

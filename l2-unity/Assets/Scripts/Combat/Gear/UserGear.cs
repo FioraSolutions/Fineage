@@ -119,8 +119,13 @@ public class UserGear : Gear
         bool fullBody = chestArmor != null && chestArmor.Armorgrp != null &&
             chestArmor.Armorgrp.BodyPart == ItemSlot.fullarmor;
 
-        // GearFlowLog.Info("SyncArmor " + GearFlowLog.Paperdoll(appearance) +
-            // " fullBody=" + fullBody + " chestId=" + chestId);
+        Debug.Log(
+            "[Gear] SyncArmor race=" + _raceId +
+            " chestId=" + chestId +
+            " gloves=" + glovesId +
+            " feet=" + feetId +
+            " fullBody=" + fullBody +
+            " bodyPart=" + (chestArmor?.Armorgrp != null ? chestArmor.Armorgrp.BodyPart.ToString() : "no-armor"));
 
         EquipArmor(chestId, fullBody ? ItemSlot.fullarmor : ItemSlot.chest);
 
@@ -148,39 +153,76 @@ public class UserGear : Gear
     {
         if (_armorDresser.IsArmorEquipped(armor, slotArmor))
         {
-            // GearFlowLog.Info("EquipFullArmor SKIP already equipped id=" + itemId + " slot=" + slotArmor);
+            Debug.Log("[Gear] EquipFullArmor SKIP already id=" + itemId + " race=" + _raceId);
             return;
         }
 
         L2ArmorPiece armorPiece = (L2ArmorPiece)LoadMesh(EquipmentCategory.FullArmor, itemId, (int)_raceId);
         if (!ValidateArmorPieceFullArmor(armorPiece, itemId))
         {
+            string tex = armor?.Armorgrp?.FirstTexture != null &&
+                         (byte)_raceId < armor.Armorgrp.FirstTexture.Length
+                ? armor.Armorgrp.FirstTexture[(byte)_raceId]
+                : "?";
+            string model = armor?.Armorgrp?.FirstModel != null &&
+                           (byte)_raceId < armor.Armorgrp.FirstModel.Length
+                ? armor.Armorgrp.FirstModel[(byte)_raceId]
+                : "?";
+            Debug.LogWarning(
+                "[Gear] EquipFullArmor INVALID id=" + itemId +
+                " race=" + _raceId +
+                " piece=" + (armorPiece != null) +
+                " models=" + (armorPiece?.baseAllModels != null) +
+                " mats=" + (armorPiece?.allMaterials != null) +
+                " modelStr=" + model +
+                " texStr=" + tex);
             ReportMissingArmorAndReset(armor, slotArmor, itemId);
             return;
         }
 
-        // GearFlowLog.Info("EquipFullArmor APPLY id=" + itemId);
-
         try
         {
             GameObject[] listGo = CreateListArmorMesh(armorPiece.baseAllModels, armorPiece.allMaterials);
-            // GearFlowLog.Info("EquipFullArmor meshes id=" + itemId + " count=" + (listGo != null ? listGo.Length : 0));
+            int n = listGo != null ? listGo.Length : 0;
+            int ok = 0;
+            if (listGo != null)
+            {
+                for (int i = 0; i < listGo.Length; i++)
+                    if (listGo[i] != null) ok++;
+            }
+            Debug.Log(
+                "[Gear] EquipFullArmor APPLY id=" + itemId +
+                " race=" + _raceId +
+                " slots=" + n +
+                " meshed=" + ok);
 
-            if (listGo != null && listGo.Length == 2)
+            // Magic onepiece robes (Major Arcana / Dark Crystal) only ship an upper mesh;
+            // legs slot in armorgrp is None — still dress the chest piece.
+            if (listGo != null && listGo.Length >= 1 && listGo[0] != null)
             {
                 GameObject goChest = listGo[0];
-                GameObject goLegs = listGo[1];
+                GameObject goLegs = listGo.Length > 1 ? listGo[1] : null;
 
-                _armorDresser.SetFullArmor(false , armor, goChest, ItemSlot.chest);
-                _armorDresser.SetFullArmor(true , armor, goLegs, ItemSlot.legs);
+                // refresh=true on the last piece so skinned mesh rebuilds once.
+                if (goLegs != null)
+                {
+                    _armorDresser.SetFullArmor(false, armor, goChest, ItemSlot.chest);
+                    _armorDresser.SetFullArmor(true, armor, goLegs, ItemSlot.legs);
+                }
+                else
+                {
+                    _armorDresser.SetFullArmor(true, armor, goChest, ItemSlot.chest);
+                }
             }
             else
             {
+                Debug.LogWarning("[Gear] EquipFullArmor no chest mesh id=" + itemId);
                 ReportMissingArmorAndReset(armor, slotArmor, itemId);
             }
         }
-        catch (System.Exception)
+        catch (System.Exception ex)
         {
+            Debug.LogWarning("[Gear] EquipFullArmor exception id=" + itemId + " " + ex.Message);
             ReportMissingArmorAndReset(armor, slotArmor, itemId);
         }
     }
@@ -248,22 +290,33 @@ public class UserGear : Gear
 
     private bool ValidateArmorPieceFullArmor(L2ArmorPiece armorPiece, int itemId)
     {
-        if (armorPiece == null || armorPiece.baseAllModels == null || armorPiece.allMaterials == null)
-        {
-            // Debug.LogWarning($"UserGear->ValidateArmorPieceFullArmor: Invalid armor data for item {itemId}");
+        if (armorPiece == null || armorPiece.baseAllModels == null)
             return false;
+
+        // Magic onepiece: only the upper mesh is real; materials may be a single-slot array.
+        for (int i = 0; i < armorPiece.baseAllModels.Length; i++)
+        {
+            if (armorPiece.baseAllModels[i] != null)
+                return true;
         }
-        return true;
+
+        return false;
     }
     
     private GameObject[] CreateListArmorMesh(GameObject[] baseListArmorModel, Material[] materials)
     {
-        GameObject[] listGo = new GameObject[baseListArmorModel.Length];
+        if (baseListArmorModel == null)
+            return System.Array.Empty<GameObject>();
 
-        for(int i = 0; i < baseListArmorModel.Length; i++)
+        GameObject[] listGo = new GameObject[baseListArmorModel.Length];
+        for (int i = 0; i < baseListArmorModel.Length; i++)
         {
             GameObject baseArmorModel = baseListArmorModel[i];
-            Material material = materials[i];
+            if (baseArmorModel == null)
+                continue;
+            Material material = materials != null && i < materials.Length ? materials[i] : null;
+            if (material == null && materials != null && materials.Length > 0)
+                material = materials[0];
             listGo[i] = CreateArmorMesh(baseArmorModel, material);
         }
         return listGo;

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class MonsterStateAtk : MonsterStateBase
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private float _startTime = -1;
     private float _endTime = -1;
 
@@ -122,7 +124,7 @@ public class MonsterStateAtk : MonsterStateBase
         if (EntityActionMachine.Instance == null)
             return true;
 
-        string restore = (_entity.Identity != null && MoveAllCharacters.Instance != null && MoveAllCharacters.Instance.IsMoving(_entity.Identity.Id)) ? (_entity.Running ? "run" : "walk") : "wait";
+        string restore = (_entity.Identity != null && AnimationPacketServices.Moves != null && AnimationPacketServices.Moves.IsMoving(_entity.Identity.Id)) ? (_entity.Running ? "run" : "walk") : "wait";
         _isSwitchIdle = true;
         EntityActionMachine.Instance.Set(_entity, EntityActionKind.Idle, restore);
         // MobSkillLog.Done(_entity, restore);
@@ -179,8 +181,8 @@ public class MonsterStateAtk : MonsterStateBase
             return;
         if (!animator.GetBool(parameterName))
             return;
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.StopMonsterCurrentAnimation(
+        if (Animations != null)
+            Animations.StopMonsterCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 

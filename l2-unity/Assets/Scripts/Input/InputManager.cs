@@ -157,7 +157,7 @@ public class InputManager : MonoBehaviour
         CloseWindow = _closeWindowAction.WasPerformedThisFrame();
         Validate = _validateAction.WasPerformedThisFrame();
 
-        L2GameUI gameUi = L2GameUI.Instance;
+        L2GameUI gameUi = SystemUIPacketServices.Ui;
         bool mouseOverUi = gameUi != null && gameUi.MouseOverUI;
 
         if (!mouseOverUi)
@@ -177,7 +177,7 @@ public class InputManager : MonoBehaviour
             gameUi?.EnableMouse();
         }
 
-        ChatWindow chat = ChatWindow.Instance;
+        ChatWindow chat = MessagePacketServices.Chat;
         bool chatOpen = chat != null && chat.ChatOpened;
         if (!chatOpen)
         {

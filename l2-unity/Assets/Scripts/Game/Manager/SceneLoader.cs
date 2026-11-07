@@ -476,9 +476,9 @@ public class SceneLoader : MonoBehaviour
 
     private static L2GameUI GetGameUi()
     {
-        if (L2GameUI.Instance != null)
+        if (SystemUIPacketServices.Ui != null)
         {
-            return L2GameUI.Instance;
+            return SystemUIPacketServices.Ui;
         }
 
         return FindFirstObjectByType<L2GameUI>(FindObjectsInactive.Include);
@@ -536,10 +536,10 @@ public class SceneLoader : MonoBehaviour
     /// </summary>
     private IEnumerator UnloadLobbyScenesRoutine()
     {
-        CharacterSelector selector = CharacterSelector.Instance;
+        CharacterSelector selector = LoginPacketServices.Characters;
         if (selector != null)
             selector.ClearLobbyVisuals();
-        CharacterCreator creator = CharacterCreator.Instance;
+        CharacterCreator creator = LoginPacketServices.Creator;
         if (creator != null)
             creator.DestroyAllPawns();
 

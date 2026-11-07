@@ -125,15 +125,15 @@ public class SlotDragManipulator : PointerManipulator
 
         if (!dragged)
         {
-            if (L2SlotManager.Instance == null)
+            if (HudCorePacketServices.Slots == null)
                 return;
             dragged = true;
             if (_root != null && !_root.HasPointerCapture(pointerId))
                 _root.CapturePointer(pointerId);
-            L2SlotManager.Instance.SetDraggedSlot(_slot);
+            HudCorePacketServices.Slots.SetDraggedSlot(_slot);
         }
 
-        L2SlotManager.Instance.DragSlotAt(pos, _grabOffset);
+        HudCorePacketServices.Slots.DragSlotAt(pos, _grabOffset);
         evt.StopPropagation();
     }
 
@@ -201,7 +201,7 @@ public class SlotDragManipulator : PointerManipulator
         if (pointerId >= 0 && _root != null && _root.HasPointerCapture(pointerId))
             _root.ReleasePointer(pointerId);
 
-        L2SlotManager manager = L2SlotManager.Instance;
+        L2SlotManager manager = HudCorePacketServices.Slots;
         if (manager == null)
         {
             _finishing = false;

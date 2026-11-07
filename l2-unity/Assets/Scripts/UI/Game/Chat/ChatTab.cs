@@ -49,7 +49,7 @@ public class ChatTab
         tabHeader.AddManipulator(new ButtonClickSoundManipulator(tabHeader));
 
         tabHeader.RegisterCallback<MouseDownEvent>(evt => {
-            if(ChatWindow.Instance.SwitchTab(this)) {
+            if(MessagePacketServices.Chat.SwitchTab(this)) {
                 AudioManager.Instance.PlayUISound("window_open");
             }
         }, TrickleDown.TrickleDown);
@@ -83,7 +83,7 @@ public class ChatTab
         Label chatContent = dl.GetLabel();
         SetText(chatContent, message);
         dl.SetVisible(true);
-        ChatWindow.Instance.ScrollDown(_scroller);
+        MessagePacketServices.Chat.ScrollDown(_scroller);
     }
 
 
@@ -139,7 +139,7 @@ public class ChatTab
     //private void RegisterAutoScrollEvent() {
        // _content.RegisterValueChangedCallback(evt => {
          //   if(_autoscroll) {
-          //      ChatWindow.Instance.ScrollDown(_scroller);
+          //      MessagePacketServices.Chat.ScrollDown(_scroller);
           //  }
         //});    
    // }
@@ -166,7 +166,7 @@ public class ChatTab
         
         _chatWindowEle.RegisterCallback<GeometryChangedEvent>(evt => {
             if(_autoscroll) {
-                ChatWindow.Instance.ScrollDown(_scroller);
+                MessagePacketServices.Chat.ScrollDown(_scroller);
             }
         });
     }

@@ -24,6 +24,8 @@ public sealed class EntityActionMachine : ITickable
             animations: animations,
             effects: effects,
             moves: moves);
+        AnimationPacketServices.Bind(animations: animations, moves: moves);
+        MoveAllCharactersPacketServices.Bind(moves: moves);
         _pawnRange = pawnRange;
         _processes = new Dictionary<EntityActionKind, IEntityActionProcess>
         {

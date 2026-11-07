@@ -109,7 +109,7 @@ public class InventorySlot : L2DraggableSlot
     }
     public void ManualHideToolTips()
     {
-        ToolTipSimple.Instance.ManualHide();
+        ToolTipSimplePacketServices.Window.ManualHide();
     }
 
     public void AssignUniversal(object data)
@@ -293,7 +293,7 @@ public class InventorySlot : L2DraggableSlot
     {
         if (_empty || _objectId <= 0)
             return false;
-        EnchantWindow window = EnchantWindow.Instance;
+        EnchantWindow window = ItemEnchantPacketServices.Enchant;
         if (window == null || !window.AcceptsTarget)
             return false;
         window.AddEnchantItem(_objectId);
@@ -356,7 +356,7 @@ public class InventorySlot : L2DraggableSlot
     {
         if (!_empty)
         {
-            PlayerInventory.Instance.DestroyItem(_objectId, 1);
+            InventoryPacketServices.Inventory.DestroyItem(_objectId, 1);
         }
     }
 
@@ -364,7 +364,7 @@ public class InventorySlot : L2DraggableSlot
     {
         if (!_empty)
         {
-            if (!PlayerInventory.Instance.UseItem(_objectId))
+            if (!InventoryPacketServices.Inventory.UseItem(_objectId))
             {
                 AssignEmpty();
             }

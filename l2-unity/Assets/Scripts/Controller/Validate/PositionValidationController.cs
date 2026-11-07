@@ -202,9 +202,9 @@ public class PositionValidationController : MonoBehaviour
 
     private void ReplayMoveIfNeeded(Entity entity)
     {
-        if (entity == null || entity.Identity == null || MoveAllCharacters.Instance == null)
+        if (entity == null || entity.Identity == null || ControllerPacketServices.Moves == null)
             return;
-        if (!MoveAllCharacters.Instance.IsMoving(entity.Identity.Id))
+        if (!ControllerPacketServices.Moves.IsMoving(entity.Identity.Id))
             return;
         EntityActionVisual.StartMove(entity, !entity.Running);
     }

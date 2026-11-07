@@ -19,6 +19,7 @@ public class L2SlotManager : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireHudCorePacketServices();
             WireGameWindowPacketServices();
         }
         else
@@ -29,7 +30,14 @@ public class L2SlotManager : L2PopupWindow
 
     private void Start()
     {
+        WireHudCorePacketServices();
         WireGameWindowPacketServices();
+    }
+
+    
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(slots: this);
     }
 
     private void WireGameWindowPacketServices()
@@ -192,7 +200,7 @@ public class L2SlotManager : L2PopupWindow
         }
         else if (_hoverSlot.Type == L2Slot.SlotType.Trash)
         {
-            //QuantityInput.Instance.ShowWindow(this, source, type, listServer, position);
+            //QuantityInputPacketServices.Window.ShowWindow(this, source, type, listServer, position);
             DestroyItem();
         }
     }
@@ -203,7 +211,7 @@ public class L2SlotManager : L2PopupWindow
 
         if (_hoverSlot == null)
         {
-            if (!L2GameUI.Instance.MouseOverUI)
+            if (!SystemUIPacketServices.Ui.MouseOverUI)
             {
                 DropItem();
             }
@@ -229,7 +237,7 @@ public class L2SlotManager : L2PopupWindow
                 AddItemToEnchant();
                 break;
             default:
-                if (!L2GameUI.Instance.MouseOverUI)
+                if (!SystemUIPacketServices.Ui.MouseOverUI)
                 {
                     DropItem();
                 }
@@ -239,7 +247,7 @@ public class L2SlotManager : L2PopupWindow
 
     private void HandleSkillWindowDrag()
     {
-        if (_hoverSlot == null || SkillbarWindow.Instance == null || SkillbarWindow.Instance.Locked)
+        if (_hoverSlot == null || SkillbarPacketServices.Skillbar == null || SkillbarPacketServices.Skillbar.Locked)
             return;
 
         if (_hoverSlot.Type != L2Slot.SlotType.SkillBar)
@@ -267,7 +275,7 @@ public class L2SlotManager : L2PopupWindow
 
         int position = _hoverSlot.Position;
         TradingSlot sourceSlot = (TradingSlot)_draggedSlot;
-        _recipeId = RecipeBookWindow.Instance.GetRecipeIdByPosition(sourceSlot.Position);
+        _recipeId = CraftPacketServices.RecipeBook.GetRecipeIdByPosition(sourceSlot.Position);
 
     }
 
@@ -291,14 +299,14 @@ public class L2SlotManager : L2PopupWindow
 
     private void HandleSkillbarDrag()
     {
-        if (SkillbarWindow.Instance.Locked)
+        if (SkillbarPacketServices.Skillbar.Locked)
         {
             return;
         }
 
         if (_hoverSlot == null)
         {
-            if (!L2GameUI.Instance.MouseOverUI)
+            if (!SystemUIPacketServices.Ui.MouseOverUI)
             {
                 RemoveSkillbarSlot();
             }
@@ -317,7 +325,7 @@ public class L2SlotManager : L2PopupWindow
                 // Debug.LogWarning($"Moving skillbar enchant from slot {oldSlot} to slot {newSlot}.");
                 break;
             default:
-                if (!L2GameUI.Instance.MouseOverUI)
+                if (!SystemUIPacketServices.Ui.MouseOverUI)
                 {
                     RemoveSkillbarSlot();
                 }
@@ -328,7 +336,7 @@ public class L2SlotManager : L2PopupWindow
     #endregion
 
     #region SlotVerification
-    private bool IsValidDrag() => _draggedSlot != null && (_hoverSlot != null || !L2GameUI.Instance.MouseOverUI);
+    private bool IsValidDrag() => _draggedSlot != null && (_hoverSlot != null || !SystemUIPacketServices.Ui.MouseOverUI);
 
     private bool IsSameSlot() => _draggedSlot != null && _hoverSlot != null && _draggedSlot.Position == _hoverSlot.Position && _draggedSlot.Type == _hoverSlot.Type;
 
@@ -437,13 +445,13 @@ public class L2SlotManager : L2PopupWindow
 
     private void OkDestroy()
     {
-        PlayerInventory.Instance.DestroyItem(_slotTemp.ObjectId, 1);
+        InventoryPacketServices.Inventory.DestroyItem(_slotTemp.ObjectId, 1);
         CancelEvent();
     }
 
     private void OkDrop()
     {
-        if (_slotTemp != null && PlayerInventory.Instance != null)
+        if (_slotTemp != null && InventoryPacketServices.Inventory != null)
             SendDrop(_slotTemp.ObjectId, 1);
         CancelEvent();
     }
@@ -465,27 +473,27 @@ public class L2SlotManager : L2PopupWindow
     private void SendDrop(int objectId, int quantity)
     {
         Vector3? worldPos = _hasPendingDropPos ? _pendingDropWorldPos : (Vector3?)null;
-        PlayerInventory.Instance.DropItem(objectId, quantity, worldPos);
+        InventoryPacketServices.Inventory.DropItem(objectId, quantity, worldPos);
         _hasPendingDropPos = false;
     }
 
     private void PauseAndShowQuantity(int count)
     {
-        QuantityInput.Instance.ShowWindow(count);
-        QuantityInput.Instance.OnButtonOk += OnSelectedQuantity;
+        QuantityInputPacketServices.Window.ShowWindow(count);
+        QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
     }
 
     private void OnSelectedQuantity(string value)
     {
         int qty = int.Parse(value);
-        if (_slotTemp != null && PlayerInventory.Instance != null)
+        if (_slotTemp != null && InventoryPacketServices.Inventory != null)
         {
             if (_pendingOp == PendingItemOp.Drop)
                 SendDrop(_slotTemp.ObjectId, qty);
             else
-                PlayerInventory.Instance.DestroyItem(_slotTemp.ObjectId, qty);
+                InventoryPacketServices.Inventory.DestroyItem(_slotTemp.ObjectId, qty);
         }
-        QuantityInput.Instance.OnButtonOk -= OnSelectedQuantity;
+        QuantityInputPacketServices.Window.OnButtonOk -= OnSelectedQuantity;
         _pendingOp = PendingItemOp.None;
     }
 
@@ -505,7 +513,7 @@ public class L2SlotManager : L2PopupWindow
 
         // Debug.Log($"Moving item from slot {fromSlot} to slot {toSlot}.");
 
-        PlayerInventory.Instance.ChangeItemOrder(fromSlot, toSlot);
+        InventoryPacketServices.Inventory.ChangeItemOrder(fromSlot, toSlot);
     }
 
     private void AddItemToSkillbar()
@@ -523,7 +531,7 @@ public class L2SlotManager : L2PopupWindow
         int _objectId = ((InventorySlot)_draggedSlot).ObjectId;
         int slot = _hoverSlot.Position;
         // Debug.LogWarning($"Add _objectId {_objectId} to EnchantWindow slot {slot}.");
-        EnchantWindow.Instance.AddEnchantItem(_objectId);
+        ItemEnchantPacketServices.Enchant.AddEnchantItem(_objectId);
     }
 
     private void MoveSkillbarSlot()

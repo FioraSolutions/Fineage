@@ -2,6 +2,8 @@
 
 public class PlayerOverriddenLongAtk : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private const string TriggerCastMidLong = "CastMidLong";
     private const string TriggerCastEndLong = "CastEndLong";
     private const string TriggerMagicShotLong = "MagicShotLong";
@@ -145,9 +147,9 @@ public class PlayerOverriddenLongAtk : StateMachineBehaviour
             // $"{LongExitLogTag} PHASE_DONE phase={currentPhase} state={parameterName} " +
             // $"local={localElapsed:F3}s norm={stateInfo.normalizedTime:F3} wallDone={wallDone} → NotifyMagicPhaseFinished");
 
-        if (AnimationManager.Instance != null)
+        if (Animations != null)
         {
-            AnimationManager.Instance.NotifyMagicPhaseFinished(objectId, parameterName);
+            Animations.NotifyMagicPhaseFinished(objectId, parameterName);
         }
 
         if (currentPhase == CastPhase.FinalShotPhase)
@@ -225,7 +227,7 @@ public class PlayerOverriddenLongAtk : StateMachineBehaviour
     {
         if (!string.IsNullOrEmpty(triggerName) && animator.GetBool(triggerName))
         {
-            AnimationManager.Instance.StopCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), triggerName, "player");
+            Animations.StopCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), triggerName, "player");
         }
     }
 

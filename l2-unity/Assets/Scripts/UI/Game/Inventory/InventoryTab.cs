@@ -47,7 +47,7 @@ public class InventoryTab : L2Tab
             _inventorySlots = new InventorySlot[slotCount];
             //SlotType slotType = GetSlotType(MainTab);
 
-            VisualTreeAsset template = InventoryWindow.Instance.InventorySlotTemplate;
+            VisualTreeAsset template = InventoryPacketServices.Window.InventorySlotTemplate;
             for (int i = 0; i < _inventorySlots.Length; i++)
             {
                 if (i == _inventorySlots.Length - 1)
@@ -83,11 +83,11 @@ public class InventoryTab : L2Tab
     //temporarily disabling
     private void UpdatePadSlots()
     {
-        int slotCount = InventoryWindow.Instance.SlotCount;
+        int slotCount = InventoryPacketServices.Window.SlotCount;
 
         // Add disabled slot to fill up the window
         int rowLength = 9;
-        if (InventoryWindow.Instance.Expanded)
+        if (InventoryPacketServices.Window.Expanded)
         {
             rowLength = 12;
         }
@@ -102,7 +102,7 @@ public class InventoryTab : L2Tab
             padSlot = rowLength - slotCount % rowLength;
         }
 
-        VisualTreeAsset template = InventoryWindow.Instance.InventorySlotTemplate;
+        VisualTreeAsset template = InventoryPacketServices.Window.InventorySlotTemplate;
         for (int i = 0; i < padSlot; i++)
         {
             VisualElement slotElement = L2SlotGridLayout.InstantiateSlot(template, _contentContainer);
@@ -191,7 +191,7 @@ public class InventoryTab : L2Tab
             ItemInstance item = removeAndAdd[i];
             if (item.LastChange == (int)InventoryChange.ADDED)
             {   
-                if (!PlayerInventory.Instance.IsContaineInventory(item.ObjectId))
+                if (!InventoryPacketServices.Inventory.IsContaineInventory(item.ObjectId))
                 {
                     //Debug.Log("ADD Inventory Slot slot-position update inventory <<<<< " + item.Slot + " position " + item + " object id " + item.ObjectId);
 
@@ -348,7 +348,7 @@ public class InventoryTab : L2Tab
 
     protected override void OnSwitchTab()
     {
-        if (InventoryWindow.Instance.SwitchTab(this))
+        if (InventoryPacketServices.Window.SwitchTab(this))
         {
             AudioManager.Instance.PlayUISound("window_open");
         }

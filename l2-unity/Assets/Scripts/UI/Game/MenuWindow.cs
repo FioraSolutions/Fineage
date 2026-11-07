@@ -13,6 +13,7 @@ public class MenuWindow : L2Window
         if (_instance == null)
         {
             _instance = this;
+            WireHudCorePacketServices();
         }
         else
         {
@@ -23,6 +24,17 @@ public class MenuWindow : L2Window
     private void OnDestroy()
     {
         _instance = null;
+    }
+
+    
+    private void Start()
+    {
+        WireHudCorePacketServices();
+    }
+
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(menu: this);
     }
 
     protected override void LoadAssets()
@@ -39,26 +51,26 @@ public class MenuWindow : L2Window
 
         var charBtn = _windowEle.Q<Button>("CharacterButton");
         charBtn.AddManipulator(new ButtonClickSoundManipulator(charBtn));
-        charBtn.RegisterCallback<ClickEvent>((evt) => CharacterInfoWindow.Instance.ToggleHideWindow());
+        charBtn.RegisterCallback<ClickEvent>((evt) => HudCorePacketServices.CharacterInfo.ToggleHideWindow());
 
         var inventoryBtn = _windowEle.Q<Button>("InventoryButton");
         inventoryBtn.AddManipulator(new ButtonClickSoundManipulator(inventoryBtn));
-        inventoryBtn.RegisterCallback<ClickEvent>((evt) => InventoryWindow.Instance.ToggleHideWindowManual());
+        inventoryBtn.RegisterCallback<ClickEvent>((evt) => InventoryPacketServices.Window.ToggleHideWindowManual());
 
         var actionBtn = _windowEle.Q<Button>("ActionButton");
         actionBtn.AddManipulator(new ButtonClickSoundManipulator(actionBtn));
-        actionBtn.RegisterCallback<ClickEvent>((evt) => ActionWindow.Instance.ToggleHideWindow());
+        actionBtn.RegisterCallback<ClickEvent>((evt) => HudCorePacketServices.Action.ToggleHideWindow());
 
         var skillBtn = _windowEle.Q<Button>("SkillButton");
         skillBtn.AddManipulator(new ButtonClickSoundManipulator(skillBtn));
-        skillBtn.RegisterCallback<ClickEvent>((evt) => SkillListWindow.Instance.ToggleHideWindow());
+        skillBtn.RegisterCallback<ClickEvent>((evt) => SkillLearnPacketServices.SkillList.ToggleHideWindow());
 
         var questBtn = _windowEle.Q<Button>("QuestButton");
         questBtn.AddManipulator(new ButtonClickSoundManipulator(questBtn));
         questBtn.RegisterCallback<ClickEvent>((evt) =>
         {
             // Open first: enter-world already prefills via QuestList without showing the window.
-            QuestWindow questWindow = QuestWindow.Instance;
+            QuestWindow questWindow = QuestPacketServices.Quest;
             questWindow?.ToggleHideWindow();
             if (ZoneCommands.IsConnected)
                 ZoneCommands.Send(new RequestQuestListCommand());
@@ -66,15 +78,15 @@ public class MenuWindow : L2Window
 
         var clanBtn = _windowEle.Q<Button>("ClanButton");
         clanBtn.AddManipulator(new ButtonClickSoundManipulator(clanBtn));
-        clanBtn.RegisterCallback<ClickEvent>((evt) => ClanWindow.Instance.ToggleHideWindow());
+        clanBtn.RegisterCallback<ClickEvent>((evt) => ClanPacketServices.Clan.ToggleHideWindow());
 
         var mapBtn = _windowEle.Q<Button>("MapButton");
         mapBtn.AddManipulator(new ButtonClickSoundManipulator(mapBtn));
-        mapBtn.RegisterCallback<ClickEvent>((evt) => MapWindow.Instance.ToggleHideWindow());
+        mapBtn.RegisterCallback<ClickEvent>((evt) => HudCorePacketServices.Map.ToggleHideWindow());
 
         var sysBtn = _windowEle.Q<Button>("SystemMenuButton");
         sysBtn.AddManipulator(new ButtonClickSoundManipulator(sysBtn));
-        sysBtn.RegisterCallback<ClickEvent>((evt) => SystemMenuWindow.Instance.ToggleHideWindow());
+        sysBtn.RegisterCallback<ClickEvent>((evt) => SystemUIPacketServices.Menu.ToggleHideWindow());
 
         root.Add(_windowEle);
 

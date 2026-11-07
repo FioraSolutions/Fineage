@@ -77,12 +77,13 @@ public class InventoryWindow : L2PopupWindow
 
     private void WireInventoryPacketServices()
     {
-        InventoryPacketServices.Bind();
+        InventoryPacketServices.Bind(window: this);
     }
 
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets()
@@ -275,8 +276,8 @@ public class InventoryWindow : L2PopupWindow
 
         // ItemList normally arrives during EnterWorld, before this window is built, so the
         // rows are cached in PlayerInventory. Push them now that the tabs exist.
-        if (PlayerInventory.Instance != null)
-            PlayerInventory.Instance.RefreshWindow();
+        if (InventoryPacketServices.Inventory != null)
+            InventoryPacketServices.Inventory.RefreshWindow();
     }
 
     public int GetEmptySlot()
@@ -312,7 +313,7 @@ public class InventoryWindow : L2PopupWindow
         //Quest
         if (!switchTo.TabName.Equals("All"))
         {
-            List<ItemInstance> filterList = PlayerInventory.Instance.FilterInventory(switchTo.GetFilterCategories);
+            List<ItemInstance> filterList = InventoryPacketServices.Inventory.FilterInventory(switchTo.GetFilterCategories);
             if (filterList != null && filterList.Count > 0)
             {
                 switchTo.SetItemList(filterList);
@@ -324,7 +325,7 @@ public class InventoryWindow : L2PopupWindow
         }
         else
         {
-            List<ItemInstance> items_collect = PlayerInventory.Instance.GetPlayerInvetoryToList();
+            List<ItemInstance> items_collect = InventoryPacketServices.Inventory.GetPlayerInvetoryToList();
             switchTo.SetItemList(items_collect);
         }
     }
@@ -379,8 +380,8 @@ public class InventoryWindow : L2PopupWindow
             _slotCount = PLAYER_INVENTORY_SIZE;
             _inventoryCountLabel.text = $"({usedSlots}/{_slotCount})";
             SetAdenaCountLabel(adenaCount);
-            _activeTab.SetItemList(PlayerInventory.Instance.FilterInventory(_activeTab.GetFilterCategories));
-            _gearTab.SetEquipList(PlayerInventory.Instance.GetPlayerEquipToList(), userId);
+            _activeTab.SetItemList(InventoryPacketServices.Inventory.FilterInventory(_activeTab.GetFilterCategories));
+            _gearTab.SetEquipList(InventoryPacketServices.Inventory.GetPlayerEquipToList(), userId);
         }
 
     }
@@ -447,7 +448,7 @@ public class InventoryWindow : L2PopupWindow
  
     public void ToggleHideWindowManual()
     {
-        if (PlayerInventory.Instance == null)
+        if (InventoryPacketServices.Inventory == null)
             return;
 
         Dictionary<int, ItemInstance> allItems = GetInventoryItems();
@@ -463,7 +464,7 @@ public class InventoryWindow : L2PopupWindow
 
         if (_isWindowHidden)
         {
-             PlayerInventory.Instance.SetInventory(allItems, equipItems , true, adenaCount , allItems.Count + equipItems.Count);
+             InventoryPacketServices.Inventory.SetInventory(allItems, equipItems , true, adenaCount , allItems.Count + equipItems.Count);
         }
         else
         {
@@ -473,12 +474,12 @@ public class InventoryWindow : L2PopupWindow
 
     private Dictionary<int, ItemInstance> GetInventoryItems()
     {
-       return  PlayerInventory.Instance.GetPlayerInventory();
+       return  InventoryPacketServices.Inventory.GetPlayerInventory();
     }
 
     private Dictionary<int, ItemInstance> GetInventoryEquipItems()
     {
-        return PlayerInventory.Instance.GetPlayerEquipInventory();
+        return InventoryPacketServices.Inventory.GetPlayerEquipInventory();
     }
 
     private int GetAdenaCount(List<ItemInstance> modified)

@@ -60,7 +60,7 @@ public sealed class GameRuntime
     public GameManager Manager => DiRuntimePacketServices.Manager;
 
     public World World => _world;
-    public PlayerInventory Inventory { get { return Live(ref _inventory, PlayerInventory.Instance); } }
+    public PlayerInventory Inventory { get { return Live(ref _inventory, InventoryPacketServices.Inventory); } }
     public TargetManager Targets { get { return Live(ref _targets, TargetManager.Instance); } }
     public HitManager Hits { get { return Live(ref _hits, HitManager.Instance); } }
     public ClickManager Clicks { get { return Live(ref _clicks, ClickManager.Instance); } }
@@ -71,36 +71,38 @@ public sealed class GameRuntime
     public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }
     public IGameEventBus GameEvents => _gameEvents;
     public CameraController Camera { get { return Live(ref _camera, CameraController.Instance); } }
-    public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharacters.Instance); } }
+    public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharactersPacketServices.Moves); } }
     public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
+#pragma warning disable CS0618 // Locator fallback until drain completes
     public IAnimationManager Animations { get { return Live(ref _animations, AnimationManager.Instance); } }
+#pragma warning restore CS0618
     public SkillExecutor SkillRunner { get { return Live(ref _skillRunner, SkillExecutor.Instance); } }
 
-    public L2GameUI Ui { get { return Live(ref _ui, L2GameUI.Instance); } }
-    public ChatWindow Chat { get { return Live(ref _chat, ChatWindow.Instance); } }
-    public HtmlWindow Html { get { return Live(ref _html, HtmlWindow.Instance); } }
-    public DealerWindow Dealer { get { return Live(ref _dealer, DealerWindow.Instance); } }
-    public MultiSellWindow MultiSell { get { return Live(ref _multiSell, MultiSellWindow.Instance); } }
-    public TradeWindow Trade { get { return Live(ref _trade, TradeWindow.Instance); } }
-    public TradeRequestWindow TradeRequest { get { return Live(ref _tradeRequest, TradeRequestWindow.Instance); } }
-    public PartyInvitationWindow PartyInvite { get { return Live(ref _partyInvite, PartyInvitationWindow.Instance); } }
-    public EnchantWindow Enchant { get { return Live(ref _enchant, EnchantWindow.Instance); } }
-    public RecipeBookWindow RecipeBook { get { return Live(ref _recipeBook, RecipeBookWindow.Instance); } }
-    public CraftingItemWindow Crafting { get { return Live(ref _crafting, CraftingItemWindow.Instance); } }
-    public SkillLearnWindow SkillLearn { get { return Live(ref _skillLearn, SkillLearnWindow.Instance); } }
-    public DescriptionSkillWindow SkillDesc { get { return Live(ref _skillDesc, DescriptionSkillWindow.Instance); } }
-    public SkillListWindow SkillList { get { return Live(ref _skillList, SkillListWindow.Instance); } }
-    public QuestWindow Quest { get { return Live(ref _quest, QuestWindow.Instance); } }
-    public ClanWindow Clan { get { return Live(ref _clan, ClanWindow.Instance); } }
-    public ShowListWindow ShowList { get { return Live(ref _showList, ShowListWindow.Instance); } }
-    public SeedInfoWindow SeedInfo { get { return Live(ref _seedInfo, SeedInfoWindow.Instance); } }
-    public SellCropListWindow SellCrop { get { return Live(ref _sellCrop, SellCropListWindow.Instance); } }
-    public SkillbarWindow Skillbar { get { return Live(ref _skillbar, SkillbarWindow.Instance); } }
+    public L2GameUI Ui { get { return Live(ref _ui, SystemUIPacketServices.Ui); } }
+    public ChatWindow Chat { get { return Live(ref _chat, MessagePacketServices.Chat); } }
+    public HtmlWindow Html { get { return Live(ref _html, GameWindowPacketServices.Html); } }
+    public DealerWindow Dealer { get { return Live(ref _dealer, MerchantPacketServices.Dealer); } }
+    public MultiSellWindow MultiSell { get { return Live(ref _multiSell, MultiSellPacketServices.MultiSell); } }
+    public TradeWindow Trade { get { return Live(ref _trade, TradePacketServices.Trade); } }
+    public TradeRequestWindow TradeRequest { get { return Live(ref _tradeRequest, TradePacketServices.TradeRequest); } }
+    public PartyInvitationWindow PartyInvite { get { return Live(ref _partyInvite, PartyPacketServices.PartyInvite); } }
+    public EnchantWindow Enchant { get { return Live(ref _enchant, ItemEnchantPacketServices.Enchant); } }
+    public RecipeBookWindow RecipeBook { get { return Live(ref _recipeBook, CraftPacketServices.RecipeBook); } }
+    public CraftingItemWindow Crafting { get { return Live(ref _crafting, CraftPacketServices.Crafting); } }
+    public SkillLearnWindow SkillLearn { get { return Live(ref _skillLearn, SkillLearnPacketServices.SkillLearn); } }
+    public DescriptionSkillWindow SkillDesc { get { return Live(ref _skillDesc, SkillLearnPacketServices.SkillDesc); } }
+    public SkillListWindow SkillList { get { return Live(ref _skillList, SkillLearnPacketServices.SkillList); } }
+    public QuestWindow Quest { get { return Live(ref _quest, QuestPacketServices.Quest); } }
+    public ClanWindow Clan { get { return Live(ref _clan, ClanPacketServices.Clan); } }
+    public ShowListWindow ShowList { get { return Live(ref _showList, GameWindowPacketServices.ShowList); } }
+    public SeedInfoWindow SeedInfo { get { return Live(ref _seedInfo, AuxiliaryGameUIPacketServices.SeedInfo); } }
+    public SellCropListWindow SellCrop { get { return Live(ref _sellCrop, AuxiliaryGameUIPacketServices.SellCrop); } }
+    public SkillbarWindow Skillbar { get { return Live(ref _skillbar, SkillbarPacketServices.Skillbar); } }
     public SystemMessageWindow SystemMessageUi { get { return Live(ref _systemMessageUi, SystemMessagePacketServices.Window); } }
-    public BufferPanel Buffer { get { return Live(ref _buffer, BufferPanel.Instance); } }
-    public InventoryWindow InventoryUi { get { return Live(ref _inventoryUi, InventoryWindow.Instance); } }
-    public DeadWindow Dead { get { return Live(ref _dead, DeadWindow.Instance); } }
-    public StatusWindow Status { get { return Live(ref _status, StatusWindow.Instance); } }
+    public BufferPanel Buffer { get { return Live(ref _buffer, AuxiliaryGameUIPacketServices.Buffer); } }
+    public InventoryWindow InventoryUi { get { return Live(ref _inventoryUi, InventoryPacketServices.Window); } }
+    public DeadWindow Dead { get { return Live(ref _dead, GameWindowPacketServices.Dead); } }
+    public StatusWindow Status { get { return Live(ref _status, GameWindowPacketServices.Status); } }
     public WorldPacketApply WorldApply { get; private set; }
     public MessagePacketApply MessageApply { get; private set; }
 

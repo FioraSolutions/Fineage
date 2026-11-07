@@ -52,7 +52,7 @@ public class CreatorSets
             var weapon = WeapongrpTable.Instance.GetWeapon(id);
             var armor = ArmorgrpTable.Instance.GetArmor(id);
             var item = EtcItemgrpTable.Instance.GetEtcItem(id);
-            bool isEquip = PlayerInventory.Instance.IsItemEquipByItemId(id);
+            bool isEquip = InventoryPacketServices.Inventory.IsItemEquipByItemId(id);
 
             if (weapon != null)
             {

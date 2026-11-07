@@ -164,8 +164,8 @@ public sealed class StriderRideService : ILateTickable
             int npcId = entity.Identity.NpcId;
             if (npcId != 12526 && npcId != 12527 && npcId != 12528)
                 continue;
-            if (MoveAllCharacters.Instance != null)
-                MoveAllCharacters.Instance.Forget(entity.Identity.Id);
+            if (MoveAllCharactersPacketServices.Moves != null)
+                MoveAllCharactersPacketServices.Moves.Forget(entity.Identity.Id);
             entity.gameObject.SetActive(false);
             seat.HiddenPets.Add(entity.gameObject);
         }
@@ -175,8 +175,8 @@ public sealed class StriderRideService : ILateTickable
     {
         if (pet == null)
             return;
-        if (pet.Identity != null && MoveAllCharacters.Instance != null)
-            MoveAllCharacters.Instance.Forget(pet.Identity.Id);
+        if (pet.Identity != null && MoveAllCharactersPacketServices.Moves != null)
+            MoveAllCharactersPacketServices.Moves.Forget(pet.Identity.Id);
         if (EntityActionMachine.Instance != null)
             EntityActionMachine.Instance.Set(pet, EntityActionKind.Idle, null);
         Animator animator = pet.GetComponentInChildren<Animator>(true);
@@ -233,7 +233,7 @@ public sealed class StriderRideService : ILateTickable
             return;
 
         string state = "wait_1HS";
-        AnimationManager animations = AnimationManager.Instance as AnimationManager;
+        AnimationManager animations = GamePacketServices.Animations as AnimationManager;
         if (animations != null && seat.Rider != null && seat.Rider.Identity != null)
         {
             string final = animations.GetFinalNameAnim(seat.Rider.Identity.Id, AnimationNames.WAIT.Value);

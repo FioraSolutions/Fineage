@@ -51,12 +51,12 @@ public class SlotHoverDetectManipulator : PointerManipulator
     public void PointerOverHandler(PointerOverEvent evt)
     {
         Hovering = true;
-        L2SlotManager.Instance.SetHoverSlot(_slot);
+        HudCorePacketServices.Slots.SetHoverSlot(_slot);
     }
 
     public void PointerOutHandler(PointerOutEvent evt)
     {
         Hovering = false;
-        L2SlotManager.Instance.SetHoverSlot(null);
+        HudCorePacketServices.Slots.SetHoverSlot(null);
     }
 }

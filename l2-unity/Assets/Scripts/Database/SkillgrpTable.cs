@@ -31,12 +31,36 @@ public class SkillgrpTable
 
     public Skillgrp GetSkill(int id , int level)
     {
-       if(!_skills.ContainsKey(id)) return null;
+       if (_skills == null || !_skills.TryGetValue(id, out Dictionary<int, Skillgrp> byLevel) || byLevel == null)
+           return null;
 
-       Dictionary<int, Skillgrp> _skillLevel = _skills[id];
-       if (!_skillLevel.ContainsKey(level)) return null;
+       if (byLevel.TryGetValue(level, out Skillgrp exact) && exact != null)
+           return exact;
 
-       return _skillLevel[level];
+       // Server level may sit above Classic skillgrp rows — use nearest lower, else any.
+       Skillgrp best = null;
+       int bestLevel = int.MinValue;
+       foreach (var pair in byLevel)
+       {
+           if (pair.Value == null)
+               continue;
+           if (pair.Key <= level && pair.Key > bestLevel)
+           {
+               best = pair.Value;
+               bestLevel = pair.Key;
+           }
+       }
+
+       if (best != null)
+           return best;
+
+       foreach (var pair in byLevel)
+       {
+           if (pair.Value != null)
+               return pair.Value;
+       }
+
+       return null;
     }
 
     public SkillNameData GetSkillName(int id, int level)
@@ -205,11 +229,10 @@ public class SkillgrpTable
 
     public AnimationCombo GetAnimComboBySkillId(int skillId , int level)
     {
-        if (!_skills.TryGetValue(skillId, out Dictionary<int, Skillgrp> skills))
+        Skillgrp grp = GetSkill(skillId, level);
+        if (grp == null || string.IsNullOrEmpty(grp.Animation))
             return null;
-        if (!skills.TryGetValue(level, out Skillgrp grp) || grp == null || string.IsNullOrEmpty(grp.Animation))
-            return null;
-        if (_animationsCombo.TryGetValue(grp.Animation, out AnimationCombo combo))
+        if (_animationsCombo != null && _animationsCombo.TryGetValue(grp.Animation, out AnimationCombo combo))
             return combo;
         return null;
     }

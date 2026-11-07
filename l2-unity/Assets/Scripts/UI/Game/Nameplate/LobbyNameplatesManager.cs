@@ -119,9 +119,10 @@ public class LobbyNameplatesManager : MonoBehaviour
             return _camera;
         }
 
-        if (CharacterSelector.Instance != null && CharacterSelector.Instance.Camera != null)
+        CharacterSelector selector = LoginPacketServices.Characters;
+        if (selector != null && selector.Camera != null)
         {
-            return CharacterSelector.Instance.Camera;
+            return selector.Camera;
         }
 
         return null;
@@ -196,12 +197,13 @@ public class LobbyNameplatesManager : MonoBehaviour
     {
         _paintList.Clear();
 
-        if (CharacterSelector.Instance == null)
+        CharacterSelector selector = LoginPacketServices.Characters;
+        if (selector == null)
         {
             return;
         }
 
-        IReadOnlyList<GameObject> pawns = CharacterSelector.Instance.CharacterPawns;
+        IReadOnlyList<GameObject> pawns = selector.CharacterPawns;
         if (pawns == null)
         {
             return;

@@ -12,5 +12,5 @@ public static class SceneLoaderUiPacketServices
     }
 
     public static L2GameUI GameUi =>
-        _gameUi != null ? _gameUi : L2GameUI.Instance;
+        _gameUi != null ? _gameUi : SystemUIPacketServices.Ui;
 }

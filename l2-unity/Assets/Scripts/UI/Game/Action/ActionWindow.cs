@@ -21,6 +21,7 @@ public class ActionWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireHudCorePacketServices();
         }
         else
         {
@@ -31,6 +32,17 @@ public class ActionWindow : L2PopupWindow
     private void OnDestroy()
     {
         _instance = null;
+    }
+
+    
+    private void Start()
+    {
+        WireHudCorePacketServices();
+    }
+
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(action: this);
     }
 
     protected override void LoadAssets()
@@ -115,13 +127,13 @@ public class ActionWindow : L2PopupWindow
     {
         base.ShowWindow();
         AudioManager.Instance.PlayUISound("window_open");
-        L2GameUI.Instance.WindowOpened(this);
+        SystemUIPacketServices.Ui.WindowOpened(this);
     }
 
     public override void HideWindow()
     {
         base.HideWindow();
         AudioManager.Instance.PlayUISound("window_close");
-        L2GameUI.Instance.WindowClosed(this);
+        SystemUIPacketServices.Ui.WindowClosed(this);
     }
 }

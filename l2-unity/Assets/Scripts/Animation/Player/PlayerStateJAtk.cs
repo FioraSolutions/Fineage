@@ -7,6 +7,8 @@
 /// </summary>
 public class PlayerStateJAtk : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private const string JATK_TIMING_LOG = "[JATK_TIMING]";
     private const string JATK_EARLY_LOG = "[JATK_EARLY]";
 
@@ -69,7 +71,7 @@ public class PlayerStateJAtk : StateMachineBehaviour
         // After a chase, current clip is still run_* — do not use that length for patkspd.
         if (_rateFromSwingClip)
         {
-            _linearPatkSpd = AnimationManager.Instance.ApplyLinearMeleePAtkSpeed(
+            _linearPatkSpd = Animations.ApplyLinearMeleePAtkSpeed(
                 objectId, parameterName, timeAnimation);
         }
 
@@ -158,12 +160,12 @@ public class PlayerStateJAtk : StateMachineBehaviour
             PlayerBasicAttackAnim.TryGetSwingClipLength(animator, layerIndex, out float swingLen, out _))
         {
             _clipLengthSec = swingLen;
-            _linearPatkSpd = AnimationManager.Instance.ApplyLinearMeleePAtkSpeed(
+            _linearPatkSpd = Animations.ApplyLinearMeleePAtkSpeed(
                 objectId, parameterName, swingLen);
             _rateFromSwingClip = true;
         }
         if (_startTime >= 0f && _rateFromSwingClip)
-            AnimationManager.Instance.SetPAtkSpeed(objectId, _linearPatkSpd);
+            Animations.SetPAtkSpeed(objectId, _linearPatkSpd);
 
         if (!AnimatorUtils.IsLocalPlayerAnimator(animator))
             return;
@@ -339,7 +341,7 @@ public class PlayerStateJAtk : StateMachineBehaviour
     {
         if (animator.GetBool(animParameterName))
         {
-            AnimationManager.Instance.StopCurrentAnimation(
+            Animations.StopCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID),
                 animParameterName,
                 "player");

@@ -76,7 +76,7 @@ public class InventoryGearTab : L2Tab
 
     public void UpdateEquipList(List<ItemInstance> modified, ChangeInventoryData changeInventoryData , int userId)
     {
-        if(PlayerInventory.Instance.GetPlayerEquipInventory().Count == 0)
+        if(InventoryPacketServices.Inventory.GetPlayerEquipInventory().Count == 0)
         {
             EquipEmptyAll();
         }

@@ -11,6 +11,6 @@ public class WalkRunAction : L2Action
             PlayerStateMachine.Instance.State == PlayerState.DEAD)
             return;
 
-        NetSession.Ensure().SendActionUse((int)ActionType.WalkRun);
+        _ = NetSession.Ensure().SendActionUse((int)ActionType.WalkRun);
     }
 }

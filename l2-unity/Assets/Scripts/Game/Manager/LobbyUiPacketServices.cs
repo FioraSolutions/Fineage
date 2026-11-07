@@ -15,7 +15,7 @@ public static class LobbyUiPacketServices
     }
 
     public static L2GameUI GameUi =>
-        _gameUi != null ? _gameUi : L2GameUI.Instance;
+        _gameUi != null ? _gameUi : SystemUIPacketServices.Ui;
 
     public static L2LoginUI LoginUi =>
         _loginUi != null ? _loginUi : L2LoginUI.Instance;

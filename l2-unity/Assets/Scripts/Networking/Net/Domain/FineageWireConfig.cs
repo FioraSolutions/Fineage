@@ -12,7 +12,7 @@ using System;
 /// </para>
 ///
 /// <para>
-/// Net is now the only wire. The MessagePack "Zone V2" mode before it is long gone, and the
+/// Net is now the only wire. Legacy MessagePack Zone path is gone; Fineage Net only. The
 /// Interlude socket is unreachable: no build sets <c>FINEAGE_NET_CLIENT</c>, and
 /// <see cref="FineagePublicMacBuild"/> ships the public Net playtest. What remains here is
 /// the host/port pair that both profiles write.

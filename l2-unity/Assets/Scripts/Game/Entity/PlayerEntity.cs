@@ -252,9 +252,9 @@ public class PlayerEntity : Entity
            // PlayerStateMachine.Instance.NotifyEvent(Event.MOVE_TYPE_UPDATED);
         }
 
-        if (CharacterInfoWindow.Instance != null)
+        if (HudCorePacketServices.CharacterInfo != null)
         {
-            CharacterInfoWindow.Instance.UpdateValues();
+            HudCorePacketServices.CharacterInfo.UpdateValues();
         }
     }
 
