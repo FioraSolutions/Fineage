@@ -23,7 +23,7 @@ public class RecipeBookWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
-            _creatorWindow = new CreatorTradingWindowsWithTabs();
+            _creatorWindow = new CreatorTradingWindows();
             WireCraftPacketServices();
         }
         else

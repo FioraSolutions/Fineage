@@ -1,6 +1,6 @@
 /// <summary>
 /// Shared Resources paths for inventory-like UITK chrome (tabs/slots).
-/// Keep CreatorTrading* and Inventory/Dealer loaders on one string table.
+/// Keep CreatorTradingWindows and Inventory/Dealer loaders on one string table.
 /// </summary>
 public static class L2InventoryUiAssets
 {

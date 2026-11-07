@@ -36,7 +36,7 @@ public class MultiSellWindow : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
-            _creatorWindow = new CreatorTradingWindowsWithTabs();
+            _creatorWindow = new CreatorTradingWindows();
             _dataProvider = new TooltipDataProvider();
             _toolTips = new MultiSellToolTips(_dataProvider);
             WireMultiSellPacketServices();
