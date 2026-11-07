@@ -337,8 +337,8 @@ public sealed class NetSession : MonoBehaviour
         _commandSender.SendDropItemRequestAsync(objectId, count, x, y, z);
 
     /// <summary>Mobius <c>RequestDestroyItem</c>: delete the bag slot, no ground spawn.</summary>
-    public async void SendDestroyItemRequest(int objectId, int count) =>
-        await _commandSender.SendDestroyItemRequestAsync(objectId, count);
+    public Task SendDestroyItemRequest(int objectId, int count) =>
+        _commandSender.SendDestroyItemRequestAsync(objectId, count);
 
     public Task SendUseItem(int objectId) =>
         _commandSender.SendUseItemAsync(objectId);
@@ -347,8 +347,8 @@ public sealed class NetSession : MonoBehaviour
     /// Mobius <c>RequestAutoSoulShot</c>: right-clicking a shot on the hotbar turns automatic use on/off.
     /// <paramref name="itemId"/> is the shot template id the client carries.
     /// </summary>
-    public async void SendRequestAutoSoulShot(int itemId, bool enabled) =>
-        await _commandSender.SendRequestAutoSoulShotAsync(itemId, enabled);
+    public Task SendRequestAutoSoulShot(int itemId, bool enabled) =>
+        _commandSender.SendRequestAutoSoulShotAsync(itemId, enabled);
 
     public Task SendUnequipItem(int paperdollSlot) =>
         _commandSender.SendUnequipItemAsync(paperdollSlot);
@@ -358,64 +358,64 @@ public sealed class NetSession : MonoBehaviour
     /// (slot + page * 12); the zone echoes the result as <c>ShortCutRegister</c> or
     /// <c>ShortCutDelete</c>.
     /// </summary>
-    public async void SendShortCutReg(int type, int worldSlot, int id, int level) =>
-        await _commandSender.SendShortCutRegAsync(type, worldSlot, id, level);
+    public Task SendShortCutReg(int type, int worldSlot, int id, int level) =>
+        _commandSender.SendShortCutRegAsync(type, worldSlot, id, level);
 
     /// <summary>Clears one hotbar slot (world slot = slot + page * 12).</summary>
-    public async void SendShortCutDel(int worldSlot) =>
-        await _commandSender.SendShortCutDelAsync(worldSlot);
+    public Task SendShortCutDel(int worldSlot) =>
+        _commandSender.SendShortCutDelAsync(worldSlot);
 
     /// <summary>
     /// Mobius <c>RequestActionUse</c>: 0 = sit/stand, 1 = walk/run, 12/13/14 = social gestures.
     /// The zone answers with ChangeWaitType / ChangeMoveType / SocialAction.
     /// </summary>
-    public async void SendActionUse(int actionId, bool ctrlPressed = false, bool shiftPressed = false) =>
-        await _commandSender.SendActionUseAsync(actionId, ctrlPressed, shiftPressed);
+    public Task SendActionUse(int actionId, bool ctrlPressed = false, bool shiftPressed = false) =>
+        _commandSender.SendActionUseAsync(actionId, ctrlPressed, shiftPressed);
 
     /// <summary>
     /// Position heartbeat (L2 coordinates + heading). The zone reconciles the client's
     /// position against its own copy; without it a walk drifts and then snaps back.
     /// </summary>
-    public async void SendValidatePosition(int x, int y, int z, int heading) =>
-        await _commandSender.SendValidatePositionAsync(x, y, z, heading);
+    public Task SendValidatePosition(int x, int y, int z, int heading) =>
+        _commandSender.SendValidatePositionAsync(x, y, z, heading);
 
-    public async void SendSay(string text, int chatType) =>
-        await _commandSender.SendSayAsync(text, chatType);
+    public Task SendSay(string text, int chatType) =>
+        _commandSender.SendSayAsync(text, chatType);
 
     public Task SendUseSkill(int skillId, int targetObjectId, bool ctrlPressed) =>
         _commandSender.SendUseSkillAsync(skillId, targetObjectId, ctrlPressed);
 
-    public async void SendReviveRequest(int action) =>
-        await _commandSender.SendReviveRequestAsync(action);
+    public Task SendReviveRequest(int action) =>
+        _commandSender.SendReviveRequestAsync(action);
 
     /// <summary>
     /// Mobius <c>RequestAcquireSkillInfo</c>: ask the zone for the confirmation page of one trainer offer.
     /// Called by the trainer window when a row is clicked.
     /// </summary>
-    public async void SendRequestAcquireSkillInfo(int skillId, int level, int skillType) =>
-        await _commandSender.SendRequestAcquireSkillInfoAsync(skillId, level, skillType);
+    public Task SendRequestAcquireSkillInfo(int skillId, int level, int skillType) =>
+        _commandSender.SendRequestAcquireSkillInfoAsync(skillId, level, skillType);
 
     /// <summary>Mobius <c>RequestAcquireSkill</c>: buy the offer (SP is spent by the zone).</summary>
-    public async void SendRequestAcquireSkill(int skillId, int level, int skillType) =>
-        await _commandSender.SendRequestAcquireSkillAsync(skillId, level, skillType);
+    public Task SendRequestAcquireSkill(int skillId, int level, int skillType) =>
+        _commandSender.SendRequestAcquireSkillAsync(skillId, level, skillType);
 
     /// <summary>Mobius <c>RequestEnchantItem</c>: the bag scroll the player clicked opens the window.</summary>
-    public async void SendEnchantRequest(int scrollObjectId) =>
-        await _commandSender.SendEnchantRequestAsync(scrollObjectId);
+    public Task SendEnchantRequest(int scrollObjectId) =>
+        _commandSender.SendEnchantRequestAsync(scrollObjectId);
 
     /// <summary>The item placed in the enchant slot; the zone rolls the scroll against it.</summary>
-    public async void SendEnchantConfirm(int targetObjectId) =>
-        await _commandSender.SendEnchantConfirmAsync(targetObjectId);
+    public Task SendEnchantConfirm(int targetObjectId) =>
+        _commandSender.SendEnchantConfirmAsync(targetObjectId);
 
     /// <summary>The player closed the window without rolling. The zone clears the scroll.</summary>
-    public async void SendEnchantCancel() =>
-        await _commandSender.SendEnchantCancelAsync();
+    public Task SendEnchantCancel() =>
+        _commandSender.SendEnchantCancelAsync();
 
-    public async void SendNpcTalk(int npcObjectId) =>
-        await _commandSender.SendNpcTalkAsync(npcObjectId);
+    public Task SendNpcTalk(int npcObjectId) =>
+        _commandSender.SendNpcTalkAsync(npcObjectId);
 
-    public async void SendBypassRequest(int npcObjectId, string command) =>
-        await _commandSender.SendBypassRequestAsync(npcObjectId, command);
+    public Task SendBypassRequest(int npcObjectId, string command) =>
+        _commandSender.SendBypassRequestAsync(npcObjectId, command);
 
     public void SendNpcLink(int npcObjectId, string command)
     {
@@ -427,10 +427,10 @@ public sealed class NetSession : MonoBehaviour
             case NetBypass.SupportMagic:
             case NetBypass.GiveBlessing:
                 // Same bypass verb as V2; specialized opcodes come later.
-                SendBypassRequest(npcObjectId, NetBypass.Normalize(command));
+                _ = SendBypassRequest(npcObjectId, NetBypass.Normalize(command));
                 return;
             default:
-                SendBypassRequest(npcObjectId, NetBypass.Normalize(command));
+                _ = SendBypassRequest(npcObjectId, NetBypass.Normalize(command));
                 return;
         }
     }
@@ -441,8 +441,8 @@ public sealed class NetSession : MonoBehaviour
     public Task SendRequestSellItem(int npcObjectId, NetIdCount[] items) =>
         _commandSender.SendRequestSellItemAsync(npcObjectId, items);
 
-    public async void SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount) =>
-        await _commandSender.SendRequestMultiSellChooseAsync(npcObjectId, listId, entryId, amount);
+    public Task SendRequestMultiSellChoose(int npcObjectId, int listId, int entryId, int amount) =>
+        _commandSender.SendRequestMultiSellChooseAsync(npcObjectId, listId, entryId, amount);
 
     public Task SendWarehouseDeposit(int npcObjectId, NetIdCount[] lines) =>
         _commandSender.SendWarehouseDepositAsync(npcObjectId, lines);
@@ -450,67 +450,67 @@ public sealed class NetSession : MonoBehaviour
     public Task SendWarehouseWithdraw(int npcObjectId, NetIdCount[] lines) =>
         _commandSender.SendWarehouseWithdrawAsync(npcObjectId, lines);
 
-    public async void SendRequestQuestList() =>
-        await _commandSender.SendRequestQuestListAsync();
+    public Task SendRequestQuestList() =>
+        _commandSender.SendRequestQuestListAsync();
 
-    public async void SendRequestQuestAbort(int questId) =>
-        await _commandSender.SendRequestQuestAbortAsync(questId);
+    public Task SendRequestQuestAbort(int questId) =>
+        _commandSender.SendRequestQuestAbortAsync(questId);
 
-    public async void SendPartyInviteRequest(int targetObjectId, int itemDistribution = 0) =>
-        await _commandSender.SendPartyInviteRequestAsync(targetObjectId, itemDistribution);
+    public Task SendPartyInviteRequest(int targetObjectId, int itemDistribution = 0) =>
+        _commandSender.SendPartyInviteRequestAsync(targetObjectId, itemDistribution);
 
-    public async void SendPartyAnswerJoinRequest(int requestorObjectId, int response) =>
-        await _commandSender.SendPartyAnswerJoinRequestAsync(requestorObjectId, response);
+    public Task SendPartyAnswerJoinRequest(int requestorObjectId, int response) =>
+        _commandSender.SendPartyAnswerJoinRequestAsync(requestorObjectId, response);
 
-    public async void SendPartyLeaveRequest() =>
-        await _commandSender.SendPartyLeaveRequestAsync();
+    public Task SendPartyLeaveRequest() =>
+        _commandSender.SendPartyLeaveRequestAsync();
 
-    public async void SendPartyKickRequest(int targetObjectId) =>
-        await _commandSender.SendPartyKickRequestAsync(targetObjectId);
+    public Task SendPartyKickRequest(int targetObjectId) =>
+        _commandSender.SendPartyKickRequestAsync(targetObjectId);
 
-    public async void SendTradeRequest(int targetObjectId) =>
-        await _commandSender.SendTradeRequestAsync(targetObjectId);
+    public Task SendTradeRequest(int targetObjectId) =>
+        _commandSender.SendTradeRequestAsync(targetObjectId);
 
-    public async void SendTradeAnswerRequest(int requestorObjectId, int response) =>
-        await _commandSender.SendTradeAnswerRequestAsync(requestorObjectId, response);
+    public Task SendTradeAnswerRequest(int requestorObjectId, int response) =>
+        _commandSender.SendTradeAnswerRequestAsync(requestorObjectId, response);
 
-    public async void SendTradeAddItemRequest(int inventoryObjectId, int count) =>
-        await _commandSender.SendTradeAddItemRequestAsync(inventoryObjectId, count);
+    public Task SendTradeAddItemRequest(int inventoryObjectId, int count) =>
+        _commandSender.SendTradeAddItemRequestAsync(inventoryObjectId, count);
 
-    public async void SendTradeDoneRequest(int response) =>
-        await _commandSender.SendTradeDoneRequestAsync(response);
+    public Task SendTradeDoneRequest(int response) =>
+        _commandSender.SendTradeDoneRequestAsync(response);
 
     /// <summary>Mobius <c>RequestCreatePledge</c>: found a clan with this name.</summary>
-    public async void SendClanCreateRequest(string name) =>
-        await _commandSender.SendClanCreateRequestAsync(name);
+    public Task SendClanCreateRequest(string name) =>
+        _commandSender.SendClanCreateRequestAsync(name);
 
     /// <summary>Mobius <c>RequestJoinPledge</c>: ask the owner of this clan to enrol the player.</summary>
-    public async void SendClanInviteRequest(int targetObjectId) =>
-        await _commandSender.SendClanInviteRequestAsync(targetObjectId);
+    public Task SendClanInviteRequest(int targetObjectId) =>
+        _commandSender.SendClanInviteRequestAsync(targetObjectId);
 
     /// <summary>Mobius <c>RequestAnswerJoinPledge</c>. Response 0 declines.</summary>
-    public async void SendClanAnswerJoinRequest(int requestorObjectId, int response) =>
-        await _commandSender.SendClanAnswerJoinRequestAsync(requestorObjectId, response);
+    public Task SendClanAnswerJoinRequest(int requestorObjectId, int response) =>
+        _commandSender.SendClanAnswerJoinRequestAsync(requestorObjectId, response);
 
     /// <summary>Mobius <c>RequestWithdrawalPledge</c>.</summary>
-    public async void SendClanLeaveRequest() =>
-        await _commandSender.SendClanLeaveRequestAsync();
+    public Task SendClanLeaveRequest() =>
+        _commandSender.SendClanLeaveRequestAsync();
 
     /// <summary>Mobius <c>RequestOustPledgeMember</c>, by object id.</summary>
-    public async void SendClanKickRequest(int targetObjectId) =>
-        await _commandSender.SendClanKickRequestAsync(targetObjectId);
+    public Task SendClanKickRequest(int targetObjectId) =>
+        _commandSender.SendClanKickRequestAsync(targetObjectId);
 
     /// <summary>Mobius <c>RequestDissolvePledge</c>.</summary>
-    public async void SendClanDissolveRequest() =>
-        await _commandSender.SendClanDissolveRequestAsync();
+    public Task SendClanDissolveRequest() =>
+        _commandSender.SendClanDissolveRequestAsync();
 
     /// <summary>Mobius <c>RequestPledgeReorganizeMember</c>-side cancel of a running dissolution.</summary>
-    public async void SendClanCancelDissolveRequest() =>
-        await _commandSender.SendClanCancelDissolveRequestAsync();
+    public Task SendClanCancelDissolveRequest() =>
+        _commandSender.SendClanCancelDissolveRequestAsync();
 
     /// <summary>Mobius <c>RequestTargetCanceld</c>: drop the selection on the zone side too.</summary>
-    public async void SendTargetCancel() =>
-        await _commandSender.SendTargetCancelAsync();
+    public Task SendTargetCancel() =>
+        _commandSender.SendTargetCancelAsync();
 
     async System.Threading.Tasks.Task SendHelloAsync(NetTransport transport, string clientName)
     {

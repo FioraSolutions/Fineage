@@ -17,6 +17,6 @@ public sealed class SocialActionUse : L2Action
             PlayerStateMachine.Instance.State == PlayerState.DEAD)
             return;
 
-        NetSession.Ensure().SendActionUse(_actionId);
+        _ = NetSession.Ensure().SendActionUse(_actionId);
     }
 }
