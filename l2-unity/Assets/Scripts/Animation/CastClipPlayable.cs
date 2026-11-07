@@ -542,18 +542,18 @@ public sealed class CastClipPlayable
             DomainPacketServices.LocalPlayer.IsAttack = false;
         }
 
-        if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
+        if (PlayerStatePacketServices.PlayerState != null && PlayerStatePacketServices.PlayerState.ShouldKeepLocomotion())
         {
             return;
         }
 
-        if (PlayerStateMachine.Instance == null)
+        if (PlayerStatePacketServices.PlayerState == null)
         {
             return;
         }
 
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
     }
 
     private static int StateIndex(string triggerName)

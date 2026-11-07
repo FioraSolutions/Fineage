@@ -6,6 +6,8 @@ public class PlayerStateMachine : MonoBehaviour
     private bool _enableLogs = true;
  
     private static PlayerStateMachine _instance;
+
+    [System.Obsolete("Use PlayerStatePacketServices.PlayerState or [Inject] PlayerStateMachine instead")]
     public static PlayerStateMachine Instance => _instance;
 
 
@@ -50,6 +52,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         InitializeState();
         InitializeIntention();
+        PlayerStatePacketServices.Bind(playerState: this);
 
         this.enabled = false;
     }
@@ -64,6 +67,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         PlayerStateMachine previous = _instance;
         _instance = this;
+        PlayerStatePacketServices.Bind(playerState: this);
         if (previous != null && previous != this && previous.GetComponentInParent<PlayerEntity>() == null)
             Destroy(previous);
         return true;
@@ -83,6 +87,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         _instance = onPlayer;
         onPlayer.enabled = true;
+        PlayerStatePacketServices.Bind(playerState: onPlayer);
         if (DomainPacketServices.LocalPlayer != null)
             onPlayer.Player = DomainPacketServices.LocalPlayer;
     }

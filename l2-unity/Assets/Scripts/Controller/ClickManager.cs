@@ -201,13 +201,13 @@ public class ClickManager : MonoBehaviour
 
     private void StopFollow()
     {
-        if (PlayerStateMachine.Instance == null)
+        if (PlayerStatePacketServices.PlayerState == null)
         {
             return;
         }
 
-        PlayerStateMachine.Instance.Follow = null;
-        PlayerStateMachine.Instance.IsMoveToPawn = false;
+        PlayerStatePacketServices.PlayerState.Follow = null;
+        PlayerStatePacketServices.PlayerState.IsMoveToPawn = false;
     }
 
     private void SendPacketMoveToLocation(Vector3 lastClickPosition)

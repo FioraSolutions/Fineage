@@ -51,8 +51,8 @@ public sealed class MonsterWorldApply : EntityWorldApply
             // " skipWaitReturn=" + !localInCombat,
             // entity,
             // dto);
-        if (localInCombat && PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.OnWaitReturn();
+        if (localInCombat && PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.OnWaitReturn();
     }
 
     static bool LocalPlayerInCombatWith(PlayerEntity player, bool targetMatch)
@@ -61,7 +61,7 @@ public sealed class MonsterWorldApply : EntityWorldApply
             return false;
         if (player.isAutoAttack || player.IsAttack)
             return true;
-        PlayerStateMachine sm = PlayerStateMachine.Instance;
+        PlayerStateMachine sm = PlayerStatePacketServices.PlayerState;
         if (sm == null)
             return false;
         PlayerState state = sm.State;

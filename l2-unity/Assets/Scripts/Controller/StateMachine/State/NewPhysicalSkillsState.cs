@@ -107,8 +107,8 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 // Debug.Log(
                     // $"[SS_CHARGE_SM] State.ARRIVED while PHYSICAL_SKILLS → IDLE " +
                     // $"(arrived overrides charged)");
-                PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-                PlayerStateMachine.Instance.NotifyEvent(Event.ARRIVED);
+                PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.ARRIVED);
                 break;
 
         }

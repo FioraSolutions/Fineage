@@ -294,16 +294,16 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
         }
 
         // MOVE_TO after Ice Bolt already started walk/run. Do not pull that back into atkwait.
-        if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
+        if (PlayerStatePacketServices.PlayerState != null && PlayerStatePacketServices.PlayerState.ShouldKeepLocomotion())
         {
             // Debug.Log(
                 // $"{MagicExitLogTag} SwitchToIdle SKIP_LOCOMOTION state={parameterName} " +
-                // $"sm={PlayerStateMachine.Instance.State} intention={PlayerStateMachine.Instance.Intention}");
+                // $"sm={PlayerStatePacketServices.PlayerState.State} intention={PlayerStatePacketServices.PlayerState.Intention}");
             return;
         }
 
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
     }
 
     private static bool ShouldUseForceSync(MagicCastData castData)

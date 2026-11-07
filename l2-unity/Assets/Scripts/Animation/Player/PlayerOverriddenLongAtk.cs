@@ -211,16 +211,16 @@ public class PlayerOverriddenLongAtk : StateMachineBehaviour
             DomainPacketServices.LocalPlayer.IsAttack = false;
         }
 
-        if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
+        if (PlayerStatePacketServices.PlayerState != null && PlayerStatePacketServices.PlayerState.ShouldKeepLocomotion())
         {
             // Debug.Log(
                 // $"{LongExitLogTag} SwitchToIdle SKIP_LOCOMOTION state={parameterName} " +
-                // $"sm={PlayerStateMachine.Instance.State} intention={PlayerStateMachine.Instance.Intention}");
+                // $"sm={PlayerStatePacketServices.PlayerState.State} intention={PlayerStatePacketServices.PlayerState.Intention}");
             return;
         }
 
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
     }
 
     private void StopAnimationTrigger(Animator animator, string triggerName)

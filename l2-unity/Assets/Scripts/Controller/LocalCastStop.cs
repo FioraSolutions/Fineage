@@ -37,7 +37,7 @@ public static class LocalCastStop
     {
         Halt();
 
-        PlayerStateMachine machine = PlayerStateMachine.Instance;
+        PlayerStateMachine machine = PlayerStatePacketServices.PlayerState;
         if (machine == null)
             return;
 

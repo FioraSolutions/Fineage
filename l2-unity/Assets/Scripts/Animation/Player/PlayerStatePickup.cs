@@ -40,15 +40,15 @@ public class PlayerStatePickup : StateMachineBehaviour
             && DomainPacketServices.LocalPlayer != null
             && DomainPacketServices.LocalPlayer.isAutoAttack;
 
-        if (local && PlayerStateMachine.Instance != null)
+        if (local && PlayerStatePacketServices.PlayerState != null)
         {
-            PlayerState st = PlayerStateMachine.Instance.State;
+            PlayerState st = PlayerStatePacketServices.PlayerState.State;
             if (st == PlayerState.MAGIC_SKILLS || st == PlayerState.PHYSICAL_SKILLS)
-                PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
+                PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
 
             if (autoAttack)
             {
-                PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN);
                 return;
             }
         }

@@ -187,10 +187,10 @@ public class PlayerStateSpAtk : StateMachineBehaviour
 
         if (DomainPacketServices.LocalPlayer != null)
             DomainPacketServices.LocalPlayer.IsAttack = false;
-        if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
+        if (PlayerStatePacketServices.PlayerState != null && PlayerStatePacketServices.PlayerState.ShouldKeepLocomotion())
             return;
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
     }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

@@ -56,7 +56,7 @@ public static class MagicSkillPresentation
             catch (System.Exception bar) { Debug.LogWarning("[CastBar] " + bar.Message); }
         }
 
-        if (PlayerStateMachine.Instance == null)
+        if (PlayerStatePacketServices.PlayerState == null)
         {
             Debug.LogWarning(
                 "[MagicSkills] PresentLocal no PlayerStateMachine skill=" + dto.SkillId +
@@ -78,7 +78,7 @@ public static class MagicSkillPresentation
             " anim=[" + (grp != null ? grp.Animation : "-") + "]" +
             " intention=" + (isMagic ? "MAGIC" : "PHYS") +
             " t0=" + Time.realtimeSinceStartup.ToString("F3"));
-        PlayerStateMachine.Instance.ChangeIntention(
+        PlayerStatePacketServices.PlayerState.ChangeIntention(
             isMagic ? Intention.INTENTION_MAGIC_ATTACK : Intention.INTENTION_PHYSICAL_SKILLS_ATTACK,
             dto);
     }
