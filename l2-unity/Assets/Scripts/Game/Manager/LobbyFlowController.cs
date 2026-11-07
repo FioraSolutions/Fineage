@@ -15,7 +15,7 @@ public sealed class LobbyFlowController
     private PacketApplyQueue _applyQueue;
     private L2GameUI _gameUi;
 
-    GameClient Game => GameClient.Instance;
+    GameClient Game => DiRuntimePacketServices.Game;
     LoginClient Login => LoginClient.Instance;
 
     [Inject] IZoneTransport _zoneTransport;
@@ -44,10 +44,7 @@ public sealed class LobbyFlowController
         _gameUi = gameUi;
     }
 
-    private SceneLoader Scenes
-    {
-        get { return SceneLoader.Instance; }
-    }
+    private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
     private L2LoginUI LoginUi
     {

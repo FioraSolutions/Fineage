@@ -189,9 +189,10 @@ public sealed class GameLifetimeScope : LifetimeScope
 
                 // #142 slice 3: hand NetSession the container-built applies via [Inject].
                 // NetSession lives outside the scope, so it must be injected explicitly.
-                NetSession netSession = NetSession.Instance;
+                NetSession netSession = NetworkingPacketServices.Session;
                 if (netSession == null)
                     netSession = NetSession.Ensure();
+                NetworkingPacketServices.Bind(session: netSession);
                 container.InjectGameObject(netSession.gameObject);
                 ApplyServices.Bind(
                     inventory: container.Resolve<InventoryApplyService>(),

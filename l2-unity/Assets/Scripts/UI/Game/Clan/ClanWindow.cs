@@ -650,7 +650,7 @@ public class ClanWindow : L2TwoPanels
         IZoneTransport transport = ZoneCommands.Transport;
         if (transport != null && transport.PlayerInfo.Identity != null && transport.PlayerInfo.Identity.Id > 0)
             return transport.PlayerInfo.Identity.Id;
-        NetSession net = NetSession.Instance;
+        NetSession net = NetworkingPacketServices.Session;
         return net != null ? net.SessionObjectId : 0;
     }
 

@@ -19,14 +19,14 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public bool Connected
     {
-        get { return NetSession.Instance != null; }
+        get { return NetworkingPacketServices.Session != null; }
     }
 
     public int SessionObjectId
     {
         get
         {
-            NetSession session = NetSession.Instance;
+            NetSession session = NetworkingPacketServices.Session;
             return session != null ? session.SessionObjectId : 0;
         }
     }
@@ -518,7 +518,8 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void Disconnect()
     {
-        if (NetSession.Instance != null)
-            UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+        NetSession net = NetworkingPacketServices.Session;
+        if (net != null)
+            UnityEngine.Object.Destroy(net.gameObject);
     }
 }

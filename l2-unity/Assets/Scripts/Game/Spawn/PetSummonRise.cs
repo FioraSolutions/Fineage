@@ -24,7 +24,7 @@ public sealed class PetSummonRise : MonoBehaviour
     {
         if (entity == null || entity.Identity == null || entity.Identity.SummonState != 2)
             return;
-        if (!EnterEventTable.Instance.TryGet(entity.Identity.NpcId, out EnterEventTable.Row row))
+        if (!TablePacketServices.EnterEvents.TryGet(entity.Identity.NpcId, out EnterEventTable.Row row))
             return;
         if (row.SpawnType == 0)
             return;
@@ -55,7 +55,7 @@ public sealed class PetSummonRise : MonoBehaviour
             " class=" + row.EffectClass +
             " rise=" + row.IsRise +
             " anim=" + row.AnimName +
-            " rows=" + EnterEventTable.Instance.Count);
+            " rows=" + TablePacketServices.EnterEvents.Count);
         SpawnGroundEffect(row.EffectClass, end, entity.transform.rotation, entity);
         PlayEnterAnim(entity, row.AnimName);
         EntitySpawnShared.LogStriderAppear("enter", entity, "asked=" + row.AnimName);

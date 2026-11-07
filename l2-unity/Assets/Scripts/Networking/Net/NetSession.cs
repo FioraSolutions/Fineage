@@ -75,6 +75,15 @@ public sealed partial class NetSession : MonoBehaviour
     public event Action<HandoffMsg> HandoffReceived;
     public event Action EnteredWorld;
 
+    static NetSession _instance;
+
+    [System.Obsolete("Use NetworkingPacketServices.Session instead")]
+    public static NetSession Instance
+    {
+        get => _instance;
+        private set => _instance = value;
+    }
+
     public static NetSession Ensure()
     {
         if (Instance != null)
