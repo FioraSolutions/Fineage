@@ -5,10 +5,12 @@ using UnityEngine;
 public class MonsterStateRun : MonsterStateBase
 {
 
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
+
     public string parameterName;
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        AnimationManager.Instance.StopMonsterCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
+        Animations.StopMonsterCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 
 

@@ -2,6 +2,8 @@
 
 public class PlayerOverriddenMagicAtk : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private const string TriggerCastMid = "CastMid";
     private const string TriggerCastEnd = "CastEnd";
     private const string TriggerMagicShot = "MagicShot";
@@ -232,9 +234,9 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
             // $"wallDone={wallDone} globalWall={globalWall:F3}s globalWallDone={globalWallDone} " +
             // $"→ NotifyMagicPhaseFinished");
 
-        if (AnimationManager.Instance != null)
+        if (Animations != null)
         {
-            AnimationManager.Instance.NotifyMagicPhaseFinished(objectId, parameterName);
+            Animations.NotifyMagicPhaseFinished(objectId, parameterName);
         }
 
         if (isFinalShotState)
@@ -318,7 +320,7 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
     {
         if (!string.IsNullOrEmpty(parameterName) && animator.GetBool(parameterName))
         {
-            AnimationManager.Instance.StopCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName, "player");
+            Animations.StopCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName, "player");
         }
     }
 }

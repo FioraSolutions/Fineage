@@ -233,7 +233,7 @@ public sealed class StriderRideService : ILateTickable
             return;
 
         string state = "wait_1HS";
-        AnimationManager animations = AnimationManager.Instance as AnimationManager;
+        AnimationManager animations = GamePacketServices.Animations as AnimationManager;
         if (animations != null && seat.Rider != null && seat.Rider.Identity != null)
         {
             string final = animations.GetFinalNameAnim(seat.Rider.Identity.Id, AnimationNames.WAIT.Value);

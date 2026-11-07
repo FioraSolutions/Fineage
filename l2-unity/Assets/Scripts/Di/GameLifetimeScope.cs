@@ -175,6 +175,9 @@ public sealed class GameLifetimeScope : LifetimeScope
                     gameWorld: world,
                     animations: runtime.Animations,
                     effects: runtime.Effects);
+                AnimationPacketServices.Bind(
+                    animations: runtime.Animations,
+                    applyQueue: container.Resolve<PacketApplyQueue>());
                 MoveCostLog.Wire(world);
 
                 // #142 slice 3: hand NetSession the container-built applies via [Inject].

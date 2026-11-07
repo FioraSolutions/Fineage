@@ -5,6 +5,8 @@ using UnityEngine;
 public class MonsterStateDamageACtion : MonsterStateBase
 {
 
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
+
     private float _startTime = -1;
     private float _endTime = -1;
     private float _remainingTime = 0f;
@@ -118,8 +120,8 @@ public class MonsterStateDamageACtion : MonsterStateBase
             return;
         if (!animator.GetBool(parameterName))
             return;
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.StopMonsterCurrentAnimation(
+        if (Animations != null)
+            Animations.StopMonsterCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 }

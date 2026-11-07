@@ -2,6 +2,8 @@
 
 public class PlayerStateSpAtk : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     public const float HitTimeCompensationSeconds = 0.08f;
     public const float MinServerHitSeconds = 0.1f;
     public const float SwitchToIdleNormalizedTime = 0.95f;
@@ -127,13 +129,13 @@ public class PlayerStateSpAtk : StateMachineBehaviour
             if (_serverHitTime < MinServerHitSeconds)
                 _serverHitTime = MinServerHitSeconds;
             _linearPatkSpd = _eventHitTimeInClip / _serverHitTime;
-            AnimationManager.Instance.SetPAtkSpeed(objectId, _linearPatkSpd);
+            Animations.SetPAtkSpeed(objectId, _linearPatkSpd);
         }
         else
         {
             World world = WorldApplyPacketServices.GameWorld;
             Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
-            _linearPatkSpd = AnimationManager.Instance.ApplyLinearMeleePAtkSpeed(
+            _linearPatkSpd = Animations.ApplyLinearMeleePAtkSpeed(
                 objectId, motionName, clipLength);
             float cycleMs = AttackTimingHelper.ResolveAttackCycleMs(entity, motionName);
             _serverHitTime = Mathf.Max(MinServerHitSeconds, cycleMs / 2000f);
@@ -152,7 +154,7 @@ public class PlayerStateSpAtk : StateMachineBehaviour
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         int objectId = AnimatorUtils.GetObjectId(animator);
-        AnimationManager.Instance.SetPAtkSpeed(objectId, _linearPatkSpd);
+        Animations.SetPAtkSpeed(objectId, _linearPatkSpd);
 
         float elapsed = Time.time - _startTime;
         if (elapsed >= _serverHitTime && !_hitExecuted)
@@ -169,16 +171,16 @@ public class PlayerStateSpAtk : StateMachineBehaviour
 
         _isSwitchIdle = true;
         int objectId = AnimatorUtils.GetObjectId(animator);
-        AnimationManager.Instance.SetPAtkSpeed(objectId, 1f);
+        Animations.SetPAtkSpeed(objectId, 1f);
         animator.speed = 1f;
 
-        string phaseName = AnimationManager.Instance != null
-            ? AnimationManager.Instance.GetCurrentAnimationName(objectId)
+        string phaseName = Animations != null
+            ? Animations.GetCurrentAnimationName(objectId)
             : null;
         if (string.IsNullOrEmpty(phaseName))
             phaseName = motionName;
 
-        AnimationManager.Instance?.NotifyMagicPhaseFinished(objectId, phaseName);
+        Animations?.NotifyMagicPhaseFinished(objectId, phaseName);
 
         if (!AnimatorUtils.IsLocalPlayerAnimator(animator))
             return;
@@ -193,7 +195,7 @@ public class PlayerStateSpAtk : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        AnimationManager.Instance.SetPAtkSpeed(AnimatorUtils.GetObjectId(animator), 1f);
+        Animations.SetPAtkSpeed(AnimatorUtils.GetObjectId(animator), 1f);
         animator.speed = 1f;
     }
 }

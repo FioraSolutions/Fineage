@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class MonsterStateAtk : MonsterStateBase
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private float _startTime = -1;
     private float _endTime = -1;
 
@@ -179,8 +181,8 @@ public class MonsterStateAtk : MonsterStateBase
             return;
         if (!animator.GetBool(parameterName))
             return;
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.StopMonsterCurrentAnimation(
+        if (Animations != null)
+            Animations.StopMonsterCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 

@@ -8,6 +8,8 @@
 /// </summary>
 public class PlayerStateSpAtkBow : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private float _startTime;
     private float _endTime;
     private float _linearSpeed;
@@ -38,7 +40,7 @@ public class PlayerStateSpAtkBow : StateMachineBehaviour
             : AttackTimingHelper.ResolveAttackCycleMs(entity, parameterName);
         _endTime = Mathf.Max(0.01f, cycleMs / 1000f);
         _linearSpeed = AttackTimingHelper.ComputeLinearPAtkSpeed(clipLength, cycleMs);
-        AnimationManager.Instance.SetPAtkSpeed(objectId, _linearSpeed);
+        Animations.SetPAtkSpeed(objectId, _linearSpeed);
         // Debug.Log(
             // $"[PATKSPD] SpAtkBow objectId={objectId} anim={parameterName} " +
             // $"sptimeatk={serverTimeMs} cycleMs={cycleMs:F1} clipSec={clipLength:F3} patkspd={_linearSpeed:F3}");
@@ -47,7 +49,7 @@ public class PlayerStateSpAtkBow : StateMachineBehaviour
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         int objectId = AnimatorUtils.GetObjectId(animator);
-        AnimationManager.Instance.SetPAtkSpeed(objectId, _linearSpeed);
+        Animations.SetPAtkSpeed(objectId, _linearSpeed);
 
         if (!AnimatorUtils.IsLocalPlayerAnimator(animator))
             return;
@@ -59,7 +61,7 @@ public class PlayerStateSpAtkBow : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        AnimationManager.Instance.SetPAtkSpeed(AnimatorUtils.GetObjectId(animator), 1f);
+        Animations.SetPAtkSpeed(AnimatorUtils.GetObjectId(animator), 1f);
     }
 
     private void SwitchToIdle(Animator animator)
@@ -72,13 +74,13 @@ public class PlayerStateSpAtkBow : StateMachineBehaviour
             PlayerEntity.Instance.IsAttack = false;
 
         int objectId = AnimatorUtils.GetObjectId(animator);
-        string phaseName = AnimationManager.Instance != null
-            ? AnimationManager.Instance.GetCurrentAnimationName(objectId)
+        string phaseName = Animations != null
+            ? Animations.GetCurrentAnimationName(objectId)
             : null;
         if (string.IsNullOrEmpty(phaseName))
             phaseName = !string.IsNullOrEmpty(parameterName) ? parameterName : motionName;
 
-        AnimationManager.Instance?.NotifyMagicPhaseFinished(objectId, phaseName);
+        Animations?.NotifyMagicPhaseFinished(objectId, phaseName);
 
         if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
             return;
