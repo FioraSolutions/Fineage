@@ -13,6 +13,7 @@ public sealed class AppLifetimeScope : LifetimeScope
         RegisterIfFound<LoginClient>(builder);
 
         builder.Register<TableInitializer>(Lifetime.Singleton);
+        builder.Register<IconManager>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton);
 
         builder.Register<PacketApplyQueue>(Lifetime.Singleton);

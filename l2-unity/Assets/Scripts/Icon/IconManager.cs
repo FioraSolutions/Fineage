@@ -20,6 +20,8 @@ public class IconManager
 
 
     private static IconManager _instance;
+
+    [System.Obsolete("Use IconPacketServices.Icons or [Inject] IconManager instead")]
     public static IconManager Instance
     {
         get
@@ -27,6 +29,7 @@ public class IconManager
             if (_instance == null)
             {
                 _instance = new IconManager();
+                IconPacketServices.Bind(icons: _instance);
             }
 
             return _instance;

@@ -30,12 +30,12 @@ public class DragAndDropManager
             {
                 isTest = true;
                 //test data
-                allElements.Add(item.name, IconManager.Instance.LoadTextureByName("skill0914"));
+                allElements.Add(item.name, IconPacketServices.Icons.LoadTextureByName("skill0914"));
             }
             else
             {
                 //test data
-                allElements.Add(item.name, IconManager.Instance.LoadTextureByName("skill0271"));
+                allElements.Add(item.name, IconPacketServices.Icons.LoadTextureByName("skill0271"));
             }
            
         });
@@ -78,11 +78,11 @@ public class DragAndDropManager
 
     public Background GetActiveBackground()
     {
-        if(string.IsNullOrEmpty(_activeCell)) return IconManager.Instance.LoadTextureByName("");
+        if(string.IsNullOrEmpty(_activeCell)) return IconPacketServices.Icons.LoadTextureByName("");
 
         if (allElements.ContainsKey(_activeCell)){
             return allElements[_activeCell];
         }
-        return IconManager.Instance.LoadTextureByName(_activeCell);
+        return IconPacketServices.Icons.LoadTextureByName(_activeCell);
     }
 }

@@ -173,19 +173,19 @@ public abstract class AbstractServerItem
                 return null;
 
             case ItemGrade.d:
-                return IconManager.Instance.GetInterfaceIcon("grade_d");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_d");
 
             case ItemGrade.c:
-                return IconManager.Instance.GetInterfaceIcon("grade_c");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_c");
 
             case ItemGrade.b:
-                return IconManager.Instance.GetInterfaceIcon("grade_b");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_b");
 
             case ItemGrade.a:
-                return IconManager.Instance.GetInterfaceIcon("grade_a");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_a");
 
             case ItemGrade.s:
-                return IconManager.Instance.GetInterfaceIcon("grade_s");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_s");
 
             default:
                 return null;

@@ -100,7 +100,7 @@ public class EnchantWindow : L2PopupWindow
     {
         foreach (string href in list)
         {
-            animList.Add(IconManager.Instance.LoadTextureOtherSources(href));
+            animList.Add(IconPacketServices.Icons.LoadTextureOtherSources(href));
         }
     }
     protected override IEnumerator BuildWindow(VisualElement root)

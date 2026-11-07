@@ -27,10 +27,12 @@ public sealed class TableInitializer
     [Inject] ModelTable _models;
     [Inject] LogongrpTable _logonGrps;
     [Inject] SystemMessageTable _systemMessages;
+    [Inject] IconManager _icons;
 
     public void LoadTables()
     {
         WireTablePacketServices();
+        IconPacketServices.Bind(icons: _icons);
 
         ItemTable items = TablePacketServices.Items;
         items.Initialize();
@@ -57,10 +59,11 @@ public sealed class TableInitializer
         TablePacketServices.Models.Initialize();
         TablePacketServices.LogonGrps.Initialize();
         TablePacketServices.SystemMessages.Initialize();
-        IconManager.Instance.Initialize();
-        IconManager.Instance.CacheIcons();
-        IconManager.Instance.CacheOtherIcons();
-        IconManager.Instance.CacheInterfaceIcons();
+        IconManager icons = IconPacketServices.Icons;
+        icons.Initialize();
+        icons.CacheIcons();
+        icons.CacheOtherIcons();
+        icons.CacheInterfaceIcons();
     }
 
     private void WireTablePacketServices()

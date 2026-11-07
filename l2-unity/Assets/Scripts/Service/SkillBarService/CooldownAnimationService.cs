@@ -16,7 +16,7 @@ public class CooldownAnimationService
         reuseElement.style.display = DisplayStyle.Flex;
         reuseElement.style.opacity = 1f;
 
-        int cooltimeCount = IconManager.Instance != null ? IconManager.Instance.GetSizeOtherCoolTime() : 0;
+        int cooltimeCount = IconPacketServices.Icons != null ? IconPacketServices.Icons.GetSizeOtherCoolTime() : 0;
         if (cooltimeCount <= 1)
         {
             // Fallback: darken the slot for the reuse window when cooltime frames failed to load.
@@ -35,7 +35,7 @@ public class CooldownAnimationService
         for (int step = 0; step < frameCount; step++)
         {
             int frameId = 1 + (step * (cooltimeCount - 1)) / Mathf.Max(1, frameCount - 1);
-            var icon = IconManager.Instance.GetOtherIconByType(frameId, 0);
+            var icon = IconPacketServices.Icons.GetOtherIconByType(frameId, 0);
             if (icon != null)
                 reuseElement.style.backgroundImage = icon;
 
