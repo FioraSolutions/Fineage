@@ -958,10 +958,13 @@ public sealed class NetSession : MonoBehaviour
         // Paperdoll is what makes peers visible in gear: without it every other player spawns
         // undressed while the wearer sees their own kit (UserInfo path).
         if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)
-            NetEntityMap.ApplyItemIds(dto.Appearance, spawn.Paperdoll);
+            ApplySpawnPaperdollItemIds(dto.Appearance, spawn.Paperdoll);
         if (_presence != null) _presence.ApplyCharInfo(dto);
         else CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
     }
+
+    static void ApplySpawnPaperdollItemIds(PlayerAppearance appearance, int[] itemIds) =>
+        NetPaperdollApply.ApplyItemIds(appearance, itemIds);
 
     void ApplyNpcSpawn(EntitySpawnMsg spawn)
     {
