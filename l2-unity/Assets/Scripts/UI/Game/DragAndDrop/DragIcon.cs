@@ -65,7 +65,6 @@ public class DragIcon : L2PopupWindow
                 ShowWindow();
                 _isShow = true;
             }
-            //icon.style.backgroundImage = IconManager.Instance.LoadTextureByName("skill0914");
             icon.transform.position = position;
         }
     }

@@ -248,18 +248,12 @@ public class CreatorTableWindows : ICreatorTables
         {
             string img_source = column.ListData[i];
 
-            if (string.IsNullOrEmpty(img_source))
+            textLabel.text = "";
+            if (!L2SlotIconView.TrySetResourcesBackground(image, img_source, useNativeSize: true))
             {
-                textLabel.text = "";
-                image.style.backgroundImage = null;
-            }
-            else
-            {
-                textLabel.text = "";
-                Texture2D texture = IconManager.Instance.LoadTextureOtherSources(column.ListData[i]);
-                image.style.backgroundImage = texture;
-                image.style.width = texture.width;
-                image.style.height = texture.height;
+                L2SlotIconView.Clear(image);
+                image.style.width = 0;
+                image.style.height = 0;
             }
 
         }

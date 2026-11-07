@@ -183,10 +183,7 @@ public class CreatorSets
     {
         VisualElement iconSet = template.Q<VisualElement>("iconSet");
         if (iconSet != null)
-        {
-            Texture2D texture = IconManager.Instance.LoadTextureByName(grpItem.Icon);
-            iconSet.style.backgroundImage = texture;
-        }
+            L2SlotIconView.SetNamedIcon(iconSet, grpItem.Icon);
     }
 
     private void SetDataLabel(string name, TemplateContainer template , bool isEquip)
