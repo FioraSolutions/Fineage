@@ -192,7 +192,7 @@ public class L2SlotManager : L2PopupWindow
         }
         else if (_hoverSlot.Type == L2Slot.SlotType.Trash)
         {
-            //QuantityInput.Instance.ShowWindow(this, source, type, listServer, position);
+            //QuantityInputPacketServices.Window.ShowWindow(this, source, type, listServer, position);
             DestroyItem();
         }
     }
@@ -471,8 +471,8 @@ public class L2SlotManager : L2PopupWindow
 
     private void PauseAndShowQuantity(int count)
     {
-        QuantityInput.Instance.ShowWindow(count);
-        QuantityInput.Instance.OnButtonOk += OnSelectedQuantity;
+        QuantityInputPacketServices.Window.ShowWindow(count);
+        QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
     }
 
     private void OnSelectedQuantity(string value)
@@ -485,7 +485,7 @@ public class L2SlotManager : L2PopupWindow
             else
                 PlayerInventory.Instance.DestroyItem(_slotTemp.ObjectId, qty);
         }
-        QuantityInput.Instance.OnButtonOk -= OnSelectedQuantity;
+        QuantityInputPacketServices.Window.OnButtonOk -= OnSelectedQuantity;
         _pendingOp = PendingItemOp.None;
     }
 
