@@ -303,10 +303,11 @@ public class TradeWindow : L2PopupWindow
             _objectId = 0;
             _enchantLevel = 0;
 
-            if (_slotElement != null && SlotBg != null)
+            if (_slotElement != null)
             {
-                L2SlotIconView.SetEmptyInventoryBackground(SlotBg);
-                _slotDragManipulator.enabled = false;
+                L2SlotIconView.PaintEmptyInventorySlot(SlotBg, _slotElement);
+                if (_slotDragManipulator != null)
+                    _slotDragManipulator.enabled = false;
             }
         }
 

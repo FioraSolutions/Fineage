@@ -30,7 +30,7 @@ public class ShopInventoryController
         var inventorySlotSell = _dealerWindow.GetInventorySlotsSell();
         var inventorySlotTemplate = _dealerWindow.GetInventorySlotTemplate();
 
-        if (listBuy == null | listBuy.Count == 0)
+        if (listBuy == null || listBuy.Count == 0)
         {
             var inventorySlotsSell = CreateEmptyTab(tabSell , contentSell, inventorySlotSell, inventorySlotTemplate);
             _dealerWindow.SetInventorySlotsSell(inventorySlotsSell);
@@ -57,7 +57,7 @@ public class ShopInventoryController
         var inventorySlotBuy = _dealerWindow.GetInventorySlotsBuy();
         var inventorySlotTemplate = _dealerWindow.GetInventorySlotTemplate();
 
-        if (listBuy == null | listBuy.Count == 0)
+        if (listBuy == null || listBuy.Count == 0)
         {
             var inventorySlotsBuy  = CreateEmptyTab(tabBuy, contentBuy, inventorySlotBuy, inventorySlotTemplate);
             _dealerWindow.SetInventorySlotsBuy(inventorySlotsBuy);

@@ -51,15 +51,9 @@ public class InventorySlot : L2DraggableSlot
         RefreshEnchantMark();
         if (_slotElement != null)
         {
-            if (SlotBg != null)
-            {
-                L2SlotIconView.SetEmptyInventoryBackground(_slotBg);
+            L2SlotIconView.PaintEmptyInventorySlot(_slotBg, _slotElement);
+            if (_slotDragManipulator != null)
                 _slotDragManipulator.enabled = false;
-            }
-            else
-            {
-                L2SlotIconView.Clear(_slotElement);
-            }
         }
     }
 
