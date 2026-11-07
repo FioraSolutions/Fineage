@@ -46,7 +46,7 @@ public sealed class UserSpawner
             // " baseAfter=" + (appearance != null ? appearance.BaseClass : -1) +
             // " raceId=" + raceId);
 
-        CharacterBuilder builder = _characterBuilder != null ? _characterBuilder : CharacterBuilder.Instance;
+        CharacterBuilder builder = _characterBuilder != null ? _characterBuilder : CharacterPacketServices.Builder;
         if (builder == null)
             return null;
 

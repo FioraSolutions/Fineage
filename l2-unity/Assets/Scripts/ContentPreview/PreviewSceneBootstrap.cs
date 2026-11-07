@@ -31,7 +31,7 @@ public class PreviewSceneBootstrap : MonoBehaviour
         ModelTable.Instance.Initialize();
 
         // CharacterBuilder is a MonoBehaviour singleton. If none exists, create one.
-        if (CharacterBuilder.Instance == null)
+        if (CharacterPacketServices.Builder == null)
         {
             var builderGo = new GameObject("CharacterBuilder_Preview");
             builderGo.AddComponent<CharacterBuilder>();

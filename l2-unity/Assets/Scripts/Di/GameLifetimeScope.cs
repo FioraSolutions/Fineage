@@ -320,7 +320,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(CharacterInfoWindow))
             return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))
-            return CharacterBuilder.Instance as T;
+            return CharacterPacketServices.Builder as T;
 
         return null;
     }

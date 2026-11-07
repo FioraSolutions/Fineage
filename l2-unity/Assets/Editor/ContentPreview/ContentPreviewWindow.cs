@@ -300,10 +300,10 @@ public class ContentPreviewWindow : EditorWindow
             Running = false
         };
 
-        CharacterBuilder builder = CharacterBuilder.Instance;
+        CharacterBuilder builder = CharacterPacketServices.Builder;
         if (builder == null)
         {
-            Debug.LogError("[ContentPreview] CharacterBuilder.Instance is null. " +
+            Debug.LogError("[ContentPreview] CharacterPacketServices.Builder is null. " +
                 "Ensure ModelTable is loaded.");
             return null;
         }
