@@ -179,8 +179,9 @@ public sealed class CastBarOverlay : MonoBehaviour
             return false;
 
         Camera cam = null;
-        if (CameraController.Instance != null)
-            cam = CameraController.Instance.GetComponent<Camera>();
+        CameraController cameraController = CameraPacketServices.Controller;
+        if (cameraController != null)
+            cam = cameraController.GetComponent<Camera>();
         if (cam == null)
             cam = Camera.main;
         if (cam == null)

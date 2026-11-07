@@ -57,9 +57,10 @@ public class LightLOD : MonoBehaviour
 
         if (!_ready)
         {
-            if (CameraController.Instance == null || CameraController.Instance.Target == null)
+            CameraController camera = CameraPacketServices.Controller;
+            if (camera == null || camera.Target == null)
                 return;
-            if (CameraController.Instance.CurrentDistance > CameraController.Instance.MaxDistance)
+            if (camera.CurrentDistance > camera.MaxDistance)
                 return;
             _ready = true;
         }
