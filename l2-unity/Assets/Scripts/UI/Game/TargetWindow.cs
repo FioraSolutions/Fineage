@@ -180,8 +180,8 @@ public class TargetWindow : L2Window {
         if (_propertiesRow != null)
             _propertiesRow.Clear();
 
-        Npcgrp npcgrp = npcId > 0 && NpcgrpTable.Instance != null
-            ? NpcgrpTable.Instance.GetNpcgrp(npcId)
+        Npcgrp npcgrp = npcId > 0 && TablePacketServices.NpcGrps != null
+            ? TablePacketServices.NpcGrps.GetNpcgrp(npcId)
             : null;
         int[] skillIds = npcgrp != null ? npcgrp.PropertySkillIds : null;
         int[] skillLevels = npcgrp != null ? npcgrp.PropertySkillLevels : null;
@@ -227,8 +227,8 @@ public class TargetWindow : L2Window {
         Skillgrp skill = TablePacketServices.SkillGrps != null
             ? TablePacketServices.SkillGrps.GetSkill(skillId, level)
             : null;
-        SkillNameData nameData = SkillNameTable.Instance != null
-            ? SkillNameTable.Instance.GetName(skillId, level)
+        SkillNameData nameData = TablePacketServices.SkillNames != null
+            ? TablePacketServices.SkillNames.GetName(skillId, level)
             : null;
 
         // Classic property_list can reference skills without Skillgrp rows — still show name if known.

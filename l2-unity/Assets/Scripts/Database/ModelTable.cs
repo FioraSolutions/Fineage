@@ -241,7 +241,7 @@ public class ModelTable : AbstractCache
         _npcs = new Dictionary<string, L2Npc>();
         int success = 0;
 
-        foreach (KeyValuePair<int, Npcgrp> pair in NpcgrpTable.Instance.Npcgrps)
+        foreach (KeyValuePair<int, Npcgrp> pair in TablePacketServices.NpcGrps.Npcgrps)
         {
             string mesh = pair.Value.Mesh;
             if (_npcs.ContainsKey(mesh))

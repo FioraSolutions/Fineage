@@ -7,14 +7,28 @@ using UnityEngine;
 
 public class EtcItemgrpTable {
     private static EtcItemgrpTable _instance;
+
+    [Obsolete("Use [Inject] EtcItemgrpTable or TablePacketServices.EtcItemGrps instead")]
     public static EtcItemgrpTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<EtcItemgrpTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new EtcItemgrpTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(EtcItemgrpTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, EtcItemgrp> _etcItemGrps;

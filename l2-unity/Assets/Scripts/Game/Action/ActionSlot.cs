@@ -32,7 +32,7 @@ public class ActionSlot : L2DraggableSlot
         _slotElement.RemoveFromClassList("empty");
 
         ActionId = (int)actionType;
-        Action = ActionNameTable.Instance.GetAction(actionType);
+        Action = TablePacketServices.ActionNames.GetAction(actionType);
         L2SlotIconView.SetNamedIcon(_slotBg, ConvertIcon(actionType));
 
         if (_tooltipManipulator != null)
@@ -73,7 +73,7 @@ public class ActionSlot : L2DraggableSlot
             return "etc_pet_ride_01";
         }
 
-        ActionData named = ActionNameTable.Instance.GetAction(actionType);
+        ActionData named = TablePacketServices.ActionNames.GetAction(actionType);
         return named != null ? named._icon : "action001";
     }
 }

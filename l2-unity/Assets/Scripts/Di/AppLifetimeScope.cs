@@ -29,6 +29,14 @@ public sealed class AppLifetimeScope : LifetimeScope
             LogongrpTable.Bind(container.Resolve<LogongrpTable>());
             ItemNameTable.Bind(container.Resolve<ItemNameTable>());
             SkillgrpTable.Bind(container.Resolve<SkillgrpTable>());
+            ItemStatDataTable.Bind(container.Resolve<ItemStatDataTable>());
+            ArmorgrpTable.Bind(container.Resolve<ArmorgrpTable>());
+            EtcItemgrpTable.Bind(container.Resolve<EtcItemgrpTable>());
+            WeapongrpTable.Bind(container.Resolve<WeapongrpTable>());
+            NpcgrpTable.Bind(container.Resolve<NpcgrpTable>());
+            NpcNameTable.Bind(container.Resolve<NpcNameTable>());
+            ActionNameTable.Bind(container.Resolve<ActionNameTable>());
+            SkillNameTable.Bind(container.Resolve<SkillNameTable>());
             ZoneCommands.Bind(container.Resolve<IZoneTransport>());
             GameManager manager = container.Resolve<GameManager>();
             AppLoginSessionApplyIncomingPacketServices.BindApp(
@@ -47,19 +55,27 @@ public sealed class AppLifetimeScope : LifetimeScope
 #pragma warning disable CS0618
         builder.RegisterInstance(ItemNameTable.Instance);
 #pragma warning restore CS0618
+#pragma warning disable CS0618
         builder.RegisterInstance(ItemStatDataTable.Instance);
         builder.RegisterInstance(ArmorgrpTable.Instance);
         builder.RegisterInstance(EtcItemgrpTable.Instance);
         builder.RegisterInstance(WeapongrpTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(NpcDecoEffectsTable.Instance);
+#pragma warning disable CS0618
         builder.RegisterInstance(NpcgrpTable.Instance);
         builder.RegisterInstance(NpcNameTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(QuestNameTable.Instance);
         builder.RegisterInstance(RecipeTable.Instance);
+#pragma warning disable CS0618
         builder.RegisterInstance(ActionNameTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(AnimLeghtTable.Instance);
         builder.RegisterInstance(SysStringTable.Instance);
+#pragma warning disable CS0618
         builder.RegisterInstance(SkillNameTable.Instance);
+#pragma warning restore CS0618
 #pragma warning disable CS0618
         builder.RegisterInstance(SkillgrpTable.Instance);
 #pragma warning restore CS0618

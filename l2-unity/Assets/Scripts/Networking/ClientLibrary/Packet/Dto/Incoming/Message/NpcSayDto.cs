@@ -20,7 +20,7 @@ public class NpcSayDto : IWireDto
         _textType = reader.ReadI(); //chatType
         _npcId = reader.ReadI() - 1000000; // npctype id (-1000000)
         _textMessage = reader.ReadOtherS();
-        NpcName npcName = NpcNameTable.Instance.GetNpcName(_npcId);
+        NpcName npcName = TablePacketServices.NpcNames.GetNpcName(_npcId);
         string senderName = "";
         if(npcName != null)
         {

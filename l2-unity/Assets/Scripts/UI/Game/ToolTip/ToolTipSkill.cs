@@ -275,7 +275,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
         string level = skillgrp.Level.ToString();
         string nameActiveSkill = GetActive(skillgrp.OperateType);
 
-        if (desc.Equals("")) desc = SkillNameTable.Instance.GetName(skillgrp.Id, 1).Desc;
+        if (desc.Equals("")) desc = TablePacketServices.SkillNames.GetName(skillgrp.Id, 1).Desc;
 
 
         SetDataTooTip(DataEmpty(hp), DataEmpty(mp), DataEmpty(radius), desc, DataEmpty(time), nameActiveSkill , name, level);

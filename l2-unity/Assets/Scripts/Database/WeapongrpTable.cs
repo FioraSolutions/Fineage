@@ -8,14 +8,28 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class WeapongrpTable {
     private static WeapongrpTable _instance;
+
+    [Obsolete("Use [Inject] WeapongrpTable or TablePacketServices.WeaponGrps instead")]
     public static WeapongrpTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<WeapongrpTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new WeapongrpTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(WeapongrpTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, Weapongrp> _weaponGrps;

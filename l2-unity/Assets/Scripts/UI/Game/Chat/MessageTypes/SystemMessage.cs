@@ -89,7 +89,7 @@ public class SystemMessage
                 return "Unknown Skill";
             }
 
-            var skill = SkillNameTable.Instance.GetName(skillData[0], skillData[1]);
+            var skill = TablePacketServices.SkillNames.GetName(skillData[0], skillData[1]);
 
             if(skill != null)
             {

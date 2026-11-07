@@ -20,8 +20,8 @@ public static class EntitySpawnShared
         if (identity == null)
             return false;
 
-        npcGrps = npcGrps != null ? npcGrps : NpcgrpTable.Instance;
-        npcNames = npcNames != null ? npcNames : NpcNameTable.Instance;
+        npcGrps = npcGrps != null ? npcGrps : TablePacketServices.NpcGrps;
+        npcNames = npcNames != null ? npcNames : TablePacketServices.NpcNames;
         models = models != null ? models : TablePacketServices.Models;
 
         int visualNpcId = identity.NpcId;

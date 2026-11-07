@@ -88,7 +88,7 @@ public class DataProviderWindows :AbstractDataProvider
         for(int i =0; i < requiredSkillInfo.Count; i++)
         {
             RequiredSkillInfo itemInfo = requiredSkillInfo[i];
-            EtcItemgrp item = EtcItemgrpTable.Instance.GetEtcItem(itemInfo.GetItemId());
+            EtcItemgrp item = TablePacketServices.EtcItemGrps.GetEtcItem(itemInfo.GetItemId());
 
             if (item != null)
             {

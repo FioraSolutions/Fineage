@@ -19,13 +19,13 @@ public abstract class AbstractServerItem
 
     public EtcItemgrp GetEtcItem()
     {
-        return EtcItemgrpTable.Instance.GetEtcItem(itemId);
+        return TablePacketServices.EtcItemGrps.GetEtcItem(itemId);
     }
 
 
     public ConsumeCategory GetConsumeCategory()
     {
-        EtcItemgrp etcgrp = EtcItemgrpTable.Instance.GetEtcItem(itemId);
+        EtcItemgrp etcgrp = TablePacketServices.EtcItemGrps.GetEtcItem(itemId);
         if (etcgrp != null) return etcgrp.ConsumeType;
         return ConsumeCategory.Normal;
     }
@@ -139,7 +139,7 @@ public abstract class AbstractServerItem
 
     public bool IsBow() => TablePacketServices.WeaponGrps.GetWeapon(itemId)?.WeaponType == WeaponType.bow;
 
-    public bool IsArrow() => WeaponTypeParser.Parse(EtcItemgrpTable.Instance.GetEtcItem(itemId)?.EtcItemType) == WeaponType.arrow;
+    public bool IsArrow() => WeaponTypeParser.Parse(TablePacketServices.EtcItemGrps.GetEtcItem(itemId)?.EtcItemType) == WeaponType.arrow;
 
 
     public bool IsDual()
