@@ -120,7 +120,7 @@ public class L2StarDome : MonoBehaviour
         L2CelestialLut.EnsureLoaded();
         if (!L2CelestialLut.IsReady)
         {
-            WorldClock clock = WorldClock.Instance;
+            WorldClock clock = WorldClockPacketServices.Clock;
             if (clock == null)
             {
                 return 1f;
@@ -129,7 +129,7 @@ public class L2StarDome : MonoBehaviour
             return clock.Clock.darkRatio > 0.01f ? 1f : 0f;
         }
 
-        WorldClock hoursClock = WorldClock.Instance;
+        WorldClock hoursClock = WorldClockPacketServices.Clock;
         if (hoursClock == null)
         {
             hoursClock = WorldClock.EnsurePersistent();

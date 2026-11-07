@@ -86,7 +86,7 @@ public static class L2TreeModulate2XMenus
     static void PushGlobalsForPreview()
     {
         float hours = 12f;
-        WorldClock clock = WorldClock.Instance;
+        WorldClock clock = WorldClockPacketServices.Clock;
         if (clock != null)
             hours = clock.WorldHours;
         L2EnvWorldLut.EnsureLoaded();

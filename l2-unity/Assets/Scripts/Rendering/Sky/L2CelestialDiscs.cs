@@ -89,7 +89,7 @@ public class L2CelestialDiscs : MonoBehaviour
             return;
         }
 
-        WorldClock clock = WorldClock.Instance;
+        WorldClock clock = WorldClockPacketServices.Clock;
         if (clock == null)
         {
             clock = WorldClock.EnsurePersistent();

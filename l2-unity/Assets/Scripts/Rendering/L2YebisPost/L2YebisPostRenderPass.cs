@@ -318,7 +318,7 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
                 else
                 {
                     var cameraFormat = cameraData.cameraTargetDescriptor.graphicsFormat;
-                    float hours = WorldClock.Instance != null ? WorldClock.Instance.WorldHours : -1f;
+                    float hours = WorldClockPacketServices.Clock != null ? WorldClockPacketServices.Clock.WorldHours : -1f;
                     captureFolder = L2YebisLiveCapture.CreateFolder(
                         hours,
                         cameraFormat.ToString(),

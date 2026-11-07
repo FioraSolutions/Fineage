@@ -108,7 +108,7 @@ public class AmbientSoundEmitter : EventHandler {
     }
 
     private bool ShouldPlayEvent() {
-        WorldClock clock = WorldClock.Instance;
+        WorldClock clock = WorldClockPacketServices.Clock;
         if (clock != null)
         {
             if (_ambientSoundType == AmbientSoundType.AST1_Day && clock.IsNightTime())

@@ -114,7 +114,7 @@ public class L2CloudMyst : MonoBehaviour
         L2CelestialLut.EnsureLoaded();
         if (!L2CelestialLut.IsReady)
             return 1f;
-        WorldClock clock = WorldClock.Instance ?? WorldClock.EnsurePersistent();
+        WorldClock clock = WorldClockPacketServices.Clock ?? WorldClock.EnsurePersistent();
         float hours = clock != null ? clock.WorldHours : 12f;
         return Mathf.Lerp(0.55f, 1f, Mathf.Clamp01(L2CelestialLut.SampleAt(hours).sunScale / 4.5f));
     }

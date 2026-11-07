@@ -93,7 +93,7 @@ public class L2CloudSimple : MonoBehaviour
         if (_domeA.tf == null)
             return;
 
-        WorldClock clock = WorldClock.Instance ?? WorldClock.EnsurePersistent();
+        WorldClock clock = WorldClockPacketServices.Clock ?? WorldClock.EnsurePersistent();
         float hours = clock != null ? clock.WorldHours : 12f;
         L2CloudLut.Sample cloudColors = L2CloudLut.SampleAt(hours);
         float opacity = Mathf.Clamp01(_opacity);
