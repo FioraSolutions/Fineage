@@ -10,7 +10,7 @@ public class GearEffects : MonoBehaviour
     {
         if (_bodyCenter == null)
         {
-            _bodyCenter = PlayerAnimationController.Instance.transform.FindRecursive("Bone01-03");
+            _bodyCenter = AnimationPacketServices.PlayerAnimation?.transform.FindRecursive("Bone01-03");
         }
         return _bodyCenter;
     }

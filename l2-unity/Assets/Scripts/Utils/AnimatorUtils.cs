@@ -20,9 +20,10 @@ public class AnimatorUtils
         if (animator == null || PlayerEntity.Instance == null)
             return false;
 
-        if (PlayerAnimationController.Instance != null)
+        PlayerAnimationController playerAnimation = AnimationPacketServices.PlayerAnimation;
+        if (playerAnimation != null)
         {
-            Animator local = PlayerAnimationController.Instance.GetAnimator();
+            Animator local = playerAnimation.GetAnimator();
             if (local != null)
                 return local == animator;
         }

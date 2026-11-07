@@ -146,7 +146,7 @@ public class PlayerEntity : Entity
     public override float UpdateMAtkSpeed(int mAtkSpd)
     {
         float converted = base.UpdateMAtkSpeed(mAtkSpd);
-        PlayerAnimationController.Instance.SetMAtkSpd(converted);
+        AnimationPacketServices.PlayerAnimation?.SetMAtkSpd(converted);
 
         return converted;
     }
@@ -154,7 +154,7 @@ public class PlayerEntity : Entity
     public override float UpdatePAtkSpeed(int pAtkSpd)
     {
         float converted = base.UpdatePAtkSpeed(pAtkSpd);
-        PlayerAnimationController.Instance.SetPAtkSpd(converted);
+        AnimationPacketServices.PlayerAnimation?.SetPAtkSpd(converted);
 
         return converted;
     }
@@ -172,7 +172,7 @@ public class PlayerEntity : Entity
         if (pAtkSpd == 0) return;
          float timeAtck = CalcBaseParam.CalculateTimeL2j(pAtkSpd);
          float speedAnim = CalcBaseParam.GetAnimatedSpeed(pAtkSpd, timeAtck);
-         PlayerAnimationController.Instance.SetPAtkSpeed(speedAnim);
+        AnimationPacketServices.PlayerAnimation?.SetPAtkSpeed(speedAnim);
     }
 
 
@@ -192,8 +192,7 @@ public class PlayerEntity : Entity
         int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
         int sex = playerApperance != null ? playerApperance.Sex : 0;
         float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, serverValue, twoHanded);
-        if (PlayerAnimationController.Instance != null)
-            PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
+        AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
 
         _lastServerRunSpeed = serverValue;
         return converted;
@@ -206,8 +205,7 @@ public class PlayerEntity : Entity
         int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
         int sex = playerApperance != null ? playerApperance.Sex : 0;
         float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, _lastServerRunSpeed, twoHanded);
-        if (PlayerAnimationController.Instance != null)
-            PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
+        AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
     }
 
     public override float UpdateWalkSpeed(float serverValue)
@@ -224,8 +222,7 @@ public class PlayerEntity : Entity
         int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
         int sex = playerApperance != null ? playerApperance.Sex : 0;
         float anim_converted = CharTemplateRegistry.GetWalkSpeed(baseClass, sex, serverValue, twoHanded);
-        if (PlayerAnimationController.Instance != null)
-            PlayerAnimationController.Instance.SetWalkSpeed(anim_converted);
+        AnimationPacketServices.PlayerAnimation?.SetWalkSpeed(anim_converted);
 
         return converted;
     }

@@ -143,9 +143,9 @@ public class NewIdleState : StateBase
         {
             controller = concrete.GetPlayerController(objectId);
         }
-        else if (PlayerAnimationController.Instance != null)
+        else
         {
-            controller = PlayerAnimationController.Instance;
+            controller = AnimationPacketServices.PlayerAnimation;
         }
 
         Animator animator = controller != null ? controller.GetAnimator() : null;
