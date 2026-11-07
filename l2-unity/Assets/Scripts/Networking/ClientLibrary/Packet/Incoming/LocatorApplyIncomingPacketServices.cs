@@ -31,7 +31,6 @@ public static class LocatorApplyIncomingPacketServices
     private static DescriptionSkillWindow _skillDesc;
     private static SkillListWindow _skillList;
     private static QuestWindow _quest;
-    private static QuestListWindow _questList;
     private static ClanWindow _clan;
     private static ShowListWindow _showList;
     private static SeedInfoWindow _seedInfo;
@@ -66,7 +65,6 @@ public static class LocatorApplyIncomingPacketServices
         DescriptionSkillWindow skillDesc = null,
         SkillListWindow skillList = null,
         QuestWindow quest = null,
-        QuestListWindow questList = null,
         ClanWindow clan = null,
         ShowListWindow showList = null,
         SeedInfoWindow seedInfo = null,
@@ -127,8 +125,6 @@ public static class LocatorApplyIncomingPacketServices
             _skillList = skillList;
         if (quest != null)
             _quest = quest;
-        if (questList != null)
-            _questList = questList;
         if (clan != null)
             _clan = clan;
         if (showList != null)
@@ -223,9 +219,6 @@ public static class LocatorApplyIncomingPacketServices
 
     public static QuestWindow Quest =>
         _quest != null ? _quest : QuestPacketServices.Quest;
-
-    public static QuestListWindow QuestList =>
-        _questList != null ? _questList : AuxiliaryGameUIPacketServices.QuestList;
 
     public static ClanWindow Clan =>
         _clan != null ? _clan : ClanPacketServices.Clan;

@@ -1,5 +1,4 @@
 using UnityEngine;
-using static AttackingState;
 
 public class AttackAction : L2Action
 {

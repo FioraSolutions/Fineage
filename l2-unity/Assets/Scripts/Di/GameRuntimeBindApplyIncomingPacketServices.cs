@@ -32,7 +32,6 @@ public static class GameRuntimeBindApplyIncomingPacketServices
             skillDesc: runtime.SkillDesc,
             skillList: runtime.SkillList,
             quest: runtime.Quest,
-            questList: runtime.QuestList,
             clan: runtime.Clan,
             showList: runtime.ShowList,
             seedInfo: runtime.SeedInfo,

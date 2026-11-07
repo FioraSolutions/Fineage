@@ -19,9 +19,7 @@ public sealed class GameRuntime
     private IMoveAllCharacters _moves;
     private CombatFacingService _facing;
     private IAnimationManager _animations;
-    private EffectSkillsmanager _effectSkills;
     private SkillExecutor _skillRunner;
-    private SkillsManager _skillCombos;
     private L2GameUI _ui;
     private ChatWindow _chat;
     private HtmlWindow _html;
@@ -37,7 +35,6 @@ public sealed class GameRuntime
     private DescriptionSkillWindow _skillDesc;
     private SkillListWindow _skillList;
     private QuestWindow _quest;
-    private QuestListWindow _questList;
     private ClanWindow _clan;
     private ShowListWindow _showList;
     private SeedInfoWindow _seedInfo;
@@ -80,9 +77,7 @@ public sealed class GameRuntime
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharacters.Instance); } }
     public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
     public IAnimationManager Animations { get { return Live(ref _animations, AnimationManager.Instance); } }
-    public EffectSkillsmanager EffectSkills { get { return Live(ref _effectSkills, EffectSkillsmanager.Instance); } }
     public SkillExecutor SkillRunner { get { return Live(ref _skillRunner, SkillExecutor.Instance); } }
-    public SkillsManager SkillCombos { get { return Live(ref _skillCombos, SkillsManager.Instance); } }
 
     public L2GameUI Ui { get { return Live(ref _ui, L2GameUI.Instance); } }
     public ChatWindow Chat { get { return Live(ref _chat, ChatWindow.Instance); } }
@@ -99,7 +94,6 @@ public sealed class GameRuntime
     public DescriptionSkillWindow SkillDesc { get { return Live(ref _skillDesc, DescriptionSkillWindow.Instance); } }
     public SkillListWindow SkillList { get { return Live(ref _skillList, SkillListWindow.Instance); } }
     public QuestWindow Quest { get { return Live(ref _quest, QuestWindow.Instance); } }
-    public QuestListWindow QuestList { get { return Live(ref _questList, QuestListWindow.Instance); } }
     public ClanWindow Clan { get { return Live(ref _clan, ClanWindow.Instance); } }
     public ShowListWindow ShowList { get { return Live(ref _showList, ShowListWindow.Instance); } }
     public SeedInfoWindow SeedInfo { get { return Live(ref _seedInfo, SeedInfoWindow.Instance); } }

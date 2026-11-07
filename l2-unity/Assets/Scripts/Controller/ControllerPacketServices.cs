@@ -13,8 +13,6 @@ public static class ControllerPacketServices
     private static IAnimationManager _animations;
     private static IMoveAllCharacters _moves;
     private static EffectManager _effects;
-    private static EffectSkillsmanager _effectSkills;
-    private static SkillsManager _skillCombos;
     private static BufferPanel _buffer;
     private static DeadWindow _dead;
     private static EventBus _bus;
@@ -28,8 +26,6 @@ public static class ControllerPacketServices
         IAnimationManager animations = null,
         IMoveAllCharacters moves = null,
         EffectManager effects = null,
-        EffectSkillsmanager effectSkills = null,
-        SkillsManager skillCombos = null,
         BufferPanel buffer = null,
         DeadWindow dead = null,
         EventBus bus = null,
@@ -49,10 +45,6 @@ public static class ControllerPacketServices
             _moves = moves;
         if (effects != null)
             _effects = effects;
-        if (effectSkills != null)
-            _effectSkills = effectSkills;
-        if (skillCombos != null)
-            _skillCombos = skillCombos;
         if (buffer != null)
             _buffer = buffer;
         if (dead != null)
@@ -91,14 +83,6 @@ public static class ControllerPacketServices
         _effects != null
             ? _effects
             : ResolveFromGame<EffectManager>() ?? EffectManager.Instance;
-
-    public static EffectSkillsmanager EffectSkills =>
-        _effectSkills != null ? _effectSkills : GamePacketServices.EffectSkills;
-
-    public static SkillsManager SkillCombos =>
-        _skillCombos != null
-            ? _skillCombos
-            : ResolveFromGame<SkillsManager>() ?? SkillsManager.Instance;
 
     public static BufferPanel Buffer =>
         _buffer != null
@@ -155,8 +139,6 @@ public sealed partial class PlayerController
     [Inject] IAnimationManager _packetAnimations;
     [Inject] MoveAllCharacters _packetMoves;
     [Inject] EffectManager _packetEffects;
-    [Inject] EffectSkillsmanager _packetEffectSkills;
-    [Inject] SkillsManager _packetSkillCombos;
     [Inject] BufferPanel _packetBuffer;
     [Inject] DeadWindow _packetDead;
     [Inject] EventBus _packetBus;
@@ -177,8 +159,6 @@ public sealed partial class PlayerController
             animations: _packetAnimations,
             moves: _packetMoves,
             effects: _packetEffects,
-            effectSkills: _packetEffectSkills,
-            skillCombos: _packetSkillCombos,
             buffer: _packetBuffer,
             dead: _packetDead,
             bus: _packetBus);
