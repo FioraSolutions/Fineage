@@ -131,7 +131,7 @@ public class AmbientSoundEmitter : EventHandler {
 
     private bool ShouldStop()
     {
-        var listener = ThirdPersonListener.Instance;
+        var listener = AudioPacketServices.Listener;
         if (listener == null) return true;
 
         var player = listener.Player;
