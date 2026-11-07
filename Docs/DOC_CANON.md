@@ -58,3 +58,5 @@ Do not commit `ref/` trees. Sync Net contract with `python3 scripts/sync-net-con
 ## Keep as-is (content / tooling)
 
 `INTERLUDE_TILE_BAKE.md`, shader/VFX guides, UI tips, playtest/CI docs, agent branch protocol — not wire architecture.
+
+Race / NPC PSK→FBX contract (meters in Blender, Unity `globalScale: 1`): [`l2-unity/docs/convert-race-npc/README.md`](../l2-unity/docs/convert-race-npc/README.md). Armor textures/meshes: [`l2-unity/docs/convert-armor/README.md`](../l2-unity/docs/convert-armor/README.md).

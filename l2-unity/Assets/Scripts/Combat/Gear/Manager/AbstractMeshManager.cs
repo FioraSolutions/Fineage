@@ -248,14 +248,10 @@ public class AbstractMeshManager : MonoBehaviour
             return null;
         }
 
-        SkinnedMeshRenderer renderer = mesh.GetComponentInChildren<SkinnedMeshRenderer>();
-        if (renderer == null)
-        {
-            // Debug.LogWarning("UserGear-> No SkinnedMeshRenderer found in the armor model");
+        if (mesh.GetComponentInChildren<SkinnedMeshRenderer>(true) == null)
             return null;
-        }
 
-        renderer.material = material;
+        L2ActorMeshPolicy.ApplyPaperdollMaterial(mesh, material);
         return mesh;
     }
 

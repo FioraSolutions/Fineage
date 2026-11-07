@@ -402,44 +402,39 @@ public class CharacterSelector : MonoBehaviour
     }
 
 
-    void Update() {
-        if(!Input.GetMouseButtonDown(0))
+    void Update()
+    {
+        if (!Input.GetMouseButtonDown(0) || _charSelectCamera == null)
             return;
-        if(_charSelectCamera == null) {
-            return;
-        }
-        // Start / other lobby buttons over a pawn: UI Toolkit click must not fall through to the hero (victory/select).
+
+        // CharSelectWindow marks layout spacers Ignore; real chrome stays pickable.
         if (L2LoginUI.Instance != null && L2LoginUI.Instance.IsPointerOverPanel())
             return;
 
+        Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
+        // EntityClick only: pawn CharacterControllers / stage colliders must not swallow the hit.
+        if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, _characterMask, QueryTriggerInteraction.Collide))
+            return;
+
+        SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();
+        if (entity == null || entity.CharacterInfoInterlude == null)
+            return;
+
+        if (entity.CharacterInfoInterlude.Slot == _selectedCharacterSlot)
         {
-            Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            // Only the EntityClick click_area can select: pawn CharacterControllers / stage colliders in front
-            // of it used to swallow the first hit, so the click did nothing.
-            bool got = Physics.Raycast(ray, out hit, 1000f, _characterMask, QueryTriggerInteraction.Collide);
-            if (got) {
-                {
-                    SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();
-                    if (entity == null || entity.CharacterInfoInterlude == null)
-                        return;
-                    if (entity.CharacterInfoInterlude.Slot == _selectedCharacterSlot)
-                    {
-                        entity.TryPlayVictory();
-                        return;
-                    }
-                    if (_lobbyMode)
-                    {
-                        int index = IndexOfLobbySlot(entity.CharacterInfoInterlude.Slot);
-                        if (index >= 0)
-                            SelectLobbyCharacter(index);
-                    }
-                    else
-                    {
-                        SelectInterludeCharacter(entity.CharacterInfoInterlude.Slot);
-                    }
-                }
-            }
+            entity.TryPlayVictory();
+            return;
+        }
+
+        if (_lobbyMode)
+        {
+            int index = IndexOfLobbySlot(entity.CharacterInfoInterlude.Slot);
+            if (index >= 0)
+                SelectLobbyCharacter(index);
+        }
+        else
+        {
+            SelectInterludeCharacter(entity.CharacterInfoInterlude.Slot);
         }
     }
 }

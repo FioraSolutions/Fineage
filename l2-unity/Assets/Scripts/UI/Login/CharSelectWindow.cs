@@ -146,6 +146,9 @@ public class CharSelectWindow : L2Window {
         if (detail != null)
             detail.Add(_lobbyStatus);
 
+        // Three full-height flex columns; only named chrome must pick so world pawn clicks work.
+        ConfigureWorldClickThrough();
+
         SetEmptyData();
         if (_lobbyCharacters != null)
         {
@@ -153,6 +156,30 @@ public class CharSelectWindow : L2Window {
             ApplyLobbyNames();
             if (selected >= 0)
                 SelectLobbySlot(selected);
+        }
+    }
+
+    void ConfigureWorldClickThrough()
+    {
+        if (_windowEle == null)
+            return;
+
+        _windowEle.pickingMode = PickingMode.Ignore;
+        foreach (VisualElement column in _windowEle.Children())
+            column.pickingMode = PickingMode.Ignore;
+
+        string[] chromeIds =
+        {
+            "CharSelectDetailWindow",
+            "StartButtonWindow",
+            "MenuWindow",
+            "UserSelectContainer",
+        };
+        for (int i = 0; i < chromeIds.Length; i++)
+        {
+            VisualElement chrome = GetElementById(chromeIds[i]);
+            if (chrome != null)
+                chrome.pickingMode = PickingMode.Position;
         }
     }
 

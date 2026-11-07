@@ -1272,6 +1272,20 @@ def blen_get_armature_from_selection():
     return armature_obj
 
 
+def _action_fcurve_new(action, armature_obj, data_path, index=0):
+    """Blender 4: action.fcurves.new. Blender 5+: layered actions — ensure + assign first."""
+    fcurves = getattr(action, "fcurves", None)
+    if fcurves is not None:
+        try:
+            return fcurves.new(data_path, index=index)
+        except AttributeError:
+            pass
+    if armature_obj.animation_data is None:
+        armature_obj.animation_data_create()
+    armature_obj.animation_data.action = action
+    return action.fcurve_ensure_for_datablock(armature_obj, data_path, index=index)
+
+
 def psaimport(filepath,
         context = None,
         oArmature = None,
@@ -1716,6 +1730,8 @@ def psaimport(filepath,
             action_name = "(%s) %s" % (gen_name_part, action_name)
 
         action = bpy.data.actions.new(name = action_name)
+        # Blender 5 layered actions need the action assigned before fcurves exist.
+        armature_obj.animation_data.action = action
 
         # force print usefull information to console(due to possible long execution)
         print("Action {0:>3d}/{1:<3d} frames: {2:>4d} {3}".format(
@@ -1748,10 +1764,10 @@ def psaimport(filepath,
 
             if bone_import_rot:
                 data_path = pose_bone.path_from_id("rotation_quaternion")
-                psa_bone.fcurve_quat_w = action.fcurves.new(data_path, index = 0)
-                psa_bone.fcurve_quat_x = action.fcurves.new(data_path, index = 1)
-                psa_bone.fcurve_quat_y = action.fcurves.new(data_path, index = 2)
-                psa_bone.fcurve_quat_z = action.fcurves.new(data_path, index = 3)
+                psa_bone.fcurve_quat_w = _action_fcurve_new(action, armature_obj, data_path, 0)
+                psa_bone.fcurve_quat_x = _action_fcurve_new(action, armature_obj, data_path, 1)
+                psa_bone.fcurve_quat_y = _action_fcurve_new(action, armature_obj, data_path, 2)
+                psa_bone.fcurve_quat_z = _action_fcurve_new(action, armature_obj, data_path, 3)
 
 
                 # 1. Pre-add keyframes! \0/
@@ -1769,9 +1785,9 @@ def psaimport(filepath,
                 if UseAnimTranslation[psa_bone.psa_index]:
                     if bone_import_trans:
                         data_path = pose_bone.path_from_id("location")
-                        psa_bone.fcurve_loc_x = action.fcurves.new(data_path, index = 0)
-                        psa_bone.fcurve_loc_y = action.fcurves.new(data_path, index = 1)
-                        psa_bone.fcurve_loc_z = action.fcurves.new(data_path, index = 2)
+                        psa_bone.fcurve_loc_x = _action_fcurve_new(action, armature_obj, data_path, 0)
+                        psa_bone.fcurve_loc_y = _action_fcurve_new(action, armature_obj, data_path, 1)
+                        psa_bone.fcurve_loc_z = _action_fcurve_new(action, armature_obj, data_path, 2)
 
 
                         psa_bone.fcurve_loc_x.keyframe_points.add(keyframes)

@@ -1,8 +1,5 @@
-﻿using Org.BouncyCastle.Utilities.Encoders;
-using System.Collections.Generic;
-using Unity.Mathematics;
+﻿using System.Collections.Generic;
 using UnityEngine;
-
 
 /// <summary>
 /// Locomotion-only multipliers for Animator <c>run_speed</c> / <c>walk_speed</c>.
@@ -28,9 +25,25 @@ public static class CharTemplateRegistry
         }
     };
 
+    /// <summary>
+    /// Only Human Fighter/Mage rows are authored. Every other base class (Elf/DE/Orc/Dwarf)
+    /// reuses the matching Human archetype so animator run/walk floats track server speed
+    /// instead of the flat 0.5/0.3 fallback that made non-Humans look sluggish.
+    /// </summary>
+    static bool TryResolveModel(int classId, out BaseStatModel model)
+    {
+        if (Classes.TryGetValue(classId, out model))
+            return true;
+
+        int fallbackId = CharacterClassParser.IsMage((CharacterClass)classId)
+            ? (int)ClassId.MAGE
+            : (int)ClassId.FIGHTER;
+        return Classes.TryGetValue(fallbackId, out model);
+    }
+
     public static float GetRunSpeed(int classId, int sex, float serverValue, bool isTwoHanded)
     {
-        if (Classes.TryGetValue(classId, out var model))
+        if (TryResolveModel(classId, out var model))
         {
             var stats = model.GetData(sex);
 
@@ -47,7 +60,7 @@ public static class CharTemplateRegistry
 
     public static float GetWalkSpeed(int classId, int sex, float serverValue, bool isTwoHanded)
     {
-        if (Classes.TryGetValue(classId, out var model))
+        if (TryResolveModel(classId, out var model))
         {
             var stats = model.GetData(sex);
             return Mathf.Clamp(serverValue * stats.WalkK, 0.2f, 0.7f);

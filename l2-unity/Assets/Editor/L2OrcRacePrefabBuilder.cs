@@ -1,3 +1,5 @@
+// fineage-touch 1794037730.455447
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,15 +38,40 @@ public static class L2OrcRacePrefabBuilder
         BuildMaterials(shader, bodyMats, faceMats, hairMats);
         BuildArmorPrefabs(bodyMats);
         BuildFaceAndHairPrefabs(faceMats, hairMats);
-        BuildSkeletonsAndContainers();
+        BuildSkeletonsAndContainers(Races);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log("L2OrcRacePrefabBuilder finished");
     }
 
+    /// <summary>
+    /// After L2MOrcAnimImporter: rebuild MOrc anim skeletons from Models/anim/MOrc_anim.fbx
+    /// (no armor/texture copy). Uses the filled MOrc.overrideController when present.
+    /// </summary>
+    public static void BuildMOrcOnly()
+    {
+        BuildSkeletonsAndContainers(new[] { "MOrc" });
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("L2OrcRacePrefabBuilder BuildMOrcOnly finished");
+    }
+
     static string PackageOf(string race)
     {
         return race.Contains("Shaman") ? "Shaman" : "Orc";
+    }
+
+    /// <summary>
+    /// Current drop lands under <c>Orc/MOrc/Models</c> (and FOrc/…). Older builds used
+    /// flat <c>Orc/Models</c> — prefer the race folder so face/hair match the anim skeleton.
+    /// </summary>
+    static string ModelDirOf(string race)
+    {
+        string package = PackageOf(race);
+        string raceDir = "Assets/Resources/Data/Animations/" + package + "/" + race + "/Models";
+        if (AssetDatabase.IsValidFolder(raceDir))
+            return raceDir;
+        return "Assets/Resources/Data/Animations/" + package + "/Models";
     }
 
     static void CopyDropIntoAssets()
@@ -80,7 +107,7 @@ public static class L2OrcRacePrefabBuilder
             string fbxSrc = Path.Combine(fbxRoot, package);
             string modelDir = Path.Combine(
                 Directory.GetParent(Application.dataPath).FullName,
-                "Assets/Resources/Data/Animations/" + package + "/Models");
+                "Assets/Resources/Data/Animations/" + package + "/" + race + "/Models");
             Directory.CreateDirectory(modelDir);
             if (!Directory.Exists(fbxSrc))
                 continue;
@@ -100,8 +127,7 @@ public static class L2OrcRacePrefabBuilder
     {
         foreach (string race in Races)
         {
-            string package = PackageOf(race);
-            string dir = "Assets/Resources/Data/Animations/" + package + "/Models";
+            string dir = ModelDirOf(race);
             if (!AssetDatabase.IsValidFolder(dir))
                 continue;
             foreach (string guid in AssetDatabase.FindAssets("t:Model", new[] { dir }))
@@ -200,10 +226,11 @@ public static class L2OrcRacePrefabBuilder
         foreach (string race in Races)
         {
             string package = PackageOf(race);
+            string modelDir = ModelDirOf(race);
             foreach (string part in Parts)
             {
                 string mesh = race + "_m001_" + part;
-                string fbx = "Assets/Resources/Data/Animations/" + package + "/Models/" + mesh + ".fbx";
+                string fbx = modelDir + "/" + mesh + ".fbx";
                 string prefab = "Assets/Resources/Data/Animations/" + package + "/" + mesh + ".prefab";
                 bodyMats.TryGetValue(race + "_m001_t02_" + part, out Material mat);
                 WrapFbx(fbx, prefab, mesh, mat == null ? null : new[] { mat });
@@ -216,7 +243,8 @@ public static class L2OrcRacePrefabBuilder
         foreach (string race in Races)
         {
             string package = PackageOf(race);
-            string faceFbx = "Assets/Resources/Data/Animations/" + package + "/Models/" + race + "_m000_f.fbx";
+            string modelDir = ModelDirOf(race);
+            string faceFbx = modelDir + "/" + race + "_m000_f.fbx";
             for (int face = 0; face < 3; face++)
             {
                 string key = race + "_m000_t0" + face + "_f";
@@ -224,11 +252,10 @@ public static class L2OrcRacePrefabBuilder
                 faceMats.TryGetValue(key, out Material faceMat);
                 faceMats.TryGetValue(key1, out Material faceMat1);
                 Material[] mats = faceMat1 != null ? new[] { faceMat, faceMat1 } : new[] { faceMat };
-                string prefab = "Assets/Resources/Data/Animations/Orc/" + race + "/Faces/" + race + "_f_" + face + ".prefab";
+                string prefab = "Assets/Resources/Data/Animations/" + package + "/" + race + "/Faces/" + race + "_f_" + face + ".prefab";
                 WrapFbx(faceFbx, prefab, race + "_f_" + face, mats);
             }
 
-            string modelDir = "Assets/Resources/Data/Animations/" + package + "/Models";
             foreach (string guid in AssetDatabase.FindAssets("t:Model", new[] { modelDir }))
             {
                 string fbx = AssetDatabase.GUIDToAssetPath(guid);
@@ -250,7 +277,7 @@ public static class L2OrcRacePrefabBuilder
                     }
                     if (mat == null)
                         continue;
-                    string prefab = "Assets/Resources/Data/Animations/Orc/" + race + "/Hair/" + race + "_h_" + style + "_" + color + "_" + part + ".prefab";
+                    string prefab = "Assets/Resources/Data/Animations/" + package + "/" + race + "/Hair/" + race + "_h_" + style + "_" + color + "_" + part + ".prefab";
                     WrapFbx(fbx, prefab, race + "_h_" + style + "_" + color + "_" + part, new[] { mat });
                 }
             }
@@ -312,19 +339,32 @@ public static class L2OrcRacePrefabBuilder
         Object.DestroyImmediate(root);
     }
 
-    static void BuildSkeletonsAndContainers()
+    static void BuildSkeletonsAndContainers(IEnumerable<string> races)
     {
         var basic = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(BaseControllerPath);
-        foreach (string race in Races)
+        foreach (string race in races)
         {
             string package = PackageOf(race);
-            string animFbx = "Assets/Resources/Data/Animations/" + package + "/Models/" + race + "_anim.fbx";
+            // Prefer dedicated anim rig under {Race}/Models/anim/ (post clip import).
+            string animFbx = "Assets/Resources/Data/Animations/" + package + "/" + race + "/Models/anim/" + race + "_anim.fbx";
             if (AssetDatabase.LoadAssetAtPath<GameObject>(animFbx) == null)
-                animFbx = "Assets/Resources/Data/Animations/" + package + "/Models/" + race + "_m001_u.fbx";
-            var clips = AssetDatabase.LoadAllAssetsAtPath(animFbx).OfType<AnimationClip>()
-                .Where(clip => clip != null && !clip.name.StartsWith("__preview"))
-                .ToArray();
-            var controller = BuildOverride(basic, race, clips);
+                animFbx = "Assets/Resources/Data/Animations/" + package + "/Models/" + race + "_anim.fbx";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(animFbx) == null)
+                throw new System.InvalidOperationException(
+                    "Missing anim rig for " + race + " — import " + race + "_anim.fbx before building prefabs");
+
+            // Prefer already-filled race override (clip importer) over rebuilding from FBX takes.
+            string ocPath = "Assets/Resources/Data/Animations/Animator/Player/" + race + ".overrideController";
+            var existingOc = AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(ocPath);
+            RuntimeAnimatorController controller = existingOc;
+            if (controller == null)
+            {
+                var clips = AssetDatabase.LoadAllAssetsAtPath(animFbx).OfType<AnimationClip>()
+                    .Where(clip => clip != null && !clip.name.StartsWith("__preview"))
+                    .ToArray();
+                controller = BuildOverride(basic, race, clips);
+            }
+
             string userSkel = "Assets/Resources/Data/Animations/Orc/" + race + "/" + race + "_anim_user.prefab";
             string playerSkel = "Assets/Resources/Data/Animations/Orc/" + race + "/" + race + "_anim_player.prefab";
             BuildSkeleton(animFbx, userSkel, controller, false);

@@ -33,9 +33,7 @@ public class CharacterBuilder : MonoBehaviour
         if (entity == null)
             return null;
 
-        Transform container = entityType != EntityType.Player && entity.transform.childCount > 0 ?
-            entity.transform.GetChild(0) :
-            entity.transform;
+        Transform container = ResolveModelContainer(entity, entityType);
 
         UserGear gear = entity.GetComponent<UserGear>();
         PooledUserVisual visual = entity.GetComponent<PooledUserVisual>();
@@ -161,15 +159,27 @@ public class CharacterBuilder : MonoBehaviour
         }
 
         GameObject entity = Instantiate(prototype);
-        Transform container = entityType != EntityType.Player ?
-            entity.transform.GetChild(0) :
-            entity.transform;
+        Transform container = ResolveModelContainer(entity, entityType);
 
         SpawnPiece(Models.GetFace(raceId, appearance.FaceByte), container);
         SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false), container);
         SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true), container);
 
         return entity;
+    }
+
+    static Transform ResolveModelContainer(GameObject entity, EntityType entityType)
+    {
+        if (entity == null)
+            return null;
+        Transform model = entity.transform.Find("model");
+        if (model != null)
+            return model;
+        // Player_MOrc (and Human clones) have no model child — gear/face live on the root
+        // so SkinnedMeshSync can see them as siblings of the anim hierarchy.
+        if (entityType == EntityType.Player)
+            return entity.transform;
+        return entity.transform.childCount > 0 ? entity.transform.GetChild(0) : entity.transform;
     }
 
     static GameObject SpawnPiece(GameObject source, Transform parent)

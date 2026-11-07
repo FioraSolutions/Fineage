@@ -26,6 +26,44 @@ public static class L2ActorRaceMaterials
 
     [MenuItem("L2/Characters/Migrate Race Materials (MElf)")] static void MenuMElf() => MigrateRace("MElf");
     [MenuItem("L2/Characters/Migrate Race Materials (FElf)")] static void MenuFElf() => MigrateRace("FElf");
+    [MenuItem("L2/Characters/Migrate Race Materials (FDwarf)")] static void MenuFDwarf() => MigrateRace("FDwarf");
+    [MenuItem("L2/Characters/Migrate Race Materials (MDwarf)")] static void MenuMDwarf() => MigrateRace("MDwarf");
+    [MenuItem("L2/Characters/Migrate Race Materials (MOrc)")] static void MenuMOrc() => MigrateRace("MOrc");
+    [MenuItem("L2/Characters/Migrate Race Materials (FOrc)")] static void MenuFOrc() => MigrateRace("FOrc");
+    [MenuItem("L2/Characters/Fix Actor AlphaTest Body Mats (MOrc)")] static void MenuFixMOrcAlpha() => FixOpaqueBody("MOrc");
+    [MenuItem("L2/Characters/Fix Actor AlphaTest Body Mats (FOrc)")] static void MenuFixFOrcAlpha() => FixOpaqueBody("FOrc");
+
+    /// <summary>
+    /// Body/armor mats already on L2ActorModulate2X but left with hair-style alpha test
+    /// (queue 2450) — torso/legs vanish while gloves/boots (opaque) remain.
+    /// </summary>
+    public static int FixOpaqueBody(string race)
+    {
+        string folder = SysTex + race + "/Materials";
+        if (!AssetDatabase.IsValidFolder(folder))
+            return 0;
+        int n = 0;
+        foreach (string guid in AssetDatabase.FindAssets("t:Material", new[] { folder }))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            string name = Path.GetFileNameWithoutExtension(path);
+            bool hair = name.Contains("_m00_bh") || name.Contains("_m00_ah")
+                || name.EndsWith("_bh") || name.EndsWith("_ah");
+            if (hair)
+                continue;
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (mat == null || mat.shader == null || mat.shader.name.IndexOf("ActorModulate2X") < 0)
+                continue;
+            if (!mat.IsKeywordEnabled("_ALPHATEST_ON") && mat.renderQueue < 2400)
+                continue;
+            Apply(mat, mat.shader, hair: false);
+            EditorUtility.SetDirty(mat);
+            n++;
+        }
+        AssetDatabase.SaveAssets();
+        Debug.Log($"[L2ActorRaceMaterials] {race}: opaque-fixed {n} body mats");
+        return n;
+    }
 
     public static int MigrateRace(string race)
     {
@@ -96,11 +134,9 @@ public static class L2ActorRaceMaterials
         }
     }
 
-    // *_m000_b.mo in the anim skeleton is only a bone holder (bare feet, untextured material_0).
-    // The client draws the equipped boots instead; leaving it on shows white feet through sandals/soles.
     public static void HideSkeletonPlaceholder(GameObject root)
     {
-        foreach (var smr in root.GetComponentsInChildren<SkinnedMeshRenderer>(true))
-            if (smr.gameObject.name.EndsWith("_m000_b.mo", StringComparison.OrdinalIgnoreCase)) smr.enabled = false;
+        if (root != null)
+            L2ActorMeshPolicy.DisableSkeletonPlaceholders(root.transform);
     }
 }

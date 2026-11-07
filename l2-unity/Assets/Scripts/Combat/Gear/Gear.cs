@@ -359,9 +359,13 @@ public class Gear : AbstractMeshManager
         WeaponType lType = lItem != null && lItem.Weapongrp != null
             ? lItem.Weapongrp.WeaponType : WeaponType.none;
 
-        bool dual = rType == WeaponType.dual;
+        // dual swords + dual fists / castets (lrhand). Fist starter (Viper's Fang) is
+        // WeaponType.fist from weapongrp handness=7 — still needs both hand meshes.
+        bool dual = rType == WeaponType.dual
+            || rType == WeaponType.dualfist
+            || rType == WeaponType.fist;
         bool bow = rType == WeaponType.bow;
-        bool lShield = lType == WeaponType.shield || lType == WeaponType.none && lHandId != 0 && lItem != null;
+        bool lShield = !dual && (lType == WeaponType.shield || lType == WeaponType.none && lHandId != 0 && lItem != null);
 
         int wantRight = 0;
         int wantLeft = 0;

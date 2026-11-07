@@ -159,13 +159,14 @@ public static class EntitySpawnShared
             }
         }
 
-        // Last resort: the race's generic townsfolk body keeps the NPC visible and clickable.
-        bool male = asset.IndexOf('M') >= 0 && asset.Contains("_M");
+        // Last resort: generic townsfolk. Prefer Human so Orc/Dwarf starts don't look Elven
+        // when e_clergyman_MOrc / similar art is missing from the pack.
+        bool male = IsMaleNpcAsset(asset);
         string[] generic =
         {
-            package + ".a_common_people_" + (male ? "MElf" : "FElf") + "_m00",
             package + ".a_common_people_" + (male ? "MHuman" : "FHuman") + "_m00",
-            package + ".a_common_peopleA_" + (male ? "MHuman" : "FHuman") + "_m00"
+            package + ".a_common_peopleA_" + (male ? "MHuman" : "FHuman") + "_m00",
+            package + ".a_common_people_" + (male ? "MElf" : "FElf") + "_m00"
         };
         for (int i = 0; i < generic.Length; i++)
         {
@@ -288,13 +289,45 @@ public static class EntitySpawnShared
         text.IndexOf(needle, System.StringComparison.OrdinalIgnoreCase) >= 0;
 
     /// <summary>Race tags used inside LineageNPCs mesh names that the client art pack omits.</summary>
-    static readonly string[] MissingRaceNames = { "_FElf_", "_MElf_", "_FDarkElf_", "_MDarkElf_" };
+    static readonly string[] MissingRaceNames =
+    {
+        "_FElf_", "_MElf_", "_FDarkElf_", "_MDarkElf_",
+        "_FOrc_", "_MOrc_", "_FDwarf_", "_MDwarf_"
+    };
 
     /// <summary>Race tags the client art pack actually ships for NPC outfits, in preference order.</summary>
     static readonly string[] FallbackRaceNames =
     {
         "_FHuman_", "_MHuman_", "_FDwarf_", "_MDwarf_", "_FFighter_", "_MFighter_"
     };
+
+    /// <summary>
+    /// <c>e_clergyman_MOrc_m00</c> has no <c>_M</c> token; the old IndexOf('M')+_M check
+    /// mis-classified Orcs as female and picked FElf townsfolk.
+    /// </summary>
+    static bool IsMaleNpcAsset(string asset)
+    {
+        if (string.IsNullOrEmpty(asset))
+            return true;
+        if (ContainsRaceTag(asset, 'F'))
+            return false;
+        if (ContainsRaceTag(asset, 'M'))
+            return true;
+        return asset.IndexOf('M') >= 0 && asset.Contains("_M");
+    }
+
+    static bool ContainsRaceTag(string asset, char sex)
+    {
+        // _MOrc_ / _FHuman_ / _MDarkElf_ and trailing _MOrc_m00 forms.
+        string[] races = { "Orc", "Elf", "DarkElf", "Human", "Dwarf", "Fighter", "Magic" };
+        for (int i = 0; i < races.Length; i++)
+        {
+            string tag = "_" + sex + races[i];
+            if (asset.IndexOf(tag, System.StringComparison.Ordinal) >= 0)
+                return true;
+        }
+        return false;
+    }
 
     static readonly HashSet<string> ReportedSubstitutedMeshes = new HashSet<string>();
 
