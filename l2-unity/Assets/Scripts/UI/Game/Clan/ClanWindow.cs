@@ -299,9 +299,9 @@ public class ClanWindow : L2TwoPanels
     {
         if(_packet != null && !IsLeader(_packet.SubPledgeLeaderName))
         {
-            SystemMessageWindow.Instance.OnButtonOk += OkLeave;
-            SystemMessageWindow.Instance.OnButtonClosed += OnРЎancel;
-            SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Are you sure you want to leave the clan?");
+            SystemMessagePacketServices.Window.OnButtonOk += OkLeave;
+            SystemMessagePacketServices.Window.OnButtonClosed += OnРЎancel;
+            SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Are you sure you want to leave the clan?");
         }
 
     }
@@ -310,9 +310,9 @@ public class ClanWindow : L2TwoPanels
     {
         if (_packet != null && IsLeader(_packet.SubPledgeLeaderName))
         {
-            SystemMessageWindow.Instance.ShowWindowDialogDropdownYesOrNot(" Select a Unit " , new List<string> { _packet.PledgeName});
-            SystemMessageWindow.Instance.OnButtonOk += OkInvite;
-            SystemMessageWindow.Instance.OnButtonClosed += OnРЎancel;
+            SystemMessagePacketServices.Window.ShowWindowDialogDropdownYesOrNot(" Select a Unit " , new List<string> { _packet.PledgeName});
+            SystemMessagePacketServices.Window.OnButtonOk += OkInvite;
+            SystemMessagePacketServices.Window.OnButtonClosed += OnРЎancel;
         }
 
     }
@@ -477,8 +477,8 @@ public class ClanWindow : L2TwoPanels
     }
     private void CancelEvent()
     {
-        SystemMessageWindow.Instance.OnButtonOk -= OkLeave;
-        SystemMessageWindow.Instance.OnButtonClosed -= OnРЎancel;
+        SystemMessagePacketServices.Window.OnButtonOk -= OkLeave;
+        SystemMessagePacketServices.Window.OnButtonClosed -= OnРЎancel;
     }
 
 
@@ -624,24 +624,24 @@ public class ClanWindow : L2TwoPanels
 
     void Confirm(string text, System.Action ok)
     {
-        if (SystemMessageWindow.Instance == null || ok == null)
+        if (SystemMessagePacketServices.Window == null || ok == null)
             return;
         System.Action closed = null;
         System.Action accept = null;
         accept = () =>
         {
-            SystemMessageWindow.Instance.OnButtonOk -= accept;
-            SystemMessageWindow.Instance.OnButtonClosed -= closed;
+            SystemMessagePacketServices.Window.OnButtonOk -= accept;
+            SystemMessagePacketServices.Window.OnButtonClosed -= closed;
             ok();
         };
         closed = () =>
         {
-            SystemMessageWindow.Instance.OnButtonOk -= accept;
-            SystemMessageWindow.Instance.OnButtonClosed -= closed;
+            SystemMessagePacketServices.Window.OnButtonOk -= accept;
+            SystemMessagePacketServices.Window.OnButtonClosed -= closed;
         };
-        SystemMessageWindow.Instance.OnButtonOk += accept;
-        SystemMessageWindow.Instance.OnButtonClosed += closed;
-        SystemMessageWindow.Instance.ShowWindowDialogYesOrNot(text);
+        SystemMessagePacketServices.Window.OnButtonOk += accept;
+        SystemMessagePacketServices.Window.OnButtonClosed += closed;
+        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot(text);
     }
 
     int SelfObjectId()

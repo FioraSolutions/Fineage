@@ -463,9 +463,9 @@ public class DealerWindow : L2PopupWindow
                     break;
 
                 case ProductType.WEAR:
-                    SystemMessageWindow.Instance.OnButtonOk += OkWear;
-                    SystemMessageWindow.Instance.OnButtonClosed += OnРЎancel;
-                    SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("The try-on state lasts only 5 seconds. When the character's state changes, it can be canceled.");
+                    SystemMessagePacketServices.Window.OnButtonOk += OkWear;
+                    SystemMessagePacketServices.Window.OnButtonClosed += OnРЎancel;
+                    SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("The try-on state lasts only 5 seconds. When the character's state changes, it can be canceled.");
                     break;
                 case ProductType.BUY_SEED:
                     // Debug.LogWarning("РќРµ СЂРµР°Р»РёР·РѕРІР°РЅ РїР°РєРµС‚ РѕС‚РїСЂР°РІРєР° BUY_SEED ");
@@ -517,8 +517,8 @@ public class DealerWindow : L2PopupWindow
 
     private void CancelEvent()
     {
-        SystemMessageWindow.Instance.OnButtonOk -= OkWear;
-        SystemMessageWindow.Instance.OnButtonClosed -= OnРЎancel;
+        SystemMessagePacketServices.Window.OnButtonOk -= OkWear;
+        SystemMessagePacketServices.Window.OnButtonClosed -= OnРЎancel;
     }
 
     protected override IEnumerator BuildWindow(VisualElement root)

@@ -96,7 +96,7 @@ public sealed class GameRuntime
     public SeedInfoWindow SeedInfo { get { return Live(ref _seedInfo, SeedInfoWindow.Instance); } }
     public SellCropListWindow SellCrop { get { return Live(ref _sellCrop, SellCropListWindow.Instance); } }
     public SkillbarWindow Skillbar { get { return Live(ref _skillbar, SkillbarWindow.Instance); } }
-    public SystemMessageWindow SystemMessageUi { get { return Live(ref _systemMessageUi, SystemMessageWindow.Instance); } }
+    public SystemMessageWindow SystemMessageUi { get { return Live(ref _systemMessageUi, SystemMessagePacketServices.Window); } }
     public BufferPanel Buffer { get { return Live(ref _buffer, BufferPanel.Instance); } }
     public InventoryWindow InventoryUi { get { return Live(ref _inventoryUi, InventoryWindow.Instance); } }
     public DeadWindow Dead { get { return Live(ref _dead, DeadWindow.Instance); } }

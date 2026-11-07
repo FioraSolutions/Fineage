@@ -268,9 +268,9 @@ public class QuestWindow : L2TwoPanels
 
     private void OnClickAbortButton(ClickEvent evt)
     {
-        SystemMessageWindow.Instance.OnButtonOk += OkAbort;
-        SystemMessageWindow.Instance.OnButtonClosed += OnCancel;
-        SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Do you really want to abort the quest?");
+        SystemMessagePacketServices.Window.OnButtonOk += OkAbort;
+        SystemMessagePacketServices.Window.OnButtonClosed += OnCancel;
+        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Do you really want to abort the quest?");
     }
 
 
@@ -290,8 +290,8 @@ public class QuestWindow : L2TwoPanels
     }
     private void CancelEvent()
     {
-        SystemMessageWindow.Instance.OnButtonOk -= OkAbort;
-        SystemMessageWindow.Instance.OnButtonClosed -= OnCancel;
+        SystemMessagePacketServices.Window.OnButtonOk -= OkAbort;
+        SystemMessagePacketServices.Window.OnButtonClosed -= OnCancel;
     }
 
     private bool IsSuccess()

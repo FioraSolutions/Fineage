@@ -275,9 +275,9 @@ public class MultiSellWindow : L2PopupWindow
     private void OnSendServer(ClickEvent evt)
     {
 
-        SystemMessageWindow.Instance.OnButtonOk += OkExchange;
-        SystemMessageWindow.Instance.OnButtonClosed += OnCancel;
-        SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Are you sure you want to exchange?");
+        SystemMessagePacketServices.Window.OnButtonOk += OkExchange;
+        SystemMessagePacketServices.Window.OnButtonClosed += OnCancel;
+        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Are you sure you want to exchange?");
     }
 
     private void OkExchange()
@@ -293,8 +293,8 @@ public class MultiSellWindow : L2PopupWindow
     }
     private void CancelEvent()
     {
-        SystemMessageWindow.Instance.OnButtonOk -= OkExchange;
-        SystemMessageWindow.Instance.OnButtonClosed -= OnCancel;
+        SystemMessagePacketServices.Window.OnButtonOk -= OkExchange;
+        SystemMessagePacketServices.Window.OnButtonClosed -= OnCancel;
     }
 
     private void OnDestroy()

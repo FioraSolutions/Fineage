@@ -128,9 +128,9 @@ public class ClanDetailedInfo
     private void OnOkDismiss(string memberName)
     {
         _selectDismiss = memberName;
-        SystemMessageWindow.Instance.OnButtonOk += SystemMessageClickOkDismiss;
-        SystemMessageWindow.Instance.OnButtonClosed += OnРЎancel;
-        SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Do you want to be kicked from the clan?");
+        SystemMessagePacketServices.Window.OnButtonOk += SystemMessageClickOkDismiss;
+        SystemMessagePacketServices.Window.OnButtonClosed += OnРЎancel;
+        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Do you want to be kicked from the clan?");
     }
 
     private void SystemMessageClickOkDismiss()
@@ -146,8 +146,8 @@ public class ClanDetailedInfo
 
     private void CancelEvent()
     {
-        SystemMessageWindow.Instance.OnButtonOk -= SystemMessageClickOkDismiss;
-        SystemMessageWindow.Instance.OnButtonClosed -= OnРЎancel;
+        SystemMessagePacketServices.Window.OnButtonOk -= SystemMessageClickOkDismiss;
+        SystemMessagePacketServices.Window.OnButtonClosed -= OnРЎancel;
     }
 
     private void OnClickHide(int id)

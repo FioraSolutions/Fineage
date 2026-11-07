@@ -309,7 +309,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(HtmlWindow))
             return HtmlWindow.Instance as T;
         if (typeof(T) == typeof(SystemMessageWindow))
-            return SystemMessageWindow.Instance as T;
+            return SystemMessagePacketServices.Window as T;
         if (typeof(T) == typeof(CameraController))
             return CameraController.Instance as T;
         if (typeof(T) == typeof(CharacterInfoWindow))
