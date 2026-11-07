@@ -127,7 +127,12 @@ public class CraftingItemWindow : L2PopupWindow
 
     private void SetProgressBarData(int currentMp , int maxMp)
     {
-        ProgressBarUtils.UpdatePbCurrentFirst(_progressBarBg, _progressBar, _defaultWidthProgressbBar, currentMp, maxMp);
+        float ratio = maxMp > 0 ? (float)currentMp / maxMp : 0f;
+        L2ResourceBarView.SetFillFixed(
+            _progressBar,
+            _progressBarBg,
+            ratio,
+            _defaultWidthProgressbBar);
     }
 
     public ItemInstance GetRequiredInstanceByPosition(int position)
