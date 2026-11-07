@@ -350,7 +350,7 @@ public class InventoryTab : L2Tab
     {
         if (InventoryPacketServices.Window.SwitchTab(this))
         {
-            AudioManager.Instance.PlayUISound("window_open");
+            AudioPacketServices.Audio.PlayUISound("window_open");
         }
     }
 

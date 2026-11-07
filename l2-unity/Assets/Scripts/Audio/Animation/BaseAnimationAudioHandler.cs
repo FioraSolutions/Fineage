@@ -28,7 +28,7 @@ public class BaseAnimationAudioHandler : MonoBehaviour
     }
 
     public void PlaySound(ItemSoundEvent soundEvent) {
-        AudioManager.Instance.PlayItemSound(soundEvent, transform.position);
+        AudioPacketServices.Audio.PlayItemSound(soundEvent, transform.position);
     }
 
     public void PlaySoundAtRatio(ItemSoundEvent soundEvent, float ratio) {

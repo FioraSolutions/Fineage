@@ -26,7 +26,7 @@ public class ButtonSkillLearn
 
        // tabElement.RegisterCallback<MouseDownEvent>(evt => {
           //  _skill.ChangeMenuSelect(0);
-        //    AudioManager.Instance.PlayUISound("click_01");
+        //    AudioPacketServices.Audio.PlayUISound("click_01");
        // }, TrickleDown.TrickleDown);
     //}
 
@@ -42,7 +42,7 @@ public class ButtonSkillLearn
 
        // tabElement.RegisterCallback<MouseDownEvent>(evt => {
          //   _skill.ChangeMenuSelect(1);
-         //   AudioManager.Instance.PlayUISound("click_01");
+         //   AudioPacketServices.Audio.PlayUISound("click_01");
        // }, TrickleDown.TrickleDown);
     //}
 
@@ -56,7 +56,7 @@ public class ButtonSkillLearn
 
        // tabElement.RegisterCallback<MouseDownEvent>(evt => {
          //   _skill.ChangeMenuSelect(2);
-        //    AudioManager.Instance.PlayUISound("click_01");
+        //    AudioPacketServices.Audio.PlayUISound("click_01");
       //  }, TrickleDown.TrickleDown);
     //}
 

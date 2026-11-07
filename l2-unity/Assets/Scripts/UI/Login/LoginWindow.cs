@@ -123,7 +123,7 @@ public class LoginWindow : L2Window
             evt.PreventDefault();
 
         } else if (keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter) {
-            AudioManager.Instance.PlayUISound("click_01");
+            AudioPacketServices.Audio.PlayUISound("click_01");
             LoginButtonPressed();
             evt.PreventDefault();
         }

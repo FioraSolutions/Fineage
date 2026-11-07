@@ -25,6 +25,8 @@ public class AudioManager : MonoBehaviour
     private bool _isDisabled = true;
 
     private static AudioManager _instance;
+
+    [System.Obsolete("Use AudioPacketServices.Audio or [Inject] AudioManager instead")]
     public static AudioManager Instance { get { return _instance; } }
 
     private void Awake()
@@ -37,6 +39,7 @@ public class AudioManager : MonoBehaviour
             }
 
             _instance = this;
+            AudioPacketServices.Bind(audio: this);
         }
         else
         {

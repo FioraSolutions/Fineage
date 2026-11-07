@@ -126,14 +126,14 @@ public class ActionWindow : L2PopupWindow
     public override void ShowWindow()
     {
         base.ShowWindow();
-        AudioManager.Instance.PlayUISound("window_open");
+        AudioPacketServices.Audio.PlayUISound("window_open");
         SystemUIPacketServices.Ui.WindowOpened(this);
     }
 
     public override void HideWindow()
     {
         base.HideWindow();
-        AudioManager.Instance.PlayUISound("window_close");
+        AudioPacketServices.Audio.PlayUISound("window_close");
         SystemUIPacketServices.Ui.WindowClosed(this);
     }
 }

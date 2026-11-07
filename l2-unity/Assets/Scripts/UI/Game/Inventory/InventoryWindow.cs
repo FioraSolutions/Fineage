@@ -220,7 +220,7 @@ public class InventoryWindow : L2PopupWindow
     {
         if (!_minimizedInventoryDragManipulator.dragged)
         {
-            AudioManager.Instance.PlayUISound("click_01");
+            AudioPacketServices.Audio.PlayUISound("click_01");
             _minimizedInventoryBtn.style.display = DisplayStyle.None;
             _minimizedInventoryMouseOverManipulator.Disable();
             ShowWindow();

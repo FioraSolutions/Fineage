@@ -28,7 +28,7 @@ public static class SystemUIPacketServices
         _ui != null ? _ui : L2GameUI.Instance;
 
     public static AudioManager Audio =>
-        _audio != null ? _audio : AudioManager.Instance;
+        _audio != null ? _audio : AudioPacketServices.Audio;
 
     public static SystemMenuWindow Menu =>
         _menu != null ? _menu : SystemMenuWindow.Instance;

@@ -102,7 +102,7 @@ public class ItemInstance : AbstractServerItem
         if (_equipped == false && newItem.Equipped == true
         || _equipped == true && newItem.Equipped == false)
         {
-            //AudioManager.Instance.PlayEquipSound(_itemData.Itemgrp.EquipSound);
+            //AudioPacketServices.Audio.PlayEquipSound(_itemData.Itemgrp.EquipSound);
         }
 
         _equipped = newItem.Equipped;
