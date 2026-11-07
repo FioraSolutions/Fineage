@@ -86,6 +86,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<StatusWindow>(builder);
         RegisterLiveMono<CharacterInfoWindow>(builder);
 
+        builder.Register<StatsConverter>(Lifetime.Singleton);
         builder.Register<PlayerSpawner>(Lifetime.Singleton);
         builder.Register<BowArrowVisual>(Lifetime.Singleton);
         builder.RegisterFactory<UserEntity, UserBowArrowEvents>(container =>
@@ -178,6 +179,10 @@ public sealed class GameLifetimeScope : LifetimeScope
                 AnimationPacketServices.Bind(
                     animations: runtime.Animations,
                     applyQueue: container.Resolve<PacketApplyQueue>());
+                StatsConverter statsConverter = container.Resolve<StatsConverter>();
+                StatsConverterPacketServices.Bind(converter: statsConverter);
+                CombatPacketServices.Bind(statsConverter: statsConverter);
+                ServicePacketServices.Bind(statsConverter: statsConverter);
                 MoveCostLog.Wire(world);
 
                 // #142 slice 3: hand NetSession the container-built applies via [Inject].
