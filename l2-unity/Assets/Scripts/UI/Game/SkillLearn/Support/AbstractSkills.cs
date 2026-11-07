@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
 
-public class AbstractSkills
+public class AbstractSkills : AbstractToggle
 {
     protected const float _default7CellWidth = 252;
     protected const float _default6CellWidth = 216;
@@ -24,21 +24,6 @@ public class AbstractSkills
     {
         if (allSlots != null) _allSlots = null;
         _allSlots = allSlots;
-    }
-    protected void ChangeDfBox(Button btn, string texture)
-    {
-        IEnumerable<VisualElement> children = btn.Children();
-        var e = children.First();
-        e.style.display = DisplayStyle.Flex;
-        L2SlotIconView.SetResourcesBackground(btn, texture);
-    }
-
-    protected void ToogleHideElement(VisualElement element , bool isHide)
-    {
-        if(!isHide)
-            element.style.display = DisplayStyle.Flex;
-        else
-            element.style.display = DisplayStyle.None;
     }
 
     protected VisualElement GetSkillBar(VisualElement content)

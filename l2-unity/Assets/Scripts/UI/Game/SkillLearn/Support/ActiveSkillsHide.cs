@@ -13,8 +13,8 @@ public class ActiveSkillsHide : AbstractSkills
 {
     private readonly string[] fillBackgroundDf =
     {
-        L2SkillLearnUiAssets.ExpandButton,
-        L2SkillLearnUiAssets.CollapseButton,
+        L2ExpandCollapseUiAssets.ExpandButton,
+        L2ExpandCollapseUiAssets.CollapseButton,
     };
     private VisualElement _activeSkillPanel;
     private VisualTreeAsset _templateBoxPanel;
