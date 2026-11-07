@@ -94,7 +94,7 @@ public static class ControllerPacketServices
     public static BufferPanel Buffer =>
         _buffer != null
             ? _buffer
-            : ResolveFromGame<BufferPanel>() ?? BufferPanel.Instance;
+            : ResolveFromGame<BufferPanel>() ?? LegacyBufferPanelInstance();
 
     public static DeadWindow Dead =>
         _dead != null
@@ -131,6 +131,8 @@ public static class ControllerPacketServices
     static InputManager LegacyInputManagerInstance() => InputManager.Instance;
 
     static ClickManager LegacyClickManagerInstance() => ClickManager.Instance;
+
+    static BufferPanel LegacyBufferPanelInstance() => BufferPanel.Instance;
 
     static PositionValidationController LegacyPositionValidationInstance() =>
         PositionValidationController.Instance;
