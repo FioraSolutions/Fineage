@@ -526,7 +526,7 @@ public static class FineageRpEditorPlay
             }
 
             select.SelectLobbySlot(index);
-            CharacterSelector characters = CharacterSelector.Instance;
+            CharacterSelector characters = LoginPacketServices.Characters;
             if (characters != null)
                 characters.SelectLobbyCharacter(index);
 
