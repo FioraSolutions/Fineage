@@ -77,7 +77,7 @@ public static class ControllerPacketServices
     public static IMoveAllCharacters Moves =>
         _moves != null
             ? _moves
-            : ResolveFromGame<IMoveAllCharacters>() ?? MoveAllCharacters.Instance;
+            : ResolveFromGame<IMoveAllCharacters>() ?? LegacyMoveAllCharactersInstance();
 
     public static EffectManager Effects =>
         _effects != null
@@ -125,6 +125,8 @@ public static class ControllerPacketServices
 
     static PositionValidationController LegacyPositionValidationInstance() =>
         PositionValidationController.Instance;
+
+    static IMoveAllCharacters LegacyMoveAllCharactersInstance() => MoveAllCharacters.Instance;
 #pragma warning restore CS0618
 }
 

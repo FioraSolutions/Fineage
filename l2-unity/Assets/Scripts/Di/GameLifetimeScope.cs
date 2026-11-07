@@ -297,7 +297,9 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(BufferPanel))
             return AuxiliaryGameUIPacketServices.Buffer as T;
         if (typeof(T) == typeof(MoveAllCharacters))
+#pragma warning disable CS0618 // Bootstrap locator until all call sites use PacketServices / [Inject]
             return MoveAllCharacters.Instance as T;
+#pragma warning restore CS0618
         if (typeof(T) == typeof(EffectManager))
             return EffectManager.Instance as T;
         if (typeof(T) == typeof(EventBus))

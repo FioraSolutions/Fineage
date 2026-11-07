@@ -105,7 +105,7 @@ public static class MagicGaitTrace
             .Append(" attackVis=").Append(user != null && user.IsAttackVisualPlaying())
             .Append(" visLeft=").Append(user != null ? user.AttackVisualLeftSec().ToString("F3") : "-")
             .Append(" isMoving=").Append(
-                MoveAllCharacters.Instance != null && MoveAllCharacters.Instance.IsMoving(id));
+                MoveAllCharactersPacketServices.Moves != null && MoveAllCharactersPacketServices.Moves.IsMoving(id));
 
         MagicCastData cast = entity.GetMagicCastData();
         if (cast != null)

@@ -29,8 +29,8 @@ public sealed class EntityActionStop : IEntityActionProcess
         if (entity == null)
             return;
 
-        bool wasMoving = entity.Identity != null && MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+        bool wasMoving = entity.Identity != null && ControllerPacketServices.Moves != null &&
+            ControllerPacketServices.Moves.IsMoving(entity.Identity.Id);
         Vector3 destBefore = entity.ActionSlot != null
             ? entity.ActionSlot.Destination
             : Vector3.zero;

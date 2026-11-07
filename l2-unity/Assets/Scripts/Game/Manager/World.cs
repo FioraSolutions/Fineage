@@ -246,8 +246,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     void UnregisterObject(int id, Entity entity)
     {
-        if (MoveAllCharacters.Instance != null)
-            MoveAllCharacters.Instance.Forget(id);
+        if (MoveAllCharactersPacketServices.Moves != null)
+            MoveAllCharactersPacketServices.Moves.Forget(id);
         _players.Remove(id);
         _npcs.Remove(id);
         _objects.Remove(id);
@@ -446,8 +446,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         RemoveObject(itemObjectId);
 
         // Let authored PicItem finish before forcing gait (do not stretch the clip).
-        if (pickerCharObjId != 0 && MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
+        if (pickerCharObjId != 0 && MoveAllCharactersPacketServices.Moves != null &&
+            MoveAllCharactersPacketServices.Moves.IsMoving(pickerCharObjId))
         {
             StartCoroutine(ResumeGaitAfterPickup(pickerCharObjId));
         }
@@ -456,11 +456,11 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     System.Collections.IEnumerator ResumeGaitAfterPickup(int pickerCharObjId)
     {
         yield return new WaitForSeconds(AnimPlayback.PickupFallbackSeconds);
-        if (MoveAllCharacters.Instance == null ||
-            !MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
+        if (MoveAllCharactersPacketServices.Moves == null ||
+            !MoveAllCharactersPacketServices.Moves.IsMoving(pickerCharObjId))
             yield break;
 
-        MovementData move = MoveAllCharacters.Instance.GetMove(pickerCharObjId);
+        MovementData move = MoveAllCharactersPacketServices.Moves.GetMove(pickerCharObjId);
         if (move == null || move.GetEntity() == null)
             yield break;
 

@@ -122,7 +122,7 @@ public class MonsterStateAtk : MonsterStateBase
         if (EntityActionMachine.Instance == null)
             return true;
 
-        string restore = (_entity.Identity != null && MoveAllCharacters.Instance != null && MoveAllCharacters.Instance.IsMoving(_entity.Identity.Id)) ? (_entity.Running ? "run" : "walk") : "wait";
+        string restore = (_entity.Identity != null && AnimationPacketServices.Moves != null && AnimationPacketServices.Moves.IsMoving(_entity.Identity.Id)) ? (_entity.Running ? "run" : "walk") : "wait";
         _isSwitchIdle = true;
         EntityActionMachine.Instance.Set(_entity, EntityActionKind.Idle, restore);
         // MobSkillLog.Done(_entity, restore);
