@@ -110,7 +110,7 @@ public class MonsterStateDamageACtion : MonsterStateBase
             SetAnimationSpeed(animator, 1f);
 
             // Здесь можно добавить логику для переключения в состояние ожидания
-            // PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
+            // PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
         }
     }
 

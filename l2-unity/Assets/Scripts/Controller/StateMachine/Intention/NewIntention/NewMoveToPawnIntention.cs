@@ -33,7 +33,7 @@ public class NewMoveToPawnIntention : IntentionBase
             {
                 // Stop ring is the packet distance. ReachedDestination does not add collision radii for a pawn goal.
                 L2PawnRange.IgnorePawnCollision(DomainPacketServices.LocalPlayer, model.TarEntity());
-                PlayerStateMachine.Instance.IsMoveToPawn = true;
+                PlayerStatePacketServices.PlayerState.IsMoveToPawn = true;
                 bool running = DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Running;
                 ControllerPacketServices.Player.MoveToPoint(new MovementTarget(model.TarEntity().transform, model.Distance(), running));
                 StartAnimMoveTo();

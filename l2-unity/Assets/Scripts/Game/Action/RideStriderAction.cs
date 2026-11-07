@@ -4,10 +4,10 @@ public class RideStriderAction : L2Action
 {
     public override void UseAction()
     {
-        if (PlayerStateMachine.Instance == null)
+        if (PlayerStatePacketServices.PlayerState == null)
             return;
-        if (PlayerStateMachine.Instance.State == PlayerState.DEAD)
+        if (PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
             return;
-        PlayerStateMachine.Instance.ToggleRide();
+        PlayerStatePacketServices.PlayerState.ToggleRide();
     }
 }

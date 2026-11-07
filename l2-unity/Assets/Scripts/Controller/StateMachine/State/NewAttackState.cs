@@ -37,8 +37,8 @@ public class NewAttackState : AbstractAttackEvents
                     {
                         DomainPacketServices.LocalPlayer.IsAttack = false;
                     }
-                    PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-                    PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN);
+                    PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+                    PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN);
                     break;
                 }
 
@@ -90,8 +90,8 @@ public class NewAttackState : AbstractAttackEvents
                 break;
             case Event.CANCEL:
                 // Debug.Log("Attack Sate to Intention> Отмена скорее всего запрос пришел из ActionFaild");
-                PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-                PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN);
+                PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN);
                 DomainPacketServices.LocalPlayer.LastAtkAnimation = null;
                 break;
 

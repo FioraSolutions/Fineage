@@ -114,8 +114,8 @@ public sealed class PlayerSpawner
         if (_characterInfo != null)
             _characterInfo.UpdateValues();
         PlayerStateMachine.AdoptFromPlayer(player);
-        if (PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.Player = player;
+        if (PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.Player = player;
 
         world.RegisterPlayer(player);
         DiBootstrap.EnsureGameScope();

@@ -156,7 +156,7 @@ public class PositionValidationController : MonoBehaviour
             entity.ShowObject();
 
             Animations.PlayerSetAllFloat(objectId , floatValues);
-            ReStartAnimationPlayer(PlayerStateMachine.Instance);
+            ReStartAnimationPlayer(PlayerStatePacketServices.PlayerState);
 
         }else if (entity.GetType() == typeof(NpcEntity))
         {

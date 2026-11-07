@@ -547,7 +547,7 @@ public class Entity : MonoBehaviour {
             {
                 PlayerEntity playerEntity = (PlayerEntity)this;
                 playerEntity.RefreshRunSpeed();
-                PlayerStateMachine.Instance.NotifyEvent(Event.CHANGE_EQUIP);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.CHANGE_EQUIP);
                 
             }
         }
@@ -557,7 +557,7 @@ public class Entity : MonoBehaviour {
     {
        if (this.GetType() == typeof(PlayerEntity))
        {
-          PlayerStateMachine.Instance.NotifyEvent(Event.CHANGE_EQUIP);
+          PlayerStatePacketServices.PlayerState.NotifyEvent(Event.CHANGE_EQUIP);
        }
     }
 

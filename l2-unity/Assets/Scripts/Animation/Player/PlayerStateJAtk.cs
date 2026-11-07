@@ -306,16 +306,16 @@ public class PlayerStateJAtk : StateMachineBehaviour
         _exitViaSwitchToIdle = true;
 
         // A Move packet may already have started the walk. Do not pull that back into atkwait.
-        if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
+        if (PlayerStatePacketServices.PlayerState != null && PlayerStatePacketServices.PlayerState.ShouldKeepLocomotion())
         {
             // Debug.Log(
                 // $"{JATK_EARLY_LOG} SwitchToIdle SKIP_LOCOMOTION anim={parameterName} " +
-                // $"state={PlayerStateMachine.Instance.State} wallElapsedMs={elapsedMs:F1}/{_fullCycleMs:F1}");
+                // $"state={PlayerStatePacketServices.PlayerState.State} wallElapsedMs={elapsedMs:F1}/{_fullCycleMs:F1}");
             return;
         }
 
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
     }
 
     private bool IsDieTarget()

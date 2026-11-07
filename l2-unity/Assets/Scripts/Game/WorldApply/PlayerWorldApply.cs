@@ -21,8 +21,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
         if (entity != null && entity.IsDead())
             return;
 
-        if (PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_MOVE_TO, dto);
+        if (PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_MOVE_TO, dto);
     }
 
     public override void OnPositionCorrection(Entity entity, Vector3 position)
@@ -34,11 +34,11 @@ public sealed class PlayerWorldApply : EntityWorldApply
 
     public override void OnStopMove(Entity entity, StopMoveDto dto)
     {
-        if (PlayerStateMachine.Instance == null || PlayerStateMachine.Instance.State == PlayerState.DEAD)
+        if (PlayerStatePacketServices.PlayerState == null || PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
             return;
 
         if (!entity.GetDead())
-            PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_STOP_MOVE, dto);
+            PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_STOP_MOVE, dto);
     }
 
     public override void OnMoveToPawn(Entity entity, MoveToPawnDto dto)
@@ -56,8 +56,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
         entity.SetDead(true);
         if (EntityActionPacketServices.Actions != null)
             EntityActionPacketServices.Actions.Die(entity);
-        if (PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_DEAD, dto);
+        if (PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_DEAD, dto);
     }
 
     public override void OnRevive(Entity entity, ReviveDto dto)
@@ -66,10 +66,10 @@ public sealed class PlayerWorldApply : EntityWorldApply
         DeadWindow dead = ControllerPacketServices.Dead;
         if (dead != null)
             dead.HideWindow();
-        if (PlayerStateMachine.Instance != null)
+        if (PlayerStatePacketServices.PlayerState != null)
         {
-            PlayerStateMachine.Instance.ChangeState(PlayerState.REBIRTH);
-            PlayerStateMachine.Instance.NotifyEvent(Event.REBIRTH);
+            PlayerStatePacketServices.PlayerState.ChangeState(PlayerState.REBIRTH);
+            PlayerStatePacketServices.PlayerState.NotifyEvent(Event.REBIRTH);
         }
     }
 
@@ -81,8 +81,8 @@ public sealed class PlayerWorldApply : EntityWorldApply
         if (attacker.IsDead())
             return;
 
-        if (PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_ATTACK, dto);
+        if (PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_ATTACK, dto);
     }
 
     public override void OnMagicSkillUse(Entity entity, MagicSkillUseDto dto)
@@ -126,7 +126,7 @@ public sealed class PlayerWorldApply : EntityWorldApply
     public override void OnMagicSkillCanceled(Entity entity, MagicSkillCanceledDto dto)
     {
         MagicSkillPresentation.EndCastChannel();
-        if (PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.NotifyEvent(Event.CANCEL);
+        if (PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.NotifyEvent(Event.CANCEL);
     }
 }

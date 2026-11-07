@@ -134,7 +134,7 @@ public class PlayerEntity : Entity
     protected override void OnDeath()
     {
         base.OnDeath();
-        PlayerStateMachine.Instance.NotifyEvent(Event.DEAD);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.DEAD);
     }
 
     protected override void OnHit(bool criticalHit)
@@ -246,9 +246,9 @@ public class PlayerEntity : Entity
         if (player != null)
             player.Running = running;
 
-        if (PlayerStateMachine.Instance != null)
+        if (PlayerStatePacketServices.PlayerState != null)
         {
-           // PlayerStateMachine.Instance.NotifyEvent(Event.MOVE_TYPE_UPDATED);
+           // PlayerStatePacketServices.PlayerState.NotifyEvent(Event.MOVE_TYPE_UPDATED);
         }
 
         if (HudCorePacketServices.CharacterInfo != null)

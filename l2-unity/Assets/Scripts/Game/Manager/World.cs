@@ -759,8 +759,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             if (entity.GetType() == typeof(PlayerEntity))
             {
 
-                PlayerStateMachine.Instance.ChangeState(PlayerState.REBIRTH);
-                PlayerStateMachine.Instance.NotifyEvent(Event.REBIRTH);
+                PlayerStatePacketServices.PlayerState.ChangeState(PlayerState.REBIRTH);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.REBIRTH);
 
                 entity.SetDead(false);
 

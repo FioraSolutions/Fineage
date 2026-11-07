@@ -19,7 +19,7 @@ public class NewAttackIntention : IntentionBase
 
         if (arg0.GetType() == typeof(AttackDto))
         {
-            // Debug.Log("NewAttackIntention > State " + PlayerStateMachine.Instance.State);
+            // Debug.Log("NewAttackIntention > State " + PlayerStatePacketServices.PlayerState.State);
             AttackDto myModel = (AttackDto)arg0;
             int targetId = myModel.TargetId;
 

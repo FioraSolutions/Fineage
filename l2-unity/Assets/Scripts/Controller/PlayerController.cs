@@ -191,16 +191,16 @@ public partial class PlayerController : MonoBehaviour
         {
              //Debug.Log("IsMoveToPawn мы на месте " + VectorUtils.Distance2D(characterPosition, targetPosition));
              SetPositionServer(_movementTarget, targetPosition);
-             NotifyEvent(PlayerStateMachine.Instance.State);
+             NotifyEvent(PlayerStatePacketServices.PlayerState.State);
              StopMove();
 
-           // Debug.Log("IsMoveToPawn запуск повтора т.е StopMove " + PlayerStateMachine.Instance.IsMoveToPawn + " state " + PlayerStateMachine.Instance.State);
+           // Debug.Log("IsMoveToPawn запуск повтора т.е StopMove " + PlayerStatePacketServices.PlayerState.IsMoveToPawn + " state " + PlayerStatePacketServices.PlayerState.State);
         }
     }
 
     private void NotifyEvent(PlayerState state)
     {
-        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
         if (stateMachine == null)
             return;
 
@@ -213,7 +213,7 @@ public partial class PlayerController : MonoBehaviour
 
     public void RestartMoveElseMoveToPawnTrue(ref bool _isMove)
     {
-        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
         if (stateMachine == null || _movementTarget == null)
             return;
 
@@ -223,7 +223,7 @@ public partial class PlayerController : MonoBehaviour
             float distance = VectorUtils.Distance2D(transform.position, targetPosition);
             if (distance > _movementTarget.GetDistance())
             {
-                // Debug.Log("IsMoveToPawn запуск повтора т.е IsMoveToPawn " + PlayerStateMachine.Instance.IsMoveToPawn + " state " + PlayerStateMachine.Instance.State + " Distance " + distance);
+                // Debug.Log("IsMoveToPawn запуск повтора т.е IsMoveToPawn " + PlayerStatePacketServices.PlayerState.IsMoveToPawn + " state " + PlayerStatePacketServices.PlayerState.State + " Distance " + distance);
                 _isMove = true;
             }
         }
@@ -261,7 +261,7 @@ public partial class PlayerController : MonoBehaviour
             return;
 
         _switchWalkToRun = true;
-        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
         if (stateMachine == null)
             return;
         stateMachine.ChangeState(PlayerState.RUNNING);
@@ -393,9 +393,9 @@ public partial class PlayerController : MonoBehaviour
 
     public void ThinkMoveToPawn( ModelMovePawn model)
     {
-        //PlayerStateMachine.Instance.IsMoveToPawn = true;
+        //PlayerStatePacketServices.PlayerState.IsMoveToPawn = true;
         
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_MOVE_TO_PAWN, model);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_MOVE_TO_PAWN, model);
     }
 
     public void InitMoveToPawn(MoveToPawnDto moveToPawnPacket)

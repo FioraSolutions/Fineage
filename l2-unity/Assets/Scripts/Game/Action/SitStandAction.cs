@@ -7,18 +7,18 @@ public class SitStandAction : L2Action
     // Local action
     public override void UseAction()
     {
-        if (PlayerStateMachine.Instance.State == PlayerState.DEAD)
+        if (PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
         {
             return;
         }
 
-        if (PlayerStateMachine.Instance.State == PlayerState.SITTING || PlayerStateMachine.Instance.State == PlayerState.SIT_WAIT)
+        if (PlayerStatePacketServices.PlayerState.State == PlayerState.SITTING || PlayerStatePacketServices.PlayerState.State == PlayerState.SIT_WAIT)
         {
-            PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_STAND);
+            PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_STAND);
         }
         else
         {
-            PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_SIT);
+            PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_SIT);
         }
     }
 }

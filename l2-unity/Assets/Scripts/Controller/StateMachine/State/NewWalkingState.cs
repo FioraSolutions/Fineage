@@ -32,7 +32,7 @@
 
     private void ArrivedToDestination()
     {
-        //if (PlayerStateMachine.Instance.IsAutoAttack == true)
+        //if (PlayerStatePacketServices.PlayerState.IsAutoAttack == true)
         //{
          //   _stateMachine.ChangeIntention(Intention.INTENTION_IDLE);
          //   _stateMachine.NotifyEvent(Event.WAIT_RETURN);

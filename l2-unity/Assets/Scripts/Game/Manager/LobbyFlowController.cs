@@ -152,7 +152,7 @@ public sealed class LobbyFlowController
         L2GameUI ui = GameUi;
         if (ui != null)
             ui.StopLoading();
-        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
         if (stateMachine != null)
             stateMachine.enabled = true;
         _game.WorldSpawnReady = true;

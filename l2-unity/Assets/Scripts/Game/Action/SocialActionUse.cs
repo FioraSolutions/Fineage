@@ -13,8 +13,8 @@ public sealed class SocialActionUse : L2Action
 
     public override void UseAction()
     {
-        if (PlayerStateMachine.Instance != null &&
-            PlayerStateMachine.Instance.State == PlayerState.DEAD)
+        if (PlayerStatePacketServices.PlayerState != null &&
+            PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
             return;
 
         _ = NetSession.Ensure().SendActionUse(_actionId);

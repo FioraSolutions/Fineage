@@ -133,8 +133,8 @@ public abstract class AbstractAttackEvents : StateBase
                 return;
             }
 
-            PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-            PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN);
+            PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+            PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN);
             break;
         }
     }

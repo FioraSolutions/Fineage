@@ -49,7 +49,7 @@ public class NewMoveToIntention : IntentionBase
                 return;
             }
 
-            if (PlayerStateMachine.Instance.IsMoveToPawn) PlayerStateMachine.Instance.IsMoveToPawn = false;
+            if (PlayerStatePacketServices.PlayerState.IsMoveToPawn) PlayerStatePacketServices.PlayerState.IsMoveToPawn = false;
 
             
             player.MoveToPoint(new MovementTarget(newPosition, 0.1f, DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Running));
