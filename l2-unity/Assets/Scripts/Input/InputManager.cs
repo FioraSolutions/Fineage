@@ -177,7 +177,7 @@ public class InputManager : MonoBehaviour
             gameUi?.EnableMouse();
         }
 
-        ChatWindow chat = ChatWindow.Instance;
+        ChatWindow chat = MessagePacketServices.Chat;
         bool chatOpen = chat != null && chat.ChatOpened;
         if (!chatOpen)
         {

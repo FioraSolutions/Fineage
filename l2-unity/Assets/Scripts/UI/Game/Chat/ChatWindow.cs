@@ -53,8 +53,7 @@ public class ChatWindow : L2Window
     private void WireChatPacketServices()
     {
         MessagePacketApply messageApply = MessagePacketServices.MessageApply;
-        if (messageApply != null)
-            MessagePacketServices.Bind(messageApply: messageApply);
+        MessagePacketServices.Bind(messageApply: messageApply, chat: this);
     }
 
     private void OnDestroy()

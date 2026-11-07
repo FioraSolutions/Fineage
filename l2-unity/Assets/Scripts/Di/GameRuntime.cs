@@ -77,7 +77,7 @@ public sealed class GameRuntime
     public SkillExecutor SkillRunner { get { return Live(ref _skillRunner, SkillExecutor.Instance); } }
 
     public L2GameUI Ui { get { return Live(ref _ui, L2GameUI.Instance); } }
-    public ChatWindow Chat { get { return Live(ref _chat, ChatWindow.Instance); } }
+    public ChatWindow Chat { get { return Live(ref _chat, MessagePacketServices.Chat); } }
     public HtmlWindow Html { get { return Live(ref _html, GameWindowPacketServices.Html); } }
     public DealerWindow Dealer { get { return Live(ref _dealer, DealerWindow.Instance); } }
     public MultiSellWindow MultiSell { get { return Live(ref _multiSell, MultiSellWindow.Instance); } }
@@ -98,7 +98,7 @@ public sealed class GameRuntime
     public SkillbarWindow Skillbar { get { return Live(ref _skillbar, SkillbarWindow.Instance); } }
     public SystemMessageWindow SystemMessageUi { get { return Live(ref _systemMessageUi, SystemMessagePacketServices.Window); } }
     public BufferPanel Buffer { get { return Live(ref _buffer, BufferPanel.Instance); } }
-    public InventoryWindow InventoryUi { get { return Live(ref _inventoryUi, InventoryWindow.Instance); } }
+    public InventoryWindow InventoryUi { get { return Live(ref _inventoryUi, InventoryPacketServices.Window); } }
     public DeadWindow Dead { get { return Live(ref _dead, GameWindowPacketServices.Dead); } }
     public StatusWindow Status { get { return Live(ref _status, GameWindowPacketServices.Status); } }
     public WorldPacketApply WorldApply { get; private set; }

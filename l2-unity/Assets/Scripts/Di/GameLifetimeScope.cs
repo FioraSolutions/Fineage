@@ -305,7 +305,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(SkillbarWindow))
             return SkillbarWindow.Instance as T;
         if (typeof(T) == typeof(ChatWindow))
-            return ChatWindow.Instance as T;
+            return MessagePacketServices.Chat as T;
         if (typeof(T) == typeof(HtmlWindow))
             return GameWindowPacketServices.Html as T;
         if (typeof(T) == typeof(SystemMessageWindow))
@@ -313,7 +313,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(CameraController))
             return CameraController.Instance as T;
         if (typeof(T) == typeof(CharacterInfoWindow))
-            return CharacterInfoWindow.Instance as T;
+            return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))
             return CharacterBuilder.Instance as T;
 

@@ -42,7 +42,7 @@ public class ExitWindow : L2PopupWindow
 
     private void WireSystemUIPacketServices()
     {
-        SystemUIPacketServices.Bind(ui: _gameUi, audio: _audio);
+        SystemUIPacketServices.Bind(ui: _gameUi, audio: _audio, exit: this);
     }
 
     private void OnDestroy()

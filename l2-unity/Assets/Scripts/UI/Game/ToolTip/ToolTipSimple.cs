@@ -332,7 +332,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                     break;
 
                 case (int)SlotType.Inventory:
-                    ItemInstance item = InventoryWindow.Instance.GetItemByPosition(position);
+                    ItemInstance item = InventoryPacketServices.Window.GetItemByPosition(position);
                     if (item != null) return GetInventoryContainer(item);
                     break;
                 case (int)SlotType.Enchant:
@@ -352,7 +352,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                     if (requiredItem != null) return GetInventoryContainer(requiredItem);
                     break;
                 case (int)SlotType.Gear:
-                    GearItem gearItem = InventoryWindow.Instance.GetGearPosition(position);
+                    GearItem gearItem = InventoryPacketServices.Window.GetGearPosition(position);
                     return GetGearContainer(gearItem);
                 case (int)SlotType.SkillWindow:
                     //It is not the position that is used, but the skill ID. We have many panels on this form, so we pass its ID to tooltips, and there is no need for it anymore.
@@ -381,7 +381,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 case (int)SlotType.SkillBar:
                     return SwitchToString();
                 case (int)SlotType.Gear:
-                    GearItem gearItem = InventoryWindow.Instance.GetGearPosition(position);
+                    GearItem gearItem = InventoryPacketServices.Window.GetGearPosition(position);
                     return GetGearStringContainer(gearItem);
                 case (int)SlotType.SkillWindow:
                                        //It is not the position that is used, but the skill ID. We have many panels on this form, so we pass its ID to tooltips, and there is no need for it anymore.
@@ -524,7 +524,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 return ToolTipManager.GetInstance().FindProductInBuyList(position);
 
             case SlotType.Inventory:
-                return InventoryWindow.Instance.GetItemByPosition(position);
+                return InventoryPacketServices.Window.GetItemByPosition(position);
 
             case SlotType.Enchant:
                 return EnchantWindow.Instance.GetItemByPosition(position);
@@ -540,8 +540,8 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 return SkillListWindow.Instance.GetSkillInstanceBySkillId(position);
 
             case SlotType.Gear:
-                return GetGearTooltipItem(InventoryWindow.Instance != null
-                    ? InventoryWindow.Instance.GetGearPosition(position)
+                return GetGearTooltipItem(InventoryPacketServices.Window != null
+                    ? InventoryPacketServices.Window.GetGearPosition(position)
                     : null);
 
             default:
@@ -681,7 +681,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 break;
 
             case (int)SlotType.Inventory:
-                ItemInstance itemInstance = InventoryWindow.Instance.GetItemByPosition(position);
+                ItemInstance itemInstance = InventoryPacketServices.Window.GetItemByPosition(position);
                 SetSimpleItemSingleToolTip(itemInstance, template);
                 break;
             case (int)SlotType.Enchant:
@@ -715,7 +715,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 break;
             case (int)SlotType.Gear:
                 SetSimpleItemSingleToolTip(GetGearTooltipItem(
-                    InventoryWindow.Instance != null ? InventoryWindow.Instance.GetGearPosition(position) : null), template);
+                    InventoryPacketServices.Window != null ? InventoryPacketServices.Window.GetGearPosition(position) : null), template);
                 break;
         }
     }

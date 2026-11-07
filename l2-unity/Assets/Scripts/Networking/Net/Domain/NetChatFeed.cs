@@ -44,7 +44,7 @@ public static class NetChatFeed
 
     public static void Flush()
     {
-        ChatWindow chat = ChatWindow.Instance;
+        ChatWindow chat = MessagePacketServices.Chat;
         if (chat == null || !chat.Ready || Pending.Count == 0)
             return;
 

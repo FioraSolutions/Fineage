@@ -77,12 +77,13 @@ public class InventoryWindow : L2PopupWindow
 
     private void WireInventoryPacketServices()
     {
-        InventoryPacketServices.Bind();
+        InventoryPacketServices.Bind(window: this);
     }
 
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets()

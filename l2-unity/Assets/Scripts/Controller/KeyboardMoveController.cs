@@ -35,7 +35,7 @@ public sealed class KeyboardMoveController : MonoBehaviour
         if (ui != null && (ui.MouseOverUI || ui.IsPointerOverPanel()))
             return;
 
-        ChatWindow chat = ChatWindow.Instance;
+        ChatWindow chat = MessagePacketServices.Chat;
         if (chat != null && chat.ChatOpened)
             return;
 
