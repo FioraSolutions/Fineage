@@ -70,11 +70,11 @@ public class L2ClickableSlot : L2Slot
             switch (_slotType)
             {
                 case SlotType.Recipe:
-                    RecipeBookWindow.Instance.EventDoubleClick(slotElement);
+                    CraftPacketServices.RecipeBook.EventDoubleClick(slotElement);
                     break;
                 case SlotType.PriceBuy:
                 case SlotType.PriceSell:
-                    DealerWindow.Instance.EventDoubleClick(slotElement);
+                    MerchantPacketServices.Dealer.EventDoubleClick(slotElement);
                     break;
             }
         }

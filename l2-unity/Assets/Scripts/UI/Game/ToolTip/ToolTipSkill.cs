@@ -232,7 +232,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
     {
 
         var testPoint = checkBound(newPoint, _heightContent);
-        if (!SkillListWindow.Instance.IsWindowContain(testPoint))
+        if (!SkillLearnPacketServices.SkillList.IsWindowContain(testPoint))
         {
             float width = _heightContent;
             float newddfig = width;
@@ -450,7 +450,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
     public void NewPosition(Vector2 newPoint, float sdfig, bool forceBelow)
     {
         var testPoint = checkBound(newPoint, _heightContent);
-        if (!SkillListWindow.Instance.IsWindowContain(testPoint))
+        if (!SkillLearnPacketServices.SkillList.IsWindowContain(testPoint))
         {
             float width = _heightContent;
             float newddfig = width;

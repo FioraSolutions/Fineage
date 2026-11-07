@@ -95,7 +95,7 @@ public class ClickManager : MonoBehaviour
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
             stickyDrop = _hoverObjectData.ObjectTransform.GetComponent<ItemEntity>();
 
-        bool overUi = L2GameUI.Instance != null && L2GameUI.Instance.IsPointerOverPanel();
+        bool overUi = SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.IsPointerOverPanel();
         if (!overUi && _dropPicker != null &&
             _dropPicker.TryPick(ray, MousePickDistance, stickyDrop, out ItemEntity dropItem, out _))
         {
@@ -113,8 +113,8 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        if (L2GameUI.Instance != null &&
-            (L2GameUI.Instance.MouseOverUI || L2GameUI.Instance.IsPointerOverPanel()))
+        if (SystemUIPacketServices.Ui != null &&
+            (SystemUIPacketServices.Ui.MouseOverUI || SystemUIPacketServices.Ui.IsPointerOverPanel()))
         {
             _hoverObjectData = null;
             return;

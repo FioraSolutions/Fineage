@@ -78,7 +78,7 @@ public class TradeTab : AbstractTab, ITab
             return;
         }
 
-        ItemInstance inventoryItem = PlayerInventory.Instance.GetItemByItemId(item.ItemId);
+        ItemInstance inventoryItem = InventoryPacketServices.Inventory.GetItemByItemId(item.ItemId);
 
         if (inventoryItem != null && inventoryItem.Count >= item.Count)
         {

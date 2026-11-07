@@ -524,7 +524,7 @@ public class PlayerInventory : MonoBehaviour
         else if (IsEnchantScroll(item))
         {
             // Mobius RequestEnchantItem: the scroll selects itself; the window then asks for a target.
-            EnchantWindow window = EnchantWindow.Instance;
+            EnchantWindow window = ItemEnchantPacketServices.Enchant;
             if (window != null)
                 window.BeginZoneSelect(item);
             RequestEnchantItem(objectId);

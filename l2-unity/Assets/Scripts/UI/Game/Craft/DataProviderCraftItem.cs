@@ -46,7 +46,7 @@ public class DataProviderCraftItem : AbstractDataFunction
             Label labelReceiveData = container.Q<Label>("labelReceiveData");
             AddElementIfNotEmpty(labelReceiveData, labelReceiveData, count);
 
-            ItemInstance inventory = PlayerInventory.Instance.GetItemByItemId(itemInstance.ItemId);
+            ItemInstance inventory = InventoryPacketServices.Inventory.GetItemByItemId(itemInstance.ItemId);
             string quantity = (inventory == null)? "0" : inventory.Count.ToString();
             Label labellQuantityData = container.Q<Label>("labellQuantityData");
             AddElementIfNotEmpty(labellQuantityData, labellQuantityData, quantity);

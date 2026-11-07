@@ -181,7 +181,7 @@ public static class NetGearSession
 
     static bool CanApplyInventory()
     {
-        if (PlayerInventory.Instance == null)
+        if (InventoryPacketServices.Inventory == null)
         {
             WarnBlocked("PlayerInventory");
             return false;

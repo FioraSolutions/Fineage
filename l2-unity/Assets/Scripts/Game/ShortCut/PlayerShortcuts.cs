@@ -163,7 +163,7 @@ public class PlayerShortcuts : MonoBehaviour
             _shortcuts.Add(shortcut.Slot + shortcut.Page * MAXIMUM_SHORTCUTS_PER_BAR, shortcut);
         }
 
-        SkillbarWindow.Instance.UpdateAllShortcuts(shortcuts);
+        SkillbarPacketServices.Skillbar.UpdateAllShortcuts(shortcuts);
     }
 
     public void RegisterShortcut(Shortcut shortcut)
@@ -178,7 +178,7 @@ public class PlayerShortcuts : MonoBehaviour
 
         if (_shortcuts.TryAdd(slot, shortcut))
         {
-            SkillbarWindow.Instance.AddShortcut(shortcut);
+            SkillbarPacketServices.Skillbar.AddShortcut(shortcut);
         }
         else
         {
@@ -199,13 +199,13 @@ public class PlayerShortcuts : MonoBehaviour
 
     public void RemoveShotcutLocally(int slot)
     {
-        SkillbarWindow.Instance.RemoveShortcut(slot);
+        SkillbarPacketServices.Skillbar.RemoveShortcut(slot);
         _shortcuts.Remove(slot);
     }
 
     private void RemoveShotcutNoVisible(int slot)
     {
-        //SkillbarWindow.Instance.RemoveShortcut(slot);
+        //SkillbarPacketServices.Skillbar.RemoveShortcut(slot);
         _shortcuts.Remove(slot);
     }
 

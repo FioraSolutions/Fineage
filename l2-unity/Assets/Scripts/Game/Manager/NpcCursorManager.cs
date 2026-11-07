@@ -61,7 +61,7 @@ public class NpcCursorManager : MonoBehaviour
             return;
         }
 
-        if (L2GameUI.Instance != null && L2GameUI.Instance.MouseOverUI)
+        if (SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.MouseOverUI)
         {
             ApplyCursor(DefaultCursorId, _defaultCursor);
             return;
