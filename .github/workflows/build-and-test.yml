@@ -21,6 +21,9 @@ jobs:
       - name: Check IncomingPacketActions stays deleted (#142)
         run: python3 scripts/check-frozen-incoming-packet-actions.py
 
+      - name: Check NetDomainMap stays deleted
+        run: python3 scripts/check-frozen-net-domain-map.py
+
       - name: Check playtest release helpers
         run: |
           python3 scripts/check-release-secrets.py --self-test
