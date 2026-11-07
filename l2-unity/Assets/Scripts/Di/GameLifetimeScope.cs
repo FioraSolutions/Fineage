@@ -325,6 +325,8 @@ public sealed class GameLifetimeScope : LifetimeScope
             return SystemMessagePacketServices.Window as T;
         if (typeof(T) == typeof(CameraController))
             return CameraPacketServices.Controller as T;
+        if (typeof(T) == typeof(CombatFacingService))
+            return CombatPacketServices.Facing as T;
         if (typeof(T) == typeof(CharacterInfoWindow))
             return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))

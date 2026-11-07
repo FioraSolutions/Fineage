@@ -76,7 +76,7 @@ public sealed class GameRuntime
     public IGameEventBus GameEvents => _gameEvents;
     public CameraController Camera { get { return Live(ref _camera, CameraPacketServices.Controller); } }
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharactersPacketServices.Moves); } }
-    public CombatFacingService Facing { get { return Live(ref _facing, CombatFacingService.Instance); } }
+    public CombatFacingService Facing { get { return Live(ref _facing, CombatPacketServices.Facing); } }
     public IAnimationManager Animations { get { return Live(ref _animations, AnimationPacketServices.Animations); } }
     public SkillExecutor SkillRunner { get { return Live(ref _skillRunner, SkillExecutorPacketServices.Executor); } }
 

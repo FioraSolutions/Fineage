@@ -174,7 +174,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
             "visExpired ClearAttackVisual → Set Idle");
         user.ClearAttackVisual();
         if (entity.Identity != null)
-            CombatFacingService.Instance?.EndFollow(entity.Identity.Id, "skill-tick");
+            CombatPacketServices.Facing?.EndFollow(entity.Identity.Id, "skill-tick");
         if (EntityActionMachine.Instance != null)
             EntityActionMachine.Instance.Set(entity, EntityActionKind.Idle, null);
     }
@@ -246,7 +246,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (entity == null)
             return;
 
-        CombatFacingService.Instance?.EndFollow(objectId, "skill-smb-idle");
+        CombatPacketServices.Facing?.EndFollow(objectId, "skill-smb-idle");
         UserEntity user = entity as UserEntity;
         if (user != null)
             user.ClearAttackVisual();
@@ -285,7 +285,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         int objectId = entity.Identity.Id;
         if (selfCast || target == null)
         {
-            CombatFacingService.Instance?.EndFollow(objectId, "skill-self-or-no-target");
+            CombatPacketServices.Facing?.EndFollow(objectId, "skill-self-or-no-target");
             return;
         }
 
@@ -295,11 +295,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
             int rate = IsMagicSkill(magic)
                 ? L2PawnYaw.MagicRotationRateYaw
                 : L2PawnYaw.RotationRateYaw;
-            CombatFacingService.Ensure().BeginFollow(objectId, entity.transform, target.transform, rate);
+            CombatPacketServices.EnsureFacing().BeginFollow(objectId, entity.transform, target.transform, rate);
             return;
         }
 
-        CombatFacingService.Instance?.EndFollow(objectId, "non-bow-phys");
+        CombatPacketServices.Facing?.EndFollow(objectId, "non-bow-phys");
         _pawnYaw.RequestLook(entity.transform, target.transform.position, L2PawnYaw.RotationRateYaw);
     }
 
