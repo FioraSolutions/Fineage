@@ -586,9 +586,9 @@ public class PlayerInventory : MonoBehaviour
 
     private void SetupMessageWindow()
     {
-        SystemMessageWindow.Instance.OnButtonOk += OkUse;
-        SystemMessageWindow.Instance.OnButtonClosed += OnCancel;
-        SystemMessageWindow.Instance.ShowWindowDialogYesOrNot("Component registration is not reversible, do you want to continue?");
+        SystemMessagePacketServices.Window.OnButtonOk += OkUse;
+        SystemMessagePacketServices.Window.OnButtonClosed += OnCancel;
+        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Component registration is not reversible, do you want to continue?");
     }
 
     private bool TryGetItem(int objectId, out ItemInstance item)
@@ -615,7 +615,7 @@ public class PlayerInventory : MonoBehaviour
 
     private void CleanupMessageWindow()
     {
-        SystemMessageUtils.CancelEvent(SystemMessageWindow.Instance, OkUse, OnCancel);
+        SystemMessageUtils.CancelEvent(SystemMessagePacketServices.Window, OkUse, OnCancel);
     }
 
     public void DestroyItem(int objectId, int quantity)
