@@ -28,4 +28,6 @@ public static class WorldPacketServices
 
     public static WorldPacketApply WorldApply =>
         _worldApply != null ? _worldApply : NetworkingPacketServices.WorldApply;
+
+    public static Geodata Geodata => GeodataPacketServices.Geodata;
 }

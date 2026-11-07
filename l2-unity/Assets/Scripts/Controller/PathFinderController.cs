@@ -56,7 +56,7 @@ public class PathFinderController : MonoBehaviour
         //{
            /// try
             //{
-               // _startNode = Geodata.Instance.GetNodeAt(transform.position);
+               // _startNode = GeodataPacketServices.Geodata.GetNodeAt(transform.position);
             //}
             //catch (Exception)
             //{
@@ -138,7 +138,7 @@ public class PathFinderController : MonoBehaviour
         //Node node = null;
         //try
        // {
-         //   node = Geodata.Instance.GetNodeAt(_targetDestinationVector);
+         //   node = GeodataPacketServices.Geodata.GetNodeAt(_targetDestinationVector);
         //}
         //catch (Exception) { }
 
@@ -194,7 +194,7 @@ public class PathFinderController : MonoBehaviour
        // if (!_debugPathFinder || !Application.isPlaying)
        //     return;
 
-       // float nodeSize = Geodata.Instance.NodeSize;
+       // float nodeSize = GeodataPacketServices.Geodata.NodeSize;
        // Vector3 cubeSize = new Vector3(nodeSize - nodeSize / 10f, 0.1f, nodeSize - nodeSize / 10f);
 
        // Gizmos.color = Color.yellow;

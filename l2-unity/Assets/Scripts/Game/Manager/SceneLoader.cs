@@ -146,9 +146,10 @@ public class SceneLoader : MonoBehaviour
         string tile = VectorUtils.GetSwMapName(l2Pos);
         FineageLog.Info(FineageLog.Category.World, "LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
 
-        if (Geodata.Instance != null)
+        Geodata geodata = WorldPacketServices.Geodata;
+        if (geodata != null)
         {
-            Geodata.Instance.LoadMaps(new List<string> { tile });
+            geodata.LoadMaps(new List<string> { tile });
         }
 
         yield return LoadSceneAdditiveIfNeeded(tile);
@@ -253,7 +254,8 @@ public class SceneLoader : MonoBehaviour
         List<string> wanted = new List<string>();
         AddTile(wanted, tileX, tileY);
 
-        float mapSize = Geodata.Instance != null ? Geodata.Instance.MapSize : 624.1524f;
+        Geodata geodata = WorldPacketServices.Geodata;
+        float mapSize = geodata != null ? geodata.MapSize : 624.1524f;
         float edge = mapSize > 0f ? _tilePreloadDistance / mapSize : 0.12f;
         float fx = l2Pos.x / VectorUtils.SwTileSizeUu - Mathf.Floor(l2Pos.x / VectorUtils.SwTileSizeUu);
         float fy = l2Pos.y / VectorUtils.SwTileSizeUu - Mathf.Floor(l2Pos.y / VectorUtils.SwTileSizeUu);
@@ -309,9 +311,10 @@ public class SceneLoader : MonoBehaviour
     {
         _streamingBusy = true;
         // Debug.Log("EventLoadSWMap tile='" + tile + "'");
-        if (Geodata.Instance != null)
+        Geodata geodata = WorldPacketServices.Geodata;
+        if (geodata != null)
         {
-            Geodata.Instance.LoadMaps(new List<string> { tile });
+            geodata.LoadMaps(new List<string> { tile });
         }
 
         yield return LoadSceneAdditiveIfNeeded(tile);
