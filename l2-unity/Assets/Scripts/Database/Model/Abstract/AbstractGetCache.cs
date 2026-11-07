@@ -277,7 +277,7 @@ public abstract class AbstractGetCache
 
     public GameObject GetWeaponById(int itemId)
     {
-        Weapon weapon = ItemTable.Instance.GetWeapon(itemId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
         if (weapon == null)
         {
             // Debug.LogWarning($"Can't find weapon {itemId} in ItemTable");
@@ -288,7 +288,7 @@ public abstract class AbstractGetCache
 
     public GameObject GetEtcById(int itemId)
     {
-        EtcItem etcItem = ItemTable.Instance.GetEtcItem(itemId);
+        EtcItem etcItem = TablePacketServices.Items.GetEtcItem(itemId);
         if (etcItem == null)
         {
             // Debug.LogWarning($"Can't find etcItem  {itemId} in ItemTable");
@@ -390,7 +390,7 @@ public abstract class AbstractGetCache
 
     static Abstractgrp ResolveDropGrp(int itemId)
     {
-        ItemTable items = ItemTable.Instance;
+        ItemTable items = TablePacketServices.Items;
         if (items == null)
             return null;
         Weapon weapon = items.GetWeapon(itemId);

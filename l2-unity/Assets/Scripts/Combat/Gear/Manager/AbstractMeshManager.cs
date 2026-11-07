@@ -18,14 +18,14 @@ public class AbstractMeshManager : MonoBehaviour
             switch (category) {
                 case EquipmentCategory.Weapon:
                     int weaponId = itemIds[0];
-                    Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+                    Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
                     GameObject goWeapon = LoadWeapon(weapon, weaponId);
                     if (weapon != null) ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Weapon, goWeapon);
                     return goWeapon;
                 case EquipmentCategory.Armor:
                     int aramorId = itemIds[0];
                     int raceId = itemIds[1];
-                    Armor armor = ItemTable.Instance.GetArmor(aramorId);
+                    Armor armor = TablePacketServices.Items.GetArmor(aramorId);
                     ModelTable.L2ArmorPiece goArmor = LoadArmor(armor, CharacterRaceAnimationParser.SafeConvertToRace(raceId));
                     if (goArmor == null)
                         return null;
@@ -35,7 +35,7 @@ public class AbstractMeshManager : MonoBehaviour
                 case EquipmentCategory.FullArmor:
                     int fullArmorId = itemIds[0];
                     int fullArmorRaceId = itemIds[1];
-                    Armor armorModel = ItemTable.Instance.GetArmor(fullArmorId);
+                    Armor armorModel = TablePacketServices.Items.GetArmor(fullArmorId);
                     ModelTable.L2ArmorPiece fullGoArmor = LoadArmor(armorModel, CharacterRaceAnimationParser.SafeConvertToRace(fullArmorRaceId));
                     if (fullGoArmor == null)
                         return null;
@@ -44,7 +44,7 @@ public class AbstractMeshManager : MonoBehaviour
                     return fullGoArmor;
                 case EquipmentCategory.EtcItem:
                     int etcId = itemIds[0];
-                    EtcItem etcItem = ItemTable.Instance.GetEtcItem(etcId);
+                    EtcItem etcItem = TablePacketServices.Items.GetEtcItem(etcId);
                     GameObject goEtcItem = LoadEtcItem(etcItem, etcId);
                     if (goEtcItem != null) ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Arrow, goEtcItem);
                     return goEtcItem;
@@ -273,7 +273,7 @@ public class AbstractMeshManager : MonoBehaviour
 
     protected string GetWeaponModelName(int itemId)
     {
-        Weapon weapon = ItemTable.Instance.GetWeapon(itemId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
         if (weapon == null)
         {
             return "Not_Found_Model_Name";

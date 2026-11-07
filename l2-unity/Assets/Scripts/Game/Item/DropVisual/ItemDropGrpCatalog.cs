@@ -9,7 +9,7 @@ public sealed class ItemDropGrpCatalog
 
     public Abstractgrp ResolveGrp(int itemId)
     {
-        ItemTable items = _items != null ? _items : ItemTable.Instance;
+        ItemTable items = _items != null ? _items : TablePacketServices.Items;
         if (items == null)
             return null;
 
@@ -47,7 +47,7 @@ public sealed class ItemDropGrpCatalog
 
     public bool IsStickWeapon(int itemId)
     {
-        ItemTable items = _items != null ? _items : ItemTable.Instance;
+        ItemTable items = _items != null ? _items : TablePacketServices.Items;
         if (items == null)
             return false;
 
@@ -73,7 +73,7 @@ public sealed class ItemDropGrpCatalog
 
     public bool IsWeapon(int itemId)
     {
-        ItemTable items = _items != null ? _items : ItemTable.Instance;
+        ItemTable items = _items != null ? _items : TablePacketServices.Items;
         return items != null && items.GetWeapon(itemId) != null;
     }
 

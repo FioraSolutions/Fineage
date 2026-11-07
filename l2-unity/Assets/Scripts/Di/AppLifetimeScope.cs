@@ -40,7 +40,7 @@ public sealed class AppLifetimeScope : LifetimeScope
 
     private static void RegisterDatTables(IContainerBuilder builder)
     {
-        builder.RegisterInstance(ItemTable.Instance);
+        builder.RegisterInstance(TablePacketServices.Items);
         builder.RegisterInstance(ItemNameTable.Instance);
         builder.RegisterInstance(ItemStatDataTable.Instance);
         builder.RegisterInstance(ArmorgrpTable.Instance);

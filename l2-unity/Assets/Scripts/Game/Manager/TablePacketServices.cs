@@ -97,7 +97,7 @@ public static class TablePacketServices
     }
 
     public static ItemTable Items =>
-        _items != null ? _items : ItemTable.Instance;
+        _items != null ? _items : LegacyItemTableInstance();
 
     public static ItemNameTable ItemNames =>
         _itemNames != null ? _itemNames : ItemNameTable.Instance;
@@ -181,4 +181,8 @@ public static class TablePacketServices
 
     public static SystemMessageTable SystemMessages =>
         _systemMessages != null ? _systemMessages : SystemMessageTable.Instance;
+
+#pragma warning disable CS0618 // Locator fallback until ItemTable.Instance is removed
+    static ItemTable LegacyItemTableInstance() => ItemTable.Instance;
+#pragma warning restore CS0618
 }

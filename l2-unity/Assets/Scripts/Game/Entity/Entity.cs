@@ -509,7 +509,7 @@ public class Entity : MonoBehaviour {
     private void HandleUnequipSheildArmorItem(ItemInstance item, UserGear usergear)
     {
         int itemId = item.ItemId;
-        Weapon weapon = ItemTable.Instance.GetWeapon(itemId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
 
         if (weapon != null)
         {
@@ -526,7 +526,7 @@ public class Entity : MonoBehaviour {
     {
         int itemId = item.ItemId;
 
-        Weapon weapon = ItemTable.Instance.GetWeapon(itemId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
 
         if (weapon != null)
         {

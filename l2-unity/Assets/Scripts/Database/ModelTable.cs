@@ -107,7 +107,7 @@ public class ModelTable : AbstractCache
     private void CacheWeapons()
     {
         _weapons = LoadItemModels(
-            ItemTable.Instance.Weapons,
+            TablePacketServices.Items.Weapons,
             weapon => weapon.Weapongrp != null ? weapon.Weapongrp.Model : null,
             "weapon");
     }
@@ -115,7 +115,7 @@ public class ModelTable : AbstractCache
     private void CacheEtcItems()
     {
         _etcItems = LoadItemModels(
-            ItemTable.Instance.EtcItems,
+            TablePacketServices.Items.EtcItems,
             etc => etc.EtcItemgrp != null ? etc.EtcItemgrp.Model : null,
             "EtcItemgrp");
     }
@@ -151,7 +151,7 @@ public class ModelTable : AbstractCache
         _armors = new Dictionary<string, L2Armor>();
         int materialCount = 0;
 
-        foreach (KeyValuePair<int, Armor> pair in ItemTable.Instance.Armors)
+        foreach (KeyValuePair<int, Armor> pair in TablePacketServices.Items.Armors)
         {
             Armorgrp grp = pair.Value.Armorgrp;
             if (grp.BodyPart == ItemSlot.alldress)

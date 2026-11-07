@@ -23,8 +23,8 @@ public class PreviewSceneBootstrap : MonoBehaviour
         if (_loaded) return;
 
         // ItemTable must be first: ModelTable.CacheWeapons reads ItemTable.Weapons
-        ItemTable.Instance.Initialize();
-        ItemTable.Instance.CacheItems();
+        TablePacketServices.Items.Initialize();
+        TablePacketServices.Items.CacheItems();
 
         NpcgrpTable.Instance.Initialize();
         NpcNameTable.Instance.Initialize();

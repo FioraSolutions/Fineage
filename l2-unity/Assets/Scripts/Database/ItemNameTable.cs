@@ -80,7 +80,7 @@ public class ItemNameTable {
                     }
                 }
 
-                if (!ItemTable.Instance.ShouldLoadItem(itemName.Id)) {
+                if (!TablePacketServices.Items.ShouldLoadItem(itemName.Id)) {
                     continue;
                 }
 

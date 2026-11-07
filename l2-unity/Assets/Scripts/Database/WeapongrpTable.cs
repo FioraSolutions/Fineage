@@ -128,7 +128,7 @@ public class WeapongrpTable {
                 weaponType = WeaponClassifier.GetType(weaponType, weaponGrp, handness);
                 weaponGrp.WeaponType = weaponType;
 
-                if (!ItemTable.Instance.ShouldLoadItem(weaponGrp.ObjectId)) {
+                if (!TablePacketServices.Items.ShouldLoadItem(weaponGrp.ObjectId)) {
                     continue;
                 }
 

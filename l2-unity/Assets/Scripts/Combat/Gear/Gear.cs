@@ -61,7 +61,7 @@ public class Gear : AbstractMeshManager
 
     public void EquipShield(int weaponId)
     {
-        Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
         ErrorPrint(weapon, weaponId);
 
         if (weaponId != 0 && weapon == null)
@@ -107,7 +107,7 @@ public class Gear : AbstractMeshManager
 
     public virtual void EquipWeapon(int weaponId, bool leftSlot) {
 
-        Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
         leftSlot = weapon?.Weapongrp?.WeaponType == WeaponType.bow;
 
 
@@ -172,7 +172,7 @@ public class Gear : AbstractMeshManager
 
     public void EquipArrowEtcItem(int etcId, bool leftSlot)
     {
-        EtcItem etcItem = ItemTable.Instance.GetEtcItem(etcId);
+        EtcItem etcItem = TablePacketServices.Items.GetEtcItem(etcId);
 
         if (etcId == 0 | IsWeaponEquipped(etcId, leftSlot) | etcItem == null)
         {
@@ -198,7 +198,7 @@ public class Gear : AbstractMeshManager
 
     public void EquipLeftAndRightWeapon(int weaponId)
     {
-        Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
 
         ErrorPrint(weapon, weaponId);
 
@@ -352,8 +352,8 @@ public class Gear : AbstractMeshManager
 
     public void SyncEquippedWeapons(int rHandId, int lHandId)
     {
-        Weapon rWeapon = rHandId != 0 ? ItemTable.Instance.GetWeapon(rHandId) : null;
-        Weapon lItem = lHandId != 0 ? ItemTable.Instance.GetWeapon(lHandId) : null;
+        Weapon rWeapon = rHandId != 0 ? TablePacketServices.Items.GetWeapon(rHandId) : null;
+        Weapon lItem = lHandId != 0 ? TablePacketServices.Items.GetWeapon(lHandId) : null;
         WeaponType rType = rWeapon != null && rWeapon.Weapongrp != null
             ? rWeapon.Weapongrp.WeaponType : WeaponType.none;
         WeaponType lType = lItem != null && lItem.Weapongrp != null

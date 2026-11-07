@@ -97,7 +97,7 @@ public class ItemStatDataTable {
                     }
                 }
 
-                if (!ItemTable.Instance.ShouldLoadItem(itemStatData.ObjectId)) {
+                if (!TablePacketServices.Items.ShouldLoadItem(itemStatData.ObjectId)) {
                     continue;
                 }
 

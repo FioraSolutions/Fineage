@@ -181,7 +181,7 @@ public static class NetGearSession
             WarnBlocked("dispatcher/EventBus");
             return false;
         }
-        if (ItemTable.Instance.Weapons.Count == 0)
+        if (TablePacketServices.Items.Weapons.Count == 0)
         {
             WarnBlocked("ItemTable.Weapons");
             return false;
@@ -386,7 +386,7 @@ public static class NetGearSession
     /// </summary>
     static void ResolveFromLocalTables(int itemId, ref ItemCategory category, ref ItemSlot slot)
     {
-        ItemTable table = ItemTable.Instance;
+        ItemTable table = TablePacketServices.Items;
         if (table == null)
             return;
 

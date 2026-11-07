@@ -57,22 +57,22 @@ public class ItemInstance : AbstractServerItem
     {
         if (_category == ItemCategory.Weapon)
         {
-            _itemData = ItemTable.Instance.GetWeapon(_itemId);
+            _itemData = TablePacketServices.Items.GetWeapon(_itemId);
         }
         else if (_category == ItemCategory.ShieldArmor || _category == ItemCategory.Jewel)
         {
             if (bodyPart != ItemSlot.lhand)
             {
-                _itemData = ItemTable.Instance.GetArmor(_itemId);
+                _itemData = TablePacketServices.Items.GetArmor(_itemId);
             }
             else
             {
-                _itemData = ItemTable.Instance.GetWeapon(_itemId);
+                _itemData = TablePacketServices.Items.GetWeapon(_itemId);
             }
         }
         else
         {
-            _itemData = ItemTable.Instance.GetEtcItem(_itemId);
+            _itemData = TablePacketServices.Items.GetEtcItem(_itemId);
         }
     }
 
