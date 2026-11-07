@@ -9,8 +9,8 @@ public class PassiveSkillsHide : AbstractSkills
     private SkillListWindow _skillLearn;
     private readonly string[] fillBackgroundDf =
     {
-        L2SkillLearnUiAssets.ExpandButton,
-        L2SkillLearnUiAssets.CollapseButton,
+        L2ExpandCollapseUiAssets.ExpandButton,
+        L2ExpandCollapseUiAssets.CollapseButton,
     };
     private VisualElement _passiveSkillPanel;
     private VisualTreeAsset _templateBoxPanel;
