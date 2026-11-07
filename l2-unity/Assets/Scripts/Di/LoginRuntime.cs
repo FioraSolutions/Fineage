@@ -27,7 +27,9 @@ public sealed class LoginRuntime
 #pragma warning disable CS0618 // Locator fallback until LoginLifetime fully owns CharSelectWindow
     public CharSelectWindow CharSelect { get { return Get<CharSelectWindow>() ?? CharSelectWindow.Instance; } }
 #pragma warning restore CS0618
+#pragma warning disable CS0618 // Locator fallback until LoginLifetime fully owns CharCreationWindow
     public CharCreationWindow CharCreate { get { return Get<CharCreationWindow>() ?? CharCreationWindow.Instance; } }
+#pragma warning restore CS0618
     public LoginCameraManager Camera { get { return Get<LoginCameraManager>() ?? LoginCameraManager.Instance; } }
     public CharacterSelector Selector { get { return Get<CharacterSelector>() ?? CharacterSelector.Instance; } }
     public CharacterCreator Creator { get { return Get<CharacterCreator>() ?? CharacterCreator.Instance; } }

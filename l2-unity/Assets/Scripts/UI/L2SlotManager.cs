@@ -258,7 +258,7 @@ public class L2SlotManager : L2PopupWindow
         if (sourceSlot == null || sourceSlot.Id <= 0)
             return;
 
-        PlayerShortcuts.Instance.AddShortcut(position, sourceSlot.Id, Shortcut.TYPE_SKILL, sourceSlot.Level);
+        ShortcutPacketServices.Shortcuts.AddShortcut(position, sourceSlot.Id, Shortcut.TYPE_SKILL, sourceSlot.Level);
     }
 
     private int _recipeId = -1;
@@ -503,7 +503,7 @@ public class L2SlotManager : L2PopupWindow
         int slot = _hoverSlot.Position;
         // Debug.LogWarning($"Add action ID {actionId} into skillbar slot {slot}.");
 
-        PlayerShortcuts.Instance.AddShortcut(slot, actionId, Shortcut.TYPE_ACTION , 0);
+        ShortcutPacketServices.Shortcuts.AddShortcut(slot, actionId, Shortcut.TYPE_ACTION , 0);
     }
 
     private void ChangeItemOrder()
@@ -522,7 +522,7 @@ public class L2SlotManager : L2PopupWindow
         int slot = _hoverSlot.Position;
         // Debug.LogWarning($"Add item {itemId} to skillbar slot {slot}.");
 
-        PlayerShortcuts.Instance.AddShortcut(slot, itemId, Shortcut.TYPE_ITEM, 0);
+        ShortcutPacketServices.Shortcuts.AddShortcut(slot, itemId, Shortcut.TYPE_ITEM, 0);
     }
 
 
@@ -539,14 +539,14 @@ public class L2SlotManager : L2PopupWindow
         int oldSlot = _draggedSlot.Position;
         int newSlot = _hoverSlot.Position;
         // Debug.LogWarning($"Moving skillbar shortcut from slot {oldSlot} to slot {newSlot}.");
-        PlayerShortcuts.Instance.MoveShortcut(oldSlot, newSlot);
+        ShortcutPacketServices.Shortcuts.MoveShortcut(oldSlot, newSlot);
     }
 
     private void RemoveSkillbarSlot()
     {
         int oldSlot = _draggedSlot.Position;
         // Debug.LogWarning($"Renoving skillbar shortcut from slot {oldSlot}.");
-        PlayerShortcuts.Instance.DeleteShortcut(oldSlot , true);
+        ShortcutPacketServices.Shortcuts.DeleteShortcut(oldSlot , true);
     }
 
     #endregion

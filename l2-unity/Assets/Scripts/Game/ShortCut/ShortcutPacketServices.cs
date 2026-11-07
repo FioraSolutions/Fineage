@@ -34,5 +34,9 @@ public static class ShortcutPacketServices
         _actions != null ? _actions : PlayerActions.Instance;
 
     public static PlayerShortcuts Shortcuts =>
-        _shortcuts != null ? _shortcuts : PlayerShortcuts.Instance;
+        _shortcuts != null ? _shortcuts : LegacyPlayerShortcutsInstance();
+
+#pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    static PlayerShortcuts LegacyPlayerShortcutsInstance() => PlayerShortcuts.Instance;
+#pragma warning restore CS0618
 }
