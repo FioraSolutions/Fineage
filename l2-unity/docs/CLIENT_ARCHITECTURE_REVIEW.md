@@ -3,16 +3,15 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-07)
+### Status Now (2026-11-07 night)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
-- `IncomingPacketActions` is **deleted** (#142 / PR #614). CI guard: `scripts/check-frozen-incoming-packet-actions.py`. Do not restore the file.
-- UI / apply access goes through `*PacketServices` Bind + live fallback + VContainer `[Inject]` where wired. Game HUD windows (dealer, inventory, chat, confirm dialogs, quantity, tooltips, HudCore, etc.) no longer call those window `.Instance` getters outside the services themselves (PRs **#649–#656**).
-- Non-UI manager drains continuing via the same PacketServices pattern: `MoveAllCharacters` (**#681**), login `CharacterCreator` / `CharacterSelector` (**#682**), `AnimationManager` (**#683**); camera drain in flight (**#685**).
-- Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters are `[Obsolete]`; new call sites must use `[Inject]`. ~138 `Instance` getters remain (tables, combat managers, etc.).
-- Six `Fineage.*` asmdef folders exist under `Assets/Scripts/Fineage.*`. `Fineage.Domain` already holds event-bus types; `NetPaperdoll` / `NetPaperdollSlot` move into `Fineage.Networking` (**#684**). Most gameplay scripts still compile as `Assembly-CSharp`.
-- Domain apply path is Interlude-shaped via `NetSession` (+ zone partials / `NetLobbyFlow`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply` (paperdoll: `NetPaperdollApply` + `NetPaperdoll` indexes).
-- Child issues **#137–#143** are closed on GitHub; epic **#131** stays open for remaining metrics (broader asmdef split, Instance drain, EventBus/MessagePipe depth).
+- `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
+- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (PRs through **#726**). Live leftovers are mostly PacketServices / DI / LoginRuntime legacy fallbacks; `PlayerController.Instance` remains only in comments.
+- Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
+- **Asmdef:** `Fineage.Domain` (events); `Fineage.Networking` holds engine-free Net helpers (`NetPaperdoll`, `NetDomainStructs`, `LobbyCharacter`, wire/playtest config, chat/clan/equip/enchant/npc session lines, …) and references `Fineage.Net.Contract`. `Fineage.Game` / `UI` / `Controller` / `Di` folders still stubs — gameplay MonoBehaviours remain `Assembly-CSharp`.
+- Domain apply path: `NetSession` (+ zone partials / `NetLobbyFlow`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`.
+- Epic **#131** residual: more asmdef slices (Game/UI/Controller types that are cycle-safe), NetSession B4 transport/commands split, EventBus/MessagePipe depth. Not TLS / Phase D / #129.
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
