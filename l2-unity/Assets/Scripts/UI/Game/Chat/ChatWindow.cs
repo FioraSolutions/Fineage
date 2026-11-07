@@ -192,7 +192,8 @@ public class ChatWindow : L2Window
 
     void Update()
     {
-        if (InputManager.Instance == null || !InputManager.Instance.Validate)
+        InputManager input = ControllerPacketServices.Input;
+        if (input == null || !input.Validate)
             return;
 
         if (_chatOpened)

@@ -69,7 +69,7 @@ public static class ControllerPacketServices
     public static InputManager Input =>
         _input != null
             ? _input
-            : ResolveFromGame<InputManager>() ?? InputManager.Instance;
+            : ResolveFromGame<InputManager>() ?? LegacyInputManagerInstance();
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
@@ -121,6 +121,8 @@ public static class ControllerPacketServices
     }
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    static InputManager LegacyInputManagerInstance() => InputManager.Instance;
+
     static PositionValidationController LegacyPositionValidationInstance() =>
         PositionValidationController.Instance;
 

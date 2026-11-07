@@ -42,7 +42,7 @@ public static class WorldEnterDiag
             AppendCamera(sb, cc.GetComponent<Camera>());
         }
 
-        InputManager input = InputManager.Instance;
+        InputManager input = ControllerPacketServices.Input;
         sb.Append(" Input=");
         if (input == null)
             sb.Append("null");
