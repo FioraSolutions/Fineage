@@ -14,6 +14,7 @@ Which docs agents and humans should trust.
 | [Backend docs/net-protocol.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/net-protocol.md) | Backend | **Live wire SoT** (`NetOpcode`, ports, presence, Postgres) |
 | [NET_PROTOCOL.md](NET_PROTOCOL.md) | Client | Client Net flow + `scripts/sync-net-contract.py` |
 | [ARCHITECTURE_NET.md](ARCHITECTURE_NET.md) | Client | Target scale (gateway / AOI / 20k) — design, not “already shipped” |
+| [REFACTOR_PLAN_2026-11.md](REFACTOR_PLAN_2026-11.md) | Client | Near-term harden / NetDomainMap / Zone lock plan (from 2026-11 arch reviews) |
 | [Backend docs/MOBIUS_XML_REF.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/MOBIUS_XML_REF.md) | Backend | Mobius CT0 XML → `data/` |
 | [Backend docs/mobius-parity-matrix.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/mobius-parity-matrix.md) | Backend | **Live** Mobius ↔ Fineage feature matrix (tracker [#174](https://github.com/FioraSolutions/Fineage-Backend/issues/174)) |
 | [Backend docs/combat-parity.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/combat-parity.md) | Backend | Combat checklist vs Mobius |
