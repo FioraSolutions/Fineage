@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -6,14 +7,28 @@ using UnityEngine;
 
 public class NpcgrpTable {
     private static NpcgrpTable _instance;
+
+    [Obsolete("Use [Inject] NpcgrpTable or TablePacketServices.NpcGrps instead")]
     public static NpcgrpTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<NpcgrpTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new NpcgrpTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(NpcgrpTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, Npcgrp> _npcgrps;

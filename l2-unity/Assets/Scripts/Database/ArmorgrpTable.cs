@@ -7,14 +7,28 @@ using UnityEngine;
 
 public class ArmorgrpTable {
     private static ArmorgrpTable _instance;
+
+    [Obsolete("Use [Inject] ArmorgrpTable or TablePacketServices.ArmorGrps instead")]
     public static ArmorgrpTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<ArmorgrpTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new ArmorgrpTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(ArmorgrpTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, Armorgrp> _armorgrps;

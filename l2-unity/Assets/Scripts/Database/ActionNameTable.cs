@@ -9,10 +9,22 @@ public class ActionNameTable
 {
     private static ActionNameTable _instance;
 
+    [Obsolete("Use [Inject] ActionNameTable or TablePacketServices.ActionNames instead")]
     public static ActionNameTable Instance
     {
         get
         {
+            if (_instance == null && App.HasContainer)
+            {
+                try
+                {
+                    _instance = App.Resolve<ActionNameTable>();
+                }
+                catch
+                {
+                }
+            }
+
             if (_instance == null)
             {
                 _instance = new ActionNameTable();
@@ -20,6 +32,12 @@ public class ActionNameTable
 
             return _instance;
         }
+    }
+
+    public static void Bind(ActionNameTable table)
+    {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, ActionData> _actions;

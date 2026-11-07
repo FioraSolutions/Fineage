@@ -60,12 +60,12 @@ public class SkillInstance : AbstractSkill
     }
     public string GetName()
     {
-        return SkillNameTable.Instance.GetName(SkillID, Level)?.Name ?? "";
+        return TablePacketServices.SkillNames.GetName(SkillID, Level)?.Name ?? "";
     }
 
     public string GetDescription()
     {
-        return SkillNameTable.Instance.GetName(SkillID, Level)?.Desc ?? "";
+        return TablePacketServices.SkillNames.GetName(SkillID, Level)?.Desc ?? "";
     }
 
 

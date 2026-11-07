@@ -128,7 +128,7 @@ public class Product : AbstractServerItem
     {
         if(GetTypeItem() == EnumType2.TYPE2_WEAPON)
         {
-            return WeapongrpTable.Instance.GetWeapon(_itemId).Weight;
+            return TablePacketServices.WeaponGrps.GetWeapon(_itemId).Weight;
         }
         else if (GetTypeItem() ==  EnumType2.TYPE2_ACCESSORY)
         {

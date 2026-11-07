@@ -1,18 +1,33 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 public class NpcNameTable {
     private static NpcNameTable _instance;
+
+    [Obsolete("Use [Inject] NpcNameTable or TablePacketServices.NpcNames instead")]
     public static NpcNameTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<NpcNameTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new NpcNameTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(NpcNameTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, NpcName> _npcNames;

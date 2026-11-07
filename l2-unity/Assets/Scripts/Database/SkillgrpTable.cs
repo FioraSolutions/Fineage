@@ -83,7 +83,7 @@ public class SkillgrpTable
 
     public SkillNameData GetSkillName(int id, int level)
     {
-        return SkillNameTable.Instance.GetName(id, level);
+        return TablePacketServices.SkillNames.GetName(id, level);
     }
 
   

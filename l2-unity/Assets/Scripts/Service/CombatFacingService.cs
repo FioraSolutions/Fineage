@@ -41,7 +41,7 @@ public sealed class CombatFacingService : MonoBehaviour
         {
             if (_instance != null && _instance._weaponGrps != null)
                 return _instance._weaponGrps;
-            return WeapongrpTable.Instance;
+            return TablePacketServices.WeaponGrps;
         }
     }
 

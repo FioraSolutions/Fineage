@@ -102,7 +102,7 @@ public class ItemTable
 
             Weapongrp weapongrp = kvp.Value;
             ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
-            ItemStatData itemStatData = ItemStatDataTable.Instance.GetItemStatData(kvp.Key);
+            ItemStatData itemStatData = TablePacketServices.ItemStats.GetItemStatData(kvp.Key);
 
             Weapon weapon = new Weapon(kvp.Key, itemName, itemStatData, weapongrp);
 
@@ -130,7 +130,7 @@ public class ItemTable
 
             Armorgrp armorgrp = kvp.Value;
             ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
-            ItemStatData itemStatData = ItemStatDataTable.Instance.GetItemStatData(kvp.Key);
+            ItemStatData itemStatData = TablePacketServices.ItemStats.GetItemStatData(kvp.Key);
 
             Armor armor = new Armor(kvp.Key, itemName, itemStatData, armorgrp);
             _armors.Add(kvp.Key, armor);
@@ -139,7 +139,7 @@ public class ItemTable
 
     private void CacheEtcItems()
     {
-        foreach (KeyValuePair<int, EtcItemgrp> kvp in EtcItemgrpTable.Instance.EtcItemGrps)
+        foreach (KeyValuePair<int, EtcItemgrp> kvp in TablePacketServices.EtcItemGrps.EtcItemGrps)
         {
             if (kvp.Key == 7832)
             {
@@ -153,7 +153,7 @@ public class ItemTable
 
             EtcItemgrp itemgrp = kvp.Value;
             ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
-            ItemStatData itemStatData = ItemStatDataTable.Instance.GetItemStatData(kvp.Key);
+            ItemStatData itemStatData = TablePacketServices.ItemStats.GetItemStatData(kvp.Key);
 
             EtcItem item = new EtcItem(kvp.Key, itemName, itemStatData, itemgrp);
             _etcItems.Add(kvp.Key, item);
