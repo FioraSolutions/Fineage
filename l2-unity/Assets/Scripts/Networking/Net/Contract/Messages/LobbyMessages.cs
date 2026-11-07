@@ -1,4 +1,3 @@
-#nullable enable
 namespace Fineage.Net.Contract
 {
     public sealed class AuthMsg

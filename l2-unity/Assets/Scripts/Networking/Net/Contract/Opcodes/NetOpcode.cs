@@ -169,5 +169,105 @@ namespace Fineage.Net.Contract
         public const ushort TargetUnselected = 0x0374;
         /// <summary>Client → zone: Mobius RequestDestroyItem. Body is <c>DestroyItemRequestMsg</c>.</summary>
         public const ushort DestroyItemRequest = 0x0375;
+        /// <summary>Client → zone: one boss row, or every row when the body's npc id is 0.</summary>
+        public const ushort BossStatusRequest = 0x0376;
+        /// <summary>Zone → client: the boss schedule rows (raid and grand), sorted by npc id.</summary>
+        public const ushort BossStatus = 0x0377;
+        /// <summary>Client → zone: admin boss schedule edit (dead / force spawn). Gated by FINEAGE_ZONE_ADMIN.</summary>
+        public const ushort AdminBossSchedule = 0x0378;
+        /// <summary>Client → zone: ask for one castle's siege state.</summary>
+        public const ushort SiegeListRequest = 0x0379;
+        /// <summary>Client → zone: register or withdraw from a siege.</summary>
+        public const ushort SiegeRegisterRequest = 0x037A;
+        /// <summary>Client → zone: the castle owner answers a waiting defender.</summary>
+        public const ushort SiegeDefenderAnswerRequest = 0x037B;
+        /// <summary>Client → zone: admin capture. Gated by FINEAGE_ZONE_ADMIN.</summary>
+        public const ushort AdminCaptureCastle = 0x037C;
+        /// <summary>Zone → client: the castle and its registrations, also the reply to a list request.</summary>
+        public const ushort SiegeInfo = 0x037D;
+        /// <summary>Client → zone: ask for the Olympiad sheet. Empty body.</summary>
+        public const ushort OlympiadStatusRequest = 0x037E;
+        /// <summary>Client → zone: join the classed (1) or non-classed (0) queue.</summary>
+        public const ushort OlympiadRegisterRequest = 0x037F;
+        /// <summary>Client → zone: leave the queue. Empty body.</summary>
+        public const ushort OlympiadUnregisterRequest = 0x0380;
+        /// <summary>Client → zone: leave the running match (a loss). Empty body.</summary>
+        public const ushort OlympiadLeaveRequest = 0x0381;
+        /// <summary>Client → zone: admin match report. Gated by FINEAGE_ZONE_ADMIN.</summary>
+        public const ushort AdminReportOlympiadResult = 0x0382;
+        /// <summary>Zone → client: period, standing, queue and match slot.</summary>
+        public const ushort OlympiadStatus = 0x0383;
+        /// <summary>Zone → client: the match both participants were placed in.</summary>
+        public const ushort OlympiadMatch = 0x0384;
+        /// <summary>Zone → client: one countdown step.</summary>
+        public const ushort OlympiadCountdown = 0x0385;
+        /// <summary>Zone → client: the finished match and its reward.</summary>
+        public const ushort OlympiadResult = 0x0386;
+        /// <summary>Client → zone: ask for the Seven Signs record. Empty body.</summary>
+        public const ushort SevenSignsStatusRequest = 0x0387;
+        /// <summary>Client → zone: join a cabal or hand in seal stones.</summary>
+        public const ushort SevenSignsActionRequest = 0x0388;
+        /// <summary>Zone → client: the Seven Signs record.</summary>
+        public const ushort SevenSignsStatus = 0x0389;
+        /// <summary>Zone → client: the sky tint the record implies.</summary>
+        public const ushort SevenSignsSky = 0x038A;
+        /// <summary>Client → zone: enter or leave a catacomb or necropolis.</summary>
+        public const ushort DungeonEnterRequest = 0x038B;
+        /// <summary>Zone → client: the catacomb/necropolis teleport result and the validation kick.</summary>
+        public const ushort DungeonEntered = 0x038C;
+        /// <summary>Client → zone: Mobius SetPrivateStoreListSell (open / refresh sell store).</summary>
+        public const ushort SetPrivateStoreSell = 0x038D;
+        /// <summary>Client → zone: Mobius RequestPrivateStoreQuitSell. Empty body.</summary>
+        public const ushort PrivateStoreQuit = 0x038E;
+        /// <summary>Client → zone: request another player's sell list.</summary>
+        public const ushort PrivateStoreListRequest = 0x038F;
+        /// <summary>Client → zone: Mobius RequestPrivateStoreBuy.</summary>
+        public const ushort PrivateStoreBuy = 0x0390;
+        /// <summary>Zone → client: store type + message for a pawn (knownlist / self).</summary>
+        public const ushort PrivateStoreInfo = 0x0391;
+        /// <summary>Zone → client: sell list window for the buyer.</summary>
+        public const ushort PrivateStoreListSell = 0x0392;
+        /// <summary>Client → zone: Mobius SetPrivateStoreListBuy.</summary>
+        public const ushort SetPrivateStoreBuy = 0x0393;
+        /// <summary>Client → zone: Mobius RequestPrivateStoreSell (sell into a buy store).</summary>
+        public const ushort PrivateStoreSellTo = 0x0394;
+        /// <summary>Zone → client: buy list window for a visitor.</summary>
+        public const ushort PrivateStoreListBuy = 0x0395;
+        /// <summary>Client → zone: Mobius RequestRecipeBookOpen.</summary>
+        public const ushort RecipeBookOpen = 0x0396;
+        /// <summary>Client → zone: Mobius RequestRecipeItemMakeSelf.</summary>
+        public const ushort RecipeMakeSelf = 0x0397;
+        /// <summary>Zone → client: known recipe ids for one book tab.</summary>
+        public const ushort RecipeBookList = 0x0398;
+        /// <summary>Zone → client: craft result (success / fail / materials).</summary>
+        public const ushort RecipeItemMakeInfo = 0x0399;
+        /// <summary>Client → zone: Mobius RequestRecipeShopListSet (open manufacture).</summary>
+        public const ushort SetRecipeShop = 0x039A;
+        /// <summary>Client → zone: Mobius RequestRecipeShopMakeInfo.</summary>
+        public const ushort RecipeShopMakeInfo = 0x039B;
+        /// <summary>Client → zone: Mobius RequestRecipeShopMakeItem.</summary>
+        public const ushort RecipeShopMakeItem = 0x039C;
+        /// <summary>Zone → client: manufacture recipe list for a visitor.</summary>
+        public const ushort RecipeShopSellList = 0x039D;
+        /// <summary>Zone → client: manufacturer MP + recipe after make-info / make-item.</summary>
+        public const ushort RecipeShopItemInfo = 0x039E;
+        /// <summary>Client → zone: Mobius RequestFriendInvite.</summary>
+        public const ushort FriendInvite = 0x039F;
+        /// <summary>Client → zone: Mobius RequestAnswerFriendInvite.</summary>
+        public const ushort FriendAnswer = 0x03A0;
+        /// <summary>Client → zone: Mobius RequestFriendList.</summary>
+        public const ushort FriendListRequest = 0x03A1;
+        /// <summary>Client → zone: Mobius RequestFriendDel.</summary>
+        public const ushort FriendDelete = 0x03A2;
+        /// <summary>Client → zone: Mobius RequestBlock.</summary>
+        public const ushort BlockRequest = 0x03A3;
+        /// <summary>Zone → client: friend invite prompt (Mobius FriendAddRequest).</summary>
+        public const ushort FriendInviteAsk = 0x03A4;
+        /// <summary>Zone → client: full friend list.</summary>
+        public const ushort FriendList = 0x03A5;
+        /// <summary>Zone → client: add/remove/online friend row (Mobius FriendPacket).</summary>
+        public const ushort FriendUpdate = 0x03A6;
+        /// <summary>Zone → client: block list (+ block-all flag).</summary>
+        public const ushort BlockList = 0x03A7;
     }
 }
