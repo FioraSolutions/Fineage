@@ -99,12 +99,12 @@ public class HitManager : MonoBehaviour
 
     private void TrySubscribeProjectileHits()
     {
-        if (_projectileHitSubscribed || ProjectileManager.Instance == null)
+        if (_projectileHitSubscribed || ProjectilePacketServices.Projectiles == null)
         {
             return;
         }
 
-        ProjectileManager.Instance.OnHitMonster += OnProjectileHitMonster;
+        ProjectilePacketServices.Projectiles.OnHitMonster += OnProjectileHitMonster;
         _projectileHitSubscribed = true;
     }
 
@@ -115,9 +115,9 @@ public class HitManager : MonoBehaviour
             return;
         }
 
-        if (ProjectileManager.Instance != null)
+        if (ProjectilePacketServices.Projectiles != null)
         {
-            ProjectileManager.Instance.OnHitMonster -= OnProjectileHitMonster;
+            ProjectilePacketServices.Projectiles.OnHitMonster -= OnProjectileHitMonster;
         }
 
         _projectileHitSubscribed = false;
