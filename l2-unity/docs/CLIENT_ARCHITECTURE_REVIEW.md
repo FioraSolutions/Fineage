@@ -167,7 +167,7 @@ Nearly every file has 5-20 commented-out `Debug.Log` calls. This clutters diffs 
 
 #### P3-3: Inconsistent naming
 
-`EffectSkillsmanager` (lowercase 'm'), `AnimLeghtTable` (typo for 'Length'), `InventoryPapderDoll` (typo for 'Paperdoll'). Low priority but confusing.
+`AnimLeghtTable` (typo for 'Length'), `InventoryPapderDoll` (typo for 'Paperdoll'). Low priority but confusing. (Stale `EffectSkillsmanager` name removed — class never existed on current tree.)
 
 ---
 
