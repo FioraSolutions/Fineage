@@ -10,7 +10,7 @@ public static class PartyMemberListApplyIncomingPacketServices
         Queue(() =>
         {
             PartyPacketServices.ApplyMemberList(list);
-            string summary = NetSocialMap.FormatPartyMemberList(list);
+            string summary = PartyApplyService.FormatPartyMemberList(list);
             Debug.Log("[Party] " + summary);
             ChatTypeData data = ChatTypes.GetById(0);
             if (data != null)
