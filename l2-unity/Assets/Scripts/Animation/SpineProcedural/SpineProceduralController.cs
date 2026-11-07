@@ -7,17 +7,37 @@ public class SpineProceduralController : MonoBehaviour
     private List<Transform> _bonesToRemove = new();
     public float fadeSpeed = 10f; // Скорость затухания (чем выше, тем быстрее вернется)
 
-    public static SpineProceduralController Instance { get; private set; }
+    private static SpineProceduralController _instance;
+
+    [System.Obsolete("Use [Inject] instead")]
+    public static SpineProceduralController Instance => _instance;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        _instance = this;
+        WireSpineProceduralPacketServices();
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
+    }
+
+    private void Start()
+    {
+        WireSpineProceduralPacketServices();
+    }
+
+    private void WireSpineProceduralPacketServices()
+    {
+        SpineProceduralPacketServices.Bind(controller: this);
     }
 
     public void SetBoneMod(Transform bone, BoneModification mod)
