@@ -409,7 +409,8 @@ public class CharacterSelector : MonoBehaviour
             return;
 
         // CharSelectWindow marks layout spacers Ignore; real chrome stays pickable.
-        if (L2LoginUI.Instance != null && L2LoginUI.Instance.IsPointerOverPanel())
+        L2LoginUI loginUi = LoginPacketServices.Ui;
+        if (loginUi != null && loginUi.IsPointerOverPanel())
             return;
 
         Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);

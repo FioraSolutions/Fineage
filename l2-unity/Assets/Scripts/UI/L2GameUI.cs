@@ -65,7 +65,7 @@ public class L2GameUI : L2UI
     {
         base.LoadUI();
 
-        if (L2LoginUI.Instance != null)
+        if (LobbyUiPacketServices.LoginUi != null)
         {
             StartLoading();
         }

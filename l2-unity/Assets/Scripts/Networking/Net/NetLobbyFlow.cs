@@ -277,8 +277,9 @@ public sealed class NetLobbyFlow
             selector.SetLobbyCharacters(characters, 0);
         if (LoginPacketServices.CharSelect != null)
             LoginPacketServices.CharSelect.SelectLobbySlot(LobbyCharacterMap.PreferredIndex(characters, 0));
-        if (LoginWindow.Instance != null)
-            LoginWindow.Instance.ShowErrorText("");
+        LoginWindow loginWindow = LoginPacketServices.LoginWindow;
+        if (loginWindow != null)
+            loginWindow.ShowErrorText("");
         GameManager manager = NetworkingPacketServices.Manager ?? GamePacketServices.Manager;
         if (manager != null)
             manager.OnAuthAllowed();

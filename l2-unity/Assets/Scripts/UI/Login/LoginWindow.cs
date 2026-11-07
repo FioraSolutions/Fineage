@@ -25,6 +25,7 @@ public class LoginWindow : L2Window
     private bool _loginBusy;
 
     private static LoginWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.LoginWindow instead")]
     public static LoginWindow Instance { get { return _instance; } }
 
     private void Awake() {

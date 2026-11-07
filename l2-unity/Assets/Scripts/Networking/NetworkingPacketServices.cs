@@ -64,7 +64,7 @@ public static class NetworkingPacketServices
     public static LoginWindow LoginWindow =>
         _loginWindow != null
             ? _loginWindow
-            : ResolveFromApp<LoginWindow>() ?? LoginWindow.Instance;
+            : ResolveFromApp<LoginWindow>() ?? LegacyLoginWindowInstance();
 
     public static void ApplyWorld(Action<WorldPacketApply> apply)
     {
@@ -155,4 +155,8 @@ public static class NetworkingPacketServices
             return null;
         }
     }
+
+#pragma warning disable CS0618 // Locator fallback until all call sites use LoginPacketServices
+    static LoginWindow LegacyLoginWindowInstance() => LoginWindow.Instance;
+#pragma warning restore CS0618
 }
