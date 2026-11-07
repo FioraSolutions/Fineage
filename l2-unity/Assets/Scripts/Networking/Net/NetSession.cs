@@ -1086,6 +1086,11 @@ public sealed class NetSession : MonoBehaviour
         dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
         dto.Status.SetMp(100);
         dto.Stats.MaxMp = 100;
+        if (spawn.PAtkSpd > 0)
+        {
+            dto.Stats.PAtkSpd = spawn.PAtkSpd;
+            dto.Stats.PAtkRealSpeed = spawn.PAtkSpd;
+        }
         // Paperdoll is what makes peers visible in gear: without it every other player spawns
         // undressed while the wearer sees their own kit (UserInfo path).
         if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)
@@ -1113,9 +1118,9 @@ public sealed class NetSession : MonoBehaviour
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         dto.Stats.MaxHp = maxHp;
         dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
-        const int defaultPAtkSpd = 253;
-        dto.Stats.PAtkSpd = defaultPAtkSpd;
-        dto.Stats.PAtkRealSpeed = defaultPAtkSpd;
+        int pAtkSpd = spawn.PAtkSpd > 0 ? spawn.PAtkSpd : 253;
+        dto.Stats.PAtkSpd = pAtkSpd;
+        dto.Stats.PAtkRealSpeed = pAtkSpd;
         float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
         float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
         dto.Stats.BaseRunSpeed = Mathf.RoundToInt(run);
