@@ -51,6 +51,11 @@ FILES = (
     "Messages/SessionMessages.cs",
     "Messages/LobbyMessages.cs",
     "Messages/WorldMessages.cs",
+    "Messages/BossMessages.cs",
+    "Messages/SiegeMessages.cs",
+    "Messages/OlympiadMessages.cs",
+    "Messages/DungeonMessages.cs",
+    "Messages/SevenSignsMessages.cs",
     "Codec/NetCodec.cs",
     "Modules/IDomainModule.cs",
 )
