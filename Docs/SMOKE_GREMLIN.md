@@ -27,6 +27,14 @@ Child feature tickets: #130 datapack, #132 spawn, #133 starter equip, #134 death
 5. Target Gremlin, melee until death (or die to it) → use revive-to-village → land near TI restart.
 6. Chat say shows in the log **and** briefly above the head (#521).
 
+## Admin GM shop (Mobius HTML, KuK only)
+
+Zone must run with `FINEAGE_ZONE_ADMIN=1`. Character name must be in `data/admin-characters.json` (default **KuK**).
+
+1. Chat `//gmshop` → Mobius `gmshops.htm` (same window as NPC HTML).
+2. Jewels → Boss Jewels → buy RB jewelry (buylist `9917`, price 0).
+3. Also: `//setlevel 80`, `//setclass <id>`, `//give <itemId> [count]`, `//buff` / `//buff_clear`.
+
 ## Related landings (combat playtest)
 
 - #522 HP bar / freeze / mage SFX — closed on `dev` (#616–#618, Backend #249)

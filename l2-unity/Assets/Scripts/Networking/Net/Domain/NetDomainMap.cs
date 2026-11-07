@@ -394,13 +394,29 @@ public static class NetDomainMap
         Armor armor = table.GetArmor(itemId);
         if (armor != null && armor.Armorgrp != null)
         {
-            category = ItemCategory.ShieldArmor;
             slot = armor.Armorgrp.BodyPart;
+            // Rings/earrings/necklaces live in armorgrp but tooltips use Jewel/ACCESSORY, not armor.
+            category = IsJewelItemSlot(slot) ? ItemCategory.Jewel : ItemCategory.ShieldArmor;
             return;
         }
 
         if (table.GetEtcItem(itemId) != null)
             category = itemId == 57 ? ItemCategory.Adena : ItemCategory.Item;
+    }
+
+    static bool IsJewelItemSlot(ItemSlot slot)
+    {
+        switch (slot)
+        {
+            case ItemSlot.neck:
+            case ItemSlot.lear:
+            case ItemSlot.rear:
+            case ItemSlot.lfinger:
+            case ItemSlot.rfinger:
+                return true;
+            default:
+                return false;
+        }
     }
 
     static ItemCategory CategoryFromZone(NetItemEntry row)

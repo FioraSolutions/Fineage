@@ -156,7 +156,9 @@ public static class NetNpcWindows
             {
                 NetBuyItem row = list.Items[i];
                 int count = row.Count < 0 ? 10000 : row.Count;
-                products.Add(new Product(0, 0, count, (int)EnumType2.TYPE2_OTHER, 0, 0, 0, row.Price, row.ItemId));
+                // Net BuyList carries itemId/price only — TYPE2 must come from local weapongrp/armorgrp
+                // (hardcoding OTHER made RB jewels hit EtcItem tooltip → NRE).
+                products.Add(new Product(0, 0, count, Type2FromItemId(row.ItemId), 0, 0, 0, row.Price, row.ItemId));
             }
         }
 
@@ -202,8 +204,9 @@ public static class NetNpcWindows
                 for (int p = 0; p < entry.Products.Length; p++)
                 {
                     NetMultiPart part = entry.Products[p];
+                    int type2 = Type2FromItemId(part.ItemId);
                     var item = new ItemInstance(0, part.ItemId, ItemLocation.Trade, products.Count, part.Count,
-                        ItemsType.ParceCategory((int)EnumType2.TYPE2_OTHER), false, ItemSlot.none, part.EnchantLevel, 9999);
+                        ItemsType.ParceCategory(type2), false, ItemSlot.none, part.EnchantLevel, 9999);
                     made.Add(item);
                     products.Add(item);
                 }
@@ -215,7 +218,7 @@ public static class NetNpcWindows
                 for (int g = 0; g < entry.Ingredients.Length; g++)
                 {
                     NetMultiPart part = entry.Ingredients[g];
-                    ingredients.Add(new Ingredient(part.ItemId, (int)EnumType2.TYPE2_OTHER, part.Count, part.EnchantLevel));
+                    ingredients.Add(new Ingredient(part.ItemId, Type2FromItemId(part.ItemId), part.Count, part.EnchantLevel));
                 }
             }
 
@@ -287,7 +290,7 @@ public static class NetNpcWindows
         for (int i = 0; i < items.Length; i++)
         {
             NetSellItem row = items[i];
-            products.Add(new Product(0, row.ObjectId, row.Count, (int)EnumType2.TYPE2_OTHER, 0, 0, row.EnchantLevel, row.Price, row.ItemId));
+            products.Add(new Product(0, row.ObjectId, row.Count, Type2FromItemId(row.ItemId), 0, 0, row.EnchantLevel, row.Price, row.ItemId));
         }
 
         return products;
@@ -303,10 +306,47 @@ public static class NetNpcWindows
             NetItemEntry row = items[i];
             if (row.EquippedSlot >= 0)
                 continue;
-            products.Add(new Product(0, row.ObjectId, row.Count, (int)EnumType2.TYPE2_OTHER, 0, 0, row.EnchantLevel, 0, row.ItemId));
+            products.Add(new Product(0, row.ObjectId, row.Count, Type2FromItemId(row.ItemId), 0, 0, row.EnchantLevel, 0, row.ItemId));
         }
 
         return products;
+    }
+
+    /// <summary>
+    /// Interlude TYPE2 from client grp tables (BuyList/SellList/warehouse rows have no type on the wire).
+    /// </summary>
+    static int Type2FromItemId(int itemId)
+    {
+        if (itemId == 57)
+            return (int)EnumType2.TYPE2_MONEY;
+
+        if (WeapongrpTable.Instance != null && WeapongrpTable.Instance.GetWeapon(itemId) != null)
+            return (int)EnumType2.TYPE2_WEAPON;
+
+        Armorgrp armor = ArmorgrpTable.Instance != null ? ArmorgrpTable.Instance.GetArmor(itemId) : null;
+        if (armor != null)
+        {
+            if (IsJewelSlot(armor.BodyPart))
+                return (int)EnumType2.TYPE2_ACCESSORY;
+            return (int)EnumType2.TYPE2_SHIELD_ARMOR;
+        }
+
+        return (int)EnumType2.TYPE2_OTHER;
+    }
+
+    static bool IsJewelSlot(ItemSlot slot)
+    {
+        switch (slot)
+        {
+            case ItemSlot.neck:
+            case ItemSlot.lear:
+            case ItemSlot.rear:
+            case ItemSlot.lfinger:
+            case ItemSlot.rfinger:
+                return true;
+            default:
+                return false;
+        }
     }
 }
 
