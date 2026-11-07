@@ -9,19 +9,19 @@ public static class L2SlotIconView
 {
     public static void SetItemIcon(VisualElement target, int itemId)
     {
-        if (target == null || IconManager.Instance == null)
+        if (target == null || IconPacketServices.Icons == null)
             return;
 
-        target.style.backgroundImage = new StyleBackground(IconManager.Instance.GetIcon(itemId));
+        target.style.backgroundImage = new StyleBackground(IconPacketServices.Icons.GetIcon(itemId));
     }
 
     public static void SetItemIconAtIndex(VisualElement target, int itemId, int iconIndex)
     {
-        if (target == null || IconManager.Instance == null)
+        if (target == null || IconPacketServices.Icons == null)
             return;
 
         target.style.backgroundImage = new StyleBackground(
-            IconManager.Instance.GetOtherIcon(itemId, iconIndex));
+            IconPacketServices.Icons.GetOtherIcon(itemId, iconIndex));
     }
 
     /// <summary>Icon atlas entry (skills, actions, item icon names).</summary>
@@ -36,10 +36,10 @@ public static class L2SlotIconView
 
     public static bool TrySetNamedIcon(VisualElement target, string iconName)
     {
-        if (target == null || IconManager.Instance == null || string.IsNullOrEmpty(iconName))
+        if (target == null || IconPacketServices.Icons == null || string.IsNullOrEmpty(iconName))
             return false;
 
-        Texture2D icon = IconManager.Instance.LoadTextureByName(iconName);
+        Texture2D icon = IconPacketServices.Icons.LoadTextureByName(iconName);
         if (icon == null)
             return false;
 
@@ -53,8 +53,8 @@ public static class L2SlotIconView
         if (string.IsNullOrEmpty(resourcesPath))
             return null;
 
-        return IconManager.Instance != null
-            ? IconManager.Instance.LoadTextureOtherSources(resourcesPath)
+        return IconPacketServices.Icons != null
+            ? IconPacketServices.Icons.LoadTextureOtherSources(resourcesPath)
             : Resources.Load<Texture2D>(resourcesPath);
     }
 
@@ -85,11 +85,11 @@ public static class L2SlotIconView
 
     public static void SetEmptyInventoryBackground(VisualElement target)
     {
-        if (target == null || IconManager.Instance == null)
+        if (target == null || IconPacketServices.Icons == null)
             return;
 
         target.style.backgroundImage = new StyleBackground(
-            IconManager.Instance.GetInvetoryDefaultBackground());
+            IconPacketServices.Icons.GetInvetoryDefaultBackground());
     }
 
     /// <summary>

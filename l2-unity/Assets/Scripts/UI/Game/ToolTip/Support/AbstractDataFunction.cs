@@ -48,7 +48,7 @@ public abstract class AbstractDataFunction
 
     protected void AddItemIconIfPresent(VisualElement groupElement, VisualElement icon, int itemId)
     {
-        if (groupElement == null || icon == null || IconManager.Instance == null)
+        if (groupElement == null || icon == null || IconPacketServices.Icons == null)
         {
             if (groupElement != null)
                 groupElement.style.display = DisplayStyle.None;

@@ -110,7 +110,7 @@ public class EquipGear : AbstractEquip
 
     public void FullArmor(ItemInstance item)
     {
-        //Texture2D textures = IconManager.Instance.GetOtherIcon(item.ItemId, 2);
+        //Texture2D textures = IconPacketServices.Icons.GetOtherIcon(item.ItemId, 2);
         AddGearSlotAssignByIndexIcon(ItemSlot.chest, item , 0);
         AddGearSlotAssignByIndexIconAlpha(ItemSlot.legs, item , 2);
     }

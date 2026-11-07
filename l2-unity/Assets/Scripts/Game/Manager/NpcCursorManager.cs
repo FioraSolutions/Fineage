@@ -32,10 +32,10 @@ public class NpcCursorManager : MonoBehaviour
     void Start()
     {
         WireManagerInteractionPacketServices();
-        _defaultCursor = IconManager.Instance.LoadCursorByName("Default");
-        _hoverCursorAtk = IconManager.Instance.LoadCursorByName("Attack");
-        _hoverCursorTalk = IconManager.Instance.LoadCursorByName("Talk");
-        _hoverCursorPickup = IconManager.Instance.LoadCursorByName("Pickup");
+        _defaultCursor = IconPacketServices.Icons.LoadCursorByName("Default");
+        _hoverCursorAtk = IconPacketServices.Icons.LoadCursorByName("Attack");
+        _hoverCursorTalk = IconPacketServices.Icons.LoadCursorByName("Talk");
+        _hoverCursorPickup = IconPacketServices.Icons.LoadCursorByName("Pickup");
         _entityMask = LayerMask.GetMask("EntityClick");
         _currentCursor = -1;
     }

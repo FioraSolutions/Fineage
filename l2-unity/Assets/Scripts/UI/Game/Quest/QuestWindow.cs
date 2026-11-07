@@ -250,7 +250,7 @@ public class QuestWindow : L2TwoPanels
         if (_labelAutoNotify != null && _imageBoxAutoNotify != null)
         {
             _isAutoNotifyCheckeNotify = !_isAutoNotifyCheckeNotify;
-            var texture = _isAutoNotifyCheckeNotify ? IconManager.Instance.GetCheckedCheckBoxTexture() : IconManager.Instance.GetUncheckedCheckBoxTexture();
+            var texture = _isAutoNotifyCheckeNotify ? IconPacketServices.Icons.GetCheckedCheckBoxTexture() : IconPacketServices.Icons.GetUncheckedCheckBoxTexture();
             _imageBoxAutoNotify.style.backgroundImage = new StyleBackground(texture);
         }
     }
@@ -260,7 +260,7 @@ public class QuestWindow : L2TwoPanels
         if (_labelTracking != null && _imageBoxTracking != null)
         {
             _isAutoNotifyCheckedTracking = !_isAutoNotifyCheckedTracking;
-            var texture = _isAutoNotifyCheckedTracking ? IconManager.Instance.GetCheckedCheckBoxTexture() : IconManager.Instance.GetUncheckedCheckBoxTexture();
+            var texture = _isAutoNotifyCheckedTracking ? IconPacketServices.Icons.GetCheckedCheckBoxTexture() : IconPacketServices.Icons.GetUncheckedCheckBoxTexture();
             _imageBoxTracking.style.backgroundImage = new StyleBackground(texture);
         }
     }
