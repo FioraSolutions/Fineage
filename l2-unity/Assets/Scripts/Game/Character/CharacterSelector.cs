@@ -21,14 +21,7 @@ public class CharacterSelector : MonoBehaviour
 
     [Inject] private LogongrpTable _logonGrps;
 
-    private List<Logongrp> LogonGrps
-    {
-        get
-        {
-            LogongrpTable table = _logonGrps != null ? _logonGrps : LogongrpTable.Instance;
-            return table.LogonGrps;
-        }
-    }
+    private List<Logongrp> LogonGrps => TablePacketServices.LogonGrps.LogonGrps;
 
     public Camera Camera { get { return _charSelectCamera; } set { _charSelectCamera = value; } }
     public int SelectedSlot { get { return _selectedCharacterSlot; } }
@@ -62,6 +55,7 @@ public class CharacterSelector : MonoBehaviour
     private void WireCharacterPacketServices()
     {
         CharacterPacketServices.Bind();
+        TablePacketServices.Bind(logonGrps: _logonGrps);
     }
 
     public void SetCharacterList(List<CharSelectionInfoPackage> characters) {
