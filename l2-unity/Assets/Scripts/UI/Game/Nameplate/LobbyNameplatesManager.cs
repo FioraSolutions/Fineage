@@ -246,8 +246,23 @@ public class LobbyNameplatesManager : MonoBehaviour
 
     private Vector3 GetHeadWorldPos(Transform target, CharSelectInfoPackage info)
     {
-        // Char-select has no CollisionHeight on Appearance yet — same default as world.
         _ = info;
+        if (target != null)
+        {
+            Transform[] all = target.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < all.Length; i++)
+            {
+                Transform t = all[i];
+                if (t == null || string.IsNullOrEmpty(t.name))
+                    continue;
+                if (t.name.Equals("Bip01_head", System.StringComparison.OrdinalIgnoreCase)
+                    || t.name.Equals("Bip01 Head", System.StringComparison.OrdinalIgnoreCase)
+                    || t.name.Equals("Bip01_Head", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return t.position + Vector3.up * (0.12f + _headHeightOffset);
+                }
+            }
+        }
         return L2NameplateAnchor.GetHeadWorldPos(
             target, L2NameplateAnchor.DefaultCollisionHeightMeters, _headHeightOffset);
     }

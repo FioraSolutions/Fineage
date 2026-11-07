@@ -142,7 +142,11 @@ public abstract class AbstractServerItem
     public bool IsArrow() => WeaponTypeParser.Parse(EtcItemgrpTable.Instance.GetEtcItem(itemId)?.EtcItemType) == WeaponType.arrow;
 
 
-    public bool IsDual() => WeapongrpTable.Instance.GetWeapon(itemId)?.WeaponType == WeaponType.dual;
+    public bool IsDual()
+    {
+        WeaponType t = WeapongrpTable.Instance.GetWeapon(itemId)?.WeaponType ?? WeaponType.none;
+        return t == WeaponType.dual || t == WeaponType.dualfist || t == WeaponType.fist;
+    }
 
     public string GetDescription()
     {

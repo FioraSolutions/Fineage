@@ -154,20 +154,34 @@ public abstract class AbstractGetCache
 
         string folder = parts[0];
         string file = parts[1];
-        string[] candidates =
+        // Dat packs say LineageNPCsTex; on-disk folder is LineageNpcsTex (mac is
+        // case-insensitive, Linux CI is not).
+        string[] folders =
         {
-            $"Data/SysTextures/{folder}/Materials/{file}",
-            $"Data/SysTextures/{folder}/Materials/{folder}.{file}",
-            $"Data/SysTextures/{folder}/Materials/{texture}"
+            folder,
+            folder.Replace("NPCs", "Npcs"),
+            folder.Replace("Npcs", "NPCs")
         };
-
-        for (int i = 0; i < candidates.Length; i++)
+        for (int f = 0; f < folders.Length; f++)
         {
-            Material material = Resources.Load<Material>(candidates[i]);
-            if (material != null)
+            string fold = folders[f];
+            if (string.IsNullOrEmpty(fold))
+                continue;
+            string[] candidates =
             {
-                // Debug.Log($"Successfully loaded armor material at {candidates[i]}");
-                return material;
+                $"Data/SysTextures/{fold}/Materials/{file}",
+                $"Data/SysTextures/{fold}/Materials/{fold}.{file}",
+                $"Data/SysTextures/{fold}/Materials/{texture}",
+                // Fresh NPC imports often drop .mat next to the TGA, not under Materials/.
+                $"Data/SysTextures/{fold}/{file}",
+                $"Data/SysTextures/{fold}/{texture}"
+            };
+
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                Material material = Resources.Load<Material>(candidates[i]);
+                if (material != null)
+                    return material;
             }
         }
 
@@ -423,6 +437,17 @@ public abstract class AbstractGetCache
         SkinnedMeshRenderer fallback = null;
         int fallbackSlots = -1;
         bool assigned = false;
+        int emptyCount = 0;
+        for (int r = 0; r < renderers.Length; r++)
+        {
+            if (renderers[r] == null)
+                continue;
+            int slots = renderers[r].sharedMaterials != null ? renderers[r].sharedMaterials.Length : 0;
+            if (slots == 0)
+                emptyCount++;
+        }
+
+        int filledEmpty = 0;
         for (int r = 0; r < renderers.Length; r++)
         {
             SkinnedMeshRenderer renderer = renderers[r];
@@ -434,6 +459,24 @@ public abstract class AbstractGetCache
                 fallback = renderer;
                 fallbackSlots = slotCount;
             }
+            // Fresh PSK→FBX imports often arrive with zero material slots
+            // (materialImportMode=None). One mesh → dump the full npcgrp set;
+            // several empty SMRs → one texture each in order.
+            if (slotCount == 0)
+            {
+                if (emptyCount <= 1)
+                    renderer.sharedMaterials = materials;
+                else if (filledEmpty < materials.Length && materials[filledEmpty] != null)
+                {
+                    renderer.sharedMaterial = materials[filledEmpty];
+                    filledEmpty++;
+                }
+                else
+                    continue;
+                renderer.enabled = true;
+                assigned = true;
+                continue;
+            }
             if (slotCount >= materials.Length && ApplyNpcMaterials(renderer, materials))
                 assigned = true;
         }
@@ -444,9 +487,16 @@ public abstract class AbstractGetCache
 
     static bool ApplyNpcMaterials(SkinnedMeshRenderer renderer, Material[] materials)
     {
-        Material[] slots = renderer.sharedMaterials;
-        if (slots == null || slots.Length == 0 || materials == null || materials.Length == 0)
+        if (renderer == null || materials == null || materials.Length == 0)
             return false;
+
+        Material[] slots = renderer.sharedMaterials;
+        if (slots == null || slots.Length == 0)
+        {
+            renderer.sharedMaterials = materials;
+            renderer.enabled = true;
+            return true;
+        }
 
         int count = slots.Length < materials.Length ? slots.Length : materials.Length;
         Material[] next = new Material[slots.Length];

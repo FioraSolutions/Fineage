@@ -10,7 +10,7 @@ public class DataContainer {
     public Brush[] data;
 }
 
-public class L2JSONBrushImporter : AssetImporter {
+public class L2JSONBrushImporter : L2TerrainAssetImporter {
 
     [MenuItem("Shnok/[Brush] Import Textures")]
     static void ImportBrushTextures() {

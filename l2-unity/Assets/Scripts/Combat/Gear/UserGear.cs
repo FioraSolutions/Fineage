@@ -1,12 +1,12 @@
-﻿using NUnit.Framework;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 using static ModelTable;
 
 public class UserGear : Gear
 {
+    const string ModelChildName = "model";
+
     protected SkinnedMeshSync _skinnedMeshSync;
     [Header("Armors")]
     [Header("Meta")]
@@ -17,17 +17,16 @@ public class UserGear : Gear
     [System.NonSerialized] public GameObject Hair1;
     [System.NonSerialized] public GameObject Hair2;
     [System.NonSerialized] public GameObject Face;
-    
+
     private CharacterArmorDresser _armorDresser;
-    
-    public override void Initialize(int ownderId, CharacterRaceAnimation raceId) {
+
+    public override void Initialize(int ownderId, CharacterRaceAnimation raceId)
+    {
         base.Initialize(ownderId, raceId);
 
-        if(this is PlayerGear) {
-            _container = this.gameObject;
-        } else {
-            _container = transform.GetChild(0).gameObject;
-        }
+        // Prefer the `model` child (lobby pawns / rebuilt race prefabs). Never parent gear
+        // under the anim root itself — that hides SMRs from SkinnedMeshSync sibling scan.
+        _container = ResolveGearContainer();
 
         if (_armorDresser == null)
         {
@@ -37,7 +36,26 @@ public class UserGear : Gear
             _armorDresser.OnAddSyncMash += OnAddSyncMesh;
             _armorDresser.OnEquipArmor += OnEquipArmor;
         }
-        _skinnedMeshSync = _container.GetComponentInChildren<SkinnedMeshSync>();
+
+        // Anim + SkinnedMeshSync sit under model; resolve from the pawn root.
+        _skinnedMeshSync = GetComponentInChildren<SkinnedMeshSync>(true);
+    }
+
+    GameObject ResolveGearContainer()
+    {
+        Transform model = transform.Find(ModelChildName);
+        if (model != null)
+            return model.gameObject;
+
+        return gameObject;
+    }
+
+    /// <summary>Final bone remap after paperdoll equip (lobby + world).</summary>
+    public void SyncSkinnedMeshes()
+    {
+        if (_skinnedMeshSync == null)
+            _skinnedMeshSync = GetComponentInChildren<SkinnedMeshSync>(true);
+        _skinnedMeshSync?.SyncMesh();
     }
 
     public void UnequipArmor(int itemId, ItemSlot slot)
@@ -57,8 +75,15 @@ public class UserGear : Gear
         Armor armor = ItemTable.Instance.GetArmor(itemId);
         if (armor == null)
         {
-            // GearFlowLog.Warn("EquipArmor abort not in ItemTable id=" + itemId + " askedSlot=" + slot);
-            // Debug.LogWarning($"Can't find armor {itemId} in ItemTable");
+            // Unknown paperdoll id (e.g. starter kit piece not in client table): fall back to naked
+            // for that slot so races don't spawn as gingerbread (head/gloves/boots only).
+            if (itemId != 0)
+            {
+                Debug.LogWarning("[UserGear] EquipArmor missing ItemTable id=" + itemId +
+                    " slot=" + slot + " race=" + _raceId + " — using naked default");
+                GetDefaultGoWithArmorModel(slot, out Armor[] defaultArmor, out GameObject[] listArmorPiece, (int)_raceId);
+                _armorDresser.EquipDefaultSlot(slot, defaultArmor, listArmorPiece);
+            }
             return;
         }
 
@@ -288,7 +313,7 @@ public class UserGear : Gear
         if (Hair2 != null)
             Hair2.transform.SetParent(tr, false);
 
-        _skinnedMeshSync.SyncMesh();
+        _skinnedMeshSync?.SyncMesh();
     }
 
     public void EquipFace(GameObject facePiece)
@@ -302,7 +327,7 @@ public class UserGear : Gear
         Face = facePiece;
         Face.transform.SetParent(tr, false);
 
-       _skinnedMeshSync.SyncMesh();
+       _skinnedMeshSync?.SyncMesh();
     }
 
     public void OnDestroyGameObject(GameObject go)

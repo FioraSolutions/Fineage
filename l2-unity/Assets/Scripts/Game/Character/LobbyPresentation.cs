@@ -9,10 +9,13 @@ using UnityEngine.SceneManagement;
 public static class LobbyPresentation
 {
     public const string LayerName = "CharSelect";
+    public const string ClickLayerName = "EntityClick";
     public const string RootName = "LobbyPresentationRoot";
+    public const string ClickAreaName = "click_area";
     const string MenuSceneName = "Menu";
 
     static int _layer = int.MinValue;
+    static int _clickLayer = int.MinValue;
     static Transform _root;
 
     public static int Layer
@@ -22,6 +25,16 @@ public static class LobbyPresentation
             if (_layer == int.MinValue)
                 _layer = LayerMask.NameToLayer(LayerName);
             return _layer;
+        }
+    }
+
+    static int ClickLayer
+    {
+        get
+        {
+            if (_clickLayer == int.MinValue)
+                _clickLayer = LayerMask.NameToLayer(ClickLayerName);
+            return _clickLayer;
         }
     }
 
@@ -67,7 +80,6 @@ public static class LobbyPresentation
 
         presentationRoot.transform.SetParent(GetOrCreateRoot(), true);
         ApplyLayer(presentationRoot);
-        // Child inherits parent scene; still pin explicitly if parent was wrong.
         EnsureInMenuScene(GetOrCreateRoot().gameObject);
     }
 
@@ -82,7 +94,7 @@ public static class LobbyPresentation
         int layer = Layer;
         if (root == null || layer < 0)
             return;
-        SetLayerRecursively(root.transform, layer);
+        ApplyLayersRecursive(root.transform, layer, ClickLayer);
     }
 
     public static void EnsureCameraSeesLobby(Camera cam)
@@ -106,19 +118,29 @@ public static class LobbyPresentation
 
     static Transform ResolveLobbyTransform()
     {
-        // CharacterCreator lives on the Menu Lobby object.
         CharacterCreator creator = CharacterCreator.Instance;
         return creator != null ? creator.transform : null;
     }
 
-    static void SetLayerRecursively(Transform root, int layer)
+    /// <summary>
+    /// Paint CharSelect on the pawn tree, but keep <c>click_area</c> on EntityClick
+    /// (CharacterSelector raycasts only that layer) and ensure its collider is on.
+    /// </summary>
+    static void ApplyLayersRecursive(Transform node, int charSelectLayer, int entityClickLayer)
     {
-        // Keep EntityClick click_area: CharacterSelector raycasts only that layer; repainting it to
-        // CharSelect made every lobby click hit=none.
-        int click = LayerMask.NameToLayer("EntityClick");
-        if (click < 0 || root.gameObject.layer != click)
-            root.gameObject.layer = layer;
-        for (int i = 0; i < root.childCount; i++)
-            SetLayerRecursively(root.GetChild(i), layer);
+        if (node.name == ClickAreaName && entityClickLayer >= 0)
+        {
+            node.gameObject.layer = entityClickLayer;
+            MeshCollider col = node.GetComponent<MeshCollider>();
+            if (col != null)
+                col.enabled = true;
+        }
+        else if (entityClickLayer < 0 || node.gameObject.layer != entityClickLayer)
+        {
+            node.gameObject.layer = charSelectLayer;
+        }
+
+        for (int i = 0; i < node.childCount; i++)
+            ApplyLayersRecursive(node.GetChild(i), charSelectLayer, entityClickLayer);
     }
 }

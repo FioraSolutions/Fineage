@@ -231,13 +231,7 @@ public class CharacterCreator : MonoBehaviour
 
         gear.Initialize(-1, raceId);
         gear.SyncEquippedArmor(appearance);
-
-        if (appearance.LHand != 0) {
-            gear.EquipWeapon(appearance.LHand, true);
-        }
-        if (appearance.RHand != 0) {
-            gear.EquipWeapon(appearance.RHand, false);
-        }
+        gear.SyncEquippedWeapons(appearance.RHand, appearance.LHand);
 
         return pawnObject;
     }
@@ -251,33 +245,52 @@ public class CharacterCreator : MonoBehaviour
         }
         
         UserGear gear = pawnObject.GetComponent<UserGear>();
-        gear.Initialize(-1, raceId);
-        CharacterDefaultEquipment.EquipStarterGear(gear, appearance);
-        
+        if (gear == null)
+            return pawnObject;
+
+        // Isolate gear failures per pawn so one bad race cannot abort the lobby roster.
+        try
+        {
+            gear.Initialize(-1, raceId);
+            CharacterDefaultEquipment.EquipStarterGear(gear, appearance);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+
         return pawnObject;
     }
-    
-    public void PlacePawn(GameObject pawnObject, Logongrp pawnData, string name, GameObject container) {
+
+    public void PlacePawn(GameObject pawnObject, Logongrp pawnData, string name, GameObject container)
+    {
         UpdatePawnPosAndRot(pawnObject, pawnData);
         pawnObject.transform.name = name;
         pawnObject.transform.SetParent(container.transform, true);
         pawnObject.SetActive(true);
         LobbyPresentation.ApplyLayer(pawnObject);
+        BindLobbyPawnPresentation(pawnObject);
+    }
 
+    /// <summary>
+    /// After activation: wait pose then bind skinned gear onto the anim skeleton.
+    /// Equip may have run while inactive; wait pose moves bones, so sync once at the end.
+    /// </summary>
+    void BindLobbyPawnPresentation(GameObject pawnObject)
+    {
         UserGear gear = pawnObject.GetComponent<UserGear>();
         BaseAnimationController animController = pawnObject.GetComponent<BaseAnimationController>();
-        animController.Initialize();
-        // Unarmed starter → wait_hand; armed → wait_1HS / wait_bow / …
-        string waitState = AnimationNames.WAIT.ToString() + gear.WeaponAnim;
-        IAnimationManager animations = Animations;
-        if (animations != null)
-            animations.PlayLobbyLocomotion(animController, waitState);
-        // TEMP diag (restart → missing torso): list body/armor renderers on each lobby pawn.
-        var sb = new System.Text.StringBuilder();
-        foreach (Renderer r in pawnObject.GetComponentsInChildren<Renderer>(true))
-            sb.Append(r.name).Append(r.enabled && r.gameObject.activeInHierarchy ? "+" : "-")
-              .Append(r.sharedMaterial == null ? "(nomat)" : "").Append(' ');
-        Debug.Log("[LobbyPawn] " + name + " renderers: " + sb);
+        if (animController != null)
+            animController.Initialize();
+
+        if (gear != null && Animations != null && animController != null)
+        {
+            string waitState = AnimationNames.WAIT.ToString() + gear.WeaponAnim;
+            Animations.PlayLobbyLocomotion(animController, waitState);
+        }
+
+        SkinnedMeshSync sync = pawnObject.GetComponentInChildren<SkinnedMeshSync>(true);
+        sync?.SyncMesh();
     }
 
     public void UpdatePawnPosAndRot(GameObject pawnObject, Logongrp pawnData) {
