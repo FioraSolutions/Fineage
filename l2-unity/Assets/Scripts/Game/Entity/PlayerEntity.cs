@@ -283,7 +283,7 @@ public class PlayerEntity : Entity
         try
         {
             Transform bone = _gear.GetSpineBone();
-            SpineProceduralController.Instance.SetBoneMod(bone, new BoneModification(rotation, Vector3.zero, 1.0f));
+            SpineProceduralPacketServices.Controller?.SetBoneMod(bone, new BoneModification(rotation, Vector3.zero, 1.0f));
         }
         catch (Exception)
         {
@@ -298,7 +298,7 @@ public class PlayerEntity : Entity
         try
         {
             Transform upperArm = _gear.GetRightUpperArm();
-            SpineProceduralController.Instance.SetBoneMod(upperArm, new BoneModification(rotation, Vector3.zero, 1.0f));
+            SpineProceduralPacketServices.Controller?.SetBoneMod(upperArm, new BoneModification(rotation, Vector3.zero, 1.0f));
         }
         catch (Exception)
         {
@@ -311,7 +311,11 @@ public class PlayerEntity : Entity
     {
         Transform bone = _gear.GetSpineBone();
         Transform upperArm = _gear.GetRightUpperArm();
-        SpineProceduralController.Instance.RemoveBoneMod(bone);
-        SpineProceduralController.Instance.RemoveBoneMod(upperArm);
+        SpineProceduralController procedural = SpineProceduralPacketServices.Controller;
+        if (procedural == null)
+            return;
+
+        procedural.RemoveBoneMod(bone);
+        procedural.RemoveBoneMod(upperArm);
     }
 }
