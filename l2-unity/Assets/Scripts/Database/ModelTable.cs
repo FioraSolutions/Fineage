@@ -6,6 +6,7 @@ public class ModelTable : AbstractCache
 {
     private static ModelTable _instance;
 
+    [Obsolete("Use [Inject] ModelTable or TablePacketServices.Models instead")]
     public static ModelTable Instance
     {
         get

@@ -12,7 +12,7 @@ public class CharacterBuilder : MonoBehaviour
 
     private ModelTable Models
     {
-        get { return _models != null ? _models : ModelTable.Instance; }
+        get { return _models != null ? _models : TablePacketServices.Models; }
     }
 
     void Awake() {
@@ -98,7 +98,7 @@ public class CharacterBuilder : MonoBehaviour
         PlayerAppearance appearance,
         PooledUserVisual visual)
     {
-        ModelTable models = ModelTable.Instance;
+        ModelTable models = TablePacketServices.Models;
         bool sameFace = visual.Face == appearance.FaceByte;
         bool sameHair = visual.HairStyle == appearance.HairStyleByte &&
             visual.HairColor == appearance.HairColorByte;

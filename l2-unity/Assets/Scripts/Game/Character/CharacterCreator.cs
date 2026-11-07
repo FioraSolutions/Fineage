@@ -20,7 +20,7 @@ public class CharacterCreator : MonoBehaviour
 
     private ModelTable Models
     {
-        get { return _models != null ? _models : ModelTable.Instance; }
+        get { return _models != null ? _models : TablePacketServices.Models; }
     }
 
     private CharacterBuilder Builder

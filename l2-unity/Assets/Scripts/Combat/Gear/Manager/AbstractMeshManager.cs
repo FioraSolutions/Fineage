@@ -1,10 +1,16 @@
 ﻿using UnityEngine;
+using VContainer;
 using static ModelTable;
 using static UnityEngine.EventSystems.EventTrigger;
 
 
 public class AbstractMeshManager : MonoBehaviour
 {
+    [Inject] private ModelTable _models;
+
+    protected ModelTable Models =>
+        _models != null ? _models : TablePacketServices.Models;
+
     protected GameObject _go;
 
     protected object LoadMesh(EquipmentCategory category, params int[] itemIds) {
@@ -102,7 +108,7 @@ public class AbstractMeshManager : MonoBehaviour
             return null;
         }
 
-        GameObject weaponPrefab = ModelTable.Instance.GetWeaponById(weaponId);
+        GameObject weaponPrefab = Models.GetWeaponById(weaponId);
         if (weaponPrefab == null)
         {
             // Debug.LogWarning($"Could load prefab for {weaponId}");
@@ -120,7 +126,7 @@ public class AbstractMeshManager : MonoBehaviour
             return null;
         }
 
-        GameObject weaponPrefab = ModelTable.Instance.GetEtcById(etcId);
+        GameObject weaponPrefab = Models.GetEtcById(etcId);
         if (weaponPrefab == null)
         {
             // Debug.LogWarning($"Could load prefab for {etcId}");
@@ -134,7 +140,7 @@ public class AbstractMeshManager : MonoBehaviour
     {
         if (armor == null ) return null;
 
-        L2ArmorPiece armorPiece = ModelTable.Instance.GetArmorPiece(armor, raceId);
+        L2ArmorPiece armorPiece = Models.GetArmorPiece(armor, raceId);
 
         if (armorPiece == null)
         {
