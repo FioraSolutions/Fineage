@@ -18,58 +18,80 @@ public class CharacterArmorDresser : AbstractArmorDresser
         InitializeArmorModels();
     }
 
-    public void SetArmorPiece(Armor armor, GameObject armorPiece, ItemSlot slot  , Armor[] defaultArmor , GameObject[] defaultGo)
+    /// <summary>
+    /// Body entry for resolved single-slot armor (chest/legs/gloves/feet).
+    /// <paramref name="nakedArmor"/> / <paramref name="nakedMeshes"/> are used when
+    /// replacing a full-body set with a chest/legs piece.
+    /// </summary>
+    public void ApplySingle(
+        Armor armor,
+        ItemSlot slot,
+        GameObject mesh,
+        Armor[] nakedArmor,
+        GameObject[] nakedMeshes)
+    {
+        SetArmorPiece(armor, mesh, slot, nakedArmor, nakedMeshes);
+    }
+
+    /// <summary>
+    /// Body entry for resolved fullarmor / onepiece. <paramref name="legsMesh"/> may be null
+    /// for magic robes that only ship an upper mesh.
+    /// </summary>
+    public void ApplyFullBody(Armor armor, GameObject chestMesh, GameObject legsMesh)
+    {
+        if (armor == null || chestMesh == null)
+            return;
+
+        if (legsMesh != null)
+        {
+            SetFullArmor(false, armor, chestMesh, ItemSlot.chest);
+            SetFullArmor(true, armor, legsMesh, ItemSlot.legs);
+        }
+        else
+        {
+            SetFullArmor(true, armor, chestMesh, ItemSlot.chest);
+        }
+    }
+
+    /// <summary>Reset a body slot to naked defaults from ModelTable.</summary>
+    public void ApplyNaked(ItemSlot slot, Armor[] nakedArmor, GameObject[] nakedMeshes)
+    {
+        EquipDefaultSlot(slot, nakedArmor, nakedMeshes);
+    }
+
+    void SetArmorPiece(Armor armor, GameObject armorPiece, ItemSlot slot  , Armor[] defaultArmor , GameObject[] defaultGo)
     {
         if (armor == null || armorPiece == null)
-        {
-            // Debug.LogWarning("Invalid armor data provided");
             return;
-        }
 
         if (IsArmorEquipped(armor, slot))
-        {
-            // Debug.Log($"Armor {armor.Id} is already equipped in slot {slot}");
             return;
-        }
 
-        if(ItemSlot.chest == slot | ItemSlot.legs == slot)
+        if (ItemSlot.chest == slot || ItemSlot.legs == slot)
         {
             if (IsFullPlateEquipped(ItemSlot.fullarmor))
             {
                 ResetFullArmor(ItemSlot.fullarmor, slot, defaultArmor, defaultGo);
-                //OnSyncMesh?.Invoke(1);
             }
             else
             {
-                if (ItemSlot.chest == slot)
-                {
-                    DestroyIfNotUse(false, defaultGo);
-                }
-                else if(ItemSlot.legs == slot)
-                {
-                    DestroyIfNotUse(false, defaultGo);
-                }
+                DestroyIfNotUse(false, defaultGo);
             }
-       
         }
         else
         {
             DestroyIfNotUse(false , defaultGo);
         }
 
-
         EquipNewArmor(slot, armor, armorPiece);
         OnSyncMash?.Invoke(1);
         armorPiece.SetActive(true);
     }
 
-    public void SetFullArmor(bool refresh , Armor armor, GameObject armorPiece, ItemSlot slotInFullArmor , ItemSlot fullPlate = ItemSlot.fullarmor)
+    void SetFullArmor(bool refresh , Armor armor, GameObject armorPiece, ItemSlot slotInFullArmor , ItemSlot fullPlate = ItemSlot.fullarmor)
     {
         if (armor == null || armorPiece == null)
-        {
-            // Debug.LogWarning("Usergear->SetFullArmor: Invalid armor data provided");
             return;
-        }
 
         if (!IsFullPlateEquipped(ItemSlot.fullarmor))
         {
@@ -83,7 +105,7 @@ public class CharacterArmorDresser : AbstractArmorDresser
         armorPiece.SetActive(true);
     }
 
-    public void EquipDefaultSlot(ItemSlot slot, Armor[] baseArmor, GameObject[] armorPiece)
+    void EquipDefaultSlot(ItemSlot slot, Armor[] baseArmor, GameObject[] armorPiece)
     {
         ItemSlot slotArmor = GetExtendedOrGetCurrentArmorPart(slot, _equippedArmor);
         if (slotArmor == ItemSlot.fullarmor)
@@ -175,14 +197,11 @@ public class CharacterArmorDresser : AbstractArmorDresser
 
     private void DestroyIfNotUse( bool isUse , GameObject[] listGameObject)
     {
-        if(isUse == false)
-        {
-            foreach (GameObject go in listGameObject)
-            {
-                Destroy(go);
-            }
-        }
+        if (isUse || listGameObject == null)
+            return;
 
+        for (int i = 0; i < listGameObject.Length; i++)
+            Destroy(listGameObject[i]);
     }
 
 

@@ -232,8 +232,10 @@ public class ModelTable : AbstractCache
 
     private static bool NeedsExtraArmorModels(L2Armor l2Armor, List<string> models, ItemSlot slot)
     {
+        if (l2Armor.allModels == null || l2Armor.allModels.Length == 0)
+            return models != null && models.Count > 0;
         return l2Armor.allModels[0] == null ||
-               (l2Armor.allModels.Length < models.Count && slot == ItemSlot.fullarmor);
+               (models != null && l2Armor.allModels.Length < models.Count && slot == ItemSlot.fullarmor);
     }
 
     private void CacheNpcs()

@@ -106,13 +106,39 @@ public abstract class AbstractGetCache
 
     private string GetValidTextureName(Armor armor, CharacterRaceAnimation raceId)
     {
-        var textureArray = armor.Armorgrp.FirstTexture;
-        if (textureArray == null || textureArray.Length < RACE_COUNT || textureArray[(byte)raceId] == null)
+        byte raceIndex = (byte)raceId;
+        string texture = null;
+        string[] textureArray = armor.Armorgrp.FirstTexture;
+        if (textureArray != null && raceIndex < textureArray.Length)
+            texture = textureArray[raceIndex];
+
+        // Onepiece robes: FirstTexture used to be wrongly parsed as "None" (legs slot).
+        // Fall back to the first real entry in AllTextures for this race.
+        if (IsMissingArmorToken(texture) &&
+            armor.Armorgrp.AllTextures != null &&
+            raceIndex < armor.Armorgrp.AllTextures.Count)
         {
-            // Debug.LogWarning($"Can't find armor texture for {raceId} in ModelTable");
-            return null;
+            List<string> all = armor.Armorgrp.AllTextures[raceIndex];
+            if (all != null)
+            {
+                for (int i = 0; i < all.Count; i++)
+                {
+                    if (!IsMissingArmorToken(all[i]))
+                    {
+                        texture = all[i];
+                        break;
+                    }
+                }
+            }
         }
-        return textureArray[(byte)raceId];
+
+        return IsMissingArmorToken(texture) ? null : texture;
+    }
+
+    static bool IsMissingArmorToken(string token)
+    {
+        return string.IsNullOrEmpty(token) ||
+               string.Equals(token, "None", StringComparison.OrdinalIgnoreCase);
     }
 
     private bool TryGetMaterials(L2Armor l2Armor, string textureName, out Material firstMaterial, out Material[] allMaterials)
