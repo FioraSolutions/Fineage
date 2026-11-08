@@ -45,6 +45,10 @@ public abstract class AbstractCache : AbstractGetCache
 
     protected GameObject LoadArmorModel(string model)
     {
+        if (string.IsNullOrEmpty(model) ||
+            string.Equals(model, "None", StringComparison.OrdinalIgnoreCase))
+            return null;
+
         string[] folderFile = model.Split(".");
 
         if (folderFile.Length < 2) return null;
