@@ -135,7 +135,9 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - [x] Lobby flow extracted to `NetLobbyFlow` (`BeginLobby`, roster CRUD, lobby dispatch, handoff enter orchestration).
 - [x] `NetSession` split into partials (`NetSession.ZoneConnect`, `NetSession.ZoneDispatch`, `NetSession.ZoneApply`, `NetSession.Commands`).
 - [x] Main-thread apply pump extracted to `NetMainThreadPump` in `Fineage.Networking` (critical + budgeted normal queues).
-- Transport already in `Fineage.Networking`; Session / Dispatch as separate types + shared *outbound* send pump: later.
+- [x] Shared outbound send pump: `NetOutboundSendPump` on `NetTransport`.
+- [x] Zone inbound switch extracted to `NetZoneDispatch` (apply bodies stay on `NetSession` / receivers).
+- Transport already in `Fineage.Networking`; further Session shrink when cycle-safe.
 
 ### B5. State recovery — later
 - EnterWorld snapshot + revision; resync / reconnect path when Critical outbound was dropped.
@@ -175,7 +177,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] First real asmdef content: `Fineage.Networking` (NetPaperdoll **#684** + engine-free Net domain batch + `NetTransport` / `NetCommandSender`).
 - [x] First `Fineage.Game` content: cycle-safe item / action / entity enums + drop/effect deco constants.
 - [x] First `Fineage.Controller` / `Fineage.UI` content: state/intention/action enums + chat/nameplate enums.
-- [ ] Further asmdef slices for remaining MonoBehaviours / `Fineage.Di` when types are cycle-safe.
+- [x] `Fineage.Di` seeded with `ILateBound` / `LateBoundMono` (not LifetimeScope yet — those still touch `Assembly-CSharp`).
+- [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
@@ -193,8 +196,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | First handler/system extract PRs; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Asmdef moves + `Fineage.Di` (no big-bang Instance purge) |
+| Backend B2b | Continue handler/system extracts; domain events (`IWorldEventPublisher`); epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Opcode groups largely extracted — residual = session lifecycle (Hello/Auth/Enter) + knownlist fanout on `NetZoneServer` |
+| Client #131 | More asmdef moves; LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
@@ -209,4 +212,5 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] No new world DB I/O under `_gate` on enter (Phase B1)
 - [ ] TLS (or equivalent) before public auth
 - [ ] New Zone features land outside `NetZoneServer` / `ZoneWorld` god files when practical
-- [ ] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub
+- [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
+- [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe

@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 public enum EntityType
 {
@@ -9,11 +8,12 @@ public enum EntityType
     Monster,
     Item,
     Pawn
-
 }
 
-public static class EntityTypeParser {
-    public static EntityType ParseEntityType(string type) {
+public static class EntityTypeParser
+{
+    public static EntityType ParseEntityType(string type)
+    {
         if (!string.IsNullOrEmpty(type) &&
             type.IndexOf("LineageNPC", StringComparison.OrdinalIgnoreCase) >= 0)
             return EntityType.NPC;
