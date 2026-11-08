@@ -76,7 +76,8 @@ Unified plan from the GPT + DeepSeek architecture reviews, reconciled with epics
 - [x] `NetCommandSender` + zone `Send*` return `Task` (async void wrappers removed).
 - [x] Lobby flow extracted to `NetLobbyFlow` (`BeginLobby`, roster CRUD, lobby dispatch, handoff enter orchestration).
 - [x] `NetSession` split into partials (`NetSession.ZoneConnect`, `NetSession.ZoneDispatch`, `NetSession.ZoneApply`, `NetSession.Commands`).
-- Transport / Session / shared outbound pump as separate types: later (when measured).
+- [x] Main-thread apply pump extracted to `NetMainThreadPump` in `Fineage.Networking` (critical + budgeted normal queues).
+- Transport already in `Fineage.Networking`; Session / Dispatch as separate types + shared *outbound* send pump: later.
 
 ### B5. State recovery — later
 - EnterWorld snapshot + revision; resync / reconnect path when Critical outbound was dropped.

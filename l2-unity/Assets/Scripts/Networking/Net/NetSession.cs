@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Fineage.Net.Contract;
 using UnityEngine;
@@ -10,21 +9,10 @@ using UnityEngine;
 /// </summary>
 public sealed partial class NetSession : MonoBehaviour
 {
-
-    /// <summary>
-    /// Socket thread enqueues; <see cref="Update"/> drains with a per-frame cap on normal work.
-    /// Critical queue (despawn, inventory) is drained first and is not budget-limited.
-    /// </summary>
-    readonly ConcurrentQueue<Action> _mainCritical = new ConcurrentQueue<Action>();
-    readonly ConcurrentQueue<Action> _main = new ConcurrentQueue<Action>();
-
     /// <summary>Max zone packet applies per frame excluding critical queue traffic.</summary>
-    public const int MaxNormalMainThreadActionsPerFrame = 96;
+    public const int MaxNormalMainThreadActionsPerFrame = NetMainThreadPump.MaxNormalActionsPerFrame;
 
-    const int MainThreadQueueDepthWarnThreshold = 256;
-    const float MainThreadQueueDepthLogCooldownSeconds = 5f;
-
-    float _nextMainQueueDepthLogTime;
+    readonly NetMainThreadPump _mainThread = new NetMainThreadPump();
     NetTransport _zone;
     NetCommandSender _commandSender;
     NetLobbyFlow _lobbyFlow;
@@ -128,9 +116,7 @@ public sealed partial class NetSession : MonoBehaviour
 
     void Update()
     {
-        DrainMainThreadQueue(_mainCritical, int.MaxValue);
-        DrainMainThreadQueue(_main, MaxNormalMainThreadActionsPerFrame);
-        MaybeWarnMainThreadQueueDepth();
+        _mainThread.DrainFrame();
 
         // ItemList may arrive before the local player / inventory UI exist (same as the legacy bridge).
         NetGearSession.FlushPending();
@@ -232,36 +218,9 @@ public sealed partial class NetSession : MonoBehaviour
 
     uint NextSeq() => _seq++;
 
-    void Post(Action action) => _main.Enqueue(action);
+    void Post(Action action) => _mainThread.Post(action);
 
-    void PostCritical(Action action) => _mainCritical.Enqueue(action);
-
-    void DrainMainThreadQueue(ConcurrentQueue<Action> queue, int maxActions)
-    {
-        int remaining = maxActions;
-        while (remaining > 0 && queue.TryDequeue(out Action action))
-        {
-            remaining--;
-            try { action(); }
-            catch (Exception ex) { Debug.LogException(ex); }
-        }
-    }
-
-    void MaybeWarnMainThreadQueueDepth()
-    {
-        int depth = _main.Count + _mainCritical.Count;
-        if (depth < MainThreadQueueDepthWarnThreshold)
-            return;
-
-        float now = Time.unscaledTime;
-        if (now < _nextMainQueueDepthLogTime)
-            return;
-
-        _nextMainQueueDepthLogTime = now + MainThreadQueueDepthLogCooldownSeconds;
-        Debug.LogWarning(
-            $"[Net] main-thread packet queue depth {depth} (critical {_mainCritical.Count}, normal {_main.Count}); "
-            + $"normal applies capped at {MaxNormalMainThreadActionsPerFrame}/frame.");
-    }
+    void PostCritical(Action action) => _mainThread.PostCritical(action);
 
     static async System.Threading.Tasks.Task WaitUntil(Func<bool> pred, float seconds)
     {
