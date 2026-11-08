@@ -16,6 +16,7 @@ public sealed partial class NetSession : MonoBehaviour
     NetTransport _zone;
     NetCommandSender _commandSender;
     NetLobbyFlow _lobbyFlow;
+    NetZoneDispatch _zoneDispatch;
     uint _seq = 1;
     IWorldDomainSink _sink;
     CombatAttackApplyService _combatAttack;
@@ -103,6 +104,7 @@ public sealed partial class NetSession : MonoBehaviour
             roster => RosterReceived?.Invoke(roster),
             deleted => DeleteResultReceived?.Invoke(deleted),
             handoff => HandoffReceived?.Invoke(handoff));
+        _zoneDispatch = new NetZoneDispatch(this, EnterWorldAsync);
     }
 
     void ResetLobbySessionState()
