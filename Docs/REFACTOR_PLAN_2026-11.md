@@ -146,7 +146,8 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - Trade / inventory / adena: atomic apply + persistence tests (dup-item / double-spend). Not claiming a live bug; GPT correctly flagged the invariant set.
 - [x] Trade: over-offer count refused; post-finish reconfirm cannot invent a second transfer (`NetTradeTests`).
 - [x] Warehouse: over-count / duplicate-line deposit refused; stale objectId deposit/withdraw cannot invent a second move (`NetWarehouseEconomyTests`).
-- [ ] Inventory destroy stale objectId / shop buy adena double-spend paths still need dedicated cases.
+- [x] Inventory destroy: stale objectId after full remove cannot invent another removal (`NetGroundItemTests`).
+- [x] Shop limited-stock second buy refused without taking adena (`NetShopTests`).
 
 ---
 
