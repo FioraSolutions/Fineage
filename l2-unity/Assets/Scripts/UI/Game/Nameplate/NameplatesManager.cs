@@ -3,8 +3,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// World nameplates orchestrator — L2 canvas path: Project → screen-pixel glyphs →
-/// <see cref="L2NameplateScreenBatch"/>. Titles + DrawTargetName hover/target/attack bubbles.
+/// World HeadDisplay orchestrator — L2 canvas path: Project → screen-pixel glyphs/quads →
+/// <see cref="L2NameplateScreenBatch"/>. Stack: title → name → cast gauge → bubbles.
+/// World Y from <see cref="L2OverheadAnchor"/> (one-shot height, locked to root — no live bone).
 /// </summary>
 public class NameplatesManager : MonoBehaviour
 {
@@ -13,8 +14,6 @@ public class NameplatesManager : MonoBehaviour
     [SerializeField] private LayerMask _entityMask;
     [SerializeField] private Color _defaultNameColor = Color.white;
     [SerializeField] private float _pixelScale = 1f;
-    [Tooltip("Meters after L2 capsule top (Location + CollisionHeight). Negative lowers names.")]
-    [SerializeField] private float _headHeightOffset = -0.12f;
     [Tooltip("L2 canvas: lock plate to whole screen pixels (hysteresis).")]
     [SerializeField] private bool _snapAnchorToPixels = true;
     [SerializeField] private float _snapHysteresisPx = 0.75f;
@@ -34,6 +33,7 @@ public class NameplatesManager : MonoBehaviour
     private NameplatePixelSnap _pixelSnap;
     private NameplateTextDrawer _textDrawer;
     private NameplateBubbleDrawer _bubbleDrawer;
+    private NameplateCastBarDrawer _castBarDrawer;
 
     private Transform _playerTransform;
     private bool _subscribed;
@@ -67,6 +67,7 @@ public class NameplatesManager : MonoBehaviour
         _pixelSnap = new NameplatePixelSnap();
         _textDrawer = new NameplateTextDrawer();
         _bubbleDrawer = new NameplateBubbleDrawer();
+        _castBarDrawer = new NameplateCastBarDrawer();
 
         ApplySettingsToSubsystems();
         EnsureResources();
@@ -97,6 +98,7 @@ public class NameplatesManager : MonoBehaviour
         _pixelSnap?.ClearAll();
         _textDrawer?.Dispose();
         _bubbleDrawer?.Dispose();
+        _castBarDrawer?.Dispose();
 
         if (_instance == this)
         {
@@ -136,6 +138,7 @@ public class NameplatesManager : MonoBehaviour
         ApplySettingsToSubsystems();
         _textDrawer.EnsureResources();
         _bubbleDrawer.EnsureResources();
+        _castBarDrawer?.EnsureResources();
     }
 
     private Camera ResolveCamera()
@@ -201,13 +204,14 @@ public class NameplatesManager : MonoBehaviour
             return;
         }
 
-        _entryStore.BuildPaintList(_paintList, _drawTitles, _headHeightOffset);
+        _entryStore.BuildPaintList(_paintList, _drawTitles);
         if (_paintList.Count == 0)
         {
             return;
         }
 
         _textDrawer.Draw(cam, _paintList, _pixelSnap);
+        _castBarDrawer?.Draw(cam, _paintList);
         _bubbleDrawer.Draw(cam, _paintList);
     }
 }

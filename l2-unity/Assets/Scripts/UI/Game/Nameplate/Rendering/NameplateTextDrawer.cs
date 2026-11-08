@@ -101,9 +101,11 @@ public sealed class NameplateTextDrawer
 
             item.ScreenValid = true;
             item.Depth = depth;
+            item.AnchorX = ax;
             item.NameW = nameW;
             item.XName = xName;
             item.YNameTop = yNameTop;
+            item.YNameBottom = yNameTop + lineH;
             paintList[i] = item;
         }
 

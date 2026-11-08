@@ -162,6 +162,8 @@ public sealed class UserSpawner
         user.Status = info.Status;
         user.Stats = info.Stats;
         user.Appearance = info.Appearance;
+        if (user.Identity != null)
+            L2OverheadAnchor.Invalidate(user.Identity.Id);
         user.Running = info.Appearance.Running;
         user.SetDead(info.AlikeDead);
 

@@ -26,6 +26,7 @@ public sealed class NameplateEntryStore
     public void Clear()
     {
         _entries.Clear();
+        L2OverheadAnchor.ClearAll();
     }
 
     public void Remove(int id, NameplatePixelSnap snap)
@@ -34,6 +35,7 @@ public sealed class NameplateEntryStore
         {
             _removeObjId = id;
             snap?.Clear(id);
+            L2OverheadAnchor.Invalidate(id);
         }
     }
 
@@ -130,39 +132,10 @@ public sealed class NameplateEntryStore
             titleColor = StringUtils.HexToColor(idn.TitleColor);
         }
 
-        CharacterController cc = null;
-        CapsuleCollider capsule = null;
-        if (_entries.TryGetValue(id, out NameplateEntry existing))
-        {
-            cc = existing.CC;
-            capsule = existing.Capsule;
-        }
-
-        Transform target = entity.transform;
-        if (cc == null)
-        {
-            cc = target.GetComponent<CharacterController>();
-            if (cc == null)
-            {
-                cc = target.GetComponentInChildren<CharacterController>();
-            }
-        }
-
-        if (capsule == null && cc == null)
-        {
-            capsule = target.GetComponent<CapsuleCollider>();
-            if (capsule == null)
-            {
-                capsule = target.GetComponentInChildren<CapsuleCollider>();
-            }
-        }
-
         _entries[id] = new NameplateEntry
         {
             Id = id,
-            Target = target,
-            CC = cc,
-            Capsule = capsule,
+            Target = entity.transform,
             Entity = entity,
             Name = idn.Name,
             Title = idn.Title ?? string.Empty,
@@ -217,13 +190,11 @@ public sealed class NameplateEntryStore
             int rid = _removeIds[i];
             _entries.Remove(rid);
             snap?.Clear(rid);
+            L2OverheadAnchor.Invalidate(rid);
         }
     }
 
-    public void BuildPaintList(
-        List<NameplatePaintItem> paintList,
-        bool drawTitles,
-        float headHeightOffset)
+    public void BuildPaintList(List<NameplatePaintItem> paintList, bool drawTitles)
     {
         paintList.Clear();
 
@@ -258,73 +229,21 @@ public sealed class NameplateEntryStore
 
             bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
             L2TargetRenderType bubbleType = _resolver.ResolveForPaint(e.Target, isLocal);
+            float castRem = isLocal ? CastBarOverlay.Remaining01 : -1f;
 
             paintList.Add(new NameplatePaintItem
             {
                 Id = e.Id,
-                World = GetHeadWorldPos(e, headHeightOffset),
+                World = L2OverheadAnchor.GetWorldPos(e.Entity, e.Target),
                 Name = e.Name,
                 Title = drawTitles ? e.Title : null,
                 NameColor = e.NameColor,
                 TitleColor = e.TitleColor,
                 IsLocalPlayer = isLocal,
-                BubbleType = bubbleType
+                BubbleType = bubbleType,
+                CastRemaining01 = castRem
             });
         }
-    }
-
-    private static Vector3 GetHeadWorldPos(NameplateEntry entry, float headHeightOffset)
-    {
-        // Prefer live head bone (Orc/tall races): CollisionHeight alone parks the
-        // plate on the forehead when the mesh is taller than the capsule estimate.
-        if (entry.Target != null
-            && TryGetHeadBone(entry.Target, out Transform headBone))
-        {
-            return headBone.position + Vector3.up * (0.12f + headHeightOffset);
-        }
-
-        float ch = L2NameplateAnchor.DefaultCollisionHeightMeters;
-        Entity entity = entry.Entity;
-        if (entity != null && entity.Appearance != null)
-        {
-            ch = entity.Appearance.CollisionHeight;
-        }
-
-        // CC/capsule top on NPC (and UserEntity with disabled CC) sits near the neck.
-        // Use feet + 2×CollisionHeight so the plate hangs above the head like mobs/players.
-        CharacterController cc = entry.CC;
-        CapsuleCollider capsule = entry.Capsule;
-        if (entity is UserEntity || entity is NpcEntity)
-        {
-            cc = null;
-            capsule = null;
-        }
-
-        return L2NameplateAnchor.GetHeadWorldPos(
-            entry.Target, cc, capsule, ch, headHeightOffset);
-    }
-
-    static bool TryGetHeadBone(Transform root, out Transform head)
-    {
-        head = null;
-        if (root == null)
-            return false;
-        Transform[] all = root.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < all.Length; i++)
-        {
-            Transform t = all[i];
-            if (t == null || string.IsNullOrEmpty(t.name))
-                continue;
-            string n = t.name;
-            if (n.Equals("Bip01_head", System.StringComparison.OrdinalIgnoreCase)
-                || n.Equals("Bip01 Head", System.StringComparison.OrdinalIgnoreCase)
-                || n.Equals("Bip01_Head", System.StringComparison.OrdinalIgnoreCase))
-            {
-                head = t;
-                return true;
-            }
-        }
-        return false;
     }
 
     private bool IsNameplateVisible(

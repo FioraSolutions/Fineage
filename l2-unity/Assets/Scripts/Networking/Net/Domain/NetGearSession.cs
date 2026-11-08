@@ -154,6 +154,8 @@ public static class NetGearSession
             Status = status
         };
         OverlayUserInfo(info, user);
+        if (player.Identity != null)
+            L2OverheadAnchor.Invalidate(player.Identity.Id);
         player.Running = appearance.Running;
         if (stats.RunRealSpeed > 0.001f)
             player.UpdateRunSpeed(stats.RunRealSpeed);
