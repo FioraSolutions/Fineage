@@ -122,7 +122,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | Slice | Intent |
 |-------|--------|
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
-| Domain events | [x] `INetPresenceBridge` in `Fineage.Zone.World`. Next: rename/narrow toward `IWorldEventPublisher` when fanout DTOs leave Net.Contract |
+| Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` (renamed from `INetPresenceBridge`). Next: untangle fanout DTOs off Net.Contract |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
 | `ZoneEntity` composition | Split player / NPC / ground payloads over time (composition, not deep Java-style inheritance) |
 | `NetCodec` | Split by domain **or** keep monolith + mandatory round-trip tests per message (generation optional later) |
