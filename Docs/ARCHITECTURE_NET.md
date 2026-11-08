@@ -120,14 +120,15 @@ cell_key  = (grid_x, grid_y)  → 64-bit packed int
 Player AOI = entities in own cell + 8 adjacent cells (3×3 neighborhood)
 ```
 
-**MVP (now)**: `IAoiProvider` interface with `SingleCellAoi` — everyone in the
-same zone sees everyone. Drop-in replacement for grid later.
+**Now (2026-11):** hosted Zone defaults to **`GridAoi`** (`FINEAGE_ZONE_AOI_CELL`, default **3000**).
+`RangeAoi` via `FINEAGE_ZONE_INTEREST_RANGE` when cell is `0`. `SingleCellAoi` only for tiny
+test hosts (`FINEAGE_ZONE_AOI_CELL=0` and interest range `0`) — full Interlude datapack must not use it.
 
-**Phase 1**: `GridAoiProvider` with `Dictionary<long, HashSet<int>>` — no Redis,
-pure in-memory, single process. Enough for hundreds of players per zone.
+Interfaces live under Backend `Fineage.Zone.Interest` (`IAoi`, `GridAoi`, …). The older
+`IAoiProvider` / `tools/zone-server` sketch below is historical naming.
 
-**Phase 2**: Cross-zone AOI at zone boundaries (ghost/shadow entities) — only
-needed when zones are on different processes.
+**Later:** Cross-zone AOI at zone boundaries (ghost/shadow entities) — only when zones are
+on different processes (#125).
 
 ---
 
@@ -201,20 +202,22 @@ No external dependency required to run locally.
 
 ## Simulation Tick
 
-Current ZoneServer is event-driven (process message → respond). Target:
+**Current:** mostly event-driven (process message → respond) plus periodic world work
+(regen tick, NPC AI timers, cast/attack deadlines). Global `ZoneWorld` `_gate` serializes
+mutations today — acceptable for MVP; single-writer simulation actor is Phase D / #116.
+
+**Target (hybrid, not “update every entity every 50 ms”):**
 
 ```
-20 Hz fixed tick (50 ms):
-  1. Drain inbound message queue (bounded)
-  2. Apply validated inputs to entity state
-  3. Run AI / combat / buff systems
-  4. Compute deltas from previous tick
-  5. AOI filter → send only changed + visible entities
-  6. Emit metrics (tick duration, entity count, msg backlog)
+Authoritative order (fixed tick and/or scheduled events):
+  1. Drain inbound command queue (bounded; critical ≠ DropOldest)
+  2. Apply validated intents
+  3. AI / combat / buff / regen on their own cadences
+  4. AOI filter → presence fanout
+  5. Metrics (tick duration, online, queues)
 ```
 
-Backpressure: if inbound queue exceeds threshold, drop oldest movement
-inputs (stale anyway) and log slow-consumer metric.
+See [REFACTOR_PLAN_2026-11.md](REFACTOR_PLAN_2026-11.md). Do not treat 20k CCU diagrams above as shipped.
 
 ---
 
@@ -236,43 +239,39 @@ game logic.
 
 ## Phased Path: Current → 20k
 
-| Phase | CCU target | What changes | What stays |
-|-------|-----------|-------------|------------|
-| **0** | 1–10 | Net `PacketEnvelope`, `IAccountStore` + **PostgreSQL** (JSON for tests), `IHandoffStore` memory, client NetSession | Login+Zone single process each |
-| **1 (v0.4–v0.5)** | 10–100 | GridAoiProvider, NpcInfo broadcast, combat tick loop, bounded inbound queue | Single process, TCP |
-| **2 (v0.7)** | 100–1000 | Metrics (Prometheus), backpressure policy, connection rate limit, load-test harness | Single process |
-| **3** | 1000–5000 | Gateway process (TLS termination, routing), Redis session directory (`IHandoffStore`), separate zone processes per region | Net wire unchanged |
-| **4** | 5000–20000 | Multi-zone cluster, cross-zone AOI, QUIC transport option, auto-scaling | Core game logic unchanged |
+Status vs epic **#112** (2026-11-08). Target numbers are design goals, not measured capacity.
+
+| Phase | CCU target | Status | Notes |
+|-------|-----------|--------|-------|
+| **0** | 1–10 | **Done** | Net wire, Postgres accounts, Login+Zone, client NetSession |
+| **1** | 10–100 | **Mostly done** | `GridAoi` default (#115 closed); presence/combat live; full 20 Hz actor still #116 |
+| **2** | 100–1000 | **Partial** | Prometheus `/metrics` exists; #117/#119/#121 still open for full AC + load bots |
+| **3** | 1000–5000 | Later | Gateway+TLS (#113), Redis (#114), multi-zone |
+| **4** | 5000–20000 | Later | Cluster AOI (#125), QUIC (#123) |
+
+Near-term harden/modularize work (not 20k): [REFACTOR_PLAN_2026-11.md](REFACTOR_PLAN_2026-11.md).
 
 ---
 
-## Folder Layout (zone-server after this PR)
+## Code layout (live)
+
+Server lives in **Fineage-Backend** (`src/Fineage.Login`, `src/Fineage.Zone`, `src/Fineage.Net.Contract`, …) — not the historical `tools/zone-server/` sketch.
 
 ```
-tools/zone-server/
-├── Program.cs                  # entry point (unchanged)
-├── SelfTest.cs                 # smoke test (unchanged)
-├── ZoneLog.cs                  # logging (unchanged)
-├── Fineage.ZoneServer.csproj
-├── Session/
-│   └── PlayerSession.cs        # existing game logic (unchanged)
-├── Net/
-│   ├── ISession.cs             # session abstraction
-│   ├── ISessionStore.cs        # session registry
-│   ├── MemorySessionStore.cs   # in-memory impl
-│   ├── IMessageRegistry.cs     # opcode ↔ Type map
-│   ├── MessageRegistry.cs      # default impl with versioning
-│   ├── IDistributedCache.cs    # cache abstraction
-│   └── MemoryCache.cs          # in-memory impl with TTL
-└── Interest/
-    ├── IAoiProvider.cs          # area-of-interest abstraction
-    └── SingleCellAoi.cs         # trivial "see all" impl
+Fineage-Backend/src/
+├── Fineage.Login/          # lobby + HTTP auth API
+├── Fineage.Zone/           # world + NetZoneServer projection
+│   ├── World/ZoneWorld*.cs
+│   ├── Interest/GridAoi.cs
+│   └── Net/
+├── Fineage.Net.Contract/   # SoT codec (client syncs a copy)
+└── Fineage.Accounts/       # Postgres + handoff
 ```
 
-Client side (Unity):
+Client (Unity):
 ```
-l2-unity/Assets/Scripts/Networking/Net/Domain/
-├── IZoneTransport.cs           # transport abstraction for GameManager
-├── FineageZoneTransport.cs     # live Net transport (registered in DI as IZoneTransport)
-└── ... shared domain/adapter layer
+l2-unity/Assets/Scripts/Networking/Net/
+├── Domain/IZoneTransport.cs + FineageZoneTransport.cs
+├── Contract/               # synced from Backend
+└── … NetSession / NetMainThreadPump / PacketServices
 ```
