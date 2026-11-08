@@ -1,0 +1,219 @@
+class m_u003_c extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter34
+         // Reference: MeshEmitter'lineageeffect.dec.m_u003_c.MeshEmitter34'
+         begin object name="MeshEmitter34" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Black.black_vampire01'
+         UseMeshBlendMode=false
+         UseParticleColor=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=0))
+         ColorScale[1]=(RelativeTime=0.5142860,Color=(R=198,G=198,B=198,A=0))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=0))
+         ColorScaleRepeats=10.0000000
+         FadeOutStartTime=1.1799999
+         FadeOut=true
+         FadeInEndTime=0.1800000
+         FadeIn=true
+         MaxParticles=1
+         ResetAfterChange=true
+         RespawnDeadParticles=false
+         Name="VampireEye"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-14.0000000)
+         UseRotationFrom=1
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.0000000,Z=0.0000000)
+         StartSpinRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+         SizeScale[1]=(RelativeTime=0.5000000,RelativeSize=1.0050000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         SizeScaleRepeats=1.8000000
+         StartSizeRange=(X=(Min=0.5259200,Max=0.5259200),Y=(Min=1.3839999,Max=1.3839999),Z=(Min=1.3839999,Max=1.3839999))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         LifetimeRange=(Min=2.0000000,Max=2.0000000)
+         end object
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter34'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter10
+         // Reference: SpriteEmitter'lineageeffect.dec.m_u003_c.SpriteEmitter10'
+         begin object name="SpriteEmitter10" class=Engine.SpriteEmitter
+         UseDirectionAs=1
+         ProjectionNormal=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.5678570,Color=(R=165,G=165,B=165,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=25.0000000
+         FadeOutStartTime=0.9746100
+         FadeOut=true
+         FadeInEndTime=0.1911000
+         FadeIn=true
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="VampireBlink"
+         StartLocationOffset=(X=-7.0000000,Y=0.0000000,Z=1.6000000)
+         UseRotationFrom=1
+         StartSizeRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         InitialParticlesPerSecond=3000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0006'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=2
+         SubdivisionStart=4
+         SubdivisionEnd=5
+         LifetimeRange=(Min=1.9110000,Max=1.9110000)
+         StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0100000))
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter10'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter0
+         // Reference: SpriteEmitter'lineageeffect.dec.m_u003_c.SpriteEmitter0'
+         begin object name="SpriteEmitter0" class=Engine.SpriteEmitter
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         Opacity=0.6000000
+         FadeOut=true
+         MaxParticles=2
+         RespawnDeadParticles=false
+         Name="VampireFlash"
+         StartLocationOffset=(X=-7.0000000,Y=0.0000000,Z=2.0000000)
+         StartLocationShape=1
+         SpinParticles=true
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=2.0000000)
+         SizeScale[1]=(RelativeTime=0.1400000,RelativeSize=5.0000000)
+         SizeScale[2]=(RelativeTime=0.2800000,RelativeSize=5.5000000)
+         SizeScale[3]=(RelativeTime=0.6200000,RelativeSize=6.0000000)
+         SizeScale[4]=(RelativeTime=1.0000000,RelativeSize=6.1999998)
+         StartSizeRange=(X=(Min=2.0000000,Max=4.0000000),Y=(Min=2.0000000,Max=4.0000000),Z=(Min=2.0000000,Max=4.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=10000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0005'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         SubdivisionStart=2
+         SubdivisionEnd=3
+         LifetimeRange=(Min=0.8000000,Max=0.8000000)
+         InitialDelayRange=(Min=0.2000000,Max=0.2000000)
+         end object
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter0'
+     // Reference: MeshEmitter'lineageeffect.dec.m_u003_c.MeshEmitter34'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Black.black_vampire01'
+     UseMeshBlendMode=false
+     UseParticleColor=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=0))
+     ColorScale[1]=(RelativeTime=0.5142860,Color=(R=198,G=198,B=198,A=0))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=0))
+     ColorScaleRepeats=10.0000000
+     FadeOutStartTime=1.1799999
+     FadeOut=true
+     FadeInEndTime=0.1800000
+     FadeIn=true
+     MaxParticles=1
+     ResetAfterChange=true
+     RespawnDeadParticles=false
+     Name="VampireEye"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-14.0000000)
+     UseRotationFrom=1
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.0000000,Z=0.0000000)
+     StartSpinRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+     SizeScale[1]=(RelativeTime=0.5000000,RelativeSize=1.0050000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     SizeScaleRepeats=1.8000000
+     StartSizeRange=(X=(Min=0.5259200,Max=0.5259200),Y=(Min=1.3839999,Max=1.3839999),Z=(Min=1.3839999,Max=1.3839999))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     LifetimeRange=(Min=2.0000000,Max=2.0000000)
+     Emitters[0]=MeshEmitter34
+     // Reference: SpriteEmitter'lineageeffect.dec.m_u003_c.SpriteEmitter10'
+     UseDirectionAs=1
+     ProjectionNormal=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.5678570,Color=(R=165,G=165,B=165,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=25.0000000
+     FadeOutStartTime=0.9746100
+     FadeOut=true
+     FadeInEndTime=0.1911000
+     FadeIn=true
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="VampireBlink"
+     StartLocationOffset=(X=-7.0000000,Y=0.0000000,Z=1.6000000)
+     UseRotationFrom=1
+     StartSizeRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     InitialParticlesPerSecond=3000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0006'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=2
+     SubdivisionStart=4
+     SubdivisionEnd=5
+     LifetimeRange=(Min=1.9110000,Max=1.9110000)
+     StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0100000))
+     Emitters[1]=SpriteEmitter10
+     // Reference: SpriteEmitter'lineageeffect.dec.m_u003_c.SpriteEmitter0'
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     Opacity=0.6000000
+     FadeOut=true
+     MaxParticles=2
+     RespawnDeadParticles=false
+     Name="VampireFlash"
+     StartLocationOffset=(X=-7.0000000,Y=0.0000000,Z=2.0000000)
+     StartLocationShape=1
+     SpinParticles=true
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=2.0000000)
+     SizeScale[1]=(RelativeTime=0.1400000,RelativeSize=5.0000000)
+     SizeScale[2]=(RelativeTime=0.2800000,RelativeSize=5.5000000)
+     SizeScale[3]=(RelativeTime=0.6200000,RelativeSize=6.0000000)
+     SizeScale[4]=(RelativeTime=1.0000000,RelativeSize=6.1999998)
+     StartSizeRange=(X=(Min=2.0000000,Max=4.0000000),Y=(Min=2.0000000,Max=4.0000000),Z=(Min=2.0000000,Max=4.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=10000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0005'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     SubdivisionStart=2
+     SubdivisionEnd=3
+     LifetimeRange=(Min=0.8000000,Max=0.8000000)
+     InitialDelayRange=(Min=0.2000000,Max=0.2000000)
+     Emitters[2]=SpriteEmitter0
+     AutoDestroy=true
+     AutoReset=true
+     Physics=10
+     bUseDynamicLights=false
+     bLightChanged=true
+     bNoDelete=false
+     bTrailerPrePivot=true
+     bAcceptsProjectors=false
+     Tag="Emitter"
+     bSunAffect=true
+     Location=(X=105.4127045,Y=-5.4602361,Z=-469.1210632)
+     DrawScale=0.0500000
+     bDirectional=true
+     bSelected=true
+}

@@ -1,0 +1,218 @@
+class el_flame_strike_ca extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter2
+         // Reference: MeshEmitter'lineageeffect.dec.el_flame_strike_ca.MeshEmitter2'
+         begin object name="MeshEmitter2" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Fire.firebomb02'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=-130.0000000)
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=176,B=208,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=135,G=67,B=152,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.7500000,Max=0.7500000),Z=(Min=0.7500000,Max=0.7500000))
+         Opacity=0.4800000
+         FadeOutStartTime=0.3650000
+         FadeOut=true
+         FadeInEndTime=0.0350000
+         FadeIn=true
+         MaxParticles=23
+         ForcedMaxParticles=true
+         RespawnDeadParticles=false
+         Name="FlameMesh"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-3.0000000)
+         SphereRadiusRange=(Min=3.0000000,Max=3.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=1.2000000)
+         StartSizeRange=(X=(Min=0.6200000,Max=0.6200000),Y=(Min=0.6200000,Max=0.6200000),Z=(Min=0.8000000,Max=0.8000000))
+         InitialParticlesPerSecond=5.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=0.6000000,Max=0.6000000)
+         StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=30.0000000,Max=30.0000000))
+         end object
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter2'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter1
+         // Reference: SpriteEmitter'lineageeffect.dec.el_flame_strike_ca.SpriteEmitter1'
+         begin object name="SpriteEmitter1" class=Engine.SpriteEmitter
+         UseDirectionAs=4
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8400000,Max=0.8400000),Z=(Min=0.8400000,Max=0.8400000))
+         Opacity=0.1500000
+         FadeOutStartTime=4.0000000
+         FadeOut=true
+         FadeInEndTime=1.0000000
+         FadeIn=true
+         MaxParticles=4
+         ForcedLifeTime=true
+         ForcedFade=true
+         RespawnDeadParticles=false
+         Name="Plane"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=3.0000000)
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.0000000,Max=2.0000000))
+         StartSizeRange=(X=(Min=23.0000000,Max=23.0000000),Y=(Min=23.0000000,Max=23.0000000),Z=(Min=23.0000000,Max=23.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0034'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=4
+         SubdivisionStart=10
+         SubdivisionEnd=11
+         LifetimeRange=(Min=5.0000000,Max=5.0000000)
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter1'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter8
+         // Reference: SpriteEmitter'lineageeffect.dec.el_flame_strike_ca.SpriteEmitter8'
+         begin object name="SpriteEmitter8" class=Engine.SpriteEmitter
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=-10.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=21,G=15,B=15,A=255))
+         ColorScale[1]=(RelativeTime=0.0964290,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[2]=(RelativeTime=0.4392860,Color=(R=255,G=206,B=207,A=255))
+         ColorScale[3]=(RelativeTime=0.6964290,Color=(R=130,G=21,B=30,A=255))
+         ColorScale[4]=(RelativeTime=1.0000000,Color=(R=2,G=2,B=2,A=255))
+         Opacity=0.9500000
+         FadeOutStartTime=0.5950000
+         FadeOut=true
+         FadeInEndTime=0.0840000
+         FadeIn=true
+         MaxParticles=40
+         ForcedMaxParticles=true
+         RespawnDeadParticles=false
+         Name="FlameUp"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-1.0000000)
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=1.0000000,Max=1.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0200000),Y=(Min=0.0500000,Max=0.1000000),Z=(Min=0.0500000,Max=0.1000000))
+         StartSpinRange=(X=(Min=-0.1000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=18.0000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=16.0000000)
+         StartSizeRange=(X=(Min=1.0000000,Max=1.4000000),Y=(Min=1.0000000,Max=1.4000000),Z=(Min=1.0000000,Max=1.4000000))
+         UniformSize=true
+         InitialParticlesPerSecond=10.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0034'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         SubdivisionEnd=2
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.3000000,Max=0.5000000)
+         StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=30.0000000,Max=60.0000000))
+         end object
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter8'
+     // Reference: MeshEmitter'lineageeffect.dec.el_flame_strike_ca.MeshEmitter2'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Fire.firebomb02'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=-130.0000000)
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=176,B=208,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=135,G=67,B=152,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.7500000,Max=0.7500000),Z=(Min=0.7500000,Max=0.7500000))
+     Opacity=0.4800000
+     FadeOutStartTime=0.3650000
+     FadeOut=true
+     FadeInEndTime=0.0350000
+     FadeIn=true
+     MaxParticles=23
+     ForcedMaxParticles=true
+     RespawnDeadParticles=false
+     Name="FlameMesh"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-3.0000000)
+     SphereRadiusRange=(Min=3.0000000,Max=3.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=1.2000000)
+     StartSizeRange=(X=(Min=0.6200000,Max=0.6200000),Y=(Min=0.6200000,Max=0.6200000),Z=(Min=0.8000000,Max=0.8000000))
+     InitialParticlesPerSecond=5.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=0.6000000,Max=0.6000000)
+     StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=30.0000000,Max=30.0000000))
+     Emitters[0]=MeshEmitter2
+     // Reference: SpriteEmitter'lineageeffect.dec.el_flame_strike_ca.SpriteEmitter1'
+     UseDirectionAs=4
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8400000,Max=0.8400000),Z=(Min=0.8400000,Max=0.8400000))
+     Opacity=0.1500000
+     FadeOutStartTime=4.0000000
+     FadeOut=true
+     FadeInEndTime=1.0000000
+     FadeIn=true
+     MaxParticles=4
+     ForcedLifeTime=true
+     ForcedFade=true
+     RespawnDeadParticles=false
+     Name="Plane"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=3.0000000)
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.0000000,Max=2.0000000))
+     StartSizeRange=(X=(Min=23.0000000,Max=23.0000000),Y=(Min=23.0000000,Max=23.0000000),Z=(Min=23.0000000,Max=23.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0034'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=4
+     SubdivisionStart=10
+     SubdivisionEnd=11
+     LifetimeRange=(Min=5.0000000,Max=5.0000000)
+     Emitters[1]=SpriteEmitter1
+     // Reference: SpriteEmitter'lineageeffect.dec.el_flame_strike_ca.SpriteEmitter8'
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=-10.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=21,G=15,B=15,A=255))
+     ColorScale[1]=(RelativeTime=0.0964290,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[2]=(RelativeTime=0.4392860,Color=(R=255,G=206,B=207,A=255))
+     ColorScale[3]=(RelativeTime=0.6964290,Color=(R=130,G=21,B=30,A=255))
+     ColorScale[4]=(RelativeTime=1.0000000,Color=(R=2,G=2,B=2,A=255))
+     Opacity=0.9500000
+     FadeOutStartTime=0.5950000
+     FadeOut=true
+     FadeInEndTime=0.0840000
+     FadeIn=true
+     MaxParticles=40
+     ForcedMaxParticles=true
+     RespawnDeadParticles=false
+     Name="FlameUp"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-1.0000000)
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=1.0000000,Max=1.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0200000),Y=(Min=0.0500000,Max=0.1000000),Z=(Min=0.0500000,Max=0.1000000))
+     StartSpinRange=(X=(Min=-0.1000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=18.0000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=16.0000000)
+     StartSizeRange=(X=(Min=1.0000000,Max=1.4000000),Y=(Min=1.0000000,Max=1.4000000),Z=(Min=1.0000000,Max=1.4000000))
+     UniformSize=true
+     InitialParticlesPerSecond=10.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0034'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     SubdivisionEnd=2
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.3000000,Max=0.5000000)
+     StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=30.0000000,Max=60.0000000))
+     Emitters[2]=SpriteEmitter8
+     AutoDestroy=true
+     bNoDelete=false
+     DrawScale=0.0500000
+}

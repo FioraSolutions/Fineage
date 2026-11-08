@@ -54,7 +54,7 @@ public static class L2EffectGeneratorSkillBinder
             return false;
         }
 
-        int boundCount = 0;
+        int refreshedSiblings = 0;
         string compositeName = prefabRoot.name;
         bool isBowVariant =
             compositeName.EndsWith("_bow_composite", StringComparison.OrdinalIgnoreCase) ||
@@ -66,6 +66,7 @@ public static class L2EffectGeneratorSkillBinder
             return true;
         }
 
+        bool foundId = false;
         for (int i = 0; i < database.effects.Count; i++)
         {
             EffectDatabase.EffectData data = database.effects[i];
@@ -77,23 +78,30 @@ public static class L2EffectGeneratorSkillBinder
             bool sameId = data.id == skillId;
             bool sameCompositeName = data.prefab != null &&
                 string.Equals(data.prefab.gameObject.name, compositeName, StringComparison.OrdinalIgnoreCase);
-            if (!sameId && !sameCompositeName)
+            if (sameId)
             {
+                data.prefab = effect;
+                if (string.IsNullOrWhiteSpace(data.comment))
+                {
+                    data.comment = PathFileName(compositePrefabPath);
+                }
+
+                foundId = true;
                 continue;
             }
 
-            data.prefab = effect;
-            if (string.IsNullOrWhiteSpace(data.comment))
+            // Regenerating a composite: refresh other rows that already point at it.
+            // Do NOT treat this as "skill id bound" — aliases need their own rows.
+            if (sameCompositeName)
             {
-                data.comment = PathFileName(compositePrefabPath);
+                data.prefab = effect;
+                refreshedSiblings++;
             }
-
-            boundCount++;
         }
 
-        if (boundCount == 0)
+        if (!foundId)
         {
-            // New skill (e.g. Prominence 1230): create GlobalEffect row.
+            // New skill (e.g. Prominence 1230 / visual remap aliases): create row.
             // Projectile skills keep flight timing; copy Wind Strike settings as a sane default.
             EffectSettings settings = AssetDatabase.LoadAssetAtPath<EffectSettings>(
                 "Assets/Scripts/Database/Effects/Data/Settings/Effect1177.asset");
@@ -108,18 +116,60 @@ public static class L2EffectGeneratorSkillBinder
                 ignoreFlightTimeForCast = false
             };
             database.effects.Add(row);
-            boundCount = 1;
             logLine = "created GlobalEffect row skill " + skillId +
-                      " prefab -> " + compositePrefabPath;
+                      " prefab -> " + compositePrefabPath +
+                      (refreshedSiblings > 0
+                          ? " (refreshed " + refreshedSiblings + " sibling row(s))"
+                          : string.Empty);
         }
         else
         {
-            logLine = "bound " + boundCount + " GlobalEffect row(s) including skill " +
-                      skillId + " prefab -> " + compositePrefabPath;
+            logLine = "updated GlobalEffect row skill " + skillId +
+                      " prefab -> " + compositePrefabPath +
+                      (refreshedSiblings > 0
+                          ? " (refreshed " + refreshedSiblings + " sibling row(s))"
+                          : string.Empty);
         }
 
         EditorUtility.SetDirty(database);
         AssetDatabase.SaveAssets();
+        return true;
+    }
+
+    /// <summary>
+    /// Bind many server skill ids to the same composite (skillgrp visual remaps / aliases).
+    /// </summary>
+    public static bool TryBindAliases(
+        int[] skillIds,
+        string compositePrefabPath,
+        out string logLine,
+        out string errorMessage)
+    {
+        logLine = null;
+        errorMessage = null;
+        if (skillIds == null || skillIds.Length == 0)
+        {
+            logLine = "alias bind skipped (no skill ids)";
+            return true;
+        }
+
+        int ok = 0;
+        for (int i = 0; i < skillIds.Length; i++)
+        {
+            if (!TryBindComposite(skillIds[i], compositePrefabPath, out string oneLog, out string oneErr))
+            {
+                errorMessage = oneErr;
+                return false;
+            }
+
+            ok++;
+            if (!string.IsNullOrEmpty(oneLog))
+            {
+                Debug.Log("[L2EffectGenerator] " + oneLog);
+            }
+        }
+
+        logLine = "alias-bound " + ok + " skill id(s) -> " + compositePrefabPath;
         return true;
     }
 
