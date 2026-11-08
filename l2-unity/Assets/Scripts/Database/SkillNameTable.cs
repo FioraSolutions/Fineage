@@ -10,10 +10,23 @@ public class SkillNameTable
     private static SkillNameTable _instance;
     private static Dictionary<int, Dictionary<int, SkillNameData>> _names;
     public Dictionary<int, Dictionary<int, SkillNameData>> Names { get { return _names; } }
+
+    [Obsolete("Use [Inject] SkillNameTable instead")]
     public static SkillNameTable Instance
     {
         get
         {
+            if (_instance == null && App.HasContainer)
+            {
+                try
+                {
+                    _instance = App.Resolve<SkillNameTable>();
+                }
+                catch
+                {
+                }
+            }
+
             if (_instance == null)
             {
                 _instance = new SkillNameTable();
@@ -23,7 +36,11 @@ public class SkillNameTable
         }
     }
 
-    
+    public static void Bind(SkillNameTable table)
+    {
+        if (table != null)
+            _instance = table;
+    }
 
     public SkillNameData GetName(int id , int level)
     {
