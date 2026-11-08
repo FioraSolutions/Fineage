@@ -138,17 +138,11 @@ public class AbstractMeshManager : MonoBehaviour
 
     private L2ArmorPiece LoadArmor(Armor armor, CharacterRaceAnimation raceId)
     {
-        if (armor == null ) return null;
+        if (armor == null)
+            return null;
 
-        L2ArmorPiece armorPiece = Models.GetArmorPiece(armor, raceId);
-
-        if (armorPiece == null)
-        {
-            // Debug.LogWarning($"MeshManager->Can't find armor {armor.Id} for race {raceId}");
-            return null ;
-        }
-
-        return armorPiece;
+        ArmorVisual visual = new ArmorVisualResolver(Models).Resolve(armor, raceId);
+        return visual.IsMissing ? null : visual.LegacyPiece;
     }
 
 
