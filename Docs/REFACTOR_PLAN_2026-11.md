@@ -185,6 +185,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `GameState` enum moved into `Fineage.Controller` (cycle-safe).
 - [x] `MonsterSoundEvent` / `AmbientSoundType` moved into `Fineage.Game` (cycle-safe).
 - [x] `EquipmentCategory` / `SkillEventType` moved into `Fineage.Game` (cycle-safe).
+- [x] `HitType` / `ProjectileImpactType` / `SpecialSkillType` moved into `Fineage.Game` (cycle-safe).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync

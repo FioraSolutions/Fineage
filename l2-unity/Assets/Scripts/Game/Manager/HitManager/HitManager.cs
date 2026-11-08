@@ -873,9 +873,3 @@ public class HitManager : MonoBehaviour
         }
     }
 }
-
-public enum HitType
-{
-    Projectile,
-    Melee
-}
