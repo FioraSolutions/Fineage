@@ -1,11 +1,5 @@
 ﻿using UnityEngine;
 
-public enum ProjectileImpactType
-{
-    ArrowStick = 0,
-    EffectOnly = 1
-}
-
 [System.Serializable]
 public class ProjectileData
 {

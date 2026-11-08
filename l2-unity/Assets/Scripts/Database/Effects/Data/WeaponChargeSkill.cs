@@ -1,14 +1,5 @@
 ﻿using UnityEngine;
 
-public enum SpecialSkillType
-{
-    None = 0,
-    LevelUp = 99999,
-    SoulshotNg = 2039,
-    SpiritshotNg = 2047,
-    BlessedSpiritshotNg = 2061,
-}
-
 /// <summary>
 /// Soulshot and spiritshot skill ids that play a weapon charge.
 /// Spiritshot 2047 and Blessed Spiritshot 2061 share the spirit visual row 2047.
