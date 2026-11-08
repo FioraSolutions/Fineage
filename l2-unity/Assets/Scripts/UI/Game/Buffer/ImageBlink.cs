@@ -51,18 +51,24 @@ public class BLink
         AddOrUpdate(element, position);
     }
 
-    private void AddOrUpdate(DataCell element , int position)
+    private void AddOrUpdate(DataCell element, int position)
     {
-        if (_dict.ContainsKey(position))
-        {
-            _dict.Add(element.GetPosition(), element);
-        }
-        else
-        {
-            _dict[position] = element;
-        }
+        // Upsert: a FullEffectSnapshot clears cell data but used to leave stale blink
+        // entries. The old ContainsKey→Add path then threw ArgumentException (Key: N)
+        // mid-rebuild and left the buff bar empty.
+        _dict[position] = element;
+    }
 
-        // Debug.Log("Start blink add element ");
+    /// <summary>Drop blink tracking for a slot (after the cell was reset/hidden).</summary>
+    public void StopBlinking(int position)
+    {
+        _dict.Remove(position);
+    }
+
+    /// <summary>Drop every blink entry — used by <see cref="BufferPanel.RemoveAllEffects"/>.</summary>
+    public void ClearAllBlinking()
+    {
+        _dict.Clear();
     }
 
     System.Collections.IEnumerator Blink(Dictionary<int, DataCell> _dict , List<int> filter)

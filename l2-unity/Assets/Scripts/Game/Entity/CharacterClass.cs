@@ -75,32 +75,53 @@ public class CharacterClassParser
 {
     public static bool IsMage(CharacterClass characterClass)
     {
-        switch (characterClass)
+        return IsMage((int)characterClass);
+    }
+
+    /// <summary>
+    /// Mage tree through 3rd profession (ClassId). CharacterClass is only 0–57; do not cast 88+.
+    /// </summary>
+    public static bool IsMage(int classId)
+    {
+        switch (classId)
         {
-            case CharacterClass.Mage:
-            case CharacterClass.Wizard:
-            case CharacterClass.Sorceror:
-            case CharacterClass.Necromancer:
-            case CharacterClass.Warlock:
-            case CharacterClass.Cleric:
-            case CharacterClass.Bishop:
-            case CharacterClass.Prophet:
-            case CharacterClass.ElvenMage:
-            case CharacterClass.ElvenWizard:
-            case CharacterClass.Spellsinger:
-            case CharacterClass.ElementalSummoner:
-            case CharacterClass.Oracle:
-            case CharacterClass.Elder:
-            case CharacterClass.DarkMage:
-            case CharacterClass.DarkWizard:
-            case CharacterClass.Spellhowler:
-            case CharacterClass.PhantomSummoner:
-            case CharacterClass.ShillienOracle:
-            case CharacterClass.ShillenElder:
-            case CharacterClass.OrcMage:
-            case CharacterClass.OrcShaman:
-            case CharacterClass.Overlord:
-            case CharacterClass.Warcryer:
+            case (int)ClassId.MAGE:
+            case (int)ClassId.WIZARD:
+            case (int)ClassId.SORCERER:
+            case (int)ClassId.NECROMANCER:
+            case (int)ClassId.WARLOCK:
+            case (int)ClassId.CLERIC:
+            case (int)ClassId.BISHOP:
+            case (int)ClassId.PROPHET:
+            case (int)ClassId.ARCHMAGE:
+            case (int)ClassId.SOULTAKER:
+            case (int)ClassId.ARCANA_LORD:
+            case (int)ClassId.CARDINAL:
+            case (int)ClassId.HIEROPHANT:
+            case (int)ClassId.ELVEN_MAGE:
+            case (int)ClassId.ELVEN_WIZARD:
+            case (int)ClassId.SPELLSINGER:
+            case (int)ClassId.ELEMENTAL_SUMMONER:
+            case (int)ClassId.ORACLE:
+            case (int)ClassId.ELDER:
+            case (int)ClassId.MYSTIC_MUSE:
+            case (int)ClassId.ELEMENTAL_MASTER:
+            case (int)ClassId.EVA_SAINT:
+            case (int)ClassId.DARK_MAGE:
+            case (int)ClassId.DARK_WIZARD:
+            case (int)ClassId.SPELLHOWLER:
+            case (int)ClassId.PHANTOM_SUMMONER:
+            case (int)ClassId.SHILLIEN_ORACLE:
+            case (int)ClassId.SHILLIEN_ELDER:
+            case (int)ClassId.STORM_SCREAMER:
+            case (int)ClassId.SPECTRAL_MASTER:
+            case (int)ClassId.SHILLIEN_SAINT:
+            case (int)ClassId.ORC_MAGE:
+            case (int)ClassId.ORC_SHAMAN:
+            case (int)ClassId.OVERLORD:
+            case (int)ClassId.WARCRYER:
+            case (int)ClassId.DOMINATOR:
+            case (int)ClassId.DOOMCRYER:
                 return true;
             default:
                 return false;

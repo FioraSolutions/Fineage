@@ -162,7 +162,7 @@ public class CharacterInfoWindow : L2PopupWindow
     }
 
     public void UpdateValues() {
-        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        PlayerEntity player = PlayerEntity.Instance;
 
         if (player == null) {
             // Debug.LogWarning("Player entity is null, can't update character window");
@@ -195,7 +195,7 @@ public class CharacterInfoWindow : L2PopupWindow
     private void UpdatePlayerInterlude(EntityIdentity identity, PlayerStats stats)
     {
         _nameLabel.text = identity.Name;
-        _classLabel.text = ((CharacterClass)(identity.PlayerClass)).ToString();
+        _classLabel.text = LobbyCharacterText.ClassLabel(identity.PlayerClass);
         _levelLabel.text = stats.Level.ToString();
 
     }

@@ -395,7 +395,7 @@ public class CharSelectWindow : L2Window {
             int s = _charactersInterlude[slot].Lvl;
             int classId = _charactersInterlude[slot].ClassId;
             _levelLabel.text = _charactersInterlude[slot].Lvl.ToString();
-            _classLabel.text = ((CharacterClass)(_charactersInterlude[slot].ClassId)).ToString();
+            _classLabel.text = LobbyCharacterText.ClassLabel(_charactersInterlude[slot].ClassId);
             _hpLabel.text = $"{_charactersInterlude[slot].Hp}/{_charactersInterlude[slot].MaxHp}";
             _mpLabel.text = $"{_charactersInterlude[slot].Mp}/{_charactersInterlude[slot].MaxMp}";
             _expLabel.text = _charactersInterlude[slot].ExpProcent.ToString("0.00") + "%";

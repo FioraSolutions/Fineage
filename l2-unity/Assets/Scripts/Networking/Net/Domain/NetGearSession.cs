@@ -159,6 +159,11 @@ public static class NetGearSession
             player.UpdateRunSpeed(stats.RunRealSpeed);
         if (stats.WalkRealSpeed > 0.001f)
             player.UpdateWalkSpeed(stats.WalkRealSpeed);
+        // Overlay writes PAtkSpd/MAtkSpd onto Stats; drive anim converters like spawn/CharInfo do.
+        if (stats.PAtkSpd > 0)
+            player.UpdatePAtkSpeed(stats.PAtkSpd);
+        if (stats.MAtkSpd > 0)
+            player.UpdateMAtkSpeed(stats.MAtkSpd);
         player.RefreshVisuals();
         CharacterInfoWindow characterInfo = HudCorePacketServices.CharacterInfo;
         if (characterInfo != null)
@@ -220,8 +225,13 @@ public static class NetGearSession
             return;
 
         info.Identity.PlayerClass = user.ClassId;
-        info.Appearance.Race = (int)MapClassId.GetCharacterRace(user.ClassId);
-        bool mage = CharacterClassParser.IsMage((CharacterClass)user.ClassId);
+        // Prefer race from UserInfo (server). Never invent via incomplete class→race maps
+        // that historically fell through to DarkElf for 3rd professions (e.g. Archmage=94).
+        if (user.Race >= 0 && user.Race <= (int)CharacterRace.Dwarf)
+            info.Appearance.Race = user.Race;
+        if (user.Sex == 0 || user.Sex == 1)
+            info.Appearance.Sex = user.Sex;
+        bool mage = CharacterClassParser.IsMage(user.ClassId);
         info.Appearance.BaseClass = mage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
         if (!string.IsNullOrEmpty(user.Name))
             info.Identity.Name = user.Name;

@@ -115,7 +115,7 @@ public static class CharacterRaceAnimationParser {
         int sex = appearance != null ? appearance.Sex : 0;
         int baseClass = appearance != null ? appearance.BaseClass : (int)BaseClass.Fighter;
         bool isMage = baseClass == (int)BaseClass.MMagic ||
-                      CharacterClassParser.IsMage((CharacterClass)playerClass);
+                      CharacterClassParser.IsMage(playerClass);
         int resolved = isMage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
         if (appearance != null)
             appearance.BaseClass = resolved;

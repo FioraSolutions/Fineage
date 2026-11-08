@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Routes <see cref="IZoneTransport"/> calls to <see cref="NetSession"/>.
 /// Keeps protocol mode checks out of GameManager, GameClient, and LoginWindow.
-/// Legacy MessagePack Zone path is gone; Fineage Net only.
+/// The Zone V2 wire path is no longer reachable from here.
 /// </summary>
 public sealed class FineageZoneTransport : IZoneTransport
 {
@@ -19,14 +19,14 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public bool Connected
     {
-        get { return NetworkingPacketServices.Session != null; }
+        get { return NetSession.Instance != null; }
     }
 
     public int SessionObjectId
     {
         get
         {
-            NetSession session = NetworkingPacketServices.Session;
+            NetSession session = NetSession.Instance;
             return session != null ? session.SessionObjectId : 0;
         }
     }
@@ -223,9 +223,11 @@ public sealed class FineageZoneTransport : IZoneTransport
         RequestBuyItemCommand netBuy = command as RequestBuyItemCommand;
         if (netBuy != null)
         {
+            // Admin GM lists open with NpcObjectId=0; prefer that over a stale merchant id.
+            int shopNpc = NetNpcSession.ShopNpcObjectId;
             NetSession.Ensure().SendRequestBuyItem(
-                NetNpcSession.ShopNpcObjectId,
-                netBuy.ListId,
+                shopNpc,
+                netBuy.ListId > 0 ? netBuy.ListId : NetNpcSession.ShopListId,
                 NetNpcOrders.ItemCounts(netBuy.BuyList));
             return true;
         }
@@ -504,7 +506,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void BeginSession(string account, string password)
     {
-        _ = NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+        NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
     }
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)
@@ -518,8 +520,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void Disconnect()
     {
-        NetSession net = NetworkingPacketServices.Session;
-        if (net != null)
-            UnityEngine.Object.Destroy(net.gameObject);
+        if (NetSession.Instance != null)
+            UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
     }
 }

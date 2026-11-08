@@ -35,7 +35,7 @@ public static class CharTemplateRegistry
         if (Classes.TryGetValue(classId, out model))
             return true;
 
-        int fallbackId = CharacterClassParser.IsMage((CharacterClass)classId)
+        int fallbackId = CharacterClassParser.IsMage(classId)
             ? (int)ClassId.MAGE
             : (int)ClassId.FIGHTER;
         return Classes.TryGetValue(fallbackId, out model);

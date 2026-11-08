@@ -130,7 +130,8 @@ public class DealerWindow : L2PopupWindow
         _listId = listId;
         _listBuy = listBuy;
         _isModifySell = isModifySell;
-        if(_listSell != null) _listSell.Clear();
+        // Cart starts empty; never leave a null list (OK would send no RequestBuyItem lines).
+        _listSell = new List<Product>();
 
         //UnityEngine.Debug.Log("Server size list buy " + listBuy.Count);
 
@@ -351,7 +352,7 @@ public class DealerWindow : L2PopupWindow
 
     public void UpdateWeight(double weightPercent)
     {
-        _currentWeight.text = weightPercent.ToString() + "%";
+        _currentWeight.text = weightPercent.ToString("0") + "%";
     }
 
     public void UpdateAllWeight(int currentWeight, int maxWeight)
@@ -452,14 +453,25 @@ public class DealerWindow : L2PopupWindow
   
     private void HandleSuccessButtonClick()
     {
+        // Snapshot before HideWindow — cart/listId must survive any close side-effects.
+        int listId = _listId;
+        List<Product> cart = _listSell != null ? new List<Product>(_listSell) : new List<Product>();
+        ProductType productType = _productType;
+        bool modifySell = _isModifySell;
+
         HideWindow();
 
-        if (!_isModifySell)
+        if (!modifySell)
         {
-            switch (_productType)
+            switch (productType)
             {
                 case ProductType.BUY:
-                    SendServer(new RequestBuyItemCommand(_listId, _listSell));
+                    if (cart.Count == 0)
+                    {
+                        Debug.LogWarning("[Shop] Success with empty cart listId=" + listId);
+                        break;
+                    }
+                    SendServer(new RequestBuyItemCommand(listId, cart));
                     break;
 
                 case ProductType.WEAR:

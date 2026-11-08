@@ -232,13 +232,12 @@ public class CharacterSelector : MonoBehaviour
         info.Karma = character.Karma;
         ApplyLobbyPaperdoll(info.Appreance, character);
         int baseClass = (int)BaseClass.Fighter;
-        if (character.ClassId >= 0 && character.ClassId <= byte.MaxValue &&
-            CharacterClassParser.IsMage((CharacterClass)character.ClassId))
+        if (CharacterClassParser.IsMage(character.ClassId))
             baseClass = (int)BaseClass.MMagic;
         info.Appreance.BaseClass = baseClass;
         CharacterRace race = character.Race >= 0 && character.Race <= (int)CharacterRace.Dwarf
             ? (CharacterRace)character.Race
-            : CharacterRace.Human;
+            : MapClassId.GetCharacterRace(character.ClassId);
         info.CharacterRaceAnimation = CharacterRaceAnimationParser.ParseRaceInterlude(race, character.Sex, baseClass);
         return info;
     }

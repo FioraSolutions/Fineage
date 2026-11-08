@@ -20,9 +20,9 @@ public static class EntitySpawnShared
         if (identity == null)
             return false;
 
-        npcGrps = npcGrps != null ? npcGrps : TablePacketServices.NpcGrps;
-        npcNames = npcNames != null ? npcNames : TablePacketServices.NpcNames;
-        models = models != null ? models : TablePacketServices.Models;
+        npcGrps = npcGrps != null ? npcGrps : NpcgrpTable.Instance;
+        npcNames = npcNames != null ? npcNames : NpcNameTable.Instance;
+        models = models != null ? models : ModelTable.Instance;
 
         int visualNpcId = identity.NpcId;
         if (npcGrps.GetNpcgrp(visualNpcId) == null)
@@ -365,8 +365,12 @@ public static class EntitySpawnShared
             poolType = ObjectType.Monster;
 
         Vector3 serverPos = identity.Position;
-        Vector3 grounded = GroundSnapHelper.SnapToGroundOrKeep(serverPos);
-        identity.Position = grounded;
+        // Village NPCs: keep server Z (DE caves under 20_18 otherwise steal GroundSnap).
+        // Monsters still snap to walkable mesh.
+        Vector3 placePos = identity.EntityType == EntityType.NPC
+            ? serverPos
+            : GroundSnapHelper.SnapToGroundOrKeep(serverPos);
+        identity.Position = placePos;
         if (poolType.HasValue && pool != null)
         {
             ObjectType tag = poolType.Value;
@@ -374,7 +378,7 @@ public static class EntitySpawnShared
             GameObject pooled = pool.SpawnFromPool(tag, prefab);
             if (pooled != null)
             {
-                ApplyGroundedTransform(pooled, grounded, identity.Heading);
+                ApplyGroundedTransform(pooled, placePos, identity.Heading);
                 return pooled;
             }
         }
@@ -383,8 +387,8 @@ public static class EntitySpawnShared
         if (prefabWasActive)
             prefab.SetActive(false);
 
-        GameObject npcGo = Object.Instantiate(prefab, grounded, identity.Heading);
-        ApplyGroundedTransform(npcGo, grounded, identity.Heading);
+        GameObject npcGo = Object.Instantiate(prefab, placePos, identity.Heading);
+        ApplyGroundedTransform(npcGo, placePos, identity.Heading);
 
         if (prefabWasActive)
             prefab.SetActive(true);
@@ -671,8 +675,8 @@ public static class EntitySpawnShared
                 clip = infos[0].clip.name;
         }
 
-        bool moving = MoveAllCharactersPacketServices.Moves != null &&
-            MoveAllCharactersPacketServices.Moves.IsMoving(entity.Identity.Id);
+        bool moving = MoveAllCharacters.Instance != null &&
+            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
         string action = entity.ActionSlot != null ? entity.ActionSlot.Action.ToString() : "-";
         Debug.Log(
             "[STRIDER_GAIT] when=" + when +

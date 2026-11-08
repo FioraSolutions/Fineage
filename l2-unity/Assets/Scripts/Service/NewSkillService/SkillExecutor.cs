@@ -19,7 +19,6 @@ public class SkillExecutor : MonoBehaviour
 
     public event Action OnSkillSequenceFinished;
     public event Action<AnimationEventsBase> OnAllAnimationFinished;
-    [System.Obsolete("Use [Inject] SkillExecutor or SkillExecutorPacketServices.Executor instead")]
     public static SkillExecutor Instance { get; private set; }
 
 
@@ -43,7 +42,6 @@ public class SkillExecutor : MonoBehaviour
 
     private void WireServicePacketServices()
     {
-        SkillExecutorPacketServices.Bind(executor: this);
         ServicePacketServices.Bind(animations: _animations, effects: _effects);
     }
 
@@ -65,7 +63,7 @@ public class SkillExecutor : MonoBehaviour
         int objectId = entity.Identity.Id;
 
         EffectManager effects = Effects;
-        if (effects != null)
+        if (effects != null && skill != null)
             effects.PlayEffect(skill.Id, entity.transform, entity.GetMagicCastData());
 
         string[] cycle = animationCombo.GetAnimCycle();

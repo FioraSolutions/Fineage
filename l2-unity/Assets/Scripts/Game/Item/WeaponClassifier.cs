@@ -1,10 +1,16 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class WeaponClassifier
 {
     public static WeaponType GetType(WeaponType weaponType, Weapongrp weaponGrp, int handness)
     {
+        // Interlude/Classic shields: handness 0 on lhand (or fist placeholder).
+        if (handness == 0 ||
+            weaponGrp != null && weaponGrp.BodyPart == ItemSlot.lhand_shield)
+        {
+            return WeaponType.shield;
+        }
+
         if (weaponType == WeaponType.hand)
         {
             weaponType = None(weaponType, weaponGrp, handness);
@@ -28,6 +34,11 @@ public class WeaponClassifier
         if (weaponType == WeaponType.shield)
         {
             weaponType = Shield(weaponType, weaponGrp, handness);
+        }
+
+        if (weaponType == WeaponType.fist && handness == 0)
+        {
+            return WeaponType.shield;
         }
 
         return weaponType;

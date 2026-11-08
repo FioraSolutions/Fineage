@@ -55,11 +55,15 @@ public sealed partial class NetSession
 
         var appearance = new PlayerAppearance
         {
-            Race = spawn.Race,
+            Race = spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf
+                ? spawn.Race
+                : (int)MapClassId.GetCharacterRace(spawn.ClassId),
             Sex = spawn.Sex,
             Running = spawn.Running,
             // BaseClass is Fighter/Mystic (0/1), not L2 classId — ResolveRaceAnimation uses PlayerClass.
-            BaseClass = 0
+            BaseClass = CharacterClassParser.IsMage(spawn.ClassId)
+                ? (int)BaseClass.MMagic
+                : (int)BaseClass.Fighter
         };
 
         // Stash PlayerInfo then OnCharacterSelect → LoadSWMap.
@@ -97,9 +101,13 @@ public sealed partial class NetSession
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
         dto.Identity.PlayerClass = spawn.ClassId;
         dto.Identity.IsRunning = spawn.Running;
-        dto.Appearance.Race = spawn.Race;
+        dto.Appearance.Race = spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf
+            ? spawn.Race
+            : (int)MapClassId.GetCharacterRace(spawn.ClassId);
         dto.Appearance.Sex = spawn.Sex;
-        dto.Appearance.BaseClass = spawn.ClassId;
+        dto.Appearance.BaseClass = CharacterClassParser.IsMage(spawn.ClassId)
+            ? (int)BaseClass.MMagic
+            : (int)BaseClass.Fighter;
         dto.Appearance.Running = spawn.Running;
         float run = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f;
         float walk = spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f;
@@ -362,6 +370,13 @@ public sealed partial class NetSession
 
     void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateNetMsg update)
     {
+        // FanoutAbnormal goes to owner + knownlist. Buff bar is self-only — peer snapshots
+        // (including empty) must not wipe local icons.
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
+        if (local != null && local.Identity != null && update.ObjectId != 0
+            && update.ObjectId != local.Identity.Id)
+            return;
+
         AbnormalEffectNet[] src = update.Effects ?? System.Array.Empty<AbnormalEffectNet>();
         var effects = new NetAbnormalEffect[src.Length];
         for (int i = 0; i < src.Length; i++)
@@ -842,6 +857,8 @@ public sealed partial class NetSession
             ObjectId = (int)msg.EntityValue,
             Name = msg.Name,
             ClassId = msg.ClassId,
+            Race = msg.Race,
+            Sex = msg.Sex,
             X = msg.X,
             Y = msg.Y,
             Z = msg.Z,

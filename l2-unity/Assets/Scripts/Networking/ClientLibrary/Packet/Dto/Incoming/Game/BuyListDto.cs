@@ -128,16 +128,13 @@ public class Product : AbstractServerItem
     {
         if(GetTypeItem() == EnumType2.TYPE2_WEAPON)
         {
-            return TablePacketServices.WeaponGrps.GetWeapon(_itemId).Weight;
+            Weapongrp weapon = GetWeapon();
+            return weapon != null ? weapon.Weight : 0;
         }
-        else if (GetTypeItem() ==  EnumType2.TYPE2_ACCESSORY)
+        if (GetTypeItem() == EnumType2.TYPE2_SHIELD_ARMOR || GetTypeItem() == EnumType2.TYPE2_ACCESSORY)
         {
-            Armorgrp armpr = GetArmor();
-
-            if (armpr != null)
-            {
-                return armpr.Weight;
-            }
+            Armorgrp armor = GetArmor();
+            return armor != null ? armor.Weight : 0;
         }
 
         return 0;
@@ -178,31 +175,10 @@ public class Product : AbstractServerItem
     }
     public string GetName()
     {
-        if(_itemType2 == (int)EnumType2.TYPE2_WEAPON)
-        {
-            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
-
-        }else if (_itemType2 == (int)EnumType2.TYPE2_SHIELD_ARMOR)
-        {
-            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
-        }
-        else if (_itemType2 == (int)EnumType2.TYPE2_ACCESSORY)
-        {
-            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
-        }
-        else if (_itemType2 == (int)EnumType2.TYPE2_QUEST)
-        {
-            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
-        }
-        else if (_itemType2 == (int)EnumType2.TYPE2_MONEY)
-        {
-            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
-        }
-        else if (_itemType2 == (int)EnumType2.TYPE2_OTHER)
-        {
-            return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
-        }
-        return "";
+        ItemName item = ItemNameTable.Instance != null
+            ? ItemNameTable.Instance.GetItemName(_itemId)
+            : null;
+        return item != null && !string.IsNullOrEmpty(item.Name) ? item.Name : ("Item " + _itemId);
     }
 
     public override bool Equals(object obj)

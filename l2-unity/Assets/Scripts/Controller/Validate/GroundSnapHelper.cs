@@ -105,8 +105,10 @@ public static class GroundSnapHelper
         if (hits == null || hits.Length == 0)
             return false;
 
+        // Prefer the highest walkable hit in the server-Y window. Closest-abs alone buries
+        // Dark Elf Village NPCs on cave MeshColliders a few meters under the village floor.
         RaycastHit best = default;
-        float bestDelta = float.MaxValue;
+        float bestY = float.NegativeInfinity;
         bool found = false;
         for (int i = 0; i < hits.Length; i++)
         {
@@ -118,10 +120,9 @@ public static class GroundSnapHelper
             if (dy > MaxLift || dy < -MaxDrop)
                 continue;
 
-            float abs = dy < 0f ? -dy : dy;
-            if (abs < bestDelta)
+            if (!found || hit.point.y > bestY)
             {
-                bestDelta = abs;
+                bestY = hit.point.y;
                 best = hit;
                 found = true;
             }

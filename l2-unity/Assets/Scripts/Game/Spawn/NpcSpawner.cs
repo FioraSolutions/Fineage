@@ -5,14 +5,12 @@ public sealed class NpcSpawner
     private readonly ObjectPoolManager _pool;
     private readonly AppearFadeService _appearFade;
     private readonly NpcDecoService _deco;
-    private readonly IGravity _gravity;
 
-    public NpcSpawner(ObjectPoolManager pool, AppearFadeService appearFade, NpcDecoService deco, GravityNpc gravity = null)
+    public NpcSpawner(ObjectPoolManager pool, AppearFadeService appearFade, NpcDecoService deco)
     {
         _pool = pool;
         _appearFade = appearFade;
         _deco = deco;
-        _gravity = gravity;
     }
 
     public Entity Spawn(NpcSpawnRequest request, IWorldSpawnContext world)
@@ -21,7 +19,9 @@ public sealed class NpcSpawner
             return null;
 
         EntityIdentity identity = request.Identity;
-        identity.SetPosY(world.GetGroundHeight(identity.Position));
+        // Trust server Z. GroundSnap (GetGroundHeight / ReapplyGroundAfterActivate) can latch onto
+        // underground cave MeshColliders under Dark Elf Village (and similar) within MaxDrop and
+        // bury every NPC. Outdoor monsters still snap via MonsterSpawner.
 
         GameObject npcGo = EntitySpawnShared.AcquireNpcGameObject(_pool, request.Prefab, identity);
         if (npcGo == null)
@@ -48,9 +48,8 @@ public sealed class NpcSpawner
         EntitySpawnShared.SanitizeCharacterControllerStepOffset(npcGo);
         EntitySpawnShared.DisableLegacyPositionSync(npcGo);
         npcGo.SetActive(true);
-        EntitySpawnShared.ReapplyGroundAfterActivate(npcGo, identity);
 
-        InitNpc(npc, npcGo, world, _gravity);
+        InitNpc(npc, npcGo, world);
         PetSummonRise.TryBegin(npc);
         _deco.Start(npc);
         world.RegisterNpc(npc);
@@ -59,7 +58,7 @@ public sealed class NpcSpawner
         return npc;
     }
 
-    private static void InitNpc(Entity npc, GameObject npcGo, IWorldSpawnContext world, IGravity gravity)
+    private static void InitNpc(Entity npc, GameObject npcGo, IWorldSpawnContext world)
     {
         NetworkAnimationController animationController =
             EntitySpawnShared.FindOnPrefab<NetworkAnimationController>(npcGo);
@@ -76,8 +75,8 @@ public sealed class NpcSpawner
 
         if (npc.name.Equals("Leandro") || npc.name.Equals("Remy"))
         {
-            if (gravity != null)
-                gravity.AddGravity(npc.Identity.Id, new GravityData(npc));
+            if (GravityNpc.Instance != null)
+                GravityNpc.Instance.AddGravity(npc.Identity.Id, new GravityData(npc));
         }
     }
 }

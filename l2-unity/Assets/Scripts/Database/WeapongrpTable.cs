@@ -2,9 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class WeapongrpTable {
     private static WeapongrpTable _instance;
@@ -187,9 +185,15 @@ public class WeapongrpTable {
                     string[] ids = line.Split('\t');
                     int id =  Int32.Parse(ids[1]);
 
+                    // Col 24 = handness (0 shield, 1 one-hand, 4 pole/2H). Col 25 is mesh
+                    // count — never use it as handness. BodyPartFromInterlude maps handness.
+                    int handness = Int32.Parse(ids[24]);
+                    int crystalType = Int32.Parse(ids[44]);
+
                     if (_weaponGrps.ContainsKey(id))
                     {
                         Weapongrp grp = _weaponGrps[id];
+                        ApplyInterludeIdentity(grp, ids, handness, crystalType);
                         grp.PAtk = Int32.Parse(ids[41]);
                         grp.Matk = Int32.Parse(ids[42]);
                         grp.CriticalRate = Int32.Parse(ids[45]);
@@ -209,31 +213,7 @@ public class WeapongrpTable {
                     else
                     {
                         Weapongrp grp = new Weapongrp();
-
-                        var wp_model = ids[7];
-                        var texture = ids[10];
-                        var icon = ids[13];
-                        var weight = ids[19];
-                        var material = ids[20];
-                        var body_part = ids[24];
-                        var hadness = ids[25];
-                        var weapon_type_id = ids[44];
-                        var weaponType1 = WeaponTypeParser.Parse(weapon_type_id);
-
-
-                        var model = DatUtils.ParseArray(wp_model);
-                        grp.Model = model[0];
-
-                        var modTex = DatUtils.ParseArray(texture);
-                        grp.Texture = modTex[0];
-
-
-                        grp.Icon = DatUtils.ParseArray(icon)[0];
-                        grp.Weight = int.Parse(weight);
-                        grp.Material = ItemMaterialParser.Parse(material);
-
-                        var weaponType = WeaponClassifier.GetType(weaponType1, grp, Int32.Parse(hadness));
-                        grp.WeaponType = weaponType;
+                        ApplyInterludeIdentity(grp, ids, handness, crystalType);
 
                         grp.PAtk = Int32.Parse(ids[41]);
                         grp.Matk = Int32.Parse(ids[42]);
@@ -261,5 +241,68 @@ public class WeapongrpTable {
         }
     }
 
-  
+    /// <summary>
+    /// Model / texture / body / grade / weapon type from an Interlude weapongrp row.
+    /// Handness col 24: 0 shield, 1 one-hand, 4 pole/two-hand.
+    /// </summary>
+    static void ApplyInterludeIdentity(Weapongrp grp, string[] ids, int handness, int crystalType)
+    {
+        var model = DatUtils.ParseArray(ids[7]);
+        if (model != null && model.Length > 0 && !string.IsNullOrEmpty(model[0]))
+            grp.Model = model[0];
+
+        var modTex = DatUtils.ParseArray(ids[10]);
+        if (modTex != null && modTex.Length > 0 && !string.IsNullOrEmpty(modTex[0]))
+            grp.Texture = modTex[0];
+
+        var icon = DatUtils.ParseArray(ids[13]);
+        if (icon != null && icon.Length > 0)
+            grp.Icon = icon[0];
+
+        if (int.TryParse(ids[19], out int weight))
+            grp.Weight = weight;
+        grp.Material = ItemMaterialParser.Parse(ids[20]);
+        grp.BodyPart = BodyPartFromInterlude(handness);
+        grp.Grade = GradeFromInterlude(crystalType);
+
+        WeaponType fromHand = WeaponTypeParser.ParseByHandness(handness);
+        grp.WeaponType = WeaponClassifier.GetType(fromHand, grp, handness);
+        grp.ObjectId = int.Parse(ids[1]);
+    }
+
+    /// <summary>
+    /// Interlude packed handness used as body: 0 shield, 1 right hand, else two-hand.
+    /// </summary>
+    static ItemSlot BodyPartFromInterlude(int bodyPartCode)
+    {
+        switch (bodyPartCode)
+        {
+            case 0:
+                return ItemSlot.lhand_shield;
+            case 1:
+                return ItemSlot.rhand;
+            default:
+                return ItemSlot.lrhand;
+        }
+    }
+
+    /// <summary>Interlude packed crystal_type: 0 none, 1 D … 5 S.</summary>
+    static ItemGrade GradeFromInterlude(int crystalType)
+    {
+        switch (crystalType)
+        {
+            case 1:
+                return ItemGrade.d;
+            case 2:
+                return ItemGrade.c;
+            case 3:
+                return ItemGrade.b;
+            case 4:
+                return ItemGrade.a;
+            case 5:
+                return ItemGrade.s;
+            default:
+                return ItemGrade.none;
+        }
+    }
 }

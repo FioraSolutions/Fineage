@@ -183,27 +183,30 @@ public class L2Particle : BaseEffect, IRegisteredBillboard
 
         for (int i = 0; i < _particleGroups.Length; i++)
         {
-            _particleGroups[i].Setup(_settings, _castData);
+            EffectPart part = _particleGroups[i];
+            if (part == null)
+                continue;
+
+            part.Setup(_settings, _castData);
 
             if (_owner != null)
+                part.OwnerTarget = _owner;
+
+            // Move-click mark (and other host-played FX) call Play() without Setup(),
+            // so _settings stays null. Still emit parts — old path used ResetTimer(1f, null).
+            if (_settings != null)
             {
-                _particleGroups[i].OwnerTarget = _owner;
+                part.FollowTarget = _settings.isFollowCaster ? _owner : null;
+                if (!_settings.isFollowCaster)
+                    part.SurfaceNormal = _surfaceNormal;
+            }
+            else
+            {
+                part.FollowTarget = null;
+                part.SurfaceNormal = _surfaceNormal;
             }
 
-            if(_settings == null)
-            {
-                // Debug.Log("L2Particle>ResetTimer _settings is null");
-                return ;
-            }
-            
-            _particleGroups[i].FollowTarget = _settings.isFollowCaster ? _owner : null;
-
-            if (!_settings.isFollowCaster)
-            {
-                _particleGroups[i].SurfaceNormal = _surfaceNormal;
-            }
-
-            _particleGroups[i].PlayPart();
+            part.PlayPart();
         }
     }
 

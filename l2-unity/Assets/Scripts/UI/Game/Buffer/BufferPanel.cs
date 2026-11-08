@@ -28,7 +28,7 @@ public class BufferPanel : L2Window
 
     private SkillgrpTable SkillGrps
     {
-        get { return _skillGrps != null ? _skillGrps : TablePacketServices.SkillGrps; }
+        get { return _skillGrps != null ? _skillGrps : SkillgrpTable.Instance; }
     }
 
     private void Awake()
@@ -150,6 +150,9 @@ public class BufferPanel : L2Window
     {
         List<DataCell> list = _filterData.GetListActiveAndBusy();
         ResetList(list);
+        // Stale blink entries must go too — otherwise the next FullEffectSnapshot
+        // re-adds into the same slots and the blink dict throws / aborts the rebuild.
+        _bLink?.ClearAllBlinking();
         HideContentElseNoElements();
     }
 
@@ -167,6 +170,7 @@ public class BufferPanel : L2Window
         {
             foreach (DataCell cell in list)
             {
+                _bLink?.StopBlinking(cell.GetPosition());
                 cell.ResetData();
                 cell.ShowCell(false);
             }
@@ -246,6 +250,7 @@ public class BufferPanel : L2Window
             empty.RefreshData(moveCell.GetSkillId(), true, moveCell.GetLevel());
             empty.ShowCell(true);
 
+            _bLink?.StopBlinking(moveCell.GetPosition());
             moveCell.ResetData();
             moveCell.ShowCell(false);
             _dictElement[moveCell.GetPosition()] = moveCell;

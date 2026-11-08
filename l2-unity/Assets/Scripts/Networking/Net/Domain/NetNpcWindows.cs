@@ -30,7 +30,7 @@ public static class NetNpcWindows
 
     public static bool InRange(Entity npc)
     {
-        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        PlayerEntity player = PlayerEntity.Instance;
         if (player == null || npc == null || npc.Identity == null)
             return true;
         Vector3 from = player.Identity.GetL2jPos(player.transform.position);
@@ -155,14 +155,20 @@ public static class NetNpcWindows
             for (int i = 0; i < list.Items.Length; i++)
             {
                 NetBuyItem row = list.Items[i];
-                int count = row.Count < 0 ? 10000 : row.Count;
+                int type2 = Type2FromItemId(row.ItemId);
+                // Unlimited shop rows arrive as Count=-1. Equipment is never stacked in the cart —
+                // keep Count=1 so double-click buys without the 10000-qty dialog (GM armor/weapon).
+                int count = row.Count < 0
+                    ? (IsEquipmentType2(type2) ? 1 : 10000)
+                    : row.Count;
                 // Net BuyList carries itemId/price only — TYPE2 must come from local weapongrp/armorgrp
                 // (hardcoding OTHER made RB jewels hit EtcItem tooltip → NRE).
-                products.Add(new Product(0, 0, count, Type2FromItemId(row.ItemId), 0, 0, 0, row.Price, row.ItemId));
+                products.Add(new Product(0, 0, count, type2, 0, 0, 0, row.Price, row.ItemId));
             }
         }
 
-        OpenDealer("Shop", "Sell", "Buy", ProductType.BUY, products, false, list.ListId, _hasBalance ? _balance.Adena : 0);
+        // Interlude BuyList: top = merchant goods, bottom = purchase cart (not player-trade).
+        OpenDealer("Shop", "Item List", "Buy List", ProductType.BUY, products, false, list.ListId, _hasBalance ? _balance.Adena : 0);
     }
 
     static void ShowSell(NetSellList list)
@@ -320,10 +326,10 @@ public static class NetNpcWindows
         if (itemId == 57)
             return (int)EnumType2.TYPE2_MONEY;
 
-        if (TablePacketServices.WeaponGrps != null && TablePacketServices.WeaponGrps.GetWeapon(itemId) != null)
+        if (WeapongrpTable.Instance != null && WeapongrpTable.Instance.GetWeapon(itemId) != null)
             return (int)EnumType2.TYPE2_WEAPON;
 
-        Armorgrp armor = TablePacketServices.ArmorGrps != null ? TablePacketServices.ArmorGrps.GetArmor(itemId) : null;
+        Armorgrp armor = ArmorgrpTable.Instance != null ? ArmorgrpTable.Instance.GetArmor(itemId) : null;
         if (armor != null)
         {
             if (IsJewelSlot(armor.BodyPart))
@@ -333,6 +339,11 @@ public static class NetNpcWindows
 
         return (int)EnumType2.TYPE2_OTHER;
     }
+
+    static bool IsEquipmentType2(int type2) =>
+        type2 == (int)EnumType2.TYPE2_WEAPON
+        || type2 == (int)EnumType2.TYPE2_SHIELD_ARMOR
+        || type2 == (int)EnumType2.TYPE2_ACCESSORY;
 
     static bool IsJewelSlot(ItemSlot slot)
     {
