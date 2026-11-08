@@ -25,6 +25,8 @@ public static class TablePacketServices
     private static ModelTable _models;
     private static LogongrpTable _logonGrps;
     private static SystemMessageTable _systemMessages;
+    private static WeaponShotTable _weaponShots;
+    private static KeyImageTable _keyImages;
 
     public static void Bind(
         ItemTable items = null,
@@ -48,7 +50,9 @@ public static class TablePacketServices
         EnterEventTable enterEvents = null,
         ModelTable models = null,
         LogongrpTable logonGrps = null,
-        SystemMessageTable systemMessages = null)
+        SystemMessageTable systemMessages = null,
+        WeaponShotTable weaponShots = null,
+        KeyImageTable keyImages = null)
     {
         if (items != null)
             _items = items;
@@ -94,6 +98,10 @@ public static class TablePacketServices
             _logonGrps = logonGrps;
         if (systemMessages != null)
             _systemMessages = systemMessages;
+        if (weaponShots != null)
+            _weaponShots = weaponShots;
+        if (keyImages != null)
+            _keyImages = keyImages;
     }
 
     public static ItemTable Items =>
@@ -241,6 +249,30 @@ public static class TablePacketServices
 
     public static SystemMessageTable SystemMessages =>
         _systemMessages != null ? _systemMessages : SystemMessageTable.Instance;
+
+    public static WeaponShotTable WeaponShots
+    {
+        get
+        {
+            if (_weaponShots != null)
+                return _weaponShots;
+#pragma warning disable CS0618
+            return WeaponShotTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
+
+    public static KeyImageTable KeyImages
+    {
+        get
+        {
+            if (_keyImages != null)
+                return _keyImages;
+#pragma warning disable CS0618
+            return KeyImageTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
 #pragma warning disable CS0618 // Locator fallback until ItemTable.Instance is removed
     static ItemTable LegacyItemTableInstance() => ItemTable.Instance;
