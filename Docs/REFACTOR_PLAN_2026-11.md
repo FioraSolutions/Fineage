@@ -124,7 +124,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
 | Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` (renamed from `INetPresenceBridge`). Next: untangle fanout DTOs off Net.Contract |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
-| `ZoneEntity` composition | [partial] ground + spoil + aggro + player store/social/status + NPC template payloads composed; shared move/vitals/skills still on entity |
+| `ZoneEntity` composition | [partial] ground + spoil + aggro + player store/social/status/skills + NPC template payloads composed; shared move/vitals still on entity |
 | `NetCodec` | Split by domain **or** keep monolith + mandatory round-trip tests per message (generation optional later) |
 
 ### B3. Client main-thread budget — done
