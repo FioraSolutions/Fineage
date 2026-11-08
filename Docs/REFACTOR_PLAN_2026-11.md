@@ -33,7 +33,7 @@ Static re-check of the long GPT “client + server” architecture review agains
 | Login + Zone + HMAC handoff + Postgres SoT | Live |
 | `ZoneWorld` / `NetZoneServer` / `NetCodec` are oversized hubs | ~1.4k + many partials; NetZoneServer ~2.9k; NetCodec ~3.5k |
 | Global `_gate` on `ZoneWorld` is a future bottleneck; prefer single-writer sim later | Still `lock (_gate)` across world methods |
-| `ZoneEntity` is a player+NPC+ground god bag | Defined in `ZoneWorld.cs` (~400+ fields mixed by kind) |
+| `ZoneEntity` is a player+NPC+ground god bag | **Partial:** `ZoneGroundItemPayload` composed; player/NPC payloads still flat |
 | `ZoneWorld` → presence fanout couples domain to net encoding | **Partial:** `INetPresenceBridge` now in `Fineage.Zone.World`; still set from `NetZoneServer` and still carries Net.Contract DTOs |
 | Auth password bytes on the wire; TLS not on client TCP yet | `EncodeAuth` writes plaintext password; TLS = Gateway/#17/#113 / Phase A6 |
 | Keep TCP for now; QUIC later | Matches `ARCHITECTURE_NET` + #123 |
@@ -142,8 +142,10 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 ### B5. State recovery — later
 - EnterWorld snapshot + revision; resync / reconnect path when Critical outbound was dropped.
 
-### B6. Economy invariants — open (tests)
+### B6. Economy invariants — partial (tests)
 - Trade / inventory / adena: atomic apply + persistence tests (dup-item / double-spend). Not claiming a live bug; GPT correctly flagged the invariant set.
+- [x] Trade: over-offer count refused; post-finish reconfirm cannot invent a second transfer (`NetTradeTests`).
+- [ ] Inventory / adena / warehouse double-spend paths still need dedicated cases.
 
 ---
 
@@ -196,7 +198,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | Continue handler/system extracts; domain events (`IWorldEventPublisher`); epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Opcode groups largely extracted — residual = session lifecycle (Hello/Auth/Enter) + knownlist fanout on `NetZoneServer` |
+| Backend B2b | Handlers + session lifecycle + knownlist fanout extracted; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = `IWorldEventPublisher` DTO untangle, more ZoneEntity composition, economy tests, NetCodec |
 | Client #131 | More asmdef moves; LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
@@ -211,6 +213,6 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] `NetDomainMap.cs` and frozen `Net*Map` adapters gone (`check-frozen-net-domain-maps.py`)
 - [x] No new world DB I/O under `_gate` on enter (Phase B1)
 - [ ] TLS (or equivalent) before public auth
-- [ ] New Zone features land outside `NetZoneServer` / `ZoneWorld` god files when practical
+- [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld still large
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
 - [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe
