@@ -197,14 +197,11 @@ public class CharacterArmorDresser : AbstractArmorDresser
 
     private void DestroyIfNotUse( bool isUse , GameObject[] listGameObject)
     {
-        if(isUse == false)
-        {
-            foreach (GameObject go in listGameObject)
-            {
-                Destroy(go);
-            }
-        }
+        if (isUse || listGameObject == null)
+            return;
 
+        for (int i = 0; i < listGameObject.Length; i++)
+            Destroy(listGameObject[i]);
     }
 
 
