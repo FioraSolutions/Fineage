@@ -1,0 +1,225 @@
+class bl_poison_cloud_ta extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter13
+         // Reference: SpriteEmitter'lineageeffect.dec.bl_poison_cloud_ta.SpriteEmitter13'
+         begin object name="SpriteEmitter13" class=Engine.SpriteEmitter
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=-30.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=117,G=106,B=130,A=255))
+         ColorScale[1]=(RelativeTime=0.9071430,Color=(R=54,G=51,B=57,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+         Opacity=0.6000000
+         CoordinateSystem=0
+         MaxParticles=25
+         RespawnDeadParticles=false
+         Name="Explosion"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=30.0000000)
+         StartLocationShape=2
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=4.0000000,Max=25.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseRegularSizeScale=false
+         StartSizeRange=(X=(Min=25.0000000,Max=45.0000000),Y=(Min=25.0000000,Max=45.0000000),Z=(Min=25.0000000,Max=45.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=140.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0089'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         BlendBetweenSubdivisions=true
+         SubdivisionEnd=4
+         LifetimeRange=(Min=0.6230000,Max=1.8000000)
+         InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+         StartVelocityRange=(X=(Min=200.4089966,Max=300.4089966),Y=(Min=200.4089966,Max=300.4089966),Z=(Min=-10.0000000,Max=10.0000000))
+         VelocityLossRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         GetVelocityDirectionFrom=1
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter13'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter15
+         // Reference: SpriteEmitter'lineageeffect.dec.bl_poison_cloud_ta.SpriteEmitter15'
+         begin object name="SpriteEmitter15" class=Engine.SpriteEmitter
+         UseDirectionAs=4
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=-3.0000000)
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.5000000,Color=(R=128,G=128,B=128,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=5.0000000
+         ColorMultiplierRange=(X=(Min=0.8440000,Max=0.8440000),Y=(Min=0.9160000,Max=0.9160000),Z=(Min=0.7530000,Max=0.7530000))
+         Opacity=0.8100000
+         FadeOutStartTime=0.0770000
+         FadeOut=true
+         FadeInEndTime=0.0315000
+         FadeIn=true
+         CoordinateSystem=0
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="Ring"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=35.0000000)
+         SpinParticles=true
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=3.0000000)
+         SizeScale[1]=(RelativeTime=0.2700000,RelativeSize=5.0000000)
+         SizeScale[2]=(RelativeTime=0.5600000,RelativeSize=7.0000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=8.5000000)
+         StartSizeRange=(X=(Min=18.0000000,Max=18.0000000),Y=(Min=18.0000000,Max=18.0000000),Z=(Min=18.0000000,Max=18.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=50.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=5
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0061'
+         TextureUSubdivisions=1
+         TextureVSubdivisions=2
+         SubdivisionStart=1
+         SubdivisionEnd=2
+         LifetimeRange=(Min=0.6000000,Max=0.6000000)
+         StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=1.0000000,Max=1.0000000))
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter15'
+     Begin Object Class=MeshEmitter Name=MeshEmitter9
+         // Reference: MeshEmitter'lineageeffect.dec.bl_poison_cloud_ta.MeshEmitter9'
+         begin object name="MeshEmitter9" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Support.supportenchant01'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.3550000,Max=0.3550000),Z=(Min=0.3550000,Max=0.3550000))
+         Opacity=0.4000000
+         FadeOutStartTime=0.1400000
+         FadeOut=true
+         FadeInEndTime=0.0360000
+         FadeIn=true
+         MaxParticles=4
+         RespawnDeadParticles=false
+         Name="MeshEmitter4"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=30.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=1.0000000,Y=0.5000000,Z=0.5000000)
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=3.0000000)
+         StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.0500000,Max=0.0500000))
+         InitialParticlesPerSecond=50.0000000
+         AutomaticInitialSpawning=false
+         LifetimeRange=(Min=0.4000000,Max=0.4000000)
+         InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+         end object
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter9'
+     // Reference: SpriteEmitter'lineageeffect.dec.bl_poison_cloud_ta.SpriteEmitter13'
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=-30.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=117,G=106,B=130,A=255))
+     ColorScale[1]=(RelativeTime=0.9071430,Color=(R=54,G=51,B=57,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+     Opacity=0.6000000
+     CoordinateSystem=0
+     MaxParticles=25
+     RespawnDeadParticles=false
+     Name="Explosion"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=30.0000000)
+     StartLocationShape=2
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=4.0000000,Max=25.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseRegularSizeScale=false
+     StartSizeRange=(X=(Min=25.0000000,Max=45.0000000),Y=(Min=25.0000000,Max=45.0000000),Z=(Min=25.0000000,Max=45.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=140.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0089'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     BlendBetweenSubdivisions=true
+     SubdivisionEnd=4
+     LifetimeRange=(Min=0.6230000,Max=1.8000000)
+     InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+     StartVelocityRange=(X=(Min=200.4089966,Max=300.4089966),Y=(Min=200.4089966,Max=300.4089966),Z=(Min=-10.0000000,Max=10.0000000))
+     VelocityLossRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     GetVelocityDirectionFrom=1
+     Emitters[0]=SpriteEmitter13
+     // Reference: SpriteEmitter'lineageeffect.dec.bl_poison_cloud_ta.SpriteEmitter15'
+     UseDirectionAs=4
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=-3.0000000)
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.5000000,Color=(R=128,G=128,B=128,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=5.0000000
+     ColorMultiplierRange=(X=(Min=0.8440000,Max=0.8440000),Y=(Min=0.9160000,Max=0.9160000),Z=(Min=0.7530000,Max=0.7530000))
+     Opacity=0.8100000
+     FadeOutStartTime=0.0770000
+     FadeOut=true
+     FadeInEndTime=0.0315000
+     FadeIn=true
+     CoordinateSystem=0
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="Ring"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=35.0000000)
+     SpinParticles=true
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=3.0000000)
+     SizeScale[1]=(RelativeTime=0.2700000,RelativeSize=5.0000000)
+     SizeScale[2]=(RelativeTime=0.5600000,RelativeSize=7.0000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=8.5000000)
+     StartSizeRange=(X=(Min=18.0000000,Max=18.0000000),Y=(Min=18.0000000,Max=18.0000000),Z=(Min=18.0000000,Max=18.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=50.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=5
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0061'
+     TextureUSubdivisions=1
+     TextureVSubdivisions=2
+     SubdivisionStart=1
+     SubdivisionEnd=2
+     LifetimeRange=(Min=0.6000000,Max=0.6000000)
+     StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=1.0000000,Max=1.0000000))
+     Emitters[1]=SpriteEmitter15
+     // Reference: MeshEmitter'lineageeffect.dec.bl_poison_cloud_ta.MeshEmitter9'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Support.supportenchant01'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.3550000,Max=0.3550000),Z=(Min=0.3550000,Max=0.3550000))
+     Opacity=0.4000000
+     FadeOutStartTime=0.1400000
+     FadeOut=true
+     FadeInEndTime=0.0360000
+     FadeIn=true
+     MaxParticles=4
+     RespawnDeadParticles=false
+     Name="MeshEmitter4"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=30.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=1.0000000,Y=0.5000000,Z=0.5000000)
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=3.0000000)
+     StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.0500000,Max=0.0500000))
+     InitialParticlesPerSecond=50.0000000
+     AutomaticInitialSpawning=false
+     LifetimeRange=(Min=0.4000000,Max=0.4000000)
+     InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+     Emitters[2]=MeshEmitter9
+     AutoDestroy=true
+     bRotEmitter=true
+     bNoDelete=false
+     Rotation=(Pitch=0,Yaw=63994800,Roll=0)
+     DrawScale=0.0500000
+     bDirectional=true
+}

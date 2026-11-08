@@ -1,0 +1,1661 @@
+{
+  "reference": "Human Mystic line VFX gap (classes 10-17,94-98)",
+  "classIds": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    94,
+    95,
+    96,
+    97,
+    98
+  ],
+  "counts": {
+    "missingActives": 150,
+    "uniqueVisuals": 75,
+    "alias": 7,
+    "generate": 59,
+    "skip": 9,
+    "uniqueEffectClasses": 137,
+    "skippedNoUc": [
+      1159,
+      1191,
+      1389,
+      1398,
+      1400,
+      1412
+    ]
+  },
+  "entries": [
+    {
+      "visualId": 2,
+      "serverSkillIds": [
+        1064,
+        1072,
+        1075
+      ],
+      "skillNames": [
+        "Silence",
+        "Sleeping Cloud",
+        "Peace"
+      ],
+      "effectClasses": [
+        "m_u018_a",
+        "m_u018_b",
+        "d_purplebubble_fl",
+        "at_fatal_strike_ta"
+      ],
+      "folderName": "m_u018_a_v2",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u018_a_v2",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 121,
+      "serverSkillIds": [
+        1311
+      ],
+      "skillNames": [
+        "Body of Avatar"
+      ],
+      "effectClasses": [
+        "mo_battle_roar_ca",
+        "s_u530_focus_force_ca",
+        "mo_battle_roar_ta"
+      ],
+      "folderName": "s_u530_focus_force_v121",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u530_focus_force_v121",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 323,
+      "serverSkillIds": [
+        1387
+      ],
+      "skillNames": [
+        "Summon Cursed Bones"
+      ],
+      "effectClasses": [
+        "su_summon_a_ca"
+      ],
+      "folderName": "su_summon_a_v323",
+      "effectRoot": "Assets/Resources/Data/Effects/su_summon_a_v323",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 427,
+      "serverSkillIds": [
+        427
+      ],
+      "skillNames": [
+        "Spell Force"
+      ],
+      "effectClasses": [
+        "s_u806_ca",
+        "s_u806_channeling_mesh",
+        "s_u806_ta",
+        "s_u806_channeling_beam"
+      ],
+      "folderName": "s_u806_v427",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u806_v427",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 438,
+      "serverSkillIds": [
+        1410
+      ],
+      "skillNames": [
+        "Salvation"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "s_u608_ta"
+      ],
+      "folderName": "wh_heal_v438",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v438",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 443,
+      "serverSkillIds": [
+        1418
+      ],
+      "skillNames": [
+        "Celestial Shield"
+      ],
+      "effectClasses": [
+        "s_u804_a_ca",
+        "s_u220_barrier"
+      ],
+      "folderName": "s_u804_a_v443",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u804_a_v443",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1011,
+      "serverSkillIds": [
+        1027,
+        1126,
+        1127
+      ],
+      "skillNames": [
+        "Group Heal",
+        "Servitor Recharge",
+        "Servitor Heal"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_sec_heal_ca",
+        "wh_heal_ta",
+        "d_chainhealafter_ta",
+        "d_s_u812_ybeam_b",
+        "d_s_u812_ybeam_ta",
+        "d_chainheal_ta",
+        "su_focus_ta",
+        "d_s_u812_ybeam_a"
+      ],
+      "folderName": "wh_heal_v1011",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1011",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/wh_heal/wh_heal_composite.prefab"
+    },
+    {
+      "visualId": 1016,
+      "serverSkillIds": [
+        1016,
+        1254
+      ],
+      "skillNames": [
+        "Resurrection",
+        "Mass Resurrection"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_resurrection_ta"
+      ],
+      "folderName": "wh_heal_v1016",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1016",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1018,
+      "serverSkillIds": [
+        1018,
+        1300,
+        1301
+      ],
+      "skillNames": [
+        "Purify",
+        "Servitor Cure",
+        "Servitor Blessing"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "wh_cure_poison_ta"
+      ],
+      "folderName": "wh_sec_heal_v1018",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1018",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1028,
+      "serverSkillIds": [
+        1028,
+        1042
+      ],
+      "skillNames": [
+        "Might of Heaven",
+        "Hold Undead"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "wh_disrupt_undead_ta"
+      ],
+      "folderName": "wh_sec_heal_v1028",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1028",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1031,
+      "serverSkillIds": [
+        1031
+      ],
+      "skillNames": [
+        "Disrupt Undead"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "wh_disrupt_undead_ta"
+      ],
+      "folderName": "wh_sec_heal_v1031",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1031",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1034,
+      "serverSkillIds": [
+        1034,
+        1049
+      ],
+      "skillNames": [
+        "Repose",
+        "Requiem"
+      ],
+      "effectClasses": [
+        "m_u030_a",
+        "m_u030_b"
+      ],
+      "folderName": "m_u030_a_v1034",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u030_a_v1034",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1035,
+      "serverSkillIds": [
+        1032,
+        1033,
+        1035,
+        1392
+      ],
+      "skillNames": [
+        "Invigor",
+        "Resist Poison",
+        "Mental Shield",
+        "Holy Resistance"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "z_common_short_ca",
+        "wh_mental_shield_ta"
+      ],
+      "folderName": "wh_heal_v1035",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1035",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1036,
+      "serverSkillIds": [
+        1036
+      ],
+      "skillNames": [
+        "Magic Barrier"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_magic_barrier_ta"
+      ],
+      "folderName": "wh_heal_v1036",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1036",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1040,
+      "serverSkillIds": [
+        1232,
+        1352,
+        1353
+      ],
+      "skillNames": [
+        "Blazing Skin",
+        "Elemental Protection",
+        "Divine Protection"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_shield_ta"
+      ],
+      "folderName": "wh_heal_v1040",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1040",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/shield/shield_composite.prefab"
+    },
+    {
+      "visualId": 1043,
+      "serverSkillIds": [
+        1043,
+        1307,
+        1393
+      ],
+      "skillNames": [
+        "Holy Weapon",
+        "Prayer",
+        "Unholy Resistance"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_holy_weapon_ta"
+      ],
+      "folderName": "wh_heal_v1043",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1043",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1044,
+      "serverSkillIds": [
+        1044
+      ],
+      "skillNames": [
+        "Regeneration"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_regeneration_ta"
+      ],
+      "folderName": "wh_heal_v1044",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1044",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1045,
+      "serverSkillIds": [
+        1045
+      ],
+      "skillNames": [
+        "Blessed Body"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "mo_dash_ca",
+        "wh_bless_the_body_ta"
+      ],
+      "folderName": "wh_heal_v1045",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1045",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1048,
+      "serverSkillIds": [
+        1048
+      ],
+      "skillNames": [
+        "Blessed Soul"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_bless_the_soul_ta"
+      ],
+      "folderName": "wh_heal_v1048",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1048",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1056,
+      "serverSkillIds": [
+        1056
+      ],
+      "skillNames": [
+        "Cancellation"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "su_detection_ta"
+      ],
+      "folderName": "su_empower_v1056",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1056",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1059,
+      "serverSkillIds": [
+        1299,
+        1346,
+        1349
+      ],
+      "skillNames": [
+        "Servitor Empowerment",
+        "Warrior Servitor",
+        "Final Servitor"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "z_common_short2_ca",
+        "su_empower_ta"
+      ],
+      "folderName": "su_empower_v1059",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1059",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1062,
+      "serverSkillIds": [
+        1062
+      ],
+      "skillNames": [
+        "Berserker Spirit"
+      ],
+      "effectClasses": [
+        "bl_berserker_spirit_ca",
+        "bl_berserker_spirit_ta",
+        "m_u811_short_debuff",
+        "s_u205_ta",
+        "bl_curse_poison_ta"
+      ],
+      "folderName": "bl_berserker_spirit_v1062",
+      "effectRoot": "Assets/Resources/Data/Effects/bl_berserker_spirit_v1062",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1068,
+      "serverSkillIds": [
+        1182
+      ],
+      "skillNames": [
+        "Resist Aqua"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "z_common_short2_ca",
+        "su_might_ta"
+      ],
+      "folderName": "su_empower_v1068",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1068",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/might/might_composite.prefab"
+    },
+    {
+      "visualId": 1069,
+      "serverSkillIds": [
+        1069,
+        1338,
+        1344,
+        1345,
+        1350,
+        1351,
+        1358,
+        1359,
+        1360,
+        1361,
+        1380,
+        1394
+      ],
+      "skillNames": [
+        "Sleep",
+        "Arcane Chaos",
+        "Mass Warrior Bane",
+        "Mass Mage Bane",
+        "Warrior Bane",
+        "Mage Bane",
+        "Block Shield",
+        "Block Wind Walk",
+        "Mass Block Shield",
+        "Mass Block Wind Walk",
+        "Betray",
+        "Trance"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "su_sleep_ta"
+      ],
+      "folderName": "su_empower_v1069",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1069",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1073,
+      "serverSkillIds": [
+        1073,
+        1139,
+        1140,
+        1141,
+        1144
+      ],
+      "skillNames": [
+        "Kiss of Eva",
+        "Servitor Magic Shield",
+        "Servitor Physical Shield",
+        "Servitor Haste",
+        "Servitor Wind Walk"
+      ],
+      "effectClasses": [
+        "m_u016_a",
+        "m_u016_b"
+      ],
+      "folderName": "m_u016_a_v1073",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u016_a_v1073",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1074,
+      "serverSkillIds": [
+        1074
+      ],
+      "skillNames": [
+        "Surrender To Wind"
+      ],
+      "effectClasses": [
+        "m_u018_a",
+        "m_u018_b",
+        "a_u022_wind"
+      ],
+      "folderName": "m_u018_a_v1074",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u018_a_v1074",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1077,
+      "serverSkillIds": [
+        1077
+      ],
+      "skillNames": [
+        "Focus"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "z_common_short2_ca",
+        "su_focus_ta"
+      ],
+      "folderName": "su_empower_v1077",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1077",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1078,
+      "serverSkillIds": [
+        1078
+      ],
+      "skillNames": [
+        "Concentration"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "su_concentration_ta"
+      ],
+      "folderName": "su_empower_v1078",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1078",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1083,
+      "serverSkillIds": [
+        1083,
+        1383
+      ],
+      "skillNames": [
+        "Surrender To Fire",
+        "Mass Surrender to Fire"
+      ],
+      "effectClasses": [
+        "m_u018_a",
+        "m_u018_b",
+        "a_u022_fire"
+      ],
+      "folderName": "m_u018_a_v1083",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u018_a_v1083",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1085,
+      "serverSkillIds": [
+        1085
+      ],
+      "skillNames": [
+        "Acumen"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "z_common_short2_ca",
+        "su_acumen_ta"
+      ],
+      "folderName": "su_empower_v1085",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1085",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1086,
+      "serverSkillIds": [
+        1086
+      ],
+      "skillNames": [
+        "Haste"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "z_common_short2_ca",
+        "su_haste_ta"
+      ],
+      "folderName": "su_empower_v1086",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1086",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1090,
+      "serverSkillIds": [
+        1151,
+        1234
+      ],
+      "skillNames": [
+        "Corpse Life Drain",
+        "Vampiric Claw"
+      ],
+      "effectClasses": [
+        "m_u003_a",
+        "m_u003_c",
+        "m_u003_b"
+      ],
+      "folderName": "m_u003_a_v1090",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u003_a_v1090",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1111,
+      "serverSkillIds": [
+        10,
+        1111,
+        1129,
+        1154,
+        1225,
+        1276,
+        1279,
+        1328,
+        1331,
+        1334,
+        1406
+      ],
+      "skillNames": [
+        "Summon Storm Cubic",
+        "Summon Kat the Cat",
+        "Summon Reanimated Man",
+        "Summon Corrupted Man",
+        "Summon Mew the Cat",
+        "Summon Kai the Cat",
+        "Summon Binding Cubic",
+        "Mass Summon Storm Cubic",
+        "Summon Feline Queen",
+        "Summon Cursed Man",
+        "Summon Feline King"
+      ],
+      "effectClasses": [
+        "su_summon_a_ca"
+      ],
+      "folderName": "su_summon_a_v1111",
+      "effectRoot": "Assets/Resources/Data/Effects/su_summon_a_v1111",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/su_summon_a_ca/su_summon_a_ca_composite.prefab"
+    },
+    {
+      "visualId": 1148,
+      "serverSkillIds": [
+        1148
+      ],
+      "skillNames": [
+        "Death Spike"
+      ],
+      "effectClasses": [
+        "s_u200_ca",
+        "s_u200_pr",
+        "bl_berserker_spirit_ca",
+        "s_u200_fl",
+        "s_u200_ta"
+      ],
+      "folderName": "bl_berserker_spirit_v1148",
+      "effectRoot": "Assets/Resources/Data/Effects/bl_berserker_spirit_v1148",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1155,
+      "serverSkillIds": [
+        1155
+      ],
+      "skillNames": [
+        "Corpse Burst"
+      ],
+      "effectClasses": [
+        "m_u003_a",
+        "m_u006_e",
+        "m_u006_d"
+      ],
+      "folderName": "m_u003_a_v1155",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u003_a_v1155",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1157,
+      "serverSkillIds": [
+        1157
+      ],
+      "skillNames": [
+        "Body To Mind"
+      ],
+      "effectClasses": [
+        "bl_body_to_mind_ca",
+        "bl_body_to_mind_ta"
+      ],
+      "folderName": "bl_body_to_mind_v1157",
+      "effectRoot": "Assets/Resources/Data/Effects/bl_body_to_mind_v1157",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1159,
+      "serverSkillIds": [
+        1159
+      ],
+      "skillNames": [
+        "Curse Death Link"
+      ],
+      "effectClasses": [
+        "s_u226_pr",
+        "s_u226_ca",
+        "s_u226_fl",
+        "s_u226_ta"
+      ],
+      "folderName": "s_u226_v1159",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u226_v1159",
+      "mode": "skip",
+      "aliasComposite": "",
+      "skipReason": "no-interlude-uc"
+    },
+    {
+      "visualId": 1167,
+      "serverSkillIds": [
+        1167,
+        1272,
+        1298,
+        1381
+      ],
+      "skillNames": [
+        "Poisonous Cloud",
+        "Word of Fear",
+        "Mass Slow",
+        "Mass Fear"
+      ],
+      "effectClasses": [
+        "bl_berserker_spirit_ca",
+        "mo_war_cry_ca",
+        "d_smoke_darkb",
+        "bl_poison_cloud_ta",
+        "bl_curse_poison_ta",
+        "mo_iron_will_ta"
+      ],
+      "folderName": "bl_berserker_spirit_v1167",
+      "effectRoot": "Assets/Resources/Data/Effects/bl_berserker_spirit_v1167",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1168,
+      "serverSkillIds": [
+        1156,
+        1160,
+        1163,
+        1169,
+        1170,
+        1222,
+        1269,
+        1336,
+        1337,
+        1386,
+        1396
+      ],
+      "skillNames": [
+        "Forget",
+        "Slow",
+        "Curse Discord",
+        "Curse Fear",
+        "Anchor",
+        "Curse Chaos",
+        "Curse Disease",
+        "Curse of Doom",
+        "Curse of Abyss",
+        "Arcane Disruption",
+        "Magical Backfire"
+      ],
+      "effectClasses": [
+        "bl_berserker_spirit_ca",
+        "bl_curse_poison_ta",
+        "s_u205_ta",
+        "z_striking_unholy_ta",
+        "el_eruption_ra",
+        "s_u820_magic_ta",
+        "s_u828_soul_fan_a"
+      ],
+      "folderName": "el_eruption_v1168",
+      "effectRoot": "Assets/Resources/Data/Effects/el_eruption_v1168",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/curse_poison/curse_poison_composite.prefab"
+    },
+    {
+      "visualId": 1171,
+      "serverSkillIds": [
+        1171
+      ],
+      "skillNames": [
+        "Blazing Circle"
+      ],
+      "effectClasses": [
+        "el_flame_strike_ca",
+        "el_flame_strike_ra",
+        "el_flame_strike_ta"
+      ],
+      "folderName": "el_flame_strike_v1171",
+      "effectRoot": "Assets/Resources/Data/Effects/el_flame_strike_v1171",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1172,
+      "serverSkillIds": [
+        1172,
+        1274
+      ],
+      "skillNames": [
+        "Aura Burn",
+        "Energy Bolt"
+      ],
+      "effectClasses": [
+        "el_aura_burn_ca",
+        "el_aura_burn_ta"
+      ],
+      "folderName": "el_aura_burn_v1172",
+      "effectRoot": "Assets/Resources/Data/Effects/el_aura_burn_v1172",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1181,
+      "serverSkillIds": [
+        1181
+      ],
+      "skillNames": [
+        "Flame Strike"
+      ],
+      "effectClasses": [
+        "el_flame_strike_ca",
+        "el_flame_strike_pr",
+        "el_flame_strike_fl",
+        "el_flame_strike_ta",
+        "el_flame_strike_ra"
+      ],
+      "folderName": "el_flame_strike_v1181",
+      "effectRoot": "Assets/Resources/Data/Effects/el_flame_strike_v1181",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1191,
+      "serverSkillIds": [
+        1191
+      ],
+      "skillNames": [
+        "Resist Fire"
+      ],
+      "effectClasses": [
+        "s_u232_ca",
+        "s_u232_ta"
+      ],
+      "folderName": "s_u232_v1191",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u232_v1191",
+      "mode": "skip",
+      "aliasComposite": "",
+      "skipReason": "no-interlude-uc"
+    },
+    {
+      "visualId": 1201,
+      "serverSkillIds": [
+        1201,
+        1339,
+        1343
+      ],
+      "skillNames": [
+        "Dryad Root",
+        "Fire Vortex",
+        "Dark Vortex"
+      ],
+      "effectClasses": [
+        "m_u013_a",
+        "sp_dryad_root_ta"
+      ],
+      "folderName": "m_u013_a_v1201",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u013_a_v1201",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1204,
+      "serverSkillIds": [
+        1189,
+        1204
+      ],
+      "skillNames": [
+        "Resist Wind",
+        "Wind Walk"
+      ],
+      "effectClasses": [
+        "m_u010_a",
+        "m_u010_c"
+      ],
+      "folderName": "m_u010_a_v1204",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u010_a_v1204",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1217,
+      "serverSkillIds": [
+        1217
+      ],
+      "skillNames": [
+        "Greater Heal"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "mo_dash_ca",
+        "wh_greater_heal_ta"
+      ],
+      "folderName": "wh_sec_heal_v1217",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1217",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1218,
+      "serverSkillIds": [
+        1020,
+        1218,
+        1219,
+        1258,
+        1271,
+        1430
+      ],
+      "skillNames": [
+        "Vitalize",
+        "Greater Battle Heal",
+        "Greater Group Heal",
+        "Restore Life",
+        "Benediction",
+        "Invocation"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "wh_greater_heal_ta"
+      ],
+      "folderName": "wh_sec_heal_v1218",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1218",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1220,
+      "serverSkillIds": [
+        1220
+      ],
+      "skillNames": [
+        "Blaze"
+      ],
+      "effectClasses": [
+        "el_flame_strike_ca",
+        "el_flame_strike_pr",
+        "el_flame_strike_fl",
+        "el_flame_strike_ta"
+      ],
+      "folderName": "el_flame_strike_v1220",
+      "effectRoot": "Assets/Resources/Data/Effects/el_flame_strike_v1220",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1230,
+      "serverSkillIds": [
+        1289
+      ],
+      "skillNames": [
+        "Inferno"
+      ],
+      "effectClasses": [
+        "el_prominence_ca",
+        "el_prominence_fl",
+        "el_prominence_cs",
+        "el_prominence_ta"
+      ],
+      "folderName": "el_prominence_v1230",
+      "effectRoot": "Assets/Resources/Data/Effects/el_prominence_v1230",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/el_prominence/el_prominence_composite.prefab"
+    },
+    {
+      "visualId": 1231,
+      "serverSkillIds": [
+        1231,
+        1275,
+        1417
+      ],
+      "skillNames": [
+        "Aura Flare",
+        "Aura Bolt",
+        "Aura Flash"
+      ],
+      "effectClasses": [
+        "el_aura_burn_ca",
+        "el_aura_flare_ta",
+        "s_u614_fl_a",
+        "s_u230_ta",
+        "m_u009_c",
+        "el_aura_burn_ta"
+      ],
+      "folderName": "el_aura_burn_v1231",
+      "effectRoot": "Assets/Resources/Data/Effects/el_aura_burn_v1231",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1233,
+      "serverSkillIds": [
+        1233
+      ],
+      "skillNames": [
+        "Decay"
+      ],
+      "effectClasses": [
+        "sp_decay_ca",
+        "sp_decay_ta"
+      ],
+      "folderName": "sp_decay_v1233",
+      "effectRoot": "Assets/Resources/Data/Effects/sp_decay_v1233",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1240,
+      "serverSkillIds": [
+        1240
+      ],
+      "skillNames": [
+        "Guidance"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "z_common_short2_ca",
+        "su_guidance_ta"
+      ],
+      "folderName": "su_empower_v1240",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1240",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1242,
+      "serverSkillIds": [
+        1242
+      ],
+      "skillNames": [
+        "Death Whisper"
+      ],
+      "effectClasses": [
+        "su_empower_ca",
+        "z_common_short_ca",
+        "su_death_whisper_ta"
+      ],
+      "folderName": "su_empower_v1242",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_v1242",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1243,
+      "serverSkillIds": [
+        1243
+      ],
+      "skillNames": [
+        "Bless Shield"
+      ],
+      "effectClasses": [
+        "m_u044_a",
+        "m_u044_b"
+      ],
+      "folderName": "m_u044_a_v1243",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u044_a_v1243",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1263,
+      "serverSkillIds": [
+        1263
+      ],
+      "skillNames": [
+        "Curse Gloom"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_1263",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1263",
+      "mode": "skip",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1285,
+      "serverSkillIds": [
+        1285
+      ],
+      "skillNames": [
+        "Seed of Fire"
+      ],
+      "effectClasses": [
+        "el_flame_strike_ca",
+        "m_u022_b"
+      ],
+      "folderName": "el_flame_strike_v1285",
+      "effectRoot": "Assets/Resources/Data/Effects/el_flame_strike_v1285",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1288,
+      "serverSkillIds": [
+        1288,
+        1292
+      ],
+      "skillNames": [
+        "Aura Symphony",
+        "Elemental Assault"
+      ],
+      "effectClasses": [
+        "el_aura_burn_ca",
+        "el_aura_flare_ta"
+      ],
+      "folderName": "el_aura_burn_v1288",
+      "effectRoot": "Assets/Resources/Data/Effects/el_aura_burn_v1288",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1296,
+      "serverSkillIds": [
+        1296
+      ],
+      "skillNames": [
+        "Rain of Fire"
+      ],
+      "effectClasses": [
+        "el_flame_strike_ca",
+        "el_eruption_cs",
+        "el_eruption_ta",
+        "el_eruption_ra"
+      ],
+      "folderName": "el_flame_strike_v1296",
+      "effectRoot": "Assets/Resources/Data/Effects/el_flame_strike_v1296",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1335,
+      "serverSkillIds": [
+        1335
+      ],
+      "skillNames": [
+        "Balance Life"
+      ],
+      "effectClasses": [
+        "wh_heal_ca",
+        "wh_balance_life_ta"
+      ],
+      "folderName": "wh_heal_v1335",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_heal_v1335",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1356,
+      "serverSkillIds": [
+        1356
+      ],
+      "skillNames": [
+        "Prophecy of Fire"
+      ],
+      "effectClasses": [
+        "sp_prophecy_of_fire_ca",
+        "sp_prophecy_of_fire_ta"
+      ],
+      "folderName": "sp_prophecy_of_fire_v1356",
+      "effectRoot": "Assets/Resources/Data/Effects/sp_prophecy_of_fire_v1356",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1382,
+      "serverSkillIds": [
+        1382
+      ],
+      "skillNames": [
+        "Mass Gloom"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_1382",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_1382",
+      "mode": "skip",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1388,
+      "serverSkillIds": [
+        1388
+      ],
+      "skillNames": [
+        "Greater Might"
+      ],
+      "effectClasses": [
+        "m_u205_ca",
+        "m_u016_a",
+        "m_u205_ta",
+        "m_u052_recharge_ta"
+      ],
+      "folderName": "m_u205_v1388",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u205_v1388",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1389,
+      "serverSkillIds": [
+        1389
+      ],
+      "skillNames": [
+        "Greater Shield"
+      ],
+      "effectClasses": [
+        "m_u204_ca",
+        "m_u204_ta"
+      ],
+      "folderName": "m_u204_v1389",
+      "effectRoot": "Assets/Resources/Data/Effects/m_u204_v1389",
+      "mode": "skip",
+      "aliasComposite": "",
+      "skipReason": "no-interlude-uc"
+    },
+    {
+      "visualId": 1398,
+      "serverSkillIds": [
+        1398,
+        1399
+      ],
+      "skillNames": [
+        "Mana Burn",
+        "Mana Storm"
+      ],
+      "effectClasses": [
+        "s_u204_ca_ms",
+        "s_u204_ta_ms"
+      ],
+      "folderName": "s_u204_ca_ms_v1398",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u204_ca_ms_v1398",
+      "mode": "skip",
+      "aliasComposite": "",
+      "skipReason": "no-interlude-uc"
+    },
+    {
+      "visualId": 1400,
+      "serverSkillIds": [
+        1400
+      ],
+      "skillNames": [
+        "Turn Undead"
+      ],
+      "effectClasses": [
+        "s_u214_ca",
+        "s_u214_ta"
+      ],
+      "folderName": "s_u214_v1400",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u214_v1400",
+      "mode": "skip",
+      "aliasComposite": "",
+      "skipReason": "no-interlude-uc"
+    },
+    {
+      "visualId": 1401,
+      "serverSkillIds": [
+        1401,
+        1402
+      ],
+      "skillNames": [
+        "Major Heal",
+        "Major Group Heal"
+      ],
+      "effectClasses": [
+        "wh_sec_heal_ca",
+        "m_u206_ta"
+      ],
+      "folderName": "wh_sec_heal_v1401",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_sec_heal_v1401",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1409,
+      "serverSkillIds": [
+        1409,
+        1411
+      ],
+      "skillNames": [
+        "Cleanse",
+        "Mystic Immunity"
+      ],
+      "effectClasses": [
+        "su_empower_third_ca",
+        "m_u016_a",
+        "su_empower_third_ta"
+      ],
+      "folderName": "su_empower_third_v1409",
+      "effectRoot": "Assets/Resources/Data/Effects/su_empower_third_v1409",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1412,
+      "serverSkillIds": [
+        1412
+      ],
+      "skillNames": [
+        "Spell Turning"
+      ],
+      "effectClasses": [
+        "s_u218_ca",
+        "s_u218_ta"
+      ],
+      "folderName": "s_u218_v1412",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u218_v1412",
+      "mode": "skip",
+      "aliasComposite": "",
+      "skipReason": "no-interlude-uc"
+    },
+    {
+      "visualId": 1419,
+      "serverSkillIds": [
+        1419
+      ],
+      "skillNames": [
+        "Volcano"
+      ],
+      "effectClasses": [
+        "s_u807_mage_ca",
+        "s_u807_ta",
+        "s_u808_red_a",
+        "s_u808_red_b",
+        "el_flame_strike_ta_sound"
+      ],
+      "folderName": "s_u807_mage_v1419",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u807_mage_v1419",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1422,
+      "serverSkillIds": [
+        1422
+      ],
+      "skillNames": [
+        "Day of Doom"
+      ],
+      "effectClasses": [
+        "s_u807_mage_ca",
+        "el_flame_strike_ta_sound"
+      ],
+      "folderName": "s_u807_mage_v1422",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u807_mage_v1422",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1423,
+      "serverSkillIds": [
+        1423
+      ],
+      "skillNames": [
+        "Gehenna"
+      ],
+      "effectClasses": [
+        "s_u807_mage_ca",
+        "s_u808_red_a",
+        "s_u808_red_b",
+        "bl_curse_poison_ta_sound"
+      ],
+      "folderName": "s_u807_mage_v1423",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u807_mage_v1423",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1424,
+      "serverSkillIds": [
+        1424
+      ],
+      "skillNames": [
+        "Anti-Summoning Field"
+      ],
+      "effectClasses": [
+        "s_u807_fighter_ca",
+        "it_scroll_of_escape_ta_sound"
+      ],
+      "folderName": "s_u807_fighter_v1424",
+      "effectRoot": "Assets/Resources/Data/Effects/s_u807_fighter_v1424",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 1425,
+      "serverSkillIds": [
+        1425,
+        1426
+      ],
+      "skillNames": [
+        "Purification Field",
+        "Miracle"
+      ],
+      "effectClasses": [
+        "s_u807_mage_ca",
+        "s_u807_ta",
+        "wh_bless_the_body_ta"
+      ],
+      "folderName": "wh_bless_the_body_v1425",
+      "effectRoot": "Assets/Resources/Data/Effects/wh_bless_the_body_v1425",
+      "mode": "generate",
+      "aliasComposite": ""
+    },
+    {
+      "visualId": 2013,
+      "serverSkillIds": [
+        1395,
+        1403
+      ],
+      "skillNames": [
+        "Erase",
+        "Summon Friend"
+      ],
+      "effectClasses": [
+        "it_scroll_of_escape_ca",
+        "it_scroll_of_escape_ta"
+      ],
+      "folderName": "viz_2013",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_2013",
+      "mode": "alias",
+      "aliasComposite": "Assets/Resources/Data/Effects/it_teleport_v1/it_teleport_v1_composite.prefab"
+    },
+    {
+      "visualId": 3147,
+      "serverSkillIds": [
+        1050
+      ],
+      "skillNames": [
+        "Return"
+      ],
+      "effectClasses": [],
+      "folderName": "viz_3147",
+      "effectRoot": "Assets/Resources/Data/Effects/viz_3147",
+      "mode": "skip",
+      "aliasComposite": ""
+    }
+  ],
+  "allEffectClasses": [
+    "a_u022_fire",
+    "a_u022_wind",
+    "at_fatal_strike_ta",
+    "bl_berserker_spirit_ca",
+    "bl_berserker_spirit_ta",
+    "bl_body_to_mind_ca",
+    "bl_body_to_mind_ta",
+    "bl_curse_poison_ta",
+    "bl_curse_poison_ta_sound",
+    "bl_poison_cloud_ta",
+    "d_chainheal_ta",
+    "d_chainhealafter_ta",
+    "d_purplebubble_fl",
+    "d_s_u812_ybeam_a",
+    "d_s_u812_ybeam_b",
+    "d_s_u812_ybeam_ta",
+    "d_smoke_darkb",
+    "el_aura_burn_ca",
+    "el_aura_burn_ta",
+    "el_aura_flare_ta",
+    "el_eruption_cs",
+    "el_eruption_ra",
+    "el_eruption_ta",
+    "el_flame_strike_ca",
+    "el_flame_strike_fl",
+    "el_flame_strike_pr",
+    "el_flame_strike_ra",
+    "el_flame_strike_ta",
+    "el_flame_strike_ta_sound",
+    "el_prominence_ca",
+    "el_prominence_cs",
+    "el_prominence_fl",
+    "el_prominence_ta",
+    "it_scroll_of_escape_ca",
+    "it_scroll_of_escape_ta",
+    "it_scroll_of_escape_ta_sound",
+    "m_u003_a",
+    "m_u003_b",
+    "m_u003_c",
+    "m_u006_d",
+    "m_u006_e",
+    "m_u009_c",
+    "m_u010_a",
+    "m_u010_c",
+    "m_u013_a",
+    "m_u016_a",
+    "m_u016_b",
+    "m_u018_a",
+    "m_u018_b",
+    "m_u022_b",
+    "m_u030_a",
+    "m_u030_b",
+    "m_u044_a",
+    "m_u044_b",
+    "m_u052_recharge_ta",
+    "m_u204_ca",
+    "m_u204_ta",
+    "m_u205_ca",
+    "m_u205_ta",
+    "m_u206_ta",
+    "m_u811_short_debuff",
+    "mo_battle_roar_ca",
+    "mo_battle_roar_ta",
+    "mo_dash_ca",
+    "mo_iron_will_ta",
+    "mo_war_cry_ca",
+    "s_u200_ca",
+    "s_u200_fl",
+    "s_u200_pr",
+    "s_u200_ta",
+    "s_u204_ca_ms",
+    "s_u204_ta_ms",
+    "s_u205_ta",
+    "s_u214_ca",
+    "s_u214_ta",
+    "s_u218_ca",
+    "s_u218_ta",
+    "s_u220_barrier",
+    "s_u226_ca",
+    "s_u226_fl",
+    "s_u226_pr",
+    "s_u226_ta",
+    "s_u230_ta",
+    "s_u232_ca",
+    "s_u232_ta",
+    "s_u530_focus_force_ca",
+    "s_u608_ta",
+    "s_u614_fl_a",
+    "s_u804_a_ca",
+    "s_u806_ca",
+    "s_u806_channeling_beam",
+    "s_u806_channeling_mesh",
+    "s_u806_ta",
+    "s_u807_fighter_ca",
+    "s_u807_mage_ca",
+    "s_u807_ta",
+    "s_u808_red_a",
+    "s_u808_red_b",
+    "s_u820_magic_ta",
+    "s_u828_soul_fan_a",
+    "sp_decay_ca",
+    "sp_decay_ta",
+    "sp_dryad_root_ta",
+    "sp_prophecy_of_fire_ca",
+    "sp_prophecy_of_fire_ta",
+    "su_acumen_ta",
+    "su_concentration_ta",
+    "su_death_whisper_ta",
+    "su_detection_ta",
+    "su_empower_ca",
+    "su_empower_ta",
+    "su_empower_third_ca",
+    "su_empower_third_ta",
+    "su_focus_ta",
+    "su_guidance_ta",
+    "su_haste_ta",
+    "su_might_ta",
+    "su_sleep_ta",
+    "su_summon_a_ca",
+    "wh_balance_life_ta",
+    "wh_bless_the_body_ta",
+    "wh_bless_the_soul_ta",
+    "wh_cure_poison_ta",
+    "wh_disrupt_undead_ta",
+    "wh_greater_heal_ta",
+    "wh_heal_ca",
+    "wh_heal_ta",
+    "wh_holy_weapon_ta",
+    "wh_magic_barrier_ta",
+    "wh_mental_shield_ta",
+    "wh_regeneration_ta",
+    "wh_resurrection_ta",
+    "wh_sec_heal_ca",
+    "wh_shield_ta",
+    "z_common_short2_ca",
+    "z_common_short_ca",
+    "z_striking_unholy_ta"
+  ]
+}
