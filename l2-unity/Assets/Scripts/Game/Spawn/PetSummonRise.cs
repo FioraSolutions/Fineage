@@ -108,41 +108,39 @@ public sealed class PetSummonRise : MonoBehaviour
     static void SpawnGroundEffect(string effectClass, Vector3 feet, Quaternion rotation, Entity entity)
     {
         int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
-        int dbRows = CountGlobalEffectRows(effectClass);
         EffectManager manager = GlobalEffectsPacketServices.Effects;
+        int dbRows = manager != null ? manager.CountCommentOrPrefabMatches(effectClass) : 0;
         Debug.Log(
             "[ENTER_EVENT] database npc=" + npcId +
             " class=" + effectClass +
             " globalEffectRows=" + dbRows +
             " manager=" + (manager != null) +
-            " list=" + (manager != null &&
-                       manager.database != null &&
-                       manager.database.effects != null));
+            " registry=" + (manager != null ? manager.RegistryCount : 0));
 
-        if (!TryGetEnterEffect(effectClass, out EffectDatabase.EffectData data))
+        string comment = EnterEventTable.EffectCommentPrefix + effectClass;
+        if (manager == null ||
+            !manager.TryGetByComment(comment, out int effectId, out BaseEffect prefab, out EffectSettings settings))
         {
             Debug.Log(
-                "[ENTER_EVENT] missing GlobalEffect comment=" +
-                EnterEventTable.EffectCommentPrefix + effectClass +
+                "[ENTER_EVENT] missing GlobalEffect comment=" + comment +
                 " npc=" + npcId);
             return;
         }
 
         Debug.Log(
             "[ENTER_EVENT] GlobalEffect npc=" + npcId +
-            " id=" + data.id +
-            " comment=" + data.comment +
-            " prefab=" + data.prefab.name);
+            " id=" + effectId +
+            " comment=" + comment +
+            " prefab=" + prefab.name);
 
         var anchor = new GameObject("summon-ground");
         anchor.transform.SetPositionAndRotation(feet, rotation);
         float radius = entity.Appearance != null ? entity.Appearance.CollisionRadius : 0f;
         float scale = radius * 52.5f / 10f;
-        BaseEffect instance = Instantiate(data.prefab, feet, rotation, anchor.transform);
+        BaseEffect instance = Object.Instantiate(prefab, feet, rotation, anchor.transform);
         if (scale > 0.01f)
             instance.transform.localScale = Vector3.one * scale;
         instance.gameObject.SetActive(true);
-        EffectSettings settings = data.settings;
         instance.Setup(settings, null, anchor.transform);
         instance.Play();
         int groups = anchor.GetComponentsInChildren<ParticleGroupV2>(true).Length;
@@ -156,65 +154,7 @@ public sealed class PetSummonRise : MonoBehaviour
             " pos=" + instance.transform.position +
             " scale=" + scale.ToString("0.###") +
             " settingsLife=" + (settings != null ? settings.defaultLifeTime.ToString("0.#") : "null"));
-        Destroy(anchor, EffectLifeSeconds);
-    }
-
-    static bool TryGetEnterEffect(string effectClass, out EffectDatabase.EffectData data)
-    {
-        data = null;
-        EffectManager manager = GlobalEffectsPacketServices.Effects;
-        if (string.IsNullOrEmpty(effectClass) ||
-            manager == null ||
-            manager.database == null ||
-            manager.database.effects == null)
-        {
-            return false;
-        }
-
-        string comment = EnterEventTable.EffectCommentPrefix + effectClass;
-        var effects = manager.database.effects;
-        for (int i = 0; i < effects.Count; i++)
-        {
-            EffectDatabase.EffectData row = effects[i];
-            if (row == null || row.prefab == null)
-                continue;
-            if (!string.Equals(row.comment, comment, System.StringComparison.Ordinal))
-                continue;
-            data = row;
-            return true;
-        }
-
-        return false;
-    }
-
-    static int CountGlobalEffectRows(string effectClass)
-    {
-        EffectManager manager = GlobalEffectsPacketServices.Effects;
-        if (string.IsNullOrEmpty(effectClass) ||
-            manager == null ||
-            manager.database == null ||
-            manager.database.effects == null)
-        {
-            return 0;
-        }
-
-        int count = 0;
-        var effects = manager.database.effects;
-        for (int i = 0; i < effects.Count; i++)
-        {
-            EffectDatabase.EffectData data = effects[i];
-            if (data == null)
-                continue;
-            string prefabName = data.prefab != null ? data.prefab.name : string.Empty;
-            string comment = data.comment != null ? data.comment : string.Empty;
-            if (prefabName.IndexOf(effectClass, System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                comment.IndexOf(effectClass, System.StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                count++;
-            }
-        }
-
-        return count;
+        Object.Destroy(anchor, EffectLifeSeconds);
     }
 
     static void PlayEnterAnim(Entity entity, string animName)

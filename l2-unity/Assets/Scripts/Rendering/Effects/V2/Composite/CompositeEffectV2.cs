@@ -35,6 +35,22 @@ public class CompositeEffectV2 : CompositePrefabEffect
 
     protected override string DebugPrefix => "[CompositeEffectV2]";
 
+    public override void CollectReferencedPrefabs(List<UnityEngine.Object> sink)
+    {
+        base.CollectReferencedPrefabs(sink);
+        if (_v2Parts == null || sink == null)
+            return;
+        for (int i = 0; i < _v2Parts.Length; i++)
+        {
+            CompositePart part = _v2Parts[i];
+            if (part == null || part.prefab == null)
+                continue;
+            sink.Add(part.prefab);
+            if (part.prefab.gameObject != null)
+                sink.Add(part.prefab.gameObject);
+        }
+    }
+
     bool TraceCrasherWind()
     {
         return _owner != null &&

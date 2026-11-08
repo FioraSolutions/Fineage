@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -10,14 +11,41 @@ public class EffectManager : MonoBehaviour
     public static EffectManager Instance { get { return _instance; } }
 
     public EffectDatabase database;
+    // Scene ref is World/Effects/Active — dies on LoadMenu while EffectManager may DDOL.
+    // EnsureActiveEffectsContainer() recreates under this transform when the scene ref is gone.
     [SerializeField] private Transform _activeEffectsContainer;
     [Inject] IObjectResolver _container;
     [Inject] IAnimationManager _animations;
     private const string IMPACT_DEBUG_TAG = "[HIT_DEBUG]";
     private int _impactSpawnCounter = 0;
-    private readonly System.Collections.Generic.Dictionary<string, (int count, float windowStartSec)> _impactWindowByPoint
-        = new System.Collections.Generic.Dictionary<string, (int count, float windowStartSec)>();
+    private readonly Dictionary<string, (int count, float windowStartSec)> _impactWindowByPoint
+        = new Dictionary<string, (int count, float windowStartSec)>();
     private const float IMPACT_WINDOW_SEC = 0.35f;
+
+    /// <summary>
+    /// Session copy of GlobalEffect rows. EffectManager owns these refs so
+    /// SceneLoader tile unload → implicit UnloadUnusedAssets cannot fake-null
+    /// ScriptableObject prefab fields mid-play. Editor SoT stays GlobalEffect.asset.
+    /// </summary>
+    struct RuntimeEffect
+    {
+        public int Id;
+        public BaseEffect Prefab;
+        public EffectSettings Settings;
+        public bool UseWeaponShot;
+        public bool SpiritShot;
+        public bool IgnoreFlightTimeForCast;
+        public string Comment;
+    }
+
+    readonly Dictionary<int, RuntimeEffect> _byId = new Dictionary<int, RuntimeEffect>(256);
+    // Exact comment → first matching session row (EnterEventgrp keys).
+    readonly Dictionary<string, RuntimeEffect> _byComment = new Dictionary<string, RuntimeEffect>(64);
+    // GC root for Resources FX + nested composite part prefabs.
+    readonly List<Object> _retainedAssets = new List<Object>(256);
+    bool _registryBuilt;
+
+    public int RegistryCount => _byId.Count;
 
     void Awake()
     {
@@ -26,6 +54,7 @@ public class EffectManager : MonoBehaviour
             _instance = this;
             GlobalEffectsPacketServices.Bind(effects: this);
             WireGamePacketServices();
+            BuildRegistry();
         }
         else if (_instance != this)
         {
@@ -37,6 +66,8 @@ public class EffectManager : MonoBehaviour
     private void Start()
     {
         WireGamePacketServices();
+        if (!_registryBuilt)
+            BuildRegistry();
     }
 
     private void WireGamePacketServices()
@@ -44,48 +75,192 @@ public class EffectManager : MonoBehaviour
         GamePacketServices.Bind(animations: _animations);
     }
 
+    /// <summary>
+    /// Impact FX parent. Scene Active under World is destroyed on relogin;
+    /// keep a live child on this (DDOL) manager instead of aborting PlayEffect.
+    /// </summary>
+    Transform EnsureActiveEffectsContainer()
+    {
+        if (_activeEffectsContainer != null)
+            return _activeEffectsContainer;
+
+        Transform existing = transform.Find("ActiveEffects");
+        if (existing != null)
+        {
+            _activeEffectsContainer = existing;
+            return _activeEffectsContainer;
+        }
+
+        var go = new GameObject("ActiveEffects");
+        go.transform.SetParent(transform, false);
+        _activeEffectsContainer = go.transform;
+        return _activeEffectsContainer;
+    }
+
+    void BuildRegistry()
+    {
+        _byId.Clear();
+        _byComment.Clear();
+        _retainedAssets.Clear();
+        _registryBuilt = false;
+
+        if (database == null || database.effects == null)
+        {
+            Debug.LogError("[EffectManager] BuildRegistry: database missing");
+            return;
+        }
+
+        for (int i = 0; i < database.effects.Count; i++)
+        {
+            EffectDatabase.EffectData row = database.effects[i];
+            if (row == null)
+                continue;
+
+            // Weapon-shot rows resolve prefab at play time from weapon_shot.int.
+            if (!row.useWeaponShot && row.prefab == null)
+            {
+                Debug.LogError(
+                    "[EffectManager] BuildRegistry missing prefab id=" + row.id +
+                    " comment=" + row.comment);
+                continue;
+            }
+
+            var entry = new RuntimeEffect
+            {
+                Id = row.id,
+                Prefab = row.prefab,
+                Settings = row.settings,
+                UseWeaponShot = row.useWeaponShot,
+                SpiritShot = row.spiritShot,
+                IgnoreFlightTimeForCast = row.ignoreFlightTimeForCast,
+                Comment = row.comment,
+            };
+            _byId[row.id] = entry;
+
+            if (!string.IsNullOrEmpty(row.comment) && !_byComment.ContainsKey(row.comment))
+                _byComment[row.comment] = entry;
+
+            if (row.prefab != null)
+            {
+                _retainedAssets.Add(row.prefab);
+                if (row.prefab.gameObject != null)
+                    _retainedAssets.Add(row.prefab.gameObject);
+                row.prefab.CollectReferencedPrefabs(_retainedAssets);
+            }
+
+            if (row.settings != null)
+                _retainedAssets.Add(row.settings);
+        }
+
+        _registryBuilt = _byId.Count > 0;
+    }
+
+    void EnsureRegistry()
+    {
+        if (!_registryBuilt)
+            BuildRegistry();
+    }
+
+    bool TryGetRuntime(int id, out RuntimeEffect entry)
+    {
+        EnsureRegistry();
+        return _byId.TryGetValue(id, out entry);
+    }
+
+    /// <summary>
+    /// Session flag from GlobalEffect.ignoreFlightTimeForCast (not live SO read).
+    /// </summary>
+    public bool ShouldIgnoreFlightTimeForCast(int effectId)
+    {
+        return TryGetRuntime(effectId, out RuntimeEffect entry) && entry.IgnoreFlightTimeForCast;
+    }
+
+    /// <summary>
+    /// Exact comment match against the session registry (EnterEventgrp keys).
+    /// </summary>
+    public bool TryGetByComment(
+        string comment,
+        out int id,
+        out BaseEffect prefab,
+        out EffectSettings settings)
+    {
+        id = 0;
+        prefab = null;
+        settings = null;
+        if (string.IsNullOrEmpty(comment))
+            return false;
+
+        EnsureRegistry();
+        if (!_byComment.TryGetValue(comment, out RuntimeEffect entry) || entry.Prefab == null)
+            return false;
+
+        id = entry.Id;
+        prefab = entry.Prefab;
+        settings = entry.Settings;
+        return true;
+    }
+
+    /// <summary>
+    /// Debug helper: rows whose comment or prefab name contains <paramref name="token"/>.
+    /// </summary>
+    public int CountCommentOrPrefabMatches(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            return 0;
+
+        EnsureRegistry();
+        int count = 0;
+        foreach (RuntimeEffect entry in _byId.Values)
+        {
+            string prefabName = entry.Prefab != null ? entry.Prefab.name : string.Empty;
+            string comment = entry.Comment != null ? entry.Comment : string.Empty;
+            if (prefabName.IndexOf(token, System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                comment.IndexOf(token, System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 
     public void PlayEffect(int id, Transform target, MagicCastData castData = null)
     {
         bool windstrike = id == 4247;
+        // PlayEffect parents under target — container is only for impact proxies.
+        EnsureActiveEffectsContainer();
+
         if (windstrike)
         {
             Debug.Log(
-                "[WINDSTRIKE] EffectManager database=" + (database != null) +
-                " list=" + (database != null && database.effects != null) +
+                "[WINDSTRIKE] EffectManager registry=" + _registryBuilt +
+                " count=" + _byId.Count +
                 " container=" + (_activeEffectsContainer != null) +
                 " target=" + (target != null ? target.name : "null"));
         }
 
-        EffectDatabase.EffectData data;
+        RuntimeEffect entry;
+        bool found;
         using (MagicSkillUseTrace.Measure("effect.find"))
-            data = database != null && database.effects != null
-                ? database.effects.Find(e => e.id == id)
-                : null;
+            found = TryGetRuntime(id, out entry);
+
         BaseEffect prefab;
         using (MagicSkillUseTrace.Measure("effect.prefab"))
-            prefab = ResolvePrefab(data, target);
+            prefab = ResolvePrefab(found ? entry : default, found, target);
 
-        if (data == null || prefab == null || _activeEffectsContainer == null || target == null)
+        if (!found || prefab == null || target == null)
         {
-            if (windstrike)
-            {
-                Debug.Log(
-                    "[WINDSTRIKE] EffectManager abort data=" + (data != null) +
-                    " prefab=" + (prefab != null ? prefab.name : "null") +
-                    " container=" + (_activeEffectsContainer != null) +
-                    " target=" + (target != null));
-            }
+            Debug.LogWarning(
+                "[EffectManager] abort id=" + id +
+                " found=" + found +
+                " prefab=" + (prefab != null ? prefab.name : "null") +
+                " target=" + (target != null) +
+                " comment=" + (found ? entry.Comment : ""));
             return;
         }
 
         if (windstrike)
             Debug.Log("[WINDSTRIKE] EffectManager spawn prefab=" + prefab.name);
-
-        // Debug.Log(
-            // $"[HOME_SPAWN] EffectManager.PlayEffect id={id} prefab='{prefab.name}' " +
-            // $"target='{target.name}' targetPos={target.position} " +
-            // $"castTargetId={(castData != null ? castData.TargetObjectId : 0)}");
 
         BaseEffect instance;
         using (MagicSkillUseTrace.Measure("effect.instantiate"))
@@ -95,7 +270,7 @@ public class EffectManager : MonoBehaviour
 
         instance.gameObject.SetActive(true);
         using (MagicSkillUseTrace.Measure("effect.setup"))
-            instance.Setup(data.settings, castData, target);
+            instance.Setup(entry.Settings, castData, target);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // EffectDoublePlayLog.TrackManagerPlay(id, prefab != null ? prefab.name : "null");
 #endif
@@ -105,22 +280,20 @@ public class EffectManager : MonoBehaviour
             Debug.Log("[WINDSTRIKE] EffectManager.Play returned instance=" + instance.name);
     }
 
-    static BaseEffect ResolvePrefab(EffectDatabase.EffectData data, Transform target)
+    BaseEffect ResolvePrefab(RuntimeEffect entry, bool found, Transform target)
     {
-        if (data == null)
-        {
+        if (!found)
             return null;
-        }
 
-        if (data.useWeaponShot)
+        if (entry.UseWeaponShot)
         {
             Gear gear = target != null ? target.GetComponentInParent<Gear>() : null;
-            BaseEffect listed = TablePacketServices.WeaponShots.ResolvePrefab(gear, data.spiritShot);
+            BaseEffect listed = TablePacketServices.WeaponShots.ResolvePrefab(gear, entry.SpiritShot);
             if (listed != null)
                 return listed;
         }
 
-        return data.prefab;
+        return entry.Prefab;
     }
 
     /// <summary>
@@ -164,16 +337,17 @@ public class EffectManager : MonoBehaviour
             // $"[HIT_FX] 7.EffectManager.PlayerImpactEffect ENTER frame={Time.frameCount} t={Time.time:F3} " +
             // $"effectId={id} point={point} dir={impactDirection}");
 
-        var data = database != null ? database.effects.Find(e => e.id == id) : null;
-
-        if (data == null || data.prefab == null || _activeEffectsContainer == null)
+        if (!TryGetRuntime(id, out RuntimeEffect entry) || entry.Prefab == null)
         {
-            // Debug.LogWarning(
-                // $"[HIT_FX] 7.EffectManager SKIP Play failed effectId={id} " +
-                // $"dataNull={data == null} prefabNull={data == null || data.prefab == null} " +
-                // $"containerNull={_activeEffectsContainer == null}");
+            Debug.LogWarning(
+                "[EffectManager] PlayerImpactEffect abort id=" + id +
+                " found=" + _byId.ContainsKey(id) +
+                " prefab=" + (entry.Prefab != null ? entry.Prefab.name : "null") +
+                " comment=" + entry.Comment);
             return;
         }
+
+        Transform effectsRoot = EnsureActiveEffectsContainer();
 
         Vector3 dir = ResolveImpactDirection(point, impactDirection);
         Quaternion rotation = Quaternion.LookRotation(dir, Vector3.up) *
@@ -181,12 +355,10 @@ public class EffectManager : MonoBehaviour
 
         GameObject dummy = new GameObject("HitPointProxy");
         dummy.transform.SetPositionAndRotation(point, rotation);
-        if (_activeEffectsContainer != null)
-        {
-            dummy.transform.SetParent(_activeEffectsContainer, true);
-        }
+        if (effectsRoot != null)
+            dummy.transform.SetParent(effectsRoot, true);
 
-        BaseEffect instance = Instantiate(data.prefab, point, rotation, dummy.transform);
+        BaseEffect instance = Instantiate(entry.Prefab, point, rotation, dummy.transform);
         InjectSpawned(instance);
         _impactSpawnCounter += 1;
         string pointKey = $"{Mathf.Round(point.x * 10f) / 10f},{Mathf.Round(point.y * 10f) / 10f},{Mathf.Round(point.z * 10f) / 10f}";
@@ -225,7 +397,7 @@ public class EffectManager : MonoBehaviour
             // $"countNearPointWindow={state.count} windowSec={IMPACT_WINDOW_SEC:F2}");
 
         instance.gameObject.SetActive(true);
-        instance.Setup(data.settings, castData, dummy.transform);
+        instance.Setup(entry.Settings, castData, dummy.transform);
         // Child parts often use inheritRotation=0 / CasterCenter — push dir into composite context
         // so ResolvePartSpawnRotation orients meshes even when proxy rotation would be ignored.
         if (instance is CompositePrefabEffect composite)
@@ -234,12 +406,12 @@ public class EffectManager : MonoBehaviour
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // EffectDoublePlayLog.TrackManagerPlay(id, data.prefab != null ? data.prefab.name : "null");
+        // EffectDoublePlayLog.TrackManagerPlay(id, entry.Prefab != null ? entry.Prefab.name : "null");
 #endif
         instance.Play();
         // Debug.Log(
             // $"[HIT_FX] 7.EffectManager PLAY OK spawn#{_impactSpawnCounter} effectId={id} " +
-            // $"prefab={data.prefab.name} point={point}");
+            // $"prefab={entry.Prefab.name} point={point}");
     }
 
     private static Vector3 hitPointFlat(Vector3 v)
