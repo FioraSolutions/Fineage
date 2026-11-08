@@ -85,14 +85,6 @@ public enum TypesAnimation
     OtherType
 }
 
-public enum MagicPhase
-{
-    Start,
-    Shot,
-    End,
-    None,
-}
-
 public static class SpecialAnimationNames
 {
     public static readonly Animation ATK_BOW_ATK1 = new Animation("jatk01_bow", TypesAnimation.BowAttack);

@@ -124,7 +124,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
 | Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` (renamed from `INetPresenceBridge`). Next: untangle fanout DTOs off Net.Contract |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
-| `ZoneEntity` composition | [partial] ground + spoil + aggro + player store/social/status/skills + NPC template + shared move/vitals payloads composed; residual = clan/pvp identity, combat runtime, merchant |
+| `ZoneEntity` composition | [partial] ground + spoil + aggro + player store/social/status/skills/identity + NPC template/merchant + shared move/vitals payloads composed; residual = combat runtime |
 | `NetCodec` | Split by domain **or** keep monolith + mandatory round-trip tests per message (generation optional later) |
 
 ### B3. Client main-thread budget — done
@@ -186,6 +186,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `MonsterSoundEvent` / `AmbientSoundType` moved into `Fineage.Game` (cycle-safe).
 - [x] `EquipmentCategory` / `SkillEventType` moved into `Fineage.Game` (cycle-safe).
 - [x] `HitType` / `ProjectileImpactType` / `SpecialSkillType` moved into `Fineage.Game` (cycle-safe).
+- [x] `ObjectType` → `Fineage.Game`; `MagicPhase` → `Fineage.Controller`; `TypeToolTips` → `Fineage.UI`.
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
