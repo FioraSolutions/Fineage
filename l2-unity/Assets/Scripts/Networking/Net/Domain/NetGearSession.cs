@@ -176,7 +176,7 @@ public static class NetGearSession
         // a window which itself stays empty until the snapshot arrives -- nobody could ever
         // open the bag. PlayerInventory now caches the rows and pushes them into the window
         // once it exists, so the data path no longer depends on the UI being built.
-        if (!UnityMainThreadDispatcher.Exists() || GamePacketServices.Bus == null)
+        if (!DispatcherPacketServices.Exists || GamePacketServices.Bus == null)
         {
             WarnBlocked("dispatcher/EventBus");
             return false;

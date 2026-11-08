@@ -159,7 +159,7 @@ public class PlayerInventory : MonoBehaviour
         // }
         if (_currentUser == null) _currentUser = StorageNpc.getInstance().GetFirstUser();
 
-        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        DispatcherPacketServices.Dispatcher.Enqueue(() =>
         {
             // The window may not be built yet (it is created on first UI load). The data above
             // is already stored, and RefreshWindow pushes it once the window exists, so a
@@ -236,7 +236,7 @@ public class PlayerInventory : MonoBehaviour
 
                 if(_currentUser == null) _currentUser =  StorageNpc.getInstance().GetFirstUser();
                 int userId = _currentUser.PlayerInfoInterlude.Identity.Id;
-                UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                DispatcherPacketServices.Dispatcher.Enqueue(() => {
                     // Same reason as SetInventory: the window may not exist yet. The change data
                     // is applied to _playerInventory above, so only the redraw is skipped.
                     if (InventoryPacketServices.Window == null)
