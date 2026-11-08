@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 
 public static class L2EffectGeneratorMaterialConfigurator
 {
+
     public const string SpriteShaderName = "L2/Effects/SpriteEmitter";
     public const string MeshShaderName = "L2/Effects/MeshEmitter";
     public const string BeamShaderName = "L2/Effects/BeamEmitter";
@@ -88,6 +89,9 @@ public static class L2EffectGeneratorMaterialConfigurator
         ApplyMeshSlotShading(material, emitter, meshSlotIndex);
         // After slot shading: it resets _IgnoreMainTexAlpha on every mesh.
         ApplyHeBrightenUnbakedOpacity(material, emitter, effectClassName);
+        // Last: skill tint (Prominence) then mesh-name black-atlas additive (must win).
+        ApplyProminenceFlShading(material, emitter, effectClassName, ref texture);
+        ApplyBlackAtlasMeshAdditive(material, emitter);
 
         EditorUtility.SetDirty(material);
         AssetDatabase.SaveAssetIfDirty(material);
@@ -241,12 +245,26 @@ public static class L2EffectGeneratorMaterialConfigurator
             Midpoint(emitter.StartSizeRange.X));
         SetVector(material, "_StartSizeZRange",
             RangeVector(emitter.StartSizeRange.Z.Min, emitter.StartSizeRange.Z.Max));
+        UcRange spinYaw = emitter.StartSpinRange.X;
+        UcRange spinPitch = emitter.StartSpinRange.Y;
+        UcRange spinRoll = emitter.StartSpinRange.Z;
+        if (L2EffectGeneratorAssetOverrides.TryGetImpactDiscSpinRemap(
+                emitter,
+                out UcRange remapYaw,
+                out UcRange remapPitch,
+                out UcRange remapRoll))
+        {
+            spinYaw = remapYaw;
+            spinPitch = remapPitch;
+            spinRoll = remapRoll;
+        }
+
         SetVector(material, "_StartSpinYawRangeUc", RangeVector(
-            emitter.StartSpinRange.X.Min, emitter.StartSpinRange.X.Max));
+            spinYaw.Min, spinYaw.Max));
         SetVector(material, "_StartSpinPitchRangeUc", RangeVector(
-            emitter.StartSpinRange.Y.Min, emitter.StartSpinRange.Y.Max));
+            spinPitch.Min, spinPitch.Max));
         SetVector(material, "_StartSpinRollRangeUc", RangeVector(
-            emitter.StartSpinRange.Z.Min, emitter.StartSpinRange.Z.Max));
+            spinRoll.Min, spinRoll.Max));
         SetVector(material, "_SpsYawRangeUc", RangeVector(
             emitter.SpinsPerSecondRange.X.Min, emitter.SpinsPerSecondRange.X.Max));
         SetVector(material, "_SpsPitchRangeUc", RangeVector(
@@ -415,40 +433,56 @@ public static class L2EffectGeneratorMaterialConfigurator
         BlendMode src = BlendMode.One;
         BlendMode dst = BlendMode.One;
         bool zWrite = false;
-        switch (emitter.DrawStyle ?? string.Empty)
+        string drawStyle = (emitter.DrawStyle ?? string.Empty).Trim();
+        if (string.Equals(drawStyle, "PTDS_Regular", StringComparison.OrdinalIgnoreCase))
         {
-            case "PTDS_Regular":
-                src = BlendMode.One;
-                dst = BlendMode.Zero;
-                zWrite = true;
-                break;
-            case "PTDS_AlphaBlend":
-                src = BlendMode.SrcAlpha;
-                dst = BlendMode.OneMinusSrcAlpha;
-                break;
-            case "PTDS_Modulated":
-                src = BlendMode.DstColor;
-                dst = BlendMode.SrcColor;
-                break;
-            case "PTDS_AlphaModulate_MightNotFogCorrectly":
-                src = BlendMode.One;
-                dst = BlendMode.OneMinusSrcAlpha;
-                break;
-            case "PTDS_Darken":
-                src = BlendMode.Zero;
-                dst = BlendMode.OneMinusSrcColor;
-                break;
-            case "PTDS_Brighten":
-                src = BlendMode.One;
-                dst = BlendMode.OneMinusSrcColor;
-                break;
-            case "PTDS_Translucent":
-                src = BlendMode.One;
-                dst = BlendMode.One;
-                break;
+            src = BlendMode.One;
+            dst = BlendMode.Zero;
+            zWrite = true;
         }
+        else if (string.Equals(drawStyle, "PTDS_AlphaBlend", StringComparison.OrdinalIgnoreCase))
+        {
+            src = BlendMode.SrcAlpha;
+            dst = BlendMode.OneMinusSrcAlpha;
+        }
+        else if (string.Equals(drawStyle, "PTDS_Modulated", StringComparison.OrdinalIgnoreCase))
+        {
+            src = BlendMode.DstColor;
+            dst = BlendMode.SrcColor;
+        }
+        else if (string.Equals(
+                     drawStyle,
+                     "PTDS_AlphaModulate_MightNotFogCorrectly",
+                     StringComparison.OrdinalIgnoreCase))
+        {
+            src = BlendMode.One;
+            dst = BlendMode.OneMinusSrcAlpha;
+        }
+        else if (string.Equals(drawStyle, "PTDS_Darken", StringComparison.OrdinalIgnoreCase))
+        {
+            src = BlendMode.Zero;
+            dst = BlendMode.OneMinusSrcColor;
+        }
+        else if (string.Equals(drawStyle, "PTDS_Brighten", StringComparison.OrdinalIgnoreCase))
+        {
+            // Live D3D: Src=ONE Dest=INVSRCCOLOR (see L2FxPTDS_DrawStyle.hlsl).
+            src = BlendMode.One;
+            dst = BlendMode.OneMinusSrcColor;
+        }
+        else if (string.Equals(drawStyle, "PTDS_Translucent", StringComparison.OrdinalIgnoreCase))
+        {
+            src = BlendMode.One;
+            dst = BlendMode.One;
+        }
+
         SetFloat(material, "_SrcBlend", (float)src);
         SetFloat(material, "_DstBlend", (float)dst);
+        if (string.Equals(drawStyle, "PTDS_Brighten", StringComparison.OrdinalIgnoreCase))
+        {
+            // Force INVSRCCOLOR (10). Enum cast alone has serialized as 6 on mesh mats.
+            SetFloat(material, "_SrcBlend", 1f);
+            SetFloat(material, "_DstBlend", 10f);
+        }
         SetFloat(material, "_ZWrite", zWrite ? 1f : 0f);
         bool cullOff = !IsMeshEmitter(emitter.ClassName) || emitter.RenderTwoSided;
         SetFloat(material, "_Cull", cullOff ? (float)CullMode.Off : (float)CullMode.Back);
@@ -639,6 +673,77 @@ public static class L2EffectGeneratorMaterialConfigurator
         SetFloat(material, "_L2FxWorldCalibration", 1.1f);
         SetFloat(material, "_L2FxHeUnitScaleEnable", 1f);
         SetFloat(material, "_L2FxHeUnitScale", heScale);
+    }
+
+    /// <summary>
+    /// Black-atlas impact/fire meshes (shockwave / spark / slash / …): force
+    /// additive One/One. Brighten (One/InvSrcColor) turns black cells into
+    /// silhouettes. Policy is mesh-name based (not per-skill).
+    /// </summary>
+    static void ApplyBlackAtlasMeshAdditive(
+        Material material,
+        UcEmitterDefinition emitter)
+    {
+        if (!L2EffectGeneratorAssetOverrides.TryGetBlackAtlasMeshAdditive(emitter))
+        {
+            return;
+        }
+
+        // One=1 / One=1. Ignore atlas alpha so RGB black stays invisible.
+        SetFloat(material, "_SrcBlend", 1f);
+        SetFloat(material, "_DstBlend", 1f);
+        SetFloat(material, "_IgnoreMainTexAlpha", 1f);
+        SetFloat(material, "_ZWrite", 0f);
+    }
+
+    /// <summary>
+    /// Prominence flight ball: Main_storm uses pale fx_m_t1043 + Brighten; Grow is a
+    /// large PTDU_Normal fx_m_t0105 plate (flattened disc). Tame wash with rgbBoost
+    /// only — keep PTDU_Normal orientation for the Interlude-shaped ball.
+    /// </summary>
+    static void ApplyProminenceFlShading(
+        Material material,
+        UcEmitterDefinition emitter,
+        string effectClassName,
+        ref Texture2D currentTexture)
+    {
+        if (!L2EffectGeneratorAssetOverrides.TryGetProminenceFlShading(
+                effectClassName,
+                emitter,
+                out float rgbBoost,
+                out bool forceBillboard,
+                out bool forceBrightenBlend,
+                out Color textureFactor,
+                out bool hasTextureFactor))
+        {
+            return;
+        }
+
+        if (forceBrightenBlend)
+        {
+            // Numeric literals: UnityEngine.Rendering.BlendMode One=1, OneMinusSrcColor=10.
+            // Enum cast has been observed to serialize as OneMinusSrcAlpha (6) on mesh mats.
+            SetFloat(material, "_SrcBlend", 1f);
+            SetFloat(material, "_DstBlend", 10f);
+        }
+
+        if (forceBillboard)
+        {
+            SetFloat(material, "_OrientationMode", 0f);
+        }
+
+        if (hasTextureFactor)
+        {
+            SetColor(material, "_TextureFactor", textureFactor);
+            // Sprite emitter may not sample _TextureFactor; bake tint into ColorMul.
+            SetColor(material, "_ColorMulMin", textureFactor);
+            SetColor(material, "_ColorMulMax", textureFactor);
+            SetFloat(material, "_Opacity", 0.38f);
+        }
+
+        L2EffectImportUtil.EnsureSrgbOff(currentTexture);
+        SetFloat(material, "_RgbBoost", rgbBoost);
+        SetFloat(material, "_L2SpriteColorGammaToLinear", 0f);
     }
 
     static void ApplyHeBrightenUnbakedOpacity(

@@ -76,13 +76,26 @@ public static class L2EffectGeneratorViewerImport
         }
 
         string key = "mesh:" + objectName;
-        if (FailedKeys.Contains(key) || !IsAvailable())
+        if (FailedKeys.Contains(key))
         {
             return existing;
         }
 
-        string extractDir = L2EffectUModelClient.ExtractObject(package, objectName, texture: false);
-        string psk = L2EffectImportUtil.FindExported(extractDir, objectName, ".psk", ".pskx");
+        // Prefer already-staged PSK/PSKX even when umodel is not configured.
+        // Temp/L2ViewerExtract is wiped on Editor start; CachedPsk is durable.
+        string extractDir;
+        string psk = FindStagedPsk(objectName, out extractDir);
+        if (string.IsNullOrEmpty(psk))
+        {
+            if (!IsAvailable())
+            {
+                return existing;
+            }
+
+            extractDir = L2EffectUModelClient.ExtractObject(package, objectName, texture: false);
+            psk = L2EffectImportUtil.FindExported(extractDir, objectName, ".psk", ".pskx");
+        }
+
         if (string.IsNullOrEmpty(psk))
         {
             FailedKeys.Add(key);
@@ -179,6 +192,33 @@ public static class L2EffectGeneratorViewerImport
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Temp extract cache first, then durable Editor/CachedPsk (survives Temp wipe).
+    /// </summary>
+    static string FindStagedPsk(string objectName, out string extractDir)
+    {
+        string sanitized = L2EffectImportUtil.Sanitize(objectName);
+        string projectRoot = Directory.GetParent(Application.dataPath)!.FullName;
+        string[] roots =
+        {
+            Path.Combine(L2EffectPackageRoots.ExtractRoot(), "Meshes", sanitized),
+            // Durable cache outside Assets (Temp extract is wiped on Editor start).
+            Path.Combine(projectRoot, "External", "L2EffectCachedPsk", sanitized),
+        };
+        for (int i = 0; i < roots.Length; i++)
+        {
+            string psk = L2EffectImportUtil.FindExported(roots[i], objectName, ".psk", ".pskx");
+            if (!string.IsNullOrEmpty(psk))
+            {
+                extractDir = roots[i];
+                return psk;
+            }
+        }
+
+        extractDir = roots[0];
+        return null;
     }
 }
 #endif

@@ -479,9 +479,10 @@ public class CompositeEffectV2 : CompositePrefabEffect
             return resolvedTransform.rotation;
         }
 
-        bool aimAlongHit = part != null && part.IsLaunchedProjectile;
-        if (aimAlongHit &&
-            _context != null &&
+        // L2 actor +X is flight/cast; Unity LookRotation is Z-forward. Same -90
+        // yaw as V1 CompositePartSpawnHelper — required for MeshRing/cs burst too,
+        // not only ShotProjectilePart (otherwise the halo faces into/side of caster).
+        if (_context != null &&
             _context.HasHitDirection &&
             _context.HitDirection.sqrMagnitude > 0.0001f)
         {
@@ -495,7 +496,8 @@ public class CompositeEffectV2 : CompositePrefabEffect
             forward.y = 0f;
             if (forward.sqrMagnitude > 0.0001f)
             {
-                return Quaternion.LookRotation(forward.normalized, Vector3.up);
+                return Quaternion.LookRotation(forward.normalized, Vector3.up) *
+                       Quaternion.Euler(0f, HitDirectionYawOffsetDegrees, 0f);
             }
         }
 

@@ -30,10 +30,15 @@ public static class L2EffectPackageRoots
     public static string FindUModelExe()
     {
         string root = ViewerProjectRoot();
+        string projectParent = Directory.GetParent(Application.dataPath)?.FullName ?? "";
         string[] candidates =
         {
             Path.Combine(root, "Tools", "UModel", "umodel_64.exe"),
-            Path.Combine(root, "Tools", "UModel", "umodel.exe")
+            Path.Combine(root, "Tools", "UModel", "umodel.exe"),
+            // Fineage ships a UEViewer binary under External (macOS/linux host).
+            Path.Combine(projectParent, "External", "UEViewer", "umodel"),
+            Path.Combine(projectParent, "External", "UEViewer", "umodel_64.exe"),
+            Path.Combine(projectParent, "External", "UEViewer", "umodel.exe"),
         };
         for (int i = 0; i < candidates.Length; i++)
         {

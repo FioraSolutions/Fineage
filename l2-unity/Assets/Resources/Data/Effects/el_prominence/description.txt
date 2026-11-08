@@ -1,0 +1,13 @@
+el_prominence — V2 / unified HLSL (Decompile_Common).
+
+Generate from Tools → L2 Effects → Effect Generator:
+select this folder, Skill Visual ID 1230,
+Bind to GlobalEffect on, Generate Effect Assets.
+
+UC parts:
+ca — caster cast window
+cs — cast secondary / hand
+fl — projectile (NSkillProjectile), spawn on shoot
+ta — hit / explosion
+
+Source: lineageeffect.u (Lineage2Ver111) via l2encdec + UELib child-emitter stitch.

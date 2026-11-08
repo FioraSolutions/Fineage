@@ -27,14 +27,7 @@ public static class L2EffectUModelClient
         bool texture,
         string outDir)
     {
-        string umodel = L2EffectPackageRoots.FindUModelExe();
-        if (string.IsNullOrEmpty(umodel))
-        {
-            return string.Empty;
-        }
-
         Directory.CreateDirectory(outDir);
-        EnsureSilentConfig();
 
         string already = texture
             ? L2EffectImportUtil.FindExported(outDir, objectName, ".png", ".tga")
@@ -43,6 +36,14 @@ public static class L2EffectUModelClient
         {
             return string.Empty;
         }
+
+        string umodel = L2EffectPackageRoots.FindUModelExe();
+        if (string.IsNullOrEmpty(umodel))
+        {
+            return string.Empty;
+        }
+
+        EnsureSilentConfig();
 
         var log = new StringBuilder();
         foreach (string pkg in FindPackageFiles(packageName, texture))
