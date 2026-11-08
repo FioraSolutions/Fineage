@@ -33,7 +33,7 @@ public sealed class UserSpawner
         CharacterRace race = (CharacterRace)appearance.Race;
         int playerClass = identity != null ? identity.PlayerClass : 0;
         int baseBefore = appearance != null ? appearance.BaseClass : -1;
-        CharacterRaceAnimation raceId = CharacterRaceAnimationParser.ResolveRaceAnimation(
+        CharacterRaceAnimation raceId = CharacterRaceAnimationResolve.ResolveRaceAnimation(
             race, appearance, playerClass);
         // Debug.Log("[CHARINFO_CLASS] SPAWN nick=" + identity.Name +
             // " id=" + identity.Id +

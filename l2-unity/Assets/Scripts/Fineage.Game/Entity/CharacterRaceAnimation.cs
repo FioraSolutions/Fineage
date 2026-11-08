@@ -1,7 +1,7 @@
 ﻿using System;
-using UnityEngine;
 
-public enum CharacterRaceAnimation : byte {
+public enum CharacterRaceAnimation : byte
+{
     FElf = 0,
     MElf = 1,
     MDarkElf = 2,
@@ -18,9 +18,18 @@ public enum CharacterRaceAnimation : byte {
     MFighter = 13
 }
 
-public static class CharacterRaceAnimationParser {
-    public static CharacterRaceAnimation ParseRace(CharacterRace race, byte sex, bool isMage) {
-        switch (race) {
+public enum BaseClass : int
+{
+    Fighter = 0,
+    MMagic = 10,
+}
+
+public static class CharacterRaceAnimationParser
+{
+    public static CharacterRaceAnimation ParseRace(CharacterRace race, byte sex, bool isMage)
+    {
+        switch (race)
+        {
             case CharacterRace.Elf:
                 return sex == 0 ? CharacterRaceAnimation.MElf : CharacterRaceAnimation.FElf;
             case CharacterRace.DarkElf:
@@ -28,32 +37,33 @@ public static class CharacterRaceAnimationParser {
             case CharacterRace.Dwarf:
                 return sex == 0 ? CharacterRaceAnimation.MDwarf : CharacterRaceAnimation.FDwarf;
             case CharacterRace.Orc:
-                if (isMage) {
+                if (isMage)
+                {
                     return sex == 0 ? CharacterRaceAnimation.MShaman : CharacterRaceAnimation.FShaman;
-                } else {
+                }
+                else
+                {
                     return sex == 0 ? CharacterRaceAnimation.MOrc : CharacterRaceAnimation.FOrc;
                 }
             case CharacterRace.Human:
-                if (isMage) {
+                if (isMage)
+                {
                     return sex == 0 ? CharacterRaceAnimation.MMagic : CharacterRaceAnimation.FMagic;
-                } else {
+                }
+                else
+                {
                     return sex == 0 ? CharacterRaceAnimation.MFighter : CharacterRaceAnimation.FFighter;
                 }
             default:
                 return CharacterRaceAnimation.FDwarf;
         }
-
     }
-
 
     public static CharacterRaceAnimation SafeConvertToRace(int value)
     {
         try
         {
-            // First convert int to byte
             byte byteValue = Convert.ToByte(value);
-
-            // Then check if it's a valid enum value
             if (Enum.IsDefined(typeof(CharacterRaceAnimation), byteValue))
             {
                 return (CharacterRaceAnimation)byteValue;
@@ -61,13 +71,10 @@ public static class CharacterRaceAnimationParser {
         }
         catch (OverflowException)
         {
-            // Debug.LogWarning($"Value {value} is too large for CharacterRaceAnimation enum");
         }
 
-        // Debug.LogWarning($"Invalid CharacterRaceAnimation value: {value}");
-        return CharacterRaceAnimation.FElf; // or some default value
+        return CharacterRaceAnimation.FElf;
     }
-
 
     public static CharacterRaceAnimation ParseRaceInterlude(CharacterRace race, int sex, int baseClass)
     {
@@ -101,34 +108,4 @@ public static class CharacterRaceAnimationParser {
                 return CharacterRaceAnimation.FDwarf;
         }
     }
-
-    /// <summary>
-    /// L2 body mesh is fighter vs mystic. CharInfo sends a real class id (Wizard=11, …);
-    /// CharSelected leaves <see cref="PlayerAppearance.BaseClass"/> at 0, but fills
-    /// <see cref="EntityIdentity.PlayerClass"/>.
-    /// </summary>
-    public static CharacterRaceAnimation ResolveRaceAnimation(
-        CharacterRace race,
-        PlayerAppearance appearance,
-        int playerClass)
-    {
-        int sex = appearance != null ? appearance.Sex : 0;
-        int baseClass = appearance != null ? appearance.BaseClass : (int)BaseClass.Fighter;
-        bool isMage = baseClass == (int)BaseClass.MMagic ||
-                      CharacterClassParser.IsMage(playerClass);
-        int resolved = isMage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
-        if (appearance != null)
-            appearance.BaseClass = resolved;
-        return ParseRaceInterlude(race, sex, resolved);
-    }
-}
-
-
-
-public enum BaseClass : int
-{
-    Fighter = 0,
-    MMagic = 10,
-
-    //MFighter = 13
 }
