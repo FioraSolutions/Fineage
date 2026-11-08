@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Melee sword collision / attack timing access with [Inject] wiring and container/live fallback (#131).
 /// </summary>

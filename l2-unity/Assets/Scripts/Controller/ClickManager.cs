@@ -89,7 +89,7 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(PollInput.MousePosition);
         RaycastHit hit;
         ItemEntity stickyDrop = null;
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)

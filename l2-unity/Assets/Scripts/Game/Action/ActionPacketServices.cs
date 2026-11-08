@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Game action layer access with [Inject] wiring and Controller fallback (#142).
 /// </summary>
 public static class ActionPacketServices

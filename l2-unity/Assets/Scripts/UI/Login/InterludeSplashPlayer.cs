@@ -237,7 +237,7 @@ public sealed class InterludeSplashPlayer : MonoBehaviour
             return;
         if (Time.unscaledTime - _shownAt < SkipLockSeconds)
             return;
-        if (Input.anyKeyDown || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        if (PollInput.AnyKeyOrMouseDown)
             _dismissed = true;
         // Proof shot of the credentials window only. Normal play still waits out the splash.
         if (InterludeLoginProof.IsArmed)

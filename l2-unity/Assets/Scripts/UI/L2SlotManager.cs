@@ -406,7 +406,7 @@ public class L2SlotManager : L2PopupWindow
         if (cam == null)
             return false;
 
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(PollInput.MousePosition);
         const float pickDistance = 10000f;
         World world = WorldApplyPacketServices.GameWorld;
         int groundMask = world != null ? world.GroundMask : 0;

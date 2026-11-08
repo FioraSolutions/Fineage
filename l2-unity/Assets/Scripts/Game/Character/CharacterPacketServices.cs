@@ -1,4 +1,6 @@
-﻿/// <summary>
+using VContainer;
+
+/// <summary>
 /// Lobby character layer access with [Inject] wiring and Game fallback (#142).
 /// </summary>
 public static class CharacterPacketServices

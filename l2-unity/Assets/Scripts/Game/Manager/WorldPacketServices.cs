@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// World runtime access to shared services with [Inject] wiring and Networking fallback (#142).
 /// </summary>
 public static class WorldPacketServices

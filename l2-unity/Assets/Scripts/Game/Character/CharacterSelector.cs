@@ -405,7 +405,7 @@ public class CharacterSelector : MonoBehaviour
 
     void Update()
     {
-        if (!Input.GetMouseButtonDown(0) || _charSelectCamera == null)
+        if (!PollInput.LeftMouseDown || _charSelectCamera == null)
             return;
 
         // CharSelectWindow marks layout spacers Ignore; real chrome stays pickable.
@@ -413,7 +413,7 @@ public class CharacterSelector : MonoBehaviour
         if (loginUi != null && loginUi.IsPointerOverPanel())
             return;
 
-        Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = _charSelectCamera.ScreenPointToRay(PollInput.MousePosition);
         // EntityClick only: pawn CharacterControllers / stage colliders must not swallow the hit.
         if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, _characterMask, QueryTriggerInteraction.Collide))
             return;

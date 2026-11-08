@@ -54,10 +54,10 @@ public class LicenseWindow : L2Window
 
     private void Update() {
         if (!_isWindowHidden) {
-            if (Input.GetKeyDown(KeyCode.Escape)) {
+            if (PollInput.EscapeDown) {
                 AudioPacketServices.Audio.PlayUISound("click_01");
                 DisagreeButtonPressed();
-            } else if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) {
+            } else if (PollInput.EnterDown) {
                 AudioPacketServices.Audio.PlayUISound("click_01");
                 AgreeButtonPressed();
             }

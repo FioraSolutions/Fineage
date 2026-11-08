@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Target selection access with [Inject] wiring and container/live fallback (#131 C2).
 /// </summary>

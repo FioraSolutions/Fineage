@@ -1,4 +1,5 @@
-﻿/// <summary>
+using VContainer;
+/// <summary>
 /// Combat layer access to shared services with [Inject] wiring and peer fallback (#142).
 /// </summary>
 public static class CombatPacketServices

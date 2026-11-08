@@ -1,4 +1,4 @@
-﻿using VContainer;
+using VContainer;
 
 /// <summary>
 /// Game-layer access to shared services with [Inject] wiring and Networking/container fallback (#142).

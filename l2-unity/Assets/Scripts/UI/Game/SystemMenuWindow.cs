@@ -46,7 +46,7 @@ public class SystemMenuWindow : L2PopupWindow
             return;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (PollInput.LeftMouseDown)
         {
             if (!MouseOverThisWindow() && !HudCorePacketServices.Menu.MouseOverThisWindow())
             {

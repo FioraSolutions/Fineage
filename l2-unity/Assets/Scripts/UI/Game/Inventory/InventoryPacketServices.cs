@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Inventory UI access with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class InventoryPacketServices

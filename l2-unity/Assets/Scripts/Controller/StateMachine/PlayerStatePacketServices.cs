@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Player state-machine access with live bind and singleton fallback (#131).
 /// </summary>
