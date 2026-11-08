@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public enum CharacterRace : byte { 
+﻿public enum CharacterRace : byte
+{
     Human = 0,
     Elf = 1,
     DarkElf = 2,
@@ -11,9 +8,12 @@ public enum CharacterRace : byte {
     Monster = 5
 }
 
-public static class CharacterRaceParser {
-    public static CharacterRace ParseRace(CharacterRaceAnimation race) {
-        switch (race) {
+public static class CharacterRaceParser
+{
+    public static CharacterRace ParseRace(CharacterRaceAnimation race)
+    {
+        switch (race)
+        {
             case CharacterRaceAnimation.MDwarf:
             case CharacterRaceAnimation.FDwarf:
                 return CharacterRace.Dwarf;

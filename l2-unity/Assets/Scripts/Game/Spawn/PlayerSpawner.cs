@@ -31,7 +31,7 @@ public sealed class PlayerSpawner
 
         CharacterRace race = (CharacterRace)appearance.Race;
         int playerClass = identity != null ? identity.PlayerClass : 0;
-        CharacterRaceAnimation raceId = CharacterRaceAnimationParser.ResolveRaceAnimation(
+        CharacterRaceAnimation raceId = CharacterRaceAnimationResolve.ResolveRaceAnimation(
             race, appearance, playerClass);
         // Debug.Log("PlayerSpawner body race=" + race +
             // " sex=" + (appearance != null ? appearance.Sex : -1) +

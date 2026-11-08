@@ -427,7 +427,7 @@ public static class SkillCastSound
 
         int playerClass = caster.Identity != null ? caster.Identity.PlayerClass : 0;
         CharacterRace race = (CharacterRace)appearance.Race;
-        CharacterRaceAnimation resolved = CharacterRaceAnimationParser.ResolveRaceAnimation(
+        CharacterRaceAnimation resolved = CharacterRaceAnimationResolve.ResolveRaceAnimation(
             race, appearance, playerClass);
         bool resolvedMage =
             resolved == CharacterRaceAnimation.MMagic || resolved == CharacterRaceAnimation.FMagic;
