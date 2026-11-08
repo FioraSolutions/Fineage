@@ -1,28 +1,47 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
-using static ModelTable;
 
-public class CharacterArmorDresser : AbstractArmorDresser 
+/// <summary>
+/// Parents body armor meshes under the character model container.
+/// State is four regions (chest/legs/gloves/feet) plus a full-body flag when
+/// chest+legs come from one onepiece item.
+/// </summary>
+public sealed class CharacterArmorDresser
 {
-    private readonly Transform _containerTransform;
+    struct Worn
+    {
+        public Armor Armor;
+        public GameObject Mesh;
+    }
+
+    readonly Transform _container;
+
+    Worn _chest;
+    Worn _legs;
+    Worn _gloves;
+    Worn _feet;
+    bool _fullBody;
+
     public Action<GameObject> OnDestroyGameObject;
-    public Action<int> OnSyncMash;
-    public Action<GameObject> OnAddSyncMash;
-    public Action<int, ItemSlot> OnEquipArmor;
+    public Action OnSyncMesh;
 
     public CharacterArmorDresser(Transform containerTransform)
     {
-        _containerTransform = containerTransform;
-        _equippedArmor = new Dictionary<ItemSlot, IDresserModel>();
-        InitializeArmorModels();
+        _container = containerTransform;
     }
 
-    /// <summary>
-    /// Body entry for resolved single-slot armor (chest/legs/gloves/feet).
-    /// <paramref name="nakedArmor"/> / <paramref name="nakedMeshes"/> are used when
-    /// replacing a full-body set with a chest/legs piece.
-    /// </summary>
+    public bool IsArmorEquipped(Armor armor, ItemSlot slot)
+    {
+        if (armor == null)
+            return false;
+
+        slot = ArmorBodySlots.Normalize(slot);
+        if (slot == ItemSlot.fullarmor)
+            return _fullBody && Same(_chest.Armor, armor);
+
+        return Same(GetRegion(slot).Armor, armor);
+    }
+
     public void ApplySingle(
         Armor armor,
         ItemSlot slot,
@@ -30,328 +49,270 @@ public class CharacterArmorDresser : AbstractArmorDresser
         Armor[] nakedArmor,
         GameObject[] nakedMeshes)
     {
-        SetArmorPiece(armor, mesh, slot, nakedArmor, nakedMeshes);
-    }
-
-    /// <summary>
-    /// Body entry for resolved fullarmor / onepiece. <paramref name="legsMesh"/> may be null
-    /// for magic robes that only ship an upper mesh.
-    /// </summary>
-    public void ApplyFullBody(Armor armor, GameObject chestMesh, GameObject legsMesh)
-    {
-        if (armor == null || chestMesh == null)
+        if (armor == null || mesh == null)
             return;
 
-        if (legsMesh != null)
-        {
-            SetFullArmor(false, armor, chestMesh, ItemSlot.chest);
-            SetFullArmor(true, armor, legsMesh, ItemSlot.legs);
-        }
-        else
-        {
-            SetFullArmor(true, armor, chestMesh, ItemSlot.chest);
-        }
-    }
-
-    /// <summary>Reset a body slot to naked defaults from ModelTable.</summary>
-    public void ApplyNaked(ItemSlot slot, Armor[] nakedArmor, GameObject[] nakedMeshes)
-    {
-        EquipDefaultSlot(slot, nakedArmor, nakedMeshes);
-    }
-
-    void SetArmorPiece(Armor armor, GameObject armorPiece, ItemSlot slot  , Armor[] defaultArmor , GameObject[] defaultGo)
-    {
-        if (armor == null || armorPiece == null)
+        slot = ArmorBodySlots.Normalize(slot);
+        if (!IsSingleRegion(slot))
             return;
 
         if (IsArmorEquipped(armor, slot))
             return;
 
-        if (ItemSlot.chest == slot || ItemSlot.legs == slot)
+        if ((slot == ItemSlot.chest || slot == ItemSlot.legs) && _fullBody)
+            BreakFullBodyForSingle(slot, nakedArmor, nakedMeshes);
+        else
+            DiscardMeshes(nakedMeshes);
+
+        ReplaceRegion(slot, armor, mesh);
+        Sync();
+    }
+
+    public void ApplyFullBody(Armor armor, GameObject chestMesh, GameObject legsMesh)
+    {
+        if (armor == null || chestMesh == null)
+            return;
+
+        if (IsArmorEquipped(armor, ItemSlot.fullarmor))
+            return;
+
+        ClearRegion(ItemSlot.chest);
+        ClearRegion(ItemSlot.legs);
+
+        Parent(chestMesh);
+        _chest = new Worn { Armor = armor, Mesh = chestMesh };
+        chestMesh.SetActive(true);
+
+        if (legsMesh != null)
         {
-            if (IsFullPlateEquipped(ItemSlot.fullarmor))
-            {
-                ResetFullArmor(ItemSlot.fullarmor, slot, defaultArmor, defaultGo);
-            }
-            else
-            {
-                DestroyIfNotUse(false, defaultGo);
-            }
+            Parent(legsMesh);
+            _legs = new Worn { Armor = armor, Mesh = legsMesh };
+            legsMesh.SetActive(true);
         }
         else
         {
-            DestroyIfNotUse(false , defaultGo);
+            _legs = default;
         }
 
-        EquipNewArmor(slot, armor, armorPiece);
-        OnSyncMash?.Invoke(1);
-        armorPiece.SetActive(true);
+        _fullBody = true;
+        Sync();
     }
 
-    void SetFullArmor(bool refresh , Armor armor, GameObject armorPiece, ItemSlot slotInFullArmor , ItemSlot fullPlate = ItemSlot.fullarmor)
+    public void ApplyNaked(ItemSlot slot, Armor[] nakedArmor, GameObject[] nakedMeshes)
     {
-        if (armor == null || armorPiece == null)
+        slot = ArmorBodySlots.Normalize(slot);
+
+        if (slot == ItemSlot.fullarmor)
+        {
+            ApplyNakedPair(nakedArmor, nakedMeshes);
+            return;
+        }
+
+        if (!IsSingleRegion(slot))
             return;
 
-        if (!IsFullPlateEquipped(ItemSlot.fullarmor))
+        if (nakedArmor != null && nakedArmor.Length > 0 &&
+            IsArmorEquipped(nakedArmor[0], slot))
+            return;
+
+        if (nakedMeshes != null && nakedMeshes.Length > 0 && nakedMeshes[0] != null &&
+            nakedArmor != null && nakedArmor.Length > 0 && nakedArmor[0] != null)
         {
-            ResetArmorPiece(ItemSlot.chest);
-            ResetArmorPiece(ItemSlot.legs);
+            ReplaceRegion(slot, nakedArmor[0], nakedMeshes[0]);
+            Sync();
+            return;
         }
 
-        EquipNewArmorFullPlate(armor, armorPiece, fullPlate, slotInFullArmor);
-
-        if(refresh) OnSyncMash?.Invoke(1);
-        armorPiece.SetActive(true);
+        ClearRegion(slot);
+        if (slot == ItemSlot.chest || slot == ItemSlot.legs)
+            _fullBody = false;
+        Sync();
     }
 
-    void EquipDefaultSlot(ItemSlot slot, Armor[] baseArmor, GameObject[] armorPiece)
+    public void UnequipArmorPiece(
+        ItemSlot slot,
+        int unequipId,
+        Armor[] nakedArmor,
+        GameObject[] nakedMeshes)
     {
-        ItemSlot slotArmor = GetExtendedOrGetCurrentArmorPart(slot, _equippedArmor);
-        if (slotArmor == ItemSlot.fullarmor)
+        slot = ArmorBodySlots.Normalize(slot);
+        if (slot == ItemSlot.fullarmor)
         {
-            if (baseArmor != null && baseArmor.Length >= 2 &&
-                IsArmorEquipped(baseArmor[0], ItemSlot.chest) &&
-                IsArmorEquipped(baseArmor[1], ItemSlot.legs))
-                return;
-
-            if (armorPiece != null && armorPiece.Length >= 2 &&
-                armorPiece[0] != null && armorPiece[1] != null &&
-                baseArmor != null && baseArmor.Length >= 2 &&
-                baseArmor[0] != null && baseArmor[1] != null)
+            if (!_fullBody || _chest.Armor == null || _chest.Armor.Id != unequipId)
             {
-                UnequipFullPlateArmor(slot, slotArmor, baseArmor, armorPiece);
+                DiscardMeshes(nakedMeshes);
                 return;
             }
 
-            ResetArmorPiece(ItemSlot.chest);
-            ResetArmorPiece(ItemSlot.legs);
-            ResetArmorPiece(ItemSlot.fullarmor);
-            OnSyncMash?.Invoke(1);
+            ApplyNakedPair(nakedArmor, nakedMeshes);
             return;
         }
 
-        if (baseArmor != null && baseArmor.Length > 0 && IsArmorEquipped(baseArmor[0], slotArmor))
-            return;
-
-        if (armorPiece != null && armorPiece.Length > 0 && armorPiece[0] != null &&
-            baseArmor != null && baseArmor.Length > 0 && baseArmor[0] != null)
+        if (!IsSingleRegion(slot))
         {
-            EquipNewArmor(slotArmor, baseArmor[0], armorPiece[0]);
-            OnSyncMash?.Invoke(1);
-            armorPiece[0].SetActive(true);
+            DiscardMeshes(nakedMeshes);
             return;
         }
 
-        ResetArmorPiece(slotArmor);
-        OnSyncMash?.Invoke(1);
+        Worn worn = GetRegion(slot);
+        if (worn.Armor == null || worn.Armor.Id != unequipId)
+        {
+            DiscardMeshes(nakedMeshes);
+            return;
+        }
+
+        if (nakedMeshes != null && nakedMeshes.Length > 0 && nakedMeshes[0] != null &&
+            nakedArmor != null && nakedArmor.Length > 0 && nakedArmor[0] != null)
+        {
+            ReplaceRegion(slot, nakedArmor[0], nakedMeshes[0]);
+            Sync();
+            return;
+        }
+
+        ClearRegion(slot);
+        Sync();
+        DiscardMeshes(nakedMeshes);
     }
 
-    public void UnequipArmorPiece(ItemSlot slot , int unequipId , Armor[] baseArmor, GameObject[] armorPiece)
+    void ApplyNakedPair(Armor[] nakedArmor, GameObject[] nakedMeshes)
     {
-        ItemSlot slotArmor = GetExtendedOrGetCurrentArmorPart(slot, _equippedArmor);
-        bool isUseDefault = false;
-        switch (slotArmor)
+        if (nakedArmor != null && nakedArmor.Length >= 2 &&
+            IsArmorEquipped(nakedArmor[0], ItemSlot.chest) &&
+            IsArmorEquipped(nakedArmor[1], ItemSlot.legs) &&
+            !_fullBody)
+            return;
+
+        if (nakedMeshes != null && nakedMeshes.Length >= 2 &&
+            nakedMeshes[0] != null && nakedMeshes[1] != null &&
+            nakedArmor != null && nakedArmor.Length >= 2 &&
+            nakedArmor[0] != null && nakedArmor[1] != null)
+        {
+            ClearRegion(ItemSlot.chest);
+            ClearRegion(ItemSlot.legs);
+            _fullBody = false;
+            ReplaceRegion(ItemSlot.chest, nakedArmor[0], nakedMeshes[0]);
+            ReplaceRegion(ItemSlot.legs, nakedArmor[1], nakedMeshes[1]);
+            Sync();
+            return;
+        }
+
+        ClearRegion(ItemSlot.chest);
+        ClearRegion(ItemSlot.legs);
+        _fullBody = false;
+        Sync();
+        DiscardMeshes(nakedMeshes);
+    }
+
+    /// <summary>
+    /// Leaving fullarmor for a single chest or legs piece: clear both meshes,
+    /// dress naked on the other region, discard unused naked mesh for the kept slot.
+    /// </summary>
+    void BreakFullBodyForSingle(ItemSlot keepSlot, Armor[] nakedArmor, GameObject[] nakedMeshes)
+    {
+        ClearRegion(ItemSlot.chest);
+        ClearRegion(ItemSlot.legs);
+        _fullBody = false;
+
+        if (nakedArmor == null || nakedMeshes == null || nakedArmor.Length < 2 || nakedMeshes.Length < 2)
+            return;
+
+        if (keepSlot == ItemSlot.chest)
+        {
+            if (nakedArmor[1] != null && nakedMeshes[1] != null)
+                ReplaceRegion(ItemSlot.legs, nakedArmor[1], nakedMeshes[1]);
+            DestroyMesh(nakedMeshes[0]);
+        }
+        else if (keepSlot == ItemSlot.legs)
+        {
+            if (nakedArmor[0] != null && nakedMeshes[0] != null)
+                ReplaceRegion(ItemSlot.chest, nakedArmor[0], nakedMeshes[0]);
+            DestroyMesh(nakedMeshes[1]);
+        }
+    }
+
+    void ReplaceRegion(ItemSlot slot, Armor armor, GameObject mesh)
+    {
+        ClearRegion(slot);
+        Parent(mesh);
+        mesh.SetActive(true);
+        SetRegion(slot, new Worn { Armor = armor, Mesh = mesh });
+        if (slot == ItemSlot.chest || slot == ItemSlot.legs)
+            _fullBody = false;
+    }
+
+    void ClearRegion(ItemSlot slot)
+    {
+        Worn worn = GetRegion(slot);
+        DestroyMesh(worn.Mesh);
+        SetRegion(slot, default);
+    }
+
+    Worn GetRegion(ItemSlot slot)
+    {
+        return slot switch
+        {
+            ItemSlot.chest => _chest,
+            ItemSlot.legs => _legs,
+            ItemSlot.gloves => _gloves,
+            ItemSlot.feet => _feet,
+            _ => default
+        };
+    }
+
+    void SetRegion(ItemSlot slot, Worn worn)
+    {
+        switch (slot)
         {
             case ItemSlot.chest:
-            case ItemSlot.feet:
+                _chest = worn;
+                break;
             case ItemSlot.legs:
+                _legs = worn;
+                break;
             case ItemSlot.gloves:
-                if (HasEquipped(slotArmor, unequipId))
-                {
-                    if(armorPiece != null)
-                    {
-                        var defaultPiece = armorPiece[0];
-                        var defaultArmor = baseArmor[0];
-                        EquipNewArmor(slotArmor, defaultArmor, defaultPiece);
-                        OnSyncMash?.Invoke(1);
-                        defaultPiece.SetActive(true);
-                        isUseDefault = true;
-                    }
-                }
-                else
-                {
-                    isUseDefault = false;
-                }
-               break;
-            case ItemSlot.fullarmor:
-                isUseDefault = true;
-                if (HasEquipped(slotArmor, unequipId))
-                {
-
-                    UnequipFullPlateArmor(slot, slotArmor, baseArmor, armorPiece);
-                }
-                else
-                {
-                    isUseDefault = false;
-                }
-                    break;
-
-            default:
-                // Debug.LogWarning($"UnequipArmorPiece: Slot {slotArmor} is not supported for unequipping");
+                _gloves = worn;
+                break;
+            case ItemSlot.feet:
+                _feet = worn;
                 break;
         }
-
-        DestroyIfNotUse(isUseDefault, armorPiece);
     }
 
-    private void DestroyIfNotUse( bool isUse , GameObject[] listGameObject)
+    static bool IsSingleRegion(ItemSlot slot)
     {
-        if (isUse || listGameObject == null)
+        return slot == ItemSlot.chest
+            || slot == ItemSlot.legs
+            || slot == ItemSlot.gloves
+            || slot == ItemSlot.feet;
+    }
+
+    static bool Same(Armor a, Armor b)
+    {
+        return a != null && b != null && a.Id == b.Id;
+    }
+
+    void Parent(GameObject mesh)
+    {
+        if (mesh != null)
+            mesh.transform.SetParent(_container, false);
+    }
+
+    void DestroyMesh(GameObject mesh)
+    {
+        if (mesh != null)
+            OnDestroyGameObject?.Invoke(mesh);
+    }
+
+    void DiscardMeshes(GameObject[] meshes)
+    {
+        if (meshes == null)
             return;
-
-        for (int i = 0; i < listGameObject.Length; i++)
-            Destroy(listGameObject[i]);
+        for (int i = 0; i < meshes.Length; i++)
+            DestroyMesh(meshes[i]);
     }
 
-
-    private void UnequipFullPlateArmor(ItemSlot slot, ItemSlot slotArmor, Armor[] baseArmor, GameObject[] armorPiece)
+    void Sync()
     {
-        var pieceChest = armorPiece[0];
-        var pieceLegs = armorPiece[1];
-
-        var defaltArmorChest = baseArmor[0];
-        var defaltArmorLegs = baseArmor[1];
-
-        var mainPartChest = GetMainArmorPart(ItemSlot.chest);
-        var mainPartLegs = GetMainArmorPart(ItemSlot.legs);
-
-        Destroy(GetGameObject(slot, mainPartChest));
-        Destroy(GetGameObject(slot, mainPartLegs));
-
-        UpdateDataFullPlate(slot, mainPartChest, null, null);
-        UpdateDataFullPlate(slot, mainPartLegs, null, null);
-
-
-        EquipNewArmor(ItemSlot.chest, defaltArmorChest, pieceChest);
-        EquipNewArmor(ItemSlot.legs, defaltArmorLegs, pieceLegs);
-
-        OnSyncMash?.Invoke(1);
-        pieceChest.SetActive(true);
-        pieceLegs.SetActive(true);
+        OnSyncMesh?.Invoke();
     }
-
-    public void ResetFullArmor( ItemSlot slot , ItemSlot useSlot , Armor[] defaultArmor, GameObject[] defaultGo)
-    {
-
-        var mainPartChest = GetMainArmorPart(ItemSlot.chest);
-        var mainPartLegs = GetMainArmorPart(ItemSlot.legs);
-
-        // Debug.Log("Destroy test 1 chest " + " slot " + slot + " data " + mainPartChest.ToString() + " go " + GetGameObject(slot, mainPartChest));
-        // Debug.Log("Destroy test 2 legs " + " slot " + slot + " data " + mainPartLegs.ToString() + "go " + GetGameObject(slot, mainPartLegs));
-        Destroy(GetGameObject(slot, mainPartChest));
-        Destroy(GetGameObject(slot, mainPartLegs));
-
-        UpdateDataFullPlate(slot, mainPartChest, null, null);
-        UpdateDataFullPlate(slot, mainPartLegs, null, null);
-
-        ResetToDefaultEquipment( useSlot, defaultArmor, defaultGo);
-    }
-
-    private void ResetToDefaultEquipment(ItemSlot useSlot , Armor[] defaultArmor, GameObject[] defaultGo)
-    {
-        //0 - m001_u
-        //1 - m001_l
-        if (defaultArmor != null && defaultGo != null)
-        {
-            if (ItemSlot.chest == useSlot)
-            {
-                EquipNewArmor(ItemSlot.legs, defaultArmor[1], defaultGo[1]);
-                Destroy(defaultGo[0]);
-                defaultGo[1].SetActive(true);
-            }
-            else if (ItemSlot.legs == useSlot)
-            {
-                EquipNewArmor(ItemSlot.chest, defaultArmor[0], defaultGo[0]);
-                Destroy(defaultGo[1]);
-                defaultGo[0].SetActive(true);
-            }
-        }
-
-
-    }
-    public void ResetArmorPiece(ItemSlot slot)
-    {
-        var mainPart = GetMainArmorPart(slot);
-        Destroy(GetGameObject(slot, mainPart));
-        UpdateGo(slot, mainPart, null);
-        UpdateData(slot, mainPart, null);
-    }
-    
-    private void EquipNewArmor(ItemSlot slot , Armor armor, GameObject armorPiece , bool isDelete = true)
-    {
-        var mainPart = GetMainArmorPart(slot);
-
-        if (ArmorDresserModel.ArmorPart.Unknow == mainPart)
-        {
-            // Debug.LogWarning($"CharacterArmorDresser: EquipNewArmor-> Unknown armor part detected for slot {slot}. Armor will not be equipped.");
-            return;
-        }
-        // Debug.Log("EquipNewArmor destroy " + GetGameObject(slot, mainPart));
-        // GearFlowLog.Info("ArmorDresser EquipNewArmor slot=" + slot +
-            // " part=" + mainPart +
-            // " armorId=" + (armor != null ? armor.Id : 0) +
-            // " mesh=" + (armorPiece != null ? armorPiece.name : "null") +
-            // " container=" + (_containerTransform != null ? _containerTransform.name : "null"));
-        if(isDelete) Destroy(GetGameObject(slot, mainPart));
-        SetParent(armorPiece);
-
-        UpdateGo(slot, mainPart, armorPiece);
-        UpdateData(slot, mainPart, armor);
-    }
-
-    private void EquipNewArmorFullPlate(Armor armor, GameObject armorPiece , ItemSlot slotFullPlater, ItemSlot insideFullPlate)
-    {
-        var mainPart = GetMainArmorPart(insideFullPlate);
-        // GearFlowLog.Info("ArmorDresser EquipNewArmorFullPlate slot=" + slotFullPlater +
-            // " part=" + mainPart +
-            // " armorId=" + (armor != null ? armor.Id : 0) +
-            // " mesh=" + (armorPiece != null ? armorPiece.name : "null") +
-            // " container=" + (_containerTransform != null ? _containerTransform.name : "null"));
-        Destroy(GetGameObject(slotFullPlater, mainPart));
-
-        SetParent(armorPiece);
-
-        UpdateGo(slotFullPlater, mainPart, armorPiece);
-        UpdateData(slotFullPlater, mainPart, armor);
-    }
-
-    private void SetParent(GameObject armorPiece)
-    {
-        if(armorPiece != null)
-        {
-            armorPiece.transform.SetParent(_containerTransform, false);
-        }
-        else
-        {
-            // Debug.LogWarning("CharacterArmorDresser->SetParent: GameObject its null");
-        }
-
-    }
-
-    public void UpdateDataFullPlate(ItemSlot slot, ArmorDresserModel.ArmorPart part, Armor armor , GameObject armorPiece)
-    {
-        UpdateGo(slot, part, armorPiece);
-        UpdateData(slot, part, armor);
-    }
-    public void Destroy(GameObject existingArmorPiece)
-    {
-        if (existingArmorPiece != null)
-        {
-            DefaultDestroy(existingArmorPiece);
-        }
-
-    }
-
-    private void DefaultDestroy(GameObject go)
-    {
-        OnDestroyGameObject?.Invoke(go);
-    }
-
-
-
 }
-
-
-
-

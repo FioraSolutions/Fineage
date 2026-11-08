@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VContainer;
-using static ModelTable;
 
 public abstract class AbstractGetCache
 {
@@ -23,6 +22,41 @@ public abstract class AbstractGetCache
     protected GameObject[] _pawnContainers;
     protected GameObject[,] _faces;
     protected GameObject[,] _hair;
+
+    /// <summary>One skinned mesh + material for a body region (chest/legs/gloves/feet).</summary>
+    public readonly struct BodyArmorMeshPart
+    {
+        public GameObject Mesh { get; }
+        public Material Material { get; }
+        public ItemSlot PartSlot { get; }
+
+        public BodyArmorMeshPart(GameObject mesh, Material material, ItemSlot partSlot)
+        {
+            Mesh = mesh;
+            Material = material;
+            PartSlot = partSlot;
+        }
+    }
+
+    class L2ArmorPiece
+    {
+        public GameObject baseArmorModel;
+        public Material material;
+        public GameObject[] baseAllModels;
+        public Material[] allMaterials;
+
+        public L2ArmorPiece(
+            GameObject baseArmorModel,
+            Material material,
+            GameObject[] baseAllModels,
+            Material[] allMaterials)
+        {
+            this.baseArmorModel = baseArmorModel;
+            this.material = material;
+            this.baseAllModels = baseAllModels;
+            this.allMaterials = allMaterials;
+        }
+    }
 
     protected class L2Armor
     {
@@ -47,61 +81,104 @@ public abstract class AbstractGetCache
     // Getters
     // -------
 
-    public L2ArmorPiece GetArmorPiece(Armor armor, CharacterRaceAnimation raceId)
+    /// <summary>
+    /// Resolve cached mesh/material parts for a body armor item. Gear code should use this,
+    /// not the private L2ArmorPiece cache shape.
+    /// </summary>
+    public bool TryGetBodyArmorParts(
+        Armor armor,
+        CharacterRaceAnimation raceId,
+        ItemSlot bodySlot,
+        out BodyArmorMeshPart[] parts)
     {
-        
-        if (armor == null)
-        {
-            // Debug.LogWarning("Given armor is null");
-            return null;
-        }
+        parts = Array.Empty<BodyArmorMeshPart>();
+        L2ArmorPiece piece = GetArmorPiece(armor, raceId);
+        if (piece == null)
+            return false;
 
-  
-        if (armor.Armorgrp == null || armor.Armorgrp.FirstModel == null)
-        {
-            // Debug.LogWarning($"Can't find armorgrp model list for armor {armor.Id}");
+        parts = BuildBodyArmorParts(bodySlot, piece);
+        return parts.Length > 0;
+    }
+
+    L2ArmorPiece GetArmorPiece(Armor armor, CharacterRaceAnimation raceId)
+    {
+        if (armor == null)
             return null;
-        }
+
+        if (armor.Armorgrp == null || armor.Armorgrp.FirstModel == null)
+            return null;
 
         byte raceIndex = (byte)raceId;
         if (raceIndex >= armor.Armorgrp.FirstModel.Length)
-        {
-            // Debug.LogWarning($"Can't find armor model for {raceId} in armor {armor.Id}");
             return null;
-        }
 
         string model = armor.Armorgrp.FirstModel[raceIndex];
         if (string.IsNullOrEmpty(model))
-        {
-            // Debug.LogWarning($"Empty armor model for {raceId} in armor {armor.Id}");
             return null;
-        }
 
         if (!_armors.TryGetValue(model, out var l2Armor))
-        {
-            // Debug.LogWarning($"Can't find armor model {model} in ModelTable");
             return null;
-        }
-
 
         if (l2Armor.baseModel == null)
-        {
-            // Debug.LogWarning($"Can't find armor model {model} for {raceId} in ModelTable");
             return null;
-        }
-
 
         string textureName = GetValidTextureName(armor, raceId);
-        if (textureName == null) return null;
-
+        if (textureName == null)
+            return null;
 
         if (!TryGetMaterials(l2Armor, textureName, out var firstMaterial, out var allMaterials))
-        {
             return null;
-        }
-
 
         return new L2ArmorPiece(l2Armor.baseModel, firstMaterial, l2Armor.allModels, allMaterials);
+    }
+
+    static BodyArmorMeshPart[] BuildBodyArmorParts(ItemSlot bodySlot, L2ArmorPiece piece)
+    {
+        if (bodySlot == ItemSlot.fullarmor)
+            return BuildFullArmorParts(piece);
+
+        if (piece.baseArmorModel == null || piece.material == null)
+            return Array.Empty<BodyArmorMeshPart>();
+
+        return new[]
+        {
+            new BodyArmorMeshPart(piece.baseArmorModel, piece.material, bodySlot)
+        };
+    }
+
+    static BodyArmorMeshPart[] BuildFullArmorParts(L2ArmorPiece piece)
+    {
+        GameObject[] models = piece.baseAllModels;
+        if (models == null || models.Length == 0)
+        {
+            if (piece.baseArmorModel == null)
+                return Array.Empty<BodyArmorMeshPart>();
+            models = new[] { piece.baseArmorModel };
+        }
+
+        Material[] materials = piece.allMaterials;
+        var list = new List<BodyArmorMeshPart>(models.Length);
+        for (int i = 0; i < models.Length; i++)
+        {
+            GameObject mesh = models[i];
+            if (mesh == null)
+                continue;
+
+            Material mat = null;
+            if (materials != null && i < materials.Length)
+                mat = materials[i];
+            if (mat == null && materials != null && materials.Length > 0)
+                mat = materials[0];
+            if (mat == null)
+                mat = piece.material;
+            if (mat == null)
+                continue;
+
+            ItemSlot partSlot = i == 0 ? ItemSlot.chest : ItemSlot.legs;
+            list.Add(new BodyArmorMeshPart(mesh, mat, partSlot));
+        }
+
+        return list.ToArray();
     }
 
     private string GetValidTextureName(Armor armor, CharacterRaceAnimation raceId)

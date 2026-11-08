@@ -6,5 +6,4 @@ public enum EquipmentCategory
     Shield,
     Armor,
     EtcItem,
-    FullArmor,
 }

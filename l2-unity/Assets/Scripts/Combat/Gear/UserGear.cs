@@ -5,10 +5,6 @@ public class UserGear : Gear
     const string ModelChildName = "model";
 
     protected SkinnedMeshSync _skinnedMeshSync;
-    [Header("Armors")]
-    [Header("Meta")]
-
-    [Header("Models")]
     [SerializeField] private GameObject _container;
 
     [System.NonSerialized] public GameObject Hair1;
@@ -30,9 +26,7 @@ public class UserGear : Gear
         {
             _armorDresser = new CharacterArmorDresser(_container.transform);
             _armorDresser.OnDestroyGameObject += OnDestroyGameObject;
-            _armorDresser.OnSyncMash += OnSyncMesh;
-            _armorDresser.OnAddSyncMash += OnAddSyncMesh;
-            _armorDresser.OnEquipArmor += OnEquipArmor;
+            _armorDresser.OnSyncMesh += OnSyncMesh;
         }
 
         // Anim + SkinnedMeshSync sit under model; resolve from the pawn root.
@@ -130,9 +124,9 @@ public class UserGear : Gear
     static ItemSlot ResolveEquipSlot(Armor armor, ItemSlot fallback)
     {
         ItemSlot body = ArmorVisualResolver.ResolveBodySlot(armor);
-        if (ArmorVisualResolver.IsBodySlot(body))
+        if (ArmorBodySlots.IsBody(body))
             return body;
-        return ArmorDresserModel.GetExtendedArmorPart(fallback);
+        return ArmorBodySlots.Normalize(fallback);
     }
 
     void ApplyFullArmor(ArmorVisual visual)
@@ -179,17 +173,24 @@ public class UserGear : Gear
             return;
         }
 
-        GetDefaultGoWithArmorModel(
-            ItemSlot.fullarmor,
-            out Armor[] defaultArmor,
-            out GameObject[] listArmorPiece,
-            (int)_raceId);
+        // Naked chest/legs only needed when replacing a full-body set.
+        Armor[] nakedArmor = null;
+        GameObject[] nakedMeshes = null;
+        if (visual.Slot == ItemSlot.chest || visual.Slot == ItemSlot.legs)
+        {
+            GetDefaultGoWithArmorModel(
+                ItemSlot.fullarmor,
+                out nakedArmor,
+                out nakedMeshes,
+                (int)_raceId);
+        }
+
         _armorDresser.ApplySingle(
             visual.Armor,
             visual.Slot,
             armorMesh,
-            defaultArmor,
-            listArmorPiece);
+            nakedArmor,
+            nakedMeshes);
     }
 
     void ResetSlotToNaked(ItemSlot slotArmor, int itemId)
@@ -227,21 +228,14 @@ public class UserGear : Gear
 
     public void EquipHair(GameObject hair1Piece, GameObject hair2Piece)
     {
-        EquipHairTest(hair1Piece, hair2Piece);
-    }
-    
-    public void EquipHairTest(GameObject hair1Piece , GameObject hair2Piece)
-    {
         if (Hair1 != null)
             DestroyImmediate(Hair1);
         if (Hair2 != null)
             DestroyImmediate(Hair2);
 
-        Hair1 = null;
-        Hair2 = null;
-        var tr = _container.transform;
         Hair1 = hair1Piece;
         Hair2 = hair2Piece;
+        Transform tr = _container.transform;
         if (Hair1 != null)
             Hair1.transform.SetParent(tr, false);
         if (Hair2 != null)
@@ -253,48 +247,26 @@ public class UserGear : Gear
     public void EquipFace(GameObject facePiece)
     {
         if (Face != null)
-        {
             Destroy(Face);
-            //_torsoMeta = null;
-        }
-        var tr = _container.transform;
-        Face = facePiece;
-        Face.transform.SetParent(tr, false);
 
-       _skinnedMeshSync?.SyncMesh();
+        Face = facePiece;
+        if (Face != null)
+            Face.transform.SetParent(_container.transform, false);
+
+        _skinnedMeshSync?.SyncMesh();
     }
 
     public void OnDestroyGameObject(GameObject go)
     {
         IPoolManager pool = ObjectPoolPacketServices.Pool;
-        if (pool != null)
-        {
-            if (!pool.ReturnToPool(ObjectType.Armor , go))
-            {
-                Destroy(go);
-            }
-        }
-        else
-        {
-            Destroy(go);
-        }
-
-        //Debug.LogWarning("Запрос на удаление. Удаление состоялось размер " + _container.transform.childCount);
+        if (pool != null && pool.ReturnToPool(ObjectType.Armor, go))
+            return;
+        Destroy(go);
     }
 
-    public void OnSyncMesh(int status)
+    void OnSyncMesh()
     {
-        //Debug.LogWarning("Запрос на удаление. Синхронизация начало");
         _skinnedMeshSync?.SyncMesh();
-        //Debug.LogWarning("Запрос на удаление. Синхронизация конец");
-    }
-
-    public void OnAddSyncMesh(GameObject add) {
-        _skinnedMeshSync?.AddObjectToQueue(add);
-    }
-
-    public void OnEquipArmor(int naked, ItemSlot slot) {
-        EquipArmor(naked , slot);
     }
 
     public void AddUserGearLink(GameObject face, GameObject hair1, GameObject hair2) {
