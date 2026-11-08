@@ -122,7 +122,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | Slice | Intent |
 |-------|--------|
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
-| Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` (renamed from `INetPresenceBridge`). Die/Revive/Despawn/Teleport/Social/Target/WaitType + ShopBalance/SystemMessage/CreatureSay/NpcHtml/AbnormalStatus/InventoryUpdate take Protocol/primitives (encoding in Net). Residual = shop lists/skills/status/UserInfo/trade/social DTOs |
+| Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World`. Protocol/primitives for Die/Revive/Despawn/Teleport/Social/Target/WaitType/ShopBalance/SystemMessage/CreatureSay/NpcHtml/Abnormal/Inventory/DropItem/StatusUpdate/MagicSkillUse/EnchantResult/SkillList/QuestList (encoding in Net). Residual = UserInfo/shop lists/trade/party/clan/olympiad DTOs |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
 | `ZoneEntity` composition | [x] ground + spoil + aggro + player store/social/status/skills/identity + NPC template/merchant + shared move/vitals/combat payloads composed; leftover refs (Session/Inventory/Warehouse/Shop/Quests/Knownlist/DungeonId/InstanceId) stay on entity |
 | `NetCodec` | Keep monolith + mandatory round-trip tests (World/Economy/Social/Combat/Presence); domain split optional later |
