@@ -60,16 +60,12 @@ public sealed class ArmorVisualResolver
         ItemSlot body = armor != null && armor.Armorgrp != null
             ? armor.Armorgrp.BodyPart
             : ItemSlot.none;
-        return ArmorDresserModel.GetExtendedArmorPart(body);
+        return ArmorBodySlots.Normalize(body);
     }
 
     public static bool IsBodySlot(ItemSlot slot)
     {
-        return slot == ItemSlot.fullarmor
-            || slot == ItemSlot.chest
-            || slot == ItemSlot.legs
-            || slot == ItemSlot.gloves
-            || slot == ItemSlot.feet;
+        return ArmorBodySlots.IsBody(slot);
     }
 
     static ArmorVisualPart[] BuildParts(ItemSlot slot, L2ArmorPiece piece)

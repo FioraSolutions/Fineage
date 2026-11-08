@@ -31,8 +31,6 @@ public class UserGear : Gear
             _armorDresser = new CharacterArmorDresser(_container.transform);
             _armorDresser.OnDestroyGameObject += OnDestroyGameObject;
             _armorDresser.OnSyncMash += OnSyncMesh;
-            _armorDresser.OnAddSyncMash += OnAddSyncMesh;
-            _armorDresser.OnEquipArmor += OnEquipArmor;
         }
 
         // Anim + SkinnedMeshSync sit under model; resolve from the pawn root.
@@ -130,9 +128,9 @@ public class UserGear : Gear
     static ItemSlot ResolveEquipSlot(Armor armor, ItemSlot fallback)
     {
         ItemSlot body = ArmorVisualResolver.ResolveBodySlot(armor);
-        if (ArmorVisualResolver.IsBodySlot(body))
+        if (ArmorBodySlots.IsBody(body))
             return body;
-        return ArmorDresserModel.GetExtendedArmorPart(fallback);
+        return ArmorBodySlots.Normalize(fallback);
     }
 
     void ApplyFullArmor(ArmorVisual visual)
@@ -287,14 +285,6 @@ public class UserGear : Gear
         //Debug.LogWarning("Запрос на удаление. Синхронизация начало");
         _skinnedMeshSync?.SyncMesh();
         //Debug.LogWarning("Запрос на удаление. Синхронизация конец");
-    }
-
-    public void OnAddSyncMesh(GameObject add) {
-        _skinnedMeshSync?.AddObjectToQueue(add);
-    }
-
-    public void OnEquipArmor(int naked, ItemSlot slot) {
-        EquipArmor(naked , slot);
     }
 
     public void AddUserGearLink(GameObject face, GameObject hair1, GameObject hair2) {

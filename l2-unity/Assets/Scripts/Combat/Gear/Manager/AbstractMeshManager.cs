@@ -197,7 +197,7 @@ public class AbstractMeshManager : MonoBehaviour
     public void GetDefaultGoWithArmorModel(ItemSlot slot, out Armor[] defaultArmor, out GameObject[] listArmorPiece , int raceId)
     {
         //int race = (int)_raceId;
-        slot = ArmorDresserModel.GetExtendedArmorPart(slot);
+        slot = ArmorBodySlots.Normalize(slot);
 
         defaultArmor = CharacterDefaultEquipment.GetDefaultArmorByItemSlot(slot);
         listArmorPiece = CopyListMash(slot, defaultArmor, raceId);
