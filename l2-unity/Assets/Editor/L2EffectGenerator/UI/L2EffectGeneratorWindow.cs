@@ -45,6 +45,31 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     }
 
     /// <summary>
+    /// Batch entry: Unity.exe -executeMethod L2EffectGeneratorWindow.GenerateProminenceCli
+    /// </summary>
+    public static void GenerateProminenceCli()
+    {
+        AssetDatabase.Refresh();
+        L2EffectGeneratorFolderBuilder.BuildResult result = L2EffectGeneratorFolderBuilder.CreateFromFolder(
+            "Assets/Resources/Data/Effects/el_prominence",
+            "el_prominence",
+            1230,
+            true);
+
+        for (int i = 0; i < result.LogLines.Count; i++)
+            Debug.Log("[L2EffectGenerator] " + result.LogLines[i]);
+
+        if (!result.Success)
+        {
+            Debug.LogError("[L2EffectGenerator] " + result.ErrorMessage);
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        EditorApplication.Exit(0);
+    }
+
+    /// <summary>
     /// Batch entry: Unity.exe -executeMethod L2EffectGeneratorWindow.GenerateHealCli
     /// </summary>
     public static void GenerateHealCli()

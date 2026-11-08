@@ -93,14 +93,33 @@ public static class L2EffectGeneratorSkillBinder
 
         if (boundCount == 0)
         {
-            logLine = "WARNING skill visual id " + skillId + " is missing from GlobalEffect.asset.";
-            return true;
+            // New skill (e.g. Prominence 1230): create GlobalEffect row.
+            // Projectile skills keep flight timing; copy Wind Strike settings as a sane default.
+            EffectSettings settings = AssetDatabase.LoadAssetAtPath<EffectSettings>(
+                "Assets/Scripts/Database/Effects/Data/Settings/Effect1177.asset");
+            var row = new EffectDatabase.EffectData
+            {
+                id = skillId,
+                prefab = effect,
+                useWeaponShot = false,
+                spiritShot = false,
+                comment = PathFileName(compositePrefabPath),
+                settings = settings,
+                ignoreFlightTimeForCast = false
+            };
+            database.effects.Add(row);
+            boundCount = 1;
+            logLine = "created GlobalEffect row skill " + skillId +
+                      " prefab -> " + compositePrefabPath;
+        }
+        else
+        {
+            logLine = "bound " + boundCount + " GlobalEffect row(s) including skill " +
+                      skillId + " prefab -> " + compositePrefabPath;
         }
 
         EditorUtility.SetDirty(database);
         AssetDatabase.SaveAssets();
-        logLine = "bound " + boundCount + " GlobalEffect row(s) including skill " +
-                  skillId + " prefab -> " + compositePrefabPath;
         return true;
     }
 

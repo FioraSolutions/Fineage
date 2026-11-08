@@ -9,6 +9,7 @@ using UnityEngine;
 /// </summary>
 public static class L2EffectGeneratorAssetOverrides
 {
+
     const float ActorXEpsilon = 1e-8f;
 
     public static bool IsWeaponChargeBooksClass(string className)
@@ -36,7 +37,57 @@ public static class L2EffectGeneratorAssetOverrides
             { "windblowin01", new[] { "fx_m_t0001" } },
             { "black_vampire01", new[] { "fx_m_t0032", "fx_m_t0032", "fx_m_t0009" } },
             { "sh2", new[] { "FX_M_T8030" } },
+            // Fire/impact meshes on black-atlas textures (umodel Materials[]).
+            // Also gated by TryGetBlackAtlasMeshAdditive / TryGetImpactDiscSpinRemap.
+            { "skill_forcerage", new[] { "fx_m_t1043", "fx_m_t0105" } },
+            { "spirit_fire00", new[] { "fx_m_t0066" } },
+            { "spark00", new[] { "fx_m_t0117" } },
+            { "slashlight00", new[] { "fx_m_t0057" } },
+            { "shockwave00", new[] { "fx_m_t0006" } },
         };
+
+    // Black-bg atlases: UC Brighten/omitted DrawStyle draws solid silhouettes;
+    // force additive One/One (matches live shot_N_atk ShockWave mats).
+    static readonly HashSet<string> BlackAtlasMeshes =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "shockwave00",
+            "spark00",
+            "slashlight00",
+            "skill_forcerage",
+            "spirit_fire00",
+        };
+
+    // Disc meshes whose UC StartSpin Z tips the plane; remap Z → yaw (flight).
+    static readonly HashSet<string> ImpactDiscSpinMeshes =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "shockwave00",
+            "slashlight00",
+        };
+
+    /// <summary>
+    /// attach_on=9 CastingAction _ca defaults to CasterRoot (feet) for ground
+    /// swirls (wind_strike). Prominence charge sprites sit at hands/chest.
+    /// </summary>
+    static readonly Dictionary<string, EffectAttachmentPoint> AttachmentOverrides =
+        new Dictionary<string, EffectAttachmentPoint>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "el_prominence_ca", EffectAttachmentPoint.CasterCenter },
+            // ShotAction attach_on=9 used to map all trails to the target; launch
+            // burst must sit on the caster (reference cast pose + radial fire).
+            { "el_prominence_cs", EffectAttachmentPoint.CasterCenter },
+        };
+
+    public static bool TryGetAttachmentOverride(
+        string classOrFolderName,
+        out EffectAttachmentPoint attachment)
+    {
+        attachment = EffectAttachmentPoint.CasterRoot;
+        string name = StripEffectClassName(classOrFolderName);
+        return !string.IsNullOrEmpty(name) &&
+               AttachmentOverrides.TryGetValue(name, out attachment);
+    }
 
     // Slot 2 diamond: live TFactor + floor/contrast from RenderDoc
     // (vampiric_deprecate MeshEmitter34_2). Cull Off = diamond winding.
@@ -140,6 +191,22 @@ public static class L2EffectGeneratorAssetOverrides
     const string SpriteEmitter30Name = "SpriteEmitter30";
     const string SpriteEmitter30Alias = "Aura";
     const string FxMt4009Atlas = "fx_m_t4009";
+
+    const string ElProminenceFlEffect = "el_prominence_fl";
+    const string ProminenceMainStormName = "Main_storm";
+    const string ProminenceMainStormEmitter = "MeshEmitter7";
+    const string ProminenceBrighterName = "brighter";
+    const string ProminenceBrighterEmitter = "MeshEmitter9";
+    const string ProminenceGrowName = "Grow";
+    const string ProminenceGrowEmitter = "SpriteEmitter10";
+    const string ProminenceSpinBurnName = "Spin_burn";
+    const string ProminenceSpinBurnEmitter = "SpriteEmitter9";
+    // Pale streak atlas + Brighten washes to white; keep core hotter than rim.
+    // Additive stack washes to white vs Interlude orange saturation.
+    const float ProminenceMainStormRgbBoost = 0.48f;
+    const float ProminenceGrowRgbBoost = 0.40f;
+    const float ProminenceSpinBurnRgbBoost = 0.48f;
+    static readonly Color ProminenceGrowTextureFactor = new Color(1f, 0.52f, 0.28f, 1f);
 
     // HE-tuned Opacity for u_npc_id_buff Brighten slots (not raw UC).
     // 2911: UC 0.35 → 1 + ignore tex A (pixel history: ColorScale*tex, A=1).
@@ -530,6 +597,128 @@ public static class L2EffectGeneratorAssetOverrides
         rgbBoost = FxMt8146DarkenRgbBoost;
         opacity = FxMt8146DarkenOpacity;
         return true;
+    }
+
+    /// <summary>
+    /// el_prominence_fl flight ball tuning (white wash → fire).
+    /// Keep PTDU_Normal on Grow/Spin_burn — that plate is the flattened horizontal
+    /// disc in the Interlude reference; do not force camera billboard.
+    /// </summary>
+    public static bool TryGetProminenceFlShading(
+        string effectClassName,
+        UcEmitterDefinition emitter,
+        out float rgbBoost,
+        out bool forceBillboard,
+        out bool forceBrightenBlend,
+        out Color textureFactor,
+        out bool hasTextureFactor)
+    {
+        rgbBoost = 1f;
+        forceBillboard = false;
+        forceBrightenBlend = false;
+        textureFactor = Color.white;
+        hasTextureFactor = false;
+        if (emitter == null ||
+            !string.Equals(
+                StripEffectClassName(effectClassName),
+                ElProminenceFlEffect,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        string name = emitter.EmitterName ?? string.Empty;
+        if (string.Equals(name, ProminenceMainStormName, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name, ProminenceMainStormEmitter, StringComparison.OrdinalIgnoreCase))
+        {
+            // UC says Brighten, but One/InvSrcColor darkens black-atlas cells into
+            // solid silhouettes. Live shot_N_atk ShockWave mats use One/One.
+            rgbBoost = ProminenceMainStormRgbBoost;
+            forceBrightenBlend = false;
+            return true;
+        }
+
+        if (string.Equals(name, ProminenceBrighterName, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name, ProminenceBrighterEmitter, StringComparison.OrdinalIgnoreCase))
+        {
+            // Orange overlay is already Opacity 0.24 — only mild tame.
+            rgbBoost = 0.72f;
+            return true;
+        }
+
+        if (string.Equals(name, ProminenceGrowName, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name, ProminenceGrowEmitter, StringComparison.OrdinalIgnoreCase))
+        {
+            rgbBoost = ProminenceGrowRgbBoost;
+            textureFactor = ProminenceGrowTextureFactor;
+            hasTextureFactor = true;
+            return true;
+        }
+
+        if (string.Equals(name, ProminenceSpinBurnName, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(name, ProminenceSpinBurnEmitter, StringComparison.OrdinalIgnoreCase))
+        {
+            rgbBoost = ProminenceSpinBurnRgbBoost;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// shockwave00 / slashlight00 UC StartSpin Z (0..1) rolls the disc onto the
+    /// ground or toward the caster in our Unity mesh basis. Remap onto Yaw so the
+    /// disc spins in-plane facing flight and wraps the target.
+    /// </summary>
+    public static bool TryGetImpactDiscSpinRemap(
+        UcEmitterDefinition emitter,
+        out UcRange yaw,
+        out UcRange pitch,
+        out UcRange roll)
+    {
+        yaw = default;
+        pitch = default;
+        roll = default;
+        if (emitter == null || !IsImpactDiscSpinMesh(emitter))
+        {
+            return false;
+        }
+
+        yaw = emitter.StartSpinRange.Z;
+        pitch = new UcRange(0f, 0f);
+        roll = new UcRange(0f, 0f);
+        return true;
+    }
+
+    /// <summary>
+    /// Black-atlas impact/fire meshes: PTDS_Brighten (One/InvSrcColor) darkens
+    /// atlas cells into solid cards. Force additive One/One (live shot_N_atk
+    /// ShockWave mats). Gated by mesh name, not skill class.
+    /// </summary>
+    public static bool TryGetBlackAtlasMeshAdditive(UcEmitterDefinition emitter)
+    {
+        return emitter != null && IsBlackAtlasMesh(emitter);
+    }
+
+    static bool IsBlackAtlasMesh(UcEmitterDefinition emitter)
+    {
+        return BlackAtlasMeshes.Contains(NormalizeMeshObjectName(emitter.StaticMeshReference));
+    }
+
+    static bool IsImpactDiscSpinMesh(UcEmitterDefinition emitter)
+    {
+        return ImpactDiscSpinMeshes.Contains(NormalizeMeshObjectName(emitter.StaticMeshReference));
+    }
+
+    static string NormalizeMeshObjectName(string staticMeshReference)
+    {
+        string mesh = GetUcObjectName(staticMeshReference);
+        if (mesh.EndsWith("'", StringComparison.Ordinal))
+        {
+            mesh = mesh.TrimEnd('\'');
+        }
+
+        return mesh;
     }
 
     /// <summary>
