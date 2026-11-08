@@ -203,8 +203,8 @@ public class CharInfoDto : IWireDto
             // " locL2=(" + x + "," + y + "," + z + ")");
 
         int baseBefore = Appearance.BaseClass;
-        bool mageByFirst = CharacterClassParser.IsMage((CharacterClass)PacketClassFirst);
-        bool mageBySecond = CharacterClassParser.IsMage((CharacterClass)Identity.PlayerClass);
+        bool mageByFirst = CharacterClassParser.IsMage(PacketClassFirst);
+        bool mageBySecond = CharacterClassParser.IsMage(Identity.PlayerClass);
         if (Appearance.BaseClass != (int)BaseClass.Fighter && Appearance.BaseClass != (int)BaseClass.MMagic)
         {
             Appearance.BaseClass = mageBySecond

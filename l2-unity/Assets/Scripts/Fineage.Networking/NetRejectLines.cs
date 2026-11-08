@@ -49,12 +49,15 @@ public static class NetRejectLines
 
         // combat / skills
         { "unknown_skill", "Unknown skill." },
+        { "skill_unknown", "Unknown skill." },
         { "skill_passive", "That skill is passive." },
         { "skill_cooltime", "That skill is not ready yet." },
+        { "skill_reuse", "That skill is not ready yet." },
         { "skill_mp", "Not enough MP." },
         { "skill_condition", "You cannot use that skill now." },
         { "skill_weapon", "You need the right weapon for that skill." },
         { "skill_range", "The target is out of range." },
+        { "skill_target", "That is not a valid target." },
         { "revive_not_dead", "You are not dead." },
         { "revive_unsupported", "You cannot revive here." },
         { "death_already", "You are already dead." },

@@ -83,13 +83,15 @@ public class TradeItemMover
 
     public List<Product> MovingSellWithRemoval(bool isModifySell, List<Product> listSell, Product source, List<Product> listServer, int position)
     {
-        listSell = _shopCellCreator.AddProduct(listSell, source);
+        // Buy-from-shop: keep merchant row; cart gets a clone (player-trade moves the real bag row).
+        Product cartItem = isModifySell ? source : source.Clone();
+        listSell = _shopCellCreator.AddProduct(listSell, cartItem);
 
         RefreshToolTips(listSell);
 
         if (listSell.Count != 0)
         {
-            Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), GetNewPosition(listSell, source), source);
+            Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), GetNewPosition(listSell, cartItem), cartItem);
         }
 
         ModifySell(isModifySell, position, listServer, source, true);
@@ -101,18 +103,20 @@ public class TradeItemMover
 
     private void MovingWithCopy(Product source, List<Product> listServer, int position)
     {
-        var listSell = _shopCellCreator.AddProduct(_dealerWindow.GetListSell(), source);
+        Product cartItem = source.Clone();
+        var listSell = _shopCellCreator.AddProduct(_dealerWindow.GetListSell(), cartItem);
         _dealerWindow.SetListSell(listSell);
         RefreshToolTips(listSell);
 
         if (listSell.Count != 0)
         {
-            Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), GetNewPosition(listSell, source), source);
+            Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), GetNewPosition(listSell, cartItem), cartItem);
         }
 
+        // Buy mode: never strip the merchant grid (trade/sell-to-NPC only).
         ModifySell(false, position, listServer, source, false);
 
-        UpdatePriceAndWeight(listSell , _dealerWindow.GetCurrentDataWeight(), _dealerWindow.GetMaxWeight());
+        UpdatePriceAndWeight(listSell , _dealerWindow.GetCurrentDataWeight() , _dealerWindow.GetMaxWeight());
     }
 
 
@@ -166,6 +170,8 @@ public class TradeItemMover
 
     private void Move(InventorySlot[] inventorySlots, InventoryTab tab, int newPosition, Product product)
     {
+        if (inventorySlots == null || newPosition < 0 || newPosition >= inventorySlots.Length)
+            return;
         inventorySlots[newPosition].AssignProduct(product);
         tab.UpdateInventorySlots(inventorySlots);
     }

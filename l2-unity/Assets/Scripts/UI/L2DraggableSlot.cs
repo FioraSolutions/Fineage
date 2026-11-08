@@ -13,7 +13,9 @@ public class L2DraggableSlot : L2ClickableSlot
             return;
         }
 
-        CreateDragManipulator(ref _slotDragManipulator, ref slotElement);
+        // Merchant DealerWindow (PriceSell/PriceBuy) is cart click/double-click — not inventory/trade drag.
+        // Leaving drag enabled shows the floating DragIcon ghost that "flies out" of the shop.
+        CreateDragManipulator(ref _slotDragManipulator, ref slotElement, AllowsSlotDrag(slotType));
     }
 
     public L2DraggableSlot(int position, VisualElement slotElement, SlotType slotType , bool isDragged)
@@ -27,15 +29,10 @@ public class L2DraggableSlot : L2ClickableSlot
         CreateDragManipulator(ref _slotDragManipulator, ref slotElement , isDragged);
     }
 
-
-    private void CreateDragManipulator(ref SlotDragManipulator slotDragManipulator , ref VisualElement slotElement)
-    {
-        if (slotDragManipulator == null)
-        {
-             slotDragManipulator = new SlotDragManipulator(slotElement, this);
-             slotElement.AddManipulator(slotDragManipulator);
-        }
-    }
+    static bool AllowsSlotDrag(SlotType slotType) =>
+        slotType != SlotType.PriceBuy
+        && slotType != SlotType.PriceSell
+        && slotType != SlotType.Trade;
 
     private void CreateDragManipulator(ref SlotDragManipulator slotDragManipulator, ref VisualElement slotElement , bool isDragged)
     {

@@ -206,9 +206,10 @@ public class IconManager
 
     public Texture2D LoadCursorByName(string name)
     {
-        string icon = _cursorFolder + "\\" + name;
-        var result = Resources.Load<Texture2D>(icon);
-        return result;
+        // Same slash normalization as LoadTextureByName — Resources.Load on macOS
+        // does not resolve Windows-style backslashes, so SetCursor got null (OS cursor).
+        string icon = _cursorFolder.Replace('\\', '/') + "/" + name;
+        return Resources.Load<Texture2D>(icon);
     }
 
     public Texture2D GetIcon(int id)

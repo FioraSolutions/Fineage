@@ -78,11 +78,14 @@ public class InventorySlot : L2DraggableSlot
             _id = item.ItemId;
             _empty = false;
             _objectId = item.ObjId;
+            _count = item.Count;
+            _itemInstance = null;
         }
         else
         {
             _id = 0;
             _objectId = 0;
+            _count = 0;
             _name = "Unkown";
             _description = "Unkown item.";
             _empty = true;
@@ -90,8 +93,13 @@ public class InventorySlot : L2DraggableSlot
 
         if (_slotElement != null)
         {
-            L2SlotIconView.SetItemIcon(_slotBg, _id);
-            _slotDragManipulator.enabled = false;
+            if (_id > 0)
+                L2SlotIconView.SetItemIcon(_slotBg, _id);
+            else
+                L2SlotIconView.PaintEmptyInventorySlot(_slotBg, _slotElement);
+            // Shop/dealer products never use inventory/trade drag (floating DragIcon).
+            if (_slotDragManipulator != null)
+                _slotDragManipulator.enabled = false;
         }
 
         _product = item;

@@ -11,8 +11,13 @@
 - Push to `feat/**`, `fix/**`, `chore/**` branches
 
 **What it does:**
-1. Restores, builds, and tests `tools/Fineage.Tools.sln` (Release configuration)
-2. Uploads test results as artifacts (`.trx` format, 14 day retention)
+1. Checks out this repo **and** `FioraSolutions/Fineage-Backend` at `dev`
+2. Frozen-path guards (`IncomingPacketActions`, Net domain maps, asmdef layout)
+3. **Net contract sync:** `FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check` against the checked-out Backend (fails on drift; does not skip when Backend is present)
+4. Restores, builds, and tests `tools/Fineage.Tools.sln` (Release configuration)
+5. Uploads test results as artifacts (`.trx` format, 14 day retention)
+
+**Not in PR CI:** Unity Editor/Player compile, EditMode/PlayMode tests. Player builds run on `release-clients` (not a PR gate). Follow-up: replace closed [#34](https://github.com/FioraSolutions/Fineage/issues/34) with an explicit Unity PR-compile issue when runners/license allow.
 
 **Required status check name:** `build-and-test`
 

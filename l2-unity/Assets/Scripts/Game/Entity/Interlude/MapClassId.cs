@@ -66,69 +66,40 @@ public class MapClassId
         // Debug.Log("Critical error: Not Found Race!!!");
         return 0;
     }
+    /// <summary>
+    /// ClassId → race for all Interlude trees including 3rd profession.
+    /// Unknown ids return Human — never DarkElf (that silent fallback remapped Humans).
+    /// Prefer server Race from UserInfo/EntitySpawn when available.
+    /// </summary>
     public static CharacterRace GetCharacterRace(int serverClassId)
     {
-        if((int)ClassId.FIGHTER == serverClassId | (int)ClassId.WARRIOR == serverClassId | (int)ClassId.MAGE == serverClassId | (int)ClassId.WIZARD == serverClassId)
-        {
+        // Human: 0–17, 3rd 88–98
+        if ((serverClassId >= (int)ClassId.FIGHTER && serverClassId <= (int)ClassId.PROPHET) ||
+            (serverClassId >= (int)ClassId.DUELIST && serverClassId <= (int)ClassId.HIEROPHANT))
             return CharacterRace.Human;
-        }else if ((int)ClassId.ELVEN_FIGHTER == serverClassId | (int)ClassId.ELVEN_KNIGHT == serverClassId | (int)ClassId.ELVEN_MAGE == serverClassId | (int)ClassId.ELVEN_WIZARD == serverClassId)
-        {
+        // Elf: 18–30, 3rd 99–105
+        if ((serverClassId >= (int)ClassId.ELVEN_FIGHTER && serverClassId <= (int)ClassId.ELDER) ||
+            (serverClassId >= (int)ClassId.EVA_TEMPLAR && serverClassId <= (int)ClassId.EVA_SAINT))
             return CharacterRace.Elf;
-        }
-        else if ((int)ClassId.DARK_FIGHTER == serverClassId | (int)ClassId.PALUS_KNIGHT == serverClassId | (int)ClassId.DARK_MAGE == serverClassId | (int)ClassId.DARK_WIZARD == serverClassId)
-        {
+        // Dark Elf: 31–43, 3rd 106–112
+        if ((serverClassId >= (int)ClassId.DARK_FIGHTER && serverClassId <= (int)ClassId.SHILLIEN_ELDER) ||
+            (serverClassId >= (int)ClassId.SHILLIEN_TEMPLAR && serverClassId <= (int)ClassId.SHILLIEN_SAINT))
             return CharacterRace.DarkElf;
-        }
-        else if ((int)ClassId.ORC_FIGHTER == serverClassId | (int)ClassId.ORC_RAIDER == serverClassId | (int)ClassId.ORC_MAGE == serverClassId | (int)ClassId.ORC_SHAMAN == serverClassId)
-        {
+        // Orc: 44–52, 3rd 113–116
+        if ((serverClassId >= (int)ClassId.ORC_FIGHTER && serverClassId <= (int)ClassId.WARCRYER) ||
+            (serverClassId >= (int)ClassId.TITAN && serverClassId <= (int)ClassId.DOOMCRYER))
             return CharacterRace.Orc;
-        } //4 Dwarf Race
-        else if ((int)ClassId.DWARVEN_FIGHTER == serverClassId | (int)ClassId.SCAVENGER == serverClassId | 4 == serverClassId)
-        {
+        // Dwarf: 53–57, 3rd 117–118
+        if ((serverClassId >= (int)ClassId.DWARVEN_FIGHTER && serverClassId <= (int)ClassId.WARSMITH) ||
+            (serverClassId >= (int)ClassId.FORTUNE_SEEKER && serverClassId <= (int)ClassId.MAESTRO))
             return CharacterRace.Dwarf;
-        }
 
-        return CharacterRace.DarkElf;
+        return CharacterRace.Human;
     }
 
     public static bool IsMage(int serverClassId)
     {
-        if ((int)ClassId.FIGHTER == serverClassId | (int)ClassId.WARRIOR == serverClassId)
-        {
-            return false;
-        }else if ((int)ClassId.MAGE == serverClassId | (int)ClassId.WIZARD == serverClassId)
-        {
-            return true;
-        }
-        else if ((int)ClassId.ELVEN_FIGHTER == serverClassId | (int)ClassId.ELVEN_KNIGHT == serverClassId)
-        {
-            return false;
-        }else if ((int)ClassId.ELVEN_MAGE == serverClassId | (int)ClassId.ELVEN_WIZARD == serverClassId)
-        {
-            return true;
-        }
-        else if ((int)ClassId.DARK_FIGHTER == serverClassId | (int)ClassId.PALUS_KNIGHT == serverClassId )
-        {
-            return false;
-        }
-        else if ((int)ClassId.DARK_MAGE == serverClassId | (int)ClassId.DARK_WIZARD == serverClassId)
-        {
-            return true;
-        }
-        else if ((int)ClassId.ORC_FIGHTER == serverClassId | (int)ClassId.ORC_RAIDER == serverClassId )
-        {
-            return false;
-        }
-        else if ((int)ClassId.ORC_MAGE == serverClassId | (int)ClassId.ORC_SHAMAN == serverClassId)
-        {
-            return true;
-        }
-        else if ((int)ClassId.DWARVEN_FIGHTER == serverClassId | (int)ClassId.SCAVENGER == serverClassId)
-        {
-            return false;
-        }
-
-        return false;
+        return CharacterClassParser.IsMage(serverClassId);
     }
 
     public static void AddClassId(int pId, bool mage , InterludeRace race, ClassIdTemplate pParent)

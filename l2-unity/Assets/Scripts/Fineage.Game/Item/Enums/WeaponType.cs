@@ -1,4 +1,3 @@
-
 public enum WeaponType : byte {
     none, //shield
     hand,
@@ -72,24 +71,31 @@ public class WeaponTypeParser {
 
     public static WeaponType Parse(string type) {
         switch (type) {
-            case "sword": // For 2H sword check at handness
+            case "sword":
                 return WeaponType.sword;
             case "twohandsword":
-                return WeaponType.blunt;
+                return WeaponType.bigword;
             case "blunt":
-                return WeaponType.pole;
+                return WeaponType.blunt;
+            case "twohandblunt":
+                return WeaponType.bigblunt;
+            case "dagger":
             case "buster":
                 return WeaponType.dagger;
-            case "dagger":
-                return WeaponType.dual;
-            case "staff":
-                return WeaponType.bow;
-            case "fist": // shield or hand check at handness
-                return WeaponType.shield;
-            case "twohandblunt":
-                return WeaponType.fist;
             case "bow":
                 return WeaponType.bow;
+            case "pole":
+                return WeaponType.pole;
+            case "staff":
+                return WeaponType.staff;
+            case "fist":
+                // Shields in Classic weapongrp often use fist + handness 0;
+                // WeaponClassifier promotes those to shield.
+                return WeaponType.fist;
+            case "dual":
+                return WeaponType.dual;
+            case "dualfist":
+                return WeaponType.dualfist;
             case "arrow":
                 return WeaponType.arrow;
             default:

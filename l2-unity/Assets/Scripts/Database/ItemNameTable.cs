@@ -11,7 +11,7 @@ using UnityEngine;
 public class ItemNameTable {
     private static ItemNameTable _instance;
 
-    [Obsolete("Use [Inject] ItemNameTable or TablePacketServices.ItemNames instead")]
+    [Obsolete("Use [Inject] ItemNameTable or TablePacketServices.Items instead")]
     public static ItemNameTable Instance {
         get {
             if (_instance == null && App.HasContainer) {
@@ -94,7 +94,7 @@ public class ItemNameTable {
                     }
                 }
 
-                if (!TablePacketServices.Items.ShouldLoadItem(itemName.Id)) {
+                if (!ItemTable.Instance.ShouldLoadItem(itemName.Id)) {
                     continue;
                 }
 
@@ -142,6 +142,11 @@ public class ItemNameTable {
 
                         itemData.Id = Int32.Parse(ids[0]);
                         itemData.Name = ids[1];
+                        // Interlude SoT: Classic-eu often carries later-chronicle text
+                        // (e.g. Queen Ant 6660 "P./M. Atk. +4%") that disagrees with Mobius CT0.
+                        // Always take the item body text from column 3 — set-bonus text lives in ids[6]/[8].
+                        if (ids.Length > 3)
+                            itemData.Description = DatUtils.CleanupStringOldData(ids[3]);
 
 
                         int[] sets1 = GetSetsIds(parts1);
@@ -153,19 +158,12 @@ public class ItemNameTable {
 
                         if (_itemNames.ContainsKey(itemData.Id))
                         {
-                            //if (string.IsNullOrEmpty(_itemNames[itemData.Id].Description))
-                            //{
-                            //   _itemNames[itemData.Id].Description = itemData.Description;
+                            ItemName existing = _itemNames[itemData.Id];
+                            if (!string.IsNullOrEmpty(itemData.Name))
+                                existing.Name = itemData.Name;
+                            if (!string.IsNullOrEmpty(itemData.Description))
+                                existing.Description = itemData.Description;
                             AddSets(itemData, itemSets1, itemSet2);
-
-
-                            //}
-                            // else
-                            //{
-                            //    AddSets(itemData, itemSets1, itemSet2);
-                            //_itemNames[itemData.Id].SetSets(new ItemSets[1] { itemSets1 });
-                            //}
-
                         }
                         else
                         {

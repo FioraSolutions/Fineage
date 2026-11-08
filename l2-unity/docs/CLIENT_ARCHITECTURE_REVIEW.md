@@ -3,15 +3,15 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-07 night)
+### Status Now (2026-11-08)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
-- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (PRs through **#726**). Live leftovers are mostly PacketServices / DI / LoginRuntime legacy fallbacks; `PlayerController.Instance` remains only in comments.
+- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (PRs through **#726**). Live leftovers are mostly PacketServices / DI / LoginRuntime legacy fallbacks; `PlayerController.Instance` remains only in comments. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work, not deleting every getter overnight.
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
-- **Asmdef:** `Fineage.Domain` (events); `Fineage.Networking` (Net helpers + `NetTransport` / `NetCommandSender`); `Fineage.Game` (item/action/entity enums + drop/effect deco constants); `Fineage.Controller` (PlayerState/Intention/Event/EntityActionKind + move gait); `Fineage.UI` (ChatType/ChatCommand/PlayerCommand + L2TargetRenderType). `Fineage.Di` still stub — gameplay MonoBehaviours remain `Assembly-CSharp`.
-- Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`.
-- Epic **#131** residual: MonoBehaviour moves (blocked on Assembly-CSharp dependency graph) + `Fineage.Di`; B4 Session/Dispatch as separate types + shared *outbound* send pump (`NetMainThreadPump` inbound apply pump done); optional MessagePipe depth; HtmlAgilityPack bulk move optional. Not TLS / Phase D / #129.
+- **Asmdef:** `Fineage.Domain` (events); `Fineage.Networking` (Net helpers + `NetTransport` / `NetCommandSender` + `NetMainThreadPump`); `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded with cycle-safe enums/constants. `Fineage.Di` still stub — gameplay MonoBehaviours remain `Assembly-CSharp`.
+- Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. `NetDomainMap` deleted (C1 + CI freeze).
+- Epic **#131** residual: MonoBehaviour moves into real assemblies + `Fineage.Di`; B4 Session/Dispatch as separate types + shared *outbound* send pump. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),

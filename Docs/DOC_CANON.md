@@ -14,7 +14,7 @@ Which docs agents and humans should trust.
 | [Backend docs/net-protocol.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/net-protocol.md) | Backend | **Live wire SoT** (`NetOpcode`, ports, presence, Postgres) |
 | [NET_PROTOCOL.md](NET_PROTOCOL.md) | Client | Client Net flow + `scripts/sync-net-contract.py` |
 | [ARCHITECTURE_NET.md](ARCHITECTURE_NET.md) | Client | Target scale (gateway / AOI / 20k) — design, not “already shipped” |
-| [REFACTOR_PLAN_2026-11.md](REFACTOR_PLAN_2026-11.md) | Client | Near-term harden / NetDomainMap / Zone lock plan (from 2026-11 arch reviews) |
+| [REFACTOR_PLAN_2026-11.md](REFACTOR_PLAN_2026-11.md) | Client | Living harden / modularize plan; includes **2026-11-08 GPT review verification** (what is still true vs already fixed) |
 | [Backend docs/MOBIUS_XML_REF.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/MOBIUS_XML_REF.md) | Backend | Mobius CT0 XML → `data/` |
 | [Backend docs/mobius-parity-matrix.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/mobius-parity-matrix.md) | Backend | **Live** Mobius ↔ Fineage feature matrix (tracker [#174](https://github.com/FioraSolutions/Fineage-Backend/issues/174)) |
 | [Backend docs/combat-parity.md](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/combat-parity.md) | Backend | Combat checklist vs Mobius |
@@ -51,7 +51,7 @@ Do not commit `ref/` trees. Sync Net contract with `python3 scripts/sync-net-con
 ## Stabilize Interlude (current program)
 
 1. Keep Fineage Net as the only client wire; do not revive MessagePack V2 or native L2 TCP as play path.
-2. Prefer epic **#131** (client architecture) before packing more Gremlin/content onto the monolith (**#129**). Child issues **#137–#143** are closed; live status of what remains is the **Status Now** header in [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md) (`IncomingPacketActions` gone; PacketServices Instance drain largely done; `Fineage.Networking` / `Game` / `Controller` / `UI` seeded; `Fineage.Di` stub + B4 Session/Dispatch/outbound pump still open).
+2. Prefer epic **#131** (client architecture) before packing more Gremlin/content onto the monolith (**#129**). Child issues **#137–#143** are closed; live status of what remains is the **Status Now** header in [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md) (`IncomingPacketActions` gone; PacketServices Instance drain largely done; `Fineage.Networking` / `Game` / `Controller` / `UI` seeded; `Fineage.Di` stub + B4 Session/Dispatch/outbound pump still open). Server modularization + GPT review truth table: [`REFACTOR_PLAN_2026-11.md`](REFACTOR_PLAN_2026-11.md).
 3. Treat Mobius CT0 + Interlude client under `ref/` as SoT; refresh parity docs against current `dev` when claiming gaps.
 4. Land WIP in **small PRs**; do not mix doc sync with feature piles.
 5. Chronicle / High Five versioning stays **deferred** — no HF datapack or DTO sprawl until Interlude is stable.
