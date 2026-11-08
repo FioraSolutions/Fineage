@@ -4,7 +4,7 @@
 /// </summary>
 public static class ItemDropPresentationIds
 {
-    // --- EffectManager.database.effects[].id (0 = disabled stub) ---
+    // --- EffectManager session registry ids (0 = disabled stub) ---
     public const int LandBurstEffectId = 56001;
     public const int GroundGlowEffectId = 56002;
     public const int WeaponFallTrailEffectId = 0;

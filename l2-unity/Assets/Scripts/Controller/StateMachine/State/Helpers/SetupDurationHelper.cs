@@ -200,8 +200,7 @@ public class SetupDurationHelper
         const float fallbackFlightMs = 1000f;
 
         EffectManager effects = ControllerPacketServices.Effects;
-        if (effects != null && effects.database != null &&
-            effects.database.ShouldIgnoreFlightTimeForCast(skillId))
+        if (effects != null && effects.ShouldIgnoreFlightTimeForCast(skillId))
         {
             return 0f;
         }

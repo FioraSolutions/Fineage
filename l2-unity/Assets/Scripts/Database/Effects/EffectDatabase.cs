@@ -26,18 +26,21 @@ public class EffectDatabase : ScriptableObject
         public bool ignoreFlightTimeForCast;
     }
 
+    [System.Obsolete("Editor SoT only. Runtime: EffectManager session registry / PlayEffect.")]
     public BaseEffect GetPrefab(int id)
     {
         var data = effects.Find(e => e.id == id);
         return data != null ? data.prefab : null;
     }
 
+    [System.Obsolete("Editor SoT only. Runtime: EffectManager session registry / PlayEffect.")]
     public bool TryGetEffectData(int id, out EffectData data)
     {
         data = effects.Find(e => e.id == id);
         return data != null && data.prefab != null;
     }
 
+    [System.Obsolete("Runtime: EffectManager.ShouldIgnoreFlightTimeForCast")]
     public bool ShouldIgnoreFlightTimeForCast(int effectId)
     {
         EffectData data = effects.Find(e => e.id == effectId);

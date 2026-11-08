@@ -25,7 +25,14 @@ public abstract class BaseEffect : MonoBehaviour
     public abstract void SetProgress(float normalizedTime); 
     public abstract void Play();
 
-  
+    /// <summary>
+    /// Nested prefab assets this effect needs at runtime. Collected into
+    /// EffectManager's session retain list at BuildRegistry.
+    /// </summary>
+    public virtual void CollectReferencedPrefabs(System.Collections.Generic.List<UnityEngine.Object> sink)
+    {
+    }
+
     public virtual void Setup(EffectSettings settings, MagicCastData castData, Transform owner)
     {
         _owner = owner;
