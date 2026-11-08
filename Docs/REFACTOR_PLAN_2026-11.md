@@ -124,8 +124,8 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
 | Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` (renamed from `INetPresenceBridge`). Next: untangle fanout DTOs off Net.Contract |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
-| `ZoneEntity` composition | [partial] ground + spoil + aggro + player store/social/status/skills/identity + NPC template/merchant + shared move/vitals payloads composed; residual = combat runtime |
-| `NetCodec` | Split by domain **or** keep monolith + mandatory round-trip tests per message (generation optional later) |
+| `ZoneEntity` composition | [partial] ground + spoil + aggro + player store/social/status/skills/identity + NPC template/merchant + shared move/vitals composed; combat payload PR open; leftover refs (Session/Inventory/Warehouse/Shop/Quests/Knownlist/DungeonId/InstanceId) stay on entity |
+| `NetCodec` | Keep monolith + mandatory round-trip tests (World/Economy/Social/Combat/Presence); domain split optional later |
 
 ### B3. Client main-thread budget — done
 - Cap `/frame` work from `NetSession` `_main` queue; coalesce MoveState; never drop EntityDespawn / inventory.
@@ -205,7 +205,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | Handlers + session lifecycle + knownlist fanout extracted; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = `IWorldEventPublisher` DTO untangle, more ZoneEntity composition, economy tests, NetCodec |
+| Backend B2b | Handlers + session lifecycle + knownlist fanout + ZoneEntity payloads extracted; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = `IWorldEventPublisher` DTO untangle, more NetCodec round-trips / optional split |
 | Client #131 | More asmdef moves; LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
