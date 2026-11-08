@@ -124,7 +124,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
 | Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` (renamed from `INetPresenceBridge`). Next: untangle fanout DTOs off Net.Contract |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
-| `ZoneEntity` composition | Split player / NPC / ground payloads over time (composition, not deep Java-style inheritance) |
+| `ZoneEntity` composition | [partial] `ZoneGroundItemPayload` + `ZoneNpcSpoilPayload` composed; player/NPC combat/aggro payloads still flat |
 | `NetCodec` | Split by domain **or** keep monolith + mandatory round-trip tests per message (generation optional later) |
 
 ### B3. Client main-thread budget — done
@@ -146,7 +146,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - Trade / inventory / adena: atomic apply + persistence tests (dup-item / double-spend). Not claiming a live bug; GPT correctly flagged the invariant set.
 - [x] Trade: over-offer count refused; post-finish reconfirm cannot invent a second transfer (`NetTradeTests`).
 - [x] Warehouse: over-count / duplicate-line deposit refused; stale objectId deposit/withdraw cannot invent a second move (`NetWarehouseEconomyTests`).
-- [ ] Inventory destroy / shop buy adena double-spend paths still need dedicated cases.
+- [ ] Inventory destroy stale objectId / shop buy adena double-spend paths still need dedicated cases.
 
 ---
 
