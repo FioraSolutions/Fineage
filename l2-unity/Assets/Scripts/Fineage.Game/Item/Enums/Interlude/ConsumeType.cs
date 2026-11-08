@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class ConsumeType 
+﻿public class ConsumeType
 {
     public static ConsumeCategory ParceCategory(string type2)
     {
@@ -17,8 +15,6 @@ public class ConsumeType
             return ConsumeCategory.Asset;
         }
 
-
         return ConsumeCategory.Normal;
-
     }
 }
