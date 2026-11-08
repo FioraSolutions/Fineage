@@ -17,26 +17,6 @@ public class ModelTable : AbstractCache
         }
     }
 
-    public class L2ArmorPiece
-    {
-        public GameObject baseArmorModel;
-        public Material material;
-        public GameObject[] baseAllModels;
-        public Material[] allMaterials;
-
-        public L2ArmorPiece(
-            GameObject baseArmorModel,
-            Material material,
-            GameObject[] baseAllModels,
-            Material[] allMaterials)
-        {
-            this.baseArmorModel = baseArmorModel;
-            this.material = material;
-            this.baseAllModels = baseAllModels;
-            this.allMaterials = allMaterials;
-        }
-    }
-
     public void Initialize()
     {
         CacheRaceContainers();

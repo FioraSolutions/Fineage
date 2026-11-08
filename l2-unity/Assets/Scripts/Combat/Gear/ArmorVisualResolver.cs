@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
-using static ModelTable;
 
 /// <summary>
 /// Single entry for body-armor visuals: item + race → slot + mesh/material parts.
-/// ModelTable stays the Resources cache; this type only resolves and shapes the result.
+/// ModelTable stays the Resources cache; this type only shapes the result for gear.
 /// </summary>
 public sealed class ArmorVisualResolver
 {
@@ -44,13 +42,17 @@ public sealed class ArmorVisualResolver
         if (_models == null)
             return ArmorVisual.Missing(armor.Id, armor, slot, "model_table_null");
 
-        L2ArmorPiece piece = _models.GetArmorPiece(armor, race);
-        if (piece == null)
+        if (!_models.TryGetBodyArmorParts(armor, race, slot, out var cachedParts) ||
+            cachedParts == null ||
+            cachedParts.Length == 0)
             return ArmorVisual.Missing(armor.Id, armor, slot, "mesh_or_material");
 
-        ArmorVisualPart[] parts = BuildParts(slot, piece);
-        if (parts.Length == 0)
-            return ArmorVisual.Missing(armor.Id, armor, slot, "no_mesh_parts");
+        var parts = new ArmorVisualPart[cachedParts.Length];
+        for (int i = 0; i < cachedParts.Length; i++)
+        {
+            AbstractGetCache.BodyArmorMeshPart cached = cachedParts[i];
+            parts[i] = new ArmorVisualPart(cached.Mesh, cached.Material, cached.PartSlot);
+        }
 
         return ArmorVisual.Ok(armor, slot, parts);
     }
@@ -66,54 +68,5 @@ public sealed class ArmorVisualResolver
     public static bool IsBodySlot(ItemSlot slot)
     {
         return ArmorBodySlots.IsBody(slot);
-    }
-
-    static ArmorVisualPart[] BuildParts(ItemSlot slot, L2ArmorPiece piece)
-    {
-        if (slot == ItemSlot.fullarmor)
-            return BuildFullArmorParts(piece);
-
-        if (piece.baseArmorModel == null || piece.material == null)
-            return System.Array.Empty<ArmorVisualPart>();
-
-        return new[]
-        {
-            new ArmorVisualPart(piece.baseArmorModel, piece.material, slot)
-        };
-    }
-
-    static ArmorVisualPart[] BuildFullArmorParts(L2ArmorPiece piece)
-    {
-        GameObject[] models = piece.baseAllModels;
-        if (models == null || models.Length == 0)
-        {
-            if (piece.baseArmorModel == null)
-                return System.Array.Empty<ArmorVisualPart>();
-            models = new[] { piece.baseArmorModel };
-        }
-
-        Material[] materials = piece.allMaterials;
-        var list = new List<ArmorVisualPart>(models.Length);
-        for (int i = 0; i < models.Length; i++)
-        {
-            GameObject mesh = models[i];
-            if (mesh == null)
-                continue;
-
-            Material mat = null;
-            if (materials != null && i < materials.Length)
-                mat = materials[i];
-            if (mat == null && materials != null && materials.Length > 0)
-                mat = materials[0];
-            if (mat == null)
-                mat = piece.material;
-            if (mat == null)
-                continue;
-
-            ItemSlot partSlot = i == 0 ? ItemSlot.chest : ItemSlot.legs;
-            list.Add(new ArmorVisualPart(mesh, mat, partSlot));
-        }
-
-        return list.ToArray();
     }
 }

@@ -113,30 +113,21 @@ public class Gear : AbstractMeshManager
 
         ErrorPrint(weapon, weaponId);
 
-        if (weaponId == 0 | weapon == null) {
-            // GearFlowLog.Warn("EquipWeapon abort id=" + weaponId +
-                // " owner=" + _ownerId + " nullWeapon=" + (weapon == null));
+        if (weaponId == 0 || weapon == null)
+        {
             if (weaponId != 0)
                 EquipmentMeshLog.Once("weapon", weaponId);
             return;
         }
 
-        if (IsWeaponEquipped(weaponId, leftSlot)) {
-            // GearFlowLog.Info("EquipWeapon SKIP already equipped id=" + weaponId +
-                // " left=" + leftSlot + " owner=" + _ownerId);
+        if (IsWeaponEquipped(weaponId, leftSlot))
             return;
-        }
-
-        // GearFlowLog.Info("EquipWeapon APPLY id=" + weaponId +
-            // " left=" + leftSlot + " owner=" + _ownerId +
-            // " type=" + (weapon.Weapongrp != null ? weapon.Weapongrp.WeaponType.ToString() : "null"));
 
         ClearHandsForNewWeapon(leftSlot, false);
 
         GameObject weaponPrefab = (GameObject)LoadMesh(EquipmentCategory.Weapon, weaponId);
         if (weaponPrefab == null)
         {
-            // GearFlowLog.Warn("EquipWeapon mesh null id=" + weaponId + " owner=" + _ownerId);
             EquipmentMeshLog.Once("weapon", weaponId);
             return;
         }
@@ -397,21 +388,7 @@ public class Gear : AbstractMeshManager
         if (haveRight == wantRight && haveLeft == wantLeft && haveShield == wantShield &&
             HasExpectedHandMeshes(wantRight, wantLeft, wantShield) &&
             !HasOrphanHandMeshes(wantRight, wantLeft, wantShield))
-        {
-            if (this is UserGear || rHandId != 0 || lHandId != 0)
-            {
-                // GearFlowLog.Info("SyncWeapons SKIP same owner=" + _ownerId +
-                    // " have R=" + haveRight + " L=" + haveLeft + " S=" + haveShield +
-                    // " packet R=" + rHandId + " L=" + lHandId);
-            }
             return;
-        }
-
-        // GearFlowLog.Info("SyncWeapons APPLY owner=" + _ownerId +
-            // " have R=" + haveRight + " L=" + haveLeft + " S=" + haveShield +
-            // " want R=" + wantRight + " L=" + wantLeft + " S=" + wantShield +
-            // " packet R=" + rHandId + " L=" + lHandId +
-            // " dual=" + dual + " bow=" + bow + " lShield=" + lShield);
 
         ClearAllHandEquipment();
 

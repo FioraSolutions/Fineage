@@ -23,7 +23,7 @@ public sealed class CharacterArmorDresser
     bool _fullBody;
 
     public Action<GameObject> OnDestroyGameObject;
-    public Action<int> OnSyncMash;
+    public Action OnSyncMesh;
 
     public CharacterArmorDresser(Transform containerTransform)
     {
@@ -313,6 +313,6 @@ public sealed class CharacterArmorDresser
 
     void Sync()
     {
-        OnSyncMash?.Invoke(1);
+        OnSyncMesh?.Invoke();
     }
 }
