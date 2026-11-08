@@ -122,7 +122,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | Slice | Intent |
 |-------|--------|
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
-| Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World`. Protocol/primitives for Die/Revive/Despawn/Teleport/Social/Target/WaitType/ShopBalance/SystemMessage/CreatureSay/NpcHtml/Abnormal/Inventory/DropItem/StatusUpdate/MagicSkillUse/EnchantResult/SkillList/QuestList/BossStatus/shop+warehouse lists/party/trade/clan pledge/olympiad/dungeon/SevenSigns (encoding in Net). Residual = UserInfo (Net-shaped extras), AcquireSkill*, PrivateStore*, Recipe*, Friend/Block, EtcStatus, AttackState/PlayerStats |
+| Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World`. All fanout DTOs are Protocol/primitives (encoding in Net), including UserInfo / AcquireSkill* / PrivateStore* / Recipe* / Friend/Block / EtcStatus / AttackState / PlayerStats. World ShortCut init/replies also Protocol. Residual Net.Contract in World = admin request payloads (Boss/Siege) only |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
 | `ZoneEntity` composition | [x] ground + spoil + aggro + player store/social/status/skills/identity + NPC template/merchant + shared move/vitals/combat payloads composed; leftover refs (Session/Inventory/Warehouse/Shop/Quests/Knownlist/DungeonId/InstanceId) stay on entity |
 | `NetCodec` | Keep monolith + mandatory round-trip tests (World/Economy/Social/Combat/Presence); domain split optional later |
@@ -206,7 +206,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | Handlers + session lifecycle + knownlist fanout + ZoneEntity payloads extracted; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = finish `IWorldEventPublisher` Net.Contract DTO untangle (UserInfo/AcquireSkill/PrivateStore/Recipe/Friend/EtcStatus/AttackState/PlayerStats), optional NetCodec domain split |
+| Backend B2b | Handlers + session lifecycle + knownlist fanout + ZoneEntity payloads + `IWorldEventPublisher` Protocol fanouts extracted; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = further `NetZoneServer` shrink / systems-rules preference / optional NetCodec domain split / admin Net request DTOs |
 | Client #131 | More asmdef moves; LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
