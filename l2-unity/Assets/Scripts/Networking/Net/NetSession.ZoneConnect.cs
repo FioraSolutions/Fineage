@@ -36,7 +36,7 @@ public sealed partial class NetSession
             NextSeq());
     }
 
-    async System.Threading.Tasks.Task EnterWorldAsync()
+    internal async System.Threading.Tasks.Task EnterWorldAsync()
     {
         if (_zone == null)
             return;

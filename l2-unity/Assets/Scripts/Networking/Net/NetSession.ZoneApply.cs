@@ -6,7 +6,7 @@ using UnityEngine;
 
 public sealed partial class NetSession
 {
-    void ApplyEntitySpawn(EntitySpawnMsg spawn)
+    internal void ApplyEntitySpawn(EntitySpawnMsg spawn)
     {
         if (spawn.Kind == EntityKindNet.Npc)
         {
@@ -92,7 +92,7 @@ public sealed partial class NetSession
         EnteredWorld?.Invoke();
     }
 
-    void ApplyRemotePlayerSpawn(EntitySpawnMsg spawn)
+    internal void ApplyRemotePlayerSpawn(EntitySpawnMsg spawn)
     {
         CharInfoDto dto = new CharInfoDto();
         dto.Identity.Id = (int)spawn.EntityValue;
@@ -134,10 +134,10 @@ public sealed partial class NetSession
         else CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
     }
 
-    static void ApplySpawnPaperdollItemIds(PlayerAppearance appearance, int[] itemIds) =>
+    internal static void ApplySpawnPaperdollItemIds(PlayerAppearance appearance, int[] itemIds) =>
         NetPaperdollApply.ApplyItemIds(appearance, itemIds);
 
-    void ApplyNpcSpawn(EntitySpawnMsg spawn)
+    internal void ApplyNpcSpawn(EntitySpawnMsg spawn)
     {
         int objectId = (int)spawn.EntityValue;
         NpcInfoDto dto = new NpcInfoDto();
@@ -172,7 +172,7 @@ public sealed partial class NetSession
         else NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
     }
 
-    void ApplyEntityDespawn(EntityDespawnMsg despawn)
+    internal void ApplyEntityDespawn(EntityDespawnMsg despawn)
     {
         int objectId = (int)despawn.EntityValue;
         NetNpcSession.Forget(objectId);
@@ -182,7 +182,7 @@ public sealed partial class NetSession
         else DeleteObjectGroundApplyIncomingPacketServices.ApplyDeleteObject(dto);
     }
 
-    void ApplyTargetSelected(TargetSelectedNetMsg msg)
+    internal void ApplyTargetSelected(TargetSelectedNetMsg msg)
     {
         MyTargetSelectDto dto = MyTargetSelectDto.FromNet(msg.TargetObjectId, msg.ColorHint);
         if (_combatTarget != null) _combatTarget.ApplyMyTargetSelected(dto);
@@ -193,13 +193,13 @@ public sealed partial class NetSession
     /// The zone dropped the selection. Clear the target window and nameplate without echoing another
     /// <c>RequestTargetCanceld</c> back: this arrived because that request was already answered.
     /// </summary>
-    void ApplyTargetUnselected(TargetUnselectedNetMsg msg)
+    internal void ApplyTargetUnselected(TargetUnselectedNetMsg msg)
     {
         if (_combatTarget != null) _combatTarget.ClearTargetFromZone();
         else TargetPacketServices.Targets?.ClearTargetSilently();
     }
 
-    void ApplyAttackState(AttackStateMsg attack)
+    internal void ApplyAttackState(AttackStateMsg attack)
     {
         var dto = new AttackDto();
         dto.InitFromNet(
@@ -221,21 +221,21 @@ public sealed partial class NetSession
     /// Mobius <c>AutoAttackStart</c>: the pawn raises its weapon. The zone was already fanning this,
     /// but with no case here a Net client never put an actor into attack stance.
     /// </summary>
-    void ApplyAutoAttackStart(int entityId)
+    internal void ApplyAutoAttackStart(int entityId)
     {
         AutoAttackStartDto dto = AutoAttackStartDto.FromNet(entityId);
         WorldApplyIncomingPacketServices.QueueWorld(apply => apply.AutoAttackStart(dto));
     }
 
     /// <summary>Mobius <c>AutoAttackStop</c>: stance ended, so the pawn drops back to its wait pose.</summary>
-    void ApplyAutoAttackStop(int entityId)
+    internal void ApplyAutoAttackStop(int entityId)
     {
         AutoAttackStopDto dto = AutoAttackStopDto.FromNet(entityId);
         WorldApplyIncomingPacketServices.QueueWorld(apply => apply.AutoAttackStop(dto));
     }
 
 
-    void ApplyStatusUpdate(StatusUpdateNetMsg status)
+    internal void ApplyStatusUpdate(StatusUpdateNetMsg status)
     {
         var attributes = new System.Collections.Generic.List<StatusUpdate.Attribute>();
         int n = status.AttributeIds == null || status.Values == null
@@ -248,26 +248,26 @@ public sealed partial class NetSession
     }
 
     /// <summary>Mobius ChangeWaitType: sit/stand on the actor, self included so a sit is acknowledged.</summary>
-    void ApplyChangeWaitType(ChangeWaitTypeNetMsg msg)
+    internal void ApplyChangeWaitType(ChangeWaitTypeNetMsg msg)
     {
         ChangeWaitTypeDto dto = ChangeWaitTypeDto.FromNet((int)msg.EntityValue, msg.WaitType, msg.X, msg.Y, msg.Z);
         WorldApplyIncomingPacketServices.QueueWorld(apply => apply.ChangeWaitType(dto));
     }
 
     /// <summary>Mobius SocialAction: a gesture on the actor (15 = level up).</summary>
-    void ApplySocialAction(SocialActionNetMsg msg)
+    internal void ApplySocialAction(SocialActionNetMsg msg)
     {
         SocialActionDto dto = SocialActionDto.FromNet((int)msg.EntityValue, msg.ActionId);
         WorldApplyIncomingPacketServices.QueueWorld(apply => apply.SocialAction(dto));
     }
 
-    void ApplyEntityDie(EntityDieMsg die)
+    internal void ApplyEntityDie(EntityDieMsg die)
     {
         DieDto dieDto = DieDto.FromZoneWire((int)die.EntityValue);
         if (_combatDie != null) _combatDie.Apply(dieDto);
         else DieApplyIncomingPacketServices.ApplyDie(dieDto);
     }
-    void ApplyDropItem(DropItemNetMsg drop)
+    internal void ApplyDropItem(DropItemNetMsg drop)
     {
         DropItemDto dto = DropItemDto.FromNet(
             drop.DropperObjectId,
@@ -283,7 +283,7 @@ public sealed partial class NetSession
         else DropItemApplyIncomingPacketServices.ApplyDropItem(dto);
     }
 
-    void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
+    internal void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
     {
         InventoryUpdateEntryNet[] src = update.Changes ?? System.Array.Empty<InventoryUpdateEntryNet>();
         var rows = new NetInventoryChange[src.Length];
@@ -309,28 +309,28 @@ public sealed partial class NetSession
         NetGearSession.NoteInventoryUpdate(rows);
     }
 
-    void ApplyCreatureSay(CreatureSayNetMsg say)
+    internal void ApplyCreatureSay(CreatureSayNetMsg say)
     {
         NetChatFeed.NoteSay(say.Name, say.Text, say.ChatType);
         // Chat log does not use ObjectId; overhead bubble does (#521).
         OverheadChatSay.Show(say.ObjectId, say.Text, say.ChatType);
     }
 
-    void ApplySystemMessage(SystemMessageNetMsg message)
+    internal void ApplySystemMessage(SystemMessageNetMsg message)
     {
         string shown = NetSystemLines.Resolve(message.Id, message.Text, message.Params);
         NetChatFeed.NoteSystem(shown);
     }
 
     /// <summary>A refused action now says why in chat instead of only logging.</summary>
-    static void NoteReject(string code, string message)
+    internal static void NoteReject(string code, string message)
     {
         string line = NetRejectLines.Resolve(code, message);
         if (!string.IsNullOrEmpty(line))
             NetChatFeed.NoteSystem(line);
     }
 
-    void ApplyMagicSkillUse(MagicSkillUseNetMsg use)
+    internal void ApplyMagicSkillUse(MagicSkillUseNetMsg use)
     {
         var mapped = new NetMagicSkillUse
         {
@@ -353,14 +353,14 @@ public sealed partial class NetSession
         else MagicSkillUseApplyIncomingPacketServices.ApplyMagicSkillUse(dto);
     }
 
-    void ApplyRevive(ReviveNetMsg revive)
+    internal void ApplyRevive(ReviveNetMsg revive)
     {
         var dto = new ReviveDto { ObjectId = revive.ObjectId };
         if (_presence != null) _presence.ApplyRevive(dto);
         else ReviveApplyIncomingPacketServices.ApplyRevive(dto);
     }
 
-    void ApplyTeleportToLocation(TeleportToLocationNetMsg teleport)
+    internal void ApplyTeleportToLocation(TeleportToLocationNetMsg teleport)
     {
         TeleportToLocationDto dto = TeleportToLocationDto.FromZoneWire(
             teleport.ObjectId, teleport.X, teleport.Y, teleport.Z, teleport.Heading);
@@ -368,7 +368,7 @@ public sealed partial class NetSession
         else TeleportToLocationApplyIncomingPacketServices.ApplyTeleportToLocation(dto);
     }
 
-    void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateNetMsg update)
+    internal void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateNetMsg update)
     {
         // FanoutAbnormal goes to owner + knownlist. Buff bar is self-only — peer snapshots
         // (including empty) must not wipe local icons.
@@ -395,7 +395,7 @@ public sealed partial class NetSession
         else AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
     }
 
-    void ApplyNpcHtml(NpcHtmlNetMsg html)
+    internal void ApplyNpcHtml(NpcHtmlNetMsg html)
     {
         HtmlWindow window = GameWindowPacketServices.Html;
         if (window == null)
@@ -403,7 +403,7 @@ public sealed partial class NetSession
         window.ShowNpcDialog(html.NpcObjectId, html.NpcId, html.Html ?? "");
     }
 
-    void ApplyBuyList(BuyListNetMsg list)
+    internal void ApplyBuyList(BuyListNetMsg list)
     {
         BuyListItemNet[] src = list.Items ?? System.Array.Empty<BuyListItemNet>();
         var items = new NetBuyItem[src.Length];
@@ -419,7 +419,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplySellList(SellListNetMsg list)
+    internal void ApplySellList(SellListNetMsg list)
     {
         SellListItemNet[] src = list.Items ?? System.Array.Empty<SellListItemNet>();
         var items = new NetSellItem[src.Length];
@@ -438,7 +438,7 @@ public sealed partial class NetSession
         NetNpcWindows.ApplySellList(new NetSellList { NpcObjectId = list.NpcObjectId, Items = items });
     }
 
-    void ApplyMultiSellList(MultiSellListNetMsg list)
+    internal void ApplyMultiSellList(MultiSellListNetMsg list)
     {
         MultiSellEntryNet[] src = list.Entries ?? System.Array.Empty<MultiSellEntryNet>();
         var entries = new NetMultiSellEntry[src.Length];
@@ -478,7 +478,7 @@ public sealed partial class NetSession
         return rows;
     }
 
-    void ApplyShopBalance(ShopBalanceNetMsg balance)
+    internal void ApplyShopBalance(ShopBalanceNetMsg balance)
     {
         NetNpcWindows.ApplyShopBalance(new NetShopBalance
         {
@@ -492,7 +492,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyWarehouseDepositList(WarehouseDepositListNetMsg list)
+    internal void ApplyWarehouseDepositList(WarehouseDepositListNetMsg list)
     {
         NetNpcWindows.ApplyWarehouseDepositList(new NetWarehouseDepositList
         {
@@ -505,7 +505,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyWarehouseWithdrawList(WarehouseWithdrawListNetMsg list)
+    internal void ApplyWarehouseWithdrawList(WarehouseWithdrawListNetMsg list)
     {
         NetNpcWindows.ApplyWarehouseWithdrawList(new NetWarehouseWithdrawList
         {
@@ -520,7 +520,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyQuestList(QuestListNetMsg list)
+    internal void ApplyQuestList(QuestListNetMsg list)
     {
         QuestJournalEntryNet[] active = list.Active ?? System.Array.Empty<QuestJournalEntryNet>();
         var rows = new NetQuestJournal[active.Length];
@@ -548,7 +548,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyAcquireSkillList(AcquireSkillListNetMsg list)
+    internal void ApplyAcquireSkillList(AcquireSkillListNetMsg list)
     {
         AcquireSkillEntryNet[] rows = list.Skills ?? System.Array.Empty<AcquireSkillEntryNet>();
         var ids = new int[rows.Length];
@@ -570,7 +570,7 @@ public sealed partial class NetSession
             AcquireSkillListDto.FromNet(list.SkillType, ids, next, max, sp, requirements));
     }
 
-    void ApplyAcquireSkillInfo(AcquireSkillInfoNetMsg info)
+    internal void ApplyAcquireSkillInfo(AcquireSkillInfoNetMsg info)
     {
         AcquireSkillRequirementNet[] reqs = info.Requirements ?? System.Array.Empty<AcquireSkillRequirementNet>();
         var types = new int[reqs.Length];
@@ -590,7 +590,7 @@ public sealed partial class NetSession
             AcquireSkillInfoDto.FromNet(info.SkillId, info.Level, info.SpCost, info.SkillType, types, itemIds, counts, unks));
     }
 
-    void ApplyEnchantResult(EnchantResultNetMsg result)
+    internal void ApplyEnchantResult(EnchantResultNetMsg result)
     {
         NetNpcWindows.ApplyEnchantResult(new NetEnchantResult
         {
@@ -602,7 +602,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyPledgeStatus(PledgeStatusNetMsg status)
+    internal void ApplyPledgeStatus(PledgeStatusNetMsg status)
     {
         ClanPacketServices.ApplyStatus(new NetPledgeStatus
         {
@@ -617,7 +617,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyPledgeMemberList(PledgeMemberListNetMsg list)
+    internal void ApplyPledgeMemberList(PledgeMemberListNetMsg list)
     {
         PledgeMemberNet[] rows = list.Members ?? System.Array.Empty<PledgeMemberNet>();
         var members = new NetPledgeMember[rows.Length];
@@ -643,7 +643,7 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyClanAskJoin(ClanAskJoinNetMsg ask)
+    internal void ApplyClanAskJoin(ClanAskJoinNetMsg ask)
     {
         ClanPacketServices.ApplyAskJoin(new NetClanAskJoin
         {
@@ -655,25 +655,25 @@ public sealed partial class NetSession
         });
     }
 
-    void ApplyClanJoinResult(ClanJoinResultNetMsg result)
+    internal void ApplyClanJoinResult(ClanJoinResultNetMsg result)
     {
         ClanPacketServices.ApplyJoinResult(result.Response);
     }
 
-    void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)
+    internal void ApplyPartyAskJoin(PartyAskJoinNetMsg ask)
     {
         var dto = AskJoinPartyDto.FromNet(ask.RequestorObjectId, ask.RequestorName ?? "", ask.ItemDistribution);
         if (_party != null) _party.ApplyAskJoinParty(dto);
         else AskJoinPartyApplyIncomingPacketServices.ApplyAskJoinParty(dto);
     }
 
-    void ApplyPartyJoinResult(PartyJoinResultNetMsg result)
+    internal void ApplyPartyJoinResult(PartyJoinResultNetMsg result)
     {
         if (_party != null) _party.ApplyPartyJoinResult(result.Response);
         else PartyJoinResultApplyIncomingPacketServices.ApplyPartyJoinResult(result.Response);
     }
 
-    void ApplyPartyMemberList(PartyMemberListNetMsg list)
+    internal void ApplyPartyMemberList(PartyMemberListNetMsg list)
     {
         PartyMemberEntryNet[] members = list.Members ?? System.Array.Empty<PartyMemberEntryNet>();
         var rows = new NetPartyMemberEntry[members.Length];
@@ -703,27 +703,27 @@ public sealed partial class NetSession
         else PartyMemberListApplyIncomingPacketServices.ApplyPartyMemberList(roster);
     }
 
-    void ApplyTradeAsk(TradeAskNetMsg ask)
+    internal void ApplyTradeAsk(TradeAskNetMsg ask)
     {
         SendTradeRequestDto dto = SendTradeRequestDto.FromNet(ask.RequestorObjectId, ask.RequestorName ?? "");
         if (_tradeRequest != null) _tradeRequest.ApplySendTradeRequest(dto);
         else SendTradeRequestApplyIncomingPacketServices.ApplySendTradeRequest(dto);
     }
 
-    void ApplyTradeRequestResult(TradeRequestResultNetMsg result)
+    internal void ApplyTradeRequestResult(TradeRequestResultNetMsg result)
     {
         if (result.Response == 0)
             NetChatFeed.NoteSystem("Trade request declined.");
     }
 
-    void ApplyTradeStart(TradeStartNetMsg start)
+    internal void ApplyTradeStart(TradeStartNetMsg start)
     {
         TradeStartDto dto = TradeStartDto.FromNet(start.PartnerObjectId, start.PartnerName ?? "");
         if (_trade != null) _trade.ApplyStart(dto);
         else TradeStartApplyIncomingPacketServices.ApplyTradeStart(dto);
     }
 
-    void ApplyTradeOfferUpdate(TradeOfferUpdateNetMsg update)
+    internal void ApplyTradeOfferUpdate(TradeOfferUpdateNetMsg update)
     {
         int count = (int)update.Count;
         ItemInstance item = new ItemInstance(
@@ -745,7 +745,7 @@ public sealed partial class NetSession
             else TradeOtherAddApplyIncomingPacketServices.ApplyOtherAdd(item);
     }
 
-    void ApplyTradeConfirmState(TradeConfirmStateNetMsg state)
+    internal void ApplyTradeConfirmState(TradeConfirmStateNetMsg state)
     {
         if (_trade != null) _trade.ApplyPressOwnOk(state.SelfConfirmed != 0);
         else TradePressOwnOkApplyIncomingPacketServices.ApplyPressOwnOk(state.SelfConfirmed != 0);
@@ -753,7 +753,7 @@ public sealed partial class NetSession
         else TradePressOtherOkApplyIncomingPacketServices.ApplyPressOtherOk(state.PartnerConfirmed != 0);
     }
 
-    void ApplyTradeFinished(TradeFinishedNetMsg _)
+    internal void ApplyTradeFinished(TradeFinishedNetMsg _)
     {
         if (_trade != null) _trade.ApplyDone();
         else TradeDoneApplyIncomingPacketServices.ApplyTradeDone();
@@ -784,7 +784,7 @@ public sealed partial class NetSession
         return rows;
     }
 
-    void ApplyPlayerStats(PlayerStatsMsg msg)
+    internal void ApplyPlayerStats(PlayerStatsMsg msg)
     {
         // Prefer live entity; if world tile not loaded yet, patch stashed PlayerInfo for spawn.
         PlayerEntity local = DomainPacketServices.LocalPlayer;
@@ -815,7 +815,7 @@ public sealed partial class NetSession
         }
     }
 
-    void ApplyUserInfo(UserInfoNetMsg msg)
+    internal void ApplyUserInfo(UserInfoNetMsg msg)
     {
         // The zone server sends UserInfo right after the self EntitySpawn, while the
         // world scene is still loading. NoteUserInfo stashes it and overlays the live
@@ -825,14 +825,14 @@ public sealed partial class NetSession
         NetGearSession.NoteUserInfo(user);
     }
 
-    void ApplyItemList(ItemListNetMsg list)
+    internal void ApplyItemList(ItemListNetMsg list)
     {
         NetItemEntry[] rows = MapItemList(list);
         NetGearSession.NoteItemList(rows);
         Debug.Log("[Net] ItemList count=" + rows.Length);
     }
 
-    void ApplySkillList(SkillListNetMsg list)
+    internal void ApplySkillList(SkillListNetMsg list)
     {
         NetSkillEntry[] rows = MapSkillList(list);
         SkillListDto dto = MapSkillListToDto(rows);
@@ -987,7 +987,7 @@ public sealed partial class NetSession
         return skill != null && skill.OperateType == 2;
     }
 
-    void ApplyMoveState(MoveStateMsg move)
+    internal void ApplyMoveState(MoveStateMsg move)
     {
         int objectId = (int)move.EntityValue;
         Vector3 dest = VectorUtils.ConvertPosToUnity(new Vector3(move.DestX, move.DestY, move.DestZ));
@@ -1007,7 +1007,7 @@ public sealed partial class NetSession
             WorldApplyPacketServices.WorldApply.MoveTo(objectId, dest, origin, domain.InterludeDto);
     }
 
-    void ApplyCorrection(PositionCorrectionMsg corr)
+    internal void ApplyCorrection(PositionCorrectionMsg corr)
     {
         int objectId = (int)corr.EntityValue;
         Vector3 pos = VectorUtils.ConvertPosToUnity(new Vector3(corr.X, corr.Y, corr.Z));
