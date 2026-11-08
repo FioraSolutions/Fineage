@@ -147,7 +147,7 @@ public class SkillbarSlot : L2ClickableSlot
         string key = SkillbarPacketServices.Shortcuts.GetKeybindForShortcut(_skillbarId, _slot);
 
         //Debug.Log("UpdateInputInfo поиску по KeyImageTable");
-        Texture2D inputTexture = KeyImageTable.Instance.LoadTextureByKey(key);
+        Texture2D inputTexture = TablePacketServices.KeyImages.LoadTextureByKey(key);
 
         if (inputTexture != null)
         {

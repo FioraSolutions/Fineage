@@ -115,7 +115,7 @@ public class EffectManager : MonoBehaviour
         if (data.useWeaponShot)
         {
             Gear gear = target != null ? target.GetComponentInParent<Gear>() : null;
-            BaseEffect listed = WeaponShotTable.Instance.ResolvePrefab(gear, data.spiritShot);
+            BaseEffect listed = TablePacketServices.WeaponShots.ResolvePrefab(gear, data.spiritShot);
             if (listed != null)
                 return listed;
         }

@@ -16,7 +16,7 @@ public sealed class LobbyFlowController
     private L2GameUI _gameUi;
 
     GameClient Game => DiRuntimePacketServices.Game;
-    LoginClient Login => LoginClient.Instance;
+    LoginClient Login => NetworkingPacketServices.Login;
 
     [Inject] IZoneTransport _zoneTransport;
 
