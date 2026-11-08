@@ -183,6 +183,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] First `Fineage.Controller` / `Fineage.UI` content: state/intention/action enums + chat/nameplate enums.
 - [x] `Fineage.Di` seeded with `ILateBound` / `LateBoundMono` (not LifetimeScope yet — those still touch `Assembly-CSharp`).
 - [x] `GameState` enum moved into `Fineage.Controller` (cycle-safe).
+- [x] `MonsterSoundEvent` / `AmbientSoundType` moved into `Fineage.Game` (cycle-safe).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
