@@ -160,16 +160,7 @@ public class UserGear : Gear
             return;
         }
 
-        // refresh=true on last piece so SkinnedMeshSync runs once.
-        if (goLegs != null)
-        {
-            _armorDresser.SetFullArmor(false, armor, goChest, ItemSlot.chest);
-            _armorDresser.SetFullArmor(true, armor, goLegs, ItemSlot.legs);
-        }
-        else
-        {
-            _armorDresser.SetFullArmor(true, armor, goChest, ItemSlot.chest);
-        }
+        _armorDresser.ApplyFullBody(armor, goChest, goLegs);
     }
 
     void ApplySingleArmor(ArmorVisual visual)
@@ -193,10 +184,10 @@ public class UserGear : Gear
             out Armor[] defaultArmor,
             out GameObject[] listArmorPiece,
             (int)_raceId);
-        _armorDresser.SetArmorPiece(
+        _armorDresser.ApplySingle(
             visual.Armor,
-            armorMesh,
             visual.Slot,
+            armorMesh,
             defaultArmor,
             listArmorPiece);
     }
@@ -209,7 +200,7 @@ public class UserGear : Gear
             out Armor[] defaultArmor,
             out GameObject[] listArmorPiece,
             (int)_raceId);
-        _armorDresser.EquipDefaultSlot(slotArmor, defaultArmor, listArmorPiece);
+        _armorDresser.ApplyNaked(slotArmor, defaultArmor, listArmorPiece);
     }
 
     protected override Transform GetLeftHandBone() {
