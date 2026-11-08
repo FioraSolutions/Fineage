@@ -26,7 +26,7 @@ public static class NativeFunctions
 
     public static bool GetCursorPos(out NativeCoords lpPoint)
     {
-        Vector3 mp = Input.mousePosition;
+        Vector2 mp = PollInput.MousePosition;
         lpPoint = new NativeCoords
         {
             X = Mathf.RoundToInt(mp.x),

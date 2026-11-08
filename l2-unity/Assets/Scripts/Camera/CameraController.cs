@@ -204,8 +204,9 @@ public class CameraController : MonoBehaviour
             return;
         }
 
-        _x += Input.GetAxis("Mouse X") * _camSpeed;
-        _y -= Input.GetAxis("Mouse Y") * _camSpeed;
+        Vector2 axis = input.CameraAxis;
+        _x += axis.x * _camSpeed;
+        _y -= axis.y * _camSpeed;
         _y = ClampAngle(_y, -80f, 80f);
     }
 

@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Projectile flight/hit access with [Inject] wiring and container/live fallback (#131).
 /// </summary>

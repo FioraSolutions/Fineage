@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// NPC/monster entity action machine access with [Inject] wiring and container/live fallback (#131).
 /// </summary>

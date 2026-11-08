@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Gameplay camera access with [Inject] wiring and container/live fallback (#131).
 /// </summary>

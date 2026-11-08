@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Root-level game UI window access with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class GameWindowPacketServices

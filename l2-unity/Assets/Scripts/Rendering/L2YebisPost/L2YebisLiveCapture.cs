@@ -969,7 +969,7 @@ sealed class L2YebisLiveCaptureKey : MonoBehaviour
 
     void LateUpdate()
     {
-        if (!Input.GetKeyDown(KeyCode.G))
+        if (!PollInput.KeyDown(UnityEngine.InputSystem.Key.G))
         {
             return;
         }

@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Craft UI access to game services with [Inject] wiring and live fallback (#142).
 /// </summary>
 public static class CraftPacketServices

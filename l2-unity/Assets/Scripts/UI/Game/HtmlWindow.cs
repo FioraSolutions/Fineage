@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using VContainer;
 
@@ -47,7 +48,7 @@ public class HtmlWindow : L2PopupWindow
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B) && CanSend(1100))
+        if (PollInput.KeyDown(Key.B) && CanSend(1100))
         {
             // Debug.Log("Requesting : ShowBoard");
             ZoneCommands.Send(new RequestShowBoardCommand());

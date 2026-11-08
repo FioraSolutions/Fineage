@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// L2 stat unit conversion with [Inject] wiring and singleton fallback (#131 / #142).
 /// </summary>

@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Global effect reactions access with [Inject] wiring and Controller/Game fallback (#142).
 /// </summary>

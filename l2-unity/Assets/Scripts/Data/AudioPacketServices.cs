@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Audio-layer access with [Inject] wiring and singleton fallback (#131 C2 / #142).
 /// </summary>

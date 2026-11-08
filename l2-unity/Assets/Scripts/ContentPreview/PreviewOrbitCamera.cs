@@ -27,25 +27,27 @@ public class PreviewOrbitCamera : MonoBehaviour
 
     private void LateUpdate()
     {
+        Vector2 axis = PollInput.MouseAxis;
+
         // Orbit (LMB)
-        if (Input.GetMouseButton(0))
+        if (PollInput.LeftMouseHeld)
         {
-            _yaw += Input.GetAxis("Mouse X") * orbitSpeed * 5f;
-            _pitch -= Input.GetAxis("Mouse Y") * orbitSpeed * 5f;
+            _yaw += axis.x * orbitSpeed * 5f;
+            _pitch -= axis.y * orbitSpeed * 5f;
             _pitch = Mathf.Clamp(_pitch, -89f, 89f);
         }
 
         // Pan (MMB)
-        if (Input.GetMouseButton(2))
+        if (PollInput.MiddleMouseHeld)
         {
             Vector3 right = transform.right;
             Vector3 up = transform.up;
-            _pivot -= (right * Input.GetAxis("Mouse X") + up * Input.GetAxis("Mouse Y"))
+            _pivot -= (right * axis.x + up * axis.y)
                       * panSpeed * _distance;
         }
 
         // Zoom (scroll)
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        float scroll = PollInput.ScrollAxis;
         if (Mathf.Abs(scroll) > 0.001f)
             _distance = Mathf.Clamp(_distance - scroll * zoomSpeed * _distance, minDistance, maxDistance);
 

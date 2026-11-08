@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Clan UI access to game services with [Inject] wiring and live fallback (#142).
 /// Zone pledge snapshots land here so the clan window does not need a new locator member.
 /// </summary>

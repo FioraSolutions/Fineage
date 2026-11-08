@@ -132,7 +132,8 @@ public class MouseOverDetectionManipulator : PointerManipulator
         if (_isSelectDropfield == true) return;
         if (!_enabled) return;
 
-        if (!IsVisibleAndContains(Input.mousePosition, target) && !IsVisibleAndContains(Input.mousePosition, _subElement))
+        Vector2 mouse = PollInput.MousePosition;
+        if (!IsVisibleAndContains(mouse, target) && !IsVisibleAndContains(mouse, _subElement))
         {
             UnBlock();
             //Debug.Log("PointerLeaveHandler> leave unblock");
@@ -145,10 +146,11 @@ public class MouseOverDetectionManipulator : PointerManipulator
         //Debug.Log("name 1 subelement " + _subElement.name + "Reuslt " + IsVisibleAndContains(evt.position, _subElement));
         //Debug.Log("name 2 target element " + target.name + " Reuslt " + IsVisibleAndContains(evt.position, target)); 
 
-        //Debug.Log("name 1 subelement new " + _subElement.name + "Reuslt " + IsVisibleAndContains(Input.mousePosition, _subElement));
-        //Debug.Log("name 1 subelement new " + _subElement.name + "Reuslt " + IsVisibleAndContains(Input.mousePosition, target));
+        //Debug.Log("name 1 subelement new " + _subElement.name + "Reuslt " + IsVisibleAndContains(PollInput.MousePosition, _subElement));
+        //Debug.Log("name 1 subelement new " + _subElement.name + "Reuslt " + IsVisibleAndContains(PollInput.MousePosition, target));
 
-        if (_enabled && (IsVisibleAndContains(Input.mousePosition, _subElement) || IsVisibleAndContains(Input.mousePosition, target)))
+        Vector2 mouse = PollInput.MousePosition;
+        if (_enabled && (IsVisibleAndContains(mouse, _subElement) || IsVisibleAndContains(mouse, target)))
             Block();
         else
         {

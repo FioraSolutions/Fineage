@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// DAT table access with [Inject] wiring and singleton fallbacks (#142 sub-slice 41).
 /// </summary>

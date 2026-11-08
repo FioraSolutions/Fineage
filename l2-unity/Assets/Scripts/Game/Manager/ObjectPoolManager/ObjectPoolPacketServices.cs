@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Object pool runtime access with [Inject] wiring and singleton fallback (#131).
 /// </summary>

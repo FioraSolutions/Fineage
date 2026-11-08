@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// Skill execution access with [Inject] wiring and singleton fallback (#131 / #142).
 /// </summary>

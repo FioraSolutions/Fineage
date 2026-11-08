@@ -1,4 +1,5 @@
-﻿/// <summary>
+using VContainer;
+/// <summary>
 /// Game shortcut-layer access with [Inject] wiring and peer/live fallback (#142).
 /// </summary>
 public static class ShortcutPacketServices

@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Game item-layer access with [Inject] wiring and Networking/peer fallback (#142).
 /// </summary>
 public static class ItemPacketServices

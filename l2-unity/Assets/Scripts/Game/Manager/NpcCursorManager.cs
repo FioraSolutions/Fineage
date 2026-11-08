@@ -48,7 +48,7 @@ public class NpcCursorManager : MonoBehaviour
             return;
         }
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(PollInput.MousePosition);
         ItemEntity dropEntity = null;
         ItemDropPicker dropPicker = DropPicker;
         bool dropHit = dropPicker != null &&

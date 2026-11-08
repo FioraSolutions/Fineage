@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// World and lobby nameplate access with [Inject] wiring and container/live fallback (#131).
 /// </summary>

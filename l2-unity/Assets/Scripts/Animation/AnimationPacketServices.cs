@@ -1,4 +1,5 @@
 using System;
+using VContainer;
 
 /// <summary>
 /// Animation-layer access with [Inject] wiring and peer PacketServices fallback (#142).

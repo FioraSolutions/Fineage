@@ -11,7 +11,7 @@ public static class NetNpcWindows
     {
         if (!NetNpcSession.WindowsOpen)
             return;
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (PollInput.EscapeDown)
         {
             Close();
             return;

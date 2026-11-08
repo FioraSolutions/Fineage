@@ -4,6 +4,7 @@
 //===========================================================================//
 
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Camera))]
 public class FreeFlyCamera : MonoBehaviour {
@@ -51,15 +52,15 @@ public class FreeFlyCamera : MonoBehaviour {
 
     [SerializeField]
     [Tooltip("Boost speed")]
-    private KeyCode _boostSpeed = KeyCode.LeftShift;
+    private Key _boostSpeed = Key.LeftShift;
 
     [SerializeField]
     [Tooltip("Move up")]
-    private KeyCode _moveUp = KeyCode.E;
+    private Key _moveUp = Key.E;
 
     [SerializeField]
     [Tooltip("Move down")]
-    private KeyCode _moveDown = KeyCode.A;
+    private Key _moveDown = Key.A;
 
     [Space]
 
@@ -75,7 +76,7 @@ public class FreeFlyCamera : MonoBehaviour {
 
     [SerializeField]
     [Tooltip("This keypress will move the camera to initialization position")]
-    private KeyCode _initPositonButton = KeyCode.R;
+    private Key _initPositonButton = Key.R;
 
     #endregion UI
 
@@ -112,11 +113,11 @@ public class FreeFlyCamera : MonoBehaviour {
 
     // Apply requested cursor state
     private void SetCursorState() {
-        if(Input.GetKeyDown(KeyCode.Escape)) {
+        if(PollInput.EscapeDown) {
             Cursor.lockState = _wantedMode = CursorLockMode.None;
         }
 
-        if(Input.GetMouseButtonDown(0)) {
+        if(PollInput.LeftMouseDown) {
             _wantedMode = CursorLockMode.Locked;
         }
 
@@ -149,33 +150,34 @@ public class FreeFlyCamera : MonoBehaviour {
 
         // Translation
         if(_enableTranslation) {
-            transform.Translate(Vector3.forward * Input.mouseScrollDelta.y * Time.deltaTime * _translationSpeed);
+            transform.Translate(Vector3.forward * PollInput.ScrollAxis * Time.deltaTime * _translationSpeed);
         }
 
         // Movement
         if(_enableMovement) {
             Vector3 deltaPosition = Vector3.zero;
             float currentSpeed = _movementSpeed;
+            Vector2 move = PollInput.MoveAxes;
 
-            if(Input.GetKey(_boostSpeed))
+            if(PollInput.KeyHeld(_boostSpeed))
                 currentSpeed = _boostedSpeed;
 
-            if(Input.GetAxis("Vertical") > 0)
+            if(move.y > 0)
                 deltaPosition += transform.forward;
 
-            if(Input.GetAxis("Vertical") < 0)
+            if(move.y < 0)
                 deltaPosition -= transform.forward;
 
-            if(Input.GetAxis("Horizontal") < 0)
+            if(move.x < 0)
                 deltaPosition -= transform.right;
 
-            if(Input.GetAxis("Horizontal") > 0)
+            if(move.x > 0)
                 deltaPosition += transform.right;
 
-            if(Input.GetKey(_moveUp))
+            if(PollInput.KeyHeld(_moveUp))
                 deltaPosition += transform.up;
 
-            if(Input.GetKey(_moveDown))
+            if(PollInput.KeyHeld(_moveDown))
                 deltaPosition -= transform.up;
 
             // Calc acceleration
@@ -186,27 +188,28 @@ public class FreeFlyCamera : MonoBehaviour {
 
         // Rotation
         if(_enableRotation) {
+            Vector2 axis = PollInput.MouseAxis;
             // Pitch
             transform.rotation *= Quaternion.AngleAxis(
-                -Input.GetAxis("Mouse Y") * _mouseSense,
+                -axis.y * _mouseSense,
                 Vector3.right
             );
 
             // Paw
             transform.rotation = Quaternion.Euler(
                 transform.eulerAngles.x,
-                transform.eulerAngles.y + Input.GetAxis("Mouse X") * _mouseSense,
+                transform.eulerAngles.y + axis.x * _mouseSense,
                 transform.eulerAngles.z
             );
         }
 
 
-        if(Input.GetKeyDown(KeyCode.LeftAlt)) {
+        if(PollInput.KeyDown(Key.LeftAlt)) {
             _enableRotation = !_enableRotation;
         }
 
         // Return to init position
-        if(Input.GetKeyDown(_initPositonButton)) {
+        if(PollInput.KeyDown(_initPositonButton)) {
             transform.position = _initPosition;
             transform.eulerAngles = _initRotation;
         }
