@@ -34,7 +34,7 @@ Static re-check of the long GPT “client + server” architecture review agains
 | `ZoneWorld` / `NetZoneServer` / `NetCodec` are oversized hubs | ~1.4k + many partials; NetZoneServer ~2.9k; NetCodec ~3.5k |
 | Global `_gate` on `ZoneWorld` is a future bottleneck; prefer single-writer sim later | Still `lock (_gate)` across world methods |
 | `ZoneEntity` is a player+NPC+ground god bag | Defined in `ZoneWorld.cs` (~400+ fields mixed by kind) |
-| `ZoneWorld` → `INetPresenceBridge` (in `Fineage.Zone.Net`) couples domain to net | Still set from `NetZoneServer` |
+| `ZoneWorld` → presence fanout couples domain to net encoding | **Partial:** `INetPresenceBridge` now in `Fineage.Zone.World`; still set from `NetZoneServer` and still carries Net.Contract DTOs |
 | Auth password bytes on the wire; TLS not on client TCP yet | `EncodeAuth` writes plaintext password; TLS = Gateway/#17/#113 / Phase A6 |
 | Keep TCP for now; QUIC later | Matches `ARCHITECTURE_NET` + #123 |
 | Default AOI grid cell 3000; do not flood full world | `ZoneAoiSettings.DefaultAoiCell = 3000` → `GridAoi` |
@@ -122,7 +122,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | Slice | Intent |
 |-------|--------|
 | `NetZoneServer` handlers | Opcode groups → `*PacketHandler` (decode → command → world); keep projection/fanout separate |
-| Domain events | Replace `INetPresenceBridge` dependency on world with `IWorldEventPublisher` (or move interface into Game/Zone.World) |
+| Domain events | [x] `INetPresenceBridge` in `Fineage.Zone.World`. Next: rename/narrow toward `IWorldEventPublisher` when fanout DTOs leave Net.Contract |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
 | `ZoneEntity` composition | Split player / NPC / ground payloads over time (composition, not deep Java-style inheritance) |
 | `NetCodec` | Split by domain **or** keep monolith + mandatory round-trip tests per message (generation optional later) |
