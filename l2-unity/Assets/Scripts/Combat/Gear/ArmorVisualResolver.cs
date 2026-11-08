@@ -52,7 +52,7 @@ public sealed class ArmorVisualResolver
         if (parts.Length == 0)
             return ArmorVisual.Missing(armor.Id, armor, slot, "no_mesh_parts");
 
-        return ArmorVisual.Ok(armor, slot, parts, piece);
+        return ArmorVisual.Ok(armor, slot, parts);
     }
 
     public static ItemSlot ResolveBodySlot(Armor armor)

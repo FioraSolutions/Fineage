@@ -1,5 +1,4 @@
 using UnityEngine;
-using static ModelTable;
 
 /// <summary>
 /// Resolved body-armor look for one item + race. No parenting / pool / dresser state.
@@ -13,17 +12,13 @@ public sealed class ArmorVisual
     public string MissingReason { get; }
     public ArmorVisualPart[] Parts { get; }
 
-    /// <summary>Transitional cache handle for callers still on <see cref="L2ArmorPiece"/>.</summary>
-    public L2ArmorPiece LegacyPiece { get; }
-
     ArmorVisual(
         int itemId,
         Armor armor,
         ItemSlot slot,
         bool isMissing,
         string missingReason,
-        ArmorVisualPart[] parts,
-        L2ArmorPiece legacyPiece)
+        ArmorVisualPart[] parts)
     {
         ItemId = itemId;
         Armor = armor;
@@ -31,14 +26,9 @@ public sealed class ArmorVisual
         IsMissing = isMissing;
         MissingReason = missingReason ?? string.Empty;
         Parts = parts ?? System.Array.Empty<ArmorVisualPart>();
-        LegacyPiece = legacyPiece;
     }
 
-    public static ArmorVisual Ok(
-        Armor armor,
-        ItemSlot slot,
-        ArmorVisualPart[] parts,
-        L2ArmorPiece legacyPiece)
+    public static ArmorVisual Ok(Armor armor, ItemSlot slot, ArmorVisualPart[] parts)
     {
         return new ArmorVisual(
             armor != null ? armor.Id : 0,
@@ -46,8 +36,7 @@ public sealed class ArmorVisual
             slot,
             false,
             string.Empty,
-            parts,
-            legacyPiece);
+            parts);
     }
 
     public static ArmorVisual Missing(int itemId, Armor armor, ItemSlot slot, string reason)
@@ -58,8 +47,7 @@ public sealed class ArmorVisual
             slot,
             true,
             reason,
-            System.Array.Empty<ArmorVisualPart>(),
-            null);
+            System.Array.Empty<ArmorVisualPart>());
     }
 }
 

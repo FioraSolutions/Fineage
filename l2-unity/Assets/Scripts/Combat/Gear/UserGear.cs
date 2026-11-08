@@ -177,17 +177,24 @@ public class UserGear : Gear
             return;
         }
 
-        GetDefaultGoWithArmorModel(
-            ItemSlot.fullarmor,
-            out Armor[] defaultArmor,
-            out GameObject[] listArmorPiece,
-            (int)_raceId);
+        // Naked chest/legs only needed when replacing a full-body set.
+        Armor[] nakedArmor = null;
+        GameObject[] nakedMeshes = null;
+        if (visual.Slot == ItemSlot.chest || visual.Slot == ItemSlot.legs)
+        {
+            GetDefaultGoWithArmorModel(
+                ItemSlot.fullarmor,
+                out nakedArmor,
+                out nakedMeshes,
+                (int)_raceId);
+        }
+
         _armorDresser.ApplySingle(
             visual.Armor,
             visual.Slot,
             armorMesh,
-            defaultArmor,
-            listArmorPiece);
+            nakedArmor,
+            nakedMeshes);
     }
 
     void ResetSlotToNaked(ItemSlot slotArmor, int itemId)
