@@ -12,11 +12,6 @@ public static class L2PawnWalk
     const float MinDelta = 0.0003f;
     const float MinDistSq = 1e-8f;
 
-    public static bool IsCharInfoPawn(Entity entity)
-    {
-        return entity is UserEntity;
-    }
-
     /// <summary>
     /// XY step into <paramref name="stepped"/>. False = stay put (too close / bad args).
     /// Does not write the transform.
