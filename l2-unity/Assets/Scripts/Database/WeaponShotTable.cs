@@ -22,8 +22,7 @@ public sealed class WeaponShotTable
         new Dictionary<string, BaseEffect>(StringComparer.OrdinalIgnoreCase);
 
     [System.Obsolete("Use TablePacketServices.WeaponShots instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
-    public static WeaponShotTable Instance
+        public static WeaponShotTable Instance
     {
         get
         {

@@ -85,8 +85,7 @@ using System.Threading.Tasks;
         }
 
         [System.Obsolete("Use DispatcherPacketServices.Dispatcher instead")]
-        [Obsolete("Use [Inject] / PacketServices instead")]
-        public static UnityMainThreadDispatcher Instance()
+                public static UnityMainThreadDispatcher Instance()
         {
             if (!Exists())
             {

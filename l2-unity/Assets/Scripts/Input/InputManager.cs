@@ -76,8 +76,7 @@ public class InputManager : MonoBehaviour
 
     private static InputManager _instance;
     [System.Obsolete("Use ControllerPacketServices.Input instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
-    public static InputManager Instance { get { return _instance; } }
+        public static InputManager Instance { get { return _instance; } }
 
     private void Awake()
     {

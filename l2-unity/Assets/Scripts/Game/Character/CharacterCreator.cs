@@ -40,8 +40,7 @@ public class CharacterCreator : MonoBehaviour
 
     private static CharacterCreator _instance;
     [System.Obsolete("Use LoginPacketServices.Creator instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
-    public static CharacterCreator Instance { get { return _instance; } }
+        public static CharacterCreator Instance { get { return _instance; } }
 
     void Awake()
     {
