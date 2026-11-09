@@ -233,6 +233,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `Logongrp` moved into `Fineage.Game` (cycle-safe lobby race pose DTO).
 - [x] `PetVisuals` moved into `Fineage.Game` (cycle-safe summon id helpers; `IsPet(owned,npcId)`).
 - [x] `WeaponChargeSkill` id helpers moved into `Fineage.Game` (playback stays `WeaponChargeSkillPlayback`).
+- [x] `Abstractgrp` moved into `Fineage.Game` (cycle-safe item grp base; ItemMaterial/ItemGrade already there).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
@@ -252,7 +253,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
 | Backend B2b | **Mechanical B2b landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, Messages.* DTO split, ZoneEntity + ZoneWorld hub `.Members` file splits — primaries now mostly under 500 lines). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic Rules only. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Cycle-safe enum/util/anim-map slices largely landed (through opcodes + Controller anim enums/maps + `Animation` / `AnimationNames` / `PlayerLocomotionAnim` / `PlayerStriderAnim` / `CharTemplateRegistry` / `AnimationDataCache` / `IAnimationController` / `AnimPlayback` / `AnimationExitCrossFade` / `LocomotionCrossFadeDefaults` / V2 particle enums / `DatUtils` / `MapUtils` / `DropdownFieldUtils` / `ToolTipsUtils` / `VectorUtils` / `L2PawnWalk` / `L2NameplateAnchor` / `ArmorBodySlots` / `AnimatorBoolSet` / `L2YebisPostRuntime` / `L2FxCompositorLayers` / `CharacterAnimPaths` / `Appearance` / `SysStringData` / `L2AppRand` / `BoneModification` / `VariableItem` / `NpcName` / `Logongrp` / `PetVisuals` / `WeaponChargeSkill`). Residual = LifetimeScope / MonoBehaviours when cycle-safe; remaining Utils / `LocomotionCrossFadeSettings` (AnimTween) / `VectorWorldUtils` are UI/anim/MB-tied |
+| Client #131 | Cycle-safe enum/util/anim-map slices largely landed (through opcodes + Controller anim enums/maps + `Animation` / `AnimationNames` / `PlayerLocomotionAnim` / `PlayerStriderAnim` / `CharTemplateRegistry` / `AnimationDataCache` / `IAnimationController` / `AnimPlayback` / `AnimationExitCrossFade` / `LocomotionCrossFadeDefaults` / V2 particle enums / `DatUtils` / `MapUtils` / `DropdownFieldUtils` / `ToolTipsUtils` / `VectorUtils` / `L2PawnWalk` / `L2NameplateAnchor` / `ArmorBodySlots` / `AnimatorBoolSet` / `L2YebisPostRuntime` / `L2FxCompositorLayers` / `CharacterAnimPaths` / `Appearance` / `SysStringData` / `L2AppRand` / `BoneModification` / `VariableItem` / `NpcName` / `Logongrp` / `PetVisuals` / `WeaponChargeSkill` / `Abstractgrp`). Residual = LifetimeScope / MonoBehaviours when cycle-safe; remaining Utils / `LocomotionCrossFadeSettings` (AnimTween) / `VectorWorldUtils` are UI/anim/MB-tied |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
