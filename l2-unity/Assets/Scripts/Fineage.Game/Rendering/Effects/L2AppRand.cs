@@ -1,4 +1,4 @@
-﻿using Unity.Mathematics;
+﻿using System;
 using UnityEngine;
 
 /// <summary>
@@ -41,7 +41,8 @@ public static class L2AppRand
 
     public static float BitsToFloat(uint state)
     {
-        return math.asfloat(state);
+        // Bit-identical to Unity.Mathematics math.asfloat without asmdef package ref.
+        return BitConverter.Int32BitsToSingle(unchecked((int)state));
     }
 
     public static void ResolveGpuInstanceRandBits(
