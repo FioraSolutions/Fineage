@@ -239,7 +239,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `PollInput` moved into `Fineage.Game` (Unity.InputSystem asmdef ref + layout guard updated).
 - [x] Manor `Seed` / `SeedProduction` / `CropProcure` moved into `Fineage.Game` (`CastleCrop` stays ACS via ItemInstance).
 - [x] `LODAdjustment` moved into `Fineage.Game` (cycle-safe shadow LOD tuning DTO).
-- [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
+- [x] Cycle-safe enum/util/DTO/helper slices largely exhausted (through #864).
+- [ ] Remaining asmdef work = LifetimeScope / gameplay MonoBehaviours when types are cycle-safe (hard residual).
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
@@ -258,7 +259,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
 | Backend B2b | **Mechanical B2b landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, Messages.* DTO split, ZoneEntity + ZoneWorld hub `.Members` file splits — primaries now mostly under 500 lines). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic Rules only. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Cycle-safe enum/util/anim-map slices largely landed (through opcodes + Controller anim enums/maps + `Animation` / `AnimationNames` / `PlayerLocomotionAnim` / `PlayerStriderAnim` / `CharTemplateRegistry` / `AnimationDataCache` / `IAnimationController` / `AnimPlayback` / `AnimationExitCrossFade` / `LocomotionCrossFadeDefaults` / V2 particle enums / `DatUtils` / `MapUtils` / `DropdownFieldUtils` / `ToolTipsUtils` / `VectorUtils` / `L2PawnWalk` / `L2NameplateAnchor` / `ArmorBodySlots` / `AnimatorBoolSet` / `L2YebisPostRuntime` / `L2FxCompositorLayers` / `CharacterAnimPaths` / `Appearance` / `SysStringData` / `L2AppRand` / `BoneModification` / `VariableItem` / `NpcName` / `Logongrp` / `PetVisuals` / `WeaponChargeSkill` / `Abstractgrp` / `EtcItemgrp` / database model DTOs / `PollInput` / manor seed DTOs / `LODAdjustment`). Residual = LifetimeScope / MonoBehaviours when cycle-safe; remaining Utils / `LocomotionCrossFadeSettings` (AnimTween) / `VectorWorldUtils` are UI/anim/MB-tied |
+| Client #131 | Cycle-safe enum/util/DTO/helper slices largely exhausted on 2026-11-09 (PRs #845–#864: ArmorBodySlots → PollInput → manor/LOD + Database model DTOs; Fineage.Game ~100 cs files). Residual hard work = LifetimeScope / gameplay MonoBehaviours when cycle-safe; `LocomotionCrossFadeSettings` / `VectorWorldUtils` / PacketServices-tied Utils; GameRuntime/LoginRuntime shrink; Unity PR compile #737 |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
