@@ -82,7 +82,7 @@ public class WeapongrpTable {
                     {
                         if (!key.Equals("weight"))
                         {
-                            if (DatUtils.ParseBaseAbstractItemGrpDat(weaponGrp, key, value))
+                            if (AbstractgrpDatParser.ParseBaseAbstractItemGrpDat(weaponGrp, key, value))
                             {
                                 continue;
                             }
