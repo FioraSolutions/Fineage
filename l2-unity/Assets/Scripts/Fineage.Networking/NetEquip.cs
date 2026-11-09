@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Pure equip/unequip helpers shared by the zone client and the wire tests.
 /// Change codes match Fineage-Backend <c>InventoryChange</c> (0 add, 1 modify, 2 remove).
-/// Client inventory flags match <c>PlayerInventory.InventoryChange</c> (added 1, modified 2, removed 3).
+/// Client inventory flags match <c>InventoryChange</c> (added 1, modified 2, removed 3).
 /// </summary>
 public static class NetInventoryBook
 {

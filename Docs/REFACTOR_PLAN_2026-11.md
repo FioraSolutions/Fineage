@@ -206,8 +206,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, Rules extracts, login rate limit). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic more Rules. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | More asmdef moves (playtest runtime in `Fineage.Networking`); LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge). Remaining enums mostly animation-tied |
+| Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, Rules extracts incl. Consumable/Shot, login rate limit). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic more Rules. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
+| Client #131 | More asmdef moves (playtest runtime in `Fineage.Networking`; cycle-safe enums into `Fineage.Game`); LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge). Remaining enums mostly animation-tied |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
