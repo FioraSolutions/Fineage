@@ -2,11 +2,9 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static L2Slot;
 
 public class ToolTipsUtils
 {
-
 
     public static Color GetColorPrice(string price)
     {
@@ -32,7 +30,6 @@ public class ToolTipsUtils
         string formattedNumber = wholeNumber.ToString("N0", CultureInfo.InvariantCulture);
         return formattedNumber.Replace('.', ',');
     }
-
 
     public static string ConvertPriceToNormal(string wholeNumber)
     {
