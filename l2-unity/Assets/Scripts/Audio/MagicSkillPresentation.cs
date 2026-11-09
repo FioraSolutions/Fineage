@@ -6,22 +6,15 @@ using UnityEngine;
 /// </summary>
 public static class MagicSkillPresentation
 {
-    public enum Kind
-    {
-        Charge,
-        Potion,
-        Cast,
-    }
-
-    public static Kind Classify(MagicSkillUseDto dto)
+    public static MagicSkillUseKind Classify(MagicSkillUseDto dto)
     {
         if (dto == null)
-            return Kind.Cast;
+            return MagicSkillUseKind.Cast;
         if (WeaponChargeSkill.IsCharge(dto.SkillId))
-            return Kind.Charge;
+            return MagicSkillUseKind.Charge;
         if (SetupDurationHelper.IsUsePotion(dto))
-            return Kind.Potion;
-        return Kind.Cast;
+            return MagicSkillUseKind.Potion;
+        return MagicSkillUseKind.Cast;
     }
 
     /// <summary>
@@ -35,10 +28,10 @@ public static class MagicSkillPresentation
 
         switch (Classify(dto))
         {
-            case Kind.Charge:
+            case MagicSkillUseKind.Charge:
                 EntityActionSkill.TryApplyWeaponCharge(entity, dto);
                 return;
-            case Kind.Potion:
+            case MagicSkillUseKind.Potion:
                 SetupDurationHelper.PlayPotionEffect(entity, dto);
                 return;
         }
