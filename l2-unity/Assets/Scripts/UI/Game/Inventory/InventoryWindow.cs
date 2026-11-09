@@ -151,6 +151,7 @@ public class InventoryWindow : L2PopupWindow
 
         _weiBar= GetElementById("WeightBg");
         _weiBarBg = GetElementById("WeightGauge");
+        PaintWeightFillParts();
 
         _adenaCountLabel = GetLabelById("AdenaCount");
         _weightLabel = GetLabelById("CurrentWeight");
@@ -182,6 +183,22 @@ public class InventoryWindow : L2PopupWindow
             L2SlotIconView.TrySetResourcesBackground(
                 trashBg,
                 "Data/UI/Inventory/Inventory_Interlude_Trash");
+
+        // UITK resource() often fails for these strips — stamp from Resources.Load.
+        PaintWeightFillParts();
+    }
+
+    void PaintWeightFillParts()
+    {
+        VisualElement gauge = _weiBarBg ?? GetElementById("WeightGauge");
+        if (gauge == null)
+            return;
+        L2SlotIconView.TrySetResourcesBackground(
+            gauge.Q("Left"), "Data/UI/Inventory/Inventory_Interlude_Weight1");
+        L2SlotIconView.TrySetResourcesBackground(
+            gauge.Q("Center"), "Data/UI/Inventory/Inventory_Interlude_Weight2");
+        L2SlotIconView.TrySetResourcesBackground(
+            gauge.Q("Right"), "Data/UI/Inventory/Inventory_Interlude_Weight3");
     }
 
     void SetResourcesBackground(string elementId, string resourcesPath)
@@ -372,13 +389,37 @@ public class InventoryWindow : L2PopupWindow
         _gearTab.Initialize(_windowEle, null, null , true , true);
         _itemSurfaceReady = true;
 
-        _maximumWeight = 10000;
-        _weightLabel.text = "00.00%";
-
         // ItemList normally arrives during EnterWorld, before this window is built, so the
         // rows are cached in PlayerInventory. Push them now that the tabs exist.
         if (InventoryPacketServices.Inventory != null)
             InventoryPacketServices.Inventory.RefreshWindow();
+        RefreshWeightFromPlayer();
+    }
+
+    public override void ShowWindow()
+    {
+        base.ShowWindow();
+        RefreshWeightFromPlayer();
+    }
+
+    /// <summary>
+    /// Status sheet already mirrors <see cref="PlayerStats"/> from UserInfo; inventory used to
+    /// keep a stale "00.00%" until the next UserInfo fanout hit <see cref="UpdateStats"/>.
+    /// </summary>
+    void RefreshWeightFromPlayer()
+    {
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (player?.Stats is PlayerStats stats)
+        {
+            UpdateStats(stats);
+            return;
+        }
+
+        PlayerInfoInterlude info = ZoneCommands.Transport != null
+            ? ZoneCommands.Transport.PlayerInfo
+            : default;
+        if (info.Stats != null)
+            UpdateStats(info.Stats);
     }
 
     public int GetEmptySlot()
@@ -455,20 +496,58 @@ public class InventoryWindow : L2PopupWindow
 
     public void UpdateStats(PlayerStats stats)
     {
-        if(stats != null)
-        {
-            _currentWeight = stats.CurrWeight;
-            _maximumWeight = stats.MaxWeight;
-            _weightLabel.text = stats.WeightPercent()+"%";
+        if (stats == null)
+            return;
 
-            // WeightGauge = Interlude Weight1/2/3 fill; WeightBg = empty track.
-            float weightRatio = stats.MaxWeight > 0
-                ? (float)stats.CurrWeight / stats.MaxWeight
-                : 0f;
-            L2ResourceBarView.SetFillFixed(_weiBarBg, _weiBarBg, weightRatio, 160f);
-  
-        }
+        _currentWeight = stats.CurrWeight;
+        _maximumWeight = stats.MaxWeight;
+        float weightRatio = stats.MaxWeight > 0
+            ? (float)stats.CurrWeight / stats.MaxWeight
+            : 0f;
+        if (_weightLabel != null)
+            _weightLabel.text = $"{weightRatio * 100f:0.00}%";
 
+        // WeightBg = track, WeightGauge = Left/Center/Right fill clipped by width.
+        VisualElement track = _weiBar;
+        VisualElement fill = _weiBarBg;
+        if (track == null || fill == null)
+            return;
+
+        PaintWeightFillParts();
+        ApplyInventoryWeightFill(weightRatio);
+
+        // First open often runs before UITK has resolved the track width — retry next frame.
+        if (track.resolvedStyle.width <= 1f)
+            StartCoroutine(ApplyInventoryWeightFillNextFrame(weightRatio));
+    }
+
+    IEnumerator ApplyInventoryWeightFillNextFrame(float weightRatio)
+    {
+        yield return null;
+        ApplyInventoryWeightFill(weightRatio);
+    }
+
+    void ApplyInventoryWeightFill(float weightRatio)
+    {
+        VisualElement track = _weiBar;
+        VisualElement fill = _weiBarBg;
+        if (track == null || fill == null)
+            return;
+
+        float trackWidth = track.resolvedStyle.width;
+        if (float.IsNaN(trackWidth) || trackWidth <= 1f)
+            trackWidth = track.layout.width;
+        if (float.IsNaN(trackWidth) || trackWidth <= 1f)
+            trackWidth = 160f;
+
+        fill.style.position = Position.Absolute;
+        fill.style.left = 0;
+        fill.style.top = 0;
+        fill.style.height = 12f;
+        fill.style.overflow = Overflow.Hidden;
+        fill.style.flexDirection = FlexDirection.Row;
+        fill.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+        L2ResourceBarView.SetFillFixed(fill, track, weightRatio, trackWidth);
     }
 
     public void SetItemList(List<ItemInstance> allItems , List<ItemInstance> quipAllItems, int adenaCount, int usedSlots , int userId)
@@ -483,7 +562,7 @@ public class InventoryWindow : L2PopupWindow
         _inventoryCountLabel.text = $"({usedSlots}/{_slotCount})";
         // });
         SwitchTab(_tabs[0]);
-
+        RefreshWeightFromPlayer();
 }
     public void UpdateItemList(List<ItemInstance> removeAndAdd , List<ItemInstance> modified , List<ItemInstance> listEquipModified,  int adenaCount , int usedSlots , ChangeInventoryData changeInventoryData , int userId)
     {

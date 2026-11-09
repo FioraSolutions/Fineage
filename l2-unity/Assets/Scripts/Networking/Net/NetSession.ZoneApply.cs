@@ -891,7 +891,10 @@ public sealed partial class NetSession
             PAtkSpd = msg.PAtkSpd,
             MAtkSpd = msg.MAtkSpd,
             Accuracy = msg.Accuracy,
-            CritRate = msg.CritRate
+            Evasion = msg.Evasion,
+            CritRate = msg.CritRate,
+            CurrWeight = msg.CurrentWeight,
+            MaxWeight = msg.MaxWeight
         };
 
         PaperdollSlotNet[] slots = msg.Paperdoll;

@@ -4481,3 +4481,48 @@
     color: rgb(220, 205, 160);
     -unity-text-align: middle-left;
 }
+
+/* Interlude DetailStatusWnd / MainWnd (CharacterInfoWindow) */
+.character-info-window.status-interlude-root {
+    width: 256px;
+    height: 396px;
+}
+
+.character-info-window .status-bar-fill {
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.character-info-window .status-bar-value {
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    color: rgb(240, 240, 240);
+}
+
+.character-info-window .status-value {
+    -unity-text-outline-width: 0.5px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+}
+
+.character-info-window .status-mainwnd-tab {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.character-info-window #DetailStatusWnd {
+    background-color: rgb(12, 12, 14);
+}
+
+
+.character-info-window.status-interlude-root .unity-label {
+    -unity-font-definition: url('project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf?fileID=12800000&guid=96fb7a735e76e0742bf125e2d4734bf3&type=3#tahoma');
+    letter-spacing: 0;
+    white-space: nowrap;
+    -unity-text-outline-width: 0.4px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.character-info-window.status-interlude-root .status-bar-fill,
+.character-info-window.status-interlude-root .status-bar-bg {
+    -unity-background-scale-mode: stretch-to-fill;
+}
