@@ -171,7 +171,7 @@ public class CompositeEffectV2 : CompositePrefabEffect
                     : transform.position;
             }
 
-            Vector3 aim = VectorUtils.GetCollision(start, _context.TargetTransform);
+            Vector3 aim = VectorWorldUtils.GetCollision(start, _context.TargetTransform);
             float flight = ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(
                 Vector3.Distance(start, aim));
             float impactAt =

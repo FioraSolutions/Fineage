@@ -219,7 +219,7 @@ public abstract class AbstractAttackEvents : StateBase
                     }
 
                     Vector3 startPos = DomainPacketServices.LocalPlayer.GetPositionRightHand();
-                    Vector3 aimPos = VectorUtils.GetCollision(startPos, target);
+                    Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
                     float dist3d = Vector3.Distance(startPos, aimPos);
                     // ANProjectile NArrow / s_u003_d: dirMul=3000, fly=sqrt(2·Dist/3000), path (t/T)².
                     float flyAccel = ProjectileFlightTimeCalculator.CalculateL2ArrowFlightTimeSeconds(dist3d);

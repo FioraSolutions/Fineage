@@ -81,7 +81,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
         int attackerEntityId = ResolveProjectileAttackerEntityId(readyProjectile);
         ClearParentObject(readyProjectile);
 
-        Vector3 adjustedTarget = VectorUtils.GetCollision(startPos, target);
+        Vector3 adjustedTarget = VectorWorldUtils.GetCollision(startPos, target);
 
         float distance = Vector3.Distance(startPos, adjustedTarget);
         bool isArrowStick = settings != null && settings.impactType == ProjectileImpactType.ArrowStick;

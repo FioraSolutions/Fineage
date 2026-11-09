@@ -186,7 +186,7 @@ public class AbstractProjectile : MonoBehaviour
         {
 
             Vector3 previousTargetPosition = projectile.targetPosition;
-            Vector3 newTargetPosition = VectorUtils.GetCollision(projectile.startPosition, projectile.targetTransform);
+            Vector3 newTargetPosition = VectorWorldUtils.GetCollision(projectile.startPosition, projectile.targetTransform);
             float moveThreshold = 0.1f;
 
             if (Vector3.Distance(previousTargetPosition, newTargetPosition) > moveThreshold)
