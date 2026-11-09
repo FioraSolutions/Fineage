@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +12,7 @@ public class WorldCombat : MonoBehaviour {
     [SerializeField] private GameObject _impactParticle;
 
     private static WorldCombat _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static WorldCombat Instance { get { return _instance; } }
 
     private void Awake() {

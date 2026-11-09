@@ -1,3 +1,5 @@
+using System;
+
 ﻿using UnityEngine;
 using VContainer;
 
@@ -6,6 +8,7 @@ public class CharacterBuilder : MonoBehaviour
     private static CharacterBuilder _instance;
 
     [System.Obsolete("Use [Inject] CharacterBuilder or CharacterPacketServices.Builder instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static CharacterBuilder Instance { get { return _instance; } }
 
     [Inject] private ModelTable _models;

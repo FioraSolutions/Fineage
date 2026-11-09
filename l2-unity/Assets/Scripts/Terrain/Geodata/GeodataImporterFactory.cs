@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -14,6 +16,7 @@ public class GeodataImporterFactory : MonoBehaviour {
     private List<GeodataImporter> _todoJobs;
 
     private static GeodataImporterFactory _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static GeodataImporterFactory Instance { get { return _instance; } }
 
     private void Awake() {

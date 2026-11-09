@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +18,7 @@ public class GravityNpc : MonoBehaviour, IGravity
 
     private static IGravity _instance;
     [System.Obsolete("Use [Inject] or GravityNpcPacketServices.Gravity instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static IGravity Instance { get { return (_instance as UnityEngine.Object) != null ? _instance : null; } }
 
 

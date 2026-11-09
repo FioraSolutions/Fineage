@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -33,6 +35,7 @@ public class PositionValidationController : MonoBehaviour
 
     private static PositionValidationController _instance;
     [System.Obsolete("Use [Inject] instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PositionValidationController Instance { get { return _instance; } }
 
     private void Awake()

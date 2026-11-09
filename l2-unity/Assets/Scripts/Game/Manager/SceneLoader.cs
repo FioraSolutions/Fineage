@@ -1,3 +1,5 @@
+using System;
+
 // fineage-touch 1794037730.455447
 ﻿using System;
 using System.Collections;
@@ -51,6 +53,7 @@ public class SceneLoader : MonoBehaviour
     public string GameScene { get { return _gameScene; } }
 
     public static SceneLoader _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SceneLoader Instance { get { return _instance; } }
 
     private void Awake()

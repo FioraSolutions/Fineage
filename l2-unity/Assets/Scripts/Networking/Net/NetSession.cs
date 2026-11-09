@@ -67,6 +67,7 @@ public sealed partial class NetSession : MonoBehaviour
     static NetSession _instance;
 
     [System.Obsolete("Use NetworkingPacketServices.Session instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static NetSession Instance
     {
         get => _instance;

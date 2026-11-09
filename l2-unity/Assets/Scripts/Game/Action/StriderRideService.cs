@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
@@ -13,6 +14,7 @@ public sealed class StriderRideService : ILateTickable
     const string SeatBone = "Bone15";
 
     [System.Obsolete("Use [Inject] or AnimationPacketServices.StriderRide instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static StriderRideService Instance { get; private set; }
 
     struct SavedChild

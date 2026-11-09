@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +9,7 @@ using UnityEngine;
 /// </summary>
 public class FNManagerLight : MonoBehaviour
 {
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static FNManagerLight Instance { get; private set; }
     private const string LOG_TAG = "[FN_LIGHT]";
 

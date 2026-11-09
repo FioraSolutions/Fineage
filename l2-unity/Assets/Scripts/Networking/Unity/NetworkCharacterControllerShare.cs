@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,6 +21,7 @@ public class NetworkCharacterControllerShare : MonoBehaviour {
     [SerializeField] private long _lastSharingTimestamp = 0;
 
     private static NetworkCharacterControllerShare _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static NetworkCharacterControllerShare Instance { get { return _instance; } }
 
     public void Awake() {
