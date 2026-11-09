@@ -92,7 +92,7 @@ public class NpcCursorManager : MonoBehaviour
 
     void ApplyTargetedEntityCursor(Entity entity)
     {
-        if (PetVisuals.IsPet(entity.Identity))
+        if (PetVisuals.IsPet(entity.Identity.Owned, entity.Identity.NpcId))
         {
             ApplyCursor(TalkCursorId, _hoverCursorTalk);
             return;
