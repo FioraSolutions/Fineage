@@ -8,8 +8,11 @@ public static class L2NameplateAnchor
 {
     public const float DefaultCollisionHeightMeters = 0.46f;
 
-    /// <summary>Deprecated alias of <see cref="L2OverheadAnchor.NameOffsetMeters"/> for legacy callers.</summary>
-    public static float DefaultHeadHeightOffsetMeters => L2OverheadAnchor.NameOffsetMeters;
+    /// <summary>
+    /// Deprecated alias of Interlude NameOffset (10 UU). Keep in sync with
+    /// <c>L2OverheadAnchor.NameOffsetMeters</c> in Assembly-CSharp.
+    /// </summary>
+    public const float DefaultHeadHeightOffsetMeters = 10f / 52.5f;
 
     /// <summary>
     /// World position at capsule top (+ <paramref name="headHeightOffset"/>).
