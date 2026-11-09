@@ -64,6 +64,8 @@ FILES = (
     "Codec/NetCodec.Craft.cs",
     "Codec/NetCodec.PrivateStore.cs",
     "Codec/NetCodec.Trade.cs",
+    "Codec/NetCodec.Party.cs",
+    "Codec/NetCodec.Quest.cs",
     "Codec/NetCodec.PresenceCombat.cs",
     "Modules/IDomainModule.cs",
 )
