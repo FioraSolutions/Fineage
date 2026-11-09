@@ -261,7 +261,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
 | Backend B2b | **Mechanical B2b landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, Messages.* DTO split, ZoneEntity + ZoneWorld hub `.Members` file splits — primaries now mostly under 500 lines). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic Rules only. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Cycle-safe enum/util/DTO/helper slices largely exhausted on 2026-11-09 (PRs #845–#864: ArmorBodySlots → PollInput → manor/LOD + Database model DTOs; Fineage.Game ~100 cs files). Residual hard work = LifetimeScope / gameplay MonoBehaviours when cycle-safe; `LocomotionCrossFadeSettings` / `VectorWorldUtils` / PacketServices-tied Utils; GameRuntime/LoginRuntime shrink; Unity PR compile #737 |
+| Client #131 | Cycle-safe enum/util/DTO/helper slices largely exhausted on 2026-11-09 (PRs #845–#864: ArmorBodySlots → PollInput → manor/LOD + Database model DTOs; Fineage.Game ~100 / Networking ~160 after wire DTO move #866–#867). Residual hard work = LifetimeScope / gameplay MonoBehaviours when cycle-safe; `LocomotionCrossFadeSettings` / `VectorWorldUtils` / PacketServices-tied Utils; GameRuntime/LoginRuntime shrink; Unity PR compile #737 |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
