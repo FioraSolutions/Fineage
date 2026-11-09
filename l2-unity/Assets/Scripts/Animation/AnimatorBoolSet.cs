@@ -17,6 +17,9 @@ public static class AnimatorBoolSet
     public static bool HasFloat(Animator animator, string name) =>
         Has(animator, name, AnimatorControllerParameterType.Float);
 
+    public static bool HasTrigger(Animator animator, string name) =>
+        Has(animator, name, AnimatorControllerParameterType.Trigger);
+
     public static bool Has(Animator animator, string name, AnimatorControllerParameterType type)
     {
         if (animator == null || string.IsNullOrEmpty(name) || animator.runtimeAnimatorController == null)

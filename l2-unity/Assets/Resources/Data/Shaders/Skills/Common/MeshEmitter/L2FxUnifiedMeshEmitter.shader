@@ -73,7 +73,10 @@ Shader "L2/Effects/MeshEmitter"
         _StartVelocityRangeZUc ("StartVelocity Z Min Max", Vector) = (0, 0, 0, 0)
         _AccelerationUc ("Acceleration UC XYZ", Vector) = (0, 0, 0, 0)
         _VelocityLossRangeUc ("VelocityLoss UC XYZ", Vector) = (0, 0, 0, 0)
-        [Enum(Independent, Relative, Absolute, RelativeRotation, Spray, RelativePosition, ScreenAbsolute, ScreenRelative)] _CoordinateSystem ("CoordinateSystem", Float) = 1
+        // UE2 PTCS native 0..7 (Independent..ScreenRelative). No [Enum]: Unity's
+        // MaterialEnumDrawer only accepts 7 name/value pairs, and 8 blows up
+        // Material.HasProperty → "Failed to create material drawer Enum".
+        _CoordinateSystem ("CoordinateSystem (0..7 native)", Float) = 1
         [Toggle] _IndependentSprayAccel ("IndependentSprayAccel", Float) = 0
         _MaxAbsVelocityUc ("MaxAbsVelocity XYZ", Vector) = (10000, 10000, 10000, 0)
         [Toggle] _UseVelocityScale ("Use VelocityScale", Float) = 0
