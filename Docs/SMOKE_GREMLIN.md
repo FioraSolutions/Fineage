@@ -29,11 +29,11 @@ Child feature tickets: #130 datapack, #132 spawn, #133 starter equip, #134 death
 
 ## Admin GM shop (Mobius HTML, KuK only)
 
-Zone must run with `FINEAGE_ZONE_ADMIN=1`. Character name must be in `data/admin-characters.json` (default **KuK**).
+Zone must run with `FINEAGE_ZONE_ADMIN=1` (default in Backend `./scripts/run-local-net.sh start`). Character name must be in Backend `data/admin-characters.json` (default **KuK**).
 
 1. Chat `//gmshop` → Mobius `gmshops.htm` (same window as NPC HTML).
 2. Jewels → Boss Jewels → buy RB jewelry (buylist `9917`, price 0).
-3. Also: `//setlevel 80`, `//setclass <id>`, `//give <itemId> [count]`, `//buff` / `//buff_clear`.
+3. Also: `//setlevel 80`, `//setclass <id>`, `//give <itemId> [count]`, `//buff` / `//mbuff` / `//fbuff` / `//buff_clear`.
 
 ## Related landings (combat playtest)
 

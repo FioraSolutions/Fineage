@@ -396,7 +396,8 @@ public class EnchantWindow : L2PopupWindow
         _textLabel.text = _defaultTextLabel;
     }
 
-    public void EnchantResult(EnchantResult result)
+    /// <summary>Legacy Interlude wire result (not Net <see cref="ApplyZoneResult"/>).</summary>
+    public void HandleEnchantResult(EnchantResult result)
     {
         switch (result)
         {

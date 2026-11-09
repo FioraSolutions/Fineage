@@ -156,11 +156,10 @@ public static class NetNpcWindows
             {
                 NetBuyItem row = list.Items[i];
                 int type2 = Type2FromItemId(row.ItemId);
-                // Unlimited shop rows arrive as Count=-1. Equipment is never stacked in the cart —
-                // keep Count=1 so double-click buys without the 10000-qty dialog (GM armor/weapon).
-                int count = row.Count < 0
-                    ? (IsEquipmentType2(type2) ? 1 : 10000)
-                    : row.Count;
+                // Unlimited shop rows arrive as Count=-1. Keep display Count=1 so tooltips do not
+                // show a fake "(10000)" next to soulshots; stackables still open the qty dialog via
+                // ConsumeCategory, and the dialog max is raised in DealerWindow.
+                int count = row.Count < 0 ? 1 : row.Count;
                 // Net BuyList carries itemId/price only — TYPE2 must come from local weapongrp/armorgrp
                 // (hardcoding OTHER made RB jewels hit EtcItem tooltip → NRE).
                 products.Add(new Product(0, 0, count, type2, 0, 0, 0, row.Price, row.ItemId));

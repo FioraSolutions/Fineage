@@ -45,7 +45,8 @@ public sealed class AppLifetimeScope : LifetimeScope
                 manager,
                 container.Resolve<PacketApplyQueue>(),
                 container.Resolve<EventProcessor>());
-            LobbyFlowLog.Wire(manager);
+            // NetworkingPacketServices.Bind(manager) already done in BindApp above.
+            LobbyFlowLog.Wire(() => manager == null || manager.GameState < GameState.IN_GAME);
         });
     }
 

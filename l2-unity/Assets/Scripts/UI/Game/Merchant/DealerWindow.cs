@@ -202,7 +202,7 @@ public class DealerWindow : L2PopupWindow
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
-                QuantityInputPacketServices.Window.ShowWindow(source.Count);
+                QuantityInputPacketServices.Window.ShowWindow(QuantityMaxFor(source));
                 QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
                 QuantityInputPacketServices.Window.OnButtonClose += OnCloseQuantity;
             }
@@ -225,7 +225,7 @@ public class DealerWindow : L2PopupWindow
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
-                QuantityInputPacketServices.Window.ShowWindow(source.Count);
+                QuantityInputPacketServices.Window.ShowWindow(QuantityMaxFor(source));
                 QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
                 QuantityInputPacketServices.Window.OnButtonClose += OnCloseQuantity;
             }
@@ -235,6 +235,23 @@ public class DealerWindow : L2PopupWindow
                 _listSell = _tradeItemMover.MovingSellWithRemoval(_isModifySell , _listSell , source, listServer, position);
             }
         }
+    }
+
+    /// <summary>
+    /// Unlimited GM/shop stackables are listed with Count=1 for tooltip display.
+    /// Qty "All" still caps at the zone grant limit (10000).
+    /// </summary>
+    const int ShopStackableQuantityMax = 10000;
+
+    static int QuantityMaxFor(Product source)
+    {
+        if (source == null)
+            return 1;
+        if (source.Count > 1)
+            return source.Count;
+        if (source.GetConsumeCategory() != ConsumeCategory.Normal)
+            return ShopStackableQuantityMax;
+        return 1;
     }
 
 
@@ -271,6 +288,8 @@ public class DealerWindow : L2PopupWindow
 
     public void MoveРЎellElseQuantitySelected(SlotType type, List<Product> listServer, int position , int selectCount)
     {
+        if (selectCount <= 0)
+            return;
 
         if (type == SlotType.PriceBuy)
         {
