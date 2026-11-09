@@ -28,7 +28,6 @@ public class MenuWindow : L2Window
         _instance = null;
     }
 
-    
     private void Start()
     {
         WireHudCorePacketServices();
@@ -50,54 +49,121 @@ public class MenuWindow : L2Window
 
         yield return new WaitForEndOfFrame();
 
+        ApplyInterludeMenuTextures();
+        DockToBottomRight();
 
-        var charBtn = _windowEle.Q<Button>("CharacterButton");
-        charBtn.AddManipulator(new ButtonClickSoundManipulator(charBtn));
-        charBtn.RegisterCallback<ClickEvent>((evt) => HudCorePacketServices.CharacterInfo.ToggleHideWindow());
-
-        var inventoryBtn = _windowEle.Q<Button>("InventoryButton");
-        inventoryBtn.AddManipulator(new ButtonClickSoundManipulator(inventoryBtn));
-        inventoryBtn.RegisterCallback<ClickEvent>((evt) => InventoryPacketServices.Window.ToggleHideWindowManual());
-
-        var actionBtn = _windowEle.Q<Button>("ActionButton");
-        actionBtn.AddManipulator(new ButtonClickSoundManipulator(actionBtn));
-        actionBtn.RegisterCallback<ClickEvent>((evt) => HudCorePacketServices.Action.ToggleHideWindow());
-
-        var skillBtn = _windowEle.Q<Button>("SkillButton");
-        skillBtn.AddManipulator(new ButtonClickSoundManipulator(skillBtn));
-        skillBtn.RegisterCallback<ClickEvent>((evt) => SkillLearnPacketServices.SkillList.ToggleHideWindow());
-
-        var questBtn = _windowEle.Q<Button>("QuestButton");
-        questBtn.AddManipulator(new ButtonClickSoundManipulator(questBtn));
-        questBtn.RegisterCallback<ClickEvent>((evt) =>
-        {
-            // Open first: enter-world already prefills via QuestList without showing the window.
-            QuestWindow questWindow = QuestPacketServices.Quest;
-            questWindow?.ToggleHideWindow();
-            if (ZoneCommands.IsConnected)
-                ZoneCommands.Send(new RequestQuestListCommand());
-        });
-
-        var clanBtn = _windowEle.Q<Button>("ClanButton");
-        clanBtn.AddManipulator(new ButtonClickSoundManipulator(clanBtn));
-        clanBtn.RegisterCallback<ClickEvent>((evt) => ClanPacketServices.Clan.ToggleHideWindow());
-
-        var mapBtn = _windowEle.Q<Button>("MapButton");
-        mapBtn.AddManipulator(new ButtonClickSoundManipulator(mapBtn));
-        mapBtn.RegisterCallback<ClickEvent>((evt) => HudCorePacketServices.Map.ToggleHideWindow());
-
-        var sysBtn = _windowEle.Q<Button>("SystemMenuButton");
-        sysBtn.AddManipulator(new ButtonClickSoundManipulator(sysBtn));
-        sysBtn.RegisterCallback<ClickEvent>((evt) => SystemUIPacketServices.Menu.ToggleHideWindow());
-
-        root.Add(_windowEle);
+        // Interlude MenuWnd: CharInfo / Inventory / Map / SystemMenu only.
+        WireMenuButton("CharacterButton", () => HudCorePacketServices.CharacterInfo.ToggleHideWindow());
+        WireMenuButton("InventoryButton", () => InventoryPacketServices.Window.ToggleHideWindowManual());
+        WireMenuButton("MapButton", () => HudCorePacketServices.Map.ToggleHideWindow());
+        WireMenuButton("SystemMenuButton", () => SystemUIPacketServices.Menu.ToggleHideWindow());
 
         yield return new WaitForEndOfFrame();
+        DockToBottomRight();
+    }
 
-        //var dragAreaEle = _windowEle.Q<VisualElement>(null, "drag-area");
-        //DragManipulator drag = new DragManipulator(dragAreaEle, _windowEle);
-        //dragAreaEle.AddManipulator(drag);
-        //Debug.Log("ЗААААГРУЗИЛСЯ И ПОШЕЛ  ВСЕЕЕЕЕ");
+    /// <summary>
+    /// USS right/bottom alone was still inset in play mode — pin like Skillbar.
+    /// </summary>
+    void DockToBottomRight()
+    {
+        if (_windowEle == null)
+            return;
+
+        _windowEle.style.left = StyleKeyword.Null;
+        _windowEle.style.top = StyleKeyword.Null;
+        _windowEle.style.right = 0;
+        _windowEle.style.bottom = 0;
+        _windowEle.style.position = Position.Absolute;
+    }
+
+    void WireMenuButton(string buttonName, Action onClick)
+    {
+        Button btn = _windowEle.Q<Button>(buttonName);
+        if (btn == null)
+            return;
+        btn.AddManipulator(new ButtonClickSoundManipulator(btn));
+        btn.RegisterCallback<ClickEvent>(_ => onClick());
+    }
+
+    /// <summary>
+    /// UITK resource() often misses Interlude sprites — stamp Texture2D after build.
+    /// </summary>
+    void ApplyInterludeMenuTextures()
+    {
+        if (_windowEle == null)
+            return;
+
+        PaintNamed("MenuWndBackTexLeft", "Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back1");
+        PaintNamed("MenuWndBackTexMiddle", "Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back2");
+        PaintNamed("MenuWndBackTexRight", "Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back3");
+
+        PaintButtonStates(
+            "CharacterButton",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Over",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Down");
+        PaintButtonStates(
+            "InventoryButton",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Over",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Down");
+        PaintButtonStates(
+            "MapButton",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Over",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Down");
+        PaintButtonStates(
+            "SystemMenuButton",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Over",
+            "Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Down");
+    }
+
+    void PaintNamed(string elementName, string resourcesPath)
+    {
+        VisualElement ele = _windowEle.Q(elementName);
+        if (ele == null)
+            return;
+        L2SlotIconView.TrySetResourcesBackground(ele, resourcesPath);
+    }
+
+    void PaintButtonStates(string buttonName, string normalPath, string overPath, string downPath)
+    {
+        Button btn = _windowEle.Q<Button>(buttonName);
+        if (btn == null)
+            return;
+
+        Texture2D normal = L2SlotIconView.LoadResourcesTexture(normalPath);
+        Texture2D over = L2SlotIconView.LoadResourcesTexture(overPath);
+        Texture2D down = L2SlotIconView.LoadResourcesTexture(downPath);
+        if (normal != null)
+            btn.style.backgroundImage = new StyleBackground(normal);
+
+        bool hovered = false;
+        btn.RegisterCallback<MouseEnterEvent>(_ =>
+        {
+            hovered = true;
+            if (over != null)
+                btn.style.backgroundImage = new StyleBackground(over);
+        });
+        btn.RegisterCallback<MouseLeaveEvent>(_ =>
+        {
+            hovered = false;
+            if (normal != null)
+                btn.style.backgroundImage = new StyleBackground(normal);
+        });
+        btn.RegisterCallback<MouseDownEvent>(_ =>
+        {
+            if (down != null)
+                btn.style.backgroundImage = new StyleBackground(down);
+        }, TrickleDown.TrickleDown);
+        btn.RegisterCallback<MouseUpEvent>(_ =>
+        {
+            Texture2D tex = hovered && over != null ? over : normal;
+            if (tex != null)
+                btn.style.backgroundImage = new StyleBackground(tex);
+        }, TrickleDown.TrickleDown);
     }
 
     public Vector2 GetWindowPosition()
