@@ -1,3 +1,5 @@
+using System;
+
 ﻿using UnityEngine;
 
 /// <summary>
@@ -21,6 +23,7 @@ public class LoginClient : MonoBehaviour
 
     private static LoginClient _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static LoginClient Instance { get { return _instance; } }
 
     private void Awake()

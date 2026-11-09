@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -35,6 +36,7 @@ public class L2CloudSimple : MonoBehaviour
     static readonly Color DaySheetTint = L2CloudLut.SheetFallback;
     static readonly Color DaySilhouetteTint = L2CloudLut.SilhouetteFallback;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2CloudSimple Instance { get; private set; }
 
     [SerializeField] bool _followCamera = true;

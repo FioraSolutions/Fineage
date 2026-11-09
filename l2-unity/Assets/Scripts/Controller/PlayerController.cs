@@ -1,3 +1,5 @@
+using System;
+
 ﻿using UnityEngine;
 
 public partial class PlayerController : MonoBehaviour
@@ -54,6 +56,7 @@ public partial class PlayerController : MonoBehaviour
 
     private static PlayerController _instance;
     [System.Obsolete("Use [Inject] instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PlayerController Instance { get { return _instance; } }
 
     private Entity _monster;

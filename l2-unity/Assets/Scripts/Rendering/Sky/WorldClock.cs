@@ -45,6 +45,7 @@ public class WorldClock : MonoBehaviour {
 
     private static WorldClock _instance;
     [System.Obsolete("Use [Inject] or WorldClockPacketServices.Clock instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static WorldClock Instance { get { return _instance; } }
 
     bool _persistentDriver;

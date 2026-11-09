@@ -25,6 +25,7 @@ public class PathFinderController : MonoBehaviour
     private CharacterController _characterController;
 
     private static PathFinderController _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PathFinderController Instance { get { return _instance; } }
 
     private void Awake()

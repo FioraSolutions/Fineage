@@ -19,6 +19,7 @@ public class SkillExecutor : MonoBehaviour
 
     public event Action OnSkillSequenceFinished;
     public event Action<AnimationEventsBase> OnAllAnimationFinished;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SkillExecutor Instance { get; private set; }
 
 

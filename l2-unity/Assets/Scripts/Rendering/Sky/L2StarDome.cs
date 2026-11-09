@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -23,6 +24,7 @@ public class L2StarDome : MonoBehaviour
     static readonly Color SmallNightTint = new Color(90f / 255f, 90f / 255f, 90f / 255f, 1f);
     static readonly Color LargeNightTint = new Color(200f / 255f, 200f / 255f, 200f / 255f, 1f);
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2StarDome Instance { get; private set; }
 
     [SerializeField] Texture2D _smallStars;

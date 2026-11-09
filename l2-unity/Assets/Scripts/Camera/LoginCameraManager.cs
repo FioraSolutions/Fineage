@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +11,7 @@ public class LoginCameraManager : MonoBehaviour
     private Camera _activeCamera;
 
     private static LoginCameraManager _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static LoginCameraManager Instance { get { return _instance; } }
 
     void Awake() {

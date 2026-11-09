@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Globalization;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -55,6 +57,7 @@ public class L2CelestialDiscs : MonoBehaviour
     BodyTrack _moonTrack;
     float _nextTrajLog;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2CelestialDiscs Instance { get; private set; }
 
     public MeshRenderer SunRenderer => _sunMr;

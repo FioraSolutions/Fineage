@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -22,6 +23,7 @@ public class L2CloudMyst : MonoBehaviour
     static readonly int CloudColorId = Shader.PropertyToID("_CloudColor");
     static readonly int SkyParamsId = Shader.PropertyToID("_SkyParams");
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2CloudMyst Instance { get; private set; }
 
     [SerializeField] bool _followCamera = true;
