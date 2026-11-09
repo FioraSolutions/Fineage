@@ -903,16 +903,17 @@
 .unity-group-box {
 }
 
-/* ---- Interlude MenuWnd 173×46, 4×1 @ 34px pitch 37 ---- */
+/* ---- Interlude MenuWnd: 4 icons flush to bottom-right screen corner ---- */
 .menu-window {
     position: absolute;
-    right: 9px;
-    bottom: 9px;
-    width: 173px;
+    right: 0;
+    bottom: 0;
+    /* left chrome 12 + 4×34 @ pitch 37 ending at 12+3*37+34 = 157, + right cap 8 ? 165 */
+    width: 165px;
     height: 46px;
-    min-width: 173px;
+    min-width: 165px;
     min-height: 46px;
-    max-width: 173px;
+    max-width: 165px;
     max-height: 46px;
     margin: 0;
     padding: 0;
@@ -927,17 +928,18 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 173px;
+    width: 165px;
     height: 46px;
     flex-direction: row;
     background-color: rgba(0, 0, 0, 0);
 }
 
 .menu-window-back-left {
-    width: 16px;
+    /* Interlude left cap ? keep thin so icons sit in the corner, not inset. */
+    width: 12px;
     height: 46px;
-    min-width: 16px;
-    max-width: 16px;
+    min-width: 12px;
+    max-width: 12px;
     flex-grow: 0;
     flex-shrink: 0;
     background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back1');
@@ -953,10 +955,10 @@
 }
 
 .menu-window-back-right {
-    width: 16px;
+    width: 8px;
     height: 46px;
-    min-width: 16px;
-    max-width: 16px;
+    min-width: 8px;
+    max-width: 8px;
     flex-grow: 0;
     flex-shrink: 0;
     background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back3');
@@ -985,11 +987,11 @@
     display: none;
 }
 
-/* xdat Btn* @ y=6, x=20/57/94/131 */
-.menu-btn-0 { left: 20px; top: 6px; }
-.menu-btn-1 { left: 57px; top: 6px; }
-.menu-btn-2 { left: 94px; top: 6px; }
-.menu-btn-3 { left: 131px; top: 6px; }
+/* Icons flush after left cap; pitch 37 ? hammer lands on the right edge. */
+.menu-btn-0 { left: 12px; top: 6px; }
+.menu-btn-1 { left: 49px; top: 6px; }
+.menu-btn-2 { left: 86px; top: 6px; }
+.menu-btn-3 { left: 123px; top: 6px; }
 
 #CharacterButton {
     background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1');

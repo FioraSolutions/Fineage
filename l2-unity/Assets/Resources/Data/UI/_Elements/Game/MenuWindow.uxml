@@ -1,10 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
     <!--
-      Interlude interface.xdat MenuWnd 173×46:
-        Smallwindow_back1/2/3 @ 16×46 (left / mid / right)
-        BtnCharInfo / BtnInventory / BtnMap / BtnSystemMenu
-          34×34 @ (20,6) (57,6) (94,6) (131,6) — pitch 37
+      Interlude MenuWnd — 4 icons flush to bottom-right corner.
+      Smallwindow_back chrome + menuButton1–4 (Char/Inventory/Map/System).
+      Pitch 37; left cap trimmed so the strip sits in the screen corner.
     -->
     <ui:VisualElement name="MenuWindow" class="menu-window" picking-mode="Position">
         <ui:VisualElement name="MenuWndBack" class="menu-window-back" picking-mode="Ignore">

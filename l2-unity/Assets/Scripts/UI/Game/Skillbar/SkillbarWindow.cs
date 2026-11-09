@@ -9,8 +9,8 @@ public class SkillbarWindow : L2PopupWindow
 {
     const string PrefLeft = "fineage.ui.skillbar.left";
     const string PrefTop = "fineage.ui.skillbar.top";
-    /// <summary>Interlude MenuWnd width (173) + right margin (9); see .menu-window.</summary>
-    const float MenuDockWidth = 182f;
+    /// <summary>Interlude MenuWnd width flush to corner; see .menu-window.</summary>
+    const float MenuDockWidth = 165f;
 
     [Inject] PlayerShortcuts _shortcuts;
     [Inject] PlayerInventory _inventory;
