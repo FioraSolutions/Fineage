@@ -240,6 +240,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Manor `Seed` / `SeedProduction` / `CropProcure` moved into `Fineage.Game` (`CastleCrop` stays ACS via ItemInstance).
 - [x] `LODAdjustment` moved into `Fineage.Game` (cycle-safe shadow LOD tuning DTO).
 - [x] Cycle-safe enum/util/DTO/helper slices largely exhausted (through #864).
+- [x] `PacketReader` / `PacketWriter` / `IWireDto` moved into `Fineage.Networking` (ByteUtils calls inlined to avoid Game↔Networking cycle).
 - [ ] Remaining asmdef work = LifetimeScope / gameplay MonoBehaviours when types are cycle-safe (hard residual).
 
 ### C3. Doc sync
