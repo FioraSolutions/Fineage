@@ -9,12 +9,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class EffectPrefabStaggeredDrift : MonoBehaviour
 {
-    public enum DriftDirection
-    {
-        Down = 0,
-        Up = 1,
-    }
-
     [Header("Targets")]
     [Tooltip("Empty = all direct child transforms (in hierarchy order).")]
     [SerializeField] private Transform[] _targets;
@@ -22,7 +16,7 @@ public sealed class EffectPrefabStaggeredDrift : MonoBehaviour
     [SerializeField] private bool _includeInactiveChildren = true;
 
     [Header("Motion")]
-    [SerializeField] private DriftDirection _direction = DriftDirection.Down;
+    [SerializeField] private EffectDriftDirection _direction = EffectDriftDirection.Down;
     [SerializeField] private float _speedMetersPerSecond = 0.2f;
     [Tooltip("0 = no limit.")]
     [SerializeField] private float _maxDriftMeters;
@@ -275,7 +269,7 @@ public sealed class EffectPrefabStaggeredDrift : MonoBehaviour
 
     private Vector3 GetWorldAxisVector()
     {
-        return _direction == DriftDirection.Down ? Vector3.down : Vector3.up;
+        return _direction == EffectDriftDirection.Down ? Vector3.down : Vector3.up;
     }
 
     private void LogState(string phase)
