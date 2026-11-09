@@ -55,7 +55,10 @@ jobs:
           projectPath: l2-unity
           unityVersion: auto
           testMode: editmode
-          coverageEnabled: false
+          # Do not set coverageEnabled: false — unity-test-runner@v4.4.0 maps that to
+          # --no-coverageEnabled, which game-ci/cli v0.1.72 rejects as unknown and exits 1
+          # before Docker starts. Default (true) keeps the CLI happy; coverage noise is OK
+          # for this Scripts compile smoke.
           checkName: Unity EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
