@@ -57,7 +57,7 @@ FILES = (
     "Messages/DungeonMessages.cs",
     "Messages/SevenSignsMessages.cs",
     "Codec/NetCodec.cs",
-    "Codec/NetCodec.SocialEconomy.cs",
+    "Codec/NetCodec.Shop.cs",
     "Codec/NetCodec.WorldEvents.cs",
     "Codec/NetCodec.Clan.cs",
     "Codec/NetCodec.Friends.cs",
