@@ -91,14 +91,14 @@ public static class EntitySpawnShared
         {
             _unresolvedReportsSuppressed = true;
             FineageLog.Warn(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 "NpcInfo unresolved reports capped at " + MaxUnresolvedReports
                 + " distinct npcIds; further ids are not logged.");
             return;
         }
 
         FineageLog.Warn(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "NpcInfo npcId=" + npcId + " not rendered: " + reason);
     }
 
@@ -114,7 +114,7 @@ public static class EntitySpawnShared
         // Art-pack gap (prefab absent under Resources/Data/Animations/...), not a broken texture.
         // Once per wanted→used pair per play session so enter-world knownlist does not flood the console.
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "NpcInfo npcId=" + npcId + " art pack missing mesh '" + wanted
             + "'; stand-in '" + used + "'");
     }

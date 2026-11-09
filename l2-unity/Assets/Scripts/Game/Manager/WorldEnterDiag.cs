@@ -133,7 +133,7 @@ public static class WorldEnterDiag
         sb.Append(']');
 
         // Face leftovers asserted once by LobbyCleanGate after +1s — avoid a second full renderer scan here.
-        FineageLog.Info(FineageLog.Category.World, sb.ToString());
+        FineageLog.Info(FineageLogCategory.World, sb.ToString());
     }
 
     static void AppendCamera(StringBuilder sb, Camera cam)
