@@ -44,7 +44,7 @@ public class EffectManager : MonoBehaviour
     // Exact comment → first matching session row (EnterEventgrp keys).
     readonly Dictionary<string, RuntimeEffect> _byComment = new Dictionary<string, RuntimeEffect>(64);
     // GC root for Resources FX + nested composite part prefabs.
-    readonly List<Object> _retainedAssets = new List<Object>(256);
+    readonly List<UnityEngine.Object> _retainedAssets = new List<UnityEngine.Object>(256);
     bool _registryBuilt;
 
     public int RegistryCount => _byId.Count;

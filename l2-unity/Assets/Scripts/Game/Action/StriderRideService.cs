@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// RiderEnter spawns a new LineageMonster.strider and AttachToBone(player, Bone15).

@@ -237,11 +237,12 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `EtcItemgrp` moved into `Fineage.Game` (cycle-safe etc item grp row).
 - [x] Database model DTOs moved into `Fineage.Game`: ActionData / AnimationCombo / ItemStatData / NpcDecoEffect / RecipeMaterials / SkillNameData / SystemMessageDat / RecipeData / Skillgrp / Armorgrp / Weapongrp.
 - [x] `PollInput` moved into `Fineage.Game` (Unity.InputSystem asmdef ref + layout guard updated).
-- [x] Manor `Seed` / `SeedProduction` / `CropProcure` moved into `Fineage.Game` (`CastleCrop` stays ACS via ItemInstance).
+- [x] Manor `Seed` / `SeedProduction` / `CropProcure` moved into `Fineage.Domain` (shared by Networking wire DTOs + Game; `CastleCrop` stays ACS via ItemInstance).
 - [x] `LODAdjustment` moved into `Fineage.Game` (cycle-safe shadow LOD tuning DTO).
 - [x] Cycle-safe enum/util/DTO/helper slices largely exhausted (through #864).
 - [x] `PacketReader` / `PacketWriter` / `IWireDto` moved into `Fineage.Networking` (ByteUtils calls inlined to avoid Game↔Networking cycle).
-- [x] Cycle-safe Interlude wire DTOs + `IOutgoingDto` moved into `Fineage.Networking` (ItemInstance/ItemSlot-tied DTOs stay ACS).
+- [x] Cycle-safe Interlude wire DTOs + `IOutgoingDto` moved into `Fineage.Networking` (ItemInstance/ItemSlot/Entity/UI-tied DTOs stay ACS; #737 clean compile bounced Product/Entity/SystemMessage-tied DTOs back).
+- [x] `Hit` / `SMParam` moved into `Fineage.Networking`; `VectorUtils` / `NumberUtils` / `ChatTypeData` into `Fineage.Domain` (Networking must not reference Game).
 - [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [x] UI/Database/Audio/Icon `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
 - [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred; includes managers/controllers round 2).
@@ -264,9 +265,9 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
 | Backend B2b | **Mechanical B2b landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, Messages.* DTO split, ZoneEntity + ZoneWorld hub `.Members` file splits — primaries now mostly under 500 lines). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic Rules only. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Cycle-safe enum/util/DTO/helper slices largely exhausted on 2026-11-09 (PRs #845–#864: ArmorBodySlots → PollInput → manor/LOD + Database model DTOs; Fineage.Game ~100 / Networking ~160 after wire DTO move #866–#867). Residual hard work = LifetimeScope / gameplay MonoBehaviours when cycle-safe; `LocomotionCrossFadeSettings` / `VectorWorldUtils` / PacketServices-tied Utils; GameRuntime/LoginRuntime shrink; Unity PR compile #737 |
+| Client #131 | Cycle-safe enum/util/DTO/helper slices largely exhausted on 2026-11-09 (PRs #845–#864 + wire DTOs #866–#867 + Domain shared utils/manor/chat for #737). Residual hard work = LifetimeScope / gameplay MonoBehaviours when cycle-safe; ACS Product/Entity/SystemMessage-tied DTOs; GameRuntime/LoginRuntime shrink |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
-| CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
+| CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) workflow + asmdef boundary fix on PR #874 |
 
 **Out of scope now:** Redis, multi-zone, QUIC, 20k claims, ECS rewrite, microservices.
 
@@ -277,6 +278,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] Client CI fails if Net contract drifts vs Backend
 - [x] `NetDomainMap.cs` and frozen `Net*Map` adapters gone (`check-frozen-net-domain-maps.py`)
 - [x] No new world DB I/O under `_gate` on enter (Phase B1)
+- [x] Unity PR EditMode/compile gate (#737) via `unity-compile.yml`
 - [ ] TLS (or equivalent) before public auth
 - [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld hub file-split (primaries mostly <500 lines)
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)

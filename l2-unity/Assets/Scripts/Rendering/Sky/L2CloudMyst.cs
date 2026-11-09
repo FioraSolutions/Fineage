@@ -253,7 +253,7 @@ public class L2CloudMyst : MonoBehaviour
         _mr = null;
     }
 
-    static void DestroyObj(Object obj)
+    static void DestroyObj(UnityEngine.Object obj)
     {
         if (obj == null)
             return;

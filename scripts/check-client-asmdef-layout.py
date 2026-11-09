@@ -16,7 +16,8 @@ EXPECTED: dict[str, list[str]] = {
     "Fineage.Networking": ["Fineage.Domain", "Fineage.Net.Contract"],
     "Fineage.Game": ["Fineage.Domain", "Fineage.Networking", "Unity.InputSystem"],
     "Fineage.Controller": ["Fineage.Game"],
-    "Fineage.UI": ["Fineage.Game", "Fineage.Controller"],
+    # Domain is the shared leaf (ChatTypeData, etc.); UI may reference it directly.
+    "Fineage.UI": ["Fineage.Game", "Fineage.Controller", "Fineage.Domain"],
     "Fineage.Di": [
         "Fineage.Domain",
         "Fineage.Networking",

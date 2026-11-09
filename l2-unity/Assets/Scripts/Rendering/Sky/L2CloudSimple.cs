@@ -440,7 +440,7 @@ public class L2CloudSimple : MonoBehaviour
         chunk.mr = null;
     }
 
-    static void DestroyObj(Object obj)
+    static void DestroyObj(UnityEngine.Object obj)
     {
         if (obj == null)
             return;
