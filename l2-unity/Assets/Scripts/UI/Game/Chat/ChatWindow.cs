@@ -30,6 +30,7 @@ public class ChatWindow : L2Window
     public bool Ready { get; private set; }
 
     private static ChatWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ChatWindow Instance { get { return _instance; } }
 
     private void Awake()

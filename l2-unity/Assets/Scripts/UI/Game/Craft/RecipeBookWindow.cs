@@ -15,6 +15,7 @@ public class RecipeBookWindow : L2PopupWindow
     private Label _sizelabel;
     private static RecipeBookWindow _instance;
     private RecipeBookItemListDto _packet;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static RecipeBookWindow Instance { get { return _instance; } }
     private ICreatorTradeTab _creatorWindow;
 

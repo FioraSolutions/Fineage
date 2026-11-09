@@ -29,6 +29,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
     private VisualElement _selectShow;
     private TooltipDataProvider _dataProvider;
     private CalcNewPosition _calcPosition;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ToolTipSimple Instance { get { return _instance; } }
 
 

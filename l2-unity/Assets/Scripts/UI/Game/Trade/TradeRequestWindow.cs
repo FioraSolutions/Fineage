@@ -25,6 +25,7 @@ public class TradeRequestWindow : L2PopupWindow
         get { return _world != null ? _world : WorldApplyPacketServices.GameWorld; }
     }
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static TradeRequestWindow Instance
     {
         get { return _instance; }

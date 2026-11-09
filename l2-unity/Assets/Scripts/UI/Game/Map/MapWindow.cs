@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,6 +15,7 @@ public class MapWindow : L2PopupWindow
     private MapPanner _mapPanner;
     private MapMarkerFollowCamera _mapMarkerFollowCamera;
     private TownMapOverlay _townMap;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static MapWindow Instance { get { return _instance; } }
 
     private void Awake()

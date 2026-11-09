@@ -1,3 +1,5 @@
+using System;
+
 ﻿
 using System.Collections;
 using System.Collections.Generic;
@@ -17,6 +19,7 @@ public class SkillLearnWindow : L2PopupWindow
     private List<OtherModel> _list;
 
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SkillLearnWindow Instance { get { return _instance; } }
     private void Awake()
     {

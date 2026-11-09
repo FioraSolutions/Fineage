@@ -1,3 +1,5 @@
+using System;
+
 ﻿
 using System.Collections;
 using System.Collections.Generic;
@@ -29,6 +31,7 @@ public class MultiSellWindow : L2PopupWindow
     private int _entryId = -1;
     // private CreateScroller _createScroller;
     private VisualElement _selectContainer;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static MultiSellWindow Instance { get { return _instance; } }
 
     private void Awake()

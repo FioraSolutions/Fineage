@@ -61,6 +61,7 @@ public class CharacterInfoWindow : L2PopupWindow
 
 
     private static CharacterInfoWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static CharacterInfoWindow Instance {
         get { return _instance; }
     }

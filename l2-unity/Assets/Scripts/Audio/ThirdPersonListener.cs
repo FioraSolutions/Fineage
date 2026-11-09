@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +18,7 @@ public class ThirdPersonListener : MonoBehaviour
     private static ThirdPersonListener _instance;
 
     [System.Obsolete("Use AudioPacketServices.Listener or [Inject] ThirdPersonListener instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ThirdPersonListener Instance { get { return _instance; } }
 
     private PlayerController ResolvedPlayer => AudioPacketServices.Player;

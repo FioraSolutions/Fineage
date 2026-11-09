@@ -49,6 +49,7 @@ public class InventoryWindow : L2PopupWindow
 
     private static InventoryWindow _instance;
     bool _itemSurfaceReady;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static InventoryWindow Instance
     {
         get { return _instance; }

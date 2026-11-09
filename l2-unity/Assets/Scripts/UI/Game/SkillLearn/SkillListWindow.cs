@@ -1,3 +1,5 @@
+using System;
+
 ﻿using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,6 +39,7 @@ public class SkillListWindow : L2PopupWindow
     private PassiveSkillsHide _supportPassiveSkills;
     private static SkillListWindow _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SkillListWindow Instance
     {
         get { return _instance; }

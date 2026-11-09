@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,6 +25,7 @@ public class ServerSelectWindow : L2Window
 
     private static ServerSelectWindow _instance;
     [System.Obsolete("Use [Inject] or LoginPacketServices.ServerSelect instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ServerSelectWindow Instance { get { return _instance; } }
 
     private void Awake() {

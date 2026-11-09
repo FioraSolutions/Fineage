@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -44,6 +46,7 @@ public class CharSelectWindow : L2Window {
 
     private static CharSelectWindow _instance;
     [System.Obsolete("Use [Inject] or LoginPacketServices.CharSelect instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static CharSelectWindow Instance { get { return _instance; } }
 
     private void Awake() {

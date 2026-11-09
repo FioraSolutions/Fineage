@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -27,6 +29,7 @@ public class StatusWindow : L2Window
     [SerializeField] private float _statusWindowMaxWidth = 400.0f;
 
     private static StatusWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static StatusWindow Instance { get { return _instance; } }
 
     private void Awake() {

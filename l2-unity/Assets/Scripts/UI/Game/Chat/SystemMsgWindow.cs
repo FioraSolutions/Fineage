@@ -16,6 +16,7 @@ public class SystemMsgWindow : L2Window
     const float GapAboveChat = 2f;
 
     static SystemMsgWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SystemMsgWindow Instance => _instance;
 
     VisualElement _content;

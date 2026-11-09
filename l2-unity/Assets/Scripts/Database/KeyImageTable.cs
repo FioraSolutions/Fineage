@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +11,7 @@ public class KeyImageTable
     private static KeyImageTable _instance;
 
     [System.Obsolete("Use TablePacketServices.KeyImages instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static KeyImageTable Instance
     {
         get

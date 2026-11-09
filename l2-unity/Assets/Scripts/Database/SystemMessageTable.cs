@@ -1,9 +1,12 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 public class SystemMessageTable {
     private static SystemMessageTable _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SystemMessageTable Instance {
         get {
             if (_instance == null) {

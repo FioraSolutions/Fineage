@@ -36,6 +36,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
     private float _heightContent = 0;
     private float _widtchContent = 0;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ToolTipSkill Instance { get { return _instance; } }
 
 

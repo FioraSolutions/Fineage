@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -6,6 +7,7 @@ using UnityEngine.UIElements;
 public class MenuWindow : L2Window
 {
     private static MenuWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static MenuWindow Instance { get { return _instance; } }
 
     private void Awake()

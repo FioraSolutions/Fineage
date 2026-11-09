@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -41,6 +43,7 @@ public class NameplatesManager : MonoBehaviour
     private static NameplatesManager _instance;
 
     [System.Obsolete("Use NameplatePacketServices.Nameplates or [Inject] NameplatesManager instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static NameplatesManager Instance => _instance;
 
     public Camera Camera

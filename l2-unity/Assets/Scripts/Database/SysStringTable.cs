@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +10,7 @@ public class SysStringTable
     private static SysStringTable _instance;
     private Dictionary<int, SysStringData> _strings;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SysStringTable Instance
     {
         get

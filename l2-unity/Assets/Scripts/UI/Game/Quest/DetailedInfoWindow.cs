@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,6 +9,7 @@ public class DetailedInfoWindow : L2PopupWindow
 
     private static DetailedInfoWindow _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static DetailedInfoWindow Instance
     {
         get { return _instance; }

@@ -20,6 +20,7 @@ public class PartyInvitationWindow : L2PopupWindow
     private float _timeoutSeconds = 20f;
     private Coroutine _countdownCoroutine;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PartyInvitationWindow Instance
     {
         get { return _instance; }

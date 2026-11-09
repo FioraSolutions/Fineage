@@ -17,6 +17,7 @@ public class RecipeTable
     private int _indexCount = 5;
     private int _indexMpCost = 6;
     private int _indexSuccesRate = 7;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static RecipeTable Instance
     {
         get

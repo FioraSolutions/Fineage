@@ -45,6 +45,7 @@ public class DealerWindow : L2PopupWindow
     private Label _panelBuyHeaderName;
     private int _listId;
     private Label _windowName;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static DealerWindow Instance
     {
         get { return _instance; }

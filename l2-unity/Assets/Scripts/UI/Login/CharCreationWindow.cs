@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 
@@ -30,6 +32,7 @@ public class CharCreationWindow : L2Window {
     private bool isInit = false;
     private static CharCreationWindow _instance;
     [System.Obsolete("Use [Inject] or LoginPacketServices.CharCreate instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static CharCreationWindow Instance { get { return _instance; } }
 
     private void Awake() {
