@@ -50,6 +50,7 @@ public class MenuWindow : L2Window
         yield return new WaitForEndOfFrame();
 
         ApplyInterludeMenuTextures();
+        DockToBottomRight();
 
         // Interlude MenuWnd: CharInfo / Inventory / Map / SystemMenu only.
         WireMenuButton("CharacterButton", () => HudCorePacketServices.CharacterInfo.ToggleHideWindow());
@@ -57,9 +58,23 @@ public class MenuWindow : L2Window
         WireMenuButton("MapButton", () => HudCorePacketServices.Map.ToggleHideWindow());
         WireMenuButton("SystemMenuButton", () => SystemUIPacketServices.Menu.ToggleHideWindow());
 
-        root.Add(_windowEle);
-
         yield return new WaitForEndOfFrame();
+        DockToBottomRight();
+    }
+
+    /// <summary>
+    /// USS right/bottom alone was still inset in play mode — pin like Skillbar.
+    /// </summary>
+    void DockToBottomRight()
+    {
+        if (_windowEle == null)
+            return;
+
+        _windowEle.style.left = StyleKeyword.Null;
+        _windowEle.style.top = StyleKeyword.Null;
+        _windowEle.style.right = 0;
+        _windowEle.style.bottom = 0;
+        _windowEle.style.position = Position.Absolute;
     }
 
     void WireMenuButton(string buttonName, Action onClick)
