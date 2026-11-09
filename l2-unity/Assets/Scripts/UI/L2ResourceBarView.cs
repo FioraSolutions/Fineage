@@ -31,10 +31,16 @@ public static class L2ResourceBarView
     /// <summary>Interlude CharacterInfo uses authored chrome widths instead of resolvedStyle.</summary>
     public static void SetFillFixed(VisualElement bar, VisualElement barBg, float ratio, float fixedBgWidth)
     {
-        if (bar == null || barBg == null || fixedBgWidth <= 0f)
+        if (bar == null || fixedBgWidth <= 0f)
             return;
 
         float clamped = Mathf.Clamp01(ratio);
+        bar.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
         bar.style.width = fixedBgWidth * clamped;
+        if (barBg != null)
+        {
+            barBg.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+            barBg.style.width = fixedBgWidth;
+        }
     }
 }
