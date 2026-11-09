@@ -3,16 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Basic melee swing index (no skills): jatk01 / jatk02 / jatk03.
-/// </summary>
-public enum PlayerBasicAttackVariant
-{
-    Atk01 = 1,
-    Atk02 = 2,
-    Atk03 = 3
-}
-
-/// <summary>
 /// Maps jatk01_/02_/03_ + weapon suffix → Animator state (CrossFade, not Trigger).
 /// </summary>
 public sealed class PlayerBasicAttackAnim : PlayerAnimStateMapBase
