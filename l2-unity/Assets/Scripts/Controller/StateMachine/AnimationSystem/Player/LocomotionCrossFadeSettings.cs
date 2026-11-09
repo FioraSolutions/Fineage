@@ -1,17 +1,23 @@
 /// <summary>
 /// Shared fade tuning for player CrossFadeInFixedTime (locomotion + basic atk).
-/// Per-state exit overrides live on <see cref="Animation.ExitCrossFadeDuration"/>.
+/// Defaults live on <see cref="LocomotionCrossFadeDefaults"/>; per-state exit
+/// overrides live on <see cref="Animation.ExitCrossFadeDuration"/>.
 /// </summary>
 public static class LocomotionCrossFadeSettings
 {
-    public const float DefaultFixedDuration = 0.15f;
-    public static float FixedDuration = DefaultFixedDuration;
+    public const float DefaultFixedDuration = LocomotionCrossFadeDefaults.DefaultFixedDuration;
+
+    public static float FixedDuration
+    {
+        get => LocomotionCrossFadeDefaults.FixedDuration;
+        set => LocomotionCrossFadeDefaults.FixedDuration = value;
+    }
 
     /// <summary>
     /// Filled AnimTween wait (0.20). Empty table rows keep <see cref="FixedDuration"/>.
     /// Dual jatk exit (0.25) stays longer via <see cref="ResolveDuration"/>.
     /// </summary>
-    public const float RemoteStopDuration = 0.20f;
+    public const float RemoteStopDuration = LocomotionCrossFadeDefaults.RemoteStopDuration;
 
     public static float ResolveExitDuration(IAnimationController controller) =>
         AnimationExitCrossFade.Resolve(controller);
