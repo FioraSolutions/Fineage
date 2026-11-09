@@ -195,7 +195,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
             entity.IsSpiritshotCharged = false;
         }
 
-        WeaponChargeSkill.Play(
+        WeaponChargeSkillPlayback.Play(
             ControllerPacketServices.Effects,
             magic.SkillId,
             entity.GetWeaponTransform(),

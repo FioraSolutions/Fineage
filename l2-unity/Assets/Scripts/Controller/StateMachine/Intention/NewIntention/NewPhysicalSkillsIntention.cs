@@ -65,7 +65,7 @@ public class NewPhysicalSkillsIntention : IntentionBase
         if (_stateMachine.Player == null) return;
 
         _stateMachine.Player.IsSoulshotCharged = true;
-        WeaponChargeSkill.Play(
+        WeaponChargeSkillPlayback.Play(
             ControllerPacketServices.Effects,
             useSkill.SkillId,
             _stateMachine.Player.GetWeaponTransform(),
