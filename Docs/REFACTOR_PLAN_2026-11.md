@@ -202,6 +202,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `NumberUtils` moved into `Fineage.Game` (cycle-safe).
 - [x] `TransformUtils` moved into `Fineage.Game` (cycle-safe).
 - [x] `ByteUtils` moved into `Fineage.Game` (cycle-safe; dropped unused UIElements import).
+- [x] `L2DiagPaths` moved into `Fineage.Networking` (cycle-safe).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
@@ -221,7 +222,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
 | Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; only opportunistic further Rules. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Cycle-safe enum/runtime slices continue (playtest + InventoryChange/SlotType/SMParamType/EnchantResult/LightAttach/EnumType2/FineageLog*); LifetimeScope into `Fineage.Di` only when cycle-safe. Remaining enums mostly animation-tied |
+| Client #131 | Cycle-safe enum/util slices largely landed (playtest + InventoryChange/SlotType/SMParamType/EnchantResult/LightAttach/EnumType2/FineageLog*/MagicSkillUseKind/EffectDriftDirection + Game Utils + L2DiagPaths). Residual = LifetimeScope / MonoBehaviours when cycle-safe; remaining Utils are UI/anim/MB-tied |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
