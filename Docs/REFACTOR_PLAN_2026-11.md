@@ -125,7 +125,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 | Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` + Net encode in `NetWorldEventPublisher`. All fanout DTOs Protocol/primitives; ShortCut/admin World entry Protocol/primitives. World has no `Fineage.Net.Contract` references |
 | `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
 | `ZoneEntity` composition | [x] ground + spoil + aggro + player store/social/status/skills/identity + NPC template/merchant + shared move/vitals/combat payloads composed; leftover refs (Session/Inventory/Warehouse/Shop/Quests/Knownlist/DungeonId/InstanceId) stay on entity |
-| `NetCodec` | Round-trip tests mandatory; domain partials: `NetCodec.cs` (session+IO), `PresenceCombat`, `SocialEconomy` |
+| `NetCodec` | Round-trip tests mandatory; domain partials: session (`NetCodec.cs`), `PresenceCombat`, `WorldEvents`, `Clan`, `Friends`, `Craft`, `PrivateStore`, `Trade`, `Party`, `Quest`, `Shop` |
 
 ### B3. Client main-thread budget — done
 - Cap `/frame` work from `NetSession` `_main` queue; coalesce MoveState; never drop EntityDespawn / inventory.
@@ -206,7 +206,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | Handlers + fanout publisher + Protocol DTOs + Trade/Ground/Party/PrivateStore/Friend/Craft/Manufacture/ShortCut/SkillUse Rules + NetCodec/publisher partials (WorldEvents/Clan/PresenceCombat) + login auth rate limit; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = more Rules extracts, simulation actor later; TLS/Gateway Fineage #17/#113 before public |
+| Backend B2b | Handlers + fanout publisher + Protocol DTOs + Trade/Ground/Party/PrivateStore/Friend/Craft/Manufacture/ShortCut/SkillUse Rules + NetCodec domain partials (Shop/Trade/Party/Quest/…) + login auth rate limit; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = more Rules extracts, simulation actor later; TLS/Gateway Fineage #17/#113 before public |
 | Client #131 | More asmdef moves; LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
