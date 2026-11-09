@@ -203,6 +203,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `TransformUtils` moved into `Fineage.Game` (cycle-safe).
 - [x] `ByteUtils` moved into `Fineage.Game` (cycle-safe; dropped unused UIElements import).
 - [x] `L2DiagPaths` moved into `Fineage.Networking` (cycle-safe).
+- [x] `FineageLog` / `LobbyFlowLog` moved into `Fineage.Networking` (cycle-safe).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
