@@ -2,17 +2,6 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Locomotion family played via CrossFadeInFixedTime (not bool graph).
-/// </summary>
-public enum PlayerLocomotionFamily
-{
-    Wait,
-    Walk,
-    Run,
-    AtkWait
-}
-
-/// <summary>
 /// Shared fade tuning for player CrossFadeInFixedTime (locomotion + basic atk).
 /// Per-state exit overrides live on <see cref="Animation.ExitCrossFadeDuration"/>.
 /// </summary>

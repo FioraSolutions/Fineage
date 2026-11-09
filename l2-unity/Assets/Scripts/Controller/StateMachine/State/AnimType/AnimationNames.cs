@@ -77,14 +77,6 @@ public static class AnimationNames
     public static readonly Animation MONSTER_DamageAction1 = new Animation("damageaction1", TypesAnimation.OtherType);
 }
 
-public enum TypesAnimation
-{
-    MeleeAttack,
-    BowAttack,
-    MagicAttack,
-    OtherType
-}
-
 public static class SpecialAnimationNames
 {
     public static readonly Animation ATK_BOW_ATK1 = new Animation("jatk01_bow", TypesAnimation.BowAttack);

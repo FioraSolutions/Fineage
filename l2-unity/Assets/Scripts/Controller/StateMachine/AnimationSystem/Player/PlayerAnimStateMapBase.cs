@@ -2,20 +2,6 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Weapon suffix shared by player Animator states
-/// (wait/walk/run/atkwait/jatk… + _hand / _1HS / _2HS / _pole / _dual / _bow).
-/// </summary>
-public enum PlayerAnimWeapon
-{
-    Hand,
-    OneHS,
-    TwoHS,
-    Pole,
-    Dual,
-    Bow
-}
-
-/// <summary>
 /// Base map for player Animator state names: family/variant prefix + weapon suffix.
 /// Used by locomotion (wait/walk/run/atkwait) and basic melee (jatk01/02/03).
 /// Concrete maps supply ordered prefixes (longest first when they overlap).
