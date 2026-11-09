@@ -575,7 +575,7 @@ public class MovementData
     public void Move(Vector3 direction , float speed)
     {
         Vector3 lookDir = new Vector3(direction.x, 0f, direction.z);
-        if (L2PawnWalk.IsCharInfoPawn(_entity))
+        if (L2PawnWalkEntity.IsCharInfoPawn(_entity))
         {
             if (_movementTarget != null && _movementTarget.TryGetTarget(out Vector3 dest))
                 StepCharInfo(dest, speed);

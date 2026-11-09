@@ -248,7 +248,7 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
         data.AdvanceMoveTimer();
         data.SyncUserGait();
         float speed = data.GetSpeed();
-        if (L2PawnWalk.IsCharInfoPawn(data.GetEntity()))
+        if (L2PawnWalkEntity.IsCharInfoPawn(data.GetEntity()))
         {
             data.StepCharInfo(target, speed);
         }
