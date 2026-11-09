@@ -44,7 +44,6 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     private static GameManager _instance;
     [System.Obsolete("Use [Inject] instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static GameManager Instance { get { return _instance; } }
 
     void Awake() {

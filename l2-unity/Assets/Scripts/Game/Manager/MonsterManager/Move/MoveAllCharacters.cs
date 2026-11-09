@@ -12,7 +12,6 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
     private static IMoveAllCharacters _instance;
 
     [System.Obsolete("Use MoveAllCharactersPacketServices.Moves or [Inject] IMoveAllCharacters instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static IMoveAllCharacters Instance { get { return (_instance as UnityEngine.Object) != null ? _instance : null; } }
 
     private Dictionary<int, MovementData> _moveDict;

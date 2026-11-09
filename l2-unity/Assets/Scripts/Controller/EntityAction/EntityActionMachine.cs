@@ -8,7 +8,6 @@ using VContainer.Unity;
 public sealed class EntityActionMachine : ITickable
 {
     [System.Obsolete("Use EntityActionPacketServices.Actions or [Inject] EntityActionMachine instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static EntityActionMachine Instance { get; private set; }
 
     private readonly Dictionary<EntityActionKind, IEntityActionProcess> _processes;

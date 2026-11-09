@@ -15,7 +15,6 @@ public class L2LoginUI : L2UI
 
     private static L2LoginUI _instance;
     [System.Obsolete("Use [Inject] or LoginPacketServices.Ui instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2LoginUI Instance { get { return _instance; } }
 
     public bool IsLoading { get { return loading; } }

@@ -9,7 +9,6 @@ public class StatsConverter
     private static StatsConverter _instance;
 
     [System.Obsolete("Use [Inject] StatsConverter or StatsConverterPacketServices.Converter instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static StatsConverter Instance {
         get {
             if (_instance == null) {

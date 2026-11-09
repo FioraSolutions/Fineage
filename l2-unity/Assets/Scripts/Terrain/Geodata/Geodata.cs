@@ -34,7 +34,6 @@ public class Geodata : MonoBehaviour {
 
     private static Geodata _instance;
     [System.Obsolete("Use [Inject] or GeodataPacketServices.Geodata instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static Geodata Instance { get { return _instance; } }
 
     private void Awake() {

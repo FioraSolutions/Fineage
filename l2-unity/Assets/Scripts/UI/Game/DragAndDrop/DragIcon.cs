@@ -14,7 +14,6 @@ public class DragIcon : L2PopupWindow
     private static DragIcon _instance;
     private bool _isShow = false;
     [System.Obsolete("Use [Inject] or DragIconPacketServices.Icon instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static DragIcon Instance
     {
         get { return _instance; }

@@ -12,7 +12,6 @@ public class PlayerActions : MonoBehaviour
     
     private static PlayerActions _instance;
     [System.Obsolete("Use [Inject] or ShortcutPacketServices.Actions instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PlayerActions Instance
     {
         get { return _instance; }
