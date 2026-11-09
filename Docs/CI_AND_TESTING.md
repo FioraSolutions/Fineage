@@ -88,18 +88,19 @@ dotnet test tools/Fineage.Tools.sln --collect:"XPlat Code Coverage"
 
 ---
 
-## Unity EditMode Tests (Future)
+## Unity EditMode / PR compile (#737)
 
-Unity C# code (`l2-unity/Assets/Scripts/`) cannot be built or tested in GitHub Actions without a Unity license. Here's the plan for adding tests later:
+Workflow: `.github/workflows/unity-compile.yml` (path-filtered to `l2-unity/Assets/Scripts|Tests`).
 
-### Option 1: Unity Test Framework (EditMode)
+- Uses [game-ci/unity-test-runner](https://game.ci/) **v6** with the same Personal seat as `release-clients`: `UNITY_EMAIL` + `UNITY_PASSWORD` (optional `UNITY_SERIAL`).
+- Runs EditMode tests under `l2-unity/Assets/Tests/EditMode/` — opening the project compiles `Assets/Scripts`; script errors fail the PR.
+- Smoke test covers `PacketReader` in `Fineage.Networking` so the job is not an empty suite.
+- Do **not** rely on a stale `UNITY_LICENSE` `.ulf` for this Personal path (same note as playtest builds).
 
-1. Create `l2-unity/Assets/Tests/EditMode/` with a `.asmdef` referencing the game assemblies
-2. Write tests using `NUnit` (Unity's test runner)
-3. Run locally via Unity Test Runner window
-4. For CI: requires [GameCI](https://game.ci/) with a Unity license file (`.ulf`)
-   - Free for personal licenses
-   - Needs `UNITY_LICENSE` secret in GitHub repo settings
+### Option 1: more EditMode tests locally
+
+1. Add tests under `l2-unity/Assets/Tests/EditMode/`
+2. Run via Unity Test Runner window
 
 ### Option 2: Extract pure C# to shared library
 
