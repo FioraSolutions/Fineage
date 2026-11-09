@@ -1,7 +1,3 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public enum GameClientPacketType : byte
 {
     ProtocolVersion = 0x00,
