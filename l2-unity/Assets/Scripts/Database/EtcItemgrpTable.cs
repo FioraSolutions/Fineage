@@ -70,7 +70,7 @@ public class EtcItemgrpTable {
                     string key = keyval[0];
                     string value = keyval[1];
 
-                    if (DatUtils.ParseBaseAbstractItemGrpDat(etcItemgrp, key, value)) {
+                    if (AbstractgrpDatParser.ParseBaseAbstractItemGrpDat(etcItemgrp, key, value)) {
                         continue;
                     }
                     if(etcItemgrp.ObjectId == 17)

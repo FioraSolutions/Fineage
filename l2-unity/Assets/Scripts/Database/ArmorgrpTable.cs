@@ -78,7 +78,7 @@ public class ArmorgrpTable {
                     string key = keyval[0];
                     string value = keyval[1];
                     
-                    if(DatUtils.ParseBaseAbstractItemGrpDat(armorgrp, key, value)) {
+                    if(AbstractgrpDatParser.ParseBaseAbstractItemGrpDat(armorgrp, key, value)) {
                         continue;
                     }
 
