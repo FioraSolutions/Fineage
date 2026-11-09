@@ -903,17 +903,17 @@
 .unity-group-box {
 }
 
-/* ---- MenuWnd (Interlude 34×34 @ pitch 37; Fineage 4×2) ---- */
+/* ---- Interlude MenuWnd 173×46, 4×1 @ 34px pitch 37 ---- */
 .menu-window {
     position: absolute;
-    right: 2px;
-    bottom: 2px;
-    width: 148px;
-    height: 74px;
-    min-width: 148px;
-    min-height: 74px;
-    max-width: 148px;
-    max-height: 74px;
+    right: 9px;
+    bottom: 9px;
+    width: 173px;
+    height: 46px;
+    min-width: 173px;
+    min-height: 46px;
+    max-width: 173px;
+    max-height: 46px;
     margin: 0;
     padding: 0;
     border-width: 0;
@@ -927,14 +927,40 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 148px;
-    height: 74px;
-    background-image: resource('Data/UI/Assets/Menu/MenuWnd_Back');
+    width: 173px;
+    height: 46px;
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.menu-window-back-left {
+    width: 16px;
+    height: 46px;
+    min-width: 16px;
+    max-width: 16px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back1');
     -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-left: 8;
-    -unity-slice-top: 8;
-    -unity-slice-right: 8;
-    -unity-slice-bottom: 8;
+}
+
+.menu-window-back-mid {
+    height: 46px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back2');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.menu-window-back-right {
+    width: 16px;
+    height: 46px;
+    min-width: 16px;
+    max-width: 16px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back3');
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .menu-btn {
@@ -950,8 +976,8 @@
     border-width: 0;
     border-radius: 0;
     background-color: rgba(0, 0, 0, 0);
-    -unity-background-scale-mode: scale-to-fit;
-    overflow: visible;
+    -unity-background-scale-mode: stretch-to-fill;
+    overflow: hidden;
 }
 
 .menu-btn > .unity-button__text,
@@ -959,104 +985,56 @@
     display: none;
 }
 
-.menu-btn-0 { left: 0; top: 0; }
-.menu-btn-1 { left: 37px; top: 0; }
-.menu-btn-2 { left: 74px; top: 0; }
-.menu-btn-3 { left: 111px; top: 0; }
-.menu-btn-4 { left: 0; top: 37px; }
-.menu-btn-5 { left: 37px; top: 37px; }
-.menu-btn-6 { left: 74px; top: 37px; }
-.menu-btn-7 { left: 111px; top: 37px; }
+/* xdat Btn* @ y=6, x=20/57/94/131 */
+.menu-btn-0 { left: 20px; top: 6px; }
+.menu-btn-1 { left: 57px; top: 6px; }
+.menu-btn-2 { left: 94px; top: 6px; }
+.menu-btn-3 { left: 131px; top: 6px; }
 
 #CharacterButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1');
 }
 #CharacterButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Over');
 }
 #CharacterButton:active,
 #CharacterButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Down');
 }
 
 #InventoryButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2');
 }
 #InventoryButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Over');
 }
 #InventoryButton:active,
 #InventoryButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Down');
-}
-
-#ActionButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action');
-}
-#ActionButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Over');
-}
-#ActionButton:active,
-#ActionButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Down');
-}
-
-#SkillButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill');
-}
-#SkillButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Over');
-}
-#SkillButton:active,
-#SkillButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Down');
-}
-
-#QuestButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest');
-}
-#QuestButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Over');
-}
-#QuestButton:active,
-#QuestButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Down');
-}
-
-#ClanButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan');
-}
-#ClanButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Over');
-}
-#ClanButton:active,
-#ClanButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Down');
 }
 
 #MapButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3');
 }
 #MapButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Over');
 }
 #MapButton:active,
 #MapButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Down');
 }
 
 #SystemMenuButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4');
 }
 #SystemMenuButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Over');
 }
 #SystemMenuButton:active,
 #SystemMenuButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Down');
 }
 
-/* Legacy nested-bg selectors kept empty so old UXML does not break mid-reload. */
 .menu-button-bg {
     display: none;
 }

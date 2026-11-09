@@ -1,18 +1,20 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
     <!--
-      Interlude MenuWnd hitboxes are 34×34 @ pitch 37 (interface.xdat).
-      Fineage keeps the later 4×2 strip (8 icons). Absolute cells — no flex-wrap clip.
+      Interlude interface.xdat MenuWnd 173×46:
+        Smallwindow_back1/2/3 @ 16×46 (left / mid / right)
+        BtnCharInfo / BtnInventory / BtnMap / BtnSystemMenu
+          34×34 @ (20,6) (57,6) (94,6) (131,6) — pitch 37
     -->
     <ui:VisualElement name="MenuWindow" class="menu-window" picking-mode="Position">
-        <ui:VisualElement name="MenuWndBack" class="menu-window-back" picking-mode="Ignore" />
+        <ui:VisualElement name="MenuWndBack" class="menu-window-back" picking-mode="Ignore">
+            <ui:VisualElement name="MenuWndBackTexLeft" class="menu-window-back-left" picking-mode="Ignore" />
+            <ui:VisualElement name="MenuWndBackTexMiddle" class="menu-window-back-mid" picking-mode="Ignore" />
+            <ui:VisualElement name="MenuWndBackTexRight" class="menu-window-back-right" picking-mode="Ignore" />
+        </ui:VisualElement>
         <ui:Button name="CharacterButton" class="menu-btn menu-btn-0" text="" />
         <ui:Button name="InventoryButton" class="menu-btn menu-btn-1" text="" />
-        <ui:Button name="ActionButton" class="menu-btn menu-btn-2" text="" />
-        <ui:Button name="SkillButton" class="menu-btn menu-btn-3" text="" />
-        <ui:Button name="QuestButton" class="menu-btn menu-btn-4" text="" />
-        <ui:Button name="ClanButton" class="menu-btn menu-btn-5" text="" />
-        <ui:Button name="MapButton" class="menu-btn menu-btn-6" text="" />
-        <ui:Button name="SystemMenuButton" class="menu-btn menu-btn-7" text="" />
+        <ui:Button name="MapButton" class="menu-btn menu-btn-2" text="" />
+        <ui:Button name="SystemMenuButton" class="menu-btn menu-btn-3" text="" />
     </ui:VisualElement>
 </ui:UXML>
