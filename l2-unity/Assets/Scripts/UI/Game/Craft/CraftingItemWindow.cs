@@ -59,7 +59,7 @@ public class CraftingItemWindow : L2PopupWindow
 
 
         VisualElement containerTradeSlots = GetElementById("BodyBox");
-        _creatorSimpleTrade.CreateSlots(containerTradeSlots, L2Slot.SlotType.RecipeCraftItem , 18);
+        _creatorSimpleTrade.CreateSlots(containerTradeSlots, SlotType.RecipeCraftItem , 18);
         _progressBar = GetElementById("ProgressGauge");
         _progressBarBg = GetElementById("ProgressBg");
 

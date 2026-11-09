@@ -68,7 +68,7 @@ public class InventoryGearTab : L2Tab
         {
             GearItem gearItem = gearList[i];
             _gearCellIds.Add(i, gearItem.GetSlotType());
-            GearSlot slot = new GearSlot(i, gearItem.GetElement(), this, L2Slot.SlotType.Gear);
+            GearSlot slot = new GearSlot(i, gearItem.GetElement(), this, SlotType.Gear);
             gearItem.SetGearSlot(slot);
         }
     }
