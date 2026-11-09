@@ -175,6 +175,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - [x] Shared outbound send pump: `NetOutboundSendPump` on `NetTransport`.
 - [x] Zone inbound switch extracted to `NetZoneDispatch` (apply bodies stay on `NetSession` / receivers).
 - Transport already in `Fineage.Networking`; further Session shrink when cycle-safe.
+- [x] `NetSession.ZoneApply` split into Combat/Social/Shop/Gear partials (#131 residual)
 
 ### B5. State recovery — later
 - EnterWorld snapshot + revision; resync / reconnect path when Critical outbound was dropped.
@@ -194,7 +195,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 ### B8. Persist off `_gate` — open (Claude)
 - World mutation under lock; `SaveInventory` / Postgres `RunSilent` after release (same pattern as enter/unlink persist).
 
-### B9. Snapshot ownership — open (Claude)
+### B9. Snapshot ownership — partial (Backend #491)
 - Stop dual full-JSON writers of `store_snapshot` id=1 from Login + Zone partial memory.
 - Normalized tables remain SoT for `FindById`; snapshot = backup/export only.
 
@@ -304,7 +305,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
 
 
-### C4. Zone disconnect UX — in progress (Claude 2026-11-09)
+### C4. Zone disconnect UX — done (#878)
 - Raise `FineageZoneTransport.OnDisconnected` on remote close and intentional `Disconnect`.
 - Wire AppLifetimeScope → `GameManager.OnDisconnect` so zone drop returns to menu.
 
@@ -345,7 +346,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
 - [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe
 - [x] Live combat loop runs `TickAggression` / `TickLeash` (B7, Backend #490)
-- [ ] Zone disconnect raises UI path (C4)
+- [x] Zone disconnect raises UI path (C4, #878)
 - [x] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5, #879)
 - [ ] Inventory persist not under `_gate` (B8)
-- [ ] Single owner / backup-only `store_snapshot` (B9)
+- [x] Hot-path / Open no longer clobber normalized SoT via stale snapshot (B9 partial, Backend #491); Login AfterSaveSnapshot residual
