@@ -1,5 +1,3 @@
-﻿using UnityEngine;
-
 public enum GameExServerPacketType : byte
 {
     ExShowQuestInfo = 0x19,
