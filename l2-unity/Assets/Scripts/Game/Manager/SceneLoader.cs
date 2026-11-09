@@ -144,7 +144,7 @@ public class SceneLoader : MonoBehaviour
         SetGameHudVisible(true);
 
         string tile = VectorUtils.GetSwMapName(l2Pos);
-        FineageLog.Info(FineageLog.Category.World, "LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
+        FineageLog.Info(FineageLogCategory.World, "LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
 
         Geodata geodata = WorldPacketServices.Geodata;
         if (geodata != null)
@@ -176,12 +176,12 @@ public class SceneLoader : MonoBehaviour
         {
             LobbyCleanGate.Report report = LobbyCleanGate.Evaluate();
             FineageLog.Info(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 (report.Ok ? "LobbyClean PASS " : "LobbyClean FAIL ") + report.Detail);
         }
         catch (System.Exception ex)
         {
-            FineageLog.Exception(FineageLog.Category.World, "LobbyCleanGate", ex);
+            FineageLog.Exception(FineageLogCategory.World, "LobbyCleanGate", ex);
         }
     }
 
@@ -193,7 +193,7 @@ public class SceneLoader : MonoBehaviour
         }
         catch (System.Exception ex)
         {
-            FineageLog.Exception(FineageLog.Category.World, "WorldEnterDiag." + phase, ex);
+            FineageLog.Exception(FineageLogCategory.World, "WorldEnterDiag." + phase, ex);
         }
     }
 #endif
@@ -395,7 +395,7 @@ public class SceneLoader : MonoBehaviour
         if (terrain == null)
         {
             FineageLog.Warn(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 "LoadSWMap: no scene and no map prefab for tile '" + tile + "'");
             return;
         }
@@ -427,7 +427,7 @@ public class SceneLoader : MonoBehaviour
 
         _prefabTiles[tile] = root;
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "LoadSWMap prefab-tile '" + tile + "' placed=" + placed);
     }
 
@@ -558,7 +558,7 @@ public class SceneLoader : MonoBehaviour
         LobbyPresentation.ForgetRoot();
 
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "Lobby unloaded. MenuLoaded="
             + SceneManager.GetSceneByName(_menuScene).isLoaded
             + " LobbyLoaded="
@@ -586,7 +586,7 @@ public class SceneLoader : MonoBehaviour
             controller = UnityEngine.Object.FindFirstObjectByType<CameraController>(FindObjectsInactive.Include);
         if (controller == null)
         {
-            FineageLog.Warn(FineageLog.Category.World, "EnsureGameplayCamera: CameraController missing");
+            FineageLog.Warn(FineageLogCategory.World, "EnsureGameplayCamera: CameraController missing");
             return;
         }
 
@@ -611,7 +611,7 @@ public class SceneLoader : MonoBehaviour
             other.tag = "Untagged";
             other.enabled = false;
             FineageLog.Warn(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 "EnsureGameplayCamera demoted extra MainCamera=" + other.name
                 + " scene=" + other.gameObject.scene.name);
         }
@@ -625,7 +625,7 @@ public class SceneLoader : MonoBehaviour
             gameplay.gameObject.AddComponent<FMODUnity.StudioListener>();
 
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "EnsureGameplayCamera ok name=" + controller.name
             + " camEn=" + (gameplay != null && gameplay.enabled)
             + " Camera.main=" + (Camera.main != null ? Camera.main.name : "null"));

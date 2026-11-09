@@ -194,6 +194,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `EnchantResult` moved into `Fineage.Networking` (cycle-safe; was nested `EnumResult`).
 - [x] `LightAttachSubject` moved into `Fineage.Game` (cycle-safe).
 - [x] `EnumType2` moved into `Fineage.Game` (cycle-safe).
+- [x] `FineageLogLevel` / `FineageLogCategory` moved into `Fineage.Networking` (cycle-safe).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync

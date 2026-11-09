@@ -9,23 +9,6 @@ using UnityEngine;
 /// </summary>
 public static class FineageLog
 {
-    public enum Level
-    {
-        Error = 0,
-        Warn = 1,
-        Info = 2,
-        Debug = 3
-    }
-
-    public enum Category
-    {
-        Lobby,
-        LoginNet,
-        GameNet,
-        Net,
-        World
-    }
-
     const long MaxFileBytes = 3 * 1024 * 1024;
 
     /// <summary>Runtime toggle for Debug (also enabled by FINEAGE_LOG_DEBUG define).</summary>
@@ -43,51 +26,54 @@ public static class FineageLog
         }
     }
 
-    public static void Error(Category category, string message) => Write(Level.Error, category, message);
+    public static void Error(FineageLogCategory category, string message) =>
+        Write(FineageLogLevel.Error, category, message);
 
-    public static void Warn(Category category, string message) => Write(Level.Warn, category, message);
+    public static void Warn(FineageLogCategory category, string message) =>
+        Write(FineageLogLevel.Warn, category, message);
 
-    public static void Info(Category category, string message) => Write(Level.Info, category, message);
+    public static void Info(FineageLogCategory category, string message) =>
+        Write(FineageLogLevel.Info, category, message);
 
-    public static void Debug(Category category, string message)
+    public static void Debug(FineageLogCategory category, string message)
     {
         if (!DebugAllowed)
             return;
-        Write(Level.Debug, category, message);
+        Write(FineageLogLevel.Debug, category, message);
     }
 
-    public static void Exception(Category category, string where, Exception ex)
+    public static void Exception(FineageLogCategory category, string where, Exception ex)
     {
-        Write(Level.Error, category, "EXCEPTION at " + where + "\n" + ex);
+        Write(FineageLogLevel.Error, category, "EXCEPTION at " + where + "\n" + ex);
     }
 
-    public static string Prefix(Category category)
+    public static string Prefix(FineageLogCategory category)
     {
         switch (category)
         {
-            case Category.Lobby:
+            case FineageLogCategory.Lobby:
                 return "[LOBBY]";
-            case Category.LoginNet:
+            case FineageLogCategory.LoginNet:
                 return "[LoginNet]";
-            case Category.GameNet:
+            case FineageLogCategory.GameNet:
                 return "[GameNet]";
-            case Category.Net:
+            case FineageLogCategory.Net:
                 return "[Net]";
             default:
                 return "[World]";
         }
     }
 
-    static void Write(Level level, Category category, string message)
+    static void Write(FineageLogLevel level, FineageLogCategory category, string message)
     {
         string line = Prefix(category) + " " + message;
 
         switch (level)
         {
-            case Level.Error:
+            case FineageLogLevel.Error:
                 UnityEngine.Debug.LogError(line);
                 break;
-            case Level.Warn:
+            case FineageLogLevel.Warn:
                 UnityEngine.Debug.LogWarning(line);
                 break;
             default:
@@ -109,16 +95,16 @@ public static class FineageLog
         }
     }
 
-    static string FileNameFor(Category category)
+    static string FileNameFor(FineageLogCategory category)
     {
         switch (category)
         {
-            case Category.Lobby:
-            case Category.LoginNet:
+            case FineageLogCategory.Lobby:
+            case FineageLogCategory.LoginNet:
                 return "lobby-flow.txt";
-            case Category.GameNet:
+            case FineageLogCategory.GameNet:
                 return "game-net.txt";
-            case Category.Net:
+            case FineageLogCategory.Net:
                 return "net.txt";
             default:
                 return "world.txt";

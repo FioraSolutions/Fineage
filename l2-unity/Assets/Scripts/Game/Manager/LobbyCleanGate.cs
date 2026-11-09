@@ -43,7 +43,7 @@ public static class LobbyCleanGate
             if (faces <= 12)
             {
                 FineageLog.Info(
-                    FineageLog.Category.World,
+                    FineageLogCategory.World,
                     "LobbyCleanGate FACE path=" + path
                     + " scene=" + rend.gameObject.scene.name
                     + " layer=" + LayerMask.LayerToName(rend.gameObject.layer)

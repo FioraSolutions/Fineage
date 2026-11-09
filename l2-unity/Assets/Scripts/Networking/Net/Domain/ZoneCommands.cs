@@ -72,7 +72,7 @@ public static class ZoneCommands
         IZoneTransport transport = Transport;
         if (transport == null)
         {
-            FineageLog.Warn(FineageLog.Category.GameNet, "TX dropped (no transport): " + command.GetType().Name);
+            FineageLog.Warn(FineageLogCategory.GameNet, "TX dropped (no transport): " + command.GetType().Name);
             return false;
         }
         return transport.TrySendGameCommand(command);

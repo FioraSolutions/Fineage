@@ -159,7 +159,7 @@ public sealed class LobbyFlowController
         // NetSession already sent NetOpcode.EnterWorld on ZoneAuthResult.
         // Do not re-fire Interlude EnterWorldCommand / RequestSkillCoolTimeCommand —
         // FineageZoneTransport has no Net mapping and only spam-warns "TX dropped".
-        FineageLog.Info(FineageLog.Category.GameNet, "world spawn ready (Net EnterWorld already sent)");
+        FineageLog.Info(FineageLogCategory.GameNet, "world spawn ready (Net EnterWorld already sent)");
         if (domain != null)
             domain.FlushKnownlist();
         else

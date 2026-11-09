@@ -30,22 +30,22 @@ public static class LobbyFlowLog
     {
         if (!Active)
             return;
-        FineageLog.Info(FineageLog.Category.Lobby, message);
+        FineageLog.Info(FineageLogCategory.Lobby, message);
     }
 
     public static void Warn(string message)
     {
-        FineageLog.Warn(FineageLog.Category.Lobby, message);
+        FineageLog.Warn(FineageLogCategory.Lobby, message);
     }
 
     public static void Error(string message)
     {
-        FineageLog.Error(FineageLog.Category.Lobby, message);
+        FineageLog.Error(FineageLogCategory.Lobby, message);
     }
 
     public static void Exception(string where, Exception ex)
     {
-        FineageLog.Exception(FineageLog.Category.Lobby, where, ex);
+        FineageLog.Exception(FineageLogCategory.Lobby, where, ex);
     }
 
     public static string OpcodeName(byte opcode)
