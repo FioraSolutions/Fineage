@@ -223,7 +223,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, ZoneEntity/Messages/ZoneWorld hub file splits). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; only opportunistic further Rules / further hub partials. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
+| Backend B2b | **Mechanical B2b landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, Messages.* DTO split, ZoneEntity + ZoneWorld hub `.Members` file splits — primaries now mostly under 500 lines). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic Rules only. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
 | Client #131 | Cycle-safe enum/util/anim-map slices largely landed (through opcodes + Controller anim enums/maps + `Animation` DTO). Residual = LifetimeScope / MonoBehaviours when cycle-safe; remaining Utils / AnimationNames tables / LocomotionCrossFade are UI/anim/MB-tied |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
@@ -238,6 +238,6 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] `NetDomainMap.cs` and frozen `Net*Map` adapters gone (`check-frozen-net-domain-maps.py`)
 - [x] No new world DB I/O under `_gate` on enter (Phase B1)
 - [ ] TLS (or equivalent) before public auth
-- [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld still large
+- [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld hub file-split (primaries mostly <500 lines)
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
 - [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe
