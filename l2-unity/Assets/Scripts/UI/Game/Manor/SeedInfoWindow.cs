@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +13,7 @@ public class SeedInfoWindow : L2PopupWindow
     private ICreator _creatorWindow;
     private ICreatorTables _creatorTable;
     private static SeedInfoWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SeedInfoWindow Instance { get { return _instance; } }
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;

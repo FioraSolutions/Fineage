@@ -13,6 +13,7 @@ public class ShowListWindow : L2PopupWindow
 {
 
     private static ShowListWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ShowListWindow Instance { get { return _instance; } }
     private Button _СЃancelButton;
     private Button _okButton;

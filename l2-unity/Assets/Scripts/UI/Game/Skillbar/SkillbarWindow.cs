@@ -37,6 +37,7 @@ public class SkillbarWindow : L2PopupWindow
     public bool Vertical { get { return _vertical; } set { _vertical = value; } }
     public bool TooltipDisabled { get { return _tooltipDisabled; } set { _tooltipDisabled = value; } }
     public VisualTreeAsset BarSlotTemplate { get { return _barSlotTemplate; } }
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SkillbarWindow Instance { get { return _instance; } }
 
     private void Awake()

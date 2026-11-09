@@ -12,6 +12,7 @@ public class L2SlotManager : L2PopupWindow
     private L2Slot _dragSlotData;
 
     private static L2SlotManager _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2SlotManager Instance { get { return _instance; } }
 
     private void Awake()

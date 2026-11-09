@@ -24,6 +24,7 @@ public class TradeWindow : L2PopupWindow
 
     private long _playerId;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static TradeWindow Instance
     {
         get { return _instance; }

@@ -11,6 +11,7 @@ public class HtmlWindow : L2PopupWindow
 
     private Label _titleLabel;
     private static HtmlWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static HtmlWindow Instance => _instance;
 
     private VisualElement _content;

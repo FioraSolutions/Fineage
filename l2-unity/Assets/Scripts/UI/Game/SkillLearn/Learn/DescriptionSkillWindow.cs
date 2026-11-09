@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,6 +9,7 @@ public class DescriptionSkillWindow : L2PopupWindow
 {
 
     private static DescriptionSkillWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static DescriptionSkillWindow Instance { get { return _instance; } }
     private DataProviderWindows _dataProvider;
     private VisualElement _content;

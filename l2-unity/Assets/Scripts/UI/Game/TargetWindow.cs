@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Text;
 using UnityEngine;
@@ -22,6 +24,7 @@ public class TargetWindow : L2Window {
     private int _boundObjectId = -1;
 
     private static TargetWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static TargetWindow Instance { get { return _instance; } }
 
     private void Awake() {

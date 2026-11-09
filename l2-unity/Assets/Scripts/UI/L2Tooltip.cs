@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,6 +13,7 @@ public class L2ToolTip : L2PopupWindow
     private Coroutine _updateStyleCoroutine;
 
     private static L2ToolTip _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2ToolTip Instance { get { return _instance; } }
 
     private void Awake()

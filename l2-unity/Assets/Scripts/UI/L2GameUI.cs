@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,6 +12,7 @@ public class L2GameUI : L2UI
     private List<L2PopupWindow> _openedWindows;
 
     private static L2GameUI _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2GameUI Instance { get { return _instance; } }
 
     private void Awake()

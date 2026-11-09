@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -8,6 +10,7 @@ public class NpcDecoEffectsTable
 {
     static NpcDecoEffectsTable _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static NpcDecoEffectsTable Instance
     {
         get

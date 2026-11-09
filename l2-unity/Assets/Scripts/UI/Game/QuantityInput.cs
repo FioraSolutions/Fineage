@@ -17,6 +17,7 @@ public class QuantityInput : L2PopupWindow
     private object _parentWindow;
     private TextField _userInput;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static QuantityInput Instance { get { return _instance; } }
     public event Action<string> OnButtonOk; 
     public event Action OnButtonClose;

@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +44,7 @@ public class ClanWindow : L2TwoPanels
     //data
     private PledgeShowMemberListAllDto _packet;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ClanWindow Instance { get { return _instance; } }
     public bool IsReady { get { return _windowEle != null && _dropdown != null; } }
 

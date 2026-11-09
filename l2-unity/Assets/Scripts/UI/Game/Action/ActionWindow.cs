@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,7 @@ public class ActionWindow : L2PopupWindow
     private List<ActionSlot> _slots;
 
     private static ActionWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ActionWindow Instance { get { return _instance; } }
 
     private void Awake()

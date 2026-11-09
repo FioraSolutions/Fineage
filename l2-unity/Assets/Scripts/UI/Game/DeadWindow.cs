@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,6 +9,7 @@ public class DeadWindow : L2Window
 {
 
     private static DeadWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static DeadWindow Instance { get { return _instance; } }
 
     private void Awake()

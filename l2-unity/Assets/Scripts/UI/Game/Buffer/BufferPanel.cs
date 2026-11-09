@@ -19,6 +19,7 @@ public class BufferPanel : L2Window
     private int[] _deathPenalty;
     private int[] _weightPenalty;
     private int[] _weaponPenalty;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static BufferPanel Instance { get { return _instance; } }
     public BLink _bLink;
     public VisualElement _content;

@@ -45,6 +45,7 @@ public class EnchantWindow : L2PopupWindow
     }
 
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static EnchantWindow Instance
     {
         get { return _instance; }

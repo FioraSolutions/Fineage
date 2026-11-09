@@ -13,6 +13,7 @@ public sealed class AnimTweenTable
 {
     private static AnimTweenTable _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static AnimTweenTable Instance
     {
         get

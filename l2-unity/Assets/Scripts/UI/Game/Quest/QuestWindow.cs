@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +43,7 @@ public class QuestWindow : L2TwoPanels
     private Label _labelTracking;
     private VisualElement _imageBoxTracking;
     private bool _isAutoNotifyCheckedTracking = true;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static QuestWindow Instance
     {
         get { return _instance; }

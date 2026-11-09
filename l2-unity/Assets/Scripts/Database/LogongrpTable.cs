@@ -9,6 +9,7 @@ public class LogongrpTable {
     private static LogongrpTable _instance;
 
     [System.Obsolete("Use [Inject] LogongrpTable or TablePacketServices.LogonGrps instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static LogongrpTable Instance {
         get {
             if (_instance == null && App.HasContainer) {

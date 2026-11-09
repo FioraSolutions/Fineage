@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -6,6 +8,7 @@ public sealed class MobSkillAnimgrpTable
 {
     private static MobSkillAnimgrpTable _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static MobSkillAnimgrpTable Instance
     {
         get

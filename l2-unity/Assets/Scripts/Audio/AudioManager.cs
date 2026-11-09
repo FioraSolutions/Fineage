@@ -1,3 +1,5 @@
+using System;
+
 ﻿using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
@@ -27,6 +29,7 @@ public class AudioManager : MonoBehaviour
     private static AudioManager _instance;
 
     [System.Obsolete("Use AudioPacketServices.Audio or [Inject] AudioManager instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static AudioManager Instance { get { return _instance; } }
 
     private void Awake()

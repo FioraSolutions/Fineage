@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -11,6 +13,7 @@ public class SystemMenuWindow : L2PopupWindow
 
     private float _windowHeight = 0f;
     private static SystemMenuWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SystemMenuWindow Instance
     {
         get { return _instance; }

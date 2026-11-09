@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +19,7 @@ public class ExitWindow : L2PopupWindow
     private Label _itemAcquired;
 
     private static ExitWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ExitWindow Instance
     {
         get { return _instance; }

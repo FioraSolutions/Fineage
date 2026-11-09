@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -19,6 +20,7 @@ public class ClanAskJoinWindow : L2PopupWindow
     string _pendingText = "";
     Coroutine _countdown;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ClanAskJoinWindow Instance => _instance;
 
     void Awake()

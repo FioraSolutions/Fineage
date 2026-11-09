@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,6 +10,7 @@ using UnityEngine.UIElements;
 public class PartyMemberListWindow : L2Window
 {
     private static PartyMemberListWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PartyMemberListWindow Instance => _instance;
 
     private VisualElement _memberRows;
