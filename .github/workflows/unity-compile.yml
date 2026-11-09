@@ -23,6 +23,11 @@ jobs:
     name: unity-editmode
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    # game-ci posts a Checks API run when githubToken is set; default GITHUB_TOKEN
+    # needs checks:write or the step fails after green tests ("Resource not accessible").
+    permissions:
+      contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
