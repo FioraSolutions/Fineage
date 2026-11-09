@@ -10,7 +10,13 @@ public sealed partial class NetSession
     {
         _zone?.Dispose();
         _helloZone = false;
-        _zone = new NetTransport(OnZonePacket, reason => Post(() => Debug.Log("[Net] zone " + reason)));
+        if (ZoneCommands.Transport is FineageZoneTransport latch)
+            latch.ResetDisconnectLatch();
+        _zone = new NetTransport(OnZonePacket, reason => Post(() =>
+        {
+            Debug.Log("[Net] zone " + reason);
+            ZoneCommands.Transport?.NotifyDisconnected();
+        }));
         string host = string.IsNullOrWhiteSpace(handoff.ZoneHost) ? FineageWireConfig.ZoneHost : handoff.ZoneHost;
         int port = handoff.ZonePort > 0 ? handoff.ZonePort : FineageWireConfig.ZonePort;
         await _zone.ConnectAsync(host, port);

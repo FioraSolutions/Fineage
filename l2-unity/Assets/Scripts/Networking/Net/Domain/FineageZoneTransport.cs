@@ -11,6 +11,8 @@ public sealed class FineageZoneTransport : IZoneTransport
 {
     public event Action OnDisconnected;
 
+    bool _disconnectNotified;
+
     /// <summary>
     /// The local player profile. NetSession writes this when the character is selected and
     /// when the server sends UserInfo; the world scene reads it to spawn the player.
@@ -506,6 +508,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void BeginSession(string account, string password)
     {
+        _disconnectNotified = false;
         NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
     }
 
@@ -522,5 +525,17 @@ public sealed class FineageZoneTransport : IZoneTransport
     {
         if (NetSession.Instance != null)
             UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+        NotifyDisconnected();
     }
+
+    public void NotifyDisconnected()
+    {
+        if (_disconnectNotified)
+            return;
+        _disconnectNotified = true;
+        OnDisconnected?.Invoke();
+    }
+
+    /// <summary>Allow a later zone connect to raise disconnect again.</summary>
+    internal void ResetDisconnectLatch() => _disconnectNotified = false;
 }

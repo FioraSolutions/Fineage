@@ -37,8 +37,10 @@ public sealed class AppLifetimeScope : LifetimeScope
             NpcNameTable.Bind(container.Resolve<NpcNameTable>());
             ActionNameTable.Bind(container.Resolve<ActionNameTable>());
             SkillNameTable.Bind(container.Resolve<SkillNameTable>());
-            ZoneCommands.Bind(container.Resolve<IZoneTransport>());
+            IZoneTransport transport = container.Resolve<IZoneTransport>();
+            ZoneCommands.Bind(transport);
             GameManager manager = container.Resolve<GameManager>();
+            transport.OnDisconnected += () => manager.OnDisconnect();
             AppLoginSessionApplyIncomingPacketServices.BindApp(
                 container.Resolve<GameClient>(),
                 container.Resolve<LoginClient>(),
