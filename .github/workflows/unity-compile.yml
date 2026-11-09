@@ -44,16 +44,18 @@ jobs:
           fi
 
       - name: Unity EditMode (compiles Scripts)
-        uses: game-ci/unity-test-runner@v6.0.0
+        uses: game-ci/unity-test-runner@v4.4.0
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
+          # Same CLI pin as release-clients / unity-builder v6 Personal seat path.
           cliVersion: v0.1.72
           projectPath: l2-unity
           unityVersion: auto
           testMode: editmode
+          coverageEnabled: false
           checkName: Unity EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
