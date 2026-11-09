@@ -39,7 +39,6 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
 #endif
 
     [System.Obsolete("Use [Inject] IAnimationManager or AnimationPacketServices.Animations instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static IAnimationManager Instance
     {
         get

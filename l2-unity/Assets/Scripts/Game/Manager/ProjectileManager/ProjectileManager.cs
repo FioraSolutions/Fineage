@@ -29,7 +29,6 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     private static IProjectileManager _instance;
 
     [System.Obsolete("Use [Inject] or ProjectilePacketServices.Projectiles instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static IProjectileManager Instance => _instance;
 
     private void Awake()

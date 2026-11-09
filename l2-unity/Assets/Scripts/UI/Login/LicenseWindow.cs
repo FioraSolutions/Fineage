@@ -17,7 +17,6 @@ public class LicenseWindow : L2Window
 
     private static LicenseWindow _instance;
     [System.Obsolete("Use [Inject] or LoginPacketServices.LicenseWindow instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static LicenseWindow Instance { get { return _instance; } }
 
     private void Awake() {

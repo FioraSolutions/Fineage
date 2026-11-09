@@ -10,7 +10,6 @@ public class EffectManager : MonoBehaviour
     private static EffectManager _instance;
 
     [System.Obsolete("Use GlobalEffectsPacketServices.Effects or [Inject] EffectManager instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static EffectManager Instance { get { return _instance; } }
 
     public EffectDatabase database;

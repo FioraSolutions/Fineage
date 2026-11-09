@@ -26,7 +26,6 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
     static IPoolManager _instance;
 
     [System.Obsolete("Use [Inject] or ObjectPoolPacketServices.Pool instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static IPoolManager Instance
     {
         get { return (_instance as UnityEngine.Object) != null ? _instance : null; }

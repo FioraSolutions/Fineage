@@ -72,7 +72,6 @@ public class CameraController : MonoBehaviour
     private static CameraController _instance;
 
     [System.Obsolete("Use CameraPacketServices.Controller or [Inject] CameraController instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static CameraController Instance { get { return _instance; } }
 
     private void Awake()

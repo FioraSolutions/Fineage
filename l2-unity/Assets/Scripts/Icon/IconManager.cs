@@ -24,7 +24,6 @@ public class IconManager
     private static IconManager _instance;
 
     [System.Obsolete("Use IconPacketServices.Icons or [Inject] IconManager instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static IconManager Instance
     {
         get

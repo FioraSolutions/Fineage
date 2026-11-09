@@ -20,7 +20,6 @@ public class ClickManager : MonoBehaviour
     private UIDocument uiDocument;
     private static ClickManager _instance;
     [System.Obsolete("Use [Inject] or ControllerPacketServices.Clicks instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ClickManager Instance => _instance;
 
     private InputManager GameInput

@@ -95,7 +95,6 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private static World _instance;
     [System.Obsolete("Use [Inject] instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static World Instance { get { return _instance; } }
 
     static bool ShouldEnsureGameScope()

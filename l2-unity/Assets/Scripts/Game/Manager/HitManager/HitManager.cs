@@ -15,7 +15,6 @@ public class HitManager : MonoBehaviour
     private static HitManager _instance;
 
     [System.Obsolete("Use HitPacketServices.Hits or [Inject] HitManager instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static HitManager Instance { get { return _instance; } }
     private const string ETC_NAME = "etc_";
     private const string IMPACT_DEBUG_TAG = "[HIT_DEBUG]";

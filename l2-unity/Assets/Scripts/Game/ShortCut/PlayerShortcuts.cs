@@ -28,7 +28,6 @@ public class PlayerShortcuts : MonoBehaviour
 
     private static PlayerShortcuts _instance;
     [System.Obsolete("Use [Inject] or ShortcutPacketServices.Shortcuts instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PlayerShortcuts Instance
     {
         get { return _instance; }

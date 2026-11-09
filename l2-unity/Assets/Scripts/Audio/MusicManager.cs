@@ -17,7 +17,6 @@ public class MusicManager : MonoBehaviour
     private static MusicManager _instance;
 
     [System.Obsolete("Use MusicPacketServices.Music or [Inject] MusicManager instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
     public static MusicManager Instance { get { return _instance; } }
 
     private void Awake() {
