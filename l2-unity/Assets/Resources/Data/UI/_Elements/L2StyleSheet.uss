@@ -903,17 +903,18 @@
 .unity-group-box {
 }
 
-/* ---- MenuWnd (Interlude 34Ч34 @ pitch 37; Fineage 4Ч2) ---- */
+/* ---- Interlude MenuWnd: 4 icons flush to bottom-right screen corner ---- */
 .menu-window {
     position: absolute;
-    right: 2px;
-    bottom: 2px;
-    width: 148px;
-    height: 74px;
-    min-width: 148px;
-    min-height: 74px;
-    max-width: 148px;
-    max-height: 74px;
+    right: 0;
+    bottom: 0;
+    /* left chrome 12 + 4x34 @ pitch 37 ending at 12+3*37+34 = 157, + right cap 8 ? 165 */
+    width: 165px;
+    height: 46px;
+    min-width: 165px;
+    min-height: 46px;
+    max-width: 165px;
+    max-height: 46px;
     margin: 0;
     padding: 0;
     border-width: 0;
@@ -927,14 +928,41 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 148px;
-    height: 74px;
-    background-image: resource('Data/UI/Assets/Menu/MenuWnd_Back');
+    width: 165px;
+    height: 46px;
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.menu-window-back-left {
+    /* Interlude left cap ? keep thin so icons sit in the corner, not inset. */
+    width: 12px;
+    height: 46px;
+    min-width: 12px;
+    max-width: 12px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back1');
     -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-left: 8;
-    -unity-slice-top: 8;
-    -unity-slice-right: 8;
-    -unity-slice-bottom: 8;
+}
+
+.menu-window-back-mid {
+    height: 46px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back2');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.menu-window-back-right {
+    width: 8px;
+    height: 46px;
+    min-width: 8px;
+    max-width: 8px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back3');
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .menu-btn {
@@ -950,8 +978,8 @@
     border-width: 0;
     border-radius: 0;
     background-color: rgba(0, 0, 0, 0);
-    -unity-background-scale-mode: scale-to-fit;
-    overflow: visible;
+    -unity-background-scale-mode: stretch-to-fill;
+    overflow: hidden;
 }
 
 .menu-btn > .unity-button__text,
@@ -959,106 +987,54 @@
     display: none;
 }
 
-.menu-btn-0 { left: 0; top: 0; }
-.menu-btn-1 { left: 37px; top: 0; }
-.menu-btn-2 { left: 74px; top: 0; }
-.menu-btn-3 { left: 111px; top: 0; }
-.menu-btn-4 { left: 0; top: 37px; }
-.menu-btn-5 { left: 37px; top: 37px; }
-.menu-btn-6 { left: 74px; top: 37px; }
-.menu-btn-7 { left: 111px; top: 37px; }
+/* Icons flush after left cap; pitch 37 ? hammer lands on the right edge. */
+.menu-btn-0 { left: 12px; top: 6px; }
+.menu-btn-1 { left: 49px; top: 6px; }
+.menu-btn-2 { left: 86px; top: 6px; }
+.menu-btn-3 { left: 123px; top: 6px; }
 
 #CharacterButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1');
 }
 #CharacterButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Over');
 }
 #CharacterButton:active,
 #CharacterButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Down');
 }
 
 #InventoryButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2');
 }
 #InventoryButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Over');
 }
 #InventoryButton:active,
 #InventoryButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Down');
-}
-
-#ActionButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action');
-}
-#ActionButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Over');
-}
-#ActionButton:active,
-#ActionButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Down');
-}
-
-#SkillButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill');
-}
-#SkillButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Over');
-}
-#SkillButton:active,
-#SkillButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Down');
-}
-
-#QuestButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest');
-}
-#QuestButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Over');
-}
-#QuestButton:active,
-#QuestButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Down');
-}
-
-#ClanButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan');
-}
-#ClanButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Over');
-}
-#ClanButton:active,
-#ClanButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Down');
 }
 
 #MapButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3');
 }
 #MapButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Over');
 }
 #MapButton:active,
 #MapButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Down');
 }
 
 #SystemMenuButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4');
 }
 #SystemMenuButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Over');
 }
 #SystemMenuButton:active,
 #SystemMenuButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Down');
-}
-
-/* Legacy nested-bg selectors kept empty so old UXML does not break mid-reload. */
-.menu-button-bg {
-    display: none;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Down');
 }
 
 /* Interlude SystemMsgWnd ? same width as ChatWnd; chatting_system chrome. */
@@ -4136,12 +4112,12 @@
     font-size: 12px;
 }
 
-/* Прозрачный DropdownField с рамкой и размером текста 12 */
+/* ГЏГ°Г®Г§Г°Г Г·Г­Г»Г© DropdownField Г± Г°Г Г¬ГЄГ®Г© ГЁ Г°Г Г§Г¬ГҐГ°Г®Г¬ ГІГҐГЄГ±ГІГ  12 */
 
 .dropdown-field {
-    background-color: transparent; /* Прозрачный фон */
+    background-color: transparent; /* ГЏГ°Г®Г§Г°Г Г·Г­Г»Г© ГґГ®Г­ */
     /*border-color: rgba(149, 149, 149 , 0.0);*/
-    font-size: 12px; /* Размер текста */
+    font-size: 12px; /* ГђГ Г§Г¬ГҐГ° ГІГҐГЄГ±ГІГ  */
 }
 
 .dropdown-field .unity-text-field__input {
@@ -4150,8 +4126,8 @@
 }
 
 
-/* применить к конкретному полю: <DropdownField class="small-dropdown" /> */
-/* или заменить .small-dropdown на тип DropdownField для глобального эффекта */
+/* ГЇГ°ГЁГ¬ГҐГ­ГЁГІГј ГЄ ГЄГ®Г­ГЄГ°ГҐГІГ­Г®Г¬Гі ГЇГ®Г«Гѕ: <DropdownField class="small-dropdown" /> */
+/* ГЁГ«ГЁ Г§Г Г¬ГҐГ­ГЁГІГј .small-dropdown Г­Г  ГІГЁГЇ DropdownField Г¤Г«Гї ГЈГ«Г®ГЎГ Г«ГјГ­Г®ГЈГ® ГЅГґГґГҐГЄГІГ  */
 
 .small-dropdown .unity-base-field__input {
   height: 16px;
@@ -4196,9 +4172,9 @@
 
 
 
-/* Стили для элементов списка */
+/* Г‘ГІГЁГ«ГЁ Г¤Г«Гї ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 .dropdown-field .unity-base-popup-field__arrow {
-    color: black; /* Цвет текста элементов списка */
+    color: black; /* Г–ГўГҐГІ ГІГҐГЄГ±ГІГ  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 }
 
 .dropdown-field .unity-base-field__input.selected  {
@@ -4206,14 +4182,14 @@
 }
 
 .dropdown-field  .unity-base-dropdown__item:hover{
-    color: black; /* Цвет текста элементов списка */
+    color: black; /* Г–ГўГҐГІ ГІГҐГЄГ±ГІГ  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 }
 
 .dropdown-field .VisualElement{
      background-color: transparent;
 }
 .dropdown-field .unity-base-popup-field__arrow{
-   /* position: absolute; /* Позволяет изображению быть позиционированным относительно контейнера 
+   /* position: absolute; /* ГЏГ®Г§ГўГ®Г«ГїГҐГІ ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГѕ ГЎГ»ГІГј ГЇГ®Г§ГЁГ¶ГЁГ®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г¬ Г®ГІГ­Г®Г±ГЁГІГҐГ«ГјГ­Г® ГЄГ®Г­ГІГҐГ©Г­ГҐГ°Г  
     margin-left:87%;
     width: 17px;
     height: 18px;*/
@@ -4227,7 +4203,7 @@
     -unity-slice-right: 2;
     -unity-slice-scale: 0;
     border-width: 0;
-    /* Он перекрывает фон кнопки!!!!! */
+    /* ГЋГ­ ГЇГҐГ°ГҐГЄГ°Г»ГўГ ГҐГІ ГґГ®Г­ ГЄГ­Г®ГЇГЄГЁ!!!!! */
     -unity-background-image-tint-color: rgb(255,255,255);
 }
 
