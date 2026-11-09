@@ -242,6 +242,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Cycle-safe enum/util/DTO/helper slices largely exhausted (through #864).
 - [x] `PacketReader` / `PacketWriter` / `IWireDto` moved into `Fineage.Networking` (ByteUtils calls inlined to avoid Game↔Networking cycle).
 - [x] Cycle-safe Interlude wire DTOs + `IOutgoingDto` moved into `Fineage.Networking` (ItemInstance/ItemSlot-tied DTOs stay ACS).
+- [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [ ] Remaining asmdef work = LifetimeScope / gameplay MonoBehaviours when types are cycle-safe (hard residual).
 
 ### C3. Doc sync
