@@ -298,11 +298,11 @@ public sealed partial class NetSession
                 Count = row.Count,
                 EquippedSlot = row.EquippedSlot,
                 EnchantLevel = row.EnchantLevel,
-                BodySlot = "",
-                Kind = "",
-                Icon = "",
-                WeaponType = "",
-                ArmorType = ""
+                BodySlot = row.BodySlot ?? "",
+                Kind = row.Kind ?? "",
+                Icon = row.Icon ?? "",
+                WeaponType = row.WeaponType ?? "",
+                ArmorType = row.ArmorType ?? ""
             };
         }
 

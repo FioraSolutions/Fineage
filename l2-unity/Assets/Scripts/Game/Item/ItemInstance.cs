@@ -61,14 +61,11 @@ public class ItemInstance : AbstractServerItem
         }
         else if (_category == ItemCategory.ShieldArmor || _category == ItemCategory.Jewel)
         {
-            if (bodyPart != ItemSlot.lhand)
-            {
-                _itemData = TablePacketServices.Items.GetArmor(_itemId);
-            }
-            else
-            {
-                _itemData = TablePacketServices.Items.GetWeapon(_itemId);
-            }
+            // Armor/jewels in armorgrp; Interlude shields are ShieldArmor with data in weapongrp.
+            AbstractItem armor = TablePacketServices.Items.GetArmor(_itemId);
+            _itemData = armor != null
+                ? armor
+                : TablePacketServices.Items.GetWeapon(_itemId);
         }
         else
         {
@@ -273,7 +270,7 @@ public class ItemInstance : AbstractServerItem
             case ItemCategory.Item:
             case ItemCategory.Adena:
             case ItemCategory.RequiredItem:
-                return TablePacketServices.ItemNames.GetItemName(_itemId).Name;
+                return TablePacketServices.ItemNames.GetItemName(_itemId)?.DisplayName ?? "";
 
             default:
                 return "";

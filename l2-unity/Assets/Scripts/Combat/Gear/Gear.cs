@@ -123,7 +123,8 @@ public class Gear : AbstractMeshManager
         if (IsWeaponEquipped(weaponId, leftSlot))
             return;
 
-        ClearHandsForNewWeapon(leftSlot, false);
+        bool twoHand = IsTwoHandedWeapon(weapon);
+        ClearHandsForNewWeapon(leftSlot, false, twoHand);
 
         GameObject weaponPrefab = (GameObject)LoadMesh(EquipmentCategory.Weapon, weaponId);
         if (weaponPrefab == null)
@@ -407,9 +408,25 @@ public class Gear : AbstractMeshManager
         }
     }
 
-    void ClearHandsForNewWeapon(bool leftSlot, bool dual)
+    static bool IsTwoHandedWeapon(Weapon weapon)
     {
-        if (dual)
+        if (weapon?.Weapongrp == null)
+            return false;
+        if (weapon.Weapongrp.BodyPart == ItemSlot.lrhand)
+            return true;
+        WeaponType type = weapon.Weapongrp.WeaponType;
+        return type == WeaponType.pole
+            || type == WeaponType.staff
+            || type == WeaponType.bigword
+            || type == WeaponType.bigblunt
+            || type == WeaponType.bow
+            || type == WeaponType.dual
+            || type == WeaponType.dualfist;
+    }
+
+    void ClearHandsForNewWeapon(bool leftSlot, bool dual, bool twoHand = false)
+    {
+        if (dual || twoHand)
         {
             ClearAllHandEquipment();
             return;

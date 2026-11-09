@@ -226,7 +226,7 @@ public class InventorySlot : L2DraggableSlot
         if (item.ItemData != null)
         {
             _id = item.ItemData.Id;
-            _name = NetEnchant.WithLevel(item.ItemData.ItemName.Name, item.EnchantLevel);
+            _name = NetEnchant.WithLevel(item.ItemData.ItemName.DisplayName, item.EnchantLevel);
             _description = item.ItemData.ItemName.Description;
             _icon = item.ItemData.Icon;
             _objectId = item.ObjectId;
@@ -252,11 +252,15 @@ public class InventorySlot : L2DraggableSlot
         if (SlotBg == null && _slotElement == null)
             return;
 
+        // Paint on SlotBg so gear icons sit in Inventory_Back silhouette frames
+        // (root paint sat top-left / floated off the wells).
+        if (_slotElement != null)
+            L2SlotIconView.Clear(_slotElement);
         L2SlotIconView.SetInventoryStyleItemIcon(
             SlotBg,
             _slotElement,
             _id,
-            slot.GetType() == typeof(GearSlot));
+            paintOnRootElement: SlotBg == null);
     }
 
     private void AddImageAtIndex(InventorySlot slot, int indexIamge)
@@ -264,12 +268,14 @@ public class InventorySlot : L2DraggableSlot
         if (SlotBg == null && _slotElement == null)
             return;
 
+        if (_slotElement != null)
+            L2SlotIconView.Clear(_slotElement);
         L2SlotIconView.SetInventoryStyleItemIconAtIndex(
             SlotBg,
             _slotElement,
             _id,
             indexIamge,
-            slot.GetType() == typeof(GearSlot));
+            paintOnRootElement: SlotBg == null);
     }
 
     // Alpha channel unused for now; keep path shared with AddImage.

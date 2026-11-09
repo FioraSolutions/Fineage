@@ -20,7 +20,14 @@ public class DatUtils {
 
     public static string CleanupStringOldData(string name)
     {
-        return name.Replace("a,", string.Empty).Replace("\\0", string.Empty);
+        if (string.IsNullOrEmpty(name))
+            return name;
+        // Interlude meta uses literal "\n" escapes inside a,...\0 fields.
+        return name
+            .Replace("a,", string.Empty)
+            .Replace("\\0", string.Empty)
+            .Replace("\\n", "\n")
+            .Replace("\\t", "\t");
     }
 
     public static string[] ParseArray(string value) {

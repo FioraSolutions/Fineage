@@ -112,13 +112,8 @@ public class CreatorSets
             Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(id_i);
             Armorgrp armor = TablePacketServices.ArmorGrps.GetArmor(id_i);
 
-            if(weapon != null)
-            {
-                if(weapon.BodyPart == ItemSlot.lhand_shield)
-                {
-                    return "Shield";
-                }
-            }
+            if (weapon != null && weapon.WeaponType == WeaponType.shield)
+                return "Shield";
 
             if(armor != null)
             {

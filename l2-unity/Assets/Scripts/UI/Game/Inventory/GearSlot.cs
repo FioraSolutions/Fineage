@@ -97,4 +97,16 @@ public class GearSlot : InventorySlot
 
     }
 
+    /// <summary>
+    /// Interlude paper doll keeps empty silhouettes on Inventory_Back; do not stamp the DF
+    /// empty-slot chrome over them.
+    /// </summary>
+    public new void AssignEmpty()
+    {
+        base.AssignEmpty();
+        L2SlotIconView.Clear(_slotElement);
+        if (SlotBg != null)
+            L2SlotIconView.Clear(SlotBg);
+    }
+
 }

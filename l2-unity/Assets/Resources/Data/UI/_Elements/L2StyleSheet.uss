@@ -2175,16 +2175,43 @@
 
 
 .inventory-window {
-    width: 574px;
-    height: 416px;
+    width: 258px;
+    height: 400px;
 }
 
 .inventory-window.expanded {
-    width: 682px;
+    width: 258px;
 }
 
 .inventory-window .l2-scroll-view .unity-scroll-view__content-and-vertical-scroll-container {
     flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: 100%;
+}
+
+/* InventoryItem is 236 wide: grid + 14px scroller, no dead gap inside the box. */
+.inventory-window .l2-scroll-view #Content {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 222px;
+    max-width: 222px;
+    min-width: 222px;
+}
+
+.inventory-window .l2-scroll-view .unity-scroll-view__content-viewport {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 222px;
+    min-width: 222px;
+    max-width: 222px;
+    margin: 0;
+    padding: 0;
+}
+
+.inventory-window .l2-scroll-view {
+    width: 100%;
+    flex-grow: 1;
 }
 
 .inventory-window .unity-tab__header-label {
@@ -2219,126 +2246,73 @@
 }
 
 .inventory-window .unity-tab-view__header-container {
-    margin-left: 23px;
+    margin-left: 0;
 }
 
 .inventory-window #tab-header-container {
-    margin-left: 23px;
+    margin-left: 0;
+    align-items: center;
 }
 
-
-
 .inventory-window .unity-tab-view__content-container {
-    flex-grow: 1;
+    flex-grow: 0;
 }
 
 .inventory-window #tab-content-container {
-    flex-grow: 1;
+    flex-grow: 0;
 }
 
 .inventory-window .unity-tab__header-underline {
     width: 0;
 }
 
-.inventory-window .unity-tab__header {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected');
-    background-color: transparent;
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-    rotate: 180deg;
-    height: 25px;
-    padding: 0;
-    width: 64px;
-    justify-content: center;
-}
-
+/* Interlude Inventory_tab1/2 ? native 94x23 art (cropped from 128x32 atlas pad). */
 .inventory-window .tab-header {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected');
-    background-color: transparent;
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2');
+    background-color: rgba(0, 0, 0, 0);
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
     -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-    height: 25px;
+    -unity-background-scale-mode: stretch-to-fill;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
     padding: 0;
-    width: 64px;
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 94px;
+    min-width: 94px;
+    max-width: 94px;
     justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .inventory-window .tab-header.skill {
     width: 88px;
 }
 
-.inventory-window .unity-tab__header:checked {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
+.inventory-window .tab-header.active,
+.inventory-window .tab-header.currentlySelectedTab {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
+    background-color: rgba(0, 0, 0, 0);
 }
 
-.inventory-window .tab-header.active {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-}
-
-
-.inventory-window .unity-tab__header:checked:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-}
-
-.inventory-window .tab-header.active:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-
-}
-
-
-.inventory-window .unity-tab__header:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected_Over');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
+.inventory-window .tab-header.active:hover,
+.inventory-window .tab-header.currentlySelectedTab:hover {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
 }
 
 .inventory-window .tab-header:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected_Over');
-     -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2_over');
 }
 
-
-
-
-.inventory-windoww .unity-tab__header-label {
-    color: rgb(220, 220, 220);
-    font-size: 11px;
-    padding-bottom: 2px;
-    margin: 0;
-    -unity-text-align: middle-center;
+.inventory-window #InventoryCount {
+    margin-bottom: 0;
+    margin-top: 0;
+    align-self: center;
+    -unity-text-align: middle-right;
 }
 
 .inventory-window #unity-content-viewport {
@@ -2347,11 +2321,42 @@
 }
 
 .inventory-window .tab-header-label {
-    color: rgb(220, 220, 220);
+    color: rgb(200, 195, 180);
     font-size: 11px;
-    padding-bottom: 2px;
+    padding-bottom: 0;
     margin: 0;
     -unity-text-align: middle-center;
+}
+
+/* Paper-doll icons fill xdat 34x34 Inventory_Back silhouette frames. */
+.inventory-window #GearContent > VisualElement {
+    overflow: hidden;
+}
+
+.inventory-window #GearContent .slot-bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 34px;
+    height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    flex-grow: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.inventory-window #HeaderButtons {
+    display: flex;
+}
+
+.inventory-window #Close-Window-Button,
+.inventory-window #Minimize-Window-Button,
+.inventory-window #Options-Window-Button {
+    display: flex;
+    opacity: 1;
 }
 
 .inventory-window .tab-header-label.skill {
@@ -2395,26 +2400,106 @@
     background-image: resource('Data/UI/Assets/Inventory/inventory_compound_drag');
 }
 
-.inventory-window #TrashBtn #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash');
+.inventory-window .options-btn {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    background-image: resource('Data/UI/Frame/Interlude/FrameOptionBtn');
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
-.inventory-window #TrashBtn:active #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash');
+.inventory-window .minimize-btn {
+    width: 16px;
+    height: 16px;
+    background-image: resource('Data/UI/Frame/Interlude/FrameMiniBtn');
 }
 
-.inventory-window #TrashBtn:active:hover #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash');
+.inventory-window .minimize-btn:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameminibtn_over');
 }
 
-.inventory-window #TrashBtn:hover #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash_over');
+.inventory-window .minimize-btn:active,
+.inventory-window .minimize-btn:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameMiniOnBtn');
+}
+
+.inventory-window .btn-close-frame,
+.inventory-window .close-btn {
+    width: 16px;
+    height: 16px;
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseBtn');
+}
+
+.inventory-window .btn-close-frame:hover,
+.inventory-window .close-btn:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameclosebtn_over');
+}
+
+.inventory-window .btn-close-frame:active,
+.inventory-window .close-btn:active,
+.inventory-window .btn-close-frame:active:hover,
+.inventory-window .close-btn:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseOnBtn');
+}
+
+.inventory-window #TrashBtn,
+.inventory-window .inventory-trash-btn {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.inventory-window #TrashBtn #ButtonBg,
+.inventory-window .inventory-trash-bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Trash');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    -unity-slice-bottom: 0;
+    picking-mode: ignore;
+}
+
+.inventory-window #TrashBtn:active #ButtonBg,
+.inventory-window #TrashBtn:active .inventory-trash-bg {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Trash');
+}
+
+.inventory-window #TrashBtn:active:hover #ButtonBg,
+.inventory-window #TrashBtn:hover #ButtonBg,
+.inventory-window #TrashBtn:active:hover .inventory-trash-bg,
+.inventory-window #TrashBtn:hover .inventory-trash-bg {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Trash_over');
 }
 
 .inventory-window .l2-scroll-view .unity-scroller {
     width: 14px;
-    margin-right: 2px;
-    margin-left: 2px;
+    margin-right: 0;
+    margin-left: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 .minimize-btn {

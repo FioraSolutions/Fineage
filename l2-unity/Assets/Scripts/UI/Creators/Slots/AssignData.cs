@@ -62,7 +62,7 @@
     public string GetName()
     {
         if (_itemData == null) return "";
-        return _itemData.ItemName.Name;
+        return _itemData.ItemName.DisplayName;
     }
 
     public string Description()
