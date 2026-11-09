@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class GenderStats
+﻿public class GenderStats
 {
     public readonly float RunK;
     public readonly float WalkK;

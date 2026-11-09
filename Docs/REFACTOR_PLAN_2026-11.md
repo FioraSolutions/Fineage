@@ -207,6 +207,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `CalcBaseParam` / `ProjectileFlightTimeCalculator` moved into `Fineage.Game` (cycle-safe).
 - [x] `PlayerLocomotionAnim` moved into `Fineage.Controller` (cycle-safe; `LocomotionCrossFadeSettings` stays Assembly-CSharp).
 - [x] `PlayerStriderAnim` moved into `Fineage.Controller` (cycle-safe).
+- [x] `CharTemplateRegistry` / `GenderStats` / `BaseStatModel` moved into `Fineage.Controller` (cycle-safe).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
@@ -226,7 +227,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
 | Backend B2b | **Mechanical B2b landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, Messages.* DTO split, ZoneEntity + ZoneWorld hub `.Members` file splits — primaries now mostly under 500 lines). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic Rules only. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Cycle-safe enum/util/anim-map slices largely landed (through opcodes + Controller anim enums/maps + `Animation` / `AnimationNames` / `PlayerLocomotionAnim` / `PlayerStriderAnim`). Residual = LifetimeScope / MonoBehaviours when cycle-safe; remaining Utils / `AnimationExitCrossFade` / `LocomotionCrossFadeSettings` are UI/anim/MB-tied |
+| Client #131 | Cycle-safe enum/util/anim-map slices largely landed (through opcodes + Controller anim enums/maps + `Animation` / `AnimationNames` / `PlayerLocomotionAnim` / `PlayerStriderAnim` / `CharTemplateRegistry`). Residual = LifetimeScope / MonoBehaviours when cycle-safe; remaining Utils / `AnimationExitCrossFade` / `LocomotionCrossFadeSettings` are UI/anim/MB-tied |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
