@@ -10,15 +10,13 @@ public static class PetVisuals
         return petNpcId;
     }
 
-    public static bool IsPet(EntityIdentity identity)
+    public static bool IsPet(bool owned, int npcId)
     {
-        if (identity == null)
-            return false;
-        if (identity.Owned)
+        if (owned)
             return true;
-        if (IsSummonNpc(identity.NpcId))
+        if (IsSummonNpc(npcId))
             return true;
-        return VisualNpcId(identity.NpcId) != identity.NpcId;
+        return VisualNpcId(npcId) != npcId;
     }
 
     public static bool IsSummonNpc(int npcId)

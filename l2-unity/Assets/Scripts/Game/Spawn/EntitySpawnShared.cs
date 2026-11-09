@@ -530,7 +530,7 @@ public static class EntitySpawnShared
         npc.Stats = request.Stats;
         npc.Identity = identity;
         npc.Identity.NpcClass = npcgrp.ClassName;
-        bool pet = PetVisuals.IsPet(identity);
+        bool pet = PetVisuals.IsPet(identity.Owned, identity.NpcId);
         if (!pet)
         {
             npc.Identity.Name = npcName.Name;
