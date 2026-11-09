@@ -7,11 +7,6 @@ using VContainer;
 public class PlayerInventory : MonoBehaviour
 {
 
-    public enum InventoryChange
-    {
-        UNCHANGED = 0, ADDED = 1, REMOVED = 3, MODIFIED = 2
-    }
-
     private const string TYPE_RECIPE = "recipe";
     private int _objectIdEtcType = -1;
     private Dictionary<int , ItemInstance> _playerInventory;

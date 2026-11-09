@@ -388,7 +388,7 @@ public static class NetGearSession
     static int MapZoneInventoryChange(int zoneChange)
     {
         // Fineage.Protocol.InventoryChange: 0 add, 1 modify, 2 remove.
-        // PlayerInventory.InventoryChange stores those as 1, 2, and 3.
+        // Client InventoryChange stores those as 1, 2, and 3.
         return NetInventoryBook.ToClientChange(zoneChange);
     }
 
