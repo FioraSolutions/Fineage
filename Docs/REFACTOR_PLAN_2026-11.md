@@ -1,6 +1,6 @@
 # Fineage refactor plan (2026-11)
 
-Unified plan from architecture reviews (GPT + DeepSeek), reconciled with epics **#131** (client arch) and **#112** (net scale), `AGENTS.md`, and code on `dev` as of **2026-11-09**.
+Unified plan from architecture reviews (GPT + DeepSeek + Claude 2026-11-09), reconciled with epics **#131** (client arch) and **#112** (net scale), `AGENTS.md`, and code on `dev` as of **2026-11-09**.
 
 **Do not** chase 20k CCU / Gateway / Redis yet. Stabilize **one Zone** + client apply path first. Prefer #131 before packing more #129 Gremlin surface onto the Unity monolith.
 
@@ -18,6 +18,43 @@ Unified plan from architecture reviews (GPT + DeepSeek), reconciled with epics *
 | **B — Simulate cleanly** | DB out of world lock; main-thread budget; NetSession shrink; Zone modularization | Next (server + residual client) |
 | **C — Client domain** | Dissolve `NetDomainMap`; DI / asmdef / Instance drain (#131 residual) | Parallel with B, epic #131 |
 | **D — Scale** | Simulation actor, multi-zone, Gateway+TLS, Redis sessions (#112–#114) | After A–C prove one Zone |
+
+---
+
+## Claude review verification (2026-11-09)
+
+Static re-check of Claude’s architecture note (server `b94fee9` / client `d7189d6` era → current `dev`). Verdict: **several P0/P1 bugs are real and actionable; persistence “memory-only enter” claim is outdated.**
+
+### Keep (still true / still open)
+
+| Claim | Evidence on 2026-11-09 |
+|-------|------------------------|
+| One ZoneWorld per process; server-authoritative move/combat | Live |
+| Sim + combat share `lock (_gate)` | `StartSimulation` → regen + `CombatLoopAsync` both take `_gate` |
+| Dual Login/Zone writers of `store_snapshot` id=1 | `PostgresAccountStore.RunSilent` / `PersistSnapshot` both upsert the same row; Zone export can clobber Login’s backup JSON |
+| Inventory/shop/trade paths call `SaveInventory` while world work often still holds `_gate` | `SaveInventory` → `ReplaceItemsFromInventory` → `RunSilent` opens Postgres synchronously |
+| Live combat loop skips proactive AI | `CombatLoopAsync` → `RunPlayerCombatTickAsync` only; `TickAggression` / `TickLeash` live in dead `RunCombatTickAsync` (tests only) |
+| Zone drop leaves client in-world | `FineageZoneTransport.OnDisconnected` never raised; `Disconnect()` only destroys `NetSession`; `GameManager.OnDisconnect` unsubscribed |
+| `NetZoneDispatch` silent holes | No cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList`; no `default` |
+| `TickSpawns` scans all `_spawnSlots` every sim tick | `ZoneWorldSpawns.TickSpawns` full foreach; due-check is cheap but cost grows with catalog |
+
+### Wrong / outdated in that Claude pass
+
+| Claim | Reality on 2026-11-09 |
+|-------|------------------------|
+| `FindById` reads only memory from `Open()` snapshot | **Outdated for Postgres:** `PostgresAccountStore.FindById` → `NormalizedStoreReader.TryLoadById` (+ hydrate). Enter path already loads off-lock (B1) |
+| Comment that enter is a Postgres round-trip is a lie | **Half-true:** async off-lock `FindById` *is* SQL now; the old “memory only” reading is wrong |
+| Inventory always full-wipe on pickup | **Wrong for hot path:** `RunSilent` + `ReplaceInventoryOnly`; full wipe remains on `PersistSnapshot` / process start / full `Save()` |
+| Enter still loads character under `_gate` | **Fixed (B1)** |
+
+### Priority remap from Claude (do next, small PRs)
+
+1. **B7 — Live AI tick:** fold `TickAggression` + `TickLeash` (+ `TickAttackStance` if still missing) into `RunPlayerCombatTickAsync`.
+2. **C4 — Zone disconnect UX:** raise `OnDisconnected` from remote close + intentional `Disconnect`; wire to `GameManager.OnDisconnect`.
+3. **C5 — Dispatch holes:** add missing inbound opcodes (apply or log) + `default` warning.
+4. **B8 — Persist off `_gate`:** after world mutation under lock, queue dirty inventory and run `SaveInventory` / `RunSilent` outside the lock (same pattern as enter/unlink persist).
+5. **B9 — Snapshot ownership:** stop dual full-JSON writers — Zone must not rewrite `store_snapshot` from a partial in-memory view; prefer normalized tables as SoT (already true for `FindById`) and treat snapshot as backup/export only.
+6. **B10 — Spawn due index (later):** due-heap / bucket for respawns when catalog size hurts tick budget.
 
 ---
 
@@ -56,7 +93,7 @@ Static re-check of the long GPT “client + server” architecture review agains
 | NetDomainMap as live apply path | **Gone (C1)** + CI freeze guard |
 | Client “no main-thread net pump / coalesce” | **Done (B3/B4 partial):** `NetMainThreadPump`, lobby extract, zone partials |
 | Metrics / backpressure entirely missing | **Partial:** Prometheus `/metrics` + tick/online; inbound Wait (not DropOldest) for critical; outbound critical path — #117/#119 still open for full AC |
-| `#34` Unity CI closed ⇒ Unity PR gate exists | **No:** issue closed; PR still does not batchmode-compile Unity |
+| `#34` Unity CI closed ⇒ Unity PR gate exists | **Superseded:** [#737](https://github.com/FioraSolutions/Fineage/issues/737) EditMode/compile gate landed (#874) |
 
 ### Priority remap after verification
 
@@ -148,6 +185,21 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - [x] Warehouse: over-count / duplicate-line deposit refused; stale objectId deposit/withdraw cannot invent a second move (`NetWarehouseEconomyTests`).
 - [x] Inventory destroy: stale objectId after full remove cannot invent another removal (`NetGroundItemTests`).
 - [x] Shop limited-stock second buy refused without taking adena (`NetShopTests`).
+
+
+### B7. Live AI tick — in progress (Claude 2026-11-09)
+- Fold `TickAggression` + `TickLeash` (+ `TickAttackStance`) into `RunPlayerCombatTickAsync`.
+- Keep `RunCombatTickAsync` as the test/helper entry that already includes them, or make it call the live tick body.
+
+### B8. Persist off `_gate` — open (Claude)
+- World mutation under lock; `SaveInventory` / Postgres `RunSilent` after release (same pattern as enter/unlink persist).
+
+### B9. Snapshot ownership — open (Claude)
+- Stop dual full-JSON writers of `store_snapshot` id=1 from Login + Zone partial memory.
+- Normalized tables remain SoT for `FindById`; snapshot = backup/export only.
+
+### B10. Spawn due index — later
+- Replace full `_spawnSlots` scan when catalog size hurts tick budget.
 
 ---
 
@@ -251,6 +303,15 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
 
+
+### C4. Zone disconnect UX — in progress (Claude 2026-11-09)
+- Raise `FineageZoneTransport.OnDisconnected` on remote close and intentional `Disconnect`.
+- Wire AppLifetimeScope → `GameManager.OnDisconnect` so zone drop returns to menu.
+
+### C5. NetZoneDispatch holes — open (Claude)
+- Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
+- Add `default` warning so unknown opcodes are visible.
+
 ---
 
 ## Phase D — Scale (#112) — later
@@ -263,11 +324,11 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 | Track | Deliverable |
 |-------|-------------|
-| Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | **Mechanical B2b landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession, Messages.* DTO split, ZoneEntity + ZoneWorld hub `.Members` file splits — primaries now mostly under 500 lines). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic Rules only. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | Cycle-safe enum/util/DTO/helper slices largely exhausted on 2026-11-09 (PRs #845–#864 + wire DTOs #866–#867 + Domain shared utils/manor/chat for #737). Residual hard work = LifetimeScope / gameplay MonoBehaviours when cycle-safe; ACS Product/Entity/SystemMessage-tied DTOs; GameRuntime/LoginRuntime shrink |
+| Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
+| Backend next | **B7 AI tick** → **B8 persist off gate** → **B9 snapshot ownership**; B2b mechanical done ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)); sim actor later |
+| Client next | **C4 disconnect UX** → **C5 dispatch holes** → GameRuntime shrink / LifetimeScope when cycle-safe ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
-| CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) workflow + asmdef boundary fix on PR #874 |
+| CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
 
 **Out of scope now:** Redis, multi-zone, QUIC, 20k claims, ECS rewrite, microservices.
 
@@ -283,3 +344,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld hub file-split (primaries mostly <500 lines)
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
 - [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe
+- [ ] Live combat loop runs `TickAggression` / `TickLeash` (B7)
+- [ ] Zone disconnect raises UI path (C4)
+- [ ] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5)
+- [ ] Inventory persist not under `_gate` (B8)
+- [ ] Single owner / backup-only `store_snapshot` (B9)

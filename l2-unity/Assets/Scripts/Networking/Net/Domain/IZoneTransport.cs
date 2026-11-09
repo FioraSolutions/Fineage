@@ -41,7 +41,13 @@ public interface IZoneTransport
     void Disconnect();
 
     /// <summary>
-    /// Fired on the main thread when the connection drops unexpectedly.
+    /// Raise <see cref="OnDisconnected"/> once (remote close or intentional disconnect).
+    /// Idempotent until the next successful zone connect.
+    /// </summary>
+    void NotifyDisconnected();
+
+    /// <summary>
+    /// Fired on the main thread when the connection drops unexpectedly or via <see cref="Disconnect"/>.
     /// Subscribers can show UI or attempt reconnect.
     /// </summary>
     event Action OnDisconnected;
