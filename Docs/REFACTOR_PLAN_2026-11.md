@@ -123,7 +123,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 |-------|--------|
 | `NetZoneServer` handlers | [x] Opcode groups → `*PacketHandler`; fanout encode in `NetWorldEventPublisher`; listener is dispatch + lifecycle |
 | Domain events | [x] `IWorldEventPublisher` in `Fineage.Zone.World` + Net encode in `NetWorldEventPublisher`. All fanout DTOs Protocol/primitives; ShortCut/admin World entry Protocol/primitives. World has no `Fineage.Net.Contract` references |
-| `ZoneWorld` systems | New gameplay goes into focused types (`*System` / `*Rules` / `*Service`); stop growing the partial bag when avoidable |
+| `ZoneWorld` systems | Prefer focused `*Rules` / `*Service` over growing the partial bag. Landed extracts include Trade/Party/Ground/PrivateStore/Friend/Craft/Manufacture/ShortCut/SkillUse/Consumable/Shot/ShopSession/Gear/EnchantSession/WarehouseSession/Move (+ prior Clan/Siege/Olympiad/SS/Say/Death). Residual: opportunistic Rules only; simulation actor is B2 later |
 | `ZoneEntity` composition | [x] ground + spoil + aggro + player store/social/status/skills/identity + NPC template/merchant + shared move/vitals/combat payloads composed; leftover refs (Session/Inventory/Warehouse/Shop/Quests/Knownlist/DungeonId/InstanceId) stay on entity |
 | `NetCodec` | Round-trip tests mandatory; domain partials: session (`NetCodec.cs`), `PresenceCombat`, `WorldEvents`, `Clan`, `Friends`, `Craft`, `PrivateStore`, `Trade`, `Party`, `Quest`, `Shop` |
 
@@ -213,8 +213,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, Rules extracts incl. Consumable/Shot/ShopSession/Gear/EnchantSession/WarehouseSession, login rate limit). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic more Rules. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
-| Client #131 | More asmdef moves (playtest runtime in `Fineage.Networking`; cycle-safe enums into `Fineage.Game`/`Fineage.UI`); LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge). Remaining enums mostly animation-tied |
+| Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, login rate limit, Rules through Move/Warehouse/EnchantSession). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; only opportunistic further Rules. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
+| Client #131 | Cycle-safe enum/runtime slices continue (playtest + InventoryChange/SlotType/SMParamType/EnchantResult/LightAttach/EnumType2/FineageLog*); LifetimeScope into `Fineage.Di` only when cycle-safe. Remaining enums mostly animation-tied |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
 
