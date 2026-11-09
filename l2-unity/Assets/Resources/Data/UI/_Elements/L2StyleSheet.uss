@@ -908,7 +908,7 @@
     position: absolute;
     right: 0;
     bottom: 0;
-    /* left chrome 12 + 4Ч34 @ pitch 37 ending at 12+3*37+34 = 157, + right cap 8 ? 165 */
+    /* left chrome 12 + 4x34 @ pitch 37 ending at 12+3*37+34 = 157, + right cap 8 ? 165 */
     width: 165px;
     height: 46px;
     min-width: 165px;
@@ -1035,10 +1035,6 @@
 #SystemMenuButton:active,
 #SystemMenuButton:active:hover {
     background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Down');
-}
-
-.menu-button-bg {
-    display: none;
 }
 
 /* Interlude SystemMsgWnd ? same width as ChatWnd; chatting_system chrome. */
@@ -4116,12 +4112,12 @@
     font-size: 12px;
 }
 
-/* Прозрачный DropdownField с рамкой и размером текста 12 */
+/* ГЏГ°Г®Г§Г°Г Г·Г­Г»Г© DropdownField Г± Г°Г Г¬ГЄГ®Г© ГЁ Г°Г Г§Г¬ГҐГ°Г®Г¬ ГІГҐГЄГ±ГІГ  12 */
 
 .dropdown-field {
-    background-color: transparent; /* Прозрачный фон */
+    background-color: transparent; /* ГЏГ°Г®Г§Г°Г Г·Г­Г»Г© ГґГ®Г­ */
     /*border-color: rgba(149, 149, 149 , 0.0);*/
-    font-size: 12px; /* Размер текста */
+    font-size: 12px; /* ГђГ Г§Г¬ГҐГ° ГІГҐГЄГ±ГІГ  */
 }
 
 .dropdown-field .unity-text-field__input {
@@ -4130,8 +4126,8 @@
 }
 
 
-/* применить к конкретному полю: <DropdownField class="small-dropdown" /> */
-/* или заменить .small-dropdown на тип DropdownField для глобального эффекта */
+/* ГЇГ°ГЁГ¬ГҐГ­ГЁГІГј ГЄ ГЄГ®Г­ГЄГ°ГҐГІГ­Г®Г¬Гі ГЇГ®Г«Гѕ: <DropdownField class="small-dropdown" /> */
+/* ГЁГ«ГЁ Г§Г Г¬ГҐГ­ГЁГІГј .small-dropdown Г­Г  ГІГЁГЇ DropdownField Г¤Г«Гї ГЈГ«Г®ГЎГ Г«ГјГ­Г®ГЈГ® ГЅГґГґГҐГЄГІГ  */
 
 .small-dropdown .unity-base-field__input {
   height: 16px;
@@ -4176,9 +4172,9 @@
 
 
 
-/* Стили для элементов списка */
+/* Г‘ГІГЁГ«ГЁ Г¤Г«Гї ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 .dropdown-field .unity-base-popup-field__arrow {
-    color: black; /* Цвет текста элементов списка */
+    color: black; /* Г–ГўГҐГІ ГІГҐГЄГ±ГІГ  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 }
 
 .dropdown-field .unity-base-field__input.selected  {
@@ -4186,14 +4182,14 @@
 }
 
 .dropdown-field  .unity-base-dropdown__item:hover{
-    color: black; /* Цвет текста элементов списка */
+    color: black; /* Г–ГўГҐГІ ГІГҐГЄГ±ГІГ  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 }
 
 .dropdown-field .VisualElement{
      background-color: transparent;
 }
 .dropdown-field .unity-base-popup-field__arrow{
-   /* position: absolute; /* Позволяет изображению быть позиционированным относительно контейнера 
+   /* position: absolute; /* ГЏГ®Г§ГўГ®Г«ГїГҐГІ ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГѕ ГЎГ»ГІГј ГЇГ®Г§ГЁГ¶ГЁГ®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г¬ Г®ГІГ­Г®Г±ГЁГІГҐГ«ГјГ­Г® ГЄГ®Г­ГІГҐГ©Г­ГҐГ°Г  
     margin-left:87%;
     width: 17px;
     height: 18px;*/
@@ -4207,7 +4203,7 @@
     -unity-slice-right: 2;
     -unity-slice-scale: 0;
     border-width: 0;
-    /* Он перекрывает фон кнопки!!!!! */
+    /* ГЋГ­ ГЇГҐГ°ГҐГЄГ°Г»ГўГ ГҐГІ ГґГ®Г­ ГЄГ­Г®ГЇГЄГЁ!!!!! */
     -unity-background-image-tint-color: rgb(255,255,255);
 }
 
