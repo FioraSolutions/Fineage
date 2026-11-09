@@ -209,6 +209,26 @@ public sealed class NetZoneDispatch
             case NetOpcode.PositionCorrection:
                 _session.ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
                 break;
+            // Server → client world/event fanouts that previously fell through with no case (Claude C5).
+            // Decode so framing stays honest; full UI apply lands with the matching windows.
+            case NetOpcode.SiegeInfo:
+                _ = NetCodec.DecodeSiegeInfo(envelope.Payload);
+                break;
+            case NetOpcode.OlympiadStatus:
+                _ = NetCodec.DecodeOlympiadStatus(envelope.Payload);
+                break;
+            case NetOpcode.SevenSignsStatus:
+                _ = NetCodec.DecodeSevenSignsStatus(envelope.Payload);
+                break;
+            case NetOpcode.DungeonEntered:
+                _ = NetCodec.DecodeDungeonEntered(envelope.Payload);
+                break;
+            case NetOpcode.PrivateStoreInfo:
+                _ = NetCodec.DecodePrivateStoreInfo(envelope.Payload);
+                break;
+            case NetOpcode.FriendList:
+                _ = NetCodec.DecodeFriendList(envelope.Payload);
+                break;
             case NetOpcode.Reject:
             {
                 var reject = NetCodec.DecodeReject(envelope.Payload);
@@ -216,6 +236,9 @@ public sealed class NetZoneDispatch
                 NetSession.NoteReject(reject.Code, reject.Message);
                 break;
             }
+            default:
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{envelope.Opcode:X4}");
+                break;
         }
     
     }
