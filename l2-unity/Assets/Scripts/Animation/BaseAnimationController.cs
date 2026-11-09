@@ -333,12 +333,17 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
 
     void DriveTrigger(string paramName)
     {
+        // drop_* / race-specific gestures may be missing on the active controller.
+        if (!AnimatorBoolSet.HasTrigger(_animator, paramName))
+            return;
         _animator.SetTrigger(paramName);
         _castPlayable?.SetTrigger(paramName);
     }
 
     void DriveResetTrigger(string paramName)
     {
+        if (!AnimatorBoolSet.HasTrigger(_animator, paramName))
+            return;
         _animator.ResetTrigger(paramName);
         _castPlayable?.ResetTrigger(paramName);
     }

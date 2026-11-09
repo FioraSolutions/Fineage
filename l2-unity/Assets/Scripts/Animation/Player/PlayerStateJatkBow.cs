@@ -124,6 +124,9 @@ public class PlayerStateJatkBow : StateMachineBehaviour
 
     private void StopAnimationTrigger(Animator animator, string animParameterName)
     {
+        // CrossFade combat path: jatk*_bow is a state name, not a Bool param.
+        if (!AnimatorBoolSet.HasBool(animator, animParameterName))
+            return;
         if (animator.GetBool(animParameterName))
         {
             Animations.StopCurrentAnimation(
