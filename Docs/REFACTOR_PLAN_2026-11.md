@@ -191,6 +191,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `InventoryChange` moved into `Fineage.Game` (cycle-safe).
 - [x] `SlotType` moved into `Fineage.UI` (cycle-safe).
 - [x] `SMParamType` moved into `Fineage.Networking` (cycle-safe).
+- [x] `EnchantResult` moved into `Fineage.Networking` (cycle-safe; was nested `EnumResult`).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
@@ -209,7 +210,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, Rules extracts incl. Consumable/Shot/ShopSession/Gear, login rate limit). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic more Rules. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
+| Backend B2b | **Mechanical B2b largely landed** (handlers, Protocol fanouts, publisher/codec domain partials, Rules extracts incl. Consumable/Shot/ShopSession/Gear/EnchantSession/WarehouseSession, login rate limit). Residual = simulation actor later; TLS/Gateway Fineage #17/#113 before public; opportunistic more Rules. Epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) |
 | Client #131 | More asmdef moves (playtest runtime in `Fineage.Networking`; cycle-safe enums into `Fineage.Game`/`Fineage.UI`); LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge). Remaining enums mostly animation-tied |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |

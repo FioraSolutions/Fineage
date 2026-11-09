@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static EnchantResultDto;
 using static L2Slot;
 using VContainer;
 
@@ -397,24 +396,24 @@ public class EnchantWindow : L2PopupWindow
         _textLabel.text = _defaultTextLabel;
     }
 
-    public void EnchantResult(EnumResult result)
+    public void EnchantResult(EnchantResult result)
     {
         switch (result)
         {
-            case EnumResult.Success:
+            case EnchantResult.Success:
                 UpdateS1();
                 StartEnchantAnim(true);
                 break;
-            case EnumResult.Cancelled:
+            case EnchantResult.Cancelled:
                HideWindow();
                 break;
-            case EnumResult.UnSuccess:
+            case EnchantResult.UnSuccess:
                 StartEnchantAnim(false);
                 break;
-            case EnumResult.Unk_Result_1:
+            case EnchantResult.Unk_Result_1:
                 StartEnchantAnim(false);
                 break;
-            case EnumResult.Unk_Result_4:
+            case EnchantResult.Unk_Result_4:
                 StartEnchantAnim(false);
                 break;
         }
