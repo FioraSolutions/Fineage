@@ -200,6 +200,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `TimeUtils` moved into `Fineage.Game` (cycle-safe).
 - [x] `RandomUtils` / `StringUtils` / `ArrayUtils` moved into `Fineage.Game` (cycle-safe).
 - [x] `NumberUtils` moved into `Fineage.Game` (cycle-safe).
+- [x] `TransformUtils` moved into `Fineage.Game` (cycle-safe).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
