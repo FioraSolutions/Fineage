@@ -10,6 +10,9 @@ public class InventoryWindow : L2PopupWindow
 {
     public static int PLAYER_INVENTORY_SIZE = 81;
 
+    /// <summary>Interlude InventoryWnd bag columns (ItemWindow). Classic expand used 9/12.</summary>
+    public const int BagColumns = 6;
+
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _inventorySlotTemplate;
@@ -102,29 +105,47 @@ public class InventoryWindow : L2PopupWindow
 
         _expanded = false;
 
+        ApplyInterludeInventoryTextures();
+
         var dragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
+        if (dragArea != null)
+        {
+            DragManipulator drag = new DragManipulator(dragArea, _windowEle);
+            dragArea.AddManipulator(drag);
+        }
 
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterClickWindowEvent(_windowEle, dragArea);
 
+        // Interlude InventoryWnd has no expand control; Classic DF chrome still may.
         _expandButton = (Button)GetElementByClass("expand-btn");
-        _expandButton.AddManipulator(new ButtonClickSoundManipulator(_expandButton));
-        _expandButton.RegisterCallback<MouseDownEvent>(OnExpandButtonPressed, TrickleDown.TrickleDown);
+        if (_expandButton != null)
+        {
+            _expandButton.AddManipulator(new ButtonClickSoundManipulator(_expandButton));
+            _expandButton.RegisterCallback<MouseDownEvent>(OnExpandButtonPressed, TrickleDown.TrickleDown);
+        }
 
         Button adenaDistribution = (Button)GetElementById("AdenaDistribBtn");
-        adenaDistribution.AddManipulator(new ButtonClickSoundManipulator(adenaDistribution));
-        adenaDistribution.AddManipulator(new TooltipManipulator(adenaDistribution, "Adena distribution"));
+        if (adenaDistribution != null)
+        {
+            adenaDistribution.AddManipulator(new ButtonClickSoundManipulator(adenaDistribution));
+            adenaDistribution.AddManipulator(new TooltipManipulator(adenaDistribution, "Adena distribution"));
+        }
 
         Button compoundBtn = (Button)GetElementById("CompoundBtn");
-        compoundBtn.AddManipulator(new ButtonClickSoundManipulator(compoundBtn));
-        compoundBtn.AddManipulator(new TooltipManipulator(adenaDistribution, "Compound"));
+        if (compoundBtn != null)
+        {
+            compoundBtn.AddManipulator(new ButtonClickSoundManipulator(compoundBtn));
+            compoundBtn.AddManipulator(new TooltipManipulator(compoundBtn, "Compound"));
+        }
 
         Button trashBtn = (Button)GetElementById("TrashBtn");
-        trashBtn.AddManipulator(new ButtonClickSoundManipulator(trashBtn));
-        trashBtn.AddManipulator(new TooltipManipulator(adenaDistribution, "Trash"));
-        L2Slot trashSlot = new L2Slot(trashBtn, 100 , SlotType.Trash);
+        if (trashBtn != null)
+        {
+            trashBtn.AddManipulator(new ButtonClickSoundManipulator(trashBtn));
+            trashBtn.AddManipulator(new TooltipManipulator(trashBtn, "Trash"));
+            _ = new L2Slot(trashBtn, 100, SlotType.Trash);
+        }
 
         _inventoryCountLabel = GetLabelById("InventoryCount");
 
@@ -133,6 +154,90 @@ public class InventoryWindow : L2PopupWindow
 
         _adenaCountLabel = GetLabelById("AdenaCount");
         _weightLabel = GetLabelById("CurrentWeight");
+    }
+
+    /// <summary>
+    /// UITK <c>resource()</c> often fails for Interlude sprites; paint from Resources.Load.
+    /// Slot coords are texture-relative (interface.xdat window Y minus BackTexture Y=20).
+    /// </summary>
+    void ApplyInterludeInventoryTextures()
+    {
+        // Full Inventory_Back plate (tab cutouts + bag frame). Gear is hitboxes only.
+        SetResourcesBackground("Container", "Data/UI/Inventory/Inventory_Interlude_Back");
+        VisualElement gear = GetElementById("Gear");
+        if (gear != null)
+            gear.style.backgroundImage = StyleKeyword.None;
+
+        // Header FrameBack + sys buttons — same load path (resource() is unreliable).
+        PaintNamedBackground("Left-Frame-Element", "Data/UI/Frame/Interlude/FrameBackLeft");
+        PaintNamedBackground("Center-Frame-Element", "Data/UI/Frame/Interlude/FrameBackMid");
+        PaintNamedBackground("Right-Frame-Element", "Data/UI/Frame/Interlude/FrameBackRight");
+        // System menu (⋮) — not chatting_option wrench.
+        PaintNamedBackground("Options-Window-Button", "Data/UI/Frame/Interlude/FrameOptionBtn");
+        PaintNamedBackground("Minimize-Window-Button", "Data/UI/Frame/Interlude/FrameMiniBtn");
+        PaintNamedBackground("Close-Window-Button", "Data/UI/Frame/Interlude/FrameCloseBtn");
+
+        VisualElement trashBg = _windowEle?.Q<VisualElement>("TrashBtn")?.Q<VisualElement>("ButtonBg");
+        if (trashBg != null)
+            L2SlotIconView.TrySetResourcesBackground(
+                trashBg,
+                "Data/UI/Inventory/Inventory_Interlude_Trash");
+    }
+
+    void SetResourcesBackground(string elementId, string resourcesPath)
+    {
+        VisualElement ele = GetElementById(elementId);
+        if (ele == null)
+            return;
+        L2SlotIconView.TrySetResourcesBackground(ele, resourcesPath);
+    }
+
+    void PaintNamedBackground(string elementName, string resourcesPath)
+    {
+        VisualElement ele = _windowEle?.Q(elementName);
+        if (ele == null)
+            return;
+        L2SlotIconView.TrySetResourcesBackground(ele, resourcesPath);
+    }
+
+    /// <summary>
+    /// UITK resource() often misses Interlude tab sprites — stamp Texture2D after headers exist.
+    /// </summary>
+    void ApplyInterludeTabChrome()
+    {
+        if (_inventoryTabView == null)
+            return;
+
+        Texture2D tabActive = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab1");
+        Texture2D tabIdle = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab2");
+        Texture2D tabHover = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab2_over");
+
+        foreach (VisualElement header in _inventoryTabView.Query(className: "tab-header").ToList())
+        {
+            ApplyTabHeaderBackground(header, tabActive, tabIdle);
+
+            header.RegisterCallback<MouseEnterEvent>(_ =>
+            {
+                if (IsTabHeaderActive(header) || tabHover == null)
+                    return;
+                header.style.backgroundImage = new StyleBackground(tabHover);
+            });
+            header.RegisterCallback<MouseLeaveEvent>(_ =>
+                ApplyTabHeaderBackground(header, tabActive, tabIdle));
+        }
+    }
+
+    static bool IsTabHeaderActive(VisualElement header) =>
+        header.ClassListContains("active") || header.ClassListContains("currentlySelectedTab");
+
+    static void ApplyTabHeaderBackground(VisualElement header, Texture2D active, Texture2D idle)
+    {
+        Texture2D tex = IsTabHeaderActive(header) ? active : idle;
+        if (tex != null)
+            header.style.backgroundImage = new StyleBackground(tex);
     }
 
 
@@ -188,10 +293,12 @@ public class InventoryWindow : L2PopupWindow
     private void CreateMinimizedWindow()
     {
 
-        // Header button
         Button minimizeWindowButton = (Button)GetElementByClass("minimize-btn");
-        minimizeWindowButton.AddManipulator(new ButtonClickSoundManipulator(minimizeWindowButton));
-        minimizeWindowButton.RegisterCallback<MouseUpEvent>(OnMinimizeInventoryClick, TrickleDown.TrickleDown);
+        if (minimizeWindowButton != null)
+        {
+            minimizeWindowButton.AddManipulator(new ButtonClickSoundManipulator(minimizeWindowButton));
+            minimizeWindowButton.RegisterCallback<MouseUpEvent>(OnMinimizeInventoryClick, TrickleDown.TrickleDown);
+        }
 
         // Minized inventory button
         _minimizedInventoryBtn = _minimizedTemplate.Instantiate()[0];
@@ -233,20 +340,12 @@ public class InventoryWindow : L2PopupWindow
         _inventoryTabView = GetElementById("InventoryTabView");
 
         VisualElement tabHeaderContainer = _inventoryTabView.Q<VisualElement>("tab-header-container");
-        if (tabHeaderContainer == null)
-        {
-            // Debug.LogError("tab-header-container is null");
-        }
+        // Interlude: tabs left, (n/max) count right. Prefer dedicated host when present.
+        VisualElement tabHeaderHost = _inventoryTabView.Q<VisualElement>("tab-headers") ?? tabHeaderContainer;
         VisualElement tabContainer = _inventoryTabView.Q<VisualElement>("tab-content-container");
 
-        if (tabContainer == null)
+        for (int i = 0; i < _tabs.Count; i++)
         {
-            // Debug.LogError("tab-content-container");
-        }
-
-        for (int i = _tabs.Count - 1; i >= 0; i--)
-        {
-
             VisualElement tabElement = _tabTemplate.CloneTree()[0];
             tabElement.name = _tabs[i].TabName;
             tabElement.AddToClassList("unselected-tab");
@@ -255,7 +354,7 @@ public class InventoryWindow : L2PopupWindow
             tabHeaderElement.name = _tabs[i].TabName;
             tabHeaderElement.Q<Label>().text = _tabs[i].TabName;
 
-            tabHeaderContainer.Add(tabHeaderElement);
+            tabHeaderHost.Add(tabHeaderElement);
             tabContainer.Add(tabElement);
 
             _tabs[i].Initialize(_windowEle, tabElement, tabHeaderElement , true , true);
@@ -267,6 +366,7 @@ public class InventoryWindow : L2PopupWindow
         }
 
         _tabs[0].MainTab = true;
+        ApplyInterludeTabChrome();
 
         _gearTab = new InventoryGearTab();
         _gearTab.Initialize(_windowEle, null, null , true , true);
@@ -301,34 +401,56 @@ public class InventoryWindow : L2PopupWindow
             //ScrollDown(switchTo.Scroller);
             SwitchItemList(switchTo);
             _activeTab = switchTo;
+            RefreshInterludeTabChromeImages();
             return true;
         }
         
         return false;
     }
 
+    void RefreshInterludeTabChromeImages()
+    {
+        if (_inventoryTabView == null)
+            return;
+
+        Texture2D tabActive = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab1");
+        Texture2D tabIdle = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab2");
+
+        foreach (VisualElement header in _inventoryTabView.Query(className: "tab-header").ToList())
+            ApplyTabHeaderBackground(header, tabActive, tabIdle);
+    }
+
     private void SwitchItemList(InventoryTab switchTo)
     {
-        //Equip
-        //Supplies
-        //Quest
-        if (!switchTo.TabName.Equals("All"))
-        {
-            List<ItemInstance> filterList = InventoryPacketServices.Inventory.FilterInventory(switchTo.GetFilterCategories);
-            if (filterList != null && filterList.Count > 0)
-            {
-                switchTo.SetItemList(filterList);
-            }
-            else
-            {
-                switchTo.AddAllEmptyInventory(0);
-            }
-        }
-        else
+        // Interlude: Items (main / non-quest bag) + Quest.
+        if (switchTo.MainTab || switchTo.TabName.Equals("Items") || switchTo.TabName.Equals("All"))
         {
             List<ItemInstance> items_collect = InventoryPacketServices.Inventory.GetPlayerInvetoryToList();
-            switchTo.SetItemList(items_collect);
+            switchTo.SetItemList(FilterOutQuestItems(items_collect));
+            return;
         }
+
+        List<ItemInstance> filterList = InventoryPacketServices.Inventory.FilterInventory(switchTo.GetFilterCategories);
+        if (filterList != null && filterList.Count > 0)
+            switchTo.SetItemList(filterList);
+        else
+            switchTo.AddAllEmptyInventory(0);
+    }
+
+    static List<ItemInstance> FilterOutQuestItems(List<ItemInstance> items)
+    {
+        if (items == null)
+            return new List<ItemInstance>();
+        var result = new List<ItemInstance>(items.Count);
+        for (int i = 0; i < items.Count; i++)
+        {
+            ItemInstance item = items[i];
+            if (item != null && item.Category != ItemCategory.Quest)
+                result.Add(item);
+        }
+        return result;
     }
 
     public void UpdateStats(PlayerStats stats)
@@ -339,11 +461,11 @@ public class InventoryWindow : L2PopupWindow
             _maximumWeight = stats.MaxWeight;
             _weightLabel.text = stats.WeightPercent()+"%";
 
-            // Interlude inventory UXML paints fill on WeightBg, not the gauge child.
+            // WeightGauge = Interlude Weight1/2/3 fill; WeightBg = empty track.
             float weightRatio = stats.MaxWeight > 0
                 ? (float)stats.CurrWeight / stats.MaxWeight
                 : 0f;
-            L2ResourceBarView.SetFillFixed(_weiBarBg, _weiBarBg, weightRatio, 138f);
+            L2ResourceBarView.SetFillFixed(_weiBarBg, _weiBarBg, weightRatio, 160f);
   
         }
 
@@ -355,7 +477,7 @@ public class InventoryWindow : L2PopupWindow
         SetAdenaCountLabel(adenaCount);
         //_tabs[0].ForEach((tab) =>
         //{
-        _tabs[0].SetItemList(allItems);
+        _tabs[0].SetItemList(FilterOutQuestItems(allItems));
         _gearTab.SetEquipList(quipAllItems , userId);
         _slotCount = PLAYER_INVENTORY_SIZE;
         _inventoryCountLabel.text = $"({usedSlots}/{_slotCount})";
@@ -372,7 +494,10 @@ public class InventoryWindow : L2PopupWindow
             _slotCount = PLAYER_INVENTORY_SIZE;
             _inventoryCountLabel.text = $"({usedSlots}/{_slotCount})";
             SetAdenaCountLabel(adenaCount);
-            _tabs[0].UpdateItemList(removeAndAdd, modified , changeInventoryData);
+            _tabs[0].UpdateItemList(
+                FilterOutQuestItems(removeAndAdd),
+                FilterOutQuestItems(modified),
+                changeInventoryData);
             _gearTab.UpdateEquipList(listEquipModified , changeInventoryData , userId);
         }
         else

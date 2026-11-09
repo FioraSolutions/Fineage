@@ -85,12 +85,10 @@ public class InventoryTab : L2Tab
     {
         int slotCount = InventoryPacketServices.Window.SlotCount;
 
-        // Add disabled slot to fill up the window
-        int rowLength = 9;
-        if (InventoryPacketServices.Window.Expanded)
-        {
+        // Interlude InventoryWnd bag is 6-wide; Classic expand used 9/12.
+        int rowLength = InventoryWindow.BagColumns;
+        if (InventoryPacketServices.Window != null && InventoryPacketServices.Window.Expanded)
             rowLength = 12;
-        }
 
         int padSlot = 0;
         if (slotCount < 8 * rowLength)

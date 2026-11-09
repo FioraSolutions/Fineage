@@ -338,7 +338,7 @@ public class TradeWindow : L2PopupWindow
             if (item.ItemData != null)
             {
                 _id = item.ItemData.Id;
-                _name = item.ItemData.ItemName.Name;
+                _name = item.ItemData.ItemName.DisplayName;
                 _description = item.ItemData.ItemName.Description;
                 _icon = item.ItemData.Icon;
                 _objectId = item.ObjectId;

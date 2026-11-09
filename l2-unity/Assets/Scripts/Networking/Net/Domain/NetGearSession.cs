@@ -358,11 +358,11 @@ public static class NetGearSession
         bool worn = row.EquippedSlot >= 0;
         ItemCategory category = CategoryFromZone(row);
         ItemSlot slot = SlotFromBodyToken(row.BodySlot);
-        // The Net ItemList row only carries the paperdoll index, not the body token or kind, so resolve
-        // both from the local grp tables. Without this every item was ItemCategory.Item / ItemSlot.none,
-        // and the equipped weapon never reached the paperdoll: the bag had items, the weapon did not.
+        // Wire rows normally carry Kind + BodySlot. Fall back to local grp tables only when absent
+        // (legacy payloads / incomplete rows), then normalize paper-doll identity once.
         if (category == ItemCategory.Item && slot == ItemSlot.none)
             ResolveFromLocalTables(row.ItemId, ref category, ref slot);
+        NormalizeEquippedIdentity(ref category, ref slot);
         ItemLocation location = worn ? ItemLocation.Equipped : ItemLocation.Inventory;
         int index = worn ? indexEquip++ : indexBag++;
         var item = new ItemInstance(
@@ -393,8 +393,7 @@ public static class NetGearSession
     }
 
     /// <summary>
-    /// Fills category/body slot from the client's own weapongrp / armorgrp tables when the wire row
-    /// did not carry them. Net ItemList sends ObjectId, ItemId, Count, EnchantLevel and EquippedSlot only.
+    /// Fills category/body slot from local weapongrp / armorgrp when the wire row omitted Kind/BodySlot.
     /// </summary>
     static void ResolveFromLocalTables(int itemId, ref ItemCategory category, ref ItemSlot slot)
     {
@@ -405,6 +404,8 @@ public static class NetGearSession
         Weapon weapon = table.GetWeapon(itemId);
         if (weapon != null && weapon.Weapongrp != null)
         {
+            // Raw weapongrp identity (shields are handness 0 → ItemSlot.lhand_shield).
+            // NormalizeEquippedIdentity remaps that to ShieldArmor + lhand.
             category = ItemCategory.Weapon;
             slot = weapon.Weapongrp.BodyPart;
             return;
@@ -421,6 +422,18 @@ public static class NetGearSession
 
         if (table.GetEtcItem(itemId) != null)
             category = itemId == 57 ? ItemCategory.Adena : ItemCategory.Item;
+    }
+
+    /// <summary>
+    /// Sole client remap from Interlude weapongrp packing to Fineage equip/UI identity.
+    /// Server wire already sends Kind=armor BodySlot=lhand for shields; this covers table fallback.
+    /// </summary>
+    static void NormalizeEquippedIdentity(ref ItemCategory category, ref ItemSlot slot)
+    {
+        if (slot != ItemSlot.lhand_shield)
+            return;
+        slot = ItemSlot.lhand;
+        category = ItemCategory.ShieldArmor;
     }
 
     static bool IsJewelItemSlot(ItemSlot slot)

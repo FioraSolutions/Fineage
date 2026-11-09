@@ -125,13 +125,8 @@ public abstract class AbstractServerItem
     {
         Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(itemId);
 
-        if (weapon != null)
-        {
-            if (weapon.BodyPart == ItemSlot.lhand_shield)
-            {
-                return "Shield";
-            }
-        }
+        if (weapon != null && weapon.WeaponType == WeaponType.shield)
+            return "Shield";
 
 
         return "";

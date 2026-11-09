@@ -167,7 +167,7 @@ public class Product : AbstractServerItem
         ItemName item = ItemNameTable.Instance != null
             ? ItemNameTable.Instance.GetItemName(_itemId)
             : null;
-        return item != null && !string.IsNullOrEmpty(item.Name) ? item.Name : ("Item " + _itemId);
+        return item != null && !string.IsNullOrEmpty(item.DisplayName) ? item.DisplayName : ("Item " + _itemId);
     }
 
     public override bool Equals(object obj)

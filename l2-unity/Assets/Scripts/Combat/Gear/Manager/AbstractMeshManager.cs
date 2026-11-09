@@ -100,7 +100,8 @@ public class AbstractMeshManager : MonoBehaviour
         if (go == null)
             return;
 
-        if (weaponType == WeaponType.none)
+        // Shield and EquipShield (WeaponType.none) both bind to Shield_L_Bone.
+        if (weaponType == WeaponType.none || weaponType == WeaponType.shield)
             go.transform.SetParent(allBone[0], false);
         else if (weaponType == WeaponType.bow)
             go.transform.SetParent(allBone[1], false);

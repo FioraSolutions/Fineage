@@ -142,6 +142,9 @@ public class ItemNameTable {
 
                         itemData.Id = Int32.Parse(ids[0]);
                         itemData.Name = ids[1];
+                        // Interlude SoT col 2: SA / special ability name (Focus, Guidance, …).
+                        if (ids.Length > 2)
+                            itemData.AdditionalName = (ids[2] ?? string.Empty).Trim();
                         // Interlude SoT: Classic-eu often carries later-chronicle text
                         // (e.g. Queen Ant 6660 "P./M. Atk. +4%") that disagrees with Mobius CT0.
                         // Always take the item body text from column 3 — set-bonus text lives in ids[6]/[8].
@@ -161,6 +164,7 @@ public class ItemNameTable {
                             ItemName existing = _itemNames[itemData.Id];
                             if (!string.IsNullOrEmpty(itemData.Name))
                                 existing.Name = itemData.Name;
+                            existing.AdditionalName = itemData.AdditionalName ?? string.Empty;
                             if (!string.IsNullOrEmpty(itemData.Description))
                                 existing.Description = itemData.Description;
                             AddSets(itemData, itemSets1, itemSet2);
@@ -170,6 +174,7 @@ public class ItemNameTable {
                             ItemName itemName = new ItemName();
                             itemName.Id = itemData.Id;
                             itemName.Name = itemData.Name;
+                            itemName.AdditionalName = itemData.AdditionalName;
                             itemName.Description = itemData.Description;
                             _itemNames.Add(itemData.Id, itemName);
                         }
