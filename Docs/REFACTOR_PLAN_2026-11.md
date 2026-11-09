@@ -187,7 +187,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - [x] Shop limited-stock second buy refused without taking adena (`NetShopTests`).
 
 
-### B7. Live AI tick — in progress (Claude 2026-11-09)
+### B7. Live AI tick — done (Backend #490)
 - Fold `TickAggression` + `TickLeash` (+ `TickAttackStance`) into `RunPlayerCombatTickAsync`.
 - Keep `RunCombatTickAsync` as the test/helper entry that already includes them, or make it call the live tick body.
 
@@ -308,7 +308,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - Raise `FineageZoneTransport.OnDisconnected` on remote close and intentional `Disconnect`.
 - Wire AppLifetimeScope → `GameManager.OnDisconnect` so zone drop returns to menu.
 
-### C5. NetZoneDispatch holes — open (Claude)
+### C5. NetZoneDispatch holes — done (#879)
 - Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
 - Add `default` warning so unknown opcodes are visible.
 
@@ -344,8 +344,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld hub file-split (primaries mostly <500 lines)
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
 - [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe
-- [ ] Live combat loop runs `TickAggression` / `TickLeash` (B7)
+- [x] Live combat loop runs `TickAggression` / `TickLeash` (B7, Backend #490)
 - [ ] Zone disconnect raises UI path (C4)
-- [ ] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5)
+- [x] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5, #879)
 - [ ] Inventory persist not under `_gate` (B8)
 - [ ] Single owner / backup-only `store_snapshot` (B9)
