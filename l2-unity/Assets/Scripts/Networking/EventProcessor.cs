@@ -12,6 +12,7 @@ public class EventProcessor : MonoBehaviour
     private static EventProcessor _instance;
 
     [System.Obsolete("Use [Inject] instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static EventProcessor Instance { get { return _instance; } }
 
     // Closed batch for one frame. The reader fills only the write buffer.

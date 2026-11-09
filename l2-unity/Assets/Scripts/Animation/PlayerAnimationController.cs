@@ -11,6 +11,7 @@ public class PlayerAnimationController : BaseAnimationController
     private static PlayerAnimationController _instance;
 
     [System.Obsolete("Use AnimationPacketServices.PlayerAnimation or [Inject] PlayerAnimationController instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PlayerAnimationController Instance { get { return _instance; } }
 
     public override void Initialize()

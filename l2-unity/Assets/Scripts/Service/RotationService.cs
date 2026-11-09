@@ -3,6 +3,7 @@ using System;
 
 public class RotationService : MonoBehaviour , IRotation
 {
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static IRotation Instance { get; private set; }
 
     [SerializeField] private float angleThreshold = 1.0f; 

@@ -44,6 +44,7 @@ public class TargetManager : MonoBehaviour
 
     private static TargetManager _instance;
     [System.Obsolete("Use [Inject] instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static TargetManager Instance { get { return _instance; } }
 
     private void Awake()

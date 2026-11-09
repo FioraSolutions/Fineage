@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -33,6 +34,7 @@ public class L2HazeRing : MonoBehaviour
         return z * (MeshTopY / len);
     }
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2HazeRing Instance { get; private set; }
     public static Color CurrentTint { get; private set; } = L2HazeLut.ColorModifierDefault;
 

@@ -244,6 +244,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Cycle-safe Interlude wire DTOs + `IOutgoingDto` moved into `Fineage.Networking` (ItemInstance/ItemSlot-tied DTOs stay ACS).
 - [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [x] UI/Database/Audio/Icon `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
+- [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
 - [ ] Remaining asmdef work = LifetimeScope / gameplay MonoBehaviours when types are cycle-safe (hard residual).
 
 ### C3. Doc sync
