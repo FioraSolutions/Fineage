@@ -60,7 +60,7 @@ Static re-check of the long GPT “client + server” architecture review agains
 
 ### Priority remap after verification
 
-1. **Before public internet:** TLS / Gateway (#17 residual, #113) + rate-limit login brute force (still open).
+1. **Before public internet:** TLS / Gateway (#17 residual, #113). Login password brute-force rate limit landed (Backend `AuthAttemptLimiter`).
 2. **Before more Zone surface area:** Backend modularization epic (handlers / systems / entity composition / domain event publisher) — see Phase B below and Backend tracker.
 3. **Client residual (#131):** real asmdef moves + `Fineage.Di`; optional Unity EditMode/PR compile follow-up (reopen/replace #34).
 4. **Defer:** 20k / Redis / multi-zone / QUIC until one Zone is measured.
@@ -206,7 +206,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + `DOC_CANON` / `ARCHITECTURE_NET` / `CI_AND_TESTING` stay honest about “done vs later” |
-| Backend B2b | Handlers + fanout publisher + Protocol DTOs + Trade/Ground/Party/PrivateStore Rules + NetCodec split; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = more Rules extracts, simulation actor later; TLS/Gateway Fineage #17/#113 before public |
+| Backend B2b | Handlers + fanout publisher + Protocol DTOs + Trade/Ground/Party/PrivateStore Rules + NetCodec/publisher partials + login auth rate limit; epic [Fineage-Backend #353](https://github.com/FioraSolutions/Fineage-Backend/issues/353). Residual = more Rules extracts, simulation actor later; TLS/Gateway Fineage #17/#113 before public |
 | Client #131 | More asmdef moves; LifetimeScope into `Fineage.Di` only when cycle-safe (no big-bang Instance purge) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI follow-up | Unity PR compile/EditMode — [#737](https://github.com/FioraSolutions/Fineage/issues/737) (replaces closed #34) |
