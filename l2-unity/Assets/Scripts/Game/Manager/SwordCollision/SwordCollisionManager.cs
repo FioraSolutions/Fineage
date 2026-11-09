@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -52,6 +54,7 @@ public class SwordCollisionService : MonoBehaviour
     private static SwordCollisionService _instance;
 
     [System.Obsolete("Use SwordCollisionPacketServices.Collision or [Inject] SwordCollisionService instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SwordCollisionService Instance { get { return _instance; } }
 
     public LayerMask _entityMask;

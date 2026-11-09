@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,7 @@ public class PlayerInventory : MonoBehaviour
     private Dictionary<int, ItemInstance> _playerEquipInventory;
     private ChangeInventoryData _changeInventoryData;
     public static PlayerInventory _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PlayerInventory Instance { get { return _instance; } }
 
 

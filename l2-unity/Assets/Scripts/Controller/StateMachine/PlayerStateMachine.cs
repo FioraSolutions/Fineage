@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +10,7 @@ public class PlayerStateMachine : MonoBehaviour
     private static PlayerStateMachine _instance;
 
     [System.Obsolete("Use PlayerStatePacketServices.PlayerState or [Inject] PlayerStateMachine instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PlayerStateMachine Instance => _instance;
 
 

@@ -1,9 +1,12 @@
+using System;
+
 ﻿using UnityEngine;
 using VContainer;
 
 public class ListenerCharacterGear : MonoBehaviour
 {
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ListenerCharacterGear Instance { get; private set; }
 
     [Inject] EventBus _bus;

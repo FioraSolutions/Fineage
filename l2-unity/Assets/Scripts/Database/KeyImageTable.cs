@@ -11,8 +11,7 @@ public class KeyImageTable
     private static KeyImageTable _instance;
 
     [System.Obsolete("Use TablePacketServices.KeyImages instead")]
-    [Obsolete("Use [Inject] / PacketServices instead")]
-    public static KeyImageTable Instance
+        public static KeyImageTable Instance
     {
         get
         {

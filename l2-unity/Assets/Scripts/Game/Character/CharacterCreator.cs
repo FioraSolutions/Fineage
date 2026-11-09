@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -38,7 +40,7 @@ public class CharacterCreator : MonoBehaviour
 
     private static CharacterCreator _instance;
     [System.Obsolete("Use LoginPacketServices.Creator instead")]
-    public static CharacterCreator Instance { get { return _instance; } }
+        public static CharacterCreator Instance { get { return _instance; } }
 
     void Awake()
     {

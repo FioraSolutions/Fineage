@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -34,7 +35,7 @@ public class CharacterSelector : MonoBehaviour
 
     private static CharacterSelector _instance;
     [System.Obsolete("Use LoginPacketServices.Characters instead")]
-    public static CharacterSelector Instance { get { return _instance; } }
+        public static CharacterSelector Instance { get { return _instance; } }
 
     void Awake() {
         if (_instance == null) {

@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +12,7 @@ public class SpineProceduralController : MonoBehaviour
     private static SpineProceduralController _instance;
 
     [System.Obsolete("Use [Inject] instead")]
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SpineProceduralController Instance => _instance;
 
     private void Awake()

@@ -1,3 +1,5 @@
+using System;
+
 ﻿using UnityEngine;
 using VContainer;
 
@@ -18,6 +20,7 @@ public class NetworkTransformShare : MonoBehaviour
     public bool ShouldShareRotation { get { return _shouldShareRotation; } set { _shouldShareRotation = value; } }
 
     private static NetworkTransformShare _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static NetworkTransformShare Instance { get { return _instance; } }
 
     public void Awake()
