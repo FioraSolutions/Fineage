@@ -157,15 +157,12 @@ public static class NetShortCutReceiver
         if (charges > 0)
             Debug.Log("[Net] EtcStatusUpdate charges=" + charges);
 
-        if (msg.WeightPenalty <= 0)
-            return;
-
         // Mobius skill 4270 tracks the load grade: 1 >=50%, 2 >=66.6%, 3 >=80%, 4 >=100%.
-        // Map it onto the existing penalty DTO so the status bar draws the same icon it
-        // already knows, rather than adding a parallel path for one integer.
+        // Level 0 must still be applied — BufferPanel.DeleteDataCell only runs on level 0,
+        // so an early return here left the overload icon stuck after dumping weight.
         // WeightPenalty[0] is the skill id, [1] is the level the buffer reads.
         var dto = new EtcStatusUpdateDto();
-        dto.WeightPenalty[1] = msg.WeightPenalty;
+        dto.WeightPenalty[1] = msg.WeightPenalty < 0 ? 0 : msg.WeightPenalty;
         if (msg.ChatBlocked)
             dto.ChatBanned = 1;
 

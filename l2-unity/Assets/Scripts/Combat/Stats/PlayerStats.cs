@@ -92,7 +92,7 @@ public class PlayerStats : Stats
 
     public double WeightPercent()
     {
-        if (Exp == 0)
+        if (CurrWeight == 0)
         {
             return 0;
         }

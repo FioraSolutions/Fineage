@@ -170,6 +170,9 @@ public static class NetGearSession
         CharacterInfoWindow characterInfo = HudCorePacketServices.CharacterInfo;
         if (characterInfo != null)
             characterInfo.UpdateValues();
+        InventoryWindow inventory = InventoryPacketServices.Window;
+        if (inventory != null)
+            inventory.UpdateStats(stats);
     }
 
     static bool CanApplyInventory()
@@ -296,8 +299,14 @@ public static class NetGearSession
             info.Stats.PAtkSpd = user.PAtkSpd;
             info.Stats.MAtkSpd = user.MAtkSpd;
             info.Stats.PAccuracy = user.Accuracy;
+            info.Stats.PEvasion = user.Evasion;
             info.Stats.PCritical = user.CritRate;
+            info.Stats.MaxExp = LevelServer.GetExp(info.Stats.Level + 1);
         }
+
+        // Weight travels on UserInfo with the combat sheet; apply whenever we have a Stats bag.
+        info.Stats.CurrWeight = user.CurrWeight;
+        info.Stats.MaxWeight = user.MaxWeight;
     }
 
 
