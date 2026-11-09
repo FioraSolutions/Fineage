@@ -41,26 +41,26 @@ public sealed class PacketWriter
     public void WriteChar(char value)
     {
         short sho = (short)value;
-        byte[] data = ByteUtils.toByteArray(sho);
+        byte[] data = ToByteArray(sho);
         Array.Reverse(data);
         _buffer.AddRange(data);
     }
 
     public void WriteShort(short value)
     {
-        byte[] data = ByteUtils.toByteArray(value);
+        byte[] data = ToByteArray(value);
         Array.Reverse(data);
         _buffer.AddRange(data);
     }
 
     public void WriteOtherShort(short value)
     {
-        _buffer.AddRange(ByteUtils.toByteArray(value));
+        _buffer.AddRange(ToByteArray(value));
     }
 
     public void WriteI(int i)
     {
-        byte[] data = ByteUtils.toByteArray(i);
+        byte[] data = ToByteArray(i);
         Array.Reverse(data);
         _buffer.AddRange(data);
     }
@@ -121,5 +121,19 @@ public sealed class PacketWriter
         WriteZeroInt();
         Pad8();
         return ToArray();
+    }
+
+    static byte[] ToByteArray(int value)
+    {
+        return new byte[] {
+            (byte)(value >> 24),
+            (byte)(value >> 16),
+            (byte)(value >> 8),
+            (byte)value };
+    }
+
+    static byte[] ToByteArray(short value)
+    {
+        return new byte[] { (byte)(value & 0x00FF), (byte)((value & 0xFF00) >> 8) };
     }
 }

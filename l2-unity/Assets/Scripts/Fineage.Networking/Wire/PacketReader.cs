@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Text;
-using UnityEngine;
-
 public sealed class PacketReader
 {
     private readonly byte[] _data;
@@ -56,7 +54,7 @@ public sealed class PacketReader
         byte[] data = new byte[4];
         Array.Copy(_data, _iterator, data, 0, 4);
         Array.Reverse(data);
-        int value = ByteUtils.fromByteArray(data);
+        int value = FromByteArray(data);
         _iterator += 4;
         return value;
     }
@@ -72,7 +70,7 @@ public sealed class PacketReader
         byte[] data = new byte[2];
         Array.Copy(_data, _iterator, data, 0, 2);
         Array.Reverse(data);
-        short value = ByteUtils.fromByteArrayShort(data);
+        short value = FromByteArrayShort(data);
         _iterator += 2;
         return value;
     }
@@ -135,7 +133,7 @@ public sealed class PacketReader
                 byte[] data = new byte[strLen];
                 Array.Copy(_data, _iterator, data, 0, strLen);
                 Array.Reverse(data);
-                char str = (char)ByteUtils.fromByteArrayShort(data);
+                char str = (char)FromByteArrayShort(data);
                 _iterator += strLen;
                 if (str == 0)
                     break;
@@ -149,5 +147,15 @@ public sealed class PacketReader
         }
 
         return text;
+    }
+
+    static int FromByteArray(byte[] bytes)
+    {
+        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    }
+
+    static short FromByteArrayShort(byte[] bytes)
+    {
+        return (short)(((bytes[0] & 0xFF) << 8) | (bytes[1] & 0xFF));
     }
 }
