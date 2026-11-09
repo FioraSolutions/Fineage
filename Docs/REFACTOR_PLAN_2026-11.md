@@ -196,6 +196,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `EnumType2` moved into `Fineage.Game` (cycle-safe).
 - [x] `FineageLogLevel` / `FineageLogCategory` moved into `Fineage.Networking` (cycle-safe).
 - [x] `MagicSkillUseKind` moved into `Fineage.Game` (cycle-safe; was nested `MagicSkillPresentation.Kind`).
+- [x] `EffectDriftDirection` moved into `Fineage.Game` (cycle-safe; was nested `EffectPrefabStaggeredDrift.DriftDirection`).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
