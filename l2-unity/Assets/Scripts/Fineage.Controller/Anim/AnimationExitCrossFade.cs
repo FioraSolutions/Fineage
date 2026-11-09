@@ -46,7 +46,7 @@ public static class AnimationExitCrossFade
 
     public static float Resolve(IAnimationController controller)
     {
-        float fallback = LocomotionCrossFadeSettings.FixedDuration;
+        float fallback = LocomotionCrossFadeDefaults.FixedDuration;
         if (controller == null)
         {
             return fallback;

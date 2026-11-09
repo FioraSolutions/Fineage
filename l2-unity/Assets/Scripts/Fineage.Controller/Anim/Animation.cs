@@ -6,7 +6,7 @@ public class Animation
 
     /// <summary>
     /// Fixed CrossFade duration when leaving this Animator state (e.g. into wait_/atkwait_).
-    /// null = <see cref="LocomotionCrossFadeSettings.FixedDuration"/>.
+    /// null = <see cref="LocomotionCrossFadeDefaults.FixedDuration"/>.
     /// </summary>
     public float? ExitCrossFadeDuration { get; }
 
