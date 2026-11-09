@@ -5,26 +5,25 @@ using System;
 /// Console filter: <c>[LOBBY]</c>. File: <c>logs/diag/lobby-flow.txt</c> (rotated).
 /// Active only while GameState &lt; IN_GAME so world spam stays out.
 /// Facade over <see cref="FineageLog"/> (Lobby category).
+/// Stays cycle-safe inside <c>Fineage.Networking</c>: Assembly-CSharp wires the active gate.
 /// </summary>
 public static class LobbyFlowLog
 {
     public const string Tag = "[LOBBY]";
 
-    public static void Wire(GameManager manager)
+    static Func<bool> _isActive;
+
+    /// <summary>
+    /// Optional lobby-active predicate from Assembly-CSharp
+    /// (typically <c>manager == null || manager.GameState &lt; GameState.IN_GAME</c>).
+    /// When unset, lobby logging stays on.
+    /// </summary>
+    public static void Wire(Func<bool> isActive = null)
     {
-        NetworkingPacketServices.Bind(manager: manager);
+        _isActive = isActive;
     }
 
-    static GameManager Manager => NetworkingPacketServices.Manager;
-
-    public static bool Active
-    {
-        get
-        {
-            GameManager manager = Manager;
-            return manager == null || manager.GameState < GameState.IN_GAME;
-        }
-    }
+    public static bool Active => _isActive == null || _isActive();
 
     public static void Info(string message)
     {

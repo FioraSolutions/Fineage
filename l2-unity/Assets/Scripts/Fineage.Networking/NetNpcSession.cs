@@ -87,11 +87,10 @@ public static class NetNpcSession
     public static void OpenShop(int npcObjectId, int listId)
     {
         if (npcObjectId > 0)
-        {
             ActiveNpcObjectId = npcObjectId;
-            ShopNpcObjectId = npcObjectId;
-        }
-
+        // Always assign — GM admin_buy uses NpcObjectId 0; leaving a stale merchant id
+        // made RequestBuyItem miss the admin path and reject the purchase.
+        ShopNpcObjectId = npcObjectId;
         ShopListId = listId;
         WindowsOpen = true;
     }

@@ -211,7 +211,8 @@ public class QuantityInput : L2PopupWindow
         _count = allCount;
         base.ShowWindow();
         OnCenterScreen(_root);
-        _userInput.value = "0";
+        // Prefill 1 (Interlude-like). "All" still fills max; OK with 0 used to send empty buys.
+        _userInput.value = "1";
     }
 
 

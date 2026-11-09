@@ -11,6 +11,8 @@ public sealed class NetLobbyFlow
 {
     NetTransport _lobby;
     bool _helloLobby;
+    /// <summary>True from successful TCP connect until roster UI or a surfaced login failure.</summary>
+    bool _awaitingLoginUi;
     HandoffMsg _handoff;
 
     readonly Func<uint> _nextSeq;
@@ -60,12 +62,15 @@ public sealed class NetLobbyFlow
     public async Task BeginLobby(string account, string password, bool registerIfMissing = false)
     {
         _resetLobbySession();
+        // Dispose of a previous lobby may fire OnLobbyClosed — ignore until the new connect sticks.
+        _awaitingLoginUi = false;
         try
         {
             _lobby?.Dispose();
             _helloLobby = false;
-            _lobby = new NetTransport(OnLobbyPacket, reason => _post(() => Debug.Log("[Net] lobby " + reason)));
+            _lobby = new NetTransport(OnLobbyPacket, reason => _post(() => OnLobbyClosed(reason)));
             await _lobby.ConnectAsync(FineageWireConfig.LoginHost, FineageWireConfig.LoginPort);
+            _awaitingLoginUi = true;
             await SendHelloAsync(_lobby, "unity-net");
             await WaitUntil(() => _helloLobby, 5f);
             await _lobby.SendAsync(
@@ -81,7 +86,27 @@ public sealed class NetLobbyFlow
         catch (Exception ex)
         {
             Debug.LogError("[Net] BeginLobby failed: " + ex.Message);
+            _awaitingLoginUi = false;
+            _post(() => ShowLoginFailure(ex.Message));
         }
+    }
+
+    void OnLobbyClosed(string reason)
+    {
+        Debug.Log("[Net] lobby " + reason);
+        if (!_awaitingLoginUi)
+            return;
+        _awaitingLoginUi = false;
+        ShowLoginFailure("Connection lost.");
+    }
+
+    static void ShowLoginFailure(string message)
+    {
+        LoginWindow loginWindow = LoginPacketServices.LoginWindow;
+        if (loginWindow == null)
+            return;
+        string text = string.IsNullOrWhiteSpace(message) ? "Login failed." : message.Trim();
+        loginWindow.ShowErrorText(text);
     }
 
     public async Task RequestRoster()
@@ -212,12 +237,22 @@ public sealed class NetLobbyFlow
                 var result = NetCodec.DecodeAuthResult(envelope.Payload);
                 _authResult?.Invoke(result);
                 if (result.Ok)
+                {
                     _ = RequestRoster();
+                    break;
+                }
+
+                _awaitingLoginUi = false;
+                string authLine = string.IsNullOrWhiteSpace(result.Message)
+                    ? (string.IsNullOrWhiteSpace(result.Code) ? "Login failed." : result.Code)
+                    : result.Message;
+                ShowLoginFailure(authLine);
                 break;
             }
             case NetOpcode.CharacterRoster:
             {
                 var roster = NetCodec.DecodeCharacterRoster(envelope.Payload);
+                _awaitingLoginUi = false;
                 ApplyRosterUi(roster);
                 _rosterReceived?.Invoke(roster);
                 break;
@@ -262,6 +297,14 @@ public sealed class NetLobbyFlow
             {
                 var reject = NetCodec.DecodeReject(envelope.Payload);
                 Debug.LogWarning($"[Net] lobby reject {reject.Code}: {reject.Message}");
+                if (_awaitingLoginUi)
+                {
+                    _awaitingLoginUi = false;
+                    string line = NetRejectLines.Resolve(reject.Code, reject.Message);
+                    if (string.IsNullOrEmpty(line))
+                        line = string.IsNullOrWhiteSpace(reject.Message) ? "Login failed." : reject.Message;
+                    ShowLoginFailure(line);
+                }
                 break;
             }
         }

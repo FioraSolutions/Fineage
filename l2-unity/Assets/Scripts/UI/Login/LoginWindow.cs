@@ -200,8 +200,21 @@ public class LoginWindow : L2Window
             _loginButton.SetEnabled(!busy);
     }
 
-    private void ExitButtonPressed() {
+    private void ExitButtonPressed()
+    {
+        // Same path as System Menu → Exit (Editor stops Play; player builds quit).
+        GameManager manager = LoginPacketServices.Manager ?? GamePacketServices.Manager;
+        if (manager != null)
+        {
+            manager.QuitGame();
+            return;
+        }
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 
 
