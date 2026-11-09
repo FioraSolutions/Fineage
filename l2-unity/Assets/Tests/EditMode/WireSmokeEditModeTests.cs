@@ -6,9 +6,11 @@ using NUnit.Framework;
 public sealed class WireSmokeEditModeTests
 {
     [Test]
-    public void PacketReader_ReadsOpcodeByte()
+    public void PacketReader_ReadsBigEndianIntAfterOpcode()
     {
-        var reader = new PacketReader(new byte[] { 0x01, 0x00, 0x00, 0x00, 0x02 }, skipOpcode: true);
+        // ReadI reverses the 4 payload bytes then interprets big-endian.
+        // After skipOpcode consumes 0x01, payload 02 00 00 00 → value 2.
+        var reader = new PacketReader(new byte[] { 0x01, 0x02, 0x00, 0x00, 0x00 }, skipOpcode: true);
         Assert.AreEqual(2, reader.ReadI());
     }
 

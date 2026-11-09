@@ -92,10 +92,11 @@ dotnet test tools/Fineage.Tools.sln --collect:"XPlat Code Coverage"
 
 Workflow: `.github/workflows/unity-compile.yml` (path-filtered to `l2-unity/Assets/Scripts|Tests`).
 
-- Uses [game-ci/unity-test-runner](https://game.ci/) **v6** with the same Personal seat as `release-clients`: `UNITY_EMAIL` + `UNITY_PASSWORD` (optional `UNITY_SERIAL`).
+- Uses [game-ci/unity-test-runner](https://game.ci/) **v4.4.0** + `cliVersion: v0.1.72` with the same Personal seat as `release-clients`: `UNITY_EMAIL` + `UNITY_PASSWORD` (optional `UNITY_SERIAL`). Do not set `coverageEnabled: false` — that maps to a CLI flag v0.1.72 rejects.
 - Runs EditMode tests under `l2-unity/Assets/Tests/EditMode/` — opening the project compiles `Assets/Scripts`; script errors fail the PR.
 - Smoke test covers `PacketReader` in `Fineage.Networking` so the job is not an empty suite.
 - Do **not** rely on a stale `UNITY_LICENSE` `.ulf` for this Personal path (same note as playtest builds).
+- Networking must not reference `Fineage.Game` (cycle). Shared wire helpers (`VectorUtils` / `NumberUtils` / manor seed models / `ChatTypeData`) live in `Fineage.Domain`.
 
 ### Option 1: more EditMode tests locally
 
