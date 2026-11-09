@@ -236,7 +236,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `Abstractgrp` moved into `Fineage.Game` (cycle-safe item grp base; ItemMaterial/ItemGrade already there).
 - [x] `EtcItemgrp` moved into `Fineage.Game` (cycle-safe etc item grp row).
 - [x] Database model DTOs moved into `Fineage.Game`: ActionData / AnimationCombo / ItemStatData / NpcDecoEffect / RecipeMaterials / SkillNameData / SystemMessageDat / RecipeData / Skillgrp / Armorgrp / Weapongrp.
-- [x] `PollInput` moved into `Fineage.Game` (Unity.InputSystem asmdef ref added).
+- [x] `PollInput` moved into `Fineage.Game` (Unity.InputSystem asmdef ref + layout guard updated).
 - [ ] Further asmdef slices for remaining MonoBehaviours / LifetimeScope when types are cycle-safe.
 
 ### C3. Doc sync
