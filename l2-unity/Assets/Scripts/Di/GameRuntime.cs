@@ -65,14 +65,10 @@ public sealed class GameRuntime
     public HitManager Hits { get { return Live(ref _hits, HitPacketServices.Hits); } }
     public ClickManager Clicks { get { return Live(ref _clicks, ControllerPacketServices.Clicks); } }
     public PlayerShortcuts Shortcuts { get { return Live(ref _shortcuts, ShortcutPacketServices.Shortcuts); } }
-#pragma warning disable CS0618 // Locator fallback until Bind covers all scopes
-    public InputManager Input { get { return Live(ref _input, InputManager.Instance); } }
-#pragma warning restore CS0618
-    public PositionValidationController PositionValidation { get { return Live(ref _positionValidation, PositionValidationController.Instance); } }
+public InputManager Input { get { return Live(ref _input, ControllerPacketServices.Input); } }
+    public PositionValidationController PositionValidation { get { return Live(ref _positionValidation, ControllerPacketServices.PositionValidation); } }
     public EffectManager Effects { get { return Live(ref _effects, GlobalEffectsPacketServices.Effects); } }
-#pragma warning disable CS0618 // Locator fallback until Bind covers all scopes
-    public EventBus Bus { get { return Live(ref _bus, EventBus.Instance); } }
-#pragma warning restore CS0618
+    public EventBus Bus { get { return Live(ref _bus, ControllerPacketServices.Bus); } }
     public IGameEventBus GameEvents => _gameEvents;
     public CameraController Camera { get { return Live(ref _camera, CameraPacketServices.Controller); } }
     public IMoveAllCharacters Moves { get { return Live(ref _moves, MoveAllCharactersPacketServices.Moves); } }
