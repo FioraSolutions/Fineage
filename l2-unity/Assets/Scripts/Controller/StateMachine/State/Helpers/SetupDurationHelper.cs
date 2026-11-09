@@ -211,7 +211,7 @@ public class SetupDurationHelper
         }
 
         Vector3 startPos = entity.GetPositionRightHand();
-        Vector3 aimPos = VectorUtils.GetCollision(startPos, target);
+        Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
         float distance = Vector3.Distance(startPos, aimPos);
         if (distance <= 0f)
         {

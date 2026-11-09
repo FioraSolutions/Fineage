@@ -38,7 +38,7 @@ public sealed class BowArrowVisual
         }
 
         Vector3 startPos = user.Gear.GetPositionRightHand();
-        Vector3 aimPos = VectorUtils.GetCollision(startPos, target);
+        Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
         float dist3d = Vector3.Distance(startPos, aimPos);
         float flyAccel = ProjectileFlightTimeCalculator.CalculateL2ArrowFlightTimeSeconds(dist3d);
         float avgSpeed = dist3d / Mathf.Max(flyAccel, 0.05f);
