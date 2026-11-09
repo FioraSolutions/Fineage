@@ -148,23 +148,23 @@ public class L2SlotManager : L2PopupWindow
 
         switch (_draggedSlot.Type)
         {
-            case L2Slot.SlotType.Gear:
+            case SlotType.Gear:
                 HandleGearDrag();
                 break;
-            case L2Slot.SlotType.Inventory:
-            case L2Slot.SlotType.InventoryBis:
+            case SlotType.Inventory:
+            case SlotType.InventoryBis:
                 HandleInventoryDrag();
                 break;
-            case L2Slot.SlotType.SkillBar:
+            case SlotType.SkillBar:
                 HandleSkillbarDrag();
                 break;
-            case L2Slot.SlotType.Action:
+            case SlotType.Action:
                 HandleActionDrag();
                 break;
-            case L2Slot.SlotType.SkillWindow:
+            case SlotType.SkillWindow:
                 HandleSkillWindowDrag();
                 break;
-            case L2Slot.SlotType.Recipe:
+            case SlotType.Recipe:
                 DestroyRecipe();
                 break;
             default:
@@ -180,7 +180,7 @@ public class L2SlotManager : L2PopupWindow
             return;
         }
 
-        if (_hoverSlot.Type == L2Slot.SlotType.SkillBar)
+        if (_hoverSlot.Type == SlotType.SkillBar)
         {
             AddActionToSkillbar();
         }
@@ -188,17 +188,17 @@ public class L2SlotManager : L2PopupWindow
 
     private void HandleGearDrag()
     {
-        if (_hoverSlot != null && _hoverSlot.Type == L2Slot.SlotType.Enchant)
+        if (_hoverSlot != null && _hoverSlot.Type == SlotType.Enchant)
         {
             AddItemToEnchant();
             return;
         }
 
-        if (_hoverSlot.Type == L2Slot.SlotType.Inventory || _hoverSlot.Type == L2Slot.SlotType.InventoryBis)
+        if (_hoverSlot.Type == SlotType.Inventory || _hoverSlot.Type == SlotType.InventoryBis)
         {
             Unequip();
         }
-        else if (_hoverSlot.Type == L2Slot.SlotType.Trash)
+        else if (_hoverSlot.Type == SlotType.Trash)
         {
             //QuantityInputPacketServices.Window.ShowWindow(this, source, type, listServer, position);
             DestroyItem();
@@ -221,19 +221,19 @@ public class L2SlotManager : L2PopupWindow
 
         switch (_hoverSlot.Type)
         {
-            case L2Slot.SlotType.Gear when IsItemGear(inventorySlot.ItemCategory):
+            case SlotType.Gear when IsItemGear(inventorySlot.ItemCategory):
                 Equip();
                 break;
-            case L2Slot.SlotType.Inventory:
+            case SlotType.Inventory:
                 ChangeItemOrder();
                 break;
-            case L2Slot.SlotType.Trash:
+            case SlotType.Trash:
                 DestroyItem();
                 break;
-            case L2Slot.SlotType.SkillBar:
+            case SlotType.SkillBar:
                 AddItemToSkillbar();
                 break;
-            case L2Slot.SlotType.Enchant:
+            case SlotType.Enchant:
                 AddItemToEnchant();
                 break;
             default:
@@ -250,7 +250,7 @@ public class L2SlotManager : L2PopupWindow
         if (_hoverSlot == null || SkillbarPacketServices.Skillbar == null || SkillbarPacketServices.Skillbar.Locked)
             return;
 
-        if (_hoverSlot.Type != L2Slot.SlotType.SkillBar)
+        if (_hoverSlot.Type != SlotType.SkillBar)
             return;
 
         int position = _hoverSlot.Position;
@@ -316,10 +316,10 @@ public class L2SlotManager : L2PopupWindow
 
         switch (_hoverSlot.Type)
         {
-            case L2Slot.SlotType.SkillBar:
+            case SlotType.SkillBar:
                 MoveSkillbarSlot();
                 break;
-            case L2Slot.SlotType.Enchant:
+            case SlotType.Enchant:
                 int oldSlot = _draggedSlot.Id;
                 int newSlot = _hoverSlot.Id;
                 // Debug.LogWarning($"Moving skillbar enchant from slot {oldSlot} to slot {newSlot}.");

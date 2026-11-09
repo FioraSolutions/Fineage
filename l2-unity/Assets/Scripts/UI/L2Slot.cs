@@ -5,27 +5,6 @@ using UnityEngine.UIElements;
 [System.Serializable]
 public class L2Slot
 {
-    public enum SlotType
-    {
-        Other,
-        Inventory,
-        Enchant,
-        Multisell,
-        Recipe,
-        RecipeCraftItem,
-        InventoryBis, //other tab slots
-        Gear,
-        Skill,
-        SkillBar,
-        BuffPanel,
-        SkillWindow,
-        Action,
-        Trash,
-        PriceBuy,
-        PriceSell,
-        Trade
-    }
-
     [SerializeField] protected int _id;
     protected int _level;
     [SerializeField] protected int _position;

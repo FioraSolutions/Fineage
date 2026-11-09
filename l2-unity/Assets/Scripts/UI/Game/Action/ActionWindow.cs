@@ -119,7 +119,7 @@ public class ActionWindow : L2PopupWindow
         VisualElement slotElement = _slotTemplate.Instantiate()[0];
         container.Add(slotElement);
 
-        ActionSlot slot = new ActionSlot(slotElement, position, L2Slot.SlotType.Action);
+        ActionSlot slot = new ActionSlot(slotElement, position, SlotType.Action);
         _slots.Add(slot);
     }
 
