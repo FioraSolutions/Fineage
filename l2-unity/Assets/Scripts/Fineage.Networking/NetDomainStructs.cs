@@ -194,7 +194,9 @@ public struct NetUserInfo
     public int Sp;
     public bool HasStats;
     public int Str, Dex, Con, Int, Wit, Men;
-    public int PAtk, MAtk, PDef, MDef, PAtkSpd, MAtkSpd, Accuracy, CritRate;
+    public int PAtk, MAtk, PDef, MDef, PAtkSpd, MAtkSpd, Accuracy, Evasion, CritRate;
+    public int CurrWeight;
+    public int MaxWeight;
 }
 
 public struct NetMyTargetSelected
