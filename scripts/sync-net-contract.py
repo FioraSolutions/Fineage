@@ -83,6 +83,7 @@ FILES = (
     "Codec/NetCodec.Party.cs",
     "Codec/NetCodec.Quest.cs",
     "Codec/NetCodec.Presence.cs",
+    "Codec/NetCodec.Skills.cs",
     "Codec/NetCodec.Movement.cs",
     "Codec/NetCodec.Combat.cs",
     "Codec/NetCodec.InventoryChat.cs",
