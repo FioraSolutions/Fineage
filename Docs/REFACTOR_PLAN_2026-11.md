@@ -302,7 +302,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [x] UI/Database/Audio/Icon `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
 - [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred; includes managers/controllers round 2).
-- [ ] Remaining asmdef work = LifetimeScope / gameplay MonoBehaviours when types are cycle-safe (hard residual).
+- [x] First cycle-safe gameplay MonoBehaviours into `Fineage.Game` (Windmill / BoatSway / DestroyAfter / FpsLimiter / ParticleTimerReset / LayerCullDistance / RandomizeChildYawOnEnable / L2FireNoWorldLight / EffectPrefabRotator / DontDestroyOnLoad).
+- [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
@@ -350,7 +351,7 @@ Living client Status Now: [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-
 - [ ] TLS (or equivalent) before public auth
 - [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld hub file-split (primaries mostly <500 lines)
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
-- [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe
+- [ ] LifetimeScope / remaining gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe (first leaf MB wave landed)
 - [x] Live combat loop runs `TickAggression` / `TickLeash` (B7, Backend #490)
 - [x] Zone disconnect raises UI path (C4, #878)
 - [x] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5, #879)
