@@ -58,7 +58,7 @@ public class DataCell : L2Slot
  
     public void RefreshData(int skillId , bool isbusy ,int level)
     {
-        _skill = SkillgrpTable.Instance.GetSkill(skillId , level);
+        _skill = TablePacketServices.SkillGrps.GetSkill(skillId , level);
         SetSkillId(skillId);
         SetLevel(level);
         SetBusy(isbusy);
@@ -182,7 +182,7 @@ public class DataCell : L2Slot
     public void SetIcon(int skillId, int level)
     {
         if (_skill == null)
-            _skill = SkillgrpTable.Instance.GetSkill(skillId, level);
+            _skill = TablePacketServices.SkillGrps.GetSkill(skillId, level);
         VisualElement foundChild = _element.Query<VisualElement>(name: "SlotBg").First();
         if (foundChild != null && _skill != null)
             L2SlotIconView.SetSkillIcon(foundChild, _skill.Icon);

@@ -325,10 +325,12 @@ public static class NetNpcWindows
         if (itemId == 57)
             return (int)EnumType2.TYPE2_MONEY;
 
-        if (WeapongrpTable.Instance != null && WeapongrpTable.Instance.GetWeapon(itemId) != null)
+        WeapongrpTable weapons = TablePacketServices.WeaponGrps;
+        if (weapons != null && weapons.GetWeapon(itemId) != null)
             return (int)EnumType2.TYPE2_WEAPON;
 
-        Armorgrp armor = ArmorgrpTable.Instance != null ? ArmorgrpTable.Instance.GetArmor(itemId) : null;
+        ArmorgrpTable armors = TablePacketServices.ArmorGrps;
+        Armorgrp armor = armors != null ? armors.GetArmor(itemId) : null;
         if (armor != null)
         {
             if (IsJewelSlot(armor.BodyPart))

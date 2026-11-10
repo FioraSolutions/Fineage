@@ -199,7 +199,7 @@ public sealed class ItemDropMaterialService
         if (armor != null)
             return armor;
 
-        ItemTable items = _items != null ? _items : ItemTable.Instance;
+        ItemTable items = _items != null ? _items : TablePacketServices.Items;
         if (items == null)
             return null;
         Armor item = items.GetArmor(itemId);

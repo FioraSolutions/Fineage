@@ -20,9 +20,9 @@ public static class EntitySpawnShared
         if (identity == null)
             return false;
 
-        npcGrps = npcGrps != null ? npcGrps : NpcgrpTable.Instance;
-        npcNames = npcNames != null ? npcNames : NpcNameTable.Instance;
-        models = models != null ? models : ModelTable.Instance;
+        npcGrps = npcGrps != null ? npcGrps : TablePacketServices.NpcGrps;
+        npcNames = npcNames != null ? npcNames : TablePacketServices.NpcNames;
+        models = models != null ? models : TablePacketServices.Models;
 
         int visualNpcId = identity.NpcId;
         if (npcGrps.GetNpcgrp(visualNpcId) == null)
@@ -706,8 +706,8 @@ public static class EntitySpawnShared
                 clip = infos[0].clip.name;
         }
 
-        bool moving = MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+        IMoveAllCharacters moves = MoveAllCharactersPacketServices.Moves;
+        bool moving = moves != null && moves.IsMoving(entity.Identity.Id);
         string action = entity.ActionSlot != null ? entity.ActionSlot.Action.ToString() : "-";
         Debug.Log(
             "[STRIDER_GAIT] when=" + when +

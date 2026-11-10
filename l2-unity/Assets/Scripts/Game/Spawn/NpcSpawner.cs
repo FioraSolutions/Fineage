@@ -75,8 +75,9 @@ public sealed class NpcSpawner
 
         if (npc.name.Equals("Leandro") || npc.name.Equals("Remy"))
         {
-            if (GravityNpc.Instance != null)
-                GravityNpc.Instance.AddGravity(npc.Identity.Id, new GravityData(npc));
+            IGravity gravity = GravityNpcPacketServices.Gravity;
+            if (gravity != null)
+                gravity.AddGravity(npc.Identity.Id, new GravityData(npc));
         }
     }
 }
