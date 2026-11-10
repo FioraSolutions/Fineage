@@ -330,7 +330,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
 | Backend next | sim actor later; B2b/B8/B9/B10 landed ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
-| Client next | Leftover table/manager Instance drains via PacketServices; LifetimeScope / gameplay MonoBehaviours when cycle-safe ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
+| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe; residual rendering/geodata Instance sites ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
 
@@ -354,3 +354,5 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] Inventory persist deferred off `_gate` on hot inventory paths (B8, Backend #492–#497)
 - [x] Hot-path / Open / Login snapshot no longer clobber normalized SoT (B9, Backend #491 + #493)
 - [x] `GameRuntime` windows split (#881)
+- [x] Leftover table/spawn Instance drains via PacketServices (#888–#889)
+- [x] `LoginRuntime` windows resolver-only; Instance fallbacks in LoginPacketServices (#890)

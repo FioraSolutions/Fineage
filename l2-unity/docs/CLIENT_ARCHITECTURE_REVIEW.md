@@ -3,15 +3,15 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-09)
+### Status Now (2026-11-10)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
-- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (PRs through **#726**). Live leftovers are mostly PacketServices / DI / LoginRuntime legacy fallbacks; `PlayerController.Instance` remains only in comments. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work, not deleting every getter overnight.
+- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (through **#890**). Spawn/shop/buffer/drop/ItemName/preview drains landed (#888–#889). `LoginRuntime` windows are resolver-only; Instance fallbacks live in `LoginPacketServices`. Live leftovers are mostly rendering/geodata + PacketServices bridges. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work.
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
-- **Asmdef:** `Fineage.Domain` (events + shared `VectorUtils` / `NumberUtils` / manor `Seed*` / `ChatTypeData`); `Fineage.Networking` (`PacketReader` / `PacketWriter` / `IWireDto` / cycle-safe wire DTOs + `Hit` / `SMParam` + Net helpers — must not reference Game); `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded with cycle-safe enums/constants + remaining Game utils/models. `Fineage.Di` seeded with `ILateBound` / `LateBoundMono` — gameplay MonoBehaviours remain `Assembly-CSharp`.
+- **Asmdef:** `Fineage.Domain` / `Fineage.Networking` / `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded; `Fineage.Di` has `ILateBound` / `LateBoundMono` — gameplay MonoBehaviours remain `Assembly-CSharp`.
 - Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow` / `NetZoneDispatch`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. `NetDomainMap` deleted (C1 + CI freeze).
-- Epic **#131** residual (2026-11-09): cycle-safe pool largely moved; #737 EditMode compile gate on PR #874. ACS still holds Product/Entity/SystemMessage-tied DTOs + ItemInstance graph. Next hard slices = LifetimeScope / gameplay MonoBehaviours when cycle-safe; GameRuntime shrink. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- Epic **#131** residual (2026-11-10): cycle-safe pool largely moved; #737 EditMode compile gate landed. Next hard slices = LifetimeScope / gameplay MonoBehaviours when cycle-safe; residual geodata/Yebis Instance sites. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
