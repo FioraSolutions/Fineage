@@ -81,7 +81,7 @@ public class Geodata : MonoBehaviour {
                 continue;
             }
 
-            GeodataImporterFactory.Instance.RequestImportGeodata(mapId, _nodeSize, (byte) _maximumLayerCount, origin, (callback) => {
+            GeodataPacketServices.Factory.RequestImportGeodata(mapId, _nodeSize, (byte) _maximumLayerCount, origin, (callback) => {
                 if(callback != null) {
                     _geodata[mapId] = callback;
                 }
