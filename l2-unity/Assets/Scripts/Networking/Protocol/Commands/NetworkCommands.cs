@@ -223,6 +223,13 @@ public sealed class RequestTargetCanceldCommand : INetworkCommand
 
 public sealed class RequestRestartPointCommand : INetworkCommand
 {
+    /// <summary>Matches <c>ReviveRequestNetMsg</c> / <c>DeathProtocol</c> revive actions.</summary>
+    public int Action;
+
+    public RequestRestartPointCommand(int action = 0)
+    {
+        Action = action;
+    }
 }
 
 public sealed class RequestShowBoardCommand : INetworkCommand

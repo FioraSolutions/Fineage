@@ -838,7 +838,20 @@
     min-height: 78px;
 }
 
-.target-window .target-effects-row,
+.target-window .target-effects-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-self: flex-start;
+    margin-top: 4px;
+    margin-left: 4px;
+    min-height: 24px;
+    /* Live icons sit to the right of the chrome — do not clamp to the HP bar width. */
+    max-width: none;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
 .target-window .target-properties-row {
     flex-direction: row;
     flex-wrap: wrap;
@@ -855,6 +868,43 @@
     margin-right: 2px;
     margin-bottom: 2px;
     -unity-background-scale-mode: stretch-to-fill;
+    position: relative;
+}
+
+/* Interlude skillgrp icon_panel=panel_2 — reddish chrome on debuffs. */
+.target-window .target-effect-icon.debuff {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgb(168, 48, 48);
+    border-right-color: rgb(168, 48, 48);
+    border-top-color: rgb(168, 48, 48);
+    border-bottom-color: rgb(168, 48, 48);
+}
+
+.target-window .target-effect-icon .target-effect-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.target-window .target-effect-icon .target-effect-timer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 11px;
+    margin: 0;
+    padding: 0;
+    font-size: 9px;
+    color: rgb(255, 255, 200);
+    -unity-text-align: middle-center;
+    text-shadow: 1px 1px 0 rgb(0, 0, 0);
+    -unity-font-definition: url("project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf");
 }
 
 .target-window .target-expand-btn {
@@ -2344,6 +2394,146 @@
 
 .inventory-window .unselected-tab {
     display: none;
+}
+
+/* Skills MagicSkillWnd — works both standalone (.inventory-window parent) and
+   when content is embedded under MainWnd #SkillsHost (loses .inventory-window). */
+.skills-panel {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.skills-panel.skills-embed,
+.character-info-window #SkillsHost > .skills-panel {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 2px 4px 2px 4px;
+}
+
+.skills-panel .skills-standalone-buttons {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.skills-panel.skills-embed .skills-standalone-buttons,
+.character-info-window #SkillsHost .skills-standalone-buttons {
+    display: none;
+}
+
+.skills-panel .tab-header {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2');
+    background-color: rgba(0, 0, 0, 0);
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    -unity-slice-bottom: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    padding: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.skills-panel .tab-header.skill {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+}
+
+.skills-panel #Learn\ Skill {
+    width: 94px;
+    min-width: 94px;
+    max-width: 94px;
+}
+
+.skills-panel .tab-header.active,
+.skills-panel .tab-header.currentlySelectedTab {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.skills-panel .tab-header.active:hover,
+.skills-panel .tab-header.currentlySelectedTab:hover {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
+}
+
+.skills-panel .tab-header:hover {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2_over');
+}
+
+.skills-panel .tab-header-label,
+.skills-panel .tab-header-label.skill {
+    color: rgb(219, 210, 181);
+    font-size: 11px;
+    padding-bottom: 0;
+    margin: 0;
+    -unity-text-align: middle-center;
+}
+
+.skills-panel .unselected-tab {
+    display: none;
+}
+
+.skills-panel .skills-tab-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+}
+
+.skills-panel .skills-tab-scroll > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroller--horizontal,
+.skills-panel .unity-scroller--horizontal {
+    display: none;
+    height: 0;
+    min-height: 0;
+    max-height: 0;
+}
+
+.skills-panel .skills-tab-root,
+.skills-panel .skills-box-row {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+}
+
+.skills-panel .skills-tab-root,
+.skills-panel .skills-tab-root > .unity-group-box,
+.skills-panel .skills-tab-chrome .unity-group-box {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.skills-panel #TopLabel {
+    height: 16px;
+    min-height: 16px;
+    max-height: 16px;
+    margin: 0 0 2px 0;
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+}
+
+.skills-panel #TopLabel > .unity-label {
+    margin: 0 0 0 4px;
+    padding: 0;
+    font-size: 11px;
+    color: rgb(223, 222, 222);
+}
+
+.character-info-window #SkillsHost {
+    overflow: hidden;
 }
 
 .inventory-window #AdenaDistribBtn #ButtonBg {

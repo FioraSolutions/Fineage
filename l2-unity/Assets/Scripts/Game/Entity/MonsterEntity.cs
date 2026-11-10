@@ -67,6 +67,11 @@ public class MonsterEntity : NetworkEntity
     {
         base.OnHit(criticalHit);
         _monsterAnimationAudioHandler.PlaySound(MonsterSoundEvent.Dmg);
+        // Interlude damageaction flinch on hit / DoT tick (StatusUpdate without Attack).
+        if (ControllerPacketServices.Animations != null && Identity != null)
+            ControllerPacketServices.Animations.PlayMonsterAnimation(
+                Identity.Id,
+                AnimationNames.MONSTER_DamageAction.ToString());
     }
 
     public void OnWaitAnim()

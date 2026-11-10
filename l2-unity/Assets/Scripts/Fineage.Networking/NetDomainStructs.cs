@@ -197,6 +197,8 @@ public struct NetUserInfo
     public int PAtk, MAtk, PDef, MDef, PAtkSpd, MAtkSpd, Accuracy, Evasion, CritRate;
     public int CurrWeight;
     public int MaxWeight;
+    public int Karma;
+    public byte PvpFlag;
 }
 
 public struct NetMyTargetSelected
@@ -314,6 +316,8 @@ public struct NetAbnormalEffect
     public int Id;
     public int Value;
     public int DurationSeconds;
+    /// <summary>Mobius <c>abnormalType</c> slot (SLEEP, STUN, PARALYZE, …).</summary>
+    public string Slot;
 }
 
 public struct NetPartyAskJoin

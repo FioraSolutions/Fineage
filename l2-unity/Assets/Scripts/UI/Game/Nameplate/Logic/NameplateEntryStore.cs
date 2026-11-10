@@ -139,7 +139,7 @@ public sealed class NameplateEntryStore
             Entity = entity,
             Name = idn.Name,
             Title = idn.Title ?? string.Empty,
-            NameColor = defaultNameColor,
+            NameColor = NameplateColors.Resolve(entity, defaultNameColor),
             TitleColor = titleColor,
             Visible = true
         };
@@ -230,6 +230,8 @@ public sealed class NameplateEntryStore
             bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
             L2TargetRenderType bubbleType = _resolver.ResolveForPaint(e.Target, isLocal);
             float castRem = isLocal ? CastBarOverlay.Remaining01 : -1f;
+            Color nameColor = NameplateColors.Resolve(e.Entity, Color.white);
+            e.NameColor = nameColor;
 
             paintList.Add(new NameplatePaintItem
             {
@@ -237,7 +239,7 @@ public sealed class NameplateEntryStore
                 World = L2OverheadAnchor.GetWorldPos(e.Entity, e.Target),
                 Name = e.Name,
                 Title = drawTitles ? e.Title : null,
-                NameColor = e.NameColor,
+                NameColor = nameColor,
                 TitleColor = e.TitleColor,
                 IsLocalPlayer = isLocal,
                 BubbleType = bubbleType,

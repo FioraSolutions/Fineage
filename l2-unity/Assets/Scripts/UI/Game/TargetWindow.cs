@@ -26,6 +26,24 @@ public class TargetWindow : L2Window {
     private int _boundObjectId = -1;
     private int _effectsObjectId = -1;
     private int _effectsSignature;
+    private readonly System.Collections.Generic.List<TargetEffectCell> _effectCells =
+        new System.Collections.Generic.List<TargetEffectCell>();
+
+    /// <summary>Classic npcgrp property_list ids → Interlude skillgrp rows with real icons.</summary>
+    static readonly System.Collections.Generic.Dictionary<int, int> ClassicPropertySkillRemap =
+        new System.Collections.Generic.Dictionary<int, int>
+        {
+            // Gray Wolf etc.: animalWeakness + bow → Animal Vuln / Bow Vuln.
+            { 47269, 4071 },
+            { 47270, 4276 },
+        };
+
+    sealed class TargetEffectCell
+    {
+        public VisualElement Root;
+        public Label Timer;
+        public float EndsAt;
+    }
 
     private static TargetWindow _instance;
     [Obsolete("Use [Inject] / PacketServices instead")]
@@ -130,6 +148,7 @@ public class TargetWindow : L2Window {
             }
 
             BindEffects(targetData);
+            TickEffectTimers();
             BindProperties(targetData);
         } else {
             if (!_isWindowHidden) {
@@ -138,6 +157,21 @@ public class TargetWindow : L2Window {
             ClearEffects();
             ClearProperties();
             HideWindow();
+        }
+    }
+
+    void TickEffectTimers()
+    {
+        if (_effectCells.Count == 0)
+            return;
+        float now = Time.time;
+        for (int i = 0; i < _effectCells.Count; i++)
+        {
+            TargetEffectCell cell = _effectCells[i];
+            if (cell?.Timer == null)
+                continue;
+            int remaining = Mathf.Max(0, Mathf.CeilToInt(cell.EndsAt - now));
+            cell.Timer.text = remaining > 0 ? remaining.ToString() : "";
         }
     }
 
@@ -264,25 +298,31 @@ public class TargetWindow : L2Window {
 
     bool TryAddPropertyIcon(int skillId, int level)
     {
+        int resolvedId = skillId;
+        if (ClassicPropertySkillRemap.TryGetValue(skillId, out int remapped))
+            resolvedId = remapped;
+
         Skillgrp skill = TablePacketServices.SkillGrps != null
-            ? TablePacketServices.SkillGrps.GetSkill(skillId, level)
+            ? TablePacketServices.SkillGrps.GetSkill(resolvedId, level)
             : null;
         SkillNameData nameData = TablePacketServices.SkillNames != null
-            ? TablePacketServices.SkillNames.GetName(skillId, level)
+            ? TablePacketServices.SkillNames.GetName(resolvedId, level)
             : null;
 
-        // Classic property_list can reference skills without Skillgrp rows — still show name if known.
         var icon = new VisualElement();
         icon.AddToClassList("target-property-icon");
 
         bool painted = skill != null && L2SlotIconView.TrySetNamedIcon(icon, skill.Icon);
         if (!painted)
-            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + skillId);
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "icon.skill" + resolvedId);
+        if (!painted)
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + resolvedId);
 
-        if (!painted && nameData == null)
+        // Skip Classic/unknown property rows that would only show NO IMAGE.
+        if (!painted)
             return false;
 
-        string tip = BuildPropertyTooltip(nameData, skillId, level);
+        string tip = BuildPropertyTooltip(nameData, resolvedId, level);
         if (!string.IsNullOrEmpty(tip))
             icon.AddManipulator(new TooltipManipulator(icon, tip));
 
@@ -327,6 +367,7 @@ public class TargetWindow : L2Window {
         _effectsObjectId = objectId;
         _effectsSignature = signature;
         _effectsRow.Clear();
+        _effectCells.Clear();
 
         if (list == null || list.Count == 0)
         {
@@ -340,14 +381,14 @@ public class TargetWindow : L2Window {
             EffectHolder effect = list[i];
             if (effect == null || effect.Id <= 0)
                 continue;
-            if (TryAddEffectIcon(effect.Id, effect.Value))
+            if (TryAddEffectIcon(effect.Id, effect.Value, effect.Duration))
                 painted++;
         }
 
         _effectsRow.style.display = painted > 0 ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
-    bool TryAddEffectIcon(int skillId, int level)
+    bool TryAddEffectIcon(int skillId, int level, int durationSeconds)
     {
         int safeLevel = level > 0 ? level : 1;
         Skillgrp skill = TablePacketServices.SkillGrps != null
@@ -368,11 +409,38 @@ public class TargetWindow : L2Window {
         if (!painted && nameData == null)
             return false;
 
+        // Interlude: debuffs use skillgrp icon_panel (typically panel_2) — buffs leave it None.
+        bool isDebuff = skill != null && skill.Debuff != 0;
+        if (isDebuff)
+            icon.AddToClassList("debuff");
+        if (skill != null && !string.IsNullOrEmpty(skill.IconPanel) &&
+            !skill.IconPanel.Equals("None", System.StringComparison.OrdinalIgnoreCase))
+        {
+            var panel = new VisualElement();
+            panel.AddToClassList("target-effect-panel");
+            panel.pickingMode = PickingMode.Ignore;
+            if (L2SlotIconView.TrySetNamedIcon(panel, skill.IconPanel))
+                icon.Add(panel);
+        }
+
+        var timer = new Label();
+        timer.AddToClassList("target-effect-timer");
+        timer.pickingMode = PickingMode.Ignore;
+        int remaining = Mathf.Max(0, durationSeconds);
+        timer.text = remaining > 0 ? remaining.ToString() : "";
+        icon.Add(timer);
+
         string tip = BuildPropertyTooltip(nameData, skillId, safeLevel);
         if (!string.IsNullOrEmpty(tip))
             icon.AddManipulator(new TooltipManipulator(icon, tip));
 
         _effectsRow.Add(icon);
+        _effectCells.Add(new TargetEffectCell
+        {
+            Root = icon,
+            Timer = timer,
+            EndsAt = Time.time + Mathf.Max(0, durationSeconds)
+        });
         return true;
     }
 
@@ -400,6 +468,7 @@ public class TargetWindow : L2Window {
     {
         _effectsObjectId = -1;
         _effectsSignature = 0;
+        _effectCells.Clear();
         if (_effectsRow == null)
             return;
         _effectsRow.Clear();

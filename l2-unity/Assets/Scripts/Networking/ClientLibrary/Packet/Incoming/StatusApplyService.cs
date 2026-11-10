@@ -37,6 +37,17 @@ public sealed class StatusApplyService
     public void ApplyPeerAbnormalStatusUpdate(AbnormalStatusUpdateDto packet) =>
         QueueApplyIncomingPacketServices.Queue(() => ApplyPeer(packet));
 
+    /// <summary>Mobius <c>EtcStatusUpdate</c> — weight / chat-ban penalty icons on the buffer tray.</summary>
+    public void ApplyEtcStatusUpdate(EtcStatusUpdateDto packet) =>
+        QueueApplyIncomingPacketServices.Queue(() =>
+        {
+            if (packet == null)
+                return;
+            BufferPanel buffer = ResolveBuffer();
+            if (buffer != null)
+                buffer.RefreshPenalty(packet);
+        });
+
     /// <summary>Replay a PartySpelled snapshot that arrived before the entity was spawned.</summary>
     public void FlushPendingPeerAbnormals(int objectId) =>
         QueueApplyIncomingPacketServices.Queue(() =>

@@ -159,26 +159,57 @@ public static class EntitySpawnShared
             }
         }
 
-        // Last resort: generic townsfolk. Prefer Human so Orc/Dwarf starts don't look Elven
-        // when e_clergyman_MOrc / similar art is missing from the pack.
-        bool male = IsMaleNpcAsset(asset);
-        string[] generic =
+        // Outfit-letter stand-in: Symbol Maker (31046) asks for a_traderC_* but the art pack
+        // only ships a_traderB_*. Same trader silhouette, not a random townsfolk body.
+        for (int i = 0; i < OutfitLetterFallbacks.Length; i++)
         {
-            package + ".a_common_people_" + (male ? "MHuman" : "FHuman") + "_m00",
-            package + ".a_common_peopleA_" + (male ? "MHuman" : "FHuman") + "_m00",
-            package + ".a_common_people_" + (male ? "MElf" : "FElf") + "_m00"
-        };
-        for (int i = 0; i < generic.Length; i++)
-        {
-            prefab = models.GetNpc(generic[i]);
+            string from = OutfitLetterFallbacks[i].From;
+            string to = OutfitLetterFallbacks[i].To;
+            if (asset.IndexOf(from, System.StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
+            string candidate = ReplaceIgnoreCase(asset, from, to);
+            if (candidate == asset)
+                continue;
+            prefab = models.GetNpc(package + "." + candidate);
             if (prefab != null)
             {
-                usedMesh = generic[i];
+                usedMesh = package + "." + candidate;
                 return true;
+            }
+            // Race swap on the substituted outfit as well (C + Elf → B + Human).
+            for (int r = 0; r < FallbackRaceNames.Length; r++)
+            {
+                string raced = candidate;
+                for (int m = 0; m < MissingRaceNames.Length; m++)
+                    raced = raced.Replace(MissingRaceNames[m], FallbackRaceNames[r]);
+                if (raced == candidate)
+                    continue;
+                prefab = models.GetNpc(package + "." + raced);
+                if (prefab != null)
+                {
+                    usedMesh = package + "." + raced;
+                    return true;
+                }
             }
         }
 
+        // Do NOT substitute a random townsfolk / soldier mesh — that confuses Symbol Maker etc.
         return false;
+    }
+
+    static readonly (string From, string To)[] OutfitLetterFallbacks =
+    {
+        ("traderC_", "traderB_"),
+        ("traderA_", "traderB_"),
+        ("_traderC", "_traderB"),
+    };
+
+    static string ReplaceIgnoreCase(string text, string from, string to)
+    {
+        int idx = text.IndexOf(from, System.StringComparison.OrdinalIgnoreCase);
+        if (idx < 0)
+            return text;
+        return text.Substring(0, idx) + to + text.Substring(idx + from.Length);
     }
 
     /// <summary>

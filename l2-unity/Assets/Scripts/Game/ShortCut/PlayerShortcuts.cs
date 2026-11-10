@@ -163,10 +163,13 @@ public class PlayerShortcuts : MonoBehaviour
         for (int i = 0; i < shortcuts.Count; i++)
         {
             Shortcut shortcut = shortcuts[i];
-            _shortcuts.Add(shortcut.Slot + shortcut.Page * MAXIMUM_SHORTCUTS_PER_BAR, shortcut);
+            _shortcuts[shortcut.Slot + shortcut.Page * MAXIMUM_SHORTCUTS_PER_BAR] = shortcut;
         }
 
-        SkillbarPacketServices.Skillbar.UpdateAllShortcuts(shortcuts);
+        // Always keep the dict; paint only when the skillbar slots exist (EnterWorld races BuildWindow).
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        if (skillbar != null && skillbar.IsReady)
+            skillbar.UpdateAllShortcuts(shortcuts);
     }
 
     public void RegisterShortcut(Shortcut shortcut)
@@ -180,7 +183,9 @@ public class PlayerShortcuts : MonoBehaviour
         // Server ShortCutRegister is authoritative: overwrite a stale local row instead of
         // silently dropping the echo (TryAdd failed left soulshot / item icons blank).
         _shortcuts[slot] = shortcut;
-        SkillbarPacketServices.Skillbar.AddShortcut(shortcut);
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        if (skillbar != null && skillbar.IsReady)
+            skillbar.AddShortcut(shortcut);
     }
 
     public Shortcut GetShortcutBySlot(int slot)
@@ -195,7 +200,9 @@ public class PlayerShortcuts : MonoBehaviour
 
     public void RemoveShotcutLocally(int slot)
     {
-        SkillbarPacketServices.Skillbar.RemoveShortcut(slot);
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        if (skillbar != null && skillbar.IsReady)
+            skillbar.RemoveShortcut(slot);
         _shortcuts.Remove(slot);
     }
 

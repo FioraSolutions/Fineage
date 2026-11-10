@@ -62,7 +62,12 @@ public sealed class FineageZoneTransport : IZoneTransport
                     return true;
                 }
 
+                TargetManager attackTargets = ControllerPacketServices.Targets;
+                bool forceAttack = GameCtrl.IsHeld ||
+                    (attackTargets != null && attackTargets.IsAttackTargetSet());
+                // Ctrl / attack intent: skip talk and swing even at peaceful NPCs.
                 if (clicked is NpcEntity &&
+                    !forceAttack &&
                     !NetNpcSession.IsAttackable(netAction.ObjectId, clicked is MonsterEntity))
                 {
                     Session.SendSelectTarget(netAction.ObjectId);
@@ -76,7 +81,7 @@ public sealed class FineageZoneTransport : IZoneTransport
 
             Session.SendSelectTarget(netAction.ObjectId);
             TargetManager targets = ControllerPacketServices.Targets;
-            if (targets != null && targets.IsAttackTargetSet())
+            if (GameCtrl.IsHeld || (targets != null && targets.IsAttackTargetSet()))
                 Session.SendAttackRequest(netAction.ObjectId);
             return true;
         }
@@ -186,9 +191,10 @@ public sealed class FineageZoneTransport : IZoneTransport
             return true;
         }
 
-        if (command is RequestRestartPointCommand)
+        RequestRestartPointCommand netRevive = command as RequestRestartPointCommand;
+        if (netRevive != null)
         {
-            Session.SendReviveRequest(ReviveRequestNetMsg.ReviveToVillage);
+            Session.SendReviveRequest(netRevive.Action);
             return true;
         }
 

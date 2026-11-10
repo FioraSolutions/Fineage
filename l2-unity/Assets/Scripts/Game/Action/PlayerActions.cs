@@ -115,6 +115,6 @@ public class PlayerActions : MonoBehaviour
     {
         if (!ZoneCommands.IsConnected)
             return;
-        ZoneCommands.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));
+        ZoneCommands.Send(new RequestMagicSkillUseCommand(skillId, GameCtrl.AsInt, 0));
     }
 }

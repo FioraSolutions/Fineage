@@ -156,7 +156,10 @@ public class StatusWindow : L2Window
             return;
         }
 
-        //TargetManager.Instance.SetTarget(new ObjectData(player.gameObject), "#ffffff");
+        // Zone SelectTarget for self does not fan TargetSelected — set the local target window here.
+        TargetPacketServices.Targets.SetTarget(
+            new ObjectData(player.gameObject),
+            "#ffffff");
         SendSelfTargetAction(player);
     }
 

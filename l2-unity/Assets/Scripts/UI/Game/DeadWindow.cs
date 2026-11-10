@@ -1,6 +1,6 @@
 using System;
-
-﻿using System.Collections;
+using System.Collections;
+using Fineage.Net.Contract;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -70,7 +70,7 @@ public class DeadWindow : L2Window
     {
         toVillage.RegisterCallback<MouseUpEvent>(evt => {
 
-            ZoneCommands.Send(new RequestRestartPointCommand());
+            ZoneCommands.Send(new RequestRestartPointCommand(ReviveRequestNetMsg.ReviveToVillage));
 
             HideWindow();
         }, TrickleDown.TrickleDown);

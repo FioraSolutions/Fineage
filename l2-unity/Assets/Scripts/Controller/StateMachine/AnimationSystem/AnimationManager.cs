@@ -18,9 +18,6 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
     private const string CAST_TRIGGER_SHOT = "MagicShot";
     private const string CAST_TRIGGER_END_2P = "CastEnd2P";
     private const string CAST_TRIGGER_SHOT_2P = "MagicShot2P";
-    private const string CAST_TRIGGER_MID_LONG = "CastMidLong";
-    private const string CAST_TRIGGER_END_LONG = "CastEndLong";
-    private const string CAST_TRIGGER_SHOT_LONG = "MagicShotLong";
     private const string SHOT_SOURCE_RUNNER = "Runner";
     private const int OVERRIDE_AWAIT_WARN_TIMEOUT_MS = 5000;
 
@@ -334,50 +331,6 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
         return completed;
     }
 
-    public async Task AsyncPlayLongCastLoopPhase(int objectId, string triggerName, string overrideAnimationName, string shotOverrideAnimationName)
-    {
-        float startedAt = Time.time;
-        string expectedFinishName = string.IsNullOrWhiteSpace(overrideAnimationName)
-            ? triggerName
-            : overrideAnimationName.Trim();
-
-        AnimationModel model = GetModel(objectId);
-        BaseAnimationController castBody = model.GetController() as BaseAnimationController;
-        TaskCompletionSource<bool> loopTcs = LongCastCoordinator.RegisterLoopPhase(objectId);
-        bool heldOnGraph = false;
-        if (castBody != null)
-        {
-            using (MagicSkillUseTrace.Measure("anim.playable"))
-                heldOnGraph = castBody.TryPlayLongHold(overrideAnimationName, shotOverrideAnimationName);
-        }
-
-        if (!heldOnGraph)
-        {
-            castBody?.StopCastClip();
-            string animName = SkillAnimationDatabase.GetAnimationClipName(triggerName, "FDarkElf");
-            using (MagicSkillUseTrace.Measure("anim.replaceClip"))
-                model.GetController().ReplaceAnimClip(animName, overrideAnimationName);
-        }
-
-        EnsureAwaitSubscribed(objectId, model);
-
-        // Debug.Log(
-            // $"[AnimAwait] START objectId={objectId} trigger='{triggerName}' override='{overrideAnimationName}' " +
-            // $"mode=long_loop now={Time.time:F3}");
-
-        if (!heldOnGraph)
-        {
-            ResetLongCastTriggers(GetPlayerController(objectId));
-            PlayerAnimationTrigger(objectId, triggerName, false);
-        }
-
-        await loopTcs.Task;
-
-        // Debug.Log(
-            // $"[AnimAwait] END objectId={objectId} trigger='{triggerName}' mode=long_loop " +
-            // $"elapsed={Time.time - startedAt:F3}s now={Time.time:F3}");
-    }
-
     public async Task<bool> AsyncAwaitOverrideAnimationFinish(int objectId, string expectedFinishNameOrTrigger)
     {
         float startedAt = Time.time;
@@ -580,7 +533,6 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
             controller.ResetAnimationTrigger(CAST_TRIGGER_SHOT);
             controller.ResetAnimationTrigger(CAST_TRIGGER_END_2P);
             controller.ResetAnimationTrigger(CAST_TRIGGER_SHOT_2P);
-            ResetLongCastTriggers(controller);
         }
 
         // Skill runner / async path — same CrossFade for jatk / SpAtk as PlayAnimationTrigger.
@@ -622,19 +574,6 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
         controller.ResetAnimationTrigger(CAST_TRIGGER_SHOT);
         controller.ResetAnimationTrigger(CAST_TRIGGER_END_2P);
         controller.ResetAnimationTrigger(CAST_TRIGGER_SHOT_2P);
-        ResetLongCastTriggers(controller);
-    }
-
-    private static void ResetLongCastTriggers(IAnimationController controller)
-    {
-        if (controller == null)
-        {
-            return;
-        }
-
-        controller.ResetAnimationTrigger(CAST_TRIGGER_MID_LONG);
-        controller.ResetAnimationTrigger(CAST_TRIGGER_END_LONG);
-        controller.ResetAnimationTrigger(CAST_TRIGGER_SHOT_LONG);
     }
 
     private static bool IsMagicCastTrigger(string animationName)
@@ -643,17 +582,13 @@ public class AnimationManager : BaseAnimationManager , IAnimationManager
                animationName == CAST_TRIGGER_END ||
                animationName == CAST_TRIGGER_SHOT ||
                animationName == CAST_TRIGGER_END_2P ||
-               animationName == CAST_TRIGGER_SHOT_2P ||
-               animationName == CAST_TRIGGER_MID_LONG ||
-               animationName == CAST_TRIGGER_END_LONG ||
-               animationName == CAST_TRIGGER_SHOT_LONG;
+               animationName == CAST_TRIGGER_SHOT_2P;
     }
 
     private static bool IsMagicShotTrigger(string animationName)
     {
         return animationName == CAST_TRIGGER_SHOT ||
                animationName == CAST_TRIGGER_SHOT_2P ||
-               animationName == CAST_TRIGGER_SHOT_LONG ||
                animationName.StartsWith(CAST_TRIGGER_SHOT, StringComparison.Ordinal);
     }
 

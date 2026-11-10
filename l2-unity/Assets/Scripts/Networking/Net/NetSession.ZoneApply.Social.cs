@@ -15,10 +15,32 @@ public sealed partial class NetSession
     }
 
 
+    /// <summary>Mobius SystemMessageId 1510 — skill resurrection ConfirmDlg.</summary>
+    const int SysMsgResurrectionOffer = 1510;
+
     internal void ApplySystemMessage(SystemMessageNetMsg message)
     {
         string shown = NetSystemLines.Resolve(message.Id, message.Text, message.Params);
         NetChatFeed.NoteSystem(shown);
+
+        if (message.Id == SysMsgResurrectionOffer)
+            ShowResurrectionOffer(shown);
+    }
+
+    void ShowResurrectionOffer(string messageText)
+    {
+        SystemMessageWindow window = SystemMessagePacketServices.Window;
+        if (window == null)
+            return;
+
+        window.ClearDialogHandlers();
+        window.OnButtonOk += () =>
+            ZoneCommands.Send(new RequestRestartPointCommand(ReviveRequestNetMsg.AcceptSkillResurrection));
+        window.OnButtonClosed += () =>
+            ZoneCommands.Send(new RequestRestartPointCommand(ReviveRequestNetMsg.DeclineSkillResurrection));
+        window.ShowWindowDialogYesOrNot(string.IsNullOrEmpty(messageText)
+            ? "Do you want to be resurrected?"
+            : messageText);
     }
 
     /// <summary>A refused action now says why in chat instead of only logging.</summary>

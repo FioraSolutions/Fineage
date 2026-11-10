@@ -157,22 +157,26 @@ public class IconManager
 
     public Texture2D LoadTextureByName(string name , string iconFolder = null)
     {
-        var folder = (iconFolder == null) ? _iconFolder : iconFolder;
-
-        string icon = folder.Replace('\\', '/') + "/" + CleanIconName(name);
-
-        var result = Resources.Load<Texture2D>(icon);
-
-        //Debug.Log($"Loading icon {name}.");
-        if (result != null)
-        {
-            return result;
-        }
-
-        // Debug.LogWarning($"Missing icon: {name}.");
-
-        return _noImageIcon;
+        Texture2D found = TryLoadTextureByName(name, iconFolder);
+        return found != null ? found : _noImageIcon;
     }
+
+    /// <summary>
+    /// Same path rules as <see cref="LoadTextureByName"/> but returns null on miss
+    /// (does not substitute the NO IMAGE placeholder).
+    /// </summary>
+    public Texture2D TryLoadTextureByName(string name, string iconFolder = null)
+    {
+        if (string.IsNullOrEmpty(name))
+            return null;
+
+        var folder = iconFolder == null ? _iconFolder : iconFolder;
+        string icon = folder.Replace('\\', '/') + "/" + CleanIconName(name);
+        return Resources.Load<Texture2D>(icon);
+    }
+
+    public bool IsNoImage(Texture2D texture) =>
+        texture != null && _noImageIcon != null && ReferenceEquals(texture, _noImageIcon);
 
     public Texture2D LoadTextureOtherSources(string href)
     {
