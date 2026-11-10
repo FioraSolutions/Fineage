@@ -302,10 +302,12 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [x] UI/Database/Audio/Icon `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
 - [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred; includes managers/controllers round 2).
+- [x] Cycle-safe leaf MonoBehaviours wave 2 into `Fineage.Game` (`L2ActorLocalLight`, `L2CloudLayers`, `ItemPickupMotion`, `SwordSetup`, `IRotation`/`RotationService`, `DropMeshLifetimeTracker`) + delete unused empty MB stubs.
 - [x] First cycle-safe gameplay MonoBehaviours into `Fineage.Game` (Windmill / BoatSway / DestroyAfter / FpsLimiter / ParticleTimerReset / LayerCullDistance / RandomizeChildYawOnEnable / L2FireNoWorldLight / EffectPrefabRotator / DontDestroyOnLoad).
 - [x] Cycle-safe settings/audio/terrain into `Fineage.Game` (`GameSettings`, `InterludeSfx`, `L2TerrainLayerStack`/`L2TerrainOverlayRenderPass` + URP asmdef refs).
 - [x] Cycle-safe billboard + instanced prop MonoBehaviours into `Fineage.Game` (`IRegisteredBillboard`, `RegisteredBillboards`, `CameraPreRenderUpdater`, `L2InstancedPropSet`/`L2InstancedPropRenderer`).
-- [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
+- [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
+- [ ] Remaining asmdef work = LifetimeScope types themselves / more gameplay MonoBehaviours when cycle-safe (hard residual).
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
@@ -367,6 +369,8 @@ Living client Status Now: [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-
 - [x] Backend hub splits continued (#524–#543: NetCodec.Session/LoginResult/NpcWarehouse/WorldEvents/ZoneCombat/Skills/QuestsKills/SiegeBoard/NetZoneHandle/NetLoginHandle/BossSchedule/SevenSigns/ShopTrade/ClassCatalog.Load/GeoEngine.Los+Region/Olympiad.Actions/VillageMasterModels/PlayerInventory.Bag/QuestMachine.Ops.Helpers)
 - [x] Client HitManager Remote/Impact (#902); World Spawn/Query (#903)
 - [x] Backend hub splits continued (#551–#561: NetLogin Handle.Roster / Cli.Listen / ZoneEntity Identity+Status / WorldEventPacketHandler / Abnormals.Tick / ToNet.Social / Skills.Members.Support / SessionLifecycle.Enter / Warehouse.Helpers / ZoneWorld.More.Enter)
+- [x] Client ACS hub file-splits continued (#911–#927 + wave3: TargetWindow / CharacterInfoWindow / ProjectileManager / FineageZoneTransport.Commands; prior: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map / L2SlotManager / NetCommandSender / ItemDropPresentation / DayNightCycle / ParticleStreamRuntime)
+- [x] Client ACS hub file-splits continued (TargetWindow Properties/Effects; CharacterInfoWindow Build/Chrome/Tabs/Values; ProjectileManager Impact/Update; FineageZoneTransport Commands/Helpers)
 - [x] Client ACS hub file-splits continued (#911–#927: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map / L2SlotManager / NetCommandSender / ItemDropPresentation / DayNightCycle / ParticleStreamRuntime)
 - [x] Client ACS hub file-splits continued (CharSelectWindow Lobby/Interlude/Actions; WorldPacketApply Combat/Movement; EntityActionVisual Combat/Helpers; SkillbarWindow Dock/Layout/Shortcuts)
 - [ ] LifetimeScope / gameplay MB asmdef remains hard residual (#131) — **next primary client work**

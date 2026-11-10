@@ -241,58 +241,26 @@ public sealed class GameLifetimeScope : LifetimeScope
     }
 
     private void RegisterIfFound<T>(IContainerBuilder builder) where T : MonoBehaviour
-    {
-        T component = FindFirstObjectByType<T>(FindObjectsInactive.Include);
-        if (component != null)
-            builder.RegisterComponent(component);
-    }
+        => LifetimeScopeMonoRegistration.RegisterIfFound<T>(builder);
 
     /// <summary>
     /// Registers a type that is created after the scope is built (prefab-instantiated
     /// MonoBehaviours such as <see cref="PlayerInventory"/> / <see cref="TargetManager"/>).
-    /// The concrete registration is still offered when one exists now; the
-    /// <see cref="ILateBound{T}"/> registration is unconditional so consumers can always
-    /// inject a provider and read null until the object appears (#142 slice 4).
+    /// PacketServices fallbacks stay here; generic Find/LateBound lives in Fineage.Di (#131).
     /// </summary>
     private void RegisterLateBound<T>(IContainerBuilder builder) where T : MonoBehaviour
-    {
-        T inScene = FindFirstObjectByType<T>(FindObjectsInactive.Include);
-        if (inScene != null)
-        {
-            builder.RegisterComponent(inScene);
-            builder.RegisterInstance<ILateBound<T>>(new LateBoundMono<T>(() => inScene));
-            return;
-        }
-
-        // Not in the scene: the prefab instantiates it after the scope. Register the
-        // concrete type lazily too, because other classes [Inject] it directly, and add
-        // the provider whose Value is null until the object exists.
-        builder.Register<T>(_ => ResolveLiveMono<T>(), Lifetime.Singleton);
-        builder.RegisterInstance<ILateBound<T>>(new LateBoundMono<T>(() => ResolveLiveMono<T>()));
-    }
+        => LifetimeScopeMonoRegistration.RegisterLateBound<T>(builder, () => ResolvePacketServicesFallback<T>());
 
     /// <summary>
     /// Registers a scene MonoBehaviour when present; otherwise a live singleton that resolves
-    /// FindInScene → static Instance (spawn-deferred types like <see cref="PlayerController"/>).
+    /// FindInScene → PacketServices Instance bridge (spawn-deferred types).
     /// </summary>
     private void RegisterLiveMono<T>(IContainerBuilder builder) where T : MonoBehaviour
+        => LifetimeScopeMonoRegistration.RegisterLiveMono<T>(builder, () => ResolvePacketServicesFallback<T>());
+
+    /// <summary>ACS PacketServices bridges for prefab-deferred MonoBehaviours.</summary>
+    private static T ResolvePacketServicesFallback<T>() where T : MonoBehaviour
     {
-        T inScene = FindFirstObjectByType<T>(FindObjectsInactive.Include);
-        if (inScene != null)
-        {
-            builder.RegisterComponent(inScene);
-            return;
-        }
-
-        builder.Register<T>(_ => ResolveLiveMono<T>(), Lifetime.Singleton);
-    }
-
-    private static T ResolveLiveMono<T>() where T : MonoBehaviour
-    {
-        T found = UnityEngine.Object.FindFirstObjectByType<T>(FindObjectsInactive.Include);
-        if (found != null)
-            return found;
-
         if (typeof(T) == typeof(PlayerInventory))
             return InventoryPacketServices.Inventory as T;
         if (typeof(T) == typeof(TargetManager))
