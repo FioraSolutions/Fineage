@@ -330,7 +330,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 |-------|-------------|
 | Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
 | Backend next | sim actor later; hub splits continue (Olympiad/SevenSigns/Siege/Geo/Skills Area landed); B2b/B8/B9/B10 landed ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
-| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe; residual rendering/geodata Instance sites ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
+| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe (easy Instance call-site drains largely exhausted through #893) ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
 

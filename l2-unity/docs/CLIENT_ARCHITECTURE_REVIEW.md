@@ -11,7 +11,7 @@
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
 - **Asmdef:** `Fineage.Domain` / `Fineage.Networking` / `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded; `Fineage.Di` has `ILateBound` / `LateBoundMono` — gameplay MonoBehaviours remain `Assembly-CSharp`.
 - Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow` / `NetZoneDispatch`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. `NetDomainMap` deleted (C1 + CI freeze).
-- Epic **#131** residual (2026-11-10): cycle-safe pool largely moved; #737 EditMode compile gate landed. Next hard slices = LifetimeScope / gameplay MonoBehaviours when cycle-safe; residual geodata/Yebis Instance sites. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- Epic **#131** residual (2026-11-10): cycle-safe pool largely moved; #737 EditMode compile gate landed. Easy PacketServices Instance drains largely exhausted through #893 (geodata/sky included). Next hard slices = LifetimeScope / gameplay MonoBehaviours when cycle-safe. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
