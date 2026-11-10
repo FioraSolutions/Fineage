@@ -31,31 +31,31 @@ public static class LoginPacketServices
     }
 
     public static L2LoginUI Ui =>
-        _login != null ? _login.Ui : LegacyL2LoginUiInstance();
+        (_login != null ? _login.Ui : null) ?? LegacyL2LoginUiInstance();
 
     public static LoginWindow LoginWindow =>
-        _login != null ? _login.LoginWindow : NetworkingPacketServices.LoginWindow;
+        (_login != null ? _login.LoginWindow : null) ?? NetworkingPacketServices.LoginWindow;
 
     public static LicenseWindow LicenseWindow =>
-        _login != null ? _login.License : LegacyLicenseWindowInstance();
+        (_login != null ? _login.License : null) ?? LegacyLicenseWindowInstance();
 
     public static ServerSelectWindow ServerSelect =>
-        _login != null ? _login.Servers : LegacyServerSelectWindowInstance();
+        (_login != null ? _login.Servers : null) ?? LegacyServerSelectWindowInstance();
 
     public static CharSelectWindow CharSelect =>
-        _login != null ? _login.CharSelect : LegacyCharSelectWindowInstance();
+        (_login != null ? _login.CharSelect : null) ?? LegacyCharSelectWindowInstance();
 
     public static CharCreationWindow CharCreate =>
-        _login != null ? _login.CharCreate : LegacyCharCreationWindowInstance();
+        (_login != null ? _login.CharCreate : null) ?? LegacyCharCreationWindowInstance();
 
     public static CharacterSelector Characters =>
-        _login != null ? _login.Selector : CharacterSelector.Instance;
+        (_login != null ? _login.Selector : null) ?? LegacyCharacterSelectorInstance();
 
     public static CharacterCreator Creator =>
-        _login != null ? _login.Creator : CharacterCreator.Instance;
+        (_login != null ? _login.Creator : null) ?? LegacyCharacterCreatorInstance();
 
     public static LoginCameraManager LoginCamera =>
-        _login != null ? _login.Camera : LoginCameraManager.Instance;
+        (_login != null ? _login.Camera : null) ?? LegacyLoginCameraInstance();
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
     static L2LoginUI LegacyL2LoginUiInstance() => L2LoginUI.Instance;
@@ -67,5 +67,11 @@ public static class LoginPacketServices
     static CharSelectWindow LegacyCharSelectWindowInstance() => CharSelectWindow.Instance;
 
     static CharCreationWindow LegacyCharCreationWindowInstance() => CharCreationWindow.Instance;
+
+    static CharacterSelector LegacyCharacterSelectorInstance() => CharacterSelector.Instance;
+
+    static CharacterCreator LegacyCharacterCreatorInstance() => CharacterCreator.Instance;
+
+    static LoginCameraManager LegacyLoginCameraInstance() => LoginCameraManager.Instance;
 #pragma warning restore CS0618
 }
