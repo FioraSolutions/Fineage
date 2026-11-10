@@ -7,10 +7,10 @@ public sealed class AppLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         RegisterAppEventProcessor(builder);
-        RegisterIfFound<GameManager>(builder);
-        RegisterIfFound<SceneLoader>(builder);
-        RegisterIfFound<GameClient>(builder);
-        RegisterIfFound<LoginClient>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameManager>(this, builder);
+        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<SceneLoader>(this, builder);
+        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameClient>(this, builder);
+        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<LoginClient>(this, builder);
 
         builder.Register<TableInitializer>(Lifetime.Singleton);
         builder.Register<IconManager>(Lifetime.Singleton);
@@ -86,18 +86,4 @@ public sealed class AppLifetimeScope : LifetimeScope
         builder.RegisterComponent(events);
     }
 
-    private T ResolveComponent<T>() where T : MonoBehaviour
-    {
-        T local = GetComponent<T>();
-        if (local != null)
-            return local;
-        return FindFirstObjectByType<T>(FindObjectsInactive.Include);
-    }
-
-    private void RegisterIfFound<T>(IContainerBuilder builder) where T : MonoBehaviour
-    {
-        T component = ResolveComponent<T>();
-        if (component != null)
-            builder.RegisterComponent(component);
-    }
 }
