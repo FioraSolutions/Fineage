@@ -161,7 +161,7 @@ public partial class ItemDropPresentationService
             return;
 
         if (state.GlowAnchor != null)
-            Object.Destroy(state.GlowAnchor);
+            UnityEngine.Object.Destroy(state.GlowAnchor);
         _groundGlowByItemId.Remove(itemObjectId);
     }
 
@@ -193,7 +193,7 @@ public partial class ItemDropPresentationService
 
         _landBurstByItemId.Remove(itemObjectId);
         if (anchor != null)
-            Object.Destroy(anchor);
+            UnityEngine.Object.Destroy(anchor);
     }
 
     void StopThrow(int itemObjectId)

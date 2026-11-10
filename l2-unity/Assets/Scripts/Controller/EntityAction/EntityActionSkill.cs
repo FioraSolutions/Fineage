@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-class EntityActionSkill : IEntityActionProcess
+public partial class EntityActionSkill : IEntityActionProcess
 {
     readonly L2PawnYaw _pawnYaw;
 

@@ -307,8 +307,8 @@ public class NetWireContractTests
             Attackable = true
         });
 
-        // Trailing: empty paperdoll (u16 count) + Dead + Level/MaxHp/PAtkSpd + Karma + PvpFlag.
-        const int newerTail = 2 + 1 + 4 + 4 + 4 + 4 + 1;
+        // Trailing: empty paperdoll (u16 count) + Dead + Level/MaxHp/PAtkSpd + Karma + PvpFlag + CurHp.
+        const int newerTail = 2 + 1 + 4 + 4 + 4 + 4 + 1 + 4;
         byte[] older = full.AsSpan(0, full.Length - newerTail).ToArray();
 
         EntitySpawnMsg decoded = NetCodec.DecodeEntitySpawn(older);

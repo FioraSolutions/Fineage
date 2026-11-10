@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class ItemDropPresentationService
+public sealed partial class ItemDropPresentationService
 {
     sealed class ThrowArcState
     {

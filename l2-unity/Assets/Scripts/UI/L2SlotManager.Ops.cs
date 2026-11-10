@@ -77,8 +77,6 @@ public partial class L2SlotManager
         }
     }
 
-    #endregion
-
     #region SlotVerification
     private bool IsValidDrag() => _draggedSlot != null && (_hoverSlot != null || !SystemUIPacketServices.Ui.MouseOverUI);
 

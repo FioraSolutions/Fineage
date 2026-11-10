@@ -352,3 +352,4 @@ public partial class ToolTipSimple
         _content.transform.position = reversePoint;
         BringToFront();
     }
+}

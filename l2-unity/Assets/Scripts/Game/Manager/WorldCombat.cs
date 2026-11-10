@@ -1,6 +1,5 @@
 using System;
 
-﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
@@ -193,6 +192,7 @@ public class WorldCombat : MonoBehaviour {
 
         // Mobius DamOverTime notifyDamageReceived: StatusUpdate HP drops (poison/bleed)
         // still play the hit reaction even without an Attack packet.
+        // Select/AOI StatusUpdate is a no-op when EntitySpawn already carried CurHp.
         float hpAfter = status != null ? (float)status.GetHp() : 0f;
         if (hpAfter + 0.5f < hpBefore)
             entity.PlayHitReaction(criticalHit: false);
