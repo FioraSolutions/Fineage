@@ -329,8 +329,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
-| Backend next | sim actor later; hub splits continue (Olympiad/SevenSigns/Siege/Geo/Skills Area landed); B2b/B8/B9/B10 landed ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
-| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe (easy Instance call-site drains largely exhausted through #893) ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
+| Backend next | sim actor later; hub file-splits largely under ~500 lines; opportunistic residual only ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
+| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe; large ACS hubs (World/HitManager/Gear) file-splitting while asmdef residual stays hard ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
 
@@ -358,3 +358,5 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] `LoginRuntime` windows resolver-only; Instance fallbacks in LoginPacketServices (#890)
 - [x] BufferPanel SkillGrps via TablePacketServices (#897)
 - [x] Backend hub splits continued (#513–#522: ClassCatalog/QuestCatalog/GameData/AccountStore/ZoneWorld.Members/PostgresAccountStore/ZoneEntity.Members/NormalizedStoreWriter/NetCodec.Presence/WorldMessages)
+- [x] Backend hub splits continued (#524–#543: NetCodec.Session/LoginResult/NpcWarehouse/WorldEvents/ZoneCombat/Skills/QuestsKills/SiegeBoard/NetZoneHandle/NetLoginHandle/BossSchedule/SevenSigns/ShopTrade/ClassCatalog.Load/GeoEngine.Los+Region/Olympiad.Actions/VillageMasterModels/PlayerInventory.Bag/QuestMachine.Ops.Helpers)
+- [x] Client HitManager Remote/Impact (#902); World Spawn/Query next
