@@ -6,9 +6,6 @@ using VContainer;
 
 public partial class CompositePrefabEffect
 {
-    protected virtual void PreparePartPlayback(CompositePrefabPart part, BaseEffect instance)
-    {
-    }
 
 
     void SpawnPart(CompositePrefabPart part)
