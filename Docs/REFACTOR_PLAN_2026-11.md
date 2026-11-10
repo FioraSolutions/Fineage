@@ -304,6 +304,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred; includes managers/controllers round 2).
 - [x] First cycle-safe gameplay MonoBehaviours into `Fineage.Game` (Windmill / BoatSway / DestroyAfter / FpsLimiter / ParticleTimerReset / LayerCullDistance / RandomizeChildYawOnEnable / L2FireNoWorldLight / EffectPrefabRotator / DontDestroyOnLoad).
 - [x] Cycle-safe billboard + instanced prop MonoBehaviours into `Fineage.Game` (`IRegisteredBillboard`, `RegisteredBillboards`, `CameraPreRenderUpdater`, `L2InstancedPropSet`/`L2InstancedPropRenderer`).
+- [x] Client ACS hub file-splits continued (PlayerController Move/Rotate/Query)
 - [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
 
 ### C3. Doc sync
