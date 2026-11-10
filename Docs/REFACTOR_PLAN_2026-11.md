@@ -187,7 +187,6 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - [x] Inventory destroy: stale objectId after full remove cannot invent another removal (`NetGroundItemTests`).
 - [x] Shop limited-stock second buy refused without taking adena (`NetShopTests`).
 
-
 ### B7. Live AI tick — done (Backend #490)
 - Fold `TickAggression` + `TickLeash` (+ `TickAttackStance`) into `RunPlayerCombatTickAsync`.
 - Keep `RunCombatTickAsync` as the test/helper entry that already includes them, or make it call the live tick body.
@@ -307,6 +306,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Cycle-safe settings/audio/terrain into `Fineage.Game` (`GameSettings`, `InterludeSfx`, `L2TerrainLayerStack`/`L2TerrainOverlayRenderPass` + URP asmdef refs).
 - [x] Cycle-safe billboard + instanced prop MonoBehaviours into `Fineage.Game` (`IRegisteredBillboard`, `RegisteredBillboards`, `CameraPreRenderUpdater`, `L2InstancedPropSet`/`L2InstancedPropRenderer`).
 - [x] Client ACS hub file-splits continued (PlayerController Move/Rotate/Query)
+- [x] Cycle-safe L2 beam builders into `Fineage.Game` (`L2BeamEmitterStripBuilder`, `L2BeamStripMeshBuilder`, `L2MultiLayerBeamBuilder`).
+- [x] Cycle-safe L2 beam builders into `Fineage.Game`.
 - [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
 - [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
 - [x] Cycle-safe preview/debug MonoBehaviours into `Fineage.Game` (`PreviewOrbitCamera`, `PlayerLoopDebugger`).
@@ -314,7 +315,6 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
-
 
 ### C4. Zone disconnect UX — done (#878)
 - Raise `FineageZoneTransport.OnDisconnected` on remote close and intentional `Disconnect`.
