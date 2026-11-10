@@ -457,11 +457,11 @@ public sealed class L2YebisPostRenderPass : ScriptableRenderPass
             }
         }
 
-        L2CloudSimple clouds = L2CloudSimple.Instance;
+        L2CloudSimple clouds = SkyPacketServices.Clouds;
         if (clouds != null)
             clouds.DrawBloomExclude(cmd);
 
-        L2CelestialDiscs discs = L2CelestialDiscs.Instance;
+        L2CelestialDiscs discs = SkyPacketServices.CelestialDiscs;
         if (discs != null)
         {
             discs.DrawSunBloomExclude(cmd);

@@ -75,6 +75,7 @@ public class L2CloudSimple : MonoBehaviour
         }
 
         Instance = this;
+        SkyPacketServices.Bind(clouds: this);
         StripStaleChildren();
         EnsureChunks();
     }

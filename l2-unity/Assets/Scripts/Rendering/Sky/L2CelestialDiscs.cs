@@ -68,6 +68,7 @@ public class L2CelestialDiscs : MonoBehaviour
     void OnEnable()
     {
         Instance = this;
+        SkyPacketServices.Bind(discs: this);
         L2CelestialLut.EnsureLoaded();
         EnsureDiscs();
     }
