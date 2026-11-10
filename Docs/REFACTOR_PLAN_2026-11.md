@@ -309,6 +309,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Cycle-safe L2 beam builders into `Fineage.Game` (`L2BeamEmitterStripBuilder`, `L2BeamStripMeshBuilder`, `L2MultiLayerBeamBuilder`).
 - [x] Cycle-safe L2 beam builders into `Fineage.Game`.
 - [x] Client ACS hub file-splits continued (CharacterSelector Lobby/Spawn/Select)
+- [x] Client ACS hub file-splits continued (EffectManager Registry/Play/Impact)
 - [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
 - [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
 - [x] Cycle-safe preview/debug MonoBehaviours into `Fineage.Game` (`PreviewOrbitCamera`, `PlayerLoopDebugger`).
