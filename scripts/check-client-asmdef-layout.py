@@ -24,6 +24,7 @@ EXPECTED: dict[str, list[str]] = {
         "Fineage.Game",
         "Fineage.Controller",
         "Fineage.UI",
+        "VContainer",
     ],
 }
 
