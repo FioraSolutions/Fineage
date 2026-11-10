@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 using VContainer;
 using static UnityEngine.Rendering.DebugUI;
 
-public class BufferPanel : L2Window
+public partial class BufferPanel : L2Window
 {
 
     private static BufferPanel _instance;
@@ -84,184 +84,24 @@ public class BufferPanel : L2Window
         MovePanelToChatPosition(_defaultLeftOffset);
     }
 
-    public void RefreshPenalty(EtcStatusUpdateDto etcStatusUpdatePacket)
-    {
-        _deathPenalty = etcStatusUpdatePacket.DeathPenalty;
-        _weightPenalty = etcStatusUpdatePacket.WeightPenalty;
-        _weaponPenalty = etcStatusUpdatePacket.WeaponPenalty;
 
-        AddDataCell(_deathPenalty[0], _deathPenalty[1]);
-        AddDataCell(_weightPenalty[0], _weightPenalty[1]);
-        AddDataCell(_weaponPenalty[0], _weaponPenalty[1]);
 
-        DeleteDataCell(_deathPenalty[0], _deathPenalty[1]);
-        DeleteDataCell(_weightPenalty[0], _weightPenalty[1]);
-        DeleteDataCell(_weaponPenalty[0], _weaponPenalty[1]);
-    }
-
-    public void AddDataCell(int skillId, int skillLevel)
-    {
-        if (skillLevel == 0) return;
-        if (_content.style.opacity == 0) _content.style.opacity = 1;
-        if (_filterData.IsContain(skillId)) return;
-
-        DataCell data = _filterData.GetEmptyCell();
-        data.RefreshData(skillId, true, skillLevel);
-        data.ShowCell(true);
-    }
-
-    public void AddDataCellToTime(int skillId, int skillLevel, int time)
-    {
-
-        if (skillLevel == 0) return;
-
-        Skillgrp skill = SkillGrps.GetSkill(skillId, skillLevel);
-        if (skill == null)
-            Debug.LogWarning($"BufferPanel.AddDataCellToTime: skillgrp missing skillId={skillId} level={skillLevel} — still showing tray cell");
-
-        if (_content.style.opacity == 0) _content.style.opacity = 1;
-        if (_filterData.IsContain(skillId))
-        {
-            DataCell existing = _filterData.FilterBySkillId(skillId);
-            if (existing != null && time > 0)
-            {
-                existing.SetActiveTime(time);
-                _bLink.StartBlinking(existing);
-            }
-
-            return;
-        }
-
-        RebindCellElseOnlyPenalty();
-        DataCell data = _filterData.GetEmptyCell();
-        data.RefreshData(skillId, true, skillLevel);
-        data.ShowCell(true);
-        data.SetActiveTime(time);
-        _bLink.StartBlinking(data);
-    }
 
   
-    public void RemoveAllEffects()
-    {
-        List<DataCell> list = _filterData.GetListActiveAndBusy();
-        ResetList(list);
-        // Stale blink entries must go too — otherwise the next FullEffectSnapshot
-        // re-adds into the same slots and the blink dict throws / aborts the rebuild.
-        _bLink?.ClearAllBlinking();
-        HideContentElseNoElements();
-    }
 
-    private void HideContentElseNoElements()
-    {
-        if (!_filterData.HasElements())
-        {
-            _content.style.opacity = 0;
-        }
-    }
 
-    private void ResetList(List<DataCell> list)
-    {
-        if (list != null && list.Count > 0)
-        {
-            foreach (DataCell cell in list)
-            {
-                _bLink?.StopBlinking(cell.GetPosition());
-                cell.ResetData();
-                cell.ShowCell(false);
-            }
-        }
-    }
 
-    public void DeleteDataCell(int skillId, int skillLevel)
-    {
-        if(skillLevel == 0)
-        {
-            DataCell data = _filterData.FilterBySkillId(skillId);
-
-            if(data != null)
-            {
-                data.RefreshData(-1, false, 0);
-                data.ShowCell(false);
-            }
-        }
-    }
    
 
 
-    private void CreateItemsPanel1()
-    {
-        for(int i = 1; i < 25; i++)
-        {
-            VisualElement cell = GetElementById("SlotBuffer"+i);
-            VisualElement labelTemplate = GetElementById("LabelBuffer" + i);
-            VisualElement slot = GetElementById("border"+i);
-
-            if (cell != null)
-            {
-                 cell.style.display = DisplayStyle.None;
-                 labelTemplate.style.display = DisplayStyle.None;
-                _dictElement.Add(i, new DataCell(-1, cell , labelTemplate  , slot ,  i));
-            }
-        }
-    }
 
 
-    public float GetLeftTimeBySkillId(int skillId)
-    {
-        if(_bLink.IsBLink() == true)
-        {
-            return _bLink.GetLeftTimeBySkillId(skillId);
-        }
 
-        return 0;
-    }
 
-    public float GetLeftTimeByPosition(int position)
-    {
-        if (_bLink.IsBLink() == true)
-        {
-            return _bLink.GetLeftTimeBySkillId(position);
-        }
 
-        return 0;
-    }
-
-    private void RebindCellElseOnlyPenalty()
-    {
-        if (_filterData.IsPassiveFirstRows() != null)
-        {
-            MoveAllPassiveTo2Rows();
-        }
-    }
-
-    public void  MoveAllPassiveTo2Rows()
-    {
-        List<DataCell> list = _filterData.GetAllPassive(1, 12);
-
-        foreach (DataCell moveCell in list)
-        {
-            //position 13 -24 (rows2)
-            DataCell empty = _filterData.GetEmptyCell(13, 24);
-            empty.RefreshData(moveCell.GetSkillId(), true, moveCell.GetLevel());
-            empty.ShowCell(true);
-
-            _bLink?.StopBlinking(moveCell.GetPosition());
-            moveCell.ResetData();
-            moveCell.ShowCell(false);
-            _dictElement[moveCell.GetPosition()] = moveCell;
-        }
-    }
 
   
-    public void TrackSkillId(int skillId)
-    {
-        _bLink.TrackSkillId(skillId);
-    }
 
-    public void UntrackSkillId(int skillId)
-    {
-        _bLink.UntrackSkillId(skillId);
-    }
 
     // Add these events after the class declaration
     public event Action<int, float> OnTimeLeftUpdated
@@ -273,20 +113,6 @@ public class BufferPanel : L2Window
 
     private List<Action<int, float>> _allCurrentHandler = new List<Action<int, float>>();
 
-    public void ResetAllSubscrible()
-    {
-        foreach (Action<int, float> handler in _allCurrentHandler)
-        {
-            _bLink.OnSpecificTimeLeftUpdated -= handler;
-        }
-        _allCurrentHandler.Clear();
-        _bLink.AllClearTrackSkillId();
-    }
-    public void SetSubscrible(Action<int, float> handler)
-    {
-        _allCurrentHandler.Add(handler);
-        OnSpecificTimeLeftUpdated += handler;
-    }
 
     public event Action<int, float> OnSpecificTimeLeftUpdated
     {
@@ -297,19 +123,8 @@ public class BufferPanel : L2Window
 
 
 
-    public void MovePanelToChatPosition(float sourceY)
-    {
-        _windowEle.style.top = 3;
-        _windowEle.style.left = sourceY;
-
-    }
 
 
-    public SkillInstance GetCellByPosition(int position)
-    {
-        DataCell data = _filterData.GetCellByPosition(position);
-        return (data != null)? data.GetSkillInstance() : null;
-    }
     private void OnDestroy()
     {
         if (_instance == this)
