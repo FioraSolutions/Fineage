@@ -99,11 +99,13 @@ public sealed class PlayerWorldApply : EntityWorldApply
 
     public override void OnAutoAttackStart(Entity entity, AutoAttackStartDto dto)
     {
-        // Mobius AttackStanceTaskManager: stance flag only — idle pose reads isAutoAttack.
+        // Mobius AttackStanceTaskManager: stance flag + refresh wait↔atkwait when already idle.
+        // Do not ChangeIntention / CrossFade during cast or swing (see magic-skill-use-flow).
         PlayerEntity player = entity as PlayerEntity;
         if (player == null || player.IsDead())
             return;
         player.isAutoAttack = true;
+        RefreshLocalStandWaitIfIdle();
     }
 
     public override void OnAutoAttackStop(Entity entity, AutoAttackStopDto dto)
@@ -112,6 +114,27 @@ public sealed class PlayerWorldApply : EntityWorldApply
         if (player == null)
             return;
         player.isAutoAttack = false;
+        RefreshLocalStandWaitIfIdle();
+    }
+
+    /// <summary>
+    /// When standing idle, re-fire WAIT_RETURN so NewIdleState CrossFades wait vs atkwait
+    /// from the updated <see cref="PlayerEntity.isAutoAttack"/> flag (NPC parity via
+    /// EntityActionMachine.RefreshStandWaitIfIdle). Skips cast/swing/locomotion.
+    /// </summary>
+    static void RefreshLocalStandWaitIfIdle()
+    {
+        PlayerStateMachine sm = PlayerStatePacketServices.PlayerState;
+        if (sm == null)
+            return;
+        if (sm.State != PlayerState.IDLE || sm.Intention != Intention.INTENTION_IDLE)
+            return;
+        if (sm.ShouldKeepLocomotion())
+            return;
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
+        if (local != null && local.IsAttack)
+            return;
+        sm.NotifyEvent(Event.WAIT_RETURN);
     }
 
     public override void OnSocialAction(Entity entity, SocialActionDto dto)

@@ -82,6 +82,34 @@ public class SkillListWindow : L2PopupWindow
         return  _windowEle.worldBound.Contains(vector2);
     }
 
+    /// <summary>
+    /// Interlude MagicSkillWnd under MainWnd Skill tab — reuse this window's content
+    /// inside CharacterInfo SkillsHost instead of a second floating chrome.
+    /// </summary>
+    public void EmbedInto(VisualElement host)
+    {
+        if (host == null)
+            return;
+        if (_windowEle == null)
+            ShowWindow();
+        if (_windowEle == null)
+            return;
+        _windowEle.style.display = DisplayStyle.None;
+        VisualElement body = GetElementById("content") ?? _windowEle;
+        if (body.parent != host)
+        {
+            body.RemoveFromHierarchy();
+            host.Add(body);
+            body.style.position = Position.Relative;
+            body.style.left = 0;
+            body.style.top = 0;
+            body.style.width = Length.Percent(100);
+            body.style.height = Length.Percent(100);
+        }
+        host.style.display = DisplayStyle.Flex;
+        AudioPacketServices.Audio.PlayUISound("window_open");
+    }
+
     private void OnDestroy()
     {
         _instance = null;

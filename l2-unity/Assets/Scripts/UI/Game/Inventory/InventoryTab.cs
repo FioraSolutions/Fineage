@@ -188,24 +188,15 @@ public class InventoryTab : L2Tab
         {
             ItemInstance item = removeAndAdd[i];
             if (item.LastChange == (int)InventoryChange.ADDED)
-            {   
-                if (!InventoryPacketServices.Inventory.IsContaineInventory(item.ObjectId))
+            {
+                // Model already contains the row (PlayerInventory applies before UI).
+                // Gate on UI presence so open Items tab still paints loot pickups.
+                if (GetInventorySlot(item.ObjectId) == null)
                 {
-                    //Debug.Log("ADD Inventory Slot slot-position update inventory <<<<< " + item.Slot + " position " + item + " object id " + item.ObjectId);
-
                     InventorySlot i_slot = _inventorySlots[item.Slot];
-
                     if (i_slot != null)
-                    {
                         i_slot.AssignItem(item);
-                    }
-         
                 }
-                else
-                {
-                    // Debug.Log("ADD And Rmove Count Not ADD ObjectID " + item.ObjectId);
-                }
-          
             }
             else if(item.LastChange == (int)InventoryChange.REMOVED)
             {

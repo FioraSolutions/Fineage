@@ -177,17 +177,10 @@ public class PlayerShortcuts : MonoBehaviour
         }
 
         int slot = shortcut.Slot + shortcut.Page * MAXIMUM_SHORTCUTS_PER_BAR;
-        // Debug.Log($"Register shortcut {shortcut.Id} at {slot}.");
-
-        if (_shortcuts.TryAdd(slot, shortcut))
-        {
-            SkillbarPacketServices.Skillbar.AddShortcut(shortcut);
-        }
-        else
-        {
-            // Debug.LogError($"Can't add shotcut in slot {slot}.");
-        }
-
+        // Server ShortCutRegister is authoritative: overwrite a stale local row instead of
+        // silently dropping the echo (TryAdd failed left soulshot / item icons blank).
+        _shortcuts[slot] = shortcut;
+        SkillbarPacketServices.Skillbar.AddShortcut(shortcut);
     }
 
     public Shortcut GetShortcutBySlot(int slot)

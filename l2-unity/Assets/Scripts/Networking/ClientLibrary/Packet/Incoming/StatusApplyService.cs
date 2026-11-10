@@ -16,17 +16,8 @@ public sealed class StatusApplyService
     }
 
     public void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateDto packet) =>
-        QueueApplyIncomingPacketServices.Queue(() =>
-        {
-            BufferPanel buffer = _buffer != null ? _buffer.Value : null;
-            if (buffer == null)
-                return;
-
-            if (packet.FullEffectSnapshot)
-                buffer.RemoveAllEffects();
-            foreach (var item in packet.ListEffect)
-                buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
-        });
+        // Same path as the static facade so EnterWorld pending flush stays one place.
+        AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(packet);
 
     public void ApplyEtcStatusUpdate(EtcStatusUpdateDto packet) =>
         QueueApplyIncomingPacketServices.Queue(() =>

@@ -159,8 +159,14 @@ public class MonsterStateAtk : MonsterStateBase
     {
         if (_isSwitchIdle || stateInfo.normalizedTime < 1f)
             return;
+        // Die → PlayDeath then Action=Stop leaves us mid-atk01; never CrossFade wait over death.
+        if (_entity != null && _entity.IsDead())
+        {
+            _isSwitchIdle = true;
+            return;
+        }
         _isSwitchIdle = true;
-        if (_entity != null && !_entity.IsDead() && EntityActionPacketServices.Actions != null)
+        if (_entity != null && EntityActionPacketServices.Actions != null)
         {
             EntityActionPacketServices.Actions.Set(_entity, EntityActionKind.Idle, "wait");
             return;
