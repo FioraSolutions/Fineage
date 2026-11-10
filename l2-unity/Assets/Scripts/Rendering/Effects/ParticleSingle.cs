@@ -33,7 +33,7 @@ public class ParticleSingle : EffectPart
     [Header("L2 shader (Hold / fade)")]
     [Tooltip("Значение _Hold в материале, если включён Continuous Loop части композита (overrideContinuousLoop + continuousLoop через SetRuntimeContinuousLoopOverride). Это не то же самое, что спавн-луп — см. код композита.")]
     [SerializeField] [Range(0f, 1f)] private float _shaderHold = 0.6f;
-    [Tooltip("Иначе _Hold висит всё время каста и в L2SkillEffect может блокировать нормальный FadeOut.")]
+    [Tooltip("Иначе _Hold висит всё время каста и в L2Fx unified emitters может блокировать нормальный FadeOut.")]
     [SerializeField] private bool _releaseShaderHoldByCastProgress = true;
     [Tooltip("Доля времени каста (_duration): раньше этой точки _Hold = Shader Hold. При cast-end defer (телепорт) во время каста hold не отпускается — поле влияет только если defer выключен.")]
     [SerializeField] [Range(0f, 0.999f)] private float _shaderHoldReleaseStartNormalized = 0.85f;

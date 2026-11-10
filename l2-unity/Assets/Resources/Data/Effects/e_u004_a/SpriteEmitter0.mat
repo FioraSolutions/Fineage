@@ -12,7 +12,10 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _FADEIN_ON
+  - _FADEOUT_ON
+  - _USESIZESCALE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -32,11 +35,11 @@ Material:
     - _AlphaClipThreshold: -1
     - _AlphaFromLuma: 0
     - _ColorFadeAlphaBlend: 0
-    - _ColorKey1Time: 0.164
-    - _ColorKey2Time: 0.361
-    - _ColorKey3Time: 0.618
-    - _ColorScaleCount: 6
-    - _ColorScaleParam: 0
+    - _ColorKey1Time: 0.164286
+    - _ColorKey2Time: 0.360714
+    - _ColorKey3Time: 0.617857
+    - _ColorScaleCount: 4
+    - _ColorScaleParam: 20
     - _CoordinateSystem: 1
     - _Cull: 0
     - _DebugSpriteOut: 0
@@ -46,7 +49,7 @@ Material:
     - _Fadeout: 1
     - _FadeoutStartTime: 1.77
     - _FlipbookMode: 3
-    - _FullTlsShape: 1
+    - _FullTlsShape: 0
     - _HeLocationShape: 0
     - _IgnoreMainTexAlpha: 0
     - _IndependentSprayAccel: 0
@@ -57,7 +60,7 @@ Material:
     - _LumaAlphaFloor: 0
     - _LumaAlphaPower: 1
     - _ManualAge: 0
-    - _MotionMode: 0
+    - _MotionMode: 2
     - _Opacity: 0.6
     - _OrientationMode: 0
     - _PtvdMode: 0
@@ -69,7 +72,7 @@ Material:
     - _SizeScaleCount: 3
     - _SizeScaleRepeats: 0
     - _SpawnDeltaTime: 0.012
-    - _SpawnMode: 2
+    - _SpawnMode: 3
     - _SpinMode: 1
     - _SpriteMotionRandStateBits: 0
     - _SpriteSpinRandStateBits: 0
@@ -83,7 +86,7 @@ Material:
     - _UseManualAge: 0
     - _UseRevolution: 0
     - _UseRevolutionScale: 0
-    - _UseSizeScale: 1
+    - _UseSizeScale: 0
     - _UseSoftLumaAlpha: 0
     - _UseVelocityScale: 0
     - _VelocityScaleCount: 1
@@ -91,10 +94,10 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _AccelerationUc: {r: 0, g: 0, b: -2, a: 0}
-    - _ColorKey0: {r: 1, g: 1, b: 1, a: 0}
-    - _ColorKey1: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _ColorKey2: {r: 0.647, g: 0.647, b: 0.647, a: 1}
-    - _ColorKey3: {r: 0.667, g: 0.667, b: 0.667, a: 1}
+    - _ColorKey0: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorKey1: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
+    - _ColorKey2: {r: 0.64705884, g: 0.64705884, b: 0.64705884, a: 1}
+    - _ColorKey3: {r: 0.6666667, g: 0.6666667, b: 0.6666667, a: 1}
     - _ColorMulMax: {r: 1, g: 1, b: 1, a: 0}
     - _ColorMulMin: {r: 1, g: 1, b: 0.89, a: 0}
     - _InitialDelayRange: {r: 0, g: 0, b: 0, a: 0}
@@ -119,13 +122,13 @@ Material:
     - _RevolutionsPerSecondRangeZUc: {r: 0, g: 0, b: 0, a: 0}
     - _SizeKey0: {r: 0.37, g: 0.9, b: 0, a: 0}
     - _SizeKey1: {r: 0.75, g: 0.2, b: 0, a: 0}
-    - _SizeKey2: {r: 1.0, g: 0.1, b: 0, a: 0}
-    - _SizeKey3: {r: 1, g: 0.2, b: 0, a: 0}
-    - _SizeKey4: {r: 1, g: 0.2, b: 0, a: 0}
+    - _SizeKey2: {r: 1, g: 0.1, b: 0, a: 0}
+    - _SizeKey3: {r: 1, g: 0.1, b: 0, a: 0}
+    - _SizeKey4: {r: 1, g: 0.1, b: 0, a: 0}
     - _SizeRange: {r: 1.3, g: 2.6, b: 0, a: 0}
     - _SizeRangeXUc: {r: 1.3, g: 2.6, b: 0, a: 0}
-    - _SizeRangeYUc: {r: 1.3, g: 2.6, b: 0, a: 0}
-    - _SizeRangeZUc: {r: 1.3, g: 2.6, b: 0, a: 0}
+    - _SizeRangeYUc: {r: 1, g: 1, b: 0, a: 0}
+    - _SizeRangeZUc: {r: 1, g: 1, b: 0, a: 0}
     - _SphereRadiusRangeUc: {r: 0, g: 0, b: 0, a: 0}
     - _SpriteSpinCcwOrCw: {r: 0.5, g: 0.5, b: 0.5, a: 0}
     - _SpriteSpinSpsRangeUc: {r: 0.5, g: 2, b: 0, a: 0}
