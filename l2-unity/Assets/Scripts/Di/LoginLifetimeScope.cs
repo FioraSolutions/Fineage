@@ -6,16 +6,16 @@ public sealed class LoginLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
-        RegisterIfFound<L2LoginUI>(builder);
-        RegisterIfFound<LoginWindow>(builder);
-        RegisterIfFound<LicenseWindow>(builder);
-        RegisterIfFound<ServerSelectWindow>(builder);
-        RegisterIfFound<CharSelectWindow>(builder);
-        RegisterIfFound<CharCreationWindow>(builder);
-        RegisterIfFound<LoginCameraManager>(builder);
-        RegisterIfFound<CharacterSelector>(builder);
-        RegisterIfFound<CharacterBuilder>(builder);
-        RegisterIfFound<CharacterCreator>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<L2LoginUI>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<LoginWindow>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<LicenseWindow>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<ServerSelectWindow>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<CharSelectWindow>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<CharCreationWindow>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<LoginCameraManager>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<CharacterSelector>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<CharacterBuilder>(builder);
+        LifetimeScopeMonoRegistration.RegisterIfFound<CharacterCreator>(builder);
 
         builder.Register<LoginRuntime>(Lifetime.Singleton);
 
@@ -40,10 +40,4 @@ public sealed class LoginLifetimeScope : LifetimeScope
         });
     }
 
-    private void RegisterIfFound<T>(IContainerBuilder builder) where T : MonoBehaviour
-    {
-        T component = FindFirstObjectByType<T>(FindObjectsInactive.Include);
-        if (component != null)
-            builder.RegisterComponent(component);
-    }
 }
