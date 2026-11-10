@@ -319,3 +319,4 @@ public partial class L2SlotManager
         _windowEle.style.top = -10000;
     }
 }
+
