@@ -312,6 +312,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Client ACS hub file-splits continued (EffectManager Registry/Play/Impact)
 - [x] Client ACS hub file-splits continued (EntitySpawnShared Fallback/Entity)
 - [x] Client ACS hub file-splits continued (MagicCastData Timing/Clips)
+- [x] Cycle-safe `L2MaterialPropertyCopier` / `NpcDecoKeepWorldUp` / debug `DrawLine` into `Fineage.Game`.
+- [x] Overnight ACS hub file-splits (CharacterSelector/EffectManager/EntityAction/UI windows/zone commands/ItemDrop FX).
 - [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
 - [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
 - [x] Cycle-safe preview/debug MonoBehaviours into `Fineage.Game` (`PreviewOrbitCamera`, `PlayerLoopDebugger`).
@@ -342,9 +344,9 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 ---
 
-## Agent start here (as of 2026-11-10 evening)
+## Agent start here (as of 2026-11-10 night)
 
-**Progress (stabilize path A+B+C / epics #131+#353):** ~70–75%. Backend modularization acceptance largely met (~85–90%). Client easy drains + ACS hub file-splits largely met; **hard residual = LifetimeScope / gameplay MonoBehaviours → `Fineage.*` asmdef**.
+**Progress (stabilize path A+B+C / epics #131+#353):** ~75–80%. Backend modularization acceptance largely met (~85–90%). Client leaf MB waves + large ACS hub file-splits landed overnight; **hard residual = LifetimeScope types themselves / remaining gameplay MonoBehaviours → `Fineage.*` when cycle-safe**.
 
 | Track | Do next | Do **not** |
 |-------|---------|------------|
