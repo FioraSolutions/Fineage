@@ -306,6 +306,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] First cycle-safe gameplay MonoBehaviours into `Fineage.Game` (Windmill / BoatSway / DestroyAfter / FpsLimiter / ParticleTimerReset / LayerCullDistance / RandomizeChildYawOnEnable / L2FireNoWorldLight / EffectPrefabRotator / DontDestroyOnLoad).
 - [x] Cycle-safe settings/audio/terrain into `Fineage.Game` (`GameSettings`, `InterludeSfx`, `L2TerrainLayerStack`/`L2TerrainOverlayRenderPass` + URP asmdef refs).
 - [x] Cycle-safe billboard + instanced prop MonoBehaviours into `Fineage.Game` (`IRegisteredBillboard`, `RegisteredBillboards`, `CameraPreRenderUpdater`, `L2InstancedPropSet`/`L2InstancedPropRenderer`).
+- [x] Client ACS hub file-splits continued (PlayerController Move/Rotate/Query)
+- [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
 - [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
 - [ ] Remaining asmdef work = LifetimeScope types themselves / more gameplay MonoBehaviours when cycle-safe (hard residual).
 
