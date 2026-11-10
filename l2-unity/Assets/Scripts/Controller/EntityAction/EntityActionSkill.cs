@@ -396,22 +396,6 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     static void ExecuteSelfSkill(Entity entity, MagicSkillUseDto magic)
     {
-        if (SetupDurationHelper.IsLongCastSkill(magic))
-        {
-            AnimationCombo selfCombo = GetCombo(magic);
-            if (selfCombo == null || SkillExecutorPacketServices.Executor == null || magic.SkillGrp == null)
-            {
-                PlaySkillEffect(entity, magic);
-                return;
-            }
-
-            int objectId = entity.Identity.Id;
-            SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(magic, objectId, entity, selfCombo);
-            _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
-                magic.SkillGrp, entity, selfCombo, ResolveEvents(entity), isLong: true);
-            return;
-        }
-
         if (SetupDurationHelper.IsUsePotion(magic))
         {
             PlaySkillEffect(entity, magic);

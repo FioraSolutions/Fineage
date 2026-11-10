@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SetupDurationHelper
 {
-    public const int ScrollOfEscapeSkillId = 2013;
     public static readonly HashSet<int> PotionSkillIds = new HashSet<int>
     {
         2031, 2011,
@@ -33,11 +32,6 @@ public class SetupDurationHelper
         }
 
         return useSkill.SkillGrp.Animation.IndexOf("Mix", StringComparison.OrdinalIgnoreCase) >= 0;
-    }
-
-    public static bool IsLongCastSkill(MagicSkillUseDto useSkill)
-    {
-        return useSkill != null && useSkill.SkillId == ScrollOfEscapeSkillId;
     }
 
     public static bool IsUsePotion(MagicSkillUseDto useSkill)
@@ -116,19 +110,6 @@ public class SetupDurationHelper
             return;
 
         stateMachine.NotifyEvent(Event.WAIT_RETURN);
-    }
-
-    public static void SetupLongCastDurationIfHitTimeNot0(MagicSkillUseDto useSkill, int objectId, Entity entity, AnimationCombo selfCombo)
-    {
-        if (useSkill.HitTime <= 0)
-        {
-            return;
-        }
-
-        string[] orderedCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
-        float[] durations = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedCycle);
-        float shotEventTime = ResolveShotEventTime(objectId, orderedCycle);
-        entity.SetupLongCastDuration(useSkill.HitTime, durations, shotEventTime, useSkill.TargetId);
     }
 
     public static void SetupDurationIfHitTimeNot0(MagicSkillUseDto useSkill, int objectId, Entity entity, AnimationCombo selfCombo)

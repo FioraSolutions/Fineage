@@ -23,6 +23,13 @@ public class SystemMessageWindow : L2PopupWindow
     public event Action OnButtonOk;
     public event Action OnButtonClosed;
 
+    /// <summary>Drop prior OK/Cancel listeners before wiring a new yes/no prompt.</summary>
+    public void ClearDialogHandlers()
+    {
+        OnButtonOk = null;
+        OnButtonClosed = null;
+    }
+
 
 
     private void Awake()

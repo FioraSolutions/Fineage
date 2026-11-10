@@ -255,17 +255,18 @@ public class ClickManager : MonoBehaviour
         if (game == null)
             return;
 
-        // Already selected monster → melee attack intent. NPCs = talk, stay Target (blue).
-        if (Targets != null &&
+        // Already selected monster → melee attack intent. Ctrl force-attacks players / NPCs / mobs
+        // (FineageZoneTransport also keys off GameCtrl.IsHeld so the first Ctrl-click swings).
+        Entity clickedEntity = clickTarget.GetEntity();
+        bool sameSelected = Targets != null &&
             Targets.HasTarget() &&
             Targets.Target.Identity != null &&
             Targets.Target.Identity.Id == clickTarget.Identity.Id &&
-            !clickTarget.IsDead() &&
-            clickTarget.GetEntity() is MonsterEntity &&
-            !PetVisuals.IsPet(clickTarget.Identity.Owned, clickTarget.Identity.NpcId))
-        {
+            !clickTarget.IsDead();
+        bool isMonster = clickedEntity is MonsterEntity &&
+            !PetVisuals.IsPet(clickTarget.Identity.Owned, clickTarget.Identity.NpcId);
+        if (Targets != null && sameSelected && (isMonster || GameCtrl.IsHeld))
             Targets.SetAttackTarget();
-        }
 
         var l2jpos = clickTarget.Identity.GetL2jPos();
         ZoneCommands.Send(new ClickActionCommand(

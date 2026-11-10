@@ -240,7 +240,7 @@ public class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
         }
 
         Animator animator = entity != null ? entity.Animator : null;
-        if (animator != null && animator.isHuman)
+        if (animator != null && animator.isHuman && animator.avatar != null)
         {
             Transform hips = animator.GetBoneTransform(HumanBodyBones.Hips);
             if (hips != null)

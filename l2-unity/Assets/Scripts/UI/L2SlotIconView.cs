@@ -39,8 +39,10 @@ public static class L2SlotIconView
         if (target == null || IconPacketServices.Icons == null || string.IsNullOrEmpty(iconName))
             return false;
 
-        Texture2D icon = IconPacketServices.Icons.LoadTextureByName(iconName);
-        if (icon == null)
+        // Prefer the miss-aware loader so callers can skip Classic/unknown skill ids
+        // instead of painting the NO IMAGE placeholder as a "successful" icon.
+        Texture2D icon = IconPacketServices.Icons.TryLoadTextureByName(iconName);
+        if (icon == null || IconPacketServices.Icons.IsNoImage(icon))
             return false;
 
         target.style.backgroundImage = icon;

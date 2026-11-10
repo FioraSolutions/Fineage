@@ -314,6 +314,9 @@ public static class NetGearSession
         // Weight travels on UserInfo with the combat sheet; apply whenever we have a Stats bag.
         info.Stats.CurrWeight = user.CurrWeight;
         info.Stats.MaxWeight = user.MaxWeight;
+        info.Stats.Karma = user.Karma;
+        if (info.Status != null)
+            info.Status.PvpFlag = user.PvpFlag;
     }
 
 

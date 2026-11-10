@@ -135,20 +135,6 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
 
     public bool IsCastClipActive => _castPlayable != null && _castPlayable.IsActive;
 
-    public bool TryPlayLongHold(string endOverrideName, string shotOverrideName)
-    {
-        EnsureCastPlayable();
-        if (_castPlayable == null)
-        {
-            return false;
-        }
-
-        return _castPlayable.TryPlayLongHold(endOverrideName, shotOverrideName);
-    }
-
-  
-
-  
 
     public void SetRunSpeed(float value)
     {

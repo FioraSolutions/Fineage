@@ -41,6 +41,7 @@ public sealed partial class NetSession
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         var status = new PlayerStatus();
         status.SetHp(maxHp);
+        status.PvpFlag = spawn.PvpFlag;
 
         var stats = new PlayerStats
         {
@@ -48,6 +49,7 @@ public sealed partial class NetSession
             MaxHp = maxHp,
             MaxMp = 0,
             MaxCp = 0,
+            Karma = spawn.Karma,
             BaseRunSpeed = Mathf.RoundToInt(spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f),
             BaseWalkingSpeed = Mathf.RoundToInt(spawn.WalkSpeed > 0.001f ? spawn.WalkSpeed : 80f),
             RunRealSpeed = spawn.RunSpeed > 0.001f ? spawn.RunSpeed : 120f,
@@ -128,6 +130,8 @@ public sealed partial class NetSession
             dto.Stats.PAtkSpd = spawn.PAtkSpd;
             dto.Stats.PAtkRealSpeed = spawn.PAtkSpd;
         }
+        dto.Stats.Karma = spawn.Karma;
+        dto.Status.PvpFlag = spawn.PvpFlag;
         // Paperdoll is what makes peers visible in gear: without it every other player spawns
         // undressed while the wearer sees their own kit (UserInfo path).
         if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)

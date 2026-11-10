@@ -95,6 +95,7 @@ public class WorldCombat : MonoBehaviour {
        // Debug.Log("Word combat: Status update");
         Status status = entity.Status;
         Stats stats = entity.Stats;
+        float hpBefore = status != null ? (float)status.GetHp() : 0f;
 
         foreach (StatusUpdate.Attribute attribute in attributes) {
             //Debug.Log("World Combat Update Status UPDATE +++++++ Iteration ID " + attribute.id + " VALUE " + attribute.value + " NPC " + id);
@@ -189,5 +190,11 @@ public class WorldCombat : MonoBehaviour {
         }
 
         StatusUpdateVitalAttributes.ReconcilePlayerCaps(entity.Status, entity.Stats);
+
+        // Mobius DamOverTime notifyDamageReceived: StatusUpdate HP drops (poison/bleed)
+        // still play the hit reaction even without an Attack packet.
+        float hpAfter = status != null ? (float)status.GetHp() : 0f;
+        if (hpAfter + 0.5f < hpBefore)
+            entity.PlayHitReaction(criticalHit: false);
     }
 }

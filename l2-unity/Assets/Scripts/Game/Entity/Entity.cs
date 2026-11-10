@@ -156,6 +156,8 @@ public class Entity : MonoBehaviour {
             return;
         for (int i = 0; i < effects.Count; i++)
             TargetEffects.Add(effects[i]);
+        if (GetComponent<EntityAbnormalVisuals>() == null)
+            gameObject.AddComponent<EntityAbnormalVisuals>();
     }
 
     /// <summary>Melee/bow soulshot charge — HitManager may spawn SoulshotImpact on the target.</summary>
@@ -288,6 +290,9 @@ public class Entity : MonoBehaviour {
         if (!HitImpactSound.Play(criticalHit) && AudioPacketServices.Audio != null)
             AudioPacketServices.Audio.PlayHitSound(criticalHit, transform.position);
     }
+
+    /// <summary>DoT / StatusUpdate HP loss without an Attack packet (Mobius notifyDamageReceived).</summary>
+    public void PlayHitReaction(bool criticalHit = false) => OnHit(criticalHit);
 
     public virtual void OnStopMoving() {}
 
@@ -621,13 +626,6 @@ public class Entity : MonoBehaviour {
         if (_castData == null) _castData = new MagicCastData();
 
         _castData.Setup(serverHitTimeMs, flightTimeMs, clipsDurations, shotEventTime, targetObjectId, castStyle, mixCombo);
-    }
-
-    public void SetupLongCastDuration(float serverHitTimeMs, float[] clipsDurations, float shotEventTime, int targetObjectId = 0)
-    {
-        if (_castData == null) _castData = new MagicCastData();
-
-        _castData.SetupLongCast(serverHitTimeMs, clipsDurations, shotEventTime, targetObjectId);
     }
 
     public MagicCastData GetMagicCastData()

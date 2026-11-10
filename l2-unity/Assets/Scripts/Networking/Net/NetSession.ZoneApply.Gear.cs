@@ -173,7 +173,9 @@ public sealed partial class NetSession
             Evasion = msg.Evasion,
             CritRate = msg.CritRate,
             CurrWeight = msg.CurrentWeight,
-            MaxWeight = msg.MaxWeight
+            MaxWeight = msg.MaxWeight,
+            Karma = msg.Karma,
+            PvpFlag = msg.PvpFlag
         };
 
         PaperdollSlotNet[] slots = msg.Paperdoll;

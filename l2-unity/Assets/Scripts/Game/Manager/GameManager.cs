@@ -78,11 +78,15 @@ public class GameManager : MonoBehaviour, IGameManager {
         string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
         bool pinnedToPublic = netClient == "0"
             || string.Equals(netClient, "false", System.StringComparison.OrdinalIgnoreCase);
+        // Standalone second-window / local dual-client: FINEAGE_NET_CLIENT=1|true|local → 127.0.0.1:9106/9777.
+        bool forceLocal = netClient == "1"
+            || string.Equals(netClient, "true", System.StringComparison.OrdinalIgnoreCase)
+            || string.Equals(netClient, "local", System.StringComparison.OrdinalIgnoreCase);
 
 #if UNITY_EDITOR
-        bool useLocal = !pinnedToPublic;
+        bool useLocal = forceLocal || !pinnedToPublic;
 #else
-        bool useLocal = false;
+        bool useLocal = forceLocal;
 #endif
 
         if (useLocal)

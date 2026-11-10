@@ -11,9 +11,6 @@ public class SkillAnimationRunner
     private const string CAST_TRIGGER_SHOT_OVERRIDE = "MagicShot";
     private const string CAST_TRIGGER_END_2P = "CastEnd2P";
     private const string CAST_TRIGGER_SHOT_2P = "MagicShot2P";
-    private const string CAST_TRIGGER_MID_LONG = "CastMidLong";
-    private const string CAST_TRIGGER_END_LONG = "CastEndLong";
-    private const string CAST_TRIGGER_SHOT_LONG = "MagicShotLong";
     private const string NONE_ANIMATION_NAME = "none";
 
     /// <summary>Wolf Collar 2046: log why the cast clips do not start.</summary>
@@ -138,15 +135,6 @@ public class SkillAnimationRunner
                     Trace = false;
                 return;
             }
-
-            // Debug.Log(
-                // $"[SkillRunOverride] AFTER await logicalIdx={logicalIndex} trigger='{triggerName}' override='{overrideAnimName}' " +
-                // $"sinceChainStart={Time.time - chainStartTime:F3}s objectId={objectId}");
-
-            if (logicalIndex == 0 && validAnimations.Count == 2)
-            {
-                await HoldInCastEndPoseBeforeShot(objectId);
-            }
         }
 
         if (Trace)
@@ -155,89 +143,6 @@ public class SkillAnimationRunner
             Trace = false;
         }
         onComplete?.Invoke();
-    }
-
-    public async Task StartRunLongOverride(string[] cycle, int objectId, IAnimationManager animationManager, Action onComplete = null)
-    {
-        if (cycle == null)
-        {
-            // Debug.LogWarning($"[SkillRunLongOverride] cycle is null objectId={objectId}");
-            onComplete?.Invoke();
-            return;
-        }
-
-        float chainStartTime = Time.time;
-        var validAnimations = new List<string>();
-        for (int i = 0; i < cycle.Length; i++)
-        {
-            string animName = cycle[i];
-            if (!ShouldSkipAnimation(animName))
-            {
-                validAnimations.Add(animName.Trim());
-            }
-        }
-
-        if (validAnimations.Count < 3)
-        {
-            // Debug.LogWarning(
-                // $"[SkillRunLongOverride] expected 3 clips, got {validAnimations.Count} objectId={objectId} — fallback to override path");
-            await StartRunOverride(cycle, objectId, animationManager, onComplete);
-            return;
-        }
-
-        string midClip = validAnimations[0];
-        string endClip = validAnimations[1];
-        string shotClip = validAnimations[2];
-
-        // Debug.Log(
-            // $"[SkillRunLongOverride] START objectId={objectId} mid='{midClip}' end='{endClip}' shot='{shotClip}'");
-
-        // Debug.Log($"[SkillRunLongOverride] phase=CastMidLong objectId={objectId}");
-        bool midOk = await animationManager.AsyncPlayAnimationRaceOverrides(objectId, CAST_TRIGGER_MID_LONG, midClip);
-        if (!midOk)
-        {
-            // Debug.Log($"[SkillRunLongOverride] ABORT superseded at CastMidLong objectId={objectId}");
-            return;
-        }
-
-        // Debug.Log($"[SkillRunLongOverride] phase=CastMidLong done sinceStart={Time.time - chainStartTime:F3}s objectId={objectId}");
-
-        Task<bool> shotAwaitTask = animationManager.AsyncAwaitOverrideAnimationFinish(objectId, CAST_TRIGGER_SHOT_LONG);
-        // Debug.Log($"[SkillRunLongOverride] phase=CastEndLong loop start objectId={objectId}");
-        await animationManager.AsyncPlayLongCastLoopPhase(objectId, CAST_TRIGGER_END_LONG, endClip, shotClip);
-        // Debug.Log($"[SkillRunLongOverride] phase=CastEndLong loop done sinceStart={Time.time - chainStartTime:F3}s objectId={objectId}");
-
-        bool shotOk = await shotAwaitTask;
-        if (!shotOk)
-        {
-            // Debug.Log($"[SkillRunLongOverride] ABORT superseded at MagicShotLong objectId={objectId}");
-            return;
-        }
-
-        // Debug.Log($"[SkillRunLongOverride] phase=MagicShotLong done COMPLETE sinceStart={Time.time - chainStartTime:F3}s objectId={objectId}");
-
-        onComplete?.Invoke();
-    }
-
-    private static async Task HoldInCastEndPoseBeforeShot(int objectId)
-    {
-        Entity caster = EntityActionSkill.ResolveEntity(objectId);
-        if (caster == null)
-        {
-            return;
-        }
-
-        MagicCastData castData = caster.GetMagicCastData();
-        if (castData == null || castData.TwoClipCastEndHoldSeconds <= 0f)
-        {
-            return;
-        }
-
-        int holdMs = Mathf.RoundToInt(castData.TwoClipCastEndHoldSeconds * 1000f);
-        // Debug.Log(
-            // $"[SkillRunOverride] CastEnd2P pose hold objectId={objectId} holdSec={castData.TwoClipCastEndHoldSeconds:F3} " +
-            // $"before MagicShot2P");
-        await Task.Delay(holdMs);
     }
 
     private static bool ShouldSkipAnimation(string animName)

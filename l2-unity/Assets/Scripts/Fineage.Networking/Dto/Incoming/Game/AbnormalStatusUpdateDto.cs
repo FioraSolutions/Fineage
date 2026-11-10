@@ -35,7 +35,7 @@ public class AbnormalStatusUpdateDto : IWireDto
         for (int i = 0; i < effects.Length; i++)
         {
             NetAbnormalEffect effect = effects[i];
-            dto.ListEffect.Add(new EffectHolder(effect.Id, effect.Value, effect.DurationSeconds));
+            dto.ListEffect.Add(new EffectHolder(effect.Id, effect.Value, effect.DurationSeconds, effect.Slot));
         }
 
         return dto;
@@ -51,12 +51,14 @@ public class EffectHolder
     public int _value;
     //sec
     public int _duration;
+    string _slot;
 
-    public EffectHolder(int id , int value , int duration)
+    public EffectHolder(int id, int value, int duration, string slot = null)
     {
         _id = id;
         _value = value;
         _duration = duration;
+        _slot = slot ?? "";
     }
 
     public int Id
@@ -73,4 +75,7 @@ public class EffectHolder
     {
         get { return _duration; }
     }
+
+    /// <summary>Mobius <c>abnormalType</c> slot when the zone sent it (SLEEP, STUN, …).</summary>
+    public string Slot => _slot ?? "";
 }

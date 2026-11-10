@@ -48,17 +48,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 break;
             case Event.APPLY_SELF_SKILL:
                 Skillgrp skillgrp = useSkill.SkillGrp;
-                //2013 scroll effect
-                if (SetupDurationHelper.IsLongCastSkill(useSkill))
-                {
-                    AnimationCombo selfCombo = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
-                    Entity entity = _stateMachine.Player;
-                    int objectId = entity.Identity.Id;
-                    SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(useSkill, objectId, entity, selfCombo);
-
-                    _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(useSkill.SkillGrp, entity, selfCombo, _events, isLong: true);
-                } //2031 potion heal , 2011 haste potion
-                else if (SetupDurationHelper.IsUsePotion(useSkill))
+                if (SetupDurationHelper.IsUsePotion(useSkill))
                 {
                     SetupDurationHelper.FinishPotionUse(_stateMachine, _stateMachine.Player, useSkill);
                 }

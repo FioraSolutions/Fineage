@@ -1,17 +1,21 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Template name="WindowTemplate" src="project://database/Assets/Resources/Data/UI/_Elements/Template/WindowTemplate.uxml?fileID=9197481963319205126&amp;guid=57919e48a99c2de4787ca2b8810527ea&amp;type=3#WindowTemplate" />
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
-    <ui:Instance name="windowTemplate" template="WindowTemplate" class="inventory-window" style="width: 324px; height: 500px; position: absolute;">
+    <!-- Standalone popup chrome (hidden when embedded under MainWnd SkillsHost 256×335). -->
+    <ui:Instance name="windowTemplate" template="WindowTemplate" class="inventory-window" style="width: 256px; height: 396px; position: absolute;">
         <AttributeOverrides element-name="windows-name-label" text="Skills" />
-        <ui:VisualElement name="content" style="flex-grow: 1; position: absolute; top: 10%; left: 16px; width: 90%; height: 86%; align-self: center;">
-            <ui:VisualElement name="Background" class="background_over" style="flex-grow: 1; min-width: auto; min-height: auto; justify-content: center; align-items: center; position: absolute; background-image: none; height: 85%; top: auto; width: 96%; left: auto; display: flex; visibility: visible; overflow: visible; opacity: 1; margin-left: 0; background-color: rgb(31, 32, 27); border-left-color: rgb(39, 36, 24); border-right-color: rgb(39, 36, 24); border-top-color: rgb(39, 36, 24); border-bottom-color: rgb(39, 36, 24); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; align-self: center; align-content: center; margin-top: 32px; -unity-slice-left: 1; -unity-slice-top: 1; -unity-slice-right: 1; -unity-slice-bottom: 1;" />
-            <ui:VisualElement name="InventoryTabView" focusable="true" style="flex-grow: 1; flex-shrink: 0; flex-direction: column; padding-left: 0; padding-top: 5px; padding-right: 0; padding-bottom: 0; display: flex;">
-                <ui:VisualElement name="tab-header-container" style="flex-direction: row-reverse; margin-left: 8px; margin-bottom: -4px;">
-                    <ui:VisualElement name="TabLine" style="flex-grow: 1; margin-right: 5px; background-image: resource(&apos;Data/UI/Tab/Tab_DF_Bg_line&apos;); margin-bottom: -7px;" />
+        <ui:VisualElement name="content" class="skills-panel" style="flex-grow: 1; position: relative; margin: 0; padding: 4px; width: 100%; height: 100%; align-self: stretch; flex-direction: column; overflow: hidden; min-height: 0;">
+            <ui:VisualElement name="InventoryTabView" focusable="true" class="skills-tab-view" style="flex-grow: 1; flex-shrink: 1; flex-direction: column; padding: 0; margin: 0; display: flex; overflow: hidden; min-height: 0;">
+                <ui:VisualElement name="tab-header-container" class="skills-tab-headers" style="flex-direction: row-reverse; flex-shrink: 0; margin: 0 0 -1px 4px; align-items: flex-end; height: 23px;">
+                    <ui:VisualElement name="TabLine" style="flex-grow: 1; margin-right: 4px; margin-bottom: -1px; height: 2px; background-image: resource(&apos;Data/UI/Tab/Tab_DF_Bg_line&apos;);" />
                 </ui:VisualElement>
-                <ui:VisualElement focusable="true" name="tab-content-container" style="flex-grow: 1; flex-shrink: 0; flex-direction: column-reverse; background-image: resource(&apos;Data/UI/Tab/Tab_DF_bg 1&apos;); -unity-slice-left: 10; -unity-slice-top: 10; -unity-slice-right: 10; -unity-slice-bottom: 10; padding-top: 7px; padding-right: 7px; padding-bottom: 7px; padding-left: 6px; margin-bottom: 0;" />
+                <ui:VisualElement name="skills-tab-chrome" class="skills-tab-chrome" style="flex-grow: 1; flex-shrink: 1; min-height: 0; flex-direction: column; overflow: hidden; background-image: resource(&apos;Data/UI/Tab/Tab_DF_bg 1&apos;); -unity-slice-left: 10; -unity-slice-top: 10; -unity-slice-right: 10; -unity-slice-bottom: 10; padding: 4px 2px 4px 2px;">
+                    <ui:ScrollView name="tab-content-scroll" mode="Vertical" class="l2-scroll-view skills-tab-scroll" horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Auto" style="flex-grow: 1; flex-shrink: 1; min-height: 0;">
+                        <ui:VisualElement focusable="true" name="tab-content-container" class="skills-tab-body" style="flex-grow: 0; flex-shrink: 0; flex-direction: column; width: 100%; margin: 0; padding: 0;" />
+                    </ui:ScrollView>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="Buttons" style="flex-grow: 1; max-height: 5%; align-self: center; margin-top: 4px;">
+            <ui:VisualElement name="Buttons" class="skills-standalone-buttons" style="flex-grow: 0; flex-shrink: 0; height: 24px; align-self: center; margin-top: 4px;">
                 <ui:Button text="CloseButton" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CloseButton" class="l2-button" style="height: 20px; background-color: rgba(188, 188, 188, 0);">
                     <ui:VisualElement name="ButtonBg" class="l2-button-bg" />
                     <ui:Label text="Cancel" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ButtonLabel" picking-mode="Ignore" class="button-label" style="letter-spacing: 0;" />

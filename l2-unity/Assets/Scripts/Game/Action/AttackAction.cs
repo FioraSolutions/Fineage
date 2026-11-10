@@ -34,7 +34,8 @@ public class AttackAction : L2Action
             return;
 
         Entity entity = target.GetEntity();
-        if (entity is MonsterEntity)
+        // Attack hotkey / Ctrl: force swing on players and NPCs, not only monsters.
+        if (entity is MonsterEntity || entity is PlayerEntity || entity is NpcEntity || GameCtrl.IsHeld)
             targets.SetAttackTarget();
 
         var l2jpos = target.Identity.GetL2jPos();

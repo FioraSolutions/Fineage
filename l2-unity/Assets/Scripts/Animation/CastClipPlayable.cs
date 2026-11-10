@@ -17,7 +17,6 @@ public sealed class CastClipPlayable
     static IAnimationManager Animations => AnimationPacketServices.Animations;
 
     private const float PhaseDoneNormalizedTime = 1f;
-    private const float LongPhaseDoneNormalizedTime = 0.95f;
 
     private BaseAnimationController _owner;
     private Animator _animator;
@@ -30,10 +29,6 @@ public sealed class CastClipPlayable
     private bool _active;
     private bool _finished;
     private bool _finalShot;
-    private bool _longPhase;
-    private bool _holdForShot;
-    private bool _shotStarted;
-    private string _shotOverrideName;
     private int _stateIndex;
     private int _objectId;
     private float _speed = 1f;
@@ -132,7 +127,6 @@ public sealed class CastClipPlayable
 
     public bool TryPlay(string overrideAnimName, string phaseTriggerName)
     {
-        ReleaseLongHold();
         // Only the first cast builds the graph. Later casts reuse it.
         if (!IsGraphAlive)
         {
@@ -170,11 +164,9 @@ public sealed class CastClipPlayable
 
         _stateIndex = StateIndex(phaseTriggerName);
         _finalShot = _stateIndex == 2;
-        _longPhase = !string.IsNullOrEmpty(phaseTriggerName) &&
-                     phaseTriggerName.IndexOf("Long", System.StringComparison.Ordinal) >= 0;
         _objectId = _animator.GetInteger(AnimatorUtils.OBJECT_ID);
         _castData = EntityActionSkill.ResolveCastData(_objectId);
-        _speed = PhaseSpeed(_castData, _stateIndex, _longPhase);
+        _speed = PhaseSpeed(_castData, _stateIndex);
         _clipLength = clip.length;
         _enterTime = Time.time;
         _lastSample = 0f;
@@ -226,28 +218,6 @@ public sealed class CastClipPlayable
         return true;
     }
 
-    /// <summary>
-    /// CastEndLong holds the last frame until the server shot time, then MagicShotLong plays.
-    /// Neither clip is written into the animator override slot.
-    /// </summary>
-    public bool TryPlayLongHold(string endOverrideName, string shotOverrideName)
-    {
-        if (ResolveClip(endOverrideName) == null || ResolveClip(shotOverrideName) == null)
-        {
-            return false;
-        }
-
-        _shotOverrideName = shotOverrideName;
-        _shotStarted = false;
-        if (!TryPlay(endOverrideName, "CastEndLong"))
-        {
-            return false;
-        }
-
-        _holdForShot = true;
-        return true;
-    }
-
     public bool IsActive => _active;
 
     bool _oneShot;
@@ -259,7 +229,6 @@ public sealed class CastClipPlayable
             Bind(_owner, _animator);
         if (!IsGraphAlive || clip == null)
             return false;
-        ReleaseLongHold();
         if (_clipPlayable.IsValid())
         {
             _mixer.DisconnectInput(1);
@@ -277,8 +246,6 @@ public sealed class CastClipPlayable
         _enterTime = Time.time;
         _lastSample = 0f;
         _finalShot = false;
-        _longPhase = false;
-        _holdForShot = false;
         _events = null;
         _eventFired = null;
         _finished = false;
@@ -291,7 +258,6 @@ public sealed class CastClipPlayable
         _oneShot = false;
         MagicGaitTrace.EventId(_objectId, "CastClip.Stop",
             "finishName=" + _finishName + " finalShot=" + _finalShot + " keepGraph=True");
-        ReleaseLongHold();
         _active = false;
         _finished = true;
         if (!_ready)
@@ -340,19 +306,12 @@ public sealed class CastClipPlayable
         _lastSample = clipTime;
         DispatchEvents(clipTime);
 
-        if (_holdForShot)
-        {
-            TickLongHold(clipTime);
-            return;
-        }
-
         float localElapsed = Time.time - _enterTime;
         float speed = Mathf.Max(0.0001f, _speed);
         float wallNeed = _clipLength / speed;
         bool wallDone = localElapsed >= wallNeed;
         float norm = _clipLength > 0.0001f ? clipTime / _clipLength : 1f;
-        float normGate = _longPhase ? LongPhaseDoneNormalizedTime : PhaseDoneNormalizedTime;
-        bool normDone = norm >= normGate;
+        bool normDone = norm >= PhaseDoneNormalizedTime;
         if (!wallDone && !normDone)
         {
             return;
@@ -428,64 +387,9 @@ public sealed class CastClipPlayable
         _controllerPlayable.Play(state.fullPathHash, 0, state.normalizedTime);
     }
 
-    private void TickLongHold(float clipTime)
-    {
-        float globalElapsed = _castData != null ? Time.time - _castData.StartTime : -1f;
-        if (_castData != null && _castData.IsLongCast && globalElapsed >= _castData.ShotTriggerGlobalOffset)
-        {
-            BeginLongShot();
-            return;
-        }
 
-        float speed = Mathf.Max(0.0001f, _speed);
-        bool held = (Time.time - _enterTime) >= (_clipLength / speed)
-                    || (_clipLength > 0.0001f && clipTime / _clipLength >= LongPhaseDoneNormalizedTime);
-        if (held && _clipPlayable.IsValid())
-        {
-            _clipPlayable.SetSpeed(0f);
-        }
-    }
 
-    private void BeginLongShot()
-    {
-        if (_shotStarted)
-        {
-            return;
-        }
 
-        _shotStarted = true;
-        _holdForShot = false;
-        bool allowed = MagicShotCoordinator.TryStartShot(_objectId, _castData, "LongCast", out _);
-        LongCastCoordinator.CompleteLoopPhase(_objectId);
-        if (!allowed)
-        {
-            return;
-        }
-
-        TryPlay(_shotOverrideName, "MagicShotLong");
-    }
-
-    private void ReleaseLongHold()
-    {
-        if (!_holdForShot || _shotStarted)
-        {
-            _holdForShot = false;
-            return;
-        }
-
-        _holdForShot = false;
-        LongCastCoordinator.CancelLoopPhase(_objectId);
-    }
-
-    private AnimationClip ResolveClip(string overrideAnimName)
-    {
-        if (_animator == null || _animator.runtimeAnimatorController == null || string.IsNullOrEmpty(overrideAnimName))
-        {
-            return null;
-        }
-
-        return SkillAnimationDatabase.GetOverrideClip(overrideAnimName, _animator.runtimeAnimatorController.name);
-    }
 
     private void DispatchEvents(float clipTime)
     {
@@ -576,9 +480,9 @@ public sealed class CastClipPlayable
         return 1;
     }
 
-    private static float PhaseSpeed(MagicCastData castData, int stateIndex, bool longPhase)
+    private static float PhaseSpeed(MagicCastData castData, int stateIndex)
     {
-        if (longPhase || castData == null)
+        if (castData == null)
         {
             return 1f;
         }
