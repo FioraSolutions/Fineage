@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// Thin V2 composite part. Shared spawn/follow/scale. Specialized subclasses own extra behavior.
