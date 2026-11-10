@@ -302,7 +302,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [x] UI/Database/Audio/Icon `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
 - [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred; includes managers/controllers round 2).
-- [ ] Remaining asmdef work = LifetimeScope / gameplay MonoBehaviours when types are cycle-safe (hard residual).
+- [x] Cycle-safe leaf MonoBehaviours wave 2 into `Fineage.Game` (`L2ActorLocalLight`, `L2CloudLayers`, `ItemPickupMotion`, `SwordSetup`, `IRotation`/`RotationService`, `DropMeshLifetimeTracker`) + delete unused empty MB stubs.
+- [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
