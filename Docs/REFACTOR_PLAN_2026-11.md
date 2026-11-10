@@ -356,3 +356,5 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] `GameRuntime` windows split (#881)
 - [x] Leftover table/spawn Instance drains via PacketServices (#888–#889)
 - [x] `LoginRuntime` windows resolver-only; Instance fallbacks in LoginPacketServices (#890)
+- [x] BufferPanel SkillGrps via TablePacketServices (#897)
+- [x] Backend hub splits continued (#513–#522: ClassCatalog/QuestCatalog/GameData/AccountStore/ZoneWorld.Members/PostgresAccountStore/ZoneEntity.Members/NormalizedStoreWriter/NetCodec.Presence/WorldMessages)
