@@ -33,19 +33,11 @@ public class GeodataImporter
 
     public void ImportGeodata() {
         try {
-            byte[] data = null;
-            try {
-                //data = GetGeodataBinaryForMap(_mapId);
-            } catch (Exception) {
-                // Debug.LogWarning(e.Message);
-            }
-
-            if(data != null) {
-                // Debug.Log("WARNING GEODATA Disabled....................");
-               // _mapNodes = LoadMapGeodata(data, _origin, _nodeSize);
-            }
+            byte[] data = GetGeodataBinaryForMap(_mapId);
+            if (data != null)
+                _mapNodes = LoadMapGeodata(data, _origin, _nodeSize);
         } catch (Exception) {
-            // Debug.LogWarning("Error while finding path: " + e.Message);
+            // Missing zip / corrupt map — leave _mapNodes null; WorldPlacement falls back to mesh.
         }
 
         _jobDone = true;
@@ -116,8 +108,13 @@ public class GeodataImporter
                 nodeId.x = x;
                 nodeId.z = z;
 
-                Geodata geodata = GeodataPacketServices.Geodata;
-                Node n = new Node(scaledPos, geodata.FromNodeToWorldPos(scaledPos, mapOrigin), nodeSize);
+                // Compute world center on this worker — do not touch GeodataPacketServices from the import thread.
+                Vector3 worldCenter = scaledPos * nodeSize + mapOrigin;
+                worldCenter = new Vector3(
+                    NumberUtils.FloorToNearest(worldCenter.x, nodeSize),
+                    NumberUtils.FloorToNearest(worldCenter.y, nodeSize),
+                    NumberUtils.FloorToNearest(worldCenter.z, nodeSize));
+                Node n = new Node(scaledPos, worldCenter, nodeSize);
 
                 if (lastNodeIndex == nodeId) {
                     layer++;

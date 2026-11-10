@@ -1,6 +1,4 @@
-using System;
-
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GravityNpc : MonoBehaviour, IGravity
@@ -59,6 +57,13 @@ public class GravityNpc : MonoBehaviour, IGravity
 
             if (!data.IsDead())
             {
+                // Spawn gate: wait until WorldPlacement + colliders are live before yanking down.
+                if (data.ArmFrames > 0)
+                {
+                    data.ArmFrames--;
+                    continue;
+                }
+
                 Vector3 ajustedDirection = _direction * _speed * _moveSpeedMultiplier + Vector3.down * _gravity;
                 controller.Move(ajustedDirection * Time.deltaTime);
             }

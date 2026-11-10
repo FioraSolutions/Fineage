@@ -121,36 +121,29 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        if (Physics.Raycast(ray, out hit, MousePickDistance, ~_clickThroughMask))
+        // Entity pick SoT (#930): EntityClick only first — CharacterController on Entity must not win.
+        if (EntityPick.TryPick(ray, MousePickDistance, out Entity picked, out hit))
         {
-            int hitLayer = hit.collider.gameObject.layer;
-            if (_entityMask == (_entityMask | (1 << hitLayer)))
-            {
-                Entity entity = hit.collider.GetComponentInParent<Entity>();
-                Transform root = entity != null
-                    ? entity.transform
-                    : (hit.transform.parent != null ? hit.transform.parent : hit.transform);
-                _hoverObjectData = new ObjectData(root.gameObject);
-            }
-            else
-            {
-                _hoverObjectData = new ObjectData(hit.collider.gameObject);
-            }
-
+            _hoverObjectData = new ObjectData(picked.gameObject);
             if (GameInput != null &&
                 GameInput.LeftClickDown &&
                 !GameInput.RightClickHeld)
             {
                 _targetObjectData = _hoverObjectData;
+                OnClickOnEntity();
+            }
+            return;
+        }
 
-                if (_entityMask == (_entityMask | (1 << hitLayer)))
-                {
-                    OnClickOnEntity();
-                }
-                else if (_targetObjectData != null)
-                {
-                    OnClickToMove(hit);
-                }
+        if (EntityPick.TryPickMove(ray, MousePickDistance, _clickThroughMask, out hit))
+        {
+            _hoverObjectData = new ObjectData(hit.collider.gameObject);
+            if (GameInput != null &&
+                GameInput.LeftClickDown &&
+                !GameInput.RightClickHeld)
+            {
+                _targetObjectData = _hoverObjectData;
+                OnClickToMove(hit);
             }
         }
         else

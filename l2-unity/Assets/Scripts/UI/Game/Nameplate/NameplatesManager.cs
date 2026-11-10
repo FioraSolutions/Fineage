@@ -180,6 +180,8 @@ public class NameplatesManager : MonoBehaviour
         if (world != null)
         {
             world.ForEachUser(user => _entryStore.UpsertEntry(user, _defaultNameColor));
+            // NPCs/monsters whose click_area is outside OverlapSphere (or missing) still need plates (#930).
+            world.ForEachNpc(npc => _entryStore.UpsertEntry(npc, _defaultNameColor));
         }
 
         _entryStore.EnsureHoverAndTarget(_entityMask, _defaultNameColor);

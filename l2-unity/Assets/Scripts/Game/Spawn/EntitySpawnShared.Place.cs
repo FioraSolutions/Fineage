@@ -18,11 +18,10 @@ public static partial class EntitySpawnShared
             poolType = ObjectType.Monster;
 
         Vector3 serverPos = identity.Position;
-        // Village NPCs: keep server Z (DE caves under 20_18 otherwise steal GroundSnap).
-        // Monsters still snap to walkable mesh.
-        Vector3 placePos = identity.EntityType == EntityType.NPC
-            ? serverPos
-            : GroundSnapHelper.SnapToGroundOrKeep(serverPos);
+        WorldPlacement.PlacementKind kind = identity.EntityType == EntityType.Monster
+            ? WorldPlacement.PlacementKind.MonsterSpawn
+            : WorldPlacement.PlacementKind.NpcSpawn;
+        Vector3 placePos = WorldPlacement.Resolve(kind, serverPos);
         identity.Position = placePos;
         if (poolType.HasValue && pool != null)
         {
@@ -31,7 +30,8 @@ public static partial class EntitySpawnShared
             GameObject pooled = pool.SpawnFromPool(tag, prefab);
             if (pooled != null)
             {
-                ApplyGroundedTransform(pooled, placePos, identity.Heading);
+                WorldPlacement.ApplyPose(pooled, placePos, identity.Heading);
+                WorldPlacement.SettleFeet(pooled, placePos);
                 return pooled;
             }
         }
@@ -41,7 +41,8 @@ public static partial class EntitySpawnShared
             prefab.SetActive(false);
 
         GameObject npcGo = Object.Instantiate(prefab, placePos, identity.Heading);
-        ApplyGroundedTransform(npcGo, placePos, identity.Heading);
+        WorldPlacement.ApplyPose(npcGo, placePos, identity.Heading);
+        WorldPlacement.SettleFeet(npcGo, placePos);
 
         if (prefabWasActive)
             prefab.SetActive(true);
@@ -55,8 +56,9 @@ public static partial class EntitySpawnShared
             return;
         if (parent != null)
             go.transform.SetParent(parent);
-        Vector3 grounded = GroundSnapHelper.SnapToGroundOrKeep(position);
-        ApplyGroundedTransform(go, grounded, rotation);
+        Vector3 grounded = WorldPlacement.Resolve(WorldPlacement.PlacementKind.WalkValidate, position);
+        WorldPlacement.ApplyPose(go, grounded, rotation);
+        WorldPlacement.SettleFeet(go, grounded);
         if (!string.IsNullOrEmpty(name))
             go.transform.name = name;
     }
@@ -97,37 +99,22 @@ public static partial class EntitySpawnShared
             return false;
 
         Vector3 from = go.transform.position;
-        if (!GroundSnapHelper.TrySnapToGround(from, out Vector3 snapped))
+        WorldPlacement.PlacementKind kind = identity.EntityType == EntityType.Monster
+            ? WorldPlacement.PlacementKind.MonsterSpawn
+            : WorldPlacement.PlacementKind.NpcSpawn;
+        Vector3 snapped = WorldPlacement.Resolve(kind, from);
+        if ((snapped - from).sqrMagnitude < 0.0001f)
             return false;
 
         identity.Position = snapped;
-        ApplyGroundedTransform(go, snapped, identity.Heading);
+        WorldPlacement.ApplyPose(go, snapped, identity.Heading);
+        WorldPlacement.SettleFeet(go, snapped);
         return true;
     }
 
     public static void ApplyGroundedTransform(GameObject go, Vector3 position, Quaternion rotation)
     {
-        if (go == null)
-            return;
-
-        CharacterController[] controllers = go.GetComponentsInChildren<CharacterController>(true);
-        bool[] wasEnabled = new bool[controllers.Length];
-        for (int i = 0; i < controllers.Length; i++)
-        {
-            if (controllers[i] == null)
-                continue;
-            wasEnabled[i] = controllers[i].enabled;
-            controllers[i].enabled = false;
-        }
-
-        go.transform.SetPositionAndRotation(position, rotation);
-
-        for (int i = 0; i < controllers.Length; i++)
-        {
-            if (controllers[i] == null)
-                continue;
-            controllers[i].enabled = wasEnabled[i];
-        }
+        WorldPlacement.ApplyPose(go, position, rotation);
     }
 
     public static void SanitizeCharacterControllerStepOffset(GameObject root)

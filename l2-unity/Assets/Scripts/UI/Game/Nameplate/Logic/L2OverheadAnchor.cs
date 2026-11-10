@@ -42,22 +42,25 @@ public static class L2OverheadAnchor
         _localHeadYByInstance.Clear();
     }
 
-    /// <summary>World point at the bottom of the HeadDisplay stack (under name / cast gauge).</summary>
+    /// <summary>
+    /// World point at the bottom of the HeadDisplay stack (under name / cast gauge).
+    /// Never throws on the paint path (#930): biped head in band → skinned top → constant.
+    /// </summary>
     public static Vector3 GetWorldPos(Entity entity, Transform root)
     {
         if (root == null)
-            throw new ArgumentNullException(nameof(root));
+            return Vector3.zero;
 
         int id = entity != null && entity.Identity != null ? entity.Identity.Id : 0;
         float localY = ResolveLocalHeadY(id, useEntityCache: true, root);
         return root.TransformPoint(new Vector3(0f, localY, 0f)) + Vector3.up * NameOffsetMeters;
     }
 
-    /// <summary>Lobby / no-Entity path.</summary>
+    /// <summary>Lobby / no-Entity path. Never throws (#930).</summary>
     public static Vector3 GetWorldPos(Transform root)
     {
         if (root == null)
-            throw new ArgumentNullException(nameof(root));
+            return Vector3.zero;
 
         float localY = ResolveLocalHeadY(root.GetInstanceID(), useEntityCache: false, root);
         return root.TransformPoint(new Vector3(0f, localY, 0f)) + Vector3.up * NameOffsetMeters;
@@ -77,22 +80,40 @@ public static class L2OverheadAnchor
 
     static float SampleLocalHeadY(Transform root)
     {
-        if (!TryFindHeadBone(root, out Transform head))
+        if (TryFindHeadBone(root, out Transform head))
         {
-            throw new InvalidOperationException(
-                "[L2OverheadAnchor] Bip01 Head missing under '" + root.name +
-                "'. HeadDisplay requires a biped head bone.");
+            float localY = root.InverseTransformPoint(head.position).y;
+            if (localY > 0f && localY <= 5f)
+                return localY;
         }
 
-        float localY = root.InverseTransformPoint(head.position).y;
-        if (localY <= 0f || localY > 5f)
+        // Monster / arachnid imports often lack a biped head or land outside the biped band.
+        // Throwing here aborted the whole nameplate paint pass — Nerupa/mobs lost names while
+        // townsfolk with valid Bip01 Head kept theirs.
+        return FallbackLocalTopY(root);
+    }
+
+    static float FallbackLocalTopY(Transform root)
+    {
+        SkinnedMeshRenderer[] skins = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        bool has = false;
+        float maxY = 0f;
+        for (int i = 0; i < skins.Length; i++)
         {
-            throw new InvalidOperationException(
-                "[L2OverheadAnchor] Bip01 Head local Y=" + localY.ToString("F3") +
-                " under '" + root.name + "' is out of range.");
+            if (skins[i] == null)
+                continue;
+            float y = root.InverseTransformPoint(skins[i].bounds.max).y;
+            if (!has || y > maxY)
+            {
+                maxY = y;
+                has = true;
+            }
         }
 
-        return localY;
+        if (has && maxY > 0.05f)
+            return Mathf.Min(maxY, 8f);
+
+        return 1.2f;
     }
 
     /// <summary>Pick the highest Bip01 Head match (some meshes expose a near-root stub first).</summary>

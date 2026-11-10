@@ -91,7 +91,7 @@ public sealed partial class ItemDropPresentationService
         int itemObjectId = item.Identity != null ? item.Identity.Id : 0;
         ItemDropVisualKind kind = ResolveVisualKind(item);
         Entity dropper = ResolveEntity(dropperCharObjId);
-        landPos = GroundSnapHelper.SnapToGroundOrKeep(landPos);
+        landPos = WorldPlacement.Resolve(WorldPlacement.PlacementKind.ItemDrop, landPos);
 
         if (dropper != null)
             PlayActorAnimation(dropperCharObjId, ItemDropPresentationIds.DropAnimationTrigger);

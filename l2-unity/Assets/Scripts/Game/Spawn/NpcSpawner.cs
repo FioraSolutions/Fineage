@@ -19,22 +19,17 @@ public sealed class NpcSpawner
             return null;
 
         EntityIdentity identity = request.Identity;
-        // Trust server Z. GroundSnap (GetGroundHeight / ReapplyGroundAfterActivate) can latch onto
-        // underground cave MeshColliders under Dark Elf Village (and similar) within MaxDrop and
-        // bury every NPC. Outdoor monsters still snap via MonsterSpawner.
+        // Prefer-highest spawn snap (AcquireNpcGameObject) + delayed resnap — outdoor Folks were
+        // floating on raw geodata Y; DE caves stay on the upper deck via highest-hit, not "keep Z".
 
         GameObject npcGo = EntitySpawnShared.AcquireNpcGameObject(_pool, request.Prefab, identity);
         if (npcGo == null)
             return null;
 
         npcGo.transform.SetParent(world.NpcsContainer);
-        NpcEntity npc = EntitySpawnShared.FindOnPrefab<NpcEntity>(npcGo);
+        NpcEntity npc = EntitySpawnShared.EnsureNpcEntity(npcGo);
         if (npc == null)
         {
-            // Debug.LogError(
-                // "NpcSpawner: NpcEntity missing on " + npcGo.name +
-                // " prefab=" + (request.Prefab != null ? request.Prefab.name : "null") +
-                // " npcId=" + identity.NpcId);
             UnityEngine.Object.Destroy(npcGo);
             return null;
         }
@@ -48,6 +43,7 @@ public sealed class NpcSpawner
         EntitySpawnShared.SanitizeCharacterControllerStepOffset(npcGo);
         EntitySpawnShared.DisableLegacyPositionSync(npcGo);
         npcGo.SetActive(true);
+        EntitySpawnShared.ReapplyGroundAfterActivate(npcGo, identity);
 
         InitNpc(npc, npcGo, world);
         PetSummonRise.TryBegin(npc);
