@@ -296,9 +296,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(PlayerInventory))
             return InventoryPacketServices.Inventory as T;
         if (typeof(T) == typeof(TargetManager))
-#pragma warning disable CS0618 // Bootstrap locator; breaks container resolve cycle
-            return TargetManager.Instance as T;
-#pragma warning restore CS0618
+            return TargetPacketServices.Targets as T;
         if (typeof(T) == typeof(ProjectileManager))
             return ProjectilePacketServices.Projectiles as T;
         if (typeof(T) == typeof(TradeWindow))
@@ -312,17 +310,11 @@ public sealed class GameLifetimeScope : LifetimeScope
         if (typeof(T) == typeof(BufferPanel))
             return AuxiliaryGameUIPacketServices.Buffer as T;
         if (typeof(T) == typeof(MoveAllCharacters))
-#pragma warning disable CS0618 // Bootstrap locator until all call sites use PacketServices / [Inject]
-            return MoveAllCharacters.Instance as T;
-#pragma warning restore CS0618
+            return MoveAllCharactersPacketServices.Moves as T;
         if (typeof(T) == typeof(EffectManager))
             return GlobalEffectsPacketServices.Effects as T;
         if (typeof(T) == typeof(EventBus))
-        {
-#pragma warning disable CS0618 // Bootstrap locator until drain completes
-            return EventBus.Instance as T;
-#pragma warning restore CS0618
-        }
+            return ControllerPacketServices.Bus as T;
         if (typeof(T) == typeof(SkillbarWindow))
             return SkillbarPacketServices.Skillbar as T;
         if (typeof(T) == typeof(ChatWindow))
