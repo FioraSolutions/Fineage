@@ -72,6 +72,7 @@ FILES = (
     "Codec/NetCodec.cs",
     "Codec/NetCodec.Session.cs",
     "Codec/NetCodec.Shop.cs",
+    "Codec/NetCodec.Warehouse.cs",
     "Codec/NetCodec.WorldEvents.cs",
     "Codec/NetCodec.Olympiad.cs",
     "Codec/NetCodec.DungeonSigns.cs",
