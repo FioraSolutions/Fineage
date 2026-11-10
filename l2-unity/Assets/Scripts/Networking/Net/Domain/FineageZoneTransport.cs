@@ -16,8 +16,9 @@ public sealed class FineageZoneTransport : IZoneTransport
     /// <summary>
     /// Prefer DI-bound <see cref="NetSession"/> via <see cref="NetworkingPacketServices"/>;
     /// <see cref="NetSession.Ensure"/> only for early login before the binder runs.
+    /// Static so party/trade user-command helpers can share the same locator.
     /// </summary>
-    NetSession Session => NetworkingPacketServices.Session ?? NetSession.Ensure();
+    static NetSession Session => NetworkingPacketServices.Session ?? NetSession.Ensure();
 
     /// <summary>
     /// The local player profile. NetSession writes this when the character is selected and
