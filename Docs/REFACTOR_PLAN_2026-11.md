@@ -54,7 +54,7 @@ Static re-check of Claude’s architecture note (server `b94fee9` / client `d718
 3. **C5 — Dispatch holes:** add missing inbound opcodes (apply or log) + `default` warning.
 4. **B8 — Persist off `_gate`:** after world mutation under lock, queue dirty inventory and run `SaveInventory` / `RunSilent` outside the lock (same pattern as enter/unlink persist).
 5. **B9 — Snapshot ownership:** stop dual full-JSON writers — Zone must not rewrite `store_snapshot` from a partial in-memory view; prefer normalized tables as SoT (already true for `FindById`) and treat snapshot as backup/export only.
-6. **B10 — Spawn due index (later):** due-heap / bucket for respawns when catalog size hurts tick budget.
+6. **B10 — Spawn due index:** due SortedSet for respawns (Backend #498).
 
 ---
 
@@ -202,8 +202,8 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - Normalized tables remain SoT for `FindById`; snapshot = backup/export only.
 - Login `AfterSaveSnapshot` writes backup JSON only (no `UpsertFromSnapshot`); `TryAddCharacter` upserts one character row.
 
-### B10. Spawn due index — later
-- Replace full `_spawnSlots` scan when catalog size hurts tick budget.
+### B10. Spawn due index — done (Backend #498)
+- `_spawnDue` SortedSet; `TickSpawns` pops due entries only.
 
 ---
 
@@ -329,8 +329,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
-| Backend next | B10 spawn due index (later); sim actor later; B2b mechanical done ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
-| Client next | LoginRuntime windows split → LifetimeScope when cycle-safe ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
+| Backend next | sim actor later; B2b/B8/B9/B10 landed ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
+| Client next | ZoneTransport Session (#883) / LocalPlayer drains → LifetimeScope when cycle-safe ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
 
