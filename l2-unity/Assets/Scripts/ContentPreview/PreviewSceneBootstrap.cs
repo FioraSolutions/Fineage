@@ -28,7 +28,7 @@ public class PreviewSceneBootstrap : MonoBehaviour
 
         TablePacketServices.NpcGrps.Initialize();
         TablePacketServices.NpcNames.Initialize();
-        ModelTable.Instance.Initialize();
+        TablePacketServices.Models.Initialize();
 
         // CharacterBuilder is a MonoBehaviour singleton. If none exists, create one.
         if (CharacterPacketServices.Builder == null)
