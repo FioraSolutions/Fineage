@@ -35,6 +35,30 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 
     protected override string DebugPrefix => "[CompositeEffectV2]";
 
+    protected override bool UseLegacyAnimationHacks => false;
+
+    protected override bool ShouldUseLegacyPartPipeline => !HasSpawnableV2Parts;
+
+    bool HasSpawnableV2Parts
+    {
+        get
+        {
+            if (_v2Parts == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < _v2Parts.Length; i++)
+            {
+                if (_v2Parts[i] != null && _v2Parts[i].IsSpawnable)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
 
     public override void CollectReferencedPrefabs(List<UnityEngine.Object> sink)
     {
