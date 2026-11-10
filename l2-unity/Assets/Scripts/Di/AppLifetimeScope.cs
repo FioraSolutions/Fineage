@@ -55,39 +55,27 @@ public sealed class AppLifetimeScope : LifetimeScope
     private static void RegisterDatTables(IContainerBuilder builder)
     {
         builder.RegisterInstance(TablePacketServices.Items);
-#pragma warning disable CS0618
-        builder.RegisterInstance(ItemNameTable.Instance);
-#pragma warning restore CS0618
-#pragma warning disable CS0618
-        builder.RegisterInstance(ItemStatDataTable.Instance);
-        builder.RegisterInstance(ArmorgrpTable.Instance);
-        builder.RegisterInstance(EtcItemgrpTable.Instance);
-        builder.RegisterInstance(WeapongrpTable.Instance);
-#pragma warning restore CS0618
-        builder.RegisterInstance(NpcDecoEffectsTable.Instance);
-#pragma warning disable CS0618
-        builder.RegisterInstance(NpcgrpTable.Instance);
-        builder.RegisterInstance(NpcNameTable.Instance);
-#pragma warning restore CS0618
-        builder.RegisterInstance(QuestNameTable.Instance);
-        builder.RegisterInstance(RecipeTable.Instance);
-#pragma warning disable CS0618
-        builder.RegisterInstance(ActionNameTable.Instance);
-#pragma warning restore CS0618
-        builder.RegisterInstance(AnimLeghtTable.Instance);
-        builder.RegisterInstance(SysStringTable.Instance);
-#pragma warning disable CS0618
-        builder.RegisterInstance(SkillNameTable.Instance);
-#pragma warning restore CS0618
-#pragma warning disable CS0618
-        builder.RegisterInstance(SkillgrpTable.Instance);
-#pragma warning restore CS0618
-        builder.RegisterInstance(MobSkillAnimgrpTable.Instance);
-        builder.RegisterInstance(AnimTweenTable.Instance);
-        builder.RegisterInstance(EnterEventTable.Instance);
-        builder.RegisterInstance(ModelTable.Instance);
-        builder.RegisterInstance(LogongrpTable.Instance);
-        builder.RegisterInstance(SystemMessageTable.Instance);
+        builder.RegisterInstance(TablePacketServices.ItemNames);
+        builder.RegisterInstance(TablePacketServices.ItemStats);
+        builder.RegisterInstance(TablePacketServices.ArmorGrps);
+        builder.RegisterInstance(TablePacketServices.EtcItemGrps);
+        builder.RegisterInstance(TablePacketServices.WeaponGrps);
+        builder.RegisterInstance(TablePacketServices.NpcDecoEffects);
+        builder.RegisterInstance(TablePacketServices.NpcGrps);
+        builder.RegisterInstance(TablePacketServices.NpcNames);
+        builder.RegisterInstance(TablePacketServices.QuestNames);
+        builder.RegisterInstance(TablePacketServices.Recipes);
+        builder.RegisterInstance(TablePacketServices.ActionNames);
+        builder.RegisterInstance(TablePacketServices.AnimLengths);
+        builder.RegisterInstance(TablePacketServices.SysStrings);
+        builder.RegisterInstance(TablePacketServices.SkillNames);
+        builder.RegisterInstance(TablePacketServices.SkillGrps);
+        builder.RegisterInstance(TablePacketServices.MobSkillAnimGrps);
+        builder.RegisterInstance(TablePacketServices.AnimTweens);
+        builder.RegisterInstance(TablePacketServices.EnterEvents);
+        builder.RegisterInstance(TablePacketServices.Models);
+        builder.RegisterInstance(TablePacketServices.LogonGrps);
+        builder.RegisterInstance(TablePacketServices.SystemMessages);
     }
 
     private void RegisterAppEventProcessor(IContainerBuilder builder)
