@@ -838,6 +838,20 @@
     min-height: 78px;
 }
 
+.target-window .target-effects-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-self: flex-start;
+    margin-top: 4px;
+    margin-left: 4px;
+    min-height: 24px;
+    /* Live icons sit to the right of the chrome вЂ” do not clamp to the HP bar width. */
+    max-width: none;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
 .target-window .target-properties-row {
     flex-direction: row;
     flex-wrap: wrap;
@@ -847,12 +861,50 @@
     max-width: 147px;
 }
 
+.target-window .target-effect-icon,
 .target-window .target-property-icon {
     width: 24px;
     height: 24px;
     margin-right: 2px;
     margin-bottom: 2px;
     -unity-background-scale-mode: stretch-to-fill;
+    position: relative;
+}
+
+/* Interlude skillgrp icon_panel=panel_2 вЂ” reddish chrome on debuffs. */
+.target-window .target-effect-icon.debuff {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgb(168, 48, 48);
+    border-right-color: rgb(168, 48, 48);
+    border-top-color: rgb(168, 48, 48);
+    border-bottom-color: rgb(168, 48, 48);
+}
+
+.target-window .target-effect-icon .target-effect-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.target-window .target-effect-icon .target-effect-timer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 11px;
+    margin: 0;
+    padding: 0;
+    font-size: 9px;
+    color: rgb(255, 255, 200);
+    -unity-text-align: middle-center;
+    text-shadow: 1px 1px 0 rgb(0, 0, 0);
+    -unity-font-definition: url("project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf");
 }
 
 .target-window .target-expand-btn {
@@ -903,17 +955,18 @@
 .unity-group-box {
 }
 
-/* ---- MenuWnd (Interlude 34Ч34 @ pitch 37; Fineage 4Ч2) ---- */
+/* ---- Interlude MenuWnd: 4 icons flush to bottom-right screen corner ---- */
 .menu-window {
     position: absolute;
-    right: 2px;
-    bottom: 2px;
-    width: 148px;
-    height: 74px;
-    min-width: 148px;
-    min-height: 74px;
-    max-width: 148px;
-    max-height: 74px;
+    right: 0;
+    bottom: 0;
+    /* left chrome 12 + 4x34 @ pitch 37 ending at 12+3*37+34 = 157, + right cap 8 ? 165 */
+    width: 165px;
+    height: 46px;
+    min-width: 165px;
+    min-height: 46px;
+    max-width: 165px;
+    max-height: 46px;
     margin: 0;
     padding: 0;
     border-width: 0;
@@ -927,14 +980,41 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 148px;
-    height: 74px;
-    background-image: resource('Data/UI/Assets/Menu/MenuWnd_Back');
+    width: 165px;
+    height: 46px;
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.menu-window-back-left {
+    /* Interlude left cap ? keep thin so icons sit in the corner, not inset. */
+    width: 12px;
+    height: 46px;
+    min-width: 12px;
+    max-width: 12px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back1');
     -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-left: 8;
-    -unity-slice-top: 8;
-    -unity-slice-right: 8;
-    -unity-slice-bottom: 8;
+}
+
+.menu-window-back-mid {
+    height: 46px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back2');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.menu-window-back-right {
+    width: 8px;
+    height: 46px;
+    min-width: 8px;
+    max-width: 8px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back3');
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .menu-btn {
@@ -950,8 +1030,8 @@
     border-width: 0;
     border-radius: 0;
     background-color: rgba(0, 0, 0, 0);
-    -unity-background-scale-mode: scale-to-fit;
-    overflow: visible;
+    -unity-background-scale-mode: stretch-to-fill;
+    overflow: hidden;
 }
 
 .menu-btn > .unity-button__text,
@@ -959,106 +1039,54 @@
     display: none;
 }
 
-.menu-btn-0 { left: 0; top: 0; }
-.menu-btn-1 { left: 37px; top: 0; }
-.menu-btn-2 { left: 74px; top: 0; }
-.menu-btn-3 { left: 111px; top: 0; }
-.menu-btn-4 { left: 0; top: 37px; }
-.menu-btn-5 { left: 37px; top: 37px; }
-.menu-btn-6 { left: 74px; top: 37px; }
-.menu-btn-7 { left: 111px; top: 37px; }
+/* Icons flush after left cap; pitch 37 ? hammer lands on the right edge. */
+.menu-btn-0 { left: 12px; top: 6px; }
+.menu-btn-1 { left: 49px; top: 6px; }
+.menu-btn-2 { left: 86px; top: 6px; }
+.menu-btn-3 { left: 123px; top: 6px; }
 
 #CharacterButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1');
 }
 #CharacterButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Over');
 }
 #CharacterButton:active,
 #CharacterButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Character_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton1_Down');
 }
 
 #InventoryButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2');
 }
 #InventoryButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Over');
 }
 #InventoryButton:active,
 #InventoryButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Inventory_Down');
-}
-
-#ActionButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action');
-}
-#ActionButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Over');
-}
-#ActionButton:active,
-#ActionButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Action_Down');
-}
-
-#SkillButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill');
-}
-#SkillButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Over');
-}
-#SkillButton:active,
-#SkillButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Skill_Down');
-}
-
-#QuestButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest');
-}
-#QuestButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Over');
-}
-#QuestButton:active,
-#QuestButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Quest_Down');
-}
-
-#ClanButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan');
-}
-#ClanButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Over');
-}
-#ClanButton:active,
-#ClanButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Clan_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton2_Down');
 }
 
 #MapButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3');
 }
 #MapButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Over');
 }
 #MapButton:active,
 #MapButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_Map_Down');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton3_Down');
 }
 
 #SystemMenuButton {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4');
 }
 #SystemMenuButton:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Over');
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Over');
 }
 #SystemMenuButton:active,
 #SystemMenuButton:active:hover {
-    background-image: resource('Data/UI/Assets/Menu/Icon_DF_MenuWnd_SystemMenu_Down');
-}
-
-/* Legacy nested-bg selectors kept empty so old UXML does not break mid-reload. */
-.menu-button-bg {
-    display: none;
+    background-image: resource('Data/UI/Menu/Interlude/Menu_Interlude_MenuButton4_Down');
 }
 
 /* Interlude SystemMsgWnd ? same width as ChatWnd; chatting_system chrome. */
@@ -2175,16 +2203,43 @@
 
 
 .inventory-window {
-    width: 574px;
-    height: 416px;
+    width: 258px;
+    height: 400px;
 }
 
 .inventory-window.expanded {
-    width: 682px;
+    width: 258px;
 }
 
 .inventory-window .l2-scroll-view .unity-scroll-view__content-and-vertical-scroll-container {
     flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: 100%;
+}
+
+/* InventoryItem is 236 wide: grid + 14px scroller, no dead gap inside the box. */
+.inventory-window .l2-scroll-view #Content {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 222px;
+    max-width: 222px;
+    min-width: 222px;
+}
+
+.inventory-window .l2-scroll-view .unity-scroll-view__content-viewport {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 222px;
+    min-width: 222px;
+    max-width: 222px;
+    margin: 0;
+    padding: 0;
+}
+
+.inventory-window .l2-scroll-view {
+    width: 100%;
+    flex-grow: 1;
 }
 
 .inventory-window .unity-tab__header-label {
@@ -2219,126 +2274,73 @@
 }
 
 .inventory-window .unity-tab-view__header-container {
-    margin-left: 23px;
+    margin-left: 0;
 }
 
 .inventory-window #tab-header-container {
-    margin-left: 23px;
+    margin-left: 0;
+    align-items: center;
 }
 
-
-
 .inventory-window .unity-tab-view__content-container {
-    flex-grow: 1;
+    flex-grow: 0;
 }
 
 .inventory-window #tab-content-container {
-    flex-grow: 1;
+    flex-grow: 0;
 }
 
 .inventory-window .unity-tab__header-underline {
     width: 0;
 }
 
-.inventory-window .unity-tab__header {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected');
-    background-color: transparent;
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-    rotate: 180deg;
-    height: 25px;
-    padding: 0;
-    width: 64px;
-    justify-content: center;
-}
-
+/* Interlude Inventory_tab1/2 ? native 94x23 art (cropped from 128x32 atlas pad). */
 .inventory-window .tab-header {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected');
-    background-color: transparent;
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2');
+    background-color: rgba(0, 0, 0, 0);
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
     -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-    height: 25px;
+    -unity-background-scale-mode: stretch-to-fill;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
     padding: 0;
-    width: 64px;
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 94px;
+    min-width: 94px;
+    max-width: 94px;
     justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .inventory-window .tab-header.skill {
     width: 88px;
 }
 
-.inventory-window .unity-tab__header:checked {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
+.inventory-window .tab-header.active,
+.inventory-window .tab-header.currentlySelectedTab {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
+    background-color: rgba(0, 0, 0, 0);
 }
 
-.inventory-window .tab-header.active {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-}
-
-
-.inventory-window .unity-tab__header:checked:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-}
-
-.inventory-window .tab-header.active:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Selected');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
-
-}
-
-
-.inventory-window .unity-tab__header:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected_Over');
-    -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
+.inventory-window .tab-header.active:hover,
+.inventory-window .tab-header.currentlySelectedTab:hover {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
 }
 
 .inventory-window .tab-header:hover {
-    background-image: resource('Data/UI/Assets/Tab/Tab_DF_Tab_Unselected_Over');
-     -unity-slice-top: 24;
-    -unity-slice-left: 5;
-    -unity-slice-bottom: 0;
-    -unity-slice-right: 5;
-    -unity-slice-scale: 1px;
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2_over');
 }
 
-
-
-
-.inventory-windoww .unity-tab__header-label {
-    color: rgb(220, 220, 220);
-    font-size: 11px;
-    padding-bottom: 2px;
-    margin: 0;
-    -unity-text-align: middle-center;
+.inventory-window #InventoryCount {
+    margin-bottom: 0;
+    margin-top: 0;
+    align-self: center;
+    -unity-text-align: middle-right;
 }
 
 .inventory-window #unity-content-viewport {
@@ -2347,11 +2349,42 @@
 }
 
 .inventory-window .tab-header-label {
-    color: rgb(220, 220, 220);
+    color: rgb(200, 195, 180);
     font-size: 11px;
-    padding-bottom: 2px;
+    padding-bottom: 0;
     margin: 0;
     -unity-text-align: middle-center;
+}
+
+/* Paper-doll icons fill xdat 34x34 Inventory_Back silhouette frames. */
+.inventory-window #GearContent > VisualElement {
+    overflow: hidden;
+}
+
+.inventory-window #GearContent .slot-bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 34px;
+    height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    flex-grow: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.inventory-window #HeaderButtons {
+    display: flex;
+}
+
+.inventory-window #Close-Window-Button,
+.inventory-window #Minimize-Window-Button,
+.inventory-window #Options-Window-Button {
+    display: flex;
+    opacity: 1;
 }
 
 .inventory-window .tab-header-label.skill {
@@ -2361,6 +2394,146 @@
 
 .inventory-window .unselected-tab {
     display: none;
+}
+
+/* Skills MagicSkillWnd вЂ” works both standalone (.inventory-window parent) and
+   when content is embedded under MainWnd #SkillsHost (loses .inventory-window). */
+.skills-panel {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.skills-panel.skills-embed,
+.character-info-window #SkillsHost > .skills-panel {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 2px 4px 2px 4px;
+}
+
+.skills-panel .skills-standalone-buttons {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.skills-panel.skills-embed .skills-standalone-buttons,
+.character-info-window #SkillsHost .skills-standalone-buttons {
+    display: none;
+}
+
+.skills-panel .tab-header {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2');
+    background-color: rgba(0, 0, 0, 0);
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    -unity-slice-bottom: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    padding: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.skills-panel .tab-header.skill {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+}
+
+.skills-panel #Learn\ Skill {
+    width: 94px;
+    min-width: 94px;
+    max-width: 94px;
+}
+
+.skills-panel .tab-header.active,
+.skills-panel .tab-header.currentlySelectedTab {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.skills-panel .tab-header.active:hover,
+.skills-panel .tab-header.currentlySelectedTab:hover {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab1');
+}
+
+.skills-panel .tab-header:hover {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Tab2_over');
+}
+
+.skills-panel .tab-header-label,
+.skills-panel .tab-header-label.skill {
+    color: rgb(219, 210, 181);
+    font-size: 11px;
+    padding-bottom: 0;
+    margin: 0;
+    -unity-text-align: middle-center;
+}
+
+.skills-panel .unselected-tab {
+    display: none;
+}
+
+.skills-panel .skills-tab-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+}
+
+.skills-panel .skills-tab-scroll > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroller--horizontal,
+.skills-panel .unity-scroller--horizontal {
+    display: none;
+    height: 0;
+    min-height: 0;
+    max-height: 0;
+}
+
+.skills-panel .skills-tab-root,
+.skills-panel .skills-box-row {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+}
+
+.skills-panel .skills-tab-root,
+.skills-panel .skills-tab-root > .unity-group-box,
+.skills-panel .skills-tab-chrome .unity-group-box {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.skills-panel #TopLabel {
+    height: 16px;
+    min-height: 16px;
+    max-height: 16px;
+    margin: 0 0 2px 0;
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+}
+
+.skills-panel #TopLabel > .unity-label {
+    margin: 0 0 0 4px;
+    padding: 0;
+    font-size: 11px;
+    color: rgb(223, 222, 222);
+}
+
+.character-info-window #SkillsHost {
+    overflow: hidden;
 }
 
 .inventory-window #AdenaDistribBtn #ButtonBg {
@@ -2395,26 +2568,106 @@
     background-image: resource('Data/UI/Assets/Inventory/inventory_compound_drag');
 }
 
-.inventory-window #TrashBtn #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash');
+.inventory-window .options-btn {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    background-image: resource('Data/UI/Frame/Interlude/FrameOptionBtn');
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
-.inventory-window #TrashBtn:active #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash');
+.inventory-window .minimize-btn {
+    width: 16px;
+    height: 16px;
+    background-image: resource('Data/UI/Frame/Interlude/FrameMiniBtn');
 }
 
-.inventory-window #TrashBtn:active:hover #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash');
+.inventory-window .minimize-btn:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameminibtn_over');
 }
 
-.inventory-window #TrashBtn:hover #ButtonBg {
-    background-image: resource('Data/UI/Assets/Inventory/inventory_trash_over');
+.inventory-window .minimize-btn:active,
+.inventory-window .minimize-btn:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameMiniOnBtn');
+}
+
+.inventory-window .btn-close-frame,
+.inventory-window .close-btn {
+    width: 16px;
+    height: 16px;
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseBtn');
+}
+
+.inventory-window .btn-close-frame:hover,
+.inventory-window .close-btn:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameclosebtn_over');
+}
+
+.inventory-window .btn-close-frame:active,
+.inventory-window .close-btn:active,
+.inventory-window .btn-close-frame:active:hover,
+.inventory-window .close-btn:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseOnBtn');
+}
+
+.inventory-window #TrashBtn,
+.inventory-window .inventory-trash-btn {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.inventory-window #TrashBtn #ButtonBg,
+.inventory-window .inventory-trash-bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Trash');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    -unity-slice-bottom: 0;
+    picking-mode: ignore;
+}
+
+.inventory-window #TrashBtn:active #ButtonBg,
+.inventory-window #TrashBtn:active .inventory-trash-bg {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Trash');
+}
+
+.inventory-window #TrashBtn:active:hover #ButtonBg,
+.inventory-window #TrashBtn:hover #ButtonBg,
+.inventory-window #TrashBtn:active:hover .inventory-trash-bg,
+.inventory-window #TrashBtn:hover .inventory-trash-bg {
+    background-image: resource('Data/UI/Inventory/Inventory_Interlude_Trash_over');
 }
 
 .inventory-window .l2-scroll-view .unity-scroller {
     width: 14px;
-    margin-right: 2px;
-    margin-left: 2px;
+    margin-right: 0;
+    margin-left: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 .minimize-btn {
@@ -4051,12 +4304,12 @@
     font-size: 12px;
 }
 
-/* Прозрачный DropdownField с рамкой и размером текста 12 */
+/* ГЏГ°Г®Г§Г°Г Г·Г­Г»Г© DropdownField Г± Г°Г Г¬ГЄГ®Г© ГЁ Г°Г Г§Г¬ГҐГ°Г®Г¬ ГІГҐГЄГ±ГІГ  12 */
 
 .dropdown-field {
-    background-color: transparent; /* Прозрачный фон */
+    background-color: transparent; /* ГЏГ°Г®Г§Г°Г Г·Г­Г»Г© ГґГ®Г­ */
     /*border-color: rgba(149, 149, 149 , 0.0);*/
-    font-size: 12px; /* Размер текста */
+    font-size: 12px; /* ГђГ Г§Г¬ГҐГ° ГІГҐГЄГ±ГІГ  */
 }
 
 .dropdown-field .unity-text-field__input {
@@ -4065,8 +4318,8 @@
 }
 
 
-/* применить к конкретному полю: <DropdownField class="small-dropdown" /> */
-/* или заменить .small-dropdown на тип DropdownField для глобального эффекта */
+/* ГЇГ°ГЁГ¬ГҐГ­ГЁГІГј ГЄ ГЄГ®Г­ГЄГ°ГҐГІГ­Г®Г¬Гі ГЇГ®Г«Гѕ: <DropdownField class="small-dropdown" /> */
+/* ГЁГ«ГЁ Г§Г Г¬ГҐГ­ГЁГІГј .small-dropdown Г­Г  ГІГЁГЇ DropdownField Г¤Г«Гї ГЈГ«Г®ГЎГ Г«ГјГ­Г®ГЈГ® ГЅГґГґГҐГЄГІГ  */
 
 .small-dropdown .unity-base-field__input {
   height: 16px;
@@ -4111,9 +4364,9 @@
 
 
 
-/* Стили для элементов списка */
+/* Г‘ГІГЁГ«ГЁ Г¤Г«Гї ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 .dropdown-field .unity-base-popup-field__arrow {
-    color: black; /* Цвет текста элементов списка */
+    color: black; /* Г–ГўГҐГІ ГІГҐГЄГ±ГІГ  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 }
 
 .dropdown-field .unity-base-field__input.selected  {
@@ -4121,14 +4374,14 @@
 }
 
 .dropdown-field  .unity-base-dropdown__item:hover{
-    color: black; /* Цвет текста элементов списка */
+    color: black; /* Г–ГўГҐГІ ГІГҐГЄГ±ГІГ  ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Г±ГЇГЁГ±ГЄГ  */
 }
 
 .dropdown-field .VisualElement{
      background-color: transparent;
 }
 .dropdown-field .unity-base-popup-field__arrow{
-   /* position: absolute; /* Позволяет изображению быть позиционированным относительно контейнера 
+   /* position: absolute; /* ГЏГ®Г§ГўГ®Г«ГїГҐГІ ГЁГ§Г®ГЎГ°Г Г¦ГҐГ­ГЁГѕ ГЎГ»ГІГј ГЇГ®Г§ГЁГ¶ГЁГ®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г¬ Г®ГІГ­Г®Г±ГЁГІГҐГ«ГјГ­Г® ГЄГ®Г­ГІГҐГ©Г­ГҐГ°Г  
     margin-left:87%;
     width: 17px;
     height: 18px;*/
@@ -4142,7 +4395,7 @@
     -unity-slice-right: 2;
     -unity-slice-scale: 0;
     border-width: 0;
-    /* Он перекрывает фон кнопки!!!!! */
+    /* ГЋГ­ ГЇГҐГ°ГҐГЄГ°Г»ГўГ ГҐГІ ГґГ®Г­ ГЄГ­Г®ГЇГЄГЁ!!!!! */
     -unity-background-image-tint-color: rgb(255,255,255);
 }
 
@@ -4395,4 +4648,49 @@
     font-size: 11px;
     color: rgb(220, 205, 160);
     -unity-text-align: middle-left;
+}
+
+/* Interlude DetailStatusWnd / MainWnd (CharacterInfoWindow) */
+.character-info-window.status-interlude-root {
+    width: 256px;
+    height: 396px;
+}
+
+.character-info-window .status-bar-fill {
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.character-info-window .status-bar-value {
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    color: rgb(240, 240, 240);
+}
+
+.character-info-window .status-value {
+    -unity-text-outline-width: 0.5px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+}
+
+.character-info-window .status-mainwnd-tab {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.character-info-window #DetailStatusWnd {
+    background-color: rgb(12, 12, 14);
+}
+
+
+.character-info-window.status-interlude-root .unity-label {
+    -unity-font-definition: url('project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf?fileID=12800000&guid=96fb7a735e76e0742bf125e2d4734bf3&type=3#tahoma');
+    letter-spacing: 0;
+    white-space: nowrap;
+    -unity-text-outline-width: 0.4px;
+    -unity-text-outline-color: rgb(0, 0, 0);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.character-info-window.status-interlude-root .status-bar-fill,
+.character-info-window.status-interlude-root .status-bar-bg {
+    -unity-background-scale-mode: stretch-to-fill;
 }

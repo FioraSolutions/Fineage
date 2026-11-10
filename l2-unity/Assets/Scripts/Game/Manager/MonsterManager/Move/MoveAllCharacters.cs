@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
@@ -8,6 +10,8 @@ using UnityEngine.SocialPlatforms;
 public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 {
     private static IMoveAllCharacters _instance;
+
+    [System.Obsolete("Use MoveAllCharactersPacketServices.Moves or [Inject] IMoveAllCharacters instead")]
     public static IMoveAllCharacters Instance { get { return (_instance as UnityEngine.Object) != null ? _instance : null; } }
 
     private Dictionary<int, MovementData> _moveDict;
@@ -29,7 +33,7 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
             _stoppedMoveData = new Dictionary<int, MovementData>();
             _reconciledStoppedMoves = new List<int>();
             CrowdAnimTest.EnsureTimeCap();
-
+            MoveAllCharactersPacketServices.Bind(moves: this);
         }
         else
         {
@@ -246,7 +250,7 @@ public class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
         data.AdvanceMoveTimer();
         data.SyncUserGait();
         float speed = data.GetSpeed();
-        if (L2PawnWalk.IsCharInfoPawn(data.GetEntity()))
+        if (L2PawnWalkEntity.IsCharInfoPawn(data.GetEntity()))
         {
             data.StepCharInfo(target, speed);
         }

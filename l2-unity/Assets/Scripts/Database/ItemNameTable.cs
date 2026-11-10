@@ -10,14 +10,28 @@ using UnityEngine;
 
 public class ItemNameTable {
     private static ItemNameTable _instance;
+
+    [Obsolete("Use [Inject] ItemNameTable or TablePacketServices.Items instead")]
     public static ItemNameTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<ItemNameTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new ItemNameTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(ItemNameTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, ItemName> _itemNames;
@@ -128,6 +142,14 @@ public class ItemNameTable {
 
                         itemData.Id = Int32.Parse(ids[0]);
                         itemData.Name = ids[1];
+                        // Interlude SoT col 2: SA / special ability name (Focus, Guidance, …).
+                        if (ids.Length > 2)
+                            itemData.AdditionalName = (ids[2] ?? string.Empty).Trim();
+                        // Interlude SoT: Classic-eu often carries later-chronicle text
+                        // (e.g. Queen Ant 6660 "P./M. Atk. +4%") that disagrees with Mobius CT0.
+                        // Always take the item body text from column 3 — set-bonus text lives in ids[6]/[8].
+                        if (ids.Length > 3)
+                            itemData.Description = DatUtils.CleanupStringOldData(ids[3]);
 
 
                         int[] sets1 = GetSetsIds(parts1);
@@ -139,25 +161,20 @@ public class ItemNameTable {
 
                         if (_itemNames.ContainsKey(itemData.Id))
                         {
-                            //if (string.IsNullOrEmpty(_itemNames[itemData.Id].Description))
-                            //{
-                            //   _itemNames[itemData.Id].Description = itemData.Description;
+                            ItemName existing = _itemNames[itemData.Id];
+                            if (!string.IsNullOrEmpty(itemData.Name))
+                                existing.Name = itemData.Name;
+                            existing.AdditionalName = itemData.AdditionalName ?? string.Empty;
+                            if (!string.IsNullOrEmpty(itemData.Description))
+                                existing.Description = itemData.Description;
                             AddSets(itemData, itemSets1, itemSet2);
-
-
-                            //}
-                            // else
-                            //{
-                            //    AddSets(itemData, itemSets1, itemSet2);
-                            //_itemNames[itemData.Id].SetSets(new ItemSets[1] { itemSets1 });
-                            //}
-
                         }
                         else
                         {
                             ItemName itemName = new ItemName();
                             itemName.Id = itemData.Id;
                             itemName.Name = itemData.Name;
+                            itemName.AdditionalName = itemData.AdditionalName;
                             itemName.Description = itemData.Description;
                             _itemNames.Add(itemData.Id, itemName);
                         }

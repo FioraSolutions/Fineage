@@ -1,152 +1,91 @@
 ﻿using UnityEngine;
-using static ModelTable;
-using static UnityEngine.EventSystems.EventTrigger;
-
+using VContainer;
 
 public class AbstractMeshManager : MonoBehaviour
 {
+    [Inject] private ModelTable _models;
+
+    protected ModelTable Models =>
+        _models != null ? _models : TablePacketServices.Models;
+
     protected GameObject _go;
 
-    protected object LoadMesh(EquipmentCategory category, params int[] itemIds) {
-        try {
-            switch (category) {
+    protected object LoadMesh(EquipmentCategory category, params int[] itemIds)
+    {
+        try
+        {
+            switch (category)
+            {
                 case EquipmentCategory.Weapon:
+                {
                     int weaponId = itemIds[0];
-                    Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+                    Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
                     GameObject goWeapon = LoadWeapon(weapon, weaponId);
-                    if (weapon != null) ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Weapon, goWeapon);
+                    if (weapon != null)
+                        ObjectPoolPacketServices.Pool?.AddPrefabToPool(ObjectType.Weapon, goWeapon);
                     return goWeapon;
-                case EquipmentCategory.Armor:
-                    int aramorId = itemIds[0];
-                    int raceId = itemIds[1];
-                    Armor armor = ItemTable.Instance.GetArmor(aramorId);
-                    ModelTable.L2ArmorPiece goArmor = LoadArmor(armor, CharacterRaceAnimationParser.SafeConvertToRace(raceId));
-                    if (goArmor == null)
-                        return null;
-                    if (armor != null && goArmor.baseArmorModel != null)
-                        ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Armor, goArmor.baseArmorModel);
-                    return goArmor;
-                case EquipmentCategory.FullArmor:
-                    int fullArmorId = itemIds[0];
-                    int fullArmorRaceId = itemIds[1];
-                    Armor armorModel = ItemTable.Instance.GetArmor(fullArmorId);
-                    ModelTable.L2ArmorPiece fullGoArmor = LoadArmor(armorModel, CharacterRaceAnimationParser.SafeConvertToRace(fullArmorRaceId));
-                    if (fullGoArmor == null)
-                        return null;
-                    if (armorModel != null)
-                        AddPrefabToList(ObjectType.Armor, fullGoArmor.baseAllModels);
-                    return fullGoArmor;
+                }
                 case EquipmentCategory.EtcItem:
+                {
                     int etcId = itemIds[0];
-                    EtcItem etcItem = ItemTable.Instance.GetEtcItem(etcId);
+                    EtcItem etcItem = TablePacketServices.Items.GetEtcItem(etcId);
                     GameObject goEtcItem = LoadEtcItem(etcItem, etcId);
-                    if (goEtcItem != null) ObjectPoolManager.Instance?.AddPrefabToPool(ObjectType.Arrow, goEtcItem);
+                    if (goEtcItem != null)
+                        ObjectPoolPacketServices.Pool?.AddPrefabToPool(ObjectType.Arrow, goEtcItem);
                     return goEtcItem;
-
+                }
                 default:
-                    // Debug.LogWarning("Unknown equipment category");
                     return null;
             }
-        } catch (System.Exception) {
+        }
+        catch (System.Exception)
+        {
             return null;
         }
     }
 
-    protected GameObject CreateCopy(GameObject originalGameObject , string name , ObjectType type)
+    protected GameObject CreateCopy(GameObject originalGameObject, string name, ObjectType type)
     {
-        // Instantiating weapon
-        if(originalGameObject != null)
-        {
-            _go = GetOrCreate(originalGameObject , type);
-            _go.SetActive(false);
-            _go.transform.name = name;
+        if (originalGameObject == null)
+            return null;
 
-            return _go;
-        }
-        return null;
+        _go = GetOrCreate(originalGameObject, type);
+        _go.SetActive(false);
+        _go.transform.name = name;
+        return _go;
     }
 
-    private void AddPrefabToList(ObjectType type , GameObject[] allModels)
+    protected GameObject GetOrCreate(GameObject originalGameObject, ObjectType type)
     {
-        if(allModels != null)
+        if (originalGameObject == null)
+            return null;
+
+        if (ObjectPoolPacketServices.Pool != null)
         {
-            for (int i = 0; i < allModels.Length; i++)
-            {
-                GameObject go = allModels[i];
-                ObjectPoolManager.Instance?.AddPrefabToPool(type, go);
-            }
+            ObjectPoolPacketServices.Pool.AddPrefabToPool(type, originalGameObject, count: 1);
+            GameObject pooled = ObjectPoolPacketServices.Pool.SpawnFromPool(type, originalGameObject);
+            if (pooled != null)
+                return pooled;
         }
-    }
-    protected GameObject GetOrCreate(GameObject originalGameObject , ObjectType type)
-    {
-        if (ObjectPoolManager.Instance != null)
-        {
-            return  ObjectPoolManager.Instance.SpawnFromPool(type, originalGameObject);
-        }
-        else
-        {
-           return  GameObject.Instantiate(originalGameObject);
-        }
+
+        return Object.Instantiate(originalGameObject);
     }
 
-    private GameObject LoadWeapon(Weapon weapon , int weaponId)
+    GameObject LoadWeapon(Weapon weapon, int weaponId)
     {
         if (weapon == null)
-        {
-            // Debug.LogWarning($"Could find weapon {weaponId}");
             return null;
-        }
-
-        GameObject weaponPrefab = ModelTable.Instance.GetWeaponById(weaponId);
-        if (weaponPrefab == null)
-        {
-            // Debug.LogWarning($"Could load prefab for {weaponId}");
-            return null;
-        }
-
-        return weaponPrefab;
+        return Models.GetWeaponById(weaponId);
     }
 
-    private GameObject LoadEtcItem(EtcItem etcItem, int etcId)
+    GameObject LoadEtcItem(EtcItem etcItem, int etcId)
     {
         if (etcItem == null)
-        {
-            // Debug.LogWarning($"Could find etc item {etcItem}");
             return null;
-        }
-
-        GameObject weaponPrefab = ModelTable.Instance.GetEtcById(etcId);
-        if (weaponPrefab == null)
-        {
-            // Debug.LogWarning($"Could load prefab for {etcId}");
-            return null;
-        }
-
-        return weaponPrefab;
+        return Models.GetEtcById(etcId);
     }
 
-    private L2ArmorPiece LoadArmor(Armor armor, CharacterRaceAnimation raceId)
-    {
-        if (armor == null ) return null;
-
-        L2ArmorPiece armorPiece = ModelTable.Instance.GetArmorPiece(armor, raceId);
-
-        if (armorPiece == null)
-        {
-            // Debug.LogWarning($"MeshManager->Can't find armor {armor.Id} for race {raceId}");
-            return null ;
-        }
-
-        return armorPiece;
-    }
-
-
-
-    //GetShieldBone
-    //GetLeftHandBone
-    //GetLeftHandBone
-    //GetRightHandBone
-    protected void SetType(WeaponType weaponType , bool leftSlot , Transform[] allBone)
+    protected void SetType(WeaponType weaponType, bool leftSlot, Transform[] allBone)
     {
         SetParentGo(_go, weaponType, leftSlot, allBone);
     }
@@ -155,88 +94,64 @@ public class AbstractMeshManager : MonoBehaviour
     {
         SetParentGo(go, weaponType, leftSlot, allBone);
     }
-    private void SetParentGo(GameObject go , WeaponType weaponType, bool leftSlot, Transform[] allBone)
+
+    void SetParentGo(GameObject go, WeaponType weaponType, bool leftSlot, Transform[] allBone)
     {
         if (go == null)
-        {
-            // Debug.LogError("Gear: Not Create GameObject " + weaponType);
             return;
-        }
 
-        if (weaponType == WeaponType.none)
-        {
+        // Shield and EquipShield (WeaponType.none) both bind to Shield_L_Bone.
+        if (weaponType == WeaponType.none || weaponType == WeaponType.shield)
             go.transform.SetParent(allBone[0], false);
-        }
         else if (weaponType == WeaponType.bow)
-        {
             go.transform.SetParent(allBone[1], false);
-        }
         else if (weaponType == WeaponType.arrow)
         {
-            // Expect arrow mesh pivot at nock (reimport). No runtime shaft offset.
             go.transform.SetParent(allBone[3], false);
             go.transform.localPosition = Vector3.zero;
             go.transform.localRotation = Quaternion.identity;
         }
         else if (leftSlot)
-        {
             go.transform.SetParent(allBone[2], false);
-        }
         else
-        {
             go.transform.SetParent(allBone[3], false);
-        }
     }
 
-
-    public void GetDefaultGoWithArmorModel(ItemSlot slot, out Armor[] defaultArmor, out GameObject[] listArmorPiece , int raceId)
+    public void GetDefaultGoWithArmorModel(
+        ItemSlot slot,
+        out Armor[] defaultArmor,
+        out GameObject[] listArmorPiece,
+        int raceId)
     {
-        //int race = (int)_raceId;
-        slot = ArmorDresserModel.GetExtendedArmorPart(slot);
-
+        slot = ArmorBodySlots.Normalize(slot);
         defaultArmor = CharacterDefaultEquipment.GetDefaultArmorByItemSlot(slot);
-        listArmorPiece = CopyListMash(slot, defaultArmor, raceId);
+        listArmorPiece = InstantiateArmorMeshes(defaultArmor, raceId);
     }
 
-
-    protected GameObject[] CopyListMash(ItemSlot slot , Armor[] defaultArmor , int raceId)
+    protected GameObject[] InstantiateArmorMeshes(Armor[] armors, int raceId)
     {
-        var armorPiece = GetMeshBaseArmor(slot, defaultArmor, raceId);
-        return  CreateCopyOrGetPool(armorPiece, slot);
-    }
-
-    public L2ArmorPiece[] GetMeshBaseArmor(ItemSlot slot, Armor[] defaultArmor, int raceId)
-    {
-        if (defaultArmor == null)
-            return System.Array.Empty<L2ArmorPiece>();
-
-        L2ArmorPiece[] baseArmorArr = new L2ArmorPiece[defaultArmor.Length];
-
-        for (int i = 0; i < defaultArmor.Length; i++)
-        {
-            if (defaultArmor[i] == null)
-                continue;
-            int baseArmorId = defaultArmor[i].Id;
-            baseArmorArr[i] = (L2ArmorPiece)LoadMesh(EquipmentCategory.Armor, baseArmorId, raceId);
-        }
-
-        return baseArmorArr;
-    }
-
-    protected GameObject[] CreateCopyOrGetPool(L2ArmorPiece[] armorArrPiece, ItemSlot slot)
-    {
-        if (armorArrPiece == null)
+        if (armors == null || armors.Length == 0)
             return System.Array.Empty<GameObject>();
 
-        GameObject[] arrGo = new GameObject[armorArrPiece.Length];
-        for (int i = 0; i < armorArrPiece.Length; i++)
+        CharacterRaceAnimation race = CharacterRaceAnimationParser.SafeConvertToRace(raceId);
+        ArmorVisualResolver resolver = new ArmorVisualResolver(Models);
+        GameObject[] meshes = new GameObject[armors.Length];
+
+        for (int i = 0; i < armors.Length; i++)
         {
-            var armorPiece = armorArrPiece[i];
-            if (armorPiece == null || armorPiece.baseArmorModel == null || armorPiece.material == null)
+            Armor armor = armors[i];
+            if (armor == null)
                 continue;
-            arrGo[i] = CreateArmorMesh(armorPiece.baseArmorModel, armorPiece.material);
+
+            ArmorVisual visual = resolver.Resolve(armor, race);
+            if (visual.IsMissing || visual.Parts.Length == 0)
+                continue;
+
+            ArmorVisualPart part = visual.Parts[0];
+            meshes[i] = CreateArmorMesh(part.Mesh, part.Material);
         }
-        return arrGo;
+
+        return meshes;
     }
 
     protected GameObject CreateArmorMesh(GameObject baseArmorModel, Material material)
@@ -244,12 +159,17 @@ public class AbstractMeshManager : MonoBehaviour
         GameObject mesh = GetOrCreate(baseArmorModel, ObjectType.Armor);
         if (mesh == null)
         {
-            // Debug.LogWarning("UserGear-> Failed to create armor model copy");
+            Debug.LogWarning("[Gear] CreateArmorMesh pool/instantiate failed base=" +
+                (baseArmorModel != null ? baseArmorModel.name : "null"));
             return null;
         }
 
         if (mesh.GetComponentInChildren<SkinnedMeshRenderer>(true) == null)
+        {
+            Debug.LogWarning("[Gear] CreateArmorMesh no SkinnedMeshRenderer on " + mesh.name +
+                " children=" + mesh.transform.childCount);
             return null;
+        }
 
         L2ActorMeshPolicy.ApplyPaperdollMaterial(mesh, material);
         return mesh;
@@ -257,13 +177,9 @@ public class AbstractMeshManager : MonoBehaviour
 
     protected string GetWeaponModelName(int itemId)
     {
-        Weapon weapon = ItemTable.Instance.GetWeapon(itemId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
         if (weapon == null)
-        {
             return "Not_Found_Model_Name";
-        }
-       return  weapon.Weapongrp.Model.Replace("LineageWeapons." , "");
-
+        return weapon.Weapongrp.Model.Replace("LineageWeapons.", "");
     }
-
 }

@@ -78,6 +78,10 @@ public static class SkillCastSound
         public string ThrowVoiceKind;
         public bool ShotPlayed;
         public bool ExplodePlayed;
+        public float StartTime;
+        public float HitTimeMs;
+        public float ShotDelaySec;
+        public int SkillId;
     }
 
     public static void OnMagicSkillUse(Entity caster, MagicSkillUseDto dto)
@@ -96,6 +100,8 @@ public static class SkillCastSound
         string castClip = fromGrp ? row.Cast : null;
         string shotClip = fromGrp ? row.Shot : null;
         string explodeClip = fromGrp ? row.Explode : null;
+        // skillsoundgrp voice slots. Scrolls/potions/items have empty kinds — no hero voice.
+        // Only invent VoiceKindFor / "Shot" when the skill is missing from the table entirely.
         string castVoice = fromGrp ? KindForRace(row.Kinds, caster) : null;
         string throwVoice = fromGrp ? KindForRace(row.ThrowKinds, caster) : null;
 
@@ -104,23 +110,52 @@ public static class SkillCastSound
             castClip = key + "_cast";
         if (string.IsNullOrEmpty(shotClip) && !string.IsNullOrEmpty(key))
             shotClip = key + "_shot";
-        if (string.IsNullOrEmpty(castVoice))
-            castVoice = VoiceKindFor(key ?? StemFromClip(castClip), caster);
-        if (string.IsNullOrEmpty(throwVoice))
-            throwVoice = "Shot"; // Wind Strike-style release line when table missing
+        if (!fromGrp)
+        {
+            if (string.IsNullOrEmpty(castVoice))
+                castVoice = VoiceKindFor(key ?? StemFromClip(castClip), caster);
+            if (string.IsNullOrEmpty(throwVoice))
+                throwVoice = "Shot";
+        }
+
+        // Packet HitTime ≈ impact; projectile leaves at HitTime − flight.
+        // Same ResolveMagicFlightTimeMs as READY_TO_ACT / MagicCastData (not explode-gated).
+        Transform targetTf = ResolveTargetTransform(caster, dto.TargetId);
+        float flightMs = SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
+        float shotDelay = Mathf.Max(0f, (dto.HitTime - flightMs) / 1000f);
+
+        float castLen = ClipLengthSec(SfxRoot, castClip);
+        float shotLen = ClipLengthSec(SfxRoot, shotClip);
+        float voiceLen = VoiceClipLengthSec(caster, castVoice);
+        float explodeDelay = 0f;
+        if (!string.IsNullOrEmpty(explodeClip))
+            explodeDelay = Mathf.Max(shotDelay + 0.05f, dto.HitTime / 1000f);
+        float hitSec = dto.HitTime / 1000f;
+
+        Debug.Log(
+            "[CastSync] PIPELINE.start skill=" + dto.SkillId +
+            " lv=" + dto.SkillLvl +
+            " hitMs=" + dto.HitTime.ToString("F0") +
+            " flightMs=" + flightMs.ToString("F0") +
+            " fromGrp=" + fromGrp +
+            " key=" + (key ?? "-") +
+            "\n  t=0.000  CAST_SFX+VOICE  cast=" + (castClip ?? "-") +
+            " len=" + castLen.ToString("F2") +
+            " voice=" + (castVoice ?? "-") + " vLen=" + voiceLen.ToString("F2") +
+            "\n  t=" + shotDelay.ToString("F3") +
+            "  RELEASE  StopCast + SHOT + THROW  shot=" + (shotClip ?? "-") +
+            " len=" + shotLen.ToString("F2") +
+            " throw=" + (throwVoice ?? "-") +
+            "\n  t=" + explodeDelay.ToString("F3") +
+            "  EXPLODE  clip=" + (explodeClip ?? "-") +
+            "\n  t=" + hitSec.ToString("F3") +
+            "  BAR_EMPTY (gauge HitTime)" +
+            "\n  note=anim speeds/walls come later in ANIM.setup; compare BAR.tick remainPct vs these t=");
 
         // 1) Cast SFX + cast-time hero voice (sub / Element / White / …).
         if (!string.IsNullOrEmpty(castClip))
             PlayCastSfx(castClip, Volume);
         PlayVoiceKind(caster, castVoice);
-
-        // Fineage MagicCastData: packet HitTime ≈ impact; projectile leaves at HitTime − flight.
-        // Shot/throw must fire on leave — otherwise they stack on *_explotion.
-        Transform targetTf = ResolveTargetTransform(caster, dto.TargetId);
-        float flightMs = 0f;
-        if (!string.IsNullOrEmpty(explodeClip))
-            flightMs = SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
-        float shotDelay = Mathf.Max(0f, (dto.HitTime - flightMs) / 1000f);
 
         int casterId = caster.Identity != null ? caster.Identity.Id : 0;
         _pending[casterId] = new PendingCast
@@ -130,8 +165,12 @@ public static class SkillCastSound
             ThrowVoiceKind = throwVoice ?? "",
             ShotPlayed = false,
             ExplodePlayed = false,
+            StartTime = Time.realtimeSinceStartup,
+            HitTimeMs = dto.HitTime,
+            ShotDelaySec = shotDelay,
+            SkillId = dto.SkillId,
         };
-        if (caster == PlayerEntity.Instance)
+        if (caster == DomainPacketServices.LocalPlayer)
             _localReleaseCasterId = casterId;
 
         string shotCapture = shotClip ?? "";
@@ -139,14 +178,13 @@ public static class SkillCastSound
         Entity casterCapture = caster;
         int idCapture = casterId;
         InterludeSfx.PlayAfter(shotDelay, () =>
-            PlayRelease(idCapture, casterCapture, shotCapture, throwCapture));
+            PlayRelease(idCapture, casterCapture, shotCapture, throwCapture, "timer"));
 
         // Explode backup if projectile callback missed (impact ≈ HitTime in Fineage timing).
         if (!string.IsNullOrEmpty(explodeClip))
         {
-            float explodeDelay = Mathf.Max(shotDelay + 0.05f, dto.HitTime / 1000f);
             Vector3 hitPos = targetTf != null ? targetTf.position : pos;
-            InterludeSfx.PlayAfter(explodeDelay, () => TryPlayExplode(casterId, hitPos));
+            InterludeSfx.PlayAfter(explodeDelay, () => TryPlayExplode(casterId, hitPos, "timer"));
         }
     }
 
@@ -161,8 +199,13 @@ public static class SkillCastSound
         {
             shot = pending.ShotClip;
             throwKind = pending.ThrowVoiceKind;
+            Debug.Log(
+                "[CastSync] SFX.castBarDone skill=" + pending.SkillId +
+                " t=" + (Time.realtimeSinceStartup - pending.StartTime).ToString("F3") +
+                " plannedShot=" + pending.ShotDelaySec.ToString("F3") +
+                " alreadyShot=" + pending.ShotPlayed);
         }
-        PlayRelease(_localReleaseCasterId, PlayerEntity.Instance, shot, throwKind);
+        PlayRelease(_localReleaseCasterId, DomainPacketServices.LocalPlayer, shot, throwKind, "castBar");
     }
 
     public static void OnMagicSkillLaunched(Entity caster, MagicSkillLaunchedDto dto)
@@ -174,16 +217,27 @@ public static class SkillCastSound
     {
         if (attackerEntityId <= 0)
             return;
-        TryPlayExplode(attackerEntityId, hitPoint);
+        TryPlayExplode(attackerEntityId, hitPoint, "projectile");
     }
 
-    static void PlayRelease(int casterId, Entity caster, string shotClip, string throwVoiceKind)
+    static void PlayRelease(int casterId, Entity caster, string shotClip, string throwVoiceKind, string reason)
     {
         PendingCast pending;
+        float t = 0f;
+        float planned = 0f;
+        int skillId = 0;
         if (_pending.TryGetValue(casterId, out pending))
         {
+            t = Time.realtimeSinceStartup - pending.StartTime;
+            planned = pending.ShotDelaySec;
+            skillId = pending.SkillId;
             if (pending.ShotPlayed)
+            {
+                Debug.Log(
+                    "[CastSync] SFX.release SKIP duplicate reason=" + reason +
+                    " skill=" + skillId + " t=" + t.ToString("F3"));
                 return;
+            }
             pending.ShotPlayed = true;
             if (string.IsNullOrEmpty(shotClip))
                 shotClip = pending.ShotClip;
@@ -192,20 +246,36 @@ public static class SkillCastSound
             _pending[casterId] = pending;
         }
 
+        bool castWasPlaying = InterludeSfx.IsCastPlaying;
+        float castLeft = InterludeSfx.CastRemainingSec;
         InterludeSfx.StopCast();
 
         Vector3 pos = caster != null ? caster.transform.position : Vector3.zero;
+        bool shotOk = false;
         if (!string.IsNullOrEmpty(shotClip))
-            PlaySfx(shotClip, pos, Volume);
+            shotOk = PlaySfx(shotClip, pos, Volume);
 
-        // 2) Release hero voice (throw slot: Shot / Throw / Notarget / …).
+        // 2) Release hero voice — PlayVoice cuts any still-playing cast line.
         PlayVoiceKind(caster, throwVoiceKind);
+
+        float barRem = CastBarOverlay.Remaining01;
+        Debug.Log(
+            "[CastSync] PIPELINE.hit RELEASE reason=" + reason +
+            " skill=" + skillId +
+            " t=" + t.ToString("F3") +
+            " planned=" + planned.ToString("F3") +
+            " drift=" + (t - planned).ToString("F3") +
+            " barRemainPct=" + (barRem < 0f ? -1f : barRem * 100f).ToString("F0") +
+            " StopCast wasPlaying=" + castWasPlaying +
+            " leftSec=" + castLeft.ToString("F2") +
+            " shot=" + (shotClip ?? "-") + " ok=" + shotOk +
+            " voiceThrow=" + (throwVoiceKind ?? "-"));
 
         if (caster != null && caster.IsSpiritshotCharged)
             caster.IsSpiritshotCharged = false;
     }
 
-    static void TryPlayExplode(int casterId, Vector3 pos)
+    static void TryPlayExplode(int casterId, Vector3 pos, string reason)
     {
         PendingCast pending;
         if (!_pending.TryGetValue(casterId, out pending) || pending.ExplodePlayed)
@@ -214,7 +284,36 @@ public static class SkillCastSound
             return;
         pending.ExplodePlayed = true;
         _pending[casterId] = pending;
-        PlaySfx(pending.ExplodeClip, pos, Volume);
+        float t = Time.realtimeSinceStartup - pending.StartTime;
+        bool ok = PlaySfx(pending.ExplodeClip, pos, Volume);
+        float barRem = CastBarOverlay.Remaining01;
+        Debug.Log(
+            "[CastSync] PIPELINE.hit EXPLODE reason=" + reason +
+            " skill=" + pending.SkillId +
+            " t=" + t.ToString("F3") +
+            " hitMs=" + pending.HitTimeMs.ToString("F0") +
+            " barRemainPct=" + (barRem < 0f ? -1f : barRem * 100f).ToString("F0") +
+            " clip=" + pending.ExplodeClip +
+            " ok=" + ok);
+    }
+
+    static float ClipLengthSec(string root, string clipName)
+    {
+        if (string.IsNullOrEmpty(clipName))
+            return 0f;
+        AudioClip clip = Load(root, clipName);
+        if (clip == null)
+            clip = Load(root, clipName.ToLowerInvariant());
+        return clip != null ? clip.length : 0f;
+    }
+
+    static float VoiceClipLengthSec(Entity caster, string kind)
+    {
+        string prefix = VoicePrefixFor(caster);
+        if (string.IsNullOrEmpty(prefix) || string.IsNullOrEmpty(kind))
+            return 0f;
+        AudioClip clip = Load(VoiceRoot, prefix + "_" + kind);
+        return clip != null ? clip.length : 0f;
     }
 
     static Transform ResolveTargetTransform(Entity caster, int targetId)
@@ -255,13 +354,24 @@ public static class SkillCastSound
         string prefix = VoicePrefixFor(caster);
         if (string.IsNullOrEmpty(prefix) || string.IsNullOrEmpty(kind))
             return;
-        if (PlayVoiceClip(prefix + "_" + kind))
+        string primary = prefix + "_" + kind;
+        if (PlayVoiceClip(primary))
+        {
+            Debug.Log("[CastSync] VOICE play=" + primary);
             return;
+        }
         // Soft fallbacks only within the same phase family.
         if (kind == "Notarget" && PlayVoiceClip(prefix + "_Shot"))
+        {
+            Debug.Log("[CastSync] VOICE play=" + prefix + "_Shot (fallback from Notarget)");
             return;
+        }
         if (kind == "Shot" && PlayVoiceClip(prefix + "_Throw"))
+        {
+            Debug.Log("[CastSync] VOICE play=" + prefix + "_Throw (fallback from Shot)");
             return;
+        }
+        Debug.LogWarning("[CastSync] VOICE miss kind=" + kind + " tried=" + primary);
     }
 
     static string KindForRace(string[] kinds, Entity caster)
@@ -317,7 +427,7 @@ public static class SkillCastSound
 
         int playerClass = caster.Identity != null ? caster.Identity.PlayerClass : 0;
         CharacterRace race = (CharacterRace)appearance.Race;
-        CharacterRaceAnimation resolved = CharacterRaceAnimationParser.ResolveRaceAnimation(
+        CharacterRaceAnimation resolved = CharacterRaceAnimationResolve.ResolveRaceAnimation(
             race, appearance, playerClass);
         bool resolvedMage =
             resolved == CharacterRaceAnimation.MMagic || resolved == CharacterRaceAnimation.FMagic;
@@ -403,7 +513,8 @@ public static class SkillCastSound
         AudioClip clip = Load(VoiceRoot, clipName);
         if (clip == null)
             return false;
-        InterludeSfx.Play(clip, VoiceVolume);
+        // Dedicated voice source: throw line replaces/cuts the cast line (Interlude).
+        InterludeSfx.PlayVoice(clip, VoiceVolume);
         return true;
     }
 

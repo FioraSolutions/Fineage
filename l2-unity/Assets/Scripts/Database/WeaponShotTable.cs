@@ -21,14 +21,26 @@ public sealed class WeaponShotTable
     readonly Dictionary<string, BaseEffect> _loaded =
         new Dictionary<string, BaseEffect>(StringComparer.OrdinalIgnoreCase);
 
-    public static WeaponShotTable Instance
+    [System.Obsolete("Use TablePacketServices.WeaponShots instead")]
+        public static WeaponShotTable Instance
     {
         get
         {
             if (_instance == null)
+            {
                 _instance = new WeaponShotTable();
+                TablePacketServices.Bind(weaponShots: _instance);
+            }
             return _instance;
         }
+    }
+
+    public static void Bind(WeaponShotTable table)
+    {
+        if (table == null)
+            return;
+        _instance = table;
+        TablePacketServices.Bind(weaponShots: table);
     }
 
     WeaponShotTable()

@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -27,6 +29,7 @@ public class StatusWindow : L2Window
     [SerializeField] private float _statusWindowMaxWidth = 400.0f;
 
     private static StatusWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static StatusWindow Instance { get { return _instance; } }
 
     private void Awake() {
@@ -45,11 +48,13 @@ public class StatusWindow : L2Window
 
     private void WireGameWindowPacketServices()
     {
-        GameWindowPacketServices.Bind();
+        GameWindowPacketServices.Bind(status: this);
     }
 
-    private void OnDestroy() {
-        _instance = null;
+    private void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets() {
@@ -145,13 +150,16 @@ public class StatusWindow : L2Window
 
     private void SelectPlayerAsTarget()
     {
-        PlayerEntity player = PlayerEntity.Instance;
-        if (player == null || TargetManager.Instance == null)
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (player == null || TargetPacketServices.Targets == null)
         {
             return;
         }
 
-        //TargetManager.Instance.SetTarget(new ObjectData(player.gameObject), "#ffffff");
+        // Zone SelectTarget for self does not fan TargetSelected — set the local target window here.
+        TargetPacketServices.Targets.SetTarget(
+            new ObjectData(player.gameObject),
+            "#ffffff");
         SendSelfTargetAction(player);
     }
 
@@ -175,24 +183,24 @@ public class StatusWindow : L2Window
 
     void FixedUpdate()
     {
-        if(PlayerEntity.Instance == null) { 
+        if(DomainPacketServices.LocalPlayer == null) { 
             return; 
         }
 
-        if(!(PlayerEntity.Instance.Status is PlayerStatus)) {
+        if(!(DomainPacketServices.LocalPlayer.Status is PlayerStatus)) {
             // Debug.LogWarning("Player status is not of type playerstatus");
             return;
         }
 
-        PlayerStatus status = (PlayerStatus)PlayerEntity.Instance.Status;
-        PlayerStats stats = (PlayerStats)PlayerEntity.Instance.Stats;
+        PlayerStatus status = (PlayerStatus)DomainPacketServices.LocalPlayer.Status;
+        PlayerStats stats = (PlayerStats)DomainPacketServices.LocalPlayer.Stats;
 
         if (_levelLabel != null) {
             _levelLabel.text = stats.Level.ToString();
         }
 
         if(_nameLabel != null) {
-            _nameLabel.text = PlayerEntity.Instance.Identity.Name;
+            _nameLabel.text = DomainPacketServices.LocalPlayer.Identity.Name;
         }
 
         if(_CPTextLabel != null) {

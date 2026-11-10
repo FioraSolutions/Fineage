@@ -57,22 +57,19 @@ public class ItemInstance : AbstractServerItem
     {
         if (_category == ItemCategory.Weapon)
         {
-            _itemData = ItemTable.Instance.GetWeapon(_itemId);
+            _itemData = TablePacketServices.Items.GetWeapon(_itemId);
         }
         else if (_category == ItemCategory.ShieldArmor || _category == ItemCategory.Jewel)
         {
-            if (bodyPart != ItemSlot.lhand)
-            {
-                _itemData = ItemTable.Instance.GetArmor(_itemId);
-            }
-            else
-            {
-                _itemData = ItemTable.Instance.GetWeapon(_itemId);
-            }
+            // Armor/jewels in armorgrp; Interlude shields are ShieldArmor with data in weapongrp.
+            AbstractItem armor = TablePacketServices.Items.GetArmor(_itemId);
+            _itemData = armor != null
+                ? armor
+                : TablePacketServices.Items.GetWeapon(_itemId);
         }
         else
         {
-            _itemData = ItemTable.Instance.GetEtcItem(_itemId);
+            _itemData = TablePacketServices.Items.GetEtcItem(_itemId);
         }
     }
 
@@ -102,7 +99,7 @@ public class ItemInstance : AbstractServerItem
         if (_equipped == false && newItem.Equipped == true
         || _equipped == true && newItem.Equipped == false)
         {
-            //AudioManager.Instance.PlayEquipSound(_itemData.Itemgrp.EquipSound);
+            //AudioPacketServices.Audio.PlayEquipSound(_itemData.Itemgrp.EquipSound);
         }
 
         _equipped = newItem.Equipped;
@@ -273,7 +270,7 @@ public class ItemInstance : AbstractServerItem
             case ItemCategory.Item:
             case ItemCategory.Adena:
             case ItemCategory.RequiredItem:
-                return ItemNameTable.Instance.GetItemName(_itemId).Name;
+                return TablePacketServices.ItemNames.GetItemName(_itemId)?.DisplayName ?? "";
 
             default:
                 return "";
@@ -284,13 +281,13 @@ public class ItemInstance : AbstractServerItem
     {
         if (Category == ItemCategory.Weapon)
         {
-            Weapongrp weapon = WeapongrpTable.Instance.GetWeapon(_itemId);
+            Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(_itemId);
             return GetGradeImage(weapon.Grade);
         }
         else if (Category == ItemCategory.ShieldArmor | Category == ItemCategory.Jewel)
         {
-            Armorgrp armor = ArmorgrpTable.Instance.GetArmor(_itemId);
-            Weapongrp weapon = WeapongrpTable.Instance.GetWeapon(_itemId);
+            Armorgrp armor = TablePacketServices.ArmorGrps.GetArmor(_itemId);
+            Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(_itemId);
             if(armor != null) return GetGradeImage(armor.Grade);
             if(weapon != null) return GetGradeImage(weapon.Grade);
         }

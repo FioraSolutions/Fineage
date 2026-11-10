@@ -1,3 +1,5 @@
+using VContainer;
+
 /// <summary>
 /// DAT table access with [Inject] wiring and singleton fallbacks (#142 sub-slice 41).
 /// </summary>
@@ -25,6 +27,8 @@ public static class TablePacketServices
     private static ModelTable _models;
     private static LogongrpTable _logonGrps;
     private static SystemMessageTable _systemMessages;
+    private static WeaponShotTable _weaponShots;
+    private static KeyImageTable _keyImages;
 
     public static void Bind(
         ItemTable items = null,
@@ -48,7 +52,9 @@ public static class TablePacketServices
         EnterEventTable enterEvents = null,
         ModelTable models = null,
         LogongrpTable logonGrps = null,
-        SystemMessageTable systemMessages = null)
+        SystemMessageTable systemMessages = null,
+        WeaponShotTable weaponShots = null,
+        KeyImageTable keyImages = null)
     {
         if (items != null)
             _items = items;
@@ -94,13 +100,37 @@ public static class TablePacketServices
             _logonGrps = logonGrps;
         if (systemMessages != null)
             _systemMessages = systemMessages;
+        if (weaponShots != null)
+            _weaponShots = weaponShots;
+        if (keyImages != null)
+            _keyImages = keyImages;
     }
 
     public static ItemTable Items =>
-        _items != null ? _items : ItemTable.Instance;
+        _items != null ? _items : LegacyItemTableInstance();
 
-    public static ItemNameTable ItemNames =>
-        _itemNames != null ? _itemNames : ItemNameTable.Instance;
+    public static ItemNameTable ItemNames
+    {
+        get
+        {
+            if (_itemNames != null)
+                return _itemNames;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<ItemNameTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return ItemNameTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static ItemStatDataTable ItemStats =>
         _itemStats != null ? _itemStats : ItemStatDataTable.Instance;
@@ -126,8 +156,28 @@ public static class TablePacketServices
     public static QuestNameTable QuestNames =>
         _questNames != null ? _questNames : QuestNameTable.Instance;
 
-    public static RecipeTable Recipes =>
-        _recipes != null ? _recipes : RecipeTable.Instance;
+    public static RecipeTable Recipes
+    {
+        get
+        {
+            if (_recipes != null)
+                return _recipes;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<RecipeTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return RecipeTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static ActionNameTable ActionNames =>
         _actionNames != null ? _actionNames : ActionNameTable.Instance;
@@ -141,8 +191,28 @@ public static class TablePacketServices
     public static SkillNameTable SkillNames =>
         _skillNames != null ? _skillNames : SkillNameTable.Instance;
 
-    public static SkillgrpTable SkillGrps =>
-        _skillGrps != null ? _skillGrps : SkillgrpTable.Instance;
+    public static SkillgrpTable SkillGrps
+    {
+        get
+        {
+            if (_skillGrps != null)
+                return _skillGrps;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<SkillgrpTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return SkillgrpTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static MobSkillAnimgrpTable MobSkillAnimGrps =>
         _mobSkillAnimGrps != null ? _mobSkillAnimGrps : MobSkillAnimgrpTable.Instance;
@@ -156,9 +226,57 @@ public static class TablePacketServices
     public static ModelTable Models =>
         _models != null ? _models : ModelTable.Instance;
 
-    public static LogongrpTable LogonGrps =>
-        _logonGrps != null ? _logonGrps : LogongrpTable.Instance;
+    public static LogongrpTable LogonGrps
+    {
+        get
+        {
+            if (_logonGrps != null)
+                return _logonGrps;
+            if (App.HasContainer)
+            {
+                try
+                {
+                    return App.Resolve<LogongrpTable>();
+                }
+                catch
+                {
+                }
+            }
+
+#pragma warning disable CS0618
+            return LogongrpTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
 
     public static SystemMessageTable SystemMessages =>
         _systemMessages != null ? _systemMessages : SystemMessageTable.Instance;
+
+    public static WeaponShotTable WeaponShots
+    {
+        get
+        {
+            if (_weaponShots != null)
+                return _weaponShots;
+#pragma warning disable CS0618
+            return WeaponShotTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
+
+    public static KeyImageTable KeyImages
+    {
+        get
+        {
+            if (_keyImages != null)
+                return _keyImages;
+#pragma warning disable CS0618
+            return KeyImageTable.Instance;
+#pragma warning restore CS0618
+        }
+    }
+
+#pragma warning disable CS0618 // Locator fallback until ItemTable.Instance is removed
+    static ItemTable LegacyItemTableInstance() => ItemTable.Instance;
+#pragma warning restore CS0618
 }

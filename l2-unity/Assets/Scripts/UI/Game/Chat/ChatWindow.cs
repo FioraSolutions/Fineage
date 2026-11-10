@@ -30,6 +30,7 @@ public class ChatWindow : L2Window
     public bool Ready { get; private set; }
 
     private static ChatWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ChatWindow Instance { get { return _instance; } }
 
     private void Awake()
@@ -53,8 +54,7 @@ public class ChatWindow : L2Window
     private void WireChatPacketServices()
     {
         MessagePacketApply messageApply = MessagePacketServices.MessageApply;
-        if (messageApply != null)
-            MessagePacketServices.Bind(messageApply: messageApply);
+        MessagePacketServices.Bind(messageApply: messageApply, chat: this);
     }
 
     private void OnDestroy()
@@ -119,9 +119,9 @@ public class ChatWindow : L2Window
         yield return new WaitForEndOfFrame();
         diagonalResizeManipulator.SnapSize();
         // SystemMsgWnd must match ChatWnd width after SnapSize/layout.
-        SystemMsgWindow.Instance?.SyncDock();
+        SystemMsgWindow.Ensure()?.SyncDock();
         yield return null;
-        SystemMsgWindow.Instance?.SyncDock();
+        SystemMsgWindow.Ensure()?.SyncDock();
     }
 
     private void CreateTabs()
@@ -193,7 +193,8 @@ public class ChatWindow : L2Window
 
     void Update()
     {
-        if (InputManager.Instance == null || !InputManager.Instance.Validate)
+        InputManager input = ControllerPacketServices.Input;
+        if (input == null || !input.Validate)
             return;
 
         if (_chatOpened)
@@ -205,7 +206,7 @@ public class ChatWindow : L2Window
     IEnumerator OpenChat()
     {
         _chatOpened = true;
-        L2GameUI.Instance.BlurFocus();
+        SystemUIPacketServices.Ui.BlurFocus();
         yield return new WaitForEndOfFrame();
         _chatInput.Focus();
     }
@@ -214,7 +215,7 @@ public class ChatWindow : L2Window
     {
         _chatOpened = false;
 
-        L2GameUI.Instance.BlurFocus();
+        SystemUIPacketServices.Ui.BlurFocus();
 
         if (sendMessage)
         {

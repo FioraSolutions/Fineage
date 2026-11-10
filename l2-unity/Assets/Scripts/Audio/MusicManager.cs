@@ -1,3 +1,5 @@
+using System;
+
 ﻿using FMOD.Studio;
 using FMODUnity;
 using System.Collections;
@@ -13,13 +15,17 @@ public class MusicManager : MonoBehaviour
     public EventReference CurrentMusicEvent { get { return _currentMusicEvent; } }
 
     private static MusicManager _instance;
+
+    [System.Obsolete("Use MusicPacketServices.Music or [Inject] MusicManager instead")]
     public static MusicManager Instance { get { return _instance; } }
 
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            MusicPacketServices.Bind(music: this);
         } else if(_instance != this){
             Destroy(this);
+            return;
         }
 
         _musicInstances = new Dictionary<EventReference, EventInstance>();

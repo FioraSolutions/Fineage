@@ -6,6 +6,7 @@ public class ItemName
 {
     [SerializeField] int _id;
     [SerializeField] string _name;
+    [SerializeField] string _additionalName;
     [SerializeField] string _description;
     [SerializeField] string _defaultAction;
     [SerializeField] bool _tradeable;
@@ -19,7 +20,22 @@ public class ItemName
 
     public int Id { get => _id; set => _id = value; }
     public string Name { get => _name; set => _name = value; }
+    /// <summary>Interlude itemname col 2 — SA / popup (Focus, Guidance, …). Empty for non-SA.</summary>
+    public string AdditionalName { get => _additionalName; set => _additionalName = value; }
     public string Description { get => _description; set => _description = value; }
+
+    /// <summary>Interlude display: base name plus SA when present ("Bow of Peril Guidance").</summary>
+    public string DisplayName
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(_additionalName))
+                return _name ?? "";
+            if (string.IsNullOrWhiteSpace(_name))
+                return _additionalName.Trim();
+            return _name + " " + _additionalName.Trim();
+        }
+    }
     public string DefaultAction { get => _defaultAction; set => _defaultAction = value; }
     public bool Tradeable { get => _tradeable; set => _tradeable = value; }
     public bool Destructible { get => _destructible; set => _destructible = value; }
@@ -40,7 +56,7 @@ public class ItemName
             if (array == null || array.Length == 0)
                 continue;
             for (int i = 0; i < array.Length; i++)
-                _setNameScratch.Add(ItemNameTable.Instance.GetItemName(array[i]));
+                _setNameScratch.Add(TablePacketServices.ItemNames.GetItemName(array[i]));
         }
 
         return _setNameScratch.ToArray();

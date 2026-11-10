@@ -25,7 +25,7 @@ public sealed class UseItemCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 39 — select an enchant scroll and open the window.</summary>
+/// <summary>Fineage Net TX opcode 39 — select an enchant scroll and open the window.</summary>
 public sealed class ZoneEnchantRequestCommand : INetworkCommand
 {
     public int ScrollObjectId;
@@ -36,7 +36,7 @@ public sealed class ZoneEnchantRequestCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 16 — clear paperdoll index 0..16.</summary>
+/// <summary>Fineage Net TX opcode 16 — clear paperdoll index 0..16.</summary>
 public sealed class UnequipItemCommand : INetworkCommand
 {
     public int PaperdollSlot;
@@ -47,7 +47,7 @@ public sealed class UnequipItemCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 13 — server grants into bag via InventoryUpdate (Backend #120).</summary>
+/// <summary>Fineage Net TX opcode 13 — server grants into bag via InventoryUpdate (Backend #120).</summary>
 public sealed class ZoneGrantItemCommand : INetworkCommand
 {
     public int ItemId;
@@ -60,7 +60,7 @@ public sealed class ZoneGrantItemCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 14 — pick up ground item (Backend C2 / #125).</summary>
+/// <summary>Fineage Net TX opcode 14 — pick up ground item (Backend C2 / #125).</summary>
 public sealed class ZonePickupRequestCommand : INetworkCommand
 {
     public int GroundObjectId;
@@ -223,6 +223,13 @@ public sealed class RequestTargetCanceldCommand : INetworkCommand
 
 public sealed class RequestRestartPointCommand : INetworkCommand
 {
+    /// <summary>Matches <c>ReviveRequestNetMsg</c> / <c>DeathProtocol</c> revive actions.</summary>
+    public int Action;
+
+    public RequestRestartPointCommand(int action = 0)
+    {
+        Action = action;
+    }
 }
 
 public sealed class RequestShowBoardCommand : INetworkCommand
@@ -335,7 +342,7 @@ public sealed class RequestQuestAbortCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 32. Body key 0 is the clan name.</summary>
+/// <summary>Fineage Net TX opcode 32. Body key 0 is the clan name.</summary>
 public sealed class ClanCreateRequestCommand : INetworkCommand
 {
     public string Name;
@@ -346,7 +353,7 @@ public sealed class ClanCreateRequestCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 33. Pledge type 0 is the main clan.</summary>
+/// <summary>Fineage Net TX opcode 33. Pledge type 0 is the main clan.</summary>
 public sealed class ClanInviteRequestCommand : INetworkCommand
 {
     public int TargetObjectId;
@@ -359,7 +366,7 @@ public sealed class ClanInviteRequestCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 34. Response 0 declines. Any other value accepts.</summary>
+/// <summary>Fineage Net TX opcode 34. Response 0 declines. Any other value accepts.</summary>
 public sealed class ClanAnswerJoinRequestCommand : INetworkCommand
 {
     public int RequestorObjectId;
@@ -372,12 +379,12 @@ public sealed class ClanAnswerJoinRequestCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 35. Empty body.</summary>
+/// <summary>Fineage Net TX opcode 35. Empty body.</summary>
 public sealed class ClanLeaveRequestCommand : INetworkCommand
 {
 }
 
-/// <summary>Zone V2 TX opcode 36.</summary>
+/// <summary>Fineage Net TX opcode 36.</summary>
 public sealed class ClanKickRequestCommand : INetworkCommand
 {
     public int TargetObjectId;
@@ -388,12 +395,12 @@ public sealed class ClanKickRequestCommand : INetworkCommand
     }
 }
 
-/// <summary>Zone V2 TX opcode 37. Empty body.</summary>
+/// <summary>Fineage Net TX opcode 37. Empty body.</summary>
 public sealed class ClanDissolveRequestCommand : INetworkCommand
 {
 }
 
-/// <summary>Zone V2 TX opcode 38. Empty body.</summary>
+/// <summary>Fineage Net TX opcode 38. Empty body.</summary>
 public sealed class ClanCancelDissolveRequestCommand : INetworkCommand
 {
 }
@@ -551,7 +558,7 @@ public sealed class RequestAcquireSkillInfoCommand : INetworkCommand
 public sealed class RequestAnswerJoinPartyCommand : INetworkCommand
 {
     public int Response;
-    /// <summary>Zone V2 inviter object id from <see cref="AskJoinPartyDto.RequestorObjectId"/>; 0 on Interlude.</summary>
+    /// <summary>Fineage Net inviter object id from <see cref="AskJoinPartyDto.RequestorObjectId"/>; 0 on Interlude.</summary>
     public int RequestorObjectId;
 
     public RequestAnswerJoinPartyCommand(int response, int requestorObjectId = 0)
@@ -590,7 +597,7 @@ public sealed class RequestOustPartyMemberCommand : INetworkCommand
 public sealed class AnswerTradeRequestCommand : INetworkCommand
 {
     public int Response;
-    /// <summary>Zone V2 requestor object id; zero on Interlude wire.</summary>
+    /// <summary>Fineage Net requestor object id; zero on Interlude wire.</summary>
     public int RequestorObjectId;
 
     public AnswerTradeRequestCommand(int response, int requestorObjectId = 0)

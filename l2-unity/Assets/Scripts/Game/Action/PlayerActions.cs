@@ -11,6 +11,7 @@ public class PlayerActions : MonoBehaviour
     private Dictionary<ActionType, L2Action> _actions;
     
     private static PlayerActions _instance;
+    [System.Obsolete("Use [Inject] or ShortcutPacketServices.Actions instead")]
     public static PlayerActions Instance
     {
         get { return _instance; }
@@ -28,6 +29,7 @@ public class PlayerActions : MonoBehaviour
         }
 
         WireActionPacketServices();
+        ShortcutPacketServices.Bind(actions: this);
 
         _actions = new Dictionary<ActionType, L2Action>();
         AttackAction attack = new AttackAction();
@@ -38,10 +40,30 @@ public class PlayerActions : MonoBehaviour
         NextTargetAction nextTarget = new NextTargetAction();
         nextTarget.Bind(_targets);
         _actions.Add(ActionType.NextTarget, nextTarget);
-        _actions.Add(ActionType.RideStrider, new RideStriderAction());
+        _actions.Add(ActionType.Mount, new RideStriderAction());
         _actions.Add(ActionType.SocialGreeting, new SocialActionUse((int)ActionType.SocialGreeting));
         _actions.Add(ActionType.SocialVictory, new SocialActionUse((int)ActionType.SocialVictory));
         _actions.Add(ActionType.SocialAdvance, new SocialActionUse((int)ActionType.SocialAdvance));
+        // Icons-only for now — wire packets/anims in a follow-up.
+        RegisterStub(
+            ActionType.Trade, ActionType.Pickup, ActionType.Assist,
+            ActionType.PartyInvite, ActionType.PartyLeave, ActionType.PartyKick,
+            ActionType.PrivateStoreSell, ActionType.PartyMatching,
+            ActionType.SocialYes, ActionType.SocialNo, ActionType.SocialBow,
+            ActionType.SocialUnaware, ActionType.SocialWaiting, ActionType.SocialLaugh,
+            ActionType.SocialApplaud, ActionType.SocialDance, ActionType.SocialSorrow,
+            ActionType.SocialCharm, ActionType.SocialShyness,
+            ActionType.PrivateStoreBuy, ActionType.DwarvenManufacture, ActionType.Recommend);
+    }
+
+    void RegisterStub(params ActionType[] types)
+    {
+        for (int i = 0; i < types.Length; i++)
+        {
+            ActionType t = types[i];
+            if (!_actions.ContainsKey(t))
+                _actions.Add(t, new StubAction((int)t));
+        }
     }
 
     private void Start()
@@ -93,6 +115,6 @@ public class PlayerActions : MonoBehaviour
     {
         if (!ZoneCommands.IsConnected)
             return;
-        ZoneCommands.Send(new RequestMagicSkillUseCommand(skillId, 0, 0));
+        ZoneCommands.Send(new RequestMagicSkillUseCommand(skillId, GameCtrl.AsInt, 0));
     }
 }

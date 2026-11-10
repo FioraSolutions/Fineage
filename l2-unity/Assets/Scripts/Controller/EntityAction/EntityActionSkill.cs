@@ -50,8 +50,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
             return;
         }
 
-        bool wasMoving = entity.Identity != null && MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+        bool wasMoving = entity.Identity != null && ControllerPacketServices.Moves != null &&
+            ControllerPacketServices.Moves.IsMoving(entity.Identity.Id);
         MagicGaitTrace.Event(entity, "Skill.Enter",
             "skill=" + magic.SkillId +
             " isMagic=" + IsMagicSkill(magic) +
@@ -162,8 +162,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (target != null && target != entity && target.IsDead())
         {
             MagicGaitTrace.Event(entity, "Skill.Tick-deadTarget→CancelAttackKeepStance", null);
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.CancelAttackKeepStance(entity);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.CancelAttackKeepStance(entity);
             return;
         }
 
@@ -174,9 +174,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
             "visExpired ClearAttackVisual → Set Idle");
         user.ClearAttackVisual();
         if (entity.Identity != null)
-            CombatFacingService.Instance?.EndFollow(entity.Identity.Id, "skill-tick");
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(entity, EntityActionKind.Idle, null);
+            CombatPacketServices.Facing?.EndFollow(entity.Identity.Id, "skill-tick");
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(entity, EntityActionKind.Idle, null);
     }
 
     public static bool TryApplyWeaponCharge(Entity entity, MagicSkillUseDto magic)
@@ -195,7 +195,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
             entity.IsSpiritshotCharged = false;
         }
 
-        WeaponChargeSkill.Play(
+        WeaponChargeSkillPlayback.Play(
             ControllerPacketServices.Effects,
             magic.SkillId,
             entity.GetWeaponTransform(),
@@ -216,10 +216,10 @@ public sealed class EntityActionSkill : IEntityActionProcess
                 return fromWorld;
         }
 
-        if (PlayerEntity.Instance != null &&
-            PlayerEntity.Instance.Identity != null &&
-            PlayerEntity.Instance.Identity.Id == objectId)
-            return PlayerEntity.Instance;
+        if (DomainPacketServices.LocalPlayer != null &&
+            DomainPacketServices.LocalPlayer.Identity != null &&
+            DomainPacketServices.LocalPlayer.Identity.Id == objectId)
+            return DomainPacketServices.LocalPlayer;
 
         return null;
     }
@@ -232,9 +232,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     public static bool IsLocalPlayer(int objectId)
     {
-        return PlayerEntity.Instance != null &&
-            PlayerEntity.Instance.Identity != null &&
-            PlayerEntity.Instance.Identity.Id == objectId;
+        return DomainPacketServices.LocalPlayer != null &&
+            DomainPacketServices.LocalPlayer.Identity != null &&
+            DomainPacketServices.LocalPlayer.Identity.Id == objectId;
     }
 
     public static void FinishRemoteCast(int objectId)
@@ -246,13 +246,13 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (entity == null)
             return;
 
-        CombatFacingService.Instance?.EndFollow(objectId, "skill-smb-idle");
+        CombatPacketServices.Facing?.EndFollow(objectId, "skill-smb-idle");
         UserEntity user = entity as UserEntity;
         if (user != null)
             user.ClearAttackVisual();
 
-        bool moving = entity.Identity != null && MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+        bool moving = entity.Identity != null && ControllerPacketServices.Moves != null &&
+            ControllerPacketServices.Moves.IsMoving(entity.Identity.Id);
         bool moveAction = entity.ActionSlot != null && entity.ActionSlot.Action == EntityActionKind.Move;
 
         MagicGaitTrace.BeginPostShotWatch(entity);
@@ -266,15 +266,15 @@ public sealed class EntityActionSkill : IEntityActionProcess
         {
             if (moving)
             {
-                MovementData move = MoveAllCharacters.Instance.GetMove(entity.Identity.Id);
+                MovementData move = ControllerPacketServices.Moves.GetMove(entity.Identity.Id);
                 if (move != null)
                     move.ReplayUserGait();
             }
             return;
         }
 
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(entity, EntityActionKind.Idle, null);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(entity, EntityActionKind.Idle, null);
     }
 
     void BeginFacing(Entity entity, MagicSkillUseDto magic, Entity target, bool selfCast)
@@ -285,7 +285,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         int objectId = entity.Identity.Id;
         if (selfCast || target == null)
         {
-            CombatFacingService.Instance?.EndFollow(objectId, "skill-self-or-no-target");
+            CombatPacketServices.Facing?.EndFollow(objectId, "skill-self-or-no-target");
             return;
         }
 
@@ -295,11 +295,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
             int rate = IsMagicSkill(magic)
                 ? L2PawnYaw.MagicRotationRateYaw
                 : L2PawnYaw.RotationRateYaw;
-            CombatFacingService.Ensure().BeginFollow(objectId, entity.transform, target.transform, rate);
+            CombatPacketServices.EnsureFacing().BeginFollow(objectId, entity.transform, target.transform, rate);
             return;
         }
 
-        CombatFacingService.Instance?.EndFollow(objectId, "non-bow-phys");
+        CombatPacketServices.Facing?.EndFollow(objectId, "non-bow-phys");
         _pawnYaw.RequestLook(entity.transform, target.transform.position, L2PawnYaw.RotationRateYaw);
     }
 
@@ -318,12 +318,13 @@ public sealed class EntityActionSkill : IEntityActionProcess
     static void ExecutePhysicalSkill(Entity entity, MagicSkillUseDto magic)
     {
         AnimationCombo combo = GetCombo(magic);
-        if (combo != null && SkillExecutor.Instance != null)
+        if (combo != null && SkillExecutorPacketServices.Executor != null)
         {
-            _ = SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
-            if (magic.SkillId == 3 && EffectManager.Instance != null)
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
+            EffectManager effects = ControllerPacketServices.Effects;
+            if (magic.SkillId == 3 && effects != null)
             {
-                EffectManager.Instance.PlayEffectSyncedToSkillAnimation(
+                effects.PlayEffectSyncedToSkillAnimation(
                     magic.SkillId, entity, magic.HitTime, combo);
             }
             ArmPhysicalSkillHit(entity, magic);
@@ -337,7 +338,8 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     static void ArmPhysicalSkillHit(Entity entity, MagicSkillUseDto magic)
     {
-        if (HitManager.Instance == null || entity == null || magic == null)
+        var hits = CombatPacketServices.Hits;
+        if (hits == null || entity == null || magic == null)
             return;
 
         Entity target = entity.ActionSlot.Target;
@@ -346,7 +348,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (target == null || target == entity || target.IsDead())
             return;
 
-        HitManager.Instance.ArmRemoteSkillHit(entity, target, magic);
+        hits.ArmRemoteSkillHit(entity, target, magic);
     }
 
     static void ExecuteMagicSkill(Entity entity, MagicSkillUseDto magic, Entity target)
@@ -357,11 +359,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
         {
             Debug.Log(
                 "[WINDSTRIKE] ExecuteMagic combo=" + (combo != null) +
-                " executor=" + (SkillExecutor.Instance != null) +
+                " executor=" + (SkillExecutorPacketServices.Executor != null) +
                 " skillGrp=" + (magic.SkillGrp != null) +
                 " race=" + raceName);
         }
-        if (combo == null || SkillExecutor.Instance == null || magic.SkillGrp == null)
+        if (combo == null || SkillExecutorPacketServices.Executor == null || magic.SkillGrp == null)
         {
             MagicGaitTrace.Event(entity, "ExecuteMagic-FALLBACK-phys",
                 "skill=" + magic.SkillId + " race=" + raceName +
@@ -389,27 +391,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
         float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, targetTransform);
         entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic));
 
-        _ = SkillExecutor.Instance.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
+        _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
     }
 
     static void ExecuteSelfSkill(Entity entity, MagicSkillUseDto magic)
     {
-        if (SetupDurationHelper.IsLongCastSkill(magic))
-        {
-            AnimationCombo selfCombo = GetCombo(magic);
-            if (selfCombo == null || SkillExecutor.Instance == null || magic.SkillGrp == null)
-            {
-                PlaySkillEffect(entity, magic);
-                return;
-            }
-
-            int objectId = entity.Identity.Id;
-            SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(magic, objectId, entity, selfCombo);
-            _ = SkillExecutor.Instance.ExecuteSkillOverride(
-                magic.SkillGrp, entity, selfCombo, ResolveEvents(entity), isLong: true);
-            return;
-        }
-
         if (SetupDurationHelper.IsUsePotion(magic))
         {
             PlaySkillEffect(entity, magic);
@@ -419,11 +405,11 @@ public sealed class EntityActionSkill : IEntityActionProcess
         if (IsMagicSkill(magic))
         {
             AnimationCombo combo = GetCombo(magic);
-            if (combo != null && SkillExecutor.Instance != null)
+            if (combo != null && SkillExecutorPacketServices.Executor != null)
             {
                 int objectId = entity.Identity.Id;
                 SetupDurationHelper.SetupDurationIfHitTimeNot0(magic, objectId, entity, combo);
-                _ = SkillExecutor.Instance.ExecuteSkillOverride(
+                _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
                     magic.SkillGrp, entity, combo, ResolveEvents(entity));
                 return;
             }
@@ -431,21 +417,21 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
         if (SetupDurationHelper.TryGetPlayableCombo(magic, out AnimationCombo castCombo) &&
             magic.SkillGrp != null &&
-            SkillExecutor.Instance != null)
+            SkillExecutorPacketServices.Executor != null)
         {
             SetupDurationHelper.SetupDurationIfHitTimeNot0(
                 magic, entity.Identity.Id, entity, castCombo);
-            _ = SkillExecutor.Instance.ExecuteSkillOverride(
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
                 magic.SkillGrp, entity, castCombo, ResolveEvents(entity));
             return;
         }
 
         Skillgrp skillgrp = magic.SkillGrp;
-        if (skillgrp != null && SkillExecutor.Instance != null)
+        if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
         {
             AnimationCombo combo = new AnimationCombo(
                 "-1", new[] { skillgrp.GetAnimOperationType3() }, "");
-            _ = SkillExecutor.Instance.ExecuteSkill(entity, combo, ResolveEvents(entity));
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
             return;
         }
 
@@ -513,7 +499,7 @@ public sealed class EntityActionSkill : IEntityActionProcess
         MagicCastData cast = entity.GetMagicCastData();
         int npcId = entity.Identity != null ? entity.Identity.NpcId : 0;
         string sequence;
-        bool hasNpcOverride = MobSkillAnimgrpTable.Instance.TryGetSequence(
+        bool hasNpcOverride = TablePacketServices.MobSkillAnimGrps.TryGetSequence(
             npcId, magic.SkillId, out sequence);
         if (hasNpcOverride)
             sequence = ResolvePlayableNpcSkillSequence(entity, sequence);
@@ -617,9 +603,9 @@ public sealed class EntityActionSkill : IEntityActionProcess
 
     static AnimationCombo GetCombo(MagicSkillUseDto magic)
     {
-        if (magic == null || SkillgrpTable.Instance == null)
+        if (magic == null || TablePacketServices.SkillGrps == null)
             return null;
-        return SkillgrpTable.Instance.GetAnimComboBySkillId(magic.SkillId, magic.SkillLvl);
+        return TablePacketServices.SkillGrps.GetAnimComboBySkillId(magic.SkillId, magic.SkillLvl);
     }
 
     static AnimationEventsBase ResolveEvents(Entity entity)

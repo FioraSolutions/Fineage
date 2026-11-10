@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -156,7 +158,7 @@ public class PositionValidationController : MonoBehaviour
             entity.ShowObject();
 
             Animations.PlayerSetAllFloat(objectId , floatValues);
-            ReStartAnimationPlayer(PlayerStateMachine.Instance);
+            ReStartAnimationPlayer(PlayerStatePacketServices.PlayerState);
 
         }else if (entity.GetType() == typeof(NpcEntity))
         {
@@ -202,9 +204,9 @@ public class PositionValidationController : MonoBehaviour
 
     private void ReplayMoveIfNeeded(Entity entity)
     {
-        if (entity == null || entity.Identity == null || MoveAllCharacters.Instance == null)
+        if (entity == null || entity.Identity == null || ControllerPacketServices.Moves == null)
             return;
-        if (!MoveAllCharacters.Instance.IsMoving(entity.Identity.Id))
+        if (!ControllerPacketServices.Moves.IsMoving(entity.Identity.Id))
             return;
         EntityActionVisual.StartMove(entity, !entity.Running);
     }
@@ -215,16 +217,16 @@ public class PositionValidationController : MonoBehaviour
             MonsterEntity monsterEntity = (MonsterEntity)entity;
             if (monsterEntity.ActionSlot.Action == EntityActionKind.Move)
                 return;
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Set(monsterEntity, EntityActionKind.Move, newPosition);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Set(monsterEntity, EntityActionKind.Move, newPosition);
 
         }else if (entity.GetType() == typeof(NpcEntity))
         {
             NpcEntity npcEntity = (NpcEntity)entity;
             if (npcEntity.ActionSlot.Action == EntityActionKind.Move)
                 return;
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Set(npcEntity, EntityActionKind.Move, newPosition);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Set(npcEntity, EntityActionKind.Move, newPosition);
         }
         else if (entity is UserEntity)
         {

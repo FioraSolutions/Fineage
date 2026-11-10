@@ -1,4 +1,5 @@
-﻿/// <summary>
+using VContainer;
+/// <summary>
 /// Game shortcut-layer access with [Inject] wiring and peer/live fallback (#142).
 /// </summary>
 public static class ShortcutPacketServices
@@ -31,8 +32,30 @@ public static class ShortcutPacketServices
         _input != null ? _input : ControllerPacketServices.Input;
 
     public static PlayerActions Actions =>
-        _actions != null ? _actions : PlayerActions.Instance;
+        (_actions as UnityEngine.Object) != null
+            ? _actions
+            : ResolveFromGame<PlayerActions>() ?? LegacyPlayerActionsInstance();
 
     public static PlayerShortcuts Shortcuts =>
-        _shortcuts != null ? _shortcuts : PlayerShortcuts.Instance;
+        _shortcuts != null ? _shortcuts : LegacyPlayerShortcutsInstance();
+
+    static T ResolveFromGame<T>() where T : class
+    {
+        if (App.GameContainer == null)
+            return null;
+
+        try
+        {
+            return App.GameContainer.Resolve<T>();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+#pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
+    static PlayerActions LegacyPlayerActionsInstance() => PlayerActions.Instance;
+    static PlayerShortcuts LegacyPlayerShortcutsInstance() => PlayerShortcuts.Instance;
+#pragma warning restore CS0618
 }

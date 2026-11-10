@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,11 +33,13 @@ public class Geodata : MonoBehaviour {
     public bool Loaded { get { return _loaded; } }
 
     private static Geodata _instance;
+    [System.Obsolete("Use [Inject] or GeodataPacketServices.Geodata instead")]
     public static Geodata Instance { get { return _instance; } }
 
     private void Awake() {
         if(_instance == null) {
             _instance = this;
+            GeodataPacketServices.Bind(geodata: this);
         } else {
             Destroy(this);
         }

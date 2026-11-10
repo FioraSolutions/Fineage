@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +8,8 @@ public class PlayerStateMachine : MonoBehaviour
     private bool _enableLogs = true;
  
     private static PlayerStateMachine _instance;
+
+    [System.Obsolete("Use PlayerStatePacketServices.PlayerState or [Inject] PlayerStateMachine instead")]
     public static PlayerStateMachine Instance => _instance;
 
 
@@ -50,6 +54,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         InitializeState();
         InitializeIntention();
+        PlayerStatePacketServices.Bind(playerState: this);
 
         this.enabled = false;
     }
@@ -64,6 +69,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         PlayerStateMachine previous = _instance;
         _instance = this;
+        PlayerStatePacketServices.Bind(playerState: this);
         if (previous != null && previous != this && previous.GetComponentInParent<PlayerEntity>() == null)
             Destroy(previous);
         return true;
@@ -83,8 +89,9 @@ public class PlayerStateMachine : MonoBehaviour
 
         _instance = onPlayer;
         onPlayer.enabled = true;
-        if (PlayerEntity.Instance != null)
-            onPlayer.Player = PlayerEntity.Instance;
+        PlayerStatePacketServices.Bind(playerState: onPlayer);
+        if (DomainPacketServices.LocalPlayer != null)
+            onPlayer.Player = DomainPacketServices.LocalPlayer;
     }
 
 
@@ -191,9 +198,10 @@ public class PlayerStateMachine : MonoBehaviour
     {
         get
         {
+            StriderRideService striderRide = AnimationPacketServices.StriderRide;
             return Player != null
-                && StriderRideService.Instance != null
-                && StriderRideService.Instance.IsRiding(Player);
+                && striderRide != null
+                && striderRide.IsRiding(Player);
         }
     }
 
@@ -201,7 +209,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (Player == null || _currentState == PlayerState.DEAD)
             return;
-        StriderRideService ride = StriderRideService.Instance;
+        StriderRideService ride = AnimationPacketServices.StriderRide;
         if (ride == null)
             return;
 

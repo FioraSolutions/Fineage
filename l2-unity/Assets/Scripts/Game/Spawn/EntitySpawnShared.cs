@@ -91,14 +91,14 @@ public static class EntitySpawnShared
         {
             _unresolvedReportsSuppressed = true;
             FineageLog.Warn(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 "NpcInfo unresolved reports capped at " + MaxUnresolvedReports
                 + " distinct npcIds; further ids are not logged.");
             return;
         }
 
         FineageLog.Warn(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "NpcInfo npcId=" + npcId + " not rendered: " + reason);
     }
 
@@ -114,7 +114,7 @@ public static class EntitySpawnShared
         // Art-pack gap (prefab absent under Resources/Data/Animations/...), not a broken texture.
         // Once per wanted→used pair per play session so enter-world knownlist does not flood the console.
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "NpcInfo npcId=" + npcId + " art pack missing mesh '" + wanted
             + "'; stand-in '" + used + "'");
     }
@@ -159,26 +159,57 @@ public static class EntitySpawnShared
             }
         }
 
-        // Last resort: generic townsfolk. Prefer Human so Orc/Dwarf starts don't look Elven
-        // when e_clergyman_MOrc / similar art is missing from the pack.
-        bool male = IsMaleNpcAsset(asset);
-        string[] generic =
+        // Outfit-letter stand-in: Symbol Maker (31046) asks for a_traderC_* but the art pack
+        // only ships a_traderB_*. Same trader silhouette, not a random townsfolk body.
+        for (int i = 0; i < OutfitLetterFallbacks.Length; i++)
         {
-            package + ".a_common_people_" + (male ? "MHuman" : "FHuman") + "_m00",
-            package + ".a_common_peopleA_" + (male ? "MHuman" : "FHuman") + "_m00",
-            package + ".a_common_people_" + (male ? "MElf" : "FElf") + "_m00"
-        };
-        for (int i = 0; i < generic.Length; i++)
-        {
-            prefab = models.GetNpc(generic[i]);
+            string from = OutfitLetterFallbacks[i].From;
+            string to = OutfitLetterFallbacks[i].To;
+            if (asset.IndexOf(from, System.StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
+            string candidate = ReplaceIgnoreCase(asset, from, to);
+            if (candidate == asset)
+                continue;
+            prefab = models.GetNpc(package + "." + candidate);
             if (prefab != null)
             {
-                usedMesh = generic[i];
+                usedMesh = package + "." + candidate;
                 return true;
+            }
+            // Race swap on the substituted outfit as well (C + Elf → B + Human).
+            for (int r = 0; r < FallbackRaceNames.Length; r++)
+            {
+                string raced = candidate;
+                for (int m = 0; m < MissingRaceNames.Length; m++)
+                    raced = raced.Replace(MissingRaceNames[m], FallbackRaceNames[r]);
+                if (raced == candidate)
+                    continue;
+                prefab = models.GetNpc(package + "." + raced);
+                if (prefab != null)
+                {
+                    usedMesh = package + "." + raced;
+                    return true;
+                }
             }
         }
 
+        // Do NOT substitute a random townsfolk / soldier mesh — that confuses Symbol Maker etc.
         return false;
+    }
+
+    static readonly (string From, string To)[] OutfitLetterFallbacks =
+    {
+        ("traderC_", "traderB_"),
+        ("traderA_", "traderB_"),
+        ("_traderC", "_traderB"),
+    };
+
+    static string ReplaceIgnoreCase(string text, string from, string to)
+    {
+        int idx = text.IndexOf(from, System.StringComparison.OrdinalIgnoreCase);
+        if (idx < 0)
+            return text;
+        return text.Substring(0, idx) + to + text.Substring(idx + from.Length);
     }
 
     /// <summary>
@@ -365,8 +396,12 @@ public static class EntitySpawnShared
             poolType = ObjectType.Monster;
 
         Vector3 serverPos = identity.Position;
-        Vector3 grounded = GroundSnapHelper.SnapToGroundOrKeep(serverPos);
-        identity.Position = grounded;
+        // Village NPCs: keep server Z (DE caves under 20_18 otherwise steal GroundSnap).
+        // Monsters still snap to walkable mesh.
+        Vector3 placePos = identity.EntityType == EntityType.NPC
+            ? serverPos
+            : GroundSnapHelper.SnapToGroundOrKeep(serverPos);
+        identity.Position = placePos;
         if (poolType.HasValue && pool != null)
         {
             ObjectType tag = poolType.Value;
@@ -374,7 +409,7 @@ public static class EntitySpawnShared
             GameObject pooled = pool.SpawnFromPool(tag, prefab);
             if (pooled != null)
             {
-                ApplyGroundedTransform(pooled, grounded, identity.Heading);
+                ApplyGroundedTransform(pooled, placePos, identity.Heading);
                 return pooled;
             }
         }
@@ -383,8 +418,8 @@ public static class EntitySpawnShared
         if (prefabWasActive)
             prefab.SetActive(false);
 
-        GameObject npcGo = Object.Instantiate(prefab, grounded, identity.Heading);
-        ApplyGroundedTransform(npcGo, grounded, identity.Heading);
+        GameObject npcGo = Object.Instantiate(prefab, placePos, identity.Heading);
+        ApplyGroundedTransform(npcGo, placePos, identity.Heading);
 
         if (prefabWasActive)
             prefab.SetActive(true);
@@ -526,7 +561,7 @@ public static class EntitySpawnShared
         npc.Stats = request.Stats;
         npc.Identity = identity;
         npc.Identity.NpcClass = npcgrp.ClassName;
-        bool pet = PetVisuals.IsPet(identity);
+        bool pet = PetVisuals.IsPet(identity.Owned, identity.NpcId);
         if (!pet)
         {
             npc.Identity.Name = npcName.Name;

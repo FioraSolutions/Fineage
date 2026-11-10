@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +12,10 @@ public class HitManager : MonoBehaviour
     private World GameWorld =>
         _world != null ? _world : GamePacketServices.GameWorld;
 
-    public static HitManager Instance { get; private set; }
+    private static HitManager _instance;
+
+    [System.Obsolete("Use HitPacketServices.Hits or [Inject] HitManager instead")]
+    public static HitManager Instance { get { return _instance; } }
     private const string ETC_NAME = "etc_";
     private const string IMPACT_DEBUG_TAG = "[HIT_DEBUG]";
     private const int SoulshotImpactEffectId = 99998;
@@ -40,19 +45,27 @@ public class HitManager : MonoBehaviour
     private void WireGamePacketServices()
     {
         GamePacketServices.Bind(gameWorld: _world);
+        HitPacketServices.Bind(hits: this);
     }
 
     private void Awake()
     {
-        if (Instance == null)
+        if (_instance == null)
         {
-            Instance = this;
+            _instance = this;
+            HitPacketServices.Bind(hits: this);
             DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     private void OnEnable()
@@ -88,12 +101,12 @@ public class HitManager : MonoBehaviour
 
     private void TrySubscribeProjectileHits()
     {
-        if (_projectileHitSubscribed || ProjectileManager.Instance == null)
+        if (_projectileHitSubscribed || ProjectilePacketServices.Projectiles == null)
         {
             return;
         }
 
-        ProjectileManager.Instance.OnHitMonster += OnProjectileHitMonster;
+        ProjectilePacketServices.Projectiles.OnHitMonster += OnProjectileHitMonster;
         _projectileHitSubscribed = true;
     }
 
@@ -104,9 +117,9 @@ public class HitManager : MonoBehaviour
             return;
         }
 
-        if (ProjectileManager.Instance != null)
+        if (ProjectilePacketServices.Projectiles != null)
         {
-            ProjectileManager.Instance.OnHitMonster -= OnProjectileHitMonster;
+            ProjectilePacketServices.Projectiles.OnHitMonster -= OnProjectileHitMonster;
         }
 
         _projectileHitSubscribed = false;
@@ -129,7 +142,7 @@ public class HitManager : MonoBehaviour
 
         Entity attacker = ResolveEntityFromWorld(attackerEntityId);
         if (attacker == null)
-            attacker = PlayerEntity.Instance;
+            attacker = DomainPacketServices.LocalPlayer;
         Entity targetEntity = target != null
             ? target.GetComponentInParent<Entity>()
             : null;
@@ -166,8 +179,8 @@ public class HitManager : MonoBehaviour
         if (monster.IsDead() || monster.CalculateRemainingHp() <= 0)
         {
             monster.SetDead(true);
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Die(monster, false, "hit_hp0");
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Die(monster, false, "hit_hp0");
         }
     }
 
@@ -208,16 +221,17 @@ public class HitManager : MonoBehaviour
         Vector3 impactDir = ResolveSoulshotImpactDirection(attaker, targetEntity, hitCollider);
         Vector3 spawnPoint = ResolveSoulshotSpawnPoint(targetEntity, impactDir, hitCollider);
 
-        if (EffectManager.Instance == null)
+        EffectManager effects = GlobalEffectsPacketServices.Effects;
+        if (effects == null)
         {
-            // Debug.LogWarning("[HIT_FX] 6.HitManager SKIP EffectManager.Instance=null");
+            // Debug.LogWarning("[HIT_FX] 6.HitManager SKIP effects=null");
             return;
         }
 
         if (attaker != null && attaker.IsSoulshotCharged)
         {
             LogSoulshotImpactOrientation(attaker, targetEntity, hitCollider, spawnPoint, impactDir);
-            EffectManager.Instance.PlayerImpactEffect(SoulshotImpactEffectId, spawnPoint, impactDir);
+            effects.PlayerImpactEffect(SoulshotImpactEffectId, spawnPoint, impactDir);
             attaker.IsSoulshotCharged = false;
             return;
         }
@@ -226,7 +240,7 @@ public class HitManager : MonoBehaviour
         if (attaker != null && attaker.IsSpiritshotCharged)
             attaker.IsSpiritshotCharged = false;
 
-        EffectManager.Instance.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, impactDir);
+        effects.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, impactDir);
     }
 
     /// <summary>
@@ -435,10 +449,10 @@ public class HitManager : MonoBehaviour
 
             Entity extra = ResolveEntityFromWorld(hit.TargetId);
             if (extra == null &&
-                PlayerEntity.Instance != null &&
-                PlayerEntity.Instance.Identity != null &&
-                PlayerEntity.Instance.Identity.Id == hit.TargetId)
-                extra = PlayerEntity.Instance;
+                DomainPacketServices.LocalPlayer != null &&
+                DomainPacketServices.LocalPlayer.Identity != null &&
+                DomainPacketServices.LocalPlayer.Identity.Id == hit.TargetId)
+                extra = DomainPacketServices.LocalPlayer;
             if (extra == null || extra == attacker)
                 continue;
 
@@ -549,9 +563,13 @@ public class HitManager : MonoBehaviour
         }
 
         Vector3 spawnPoint = ResolveSoulshotSpawnPoint(targetEntity, resolvedHitDirection, resolvedHitPoint);
+        EffectManager effects = GlobalEffectsPacketServices.Effects;
+        if (effects == null)
+            return false;
+
         if (attackerEntity != null && attackerEntity.IsSoulshotCharged)
         {
-            EffectManager.Instance.PlayerImpactEffect(SoulshotImpactEffectId, spawnPoint, resolvedHitDirection);
+            effects.PlayerImpactEffect(SoulshotImpactEffectId, spawnPoint, resolvedHitDirection);
             attackerEntity.IsSoulshotCharged = false;
             return true;
         }
@@ -559,7 +577,7 @@ public class HitManager : MonoBehaviour
         if (attackerEntity != null && attackerEntity.IsSpiritshotCharged)
             attackerEntity.IsSpiritshotCharged = false;
 
-        EffectManager.Instance.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, resolvedHitDirection);
+        effects.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, resolvedHitDirection);
         return true;
     }
 
@@ -762,7 +780,7 @@ public class HitManager : MonoBehaviour
             return attacker.transform;
         }
 
-        return PlayerEntity.Instance != null ? PlayerEntity.Instance.transform : null;
+        return DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.transform : null;
     }
 
     private static Entity ResolveTargetEntity(Entity targetEntity)
@@ -856,10 +874,4 @@ public class HitManager : MonoBehaviour
             arrowCollider.enabled = false;
         }
     }
-}
-
-public enum HitType
-{
-    Projectile,
-    Melee
 }

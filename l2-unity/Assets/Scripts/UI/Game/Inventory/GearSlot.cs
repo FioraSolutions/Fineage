@@ -45,7 +45,7 @@ public class GearSlot : InventorySlot
 
     void UnequipWorn()
     {
-        PlayerInventory inventory = PlayerInventory.Instance;
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
         ItemInstance item = inventory != null ? inventory.GetItemEquip(ObjectId) : null;
         if (item == null)
         {
@@ -95,6 +95,18 @@ public class GearSlot : InventorySlot
             _slotElement.Add(_blackElement);
         }
 
+    }
+
+    /// <summary>
+    /// Interlude paper doll keeps empty silhouettes on Inventory_Back; do not stamp the DF
+    /// empty-slot chrome over them.
+    /// </summary>
+    public new void AssignEmpty()
+    {
+        base.AssignEmpty();
+        L2SlotIconView.Clear(_slotElement);
+        if (SlotBg != null)
+            L2SlotIconView.Clear(SlotBg);
     }
 
 }

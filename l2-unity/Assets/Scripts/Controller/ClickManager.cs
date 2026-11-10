@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -18,7 +19,7 @@ public class ClickManager : MonoBehaviour
     [SerializeField] private LayerMask _clickThroughMask;
     private UIDocument uiDocument;
     private static ClickManager _instance;
-    [System.Obsolete("Use [Inject] instead")]
+    [System.Obsolete("Use [Inject] or ControllerPacketServices.Clicks instead")]
     public static ClickManager Instance => _instance;
 
     private InputManager GameInput
@@ -27,9 +28,7 @@ public class ClickManager : MonoBehaviour
         {
             if (_input != null)
                 return _input;
-            if (ControllerPacketServices.Input != null)
-                return ControllerPacketServices.Input;
-            return InputManager.Instance;
+            return ControllerPacketServices.Input;
         }
     }
 
@@ -46,6 +45,7 @@ public class ClickManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            ControllerPacketServices.Bind(clicks: this);
             uiDocument = GetComponent<UIDocument>();
         }
         else
@@ -71,6 +71,7 @@ public class ClickManager : MonoBehaviour
         ControllerPacketServices.Bind(
             input: GameInput,
             targets: Targets,
+            clicks: this,
             player: ControllerPacketServices.Player);
     }
 
@@ -89,13 +90,13 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(PollInput.MousePosition);
         RaycastHit hit;
         ItemEntity stickyDrop = null;
         if (_hoverObjectData != null && _hoverObjectData.ObjectTransform != null)
             stickyDrop = _hoverObjectData.ObjectTransform.GetComponent<ItemEntity>();
 
-        bool overUi = L2GameUI.Instance != null && L2GameUI.Instance.IsPointerOverPanel();
+        bool overUi = SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.IsPointerOverPanel();
         if (!overUi && _dropPicker != null &&
             _dropPicker.TryPick(ray, MousePickDistance, stickyDrop, out ItemEntity dropItem, out _))
         {
@@ -113,8 +114,8 @@ public class ClickManager : MonoBehaviour
             return;
         }
 
-        if (L2GameUI.Instance != null &&
-            (L2GameUI.Instance.MouseOverUI || L2GameUI.Instance.IsPointerOverPanel()))
+        if (SystemUIPacketServices.Ui != null &&
+            (SystemUIPacketServices.Ui.MouseOverUI || SystemUIPacketServices.Ui.IsPointerOverPanel()))
         {
             _hoverObjectData = null;
             return;
@@ -160,7 +161,7 @@ public class ClickManager : MonoBehaviour
 
     static Camera ResolvePickCamera()
     {
-        CameraController controller = CameraController.Instance;
+        CameraController controller = CameraPacketServices.Controller;
         if (controller != null)
         {
             Camera cam = controller.GetComponent<Camera>();
@@ -201,13 +202,13 @@ public class ClickManager : MonoBehaviour
 
     private void StopFollow()
     {
-        if (PlayerStateMachine.Instance == null)
+        if (PlayerStatePacketServices.PlayerState == null)
         {
             return;
         }
 
-        PlayerStateMachine.Instance.Follow = null;
-        PlayerStateMachine.Instance.IsMoveToPawn = false;
+        PlayerStatePacketServices.PlayerState.Follow = null;
+        PlayerStatePacketServices.PlayerState.IsMoveToPawn = false;
     }
 
     private void SendPacketMoveToLocation(Vector3 lastClickPosition)
@@ -224,7 +225,7 @@ public class ClickManager : MonoBehaviour
 
     static bool TryResolveMoveOrigin(out Vector3 from)
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null)
         {
             from = player.transform.position;
@@ -254,17 +255,18 @@ public class ClickManager : MonoBehaviour
         if (game == null)
             return;
 
-        // Already selected monster → melee attack intent. NPCs = talk, stay Target (blue).
-        if (Targets != null &&
+        // Already selected monster → melee attack intent. Ctrl force-attacks players / NPCs / mobs
+        // (FineageZoneTransport also keys off GameCtrl.IsHeld so the first Ctrl-click swings).
+        Entity clickedEntity = clickTarget.GetEntity();
+        bool sameSelected = Targets != null &&
             Targets.HasTarget() &&
             Targets.Target.Identity != null &&
             Targets.Target.Identity.Id == clickTarget.Identity.Id &&
-            !clickTarget.IsDead() &&
-            clickTarget.GetEntity() is MonsterEntity &&
-            !PetVisuals.IsPet(clickTarget.Identity))
-        {
+            !clickTarget.IsDead();
+        bool isMonster = clickedEntity is MonsterEntity &&
+            !PetVisuals.IsPet(clickTarget.Identity.Owned, clickTarget.Identity.NpcId);
+        if (Targets != null && sameSelected && (isMonster || GameCtrl.IsHeld))
             Targets.SetAttackTarget();
-        }
 
         var l2jpos = clickTarget.Identity.GetL2jPos();
         ZoneCommands.Send(new ClickActionCommand(

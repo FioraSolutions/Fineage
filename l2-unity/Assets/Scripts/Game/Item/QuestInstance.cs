@@ -38,7 +38,7 @@ public class QuestInstance
 
     }
 
-    private QuestName GetQuestName() => QuestNameTable.Instance.GetQuestName(_questID, _flags);
+    private QuestName GetQuestName() => TablePacketServices.QuestNames.GetQuestName(_questID, _flags);
 
     //public bool IsRepeat() => GetQuestName()?.Repeat == 1;
     public bool IsRepeat()

@@ -1,3 +1,5 @@
+using System;
+
 ﻿using UnityEngine;
 
 /// <summary>
@@ -15,6 +17,7 @@ public class GameClient : MonoBehaviour
 {
     private static GameClient _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static GameClient Instance { get { return _instance; } }
 
     private void Awake()

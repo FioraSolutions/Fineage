@@ -2,6 +2,8 @@
 
 public class PlayerOverriddenMagicAtk : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private const string TriggerCastMid = "CastMid";
     private const string TriggerCastEnd = "CastEnd";
     private const string TriggerMagicShot = "MagicShot";
@@ -232,9 +234,9 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
             // $"wallDone={wallDone} globalWall={globalWall:F3}s globalWallDone={globalWallDone} " +
             // $"→ NotifyMagicPhaseFinished");
 
-        if (AnimationManager.Instance != null)
+        if (Animations != null)
         {
-            AnimationManager.Instance.NotifyMagicPhaseFinished(objectId, parameterName);
+            Animations.NotifyMagicPhaseFinished(objectId, parameterName);
         }
 
         if (isFinalShotState)
@@ -286,22 +288,22 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
             return;
         }
 
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            PlayerEntity.Instance.IsAttack = false;
+            DomainPacketServices.LocalPlayer.IsAttack = false;
         }
 
         // MOVE_TO after Ice Bolt already started walk/run. Do not pull that back into atkwait.
-        if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
+        if (PlayerStatePacketServices.PlayerState != null && PlayerStatePacketServices.PlayerState.ShouldKeepLocomotion())
         {
             // Debug.Log(
                 // $"{MagicExitLogTag} SwitchToIdle SKIP_LOCOMOTION state={parameterName} " +
-                // $"sm={PlayerStateMachine.Instance.State} intention={PlayerStateMachine.Instance.Intention}");
+                // $"sm={PlayerStatePacketServices.PlayerState.State} intention={PlayerStatePacketServices.PlayerState.Intention}");
             return;
         }
 
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
     }
 
     private static bool ShouldUseForceSync(MagicCastData castData)
@@ -318,7 +320,7 @@ public class PlayerOverriddenMagicAtk : StateMachineBehaviour
     {
         if (!string.IsNullOrEmpty(parameterName) && animator.GetBool(parameterName))
         {
-            AnimationManager.Instance.StopCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName, "player");
+            Animations.StopCurrentAnimation(animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName, "player");
         }
     }
 }

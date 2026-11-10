@@ -49,10 +49,10 @@ public class CreatorSets
         {
             ItemName itemName = setsName[i];
             int id = itemName.Id;
-            var weapon = WeapongrpTable.Instance.GetWeapon(id);
-            var armor = ArmorgrpTable.Instance.GetArmor(id);
-            var item = EtcItemgrpTable.Instance.GetEtcItem(id);
-            bool isEquip = PlayerInventory.Instance.IsItemEquipByItemId(id);
+            var weapon = TablePacketServices.WeaponGrps.GetWeapon(id);
+            var armor = TablePacketServices.ArmorGrps.GetArmor(id);
+            var item = TablePacketServices.EtcItemGrps.GetEtcItem(id);
+            bool isEquip = InventoryPacketServices.Inventory.IsItemEquipByItemId(id);
 
             if (weapon != null)
             {
@@ -109,16 +109,11 @@ public class CreatorSets
         else if (itemName.GetArrayId().Length == 1)
         {
             int id_i = itemName.GetArrayId()[0];
-            Weapongrp weapon = WeapongrpTable.Instance.GetWeapon(id_i);
-            Armorgrp armor = ArmorgrpTable.Instance.GetArmor(id_i);
+            Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(id_i);
+            Armorgrp armor = TablePacketServices.ArmorGrps.GetArmor(id_i);
 
-            if(weapon != null)
-            {
-                if(weapon.BodyPart == ItemSlot.lhand_shield)
-                {
-                    return "Shield";
-                }
-            }
+            if (weapon != null && weapon.WeaponType == WeaponType.shield)
+                return "Shield";
 
             if(armor != null)
             {

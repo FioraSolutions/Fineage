@@ -29,8 +29,8 @@ public static class LobbyRaceMeshDiag
     static void BootstrapTables()
     {
         ArmorgrpTable.Instance.Initialize();
-        ItemTable.Instance.Initialize();
-        ItemTable.Instance.CacheItems();
+        TablePacketServices.Items.Initialize();
+        TablePacketServices.Items.CacheItems();
         ModelTable.Instance.Initialize();
     }
 

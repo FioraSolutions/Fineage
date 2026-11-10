@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,6 +45,7 @@ public class CharSelectWindow : L2Window {
     private CharSelectInfoPackage _selectChar;
 
     private static CharSelectWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.CharSelect instead")]
     public static CharSelectWindow Instance { get { return _instance; } }
 
     private void Awake() {
@@ -70,11 +73,11 @@ public class CharSelectWindow : L2Window {
 
     private void Update() {
         if (!_isWindowHidden) {
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                AudioManager.Instance.PlayUISound("click_01");
+            if (PollInput.EscapeDown) {
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 ReLoginPressed();
-            } else if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) {
-                AudioManager.Instance.PlayUISound("click_01");
+            } else if (PollInput.EnterDown) {
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 StartGamePressed();
             }
         }
@@ -394,7 +397,7 @@ public class CharSelectWindow : L2Window {
             int s = _charactersInterlude[slot].Lvl;
             int classId = _charactersInterlude[slot].ClassId;
             _levelLabel.text = _charactersInterlude[slot].Lvl.ToString();
-            _classLabel.text = ((CharacterClass)(_charactersInterlude[slot].ClassId)).ToString();
+            _classLabel.text = LobbyCharacterText.ClassLabel(_charactersInterlude[slot].ClassId);
             _hpLabel.text = $"{_charactersInterlude[slot].Hp}/{_charactersInterlude[slot].MaxHp}";
             _mpLabel.text = $"{_charactersInterlude[slot].Mp}/{_charactersInterlude[slot].MaxMp}";
             _expLabel.text = _charactersInterlude[slot].ExpProcent.ToString("0.00") + "%";
@@ -484,7 +487,7 @@ public class CharSelectWindow : L2Window {
             return;
         if (_startButton != null)
             _startButton.SetEnabled(false);
-        NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
+        _ = NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
     }
 
     private void ReLoginPressed() {
@@ -522,7 +525,7 @@ public class CharSelectWindow : L2Window {
             // confirm deletes. The server replies with DeleteResult and then a fresh roster.
             if (selected.PendingDelete)
             {
-                NetSession.Ensure().RestoreCharacter(selected.Id, selected.Slot);
+                _ = NetSession.Ensure().RestoreCharacter(selected.Id, selected.Slot);
                 _deleteArmed = false;
                 ShowLobbyStatus("Restoring " + selected.Name + "...");
                 return;
@@ -538,7 +541,7 @@ public class CharSelectWindow : L2Window {
             }
 
             _deleteArmed = false;
-            NetSession.Ensure().DeleteCharacter(selected.Id, selected.Slot);
+            _ = NetSession.Ensure().DeleteCharacter(selected.Id, selected.Slot);
             ShowLobbyStatus("Deleting " + selected.Name + "...");
             RefreshLobbyActions();
             return;

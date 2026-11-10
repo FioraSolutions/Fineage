@@ -534,7 +534,7 @@ public sealed class ItemDropPresentationService
         if (_grp.IsAdenaDropVisual(itemId))
             return ItemDropVisualKind.Adena;
 
-        ItemTable table = ItemTable.Instance;
+        ItemTable table = TablePacketServices.Items;
         if (table == null)
             return item.Stackable ? ItemDropVisualKind.EtcStackable : ItemDropVisualKind.Generic;
         if (table.GetWeapon(itemId) != null)

@@ -32,23 +32,27 @@ public class NpcCursorManager : MonoBehaviour
     void Start()
     {
         WireManagerInteractionPacketServices();
-        _defaultCursor = IconManager.Instance.LoadCursorByName("Default");
-        _hoverCursorAtk = IconManager.Instance.LoadCursorByName("Attack");
-        _hoverCursorTalk = IconManager.Instance.LoadCursorByName("Talk");
-        _hoverCursorPickup = IconManager.Instance.LoadCursorByName("Pickup");
+        _defaultCursor = IconPacketServices.Icons.LoadCursorByName("Default");
+        _hoverCursorAtk = IconPacketServices.Icons.LoadCursorByName("Attack");
+        _hoverCursorTalk = IconPacketServices.Icons.LoadCursorByName("Talk");
+        _hoverCursorPickup = IconPacketServices.Icons.LoadCursorByName("Pickup");
         _entityMask = LayerMask.GetMask("EntityClick");
         _currentCursor = -1;
     }
 
     void Update()
     {
-        if (Camera.main == null)
+        if (_defaultCursor == null)
+            TryReloadCursors();
+
+        Camera cam = ResolvePickCamera();
+        if (cam == null)
         {
             ApplyCursor(DefaultCursorId, _defaultCursor);
             return;
         }
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(PollInput.MousePosition);
         ItemEntity dropEntity = null;
         ItemDropPicker dropPicker = DropPicker;
         bool dropHit = dropPicker != null &&
@@ -61,7 +65,7 @@ public class NpcCursorManager : MonoBehaviour
             return;
         }
 
-        if (L2GameUI.Instance != null && L2GameUI.Instance.MouseOverUI)
+        if (SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.MouseOverUI)
         {
             ApplyCursor(DefaultCursorId, _defaultCursor);
             return;
@@ -76,8 +80,8 @@ public class NpcCursorManager : MonoBehaviour
         Entity entity = hit.collider.GetComponentInParent<Entity>();
         if (entity != null &&
             entity.Identity != null &&
-            PlayerEntity.Instance != null &&
-            entity.Identity.Id == PlayerEntity.Instance.TargetId)
+            DomainPacketServices.LocalPlayer != null &&
+            entity.Identity.Id == DomainPacketServices.LocalPlayer.TargetId)
         {
             ApplyTargetedEntityCursor(entity);
             return;
@@ -88,7 +92,7 @@ public class NpcCursorManager : MonoBehaviour
 
     void ApplyTargetedEntityCursor(Entity entity)
     {
-        if (PetVisuals.IsPet(entity.Identity))
+        if (PetVisuals.IsPet(entity.Identity.Owned, entity.Identity.NpcId))
         {
             ApplyCursor(TalkCursorId, _hoverCursorTalk);
             return;
@@ -110,14 +114,43 @@ public class NpcCursorManager : MonoBehaviour
 
     void ApplyCursor(int id, Texture2D texture)
     {
+        if (texture == null)
+            return;
+
+        // ForceSoftware: hardware cursors often fail to stick on macOS with Input System only.
         if (_currentCursor == id)
         {
-            Cursor.SetCursor(texture, Vector2.zero, CursorMode.Auto);
+            Cursor.SetCursor(texture, Vector2.zero, CursorMode.ForceSoftware);
             return;
         }
 
         _currentCursor = id;
-        Cursor.SetCursor(texture, Vector2.zero, CursorMode.Auto);
+        Cursor.SetCursor(texture, Vector2.zero, CursorMode.ForceSoftware);
+    }
+
+    void TryReloadCursors()
+    {
+        IconManager icons = IconPacketServices.Icons;
+        if (icons == null)
+            return;
+        _defaultCursor = icons.LoadCursorByName("Default");
+        _hoverCursorAtk = icons.LoadCursorByName("Attack");
+        _hoverCursorTalk = icons.LoadCursorByName("Talk");
+        _hoverCursorPickup = icons.LoadCursorByName("Pickup");
+        _currentCursor = -1;
+    }
+
+    static Camera ResolvePickCamera()
+    {
+        CameraController controller = CameraPacketServices.Controller;
+        if (controller != null)
+        {
+            Camera cam = controller.GetComponent<Camera>();
+            if (cam != null && cam.enabled && cam.gameObject.activeInHierarchy)
+                return cam;
+        }
+
+        return Camera.main;
     }
 
     private void WireManagerInteractionPacketServices()

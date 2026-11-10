@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class MonsterStateAtk : MonsterStateBase
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private float _startTime = -1;
     private float _endTime = -1;
 
@@ -119,12 +121,12 @@ public class MonsterStateAtk : MonsterStateBase
             }
             return true;
         }
-        if (EntityActionMachine.Instance == null)
+        if (EntityActionPacketServices.Actions == null)
             return true;
 
-        string restore = (_entity.Identity != null && MoveAllCharacters.Instance != null && MoveAllCharacters.Instance.IsMoving(_entity.Identity.Id)) ? (_entity.Running ? "run" : "walk") : "wait";
+        string restore = (_entity.Identity != null && AnimationPacketServices.Moves != null && AnimationPacketServices.Moves.IsMoving(_entity.Identity.Id)) ? (_entity.Running ? "run" : "walk") : "wait";
         _isSwitchIdle = true;
-        EntityActionMachine.Instance.Set(_entity, EntityActionKind.Idle, restore);
+        EntityActionPacketServices.Actions.Set(_entity, EntityActionKind.Idle, restore);
         // MobSkillLog.Done(_entity, restore);
         return true;
     }
@@ -135,7 +137,7 @@ public class MonsterStateAtk : MonsterStateBase
 
         if (_isSwitchIdle || currentNormalizedTime <= 0.9f)
             return;
-        if (_entity == null || _entity.IsDead() || EntityActionMachine.Instance == null)
+        if (_entity == null || _entity.IsDead() || EntityActionPacketServices.Actions == null)
             return;
         if (_entity.ActionSlot.Action != EntityActionKind.Attack)
             return;
@@ -143,7 +145,7 @@ public class MonsterStateAtk : MonsterStateBase
             return;
 
         _isSwitchIdle = true;
-        EntityActionMachine.Instance.Set(_entity, EntityActionKind.Idle, null);
+        EntityActionPacketServices.Actions.Set(_entity, EntityActionKind.Idle, null);
     }
 
     bool IsCombatSwing()
@@ -157,10 +159,16 @@ public class MonsterStateAtk : MonsterStateBase
     {
         if (_isSwitchIdle || stateInfo.normalizedTime < 1f)
             return;
-        _isSwitchIdle = true;
-        if (_entity != null && !_entity.IsDead() && EntityActionMachine.Instance != null)
+        // Die → PlayDeath then Action=Stop leaves us mid-atk01; never CrossFade wait over death.
+        if (_entity != null && _entity.IsDead())
         {
-            EntityActionMachine.Instance.Set(_entity, EntityActionKind.Idle, "wait");
+            _isSwitchIdle = true;
+            return;
+        }
+        _isSwitchIdle = true;
+        if (_entity != null && EntityActionPacketServices.Actions != null)
+        {
+            EntityActionPacketServices.Actions.Set(_entity, EntityActionKind.Idle, "wait");
             return;
         }
         animator.CrossFade("wait", 0.12f, layerIndex);
@@ -179,8 +187,8 @@ public class MonsterStateAtk : MonsterStateBase
             return;
         if (!animator.GetBool(parameterName))
             return;
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.StopMonsterCurrentAnimation(
+        if (Animations != null)
+            Animations.StopMonsterCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 

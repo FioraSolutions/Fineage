@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Clan UI access to game services with [Inject] wiring and live fallback (#142).
 /// Zone pledge snapshots land here so the clan window does not need a new locator member.
 /// </summary>
@@ -75,7 +75,7 @@ public static class ClanPacketServices
         IZoneTransport transport = ZoneCommands.Transport;
         if (transport != null && transport.PlayerInfo.Identity != null)
             transport.PlayerInfo.Identity.ClanId = clanId;
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null && player.Identity != null)
             player.Identity.ClanId = clanId;
     }

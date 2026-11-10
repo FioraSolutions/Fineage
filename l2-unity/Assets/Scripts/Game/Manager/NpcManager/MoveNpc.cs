@@ -188,8 +188,8 @@ public class MoveNpc : MonoBehaviour
         Vector3 dest = new Vector3(target.x, transform.position.y, target.z);
         transform.position = GroundSnapHelper.SnapToGroundOrKeep(dest);
         _detectedIsMove = false;
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.NotifyArrived(_entity);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.NotifyArrived(_entity);
     }
 
     public bool IsMoving()

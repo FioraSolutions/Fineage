@@ -45,6 +45,302 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     }
 
     /// <summary>
+    /// Batch entry: Unity.exe -executeMethod L2EffectGeneratorWindow.GenerateProminenceCli
+    /// </summary>
+    public static void GenerateProminenceCli()
+    {
+        AssetDatabase.Refresh();
+        L2EffectGeneratorFolderBuilder.BuildResult result = L2EffectGeneratorFolderBuilder.CreateFromFolder(
+            "Assets/Resources/Data/Effects/el_prominence",
+            "el_prominence",
+            1230,
+            true);
+
+        for (int i = 0; i < result.LogLines.Count; i++)
+            Debug.Log("[L2EffectGenerator] " + result.LogLines[i]);
+
+        if (!result.Success)
+        {
+            Debug.LogError("[L2EffectGenerator] " + result.ErrorMessage);
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        EditorApplication.Exit(0);
+    }
+
+    /// <summary>
+    /// Human Mystic→3rd VFX batch from human_mage_vfx_manifest.json.
+    /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateHumanMageBatchCli
+    /// </summary>
+    public static void GenerateHumanMageBatchCli()
+    {
+        AssetDatabase.Refresh();
+        bool ok = TryRunHumanMageBatch(out string summary);
+        Debug.Log("[L2EffectGenerator] " + summary);
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
+
+    /// <summary>
+    /// Bind-only pass: map every manifest server skill id onto existing composites
+    /// (no regenerate). Use after GenerateHumanMageBatchCli or when alias rows were skipped.
+    /// Unity.exe -executeMethod L2EffectGeneratorWindow.BindHumanMageManifestCli
+    /// </summary>
+    public static void BindHumanMageManifestCli()
+    {
+        AssetDatabase.Refresh();
+        bool ok = TryBindHumanMageManifest(out string summary);
+        Debug.Log("[L2EffectGenerator] " + summary);
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
+
+    public static bool TryBindHumanMageManifest(out string summary)
+    {
+        const string ManifestPath =
+            "Assets/Editor/L2EffectGenerator/Data/human_mage_vfx_manifest.json";
+        string abs = Path.Combine(
+            Directory.GetParent(Application.dataPath).FullName,
+            ManifestPath);
+        if (!File.Exists(abs))
+        {
+            summary = "missing manifest: " + ManifestPath;
+            return false;
+        }
+
+        HumanMageManifest manifest = JsonUtility.FromJson<HumanMageManifest>(File.ReadAllText(abs));
+        if (manifest == null || manifest.entries == null)
+        {
+            summary = "manifest empty";
+            return false;
+        }
+
+        // Prefer the original pre-batch manifest if present — regenerate from disk path
+        // already rewritten; bind uses current modes + folders.
+        int ok = 0;
+        int fail = 0;
+        int skip = 0;
+        for (int i = 0; i < manifest.entries.Length; i++)
+        {
+            HumanMageManifestEntry entry = manifest.entries[i];
+            if (entry == null || entry.serverSkillIds == null || entry.serverSkillIds.Length == 0)
+            {
+                continue;
+            }
+
+            string mode = entry.mode ?? string.Empty;
+            if (string.Equals(mode, "skip", StringComparison.OrdinalIgnoreCase))
+            {
+                skip++;
+                continue;
+            }
+
+            string composite = entry.aliasComposite;
+            if (string.Equals(mode, "generate", StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrWhiteSpace(composite))
+            {
+                composite = entry.effectRoot + "/" + entry.folderName + "_composite.prefab";
+            }
+
+            if (string.IsNullOrWhiteSpace(composite) ||
+                AssetDatabase.LoadAssetAtPath<GameObject>(composite) == null)
+            {
+                Debug.LogWarning(
+                    "[L2EffectGenerator] bind skip visual " + entry.visualId +
+                    " missing composite " + composite);
+                fail++;
+                continue;
+            }
+
+            if (!L2EffectGeneratorSkillBinder.TryBindAliases(
+                    entry.serverSkillIds,
+                    composite,
+                    out string log,
+                    out string err))
+            {
+                Debug.LogError("[L2EffectGenerator] " + err);
+                fail++;
+                continue;
+            }
+
+            Debug.Log("[L2EffectGenerator] " + log);
+            ok++;
+        }
+
+        summary = "HumanMageBind done groups=" + ok + " skip=" + skip + " fail=" + fail;
+        return fail == 0;
+    }
+
+    /// <summary>
+    /// Shared entry for CLI and Editor request-runner (open Unity holds the lock).
+    /// </summary>
+    public static bool TryRunHumanMageBatch(out string summary)
+    {
+        const string ManifestPath =
+            "Assets/Editor/L2EffectGenerator/Data/human_mage_vfx_manifest.json";
+
+        string abs = Path.Combine(
+            Directory.GetParent(Application.dataPath).FullName,
+            ManifestPath);
+        if (!File.Exists(abs))
+        {
+            summary = "missing manifest: " + ManifestPath;
+            Debug.LogError("[L2EffectGenerator] " + summary);
+            return false;
+        }
+
+        HumanMageManifest manifest;
+        try
+        {
+            manifest = JsonUtility.FromJson<HumanMageManifest>(File.ReadAllText(abs));
+        }
+        catch (Exception ex)
+        {
+            summary = "manifest parse failed: " + ex.Message;
+            Debug.LogError("[L2EffectGenerator] " + summary);
+            return false;
+        }
+
+        if (manifest == null || manifest.entries == null)
+        {
+            summary = "manifest empty";
+            Debug.LogError("[L2EffectGenerator] " + summary);
+            return false;
+        }
+
+        int aliasOk = 0;
+        int genOk = 0;
+        int fail = 0;
+        int skip = 0;
+
+        for (int i = 0; i < manifest.entries.Length; i++)
+        {
+            HumanMageManifestEntry entry = manifest.entries[i];
+            if (entry == null || entry.serverSkillIds == null || entry.serverSkillIds.Length == 0)
+            {
+                continue;
+            }
+
+            string mode = entry.mode ?? string.Empty;
+            if (string.Equals(mode, "skip", StringComparison.OrdinalIgnoreCase))
+            {
+                skip++;
+                Debug.LogWarning(
+                    "[L2EffectGenerator] skip visual " + entry.visualId +
+                    " skills=[" + string.Join(",", entry.serverSkillIds) + "]");
+                continue;
+            }
+
+            if (string.Equals(mode, "alias", StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.IsNullOrWhiteSpace(entry.aliasComposite))
+                {
+                    Debug.LogError(
+                        "[L2EffectGenerator] alias missing composite for visual " + entry.visualId);
+                    fail++;
+                    continue;
+                }
+
+                if (!L2EffectGeneratorSkillBinder.TryBindAliases(
+                        entry.serverSkillIds,
+                        entry.aliasComposite,
+                        out string aliasLog,
+                        out string aliasErr))
+                {
+                    Debug.LogError("[L2EffectGenerator] " + aliasErr);
+                    fail++;
+                    continue;
+                }
+
+                Debug.Log("[L2EffectGenerator] " + aliasLog);
+                aliasOk++;
+                continue;
+            }
+
+            if (!string.Equals(mode, "generate", StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.LogWarning("[L2EffectGenerator] unknown mode " + mode);
+                fail++;
+                continue;
+            }
+
+            string folder = entry.effectRoot;
+            string effectName = entry.folderName;
+            if (string.IsNullOrWhiteSpace(folder) || !AssetDatabase.IsValidFolder(folder))
+            {
+                Debug.LogError("[L2EffectGenerator] missing effect folder " + folder);
+                fail++;
+                continue;
+            }
+
+            int primaryId = entry.serverSkillIds[0];
+            L2EffectGeneratorFolderBuilder.BuildResult result =
+                L2EffectGeneratorFolderBuilder.CreateFromFolder(
+                    folder,
+                    effectName,
+                    primaryId,
+                    true);
+
+            for (int li = 0; li < result.LogLines.Count; li++)
+            {
+                Debug.Log("[L2EffectGenerator] " + result.LogLines[li]);
+            }
+
+            if (!result.Success)
+            {
+                Debug.LogError(
+                    "[L2EffectGenerator] generate failed visual " + entry.visualId +
+                    ": " + result.ErrorMessage);
+                fail++;
+                continue;
+            }
+
+            string compositePath = folder + "/" + effectName + "_composite.prefab";
+            if (entry.serverSkillIds.Length > 1)
+            {
+                var rest = new int[entry.serverSkillIds.Length - 1];
+                Array.Copy(entry.serverSkillIds, 1, rest, 0, rest.Length);
+                if (!L2EffectGeneratorSkillBinder.TryBindAliases(
+                        rest,
+                        compositePath,
+                        out string restLog,
+                        out string restErr))
+                {
+                    Debug.LogError("[L2EffectGenerator] " + restErr);
+                    fail++;
+                    continue;
+                }
+
+                Debug.Log("[L2EffectGenerator] " + restLog);
+            }
+
+            genOk++;
+        }
+
+        summary =
+            "HumanMageBatch done alias=" + aliasOk +
+            " generate=" + genOk + " skip=" + skip + " fail=" + fail;
+        return fail == 0;
+    }
+
+    [Serializable]
+    sealed class HumanMageManifest
+    {
+        public HumanMageManifestEntry[] entries;
+    }
+
+    [Serializable]
+    sealed class HumanMageManifestEntry
+    {
+        public int visualId;
+        public int[] serverSkillIds;
+        public string[] effectClasses;
+        public string folderName;
+        public string effectRoot;
+        public string mode;
+        public string aliasComposite;
+    }
+
+    /// <summary>
     /// Batch entry: Unity.exe -executeMethod L2EffectGeneratorWindow.GenerateHealCli
     /// </summary>
     public static void GenerateHealCli()

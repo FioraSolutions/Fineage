@@ -272,21 +272,78 @@ public sealed class ItemDropMaterialService
         if (string.IsNullOrEmpty(asset))
             return null;
 
-        if (!string.IsNullOrEmpty(pkg))
+        // Same casing issue as armor equip: dat says mmagic.mmagic_*; disk is MMagic/MMagic_*.
+        string canonPkg = CanonicalDropPackage(pkg);
+        string canonAsset = asset;
+        if (!string.IsNullOrEmpty(pkg) &&
+            asset.StartsWith(pkg, System.StringComparison.OrdinalIgnoreCase))
+            canonAsset = canonPkg + asset.Substring(pkg.Length);
+
+        string[] pkgs = string.IsNullOrEmpty(pkg)
+            ? new[] { string.Empty }
+            : new[] { pkg, canonPkg };
+        string[] assets = { asset, canonAsset };
+
+        for (int p = 0; p < pkgs.Length; p++)
         {
-            Material mat = Resources.Load<Material>("Data/SysTextures/" + pkg + "/Materials/" + asset);
-            if (mat != null)
-                return mat;
+            string folder = pkgs[p];
+            if (string.IsNullOrEmpty(folder))
+                continue;
+            for (int a = 0; a < assets.Length; a++)
+            {
+                string leaf = assets[a];
+                if (string.IsNullOrEmpty(leaf))
+                    continue;
+                Material mat = Resources.Load<Material>("Data/SysTextures/" + folder + "/Materials/" + leaf);
+                if (mat != null)
+                    return mat;
+            }
         }
 
-        Material dropTex = Resources.Load<Material>("Data/SysTextures/DropItemsTex/Materials/" + asset);
-        if (dropTex != null)
-            return dropTex;
+        for (int a = 0; a < assets.Length; a++)
+        {
+            string leaf = assets[a];
+            if (string.IsNullOrEmpty(leaf))
+                continue;
+            Material dropTex = Resources.Load<Material>("Data/SysTextures/DropItemsTex/Materials/" + leaf);
+            if (dropTex != null)
+                return dropTex;
+            Material magic = Resources.Load<Material>("Data/SysTextures/MMagic/Materials/" + leaf);
+            if (magic != null)
+                return magic;
+            Material fighter = Resources.Load<Material>("Data/SysTextures/MFighter/Materials/" + leaf);
+            if (fighter != null)
+                return fighter;
+        }
 
-        Material magic = Resources.Load<Material>("Data/SysTextures/MMagic/Materials/" + asset);
-        if (magic != null)
-            return magic;
-        return Resources.Load<Material>("Data/SysTextures/MFighter/Materials/" + asset);
+        return null;
+    }
+
+    static string CanonicalDropPackage(string folder)
+    {
+        if (string.IsNullOrEmpty(folder))
+            return folder;
+        switch (folder.ToLowerInvariant())
+        {
+            case "mmagic": return "MMagic";
+            case "fmagic": return "FMagic";
+            case "mfighter": return "MFighter";
+            case "ffighter": return "FFighter";
+            case "melf": return "MElf";
+            case "felf": return "FElf";
+            case "mdarkelf": return "MDarkElf";
+            case "fdarkelf": return "FDarkElf";
+            case "mdwarf": return "MDwarf";
+            case "fdwarf": return "FDwarf";
+            case "morc": return "MOrc";
+            case "forc": return "FOrc";
+            case "mshaman": return "MShaman";
+            case "fshaman": return "FShaman";
+            case "dropitemstex": return "DropItemsTex";
+            case "lineagenpcstex": return "LineageNpcsTex";
+            default:
+                return char.ToUpperInvariant(folder[0]) + folder.Substring(1);
+        }
     }
 
     static Texture2D LoadItemIcon(Abstractgrp grp)

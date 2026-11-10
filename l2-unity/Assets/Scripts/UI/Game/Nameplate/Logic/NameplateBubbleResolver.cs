@@ -12,12 +12,13 @@ public sealed class NameplateBubbleResolver
             return L2TargetRenderType.None;
         }
 
-        if (TargetManager.Instance != null &&
-            TargetManager.Instance.HasTarget() &&
-            TargetManager.Instance.Target.Data != null &&
-            TargetManager.Instance.Target.Data.ObjectTransform == target)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null &&
+            targets.HasTarget() &&
+            targets.Target.Data != null &&
+            targets.Target.Data.ObjectTransform == target)
         {
-            if (TargetManager.Instance.IsAttackTargetSet())
+            if (targets.IsAttackTargetSet())
             {
                 return L2TargetRenderType.Attack;
             }
@@ -25,9 +26,9 @@ public sealed class NameplateBubbleResolver
             return L2TargetRenderType.Target;
         }
 
-        if (ClickManager.Instance != null &&
-            ClickManager.Instance.HoverObjectData != null &&
-            ClickManager.Instance.HoverObjectData.ObjectTransform == target)
+        if (ControllerPacketServices.Clicks != null &&
+            ControllerPacketServices.Clicks.HoverObjectData != null &&
+            ControllerPacketServices.Clicks.HoverObjectData.ObjectTransform == target)
         {
             return L2TargetRenderType.Normal;
         }
@@ -56,16 +57,17 @@ public sealed class NameplateBubbleResolver
             return false;
         }
 
-        if (ClickManager.Instance != null &&
-            ClickManager.Instance.HoverObjectData != null &&
-            ClickManager.Instance.HoverObjectData.ObjectTransform == target)
+        if (ControllerPacketServices.Clicks != null &&
+            ControllerPacketServices.Clicks.HoverObjectData != null &&
+            ControllerPacketServices.Clicks.HoverObjectData.ObjectTransform == target)
         {
             return true;
         }
 
-        if (TargetManager.Instance != null &&
-            TargetManager.Instance.HasTarget() &&
-            TargetManager.Instance.Target.Data.ObjectTransform == target)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null &&
+            targets.HasTarget() &&
+            targets.Target.Data.ObjectTransform == target)
         {
             return true;
         }

@@ -9,8 +9,8 @@ public class SkillbarWindow : L2PopupWindow
 {
     const string PrefLeft = "fineage.ui.skillbar.left";
     const string PrefTop = "fineage.ui.skillbar.top";
-    /// <summary>Interlude MenuWnd width: 4×2 @ 34px pitch 37 (see .menu-window).</summary>
-    const float MenuDockWidth = 152f;
+    /// <summary>Interlude MenuWnd width flush to corner; see .menu-window.</summary>
+    const float MenuDockWidth = 165f;
 
     [Inject] PlayerShortcuts _shortcuts;
     [Inject] PlayerInventory _inventory;
@@ -37,6 +37,28 @@ public class SkillbarWindow : L2PopupWindow
     public bool Vertical { get { return _vertical; } set { _vertical = value; } }
     public bool TooltipDisabled { get { return _tooltipDisabled; } set { _tooltipDisabled = value; } }
     public VisualTreeAsset BarSlotTemplate { get { return _barSlotTemplate; } }
+
+    /// <summary>
+    /// True once every bar has finished its BuildWindow coroutine and created 12 slots.
+    /// ShortCutInit often arrives before this; paint must wait or the init is lost.
+    /// </summary>
+    public bool IsReady
+    {
+        get
+        {
+            if (_skillbars == null || _skillbars.Count == 0)
+                return false;
+            for (int i = 0; i < _skillbars.Count; i++)
+            {
+                AbstractSkillbar bar = _skillbars[i];
+                if (bar == null || bar.BarSlots == null ||
+                    bar.BarSlots.Count < PlayerShortcuts.MAXIMUM_SHORTCUTS_PER_BAR)
+                    return false;
+            }
+            return true;
+        }
+    }
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SkillbarWindow Instance { get { return _instance; } }
 
     private void Awake()
@@ -234,7 +256,11 @@ public class SkillbarWindow : L2PopupWindow
     {
         var template = horizontalBar ? _skillbarHorizontalTemplate : _skillbarVerticalTemplate;
         var container = horizontalBar ? _skillbarContainerHorizontal : _skillbarContainerVertical;
-        return skillbar.BuildWindow(template, container);
+        yield return skillbar.BuildWindow(template, container);
+        // ShortCutInit may have already filled PlayerShortcuts while bars were still building —
+        // paint now that slots exist (Mobius sends ShortCutInit during EnterWorld).
+        if (IsReady)
+            UpdateAllShortcuts();
     }
 
     public void AddSkillbar()
@@ -356,18 +382,18 @@ public class SkillbarWindow : L2PopupWindow
 
     public void UpdateAllShortcuts(List<Shortcut> shortcuts)
     {
+        if (_skillbars == null || !IsReady)
+            return;
+
         _skillbars.ForEach((skillbar) => skillbar.ResetShortcuts());
 
         if (shortcuts == null)
-        {
             return;
-        }
 
         shortcuts.ForEach((shortcut) =>
         {
             UpdateBarShortcut(shortcut);
         });
-      
     }
 
     private void UpdateBarShortcut(Shortcut shortcut)
@@ -391,6 +417,8 @@ public class SkillbarWindow : L2PopupWindow
 
     public void AddShortcut(Shortcut shortcut)
     {
+        if (!IsReady)
+            return;
         UpdateBarShortcut(shortcut);
     }
 

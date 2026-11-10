@@ -19,6 +19,7 @@ public class BufferPanel : L2Window
     private int[] _deathPenalty;
     private int[] _weightPenalty;
     private int[] _weaponPenalty;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static BufferPanel Instance { get { return _instance; } }
     public BLink _bLink;
     public VisualElement _content;
@@ -55,6 +56,8 @@ public class BufferPanel : L2Window
     private void WireAuxiliaryGameUIPacketServices()
     {
         AuxiliaryGameUIPacketServices.Bind(buffer: this);
+        // EnterWorld may have stashed AbnormalStatusUpdate before this tray existed.
+        ApplyServices.Status?.FlushPendingSelfAbnormals();
     }
 
     protected override void LoadAssets()
@@ -110,39 +113,31 @@ public class BufferPanel : L2Window
     public void AddDataCellToTime(int skillId, int skillLevel, int time)
     {
 
+        if (skillLevel == 0) return;
+
         Skillgrp skill = SkillGrps.GetSkill(skillId, skillLevel);
+        if (skill == null)
+            Debug.LogWarning($"BufferPanel.AddDataCellToTime: skillgrp missing skillId={skillId} level={skillLevel} — still showing tray cell");
 
-        if (skill != null)
+        if (_content.style.opacity == 0) _content.style.opacity = 1;
+        if (_filterData.IsContain(skillId))
         {
-
-            if (skillLevel == 0) return;
-            if (_content.style.opacity == 0) _content.style.opacity = 1;
-            if (_filterData.IsContain(skillId))
+            DataCell existing = _filterData.FilterBySkillId(skillId);
+            if (existing != null && time > 0)
             {
-                DataCell existing = _filterData.FilterBySkillId(skillId);
-                if (existing != null && time > 0)
-                {
-                    existing.SetActiveTime(time);
-                    _bLink.StartBlinking(existing);
-                }
-
-                return;
+                existing.SetActiveTime(time);
+                _bLink.StartBlinking(existing);
             }
 
-            RebindCellElseOnlyPenalty();
-            DataCell data = _filterData.GetEmptyCell();
-            data.RefreshData(skillId, true, skillLevel);
-            data.ShowCell(true);
-            data.SetActiveTime(time);
-            _bLink.StartBlinking(data);
-        }
-        else
-        {
-            // Debug.LogWarning("Buffpanel > AddDataCellToTime: Не критическая ошибка, мы не нашли skill id при попытке обновить herb effect!!!! skillID " + skillId + " level " + skillLevel);
+            return;
         }
 
-
-        //RemoveElementAfterDelay();
+        RebindCellElseOnlyPenalty();
+        DataCell data = _filterData.GetEmptyCell();
+        data.RefreshData(skillId, true, skillLevel);
+        data.ShowCell(true);
+        data.SetActiveTime(time);
+        _bLink.StartBlinking(data);
     }
 
   
@@ -150,6 +145,9 @@ public class BufferPanel : L2Window
     {
         List<DataCell> list = _filterData.GetListActiveAndBusy();
         ResetList(list);
+        // Stale blink entries must go too — otherwise the next FullEffectSnapshot
+        // re-adds into the same slots and the blink dict throws / aborts the rebuild.
+        _bLink?.ClearAllBlinking();
         HideContentElseNoElements();
     }
 
@@ -167,6 +165,7 @@ public class BufferPanel : L2Window
         {
             foreach (DataCell cell in list)
             {
+                _bLink?.StopBlinking(cell.GetPosition());
                 cell.ResetData();
                 cell.ShowCell(false);
             }
@@ -246,6 +245,7 @@ public class BufferPanel : L2Window
             empty.RefreshData(moveCell.GetSkillId(), true, moveCell.GetLevel());
             empty.ShowCell(true);
 
+            _bLink?.StopBlinking(moveCell.GetPosition());
             moveCell.ResetData();
             moveCell.ShowCell(false);
             _dictElement[moveCell.GetPosition()] = moveCell;

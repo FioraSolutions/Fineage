@@ -13,14 +13,14 @@ public class NewStopMoveIntention : IntentionBase
             
             //Debug.Log("StopMove Dist " + VectorUtils.Distance2D(PlayerController.Instance.transform.position, stop.StopPos));
 
-            L2PawnRange.ClearIgnoredPawn(PlayerEntity.Instance);
-            PlayerStateMachine.Instance.IsMoveToPawn = false;
+            L2PawnRange.ClearIgnoredPawn(DomainPacketServices.LocalPlayer);
+            PlayerStatePacketServices.PlayerState.IsMoveToPawn = false;
             ControllerPacketServices.Player.StopMove();
             //Debug.Log("IsMoveToPawn Двигаемся к цели stopmove1");
 
             //когда мы не успеваем добежать до точки и находимся в состоянии бега нам нужно предупредить RunningState о том что мы прибежали на место и нам нужно отключить анимацию бега
             //и после этого перейти в режим idle или по другому режим wait ждем дальнейших указаний
-            if (PlayerStateMachine.Instance.State == PlayerState.RUNNING)
+            if (PlayerStatePacketServices.PlayerState.State == PlayerState.RUNNING)
             {
                 //Debug.Log("IsMoveToPawn Двигаемся к цели stopmove2");
 
@@ -30,9 +30,9 @@ public class NewStopMoveIntention : IntentionBase
             }
             else
             {
-                //if (PlayerStateMachine.Instance.IsMoveToPawn == true | PlayerController.Instance.RunningToDestination == true)
+                //if (PlayerStatePacketServices.PlayerState.IsMoveToPawn == true | PlayerController.Instance.RunningToDestination == true)
                 //{
-                  //  PlayerStateMachine.Instance.IsMoveToPawn = false;
+                  //  PlayerStatePacketServices.PlayerState.IsMoveToPawn = false;
                   //  _stateMachine.ChangeIntention(Intention.INTENTION_IDLE);
                   //  PlayerController.Instance.StopMove();
                 //}

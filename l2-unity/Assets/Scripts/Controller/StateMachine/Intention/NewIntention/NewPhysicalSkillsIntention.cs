@@ -42,16 +42,16 @@ public class NewPhysicalSkillsIntention : IntentionBase
             // Bow SpAtk: live follow until shoot. Other phys skills: one-shot snapshot.
             if (objectId != useSkill.TargetId &&
                 targetEntity != null &&
-                CombatFacingService.IsPlayerUsingBow(PlayerEntity.Instance))
+                CombatFacingService.IsPlayerUsingBow(DomainPacketServices.LocalPlayer))
             {
-                CombatFacingService.Ensure().BeginFollow(
+                CombatPacketServices.EnsureFacing().BeginFollow(
                     objectId,
                     ControllerPacketServices.Player.transform,
                     targetEntity.transform);
             }
             else if (targetEntity != null)
             {
-                CombatFacingService.Instance?.EndFollow(objectId, "non-bow-phys");
+                CombatPacketServices.Facing?.EndFollow(objectId, "non-bow-phys");
                 ControllerPacketServices.Player.RotateToAttacker(targetEntity.transform.position);
             }
 
@@ -65,7 +65,7 @@ public class NewPhysicalSkillsIntention : IntentionBase
         if (_stateMachine.Player == null) return;
 
         _stateMachine.Player.IsSoulshotCharged = true;
-        WeaponChargeSkill.Play(
+        WeaponChargeSkillPlayback.Play(
             ControllerPacketServices.Effects,
             useSkill.SkillId,
             _stateMachine.Player.GetWeaponTransform(),

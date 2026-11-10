@@ -45,6 +45,7 @@ public class DealerWindow : L2PopupWindow
     private Label _panelBuyHeaderName;
     private int _listId;
     private Label _windowName;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static DealerWindow Instance
     {
         get { return _instance; }
@@ -130,7 +131,8 @@ public class DealerWindow : L2PopupWindow
         _listId = listId;
         _listBuy = listBuy;
         _isModifySell = isModifySell;
-        if(_listSell != null) _listSell.Clear();
+        // Cart starts empty; never leave a null list (OK would send no RequestBuyItem lines).
+        _listSell = new List<Product>();
 
         //UnityEngine.Debug.Log("Server size list buy " + listBuy.Count);
 
@@ -201,9 +203,9 @@ public class DealerWindow : L2PopupWindow
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
-                QuantityInput.Instance.ShowWindow(source.Count);
-                QuantityInput.Instance.OnButtonOk += OnSelectedQuantity;
-                QuantityInput.Instance.OnButtonClose += OnCloseQuantity;
+                QuantityInputPacketServices.Window.ShowWindow(QuantityMaxFor(source));
+                QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
+                QuantityInputPacketServices.Window.OnButtonClose += OnCloseQuantity;
             }
             else
             {
@@ -224,9 +226,9 @@ public class DealerWindow : L2PopupWindow
             {
                 RefreshOpacity(0.7f);
                 RefreshSelectData(listServer, position, type);
-                QuantityInput.Instance.ShowWindow(source.Count);
-                QuantityInput.Instance.OnButtonOk += OnSelectedQuantity;
-                QuantityInput.Instance.OnButtonClose += OnCloseQuantity;
+                QuantityInputPacketServices.Window.ShowWindow(QuantityMaxFor(source));
+                QuantityInputPacketServices.Window.OnButtonOk += OnSelectedQuantity;
+                QuantityInputPacketServices.Window.OnButtonClose += OnCloseQuantity;
             }
             else
             {
@@ -234,6 +236,23 @@ public class DealerWindow : L2PopupWindow
                 _listSell = _tradeItemMover.MovingSellWithRemoval(_isModifySell , _listSell , source, listServer, position);
             }
         }
+    }
+
+    /// <summary>
+    /// Unlimited GM/shop stackables are listed with Count=1 for tooltip display.
+    /// Qty "All" still caps at the zone grant limit (10000).
+    /// </summary>
+    const int ShopStackableQuantityMax = 10000;
+
+    static int QuantityMaxFor(Product source)
+    {
+        if (source == null)
+            return 1;
+        if (source.Count > 1)
+            return source.Count;
+        if (source.GetConsumeCategory() != ConsumeCategory.Normal)
+            return ShopStackableQuantityMax;
+        return 1;
     }
 
 
@@ -246,13 +265,13 @@ public class DealerWindow : L2PopupWindow
 
     private void OnSelectedQuantity(string value)
     {
-        QuantityInput.Instance.OnButtonOk -= OnSelectedQuantity;
+        QuantityInputPacketServices.Window.OnButtonOk -= OnSelectedQuantity;
         UseSuccessInParentWindow(this, value, _listServer);
     }
 
     private void OnCloseQuantity()
     {
-        QuantityInput.Instance.OnButtonClose -= OnCloseQuantity;
+        QuantityInputPacketServices.Window.OnButtonClose -= OnCloseQuantity;
         UseCloseInParentWindow();
     }
 
@@ -270,6 +289,8 @@ public class DealerWindow : L2PopupWindow
 
     public void MoveРЎellElseQuantitySelected(SlotType type, List<Product> listServer, int position , int selectCount)
     {
+        if (selectCount <= 0)
+            return;
 
         if (type == SlotType.PriceBuy)
         {
@@ -351,7 +372,7 @@ public class DealerWindow : L2PopupWindow
 
     public void UpdateWeight(double weightPercent)
     {
-        _currentWeight.text = weightPercent.ToString() + "%";
+        _currentWeight.text = weightPercent.ToString("0") + "%";
     }
 
     public void UpdateAllWeight(int currentWeight, int maxWeight)
@@ -452,14 +473,25 @@ public class DealerWindow : L2PopupWindow
   
     private void HandleSuccessButtonClick()
     {
+        // Snapshot before HideWindow — cart/listId must survive any close side-effects.
+        int listId = _listId;
+        List<Product> cart = _listSell != null ? new List<Product>(_listSell) : new List<Product>();
+        ProductType productType = _productType;
+        bool modifySell = _isModifySell;
+
         HideWindow();
 
-        if (!_isModifySell)
+        if (!modifySell)
         {
-            switch (_productType)
+            switch (productType)
             {
                 case ProductType.BUY:
-                    SendServer(new RequestBuyItemCommand(_listId, _listSell));
+                    if (cart.Count == 0)
+                    {
+                        Debug.LogWarning("[Shop] Success with empty cart listId=" + listId);
+                        break;
+                    }
+                    SendServer(new RequestBuyItemCommand(listId, cart));
                     break;
 
                 case ProductType.WEAR:

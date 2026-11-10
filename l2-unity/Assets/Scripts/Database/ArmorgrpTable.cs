@@ -7,14 +7,28 @@ using UnityEngine;
 
 public class ArmorgrpTable {
     private static ArmorgrpTable _instance;
+
+    [Obsolete("Use [Inject] ArmorgrpTable or TablePacketServices.ArmorGrps instead")]
     public static ArmorgrpTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<ArmorgrpTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new ArmorgrpTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(ArmorgrpTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, Armorgrp> _armorgrps;
@@ -54,8 +68,6 @@ public class ArmorgrpTable {
                 armorgrp.AllTextures = new List<List<string>>(ModelTable.RACE_COUNT);
                 InitializeList(armorgrp.AllTextures);
 
-                string[] modTex;
-
                 string[] keyvals = line.Split('\t');
                 for (int i = 0; i < keyvals.Length; i++) {
                     if(!keyvals[i].Contains("=")) {
@@ -66,7 +78,7 @@ public class ArmorgrpTable {
                     string key = keyval[0];
                     string value = keyval[1];
                     
-                    if(DatUtils.ParseBaseAbstractItemGrpDat(armorgrp, key, value)) {
+                    if(AbstractgrpDatParser.ParseBaseAbstractItemGrpDat(armorgrp, key, value)) {
                         continue;
                     }
 
@@ -78,150 +90,50 @@ public class ArmorgrpTable {
                         case "armor_type":
                             armorgrp.ArmorType = ArmorClassifier.GetArmorType(DatUtils.CleanupString(value));
                             break;
-                        case "m_HumnFigh": // {{[Fighter.MFighter_m002_g]};{[mfighter.mfighter_m002_t10_g]}} or m_HumnFigh={{[Fighter.MFighter_m002_u];[Fighter.MFighter_m006_l]};{[mfighter.mfighter_m002_t45_u];[MFighter.MFighter_m006_t45_l]}}
-                            //List<List<string>>
-  
-                            var mFighter = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.MFighter] = mFighter[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.MFighter] = mFighter[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte) CharacterRaceAnimation.MFighter] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.MFighter] = mFighter[1][0];
+                        // Race mesh/tex: {{[models...]};{[textures...]}}. Never take FirstTexture from
+                        // flat ParseArray — onepiece robes put [None] legs in slot [1], so modTex[1]
+                        // becomes "None" and EquipFullArmor fails (Dark Crystal / Major Arcana).
+                        case "m_HumnFigh":
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.MFighter, value);
                             break;
                         case "f_HumnFigh":
-
-                            var fFighter = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.FFighter] = fFighter[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.FFighter] = fFighter[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.FFighter] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.FFighter] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.FFighter, value);
                             break;
                         case "m_DarkElf":
-
-                            var mDarkElf = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.MDarkElf] = mDarkElf[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.MDarkElf] = mDarkElf[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.MDarkElf] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.MDarkElf] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.MDarkElf, value);
                             break;
                         case "f_DarkElf":
-
-                            var fDarkElf = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.FDarkElf] = fDarkElf[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.FDarkElf] = fDarkElf[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.FDarkElf] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.FDarkElf] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.FDarkElf, value);
                             break;
                         case "m_Dorf":
-
-                            var mDrof = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.MDwarf] = mDrof[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.MDwarf] = mDrof[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.MDwarf] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.MDwarf] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.MDwarf, value);
                             break;
                         case "f_Dorf":
-
-
-                            var fDrof = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.FDwarf] = fDrof[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.FDwarf] = fDrof[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.FDwarf] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.FDwarf] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.FDwarf, value);
                             break;
                         case "m_Elf":
-
-                            var mElf = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.MElf] = mElf[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.MElf] = mElf[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.MElf] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.MElf] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.MElf, value);
                             break;
                         case "f_Elf":
-
-                            var fElf = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.FElf] = fElf[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.FElf] = fElf[1];
-
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.FElf] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.FElf] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.FElf, value);
                             break;
                         case "m_HumnMyst":
-
-                            var mMyst = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.MMagic] = mMyst[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.MMagic] = mMyst[1];
-
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.MMagic] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.MMagic] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.MMagic, value);
                             break;
                         case "f_HumnMyst":
-
-                            var fMyst = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.FMagic] = fMyst[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.FMagic] = fMyst[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.FMagic] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.FMagic] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.FMagic, value);
                             break;
                         case "m_OrcFigh":
-
-
-                            var mOrcFigh = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.MOrc] = mOrcFigh[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.MOrc] = mOrcFigh[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.MOrc] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.MOrc] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.MOrc, value);
                             break;
                         case "f_OrcFigh":
-
-                            var fOrcFigh = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.FOrc] = fOrcFigh[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.FOrc] = fOrcFigh[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.FOrc] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.FOrc] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.FOrc, value);
                             break;
                         case "m_OrcMage":
-
-                            var mOrcMage = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.MShaman] = mOrcMage[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.MShaman] = mOrcMage[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.MShaman] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.MShaman] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.MShaman, value);
                             break;
                         case "f_OrcMage":
-
-                            var fOrcMage = DatUtils.ParseMultiArray(value);
-                            armorgrp.AllModels[(byte)CharacterRaceAnimation.FShaman] = fOrcMage[0];
-                            armorgrp.AllTextures[(byte)CharacterRaceAnimation.FShaman] = fOrcMage[1];
-
-                            modTex = DatUtils.ParseArray(value);
-                            armorgrp.FirstModel[(byte)CharacterRaceAnimation.FShaman] = modTex[0];
-                            armorgrp.FirstTexture[(byte)CharacterRaceAnimation.FShaman] = modTex[1];
+                            ApplyRaceMeshTextures(armorgrp, CharacterRaceAnimation.FShaman, value);
                             break;
                         case "mp_bonus": //mp_bonus=0
                             armorgrp.MpBonus = int.Parse(value);
@@ -300,6 +212,41 @@ public class ArmorgrpTable {
         }
 
     }
+
+    /// <summary>
+    /// Parses <c>{{[model0];[model1]};{[tex0];[tex1]}}</c> into AllModels/AllTextures and
+    /// FirstModel/FirstTexture for one race. First* always come from multi[0][0] / multi[1][0].
+    /// </summary>
+    static void ApplyRaceMeshTextures(Armorgrp armorgrp, CharacterRaceAnimation race, string value)
+    {
+        byte raceIndex = (byte)race;
+        List<List<string>> multi = DatUtils.ParseMultiArray(value);
+        if (multi == null || multi.Count < 2)
+            return;
+
+        List<string> models = multi[0];
+        List<string> textures = multi[1];
+        armorgrp.AllModels[raceIndex] = models;
+        armorgrp.AllTextures[raceIndex] = textures;
+
+        armorgrp.FirstModel[raceIndex] = FirstNonNone(models);
+        armorgrp.FirstTexture[raceIndex] = FirstNonNone(textures);
+    }
+
+    static string FirstNonNone(List<string> values)
+    {
+        if (values == null)
+            return null;
+        for (int i = 0; i < values.Count; i++)
+        {
+            string v = values[i];
+            if (!string.IsNullOrEmpty(v) &&
+                !string.Equals(v, "None", StringComparison.OrdinalIgnoreCase))
+                return v;
+        }
+        return values.Count > 0 ? values[0] : null;
+    }
+
     bool IsIndexValid<T>(T[] array, int index)
     {
         return index >= 0 && index < array.Length;

@@ -23,15 +23,15 @@ public class PreviewSceneBootstrap : MonoBehaviour
         if (_loaded) return;
 
         // ItemTable must be first: ModelTable.CacheWeapons reads ItemTable.Weapons
-        ItemTable.Instance.Initialize();
-        ItemTable.Instance.CacheItems();
+        TablePacketServices.Items.Initialize();
+        TablePacketServices.Items.CacheItems();
 
-        NpcgrpTable.Instance.Initialize();
-        NpcNameTable.Instance.Initialize();
+        TablePacketServices.NpcGrps.Initialize();
+        TablePacketServices.NpcNames.Initialize();
         ModelTable.Instance.Initialize();
 
         // CharacterBuilder is a MonoBehaviour singleton. If none exists, create one.
-        if (CharacterBuilder.Instance == null)
+        if (CharacterPacketServices.Builder == null)
         {
             var builderGo = new GameObject("CharacterBuilder_Preview");
             builderGo.AddComponent<CharacterBuilder>();

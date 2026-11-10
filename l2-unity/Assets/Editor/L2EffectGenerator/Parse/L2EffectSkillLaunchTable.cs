@@ -411,6 +411,14 @@ public static class L2EffectSkillLaunchTable
         part.spawnTiming = ResolveSpawnTiming(phase, suffix, hasProjectileCompanion, planned);
         part.attachmentPoint = ResolveAttachment(
             row, suffix, isProjectile, isHomeFlight, part.spawnTiming, planned, phase);
+        if (planned != null &&
+            L2EffectGeneratorAssetOverrides.TryGetAttachmentOverride(
+                planned.ClassName ?? planned.FolderName,
+                out EffectAttachmentPoint attachmentOverrideLegacy))
+        {
+            part.attachmentPoint = attachmentOverrideLegacy;
+        }
+
         part.followResolvedTransform = ShouldFollow(
             row, part.attachmentPoint, part.spawnTiming, isHomeFlight);
         part.useCastTimedLifetime = part.spawnTiming != CompositePartSpawnTiming.OnHitCollider &&
@@ -517,6 +525,14 @@ public static class L2EffectSkillLaunchTable
             phase, suffix, hasProjectileCompanion, planned);
         EffectAttachmentPoint attachment = ResolveAttachment(
             row, suffix, isProjectile, isHomeFlight, timing, planned, phase);
+        if (planned != null &&
+            L2EffectGeneratorAssetOverrides.TryGetAttachmentOverride(
+                planned.ClassName ?? planned.FolderName,
+                out EffectAttachmentPoint attachmentOverride))
+        {
+            attachment = attachmentOverride;
+        }
+
         string bone = null;
         if (row != null &&
             row.HasAttachOn &&
@@ -779,8 +795,16 @@ public static class L2EffectSkillLaunchTable
             case 3:
                 return EffectAttachmentPoint.LeftWeaponSocket;
             case 9:
-                // attach_on=9 Trail: CastingAction trails the caster; Shot/Explosion
-                // trails the hit pawn (m_u003_c VampireEye on target).
+                // attach_on=9 Trail:
+                // - CastingAction: trail caster (_ca often feet/root, else center)
+                // - ShotAction + _cs: launch burst on the caster (prominence/eruption)
+                // - Shot/Explosion + _ta (and other trailers): hit pawn
+                if (string.Equals(phase, "ShotAction", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(suffix, "_cs", StringComparison.OrdinalIgnoreCase))
+                {
+                    return EffectAttachmentPoint.CasterCenter;
+                }
+
                 if (string.Equals(phase, "ShotAction", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(phase, "ExplosionAction", StringComparison.OrdinalIgnoreCase))
                 {

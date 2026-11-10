@@ -6,6 +6,7 @@ public class ModelTable : AbstractCache
 {
     private static ModelTable _instance;
 
+    [Obsolete("Use [Inject] ModelTable or TablePacketServices.Models instead")]
     public static ModelTable Instance
     {
         get
@@ -13,26 +14,6 @@ public class ModelTable : AbstractCache
             if (_instance == null)
                 _instance = new ModelTable();
             return _instance;
-        }
-    }
-
-    public class L2ArmorPiece
-    {
-        public GameObject baseArmorModel;
-        public Material material;
-        public GameObject[] baseAllModels;
-        public Material[] allMaterials;
-
-        public L2ArmorPiece(
-            GameObject baseArmorModel,
-            Material material,
-            GameObject[] baseAllModels,
-            Material[] allMaterials)
-        {
-            this.baseArmorModel = baseArmorModel;
-            this.material = material;
-            this.baseAllModels = baseAllModels;
-            this.allMaterials = allMaterials;
         }
     }
 
@@ -106,7 +87,7 @@ public class ModelTable : AbstractCache
     private void CacheWeapons()
     {
         _weapons = LoadItemModels(
-            ItemTable.Instance.Weapons,
+            TablePacketServices.Items.Weapons,
             weapon => weapon.Weapongrp != null ? weapon.Weapongrp.Model : null,
             "weapon");
     }
@@ -114,7 +95,7 @@ public class ModelTable : AbstractCache
     private void CacheEtcItems()
     {
         _etcItems = LoadItemModels(
-            ItemTable.Instance.EtcItems,
+            TablePacketServices.Items.EtcItems,
             etc => etc.EtcItemgrp != null ? etc.EtcItemgrp.Model : null,
             "EtcItemgrp");
     }
@@ -150,7 +131,7 @@ public class ModelTable : AbstractCache
         _armors = new Dictionary<string, L2Armor>();
         int materialCount = 0;
 
-        foreach (KeyValuePair<int, Armor> pair in ItemTable.Instance.Armors)
+        foreach (KeyValuePair<int, Armor> pair in TablePacketServices.Items.Armors)
         {
             Armorgrp grp = pair.Value.Armorgrp;
             if (grp.BodyPart == ItemSlot.alldress)
@@ -215,8 +196,15 @@ public class ModelTable : AbstractCache
             return;
 
         Material[] fullSet = LoadAllArmorMaterials(grp.AllTextures[raceIndex]);
-        if (fullSet.Length > 0 && grp.BodyPart == ItemSlot.fullarmor)
+        if (grp.BodyPart == ItemSlot.fullarmor)
+        {
+            // Keep at least the chest material when legs texture is None.
+            if (fullSet == null || fullSet.Length == 0 || fullSet[0] == null)
+                fullSet = new[] { material };
+            else if (fullSet[0] == null)
+                fullSet[0] = material;
             l2Armor.allMaterials[texture] = fullSet;
+        }
 
         l2Armor.materials[texture] = material;
         materialCount++;
@@ -224,8 +212,10 @@ public class ModelTable : AbstractCache
 
     private static bool NeedsExtraArmorModels(L2Armor l2Armor, List<string> models, ItemSlot slot)
     {
+        if (l2Armor.allModels == null || l2Armor.allModels.Length == 0)
+            return models != null && models.Count > 0;
         return l2Armor.allModels[0] == null ||
-               (l2Armor.allModels.Length < models.Count && slot == ItemSlot.fullarmor);
+               (models != null && l2Armor.allModels.Length < models.Count && slot == ItemSlot.fullarmor);
     }
 
     private void CacheNpcs()
@@ -233,7 +223,7 @@ public class ModelTable : AbstractCache
         _npcs = new Dictionary<string, L2Npc>();
         int success = 0;
 
-        foreach (KeyValuePair<int, Npcgrp> pair in NpcgrpTable.Instance.Npcgrps)
+        foreach (KeyValuePair<int, Npcgrp> pair in TablePacketServices.NpcGrps.Npcgrps)
         {
             string mesh = pair.Value.Mesh;
             if (_npcs.ContainsKey(mesh))

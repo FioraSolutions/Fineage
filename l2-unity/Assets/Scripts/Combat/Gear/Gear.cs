@@ -61,7 +61,7 @@ public class Gear : AbstractMeshManager
 
     public void EquipShield(int weaponId)
     {
-        Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
         ErrorPrint(weapon, weaponId);
 
         if (weaponId != 0 && weapon == null)
@@ -107,36 +107,28 @@ public class Gear : AbstractMeshManager
 
     public virtual void EquipWeapon(int weaponId, bool leftSlot) {
 
-        Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
         leftSlot = weapon?.Weapongrp?.WeaponType == WeaponType.bow;
 
 
         ErrorPrint(weapon, weaponId);
 
-        if (weaponId == 0 | weapon == null) {
-            // GearFlowLog.Warn("EquipWeapon abort id=" + weaponId +
-                // " owner=" + _ownerId + " nullWeapon=" + (weapon == null));
+        if (weaponId == 0 || weapon == null)
+        {
             if (weaponId != 0)
                 EquipmentMeshLog.Once("weapon", weaponId);
             return;
         }
 
-        if (IsWeaponEquipped(weaponId, leftSlot)) {
-            // GearFlowLog.Info("EquipWeapon SKIP already equipped id=" + weaponId +
-                // " left=" + leftSlot + " owner=" + _ownerId);
+        if (IsWeaponEquipped(weaponId, leftSlot))
             return;
-        }
 
-        // GearFlowLog.Info("EquipWeapon APPLY id=" + weaponId +
-            // " left=" + leftSlot + " owner=" + _ownerId +
-            // " type=" + (weapon.Weapongrp != null ? weapon.Weapongrp.WeaponType.ToString() : "null"));
-
-        ClearHandsForNewWeapon(leftSlot, false);
+        bool twoHand = IsTwoHandedWeapon(weapon);
+        ClearHandsForNewWeapon(leftSlot, false, twoHand);
 
         GameObject weaponPrefab = (GameObject)LoadMesh(EquipmentCategory.Weapon, weaponId);
         if (weaponPrefab == null)
         {
-            // GearFlowLog.Warn("EquipWeapon mesh null id=" + weaponId + " owner=" + _ownerId);
             EquipmentMeshLog.Once("weapon", weaponId);
             return;
         }
@@ -172,7 +164,7 @@ public class Gear : AbstractMeshManager
 
     public void EquipArrowEtcItem(int etcId, bool leftSlot)
     {
-        EtcItem etcItem = ItemTable.Instance.GetEtcItem(etcId);
+        EtcItem etcItem = TablePacketServices.Items.GetEtcItem(etcId);
 
         if (etcId == 0 | IsWeaponEquipped(etcId, leftSlot) | etcItem == null)
         {
@@ -198,7 +190,7 @@ public class Gear : AbstractMeshManager
 
     public void EquipLeftAndRightWeapon(int weaponId)
     {
-        Weapon weapon = ItemTable.Instance.GetWeapon(weaponId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
 
         ErrorPrint(weapon, weaponId);
 
@@ -352,8 +344,8 @@ public class Gear : AbstractMeshManager
 
     public void SyncEquippedWeapons(int rHandId, int lHandId)
     {
-        Weapon rWeapon = rHandId != 0 ? ItemTable.Instance.GetWeapon(rHandId) : null;
-        Weapon lItem = lHandId != 0 ? ItemTable.Instance.GetWeapon(lHandId) : null;
+        Weapon rWeapon = rHandId != 0 ? TablePacketServices.Items.GetWeapon(rHandId) : null;
+        Weapon lItem = lHandId != 0 ? TablePacketServices.Items.GetWeapon(lHandId) : null;
         WeaponType rType = rWeapon != null && rWeapon.Weapongrp != null
             ? rWeapon.Weapongrp.WeaponType : WeaponType.none;
         WeaponType lType = lItem != null && lItem.Weapongrp != null
@@ -397,21 +389,7 @@ public class Gear : AbstractMeshManager
         if (haveRight == wantRight && haveLeft == wantLeft && haveShield == wantShield &&
             HasExpectedHandMeshes(wantRight, wantLeft, wantShield) &&
             !HasOrphanHandMeshes(wantRight, wantLeft, wantShield))
-        {
-            if (this is UserGear || rHandId != 0 || lHandId != 0)
-            {
-                // GearFlowLog.Info("SyncWeapons SKIP same owner=" + _ownerId +
-                    // " have R=" + haveRight + " L=" + haveLeft + " S=" + haveShield +
-                    // " packet R=" + rHandId + " L=" + lHandId);
-            }
             return;
-        }
-
-        // GearFlowLog.Info("SyncWeapons APPLY owner=" + _ownerId +
-            // " have R=" + haveRight + " L=" + haveLeft + " S=" + haveShield +
-            // " want R=" + wantRight + " L=" + wantLeft + " S=" + wantShield +
-            // " packet R=" + rHandId + " L=" + lHandId +
-            // " dual=" + dual + " bow=" + bow + " lShield=" + lShield);
 
         ClearAllHandEquipment();
 
@@ -430,9 +408,25 @@ public class Gear : AbstractMeshManager
         }
     }
 
-    void ClearHandsForNewWeapon(bool leftSlot, bool dual)
+    static bool IsTwoHandedWeapon(Weapon weapon)
     {
-        if (dual)
+        if (weapon?.Weapongrp == null)
+            return false;
+        if (weapon.Weapongrp.BodyPart == ItemSlot.lrhand)
+            return true;
+        WeaponType type = weapon.Weapongrp.WeaponType;
+        return type == WeaponType.pole
+            || type == WeaponType.staff
+            || type == WeaponType.bigword
+            || type == WeaponType.bigblunt
+            || type == WeaponType.bow
+            || type == WeaponType.dual
+            || type == WeaponType.dualfist;
+    }
+
+    void ClearHandsForNewWeapon(bool leftSlot, bool dual, bool twoHand = false)
+    {
+        if (dual || twoHand)
         {
             ClearAllHandEquipment();
             return;
@@ -651,10 +645,11 @@ public class Gear : AbstractMeshManager
 
     private void DestroyObject(GameObject go , string origPrefabName)
     {
-        if (ObjectPoolManager.Instance != null)
+        IPoolManager pool = ObjectPoolPacketServices.Pool;
+        if (pool != null)
         {
             go.name = origPrefabName;
-            if (!ObjectPoolManager.Instance.ReturnToPool(ObjectType.Weapon, go))
+            if (!pool.ReturnToPool(ObjectType.Weapon, go))
             {
                 Destroy(go);
             }

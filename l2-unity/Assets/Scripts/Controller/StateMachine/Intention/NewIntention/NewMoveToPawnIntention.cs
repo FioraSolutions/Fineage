@@ -32,15 +32,15 @@ public class NewMoveToPawnIntention : IntentionBase
             if (distance > model.Distance())
             {
                 // Stop ring is the packet distance. ReachedDestination does not add collision radii for a pawn goal.
-                L2PawnRange.IgnorePawnCollision(PlayerEntity.Instance, model.TarEntity());
-                PlayerStateMachine.Instance.IsMoveToPawn = true;
-                bool running = PlayerEntity.Instance != null && PlayerEntity.Instance.Running;
+                L2PawnRange.IgnorePawnCollision(DomainPacketServices.LocalPlayer, model.TarEntity());
+                PlayerStatePacketServices.PlayerState.IsMoveToPawn = true;
+                bool running = DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Running;
                 ControllerPacketServices.Player.MoveToPoint(new MovementTarget(model.TarEntity().transform, model.Distance(), running));
                 StartAnimMoveTo();
             }
             else
             {
-                L2PawnRange.ClearIgnoredPawn(PlayerEntity.Instance);
+                L2PawnRange.ClearIgnoredPawn(DomainPacketServices.LocalPlayer);
                 if (_stateMachine.State == PlayerState.SITTING ||
                     _stateMachine.State == PlayerState.SIT_WAIT ||
                     _stateMachine.State == PlayerState.STANDING)
@@ -63,8 +63,8 @@ public class NewMoveToPawnIntention : IntentionBase
             _stateMachine.State == PlayerState.SIT_WAIT ||
             _stateMachine.State == PlayerState.STANDING)
         {
-            if (PlayerEntity.Instance != null)
-                PlayerEntity.Instance.IsAttack = false;
+            if (DomainPacketServices.LocalPlayer != null)
+                DomainPacketServices.LocalPlayer.IsAttack = false;
 
             _stateMachine.ChangeState(PlayerState.WALKING);
             _stateMachine.NotifyEvent(Event.MOVE_TO);

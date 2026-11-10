@@ -33,9 +33,9 @@ public static class SkillAnimationCastDataBuilder
                 animator = registered.GetAnimator();
         }
 
-        if (animator == null && entity is PlayerEntity && PlayerAnimationController.Instance != null)
+        if (animator == null && entity is PlayerEntity)
         {
-            animator = PlayerAnimationController.Instance.GetAnimator();
+            animator = AnimationPacketServices.PlayerAnimation?.GetAnimator();
         }
 
         if (animator == null)

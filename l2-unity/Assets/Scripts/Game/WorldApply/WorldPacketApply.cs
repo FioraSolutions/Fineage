@@ -175,7 +175,7 @@ public sealed class WorldPacketApply
             return;
         }
 
-        PlayerEntity local = PlayerEntity.Instance;
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
         if (local != null && local.Identity != null && local.Identity.Id == info.Identity.Id)
         {
             // GearFlowLog.Info("UpdateUser SKIP local id=" + info.Identity.Id);
@@ -194,6 +194,8 @@ public sealed class WorldPacketApply
             }
             GameWorld.SpawnUser(info);
             _gameEvents?.Publish(new EntitySpawnedEvent(info.Identity.Id));
+            // PartySpelled may have arrived before CharInfo finished spawning the peer.
+            AbnormalStatusUpdateApplyIncomingPacketServices.FlushPendingPeerAbnormals(info.Identity.Id);
             return;
         }
 
@@ -415,7 +417,7 @@ public sealed class WorldPacketApply
         EntityWorldApply apply;
         if (entity == null || !TryResolve(entity, out apply))
             return;
-        if (entity == PlayerEntity.Instance)
+        if (entity == DomainPacketServices.LocalPlayer)
             CastBarOverlay.Cancel();
         apply.OnMagicSkillCanceled(entity, dto);
     }
@@ -429,7 +431,7 @@ public sealed class WorldPacketApply
 
         Entity entity = GetEntity(dto.AttackerObjId);
         if (entity == null)
-            entity = PlayerEntity.Instance;
+            entity = DomainPacketServices.LocalPlayer;
 
         EntityWorldApply apply;
         if (entity == null || !TryResolve(entity, out apply))
@@ -446,7 +448,7 @@ public sealed class WorldPacketApply
             // Local player: presentation is inside PlayerWorldApply → MagicSkillPresentation.
             // CharInfo / NPC: apply only (EntityActionSkill owns remote anim + SkillCastSound there).
             apply.OnMagicSkillUse(entity, dto);
-            if (entity != PlayerEntity.Instance)
+            if (entity != DomainPacketServices.LocalPlayer)
             {
                 try { SkillCastSound.OnMagicSkillUse(entity, dto); }
                 catch (Exception sfx) { Debug.LogWarning("[SkillCastSound] " + sfx.Message); }
@@ -465,7 +467,7 @@ public sealed class WorldPacketApply
 
         Entity entity = GetEntity(dto.ObjectId);
         if (entity == null)
-            entity = PlayerEntity.Instance;
+            entity = DomainPacketServices.LocalPlayer;
         if (entity == null)
             return;
 

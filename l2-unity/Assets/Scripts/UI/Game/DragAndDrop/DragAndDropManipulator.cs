@@ -46,8 +46,8 @@ public class DragAndDropManipulator : PointerManipulator
         target.CapturePointer(evt.pointerId);
         var vector = new Vector2(target.worldBound.position.x , target.worldBound.position.y);
         SetActiveToManager((VisualElement)evt.currentTarget);
-        DragIcon.Instance.SetBackground(manager.GetActiveBackground());
-        DragIcon.Instance.NewPosition(vector);
+        DragIconPacketServices.Icon.SetBackground(manager.GetActiveBackground());
+        DragIconPacketServices.Icon.NewPosition(vector);
 
         enabled = true;
     }
@@ -69,8 +69,8 @@ public class DragAndDropManipulator : PointerManipulator
             var position = new Vector2(
                 Mathf.Clamp(targetStartPosition.x + pointerDelta.x, 0, target.panel.visualTree.worldBound.width),
                 Mathf.Clamp(targetStartPosition.y + pointerDelta.y, 0, target.panel.visualTree.worldBound.height));
-            DragIcon.Instance.NewPosition(position);
-            DragIcon.Instance.BringToFront1();
+            DragIconPacketServices.Icon.NewPosition(position);
+            DragIconPacketServices.Icon.BringToFront1();
 
         }
     }
@@ -83,7 +83,7 @@ public class DragAndDropManipulator : PointerManipulator
         {
             target.ReleasePointer(evt.pointerId);
             VisualElement ve = (VisualElement)evt.currentTarget;
-            DragIcon.Instance.ResetPosition();
+            DragIconPacketServices.Icon.ResetPosition();
         }
     }
 

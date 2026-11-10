@@ -31,7 +31,7 @@ public sealed class PlayerSpawner
 
         CharacterRace race = (CharacterRace)appearance.Race;
         int playerClass = identity != null ? identity.PlayerClass : 0;
-        CharacterRaceAnimation raceId = CharacterRaceAnimationParser.ResolveRaceAnimation(
+        CharacterRaceAnimation raceId = CharacterRaceAnimationResolve.ResolveRaceAnimation(
             race, appearance, playerClass);
         // Debug.Log("PlayerSpawner body race=" + race +
             // " sex=" + (appearance != null ? appearance.Sex : -1) +
@@ -95,12 +95,12 @@ public sealed class PlayerSpawner
         player.UpdateRunSpeed(run);
         player.UpdateWalkSpeed(walk);
         // Direct apply — Guarantees PlayerController has speeds even if anim path threw.
-        controller.UpdateRunSpeed(StatsConverter.Instance.ConvertStat(Stat.SPEED, run));
-        controller.UpdateWalkSpeed(StatsConverter.Instance.ConvertStat(Stat.SPEED, walk));
+        controller.UpdateRunSpeed(StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, run));
+        controller.UpdateWalkSpeed(StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, walk));
         player.UpdatePAtkSpeedPlayer((int)statsIntr.BasePAtkSpeed);
         player.UpdateMAtkSpeed((int)statsIntr.MAtkSpd);
 
-        CameraController camera = _camera != null ? _camera : CameraController.Instance;
+        CameraController camera = _camera != null ? _camera : CameraPacketServices.Controller;
         if (camera != null)
         {
             camera.enabled = true;
@@ -114,8 +114,8 @@ public sealed class PlayerSpawner
         if (_characterInfo != null)
             _characterInfo.UpdateValues();
         PlayerStateMachine.AdoptFromPlayer(player);
-        if (PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.Player = player;
+        if (PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.Player = player;
 
         world.RegisterPlayer(player);
         DiBootstrap.EnsureGameScope();

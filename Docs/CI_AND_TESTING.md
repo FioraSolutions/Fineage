@@ -11,8 +11,13 @@
 - Push to `feat/**`, `fix/**`, `chore/**` branches
 
 **What it does:**
-1. Restores, builds, and tests `tools/Fineage.Tools.sln` (Release configuration)
-2. Uploads test results as artifacts (`.trx` format, 14 day retention)
+1. Checks out this repo **and** `FioraSolutions/Fineage-Backend` at `dev`
+2. Frozen-path guards (`IncomingPacketActions`, Net domain maps, asmdef layout)
+3. **Net contract sync:** `FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check` against the checked-out Backend (fails on drift; does not skip when Backend is present)
+4. Restores, builds, and tests `tools/Fineage.Tools.sln` (Release configuration)
+5. Uploads test results as artifacts (`.trx` format, 14 day retention)
+
+**Not in PR CI:** Unity Editor/Player compile, EditMode/PlayMode tests. Player builds run on `release-clients` (not a PR gate). Follow-up: replace closed [#34](https://github.com/FioraSolutions/Fineage/issues/34) with an explicit Unity PR-compile issue when runners/license allow.
 
 **Required status check name:** `build-and-test`
 
@@ -83,18 +88,22 @@ dotnet test tools/Fineage.Tools.sln --collect:"XPlat Code Coverage"
 
 ---
 
-## Unity EditMode Tests (Future)
+## Unity EditMode / PR compile (#737)
 
-Unity C# code (`l2-unity/Assets/Scripts/`) cannot be built or tested in GitHub Actions without a Unity license. Here's the plan for adding tests later:
+Workflow: `.github/workflows/unity-compile.yml` (path-filtered to `l2-unity/Assets/Scripts|Tests`).
 
-### Option 1: Unity Test Framework (EditMode)
+**Merge policy:** `unity-editmode` is **not** a required status check on `dev`. Required gate remains **`build-and-test`** only. Agents/humans may merge once `build-and-test` is green; do not block ~20–25 min on game-ci. Treat a later red Unity run as a follow-up fix, not a merge blocker.
 
-1. Create `l2-unity/Assets/Tests/EditMode/` with a `.asmdef` referencing the game assemblies
-2. Write tests using `NUnit` (Unity's test runner)
-3. Run locally via Unity Test Runner window
-4. For CI: requires [GameCI](https://game.ci/) with a Unity license file (`.ulf`)
-   - Free for personal licenses
-   - Needs `UNITY_LICENSE` secret in GitHub repo settings
+- Uses [game-ci/unity-test-runner](https://game.ci/) **v4.4.0** + `cliVersion: v0.1.72` with the same Personal seat as `release-clients`: `UNITY_EMAIL` + `UNITY_PASSWORD` (optional `UNITY_SERIAL`). Do not set `coverageEnabled: false` — that maps to a CLI flag v0.1.72 rejects.
+- Runs EditMode tests under `l2-unity/Assets/Tests/EditMode/` — opening the project compiles `Assets/Scripts`; script errors fail the job.
+- Smoke test covers `PacketReader` in `Fineage.Networking` so the job is not an empty suite.
+- Do **not** rely on a stale `UNITY_LICENSE` `.ulf` for this Personal path (same note as playtest builds).
+- Networking must not reference `Fineage.Game` (cycle). Shared wire helpers (`VectorUtils` / `NumberUtils` / manor seed models / `ChatTypeData`) live in `Fineage.Domain`.
+
+### Option 1: more EditMode tests locally
+
+1. Add tests under `l2-unity/Assets/Tests/EditMode/`
+2. Run via Unity Test Runner window
 
 ### Option 2: Extract pure C# to shared library
 

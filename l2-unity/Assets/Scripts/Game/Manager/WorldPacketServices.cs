@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// World runtime access to shared services with [Inject] wiring and Networking fallback (#142).
 /// </summary>
 public static class WorldPacketServices
@@ -28,4 +28,6 @@ public static class WorldPacketServices
 
     public static WorldPacketApply WorldApply =>
         _worldApply != null ? _worldApply : NetworkingPacketServices.WorldApply;
+
+    public static Geodata Geodata => GeodataPacketServices.Geodata;
 }

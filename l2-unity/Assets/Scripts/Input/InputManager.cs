@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -73,13 +75,15 @@ public class InputManager : MonoBehaviour
     private PlayerInput _playerInput;
 
     private static InputManager _instance;
-    public static InputManager Instance { get { return _instance; } }
+    [System.Obsolete("Use ControllerPacketServices.Input instead")]
+        public static InputManager Instance { get { return _instance; } }
 
     private void Awake()
     {
         if (_instance == null)
         {
             _instance = this;
+            ControllerPacketServices.Bind(input: this);
         }
         else
         {
@@ -157,7 +161,7 @@ public class InputManager : MonoBehaviour
         CloseWindow = _closeWindowAction.WasPerformedThisFrame();
         Validate = _validateAction.WasPerformedThisFrame();
 
-        L2GameUI gameUi = L2GameUI.Instance;
+        L2GameUI gameUi = SystemUIPacketServices.Ui;
         bool mouseOverUi = gameUi != null && gameUi.MouseOverUI;
 
         if (!mouseOverUi)
@@ -177,7 +181,7 @@ public class InputManager : MonoBehaviour
             gameUi?.EnableMouse();
         }
 
-        ChatWindow chat = ChatWindow.Instance;
+        ChatWindow chat = MessagePacketServices.Chat;
         bool chatOpen = chat != null && chat.ChatOpened;
         if (!chatOpen)
         {

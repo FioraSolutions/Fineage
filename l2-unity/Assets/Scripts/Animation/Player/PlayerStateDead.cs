@@ -2,6 +2,8 @@
 
 public class PlayerStateDead : PlayerStateBase
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     public string parameterName;
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -9,7 +11,7 @@ public class PlayerStateDead : PlayerStateBase
         // CrossFade path does not set the death bool; clear leftover AnyState bool if any.
         if (!string.IsNullOrEmpty(parameterName) && animator.GetBool(parameterName))
         {
-            AnimationManager.Instance.StopCurrentAnimation(
+            Animations.StopCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
         }
     }

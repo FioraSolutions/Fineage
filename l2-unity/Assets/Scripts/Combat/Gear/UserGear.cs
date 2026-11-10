@@ -1,17 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static ModelTable;
+﻿using UnityEngine;
 
 public class UserGear : Gear
 {
     const string ModelChildName = "model";
 
     protected SkinnedMeshSync _skinnedMeshSync;
-    [Header("Armors")]
-    [Header("Meta")]
-
-    [Header("Models")]
     [SerializeField] private GameObject _container;
 
     [System.NonSerialized] public GameObject Hair1;
@@ -19,6 +12,7 @@ public class UserGear : Gear
     [System.NonSerialized] public GameObject Face;
 
     private CharacterArmorDresser _armorDresser;
+    ArmorVisualResolver _armorVisuals;
 
     public override void Initialize(int ownderId, CharacterRaceAnimation raceId)
     {
@@ -32,9 +26,7 @@ public class UserGear : Gear
         {
             _armorDresser = new CharacterArmorDresser(_container.transform);
             _armorDresser.OnDestroyGameObject += OnDestroyGameObject;
-            _armorDresser.OnSyncMash += OnSyncMesh;
-            _armorDresser.OnAddSyncMash += OnAddSyncMesh;
-            _armorDresser.OnEquipArmor += OnEquipArmor;
+            _armorDresser.OnSyncMesh += OnSyncMesh;
         }
 
         // Anim + SkinnedMeshSync sit under model; resolve from the pawn root.
@@ -72,55 +64,47 @@ public class UserGear : Gear
 
     public void EquipArmor(int itemId, ItemSlot slot)
     {
-        Armor armor = ItemTable.Instance.GetArmor(itemId);
+        Armor armor = TablePacketServices.Items.GetArmor(itemId);
         if (armor == null)
         {
-            // Unknown paperdoll id (e.g. starter kit piece not in client table): fall back to naked
-            // for that slot so races don't spawn as gingerbread (head/gloves/boots only).
+            // Unknown paperdoll id → naked for that slot (avoid gingerbread torso).
             if (itemId != 0)
-            {
-                Debug.LogWarning("[UserGear] EquipArmor missing ItemTable id=" + itemId +
-                    " slot=" + slot + " race=" + _raceId + " — using naked default");
-                GetDefaultGoWithArmorModel(slot, out Armor[] defaultArmor, out GameObject[] listArmorPiece, (int)_raceId);
-                _armorDresser.EquipDefaultSlot(slot, defaultArmor, listArmorPiece);
-            }
+                ResetSlotToNaked(slot, itemId);
             return;
         }
 
-        ItemSlot slotArmor = ResolveArmorSlot(armor, slot);
-        // GearFlowLog.Info("EquipArmor id=" + itemId +
-            // " askedSlot=" + slot +
-            // " resolved=" + slotArmor +
-            // " body=" + (armor.Armorgrp != null ? armor.Armorgrp.BodyPart.ToString() : "null"));
-        if (ItemSlot.fullarmor != slotArmor) {
-            EquipSingleArmor(armor, slotArmor, itemId);
-        } else {
-            EquipFullArmor(armor, slotArmor, itemId);
+        ItemSlot slotArmor = ResolveEquipSlot(armor, slot);
+        if (_armorDresser.IsArmorEquipped(armor, slotArmor))
+            return;
+
+        ArmorVisual visual = ArmorVisuals.Resolve(armor, _raceId);
+        if (visual.IsMissing)
+        {
+            ResetSlotToNaked(slotArmor, itemId);
+            return;
         }
+
+        if (visual.Slot == ItemSlot.fullarmor)
+            ApplyFullArmor(visual);
+        else
+            ApplySingleArmor(visual);
     }
 
     /// <summary>
     /// CharInfo / spawn paperdoll: chest/legs/gloves/feet. Full-body chest skips legs.
-    /// Old piece is replaced by <see cref="CharacterArmorDresser.EquipNewArmor"/>.
     /// </summary>
     public void SyncEquippedArmor(PlayerAppearance appearance)
     {
         if (appearance == null)
-        {
-            // GearFlowLog.Warn("SyncArmor abort appearance=null");
             return;
-        }
 
         int chestId = appearance.Chest != 0 ? appearance.Chest : ItemTable.NAKED_CHEST;
         int glovesId = appearance.Gloves != 0 ? appearance.Gloves : ItemTable.NAKED_GLOVES;
         int feetId = appearance.Feet != 0 ? appearance.Feet : ItemTable.NAKED_BOOTS;
 
-        Armor chestArmor = ItemTable.Instance.GetArmor(chestId);
-        bool fullBody = chestArmor != null && chestArmor.Armorgrp != null &&
-            chestArmor.Armorgrp.BodyPart == ItemSlot.fullarmor;
-
-        // GearFlowLog.Info("SyncArmor " + GearFlowLog.Paperdoll(appearance) +
-            // " fullBody=" + fullBody + " chestId=" + chestId);
+        Armor chestArmor = TablePacketServices.Items.GetArmor(chestId);
+        bool fullBody = chestArmor != null &&
+            ArmorVisualResolver.ResolveBodySlot(chestArmor) == ItemSlot.fullarmor;
 
         EquipArmor(chestId, fullBody ? ItemSlot.fullarmor : ItemSlot.chest);
 
@@ -134,139 +118,90 @@ public class UserGear : Gear
         EquipArmor(feetId, ItemSlot.feet);
     }
 
-    static ItemSlot ResolveArmorSlot(Armor armor, ItemSlot fallback)
+    ArmorVisualResolver ArmorVisuals =>
+        _armorVisuals ??= ArmorVisualResolver.FromTables();
+
+    static ItemSlot ResolveEquipSlot(Armor armor, ItemSlot fallback)
     {
-        ItemSlot body = armor.Armorgrp != null ? armor.Armorgrp.BodyPart : ItemSlot.none;
-        body = ArmorDresserModel.GetExtendedArmorPart(body);
-        if (body == ItemSlot.fullarmor || body == ItemSlot.chest || body == ItemSlot.legs ||
-            body == ItemSlot.gloves || body == ItemSlot.feet)
+        ItemSlot body = ArmorVisualResolver.ResolveBodySlot(armor);
+        if (ArmorBodySlots.IsBody(body))
             return body;
-        return ArmorDresserModel.GetExtendedArmorPart(fallback);
+        return ArmorBodySlots.Normalize(fallback);
     }
 
-    private void EquipFullArmor(Armor armor, ItemSlot slotArmor, int itemId)
+    void ApplyFullArmor(ArmorVisual visual)
     {
-        if (_armorDresser.IsArmorEquipped(armor, slotArmor))
+        Armor armor = visual.Armor;
+        GameObject goChest = null;
+        GameObject goLegs = null;
+
+        for (int i = 0; i < visual.Parts.Length; i++)
         {
-            // GearFlowLog.Info("EquipFullArmor SKIP already equipped id=" + itemId + " slot=" + slotArmor);
-            return;
-        }
+            ArmorVisualPart part = visual.Parts[i];
+            GameObject mesh = CreateArmorMesh(part.Mesh, part.Material);
+            if (mesh == null)
+                continue;
 
-        L2ArmorPiece armorPiece = (L2ArmorPiece)LoadMesh(EquipmentCategory.FullArmor, itemId, (int)_raceId);
-        if (!ValidateArmorPieceFullArmor(armorPiece, itemId))
-        {
-            ReportMissingArmorAndReset(armor, slotArmor, itemId);
-            return;
-        }
-
-        // GearFlowLog.Info("EquipFullArmor APPLY id=" + itemId);
-
-        try
-        {
-            GameObject[] listGo = CreateListArmorMesh(armorPiece.baseAllModels, armorPiece.allMaterials);
-            // GearFlowLog.Info("EquipFullArmor meshes id=" + itemId + " count=" + (listGo != null ? listGo.Length : 0));
-
-            if (listGo != null && listGo.Length == 2)
-            {
-                GameObject goChest = listGo[0];
-                GameObject goLegs = listGo[1];
-
-                _armorDresser.SetFullArmor(false , armor, goChest, ItemSlot.chest);
-                _armorDresser.SetFullArmor(true , armor, goLegs, ItemSlot.legs);
-            }
+            if (part.PartSlot == ItemSlot.legs)
+                goLegs = mesh;
             else
-            {
-                ReportMissingArmorAndReset(armor, slotArmor, itemId);
-            }
+                goChest = mesh;
         }
-        catch (System.Exception)
+
+        if (goChest == null)
         {
-            ReportMissingArmorAndReset(armor, slotArmor, itemId);
+            ResetSlotToNaked(ItemSlot.fullarmor, visual.ItemId);
+            return;
         }
+
+        _armorDresser.ApplyFullBody(armor, goChest, goLegs);
     }
 
-    private void EquipSingleArmor(Armor armor , ItemSlot slotArmor , int itemId)
+    void ApplySingleArmor(ArmorVisual visual)
     {
-        if (_armorDresser.IsArmorEquipped(armor, slotArmor))
+        if (visual.Parts.Length == 0)
         {
-            // GearFlowLog.Info("EquipSingleArmor SKIP already equipped id=" + itemId + " slot=" + slotArmor);
+            ResetSlotToNaked(visual.Slot, visual.ItemId);
             return;
         }
 
-        L2ArmorPiece armorPiece = (L2ArmorPiece)LoadMesh(EquipmentCategory.Armor, itemId, (int)_raceId);
-        if (!ValidateArmorPiece(armorPiece, itemId))
+        ArmorVisualPart part = visual.Parts[0];
+        GameObject armorMesh = CreateArmorMesh(part.Mesh, part.Material);
+        if (armorMesh == null)
         {
-            ReportMissingArmorAndReset(armor, slotArmor, itemId);
+            ResetSlotToNaked(visual.Slot, visual.ItemId);
             return;
         }
 
-        // GearFlowLog.Info("EquipSingleArmor APPLY id=" + itemId + " slot=" + slotArmor);
-
-        try
+        // Naked chest/legs only needed when replacing a full-body set.
+        Armor[] nakedArmor = null;
+        GameObject[] nakedMeshes = null;
+        if (visual.Slot == ItemSlot.chest || visual.Slot == ItemSlot.legs)
         {
-            GetDefaultGoWithArmorModel(ItemSlot.fullarmor, out Armor[] defaultArmor, out GameObject[] listArmorPiece , (int)_raceId);
-
-            GameObject armorMesh = CreateArmorMesh(armorPiece.baseArmorModel, armorPiece.material);
-            if (armorMesh != null)
-            {
-                _armorDresser.SetArmorPiece(armor, armorMesh, slotArmor , defaultArmor, listArmorPiece);
-
-            }
-            else
-            {
-                ReportMissingArmorAndReset(armor, slotArmor, itemId);
-            }
+            GetDefaultGoWithArmorModel(
+                ItemSlot.fullarmor,
+                out nakedArmor,
+                out nakedMeshes,
+                (int)_raceId);
         }
-        catch (System.Exception)
-        {
-            ReportMissingArmorAndReset(armor, slotArmor, itemId);
-        }
+
+        _armorDresser.ApplySingle(
+            visual.Armor,
+            visual.Slot,
+            armorMesh,
+            nakedArmor,
+            nakedMeshes);
     }
 
-    void ReportMissingArmorAndReset(Armor armor, ItemSlot slotArmor, int itemId)
+    void ResetSlotToNaked(ItemSlot slotArmor, int itemId)
     {
         EquipmentMeshLog.Once("armor", itemId);
-        // string visual = GearFlowLog.ArmorVisual(armor, _raceId, itemId, slotArmor);
-        // GearFlowLog.Info("Missing mesh/texture, reset to naked " + visual);
-
-        GetDefaultGoWithArmorModel(slotArmor, out Armor[] defaultArmor, out GameObject[] listArmorPiece, (int)_raceId);
-        _armorDresser.EquipDefaultSlot(slotArmor, defaultArmor, listArmorPiece);
-    }
-
-    /// <summary>
-    /// Validates the armor piece data
-    /// </summary>
-    private bool ValidateArmorPiece(L2ArmorPiece armorPiece, int itemId)
-    {
-        if (armorPiece == null || armorPiece.baseArmorModel == null || armorPiece.material == null)
-        {
-            // Debug.LogWarning($"UserGear-> Invalid armor data for item {itemId}");
-            return false;
-        }
-        return true;
-    }
-
-    private bool ValidateArmorPieceFullArmor(L2ArmorPiece armorPiece, int itemId)
-    {
-        if (armorPiece == null || armorPiece.baseAllModels == null || armorPiece.allMaterials == null)
-        {
-            // Debug.LogWarning($"UserGear->ValidateArmorPieceFullArmor: Invalid armor data for item {itemId}");
-            return false;
-        }
-        return true;
-    }
-    
-    private GameObject[] CreateListArmorMesh(GameObject[] baseListArmorModel, Material[] materials)
-    {
-        GameObject[] listGo = new GameObject[baseListArmorModel.Length];
-
-        for(int i = 0; i < baseListArmorModel.Length; i++)
-        {
-            GameObject baseArmorModel = baseListArmorModel[i];
-            Material material = materials[i];
-            listGo[i] = CreateArmorMesh(baseArmorModel, material);
-        }
-        return listGo;
+        GetDefaultGoWithArmorModel(
+            slotArmor,
+            out Armor[] defaultArmor,
+            out GameObject[] listArmorPiece,
+            (int)_raceId);
+        _armorDresser.ApplyNaked(slotArmor, defaultArmor, listArmorPiece);
     }
 
     protected override Transform GetLeftHandBone() {
@@ -293,21 +228,14 @@ public class UserGear : Gear
 
     public void EquipHair(GameObject hair1Piece, GameObject hair2Piece)
     {
-        EquipHairTest(hair1Piece, hair2Piece);
-    }
-    
-    public void EquipHairTest(GameObject hair1Piece , GameObject hair2Piece)
-    {
         if (Hair1 != null)
             DestroyImmediate(Hair1);
         if (Hair2 != null)
             DestroyImmediate(Hair2);
 
-        Hair1 = null;
-        Hair2 = null;
-        var tr = _container.transform;
         Hair1 = hair1Piece;
         Hair2 = hair2Piece;
+        Transform tr = _container.transform;
         if (Hair1 != null)
             Hair1.transform.SetParent(tr, false);
         if (Hair2 != null)
@@ -319,47 +247,26 @@ public class UserGear : Gear
     public void EquipFace(GameObject facePiece)
     {
         if (Face != null)
-        {
             Destroy(Face);
-            //_torsoMeta = null;
-        }
-        var tr = _container.transform;
-        Face = facePiece;
-        Face.transform.SetParent(tr, false);
 
-       _skinnedMeshSync?.SyncMesh();
+        Face = facePiece;
+        if (Face != null)
+            Face.transform.SetParent(_container.transform, false);
+
+        _skinnedMeshSync?.SyncMesh();
     }
 
     public void OnDestroyGameObject(GameObject go)
     {
-        if(ObjectPoolManager.Instance != null)
-        {
-            if (!ObjectPoolManager.Instance.ReturnToPool(ObjectType.Armor , go))
-            {
-                Destroy(go);
-            }
-        }
-        else
-        {
-            Destroy(go);
-        }
-
-        //Debug.LogWarning("Запрос на удаление. Удаление состоялось размер " + _container.transform.childCount);
+        IPoolManager pool = ObjectPoolPacketServices.Pool;
+        if (pool != null && pool.ReturnToPool(ObjectType.Armor, go))
+            return;
+        Destroy(go);
     }
 
-    public void OnSyncMesh(int status)
+    void OnSyncMesh()
     {
-        //Debug.LogWarning("Запрос на удаление. Синхронизация начало");
         _skinnedMeshSync?.SyncMesh();
-        //Debug.LogWarning("Запрос на удаление. Синхронизация конец");
-    }
-
-    public void OnAddSyncMesh(GameObject add) {
-        _skinnedMeshSync?.AddObjectToQueue(add);
-    }
-
-    public void OnEquipArmor(int naked, ItemSlot slot) {
-        EquipArmor(naked , slot);
     }
 
     public void AddUserGearLink(GameObject face, GameObject hair1, GameObject hair2) {

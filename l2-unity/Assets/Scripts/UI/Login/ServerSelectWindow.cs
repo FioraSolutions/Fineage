@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +24,7 @@ public class ServerSelectWindow : L2Window
     private ServerData _selectServerData;
 
     private static ServerSelectWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.ServerSelect instead")]
     public static ServerSelectWindow Instance { get { return _instance; } }
 
     private void Awake() {
@@ -49,11 +52,11 @@ public class ServerSelectWindow : L2Window
 
     private void Update() {
         if (!_isWindowHidden) {
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                AudioManager.Instance.PlayUISound("click_01");
+            if (PollInput.EscapeDown) {
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 CancelButtonPressed();
-            } else if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) {
-                AudioManager.Instance.PlayUISound("click_01");
+            } else if (PollInput.EnterDown) {
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 ConfirmButtonPressed();
             }
         }

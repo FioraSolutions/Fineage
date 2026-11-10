@@ -53,7 +53,7 @@ public class CreatorTableWindows : ICreatorTables
     public void InitTable(VisualElement content)
     {
         _content = content;
-        _defaultCursor = IconManager.Instance.LoadCursorByName("Default");
+        _defaultCursor = IconPacketServices.Icons.LoadCursorByName("Default");
         _functions = new TableFunction();
     }
 

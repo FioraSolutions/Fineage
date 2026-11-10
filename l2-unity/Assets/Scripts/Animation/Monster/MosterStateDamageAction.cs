@@ -5,6 +5,8 @@ using UnityEngine;
 public class MonsterStateDamageACtion : MonsterStateBase
 {
 
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
+
     private float _startTime = -1;
     private float _endTime = -1;
     private float _remainingTime = 0f;
@@ -108,7 +110,7 @@ public class MonsterStateDamageACtion : MonsterStateBase
             SetAnimationSpeed(animator, 1f);
 
             // Здесь можно добавить логику для переключения в состояние ожидания
-            // PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
+            // PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
         }
     }
 
@@ -118,8 +120,8 @@ public class MonsterStateDamageACtion : MonsterStateBase
             return;
         if (!animator.GetBool(parameterName))
             return;
-        if (AnimationManager.Instance != null)
-            AnimationManager.Instance.StopMonsterCurrentAnimation(
+        if (Animations != null)
+            Animations.StopMonsterCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID), parameterName);
     }
 }

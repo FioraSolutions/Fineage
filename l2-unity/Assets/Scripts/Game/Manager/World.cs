@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
@@ -46,7 +48,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     private CharacterInfoWindow CharacterInfo
     {
-        get { return _characterInfo != null ? _characterInfo : CharacterInfoWindow.Instance; }
+        get { return _characterInfo != null ? _characterInfo : HudCorePacketServices.CharacterInfo; }
     }
 
     public IAnimationManager Animations
@@ -97,7 +99,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     static bool ShouldEnsureGameScope()
     {
-        if (L2GameUI.Instance != null)
+        if (SystemUIPacketServices.Ui != null)
             return true;
 
         GameManager manager = WorldPacketServices.Manager ?? GamePacketServices.Manager;
@@ -160,10 +162,12 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     }
 
     public void UpdateMasks() {
-        NameplatesManager.Instance.SetMask(_entityMask);
+        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        if (nameplates != null)
+            nameplates.SetMask(_entityMask);
         if (_geodata != null)
             _geodata.ObstacleMask = _obstacleMask;
-        ClickManager clicks = ClickManager.Instance;
+        ClickManager clicks = ControllerPacketServices.Clicks;
         if (clicks != null)
         {
             LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
@@ -246,13 +250,13 @@ public class World : MonoBehaviour, IWorldSpawnContext {
 
     void UnregisterObject(int id, Entity entity)
     {
-        if (MoveAllCharacters.Instance != null)
-            MoveAllCharacters.Instance.Forget(id);
+        if (MoveAllCharactersPacketServices.Moves != null)
+            MoveAllCharactersPacketServices.Moves.Forget(id);
         _players.Remove(id);
         _npcs.Remove(id);
         _objects.Remove(id);
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Remove(entity);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Remove(entity);
 
         if (_gravityNpc != null)
             _gravityNpc.DeleteGravity(id);
@@ -269,8 +273,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         if (_npcDeco != null)
             _npcDeco.Stop(id);
         UnregisterObject(id, entity);
-        if (NameplatesManager.Instance != null)
-            NameplatesManager.Instance.Remove(id);
+        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        if (nameplates != null)
+            nameplates.Remove(id);
         SetEntityInteraction(go, false);
 
         if (_appearFade == null || go == null)
@@ -368,7 +373,7 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             return;
         }
 
-        PlayerEntity local = PlayerEntity.Instance;
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
         if (local != null && local.Identity != null && local.Identity.Id == id)
         {
             // GearFlowLog.Info("SpawnUser SKIP local PlayerEntity id=" + id);
@@ -446,8 +451,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         RemoveObject(itemObjectId);
 
         // Let authored PicItem finish before forcing gait (do not stretch the clip).
-        if (pickerCharObjId != 0 && MoveAllCharacters.Instance != null &&
-            MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
+        if (pickerCharObjId != 0 && MoveAllCharactersPacketServices.Moves != null &&
+            MoveAllCharactersPacketServices.Moves.IsMoving(pickerCharObjId))
         {
             StartCoroutine(ResumeGaitAfterPickup(pickerCharObjId));
         }
@@ -456,11 +461,11 @@ public class World : MonoBehaviour, IWorldSpawnContext {
     System.Collections.IEnumerator ResumeGaitAfterPickup(int pickerCharObjId)
     {
         yield return new WaitForSeconds(AnimPlayback.PickupFallbackSeconds);
-        if (MoveAllCharacters.Instance == null ||
-            !MoveAllCharacters.Instance.IsMoving(pickerCharObjId))
+        if (MoveAllCharactersPacketServices.Moves == null ||
+            !MoveAllCharactersPacketServices.Moves.IsMoving(pickerCharObjId))
             yield break;
 
-        MovementData move = MoveAllCharacters.Instance.GetMove(pickerCharObjId);
+        MovementData move = MoveAllCharactersPacketServices.Moves.GetMove(pickerCharObjId);
         if (move == null || move.GetEntity() == null)
             yield break;
 
@@ -738,9 +743,9 @@ public class World : MonoBehaviour, IWorldSpawnContext {
         return ExecuteWithEntityAsync(user.PlayerInfoInterlude.Identity.Id, e => {
             if (_worldCombat != null)
                 _worldCombat.StatusUpdate(e, user.PlayerInfoInterlude.Stats, user.PlayerInfoInterlude.Status , user.PlayerInfoInterlude.Identity.Id);
-            if (e == PlayerEntity.Instance)
+            if (e == DomainPacketServices.LocalPlayer)
             {
-                PlayerEntity.Instance.Running = user.PlayerInfoInterlude.Appearance.Running;
+                DomainPacketServices.LocalPlayer.Running = user.PlayerInfoInterlude.Appearance.Running;
                 if (CharacterInfo != null)
                     CharacterInfo.UpdateValues();
             }
@@ -756,8 +761,8 @@ public class World : MonoBehaviour, IWorldSpawnContext {
             if (entity.GetType() == typeof(PlayerEntity))
             {
 
-                PlayerStateMachine.Instance.ChangeState(PlayerState.REBIRTH);
-                PlayerStateMachine.Instance.NotifyEvent(Event.REBIRTH);
+                PlayerStatePacketServices.PlayerState.ChangeState(PlayerState.REBIRTH);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.REBIRTH);
 
                 entity.SetDead(false);
 

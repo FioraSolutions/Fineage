@@ -116,7 +116,8 @@ public class GeodataImporter
                 nodeId.x = x;
                 nodeId.z = z;
 
-                Node n = new Node(scaledPos, Geodata.Instance.FromNodeToWorldPos(scaledPos, mapOrigin), nodeSize);
+                Geodata geodata = GeodataPacketServices.Geodata;
+                Node n = new Node(scaledPos, geodata.FromNodeToWorldPos(scaledPos, mapOrigin), nodeSize);
 
                 if (lastNodeIndex == nodeId) {
                     layer++;

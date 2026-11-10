@@ -1,0 +1,104 @@
+using UnityEngine;
+
+
+public class AttackDto : IWireDto
+{
+    private int _attackerObjId;
+    private int _targetObjId;
+    private int _damage;
+    private Vector3 _attackerPos;
+    private Vector3 _targetPos;
+    private int _aX;
+    private int _aY;
+    private int _aZ;
+
+    private int _tX;
+    private int _tY;
+    private int _tZ;
+
+    private Hit _firstHit;
+    private Hit[] array;
+
+    public int AttackerObjId { get => _attackerObjId; }
+
+    public int TargetId { get => _targetObjId; }
+
+    public int Damage { get => _damage; }
+    public int Flags { get; private set; }
+    public int AX { get => _aX; }
+    public int AY { get => _aY; }
+    public int AZ { get => _aZ; }
+
+    public Vector3 AttackerPos { get => _attackerPos; }
+    public Vector3 TargetPos { get => _targetPos; }
+    public Hit[] ArrHit { get => array; }
+
+    public Hit FirstHit { get => _firstHit; }
+
+    
+
+    /// <summary>Fineage Net <c>Attack</c> (1009) — no Interlude multi-hit block.</summary>
+    public void InitFromNet(
+        int attackerObjId,
+        int targetObjId,
+        int damage,
+        int flags,
+        int ax,
+        int ay,
+        int az,
+        int tx,
+        int ty,
+        int tz)
+    {
+        _attackerObjId = attackerObjId;
+        _targetObjId = targetObjId;
+        _damage = damage;
+        Flags = flags;
+        _aX = ax;
+        _aY = ay;
+        _aZ = az;
+        _tX = tx;
+        _tY = ty;
+        _tZ = tz;
+        _firstHit = new Hit(targetObjId, damage, flags);
+        array = new Hit[] { _firstHit };
+        _attackerPos = VectorUtils.ConvertPosToUnity(new Vector3(ax, ay, az));
+        _targetPos = VectorUtils.ConvertPosToUnity(new Vector3(tx, ty, tz));
+    }
+
+    public void ReadFrom(PacketReader reader)
+    {
+        _attackerObjId = reader.ReadI();
+        _targetObjId =  reader.ReadI();
+        _damage = reader.ReadI();
+       Flags =  reader.ReadB();
+        _firstHit = new Hit(_targetObjId, _damage, Flags);
+
+       _aX = reader.ReadI();
+       _aY = reader.ReadI();
+       _aZ = reader.ReadI();
+
+       int sizeHit = reader.ReadSh();
+
+        _attackerPos = VectorUtils.ConvertPosToUnity(new Vector3(_aX, _aY, _aZ));
+
+        array = new Hit[sizeHit];
+
+       for(int i=0; i< sizeHit; i++)
+       {
+            int _tId = reader.ReadI();
+            int _dam = reader.ReadI();
+            int _fl = (int)reader.ReadB();
+            Hit hit1 = new Hit(_tId, _dam, _fl);
+            array[i] = hit1;
+        }
+
+        _tX = reader.ReadI();
+        _tY = reader.ReadI();
+        _tZ = reader.ReadI();
+        _targetPos = VectorUtils.ConvertPosToUnity(new Vector3(_tX, _tY, _tZ));
+    }
+
+   
+    
+}

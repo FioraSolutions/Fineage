@@ -67,13 +67,13 @@ public sealed class NpcWorldApply : EntityWorldApply
         if (entity != null && entity.IsDead())
             return;
         if (entity != null && entity.Identity != null)
-            CombatFacingService.Instance?.EndFollow(entity.Identity.Id, "skill-canceled");
+            CombatPacketServices.Facing?.EndFollow(entity.Identity.Id, "skill-canceled");
         _actions.Set(entity, EntityActionKind.Idle, null);
     }
 
     public override void OnNpcHtml(Entity entity, NpcHtmlMessageDto dto)
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null && entity != null)
         {
             Vector3 direction = player.transform.position - entity.transform.position;

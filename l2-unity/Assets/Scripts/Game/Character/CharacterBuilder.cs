@@ -1,21 +1,26 @@
+using System;
+
 ﻿using UnityEngine;
 using VContainer;
 
 public class CharacterBuilder : MonoBehaviour
 {
     private static CharacterBuilder _instance;
+
+    [System.Obsolete("Use [Inject] CharacterBuilder or CharacterPacketServices.Builder instead")]
     public static CharacterBuilder Instance { get { return _instance; } }
 
     [Inject] private ModelTable _models;
 
     private ModelTable Models
     {
-        get { return _models != null ? _models : ModelTable.Instance; }
+        get { return _models != null ? _models : TablePacketServices.Models; }
     }
 
     void Awake() {
         if (_instance == null) {
             _instance = this;
+            CharacterPacketServices.Bind(builder: this);
         } else if (_instance != this) {
             Destroy(this);
         }
@@ -68,7 +73,7 @@ public class CharacterBuilder : MonoBehaviour
         if (entityType != EntityType.User)
             return Instantiate(prototype);
 
-        IPoolManager pool = ObjectPoolManager.Instance;
+        IPoolManager pool = ObjectPoolPacketServices.Pool;
         if (pool == null)
             return Instantiate(prototype);
 
@@ -95,7 +100,7 @@ public class CharacterBuilder : MonoBehaviour
         PlayerAppearance appearance,
         PooledUserVisual visual)
     {
-        ModelTable models = ModelTable.Instance;
+        ModelTable models = TablePacketServices.Models;
         bool sameFace = visual.Face == appearance.FaceByte;
         bool sameHair = visual.HairStyle == appearance.HairStyleByte &&
             visual.HairColor == appearance.HairColorByte;

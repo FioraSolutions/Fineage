@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 
@@ -29,6 +31,7 @@ public class CharCreationWindow : L2Window {
     private List<PlayerTemplates> _playerTemplates;
     private bool isInit = false;
     private static CharCreationWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.CharCreate instead")]
     public static CharCreationWindow Instance { get { return _instance; } }
 
     private void Awake() {
@@ -339,7 +342,7 @@ public class CharCreationWindow : L2Window {
             return;
         }
 
-        NetSession.Ensure().CreateCharacter(name, classId, raceId, sex, hairStyle, hairColor, face);
+        _ = NetSession.Ensure().CreateCharacter(name, classId, raceId, sex, hairStyle, hairColor, face);
         SetlabelError("");
     }
 

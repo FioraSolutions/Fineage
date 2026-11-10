@@ -17,6 +17,7 @@ public class QuantityInput : L2PopupWindow
     private object _parentWindow;
     private TextField _userInput;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static QuantityInput Instance { get { return _instance; } }
     public event Action<string> OnButtonOk; 
     public event Action OnButtonClose;
@@ -27,11 +28,22 @@ public class QuantityInput : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            WireQuantityInputPacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireQuantityInputPacketServices();
+    }
+
+    private void WireQuantityInputPacketServices()
+    {
+        QuantityInputPacketServices.Bind(window: this);
     }
 
 
@@ -200,7 +212,8 @@ public class QuantityInput : L2PopupWindow
         _count = allCount;
         base.ShowWindow();
         OnCenterScreen(_root);
-        _userInput.value = "0";
+        // Prefill 1 (Interlude-like). "All" still fills max; OK with 0 used to send empty buys.
+        _userInput.value = "1";
     }
 
 
@@ -208,7 +221,8 @@ public class QuantityInput : L2PopupWindow
 
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
 }

@@ -35,6 +35,22 @@ public class CompositeEffectV2 : CompositePrefabEffect
 
     protected override string DebugPrefix => "[CompositeEffectV2]";
 
+    public override void CollectReferencedPrefabs(List<UnityEngine.Object> sink)
+    {
+        base.CollectReferencedPrefabs(sink);
+        if (_v2Parts == null || sink == null)
+            return;
+        for (int i = 0; i < _v2Parts.Length; i++)
+        {
+            CompositePart part = _v2Parts[i];
+            if (part == null || part.prefab == null)
+                continue;
+            sink.Add(part.prefab);
+            if (part.prefab.gameObject != null)
+                sink.Add(part.prefab.gameObject);
+        }
+    }
+
     bool TraceCrasherWind()
     {
         return _owner != null &&
@@ -155,7 +171,7 @@ public class CompositeEffectV2 : CompositePrefabEffect
                     : transform.position;
             }
 
-            Vector3 aim = VectorUtils.GetCollision(start, _context.TargetTransform);
+            Vector3 aim = VectorWorldUtils.GetCollision(start, _context.TargetTransform);
             float flight = ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(
                 Vector3.Distance(start, aim));
             float impactAt =
@@ -479,9 +495,10 @@ public class CompositeEffectV2 : CompositePrefabEffect
             return resolvedTransform.rotation;
         }
 
-        bool aimAlongHit = part != null && part.IsLaunchedProjectile;
-        if (aimAlongHit &&
-            _context != null &&
+        // L2 actor +X is flight/cast; Unity LookRotation is Z-forward. Same -90
+        // yaw as V1 CompositePartSpawnHelper — required for MeshRing/cs burst too,
+        // not only ShotProjectilePart (otherwise the halo faces into/side of caster).
+        if (_context != null &&
             _context.HasHitDirection &&
             _context.HitDirection.sqrMagnitude > 0.0001f)
         {
@@ -495,7 +512,8 @@ public class CompositeEffectV2 : CompositePrefabEffect
             forward.y = 0f;
             if (forward.sqrMagnitude > 0.0001f)
             {
-                return Quaternion.LookRotation(forward.normalized, Vector3.up);
+                return Quaternion.LookRotation(forward.normalized, Vector3.up) *
+                       Quaternion.Euler(0f, HitDirectionYawOffsetDegrees, 0f);
             }
         }
 
@@ -703,18 +721,18 @@ public class CompositeEffectV2 : CompositePrefabEffect
             return;
         }
 
-        if (ProjectileManager.Instance != null && !_v2SubscribedHit)
+        if (ProjectilePacketServices.Projectiles != null && !_v2SubscribedHit)
         {
-            ProjectileManager.Instance.OnHitEffectProjectile += HandleV2ProjectileHit;
+            ProjectilePacketServices.Projectiles.OnHitEffectProjectile += HandleV2ProjectileHit;
             _v2SubscribedHit = true;
         }
     }
 
     void UnsubscribeV2Hit()
     {
-        if (ProjectileManager.Instance != null && _v2SubscribedHit)
+        if (ProjectilePacketServices.Projectiles != null && _v2SubscribedHit)
         {
-            ProjectileManager.Instance.OnHitEffectProjectile -= HandleV2ProjectileHit;
+            ProjectilePacketServices.Projectiles.OnHitEffectProjectile -= HandleV2ProjectileHit;
             _v2SubscribedHit = false;
         }
     }
@@ -823,8 +841,9 @@ public class CompositeEffectV2 : CompositePrefabEffect
 
         Vector3 resolvedHitPoint = hitPoint;
         Vector3 resolvedHitDirection = hitDirection;
-        if (HitManager.Instance != null &&
-            !HitManager.Instance.TryPrepareProjectileEffectHit(
+        var hits = HitPacketServices.Hits;
+        if (hits != null &&
+            !hits.TryPrepareProjectileEffectHit(
                 projectilePrefab,
                 hitPoint,
                 hitDirection,

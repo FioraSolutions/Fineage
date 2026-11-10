@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -11,6 +13,7 @@ public class SystemMenuWindow : L2PopupWindow
 
     private float _windowHeight = 0f;
     private static SystemMenuWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SystemMenuWindow Instance
     {
         get { return _instance; }
@@ -36,7 +39,7 @@ public class SystemMenuWindow : L2PopupWindow
 
     private void WireSystemUIPacketServices()
     {
-        SystemUIPacketServices.Bind(ui: _gameUi, audio: _audio);
+        SystemUIPacketServices.Bind(ui: _gameUi, audio: _audio, menu: this);
     }
 
     private void Update()
@@ -46,9 +49,9 @@ public class SystemMenuWindow : L2PopupWindow
             return;
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (PollInput.LeftMouseDown)
         {
-            if (!MouseOverThisWindow() && !MenuWindow.Instance.MouseOverThisWindow())
+            if (!MouseOverThisWindow() && !HudCorePacketServices.Menu.MouseOverThisWindow())
             {
                 HideWindow();
             }
@@ -106,18 +109,18 @@ public class SystemMenuWindow : L2PopupWindow
     private void HandleExitButtonClick()
     {
         HideWindow();
-        ExitWindow.Instance.OpenWindow(true);
+        SystemUIPacketServices.Exit.OpenWindow(true);
     }
 
     private void HandleRestartButtonClick()
     {
         HideWindow();
-        ExitWindow.Instance.OpenWindow(false);
+        SystemUIPacketServices.Exit.OpenWindow(false);
     }
 
     public override void ToggleHideWindow()
     {
-        Vector2 basePosition = MenuWindow.Instance.GetWindowPosition();
+        Vector2 basePosition = HudCorePacketServices.Menu.GetWindowPosition();
         _windowEle.transform.position = new Vector2(basePosition.x, basePosition.y - _windowHeight);
         base.ToggleHideWindow();
     }

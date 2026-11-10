@@ -13,6 +13,7 @@ public sealed class AppLifetimeScope : LifetimeScope
         RegisterIfFound<LoginClient>(builder);
 
         builder.Register<TableInitializer>(Lifetime.Singleton);
+        builder.Register<IconManager>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton);
 
         builder.Register<PacketApplyQueue>(Lifetime.Singleton);
@@ -25,36 +26,62 @@ public sealed class AppLifetimeScope : LifetimeScope
             App.Container = container;
             AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);
-            ZoneCommands.Bind(container.Resolve<IZoneTransport>());
+            LogongrpTable.Bind(container.Resolve<LogongrpTable>());
+            ItemNameTable.Bind(container.Resolve<ItemNameTable>());
+            SkillgrpTable.Bind(container.Resolve<SkillgrpTable>());
+            ItemStatDataTable.Bind(container.Resolve<ItemStatDataTable>());
+            ArmorgrpTable.Bind(container.Resolve<ArmorgrpTable>());
+            EtcItemgrpTable.Bind(container.Resolve<EtcItemgrpTable>());
+            WeapongrpTable.Bind(container.Resolve<WeapongrpTable>());
+            NpcgrpTable.Bind(container.Resolve<NpcgrpTable>());
+            NpcNameTable.Bind(container.Resolve<NpcNameTable>());
+            ActionNameTable.Bind(container.Resolve<ActionNameTable>());
+            SkillNameTable.Bind(container.Resolve<SkillNameTable>());
+            IZoneTransport transport = container.Resolve<IZoneTransport>();
+            ZoneCommands.Bind(transport);
             GameManager manager = container.Resolve<GameManager>();
+            transport.OnDisconnected += () => manager.OnDisconnect();
             AppLoginSessionApplyIncomingPacketServices.BindApp(
                 container.Resolve<GameClient>(),
                 container.Resolve<LoginClient>(),
                 manager,
                 container.Resolve<PacketApplyQueue>(),
                 container.Resolve<EventProcessor>());
-            LobbyFlowLog.Wire(manager);
+            // NetworkingPacketServices.Bind(manager) already done in BindApp above.
+            LobbyFlowLog.Wire(() => manager == null || manager.GameState < GameState.IN_GAME);
         });
     }
 
     private static void RegisterDatTables(IContainerBuilder builder)
     {
-        builder.RegisterInstance(ItemTable.Instance);
+        builder.RegisterInstance(TablePacketServices.Items);
+#pragma warning disable CS0618
         builder.RegisterInstance(ItemNameTable.Instance);
+#pragma warning restore CS0618
+#pragma warning disable CS0618
         builder.RegisterInstance(ItemStatDataTable.Instance);
         builder.RegisterInstance(ArmorgrpTable.Instance);
         builder.RegisterInstance(EtcItemgrpTable.Instance);
         builder.RegisterInstance(WeapongrpTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(NpcDecoEffectsTable.Instance);
+#pragma warning disable CS0618
         builder.RegisterInstance(NpcgrpTable.Instance);
         builder.RegisterInstance(NpcNameTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(QuestNameTable.Instance);
         builder.RegisterInstance(RecipeTable.Instance);
+#pragma warning disable CS0618
         builder.RegisterInstance(ActionNameTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(AnimLeghtTable.Instance);
         builder.RegisterInstance(SysStringTable.Instance);
+#pragma warning disable CS0618
         builder.RegisterInstance(SkillNameTable.Instance);
+#pragma warning restore CS0618
+#pragma warning disable CS0618
         builder.RegisterInstance(SkillgrpTable.Instance);
+#pragma warning restore CS0618
         builder.RegisterInstance(MobSkillAnimgrpTable.Instance);
         builder.RegisterInstance(AnimTweenTable.Instance);
         builder.RegisterInstance(EnterEventTable.Instance);

@@ -10,6 +10,9 @@ public class InventoryWindow : L2PopupWindow
 {
     public static int PLAYER_INVENTORY_SIZE = 81;
 
+    /// <summary>Interlude InventoryWnd bag columns (ItemWindow). Classic expand used 9/12.</summary>
+    public const int BagColumns = 6;
+
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _inventorySlotTemplate;
@@ -49,6 +52,7 @@ public class InventoryWindow : L2PopupWindow
 
     private static InventoryWindow _instance;
     bool _itemSurfaceReady;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static InventoryWindow Instance
     {
         get { return _instance; }
@@ -77,12 +81,13 @@ public class InventoryWindow : L2PopupWindow
 
     private void WireInventoryPacketServices()
     {
-        InventoryPacketServices.Bind();
+        InventoryPacketServices.Bind(window: this);
     }
 
     private void OnDestroy()
     {
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets()
@@ -100,37 +105,156 @@ public class InventoryWindow : L2PopupWindow
 
         _expanded = false;
 
+        ApplyInterludeInventoryTextures();
+
         var dragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
+        if (dragArea != null)
+        {
+            DragManipulator drag = new DragManipulator(dragArea, _windowEle);
+            dragArea.AddManipulator(drag);
+        }
 
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterClickWindowEvent(_windowEle, dragArea);
 
+        // Interlude InventoryWnd has no expand control; Classic DF chrome still may.
         _expandButton = (Button)GetElementByClass("expand-btn");
-        _expandButton.AddManipulator(new ButtonClickSoundManipulator(_expandButton));
-        _expandButton.RegisterCallback<MouseDownEvent>(OnExpandButtonPressed, TrickleDown.TrickleDown);
+        if (_expandButton != null)
+        {
+            _expandButton.AddManipulator(new ButtonClickSoundManipulator(_expandButton));
+            _expandButton.RegisterCallback<MouseDownEvent>(OnExpandButtonPressed, TrickleDown.TrickleDown);
+        }
 
         Button adenaDistribution = (Button)GetElementById("AdenaDistribBtn");
-        adenaDistribution.AddManipulator(new ButtonClickSoundManipulator(adenaDistribution));
-        adenaDistribution.AddManipulator(new TooltipManipulator(adenaDistribution, "Adena distribution"));
+        if (adenaDistribution != null)
+        {
+            adenaDistribution.AddManipulator(new ButtonClickSoundManipulator(adenaDistribution));
+            adenaDistribution.AddManipulator(new TooltipManipulator(adenaDistribution, "Adena distribution"));
+        }
 
         Button compoundBtn = (Button)GetElementById("CompoundBtn");
-        compoundBtn.AddManipulator(new ButtonClickSoundManipulator(compoundBtn));
-        compoundBtn.AddManipulator(new TooltipManipulator(adenaDistribution, "Compound"));
+        if (compoundBtn != null)
+        {
+            compoundBtn.AddManipulator(new ButtonClickSoundManipulator(compoundBtn));
+            compoundBtn.AddManipulator(new TooltipManipulator(compoundBtn, "Compound"));
+        }
 
         Button trashBtn = (Button)GetElementById("TrashBtn");
-        trashBtn.AddManipulator(new ButtonClickSoundManipulator(trashBtn));
-        trashBtn.AddManipulator(new TooltipManipulator(adenaDistribution, "Trash"));
-        L2Slot trashSlot = new L2Slot(trashBtn, 100 , L2Slot.SlotType.Trash);
+        if (trashBtn != null)
+        {
+            trashBtn.AddManipulator(new ButtonClickSoundManipulator(trashBtn));
+            trashBtn.AddManipulator(new TooltipManipulator(trashBtn, "Trash"));
+            _ = new L2Slot(trashBtn, 100, SlotType.Trash);
+        }
 
         _inventoryCountLabel = GetLabelById("InventoryCount");
 
         _weiBar= GetElementById("WeightBg");
         _weiBarBg = GetElementById("WeightGauge");
+        PaintWeightFillParts();
 
         _adenaCountLabel = GetLabelById("AdenaCount");
         _weightLabel = GetLabelById("CurrentWeight");
+    }
+
+    /// <summary>
+    /// UITK <c>resource()</c> often fails for Interlude sprites; paint from Resources.Load.
+    /// Slot coords are texture-relative (interface.xdat window Y minus BackTexture Y=20).
+    /// </summary>
+    void ApplyInterludeInventoryTextures()
+    {
+        // Full Inventory_Back plate (tab cutouts + bag frame). Gear is hitboxes only.
+        SetResourcesBackground("Container", "Data/UI/Inventory/Inventory_Interlude_Back");
+        VisualElement gear = GetElementById("Gear");
+        if (gear != null)
+            gear.style.backgroundImage = StyleKeyword.None;
+
+        // Header FrameBack + sys buttons — same load path (resource() is unreliable).
+        PaintNamedBackground("Left-Frame-Element", "Data/UI/Frame/Interlude/FrameBackLeft");
+        PaintNamedBackground("Center-Frame-Element", "Data/UI/Frame/Interlude/FrameBackMid");
+        PaintNamedBackground("Right-Frame-Element", "Data/UI/Frame/Interlude/FrameBackRight");
+        // System menu (⋮) — not chatting_option wrench.
+        PaintNamedBackground("Options-Window-Button", "Data/UI/Frame/Interlude/FrameOptionBtn");
+        PaintNamedBackground("Minimize-Window-Button", "Data/UI/Frame/Interlude/FrameMiniBtn");
+        PaintNamedBackground("Close-Window-Button", "Data/UI/Frame/Interlude/FrameCloseBtn");
+
+        VisualElement trashBg = _windowEle?.Q<VisualElement>("TrashBtn")?.Q<VisualElement>("ButtonBg");
+        if (trashBg != null)
+            L2SlotIconView.TrySetResourcesBackground(
+                trashBg,
+                "Data/UI/Inventory/Inventory_Interlude_Trash");
+
+        // UITK resource() often fails for these strips — stamp from Resources.Load.
+        PaintWeightFillParts();
+    }
+
+    void PaintWeightFillParts()
+    {
+        VisualElement gauge = _weiBarBg ?? GetElementById("WeightGauge");
+        if (gauge == null)
+            return;
+        L2SlotIconView.TrySetResourcesBackground(
+            gauge.Q("Left"), "Data/UI/Inventory/Inventory_Interlude_Weight1");
+        L2SlotIconView.TrySetResourcesBackground(
+            gauge.Q("Center"), "Data/UI/Inventory/Inventory_Interlude_Weight2");
+        L2SlotIconView.TrySetResourcesBackground(
+            gauge.Q("Right"), "Data/UI/Inventory/Inventory_Interlude_Weight3");
+    }
+
+    void SetResourcesBackground(string elementId, string resourcesPath)
+    {
+        VisualElement ele = GetElementById(elementId);
+        if (ele == null)
+            return;
+        L2SlotIconView.TrySetResourcesBackground(ele, resourcesPath);
+    }
+
+    void PaintNamedBackground(string elementName, string resourcesPath)
+    {
+        VisualElement ele = _windowEle?.Q(elementName);
+        if (ele == null)
+            return;
+        L2SlotIconView.TrySetResourcesBackground(ele, resourcesPath);
+    }
+
+    /// <summary>
+    /// UITK resource() often misses Interlude tab sprites — stamp Texture2D after headers exist.
+    /// </summary>
+    void ApplyInterludeTabChrome()
+    {
+        if (_inventoryTabView == null)
+            return;
+
+        Texture2D tabActive = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab1");
+        Texture2D tabIdle = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab2");
+        Texture2D tabHover = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab2_over");
+
+        foreach (VisualElement header in _inventoryTabView.Query(className: "tab-header").ToList())
+        {
+            ApplyTabHeaderBackground(header, tabActive, tabIdle);
+
+            header.RegisterCallback<MouseEnterEvent>(_ =>
+            {
+                if (IsTabHeaderActive(header) || tabHover == null)
+                    return;
+                header.style.backgroundImage = new StyleBackground(tabHover);
+            });
+            header.RegisterCallback<MouseLeaveEvent>(_ =>
+                ApplyTabHeaderBackground(header, tabActive, tabIdle));
+        }
+    }
+
+    static bool IsTabHeaderActive(VisualElement header) =>
+        header.ClassListContains("active") || header.ClassListContains("currentlySelectedTab");
+
+    static void ApplyTabHeaderBackground(VisualElement header, Texture2D active, Texture2D idle)
+    {
+        Texture2D tex = IsTabHeaderActive(header) ? active : idle;
+        if (tex != null)
+            header.style.backgroundImage = new StyleBackground(tex);
     }
 
 
@@ -186,10 +310,12 @@ public class InventoryWindow : L2PopupWindow
     private void CreateMinimizedWindow()
     {
 
-        // Header button
         Button minimizeWindowButton = (Button)GetElementByClass("minimize-btn");
-        minimizeWindowButton.AddManipulator(new ButtonClickSoundManipulator(minimizeWindowButton));
-        minimizeWindowButton.RegisterCallback<MouseUpEvent>(OnMinimizeInventoryClick, TrickleDown.TrickleDown);
+        if (minimizeWindowButton != null)
+        {
+            minimizeWindowButton.AddManipulator(new ButtonClickSoundManipulator(minimizeWindowButton));
+            minimizeWindowButton.RegisterCallback<MouseUpEvent>(OnMinimizeInventoryClick, TrickleDown.TrickleDown);
+        }
 
         // Minized inventory button
         _minimizedInventoryBtn = _minimizedTemplate.Instantiate()[0];
@@ -219,7 +345,7 @@ public class InventoryWindow : L2PopupWindow
     {
         if (!_minimizedInventoryDragManipulator.dragged)
         {
-            AudioManager.Instance.PlayUISound("click_01");
+            AudioPacketServices.Audio.PlayUISound("click_01");
             _minimizedInventoryBtn.style.display = DisplayStyle.None;
             _minimizedInventoryMouseOverManipulator.Disable();
             ShowWindow();
@@ -231,20 +357,12 @@ public class InventoryWindow : L2PopupWindow
         _inventoryTabView = GetElementById("InventoryTabView");
 
         VisualElement tabHeaderContainer = _inventoryTabView.Q<VisualElement>("tab-header-container");
-        if (tabHeaderContainer == null)
-        {
-            // Debug.LogError("tab-header-container is null");
-        }
+        // Interlude: tabs left, (n/max) count right. Prefer dedicated host when present.
+        VisualElement tabHeaderHost = _inventoryTabView.Q<VisualElement>("tab-headers") ?? tabHeaderContainer;
         VisualElement tabContainer = _inventoryTabView.Q<VisualElement>("tab-content-container");
 
-        if (tabContainer == null)
+        for (int i = 0; i < _tabs.Count; i++)
         {
-            // Debug.LogError("tab-content-container");
-        }
-
-        for (int i = _tabs.Count - 1; i >= 0; i--)
-        {
-
             VisualElement tabElement = _tabTemplate.CloneTree()[0];
             tabElement.name = _tabs[i].TabName;
             tabElement.AddToClassList("unselected-tab");
@@ -253,7 +371,7 @@ public class InventoryWindow : L2PopupWindow
             tabHeaderElement.name = _tabs[i].TabName;
             tabHeaderElement.Q<Label>().text = _tabs[i].TabName;
 
-            tabHeaderContainer.Add(tabHeaderElement);
+            tabHeaderHost.Add(tabHeaderElement);
             tabContainer.Add(tabElement);
 
             _tabs[i].Initialize(_windowEle, tabElement, tabHeaderElement , true , true);
@@ -265,18 +383,43 @@ public class InventoryWindow : L2PopupWindow
         }
 
         _tabs[0].MainTab = true;
+        ApplyInterludeTabChrome();
 
         _gearTab = new InventoryGearTab();
         _gearTab.Initialize(_windowEle, null, null , true , true);
         _itemSurfaceReady = true;
 
-        _maximumWeight = 10000;
-        _weightLabel.text = "00.00%";
-
         // ItemList normally arrives during EnterWorld, before this window is built, so the
         // rows are cached in PlayerInventory. Push them now that the tabs exist.
-        if (PlayerInventory.Instance != null)
-            PlayerInventory.Instance.RefreshWindow();
+        if (InventoryPacketServices.Inventory != null)
+            InventoryPacketServices.Inventory.RefreshWindow();
+        RefreshWeightFromPlayer();
+    }
+
+    public override void ShowWindow()
+    {
+        base.ShowWindow();
+        RefreshWeightFromPlayer();
+    }
+
+    /// <summary>
+    /// Status sheet already mirrors <see cref="PlayerStats"/> from UserInfo; inventory used to
+    /// keep a stale "00.00%" until the next UserInfo fanout hit <see cref="UpdateStats"/>.
+    /// </summary>
+    void RefreshWeightFromPlayer()
+    {
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (player?.Stats is PlayerStats stats)
+        {
+            UpdateStats(stats);
+            return;
+        }
+
+        PlayerInfoInterlude info = ZoneCommands.Transport != null
+            ? ZoneCommands.Transport.PlayerInfo
+            : default;
+        if (info.Stats != null)
+            UpdateStats(info.Stats);
     }
 
     public int GetEmptySlot()
@@ -299,52 +442,112 @@ public class InventoryWindow : L2PopupWindow
             //ScrollDown(switchTo.Scroller);
             SwitchItemList(switchTo);
             _activeTab = switchTo;
+            RefreshInterludeTabChromeImages();
             return true;
         }
         
         return false;
     }
 
+    void RefreshInterludeTabChromeImages()
+    {
+        if (_inventoryTabView == null)
+            return;
+
+        Texture2D tabActive = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab1");
+        Texture2D tabIdle = L2SlotIconView.LoadResourcesTexture(
+            "Data/UI/Inventory/Inventory_Interlude_Tab2");
+
+        foreach (VisualElement header in _inventoryTabView.Query(className: "tab-header").ToList())
+            ApplyTabHeaderBackground(header, tabActive, tabIdle);
+    }
+
     private void SwitchItemList(InventoryTab switchTo)
     {
-        //Equip
-        //Supplies
-        //Quest
-        if (!switchTo.TabName.Equals("All"))
+        // Interlude: Items (main / non-quest bag) + Quest.
+        if (switchTo.MainTab || switchTo.TabName.Equals("Items") || switchTo.TabName.Equals("All"))
         {
-            List<ItemInstance> filterList = PlayerInventory.Instance.FilterInventory(switchTo.GetFilterCategories);
-            if (filterList != null && filterList.Count > 0)
-            {
-                switchTo.SetItemList(filterList);
-            }
-            else
-            {
-                switchTo.AddAllEmptyInventory(0);
-            }
+            List<ItemInstance> items_collect = InventoryPacketServices.Inventory.GetPlayerInvetoryToList();
+            switchTo.SetItemList(FilterOutQuestItems(items_collect));
+            return;
         }
+
+        List<ItemInstance> filterList = InventoryPacketServices.Inventory.FilterInventory(switchTo.GetFilterCategories);
+        if (filterList != null && filterList.Count > 0)
+            switchTo.SetItemList(filterList);
         else
+            switchTo.AddAllEmptyInventory(0);
+    }
+
+    static List<ItemInstance> FilterOutQuestItems(List<ItemInstance> items)
+    {
+        if (items == null)
+            return new List<ItemInstance>();
+        var result = new List<ItemInstance>(items.Count);
+        for (int i = 0; i < items.Count; i++)
         {
-            List<ItemInstance> items_collect = PlayerInventory.Instance.GetPlayerInvetoryToList();
-            switchTo.SetItemList(items_collect);
+            ItemInstance item = items[i];
+            if (item != null && item.Category != ItemCategory.Quest)
+                result.Add(item);
         }
+        return result;
     }
 
     public void UpdateStats(PlayerStats stats)
     {
-        if(stats != null)
-        {
-            _currentWeight = stats.CurrWeight;
-            _maximumWeight = stats.MaxWeight;
-            _weightLabel.text = stats.WeightPercent()+"%";
+        if (stats == null)
+            return;
 
-            // Interlude inventory UXML paints fill on WeightBg, not the gauge child.
-            float weightRatio = stats.MaxWeight > 0
-                ? (float)stats.CurrWeight / stats.MaxWeight
-                : 0f;
-            L2ResourceBarView.SetFillFixed(_weiBarBg, _weiBarBg, weightRatio, 138f);
-  
-        }
+        _currentWeight = stats.CurrWeight;
+        _maximumWeight = stats.MaxWeight;
+        float weightRatio = stats.MaxWeight > 0
+            ? (float)stats.CurrWeight / stats.MaxWeight
+            : 0f;
+        if (_weightLabel != null)
+            _weightLabel.text = $"{weightRatio * 100f:0.00}%";
 
+        // WeightBg = track, WeightGauge = Left/Center/Right fill clipped by width.
+        VisualElement track = _weiBar;
+        VisualElement fill = _weiBarBg;
+        if (track == null || fill == null)
+            return;
+
+        PaintWeightFillParts();
+        ApplyInventoryWeightFill(weightRatio);
+
+        // First open often runs before UITK has resolved the track width — retry next frame.
+        if (track.resolvedStyle.width <= 1f)
+            StartCoroutine(ApplyInventoryWeightFillNextFrame(weightRatio));
+    }
+
+    IEnumerator ApplyInventoryWeightFillNextFrame(float weightRatio)
+    {
+        yield return null;
+        ApplyInventoryWeightFill(weightRatio);
+    }
+
+    void ApplyInventoryWeightFill(float weightRatio)
+    {
+        VisualElement track = _weiBar;
+        VisualElement fill = _weiBarBg;
+        if (track == null || fill == null)
+            return;
+
+        float trackWidth = track.resolvedStyle.width;
+        if (float.IsNaN(trackWidth) || trackWidth <= 1f)
+            trackWidth = track.layout.width;
+        if (float.IsNaN(trackWidth) || trackWidth <= 1f)
+            trackWidth = 160f;
+
+        fill.style.position = Position.Absolute;
+        fill.style.left = 0;
+        fill.style.top = 0;
+        fill.style.height = 12f;
+        fill.style.overflow = Overflow.Hidden;
+        fill.style.flexDirection = FlexDirection.Row;
+        fill.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+        L2ResourceBarView.SetFillFixed(fill, track, weightRatio, trackWidth);
     }
 
     public void SetItemList(List<ItemInstance> allItems , List<ItemInstance> quipAllItems, int adenaCount, int usedSlots , int userId)
@@ -353,13 +556,13 @@ public class InventoryWindow : L2PopupWindow
         SetAdenaCountLabel(adenaCount);
         //_tabs[0].ForEach((tab) =>
         //{
-        _tabs[0].SetItemList(allItems);
+        _tabs[0].SetItemList(FilterOutQuestItems(allItems));
         _gearTab.SetEquipList(quipAllItems , userId);
         _slotCount = PLAYER_INVENTORY_SIZE;
         _inventoryCountLabel.text = $"({usedSlots}/{_slotCount})";
         // });
         SwitchTab(_tabs[0]);
-
+        RefreshWeightFromPlayer();
 }
     public void UpdateItemList(List<ItemInstance> removeAndAdd , List<ItemInstance> modified , List<ItemInstance> listEquipModified,  int adenaCount , int usedSlots , ChangeInventoryData changeInventoryData , int userId)
     {
@@ -370,7 +573,10 @@ public class InventoryWindow : L2PopupWindow
             _slotCount = PLAYER_INVENTORY_SIZE;
             _inventoryCountLabel.text = $"({usedSlots}/{_slotCount})";
             SetAdenaCountLabel(adenaCount);
-            _tabs[0].UpdateItemList(removeAndAdd, modified , changeInventoryData);
+            _tabs[0].UpdateItemList(
+                FilterOutQuestItems(removeAndAdd),
+                FilterOutQuestItems(modified),
+                changeInventoryData);
             _gearTab.UpdateEquipList(listEquipModified , changeInventoryData , userId);
         }
         else
@@ -379,8 +585,8 @@ public class InventoryWindow : L2PopupWindow
             _slotCount = PLAYER_INVENTORY_SIZE;
             _inventoryCountLabel.text = $"({usedSlots}/{_slotCount})";
             SetAdenaCountLabel(adenaCount);
-            _activeTab.SetItemList(PlayerInventory.Instance.FilterInventory(_activeTab.GetFilterCategories));
-            _gearTab.SetEquipList(PlayerInventory.Instance.GetPlayerEquipToList(), userId);
+            _activeTab.SetItemList(InventoryPacketServices.Inventory.FilterInventory(_activeTab.GetFilterCategories));
+            _gearTab.SetEquipList(InventoryPacketServices.Inventory.GetPlayerEquipToList(), userId);
         }
 
     }
@@ -402,7 +608,7 @@ public class InventoryWindow : L2PopupWindow
         obsoleteItemsGear.ForEach(item =>
         {
             _gearTab.ModifiedRemove(item.BodyPart, item);
-            EventBus.Instance.UnEquipped(item , userId);
+            GamePacketServices.Bus?.UnEquipped(item , userId);
         });
 
 
@@ -423,13 +629,13 @@ public class InventoryWindow : L2PopupWindow
 
             if(gearItem != null & source_item_slot != null)
             {
-                EventBus.Instance.UnEquipped(gearItem , userId);
+                GamePacketServices.Bus?.UnEquipped(gearItem , userId);
                 source_item_slot.AssignItem(gearItem);
             }
             //if there are 2 items in LHand and Rhand, we move 1 to the position of the one who is trying to change, and insert the second item into the inventory
             else if (gearItem != null & source_item_slot == null)
             {
-                EventBus.Instance.UnEquipped(gearItem, userId);
+                GamePacketServices.Bus?.UnEquipped(gearItem, userId);
                 _tabs[0].AddItem(gearItem);
             }
 
@@ -447,7 +653,7 @@ public class InventoryWindow : L2PopupWindow
  
     public void ToggleHideWindowManual()
     {
-        if (PlayerInventory.Instance == null)
+        if (InventoryPacketServices.Inventory == null)
             return;
 
         Dictionary<int, ItemInstance> allItems = GetInventoryItems();
@@ -463,7 +669,7 @@ public class InventoryWindow : L2PopupWindow
 
         if (_isWindowHidden)
         {
-             PlayerInventory.Instance.SetInventory(allItems, equipItems , true, adenaCount , allItems.Count + equipItems.Count);
+             InventoryPacketServices.Inventory.SetInventory(allItems, equipItems , true, adenaCount , allItems.Count + equipItems.Count);
         }
         else
         {
@@ -473,12 +679,12 @@ public class InventoryWindow : L2PopupWindow
 
     private Dictionary<int, ItemInstance> GetInventoryItems()
     {
-       return  PlayerInventory.Instance.GetPlayerInventory();
+       return  InventoryPacketServices.Inventory.GetPlayerInventory();
     }
 
     private Dictionary<int, ItemInstance> GetInventoryEquipItems()
     {
-        return PlayerInventory.Instance.GetPlayerEquipInventory();
+        return InventoryPacketServices.Inventory.GetPlayerEquipInventory();
     }
 
     private int GetAdenaCount(List<ItemInstance> modified)

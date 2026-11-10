@@ -1,10 +1,10 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using VContainer;
 
 public class ObjectPoolManager : AbstractPoolManager, IPoolManager
 {
-    [Inject] ModelTable _models;
     [System.Serializable]
     public class Pool
     {
@@ -24,6 +24,8 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
     // Game scene is preloaded inactive (no Awake). `Instance?.` then hit a dead pool, LoadMesh threw,
     // and every armor/weapon mesh came back missing (heads-only lobby pawns).
     static IPoolManager _instance;
+
+    [System.Obsolete("Use [Inject] or ObjectPoolPacketServices.Pool instead")]
     public static IPoolManager Instance
     {
         get { return (_instance as UnityEngine.Object) != null ? _instance : null; }
@@ -33,7 +35,7 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
     private void Awake()
     {
         Instance = this;
-        WireObjectPoolPacketServices();
+        ObjectPoolPacketServices.Bind(pool: this);
     }
 
     private void OnDestroy()
@@ -45,7 +47,6 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
 
     void Start()
     {
-        WireObjectPoolPacketServices();
         poolDictionary = new Dictionary<ObjectType, Dictionary<GameObject, Queue<GameObject>>>();
         tagToPrefabMap = new Dictionary<ObjectType, GameObject>();
         createdInstancesTracker = new Dictionary<GameObject, int>();
@@ -66,11 +67,6 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
         SetupPoolHierarchy(pools, poolParent);
         PrewarmUserContainers();
         // Debug.Log($"Создание пула объектов успешно. Размер: {poolDictionary.Count}");
-    }
-
-    private void WireObjectPoolPacketServices()
-    {
-        ObjectPoolPacketServices.Bind(models: _models);
     }
 
     static readonly CharacterRaceAnimation[] UserPrewarmRaces =
@@ -169,8 +165,10 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
 
         if (!prefabPools.ContainsKey(prefab))
         {
-            // Debug.LogWarning($"Префаб не найден в пуле {tag}");
-            return null;
+            // First spawn of an unpooled armor/weapon prefab (e.g. onepiece robe).
+            AddPrefabToPool(tag, prefab, count: 1);
+            if (!prefabPools.ContainsKey(prefab))
+                return null;
         }
 
         Queue<GameObject> objectPool = prefabPools[prefab];
@@ -279,18 +277,4 @@ public class ObjectPoolManager : AbstractPoolManager, IPoolManager
 
         return true;
     }
-}
-
-public enum ObjectType
-{
-    Weapon,
-    Armor,
-    Face,
-    Arrow,
-    /// <summary>Whole city NPC prefab.</summary>
-    Npc,
-    /// <summary>Whole monster prefab (leave-range + post-death corpse cleanup).</summary>
-    Monster,
-    /// <summary>Remote player body (CharInfo UserEntity).</summary>
-    User
 }

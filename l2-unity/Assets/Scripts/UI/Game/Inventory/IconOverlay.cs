@@ -19,6 +19,7 @@ namespace Assets.Scripts.UI
         public VisualElement result;
 
         private static IconOverlay _instance;
+        [Obsolete("Use [Inject] / PacketServices instead")]
         public static IconOverlay Instance
         {
             get { return _instance; }

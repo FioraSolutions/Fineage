@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// Game item-layer access with [Inject] wiring and Networking/peer fallback (#142).
 /// </summary>
 public static class ItemPacketServices
@@ -29,7 +29,7 @@ public static class ItemPacketServices
     public static EffectManager Effects =>
         _effects != null ? _effects : ControllerPacketServices.Effects;
 
-    /// <summary>Zone V2 grant (opcode 13); server replies with InventoryUpdate.</summary>
+    /// <summary>Fineage Net grant (opcode 13); server replies with InventoryUpdate.</summary>
     public static void SendZoneGrantItem(int itemId, int count = 1)
     {
         IZoneTransport game = ZoneCommands.Transport;
@@ -38,7 +38,7 @@ public static class ItemPacketServices
         ZoneCommands.Send(new ZoneGrantItemCommand(itemId, count));
     }
 
-    /// <summary>Zone V2 pickup (opcode 14); server replies with InventoryUpdate + DeleteObject fan-out.</summary>
+    /// <summary>Fineage Net pickup (opcode 14); server replies with InventoryUpdate + DeleteObject fan-out.</summary>
     public static void SendZonePickup(int groundObjectId)
     {
         IZoneTransport game = ZoneCommands.Transport;

@@ -25,6 +25,7 @@ public class LoginWindow : L2Window
     private bool _loginBusy;
 
     private static LoginWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.LoginWindow instead")]
     public static LoginWindow Instance { get { return _instance; } }
 
     private void Awake() {
@@ -123,7 +124,7 @@ public class LoginWindow : L2Window
             evt.PreventDefault();
 
         } else if (keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter) {
-            AudioManager.Instance.PlayUISound("click_01");
+            AudioPacketServices.Audio.PlayUISound("click_01");
             LoginButtonPressed();
             evt.PreventDefault();
         }
@@ -183,7 +184,7 @@ public class LoginWindow : L2Window
             if (transport != null)
                 transport.BeginSession(account, password);
             else
-                NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+                _ = NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
         }
         catch (Exception ex)
         {
@@ -199,8 +200,21 @@ public class LoginWindow : L2Window
             _loginButton.SetEnabled(!busy);
     }
 
-    private void ExitButtonPressed() {
+    private void ExitButtonPressed()
+    {
+        // Same path as System Menu → Exit (Editor stops Play; player builds quit).
+        GameManager manager = LoginPacketServices.Manager ?? GamePacketServices.Manager;
+        if (manager != null)
+        {
+            manager.QuitGame();
+            return;
+        }
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 
 

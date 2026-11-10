@@ -11,6 +11,15 @@ public sealed class FineageZoneTransport : IZoneTransport
 {
     public event Action OnDisconnected;
 
+    bool _disconnectNotified;
+
+    /// <summary>
+    /// Prefer DI-bound <see cref="NetSession"/> via <see cref="NetworkingPacketServices"/>;
+    /// <see cref="NetSession.Ensure"/> only for early login before the binder runs.
+    /// Static so party/trade user-command helpers can share the same locator.
+    /// </summary>
+    static NetSession Session => NetworkingPacketServices.Session ?? NetSession.Ensure();
+
     /// <summary>
     /// The local player profile. NetSession writes this when the character is selected and
     /// when the server sends UserInfo; the world scene reads it to spawn the player.
@@ -19,14 +28,14 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public bool Connected
     {
-        get { return NetSession.Instance != null; }
+        get { return NetworkingPacketServices.Session != null; }
     }
 
     public int SessionObjectId
     {
         get
         {
-            NetSession session = NetSession.Instance;
+            NetSession session = NetworkingPacketServices.Session;
             return session != null ? session.SessionObjectId : 0;
         }
     }
@@ -49,40 +58,45 @@ public sealed class FineageZoneTransport : IZoneTransport
                 Entity clicked = world.GetEntityNoLockSync(netAction.ObjectId);
                 if (clicked is ItemEntity)
                 {
-                    NetSession.Ensure().SendPickupRequest(netAction.ObjectId);
+                    Session.SendPickupRequest(netAction.ObjectId);
                     return true;
                 }
 
+                TargetManager attackTargets = ControllerPacketServices.Targets;
+                bool forceAttack = GameCtrl.IsHeld ||
+                    (attackTargets != null && attackTargets.IsAttackTargetSet());
+                // Ctrl / attack intent: skip talk and swing even at peaceful NPCs.
                 if (clicked is NpcEntity &&
+                    !forceAttack &&
                     !NetNpcSession.IsAttackable(netAction.ObjectId, clicked is MonsterEntity))
                 {
-                    NetSession.Ensure().SendSelectTarget(netAction.ObjectId);
+                    Session.SendSelectTarget(netAction.ObjectId);
                     if (NetNpcWindows.InRange(clicked))
-                        NetSession.Ensure().SendNpcTalk(netAction.ObjectId);
+                        Session.SendNpcTalk(netAction.ObjectId);
                     else
                         NetChatFeed.NoteSystem("You are too far away.");
                     return true;
                 }
             }
 
-            NetSession.Ensure().SendSelectTarget(netAction.ObjectId);
+            Session.SendSelectTarget(netAction.ObjectId);
             TargetManager targets = ControllerPacketServices.Targets;
-            if (targets != null && targets.IsAttackTargetSet())
-                NetSession.Ensure().SendAttackRequest(netAction.ObjectId);
+            if (GameCtrl.IsHeld || (targets != null && targets.IsAttackTargetSet()))
+                Session.SendAttackRequest(netAction.ObjectId);
             return true;
         }
 
         ZonePickupRequestCommand netPickup = command as ZonePickupRequestCommand;
         if (netPickup != null)
         {
-            NetSession.Ensure().SendPickupRequest(netPickup.GroundObjectId);
+            Session.SendPickupRequest(netPickup.GroundObjectId);
             return true;
         }
 
         RequestDropItemCommand netDrop = command as RequestDropItemCommand;
         if (netDrop != null)
         {
-            NetSession.Ensure().SendDropItemRequest(
+            Session.SendDropItemRequest(
                 netDrop.ObjectId, netDrop.Count, netDrop.X, netDrop.Y, netDrop.Z);
             return true;
         }
@@ -91,7 +105,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         RequestDestroyItemCommand netDestroy = command as RequestDestroyItemCommand;
         if (netDestroy != null)
         {
-            NetSession.Ensure().SendDestroyItemRequest(netDestroy.ObjectId, netDestroy.Count);
+            Session.SendDestroyItemRequest(netDestroy.ObjectId, netDestroy.Count);
             return true;
         }
 
@@ -100,16 +114,16 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (netEnchant != null)
         {
             if (netEnchant.ObjectId > 0)
-                NetSession.Ensure().SendEnchantRequest(netEnchant.ObjectId);
+                Session.SendEnchantRequest(netEnchant.ObjectId);
             else
-                NetSession.Ensure().SendEnchantCancel();
+                Session.SendEnchantCancel();
             return true;
         }
 
         UseItemCommand netUse = command as UseItemCommand;
         if (netUse != null)
         {
-            NetSession.Ensure().SendUseItem(netUse.ObjectId);
+            Session.SendUseItem(netUse.ObjectId);
             return true;
         }
 
@@ -118,21 +132,21 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (netAutoShot != null)
         {
             if (netAutoShot.ItemId > 0)
-                NetSession.Ensure().SendRequestAutoSoulShot(netAutoShot.ItemId, netAutoShot.Enabled);
+                Session.SendRequestAutoSoulShot(netAutoShot.ItemId, netAutoShot.Enabled);
             return true;
         }
 
         UnequipItemCommand netUnequip = command as UnequipItemCommand;
         if (netUnequip != null)
         {
-            NetSession.Ensure().SendUnequipItem(netUnequip.PaperdollSlot);
+            Session.SendUnequipItem(netUnequip.PaperdollSlot);
             return true;
         }
 
         RequestShortCutRegCommand netShortCutReg = command as RequestShortCutRegCommand;
         if (netShortCutReg != null)
         {
-            NetSession.Ensure().SendShortCutReg(
+            Session.SendShortCutReg(
                 netShortCutReg.TypeId, netShortCutReg.WorldSlot, netShortCutReg.Id, netShortCutReg.Level);
             return true;
         }
@@ -140,7 +154,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         RequestShortCutDelCommand netShortCutDel = command as RequestShortCutDelCommand;
         if (netShortCutDel != null)
         {
-            NetSession.Ensure().SendShortCutDel(netShortCutDel.WorldSlot);
+            Session.SendShortCutDel(netShortCutDel.WorldSlot);
             return true;
         }
 
@@ -148,7 +162,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (netValidate != null)
         {
             Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(new Vector3(netValidate.X, netValidate.Y, netValidate.Z));
-            NetSession.Ensure().SendValidatePosition(
+            Session.SendValidatePosition(
                 Mathf.RoundToInt(l2.x),
                 Mathf.RoundToInt(l2.y),
                 Mathf.RoundToInt(l2.z),
@@ -160,7 +174,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (netSay != null)
         {
             int chatType = netSay.Data != null ? netSay.Data.Type : NetChat.All;
-            NetSession.Ensure().SendSay(netSay.Message, chatType);
+            Session.SendSay(netSay.Message, chatType);
             return true;
         }
 
@@ -173,13 +187,14 @@ public sealed class FineageZoneTransport : IZoneTransport
             LocalCastStop.Halt();
             int targetId = ResolveSelectedTargetObjectId();
             bool ctrl = netSkill.CtrlPressed != 0;
-            NetSession.Ensure().SendUseSkill(netSkill.SkillId, targetId, ctrl);
+            Session.SendUseSkill(netSkill.SkillId, targetId, ctrl);
             return true;
         }
 
-        if (command is RequestRestartPointCommand)
+        RequestRestartPointCommand netRevive = command as RequestRestartPointCommand;
+        if (netRevive != null)
         {
-            NetSession.Ensure().SendReviveRequest(ReviveRequestNetMsg.ReviveToVillage);
+            Session.SendReviveRequest(netRevive.Action);
             return true;
         }
 
@@ -187,7 +202,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         RequestAcquireSkillInfoCommand netSkillInfo = command as RequestAcquireSkillInfoCommand;
         if (netSkillInfo != null)
         {
-            NetSession.Ensure().SendRequestAcquireSkillInfo(
+            Session.SendRequestAcquireSkillInfo(
                 netSkillInfo.SkillId, netSkillInfo.SkillLevel, netSkillInfo.SkillType);
             return true;
         }
@@ -195,7 +210,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         RequestAcquireSkillCommand netSkillLearn = command as RequestAcquireSkillCommand;
         if (netSkillLearn != null)
         {
-            NetSession.Ensure().SendRequestAcquireSkill(
+            Session.SendRequestAcquireSkill(
                 netSkillLearn.SkillId, netSkillLearn.SkillLevel, netSkillLearn.SkillType);
             return true;
         }
@@ -210,22 +225,24 @@ public sealed class FineageZoneTransport : IZoneTransport
                 // //give → admin_give; zone also accepts admin_create_item.
                 if (NetGiveCommand.TryParse(bypass, out int giveItemId, out int giveCount))
                     bypass = "admin_create_item " + giveItemId + " " + giveCount;
-                NetSession.Ensure().SendNpcLink(0, bypass);
+                Session.SendNpcLink(0, bypass);
                 return true;
             }
 
             int npcId = NetNpcSession.ActiveNpcObjectId;
             if (npcId > 0)
-                NetSession.Ensure().SendNpcLink(npcId, bypass);
+                Session.SendNpcLink(npcId, bypass);
             return true;
         }
 
         RequestBuyItemCommand netBuy = command as RequestBuyItemCommand;
         if (netBuy != null)
         {
-            NetSession.Ensure().SendRequestBuyItem(
-                NetNpcSession.ShopNpcObjectId,
-                netBuy.ListId,
+            // Admin GM lists open with NpcObjectId=0; prefer that over a stale merchant id.
+            int shopNpc = NetNpcSession.ShopNpcObjectId;
+            Session.SendRequestBuyItem(
+                shopNpc,
+                netBuy.ListId > 0 ? netBuy.ListId : NetNpcSession.ShopListId,
                 NetNpcOrders.ItemCounts(netBuy.BuyList));
             return true;
         }
@@ -233,7 +250,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         RequestSellItemCommand netSell = command as RequestSellItemCommand;
         if (netSell != null)
         {
-            NetSession.Ensure().SendRequestSellItem(
+            Session.SendRequestSellItem(
                 NetNpcSession.ShopNpcObjectId,
                 NetNpcOrders.ObjectCounts(netSell.SellList));
             return true;
@@ -242,7 +259,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         MultiSellChooseCommand netMulti = command as MultiSellChooseCommand;
         if (netMulti != null)
         {
-            NetSession.Ensure().SendRequestMultiSellChoose(
+            Session.SendRequestMultiSellChoose(
                 NetNpcSession.ShopNpcObjectId,
                 netMulti.ListId,
                 netMulti.EntryId,
@@ -253,7 +270,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         SendWarehouseDepositListCommand netDeposit = command as SendWarehouseDepositListCommand;
         if (netDeposit != null)
         {
-            NetSession.Ensure().SendWarehouseDeposit(
+            Session.SendWarehouseDeposit(
                 NetNpcSession.ShopNpcObjectId,
                 NetNpcOrders.ObjectCounts(netDeposit.SellList));
             return true;
@@ -262,7 +279,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         SendWarehouseWithdrawListCommand netWithdraw = command as SendWarehouseWithdrawListCommand;
         if (netWithdraw != null)
         {
-            NetSession.Ensure().SendWarehouseWithdraw(
+            Session.SendWarehouseWithdraw(
                 NetNpcSession.ShopNpcObjectId,
                 NetNpcOrders.ObjectCounts(netWithdraw.SellList));
             return true;
@@ -270,21 +287,21 @@ public sealed class FineageZoneTransport : IZoneTransport
 
         if (command is RequestQuestListCommand)
         {
-            NetSession.Ensure().SendRequestQuestList();
+            Session.SendRequestQuestList();
             return true;
         }
 
         RequestQuestAbortCommand netAbortQuest = command as RequestQuestAbortCommand;
         if (netAbortQuest != null)
         {
-            NetSession.Ensure().SendRequestQuestAbort(netAbortQuest.QuestId);
+            Session.SendRequestQuestAbort(netAbortQuest.QuestId);
             return true;
         }
 
         RequestJoinPartyCommand netJoinParty = command as RequestJoinPartyCommand;
         if (netJoinParty != null)
         {
-            NetSession.Ensure().SendPartyInviteRequest(netJoinParty.TargetObjectId, netJoinParty.ItemDistribution);
+            Session.SendPartyInviteRequest(netJoinParty.TargetObjectId, netJoinParty.ItemDistribution);
             return true;
         }
 
@@ -292,20 +309,20 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (netAnswerParty != null)
         {
             if (netAnswerParty.RequestorObjectId > 0)
-                NetSession.Ensure().SendPartyAnswerJoinRequest(netAnswerParty.RequestorObjectId, netAnswerParty.Response);
+                Session.SendPartyAnswerJoinRequest(netAnswerParty.RequestorObjectId, netAnswerParty.Response);
             return true;
         }
 
         if (command is RequestWithdrawalPartyCommand)
         {
-            NetSession.Ensure().SendPartyLeaveRequest();
+            Session.SendPartyLeaveRequest();
             return true;
         }
 
         RequestOustPartyMemberCommand netOustParty = command as RequestOustPartyMemberCommand;
         if (netOustParty != null)
         {
-            NetSession.Ensure().SendPartyKickRequest(netOustParty.TargetObjectId);
+            Session.SendPartyKickRequest(netOustParty.TargetObjectId);
             return true;
         }
 
@@ -313,7 +330,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         ClanCreateRequestCommand netClanCreate = command as ClanCreateRequestCommand;
         if (netClanCreate != null)
         {
-            NetSession.Ensure().SendClanCreateRequest(netClanCreate.Name);
+            Session.SendClanCreateRequest(netClanCreate.Name);
             return true;
         }
 
@@ -322,14 +339,14 @@ public sealed class FineageZoneTransport : IZoneTransport
         ClanInviteRequestCommand netClanInvite = command as ClanInviteRequestCommand;
         if (netClanInvite != null)
         {
-            NetSession.Ensure().SendClanInviteRequest(netClanInvite.TargetObjectId);
+            Session.SendClanInviteRequest(netClanInvite.TargetObjectId);
             return true;
         }
 
         RequestJoinPledgeCommand netClanJoin = command as RequestJoinPledgeCommand;
         if (netClanJoin != null)
         {
-            NetSession.Ensure().SendClanInviteRequest(netClanJoin.ObjectId);
+            Session.SendClanInviteRequest(netClanJoin.ObjectId);
             return true;
         }
 
@@ -337,28 +354,28 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (netClanAnswer != null)
         {
             if (netClanAnswer.RequestorObjectId > 0)
-                NetSession.Ensure().SendClanAnswerJoinRequest(netClanAnswer.RequestorObjectId, netClanAnswer.Response);
+                Session.SendClanAnswerJoinRequest(netClanAnswer.RequestorObjectId, netClanAnswer.Response);
             return true;
         }
 
         RequestWithdrawPledgeCommand netClanLeave = command as RequestWithdrawPledgeCommand;
         if (netClanLeave != null)
         {
-            NetSession.Ensure().SendClanLeaveRequest();
+            Session.SendClanLeaveRequest();
             return true;
         }
 
         ClanLeaveRequestCommand netClanLeaveExplicit = command as ClanLeaveRequestCommand;
         if (netClanLeaveExplicit != null)
         {
-            NetSession.Ensure().SendClanLeaveRequest();
+            Session.SendClanLeaveRequest();
             return true;
         }
 
         ClanKickRequestCommand netClanKick = command as ClanKickRequestCommand;
         if (netClanKick != null)
         {
-            NetSession.Ensure().SendClanKickRequest(netClanKick.TargetObjectId);
+            Session.SendClanKickRequest(netClanKick.TargetObjectId);
             return true;
         }
 
@@ -369,7 +386,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         {
             NetPledgeMember member;
             if (NetClanBook.Shared.TryMemberByName(netClanOust.MemberName, out member))
-                NetSession.Ensure().SendClanKickRequest(member.ObjectId);
+                Session.SendClanKickRequest(member.ObjectId);
             return true;
         }
 
@@ -377,27 +394,27 @@ public sealed class FineageZoneTransport : IZoneTransport
         // TargetManager; this is what tells the zone, so the next untargeted skill stops aiming there.
         if (command is RequestTargetCanceldCommand)
         {
-            NetSession.Ensure().SendTargetCancel();
+            Session.SendTargetCancel();
             return true;
         }
 
         ClanDissolveRequestCommand netClanDissolve = command as ClanDissolveRequestCommand;
         if (netClanDissolve != null)
         {
-            NetSession.Ensure().SendClanDissolveRequest();
+            Session.SendClanDissolveRequest();
             return true;
         }
 
         ClanCancelDissolveRequestCommand netClanCancel = command as ClanCancelDissolveRequestCommand;
         if (netClanCancel != null)
         {
-            NetSession.Ensure().SendClanCancelDissolveRequest();
+            Session.SendClanCancelDissolveRequest();
             return true;
         }
 
         RequestTradeCommand netRequestTrade = command as RequestTradeCommand;        if (netRequestTrade != null)
         {
-            NetSession.Ensure().SendTradeRequest(netRequestTrade.TargetObjectId);
+            Session.SendTradeRequest(netRequestTrade.TargetObjectId);
             return true;
         }
 
@@ -405,21 +422,21 @@ public sealed class FineageZoneTransport : IZoneTransport
         if (netAnswerTrade != null)
         {
             if (netAnswerTrade.RequestorObjectId > 0)
-                NetSession.Ensure().SendTradeAnswerRequest(netAnswerTrade.RequestorObjectId, netAnswerTrade.Response);
+                Session.SendTradeAnswerRequest(netAnswerTrade.RequestorObjectId, netAnswerTrade.Response);
             return true;
         }
 
         AddTradeItemCommand netAddTrade = command as AddTradeItemCommand;
         if (netAddTrade != null)
         {
-            NetSession.Ensure().SendTradeAddItemRequest(netAddTrade.ObjectId, netAddTrade.Count);
+            Session.SendTradeAddItemRequest(netAddTrade.ObjectId, netAddTrade.Count);
             return true;
         }
 
         TradeDoneCommand netTradeDone = command as TradeDoneCommand;
         if (netTradeDone != null)
         {
-            NetSession.Ensure().SendTradeDoneRequest(netTradeDone.Response);
+            Session.SendTradeDoneRequest(netTradeDone.Response);
             return true;
         }
 
@@ -435,7 +452,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         // No Net opcode exists for this command yet. Returning true still drops it, but say
         // so: returning true silently is how a clan invite or a recipe-book open vanishes
         // with no trace, and the caller has no way to tell it apart from a delivered command.
-        FineageLog.Warn(FineageLog.Category.GameNet, "TX dropped (no Net opcode): " + command.GetType().Name);
+        FineageLog.Warn(FineageLogCategory.GameNet, "TX dropped (no Net opcode): " + command.GetType().Name);
         return true;
     }
 
@@ -447,15 +464,15 @@ public sealed class FineageZoneTransport : IZoneTransport
             case 16:
                 if (targetId <= 0)
                     return true;
-                NetSession.Ensure().SendPartyInviteRequest(targetId, 0);
+                Session.SendPartyInviteRequest(targetId, 0);
                 return true;
             case 17:
-                NetSession.Ensure().SendPartyLeaveRequest();
+                Session.SendPartyLeaveRequest();
                 return true;
             case 18:
                 if (targetId <= 0)
                     return true;
-                NetSession.Ensure().SendPartyKickRequest(targetId);
+                Session.SendPartyKickRequest(targetId);
                 return true;
             default:
                 return false;
@@ -469,7 +486,7 @@ public sealed class FineageZoneTransport : IZoneTransport
         int targetId = ResolveSelectedTargetObjectId();
         if (targetId <= 0)
             return true;
-        NetSession.Ensure().SendTradeRequest(targetId);
+        Session.SendTradeRequest(targetId);
         return true;
     }
 
@@ -504,13 +521,14 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void BeginSession(string account, string password)
     {
-        NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+        _disconnectNotified = false;
+        Session.BeginLobby(account, password, registerIfMissing: true);
     }
 
     public void SendMove(Vector3 fromUnity, Vector3 toUnity)
     {
         Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(toUnity);
-        NetSession.Ensure().SendMove(
+        Session.SendMove(
             Mathf.RoundToInt(l2.x),
             Mathf.RoundToInt(l2.y),
             Mathf.RoundToInt(l2.z));
@@ -518,7 +536,20 @@ public sealed class FineageZoneTransport : IZoneTransport
 
     public void Disconnect()
     {
-        if (NetSession.Instance != null)
-            UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+        NetSession session = NetworkingPacketServices.Session;
+        if (session != null)
+            UnityEngine.Object.Destroy(session.gameObject);
+        NotifyDisconnected();
     }
+
+    public void NotifyDisconnected()
+    {
+        if (_disconnectNotified)
+            return;
+        _disconnectNotified = true;
+        OnDisconnected?.Invoke();
+    }
+
+    /// <summary>Allow a later zone connect to raise disconnect again.</summary>
+    internal void ResetDisconnectLatch() => _disconnectNotified = false;
 }

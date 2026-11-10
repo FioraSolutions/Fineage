@@ -16,8 +16,9 @@ public sealed class DeleteObjectGroundApplyService
             return;
 
         // Net has no GetItem packet: EntityDespawn after our PickupRequest must still play the pickup clip.
-        if (NetSession.Instance != null &&
-            NetSession.Instance.TryTakePendingPickup(dto.ObjectId, out int pickerId) &&
+        NetSession net = NetworkingPacketServices.Session;
+        if (net != null &&
+            net.TryTakePendingPickup(dto.ObjectId, out int pickerId) &&
             gameWorld.GetEntityNoLockSync(dto.ObjectId) is ItemEntity item)
         {
             gameWorld.PickupGroundItem(dto.ObjectId, pickerId, item.transform.position);

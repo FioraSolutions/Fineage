@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SetupDurationHelper
 {
-    public const int ScrollOfEscapeSkillId = 2013;
     public static readonly HashSet<int> PotionSkillIds = new HashSet<int>
     {
         2031, 2011,
@@ -35,11 +34,6 @@ public class SetupDurationHelper
         return useSkill.SkillGrp.Animation.IndexOf("Mix", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
-    public static bool IsLongCastSkill(MagicSkillUseDto useSkill)
-    {
-        return useSkill != null && useSkill.SkillId == ScrollOfEscapeSkillId;
-    }
-
     public static bool IsUsePotion(MagicSkillUseDto useSkill)
     {
         return useSkill != null && PotionSkillIds.Contains(useSkill.SkillId);
@@ -52,10 +46,10 @@ public class SetupDurationHelper
     public static bool TryGetPlayableCombo(MagicSkillUseDto useSkill, out AnimationCombo combo)
     {
         combo = null;
-        if (useSkill == null || SkillgrpTable.Instance == null)
+        if (useSkill == null || TablePacketServices.SkillGrps == null)
             return false;
 
-        combo = SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
+        combo = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
         if (combo == null)
             return false;
 
@@ -88,10 +82,11 @@ public class SetupDurationHelper
 
     public static void PlayPotionEffect(Entity entity, MagicSkillUseDto useSkill)
     {
-        if (entity == null || useSkill == null || EffectManager.Instance == null)
+        EffectManager effects = ControllerPacketServices.Effects;
+        if (entity == null || useSkill == null || effects == null)
             return;
 
-        EffectManager.Instance.PlayEffect(useSkill.SkillId, entity.transform, entity.GetMagicCastData());
+        effects.PlayEffect(useSkill.SkillId, entity.transform, entity.GetMagicCastData());
     }
 
     /// <summary>
@@ -115,19 +110,6 @@ public class SetupDurationHelper
             return;
 
         stateMachine.NotifyEvent(Event.WAIT_RETURN);
-    }
-
-    public static void SetupLongCastDurationIfHitTimeNot0(MagicSkillUseDto useSkill, int objectId, Entity entity, AnimationCombo selfCombo)
-    {
-        if (useSkill.HitTime <= 0)
-        {
-            return;
-        }
-
-        string[] orderedCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
-        float[] durations = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedCycle);
-        float shotEventTime = ResolveShotEventTime(objectId, orderedCycle);
-        entity.SetupLongCastDuration(useSkill.HitTime, durations, shotEventTime, useSkill.TargetId);
     }
 
     public static void SetupDurationIfHitTimeNot0(MagicSkillUseDto useSkill, int objectId, Entity entity, AnimationCombo selfCombo)
@@ -198,8 +180,8 @@ public class SetupDurationHelper
     {
         const float fallbackFlightMs = 1000f;
 
-        if (EffectManager.Instance != null && EffectManager.Instance.database != null &&
-            EffectManager.Instance.database.ShouldIgnoreFlightTimeForCast(skillId))
+        EffectManager effects = ControllerPacketServices.Effects;
+        if (effects != null && effects.ShouldIgnoreFlightTimeForCast(skillId))
         {
             return 0f;
         }
@@ -210,7 +192,7 @@ public class SetupDurationHelper
         }
 
         Vector3 startPos = entity.GetPositionRightHand();
-        Vector3 aimPos = VectorUtils.GetCollision(startPos, target);
+        Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
         float distance = Vector3.Distance(startPos, aimPos);
         if (distance <= 0f)
         {

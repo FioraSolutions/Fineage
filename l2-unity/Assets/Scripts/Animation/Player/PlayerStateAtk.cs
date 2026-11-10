@@ -17,7 +17,7 @@ public class PlayerStateAtk : PlayerStateBase
             clipInfos = animator.GetCurrentAnimatorClipInfo(0);
         }
 
-        PlayerAnimationController.Instance.UpdateAnimatorAtkSpdMultiplier(clipInfos[0].clip.length);
+        AnimationPacketServices.PlayerAnimation?.UpdateAnimatorAtkSpdMultiplier(clipInfos[0].clip.length);
 
         SetBool("atk01", true, false, false);
 

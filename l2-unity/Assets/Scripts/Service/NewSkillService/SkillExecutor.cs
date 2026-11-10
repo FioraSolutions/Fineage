@@ -19,6 +19,7 @@ public class SkillExecutor : MonoBehaviour
 
     public event Action OnSkillSequenceFinished;
     public event Action<AnimationEventsBase> OnAllAnimationFinished;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SkillExecutor Instance { get; private set; }
 
 
@@ -57,13 +58,13 @@ public class SkillExecutor : MonoBehaviour
         await _animRunner.StartRun(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
     }
 
-    public async Task ExecuteSkillOverride(Skillgrp skill, Entity entity, AnimationCombo animationCombo, AnimationEventsBase actions, bool isLong = false)
+    public async Task ExecuteSkillOverride(Skillgrp skill, Entity entity, AnimationCombo animationCombo, AnimationEventsBase actions)
     {
         if (entity == null || animationCombo == null) return;
         int objectId = entity.Identity.Id;
 
         EffectManager effects = Effects;
-        if (effects != null)
+        if (effects != null && skill != null)
             effects.PlayEffect(skill.Id, entity.transform, entity.GetMagicCastData());
 
         string[] cycle = animationCombo.GetAnimCycle();
@@ -76,18 +77,10 @@ public class SkillExecutor : MonoBehaviour
                 " isMagic=" + skill.IsMagic +
                 " hitGrp=" + skill.HitTime +
                 " cycle=" + (cycle == null ? "null" : string.Join(",", cycle)) +
-                " long=" + isLong +
                 " runner=" + (_animRunner != null) +
                 " animations=" + (Animations != null));
         }
-        if (isLong)
-        {
-            await _animRunner.StartRunLongOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
-        }
-        else
-        {
-            await _animRunner.StartRunOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
-        }
+        await _animRunner.StartRunOverride(cycle, objectId, Animations, () => OnAllAnimationFinish(actions));
     }
 
 

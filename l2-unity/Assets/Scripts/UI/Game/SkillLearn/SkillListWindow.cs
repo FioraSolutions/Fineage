@@ -1,18 +1,12 @@
-﻿using NUnit.Framework;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
 using UnityEngine.UIElements;
-using static UnityEngine.Analytics.IAnalytic;
-
 
 public class SkillListWindow : L2PopupWindow
 {
-
-
-    //new fields
     private BuilderTabs _builderTabs;
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
@@ -20,7 +14,6 @@ public class SkillListWindow : L2PopupWindow
     private VisualTreeAsset _templatePassiveSkill;
     private VisualTreeAsset _templateLearnSkill;
 
-    //templte items
     private VisualTreeAsset _templateBoxPanel;
     private VisualTreeAsset _templateSlotSkill;
     private VisualTreeAsset _templateSkillsRow8x1;
@@ -31,12 +24,11 @@ public class SkillListWindow : L2PopupWindow
     private Dictionary<int, SkillInstance> _allSkills;
     private List<SkillInstance> _pendingSkills;
 
-
-    //end fields
     private ActiveSkillsHide _supportActiveSkills;
     private PassiveSkillsHide _supportPassiveSkills;
     private static SkillListWindow _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SkillListWindow Instance
     {
         get { return _instance; }
@@ -79,6 +71,49 @@ public class SkillListWindow : L2PopupWindow
         return  _windowEle.worldBound.Contains(vector2);
     }
 
+    /// <summary>
+    /// Interlude MagicSkillWnd under MainWnd Skill tab — reuse this window's content
+    /// inside CharacterInfo SkillsHost instead of a second floating chrome.
+    /// </summary>
+    public void EmbedInto(VisualElement host)
+    {
+        if (host == null)
+            return;
+        if (_windowEle == null)
+            ShowWindow();
+        if (_windowEle == null)
+            return;
+        _windowEle.style.display = DisplayStyle.None;
+        VisualElement body = GetElementById("content") ?? _windowEle;
+        body.AddToClassList("skills-panel");
+        body.AddToClassList("skills-embed");
+        VisualElement cancelRow = body.Q("Buttons");
+        if (cancelRow != null)
+            cancelRow.style.display = DisplayStyle.None;
+        if (body.parent != host)
+        {
+            body.RemoveFromHierarchy();
+            host.Add(body);
+        }
+        body.style.position = Position.Relative;
+        body.style.left = 0;
+        body.style.top = 0;
+        body.style.right = StyleKeyword.Auto;
+        body.style.bottom = StyleKeyword.Auto;
+        body.style.width = Length.Percent(100);
+        body.style.height = Length.Percent(100);
+        body.style.marginTop = 0;
+        body.style.marginRight = 0;
+        body.style.marginBottom = 0;
+        body.style.marginLeft = 0;
+        body.style.paddingTop = 2;
+        body.style.paddingRight = 4;
+        body.style.paddingBottom = 2;
+        body.style.paddingLeft = 4;
+        host.style.display = DisplayStyle.Flex;
+        AudioPacketServices.Audio.PlayUISound("window_open");
+    }
+
     private void OnDestroy()
     {
         _instance = null;
@@ -112,9 +147,11 @@ public class SkillListWindow : L2PopupWindow
         dragArea.AddManipulator(drag);
 
         var content = (VisualElement)GetElementById("content");
+        content?.AddToClassList("skills-panel");
+        VisualElement tabView = content?.Q("InventoryTabView") ?? content;
 
         _builderTabs.InitContentTabs(new string[3] { _activeName, _passiveName , _learnName });
-        _builderTabs.CreateTabs(content, _tabTemplate, _tabHeaderTemplate);
+        _builderTabs.CreateTabs(tabView, _tabTemplate, _tabHeaderTemplate);
 
         _supportActiveSkills.SetActiveSkillTemplate(_templateActiveSkill , _templateBoxPanel , _templateSkillsRow8x1 , _templateSlotSkill);
         _supportPassiveSkills.SetPassiveSkillTemplate(_templatePassiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
@@ -149,8 +186,9 @@ public class SkillListWindow : L2PopupWindow
 
         var activeSkills = list.Where(s => !s.IsPassive).ToList();
         var passiveSkills = list.Where(s => s.IsPassive).ToList();
-        _supportActiveSkills.CreateSlots(activeSkills , 7);
-        _supportPassiveSkills.CreateSlots(passiveSkills, 7);
+        // MainWnd SkillsHost is 256px — 6 Interlude-sized slots fit; 7 forces a horizontal scroller.
+        _supportActiveSkills.CreateSlots(activeSkills, 6);
+        _supportPassiveSkills.CreateSlots(passiveSkills, 6);
     }
 
     public void UpdateSkillList(List<SkillInstance> list)
@@ -172,10 +210,10 @@ public class SkillListWindow : L2PopupWindow
         }
         else
         {
-            _supportActiveSkills.CreateSlots(activeSkills, 7);
+            _supportActiveSkills.CreateSlots(activeSkills, 6);
         }
 
-        _supportPassiveSkills.CreateSlots(passiveSkills, 7);
+        _supportPassiveSkills.CreateSlots(passiveSkills, 6);
     }
 
     public SkillInstance GetSkillInstanceBySkillId(int skillId)

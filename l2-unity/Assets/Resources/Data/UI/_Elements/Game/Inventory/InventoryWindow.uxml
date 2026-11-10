@@ -1,145 +1,136 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Template name="DefaultWindowLarge" src="project://database/Assets/Resources/Data/UI/_Elements/Template/WindowTemplateInventory.uxml?fileID=9197481963319205126&amp;guid=80f4549d8519a5e4892eed1f95ed0666&amp;type=3#WindowTemplateInventory" />
+    <ui:Template name="InventoryInterludeChrome" src="project://database/Assets/Resources/Data/UI/_Elements/Template/WindowTemplateInventoryInterlude.uxml?fileID=9197481963319205126&amp;guid=961d56b476374fb782d0f30e1b762f70&amp;type=3#WindowTemplateInventoryInterlude" />
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
-    <ui:Instance name="defaultWindowsLarge" template="DefaultWindowLarge" class="inventory-window" style="flex-grow: 1; position: absolute; left: auto; bottom: auto; overflow: visible;">
+    <!--
+      Interlude interface.xdat InventoryWnd — texture-relative coords (BackTexture at window y=20):
+        Inventory_Back 256x380 (full plate, includes tab cutouts + bag frame)
+        Equip slots 34x34 @ 14/53/92/137/176 × 16/54/92
+        HennaItem 26x84 @ 223,19
+        InventoryTab 189x23 @ 12,139   ← sits IN Back cutouts
+        InventoryItem 236x139 @ 9,168
+        TrashButton 34x34 @ 208,331
+    -->
+    <ui:Instance name="defaultWindowsLarge" template="InventoryInterludeChrome" class="inventory-window" style="flex-grow: 1; position: absolute; left: auto; bottom: auto; overflow: hidden;">
         <AttributeOverrides element-name="windows-name-label" text="Inventory" />
-        <ui:GroupBox name="Header" class="drag-area" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; position: absolute; top: 6px; align-self: stretch; height: 32px; display: flex; padding-right: 0; flex-grow: 1; right: 68px; width: 88%;">
-            <ui:Label tabindex="-1" text="(0/80)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="InventoryCount" style="justify-content: flex-end; align-self: flex-end; margin-top: 4px; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-left: 0; padding-bottom: 0; color: rgb(165, 143, 113); border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; -unity-text-outline-color: rgba(0, 0, 0, 0.6); -unity-text-outline-width: 0.1px; flex-grow: 1; -unity-text-align: middle-left; font-size: 12px;" />
-        </ui:GroupBox>
-        <ui:VisualElement name="Content" class="background_over" style="flex-grow: 0; min-width: auto; min-height: auto; justify-content: flex-start; align-items: flex-start; position: absolute; background-image: none; top: 0; left: 0; display: flex; visibility: visible; overflow: visible; flex-shrink: 0; width: 100%; padding-top: 0; padding-left: 8px; padding-right: 8px; margin-top: 38px; height: 372px;">
-            <ui:VisualElement name="Container" style="flex-grow: 1; flex-shrink: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0); padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
-                <ui:GroupBox name="BoxContent" class="inventory_content" style="position: relative; left: 0; top: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; flex-direction: row; align-self: stretch; flex-grow: 1; padding-right: 0;">
-                    <ui:VisualElement name="Gear" style="flex-grow: 0; background-image: resource(&apos;Data/UI/Inventory/Inventory_DF_EquipBg_classic&apos;); padding-top: 28px; padding-right: 24px; padding-bottom: 28px; padding-left: 24px; width: 203px;">
-                        <ui:VisualElement name="GearContent" style="flex-grow: 1; background-image: resource(&apos;Data/UI/Inventory/Inventory_DF_EquipSlot_Classic _clear_empty_test2&apos;);">
-                            <ui:VisualElement name="GearRow1" style="flex-grow: 0; height: 34px; flex-direction: row;">
-                                <ui:VisualElement name="Hat1" style="flex-grow: 0; width: 34px; margin-left: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Helmet" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Hat2" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
+        <ui:VisualElement name="Content" class="background_over" style="flex-grow: 1; position: absolute; top: 20px; left: 0; right: 0; bottom: 0; width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-color: rgb(12, 12, 14);">
+            <ui:VisualElement name="Container" style="position: relative; flex-grow: 0; flex-shrink: 0; width: 256px; height: 380px; align-self: center; background-image: resource(&apos;Data/UI/Inventory/Inventory_Interlude_Back&apos;); -unity-background-scale-mode: stretch-to-fill;">
+                <!-- Hitboxes only — silhouettes come from Inventory_Back -->
+                <ui:VisualElement name="Gear" style="position: absolute; left: 0; top: 0; width: 256px; height: 148px;">
+                    <ui:VisualElement name="GearContent" style="position: relative; width: 100%; height: 100%;">
+                        <ui:VisualElement name="Hat1" style="position: absolute; left: 14px; top: 16px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Helmet" style="position: absolute; left: 53px; top: 16px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Hat2" style="position: absolute; left: 92px; top: 16px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Underwear" style="position: absolute; left: 137px; top: 16px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Neck" style="position: absolute; left: 176px; top: 16px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement name="Rhand" style="position: absolute; left: 14px; top: 54px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Torso" style="position: absolute; left: 53px; top: 54px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Lhand" style="position: absolute; left: 92px; top: 54px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Rear" style="position: absolute; left: 137px; top: 54px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Lear" style="position: absolute; left: 176px; top: 54px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement name="Gloves" style="position: absolute; left: 14px; top: 92px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Legs" style="position: absolute; left: 53px; top: 92px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Boots" style="position: absolute; left: 92px; top: 92px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Rring" style="position: absolute; left: 137px; top: 92px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Lring" style="position: absolute; left: 176px; top: 92px; width: 34px; height: 34px;">
+                            <ui:VisualElement name="SlotBg" picking-mode="Ignore" class="slot-bg" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px;" />
+                            <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="display: none;" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement name="Henna" picking-mode="Ignore" style="position: absolute; left: 223px; top: 19px; width: 26px; height: 84px; flex-direction: column; justify-content: space-between;">
+                            <ui:VisualElement name="Henna1" style="width: 26px; height: 26px; background-color: rgb(14, 14, 18); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: rgb(90, 90, 98); border-right-color: rgb(90, 90, 98); border-top-color: rgb(90, 90, 98); border-bottom-color: rgb(90, 90, 98);" />
+                            <ui:VisualElement name="Henna2" style="width: 26px; height: 26px; background-color: rgb(14, 14, 18); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: rgb(90, 90, 98); border-right-color: rgb(90, 90, 98); border-top-color: rgb(90, 90, 98); border-bottom-color: rgb(90, 90, 98);" />
+                            <ui:VisualElement name="Henna3" style="width: 26px; height: 26px; background-color: rgb(14, 14, 18); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: rgb(90, 90, 98); border-right-color: rgb(90, 90, 98); border-top-color: rgb(90, 90, 98); border-bottom-color: rgb(90, 90, 98);" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- From y=139 only — tab cutouts + bag + footer. Does not cover paperdoll hitboxes. -->
+                <ui:VisualElement name="InventoryContent" style="position: absolute; left: 0; top: 139px; width: 256px; height: 241px;">
+                    <ui:VisualElement name="InventoryTabView" focusable="true" style="position: absolute; left: 9px; top: 0; width: 236px; flex-direction: column;">
+                        <ui:VisualElement name="tab-header-container" style="flex-direction: row; height: 23px; width: 236px; margin-left: 3px; margin-right: 0; margin-bottom: 0; align-items: center;">
+                            <ui:VisualElement name="tab-headers" style="flex-direction: row; flex-grow: 0; width: 188px;" />
+                            <ui:Label tabindex="-1" text="(0/80)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="InventoryCount" style="margin-top: 0; margin-right: 2px; margin-bottom: 0; margin-left: auto; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; color: rgb(165, 143, 113); font-size: 11px; -unity-text-align: middle-right; align-self: center; height: 23px;" />
+                        </ui:VisualElement>
+                        <!-- local 0+23=23; item @ texture 168 = local 29 → margin-top 6 -->
+                        <ui:VisualElement focusable="true" name="tab-content-container" style="flex-grow: 0; flex-shrink: 0; flex-direction: column-reverse; width: 236px; height: 139px; min-height: 139px; max-height: 139px; margin-top: 6px; background-color: rgba(0, 0, 0, 0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; padding-top: 1px; padding-right: 0; padding-bottom: 1px; padding-left: 1px;" />
+                    </ui:VisualElement>
+
+                    <!-- trash @ texture 331 → local 331-139=192 -->
+                    <ui:VisualElement name="Footer" style="position: absolute; left: 9px; top: 192px; width: 236px; height: 36px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; flex-direction: row; flex-grow: 0; align-items: center; justify-content: flex-end;">
+                        <ui:VisualElement name="StatisticBox" style="margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; flex-direction: row; align-self: stretch; flex-grow: 0; flex-shrink: 0; width: 170px;">
+                            <ui:VisualElement name="Image" style="flex-direction: column; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
+                                <ui:VisualElement name="Adena" style="width: 32px; height: 16px; max-width: 32px; max-height: 16px; background-image: resource(&apos;Data/UI/Inventory/icon_df_common_adena&apos;); margin-top: 2px;" />
+                                <ui:VisualElement style="width: 32px; height: 16px; max-width: 32px; max-height: 16px; background-image: resource(&apos;Data/UI/Inventory/icon_df_common_weight&apos;); margin-top: 2px;" />
                             </ui:VisualElement>
-                            <ui:VisualElement name="GearRow2" style="flex-grow: 0; height: 34px; flex-direction: row; margin-top: 6px;">
-                                <ui:VisualElement name="Gloves" style="flex-grow: 0; width: 34px; margin-left: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
+                            <ui:VisualElement name="Gauge" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; flex-grow: 1;">
+                                <ui:VisualElement name="TextBox" style="margin-top: 0; margin-right: 0; margin-bottom: 2px; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: 16px;">
+                                    <ui:VisualElement style="background-color: rgb(22, 22, 22); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: 16px; border-left-color: rgb(59, 59, 59); border-right-color: rgb(59, 59, 59); border-top-color: rgb(59, 59, 59); border-bottom-color: rgb(59, 59, 59); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; flex-direction: row-reverse;">
+                                        <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="AdenaCount" style="margin-top: 0; margin-right: 1px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; align-self: center; font-size: 11px; color: rgb(223, 222, 222);" />
+                                    </ui:VisualElement>
                                 </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Torso" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Boots" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                            </ui:VisualElement>
-                            <ui:VisualElement name="GearRow3" style="flex-grow: 0; height: 34px; flex-direction: row; margin-top: 6px;">
-                                <ui:VisualElement name="Underwear" style="flex-grow: 0; width: 34px; margin-left: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Legs" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Belt" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                            </ui:VisualElement>
-                            <ui:VisualElement name="GearRow4" style="flex-grow: 0; height: 34px; flex-direction: row; margin-top: 10px;">
-                                <ui:VisualElement name="Rhand" style="flex-grow: 0; width: 34px; margin-left: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Lhand" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Agathion" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                            </ui:VisualElement>
-                            <ui:VisualElement name="GearRow5" style="flex-grow: 0; height: 34px; flex-direction: row; margin-top: 35px;">
-                                <ui:VisualElement name="Neck" style="flex-grow: 0; width: 34px; margin-left: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Rear" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Lear" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                            </ui:VisualElement>
-                            <ui:VisualElement name="GearRow6" style="flex-grow: 0; height: 34px; flex-direction: row; margin-top: 10px;">
-                                <ui:VisualElement name="Pendant" style="flex-grow: 0; width: 34px; margin-left: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Rring" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
-                                </ui:VisualElement>
-                                <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-                                <ui:VisualElement name="Lring" style="flex-grow: 0; width: 34px; margin-right: 1px;">
-                                    <ui:VisualElement name="SlotFrame" picking-mode="Ignore" class="slot-frame" style="background-image: resource(&apos;Data/UI/Inventory/blue_tab_v5&apos;); position: absolute; width: 34px; height: 34px; -unity-slice-left: 18; -unity-slice-top: 18; -unity-slice-right: 18; -unity-slice-bottom: 18; -unity-slice-scale: 1.4px; -unity-background-scale-mode: stretch-to-fill; display: none;" />
+                                <ui:VisualElement name="WeightContainer" style="flex-direction: row; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: 14px; align-self: stretch; position: relative;">
+                                    <ui:VisualElement name="GroupBox" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; align-self: stretch; width: 100%; position: relative;">
+                                        <!-- Empty track only — Interlude Weight1/2/3 are fill segments, not the bg. -->
+                                        <ui:VisualElement name="WeightBg" style="position: absolute; left: 0; top: 0; height: 12px; width: 100%; background-color: rgb(22, 22, 22); border-left-color: rgb(59, 59, 59); border-right-color: rgb(59, 59, 59); border-top-color: rgb(59, 59, 59); border-bottom-color: rgb(59, 59, 59); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
+                                        <ui:VisualElement name="WeightGauge" style="position: absolute; left: 0; top: 0; flex-direction: row; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; height: 12px; width: 0; overflow: hidden; -unity-background-scale-mode: stretch-to-fill;">
+                                            <ui:VisualElement name="Left" style="width: 4px; height: 12px; min-width: 4px; max-width: 4px; flex-grow: 0; flex-shrink: 0; -unity-background-scale-mode: stretch-to-fill;" />
+                                            <ui:VisualElement name="Center" style="flex-grow: 1; flex-shrink: 1; height: 12px; min-width: 0; -unity-background-scale-mode: stretch-to-fill;" />
+                                            <ui:VisualElement name="Right" style="width: 4px; height: 12px; min-width: 4px; max-width: 4px; flex-grow: 0; flex-shrink: 0; -unity-background-scale-mode: stretch-to-fill;" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+                                    <ui:Label tabindex="-1" text="0.00%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CurrentWeight" class="bar-label bar-label-numbers" style="-unity-font: resource(&apos;Data/UI/Font/tahoma&apos;); font-size: 11px; position: absolute; width: 100%; margin-top: 0; left: 0; top: 0; -unity-text-align: middle-center;" />
                                 </ui:VisualElement>
                             </ui:VisualElement>
                         </ui:VisualElement>
+                        <ui:Button text="" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TrashBtn" class="inventory-trash-btn" style="width: 34px; height: 34px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; background-color: rgba(0,0,0,0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
+                            <ui:VisualElement name="ButtonBg" class="inventory-trash-bg" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; width: 34px; height: 34px; background-image: resource(&apos;Data/UI/Inventory/Inventory_Interlude_Trash&apos;); -unity-background-scale-mode: stretch-to-fill;" />
+                        </ui:Button>
                     </ui:VisualElement>
-                    <ui:VisualElement name="InventoryContent" style="flex-grow: 1; padding-left: 2px;">
-                        <ui:VisualElement name="InventoryTabView" focusable="true" style="flex-grow: 1; flex-shrink: 0; flex-direction: column; padding-left: 0; padding-top: 5px; padding-right: 0; padding-bottom: 0;">
-                            <ui:VisualElement name="tab-header-container" style="flex-direction: row-reverse; margin-left: 8px; margin-bottom: -4px;">
-                                <ui:VisualElement name="TabLine" style="flex-grow: 1; margin-right: 5px; background-image: resource(&apos;Data/UI/Tab/Tab_DF_Bg_line&apos;); margin-bottom: -7px;" />
-                            </ui:VisualElement>
-                            <ui:VisualElement focusable="true" name="tab-content-container" style="flex-grow: 1; flex-shrink: 0; flex-direction: column-reverse; background-image: resource(&apos;Data/UI/Tab/Tab_DF_bg 1&apos;); -unity-slice-left: 10; -unity-slice-top: 10; -unity-slice-right: 10; -unity-slice-bottom: 10; padding-top: 7px; padding-right: 4px; padding-bottom: 8px; padding-left: 6px; margin-bottom: 0;" />
-                        </ui:VisualElement>
-                        <ui:GroupBox name="Footer" style="margin-top: 4px; margin-right: 0; margin-bottom: 4px; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 5px; height: 36px; flex-direction: row; flex-grow: 0; padding-right: 3px;">
-                            <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" name="AdenaDistribBtn" class="l2-button" style="width: 36px; height: 36px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;">
-                                <ui:VisualElement name="ButtonBg" class="l2-button-bg" style="flex-grow: 1; width: 64px; height: 64px; top: -2px;" />
-                            </ui:Button>
-                            <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CompoundBtn" class="l2-button" style="width: 36px; height: 36px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 4px;">
-                                <ui:VisualElement name="ButtonBg" class="l2-button-bg" style="flex-grow: 1; width: 64px; height: 64px; top: -2px;" />
-                            </ui:Button>
-                            <ui:VisualElement style="flex-grow: 1;" />
-                            <ui:GroupBox name="StatisticBox" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; flex-direction: row; align-self: stretch; justify-content: flex-end; align-items: stretch; width: 165px;">
-                                <ui:GroupBox name="Image" style="flex-direction: column; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; left: 10px;">
-                                    <ui:VisualElement name="Adena" style="flex-grow: 1; width: 32px; height: 16px; max-width: 32px; max-height: 16px; background-image: resource(&apos;Data/UI/Inventory/icon_df_common_adena&apos;); margin-top: 2px;" />
-                                    <ui:VisualElement style="flex-grow: 1; width: 32px; height: 16px; background-image: resource(&apos;Data/UI/Inventory/icon_df_common_weight&apos;); max-width: 32px; max-height: 16px; margin-top: 2px;" />
-                                </ui:GroupBox>
-                                <ui:GroupBox name="Gauge" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; flex-grow: 1;">
-                                    <ui:GroupBox name="TextBox" style="margin-top: 0; margin-right: 0; margin-bottom: 2px; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; height: 16px;">
-                                        <ui:GroupBox style="background-color: rgb(22, 22, 22); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; height: 18px; border-left-color: rgb(59, 59, 59); border-right-color: rgb(59, 59, 59); border-top-color: rgb(59, 59, 59); border-bottom-color: rgb(59, 59, 59); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; flex-direction: row-reverse;">
-                                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="AdenaCount" style="margin-top: 0; margin-right: 1px; margin-bottom: 5px; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; align-self: flex-end; font-size: 11px; color: rgb(223, 222, 222); -unity-text-outline-color: rgba(0, 0, 0, 0.6);" />
-                                        </ui:GroupBox>
-                                    </ui:GroupBox>
-                                    <ui:GroupBox name="WeightContainer" style="flex-direction: row; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; height: 14px; width: auto; font-size: 12px; align-self: stretch; justify-content: flex-start; align-items: auto;">
-                                        <ui:GroupBox name="GroupBox" style="margin-top: 2px; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; align-self: stretch; align-items: stretch; justify-content: flex-start; width: 100%;">
-                                            <ui:GroupBox name="WeightBg" style="flex-direction: row; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; position: absolute; height: 13px; flex-grow: 1; width: 100%;">
-                                                <ui:VisualElement name="Left" style="flex-grow: 1; max-width: 4px; max-height: 16px; width: 4px; height: 16px; background-image: resource(&apos;Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_bg_Center&apos;);" />
-                                                <ui:VisualElement name="Center" style="flex-grow: 1; max-width: none; background-image: resource(&apos;Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_bg_Center&apos;); max-height: 16px; min-height: 16px; align-self: stretch; justify-content: flex-start; align-items: auto; flex-shrink: 0;" />
-                                                <ui:VisualElement name="Right" style="flex-grow: 1; width: 4px; height: 16px; max-width: 4px; max-height: 16px; background-image: resource(&apos;Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_bg_Right&apos;);" />
-                                            </ui:GroupBox>
-                                            <ui:GroupBox name="WeightGauge" style="flex-direction: row; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; height: 16px; align-self: stretch; justify-content: flex-start; align-items: stretch; width: auto;">
-                                                <ui:VisualElement name="Left" style="flex-grow: 1; max-width: 4px; max-height: 16px; width: 4px; height: 16px; background-image: resource(&apos;Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_Left&apos;);" />
-                                                <ui:VisualElement name="Center" style="flex-grow: 1; background-image: resource(&apos;Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_Center&apos;); max-height: 16px; min-height: 16px; align-self: stretch; justify-content: flex-start; align-items: auto; opacity: 1;" />
-                                                <ui:VisualElement name="Right" style="flex-grow: 1; width: 4px; height: 16px; max-width: 4px; max-height: 16px; background-image: resource(&apos;Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_Right&apos;); opacity: 1;" />
-                                            </ui:GroupBox>
-                                        </ui:GroupBox>
-                                        <ui:Label tabindex="-1" text="6.82%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CurrentWeight" class="bar-label bar-label-numbers" style="-unity-font: resource(&apos;Data/UI/Font/tahoma&apos;); -unity-font-definition: initial; font-size: 11px; -unity-text-outline-width: 0.1px; position: absolute; flex-grow: 0; width: 100%; padding-left: 0; margin-top: 2px;" />
-                                    </ui:GroupBox>
-                                </ui:GroupBox>
-                            </ui:GroupBox>
-                            <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TrashBtn" class="l2-button" style="width: 36px; height: 36px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 4px;">
-                                <ui:VisualElement name="ButtonBg" class="l2-button-bg" style="flex-grow: 1; width: 64px; height: 64px; top: -2px;" />
-                            </ui:Button>
-                        </ui:GroupBox>
-                    </ui:VisualElement>
-                </ui:GroupBox>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:Instance>

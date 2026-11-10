@@ -24,7 +24,7 @@ public class NewMagicAttackIntention : IntentionBase
             // Live follow until shoot; self-cast skips facing.
             if (objectId != useSkill.TargetId && targetEntity != null)
             {
-                CombatFacingService.Ensure().BeginFollow(
+                CombatPacketServices.EnsureFacing().BeginFollow(
                     objectId,
                     ControllerPacketServices.Player.transform,
                     targetEntity.transform,
@@ -32,7 +32,7 @@ public class NewMagicAttackIntention : IntentionBase
             }
             else
             {
-                CombatFacingService.Instance?.EndFollow(objectId, "self-or-no-target");
+                CombatPacketServices.Facing?.EndFollow(objectId, "self-or-no-target");
             }
 
             IfUseSelf(objectId, useSkill);

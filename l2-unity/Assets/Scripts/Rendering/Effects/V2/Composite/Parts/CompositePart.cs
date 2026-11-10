@@ -304,7 +304,7 @@ public sealed class ShotProjectilePart : CompositePart
         }
 
         Vector3 start = instance.transform.position;
-        Vector3 aim = VectorUtils.GetCollision(start, context.TargetTransform);
+        Vector3 aim = VectorWorldUtils.GetCollision(start, context.TargetTransform);
         float distance = Vector3.Distance(start, aim);
         return ProjectileFlightTimeCalculator.CalculateL2AccelFlightTimeSeconds(distance);
     }
@@ -358,7 +358,7 @@ public sealed class ShotProjectilePart : CompositePart
 
     public bool TryLaunch(BaseEffect instance, EffectResolveContext context)
     {
-        if (instance == null || context == null || context.TargetTransform == null || ProjectileManager.Instance == null)
+        if (instance == null || context == null || context.TargetTransform == null || ProjectilePacketServices.Projectiles == null)
         {
             return false;
         }
@@ -383,7 +383,7 @@ public sealed class ShotProjectilePart : CompositePart
                 " start=" + startPos +
                 " target=" + context.TargetTransform.name);
         }
-        ProjectileManager.Instance.LaunchProjectile(
+        ProjectilePacketServices.Projectiles.LaunchProjectile(
             instance.gameObject,
             startPos,
             context.TargetTransform,

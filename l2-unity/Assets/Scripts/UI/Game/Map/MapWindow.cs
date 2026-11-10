@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,6 +15,7 @@ public class MapWindow : L2PopupWindow
     private MapPanner _mapPanner;
     private MapMarkerFollowCamera _mapMarkerFollowCamera;
     private TownMapOverlay _townMap;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static MapWindow Instance { get { return _instance; } }
 
     private void Awake()
@@ -23,12 +26,24 @@ public class MapWindow : L2PopupWindow
             _mapPanner = new MapPanner();
             _mapMarkerFollowCamera = new MapMarkerFollowCamera();
             _instance = this;
+            WireHudCorePacketServices();
 
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    
+    private void Start()
+    {
+        WireHudCorePacketServices();
+    }
+
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(map: this);
     }
 
     protected override void LoadAssets()

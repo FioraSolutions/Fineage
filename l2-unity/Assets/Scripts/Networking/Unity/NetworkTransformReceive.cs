@@ -62,7 +62,10 @@ public class NetworkTransformReceive : MonoBehaviour {
     public void UpdatePosition() {
         /* Check if client transform position is synced with server's */
         _positionDelta = VectorUtils.Distance2D(transform.position, _serverPosition);
-        if(_positionDelta > Geodata.Instance.NodeSize * _positionSyncNodesThreshold && _positionSynced) {
+        Geodata geodata = GeodataPacketServices.Geodata;
+        if (geodata == null)
+            return;
+        if(_positionDelta > geodata.NodeSize * _positionSyncNodesThreshold && _positionSynced) {
             _lastDesyncTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             _positionSynced = false;
            // Debug.Log("position 0");
@@ -72,7 +75,7 @@ public class NetworkTransformReceive : MonoBehaviour {
             //Debug.Log("position 1");
             _lastDesyncDuration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - _lastDesyncTime;
             if(_lastDesyncDuration > _maximumAllowedDesyncTimeMs) {
-                if(_positionDelta <= Geodata.Instance.NodeSize / 10f) {
+                if(_positionDelta <= geodata.NodeSize / 10f) {
                     //true - use Gravity sync
                     _positionSynced = true;
                    // Debug.Log("position 2");

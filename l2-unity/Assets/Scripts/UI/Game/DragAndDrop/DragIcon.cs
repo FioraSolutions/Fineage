@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +13,7 @@ public class DragIcon : L2PopupWindow
 
     private static DragIcon _instance;
     private bool _isShow = false;
+    [System.Obsolete("Use [Inject] or DragIconPacketServices.Icon instead")]
     public static DragIcon Instance
     {
         get { return _instance; }
@@ -20,6 +23,7 @@ public class DragIcon : L2PopupWindow
         if (_instance == null)
         {
             _instance = this;
+            DragIconPacketServices.Bind(icon: this);
         }
         else
         {

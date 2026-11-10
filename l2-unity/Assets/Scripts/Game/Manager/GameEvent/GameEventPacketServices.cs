@@ -15,7 +15,7 @@ public static class GameEventPacketServices
     }
 
     public static PlayerEntity LocalPlayer =>
-        _localPlayer != null ? _localPlayer : PlayerEntity.Instance;
+        _localPlayer != null ? _localPlayer : DomainPacketServices.LocalPlayer;
 
     public static TargetManager Targets =>
         _targets != null ? _targets : ControllerPacketServices.Targets;

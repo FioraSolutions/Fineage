@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +13,7 @@ public class SeedInfoWindow : L2PopupWindow
     private ICreator _creatorWindow;
     private ICreatorTables _creatorTable;
     private static SeedInfoWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SeedInfoWindow Instance { get { return _instance; } }
     private VisualTreeAsset _tabTemplate;
     private VisualTreeAsset _tabHeaderTemplate;
@@ -39,7 +42,7 @@ public class SeedInfoWindow : L2PopupWindow
 
     private ItemNameTable ItemNames
     {
-        get { return _itemNames != null ? _itemNames : ItemNameTable.Instance; }
+        get { return _itemNames != null ? _itemNames : TablePacketServices.ItemNames; }
     }
 
     protected override void LoadAssets()
@@ -322,21 +325,21 @@ public class SeedInfoWindow : L2PopupWindow
         {
             case 0:
                 // Debug.Log("Event index 0 ");
-                HtmlWindow.Instance.UseActionCommand(commandTab0);
+                GameWindowPacketServices.Html.UseActionCommand(commandTab0);
                 _creatorTable.SetSelectRow(-1);
                 _creatorWindow.RefreshDataColumns(_defaultColumns0);
                 AddContent0Footer(_creatorWindow, _footerContainer);
                 break;
             case 1:
                 // Debug.Log("Event index 1 ");
-                HtmlWindow.Instance.UseActionCommand(commandTab1);
+                GameWindowPacketServices.Html.UseActionCommand(commandTab1);
                 _creatorTable.SetSelectRow(-1);
                 _creatorWindow.RefreshDataColumns(_defaultColumns1);
                 AddContent1Footer(_creatorWindow, _footerContainer);
                 break;
             case 2:
                 // Debug.Log("Event index 2 ");
-                HtmlWindow.Instance.UseActionCommand(commandTab2);
+                GameWindowPacketServices.Html.UseActionCommand(commandTab2);
                 _creatorTable.SetSelectRow(-1);
                 _creatorWindow.RefreshDataColumns(_defaultColumns2);
                 AddContent2Footer(_creatorWindow, _footerContainer);
@@ -358,12 +361,12 @@ public class SeedInfoWindow : L2PopupWindow
     public void OnClickAllButton1(ClickEvent evt)
     {
 
-        HtmlWindow.Instance.UseActionCommand(commandButton1);
+        GameWindowPacketServices.Html.UseActionCommand(commandButton1);
     }
 
     public void OnClickAllButton2(ClickEvent evt)
     {
-        HtmlWindow.Instance.UseActionCommand(commandButton0);
+        GameWindowPacketServices.Html.UseActionCommand(commandButton0);
     }
 
     public void ShowWindowActiveTabSeed()

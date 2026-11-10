@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,6 +27,7 @@ public class PlayerShortcuts : MonoBehaviour
     public List<Shortcut> Shortcuts { get { return _shortcuts.Values.ToList(); } }
 
     private static PlayerShortcuts _instance;
+    [System.Obsolete("Use [Inject] or ShortcutPacketServices.Shortcuts instead")]
     public static PlayerShortcuts Instance
     {
         get { return _instance; }
@@ -160,10 +163,13 @@ public class PlayerShortcuts : MonoBehaviour
         for (int i = 0; i < shortcuts.Count; i++)
         {
             Shortcut shortcut = shortcuts[i];
-            _shortcuts.Add(shortcut.Slot + shortcut.Page * MAXIMUM_SHORTCUTS_PER_BAR, shortcut);
+            _shortcuts[shortcut.Slot + shortcut.Page * MAXIMUM_SHORTCUTS_PER_BAR] = shortcut;
         }
 
-        SkillbarWindow.Instance.UpdateAllShortcuts(shortcuts);
+        // Always keep the dict; paint only when the skillbar slots exist (EnterWorld races BuildWindow).
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        if (skillbar != null && skillbar.IsReady)
+            skillbar.UpdateAllShortcuts(shortcuts);
     }
 
     public void RegisterShortcut(Shortcut shortcut)
@@ -174,17 +180,12 @@ public class PlayerShortcuts : MonoBehaviour
         }
 
         int slot = shortcut.Slot + shortcut.Page * MAXIMUM_SHORTCUTS_PER_BAR;
-        // Debug.Log($"Register shortcut {shortcut.Id} at {slot}.");
-
-        if (_shortcuts.TryAdd(slot, shortcut))
-        {
-            SkillbarWindow.Instance.AddShortcut(shortcut);
-        }
-        else
-        {
-            // Debug.LogError($"Can't add shotcut in slot {slot}.");
-        }
-
+        // Server ShortCutRegister is authoritative: overwrite a stale local row instead of
+        // silently dropping the echo (TryAdd failed left soulshot / item icons blank).
+        _shortcuts[slot] = shortcut;
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        if (skillbar != null && skillbar.IsReady)
+            skillbar.AddShortcut(shortcut);
     }
 
     public Shortcut GetShortcutBySlot(int slot)
@@ -199,13 +200,15 @@ public class PlayerShortcuts : MonoBehaviour
 
     public void RemoveShotcutLocally(int slot)
     {
-        SkillbarWindow.Instance.RemoveShortcut(slot);
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        if (skillbar != null && skillbar.IsReady)
+            skillbar.RemoveShortcut(slot);
         _shortcuts.Remove(slot);
     }
 
     private void RemoveShotcutNoVisible(int slot)
     {
-        //SkillbarWindow.Instance.RemoveShortcut(slot);
+        //SkillbarPacketServices.Skillbar.RemoveShortcut(slot);
         _shortcuts.Remove(slot);
     }
 

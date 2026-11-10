@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +11,7 @@ public class LoginCameraManager : MonoBehaviour
     private Camera _activeCamera;
 
     private static LoginCameraManager _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static LoginCameraManager Instance { get { return _instance; } }
 
     void Awake() {
@@ -100,26 +103,30 @@ public class LoginCameraManager : MonoBehaviour
 
             if (camera == "CharSelect")
             {
-                if (LobbyNameplatesManager.Instance != null)
+                LobbyNameplatesManager lobbyPlates = NameplatePacketServices.LobbyNameplates;
+                if (lobbyPlates != null)
                 {
-                    LobbyNameplatesManager.Instance.Camera = obj;
+                    lobbyPlates.Camera = obj;
                 }
 
-                if (CharacterSelector.Instance != null)
+                CharacterSelector selector = LoginPacketServices.Characters;
+                if (selector != null)
                 {
-                    CharacterSelector.Instance.Camera = obj;
+                    selector.Camera = obj;
                 }
             }
             else
             {
-                if (LobbyNameplatesManager.Instance != null)
+                LobbyNameplatesManager lobbyPlates = NameplatePacketServices.LobbyNameplates;
+                if (lobbyPlates != null)
                 {
-                    LobbyNameplatesManager.Instance.Camera = null;
+                    lobbyPlates.Camera = null;
                 }
 
-                if (CharacterSelector.Instance != null)
+                CharacterSelector selector = LoginPacketServices.Characters;
+                if (selector != null)
                 {
-                    CharacterSelector.Instance.Camera = null;
+                    selector.Camera = null;
                 }
             }
 
@@ -150,11 +157,12 @@ public class LoginCameraManager : MonoBehaviour
 
         EnsureStudioListener(_activeCamera);
 
-        if (ThirdPersonListener.Instance == null)
+        var listener = AudioPacketServices.Listener;
+        if (listener == null)
             return;
 
-        ThirdPersonListener.Instance.transform.position = _activeCamera.transform.position;
-        ThirdPersonListener.Instance.Cam = _activeCamera.gameObject;
+        listener.transform.position = _activeCamera.transform.position;
+        listener.Cam = _activeCamera.gameObject;
     }
 
     /// <summary>

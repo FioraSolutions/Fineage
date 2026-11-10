@@ -173,20 +173,7 @@ public class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
 
         resolvedTransform = fallbackRoot;
 
-        float collisionHeight = L2NameplateAnchor.DefaultCollisionHeightMeters;
-        if (entity != null && entity.Appearance != null)
-        {
-            collisionHeight = entity.Appearance.CollisionHeight;
-        }
-
-        // Same call as NameplateEntryStore / NameplatesManager._headHeightOffset.
-        worldPosition = L2NameplateAnchor.GetHeadWorldPos(
-            fallbackRoot,
-            collisionHeight,
-            L2NameplateAnchor.DefaultHeadHeightOffsetMeters);
-        // Debug.Log(
-            // $"[HOME_SPAWN] ResolveTargetOverHead entity='{(entity != null ? entity.name : "null")}' " +
-            // $"nameplate={worldPosition:F3} dY={(worldPosition.y - fallbackRoot.position.y):F3}");
+        worldPosition = L2OverheadAnchor.GetWorldPos(entity, fallbackRoot);
         return true;
     }
 
@@ -253,7 +240,7 @@ public class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
         }
 
         Animator animator = entity != null ? entity.Animator : null;
-        if (animator != null && animator.isHuman)
+        if (animator != null && animator.isHuman && animator.avatar != null)
         {
             Transform hips = animator.GetBoneTransform(HumanBodyBones.Hips);
             if (hips != null)

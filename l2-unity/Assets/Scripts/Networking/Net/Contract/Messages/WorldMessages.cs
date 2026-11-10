@@ -54,6 +54,12 @@ namespace Fineage.Net.Contract
         public int Level { get; set; }
         /// <summary>Max HP so a client can size the HP bar without waiting for the first StatusUpdate.</summary>
         public int MaxHp { get; set; }
+        /// <summary>Physical attack speed (Mobius P.AtkSpd); drives client attack anim timing. Optional wire tail.</summary>
+        public int PAtkSpd { get; set; }
+        /// <summary>Mobius karma (PK red name). Optional wire tail; 0 for NPCs / old peers.</summary>
+        public int Karma { get; set; }
+        /// <summary>Mobius PvP flag (purple name). 0/1. Optional wire tail.</summary>
+        public byte PvpFlag { get; set; }
     }
 
     public sealed class PlayerStatsMsg
@@ -432,6 +438,15 @@ namespace Fineage.Net.Contract
         public int ColorHint { get; set; }
     }
 
+    /// <summary>
+    /// Zone → client: the player's selection was dropped (Mobius <c>TargetUnselected</c>), so the target
+    /// window and nameplate close. Carries the object id that was unselected, 0 when there was none.
+    /// </summary>
+    public sealed class TargetUnselectedNetMsg
+    {
+        public int TargetObjectId { get; set; }
+    }
+
     public sealed class AttackStateMsg
     {
         public ulong AttackerValue { get; set; }
@@ -490,6 +505,12 @@ namespace Fineage.Net.Contract
         public int Count { get; set; }
         public int EnchantLevel { get; set; }
         public int EquippedSlot { get; set; } = -1;
+        /// <summary>Same tokens as <see cref="ItemListEntryNet"/> — client must not re-guess kind/slot from tables.</summary>
+        public string BodySlot { get; set; } = "";
+        public string Kind { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string WeaponType { get; set; } = "";
+        public string ArmorType { get; set; } = "";
     }
 
     public sealed class InventoryUpdateNetMsg
@@ -511,15 +532,6 @@ namespace Fineage.Net.Contract
     {
         public int ObjectId { get; set; }
         public int Count { get; set; } = 1;
-    }
-
-    /// <summary>
-    /// Zone → client: the player's selection was dropped (Mobius <c>TargetUnselected</c>), so the target
-    /// window and nameplate close. Carries the object id that was unselected, 0 when there was none.
-    /// </summary>
-    public sealed class TargetUnselectedNetMsg
-    {
-        public int TargetObjectId { get; set; }
     }
 
     public sealed class UseItemNetMsg
@@ -574,6 +586,10 @@ namespace Fineage.Net.Contract
     {
         /// <summary>Restart to village. Matches Backend <c>Fineage.Protocol.DeathProtocol.ReviveToVillage</c>.</summary>
         public const int ReviveToVillage = 0;
+        /// <summary>Accept skill resurrection. Matches <c>DeathProtocol.AcceptSkillResurrection</c>.</summary>
+        public const int AcceptSkillResurrection = 1;
+        /// <summary>Decline skill resurrection. Matches <c>DeathProtocol.DeclineSkillResurrection</c>.</summary>
+        public const int DeclineSkillResurrection = 2;
 
         public int Action { get; set; }
     }
@@ -597,6 +613,8 @@ namespace Fineage.Net.Contract
         public int Id { get; set; }
         public int Value { get; set; }
         public int DurationSeconds { get; set; }
+        /// <summary>Mobius <c>abnormalType</c> slot (SLEEP, STUN, PARALYZE, …).</summary>
+        public string Slot { get; set; } = "";
     }
 
     public sealed class AbnormalStatusUpdateNetMsg
@@ -888,6 +906,200 @@ namespace Fineage.Net.Contract
         public int Response { get; set; }
     }
 
+    public sealed class PrivateStoreSellRowNet
+    {
+        public int InventoryObjectId { get; set; }
+        public int ItemId { get; set; }
+        public long Count { get; set; } = 1;
+        public long Price { get; set; }
+        public int EnchantLevel { get; set; }
+    }
+
+    public sealed class SetPrivateStoreSellNetMsg
+    {
+        public string Message { get; set; } = "";
+        public int Packaged { get; set; }
+        public PrivateStoreSellRowNet[] Items { get; set; } = System.Array.Empty<PrivateStoreSellRowNet>();
+    }
+
+    public sealed class PrivateStoreListRequestNetMsg
+    {
+        public int StoreObjectId { get; set; }
+    }
+
+    public sealed class PrivateStoreBuyNetMsg
+    {
+        public int StoreObjectId { get; set; }
+        public PrivateStoreSellRowNet[] Items { get; set; } = System.Array.Empty<PrivateStoreSellRowNet>();
+    }
+
+    /// <summary>Broadcast store type + title (Mobius PrivateStoreMsgSell / UserInfo store bit).</summary>
+    public sealed class PrivateStoreInfoNetMsg
+    {
+        public int ObjectId { get; set; }
+        public int StoreType { get; set; }
+        public string Message { get; set; } = "";
+    }
+
+    public sealed class PrivateStoreListSellNetMsg
+    {
+        public int StoreObjectId { get; set; }
+        public string StoreName { get; set; } = "";
+        public string Message { get; set; } = "";
+        public int Packaged { get; set; }
+        public long BuyerAdena { get; set; }
+        public PrivateStoreSellRowNet[] Items { get; set; } = System.Array.Empty<PrivateStoreSellRowNet>();
+    }
+
+    public sealed class PrivateStoreBuyRowNet
+    {
+        public int ItemId { get; set; }
+        public long Count { get; set; } = 1;
+        public long Price { get; set; }
+    }
+
+    public sealed class SetPrivateStoreBuyNetMsg
+    {
+        public string Message { get; set; } = "";
+        public PrivateStoreBuyRowNet[] Items { get; set; } = System.Array.Empty<PrivateStoreBuyRowNet>();
+    }
+
+    public sealed class PrivateStoreSellToNetMsg
+    {
+        public int StoreObjectId { get; set; }
+        public PrivateStoreSellRowNet[] Items { get; set; } = System.Array.Empty<PrivateStoreSellRowNet>();
+    }
+
+    public sealed class PrivateStoreListBuyNetMsg
+    {
+        public int StoreObjectId { get; set; }
+        public string StoreName { get; set; } = "";
+        public string Message { get; set; } = "";
+        public long StoreAdena { get; set; }
+        public PrivateStoreBuyRowNet[] Items { get; set; } = System.Array.Empty<PrivateStoreBuyRowNet>();
+    }
+
+    public sealed class RecipeBookOpenNetMsg
+    {
+        public int Dwarven { get; set; }
+    }
+
+    public sealed class RecipeMakeSelfNetMsg
+    {
+        public int RecipeId { get; set; }
+    }
+
+    public sealed class RecipeBookListNetMsg
+    {
+        public int Dwarven { get; set; }
+        public int[] RecipeIds { get; set; } = System.Array.Empty<int>();
+    }
+
+    /// <summary>0 = success, 1 = fail (materials lost), 2 = cannot craft (no consume).</summary>
+    public sealed class RecipeItemMakeInfoNetMsg
+    {
+        public int RecipeId { get; set; }
+        public int Result { get; set; }
+        public int CurrentMp { get; set; }
+        public int MaxMp { get; set; }
+    }
+
+    public sealed class RecipeShopRowNet
+    {
+        public int RecipeId { get; set; }
+        public long Price { get; set; }
+    }
+
+    public sealed class SetRecipeShopNetMsg
+    {
+        public string Message { get; set; } = "";
+        public RecipeShopRowNet[] Items { get; set; } = System.Array.Empty<RecipeShopRowNet>();
+    }
+
+    public sealed class RecipeShopMakeInfoNetMsg
+    {
+        public int ManufacturerObjectId { get; set; }
+        public int RecipeId { get; set; }
+    }
+
+    public sealed class RecipeShopMakeItemNetMsg
+    {
+        public int ManufacturerObjectId { get; set; }
+        public int RecipeId { get; set; }
+    }
+
+    public sealed class RecipeShopSellListNetMsg
+    {
+        public int ManufacturerObjectId { get; set; }
+        public int CurrentMp { get; set; }
+        public int MaxMp { get; set; }
+        public long BuyerAdena { get; set; }
+        public RecipeShopRowNet[] Items { get; set; } = System.Array.Empty<RecipeShopRowNet>();
+    }
+
+    public sealed class RecipeShopItemInfoNetMsg
+    {
+        public int ManufacturerObjectId { get; set; }
+        public int RecipeId { get; set; }
+        public int CurrentMp { get; set; }
+        public int MaxMp { get; set; }
+        /// <summary>0 = ok / success, 1 = fail (fee+mats consumed).</summary>
+        public int Result { get; set; }
+    }
+
+    public sealed class FriendInviteNetMsg
+    {
+        public string Name { get; set; } = "";
+    }
+
+    public sealed class FriendAnswerNetMsg
+    {
+        public int Response { get; set; }
+    }
+
+    public sealed class FriendDeleteNetMsg
+    {
+        public string Name { get; set; } = "";
+    }
+
+    public sealed class BlockRequestNetMsg
+    {
+        public int Type { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    public sealed class FriendInviteAskNetMsg
+    {
+        public string RequestorName { get; set; } = "";
+    }
+
+    public sealed class FriendRowNet
+    {
+        public int ObjectId { get; set; }
+        public string Name { get; set; } = "";
+        public int Online { get; set; }
+    }
+
+    public sealed class FriendListNetMsg
+    {
+        public FriendRowNet[] Friends { get; set; } = System.Array.Empty<FriendRowNet>();
+    }
+
+    /// <summary>Added=1 / removed=0; Online reflects presence when added or on login notify.</summary>
+    public sealed class FriendUpdateNetMsg
+    {
+        public int Added { get; set; }
+        public int ObjectId { get; set; }
+        public string Name { get; set; } = "";
+        public int Online { get; set; }
+    }
+
+    public sealed class BlockListNetMsg
+    {
+        public int BlockAll { get; set; }
+        public FriendRowNet[] Blocked { get; set; } = System.Array.Empty<FriendRowNet>();
+    }
+
     /// <summary>One paperdoll slot (Mobius UserInfo / CharInfo order, 17 slots, right hand = 7). Zeros when empty.</summary>
     public sealed class PaperdollSlotNet
     {
@@ -941,6 +1153,14 @@ namespace Fineage.Net.Contract
         public int WeaponGradePenalty { get; set; }
         public int ArmorGradePenalty { get; set; }
         public int ClanId { get; set; }
+        /// <summary>Mobius currentLoad — inventory weight for the status/inventory gauges.</summary>
+        public int CurrentWeight { get; set; }
+        /// <summary>Mobius getMaxLoad — CON-derived carry limit.</summary>
+        public int MaxWeight { get; set; }
         public PaperdollSlotNet[] Paperdoll { get; set; } = System.Array.Empty<PaperdollSlotNet>();
+        /// <summary>Mobius karma — PK name colour. Optional wire tail.</summary>
+        public int Karma { get; set; }
+        /// <summary>Mobius PvP flag — purple name while flagged. Optional wire tail.</summary>
+        public byte PvpFlag { get; set; }
     }
 }

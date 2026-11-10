@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -15,8 +17,6 @@ public class LobbyNameplatesManager : MonoBehaviour
     [SerializeField] private Color _defaultNameColor = Color.white;
     [Tooltip("Glyph pixel scale. Tune later to match L2; 1 = native atlas pixels.")]
     [SerializeField] private float _pixelScale = 1f;
-    [Tooltip("Meters after L2 capsule top (Location + CollisionHeight). Negative lowers names. Shared with world.")]
-    [SerializeField] private float _headHeightOffset = -0.12f;
     [Tooltip("L2 canvas: lock plate to whole screen pixels (hysteresis).")]
     [SerializeField] private bool _snapAnchorToPixels = true;
     [SerializeField] private float _snapHysteresisPx = 0.75f;
@@ -33,6 +33,8 @@ public class LobbyNameplatesManager : MonoBehaviour
     private bool _subscribed;
 
     private static LobbyNameplatesManager _instance;
+
+    [System.Obsolete("Use NameplatePacketServices.LobbyNameplates or [Inject] LobbyNameplatesManager instead")]
     public static LobbyNameplatesManager Instance => _instance;
 
     public Camera Camera
@@ -54,6 +56,7 @@ public class LobbyNameplatesManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            NameplatePacketServices.Bind(lobbyNameplates: this);
         }
         else
         {
@@ -119,9 +122,10 @@ public class LobbyNameplatesManager : MonoBehaviour
             return _camera;
         }
 
-        if (CharacterSelector.Instance != null && CharacterSelector.Instance.Camera != null)
+        CharacterSelector selector = LoginPacketServices.Characters;
+        if (selector != null && selector.Camera != null)
         {
-            return CharacterSelector.Instance.Camera;
+            return selector.Camera;
         }
 
         return null;
@@ -196,12 +200,13 @@ public class LobbyNameplatesManager : MonoBehaviour
     {
         _paintList.Clear();
 
-        if (CharacterSelector.Instance == null)
+        CharacterSelector selector = LoginPacketServices.Characters;
+        if (selector == null)
         {
             return;
         }
 
-        IReadOnlyList<GameObject> pawns = CharacterSelector.Instance.CharacterPawns;
+        IReadOnlyList<GameObject> pawns = selector.CharacterPawns;
         if (pawns == null)
         {
             return;
@@ -237,34 +242,11 @@ public class LobbyNameplatesManager : MonoBehaviour
             _paintList.Add(new PaintItem
             {
                 Slot = i,
-                World = GetHeadWorldPos(t, info),
+                World = L2OverheadAnchor.GetWorldPos(t),
                 Name = info.Name,
                 Color = ResolveNameColor(info.Karma)
             });
         }
-    }
-
-    private Vector3 GetHeadWorldPos(Transform target, CharSelectInfoPackage info)
-    {
-        _ = info;
-        if (target != null)
-        {
-            Transform[] all = target.GetComponentsInChildren<Transform>(true);
-            for (int i = 0; i < all.Length; i++)
-            {
-                Transform t = all[i];
-                if (t == null || string.IsNullOrEmpty(t.name))
-                    continue;
-                if (t.name.Equals("Bip01_head", System.StringComparison.OrdinalIgnoreCase)
-                    || t.name.Equals("Bip01 Head", System.StringComparison.OrdinalIgnoreCase)
-                    || t.name.Equals("Bip01_Head", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    return t.position + Vector3.up * (0.12f + _headHeightOffset);
-                }
-            }
-        }
-        return L2NameplateAnchor.GetHeadWorldPos(
-            target, L2NameplateAnchor.DefaultCollisionHeightMeters, _headHeightOffset);
     }
 
     private Color ResolveNameColor(int karma)

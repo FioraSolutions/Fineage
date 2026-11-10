@@ -1,7 +1,7 @@
 """Cloudflare hostnames for the shared Fineage playtest.
 
 Keep these in sync with PlaytestEndpoint in
-l2-unity/Assets/Scripts/Networking/Playtest/PlaytestEndpoint.cs.
+l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpoint.cs.
 Secrets and workflow_dispatch inputs override them. A release must not
 ship 127.0.0.1, localhost, or the local Fineage-Backend ports.
 """

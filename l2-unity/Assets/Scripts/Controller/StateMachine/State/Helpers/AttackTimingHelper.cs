@@ -16,7 +16,7 @@ public static class AttackTimingHelper
     /// </summary>
     public static void RotateFaceToMonster(Entity entity)
     {
-        // Transform monster = PlayerEntity.Instance.Target;
+        // Transform monster = DomainPacketServices.LocalPlayer.Target;
         // if (monster == null || entity == null) return;
         //
         // RotationService.Instance.RotateTowards(entity.transform, monster.position, () =>
@@ -126,7 +126,7 @@ public static class AttackTimingHelper
             if (targetEntity != null && targetEntity.Appearance != null)
             {
                 Vector3 start = entity.GetPositionRightHand();
-                Vector3 aim = VectorUtils.GetCollision(start, target);
+                Vector3 aim = VectorWorldUtils.GetCollision(start, target);
                 distance = Vector3.Distance(start, aim);
                 flightSec = ProjectileFlightTimeCalculator.CalculateL2ArrowFlightTimeSeconds(distance);
             }

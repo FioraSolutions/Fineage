@@ -59,6 +59,10 @@ public class ShopInventoryController
             template,
             SlotType.PriceBuy);
 
+        // Empty cart cells must not start a drag ghost (default InventorySlot drag is for bag/trade).
+        for (int i = 0; i < slots.Length; i++)
+            slots[i].AssignEmpty();
+
         tabBuy.UpdateInventorySlots(slots);
         _dealerWindow.SetInventorySlotsBuy(slots);
     }

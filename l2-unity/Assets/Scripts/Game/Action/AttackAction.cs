@@ -25,8 +25,8 @@ public class AttackAction : L2Action
         // Do not gate on IsAttack: that latch used to stick after the first swing (#522), which
         // blocked the attack hotkey until a second entity click. Zone ignores redundant AttackRequest
         // while already swinging the same target.
-        if (PlayerStateMachine.Instance != null &&
-            PlayerStateMachine.Instance.State == PlayerState.DEAD)
+        if (PlayerStatePacketServices.PlayerState != null &&
+            PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
             return;
 
         TargetData target = targets.Target;
@@ -34,7 +34,8 @@ public class AttackAction : L2Action
             return;
 
         Entity entity = target.GetEntity();
-        if (entity is MonsterEntity)
+        // Attack hotkey / Ctrl: force swing on players and NPCs, not only monsters.
+        if (entity is MonsterEntity || entity is PlayerEntity || entity is NpcEntity || GameCtrl.IsHeld)
             targets.SetAttackTarget();
 
         var l2jpos = target.Identity.GetL2jPos();

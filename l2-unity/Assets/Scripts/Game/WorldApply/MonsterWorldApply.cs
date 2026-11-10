@@ -39,7 +39,7 @@ public sealed class MonsterWorldApply : EntityWorldApply
     {
         _actions.Die(entity, false, "packet");
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         bool targetMatch = player != null && dto != null && player.TargetId == dto.ObjectId;
         if (targetMatch)
             player.IsAttack = false;
@@ -51,8 +51,8 @@ public sealed class MonsterWorldApply : EntityWorldApply
             // " skipWaitReturn=" + !localInCombat,
             // entity,
             // dto);
-        if (localInCombat && PlayerStateMachine.Instance != null)
-            PlayerStateMachine.Instance.OnWaitReturn();
+        if (localInCombat && PlayerStatePacketServices.PlayerState != null)
+            PlayerStatePacketServices.PlayerState.OnWaitReturn();
     }
 
     static bool LocalPlayerInCombatWith(PlayerEntity player, bool targetMatch)
@@ -61,7 +61,7 @@ public sealed class MonsterWorldApply : EntityWorldApply
             return false;
         if (player.isAutoAttack || player.IsAttack)
             return true;
-        PlayerStateMachine sm = PlayerStateMachine.Instance;
+        PlayerStateMachine sm = PlayerStatePacketServices.PlayerState;
         if (sm == null)
             return false;
         PlayerState state = sm.State;
@@ -121,7 +121,7 @@ public sealed class MonsterWorldApply : EntityWorldApply
         if (entity != null && entity.IsDead())
             return;
         if (entity != null && entity.Identity != null)
-            CombatFacingService.Instance?.EndFollow(entity.Identity.Id, "skill-canceled");
+            CombatPacketServices.Facing?.EndFollow(entity.Identity.Id, "skill-canceled");
         _actions.Set(entity, EntityActionKind.Idle, null);
     }
 }

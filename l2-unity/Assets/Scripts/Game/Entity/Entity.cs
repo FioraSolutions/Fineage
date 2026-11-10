@@ -142,6 +142,24 @@ public class Entity : MonoBehaviour {
     public Appearance Appearance { get => _appearance; set { _appearance = value; } }
     public EntityIdentity Identity { get => _identityInterlude; set => _identityInterlude = value; }
 
+    /// <summary>
+    /// Live PartySpelled / AbnormalStatusUpdate icons for this creature (target window).
+    /// Self buff tray still uses <see cref="BufferPanel"/> separately.
+    /// </summary>
+    public System.Collections.Generic.List<EffectHolder> TargetEffects { get; } =
+        new System.Collections.Generic.List<EffectHolder>();
+
+    public void ReplaceTargetEffects(System.Collections.Generic.IList<EffectHolder> effects)
+    {
+        TargetEffects.Clear();
+        if (effects == null)
+            return;
+        for (int i = 0; i < effects.Count; i++)
+            TargetEffects.Add(effects[i]);
+        if (GetComponent<EntityAbnormalVisuals>() == null)
+            gameObject.AddComponent<EntityAbnormalVisuals>();
+    }
+
     /// <summary>Melee/bow soulshot charge — HitManager may spawn SoulshotImpact on the target.</summary>
     public bool IsSoulshotCharged { get; set; }
     /// <summary>Spiritshot / blessed spiritshot charge — weapon glow only; no melee SS impact on the mob.</summary>
@@ -269,9 +287,12 @@ public class Entity : MonoBehaviour {
 
     protected virtual void OnHit(bool criticalHit) {
         // TODO: Add armor type for more hit sounds
-        if (!HitImpactSound.Play(criticalHit) && AudioManager.Instance != null)
-            AudioManager.Instance.PlayHitSound(criticalHit, transform.position);
+        if (!HitImpactSound.Play(criticalHit) && AudioPacketServices.Audio != null)
+            AudioPacketServices.Audio.PlayHitSound(criticalHit, transform.position);
     }
+
+    /// <summary>DoT / StatusUpdate HP loss without an Attack packet (Mobius notifyDamageReceived).</summary>
+    public void PlayHitReaction(bool criticalHit = false) => OnHit(criticalHit);
 
     public virtual void OnStopMoving() {}
 
@@ -279,13 +300,13 @@ public class Entity : MonoBehaviour {
 
     public virtual float UpdatePAtkSpeed(int pAtkSpd) {
         _stats.PAtkSpd = pAtkSpd;
-        //float convert =  StatsConverter.Instance.ConvertStat(Stat.PHYS_ATTACK_SPEED, pAtkSpd);
-        return  StatsConverter.Instance.ConvertStat(Stat.SPEED, pAtkSpd);
+        //float convert =  StatsConverterPacketServices.Converter.ConvertStat(Stat.PHYS_ATTACK_SPEED, pAtkSpd);
+        return  StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, pAtkSpd);
     }
 
     public virtual float UpdateMAtkSpeed(int mAtkSpd) {
         _stats.MAtkSpd = mAtkSpd;
-        return StatsConverter.Instance.ConvertStat(Stat.MAGIC_ATTACK_SPEED, mAtkSpd);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.MAGIC_ATTACK_SPEED, mAtkSpd);
     }
 
 
@@ -300,7 +321,7 @@ public class Entity : MonoBehaviour {
 
     public void UpdateNpcWalkSpd(float walkSpeed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, walkSpeed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, walkSpeed);
         float anim_converted = NpcLocomotionAnimRateForMesh("Walk");
         if (_networkAnimationReceive != null) _networkAnimationReceive.SetWalkSpeed(anim_converted);
         Stats.UnitySpeedWalking = scaled;
@@ -309,7 +330,7 @@ public class Entity : MonoBehaviour {
 
     public void UpdateNpcRunningSpd(float runSpeed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, runSpeed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, runSpeed);
         float anim_converted = NpcLocomotionAnimRateForMesh("run");
         if (_networkAnimationReceive != null) _networkAnimationReceive.SetRunSpeed(anim_converted);
         Stats.UnitySpeedRun = scaled;
@@ -337,51 +358,51 @@ public class Entity : MonoBehaviour {
             ? controllerName
             : controllerName + "_anim";
 
-        float rate = AnimTweenTable.Instance.TryGetRate(mesh, sequence);
+        float rate = TablePacketServices.AnimTweens.TryGetRate(mesh, sequence);
         return NumberUtils.NpcLocomotionAnimRate(rate);
     } 
 
 
 
     public virtual float UpdateSpeed(int speed) {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
         _stats.Speed = speed;
         _stats.ScaledSpeed = scaled;
-        return StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
 
     public virtual float UpdateRunSpeed(float speed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
         _stats.UnitySpeedRun = speed;
         return scaled;
         //_stats.ScaledRunSpeed = scaled;
-        //return StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        //return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
 
     public virtual float UpdateAnimRunSpeed(float speed)
     {
-        return StatsConverter.Instance.ConvertStat(Stat.ANIM_RUN_SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.ANIM_RUN_SPEED, speed);
     }
 
     public virtual float UpdateAnimWalkSpeed(float speed)
     {
-        return StatsConverter.Instance.ConvertStat(Stat.ANIM_WALK_SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.ANIM_WALK_SPEED, speed);
     }
 
 
     public float UpdateAnimRunMagicSpeed(float speed)
     {
-        return StatsConverter.Instance.ConvertStat(Stat.ANIM_MAGIC_RUN_SPEED, speed);
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.ANIM_MAGIC_RUN_SPEED, speed);
     }
 
     public virtual float UpdateWalkSpeed(float speed)
     {
-        float scaled = StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
         _stats.UnitySpeedWalking = scaled;
         return scaled;
         //_stats.ScaledWalkSpeed = scaled;
-       // return StatsConverter.Instance.ConvertStat(Stat.SPEED, speed);
+       // return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
    
     public virtual bool IsDead() {
@@ -419,7 +440,7 @@ public class Entity : MonoBehaviour {
         _gear.EquipArrowEtcItem(itemId, leftSlot);
     }
 
-    public bool IsUseBow() => PlayerEntity.Instance.GetCurrentAnimName().IndexOf("bow") > -1;
+    public bool IsUseBow() => DomainPacketServices.LocalPlayer.GetCurrentAnimName().IndexOf("bow") > -1;
 
     public void EquipDualWeapon(int weaponId)
     {
@@ -509,7 +530,7 @@ public class Entity : MonoBehaviour {
     private void HandleUnequipSheildArmorItem(ItemInstance item, UserGear usergear)
     {
         int itemId = item.ItemId;
-        Weapon weapon = ItemTable.Instance.GetWeapon(itemId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
 
         if (weapon != null)
         {
@@ -526,7 +547,7 @@ public class Entity : MonoBehaviour {
     {
         int itemId = item.ItemId;
 
-        Weapon weapon = ItemTable.Instance.GetWeapon(itemId);
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
 
         if (weapon != null)
         {
@@ -547,7 +568,7 @@ public class Entity : MonoBehaviour {
             {
                 PlayerEntity playerEntity = (PlayerEntity)this;
                 playerEntity.RefreshRunSpeed();
-                PlayerStateMachine.Instance.NotifyEvent(Event.CHANGE_EQUIP);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.CHANGE_EQUIP);
                 
             }
         }
@@ -557,7 +578,7 @@ public class Entity : MonoBehaviour {
     {
        if (this.GetType() == typeof(PlayerEntity))
        {
-          PlayerStateMachine.Instance.NotifyEvent(Event.CHANGE_EQUIP);
+          PlayerStatePacketServices.PlayerState.NotifyEvent(Event.CHANGE_EQUIP);
        }
     }
 
@@ -605,13 +626,6 @@ public class Entity : MonoBehaviour {
         if (_castData == null) _castData = new MagicCastData();
 
         _castData.Setup(serverHitTimeMs, flightTimeMs, clipsDurations, shotEventTime, targetObjectId, castStyle, mixCombo);
-    }
-
-    public void SetupLongCastDuration(float serverHitTimeMs, float[] clipsDurations, float shotEventTime, int targetObjectId = 0)
-    {
-        if (_castData == null) _castData = new MagicCastData();
-
-        _castData.SetupLongCast(serverHitTimeMs, clipsDurations, shotEventTime, targetObjectId);
     }
 
     public MagicCastData GetMagicCastData()

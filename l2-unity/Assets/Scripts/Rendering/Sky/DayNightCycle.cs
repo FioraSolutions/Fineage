@@ -145,7 +145,7 @@ public class DayNightCycle : MonoBehaviour
             }
             if (_clock == null)
             {
-                _clock = WorldClock.Instance;
+                _clock = WorldClockPacketServices.Clock;
             }
             if (_mainLight == null)
             {
@@ -281,14 +281,15 @@ public class DayNightCycle : MonoBehaviour
         L2ActorLightLut.PushGlobals(_clock.WorldHours);
         L2ActorPointLights.Push();
 
-        if (HeightFogGlobal.Instance != null)
+        HeightFogGlobal heightFog = RenderingPacketServices.HeightFog;
+        if (heightFog != null)
         {
-            HeightFogGlobal.Instance.fogColorStart = sample.sky;
-            HeightFogGlobal.Instance.fogColorEnd = sample.sky * 0.74f;
+            heightFog.fogColorStart = sample.sky;
+            heightFog.fogColorEnd = sample.sky * 0.74f;
             float fogDir = sample.sun.r + sample.sun.g + sample.sun.b > 0.05f
                 ? _dayDirectionalIntensity
                 : _nightDirectionalIntensity;
-            HeightFogGlobal.Instance.directionalIntensity = fogDir;
+            heightFog.directionalIntensity = fogDir;
         }
     }
 
@@ -394,14 +395,15 @@ public class DayNightCycle : MonoBehaviour
 
     private void UpdateFogColor()
     {
-        if (HeightFogGlobal.Instance == null)
+        HeightFogGlobal heightFog = RenderingPacketServices.HeightFog;
+        if (heightFog == null)
         {
             return;
         }
 
-        Color fogColorStart = HeightFogGlobal.Instance.fogColorStart;
-        Color fogColorEnd = HeightFogGlobal.Instance.fogColorEnd;
-        float directionalIntensity = HeightFogGlobal.Instance.directionalIntensity;
+        Color fogColorStart = heightFog.fogColorStart;
+        Color fogColorEnd = heightFog.fogColorEnd;
+        float directionalIntensity = heightFog.directionalIntensity;
         if (_clock.Clock.dawnRatio > 0 && _clock.Clock.dawnRatio < 1)
         {
             fogColorStart = Color.Lerp(fogColorStart, _dayFogColorStart, _clock.Clock.dawnRatio);
@@ -427,9 +429,9 @@ public class DayNightCycle : MonoBehaviour
             directionalIntensity = _nightDirectionalIntensity;
         }
 
-        HeightFogGlobal.Instance.fogColorStart = fogColorStart;
-        HeightFogGlobal.Instance.fogColorEnd = fogColorEnd;
-        HeightFogGlobal.Instance.directionalIntensity = directionalIntensity;
+        heightFog.fogColorStart = fogColorStart;
+        heightFog.fogColorEnd = fogColorEnd;
+        heightFog.directionalIntensity = directionalIntensity;
     }
 
     private void UpdateAmbientLightIntensity()

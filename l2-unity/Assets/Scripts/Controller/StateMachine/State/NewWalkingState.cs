@@ -17,7 +17,7 @@
             {
                 case Event.ARRIVED:
                     ArrivedToDestination();
-                    DebugLineDraw.RemoveDrawLineDebug(PlayerEntity.Instance.Identity.Id);
+                    DebugLineDraw.RemoveDrawLineDebug(DomainPacketServices.LocalPlayer.Identity.Id);
                     break;
                 case Event.MOVE_TO:
                     ControllerPacketServices.Animations.PlayAnimation(_stateMachine.GetObjectId() , ForRide(AnimationNames.WALK).ToString(), true);
@@ -32,7 +32,7 @@
 
     private void ArrivedToDestination()
     {
-        //if (PlayerStateMachine.Instance.IsAutoAttack == true)
+        //if (PlayerStatePacketServices.PlayerState.IsAutoAttack == true)
         //{
          //   _stateMachine.ChangeIntention(Intention.INTENTION_IDLE);
          //   _stateMachine.NotifyEvent(Event.WAIT_RETURN);

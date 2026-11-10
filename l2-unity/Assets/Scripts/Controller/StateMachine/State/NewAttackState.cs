@@ -33,12 +33,12 @@ public class NewAttackState : AbstractAttackEvents
                 if (targetEntity == null)
                 {
                     // Missing pawn. A dead pawn still plays the swing.
-                    if (PlayerEntity.Instance != null)
+                    if (DomainPacketServices.LocalPlayer != null)
                     {
-                        PlayerEntity.Instance.IsAttack = false;
+                        DomainPacketServices.LocalPlayer.IsAttack = false;
                     }
-                    PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-                    PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN);
+                    PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+                    PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN);
                     break;
                 }
 
@@ -62,7 +62,7 @@ public class NewAttackState : AbstractAttackEvents
                     // $"(L2J 500000/pAtkSpd) serverHitMs={attackDurationMs * hitFraction:F1} " +
                     // $"hitFraction={hitFraction:F2} targetId={targetEntityId}");
 
-                SwordCollisionService.Instance.BeginAttack(
+                SwordCollisionPacketServices.Collision.BeginAttack(
                     _stateMachine.Player.Identity.Id,
                     targetEntityId,
                     _stateMachine.Player.transform,
@@ -73,8 +73,8 @@ public class NewAttackState : AbstractAttackEvents
                 // Melee Hit/SoulShot: AttackShot on jatk*_1HS/_2HS/_dual/_pole (not wall-clock).
                 // RegisterSwordCollision(_stateMachine.Player);
 
-                PlayerEntity.Instance.RefreshRandomPAttack();
-                Animation random = PlayerEntity.Instance.RandomName;
+                DomainPacketServices.LocalPlayer.RefreshRandomPAttack();
+                Animation random = DomainPacketServices.LocalPlayer.RandomName;
                 ControllerPacketServices.Animations.PlayAnimationTrigger(_stateMachine.GetObjectId() , random.ToString());
 
                 break;
@@ -82,17 +82,17 @@ public class NewAttackState : AbstractAttackEvents
                 // WhoDied while still ATTACKING: clear latch only. Pose returns at swing end
                 // (PlayerStateJAtk.SwitchToIdle). Forcing atkwait here cuts the finishing blow.
                 // WaitReturnLog.Dump("NewAttackState.WAIT_RETURN latch-only");
-                if (PlayerEntity.Instance != null)
+                if (DomainPacketServices.LocalPlayer != null)
                 {
-                    PlayerEntity.Instance.IsAttack = false;
-                    PlayerEntity.Instance.LastAtkAnimation = null;
+                    DomainPacketServices.LocalPlayer.IsAttack = false;
+                    DomainPacketServices.LocalPlayer.LastAtkAnimation = null;
                 }
                 break;
             case Event.CANCEL:
                 // Debug.Log("Attack Sate to Intention> Отмена скорее всего запрос пришел из ActionFaild");
-                PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-                PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN);
-                PlayerEntity.Instance.LastAtkAnimation = null;
+                PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN);
+                DomainPacketServices.LocalPlayer.LastAtkAnimation = null;
                 break;
 
         }

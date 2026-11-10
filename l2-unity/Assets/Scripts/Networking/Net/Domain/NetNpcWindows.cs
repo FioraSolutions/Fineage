@@ -11,7 +11,7 @@ public static class NetNpcWindows
     {
         if (!NetNpcSession.WindowsOpen)
             return;
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (PollInput.EscapeDown)
         {
             Close();
             return;
@@ -30,7 +30,7 @@ public static class NetNpcWindows
 
     public static bool InRange(Entity npc)
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null || npc == null || npc.Identity == null)
             return true;
         Vector3 from = player.Identity.GetL2jPos(player.transform.position);
@@ -45,12 +45,12 @@ public static class NetNpcWindows
     public static void Close()
     {
         NetNpcSession.CloseWindows();
-        if (HtmlWindow.Instance != null)
-            HtmlWindow.Instance.HideWindow();
-        if (DealerWindow.Instance != null)
-            DealerWindow.Instance.HideWindow();
-        if (MultiSellWindow.Instance != null)
-            MultiSellWindow.Instance.HideWindow();
+        if (GameWindowPacketServices.Html != null)
+            GameWindowPacketServices.Html.HideWindow();
+        if (MerchantPacketServices.Dealer != null)
+            MerchantPacketServices.Dealer.HideWindow();
+        if (MultiSellPacketServices.MultiSell != null)
+            MultiSellPacketServices.MultiSell.HideWindow();
     }
 
     static NetShopBalance _balance;
@@ -58,7 +58,7 @@ public static class NetNpcWindows
 
     static void ShowQuests(NetQuestList list)
     {
-        QuestWindow window = QuestWindow.Instance;
+        QuestWindow window = QuestPacketServices.Quest;
         if (window == null || list.Active == null)
             return;
         var quests = new List<QuestInstance>(list.Active.Length);
@@ -155,14 +155,19 @@ public static class NetNpcWindows
             for (int i = 0; i < list.Items.Length; i++)
             {
                 NetBuyItem row = list.Items[i];
-                int count = row.Count < 0 ? 10000 : row.Count;
+                int type2 = Type2FromItemId(row.ItemId);
+                // Unlimited shop rows arrive as Count=-1. Keep display Count=1 so tooltips do not
+                // show a fake "(10000)" next to soulshots; stackables still open the qty dialog via
+                // ConsumeCategory, and the dialog max is raised in DealerWindow.
+                int count = row.Count < 0 ? 1 : row.Count;
                 // Net BuyList carries itemId/price only — TYPE2 must come from local weapongrp/armorgrp
                 // (hardcoding OTHER made RB jewels hit EtcItem tooltip → NRE).
-                products.Add(new Product(0, 0, count, Type2FromItemId(row.ItemId), 0, 0, 0, row.Price, row.ItemId));
+                products.Add(new Product(0, 0, count, type2, 0, 0, 0, row.Price, row.ItemId));
             }
         }
 
-        OpenDealer("Shop", "Sell", "Buy", ProductType.BUY, products, false, list.ListId, _hasBalance ? _balance.Adena : 0);
+        // Interlude BuyList: top = merchant goods, bottom = purchase cart (not player-trade).
+        OpenDealer("Shop", "Item List", "Buy List", ProductType.BUY, products, false, list.ListId, _hasBalance ? _balance.Adena : 0);
     }
 
     static void ShowSell(NetSellList list)
@@ -190,7 +195,7 @@ public static class NetNpcWindows
     static void ShowMulti(NetMultiSellList list)
     {
         NetNpcSession.OpenShop(list.NpcObjectId, list.ListId);
-        MultiSellWindow window = MultiSellWindow.Instance;
+        MultiSellWindow window = MultiSellPacketServices.MultiSell;
         if (window == null || list.Entries == null)
             return;
         var rows = new List<MultiSellData>(list.Entries.Length);
@@ -244,7 +249,7 @@ public static class NetNpcWindows
     {
         _balance = balance;
         _hasBalance = true;
-        DealerWindow dealer = DealerWindow.Instance;
+        DealerWindow dealer = MerchantPacketServices.Dealer;
         if (dealer == null)
             return;
         double percent = balance.MaxWeight > 0 ? (balance.Weight * 100.0) / balance.MaxWeight : 0;
@@ -260,7 +265,7 @@ public static class NetNpcWindows
 
     static void OpenDealer(string title, string sellHeader, string buyHeader, ProductType type, List<Product> products, bool modifySell, int listId, int adena)
     {
-        DealerWindow dealer = DealerWindow.Instance;
+        DealerWindow dealer = MerchantPacketServices.Dealer;
         if (dealer == null)
             return;
         int weight = _hasBalance ? _balance.Weight : 0;
@@ -333,6 +338,11 @@ public static class NetNpcWindows
 
         return (int)EnumType2.TYPE2_OTHER;
     }
+
+    static bool IsEquipmentType2(int type2) =>
+        type2 == (int)EnumType2.TYPE2_WEAPON
+        || type2 == (int)EnumType2.TYPE2_SHIELD_ARMOR
+        || type2 == (int)EnumType2.TYPE2_ACCESSORY;
 
     static bool IsJewelSlot(ItemSlot slot)
     {

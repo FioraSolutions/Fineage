@@ -116,7 +116,8 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         MeshFilter mf = go.AddComponent<MeshFilter>();
         MeshRenderer mr = go.AddComponent<MeshRenderer>();
         mf.sharedMesh = srcFilter.sharedMesh;
-        mr.sharedMaterial = GetOrCreateMaterial(name, texMap);
+        // Shields (and other multi-slot weapons) ship t00;t01 — assign every submesh slot.
+        mr.sharedMaterials = GetOrCreateMaterials(name, srcFilter.sharedMesh, texMap);
 
         Transform srcMeshXf = srcFilter.transform;
         Transform tip = CopyOrCreateMarker(go.transform, src.transform, srcMeshXf, "Sword_Tip", true);
@@ -213,13 +214,27 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         return null;
     }
 
-    static Material GetOrCreateMaterial(string meshName, Dictionary<string, string> texMap)
+    /// <summary>
+    /// One material per mesh submesh. Slot 0 → t00, slot 1 → t01, … (Weapongrp texture={t00;t01}).
+    /// </summary>
+    static Material[] GetOrCreateMaterials(string meshName, Mesh mesh, Dictionary<string, string> texMap)
+    {
+        int count = mesh != null ? Mathf.Max(1, mesh.subMeshCount) : 1;
+        var mats = new Material[count];
+        for (int i = 0; i < count; i++)
+            mats[i] = GetOrCreateMaterial(meshName, texMap, slotIndex: i);
+        return mats;
+    }
+
+    static Material GetOrCreateMaterial(string meshName, Dictionary<string, string> texMap, int slotIndex = 0)
     {
         string texStem = null;
         if (texMap != null)
             texMap.TryGetValue(meshName, out texStem);
         if (string.IsNullOrEmpty(texStem))
-            texStem = meshName.Replace("_m00_wp", "_t00_wp").Replace("_m00", "_t00");
+            texStem = meshName.Replace("_m00_wp", "_t00_wp").Replace("_m00_sh", "_t00_sh").Replace("_m00", "_t00");
+        if (slotIndex > 0)
+            texStem = PromoteTextureSlot(texStem, slotIndex);
 
         string matPath = MatFolder + "/" + texStem + ".mat";
         Material existing = AssetDatabase.LoadAssetAtPath<Material>(matPath);
@@ -234,11 +249,6 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
             ? new Material(template)
             : new Material(Shader.Find("L2/World/ActorModulate2X"));
         mat.name = texStem;
-        if (template == null)
-        {
-            mat.SetFloat("_Cull", 2f);
-            mat.SetFloat("_AlphaClip", 0f);
-        }
 
         Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(TexFolder + "/" + texStem + ".png");
         if (tex != null)
@@ -247,8 +257,35 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
             mat.SetTexture("_MainTex", tex);
         }
 
+        // Shields commonly use FinalBlend AlphaTest + TwoSided (thin geometry needs Cull Off).
+        if (texStem.EndsWith("_sh"))
+            ApplyFinalBlendCutout(mat);
+
         AssetDatabase.CreateAsset(mat, matPath);
         return mat;
+    }
+
+    /// <summary>arcana_mace_t00_wp → arcana_mace_t01_wp; imperial_…_t00_sh → …_t01_sh.</summary>
+    static string PromoteTextureSlot(string t00Stem, int slotIndex)
+    {
+        string marker = "_t00_";
+        int at = t00Stem.IndexOf(marker, System.StringComparison.Ordinal);
+        if (at < 0)
+            return t00Stem + "_t" + slotIndex.ToString("00");
+        return t00Stem.Substring(0, at) + "_t" + slotIndex.ToString("00") + "_" + t00Stem.Substring(at + marker.Length);
+    }
+
+    /// <summary>Mobius FinalBlend AlphaTest=true / AlphaRef=160 / TwoSided → URP cutout + Cull Off.</summary>
+    static void ApplyFinalBlendCutout(Material mat)
+    {
+        mat.SetFloat("_AlphaClip", 1f);
+        mat.SetFloat("_Cutoff", 160f / 255f);
+        mat.SetFloat("_Cull", 0f);
+        mat.SetFloat("_ZWrite", 1f);
+        mat.EnableKeyword("_ALPHATEST_ON");
+        mat.SetOverrideTag("RenderType", "TransparentCutout");
+        mat.renderQueue = 2450;
+        mat.doubleSidedGI = true;
     }
 
     static Dictionary<string, string> LoadTexMap()

@@ -87,7 +87,12 @@ Shader "L2/UI/BitmapFontScreenSpace"
             half4 frag(Varyings i) : SV_Target
             {
                 half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
-                return tex * i.color;
+                // Atlas bakes a full-strength black outline. Soften it so names stay
+                // readable without the heavy muddy fringe.
+                half ink = max(tex.r, max(tex.g, tex.b));
+                half4 col = tex * i.color;
+                col.a *= lerp(0.4h, 1.0h, ink);
+                return col;
             }
             ENDHLSL
         }

@@ -13,7 +13,7 @@ public static class PartyTargetAssistServices
         TargetManager injected = ActionPacketServices.Targets;
         if (injected != null)
             return injected;
-        return TargetManager.Instance;
+        return TargetPacketServices.Targets;
     }
 
     public static bool HasSession()

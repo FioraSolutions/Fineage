@@ -26,26 +26,35 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     private int nextId = 0;
 
     #region Singleton
-    public static IProjectileManager Instance { get; private set; }
+    private static IProjectileManager _instance;
 
-
+    [System.Obsolete("Use [Inject] or ProjectilePacketServices.Projectiles instead")]
+    public static IProjectileManager Instance => _instance;
 
     private void Awake()
     {
-        if ((Instance as UnityEngine.Object) != null && !ReferenceEquals(Instance, this))
+        if ((_instance as UnityEngine.Object) != null && !ReferenceEquals(_instance, this))
         {
             Destroy(gameObject);
             return;
         }
         _entityMask = LayerMask.GetMask("EntityClick");
-        Instance = this;
+        _instance = this;
+        WireProjectilePacketServices();
         WireGamePacketServices();
+    }
+
+    void OnDestroy()
+    {
+        if (ReferenceEquals(_instance, this))
+            _instance = null;
     }
 
     private void Start()
     {
+        WireProjectilePacketServices();
         WireGamePacketServices();
-        HitManager hits = _hits != null ? _hits : HitManager.Instance;
+        HitManager hits = _hits != null ? _hits : HitPacketServices.Hits;
         if (hits != null)
             hits.BindProjectileHits();
     }
@@ -53,6 +62,11 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     private void WireGamePacketServices()
     {
         GamePacketServices.Bind(gameWorld: _world);
+    }
+
+    private void WireProjectilePacketServices()
+    {
+        ProjectilePacketServices.Bind(projectiles: this);
     }
     #endregion
 
@@ -67,7 +81,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
         int attackerEntityId = ResolveProjectileAttackerEntityId(readyProjectile);
         ClearParentObject(readyProjectile);
 
-        Vector3 adjustedTarget = VectorUtils.GetCollision(startPos, target);
+        Vector3 adjustedTarget = VectorWorldUtils.GetCollision(startPos, target);
 
         float distance = Vector3.Distance(startPos, adjustedTarget);
         bool isArrowStick = settings != null && settings.impactType == ProjectileImpactType.ArrowStick;
@@ -194,7 +208,7 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
             }
         }
 
-        return PlayerEntity.Instance != null ? PlayerEntity.Instance.GetMagicCastData() : null;
+        return DomainPacketServices.LocalPlayer != null ? DomainPacketServices.LocalPlayer.GetMagicCastData() : null;
     }
 
 
@@ -372,9 +386,9 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
             return ownerEntity.Identity.Id;
         }
 
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null)
+        if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Identity != null)
         {
-            return PlayerEntity.Instance.Identity.Id;
+            return DomainPacketServices.LocalPlayer.Identity.Id;
         }
 
         return 0;
@@ -473,9 +487,9 @@ public class ProjectileManager : AbstractProjectile, IProjectileManager
     {
         if (objectId <= 0)
             return null;
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.Identity != null &&
-            PlayerEntity.Instance.Identity.Id == objectId)
-            return PlayerEntity.Instance;
+        if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Identity != null &&
+            DomainPacketServices.LocalPlayer.Identity.Id == objectId)
+            return DomainPacketServices.LocalPlayer;
         World world = GamePacketServices.GameWorld;
         return world != null ? world.GetEntityNoLockSync(objectId) : null;
     }

@@ -15,6 +15,7 @@ public class RecipeBookWindow : L2PopupWindow
     private Label _sizelabel;
     private static RecipeBookWindow _instance;
     private RecipeBookItemListDto _packet;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static RecipeBookWindow Instance { get { return _instance; } }
     private ICreatorTradeTab _creatorWindow;
 
@@ -57,13 +58,13 @@ public class RecipeBookWindow : L2PopupWindow
         dragArea.AddManipulator(drag);
 
         _creatorWindow.InitTradeTabs(new string[] { "ALL" });
-        _creatorWindow.CreateTradeTabs(GetElementById("InventoryTabView") , L2Slot.SlotType.Recipe , true);
+        _creatorWindow.CreateTradeTabs(GetElementById("InventoryTabView") , SlotType.Recipe , true);
 
         _sizelabel = (Label)GetElementById("sizeLabel");
         Button trashBtn = (Button)GetElementById("TrashBtn");
         trashBtn.AddManipulator(new ButtonClickSoundManipulator(trashBtn));
         trashBtn.AddManipulator(new TooltipManipulator(trashBtn, "Trash"));
-        L2Slot trashSlot = new L2Slot(trashBtn, 100, L2Slot.SlotType.Trash);
+        L2Slot trashSlot = new L2Slot(trashBtn, 100, SlotType.Trash);
 
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterClickWindowEvent(_windowEle, dragArea);

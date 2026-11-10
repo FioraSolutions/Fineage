@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,17 +9,13 @@ using VContainer;
 public class PlayerInventory : MonoBehaviour
 {
 
-    public enum InventoryChange
-    {
-        UNCHANGED = 0, ADDED = 1, REMOVED = 3, MODIFIED = 2
-    }
-
     private const string TYPE_RECIPE = "recipe";
     private int _objectIdEtcType = -1;
     private Dictionary<int , ItemInstance> _playerInventory;
     private Dictionary<int, ItemInstance> _playerEquipInventory;
     private ChangeInventoryData _changeInventoryData;
     public static PlayerInventory _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PlayerInventory Instance { get { return _instance; } }
 
 
@@ -159,12 +157,12 @@ public class PlayerInventory : MonoBehaviour
         // }
         if (_currentUser == null) _currentUser = StorageNpc.getInstance().GetFirstUser();
 
-        UnityMainThreadDispatcher.Instance().Enqueue(() =>
+        DispatcherPacketServices.Dispatcher.Enqueue(() =>
         {
             // The window may not be built yet (it is created on first UI load). The data above
             // is already stored, and RefreshWindow pushes it once the window exists, so a
             // missing window must not throw away the snapshot.
-            InventoryWindow window = InventoryWindow.Instance;
+            InventoryWindow window = InventoryPacketServices.Window;
             if (window == null)
                 return;
 
@@ -187,7 +185,7 @@ public class PlayerInventory : MonoBehaviour
     /// </summary>
     public void RefreshWindow()
     {
-        InventoryWindow window = InventoryWindow.Instance;
+        InventoryWindow window = InventoryPacketServices.Window;
         if (window == null || !window.IsItemSurfaceReady)
             return;
         if (_playerInventory == null)
@@ -236,13 +234,13 @@ public class PlayerInventory : MonoBehaviour
 
                 if(_currentUser == null) _currentUser =  StorageNpc.getInstance().GetFirstUser();
                 int userId = _currentUser.PlayerInfoInterlude.Identity.Id;
-                UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                DispatcherPacketServices.Dispatcher.Enqueue(() => {
                     // Same reason as SetInventory: the window may not exist yet. The change data
                     // is applied to _playerInventory above, so only the redraw is skipped.
-                    if (InventoryWindow.Instance == null)
+                    if (InventoryPacketServices.Window == null)
                         return;
-                    InventoryWindow.Instance.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);
-                    InventoryWindow.Instance.RemoveOldEquipItemOrNoQuipItem(_changeInventoryData , userId);
+                    InventoryPacketServices.Window.UpdateItemList(_tempForRemoveAndAdd, _tempForModified, listEquip, adenaCount, useSlot, _changeInventoryData, userId);
+                    InventoryPacketServices.Window.RemoveOldEquipItemOrNoQuipItem(_changeInventoryData , userId);
                 });
 
             }
@@ -301,8 +299,8 @@ public class PlayerInventory : MonoBehaviour
 
     private void AddInventory(ItemInstance item)
     {
-        int slot = InventoryWindow.Instance != null
-            ? InventoryWindow.Instance.GetEmptySlot()
+        int slot = InventoryPacketServices.Window != null
+            ? InventoryPacketServices.Window.GetEmptySlot()
             : _playerInventory.Count;
         item.SetSlot(slot);
         _playerInventory.Add(item.ObjectId, item);
@@ -505,7 +503,7 @@ public class PlayerInventory : MonoBehaviour
         //    orders.Add(new InventoryOrder(toItem.ObjectId, fromSlot));
         //}
 
-        //InventoryWindow.Instance.SelectSlot(toSlot);
+        //InventoryPacketServices.Window.SelectSlot(toSlot);
         // Debug.Log("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
         //GameClient.Instance.ClientPacketHandler.UpdateInventoryOrder(orders);
     }
@@ -524,7 +522,7 @@ public class PlayerInventory : MonoBehaviour
         else if (IsEnchantScroll(item))
         {
             // Mobius RequestEnchantItem: the scroll selects itself; the window then asks for a target.
-            EnchantWindow window = EnchantWindow.Instance;
+            EnchantWindow window = ItemEnchantPacketServices.Enchant;
             if (window != null)
                 window.BeginZoneSelect(item);
             RequestEnchantItem(objectId);
@@ -628,7 +626,7 @@ public class PlayerInventory : MonoBehaviour
 
             ItemInstance item = _playerInventory[objectId];
             //getInstance().AddS1Items(new VariableItem(item.ItemData.ItemName.Name, objectId));
-            //AudioManager.Instance.PlayEquipSound("trash_basket");
+            //AudioPacketServices.Audio.PlayEquipSound("trash_basket");
             IZoneTransport game = ZoneCommands.Transport;
             if (game == null)
                 return;
@@ -653,10 +651,10 @@ public class PlayerInventory : MonoBehaviour
         }
 
         IZoneTransport game = ZoneCommands.Transport;
-        if (game == null || PlayerEntity.Instance == null)
+        if (game == null || DomainPacketServices.LocalPlayer == null)
             return;
 
-        Transform player = PlayerEntity.Instance.transform;
+        Transform player = DomainPacketServices.LocalPlayer.transform;
         Vector3 dropPos = dropWorldPos ?? player.position + player.forward * 0.6f;
 
         Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(dropPos);

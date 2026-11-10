@@ -61,7 +61,7 @@ public abstract class L2UI : MonoBehaviour
     {
         if (!_mouseOverUI || _rootElement == null || _rootElement.panel == null)
             return;
-        if (Input.GetMouseButton(0) || Input.GetMouseButton(1))
+        if (PollInput.LeftMouseHeld || PollInput.RightMouseHeld)
             return;
         if (!IsPointerOverPanel())
             _mouseOverUI = false;
@@ -72,7 +72,7 @@ public abstract class L2UI : MonoBehaviour
     {
         if (_rootElement == null || _rootElement.panel == null)
             return false;
-        Vector3 m = Input.mousePosition;
+        Vector2 m = PollInput.MousePosition;
         Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(_rootElement.panel, new Vector2(m.x, Screen.height - m.y));
         VisualElement picked = _rootElement.panel.Pick(panelPos);
         return picked != null && !IsBackgroundContainer(picked);

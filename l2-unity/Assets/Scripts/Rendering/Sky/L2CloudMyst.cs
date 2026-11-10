@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -22,6 +23,7 @@ public class L2CloudMyst : MonoBehaviour
     static readonly int CloudColorId = Shader.PropertyToID("_CloudColor");
     static readonly int SkyParamsId = Shader.PropertyToID("_SkyParams");
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2CloudMyst Instance { get; private set; }
 
     [SerializeField] bool _followCamera = true;
@@ -114,7 +116,7 @@ public class L2CloudMyst : MonoBehaviour
         L2CelestialLut.EnsureLoaded();
         if (!L2CelestialLut.IsReady)
             return 1f;
-        WorldClock clock = WorldClock.Instance ?? WorldClock.EnsurePersistent();
+        WorldClock clock = WorldClockPacketServices.Clock ?? WorldClock.EnsurePersistent();
         float hours = clock != null ? clock.WorldHours : 12f;
         return Mathf.Lerp(0.55f, 1f, Mathf.Clamp01(L2CelestialLut.SampleAt(hours).sunScale / 4.5f));
     }
@@ -205,11 +207,11 @@ public class L2CloudMyst : MonoBehaviour
 
     Camera ResolveCamera()
     {
-        if (CameraController.Instance != null)
+        if (CameraPacketServices.Controller != null)
         {
-            Camera fromController = CameraController.Instance.GetComponent<Camera>();
+            Camera fromController = CameraPacketServices.Controller.GetComponent<Camera>();
             if (fromController == null)
-                fromController = CameraController.Instance.GetComponentInChildren<Camera>();
+                fromController = CameraPacketServices.Controller.GetComponentInChildren<Camera>();
             if (fromController != null && fromController.enabled && fromController.gameObject.activeInHierarchy)
             {
                 _cam = fromController;
@@ -251,7 +253,7 @@ public class L2CloudMyst : MonoBehaviour
         _mr = null;
     }
 
-    static void DestroyObj(Object obj)
+    static void DestroyObj(UnityEngine.Object obj)
     {
         if (obj == null)
             return;

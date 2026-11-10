@@ -38,7 +38,7 @@ public sealed class BowArrowVisual
         }
 
         Vector3 startPos = user.Gear.GetPositionRightHand();
-        Vector3 aimPos = VectorUtils.GetCollision(startPos, target);
+        Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
         float dist3d = Vector3.Distance(startPos, aimPos);
         float flyAccel = ProjectileFlightTimeCalculator.CalculateL2ArrowFlightTimeSeconds(dist3d);
         float avgSpeed = dist3d / Mathf.Max(flyAccel, 0.05f);
@@ -53,8 +53,8 @@ public sealed class BowArrowVisual
             // $"[BOW_ARROW] SHOOT remote id={(user.Identity != null ? user.Identity.Id : 0)} " +
             // $"anim={animName} dist3d={dist3d:F3} flyAccel={flyAccel:F3}s");
 
-        if (ProjectileManager.Instance != null)
-            ProjectileManager.Instance.LaunchProjectile(go, startPos, target, settings);
+        if (ProjectilePacketServices.Projectiles != null)
+            ProjectilePacketServices.Projectiles.LaunchProjectile(go, startPos, target, settings);
     }
 
     static bool IsBowShot(UserEntity user, string animName)

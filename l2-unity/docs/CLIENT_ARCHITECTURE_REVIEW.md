@@ -3,13 +3,15 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11)
+### Status Now (2026-11-09)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
-- `IncomingPacketActions` is **frozen** (#137); migration toward `[Inject]` / `*PacketServices` is **#142** (still in progress; locator refs remain).
-- `GameManager` / `World` `Instance` getters are `[Obsolete]`; ~140 other singletons still exist.
-- Six `Fineage.*` asmdef folders exist but are mostly empty — scripts still compile as `Assembly-CSharp`.
-- Domain apply path is Interlude-shaped via `NetDomainMap` → `IWorldDomainSink` / `WorldPacketApply`.
+- `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
+- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (PRs through **#726**). Live leftovers are mostly PacketServices / DI / LoginRuntime legacy fallbacks; `PlayerController.Instance` remains only in comments. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work, not deleting every getter overnight.
+- Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
+- **Asmdef:** `Fineage.Domain` (events + shared `VectorUtils` / `NumberUtils` / manor `Seed*` / `ChatTypeData`); `Fineage.Networking` (`PacketReader` / `PacketWriter` / `IWireDto` / cycle-safe wire DTOs + `Hit` / `SMParam` + Net helpers — must not reference Game); `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded with cycle-safe enums/constants + remaining Game utils/models. `Fineage.Di` seeded with `ILateBound` / `LateBoundMono` — gameplay MonoBehaviours remain `Assembly-CSharp`.
+- Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow` / `NetZoneDispatch`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. `NetDomainMap` deleted (C1 + CI freeze).
+- Epic **#131** residual (2026-11-09): cycle-safe pool largely moved; #737 EditMode compile gate on PR #874. ACS still holds Product/Entity/SystemMessage-tied DTOs + ItemInstance graph. Next hard slices = LifetimeScope / gameplay MonoBehaviours when cycle-safe; GameRuntime shrink. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
@@ -383,14 +385,14 @@ Fineage.Di/                  (depends on all above)
 - [x] Extract `IGameManager` interface for networking entry points *(PR #127)*
 - [x] Remove `using static UnityEditor.Progress` from `EventBus.cs` *(PR #127)*
 - [x] Add boundary comments / `#region` markers to `GameManager.cs` *(PR #127)*
-- [ ] Freeze `IncomingPacketActions` surface → [#137](https://github.com/FioraSolutions/Fineage/issues/137)
+- [x] Freeze `IncomingPacketActions` surface → [#137](https://github.com/FioraSolutions/Fineage/issues/137)
 
 ### Phase 2 — Assembly definitions (1–2 sprints)
 
-→ [#139](https://github.com/FioraSolutions/Fineage/issues/139)
+→ [#139](https://github.com/FioraSolutions/Fineage/issues/139) *(closed: stub `.asmdef` folders landed; types not moved yet)*
 
-- [ ] Create `.asmdef` files for Domain, Networking, Game, UI, Controller, Di
-- [ ] Fix resulting compile errors (these reveal real dependency violations)
+- [x] Create stub `.asmdef` files for Domain, Networking, Game, UI, Controller, Di
+- [ ] Move scripts into those assemblies / fix real dependency violations
 - [ ] Gate PRs on assembly-level compile check
 
 ### Phase 3 — Protocol abstraction (2 sprints)
@@ -407,15 +409,18 @@ Fineage.Di/                  (depends on all above)
 → [#141](https://github.com/FioraSolutions/Fineage/issues/141) (GameManager decompose), [#142](https://github.com/FioraSolutions/Fineage/issues/142) (IncomingPacketActions migration)
 
 - [x] Extract GameManager → TableInitializer + LobbyFlowController
-- [ ] Convert `IncomingPacketActions` usages to `[Inject]` one subsystem at a time
+- [x] Delete `IncomingPacketActions`; replace with `*PacketServices` + `[Inject]` *(#142 / PR #614)*
+- [x] Drain game HUD / confirm / inventory / merchant window `.Instance` call sites into `*PacketServices` *(PRs #649–#656)*
+- [ ] Drain non-UI managers (`AnimationManager`, `HitManager`, `EffectManager`, `InputManager`, DAT tables) off `.Instance`
 - [ ] Remove `GameRuntime` / `LoginRuntime` as consumers migrate
-- [ ] Remove `static Instance` from classes as last consumer migrates
+- [ ] Remove `static Instance` from classes as last consumer migrates (start set already `[Obsolete]`: World / GameManager / EventProcessor / PlayerController)
 
 ### Phase 5 — Domain events (ongoing)
 
-→ [#143](https://github.com/FioraSolutions/Fineage/issues/143)
+→ [#143](https://github.com/FioraSolutions/Fineage/issues/143) *(closed for initial expansion; deeper MessagePipe adoption still open under #131)*
 
-- [ ] Introduce `MessagePipe` or expand `EventBus`
+- [x] Expand `EventBus` / domain sink path for Net apply
+- [ ] Introduce `MessagePipe` (or equivalent) for new features where typed pub/sub helps
 - [ ] New features use domain events, not direct calls
 - [ ] Existing features migrate opportunistically
 
@@ -439,7 +444,9 @@ Top categories:
 
 ## Appendix B — `IncomingPacketActions` usage hotspots
 
-| File | References |
+> **Superseded.** `IncomingPacketActions.cs` was deleted under #142 (PR #614). Table below is the **2026-10-27** hotspot snapshot only.
+
+| File | References (then) |
 |------|-----------|
 | `L2LoginUI.cs` | 34 |
 | `GameManager.cs` | 32 |

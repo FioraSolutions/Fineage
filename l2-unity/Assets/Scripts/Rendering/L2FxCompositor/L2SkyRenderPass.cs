@@ -336,7 +336,7 @@ public sealed class L2SkyRenderPass : ScriptableRenderPass
             return false;
         }
 
-        CameraController controller = CameraController.Instance;
+        CameraController controller = CameraPacketServices.Controller;
         if (controller == null || !controller.isActiveAndEnabled)
             return false;
 

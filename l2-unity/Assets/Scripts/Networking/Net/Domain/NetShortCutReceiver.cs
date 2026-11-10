@@ -64,6 +64,12 @@ public static class NetShortCutReceiver
         if (shortcuts == null)
             return;
 
+        // Skillbar BuildWindow is a coroutine — applying ShortCutInit before slots exist paints
+        // nothing, then clearing the queue permanently loses the EnterWorld hotbar.
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        if (skillbar == null || !skillbar.IsReady)
+            return;
+
         for (int i = 0; i < _pending.Count; i++)
         {
             try
@@ -73,6 +79,10 @@ public static class NetShortCutReceiver
             catch (System.Exception ex)
             {
                 Debug.LogWarning("[Net] hotbar replay failed: " + ex.Message);
+                // Keep the rest of the queue; retry next frame instead of dropping slots.
+                if (i > 0)
+                    _pending.RemoveRange(0, i);
+                return;
             }
         }
 
@@ -128,7 +138,10 @@ public static class NetShortCutReceiver
     static void Dispatch(Action<PlayerShortcuts> apply)
     {
         PlayerShortcuts shortcuts = Shortcuts();
-        if (shortcuts != null)
+        SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
+        // PlayerShortcuts can exist before SkillbarWindow finishes BuildWindow — applying
+        // ShortCutInit then paints nothing and FlushPending never sees a queued copy.
+        if (shortcuts != null && skillbar != null && skillbar.IsReady)
         {
             apply(shortcuts);
             return;
@@ -138,7 +151,8 @@ public static class NetShortCutReceiver
         _pending.Add(() =>
         {
             PlayerShortcuts ready = Shortcuts();
-            if (ready != null)
+            SkillbarWindow bar = SkillbarPacketServices.Skillbar;
+            if (ready != null && bar != null && bar.IsReady)
                 apply(ready);
         });
     }
@@ -157,15 +171,12 @@ public static class NetShortCutReceiver
         if (charges > 0)
             Debug.Log("[Net] EtcStatusUpdate charges=" + charges);
 
-        if (msg.WeightPenalty <= 0)
-            return;
-
         // Mobius skill 4270 tracks the load grade: 1 >=50%, 2 >=66.6%, 3 >=80%, 4 >=100%.
-        // Map it onto the existing penalty DTO so the status bar draws the same icon it
-        // already knows, rather than adding a parallel path for one integer.
+        // Level 0 must still be applied — BufferPanel.DeleteDataCell only runs on level 0,
+        // so an early return here left the overload icon stuck after dumping weight.
         // WeightPenalty[0] is the skill id, [1] is the level the buffer reads.
         var dto = new EtcStatusUpdateDto();
-        dto.WeightPenalty[1] = msg.WeightPenalty;
+        dto.WeightPenalty[1] = msg.WeightPenalty < 0 ? 0 : msg.WeightPenalty;
         if (msg.ChatBlocked)
             dto.ChatBanned = 1;
 
@@ -179,7 +190,7 @@ public static class NetShortCutReceiver
         if (msg == null)
             return;
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null || player.Identity == null)
             return;
         if ((ulong)player.Identity.Id != msg.EntityValue)
@@ -223,6 +234,6 @@ public static class NetShortCutReceiver
         if (_warnedNoSkillbar)
             return;
         _warnedNoSkillbar = true;
-        Debug.LogWarning("[Net] hotbar packet arrived before the skillbar existed; slot(s) dropped");
+        Debug.LogWarning("[Net] hotbar packet arrived before the skillbar was ready; queuing until slots exist");
     }
 }

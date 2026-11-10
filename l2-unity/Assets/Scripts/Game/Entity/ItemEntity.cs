@@ -43,9 +43,7 @@ public sealed class ItemEntity : Entity
 
     static string ResolveItemName(int itemId)
     {
-        ItemName name = ItemNameTable.Instance != null
-            ? ItemNameTable.Instance.GetItemName(itemId)
-            : null;
+        ItemName name = TablePacketServices.ItemNames.GetItemName(itemId);
         return name != null && !string.IsNullOrEmpty(name.Name) ? name.Name : ("Item_" + itemId);
     }
 }

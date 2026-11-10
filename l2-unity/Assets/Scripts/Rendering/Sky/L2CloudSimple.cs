@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -35,6 +36,7 @@ public class L2CloudSimple : MonoBehaviour
     static readonly Color DaySheetTint = L2CloudLut.SheetFallback;
     static readonly Color DaySilhouetteTint = L2CloudLut.SilhouetteFallback;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2CloudSimple Instance { get; private set; }
 
     [SerializeField] bool _followCamera = true;
@@ -93,7 +95,7 @@ public class L2CloudSimple : MonoBehaviour
         if (_domeA.tf == null)
             return;
 
-        WorldClock clock = WorldClock.Instance ?? WorldClock.EnsurePersistent();
+        WorldClock clock = WorldClockPacketServices.Clock ?? WorldClock.EnsurePersistent();
         float hours = clock != null ? clock.WorldHours : 12f;
         L2CloudLut.Sample cloudColors = L2CloudLut.SampleAt(hours);
         float opacity = Mathf.Clamp01(_opacity);
@@ -381,11 +383,11 @@ public class L2CloudSimple : MonoBehaviour
 
     Camera ResolveCamera()
     {
-        if (CameraController.Instance != null)
+        if (CameraPacketServices.Controller != null)
         {
-            Camera fromController = CameraController.Instance.GetComponent<Camera>();
+            Camera fromController = CameraPacketServices.Controller.GetComponent<Camera>();
             if (fromController == null)
-                fromController = CameraController.Instance.GetComponentInChildren<Camera>();
+                fromController = CameraPacketServices.Controller.GetComponentInChildren<Camera>();
             if (fromController != null && fromController.enabled && fromController.gameObject.activeInHierarchy)
             {
                 _cam = fromController;
@@ -438,7 +440,7 @@ public class L2CloudSimple : MonoBehaviour
         chunk.mr = null;
     }
 
-    static void DestroyObj(Object obj)
+    static void DestroyObj(UnityEngine.Object obj)
     {
         if (obj == null)
             return;

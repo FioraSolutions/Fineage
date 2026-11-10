@@ -10,29 +10,29 @@ public abstract class AbstractServerItem
     }
     public Armorgrp GetArmor()
     {
-        return ArmorgrpTable.Instance.GetArmor(itemId);
+        return TablePacketServices.ArmorGrps.GetArmor(itemId);
     }
     public Weapongrp GetWeapon()
     {
-        return WeapongrpTable.Instance.GetWeapon(itemId);
+        return TablePacketServices.WeaponGrps.GetWeapon(itemId);
     }
 
     public EtcItemgrp GetEtcItem()
     {
-        return EtcItemgrpTable.Instance.GetEtcItem(itemId);
+        return TablePacketServices.EtcItemGrps.GetEtcItem(itemId);
     }
 
 
     public ConsumeCategory GetConsumeCategory()
     {
-        EtcItemgrp etcgrp = EtcItemgrpTable.Instance.GetEtcItem(itemId);
+        EtcItemgrp etcgrp = TablePacketServices.EtcItemGrps.GetEtcItem(itemId);
         if (etcgrp != null) return etcgrp.ConsumeType;
         return ConsumeCategory.Normal;
     }
 
     public string GetTypeAccessoriesName()
     {
-        Armorgrp armor = ArmorgrpTable.Instance.GetArmor(itemId);
+        Armorgrp armor = TablePacketServices.ArmorGrps.GetArmor(itemId);
 
         if (armor != null)
         {
@@ -60,26 +60,26 @@ public abstract class AbstractServerItem
     }
     public string GetItemDescription()
     {
-        ItemName item = ItemNameTable.Instance.GetItemName(itemId);
+        ItemName item = TablePacketServices.ItemNames.GetItemName(itemId);
         if (string.IsNullOrEmpty(item.Description) && !_isMultisellData) return "Not Found description";
         return item.Description;
     }
 
     public ItemName[] GetSets()
     {
-        ItemName item = ItemNameTable.Instance.GetItemName(itemId);
+        ItemName item = TablePacketServices.ItemNames.GetItemName(itemId);
         return item.GetSetsName();
     }
 
     public ItemSets[] GetSetsEffects()
     {
-        ItemName item = ItemNameTable.Instance.GetItemName(itemId);
+        ItemName item = TablePacketServices.ItemNames.GetItemName(itemId);
         return item.GetSetsEffect();
     }
 
     public string GetTypeArmorName()
     {
-        Armorgrp armor = ArmorgrpTable.Instance.GetArmor(itemId);
+        Armorgrp armor = TablePacketServices.ArmorGrps.GetArmor(itemId);
 
         if (armor != null)
         {
@@ -123,28 +123,23 @@ public abstract class AbstractServerItem
 
     public string GetTypeWeaponName()
     {
-        Weapongrp weapon = WeapongrpTable.Instance.GetWeapon(itemId);
+        Weapongrp weapon = TablePacketServices.WeaponGrps.GetWeapon(itemId);
 
-        if (weapon != null)
-        {
-            if (weapon.BodyPart == ItemSlot.lhand_shield)
-            {
-                return "Shield";
-            }
-        }
+        if (weapon != null && weapon.WeaponType == WeaponType.shield)
+            return "Shield";
 
 
         return "";
     }
 
-    public bool IsBow() => WeapongrpTable.Instance.GetWeapon(itemId)?.WeaponType == WeaponType.bow;
+    public bool IsBow() => TablePacketServices.WeaponGrps.GetWeapon(itemId)?.WeaponType == WeaponType.bow;
 
-    public bool IsArrow() => WeaponTypeParser.Parse(EtcItemgrpTable.Instance.GetEtcItem(itemId)?.EtcItemType) == WeaponType.arrow;
+    public bool IsArrow() => WeaponTypeParser.Parse(TablePacketServices.EtcItemGrps.GetEtcItem(itemId)?.EtcItemType) == WeaponType.arrow;
 
 
     public bool IsDual()
     {
-        WeaponType t = WeapongrpTable.Instance.GetWeapon(itemId)?.WeaponType ?? WeaponType.none;
+        WeaponType t = TablePacketServices.WeaponGrps.GetWeapon(itemId)?.WeaponType ?? WeaponType.none;
         return t == WeaponType.dual || t == WeaponType.dualfist || t == WeaponType.fist;
     }
 
@@ -173,19 +168,19 @@ public abstract class AbstractServerItem
                 return null;
 
             case ItemGrade.d:
-                return IconManager.Instance.GetInterfaceIcon("grade_d");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_d");
 
             case ItemGrade.c:
-                return IconManager.Instance.GetInterfaceIcon("grade_c");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_c");
 
             case ItemGrade.b:
-                return IconManager.Instance.GetInterfaceIcon("grade_b");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_b");
 
             case ItemGrade.a:
-                return IconManager.Instance.GetInterfaceIcon("grade_a");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_a");
 
             case ItemGrade.s:
-                return IconManager.Instance.GetInterfaceIcon("grade_s");
+                return IconPacketServices.Icons.GetInterfaceIcon("grade_s");
 
             default:
                 return null;

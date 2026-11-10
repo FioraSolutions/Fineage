@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +8,7 @@ public class AnimLeghtTable
 {
     private static AnimLeghtTable _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static AnimLeghtTable Instance
     {
         get

@@ -121,7 +121,7 @@ public static class CompositeProjectileLaunchHelper
         float playStartedAt,
         string debugPrefix)
     {
-        if (part == null || spawned == null || targetTransform == null || ProjectileManager.Instance == null)
+        if (part == null || spawned == null || targetTransform == null || ProjectilePacketServices.Projectiles == null)
         {
             return false;
         }
@@ -131,7 +131,7 @@ public static class CompositeProjectileLaunchHelper
         Vector3 startPos = projectileTransform.position;
 
         ProjectileData settings = BuildSettings(part, spawned.gameObject, startPos, targetTransform);
-        ProjectileManager.Instance.LaunchProjectile(
+        ProjectilePacketServices.Projectiles.LaunchProjectile(
             spawned.gameObject,
             startPos,
             targetTransform,

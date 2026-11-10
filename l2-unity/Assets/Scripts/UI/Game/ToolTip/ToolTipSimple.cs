@@ -29,6 +29,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
     private VisualElement _selectShow;
     private TooltipDataProvider _dataProvider;
     private CalcNewPosition _calcPosition;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ToolTipSimple Instance { get { return _instance; } }
 
 
@@ -38,15 +39,31 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
         if (_instance == null)
         {
             _instance = this;
- 
-             _showToolTip = new ShowToolTip(this);
+            _showToolTip = new ShowToolTip(this);
             _dataProvider = new TooltipDataProvider();
             _calcPosition = new CalcNewPosition();
+            WireToolTipSimplePacketServices();
         }
         else
         {
             Destroy(this);
         }
+    }
+
+    private void Start()
+    {
+        WireToolTipSimplePacketServices();
+    }
+
+    private void WireToolTipSimplePacketServices()
+    {
+        ToolTipSimplePacketServices.Bind(window: this);
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
     }
 
     protected override void LoadAssets()
@@ -316,32 +333,32 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                     break;
 
                 case (int)SlotType.Inventory:
-                    ItemInstance item = InventoryWindow.Instance.GetItemByPosition(position);
+                    ItemInstance item = InventoryPacketServices.Window.GetItemByPosition(position);
                     if (item != null) return GetInventoryContainer(item);
                     break;
                 case (int)SlotType.Enchant:
-                    ItemInstance enchantItem = EnchantWindow.Instance.GetItemByPosition(position);
+                    ItemInstance enchantItem = ItemEnchantPacketServices.Enchant.GetItemByPosition(position);
                     if (enchantItem != null) return GetInventoryContainer(enchantItem);
                     break;
                 case (int)SlotType.Multisell:
-                    ItemInstance multiSelltItem = MultiSellWindow.Instance.GetItemByPosition(position);
+                    ItemInstance multiSelltItem = MultiSellPacketServices.MultiSell.GetItemByPosition(position);
                     if (multiSelltItem != null) return GetInventoryContainer(multiSelltItem);
                     break;
                 case (int)SlotType.Recipe:
-                    ItemInstance receiptInstance = RecipeBookWindow.Instance.GetRecipeInstanceByPosition(position);
+                    ItemInstance receiptInstance = CraftPacketServices.RecipeBook.GetRecipeInstanceByPosition(position);
                     if (receiptInstance != null) return GetInventoryContainer(receiptInstance);
                     break;
                 case (int)SlotType.RecipeCraftItem:
-                    ItemInstance requiredItem = CraftingItemWindow.Instance.GetRequiredInstanceByPosition(position);
+                    ItemInstance requiredItem = CraftPacketServices.Crafting.GetRequiredInstanceByPosition(position);
                     if (requiredItem != null) return GetInventoryContainer(requiredItem);
                     break;
                 case (int)SlotType.Gear:
-                    GearItem gearItem = InventoryWindow.Instance.GetGearPosition(position);
+                    GearItem gearItem = InventoryPacketServices.Window.GetGearPosition(position);
                     return GetGearContainer(gearItem);
                 case (int)SlotType.SkillWindow:
                     //It is not the position that is used, but the skill ID. We have many panels on this form, so we pass its ID to tooltips, and there is no need for it anymore.
                     int skillId  = position;
-                    SkillInstance skillItem = SkillListWindow.Instance.GetSkillInstanceBySkillId(skillId);
+                    SkillInstance skillItem = SkillLearnPacketServices.SkillList.GetSkillInstanceBySkillId(skillId);
                     return GetSkillContainer(skillItem);
             }
         }
@@ -365,12 +382,12 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 case (int)SlotType.SkillBar:
                     return SwitchToString();
                 case (int)SlotType.Gear:
-                    GearItem gearItem = InventoryWindow.Instance.GetGearPosition(position);
+                    GearItem gearItem = InventoryPacketServices.Window.GetGearPosition(position);
                     return GetGearStringContainer(gearItem);
                 case (int)SlotType.SkillWindow:
                                        //It is not the position that is used, but the skill ID. We have many panels on this form, so we pass its ID to tooltips, and there is no need for it anymore.
                     int skillId  = position;
-                    SkillInstance skillItem = SkillListWindow.Instance.GetSkillInstanceBySkillId(skillId);
+                    SkillInstance skillItem = SkillLearnPacketServices.SkillList.GetSkillInstanceBySkillId(skillId);
                     return GetSkillContainer(skillItem);
                 case (int)SlotType.BuffPanel:
                     SkillInstance instance = AuxiliaryGameUIPacketServices.Buffer.GetCellByPosition(position);
@@ -467,7 +484,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
     {
         if (gearItem == null || gearItem.GetItemId() == 0)
             return null;
-        PlayerInventory inventory = PlayerInventory.Instance;
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
         return inventory != null ? inventory.GetItemEquip(gearItem.GetObjectId()) : null;
     }
 
@@ -508,24 +525,24 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 return ToolTipManager.GetInstance().FindProductInBuyList(position);
 
             case SlotType.Inventory:
-                return InventoryWindow.Instance.GetItemByPosition(position);
+                return InventoryPacketServices.Window.GetItemByPosition(position);
 
             case SlotType.Enchant:
-                return EnchantWindow.Instance.GetItemByPosition(position);
+                return ItemEnchantPacketServices.Enchant.GetItemByPosition(position);
 
             case SlotType.Multisell:
-                return MultiSellWindow.Instance.GetItemByPosition(position);
+                return MultiSellPacketServices.MultiSell.GetItemByPosition(position);
 
             case SlotType.Recipe:
-                return RecipeBookWindow.Instance.GetRecipeInstanceByPosition(position);
+                return CraftPacketServices.RecipeBook.GetRecipeInstanceByPosition(position);
             case SlotType.RecipeCraftItem:
-                return CraftingItemWindow.Instance.GetRequiredInstanceByPosition(position);
+                return CraftPacketServices.Crafting.GetRequiredInstanceByPosition(position);
             case SlotType.SkillWindow:
-                return SkillListWindow.Instance.GetSkillInstanceBySkillId(position);
+                return SkillLearnPacketServices.SkillList.GetSkillInstanceBySkillId(position);
 
             case SlotType.Gear:
-                return GetGearTooltipItem(InventoryWindow.Instance != null
-                    ? InventoryWindow.Instance.GetGearPosition(position)
+                return GetGearTooltipItem(InventoryPacketServices.Window != null
+                    ? InventoryPacketServices.Window.GetGearPosition(position)
                     : null);
 
             default:
@@ -637,7 +654,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
     {
         _isForceBelow = isForceBelow;
         var highest = _calcPosition.HighestPoint(newPoint, _heightContent);
-        bool insideRoot = L2GameUI.Instance.IsWindowContain(highest);
+        bool insideRoot = SystemUIPacketServices.Ui.IsWindowContain(highest);
         Vector2 reversePoint = _calcPosition.GetNewPosition(newPoint, sdfig, _heightContent , insideRoot , isForceBelow);
         _content.transform.position = reversePoint;
         BringToFront();
@@ -665,32 +682,32 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 break;
 
             case (int)SlotType.Inventory:
-                ItemInstance itemInstance = InventoryWindow.Instance.GetItemByPosition(position);
+                ItemInstance itemInstance = InventoryPacketServices.Window.GetItemByPosition(position);
                 SetSimpleItemSingleToolTip(itemInstance, template);
                 break;
             case (int)SlotType.Enchant:
-                ItemInstance itemEnchant = EnchantWindow.Instance.GetItemByPosition(position);
+                ItemInstance itemEnchant = ItemEnchantPacketServices.Enchant.GetItemByPosition(position);
                 SetSimpleItemSingleToolTip(itemEnchant, template);
                 break;
             case (int)SlotType.Multisell:
-                ItemInstance itemMultisell = MultiSellWindow.Instance.GetItemByPosition(position);
+                ItemInstance itemMultisell = MultiSellPacketServices.MultiSell.GetItemByPosition(position);
                 SetSimpleItemSingleToolTip(itemMultisell, template);
                 break;
             case (int)SlotType.Recipe:
-                ItemInstance recipeInstance = RecipeBookWindow.Instance.GetRecipeInstanceByPosition(position);
+                ItemInstance recipeInstance = CraftPacketServices.RecipeBook.GetRecipeInstanceByPosition(position);
                 SetSimpleItemSingleToolTip(recipeInstance, template);
                 break;
             case (int)SlotType.RecipeCraftItem:
-                ItemInstance requiredItem = CraftingItemWindow.Instance.GetRequiredInstanceByPosition(position);
+                ItemInstance requiredItem = CraftPacketServices.Crafting.GetRequiredInstanceByPosition(position);
                 SetSimpleRequireditemToolTip(requiredItem, template);
                 break;
             case (int)SlotType.SkillWindow:
                 int skillId = position;
-                SkillInstance skillInstance = SkillListWindow.Instance.GetSkillInstanceBySkillId(skillId);
+                SkillInstance skillInstance = SkillLearnPacketServices.SkillList.GetSkillInstanceBySkillId(skillId);
                 SetSkillToolTip(skillInstance, template);
                 break;
             case (int)SlotType.SkillBar:
-                Shortcut skillbarInstance = SkillbarWindow.Instance.GetShortcutByPosition(position);
+                Shortcut skillbarInstance = SkillbarPacketServices.Skillbar.GetShortcutByPosition(position);
                 SetSimpleItemSingleToolTip(skillbarInstance, template);
                 break;
             case (int)SlotType.BuffPanel:
@@ -699,7 +716,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
                 break;
             case (int)SlotType.Gear:
                 SetSimpleItemSingleToolTip(GetGearTooltipItem(
-                    InventoryWindow.Instance != null ? InventoryWindow.Instance.GetGearPosition(position) : null), template);
+                    InventoryPacketServices.Window != null ? InventoryPacketServices.Window.GetGearPosition(position) : null), template);
                 break;
         }
     }
@@ -838,7 +855,7 @@ public class ToolTipSimple : L2PopupWindow, IToolTips
         if(item != null)
         {
             IDataTips data = ToolTipManager.GetInstance().GetProductText(item);
-            ItemInstance inventoryItem = PlayerInventory.Instance.GetItemByItemId(item.ItemId);
+            ItemInstance inventoryItem = InventoryPacketServices.Inventory.GetItemByItemId(item.ItemId);
             Label nameText = (Label)template.Q<VisualElement>("name");
             if(nameText != null) nameText.text = data.GetName(true);
         }

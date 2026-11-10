@@ -15,8 +15,8 @@ public sealed class LobbyFlowController
     private PacketApplyQueue _applyQueue;
     private L2GameUI _gameUi;
 
-    GameClient Game => GameClient.Instance;
-    LoginClient Login => LoginClient.Instance;
+    GameClient Game => DiRuntimePacketServices.Game;
+    LoginClient Login => NetworkingPacketServices.Login;
 
     [Inject] IZoneTransport _zoneTransport;
 
@@ -44,10 +44,7 @@ public sealed class LobbyFlowController
         _gameUi = gameUi;
     }
 
-    private SceneLoader Scenes
-    {
-        get { return SceneLoader.Instance; }
-    }
+    private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
     private L2LoginUI LoginUi
     {
@@ -155,14 +152,14 @@ public sealed class LobbyFlowController
         L2GameUI ui = GameUi;
         if (ui != null)
             ui.StopLoading();
-        PlayerStateMachine stateMachine = PlayerStateMachine.Instance;
+        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
         if (stateMachine != null)
             stateMachine.enabled = true;
         _game.WorldSpawnReady = true;
         // NetSession already sent NetOpcode.EnterWorld on ZoneAuthResult.
         // Do not re-fire Interlude EnterWorldCommand / RequestSkillCoolTimeCommand —
         // FineageZoneTransport has no Net mapping and only spam-warns "TX dropped".
-        FineageLog.Info(FineageLog.Category.GameNet, "world spawn ready (Net EnterWorld already sent)");
+        FineageLog.Info(FineageLogCategory.GameNet, "world spawn ready (Net EnterWorld already sent)");
         if (domain != null)
             domain.FlushKnownlist();
         else
@@ -244,9 +241,10 @@ public sealed class LobbyFlowController
 
     public void OnWorldLoading()
     {
-        if (MusicManager.Instance != null)
+        MusicManager music = MusicPacketServices.Music;
+        if (music != null)
         {
-            MusicManager.Instance.Clear();
+            music.Clear();
         }
 
         L2GameUI ui = GameUi;
@@ -280,7 +278,7 @@ public sealed class LobbyFlowController
 
         if (_game.GameState > GameState.CHAR_CREATION)
         {
-            MusicManager.Instance.Clear();
+            MusicPacketServices.Music?.Clear();
             Scenes.LoadMenu();
         }
         else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected)

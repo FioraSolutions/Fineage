@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +16,7 @@ public class LicenseWindow : L2Window
         _zoneTransport ?? (App.HasContainer ? App.Resolve<IZoneTransport>() : null);
 
     private static LicenseWindow _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.LicenseWindow instead")]
     public static LicenseWindow Instance { get { return _instance; } }
 
     private void Awake() {
@@ -53,11 +56,11 @@ public class LicenseWindow : L2Window
 
     private void Update() {
         if (!_isWindowHidden) {
-            if (Input.GetKeyDown(KeyCode.Escape)) {
-                AudioManager.Instance.PlayUISound("click_01");
+            if (PollInput.EscapeDown) {
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 DisagreeButtonPressed();
-            } else if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) {
-                AudioManager.Instance.PlayUISound("click_01");
+            } else if (PollInput.EnterDown) {
+                AudioPacketServices.Audio.PlayUISound("click_01");
                 AgreeButtonPressed();
             }
         }

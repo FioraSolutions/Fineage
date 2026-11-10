@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -33,6 +34,7 @@ public class L2HazeRing : MonoBehaviour
         return z * (MeshTopY / len);
     }
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2HazeRing Instance { get; private set; }
     public static Color CurrentTint { get; private set; } = L2HazeLut.ColorModifierDefault;
 
@@ -140,7 +142,7 @@ public class L2HazeRing : MonoBehaviour
 
         ApplyHazeLayer(_tf.gameObject);
 
-        WorldClock clock = WorldClock.Instance;
+        WorldClock clock = WorldClockPacketServices.Clock;
         if (clock == null)
         {
             clock = WorldClock.EnsurePersistent();
@@ -316,12 +318,12 @@ public class L2HazeRing : MonoBehaviour
 
     Camera ResolveCamera()
     {
-        if (CameraController.Instance != null)
+        if (CameraPacketServices.Controller != null)
         {
-            Camera fromController = CameraController.Instance.GetComponent<Camera>();
+            Camera fromController = CameraPacketServices.Controller.GetComponent<Camera>();
             if (fromController == null)
             {
-                fromController = CameraController.Instance.GetComponentInChildren<Camera>();
+                fromController = CameraPacketServices.Controller.GetComponentInChildren<Camera>();
             }
 
             if (fromController != null && fromController.enabled && fromController.gameObject.activeInHierarchy)

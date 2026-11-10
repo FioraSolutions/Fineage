@@ -70,6 +70,7 @@ public class TargetManager : MonoBehaviour
     void WireControllerPacketServices()
     {
         ControllerPacketServices.Bind(targets: this, gameWorld: GameWorld);
+        TargetPacketServices.Bind(targets: this);
     }
 
     void OnDestroy()
@@ -84,7 +85,7 @@ public class TargetManager : MonoBehaviour
 
     void Update()
     {
-        if (PlayerEntity.Instance == null || !HasTarget())
+        if (DomainPacketServices.LocalPlayer == null || !HasTarget())
         {
             return;
         }
@@ -137,7 +138,7 @@ public class TargetManager : MonoBehaviour
         // Local player is never registered in World as a target candidate;
         // anything else must still exist in the world registry.
         World world = GameWorld;
-        if (entity != PlayerEntity.Instance &&
+        if (entity != DomainPacketServices.LocalPlayer &&
             world != null &&
             world.GetEntityNoLockSync(entity.Identity != null ? entity.Identity.Id : 0) == null)
         {
@@ -154,9 +155,9 @@ public class TargetManager : MonoBehaviour
             return true;
         }
 
-        if (PlayerEntity.Instance != null && PlayerEntity.Instance.transform != null)
+        if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.transform != null)
         {
-            _playerTransform = PlayerEntity.Instance.transform;
+            _playerTransform = DomainPacketServices.LocalPlayer.transform;
             return true;
         }
 
@@ -170,7 +171,7 @@ public class TargetManager : MonoBehaviour
 
     public void NextTarget(int kind)
     {
-        if (PlayerEntity.Instance == null || PlayerEntity.Instance.Identity == null)
+        if (DomainPacketServices.LocalPlayer == null || DomainPacketServices.LocalPlayer.Identity == null)
         {
             return;
         }
@@ -234,11 +235,11 @@ public class TargetManager : MonoBehaviour
         World world = GameWorld;
         Entity found = world != null ? world.GetEntityNoLockSync(id) : null;
         if (found == null &&
-            PlayerEntity.Instance != null &&
-            PlayerEntity.Instance.Identity != null &&
-            PlayerEntity.Instance.Identity.Id == id)
+            DomainPacketServices.LocalPlayer != null &&
+            DomainPacketServices.LocalPlayer.Identity != null &&
+            DomainPacketServices.LocalPlayer.Identity.Id == id)
         {
-            found = PlayerEntity.Instance;
+            found = DomainPacketServices.LocalPlayer;
         }
 
         if (found == null)
@@ -252,7 +253,7 @@ public class TargetManager : MonoBehaviour
     private Entity GetNextObject(World world, int kind, float radius, float minDistanceExclusive, int excludeId)
     {
         _scanKind = kind;
-        _scanSelfId = PlayerEntity.Instance.Identity.Id;
+        _scanSelfId = DomainPacketServices.LocalPlayer.Identity.Id;
         _scanExcludeId = excludeId;
         _scanMinDistance = minDistanceExclusive;
         _scanBestDistance = radius;
@@ -361,8 +362,8 @@ public class TargetManager : MonoBehaviour
         _target = new TargetData(target);
         _target.SetColor(hexColor);
 
-        PlayerEntity.Instance.TargetId = _target.Identity.Id;
-        PlayerEntity.Instance.Target = _target.Data.ObjectTransform;
+        DomainPacketServices.LocalPlayer.TargetId = _target.Identity.Id;
+        DomainPacketServices.LocalPlayer.Target = _target.Data.ObjectTransform;
     }
 
     public void SetAttackTarget()
@@ -409,13 +410,13 @@ public class TargetManager : MonoBehaviour
     {
         if (HasTarget())
         {
-            if (PlayerEntity.Instance.TargetId != -1)
+            if (DomainPacketServices.LocalPlayer.TargetId != -1)
             {
                 IZoneTransport game = ZoneCommands.Transport;
                 if (game != null)
                     ZoneCommands.Send(new RequestTargetCanceldCommand());
-                PlayerEntity.Instance.TargetId = -1;
-                PlayerEntity.Instance.Target = null;
+                DomainPacketServices.LocalPlayer.TargetId = -1;
+                DomainPacketServices.LocalPlayer.Target = null;
             }
 
             _target = null;
@@ -430,10 +431,10 @@ public class TargetManager : MonoBehaviour
     /// </summary>
     public void ClearTargetSilently()
     {
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            PlayerEntity.Instance.TargetId = -1;
-            PlayerEntity.Instance.Target = null;
+            DomainPacketServices.LocalPlayer.TargetId = -1;
+            DomainPacketServices.LocalPlayer.Target = null;
         }
 
         _target = null;

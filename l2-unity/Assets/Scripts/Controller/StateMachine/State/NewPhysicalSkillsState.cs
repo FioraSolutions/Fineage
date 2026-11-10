@@ -24,18 +24,22 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
         {
             case Event.READY_TO_ACT:
 
-                AnimationCombo animComboAct = SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
+                AnimationCombo animComboAct = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
                 //not use bow atk
                 //RotateFaceToMonster(_stateMachine.Player);
-                _ = SkillExecutor.Instance.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
+                _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
                 // Only skills with a ready EffectDatabase entry (e.g. Power Strike = 3).
                 if (useSkill.SkillId == 3)
                 {
-                    EffectManager.Instance.PlayEffectSyncedToSkillAnimation(
-                        useSkill.SkillId,
-                        _stateMachine.Player,
-                        useSkill.HitTime,
-                        animComboAct);
+                    EffectManager effects = ControllerPacketServices.Effects;
+                    if (effects != null)
+                    {
+                        effects.PlayEffectSyncedToSkillAnimation(
+                            useSkill.SkillId,
+                            _stateMachine.Player,
+                            useSkill.HitTime,
+                            animComboAct);
+                    }
                 }
                 break;
             case Event.CANCEL:
@@ -44,23 +48,13 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 break;
             case Event.APPLY_SELF_SKILL:
                 Skillgrp skillgrp = useSkill.SkillGrp;
-                //2013 scroll effect
-                if (SetupDurationHelper.IsLongCastSkill(useSkill))
-                {
-                    AnimationCombo selfCombo = SkillgrpTable.Instance.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
-                    Entity entity = _stateMachine.Player;
-                    int objectId = entity.Identity.Id;
-                    SetupDurationHelper.SetupLongCastDurationIfHitTimeNot0(useSkill, objectId, entity, selfCombo);
-
-                    _ = SkillExecutor.Instance.ExecuteSkillOverride(useSkill.SkillGrp, entity, selfCombo, _events, isLong: true);
-                } //2031 potion heal , 2011 haste potion
-                else if (SetupDurationHelper.IsUsePotion(useSkill))
+                if (SetupDurationHelper.IsUsePotion(useSkill))
                 {
                     SetupDurationHelper.FinishPotionUse(_stateMachine, _stateMachine.Player, useSkill);
                 }
                 else if (SetupDurationHelper.TryGetPlayableCombo(useSkill, out AnimationCombo castCombo) &&
                          useSkill.SkillGrp != null &&
-                         SkillExecutor.Instance != null)
+                         SkillExecutorPacketServices.Executor != null)
                 {
                     Entity entity = _stateMachine.Player;
                     if (useSkill.SkillId == 2046)
@@ -75,13 +69,13 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                     }
                     SetupDurationHelper.SetupDurationIfHitTimeNot0(
                         useSkill, entity.Identity.Id, entity, castCombo);
-                    _ = SkillExecutor.Instance.ExecuteSkillOverride(
+                    _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
                         useSkill.SkillGrp, entity, castCombo, _events);
                 }
-                else if (skillgrp != null && SkillExecutor.Instance != null)
+                else if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
                 {
                     AnimationCombo combo = new AnimationCombo("-1", new string[1] { skillgrp.GetAnimOperationType3() }, "");
-                    _ = SkillExecutor.Instance.ExecuteSkill(_stateMachine.Player, combo, _events);
+                    _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, combo, _events);
                 }
 
 
@@ -91,8 +85,8 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                     // $"[SS_CHARGE_SM] State.APPLY_SOULSHOT_CHARGED state={_stateMachine.State} " +
                     // $"intention={_stateMachine.Intention} running={_stateMachine.Player != null && _stateMachine.Player.Running}");
                 _stateMachine.Player.IsSoulshotCharged = true;
-                WeaponChargeSkill.Play(
-                    EffectManager.Instance,
+                WeaponChargeSkillPlayback.Play(
+                    ControllerPacketServices.Effects,
                     useSkill.SkillId,
                     _stateMachine.Player.GetWeaponTransform(),
                     _stateMachine.Player.transform);
@@ -103,8 +97,8 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
                 // Debug.Log(
                     // $"[SS_CHARGE_SM] State.ARRIVED while PHYSICAL_SKILLS → IDLE " +
                     // $"(arrived overrides charged)");
-                PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-                PlayerStateMachine.Instance.NotifyEvent(Event.ARRIVED);
+                PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.ARRIVED);
                 break;
 
         }
@@ -115,7 +109,7 @@ public class NewPhysicalSkillsState : AbstractAttackEvents
     // Disabled with AttackTimingHelper.RotateFaceToMonster — clip pose only.
     // private void RotateFaceToMonster(Entity entity)
     // {
-    //     Transform monster = PlayerEntity.Instance.Target;
+    //     Transform monster = DomainPacketServices.LocalPlayer.Target;
     //     if (monster == null) return;
     //     RotationService.Instance.RotateTowards(entity.transform, monster.position, () =>
     //     {

@@ -28,10 +28,7 @@ public class GameManager : MonoBehaviour, IGameManager {
 
     #region Lifecycle
 
-    private SceneLoader Scenes
-    {
-        get { return _sceneLoader != null ? _sceneLoader : SceneLoader.Instance; }
-    }
+    private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
     public bool IsSwitchingServer { get; set; } = false;
     public bool WorldSpawnReady { get; internal set; }
@@ -81,11 +78,15 @@ public class GameManager : MonoBehaviour, IGameManager {
         string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
         bool pinnedToPublic = netClient == "0"
             || string.Equals(netClient, "false", System.StringComparison.OrdinalIgnoreCase);
+        // Standalone second-window / local dual-client: FINEAGE_NET_CLIENT=1|true|local → 127.0.0.1:9106/9777.
+        bool forceLocal = netClient == "1"
+            || string.Equals(netClient, "true", System.StringComparison.OrdinalIgnoreCase)
+            || string.Equals(netClient, "local", System.StringComparison.OrdinalIgnoreCase);
 
 #if UNITY_EDITOR
-        bool useLocal = !pinnedToPublic;
+        bool useLocal = forceLocal || !pinnedToPublic;
 #else
-        bool useLocal = false;
+        bool useLocal = forceLocal;
 #endif
 
         if (useLocal)
@@ -134,6 +135,7 @@ public class GameManager : MonoBehaviour, IGameManager {
     {
         _lobbyFlow = lobbyFlow;
         _lobbyFlow.Attach(this);
+        LobbyFlowPacketServices.Bind(scenes: _sceneLoader);
     }
 
     private void Start() {
@@ -174,7 +176,7 @@ public class GameManager : MonoBehaviour, IGameManager {
             transport.BeginSession(account, password);
         else
             Debug.LogError("[Fineage] auto-login: no IZoneTransport resolved — cannot begin a session "
-                + "(the legacy Zone V2 client has been removed).");
+                + "(Fineage Net transport missing).");
     }
 
     #endregion
@@ -186,8 +188,9 @@ public class GameManager : MonoBehaviour, IGameManager {
     /// </summary>
     public static void DisconnectZoneSession()
     {
-        if (NetSession.Instance != null)
-            UnityEngine.Object.Destroy(NetSession.Instance.gameObject);
+        NetSession net = NetworkingPacketServices.Session;
+        if (net != null)
+            UnityEngine.Object.Destroy(net.gameObject);
     }
 
     #region Lobby flow (delegates to LobbyFlowController)
@@ -223,8 +226,7 @@ public class GameManager : MonoBehaviour, IGameManager {
         IsSwitchingServer = false;
         WorldSpawnReady = false;
         GameState = GameState.LOGIN_SCREEN;
-        if (MusicManager.Instance != null)
-            MusicManager.Instance.Clear();
+        MusicPacketServices.Music?.Clear();
         Scenes.LoadMenu();
         yield break;
     }

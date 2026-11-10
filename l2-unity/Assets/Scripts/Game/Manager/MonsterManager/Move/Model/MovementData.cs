@@ -206,8 +206,8 @@ public class MovementData
             // " state=" + (state.IsName("run") ? "run" : "walk") +
             // " moving=false -> idle");
 
-        if (action == EntityActionKind.Move && EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(_entity, EntityActionKind.Idle, null);
+        if (action == EntityActionKind.Move && EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(_entity, EntityActionKind.Idle, null);
         else
             EntityActionVisual.PlayStandWait(_entity);
         return true;
@@ -575,7 +575,7 @@ public class MovementData
     public void Move(Vector3 direction , float speed)
     {
         Vector3 lookDir = new Vector3(direction.x, 0f, direction.z);
-        if (L2PawnWalk.IsCharInfoPawn(_entity))
+        if (L2PawnWalkEntity.IsCharInfoPawn(_entity))
         {
             if (_movementTarget != null && _movementTarget.TryGetTarget(out Vector3 dest))
                 StepCharInfo(dest, speed);
@@ -593,7 +593,7 @@ public class MovementData
         if (t == null || _pawnYaw == null)
             return;
         int id = _entity.Identity != null ? _entity.Identity.Id : 0;
-        if (id != 0 && CombatFacingService.Instance != null && CombatFacingService.Instance.HasFollow(id))
+        if (id != 0 && CombatPacketServices.Facing != null && CombatPacketServices.Facing.HasFollow(id))
         {
             // CombatFacingService.ApplyYaw owns this rotation. A stale drive would
             // overwrite it from StepCharInfo when this Update runs later.
@@ -618,7 +618,7 @@ public class MovementData
             return;
         }
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null)
             return;
 
@@ -746,8 +746,8 @@ public class MovementData
         if (entity is PlayerEntity)
             return;
 
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.NotifyArrived(entity);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.NotifyArrived(entity);
     }
     public CharacterController GetControllerToTypeEntity(Entity entity)
     {

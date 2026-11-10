@@ -62,8 +62,8 @@ public sealed class UserWorldApply : EntityWorldApply
                 ? VectorUtils.Distance2D(entity.transform.position, pawn.transform.position)
                 : -1f;
             bool chasing = entity.ActionSlot.Action == EntityActionKind.Move ||
-                (entity.Identity != null && MoveAllCharacters.Instance != null &&
-                 MoveAllCharacters.Instance.IsMoving(entity.Identity.Id));
+                (entity.Identity != null && MoveAllCharactersPacketServices.Moves != null &&
+                 MoveAllCharactersPacketServices.Moves.IsMoving(entity.Identity.Id));
             bool skipKeepChase = chasing && pawn != null && pawnDist > 0.01f && nowToPawn > pawnDist + 0.12f;
             bool atDist = pawn != null && pawnDist > 0.01f && nowToPawn >= 0f &&
                 nowToPawn <= pawnDist + 0.12f;
@@ -74,8 +74,8 @@ public sealed class UserWorldApply : EntityWorldApply
                 !(pawn is NpcEntity);
             bool skipPos = skipKeepChase || skipKeepMove;
             string skip = skipKeepChase ? " SKIP_POS_CHASE" : (skipKeepMove ? " SKIP_POS_MOVE" : " APPLY");
-            bool moving = entity.Identity != null && MoveAllCharacters.Instance != null &&
-                MoveAllCharacters.Instance.IsMoving(entity.Identity.Id);
+            bool moving = entity.Identity != null && MoveAllCharactersPacketServices.Moves != null &&
+                MoveAllCharactersPacketServices.Moves.IsMoving(entity.Identity.Id);
             // EntityActionCombatLog.LogStep(entity,
                 // "STOP " + skip.Trim() + " nick=" + EntityActionCombatLog.NameOf(entity) +
                 // " moving=" + moving +
@@ -221,7 +221,7 @@ public sealed class UserWorldApply : EntityWorldApply
         if (entity != null && entity.IsDead())
             return;
         if (entity != null && entity.Identity != null)
-            CombatFacingService.Instance?.EndFollow(entity.Identity.Id, "skill-canceled");
+            CombatPacketServices.Facing?.EndFollow(entity.Identity.Id, "skill-canceled");
         _actions.Set(entity, EntityActionKind.Idle, null);
     }
 }

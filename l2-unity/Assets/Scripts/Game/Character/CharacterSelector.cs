@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using Object = UnityEngine.Object;
 
 public class CharacterSelector : MonoBehaviour
 {
@@ -21,14 +23,7 @@ public class CharacterSelector : MonoBehaviour
 
     [Inject] private LogongrpTable _logonGrps;
 
-    private List<Logongrp> LogonGrps
-    {
-        get
-        {
-            LogongrpTable table = _logonGrps != null ? _logonGrps : LogongrpTable.Instance;
-            return table.LogonGrps;
-        }
-    }
+    private List<Logongrp> LogonGrps => TablePacketServices.LogonGrps.LogonGrps;
 
     public Camera Camera { get { return _charSelectCamera; } set { _charSelectCamera = value; } }
     public int SelectedSlot { get { return _selectedCharacterSlot; } }
@@ -40,7 +35,8 @@ public class CharacterSelector : MonoBehaviour
 
 
     private static CharacterSelector _instance;
-    public static CharacterSelector Instance { get { return _instance; } }
+    [System.Obsolete("Use LoginPacketServices.Characters instead")]
+        public static CharacterSelector Instance { get { return _instance; } }
 
     void Awake() {
         if (_instance == null) {
@@ -61,6 +57,7 @@ public class CharacterSelector : MonoBehaviour
     private void WireCharacterPacketServices()
     {
         CharacterPacketServices.Bind();
+        TablePacketServices.Bind(logonGrps: _logonGrps);
     }
 
     public void SetCharacterList(List<CharSelectionInfoPackage> characters) {
@@ -176,7 +173,7 @@ public class CharacterSelector : MonoBehaviour
     {
         LobbyCharacter character = _lobbyCharacters[index];
         CharSelectInfoPackage info = ToSelectPackage(character);
-        CharacterCreator creator = CharacterCreator.Instance;
+        CharacterCreator creator = LoginPacketServices.Creator;
         if (creator == null)
         {
             _characterGameObjects.Add(null);
@@ -211,8 +208,8 @@ public class CharacterSelector : MonoBehaviour
         MoveLobbyPawn(index, 7);
         _selectedLobbyIndex = index;
         _selectedCharacterSlot = _lobbyCharacters[index].Slot;
-        if (CharSelectWindow.Instance != null)
-            CharSelectWindow.Instance.SelectLobbySlot(index);
+        if (LoginPacketServices.CharSelect != null)
+            LoginPacketServices.CharSelect.SelectLobbySlot(index);
     }
 
     static CharSelectInfoPackage ToSelectPackage(LobbyCharacter character)
@@ -237,13 +234,12 @@ public class CharacterSelector : MonoBehaviour
         info.Karma = character.Karma;
         ApplyLobbyPaperdoll(info.Appreance, character);
         int baseClass = (int)BaseClass.Fighter;
-        if (character.ClassId >= 0 && character.ClassId <= byte.MaxValue &&
-            CharacterClassParser.IsMage((CharacterClass)character.ClassId))
+        if (CharacterClassParser.IsMage(character.ClassId))
             baseClass = (int)BaseClass.MMagic;
         info.Appreance.BaseClass = baseClass;
         CharacterRace race = character.Race >= 0 && character.Race <= (int)CharacterRace.Dwarf
             ? (CharacterRace)character.Race
-            : CharacterRace.Human;
+            : MapClassId.GetCharacterRace(character.ClassId);
         info.CharacterRaceAnimation = CharacterRaceAnimationParser.ParseRaceInterlude(race, character.Sex, baseClass);
         return info;
     }
@@ -286,7 +282,10 @@ public class CharacterSelector : MonoBehaviour
     public void SpawnInterludeCharacterSlot(int id)
     {
         CharSelectInfoPackage info = _charactersInterlude[id];
-        GameObject pawnObject = CharacterCreator.Instance.CreatePawnInterlude(info.CharacterRaceAnimation, info.Appreance);
+        CharacterCreator creator = LoginPacketServices.Creator;
+        if (creator == null)
+            return;
+        GameObject pawnObject = creator.CreatePawnInterlude(info.CharacterRaceAnimation, info.Appreance);
         if (pawnObject == null)
         {
             // LobbyFlowLog.Error(
@@ -298,7 +297,7 @@ public class CharacterSelector : MonoBehaviour
         pawnObject.GetComponent<SelectableCharacterEntity>().CharacterInfoInterlude = info;
         pawnObject.GetComponent<SelectableCharacterEntity>().WeaponAnim = pawnObject.GetComponent<UserGear>().WeaponAnim;
         string name = info.Name;
-        CharacterCreator.Instance.PlacePawn(pawnObject, _pawnData[id], name, _container);
+        creator.PlacePawn(pawnObject, _pawnData[id], name, _container);
         _characterGameObjects.Add(pawnObject);
         // LobbyFlowLog.Info("lobby pawn spawned slot=" + id + " name=" + name);
     }
@@ -314,10 +313,13 @@ public class CharacterSelector : MonoBehaviour
     }
 
     public void SpawnCharacterSlot(int id) {
-        GameObject pawnObject = CharacterCreator.Instance.CreatePawn(_characters[id].CharacterRaceAnimation, _characters[id].PlayerAppearance);
+        CharacterCreator creator = LoginPacketServices.Creator;
+        if (creator == null)
+            return;
+        GameObject pawnObject = creator.CreatePawn(_characters[id].CharacterRaceAnimation, _characters[id].PlayerAppearance);
         pawnObject.GetComponent<SelectableCharacterEntity>().CharacterInfo = _characters[id];
         pawnObject.GetComponent<SelectableCharacterEntity>().WeaponAnim = pawnObject.GetComponent<UserGear>().WeaponAnim;
-        CharacterCreator.Instance.PlacePawn(pawnObject, _pawnData[id], _characters[id].Name, _container);
+        creator.PlacePawn(pawnObject, _pawnData[id], _characters[id].Name, _container);
         _characterGameObjects.Add(pawnObject);
     }
 
@@ -336,7 +338,7 @@ public class CharacterSelector : MonoBehaviour
             _selectedCharacterSlot = slot;
             _selectedCharacter = _characters[slot];
 
-            CharSelectWindow.Instance.SelectSlot(slot);
+            LoginPacketServices.CharSelect.SelectSlot(slot);
         }
     }
 
@@ -359,7 +361,7 @@ public class CharacterSelector : MonoBehaviour
             _selectedCharacterSlot = slot;
             _selectedCharacterInterlude = _charactersInterlude[slot];
 
-            CharSelectWindow.Instance.SelectInterludeSlot(slot);
+            LoginPacketServices.CharSelect.SelectInterludeSlot(slot);
         }
     }
 
@@ -404,14 +406,15 @@ public class CharacterSelector : MonoBehaviour
 
     void Update()
     {
-        if (!Input.GetMouseButtonDown(0) || _charSelectCamera == null)
+        if (!PollInput.LeftMouseDown || _charSelectCamera == null)
             return;
 
         // CharSelectWindow marks layout spacers Ignore; real chrome stays pickable.
-        if (L2LoginUI.Instance != null && L2LoginUI.Instance.IsPointerOverPanel())
+        L2LoginUI loginUi = LoginPacketServices.Ui;
+        if (loginUi != null && loginUi.IsPointerOverPanel())
             return;
 
-        Ray ray = _charSelectCamera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = _charSelectCamera.ScreenPointToRay(PollInput.MousePosition);
         // EntityClick only: pawn CharacterControllers / stage colliders must not swallow the hit.
         if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, _characterMask, QueryTriggerInteraction.Collide))
             return;

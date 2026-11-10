@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -23,6 +24,7 @@ public class L2StarDome : MonoBehaviour
     static readonly Color SmallNightTint = new Color(90f / 255f, 90f / 255f, 90f / 255f, 1f);
     static readonly Color LargeNightTint = new Color(200f / 255f, 200f / 255f, 200f / 255f, 1f);
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2StarDome Instance { get; private set; }
 
     [SerializeField] Texture2D _smallStars;
@@ -120,7 +122,7 @@ public class L2StarDome : MonoBehaviour
         L2CelestialLut.EnsureLoaded();
         if (!L2CelestialLut.IsReady)
         {
-            WorldClock clock = WorldClock.Instance;
+            WorldClock clock = WorldClockPacketServices.Clock;
             if (clock == null)
             {
                 return 1f;
@@ -129,7 +131,7 @@ public class L2StarDome : MonoBehaviour
             return clock.Clock.darkRatio > 0.01f ? 1f : 0f;
         }
 
-        WorldClock hoursClock = WorldClock.Instance;
+        WorldClock hoursClock = WorldClockPacketServices.Clock;
         if (hoursClock == null)
         {
             hoursClock = WorldClock.EnsurePersistent();
@@ -257,12 +259,12 @@ public class L2StarDome : MonoBehaviour
 
     Camera ResolveCamera()
     {
-        if (CameraController.Instance != null)
+        if (CameraPacketServices.Controller != null)
         {
-            Camera fromController = CameraController.Instance.GetComponent<Camera>();
+            Camera fromController = CameraPacketServices.Controller.GetComponent<Camera>();
             if (fromController == null)
             {
-                fromController = CameraController.Instance.GetComponentInChildren<Camera>();
+                fromController = CameraPacketServices.Controller.GetComponentInChildren<Camera>();
             }
 
             if (fromController != null && fromController.enabled && fromController.gameObject.activeInHierarchy)

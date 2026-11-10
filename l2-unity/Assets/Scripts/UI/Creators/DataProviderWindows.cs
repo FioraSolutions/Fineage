@@ -23,8 +23,8 @@ public class DataProviderWindows :AbstractDataProvider
     }
    public void AddLearnSkill(int skillId , int correctCost , int level , VisualElement container)
    {
-        Skillgrp skill = SkillgrpTable.Instance.GetSkill(skillId , level);
-        SkillNameData skillName = SkillgrpTable.Instance.GetSkillName(skillId, level);
+        Skillgrp skill = TablePacketServices.SkillGrps.GetSkill(skillId , level);
+        SkillNameData skillName = TablePacketServices.SkillGrps.GetSkillName(skillId, level);
 
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
@@ -43,8 +43,8 @@ public class DataProviderWindows :AbstractDataProvider
 
     public void AddDescriptionSkill(int skillId, int correctCost, int level, VisualElement container)
     {
-        Skillgrp skill = SkillgrpTable.Instance.GetSkill(skillId, level);
-        SkillNameData skillName = SkillgrpTable.Instance.GetSkillName(skillId, level);
+        Skillgrp skill = TablePacketServices.SkillGrps.GetSkill(skillId, level);
+        SkillNameData skillName = TablePacketServices.SkillGrps.GetSkillName(skillId, level);
 
         //set icon
         VisualElement groupBoxIcon = container.Q<VisualElement>("GrowIcon");
@@ -88,11 +88,11 @@ public class DataProviderWindows :AbstractDataProvider
         for(int i =0; i < requiredSkillInfo.Count; i++)
         {
             RequiredSkillInfo itemInfo = requiredSkillInfo[i];
-            EtcItemgrp item = EtcItemgrpTable.Instance.GetEtcItem(itemInfo.GetItemId());
+            EtcItemgrp item = TablePacketServices.EtcItemGrps.GetEtcItem(itemInfo.GetItemId());
 
             if (item != null)
             {
-                ItemName itemName = ItemNameTable.Instance.GetItemName(itemInfo.GetItemId());
+                ItemName itemName = TablePacketServices.ItemNames.GetItemName(itemInfo.GetItemId());
                 Label itemNamelabel = container.Q<Label>("itemNameLabel");
                 AddElementIfNotEmpty(itemNamelabel, itemNamelabel, itemName.Name +" X " + itemInfo.GetCount());
 

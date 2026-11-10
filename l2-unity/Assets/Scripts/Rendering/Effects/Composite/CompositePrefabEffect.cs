@@ -27,6 +27,22 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
 
     public event Action<CompositePrefabEffect, EffectResolveContext> StartSpawn;
 
+    public override void CollectReferencedPrefabs(List<UnityEngine.Object> sink)
+    {
+        base.CollectReferencedPrefabs(sink);
+        if (_parts == null || sink == null)
+            return;
+        for (int i = 0; i < _parts.Length; i++)
+        {
+            CompositePrefabPart part = _parts[i];
+            if (part == null || part.prefab == null)
+                continue;
+            sink.Add(part.prefab);
+            if (part.prefab.gameObject != null)
+                sink.Add(part.prefab.gameObject);
+        }
+    }
+
     [Inject] IHomeProjectileService _homeProjectiles;
     [Inject] IAnimationManager _animations;
 
@@ -385,12 +401,13 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
         Vector3 hitDirection,
         int attackerEntityId)
     {
-        if (_pendingHitColliderParts.Count == 0 || projectilePrefab == null || HitManager.Instance == null)
+        var hits = HitPacketServices.Hits;
+        if (_pendingHitColliderParts.Count == 0 || projectilePrefab == null || hits == null)
         {
             return;
         }
 
-        if (!HitManager.Instance.TryPrepareProjectileEffectHit(
+        if (!hits.TryPrepareProjectileEffectHit(
                 projectilePrefab,
                 hitPoint,
                 hitDirection,
@@ -440,7 +457,7 @@ public class CompositePrefabEffect : TimedCompositeEffectBase
             return;
         }
 
-        if (_context?.TargetTransform == null || ProjectileManager.Instance == null || _launchedProjectileParts.Contains(part))
+        if (_context?.TargetTransform == null || ProjectilePacketServices.Projectiles == null || _launchedProjectileParts.Contains(part))
         {
             return;
         }

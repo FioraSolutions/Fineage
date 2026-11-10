@@ -84,7 +84,8 @@ using System.Threading.Tasks;
             return _instance != null;
         }
 
-        public static UnityMainThreadDispatcher Instance()
+        [System.Obsolete("Use DispatcherPacketServices.Dispatcher instead")]
+                public static UnityMainThreadDispatcher Instance()
         {
             if (!Exists())
             {
@@ -101,11 +102,13 @@ using System.Threading.Tasks;
                 _instance = this;
                 DontDestroyOnLoad(this.gameObject);
             }
+            DispatcherPacketServices.Bind(this);
         }
 
         void OnDestroy()
         {
-            _instance = null;
+            if (_instance == this)
+                _instance = null;
         }
 
 

@@ -69,8 +69,9 @@ public sealed class EntityActionAttack : IEntityActionProcess
             entity.ActionSlot.AttackSwingId++;
             EntityActionVisual.PlayMeleeAttack(entity);
 
-            if (HitManager.Instance != null)
-                HitManager.Instance.ArmRemoteMeleeHit(entity, target, attack);
+            var hits = CombatPacketServices.Hits;
+            if (hits != null)
+                hits.ArmRemoteMeleeHit(entity, target, attack);
         }
     }
 
@@ -97,8 +98,8 @@ public sealed class EntityActionAttack : IEntityActionProcess
         {
             if ((entity is MonsterEntity || entity is NpcEntity) && entity.HasAnimator())
                 return;
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.CancelAttackKeepStance(entity);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.CancelAttackKeepStance(entity);
             return;
         }
 
@@ -109,7 +110,7 @@ public sealed class EntityActionAttack : IEntityActionProcess
             // "Attack.Tick→Idle nick=" + EntityActionCombatLog.NameOf(entity) +
             // EntityActionCombatLog.IdleFromSwingDump(entity));
         user.ClearAttackVisual();
-        if (EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Set(entity, EntityActionKind.Idle, null);
+        if (EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Set(entity, EntityActionKind.Idle, null);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -34,41 +33,54 @@ public class InventoryGearTab : L2Tab
   
     private void InitEmptyGear()
     {
-        _gearAnchors = new Dictionary<ItemSlot, GearItem>
-        {
-            { ItemSlot.hat1, new GearItem(_windowEle.Q<VisualElement>("Hat1")  , ItemSlot.hat1 ) },
-            { ItemSlot.hat2, new GearItem(_windowEle.Q<VisualElement>("Hat2")  , ItemSlot.hat2 ) },
-            { ItemSlot.head, new GearItem(_windowEle.Q<VisualElement>("Helmet")  , ItemSlot.head ) },
-            { ItemSlot.gloves, new GearItem(_windowEle.Q<VisualElement>("Gloves"), ItemSlot.gloves) },
-            { ItemSlot.chest, new GearItem(_windowEle.Q<VisualElement>("Torso"), ItemSlot.chest) },
-            { ItemSlot.feet, new GearItem(_windowEle.Q<VisualElement>("Boots"), ItemSlot.feet) },
-            { ItemSlot.underwear, new GearItem(_windowEle.Q<VisualElement>("Underwear"), ItemSlot.underwear) },
-            { ItemSlot.legs, new GearItem(_windowEle.Q<VisualElement>("Legs"), ItemSlot.legs) },
-            { ItemSlot.belt, new GearItem(_windowEle.Q<VisualElement>("Belt"), ItemSlot.belt) },
-            { ItemSlot.rhand, new GearItem(_windowEle.Q<VisualElement>("Rhand"), ItemSlot.rhand) },
-            { ItemSlot.lhand, new GearItem(_windowEle.Q<VisualElement>("Lhand"), ItemSlot.lhand) },
-            { ItemSlot.agation, new GearItem(_windowEle.Q<VisualElement>("Agathion"), ItemSlot.agation) },
-            { ItemSlot.neck, new GearItem(_windowEle.Q<VisualElement>("Neck"), ItemSlot.neck) },
-            { ItemSlot.rear, new GearItem(_windowEle.Q<VisualElement>("Rear"), ItemSlot.rear) },
-            { ItemSlot.lear, new GearItem(_windowEle.Q<VisualElement>("Lear"), ItemSlot.lear) },
-            { ItemSlot.boots, new GearItem(_windowEle.Q<VisualElement>("Boots"), ItemSlot.boots) },
-            { ItemSlot.rfinger, new GearItem(_windowEle.Q<VisualElement>("Rring"), ItemSlot.rfinger) },
-            { ItemSlot.lfinger, new GearItem(_windowEle.Q<VisualElement>("Lring"), ItemSlot.lfinger) },
-            { ItemSlot.pendant, new GearItem(_windowEle.Q<VisualElement>("Pendant"), ItemSlot.pendant) }
-
-        };
+        // Interlude InventoryWnd paper doll only — no Agathion / Belt / Pendant.
+        _gearAnchors = new Dictionary<ItemSlot, GearItem>();
+        TryAddGearAnchor(ItemSlot.hat1, "Hat1");
+        TryAddGearAnchor(ItemSlot.head, "Helmet");
+        TryAddGearAnchor(ItemSlot.hat2, "Hat2");
+        TryAddGearAnchor(ItemSlot.underwear, "Underwear");
+        TryAddGearAnchor(ItemSlot.neck, "Neck");
+        TryAddGearAnchor(ItemSlot.rhand, "Rhand");
+        TryAddGearAnchor(ItemSlot.chest, "Torso");
+        TryAddGearAnchor(ItemSlot.lhand, "Lhand");
+        TryAddGearAnchor(ItemSlot.rear, "Rear");
+        TryAddGearAnchor(ItemSlot.lear, "Lear");
+        TryAddGearAnchor(ItemSlot.gloves, "Gloves");
+        TryAddGearAnchor(ItemSlot.legs, "Legs");
+        TryAddGearAnchor(ItemSlot.feet, "Boots");
+        TryAddGearAnchor(ItemSlot.boots, "Boots");
+        TryAddGearAnchor(ItemSlot.rfinger, "Rring");
+        TryAddGearAnchor(ItemSlot.lfinger, "Lring");
 
         CreateGearSlot(_gearAnchors);
     }
 
-    private void CreateGearSlot(Dictionary<ItemSlot, GearItem> _gearAnchors)
+    void TryAddGearAnchor(ItemSlot slot, string elementName)
     {
-        List<GearItem> gearList = _gearAnchors.Values.ToList();
-        for (int i = 0; i < gearList.Count; i++)
+        VisualElement ele = _windowEle.Q<VisualElement>(elementName);
+        if (ele == null || _gearAnchors.ContainsKey(slot))
+            return;
+        _gearAnchors[slot] = new GearItem(ele, slot);
+    }
+
+    private void CreateGearSlot(Dictionary<ItemSlot, GearItem> gearAnchors)
+    {
+        var elementToSlot = new Dictionary<VisualElement, GearSlot>();
+        int cellId = 0;
+        foreach (KeyValuePair<ItemSlot, GearItem> entry in gearAnchors)
         {
-            GearItem gearItem = gearList[i];
-            _gearCellIds.Add(i, gearItem.GetSlotType());
-            GearSlot slot = new GearSlot(i, gearItem.GetElement(), this, L2Slot.SlotType.Gear);
+            GearItem gearItem = entry.Value;
+            VisualElement ele = gearItem.GetElement();
+            if (ele == null)
+                continue;
+
+            if (!elementToSlot.TryGetValue(ele, out GearSlot slot))
+            {
+                _gearCellIds.Add(cellId, gearItem.GetSlotType());
+                slot = new GearSlot(cellId, ele, this, SlotType.Gear);
+                elementToSlot[ele] = slot;
+                cellId++;
+            }
             gearItem.SetGearSlot(slot);
         }
     }
@@ -76,7 +88,7 @@ public class InventoryGearTab : L2Tab
 
     public void UpdateEquipList(List<ItemInstance> modified, ChangeInventoryData changeInventoryData , int userId)
     {
-        if(PlayerInventory.Instance.GetPlayerEquipInventory().Count == 0)
+        if(InventoryPacketServices.Inventory.GetPlayerEquipInventory().Count == 0)
         {
             EquipEmptyAll();
         }
@@ -92,7 +104,7 @@ public class InventoryGearTab : L2Tab
                     bool isReplace = changeInventoryData.IsReplaceSourceItem(currentSlotEquip.ObjectId);
                     if (changeInventoryData.IsReplaceSourceItem(currentSlotEquip.ObjectId)) continue;
                     EquipItem(currentSlotEquip);
-                    EventBus.Instance.Equipped(currentSlotEquip, userId);
+                    GamePacketServices.Bus?.Equipped(currentSlotEquip, userId);
                     // GearFlowLog.Info("InventoryGearTab Equipped userId=" + userId +
                         // " itemId=" + currentSlotEquip.ItemId +
                         // " body=" + currentSlotEquip.BodyPart +
@@ -123,7 +135,7 @@ public class InventoryGearTab : L2Tab
         {
             ItemInstance itemInstance = equipItems[i];
             EquipItem(itemInstance);
-            EventBus.Instance.Equipped(itemInstance, userId);
+            GamePacketServices.Bus?.Equipped(itemInstance, userId);
             // GearFlowLog.Info("InventoryGearTab EquipList userId=" + userId +
                 // " itemId=" + itemInstance.ItemId +
                 // " body=" + itemInstance.BodyPart);
@@ -188,7 +200,7 @@ public class InventoryGearTab : L2Tab
     public void ModifiedReplace(ItemInstance item , int userId)
     {
         EquipItem(item);
-        EventBus.Instance.Equipped(item, userId);
+        GamePacketServices.Bus?.Equipped(item, userId);
     }
 
  

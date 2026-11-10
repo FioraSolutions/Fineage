@@ -43,6 +43,9 @@ public class DataCell : L2Slot
         SetBusy(false);
         SetText("");
         ResetDurationSmooth();
+        _activeTime = 0;
+        _startTime = 0;
+        _lastRemaningTime = 0;
         _skillInstance.RefreshData(-1, -1, false, false);
         _skill = null;
     }

@@ -8,6 +8,7 @@ public interface IAnimationManager
 {
     public void RegisterController(int objectId, IAnimationController controller, Entity entity);
     public void UnregisterController(int objectId);
+    IAnimationController GetRegisteredController(int objectId);
 
     void PlayAnimation(int objectId , string animationName , bool disableTriggerAfterStart);
     public void PlayAnimationTrigger(int objectId , string triggerName);
@@ -16,7 +17,6 @@ public interface IAnimationManager
     Task<bool> AsyncPlayAnimationTrigger(int objectId, string animationName);
     /// <returns>true = clip finished; false = superseded by a newer cast (do not IDLE/WAIT_RETURN).</returns>
     Task<bool> AsyncPlayAnimationRaceOverrides(int objectId, string tiggerName , string overrideAnimationName);
-    Task AsyncPlayLongCastLoopPhase(int objectId, string triggerName, string overrideAnimationName, string shotOverrideAnimationName);
     /// <returns>true = finish event received; false = superseded by a newer cast.</returns>
     Task<bool> AsyncAwaitOverrideAnimationFinish(int objectId, string expectedFinishName);
 

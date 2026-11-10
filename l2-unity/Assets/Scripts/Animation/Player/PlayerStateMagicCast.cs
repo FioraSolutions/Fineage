@@ -19,7 +19,7 @@ public class PlayerStateMagicCast : PlayerStateBase
             return;
         }
 
-        if (PlayerStateMachine.Instance.State == PlayerState.ANIMATION_LOCKED)
+        if (PlayerStatePacketServices.PlayerState.State == PlayerState.ANIMATION_LOCKED)
         {
             return;
         }

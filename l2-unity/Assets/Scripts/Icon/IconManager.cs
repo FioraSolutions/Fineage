@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +22,8 @@ public class IconManager
 
 
     private static IconManager _instance;
+
+    [System.Obsolete("Use IconPacketServices.Icons or [Inject] IconManager instead")]
     public static IconManager Instance
     {
         get
@@ -27,6 +31,7 @@ public class IconManager
             if (_instance == null)
             {
                 _instance = new IconManager();
+                IconPacketServices.Bind(icons: _instance);
             }
 
             return _instance;
@@ -40,17 +45,17 @@ public class IconManager
 
     public void CacheIcons()
     {
-        var weaponValues = ItemTable.Instance.Weapons.Values;
-        var armorValues = ItemTable.Instance.Armors.Values;
-        var etcalues = ItemTable.Instance.EtcItems.Values;
+        var weaponValues = TablePacketServices.Items.Weapons.Values;
+        var armorValues = TablePacketServices.Items.Armors.Values;
+        var etcalues = TablePacketServices.Items.EtcItems.Values;
 
-        foreach (Weapon weapon in ItemTable.Instance.Weapons.Values)
+        foreach (Weapon weapon in TablePacketServices.Items.Weapons.Values)
         {
             Texture2D icon = LoadTextureByName(weapon.Icon);
             _icons.Add(weapon.Id, icon);
         }
 
-        foreach (Armor armor in ItemTable.Instance.Armors.Values)
+        foreach (Armor armor in TablePacketServices.Items.Armors.Values)
         {
             if(armor.Id == 1146)
             {
@@ -60,7 +65,7 @@ public class IconManager
             _icons.Add(armor.Id, icon);
         }
 
-        foreach (EtcItem etcItem in ItemTable.Instance.EtcItems.Values)
+        foreach (EtcItem etcItem in TablePacketServices.Items.EtcItems.Values)
         {
             Texture2D icon = LoadTextureByName(etcItem.Icon);
             if (!_icons.ContainsKey(etcItem.Id))
@@ -80,7 +85,7 @@ public class IconManager
 
     private void LoadAllOther()
     {
-        foreach (Armor armor in ItemTable.Instance.Armors.Values)
+        foreach (Armor armor in TablePacketServices.Items.Armors.Values)
         {
             string[] otherIcon = armor.Itemgrp.OtherIcon;
 
@@ -152,22 +157,26 @@ public class IconManager
 
     public Texture2D LoadTextureByName(string name , string iconFolder = null)
     {
-        var folder = (iconFolder == null) ? _iconFolder : iconFolder;
-
-        string icon = folder.Replace('\\', '/') + "/" + CleanIconName(name);
-
-        var result = Resources.Load<Texture2D>(icon);
-
-        //Debug.Log($"Loading icon {name}.");
-        if (result != null)
-        {
-            return result;
-        }
-
-        // Debug.LogWarning($"Missing icon: {name}.");
-
-        return _noImageIcon;
+        Texture2D found = TryLoadTextureByName(name, iconFolder);
+        return found != null ? found : _noImageIcon;
     }
+
+    /// <summary>
+    /// Same path rules as <see cref="LoadTextureByName"/> but returns null on miss
+    /// (does not substitute the NO IMAGE placeholder).
+    /// </summary>
+    public Texture2D TryLoadTextureByName(string name, string iconFolder = null)
+    {
+        if (string.IsNullOrEmpty(name))
+            return null;
+
+        var folder = iconFolder == null ? _iconFolder : iconFolder;
+        string icon = folder.Replace('\\', '/') + "/" + CleanIconName(name);
+        return Resources.Load<Texture2D>(icon);
+    }
+
+    public bool IsNoImage(Texture2D texture) =>
+        texture != null && _noImageIcon != null && ReferenceEquals(texture, _noImageIcon);
 
     public Texture2D LoadTextureOtherSources(string href)
     {
@@ -203,9 +212,10 @@ public class IconManager
 
     public Texture2D LoadCursorByName(string name)
     {
-        string icon = _cursorFolder + "\\" + name;
-        var result = Resources.Load<Texture2D>(icon);
-        return result;
+        // Same slash normalization as LoadTextureByName — Resources.Load on macOS
+        // does not resolve Windows-style backslashes, so SetCursor got null (OS cursor).
+        string icon = _cursorFolder.Replace('\\', '/') + "/" + name;
+        return Resources.Load<Texture2D>(icon);
     }
 
     public Texture2D GetIcon(int id)

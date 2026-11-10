@@ -1,3 +1,5 @@
+using System;
+
 ﻿using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -68,6 +70,8 @@ public class CameraController : MonoBehaviour
     }
 
     private static CameraController _instance;
+
+    [System.Obsolete("Use CameraPacketServices.Controller or [Inject] CameraController instead")]
     public static CameraController Instance { get { return _instance; } }
 
     private void Awake()
@@ -75,6 +79,7 @@ public class CameraController : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
+            CameraPacketServices.Bind(camera: this);
             _camera = GetComponent<Camera>();
             _resolvedPlayerHeight = _unityPlayerHeight;
             // Char-select presentation uses CharSelect layer; gameplay must not draw it.
@@ -195,24 +200,27 @@ public class CameraController : MonoBehaviour
 
     private void UpdateInputs()
     {
-        if (InputManager.Instance == null || !InputManager.Instance.TurnCamera)
+        InputManager input = ControllerPacketServices.Input;
+        if (input == null || !input.TurnCamera)
         {
             return;
         }
 
-        _x += Input.GetAxis("Mouse X") * _camSpeed;
-        _y -= Input.GetAxis("Mouse Y") * _camSpeed;
+        Vector2 axis = input.CameraAxis;
+        _x += axis.x * _camSpeed;
+        _y -= axis.y * _camSpeed;
         _y = ClampAngle(_y, -80f, 80f);
     }
 
     private void UpdateZoom()
     {
-        if (InputManager.Instance == null)
+        InputManager input = ControllerPacketServices.Input;
+        if (input == null)
         {
             return;
         }
 
-        float scrollAxis = InputManager.Instance.ZoomAxis;
+        float scrollAxis = input.ZoomAxis;
         _camDistance = Mathf.Clamp(_camDistance - scrollAxis * _zoomSpeed * 0.1f, _minDistance, _maxDistance);
     }
 

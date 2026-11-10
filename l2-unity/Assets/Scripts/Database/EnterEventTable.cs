@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -23,6 +24,7 @@ public sealed class EnterEventTable
 
     static EnterEventTable _instance;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static EnterEventTable Instance
     {
         get

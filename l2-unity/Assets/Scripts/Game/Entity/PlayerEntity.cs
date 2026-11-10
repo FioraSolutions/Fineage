@@ -26,6 +26,7 @@ public class PlayerEntity : Entity
     public bool isAutoAttack { get; set; }
 
     public  Animation LastAtkAnimation { get; set; }
+    [Obsolete("Use DomainPacketServices.LocalPlayer instead")]
     public static PlayerEntity Instance { get => _instance; }
 
     [Inject] PlayerController _playerController;
@@ -74,6 +75,7 @@ public class PlayerEntity : Entity
             ? _playerController
             : GetComponent<PlayerController>();
         EntityPacketServices.Bind(player: local);
+        DomainPacketServices.Bind(localPlayer: this);
         GameEventPacketServices.Bind(localPlayer: this);
     }
 
@@ -132,7 +134,7 @@ public class PlayerEntity : Entity
     protected override void OnDeath()
     {
         base.OnDeath();
-        PlayerStateMachine.Instance.NotifyEvent(Event.DEAD);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.DEAD);
     }
 
     protected override void OnHit(bool criticalHit)
@@ -146,7 +148,7 @@ public class PlayerEntity : Entity
     public override float UpdateMAtkSpeed(int mAtkSpd)
     {
         float converted = base.UpdateMAtkSpeed(mAtkSpd);
-        PlayerAnimationController.Instance.SetMAtkSpd(converted);
+        AnimationPacketServices.PlayerAnimation?.SetMAtkSpd(converted);
 
         return converted;
     }
@@ -154,7 +156,7 @@ public class PlayerEntity : Entity
     public override float UpdatePAtkSpeed(int pAtkSpd)
     {
         float converted = base.UpdatePAtkSpeed(pAtkSpd);
-        PlayerAnimationController.Instance.SetPAtkSpd(converted);
+        AnimationPacketServices.PlayerAnimation?.SetPAtkSpd(converted);
 
         return converted;
     }
@@ -172,7 +174,7 @@ public class PlayerEntity : Entity
         if (pAtkSpd == 0) return;
          float timeAtck = CalcBaseParam.CalculateTimeL2j(pAtkSpd);
          float speedAnim = CalcBaseParam.GetAnimatedSpeed(pAtkSpd, timeAtck);
-         PlayerAnimationController.Instance.SetPAtkSpeed(speedAnim);
+        AnimationPacketServices.PlayerAnimation?.SetPAtkSpeed(speedAnim);
     }
 
 
@@ -192,8 +194,7 @@ public class PlayerEntity : Entity
         int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
         int sex = playerApperance != null ? playerApperance.Sex : 0;
         float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, serverValue, twoHanded);
-        if (PlayerAnimationController.Instance != null)
-            PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
+        AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
 
         _lastServerRunSpeed = serverValue;
         return converted;
@@ -206,8 +207,7 @@ public class PlayerEntity : Entity
         int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
         int sex = playerApperance != null ? playerApperance.Sex : 0;
         float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, _lastServerRunSpeed, twoHanded);
-        if (PlayerAnimationController.Instance != null)
-            PlayerAnimationController.Instance.SetRunSpeed(anim_converted);
+        AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
     }
 
     public override float UpdateWalkSpeed(float serverValue)
@@ -224,8 +224,7 @@ public class PlayerEntity : Entity
         int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
         int sex = playerApperance != null ? playerApperance.Sex : 0;
         float anim_converted = CharTemplateRegistry.GetWalkSpeed(baseClass, sex, serverValue, twoHanded);
-        if (PlayerAnimationController.Instance != null)
-            PlayerAnimationController.Instance.SetWalkSpeed(anim_converted);
+        AnimationPacketServices.PlayerAnimation?.SetWalkSpeed(anim_converted);
 
         return converted;
     }
@@ -247,14 +246,14 @@ public class PlayerEntity : Entity
         if (player != null)
             player.Running = running;
 
-        if (PlayerStateMachine.Instance != null)
+        if (PlayerStatePacketServices.PlayerState != null)
         {
-           // PlayerStateMachine.Instance.NotifyEvent(Event.MOVE_TYPE_UPDATED);
+           // PlayerStatePacketServices.PlayerState.NotifyEvent(Event.MOVE_TYPE_UPDATED);
         }
 
-        if (CharacterInfoWindow.Instance != null)
+        if (HudCorePacketServices.CharacterInfo != null)
         {
-            CharacterInfoWindow.Instance.UpdateValues();
+            HudCorePacketServices.CharacterInfo.UpdateValues();
         }
     }
 
@@ -273,7 +272,7 @@ public class PlayerEntity : Entity
     public float TargetDistance()
     {
         Vector3 startPos = GetPositionRightHand();
-        Transform target = PlayerEntity.Instance.Target;
+        Transform target = Target;
 
         return VectorUtils.Distance2D(startPos , target.position);
     }
@@ -283,7 +282,7 @@ public class PlayerEntity : Entity
         try
         {
             Transform bone = _gear.GetSpineBone();
-            SpineProceduralController.Instance.SetBoneMod(bone, new BoneModification(rotation, Vector3.zero, 1.0f));
+            SpineProceduralPacketServices.Controller?.SetBoneMod(bone, new BoneModification(rotation, Vector3.zero, 1.0f));
         }
         catch (Exception)
         {
@@ -298,7 +297,7 @@ public class PlayerEntity : Entity
         try
         {
             Transform upperArm = _gear.GetRightUpperArm();
-            SpineProceduralController.Instance.SetBoneMod(upperArm, new BoneModification(rotation, Vector3.zero, 1.0f));
+            SpineProceduralPacketServices.Controller?.SetBoneMod(upperArm, new BoneModification(rotation, Vector3.zero, 1.0f));
         }
         catch (Exception)
         {
@@ -311,7 +310,11 @@ public class PlayerEntity : Entity
     {
         Transform bone = _gear.GetSpineBone();
         Transform upperArm = _gear.GetRightUpperArm();
-        SpineProceduralController.Instance.RemoveBoneMod(bone);
-        SpineProceduralController.Instance.RemoveBoneMod(upperArm);
+        SpineProceduralController procedural = SpineProceduralPacketServices.Controller;
+        if (procedural == null)
+            return;
+
+        procedural.RemoveBoneMod(bone);
+        procedural.RemoveBoneMod(upperArm);
     }
 }

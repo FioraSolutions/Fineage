@@ -16,6 +16,7 @@ public class SystemMsgWindow : L2Window
     const float GapAboveChat = 2f;
 
     static SystemMsgWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SystemMsgWindow Instance => _instance;
 
     VisualElement _content;
@@ -36,8 +37,8 @@ public class SystemMsgWindow : L2Window
             return _instance;
         }
         var go = new GameObject(nameof(SystemMsgWindow));
-        if (L2GameUI.Instance != null)
-            go.transform.SetParent(L2GameUI.Instance.transform, false);
+        if (SystemUIPacketServices.Ui != null)
+            go.transform.SetParent(SystemUIPacketServices.Ui.transform, false);
         return go.AddComponent<SystemMsgWindow>();
     }
 

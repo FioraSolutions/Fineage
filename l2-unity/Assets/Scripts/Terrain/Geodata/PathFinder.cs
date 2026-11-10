@@ -139,24 +139,25 @@ public class PathFinder
                     Vector3 neighborPos = new Vector3(nodePos.x + x * _nodeSize,
                             nodePos.y,
                             nodePos.z + z * _nodeSize);
-                    string mapId = Geodata.Instance.GetCurrentMap(neighborPos);
+                    Geodata geodata = GeodataPacketServices.Geodata;
+                    string mapId = geodata.GetCurrentMap(neighborPos);
 
                     Node node = null;
                     try {
-                        node = Geodata.Instance.GetNodeAt(neighborPos, mapId);
+                        node = geodata.GetNodeAt(neighborPos, mapId);
                     } catch(Exception) { }
 
                     if(node == null) {
                         neighborPos.y = nodePos.y + _nodeSize;
                         try {
-                            node = Geodata.Instance.GetNodeAt(neighborPos, mapId);
+                            node = geodata.GetNodeAt(neighborPos, mapId);
                         } catch(Exception) { }
                     }
 
                     if(node == null) {
                         neighborPos.y = nodePos.y - _nodeSize;
                         try {
-                            node = Geodata.Instance.GetNodeAt(neighborPos, mapId);
+                            node = geodata.GetNodeAt(neighborPos, mapId);
                         } catch(Exception) { }
                     }
 
@@ -200,8 +201,9 @@ public class PathFinder
         for(int i = 0; i < path.Count; i++) {
             Vector3 origin = path[currentNode].center;
             Vector3 destination = path[i].center;
-            Vector3 yOffset = Vector3.up * Geodata.Instance.NodeSize * 1.5f;
-            bool cantSeeTarget = Physics.Linecast(destination + yOffset, origin + yOffset, Geodata.Instance.ObstacleMask);
+            Geodata geodata = GeodataPacketServices.Geodata;
+            Vector3 yOffset = Vector3.up * geodata.NodeSize * 1.5f;
+            bool cantSeeTarget = Physics.Linecast(destination + yOffset, origin + yOffset, geodata.ObstacleMask);
 
             if(cantSeeTarget) {
                 waypoints.Add(path[i - 1]);

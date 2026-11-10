@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static EnchantResultDto;
 using static L2Slot;
 using VContainer;
 
@@ -46,6 +45,7 @@ public class EnchantWindow : L2PopupWindow
     }
 
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static EnchantWindow Instance
     {
         get { return _instance; }
@@ -100,7 +100,7 @@ public class EnchantWindow : L2PopupWindow
     {
         foreach (string href in list)
         {
-            animList.Add(IconManager.Instance.LoadTextureOtherSources(href));
+            animList.Add(IconPacketServices.Icons.LoadTextureOtherSources(href));
         }
     }
     protected override IEnumerator BuildWindow(VisualElement root)
@@ -181,7 +181,7 @@ public class EnchantWindow : L2PopupWindow
         if (_zoneWire && (objectId <= 0 || objectId == _scrollObjectId))
             return;
 
-        PlayerInventory inventory = PlayerInventory.Instance;
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
         if (inventory == null)
             return;
         ItemInstance itemInstance = inventory.GetItem(objectId);
@@ -397,24 +397,25 @@ public class EnchantWindow : L2PopupWindow
         _textLabel.text = _defaultTextLabel;
     }
 
-    public void EnchantResult(EnumResult result)
+    /// <summary>Legacy Interlude wire result (not Net <see cref="ApplyZoneResult"/>).</summary>
+    public void HandleEnchantResult(EnchantResult result)
     {
         switch (result)
         {
-            case EnumResult.Success:
+            case EnchantResult.Success:
                 UpdateS1();
                 StartEnchantAnim(true);
                 break;
-            case EnumResult.Cancelled:
+            case EnchantResult.Cancelled:
                HideWindow();
                 break;
-            case EnumResult.UnSuccess:
+            case EnchantResult.UnSuccess:
                 StartEnchantAnim(false);
                 break;
-            case EnumResult.Unk_Result_1:
+            case EnchantResult.Unk_Result_1:
                 StartEnchantAnim(false);
                 break;
-            case EnumResult.Unk_Result_4:
+            case EnchantResult.Unk_Result_4:
                 StartEnchantAnim(false);
                 break;
         }
@@ -433,7 +434,7 @@ public class EnchantWindow : L2PopupWindow
 
     private void UpdateS1()
     {
-        var itemInstance = PlayerInventory.Instance.GetItem(_selectItem.ObjectId);
+        var itemInstance = InventoryPacketServices.Inventory.GetItem(_selectItem.ObjectId);
         if (itemInstance != null && itemInstance.EnchantLevel > 0)
         {
             //StorageVariable.getInstance().AddS1Items(new VariableItem(itemInstance.Count.ToString(), itemInstance.ObjectId));
@@ -498,7 +499,7 @@ public class EnchantWindow : L2PopupWindow
                 if (isSuccess)
                 {
                     _textLabel.style.marginTop = 5;
-                    var itemInstance =  PlayerInventory.Instance.GetItem(_selectItem.ObjectId);
+                    var itemInstance =  InventoryPacketServices.Inventory.GetItem(_selectItem.ObjectId);
                     SetTextLabel(itemInstance);
                     await PlayAnim(_loadingAnimSuccessPng, animElement, 0.7f);
                 }

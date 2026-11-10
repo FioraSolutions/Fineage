@@ -26,22 +26,28 @@ public class EffectDatabase : ScriptableObject
         public bool ignoreFlightTimeForCast;
     }
 
+    [System.Obsolete("Editor SoT only. Runtime: EffectManager session registry / PlayEffect.")]
     public BaseEffect GetPrefab(int id)
     {
         var data = effects.Find(e => e.id == id);
         return data != null ? data.prefab : null;
     }
 
+    [System.Obsolete("Editor SoT only. Runtime: EffectManager session registry / PlayEffect.")]
     public bool TryGetEffectData(int id, out EffectData data)
     {
         data = effects.Find(e => e.id == id);
         return data != null && data.prefab != null;
     }
 
+    [System.Obsolete("Runtime: EffectManager.ShouldIgnoreFlightTimeForCast")]
     public bool ShouldIgnoreFlightTimeForCast(int effectId)
     {
         EffectData data = effects.Find(e => e.id == effectId);
-        if(data == null) return true;
-        return data != null && data.ignoreFlightTimeForCast;
+        // Missing row: do NOT force flight=0 — Blaze/Prominence etc. still need
+        // leave (HitTime−flight) vs impact. Instant/melee must set the flag when registered.
+        if (data == null)
+            return false;
+        return data.ignoreFlightTimeForCast;
     }
 }

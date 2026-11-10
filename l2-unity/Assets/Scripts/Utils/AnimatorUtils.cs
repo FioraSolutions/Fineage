@@ -17,19 +17,20 @@ public class AnimatorUtils
     /// </summary>
     public static bool IsLocalPlayerAnimator(Animator animator)
     {
-        if (animator == null || PlayerEntity.Instance == null)
+        if (animator == null || DomainPacketServices.LocalPlayer == null)
             return false;
 
-        if (PlayerAnimationController.Instance != null)
+        PlayerAnimationController playerAnimation = AnimationPacketServices.PlayerAnimation;
+        if (playerAnimation != null)
         {
-            Animator local = PlayerAnimationController.Instance.GetAnimator();
+            Animator local = playerAnimation.GetAnimator();
             if (local != null)
                 return local == animator;
         }
 
-        if (PlayerEntity.Instance.Identity == null)
+        if (DomainPacketServices.LocalPlayer.Identity == null)
             return false;
-        return animator.GetInteger(OBJECT_ID) == PlayerEntity.Instance.Identity.Id;
+        return animator.GetInteger(OBJECT_ID) == DomainPacketServices.LocalPlayer.Identity.Id;
     }
 
 }

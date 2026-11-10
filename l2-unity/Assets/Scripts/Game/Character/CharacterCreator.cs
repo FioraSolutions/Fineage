@@ -1,3 +1,6 @@
+using System;
+using Object = UnityEngine.Object;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
@@ -20,22 +23,15 @@ public class CharacterCreator : MonoBehaviour
 
     private ModelTable Models
     {
-        get { return _models != null ? _models : ModelTable.Instance; }
+        get { return _models != null ? _models : TablePacketServices.Models; }
     }
 
     private CharacterBuilder Builder
     {
-        get { return _characterBuilder != null ? _characterBuilder : CharacterBuilder.Instance; }
+        get { return _characterBuilder != null ? _characterBuilder : CharacterPacketServices.Builder; }
     }
 
-    private List<Logongrp> LogonGrps
-    {
-        get
-        {
-            LogongrpTable table = _logonGrps != null ? _logonGrps : LogongrpTable.Instance;
-            return table.LogonGrps;
-        }
-    }
+    private List<Logongrp> LogonGrps => TablePacketServices.LogonGrps.LogonGrps;
 
     private bool _pawnRotating = false;
     private bool _pawnRotatingRight = true;
@@ -44,7 +40,8 @@ public class CharacterCreator : MonoBehaviour
     public int PawnIndex { get { return currentPawnIndex; } }
 
     private static CharacterCreator _instance;
-    public static CharacterCreator Instance { get { return _instance; } }
+    [System.Obsolete("Use LoginPacketServices.Creator instead")]
+        public static CharacterCreator Instance { get { return _instance; } }
 
     void Awake()
     {
@@ -64,7 +61,8 @@ public class CharacterCreator : MonoBehaviour
 
     private void WireCharacterPacketServices()
     {
-        CharacterPacketServices.Bind(animations: _animations);
+        CharacterPacketServices.Bind(animations: _animations, builder: _characterBuilder);
+        TablePacketServices.Bind(logonGrps: _logonGrps);
     }
 
     private void Update() {

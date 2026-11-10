@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +16,8 @@ public class ThirdPersonListener : MonoBehaviour
     private FMOD.ATTRIBUTES_3D _attributes = new FMOD.ATTRIBUTES_3D();
 
     private static ThirdPersonListener _instance;
+
+    [System.Obsolete("Use AudioPacketServices.Listener or [Inject] ThirdPersonListener instead")]
     public static ThirdPersonListener Instance { get { return _instance; } }
 
     private PlayerController ResolvedPlayer => AudioPacketServices.Player;
@@ -21,6 +25,7 @@ public class ThirdPersonListener : MonoBehaviour
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            AudioPacketServices.Bind(listener: this);
         }
 
         if (_cam == null && Camera.main != null) {
@@ -33,6 +38,7 @@ public class ThirdPersonListener : MonoBehaviour
 
     private void OnEnable() {
         _instance = this;
+        AudioPacketServices.Bind(listener: this);
     }
 
     private void Start()
@@ -42,7 +48,7 @@ public class ThirdPersonListener : MonoBehaviour
 
     private void WireAudioPacketServices()
     {
-        AudioPacketServices.Bind(player: ResolvedPlayer);
+        AudioPacketServices.Bind(player: ResolvedPlayer, listener: this);
     }
 
     private void OnDisable() {

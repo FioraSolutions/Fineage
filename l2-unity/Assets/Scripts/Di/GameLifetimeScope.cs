@@ -59,6 +59,7 @@ public sealed class GameLifetimeScope : LifetimeScope
 
         RegisterIfFound<L2GameUI>(builder);
         RegisterIfFound<L2SlotManager>(builder);
+        RegisterIfFound<DragIcon>(builder);
         RegisterLiveMono<ChatWindow>(builder);
         RegisterLiveMono<HtmlWindow>(builder);
         RegisterIfFound<DealerWindow>(builder);
@@ -86,6 +87,7 @@ public sealed class GameLifetimeScope : LifetimeScope
         RegisterIfFound<StatusWindow>(builder);
         RegisterLiveMono<CharacterInfoWindow>(builder);
 
+        builder.Register<StatsConverter>(Lifetime.Singleton);
         builder.Register<PlayerSpawner>(Lifetime.Singleton);
         builder.Register<BowArrowVisual>(Lifetime.Singleton);
         builder.RegisterFactory<UserEntity, UserBowArrowEvents>(container =>
@@ -175,13 +177,22 @@ public sealed class GameLifetimeScope : LifetimeScope
                     gameWorld: world,
                     animations: runtime.Animations,
                     effects: runtime.Effects);
+                AnimationPacketServices.Bind(
+                    animations: runtime.Animations,
+                    applyQueue: container.Resolve<PacketApplyQueue>(),
+                    striderRide: container.Resolve<StriderRideService>());
+                StatsConverter statsConverter = container.Resolve<StatsConverter>();
+                StatsConverterPacketServices.Bind(converter: statsConverter);
+                CombatPacketServices.Bind(statsConverter: statsConverter);
+                ServicePacketServices.Bind(statsConverter: statsConverter);
                 MoveCostLog.Wire(world);
 
                 // #142 slice 3: hand NetSession the container-built applies via [Inject].
                 // NetSession lives outside the scope, so it must be injected explicitly.
-                NetSession netSession = NetSession.Instance;
+                NetSession netSession = NetworkingPacketServices.Session;
                 if (netSession == null)
                     netSession = NetSession.Ensure();
+                NetworkingPacketServices.Bind(session: netSession);
                 container.InjectGameObject(netSession.gameObject);
                 ApplyServices.Bind(
                     inventory: container.Resolve<InventoryApplyService>(),
@@ -283,39 +294,51 @@ public sealed class GameLifetimeScope : LifetimeScope
             return found;
 
         if (typeof(T) == typeof(PlayerInventory))
-            return PlayerInventory.Instance as T;
+            return InventoryPacketServices.Inventory as T;
         if (typeof(T) == typeof(TargetManager))
+#pragma warning disable CS0618 // Bootstrap locator; breaks container resolve cycle
             return TargetManager.Instance as T;
+#pragma warning restore CS0618
+        if (typeof(T) == typeof(ProjectileManager))
+            return ProjectilePacketServices.Projectiles as T;
         if (typeof(T) == typeof(TradeWindow))
-            return TradeWindow.Instance as T;
+            return TradePacketServices.Trade as T;
         if (typeof(T) == typeof(TradeRequestWindow))
-            return TradeRequestWindow.Instance as T;
+            return TradePacketServices.TradeRequest as T;
         if (typeof(T) == typeof(PartyInvitationWindow))
-            return PartyInvitationWindow.Instance as T;
+            return PartyPacketServices.PartyInvite as T;
         if (typeof(T) == typeof(SkillListWindow))
-            return SkillListWindow.Instance as T;
+            return SkillLearnPacketServices.SkillList as T;
         if (typeof(T) == typeof(BufferPanel))
-            return BufferPanel.Instance as T;
+            return AuxiliaryGameUIPacketServices.Buffer as T;
         if (typeof(T) == typeof(MoveAllCharacters))
+#pragma warning disable CS0618 // Bootstrap locator until all call sites use PacketServices / [Inject]
             return MoveAllCharacters.Instance as T;
+#pragma warning restore CS0618
         if (typeof(T) == typeof(EffectManager))
-            return EffectManager.Instance as T;
+            return GlobalEffectsPacketServices.Effects as T;
         if (typeof(T) == typeof(EventBus))
+        {
+#pragma warning disable CS0618 // Bootstrap locator until drain completes
             return EventBus.Instance as T;
+#pragma warning restore CS0618
+        }
         if (typeof(T) == typeof(SkillbarWindow))
-            return SkillbarWindow.Instance as T;
+            return SkillbarPacketServices.Skillbar as T;
         if (typeof(T) == typeof(ChatWindow))
-            return ChatWindow.Instance as T;
+            return MessagePacketServices.Chat as T;
         if (typeof(T) == typeof(HtmlWindow))
-            return HtmlWindow.Instance as T;
+            return GameWindowPacketServices.Html as T;
         if (typeof(T) == typeof(SystemMessageWindow))
             return SystemMessagePacketServices.Window as T;
         if (typeof(T) == typeof(CameraController))
-            return CameraController.Instance as T;
+            return CameraPacketServices.Controller as T;
+        if (typeof(T) == typeof(CombatFacingService))
+            return CombatPacketServices.Facing as T;
         if (typeof(T) == typeof(CharacterInfoWindow))
-            return CharacterInfoWindow.Instance as T;
+            return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))
-            return CharacterBuilder.Instance as T;
+            return CharacterPacketServices.Builder as T;
 
         return null;
     }

@@ -135,20 +135,6 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
 
     public bool IsCastClipActive => _castPlayable != null && _castPlayable.IsActive;
 
-    public bool TryPlayLongHold(string endOverrideName, string shotOverrideName)
-    {
-        EnsureCastPlayable();
-        if (_castPlayable == null)
-        {
-            return false;
-        }
-
-        return _castPlayable.TryPlayLongHold(endOverrideName, shotOverrideName);
-    }
-
-  
-
-  
 
     public void SetRunSpeed(float value)
     {
@@ -333,12 +319,17 @@ public class BaseAnimationController : AnimationEventsBase, IAnimationController
 
     void DriveTrigger(string paramName)
     {
+        // drop_* / race-specific gestures may be missing on the active controller.
+        if (!AnimatorBoolSet.HasTrigger(_animator, paramName))
+            return;
         _animator.SetTrigger(paramName);
         _castPlayable?.SetTrigger(paramName);
     }
 
     void DriveResetTrigger(string paramName)
     {
+        if (!AnimatorBoolSet.HasTrigger(_animator, paramName))
+            return;
         _animator.ResetTrigger(paramName);
         _castPlayable?.ResetTrigger(paramName);
     }

@@ -7,6 +7,8 @@
 /// </summary>
 public class PlayerStateJAtk : StateMachineBehaviour
 {
+
+    static IAnimationManager Animations => AnimationPacketServices.Animations;
     private const string JATK_TIMING_LOG = "[JATK_TIMING]";
     private const string JATK_EARLY_LOG = "[JATK_EARLY]";
 
@@ -69,7 +71,7 @@ public class PlayerStateJAtk : StateMachineBehaviour
         // After a chase, current clip is still run_* — do not use that length for patkspd.
         if (_rateFromSwingClip)
         {
-            _linearPatkSpd = AnimationManager.Instance.ApplyLinearMeleePAtkSpeed(
+            _linearPatkSpd = Animations.ApplyLinearMeleePAtkSpeed(
                 objectId, parameterName, timeAnimation);
         }
 
@@ -79,18 +81,18 @@ public class PlayerStateJAtk : StateMachineBehaviour
         TrySubscribeSwordCollider();
 
         int entityId = ResolvePlayerEntityId();
-        if (entityId > 0 && SwordCollisionService.Instance != null)
+        if (entityId > 0 && SwordCollisionPacketServices.Collision != null)
         {
-            _attackEpoch = SwordCollisionService.Instance.GetAttackEpoch(entityId);
-            SwordCollisionService.Instance.UpdateAttackProgress(entityId, 0f);
+            _attackEpoch = SwordCollisionPacketServices.Collision.GetAttackEpoch(entityId);
+            SwordCollisionPacketServices.Collision.UpdateAttackProgress(entityId, 0f);
         }
         else
         {
             _attackEpoch = 0;
         }
 
-        float hitFraction = PlayerEntity.Instance != null
-            ? AttackTimingHelper.ResolveHitFractionByWeapon(PlayerEntity.Instance)
+        float hitFraction = DomainPacketServices.LocalPlayer != null
+            ? AttackTimingHelper.ResolveHitFractionByWeapon(DomainPacketServices.LocalPlayer)
             : 0.5f;
         float hitAtMs = _fullCycleMs * hitFraction;
 
@@ -110,8 +112,8 @@ public class PlayerStateJAtk : StateMachineBehaviour
         float attackShotWallMs = attackShotNorm >= 0f ? _fullCycleMs * attackShotNorm : -1f;
         float onAnimHitNorm = timeAnimation > 0f && onAnimHitSec >= 0f ? onAnimHitSec / timeAnimation : -1f;
 
-        float pAtkSpd = PlayerEntity.Instance != null && PlayerEntity.Instance.Stats != null
-            ? PlayerEntity.Instance.Stats.BasePAtkSpeed
+        float pAtkSpd = DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.Stats != null
+            ? DomainPacketServices.LocalPlayer.Stats.BasePAtkSpeed
             : 0f;
 
         // Client wall duration of the swing = server timeAtk (clip is rate-scaled to fit).
@@ -132,12 +134,12 @@ public class PlayerStateJAtk : StateMachineBehaviour
             // $"[ATK_HIT_CHAIN] 1b.JAtkEnter frame={Time.frameCount} t={Time.time:F3} anim={parameterName} " +
             // $"fullCycleMs={_fullCycleMs:F1} hitFraction={hitFraction:F3} hitAtMs~={hitAtMs:F1} " +
             // $"clipLenSec={timeAnimation:F3} AttackShotNorm={attackShotNorm:F3} " +
-            // $"patkspd={_linearPatkSpd:F3} player={PlayerEntity.Instance?.RandomName}");
+            // $"patkspd={_linearPatkSpd:F3} player={DomainPacketServices.LocalPlayer?.RandomName}");
         // Debug.Log(
             // $"{JATK_TIMING_LOG} Enter LINEAR anim={parameterName} serverTimeAtkMs={_fullCycleMs:F1} " +
             // $"clipLenMs={clipLenMs:F1} patkspd={_linearPatkSpd:F3} AttackShotWallMs~={attackShotWallMs:F1} " +
-            // $"player={PlayerEntity.Instance?.RandomName}");
-        // UnityChainLog.OnJAtkEnter(PlayerEntity.Instance, parameterName, _fullCycleMs, hitAtMs, pAtkSpd, _linearPatkSpd, timeAnimation);
+            // $"player={DomainPacketServices.LocalPlayer?.RandomName}");
+        // UnityChainLog.OnJAtkEnter(DomainPacketServices.LocalPlayer, parameterName, _fullCycleMs, hitAtMs, pAtkSpd, _linearPatkSpd, timeAnimation);
 
         if (IsDual(parameterName))
         {
@@ -158,12 +160,12 @@ public class PlayerStateJAtk : StateMachineBehaviour
             PlayerBasicAttackAnim.TryGetSwingClipLength(animator, layerIndex, out float swingLen, out _))
         {
             _clipLengthSec = swingLen;
-            _linearPatkSpd = AnimationManager.Instance.ApplyLinearMeleePAtkSpeed(
+            _linearPatkSpd = Animations.ApplyLinearMeleePAtkSpeed(
                 objectId, parameterName, swingLen);
             _rateFromSwingClip = true;
         }
         if (_startTime >= 0f && _rateFromSwingClip)
-            AnimationManager.Instance.SetPAtkSpeed(objectId, _linearPatkSpd);
+            Animations.SetPAtkSpeed(objectId, _linearPatkSpd);
 
         if (!AnimatorUtils.IsLocalPlayerAnimator(animator))
             return;
@@ -179,9 +181,9 @@ public class PlayerStateJAtk : StateMachineBehaviour
         }
 
         int entityId = ResolvePlayerEntityId();
-        if (entityId > 0 && SwordCollisionService.Instance != null)
+        if (entityId > 0 && SwordCollisionPacketServices.Collision != null)
         {
-            SwordCollisionService.Instance.UpdateAttackProgress(entityId, TimeUtils.ConvertSecToMs(timeOut));
+            SwordCollisionPacketServices.Collision.UpdateAttackProgress(entityId, TimeUtils.ConvertSecToMs(timeOut));
         }
     }
 
@@ -199,7 +201,7 @@ public class PlayerStateJAtk : StateMachineBehaviour
 
         _dieTargetLatched = true;
         float elapsedMs = TimeUtils.ConvertSecToMs(elapsedSec);
-        bool isAttack = PlayerEntity.Instance != null && PlayerEntity.Instance.IsAttack;
+        bool isAttack = DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.IsAttack;
         // Debug.Log(
             // $"{JATK_EARLY_LOG} DIE_TARGET_LATCH anim={parameterName} " +
             // $"wallElapsedMs={elapsedMs:F1}/{_fullCycleMs:F1} animNorm={_lastAnimNormalized:F3} " +
@@ -242,13 +244,13 @@ public class PlayerStateJAtk : StateMachineBehaviour
         bool earlyWallExit = elapsedMs + 50f < expectedMs;
         float animNormRaw = stateInfo.normalizedTime;
         int entityId = ResolvePlayerEntityId();
-        if (entityId > 0 && SwordCollisionService.Instance != null)
+        if (entityId > 0 && SwordCollisionPacketServices.Collision != null)
         {
-            SwordCollisionService.Instance.EndAttack(entityId, _attackEpoch);
+            SwordCollisionPacketServices.Collision.EndAttack(entityId, _attackEpoch);
         }
 
         bool dieTarget = IsDieTarget();
-        bool isAttack = PlayerEntity.Instance != null && PlayerEntity.Instance.IsAttack;
+        bool isAttack = DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.IsAttack;
         string exitCause = _exitViaSwitchToIdle
             ? "SwitchToIdle"
             : (earlyWallExit ? "EXTERNAL_interrupt_before_wall_cycle" : "EXTERNAL_or_blend_after_wall");
@@ -262,7 +264,7 @@ public class PlayerStateJAtk : StateMachineBehaviour
         // Debug.Log(
             // $"{JATK_TIMING_LOG} Exit anim={parameterName} elapsedMs={elapsedMs:F1} " +
             // $"expectedMs={expectedMs:F1} swordHit={_isSwordHitLogged} epoch={_attackEpoch}");
-        // UnityChainLog.OnJAtkExit(PlayerEntity.Instance, parameterName, expectedMs, elapsedMs, _lastAnimNormalized);
+        // UnityChainLog.OnJAtkExit(DomainPacketServices.LocalPlayer, parameterName, expectedMs, elapsedMs, _lastAnimNormalized);
 
         // Debug.Log(
             // $"{JATK_EARLY_LOG} Exit anim={parameterName} cause={exitCause} " +
@@ -295,36 +297,36 @@ public class PlayerStateJAtk : StateMachineBehaviour
             // $"wallElapsedMs={elapsedMs:F1}/{_fullCycleMs:F1} animNorm={_lastAnimNormalized:F3} " +
             // $"clipLenSec={_clipLengthSec:F3}");
 
-        if (PlayerEntity.Instance != null)
+        if (DomainPacketServices.LocalPlayer != null)
         {
-            PlayerEntity.Instance.IsAttack = false;
+            DomainPacketServices.LocalPlayer.IsAttack = false;
         }
 
         _isSwitchIdle = true;
         _exitViaSwitchToIdle = true;
 
         // A Move packet may already have started the walk. Do not pull that back into atkwait.
-        if (PlayerStateMachine.Instance != null && PlayerStateMachine.Instance.ShouldKeepLocomotion())
+        if (PlayerStatePacketServices.PlayerState != null && PlayerStatePacketServices.PlayerState.ShouldKeepLocomotion())
         {
             // Debug.Log(
                 // $"{JATK_EARLY_LOG} SwitchToIdle SKIP_LOCOMOTION anim={parameterName} " +
-                // $"state={PlayerStateMachine.Instance.State} wallElapsedMs={elapsedMs:F1}/{_fullCycleMs:F1}");
+                // $"state={PlayerStatePacketServices.PlayerState.State} wallElapsedMs={elapsedMs:F1}/{_fullCycleMs:F1}");
             return;
         }
 
-        PlayerStateMachine.Instance.ChangeIntention(Intention.INTENTION_IDLE);
-        PlayerStateMachine.Instance.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
+        PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_IDLE);
+        PlayerStatePacketServices.PlayerState.NotifyEvent(Event.WAIT_RETURN, NewIdleState.WaitReturnFromCombatSmb);
     }
 
     private bool IsDieTarget()
     {
         World world = WorldApplyPacketServices.GameWorld;
-        if (PlayerEntity.Instance == null || world == null)
+        if (DomainPacketServices.LocalPlayer == null || world == null)
         {
             return false;
         }
 
-        int targetId = PlayerEntity.Instance.TargetId;
+        int targetId = DomainPacketServices.LocalPlayer.TargetId;
         if (targetId == 0)
         {
             return false;
@@ -337,9 +339,12 @@ public class PlayerStateJAtk : StateMachineBehaviour
 
     private void StopAnimationTrigger(Animator animator, string animParameterName)
     {
+        // CrossFade combat path: jatk* is a state name, not a Bool param on Player_Basic.
+        if (!AnimatorBoolSet.HasBool(animator, animParameterName))
+            return;
         if (animator.GetBool(animParameterName))
         {
-            AnimationManager.Instance.StopCurrentAnimation(
+            Animations.StopCurrentAnimation(
                 animator.GetInteger(AnimatorUtils.OBJECT_ID),
                 animParameterName,
                 "player");
@@ -352,29 +357,29 @@ public class PlayerStateJAtk : StateMachineBehaviour
 
     private void TrySubscribeSwordCollider()
     {
-        if (_isColliderSubscribed || SwordCollisionService.Instance == null)
+        if (_isColliderSubscribed || SwordCollisionPacketServices.Collision == null)
         {
             return;
         }
 
-        SwordCollisionService.Instance.OnHitCollider += OnSwordColliderHit;
+        SwordCollisionPacketServices.Collision.OnHitCollider += OnSwordColliderHit;
         _isColliderSubscribed = true;
     }
 
     private void TryUnsubscribeSwordCollider()
     {
-        if (!_isColliderSubscribed || SwordCollisionService.Instance == null)
+        if (!_isColliderSubscribed || SwordCollisionPacketServices.Collision == null)
         {
             return;
         }
 
-        SwordCollisionService.Instance.OnHitCollider -= OnSwordColliderHit;
+        SwordCollisionPacketServices.Collision.OnHitCollider -= OnSwordColliderHit;
         _isColliderSubscribed = false;
     }
 
     private void OnSwordColliderHit(Transform attacker, Transform target, Vector3 hitPointCollider, Vector3 hitDirection)
     {
-        if (_startTime < 0f || _isSwordHitLogged || PlayerEntity.Instance == null)
+        if (_startTime < 0f || _isSwordHitLogged || DomainPacketServices.LocalPlayer == null)
         {
             return;
         }
@@ -384,8 +389,8 @@ public class PlayerStateJAtk : StateMachineBehaviour
         float expectedMs = TimeUtils.ConvertSecToMs(_endTime);
         float wallNorm = _endTime > 0f ? (Time.time - _startTime) / _endTime : 0f;
         bool sameRoot = attacker != null &&
-                        PlayerEntity.Instance.transform != null &&
-                        attacker.root == PlayerEntity.Instance.transform.root;
+                        DomainPacketServices.LocalPlayer.transform != null &&
+                        attacker.root == DomainPacketServices.LocalPlayer.transform.root;
 
         string attackerName = attacker != null ? attacker.name : "null";
         string targetName = target != null ? target.name : "null";
@@ -398,7 +403,7 @@ public class PlayerStateJAtk : StateMachineBehaviour
             // $"{JATK_TIMING_LOG} SwordHit anim={parameterName} elapsedMs={elapsedMs:F1} " +
             // $"expectedMs={expectedMs:F1} wallNorm={wallNorm:F3} animNorm={_lastAnimNormalized:F3} " +
             // $"sameRoot={sameRoot} attacker={attackerName} target={targetName} hitPoint={hitPointCollider}");
-        // UnityChainLog.OnJAtkHit(PlayerEntity.Instance, parameterName, expectedMs, elapsedMs, _lastAnimNormalized, hitPointCollider);
+        // UnityChainLog.OnJAtkHit(DomainPacketServices.LocalPlayer, parameterName, expectedMs, elapsedMs, _lastAnimNormalized, hitPointCollider);
 
         if (IsDual(parameterName))
         {
@@ -420,18 +425,18 @@ public class PlayerStateJAtk : StateMachineBehaviour
         if (world != null && objectId > 0)
             entity = world.GetEntityNoLockSync(objectId);
         if (entity == null)
-            entity = PlayerEntity.Instance;
+            entity = DomainPacketServices.LocalPlayer;
 
         return AttackTimingHelper.ResolveAttackCycleMs(entity, animName);
     }
 
     private static int ResolvePlayerEntityId()
     {
-        if (PlayerEntity.Instance == null || PlayerEntity.Instance.Identity == null)
+        if (DomainPacketServices.LocalPlayer == null || DomainPacketServices.LocalPlayer.Identity == null)
         {
             return 0;
         }
 
-        return PlayerEntity.Instance.Identity.Id;
+        return DomainPacketServices.LocalPlayer.Identity.Id;
     }
 }

@@ -33,7 +33,7 @@ public sealed class UserSpawner
         CharacterRace race = (CharacterRace)appearance.Race;
         int playerClass = identity != null ? identity.PlayerClass : 0;
         int baseBefore = appearance != null ? appearance.BaseClass : -1;
-        CharacterRaceAnimation raceId = CharacterRaceAnimationParser.ResolveRaceAnimation(
+        CharacterRaceAnimation raceId = CharacterRaceAnimationResolve.ResolveRaceAnimation(
             race, appearance, playerClass);
         // Debug.Log("[CHARINFO_CLASS] SPAWN nick=" + identity.Name +
             // " id=" + identity.Id +
@@ -46,7 +46,7 @@ public sealed class UserSpawner
             // " baseAfter=" + (appearance != null ? appearance.BaseClass : -1) +
             // " raceId=" + raceId);
 
-        CharacterBuilder builder = _characterBuilder != null ? _characterBuilder : CharacterBuilder.Instance;
+        CharacterBuilder builder = _characterBuilder != null ? _characterBuilder : CharacterPacketServices.Builder;
         if (builder == null)
             return null;
 
@@ -59,7 +59,7 @@ public sealed class UserSpawner
         UserEntity user = go.GetComponent<UserEntity>();
         if (user == null)
         {
-            IPoolManager pool = ObjectPoolManager.Instance;
+            IPoolManager pool = ObjectPoolPacketServices.Pool;
             if (pool == null || !pool.ReturnToPool(ObjectType.User, go))
                 UnityEngine.Object.Destroy(go);
             return null;
@@ -162,6 +162,8 @@ public sealed class UserSpawner
         user.Status = info.Status;
         user.Stats = info.Stats;
         user.Appearance = info.Appearance;
+        if (user.Identity != null)
+            L2OverheadAnchor.Invalidate(user.Identity.Id);
         user.Running = info.Appearance.Running;
         user.SetDead(info.AlikeDead);
 
@@ -214,13 +216,13 @@ public sealed class UserSpawner
                 // " alikeDead=" + info.AlikeDead);
             if (wasCorpse)
                 return;
-            if (EntityActionMachine.Instance != null)
-                EntityActionMachine.Instance.Die(user, false);
+            if (EntityActionPacketServices.Actions != null)
+                EntityActionPacketServices.Actions.Die(user, false);
             else
                 EntityActionVisual.PlayDeath(user, false);
         }
-        else if (wasCorpse && EntityActionMachine.Instance != null)
-            EntityActionMachine.Instance.Revive(user);
+        else if (wasCorpse && EntityActionPacketServices.Actions != null)
+            EntityActionPacketServices.Actions.Revive(user);
     }
 
     static void ResetRuntime(UserEntity user)

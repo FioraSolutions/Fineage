@@ -5,7 +5,8 @@ using UnityEngine;
 /// <summary>
 /// Single Unity 2D SFX hub for Interlude clips under Resources/Data/Sounds/*.
 /// FMOD AudioManager stays disabled — skills, monsters, hits, charge, level-up all go here.
-/// Cast and one-shot use separate AudioSources so StopCast cannot kill *_shot / voice.
+/// Cast / one-shot / hero voice use separate AudioSources:
+/// StopCast must not kill *_shot; StopVoice (or a new PlayVoice) cuts the cast-line when throw starts.
 /// </summary>
 public static class InterludeSfx
 {
@@ -16,6 +17,7 @@ public static class InterludeSfx
 
     static AudioSource _oneShotSrc;
     static AudioSource _castSrc;
+    static AudioSource _voiceSrc;
     static InterludeSfxRunner _runner;
 
     public static AudioClip Load(string resourcesPath)
@@ -82,13 +84,71 @@ public static class InterludeSfx
         src.Stop();
         src.clip = clip;
         src.volume = volume;
+        src.loop = false;
         src.Play();
+        Debug.Log(
+            "[CastSync] AUDIO.castPlay clip=" + clip.name +
+            " len=" + clip.length.ToString("F2") +
+            " note=ends naturally or StopCast@release");
+    }
+
+    /// <summary>True while the dedicated cast hold source is still playing *_cast.</summary>
+    public static bool IsCastPlaying =>
+        _castSrc != null && _castSrc.isPlaying;
+
+    public static float CastRemainingSec
+    {
+        get
+        {
+            if (_castSrc == null || !_castSrc.isPlaying || _castSrc.clip == null)
+                return 0f;
+            return Mathf.Max(0f, _castSrc.clip.length - _castSrc.time);
+        }
     }
 
     public static void StopCast()
     {
-        if (_castSrc != null)
-            _castSrc.Stop();
+        if (_castSrc == null)
+            return;
+        if (_castSrc.isPlaying)
+        {
+            Debug.Log(
+                "[CastSync] AUDIO.StopCast left=" + CastRemainingSec.ToString("F2") +
+                " clip=" + (_castSrc.clip != null ? _castSrc.clip.name : "-"));
+        }
+        _castSrc.Stop();
+    }
+
+    /// <summary>
+    /// Hero voice on its own source. Replaces any previous line (cast voice → throw voice).
+    /// </summary>
+    public static void PlayVoice(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null)
+            return;
+        volume *= GameSettings.Sfx;
+        AudioSource src = EnsureVoiceSource();
+        if (src == null)
+            return;
+        bool cut = src.isPlaying;
+        string prev = src.clip != null ? src.clip.name : "-";
+        src.Stop();
+        src.clip = clip;
+        src.volume = volume;
+        src.loop = false;
+        src.Play();
+        if (cut)
+        {
+            Debug.Log(
+                "[CastSync] AUDIO.voiceReplace cut=" + prev +
+                " → " + clip.name);
+        }
+    }
+
+    public static void StopVoice()
+    {
+        if (_voiceSrc != null && _voiceSrc.isPlaying)
+            _voiceSrc.Stop();
     }
 
     /// <summary>Delayed play without depending on disabled FMOD AudioManager.</summary>
@@ -132,6 +192,15 @@ public static class InterludeSfx
             return _castSrc;
         _castSrc = CreateChildSource("Cast");
         return _castSrc;
+    }
+
+    static AudioSource EnsureVoiceSource()
+    {
+        EnsureRunner();
+        if (_voiceSrc != null)
+            return _voiceSrc;
+        _voiceSrc = CreateChildSource("Voice");
+        return _voiceSrc;
     }
 
     static AudioSource CreateChildSource(string childName)

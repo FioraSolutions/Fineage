@@ -14,7 +14,7 @@ public class TradeStartDto : IWireDto
 
     private string _partnerName;
 
-    /// <summary>Build from the Zone V2 trade start row (1075).</summary>
+    /// <summary>Build from the Fineage Net trade start row (1075).</summary>
     public static TradeStartDto FromNet(int partnerObjectId, string partnerName)
     {
         var dto = new TradeStartDto();

@@ -13,6 +13,8 @@ public class MusicAreaTrigger : MonoBehaviour
     private EventDescription _eventDescription;
     private Coroutine _loopCoroutine;
 
+    private static MusicManager Music => MusicPacketServices.Music;
+
     private void Awake() {
         if (!_eventDescription.isValid()) {
             Lookup();
@@ -34,15 +36,21 @@ public class MusicAreaTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other) {
         // Debug.Log("Exit area:" + transform.name);
-        MusicManager.Instance.ResetPriority();
-        MusicManager.Instance.StopMusic(_enterEvent);
+        MusicManager music = Music;
+        if (music == null)
+            return;
+        music.ResetPriority();
+        music.StopMusic(_enterEvent);
         if (_loopCoroutine != null) {
             StopCoroutine(_loopCoroutine);
         }
     }
 
     private void PlayMusic() {
-        MusicManager.Instance.PlayMusic(_enterEvent, _areaPrority);
+        MusicManager music = Music;
+        if (music == null)
+            return;
+        music.PlayMusic(_enterEvent, _areaPrority);
         if (_loopCoroutine != null) {
             StopCoroutine(_loopCoroutine);
         }
@@ -57,12 +65,13 @@ public class MusicAreaTrigger : MonoBehaviour
     }
 
     private void OnTriggerStay(Collider other) {
-        if (MusicManager.Instance == null)
+        MusicManager music = Music;
+        if (music == null)
             return;
-        if(MusicManager.Instance.CurrentEventPriority > _areaPrority) {
-            MusicManager.Instance.StopMusic(_enterEvent);
-        } else if(MusicManager.Instance.CurrentMusicEvent.Guid != _enterEvent.Guid) {
-            MusicManager.Instance.PlayMusic(_enterEvent, _areaPrority);
+        if(music.CurrentEventPriority > _areaPrority) {
+            music.StopMusic(_enterEvent);
+        } else if(music.CurrentMusicEvent.Guid != _enterEvent.Guid) {
+            music.PlayMusic(_enterEvent, _areaPrority);
         }
     }
 }

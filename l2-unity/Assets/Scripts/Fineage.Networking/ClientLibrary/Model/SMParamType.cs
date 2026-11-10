@@ -1,0 +1,17 @@
+public enum SMParamType
+{
+    TYPE_SYSTEM_STRING = 13,
+    TYPE_PLAYER_NAME = 12,
+    TYPE_DOOR_NAME = 11,
+    TYPE_INSTANCE_NAME = 10,
+    TYPE_ELEMENT_NAME = 9,
+    // id 8 - same as 3
+    TYPE_ZONE_NAME = 7,
+    TYPE_LONG_NUMBER = 6,
+    TYPE_CASTLE_NAME = 5,
+    TYPE_SKILL_NAME = 4,
+    TYPE_ITEM_NAME = 3,
+    TYPE_NPC_NAME = 2,
+    TYPE_INT_NUMBER = 1,
+    TYPE_TEXT = 0
+}

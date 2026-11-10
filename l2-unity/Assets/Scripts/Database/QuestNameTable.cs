@@ -25,6 +25,7 @@ public class QuestNameTable
     //maybe not true
     private const int indexRepaet= 41;
     private const int indexAreaId = 131;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static QuestNameTable Instance
     {
         get

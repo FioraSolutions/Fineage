@@ -24,6 +24,7 @@ public class TradeWindow : L2PopupWindow
 
     private long _playerId;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static TradeWindow Instance
     {
         get { return _instance; }
@@ -337,7 +338,7 @@ public class TradeWindow : L2PopupWindow
             if (item.ItemData != null)
             {
                 _id = item.ItemData.Id;
-                _name = item.ItemData.ItemName.Name;
+                _name = item.ItemData.ItemName.DisplayName;
                 _description = item.ItemData.ItemName.Description;
                 _icon = item.ItemData.Icon;
                 _objectId = item.ObjectId;
@@ -382,7 +383,7 @@ public class TradeWindow : L2PopupWindow
             // При левом клике - удаляем предмет из обмена
             if (!_empty)
             {
-                TradeWindow.Instance.RemoveExchangeItem(_objectId);
+                TradePacketServices.Trade.RemoveExchangeItem(_objectId);
             }
         }
 
@@ -391,7 +392,7 @@ public class TradeWindow : L2PopupWindow
             // То же самое для правого клика
             if (!_empty)
             {
-                TradeWindow.Instance.RemoveExchangeItem(_objectId);
+                TradePacketServices.Trade.RemoveExchangeItem(_objectId);
             }
         }
 

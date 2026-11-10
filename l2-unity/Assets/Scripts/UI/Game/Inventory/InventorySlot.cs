@@ -78,11 +78,14 @@ public class InventorySlot : L2DraggableSlot
             _id = item.ItemId;
             _empty = false;
             _objectId = item.ObjId;
+            _count = item.Count;
+            _itemInstance = null;
         }
         else
         {
             _id = 0;
             _objectId = 0;
+            _count = 0;
             _name = "Unkown";
             _description = "Unkown item.";
             _empty = true;
@@ -90,8 +93,13 @@ public class InventorySlot : L2DraggableSlot
 
         if (_slotElement != null)
         {
-            L2SlotIconView.SetItemIcon(_slotBg, _id);
-            _slotDragManipulator.enabled = false;
+            if (_id > 0)
+                L2SlotIconView.SetItemIcon(_slotBg, _id);
+            else
+                L2SlotIconView.PaintEmptyInventorySlot(_slotBg, _slotElement);
+            // Shop/dealer products never use inventory/trade drag (floating DragIcon).
+            if (_slotDragManipulator != null)
+                _slotDragManipulator.enabled = false;
         }
 
         _product = item;
@@ -109,7 +117,7 @@ public class InventorySlot : L2DraggableSlot
     }
     public void ManualHideToolTips()
     {
-        ToolTipSimple.Instance.ManualHide();
+        ToolTipSimplePacketServices.Window.ManualHide();
     }
 
     public void AssignUniversal(object data)
@@ -218,7 +226,7 @@ public class InventorySlot : L2DraggableSlot
         if (item.ItemData != null)
         {
             _id = item.ItemData.Id;
-            _name = NetEnchant.WithLevel(item.ItemData.ItemName.Name, item.EnchantLevel);
+            _name = NetEnchant.WithLevel(item.ItemData.ItemName.DisplayName, item.EnchantLevel);
             _description = item.ItemData.ItemName.Description;
             _icon = item.ItemData.Icon;
             _objectId = item.ObjectId;
@@ -244,11 +252,15 @@ public class InventorySlot : L2DraggableSlot
         if (SlotBg == null && _slotElement == null)
             return;
 
+        // Paint on SlotBg so gear icons sit in Inventory_Back silhouette frames
+        // (root paint sat top-left / floated off the wells).
+        if (_slotElement != null)
+            L2SlotIconView.Clear(_slotElement);
         L2SlotIconView.SetInventoryStyleItemIcon(
             SlotBg,
             _slotElement,
             _id,
-            slot.GetType() == typeof(GearSlot));
+            paintOnRootElement: SlotBg == null);
     }
 
     private void AddImageAtIndex(InventorySlot slot, int indexIamge)
@@ -256,12 +268,14 @@ public class InventorySlot : L2DraggableSlot
         if (SlotBg == null && _slotElement == null)
             return;
 
+        if (_slotElement != null)
+            L2SlotIconView.Clear(_slotElement);
         L2SlotIconView.SetInventoryStyleItemIconAtIndex(
             SlotBg,
             _slotElement,
             _id,
             indexIamge,
-            slot.GetType() == typeof(GearSlot));
+            paintOnRootElement: SlotBg == null);
     }
 
     // Alpha channel unused for now; keep path shared with AddImage.
@@ -293,7 +307,7 @@ public class InventorySlot : L2DraggableSlot
     {
         if (_empty || _objectId <= 0)
             return false;
-        EnchantWindow window = EnchantWindow.Instance;
+        EnchantWindow window = ItemEnchantPacketServices.Enchant;
         if (window == null || !window.AcceptsTarget)
             return false;
         window.AddEnchantItem(_objectId);
@@ -356,7 +370,7 @@ public class InventorySlot : L2DraggableSlot
     {
         if (!_empty)
         {
-            PlayerInventory.Instance.DestroyItem(_objectId, 1);
+            InventoryPacketServices.Inventory.DestroyItem(_objectId, 1);
         }
     }
 
@@ -364,7 +378,7 @@ public class InventorySlot : L2DraggableSlot
     {
         if (!_empty)
         {
-            if (!PlayerInventory.Instance.UseItem(_objectId))
+            if (!InventoryPacketServices.Inventory.UseItem(_objectId))
             {
                 AssignEmpty();
             }

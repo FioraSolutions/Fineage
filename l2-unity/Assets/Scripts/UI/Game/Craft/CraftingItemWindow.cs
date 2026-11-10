@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -16,6 +18,7 @@ public class CraftingItemWindow : L2PopupWindow
     private VisualElement _progressBarBg;
     private const float _defaultWidthProgressbBar = 177;
     
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static CraftingItemWindow Instance { get { return _instance; } }
     private void Awake()
     {
@@ -59,7 +62,7 @@ public class CraftingItemWindow : L2PopupWindow
 
 
         VisualElement containerTradeSlots = GetElementById("BodyBox");
-        _creatorSimpleTrade.CreateSlots(containerTradeSlots, L2Slot.SlotType.RecipeCraftItem , 18);
+        _creatorSimpleTrade.CreateSlots(containerTradeSlots, SlotType.RecipeCraftItem , 18);
         _progressBar = GetElementById("ProgressGauge");
         _progressBarBg = GetElementById("ProgressBg");
 

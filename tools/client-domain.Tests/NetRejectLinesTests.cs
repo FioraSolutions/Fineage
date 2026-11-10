@@ -13,6 +13,9 @@ public class NetRejectLinesTests
     [InlineData("not_owned", "You do not have that item.")]
     [InlineData("not_enough_adena", "You do not have enough adena.")]
     [InlineData("skill_mp", "Not enough MP.")]
+    [InlineData("skill_target", "That is not a valid target.")]
+    [InlineData("skill_reuse", "That skill is not ready yet.")]
+    [InlineData("skill_unknown", "Unknown skill.")]
     [InlineData("attackable", "That NPC cannot be talked to.")]
     [InlineData("unknown_teleport", "That teleport is not available.")]
     public void Player_facing_codes_map_to_a_sentence(string code, string expected) =>

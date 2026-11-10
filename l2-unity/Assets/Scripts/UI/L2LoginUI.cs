@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,6 +14,7 @@ public class L2LoginUI : L2UI
     private bool loading = false;
 
     private static L2LoginUI _instance;
+    [System.Obsolete("Use [Inject] or LoginPacketServices.Ui instead")]
     public static L2LoginUI Instance { get { return _instance; } }
 
     public bool IsLoading { get { return loading; } }

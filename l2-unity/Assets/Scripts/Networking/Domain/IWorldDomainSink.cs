@@ -1,9 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// Wire-agnostic entry into the live Unity world. Interlude Incoming packets and a
-/// future v2 ZoneServer adapter both publish here; <see cref="WorldDomainSink"/>
-/// still drives today's <see cref="WorldPacketApply"/> / <see cref="World"/>.
+/// Wire-agnostic entry into the live Unity world. Interlude Incoming packets and
+/// Fineage Net adapters both publish here; <see cref="WorldDomainSink"/> drives
+/// <see cref="WorldPacketApply"/> / <see cref="World"/>.
 /// </summary>
 public interface IWorldDomainSink
 {

@@ -36,6 +36,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
     private float _heightContent = 0;
     private float _widtchContent = 0;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ToolTipSkill Instance { get { return _instance; } }
 
 
@@ -119,7 +120,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
 
                             //if (skillGrp != null)
                             //{
-                              //  SkillNameData nameData = SkillgrpTable.Instance.GetSkillName(skillGrp.Id, skillGrp.Level);
+                              //  SkillNameData nameData = TablePacketServices.SkillGrps.GetSkillName(skillGrp.Id, skillGrp.Level);
                              //   if(nameData != null)
                                // {
                                //     SetData(skillGrp, nameData);
@@ -173,7 +174,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
 
                            // if (skillGrp != null)
                            // {
-                                //SkillNameData nameData = SkillgrpTable.Instance.GetSkillName(skillGrp.Id, skillGrp.Level);
+                                //SkillNameData nameData = TablePacketServices.SkillGrps.GetSkillName(skillGrp.Id, skillGrp.Level);
                                 //if (nameData != null)
                                 //{
                                  //   SetData(skillGrp, nameData);
@@ -232,7 +233,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
     {
 
         var testPoint = checkBound(newPoint, _heightContent);
-        if (!SkillListWindow.Instance.IsWindowContain(testPoint))
+        if (!SkillLearnPacketServices.SkillList.IsWindowContain(testPoint))
         {
             float width = _heightContent;
             float newddfig = width;
@@ -275,7 +276,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
         string level = skillgrp.Level.ToString();
         string nameActiveSkill = GetActive(skillgrp.OperateType);
 
-        if (desc.Equals("")) desc = SkillNameTable.Instance.GetName(skillgrp.Id, 1).Desc;
+        if (desc.Equals("")) desc = TablePacketServices.SkillNames.GetName(skillgrp.Id, 1).Desc;
 
 
         SetDataTooTip(DataEmpty(hp), DataEmpty(mp), DataEmpty(radius), desc, DataEmpty(time), nameActiveSkill , name, level);
@@ -450,7 +451,7 @@ public class ToolTipSkill : L2PopupWindow, IToolTips
     public void NewPosition(Vector2 newPoint, float sdfig, bool forceBelow)
     {
         var testPoint = checkBound(newPoint, _heightContent);
-        if (!SkillListWindow.Instance.IsWindowContain(testPoint))
+        if (!SkillLearnPacketServices.SkillList.IsWindowContain(testPoint))
         {
             float width = _heightContent;
             float newddfig = width;

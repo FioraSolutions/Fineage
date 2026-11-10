@@ -79,7 +79,7 @@ public class EntityIdentity
 
     private bool ParceHideHpbar(int npcId)
     {
-        Npcgrp npc = NpcgrpTable.Instance.GetNpcgrp(npcId);
+        Npcgrp npc = TablePacketServices.NpcGrps.GetNpcgrp(npcId);
         if (npc != null)
         {
             if (npc.Type.Equals("monster_normal") | npc.Type.Equals("hide"))

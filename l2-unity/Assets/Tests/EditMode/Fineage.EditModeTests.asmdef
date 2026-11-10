@@ -1,7 +1,11 @@
 {
     "name": "Fineage.EditModeTests",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "Fineage.Networking",
+        "Fineage.Game",
+        "Fineage.Domain"
+    ],
     "includePlatforms": [
         "Editor"
     ],
@@ -14,8 +18,8 @@
         "UNITY_INCLUDE_TESTS"
     ],
     "versionDefines": [],
+    "noEngineReferences": false,
     "optionalUnityReferences": [
         "TestAssemblies"
-    ],
-    "noEngineReferences": false
+    ]
 }

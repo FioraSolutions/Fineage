@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using VContainer;
 
 /// <summary>
@@ -10,6 +10,7 @@ public static class ControllerPacketServices
     private static PlayerController _player;
     private static TargetManager _targets;
     private static InputManager _input;
+    private static ClickManager _clicks;
     private static IAnimationManager _animations;
     private static IMoveAllCharacters _moves;
     private static EffectManager _effects;
@@ -23,6 +24,7 @@ public static class ControllerPacketServices
         PlayerController player = null,
         TargetManager targets = null,
         InputManager input = null,
+        ClickManager clicks = null,
         IAnimationManager animations = null,
         IMoveAllCharacters moves = null,
         EffectManager effects = null,
@@ -39,6 +41,8 @@ public static class ControllerPacketServices
             _targets = targets;
         if (input != null)
             _input = input;
+        if (clicks != null)
+            _clicks = clicks;
         if (animations != null)
             _animations = animations;
         if (moves != null)
@@ -64,12 +68,17 @@ public static class ControllerPacketServices
     public static TargetManager Targets =>
         _targets != null
             ? _targets
-            : ResolveFromGame<TargetManager>() ?? LegacyTargetManagerInstance();
+            : ResolveFromGame<TargetManager>() ?? TargetPacketServices.Targets;
 
     public static InputManager Input =>
         _input != null
             ? _input
-            : ResolveFromGame<InputManager>() ?? InputManager.Instance;
+            : ResolveFromGame<InputManager>() ?? LegacyInputManagerInstance();
+
+    public static ClickManager Clicks =>
+        _clicks != null
+            ? _clicks
+            : ResolveFromGame<ClickManager>() ?? LegacyClickManagerInstance();
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
@@ -77,22 +86,20 @@ public static class ControllerPacketServices
     public static IMoveAllCharacters Moves =>
         _moves != null
             ? _moves
-            : ResolveFromGame<IMoveAllCharacters>() ?? MoveAllCharacters.Instance;
+            : ResolveFromGame<IMoveAllCharacters>() ?? LegacyMoveAllCharactersInstance();
 
     public static EffectManager Effects =>
-        _effects != null
-            ? _effects
-            : ResolveFromGame<EffectManager>() ?? EffectManager.Instance;
+        _effects != null ? _effects : GlobalEffectsPacketServices.Effects;
 
     public static BufferPanel Buffer =>
         _buffer != null
             ? _buffer
-            : ResolveFromGame<BufferPanel>() ?? BufferPanel.Instance;
+            : ResolveFromGame<BufferPanel>() ?? LegacyBufferPanelInstance();
 
     public static DeadWindow Dead =>
         _dead != null
             ? _dead
-            : ResolveFromGame<DeadWindow>() ?? DeadWindow.Instance;
+            : ResolveFromGame<DeadWindow>() ?? GameWindowPacketServices.Dead;
 
     public static EventBus Bus =>
         _bus != null ? _bus : GamePacketServices.Bus;
@@ -121,10 +128,16 @@ public static class ControllerPacketServices
     }
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
-    static TargetManager LegacyTargetManagerInstance() => TargetManager.Instance;
+    static InputManager LegacyInputManagerInstance() => InputManager.Instance;
+
+    static ClickManager LegacyClickManagerInstance() => ClickManager.Instance;
+
+    static BufferPanel LegacyBufferPanelInstance() => BufferPanel.Instance;
 
     static PositionValidationController LegacyPositionValidationInstance() =>
         PositionValidationController.Instance;
+
+    static IMoveAllCharacters LegacyMoveAllCharactersInstance() => MoveAllCharacters.Instance;
 #pragma warning restore CS0618
 }
 
@@ -156,6 +169,7 @@ public sealed partial class PlayerController
             player: this,
             targets: _packetTargets,
             input: _packetInput,
+            clicks: _packetClicks,
             animations: _packetAnimations,
             moves: _packetMoves,
             effects: _packetEffects,

@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +44,7 @@ public class ClanWindow : L2TwoPanels
     //data
     private PledgeShowMemberListAllDto _packet;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ClanWindow Instance { get { return _instance; } }
     public bool IsReady { get { return _windowEle != null && _dropdown != null; } }
 
@@ -461,9 +464,10 @@ public class ClanWindow : L2TwoPanels
 
     private void OkInvite()
     {
-        if (TargetManager.Instance.HasTarget() && TargetManager.Instance.Target.GetEntity() != null)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null && targets.HasTarget() && targets.Target.GetEntity() != null)
         {
-            int id = TargetManager.Instance.Target != null ? TargetManager.Instance.Target.GetEntity().Identity.Id : 0;
+            int id = targets.Target != null ? targets.Target.GetEntity().Identity.Id : 0;
 
             ZoneCommands.Send(new RequestJoinPledgeCommand(id));
         }
@@ -649,7 +653,7 @@ public class ClanWindow : L2TwoPanels
         IZoneTransport transport = ZoneCommands.Transport;
         if (transport != null && transport.PlayerInfo.Identity != null && transport.PlayerInfo.Identity.Id > 0)
             return transport.PlayerInfo.Identity.Id;
-        NetSession net = NetSession.Instance;
+        NetSession net = NetworkingPacketServices.Session;
         return net != null ? net.SessionObjectId : 0;
     }
 

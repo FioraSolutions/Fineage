@@ -7,14 +7,28 @@ using UnityEngine;
 
 public class EtcItemgrpTable {
     private static EtcItemgrpTable _instance;
+
+    [Obsolete("Use [Inject] EtcItemgrpTable or TablePacketServices.EtcItemGrps instead")]
     public static EtcItemgrpTable Instance {
         get {
+            if (_instance == null && App.HasContainer) {
+                try {
+                    _instance = App.Resolve<EtcItemgrpTable>();
+                } catch {
+                }
+            }
+
             if (_instance == null) {
                 _instance = new EtcItemgrpTable();
             }
 
             return _instance;
         }
+    }
+
+    public static void Bind(EtcItemgrpTable table) {
+        if (table != null)
+            _instance = table;
     }
 
     private Dictionary<int, EtcItemgrp> _etcItemGrps;
@@ -56,7 +70,7 @@ public class EtcItemgrpTable {
                     string key = keyval[0];
                     string value = keyval[1];
 
-                    if (DatUtils.ParseBaseAbstractItemGrpDat(etcItemgrp, key, value)) {
+                    if (AbstractgrpDatParser.ParseBaseAbstractItemGrpDat(etcItemgrp, key, value)) {
                         continue;
                     }
                     if(etcItemgrp.ObjectId == 17)
@@ -80,7 +94,7 @@ public class EtcItemgrpTable {
                 }
 
 
-                if (!ItemTable.Instance.ShouldLoadItem(etcItemgrp.ObjectId)) {
+                if (!TablePacketServices.Items.ShouldLoadItem(etcItemgrp.ObjectId)) {
                     continue;
                 }
 

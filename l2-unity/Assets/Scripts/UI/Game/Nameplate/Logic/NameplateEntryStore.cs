@@ -26,6 +26,7 @@ public sealed class NameplateEntryStore
     public void Clear()
     {
         _entries.Clear();
+        L2OverheadAnchor.ClearAll();
     }
 
     public void Remove(int id, NameplatePixelSnap snap)
@@ -34,6 +35,7 @@ public sealed class NameplateEntryStore
         {
             _removeObjId = id;
             snap?.Clear(id);
+            L2OverheadAnchor.Invalidate(id);
         }
     }
 
@@ -77,9 +79,9 @@ public sealed class NameplateEntryStore
 
     public void EnsureHoverAndTarget(LayerMask entityMask, Color defaultNameColor)
     {
-        if (ClickManager.Instance != null && ClickManager.Instance.HoverObjectData != null)
+        if (ControllerPacketServices.Clicks != null && ControllerPacketServices.Clicks.HoverObjectData != null)
         {
-            ObjectData hover = ClickManager.Instance.HoverObjectData;
+            ObjectData hover = ControllerPacketServices.Clicks.HoverObjectData;
             if (hover.ObjectTransform != null &&
                 entityMask == (entityMask | (1 << hover.ObjectLayer)))
             {
@@ -91,11 +93,12 @@ public sealed class NameplateEntryStore
             }
         }
 
-        if (TargetManager.Instance != null &&
-            TargetManager.Instance.HasTarget() &&
-            TargetManager.Instance.Target?.Data?.ObjectTransform != null)
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null &&
+            targets.HasTarget() &&
+            targets.Target?.Data?.ObjectTransform != null)
         {
-            Entity e = TargetManager.Instance.Target.Data.ObjectTransform.GetComponent<Entity>();
+            Entity e = targets.Target.Data.ObjectTransform.GetComponent<Entity>();
             if (e != null)
             {
                 UpsertEntry(e, defaultNameColor);
@@ -129,43 +132,14 @@ public sealed class NameplateEntryStore
             titleColor = StringUtils.HexToColor(idn.TitleColor);
         }
 
-        CharacterController cc = null;
-        CapsuleCollider capsule = null;
-        if (_entries.TryGetValue(id, out NameplateEntry existing))
-        {
-            cc = existing.CC;
-            capsule = existing.Capsule;
-        }
-
-        Transform target = entity.transform;
-        if (cc == null)
-        {
-            cc = target.GetComponent<CharacterController>();
-            if (cc == null)
-            {
-                cc = target.GetComponentInChildren<CharacterController>();
-            }
-        }
-
-        if (capsule == null && cc == null)
-        {
-            capsule = target.GetComponent<CapsuleCollider>();
-            if (capsule == null)
-            {
-                capsule = target.GetComponentInChildren<CapsuleCollider>();
-            }
-        }
-
         _entries[id] = new NameplateEntry
         {
             Id = id,
-            Target = target,
-            CC = cc,
-            Capsule = capsule,
+            Target = entity.transform,
             Entity = entity,
             Name = idn.Name,
             Title = idn.Title ?? string.Empty,
-            NameColor = defaultNameColor,
+            NameColor = NameplateColors.Resolve(entity, defaultNameColor),
             TitleColor = titleColor,
             Visible = true
         };
@@ -204,7 +178,7 @@ public sealed class NameplateEntryStore
             e.Visible = visible;
             _entries[id] = e;
 
-            bool isLocal = PlayerEntity.Instance != null && e.Entity == PlayerEntity.Instance;
+            bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
             if (!visible && !isLocal && !_resolver.IsHoverOrTarget(e.Target))
             {
                 _removeIds.Add(id);
@@ -216,13 +190,11 @@ public sealed class NameplateEntryStore
             int rid = _removeIds[i];
             _entries.Remove(rid);
             snap?.Clear(rid);
+            L2OverheadAnchor.Invalidate(rid);
         }
     }
 
-    public void BuildPaintList(
-        List<NameplatePaintItem> paintList,
-        bool drawTitles,
-        float headHeightOffset)
+    public void BuildPaintList(List<NameplatePaintItem> paintList, bool drawTitles)
     {
         paintList.Clear();
 
@@ -255,75 +227,25 @@ public sealed class NameplateEntryStore
                 }
             }
 
-            bool isLocal = PlayerEntity.Instance != null && e.Entity == PlayerEntity.Instance;
+            bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
             L2TargetRenderType bubbleType = _resolver.ResolveForPaint(e.Target, isLocal);
+            float castRem = isLocal ? CastBarOverlay.Remaining01 : -1f;
+            Color nameColor = NameplateColors.Resolve(e.Entity, Color.white);
+            e.NameColor = nameColor;
 
             paintList.Add(new NameplatePaintItem
             {
                 Id = e.Id,
-                World = GetHeadWorldPos(e, headHeightOffset),
+                World = L2OverheadAnchor.GetWorldPos(e.Entity, e.Target),
                 Name = e.Name,
                 Title = drawTitles ? e.Title : null,
-                NameColor = e.NameColor,
+                NameColor = nameColor,
                 TitleColor = e.TitleColor,
                 IsLocalPlayer = isLocal,
-                BubbleType = bubbleType
+                BubbleType = bubbleType,
+                CastRemaining01 = castRem
             });
         }
-    }
-
-    private static Vector3 GetHeadWorldPos(NameplateEntry entry, float headHeightOffset)
-    {
-        // Prefer live head bone (Orc/tall races): CollisionHeight alone parks the
-        // plate on the forehead when the mesh is taller than the capsule estimate.
-        if (entry.Target != null
-            && TryGetHeadBone(entry.Target, out Transform headBone))
-        {
-            return headBone.position + Vector3.up * (0.12f + headHeightOffset);
-        }
-
-        float ch = L2NameplateAnchor.DefaultCollisionHeightMeters;
-        Entity entity = entry.Entity;
-        if (entity != null && entity.Appearance != null)
-        {
-            ch = entity.Appearance.CollisionHeight;
-        }
-
-        // CC/capsule top on NPC (and UserEntity with disabled CC) sits near the neck.
-        // Use feet + 2×CollisionHeight so the plate hangs above the head like mobs/players.
-        CharacterController cc = entry.CC;
-        CapsuleCollider capsule = entry.Capsule;
-        if (entity is UserEntity || entity is NpcEntity)
-        {
-            cc = null;
-            capsule = null;
-        }
-
-        return L2NameplateAnchor.GetHeadWorldPos(
-            entry.Target, cc, capsule, ch, headHeightOffset);
-    }
-
-    static bool TryGetHeadBone(Transform root, out Transform head)
-    {
-        head = null;
-        if (root == null)
-            return false;
-        Transform[] all = root.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < all.Length; i++)
-        {
-            Transform t = all[i];
-            if (t == null || string.IsNullOrEmpty(t.name))
-                continue;
-            string n = t.name;
-            if (n.Equals("Bip01_head", System.StringComparison.OrdinalIgnoreCase)
-                || n.Equals("Bip01 Head", System.StringComparison.OrdinalIgnoreCase)
-                || n.Equals("Bip01_Head", System.StringComparison.OrdinalIgnoreCase))
-            {
-                head = t;
-                return true;
-            }
-        }
-        return false;
     }
 
     private bool IsNameplateVisible(
@@ -336,7 +258,7 @@ public sealed class NameplateEntryStore
             return false;
         }
 
-        if (PlayerEntity.Instance != null && target == PlayerEntity.Instance.transform)
+        if (DomainPacketServices.LocalPlayer != null && target == DomainPacketServices.LocalPlayer.transform)
         {
             return true;
         }
@@ -351,9 +273,10 @@ public sealed class NameplateEntryStore
             return false;
         }
 
-        if (CameraController.Instance != null)
+        CameraController cameraController = CameraPacketServices.Controller;
+        if (cameraController != null)
         {
-            return CameraController.Instance.IsObjectVisible(target);
+            return cameraController.IsObjectVisible(target);
         }
 
         return true;

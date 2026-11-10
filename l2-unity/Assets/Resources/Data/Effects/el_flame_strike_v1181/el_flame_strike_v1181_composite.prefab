@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2720196341877690002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2595441180740943240}
+  - component: {fileID: 630457022403187081}
+  m_Layer: 0
+  m_Name: el_flame_strike_v1181_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2595441180740943240
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2720196341877690002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &630457022403187081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2720196341877690002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483453266002002
+  - rid: 6421483453266002003
+  - rid: 6421483453266002004
+  - rid: 6421483453266002005
+  - rid: 6421483453266002006
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483453266002002
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_flame_strike_ca
+        prefab: {fileID: 3875935734218308842, guid: b1ad142eda50a4da0acffd48d9f0b105, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 0
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483453266002003
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_flame_strike_pr
+        prefab: {fileID: 4282669303318899445, guid: 933c338c8409d43cb800ae1367c89c4a, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483453266002004
+      type: {class: ShotProjectilePart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_flame_strike_fl
+        prefab: {fileID: 8925841450171745526, guid: 68c68f5d605b647338cab852e71943c0, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+        launchMode: 2
+        showBeforeAnimationShoot: 0
+        impactType: 1
+        speed: 10
+    - rid: 6421483453266002005
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_flame_strike_ta
+        prefab: {fileID: 2640969826747021424, guid: 03c65b5703bf84c4a8420abdcab3e6dd, type: 3}
+        scale: 1
+        spawnTiming: 4
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 5
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483453266002006
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_flame_strike_ra
+        prefab: {fileID: 504664233920437067, guid: 5f53a387feef84f96b2b0e92029a2b42, type: 3}
+        scale: 1
+        spawnTiming: 4
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 5
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2

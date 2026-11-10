@@ -1,3 +1,6 @@
+using System;
+using Object = UnityEngine.Object;
+
 ﻿using System.Globalization;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -55,6 +58,7 @@ public class L2CelestialDiscs : MonoBehaviour
     BodyTrack _moonTrack;
     float _nextTrajLog;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static L2CelestialDiscs Instance { get; private set; }
 
     public MeshRenderer SunRenderer => _sunMr;
@@ -89,7 +93,7 @@ public class L2CelestialDiscs : MonoBehaviour
             return;
         }
 
-        WorldClock clock = WorldClock.Instance;
+        WorldClock clock = WorldClockPacketServices.Clock;
         if (clock == null)
         {
             clock = WorldClock.EnsurePersistent();
@@ -420,12 +424,12 @@ public class L2CelestialDiscs : MonoBehaviour
 
     Camera ResolveCamera()
     {
-        if (CameraController.Instance != null)
+        if (CameraPacketServices.Controller != null)
         {
-            Camera fromController = CameraController.Instance.GetComponent<Camera>();
+            Camera fromController = CameraPacketServices.Controller.GetComponent<Camera>();
             if (fromController == null)
             {
-                fromController = CameraController.Instance.GetComponentInChildren<Camera>();
+                fromController = CameraPacketServices.Controller.GetComponentInChildren<Camera>();
             }
 
             if (fromController != null && fromController.enabled && fromController.gameObject.activeInHierarchy)

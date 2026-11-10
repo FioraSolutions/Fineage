@@ -32,6 +32,8 @@ public class GearItem
         _gearSlot = gearSlot;
     }
 
+    public GearSlot PeekGearSlot() => _gearSlot;
+
     public void SetSelectGear()
     {
         _gearSlot.SetSelected();

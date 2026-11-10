@@ -1,9 +1,12 @@
+using System;
+
 ﻿using UnityEngine;
 using VContainer;
 
 public class ListenerCharacterGear : MonoBehaviour
 {
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static ListenerCharacterGear Instance { get; private set; }
 
     [Inject] EventBus _bus;
@@ -73,7 +76,7 @@ public class ListenerCharacterGear : MonoBehaviour
     private void HandleItemEquipped(ItemInstance item , int objectId)
     {
         Entity entity = GameWorld != null ? GameWorld.GetEntityNoLockSync(objectId) : null;
-        PlayerEntity local = PlayerEntity.Instance;
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
         int localId = local != null && local.Identity != null ? local.Identity.Id : 0;
         // GearFlowLog.Info("Inventory EQUIP objectId=" + objectId +
             // " localPlayerId=" + localId +

@@ -1,16 +1,20 @@
+using System;
+
 ﻿using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Interlude TargetStatusWnd: name + HP, expand arrow reveals npcgrp property_list icons
+/// Interlude TargetStatusWnd: name + HP (monsters only), live effect icons (PartySpelled /
+/// AbnormalStatusUpdate + spoil), expand arrow reveals npcgrp property_list icons
 /// (race 4416 + vulnerabilties / passives) with SkillName tooltips.
 /// </summary>
 public class TargetWindow : L2Window {
     private Label _nameLabel;
     private VisualElement _HPBar;
     private VisualElement _HPBarBG;
+    private VisualElement _effectsRow;
     private VisualElement _propertiesRow;
     private Button _expandButton;
 
@@ -20,13 +24,35 @@ public class TargetWindow : L2Window {
     private bool _expanded;
     private int _boundNpcId = -1;
     private int _boundObjectId = -1;
+    private int _effectsObjectId = -1;
+    private int _effectsSignature;
+    private readonly System.Collections.Generic.List<TargetEffectCell> _effectCells =
+        new System.Collections.Generic.List<TargetEffectCell>();
+
+    /// <summary>Classic npcgrp property_list ids → Interlude skillgrp rows with real icons.</summary>
+    static readonly System.Collections.Generic.Dictionary<int, int> ClassicPropertySkillRemap =
+        new System.Collections.Generic.Dictionary<int, int>
+        {
+            // Gray Wolf etc.: animalWeakness + bow → Animal Vuln / Bow Vuln.
+            { 47269, 4071 },
+            { 47270, 4276 },
+        };
+
+    sealed class TargetEffectCell
+    {
+        public VisualElement Root;
+        public Label Timer;
+        public float EndsAt;
+    }
 
     private static TargetWindow _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static TargetWindow Instance { get { return _instance; } }
 
     private void Awake() {
         if (_instance == null) {
             _instance = this;
+            WireHudCorePacketServices();
         } else {
             Destroy(this);
         }
@@ -34,6 +60,17 @@ public class TargetWindow : L2Window {
 
     private void OnDestroy() {
         _instance = null;
+    }
+
+    
+    private void Start()
+    {
+        WireHudCorePacketServices();
+    }
+
+    private void WireHudCorePacketServices()
+    {
+        HudCorePacketServices.Bind(target: this);
     }
 
     protected override void LoadAssets() {
@@ -57,12 +94,13 @@ public class TargetWindow : L2Window {
         var closeBtnHandle = (Button) GetElementById("CloseBtn");
         closeBtnHandle.AddManipulator(new ButtonClickSoundManipulator(closeBtnHandle));
         closeBtnHandle.RegisterCallback<MouseUpEvent>(evt => {
-            TargetManager.Instance.ClearTarget();
+            TargetPacketServices.Targets?.ClearTarget();
         });
 
         _nameLabel = (Label)GetElementById("TargetName");
         _HPBar = GetElementById("HPBar");
         _HPBarBG = GetElementById("HPBarBG");
+        _effectsRow = GetElementById("EffectsRow");
         _propertiesRow = GetElementById("PropertiesRow");
         _expandButton = GetElementById("ExpandBtn") as Button;
 
@@ -87,11 +125,12 @@ public class TargetWindow : L2Window {
             return;
         }
 
-        if(TargetManager.Instance.HasTarget())
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets != null && targets.HasTarget())
         {
             ShowWindow();
 
-            TargetData targetData = TargetManager.Instance.Target;
+            TargetData targetData = targets.Target;
             if(_nameLabel != null) {
                 _nameLabel.text = targetData.Identity.Name;
                 _nameLabel.style.color = targetData.GetColorName();
@@ -105,17 +144,65 @@ public class TargetWindow : L2Window {
                         targetData.Stats.MaxHp),
                     _targetWindowMinWidth);
 
-                TooogleHide(targetData.Identity.IsHideHpBar);
+                TooogleHide(ShouldHideHpBar(targetData));
             }
 
+            BindEffects(targetData);
+            TickEffectTimers();
             BindProperties(targetData);
         } else {
             if (!_isWindowHidden) {
-                AudioManager.Instance.PlayUISound("window_close");
+                AudioPacketServices.Audio.PlayUISound("window_close");
             }
+            ClearEffects();
             ClearProperties();
             HideWindow();
         }
+    }
+
+    void TickEffectTimers()
+    {
+        if (_effectCells.Count == 0)
+            return;
+        float now = Time.time;
+        for (int i = 0; i < _effectCells.Count; i++)
+        {
+            TargetEffectCell cell = _effectCells[i];
+            if (cell?.Timer == null)
+                continue;
+            int remaining = Mathf.Max(0, Mathf.CeilToInt(cell.EndsAt - now));
+            cell.Timer.text = remaining > 0 ? remaining.ToString() : "";
+        }
+    }
+
+    /// <summary>Called when a peer AbnormalStatusUpdate lands for the current target.</summary>
+    public void RefreshEffectsIfSelected(int objectId)
+    {
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets == null || !targets.HasTarget())
+            return;
+        TargetData data = targets.Target;
+        if (data?.Identity == null || data.Identity.Id != objectId)
+            return;
+        _effectsObjectId = -1;
+        _effectsSignature = 0;
+        BindEffects(data);
+    }
+
+    /// <summary>
+    /// Interlude TargetStatus: HP gauge only for attackable monsters. Self / other players /
+    /// village NPCs show name (and effects) without the red bar.
+    /// </summary>
+    static bool ShouldHideHpBar(TargetData targetData)
+    {
+        EntityIdentity identity = targetData?.Identity;
+        if (identity == null)
+            return true;
+        if (identity.Owned)
+            return true;
+        if (identity.EntityType == EntityType.Player || identity.EntityType == EntityType.User)
+            return true;
+        return identity.IsHideHpBar;
     }
 
     void OnExpandPressed(MouseDownEvent evt)
@@ -167,8 +254,8 @@ public class TargetWindow : L2Window {
         if (_propertiesRow != null)
             _propertiesRow.Clear();
 
-        Npcgrp npcgrp = npcId > 0 && NpcgrpTable.Instance != null
-            ? NpcgrpTable.Instance.GetNpcgrp(npcId)
+        Npcgrp npcgrp = npcId > 0 && TablePacketServices.NpcGrps != null
+            ? TablePacketServices.NpcGrps.GetNpcgrp(npcId)
             : null;
         int[] skillIds = npcgrp != null ? npcgrp.PropertySkillIds : null;
         int[] skillLevels = npcgrp != null ? npcgrp.PropertySkillLevels : null;
@@ -211,25 +298,31 @@ public class TargetWindow : L2Window {
 
     bool TryAddPropertyIcon(int skillId, int level)
     {
-        Skillgrp skill = SkillgrpTable.Instance != null
-            ? SkillgrpTable.Instance.GetSkill(skillId, level)
+        int resolvedId = skillId;
+        if (ClassicPropertySkillRemap.TryGetValue(skillId, out int remapped))
+            resolvedId = remapped;
+
+        Skillgrp skill = TablePacketServices.SkillGrps != null
+            ? TablePacketServices.SkillGrps.GetSkill(resolvedId, level)
             : null;
-        SkillNameData nameData = SkillNameTable.Instance != null
-            ? SkillNameTable.Instance.GetName(skillId, level)
+        SkillNameData nameData = TablePacketServices.SkillNames != null
+            ? TablePacketServices.SkillNames.GetName(resolvedId, level)
             : null;
 
-        // Classic property_list can reference skills without Skillgrp rows — still show name if known.
         var icon = new VisualElement();
         icon.AddToClassList("target-property-icon");
 
         bool painted = skill != null && L2SlotIconView.TrySetNamedIcon(icon, skill.Icon);
         if (!painted)
-            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + skillId);
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "icon.skill" + resolvedId);
+        if (!painted)
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + resolvedId);
 
-        if (!painted && nameData == null)
+        // Skip Classic/unknown property rows that would only show NO IMAGE.
+        if (!painted)
             return false;
 
-        string tip = BuildPropertyTooltip(nameData, skillId, level);
+        string tip = BuildPropertyTooltip(nameData, resolvedId, level);
         if (!string.IsNullOrEmpty(tip))
             icon.AddManipulator(new TooltipManipulator(icon, tip));
 
@@ -252,6 +345,134 @@ public class TargetWindow : L2Window {
             sb.Append(nameData.Desc);
         }
         return sb.Length > 0 ? sb.ToString() : ("Skill " + skillId + " Lv." + level);
+    }
+
+    void BindEffects(TargetData targetData)
+    {
+        if (_effectsRow == null)
+            return;
+        if (targetData?.Identity == null)
+        {
+            ClearEffects();
+            return;
+        }
+
+        Entity entity = targetData.GetEntity();
+        var list = entity != null ? entity.TargetEffects : null;
+        int objectId = targetData.Identity.Id;
+        int signature = EffectsSignature(list);
+        if (objectId == _effectsObjectId && signature == _effectsSignature)
+            return;
+
+        _effectsObjectId = objectId;
+        _effectsSignature = signature;
+        _effectsRow.Clear();
+        _effectCells.Clear();
+
+        if (list == null || list.Count == 0)
+        {
+            _effectsRow.style.display = DisplayStyle.None;
+            return;
+        }
+
+        int painted = 0;
+        for (int i = 0; i < list.Count; i++)
+        {
+            EffectHolder effect = list[i];
+            if (effect == null || effect.Id <= 0)
+                continue;
+            if (TryAddEffectIcon(effect.Id, effect.Value, effect.Duration))
+                painted++;
+        }
+
+        _effectsRow.style.display = painted > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+    bool TryAddEffectIcon(int skillId, int level, int durationSeconds)
+    {
+        int safeLevel = level > 0 ? level : 1;
+        Skillgrp skill = TablePacketServices.SkillGrps != null
+            ? TablePacketServices.SkillGrps.GetSkill(skillId, safeLevel)
+            : null;
+        SkillNameData nameData = TablePacketServices.SkillNames != null
+            ? TablePacketServices.SkillNames.GetName(skillId, safeLevel)
+            : null;
+
+        var icon = new VisualElement();
+        icon.AddToClassList("target-effect-icon");
+
+        bool painted = skill != null && L2SlotIconView.TrySetNamedIcon(icon, skill.Icon);
+        if (!painted)
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "icon.skill" + skillId);
+        if (!painted)
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + skillId);
+        if (!painted && nameData == null)
+            return false;
+
+        // Interlude: debuffs use skillgrp icon_panel (typically panel_2) — buffs leave it None.
+        bool isDebuff = skill != null && skill.Debuff != 0;
+        if (isDebuff)
+            icon.AddToClassList("debuff");
+        if (skill != null && !string.IsNullOrEmpty(skill.IconPanel) &&
+            !skill.IconPanel.Equals("None", System.StringComparison.OrdinalIgnoreCase))
+        {
+            var panel = new VisualElement();
+            panel.AddToClassList("target-effect-panel");
+            panel.pickingMode = PickingMode.Ignore;
+            if (L2SlotIconView.TrySetNamedIcon(panel, skill.IconPanel))
+                icon.Add(panel);
+        }
+
+        var timer = new Label();
+        timer.AddToClassList("target-effect-timer");
+        timer.pickingMode = PickingMode.Ignore;
+        int remaining = Mathf.Max(0, durationSeconds);
+        timer.text = remaining > 0 ? remaining.ToString() : "";
+        icon.Add(timer);
+
+        string tip = BuildPropertyTooltip(nameData, skillId, safeLevel);
+        if (!string.IsNullOrEmpty(tip))
+            icon.AddManipulator(new TooltipManipulator(icon, tip));
+
+        _effectsRow.Add(icon);
+        _effectCells.Add(new TargetEffectCell
+        {
+            Root = icon,
+            Timer = timer,
+            EndsAt = Time.time + Mathf.Max(0, durationSeconds)
+        });
+        return true;
+    }
+
+    static int EffectsSignature(System.Collections.Generic.List<EffectHolder> list)
+    {
+        if (list == null || list.Count == 0)
+            return 0;
+        unchecked
+        {
+            int hash = list.Count;
+            for (int i = 0; i < list.Count; i++)
+            {
+                EffectHolder e = list[i];
+                if (e == null)
+                    continue;
+                hash = (hash * 397) ^ e.Id;
+                hash = (hash * 397) ^ e.Value;
+                hash = (hash * 397) ^ e.Duration;
+            }
+            return hash;
+        }
+    }
+
+    void ClearEffects()
+    {
+        _effectsObjectId = -1;
+        _effectsSignature = 0;
+        _effectCells.Clear();
+        if (_effectsRow == null)
+            return;
+        _effectsRow.Clear();
+        _effectsRow.style.display = DisplayStyle.None;
     }
 
     void ClearProperties()

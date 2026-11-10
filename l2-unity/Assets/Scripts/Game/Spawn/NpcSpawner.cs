@@ -19,7 +19,9 @@ public sealed class NpcSpawner
             return null;
 
         EntityIdentity identity = request.Identity;
-        identity.SetPosY(world.GetGroundHeight(identity.Position));
+        // Trust server Z. GroundSnap (GetGroundHeight / ReapplyGroundAfterActivate) can latch onto
+        // underground cave MeshColliders under Dark Elf Village (and similar) within MaxDrop and
+        // bury every NPC. Outdoor monsters still snap via MonsterSpawner.
 
         GameObject npcGo = EntitySpawnShared.AcquireNpcGameObject(_pool, request.Prefab, identity);
         if (npcGo == null)
@@ -46,7 +48,6 @@ public sealed class NpcSpawner
         EntitySpawnShared.SanitizeCharacterControllerStepOffset(npcGo);
         EntitySpawnShared.DisableLegacyPositionSync(npcGo);
         npcGo.SetActive(true);
-        EntitySpawnShared.ReapplyGroundAfterActivate(npcGo, identity);
 
         InitNpc(npc, npcGo, world);
         PetSummonRise.TryBegin(npc);

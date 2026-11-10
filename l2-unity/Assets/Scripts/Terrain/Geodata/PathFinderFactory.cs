@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -18,6 +20,7 @@ public class PathFinderFactory : MonoBehaviour {
     private float _nodeSize = 0.5f;
 
     private static PathFinderFactory _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static PathFinderFactory Instance { get { return _instance; } }
     private void Awake() {
         if (_instance == null) {
@@ -37,8 +40,9 @@ public class PathFinderFactory : MonoBehaviour {
     void Start() {
         _currentJobs = new List<PathFinder>();
         _todoJobs = new List<PathFinder>();
-        if (Geodata.Instance != null)
-            _nodeSize = Geodata.Instance.NodeSize;
+        Geodata geodata = GeodataPacketServices.Geodata;
+        if (geodata != null)
+            _nodeSize = geodata.NodeSize;
     }
 
     void Update() {

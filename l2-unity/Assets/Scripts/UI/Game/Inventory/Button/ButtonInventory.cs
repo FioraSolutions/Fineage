@@ -65,7 +65,7 @@ public class ButtonInventory
 
     //tabElement.RegisterCallback<MouseDownEvent>(evt => {
     //   inventory.ChangeMenuSelect(0);
-    //  AudioManager.Instance.PlayUISound("click_01");
+    //  AudioPacketServices.Audio.PlayUISound("click_01");
     //}, TrickleDown.TrickleDown);
     // }
 
@@ -80,7 +80,7 @@ public class ButtonInventory
 
     // tabElement.RegisterCallback<MouseDownEvent>(evt => {
     //   inventory.ChangeMenuSelect(1);
-    //  AudioManager.Instance.PlayUISound("click_01");
+    //  AudioPacketServices.Audio.PlayUISound("click_01");
     //}, TrickleDown.TrickleDown);
     //}
 
@@ -96,7 +96,7 @@ public class ButtonInventory
 
     // tabElement.RegisterCallback<MouseDownEvent>(evt => {
     //    inventory.ChangeMenuSelect(2);
-    //   AudioManager.Instance.PlayUISound("click_01");
+    //   AudioPacketServices.Audio.PlayUISound("click_01");
     // }, TrickleDown.TrickleDown);
     // }
 
@@ -112,7 +112,7 @@ public class ButtonInventory
 
     // tabElement.RegisterCallback<MouseDownEvent>(evt => {
     //   inventory.ChangeMenuSelect(3);
-    //   AudioManager.Instance.PlayUISound("click_01");
+    //   AudioPacketServices.Audio.PlayUISound("click_01");
     //}, TrickleDown.TrickleDown);
     //}
 
@@ -127,7 +127,7 @@ public class ButtonInventory
 
     // tabElement.RegisterCallback<MouseDownEvent>(evt => {
     //    inventory.ChangeMenuSelect(4);
-    //    AudioManager.Instance.PlayUISound("click_01");
+    //    AudioPacketServices.Audio.PlayUISound("click_01");
     //}, TrickleDown.TrickleDown);
     // }
 
@@ -142,7 +142,7 @@ public class ButtonInventory
 
     // tabElement.RegisterCallback<MouseDownEvent>(evt => {
     // inventory.ChangeMenuSelect(5);
-    // AudioManager.Instance.PlayUISound("click_01");
+    // AudioPacketServices.Audio.PlayUISound("click_01");
     //}, //TrickleDown.TrickleDown);
     //}
 

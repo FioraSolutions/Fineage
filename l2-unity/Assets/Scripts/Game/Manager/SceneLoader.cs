@@ -1,3 +1,5 @@
+using System;
+
 // fineage-touch 1794037730.455447
 ﻿using System;
 using System.Collections;
@@ -51,6 +53,7 @@ public class SceneLoader : MonoBehaviour
     public string GameScene { get { return _gameScene; } }
 
     public static SceneLoader _instance;
+    [Obsolete("Use [Inject] / PacketServices instead")]
     public static SceneLoader Instance { get { return _instance; } }
 
     private void Awake()
@@ -144,11 +147,12 @@ public class SceneLoader : MonoBehaviour
         SetGameHudVisible(true);
 
         string tile = VectorUtils.GetSwMapName(l2Pos);
-        FineageLog.Info(FineageLog.Category.World, "LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
+        FineageLog.Info(FineageLogCategory.World, "LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
 
-        if (Geodata.Instance != null)
+        Geodata geodata = WorldPacketServices.Geodata;
+        if (geodata != null)
         {
-            Geodata.Instance.LoadMaps(new List<string> { tile });
+            geodata.LoadMaps(new List<string> { tile });
         }
 
         yield return LoadSceneAdditiveIfNeeded(tile);
@@ -175,12 +179,12 @@ public class SceneLoader : MonoBehaviour
         {
             LobbyCleanGate.Report report = LobbyCleanGate.Evaluate();
             FineageLog.Info(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 (report.Ok ? "LobbyClean PASS " : "LobbyClean FAIL ") + report.Detail);
         }
         catch (System.Exception ex)
         {
-            FineageLog.Exception(FineageLog.Category.World, "LobbyCleanGate", ex);
+            FineageLog.Exception(FineageLogCategory.World, "LobbyCleanGate", ex);
         }
     }
 
@@ -192,7 +196,7 @@ public class SceneLoader : MonoBehaviour
         }
         catch (System.Exception ex)
         {
-            FineageLog.Exception(FineageLog.Category.World, "WorldEnterDiag." + phase, ex);
+            FineageLog.Exception(FineageLogCategory.World, "WorldEnterDiag." + phase, ex);
         }
     }
 #endif
@@ -253,7 +257,8 @@ public class SceneLoader : MonoBehaviour
         List<string> wanted = new List<string>();
         AddTile(wanted, tileX, tileY);
 
-        float mapSize = Geodata.Instance != null ? Geodata.Instance.MapSize : 624.1524f;
+        Geodata geodata = WorldPacketServices.Geodata;
+        float mapSize = geodata != null ? geodata.MapSize : 624.1524f;
         float edge = mapSize > 0f ? _tilePreloadDistance / mapSize : 0.12f;
         float fx = l2Pos.x / VectorUtils.SwTileSizeUu - Mathf.Floor(l2Pos.x / VectorUtils.SwTileSizeUu);
         float fy = l2Pos.y / VectorUtils.SwTileSizeUu - Mathf.Floor(l2Pos.y / VectorUtils.SwTileSizeUu);
@@ -309,9 +314,10 @@ public class SceneLoader : MonoBehaviour
     {
         _streamingBusy = true;
         // Debug.Log("EventLoadSWMap tile='" + tile + "'");
-        if (Geodata.Instance != null)
+        Geodata geodata = WorldPacketServices.Geodata;
+        if (geodata != null)
         {
-            Geodata.Instance.LoadMaps(new List<string> { tile });
+            geodata.LoadMaps(new List<string> { tile });
         }
 
         yield return LoadSceneAdditiveIfNeeded(tile);
@@ -392,7 +398,7 @@ public class SceneLoader : MonoBehaviour
         if (terrain == null)
         {
             FineageLog.Warn(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 "LoadSWMap: no scene and no map prefab for tile '" + tile + "'");
             return;
         }
@@ -424,7 +430,7 @@ public class SceneLoader : MonoBehaviour
 
         _prefabTiles[tile] = root;
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "LoadSWMap prefab-tile '" + tile + "' placed=" + placed);
     }
 
@@ -476,9 +482,9 @@ public class SceneLoader : MonoBehaviour
 
     private static L2GameUI GetGameUi()
     {
-        if (L2GameUI.Instance != null)
+        if (SystemUIPacketServices.Ui != null)
         {
-            return L2GameUI.Instance;
+            return SystemUIPacketServices.Ui;
         }
 
         return FindFirstObjectByType<L2GameUI>(FindObjectsInactive.Include);
@@ -536,10 +542,10 @@ public class SceneLoader : MonoBehaviour
     /// </summary>
     private IEnumerator UnloadLobbyScenesRoutine()
     {
-        CharacterSelector selector = CharacterSelector.Instance;
+        CharacterSelector selector = LoginPacketServices.Characters;
         if (selector != null)
             selector.ClearLobbyVisuals();
-        CharacterCreator creator = CharacterCreator.Instance;
+        CharacterCreator creator = LoginPacketServices.Creator;
         if (creator != null)
             creator.DestroyAllPawns();
 
@@ -555,7 +561,7 @@ public class SceneLoader : MonoBehaviour
         LobbyPresentation.ForgetRoot();
 
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "Lobby unloaded. MenuLoaded="
             + SceneManager.GetSceneByName(_menuScene).isLoaded
             + " LobbyLoaded="
@@ -578,12 +584,12 @@ public class SceneLoader : MonoBehaviour
     /// <summary>Enable gameplay follow-cam; it must own Camera.main after lobby is gone.</summary>
     static void EnsureGameplayCamera()
     {
-        CameraController controller = CameraController.Instance;
+        CameraController controller = CameraPacketServices.Controller;
         if (controller == null)
             controller = UnityEngine.Object.FindFirstObjectByType<CameraController>(FindObjectsInactive.Include);
         if (controller == null)
         {
-            FineageLog.Warn(FineageLog.Category.World, "EnsureGameplayCamera: CameraController missing");
+            FineageLog.Warn(FineageLogCategory.World, "EnsureGameplayCamera: CameraController missing");
             return;
         }
 
@@ -608,20 +614,21 @@ public class SceneLoader : MonoBehaviour
             other.tag = "Untagged";
             other.enabled = false;
             FineageLog.Warn(
-                FineageLog.Category.World,
+                FineageLogCategory.World,
                 "EnsureGameplayCamera demoted extra MainCamera=" + other.name
                 + " scene=" + other.gameObject.scene.name);
         }
 
-        if (NameplatesManager.Instance != null && gameplay != null)
-            NameplatesManager.Instance.Camera = gameplay;
+        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        if (nameplates != null && gameplay != null)
+            nameplates.Camera = gameplay;
 
         // FMOD StudioEventEmitter distance checks require a StudioListener in the scene.
         if (gameplay != null && gameplay.GetComponent<FMODUnity.StudioListener>() == null)
             gameplay.gameObject.AddComponent<FMODUnity.StudioListener>();
 
         FineageLog.Info(
-            FineageLog.Category.World,
+            FineageLogCategory.World,
             "EnsureGameplayCamera ok name=" + controller.name
             + " camEn=" + (gameplay != null && gameplay.enabled)
             + " Camera.main=" + (Camera.main != null ? Camera.main.name : "null"));

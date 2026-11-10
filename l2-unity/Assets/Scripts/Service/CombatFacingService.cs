@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
@@ -21,7 +22,10 @@ public sealed class CombatFacingService : MonoBehaviour
         public int Rate;
     }
 
-    public static CombatFacingService Instance { get; private set; }
+    private static CombatFacingService _instance;
+
+    [Obsolete("Use CombatPacketServices.Facing or [Inject] CombatFacingService instead")]
+    public static CombatFacingService Instance => _instance;
 
     [Inject] WeapongrpTable _weaponGrps;
     [Inject] L2PawnYaw _pawnYaw;
@@ -35,9 +39,9 @@ public sealed class CombatFacingService : MonoBehaviour
     {
         get
         {
-            if (Instance != null && Instance._weaponGrps != null)
-                return Instance._weaponGrps;
-            return WeapongrpTable.Instance;
+            if (_instance != null && _instance._weaponGrps != null)
+                return _instance._weaponGrps;
+            return TablePacketServices.WeaponGrps;
         }
     }
 
@@ -52,11 +56,12 @@ public sealed class CombatFacingService : MonoBehaviour
     public int ActiveCount => _entries.Count;
     public bool IsActive => _entries.Count > 0;
 
+    [Obsolete("Use CombatPacketServices.EnsureFacing or [Inject] CombatFacingService instead")]
     public static CombatFacingService Ensure()
     {
-        if (Instance != null)
+        if (_instance != null)
         {
-            return Instance;
+            return _instance;
         }
 
         if (App.GameContainer != null)
@@ -80,20 +85,21 @@ public sealed class CombatFacingService : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        _instance = this;
+        CombatPacketServices.Bind(facing: this);
     }
 
     private void OnDestroy()
     {
-        if (Instance == this)
+        if (_instance == this)
         {
-            Instance = null;
+            _instance = null;
         }
     }
 
@@ -261,13 +267,13 @@ public sealed class CombatFacingService : MonoBehaviour
 
     private static int ResolveLocalObjectId()
     {
-        if (PlayerEntity.Instance == null ||
-            PlayerEntity.Instance.Identity == null)
+        if (DomainPacketServices.LocalPlayer == null ||
+            DomainPacketServices.LocalPlayer.Identity == null)
         {
             return 0;
         }
 
-        return PlayerEntity.Instance.Identity.Id;
+        return DomainPacketServices.LocalPlayer.Identity.Id;
     }
 
     /// <summary>

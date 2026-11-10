@@ -30,7 +30,7 @@ public static class WorldEnterDiag
         sb.Append(" Camera.main=");
         AppendCamera(sb, main);
 
-        CameraController cc = CameraController.Instance;
+        CameraController cc = CameraPacketServices.Controller;
         sb.Append(" CameraController=");
         if (cc == null)
             sb.Append("null");
@@ -42,7 +42,7 @@ public static class WorldEnterDiag
             AppendCamera(sb, cc.GetComponent<Camera>());
         }
 
-        InputManager input = InputManager.Instance;
+        InputManager input = ControllerPacketServices.Input;
         sb.Append(" Input=");
         if (input == null)
             sb.Append("null");
@@ -51,12 +51,12 @@ public static class WorldEnterDiag
                 .Append(" move=").Append(input.Move)
                 .Append(" turnCam=").Append(input.TurnCamera);
 
-        ClickManager clicks = ClickManager.Instance;
+        ClickManager clicks = ControllerPacketServices.Clicks;
         sb.Append(" ClickManager=").Append(clicks != null
             ? (clicks.isActiveAndEnabled ? "active" : "disabled")
             : "null");
 
-        NameplatesManager plates = NameplatesManager.Instance;
+        NameplatesManager plates = NameplatePacketServices.Nameplates;
         sb.Append(" Nameplates=");
         if (plates == null)
             sb.Append("null");
@@ -66,7 +66,7 @@ public static class WorldEnterDiag
             AppendCamera(sb, plates.Camera != null ? plates.Camera : Camera.main);
         }
 
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         sb.Append(" PlayerEntity=").Append(player != null ? player.name + "@" + player.transform.position : "null");
 
         PlayerController pc = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
@@ -74,7 +74,7 @@ public static class WorldEnterDiag
             ? (pc.isActiveAndEnabled ? "active" : "disabled")
             : "null");
 
-        L2GameUI ui = L2GameUI.Instance;
+        L2GameUI ui = SystemUIPacketServices.Ui;
         if (ui != null)
             sb.Append(" MouseOverUI=").Append(ui.MouseOverUI)
                 .Append(" OverPanel=").Append(ui.IsPointerOverPanel());
@@ -133,7 +133,7 @@ public static class WorldEnterDiag
         sb.Append(']');
 
         // Face leftovers asserted once by LobbyCleanGate after +1s — avoid a second full renderer scan here.
-        FineageLog.Info(FineageLog.Category.World, sb.ToString());
+        FineageLog.Info(FineageLogCategory.World, sb.ToString());
     }
 
     static void AppendCamera(StringBuilder sb, Camera cam)

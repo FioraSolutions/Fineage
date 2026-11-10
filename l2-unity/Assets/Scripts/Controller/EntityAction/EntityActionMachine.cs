@@ -1,3 +1,5 @@
+using System;
+
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +7,7 @@ using VContainer.Unity;
 
 public sealed class EntityActionMachine : ITickable
 {
+    [System.Obsolete("Use EntityActionPacketServices.Actions or [Inject] EntityActionMachine instead")]
     public static EntityActionMachine Instance { get; private set; }
 
     private readonly Dictionary<EntityActionKind, IEntityActionProcess> _processes;
@@ -20,10 +23,13 @@ public sealed class EntityActionMachine : ITickable
         MoveAllCharacters moves)
     {
         Instance = this;
+        EntityActionPacketServices.Bind(this);
         ControllerPacketServices.Bind(
             animations: animations,
             effects: effects,
             moves: moves);
+        AnimationPacketServices.Bind(animations: animations, moves: moves);
+        MoveAllCharactersPacketServices.Bind(moves: moves);
         _pawnRange = pawnRange;
         _processes = new Dictionary<EntityActionKind, IEntityActionProcess>
         {
@@ -129,8 +135,9 @@ public sealed class EntityActionMachine : ITickable
         if (!IsAllowed(entity) || entity.IsDead())
             return;
 
-        if (HitManager.Instance != null)
-            HitManager.Instance.FlushRemoteMeleeHit(entity);
+        var hits = CombatPacketServices.Hits;
+        if (hits != null)
+            hits.FlushRemoteMeleeHit(entity);
 
         EntityActionKind action = entity.ActionSlot.Action;
         entity.InCombat = true;
