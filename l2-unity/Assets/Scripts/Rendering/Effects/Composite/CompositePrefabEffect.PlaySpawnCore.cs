@@ -23,4 +23,8 @@ public partial class CompositePrefabEffect
         _lightSpawned = true;
         FNManagerLight.Ensure().SpawnHitFlash(lightPoint, lightDir, _lightSettings);
     }
+
+    protected virtual void PreparePartPlayback(CompositePrefabPart part, BaseEffect instance)
+    {
+    }
 }
