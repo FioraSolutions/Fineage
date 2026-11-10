@@ -7,7 +7,22 @@ using VContainer;
 public partial class World
 {
     public float GetGroundHeight(Vector3 pos) {
-        return GroundSnapHelper.SnapToGroundOrKeep(pos, _groundMask).y;
+        return WorldPlacement.Resolve(WorldPlacement.PlacementKind.WalkValidate, pos, _groundMask).y;
+    }
+
+    /// <summary>
+    /// Iterates registered NPCs/monsters (nameplates when OverlapSphere misses EntityClick).
+    /// </summary>
+    public void ForEachNpc(System.Action<Entity> action)
+    {
+        if (action == null)
+            return;
+
+        foreach (KeyValuePair<int, Entity> pair in _npcs)
+        {
+            if (pair.Value != null)
+                action(pair.Value);
+        }
     }
 
     public string GetEntityName(int id)

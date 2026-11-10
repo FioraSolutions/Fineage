@@ -19,8 +19,7 @@ public sealed class MonsterSpawner
             return null;
 
         EntityIdentity identity = request.Identity;
-        identity.SetPosY(world.GetGroundHeight(identity.Position));
-
+        // Height SoT lives in AcquireNpcGameObject → WorldPlacement (#930).
         GameObject npcGo = EntitySpawnShared.AcquireNpcGameObject(_pool, request.Prefab, identity);
         if (npcGo == null)
             return null;

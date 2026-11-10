@@ -94,12 +94,28 @@ public class Geodata : MonoBehaviour {
 
 
     public string GetCurrentMap(Vector3 location) {
-        foreach(var mapName in _mapsOrigin.Keys) {
-            if(IsInMapBounds(location, _mapsOrigin[mapName])) {
-                return mapName;
+        if (TryGetCurrentMap(location, out string mapId))
+            return mapId;
+        throw new Exception("Outside bounds.");
+    }
+
+    /// <summary>Non-throwing map resolve for hot paths (#930 WorldPlacement).</summary>
+    public bool TryGetCurrentMap(Vector3 location, out string mapId)
+    {
+        mapId = null;
+        if (_mapsOrigin == null)
+            return false;
+
+        foreach (var mapName in _mapsOrigin.Keys)
+        {
+            if (IsInMapBounds(location, _mapsOrigin[mapName]))
+            {
+                mapId = mapName;
+                return true;
             }
         }
-        throw new Exception("Outside bounds.");
+
+        return false;
     }
 
     private bool IsInMapBounds(Vector3 location, Vector3 mapOrigin) {
@@ -133,85 +149,174 @@ public class Geodata : MonoBehaviour {
 
     // Get node at a given world position
     public Node GetNodeAt(Vector3 nodePos, string mapId, bool exactElevation) {
-        Vector3 nodeIndex = FromWorldToNodePos(nodePos, mapId);
-
-        // Checks if the map index exists
-        if (!_geodata.ContainsKey(mapId)) {
-            throw new Exception("Map Id not found");
-        }
-
-        int x = (int) nodeIndex.x;
-        int z = (int) nodeIndex.z;
-
-        Vector3 geodataIndex = new Vector3(nodeIndex.x, 0, nodeIndex.z);
-        for (int y = 0; y < _geodata[mapId].GetLength(1); y++) {
-            Node layer = _geodata[mapId][x, y, z];
-            if (layer == null) {
-                continue;
-            }
-
-            float layerOffset = Math.Abs(layer.nodeIndex.y - nodeIndex.y);
-            // verify if the node y diff is lower or higher than _maximumElevationError
-            if (layerOffset >= 0 && layerOffset <= _maximumElevationError) {
-                return new Node(layer);
-            }
-        }
-
+        if (TryGetNodeAt(nodePos, mapId, out Node node, exactElevation))
+            return node;
         throw new Exception("Node not found");
     }
 
-    public Node GetClosestNodeAt(Vector3 nodePos) {
-        return GetClosestNodeAt(nodePos, GetCurrentMap(nodePos));
+    /// <summary>Non-throwing node lookup (#930). Prefer closest layer in the elevation window.</summary>
+    public bool TryGetNodeAt(Vector3 nodePos, out Node node, bool exactElevation = false)
+    {
+        node = null;
+        if (!TryGetCurrentMap(nodePos, out string mapId))
+            return false;
+        return TryGetNodeAt(nodePos, mapId, out node, exactElevation);
     }
 
-    // Get closest node at a given world position
-    public Node GetClosestNodeAt(Vector3 nodePos, string mapId) {
-        List<Node> layers = GetAllNodesAt(nodePos, mapId);
+    public bool TryGetNodeAt(Vector3 nodePos, string mapId, out Node node, bool exactElevation = false)
+    {
+        node = null;
+        if (_geodata == null || string.IsNullOrEmpty(mapId) || !_geodata.ContainsKey(mapId))
+            return false;
 
-        // find the closest node of given point
-        // layers should at the highest be 2-3
+        Vector3 nodeIndex;
+        try
+        {
+            nodeIndex = FromWorldToNodePos(nodePos, mapId);
+        }
+        catch
+        {
+            return false;
+        }
+
+        int x = (int)nodeIndex.x;
+        int z = (int)nodeIndex.z;
+        Node[,,] map = _geodata[mapId];
+        if (x < 0 || z < 0 || x >= map.GetLength(0) || z >= map.GetLength(2))
+            return false;
+
+        float maxErr = exactElevation ? 0.01f : _maximumElevationError;
+        Node best = null;
+        float bestOffset = float.PositiveInfinity;
+        for (int y = 0; y < map.GetLength(1); y++)
+        {
+            Node layer = map[x, y, z];
+            if (layer == null)
+                continue;
+
+            float layerOffset = Math.Abs(layer.nodeIndex.y - nodeIndex.y);
+            if (layerOffset > maxErr)
+                continue;
+
+            // Closest layer in window; on ties prefer higher Y (multi-deck villages).
+            if (best == null ||
+                layerOffset < bestOffset - 0.0001f ||
+                (Math.Abs(layerOffset - bestOffset) <= 0.0001f && layer.center.y > best.center.y))
+            {
+                best = layer;
+                bestOffset = layerOffset;
+            }
+        }
+
+        if (best == null)
+            return false;
+
+        node = new Node(best);
+        return true;
+    }
+
+    public Node GetClosestNodeAt(Vector3 nodePos) {
+        if (TryGetClosestNodeAt(nodePos, out Node node))
+            return node;
+        throw new Exception("Node not found");
+    }
+
+    public Node GetClosestNodeAt(Vector3 nodePos, string mapId) {
+        if (TryGetClosestNodeAt(nodePos, mapId, out Node node))
+            return node;
+        throw new Exception("Node not found");
+    }
+
+    /// <summary>Non-throwing closest layer at XZ (#930 WorldPlacement).</summary>
+    public bool TryGetClosestNodeAt(Vector3 nodePos, out Node node)
+    {
+        node = null;
+        if (!TryGetCurrentMap(nodePos, out string mapId))
+            return false;
+        return TryGetClosestNodeAt(nodePos, mapId, out node);
+    }
+
+    public bool TryGetClosestNodeAt(Vector3 nodePos, string mapId, out Node node)
+    {
+        node = null;
+        if (!TryGetAllNodesAt(nodePos, mapId, out List<Node> layers) || layers.Count == 0)
+            return false;
+
         Node closest = null;
-        float lowestDiff = -1;
-        foreach(Node n in layers) {
+        float lowestDiff = float.PositiveInfinity;
+        for (int i = 0; i < layers.Count; i++)
+        {
+            Node n = layers[i];
+            if (n == null)
+                continue;
             float nodeHeightDiff = Math.Abs(n.center.y - nodePos.y);
-            if(closest == null || nodeHeightDiff < lowestDiff || lowestDiff == -1) {
+            if (closest == null ||
+                nodeHeightDiff < lowestDiff - 0.0001f ||
+                (Math.Abs(nodeHeightDiff - lowestDiff) <= 0.0001f && n.center.y > closest.center.y))
+            {
                 closest = n;
                 lowestDiff = nodeHeightDiff;
             }
         }
 
-        return closest;
-    } 
+        if (closest == null)
+            return false;
+
+        node = closest;
+        return true;
+    }
 
     public List<Node> GetAllNodesAt(Vector3 nodePos) {
-        return GetAllNodesAt(nodePos, GetCurrentMap(nodePos));
+        if (TryGetAllNodesAt(nodePos, out List<Node> layers))
+            return layers;
+        throw new Exception("Nodes not found");
     }
 
     public List<Node> GetAllNodesAt(Vector3 nodePos, string mapId) {
-        Vector3 nodeIndex = FromWorldToNodePos(nodePos, mapId);
+        if (TryGetAllNodesAt(nodePos, mapId, out List<Node> layers))
+            return layers;
+        throw new Exception("Nodes not found");
+    }
 
-        // Checks if the map index exists
-        if (!_geodata.ContainsKey(mapId)) {
-            throw new Exception("Map Id not found");
+    public bool TryGetAllNodesAt(Vector3 nodePos, out List<Node> layers)
+    {
+        layers = null;
+        if (!TryGetCurrentMap(nodePos, out string mapId))
+            return false;
+        return TryGetAllNodesAt(nodePos, mapId, out layers);
+    }
+
+    public bool TryGetAllNodesAt(Vector3 nodePos, string mapId, out List<Node> layers)
+    {
+        layers = null;
+        if (_geodata == null || string.IsNullOrEmpty(mapId) || !_geodata.ContainsKey(mapId))
+            return false;
+
+        Vector3 nodeIndex;
+        try
+        {
+            nodeIndex = FromWorldToNodePos(nodePos, mapId);
+        }
+        catch
+        {
+            return false;
         }
 
         int x = (int)nodeIndex.x;
         int z = (int)nodeIndex.z;
+        Node[,,] map = _geodata[mapId];
+        if (x < 0 || z < 0 || x >= map.GetLength(0) || z >= map.GetLength(2))
+            return false;
 
-        List<Node> layers = new List<Node>();
-
-        for (int y = 0; y < _geodata[mapId].GetLength(1); y++) {
-            Node layer = _geodata[mapId][x, y, z];
-            if (layer == null) {
-                continue;
-            }
-
-            layers.Add(layer);
+        layers = new List<Node>();
+        for (int y = 0; y < map.GetLength(1); y++)
+        {
+            Node layer = map[x, y, z];
+            if (layer != null)
+                layers.Add(layer);
         }
 
-        return layers;
-
-        throw new Exception("Nodes not found");
+        return layers.Count > 0;
     }
 
     public Vector3 FromNodeToWorldPos(Vector3 nodePos, Vector3 origin) {

@@ -7,6 +7,7 @@
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
+- **World entity SoT (#930):** `WorldPlacement` (geodata Y then highest mesh; foot settle; CC+SyncTransforms), `EntityPick` (EntityClick-only), `EntityInteraction` (Attackable-driven cursor/talk). `ApplyNpcSpawn` maps heading + Attackable→EntityType. Client geodata: `ImportGeodata` load re-enabled + `TryGetClosestNodeAt` / `TryGetNodeAt` (no throw). Nameplates: never-throw overhead + `ForEachNpc` upsert.
 - **C2 Instance drain:** PacketServices path largely done through **#893** (spawn/shop/buffer/drop/geodata/sky included). `LoginRuntime` windows are resolver-only. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work; easy mechanical drains are exhausted.
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
 - **Asmdef:** `Fineage.Domain` / `Fineage.Networking` / `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded; `Fineage.Di` has `ILateBound` / `LateBoundMono`. **Gameplay MonoBehaviours + LifetimeScope remain `Assembly-CSharp`** — this is the hard residual.

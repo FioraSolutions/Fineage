@@ -40,7 +40,7 @@ public sealed partial class NetSession
 
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         var status = new PlayerStatus();
-        status.SetHp(ResolveSpawnCurHp(spawn, maxHp));
+        status.SetHp(maxHp);
         status.PvpFlag = spawn.PvpFlag;
 
         var stats = new PlayerStats
@@ -122,7 +122,7 @@ public sealed partial class NetSession
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         dto.Stats.MaxHp = maxHp;
-        dto.Status.SetHp(ResolveSpawnCurHp(spawn, maxHp));
+        dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
         dto.Status.SetMp(100);
         dto.Stats.MaxMp = 100;
         if (spawn.PAtkSpd > 0)
@@ -159,7 +159,9 @@ public sealed partial class NetSession
         return spawn.CurHp;
     }
 
-
+    /// <summary>
+    /// Single EntitySpawn → NpcInfoDto mapper (#930): position, heading, Attackable→EntityType, speeds, HP.
+    /// </summary>
     internal void ApplyNpcSpawn(EntitySpawnMsg spawn)
     {
         int objectId = (int)spawn.EntityValue;
@@ -169,8 +171,11 @@ public sealed partial class NetSession
         if (!string.IsNullOrEmpty(spawn.Name))
             dto.Identity.Name = spawn.Name;
         dto.Identity.SetHideHp(spawn.TemplateId);
-        dto.Identity.EntityType = EntityType.NPC;
+        // Attackable mobs → MonsterSpawner; peaceful Folk → NpcSpawner (+ EnsureNpcEntity for monster meshes).
+        dto.Identity.EntityType = EntitySpawnApply.ResolveEntityType(spawn.Attackable);
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
+        dto.Identity.OrigHeading = EntitySpawnApply.ResolveHeadingDegrees(spawn.Heading);
+        dto.Identity.Heading = Quaternion.Euler(0f, dto.Identity.OrigHeading, 0f);
         dto.Identity.IsRunning = spawn.Running;
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         // Wire carries MaxHp + CurHp (#522 bar size; CurHp so select/AOI StatusUpdate is not a false hit).

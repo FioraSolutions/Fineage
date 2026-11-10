@@ -102,7 +102,7 @@ public partial class ItemDropPresentationService
         if (item == null)
             return;
 
-        landPos = GroundSnapHelper.SnapToGroundOrKeep(landPos);
+        landPos = WorldPlacement.Resolve(WorldPlacement.PlacementKind.ItemDrop, landPos);
         item.transform.position = landPos;
 
         if (kind == ItemDropVisualKind.Adena)
@@ -176,7 +176,7 @@ public partial class ItemDropPresentationService
             return;
 
         var anchor = new GameObject("HitPointProxy");
-        Vector3 grounded = GroundSnapHelper.SnapToGroundOrKeep(itemTransform.position);
+        Vector3 grounded = WorldPlacement.Resolve(WorldPlacement.PlacementKind.ItemDrop, itemTransform.position);
         if (ItemDropPresentationIds.LandBurstLocalY != 0f)
             grounded += Vector3.up * ItemDropPresentationIds.LandBurstLocalY;
         anchor.transform.SetParent(itemTransform, true);
@@ -275,7 +275,7 @@ public partial class ItemDropPresentationService
         if (NeedsLandBurstHeight(effectId))
         {
             var anchor = new GameObject("HitPointProxy");
-            Vector3 grounded = GroundSnapHelper.SnapToGroundOrKeep(target.position);
+            Vector3 grounded = WorldPlacement.Resolve(WorldPlacement.PlacementKind.ItemDrop, target.position);
             if (ItemDropPresentationIds.LandBurstLocalY != 0f)
                 grounded += Vector3.up * ItemDropPresentationIds.LandBurstLocalY;
             anchor.transform.SetParent(target, true);
@@ -301,7 +301,7 @@ public partial class ItemDropPresentationService
         // Parent must outlive the FX. EffectManager.PlayEffect instantiates as a child
         // of target; BaseEffect.DestoryEffect also destroys a HitPointProxy parent.
         var anchor = new GameObject("HitPointProxy");
-        Vector3 spawn = GroundSnapHelper.SnapToGroundOrKeep(point);
+        Vector3 spawn = WorldPlacement.Resolve(WorldPlacement.PlacementKind.ItemDrop, point);
         if (NeedsLandBurstHeight(effectId) && ItemDropPresentationIds.LandBurstLocalY != 0f)
             spawn += Vector3.up * ItemDropPresentationIds.LandBurstLocalY;
         anchor.transform.SetPositionAndRotation(spawn, Quaternion.identity);

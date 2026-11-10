@@ -59,12 +59,14 @@ public static partial class EntitySpawnShared
             ReportSubstituted(identity.NpcId, npcgrp.Mesh, usedMesh);
         }
 
-        identity.EntityType = ResolveEntityType(prefab, npcgrp.ClassName);
-        if (identity.NpcId == 31760)
-        {
-            // Debug.Log("SpawnNpc>>> Spawn 31760 p5");
-            identity.EntityType = EntityType.NPC;
-        }
+        // Wire Attackable (RememberNpc from ApplyNpcSpawn) wins over prefab MonsterEntity /
+        // NpcEntity — Folk on monster meshes stay NPC; attackable mobs stay Monster.
+        EntityType fromPrefab = ResolveEntityType(prefab, npcgrp.ClassName);
+        identity.EntityType = NetNpcSession.IsAttackable(
+            identity.Id,
+            fromPrefab == EntityType.Monster)
+            ? EntityType.Monster
+            : EntityType.NPC;
 
         request = new NpcSpawnRequest
         {
@@ -300,9 +302,11 @@ public static partial class EntitySpawnShared
         if (Has(asset, "orc") || Has(asset, "goblin") || Has(asset, "bugbear") || Has(asset, "ogre"))
             return new[] { "orc_m00", "orc_fighter_m00", "goblin_m00" };
 
-        // Arachnid.
-        if (Has(asset, "spider") || Has(asset, "aracne"))
-            return new[] { "giant_spider_m00" };
+        // Arachnid — prefer real aracne_m00 (Nerupa) once imported; giant_spider is legacy stand-in.
+        if (Has(asset, "aracne"))
+            return new[] { "aracne_m00", "giant_spider_m00" };
+        if (Has(asset, "spider"))
+            return new[] { "giant_spider_m00", "aracne_m00" };
 
         // Canine / feline quadruped.
         if (Has(asset, "wolf") || Has(asset, "keltir") || Has(asset, "fox") || Has(asset, "cat"))
@@ -371,6 +375,37 @@ public static partial class EntitySpawnShared
         if (hasNpc && !hasMonster)
             return EntityType.NPC;
         return EntityTypeParser.ParseEntityType(className);
+    }
+
+    /// <summary>
+    /// Peaceful Folk that reuse a monster mesh (Nerupa = aracne_m00, spirit animals, …) ship with
+    /// <see cref="MonsterEntity"/> only. NpcSpawner needs <see cref="NpcEntity"/> so
+    /// click → talk, not auto-attack + retaliate.
+    /// Destroy dependent audio first — <see cref="MonsterAnimationAudioHandler"/> RequireComponent-blocks
+    /// removing <see cref="MonsterEntity"/> and aborts the whole spawn (empty village).
+    /// </summary>
+    public static NpcEntity EnsureNpcEntity(GameObject go)
+    {
+        if (go == null)
+            return null;
+
+        NpcEntity npc = FindOnPrefab<NpcEntity>(go);
+        if (npc != null)
+            return npc;
+
+        MonsterEntity monster = FindOnPrefab<MonsterEntity>(go);
+        if (monster == null)
+            return null;
+
+        MonsterAnimationAudioHandler monsterAudio = FindOnPrefab<MonsterAnimationAudioHandler>(go);
+        if (monsterAudio != null)
+            Object.DestroyImmediate(monsterAudio);
+
+        Object.DestroyImmediate(monster);
+
+        if (FindOnPrefab<CharacterAnimationAudioHandler>(go) == null)
+            go.AddComponent<CharacterAnimationAudioHandler>();
+        return go.AddComponent<NpcEntity>();
     }
 
     public static T FindOnPrefab<T>(GameObject go) where T : Component

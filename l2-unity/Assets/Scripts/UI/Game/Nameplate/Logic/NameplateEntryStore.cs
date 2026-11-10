@@ -62,7 +62,8 @@ public sealed class NameplateEntryStore
                 continue;
             }
 
-            Entity entity = hitT.GetComponent<Entity>();
+            // click_area is a child on EntityClick; Entity lives on the root.
+            Entity entity = hitT.GetComponentInParent<Entity>();
             if (entity == null || entity.Identity == null)
             {
                 continue;
@@ -85,7 +86,7 @@ public sealed class NameplateEntryStore
             if (hover.ObjectTransform != null &&
                 entityMask == (entityMask | (1 << hover.ObjectLayer)))
             {
-                Entity e = hover.ObjectTransform.GetComponent<Entity>();
+                Entity e = hover.ObjectTransform.GetComponentInParent<Entity>();
                 if (e != null)
                 {
                     UpsertEntry(e, defaultNameColor);
@@ -98,7 +99,7 @@ public sealed class NameplateEntryStore
             targets.HasTarget() &&
             targets.Target?.Data?.ObjectTransform != null)
         {
-            Entity e = targets.Target.Data.ObjectTransform.GetComponent<Entity>();
+            Entity e = targets.Target.Data.ObjectTransform.GetComponentInParent<Entity>();
             if (e != null)
             {
                 UpsertEntry(e, defaultNameColor);

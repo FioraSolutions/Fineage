@@ -65,10 +65,7 @@ public sealed class FineageZoneTransport : IZoneTransport
                 TargetManager attackTargets = ControllerPacketServices.Targets;
                 bool forceAttack = GameCtrl.IsHeld ||
                     (attackTargets != null && attackTargets.IsAttackTargetSet());
-                // Ctrl / attack intent: skip talk and swing even at peaceful NPCs.
-                if (clicked is NpcEntity &&
-                    !forceAttack &&
-                    !NetNpcSession.IsAttackable(netAction.ObjectId, clicked is MonsterEntity))
+                if (EntityInteraction.ShouldTalkOnClick(clicked, forceAttack))
                 {
                     Session.SendSelectTarget(netAction.ObjectId);
                     if (NetNpcWindows.InRange(clicked))

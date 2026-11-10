@@ -14,7 +14,6 @@ public class NpcCursorManager : MonoBehaviour
     private Texture2D _hoverCursorTalk;
     private Texture2D _hoverCursorAtk;
     private Texture2D _hoverCursorPickup;
-    private LayerMask _entityMask;
     private int _currentCursor;
     private ItemEntity _stickyDropItem;
     const int DefaultCursorId = 0;
@@ -36,7 +35,6 @@ public class NpcCursorManager : MonoBehaviour
         _hoverCursorAtk = IconPacketServices.Icons.LoadCursorByName("Attack");
         _hoverCursorTalk = IconPacketServices.Icons.LoadCursorByName("Talk");
         _hoverCursorPickup = IconPacketServices.Icons.LoadCursorByName("Pickup");
-        _entityMask = LayerMask.GetMask("EntityClick");
         _currentCursor = -1;
     }
 
@@ -71,39 +69,24 @@ public class NpcCursorManager : MonoBehaviour
             return;
         }
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, PickDistance, _entityMask))
+        // Hover cursor SoT (#930): Attackable / talkable on hover, not only when targeted.
+        if (!EntityPick.TryPick(ray, PickDistance, out Entity entity, out _))
         {
             ApplyCursor(DefaultCursorId, _defaultCursor);
             return;
         }
 
-        Entity entity = hit.collider.GetComponentInParent<Entity>();
-        if (entity != null &&
-            entity.Identity != null &&
-            DomainPacketServices.LocalPlayer != null &&
-            entity.Identity.Id == DomainPacketServices.LocalPlayer.TargetId)
-        {
-            ApplyTargetedEntityCursor(entity);
-            return;
-        }
-
-        ApplyCursor(DefaultCursorId, _defaultCursor);
+        ApplyEntityCursor(entity);
     }
 
-    void ApplyTargetedEntityCursor(Entity entity)
+    void ApplyEntityCursor(Entity entity)
     {
-        if (PetVisuals.IsPet(entity.Identity.Owned, entity.Identity.NpcId))
+        switch (EntityInteraction.ResolveCursor(entity))
         {
-            ApplyCursor(TalkCursorId, _hoverCursorTalk);
-            return;
-        }
-
-        switch (entity)
-        {
-            case MonsterEntity _:
+            case EntityInteraction.CursorKind.Attack:
                 ApplyCursor(AtkCursorId, _hoverCursorAtk);
                 break;
-            case NpcEntity _:
+            case EntityInteraction.CursorKind.Talk:
                 ApplyCursor(TalkCursorId, _hoverCursorTalk);
                 break;
             default:
