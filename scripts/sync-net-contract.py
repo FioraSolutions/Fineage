@@ -70,6 +70,7 @@ FILES = (
     "Messages/DungeonMessages.cs",
     "Messages/SevenSignsMessages.cs",
     "Codec/NetCodec.cs",
+    "Codec/NetCodec.Session.cs",
     "Codec/NetCodec.Shop.cs",
     "Codec/NetCodec.WorldEvents.cs",
     "Codec/NetCodec.Clan.cs",
