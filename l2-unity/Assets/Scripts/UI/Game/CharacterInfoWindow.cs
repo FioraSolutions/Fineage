@@ -218,7 +218,7 @@ public class CharacterInfoWindow : L2PopupWindow
 
     public void UpdateValues()
     {
-        PlayerEntity player = PlayerEntity.Instance;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player == null)
             return;
 
