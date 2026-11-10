@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -10,7 +10,7 @@ using UnityEngine;
 /// Same names as the client hook constants: c249 direction, c250 sun color, c251 ambient half.
 /// The same key also writes the live Katerina materials against the RenderDoc capture.
 /// </summary>
-public static class L2ActorLightCapture
+public static partial class L2ActorLightCapture
 {
     public const string Root =
         @"C:\games\Lineage II HighElfes\ADEU-P464-D20240703-P-240117-240724-1\system\logs\MonsterSearch\unity";
@@ -282,43 +282,4 @@ public static class L2ActorLightCapture
         return ok ? 1 : 0;
     }
 
-    static bool Contains(string value, string part)
-    {
-        return !string.IsNullOrEmpty(value)
-            && value.IndexOf(part, StringComparison.OrdinalIgnoreCase) >= 0;
-    }
-
-    static Color ToLinear(Color c)
-    {
-        return new Color(
-            Mathf.GammaToLinearSpace(c.r),
-            Mathf.GammaToLinearSpace(c.g),
-            Mathf.GammaToLinearSpace(c.b),
-            c.a);
-    }
-
-    static int Byte(float channel)
-    {
-        return Mathf.Clamp(Mathf.RoundToInt(channel * 255f), 0, 255);
-    }
-
-    static string Num(float v)
-    {
-        return v.ToString("0.000000000", CultureInfo.InvariantCulture);
-    }
-
-    static string Vec(Color c)
-    {
-        return Num(c.r) + " " + Num(c.g) + " " + Num(c.b) + " " + Num(c.a);
-    }
-
-    static string Vec(Vector3 v)
-    {
-        return Num(v.x) + " " + Num(v.y) + " " + Num(v.z) + " 0";
-    }
-
-    static string Vec(Vector4 v)
-    {
-        return Num(v.x) + " " + Num(v.y) + " " + Num(v.z) + " " + Num(v.w);
-    }
 }
