@@ -192,7 +192,7 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - Fold `TickAggression` + `TickLeash` (+ `TickAttackStance`) into `RunPlayerCombatTickAsync`.
 - Keep `RunCombatTickAsync` as the test/helper entry that already includes them, or make it call the live tick body.
 
-### B8. Persist off `_gate` — open (Claude)
+### B8. Persist off `_gate` — partial (ground + combat tick)
 - World mutation under lock; `SaveInventory` / Postgres `RunSilent` after release (same pattern as enter/unlink persist).
 
 ### B9. Snapshot ownership — partial (Backend #491)
@@ -348,5 +348,5 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] Live combat loop runs `TickAggression` / `TickLeash` (B7, Backend #490)
 - [x] Zone disconnect raises UI path (C4, #878)
 - [x] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5, #879)
-- [ ] Inventory persist not under `_gate` (B8)
+- [x] Inventory persist deferred off `_gate` for ground pickup/drop/destroy + combat tick (B8 partial); shop/trade/gear still sync under caller locks
 - [x] Hot-path / Open no longer clobber normalized SoT via stale snapshot (B9 partial, Backend #491); Login AfterSaveSnapshot residual
