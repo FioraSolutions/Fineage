@@ -144,13 +144,8 @@ public sealed partial class NetSession
 
     internal void ApplyAbnormalStatusUpdate(AbnormalStatusUpdateNetMsg update)
     {
-        // FanoutAbnormal goes to owner + knownlist. Buff bar is self-only — peer snapshots
-        // (including empty) must not wipe local icons.
-        PlayerEntity local = DomainPacketServices.LocalPlayer;
-        if (local != null && local.Identity != null && update.ObjectId != 0
-            && update.ObjectId != local.Identity.Id)
-            return;
-
+        // FanoutAbnormal goes to owner + knownlist. Self → BufferPanel. Peers → entity TargetEffects
+        // for TargetWindow (Mobius PartySpelled), never wipe the local buff tray.
         AbnormalEffectNet[] src = update.Effects ?? System.Array.Empty<AbnormalEffectNet>();
         var effects = new NetAbnormalEffect[src.Length];
         for (int i = 0; i < src.Length; i++)
@@ -164,9 +159,23 @@ public sealed partial class NetSession
             };
         }
 
-        AbnormalStatusUpdateDto dto = AbnormalStatusUpdateDto.FromZoneEffects(effects);
-        if (_status != null) _status.ApplyAbnormalStatusUpdate(dto);
-        else AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
+        AbnormalStatusUpdateDto dto = AbnormalStatusUpdateDto.FromZoneEffects(update.ObjectId, effects);
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
+        // EnterWorld can deliver AbnormalStatusUpdate before LocalPlayer is bound — use SessionObjectId.
+        bool self = update.ObjectId == 0
+            || (SessionObjectId != 0 && update.ObjectId == SessionObjectId)
+            || (local != null && local.Identity != null && update.ObjectId == local.Identity.Id);
+        if (self)
+        {
+            if (_status == null)
+                throw new System.InvalidOperationException("NetSession StatusApplyService is not bound.");
+            _status.ApplyAbnormalStatusUpdate(dto);
+            return;
+        }
+
+        if (_status == null)
+            throw new System.InvalidOperationException("NetSession StatusApplyService is not bound.");
+        _status.ApplyPeerAbnormalStatusUpdate(dto);
     }
 
 

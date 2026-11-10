@@ -74,7 +74,8 @@ public class SkillbarSlot : L2ClickableSlot
                 AssignAction(shortcut.Id);
                 break;
             case Shortcut.TYPE_ITEM:
-                AssignItem(shortcut.Id);
+                // Zone stores template itemId in Level so the bar can rebind after stack objectId churn.
+                AssignItem(shortcut.Id, shortcut.Level);
                 break;
             case Shortcut.TYPE_MACRO:
                 break;
@@ -101,13 +102,16 @@ public class SkillbarSlot : L2ClickableSlot
         _innerSlot = null;
     }
 
-    public void AssignItem(int objectId)
+    public void AssignItem(int objectId, int itemIdHint = 0)
     {
         ClearInnerSlot();
         // The bar can restore shortcuts before the inventory is bound (skillbar init runs early).
         PlayerInventory inventory = SkillbarPacketServices.Inventory;
         ItemInstance item = inventory != null ? inventory.FindByAllInventory(objectId) : null;
-        _itemId = item != null ? item.ItemId : 0;
+        // Soulshots etc.: objectId changes when the stack is emptied/restocked; Level carries itemId.
+        if (item == null && inventory != null && itemIdHint > 0)
+            item = inventory.GetItemByItemId(itemIdHint);
+        _itemId = item != null ? item.ItemId : itemIdHint;
         _innerSlot = new InventorySlot(_position, _slotElement, SlotType.SkillBar);
         ((InventorySlot)_innerSlot).AssignItem(item);
         ((L2ClickableSlot)_innerSlot).UnregisterClickableCallback();
@@ -221,8 +225,12 @@ public class SkillbarSlot : L2ClickableSlot
         {
             PlayerInventory inventory = SkillbarPacketServices.Inventory;
             ItemInstance item = inventory != null ? inventory.FindByAllInventory(_shortcut.Id) : null;
+            if (item == null && inventory != null && _shortcut.Level > 0)
+                item = inventory.GetItemByItemId(_shortcut.Level);
             if (item != null)
                 return item.ItemId;
+            if (_shortcut.Level > 0)
+                return _shortcut.Level;
         }
         return _itemId;
     }

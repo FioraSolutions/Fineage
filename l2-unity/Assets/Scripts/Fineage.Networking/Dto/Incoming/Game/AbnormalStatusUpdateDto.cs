@@ -2,6 +2,8 @@ using System.Collections.Generic;
 
 public class AbnormalStatusUpdateDto : IWireDto
 {
+    /// <summary>Net ObjectId of the creature whose effect icons changed (0 = local / legacy wire).</summary>
+    public int ObjectId { get; set; }
 
     public List<EffectHolder> ListEffect { get; set; }
     public AbnormalStatusUpdateDto()
@@ -24,10 +26,10 @@ public class AbnormalStatusUpdateDto : IWireDto
         //Debug.Log("AbnormalStatusUpdate update data");
     }
 
-    /// <summary>Built from the Fineage Net abnormal status update row (1017).</summary>
-    public static AbnormalStatusUpdateDto FromZoneEffects(NetAbnormalEffect[] effects)
+    /// <summary>Built from the Fineage Net abnormal status update row (ObjectId + effects).</summary>
+    public static AbnormalStatusUpdateDto FromZoneEffects(int objectId, NetAbnormalEffect[] effects)
     {
-        var dto = new AbnormalStatusUpdateDto { FullEffectSnapshot = true };
+        var dto = new AbnormalStatusUpdateDto { ObjectId = objectId, FullEffectSnapshot = true };
         if (effects == null)
             return dto;
         for (int i = 0; i < effects.Length; i++)

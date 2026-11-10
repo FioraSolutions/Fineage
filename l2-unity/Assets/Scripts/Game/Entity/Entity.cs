@@ -142,6 +142,22 @@ public class Entity : MonoBehaviour {
     public Appearance Appearance { get => _appearance; set { _appearance = value; } }
     public EntityIdentity Identity { get => _identityInterlude; set => _identityInterlude = value; }
 
+    /// <summary>
+    /// Live PartySpelled / AbnormalStatusUpdate icons for this creature (target window).
+    /// Self buff tray still uses <see cref="BufferPanel"/> separately.
+    /// </summary>
+    public System.Collections.Generic.List<EffectHolder> TargetEffects { get; } =
+        new System.Collections.Generic.List<EffectHolder>();
+
+    public void ReplaceTargetEffects(System.Collections.Generic.IList<EffectHolder> effects)
+    {
+        TargetEffects.Clear();
+        if (effects == null)
+            return;
+        for (int i = 0; i < effects.Count; i++)
+            TargetEffects.Add(effects[i]);
+    }
+
     /// <summary>Melee/bow soulshot charge — HitManager may spawn SoulshotImpact on the target.</summary>
     public bool IsSoulshotCharged { get; set; }
     /// <summary>Spiritshot / blessed spiritshot charge — weapon glow only; no melee SS impact on the mob.</summary>

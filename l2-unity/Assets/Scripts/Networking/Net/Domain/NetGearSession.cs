@@ -25,6 +25,7 @@ public static class NetGearSession
         _items = null;
         _updates.Clear();
         _warned = false;
+        _lastBlock = null;
     }
 
     public static void NoteUserInfo(NetUserInfo user)
@@ -47,6 +48,8 @@ public static class NetGearSession
 
         // StorageNpc is how the rest of the client (inventory, clan, status) looks up "me".
         RegisterSelfInStorage(user, transport, player);
+        // ItemList may have arrived before UserInfo; apply now that StorageNpc has "me".
+        FlushPending();
     }
 
     /// <summary>
@@ -100,6 +103,10 @@ public static class NetGearSession
 
     public static void FlushPending()
     {
+        bool hasWork = (_hasItems && !_itemsApplied) || _updates.Count > 0;
+        if (!hasWork)
+            return;
+
         if (!CanApplyInventory())
             return;
 

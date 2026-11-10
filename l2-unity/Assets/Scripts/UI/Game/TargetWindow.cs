@@ -6,13 +6,15 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Interlude TargetStatusWnd: name + HP, expand arrow reveals npcgrp property_list icons
+/// Interlude TargetStatusWnd: name + HP (monsters only), live effect icons (PartySpelled /
+/// AbnormalStatusUpdate + spoil), expand arrow reveals npcgrp property_list icons
 /// (race 4416 + vulnerabilties / passives) with SkillName tooltips.
 /// </summary>
 public class TargetWindow : L2Window {
     private Label _nameLabel;
     private VisualElement _HPBar;
     private VisualElement _HPBarBG;
+    private VisualElement _effectsRow;
     private VisualElement _propertiesRow;
     private Button _expandButton;
 
@@ -22,6 +24,8 @@ public class TargetWindow : L2Window {
     private bool _expanded;
     private int _boundNpcId = -1;
     private int _boundObjectId = -1;
+    private int _effectsObjectId = -1;
+    private int _effectsSignature;
 
     private static TargetWindow _instance;
     [Obsolete("Use [Inject] / PacketServices instead")]
@@ -78,6 +82,7 @@ public class TargetWindow : L2Window {
         _nameLabel = (Label)GetElementById("TargetName");
         _HPBar = GetElementById("HPBar");
         _HPBarBG = GetElementById("HPBarBG");
+        _effectsRow = GetElementById("EffectsRow");
         _propertiesRow = GetElementById("PropertiesRow");
         _expandButton = GetElementById("ExpandBtn") as Button;
 
@@ -121,17 +126,49 @@ public class TargetWindow : L2Window {
                         targetData.Stats.MaxHp),
                     _targetWindowMinWidth);
 
-                TooogleHide(targetData.Identity.IsHideHpBar);
+                TooogleHide(ShouldHideHpBar(targetData));
             }
 
+            BindEffects(targetData);
             BindProperties(targetData);
         } else {
             if (!_isWindowHidden) {
                 AudioPacketServices.Audio.PlayUISound("window_close");
             }
+            ClearEffects();
             ClearProperties();
             HideWindow();
         }
+    }
+
+    /// <summary>Called when a peer AbnormalStatusUpdate lands for the current target.</summary>
+    public void RefreshEffectsIfSelected(int objectId)
+    {
+        TargetManager targets = TargetPacketServices.Targets;
+        if (targets == null || !targets.HasTarget())
+            return;
+        TargetData data = targets.Target;
+        if (data?.Identity == null || data.Identity.Id != objectId)
+            return;
+        _effectsObjectId = -1;
+        _effectsSignature = 0;
+        BindEffects(data);
+    }
+
+    /// <summary>
+    /// Interlude TargetStatus: HP gauge only for attackable monsters. Self / other players /
+    /// village NPCs show name (and effects) without the red bar.
+    /// </summary>
+    static bool ShouldHideHpBar(TargetData targetData)
+    {
+        EntityIdentity identity = targetData?.Identity;
+        if (identity == null)
+            return true;
+        if (identity.Owned)
+            return true;
+        if (identity.EntityType == EntityType.Player || identity.EntityType == EntityType.User)
+            return true;
+        return identity.IsHideHpBar;
     }
 
     void OnExpandPressed(MouseDownEvent evt)
@@ -268,6 +305,105 @@ public class TargetWindow : L2Window {
             sb.Append(nameData.Desc);
         }
         return sb.Length > 0 ? sb.ToString() : ("Skill " + skillId + " Lv." + level);
+    }
+
+    void BindEffects(TargetData targetData)
+    {
+        if (_effectsRow == null)
+            return;
+        if (targetData?.Identity == null)
+        {
+            ClearEffects();
+            return;
+        }
+
+        Entity entity = targetData.GetEntity();
+        var list = entity != null ? entity.TargetEffects : null;
+        int objectId = targetData.Identity.Id;
+        int signature = EffectsSignature(list);
+        if (objectId == _effectsObjectId && signature == _effectsSignature)
+            return;
+
+        _effectsObjectId = objectId;
+        _effectsSignature = signature;
+        _effectsRow.Clear();
+
+        if (list == null || list.Count == 0)
+        {
+            _effectsRow.style.display = DisplayStyle.None;
+            return;
+        }
+
+        int painted = 0;
+        for (int i = 0; i < list.Count; i++)
+        {
+            EffectHolder effect = list[i];
+            if (effect == null || effect.Id <= 0)
+                continue;
+            if (TryAddEffectIcon(effect.Id, effect.Value))
+                painted++;
+        }
+
+        _effectsRow.style.display = painted > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+    bool TryAddEffectIcon(int skillId, int level)
+    {
+        int safeLevel = level > 0 ? level : 1;
+        Skillgrp skill = TablePacketServices.SkillGrps != null
+            ? TablePacketServices.SkillGrps.GetSkill(skillId, safeLevel)
+            : null;
+        SkillNameData nameData = TablePacketServices.SkillNames != null
+            ? TablePacketServices.SkillNames.GetName(skillId, safeLevel)
+            : null;
+
+        var icon = new VisualElement();
+        icon.AddToClassList("target-effect-icon");
+
+        bool painted = skill != null && L2SlotIconView.TrySetNamedIcon(icon, skill.Icon);
+        if (!painted)
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "icon.skill" + skillId);
+        if (!painted)
+            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + skillId);
+        if (!painted && nameData == null)
+            return false;
+
+        string tip = BuildPropertyTooltip(nameData, skillId, safeLevel);
+        if (!string.IsNullOrEmpty(tip))
+            icon.AddManipulator(new TooltipManipulator(icon, tip));
+
+        _effectsRow.Add(icon);
+        return true;
+    }
+
+    static int EffectsSignature(System.Collections.Generic.List<EffectHolder> list)
+    {
+        if (list == null || list.Count == 0)
+            return 0;
+        unchecked
+        {
+            int hash = list.Count;
+            for (int i = 0; i < list.Count; i++)
+            {
+                EffectHolder e = list[i];
+                if (e == null)
+                    continue;
+                hash = (hash * 397) ^ e.Id;
+                hash = (hash * 397) ^ e.Value;
+                hash = (hash * 397) ^ e.Duration;
+            }
+            return hash;
+        }
+    }
+
+    void ClearEffects()
+    {
+        _effectsObjectId = -1;
+        _effectsSignature = 0;
+        if (_effectsRow == null)
+            return;
+        _effectsRow.Clear();
+        _effectsRow.style.display = DisplayStyle.None;
     }
 
     void ClearProperties()

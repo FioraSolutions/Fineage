@@ -1,4 +1,8 @@
-﻿public enum ActionType : int
+﻿/// <summary>
+/// Interlude <c>RequestActionUse</c> / ActionWnd ids (interface.xdat ActionWnd + ActionName).
+/// Icons live under <c>Data/UI/Window/Action/Row/button_img</c>.
+/// </summary>
+public enum ActionType : int
 {
     Sit = 0,
     WalkRun = 1,
@@ -10,11 +14,27 @@
     PartyInvite = 7,
     PartyLeave = 8,
     PartyKick = 9,
-    RideStrider = 11,
-    /// <summary>Mobius RequestActionUse social: Greeting.</summary>
+    PrivateStoreSell = 10,
+    PartyMatching = 11,
     SocialGreeting = 12,
-    /// <summary>Mobius RequestActionUse social: Victory.</summary>
     SocialVictory = 13,
-    /// <summary>Mobius RequestActionUse social: Advance.</summary>
-    SocialAdvance = 14
+    SocialAdvance = 14,
+    SocialYes = 15,
+    SocialNo = 16,
+    SocialBow = 17,
+    SocialUnaware = 18,
+    SocialWaiting = 19,
+    SocialLaugh = 20,
+    SocialApplaud = 21,
+    SocialDance = 22,
+    SocialSorrow = 23,
+    SocialCharm = 24,
+    SocialShyness = 25,
+    PrivateStoreBuy = 28,
+    DwarvenManufacture = 37,
+    Mount = 38,
+    Recommend = 40,
+
+    /// <summary>Legacy Fineage id — prefer <see cref="Mount"/> (Interlude 38).</summary>
+    RideStrider = 38
 }
