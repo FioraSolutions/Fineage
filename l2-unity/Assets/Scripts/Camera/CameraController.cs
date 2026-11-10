@@ -1,8 +1,8 @@
 using System;
 
-﻿using UnityEngine;
+using UnityEngine;
 
-public class CameraController : MonoBehaviour
+public partial class CameraController : MonoBehaviour
 {
     // L2 rotator: 65536 = 360°. CameraPitch hardcoded -2700 (= -14.83° in UE).
     // Unity Euler X is inverted vs UE pitch: negative UE pitch (look down) → positive Unity X.
@@ -196,81 +196,6 @@ public class CameraController : MonoBehaviour
 
         Vector3 viewPort = cam.WorldToViewportPoint(target.position);
         return viewPort.x <= 1 && viewPort.x >= 0 && viewPort.y <= 1 && viewPort.y >= 0 && viewPort.z >= -0.2f;
-    }
-
-    private void UpdateInputs()
-    {
-        InputManager input = ControllerPacketServices.Input;
-        if (input == null || !input.TurnCamera)
-        {
-            return;
-        }
-
-        Vector2 axis = input.CameraAxis;
-        _x += axis.x * _camSpeed;
-        _y -= axis.y * _camSpeed;
-        _y = ClampAngle(_y, -80f, 80f);
-    }
-
-    private void UpdateZoom()
-    {
-        InputManager input = ControllerPacketServices.Input;
-        if (input == null)
-        {
-            return;
-        }
-
-        float scrollAxis = input.ZoomAxis;
-        _camDistance = Mathf.Clamp(_camDistance - scrollAxis * _zoomSpeed * 0.1f, _minDistance, _maxDistance);
-    }
-
-    private void UpdatePosition()
-    {
-        Quaternion rotation = Quaternion.Euler(_y, _x, 0f);
-        _lookAt = LookAtPoint();
-
-        if (_smoothCamera)
-        {
-            if (_lerpLookAt == Vector3.zero)
-            {
-                _lerpLookAt = _lookAt;
-            }
-
-            _lerpLookAt = Vector3.Lerp(_lerpLookAt, _lookAt, _smoothness * Time.deltaTime);
-        }
-        else
-        {
-            _lerpLookAt = _lookAt;
-        }
-
-        float desiredDistance = _camDistance;
-        if (!_disableCollisionZoom)
-        {
-            if (_collisionDetector == null && _camera != null)
-            {
-                _collisionDetector = new CameraCollisionDetection(_camera, _target, _camOffset, _collisionMask);
-            }
-
-            if (_collisionDetector != null)
-            {
-                _collisionDetector.DetectSphereCollision(
-                    _lerpLookAt,
-                    rotation,
-                    desiredDistance,
-                    L2CollisionRadiusMeters * WorldScale,
-                    L2TraceExtraMeters * WorldScale);
-                desiredDistance = _collisionDetector.AdjustedDistance;
-            }
-        }
-
-        _currentDistance = desiredDistance;
-        Vector3 adjustedPosition = _lerpLookAt + rotation * (Vector3.forward * -_currentDistance);
-        if (float.IsNaN(adjustedPosition.x))
-        {
-            return;
-        }
-
-        transform.SetPositionAndRotation(adjustedPosition, rotation);
     }
 
     public void SetHeading(float heading)
