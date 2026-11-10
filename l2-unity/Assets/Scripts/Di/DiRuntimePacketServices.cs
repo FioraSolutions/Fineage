@@ -21,7 +21,7 @@ public static class DiRuntimePacketServices
     }
 
     public static GameClient Game =>
-        _game != null ? _game : GameClient.Instance;
+        _game != null ? _game : NetworkingPacketServices.Game;
 
     public static LoginClient Login =>
         _login != null ? _login : NetworkingPacketServices.Login;
