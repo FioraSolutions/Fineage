@@ -3,15 +3,17 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-10)
+### Status Now (2026-11-10 evening)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
-- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (through **#890**). Spawn/shop/buffer/drop/ItemName/preview drains landed (#888–#889). `LoginRuntime` windows are resolver-only; Instance fallbacks live in `LoginPacketServices`. Live leftovers are mostly rendering/geodata + PacketServices bridges. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work.
+- **C2 Instance drain:** PacketServices path largely done through **#893** (spawn/shop/buffer/drop/geodata/sky included). `LoginRuntime` windows are resolver-only. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work; easy mechanical drains are exhausted.
 - Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
-- **Asmdef:** `Fineage.Domain` / `Fineage.Networking` / `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded; `Fineage.Di` has `ILateBound` / `LateBoundMono` — gameplay MonoBehaviours remain `Assembly-CSharp`.
+- **Asmdef:** `Fineage.Domain` / `Fineage.Networking` / `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded; `Fineage.Di` has `ILateBound` / `LateBoundMono`. **Gameplay MonoBehaviours + LifetimeScope remain `Assembly-CSharp`** — this is the hard residual.
 - Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow` / `NetZoneDispatch`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. `NetDomainMap` deleted (C1 + CI freeze).
-- Epic **#131** residual (2026-11-10): cycle-safe pool largely moved; #737 EditMode compile gate landed. Easy PacketServices Instance drains largely exhausted through #893 (geodata/sky included). Next hard slices = LifetimeScope / gameplay MonoBehaviours when cycle-safe. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **ACS hub file-splits (mechanical, landed through #927):** EntitySpawnShared, PlayerInventory, CreatorTableWindows, NetworkCommands, ClanWindow, SceneLoader, EnchantWindow, Entity, EntityActionSkill, DealerWindow, BaseAnimationController, NetGearSession.Map, L2SlotManager, NetCommandSender, ItemDropPresentation, DayNightCycle, ParticleStreamRuntime (+ earlier HitManager/World/Gear/AnimationManager/ToolTip). Opportunistic further splits only if a hub is still >>500 lines.
+- **CI:** Unity EditMode/compile gate [#737](https://github.com/FioraSolutions/Fineage/issues/737) landed (#874). Merge gate for feature PRs remains **`build-and-test`** (do not wait on `unity-editmode`).
+- Epic **#131** next: LifetimeScope / gameplay MonoBehaviours into `Fineage.*` when cycle-safe. Not TLS / Phase D / inventing HUD / restoring IPA. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md) (“Agent start here”).
 
 > **Original date:** 2026-10-27
 > **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),

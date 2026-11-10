@@ -30,6 +30,10 @@ Do not burn Opus on routine edits. Do not vibe-code architecture on Composer alo
 2. **Merge when `build-and-test` is green** (branch up to date with `dev`). Do **not** wait for `unity-editmode` — it is not a required status check on `dev` (~20–25 min game-ci). See [`Docs/CI_AND_TESTING.md`](Docs/CI_AND_TESTING.md).
 3. **Small PRs.** Prefer narrow diffs; rebase onto `origin/dev` (client) before review.
 
+## Where to start (refactor)
+
+Read **“Agent start here”** in [`Docs/REFACTOR_PLAN_2026-11.md`](Docs/REFACTOR_PLAN_2026-11.md) and **Status Now** in [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md). Client next hard residual: LifetimeScope / gameplay MonoBehaviours into `Fineage.*` when cycle-safe. Backend: [`Fineage-Backend/docs/ZONE_MODULARIZATION.md`](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/ZONE_MODULARIZATION.md) + epic [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353).
+
 ## GitHub Project
 
 https://github.com/orgs/FioraSolutions/projects/7
