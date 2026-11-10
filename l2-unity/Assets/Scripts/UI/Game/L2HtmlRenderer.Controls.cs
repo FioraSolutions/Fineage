@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public partial class L2HtmlRenderer
+public sealed partial class L2HtmlRenderer
 {
     private void AddMultiEdit()
     {
