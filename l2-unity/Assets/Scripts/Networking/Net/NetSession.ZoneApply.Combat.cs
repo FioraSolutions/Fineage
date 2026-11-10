@@ -167,12 +167,15 @@ public sealed partial class NetSession
             || (local != null && local.Identity != null && update.ObjectId == local.Identity.Id);
         if (self)
         {
-            if (_status != null) _status.ApplyAbnormalStatusUpdate(dto);
-            else AbnormalStatusUpdateApplyIncomingPacketServices.ApplyAbnormalStatusUpdate(dto);
+            if (_status == null)
+                throw new System.InvalidOperationException("NetSession StatusApplyService is not bound.");
+            _status.ApplyAbnormalStatusUpdate(dto);
             return;
         }
 
-        AbnormalStatusUpdateApplyIncomingPacketServices.ApplyPeerAbnormalStatusUpdate(dto);
+        if (_status == null)
+            throw new System.InvalidOperationException("NetSession StatusApplyService is not bound.");
+        _status.ApplyPeerAbnormalStatusUpdate(dto);
     }
 
 

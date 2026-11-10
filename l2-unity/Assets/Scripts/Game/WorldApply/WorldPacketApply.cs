@@ -194,6 +194,8 @@ public sealed class WorldPacketApply
             }
             GameWorld.SpawnUser(info);
             _gameEvents?.Publish(new EntitySpawnedEvent(info.Identity.Id));
+            // PartySpelled may have arrived before CharInfo finished spawning the peer.
+            AbnormalStatusUpdateApplyIncomingPacketServices.FlushPendingPeerAbnormals(info.Identity.Id);
             return;
         }
 

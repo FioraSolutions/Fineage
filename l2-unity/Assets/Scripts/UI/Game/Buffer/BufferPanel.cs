@@ -57,7 +57,7 @@ public class BufferPanel : L2Window
     {
         AuxiliaryGameUIPacketServices.Bind(buffer: this);
         // EnterWorld may have stashed AbnormalStatusUpdate before this tray existed.
-        AbnormalStatusUpdateApplyIncomingPacketServices.FlushPendingSelfAbnormals();
+        ApplyServices.Status?.FlushPendingSelfAbnormals();
     }
 
     protected override void LoadAssets()
