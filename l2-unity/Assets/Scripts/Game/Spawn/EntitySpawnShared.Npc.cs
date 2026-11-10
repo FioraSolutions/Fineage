@@ -1,4 +1,4 @@
-
+using UnityEngine;
 
 public static partial class EntitySpawnShared
 {
@@ -187,7 +187,9 @@ public static partial class EntitySpawnShared
         if (npc == null || npcgrp == null || npc.Stats == null || npc.Status == null)
             return;
 
-        if (npc.Identity != null && npc.Identity.Owned && npc.Stats.MaxHp > 1)
+        // Zone EntitySpawn already seeded MaxHp/CurHp (#522). Overwriting with npcgrp made
+        // select-target StatusUpdate look like damage and play hit SFX.
+        if (npc.Stats.MaxHp > 1)
             return;
 
         int grpHp = Mathf.Max(1, Mathf.RoundToInt(npcgrp.MaxHp));

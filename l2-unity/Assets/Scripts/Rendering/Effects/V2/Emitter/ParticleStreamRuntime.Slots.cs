@@ -119,7 +119,7 @@ public sealed partial class ParticleStreamRuntime
         }
 
         float shaderStartTime = now - _warmupAgeAtSpawn;
-        float seed = Random.Range(-100f, 100f);
+        float seed = UnityEngine.Random.Range(-100f, 100f);
         Vector4 spawnLocationAddUe = ResolveSpawnLocationAddUe(now);
         CaptureSpawnObjectToWorld(slot);
         _simulation.EnsureLifetime(_slots.Count);

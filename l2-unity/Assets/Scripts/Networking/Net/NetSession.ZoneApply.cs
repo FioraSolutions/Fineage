@@ -40,7 +40,7 @@ public sealed partial class NetSession
 
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         var status = new PlayerStatus();
-        status.SetHp(maxHp);
+        status.SetHp(ResolveSpawnCurHp(spawn, maxHp));
         status.PvpFlag = spawn.PvpFlag;
 
         var stats = new PlayerStats
@@ -122,7 +122,7 @@ public sealed partial class NetSession
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         dto.Stats.MaxHp = maxHp;
-        dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
+        dto.Status.SetHp(ResolveSpawnCurHp(spawn, maxHp));
         dto.Status.SetMp(100);
         dto.Stats.MaxMp = 100;
         if (spawn.PAtkSpd > 0)
@@ -144,6 +144,21 @@ public sealed partial class NetSession
     internal static void ApplySpawnPaperdollItemIds(PlayerAppearance appearance, int[] itemIds) =>
         NetPaperdollApply.ApplyItemIds(appearance, itemIds);
 
+    /// <summary>
+    /// Zone <see cref="EntitySpawnMsg.CurHp"/> is authoritative at enter-view (select StatusUpdate must not look like damage).
+    /// Decode already fills MaxHp when the optional CurHp tail is absent on old peers.
+    /// </summary>
+    static int ResolveSpawnCurHp(EntitySpawnMsg spawn, int maxHp)
+    {
+        if (spawn.Dead)
+            return 0;
+        if (spawn.CurHp < 0)
+            return maxHp;
+        if (spawn.CurHp > maxHp)
+            return maxHp;
+        return spawn.CurHp;
+    }
+
 
     internal void ApplyNpcSpawn(EntitySpawnMsg spawn)
     {
@@ -158,12 +173,10 @@ public sealed partial class NetSession
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
         dto.Identity.IsRunning = spawn.Running;
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
-        // Wire carries MaxHp only; alive NPCs spawn at full HP. Stubbing CurHp=100 while MaxHp is
-        // the real template value made TargetWindow BarFillRatio stick at 1 until a StatusUpdate
-        // arrived — and look broken when updates lagged (#522).
+        // Wire carries MaxHp + CurHp (#522 bar size; CurHp so select/AOI StatusUpdate is not a false hit).
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
         dto.Stats.MaxHp = maxHp;
-        dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
+        dto.Status.SetHp(ResolveSpawnCurHp(spawn, maxHp));
         int pAtkSpd = spawn.PAtkSpd > 0 ? spawn.PAtkSpd : 253;
         dto.Stats.PAtkSpd = pAtkSpd;
         dto.Stats.PAtkRealSpeed = pAtkSpd;

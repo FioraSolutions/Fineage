@@ -1,6 +1,6 @@
 using System;
 
-﻿using UnityEngine;
+using UnityEngine;
 
 public partial class PlayerController : MonoBehaviour
 {

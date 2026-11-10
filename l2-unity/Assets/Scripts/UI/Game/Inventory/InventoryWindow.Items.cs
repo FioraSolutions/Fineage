@@ -1,4 +1,6 @@
-
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.UIElements;
 
 public partial class InventoryWindow
 {

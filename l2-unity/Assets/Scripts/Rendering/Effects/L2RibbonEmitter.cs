@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public sealed class L2RibbonEmitter : EffectPart
+public sealed partial class L2RibbonEmitter : EffectPart
 {
     public enum WidthAxisSource
     {

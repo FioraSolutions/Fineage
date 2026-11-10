@@ -124,5 +124,7 @@ public partial class L2SlotManager
         ShortcutPacketServices.Shortcuts.AddShortcut(position, sourceSlot.Id, Shortcut.TYPE_SKILL, sourceSlot.Level);
     }
 
+    #endregion
+
     private int _recipeId = -1;
 }
