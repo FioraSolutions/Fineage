@@ -7,6 +7,6 @@ public sealed class NpcDecoKeepWorldUp : MonoBehaviour
 {
     void LateUpdate()
     {
-        transform.rotation = NpcDecoAttachment.UprightYaw(transform.parent);
+        transform.rotation = NpcDecoUpright.UprightYaw(transform.parent);
     }
 }

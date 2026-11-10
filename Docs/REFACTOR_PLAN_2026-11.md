@@ -312,6 +312,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
 - [x] Cycle-safe preview/debug MonoBehaviours into `Fineage.Game` (`PreviewOrbitCamera`, `PlayerLoopDebugger`).
 - [x] Client ACS hub file-splits continued (SkillCastSound.Helpers; MovementData.Step)
+- [x] Cycle-safe `NpcDecoKeepWorldUp` into `Fineage.Game`.
+- [x] Cycle-safe `NpcDecoKeepWorldUp` + `NpcDecoUpright` into `Fineage.Game` (ACS `NpcDecoAttachment` delegates upright yaw).
 - [ ] Remaining asmdef work = LifetimeScope types themselves / more gameplay MonoBehaviours when cycle-safe (hard residual).
 
 ### C3. Doc sync

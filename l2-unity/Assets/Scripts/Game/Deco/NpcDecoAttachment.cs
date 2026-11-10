@@ -21,13 +21,7 @@ public static class NpcDecoAttachment
     }
 
     public static Quaternion UprightYaw(Transform source)
-    {
-        Vector3 forward = source != null ? source.forward : Vector3.forward;
-        forward.y = 0f;
-        if (forward.sqrMagnitude < 1e-6f)
-            forward = Vector3.forward;
-        return Quaternion.LookRotation(forward.normalized, Vector3.up);
-    }
+        => NpcDecoUpright.UprightYaw(source);
 
     public static bool TryResolve(
         Entity entity,
