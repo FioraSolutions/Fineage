@@ -3,7 +3,7 @@ using VContainer;
 /// <summary>
 /// DAT table access with [Inject] wiring and singleton fallbacks (#142 sub-slice 41).
 /// </summary>
-public static class TablePacketServices
+public static partial class TablePacketServices
 {
     private static ItemTable _items;
     private static ItemNameTable _itemNames;
@@ -277,6 +277,4 @@ public static class TablePacketServices
     }
 
 #pragma warning disable CS0618 // Locator fallback until ItemTable.Instance is removed
-    static ItemTable LegacyItemTableInstance() => ItemTable.Instance;
-#pragma warning restore CS0618
 }
