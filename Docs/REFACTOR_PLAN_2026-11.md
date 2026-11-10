@@ -324,17 +324,20 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 ---
 
-## Execution order for autonomous agents (next)
+## Agent start here (as of 2026-11-10 evening)
 
-| Track | Deliverable |
-|-------|-------------|
-| Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
-| Backend next | sim actor later; hubs mostly &lt;~350; opportunistic residual only ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
-| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe; continue large ACS file-splits while asmdef residual stays hard ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
-| A6 | TLS before non-VPN public auth (#17 / #113) |
-| CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
+**Progress (stabilize path A+B+C / epics #131+#353):** ~70–75%. Backend modularization acceptance largely met (~85–90%). Client easy drains + ACS hub file-splits largely met; **hard residual = LifetimeScope / gameplay MonoBehaviours → `Fineage.*` asmdef**.
+
+| Track | Do next | Do **not** |
+|-------|---------|------------|
+| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) | LifetimeScope / gameplay MB asmdef moves when cycle-safe; opportunistic ACS file-split only if a hub is still >>500 and the change is mechanical | Invent HUD; pack Gremlin #129 onto unreformed ACS; restore `IncomingPacketActions` |
+| Backend [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) | Opportunistic hub residual only (most primaries already &lt;~350); sim actor / retire `_gate` later when measured | Microservices; rewrite ZoneWorld; invent non-Mobius rules |
+| A6 | TLS / Gateway before public internet (#17 / #113) | Treat Phase D scale as current work |
+| Docs | Keep this plan + epic bodies honest after each wave | Trust unchecked boxes in old review prose without Status Now |
 
 **Out of scope now:** Redis, multi-zone, QUIC, 20k claims, ECS rewrite, microservices.
+
+Living client Status Now: [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md). Backend Status Now: [Fineage-Backend `docs/ZONE_MODULARIZATION.md`](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/ZONE_MODULARIZATION.md).
 
 ## Success metrics
 
@@ -359,7 +362,7 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] BufferPanel SkillGrps via TablePacketServices (#897)
 - [x] Backend hub splits continued (#513–#522: ClassCatalog/QuestCatalog/GameData/AccountStore/ZoneWorld.Members/PostgresAccountStore/ZoneEntity.Members/NormalizedStoreWriter/NetCodec.Presence/WorldMessages)
 - [x] Backend hub splits continued (#524–#543: NetCodec.Session/LoginResult/NpcWarehouse/WorldEvents/ZoneCombat/Skills/QuestsKills/SiegeBoard/NetZoneHandle/NetLoginHandle/BossSchedule/SevenSigns/ShopTrade/ClassCatalog.Load/GeoEngine.Los+Region/Olympiad.Actions/VillageMasterModels/PlayerInventory.Bag/QuestMachine.Ops.Helpers)
-- [x] Client HitManager Remote/Impact (#902); World Spawn/Query next
-- [x] Backend hub splits continued (#551–#557: NetLogin Handle.Roster / Cli.Listen / ZoneEntity Identity+Status / WorldEventPacketHandler / Abnormals.Tick / ToNet.Social / Skills.Members.Support)
-- [x] Client ACS hubs continued (#911–#923: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map; L2SlotManager/NetCommandSender in flight)
-- [ ] LifetimeScope / gameplay MB asmdef remains hard residual (#131)
+- [x] Client HitManager Remote/Impact (#902); World Spawn/Query (#903)
+- [x] Backend hub splits continued (#551–#561: NetLogin Handle.Roster / Cli.Listen / ZoneEntity Identity+Status / WorldEventPacketHandler / Abnormals.Tick / ToNet.Social / Skills.Members.Support / SessionLifecycle.Enter / Warehouse.Helpers / ZoneWorld.More.Enter)
+- [x] Client ACS hub file-splits continued (#911–#927: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map / L2SlotManager / NetCommandSender / ItemDropPresentation / DayNightCycle / ParticleStreamRuntime)
+- [ ] LifetimeScope / gameplay MB asmdef remains hard residual (#131) — **next primary client work**
