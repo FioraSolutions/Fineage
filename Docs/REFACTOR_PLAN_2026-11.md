@@ -329,8 +329,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
-| Backend next | sim actor later; hub file-splits largely under ~500 lines; opportunistic residual only ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
-| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe; large ACS hubs (World/HitManager/Gear) file-splitting while asmdef residual stays hard ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
+| Backend next | sim actor later; hubs mostly &lt;~350; opportunistic residual only ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
+| Client next | LifetimeScope / gameplay MonoBehaviours when cycle-safe; continue large ACS file-splits while asmdef residual stays hard ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
 
@@ -360,3 +360,6 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] Backend hub splits continued (#513–#522: ClassCatalog/QuestCatalog/GameData/AccountStore/ZoneWorld.Members/PostgresAccountStore/ZoneEntity.Members/NormalizedStoreWriter/NetCodec.Presence/WorldMessages)
 - [x] Backend hub splits continued (#524–#543: NetCodec.Session/LoginResult/NpcWarehouse/WorldEvents/ZoneCombat/Skills/QuestsKills/SiegeBoard/NetZoneHandle/NetLoginHandle/BossSchedule/SevenSigns/ShopTrade/ClassCatalog.Load/GeoEngine.Los+Region/Olympiad.Actions/VillageMasterModels/PlayerInventory.Bag/QuestMachine.Ops.Helpers)
 - [x] Client HitManager Remote/Impact (#902); World Spawn/Query next
+- [x] Backend hub splits continued (#551–#557: NetLogin Handle.Roster / Cli.Listen / ZoneEntity Identity+Status / WorldEventPacketHandler / Abnormals.Tick / ToNet.Social / Skills.Members.Support)
+- [x] Client ACS hubs continued (#911–#923: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map; L2SlotManager/NetCommandSender in flight)
+- [ ] LifetimeScope / gameplay MB asmdef remains hard residual (#131)
