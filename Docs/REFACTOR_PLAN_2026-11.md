@@ -302,6 +302,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [x] UI/Database/Audio/Icon `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
 - [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred; includes managers/controllers round 2).
+- [x] Cycle-safe leaf MonoBehaviours wave 2 into `Fineage.Game` (`L2ActorLocalLight`, `L2CloudLayers`, `ItemPickupMotion`, `SwordSetup`, `IRotation`/`RotationService`, `DropMeshLifetimeTracker`) + delete unused empty MB stubs.
 - [x] First cycle-safe gameplay MonoBehaviours into `Fineage.Game` (Windmill / BoatSway / DestroyAfter / FpsLimiter / ParticleTimerReset / LayerCullDistance / RandomizeChildYawOnEnable / L2FireNoWorldLight / EffectPrefabRotator / DontDestroyOnLoad).
 - [x] Cycle-safe billboard + instanced prop MonoBehaviours into `Fineage.Game` (`IRegisteredBillboard`, `RegisteredBillboards`, `CameraPreRenderUpdater`, `L2InstancedPropSet`/`L2InstancedPropRenderer`).
 - [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
