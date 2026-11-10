@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 using UnityEngine;
 using VContainer;
 
-public class CharacterCreator : MonoBehaviour
+public partial class CharacterCreator : MonoBehaviour
 {
     [SerializeField] private GameObject[] pawns = new GameObject[26];
     [SerializeField] private int currentPawnIndex = -1;
@@ -80,26 +80,11 @@ public class CharacterCreator : MonoBehaviour
         }
     }
 
-    public void SpawnAllPawns() {
-        List<Logongrp> pawnData = LogonGrps;
-
-        EnsurePawnContainer();
-
-        for (var i = 8; i < pawnData.Count; i++) {
-             GameObject pawnObject = CreatePawn(CharacterRaceAnimation.FDarkElf, new PlayerAppearance());
-             pawns[i] = pawnObject;
-             PlacePawn(pawnObject, pawnData[i], "Pawn" + i, _pawnContainer);
-        }
-    }
 
     /// <summary>
     /// Char create: spawn pawns lazily (on <see cref="SelectPawn"/>). Instantiating all 18 race/class
     /// pawns in one frame native-crashed UnityPlayer on Windows D3D12 playtest builds.
     /// </summary>
-    public void SpawnAllCharCreatePawns()
-    {
-        EnsurePawnContainer();
-    }
 
     GameObject EnsureCharCreatePawn(int index)
     {
@@ -136,21 +121,6 @@ public class CharacterCreator : MonoBehaviour
     /// <summary>
     /// Drop create-gallery while still in lobby (back to select). World enter unloads Menu.
     /// </summary>
-    public void DestroyAllPawns()
-    {
-        if (_pawnContainer != null)
-        {
-            Object.Destroy(_pawnContainer);
-            _pawnContainer = null;
-        }
-
-        for (int i = 0; i < pawns.Length; i++)
-            pawns[i] = null;
-
-        currentPawn = null;
-        currentPawnIndex = -1;
-        _pawnRotating = false;
-    }
 
     void EnsurePawnContainer()
     {
@@ -159,116 +129,12 @@ public class CharacterCreator : MonoBehaviour
         LobbyPresentation.Host(_pawnContainer);
     }
 
-    public void SpawnPawnWithId(int id) {
-        Logongrp pawnData = LogonGrps[id];
-        GameObject pawnObject = CreatePawn(pawnData.RaceId, new PlayerAppearance());
-        if (pawnObject == null) {
-            pawnObject = FallbackPawn();
-        }
 
-        PlacePawn(pawnObject, pawnData, "Pawn" + id, _pawnContainer);
-    }
 
-    public CharacterRaceAnimation GetRaceAnimator(int id) {
-        return LogonGrps[id].RaceId;
-    }
 
-    public void SelectPawn(string race, string pawnClass, string gender) {
-        int index = 0;
-        switch(race) {
-            case "Human":
-                index = 8;
-                break;
-            case "Elf":
-                index = 12;
-                break;
-            case "Dark Elf":
-                index = 16;
-                break;
-            case "Orc":
-                index = 20;
-                break;
-            case "Dwarf":
-                index = 24;
-                break;
-        }
-
-        if(pawnClass == "Mystic") {
-            index += 2;
-        }
-
-        if(gender == "Female") {
-            index += 1;
-        }
-
-        currentPawnIndex = index;
-        currentPawn = EnsureCharCreatePawn(index);
-    }
-
-    public void ResetPawnSelection() {
-        if (currentPawn != null) {
-            // Restore pawn appearance and rotation
-            // Restore lazily: next SelectPawn rebuilds a fresh pawn for this slot.
-            Destroy(currentPawn);
-            if (currentPawnIndex >= 0 && currentPawnIndex < pawns.Length)
-                pawns[currentPawnIndex] = null;
-        }
-
-        currentPawn = null;
-        currentPawnIndex = -1;
-    }
     
-    public GameObject CreatePawn(CharacterRaceAnimation raceId, PlayerAppearance appearance) {
-        GameObject pawnObject = Builder.BuildCharacterBase(raceId, appearance, EntityType.Pawn);
-        if (pawnObject == null) {
-            // m0nster: временная заглушка, пока не реализованы все персонажи
-            return null;
-        }
 
-        UserGear gear = pawnObject.GetComponent<UserGear>();
 
-        gear.Initialize(-1, raceId);
-        gear.SyncEquippedArmor(appearance);
-        gear.SyncEquippedWeapons(appearance.RHand, appearance.LHand);
-
-        return pawnObject;
-    }
-
-    public GameObject CreatePawnInterlude(CharacterRaceAnimation raceId, PlayerAppearance appearance)
-    {
-        GameObject pawnObject = Builder.BuildCharacterBaseInterlude(raceId, appearance, EntityType.Pawn);
-        if (pawnObject == null) {
-            // m0nster: временная заглушка, пока не реализованы все персонажи
-            return null;
-        }
-        
-        UserGear gear = pawnObject.GetComponent<UserGear>();
-        if (gear == null)
-            return pawnObject;
-
-        // Isolate gear failures per pawn so one bad race cannot abort the lobby roster.
-        try
-        {
-            gear.Initialize(-1, raceId);
-            CharacterDefaultEquipment.EquipStarterGear(gear, appearance);
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-
-        return pawnObject;
-    }
-
-    public void PlacePawn(GameObject pawnObject, Logongrp pawnData, string name, GameObject container)
-    {
-        UpdatePawnPosAndRot(pawnObject, pawnData);
-        pawnObject.transform.name = name;
-        pawnObject.transform.SetParent(container.transform, true);
-        pawnObject.SetActive(true);
-        LobbyPresentation.ApplyLayer(pawnObject);
-        BindLobbyPawnPresentation(pawnObject);
-    }
 
     /// <summary>
     /// After activation: wait pose then bind skinned gear onto the anim skeleton.
@@ -291,67 +157,11 @@ public class CharacterCreator : MonoBehaviour
         sync?.SyncMesh();
     }
 
-    public void UpdatePawnPosAndRot(GameObject pawnObject, Logongrp pawnData) {
-        Vector3 pawnPosition = new Vector3(pawnData.X, pawnData.Y, pawnData.Z);
-        pawnPosition = VectorUtils.ConvertPosToUnity(pawnPosition);
-        pawnObject.transform.position = pawnPosition;
-        pawnObject.transform.eulerAngles = new Vector3(0, 360.00f * pawnData.Yaw / 65536, 0);
-        // Pin the slot as destination so a pawn never slides back to its Instantiate origin.
-        SelectableCharacterEntity selectable = pawnObject.GetComponent<SelectableCharacterEntity>();
-        if (selectable != null)
-            selectable.SetDestination(pawnData);
-    }
 
-    public void RotatePawn(bool right) {
-        _pawnRotating = true;
-        _pawnRotatingRight = right;
-    }
 
-    public void StopRotatingPawn() {
-        _pawnRotating = false;
-    }
 
-    public void ReBuildFace(CharacterRaceAnimation raceId, byte _face)
-    {
-        GameObject pawnObject = pawns[currentPawnIndex];
-        if (pawnObject != null)
-        {
-            UserGear gear = pawnObject.GetComponent<UserGear>();
-            // Parent immediately — unparented Instantiate lands in the active scene
-            // (can be Game) and survives Menu unload as a floating mesh.
-            GameObject face = Instantiate(Models.GetFace(raceId, _face), pawnObject.transform, false);
-            gear.EquipFace(face);
-            LobbyPresentation.ApplyLayer(pawnObject);
-        }
-    }
 
-    public void ReBuildHair(CharacterRaceAnimation raceId, byte hairColor, byte hairStyle)
-    {
-        GameObject pawnObject = pawns[currentPawnIndex];
 
-        if (pawnObject != null)
-        {
-            var hair1M = Models.GetHair(raceId, hairStyle, hairColor, false);
-            var hair2M = Models.GetHair(raceId, hairStyle, hairColor, true);
-            if (hair1M != null || hair2M != null)
-            {
-                GameObject hair1 = hair1M != null
-                    ? Instantiate(hair1M, pawnObject.transform, false)
-                    : null;
-                GameObject hair2 = hair2M != null
-                    ? Instantiate(hair2M, pawnObject.transform, false)
-                    : null;
-                UserGear gear = pawnObject.GetComponent<UserGear>();
-                gear.EquipHair(hair1, hair2);
-                LobbyPresentation.ApplyLayer(pawnObject);
-            }
-
-        }
-    }
-
-    public GameObject FallbackPawn() {
-        return CreatePawn(CharacterRaceAnimation.FFighter, new PlayerAppearance());
-    }
 
 
 }
