@@ -318,6 +318,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Cycle-safe `NpcDecoKeepWorldUp` + `NpcDecoUpright` into `Fineage.Game` (ACS `NpcDecoAttachment` delegates upright yaw).
 - [x] Cycle-safe `L2MaterialPropertyCopier` into `Fineage.Game`.
 - [x] Cycle-safe `L2MaterialPropertyCopier` (+ AppRand partial) into `Fineage.Game`.
+- [x] Cycle-safe debug `DrawLine` into `Fineage.Game`.
 - [ ] Remaining asmdef work = LifetimeScope types themselves / more gameplay MonoBehaviours when cycle-safe (hard residual).
 
 ### C3. Doc sync
