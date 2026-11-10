@@ -367,4 +367,5 @@ Living client Status Now: [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-
 - [x] Client HitManager Remote/Impact (#902); World Spawn/Query (#903)
 - [x] Backend hub splits continued (#551–#561: NetLogin Handle.Roster / Cli.Listen / ZoneEntity Identity+Status / WorldEventPacketHandler / Abnormals.Tick / ToNet.Social / Skills.Members.Support / SessionLifecycle.Enter / Warehouse.Helpers / ZoneWorld.More.Enter)
 - [x] Client ACS hub file-splits continued (#911–#927: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map / L2SlotManager / NetCommandSender / ItemDropPresentation / DayNightCycle / ParticleStreamRuntime)
+- [x] Client ACS hub file-splits continued (CharSelectWindow Lobby/Interlude/Actions; WorldPacketApply Combat/Movement; EntityActionVisual Combat/Helpers; SkillbarWindow Dock/Layout/Shortcuts)
 - [ ] LifetimeScope / gameplay MB asmdef remains hard residual (#131) — **next primary client work**
