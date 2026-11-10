@@ -192,12 +192,15 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - Fold `TickAggression` + `TickLeash` (+ `TickAttackStance`) into `RunPlayerCombatTickAsync`.
 - Keep `RunCombatTickAsync` as the test/helper entry that already includes them, or make it call the live tick body.
 
-### B8. Persist off `_gate` — partial (ground + combat tick)
+### B8. Persist off `_gate` — partial (Backend #492)
 - World mutation under lock; `SaveInventory` / Postgres `RunSilent` after release (same pattern as enter/unlink persist).
+- Covered: ground pickup/drop/destroy, combat ticks, shop buy/sell/multisell, gear use/unequip/give, trade done, private-store buy/sell-to.
+- Residual: warehouse / npc-service / quest / craft / enchant / consumable entry points.
 
-### B9. Snapshot ownership — partial (Backend #491)
+### B9. Snapshot ownership — partial (Backend #491) + Login residual PR
 - Stop dual full-JSON writers of `store_snapshot` id=1 from Login + Zone partial memory.
 - Normalized tables remain SoT for `FindById`; snapshot = backup/export only.
+- Login `AfterSaveSnapshot` writes backup JSON only (no `UpsertFromSnapshot`); `TryAddCharacter` upserts one character row.
 
 ### B10. Spawn due index — later
 - Replace full `_spawnSlots` scan when catalog size hurts tick budget.
@@ -326,8 +329,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 | Track | Deliverable |
 |-------|-------------|
 | Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
-| Backend next | **B7 AI tick** → **B8 persist off gate** → **B9 snapshot ownership**; B2b mechanical done ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)); sim actor later |
-| Client next | **C4 disconnect UX** → **C5 dispatch holes** → GameRuntime shrink / LifetimeScope when cycle-safe ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
+| Backend next | B8 residual (warehouse/npc/quest/craft/enchant) → B9 Login snapshot residual → B10 spawn index; B2b mechanical done ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)); sim actor later |
+| Client next | GameRuntime shrink (#881) → LifetimeScope when cycle-safe ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
 | A6 | TLS before non-VPN public auth (#17 / #113) |
 | CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
 
@@ -348,5 +351,5 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [x] Live combat loop runs `TickAggression` / `TickLeash` (B7, Backend #490)
 - [x] Zone disconnect raises UI path (C4, #878)
 - [x] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5, #879)
-- [x] Inventory persist deferred off `_gate` for ground pickup/drop/destroy + combat tick (B8 partial); shop/trade/gear still sync under caller locks
-- [x] Hot-path / Open no longer clobber normalized SoT via stale snapshot (B9 partial, Backend #491); Login AfterSaveSnapshot residual
+- [x] Inventory persist deferred off `_gate` for ground/combat/shop/gear/trade/private-store (B8 partial, Backend #492); warehouse/npc/quest/craft/enchant residual
+- [x] Hot-path / Open no longer clobber normalized SoT via stale snapshot (B9 partial, Backend #491); Login AfterSaveSnapshot → backup-only residual PR
