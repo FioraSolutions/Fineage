@@ -9,6 +9,7 @@ All code changes targeting `dev` **must** pass the `build-and-test` GitHub Actio
 3. If you add a new tool/library under `tools/`, add its `.csproj` to the solution and create a corresponding `.Tests` xUnit project.
 4. Do **not** merge PRs with failing checks. Fix tests first.
 5. The required status check name is **`build-and-test`**. `format-check` is advisory for now.
+6. **`unity-editmode` is NOT a required merge check** on `dev`. Do not block merge waiting for it (~20–25 min game-ci). Merge when `build-and-test` is green (and the branch is up to date with `dev` — `strict: true`). Fix Unity failures in a follow-up if the job fails after merge.
 
 ## What's tested
 
@@ -17,4 +18,4 @@ All code changes targeting `dev` **must** pass the `build-and-test` GitHub Actio
 
 ## Unity client
 
-Unity C# (under `l2-unity/`) is **not** built or tested in CI — it requires a Unity license and editor. Server tools are the CI gate. See `Docs/CI_AND_TESTING.md` for how to add Unity EditMode tests later.
+`unity-compile.yml` runs EditMode on PRs that touch `l2-unity/Assets/Scripts|Tests` — useful signal, **not** branch-protection required. Server/`build-and-test` is the merge gate. See `Docs/CI_AND_TESTING.md`.

@@ -25,7 +25,7 @@ alwaysApply: true
 
 - Target branch for client feature work: **`dev`** via PR only. Never push to `main`/`dev`.
 - Backend: PR into **`dev`** (`main` is protected deploy). Never push to protected defaults directly.
-- **Green GitHub Actions** before merge. Fix red CI on the PR branch.
+- **Merge gate = `build-and-test` green** (and branch up to date with `dev`). Do **not** wait for `unity-editmode` — it is not required (~20–25 min). Fix a red Unity job in a follow-up if needed.
 
 ## Coordination links
 
