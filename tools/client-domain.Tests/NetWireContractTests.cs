@@ -236,10 +236,11 @@ public class NetWireContractTests
     [Fact]
     public void UserInfo_rejects_an_absurd_paperdoll_count()
     {
-        // Header is 8 + 4 + 4 (string length) + 4*2 + 4*3 + 4*2 + 1 + 4 + 8 + 4*25 + 4*3.
-        // Build a valid prefix by encoding, then corrupt the paperdoll length field.
+        // Build a valid empty-paperdoll UserInfo, then corrupt the paperdoll length field.
+        // Karma (int32) + PvpFlag (byte) trail after the paperdoll block.
         byte[] payload = NetCodec.EncodeUserInfo(new UserInfoNetMsg { Name = "" });
-        int paperdollLengthOffset = payload.Length - 4;
+        const int karmaAndPvpTail = 4 + 1;
+        int paperdollLengthOffset = payload.Length - karmaAndPvpTail - 4;
 
         System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(
             payload.AsSpan(paperdollLengthOffset),
@@ -306,10 +307,9 @@ public class NetWireContractTests
             Attackable = true
         });
 
-        // Trailing bytes for an empty paperdoll array (ushort count 0) + the Dead flag,
-        // plus the Level/MaxHp/PAtkSpd tail added later.
-        const int newerTail = 4 + 4 + 4;
-        byte[] older = full.AsSpan(0, full.Length - 3 - newerTail).ToArray();
+        // Trailing: empty paperdoll (u16 count) + Dead + Level/MaxHp/PAtkSpd + Karma + PvpFlag.
+        const int newerTail = 2 + 1 + 4 + 4 + 4 + 4 + 1;
+        byte[] older = full.AsSpan(0, full.Length - newerTail).ToArray();
 
         EntitySpawnMsg decoded = NetCodec.DecodeEntitySpawn(older);
         Assert.Equal("Wolf", decoded.Name);
