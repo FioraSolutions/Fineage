@@ -29,7 +29,7 @@ public class BufferPanel : L2Window
 
     private SkillgrpTable SkillGrps
     {
-        get { return _skillGrps != null ? _skillGrps : SkillgrpTable.Instance; }
+        get { return _skillGrps != null ? _skillGrps : TablePacketServices.SkillGrps; }
     }
 
     private void Awake()
