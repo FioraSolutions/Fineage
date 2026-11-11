@@ -1,10 +1,7 @@
 using System;
 using VContainer;
 
-/// <summary>
-/// Animation-layer access with [Inject] wiring and peer PacketServices fallback (#142).
-/// </summary>
-public static class AnimationPacketServices
+public static partial class AnimationPacketServices
 {
     private static IAnimationManager _animations;
     private static IMoveAllCharacters _moves;
@@ -12,30 +9,11 @@ public static class AnimationPacketServices
     private static PlayerAnimationController _playerAnimation;
     private static StriderRideService _striderRide;
 
-    public static void Bind(
-        IAnimationManager animations = null,
-        IMoveAllCharacters moves = null,
-        PacketApplyQueue applyQueue = null,
-        PlayerAnimationController playerAnimation = null,
-        StriderRideService striderRide = null)
-    {
-        if (animations != null)
-            _animations = animations;
-        if (moves != null)
-            _moves = moves;
-        if (applyQueue != null)
-            _applyQueue = applyQueue;
-        if (playerAnimation != null)
-            _playerAnimation = playerAnimation;
-        if (striderRide != null)
-            _striderRide = striderRide;
-    }
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
-    internal static IAnimationManager LegacyAnimationManagerInstance() => AnimationManager.Instance;
 #pragma warning restore CS0618
 
     public static IMoveAllCharacters Moves =>
@@ -67,23 +45,7 @@ public static class AnimationPacketServices
     }
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
-    static PlayerAnimationController LegacyPlayerAnimationInstance() => PlayerAnimationController.Instance;
 
-    static StriderRideService LegacyStriderRideInstance() => StriderRideService.Instance;
 #pragma warning restore CS0618
 
-    public static void QueueOnMain(Action action)
-    {
-        if (action == null)
-            return;
-
-        PacketApplyQueue queue = _applyQueue;
-        if (queue != null)
-        {
-            queue.Queue(action);
-            return;
-        }
-
-        NetworkingPacketServices.Queue(action);
-    }
 }

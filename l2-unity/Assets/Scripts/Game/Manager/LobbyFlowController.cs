@@ -2,10 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-/// <summary>
-/// Lobby and login flow callbacks. Extracted from <see cref="GameManager"/> (#141).
-/// </summary>
-public sealed class LobbyFlowController
+public sealed partial class LobbyFlowController : ILobbySession
 {
     private GameManager _game;
     private LoginRuntime _loginRuntime;
@@ -18,31 +15,8 @@ public sealed class LobbyFlowController
     GameClient Game => DiRuntimePacketServices.Game;
     LoginClient Login => NetworkingPacketServices.Login;
 
-    [Inject] IZoneTransport _zoneTransport;
 
-    public void Attach(GameManager game)
-    {
-        _game = game;
-    }
 
-    public void WireLogin(LoginRuntime loginRuntime)
-    {
-        _loginRuntime = loginRuntime;
-    }
-
-    public void WireGame(
-        World world,
-        IWorldDomainSink domain,
-        WorldPacketApply worldApply,
-        PacketApplyQueue applyQueue,
-        L2GameUI gameUi)
-    {
-        _world = world;
-        _domain = domain;
-        _worldApply = worldApply;
-        _applyQueue = applyQueue;
-        _gameUi = gameUi;
-    }
 
     private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
@@ -126,184 +100,11 @@ public sealed class LobbyFlowController
         }
     }
 
-    public void LogIn()
-    {
-    }
 
-    public void LogOut()
-    {
-        IZoneTransport transport = _zoneTransport ?? ZoneCommands.Transport;
-        if (transport != null)
-            transport.Disconnect();
-    }
 
-    public void OnWorldSceneLoaded()
-    {
-        L2LoginUI loginUi = LoginUi;
-        if (loginUi != null)
-            GameObject.Destroy(loginUi.gameObject);
-        PlayerInfoInterlude playerInfo = _zoneTransport != null ? _zoneTransport.PlayerInfo : default;
-        DomainPlayerSpawned spawned = InterludeDomainMap.PlayerSpawned(playerInfo);
-        IWorldDomainSink domain = Domain;
-        if (domain != null && spawned != null)
-            domain.ApplyPlayerSpawned(spawned);
-        else
-            GameWorld.SpawnPlayer(playerInfo.Identity, playerInfo.Status, playerInfo.Stats, playerInfo.Appearance);
-        L2GameUI ui = GameUi;
-        if (ui != null)
-            ui.StopLoading();
-        PlayerStateMachine stateMachine = PlayerStatePacketServices.PlayerState;
-        if (stateMachine != null)
-            stateMachine.enabled = true;
-        _game.WorldSpawnReady = true;
-        // NetSession already sent NetOpcode.EnterWorld on ZoneAuthResult.
-        // Do not re-fire Interlude EnterWorldCommand / RequestSkillCoolTimeCommand —
-        // FineageZoneTransport has no Net mapping and only spam-warns "TX dropped".
-        FineageLog.Info(FineageLogCategory.GameNet, "world spawn ready (Net EnterWorld already sent)");
-        if (domain != null)
-            domain.FlushKnownlist();
-        else
-        {
-            WorldPacketApply apply = WorldApply;
-            if (apply != null)
-                apply.FlushKnownlist();
-        }
 
-        if (stateMachine != null)
-        {
-            stateMachine.ChangeState(PlayerState.IDLE);
-            stateMachine.NotifyEvent(Event.ENTER_WORLD);
-        }
-    }
 
-    public void OnLoginServerConnected()
-    {
-        _game.GameState = GameState.LOGIN_CONNECTED;
-    }
 
-    public void OnLoginServerAuthAllowed()
-    {
-        _game.GameState = GameState.READING_LICENSE;
 
-        LoginUi.ShowLicenseWindow();
-    }
 
-    public void OnLoginServerPlayOk()
-    {
-        _game.GameState = GameState.READY_TO_CONNECT;
-    }
-
-    public void OnConnectingToGameServer()
-    {
-        _game.GameState = GameState.CONNECTING_TO_GAMESERVER;
-    }
-
-    public void OnReceivedServerList(byte lastServer, List<ServerData> serverData, Dictionary<int, int> charsOnServers)
-    {
-        _game.GameState = GameState.SERVER_LIST;
-
-        LoginUi.ShowServerSelectWindow();
-
-        ServerSelect.UpdateServerList(lastServer, serverData, charsOnServers);
-    }
-
-    public void OnAuthAllowed()
-    {
-        _game.GameState = GameState.CHAR_SELECT;
-        LoginCamera.SwitchCamera("CharSelect");
-
-        LoginUi.ShowCharSelectWindow();
-    }
-
-    public void OnCharacterSelect()
-    {
-        _game.GameState = GameState.IN_GAME;
-        _game.WorldSpawnReady = false;
-
-        LoginUi.StartLoading();
-        Scenes.LoadSWMap();
-    }
-
-    public void OnCreateUser(List<PlayerTemplates> playerTemplates)
-    {
-        _game.GameState = GameState.CHAR_CREATION;
-
-        LoginCamera.SwitchCamera("Login");
-
-        LoginUi.SetCharTemplations(playerTemplates);
-        LoginUi.ShowCharCreationWindow();
-    }
-
-    public void OnCreateUserFail(string text)
-    {
-        LoginUi.ShowCharCreationError(text);
-    }
-
-    public void OnWorldLoading()
-    {
-        MusicManager music = MusicPacketServices.Music;
-        if (music != null)
-        {
-            music.Clear();
-        }
-
-        L2GameUI ui = GameUi;
-        if (ui != null)
-        {
-            ui.StartLoading();
-        }
-        else
-        {
-            L2LoginUI loginUi = LoginUi;
-            if (loginUi != null)
-                loginUi.StartLoading();
-        }
-    }
-
-    public void OnRelogin()
-    {
-        _game.IsSwitchingServer = false;
-        _game.WorldSpawnReady = false;
-        _game.GameState = GameState.LOGIN_SCREEN;
-
-        LoginCamera.SwitchCamera("Login");
-
-        LoginUi.ShowLoginWindow();
-    }
-
-    public void OnDisconnect()
-    {
-        if (_game.IsSwitchingServer)
-            return;
-
-        if (_game.GameState > GameState.CHAR_CREATION)
-        {
-            MusicPacketServices.Music?.Clear();
-            Scenes.LoadMenu();
-        }
-        else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected)
-        {
-            OnRelogin();
-        }
-    }
-
-    public void OnGameserverSelected()
-    {
-    }
-
-    public void OnStartingGame()
-    {
-    }
-
-    public void OnGameLaunched()
-    {
-        if (_game.GameState != GameState.IN_GAME)
-            return;
-
-        L2LoginUI loginUi = LoginUi;
-        if (loginUi == null)
-            return;
-        loginUi.StopLoading();
-        loginUi.SetLoading(true);
-    }
 }

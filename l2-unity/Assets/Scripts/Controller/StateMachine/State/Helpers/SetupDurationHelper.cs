@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SetupDurationHelper
+public partial class SetupDurationHelper
 {
     public static readonly HashSet<int> PotionSkillIds = new HashSet<int>
     {
@@ -11,195 +11,26 @@ public class SetupDurationHelper
         2278, 2279, 2280, 2281, 2282, 2283, 2284, 2285
     };
 
-    public static int CastStyleOf(MagicSkillUseDto useSkill)
-    {
-        if (useSkill == null || useSkill.SkillGrp == null)
-        {
-            return 1;
-        }
-
-        return useSkill.SkillGrp.CastStyle;
-    }
 
     /// <summary>
     /// Mix01–Mix09 stretch the first clip. Letters A–I and MS01 stretch the middle one.
     /// </summary>
-    public static bool MixComboOf(MagicSkillUseDto useSkill)
-    {
-        if (useSkill == null || useSkill.SkillGrp == null || string.IsNullOrEmpty(useSkill.SkillGrp.Animation))
-        {
-            return false;
-        }
 
-        return useSkill.SkillGrp.Animation.IndexOf("Mix", StringComparison.OrdinalIgnoreCase) >= 0;
-    }
-
-    public static bool IsUsePotion(MagicSkillUseDto useSkill)
-    {
-        return useSkill != null && PotionSkillIds.Contains(useSkill.SkillId);
-    }
 
     /// <summary>
     /// Skillgrp animation tag with at least one real clip. Wolf Collar is is_magic=0
     /// but animation [f] (CastMid / CastEnd / MagicThrow).
     /// </summary>
-    public static bool TryGetPlayableCombo(MagicSkillUseDto useSkill, out AnimationCombo combo)
-    {
-        combo = null;
-        if (useSkill == null || TablePacketServices.SkillGrps == null)
-            return false;
 
-        combo = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
-        if (combo == null)
-            return false;
 
-        string[] cycle = combo.GetAnimCycle();
-        if (cycle == null)
-            return false;
-
-        for (int i = 0; i < cycle.Length; i++)
-        {
-            if (string.IsNullOrWhiteSpace(cycle[i]))
-                continue;
-            if (string.Equals(cycle[i].Trim(), "none", StringComparison.OrdinalIgnoreCase))
-                continue;
-            return true;
-        }
-
-        combo = null;
-        return false;
-    }
-
-    public static bool IsPickupAnimationPlaying(int objectId)
-    {
-        if (ControllerPacketServices.Animations == null)
-            return false;
-
-        string current = ControllerPacketServices.Animations.GetCurrentAnimationName(objectId);
-        return !string.IsNullOrEmpty(current)
-            && current.IndexOf("pickup", StringComparison.OrdinalIgnoreCase) >= 0;
-    }
-
-    public static void PlayPotionEffect(Entity entity, MagicSkillUseDto useSkill)
-    {
-        EffectManager effects = ControllerPacketServices.Effects;
-        if (entity == null || useSkill == null || effects == null)
-            return;
-
-        effects.PlayEffect(useSkill.SkillId, entity.transform, entity.GetMagicCastData());
-    }
 
     /// <summary>
     /// Instant potion/herb: keep current stance. Do not enter MAGIC_SKILLS / PHYSICAL_SKILLS
     /// or pickup cannot WAIT_RETURN (graph has no exit from pickup).
     /// If we already entered a skill state, leave it without cutting pickup.
     /// </summary>
-    public static void FinishPotionUse(PlayerStateMachine stateMachine, Entity entity, MagicSkillUseDto useSkill)
-    {
-        PlayPotionEffect(entity, useSkill);
-        if (stateMachine == null)
-            return;
 
-        bool inSkillState = stateMachine.State == PlayerState.MAGIC_SKILLS
-            || stateMachine.State == PlayerState.PHYSICAL_SKILLS;
-        if (!inSkillState)
-            return;
 
-        stateMachine.ChangeIntention(Intention.INTENTION_IDLE);
-        if (IsPickupAnimationPlaying(stateMachine.GetObjectId()))
-            return;
 
-        stateMachine.NotifyEvent(Event.WAIT_RETURN);
-    }
 
-    public static void SetupDurationIfHitTimeNot0(MagicSkillUseDto useSkill, int objectId, Entity entity, AnimationCombo selfCombo)
-    {
-
-        if (useSkill.HitTime > 0)
-        {
-            string[] orderedSelfCycle = BuildOrderedCycleForOverrideTiming(selfCombo.GetAnimCycle());
-            float[] durations_self = ControllerPacketServices.Animations.GetOverrideClipsDurations(objectId, orderedSelfCycle);
-            float shotEventTime_self = ResolveShotEventTime(objectId, orderedSelfCycle);
-            entity.SetupTotalCastDuration(useSkill.HitTime, 0f, durations_self, shotEventTime_self, useSkill.TargetId, CastStyleOf(useSkill), MixComboOf(useSkill));
-        }
-    }
-
-    public static string[] BuildOrderedCycleForOverrideTiming(string[] rawCycle)
-    {
-        if (rawCycle == null || rawCycle.Length == 0)
-        {
-            return Array.Empty<string>();
-        }
-
-        List<string> valid = new List<string>();
-        for (int i = 0; i < rawCycle.Length; i++)
-        {
-            string clipName = rawCycle[i];
-            if (string.IsNullOrWhiteSpace(clipName))
-            {
-                continue;
-            }
-
-            if (string.Equals(clipName.Trim(), "none", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            valid.Add(clipName.Trim());
-        }
-
-        // Keep timing order consistent with SkillAnimationRunner trigger plan.
-        if (valid.Count == 2)
-        {
-            return new[] { valid[0], valid[1] };
-        }
-
-        return valid.ToArray();
-    }
-
-    public static float ResolveShotEventTime(int objectId, string[] orderedCycle)
-    {
-        if (orderedCycle == null || orderedCycle.Length == 0)
-        {
-            return 0f;
-        }
-
-        // For two-clip execution (CastEnd -> MagicShot), shoot event belongs to the second clip.
-        if (orderedCycle.Length == 2)
-        {
-            return ControllerPacketServices.Animations.GetOverrideEventTimeByName(
-                objectId,
-                new[] { orderedCycle[1] },
-                "OnAnimationShoot");
-        }
-
-        return ControllerPacketServices.Animations.GetOverrideEventTimeByName(objectId, orderedCycle, "OnAnimationShoot");
-    }
-
-    public static float ResolveMagicFlightTimeMs(Entity entity, int skillId, Transform target)
-    {
-        const float fallbackFlightMs = 1000f;
-
-        EffectManager effects = ControllerPacketServices.Effects;
-        if (effects != null && effects.ShouldIgnoreFlightTimeForCast(skillId))
-        {
-            return 0f;
-        }
-
-        if (entity == null || target == null)
-        {
-            return fallbackFlightMs;
-        }
-
-        Vector3 startPos = entity.GetPositionRightHand();
-        Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
-        float distance = Vector3.Distance(startPos, aimPos);
-        if (distance <= 0f)
-        {
-            return fallbackFlightMs;
-        }
-
-        float flightSeconds = ProjectileFlightTimeCalculator.CalculateL2SkillFlightTimeSeconds(distance);
-        return flightSeconds * 1000f;
-    }
 }

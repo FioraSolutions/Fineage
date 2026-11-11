@@ -1,4 +1,6 @@
 ﻿#if (UNITY_EDITOR) 
+using System;
+
 [System.Serializable]
 public class Poly {
     public string name;

@@ -1,4 +1,7 @@
-﻿public class CreatureMessage : SystemMessage
+﻿using System.Drawing;
+using UnityEngine;
+
+public class CreatureMessage : SystemMessage
 {
     private string sendName;
     private string _text;

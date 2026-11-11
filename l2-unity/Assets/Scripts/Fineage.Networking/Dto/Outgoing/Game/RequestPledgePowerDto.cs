@@ -1,3 +1,5 @@
+using System;
+
 public sealed class RequestPledgePowerDto : IOutgoingDto
 {
     public int Rank;

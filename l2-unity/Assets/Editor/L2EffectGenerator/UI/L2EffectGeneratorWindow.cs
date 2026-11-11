@@ -34,6 +34,32 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     }
 
     /// <summary>
+    /// Level-up FX (Interlude e_u004_a — white aura + feathers). Rebuilds the existing
+    /// L2Particle prefab in place (keeps GlobalEffect 99999 GUID) with unified emitters.
+    /// Unity.exe -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GenerateLevelUpCli
+    /// </summary>
+    public static void GenerateLevelUpCli()
+    {
+        AssetDatabase.Refresh();
+        L2EffectGeneratorFolderBuilder.BuildResult result =
+            L2EffectGeneratorFolderBuilder.CreateDecoFromFolder(
+                "Assets/Resources/Data/Effects/e_u004_a",
+                "e_u004_a");
+
+        for (int i = 0; i < result.LogLines.Count; i++)
+            Debug.Log("[L2EffectGenerator] " + result.LogLines[i]);
+
+        if (!result.Success)
+        {
+            Debug.LogError("[L2EffectGenerator] " + result.ErrorMessage);
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        EditorApplication.Exit(0);
+    }
+
+    /// <summary>
     /// Batch entry: Unity.exe -executeMethod L2EffectGeneratorWindow.GenerateWindStrikeCli
     /// </summary>
     public static void GenerateWindStrikeCli()

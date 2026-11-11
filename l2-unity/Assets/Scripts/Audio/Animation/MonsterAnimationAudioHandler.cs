@@ -1,74 +1,10 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
-[RequireComponent(typeof(MonsterEntity), typeof(Animator))]
-public class MonsterAnimationAudioHandler : BaseAnimationAudioHandler
+public partial class MonsterAnimationAudioHandler : BaseAnimationAudioHandler
 {
-    [SerializeField] private string _monsterName;
 
-    protected override void Initialize()
-    {
-        base.Initialize();
-        ResolveMonsterName();
-    }
 
-    public void PlaySound(MonsterSoundEvent soundEvent)
-    {
-        ResolveMonsterName();
-        MonsterCombatSound.Play(soundEvent, _monsterName);
-    }
 
-    public void PlaySoundAtRatio(MonsterSoundEvent soundEvent, float ratio)
-    {
-        if (ratio == 0)
-        {
-            PlaySound(soundEvent);
-            return;
-        }
 
-        if (!isActiveAndEnabled)
-        {
-            PlaySound(soundEvent);
-            return;
-        }
-
-        StartCoroutine(PlaySoundAtRatioCoroutine(soundEvent, ratio));
-    }
-
-    public IEnumerator PlaySoundAtRatioCoroutine(MonsterSoundEvent soundEvent, float ratio)
-    {
-        while ((_animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1) < ratio)
-            yield return null;
-
-        PlaySound(soundEvent);
-    }
-
-    void ResolveMonsterName()
-    {
-        if (!string.IsNullOrEmpty(_monsterName))
-            return;
-
-        Entity entity = GetComponent<Entity>();
-        string npcClassName = entity != null && entity.Identity != null
-            ? entity.Identity.NpcClass
-            : null;
-        if (!string.IsNullOrEmpty(npcClassName))
-        {
-            string[] parts = npcClassName.Split('.');
-            if (parts.Length > 1)
-                _monsterName = parts[1].ToLowerInvariant();
-            else
-                _monsterName = npcClassName.ToLowerInvariant();
-        }
-
-        if (string.IsNullOrEmpty(_monsterName) && _animator != null &&
-            _animator.runtimeAnimatorController != null)
-        {
-            // Override controllers are named "gremlin" etc.
-            _monsterName = _animator.runtimeAnimatorController.name.ToLowerInvariant();
-            int cut = _monsterName.IndexOf('.');
-            if (cut >= 0)
-                _monsterName = _monsterName.Substring(0, cut);
-        }
-    }
 }

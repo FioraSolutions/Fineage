@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class MagicCastShot : StateBase
 {
     public MagicCastShot(PlayerStateMachine stateMachine) : base(stateMachine) { 

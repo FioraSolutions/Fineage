@@ -1,12 +1,11 @@
 using System;
-
-﻿using System.Collections;
-using UnityEngine;
 using UnityEngine.PlayerLoop;
-using UnityEngine.UIElements;
 using VContainer;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UIElements;
 
-public class SystemMenuWindow : L2PopupWindow
+public partial class SystemMenuWindow : L2PopupWindow
 {
     [Inject] L2GameUI _gameUi;
     [Inject] AudioManager _audio;
@@ -19,123 +18,18 @@ public class SystemMenuWindow : L2PopupWindow
         get { return _instance; }
     }
 
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            WireSystemUIPacketServices();
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
-    private void Start()
-    {
-        WireSystemUIPacketServices();
-    }
 
-    private void WireSystemUIPacketServices()
-    {
-        SystemUIPacketServices.Bind(ui: _gameUi, audio: _audio, menu: this);
-    }
 
-    private void Update()
-    {
-        if (_isWindowHidden)
-        {
-            return;
-        }
 
-        if (PollInput.LeftMouseDown)
-        {
-            if (!MouseOverThisWindow() && !HudCorePacketServices.Menu.MouseOverThisWindow())
-            {
-                HideWindow();
-            }
-        }
-    }
 
-    private void OnDestroy()
-    {
-        _instance = null;
-    }
 
-    protected override void LoadAssets()
-    {
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/SystemMenuWindow");
-    }
-
-    protected override IEnumerator BuildWindow(VisualElement root)
-    {
-        InitWindow(root);
-        _root = root;
-
-        // root.Add(_windowEle);
-
-        yield return new WaitForEndOfFrame();
-
-        VisualElement exitButton = GetElementByClass("exit-btn");
-        exitButton.AddManipulator(new ButtonClickSoundManipulator(exitButton));
-        exitButton.RegisterCallback<ClickEvent>((evt) => HandleExitButtonClick());
-        VisualElement optionsButton = GetElementByClass("options-btn");
-        if (optionsButton != null)
-        {
-            optionsButton.AddManipulator(new ButtonClickSoundManipulator(optionsButton));
-            optionsButton.RegisterCallback<ClickEvent>((evt) => HandleOptionsButtonClick());
-        }
-        VisualElement restartButton = GetElementByClass("restart-btn");
-        restartButton.AddManipulator(new ButtonClickSoundManipulator(restartButton));
-        restartButton.RegisterCallback<ClickEvent>((evt) => HandleRestartButtonClick());
-
-        _windowHeight = _windowEle.worldBound.height;
-        RegisterClickWindowEvent(_windowEle, null);
-
-        HideWindow();
-    }
 
     private OptionsPanel _options;
 
-    private void HandleOptionsButtonClick()
-    {
-        HideWindow();
-        if (_options != null && _options.parent != null) { _options.RemoveFromHierarchy(); return; }
-        _options = new OptionsPanel();
-        (_root.panel != null ? _root.panel.visualTree : _root).Add(_options);
-    }
 
-    private void HandleExitButtonClick()
-    {
-        HideWindow();
-        SystemUIPacketServices.Exit.OpenWindow(true);
-    }
 
-    private void HandleRestartButtonClick()
-    {
-        HideWindow();
-        SystemUIPacketServices.Exit.OpenWindow(false);
-    }
 
-    public override void ToggleHideWindow()
-    {
-        Vector2 basePosition = HudCorePacketServices.Menu.GetWindowPosition();
-        _windowEle.transform.position = new Vector2(basePosition.x, basePosition.y - _windowHeight);
-        base.ToggleHideWindow();
-    }
 
-    public override void ShowWindow()
-    {
-        base.ShowWindow();
-        SystemUIPacketServices.Audio.PlayUISound("window_open");
-        SystemUIPacketServices.Ui.WindowOpened(this);
-    }
 
-    public override void HideWindow()
-    {
-        base.HideWindow();
-        SystemUIPacketServices.Audio.PlayUISound("window_close");
-        SystemUIPacketServices.Ui.WindowClosed(this);
-    }
 }

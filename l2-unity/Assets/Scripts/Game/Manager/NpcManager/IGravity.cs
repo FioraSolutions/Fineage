@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public interface IGravity 
 {
     public void AddGravity(int id , GravityData data);

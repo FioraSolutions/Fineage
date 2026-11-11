@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class AbstractCache : AbstractGetCache
+public abstract partial class AbstractCache : AbstractGetCache
 {
 
     protected T[] LoadAllArmorResources<T>(List<string> allModels, Func<string, T> loadResourceFunc)
@@ -28,104 +28,12 @@ public abstract class AbstractCache : AbstractGetCache
     }
 
 
-    protected GameObject[] LoadAllArmorModels(List<string> allModels)
-    {
-        return LoadAllArmorResources(allModels, LoadArmorModel);
-    }
-
-    protected Material[] LoadAllArmorMaterials(List<string> allModels)
-    {
-        return LoadAllArmorResources(allModels, LoadArmorMaterial);
-    }
-
-    protected Material[] LoadAllMaterials(List<string> allModels)
-    {
-        return LoadAllArmorResources(allModels, LoadArmorMaterial);
-    }
-
-    protected GameObject LoadArmorModel(string model)
-    {
-        if (string.IsNullOrEmpty(model) ||
-            string.Equals(model, "None", StringComparison.OrdinalIgnoreCase))
-            return null;
-
-        string[] folderFile = model.Split(".");
-
-        if (folderFile.Length < 2) return null;
 
 
-        string modelPath = $"Data/Animations/{folderFile[0]}/{folderFile[1]}";
 
-        GameObject armorPiece = (GameObject)Resources.Load(modelPath);
-        if (armorPiece == null)
-        {
-            // Debug.LogWarning($"Can't find armor model at {modelPath}");
-        }
-        else
-        {
-            // Debug.Log($"Successfully loaded armor model at {modelPath}");
-        }
 
-        return armorPiece;
-    }
 
-    protected GameObject LoadNpc(string meshname)
-    {
-        string[] folderFile = meshname.Split(".");
 
-        if (folderFile.Length < 2)
-        {
-            return null;
-        }
-
-        string folder = $"Data/Animations/{folderFile[0]}/{folderFile[1]}";
-        string assetName = folderFile[1];
-        GameObject[] loaded = Resources.LoadAll<GameObject>(folder);
-        GameObject best = null;
-        int bestScore = -1;
-        for (int i = 0; i < loaded.Length; i++)
-        {
-            GameObject go = loaded[i];
-            if (go == null || go.name != assetName)
-                continue;
-            int score = ScoreNpcPrefab(go);
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = go;
-            }
-        }
-
-        if (best != null)
-            return best;
-
-        return Resources.Load<GameObject>(folder + "/" + assetName);
-    }
-
-    static int ScoreNpcPrefab(GameObject go)
-    {
-        int score = 0;
-        if (go.GetComponent<MonsterEntity>() != null || go.GetComponentInChildren<MonsterEntity>(true) != null)
-            score += 100;
-        if (go.GetComponent<NpcEntity>() != null || go.GetComponentInChildren<NpcEntity>(true) != null)
-            score += 100;
-        if (go.GetComponent<CharacterController>() != null ||
-            go.GetComponentInChildren<CharacterController>(true) != null)
-            score += 20;
-        if (go.transform.Find("click_area") != null)
-            score += 10;
-        score += go.GetComponents<MonoBehaviour>().Length;
-        return score;
-    }
-
-    protected GameObject LoadWeaponModel(string model)
-    {
-        GameObject weapon = LoadUkxPrefab(model);
-        // Debug.Log(weapon != null
-            // ? $"Successfully loaded weapon {model} model."
-            // : $"Can't find weapon model {model}");
-        return weapon;
-    }
 
 
 

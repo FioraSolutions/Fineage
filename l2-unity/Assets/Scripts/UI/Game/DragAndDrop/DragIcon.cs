@@ -1,12 +1,12 @@
 using System;
-
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UIElements;
+using VContainer;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class DragIcon : L2PopupWindow
+public partial class DragIcon : L2PopupWindow
 {
     public VisualElement icon;
 
@@ -18,90 +18,11 @@ public class DragIcon : L2PopupWindow
     {
         get { return _instance; }
     }
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            DragIconPacketServices.Bind(icon: this);
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
-
-    private void OnDestroy()
-    {
-        _instance = null;
-    }
-
-    protected override void LoadAssets()
-    {
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/DragAndDrop/DragIcon");
-    }
-
-    protected override IEnumerator BuildWindow(VisualElement root)
-    {
-        InitWindow(root);
 
 
-        yield return new WaitForEndOfFrame();
-
-        icon = GetElementByClass("Icon");
-        var content = GetElementByClass("drag_content");
-        L2SlotIconView.SetNamedIcon(icon, "noimage");
-        RegisterClickWindow(content);
-        HideWindow();
-    }
 
 
-    public void SetBackground(Background baackground)
-    {
-        icon.style.backgroundImage = baackground;
-    }
-    public void NewPosition(Vector2 position)
-    {
-        if(position != null)
-        {
-            if (!_isShow)
-            {
-                ShowWindow();
-                _isShow = true;
-            }
-            icon.transform.position = position;
-        }
-    }
 
-    public void ResetPosition()
-    {
-        icon.transform.position = Vector2.zero;
-        if (_isShow)
-        {
-            _isShow = false;
-            HideWindow();
-        }
-        
-    }
 
-    public void BringToFront1()
-    {
-        BringToFront();
-    }
-    public void RegisterClickWindow(VisualElement contentId)
-    {
 
-        if (contentId == null)
-        {
-            // Debug.LogError(contentId + " can't be found.");
-            return;
-        }
-
-        contentId.RegisterCallback<MouseDownEvent>(evt => {
-            //Debug.Log("Evennt cliiikkk 1");
-            BringToFront();
-
-        }, TrickleDown.TrickleDown);
-
-    }
 }

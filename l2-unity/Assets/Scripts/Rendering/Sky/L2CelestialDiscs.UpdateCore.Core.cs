@@ -1,0 +1,16 @@
+using System;
+using Object = UnityEngine.Object;
+using System.Globalization;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+public partial class L2CelestialDiscs
+{
+    void OnEnable()
+    {
+        Instance = this;
+        SkyPacketServices.Bind(discs: this);
+        L2CelestialLut.EnsureLoaded();
+        EnsureDiscs();
+    }
+}

@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Text;
+using System.IO;
 
 public class FileInfoPrinter {
     [MenuItem("Assets/FileInfo/Show Asset Ids")]

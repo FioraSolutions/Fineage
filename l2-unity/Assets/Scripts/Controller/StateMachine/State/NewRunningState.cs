@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class NewRunningState : StateBase
 {
     public NewRunningState(PlayerStateMachine stateMachine) : base(stateMachine)

@@ -35,6 +35,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Xml.Serialization;
+using System.Xml.Xsl;
 
 #endif
 

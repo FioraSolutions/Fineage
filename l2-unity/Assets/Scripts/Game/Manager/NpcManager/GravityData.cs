@@ -4,6 +4,11 @@ public class GravityData
 {
     private Entity _entity;
 
+    /// <summary>
+    /// Defer gravity Move until placement + colliders settle (#930). Avoids burying mobs on spawn.
+    /// </summary>
+    public int ArmFrames = 2;
+
     public GravityData(Entity entity)
     {
         _entity = entity;

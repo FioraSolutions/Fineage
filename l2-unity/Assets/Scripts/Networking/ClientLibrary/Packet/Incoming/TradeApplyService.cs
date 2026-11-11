@@ -1,4 +1,5 @@
 using VContainer;
+using System.Collections.Generic;
 
 /// <summary>
 /// Trade window apply set (start / confirm / offer / done), constructed by the container

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Etc status wire packet handler entry (#142 batch slice 140).

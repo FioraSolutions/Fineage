@@ -1,4 +1,5 @@
 using VContainer;
+using System.Collections.Generic;
 
 /// <summary>
 /// Skill list and magic skill use applies, constructed by the container instead of reached

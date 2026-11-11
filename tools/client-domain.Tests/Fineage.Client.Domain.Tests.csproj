@@ -22,15 +22,49 @@
              Link="Client\Net.Contract\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageWireConfig.cs" Link="Client\FineageWireConfig.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacter.cs" Link="Client\LobbyCharacter.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacterMap.cs" Link="Client\LobbyCharacterMap.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacterMap.Core.cs" Link="Client\LobbyCharacterMap.Core.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacterMap.Helpers.cs" Link="Client\LobbyCharacterMap.Helpers.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacterText.cs" Link="Client\LobbyCharacterText.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacterCreate.cs" Link="Client\LobbyCharacterCreate.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyRaceCatalog.cs" Link="Client\LobbyRaceCatalog.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyRaceCatalog.Load.cs" Link="Client\LobbyRaceCatalog.Load.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyRaceCatalog.Lookup.cs" Link="Client\LobbyRaceCatalog.Lookup.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetChat.cs" Link="Client\NetChat.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClan.cs" Link="Client\NetClan.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.cs" Link="Client\NetDomainStructs.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetChat.Core.cs" Link="Client\NetChat.Core.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetChat.Helpers.cs" Link="Client\NetChat.Helpers.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanBook.cs" Link="Client\NetClanBook.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanBook.Status.cs" Link="Client\NetClanBook.Status.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanBook.Members.cs" Link="Client\NetClanBook.Members.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanNotices.cs" Link="Client\NetClanNotices.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Shop.cs" Link="Client\NetDomainStructs.Shop.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Quest.cs" Link="Client\NetDomainStructs.Quest.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Combat.cs" Link="Client\NetDomainStructs.Combat.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Inventory.cs" Link="Client\NetDomainStructs.Inventory.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Social.cs" Link="Client\NetDomainStructs.Social.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Lobby.cs" Link="Client\NetDomainStructs.Lobby.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetPaperdoll.cs" Link="Client\NetPaperdoll.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetEnchant.cs" Link="Client\NetEnchant.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetEnchant.Lifecycle.cs" Link="Client\NetEnchant.Lifecycle.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetEnchant.Ops.cs" Link="Client\NetEnchant.Ops.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetEquip.cs" Link="Client\NetEquip.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetNpcSession.cs" Link="Client\NetNpcSession.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetRejectLines.cs" Link="Client\NetRejectLines.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetSystemLines.cs" Link="Client\NetSystemLines.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.cs" Link="Client\PlaytestEndpoint.cs" />
+    <Compile Include="..\..\l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpoint.Parse.cs" Link="Client\PlaytestEndpoint.Parse.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.Parse.Core.cs" Link="Client\PlaytestEndpoint.Parse.Core.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.Parse.Helpers.cs" Link="Client\PlaytestEndpoint.Parse.Helpers.cs" />
+    <Compile Include="..\..\l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpoint.Keys.cs" Link="Client\PlaytestEndpoint.Keys.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.Keys.Core.cs" Link="Client\PlaytestEndpoint.Keys.Core.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.Keys.Helpers.cs" Link="Client\PlaytestEndpoint.Keys.Helpers.cs" />
+    <Compile Include="..\..\l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpoint.Json.cs" Link="Client\PlaytestEndpoint.Json.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.Json.Core.cs" Link="Client\PlaytestEndpoint.Json.Core.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.Json.Helpers.cs" Link="Client\PlaytestEndpoint.Json.Helpers.cs" />
+    <Compile Include="..\..\l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpointFields.cs" Link="Client\PlaytestEndpointFields.cs" />
+    <Compile Include="..\..\l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpointInput.cs" Link="Client\PlaytestEndpointInput.cs" />
+    <Compile Include="..\..\l2-unity/Assets/Scripts/Fineage.Networking/EndpointAddress.cs" Link="Client\EndpointAddress.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\Transport\ZoneConnectionState.cs" Link="Client\ZoneConnectionState.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\Transport\ZoneConnectionStateResolver.cs" Link="Client\ZoneConnectionStateResolver.cs" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class WalkRunAction : L2Action
 {
     public WalkRunAction() : base() { }

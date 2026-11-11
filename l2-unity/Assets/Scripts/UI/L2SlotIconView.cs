@@ -1,146 +1,27 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-/// <summary>
-/// Shared UITK slot/chrome icon paint for inventory, trade, skill, buffer, and DF UI.
-/// Prefer this over repeating IconManager / Resources.Load + StyleBackground per window.
-/// </summary>
-public static class L2SlotIconView
+public static partial class L2SlotIconView
 {
-    public static void SetItemIcon(VisualElement target, int itemId)
-    {
-        if (target == null || IconPacketServices.Icons == null)
-            return;
 
-        target.style.backgroundImage = new StyleBackground(IconPacketServices.Icons.GetIcon(itemId));
-    }
-
-    public static void SetItemIconAtIndex(VisualElement target, int itemId, int iconIndex)
-    {
-        if (target == null || IconPacketServices.Icons == null)
-            return;
-
-        target.style.backgroundImage = new StyleBackground(
-            IconPacketServices.Icons.GetOtherIcon(itemId, iconIndex));
-    }
 
     /// <summary>Icon atlas entry (skills, actions, item icon names).</summary>
-    public static void SetNamedIcon(VisualElement target, string iconName)
-    {
-        TrySetNamedIcon(target, iconName);
-    }
 
     /// <summary>Same as <see cref="SetNamedIcon"/>; kept for call-site clarity on skill slots.</summary>
-    public static void SetSkillIcon(VisualElement target, string iconName) =>
-        SetNamedIcon(target, iconName);
 
-    public static bool TrySetNamedIcon(VisualElement target, string iconName)
-    {
-        if (target == null || IconPacketServices.Icons == null || string.IsNullOrEmpty(iconName))
-            return false;
-
-        // Prefer the miss-aware loader so callers can skip Classic/unknown skill ids
-        // instead of painting the NO IMAGE placeholder as a "successful" icon.
-        Texture2D icon = IconPacketServices.Icons.TryLoadTextureByName(iconName);
-        if (icon == null || IconPacketServices.Icons.IsNoImage(icon))
-            return false;
-
-        target.style.backgroundImage = icon;
-        return true;
-    }
 
     /// <summary>Full Resources path (SkillLearn DF buttons, clan status, table images).</summary>
-    public static Texture2D LoadResourcesTexture(string resourcesPath)
-    {
-        if (string.IsNullOrEmpty(resourcesPath))
-            return null;
 
-        return IconPacketServices.Icons != null
-            ? IconPacketServices.Icons.LoadTextureOtherSources(resourcesPath)
-            : Resources.Load<Texture2D>(resourcesPath);
-    }
 
-    public static void SetResourcesBackground(VisualElement target, string resourcesPath) =>
-        TrySetResourcesBackground(target, resourcesPath);
 
-    public static bool TrySetResourcesBackground(
-        VisualElement target,
-        string resourcesPath,
-        bool useNativeSize = false)
-    {
-        if (target == null)
-            return false;
-
-        Texture2D texture = LoadResourcesTexture(resourcesPath);
-        if (texture == null)
-            return false;
-
-        target.style.backgroundImage = new StyleBackground(texture);
-        if (useNativeSize)
-        {
-            target.style.width = texture.width;
-            target.style.height = texture.height;
-        }
-
-        return true;
-    }
-
-    public static void SetEmptyInventoryBackground(VisualElement target)
-    {
-        if (target == null || IconPacketServices.Icons == null)
-            return;
-
-        target.style.backgroundImage = new StyleBackground(
-            IconPacketServices.Icons.GetInvetoryDefaultBackground());
-    }
 
     /// <summary>
     /// Empty inventory/trade/exchange chrome: default slot bg when present, else clear root.
     /// </summary>
-    public static void PaintEmptyInventorySlot(VisualElement slotBg, VisualElement slotElement)
-    {
-        if (slotElement == null)
-            return;
 
-        if (slotBg != null)
-            SetEmptyInventoryBackground(slotBg);
-        else
-            Clear(slotElement);
-    }
-
-    public static void Clear(VisualElement target)
-    {
-        if (target == null)
-            return;
-
-        target.style.backgroundImage = null;
-    }
 
     /// <summary>
     /// Inventory/gear slots paint GearSlot chrome on the root element; everyone else uses SlotBg.
     /// </summary>
-    public static void SetInventoryStyleItemIcon(
-        VisualElement slotBg,
-        VisualElement slotElement,
-        int itemId,
-        bool paintOnRootElement)
-    {
-        if (paintOnRootElement)
-            SetItemIcon(slotElement, itemId);
-        else if (slotBg != null)
-            SetItemIcon(slotBg, itemId);
-    }
 
-    public static void SetInventoryStyleItemIconAtIndex(
-        VisualElement slotBg,
-        VisualElement slotElement,
-        int itemId,
-        int iconIndex,
-        bool paintOnRootElement)
-    {
-        if (paintOnRootElement)
-            SetItemIconAtIndex(slotElement, itemId, iconIndex);
-        else if (slotBg != null)
-            SetItemIconAtIndex(slotBg, itemId, iconIndex);
-    }
 }

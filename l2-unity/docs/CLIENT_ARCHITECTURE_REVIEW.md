@@ -3,22 +3,32 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-09)
+### Status Now (2026-11-11 — gameplay-debug bar)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
-- **C2 Instance drain:** non-UI managers / tables / combat / login UI routed through `*PacketServices` (PRs through **#726**). Live leftovers are mostly PacketServices / DI / LoginRuntime legacy fallbacks; `PlayerController.Instance` remains only in comments. ~139 `static Instance` getters still exist (mostly UI/DAT) — drain is **call-site** work, not deleting every getter overnight.
-- Frozen seam set (#137): `World` / `GameManager` / `EventProcessor` / `PlayerController` `Instance` getters stay `[Obsolete]`; no new call sites.
-- **Asmdef:** `Fineage.Domain` (events + shared `VectorUtils` / `NumberUtils` / manor `Seed*` / `ChatTypeData`); `Fineage.Networking` (`PacketReader` / `PacketWriter` / `IWireDto` / cycle-safe wire DTOs + `Hit` / `SMParam` + Net helpers — must not reference Game); `Fineage.Game` / `Fineage.Controller` / `Fineage.UI` seeded with cycle-safe enums/constants + remaining Game utils/models. `Fineage.Di` seeded with `ILateBound` / `LateBoundMono` — gameplay MonoBehaviours remain `Assembly-CSharp`.
-- Domain apply path: `NetSession` (+ zone partials / Commands / `NetLobbyFlow` / `NetZoneDispatch`) / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. `NetDomainMap` deleted (C1 + CI freeze).
-- Epic **#131** residual (2026-11-09): cycle-safe pool largely moved; #737 EditMode compile gate on PR #874. ACS still holds Product/Entity/SystemMessage-tied DTOs + ItemInstance graph. Next hard slices = LifetimeScope / gameplay MonoBehaviours when cycle-safe; GameRuntime shrink. Not TLS / Phase D / inventing HUD. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
+- **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
+- **Asmdef / Di seams:** leaf waves through **#1341**; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`ILobbySession`/`IWorldEntityLookup`/`ISkillNameTable`/`ISkillgrpLookup`/`GameState`/LUT/Formulas in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
+- **Stabilize bar (gameplay debug + graphics import): MET.** One Zone + client apply path is good enough to debug gameplay and keep importing art. Do **not** treat LifetimeScope→`Fineage.Di` as a blocker for play/debug/assets.
+- **Ongoing residual (not the gate):** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS. Opportunistic #131 seams only when they unblock concrete pain — no DAT/World grind as finish-line. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **Primary client focus now:** gameplay debug, graphics/import, Interlude parity; Gremlin **#129** smoke where it does not dump feature layers onto unreformed ACS.
 
-> **Original date:** 2026-10-27
-> **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
-> Game, Controller, UI, and cross-cutting concerns.
-> **Codebase size (then):** ~1 329 C# files, 145 MonoBehaviours, ~140 singleton instances.
+### GPT deep-audit fixes (2026-11-11+)
 
----
+Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTransport / PacketServices / composition roots). Land as small PRs; mark here when done.
+
+| ID | Item | Status |
+|----|------|--------|
+| A01 | `IZoneTransport.Connected` = zone TCP up (not `Session != null`); `HasSession` + `ZoneConnectionState` | **Fixed** — `ZoneConnectionState` / `ZoneConnectionStateResolver` + `NetSession.IsZoneSocketConnected` |
+| A02 | Single NetSession owner; stop `Ensure()` / transport self-create bypass of DI | Open |
+| A03 | `ZoneCommands` static resolver / stale `_transport` after scope rebuild | Open |
+| A04 | `World.GetEntityAsync` `Task.Delay(150)` → event wait registry | Open |
+| A05 | World responsibility split (registry first) | Open (opportunistic) |
+| A06 | `AppLifetimeScope` global Bind side-effects | Open (opportunistic) |
+| A07 | `LoginRuntime` resolver fallback / empty catch | Open |
+| A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred per Status Now |
+
 
 ## Executive Summary
 
@@ -456,3 +466,4 @@ Top categories:
 | `PlayOkIncoming.cs` | 11 |
 | `RunningState.cs` | 10 |
 | `UserInfoIncoming.cs` | 9 |
+- [x] Cycle-safe L2 beam builders into `Fineage.Game`.

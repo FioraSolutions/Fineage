@@ -5,6 +5,8 @@
 // More projects: https://zzzprojects.com/
 // Copyright © ZZZ Projects Inc. All rights reserved.
 
+using UnityEngine;
+
 namespace HtmlAgilityPack
 {
     partial class Trace

@@ -1,5 +1,7 @@
 using System;
 using VContainer;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Own-target selection apply, constructed by the container instead of reached through the

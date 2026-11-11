@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public static class AbstractgrpDatParser
 {
     public static bool ParseBaseAbstractItemGrpDat(Abstractgrp abstractgrp, string key, string value) {

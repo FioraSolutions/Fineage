@@ -1,6 +1,7 @@
 using System;
 
 ﻿using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// Remnant of the Interlude login socket; kept for serialized account fields the login UI reads.

@@ -1,4 +1,5 @@
 using VContainer;
+using UnityEngine;
 
 public sealed partial class GameRuntime
 {
@@ -55,34 +56,7 @@ public sealed partial class GameRuntime
 
     public PlayerActions Actions { get { return Live(ref _actions, ShortcutPacketServices.Actions); } }
 
-    [Inject]
-    public void Construct(
-        EventProcessor events,
-        GameClient game,
-        LoginClient login,
-        GameManager manager,
-        IGameEventBus gameEvents,
-        World world,
-        PlayerController player)
-    {
-        if (events != null)
-            _events = events;
-        if (gameEvents != null)
-            _gameEvents = gameEvents;
-        if (world != null)
-            _world = world;
-        if (player != null)
-            _player = player;
-        DiRuntimePacketServices.Bind(game: game, login: login, manager: manager);
-    }
 
-    public void BindApply(WorldPacketApply worldApply, MessagePacketApply messageApply)
-    {
-        if (worldApply != null)
-            WorldApply = worldApply;
-        if (messageApply != null)
-            MessageApply = messageApply;
-    }
 
     private static T Live<T>(ref T field, T instance) where T : class
     {

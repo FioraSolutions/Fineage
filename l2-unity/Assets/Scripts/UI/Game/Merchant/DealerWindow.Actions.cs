@@ -1,0 +1,29 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
+using static L2Slot;
+using Debug = UnityEngine.Debug;
+using VContainer;
+
+public partial class DealerWindow
+{
+
+   
+
+
+    private List<Product> _listServer;
+    private int _position;
+    private SlotType _type;
+  
+
+  
+
+
+
+
+
+
+
+}

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 /// <summary>
 /// Holds zone chat lines until <see cref="ChatWindow"/> has built its tabs.

@@ -1,10 +1,8 @@
 using System;
-
-﻿using UnityEngine;
+using UnityEngine;
 using VContainer;
 
-[RequireComponent(typeof(CharacterController))]
-public class NetworkTransformShare : MonoBehaviour
+public partial class NetworkTransformShare : MonoBehaviour
 {
     [Inject] World _world;
 
@@ -23,72 +21,11 @@ public class NetworkTransformShare : MonoBehaviour
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static NetworkTransformShare Instance { get { return _instance; } }
 
-    public void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
-    void Start()
-    {
-        NetworkingPacketServices.Bind(world: _world);
-        World world = GameWorld;
-        if (world != null && world.OfflineMode)
-        {
-            enabled = false;
-            return;
-        }
 
-        _characterController = GetComponent<CharacterController>();
-        _lastPos = transform.position;
-        _lastRot = transform.forward;
-        _lastSharedPosTime = Time.time;
-        _rotationShareEnabled = false; //rotation is now calculated based on movedirection
-    }
-
-    void Update()
-    {
-        if (ShouldSharePosition())
-        {
-            SharePosition();
-        }
-
-        if (ShouldShareRotation && _rotationShareEnabled)
-        {
-            ShareRotation();
-        }
-    }
 
     // Share position every 0.25f and based on delay
-    public bool ShouldSharePosition()
-    {
-        if (Vector3.Distance(transform.position, _lastPos) > .25f || Time.time - _lastSharedPosTime >= 10f)
-        {
-            return true;
-        }
 
-        return false;
-    }
 
-    public void SharePosition()
-    {
-        _lastSharedPosTime = Time.time;
-        _lastPos = transform.position;
-    }
 
-    public void ShareRotation()
-    {
-        if (Vector3.Angle(_lastRot, transform.forward) >= 10.0f)
-            _lastRot = transform.forward;
-    }
-
-    public void ShareAnimation(byte id, float value)
-    {
-    }
 }

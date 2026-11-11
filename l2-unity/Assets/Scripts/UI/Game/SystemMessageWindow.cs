@@ -5,9 +5,9 @@ using System.Reflection.Emit;
 using UnityEngine;
 
 using UnityEngine.UIElements;
+using VContainer;
 
-
-public class SystemMessageWindow : L2PopupWindow
+public partial class SystemMessageWindow : L2PopupWindow
 {
     private static SystemMessageWindow _instance;
     protected VisualTreeAsset _windowTemplateDropdown;
@@ -24,157 +24,27 @@ public class SystemMessageWindow : L2PopupWindow
     public event Action OnButtonClosed;
 
     /// <summary>Drop prior OK/Cancel listeners before wiring a new yes/no prompt.</summary>
-    public void ClearDialogHandlers()
-    {
-        OnButtonOk = null;
-        OnButtonClosed = null;
-    }
 
 
 
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            WireSystemMessagePacketServices();
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
-
-    private void Start()
-    {
-        WireSystemMessagePacketServices();
-    }
-
-    private void WireSystemMessagePacketServices()
-    {
-        SystemMessagePacketServices.Bind(window: this);
-    }
-
-    protected override void LoadAssets()
-    {
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/SystemMessageWindow");
-        _windowTemplateDropdown = LoadAsset("Data/UI/_Elements/Game/SystemMessageDropBoxWidow");
-    }
-
-
-    protected override IEnumerator BuildWindow(VisualElement root)
-    {
-        InitWindow(root);
-        yield return new WaitForEndOfFrame();
-
-        _cancelButton = _windowEle.Q<Button>(_defaultNameCancel);
-        _okButton = _windowEle.Q<Button>(_defaultNameOk);
-        _textLabel = _windowEle.Q<UnityEngine.UIElements.Label>("labelText");
-        //RegisterCloseWindowEventByName("OkButton");
-        _cancelButton.RegisterCallback<ClickEvent>(ClickEventClosed);
-        _okButton.RegisterCallback<ClickEvent>(ClickEventOk);
-
-        RegisterClickWindowEvent(_windowEle, null);
-        OnCenterScreen(_root);
-    }
-
-
-    private void ClickEventOk(ClickEvent evt)
-    {
-        OnButtonOk?.Invoke(); 
-        base.HideWindow();
-    }
-
-    private void ClickEventClosed(ClickEvent evt)
-    {
-        OnButtonClosed?.Invoke(); 
-        base.HideWindow();
-    }
-
-
-    public void ShowWindow(string messageText)
-    {
-        if (_windowEle.name == _dropDownTemplateName)
-        {
-            ReplaceWindow(_windowTemplate);
-            ReRegisterCallBack();
-        }
-
-        OnCenterScreen(_root);
-        _cancelButton.style.display = DisplayStyle.None;
-        _okButton.style.display = DisplayStyle.Flex;
-        _textLabel.text = messageText;
-        base.ShowWindow();
-    }
 
 
 
-    public void ShowWindowDialogYesOrNot(string messageText)
-    {
-        if (_windowEle.name == _dropDownTemplateName)
-        {
-            ReplaceWindow(_windowTemplate);
-            ReRegisterCallBack();
-        }
-
-        OnCenterScreen(_root);
-        _cancelButton.style.display = DisplayStyle.Flex;
-        _okButton.style.display = DisplayStyle.Flex;
-        _textLabel.text = messageText;
-        base.ShowWindow();
-    }
-
-    public void ShowWindowDialogDropdownYesOrNot(string headerText , List<string> list)
-    {
-        ReplaceWindow(_windowTemplateDropdown);
-
-        UnityEngine.UIElements.Label headerName = _windowEle.Q<UnityEngine.UIElements.Label>("labelText");
-        DropdownField dropdown = _windowEle.Q<DropdownField>("comboBox");
-        headerName.text = headerText;
-
-        SetDropdownList(dropdown, list);
-        dropdown.RegisterCallback<PointerDownEvent>(OnDropdownPointer, TrickleDown.TrickleDown);
-
-        ReRegisterCallBack();
-
-        OnCenterScreen(_root);
-        base.ShowWindow();
 
 
-    }
 
-    private void ReRegisterCallBack()
-    {
-        _cancelButton = _windowEle.Q<Button>(_defaultNameCancel);
-        _okButton = _windowEle.Q<Button>(_defaultNameOk);
-        _cancelButton.RegisterCallback<ClickEvent>(ClickEventClosed);
-        _okButton.RegisterCallback<ClickEvent>(ClickEventOk);
-    }
 
-    public void SetDropdownList(DropdownField dropdown, List<string> list)
-    {
-        if (list == null || list.Count == 0)
-        {
-            var empty = new List<string>();
-            dropdown.choices = empty;
-            dropdown.SetValueWithoutNotify(string.Empty);
-            _listDropDown = empty;
-        }
-        else
-        {
-            dropdown.value = list[0];
-            dropdown.choices = list;
-            _listDropDown = list;
-        }
 
-    }
+
+
+
+
+
+
+
+
 
 
     
-    private void OnDestroy()
-    {
-        if (_instance == this)
-            _instance = null;
-    }
 
 }

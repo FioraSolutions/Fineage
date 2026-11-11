@@ -14,7 +14,7 @@ EXPECTED: dict[str, list[str]] = {
     "Fineage.Domain": [],
     # Networking holds engine-free Net helpers and may depend on the wire contract.
     "Fineage.Networking": ["Fineage.Domain", "Fineage.Net.Contract"],
-    "Fineage.Game": ["Fineage.Domain", "Fineage.Networking", "Unity.InputSystem"],
+    "Fineage.Game": ["Fineage.Domain", "Fineage.Networking", "Unity.InputSystem", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"],
     "Fineage.Controller": ["Fineage.Game"],
     # Domain is the shared leaf (ChatTypeData, etc.); UI may reference it directly.
     "Fineage.UI": ["Fineage.Game", "Fineage.Controller", "Fineage.Domain"],
@@ -24,6 +24,7 @@ EXPECTED: dict[str, list[str]] = {
         "Fineage.Game",
         "Fineage.Controller",
         "Fineage.UI",
+        "VContainer",
     ],
 }
 

@@ -2,7 +2,7 @@
 
 Unified plan from architecture reviews (GPT + DeepSeek + Claude 2026-11-09), reconciled with epics **#131** (client arch) and **#112** (net scale), `AGENTS.md`, and code on `dev` as of **2026-11-09**.
 
-**Do not** chase 20k CCU / Gateway / Redis yet. Stabilize **one Zone** + client apply path first. Prefer #131 before packing more #129 Gremlin surface onto the Unity monolith.
+**Do not** chase 20k CCU / Gateway / Redis yet. Stabilize **one Zone** + client apply path first — **that bar is now MET for gameplay debug + graphics import**. #131 LifetimeScope residual is opportunistic; primary work is play/parity/assets (and #129 smoke when useful).
 
 ## North star (keep)
 
@@ -187,7 +187,6 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - [x] Inventory destroy: stale objectId after full remove cannot invent another removal (`NetGroundItemTests`).
 - [x] Shop limited-stock second buy refused without taking adena (`NetShopTests`).
 
-
 ### B7. Live AI tick — done (Backend #490)
 - Fold `TickAggression` + `TickLeash` (+ `TickAttackStance`) into `RunPlayerCombatTickAsync`.
 - Keep `RunCombatTickAsync` as the test/helper entry that already includes them, or make it call the live tick body.
@@ -302,15 +301,41 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] `GameRuntime` Input/PositionValidation/Bus fallbacks use `ControllerPacketServices` (no direct `.Instance`).
 - [x] UI/Database/Audio/Icon `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred).
 - [x] Remaining non-Fineage `Instance` getters marked `[Obsolete]` (PacketServices / Inject preferred; includes managers/controllers round 2).
-- [ ] Remaining asmdef work = LifetimeScope / gameplay MonoBehaviours when types are cycle-safe (hard residual).
+- [x] Cycle-safe leaf MonoBehaviours wave 2 into `Fineage.Game` (`L2ActorLocalLight`, `L2CloudLayers`, `ItemPickupMotion`, `SwordSetup`, `IRotation`/`RotationService`, `DropMeshLifetimeTracker`) + delete unused empty MB stubs.
+- [x] First cycle-safe gameplay MonoBehaviours into `Fineage.Game` (Windmill / BoatSway / DestroyAfter / FpsLimiter / ParticleTimerReset / LayerCullDistance / RandomizeChildYawOnEnable / L2FireNoWorldLight / EffectPrefabRotator / DontDestroyOnLoad).
+- [x] Cycle-safe settings/audio/terrain into `Fineage.Game` (`GameSettings`, `InterludeSfx`, `L2TerrainLayerStack`/`L2TerrainOverlayRenderPass` + URP asmdef refs).
+- [x] Cycle-safe billboard + instanced prop MonoBehaviours into `Fineage.Game` (`IRegisteredBillboard`, `RegisteredBillboards`, `CameraPreRenderUpdater`, `L2InstancedPropSet`/`L2InstancedPropRenderer`).
+- [x] Client ACS hub file-splits continued (PlayerController Move/Rotate/Query)
+- [x] Cycle-safe L2 beam builders into `Fineage.Game` (`L2BeamEmitterStripBuilder`, `L2BeamStripMeshBuilder`, `L2MultiLayerBeamBuilder`).
+- [x] Cycle-safe L2 beam builders into `Fineage.Game`.
+- [x] Client ACS hub file-splits continued (CharacterSelector Lobby/Spawn/Select)
+- [x] Client ACS hub file-splits continued (EffectManager Registry/Play/Impact)
+- [x] Client ACS hub file-splits continued (EntitySpawnShared Fallback/Entity)
+- [x] Client ACS hub file-splits continued (MagicCastData Timing/Clips)
+- [x] Cycle-safe `L2MaterialPropertyCopier` / `NpcDecoKeepWorldUp` / debug `DrawLine` into `Fineage.Game`.
+- [x] Overnight ACS hub file-splits (CharacterSelector/EffectManager/EntityAction/UI windows/zone commands/ItemDrop FX).
+- [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
+- [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
+- [x] Cycle-safe preview/debug MonoBehaviours into `Fineage.Game` (`PreviewOrbitCamera`, `PlayerLoopDebugger`).
+- [x] Client ACS hub file-splits continued (SkillCastSound.Helpers; MovementData.Step)
+- [x] Cycle-safe `NpcDecoKeepWorldUp` into `Fineage.Game`.
+- [x] Cycle-safe `NpcDecoKeepWorldUp` + `NpcDecoUpright` into `Fineage.Game` (ACS `NpcDecoAttachment` delegates upright yaw).
+- [x] Cycle-safe `L2MaterialPropertyCopier` into `Fineage.Game`.
+- [x] Cycle-safe `L2MaterialPropertyCopier` (+ AppRand partial) into `Fineage.Game`.
+- [x] Cycle-safe debug `DrawLine` into `Fineage.Game`.
+- [ ] Remaining asmdef work = LifetimeScope types themselves / more gameplay MonoBehaviours when cycle-safe (hard residual).
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
 
-
 ### C4. Zone disconnect UX — done (#878)
 - Raise `FineageZoneTransport.OnDisconnected` on remote close and intentional `Disconnect`.
 - Wire AppLifetimeScope → `GameManager.OnDisconnect` so zone drop returns to menu.
+
+### C4b. Zone connection semantics — done (A01)
+- GPT deep-audit finding: `FineageZoneTransport.Connected` was `NetworkingPacketServices.Session != null`.
+- **Fixed:** `Connected` = zone TCP open (`NetSession.IsZoneSocketConnected`); added `HasSession`, `ZoneConnectionState` / resolver (+ tools tests).
+- Residual: full reconnect/resync state machine still B5; session host / `Ensure()` drain is A02.
 
 ### C5. NetZoneDispatch holes — done (#879)
 - Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
@@ -324,17 +349,23 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 ---
 
-## Execution order for autonomous agents (next)
+## Agent start here (as of 2026-11-11 — gameplay-debug bar)
 
-| Track | Deliverable |
-|-------|-------------|
-| Docs | This plan + Claude/GPT verification stay honest about “done vs later” |
-| Backend next | sim actor later; B2b/B8/B9/B10 landed ([#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353)) |
-| Client next | ZoneTransport Session (#883) / LocalPlayer drains → LifetimeScope when cycle-safe ([#131](https://github.com/FioraSolutions/Fineage/issues/131)) |
-| A6 | TLS before non-VPN public auth (#17 / #113) |
-| CI | Unity PR EditMode/compile ([#737](https://github.com/FioraSolutions/Fineage/issues/737)) landed on #874 |
+**Status Now:** Stabilize A–C bar for **gameplay debug + graphics import is MET** (~80–85%). Di seams through `IGameManager` / `ISceneLoader` / `ILobbySession` / `IWorldEntityLookup` / `ISkillNameTable` / `ISkillgrpLookup` / `IZoneTransport` / `PacketApplyQueue` (+ leaf waves ~#1334–#1341). LifetimeScope shells still ACS — **ongoing residual, not the gate**. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
+
+**Primary focus now:** debug gameplay, import graphics / Interlude assets, parity fixes. Backend #353 acceptance largely met. Phase D scale still later.
+
+| Track | Do next | Do **not** |
+|-------|---------|------------|
+| Client primary | Gameplay debug, graphics/import, Interlude parity; #129 smoke when useful | Wait on LifetimeScope→`Fineage.Di` before play/assets; invent HUD |
+| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) residual | Opportunistic seams only when they unblock concrete pain | DAT/World grind as finish-line; empty hub splits; fat `IDatRegistry` / ACS `ItemName` |
+| Backend [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) | Opportunistic hub residual only; sim actor / retire `_gate` later when measured | Microservices; rewrite ZoneWorld; invent non-Mobius rules |
+| A6 | TLS / Gateway before public internet (#17 / #113) | Treat Phase D scale as current work |
+| Docs | Keep this plan + epic bodies honest after each wave | Trust unchecked boxes in old review prose without Status Now |
 
 **Out of scope now:** Redis, multi-zone, QUIC, 20k claims, ECS rewrite, microservices.
+
+Living client Status Now: [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md). Backend Status Now: [Fineage-Backend `docs/ZONE_MODULARIZATION.md`](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/ZONE_MODULARIZATION.md).
 
 ## Success metrics
 
@@ -347,10 +378,22 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 - [ ] TLS (or equivalent) before public auth
 - [x] New Zone opcodes land in `*PacketHandler` (session + knownlist extracted); ZoneWorld hub file-split (primaries mostly <500 lines)
 - [x] Real `Fineage.*` asmdef content for migrated types; `Fineage.Di` more than a stub (`ILateBound`)
-- [ ] LifetimeScope / gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe
+- [ ] LifetimeScope / remaining gameplay MonoBehaviours in `Fineage.*` assemblies when cycle-safe (first leaf MB wave landed)
 - [x] Live combat loop runs `TickAggression` / `TickLeash` (B7, Backend #490)
 - [x] Zone disconnect raises UI path (C4, #878)
 - [x] `NetZoneDispatch` covers server-sent world/event opcodes or logs `default` (C5, #879)
 - [x] Inventory persist deferred off `_gate` on hot inventory paths (B8, Backend #492–#497)
 - [x] Hot-path / Open / Login snapshot no longer clobber normalized SoT (B9, Backend #491 + #493)
 - [x] `GameRuntime` windows split (#881)
+- [x] Leftover table/spawn Instance drains via PacketServices (#888–#889)
+- [x] `LoginRuntime` windows resolver-only; Instance fallbacks in LoginPacketServices (#890)
+- [x] BufferPanel SkillGrps via TablePacketServices (#897)
+- [x] Backend hub splits continued (#513–#522: ClassCatalog/QuestCatalog/GameData/AccountStore/ZoneWorld.Members/PostgresAccountStore/ZoneEntity.Members/NormalizedStoreWriter/NetCodec.Presence/WorldMessages)
+- [x] Backend hub splits continued (#524–#543: NetCodec.Session/LoginResult/NpcWarehouse/WorldEvents/ZoneCombat/Skills/QuestsKills/SiegeBoard/NetZoneHandle/NetLoginHandle/BossSchedule/SevenSigns/ShopTrade/ClassCatalog.Load/GeoEngine.Los+Region/Olympiad.Actions/VillageMasterModels/PlayerInventory.Bag/QuestMachine.Ops.Helpers)
+- [x] Client HitManager Remote/Impact (#902); World Spawn/Query (#903)
+- [x] Backend hub splits continued (#551–#561: NetLogin Handle.Roster / Cli.Listen / ZoneEntity Identity+Status / WorldEventPacketHandler / Abnormals.Tick / ToNet.Social / Skills.Members.Support / SessionLifecycle.Enter / Warehouse.Helpers / ZoneWorld.More.Enter)
+- [x] Client ACS hub file-splits continued (#911–#927 + wave3: TargetWindow / CharacterInfoWindow / ProjectileManager / FineageZoneTransport.Commands; prior: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map / L2SlotManager / NetCommandSender / ItemDropPresentation / DayNightCycle / ParticleStreamRuntime)
+- [x] Client ACS hub file-splits continued (TargetWindow Properties/Effects; CharacterInfoWindow Build/Chrome/Tabs/Values; ProjectileManager Impact/Update; FineageZoneTransport Commands/Helpers)
+- [x] Client ACS hub file-splits continued (#911–#927: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map / L2SlotManager / NetCommandSender / ItemDropPresentation / DayNightCycle / ParticleStreamRuntime)
+- [x] Client ACS hub file-splits continued (CharSelectWindow Lobby/Interlude/Actions; WorldPacketApply Combat/Movement; EntityActionVisual Combat/Helpers; SkillbarWindow Dock/Layout/Shortcuts)
+- [ ] LifetimeScope / gameplay MB asmdef remains #131 residual — **opportunistic only; not the gameplay-debug gate**

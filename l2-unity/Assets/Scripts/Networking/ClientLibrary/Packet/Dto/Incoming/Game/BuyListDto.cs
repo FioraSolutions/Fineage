@@ -164,8 +164,9 @@ public class Product : AbstractServerItem
     }
     public string GetName()
     {
-        ItemName item = ItemNameTable.Instance != null
-            ? ItemNameTable.Instance.GetItemName(_itemId)
+        ItemNameTable itemNames = TablePacketServices.ItemNames;
+        ItemName item = itemNames != null
+            ? itemNames.GetItemName(_itemId)
             : null;
         return item != null && !string.IsNullOrEmpty(item.DisplayName) ? item.DisplayName : ("Item " + _itemId);
     }

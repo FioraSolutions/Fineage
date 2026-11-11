@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMOD.Studio;
 
-public class AmbientSoundEmitter : EventHandler {
+public partial class AmbientSoundEmitter : EventHandler
+{
     private FMOD.Studio.EventDescription _eventDescription;
     private FMOD.Studio.EventInstance _instance;
 
@@ -35,19 +37,6 @@ public class AmbientSoundEmitter : EventHandler {
     public float OverrideMinDistance { set { _overrideMinDistance = value; } }
     public float OverrideMaxDistance { set { _overrideMaxDistance = value; } }
 
-    private void Awake() {
-        if(!_eventDescription.isValid()) {
-            Lookup();
-        }
-
-        int lengthMs = 0;
-        _eventDescription.getLength(out lengthMs);
-        _clipLengthSeconds = lengthMs / 1000f;
-        _clipLengthSeconds = _clipLengthSeconds / _soundPitch;
-
-        _eventDescription.is3D(out _isSound3D);
-    }
-
     private float MaxDistance {
         get {
             if(_overrideAttenuation) {
@@ -61,148 +50,6 @@ public class AmbientSoundEmitter : EventHandler {
             float minDistance, maxDistance;
             _eventDescription.getMinMaxDistance(out minDistance, out maxDistance);
             return maxDistance;
-        }
-    }
-
-    private void Lookup() {
-        _eventDescription = RuntimeManager.GetEventDescription(_eventReference);
-    }
-
-    public void Play() {
-        if(_eventReference.IsNull) {
-            return;
-        }
-
-        if(!_eventDescription.isValid()) {
-            Lookup();
-        }
-
-        if (_loop) {
-            StopCoroutine(StartPlayLoop());
-            StartCoroutine(StartPlayLoop());
-            return;
-        }
-
-        if (_isSound3D && ShouldStop()) {
-            Stop();
-        } else if (ShouldPlayEvent()) {
-            PlayInstance();
-        }
-    }
-
-
-    IEnumerator StartPlayLoop() {
-        while(true) {
-            if (_isSound3D && ShouldStop()) {
-                Stop();
-                yield break;
-            }
-            if(ShouldPlayEvent()) {
-                PlayInstance();
-            }
-            yield return new WaitForSeconds(_clipLengthSeconds * 0.99f); // 1% for error margin
-            if (_loopDelaySeconds > 0) {
-                yield return new WaitForSeconds(_loopDelaySeconds);
-            }
-        }
-    }
-
-    private bool ShouldPlayEvent() {
-        WorldClock clock = WorldClockPacketServices.Clock;
-        if (clock != null)
-        {
-            if (_ambientSoundType == AmbientSoundType.AST1_Day && clock.IsNightTime())
-            {
-                return false;
-            }
-
-            if (_ambientSoundType == AmbientSoundType.AST1_Night && !clock.IsNightTime())
-            {
-                return false;
-            }
-        }
-
-        if(Random.Range(1, 100) <= _playChancePercent) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool ShouldStop()
-    {
-        var listener = AudioPacketServices.Listener;
-        if (listener == null) return true;
-
-        var player = listener.Player;
-        if (player == null) return true;
-
-        float distance = Vector3.Distance(transform.position, player.transform.position);
-        return distance > MaxDistance;
-    }
-
-    private void PlayInstance() {
-        if (!_instance.isValid()) {
-            _instance.clearHandle();
-        }
-
-        // Let previous oneshot instances play out
-        if (_instance.isValid()) {
-            _instance.release();
-            _instance.clearHandle();
-        }
-
-        bool is3D;
-        _eventDescription.is3D(out is3D);
-
-        if(!_instance.isValid()) {
-            _eventDescription.createInstance(out _instance);
-
-            // Only want to update if we need to set 3D attributes
-            if(is3D) {
-                _instance.set3DAttributes(RuntimeUtils.To3DAttributes(gameObject));
-            }
-        }
-
-        if(is3D && _overrideAttenuation) {
-            _instance.setProperty(FMOD.Studio.EVENT_PROPERTY.MINIMUM_DISTANCE, _overrideMinDistance);
-            _instance.setProperty(FMOD.Studio.EVENT_PROPERTY.MAXIMUM_DISTANCE, _overrideMaxDistance);
-        }
-
-        _instance.setPitch(_soundPitch);
-        _instance.start();
-    }
-
-    public void Stop() {
-        StopCoroutine(StartPlayLoop());
-        StopInstance();
-    }
-
-    private void StopInstance() {
-        if(_instance.isValid()) {
-            _instance.stop(_allowFadeout ? FMOD.Studio.STOP_MODE.ALLOWFADEOUT : FMOD.Studio.STOP_MODE.IMMEDIATE);
-            _instance.release();
-            if(!_allowFadeout) {
-                _instance.clearHandle();
-            }
-        }
-    }
-
-    public bool IsPlaying() {
-        if(_instance.isValid()) {
-            FMOD.Studio.PLAYBACK_STATE playbackState;
-            _instance.getPlaybackState(out playbackState);
-            return (playbackState != FMOD.Studio.PLAYBACK_STATE.STOPPED);
-        }
-        return false;
-    }
-
-    protected override void HandleGameEvent(EmitterGameEvent gameEvent) {
-        if(_playEvent == gameEvent) {
-            Play();
-        }
-        if(_stopEvent == gameEvent) {
-            Stop();
         }
     }
 }

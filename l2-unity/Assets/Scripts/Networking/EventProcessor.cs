@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using UnityEngine;
+using VContainer;
 
-/// <summary>
-/// Main-thread packet/world apply pump. Owned by <see cref="DiBootstrap.EnsureAppScope"/>
-/// on the AppLifetimeScope DontDestroyOnLoad object — not Menu, Networking, or Game prefabs.
-/// </summary>
-public class EventProcessor : MonoBehaviour
+public partial class EventProcessor : MonoBehaviour
 {
     WorldPacketApply _worldApply;
     private static EventProcessor _instance;
@@ -35,110 +32,14 @@ public class EventProcessor : MonoBehaviour
     /// Deferred apply must always have a pump. If DI has not produced one yet,
     /// create an app-lifetime host instead of running work inline.
     /// </summary>
-    public static EventProcessor EnsureInstance()
-    {
-        if (_instance != null)
-            return _instance;
-        EventProcessor found = FindAnyObjectByType<EventProcessor>();
-        if (found != null)
-        {
-            _instance = found;
-            return found;
-        }
 
-        GameObject host = new GameObject("EventProcessor (fallback)");
-        DontDestroyOnLoad(host);
-        EventProcessor created = host.AddComponent<EventProcessor>();
-        _instance = created;
-        Debug.LogWarning("[EventProcessor] none bound; created app-lifetime fallback pump.");
-        return created;
-    }
 
-    private void Awake()
-    {
-        if (_instance != null && _instance != this)
-        {
-            Debug.LogError(
-                "[EventProcessor] Duplicate on '" + name + "' scene=" + gameObject.scene.name
-                + ". Only AppLifetimeScope may host EventProcessor. Destroying this duplicate.");
-            Destroy(this);
-            return;
-        }
 
-        _instance = this;
-        NetworkingPacketServices.Bind(events: this);
-    }
-
-    void OnDestroy()
-    {
-        if (_instance == this)
-            _instance = null;
-    }
-
-    public void WireGameApply(WorldPacketApply worldApply)
-    {
-        if (worldApply != null)
-        {
-            _worldApply = worldApply;
-            NetworkingPacketServices.Bind(worldApply: worldApply);
-        }
-    }
 
     private World GameWorld => NetworkingPacketServices.GameWorld;
 
     private WorldPacketApply WorldApply => NetworkingPacketServices.WorldApply;
 
-    private void Start()
-    {
-        World world = GameWorld;
-        NetworkingPacketServices.Bind(world: world, worldApply: _worldApply);
-        if (world != null && world.OfflineMode)
-        {
-            this.enabled = false;
-            return;
-        }
-    }
 
-    public void QueueEvent(Action action)
-    {
-        if (action == null)
-            return;
-        lock (_batchGate)
-        {
-            _batches[_writeBatch].Enqueue(action);
-            System.Threading.Interlocked.Increment(ref _pending);
-        }
-    }
 
-    private void Update()
-    {
-        SpawnFrameBudget.BeginFrame();
-
-        ConcurrentQueue<Action> batch;
-        lock (_batchGate)
-        {
-            ConcurrentQueue<Action> write = _batches[_writeBatch];
-            if (write.IsEmpty)
-                return;
-
-            batch = write;
-            _writeBatch ^= 1;
-        }
-
-        Action action;
-        while (batch.TryDequeue(out action))
-        {
-            System.Threading.Interlocked.Decrement(ref _pending);
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-        }
-
-        PacketApplyLog.EndBatch();
-    }
 }

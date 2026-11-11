@@ -1,41 +1,68 @@
 ﻿<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
+    <!-- Interlude LoginWnd + NCLoginFunctionWnd: center credentials, bottom-right action menu. -->
     <ui:VisualElement name="LoginWindow" picking-mode="Ignore" class="login-window il-login">
-        <ui:VisualElement name="LoginFrame" picking-mode="Ignore" class="il-login-frame">
-            <ui:VisualElement name="ID" picking-mode="Ignore" class="il-login-row">
-                <ui:Label text="Account" name="AccountLabel" picking-mode="Ignore" class="il-login-label" />
-                <ui:VisualElement name="IDInput" picking-mode="Ignore" class="il-field">
-                    <ui:VisualElement name="UserInputBg" picking-mode="Ignore" class="il-edit">
-                        <ui:VisualElement name="UserInputCapL" picking-mode="Ignore" class="il-edit-l" />
-                        <ui:VisualElement name="UserInputCapM" picking-mode="Ignore" class="il-edit-m" />
-                        <ui:VisualElement name="UserInputCapR" picking-mode="Ignore" class="il-edit-r" />
+        <ui:VisualElement name="LoginCenter" picking-mode="Ignore" class="il-login-center">
+            <ui:VisualElement name="LoginFrame" picking-mode="Ignore" class="il-login-frame">
+                <ui:VisualElement name="ID" picking-mode="Ignore" class="il-login-row">
+                    <ui:Label text="ID" name="AccountLabel" picking-mode="Ignore" class="il-login-label" />
+                    <ui:VisualElement name="IDInput" picking-mode="Ignore" class="il-field">
+                        <ui:VisualElement name="UserInputBg" picking-mode="Ignore" class="il-edit">
+                            <ui:VisualElement name="UserInputCapL" picking-mode="Ignore" class="il-edit-l" />
+                            <ui:VisualElement name="UserInputCapM" picking-mode="Ignore" class="il-edit-m" />
+                            <ui:VisualElement name="UserInputCapR" picking-mode="Ignore" class="il-edit-r" />
+                        </ui:VisualElement>
+                        <ui:TextField max-length="16" name="UserInputField" tabindex="1" class="login-input il-login-input" />
                     </ui:VisualElement>
-                    <ui:TextField max-length="16" name="UserInputField" tabindex="1" class="login-input il-login-input" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Password" picking-mode="Ignore" class="il-login-row">
+                    <ui:Label text="Password" name="PasswordLabel" picking-mode="Ignore" class="il-login-label" />
+                    <ui:VisualElement name="PasswordInput" picking-mode="Ignore" class="il-field">
+                        <ui:VisualElement name="PasswordInputBg" picking-mode="Ignore" class="il-edit">
+                            <ui:VisualElement name="PasswordInputCapL" picking-mode="Ignore" class="il-edit-l" />
+                            <ui:VisualElement name="PasswordInputCapM" picking-mode="Ignore" class="il-edit-m" />
+                            <ui:VisualElement name="PasswordInputCapR" picking-mode="Ignore" class="il-edit-r" />
+                        </ui:VisualElement>
+                        <ui:TextField password="true" tabindex="2" max-length="16" name="PasswordInputField" class="login-input il-login-input" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Buttons" picking-mode="Ignore" class="il-login-buttons">
+                    <ui:Button text="Log In" name="LoginButton" focusable="false" class="l2-button il-login-btn">
+                        <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
+                        <ui:Label text="Log In" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
+                    </ui:Button>
+                    <ui:Button text="Exit" name="ExitButton" focusable="false" class="l2-button il-login-btn">
+                        <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
+                        <ui:Label text="Exit" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
+                    </ui:Button>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="Password" picking-mode="Ignore" class="il-login-row">
-                <ui:Label text="Password" name="PasswordLabel" picking-mode="Ignore" class="il-login-label" />
-                <ui:VisualElement name="PasswordInput" picking-mode="Ignore" class="il-field">
-                    <ui:VisualElement name="PasswordInputBg" picking-mode="Ignore" class="il-edit">
-                        <ui:VisualElement name="PasswordInputCapL" picking-mode="Ignore" class="il-edit-l" />
-                        <ui:VisualElement name="PasswordInputCapM" picking-mode="Ignore" class="il-edit-m" />
-                        <ui:VisualElement name="PasswordInputCapR" picking-mode="Ignore" class="il-edit-r" />
-                    </ui:VisualElement>
-                    <ui:TextField password="true" tabindex="2" max-length="16" name="PasswordInputField" class="login-input il-login-input" />
-                </ui:VisualElement>
-            </ui:VisualElement>
-            <ui:VisualElement name="Buttons" picking-mode="Ignore" class="il-login-buttons">
-                <ui:Button text="Login" name="LoginButton" focusable="false" class="l2-button il-login-btn">
-                    <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
-                    <ui:Label text="Login" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
-                </ui:Button>
-                <ui:Button text="Exit" name="ExitButton" focusable="false" class="l2-button il-login-btn">
-                    <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
-                    <ui:Label text="Exit" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
-                </ui:Button>
-            </ui:VisualElement>
+            <!-- Fineage-only convenience; original Interlude LoginWnd has no Remember. -->
+            <ui:Toggle label="Remember login" name="RememberToggle" focusable="false" class="il-login-remember" />
+            <ui:Label tabindex="-1" name="LabelError" class="il-login-error" />
         </ui:VisualElement>
-        <ui:Toggle label="Remember login" name="RememberToggle" focusable="false" class="il-login-remember" />
-        <ui:Label tabindex="-1" name="LabelError" class="il-login-error" />
+        <ui:VisualElement name="LoginMenu" picking-mode="Ignore" class="il-login-menu">
+            <ui:Button text="New Account" name="NewAccountButton" focusable="false" class="l2-button il-login-menu-btn">
+                <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label text="New Account" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
+            </ui:Button>
+            <ui:Button text="Lost Account" name="LostAccountButton" focusable="false" class="l2-button il-login-menu-btn">
+                <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label text="Lost Account" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
+            </ui:Button>
+            <ui:Button text="Options" name="OptionsButton" focusable="false" class="l2-button il-login-menu-btn">
+                <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label text="Options" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
+            </ui:Button>
+            <ui:Button text="Production Team" name="ProductionTeamButton" focusable="false" class="l2-button il-login-menu-btn">
+                <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label text="Production Team" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
+            </ui:Button>
+            <ui:Button text="Replay" name="ReplayButton" focusable="false" class="l2-button il-login-menu-btn">
+                <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label text="Replay" name="ButtonLabel" picking-mode="Ignore" class="button-label il-login-btn-label" />
+            </ui:Button>
+        </ui:VisualElement>
+        <ui:Label text="Copyright © NCSOFT Corporation. All Rights Reserved." name="CopyrightLabel" picking-mode="Ignore" class="il-login-copyright" />
     </ui:VisualElement>
 </ui:UXML>

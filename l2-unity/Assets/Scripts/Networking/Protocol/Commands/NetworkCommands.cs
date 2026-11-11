@@ -26,6 +26,8 @@ public sealed class UseItemCommand : INetworkCommand
 }
 
 /// <summary>Fineage Net TX opcode 39 — select an enchant scroll and open the window.</summary>
+
+/// <summary>Fineage Net TX opcode 39 — select an enchant scroll and open the window.</summary>
 public sealed class ZoneEnchantRequestCommand : INetworkCommand
 {
     public int ScrollObjectId;
@@ -37,6 +39,8 @@ public sealed class ZoneEnchantRequestCommand : INetworkCommand
 }
 
 /// <summary>Fineage Net TX opcode 16 — clear paperdoll index 0..16.</summary>
+
+/// <summary>Fineage Net TX opcode 16 — clear paperdoll index 0..16.</summary>
 public sealed class UnequipItemCommand : INetworkCommand
 {
     public int PaperdollSlot;
@@ -46,6 +50,8 @@ public sealed class UnequipItemCommand : INetworkCommand
         PaperdollSlot = paperdollSlot;
     }
 }
+
+/// <summary>Fineage Net TX opcode 13 — server grants into bag via InventoryUpdate (Backend #120).</summary>
 
 /// <summary>Fineage Net TX opcode 13 — server grants into bag via InventoryUpdate (Backend #120).</summary>
 public sealed class ZoneGrantItemCommand : INetworkCommand
@@ -61,6 +67,8 @@ public sealed class ZoneGrantItemCommand : INetworkCommand
 }
 
 /// <summary>Fineage Net TX opcode 14 — pick up ground item (Backend C2 / #125).</summary>
+
+/// <summary>Fineage Net TX opcode 14 — pick up ground item (Backend C2 / #125).</summary>
 public sealed class ZonePickupRequestCommand : INetworkCommand
 {
     public int GroundObjectId;
@@ -70,6 +78,11 @@ public sealed class ZonePickupRequestCommand : INetworkCommand
         GroundObjectId = groundObjectId;
     }
 }
+
+/// <summary>
+/// Mobius <c>RequestAutoSoulShot</c>: toggle automatic shot use for a carried shot item.
+/// The zone answers with <c>AutoSoulShot</c> and then recharges the weapon after every swing.
+/// </summary>
 
 /// <summary>
 /// Mobius <c>RequestAutoSoulShot</c>: toggle automatic shot use for a carried shot item.
@@ -121,122 +134,11 @@ public sealed class ValidatePositionCommand : INetworkCommand
     }
 }
 
-public sealed class AppearingCommand : INetworkCommand
-{
-}
-
-public sealed class EnterWorldCommand : INetworkCommand
-{
-}
-
-public sealed class NewCharacterCommand : INetworkCommand
-{
-}
-
-public sealed class ProtocolVersionCommand : INetworkCommand
-{
-    public int Protocol;
-
-    public ProtocolVersionCommand(int protocol)
-    {
-        Protocol = protocol;
-    }
-}
-
-public sealed class CharacterSelectCommand : INetworkCommand
-{
-    public int Slot;
-
-    public CharacterSelectCommand(int slot)
-    {
-        Slot = slot;
-    }
-}
-
-public sealed class CharacterDeleteCommand : INetworkCommand
-{
-    public int Slot;
-
-    public CharacterDeleteCommand(int slot)
-    {
-        Slot = slot;
-    }
-}
-
-public sealed class CharacterCreateCommand : INetworkCommand
-{
-    public List<PlayerTemplates> Templates;
-    public string ClassName;
-    public string Sex;
-    public string HairColor;
-    public string HairStyle;
-    public string Face;
-    public string RaceName;
-    public string Name;
-
-    public CharacterCreateCommand(
-        List<PlayerTemplates> templates,
-        string className,
-        string sex,
-        string hairColor,
-        string hairStyle,
-        string face,
-        string raceName,
-        string name)
-    {
-        Templates = templates;
-        ClassName = className;
-        Sex = sex;
-        HairColor = hairColor;
-        HairStyle = hairStyle;
-        Face = face;
-        RaceName = raceName;
-        Name = name;
-    }
-}
-
-public sealed class AuthLoginCommand : INetworkCommand
-{
-    public string Account;
-    public int PlayKey1;
-    public int PlayKey2;
-    public int LoginKey1;
-    public int LoginKey2;
-
-    public AuthLoginCommand(string account, int playKey1, int playKey2, int loginKey1, int loginKey2)
-    {
-        Account = account;
-        PlayKey1 = playKey1;
-        PlayKey2 = playKey2;
-        LoginKey1 = loginKey1;
-        LoginKey2 = loginKey2;
-    }
-}
-
 public sealed class RequestSkillCoolTimeCommand : INetworkCommand
 {
 }
 
 public sealed class RequestTargetCanceldCommand : INetworkCommand
-{
-}
-
-public sealed class RequestRestartPointCommand : INetworkCommand
-{
-    /// <summary>Matches <c>ReviveRequestNetMsg</c> / <c>DeathProtocol</c> revive actions.</summary>
-    public int Action;
-
-    public RequestRestartPointCommand(int action = 0)
-    {
-        Action = action;
-    }
-}
-
-public sealed class RequestShowBoardCommand : INetworkCommand
-{
-}
-
-public sealed class RequestWithdrawPledgeCommand : INetworkCommand
 {
 }
 
@@ -343,444 +245,4 @@ public sealed class RequestQuestAbortCommand : INetworkCommand
 }
 
 /// <summary>Fineage Net TX opcode 32. Body key 0 is the clan name.</summary>
-public sealed class ClanCreateRequestCommand : INetworkCommand
-{
-    public string Name;
 
-    public ClanCreateRequestCommand(string name)
-    {
-        Name = name ?? "";
-    }
-}
-
-/// <summary>Fineage Net TX opcode 33. Pledge type 0 is the main clan.</summary>
-public sealed class ClanInviteRequestCommand : INetworkCommand
-{
-    public int TargetObjectId;
-    public int PledgeType;
-
-    public ClanInviteRequestCommand(int targetObjectId, int pledgeType = 0)
-    {
-        TargetObjectId = targetObjectId;
-        PledgeType = pledgeType;
-    }
-}
-
-/// <summary>Fineage Net TX opcode 34. Response 0 declines. Any other value accepts.</summary>
-public sealed class ClanAnswerJoinRequestCommand : INetworkCommand
-{
-    public int RequestorObjectId;
-    public int Response;
-
-    public ClanAnswerJoinRequestCommand(int requestorObjectId, int response)
-    {
-        RequestorObjectId = requestorObjectId;
-        Response = response;
-    }
-}
-
-/// <summary>Fineage Net TX opcode 35. Empty body.</summary>
-public sealed class ClanLeaveRequestCommand : INetworkCommand
-{
-}
-
-/// <summary>Fineage Net TX opcode 36.</summary>
-public sealed class ClanKickRequestCommand : INetworkCommand
-{
-    public int TargetObjectId;
-
-    public ClanKickRequestCommand(int targetObjectId)
-    {
-        TargetObjectId = targetObjectId;
-    }
-}
-
-/// <summary>Fineage Net TX opcode 37. Empty body.</summary>
-public sealed class ClanDissolveRequestCommand : INetworkCommand
-{
-}
-
-/// <summary>Fineage Net TX opcode 38. Empty body.</summary>
-public sealed class ClanCancelDissolveRequestCommand : INetworkCommand
-{
-}
-
-public sealed class RequestJoinPledgeCommand : INetworkCommand
-{
-    public int ObjectId;
-
-    public RequestJoinPledgeCommand(int objectId)
-    {
-        ObjectId = objectId;
-    }
-}
-
-public sealed class RequestGiveNickNameCommand : INetworkCommand
-{
-    public string MemberName;
-    public string Title;
-
-    public RequestGiveNickNameCommand(string memberName, string title)
-    {
-        MemberName = memberName;
-        Title = title;
-    }
-}
-
-public sealed class RequestOustPledgeMemberCommand : INetworkCommand
-{
-    public string MemberName;
-
-    public RequestOustPledgeMemberCommand(string memberName)
-    {
-        MemberName = memberName;
-    }
-}
-
-public sealed class RequestPledgePowerCommand : INetworkCommand
-{
-    public int Rank;
-    public int Action;
-    public int Privs;
-
-    public RequestPledgePowerCommand(int rank, int action, int privs)
-    {
-        Rank = rank;
-        Action = action;
-        Privs = privs;
-    }
-}
-
-public sealed class RequestPledgeInfoCommand : INetworkCommand
-{
-    public int ClanId;
-
-    public RequestPledgeInfoCommand(int clanId)
-    {
-        ClanId = clanId;
-    }
-}
-
-public sealed class RequestShortCutRegCommand : INetworkCommand
-{
-    public int TypeId;
-    public int WorldSlot;
-    public int Id;
-    public int Level;
-
-    public RequestShortCutRegCommand(int typeId, int worldSlot, int id, int level)
-    {
-        TypeId = typeId;
-        WorldSlot = worldSlot;
-        Id = id;
-        Level = level;
-    }
-}
-
-public sealed class RequestShortCutDelCommand : INetworkCommand
-{
-    public int WorldSlot;
-
-    public RequestShortCutDelCommand(int worldSlot)
-    {
-        WorldSlot = worldSlot;
-    }
-}
-
-public sealed class RequestRecipeBookDestroyCommand : INetworkCommand
-{
-    public int RecipeId;
-
-    public RequestRecipeBookDestroyCommand(int recipeId)
-    {
-        RecipeId = recipeId;
-    }
-}
-
-public sealed class RequestRecipeItemMakeInfoCommand : INetworkCommand
-{
-    public int RecipeId;
-
-    public RequestRecipeItemMakeInfoCommand(int recipeId)
-    {
-        RecipeId = recipeId;
-    }
-}
-
-public sealed class RequestRecipeItemMakeSelfCommand : INetworkCommand
-{
-    public int RecipeId;
-
-    public RequestRecipeItemMakeSelfCommand(int recipeId)
-    {
-        RecipeId = recipeId;
-    }
-}
-
-public sealed class RequestRecipeBookOpenCommand : INetworkCommand
-{
-    public int IsDwarven;
-
-    public RequestRecipeBookOpenCommand(int isDwarven)
-    {
-        IsDwarven = isDwarven;
-    }
-}
-
-public sealed class RequestAcquireSkillCommand : INetworkCommand
-{
-    public int SkillId;
-    public int SkillLevel;
-    public int SkillType;
-
-    public RequestAcquireSkillCommand(int skillId, int skillLevel, int skillType)
-    {
-        SkillId = skillId;
-        SkillLevel = skillLevel;
-        SkillType = skillType;
-    }
-}
-
-public sealed class RequestAcquireSkillInfoCommand : INetworkCommand
-{
-    public int SkillId;
-    public int SkillLevel;
-    public int SkillType;
-
-    public RequestAcquireSkillInfoCommand(int skillId, int skillLevel, int skillType)
-    {
-        SkillId = skillId;
-        SkillLevel = skillLevel;
-        SkillType = skillType;
-    }
-}
-
-public sealed class RequestAnswerJoinPartyCommand : INetworkCommand
-{
-    public int Response;
-    /// <summary>Fineage Net inviter object id from <see cref="AskJoinPartyDto.RequestorObjectId"/>; 0 on Interlude.</summary>
-    public int RequestorObjectId;
-
-    public RequestAnswerJoinPartyCommand(int response, int requestorObjectId = 0)
-    {
-        Response = response;
-        RequestorObjectId = requestorObjectId;
-    }
-}
-
-public sealed class RequestJoinPartyCommand : INetworkCommand
-{
-    public int TargetObjectId;
-    public int ItemDistribution;
-
-    public RequestJoinPartyCommand(int targetObjectId, int itemDistribution = 0)
-    {
-        TargetObjectId = targetObjectId;
-        ItemDistribution = itemDistribution;
-    }
-}
-
-public sealed class RequestWithdrawalPartyCommand : INetworkCommand
-{
-}
-
-public sealed class RequestOustPartyMemberCommand : INetworkCommand
-{
-    public int TargetObjectId;
-
-    public RequestOustPartyMemberCommand(int targetObjectId)
-    {
-        TargetObjectId = targetObjectId;
-    }
-}
-
-public sealed class AnswerTradeRequestCommand : INetworkCommand
-{
-    public int Response;
-    /// <summary>Fineage Net requestor object id; zero on Interlude wire.</summary>
-    public int RequestorObjectId;
-
-    public AnswerTradeRequestCommand(int response, int requestorObjectId = 0)
-    {
-        Response = response;
-        RequestorObjectId = requestorObjectId;
-    }
-}
-
-public sealed class RequestTradeCommand : INetworkCommand
-{
-    public int TargetObjectId;
-
-    public RequestTradeCommand(int targetObjectId)
-    {
-        TargetObjectId = targetObjectId;
-    }
-}
-
-public sealed class TradeDoneCommand : INetworkCommand
-{
-    public int Response;
-
-    public TradeDoneCommand(int response)
-    {
-        Response = response;
-    }
-}
-
-public sealed class AddTradeItemCommand : INetworkCommand
-{
-    public int Trade;
-    public int ObjectId;
-    public int Count;
-
-    public AddTradeItemCommand(int trade, int objectId, int count)
-    {
-        Trade = trade;
-        ObjectId = objectId;
-        Count = count;
-    }
-}
-
-public sealed class MultiSellChooseCommand : INetworkCommand
-{
-    public int ListId;
-    public int EntryId;
-    public int Amount;
-
-    public MultiSellChooseCommand(int listId, int entryId, int amount)
-    {
-        ListId = listId;
-        EntryId = entryId;
-        Amount = amount;
-    }
-}
-
-public sealed class RequestBuyItemCommand : INetworkCommand
-{
-    public int ListId;
-    public List<Product> BuyList;
-
-    public RequestBuyItemCommand(int listId, List<Product> buyList)
-    {
-        ListId = listId;
-        BuyList = buyList;
-    }
-}
-
-public sealed class RequestSellItemCommand : INetworkCommand
-{
-    public int ListId;
-    public List<Product> SellList;
-
-    public RequestSellItemCommand(int listId, List<Product> sellList)
-    {
-        ListId = listId;
-        SellList = sellList;
-    }
-}
-
-public sealed class RequestPreviewItemCommand : INetworkCommand
-{
-    public int ListId;
-    public List<Product> BuyList;
-
-    public RequestPreviewItemCommand(int listId, List<Product> buyList)
-    {
-        ListId = listId;
-        BuyList = buyList;
-    }
-}
-
-public sealed class SendWarehouseDepositListCommand : INetworkCommand
-{
-    public List<Product> SellList;
-
-    public SendWarehouseDepositListCommand(List<Product> sellList)
-    {
-        SellList = sellList;
-    }
-}
-
-public sealed class SendWarehouseWithdrawListCommand : INetworkCommand
-{
-    public List<Product> SellList;
-
-    public SendWarehouseWithdrawListCommand(List<Product> sellList)
-    {
-        SellList = sellList;
-    }
-}
-
-public sealed class RequestPackageSendCommand : INetworkCommand
-{
-    public int ObjectId;
-    public List<Product> BuyList;
-
-    public RequestPackageSendCommand(int objectId, List<Product> buyList)
-    {
-        ObjectId = objectId;
-        BuyList = buyList;
-    }
-}
-
-public sealed class RequestPackageSendableItemListCommand : INetworkCommand
-{
-    public int ObjectId;
-
-    public RequestPackageSendableItemListCommand(int objectId)
-    {
-        ObjectId = objectId;
-    }
-}
-
-public sealed class AuthGameGuardCommand : INetworkCommand
-{
-    public int SessionId;
-    public int[] Gg;
-
-    public AuthGameGuardCommand(int sessionId, int[] gg)
-    {
-        SessionId = sessionId;
-        Gg = gg;
-    }
-}
-
-public sealed class RequestAuthLoginCommand : INetworkCommand
-{
-    public string Account;
-    public string Password;
-    public int Response;
-
-    public RequestAuthLoginCommand(string account, string password, int response)
-    {
-        Account = account;
-        Password = password;
-        Response = response;
-    }
-}
-
-public sealed class RequestServerListCommand : INetworkCommand
-{
-    public int SessionKey1;
-    public int SessionKey2;
-
-    public RequestServerListCommand(int sessionKey1, int sessionKey2)
-    {
-        SessionKey1 = sessionKey1;
-        SessionKey2 = sessionKey2;
-    }
-}
-
-public sealed class RequestServerLoginCommand : INetworkCommand
-{
-    public int ServerId;
-    public int SessionKey1;
-    public int SessionKey2;
-
-    public RequestServerLoginCommand(int serverId, int sessionKey1, int sessionKey2)
-    {
-        ServerId = serverId;
-        SessionKey1 = sessionKey1;
-        SessionKey2 = sessionKey2;
-    }
-}

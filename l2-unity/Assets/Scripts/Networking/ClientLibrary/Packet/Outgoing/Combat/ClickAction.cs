@@ -1,3 +1,5 @@
+using System;
+
 [OutgoingCommandPacket(typeof(ClickActionCommand))]
 public sealed class ClickAction : OutgoingWirePacket<ClickActionDto>
 {

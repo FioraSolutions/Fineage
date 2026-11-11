@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ClanDetailedInfo
+public partial class ClanDetailedInfo
 {
 
     private const string _templateNameClanInfo = "Data/UI/_Elements/Game/Clan/DetailedContent/ClanInfoContent";
@@ -26,36 +26,6 @@ public class ClanDetailedInfo
 
     private int _showPanel = -1;
 
-    public void  SetDetailedInfoElement(VisualElement detailedInfoElement)
-    {
-        _detailedInfoElement = detailedInfoElement;
-    }
-    public ClanDetailedInfo(DataProviderClanInfo dataProvider)
-    {
-        _dataProvider = dataProvider;
-
-        _createPanelCheckBox = new CreatePanelCheckBoxWindows();
-        _creatorSkillsPanel = new CreatorSkillsPanel();
-
-        _memberInfoContent = new MemberInfoContent(_dataProvider);
-        _memberInfoContent.OnClickHide += OnClickHide;
-        _memberInfoContent.OnOutsideClickRank += OnClickOkRank;
-        _memberInfoContent.OnOutsideClickTitle += OnClickOkTitle;
-        _memberInfoContent.OnOutsideClickDeleteTitle += OnDeleteTitle;
-        _memberInfoContent.OnOutsideClickDismiss += OnOkDismiss;
-
-
-        _privilegesInfoContent = new PrivilegesInfoContent(_dataProvider , _createPanelCheckBox);
-        _privilegesInfoContent.OnClickHide += OnClickHide;
-        _privilegesInfoContent.OnClickApply += OnClickApplyPrivilege;
-
-        _clanInfoContent = new ClanInfoContent(_dataProvider , _creatorSkillsPanel);
-        _clanInfoContent.OnClickHide += OnClickHide;
-
-        _rankingPrivilege = new RankingPrivelege(_dataProvider);
-        _rankingPrivilege.OnClickHide += OnClickHide;
-        _rankingPrivilege.OnSwitchRank += OnSwitchSubWindow;
-    }
 
    public void LoadAssets(Func<string, VisualTreeAsset> loaderFunc)
    {
@@ -71,122 +41,15 @@ public class ClanDetailedInfo
 
     }
 
-    public void UpdateDetailedInfo(object packet, VisualElement detailedInfoElement, PledgeShowMemberListAllDto packetAll)
-    {
-        switch (packet)
-        {
-            case PledgeReceiveMemberInfoDto memberInfo:
-                _memberInfoContent.PreShow(memberInfo, detailedInfoElement, packetAll);
-                _showPanel = 0;
-                break;
 
-            case PledgeReceivePowerInfoDto powerInfo:
-                //if leader max access
-                if (powerInfo.Name == packetAll.SubPledgeLeaderName) powerInfo.PowerGradeByRank = ClanPrivileges.CP_ALL;
 
-                _privilegesInfoContent.PreShow(powerInfo, detailedInfoElement);
-                _showPanel = 1;
-                break;
-            case PledgeClanInfoDto clanInfo:
-                _clanInfoContent.PreShow(clanInfo, detailedInfoElement, packetAll);
-                _showPanel = 2;
-                break;
-            case PledgePowerGradeListDto authInfo:
-                _rankingPrivilege.PreShow(authInfo, detailedInfoElement, packetAll);
-                _showPanel = 3;
-                break;
-            case ManagePledgePowerDto pladgePower:
-                _privilegesInfoContent.PreShow(pladgePower, detailedInfoElement);
-                _showPanel = 1;
-                break;
-            default:
-                // Handle unknown packet types if necessary
-                break;
-        }
-    }
-    public int GetShowPanel()
-    {
-        return _showPanel;
-    }
 
-    private void OnClickOkRank(string memberName, int rank)
-    {
-    }
-
-    private void OnClickOkTitle(string memberName, string title)
-    {
-        ZoneCommands.Send(new RequestGiveNickNameCommand(memberName, title));
-
-        //Debug.Log("Click Ok OnClickOkTitle memberName " + memberName + " Rank " + title);
-    }
-
-    private void OnDeleteTitle(string memberName)
-    {
-        ZoneCommands.Send(new RequestGiveNickNameCommand(memberName, ""));
-    }
     private string _selectDismiss = "";
-    private void OnOkDismiss(string memberName)
-    {
-        _selectDismiss = memberName;
-        SystemMessagePacketServices.Window.OnButtonOk += SystemMessageClickOkDismiss;
-        SystemMessagePacketServices.Window.OnButtonClosed += OnРЎancel;
-        SystemMessagePacketServices.Window.ShowWindowDialogYesOrNot("Do you want to be kicked from the clan?");
-    }
-
-    private void SystemMessageClickOkDismiss()
-    {
-        ZoneCommands.Send(new RequestOustPledgeMemberCommand(_selectDismiss));
-        CancelEvent();
-    }
-
-    private void OnРЎancel()
-    {
-        CancelEvent();
-    }
-
-    private void CancelEvent()
-    {
-        SystemMessagePacketServices.Window.OnButtonOk -= SystemMessageClickOkDismiss;
-        SystemMessagePacketServices.Window.OnButtonClosed -= OnРЎancel;
-    }
-
-    private void OnClickHide(int id)
-    {
-        _showPanel = -1;
-    }
-
-    private void OnClickApplyPrivilege(int useRank)
-    {
-        List<SettingCheckBox> listSelect = _createPanelCheckBox.GetSelectAllCheckBoxs();
-        int newPrivileges = GetCalcNewRank(listSelect);
-
-        if(newPrivileges != -1)
-        {
-            ZoneCommands.Send(new RequestPledgePowerCommand(useRank, 2, newPrivileges));
-
-        }
 
 
-    }
 
-    private void OnSwitchSubWindow(int id)
-    {
-        PledgeReceivePowerInfoDto powerInfo = new PledgeReceivePowerInfoDto();
-        powerInfo.PowerGrade = id;
-        _privilegesInfoContent.PreShow(powerInfo, _detailedInfoElement);
-    }
 
-    private int GetCalcNewRank(List<SettingCheckBox> list)
-    {
-        if(list.Count == 1)
-        {
-            return list[0].GetData();
-        }
 
-        int[] dataArray = list.Where(cb => cb.GetData() != 0)
-                               .Select(cb => cb.GetData())
-                               .ToArray();
 
-        return ByteUtils.CombineFlags(dataArray);
-    }
+
 }

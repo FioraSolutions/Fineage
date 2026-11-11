@@ -1,15 +1,13 @@
-﻿public class CharSelectInfoPackage
+﻿using System.Xml.Linq;
+using System.Collections;
+using System.Collections.Generic;
+
+public partial class CharSelectInfoPackage
 {
     private PlayerAppearance _appearance;
     private PaperDollSelection _paperDool;
     private PlayerStats _stats;
 
-    public CharSelectInfoPackage()
-    {
-        _appearance = new PlayerAppearance();
-        _paperDool = new PaperDollSelection();
-        _stats = new PlayerStats();
-    }
 
     private int _slot;
     private string _name;
@@ -63,7 +61,6 @@
     public double MaxHp { get => _stats.MaxHp; set => _stats.MaxHp = (int)value; }
     public double MaxMp { get => _stats.MaxMp; set => _stats.MaxMp = (int)value; }
     // LevelServer.GetExp(level);
-    public double MaxExp() { return LevelServer.GetExp(_lvl + 1); }
 
 
     public bool Selected { get => _selected; set => _selected = value; }

@@ -1,4 +1,5 @@
 using VContainer;
+using System.Collections.Generic;
 
 /// <summary>
 /// Trade request window apply, constructed by the container instead of reached through the

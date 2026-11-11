@@ -21,11 +21,32 @@ public static class DiRuntimePacketServices
     }
 
     public static GameClient Game =>
-        _game != null ? _game : GameClient.Instance;
+        _game != null ? _game : ResolveGameClient();
+
+    static GameClient ResolveGameClient()
+    {
+        if (App.HasContainer)
+        {
+            try
+            {
+                return App.Resolve<GameClient>();
+            }
+            catch
+            {
+            }
+        }
+
+#pragma warning disable CS0618 // Locator fallback until GameClient.Instance is removed
+        return GameClient.Instance;
+#pragma warning restore CS0618
+    }
 
     public static LoginClient Login =>
         _login != null ? _login : NetworkingPacketServices.Login;
 
     public static GameManager Manager =>
         _manager != null ? _manager : NetworkingPacketServices.Manager;
+
+    public static IGameManager ManagerContract =>
+        Manager;
 }

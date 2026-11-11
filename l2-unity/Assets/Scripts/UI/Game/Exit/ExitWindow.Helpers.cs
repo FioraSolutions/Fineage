@@ -1,0 +1,97 @@
+using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UIElements;
+using System.Collections.Generic;
+using VContainer;
+
+public partial class ExitWindow : L2PopupWindow
+{
+    protected override IEnumerator BuildWindow(VisualElement root)
+    {
+        InitWindow(root);
+
+        // root.Add(_windowEle);
+
+        yield return new WaitForEndOfFrame();
+
+        _windowName = (Label)GetElementById("windows-name-label");
+        _expAcquired = (Label)GetElementById("CountExp");
+        _adenaAcquired = (Label)GetElementById("CountAdena");
+        _itemAcquired = (Label)GetElementById("CountItem");
+        _restartButton = (Button)GetElementByClass("restart-button");
+        _exitButton = (Button)GetElementByClass("exit-button");
+
+        Button initializeButton = (Button)GetElementByClass("initialize-button");
+        initializeButton.AddManipulator(new ButtonClickSoundManipulator(initializeButton));
+
+
+        var _boxHeader = GetElementByClass("drag-area");
+        DragManipulator drag = new DragManipulator(_boxHeader, _windowEle);
+        _boxHeader.AddManipulator(drag);
+
+        float root_width = root.worldBound.width / 2;
+        float exit_width = _windowEle.worldBound.width / 2;
+        float width = root_width - exit_width;
+        Vector2 center = new Vector2(root.worldBound.x + width, root.worldBound.y);
+        _windowEle.transform.position = center;
+
+        HideWindow();
+
+        RegisterCloseWindowEvent("btn-close-frame");
+        RegisterCloseWindowEvent("cancel-button");
+        RegisterClickWindowEvent(_windowEle, _boxHeader);
+
+        _restartButton.RegisterCallback<ClickEvent>((evt) => HandleRestartButtonClick());
+        _exitButton.RegisterCallback<ClickEvent>((evt) => HandleExitButtonClick());
+    }
+
+    public void OpenWindow(bool exit)
+    {
+        if (exit)
+        {
+            _windowName.text = "Exit Game";
+            _restartButton.style.display = DisplayStyle.None;
+            _exitButton.style.display = DisplayStyle.Flex;
+        }
+        else
+        {
+            _windowName.text = "Restart Game";
+            _restartButton.style.display = DisplayStyle.Flex;
+            _exitButton.style.display = DisplayStyle.None;
+        }
+
+        ShowWindow();
+    }
+
+    public override void ShowWindow()
+    {
+        base.ShowWindow();
+        SystemUIPacketServices.Ui.WindowOpened(this);
+    }
+
+    public override void HideWindow()
+    {
+        base.HideWindow();
+        SystemUIPacketServices.Audio.PlayUISound("window_close");
+        SystemUIPacketServices.Ui.WindowClosed(this);
+    }
+
+    private void HandleRestartButtonClick()
+    {
+        HideWindow();
+        GameManager manager = GamePacketServices.Manager;
+        if (manager != null)
+            manager.RestartToCharacterSelect();
+    }
+
+    private void HandleExitButtonClick()
+    {
+        HideWindow();
+        GameManager manager = GamePacketServices.Manager;
+        if (manager != null)
+            manager.QuitGame();
+        else
+            Application.Quit();
+    }
+}

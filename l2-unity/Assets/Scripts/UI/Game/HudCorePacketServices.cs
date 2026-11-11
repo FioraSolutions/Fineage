@@ -2,6 +2,8 @@
 /// Core HUD window access with [Inject] wiring and live fallback (#142).
 /// Covers Interlude character/action/target/menu/map chrome plus slot/tooltip hosts.
 /// </summary>
+using System;
+
 public static class HudCorePacketServices
 {
     private static CharacterInfoWindow _characterInfo;
