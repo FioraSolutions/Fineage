@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class NewMagicAttackIntention : IntentionBase
 {
     public NewMagicAttackIntention(PlayerStateMachine stateMachine) : base(stateMachine)

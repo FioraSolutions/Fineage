@@ -1,4 +1,10 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine.UIElements;
+using VContainer;
+using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
+using System.Collections;
+using UnityEngine;
 
 public partial class SeedInfoWindow : L2PopupWindow
 {

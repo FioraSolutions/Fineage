@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public abstract class AbstractToggle
@@ -31,6 +32,8 @@ public abstract class AbstractToggle
         IEnumerable<VisualElement> children = btn.Children();
         var e = children.First();
         e.style.display = DisplayStyle.Flex;
-        L2SlotIconView.SetResourcesBackground(btn, texture);
+        Texture2D image = Resources.Load<Texture2D>(texture);
+        if (image != null)
+            btn.style.backgroundImage = new StyleBackground(image);
     }
 }

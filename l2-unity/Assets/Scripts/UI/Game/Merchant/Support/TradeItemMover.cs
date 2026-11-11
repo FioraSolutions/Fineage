@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
+using System.Collections.Generic;
 
 public partial class TradeItemMover 
 {

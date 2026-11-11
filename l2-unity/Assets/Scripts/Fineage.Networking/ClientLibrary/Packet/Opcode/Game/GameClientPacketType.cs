@@ -1,3 +1,5 @@
+using System;
+
 public enum GameClientPacketType : byte
 {
     ProtocolVersion = 0x00,

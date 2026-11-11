@@ -1,4 +1,6 @@
-﻿public partial class MonsterStateAtk : MonsterStateBase
+﻿using UnityEngine;
+
+public partial class MonsterStateAtk : MonsterStateBase
 {
 
     static IAnimationManager Animations => AnimationPacketServices.Animations;

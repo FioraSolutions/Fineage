@@ -28,4 +28,6 @@ public sealed partial class ParticleGroupRendererService
         public Vector3 localScale;
     }
 
+    public Renderer[] Particles => _particles;
+    public int Count => _particles != null ? _particles.Length : 0;
 }

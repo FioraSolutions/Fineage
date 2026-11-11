@@ -58,8 +58,6 @@ public partial class L2SlotManager
         ShortcutPacketServices.Shortcuts.DeleteShortcut(oldSlot , true);
     }
 
-    #endregion
-
     private void ResetSlots()
     {
         _draggedSlot = null;

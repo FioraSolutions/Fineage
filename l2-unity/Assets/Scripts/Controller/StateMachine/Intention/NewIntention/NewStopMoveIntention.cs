@@ -1,3 +1,6 @@
+using TMPro;
+using UnityEditorInternal;
+
 public class NewStopMoveIntention : IntentionBase
 {
     public NewStopMoveIntention(PlayerStateMachine stateMachine) : base(stateMachine)

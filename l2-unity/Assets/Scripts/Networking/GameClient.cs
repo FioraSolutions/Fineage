@@ -1,6 +1,7 @@
 using System;
 
 ﻿using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// Remnant of the Interlude game socket; kept as a MonoBehaviour shell for DI / scene wiring.

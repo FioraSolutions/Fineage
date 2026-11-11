@@ -1,3 +1,13 @@
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
+using System.Collections;
+using UnityEngine.UIElements;
+using VContainer;
+
 public partial class BufferPanel
 {
     public void RefreshPenalty(EtcStatusUpdateDto etcStatusUpdatePacket)

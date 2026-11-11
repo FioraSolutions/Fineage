@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.ProBuilder.MeshOperations;
+﻿using UnityEngine.ProBuilder.MeshOperations;
 
 public class ShortcutUtils 
 {

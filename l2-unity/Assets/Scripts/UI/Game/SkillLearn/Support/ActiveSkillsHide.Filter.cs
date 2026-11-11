@@ -1,4 +1,11 @@
-﻿public partial class ActiveSkillsHide
+﻿using NUnit.Framework;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using UnityEngine.UIElements;
+using UnityEngine;
+
+public partial class ActiveSkillsHide
 {
     public ActiveSkillsHide()
     {

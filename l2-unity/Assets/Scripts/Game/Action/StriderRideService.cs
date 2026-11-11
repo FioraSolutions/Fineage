@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
 using Object = UnityEngine.Object;
+using VContainer;
 
 public sealed partial class StriderRideService : ILateTickable
 {

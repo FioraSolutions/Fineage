@@ -1,4 +1,11 @@
-﻿public abstract partial class AbstractCreator
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.UIElements;
+using static L2Slot;
+using UnityEngine;
+
+public abstract partial class AbstractCreator
 {
     public void CreateTradeTabs(VisualElement inventoryTabView, VisualTreeAsset _tabTemplate, VisualTreeAsset _tabHeaderTemplate , SlotType slotType , bool isDragged)
     {

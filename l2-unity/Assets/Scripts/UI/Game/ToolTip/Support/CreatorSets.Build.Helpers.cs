@@ -1,4 +1,7 @@
-﻿public partial class CreatorSets
+﻿using UnityEngine.UIElements;
+using UnityEngine;
+
+public partial class CreatorSets
 {
     private void CreateSetsEffect(int lastIndex, VisualElement container, VisualTreeAsset effectTemplate, ItemSets[] setsEffect)
     {

@@ -1,4 +1,11 @@
-﻿public partial class L2ClickableSlot : L2Slot
+using System;
+using System.Linq;
+using UnityEngine.UIElements;
+using static L2Slot;
+using System.Collections;
+using UnityEngine;
+
+public partial class L2ClickableSlot : L2Slot
 {
     public void SetSelected()
     {

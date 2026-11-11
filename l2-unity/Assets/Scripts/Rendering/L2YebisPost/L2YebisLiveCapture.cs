@@ -23,4 +23,17 @@ public static partial class L2YebisLiveCapture
 
     public static int GradeStage => _gradeStage;
 
+    struct Region
+    {
+        public readonly string Name;
+        public readonly float X;
+        public readonly float Y;
+
+        public Region(string name, float x, float y)
+        {
+            Name = name;
+            X = x;
+            Y = y;
+        }
+    }
 }

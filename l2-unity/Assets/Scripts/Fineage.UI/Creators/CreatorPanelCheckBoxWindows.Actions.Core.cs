@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public partial class CreatorPanelCheckBoxWindows
+public partial class CreatePanelCheckBoxWindows
 {
     public VisualElement CreateCheckBox(VisualTreeAsset template)
     {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 /// <summary>
 /// Applies Interlude StatusUpdate HP/MP ids (0x09–0x0c) from zone regen and combat fan-out.

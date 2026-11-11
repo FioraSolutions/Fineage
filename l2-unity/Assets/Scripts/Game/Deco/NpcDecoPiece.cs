@@ -1,3 +1,4 @@
+
 public sealed class NpcDecoPiece
 {
     public BaseEffect Prefab;

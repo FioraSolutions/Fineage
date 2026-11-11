@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class RecipeMaterials
 {
     private int materials_m_id;

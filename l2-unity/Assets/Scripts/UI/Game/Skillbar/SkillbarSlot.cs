@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
+using System.Collections;
 
 public partial class SkillbarSlot : L2ClickableSlot
 {
@@ -17,4 +17,8 @@ public partial class SkillbarSlot : L2ClickableSlot
     private VisualElement _autoShotMask;
     private IVisualElementScheduledItem _autoShotPulse;
 
+    public Shortcut Shortcut
+    {
+        get { return _shortcut; }
+    }
 }

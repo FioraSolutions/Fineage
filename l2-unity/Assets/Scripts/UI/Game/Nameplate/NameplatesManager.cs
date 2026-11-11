@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using VContainer;
+using UnityEngine.Rendering;
 
 public partial class NameplatesManager : MonoBehaviour
 {

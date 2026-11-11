@@ -1,4 +1,7 @@
-﻿public partial class CharSelectedDto : IWireDto
+﻿
+using UnityEngine;
+
+public partial class CharSelectedDto : IWireDto
 {
     public CharSelectedDto()
     {

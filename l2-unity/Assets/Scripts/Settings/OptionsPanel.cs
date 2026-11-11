@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using System;
 
 /// <summary>Code-built Options panel (Audio + Video) opened from the System menu.</summary>
 public class OptionsPanel : VisualElement

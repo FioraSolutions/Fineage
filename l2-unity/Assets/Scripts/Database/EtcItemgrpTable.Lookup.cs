@@ -115,4 +115,4 @@ public partial class EtcItemgrpTable
     {
         return index >= 0 && index < array.Length;
     }
-}}
+}

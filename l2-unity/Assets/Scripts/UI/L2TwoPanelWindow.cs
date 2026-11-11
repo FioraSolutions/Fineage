@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 
 public abstract class L2TwoPanels : L2PopupWindow

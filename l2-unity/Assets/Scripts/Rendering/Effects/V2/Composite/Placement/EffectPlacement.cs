@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 [System.Serializable]
 public abstract partial class EffectPlacement

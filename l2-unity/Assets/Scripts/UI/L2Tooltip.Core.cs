@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public partial class L2ToolTip : L2PopupWindow
 {

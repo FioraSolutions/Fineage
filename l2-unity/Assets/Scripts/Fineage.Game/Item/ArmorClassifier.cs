@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class ArmorClassifier 
 {
    public static ArmorType GetArmorType(string armor_type)

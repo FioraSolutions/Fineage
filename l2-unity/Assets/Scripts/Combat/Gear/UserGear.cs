@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public partial class UserGear : Gear
 {
@@ -14,5 +15,6 @@ public partial class UserGear : Gear
     private CharacterArmorDresser _armorDresser;
     ArmorVisualResolver _armorVisuals;
 
-
+    ArmorVisualResolver ArmorVisuals =>
+        _armorVisuals ??= ArmorVisualResolver.FromTables();
 }

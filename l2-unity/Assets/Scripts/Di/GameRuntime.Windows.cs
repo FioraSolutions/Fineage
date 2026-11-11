@@ -1,3 +1,6 @@
+
+using VContainer;
+
 public sealed partial class GameRuntime
 {
     private L2GameUI _ui;

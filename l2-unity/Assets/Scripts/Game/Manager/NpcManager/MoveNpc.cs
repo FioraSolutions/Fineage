@@ -30,5 +30,6 @@ public partial class MoveNpc : MonoBehaviour
     private bool _detectedIsMove = false;
     private Vector3 _lastPosSpecial = Vector3.zero;
     private DrawLine _debugLine;
+    public float stoppingDistance = 0.1f;
 
 }

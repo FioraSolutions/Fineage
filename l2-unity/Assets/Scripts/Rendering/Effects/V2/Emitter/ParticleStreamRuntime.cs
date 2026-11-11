@@ -33,4 +33,10 @@ public sealed partial class ParticleStreamRuntime
 
     public string DebugName;
 
+    public bool InstantKillAtCastEnd => _authoring.instantKillAtCastEnd;
+    public bool IsComplete => _state == EmitterState.Complete;
+    public bool IsGpuDraw => _batch.Bound;
+    public int SlotCount => _slots != null ? _slots.Count : 0;
+    public int SpawnedTotal => _spawn.SpawnedTotal;
+    public Material[] GpuMaterials => _simulation != null ? _simulation.GpuMaterials : null;
 }

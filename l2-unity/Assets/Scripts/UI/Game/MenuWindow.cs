@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public partial class MenuWindow : L2Window
 {

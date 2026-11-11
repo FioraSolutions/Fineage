@@ -1,3 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.UIElements;
+using static L2Slot;
+using UnityEngine;
+
 public partial class AbstractSkills
 {
     public SkillSlot GetSlot(int skillId)

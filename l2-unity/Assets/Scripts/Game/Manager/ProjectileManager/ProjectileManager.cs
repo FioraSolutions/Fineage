@@ -1,4 +1,10 @@
-﻿public partial class ProjectileManager : AbstractProjectile, IProjectileManager
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.ProBuilder;
+using VContainer;
+
+public partial class ProjectileManager : AbstractProjectile, IProjectileManager
 {
     [Inject] HitManager _hits;
     [Inject] World _world;
@@ -24,4 +30,6 @@
     [System.Obsolete("Use [Inject] or ProjectilePacketServices.Projectiles instead")]
     public static IProjectileManager Instance => _instance;
 
+    #endregion
 }
+

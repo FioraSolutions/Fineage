@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 [CreateAssetMenu(fileName = "NewEffectDatabase", menuName = "VFX/Effect Database")]

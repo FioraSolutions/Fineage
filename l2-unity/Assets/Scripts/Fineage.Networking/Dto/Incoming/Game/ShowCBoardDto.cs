@@ -1,6 +1,7 @@
 ﻿/**
  * @author AbsolutePower
  */
+
 public class ShowCBoardDto : IWireDto
 {
     private static string _html101 = "";

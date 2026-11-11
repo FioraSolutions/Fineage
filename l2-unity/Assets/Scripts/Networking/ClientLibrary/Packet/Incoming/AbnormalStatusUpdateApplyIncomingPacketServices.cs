@@ -4,6 +4,7 @@
 /// Abnormal status update wire packet handler entry (#142 batch slice 141).
 /// Self/peer logic lives on <see cref="StatusApplyService"/>; this facade only reaches it.
 /// </summary>
+
 public static class AbnormalStatusUpdateApplyIncomingPacketServices
 {
     public static BufferPanel Buffer => LocatorApplyIncomingPacketServices.Buffer;

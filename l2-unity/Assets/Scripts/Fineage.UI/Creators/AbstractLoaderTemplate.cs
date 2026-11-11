@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public abstract class AbstractLoaderTemplate : AbstractCreator
+public abstract class AbstractLoaderTemplate
 {
     protected VisualTreeAsset[] _templates;
 

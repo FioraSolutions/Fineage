@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 using static L2Slot;
 
 public class AbstractTabCreator : AbstractLoaderTemplate 

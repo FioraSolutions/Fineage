@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using System.Globalization;
+using VContainer;
 
 public partial class ItemStatDataTable
 {

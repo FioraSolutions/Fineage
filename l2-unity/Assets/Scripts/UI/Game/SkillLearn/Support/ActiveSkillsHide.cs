@@ -29,4 +29,6 @@ public partial class ActiveSkillsHide : AbstractSkills
     private VisualElement _rowPhysical;
     private VisualElement _rowMagical;
 
+    public bool IsReady { get { return _activeSkillPanel != null; } }
+    public bool HasSlots { get { return _boxPanelsPhysical != null && _boxPanelsPhysical.Count > 0; } }
 }

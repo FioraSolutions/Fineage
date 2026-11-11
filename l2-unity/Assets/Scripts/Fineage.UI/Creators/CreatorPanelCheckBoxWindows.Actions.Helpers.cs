@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public partial class CreatorPanelCheckBoxWindows
+public partial class CreatePanelCheckBoxWindows
 {
     private void OnClickHeader(ClickEvent evt, List<SettingCheckBox> left , List<SettingCheckBox> right , SettingCheckBox headerSetting)
     {

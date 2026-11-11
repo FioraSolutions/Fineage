@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public enum FineageLogLevel
 {
     Error = 0,

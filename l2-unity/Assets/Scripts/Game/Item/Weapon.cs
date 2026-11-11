@@ -1,4 +1,6 @@
-﻿[System.Serializable]
+﻿using System;
+
+[System.Serializable]
 public class Weapon : AbstractItem
 {
     public Weapongrp Weapongrp { get { return (Weapongrp)_itemgrp; } }

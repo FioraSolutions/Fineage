@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using VContainer;
 
 public partial class GravityNpc : MonoBehaviour, IGravity
 {

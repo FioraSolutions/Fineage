@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using System;
 
 [System.Serializable]
 public class EtcItemgrp : Abstractgrp {

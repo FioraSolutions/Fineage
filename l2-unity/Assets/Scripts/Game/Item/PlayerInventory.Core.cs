@@ -22,6 +22,11 @@ public partial class PlayerInventory : MonoBehaviour
         return new List<ItemInstance>();
     }
 
+    public Dictionary<int, ItemInstance> GetPlayerInventory()
+    {
+        return _playerInventory;
+    }
+
     public List<ItemInstance> GetPlayerInvetoryToList()
     {
         return _playerInventory.Values.ToList();
@@ -30,6 +35,11 @@ public partial class PlayerInventory : MonoBehaviour
     public List<ItemInstance> GetPlayerEquipToList()
     {
         return _playerEquipInventory.Values.ToList();
+    }
+
+    public Dictionary<int, ItemInstance> GetPlayerEquipInventory()
+    {
+        return _playerEquipInventory;
     }
 
     public ItemInstance GetItemEquip(int objId)

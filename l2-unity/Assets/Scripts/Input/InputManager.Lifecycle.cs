@@ -1,4 +1,8 @@
 using System;
+using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public partial class InputManager : MonoBehaviour
 {

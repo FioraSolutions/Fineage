@@ -3,7 +3,7 @@ using UnityEngine;
 public static partial class ItemDropPose
 {
     public static bool TryBuildThrowPose(
-        ItemEntity item,
+        Component item,
         Abstractgrp grp,
         bool stickWeapon,
         Vector3 from,

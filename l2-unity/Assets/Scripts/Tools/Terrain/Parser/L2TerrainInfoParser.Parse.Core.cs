@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 public partial class L2TerrainInfoParser
 {

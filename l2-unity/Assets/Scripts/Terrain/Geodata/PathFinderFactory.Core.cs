@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Collections;
+using System.Threading;
 
-//This partial class controls the threads
+public partial class PathFinderFactory : MonoBehaviour
 {
     private void Awake() {
         if (_instance == null) {

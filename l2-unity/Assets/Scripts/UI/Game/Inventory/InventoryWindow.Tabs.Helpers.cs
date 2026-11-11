@@ -1,3 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UIElements;
+using VContainer;
+
 public partial class InventoryWindow
 {
     private void SwitchItemList(InventoryTab switchTo)

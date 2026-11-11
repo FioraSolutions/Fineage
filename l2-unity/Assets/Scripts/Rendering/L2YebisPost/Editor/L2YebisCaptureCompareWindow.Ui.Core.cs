@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 public sealed partial class L2YebisCaptureCompareWindow : EditorWindow
 {

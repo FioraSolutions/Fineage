@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem.Controls;
+using VContainer;
 
 public class ActionNameTable
 {

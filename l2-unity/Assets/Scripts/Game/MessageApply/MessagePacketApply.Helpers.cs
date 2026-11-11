@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using static SMParam;
+using System.Collections.Generic;
 
 public sealed partial class MessagePacketApply
 {

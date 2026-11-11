@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Combat apply relay in Incoming namespace (#142 batch slice 165; combat wire orchestration slice 188).

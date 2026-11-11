@@ -10,6 +10,11 @@ public static class AudioPacketServices
     private static PlayerController _player;
     private static ThirdPersonListener _listener;
 
+    static AudioPacketServices()
+    {
+        UiAudio.PlayUISound = soundName => Audio.PlayUISound(soundName);
+    }
+
     public static void Bind(
         AudioManager audio = null,
         World gameWorld = null,
@@ -24,6 +29,8 @@ public static class AudioPacketServices
             _player = player;
         if (listener != null)
             _listener = listener;
+
+        UiAudio.PlayUISound = soundName => Audio.PlayUISound(soundName);
     }
 
     public static AudioManager Audio =>

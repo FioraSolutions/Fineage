@@ -1,3 +1,12 @@
+using System;
+using System.Reflection.Emit;
+using System.Xml;
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine.UIElements;
+
 public partial class ToolTipSkill
 {
     private Vector2 checkBound(Vector2 newPoint , float element)

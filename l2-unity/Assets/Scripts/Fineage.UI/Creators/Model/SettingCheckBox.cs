@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.VFX;
+using System.Collections.Generic;
 
 public partial class SettingCheckBox 
 {

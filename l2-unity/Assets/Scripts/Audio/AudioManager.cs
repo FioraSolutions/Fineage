@@ -1,4 +1,8 @@
 using System;
+using FMODUnity;
+using UnityEngine;
+using VContainer;
+using FMOD.Studio;
 
 public partial class AudioManager : MonoBehaviour
 {

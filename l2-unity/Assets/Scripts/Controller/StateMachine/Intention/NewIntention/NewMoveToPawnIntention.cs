@@ -1,6 +1,6 @@
-﻿using FMOD.Studio;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
+using FMOD.Studio;
 
 public partial class NewMoveToPawnIntention : IntentionBase
 {

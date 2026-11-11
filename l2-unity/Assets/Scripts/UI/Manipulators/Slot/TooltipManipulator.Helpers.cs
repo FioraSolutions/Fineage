@@ -1,4 +1,8 @@
-﻿public partial class TooltipManipulator : PointerManipulator
+﻿
+using UnityEngine;
+using UnityEngine.UIElements;
+
+public partial class TooltipManipulator : PointerManipulator
 {
     private void PointerOverHandler(MouseOverEvent evt)
     {

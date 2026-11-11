@@ -1,3 +1,7 @@
+using System.Linq;
+using UnityEngine;
+using VContainer;
+
 public partial class DefaultEffectAttachmentResolver
 {
     private bool ResolveRoot(Transform src, out Transform resolvedTransform, out Vector3 worldPosition)

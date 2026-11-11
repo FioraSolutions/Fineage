@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 public partial class AnimationManager : BaseAnimationManager , IAnimationManager
 {
@@ -19,12 +20,27 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
     private const string SHOT_SOURCE_RUNNER = "Runner";
     private const int OVERRIDE_AWAIT_WARN_TIMEOUT_MS = 5000;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-    /// <summary>
-    /// Телеметрия: откуда пришёл shoot (параметр ивента на клипе) и что реально играет на animator layer0.
-    /// Вызывается из <see cref="BaseAnimationController.OnAnimationShoot"/>.
-    /// </summary>
+    [System.Obsolete("Use [Inject] IAnimationManager or AnimationPacketServices.Animations instead")]
+    public static IAnimationManager Instance
+    {
+        get
+        {
+            if (_instance == null && App.HasContainer)
+            {
+                try
+                {
+                    _instance = App.Resolve<AnimationManager>();
+                }
+                catch
+                {
+                }
+            }
 
+            if (_instance == null)
+                _instance = new AnimationManager();
+            return _instance;
+        }
+    }
 
     //Async Wait End Event
 }

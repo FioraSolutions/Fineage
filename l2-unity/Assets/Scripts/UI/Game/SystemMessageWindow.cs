@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using UnityEngine;
 
 using UnityEngine.UIElements;
+using VContainer;
 
 public partial class SystemMessageWindow : L2PopupWindow
 {

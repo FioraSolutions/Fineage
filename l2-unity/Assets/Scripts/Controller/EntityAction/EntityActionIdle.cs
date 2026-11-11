@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public sealed class EntityActionIdle : IEntityActionProcess
 {
     public void Enter(Entity entity, object payload)

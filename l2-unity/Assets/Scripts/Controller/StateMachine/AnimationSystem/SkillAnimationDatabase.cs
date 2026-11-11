@@ -61,7 +61,4 @@ public partial class SkillAnimationDatabase
             return _name;
         }
     }
-
-
-
 }

@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using System;
+using System.Collections.Generic;
 
 public sealed partial class L2TerrainLayerStack
 {
     static void AttachAll()
     {
-        MeshRenderer[] renderers = Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        MeshRenderer[] renderers = UnityEngine.Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         int attached = 0;
         for (int i = 0; i < renderers.Length; i++)
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Char info wire packet handler entry (#142 batch slice 147; world hub slice 180).

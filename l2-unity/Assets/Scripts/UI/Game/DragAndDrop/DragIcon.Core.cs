@@ -1,4 +1,9 @@
 using System;
+using System.Collections;
+using UnityEngine.TextCore.Text;
+using UnityEngine.UIElements;
+using System.Collections.Generic;
+using UnityEngine;
 
 public partial class DragIcon : L2PopupWindow
 {

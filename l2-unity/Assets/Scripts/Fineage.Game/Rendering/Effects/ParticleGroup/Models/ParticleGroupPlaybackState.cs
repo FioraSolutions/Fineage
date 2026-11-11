@@ -1,4 +1,4 @@
-internal sealed partial class ParticleGroupPlaybackState
+public sealed partial class ParticleGroupPlaybackState
 {
     public bool Stopped = true;
     public bool SpawnStopped;

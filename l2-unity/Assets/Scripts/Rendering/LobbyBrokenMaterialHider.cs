@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 /// <summary>
 /// Lobby ships/FX often land with null slots or Hidden/InternalErrorShader (magenta on Metal/URP).
@@ -8,7 +9,7 @@ public static class LobbyBrokenMaterialHider
 {
     public static int HideBrokenRenderers(string reason = null)
     {
-        var rends = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var rends = UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         int hidden = 0;
         for (int i = 0; i < rends.Length; i++)
         {

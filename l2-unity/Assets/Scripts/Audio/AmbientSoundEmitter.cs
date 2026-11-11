@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMOD.Studio;
 
 public partial class AmbientSoundEmitter : EventHandler
 {
@@ -36,4 +37,19 @@ public partial class AmbientSoundEmitter : EventHandler
     public float OverrideMinDistance { set { _overrideMinDistance = value; } }
     public float OverrideMaxDistance { set { _overrideMaxDistance = value; } }
 
+    private float MaxDistance {
+        get {
+            if(_overrideAttenuation) {
+                return _overrideMaxDistance;
+            }
+
+            if(!_eventDescription.isValid()) {
+                Lookup();
+            }
+
+            float minDistance, maxDistance;
+            _eventDescription.getMinMaxDistance(out minDistance, out maxDistance);
+            return maxDistance;
+        }
+    }
 }

@@ -1,3 +1,4 @@
+
 public static partial class NetPaperdollApply
 {
     public static void ApplyItemIds(PlayerAppearance appearance, int[] itemIds)

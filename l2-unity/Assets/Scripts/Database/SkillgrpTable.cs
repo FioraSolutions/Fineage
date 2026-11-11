@@ -7,6 +7,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using VContainer;
 
 public partial class SkillgrpTable : ISkillgrpLookup
 {
@@ -37,5 +38,7 @@ public partial class SkillgrpTable : ISkillgrpLookup
         }
     }
 
-
+    private Dictionary<int, Dictionary<int, Skillgrp>> _skills;
+    private Dictionary<string, AnimationCombo> _animationsCombo;
+    public Dictionary<int, Dictionary<int, Skillgrp>> Skills { get { return _skills; } }
 }

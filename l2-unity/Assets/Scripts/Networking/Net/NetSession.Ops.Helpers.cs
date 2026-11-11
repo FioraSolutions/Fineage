@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Fineage.Net.Contract;
 using UnityEngine;
+using System.Collections.Concurrent;
 
 public sealed partial class NetSession : MonoBehaviour
 {
@@ -38,4 +39,7 @@ public sealed partial class NetSession : MonoBehaviour
         if (Instance == this)
             Instance = null;
     }
+
+    public void BindDomainSink(IWorldDomainSink sink) => _sink = sink;
+
 }

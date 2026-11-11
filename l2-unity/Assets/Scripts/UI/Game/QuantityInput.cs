@@ -1,4 +1,13 @@
-﻿public partial class QuantityInput : L2PopupWindow
+﻿using System;
+using System.Linq;
+using UnityEngine.UIElements;
+using static L2Slot;
+using VContainer;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public partial class QuantityInput : L2PopupWindow
 {
     private static QuantityInput _instance;
     private object _parentWindow;

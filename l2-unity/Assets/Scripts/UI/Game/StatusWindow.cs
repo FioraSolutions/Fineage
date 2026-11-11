@@ -1,11 +1,11 @@
 using System;
 
-﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
+using System.Collections;
 
 public partial class StatusWindow : L2Window
 {

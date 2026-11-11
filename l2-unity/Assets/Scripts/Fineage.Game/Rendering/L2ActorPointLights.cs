@@ -37,4 +37,38 @@ public static partial class L2ActorPointLights
 
 
 
+
+    sealed class ActorGroup
+    {
+        public Transform Root;
+        public int RootId;
+        public bool Applied;
+        public int AppliedChosen;
+        public Vector3 AppliedOrigin;
+        public readonly List<Renderer> Renderers = new List<Renderer>(4);
+        public readonly MaterialPropertyBlock Block = new MaterialPropertyBlock();
+        public readonly Vector4[] Pos = new Vector4[Max];
+        public readonly Vector4[] Color = new Vector4[Max];
+        public readonly Vector4[] Atten = new Vector4[Max];
+
+        public Vector3 Origin
+        {
+            get
+            {
+                Vector3 sum = Vector3.zero;
+                int count = 0;
+                for (int i = 0; i < Renderers.Count; i++)
+                {
+                    Renderer renderer = Renderers[i];
+                    if (renderer == null)
+                        continue;
+                    sum += renderer.bounds.center;
+                    count++;
+                }
+
+                return count > 0 ? sum / count : Root.position;
+            }
+        }
+    }
+
 }

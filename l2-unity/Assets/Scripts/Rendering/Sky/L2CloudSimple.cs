@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using VContainer;
 
 public partial class L2CloudSimple : MonoBehaviour
 {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Core world session locator + queue hub (#142 batch slice 171; world orchestration slice 177).

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using VContainer;
 
 public partial class QuestNameTable
 {

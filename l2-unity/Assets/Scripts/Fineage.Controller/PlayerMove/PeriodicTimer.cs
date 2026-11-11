@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class PeriodicTimer
 {
     private float _startTime;

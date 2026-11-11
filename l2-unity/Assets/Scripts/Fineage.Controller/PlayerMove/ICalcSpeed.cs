@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public interface ICalcSpeed
 {
     public float GetSpeed(bool _running);

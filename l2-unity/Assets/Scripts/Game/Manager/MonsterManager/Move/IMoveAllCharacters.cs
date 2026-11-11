@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public interface IMoveAllCharacters
 {
     public void AddMoveData(int id, MovementData data);

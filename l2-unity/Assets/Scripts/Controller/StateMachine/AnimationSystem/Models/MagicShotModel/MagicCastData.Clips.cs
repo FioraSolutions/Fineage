@@ -93,3 +93,4 @@ public partial class MagicCastData
             return 0f;
         return Mathf.Max(0f, clipsDurations[index]);
     }
+}

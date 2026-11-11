@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-public partial class SwordCollisionManager
+public partial class SwordCollisionService
 {
     public void UpdateAttackProgress(int entityId, float elapsedMs)
     {

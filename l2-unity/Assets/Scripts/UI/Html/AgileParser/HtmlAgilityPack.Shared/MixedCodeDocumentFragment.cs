@@ -6,6 +6,7 @@
 // Copyright © ZZZ Projects Inc. All rights reserved.
 
 #if !METRO
+
 namespace HtmlAgilityPack
 {
     /// <summary>

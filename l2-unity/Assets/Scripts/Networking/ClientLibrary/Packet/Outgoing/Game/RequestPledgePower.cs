@@ -1,3 +1,5 @@
+using System;
+
 [OutgoingCommandPacket(typeof(RequestPledgePowerCommand))]
 public sealed class RequestPledgePower : OutgoingWirePacket<RequestPledgePowerDto>
 {

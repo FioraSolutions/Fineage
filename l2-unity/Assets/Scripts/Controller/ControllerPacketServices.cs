@@ -1,5 +1,7 @@
 using System;
 using VContainer;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Controller-layer access to game services with [Inject] wiring and live/peer fallback (#142).

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class Seed
 {
     public int SeedLevel { get; set; }

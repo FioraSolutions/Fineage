@@ -3,6 +3,9 @@
 /// 
 /// Status update wire packet handler entry (#142 batch slice 143).
 /// </summary>
+using System.Collections.Generic;
+using System;
+
 public static class StatusUpdateApplyIncomingPacketServices
 {
     public static World GameWorld => WorldApplyIncomingPacketServices.GameWorld;

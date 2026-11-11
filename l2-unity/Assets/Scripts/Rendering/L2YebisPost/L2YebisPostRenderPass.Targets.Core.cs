@@ -6,14 +6,24 @@ using UnityEngine.Rendering.Universal;
 
 public sealed partial class L2YebisPostRenderPass
 {
+    void EnsureTargets(CameraData cameraData)
+    {
+        EnsureTargets(cameraData.cameraTargetDescriptor, cameraData.cameraType, cameraData.renderType);
+    }
+
     void EnsureTargets(UniversalCameraData cameraData)
     {
-        RenderTextureDescriptor desc = ColorDesc(cameraData.cameraTargetDescriptor, 0, 0);
+        EnsureTargets(cameraData.cameraTargetDescriptor, cameraData.cameraType, cameraData.renderType);
+    }
+
+    void EnsureTargets(RenderTextureDescriptor targetDesc, CameraType cameraType, CameraRenderType renderType)
+    {
+        RenderTextureDescriptor desc = ColorDesc(targetDesc, 0, 0);
 
         RenderingUtils.ReAllocateIfNeeded(
             ref _temp, desc, FilterMode.Bilinear, TextureWrapMode.Clamp, name: "_L2YebisTemp");
 
-        RenderTextureDescriptor curveDesc = ColorDesc(cameraData.cameraTargetDescriptor, 0, 0);
+        RenderTextureDescriptor curveDesc = ColorDesc(targetDesc, 0, 0);
         curveDesc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
         curveDesc.sRGB = false;
         RenderingUtils.ReAllocateIfNeeded(
@@ -45,8 +55,8 @@ public sealed partial class L2YebisPostRenderPass
         RenderingUtils.ReAllocateIfNeeded(
             ref _bloomExclude, desc, FilterMode.Point, TextureWrapMode.Clamp, name: "_L2YebisBloomExclude");
 
-        if (cameraData.cameraType == CameraType.Game
-            && cameraData.renderType == CameraRenderType.Base)
+        if (cameraType == CameraType.Game
+            && renderType == CameraRenderType.Base)
         {
             RenderingUtils.ReAllocateIfNeeded(
                 ref _captureScene, desc, FilterMode.Point, TextureWrapMode.Clamp, name: "_L2YebisCaptureScene");

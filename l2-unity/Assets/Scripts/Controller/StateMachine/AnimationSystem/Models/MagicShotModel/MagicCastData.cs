@@ -1,10 +1,11 @@
-﻿using UnityEngine;
-
+﻿
 /// <summary>
 /// Interlude <c>APawn::InitSkillProcess</c> cast timing for one MagicSkillUse.
 /// One pipeline for all magic: filler clip stretches to HitTime; other clips stay native
 /// (or speed up when the room is short). No freeze-hold, no separate long-cast path.
 /// </summary>
+using UnityEngine;
+
 public partial class MagicCastData
 {
     /// <summary>

@@ -26,4 +26,28 @@ public sealed partial class L2YebisCaptureCompareWindow : EditorWindow
     Texture2D _errorPreview;
     string _errorLabel = "Пиксели с разницей от 1 уровня";
 
+
+    static Dictionary<string, string> ReadMeta(string path)
+    {
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (!File.Exists(path))
+        {
+            return map;
+        }
+        foreach (string raw in File.ReadAllLines(path))
+        {
+            int eq = raw.IndexOf('=');
+            if (eq <= 0)
+            {
+                continue;
+            }
+            map[raw.Substring(0, eq).Trim()] = raw.Substring(eq + 1).Trim();
+        }
+        return map;
+    }
+
+    static Dictionary<string, string> ReadConstants(string path)
+    {
+        return ReadMeta(path);
+    }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
+using VContainer;
 
 public sealed partial class EntityActionMachine : ITickable
 {
@@ -129,4 +130,3 @@ public sealed partial class EntityActionMachine : ITickable
     }
 }
 
-}

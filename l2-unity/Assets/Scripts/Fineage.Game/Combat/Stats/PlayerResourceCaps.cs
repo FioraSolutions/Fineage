@@ -1,6 +1,8 @@
 /// <summary>
 /// Keeps HP/MP max in sync with current values for UI bars (CharSelected / UserInfo may disagree).
 /// </summary>
+using System;
+
 public static class PlayerResourceCaps
 {
     public static void EnsureMaxAtLeastCurrent(PlayerStats stats, PlayerStatus status)

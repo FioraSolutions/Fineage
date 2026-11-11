@@ -1,4 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UIElements;
+using VContainer;
+using UnityEngine;
 
 public partial class SkillLearnWindow : L2PopupWindow
 {

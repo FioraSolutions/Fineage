@@ -1,3 +1,11 @@
+using System;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UIElements;
+using System.Collections;
+using System.Collections.Generic;
+using VContainer;
+
 public partial class InventoryWindow
 {
     private void CreateTabs()

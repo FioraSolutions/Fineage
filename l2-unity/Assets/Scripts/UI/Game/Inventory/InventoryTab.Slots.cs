@@ -1,5 +1,16 @@
 
 
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using UnityEngine.UIElements;
+using static L2Slot;
+using static PlayerInventory;
+using UnityEditor;
+using UnityEngine;
+
 public partial class InventoryTab
 {
     public void UpdateInventorySlots(InventorySlot[] inventory)

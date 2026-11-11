@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// L2 SkyMeshActor16: L2sky_Cylinder + WhiteRing (RenderDoc EID 1661).

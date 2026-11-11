@@ -1,5 +1,6 @@
 using Fineage.Net.Contract;
 using UnityEngine;
+using System;
 
 public sealed partial class FineageZoneTransport
 {
@@ -71,6 +72,6 @@ public sealed partial class FineageZoneTransport
         }
 
         return false;
-    }}
-
+    }
 }
+

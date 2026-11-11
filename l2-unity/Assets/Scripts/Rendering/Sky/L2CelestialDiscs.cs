@@ -1,9 +1,9 @@
 using System;
 using Object = UnityEngine.Object;
 
-﻿using System.Globalization;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System.Globalization;
 
 /// <summary>
 /// L2 ANSun / ANMoon billboards: textures from High Elf RenderDoc, motion/size/color from celestial LUT.
@@ -28,6 +28,12 @@ public partial class L2CelestialDiscs : MonoBehaviour
 
     const float VisibleScaleEpsilon = 0.02f;
 
+    [Obsolete("Use [Inject] / PacketServices instead")]
+    public static L2CelestialDiscs Instance { get; private set; }
+
+    public MeshRenderer SunRenderer => _sunMr;
+
+    public Material SunMaterial => _sunMat;
 
     [SerializeField] Texture2D _sunTexture;
     [SerializeField] Texture2D _moonTexture;
@@ -47,4 +53,15 @@ public partial class L2CelestialDiscs : MonoBehaviour
         public Vector3 lastPos;
         public float lastHours;
     }
+
+    Transform _sunTf;
+    Transform _moonTf;
+    MeshRenderer _sunMr;
+    MeshRenderer _moonMr;
+    Material _sunMat;
+    Material _moonMat;
+    Camera _cam;
+    BodyTrack _sunTrack;
+    BodyTrack _moonTrack;
+    float _nextTrajLog;
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using static Org.BouncyCastle.Crypto.Digests.SkeinEngine;
 using static UnityEngine.Rendering.DebugUI;
+using VContainer;
 
 public class PlayerAnimationController : BaseAnimationController
 {
