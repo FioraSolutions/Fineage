@@ -1,8 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-[System.Serializable]
-public class PlayerStats : Stats
+public partial class PlayerStats : Stats
 {
     [SerializeField] private int _pAtk;
     [SerializeField] private int _mAtk;
@@ -71,41 +70,5 @@ public class PlayerStats : Stats
     public int PvpKills { get { return _pvpKills; } set { _pvpKills = value; } }
     public int PkKills { get { return _pkKills; } set { _pkKills = value; } }
 
-    public double ExpPercent(int level)
-    {
-        if (Exp == 0)
-        {
-            return 0;
-        }
 
-        long MaxExp = LevelServer.GetExp(level);
-        if (MaxExp == 0 & Exp > 0) return 100;
-        if (MaxExp != 0)
-        {
-            double persent = (double)100 / MaxExp;
-            double currentPerxent = persent * Exp;
-            return Math.Round(currentPerxent, 2);
-        }
-
-        return 0;
-    }
-
-    public double WeightPercent()
-    {
-        if (CurrWeight == 0)
-        {
-            return 0;
-        }
-
-        if (MaxWeight == 0 & CurrWeight > 0) return 100;
-
-        if (MaxWeight != 0)
-        {
-            double persent = (double)100 / MaxWeight;
-            double currentPerxent = persent * CurrWeight;
-            return Math.Round(currentPerxent, 2);
-        }
-
-        return 0;
-    }
 }
