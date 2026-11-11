@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
-public class TradeRequestWindow : L2PopupWindow
+public partial class TradeRequestWindow : L2PopupWindow
 {
     private static TradeRequestWindow _instance;
     private VisualElement _progressBar;
@@ -33,171 +33,22 @@ public class TradeRequestWindow : L2PopupWindow
 
     public event Action<bool> OnTradeResponse; // true = подтверждено, false = отменено
 
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            WireTradePacketServices();
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
-    private void Start()
-    {
-        WireTradePacketServices();
-    }
 
-    private void WireTradePacketServices()
-    {
-        TradePacketServices.Bind(tradeRequest: this);
-    }
 
-    public void AddData(SendTradeRequestDto request)
-    {
-        _senderId = request.SenderId;
 
-        var target = Worlds.GetEntityName(_senderId);
 
-        _requesterName = target;
-    }
 
-    protected override void LoadAssets()
-    {
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/TradeRequestWindow");
-    }
 
-    protected override IEnumerator BuildWindow(VisualElement root)
-    {
-        InitWindow(root);
 
-        yield return new WaitForEndOfFrame();
 
-        OnCenterScreen(root);
-    }
 
-    protected override void InitWindow(VisualElement root)
-    {
-        base.InitWindow(root);
 
-        var dragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
 
-        _progressBar = GetElementById("ProgressGauge");
-        _progressBarBg = GetElementById("ProgressBg");
-        _tradeRequestText = (Label)GetElementById("tradeRequestText");
-        _confirmButton = (Button)GetElementById("ConfirmButton");
-        _cancelButton = (Button)GetElementById("CancelButton");
 
-        RegisterClickWindowEvent(_windowEle, dragArea);
-        _confirmButton.RegisterCallback<ClickEvent>(OnConfirmClicked);
-        _cancelButton.RegisterCallback<ClickEvent>(OnCancelClicked);
-    }
 
-    public void ShowWindow(float timeoutSeconds = 20f)
-    {
-        _timeoutSeconds = timeoutSeconds;
 
-        base.ShowWindow();
 
-        UpdateTradeRequestText();
-        ResetProgressBar();
-        StartCountdown();
-    }
 
-    private void UpdateTradeRequestText()
-    {
-        _tradeRequestText.text = $"{_requesterName} is requesting a trade. Do you wish to continue?";
-    }
 
-    private void ResetProgressBar()
-    {
-        _progressBar.style.width = Length.Percent(100);
-    }
-
-    private void StartCountdown()
-    {
-        if (_countdownCoroutine != null)
-            StopCoroutine(_countdownCoroutine);
-
-        _countdownCoroutine = StartCoroutine(CountdownTimer());
-    }
-
-    private IEnumerator CountdownTimer()
-    {
-        float currentTime = _timeoutSeconds;
-
-        while (currentTime > 0)
-        {
-            currentTime -= Time.deltaTime;
-            float progress = currentTime / _timeoutSeconds;
-
-            // Обновляем прогресс-бар
-            _progressBar.style.width = Length.Percent(progress * 100);
-
-            yield return null;
-        }
-
-        OnTimeout();
-    }
-
-    private void OnConfirmClicked(ClickEvent evt)
-    {
-        SendAcceptResponse();
-        HideWindow();
-    }
-
-    private void OnCancelClicked(ClickEvent evt)
-    {
-        SendDeclineResponse();
-        HideWindow();
-    }
-
-    private void OnTimeout()
-    {
-        SendDeclineResponse();
-        HideWindow();
-    }
-
-    private void SendAcceptResponse()
-    {
-        // Отправляем пакет подтверждения торговли
-        ZoneCommands.Send(new AnswerTradeRequestCommand(1, _senderId));
-
-        OnTradeResponse?.Invoke(true);
-    }
-
-    private void SendDeclineResponse()
-    {
-        // Отправляем пакет отклонения торговли
-        ZoneCommands.Send(new AnswerTradeRequestCommand(0, _senderId));
-
-        OnTradeResponse?.Invoke(false);
-    }
-
-    public override void HideWindow()
-    {
-        if (_countdownCoroutine != null)
-        {
-            StopCoroutine(_countdownCoroutine);
-            _countdownCoroutine = null;
-        }
-
-        base.HideWindow();
-    }
-
-    private void OnDestroy()
-    {
-        _instance = null;
-
-        // Отписываемся от событий
-        if (_confirmButton != null)
-            _confirmButton.UnregisterCallback<ClickEvent>(OnConfirmClicked);
-        if (_cancelButton != null)
-            _cancelButton.UnregisterCallback<ClickEvent>(OnCancelClicked);
-    }
 }
