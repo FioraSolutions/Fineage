@@ -3,6 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Interlude nameplate colours: white default, purple while PvP-flagged, red while karma &gt; 0.
 /// Karma wins over flag (Mobius CharInfo name colour).
+/// Entity-bound overload lives on <c>NameplateColorsEntity</c> in Assembly-CSharp.
 /// </summary>
 public static class NameplateColors
 {
@@ -19,18 +20,5 @@ public static class NameplateColors
         if (pvpFlag > 0)
             return PurpleFlag;
         return defaultColor;
-    }
-
-    public static Color Resolve(Entity entity, Color defaultColor)
-    {
-        if (entity == null)
-            return defaultColor;
-        int karma = 0;
-        long flag = 0;
-        if (entity.Stats is PlayerStats ps)
-            karma = ps.Karma;
-        if (entity.Status is PlayerStatus status)
-            flag = status.PvpFlag;
-        return Resolve(defaultColor, karma, flag);
     }
 }
