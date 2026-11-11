@@ -1,4 +1,10 @@
-﻿public partial class TerrainConverter
+﻿#if (UNITY_EDITOR)
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+
+public partial class TerrainConverter
 {
     static void ConvertTerrainToMesh(L2TerrainInfo terrainInfo) {
         terrainToMesh = new TerrainToMesh();
@@ -66,7 +72,6 @@
         // Disable initial terrain
         terrainToConvert.gameObject.SetActive(false);
     }
-
     private static GameObject GenerateMesh(Terrain map, Material terrainMat, bool generateHeightmap) {
         // Generate mesh
         GameObject destObject = new GameObject(terrainToConvert.gameObject.name);
@@ -94,3 +99,4 @@
         return destObject;
     }
 }
+#endif

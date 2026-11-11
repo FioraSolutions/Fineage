@@ -1,4 +1,10 @@
-﻿public partial class TerrainConverter
+﻿#if (UNITY_EDITOR)
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+
+public partial class TerrainConverter
 {
     private static Mesh SaveMesh(string saveFolder, GameObject destObject, bool safenet) {
         Mesh convertedTerrainMesh = destObject.GetComponent<MeshFilter>().sharedMesh;
@@ -13,7 +19,6 @@
         MeshSaverEditor.SaveMeshToPath(convertedTerrainMesh, saveMeshPath, false, true);
         return AssetDatabase.LoadAssetAtPath<Mesh>(saveMeshPath);
     }
-
     private static Material GenerateMaterial(string saveFolder, L2TerrainInfo terrainInfo) {
         // Create material
         Material terrainMat = new Material(Shader.Find("Shader Graphs/TerrainAlphamapDouble"));
@@ -62,7 +67,6 @@
 
         return terrainMat;
     }
-
     private static void SaveMaterial(string saveFolder, Material terrainMat) {
         // Save material
         string materialPath = Path.Combine(saveFolder, mapToConvert + "_Mat.mat");
@@ -72,7 +76,6 @@
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }
-
     private static void SaveTerrain(string saveFolder, GameObject destObject) {
         // Save terrain Prefab
         string prefabPath = Path.Combine(saveFolder, mapToConvert + ".prefab");
@@ -87,3 +90,4 @@
         PrefabUtility.SaveAsPrefabAsset(destObject, prefabPath);
     }
 }
+#endif

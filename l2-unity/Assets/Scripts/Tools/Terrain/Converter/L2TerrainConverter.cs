@@ -1,4 +1,4 @@
-﻿#if (UNITY_EDITOR) 
+﻿#if (UNITY_EDITOR)
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -19,5 +19,5 @@ public partial class TerrainConverter : MonoBehaviour {
     private static Terrain terrainToConvert;
 
 
-    [MenuItem("Shnok/6. [Terrain] Convert terrain to mesh")]
 }
+#endif
