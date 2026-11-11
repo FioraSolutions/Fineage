@@ -1,81 +1,60 @@
 using System;
 
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using UnityEditor;
+using UnityEngine;
+
 public partial class Geodata : MonoBehaviour
 {
-    public Node GetClosestNodeAt(Vector3 nodePos) {
-        if (TryGetClosestNodeAt(nodePos, out Node node))
-            return node;
-        throw new Exception("Node not found");
-    }
-
-    public Node GetClosestNodeAt(Vector3 nodePos, string mapId) {
-        if (TryGetClosestNodeAt(nodePos, mapId, out Node node))
-            return node;
-        throw new Exception("Node not found");
-    }
-
-    /// <summary>Non-throwing closest layer at XZ (#930 WorldPlacement).</summary>
-    public bool TryGetClosestNodeAt(Vector3 nodePos, out Node node)
-    {
-        node = null;
-        if (!TryGetCurrentMap(nodePos, out string mapId))
+    private bool IsInMapBounds(Vector3 location, Vector3 mapOrigin) {
+        if(location.x < mapOrigin.x) {
             return false;
-        return TryGetClosestNodeAt(nodePos, mapId, out node);
-    }
-
-    public bool TryGetClosestNodeAt(Vector3 nodePos, string mapId, out Node node)
-    {
-        node = null;
-        if (!TryGetAllNodesAt(nodePos, mapId, out List<Node> layers) || layers.Count == 0)
+        }
+        if(location.x > mapOrigin.x + _mapSize) {
             return false;
-
-        Node closest = null;
-        float lowestDiff = float.PositiveInfinity;
-        for (int i = 0; i < layers.Count; i++)
-        {
-            Node n = layers[i];
-            if (n == null)
-                continue;
-            float nodeHeightDiff = Math.Abs(n.center.y - nodePos.y);
-            if (closest == null ||
-                nodeHeightDiff < lowestDiff - 0.0001f ||
-                (Math.Abs(nodeHeightDiff - lowestDiff) <= 0.0001f && n.center.y > closest.center.y))
-            {
-                closest = n;
-                lowestDiff = nodeHeightDiff;
-            }
+        }
+        if(location.z < mapOrigin.z) {
+            return false;
+        }
+        if(location.z > mapOrigin.z + _mapSize) {
+            return false;
         }
 
-        if (closest == null)
-            return false;
-
-        node = closest;
         return true;
     }
 
-    public List<Node> GetAllNodesAt(Vector3 nodePos) {
-        if (TryGetAllNodesAt(nodePos, out List<Node> layers))
-            return layers;
-        throw new Exception("Nodes not found");
+    public Node GetNodeAt(Vector3 nodePos, string mapId) {
+        return GetNodeAt(nodePos, mapId, false);
     }
 
-    public List<Node> GetAllNodesAt(Vector3 nodePos, string mapId) {
-        if (TryGetAllNodesAt(nodePos, mapId, out List<Node> layers))
-            return layers;
-        throw new Exception("Nodes not found");
+    public Node GetNodeAt(Vector3 nodePos) {
+        return GetNodeAt(nodePos, GetCurrentMap(nodePos), false);
     }
 
-    public bool TryGetAllNodesAt(Vector3 nodePos, out List<Node> layers)
+    public Node GetNodeAt(Vector3 nodePos, bool exactElevation) {
+        return GetNodeAt(nodePos, GetCurrentMap(nodePos), exactElevation);
+    }
+
+    public Node GetNodeAt(Vector3 nodePos, string mapId, bool exactElevation) {
+        if (TryGetNodeAt(nodePos, mapId, out Node node, exactElevation))
+            return node;
+        throw new Exception("Node not found");
+    }
+
+    public bool TryGetNodeAt(Vector3 nodePos, out Node node, bool exactElevation = false)
     {
-        layers = null;
+        node = null;
         if (!TryGetCurrentMap(nodePos, out string mapId))
             return false;
-        return TryGetAllNodesAt(nodePos, mapId, out layers);
+        return TryGetNodeAt(nodePos, mapId, out node, exactElevation);
     }
 
-    public bool TryGetAllNodesAt(Vector3 nodePos, string mapId, out List<Node> layers)
+    public bool TryGetNodeAt(Vector3 nodePos, string mapId, out Node node, bool exactElevation = false)
     {
-        layers = null;
+        node = null;
         if (_geodata == null || string.IsNullOrEmpty(mapId) || !_geodata.ContainsKey(mapId))
             return false;
 
@@ -95,101 +74,33 @@ public partial class Geodata : MonoBehaviour
         if (x < 0 || z < 0 || x >= map.GetLength(0) || z >= map.GetLength(2))
             return false;
 
-        layers = new List<Node>();
+        float maxErr = exactElevation ? 0.01f : _maximumElevationError;
+        Node best = null;
+        float bestOffset = float.PositiveInfinity;
         for (int y = 0; y < map.GetLength(1); y++)
         {
             Node layer = map[x, y, z];
-            if (layer != null)
-                layers.Add(layer);
-        }
+            if (layer == null)
+                continue;
 
-        return layers.Count > 0;
-    }
+            float layerOffset = Math.Abs(layer.nodeIndex.y - nodeIndex.y);
+            if (layerOffset > maxErr)
+                continue;
 
-    public Vector3 FromNodeToWorldPos(Vector3 nodePos, Vector3 origin) {
-        Vector3 worldPos = nodePos * _nodeSize + origin;
-        worldPos = new Vector3(
-            NumberUtils.FloorToNearest(worldPos.x, _nodeSize),
-            NumberUtils.FloorToNearest(worldPos.y, _nodeSize),
-            NumberUtils.FloorToNearest(worldPos.z, _nodeSize));
-        return worldPos;
-    }
-
-    private Vector3 FromWorldToNodePos(Vector3 worldPos, String mapId) {
-        Vector3 terrainPos;
-        if(!_mapsOrigin.TryGetValue(mapId, out terrainPos)) {
-            throw new Exception("Terrain not found.");
-        }
-
-        Vector3 offsetPos = worldPos - terrainPos;
-        Vector3 nodePos = new Vector3(
-            Mathf.Floor(offsetPos.x / _nodeSize),
-            Mathf.Floor(offsetPos.y / _nodeSize),
-            Mathf.Floor(offsetPos.z / _nodeSize));
-
-        return nodePos;
-    }
-
-    void OnDrawGizmos() {
-        if(!_drawGizmos || !Application.isPlaying)
-            return;
-
-        Gizmos.color = Color.green;
-
-        if(_drawMapGizmos) {
-            DrawMapGizmos("17_25");
-        }
-
-        if(_drawGizmosAroundPlayer) {
-            DrawGizmosAroundPlayer();
-        }
-    }
-
-    private void DrawMapGizmos(string mapId) {
-        int count = 0;
-        Vector3 cubeSize = new Vector3(_nodeSize - _nodeSize / 10f, 0.1f, _nodeSize - _nodeSize / 10f);
-
-        Node[,,] nodes;
-        if(!_geodata.TryGetValue(mapId, out nodes)) {
-            // Debug.LogWarning("Can't draw gizmos for map " + mapId);
-            return;
-        }
-
-        for (int x = 0; x < nodes.GetLength(0); x++) {
-            for (int z = 0; z < nodes.GetLength(2); z++) {
-                for (int y = 0; y < nodes.GetLength(1); y++) {
-                    if(nodes[x, y, z] != null) {
-                        if(count++ > _drawMapGizmosLimit) {
-                            return;
-                        }
-
-                        Gizmos.DrawCube(nodes[x, y, z].center, cubeSize);
-                    }
-                }
+            // Closest layer in window; on ties prefer higher Y (multi-deck villages).
+            if (best == null ||
+                layerOffset < bestOffset - 0.0001f ||
+                (Math.Abs(layerOffset - bestOffset) <= 0.0001f && layer.center.y > best.center.y))
+            {
+                best = layer;
+                bestOffset = layerOffset;
             }
         }
-    }
 
-    private void DrawGizmosAroundPlayer() {
-        PlayerController player = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
-        if(player == null) {
-            return;
-        }
+        if (best == null)
+            return false;
 
-        Vector3 playerPos = player.transform.position;
-        Vector3 cubeSize = new Vector3(_nodeSize - _nodeSize / 10f, 0.1f, _nodeSize - _nodeSize / 10f);
-        Gizmos.color = Color.green;
-
-        for(int x = -_drawGizmosAroundPlayerRadius; x <= _drawGizmosAroundPlayerRadius; x++) {
-            for(int z = -_drawGizmosAroundPlayerRadius; z <= _drawGizmosAroundPlayerRadius; z++) {
-                try {
-                    List<Node> nodes = GetAllNodesAt(playerPos + new Vector3(x * _nodeSize, 0, z * _nodeSize));
-                    nodes.ForEach(n => {
-                        Gizmos.DrawCube(n.center, cubeSize);
-                    });
-                } catch(Exception) {
-                }
-            }
-        }
+        node = new Node(best);
+        return true;
     }
 }
