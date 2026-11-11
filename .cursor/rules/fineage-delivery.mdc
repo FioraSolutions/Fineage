@@ -16,10 +16,11 @@ alwaysApply: true
 - **Architecture / complex design / epic planning / boundary decisions:** use a **powerful** model (Claude Opus / high-thinking). Do not design the system on Composer alone.
 - **Implementation / mechanical coding / tests / CI after design is clear:** use **Composer** (default coding agent). Omit heavy models for hammering.
 
-## Refactor before features
+## Primary focus (stabilize bar met)
 
-- Prefer **epic #131** (client architecture) progress before **epic #129** (Gremlin smoke) client-heavy work.
-- Do not ship Gremlin feature layers onto an unreformed monolith when the change belongs in the arch epic first.
+- **Primary:** gameplay debug, graphics/import, Interlude parity. Do not block play/assets on LifetimeScope→`Fineage.Di`.
+- **#131 residual:** opportunistic seams only when a concrete change hurts — no DAT/World grind as finish-line.
+- **#129 Gremlin:** fine when useful; do not dump large feature layers onto ACS when a thin seam clearly belongs first.
 
 ## CI and landing
 

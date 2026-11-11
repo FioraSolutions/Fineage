@@ -3,18 +3,16 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 evening+)
+### Status Now (2026-11-11 — gameplay-debug bar)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** leaf waves through **#1339**+; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`ILobbySession`/`IWorldEntityLookup`/`GameState`/LUT/Formulas leaves in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
-- **`IZoneTransport` in Fineage.Networking:** local profile via ACS `FineageZoneTransport` / `ZoneCommands.LocalPlayerInfo`.
-- **`IWorldEntityLookup`:** Transform-only resolve in Fineage.Game; `World` implements + Game scope registers `As<IWorldEntityLookup>`; FX hydrate uses it (Entity hydrate still ACS).
-- **DAT skill seams:** `ISkillNameTable` / `ISkillgrpLookup` in Fineage.Game; App scope registers; TargetWindow / ToolTipSkill / BufferPanel inject (ItemName still ACS — defer).
-- **NOT DONE — hard residual:** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS (register concretes + PacketServices). Seams landed: `IGameManager`, `ISceneLoader`, `ILobbySession`, `IWorldEntityLookup`, skill DAT lookups, apply-queue/transport contracts.
-- Epic **#131** next: more DAT table interfaces (cycle-safe only); more ACS→interface inject sites; then move scope shells into `Fineage.Di`. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **Asmdef / Di seams:** leaf waves through **#1341**; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`ILobbySession`/`IWorldEntityLookup`/`ISkillNameTable`/`ISkillgrpLookup`/`GameState`/LUT/Formulas in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
+- **Stabilize bar (gameplay debug + graphics import): MET.** One Zone + client apply path is good enough to debug gameplay and keep importing art. Do **not** treat LifetimeScope→`Fineage.Di` as a blocker for play/debug/assets.
+- **Ongoing residual (not the gate):** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS. Opportunistic #131 seams only when they unblock concrete pain — no DAT/World grind as finish-line. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **Primary client focus now:** gameplay debug, graphics/import, Interlude parity; Gremlin **#129** smoke where it does not dump feature layers onto unreformed ACS.
 
 
 ## Executive Summary
