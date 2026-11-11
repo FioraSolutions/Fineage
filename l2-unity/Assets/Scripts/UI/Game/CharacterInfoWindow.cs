@@ -3,10 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-/// <summary>
-/// Interlude <c>DetailStatusWnd</c> (256×335) hosted under MainWnd tab 1 (Status).
-/// Coords/textures from <c>interface.xdat</c> + L2UI_CH3.PlayerStatusWnd.
-/// </summary>
 public partial class CharacterInfoWindow : L2PopupWindow
 {
     const float BarWidth = 85f;
@@ -70,50 +66,9 @@ public partial class CharacterInfoWindow : L2PopupWindow
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static CharacterInfoWindow Instance => _instance;
 
-    void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            WireHudCorePacketServices();
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
-    void OnDestroy()
-    {
-        _instance = null;
-    }
 
-    void Start()
-    {
-        WireHudCorePacketServices();
-    }
 
-    void WireHudCorePacketServices()
-    {
-        HudCorePacketServices.Bind(characterInfo: this);
-    }
 
-    protected override void LoadAssets()
-    {
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/CharacterInfoWindow");
-    }
 
-    protected override void InitWindow(VisualElement root)
-    {
-        base.InitWindow(root);
-
-        VisualElement dragArea = GetElementByClass("drag-area");
-        dragArea.AddManipulator(new DragManipulator(dragArea, _windowEle));
-
-        RegisterCloseWindowEvent("btn-close-frame");
-        RegisterCloseWindowEventByName("Close-Window-Button");
-        RegisterClickWindowEvent(_windowEle, dragArea);
-
-        ApplyInterludeTextures();
-    }
 }

@@ -1,4 +1,4 @@
-﻿public class QuestName
+﻿public partial class QuestName
 {
     private int _quest_id;
     private int _quest_prog;
@@ -72,49 +72,7 @@
 
     private string source = "";
 
-    public string GetSource()
-    {
-        if(!string.IsNullOrEmpty(source)) return source;
 
-        if (string.IsNullOrEmpty(_entity_name))
-            return string.Empty;
 
-        string result = _entity_name;
-
-        foreach (var title in _titlesToRemove)
-        {
-            result = result.Replace(title, "").Trim();
-        }
-
-        source = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", " ").Trim();
-
-        return source;
-    }
-
-    public string GetLevelRange()
-    {
-        if (_lvl_max == 0)
-        {
-            return $"{_lvl_min}";
-        }
-        return $"{_lvl_min} ~ {_lvl_max}";
-    }
-
-    public string GetRepetable()
-    {
-        //3 not repeat
-        //2  repaet
-        //0 - unk
-
-        if (_repeat == 3)
-        {
-            return "1";
-        }else if (_repeat < 3)
-        {
-            return "repeat";
-        }
-
-        return "1";
-    }
 
 }
