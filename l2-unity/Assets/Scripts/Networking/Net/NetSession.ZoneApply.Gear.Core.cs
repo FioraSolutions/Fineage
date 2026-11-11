@@ -62,11 +62,11 @@ public sealed partial class NetSession
         PlayerStats stats = local != null ? local.Stats as PlayerStats : null;
         PlayerStatus status = local != null ? local.Status as PlayerStatus : null;
 
-        IZoneTransport transport = ZoneCommands.Transport;
-        if (stats == null && transport != null && transport.PlayerInfo.Stats != null)
-            stats = transport.PlayerInfo.Stats;
-        if (status == null && transport != null && transport.PlayerInfo.Status != null)
-            status = transport.PlayerInfo.Status;
+        PlayerInfoInterlude playerInfo = ZoneCommands.LocalPlayerInfo;
+        if (stats == null && playerInfo.Stats != null)
+            stats = playerInfo.Stats;
+        if (status == null && playerInfo.Status != null)
+            status = playerInfo.Status;
 
         if (stats == null)
             return;

@@ -9,7 +9,7 @@ public sealed partial class LobbyFlowController
         L2LoginUI loginUi = LoginUi;
         if (loginUi != null)
             GameObject.Destroy(loginUi.gameObject);
-        PlayerInfoInterlude playerInfo = _zoneTransport != null ? _zoneTransport.PlayerInfo : default;
+        PlayerInfoInterlude playerInfo = ZoneCommands.LocalPlayerInfo;
         DomainPlayerSpawned spawned = InterludeDomainMap.PlayerSpawned(playerInfo);
         IWorldDomainSink domain = Domain;
         if (domain != null && spawned != null)

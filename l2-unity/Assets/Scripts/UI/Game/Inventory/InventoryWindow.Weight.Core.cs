@@ -15,9 +15,7 @@ public partial class InventoryWindow
             return;
         }
 
-        PlayerInfoInterlude info = ZoneCommands.Transport != null
-            ? ZoneCommands.Transport.PlayerInfo
-            : default;
+        PlayerInfoInterlude info = ZoneCommands.LocalPlayerInfo;
         if (info.Stats != null)
             UpdateStats(info.Stats);
     }
