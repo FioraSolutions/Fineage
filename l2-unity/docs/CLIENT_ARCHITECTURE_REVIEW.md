@@ -3,16 +3,16 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight wave 14)
+### Status Now (2026-11-11 late afternoon)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. **LifetimeScope types remain ACS** — hard residual (cycle-bound).
-- Domain apply via `IWorldDomainSink` / `WorldPacketApply`. Do **not** split Net.Contract codecs client-only. Skip multi-type / HtmlAgility / contract hubs.
-- **ACS hub file-splits (overnight through ~#1278):** residual partial waves landing continuously; splitter min lowered 160→80 as pool drained. Queue lands via GitHub `update-branch` + `build-and-test` (ignore `unity-editmode`). LifetimeScope→`Fineage.Di` remains hard residual.
-- Epic **#131** next: keep draining residual hubs (≥~60–80 lines); LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. Leaf waves through ~#1333 + cycle-safe follow-up (`PooledInstance` residual, `CharSelectionInfoPackage`, `WeaponClassifier`, `PlayerMovementSpeedCalculator`, `CameraCollisionDetection`, UI manipulators, `UnityChainTicker`→`Fineage.Di`).
+- **NOT DONE — hard residual:** LifetimeScope / `GameRuntime` / `LoginRuntime` / `App` / `DiBootstrap` still ACS under `Scripts/Di/`. `Fineage.Di` holds `ILateBound` / `LateBoundMono` / `LifetimeScopeMonoRegistration` / `UnityChainTicker`. Scopes stay ACS until `GameManager`/`World`/windows/PacketServices are cycle-safe or interface-extracted.
+- Domain apply via `IWorldDomainSink` / `WorldPacketApply`. Do **not** invent HUD; do **not** pack Gremlin #129 onto unreformed ACS. Skip empty hub waves.
+- Epic **#131** next: unblock LifetimeScope→`Fineage.Di` via cycle-safe deps / interfaces. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary
