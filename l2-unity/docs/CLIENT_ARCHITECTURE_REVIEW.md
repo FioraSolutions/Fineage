@@ -15,6 +15,21 @@
 - **Primary client focus now:** gameplay debug, graphics/import, Interlude parity; Gremlin **#129** smoke where it does not dump feature layers onto unreformed ACS.
 - **GPT A04:** `World.GetEntityAsync` no longer polls with `Task.Delay(150)` — uses `ObjectIdWaitMap` completed by Register*/clear (timeout still 150ms).
 
+### GPT deep-audit fixes (2026-11-11+)
+
+Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTransport / PacketServices / composition roots). Land as small PRs; mark here when done.
+
+| ID | Item | Status |
+|----|------|--------|
+| A01 | `IZoneTransport.Connected` = zone TCP up (not `Session != null`); `HasSession` + `ZoneConnectionState` | **Fixed** — `ZoneConnectionState` / `ZoneConnectionStateResolver` + `NetSession.IsZoneSocketConnected` |
+| A02 | Single NetSession owner; stop `Ensure()` / transport self-create bypass of DI | Open |
+| A03 | `ZoneCommands` static resolver / stale `_transport` after scope rebuild | Open |
+| A04 | `World.GetEntityAsync` `Task.Delay(150)` → event wait registry | **Fixed** — `ObjectIdWaitMap` + Register*/clear notify |
+| A05 | World responsibility split (registry first) | Open (opportunistic) |
+| A06 | `AppLifetimeScope` global Bind side-effects | Open (opportunistic) |
+| A07 | `LoginRuntime` resolver fallback / empty catch | Open |
+| A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred per Status Now |
+
 
 ## Executive Summary
 

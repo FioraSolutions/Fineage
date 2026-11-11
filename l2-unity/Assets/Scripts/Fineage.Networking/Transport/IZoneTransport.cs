@@ -14,7 +14,18 @@ public interface IZoneTransport
     /// </summary>
     bool TrySendGameCommand(INetworkCommand command);
 
+    /// <summary>
+    /// True when the zone TCP socket is open. Not the same as <see cref="HasSession"/> —
+    /// a NetSession GameObject can exist while the wire is already down.
+    /// </summary>
     bool Connected { get; }
+
+    /// <summary>True when a NetSession host object is bound (may be disconnected).</summary>
+    bool HasSession { get; }
+
+    /// <summary>Coarse zone lifecycle (Disconnected → Connecting → … → InWorld).</summary>
+    ZoneConnectionState ConnectionState { get; }
+
     int SessionObjectId { get; }
 
     /// <summary>Begin a new session (connect + Hello + Auth + EnterWorld).</summary>
