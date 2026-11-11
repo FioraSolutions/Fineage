@@ -1,3 +1,10 @@
+#if UNITY_EDITOR
+using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+
 public static partial class L2InterludeTileBakePipeline
 {
     static void SaveTerrainPrefab(string tileId, GameObject terrainGo)
@@ -38,3 +45,4 @@ public static partial class L2InterludeTileBakePipeline
         SaveScenePrefab(tileId, best, prefabFileName);
     }
 }
+#endif

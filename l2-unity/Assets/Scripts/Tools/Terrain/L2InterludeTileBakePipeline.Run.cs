@@ -1,3 +1,10 @@
+#if UNITY_EDITOR
+using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+
 public static partial class L2InterludeTileBakePipeline
 {
     public static List<L2InterludeTileBakeResult> RunTiles(
@@ -189,3 +196,4 @@ public static partial class L2InterludeTileBakePipeline
         return result;
     }
 }
+#endif
