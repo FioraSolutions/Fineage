@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 
-public partial class L2YebisLiveCapture
+public static partial class L2YebisLiveCapture
 {
     public static void CycleGradeStage()
     {
