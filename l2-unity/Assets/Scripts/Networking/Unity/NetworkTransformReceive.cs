@@ -3,7 +3,8 @@ using System.Collections;
 using UnityEngine;
 using VContainer;
 
-public class NetworkTransformReceive : MonoBehaviour {
+public partial class NetworkTransformReceive : MonoBehaviour
+{
     [Inject] World _world;
 
     private World GameWorld => NetworkingPacketServices.GameWorld;
@@ -21,104 +22,18 @@ public class NetworkTransformReceive : MonoBehaviour {
     [SerializeField] private long _lastDesyncDuration = 0;
     private long _maximumAllowedDesyncTimeMs = 0;
 
-    void Start() {
-        NetworkingPacketServices.Bind(world: _world);
-        World world = GameWorld;
-        if(world != null && world.OfflineMode) {
-            this.enabled = false;
-            return;
-        }
 
-        _lastPos = transform.position;
-        _newRotation = transform.eulerAngles.y;
-        _serverPosition = transform.position;
-        _positionSyncPaused = false;
-    }
-
-    void FixedUpdate() {
-        if(_positionSyncProtection && !_positionSyncPaused) {
-            //Debug.Log("SYNC POSITIOBBBBBBBBBBBBB !");
-            UpdatePosition();
-        }
-        UpdateRotation();
-    }
 
     /* Set new theorical position */
-    public void SetNewPosition(Vector3 pos) {
-        /* adjust y to ground height */
-        World world = GameWorld;
-        if (world != null)
-            pos.y = world.GetGroundHeight(pos);
-
-        _serverPosition = pos;
-
-        /* reset states */
-        _lastPos = transform.position;
-        _posLerpValue = 0;
-    }
 
     /* Safety measure to keep the transform position synced */
 
-    public void UpdatePosition() {
-        /* Check if client transform position is synced with server's */
-        _positionDelta = VectorUtils.Distance2D(transform.position, _serverPosition);
-        Geodata geodata = GeodataPacketServices.Geodata;
-        if (geodata == null)
-            return;
-        if(_positionDelta > geodata.NodeSize * _positionSyncNodesThreshold && _positionSynced) {
-            _lastDesyncTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            _positionSynced = false;
-           // Debug.Log("position 0");
-        }
-
-        if(!_positionSynced) {
-            //Debug.Log("position 1");
-            _lastDesyncDuration = DateTimeOffset.Now.ToUnixTimeMilliseconds() - _lastDesyncTime;
-            if(_lastDesyncDuration > _maximumAllowedDesyncTimeMs) {
-                if(_positionDelta <= geodata.NodeSize / 10f) {
-                    //true - use Gravity sync
-                    _positionSynced = true;
-                   // Debug.Log("position 2");
-                    return;
-                }
-
-                transform.position = Vector3.Lerp(_lastPos, _serverPosition, _posLerpValue);
-                _posLerpValue += (1 / _lerpDuration) * Time.deltaTime;
-               // Debug.Log("position 3");
-            }
-
-        }   
-    }
 
     /* Ajust rotation */
-    private void UpdateRotation() {
-        ///transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(Vector3.up * _newRotation), Time.deltaTime * 7.5f);
-    }
 
-    public void SetFinalRotation(float finalRotation) {
-        _newRotation = finalRotation;
-    }
 
-    public void LookAt(Transform target) {
-        if (target != null) {
-            _newRotation = VectorUtils.CalculateMoveDirectionAngle(transform.position, target.position);
-        }
-    }
 
-    public void LookAt(Vector3 position) {
-        _newRotation = VectorUtils.CalculateMoveDirectionAngle(transform.position, position);
-    }
 
-    public bool IsPositionSynced() {
-        return _positionSynced;
-    }
 
-    public void PausePositionSync() {
-        _positionSyncPaused = true;
-        _positionSynced = true;
-    }
 
-    public void ResumePositionSync() {
-        _positionSyncPaused = false;
-    }
 }
