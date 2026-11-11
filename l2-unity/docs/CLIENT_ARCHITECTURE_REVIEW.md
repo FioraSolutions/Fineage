@@ -9,7 +9,7 @@
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** leaf waves through **#1335**; `PacketApplyQueue` + pump in Networking; `IGameManager` + `GameState` in `Fineage.Game`; `AppContainers` in `Fineage.Di` (ACS `App` keeps InjectGameObject).
+- **Asmdef:** leaf waves through **#1337**; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`GameState`/`L2EnvWorldLut` in Game; `AppContainers` in Di.
 - **`IZoneTransport` in Fineage.Networking:** local profile via ACS `FineageZoneTransport` / `ZoneCommands.LocalPlayerInfo`.
 - **NOT DONE — hard residual:** LifetimeScope / runtimes / `DiBootstrap` still ACS. Next: more scope callbacks on interfaces; avoid empty hub waves.
 - Epic **#131** next: Di-facing seams. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).

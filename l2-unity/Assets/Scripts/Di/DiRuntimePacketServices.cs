@@ -46,4 +46,7 @@ public static class DiRuntimePacketServices
 
     public static GameManager Manager =>
         _manager != null ? _manager : NetworkingPacketServices.Manager;
+
+    public static IGameManager ManagerContract =>
+        Manager;
 }
