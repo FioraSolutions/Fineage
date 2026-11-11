@@ -81,6 +81,7 @@ public partial class World
         _players.Remove(id);
         _npcs.Remove(id);
         _objects.Remove(id);
+        _entityWait.Fail(id);
         if (EntityActionPacketServices.Actions != null)
             EntityActionPacketServices.Actions.Remove(entity);
 

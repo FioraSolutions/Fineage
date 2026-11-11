@@ -24,6 +24,7 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
     void OnDestroy() {
         if (_deadManager != null)
             _deadManager.OnReadyToRemove -= RemoveObject;
+        _entityWait.CancelAll();
         _instance = null;
     }
 }

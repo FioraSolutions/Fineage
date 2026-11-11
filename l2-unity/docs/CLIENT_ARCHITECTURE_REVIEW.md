@@ -13,6 +13,7 @@
 - **Stabilize bar (gameplay debug + graphics import): MET.** One Zone + client apply path is good enough to debug gameplay and keep importing art. Do **not** treat LifetimeScope→`Fineage.Di` as a blocker for play/debug/assets.
 - **Ongoing residual (not the gate):** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS. Opportunistic #131 seams only when they unblock concrete pain — no DAT/World grind as finish-line. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 - **Primary client focus now:** gameplay debug, graphics/import, Interlude parity; Gremlin **#129** smoke where it does not dump feature layers onto unreformed ACS.
+- **GPT A04:** `World.GetEntityAsync` no longer polls with `Task.Delay(150)` — uses `ObjectIdWaitMap` completed by Register*/clear (timeout still 150ms).
 
 
 ## Executive Summary
