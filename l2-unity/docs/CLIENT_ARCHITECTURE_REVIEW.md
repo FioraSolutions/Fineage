@@ -3,7 +3,7 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight wave 3)
+### Status Now (2026-11-11 overnight wave 4)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
@@ -11,7 +11,7 @@
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
 - **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded; `LifetimeScopeMonoRegistration` in `Fineage.Di`. Leaf cycle-safe MBs continue into `Fineage.Game`. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual (Game/App/Login scopes still under `Scripts/Di/`, ACS-bound by PacketServices/UI Mono refs).
 - Domain apply: `NetSession` / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. Do **not** split `Fineage.Net.Contract` codecs client-only (sync-net-contract gate).
-- **ACS hub file-splits (overnight through ~#1113):** wave 2 (~#1076–#1093) plus MemberInfoContent (#1094), L2MaterialPropertyCopier (#1095), TablePacketServices (#1096), NetCommandSender (#1097), Html LayoutElements (#1098), SunMask Bake (#1099), Trail History (#1100), PointLights Apply (#1101), V2 Spawn (#1102), Yebis TerrainWrite (#1103), UserInfoDto (#1104), TerrainConverter (#1105), TileBakePipeline (#1106), Html Controls (#1107), HazeRing Draw (#1108), Html Tags (#1109), BaseEffect Lifecycle (#1110), TargetManager (#1111), AppearFadeService (#1112), V2 Shoot (#1113). Continue hubs ≥~270 lines; LifetimeScope→`Fineage.Di` when cycle-safe.
+- **ACS hub file-splits (overnight through ~#1133):** wave 3 (~#1094–#1113) plus ToolTip Binding (#1115), LobbyNameplates (#1116), SkillbarSlot (#1117), IconManager (#1118), T3D importer (#1119), NetworkCommands.Economy (#1120), MovementData (#1121), Celestial Update (#1122), CloudMyst (#1123), LoginWindow (#1124), HitManager (#1125), CreatorTableWindows (#1126), Enchant Anim (#1127), EffectPlacement (#1128), WorldClock (#1129), DayNightCycle (#1130), MagicCastData (#1131), Html Parse (#1132), BaseAnimationManager (#1133). Continue hubs ≥~250 lines; LifetimeScope→`Fineage.Di` remains hard residual.
 - Epic **#131** next: LifetimeScope / gameplay MonoBehaviours into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md) (“Agent start here”).
 
 ## Executive Summary
