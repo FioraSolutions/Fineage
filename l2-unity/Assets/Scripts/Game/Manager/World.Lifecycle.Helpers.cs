@@ -9,7 +9,7 @@ using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements.Experimental;
 using VContainer;
 
-public partial class World : MonoBehaviour, IWorldSpawnContext
+public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLookup
 {
     [Inject]
     void BindItemDropPresentationRunner()

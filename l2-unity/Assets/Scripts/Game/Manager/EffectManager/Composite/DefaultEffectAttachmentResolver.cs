@@ -9,10 +9,14 @@ public interface IEffectAttachmentResolver
 
 public partial class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
 {
+    [Inject] IWorldEntityLookup _entities;
     [Inject] World _world;
 
     private World GameWorld =>
         _world != null ? _world : GamePacketServices.GameWorld;
+
+    private IWorldEntityLookup Entities =>
+        _entities != null ? _entities : GameWorld;
 
     private static readonly string[] WeaponNamePattern = { Gear.weaponName }; // "weapon_"
 
@@ -95,6 +99,7 @@ public partial class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
             return false;
         }
 
+        // Entity stays ACS-typed until Entity moves (#131); Transform via IWorldEntityLookup.
         World world = GameWorld;
         if (context.CasterEntity == null && context.CasterUserId > 0 && world != null)
         {
@@ -105,21 +110,22 @@ public partial class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
             context.TargetEntity = world.GetEntityNoLockSync(context.TargetUserId);
         }
 
-        if (context.CasterTransform == null && context.CasterEntity != null)
+        IWorldEntityLookup entities = Entities;
+        if (context.CasterTransform == null)
         {
-            context.CasterTransform = context.CasterEntity.transform;
+            if (context.CasterEntity != null)
+                context.CasterTransform = context.CasterEntity.transform;
+            else if (context.CasterUserId > 0 && entities != null)
+                context.CasterTransform = entities.FindTransformNoLock(context.CasterUserId);
         }
-        if (context.TargetTransform == null && context.TargetEntity != null)
+        if (context.TargetTransform == null)
         {
-            context.TargetTransform = context.TargetEntity.transform;
+            if (context.TargetEntity != null)
+                context.TargetTransform = context.TargetEntity.transform;
+            else if (context.TargetUserId > 0 && entities != null)
+                context.TargetTransform = entities.FindTransformNoLock(context.TargetUserId);
         }
 
         return context.CasterTransform != null || context.TargetTransform != null || context.HasHitPoint;
     }
-
-
-
-
-
-
 }
