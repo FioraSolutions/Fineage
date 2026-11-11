@@ -1,0 +1,33 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using UnityEngine;
+using UnityEngine.UIElements;
+using VContainer;
+
+public partial class LoginWindow
+{
+    private void Awake() {
+        if (_instance == null) {
+            _instance = this;
+            WireLoginPacketServices();
+        } else {
+            Destroy(this);
+        }
+    }
+
+    private void Start()
+    {
+        WireLoginPacketServices();
+    }
+
+    private void WireLoginPacketServices()
+    {
+        LoginPacketServices.Bind(login: _login);
+    }
+
+    private void OnDestroy() {
+        _instance = null;
+    }
+}
