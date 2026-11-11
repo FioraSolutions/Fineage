@@ -1,11 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Resolves CrossFade duration when leaving a registered Animator state.
-/// Override per clip via <see cref="Animation.ExitCrossFadeDuration"/>; else default.
-/// </summary>
-public static class AnimationExitCrossFade
+public static partial class AnimationExitCrossFade
 {
     static Animation[] _exitOverrides;
 
@@ -27,48 +23,5 @@ public static class AnimationExitCrossFade
         }
     }
 
-    static void CollectExitOverrides(Animation[] source, List<Animation> dest)
-    {
-        if (source == null)
-        {
-            return;
-        }
 
-        for (int i = 0; i < source.Length; i++)
-        {
-            Animation anim = source[i];
-            if (anim != null && anim.ExitCrossFadeDuration.HasValue)
-            {
-                dest.Add(anim);
-            }
-        }
-    }
-
-    public static float Resolve(IAnimationController controller)
-    {
-        float fallback = LocomotionCrossFadeDefaults.FixedDuration;
-        if (controller == null)
-        {
-            return fallback;
-        }
-
-        Animator animator = controller.GetAnimator();
-        if (animator == null)
-        {
-            return fallback;
-        }
-
-        AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
-        Animation[] overrides = ExitOverrides;
-        for (int i = 0; i < overrides.Length; i++)
-        {
-            Animation anim = overrides[i];
-            if (current.IsName(anim.Value))
-            {
-                return anim.ExitCrossFadeDuration.Value;
-            }
-        }
-
-        return fallback;
-    }
 }
