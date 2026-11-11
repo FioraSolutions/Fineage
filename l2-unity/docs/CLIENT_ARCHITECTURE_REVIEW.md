@@ -3,17 +3,16 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight wave 13)
+### Status Now (2026-11-11 overnight wave 14)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual (`Assets/Scripts/Di/*LifetimeScope*`; `DiBootstrap` hub-split landed).
-- Domain apply via `IWorldDomainSink` / `WorldPacketApply`. Do **not** split Net.Contract codecs client-only. Skip multi-type hubs (`NetworkCommands`, `L2InterludeTileManifest`, `NetStatusSession`).
-- **ACS hub file-splits (overnight through ~#1244):** continuous residual partial waves into `dev` (splitter min ~110). Queue merges on `build-and-test` only. Linked Fineage.Networking partials need test csproj Compile includes when applicable. LifetimeScope→`Fineage.Di` remains hard residual.
-- Epic **#131** next: land greens into `dev`, drain remaining ≥110 hubs, then LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
-
+- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. **LifetimeScope types remain ACS** — hard residual (cycle-bound).
+- Domain apply via `IWorldDomainSink` / `WorldPacketApply`. Do **not** split Net.Contract codecs client-only. Skip multi-type / HtmlAgility / contract hubs.
+- **ACS hub file-splits (overnight through ~#1278):** residual partial waves landing continuously; splitter min lowered 160→80 as pool drained. Queue lands via GitHub `update-branch` + `build-and-test` (ignore `unity-editmode`). LifetimeScope→`Fineage.Di` remains hard residual.
+- Epic **#131** next: keep draining residual hubs (≥~60–80 lines); LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary
