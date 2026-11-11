@@ -65,7 +65,6 @@ public partial class UserInfoDto
         int titleColor = reader.ReadI();
         int isCursedWeaponEquipped = reader.ReadI();
     }
-    }
 
     private float GetRealSpeed(int baseSpeed , float speedMultiplier)
     {
