@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public abstract class AnimationEventsBase : MonoBehaviour
+public abstract partial class AnimationEventsBase : MonoBehaviour
 {
     public event Action<string> OnAnimationFinished;
     public event Action<string> OnAnimationStartShoot;
@@ -20,76 +20,18 @@ public abstract class AnimationEventsBase : MonoBehaviour
     /// Phase await is owned by SMB (<see cref="AnimationManager.NotifyMagicPhaseFinished"/>);
     /// this remains a fallback for subscribers.
     /// </summary>
-    public void OnAnimationComplete(string animationName)
-    {
-        animationName = NormalizeAnimationEventName(animationName);
-        string finishedName = SkillAnimationDatabase.ResolveOverrideCompletionEventName(animationName);
-
-        if (Time.frameCount == _lastDuplicateCompleteFrame &&
-            string.Equals(_lastDuplicateCompleteAnim, finishedName, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _lastDuplicateCompleteFrame = Time.frameCount;
-        _lastDuplicateCompleteAnim = finishedName;
-
-        OnAnimationFinished?.Invoke(finishedName);
-    }
 
     /// <summary>
     /// Вызывается из Unity Animation Event на клипе. Базовая реализация только диспатчит подписчикам;
     /// у игрока/монстров переопределено в <see cref="BaseAnimationController"/> (лог + дедуп дублей).
     /// </summary>
-    public virtual void OnAnimationShoot(string animationName)
-    {
-        animationName = NormalizeAnimationEventName(animationName);
-        OnAnimationStartShoot?.Invoke(animationName);
-    }
 
-    private static string NormalizeAnimationEventName(string animationName)
-    {
-        if (string.IsNullOrEmpty(animationName))
-        {
-            return animationName;
-        }
-
-        // MagicNoTarget clips are played through the shared MagicShot animator state.
-        // Some imported clips also carry the truncated event payload "MagicNoTarge".
-        if (animationName == "MagicNoTarget" ||
-            animationName == "MagicNoTarge" ||
-            animationName == "MagicNotarget")
-        {
-            return "MagicShot";
-        }
-
-        return animationName;
-    }
 
     /// <summary>
     /// Unity Animation Event on melee clips (L2 AnimNotify_AttackShot). Function name must be AttackShot.
     /// </summary>
-    public void AttackShot(string animationName)
-    {
-        animationName = NormalizeAnimationEventName(animationName);
-        OnAnimationAttackShot?.Invoke(animationName);
-    }
 
     /// <summary>Legacy clip event — not used for melee Hit/SoulShot.</summary>
-    public void OnAnimationHit(string animationName)
-    {
-        animationName = NormalizeAnimationEventName(animationName);
-        OnAnimationStartHit?.Invoke(animationName);
-    }
 
-    public void OnAnimationAttackHitEnd(string animationName)
-    {
-        OnAnimationFinishedHit?.Invoke(animationName);
-    }
 
-    public void OnAnimationLoadArrow(string animationName)
-    {
-        animationName = NormalizeAnimationEventName(animationName);
-        OnAnimationStartLoadArrow?.Invoke(animationName);
-    }
 }
