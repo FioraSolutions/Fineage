@@ -1,0 +1,97 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+public abstract partial class AbstractSkillbar
+{
+    public AbstractSkillbar(VisualElement skillbarWindowElement, int skillbarIndex, int page, bool horizontalBar)
+    {
+        _skillbarIndex = skillbarIndex;
+        _skillbarWindow = skillbarWindowElement;
+        _page = page;
+        _horizontalBar = horizontalBar;
+        _slotAnchors = new List<VisualElement>();
+    }
+
+    public IEnumerator BuildWindow(VisualTreeAsset template, VisualElement container)
+    {
+        _windowEle = template.Instantiate()[0];
+        container.Add(_windowEle);
+
+        yield return new WaitForEndOfFrame();
+
+        VisualElement dragArea = _windowEle.Q<VisualElement>("DragArea");
+        dragArea.AddManipulator(new DragManipulator(
+            dragArea,
+            _skillbarWindow,
+            () => SkillbarPacketServices.Skillbar?.PersistPosition()));
+
+        for (int i = 1; i <= 12; i++)
+        {
+            VisualElement anchor = _windowEle.Q<VisualElement>("SlotAnchor" + i);
+            _slotAnchors.Add(anchor);
+        }
+
+        VisualElement arrowInput = _windowEle.Q<VisualElement>(null, "skill-arrow-input");
+        string[] arrowInputValues = new string[10];
+        for (int i = 1; i <= 10; i++)
+        {
+            arrowInputValues[i - 1] = i.ToString();
+        }
+
+        _arrowInputManipulator = new ArrowInputManipulator(arrowInput, null, arrowInputValues, _page,
+        (index, value) => SkillbarPacketServices.Skillbar.OnPageChanged(SkillbarIndex, index));
+
+        UpdateVisuals();
+        ResetShortcuts();
+    }
+
+    public void ChangePage(int page)
+    {
+        _page = page;
+        _arrowInputManipulator.SelectIndex(page);
+
+        ResetShortcuts();
+    }
+
+    public void ResetShortcuts()
+    {
+        // Clean up slot callbacks and manipulators
+        if (_barSlots != null)
+        {
+            foreach (SkillbarSlot slot in _barSlots)
+            {
+                slot.ClearManipulators();
+            }
+            _barSlots.Clear();
+        }
+
+        _barSlots = new List<SkillbarSlot>();
+
+        // Clean up gear anchors from any child visual element
+        for (int i = 0; i < _slotAnchors.Count; i++)
+        {
+            CreateSlot(i);
+        }
+    }
+
+    private void CreateSlot(int position)
+    {
+
+        VisualElement anchor = _slotAnchors[position];
+
+        //Debug.Log($"Create slot at {position} with anchor {anchor.name}.");
+
+        // Clear childs
+        anchor.Clear();
+
+        // Create slots
+        VisualElement slotElement = SkillbarPacketServices.Skillbar.BarSlotTemplate.Instantiate()[0];
+        anchor.Add(slotElement);
+
+        SkillbarSlot slot = new SkillbarSlot(slotElement, _page * PlayerShortcuts.MAXIMUM_SHORTCUTS_PER_BAR + position, _skillbarIndex, position);
+        _barSlots.Add(slot);
+    }
+}
