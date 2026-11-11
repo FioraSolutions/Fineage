@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
-public class PathFinderController : MonoBehaviour
+public partial class PathFinderController : MonoBehaviour
 {
     [Header("Path data")]
     [SerializeField] private Node _startNode;
@@ -28,22 +27,6 @@ public class PathFinderController : MonoBehaviour
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static PathFinderController Instance { get { return _instance; } }
 
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
-
-    void OnDestroy()
-    {
-        _instance = null;
-    }
 
     //void Start()
     //{
