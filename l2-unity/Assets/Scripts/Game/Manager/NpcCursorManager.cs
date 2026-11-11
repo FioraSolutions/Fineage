@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using VContainer;
 
-public class NpcCursorManager : MonoBehaviour
+public partial class NpcCursorManager : MonoBehaviour
 {
     [Inject] ItemDropPicker _dropPicker;
 
@@ -22,122 +22,11 @@ public class NpcCursorManager : MonoBehaviour
     const int PickupCursorId = 3;
     const float PickDistance = 1000f;
 
-    private void Awake()
-    {
-        App.InjectGameObject(gameObject);
-        WireManagerInteractionPacketServices();
-    }
 
-    void Start()
-    {
-        WireManagerInteractionPacketServices();
-        _defaultCursor = IconPacketServices.Icons.LoadCursorByName("Default");
-        _hoverCursorAtk = IconPacketServices.Icons.LoadCursorByName("Attack");
-        _hoverCursorTalk = IconPacketServices.Icons.LoadCursorByName("Talk");
-        _hoverCursorPickup = IconPacketServices.Icons.LoadCursorByName("Pickup");
-        _currentCursor = -1;
-    }
 
-    void Update()
-    {
-        if (_defaultCursor == null)
-            TryReloadCursors();
 
-        Camera cam = ResolvePickCamera();
-        if (cam == null)
-        {
-            ApplyCursor(DefaultCursorId, _defaultCursor);
-            return;
-        }
 
-        Ray ray = cam.ScreenPointToRay(PollInput.MousePosition);
-        ItemEntity dropEntity = null;
-        ItemDropPicker dropPicker = DropPicker;
-        bool dropHit = dropPicker != null &&
-            dropPicker.TryPick(ray, PickDistance, _stickyDropItem, out dropEntity, out _);
-        _stickyDropItem = dropHit ? dropEntity : null;
 
-        if (dropHit && dropEntity != null)
-        {
-            ApplyCursor(PickupCursorId, _hoverCursorPickup);
-            return;
-        }
 
-        if (SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.MouseOverUI)
-        {
-            ApplyCursor(DefaultCursorId, _defaultCursor);
-            return;
-        }
 
-        // Hover cursor SoT (#930): Attackable / talkable on hover, not only when targeted.
-        if (!EntityPick.TryPick(ray, PickDistance, out Entity entity, out _))
-        {
-            ApplyCursor(DefaultCursorId, _defaultCursor);
-            return;
-        }
-
-        ApplyEntityCursor(entity);
-    }
-
-    void ApplyEntityCursor(Entity entity)
-    {
-        switch (EntityInteraction.ResolveCursor(entity))
-        {
-            case EntityInteraction.CursorKind.Attack:
-                ApplyCursor(AtkCursorId, _hoverCursorAtk);
-                break;
-            case EntityInteraction.CursorKind.Talk:
-                ApplyCursor(TalkCursorId, _hoverCursorTalk);
-                break;
-            default:
-                ApplyCursor(DefaultCursorId, _defaultCursor);
-                break;
-        }
-    }
-
-    void ApplyCursor(int id, Texture2D texture)
-    {
-        if (texture == null)
-            return;
-
-        // ForceSoftware: hardware cursors often fail to stick on macOS with Input System only.
-        if (_currentCursor == id)
-        {
-            Cursor.SetCursor(texture, Vector2.zero, CursorMode.ForceSoftware);
-            return;
-        }
-
-        _currentCursor = id;
-        Cursor.SetCursor(texture, Vector2.zero, CursorMode.ForceSoftware);
-    }
-
-    void TryReloadCursors()
-    {
-        IconManager icons = IconPacketServices.Icons;
-        if (icons == null)
-            return;
-        _defaultCursor = icons.LoadCursorByName("Default");
-        _hoverCursorAtk = icons.LoadCursorByName("Attack");
-        _hoverCursorTalk = icons.LoadCursorByName("Talk");
-        _hoverCursorPickup = icons.LoadCursorByName("Pickup");
-        _currentCursor = -1;
-    }
-
-    static Camera ResolvePickCamera()
-    {
-        CameraController controller = CameraPacketServices.Controller;
-        if (controller != null)
-        {
-            Camera cam = controller.GetComponent<Camera>();
-            if (cam != null && cam.enabled && cam.gameObject.activeInHierarchy)
-                return cam;
-        }
-
-        return Camera.main;
-    }
-
-    private void WireManagerInteractionPacketServices()
-    {
-        ManagerInteractionPacketServices.Bind(dropPicker: _dropPicker);
-    }
 }
