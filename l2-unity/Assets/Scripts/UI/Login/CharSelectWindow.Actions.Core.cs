@@ -20,6 +20,9 @@ public partial class CharSelectWindow
             return;
         if (_startButton != null)
             _startButton.SetEnabled(false);
-        _ = NetSession.Ensure().SelectCharacter(selected.Id, selected.Name, selected.Slot);
+        NetSession session = NetSession.TryGetBound();
+        if (session == null)
+            return;
+        _ = session.SelectCharacter(selected.Id, selected.Name, selected.Slot);
     }
 }

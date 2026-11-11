@@ -6,7 +6,11 @@ using System.Collections.Concurrent;
 
 public sealed partial class NetSession : MonoBehaviour
 {
-    public static NetSession Ensure()
+    /// <summary>
+    /// Composition-root owner for the single DontDestroyOnLoad session host.
+    /// Call from App/Game LifetimeScope bind only — not from gameplay / UI.
+    /// </summary>
+    public static NetSession CreateForCompositionRoot()
     {
         if (Instance != null)
             return Instance;
@@ -15,6 +19,21 @@ public sealed partial class NetSession : MonoBehaviour
         Instance = go.AddComponent<NetSession>();
         return Instance;
     }
+
+    /// <summary>
+    /// Legacy self-create path. Prefer <see cref="NetworkingPacketServices.Session"/> after
+    /// AppLifetimeScope binds the composition-root host.
+    /// </summary>
+    [System.Obsolete("Use NetworkingPacketServices.Session (bound by AppLifetimeScope). Composition root may call CreateForCompositionRoot.")]
+    public static NetSession Ensure()
+    {
+        Debug.LogWarning(
+            "[Net] NetSession.Ensure() bypasses DI — migrate caller to NetworkingPacketServices.Session");
+        return CreateForCompositionRoot();
+    }
+
+    /// <summary>Bound session host, or null if composition has not created one yet.</summary>
+    public static NetSession TryGetBound() => NetworkingPacketServices.Session;
 
     void Awake()
     {

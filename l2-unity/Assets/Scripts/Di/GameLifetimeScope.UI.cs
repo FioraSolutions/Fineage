@@ -141,7 +141,7 @@ public sealed partial class GameLifetimeScope
                 // NetSession lives outside the scope, so it must be injected explicitly.
                 NetSession netSession = NetworkingPacketServices.Session;
                 if (netSession == null)
-                    netSession = NetSession.Ensure();
+                    netSession = NetSession.CreateForCompositionRoot();
                 NetworkingPacketServices.Bind(session: netSession);
                 container.InjectGameObject(netSession.gameObject);
                 ApplyServices.Bind(

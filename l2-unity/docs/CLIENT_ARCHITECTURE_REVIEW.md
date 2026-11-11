@@ -21,7 +21,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | ID | Item | Status |
 |----|------|--------|
 | A01 | `IZoneTransport.Connected` = zone TCP up (not `Session != null`); `HasSession` + `ZoneConnectionState` | **Fixed** — `ZoneConnectionState` / `ZoneConnectionStateResolver` + `NetSession.IsZoneSocketConnected` |
-| A02 | Single NetSession owner; stop `Ensure()` / transport self-create bypass of DI | Open |
+| A02 | Single NetSession owner; stop `Ensure()` / transport self-create bypass of DI | **Fixed (partial)** — AppLifetimeScope `CreateForCompositionRoot`; transport no longer `Ensure()`; call sites use `TryGetBound` |
 | A03 | `ZoneCommands` static resolver / stale `_transport` after scope rebuild | Open |
 | A04 | `World.GetEntityAsync` `Task.Delay(150)` → event wait registry | Open |
 | A05 | World responsibility split (registry first) | Open (opportunistic) |

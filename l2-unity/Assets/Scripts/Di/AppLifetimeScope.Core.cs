@@ -40,6 +40,9 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             SkillNameTable.Bind(container.Resolve<SkillNameTable>());
             IZoneTransport transport = container.Resolve<IZoneTransport>();
             ZoneCommands.Bind(transport);
+            // Single NetSession host owned by composition root (GPT A02) — not FineageZoneTransport.Ensure.
+            NetSession netSession = NetSession.CreateForCompositionRoot();
+            NetworkingPacketServices.Bind(session: netSession);
             IGameManager manager = container.Resolve<IGameManager>();
             transport.OnDisconnected += () => manager.OnDisconnect();
             AppLoginSessionApplyIncomingPacketServices.BindApp(
@@ -48,7 +51,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
                 container.Resolve<GameManager>(),
                 container.Resolve<PacketApplyQueue>(),
                 container.Resolve<EventProcessor>());
-            // NetworkingPacketServices.Bind(manager) already done in BindApp above.
+            // NetworkingPacketServices.Bind(manager) already done in BindApp above; session bound above.
             LobbyFlowLog.Wire(() => manager == null || manager.GameState < GameState.IN_GAME);
         });
     }
