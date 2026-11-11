@@ -4,10 +4,6 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// Shared L2 canvas glyph batch: screen pixels → StructuredBuffer → one RenderPrimitivesIndexed.
-/// Used by <see cref="NameplatesManager"/> and <see cref="LobbyNameplatesManager"/>.
-/// </summary>
 public sealed partial class L2NameplateScreenBatch : IDisposable
 {
     private const string ShaderResourcePath = "Data/Shaders/UI/L2BitmapFontScreenSpace";
@@ -44,53 +40,7 @@ public sealed partial class L2NameplateScreenBatch : IDisposable
 
     public bool IsReady => _material != null;
 
-    public void EnsureMaterial(Texture atlas)
-    {
-        if (_material != null)
-        {
-            if (atlas != null)
-            {
-                _material.mainTexture = atlas;
-                _material.SetTexture("_MainTex", atlas);
-            }
 
-            return;
-        }
-
-        Shader shader = Resources.Load<Shader>(ShaderResourcePath);
-        if (shader == null)
-        {
-            shader = Shader.Find(ShaderName);
-        }
-
-        if (shader == null)
-        {
-            // Debug.LogError($"[L2NameplateScreenBatch] Shader '{ShaderName}' not found.");
-            return;
-        }
-
-        _material = new Material(shader)
-        {
-            name = "L2ScreenBitmapFont (Shared)",
-            hideFlags = HideFlags.HideAndDontSave,
-            renderQueue = 5000
-        };
-        if (atlas != null)
-        {
-            _material.mainTexture = atlas;
-            _material.SetTexture("_MainTex", atlas);
-        }
-    }
-
-    public void BeginFrame()
-    {
-        _pixelVerts.Clear();
-        _uvs.Clear();
-        _colors.Clear();
-        _indices.Clear();
-        _glyphs.Clear();
-        _drawIndexCount = 0;
-    }
 
     /// <summary>
     /// L2 canvas line: Floor pixel origin + optional frac discard, AppendString → screen verts (Y up).
@@ -107,22 +57,6 @@ public sealed partial class L2NameplateScreenBatch : IDisposable
 
     /// <summary>Upload buffers and submit one indexed procedural draw for <paramref name="cam"/>.</summary>
 
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _disposed = true;
-        ReleaseBuffers();
-
-        if (_material != null)
-        {
-            UnityEngine.Object.Destroy(_material);
-            _material = null;
-        }
-    }
 
 
 
