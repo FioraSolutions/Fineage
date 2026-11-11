@@ -1,77 +1,108 @@
 using System;
 using UnityEngine;
 
-public partial class WorldClock : MonoBehaviour
+public partial class WorldClock
 {
-    public void SynchronizeClock(long gameTicks, int tickDurationMs, int dayDurationMinutes) {
-        if (_startClock)
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
+    {
+        _instance = null;
+        _bootstrapping = false;
+        _loggedHold = false;
+    }
+
+    public static WorldClock EnsurePersistent()
+    {
+        if (_instance != null && _instance._persistentDriver)
         {
+            _instance.enabled = true;
+            _instance.gameObject.SetActive(true);
+            _instance._startClock = true;
+            _instance._dayDurationMinutes = 2.5f;
+            _instance.PinAtHour(13f);
+            return _instance;
+        }
+
+        // DayNightCycle is ExecuteInEditMode — never create DDOL drivers in edit mode.
+        if (!Application.isPlaying)
+        {
+            if (_instance != null)
+                return _instance;
+            return FindFirstObjectByType<WorldClock>(FindObjectsInactive.Include);
+        }
+
+        if (_bootstrapping)
+        {
+            return _instance;
+        }
+
+        WorldClock existing = _instance;
+        if (existing == null)
+        {
+            existing = FindFirstObjectByType<WorldClock>(FindObjectsInactive.Include);
+        }
+
+        _bootstrapping = true;
+        var go = new GameObject("L2ClockDriver");
+        DontDestroyOnLoad(go);
+        WorldClock driver = go.AddComponent<WorldClock>();
+        driver._persistentDriver = true;
+        driver._startClock = true;
+        driver._dayDurationMinutes = 2.5f;
+        if (existing != null && existing != driver)
+        {
+            driver._worldTimer = existing._worldTimer;
+        }
+
+        driver.PinAtHour(13f);
+
+        _instance = driver;
+        WorldClockPacketServices.Bind(clock: driver);
+        _bootstrapping = false;
+        // Debug.Log("[L2Clock] persistent driver started (survives Menu unload / map tiles)");
+        return driver;
+    }
+
+    private void Awake()
+    {
+        ClaimInstance();
+    }
+
+    void OnEnable()
+    {
+        if (Application.isPlaying)
+        {
+            _startClock = true;
+            if (_dayDurationMinutes < 0.5f || _dayDurationMinutes > 5f)
+            {
+                _dayDurationMinutes = 2.5f;
+            }
+        }
+
+        ClaimInstance();
+    }
+
+    void ClaimInstance()
+    {
+        if (_bootstrapping || _persistentDriver)
+        {
+            _persistentDriver = true;
+            _instance = this;
+            WorldClockPacketServices.Bind(clock: this);
             return;
         }
 
-        float ticksPerDay = (float)dayDurationMinutes * 60 * 1000 / tickDurationMs;
-        float currentHours = gameTicks / ticksPerDay * 24 % 24;
-        this._dayDurationMinutes = dayDurationMinutes;
-        float serverDayRatio = currentHours / 24f;
-        _timeElapsed = serverDayRatio * dayDurationMinutes * 60f;
-    }
-
-    public bool IsNightTime() {
-        return _clock.nightRatio > 0 && _clock.nightRatio <= 1 || _clock.dayRatio < 0.25f;
-    }
-
-    private void CalculateDayNightRatio() {
-        if(_clock.totalRatio >= _worldTimer.dayStartTime && _clock.totalRatio < _worldTimer.dayEndTime) {
-            _clock.nightRatio = 0;
-            _clock.dayRatio = (_clock.totalRatio - _worldTimer.dayStartTime) / (_worldTimer.dayEndTime - _worldTimer.dayStartTime);
-        } else {
-            _clock.dayRatio = 0;
-            if(_clock.totalRatio >= _worldTimer.dayEndTime) {
-                _clock.nightRatio = (_clock.totalRatio - _worldTimer.dayEndTime) / (1.0f - _worldTimer.dayEndTime + _worldTimer.dayStartTime);
-            } else {
-                _clock.nightRatio = (_clock.totalRatio + (1.0f - _worldTimer.dayEndTime)) / (1.0f - _worldTimer.dayEndTime + _worldTimer.dayStartTime);
+        if (!Application.isPlaying)
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+                WorldClockPacketServices.Bind(clock: this);
             }
-        }
-    }
 
-    private void CalculateSunPhaseRatio() {
-        _clock.dawnRatio = CalculatePeriodRatio(_worldTimer.sunriseStartTime, _worldTimer.sunriseEndTime);
-        _clock.brightRatio = CalculatePeriodRatio(_worldTimer.sunriseEndTime, _worldTimer.sunsetStartTime);
-        _clock.duskRatio = CalculatePeriodRatio(_worldTimer.sunsetStartTime, _worldTimer.sunsetEndTime);
-        _clock.darkRatio = CalculatePeriodRatio(-.99f, _worldTimer.sunriseStartTime);
-    }
-
-    private float CalculatePeriodRatio(float startRatio, float endRatio) {
-        float periodDuration = (startRatio < 0) ? (Mathf.Abs(startRatio) + endRatio) : (endRatio - startRatio);
-
-        float ratio = 0;
-        if(_clock.dayRatio >= 0 && _clock.nightRatio == 0) {
-            // Day
-            if(_clock.dayRatio <= endRatio) {
-                // In Range        
-                if(startRatio < 0) {
-                    ratio += Mathf.Abs(startRatio);
-                    ratio += _clock.dayRatio;
-                } else if(_clock.dayRatio >= startRatio) {
-                    ratio -= startRatio;
-                    ratio += _clock.dayRatio;
-                } else {
-                    ratio = 0;
-                }
-
-                ratio = Mathf.Clamp(ratio / periodDuration, 0, 1);
-            } else {
-                ratio = 1;
-            }
-        } else {
-            // Night
-            if(startRatio < 0 && _clock.nightRatio > (1 + startRatio)) {
-                ratio += Mathf.Clamp((_clock.nightRatio - (1 + startRatio)) / periodDuration, 0, 1);
-            } else {
-                ratio = 0;
-            }
+            return;
         }
 
-        return ratio;
+        EnsurePersistent();
     }
 }
