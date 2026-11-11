@@ -3,7 +3,7 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight wave 9)
+### Status Now (2026-11-11 overnight wave 10)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
@@ -11,8 +11,8 @@
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
 - **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual.
 - Domain apply via `IWorldDomainSink` / `WorldPacketApply`. Do **not** split Net.Contract codecs client-only. Skip multi-type hubs (`NetworkCommands`, `L2InterludeTileManifest`, `NetStatusSession`).
-- **ACS hub file-splits (overnight through ~#1195):** landed through ~#1187+; open queue continues residual partials + primary hubs. Gap-preserving splitter (stem-aware for residual `Foo.Bar.cs`). LifetimeScope→`Fineage.Di` remains hard residual.
-- Epic **#131** next: keep landing greens into `dev`, drain ≥160-line hubs, then LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **ACS hub file-splits (overnight through ~#1204):** primary + residual partial waves continuously landing into `dev` (gap-preserving / stem-aware splitter). Remaining ≥~175-line hubs keep shrinking. LifetimeScope→`Fineage.Di` remains hard residual.
+- Epic **#131** next: keep draining hubs; LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary
