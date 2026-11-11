@@ -16,31 +16,10 @@ public abstract partial class L2Window : MonoBehaviour
     protected MouseOverDetectionManipulator _mouseOverDetection;
     protected List<string> _listDropDown;
 
-    void Start()
-    {
-        _isWindowHidden = false;
-        EnsureAssetsLoaded();
-    }
 
     protected abstract void LoadAssets();
 
-    protected void EnsureAssetsLoaded()
-    {
-        if (_windowTemplate != null)
-            return;
-        LoadAssets();
-    }
 
-    protected VisualTreeAsset LoadAsset(string assetPath)
-    {
-        VisualTreeAsset asset = Resources.Load<VisualTreeAsset>(assetPath);
-        if (asset == null)
-        {
-            Debug.LogError($"[L2Window] Could not load UI template '{assetPath}' on {GetType().Name}.");
-        }
-
-        return asset;
-    }
 
     protected bool _isCenter = false;
     protected bool _isReg = false;
