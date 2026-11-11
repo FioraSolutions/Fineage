@@ -26,13 +26,15 @@ Do not burn Opus on routine edits. Do not vibe-code architecture on Composer alo
 
 ## Delivery
 
-1. **Refactor before Gremlin features.** Epic **#131** (client architecture) before heavy epic **#129** (Gremlin smoke) on the client.
-2. **Merge when `build-and-test` is green** (branch up to date with `dev`). Do **not** wait for `unity-editmode` — it is not a required status check on `dev` (~20–25 min game-ci). See [`Docs/CI_AND_TESTING.md`](Docs/CI_AND_TESTING.md).
-3. **Small PRs.** Prefer narrow diffs; rebase onto `origin/dev` (client) before review.
+1. **Primary focus:** gameplay debug, graphics/import, Interlude parity. Stabilize A–C bar is **met** — do not block play/assets on LifetimeScope→`Fineage.Di`.
+2. **#131 residual** is opportunistic only (when a concrete change hurts). Do not grind DAT/World seams as a finish-line before features.
+3. **#129 Gremlin smoke** is fine when useful; do not dump large feature layers onto ACS when a thin seam clearly belongs first.
+4. **Merge when `build-and-test` is green** (branch up to date with `dev`). Do **not** wait for `unity-editmode` — it is not a required status check on `dev` (~20–25 min game-ci). See [`Docs/CI_AND_TESTING.md`](Docs/CI_AND_TESTING.md).
+5. **Small PRs.** Prefer narrow diffs; rebase onto `origin/dev` (client) before review.
 
-## Where to start (refactor)
+## Where to start
 
-Read **“Agent start here”** in [`Docs/REFACTOR_PLAN_2026-11.md`](Docs/REFACTOR_PLAN_2026-11.md) and **Status Now** in [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md). Client next hard residual: LifetimeScope / gameplay MonoBehaviours into `Fineage.*` when cycle-safe. Backend: [`Fineage-Backend/docs/ZONE_MODULARIZATION.md`](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/ZONE_MODULARIZATION.md) + epic [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353).
+Read **“Agent start here”** in [`Docs/REFACTOR_PLAN_2026-11.md`](Docs/REFACTOR_PLAN_2026-11.md) and **Status Now** in [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md). Primary: gameplay debug / graphics import. #131 LifetimeScope residual is background. Backend: [`Fineage-Backend/docs/ZONE_MODULARIZATION.md`](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/ZONE_MODULARIZATION.md) + epic [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353).
 
 ## GitHub Project
 

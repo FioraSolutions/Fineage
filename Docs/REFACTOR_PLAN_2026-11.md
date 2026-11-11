@@ -2,7 +2,7 @@
 
 Unified plan from architecture reviews (GPT + DeepSeek + Claude 2026-11-09), reconciled with epics **#131** (client arch) and **#112** (net scale), `AGENTS.md`, and code on `dev` as of **2026-11-09**.
 
-**Do not** chase 20k CCU / Gateway / Redis yet. Stabilize **one Zone** + client apply path first. Prefer #131 before packing more #129 Gremlin surface onto the Unity monolith.
+**Do not** chase 20k CCU / Gateway / Redis yet. Stabilize **one Zone** + client apply path first — **that bar is now MET for gameplay debug + graphics import**. #131 LifetimeScope residual is opportunistic; primary work is play/parity/assets (and #129 smoke when useful).
 
 ## North star (keep)
 
@@ -344,15 +344,16 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 ---
 
-## Agent start here (as of 2026-11-11 evening+)
+## Agent start here (as of 2026-11-11 — gameplay-debug bar)
 
-**Status Now:** Di seams through `IGameManager` / `ISceneLoader` / `ILobbySession` / `IWorldEntityLookup` / `ISkillNameTable` / `ISkillgrpLookup` / `IZoneTransport` / `PacketApplyQueue` (+ leaf waves ~#1334–#1340+). LifetimeScope shells still ACS. Next: more cycle-safe DAT table interfaces + inject off concrete `World`. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
+**Status Now:** Stabilize A–C bar for **gameplay debug + graphics import is MET** (~80–85%). Di seams through `IGameManager` / `ISceneLoader` / `ILobbySession` / `IWorldEntityLookup` / `ISkillNameTable` / `ISkillgrpLookup` / `IZoneTransport` / `PacketApplyQueue` (+ leaf waves ~#1334–#1341). LifetimeScope shells still ACS — **ongoing residual, not the gate**. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
 
-**Progress (stabilize path A+B+C / epics #131+#353):** ~80–85%. Backend #353 acceptance largely met. Client **hard residual = move LifetimeScope / GameRuntime / LoginRuntime / DiBootstrap into `Fineage.Di`** — blocked on ACS `World`, windows, DAT tables, PacketServices until more interfaces exist.
+**Primary focus now:** debug gameplay, import graphics / Interlude assets, parity fixes. Backend #353 acceptance largely met. Phase D scale still later.
 
 | Track | Do next | Do **not** |
 |-------|---------|------------|
-| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) | More cycle-safe DAT table interfaces + inject off concrete `World`; then Scope shells → `Fineage.Di` | Empty hub file-splits; invent HUD; pack Gremlin #129 onto unreformed ACS; fat `IDatRegistry` / ACS `ItemName` |
+| Client primary | Gameplay debug, graphics/import, Interlude parity; #129 smoke when useful | Wait on LifetimeScope→`Fineage.Di` before play/assets; invent HUD |
+| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) residual | Opportunistic seams only when they unblock concrete pain | DAT/World grind as finish-line; empty hub splits; fat `IDatRegistry` / ACS `ItemName` |
 | Backend [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) | Opportunistic hub residual only; sim actor / retire `_gate` later when measured | Microservices; rewrite ZoneWorld; invent non-Mobius rules |
 | A6 | TLS / Gateway before public internet (#17 / #113) | Treat Phase D scale as current work |
 | Docs | Keep this plan + epic bodies honest after each wave | Trust unchecked boxes in old review prose without Status Now |
@@ -390,4 +391,4 @@ Living client Status Now: [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-
 - [x] Client ACS hub file-splits continued (TargetWindow Properties/Effects; CharacterInfoWindow Build/Chrome/Tabs/Values; ProjectileManager Impact/Update; FineageZoneTransport Commands/Helpers)
 - [x] Client ACS hub file-splits continued (#911–#927: EntitySpawnShared / PlayerInventory / CreatorTableWindows / NetworkCommands / ClanWindow / SceneLoader / EnchantWindow / Entity / EntityActionSkill / DealerWindow / BaseAnimationController / NetGearSession.Map / L2SlotManager / NetCommandSender / ItemDropPresentation / DayNightCycle / ParticleStreamRuntime)
 - [x] Client ACS hub file-splits continued (CharSelectWindow Lobby/Interlude/Actions; WorldPacketApply Combat/Movement; EntityActionVisual Combat/Helpers; SkillbarWindow Dock/Layout/Shortcuts)
-- [ ] LifetimeScope / gameplay MB asmdef remains hard residual (#131) — **next primary client work**
+- [ ] LifetimeScope / gameplay MB asmdef remains #131 residual — **opportunistic only; not the gameplay-debug gate**
