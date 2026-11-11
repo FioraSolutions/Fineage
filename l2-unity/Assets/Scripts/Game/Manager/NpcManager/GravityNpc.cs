@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GravityNpc : MonoBehaviour, IGravity
+public partial class GravityNpc : MonoBehaviour, IGravity
 {
 
     private Dictionary<int, GravityData> _dict;
@@ -22,80 +22,11 @@ public class GravityNpc : MonoBehaviour, IGravity
 
 
 
-    private void Awake()
-    {
-        if ((_instance as UnityEngine.Object) == null)
-        {
-            _instance = this;
-            GravityNpcPacketServices.Bind(gravity: this);
-            _dict = new Dictionary<int, GravityData>();
-            _remove = new List<int>();
-            _direction = Vector3.zero;
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
 
-    private void FixedUpdate()
-    {
-        if (_dict == null || _dict.Count == 0) return;
-        //Debug.Log("GravityData size " + _dict.Count);
-        foreach (KeyValuePair<int, GravityData> kvp in _dict)
-        {
-            GravityData data = kvp.Value;
-            CharacterController controller = data.GetControllerToTypeEntity();
 
-            if (controller == null || !controller.enabled || !controller.gameObject.activeInHierarchy)
-            {
-                // Pooled/despawned entity left in dict — drop next Delete pass.
-                _remove.Add(kvp.Key);
-                continue;
-            }
 
-            if (!data.IsDead())
-            {
-                // Spawn gate: wait until WorldPlacement + colliders are live before yanking down.
-                if (data.ArmFrames > 0)
-                {
-                    data.ArmFrames--;
-                    continue;
-                }
 
-                Vector3 ajustedDirection = _direction * _speed * _moveSpeedMultiplier + Vector3.down * _gravity;
-                controller.Move(ajustedDirection * Time.deltaTime);
-            }
-        }
-
-        Delete(_dict, _remove);
-        _remove.Clear();
-    }
-
-    public void AddGravity(int id, GravityData data)
-    {
-        if (!_dict.ContainsKey(id))
-        {
-            _dict.Add(id, data);
-        }
-    }
-
-    private void Delete(Dictionary<int, GravityData> dict , List<int> remove)
-    {
-        if(remove.Count > 0)
-        {
-            foreach (int id in remove)
-            {
-                if (dict.ContainsKey(id)) dict.Remove(id);
-            }
-        }
-    }
-
-    public void DeleteGravity(int id)
-    {
-        _remove.Add(id);
-    }
 
 
     //public void Sync()
@@ -104,9 +35,4 @@ public class GravityNpc : MonoBehaviour, IGravity
     //}
 
 
-    void OnDestroy()
-    {
-        if (ReferenceEquals(_instance, this))
-            _instance = null;
-    }
 }
