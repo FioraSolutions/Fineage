@@ -8,7 +8,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
     {
         RegisterAppEventProcessor(builder);
         RegisterGameManager(builder);
-        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<SceneLoader>(this, builder);
+        RegisterSceneLoader(builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameClient>(this, builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<LoginClient>(this, builder);
 
