@@ -1,10 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Null-safe Input System polls for call sites that used to hit the legacy Input Manager.
-/// </summary>
-public static class PollInput
+public static partial class PollInput
 {
     /// <summary>Screen-space mouse position. (0,0) when no mouse is present.</summary>
     public static Vector2 MousePosition
@@ -58,17 +55,7 @@ public static class PollInput
     public static bool RightMouseHeld => Mouse.current != null && Mouse.current.rightButton.isPressed;
     public static bool MiddleMouseHeld => Mouse.current != null && Mouse.current.middleButton.isPressed;
 
-    public static bool KeyDown(Key key)
-    {
-        Keyboard keyboard = Keyboard.current;
-        return keyboard != null && keyboard[key].wasPressedThisFrame;
-    }
 
-    public static bool KeyHeld(Key key)
-    {
-        Keyboard keyboard = Keyboard.current;
-        return keyboard != null && keyboard[key].isPressed;
-    }
 
     public static bool EscapeDown => KeyDown(Key.Escape);
     public static bool EnterDown => KeyDown(Key.Enter) || KeyDown(Key.NumpadEnter);

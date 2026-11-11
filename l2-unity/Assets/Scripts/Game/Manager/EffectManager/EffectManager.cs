@@ -49,53 +49,11 @@ public partial class EffectManager : MonoBehaviour
 
     public int RegistryCount => _byId.Count;
 
-    void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            GlobalEffectsPacketServices.Bind(effects: this);
-            WireGamePacketServices();
-            BuildRegistry();
-        }
-        else if (_instance != this)
-        {
-            Destroy(this);
-            return;
-        }
-    }
 
-    private void Start()
-    {
-        WireGamePacketServices();
-        if (!_registryBuilt)
-            BuildRegistry();
-    }
 
-    private void WireGamePacketServices()
-    {
-        GamePacketServices.Bind(animations: _animations);
-    }
 
     /// <summary>
     /// Impact FX parent. Scene Active under World is destroyed on relogin;
     /// keep a live child on this (DDOL) manager instead of aborting PlayEffect.
     /// </summary>
-    Transform EnsureActiveEffectsContainer()
-    {
-        if (_activeEffectsContainer != null)
-            return _activeEffectsContainer;
-
-        Transform existing = transform.Find("ActiveEffects");
-        if (existing != null)
-        {
-            _activeEffectsContainer = existing;
-            return _activeEffectsContainer;
-        }
-
-        var go = new GameObject("ActiveEffects");
-        go.transform.SetParent(transform, false);
-        _activeEffectsContainer = go.transform;
-        return _activeEffectsContainer;
-    }
 }
