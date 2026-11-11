@@ -16,7 +16,8 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         builder.Register<IconManager>(Lifetime.Singleton);
         builder.Register<LobbyFlowController>(Lifetime.Singleton);
 
-        builder.Register<PacketApplyQueue>(Lifetime.Singleton);
+        builder.Register<EventProcessorApplyPump>(Lifetime.Singleton).As<IMainThreadApplyPump>();
+        builder.Register<PacketApplyQueue>(Lifetime.Singleton).As<IPacketApplyQueue>().AsSelf();
         builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
         builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().AsSelf();
         RegisterDatTables(builder);
