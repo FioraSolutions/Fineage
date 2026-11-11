@@ -8,7 +8,7 @@ public sealed partial class GameLifetimeScope
     void RegisterWorldServices(IContainerBuilder builder)
     {
         GameScopePlayerControllerRegistration.Register(builder);
-        RegisterIfFound<World>(builder);
+        RegisterWorld(builder);
         RegisterIfFound<WorldCombat>(builder);
         // Late-bound after the scope (#142 slice 4): these live in Input.prefab / UI.prefab
         // and are only searchable once the prefab is instantiated.
@@ -57,5 +57,15 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);
 
+    }
+
+    /// <summary>
+    /// Register scene <see cref="World"/> as itself and <see cref="IWorldEntityLookup"/> (#131).
+    /// </summary>
+    void RegisterWorld(IContainerBuilder builder)
+    {
+        World local = UnityEngine.Object.FindFirstObjectByType<World>(FindObjectsInactive.Include);
+        if (local != null)
+            builder.RegisterComponent(local).AsSelf().As<IWorldEntityLookup>();
     }
 }

@@ -3,16 +3,17 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 evening)
+### Status Now (2026-11-11 evening+)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** leaf waves through **#1338**+; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`GameState`/LUT/Formulas leaves in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
+- **Asmdef:** leaf waves through **#1339**+; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`ILobbySession`/`IWorldEntityLookup`/`GameState`/LUT/Formulas leaves in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
 - **`IZoneTransport` in Fineage.Networking:** local profile via ACS `FineageZoneTransport` / `ZoneCommands.LocalPlayerInfo`.
-- **NOT DONE — hard residual:** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS (register concretes + PacketServices). Seams landed: `IGameManager`, `ISceneLoader`, `ILobbySession`, apply-queue/transport contracts.
-- Epic **#131** next: extract `IWorldEntityLookup` / DAT registry; then move scope shells into `Fineage.Di`. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **`IWorldEntityLookup`:** Transform-only resolve in Fineage.Game; `World` implements + Game scope registers `As<IWorldEntityLookup>`; FX hydrate uses it (Entity hydrate still ACS).
+- **NOT DONE — hard residual:** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS (register concretes + PacketServices). Seams landed: `IGameManager`, `ISceneLoader`, `ILobbySession`, `IWorldEntityLookup`, apply-queue/transport contracts.
+- Epic **#131** next: DAT registry seam; more ACS→interface inject sites; then move scope shells into `Fineage.Di`. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary

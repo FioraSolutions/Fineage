@@ -78,6 +78,13 @@ public partial class World
         return null;
     }
 
+    /// <inheritdoc cref="IWorldEntityLookup.FindTransformNoLock"/>
+    public Transform FindTransformNoLock(int objectId)
+    {
+        Entity entity = GetEntityNoLockSync(objectId);
+        return entity != null ? entity.transform : null;
+    }
+
     public void ForEachEntity(Action<Entity> action)
     {
         if (action == null)
