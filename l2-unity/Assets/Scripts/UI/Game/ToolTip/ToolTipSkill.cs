@@ -6,9 +6,14 @@ using System.Xml;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public partial class ToolTipSkill : L2PopupWindow, IToolTips
 {
+    [Inject] ISkillNameTable _skillNames;
+
+    ISkillNameTable SkillNames =>
+        _skillNames != null ? _skillNames : TablePacketServices.SkillNames;
 
     private ShowToolTip _showToolTip;
 

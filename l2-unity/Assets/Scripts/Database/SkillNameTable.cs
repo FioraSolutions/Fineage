@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
-public partial class SkillNameTable
+public partial class SkillNameTable : ISkillNameTable
 {
     private static SkillNameTable _instance;
     private static Dictionary<int, Dictionary<int, SkillNameData>> _names;

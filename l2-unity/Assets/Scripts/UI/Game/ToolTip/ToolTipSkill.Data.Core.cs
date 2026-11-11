@@ -11,7 +11,12 @@ public partial class ToolTipSkill
         string level = skillgrp.Level.ToString();
         string nameActiveSkill = GetActive(skillgrp.OperateType);
 
-        if (desc.Equals("")) desc = TablePacketServices.SkillNames.GetName(skillgrp.Id, 1).Desc;
+        if (desc.Equals(""))
+        {
+            SkillNameData fallback = SkillNames != null ? SkillNames.GetName(skillgrp.Id, 1) : null;
+            if (fallback != null)
+                desc = fallback.Desc;
+        }
 
 
         SetDataTooTip(DataEmpty(hp), DataEmpty(mp), DataEmpty(radius), desc, DataEmpty(time), nameActiveSkill , name, level);

@@ -346,13 +346,13 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 ## Agent start here (as of 2026-11-11 evening+)
 
-**Status Now:** Di seams through `IGameManager` / `ISceneLoader` / `ILobbySession` / `IWorldEntityLookup` / `IZoneTransport` / `PacketApplyQueue` (+ leaf waves ~#1334–#1339+). LifetimeScope shells still ACS. Next: DAT registry + more inject sites off concrete `World`. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
+**Status Now:** Di seams through `IGameManager` / `ISceneLoader` / `ILobbySession` / `IWorldEntityLookup` / `ISkillNameTable` / `ISkillgrpLookup` / `IZoneTransport` / `PacketApplyQueue` (+ leaf waves ~#1334–#1340+). LifetimeScope shells still ACS. Next: more cycle-safe DAT table interfaces + inject off concrete `World`. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
 
 **Progress (stabilize path A+B+C / epics #131+#353):** ~80–85%. Backend #353 acceptance largely met. Client **hard residual = move LifetimeScope / GameRuntime / LoginRuntime / DiBootstrap into `Fineage.Di`** — blocked on ACS `World`, windows, DAT tables, PacketServices until more interfaces exist.
 
 | Track | Do next | Do **not** |
 |-------|---------|------------|
-| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) | DAT registry + more inject off concrete `World`; cycle-safe leaves; then Scope shells → `Fineage.Di` | Empty hub file-splits; invent HUD; pack Gremlin #129 onto unreformed ACS |
+| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) | More cycle-safe DAT table interfaces + inject off concrete `World`; then Scope shells → `Fineage.Di` | Empty hub file-splits; invent HUD; pack Gremlin #129 onto unreformed ACS; fat `IDatRegistry` / ACS `ItemName` |
 | Backend [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) | Opportunistic hub residual only; sim actor / retire `_gate` later when measured | Microservices; rewrite ZoneWorld; invent non-Mobius rules |
 | A6 | TLS / Gateway before public internet (#17 / #113) | Treat Phase D scale as current work |
 | Docs | Keep this plan + epic bodies honest after each wave | Trust unchecked boxes in old review prose without Status Now |

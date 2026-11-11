@@ -25,9 +25,9 @@ public partial class BufferPanel : L2Window
     public VisualElement _content;
     private FilterData _filterData;
 
-    [Inject] SkillgrpTable _skillGrps;
+    [Inject] ISkillgrpLookup _skillGrps;
 
-    private SkillgrpTable SkillGrps
+    private ISkillgrpLookup SkillGrps
     {
         get { return _skillGrps != null ? _skillGrps : TablePacketServices.SkillGrps; }
     }

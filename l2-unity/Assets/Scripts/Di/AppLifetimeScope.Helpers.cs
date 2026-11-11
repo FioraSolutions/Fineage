@@ -20,8 +20,8 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         builder.RegisterInstance(TablePacketServices.ActionNames);
         builder.RegisterInstance(TablePacketServices.AnimLengths);
         builder.RegisterInstance(TablePacketServices.SysStrings);
-        builder.RegisterInstance(TablePacketServices.SkillNames);
-        builder.RegisterInstance(TablePacketServices.SkillGrps);
+        builder.RegisterInstance(TablePacketServices.SkillNames).AsSelf().As<ISkillNameTable>();
+        builder.RegisterInstance(TablePacketServices.SkillGrps).AsSelf().As<ISkillgrpLookup>();
         builder.RegisterInstance(TablePacketServices.MobSkillAnimGrps);
         builder.RegisterInstance(TablePacketServices.AnimTweens);
         builder.RegisterInstance(TablePacketServices.EnterEvents);
