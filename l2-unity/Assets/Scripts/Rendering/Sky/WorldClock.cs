@@ -25,7 +25,7 @@ public struct Clock {
 }
 
 [ExecuteInEditMode]
-public partial class WorldClock : MonoBehaviour {
+public partial class WorldClock : MonoBehaviour
 {
     [SerializeField] private float _dayDurationMinutes = 2.5f;
     [SerializeField] private string _timeHour;
