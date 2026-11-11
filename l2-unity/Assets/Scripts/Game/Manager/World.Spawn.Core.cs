@@ -17,6 +17,7 @@ public partial class World
         int id = player.Identity.Id;
         _players[id] = player;
         _objects[id] = player;
+        _entityWait.Notify(id, player);
     }
 
     public void RegisterUser(Entity user)
@@ -26,10 +27,14 @@ public partial class World
 
         int id = user.Identity.Id;
         if (_objects.ContainsKey(id))
+        {
+            _entityWait.Notify(id, _objects[id]);
             return;
+        }
 
         _players[id] = user;
         _objects[id] = user;
+        _entityWait.Notify(id, user);
     }
 
     public void SpawnUser(CharInfoDto info)
