@@ -1,3 +1,4 @@
+using UnityEngine;
 using VContainer;
 
 /// <summary>
@@ -16,7 +17,9 @@ public static class ProjectilePacketServices
     public static IProjectileManager Projectiles =>
         _projectiles != null
             ? _projectiles
-            : ResolveFromGame<IProjectileManager>() ?? LegacyProjectileManagerInstance();
+            : ResolveFromGame<IProjectileManager>()
+              ?? LegacyProjectileManagerInstance()
+              ?? FindAndBind();
 
     static T ResolveFromGame<T>() where T : class
     {
@@ -36,4 +39,13 @@ public static class ProjectilePacketServices
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
     static IProjectileManager LegacyProjectileManagerInstance() => ProjectileManager.Instance;
 #pragma warning restore CS0618
+
+    static IProjectileManager FindAndBind()
+    {
+        ProjectileManager found =
+            Object.FindFirstObjectByType<ProjectileManager>(FindObjectsInactive.Include);
+        if (found != null)
+            Bind(found);
+        return found;
+    }
 }

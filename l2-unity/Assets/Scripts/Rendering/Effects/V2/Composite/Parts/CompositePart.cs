@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[System.Serializable]
 public abstract partial class CompositePart : ISerializationCallbackReceiver
 {
     public string name;

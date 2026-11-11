@@ -34,6 +34,28 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
         }
     }
 
+    bool ShouldLaunchShotOnSpawn(CompositePart part)
+    {
+        ShotProjectilePart shot = part as ShotProjectilePart;
+        if (shot == null || !shot.ShouldLaunchOnShoot)
+        {
+            return false;
+        }
+
+        if (_castData != null && _castData.SpawnShotVisualsImmediately)
+        {
+            return true;
+        }
+
+        if (_castData == null)
+        {
+            return true;
+        }
+
+        float shootAt = _castData.StartTime + Mathf.Max(0f, _castData.serverTimeToShoot);
+        return Time.time + 0.05f >= shootAt;
+    }
+
     void ExtendLifetimeThroughProjectileImpact(EffectSettings lifeTimeSettings)
     {
         if (lifeTimeSettings == null ||

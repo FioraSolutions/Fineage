@@ -1,5 +1,7 @@
 using UnityEngine;
 
+// Required for SerializeReference on CompositeEffectV2._v2Parts (lost in hub split #1209).
+[System.Serializable]
 public sealed partial class ShotProjectilePart : CompositePart
 {
     public ProjectileLaunchMode launchMode = ProjectileLaunchMode.OnAnimationShoot;
@@ -14,6 +16,9 @@ public sealed partial class ShotProjectilePart : CompositePart
     public override bool IsLaunchedProjectile =>
         launchMode == ProjectileLaunchMode.Immediate ||
         launchMode == ProjectileLaunchMode.OnAnimationShoot;
+
+    // Keep fl alive across composite HitTime destroy; ProjectileManager owns lifetime.
+    public override bool OutlivesComposite => IsLaunchedProjectile;
 
     public override bool UsesCastHitLifetime => false;
 

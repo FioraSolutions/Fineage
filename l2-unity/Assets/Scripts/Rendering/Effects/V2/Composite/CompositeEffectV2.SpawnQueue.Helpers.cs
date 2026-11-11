@@ -27,6 +27,9 @@ public partial class CompositeEffectV2
             if (part.spawnTiming == CompositePartSpawnTiming.OnAnimationShoot)
             {
                 _pendingAnimationShoot.Add(part);
+                // CastClip / late AnimationEvents often never reach V2. Also schedule
+                // the flying orb at serverTimeToShoot so ProcessV2Shoot is not the only path.
+                ScheduleServerShootBackup(part);
                 if (TraceCrasherWind())
                     Debug.Log("[WINDSTRIKE] Composite queue shoot part=" + part.name);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -81,5 +84,30 @@ public partial class CompositeEffectV2
             }
 #endif
         }
+    }
+
+    void ScheduleServerShootBackup(CompositePart part)
+    {
+        if (part == null || _castData == null || _castData.serverTimeToShoot <= 0f)
+        {
+            return;
+        }
+
+        float spawnAt = _castData.StartTime + _castData.serverTimeToShoot;
+        for (int i = 0; i < _pendingDelayed.Count; i++)
+        {
+            PendingV2Part pending = _pendingDelayed[i];
+            if (pending != null && pending.Part == part)
+            {
+                pending.SpawnAtTime = Mathf.Min(pending.SpawnAtTime, spawnAt);
+                return;
+            }
+        }
+
+        _pendingDelayed.Add(new PendingV2Part
+        {
+            Part = part,
+            SpawnAtTime = spawnAt
+        });
     }
 }

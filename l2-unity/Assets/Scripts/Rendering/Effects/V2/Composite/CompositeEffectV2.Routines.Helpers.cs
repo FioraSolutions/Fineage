@@ -76,25 +76,47 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
             yield return new WaitForSeconds(remaining);
         }
 
-        // Let the Animator dispatch an event that crossed the same wall during
-        // this frame. This routine is diagnostic only and never launches.
+        // One frame for CastClip / Animator to dispatch OnAnimationShoot on the same wall.
         yield return null;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        float fromCast = Time.time - _castData.StartTime;
-        string message =
-            $"{DebugPrefix} [MAGIC_SHOOT_WATCHDOG] directObserved={_v2DirectShootObserved} " +
-            $"fromCast={fromCast:F3}s expected={FallbackShootDelay():F3}s " +
-            $"pending={_pendingAnimationShoot.Count} launched={_launchedProjectiles.Count}.";
-        if (_v2DirectShootObserved)
+        // Match legacy CompositePrefabEffect.ShootFallbackRoutine: if the anim event
+        // never reached us (CastClip path / late GetAnimationEvents), still spawn+launch
+        // the flying orb (el_*_fl). Also retry when a direct event observed but launch failed.
+        if (!_v2DirectShootObserved ||
+            HasUnlaunchedShotProjectile() ||
+            _pendingAnimationShoot.Count > 0)
         {
-            // Debug.Log(message);
+            RefreshV2Context();
+            // Late subscribe can still help hit/ta parts after launch.
+            if (!_v2SubscribedShoot || _v2AnimationEvents == null)
+                SubscribeV2ShootIfNeeded();
+            ProcessV2Shoot(_v2DirectShootObserved ? "fallback-retry" : "fallback");
         }
-        else
-        {
-            // Debug.LogWarning(message + " AnimationEvent was not received; projectile was NOT launched.");
-        }
-#endif
+
         _v2ShootWatchdogRoutine = null;
+    }
+
+    bool HasUnlaunchedShotProjectile()
+    {
+        if (_v2Parts == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _v2Parts.Length; i++)
+        {
+            ShotProjectilePart shot = _v2Parts[i] as ShotProjectilePart;
+            if (shot == null || !shot.IsLaunchedProjectile)
+            {
+                continue;
+            }
+
+            if (!_launchedProjectiles.Contains(shot))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

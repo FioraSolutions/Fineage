@@ -52,24 +52,30 @@ public partial class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
                 return ResolveTargetCenter(context.CasterEntity, context.CasterTransform, out resolvedTransform, out worldPosition);
             case EffectAttachmentPoint.WorldHitPoint:
             {
+                // Never fall back to the caster — that paints impact FX on the mage.
+                Transform targetRoot = context.TargetTransform;
+                Entity targetEntity = context.TargetEntity;
+                if (targetRoot == null && targetEntity == null)
+                {
+                    return false;
+                }
+
                 if (context.HasHitPoint)
                 {
                     worldPosition = context.HitPoint;
+                    resolvedTransform = targetRoot != null
+                        ? targetRoot
+                        : HitAnchorResolver.ResolveHitAnchor(targetEntity, null);
                     return true;
                 }
 
-                Transform fallbackTarget = context.TargetTransform != null
-                    ? context.TargetTransform
-                    : context.CasterTransform;
-                Entity fallbackEntity = context.TargetEntity != null
-                    ? context.TargetEntity
-                    : context.CasterEntity;
-                Transform hitAnchor = HitAnchorResolver.ResolveHitAnchor(fallbackEntity, fallbackTarget);
+                Transform hitAnchor = HitAnchorResolver.ResolveHitAnchor(targetEntity, targetRoot);
                 if (hitAnchor == null)
                 {
                     return false;
                 }
 
+                resolvedTransform = hitAnchor;
                 worldPosition = hitAnchor.position;
                 return true;
             }

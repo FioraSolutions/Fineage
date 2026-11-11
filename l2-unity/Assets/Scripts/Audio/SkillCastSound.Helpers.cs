@@ -56,6 +56,16 @@ public static partial class SkillCastSound
             " shot=" + (shotClip ?? "-") + " ok=" + shotOk +
             " voiceThrow=" + (throwVoiceKind ?? "-"));
 
+        // Flying skill orb (el_*_fl) — CastClip AnimationShoot often never reaches V2.
+        try
+        {
+            MagicSkillOrbLaunch.TryForceAtRelease(caster, skillId);
+        }
+        catch (Exception orbEx)
+        {
+            Debug.LogWarning("[ShotOrb] RELEASE force failed: " + orbEx.Message);
+        }
+
         if (caster != null && caster.IsSpiritshotCharged)
             caster.IsSpiritshotCharged = false;
     }
