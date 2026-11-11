@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-public partial class SkillgrpTable
+public partial class SkillgrpTable : ISkillgrpLookup
 {
     private static SkillgrpTable _instance;
 

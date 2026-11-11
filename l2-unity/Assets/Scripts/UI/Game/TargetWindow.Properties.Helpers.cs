@@ -10,11 +10,11 @@ public partial class TargetWindow
         if (ClassicPropertySkillRemap.TryGetValue(skillId, out int remapped))
             resolvedId = remapped;
 
-        Skillgrp skill = TablePacketServices.SkillGrps != null
-            ? TablePacketServices.SkillGrps.GetSkill(resolvedId, level)
+        Skillgrp skill = SkillGrps != null
+            ? SkillGrps.GetSkill(resolvedId, level)
             : null;
-        SkillNameData nameData = TablePacketServices.SkillNames != null
-            ? TablePacketServices.SkillNames.GetName(resolvedId, level)
+        SkillNameData nameData = SkillNames != null
+            ? SkillNames.GetName(resolvedId, level)
             : null;
 
         var icon = new VisualElement();

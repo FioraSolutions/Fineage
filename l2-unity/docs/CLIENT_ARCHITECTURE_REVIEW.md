@@ -12,8 +12,9 @@
 - **Asmdef:** leaf waves through **#1339**+; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`ILobbySession`/`IWorldEntityLookup`/`GameState`/LUT/Formulas leaves in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
 - **`IZoneTransport` in Fineage.Networking:** local profile via ACS `FineageZoneTransport` / `ZoneCommands.LocalPlayerInfo`.
 - **`IWorldEntityLookup`:** Transform-only resolve in Fineage.Game; `World` implements + Game scope registers `As<IWorldEntityLookup>`; FX hydrate uses it (Entity hydrate still ACS).
-- **NOT DONE — hard residual:** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS (register concretes + PacketServices). Seams landed: `IGameManager`, `ISceneLoader`, `ILobbySession`, `IWorldEntityLookup`, apply-queue/transport contracts.
-- Epic **#131** next: DAT registry seam; more ACS→interface inject sites; then move scope shells into `Fineage.Di`. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **DAT skill seams:** `ISkillNameTable` / `ISkillgrpLookup` in Fineage.Game; App scope registers; TargetWindow / ToolTipSkill / BufferPanel inject (ItemName still ACS — defer).
+- **NOT DONE — hard residual:** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS (register concretes + PacketServices). Seams landed: `IGameManager`, `ISceneLoader`, `ILobbySession`, `IWorldEntityLookup`, skill DAT lookups, apply-queue/transport contracts.
+- Epic **#131** next: more DAT table interfaces (cycle-safe only); more ACS→interface inject sites; then move scope shells into `Fineage.Di`. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary
