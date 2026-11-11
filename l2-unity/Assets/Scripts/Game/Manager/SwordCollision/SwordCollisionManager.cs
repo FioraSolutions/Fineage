@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-public class SwordCollisionService : MonoBehaviour
+public partial class SwordCollisionService : MonoBehaviour
 {
     [Inject] World _world;
 
@@ -74,24 +74,8 @@ public class SwordCollisionService : MonoBehaviour
     /// (EndAttack / packet race can clear it before the clip notify fires).
     /// </summary>
 
-    private void WireGamePacketServices()
-    {
-        GamePacketServices.Bind(gameWorld: _world);
-        SwordCollisionPacketServices.Bind(collision: this);
-    }
 
-    private void Awake()
-    {
-        if (_instance != null && _instance != this) { Destroy(gameObject); return; }
-        _instance = this;
-        SwordCollisionPacketServices.Bind(collision: this);
-        _entityMask = LayerMask.GetMask("EntityClick");
-    }
 
-    private void Start()
-    {
-        WireGamePacketServices();
-    }
 
 
 
