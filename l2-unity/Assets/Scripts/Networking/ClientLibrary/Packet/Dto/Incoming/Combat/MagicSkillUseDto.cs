@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class MagicSkillUseDto : IWireDto
+public partial class MagicSkillUseDto : IWireDto
 {
     private int _attackerObjId;
     private int _targetObjId;
@@ -22,10 +22,6 @@ public class MagicSkillUseDto : IWireDto
     private int _critical;
     private Entity attacker;
 
-    public void SetAttacker(Entity entity)
-    {
-        attacker = entity;
-    }
     public Entity EntityAttacker { get => attacker; }
     public int SkillId { get => _skillId; }
 
@@ -46,56 +42,8 @@ public class MagicSkillUseDto : IWireDto
 
     
 
-    public void ReadFrom(PacketReader reader)
-    {
-        _attackerObjId = reader.ReadI();
-        _targetObjId = reader.ReadI();
-
-        _skillId = reader.ReadI();
-        // Debug.Log("MagicSkillUse->skillID " + _skillId);
-        _skilllvl = reader.ReadI();
-        _hittime = reader.ReadI();
-        // Debug.Log("MagicSkillUse->hittime " + _hittime);
-        _reusedelay = reader.ReadI();
-
-        _aX = reader.ReadI();
-        _aY = reader.ReadI();
-        _aZ = reader.ReadI();
-        _attackerPos = VectorUtils.ConvertPosToUnity(new Vector3(_aX, _aY, _aZ));
-        
-        _critical = reader.ReadI();
-
-        if(_critical == 1)
-        {
-            reader.ReadSh();
-        }
-
-        _tX = reader.ReadI();
-        _tY = reader.ReadI();
-        _tZ = reader.ReadI();
-        _targetPos = VectorUtils.ConvertPosToUnity(new Vector3(_tX, _tY, _tZ));
-        _skillGrp = TablePacketServices.SkillGrps.GetSkill(_skillId, _skilllvl);
-    }
 
     /// <summary>Fineage Net <c>MagicSkillUse</c> (1066) — positions come from entities at apply time.</summary>
-    public void InitFromNet(
-        int casterObjectId,
-        int targetObjectId,
-        int skillId,
-        int skillLevel,
-        int hitTimeMs,
-        int reuseDelayMs)
-    {
-        _attackerObjId = casterObjectId;
-        _targetObjId = targetObjectId;
-        _skillId = skillId;
-        _skilllvl = skillLevel;
-        _hittime = hitTimeMs;
-        _reusedelay = reuseDelayMs;
-        _skillGrp = TablePacketServices.SkillGrps != null
-            ? TablePacketServices.SkillGrps.GetSkill(_skillId, _skilllvl)
-            : null;
-    }
 
 
 }
