@@ -7,7 +7,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         RegisterAppEventProcessor(builder);
-        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameManager>(this, builder);
+        RegisterGameManager(builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<SceneLoader>(this, builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameClient>(this, builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<LoginClient>(this, builder);
@@ -40,12 +40,12 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             SkillNameTable.Bind(container.Resolve<SkillNameTable>());
             IZoneTransport transport = container.Resolve<IZoneTransport>();
             ZoneCommands.Bind(transport);
-            GameManager manager = container.Resolve<GameManager>();
+            IGameManager manager = container.Resolve<IGameManager>();
             transport.OnDisconnected += () => manager.OnDisconnect();
             AppLoginSessionApplyIncomingPacketServices.BindApp(
                 container.Resolve<GameClient>(),
                 container.Resolve<LoginClient>(),
-                manager,
+                container.Resolve<GameManager>(),
                 container.Resolve<PacketApplyQueue>(),
                 container.Resolve<EventProcessor>());
             // NetworkingPacketServices.Bind(manager) already done in BindApp above.

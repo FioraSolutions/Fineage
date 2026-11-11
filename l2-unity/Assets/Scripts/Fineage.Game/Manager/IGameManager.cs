@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 
 /// <summary>
-/// Networking-facing contract of <see cref="GameManager"/>.
-/// Packet handlers and transport adapters should depend on this interface
-/// rather than the concrete MonoBehaviour so that the lobby-flow surface
-/// is explicit and testable.
+/// Networking/lobby contract of <see cref="GameManager"/>.
+/// Packet handlers, transport adapters, and Di scopes should depend on this
+/// rather than the concrete MonoBehaviour (#131).
 /// </summary>
 public interface IGameManager
 {
     int ProtocolVersion { get; }
     bool IsSwitchingServer { get; set; }
     bool WorldSpawnReady { get; }
+    GameState GameState { get; }
 
     void OnLoginServerConnected();
     void OnLoginServerAuthAllowed();
