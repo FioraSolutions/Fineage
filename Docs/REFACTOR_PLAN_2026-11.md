@@ -337,6 +337,10 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - **Fixed:** `Connected` = zone TCP open (`NetSession.IsZoneSocketConnected`); added `HasSession`, `ZoneConnectionState` / resolver (+ tools tests).
 - Residual: full reconnect/resync state machine still B5; session host / `Ensure()` drain is A02.
 
+### C4c. World entity wait (GPT A04) — done
+- Replace `World.GetEntityAsync` `Task.Delay(150)` poll with `ObjectIdWaitMap` (notify on Register*, fail on unregister, cancel on clear/destroy).
+- Timeout remains 150ms for parity; early complete when spawn registers. Tools tests cover the wait map.
+
 ### C5. NetZoneDispatch holes — done (#879)
 - Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
 - Add `default` warning so unknown opcodes are visible.

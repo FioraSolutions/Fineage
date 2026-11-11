@@ -2,6 +2,7 @@ using System;
 
 using System.Collections.Generic;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 
 using UnityEngine;
@@ -75,6 +76,14 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
     {
         get { return _itemsContainer != null ? _itemsContainer.transform : null; }
     }
+
+    /// <summary>
+    /// Default wait for an entity that has not been registered yet.
+    /// Kept near the historical 150ms poll so late packets still time out instead of hanging.
+    /// </summary>
+    public static readonly TimeSpan EntityWaitTimeout = TimeSpan.FromMilliseconds(150);
+
+    readonly ObjectIdWaitMap<Entity> _entityWait = new ObjectIdWaitMap<Entity>();
 
     private Dictionary<int, Entity> _players = new Dictionary<int, Entity>();
     private Dictionary<int, Entity> _npcs = new Dictionary<int, Entity>();
