@@ -1,66 +1,24 @@
-public sealed partial class FineageZoneTransport
+using System;
+using Fineage.Net.Contract;
+using UnityEngine;
+
+public sealed partial class FineageZoneTransport : IZoneTransport
 {
-    static bool TrySendNetPartyUserCommand(int commandId)
+    public void Disconnect()
     {
-        int targetId = ResolveSelectedTargetObjectId();
-        switch (commandId)
-        {
-            case 16:
-                if (targetId <= 0)
-                    return true;
-                Session.SendPartyInviteRequest(targetId, 0);
-                return true;
-            case 17:
-                Session.SendPartyLeaveRequest();
-                return true;
-            case 18:
-                if (targetId <= 0)
-                    return true;
-                Session.SendPartyKickRequest(targetId);
-                return true;
-            default:
-                return false;
-        }
+        NetSession session = NetworkingPacketServices.Session;
+        if (session != null)
+            UnityEngine.Object.Destroy(session.gameObject);
+        NotifyDisconnected();
     }
 
-    static bool TrySendNetTradeUserCommand(int commandId)
+    public void NotifyDisconnected()
     {
-        if (commandId != (int)PlayerCommand.TRADE)
-            return false;
-        int targetId = ResolveSelectedTargetObjectId();
-        if (targetId <= 0)
-            return true;
-        Session.SendTradeRequest(targetId);
-        return true;
+        if (_disconnectNotified)
+            return;
+        _disconnectNotified = true;
+        OnDisconnected?.Invoke();
     }
 
-    static int ResolveSelectedTargetObjectId()
-    {
-        TargetManager targets = ControllerPacketServices.Targets;
-        if (targets == null)
-            return 0;
-        TargetData target = targets.Target ?? targets.AttackTarget;
-        if (target?.Identity != null)
-            return target.Identity.Id;
-        return 0;
-    }
-
-    static bool IsAdminBypass(string bypass)
-    {
-        if (string.IsNullOrWhiteSpace(bypass))
-            return false;
-        string text = bypass.Trim();
-        if (text.StartsWith("bypass -h ", System.StringComparison.OrdinalIgnoreCase))
-            text = text.Substring("bypass -h ".Length).TrimStart();
-        else if (text.StartsWith("bypass ", System.StringComparison.OrdinalIgnoreCase))
-            text = text.Substring("bypass ".Length).TrimStart();
-        if (text.StartsWith("npc_", System.StringComparison.OrdinalIgnoreCase))
-        {
-            int split = text.IndexOf('_', 4);
-            if (split > 4)
-                text = text.Substring(split + 1).TrimStart();
-        }
-        return text.StartsWith("admin_", System.StringComparison.OrdinalIgnoreCase);
-    }
-
+    internal void ResetDisconnectLatch() => _disconnectNotified = false;
 }
