@@ -88,7 +88,7 @@ public sealed partial class NameplateEntryStore
             bool isLocal = DomainPacketServices.LocalPlayer != null && e.Entity == DomainPacketServices.LocalPlayer;
             L2TargetRenderType bubbleType = _resolver.ResolveForPaint(e.Target, isLocal);
             float castRem = isLocal ? CastBarOverlay.Remaining01 : -1f;
-            Color nameColor = NameplateColors.Resolve(e.Entity, Color.white);
+            Color nameColor = NameplateColorsEntity.Resolve(e.Entity, Color.white);
             e.NameColor = nameColor;
 
             paintList.Add(new NameplatePaintItem
