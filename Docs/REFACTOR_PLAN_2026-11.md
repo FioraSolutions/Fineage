@@ -346,6 +346,8 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 ## Agent start here (as of 2026-11-10 night)
 
+**Status Now:** overnight hub-split wave 2 through ~#1076. LifetimeScope→Fineage.Di still hard residual. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
+
 **Progress (stabilize path A+B+C / epics #131+#353):** ~75–80%. Backend modularization acceptance largely met (~85–90%). Client leaf MB waves + large ACS hub file-splits landed overnight; **hard residual = LifetimeScope types themselves / remaining gameplay MonoBehaviours → `Fineage.*` when cycle-safe**.
 
 | Track | Do next | Do **not** |

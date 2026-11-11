@@ -3,24 +3,16 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight)
+### Status Now (2026-11-11 overnight wave 2)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT; geodata + nameplate never-throw paths landed.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded; `LifetimeScopeMonoRegistration` in `Fineage.Di`. Leaf cycle-safe MBs continue into `Fineage.Game`. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual.
+- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded; `LifetimeScopeMonoRegistration` in `Fineage.Di`. Leaf cycle-safe MBs continue into `Fineage.Game`. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual (Game/App/Login scopes still under `Scripts/Di/`, ACS-bound by PacketServices/UI Mono refs).
 - Domain apply: `NetSession` / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. Do **not** split `Fineage.Net.Contract` codecs client-only (sync-net-contract gate).
-- **ACS hub file-splits (overnight wave through ~#1057):** HitManager Impact/Remote, TargetManager.Next, Gear SyncUnequip/SyncQuery/EquipApply, World Remove/QueryFind/SpawnPlace, CameraController Motion/Heading, CombatFacingService.Tick, NetGearSession.Apply, PlayerEntity.Speed, L2SlotManager.Ops.DragDrop, BaseEffect.Lifecycle, Entity.Status, EntityActionSkill Enter/Resolve, PlayerShortcuts, ObjectPoolManager, WorldPacketApply.Status, MultiSell/Dealer/SkillList/Nameplate/Inventory, rendering hubs (CompositePrefabEffect.Play, Ribbon, Sky Clock/Cloud/Haze/Star, ActorPointLights, VertexLight, ShaderHold, SunMask). Continue opportunistic splits on hubs still ≥~280 lines; LifetimeScope→`Fineage.Di` when cycle-safe.
-- **CI:** Merge gate = **`build-and-test`** green (do not wait on `unity-editmode`).
+- **ACS hub file-splits (overnight through ~#1076):** prior wave (#1048–#1062) plus CompositePrefabEffect.PlaySpawn*, CompositeEffectV2 Spawn/Launch/Shoot/Routines/Log/Destroy (#1065), L2HtmlRenderer Tags/Text/Controls/Parse/Layout* (#1066), HomeProjectileTrailVelocityProvider (#1067), ParticleSingle (#1068), ParticleGroupV2 (#1069), LobbyCharacter type files (#1070), L2YebisLiveCapture (#1071), CastClipPlayable (#1072), ParticleGroup (#1073), AbstractGetCache (#1074), L2CelestialDiscs (#1075), HomeProjectileMover (#1076). Continue hubs ≥~280 lines; LifetimeScope→`Fineage.Di` when cycle-safe.
 - Epic **#131** next: LifetimeScope / gameplay MonoBehaviours into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md) (“Agent start here”).
-
-> **Original date:** 2026-10-27
-> **Scope:** `Assets/Scripts/` — Di, Networking (Domain, Adapters, Interlude, V2),
-> Game, Controller, UI, and cross-cutting concerns.
-> **Codebase size (then):** ~1 329 C# files, 145 MonoBehaviours, ~140 singleton instances.
-
----
 
 ## Executive Summary
 
