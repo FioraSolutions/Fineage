@@ -4,10 +4,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Installs remapped per-instance L2 sun visibility bytes into TEXCOORD3.
-/// The byte contains one visibility bit for each of the eight three-hour slots.
-/// </summary>
 public sealed partial class L2StaticMeshSunMaskRuntime : MonoBehaviour
 {
     [Serializable]
@@ -61,25 +57,6 @@ public sealed partial class L2StaticMeshSunMaskRuntime : MonoBehaviour
         }
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    static void Install()
-    {
-        if (_installed)
-            return;
-        _installed = true;
-        if (!LoadSunMasks)
-        {
-            // Debug.Log("[L2StaticMeshSunMask] load paused");
-            return;
-        }
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        for (int i = 0; i < SceneManager.sceneCount; i++)
-            ApplyScene(SceneManager.GetSceneAt(i));
-    }
 
-    static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        ApplyScene(scene);
-    }
 
 }
