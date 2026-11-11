@@ -2,32 +2,38 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
+/// <summary>
+/// ACS façade over <see cref="AppContainers"/> plus GameScope inject (#131).
+/// </summary>
 public static class App
 {
-    public static IObjectResolver Container { get; set; }
-    public static IObjectResolver GameContainer { get; set; }
-
-    public static bool HasContainer
+    public static IObjectResolver Container
     {
-        get { return Container != null; }
+        get { return AppContainers.Container; }
+        set { AppContainers.Container = value; }
     }
 
-    public static T Resolve<T>()
+    public static IObjectResolver GameContainer
     {
-        return Container.Resolve<T>();
+        get { return AppContainers.GameContainer; }
+        set { AppContainers.GameContainer = value; }
     }
+
+    public static bool HasContainer => AppContainers.HasContainer;
+
+    public static T Resolve<T>() => AppContainers.Resolve<T>();
 
     public static void InjectGameObject(GameObject go)
     {
         if (go == null)
             return;
-        if (GameContainer == null)
+        if (AppContainers.GameContainer == null)
         {
-            GameLifetimeScope scope = UnityEngine.Object.FindFirstObjectByType<GameLifetimeScope>(FindObjectsInactive.Include);
+            GameLifetimeScope scope = Object.FindFirstObjectByType<GameLifetimeScope>(FindObjectsInactive.Include);
             if (scope != null)
-                GameContainer = scope.Container;
+                AppContainers.GameContainer = scope.Container;
         }
-        if (GameContainer != null)
-            GameContainer.InjectGameObject(go);
+        if (AppContainers.GameContainer != null)
+            AppContainers.GameContainer.InjectGameObject(go);
     }
 }

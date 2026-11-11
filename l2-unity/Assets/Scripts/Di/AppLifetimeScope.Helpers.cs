@@ -37,4 +37,16 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             events = gameObject.AddComponent<EventProcessor>();
         builder.RegisterComponent(events);
     }
+
+    /// <summary>
+    /// Register scene <see cref="GameManager"/> as itself and <see cref="IGameManager"/> (#131).
+    /// </summary>
+    private void RegisterGameManager(IContainerBuilder builder)
+    {
+        GameManager local = GetComponent<GameManager>();
+        if (local == null)
+            local = Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
+        if (local != null)
+            builder.RegisterComponent(local).AsSelf().As<IGameManager>();
+    }
 }

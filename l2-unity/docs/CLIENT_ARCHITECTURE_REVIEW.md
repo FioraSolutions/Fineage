@@ -9,10 +9,10 @@
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** leaf waves through **#1334**; `PacketApplyQueue` / `IPacketApplyQueue` / `IMainThreadApplyPump` in `Fineage.Networking` with ACS `EventProcessorApplyPump`.
-- **`IZoneTransport` still ACS:** `PlayerInfoInterlude` pulls `EntityIdentity` / `CharacterSkills` / Fineage.Game status types — cannot land in Networking without splitting `PlayerInfo` off the contract or migrating that DTO graph.
-- **NOT DONE — hard residual:** LifetimeScope / runtimes / `App` / `DiBootstrap` still ACS. Next Di seams: split `IZoneTransport.PlayerInfo`, `IGameManager`→Controller, `App` container statics→`Fineage.Di`.
-- Epic **#131** next: more Di-facing interfaces, not empty hub waves. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **Asmdef:** leaf waves through **#1335**; `PacketApplyQueue` + pump in Networking; `IGameManager` + `GameState` in `Fineage.Game`; `AppContainers` in `Fineage.Di` (ACS `App` keeps InjectGameObject).
+- **`IZoneTransport` still ACS:** `PlayerInfoInterlude` DTO graph blocks Networking move until `PlayerInfo` is split off.
+- **NOT DONE — hard residual:** LifetimeScope / runtimes / `DiBootstrap` still ACS. Next: more scope callbacks on interfaces; avoid empty hub waves.
+- Epic **#131** next: Di-facing seams. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary

@@ -29,9 +29,8 @@ public sealed class LoginLifetimeScope : LifetimeScope
                 {
                     LobbyFlowController lobby = App.Container.Resolve<LobbyFlowController>();
                     lobby.WireLogin(loginRuntime);
-                    GameManager manager = App.Container.Resolve<GameManager>();
-                    if (loginRuntime.Ui != null)
-                        manager.WireLoginUi(loginRuntime.Ui);
+                    // Login UI bind is LobbyFlowController.WireLogin / LobbyUiPacketServices —
+                    // GameManager.WireLoginUi never existed (ACS leftover).
                 }
                 catch
                 {
