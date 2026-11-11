@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using static L2Slot;
 
-public class CreatorTradingWindows : AbstractCreator , ICreatorTradeTab
+public partial class CreatorTradingWindows : AbstractCreator , ICreatorTradeTab
 {
     public event Action<int> EventSwitchTabByIndexOfTab;
     private VisualTreeAsset[] _templates;
@@ -16,74 +16,12 @@ public class CreatorTradingWindows : AbstractCreator , ICreatorTradeTab
         L2InventoryUiAssets.TabHeader,
     };
 
-    public void LoadAsset(Func<string, VisualTreeAsset> loaderFunc)
-    {
-        _templates = new VisualTreeAsset[loadTemplate.Length];
-
-        for (int i = 0; i < loadTemplate.Length; i++)
-        {
-            _templates[i] = loaderFunc(loadTemplate[i]);
-        }
-    }
-
-    public void CreateTradeTabs(VisualElement inventoryTabView , SlotType slotType = SlotType.Multisell , bool isDragged = false)
-    {
-        if(inventoryTabView == null)
-        {
-            // Debug.LogWarning("CreatorTradingWindows > CreateTradeTabs: Not Found inventoryTabView ");
-            return;
-        }
-
-        var tabTemplate = _templates[0];
-        var tabHeaderTemplate = _templates[1];
-        base.CreateTradeTabs(inventoryTabView, tabTemplate, tabHeaderTemplate , slotType, isDragged);
-    }
-
-    public void ClearSlots(List<ItemInstance> oldListItems)
-    {
-        base.ClearSlotsActiveTab(oldListItems);
-    }
-
-    public void SetClickActiveTab(int position)
-    {
-        if(_activeTab != null)
-        {
-            _activeTab.OnClickLeftEvent(position);
-        }
-    }
-
-    public TradeTab GetMainTab()
-    {
-        foreach (TradeTab tab in _tabsTradeTabs)
-        {
-            if(tab != null & tab.GetMainTab() == true)
-            {
-                return tab;
-            }
-        }
-
-        return null;
-    }
 
 
-    public void AddData(List<ItemInstance> allItems)
-    {
-        List<ItemInstance> allItemsInstance =  allItems.OfType<ItemInstance>().ToList();
 
-        if (_activeTab != null)
-        {
-            _activeTab.AddDataTrade(allItemsInstance);
-        }
-    }
 
-    public ItemInstance GetActiveByPosition(int position)
-    {
-        if(_activeTab != null)
-        {
-           return _activeTab.GetSlotByPosition(position);
-        }
 
-        return null;
-    }
+
+
 
 }
