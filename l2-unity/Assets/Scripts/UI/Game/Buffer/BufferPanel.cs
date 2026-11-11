@@ -32,57 +32,10 @@ public partial class BufferPanel : L2Window
         get { return _skillGrps != null ? _skillGrps : TablePacketServices.SkillGrps; }
     }
 
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            _dictElement = new Dictionary<int, DataCell>();
-            _filterData = new FilterData(_dictElement);
-            _bLink = new BLink(this);
-            WireAuxiliaryGameUIPacketServices();
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
-    private void Start()
-    {
-        WireAuxiliaryGameUIPacketServices();
-    }
 
-    private void WireAuxiliaryGameUIPacketServices()
-    {
-        AuxiliaryGameUIPacketServices.Bind(buffer: this);
-        // EnterWorld may have stashed AbnormalStatusUpdate before this tray existed.
-        ApplyServices.Status?.FlushPendingSelfAbnormals();
-    }
 
-    protected override void LoadAssets()
-    {
-        _barSlotTemplate = LoadAsset("Data/UI/_Elements/Template/SlotBuffer");
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Buffer/SkillTray");
-    }
 
-    protected override IEnumerator BuildWindow(VisualElement root)
-    {
-        InitWindow(root);
-
-        var dragArea = GetElementByClass("drag-area");
-        _content = GetElementById("content");
-        
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
-
-        CreateItemsPanel1();
-
-        yield return new WaitForEndOfFrame();
-
-        _content.style.opacity = 0;
-        MovePanelToChatPosition(_defaultLeftOffset);
-    }
 
 
 
@@ -125,13 +78,5 @@ public partial class BufferPanel : L2Window
 
 
 
-    private void OnDestroy()
-    {
-        if (_instance == this)
-            _instance = null;
-        _dictElement?.Clear();
-        _dictElement = null;
-        _bLink?.OnDisable();
-    }
 
 }
