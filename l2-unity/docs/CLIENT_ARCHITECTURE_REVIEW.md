@@ -3,16 +3,16 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight wave 10)
+### Status Now (2026-11-11 overnight wave 11)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual.
+- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual (`Assets/Scripts/Di/*LifetimeScope*`).
 - Domain apply via `IWorldDomainSink` / `WorldPacketApply`. Do **not** split Net.Contract codecs client-only. Skip multi-type hubs (`NetworkCommands`, `L2InterludeTileManifest`, `NetStatusSession`).
-- **ACS hub file-splits (overnight through ~#1204):** primary + residual partial waves continuously landing into `dev` (gap-preserving / stem-aware splitter). Remaining ≥~175-line hubs keep shrinking. LifetimeScope→`Fineage.Di` remains hard residual.
-- Epic **#131** next: keep draining hubs; LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **ACS hub file-splits (overnight through ~#1210):** landed through **#1208**; open **#1209**–**#1210** residual partials. Primary ≥160 hubs largely drained; first-level residual partials continue (≥150). LifetimeScope→`Fineage.Di` remains hard residual.
+- Epic **#131** next: land greens into `dev`, drain remaining residual partials, then LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary
