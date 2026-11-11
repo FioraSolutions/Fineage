@@ -1,20 +1,8 @@
-/// <summary>
-/// Login UI access to services with [Inject] wiring and Networking/live fallback (#142).
-/// </summary>
-public static class LoginPacketServices
+public static partial class LoginPacketServices
 {
     private static LoginRuntime _login;
 
-    public static void Bind(LoginRuntime login = null)
-    {
-        if (login != null)
-            _login = login;
-    }
 
-    public static void ClearLoginRuntime()
-    {
-        _login = null;
-    }
 
     public static LoginClient LoginClient =>
         _login != null ? _login.LoginClient : NetworkingPacketServices.Login;
@@ -58,20 +46,12 @@ public static class LoginPacketServices
         (_login != null ? _login.Camera : null) ?? LegacyLoginCameraInstance();
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
-    static L2LoginUI LegacyL2LoginUiInstance() => L2LoginUI.Instance;
 
-    static LicenseWindow LegacyLicenseWindowInstance() => LicenseWindow.Instance;
 
-    static ServerSelectWindow LegacyServerSelectWindowInstance() => ServerSelectWindow.Instance;
 
-    static CharSelectWindow LegacyCharSelectWindowInstance() => CharSelectWindow.Instance;
 
-    static CharCreationWindow LegacyCharCreationWindowInstance() => CharCreationWindow.Instance;
 
-    static CharacterSelector LegacyCharacterSelectorInstance() => CharacterSelector.Instance;
 
-    static CharacterCreator LegacyCharacterCreatorInstance() => CharacterCreator.Instance;
 
-    static LoginCameraManager LegacyLoginCameraInstance() => LoginCameraManager.Instance;
 #pragma warning restore CS0618
 }
