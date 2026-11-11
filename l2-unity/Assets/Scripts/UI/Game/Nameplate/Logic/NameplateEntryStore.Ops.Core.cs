@@ -65,7 +65,7 @@ public sealed partial class NameplateEntryStore
             Entity = entity,
             Name = idn.Name,
             Title = idn.Title ?? string.Empty,
-            NameColor = NameplateColors.Resolve(entity, defaultNameColor),
+            NameColor = NameplateColorsEntity.Resolve(entity, defaultNameColor),
             TitleColor = titleColor,
             Visible = true
         };
