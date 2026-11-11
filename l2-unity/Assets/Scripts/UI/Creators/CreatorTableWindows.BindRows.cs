@@ -45,12 +45,13 @@ public partial class CreatorTableWindows
    }
 
     private void ResetCursorOnMouseDown(MouseDownEvent evt) =>
-
+        UnityEngine.Cursor.SetCursor(_defaultCursor, Vector2.zero, UnityEngine.CursorMode.Auto);
     private void ResetCursorOnMouseUp(MouseUpEvent evt) =>
-
+        UnityEngine.Cursor.SetCursor(_defaultCursor, Vector2.zero, UnityEngine.CursorMode.Auto);
     private void ResetCursorOnPointerMove(PointerMoveEvent evt) =>
-
+        UnityEngine.Cursor.SetCursor(_defaultCursor, Vector2.zero, UnityEngine.CursorMode.Auto);
     private void ResetCursorOnPointerDown(PointerDownEvent evt) =>
+        UnityEngine.Cursor.SetCursor(_defaultCursor, Vector2.zero, UnityEngine.CursorMode.Auto);
 
     private void UnregisterRowCallbacks(VisualElement listRows)
     {

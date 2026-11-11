@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
+using System.Collections;
 
 public partial class SelectableCharacterEntity : MonoBehaviour
 {

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class RecipeData 
 {
     private string _alias;

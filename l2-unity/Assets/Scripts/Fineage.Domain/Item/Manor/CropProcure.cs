@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class CropProcure : SeedProduction
 {
     private int _reward;

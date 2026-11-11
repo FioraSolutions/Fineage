@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections;
 
 public partial class SkillbarMin : AbstractSkillbar
 {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 public sealed class StatusUpdateDto : INetworkModel
 {

@@ -1,3 +1,11 @@
+using System;
+using UnityEngine.UIElements;
+using static L2Slot;
+using VContainer;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
 public partial class ToolTipSimple : L2PopupWindow, IToolTips
 {
     private ShowToolTip _showToolTip;
@@ -20,9 +28,7 @@ public partial class ToolTipSimple : L2PopupWindow, IToolTips
     private VisualElement _selectShow;
     private TooltipDataProvider _dataProvider;
     private CalcNewPosition _calcPosition;
+    private bool _isForceBelow = false;
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static ToolTipSimple Instance { get { return _instance; } }
-
-
-
 }

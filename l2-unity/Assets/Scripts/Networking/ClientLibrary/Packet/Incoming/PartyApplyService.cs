@@ -1,4 +1,6 @@
 using VContainer;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Party apply set (invitation, join result, roster), constructed by the container instead

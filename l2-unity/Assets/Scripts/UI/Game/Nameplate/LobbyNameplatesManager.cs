@@ -3,6 +3,7 @@ using System;
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using VContainer;
 
 /// <summary>
 /// Lobby names — same L2 canvas path as <see cref="NameplatesManager"/>:

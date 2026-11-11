@@ -1,4 +1,10 @@
-﻿public partial class TableFunction
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+public partial class TableFunction
 {
     public void RemoveByName(string rowName ,  List<TableColumn> columnsList , ListView listView , ref int currentSelectIndex , Action<int, string> OnRowClicked)
     {

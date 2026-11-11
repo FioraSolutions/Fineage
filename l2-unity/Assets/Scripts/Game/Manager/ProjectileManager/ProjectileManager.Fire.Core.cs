@@ -1,4 +1,10 @@
-﻿public partial class ProjectileManager : AbstractProjectile, IProjectileManager
+﻿using System;
+using UnityEngine;
+using UnityEngine.ProBuilder;
+using System.Collections.Generic;
+using VContainer;
+
+public partial class ProjectileManager : AbstractProjectile, IProjectileManager
 {
     public int LaunchProjectile(GameObject readyProjectile, Vector3 startPos, Transform target, ProjectileData settings = null, float offset = 0.3f)
     {

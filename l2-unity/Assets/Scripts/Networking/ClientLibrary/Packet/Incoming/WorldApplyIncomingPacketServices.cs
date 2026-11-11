@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// World presence / AOI incoming handler access via domain facades (#142 sub-slice 52; session hub slice 221).

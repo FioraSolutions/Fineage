@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class SitStandAction : L2Action
 {
     public SitStandAction() : base() { }

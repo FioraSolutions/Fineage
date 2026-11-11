@@ -1,5 +1,13 @@
 
 
+using NUnit.Framework.Internal;
+using System;
+using UnityEngine.UIElements;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
 public abstract partial class L2Window
 {
     protected Label GetLabelById(string id)

@@ -6,6 +6,7 @@ using System.Xml;
 using UnityEngine;
 using static StatusUpdate;
 using static UnityEngine.EventSystems.EventTrigger;
+using VContainer;
 
 public partial class WorldCombat : MonoBehaviour
 {

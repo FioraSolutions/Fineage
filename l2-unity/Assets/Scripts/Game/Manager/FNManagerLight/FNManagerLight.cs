@@ -2,6 +2,7 @@ using System;
 
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// Runtime pool for effect hit flashes (L2 FNPawnLight-style).

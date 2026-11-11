@@ -1,4 +1,8 @@
-﻿public partial class CharSelectInfoPackage
+﻿using System.Xml.Linq;
+using System.Collections;
+using System.Collections.Generic;
+
+public partial class CharSelectInfoPackage
 {
     private PlayerAppearance _appearance;
     private PaperDollSelection _paperDool;

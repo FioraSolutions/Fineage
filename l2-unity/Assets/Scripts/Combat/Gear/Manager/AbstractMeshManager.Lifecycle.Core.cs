@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using VContainer;
+using System;
 
 public partial class AbstractMeshManager : MonoBehaviour
 {
@@ -61,6 +62,6 @@ public partial class AbstractMeshManager : MonoBehaviour
                 return pooled;
         }
 
-        return Object.Instantiate(originalGameObject);
+        return UnityEngine.Object.Instantiate(originalGameObject);
     }
 }

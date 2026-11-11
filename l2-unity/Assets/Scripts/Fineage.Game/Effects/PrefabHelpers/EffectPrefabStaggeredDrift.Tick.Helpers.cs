@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public sealed partial class EffectPrefabStaggeredDrift : MonoBehaviour
 {

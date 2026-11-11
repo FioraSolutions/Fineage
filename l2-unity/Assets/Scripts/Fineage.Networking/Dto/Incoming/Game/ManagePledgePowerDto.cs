@@ -1,4 +1,6 @@
 
+using System;
+
 public class ManagePledgePowerDto : IWireDto
 {
     private int _rank;

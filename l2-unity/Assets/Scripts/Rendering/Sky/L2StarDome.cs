@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VContainer;
 
 public partial class L2StarDome : MonoBehaviour
 {

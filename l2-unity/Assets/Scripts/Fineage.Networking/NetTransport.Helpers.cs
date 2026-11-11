@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Fineage.Net.Contract;
+using UnityEngine;
 
 public sealed partial class NetTransport : IDisposable
 {

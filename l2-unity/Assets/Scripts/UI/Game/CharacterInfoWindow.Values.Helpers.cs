@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
 
 public partial class CharacterInfoWindow
 {

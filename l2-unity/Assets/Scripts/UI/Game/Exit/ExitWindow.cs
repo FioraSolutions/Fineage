@@ -1,4 +1,9 @@
 using System;
+using VContainer;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public partial class ExitWindow : L2PopupWindow
 {

@@ -1,4 +1,5 @@
-﻿public class ShortCutRegisterDto : IWireDto
+﻿
+public class ShortCutRegisterDto : IWireDto
 {
     private Shortcut shortcut;
     

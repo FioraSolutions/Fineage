@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using UnityEditor;
 using UnityEngine;
+using VContainer;
 
 public partial class Geodata : MonoBehaviour
 {

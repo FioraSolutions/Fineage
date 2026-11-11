@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 public class ChatTypeData
 {
     public int Id;

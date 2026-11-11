@@ -1,5 +1,5 @@
-﻿using Unity.Jobs;
-using UnityEngine;
+﻿using UnityEngine;
+using Unity.Jobs;
 
 /// <summary>
 /// Thin Unity orchestrator. Inspector fields stay here for prefab serialization.
@@ -49,4 +49,8 @@ public partial class ParticleGroup : EffectPart
     public bool IsHomeFlightAnchor =>
         _homeFlightAnchor || (_hasRuntimeHomeFlightProfile && _runtimeHomeFlightProfile.isFlightAnchor);
 
+    ParticleGroupRendererService Renderers =>
+        _renderers ??= new ParticleGroupRendererService(this);
+
+    internal JobHandle ConsumeExpireHandle() => _simulation.ConsumeExpireHandle();
 }

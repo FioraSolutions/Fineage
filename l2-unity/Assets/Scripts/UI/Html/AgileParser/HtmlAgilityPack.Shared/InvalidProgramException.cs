@@ -8,6 +8,7 @@
 #if METRO
 
 using System.Runtime.InteropServices;
+using System;
 
 namespace System
 {

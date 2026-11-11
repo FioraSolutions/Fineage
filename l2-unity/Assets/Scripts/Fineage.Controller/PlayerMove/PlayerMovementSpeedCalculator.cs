@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class PlayerMovementSpeedCalculator : ICalcSpeed
 {
     private float _defaultRunSpeed;

@@ -1,4 +1,7 @@
-﻿public partial class L2WeaponChargeGroup : BaseEffectGroup, IWeaponEffect
+﻿using UnityEngine;
+using UnityEngine.VFX;
+
+public partial class L2WeaponChargeGroup : BaseEffectGroup, IWeaponEffect
 {
     private Transform _weaponTransform;
     private Transform _swordTip;

@@ -1,5 +1,6 @@
 using Fineage.Net.Contract;
 using UnityEngine;
+using System;
 
 public sealed partial class FineageZoneTransport
 {
@@ -224,7 +225,6 @@ public sealed partial class FineageZoneTransport
         // with no trace, and the caller has no way to tell it apart from a delivered command.
         FineageLog.Warn(FineageLogCategory.GameNet, "TX dropped (no Net opcode): " + command.GetType().Name);
         return true;
-        return false;
-    }}
-
+    }
 }
+

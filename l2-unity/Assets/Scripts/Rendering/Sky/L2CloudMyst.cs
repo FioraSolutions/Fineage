@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using VContainer;
 
 /// <summary>
 /// EID 1566 myst strip (noise over simple clouds). Disabled from DayNightCycle:

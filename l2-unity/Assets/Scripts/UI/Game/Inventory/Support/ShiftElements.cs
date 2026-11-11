@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class ShiftElements
 {
     public static void ShiftElementsLeft(InventorySlot[] inventorySlots, int newPosition)

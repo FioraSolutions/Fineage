@@ -1,4 +1,9 @@
 using System;
+using FMOD.Studio;
+using FMODUnity;
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public partial class MusicManager : MonoBehaviour
 {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using VContainer;
 
 public partial class ArmorgrpTable
 {
@@ -27,6 +28,13 @@ public partial class ArmorgrpTable
         }
     }
 
+
+    private Dictionary<int, Armorgrp> _armorgrps;
+    public Dictionary<int, Armorgrp> ArmorGrps { get { return _armorgrps; } }
+
+    private int indexPdef = 329;
+    private int indexMdef = 330;
+    private int indexMpBouns = 331;
 
     bool IsIndexValid<T>(T[] array, int index)
     {

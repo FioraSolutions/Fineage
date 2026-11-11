@@ -30,5 +30,30 @@ public partial class PlayerController : MonoBehaviour
     private Transform _lookAtTarget;
     private GearEffects _gearEffects;
 
+    public bool RunningToDestination { get { return _isMove; } }
+    public bool Running { get { return _running; } set { _running = value; } }
+    public Vector3 MoveDirection { get { return _moveDirection; } }
 
+    private static PlayerController _instance;
+    [System.Obsolete("Use [Inject] instead")]
+    public static PlayerController Instance { get { return _instance; } }
+
+    private Entity _monster;
+    private bool _isRotate = false;
+    private bool _isFinish = true;
+    private bool _turnsAround = true;
+
+    private float _moveTimer = 0f;
+
+    private bool _isFirst = false;
+
+    private bool _behindPlayer = false;
+    private bool _switchWalkToRun = false;
+    private bool _isRotateAttacker = false;
+    private Vector3 _attackerPosition;
+    public float angleThreshold = 3f;
+
+    private PlayerPositionSender _pp_sender;
+    private ICalcSpeed _calcSpeed;
 }
+

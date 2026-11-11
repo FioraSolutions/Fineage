@@ -1,8 +1,13 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using VContainer;
+using System.Collections;
+using System.Threading;
 
 //This partial class controls the threads
+public partial class PathFinderFactory : MonoBehaviour
 {
-
     //Delegates are a variable that points to a function
     public delegate void PathfindingJobComplete(List<Node> path);
 
@@ -17,9 +22,4 @@ using System;
     private static PathFinderFactory _instance;
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static PathFinderFactory Instance { get { return _instance; } }
-
-
-
-
-
 }

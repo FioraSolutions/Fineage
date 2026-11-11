@@ -1,3 +1,6 @@
+using UnityEngine;
+using System;
+
 public abstract partial class AbstractAttackEvents
 {
     private void CallBackStartShoot(string animName)

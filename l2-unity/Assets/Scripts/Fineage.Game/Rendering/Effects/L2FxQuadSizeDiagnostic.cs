@@ -1,6 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
 /// <summary>
 /// Reproduces calib sprite vertex-shader quad size in C# for debugging.
 /// Matches: sizeM = sizeUU / 52.5 * K in object space.

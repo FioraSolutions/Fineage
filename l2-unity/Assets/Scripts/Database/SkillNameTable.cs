@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
+using VContainer;
 
 public partial class SkillNameTable : ISkillNameTable
 {
@@ -35,5 +36,13 @@ public partial class SkillNameTable : ISkillNameTable
             return _instance;
         }
     }
+
+    private Dictionary<int, SkillNameData> CreateDict()
+    {
+        return new Dictionary<int, SkillNameData>();
+    }
+
+    private const int IndexName = 2;
+    private const int IndexDescription = 3;
 
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using UnityEngine;
+using VContainer;
 
 public partial class EventProcessor : MonoBehaviour
 {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Presence applies for NPCs, characters, ground items and teleports, constructed by the

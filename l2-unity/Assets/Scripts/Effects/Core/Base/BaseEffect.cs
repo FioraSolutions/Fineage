@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 public abstract partial class BaseEffect : MonoBehaviour
 {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-public partial class SwordCollisionManager
+public partial class SwordCollisionService
 {
     private void EmitTimedHit(TimedSwordHit timed)
     {

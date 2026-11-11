@@ -6,7 +6,35 @@ using UnityEngine.Rendering.Universal;
 
 public sealed partial class L2YebisPostRenderPass
 {
+    void ExecuteYebis(CommandBuffer cmd, RTHandle cameraColor, CameraData cameraData, RTHandle cameraDepth)
+    {
+        ExecuteYebis(
+            cmd,
+            cameraColor,
+            cameraData.cameraType,
+            cameraData.renderType,
+            cameraData.cameraTargetDescriptor.graphicsFormat,
+            cameraDepth);
+    }
+
     void ExecuteYebis(CommandBuffer cmd, RTHandle cameraColor, UniversalCameraData cameraData, RTHandle cameraDepth)
+    {
+        ExecuteYebis(
+            cmd,
+            cameraColor,
+            cameraData.cameraType,
+            cameraData.renderType,
+            cameraData.cameraTargetDescriptor.graphicsFormat,
+            cameraDepth);
+    }
+
+    void ExecuteYebis(
+        CommandBuffer cmd,
+        RTHandle cameraColor,
+        CameraType cameraType,
+        CameraRenderType renderType,
+        GraphicsFormat cameraFormat,
+        RTHandle cameraDepth)
     {
             BindParams();
 
@@ -44,8 +72,8 @@ public sealed partial class L2YebisPostRenderPass
             // Restore: wantBloom = intensity > 0.0001 && debug != 1. Saved intensity is yebisBloomIntensity (0.18).
             bool wantBloom = false;
 
-            bool gameBase = cameraData.cameraType == CameraType.Game
-                && cameraData.renderType == CameraRenderType.Base;
+            bool gameBase = cameraType == CameraType.Game
+                && renderType == CameraRenderType.Base;
             string captureFolder = null;
             if (gameBase && L2YebisLiveCapture.Consume())
             {
@@ -55,7 +83,6 @@ public sealed partial class L2YebisPostRenderPass
                 }
                 else
                 {
-                    var cameraFormat = cameraData.cameraTargetDescriptor.graphicsFormat;
                     float hours = WorldClockPacketServices.Clock != null ? WorldClockPacketServices.Clock.WorldHours : -1f;
                     captureFolder = L2YebisLiveCapture.CreateFolder(
                         hours,

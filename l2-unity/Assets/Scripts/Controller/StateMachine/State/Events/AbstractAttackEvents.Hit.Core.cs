@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public abstract partial class AbstractAttackEvents
 {
     protected void RegisterSwordCollision(PlayerEntity entity)

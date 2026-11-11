@@ -1,4 +1,12 @@
-﻿public partial class QuantityInput : L2PopupWindow
+﻿using System;
+using System.Collections;
+using System.Linq;
+using UnityEngine.UIElements;
+using static L2Slot;
+using System.Collections.Generic;
+using UnityEngine;
+
+public partial class QuantityInput : L2PopupWindow
 {
     protected override IEnumerator BuildWindow(VisualElement root)
     {

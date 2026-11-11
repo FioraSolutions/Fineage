@@ -1,4 +1,5 @@
 using VContainer;
+using UnityEngine;
 
 public sealed partial class GameRuntime
 {

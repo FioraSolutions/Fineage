@@ -8,6 +8,12 @@
 #if !METRO
 
 using System.Xml.XPath;
+using System;
+using System.Xml;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace HtmlAgilityPack
 {

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class ReplaceGearData
 {
     private ItemInstance _source;

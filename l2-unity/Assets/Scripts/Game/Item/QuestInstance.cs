@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class QuestInstance
 {
     private int _questID;

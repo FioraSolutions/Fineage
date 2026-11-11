@@ -77,4 +77,12 @@ public sealed partial class L2YebisPostRenderPass : ScriptableRenderPass
     bool _adaptedSeeded;
     int _execFrame;
 
+    sealed class YebisPassData
+    {
+        public TextureHandle color;
+        public TextureHandle depth;
+        public bool hasDepth;
+        public L2YebisPostRenderPass pass;
+        public UniversalCameraData cameraData;
+    }
 }

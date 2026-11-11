@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 /// <summary>
 /// Local cast timing clock (Interlude SetupGauge / MagicSkillUse HitTime).

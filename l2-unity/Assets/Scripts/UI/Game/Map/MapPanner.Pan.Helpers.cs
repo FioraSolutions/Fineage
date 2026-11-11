@@ -38,6 +38,16 @@ public partial class MapPanner
         evt.StopPropagation();
     }
 
+    void OnPointerUp(PointerUpEvent evt)
+    {
+        if (dragging)
+        {
+            _viewport.ReleasePointer(evt.pointerId);
+            dragging = false;
+            evt.StopPropagation();
+        }
+    }
+
     void OnPointerCancel(PointerCancelEvent evt)
     {
         if (dragging)

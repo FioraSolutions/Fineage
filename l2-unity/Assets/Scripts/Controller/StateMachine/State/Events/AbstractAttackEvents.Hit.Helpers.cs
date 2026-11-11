@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public abstract partial class AbstractAttackEvents
 {
     private void OnHitColliderMonster(Transform attacker, Transform target, Vector3 hitPointCollider, Vector3 hitDirection)

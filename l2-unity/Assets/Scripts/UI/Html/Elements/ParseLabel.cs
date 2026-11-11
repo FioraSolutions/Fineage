@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class ParseLabel : IElementsUI
 {
     private string _text;

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Fineage.Net.Contract;
 using UnityEngine;
+using System.Collections.Generic;
 
 public sealed partial class NetSession
 {

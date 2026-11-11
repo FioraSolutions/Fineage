@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class MyTargetSelectDto : IWireDto
 {
     private int _objectId;

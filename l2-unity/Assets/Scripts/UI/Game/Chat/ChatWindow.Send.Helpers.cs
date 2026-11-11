@@ -1,3 +1,10 @@
+using System;
+using UnityEngine.UIElements;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using VContainer;
+
 public partial class ChatWindow
 {
     private void OnChatInputFocus(FocusEvent evt)

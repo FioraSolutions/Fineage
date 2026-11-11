@@ -1,6 +1,7 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Text;
 
 public static partial class LobbyCleanGate
 {

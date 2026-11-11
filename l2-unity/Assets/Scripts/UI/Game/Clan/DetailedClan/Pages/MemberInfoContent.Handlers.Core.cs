@@ -1,3 +1,9 @@
+using System;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.UIElements;
+using System.Collections.Generic;
+using UnityEngine;
+
 public partial class MemberInfoContent
 {
     private void OnRankButtonClick(VisualElement centerBox)

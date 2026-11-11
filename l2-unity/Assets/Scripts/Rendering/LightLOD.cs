@@ -1,4 +1,12 @@
 ﻿#if UNITY_EDITOR
+#endif
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+using UnityEngine.Rendering;
+
+[ExecuteInEditMode]
+[RequireComponent(typeof(Light))]
 public partial class LightLOD : MonoBehaviour
 {
     Light _light;
@@ -14,10 +22,4 @@ public partial class LightLOD : MonoBehaviour
     List<LODAdjustment> LODLevels = new();
 
     bool _ready;
-
-
-
-
-
-
 }

@@ -39,3 +39,4 @@ public partial class PlayerController
         float radiusC = VectorUtils.ConvertL2jDataOffsetRadius(radius);
         return VectorUtils.GetCollisionEffect(transform, target, heightC, radiusC);
     }
+}

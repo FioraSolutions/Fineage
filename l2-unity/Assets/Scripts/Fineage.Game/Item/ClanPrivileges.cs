@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class ClanPrivileges 
 {
     public  const int CP_NOTHING = 0;

@@ -3,6 +3,7 @@ using System;
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class DetailedInfoWindow : L2PopupWindow
 {

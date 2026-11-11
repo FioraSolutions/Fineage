@@ -1,3 +1,7 @@
+
+using UnityEngine;
+using UnityEngine.UIElements;
+
 public partial class InventorySlot
 {
     protected override void HandleRightClick()

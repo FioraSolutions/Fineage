@@ -1,4 +1,11 @@
-﻿public abstract partial class AbstractCreator
+﻿using System;
+using System.Linq;
+using UnityEngine.UIElements;
+using static L2Slot;
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract partial class AbstractCreator
 {
     public void OnSwitchEvent(ITab tab , bool isTrade)
     {

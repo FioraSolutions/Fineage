@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>Apply the party member list for minimal roster feedback (#142 locator queue slice 258).</summary>
 public static class PartyMemberListApplyIncomingPacketServices

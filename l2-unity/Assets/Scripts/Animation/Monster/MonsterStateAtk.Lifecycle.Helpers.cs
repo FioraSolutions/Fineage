@@ -1,4 +1,7 @@
-﻿public partial class MonsterStateAtk : MonsterStateBase
+﻿using UnityEngine;
+using System;
+
+public partial class MonsterStateAtk : MonsterStateBase
 {
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
 

@@ -1,4 +1,10 @@
 using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UIElements;
+using System.Linq;
+using System.Collections.Generic;
+using VContainer;
 
 public partial class CharSelectWindow : L2Window
 {

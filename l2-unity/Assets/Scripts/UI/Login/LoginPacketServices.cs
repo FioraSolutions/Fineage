@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public static partial class LoginPacketServices
 {
     private static LoginRuntime _login;

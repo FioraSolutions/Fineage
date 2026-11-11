@@ -1,4 +1,7 @@
-﻿public partial class CreatorSets
+﻿using UnityEngine;
+using UnityEngine.UIElements;
+
+public partial class CreatorSets
 {
     private TemplateContainer CreateVisualElement(int i, Abstractgrp grpItem, string name, VisualTreeAsset setsTemplate , bool isEquip)
     {

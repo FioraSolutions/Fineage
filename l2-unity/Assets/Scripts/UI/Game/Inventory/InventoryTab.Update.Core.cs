@@ -1,3 +1,14 @@
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using static L2Slot;
+using static PlayerInventory;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+
 public partial class InventoryTab
 {
     public void UpdateItemList(List<ItemInstance> removeAndAdd , List<ItemInstance> modified , ChangeInventoryData changeInventoryData)

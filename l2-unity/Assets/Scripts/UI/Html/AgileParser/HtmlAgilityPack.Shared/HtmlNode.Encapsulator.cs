@@ -12,6 +12,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml.XPath;
+using System.ComponentModel;
+using System.Linq;
+using System.Xml;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
 
 namespace HtmlAgilityPack
 {

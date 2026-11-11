@@ -1,4 +1,10 @@
 ﻿#if UNITY_EDITOR
+#endif
+using UnityEngine;
+using UnityEditor;
+using System.Collections.Generic;
+using UnityEngine.Rendering;
+
 public partial class LightLOD : MonoBehaviour
 {
     void Awake()

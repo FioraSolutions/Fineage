@@ -1,4 +1,6 @@
-﻿public partial class FreeFlyCamera : MonoBehaviour
+using UnityEngine;
+
+public partial class FreeFlyCamera : MonoBehaviour
 {
     private void OnValidate() {
         if(_boostedSpeed < _movementSpeed)

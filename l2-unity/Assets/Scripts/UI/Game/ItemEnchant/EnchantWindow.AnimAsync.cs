@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
+using static L2Slot;
+using System.Collections;
+using VContainer;
 
 public partial class EnchantWindow
 {

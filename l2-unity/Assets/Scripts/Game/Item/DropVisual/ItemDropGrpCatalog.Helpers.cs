@@ -1,3 +1,5 @@
+using System;
+
 public sealed partial class ItemDropGrpCatalog
 {
     public bool IsStickWeapon(int itemId)

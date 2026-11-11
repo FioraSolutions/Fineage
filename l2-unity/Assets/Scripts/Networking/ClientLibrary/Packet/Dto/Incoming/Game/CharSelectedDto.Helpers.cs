@@ -1,4 +1,7 @@
-﻿public partial class CharSelectedDto : IWireDto
+﻿using System;
+using UnityEngine;
+
+public partial class CharSelectedDto : IWireDto
 {
     public void ReadFrom(PacketReader reader)
     {

@@ -1,3 +1,6 @@
+using UnityEngine;
+using VContainer;
+
 public sealed partial class LoginRuntime
 {
     // Resolver-only. Unbound/legacy callers go through LoginPacketServices Instance fallbacks.

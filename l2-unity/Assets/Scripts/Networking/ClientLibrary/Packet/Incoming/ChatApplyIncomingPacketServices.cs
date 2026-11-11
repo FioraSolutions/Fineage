@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Chat / system message apply hub (#142 batch slice 168; queue relay slice 253).

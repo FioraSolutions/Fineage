@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public sealed partial class EntityAbnormalVisuals : MonoBehaviour
 {

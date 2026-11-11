@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class NewIdleIntention : IntentionBase
 {
     public NewIdleIntention(PlayerStateMachine stateMachine) : base(stateMachine) { 

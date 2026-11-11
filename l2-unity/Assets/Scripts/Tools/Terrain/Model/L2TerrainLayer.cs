@@ -1,5 +1,6 @@
 ﻿#if (UNITY_EDITOR) 
 using UnityEngine;
+using System;
 
 [System.Serializable]
 public class L2TerrainLayer {

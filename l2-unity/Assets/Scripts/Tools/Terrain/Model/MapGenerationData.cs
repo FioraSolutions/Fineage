@@ -1,4 +1,6 @@
 ﻿#if (UNITY_EDITOR) 
+using System;
+
 public enum GenerationMode {
     Load,
     Generate

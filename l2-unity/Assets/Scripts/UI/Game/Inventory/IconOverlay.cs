@@ -9,6 +9,7 @@ using System.Reflection.Emit;
 using System;
 using System.Collections;
 using System.Diagnostics;
+using VContainer;
 
 
 namespace Assets.Scripts.UI

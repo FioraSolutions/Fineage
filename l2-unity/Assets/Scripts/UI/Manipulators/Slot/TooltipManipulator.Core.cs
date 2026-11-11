@@ -1,4 +1,7 @@
-﻿public partial class TooltipManipulator : PointerManipulator
+﻿using UnityEngine.UIElements;
+using UnityEngine;
+
+public partial class TooltipManipulator : PointerManipulator
 {
     public TooltipManipulator(VisualElement target, string text)
     {

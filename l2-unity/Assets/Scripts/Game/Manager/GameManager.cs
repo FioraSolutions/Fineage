@@ -58,4 +58,6 @@ public partial class GameManager : MonoBehaviour, IGameManager
 
     public void OnConnectingToGameServer() => _lobbyFlow.OnConnectingToGameServer();
 
+    #endregion
 }
+

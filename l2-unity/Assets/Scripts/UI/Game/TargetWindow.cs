@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
+using System.Collections.Generic;
 
 public partial class TargetWindow : L2Window
 {

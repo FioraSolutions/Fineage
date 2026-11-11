@@ -189,6 +189,9 @@ public static partial class NetNpcWindows
     }
 
     static bool IsEquipmentType2(int type2) =>
+        type2 == (int)EnumType2.TYPE2_WEAPON
+        || type2 == (int)EnumType2.TYPE2_SHIELD_ARMOR
+        || type2 == (int)EnumType2.TYPE2_ACCESSORY;
 
     static bool IsJewelSlot(ItemSlot slot)
     {
@@ -203,35 +206,6 @@ public static partial class NetNpcWindows
             default:
                 return false;
         }
-    }
-
-    public static NetIdCount[] ItemCounts(List<Product> products)
-    {
-        return Counts(products, true);
-    }
-
-    public static NetIdCount[] ObjectCounts(List<Product> products)
-    {
-        return Counts(products, false);
-    }
-
-    static NetIdCount[] Counts(List<Product> products, bool itemId)
-    {
-        if (products == null || products.Count == 0)
-            return Array.Empty<NetIdCount>();
-        var rows = new List<NetIdCount>(products.Count);
-        for (int i = 0; i < products.Count; i++)
-        {
-            Product product = products[i];
-            if (product == null || product.Count <= 0)
-                continue;
-            int id = itemId ? product.ItemId : product.ObjId;
-            if (id <= 0)
-                continue;
-            rows.Add(new NetIdCount { Id = id, Count = product.Count });
-        }
-
-        return rows.ToArray();
     }
 
 }

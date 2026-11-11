@@ -1,3 +1,10 @@
+using System;
+using System.Collections;
+using UnityEngine.UIElements;
+using static L2Slot;
+using System.Collections.Generic;
+using UnityEngine;
+
 public partial class ToolTipSimple : L2PopupWindow, IToolTips
 {
     private void SetIdElement(VisualElement item, int position , int type)

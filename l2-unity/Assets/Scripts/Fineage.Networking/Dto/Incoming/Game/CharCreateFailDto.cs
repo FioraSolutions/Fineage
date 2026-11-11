@@ -1,3 +1,4 @@
+
 public class CharCreateFailDto : IWireDto
 {
     private string  _text = "";

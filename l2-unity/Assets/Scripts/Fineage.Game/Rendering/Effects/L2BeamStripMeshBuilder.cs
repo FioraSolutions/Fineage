@@ -40,7 +40,7 @@ public class L2MultiLayerBeamBuilder : MonoBehaviour
     [SerializeField] private float _height = 10f;
     [SerializeField] private float _innerRadius = 0.2f;
     [SerializeField] private float _outerRadius = 2.0f;
-    [SerializeField] private Vector2 _textureTiling = new Vector2(1, 1); // Добавили тайлинг
+    [SerializeField] private Vector2 _textureTiling = new Vector2(1, 1); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
     [Header("Wobble (Noise) Settings")]
     [SerializeField] private float _wobbleSpeed = 2f;
@@ -49,7 +49,7 @@ public class L2MultiLayerBeamBuilder : MonoBehaviour
 
     private Mesh _runtimeMesh;
     private Vector3[] _baseVertices;
-    private Vector3[] _displacedVertices; // Кэшируем массив для оптимизации
+    private Vector3[] _displacedVertices; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
     private void Awake()
     {
@@ -64,7 +64,7 @@ public class L2MultiLayerBeamBuilder : MonoBehaviour
     private void GenerateMesh()
     {
         _runtimeMesh = new Mesh { name = "L2_Beam_Procedural" };
-        _runtimeMesh.MarkDynamic(); // Указываем Unity, что меш будет часто обновляться
+        _runtimeMesh.MarkDynamic(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Unity, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
         int vertsPerPlane = (_segments + 1) * 2;
         int totalVertices = _layerCount * 2 * vertsPerPlane;
@@ -84,7 +84,7 @@ public class L2MultiLayerBeamBuilder : MonoBehaviour
 
             for (int p = 0; p < 2; p++)
             {
-                // Поворот плоскостей креста (0 и 90 градусов)
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (0 пїЅ 90 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
                 float rotationAngle = p * 90f * Mathf.Deg2Rad;
                 Vector3 localDir = new Vector3(Mathf.Cos(rotationAngle), 0, Mathf.Sin(rotationAngle)) * currentRadius;
 
@@ -96,13 +96,13 @@ public class L2MultiLayerBeamBuilder : MonoBehaviour
                     vertices[vIndex] = (-localDir) + new Vector3(0, y, 0);
                     vertices[vIndex + 1] = (localDir) + new Vector3(0, y, 0);
 
-                    // Настройка UV согласно данным из RenderDoc
+                    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ UV пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ RenderDoc
                     uvs[vIndex] = new Vector2(0f, t * _textureTiling.y);
                     uvs[vIndex + 1] = new Vector2(_textureTiling.x, t * _textureTiling.y);
 
                     if (s < _segments)
                     {
-                        // Упорядочиваем треугольники (Clockwise)
+                        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (Clockwise)
                         triangles[tIndex++] = vIndex;
                         triangles[tIndex++] = vIndex + 2;
                         triangles[tIndex++] = vIndex + 1;
@@ -137,8 +137,8 @@ public class L2MultiLayerBeamBuilder : MonoBehaviour
         {
             Vector3 v = _baseVertices[i];
 
-            // Используем Y координату вершины для создания волнообразного эффекта
-            // Плюс небольшое смещение по слоям, чтобы они не двигались синхронно
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Y пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             float noiseInput = v.y * _wobbleFrequency + timeOffset;
 
             float noiseX = Mathf.PerlinNoise(noiseInput, i * 0.01f) - 0.5f;

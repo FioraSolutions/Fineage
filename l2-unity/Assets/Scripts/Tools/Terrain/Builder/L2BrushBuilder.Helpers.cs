@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.ProBuilder;
+using System;
 
 public partial class L2BrushBuilder
 {

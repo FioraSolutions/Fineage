@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Trade apply facade (#142 batch slice 150; locator queue slice 256). Re-homes from <see cref="SendTradeRequestIncomingPacketServices"/>.

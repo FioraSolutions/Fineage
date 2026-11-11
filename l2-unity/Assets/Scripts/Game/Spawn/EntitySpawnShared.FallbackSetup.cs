@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public static partial class EntitySpawnShared
 {
@@ -52,6 +53,11 @@ public static partial class EntitySpawnShared
     {
         "_FElf_", "_MElf_", "_FDarkElf_", "_MDarkElf_",
         "_FOrc_", "_MOrc_", "_FDwarf_", "_MDwarf_"
+    };
+
+    static readonly string[] FallbackRaceNames =
+    {
+        "_FHuman_", "_MHuman_", "_FDwarf_", "_MDwarf_", "_FFighter_", "_MFighter_"
     };
 
     static bool IsMaleNpcAsset(string asset)

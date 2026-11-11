@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.UIElements;
+using UnityEngine;
+
 public partial class MemberInfoContent
 {
     private void OnRankOkClick() {

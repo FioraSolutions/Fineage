@@ -29,7 +29,10 @@ public sealed partial class CastClipPlayable
     private MagicCastData _castData;
     private AnimationEvent[] _events;
     private bool[] _eventFired;
+    bool _oneShot;
 
+    /// <summary>Graph already exists. TryPlay must not Bind again on later casts.</summary>
+    public bool IsGraphAlive => _ready && _graph.IsValid() && _controllerPlayable.IsValid();
 
-
+    public bool IsActive => _active;
 }

@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
+﻿using static UnityEngine.Rendering.DebugUI;
+using UnityEngine;
 
 public partial class PlayerStateBase : StateMachineBehaviour
 {

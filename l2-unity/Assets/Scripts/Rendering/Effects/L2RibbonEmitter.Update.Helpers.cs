@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 
 public sealed partial class L2RibbonEmitter : EffectPart
 {

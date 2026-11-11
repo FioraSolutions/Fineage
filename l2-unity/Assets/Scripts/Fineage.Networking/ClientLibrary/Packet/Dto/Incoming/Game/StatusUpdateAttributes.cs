@@ -1,4 +1,6 @@
-﻿public static class StatusUpdate
+﻿using System;
+
+public static class StatusUpdate
 {
     public class Attribute
     {

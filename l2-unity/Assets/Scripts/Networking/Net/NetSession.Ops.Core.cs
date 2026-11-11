@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Fineage.Net.Contract;
 using UnityEngine;
+using System.Collections.Concurrent;
+using VContainer;
 
 public sealed partial class NetSession : MonoBehaviour
 {

@@ -4,6 +4,7 @@
 /// spirit visual row 2047 with normal Spiritshot.
 /// Playback stays on WeaponChargeSkillPlayback (EffectManager / InterludeSfx).
 /// </summary>
+
 public static class WeaponChargeSkill
 {
     // Mobius ZoneWorldShots: NG, D, C, B, A, S

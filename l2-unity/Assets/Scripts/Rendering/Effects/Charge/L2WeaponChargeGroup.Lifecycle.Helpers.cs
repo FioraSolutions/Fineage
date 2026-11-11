@@ -1,4 +1,7 @@
-﻿public partial class L2WeaponChargeGroup : BaseEffectGroup, IWeaponEffect
+﻿using UnityEngine;
+using UnityEngine.VFX;
+
+public partial class L2WeaponChargeGroup : BaseEffectGroup, IWeaponEffect
 {
     protected override void ApplyShaderParams(Component component, float now, float seed)
     {

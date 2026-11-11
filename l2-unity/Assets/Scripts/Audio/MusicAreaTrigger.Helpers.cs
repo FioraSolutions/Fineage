@@ -1,7 +1,8 @@
-﻿using FMOD.Studio;
-using FMODUnity;
+﻿using FMODUnity;
 using System.Collections;
 using UnityEngine;
+using System;
+using FMOD.Studio;
 
 public partial class MusicAreaTrigger : MonoBehaviour
 {

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VContainer;
 
 [System.Serializable]
 public struct WorldTimer {

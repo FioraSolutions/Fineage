@@ -1,4 +1,7 @@
-﻿public partial class FreeFlyCamera : MonoBehaviour
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public partial class FreeFlyCamera : MonoBehaviour
 {
     #region UI
 
@@ -80,5 +83,4 @@
     private Vector3 _initPosition;
     private Vector3 _initRotation;
 
-#if UNITY_EDITOR
 }

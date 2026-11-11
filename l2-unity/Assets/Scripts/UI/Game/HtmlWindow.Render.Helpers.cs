@@ -1,3 +1,11 @@
+using System;
+using System.Text.RegularExpressions;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
+using VContainer;
+
 public partial class HtmlWindow
 {
     private string ExtractTitle(string html)

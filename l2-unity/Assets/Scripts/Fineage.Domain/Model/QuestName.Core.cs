@@ -1,4 +1,6 @@
-﻿public partial class QuestName
+﻿using System.Text.RegularExpressions;
+
+public partial class QuestName
 {
     public string GetSource()
     {

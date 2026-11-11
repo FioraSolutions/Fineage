@@ -1,4 +1,7 @@
 using System;
+using System.IO;
+using System.Collections.Generic;
+using UnityEngine;
 
 public sealed partial class MobSkillAnimgrpTable
 {

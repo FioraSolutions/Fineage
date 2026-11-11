@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 public class ParseEdit : IElementsUI
 {
     private string _varName;

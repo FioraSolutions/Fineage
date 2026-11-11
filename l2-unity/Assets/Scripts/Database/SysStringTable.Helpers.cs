@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Collections;
+using UnityEngine;
 
 public partial class SysStringTable
 {

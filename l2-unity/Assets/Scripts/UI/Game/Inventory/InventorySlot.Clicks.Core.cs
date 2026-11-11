@@ -1,3 +1,7 @@
+
+using UnityEngine;
+using UnityEngine.UIElements;
+
 public partial class InventorySlot
 {
     public override void ClearManipulators()

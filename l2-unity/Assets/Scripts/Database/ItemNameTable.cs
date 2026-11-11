@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using VContainer;
 
 public partial class ItemNameTable
 {
@@ -29,4 +30,6 @@ public partial class ItemNameTable
         }
     }
 
+    private Dictionary<int, ItemName> _itemNames;
+    public Dictionary<int, ItemName> ItemNames { get { return _itemNames; } }
 }

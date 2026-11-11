@@ -1,4 +1,7 @@
-﻿public partial class MonsterStateAtk : MonsterStateBase
+﻿
+using UnityEngine;
+
+public partial class MonsterStateAtk : MonsterStateBase
 {
 
 

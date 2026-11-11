@@ -1,3 +1,9 @@
+using System;
+using System.Runtime.InteropServices;
+using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.Rendering;
+
 public sealed partial class L2NameplateScreenBatch
 {
     public bool UploadAndDraw(Camera cam)

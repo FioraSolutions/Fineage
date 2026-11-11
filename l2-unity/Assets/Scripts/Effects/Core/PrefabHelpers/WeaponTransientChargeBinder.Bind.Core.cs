@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public sealed partial class WeaponTransientChargeBinder
 {
