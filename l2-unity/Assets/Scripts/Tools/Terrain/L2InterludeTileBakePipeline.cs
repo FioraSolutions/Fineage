@@ -56,3 +56,4 @@ public static partial class L2InterludeTileBakePipeline
         L2InterludeBakeStep.GenerateDecoLayerMesh;
 
 }
+#endif
