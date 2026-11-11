@@ -3,16 +3,17 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight wave 6)
+### Status Now (2026-11-11 overnight wave 9)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
-- **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT; geodata + nameplate never-throw paths landed.
+- **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded; `LifetimeScopeMonoRegistration` in `Fineage.Di`. Leaf cycle-safe MBs continue into `Fineage.Game`. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual (Game/App/Login scopes still under `Scripts/Di/`, ACS-bound by PacketServices/UI Mono refs).
-- Domain apply: `NetSession` / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. Do **not** split `Fineage.Net.Contract` codecs client-only (sync-net-contract gate). Do **not** auto-split multi-type hubs (`NetworkCommands.cs`, `L2InterludeTileManifest.cs`).
-- **ACS hub file-splits (overnight through ~#1168):** wave 5 (~#1151–#1165) landed MaterialBuilder/InstancedPropBaker/VertexLight/Skill+Item tables/ImageBlink+ModelTable/NetZone+EffectLight/InventoryGear+AbstractCreator+BaseAnim/InventoryWindow+GameManager+SkillCastSound/InterludeSfx+NetSession/ShortCut+Spawner+CharCreate/AnimationManager+WorldPlacement/EntityAbnormal+PlayerInventory+UserEntity/StarDome+ClanWindow; open/queued Tooltip+Quantity+Table (#1166), SlotDrag+Ribbon+UserWorldApply (#1167), EtcItem+Cloud+Input (#1168). Continue hubs ≥~200 lines; LifetimeScope→`Fineage.Di` remains hard residual.
-- Epic **#131** next: LifetimeScope / gameplay MonoBehaviours into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md) (“Agent start here”).
+- **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual.
+- Domain apply via `IWorldDomainSink` / `WorldPacketApply`. Do **not** split Net.Contract codecs client-only. Skip multi-type hubs (`NetworkCommands`, `L2InterludeTileManifest`, `NetStatusSession`).
+- **ACS hub file-splits (overnight through ~#1195):** landed through ~#1187+; open queue continues residual partials + primary hubs. Gap-preserving splitter (stem-aware for residual `Foo.Bar.cs`). LifetimeScope→`Fineage.Di` remains hard residual.
+- Epic **#131** next: keep landing greens into `dev`, drain ≥160-line hubs, then LifetimeScope / gameplay MBs into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+
 
 ## Executive Summary
 
