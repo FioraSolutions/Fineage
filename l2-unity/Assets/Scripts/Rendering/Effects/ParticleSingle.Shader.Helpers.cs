@@ -1,0 +1,37 @@
+﻿using UnityEngine;
+using UnityEngine.Rendering;
+
+public partial class ParticleSingle
+{
+    private L2ShaderHoldController.CastTimeline BuildCastTimeline(float now)
+    {
+        float castStart = _lifetime.LastEnable;
+        if (_castData != null && _castData.StartTime > 0f)
+        {
+            castStart = _castData.StartTime;
+        }
+
+        return new L2ShaderHoldController.CastTimeline
+        {
+            Now = now,
+            CastStartTime = castStart,
+            SlotDuration = _duration,
+            Settings = _settings
+        };
+    }
+
+    private void UpdateOwnerWorldPos()
+    {
+        Renderer renderer = ResolveRenderer();
+        if (renderer == null)
+        {
+            return;
+        }
+
+        Material[] materials = renderer.materials;
+        for (int i = 0; i < materials.Length; i++)
+        {
+            SetOwnerWorldPos(materials[i]);
+        }
+    }
+}
