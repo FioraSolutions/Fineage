@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public static class ProjectileFlightTimeCalculator
+public static partial class ProjectileFlightTimeCalculator
 {
     // -------------------------------------------------------------------------
     // Shared L2 → Unity position scale (VectorUtils.ConvertPosToUnity): /52.5
@@ -30,51 +30,11 @@ public static class ProjectileFlightTimeCalculator
         L2SkillProjectileSpeedUuPerSec * L2UuToUnity;
 
     /// <summary>NArrow / m_u*: t = sqrt(2·Dist / accel3000).</summary>
-    public static float CalculateL2ArrowFlightTimeSeconds(float distanceUnity)
-    {
-        return CalculateL2AccelFlightTimeSeconds(distanceUnity);
-    }
 
-    public static float CalculateL2SkillFlightTimeSeconds(float distanceUnity)
-    {
-        return CalculateL2AccelFlightTimeSeconds(distanceUnity);
-    }
 
-    public static float CalculateL2ProjectileFlightTimeSeconds(float distanceUnity)
-    {
-        return CalculateL2AccelFlightTimeSeconds(distanceUnity);
-    }
 
-    public static float CalculateL2AccelFlightTimeSeconds(float distanceUnity)
-    {
-        if (distanceUnity <= 0f)
-        {
-            return 0.01f;
-        }
-
-        float flySec = Mathf.Sqrt((2f * distanceUnity) / L2ProjectileAccelUnityPerSec2);
-        return Mathf.Max(flySec, 0.01f);
-    }
 
     /// <summary>Legacy Dist/1500 for logs only.</summary>
-    public static float CalculateL2ArrowFlightTimeIfConstantSpeed(float distanceUnity)
-    {
-        if (distanceUnity <= 0f)
-        {
-            return 0.01f;
-        }
 
-        return Mathf.Max(distanceUnity / L2ArrowSpeedUnityPerSec, 0.01f);
-    }
 
-    public static float CalculateL2AccelJourneyProgress(float elapsedSec, float flyTimeSec)
-    {
-        float t = Mathf.Clamp01(elapsedSec / Mathf.Max(flyTimeSec, 0.01f));
-        return t * t;
-    }
-
-    public static float CalculateL2SkillJourneyProgress(float elapsedSec, float flyTimeSec)
-    {
-        return CalculateL2AccelJourneyProgress(elapsedSec, flyTimeSec);
-    }
 }
