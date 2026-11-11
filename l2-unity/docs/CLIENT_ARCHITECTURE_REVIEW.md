@@ -3,15 +3,15 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 overnight wave 5)
+### Status Now (2026-11-11 overnight wave 6)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT; geodata + nameplate never-throw paths landed.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
 - **Asmdef:** `Fineage.Domain`→`Networking`→`Game`→`Controller`→`UI`→`Di` seeded; `LifetimeScopeMonoRegistration` in `Fineage.Di`. Leaf cycle-safe MBs continue into `Fineage.Game`. **LifetimeScope types + most gameplay MBs remain ACS** — hard residual (Game/App/Login scopes still under `Scripts/Di/`, ACS-bound by PacketServices/UI Mono refs).
-- Domain apply: `NetSession` / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. Do **not** split `Fineage.Net.Contract` codecs client-only (sync-net-contract gate).
-- **ACS hub file-splits (overnight through ~#1150):** wave 4 (~#1115–#1133) plus ActiveSkillsHide (#1135), EquipGear (#1136), Html LayoutStyle (#1137), StatusWindow (#1138), CharInfoDto (#1139), FNManagerLight (#1140), NetClan (#1141), WeaponChargeBinder (#1142), MasterClan (#1143), ArmorgrpTable (#1144), L2BitmapFont (#1145), SceneLoader Streaming (#1146), EntityActionVisual Combat (#1147), AnimationManager Monster (#1148), ItemDropWeaponAligner (#1149), EntitySpawnShared Fallback (#1150). Continue hubs ≥~240 lines; LifetimeScope→`Fineage.Di` remains hard residual.
+- Domain apply: `NetSession` / `NetGearSession` / packet services → `IWorldDomainSink` / `WorldPacketApply`. Do **not** split `Fineage.Net.Contract` codecs client-only (sync-net-contract gate). Do **not** auto-split multi-type hubs (`NetworkCommands.cs`, `L2InterludeTileManifest.cs`).
+- **ACS hub file-splits (overnight through ~#1168):** wave 5 (~#1151–#1165) landed MaterialBuilder/InstancedPropBaker/VertexLight/Skill+Item tables/ImageBlink+ModelTable/NetZone+EffectLight/InventoryGear+AbstractCreator+BaseAnim/InventoryWindow+GameManager+SkillCastSound/InterludeSfx+NetSession/ShortCut+Spawner+CharCreate/AnimationManager+WorldPlacement/EntityAbnormal+PlayerInventory+UserEntity/StarDome+ClanWindow; open/queued Tooltip+Quantity+Table (#1166), SlotDrag+Ribbon+UserWorldApply (#1167), EtcItem+Cloud+Input (#1168). Continue hubs ≥~200 lines; LifetimeScope→`Fineage.Di` remains hard residual.
 - Epic **#131** next: LifetimeScope / gameplay MonoBehaviours into `Fineage.*` when cycle-safe. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md) (“Agent start here”).
 
 ## Executive Summary
