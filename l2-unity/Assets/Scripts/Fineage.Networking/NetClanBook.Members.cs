@@ -60,4 +60,17 @@ public sealed partial class NetClanBook
 
         return count;
     }
+
+    void ClearMembership()
+    {
+        ClanId = 0;
+        Name = "";
+        Level = 0;
+        LeaderObjectId = 0;
+        CrestId = 0;
+        MemberCount = 0;
+        DissolvingExpiryUnixMs = 0;
+        CharPenaltyExpiryUnixMs = 0;
+        _members = Array.Empty<NetPledgeMember>();
+    }
 }
