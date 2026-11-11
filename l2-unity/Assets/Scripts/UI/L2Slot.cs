@@ -2,8 +2,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[System.Serializable]
-public class L2Slot
+public partial class L2Slot
 {
     [SerializeField] protected int _id;
     protected int _level;
@@ -31,70 +30,6 @@ public class L2Slot
     public VisualElement SlotBg { get { return _slotBg; } }
     public VisualElement SlotElement { get { return _slotElement; } }
 
-    public L2Slot(VisualElement slotElement)
-    {
-        _slotElement = slotElement;
-        _slotElement.AddToClassList("dragged");
-        _slotBg = _slotElement.Q<VisualElement>(null, "slot-bg");
-        _slotDisabled = _slotElement.Q<VisualElement>(null, "slot-disabled");
 
-        _position = -1;
-        _id = -1;
-        _name = "";
-        _description = "";
-        _icon = "";
-        _slotType = SlotType.Other;
-    }
 
-    public L2Slot(VisualElement slotElement, int position, SlotType type)
-    {
-        _slotElement = slotElement;
-        _position = position;
-        _slotType = type;
-
-        if (slotElement == null)
-        {
-            return;
-        }
-
-        _slotBg = _slotElement.Q<VisualElement>(null, "slot-bg");
-        _slotDisabled = _slotElement.Q<VisualElement>(null, "slot-disabled");
-
-        if (slotElement != null)
-        {
-            if(type != SlotType.Trash)
-            {
-                ToolTipManager.GetInstance().RegisterSimple(type, _slotElement, position);
-            }
-           
-        }
-
-        if (_hoverManipulator == null)
-        {
-            _hoverManipulator = new SlotHoverDetectManipulator(_slotElement, this);
-            _slotElement.AddManipulator(_hoverManipulator);
-        }
-
-    }
-
-    public virtual void ClearManipulators()
-    {
-        if (_slotElement == null)
-        {
-            return;
-        }
-
-        if (_tooltipManipulator != null)
-        {
-            _tooltipManipulator.Clear();
-            _slotElement.RemoveManipulator(_tooltipManipulator);
-            _tooltipManipulator = null;
-        }
-
-        if (_hoverManipulator != null)
-        {
-            _slotElement.RemoveManipulator(_hoverManipulator);
-            _hoverManipulator = null;
-        }
-    }
 }
