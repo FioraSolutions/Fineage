@@ -79,9 +79,9 @@ public partial class ClanWindow
 
     int SelfObjectId()
     {
-        IZoneTransport transport = ZoneCommands.Transport;
-        if (transport != null && transport.PlayerInfo.Identity != null && transport.PlayerInfo.Identity.Id > 0)
-            return transport.PlayerInfo.Identity.Id;
+        PlayerInfoInterlude info = ZoneCommands.LocalPlayerInfo;
+        if (info.Identity != null && info.Identity.Id > 0)
+            return info.Identity.Id;
         NetSession net = NetworkingPacketServices.Session;
         return net != null ? net.SessionObjectId : 0;
     }

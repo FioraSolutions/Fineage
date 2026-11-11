@@ -26,27 +26,26 @@ public static partial class NetGearSession
             + " class=" + user.ClassId
             + " rhand=" + rhand);
 
-        IZoneTransport transport = ZoneCommands.Transport;
-        if (transport != null && transport.PlayerInfo.Identity != null &&
-            transport.PlayerInfo.Identity.Id == user.ObjectId)
-            OverlayUserInfo(transport.PlayerInfo, user);
+        PlayerInfoInterlude localInfo = ZoneCommands.LocalPlayerInfo;
+        if (localInfo.Identity != null && localInfo.Identity.Id == user.ObjectId)
+            OverlayUserInfo(localInfo, user);
 
         PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null && player.Identity != null && player.Identity.Id == user.ObjectId)
             ApplyToLivePlayer(player, user);
 
         // StorageNpc is how the rest of the client (inventory, clan, status) looks up "me".
-        RegisterSelfInStorage(user, transport, player);
+        RegisterSelfInStorage(user, localInfo, player);
         // ItemList may have arrived before UserInfo; apply now that StorageNpc has "me".
         FlushPending();
     }
 
-    static void RegisterSelfInStorage(NetUserInfo user, IZoneTransport transport, PlayerEntity player)
+    static void RegisterSelfInStorage(NetUserInfo user, PlayerInfoInterlude localInfo, PlayerEntity player)
     {
         PlayerInfoInterlude info;
-        if (transport != null && transport.PlayerInfo.Identity != null)
+        if (localInfo.Identity != null)
         {
-            info = transport.PlayerInfo;
+            info = localInfo;
         }
         else
         {

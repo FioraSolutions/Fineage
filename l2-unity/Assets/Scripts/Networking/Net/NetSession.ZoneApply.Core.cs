@@ -71,10 +71,9 @@ public sealed partial class NetSession
         // Stash PlayerInfo then OnCharacterSelect → LoadSWMap.
         // Spawning happens in OnWorldSceneLoaded once the tile is ready.
         // Without PlayerInfo.Identity, LoadSWMap returns immediately and loading never ends.
-        IZoneTransport transport = ZoneCommands.Transport;
-        if (transport != null)
+        if (ZoneCommands.Transport is FineageZoneTransport)
         {
-            transport.PlayerInfo = new PlayerInfoInterlude
+            ZoneCommands.LocalPlayerInfo = new PlayerInfoInterlude
             {
                 Identity = identity,
                 Status = status,

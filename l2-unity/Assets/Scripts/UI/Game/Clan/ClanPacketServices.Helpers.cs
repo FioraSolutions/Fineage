@@ -32,9 +32,9 @@ public static partial class ClanPacketServices
 
     static void NoteLocalClan(int clanId)
     {
-        IZoneTransport transport = ZoneCommands.Transport;
-        if (transport != null && transport.PlayerInfo.Identity != null)
-            transport.PlayerInfo.Identity.ClanId = clanId;
+        PlayerInfoInterlude info = ZoneCommands.LocalPlayerInfo;
+        if (info.Identity != null)
+            info.Identity.ClanId = clanId;
         PlayerEntity player = DomainPacketServices.LocalPlayer;
         if (player != null && player.Identity != null)
             player.Identity.ClanId = clanId;

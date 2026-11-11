@@ -9,14 +9,14 @@ public partial class SceneLoader : MonoBehaviour
 {
     public void LoadSWMap()
     {
-        IZoneTransport transport = ZoneCommands.Transport;
-        if (transport == null || transport.PlayerInfo.Identity == null)
+        PlayerInfoInterlude playerInfo = ZoneCommands.LocalPlayerInfo;
+        if (playerInfo.Identity == null)
         {
             Debug.LogError("LoadSWMap: no player xyz (PlayerInfo.Identity null) — loading UI will stick");
             return;
         }
 
-        Vector3 l2Pos = transport.PlayerInfo.Identity.GetL2jPos();
+        Vector3 l2Pos = playerInfo.Identity.GetL2jPos();
         StartCoroutine(LoadSWMapRoutine(l2Pos));
     }
 
