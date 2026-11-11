@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
-/// <summary>
-/// Interlude base races and classes the character-create UI can send.
-/// Race ids are 0 Human, 1 Elf, 2 Dark Elf, 3 Orc, 4 Dwarf.
-/// Class ids are the Interlude base classes (Human Fighter 0, Orc Fighter 44, Dwarf Fighter 53, …).
-/// </summary>
-public static class LobbyRaceCatalog
+public static partial class LobbyRaceCatalog
 {
     public static readonly string[] RaceNames = { "Human", "Elf", "Dark Elf", "Orc", "Dwarf" };
     public static readonly string[] FighterAndMystic = { "Fighter", "Mystic" };
@@ -23,96 +17,6 @@ public static class LobbyRaceCatalog
     public const int OrcMystic = 49;
     public const int DwarfFighter = 53;
 
-    public static string[] ClassNames(string raceName)
-    {
-        if (raceName == "Dwarf")
-            return FighterOnly;
-        return FighterAndMystic;
-    }
-
-    public static int RaceId(string raceName)
-    {
-        switch (raceName)
-        {
-            case "Human": return 0;
-            case "Elf": return 1;
-            case "Dark Elf": return 2;
-            case "Orc": return 3;
-            case "Dwarf": return 4;
-            default: return -1;
-        }
-    }
-
-    public static int ClassIdFor(string raceName, string className)
-    {
-        bool fighter = className == "Fighter";
-        bool mystic = className == "Mystic";
-        switch (raceName)
-        {
-            case "Human":
-                if (fighter) return HumanFighter;
-                if (mystic) return HumanMystic;
-                return -1;
-            case "Elf":
-                if (fighter) return ElfFighter;
-                if (mystic) return ElfMystic;
-                return -1;
-            case "Dark Elf":
-                if (fighter) return DarkElfFighter;
-                if (mystic) return DarkElfMystic;
-                return -1;
-            case "Orc":
-                if (fighter) return OrcFighter;
-                if (mystic) return OrcMystic;
-                return -1;
-            case "Dwarf":
-                if (fighter) return DwarfFighter;
-                return -1;
-            default:
-                return -1;
-        }
-    }
-
-    public static bool IsBaseClass(int classId)
-    {
-        switch (classId)
-        {
-            case HumanFighter:
-            case HumanMystic:
-            case ElfFighter:
-            case ElfMystic:
-            case DarkElfFighter:
-            case DarkElfMystic:
-            case OrcFighter:
-            case OrcMystic:
-            case DwarfFighter:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    public static int RaceForClass(int classId)
-    {
-        // Full Interlude trees including 3rd profession (not starters only).
-        if ((classId >= 0 && classId <= 17) || (classId >= 88 && classId <= 98))
-            return 0; // Human
-        if ((classId >= 18 && classId <= 30) || (classId >= 99 && classId <= 105))
-            return 1; // Elf
-        if ((classId >= 31 && classId <= 43) || (classId >= 106 && classId <= 112))
-            return 2; // Dark Elf
-        if ((classId >= 44 && classId <= 52) || (classId >= 113 && classId <= 116))
-            return 3; // Orc
-        if ((classId >= 53 && classId <= 57) || (classId >= 117 && classId <= 118))
-            return 4; // Dwarf
-        return -1;
-    }
-
-    public static bool RaceMatchesClass(int classId, int race)
-    {
-        int expected = RaceForClass(classId);
-        return expected >= 0 && expected == race;
-    }
 
     private static readonly System.Collections.Generic.Dictionary<int, string> Labels = new System.Collections.Generic.Dictionary<int, string>
     {
@@ -207,9 +111,5 @@ public static class LobbyRaceCatalog
         { 118, "Maestro" },
     };
 
-    public static string ClassLabel(int classId)
-    {
-        string name;
-        return Labels.TryGetValue(classId, out name) ? name : null;
-    }
+
 }
