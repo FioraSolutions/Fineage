@@ -1,12 +1,6 @@
 using System;
 
-﻿using FMOD.Studio;
-using FMODUnity;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class MusicManager : MonoBehaviour
+public partial class MusicManager : MonoBehaviour
 {
     [SerializeField] private int _currentEventPriority = -1;
     [SerializeField] private EventReference _currentMusicEvent;
@@ -19,56 +13,9 @@ public class MusicManager : MonoBehaviour
     [System.Obsolete("Use MusicPacketServices.Music or [Inject] MusicManager instead")]
     public static MusicManager Instance { get { return _instance; } }
 
-    private void Awake() {
-        if (_instance == null) {
-            _instance = this;
-            MusicPacketServices.Bind(music: this);
-        } else if(_instance != this){
-            Destroy(this);
-            return;
-        }
 
-        _musicInstances = new Dictionary<EventReference, EventInstance>();
-    }
 
-    void OnDestroy() {
-        if (_musicInstances == null)
-            return; // duplicate destroyed in Awake
-        Clear();
-    }
 
-    public void Clear() {
-        ResetPriority();
-        StopMusic(CurrentMusicEvent);
-        _musicInstances.Clear();
-    }
 
-    public void PlayMusic(EventReference musicEvent, int priority) {
-        if(priority < _currentEventPriority) {
-            return;
-        }
 
-        _currentEventPriority = priority;
-        _currentMusicEvent = musicEvent;
-
-        if (_musicInstances.ContainsKey(musicEvent)) {
-            _musicInstances[musicEvent].start();
-        } else {
-            EventInstance musicInstance = RuntimeManager.CreateInstance(musicEvent);
-            _musicInstances.Add(musicEvent, musicInstance);
-            musicInstance.start();
-        }
-
-        //Debug.Log("Playing music " + musicEvent + " with priority " + priority);
-    }
-
-    public void StopMusic(EventReference musicEvent) {
-        if(_musicInstances != null && _musicInstances.ContainsKey(musicEvent)) {
-            _musicInstances[musicEvent].stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-        }             
-    }
-
-    public void ResetPriority() {
-        _currentEventPriority = -1;
-    }
 }
