@@ -1,13 +1,5 @@
 using System;
 
-
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using UnityEngine.UIElements;
-using VContainer;
-
 public partial class MultiSellWindow : L2PopupWindow
 {
 
@@ -34,164 +26,18 @@ public partial class MultiSellWindow : L2PopupWindow
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static MultiSellWindow Instance { get { return _instance; } }
 
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            _creatorWindow = new CreatorTradingWindows();
-            _dataProvider = new TooltipDataProvider();
-            _toolTips = new MultiSellToolTips(_dataProvider);
-            WireMultiSellPacketServices();
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
-
-    private void Start()
-    {
-        WireMultiSellPacketServices();
-    }
-
-    private void WireMultiSellPacketServices()
-    {
-        MultiSellPacketServices.Bind(multiSell: this);
-    }
-
-    protected override void LoadAssets()
-    {
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Merchant/MultiSellWindow");
-        //_tabTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTab");
-        //_tabHeaderTemplate = LoadAsset("Data/UI/_Elements/Game/Inventory/InventoryTabHeader");
-
-        _windowTemplateWeapon = LoadAsset("Data/UI/_Elements/Game/ToolTips/ToolTipWeapon");
-        _windowTemplateAcccesories = LoadAsset("Data/UI/_Elements/Game/ToolTips/ToolTipAccessories");
-        _windowTemplateArmor = LoadAsset("Data/UI/_Elements/Game/ToolTips/ToolTipArmor");
-        _itemTemplateIngredient = LoadAsset("Data/UI/_Elements/Template/Merchant/ItemsIngredient");
-
-        _creatorWindow.LoadAsset(LoadAsset);
-    }
 
 
-    protected override IEnumerator BuildWindow(VisualElement root)
-    {
-        InitWindow(root);
-        yield return new WaitForEndOfFrame();
-
-        _userInput = (TextField)GetElementById("UserInputField");
-         var deleteButton = (Button)GetElementById("DeleteButton");
-         var exchangeButton = (Button)GetElementById("ExchangeButton");
-        //_inventoryTabView = GetElementById("InventoryTabView");
-
-        _creatorWindow.InitTradeTabs(new string[] { "ALL" , "Other" });
-        _creatorWindow.CreateTradeTabs(GetElementById("InventoryTabView"));
-
-        _scrollView1 = (ScrollView)GetElementById("1Panel-ScrollView");
-        _scrollView2 = (ScrollView)GetElementById("2Panel-ScrollView");
-
-             //_createScroller.RegisterPlayerScrollEvent(_scrollView1, _scrollView1.verticalScroller);
-        _contentPanel1 = _scrollView1.contentContainer;
-        _contentPanel2 = _scrollView2.contentContainer;
-
-        var dragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
-        RegisterCloseWindowEvent("btn-close-frame");
-        RegisterClickWindowEvent(_windowEle, dragArea);
-        RegisterCloseWindowEventByName("CloseButton");
-
-        _userInput.value = "1";
-        _userInput.RegisterValueChangedCallback(evt => OnValueChanged(evt));
-        deleteButton.RegisterCallback<ClickEvent>((evt) => OnClick(evt));
-        exchangeButton.RegisterCallback<ClickEvent>((evt) => OnSendServer(evt));
-
-        OnCenterScreen(_root);
-
-        _creatorWindow.EventLeftClick += OnEventLeftClick;
-        _toolTips.SetTemplate(_windowTemplateWeapon, _windowTemplateAcccesories, _windowTemplateArmor, _itemTemplateIngredient);
-
-        yield return new WaitForEndOfFrame();
-    }
 
 
-    public void AddData(List<ItemInstance> allItems , MultiSellListDto listMultisell)
-    {
-        if(allItems.Count > 0 && listMultisell != null)
-        {
-            _listMultisell = listMultisell;
-            _listId = listMultisell.GetListId();
-            _creatorWindow.AddData(allItems);
-        }
-
-        _creatorWindow.SetClickActiveTab(0);
-        _entryId = 1;
-    }
-
-    public override void ShowWindow()
-    {
-        _userInput.value = "1";
-        base.ShowWindow();
-    }
-
-    public void OnEventLeftClick(int itemId , ItemCategory category, int position)
-    {
-        ItemInstance itemInstance = new ItemInstance(0, itemId, ItemLocation.Trade, 0, 1, category, false, ItemSlot.none, 0, 999);
-        itemInstance.SetMultiSell(true);
-        
-        _selectContainer = _toolTips.GetContainer(itemInstance);
-
-        if(_selectContainer != null)
-        {
-            _contentPanel1.Clear();
-            _toolTips.UseItem(itemInstance, _selectContainer);
-
-            _contentPanel1.Add(_selectContainer);
-            _selectContainer.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-
-            _contentPanel2.Clear();
-
-            List<MultiSellData> data = _listMultisell.GetMultiSell();
-            List<Ingredient> ingredients = null;
-            ingredients = GetIngredient(data  , itemId, itemInstance, position);
-
-            if (ingredients != null)
-            {
-                _toolTips.AddIngredient(ingredients, _contentPanel2);
-            }
-
-        }
-        else
-        {
-            _contentPanel1.Clear();
-            _contentPanel2.Clear();
-            _entryId = -1;
-        }
-    }
-
-    public ItemInstance GetItemByPosition(int position)
-    {
-        return _creatorWindow.GetActiveByPosition(position);
-    }
 
 
-    private List<Ingredient> GetIngredient(List<MultiSellData> data , int itemId , ItemInstance itemInstance , int position)
-    {
-        if (!IfMore1Item(data, itemId))
-        {
-            return  GetIngredient(data, itemInstance.ItemId);
-        }
-        else
-        {
-            return  GetIngredientByIndex(data, position);
-        }
-    }
 
-    public void OnGeometryChanged(GeometryChangedEvent evt)
-    {
-        _contentPanel1.style.height = evt.newRect.height;
-        _selectContainer.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-    }
+
+
+
+
+
+
 
 }
