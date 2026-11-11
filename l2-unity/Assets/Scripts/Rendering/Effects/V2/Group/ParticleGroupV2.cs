@@ -70,6 +70,7 @@ public sealed partial class ParticleGroupV2 : EffectPart, IParticleEmitterV2
     }
 
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     string GetHierarchyPath()
     {
         Transform current = transform;
@@ -82,7 +83,11 @@ public sealed partial class ParticleGroupV2 : EffectPart, IParticleEmitterV2
 
         return path;
     }
+#endif
+}
 
+static class WindOrbTrace
+{
     public static bool Matches(Component component)
     {
         Transform current = component != null ? component.transform : null;
@@ -115,10 +120,4 @@ public sealed partial class ParticleGroupV2 : EffectPart, IParticleEmitterV2
 
         return "detached";
     }
-
-}
-
-static class WindOrbTrace
-
-{
 }
