@@ -15,7 +15,7 @@ public static class PlayerBasicAttackCrossFade
             return false;
         }
 
-        float duration = fixedDuration ?? LocomotionCrossFadeSettings.FixedDuration;
+        float duration = fixedDuration ?? LocomotionCrossFadeDefaults.FixedDuration;
         controller.CrossFadeRestartInFixedTime(stateName, duration);
         return true;
     }
