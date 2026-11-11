@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 
-[System.Serializable]
-public partial class Entity : MonoBehaviour {
+public partial class Entity : MonoBehaviour
+{
     [SerializeField] private bool _entityLoaded;
     [SerializeField] private EntityIdentity _identityInterlude;
     [SerializeField] private Status _status;
@@ -19,12 +19,6 @@ public partial class Entity : MonoBehaviour {
     
     public Animator Animator { get; private set; }
 
-    public bool HasAnimator()
-    {
-        if (Animator == null)
-            Animator = GetComponentInChildren<Animator>(true);
-        return Animator != null && Animator.runtimeAnimatorController != null;
-    }
     [Header("Combat")]
     [SerializeField] private int _targetId;
     [SerializeField] private Transform _target;
@@ -86,57 +80,12 @@ public partial class Entity : MonoBehaviour {
         set { _locomotionGait = value; }
     }
 
-    public Transform GetWeaponTransform()
-    {
-        if (_gear == null)
-            return null;
 
-        // weapon_shot.int [BOW] RH=-1 LH=0: the charge is attached to the left-hand bow, not Sword Bone.
-        if (_gear.WeaponType == WeaponType.bow)
-        {
-            Transform bow = FirstWeaponMesh(_gear.GetAllTransformByLeftHand(new[] { Gear.weaponName }));
-            if (bow != null)
-                return bow;
-        }
-
-        Transform right = FirstWeaponMesh(_gear.GetAllTransformByRightHand(new[] { Gear.weaponName }));
-        if (right != null)
-            return right;
-
-        return _gear.GetTransformRightHandBone();
-    }
-
-    static Transform FirstWeaponMesh(Transform[] found)
-    {
-        if (found == null)
-            return null;
-
-        for (int i = 0; i < found.Length; i++)
-        {
-            if (found[i] != null)
-                return found[i];
-        }
-
-        return null;
-    }
 
     static readonly string[] SwordBladePointNames = { "Sword_Base", "Sword_Tip" };
 
-    public Transform[] GetSwordBasePoints()
-    {
-        if (_gear == null)
-            return null;
-        return _gear.GetAllTransformByRightHand(SwordBladePointNames);
-    }
 
-    public Vector3 GetPositionRightHand()
-    {
-        if (_gear == null)
-            return transform.position;
-        return _gear.GetPositionRightHand();
-    }
 
-    public float GetWeaponRage() { return _gear.GetWeaponRange(); }
     public Status Status { get => _status; set => _status = value; }
     public Stats Stats { get => _stats; set => _stats = value; }
     public Appearance Appearance { get => _appearance; set { _appearance = value; } }
@@ -149,16 +98,6 @@ public partial class Entity : MonoBehaviour {
     public System.Collections.Generic.List<EffectHolder> TargetEffects { get; } =
         new System.Collections.Generic.List<EffectHolder>();
 
-    public void ReplaceTargetEffects(System.Collections.Generic.IList<EffectHolder> effects)
-    {
-        TargetEffects.Clear();
-        if (effects == null)
-            return;
-        for (int i = 0; i < effects.Count; i++)
-            TargetEffects.Add(effects[i]);
-        if (GetComponent<EntityAbnormalVisuals>() == null)
-            gameObject.AddComponent<EntityAbnormalVisuals>();
-    }
 
     /// <summary>Melee/bow soulshot charge — HitManager may spawn SoulshotImpact on the target.</summary>
     public bool IsSoulshotCharged { get; set; }
