@@ -6,7 +6,22 @@ public partial class CompositeEffectV2
 {
     void ProcessV2Shoot(string channel)
     {
-        SpawnPendingAnimationShootParts();
+        SpawnPendingAnimationShootParts(shotsOnly: false);
+        NotifySpawnedPartsAnimationShoot(channel);
+    }
+
+    /// <summary>
+    /// Destroy-time / late flush: launch flying orbs only. Spawning IndependentEffectPart
+    /// (cs) at HitTime looks like the impact flash on the caster.
+    /// </summary>
+    void ProcessV2ShootShotsOnly(string channel)
+    {
+        SpawnPendingAnimationShootParts(shotsOnly: true);
+        NotifySpawnedPartsAnimationShoot(channel);
+    }
+
+    void NotifySpawnedPartsAnimationShoot(string channel)
+    {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (_castData != null)
         {
@@ -33,32 +48,24 @@ public partial class CompositeEffectV2
         }
     }
 
-    void SpawnPendingAnimationShootParts()
+    void SpawnPendingAnimationShootParts(bool shotsOnly)
     {
         if (_pendingAnimationShoot.Count == 0)
         {
             return;
         }
 
-        // Debug.Log($"[HOME_SPAWN] AnimationShoot spawning {_pendingAnimationShoot.Count} part(s)");
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        for (int logI = 0; logI < _pendingAnimationShoot.Count; logI++)
-        {
-            CompositePart shootPart = _pendingAnimationShoot[logI];
-            // if (V2TaSpawnLog.Matches(shootPart))
-            {
-                // V2TaSpawnLog.Info(
-                    // "SHOOT QUEUE part='" + shootPart.name +
-                    // "' sincePlay=" + (Time.time - _playStartedAt).ToString("0.###") +
-                    // "s channel pending count=" + _pendingAnimationShoot.Count);
-            }
-        }
-#endif
-
         for (int i = 0; i < _pendingAnimationShoot.Count; i++)
         {
             CompositePart part = _pendingAnimationShoot[i];
             if (part == null || _spawned.ContainsKey(part))
+            {
+                continue;
+            }
+
+            if (shotsOnly &&
+                !(part is ShotProjectilePart) &&
+                !(part is HomeFlightPart))
             {
                 continue;
             }
@@ -77,6 +84,8 @@ public partial class CompositeEffectV2
             SpawnV2Part(part);
         }
 
+        // Drop remaining pending. For shotsOnly that means late cs is discarded on purpose
+        // (would otherwise flash on the caster at HitTime).
         _pendingAnimationShoot.Clear();
         StartV2PendingRoutineIfNeeded();
     }

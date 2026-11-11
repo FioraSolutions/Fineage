@@ -9,7 +9,11 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         LogV2TaDestroyState("before flush");
 #endif
-        SpawnPendingAnimationShootParts();
+        // Launch flying orbs before DestroyOwnedV2Parts (which would kill them).
+        // Do NOT spawn late cast FX (cs / OnAnimationShoot independents) here — that
+        // fires the "hit flash" on the caster at HitTime when AnimationShoot was missed.
+        RefreshV2Context();
+        ProcessV2ShootShotsOnly("destroy-flush");
         FlushPendingDelayedIndependentParts();
         FlushPendingHitAtCastEnd();
         UnsubscribeV2Shoot();

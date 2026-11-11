@@ -17,6 +17,29 @@ public partial class DefaultEffectAttachmentResolver
         resolvedTransform = fallbackRoot;
 
         CharacterController controller = ResolveCharacterController(entity, fallbackRoot);
+        bool hasMeshCenter = TryResolveRendererBoundsCenter(entity, fallbackRoot, out Vector3 meshCenter, out Bounds meshBounds);
+
+        // Player capsules are often stubby (h≈0.85, center≈0.5) while the mesh is ~full height.
+        // Trusting CC alone puts magician orbs at the hips/feet ("шар снизу").
+        if (hasMeshCenter && meshBounds.size.y > 0.01f)
+        {
+            if (controller != null)
+            {
+                Vector3 ccWorld = controller.transform.TransformPoint(controller.center);
+                float frac = (ccWorld.y - meshBounds.min.y) / meshBounds.size.y;
+                if (frac < 0.45f)
+                {
+                    worldPosition = meshCenter;
+                    return true;
+                }
+
+                worldPosition = ccWorld;
+                return true;
+            }
+
+            worldPosition = meshCenter;
+            return true;
+        }
 
         if (controller != null)
         {
@@ -24,27 +47,63 @@ public partial class DefaultEffectAttachmentResolver
             return true;
         }
 
+        worldPosition = fallbackRoot.position;
+        return true;
+    }
+
+    private static bool TryResolveRendererBoundsCenter(
+        Entity entity,
+        Transform fallbackRoot,
+        out Vector3 center,
+        out Bounds bounds)
+    {
+        center = Vector3.zero;
+        bounds = default;
+
         Transform searchRoot = entity != null ? entity.transform : fallbackRoot;
-        Renderer[] renderers = searchRoot.GetComponentsInChildren<Renderer>(true);
-        if (renderers != null && renderers.Length > 0)
+        if (searchRoot == null)
         {
-            Bounds bounds = renderers[0].bounds;
-            for (int i = 1; i < renderers.Length; i++)
+            return false;
+        }
+
+        Renderer[] renderers = searchRoot.GetComponentsInChildren<Renderer>(true);
+        if (renderers == null || renderers.Length == 0)
+        {
+            return false;
+        }
+
+        bool has = false;
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null || !renderer.enabled)
             {
-                if (renderers[i] != null)
-                {
-                    bounds.Encapsulate(renderers[i].bounds);
-                }
+                continue;
             }
 
-            if (bounds.size.sqrMagnitude > 0.00001f)
+            // Skip pure UI/FX renderers that sit at the root origin.
+            if (renderer is ParticleSystemRenderer)
             {
-                worldPosition = bounds.center;
-                return true;
+                continue;
+            }
+
+            if (!has)
+            {
+                bounds = renderer.bounds;
+                has = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
             }
         }
 
-        worldPosition = fallbackRoot.position;
+        if (!has || bounds.size.sqrMagnitude <= 0.00001f)
+        {
+            return false;
+        }
+
+        center = bounds.center;
         return true;
     }
 

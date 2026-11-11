@@ -26,16 +26,15 @@ public partial class CompositeEffectV2
 
         int casterId = _context.CasterEntity.Identity.Id;
         _v2AnimationEvents = Animations.GetAnimationEvents(casterId);
-        if (_v2AnimationEvents == null || _v2ShootSources.Contains(_v2AnimationEvents))
+        if (_v2AnimationEvents == null)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (_v2AnimationEvents == null)
-            {
-                // V2TaSpawnLog.Warn(
-                    // "SHOOT SUBSCRIBE FAIL composite='" + name +
-                    // "' GetAnimationEvents(" + casterId + ")=null — fallback at serverTimeToShoot");
-            }
-#endif
+            // Do not mark subscribed — watchdog / retry can Subscribe again once
+            // AnimationManager has registered this caster.
+            return;
+        }
+
+        if (_v2ShootSources.Contains(_v2AnimationEvents))
+        {
             _v2SubscribedShoot = true;
             return;
         }

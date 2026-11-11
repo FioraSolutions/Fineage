@@ -44,6 +44,15 @@ public partial class EffectManager
         if (windstrike)
             Debug.Log("[WINDSTRIKE] EffectManager spawn prefab=" + prefab.name);
 
+        CompositeEffectV2 srcV2 = prefab as CompositeEffectV2;
+        Debug.Log(
+            "[ShotOrb] EffectManager spawn id=" + id +
+            " prefab=" + prefab.name +
+            " type=" + prefab.GetType().Name +
+            " srcParts=" + (srcV2 != null ? srcV2.DebugV2PartCount.ToString() : "n/a") +
+            " cast=" + (castData != null) +
+            " shoot=" + (castData != null ? castData.serverTimeToShoot.ToString("0.###") : "-"));
+
         BaseEffect instance;
         using (MagicSkillUseTrace.Measure("effect.instantiate"))
             instance = Instantiate(prefab, target.position, target.rotation, target);
@@ -60,6 +69,14 @@ public partial class EffectManager
             instance.Play();
         if (windstrike)
             Debug.Log("[WINDSTRIKE] EffectManager.Play returned instance=" + instance.name);
+
+        CompositeEffectV2 v2 = instance as CompositeEffectV2;
+        Debug.Log(
+            "[ShotOrb] EffectManager.Play done id=" + id +
+            " instance=" + instance.name +
+            " isV2=" + (v2 != null) +
+            " cloneParts=" + (v2 != null ? v2.DebugV2PartCount.ToString() : "n/a") +
+            " active=" + instance.gameObject.activeInHierarchy);
     }
 
     BaseEffect ResolvePrefab(RuntimeEffect entry, bool found, Transform target)

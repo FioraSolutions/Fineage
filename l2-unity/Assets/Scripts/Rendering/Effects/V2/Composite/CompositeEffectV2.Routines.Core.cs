@@ -12,13 +12,15 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
         }
 
         RefreshV2Context();
-        EnsureHitPointFromTarget();
+        // Impact FX belongs on the target. If we have no target, drop — do not paint the caster.
+        if (_context == null ||
+            (_context.TargetTransform == null && _context.TargetEntity == null))
+        {
+            _pendingHitCollider.Clear();
+            return;
+        }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // Debug.Log(
-            // $"{DebugPrefix} HitTime fallback spawn {_pendingHitCollider.Count} impact part(s) " +
-            // $"(projectile event did not fire before composite HitTime).");
-#endif
+        EnsureHitPointFromTarget();
 
         for (int i = 0; i < _pendingHitCollider.Count; i++)
         {

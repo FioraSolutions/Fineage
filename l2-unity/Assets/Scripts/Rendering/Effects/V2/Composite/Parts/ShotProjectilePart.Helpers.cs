@@ -43,8 +43,30 @@ public sealed partial class ShotProjectilePart : CompositePart
 
     public bool TryLaunch(BaseEffect instance, EffectResolveContext context)
     {
-        if (instance == null || context == null || context.TargetTransform == null || ProjectilePacketServices.Projectiles == null)
+        if (instance == null || context == null)
         {
+            Debug.LogWarning("[ShotOrb] TryLaunch abort null instance/context part=" + name);
+            return false;
+        }
+
+        Transform target = context.TargetTransform;
+        if (target == null)
+        {
+            target = ResolveFallbackTarget(context);
+            if (target != null)
+            {
+                context.TargetTransform = target;
+            }
+        }
+
+        IProjectileManager projectiles = ProjectilePacketServices.Projectiles;
+        if (target == null || projectiles == null)
+        {
+            Debug.LogWarning(
+                "[ShotOrb] TryLaunch abort part=" + name +
+                " target=" + (target != null) +
+                " projectiles=" + (projectiles != null) +
+                " castTargetId=" + (context.CastData != null ? context.CastData.TargetObjectId : 0));
             return false;
         }
 
@@ -56,23 +78,61 @@ public sealed partial class ShotProjectilePart : CompositePart
             prefab = instance.gameObject,
             transform = projectileTransform,
             startPosition = startPos,
-            targetTransform = context.TargetTransform,
+            targetTransform = target,
             impactType = impactType,
             speed = speed > 0.01f ? speed : 10f
         };
-        if (instance.name.IndexOf("el_wind_strike_fl", System.StringComparison.OrdinalIgnoreCase) >= 0)
-        {
-            string caster = context.CasterEntity != null ? context.CasterEntity.name : "none";
-            Debug.Log(
-                "[WINDORB] launch caster=" + caster +
-                " start=" + startPos +
-                " target=" + context.TargetTransform.name);
-        }
-        ProjectilePacketServices.Projectiles.LaunchProjectile(
+        Debug.Log(
+            "[ShotOrb] launch part=" + name +
+            " go=" + instance.name +
+            " start=" + startPos +
+            " target=" + target.name);
+        projectiles.LaunchProjectile(
             instance.gameObject,
             startPos,
-            context.TargetTransform,
+            target,
             settings);
         return true;
+    }
+
+    static Transform ResolveFallbackTarget(EffectResolveContext context)
+    {
+        if (context == null)
+        {
+            return null;
+        }
+
+        if (context.TargetEntity != null)
+        {
+            return context.TargetEntity.transform;
+        }
+
+        int targetId = 0;
+        if (context.CastData != null && context.CastData.TargetObjectId > 0)
+        {
+            targetId = context.CastData.TargetObjectId;
+        }
+        else if (context.CasterEntity != null && context.CasterEntity.TargetId > 0)
+        {
+            targetId = context.CasterEntity.TargetId;
+        }
+
+        World world = WorldApplyPacketServices.GameWorld;
+        if (targetId <= 0 || world == null)
+        {
+            return null;
+        }
+
+        Entity targetEntity = world.GetEntityNoLockSync(targetId);
+        if (targetEntity == null)
+        {
+            return null;
+        }
+
+        context.TargetEntity = targetEntity;
+        context.TargetUserId = targetEntity.Identity != null
+            ? targetEntity.Identity.Id
+            : targetId;
+        return targetEntity.transform;
     }
 }

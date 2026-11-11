@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[System.Serializable]
 public sealed partial class HomeFlightPart : CompositePart
 {
     public ProjectileLaunchMode launchMode = ProjectileLaunchMode.OnAnimationShoot;

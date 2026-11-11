@@ -14,6 +14,8 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
     [SerializeReference]
     CompositePart[] _v2Parts;
 
+    public int DebugV2PartCount => _v2Parts != null ? _v2Parts.Length : 0;
+
     readonly IEffectAttachmentResolver _v2Resolver = new DefaultEffectAttachmentResolver();
     readonly List<PendingV2Part> _pendingDelayed = new List<PendingV2Part>();
     readonly List<CompositePart> _pendingHitCollider = new List<CompositePart>();

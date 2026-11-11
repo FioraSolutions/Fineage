@@ -9,6 +9,16 @@ public partial class CompositeEffectV2
         _context = CompositeEffectUtilities.RebuildPreservingHit(_context, _owner, _castData);
     }
 
+    static bool IsTargetSideAttachment(EffectAttachmentPoint point)
+    {
+        return point == EffectAttachmentPoint.WorldHitPoint ||
+               point == EffectAttachmentPoint.TargetRoot ||
+               point == EffectAttachmentPoint.TargetLowerBody ||
+               point == EffectAttachmentPoint.TargetCenter ||
+               point == EffectAttachmentPoint.TargetOverHead ||
+               point == EffectAttachmentPoint.TargetPosition;
+    }
+
     void EnsureHitPointFromTarget()
     {
         if (_context == null || _context.HasHitPoint)
@@ -16,12 +26,14 @@ public partial class CompositeEffectV2
             return;
         }
 
-        Transform target = _context.TargetTransform != null
-            ? _context.TargetTransform
-            : _context.CasterTransform;
-        Entity targetEntity = _context.TargetEntity != null
-            ? _context.TargetEntity
-            : _context.CasterEntity;
+        // Never invent a hit on the caster — that is what put prominence_ta on the mage.
+        Transform target = _context.TargetTransform;
+        Entity targetEntity = _context.TargetEntity;
+        if (target == null && targetEntity == null)
+        {
+            return;
+        }
+
         if (targetEntity == null && target != null)
         {
             targetEntity = target.GetComponentInParent<Entity>();

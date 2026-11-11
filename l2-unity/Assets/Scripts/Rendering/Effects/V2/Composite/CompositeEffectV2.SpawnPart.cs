@@ -69,9 +69,22 @@ public partial class CompositeEffectV2
         Vector3 afterAttach = instance.transform.position;
         CompositePartSpawnHelper.ApplyScale(part.scale, instance.transform);
 
-        Transform setupOwner = followTransform != null
-            ? followTransform
-            : (_owner != null ? _owner : instance.transform);
+        Transform setupOwner = followTransform;
+        if (setupOwner == null)
+        {
+            // Target-side attachments must not get the caster as OwnerTarget
+            // (FitToBounds / OwnerTarget would scale/bind impact FX to the mage).
+            if (IsTargetSideAttachment(part.spawnAttachmentPoint) &&
+                _context != null &&
+                _context.TargetTransform != null)
+            {
+                setupOwner = _context.TargetTransform;
+            }
+            else
+            {
+                setupOwner = _owner != null ? _owner : instance.transform;
+            }
+        }
         EffectSettings partSettings = CreateRuntimeSettings(
             _settings,
             applyTimedLifetime: part.UsesCastHitLifetime);
@@ -109,6 +122,12 @@ public partial class CompositeEffectV2
         }
 #endif
         TryLaunchImmediate(part, instance);
+        // Server-time backup / destroy-flush spawn without an AnimationShoot event.
+        // Only launch once we are at/past shoot wall (or immediate-shot flag).
+        if (ShouldLaunchShotOnSpawn(part))
+        {
+            TryLaunchOnShoot(part, instance);
+        }
         RaiseStartSpawnAndMaybeSpawnLight();
         LogHomeSpawnPart(part, followTransform, worldPosition, spawnPosition, afterInstantiate, afterAttach, instance, setupOwner);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
