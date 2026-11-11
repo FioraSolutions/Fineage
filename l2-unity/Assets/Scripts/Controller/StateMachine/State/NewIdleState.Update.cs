@@ -1,0 +1,160 @@
+﻿using UnityEngine;
+
+public partial class NewIdleState : StateBase
+{
+    private void HandleWaitReturn(object payload = null)
+    {
+        // Combat swing finished. Always leave attack latch and show wait pose.
+        if (DomainPacketServices.LocalPlayer != null)
+        {
+            DomainPacketServices.LocalPlayer.IsAttack = false;
+            DomainPacketServices.LocalPlayer.LastAtkAnimation = null;
+        }
+
+        bool fromCombatSmb = IsWaitReturnFromCombatSmb(payload);
+        bool targetDead = IsCurrentTargetDead();
+        bool useAtkWait = _stateMachine.Player != null && _stateMachine.Player.isAutoAttack;
+        var animation = ForRide(useAtkWait ? AnimationNames.ATK_WAIT : AnimationNames.WAIT);
+
+        // Skip only early external WAIT_RETURN (DieDto / skill Complete) while swing still plays.
+        // SMB SwitchToIdle uses wall clock — animNorm often < 0.95 when it fires; must CrossFade.
+        string swingState = null;
+        float swingNorm = 0f;
+        bool skipSwing = !fromCombatSmb && TryGetActiveCombatSwing(out swingState, out swingNorm);
+        // WaitReturnLog.Handle(
+            // "NewIdleState.HandleWaitReturn",
+            // fromCombatSmb,
+            // targetDead,
+            // useAtkWait,
+            // animation.ToString(),
+            // skipSwing,
+            // skipSwing ? swingState + " n=" + swingNorm.ToString("F2") : "-");
+        if (skipSwing)
+            return;
+
+        // Defer one frame: CrossFade from inside JAtk OnStateUpdate is unreliable, and a
+        // same-frame second CrossFade (Complete → CallBack) can leave the Animator stuck.
+        PlayAnimationDeferred(animation, fromCombatSmb);
+    }
+
+    private static bool IsWaitReturnFromCombatSmb(object payload)
+    {
+        if (payload is string s &&
+            string.Equals(s, WaitReturnFromCombatSmb, System.StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return payload is bool b && b;
+    }
+
+    private static bool IsCurrentTargetDead()
+    {
+        if (DomainPacketServices.LocalPlayer == null || ControllerPacketServices.GameWorld == null)
+        {
+            return false;
+        }
+
+        int targetId = DomainPacketServices.LocalPlayer.TargetId;
+        if (targetId == 0)
+        {
+            return false;
+        }
+
+        Entity target = ControllerPacketServices.GameWorld.GetEntityNoLockSync(targetId);
+        return target == null || target.IsDead();
+    }
+
+    private bool TryGetActiveCombatSwing(out string swingState, out float swingNorm)
+    {
+        swingState = null;
+        swingNorm = 0f;
+
+        int objectId = _stateMachine.GetObjectId();
+        string recent = ControllerPacketServices.Animations != null
+            ? ControllerPacketServices.Animations.GetCurrentAnimationName(objectId)
+            : null;
+        if (!IsCombatSwingStateName(recent))
+        {
+            return false;
+        }
+
+        IAnimationController controller = null;
+        if (ControllerPacketServices.Animations is AnimationManager concrete)
+        {
+            controller = concrete.GetPlayerController(objectId);
+        }
+        else
+        {
+            controller = AnimationPacketServices.PlayerAnimation;
+        }
+
+        Animator animator = controller != null ? controller.GetAnimator() : null;
+        if (animator == null)
+        {
+            return false;
+        }
+
+        AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
+        if (current.IsName(recent) && current.normalizedTime < CombatSwingNormGate)
+        {
+            swingState = recent;
+            swingNorm = current.normalizedTime;
+            return true;
+        }
+
+        if (animator.IsInTransition(0))
+        {
+            AnimatorStateInfo next = animator.GetNextAnimatorStateInfo(0);
+            if (next.IsName(recent) && next.normalizedTime < CombatSwingNormGate)
+            {
+                swingState = recent;
+                swingNorm = next.normalizedTime;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsCombatSwingStateName(string stateName)
+    {
+        if (string.IsNullOrEmpty(stateName))
+        {
+            return false;
+        }
+
+        return stateName.StartsWith("jatk", System.StringComparison.OrdinalIgnoreCase)
+            || stateName.StartsWith("SpAtk", System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void PlayAnimation(Animation animation)
+    {
+        ControllerPacketServices.Animations.PlayAnimation(_stateMachine.GetObjectId() , animation.ToString(), true);
+    }
+
+    private void PlayAnimationDeferred(Animation animation, bool fromCombatSmb = false)
+    {
+        int objectId = _stateMachine.GetObjectId();
+        string animName = animation.ToString();
+        ControllerPacketServices.Queue(() =>
+        {
+            // A Move packet can arrive before this frame. Do not put atkwait back over walk/run.
+            if (_stateMachine.ShouldKeepLocomotion() ||
+                _stateMachine.State != PlayerState.IDLE ||
+                _stateMachine.Intention != Intention.INTENTION_IDLE)
+            {
+                return;
+            }
+
+            // Re-check only for early external WAIT_RETURN; SMB wall-finish must CrossFade.
+            if (!fromCombatSmb && TryGetActiveCombatSwing(out _, out _))
+            {
+                return;
+            }
+
+            // WaitReturnLog.Play(objectId, animName);
+            ControllerPacketServices.Animations.PlayAnimation(objectId, animName, true);
+        });
+    }
+}
