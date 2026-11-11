@@ -1,0 +1,101 @@
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
+
+public sealed partial class L2TerrainLayerStack
+{
+    public static void EnsureAttached()
+    {
+        if (HasOverlays)
+            return;
+        AttachAll();
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void AttachLoaded()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        Camera.onPreCull -= OnPreCullAttach;
+        Camera.onPreCull += OnPreCullAttach;
+        AttachAll();
+    }
+
+    static void OnPreCullAttach(Camera camera)
+    {
+        if (camera == null || HasOverlays)
+            return;
+        AttachAll();
+    }
+
+    static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        AttachAll();
+    }
+
+    static void AttachAll()
+    {
+        MeshRenderer[] renderers = Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        int attached = 0;
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (TryAttach(renderers[i]))
+                attached++;
+        }
+
+        if (!_loggedAttach)
+        {
+            _loggedAttach = true;
+            // Debug.Log("[L2TerrainLayerStack] attach scan renderers=" + renderers.Length + " terrain=" + attached);
+        }
+    }
+
+    public static bool TryAttach(Renderer renderer)
+    {
+        if (renderer == null)
+            return false;
+        Material src = renderer.sharedMaterial;
+        if (!IsTerrainSource(src))
+            return false;
+        if (renderer.GetComponent<L2TerrainLayerStack>() != null)
+            return true;
+        renderer.gameObject.AddComponent<L2TerrainLayerStack>();
+        return true;
+    }
+
+    public static bool IsTerrainSource(Material mat)
+    {
+        if (mat == null || mat.shader == null)
+            return false;
+        string n = mat.shader.name;
+        return n == BaseShaderName
+            || n == "L2/World/TerrainModulate2X"
+            || n == "L2/World/TerrainSplatModulate2X";
+    }
+
+    static bool IsSkippedOverlay(Texture tex)
+    {
+        if (tex == null)
+            return true;
+        string n = tex.name;
+        if (string.IsNullOrEmpty(n))
+            return false;
+        if (n.IndexOf("Water", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        if (n.IndexOf("SL_WR", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        if (n.EndsWith("_WR", System.StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    static Texture ReadTex(Material src, string name)
+    {
+        if (src == null || string.IsNullOrEmpty(name))
+            return null;
+        if (!src.HasProperty(name))
+            return null;
+        return src.GetTexture(name);
+    }
+}
