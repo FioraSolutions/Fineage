@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemTable
+public partial class ItemTable
 {
     private static ItemTable _instance;
 
@@ -38,167 +38,15 @@ public class ItemTable
     public static int NAKED_BOOTS = 35;
     private bool _loadAll = true;
 
-    public void Initialize()
-    {
-        TablePacketServices.Bind(items: this);
-        FillDataToLoad();
-    }
 
-    private void OnDestroy()
-    {
-        _weapons.Clear();
-        _armors.Clear();
-        _instance = null;
-    }
 
-    public void CacheItems()
-    {
-        CacheWeapons();
-        CacheArmors();
-        CacheEtcItems();
-    }
 
-    private void FillDataToLoad()
-    {
-        weaponsToLoad = new List<int> { 1, 2, 3, 4, 5, 6, 7, 10, 14, 89, 102, 129, 177, 188, 156, 275, 2369, 2370, 5284, 20 };
-        armorsToLoad = new List<int> { NAKED_CHEST, NAKED_LEGS, NAKED_GLOVES, NAKED_BOOTS, 425, 461, 1146, 1147, 45, 118, 112, 116, 26};
-        itemsToLoad = new List<int>() { 1835, 3947, 2509, 57, 736 };
-    }
 
-    public bool ShouldLoadItem(int id)
-    {
-        if (_loadAll) return true;
 
-        FillDataToLoad(); //TODO: Remove
-        if (weaponsToLoad.Count == 0 && armorsToLoad.Count == 0 && itemsToLoad.Count == 0)
-        {
-            return true;
-        }
 
-        if (weaponsToLoad.Contains(id))
-        {
-            return true;
-        }
-        if (armorsToLoad.Contains(id))
-        {
-            return true;
-        }
-        if (itemsToLoad.Contains(id))
-        {
-            return true;
-        }
 
-        return false;
-    }
 
-    private void CacheWeapons()
-    {
-        foreach (KeyValuePair<int, Weapongrp> kvp in TablePacketServices.WeaponGrps.WeaponGrps)
-        {
-            if (_armors.ContainsKey(kvp.Key))
-            {
-                continue;
-            }
 
-            Weapongrp weapongrp = kvp.Value;
-            ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
-            ItemStatData itemStatData = TablePacketServices.ItemStats.GetItemStatData(kvp.Key);
 
-            Weapon weapon = new Weapon(kvp.Key, itemName, itemStatData, weapongrp);
 
-            if (!_weapons.ContainsKey(kvp.Key))
-            {
-                _weapons.Add(kvp.Key, weapon);
-            }
-
-        }
-    }
-
-    private void CacheArmors()
-    {
-        foreach (KeyValuePair<int, Armorgrp> kvp in TablePacketServices.ArmorGrps.ArmorGrps)
-        {
-            if (_armors.ContainsKey(kvp.Key))
-            {
-                continue;
-            }
-
-            if(kvp.Key == 356)
-            {
-                // Debug.Log("");
-            }
-
-            Armorgrp armorgrp = kvp.Value;
-            ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
-            ItemStatData itemStatData = TablePacketServices.ItemStats.GetItemStatData(kvp.Key);
-
-            Armor armor = new Armor(kvp.Key, itemName, itemStatData, armorgrp);
-            _armors.Add(kvp.Key, armor);
-        }
-    }
-
-    private void CacheEtcItems()
-    {
-        foreach (KeyValuePair<int, EtcItemgrp> kvp in TablePacketServices.EtcItemGrps.EtcItemGrps)
-        {
-            if (kvp.Key == 7832)
-            {
-                // Debug.Log("");
-            }
-
-            if (_etcItems.ContainsKey(kvp.Key))
-            {
-                continue;
-            }
-
-            EtcItemgrp itemgrp = kvp.Value;
-            ItemName itemName = TablePacketServices.ItemNames.GetItemName(kvp.Key);
-            ItemStatData itemStatData = TablePacketServices.ItemStats.GetItemStatData(kvp.Key);
-
-            EtcItem item = new EtcItem(kvp.Key, itemName, itemStatData, itemgrp);
-            _etcItems.Add(kvp.Key, item);
-        }
-    }
-
-    public Weapon GetWeapon(int id)
-    {
-        Weapon weapon;
-        _weapons.TryGetValue(id, out weapon);
-
-        return weapon;
-    }
-
-    public Armor GetArmor(int id)
-    {
-        Armor armor;
-        _armors.TryGetValue(id, out armor);
-
-        return armor;
-    }
-
-    public EtcItem GetEtcItem(int id)
-    {
-        EtcItem item;
-        _etcItems.TryGetValue(id, out item);
-
-        return item;
-    }
-
-    public AbstractItem GetItem(int id)
-    {
-        if (_weapons.TryGetValue(id, out Weapon weapon))
-        {
-            return weapon;
-        }
-        if (_armors.TryGetValue(id, out Armor armor))
-        {
-            return armor;
-        }
-        if (_etcItems.TryGetValue(id, out EtcItem etcItem))
-        {
-            return etcItem;
-        }
-
-        return null;
-    }
 }
