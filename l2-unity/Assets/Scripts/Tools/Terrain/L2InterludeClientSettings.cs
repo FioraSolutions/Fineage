@@ -4,10 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Local Interlude client and UModel export paths (#476). Never commit client binaries.
-/// </summary>
-public static class L2InterludeClientSettings
+public static partial class L2InterludeClientSettings
 {
     public const string PrefClientRoot = "Fineage.L2InterludeClientRoot";
     public const string PrefUModelExportRoot = "Fineage.L2UModelExportRoot";
@@ -55,60 +52,7 @@ public static class L2InterludeClientSettings
     public static string StaticMeshesDirectory =>
         string.IsNullOrEmpty(ClientRoot) ? string.Empty : Path.Combine(ClientRoot, "staticmeshes");
 
-    public static bool TryValidateClientRoot(out string message)
-    {
-        if (string.IsNullOrWhiteSpace(ClientRoot))
-        {
-            message = "Interlude client root is empty. Set it in Shnok → Interlude batch bake.";
-            return false;
-        }
 
-        if (!Directory.Exists(ClientRoot))
-        {
-            message = "Client root does not exist: " + ClientRoot;
-            return false;
-        }
 
-        string maps = MapsDirectory;
-        if (!Directory.Exists(maps))
-        {
-            message = "Expected maps/ under client root: " + maps;
-            return false;
-        }
-
-        message = string.Empty;
-        return true;
-    }
-
-    public static bool TryValidateUModelExportRoot(out string message)
-    {
-        if (string.IsNullOrWhiteSpace(UModelExportRoot))
-        {
-            message = "UModel export root is empty (FBX/PNG props tree).";
-            return false;
-        }
-
-        if (!Directory.Exists(UModelExportRoot))
-        {
-            message = "UModel export root does not exist: " + UModelExportRoot;
-            return false;
-        }
-
-        message = string.Empty;
-        return true;
-    }
-
-    static string FirstNonEmpty(params string[] values)
-    {
-        for (int i = 0; i < values.Length; i++)
-        {
-            if (!string.IsNullOrWhiteSpace(values[i]))
-            {
-                return values[i].Trim();
-            }
-        }
-
-        return string.Empty;
-    }
 }
 #endif
