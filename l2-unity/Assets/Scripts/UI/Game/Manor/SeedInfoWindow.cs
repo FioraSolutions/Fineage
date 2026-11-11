@@ -1,13 +1,5 @@
 using System;
 
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UIElements;
-using VContainer;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
-
-
 public partial class SeedInfoWindow : L2PopupWindow
 {
     private ICreator _creatorWindow;
@@ -45,70 +37,11 @@ public partial class SeedInfoWindow : L2PopupWindow
         get { return _itemNames != null ? _itemNames : TablePacketServices.ItemNames; }
     }
 
-    protected override void LoadAssets()
-    {
-        _windowTemplate = LoadAsset("Data/UI/_Elements/Game/Manor/SeedInfoWindow");
-        _tabTemplate = LoadAsset(L2InventoryUiAssets.Tab);
-        _buttonTemplate = LoadAsset("Data/UI/_Elements/Template/Elements/Buttons/DefaultButton");
-        _tabHeaderTemplate = LoadAsset(L2InventoryUiAssets.TabHeader);
-    }
-
-
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            _creatorWindow =  new CreatorTabsWindows();
-            _creatorTable = new CreatorTableWindows();
-            WireAuxiliaryGameUIPacketServices();
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
-
-    private void Start()
-    {
-        WireAuxiliaryGameUIPacketServices();
-    }
-
-    private void WireAuxiliaryGameUIPacketServices()
-    {
-        AuxiliaryGameUIPacketServices.Bind(seedInfo: this);
-    }
-
-    protected override IEnumerator BuildWindow(VisualElement root)
-    {
-        InitWindow(root);
-        yield return new WaitForEndOfFrame();
-
-        var dragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(dragArea, _windowEle);
-        dragArea.AddManipulator(drag);
-        var content = (VisualElement)GetElementById("content");
-
-        _footerContainer = content.Q<VisualElement>("footerContent");
-        _creatorTable.LoadAsset(LoadAsset);
-
-        _defaultColumns0 = GetColumnWindowTab0();
-        _defaultColumns1 = GetColumnWindowTab1();
-        _defaultColumns2 = GetColumnWindowTab2();
-
-        _creatorWindow.InitContentTabs(_tabsName);
-        _creatorWindow.CreateTabs(content, _tabTemplate, _tabHeaderTemplate);
-        _creatorWindow.InsertTablesIntoContent(_creatorTable, _defaultColumns0, true);
-        _creatorWindow.EventSwitchTabByIndexOfTab += OnSwitchTab;
-        AddContent0Footer(_creatorWindow , _footerContainer);
 
 
 
-        RegisterCloseWindowEvent("btn-close-frame");
-        RegisterClickWindowEvent(_windowEle, dragArea);
-        OnCenterScreen(_root);
 
-    }
+
 
 
 
