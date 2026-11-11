@@ -1,5 +1,3 @@
-using System;
-
 namespace Fineage.Net.Contract
 {
     /// <summary>Client → zone: ask for one boss row, or every row when <see cref="NpcId"/> is 0.</summary>

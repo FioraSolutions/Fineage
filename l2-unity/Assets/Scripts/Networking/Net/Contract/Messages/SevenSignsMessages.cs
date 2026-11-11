@@ -1,5 +1,3 @@
-using System;
-
 namespace Fineage.Net.Contract
 {
     /// <summary>Client → zone: ask for the Seven Signs record. Empty body.</summary>

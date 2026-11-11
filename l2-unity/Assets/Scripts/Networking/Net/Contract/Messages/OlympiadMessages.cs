@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Fineage.Net.Contract
 {
     /// <summary>Client → zone: ask for the Olympiad sheet. Empty body.</summary>

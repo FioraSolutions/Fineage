@@ -1,4 +1,3 @@
-
 namespace Fineage.Net.Contract
 {
     public sealed class SayNetMsg

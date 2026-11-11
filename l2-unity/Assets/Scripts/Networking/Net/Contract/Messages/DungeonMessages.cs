@@ -1,5 +1,3 @@
-using System;
-
 namespace Fineage.Net.Contract
 {
     /// <summary>
