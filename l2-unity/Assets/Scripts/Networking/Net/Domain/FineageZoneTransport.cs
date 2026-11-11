@@ -21,9 +21,30 @@ public sealed partial class FineageZoneTransport : IZoneTransport
     /// </summary>
     public PlayerInfoInterlude PlayerInfo { get; set; } = new PlayerInfoInterlude();
 
+    /// <inheritdoc />
+    /// Zone TCP is open — not merely that a NetSession MonoBehaviour exists.
     public bool Connected
     {
-        get { return NetworkingPacketServices.Session != null; }
+        get
+        {
+            NetSession session = NetworkingPacketServices.Session;
+            return session != null && session.IsZoneSocketConnected;
+        }
+    }
+
+    /// <inheritdoc />
+    public bool HasSession => NetworkingPacketServices.Session != null;
+
+    /// <inheritdoc />
+    public ZoneConnectionState ConnectionState
+    {
+        get
+        {
+            NetSession session = NetworkingPacketServices.Session;
+            return session != null
+                ? session.ZoneConnectionState
+                : ZoneConnectionState.Disconnected;
+        }
     }
 
     public int SessionObjectId
