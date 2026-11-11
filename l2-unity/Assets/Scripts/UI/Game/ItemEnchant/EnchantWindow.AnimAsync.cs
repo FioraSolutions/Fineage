@@ -5,6 +5,23 @@ using UnityEngine.UIElements;
 
 public partial class EnchantWindow
 {
+    private async void  DecreaseProgressBar()
+    {
+        float endValue = 245;
+        int index = 0;
+
+        while (index <= endValue)
+        {
+            index = index + 7;
+            float remaining = 1f - (index / endValue);
+            L2ResourceBarView.SetFillFixed(_progressBar, _progressBarBg, remaining, endValue);
+            float delayPerIteration = _moveDuration / endValue * 1000;
+            await Task.Delay((int)delayPerIteration);
+        }
+        SetPb0(_progressBar);
+        _isRun = false ;
+    }
+
     private async void WorkerAnim(VisualElement animElement, float fadeStartTime, bool isSuccess)
     {
         if (!_isStartAnim)
