@@ -1,6 +1,5 @@
 /// <summary>
-/// Appearance-bound race animation resolve kept in Assembly-CSharp (#131).
-/// Enums / pure parsers live in <c>Fineage.Game</c>.
+/// Race animation resolve for player appearance (Fineage.Game).
 /// </summary>
 public static class CharacterRaceAnimationResolve
 {
