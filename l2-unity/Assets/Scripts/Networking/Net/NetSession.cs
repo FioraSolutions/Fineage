@@ -29,6 +29,20 @@ public sealed partial class NetSession : MonoBehaviour
     TradeApplyService _trade;
     TradeRequestApplyService _tradeRequest;
     bool _helloZone;
+    bool _zoneConnecting;
+
+    /// <summary>True when the zone <see cref="NetTransport"/> TCP client reports Connected.</summary>
+    public bool IsZoneSocketConnected =>
+        ZoneConnectionStateResolver.IsSocketConnected(_zone != null, _zone != null && _zone.Connected);
+
+    /// <summary>Coarse zone lifecycle derived from transport + Hello + local spawn.</summary>
+    public ZoneConnectionState ZoneConnectionState =>
+        ZoneConnectionStateResolver.Resolve(
+            _zoneConnecting,
+            _zone != null,
+            _zone != null && _zone.Connected,
+            _helloZone,
+            SessionObjectId > 0);
 
     public bool HasHandoff => _lobbyFlow != null && _lobbyFlow.HasHandoff;
     public HandoffMsg LastHandoff => _lobbyFlow?.LastHandoff;

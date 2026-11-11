@@ -332,6 +332,11 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - Raise `FineageZoneTransport.OnDisconnected` on remote close and intentional `Disconnect`.
 - Wire AppLifetimeScope → `GameManager.OnDisconnect` so zone drop returns to menu.
 
+### C4b. Zone connection semantics — done (A01)
+- GPT deep-audit finding: `FineageZoneTransport.Connected` was `NetworkingPacketServices.Session != null`.
+- **Fixed:** `Connected` = zone TCP open (`NetSession.IsZoneSocketConnected`); added `HasSession`, `ZoneConnectionState` / resolver (+ tools tests).
+- Residual: full reconnect/resync state machine still B5; session host / `Ensure()` drain is A02.
+
 ### C5. NetZoneDispatch holes — done (#879)
 - Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
 - Add `default` warning so unknown opcodes are visible.

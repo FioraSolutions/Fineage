@@ -34,6 +34,7 @@ public sealed partial class NetSession : MonoBehaviour
 
     void OnDestroy()
     {
+        _zoneConnecting = false;
         _lobbyFlow?.Dispose();
         _zone?.Dispose();
         if (Instance == this)

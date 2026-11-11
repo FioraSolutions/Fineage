@@ -28,8 +28,8 @@ public static partial class ZoneCommands
     }
 
     /// <summary>
-    /// True while a zone session exists. Replaces <c>GameClient.IsConnected</c>, which asked
-    /// whether the dead Interlude game socket was connected.
+    /// True while the zone TCP socket is open. Replaces <c>GameClient.IsConnected</c>.
+    /// Not the same as "a NetSession MonoBehaviour exists" — use <see cref="IZoneTransport.HasSession"/>.
     /// </summary>
     public static bool IsConnected
     {
@@ -37,6 +37,18 @@ public static partial class ZoneCommands
         {
             IZoneTransport transport = Transport;
             return transport != null && transport.Connected;
+        }
+    }
+
+    /// <summary>Coarse zone lifecycle; Disconnected when no transport is bound.</summary>
+    public static ZoneConnectionState ConnectionState
+    {
+        get
+        {
+            IZoneTransport transport = Transport;
+            return transport != null
+                ? transport.ConnectionState
+                : ZoneConnectionState.Disconnected;
         }
     }
 
