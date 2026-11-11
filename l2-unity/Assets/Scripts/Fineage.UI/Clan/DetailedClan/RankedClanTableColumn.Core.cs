@@ -3,19 +3,18 @@ using UnityEngine;
 
 public partial class RankedClanTableColumn : MonoBehaviour
 {
-    public static void ForEachClan(List<GradeList> gradeList , ICreatorTables _creatorTableWindows)
+    // Powers only — GradeList lives in Fineage.Networking; Fineage.UI must stay cycle-safe.
+    public static void ForEachClan(IReadOnlyList<int> powers, ICreatorTables _creatorTableWindows)
     {
-
-
         var rankList = new List<string>();
         var quantityList = new List<string>();
 
         for (int i = 0; i < 15; i++)
         {
-            if (i < gradeList.Count)
+            if (i < powers.Count)
             {
                 rankList.Add(GetTextRank(i));
-                quantityList.Add(gradeList[i].GetPower().ToString());
+                quantityList.Add(powers[i].ToString());
             }
             else
             {
@@ -24,8 +23,7 @@ public partial class RankedClanTableColumn : MonoBehaviour
             }
         }
 
-         List<TableColumn> listTableColumn = GetColumns(rankList, quantityList);
+        List<TableColumn> listTableColumn = GetColumns(rankList, quantityList);
         _creatorTableWindows.CreateTable(listTableColumn);
-
     }
 }

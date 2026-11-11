@@ -31,9 +31,14 @@ public partial class Gear
             return;
         }
         _origShieldPrefabName = weaponPrefab.name;
+        // Shield alone must not force 1HS — bare-hand / shield-only use hand anim suffix.
+        // Keep the right-hand weapon anim when a weapon is already equipped.
         WeaponType type = WeaponType.none;
         RefreshDataShield(weapon , WeaponType.shield);
-        UpdateWeaponType(type);
+        if (_rightHandWeapon != null)
+            UpdateWeaponType(_rightHandType);
+        else
+            UpdateWeaponType(WeaponType.hand);
         string shieldNameId = shieldName+weaponId;
         Transform[] refreshAllBone = RefreshBone(allBone);
         GameObject go = CreateCopy(weaponPrefab, shieldNameId, ObjectType.Weapon);

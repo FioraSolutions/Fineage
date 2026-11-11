@@ -50,6 +50,16 @@ public partial class Gear
                 OnUnequipAnimationRefresh?.Invoke("");
                 // Debug.Log("Destroy request item id 3 " + weaponId);
             }
+            else if (!leftSlot && _rightHandWeapon == null)
+            {
+                // Sword off, shield (or offhand) still on — fists+shield use hand, not leftover 1HS.
+                _lastWeaponAnim = _weaponAnim;
+                if (_leftHandType == WeaponType.bow)
+                    UpdateWeaponType(WeaponType.bow);
+                else
+                    UpdateWeaponType(WeaponType.hand);
+                OnUnequipAnimationRefresh?.Invoke("");
+            }
         }
     }
 

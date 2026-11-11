@@ -16,7 +16,9 @@ public abstract partial class AbstractAttackEvents
             Transform target = targetEntity != null ? targetEntity.transform : DomainPacketServices.LocalPlayer.Target;
             int attackerEntityId = entity.Identity != null ? entity.Identity.Id : 0;
             int targetEntityId = targetEntity != null && targetEntity.Identity != null ? targetEntity.Identity.Id : 0;
-            SwordCollisionPacketServices.Collision.RegisterSwordByEntityId(attackerEntityId, targetEntityId, swordBase, swordTip, target, 0);
+            SwordCollisionService collision = SwordCollisionPacketServices.Collision;
+            if (collision != null)
+                collision.RegisterSwordByEntityId(attackerEntityId, targetEntityId, swordBase, swordTip, target, 0);
         }
         else
         {

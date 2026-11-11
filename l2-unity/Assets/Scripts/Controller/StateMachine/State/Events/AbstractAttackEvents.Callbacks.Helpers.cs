@@ -138,7 +138,11 @@ public abstract partial class AbstractAttackEvents
                 // $"(compare with Enter AttackShotWallMs and Exit wallElapsedMs)");
         }
 
-        SwordCollisionPacketServices.Collision.EmitHitFromAttackShot(
+        SwordCollisionService collision = SwordCollisionPacketServices.Collision;
+        if (collision == null)
+            return;
+
+        collision.EmitHitFromAttackShot(
             attackerEntityId,
             targetEntityId,
             swordBasePoints[0],

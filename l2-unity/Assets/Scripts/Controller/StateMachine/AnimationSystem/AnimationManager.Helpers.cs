@@ -80,6 +80,7 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             return false;
         }
 
+        stateName = ResolvePlayableCombatState(controller, stateName);
         SetRecentName(objectId, stateName);
         float fade = LocomotionCrossFadeSettings.FixedDuration;
         PlayerBasicAttackCrossFade.TryPlay(controller, stateName, fade);
@@ -87,5 +88,25 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             // $"AnimationManager> start crossfade {family} player {entity.name} " +
             // $"state={stateName} duration={fade:F3}s");
         return true;
+    }
+
+    /// <summary>
+    /// Bare hands use WeaponAnim "hand" (wait_hand / atkwait_hand exist), but Player_Basic
+    /// has no jatk*_hand / SpAtk*_hand states yet — CrossFade would no-op and the pawn freezes.
+    /// Fall back to 1HS swing until hand attack states are wired.
+    /// </summary>
+    static string ResolvePlayableCombatState(IAnimationController controller, string stateName)
+    {
+        if (string.IsNullOrEmpty(stateName) ||
+            !stateName.EndsWith("_hand", System.StringComparison.Ordinal))
+        {
+            return stateName;
+        }
+
+        Animator animator = controller != null ? controller.GetAnimator() : null;
+        if (animator != null && animator.HasState(0, Animator.StringToHash(stateName)))
+            return stateName;
+
+        return stateName.Substring(0, stateName.Length - "hand".Length) + "1HS";
     }
 }
