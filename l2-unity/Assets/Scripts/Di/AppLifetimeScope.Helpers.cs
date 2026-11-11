@@ -49,4 +49,16 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         if (local != null)
             builder.RegisterComponent(local).AsSelf().As<IGameManager>();
     }
+
+    /// <summary>
+    /// Register scene <see cref="SceneLoader"/> as itself and <see cref="ISceneLoader"/> (#131).
+    /// </summary>
+    private void RegisterSceneLoader(IContainerBuilder builder)
+    {
+        SceneLoader local = GetComponent<SceneLoader>();
+        if (local == null)
+            local = Object.FindFirstObjectByType<SceneLoader>(FindObjectsInactive.Include);
+        if (local != null)
+            builder.RegisterComponent(local).AsSelf().As<ISceneLoader>();
+    }
 }

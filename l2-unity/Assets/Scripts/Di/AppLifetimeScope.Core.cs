@@ -8,13 +8,13 @@ public sealed partial class AppLifetimeScope : LifetimeScope
     {
         RegisterAppEventProcessor(builder);
         RegisterGameManager(builder);
-        LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<SceneLoader>(this, builder);
+        RegisterSceneLoader(builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<GameClient>(this, builder);
         LifetimeScopeMonoRegistration.RegisterIfFoundOnHost<LoginClient>(this, builder);
 
         builder.Register<TableInitializer>(Lifetime.Singleton);
         builder.Register<IconManager>(Lifetime.Singleton);
-        builder.Register<LobbyFlowController>(Lifetime.Singleton);
+        builder.Register<LobbyFlowController>(Lifetime.Singleton).AsSelf().As<ILobbySession>();
 
         builder.Register<EventProcessorApplyPump>(Lifetime.Singleton).As<IMainThreadApplyPump>();
         builder.Register<PacketApplyQueue>(Lifetime.Singleton).As<IPacketApplyQueue>().AsSelf();

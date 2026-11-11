@@ -9,10 +9,10 @@
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
 - **World entity SoT (#930):** `WorldPlacement` / `EntityPick` / `EntityInteraction` remain SoT.
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
-- **Asmdef:** leaf waves through **#1337**; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`GameState`/`L2EnvWorldLut` in Game; `AppContainers` in Di.
+- **Asmdef:** leaf waves through **#1338**+; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`GameState`/LUT/Formulas leaves in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
 - **`IZoneTransport` in Fineage.Networking:** local profile via ACS `FineageZoneTransport` / `ZoneCommands.LocalPlayerInfo`.
-- **NOT DONE — hard residual:** LifetimeScope / runtimes / `DiBootstrap` still ACS. Next: more scope callbacks on interfaces; avoid empty hub waves.
-- Epic **#131** next: Di-facing seams. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
+- **NOT DONE — hard residual:** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS (register concretes + PacketServices). Seams landed: `IGameManager`, `ISceneLoader`, `ILobbySession`, apply-queue/transport contracts.
+- Epic **#131** next: extract `IWorldEntityLookup` / DAT registry; then move scope shells into `Fineage.Di`. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 
 
 ## Executive Summary

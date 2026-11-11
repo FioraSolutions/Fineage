@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
 
-public partial class SceneLoader : MonoBehaviour
+public partial class SceneLoader : MonoBehaviour, ISceneLoader
 {
     [SerializeField] private string _menuScene = "Menu";
     [SerializeField] private string _lobbyScene = "l2_lobby";
