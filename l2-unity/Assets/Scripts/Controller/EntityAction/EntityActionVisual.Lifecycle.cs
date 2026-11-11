@@ -1,0 +1,112 @@
+﻿using UnityEngine;
+
+public static partial class EntityActionVisual
+{
+    public static void CancelMove(Entity entity)
+    {
+        if (entity == null || entity.Identity == null || ControllerPacketServices.Moves == null)
+            return;
+        if (entity.Identity.Id > 0)
+        {
+            MagicGaitTrace.Event(entity, "CancelMove", null);
+            ControllerPacketServices.Moves.CancelMove(entity.Identity.Id);
+            ControllerPacketServices.Moves.CancelRotate(entity.Identity.Id);
+        }
+    }
+
+    public static void FreezeUserMove(Entity entity)
+    {
+        UserEntity user = entity as UserEntity;
+        if (user == null || user.IsDead())
+            return;
+        NetworkAnimationController nac = user.GetAnimatorController();
+        if (nac == null)
+            return;
+        nac.SetAnimatorSpeed(0f);
+    }
+
+    public static void StartMove(Entity entity, bool walking, bool force = false)
+    {
+        if (entity is UserEntity userStart)
+        {
+            // Debug.Log(userStart.LogTag + " Visual.StartMove walking=" + walking +
+                // " hasAnim=" + userStart.HasAnimator() +
+                // " nac=" + (userStart.GetAnimatorController() != null));
+            PlayUserLocomotion(userStart, walking ? "walk" : "run", null, force);
+            return;
+        }
+
+        if (!CanPlayAnim(entity))
+        {
+            EntitySpawnShared.LogStriderGait("start-move-blocked", entity, "walking=" + walking);
+            return;
+        }
+
+        if (entity is NpcEntity npc)
+            npc.OnStartL2jMoving(walking);
+        else if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
+        {
+            string anim = walking ? AnimationNames.MONSTER_WALK.ToString() : AnimationNames.MONSTER_RUN.ToString();
+
+            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, anim);
+            EntitySpawnShared.LogStriderGait("start-move", monster, "asked=" + anim);
+        }
+    }
+
+    public static void PlayDisappearWait(Entity entity)
+    {
+        if (entity == null || entity.IsDead())
+            return;
+        if (entity is UserEntity user)
+        {
+            PlayUserLocomotion(user, "wait", null, true);
+            return;
+        }
+        StopMove(entity);
+    }
+
+    public static void StopMove(Entity entity)
+    {
+        if (entity is UserEntity userStop)
+        {
+            // Debug.Log(userStop.LogTag + " Visual.StopMove");
+            PlayUserLocomotion(userStop, "wait");
+            return;
+        }
+
+        if (!CanPlayAnim(entity))
+            return;
+
+        if (entity is NpcEntity npc)
+            npc.OnStopL2jMoving();
+        else if (entity is MonsterEntity monster)
+        {
+            if (ControllerPacketServices.Animations != null && monster.Identity != null)
+            {
+
+                ControllerPacketServices.Animations.PlayMonsterAnimation(
+                    monster.Identity.Id,
+                    AnimationNames.MONSTER_WAIT.ToString());
+                EntitySpawnShared.LogStriderGait("stop-move", monster, "asked=wait");
+            }
+        }
+    }
+
+    public static void PlayMeleeAttack(Entity entity)
+    {
+        if (!CanPlayAnim(entity))
+            return;
+
+        if (entity is UserEntity user)
+        {
+            PlayUserMeleeAttack(user);
+            return;
+        }
+
+        if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
+        {
+
+            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, AnimationNames.MONSTER_ATK01.ToString());
+        }
+    }
+}
