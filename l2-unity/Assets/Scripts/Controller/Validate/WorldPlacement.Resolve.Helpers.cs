@@ -45,8 +45,10 @@ public static partial class WorldPlacement
         if (!has)
             return groundPos;
 
+        // Positive sink: mesh feet below ground → lift. Negative: feet above ground → lower
+        // (aracne / import pivots often sit slightly above the snap point).
         float sink = groundPos.y - minY;
-        if (sink <= 0.001f || sink > 5f)
+        if (sink > 5f || sink < -2f || Mathf.Abs(sink) <= 0.001f)
             return go.transform.position;
 
         Vector3 p = go.transform.position;

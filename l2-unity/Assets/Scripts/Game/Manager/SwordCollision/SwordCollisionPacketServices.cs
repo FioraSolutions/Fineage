@@ -1,3 +1,4 @@
+using UnityEngine;
 using VContainer;
 
 /// <summary>
@@ -16,7 +17,9 @@ public static class SwordCollisionPacketServices
     public static SwordCollisionService Collision =>
         _collision != null
             ? _collision
-            : ResolveFromGame<SwordCollisionService>() ?? LegacySwordCollisionInstance();
+            : ResolveFromGame<SwordCollisionService>()
+              ?? LegacySwordCollisionInstance()
+              ?? FindAndBind();
 
     static T ResolveFromGame<T>() where T : class
     {
@@ -36,4 +39,13 @@ public static class SwordCollisionPacketServices
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
     static SwordCollisionService LegacySwordCollisionInstance() => SwordCollisionService.Instance;
 #pragma warning restore CS0618
+
+    static SwordCollisionService FindAndBind()
+    {
+        SwordCollisionService found =
+            Object.FindFirstObjectByType<SwordCollisionService>(FindObjectsInactive.Include);
+        if (found != null)
+            Bind(found);
+        return found;
+    }
 }

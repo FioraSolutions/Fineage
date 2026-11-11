@@ -42,10 +42,12 @@ public partial class BaseAnimationController : AnimationEventsBase, IAnimationCo
             _animator.Update(0f);
         }
 
+        // Local player: defer CastClip graph until first cast (CPU), but never CullCompletely —
+        // wall-clock CastSync can report phaseDone while bones stay frozen when bounds cull.
         _castIdleSkip = GetComponent<UserEntity>() != null;
         if (_castIdleSkip)
         {
-            _animator.cullingMode = AnimatorCullingMode.CullCompletely;
+            _animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             _castPlayable?.Dispose();
             _castPlayable = null;
             return;

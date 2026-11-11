@@ -13,7 +13,9 @@ public partial class RankingPrivelege : AbstractClanContent
         {
             _creatorTableWindows.InitTable(master_table_content);
             _creatorTableWindows.LoadAsset(loaderFunc);
-            RankedClanTableColumn.ForEachClan(rankingList.GradeList, _creatorTableWindows);
+            RankedClanTableColumn.ForEachClan(
+                rankingList.GradeList.ConvertAll(g => g.GetPower()),
+                _creatorTableWindows);
         }
 
     }

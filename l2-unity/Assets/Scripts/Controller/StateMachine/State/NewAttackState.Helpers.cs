@@ -49,20 +49,30 @@ public partial class NewAttackState : AbstractAttackEvents
                     // $"(L2J 500000/pAtkSpd) serverHitMs={attackDurationMs * hitFraction:F1} " +
                     // $"hitFraction={hitFraction:F2} targetId={targetEntityId}");
 
-                SwordCollisionPacketServices.Collision.BeginAttack(
-                    _stateMachine.Player.Identity.Id,
-                    targetEntityId,
-                    _stateMachine.Player.transform,
-                    targetEntity.transform,
-                    attackDurationMs,
-                    hitFraction);
+                // Collision may be unbound if SwordCollisionService never awoke — still play jatk.
+                SwordCollisionService collision = SwordCollisionPacketServices.Collision;
+                if (collision != null && _stateMachine.Player != null && _stateMachine.Player.Identity != null)
+                {
+                    collision.BeginAttack(
+                        _stateMachine.Player.Identity.Id,
+                        targetEntityId,
+                        _stateMachine.Player.transform,
+                        targetEntity.transform,
+                        attackDurationMs,
+                        hitFraction);
+                }
 
                 // Melee Hit/SoulShot: AttackShot on jatk*_1HS/_2HS/_dual/_pole (not wall-clock).
                 // RegisterSwordCollision(_stateMachine.Player);
 
-                DomainPacketServices.LocalPlayer.RefreshRandomPAttack();
-                Animation random = DomainPacketServices.LocalPlayer.RandomName;
-                ControllerPacketServices.Animations.PlayAnimationTrigger(_stateMachine.GetObjectId() , random.ToString());
+                if (DomainPacketServices.LocalPlayer != null)
+                {
+                    DomainPacketServices.LocalPlayer.RefreshRandomPAttack();
+                    Animation random = DomainPacketServices.LocalPlayer.RandomName;
+                    ControllerPacketServices.Animations?.PlayAnimationTrigger(
+                        _stateMachine.GetObjectId(),
+                        random.ToString());
+                }
 
                 break;
             case Event.WAIT_RETURN:

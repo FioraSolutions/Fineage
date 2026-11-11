@@ -41,7 +41,8 @@ public abstract partial class AbstractAttackEvents
         }
 
         Transform[] swordBasePoints = _stateMachine.Player.GetSwordBasePoints();
-        if (swordBasePoints != null && swordBasePoints.Length > 1)
+        if (swordBasePoints != null && swordBasePoints.Length > 1 &&
+            SwordCollisionPacketServices.Collision != null)
         {
             SwordCollisionPacketServices.Collision.UnregisterSword(swordBasePoints[0]);
         }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
-public partial class SwordCollisionService : MonoBehaviour
+public partial class SwordCollisionService
 {
     private void WireGamePacketServices()
     {
