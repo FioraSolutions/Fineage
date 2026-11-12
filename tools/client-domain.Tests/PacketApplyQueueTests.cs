@@ -33,17 +33,22 @@ public class PacketApplyQueueTests
         var queue = new PacketApplyQueue(pump);
         int order = 0;
         int nestedAt = -1;
+        bool nestedBeforeOuterFinished = false;
 
         queue.QueueApply(() =>
         {
             order = 1;
             queue.Queue(() => nestedAt = order);
+            nestedBeforeOuterFinished = nestedAt == 1;
             order = 2;
         });
 
         Assert.Equal(-1, nestedAt);
+        Assert.Single(pump.Pending);
         pump.Drain();
-        Assert.Equal(2, nestedAt);
+        Assert.True(nestedBeforeOuterFinished);
+        Assert.Equal(1, nestedAt);
+        Assert.Equal(2, order);
     }
 
     [Fact]
