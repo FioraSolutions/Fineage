@@ -131,7 +131,8 @@ public partial class CharCreationWindow : L2Window
         });
         genderInput.AddManipulator(genderManipulator);
 
-        classManipulator = new ArrowInputManipulator(classInput, "Class", new string[] { "Fighter", "Mystic" }, -1, (index, value) => {
+        // Empty until race chosen — Interlude step 0 (#933). Race callback fills via ClassNames.
+        classManipulator = new ArrowInputManipulator(classInput, "Class", System.Array.Empty<string>(), -1, (index, value) => {
             if(raceManipulator.Value == "Dwarf" && value == "Mystic") {
                 classManipulator.ResetInput();
                 // Stay on race gallery (Fighter M/F only) — Dwarf has no Mystic (#933).
