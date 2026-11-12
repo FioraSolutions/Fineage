@@ -28,7 +28,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <!-- Fineage-only; under PWD field only (Interlude LoginWnd has no Remember). -->
-                <ui:Toggle label="Запомнить" name="RememberToggle" focusable="false" class="il-login-remember" />
+                <ui:Toggle label="Remember" name="RememberToggle" focusable="false" class="il-login-remember" />
                 <ui:VisualElement name="Buttons" picking-mode="Ignore" class="il-login-buttons">
                     <ui:Button text="Log In" name="LoginButton" focusable="false" class="l2-button il-login-btn">
                         <ui:VisualElement name="ButtonBg" picking-mode="Ignore" class="l2-button-bg" />
