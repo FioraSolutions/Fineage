@@ -32,9 +32,18 @@ public partial class CharCreationWindow
 
     void SubmitLobbyCreate(string className, string sexName)
     {
-        if (classManipulator == null || classManipulator.Index < 0 || genderManipulator == null || genderManipulator.Index < 0)
+        if (raceManipulator == null || raceManipulator.Index < 0
+            || classManipulator == null || classManipulator.Index < 0
+            || genderManipulator == null || genderManipulator.Index < 0)
         {
-            SetlabelError("Choose a class and gender.");
+            SetlabelError("Choose a race, class, and gender.");
+            return;
+        }
+        if (hairstyleManipulator == null || hairstyleManipulator.Index < 0
+            || hairColorManipulator == null || hairColorManipulator.Index < 0
+            || faceManipulator == null || faceManipulator.Index < 0)
+        {
+            SetlabelError("Choose hair and face.");
             return;
         }
 
