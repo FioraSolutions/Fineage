@@ -29,6 +29,10 @@ Two valid pipelines — **pick one, never mix**:
 
 **Never** Blender-Apply Scale on an animated UU FBX and then re-extract clips — that exploded clergy limbs (leg to infinity, NPCs fused). For pipeline B, scale is Unity `globalScale` only.
 
+### B2) Meter town NPCs (teleporter / casino builders)
+
+Fresh `a_teleporter_*` / `a_casino_*` imports use **pipeline A numbers** via Blender `bScaleDown=True`, then `L2TownNpcFbxImport.ConfigureMeterFbx` (`globalScale=1` + forced reimport + height assert). Do **not** YAML-flip `globalScale` while Library still holds UU verts — that makes giants.
+
 | Asset | Pelvis Z | Pipeline |
 |-------|----------|----------|
 | `MOrc_anim.fbx` | ~0.25 | A |
