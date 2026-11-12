@@ -44,17 +44,24 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             NetSession netSession = NetSession.CreateForCompositionRoot();
             NetworkingPacketServices.Bind(session: netSession);
             IGameManager manager = container.Resolve<IGameManager>();
+            GameManager gameManager = container.Resolve<GameManager>();
+            LoginClient login = container.Resolve<LoginClient>();
+            EventProcessor events = container.Resolve<EventProcessor>();
             _boundTransport = transport;
             _boundManager = manager;
+            _boundGameManager = gameManager;
+            _boundLogin = login;
+            _boundEvents = events;
+            _boundSession = netSession;
             NetGameHost.Bind(manager);
             _onDisconnected = HandleTransportDisconnected;
             transport.OnDisconnected += _onDisconnected;
             AppLoginSessionApplyIncomingPacketServices.BindApp(
                 container.Resolve<GameClient>(),
-                container.Resolve<LoginClient>(),
-                container.Resolve<GameManager>(),
+                login,
+                gameManager,
                 container.Resolve<PacketApplyQueue>(),
-                container.Resolve<EventProcessor>());
+                events);
             // NetworkingPacketServices.Bind(manager) already done in BindApp above; session bound above.
             LobbyFlowLog.Wire(() => manager == null || manager.GameState < GameState.IN_GAME);
         });

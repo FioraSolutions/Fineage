@@ -11,8 +11,8 @@ public sealed class EventProcessorApplyPump : IMainThreadApplyPump
 
     public EventProcessorApplyPump(EventProcessor events)
     {
+        // Events host is bound by AppLoginSessionApplyIncomingPacketServices.BindApp (A08/A10).
         _events = events ?? throw new ArgumentNullException(nameof(events));
-        NetworkingPacketServices.Bind(events: events);
     }
 
     public void QueueOnMainThread(Action action)
@@ -20,16 +20,13 @@ public sealed class EventProcessorApplyPump : IMainThreadApplyPump
         if (action == null)
             return;
 
-        EventProcessor processor = _events;
-        if (processor == null)
-            processor = NetworkingPacketServices.Events;
-        if (processor == null)
+        if (_events == null)
         {
             Debug.LogError(
                 "[EventProcessorApplyPump] EventProcessor missing — drop deferred apply (no EnsureInstance fallback)");
             return;
         }
 
-        processor.QueueEvent(action);
+        _events.QueueEvent(action);
     }
 }
