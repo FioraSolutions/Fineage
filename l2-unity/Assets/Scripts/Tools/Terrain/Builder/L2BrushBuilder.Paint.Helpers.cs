@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -125,3 +126,4 @@ public partial class L2BrushBuilder
         return material;
     }
 }
+#endif
