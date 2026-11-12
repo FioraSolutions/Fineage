@@ -27,6 +27,6 @@ public partial class CharacterCreator
     }
 
     public GameObject FallbackPawn() {
-        return CreatePawn(CharacterRaceAnimation.FFighter, new PlayerAppearance());
+        return CreatePawnInterlude(CharacterRaceAnimation.FFighter, new PlayerAppearance());
     }
 }
