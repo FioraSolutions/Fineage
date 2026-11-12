@@ -360,6 +360,10 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
 - Add `default` warning so unknown opcodes are visible.
 
+### C5b. Opcode inbound coverage guard — done
+- CI `scripts/check-net-zone-inbound-opcodes.py`: every Zone→client `NetOpcode` must have a `NetZoneDispatch` case (or explicit Client→zone / lobby outbound).
+- Closed remaining decode-only gaps (BossStatus, Olympiad match/countdown/result, craft/store lists, friend/block updates, SevenSignsSky).
+
 ---
 
 ## Phase D — Scale (#112) — later
