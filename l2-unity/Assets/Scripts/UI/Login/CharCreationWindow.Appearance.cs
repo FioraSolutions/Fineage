@@ -50,6 +50,9 @@ public partial class CharCreationWindow
     {
         if (raceManipulator == null)
             return;
+        // Interlude step 0: empty stage until race chosen (#933).
+        if (Creator != null)
+            Creator.ResetPawnSelection();
         raceManipulator.UpdateValues(LobbyRaceCatalog.RaceNames);
         raceManipulator.ResetInput();
         if (classManipulator != null)
