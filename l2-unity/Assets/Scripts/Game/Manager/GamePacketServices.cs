@@ -26,8 +26,17 @@ public static partial class GamePacketServices
         }
     }
 
-    public static GameManager Manager =>
-        _manager != null ? _manager : NetworkingPacketServices.Manager;
+    public static GameManager Manager
+    {
+        get
+        {
+            if (_manager != null)
+                return _manager;
+            if (NetGameHost.TryGet() is GameManager hosted)
+                return hosted;
+            return NetworkingPacketServices.Manager;
+        }
+    }
 
     public static IAnimationManager Animations =>
         _animations != null ? _animations : ResolveAnimationsFallback();
