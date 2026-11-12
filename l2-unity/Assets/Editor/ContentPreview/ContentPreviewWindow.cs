@@ -333,22 +333,20 @@ public class ContentPreviewWindow : EditorWindow
                 animator.Play(waitHash, 0, 0f);
         }
 
-        // Equip weapon
-        if (_weaponId != 0 || _shieldId != 0)
+        Gear gear = go.GetComponent<Gear>() ?? go.GetComponentInChildren<Gear>();
+        if (gear != null)
         {
-            Gear gear = go.GetComponent<Gear>();
-            if (gear == null)
-                gear = go.GetComponentInChildren<Gear>();
-            if (gear != null)
-            {
-                gear.Initialize(99999, _raceId);
-                if (_weaponId != 0) gear.EquipWeapon(_weaponId, false);
-                if (_shieldId != 0) gear.EquipShield(_shieldId);
-            }
-            else
-            {
-                Debug.LogWarning("[ContentPreview] Gear component not found on character prefab.");
-            }
+            gear.Initialize(99999, _raceId);
+            if (gear is UserGear userGear)
+                builder.AttachFaceAndHair(userGear, _raceId, appearance);
+            if (_weaponId != 0)
+                gear.EquipWeapon(_weaponId, false);
+            if (_shieldId != 0)
+                gear.EquipShield(_shieldId);
+        }
+        else
+        {
+            Debug.LogWarning("[ContentPreview] Gear component not found on character prefab.");
         }
 
         Debug.Log("[ContentPreview] Spawned character: " + _raceId +

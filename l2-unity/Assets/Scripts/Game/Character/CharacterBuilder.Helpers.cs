@@ -23,20 +23,38 @@ public partial class CharacterBuilder : MonoBehaviour
         return entity;
     }
 
+    /// <summary>
+    /// Interlude body container only. Face/hair must be attached after
+    /// <see cref="UserGear.Initialize"/> via <see cref="AttachFaceAndHair"/> so pieces
+    /// parent under the gear container and SkinnedMeshSync (#933 elf/face residual).
+    /// </summary>
     public GameObject BuildCharacterBaseInterlude(CharacterRaceAnimation raceId, PlayerAppearance appearance, EntityType entityType) {
         GameObject prototype = Models.GetContainer(raceId, entityType);
         if (prototype == null) {
             return null;
         }
 
-        GameObject entity = Instantiate(prototype);
-        Transform container = ResolveModelContainer(entity, entityType);
+        return Instantiate(prototype);
+    }
 
-        SpawnPiece(Models.GetFace(raceId, appearance.FaceByte), container);
-        SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false), container);
-        SpawnPiece(Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true), container);
+    /// <summary>Spawn face/hair and Equip* after UserGear.Initialize (#933).</summary>
+    public void AttachFaceAndHair(UserGear gear, CharacterRaceAnimation raceId, PlayerAppearance appearance)
+    {
+        if (gear == null || appearance == null || Models == null)
+            return;
 
-        return entity;
+        Transform container = gear.transform;
+        GameObject face = SpawnPiece(Models.GetFace(raceId, appearance.FaceByte), container);
+        if (face != null)
+            gear.EquipFace(face);
+
+        GameObject hair1 = SpawnPiece(
+            Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, false),
+            container);
+        GameObject hair2 = SpawnPiece(
+            Models.GetHair(raceId, appearance.HairStyleByte, appearance.HairColorByte, true),
+            container);
+        gear.EquipHair(hair1, hair2);
     }
 
     static Transform ResolveModelContainer(GameObject entity, EntityType entityType)
