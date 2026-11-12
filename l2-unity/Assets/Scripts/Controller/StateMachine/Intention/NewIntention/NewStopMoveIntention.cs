@@ -1,5 +1,4 @@
 using TMPro;
-using UnityEditorInternal;
 
 public class NewStopMoveIntention : IntentionBase
 {

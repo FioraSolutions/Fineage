@@ -1,4 +1,4 @@
-// fineage-touch 1794037730.455447
+// fineage-touch 1794508154.6591449.fixscale2
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
@@ -10,13 +10,28 @@ using UnityEngine;
 /// While the Editor is already open (batchmode cannot attach), drop a jobs file to run
 /// one-shot import/bake steps after domain reload.
 /// Flag: Assets/Editor/FineagePendingEditorJobs.txt — one job name per line.
-/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | bake_tile XX_YY
+/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | casino_npc | elf_teleporter_npc | npc_bounds | bake_tile XX_YY | rebuild_static XX_YY
 /// </summary>
 [InitializeOnLoad]
 static class FineagePendingEditorJobs
 {
     const string FlagPath = "Assets/Editor/FineagePendingEditorJobs.txt";
     static bool _running;
+
+    /// <summary>
+    /// Batch: -executeMethod FineagePendingEditorJobs.RunRebuildStaticCli
+    /// Env: FINEAGE_INTERLUDE_TILE=17_22 (static meshes only — safe in -nographics).
+    /// </summary>
+    public static void RunRebuildStaticCli()
+    {
+        string tile = Environment.GetEnvironmentVariable("FINEAGE_INTERLUDE_TILE");
+        if (string.IsNullOrWhiteSpace(tile))
+            tile = "17_22";
+        string result = RebuildStatic(tile.Trim());
+        Debug.Log("[FineagePendingEditorJobs] rebuild_static " + tile + ": " + result);
+        if (Application.isBatchMode)
+            EditorApplication.Exit(result.Contains("static=ok") ? 0 : 1);
+    }
 
     static FineagePendingEditorJobs()
     {
@@ -65,6 +80,8 @@ static class FineagePendingEditorJobs
     {
         if (job.StartsWith("bake_tile ", StringComparison.Ordinal))
             return BakeTile(job.Substring("bake_tile ".Length).Trim());
+        if (job.StartsWith("rebuild_static ", StringComparison.Ordinal))
+            return RebuildStatic(job.Substring("rebuild_static ".Length).Trim());
 
         switch (job)
         {
@@ -75,6 +92,12 @@ static class FineagePendingEditorJobs
                 return "ok";
             case "orc_npc":
                 return L2OrcNpcPrefabBuilder.Run();
+            case "casino_npc":
+                return L2CasinoNpcPrefabBuilder.Run();
+            case "elf_teleporter_npc":
+                return L2ElfTeleporterNpcPrefabBuilder.Run();
+            case "npc_bounds":
+                return L2NpcPrefabBoundsDiag.Run();
             case "tile_scenes":
             {
                 string[] tiles = { "18_14", "19_14", "19_15", "20_17", "20_18", "23_11", "23_12", "24_11", "24_12" };
@@ -100,6 +123,39 @@ static class FineagePendingEditorJobs
     }
 
     /// <summary>
+    /// Re-place StaticMeshes.prefab + streamable scene from already-imported FBX (no terrain re-bake).
+    /// </summary>
+    static string RebuildStatic(string tile)
+    {
+        if (string.IsNullOrWhiteSpace(tile) || tile.IndexOf('_') < 0)
+            return "bad tile id";
+
+        string repo = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
+        string export = Path.Combine(repo, ".work", "umodel-export-" + tile);
+        if (Directory.Exists(export))
+        {
+            Environment.SetEnvironmentVariable(L2InterludeClientSettings.EnvUModelExportRoot, export);
+            L2InterludeClientSettings.UModelExportRoot = export;
+        }
+
+        AssetDatabase.Refresh();
+        L2MapStaticMeshBuilder.MeshLocalYawFix = 90f;
+        try
+        {
+            L2TerrainGeneratorTool.GenerateStaticMeshesForMap(tile);
+        }
+        finally
+        {
+            L2MapStaticMeshBuilder.MeshLocalYawFix = 0f;
+        }
+        L2InterludeTileBakePipeline.SaveNamedScenePrefab(tile, "StaticMeshes", "StaticMeshes.prefab");
+        bool sceneOk = L2InterludeTileSceneCli.BuildScene(tile);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        return "static=ok scene=" + (sceneOk ? "ok" : "fail");
+    }
+
+    /// <summary>
     /// Unity pipeline + tile scene for one square (Phase A / meshes must already be on disk).
     /// Must run in the open Editor — batchmode/-nographics garbles terrain Texture2DArrays.
     /// </summary>
@@ -119,8 +175,14 @@ static class FineagePendingEditorJobs
         if (string.IsNullOrEmpty(client) || !Directory.Exists(Path.Combine(client, "maps")))
             client = clientGuess;
 
+        // Getter prefers process env over EditorPrefs — force both so a stale
+        // L2_UMODEL_EXPORT_DIR from another tile cannot steal the import root.
         if (Directory.Exists(export))
+        {
+            Environment.SetEnvironmentVariable(L2InterludeClientSettings.EnvUModelExportRoot, export);
             L2InterludeClientSettings.UModelExportRoot = export;
+        }
+        Environment.SetEnvironmentVariable(L2InterludeClientSettings.EnvClientRoot, client);
         L2InterludeClientSettings.ClientRoot = client;
 
         var steps = L2InterludeTileBakePipeline.DefaultSteps | L2InterludeBakeStep.GenerateMaterials;
