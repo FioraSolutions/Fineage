@@ -19,8 +19,11 @@ public partial class LoginWindow
 
         _labelError = (Label)GetElementById("LabelError");
         _loginButton = (Button) GetElementById("LoginButton");
-        _loginButton.AddManipulator(new ButtonClickSoundManipulator(_loginButton));
-        _loginButton.RegisterCallback<ClickEvent>(evt => LoginButtonPressed());
+        if (_loginButton != null)
+        {
+            _loginButton.AddManipulator(new ButtonClickSoundManipulator(_loginButton));
+            _loginButton.RegisterCallback<ClickEvent>(evt => LoginButtonPressed());
+        }
         SetLoginBusy(false);
 
         Button exitButton = (Button)GetElementById("ExitButton");
