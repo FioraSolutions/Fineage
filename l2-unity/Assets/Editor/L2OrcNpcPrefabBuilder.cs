@@ -82,7 +82,9 @@ public static class L2OrcNpcPrefabBuilder
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
             PrefabUtility.SaveAsPrefabAsset(instance, prefabPath);
-            return stem + " prefab clips=" + clips.Count + " mats=" + mats.Count;
+            float h = L2TownNpcFbxImport.AssertHumanoidHeight(instance, stem);
+            return stem + " prefab clips=" + clips.Count + " mats=" + mats.Count
+                + " height=" + h.ToString("0.###");
         }
         finally
         {
