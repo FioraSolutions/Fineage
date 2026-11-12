@@ -35,6 +35,25 @@ public static partial class NetworkingPacketServices
             _session = session;
     }
 
+    /// <summary>
+    /// Clear App-owned static hosts when composition root dies (GPT A08) — reference-equals only.
+    /// </summary>
+    public static void Unbind(
+        GameManager manager = null,
+        LoginClient login = null,
+        EventProcessor events = null,
+        NetSession session = null)
+    {
+        if (manager != null && ReferenceEquals(_manager, manager))
+            _manager = null;
+        if (login != null && ReferenceEquals(_login, login))
+            _login = null;
+        if (events != null && ReferenceEquals(_events, events))
+            _events = null;
+        if (session != null && ReferenceEquals(_session, session))
+            _session = null;
+    }
+
     public static void ApplyWorld(Action<WorldPacketApply> apply)
     {
         WorldPacketApply worldApply = WorldApply;

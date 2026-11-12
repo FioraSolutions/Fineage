@@ -7,6 +7,10 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 {
     IZoneTransport _boundTransport;
     IGameManager _boundManager;
+    GameManager _boundGameManager;
+    LoginClient _boundLogin;
+    EventProcessor _boundEvents;
+    NetSession _boundSession;
     Action _onDisconnected;
 
     protected override void OnDestroy()
@@ -18,6 +22,15 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         _boundTransport = null;
         NetGameHost.Unbind(_boundManager);
         _boundManager = null;
+        NetworkingPacketServices.Unbind(
+            manager: _boundGameManager,
+            login: _boundLogin,
+            events: _boundEvents,
+            session: _boundSession);
+        _boundGameManager = null;
+        _boundLogin = null;
+        _boundEvents = null;
+        _boundSession = null;
         UnbindDatTableSeams();
         if (ReferenceEquals(App.Container, Container))
             App.Container = null;
