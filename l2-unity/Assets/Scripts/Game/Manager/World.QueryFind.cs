@@ -75,11 +75,7 @@ public partial class World
 
     public Entity GetEntityNoLockSync(int id)
     {
-        if (_objects.ContainsKey(id))
-        {
-            return _objects[id];
-        }
-        return null;
+        return _entities.GetOrNull(id);
     }
 
     /// <inheritdoc cref="IWorldEntityLookup.FindTransformNoLock"/>
@@ -91,14 +87,7 @@ public partial class World
 
     public void ForEachEntity(Action<Entity> action)
     {
-        if (action == null)
-            return;
-
-        foreach (KeyValuePair<int, Entity> pair in _objects)
-        {
-            if (pair.Value != null)
-                action(pair.Value);
-        }
+        _entities.ForEach(action);
     }
 
     /// <summary>
@@ -109,14 +98,7 @@ public partial class World
     /// </summary>
     public void ForEachUser(Action<Entity> action)
     {
-        if (action == null)
-            return;
-
-        foreach (KeyValuePair<int, Entity> pair in _players)
-        {
-            if (pair.Value != null)
-                action(pair.Value);
-        }
+        _entities.ForEachPlayer(action);
     }
 
     /// <summary>

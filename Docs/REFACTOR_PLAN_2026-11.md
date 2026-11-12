@@ -356,6 +356,11 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - Replace `World.GetEntityAsync` `Task.Delay(150)` poll with `ObjectIdWaitMap` (notify on Register*, fail on unregister, cancel on clear/destroy).
 - Timeout remains 150ms for parity; early complete when spawn registers. Tools tests cover the wait map.
 
+### C4g. World entity registry (GPT A05) — done (partial)
+- Extract `WorldEntityRegistry<T>` (all / players / npcs maps) under `Fineage.Domain/World`.
+- `World` Register*/Remove/Query/Clear delegates to registry; spawn/presentation stays on World.
+- Residual: further World splits (spawn vs apply vs combat) still opportunistic.
+
 ### C5. NetZoneDispatch holes — done (#879)
 - Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
 - Add `default` warning so unknown opcodes are visible.

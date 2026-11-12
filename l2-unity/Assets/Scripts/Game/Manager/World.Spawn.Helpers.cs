@@ -21,8 +21,7 @@ public partial class World
             return;
 
         int id = npc.Identity.Id;
-        _npcs.Add(id, npc);
-        _objects.Add(id, npc);
+        _entities.RegisterNpc(id, npc);
         _entityWait.Notify(id, npc);
     }
 
@@ -32,7 +31,7 @@ public partial class World
             return;
 
         int id = item.Identity.Id;
-        _objects[id] = item;
+        _entities.RegisterItem(id, item);
         _entityWait.Notify(id, item);
     }
 

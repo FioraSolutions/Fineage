@@ -34,9 +34,7 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
     }
 
     public void ClearEntities() {
-        _objects.Clear();
-        _players.Clear();
-        _npcs.Clear();
+        _entities.Clear();
         _entityWait.CancelAll();
     }
 
@@ -45,6 +43,6 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
 
     public bool ContainsNpc(int id)
     {
-        return _npcs.ContainsKey(id);
+        return _entities.ContainsNpc(id);
     }
 }

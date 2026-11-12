@@ -84,10 +84,7 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
     public static readonly TimeSpan EntityWaitTimeout = TimeSpan.FromMilliseconds(150);
 
     readonly ObjectIdWaitMap<Entity> _entityWait = new ObjectIdWaitMap<Entity>();
-
-    private Dictionary<int, Entity> _players = new Dictionary<int, Entity>();
-    private Dictionary<int, Entity> _npcs = new Dictionary<int, Entity>();
-    private Dictionary<int, Entity> _objects = new Dictionary<int, Entity>();
+    readonly WorldEntityRegistry<Entity> _entities = new WorldEntityRegistry<Entity>();
 
 
     [Header("Layer Masks")]
