@@ -107,6 +107,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: e_clergyman_MOrc_m00
       objectReference: {fileID: 0}
+    - target: {fileID: 7735967150329630907, guid: d8e9521adeb184d098bee8b3bef5847a, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 3dac9d531d5e4943b6f579f7f74a86d3, type: 2}
+    - target: {fileID: 7735967150329630907, guid: d8e9521adeb184d098bee8b3bef5847a, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 95dcaecdc73a4131b9b2c992770d8292, type: 2}
+    - target: {fileID: 7735967150329630907, guid: d8e9521adeb184d098bee8b3bef5847a, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 641c528d42834f49a0b36627cc4703ef, type: 2}
+    - target: {fileID: 7735967150329630907, guid: d8e9521adeb184d098bee8b3bef5847a, type: 3}
+      propertyPath: 'm_Materials.Array.data[3]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a222a11081264902b23067446936ddb3, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -241,19 +257,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcEntity
   _entityLoaded: 0
-  _identityInterlude:
-    _entityType: 0
-    _id: 0
-    _name: 
-    _title: 
-    _titleColor: 9CE8A9FF
-    _resetTick: 0
-    _npcId: 0
-    _npcClass: 
-    _playerClass: 0
-    _position: {x: 4724, y: -68, z: -1731}
-    _heading: {x: 0, y: 0, z: 0, w: 0}
-    _owned: 0
   _stats:
     _level: 0
     _speed: 0
@@ -309,6 +312,8 @@ MonoBehaviour:
         _meshName: 
         _decoEffect: 
         _scale: 1
+      _propertySkillIds: 
+      _propertySkillLevels: 
 --- !u!114 &6960431408534144989
 MonoBehaviour:
   m_ObjectHideFlags: 0
