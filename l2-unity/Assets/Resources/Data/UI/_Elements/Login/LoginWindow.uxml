@@ -2,6 +2,7 @@
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
     <!-- Interlude LoginWnd + NCLoginFunctionWnd: center credentials, bottom-right action menu. -->
     <ui:VisualElement name="LoginWindow" picking-mode="Ignore" class="login-window il-login">
+        <ui:VisualElement name="L2Logo" picking-mode="Ignore" class="il-login-logo" />
         <ui:VisualElement name="LoginCenter" picking-mode="Ignore" class="il-login-center">
             <ui:VisualElement name="LoginFrame" picking-mode="Ignore" class="il-login-frame">
                 <ui:VisualElement name="ID" picking-mode="Ignore" class="il-login-row">
