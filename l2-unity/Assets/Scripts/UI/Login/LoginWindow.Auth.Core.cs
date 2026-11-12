@@ -68,7 +68,8 @@ public partial class LoginWindow
     private void ExitButtonPressed()
     {
         // Same path as System Menu → Exit (Editor stops Play; player builds quit).
-        GameManager manager = LoginPacketServices.Manager ?? GamePacketServices.Manager;
+        IGameManager manager = NetGameHost.TryGet()
+            ?? (IGameManager)(LoginPacketServices.Manager ?? GamePacketServices.Manager);
         if (manager != null)
         {
             manager.QuitGame();
