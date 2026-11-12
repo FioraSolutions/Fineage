@@ -372,6 +372,10 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - CI `scripts/check-net-zone-inbound-opcodes.py`: every Zone→client `NetOpcode` must have a `NetZoneDispatch` case (or explicit Client→zone / lobby outbound).
 - Closed remaining decode-only gaps (BossStatus, Olympiad match/countdown/result, craft/store lists, friend/block updates, SevenSignsSky).
 
+### C5c. PacketApplyQueue nest depth (GPT A11) — done
+- `_applyDepth` is per-queue instance (was `[ThreadStatic]` shared across hosts on the thread).
+- Tools tests cover nested inline Queue during QueueApply and isolation between queue instances.
+
 ---
 
 ## Phase D — Scale (#112) — later
