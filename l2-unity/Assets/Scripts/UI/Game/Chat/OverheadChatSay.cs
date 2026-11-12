@@ -24,10 +24,14 @@ public static class OverheadChatSay
             return;
 
         World world = WorldApplyPacketServices.GameWorld ?? GamePacketServices.GameWorld;
-        if (world == null)
-            return;
-
-        Entity entity = world.GetEntityNoLockSync(objectId);
+        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
+        // Local player can miss the object map briefly / on some spawn paths (#521).
+        if (entity == null)
+        {
+            PlayerEntity local = DomainPacketServices.LocalPlayer;
+            if (local != null && local.Identity != null && local.Identity.Id == objectId)
+                entity = local;
+        }
         if (entity == null || entity.transform == null)
             return;
 
