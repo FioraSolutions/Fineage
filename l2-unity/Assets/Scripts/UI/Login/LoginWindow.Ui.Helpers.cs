@@ -50,8 +50,22 @@ public partial class LoginWindow
         _passwordInput.AddManipulator(new BlinkingCursorManipulator(_passwordInput));
         _passwordInput.RegisterCallback<KeyDownEvent>((evt) => OnKeyPressed(evt, _passwordInput));
 
+        // One Fineage mark — extra L2Logo nodes (re-entrant AddWindow / old Lineage2_Login) ghost the II.
+        var logos = root.Query<VisualElement>("L2Logo").ToList();
+        _logo = null;
+        for (int i = 0; i < logos.Count; i++)
+        {
+            if (logos[i] == null)
+                continue;
+            if (_logo == null)
+            {
+                _logo = logos[i];
+                _logo.style.display = DisplayStyle.Flex;
+                continue;
+            }
 
-        _logo = root.Q<VisualElement>("L2Logo");
+            logos[i].RemoveFromHierarchy();
+        }
 
         _rememberToggle = root.Q<Toggle>("RememberToggle");
         bool remember = PlayerPrefs.GetInt(RememberKey, 0) == 1;
@@ -71,6 +85,14 @@ public partial class LoginWindow
         }
 
         WireLoginMenu(root);
+
+        // Inline styles beat Unity's default TextField chrome and any password-only padding.
+        ApplyLoginFieldMetrics(_userInput);
+        ApplyLoginFieldMetrics(_passwordInput);
+        _userInput.schedule.Execute(() => {
+            ApplyLoginFieldMetrics(_userInput);
+            ApplyLoginFieldMetrics(_passwordInput);
+        });
 
         _userInput.Focus();
     }
@@ -109,6 +131,79 @@ public partial class LoginWindow
     private void OnInputFocus(FocusEvent evt, VisualElement input) {
         if (!input.ClassListContains("highlighted")) {
             input.AddToClassList("highlighted");
+        }
+    }
+
+    // ID and PWD must share one box: Unity's password TextField keeps extra inline padding USS cannot clear.
+    private static void ApplyLoginFieldMetrics(TextField field) {
+        if (field == null)
+            return;
+
+        field.Query(className: BaseField<string>.labelUssClassName).ForEach(label => {
+            label.style.display = DisplayStyle.None;
+        });
+
+        field.style.width = 176;
+        field.style.minWidth = 176;
+        field.style.maxWidth = 176;
+        field.style.height = 17;
+        field.style.minHeight = 0;
+        field.style.maxHeight = 17;
+        field.style.marginTop = 0;
+        field.style.marginRight = 0;
+        field.style.marginBottom = 0;
+        field.style.marginLeft = 0;
+        field.style.paddingTop = 0;
+        field.style.paddingRight = 0;
+        field.style.paddingBottom = 0;
+        field.style.paddingLeft = 0;
+        field.style.borderTopWidth = 0;
+        field.style.borderRightWidth = 0;
+        field.style.borderBottomWidth = 0;
+        field.style.borderLeftWidth = 0;
+
+        ZeroLoginFieldChrome(field);
+
+        bool foundText = false;
+        field.Query(className: TextElement.ussClassName).ForEach(text => {
+            if (text.ClassListContains(BaseField<string>.labelUssClassName))
+                return;
+            foundText = true;
+            text.style.paddingLeft = 6;
+            text.style.paddingRight = 4;
+        });
+        if (foundText)
+            return;
+
+        VisualElement textInput = field.Q("unity-text-input");
+        if (textInput == null)
+            textInput = field.Q(className: TextField.inputUssClassName);
+        if (textInput == null)
+            return;
+
+        textInput.style.paddingLeft = 6;
+        textInput.style.paddingRight = 4;
+    }
+
+    private static void ZeroLoginFieldChrome(VisualElement element) {
+        int count = element.childCount;
+        for (int i = 0; i < count; i++) {
+            VisualElement child = element[i];
+            child.style.marginTop = 0;
+            child.style.marginRight = 0;
+            child.style.marginBottom = 0;
+            child.style.marginLeft = 0;
+            child.style.paddingTop = 0;
+            child.style.paddingRight = 0;
+            child.style.paddingBottom = 0;
+            child.style.paddingLeft = 0;
+            child.style.borderTopWidth = 0;
+            child.style.borderRightWidth = 0;
+            child.style.borderBottomWidth = 0;
+            child.style.borderLeftWidth = 0;
+            if (child.ClassListContains(BaseField<string>.labelUssClassName))
+                child.style.display = DisplayStyle.None;
+            ZeroLoginFieldChrome(child);
         }
     }
 }
