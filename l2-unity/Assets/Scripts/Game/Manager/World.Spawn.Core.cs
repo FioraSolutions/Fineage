@@ -15,8 +15,7 @@ public partial class World
             return;
 
         int id = player.Identity.Id;
-        _players[id] = player;
-        _objects[id] = player;
+        _entities.RegisterPlayer(id, player);
         _entityWait.Notify(id, player);
     }
 
@@ -26,14 +25,12 @@ public partial class World
             return;
 
         int id = user.Identity.Id;
-        if (_objects.ContainsKey(id))
+        if (!_entities.TryRegisterUser(id, user))
         {
-            _entityWait.Notify(id, _objects[id]);
+            _entityWait.Notify(id, _entities.GetOrNull(id));
             return;
         }
 
-        _players[id] = user;
-        _objects[id] = user;
         _entityWait.Notify(id, user);
     }
 
@@ -46,7 +43,7 @@ public partial class World
         }
 
         int id = info.Identity.Id;
-        if (_objects.ContainsKey(id))
+        if (_entities.Contains(id))
         {
             // GearFlowLog.Info("SpawnUser SKIP already in world id=" + id +
                 // " type=" + _objects[id].GetType().Name);
