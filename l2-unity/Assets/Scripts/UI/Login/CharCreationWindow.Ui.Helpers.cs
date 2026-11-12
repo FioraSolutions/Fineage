@@ -134,6 +134,8 @@ public partial class CharCreationWindow : L2Window
         classManipulator = new ArrowInputManipulator(classInput, "Class", new string[] { "Fighter", "Mystic" }, -1, (index, value) => {
             if(raceManipulator.Value == "Dwarf" && value == "Mystic") {
                 classManipulator.ResetInput();
+                // Stay on race gallery (Fighter M/F only) — Dwarf has no Mystic (#933).
+                Creator.ShowRaceGallery("Dwarf");
                 return;
             }
 
