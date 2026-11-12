@@ -17,8 +17,28 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         ZoneCommands.Unbind(_boundTransport);
         _boundTransport = null;
         _boundManager = null;
+        UnbindDatTableSeams();
         if (ReferenceEquals(App.Container, Container))
             App.Container = null;
         base.OnDestroy();
+    }
+
+    /// <summary>
+    /// Clear static Bind seams owned by this scope so a rebuild does not keep stale table/animation hosts.
+    /// </summary>
+    static void UnbindDatTableSeams()
+    {
+        AnimationManager.Unbind();
+        LogongrpTable.Unbind();
+        ItemNameTable.Unbind();
+        SkillgrpTable.Unbind();
+        ItemStatDataTable.Unbind();
+        ArmorgrpTable.Unbind();
+        EtcItemgrpTable.Unbind();
+        WeapongrpTable.Unbind();
+        NpcgrpTable.Unbind();
+        NpcNameTable.Unbind();
+        ActionNameTable.Unbind();
+        SkillNameTable.Unbind();
     }
 }

@@ -11,6 +11,8 @@ public partial class WeapongrpTable
             _instance = table;
     }
 
+    public static void Unbind() => _instance = null;
+
     public void Initialize() {
         ReadWeaponGrpDat();
         ReadWeaponInterlude();

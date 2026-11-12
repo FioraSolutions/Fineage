@@ -41,6 +41,8 @@ public class ActionNameTable
             _instance = table;
     }
 
+    public static void Unbind() => _instance = null;
+
     private Dictionary<int, ActionData> _actions;
 
 
