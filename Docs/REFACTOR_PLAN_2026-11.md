@@ -340,7 +340,16 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 ### C4d. NetSession composition owner (GPT A02) — done (partial)
 - AppLifetimeScope creates/binds the single host via `NetSession.CreateForCompositionRoot`.
 - `FineageZoneTransport` no longer calls `Ensure()`; login/action call sites use `TryGetBound`.
-- `Ensure()` marked obsolete with warning. Residual: injectable `IZoneSessionHost` / ZoneCommands Unbind (A03).
+- `Ensure()` marked obsolete with warning. Residual: injectable `IZoneSessionHost`.
+
+### C4e. ZoneCommands / AppLifetimeScope lifecycle (GPT A03 / A06) — done (partial)
+- `ZoneCommands.Unbind` on AppLifetimeScope destroy; Transport is bind-only (no silent App.Resolve).
+- Disconnect handler unsubscribed; App.Container cleared when this scope owned it.
+- Residual: table static Bind side-effects still in BuildCallback.
+
+### C4f. LoginRuntime / LoginLifetimeScope diagnostics (GPT A07) — done (partial)
+- Resolve failures and PacketServices fallbacks log warnings; LoginLifetimeScope no longer empty-catch.
+- Residual: still optional PacketServices fallback until login inject is mandatory everywhere.
 
 ### C4c. World entity wait (GPT A04) — done
 - Replace `World.GetEntityAsync` `Task.Delay(150)` poll with `ObjectIdWaitMap` (notify on Register*, fail on unregister, cancel on clear/destroy).

@@ -61,4 +61,10 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         if (local != null)
             builder.RegisterComponent(local).AsSelf().As<ISceneLoader>();
     }
+
+    void HandleTransportDisconnected()
+    {
+        if (_boundManager != null)
+            _boundManager.OnDisconnect();
+    }
 }
