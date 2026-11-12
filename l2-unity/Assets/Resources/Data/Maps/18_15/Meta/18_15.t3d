@@ -1,0 +1,30 @@
+Begin Map
+Begin Actor Class=TerrainInfo Name=TerrainInfo0
+    TerrainMap=Texture'T_18_15.Height.18_15'
+    TerrainScale=(X=128.000000,Y=128.000000,Z=76.000000)
+    Layers(0)=(Texture=Texture'T_texture.Texture.Base',AlphaMap=Texture'T_texture.Texture.layer0',UScale=1.000000,VScale=1.000000,TerrainMatrix=(XPlane=(X=0.007813),YPlane=(Y=0.007813),ZPlane=(Z=3.368421),WPlane=(W=1.000000,X=0.062500,Y=-0.093750,Z=365031.500000)),KFriction=196608.000000,KRestitution=-9567.051758,Scale=(X=128.000000,Y=128.000000,Z=76.000000),ToWorld(0)=(X=1024.000000,Y=-1536.000000,Z=32171.964844),ToWorld(1)=(X=128.000000),ToWorld(2)=(Y=128.000000),ToWorld(3)=(Z=0.296875),ToMaskmap(0)=(X=-131072.000000,Y=196608.000000,Z=-9551.051758),ToMaskmap(1)=(X=0.007813),ToMaskmap(2)=(Y=0.007813),ToMaskmap(3)=(Z=3.368421))
+    GeneratedSectorCounter=256
+    Location=(X=-49152.000000,Y=-81920.000000,Z=-160.651300)
+    DrawScale=10.000000
+End Actor
+End Map
+Begin Actor Class=Brush Name=Brush281
+    CsgOper=CSG_Add
+    PolyFlags=8
+    Location=(X=-112.000000,Y=264704.000000,Z=24448.000000)
+    Begin Brush Name=Model321
+       Begin PolyList
+          Begin Polygon Texture=L2_Skies.Shaders.Cloud_Final Flags=4194312
+             Origin   -00258.416656,-00448.000000,+00000.000000
+             Normal   +00000.000000,+00000.000000,-00001.000000
+             TextureU +00010.000000,+00000.000000,+00000.000000
+             TextureV +00000.005040,-00009.999999,+00000.000000
+             Vertex   -00258.416656,-00447.988892,+00000.000000
+             Vertex   -00258.416656,+00256.000000,+00000.000000
+             Vertex   +00461.583313,+00256.000000,+00000.000000
+             Vertex   +00461.583313,-00447.988892,+00000.000000
+          End Polygon
+       End PolyList
+    End Brush
+    PrePivot=(X=-248.000000,Y=262.000000,Z=-4.000000)
+End Actor
