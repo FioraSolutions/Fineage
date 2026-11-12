@@ -16,6 +16,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         _onDisconnected = null;
         ZoneCommands.Unbind(_boundTransport);
         _boundTransport = null;
+        NetGameHost.Unbind(_boundManager);
         _boundManager = null;
         UnbindDatTableSeams();
         if (ReferenceEquals(App.Container, Container))

@@ -84,11 +84,12 @@ public sealed partial class NetSession
         else
             Debug.LogWarning("[Net] Zone transport missing on EntitySpawn — world load will stall");
 
-        GameManager gameManager = NetworkingPacketServices.Manager ?? GamePacketServices.Manager;
+        IGameManager gameManager = NetGameHost.TryGet()
+            ?? (IGameManager)(NetworkingPacketServices.Manager ?? GamePacketServices.Manager);
         if (gameManager != null)
             gameManager.OnCharacterSelect();
         else
-            Debug.LogWarning("[Net] GameManager missing on EntitySpawn — world load will stall");
+            Debug.LogWarning("[Net] IGameManager missing on EntitySpawn — world load will stall");
 
         EnteredWorld?.Invoke();
     }
