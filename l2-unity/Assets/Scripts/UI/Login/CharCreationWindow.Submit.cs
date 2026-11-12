@@ -64,14 +64,12 @@ public partial class CharCreationWindow
 
     public void Clear()
     {
-        classManipulator.ClearInput();
-        genderManipulator.ClearInput();
-        hairstyleManipulator.ClearInput();
-        hairColorManipulator.ClearInput();
-        faceManipulator.ClearInput();
-        raceManipulator.ClearInput();
-        userInputField.value = "";
+        // Same empty step 0 as window open (#933).
+        ApplyLobbyCreationDefaults();
+        if (userInputField != null)
+            userInputField.value = "";
         SetlabelError("");
+        HideRotatePawnWindow();
     }
 
 }
