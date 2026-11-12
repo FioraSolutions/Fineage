@@ -335,7 +335,12 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 ### C4b. Zone connection semantics — done (A01)
 - GPT deep-audit finding: `FineageZoneTransport.Connected` was `NetworkingPacketServices.Session != null`.
 - **Fixed:** `Connected` = zone TCP open (`NetSession.IsZoneSocketConnected`); added `HasSession`, `ZoneConnectionState` / resolver (+ tools tests).
-- Residual: full reconnect/resync state machine still B5; session host / `Ensure()` drain is A02.
+- Residual: full reconnect/resync state machine still B5.
+
+### C4d. NetSession composition owner (GPT A02) — done (partial)
+- AppLifetimeScope creates/binds the single host via `NetSession.CreateForCompositionRoot`.
+- `FineageZoneTransport` no longer calls `Ensure()`; login/action call sites use `TryGetBound`.
+- `Ensure()` marked obsolete with warning. Residual: injectable `IZoneSessionHost` / ZoneCommands Unbind (A03).
 
 ### C4c. World entity wait (GPT A04) — done
 - Replace `World.GetEntityAsync` `Task.Delay(150)` poll with `ObjectIdWaitMap` (notify on Register*, fail on unregister, cancel on clear/destroy).

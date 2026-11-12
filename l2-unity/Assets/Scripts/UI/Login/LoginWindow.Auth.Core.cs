@@ -43,7 +43,13 @@ public partial class LoginWindow
             if (transport != null)
                 transport.BeginSession(account, password);
             else
-                _ = NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+            {
+                NetSession session = NetSession.TryGetBound();
+                if (session == null)
+                    throw new InvalidOperationException(
+                        "NetSession not bound — AppLifetimeScope must create the session host");
+                _ = session.BeginLobby(account, password, registerIfMissing: true);
+            }
         }
         catch (Exception ex)
         {

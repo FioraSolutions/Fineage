@@ -55,7 +55,10 @@ public partial class CharCreationWindow
             return;
         }
 
-        _ = NetSession.Ensure().CreateCharacter(name, classId, raceId, sex, hairStyle, hairColor, face);
+        NetSession session = NetSession.TryGetBound();
+        if (session == null)
+            return;
+        _ = session.CreateCharacter(name, classId, raceId, sex, hairStyle, hairColor, face);
         SetlabelError("");
     }
 
