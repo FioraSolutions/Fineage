@@ -68,6 +68,13 @@ public abstract partial class L2Window
         try
         {
             _root = root;
+            // Re-entrant AddWindow used to CloneTree twice → ghosted Fineage logos on login.
+            if (_windowEle != null && _windowEle.parent != null)
+                return;
+
+            if (_windowEle != null)
+                _windowEle.RemoveFromHierarchy();
+
             _windowEle = _windowTemplate.Instantiate()[0];
             _mouseOverDetection = new MouseOverDetectionManipulator(_windowEle);
             _windowEle.AddManipulator(_mouseOverDetection);
