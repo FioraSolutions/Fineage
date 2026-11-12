@@ -8,7 +8,7 @@ public partial class CharacterCreator
 {
     public void SpawnPawnWithId(int id) {
         Logongrp pawnData = LogonGrps[id];
-        GameObject pawnObject = CreatePawn(pawnData.RaceId, new PlayerAppearance());
+        GameObject pawnObject = CreatePawnInterlude(pawnData.RaceId, new PlayerAppearance());
         if (pawnObject == null) {
             pawnObject = FallbackPawn();
         }
