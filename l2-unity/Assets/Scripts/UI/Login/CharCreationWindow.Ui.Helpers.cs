@@ -157,8 +157,11 @@ public partial class CharCreationWindow : L2Window
 
             genderManipulator.UpdateValues(new string[] { "Male", "Female" });
             genderManipulator.ClearInput();
+            hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
             hairstyleManipulator.ClearInput();
+            hairColorManipulator.UpdateValues(System.Array.Empty<string>());
             hairColorManipulator.ClearInput();
+            faceManipulator.UpdateValues(System.Array.Empty<string>());
             faceManipulator.ClearInput();
 
             HideRotatePawnWindow();
@@ -171,8 +174,11 @@ public partial class CharCreationWindow : L2Window
             LoginCamera.SwitchCamera(value);
             classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames(value));
             genderManipulator.ClearInput();
+            hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
             hairstyleManipulator.ClearInput();
+            hairColorManipulator.UpdateValues(System.Array.Empty<string>());
             hairColorManipulator.ClearInput();
+            faceManipulator.UpdateValues(System.Array.Empty<string>());
             faceManipulator.ClearInput();
 
             HideRotatePawnWindow();
