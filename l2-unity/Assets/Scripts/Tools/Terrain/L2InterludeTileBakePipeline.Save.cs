@@ -44,5 +44,9 @@ public static partial class L2InterludeTileBakePipeline
         if (best == null) return;
         SaveScenePrefab(tileId, best, prefabFileName);
     }
+
+    /// <summary>Editor job entry for re-saving a named scene root (e.g. StaticMeshes).</summary>
+    public static void SaveNamedScenePrefab(string tileId, string childName, string prefabFileName)
+        => SaveScenePrefab(tileId, childName, prefabFileName);
 }
 #endif
