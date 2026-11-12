@@ -82,9 +82,9 @@ public partial class CharCreationWindow : L2Window
                 hairstyleManipulator.ClearInput();
                 return;
             }
+            SwitchDetailHeadCamera();
             CharacterRaceAnimation race = Creator.GetRaceAnimator(Creator.PawnIndex);
             RefreshHair(race, hairColorManipulator.Value, hairstyleManipulator.Value);
-            //RefreshFace(CharacterRaceAnimation.FFighter, faceManipulator.Value, hairColorManipulator.Value, hairstyleManipulator.Value);
         });
         hairstyleInput.AddManipulator(hairstyleManipulator);
 
@@ -93,6 +93,7 @@ public partial class CharCreationWindow : L2Window
                 hairColorManipulator.ClearInput();
                 return;
             }
+            SwitchDetailHeadCamera();
             CharacterRaceAnimation race = Creator.GetRaceAnimator(Creator.PawnIndex);
             RefreshHair(race, hairColorManipulator.Value, hairstyleManipulator.Value);
         });
@@ -103,9 +104,9 @@ public partial class CharCreationWindow : L2Window
                 faceManipulator.ClearInput();
                 return;
             }
+            SwitchDetailHeadCamera();
             CharacterRaceAnimation race = Creator.GetRaceAnimator(Creator.PawnIndex);
             RefreshFace(race, faceManipulator.Value);
-            //Debug.Log("Face Change");
         });
         faceInput.AddManipulator(faceManipulator);
 
