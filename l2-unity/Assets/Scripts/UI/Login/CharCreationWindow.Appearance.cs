@@ -7,6 +7,19 @@ using VContainer;
 
 public partial class CharCreationWindow
 {
+    /// <summary>Interlude detail stage — zoom to head cam while editing face/hair (#933).</summary>
+    void SwitchDetailHeadCamera()
+    {
+        if (LoginCamera == null || raceManipulator == null || classManipulator == null || genderManipulator == null)
+            return;
+        if (string.IsNullOrEmpty(raceManipulator.Value) || string.IsNullOrEmpty(classManipulator.Value)
+            || string.IsNullOrEmpty(genderManipulator.Value))
+            return;
+        Camera cam = LoginCamera.SelectHeadCamera(raceManipulator.Value, classManipulator.Value, genderManipulator.Value);
+        if (cam != null)
+            LoginCamera.SwitchCamera(cam);
+    }
+
     private void RefreshFace(CharacterRaceAnimation raceId , string face)
     {
         byte iFace = (byte)LobbyCharacterCreate.ClampAppearance(faceManipulator != null ? faceManipulator.Index : 0, 2);
