@@ -31,6 +31,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred per Status Now |
 | P0-TX | Drop `ZoneCommands.Send` when `!Connected` | **Fixed** — gate in `ZoneCommands.Send` |
 | P0-DC | Disconnect invalidates waits / PlayerInfo / transport | **Fixed (partial)** — dispose zone transport; cancel entity waits; clear PlayerInfo; full resync still B5 |
+| P0-EP | Stale main-thread zone applies after disconnect | **Fixed** — `NetSession.ZoneEpoch` drop queued HandleZone when epoch changes |
 | P0-OP | Auto audit NetOpcode ↔ NetZoneDispatch | **Fixed** — CI `check-net-zone-inbound-opcodes.py` + decode cases for remaining Zone→client gaps |
 
 
