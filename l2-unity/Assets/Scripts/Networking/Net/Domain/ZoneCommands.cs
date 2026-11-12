@@ -8,24 +8,11 @@ public static partial class ZoneCommands
     /// <summary>Called by the DI scope once the transport exists.</summary>
 
 
-    public static IZoneTransport Transport
-    {
-        get
-        {
-            if (_transport != null)
-                return _transport;
-            if (!App.HasContainer)
-                return null;
-            try
-            {
-                return App.Resolve<IZoneTransport>();
-            }
-            catch
-            {
-                return null;
-            }
-        }
-    }
+    /// <summary>
+    /// Bound by <see cref="Bind"/> from AppLifetimeScope. No silent App.Resolve fallback —
+    /// missing bind means composition has not run (or was unbound).
+    /// </summary>
+    public static IZoneTransport Transport => _transport;
 
     /// <summary>
     /// True while the zone TCP socket is open. Replaces <c>GameClient.IsConnected</c>.

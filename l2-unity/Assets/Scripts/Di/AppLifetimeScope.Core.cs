@@ -44,7 +44,10 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             NetSession netSession = NetSession.CreateForCompositionRoot();
             NetworkingPacketServices.Bind(session: netSession);
             IGameManager manager = container.Resolve<IGameManager>();
-            transport.OnDisconnected += () => manager.OnDisconnect();
+            _boundTransport = transport;
+            _boundManager = manager;
+            _onDisconnected = HandleTransportDisconnected;
+            transport.OnDisconnected += _onDisconnected;
             AppLoginSessionApplyIncomingPacketServices.BindApp(
                 container.Resolve<GameClient>(),
                 container.Resolve<LoginClient>(),
