@@ -347,7 +347,8 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 ### C4e. ZoneCommands / AppLifetimeScope lifecycle (GPT A03 / A06) — done (partial)
 - `ZoneCommands.Unbind` on AppLifetimeScope destroy; Transport is bind-only (no silent App.Resolve).
 - Disconnect handler unsubscribed; App.Container cleared when this scope owned it.
-- Residual: table static Bind side-effects still in BuildCallback.
+- DAT table + `AnimationManager` static Bind seams cleared via `Unbind` on AppLifetimeScope destroy.
+- Residual: tables still Bind in BuildCallback (not fully DI-owned yet).
 
 ### C4f. LoginRuntime / LoginLifetimeScope diagnostics (GPT A07) — done (partial)
 - Resolve failures and PacketServices fallbacks log warnings; LoginLifetimeScope no longer empty-catch.

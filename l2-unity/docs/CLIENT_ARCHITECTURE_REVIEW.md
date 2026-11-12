@@ -26,7 +26,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | A03 | `ZoneCommands` static resolver / stale `_transport` after scope rebuild | **Fixed** — `Unbind` on AppLifetimeScope destroy; Transport is bind-only |
 | A04 | `World.GetEntityAsync` `Task.Delay(150)` → event wait registry | **Fixed** — `ObjectIdWaitMap` + Register*/clear notify |
 | A05 | World responsibility split (registry first) | **Fixed (partial)** — `WorldEntityRegistry<T>` owns object/player/npc maps; World façade delegates Register*/lookup/clear |
-| A06 | `AppLifetimeScope` global Bind side-effects | **Fixed (partial)** — disconnect unsubscribe + Unbind + clear App.Container; table Bind residual |
+| A06 | `AppLifetimeScope` global Bind side-effects | **Fixed (partial)** — disconnect unsubscribe + ZoneCommands/DAT-table Unbind + clear App.Container; tables still Bind in BuildCallback |
 | A07 | `LoginRuntime` resolver fallback / empty catch | **Fixed (partial)** — resolve failures logged; PacketServices fallback warns |
 | A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred per Status Now |
 | P0-TX | Drop `ZoneCommands.Send` when `!Connected` | **Fixed** — gate in `ZoneCommands.Send` |

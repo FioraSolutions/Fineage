@@ -13,6 +13,8 @@ public partial class SkillNameTable
             _instance = table;
     }
 
+    public static void Unbind() => _instance = null;
+
     public SkillNameData GetName(int id , int level)
     {
         if (Names.ContainsKey(id) != true) return null;
