@@ -4708,8 +4708,9 @@
     height: 17px;
 }
 
-/* Remember login: small Interlude-style checkbox under the logon frame. */
+/* Remember login: Fineage-only (Interlude LoginWnd has none) — keep prefs wire, hide chrome (#932). */
 .il-login .il-login-remember {
+    display: none;
     flex-direction: row;
     align-self: center;
     height: 14px;
