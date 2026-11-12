@@ -46,6 +46,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             IGameManager manager = container.Resolve<IGameManager>();
             _boundTransport = transport;
             _boundManager = manager;
+            NetGameHost.Bind(manager);
             _onDisconnected = HandleTransportDisconnected;
             transport.OnDisconnected += _onDisconnected;
             AppLoginSessionApplyIncomingPacketServices.BindApp(

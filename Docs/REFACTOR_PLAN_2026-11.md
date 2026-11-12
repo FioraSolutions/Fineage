@@ -380,6 +380,10 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - Constructor requires injected `EventProcessor` (AppLifetimeScope registers the component).
 - `QueueOnMainThread` no longer calls `EventProcessor.EnsureInstance()`; missing host logs and drops.
 
+### C5e. NetGameHost for NetSession lobby/world (GPT A09) — done (partial)
+- `NetGameHost.Bind`/`Unbind` from AppLifetimeScope; EntitySpawn + roster auth prefer `IGameManager` over PacketServices concrete.
+- Residual: other NetSession DTO / ZoneCommands.LocalPlayerInfo coupling still later.
+
 ---
 
 ## Phase D — Scale (#112) — later
