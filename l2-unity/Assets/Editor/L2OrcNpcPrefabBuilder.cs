@@ -92,21 +92,8 @@ public static class L2OrcNpcPrefabBuilder
 
     static void ConfigureFbxImporter(string fbxPath)
     {
-        var imp = (ModelImporter)global::UnityEditor.AssetImporter.GetAtPath(fbxPath);
-        if (imp == null) return;
-        imp.animationType = ModelImporterAnimationType.Generic;
-        // NoAvatar — same as race anim FBXs. CreateFromThisModel + scale was a factor
-        // in exploded limbs after the failed Blender bake reimport.
-        imp.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
-        imp.importAnimation = true;
-        imp.materialImportMode = ModelImporterMaterialImportMode.None;
-        // Source FBX from .work/npc-export is raw L2 UU (pelvis Z ≈ 30). Match the
-        // working elf NPC importer: Unity globalScale 0.019 — do NOT Blender-bake scale
-        // into the FBX while animations are embedded (that exploded limbs on re-extract).
-        imp.globalScale = 0.019f;
-        imp.useFileScale = false;
-        imp.animationCompression = ModelImporterAnimationCompression.Off;
-        imp.SaveAndReimport();
+        // Source FBX is raw L2 UU — shared town NPC contract (globalScale 0.019 + forced reimport).
+        L2TownNpcFbxImport.ConfigureUuFbx(fbxPath);
     }
 
     static Dictionary<string, Material> BindTextures(string stem, Shader shader)
