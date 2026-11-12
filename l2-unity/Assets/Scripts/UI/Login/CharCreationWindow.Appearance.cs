@@ -59,13 +59,23 @@ public partial class CharCreationWindow
             classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames("Human"));
         if (LoginCamera != null)
             LoginCamera.SwitchCamera("Human");
+        // Appearance empty until sex chosen (#933).
+        if (genderManipulator != null)
+            genderManipulator.ClearInput();
         if (hairstyleManipulator != null)
         {
-            int sex = genderManipulator != null && genderManipulator.Value == "Female"
-                ? LobbyCharacterCreate.SexFemale
-                : LobbyCharacterCreate.SexMale;
-            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(sex));
-            hairstyleManipulator.ResetInput();
+            hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
+            hairstyleManipulator.ClearInput();
+        }
+        if (hairColorManipulator != null)
+        {
+            hairColorManipulator.UpdateValues(System.Array.Empty<string>());
+            hairColorManipulator.ClearInput();
+        }
+        if (faceManipulator != null)
+        {
+            faceManipulator.UpdateValues(System.Array.Empty<string>());
+            faceManipulator.ClearInput();
         }
     }
 
