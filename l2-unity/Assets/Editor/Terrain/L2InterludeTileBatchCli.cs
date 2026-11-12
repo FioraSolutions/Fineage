@@ -63,5 +63,39 @@ public static class L2InterludeTileBatchCli
         bool ok = results.All(r => r.success);
         EditorApplication.Exit(ok ? 0 : 1);
     }
+
+    /// <summary>
+    /// Terrain, brushes, and a streamable scene only. Skips the global material
+    /// rebuild and static-mesh import so a neighbor tile can be walked onto
+    /// before its props are exported.
+    /// Env: FINEAGE_INTERLUDE_TILES=18_13,18_15
+    /// </summary>
+    public static void RunTerrainExitCli()
+    {
+        string raw = Environment.GetEnvironmentVariable("FINEAGE_INTERLUDE_TILES") ?? "";
+        string[] tiles = raw.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var steps =
+            L2InterludeBakeStep.GenerateTerrain |
+            L2InterludeBakeStep.BuildBrushes |
+            L2InterludeBakeStep.ConvertTerrainToMesh |
+            L2InterludeBakeStep.GenerateDecoLayerMesh;
+
+        bool ok = tiles.Length > 0;
+        foreach (string tile in tiles)
+        {
+            string id = tile.Trim();
+            L2InterludeTileBakeResult result = L2InterludeTileBakePipeline.RunSingleTile(id, steps);
+            Debug.Log("[ExitTile] " + id + " success=" + result.success);
+            foreach (string line in result.log)
+                Debug.Log("  " + line);
+            bool scene = result.success && L2InterludeTileSceneCli.BuildScene(id);
+            Debug.Log("[ExitTile] " + id + " scene=" + scene);
+            ok &= result.success && scene;
+        }
+
+        L2InterludeTileManifest.WriteToRepo(L2InterludeTileManifest.Build());
+        AssetDatabase.SaveAssets();
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
 }
 #endif
