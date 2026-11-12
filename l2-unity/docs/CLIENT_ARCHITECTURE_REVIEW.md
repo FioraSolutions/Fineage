@@ -30,6 +30,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | A07 | `LoginRuntime` resolver fallback / empty catch | **Fixed (partial)** — resolve failures logged; PacketServices fallback warns |
 | A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred per Status Now |
 | P0-TX | Drop `ZoneCommands.Send` when `!Connected` | **Fixed** — gate in `ZoneCommands.Send` |
+| P0-DC | Disconnect invalidates waits / PlayerInfo / transport | **Fixed (partial)** — dispose zone transport; cancel entity waits; clear PlayerInfo; full resync still B5 |
 
 
 ## Executive Summary

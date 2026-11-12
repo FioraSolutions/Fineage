@@ -177,8 +177,9 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - Transport already in `Fineage.Networking`; further Session shrink when cycle-safe.
 - [x] `NetSession.ZoneApply` split into Combat/Social/Shop/Gear partials (#131 residual)
 
-### B5. State recovery — later
-- EnterWorld snapshot + revision; resync / reconnect path when Critical outbound was dropped.
+### B5. State recovery — partial (client disconnect invalidate)
+- EnterWorld snapshot + revision; full resync / reconnect path when Critical outbound was dropped — still later.
+- **Landed (client):** on zone TCP close, dispose transport + clear Connecting/Hello flags; clear `PlayerInfo` on `NotifyDisconnected`; `OnDisconnect` clears `WorldSpawnReady` and cancels `ObjectIdWaitMap` waiters; `ZoneCommands.Send` drops TX when `!Connected`.
 
 ### B6. Economy invariants — partial (tests)
 - Trade / inventory / adena: atomic apply + persistence tests (dup-item / double-spend). Not claiming a live bug; GPT correctly flagged the invariant set.

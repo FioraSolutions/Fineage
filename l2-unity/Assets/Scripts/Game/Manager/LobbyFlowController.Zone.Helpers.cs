@@ -41,6 +41,13 @@ public sealed partial class LobbyFlowController
         if (_game.IsSwitchingServer)
             return;
 
+        // Invalidate in-world client state before UI/scene transition so deferred
+        // entity waits and spawn gates cannot apply after the socket is gone.
+        _game.WorldSpawnReady = false;
+        World world = GameWorld;
+        if (world != null)
+            world.CancelPendingEntityWaits();
+
         if (_game.GameState > GameState.CHAR_CREATION)
         {
             MusicPacketServices.Music?.Clear();

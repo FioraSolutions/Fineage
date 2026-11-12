@@ -40,6 +40,9 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
         _entityWait.CancelAll();
     }
 
+    /// <summary>Cancel GetEntityAsync waiters without tearing down spawned objects (scene unload owns GO teardown).</summary>
+    public void CancelPendingEntityWaits() => _entityWait.CancelAll();
+
     public bool ContainsNpc(int id)
     {
         return _npcs.ContainsKey(id);
