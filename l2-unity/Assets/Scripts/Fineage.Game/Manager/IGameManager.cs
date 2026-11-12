@@ -25,4 +25,5 @@ public interface IGameManager
     void OnWorldLoading();
     void OnRelogin();
     void OnDisconnect();
+    void QuitGame();
 }
