@@ -4417,6 +4417,17 @@
 }
 
 /* Interlude credentials window (L2UI_CH3.LoginWnd) + NCLoginFunctionWnd menu. */
+.il-login-logo {
+    position: absolute;
+    left: 50%;
+    top: 6%;
+    width: 160px;
+    height: 150px;
+    margin-left: -80px;
+    background-image: resource("Data/UI/Login/fineage-logo-white");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .il-login {
     position: absolute;
     left: 0;
