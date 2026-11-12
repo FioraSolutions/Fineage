@@ -108,7 +108,8 @@ public partial class CharCreationWindow : L2Window
         });
         faceInput.AddManipulator(faceManipulator);
 
-        genderManipulator = new ArrowInputManipulator(genderInput, "Gender", new string[] { "Male", "Female" }, -1, (index, value) => {
+        // Empty until class chosen — Interlude sex stage (#933).
+        genderManipulator = new ArrowInputManipulator(genderInput, "Gender", System.Array.Empty<string>(), -1, (index, value) => {
             if (classManipulator.Value == "") {
                 genderManipulator.ClearInput();
                 return;
@@ -150,6 +151,7 @@ public partial class CharCreationWindow : L2Window
                 LoginCamera.SwitchCamera(cam);
             }
 
+            genderManipulator.UpdateValues(new string[] { "Male", "Female" });
             genderManipulator.ClearInput();
             hairstyleManipulator.ClearInput();
             hairColorManipulator.ClearInput();
