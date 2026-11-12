@@ -19,8 +19,17 @@ public static partial class WorldApplyPacketServices
     public static World GameWorld =>
         _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
 
-    public static GameManager Manager =>
-        _manager != null ? _manager : NetworkingPacketServices.Manager;
+    public static GameManager Manager
+    {
+        get
+        {
+            if (_manager != null)
+                return _manager;
+            if (NetGameHost.TryGet() is GameManager hosted)
+                return hosted;
+            return NetworkingPacketServices.Manager;
+        }
+    }
 
     public static IWorldDomainSink Domain =>
         _domain != null ? _domain : NetworkingPacketServices.Domain;
