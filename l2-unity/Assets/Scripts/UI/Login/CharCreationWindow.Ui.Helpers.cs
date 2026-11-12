@@ -76,7 +76,8 @@ public partial class CharCreationWindow : L2Window
         VisualElement faceInput = _arrowInputTemplate.Instantiate()[0];
 
 
-        hairstyleManipulator = new ArrowInputManipulator(hairstyleInput, "Hairstyle", new string[] { "Type A", "Type B", "Type C", "Type D", "Type E" }, -1, (index, value) => {
+        // Appearance arrows empty until sex chosen (#933).
+        hairstyleManipulator = new ArrowInputManipulator(hairstyleInput, "Hairstyle", System.Array.Empty<string>(), -1, (index, value) => {
             if (Creator.PawnIndex == -1) {
                 hairstyleManipulator.ClearInput();
                 return;
@@ -87,7 +88,7 @@ public partial class CharCreationWindow : L2Window
         });
         hairstyleInput.AddManipulator(hairstyleManipulator);
 
-        hairColorManipulator = new ArrowInputManipulator(hairColorInput, "Hair Color", new string[] { "Type A", "Type B", "Type C", "Type D" }, -1, (index, value) => {
+        hairColorManipulator = new ArrowInputManipulator(hairColorInput, "Hair Color", System.Array.Empty<string>(), -1, (index, value) => {
             if (Creator.PawnIndex == -1) {
                 hairColorManipulator.ClearInput();
                 return;
@@ -97,7 +98,7 @@ public partial class CharCreationWindow : L2Window
         });
         hairColorInput.AddManipulator(hairColorManipulator);
 
-        faceManipulator = new ArrowInputManipulator(faceInput, "Face", new string[] { "Type A", "Type B", "Type C" }, -1, (index, value) => {
+        faceManipulator = new ArrowInputManipulator(faceInput, "Face", System.Array.Empty<string>(), -1, (index, value) => {
             if(Creator.PawnIndex == -1) {
                 faceManipulator.ClearInput();
                 return;
@@ -120,9 +121,12 @@ public partial class CharCreationWindow : L2Window
                 LoginCamera.SwitchCamera(cam);
             }
 
-            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale));
+            int sex = value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale;
+            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(sex));
             hairstyleManipulator.ResetInput();
+            hairColorManipulator.UpdateValues(new string[] { "Type A", "Type B", "Type C", "Type D" });
             hairColorManipulator.ResetInput();
+            faceManipulator.UpdateValues(new string[] { "Type A", "Type B", "Type C" });
             faceManipulator.ResetInput();
 
             ShowRotatePawnWindow();
