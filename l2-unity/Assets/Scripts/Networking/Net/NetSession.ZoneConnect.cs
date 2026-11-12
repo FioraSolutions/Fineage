@@ -18,6 +18,12 @@ public sealed partial class NetSession
             _zone = new NetTransport(OnZonePacket, reason => Post(() =>
             {
                 Debug.Log("[Net] zone " + reason);
+                // Drop the dead transport so Connected/ConnectionState flip immediately
+                // and no further TX rides a half-closed socket (GPT reconnect P0).
+                _zone?.Dispose();
+                _zone = null;
+                _helloZone = false;
+                _zoneConnecting = false;
                 ZoneCommands.Transport?.NotifyDisconnected();
             }));
             string host = string.IsNullOrWhiteSpace(handoff.ZoneHost) ? FineageWireConfig.ZoneHost : handoff.ZoneHost;
