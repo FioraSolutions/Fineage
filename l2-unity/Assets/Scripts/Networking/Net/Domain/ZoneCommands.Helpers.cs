@@ -18,6 +18,16 @@ public static partial class ZoneCommands
             FineageLog.Warn(FineageLogCategory.GameNet, "TX dropped (no transport): " + command.GetType().Name);
             return false;
         }
+        // Block gameplay TX when the zone socket is down (GPT reconnect P0 slice).
+        // BeginSession / lobby still go through IZoneTransport.BeginSession, not Send.
+        if (!transport.Connected)
+        {
+            FineageLog.Warn(
+                FineageLogCategory.GameNet,
+                "TX dropped (not connected, state=" + transport.ConnectionState + "): "
+                + command.GetType().Name);
+            return false;
+        }
         return transport.TrySendGameCommand(command);
     }
 

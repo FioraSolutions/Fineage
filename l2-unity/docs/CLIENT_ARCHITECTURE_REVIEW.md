@@ -29,6 +29,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | A06 | `AppLifetimeScope` global Bind side-effects | **Fixed (partial)** — disconnect unsubscribe + Unbind + clear App.Container; table Bind residual |
 | A07 | `LoginRuntime` resolver fallback / empty catch | **Fixed (partial)** — resolve failures logged; PacketServices fallback warns |
 | A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred per Status Now |
+| P0-TX | Drop `ZoneCommands.Send` when `!Connected` | **Fixed** — gate in `ZoneCommands.Send` |
 
 
 ## Executive Summary
