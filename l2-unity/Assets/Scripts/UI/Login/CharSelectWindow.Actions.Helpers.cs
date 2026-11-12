@@ -41,11 +41,12 @@ public partial class CharSelectWindow
                 return;
             // Net lobby: a row already flagged PendingDelete restores, otherwise the two-press
             // confirm deletes. The server replies with DeleteResult and then a fresh roster.
+            NetSession session = NetSession.TryGetBound();
+            if (session == null)
+                return;
+
             if (selected.PendingDelete)
             {
-                NetSession session = NetSession.TryGetBound();
-                if (session == null)
-                    return;
                 _ = session.RestoreCharacter(selected.Id, selected.Slot);
                 _deleteArmed = false;
                 ShowLobbyStatus("Restoring " + selected.Name + "...");
@@ -62,9 +63,6 @@ public partial class CharSelectWindow
             }
 
             _deleteArmed = false;
-            NetSession session = NetSession.TryGetBound();
-            if (session == null)
-                return;
             _ = session.DeleteCharacter(selected.Id, selected.Slot);
             ShowLobbyStatus("Deleting " + selected.Name + "...");
             RefreshLobbyActions();
