@@ -28,12 +28,7 @@ public sealed partial class LoginRuntime
             if (_loginClient != null)
                 return _loginClient;
             _loginClient = Get<LoginClient>();
-            if (_loginClient != null)
-                return _loginClient;
-            LoginClient fallback = NetworkingPacketServices.Login;
-            if (fallback != null)
-                Debug.LogWarning("[LoginRuntime] LoginClient missing from DI — PacketServices fallback");
-            return fallback;
+            return _loginClient;
         }
     }
 
@@ -44,12 +39,7 @@ public sealed partial class LoginRuntime
             if (_manager != null)
                 return _manager;
             _manager = Get<GameManager>();
-            if (_manager != null)
-                return _manager;
-            GameManager fallback = NetworkingPacketServices.Manager;
-            if (fallback != null)
-                Debug.LogWarning("[LoginRuntime] GameManager missing from DI — PacketServices fallback");
-            return fallback;
+            return _manager;
         }
     }
 

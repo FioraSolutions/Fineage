@@ -351,8 +351,9 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - Residual: tables still Bind in BuildCallback (not fully DI-owned yet).
 
 ### C4f. LoginRuntime / LoginLifetimeScope diagnostics (GPT A07) — done (partial)
-- Resolve failures and PacketServices fallbacks log warnings; LoginLifetimeScope no longer empty-catch.
-- Residual: still optional PacketServices fallback until login inject is mandatory everywhere.
+- Resolve failures log warnings; LoginLifetimeScope no longer empty-catch.
+- `LoginRuntime.LoginClient` / `Manager` no longer fall back to `NetworkingPacketServices` — DI/Construct only.
+- Residual: LoginRuntime remains a thin ACS locator until consumers migrate off it.
 
 ### C4c. World entity wait (GPT A04) — done
 - Replace `World.GetEntityAsync` `Task.Delay(150)` poll with `ObjectIdWaitMap` (notify on Register*, fail on unregister, cancel on clear/destroy).
