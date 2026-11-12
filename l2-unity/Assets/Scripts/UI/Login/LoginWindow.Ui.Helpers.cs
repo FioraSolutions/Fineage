@@ -64,6 +64,8 @@ public partial class LoginWindow
             _passwordInput.SetValueWithoutNotify(PlayerPrefs.GetString(RememberPasswordKey, ""));
         }
 
+        WireLoginMenu(root);
+
         _userInput.Focus();
     }
 
