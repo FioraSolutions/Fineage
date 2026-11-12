@@ -4486,9 +4486,14 @@
     flex-shrink: 0;
     margin-top: 0;
     margin-right: 0;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     margin-left: 0;
     width: 100%;
+}
+
+/* PWD row sits tighter above Remember. */
+.il-login-frame > #Password.il-login-row {
+    margin-bottom: 2px;
 }
 
 .il-login-label {
@@ -4775,45 +4780,115 @@
     border-left-width: 0;
 }
 
-/* Remember: Fineage-only, under PWD field (label 48 + gap 4). */
+/* Remember: Fineage-only under PWD — L2 checkbox left, English label. */
 .il-login .il-login-remember {
     display: flex;
     flex-direction: row;
+    align-items: center;
     align-self: flex-start;
     height: 14px;
-    margin-top: 0; margin-bottom: 6px; margin-left: 52px; margin-right: 0;
-    padding-top: 0; padding-bottom: 0; padding-left: 0; padding-right: 0;
+    margin-top: -2px;
+    margin-bottom: 4px;
+    margin-left: 52px;
+    margin-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
 }
 .il-login .il-login-remember > .unity-toggle__input {
     flex-direction: row;
     align-items: center;
     flex-grow: 0;
+    flex-shrink: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    /* Checkmark left of label (Unity theme sometimes reverses). */
+    order: -1;
 }
-.il-login .il-login-remember .unity-toggle__checkmark {
-    width: 12px; height: 12px; min-width: 12px;
-    margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 0;
-    border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;
+.il-login .il-login-remember .unity-toggle__checkmark,
+.il-login .il-login-remember #unity-checkmark {
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
+    max-width: 12px;
+    max-height: 12px;
+    margin-top: 0;
+    margin-right: 5px;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
     background-color: rgba(0, 0, 0, 0);
     -unity-background-image-tint-color: rgb(255, 255, 255);
+    -unity-background-scale-mode: stretch-to-fill;
     background-image: resource('Data/UI/Quest/CheckBox_uncheked');
 }
-.il-login .il-login-remember:hover .unity-toggle__checkmark {
+/* Kill Unity default check glyph (black V) on top of our sprite. */
+.il-login .il-login-remember .unity-toggle__checkmark > VisualElement,
+.il-login .il-login-remember .unity-toggle__checkmark > * {
+    display: none;
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
+}
+.il-login .il-login-remember:hover .unity-toggle__checkmark,
+.il-login .il-login-remember:hover #unity-checkmark {
     background-image: resource('Data/UI/Quest/CheckBox_hover');
 }
-.il-login .il-login-remember:checked .unity-toggle__checkmark {
+.il-login .il-login-remember:checked .unity-toggle__checkmark,
+.il-login .il-login-remember:checked #unity-checkmark {
     background-image: resource('Data/UI/Quest/CheckBox_checked');
 }
 .il-login .il-login-remember > .unity-label,
 .il-login .il-login-remember .unity-toggle__label {
     min-width: 0;
     width: auto;
-    margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;
-    padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;
+    height: 14px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
     -unity-font: resource('Data/UI/Font/tahoma');
     -unity-font-definition: resource('Data/UI/Font/tahoma Light');
     font-size: 11px;
-    color: rgb(220, 205, 160);
+    color: rgb(214, 202, 170);
     -unity-text-align: middle-left;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
 }
 
 /* Interlude DetailStatusWnd / MainWnd (CharacterInfoWindow) */

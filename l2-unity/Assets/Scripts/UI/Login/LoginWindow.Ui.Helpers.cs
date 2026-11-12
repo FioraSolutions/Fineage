@@ -71,6 +71,8 @@ public partial class LoginWindow
         bool remember = PlayerPrefs.GetInt(RememberKey, 0) == 1;
         if (_rememberToggle != null)
         {
+            _rememberToggle.label = "Remember";
+            _rememberToggle.text = "Remember";
             _rememberToggle.SetValueWithoutNotify(remember);
             _rememberToggle.RegisterValueChangedCallback(evt =>
             {
