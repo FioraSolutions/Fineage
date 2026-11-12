@@ -30,7 +30,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | A05 | World responsibility split (registry first) | **Fixed (partial)** — `WorldEntityRegistry<T>` owns object/player/npc maps; World façade delegates Register*/lookup/clear |
 | A06 | `AppLifetimeScope` global Bind side-effects | **Fixed (partial)** — disconnect unsubscribe + ZoneCommands/DAT-table Unbind + clear App.Container; tables still Bind in BuildCallback |
 | A07 | `LoginRuntime` resolver fallback / empty catch | **Fixed (partial)** — resolve failures logged; PacketServices fallback removed for LoginClient/Manager; LoginRuntime itself still ACS locator |
-| A08 | PacketServices global resolution model | Open / deferred (medium) |
+| A08 | PacketServices global resolution model | Open / deferred (medium) — residual static Bind hosts; no new Instance drains this wave |
 | A09 | NetSession legacy GameManager / DTO coupling | **Fixed (partial)** — `NetGameHost` binds `IGameManager` from AppLifetimeScope; EntitySpawn/roster use it first |
 | A10 | `EventProcessorApplyPump` EnsureInstance fallback | **Fixed** — injected `EventProcessor` only; missing host drops apply |
 | A11 | `PacketApplyQueue` nest depth ThreadStatic | **Fixed** — per-queue instance depth + tools tests |
