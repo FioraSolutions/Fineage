@@ -63,18 +63,24 @@ public partial class CharCreationWindow
     {
         if (raceManipulator == null)
             return;
-        // Interlude step 0: empty stage until race chosen (#933).
+        // Interlude step 0: empty stage until race chosen (#933) — no prefilled Human.
         if (Creator != null)
             Creator.ResetPawnSelection();
         raceManipulator.UpdateValues(LobbyRaceCatalog.RaceNames);
-        raceManipulator.ResetInput();
+        raceManipulator.ClearInput();
         if (classManipulator != null)
-            classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames("Human"));
-        if (LoginCamera != null)
-            LoginCamera.SwitchCamera("Human");
-        // Appearance empty until sex chosen (#933).
+        {
+            classManipulator.UpdateValues(System.Array.Empty<string>());
+            classManipulator.ClearInput();
+        }
         if (genderManipulator != null)
+        {
+            genderManipulator.UpdateValues(System.Array.Empty<string>());
             genderManipulator.ClearInput();
+        }
+        if (LoginCamera != null)
+            LoginCamera.SwitchCamera("Login");
+        // Appearance empty until sex chosen (#933).
         if (hairstyleManipulator != null)
         {
             hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
