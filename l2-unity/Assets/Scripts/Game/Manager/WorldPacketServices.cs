@@ -23,8 +23,17 @@ public static class WorldPacketServices
     public static IAnimationManager Animations =>
         _animations != null ? _animations : GamePacketServices.Animations;
 
-    public static GameManager Manager =>
-        _manager != null ? _manager : NetworkingPacketServices.Manager;
+    public static GameManager Manager
+    {
+        get
+        {
+            if (_manager != null)
+                return _manager;
+            if (NetGameHost.TryGet() is GameManager hosted)
+                return hosted;
+            return NetworkingPacketServices.Manager;
+        }
+    }
 
     public static WorldPacketApply WorldApply =>
         _worldApply != null ? _worldApply : NetworkingPacketServices.WorldApply;
