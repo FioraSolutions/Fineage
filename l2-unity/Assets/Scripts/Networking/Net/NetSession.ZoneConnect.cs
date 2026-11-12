@@ -9,7 +9,7 @@ public sealed partial class NetSession
     async Task ConnectZoneForHandoffAsync(HandoffMsg handoff)
     {
         _zone?.Dispose();
-        _helloZone = false;
+        BumpZoneEpoch("zone-connect-start");
         _zoneConnecting = true;
         if (ZoneCommands.Transport is FineageZoneTransport latch)
             latch.ResetDisconnectLatch();
@@ -18,6 +18,11 @@ public sealed partial class NetSession
             _zone = new NetTransport(OnZonePacket, reason => Post(() =>
             {
                 Debug.Log("[Net] zone " + reason);
+                // Drop the dead transport so Connected/ConnectionState flip immediately
+                // and no further TX rides a half-closed socket (GPT reconnect P0).
+                _zone?.Dispose();
+                _zone = null;
+                BumpZoneEpoch("zone-tcp-closed");
                 ZoneCommands.Transport?.NotifyDisconnected();
             }));
             string host = string.IsNullOrWhiteSpace(handoff.ZoneHost) ? FineageWireConfig.ZoneHost : handoff.ZoneHost;

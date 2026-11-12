@@ -37,8 +37,10 @@ public partial class CharacterCreator : MonoBehaviour
 
         Logongrp logonGrp = pawnData[index];
         GameObject pawnObject = null;
+        // Char-create gallery must use Interlude mesh path (same as lobby CharSelect) — classic
+        // CreatePawn leaves Elf/etc faces broken (#933 visuals residual).
         try {
-            pawnObject = CreatePawn(logonGrp.RaceId, new PlayerAppearance());
+            pawnObject = CreatePawnInterlude(logonGrp.RaceId, new PlayerAppearance());
         } catch (System.Exception e) {
             Debug.LogWarning("[CharCreate] pawn " + index + " " + logonGrp.RaceId + " failed: " + e.Message);
         }

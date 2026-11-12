@@ -16,6 +16,8 @@ public sealed partial class FineageZoneTransport : IZoneTransport
         if (_disconnectNotified)
             return;
         _disconnectNotified = true;
+        // Stale local profile must not survive into a later reconnect / menu return.
+        PlayerInfo = new PlayerInfoInterlude();
         OnDisconnected?.Invoke();
     }
 

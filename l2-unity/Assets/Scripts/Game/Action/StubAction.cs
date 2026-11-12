@@ -8,7 +8,10 @@ public sealed class StubAction : L2Action
     public override void UseAction()
     {
         // Icons are live; server/animation follow-up. Still notify Net when connected so GM can see the id.
-        if (ZoneCommands.IsConnected)
-            _ = NetSession.Ensure().SendActionUse(_actionId);
+        if (!ZoneCommands.IsConnected)
+            return;
+        NetSession session = NetSession.TryGetBound();
+        if (session != null)
+            _ = session.SendActionUse(_actionId);
     }
 }

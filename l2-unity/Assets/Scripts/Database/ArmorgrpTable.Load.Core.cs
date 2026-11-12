@@ -12,6 +12,8 @@ public partial class ArmorgrpTable
             _instance = table;
     }
 
+    public static void Unbind() => _instance = null;
+
     public void Initialize() {
         ReadArmorGrpDat();
         ReadArmorInterlude();

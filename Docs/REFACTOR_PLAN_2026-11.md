@@ -177,8 +177,10 @@ Incremental extractions only (small PRs). Do **not** rewrite the world for purit
 - Transport already in `Fineage.Networking`; further Session shrink when cycle-safe.
 - [x] `NetSession.ZoneApply` split into Combat/Social/Shop/Gear partials (#131 residual)
 
-### B5. State recovery — later
-- EnterWorld snapshot + revision; resync / reconnect path when Critical outbound was dropped.
+### B5. State recovery — partial (client disconnect invalidate + epoch)
+- EnterWorld snapshot + revision; full resync / reconnect path when Critical outbound was dropped — still later.
+- **Landed (client):** on zone TCP close, dispose transport + clear Connecting/Hello flags; clear `PlayerInfo` on `NotifyDisconnected`; `OnDisconnect` clears `WorldSpawnReady` and cancels `ObjectIdWaitMap` waiters; `ZoneCommands.Send` drops TX when `!Connected`.
+- **Landed (client epoch):** `NetSession.ZoneEpoch` bumps on connect-start / TCP-close / destroy; queued zone applies no-op when epoch drifted (stale post-disconnect packets).
 
 ### B6. Economy invariants — partial (tests)
 - Trade / inventory / adena: atomic apply + persistence tests (dup-item / double-spend). Not claiming a live bug; GPT correctly flagged the invariant set.
@@ -335,11 +337,52 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 ### C4b. Zone connection semantics — done (A01)
 - GPT deep-audit finding: `FineageZoneTransport.Connected` was `NetworkingPacketServices.Session != null`.
 - **Fixed:** `Connected` = zone TCP open (`NetSession.IsZoneSocketConnected`); added `HasSession`, `ZoneConnectionState` / resolver (+ tools tests).
-- Residual: full reconnect/resync state machine still B5; session host / `Ensure()` drain is A02.
+- Residual: full reconnect/resync state machine still B5.
+
+### C4d. NetSession composition owner (GPT A02) — done (partial)
+- AppLifetimeScope creates/binds the single host via `NetSession.CreateForCompositionRoot`.
+- `FineageZoneTransport` no longer calls `Ensure()`; login/action call sites use `TryGetBound`.
+- `Ensure()` marked obsolete with warning. Residual: injectable `IZoneSessionHost`.
+
+### C4e. ZoneCommands / AppLifetimeScope lifecycle (GPT A03 / A06) — done (partial)
+- `ZoneCommands.Unbind` on AppLifetimeScope destroy; Transport is bind-only (no silent App.Resolve).
+- Disconnect handler unsubscribed; App.Container cleared when this scope owned it.
+- DAT table + `AnimationManager` static Bind seams cleared via `Unbind` on AppLifetimeScope destroy.
+- Residual: tables still Bind in BuildCallback (not fully DI-owned yet).
+
+### C4f. LoginRuntime / LoginLifetimeScope diagnostics (GPT A07) — done (partial)
+- Resolve failures log warnings; LoginLifetimeScope no longer empty-catch.
+- `LoginRuntime.LoginClient` / `Manager` no longer fall back to `NetworkingPacketServices` — DI/Construct only.
+- Residual: LoginRuntime remains a thin ACS locator until consumers migrate off it.
+
+### C4c. World entity wait (GPT A04) — done
+- Replace `World.GetEntityAsync` `Task.Delay(150)` poll with `ObjectIdWaitMap` (notify on Register*, fail on unregister, cancel on clear/destroy).
+- Timeout remains 150ms for parity; early complete when spawn registers. Tools tests cover the wait map.
+
+### C4g. World entity registry (GPT A05) — done (partial)
+- Extract `WorldEntityRegistry<T>` (all / players / npcs maps) under `Fineage.Domain/World`.
+- `World` Register*/Remove/Query/Clear delegates to registry; spawn/presentation stays on World.
+- Residual: further World splits (spawn vs apply vs combat) still opportunistic.
 
 ### C5. NetZoneDispatch holes — done (#879)
 - Add inbound cases for `StopMove`, `SiegeInfo`, `OlympiadStatus`, `SevenSignsStatus`, `DungeonEntered`, `PrivateStoreInfo`, `FriendList` (apply or log).
 - Add `default` warning so unknown opcodes are visible.
+
+### C5b. Opcode inbound coverage guard — done
+- CI `scripts/check-net-zone-inbound-opcodes.py`: every Zone→client `NetOpcode` must have a `NetZoneDispatch` case (or explicit Client→zone / lobby outbound).
+- Closed remaining decode-only gaps (BossStatus, Olympiad match/countdown/result, craft/store lists, friend/block updates, SevenSignsSky).
+
+### C5c. PacketApplyQueue nest depth (GPT A11) — done
+- `_applyDepth` is per-queue instance (was `[ThreadStatic]` shared across hosts on the thread).
+- Tools tests cover nested inline Queue during QueueApply and isolation between queue instances.
+
+### C5d. EventProcessorApplyPump host (GPT A10) — done
+- Constructor requires injected `EventProcessor` (AppLifetimeScope registers the component).
+- `QueueOnMainThread` no longer calls `EventProcessor.EnsureInstance()`; missing host logs and drops.
+
+### C5e. NetGameHost for NetSession lobby/world (GPT A09) — done (partial)
+- `NetGameHost.Bind`/`Unbind` from AppLifetimeScope; EntitySpawn + roster auth prefer `IGameManager` over PacketServices concrete.
+- Residual: other NetSession DTO / ZoneCommands.LocalPlayerInfo coupling still later.
 
 ---
 

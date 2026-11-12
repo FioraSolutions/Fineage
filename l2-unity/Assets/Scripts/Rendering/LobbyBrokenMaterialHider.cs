@@ -17,6 +17,15 @@ public static class LobbyBrokenMaterialHider
             if (r == null || !r.enabled)
                 continue;
 
+            // Never hide structural lobby ground — pink terrain must be repaired, not culled
+            // (Login forest Camera25 sits on the tile edge; a hidden MeshRenderer reads as a grey void).
+            int layer = r.gameObject.layer;
+            if (layer == LayerMask.NameToLayer("Terrain") || layer == LayerMask.NameToLayer("Brush"))
+                continue;
+            string goName = r.gameObject.name;
+            if (string.Equals(goName, "l2_lobby", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             if (!IsBroken(r))
                 continue;
 

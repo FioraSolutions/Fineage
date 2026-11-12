@@ -11,7 +11,7 @@ public partial class World
 {
     public void RemoveObject(int id) {
         Entity entity;
-        if (!_objects.TryGetValue(id, out entity))
+        if (!_entities.TryGet(id, out entity))
         {
             // Debug.LogWarning($"[DeleteObject] RemoveObject MISS dict id={id} (already gone or never spawned)");
             return;
@@ -78,9 +78,8 @@ public partial class World
     {
         if (MoveAllCharactersPacketServices.Moves != null)
             MoveAllCharactersPacketServices.Moves.Forget(id);
-        _players.Remove(id);
-        _npcs.Remove(id);
-        _objects.Remove(id);
+        _entities.Unregister(id);
+        _entityWait.Fail(id);
         if (EntityActionPacketServices.Actions != null)
             EntityActionPacketServices.Actions.Remove(entity);
 

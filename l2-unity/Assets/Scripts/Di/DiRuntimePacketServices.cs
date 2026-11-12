@@ -44,8 +44,17 @@ public static class DiRuntimePacketServices
     public static LoginClient Login =>
         _login != null ? _login : NetworkingPacketServices.Login;
 
-    public static GameManager Manager =>
-        _manager != null ? _manager : NetworkingPacketServices.Manager;
+    public static GameManager Manager
+    {
+        get
+        {
+            if (_manager != null)
+                return _manager;
+            if (NetGameHost.TryGet() is GameManager hosted)
+                return hosted;
+            return NetworkingPacketServices.Manager;
+        }
+    }
 
     public static IGameManager ManagerContract =>
         Manager;

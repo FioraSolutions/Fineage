@@ -21,8 +21,8 @@ public partial class World
             return;
 
         int id = npc.Identity.Id;
-        _npcs.Add(id, npc);
-        _objects.Add(id, npc);
+        _entities.RegisterNpc(id, npc);
+        _entityWait.Notify(id, npc);
     }
 
     public void RegisterItem(ItemEntity item)
@@ -30,7 +30,9 @@ public partial class World
         if (item == null || item.Identity == null)
             return;
 
-        _objects[item.Identity.Id] = item;
+        int id = item.Identity.Id;
+        _entities.RegisterItem(id, item);
+        _entityWait.Notify(id, item);
     }
 
     public void SpawnOrUpdateGroundItem(

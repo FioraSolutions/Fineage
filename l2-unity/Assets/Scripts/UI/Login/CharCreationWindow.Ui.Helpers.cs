@@ -76,39 +76,42 @@ public partial class CharCreationWindow : L2Window
         VisualElement faceInput = _arrowInputTemplate.Instantiate()[0];
 
 
-        hairstyleManipulator = new ArrowInputManipulator(hairstyleInput, "Hairstyle", new string[] { "Type A", "Type B", "Type C", "Type D", "Type E" }, -1, (index, value) => {
+        // Appearance arrows empty until sex chosen (#933).
+        hairstyleManipulator = new ArrowInputManipulator(hairstyleInput, "Hairstyle", System.Array.Empty<string>(), -1, (index, value) => {
             if (Creator.PawnIndex == -1) {
                 hairstyleManipulator.ClearInput();
                 return;
             }
+            SwitchDetailHeadCamera();
             CharacterRaceAnimation race = Creator.GetRaceAnimator(Creator.PawnIndex);
             RefreshHair(race, hairColorManipulator.Value, hairstyleManipulator.Value);
-            //RefreshFace(CharacterRaceAnimation.FFighter, faceManipulator.Value, hairColorManipulator.Value, hairstyleManipulator.Value);
         });
         hairstyleInput.AddManipulator(hairstyleManipulator);
 
-        hairColorManipulator = new ArrowInputManipulator(hairColorInput, "Hair Color", new string[] { "Type A", "Type B", "Type C", "Type D" }, -1, (index, value) => {
+        hairColorManipulator = new ArrowInputManipulator(hairColorInput, "Hair Color", System.Array.Empty<string>(), -1, (index, value) => {
             if (Creator.PawnIndex == -1) {
                 hairColorManipulator.ClearInput();
                 return;
             }
+            SwitchDetailHeadCamera();
             CharacterRaceAnimation race = Creator.GetRaceAnimator(Creator.PawnIndex);
             RefreshHair(race, hairColorManipulator.Value, hairstyleManipulator.Value);
         });
         hairColorInput.AddManipulator(hairColorManipulator);
 
-        faceManipulator = new ArrowInputManipulator(faceInput, "Face", new string[] { "Type A", "Type B", "Type C" }, -1, (index, value) => {
+        faceManipulator = new ArrowInputManipulator(faceInput, "Face", System.Array.Empty<string>(), -1, (index, value) => {
             if(Creator.PawnIndex == -1) {
                 faceManipulator.ClearInput();
                 return;
             }
+            SwitchDetailHeadCamera();
             CharacterRaceAnimation race = Creator.GetRaceAnimator(Creator.PawnIndex);
             RefreshFace(race, faceManipulator.Value);
-            //Debug.Log("Face Change");
         });
         faceInput.AddManipulator(faceManipulator);
 
-        genderManipulator = new ArrowInputManipulator(genderInput, "Gender", new string[] { "Male", "Female" }, -1, (index, value) => {
+        // Empty until class chosen — Interlude sex stage (#933).
+        genderManipulator = new ArrowInputManipulator(genderInput, "Gender", System.Array.Empty<string>(), -1, (index, value) => {
             if (classManipulator.Value == "") {
                 genderManipulator.ClearInput();
                 return;
@@ -119,9 +122,12 @@ public partial class CharCreationWindow : L2Window
                 LoginCamera.SwitchCamera(cam);
             }
 
-            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale));
+            int sex = value == "Female" ? LobbyCharacterCreate.SexFemale : LobbyCharacterCreate.SexMale;
+            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(sex));
             hairstyleManipulator.ResetInput();
+            hairColorManipulator.UpdateValues(new string[] { "Type A", "Type B", "Type C", "Type D" });
             hairColorManipulator.ResetInput();
+            faceManipulator.UpdateValues(new string[] { "Type A", "Type B", "Type C" });
             faceManipulator.ResetInput();
 
             ShowRotatePawnWindow();
@@ -131,9 +137,12 @@ public partial class CharCreationWindow : L2Window
         });
         genderInput.AddManipulator(genderManipulator);
 
-        classManipulator = new ArrowInputManipulator(classInput, "Class", new string[] { "Fighter", "Mystic" }, -1, (index, value) => {
+        // Empty until race chosen — Interlude step 0 (#933). Race callback fills via ClassNames.
+        classManipulator = new ArrowInputManipulator(classInput, "Class", System.Array.Empty<string>(), -1, (index, value) => {
             if(raceManipulator.Value == "Dwarf" && value == "Mystic") {
                 classManipulator.ResetInput();
+                // Stay on race gallery (Fighter M/F only) — Dwarf has no Mystic (#933).
+                Creator.ShowRaceGallery("Dwarf");
                 return;
             }
 
@@ -147,14 +156,18 @@ public partial class CharCreationWindow : L2Window
                 LoginCamera.SwitchCamera(cam);
             }
 
+            genderManipulator.UpdateValues(new string[] { "Male", "Female" });
             genderManipulator.ClearInput();
+            hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
             hairstyleManipulator.ClearInput();
+            hairColorManipulator.UpdateValues(System.Array.Empty<string>());
             hairColorManipulator.ClearInput();
+            faceManipulator.UpdateValues(System.Array.Empty<string>());
             faceManipulator.ClearInput();
 
             HideRotatePawnWindow();
             Creator.ResetPawnSelection();
-            //Creator.SpawnPawnWithId(currentPawnIndex);
+            Creator.ShowClassGallery(raceManipulator.Value, value);
         });
         classInput.AddManipulator(classManipulator);
 
@@ -162,12 +175,16 @@ public partial class CharCreationWindow : L2Window
             LoginCamera.SwitchCamera(value);
             classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames(value));
             genderManipulator.ClearInput();
+            hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
             hairstyleManipulator.ClearInput();
+            hairColorManipulator.UpdateValues(System.Array.Empty<string>());
             hairColorManipulator.ClearInput();
+            faceManipulator.UpdateValues(System.Array.Empty<string>());
             faceManipulator.ClearInput();
 
             HideRotatePawnWindow();
             Creator.ResetPawnSelection();
+            Creator.ShowRaceGallery(value);
             SetlabelError("");
         });
         raceInput.AddManipulator(raceManipulator);

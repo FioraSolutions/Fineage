@@ -1,3 +1,4 @@
+using UnityEngine;
 using VContainer;
 
 public sealed partial class LoginRuntime
@@ -22,12 +23,24 @@ public sealed partial class LoginRuntime
 
     public LoginClient LoginClient
     {
-        get { return _loginClient ?? Get<LoginClient>() ?? NetworkingPacketServices.Login; }
+        get
+        {
+            if (_loginClient != null)
+                return _loginClient;
+            _loginClient = Get<LoginClient>();
+            return _loginClient;
+        }
     }
 
     public GameManager Manager
     {
-        get { return _manager ?? Get<GameManager>() ?? NetworkingPacketServices.Manager; }
+        get
+        {
+            if (_manager != null)
+                return _manager;
+            _manager = Get<GameManager>();
+            return _manager;
+        }
     }
 
     private T Get<T>() where T : class
@@ -39,8 +52,9 @@ public sealed partial class LoginRuntime
         {
             return _resolver.Resolve<T>();
         }
-        catch
+        catch (System.Exception ex)
         {
+            Debug.LogWarning("[LoginRuntime] Resolve<" + typeof(T).Name + "> failed: " + ex.Message);
             return null;
         }
     }

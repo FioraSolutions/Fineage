@@ -28,13 +28,18 @@ public static partial class WorldPlacement
         }
     }
 
+    /// <summary>
+    /// Mesh height SoT layers (#931). Deco is excluded — Interlude foliage/canopy is not walk height.
+    /// Import must keep tree MeshColliders off this mask (prefer Deco / non-walk layer); name filter is a stopgap.
+    /// </summary>
     static LayerMask WalkableMask(LayerMask? groundMask)
     {
         LayerMask mask = groundMask.HasValue
             ? groundMask.Value
             : ResolveDefaultGroundMask();
-        mask |= LayerMask.GetMask("Default", "Terrain", "StaticMesh", "Brush", "AllowWalk", "Deco", "Obstacle");
-        mask &= ~LayerMask.GetMask("Entity", "EntityClick", "DropItem", "Player", "UI", "Ignore Raycast", "SkillEffect");
+        mask |= LayerMask.GetMask("Default", "Terrain", "StaticMesh", "Brush", "AllowWalk", "Obstacle");
+        mask &= ~LayerMask.GetMask(
+            "Entity", "EntityClick", "DropItem", "Player", "UI", "Ignore Raycast", "SkillEffect", "Deco");
         return mask;
     }
 }

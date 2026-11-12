@@ -43,7 +43,13 @@ public partial class LoginWindow
             if (transport != null)
                 transport.BeginSession(account, password);
             else
-                _ = NetSession.Ensure().BeginLobby(account, password, registerIfMissing: true);
+            {
+                NetSession session = NetSession.TryGetBound();
+                if (session == null)
+                    throw new InvalidOperationException(
+                        "NetSession not bound — AppLifetimeScope must create the session host");
+                _ = session.BeginLobby(account, password, registerIfMissing: true);
+            }
         }
         catch (Exception ex)
         {
@@ -62,7 +68,8 @@ public partial class LoginWindow
     private void ExitButtonPressed()
     {
         // Same path as System Menu → Exit (Editor stops Play; player builds quit).
-        GameManager manager = LoginPacketServices.Manager ?? GamePacketServices.Manager;
+        IGameManager manager = NetGameHost.TryGet()
+            ?? (IGameManager)(LoginPacketServices.Manager ?? GamePacketServices.Manager);
         if (manager != null)
         {
             manager.QuitGame();

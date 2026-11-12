@@ -14,6 +14,8 @@ public partial class ItemNameTable
             _instance = table;
     }
 
+    public static void Unbind() => _instance = null;
+
     public void Initialize() {
         ReadItemNameDat();
         ReadItemNameInterlude();

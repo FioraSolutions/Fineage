@@ -12,6 +12,8 @@ public partial class EtcItemgrpTable
             _instance = table;
     }
 
+    public static void Unbind() => _instance = null;
+
     public EtcItemgrp GetEtcItem(int id)
     {
         EtcItemgrp item;

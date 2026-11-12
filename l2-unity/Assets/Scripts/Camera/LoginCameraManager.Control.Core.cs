@@ -16,6 +16,11 @@ public partial class LoginCameraManager : MonoBehaviour
             obj.enabled = true;
             _activeCamera = obj;
 
+            if (camera == "Login")
+                LoginForestPresenter.Present(obj);
+            else
+                LoginForestPresenter.Dismiss();
+
             if (camera == "CharSelect")
             {
                 LobbyNameplatesManager lobbyPlates = NameplatePacketServices.LobbyNameplates;

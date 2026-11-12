@@ -84,7 +84,8 @@ public sealed partial class NetLobbyFlow
         LoginWindow loginWindow = LoginPacketServices.LoginWindow;
         if (loginWindow != null)
             loginWindow.ShowErrorText("");
-        GameManager manager = NetworkingPacketServices.Manager ?? GamePacketServices.Manager;
+        // GamePacketServices.Manager already prefers NetGameHost then NetworkingPacketServices (A09).
+        IGameManager manager = NetGameHost.TryGet() ?? GamePacketServices.Manager;
         if (manager != null)
             manager.OnAuthAllowed();
         Debug.Log("[Net] roster count=" + characters.Length);

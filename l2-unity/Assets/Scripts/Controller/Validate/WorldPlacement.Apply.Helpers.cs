@@ -38,12 +38,13 @@ public static partial class WorldPlacement
             return false;
 
         // Pass 1: closest |ΔY| to server. Pass 2: among near-ties, pick higher deck (cave vs village).
+        // Skip foliage-named colliders so canopy MeshColliders on StaticMesh cannot become height SoT (#931).
         float minAbs = float.PositiveInfinity;
         bool found = false;
         for (int i = 0; i < hits.Length; i++)
         {
             RaycastHit hit = hits[i];
-            if (hit.collider == null)
+            if (hit.collider == null || IsFoliageCollider(hit.collider))
                 continue;
             float abs = Mathf.Abs(hit.point.y - position.y);
             if (!found || abs < minAbs)
@@ -61,7 +62,7 @@ public static partial class WorldPlacement
         for (int i = 0; i < hits.Length; i++)
         {
             RaycastHit hit = hits[i];
-            if (hit.collider == null)
+            if (hit.collider == null || IsFoliageCollider(hit.collider))
                 continue;
             float abs = Mathf.Abs(hit.point.y - position.y);
             if (abs > minAbs + NearTieMeters)
@@ -78,5 +79,33 @@ public static partial class WorldPlacement
 
         y = bestY;
         return true;
+    }
+
+    /// <summary>
+    /// Import stopgap (#931): tree/bush mesh names on StaticMesh until colliders leave the walk mask.
+    /// Prefer geodata Y; long-term move foliage to Deco / non-walk at import.
+    /// </summary>
+    static bool IsFoliageCollider(Collider collider)
+    {
+        if (collider == null)
+            return false;
+
+        Transform t = collider.transform;
+        for (int depth = 0; depth < 4 && t != null; depth++, t = t.parent)
+        {
+            string n = t.name;
+            if (string.IsNullOrEmpty(n))
+                continue;
+            string lower = n.ToLowerInvariant();
+            if (lower.Contains("tree")
+                || lower.Contains("bush")
+                || lower.Contains("foliage")
+                || lower.Contains("grass")
+                || lower.Contains("leaf")
+                || lower.Contains("plant"))
+                return true;
+        }
+
+        return false;
     }
 }

@@ -3,7 +3,7 @@
 > **HISTORICAL** — written 2026-10-27. Do not treat open findings as current without checking code.
 > Living triage: [`Docs/DOC_CANON.md`](../../Docs/DOC_CANON.md).
 
-### Status Now (2026-11-11 — gameplay-debug bar)
+### Status Now (2026-11-12 — gameplay-debug bar)
 
 - Fineage Net is the **only** live wire (`FineageZoneTransport` / `IZoneTransport`). MessagePack Zone V2 and `FINEAGE_V2_WIRE` are gone.
 - `IncomingPacketActions` is **deleted** (#142). CI guard: `scripts/check-frozen-incoming-packet-actions.py`.
@@ -11,8 +11,11 @@
 - **C2 Instance drain:** PacketServices path largely done through **#893**. Frozen seam set (#137): no new `World`/`GameManager`/`EventProcessor`/`PlayerController` `.Instance` call sites.
 - **Asmdef / Di seams:** leaf waves through **#1341**; `PacketApplyQueue` + `IZoneTransport` in Networking; `IGameManager`/`ISceneLoader`/`ILobbySession`/`IWorldEntityLookup`/`ISkillNameTable`/`ISkillgrpLookup`/`GameState`/LUT/Formulas in Game; creators/tooltip helpers in UI; `AppContainers` in Di.
 - **Stabilize bar (gameplay debug + graphics import): MET.** One Zone + client apply path is good enough to debug gameplay and keep importing art. Do **not** treat LifetimeScope→`Fineage.Di` as a blocker for play/debug/assets.
+- **GPT deep-audit High / P0 (2026-11-12):** A01–A07 + TX/DC/EP/OP landed via small PRs; A09–A11 + A08 App Unbind (#1387) + NetGameHost Manager preference wave (#1388–#1390). Residual medium: Game UI PacketServices bind wall / MonoBehaviour hosts; A12–A13 asmdef; B5 full EnterWorld resync.
+- **Overnight follow-ons (2026-11-12):** GPT High/P0 + A08/A09 seams; #33 RX soft-cap; #931 foliage height filter; #932 login menu + Fineage logo; #933 char-create stages through step-0/Clear (#1380–#1386) + head camera + EquipFace (#1383–#1384); `IGameManager.QuitGame`; obsolete `SpawnAllPawns`. Residual: #931 import re-layer, #933 visual polish (gallery idle/cameras), #932 layout polish, A12–A13, B5 resync.
 - **Ongoing residual (not the gate):** LifetimeScope / `GameRuntime` / `LoginRuntime` / `DiBootstrap` still ACS. Opportunistic #131 seams only when they unblock concrete pain — no DAT/World grind as finish-line. Living plan: [`Docs/REFACTOR_PLAN_2026-11.md`](../../Docs/REFACTOR_PLAN_2026-11.md).
 - **Primary client focus now:** gameplay debug, graphics/import, Interlude parity; Gremlin **#129** smoke where it does not dump feature layers onto unreformed ACS.
+- **GPT A04:** `World.GetEntityAsync` no longer polls with `Task.Delay(150)` — uses `ObjectIdWaitMap` completed by Register*/clear (timeout still 150ms).
 
 ### GPT deep-audit fixes (2026-11-11+)
 
@@ -21,13 +24,21 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | ID | Item | Status |
 |----|------|--------|
 | A01 | `IZoneTransport.Connected` = zone TCP up (not `Session != null`); `HasSession` + `ZoneConnectionState` | **Fixed** — `ZoneConnectionState` / `ZoneConnectionStateResolver` + `NetSession.IsZoneSocketConnected` |
-| A02 | Single NetSession owner; stop `Ensure()` / transport self-create bypass of DI | Open |
-| A03 | `ZoneCommands` static resolver / stale `_transport` after scope rebuild | Open |
-| A04 | `World.GetEntityAsync` `Task.Delay(150)` → event wait registry | Open |
-| A05 | World responsibility split (registry first) | Open (opportunistic) |
-| A06 | `AppLifetimeScope` global Bind side-effects | Open (opportunistic) |
-| A07 | `LoginRuntime` resolver fallback / empty catch | Open |
-| A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred per Status Now |
+| A02 | Single NetSession owner; stop `Ensure()` / transport self-create bypass of DI | **Fixed (partial)** — AppLifetimeScope `CreateForCompositionRoot`; transport no longer `Ensure()`; call sites use `TryGetBound` |
+| A03 | `ZoneCommands` static resolver / stale `_transport` after scope rebuild | **Fixed** — `Unbind` on AppLifetimeScope destroy; Transport is bind-only |
+| A04 | `World.GetEntityAsync` `Task.Delay(150)` → event wait registry | **Fixed** — `ObjectIdWaitMap` + Register*/clear notify |
+| A05 | World responsibility split (registry first) | **Fixed (partial)** — `WorldEntityRegistry<T>` owns object/player/npc maps; World façade delegates Register*/lookup/clear |
+| A06 | `AppLifetimeScope` global Bind side-effects | **Fixed (partial)** — disconnect unsubscribe + ZoneCommands/DAT-table Unbind + clear App.Container; tables still Bind in BuildCallback |
+| A07 | `LoginRuntime` resolver fallback / empty catch | **Fixed (partial)** — resolve failures logged; PacketServices fallback removed for LoginClient/Manager; LoginRuntime itself still ACS locator |
+| A08 | PacketServices global resolution model | **Partial** — App `NetworkingPacketServices.Unbind` (session/events/manager/login) + pump no longer Bind/fallback; Game UI bind wall + MonoBehaviour hosts deferred |
+| A09 | NetSession legacy GameManager / DTO coupling | **Fixed (partial)** — `NetGameHost` binds `IGameManager`; Login/Game/DiRuntime/World/Locator PacketServices + Net EntitySpawn/roster prefer `TryGet` / `GamePacketServices.Manager` (#1388–#1390) |
+| A10 | `EventProcessorApplyPump` EnsureInstance fallback | **Fixed** — injected `EventProcessor` only; missing host drops apply |
+| A11 | `PacketApplyQueue` nest depth ThreadStatic | **Fixed** — per-queue instance depth + tools tests |
+| A12–A13 | asmdef type moves / remaining ACS hubs | Open / deferred (opportunistic #131) |
+| P0-TX | Drop `ZoneCommands.Send` when `!Connected` | **Fixed** — gate in `ZoneCommands.Send` |
+| P0-DC | Disconnect invalidates waits / PlayerInfo / transport | **Fixed (partial)** — dispose zone transport; cancel entity waits; clear PlayerInfo; full resync still B5 |
+| P0-EP | Stale main-thread zone applies after disconnect | **Fixed** — `NetSession.ZoneEpoch` drop queued HandleZone when epoch changes |
+| P0-OP | Auto audit NetOpcode ↔ NetZoneDispatch | **Fixed** — CI `check-net-zone-inbound-opcodes.py` + decode cases for remaining Zone→client gaps |
 
 
 ## Executive Summary

@@ -216,6 +216,49 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.FriendList:
                 _ = NetCodec.DecodeFriendList(envelope.Payload);
                 break;
+            // Additional Zone→client fanouts: decode for framing honesty until UI apply lands.
+            case NetOpcode.BossStatus:
+                _ = NetCodec.DecodeBossStatus(envelope.Payload);
+                break;
+            case NetOpcode.OlympiadMatch:
+                _ = NetCodec.DecodeOlympiadMatch(envelope.Payload);
+                break;
+            case NetOpcode.OlympiadCountdown:
+                _ = NetCodec.DecodeOlympiadCountdown(envelope.Payload);
+                break;
+            case NetOpcode.OlympiadResult:
+                _ = NetCodec.DecodeOlympiadResult(envelope.Payload);
+                break;
+            case NetOpcode.SevenSignsSky:
+                _ = NetCodec.DecodeSevenSignsSky(envelope.Payload);
+                break;
+            case NetOpcode.PrivateStoreListSell:
+                _ = NetCodec.DecodePrivateStoreListSell(envelope.Payload);
+                break;
+            case NetOpcode.PrivateStoreListBuy:
+                _ = NetCodec.DecodePrivateStoreListBuy(envelope.Payload);
+                break;
+            case NetOpcode.RecipeBookList:
+                _ = NetCodec.DecodeRecipeBookList(envelope.Payload);
+                break;
+            case NetOpcode.RecipeItemMakeInfo:
+                _ = NetCodec.DecodeRecipeItemMakeInfo(envelope.Payload);
+                break;
+            case NetOpcode.RecipeShopSellList:
+                _ = NetCodec.DecodeRecipeShopSellList(envelope.Payload);
+                break;
+            case NetOpcode.RecipeShopItemInfo:
+                _ = NetCodec.DecodeRecipeShopItemInfo(envelope.Payload);
+                break;
+            case NetOpcode.FriendInviteAsk:
+                _ = NetCodec.DecodeFriendInviteAsk(envelope.Payload);
+                break;
+            case NetOpcode.FriendUpdate:
+                _ = NetCodec.DecodeFriendUpdate(envelope.Payload);
+                break;
+            case NetOpcode.BlockList:
+                _ = NetCodec.DecodeBlockList(envelope.Payload);
+                break;
             case NetOpcode.Reject:
             {
                 var reject = NetCodec.DecodeReject(envelope.Payload);

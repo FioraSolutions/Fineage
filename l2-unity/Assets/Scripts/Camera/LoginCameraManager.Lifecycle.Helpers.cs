@@ -34,6 +34,12 @@ public partial class LoginCameraManager : MonoBehaviour
         camera.enabled = true;
         _activeCamera = camera;
 
+        // Race/gender cams are not the credentials Login camera — hide forest root.
+        if (camera == null || camera.name != "Login")
+            LoginForestPresenter.Dismiss();
+        else
+            LoginForestPresenter.Present(camera);
+
         EnsureStudioListener(camera);
         UpdateListenerPosition();
     }

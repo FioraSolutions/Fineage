@@ -34,13 +34,15 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
     }
 
     public void ClearEntities() {
-        _objects.Clear();
-        _players.Clear();
-        _npcs.Clear();
+        _entities.Clear();
+        _entityWait.CancelAll();
     }
+
+    /// <summary>Cancel GetEntityAsync waiters without tearing down spawned objects (scene unload owns GO teardown).</summary>
+    public void CancelPendingEntityWaits() => _entityWait.CancelAll();
 
     public bool ContainsNpc(int id)
     {
-        return _npcs.ContainsKey(id);
+        return _entities.ContainsNpc(id);
     }
 }

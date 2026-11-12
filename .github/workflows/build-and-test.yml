@@ -32,6 +32,9 @@ jobs:
       - name: Check frozen Net domain maps stay deleted (C1)
         run: python3 scripts/check-frozen-net-domain-maps.py
 
+      - name: Check Zone→client opcodes have NetZoneDispatch cases
+        run: python3 scripts/check-net-zone-inbound-opcodes.py
+
       - name: Check playtest release helpers
         run: |
           python3 scripts/check-release-secrets.py --self-test

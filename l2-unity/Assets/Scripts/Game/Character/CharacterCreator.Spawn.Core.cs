@@ -6,15 +6,21 @@ using VContainer;
 
 public partial class CharacterCreator
 {
+    /// <summary>
+    /// Legacy full-gallery spawn. Prefer <see cref="ShowRaceGallery"/> (lazy ≤4) — spawning all
+    /// create pawns in one frame crashed Windows D3D12 playtests.
+    /// </summary>
+    [System.Obsolete("Use ShowRaceGallery / ShowClassGallery / SelectPawn — do not spawn all create pawns at once.")]
     public void SpawnAllPawns() {
         List<Logongrp> pawnData = LogonGrps;
 
         EnsurePawnContainer();
 
         for (var i = 8; i < pawnData.Count; i++) {
-             GameObject pawnObject = CreatePawn(CharacterRaceAnimation.FDarkElf, new PlayerAppearance());
+             Logongrp data = pawnData[i];
+             GameObject pawnObject = CreatePawnInterlude(data.RaceId, new PlayerAppearance());
              pawns[i] = pawnObject;
-             PlacePawn(pawnObject, pawnData[i], "Pawn" + i, _pawnContainer);
+             PlacePawn(pawnObject, data, "Pawn" + i, _pawnContainer);
         }
     }
 

@@ -7,6 +7,19 @@ using VContainer;
 
 public partial class CharCreationWindow
 {
+    /// <summary>Interlude detail stage — zoom to head cam while editing face/hair (#933).</summary>
+    void SwitchDetailHeadCamera()
+    {
+        if (LoginCamera == null || raceManipulator == null || classManipulator == null || genderManipulator == null)
+            return;
+        if (string.IsNullOrEmpty(raceManipulator.Value) || string.IsNullOrEmpty(classManipulator.Value)
+            || string.IsNullOrEmpty(genderManipulator.Value))
+            return;
+        Camera cam = LoginCamera.SelectHeadCamera(raceManipulator.Value, classManipulator.Value, genderManipulator.Value);
+        if (cam != null)
+            LoginCamera.SwitchCamera(cam);
+    }
+
     private void RefreshFace(CharacterRaceAnimation raceId , string face)
     {
         byte iFace = (byte)LobbyCharacterCreate.ClampAppearance(faceManipulator != null ? faceManipulator.Index : 0, 2);
@@ -50,19 +63,38 @@ public partial class CharCreationWindow
     {
         if (raceManipulator == null)
             return;
+        // Interlude step 0: empty stage until race chosen (#933) — no prefilled Human.
+        if (Creator != null)
+            Creator.ResetPawnSelection();
         raceManipulator.UpdateValues(LobbyRaceCatalog.RaceNames);
-        raceManipulator.ResetInput();
+        raceManipulator.ClearInput();
         if (classManipulator != null)
-            classManipulator.UpdateValues(LobbyRaceCatalog.ClassNames("Human"));
+        {
+            classManipulator.UpdateValues(System.Array.Empty<string>());
+            classManipulator.ClearInput();
+        }
+        if (genderManipulator != null)
+        {
+            genderManipulator.UpdateValues(System.Array.Empty<string>());
+            genderManipulator.ClearInput();
+        }
         if (LoginCamera != null)
-            LoginCamera.SwitchCamera("Human");
+            LoginCamera.SwitchCamera("Login");
+        // Appearance empty until sex chosen (#933).
         if (hairstyleManipulator != null)
         {
-            int sex = genderManipulator != null && genderManipulator.Value == "Female"
-                ? LobbyCharacterCreate.SexFemale
-                : LobbyCharacterCreate.SexMale;
-            hairstyleManipulator.UpdateValues(LobbyCharacterCreate.HairLabels(sex));
-            hairstyleManipulator.ResetInput();
+            hairstyleManipulator.UpdateValues(System.Array.Empty<string>());
+            hairstyleManipulator.ClearInput();
+        }
+        if (hairColorManipulator != null)
+        {
+            hairColorManipulator.UpdateValues(System.Array.Empty<string>());
+            hairColorManipulator.ClearInput();
+        }
+        if (faceManipulator != null)
+        {
+            faceManipulator.UpdateValues(System.Array.Empty<string>());
+            faceManipulator.ClearInput();
         }
     }
 

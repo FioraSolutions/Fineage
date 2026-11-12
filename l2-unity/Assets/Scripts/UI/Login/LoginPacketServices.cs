@@ -16,6 +16,9 @@ public static partial class LoginPacketServices
             GameManager manager = _login != null ? _login.Manager : null;
             if (manager != null)
                 return manager;
+            // Prefer App-bound NetGameHost before NetworkingPacketServices (A09 residual).
+            if (NetGameHost.TryGet() is GameManager hosted)
+                return hosted;
             return NetworkingPacketServices.Manager;
         }
     }

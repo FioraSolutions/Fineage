@@ -31,6 +31,7 @@ public partial class LoginCameraManager : MonoBehaviour
 
     private void Start() {
         // Cameras wired in Awake so StudioListener exists before FMOD's first Update.
+        // Forest login vista: SwitchCamera("Login") → LoginForestPresenter.Present.
         EnsureStudioListener(_activeCamera);
         UpdateListenerPosition();
     }

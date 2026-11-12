@@ -20,6 +20,8 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             _instance = manager;
     }
 
+    public static void Unbind() => _instance = null;
+
     public void PlayAnimation(int objectId , string animationName, bool disableTriggerAfterStart)
     {
         if (GetModel(objectId) == null)

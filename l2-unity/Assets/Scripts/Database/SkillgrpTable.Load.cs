@@ -16,6 +16,8 @@ public partial class SkillgrpTable
             _instance = table;
     }
 
+    public static void Unbind() => _instance = null;
+
     public Skillgrp GetSkill(int id , int level)
     {
        if (_skills == null || !_skills.TryGetValue(id, out Dictionary<int, Skillgrp> byLevel) || byLevel == null)

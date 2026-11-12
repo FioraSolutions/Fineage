@@ -7,8 +7,9 @@ using System.Collections.Generic;
 /// </summary>
 public sealed class PacketApplyQueue : IPacketApplyQueue
 {
-    [ThreadStatic]
-    private static int _applyDepth;
+    // Per-queue nest depth (not ThreadStatic): nested Queue during QueueApply stays
+    // scoped to this host so a second queue cannot observe another instance's apply.
+    int _applyDepth;
 
     private readonly IMainThreadApplyPump _pump;
 

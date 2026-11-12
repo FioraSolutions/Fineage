@@ -9,11 +9,10 @@ public sealed partial class FineageZoneTransport : IZoneTransport
     bool _disconnectNotified;
 
     /// <summary>
-    /// Prefer DI-bound <see cref="NetSession"/> via <see cref="NetworkingPacketServices"/>;
-    /// <see cref="NetSession.Ensure"/> only for early login before the binder runs.
-    /// Static so party/trade user-command helpers can share the same locator.
+    /// Bound <see cref="NetSession"/> from composition root via <see cref="NetworkingPacketServices"/>.
+    /// Does not self-create — missing session is a DI/lifecycle error.
     /// </summary>
-    static NetSession Session => NetworkingPacketServices.Session ?? NetSession.Ensure();
+    static NetSession Session => NetworkingPacketServices.Session;
 
     /// <summary>
     /// The local player profile. NetSession writes this when the character is selected and

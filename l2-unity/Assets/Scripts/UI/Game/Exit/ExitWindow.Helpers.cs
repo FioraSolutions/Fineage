@@ -88,7 +88,8 @@ public partial class ExitWindow : L2PopupWindow
     private void HandleExitButtonClick()
     {
         HideWindow();
-        GameManager manager = GamePacketServices.Manager;
+        IGameManager manager = NetGameHost.TryGet()
+            ?? (IGameManager)GamePacketServices.Manager;
         if (manager != null)
             manager.QuitGame();
         else

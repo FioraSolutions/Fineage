@@ -18,25 +18,19 @@ public partial class World
     /// </summary>
     public void ForEachNpc(System.Action<Entity> action)
     {
-        if (action == null)
-            return;
-
-        foreach (KeyValuePair<int, Entity> pair in _npcs)
-        {
-            if (pair.Value != null)
-                action(pair.Value);
-        }
+        _entities.ForEachNpc(action);
     }
 
     public string GetEntityName(int id)
     {
-        if (_npcs.ContainsKey(id))
-        {
-            return _npcs[id].name;
-        }else if (_players.ContainsKey(id))
-        {
-            return _players[id].name;
-        }
+        Entity npc;
+        if (_entities.TryGetNpc(id, out npc) && npc != null)
+            return npc.name;
+
+        Entity player;
+        if (_entities.TryGetPlayer(id, out player) && player != null)
+            return player.name;
+
         return "";
     }
 

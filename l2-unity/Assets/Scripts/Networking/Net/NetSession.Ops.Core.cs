@@ -75,9 +75,28 @@ public sealed partial class NetSession : MonoBehaviour
     {
         if (envelope.Opcode == NetOpcode.HelloAck)
             _helloZone = true;
+
+        // Capture epoch at enqueue so a disconnect cannot apply a packet that was already queued.
+        int epoch = ZoneEpoch;
         if (IsCriticalZoneOpcode(envelope.Opcode))
-            PostCritical(() => HandleZone(envelope));
+            PostCritical(() => ApplyZoneIfCurrent(epoch, envelope));
         else
-            Post(() => HandleZone(envelope));
+            Post(() => ApplyZoneIfCurrent(epoch, envelope));
+    }
+
+    void ApplyZoneIfCurrent(int epoch, PacketEnvelope envelope)
+    {
+        if (!ZoneEpochGate.IsCurrent(epoch, ZoneEpoch))
+            return;
+        HandleZone(envelope);
+    }
+
+    internal void BumpZoneEpoch(string reason)
+    {
+        ZoneEpoch++;
+        SessionObjectId = 0;
+        _helloZone = false;
+        _zoneConnecting = false;
+        Debug.Log("[Net] zone epoch → " + ZoneEpoch + " (" + reason + ")");
     }
 }

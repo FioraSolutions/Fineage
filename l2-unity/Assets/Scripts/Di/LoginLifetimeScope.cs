@@ -34,9 +34,17 @@ public sealed class LoginLifetimeScope : LifetimeScope
                     // Login UI bind is LobbyFlowController.WireLogin / LobbyUiPacketServices —
                     // GameManager.WireLoginUi never existed (ACS leftover).
                 }
-                catch
+                catch (System.Exception ex)
                 {
+                    Debug.LogError(
+                        "[LoginLifetimeScope] Failed to wire LobbyFlowController from App.Container: "
+                        + ex.Message);
                 }
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "[LoginLifetimeScope] App.Container missing — lobby wire skipped (AppLifetimeScope not ready)");
             }
         });
     }

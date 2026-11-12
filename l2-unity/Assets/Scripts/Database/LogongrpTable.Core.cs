@@ -11,4 +11,6 @@ public partial class LogongrpTable
         if (table != null)
             _instance = table;
     }
+
+    public static void Unbind() => _instance = null;
 }
