@@ -24,8 +24,11 @@ public partial class LoginWindow
         SetLoginBusy(false);
 
         Button exitButton = (Button)GetElementById("ExitButton");
-        exitButton.AddManipulator(new ButtonClickSoundManipulator(exitButton));
-        exitButton.RegisterCallback<ClickEvent>(evt => ExitButtonPressed());
+        if (exitButton != null)
+        {
+            exitButton.AddManipulator(new ButtonClickSoundManipulator(exitButton));
+            exitButton.RegisterCallback<ClickEvent>(evt => ExitButtonPressed());
+        }
 
         _userInput = (TextField) GetElementById("UserInputField");
         _userInput.RegisterCallback<FocusEvent>((evt) => OnInputFocus(evt, _userInput));
