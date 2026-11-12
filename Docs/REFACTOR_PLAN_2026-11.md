@@ -376,6 +376,10 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - `_applyDepth` is per-queue instance (was `[ThreadStatic]` shared across hosts on the thread).
 - Tools tests cover nested inline Queue during QueueApply and isolation between queue instances.
 
+### C5d. EventProcessorApplyPump host (GPT A10) — done
+- Constructor requires injected `EventProcessor` (AppLifetimeScope registers the component).
+- `QueueOnMainThread` no longer calls `EventProcessor.EnsureInstance()`; missing host logs and drops.
+
 ---
 
 ## Phase D — Scale (#112) — later

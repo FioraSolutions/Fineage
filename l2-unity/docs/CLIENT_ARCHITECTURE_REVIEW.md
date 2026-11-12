@@ -28,7 +28,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | A05 | World responsibility split (registry first) | **Fixed (partial)** — `WorldEntityRegistry<T>` owns object/player/npc maps; World façade delegates Register*/lookup/clear |
 | A06 | `AppLifetimeScope` global Bind side-effects | **Fixed (partial)** — disconnect unsubscribe + ZoneCommands/DAT-table Unbind + clear App.Container; tables still Bind in BuildCallback |
 | A07 | `LoginRuntime` resolver fallback / empty catch | **Fixed (partial)** — resolve failures logged; PacketServices fallback removed for LoginClient/Manager; LoginRuntime itself still ACS locator |
-| A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred (medium); **A11** apply-depth now per-queue instance |
+| A08–A13 | PacketServices / NetSession legacy / pump / asmdef | Open / deferred (medium); **A10** pump uses injected EventProcessor (no EnsureInstance); **A11** apply-depth per instance |
 | P0-TX | Drop `ZoneCommands.Send` when `!Connected` | **Fixed** — gate in `ZoneCommands.Send` |
 | P0-DC | Disconnect invalidates waits / PlayerInfo / transport | **Fixed (partial)** — dispose zone transport; cancel entity waits; clear PlayerInfo; full resync still B5 |
 | P0-EP | Stale main-thread zone applies after disconnect | **Fixed** — `NetSession.ZoneEpoch` drop queued HandleZone when epoch changes |
