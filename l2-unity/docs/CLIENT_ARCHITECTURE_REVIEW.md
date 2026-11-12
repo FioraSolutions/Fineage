@@ -31,7 +31,7 @@ Tracked from the ChatGPT client deep audit (World / NetSession / FineageZoneTran
 | A06 | `AppLifetimeScope` global Bind side-effects | **Fixed (partial)** — disconnect unsubscribe + ZoneCommands/DAT-table Unbind + clear App.Container; tables still Bind in BuildCallback |
 | A07 | `LoginRuntime` resolver fallback / empty catch | **Fixed (partial)** — resolve failures logged; PacketServices fallback removed for LoginClient/Manager; LoginRuntime itself still ACS locator |
 | A08 | PacketServices global resolution model | **Partial** — App `NetworkingPacketServices.Unbind` (session/events/manager/login) + pump no longer Bind/fallback; Game UI bind wall + MonoBehaviour hosts deferred |
-| A09 | NetSession legacy GameManager / DTO coupling | **Fixed (partial)** — `NetGameHost` binds `IGameManager` from AppLifetimeScope; EntitySpawn/roster use it first |
+| A09 | NetSession legacy GameManager / DTO coupling | **Fixed (partial)** — `NetGameHost` binds `IGameManager` from AppLifetimeScope; EntitySpawn/roster + Login/Game/DiRuntime PacketServices prefer `TryGet` before NetworkingPacketServices.Manager |
 | A10 | `EventProcessorApplyPump` EnsureInstance fallback | **Fixed** — injected `EventProcessor` only; missing host drops apply |
 | A11 | `PacketApplyQueue` nest depth ThreadStatic | **Fixed** — per-queue instance depth + tools tests |
 | A12–A13 | asmdef type moves / remaining ACS hubs | Open / deferred (opportunistic #131) |
