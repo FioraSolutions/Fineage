@@ -154,7 +154,7 @@ public partial class CharCreationWindow : L2Window
 
             HideRotatePawnWindow();
             Creator.ResetPawnSelection();
-            //Creator.SpawnPawnWithId(currentPawnIndex);
+            Creator.ShowClassGallery(raceManipulator.Value, value);
         });
         classInput.AddManipulator(classManipulator);
 
@@ -168,6 +168,7 @@ public partial class CharCreationWindow : L2Window
 
             HideRotatePawnWindow();
             Creator.ResetPawnSelection();
+            Creator.ShowRaceGallery(value);
             SetlabelError("");
         });
         raceInput.AddManipulator(raceManipulator);
