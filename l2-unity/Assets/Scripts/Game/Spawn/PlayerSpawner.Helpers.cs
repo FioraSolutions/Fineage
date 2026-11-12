@@ -72,10 +72,12 @@ public sealed partial class PlayerSpawner
 
         PlayerStats statsIntr = (PlayerStats)player.Stats;
         player.Initialize();
-        // Mirror lobby BindLobbyPawnPresentation: remap armor onto the live anim skeleton
-        // after EquipAllArmors so Orc/DE do not stay gingerbread in-world.
+        // Face/hair after Initialize (#933); then remap armor SMRs onto live skeleton.
         if (gear is UserGear userGear)
+        {
+            _characterBuilder.AttachFaceAndHair(userGear, raceId, appearance);
             userGear.SyncSkinnedMeshes();
+        }
         float run = statsIntr.RunRealSpeed > 0.001f ? statsIntr.RunRealSpeed : 120f;
         float walk = statsIntr.WalkRealSpeed > 0.001f ? statsIntr.WalkRealSpeed : 80f;
         player.UpdateRunSpeed(run);

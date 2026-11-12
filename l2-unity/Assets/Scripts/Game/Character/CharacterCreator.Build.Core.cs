@@ -38,6 +38,8 @@ public partial class CharacterCreator
         try
         {
             gear.Initialize(-1, raceId);
+            // Face/hair after Initialize — EquipFace parents to gear container + SyncMesh (#933).
+            Builder.AttachFaceAndHair(gear, raceId, appearance);
             CharacterDefaultEquipment.EquipStarterGear(gear, appearance);
         }
         catch (System.Exception ex)
