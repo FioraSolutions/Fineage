@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1988619645593296231
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3930633685077367043}
+  - component: {fileID: 73285830358135025}
+  m_Layer: 0
+  m_Name: el_ice_bolt_v105_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3930633685077367043
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988619645593296231}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &73285830358135025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988619645593296231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483561304719375
+  - rid: 6421483561304719376
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483561304719375
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_fatal_strike_ca
+        prefab: {fileID: 8299997489180030684, guid: a5944c1a295224d74a68cbbf2ec7aef0, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 0
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483561304719376
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_ice_bolt_ta
+        prefab: {fileID: 9149929434655521530, guid: 15fd2f1b3215c4868a68dd97b7279d91, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 8
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2

@@ -215,6 +215,22 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
             out summary);
     }
 
+    public static void GenerateDarkElfBatchCli()
+    {
+        AssetDatabase.Refresh();
+        bool ok = TryRunDarkElfBatch(out string summary);
+        Debug.Log("[L2EffectGenerator] " + summary);
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
+
+    public static bool TryRunDarkElfBatch(out string summary)
+    {
+        return TryRunManifestBatch(
+            "Assets/Editor/L2EffectGenerator/Data/dark_elf_vfx_manifest.json",
+            "DarkElfBatch",
+            out summary);
+    }
+
     public static bool TryRunHumanMageBatch(out string summary)
     {
         return TryRunManifestBatch(

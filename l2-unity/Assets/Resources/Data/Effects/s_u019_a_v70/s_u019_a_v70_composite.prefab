@@ -1,0 +1,128 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3558244302301350881
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 619821308380086428}
+  - component: {fileID: 1445465101331232378}
+  m_Layer: 0
+  m_Name: s_u019_a_v70_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &619821308380086428
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3558244302301350881}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1445465101331232378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3558244302301350881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483561304719369
+  - rid: 6421483561304719370
+  - rid: 6421483561304719371
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483561304719369
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: s_u019_a
+        prefab: {fileID: 4270989743747672336, guid: 84c0ffbd20ca540ecab80501b94ee27f, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483561304719370
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: s_u019_b
+        prefab: {fileID: 6895831426555292512, guid: f3aa8ad445a174294bafa8663a922659, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 8
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483561304719371
+      type: {class: HomeFlightPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: s_u019_c
+        prefab: {fileID: 2315066539934996410, guid: 8c4c394a1b91d42358d973fec1295340, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 9
+        boneName: 
+        follow: 0
+        inheritRotation: 0
+        placement:
+          rid: -2
+        launchMode: 2
+        speed: 5
+        acceleration: 10
+        maxSpeed: 0
+        fadeStartDistance: 0.5
+        fadeOutSeconds: 0.35
+        arriveDistance: 0.2
+        maxLifetime: 0
+        homeAttachmentPoint: 10
+        homeOffset: {x: 0, y: 0.1, z: 0}
+        usePathArc: 1
+        pathStartLineFactor: -0.15
+        pathPeelAlongLine: 0.16
+        pathApexAlongLine: 0
+        pathPeakHeightAlongLine: 0
+        pathSideOffset: 1.25
+        pathHeightOffset: 0.44
+        pathDistanceHeightFactor: 0.112
+        pathEarlyClimbFactor: 0.2
+        pathAscentSpeedScale: 1
+        pathDescentSpeedScale: 1
+        rotateToVelocity: 1
+        destroyOnArrive: 1
+        mirrorDualFlight: 0

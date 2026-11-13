@@ -1,0 +1,224 @@
+class bl_berserker_spirit_ca extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter0
+         // Reference: MeshEmitter'lineageeffect.dec.bl_berserker_spirit_ca.MeshEmitter0'
+         begin object name="MeshEmitter0" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.magiccircle.magiccircleblack02'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=0.0100000,Max=0.0100000),Y=(Min=0.0100000,Max=0.0100000),Z=(Min=0.0100000,Max=0.0100000))
+         FadeOutStartTime=3.3199999
+         FadeOut=true
+         FadeInEndTime=0.8000000
+         FadeIn=true
+         MaxParticles=1
+         ForcedLifeTime=true
+         ForcedFade=true
+         RespawnDeadParticles=false
+         Name="DarkMatter"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-1.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=0.0100000,Max=0.0100000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.6600000,RelativeSize=1.0100000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         SizeScaleRepeats=20.0000000
+         StartSizeRange=(X=(Min=0.6500000,Max=0.6500000),Y=(Min=0.6500000,Max=0.6500000),Z=(Min=0.2000000,Max=0.2000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         end object
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter0'
+     Begin Object Class=MeshEmitter Name=MeshEmitter1
+         // Reference: MeshEmitter'lineageeffect.dec.bl_berserker_spirit_ca.MeshEmitter1'
+         begin object name="MeshEmitter1" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.magiccircle.magiccircleblack01'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=0))
+         ColorScale[1]=(RelativeTime=0.5000000,Color=(R=197,G=197,B=197,A=0))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=0))
+         ColorScaleRepeats=200.0000000
+         FadeOutStartTime=3.2400000
+         FadeOut=true
+         FadeInEndTime=0.8000000
+         FadeIn=true
+         MaxParticles=1
+         ResetAfterChange=true
+         ForcedLifeTime=true
+         ForcedFade=true
+         RespawnDeadParticles=false
+         Name="BCAura"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=1.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+         SpinsPerSecondRange=(X=(Min=0.0200000,Max=0.0200000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+         SizeScale[1]=(RelativeTime=0.1100000,RelativeSize=1.0300000)
+         SizeScale[2]=(RelativeTime=0.3500000,RelativeSize=0.9800000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         SizeScaleRepeats=3.0000000
+         StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         end object
+     End Object
+     Emitters(1)=MeshEmitter'MeshEmitter1'
+     Begin Object Class=MeshEmitter Name=MeshEmitter2
+         // Reference: MeshEmitter'lineageeffect.dec.bl_berserker_spirit_ca.MeshEmitter2'
+         begin object name="MeshEmitter2" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.magiccircle.magiccircleblack00'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=200.0000000
+         FadeOutStartTime=3.2000000
+         FadeOut=true
+         FadeInEndTime=0.8000000
+         FadeIn=true
+         MaxParticles=1
+         ResetAfterChange=true
+         ForcedLifeTime=true
+         ForcedFade=true
+         RespawnDeadParticles=false
+         Name="Circle"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=1.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+         SpinsPerSecondRange=(X=(Min=0.0200000,Max=0.0200000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+         SizeScale[1]=(RelativeTime=0.1200000,RelativeSize=1.0150000)
+         SizeScale[2]=(RelativeTime=0.3700000,RelativeSize=0.9950000)
+         SizeScale[3]=(RelativeTime=0.5900000,RelativeSize=1.0100000)
+         SizeScale[4]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         SizeScaleRepeats=3.0000000
+         StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         end object
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter2'
+     // Reference: MeshEmitter'lineageeffect.dec.bl_berserker_spirit_ca.MeshEmitter0'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.magiccircle.magiccircleblack02'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=0.0100000,Max=0.0100000),Y=(Min=0.0100000,Max=0.0100000),Z=(Min=0.0100000,Max=0.0100000))
+     FadeOutStartTime=3.3199999
+     FadeOut=true
+     FadeInEndTime=0.8000000
+     FadeIn=true
+     MaxParticles=1
+     ForcedLifeTime=true
+     ForcedFade=true
+     RespawnDeadParticles=false
+     Name="DarkMatter"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-1.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=0.0100000,Max=0.0100000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.6600000,RelativeSize=1.0100000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     SizeScaleRepeats=20.0000000
+     StartSizeRange=(X=(Min=0.6500000,Max=0.6500000),Y=(Min=0.6500000,Max=0.6500000),Z=(Min=0.2000000,Max=0.2000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Emitters[0]=MeshEmitter0
+     // Reference: MeshEmitter'lineageeffect.dec.bl_berserker_spirit_ca.MeshEmitter1'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.magiccircle.magiccircleblack01'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=0))
+     ColorScale[1]=(RelativeTime=0.5000000,Color=(R=197,G=197,B=197,A=0))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=0))
+     ColorScaleRepeats=200.0000000
+     FadeOutStartTime=3.2400000
+     FadeOut=true
+     FadeInEndTime=0.8000000
+     FadeIn=true
+     MaxParticles=1
+     ResetAfterChange=true
+     ForcedLifeTime=true
+     ForcedFade=true
+     RespawnDeadParticles=false
+     Name="BCAura"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=1.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+     SpinsPerSecondRange=(X=(Min=0.0200000,Max=0.0200000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+     SizeScale[1]=(RelativeTime=0.1100000,RelativeSize=1.0300000)
+     SizeScale[2]=(RelativeTime=0.3500000,RelativeSize=0.9800000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     SizeScaleRepeats=3.0000000
+     StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     Emitters[1]=MeshEmitter1
+     // Reference: MeshEmitter'lineageeffect.dec.bl_berserker_spirit_ca.MeshEmitter2'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.magiccircle.magiccircleblack00'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=200.0000000
+     FadeOutStartTime=3.2000000
+     FadeOut=true
+     FadeInEndTime=0.8000000
+     FadeIn=true
+     MaxParticles=1
+     ResetAfterChange=true
+     ForcedLifeTime=true
+     ForcedFade=true
+     RespawnDeadParticles=false
+     Name="Circle"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=1.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+     SpinsPerSecondRange=(X=(Min=0.0200000,Max=0.0200000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+     SizeScale[1]=(RelativeTime=0.1200000,RelativeSize=1.0150000)
+     SizeScale[2]=(RelativeTime=0.3700000,RelativeSize=0.9950000)
+     SizeScale[3]=(RelativeTime=0.5900000,RelativeSize=1.0100000)
+     SizeScale[4]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     SizeScaleRepeats=3.0000000
+     StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Emitters[2]=MeshEmitter2
+     AutoDestroy=true
+     bNoDelete=false
+     DrawScale=0.0500000
+}
