@@ -1,0 +1,160 @@
+class m_u038_a extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter4
+         // Reference: MeshEmitter'lineageeffect.dec.m_u038_a.MeshEmitter4'
+         begin object name="MeshEmitter4" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windblowin00'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=0.9000000,Max=0.9000000),Y=(Min=0.9500000,Max=0.9500000),Z=(Min=1.0000000,Max=1.0000000))
+         FadeOutFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+         FadeOutStartTime=0.2000000
+         FadeOut=true
+         FadeInFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+         FadeInEndTime=0.2000000
+         FadeIn=true
+         MaxParticles=15
+         ResetAfterChange=true
+         ForcedMaxParticles=true
+         RespawnDeadParticles=false
+         Name="Wind"
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=4.8000002,Max=7.1999998))
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=2.0000000,Max=4.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.1000000)
+         SizeScale[1]=(RelativeTime=0.1700000,RelativeSize=0.9000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=0.2000000)
+         StartSizeRange=(X=(Min=0.3000000,Max=0.3000000),Y=(Min=0.3000000,Max=0.3000000),Z=(Min=0.0080000,Max=0.3200000))
+         InitialParticlesPerSecond=3.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0001'
+         LifetimeRange=(Min=1.0000000,Max=1.0000000)
+         StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=2.4000001,Max=4.0000000))
+         end object
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter4'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter9
+         // Reference: SpriteEmitter'lineageeffect.dec.m_u038_a.SpriteEmitter9'
+         begin object name="SpriteEmitter9" class=Engine.SpriteEmitter
+         UseDirectionAs=4
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.5750000,Color=(R=131,G=131,B=131,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=50.0000000
+         ColorMultiplierRange=(X=(Min=0.4460000,Max=0.4460000),Y=(Min=0.6860000,Max=0.6860000),Z=(Min=1.0000000,Max=1.0000000))
+         Opacity=0.1000000
+         FadeOutStartTime=4.0500002
+         FadeOut=true
+         FadeInEndTime=1.0000000
+         FadeIn=true
+         MaxParticles=5
+         ForcedLifeTime=true
+         ForcedFade=true
+         RespawnDeadParticles=false
+         Name="Aura"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-0.5000000,Max=0.5000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseRegularSizeScale=false
+         StartSizeRange=(X=(Min=20.0000000,Max=25.0000000),Y=(Min=20.0000000,Max=25.0000000),Z=(Min=20.0000000,Max=25.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=10000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0006'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=4
+         SubdivisionStart=12
+         SubdivisionEnd=13
+         LifetimeRange=(Min=5.0000000,Max=5.0000000)
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter9'
+     // Reference: MeshEmitter'lineageeffect.dec.m_u038_a.MeshEmitter4'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windblowin00'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=0.9000000,Max=0.9000000),Y=(Min=0.9500000,Max=0.9500000),Z=(Min=1.0000000,Max=1.0000000))
+     FadeOutFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+     FadeOutStartTime=0.2000000
+     FadeOut=true
+     FadeInFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+     FadeInEndTime=0.2000000
+     FadeIn=true
+     MaxParticles=15
+     ResetAfterChange=true
+     ForcedMaxParticles=true
+     RespawnDeadParticles=false
+     Name="Wind"
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=4.8000002,Max=7.1999998))
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=2.0000000,Max=4.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.1000000)
+     SizeScale[1]=(RelativeTime=0.1700000,RelativeSize=0.9000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=0.2000000)
+     StartSizeRange=(X=(Min=0.3000000,Max=0.3000000),Y=(Min=0.3000000,Max=0.3000000),Z=(Min=0.0080000,Max=0.3200000))
+     InitialParticlesPerSecond=3.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0001'
+     LifetimeRange=(Min=1.0000000,Max=1.0000000)
+     StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=2.4000001,Max=4.0000000))
+     Emitters[0]=MeshEmitter4
+     // Reference: SpriteEmitter'lineageeffect.dec.m_u038_a.SpriteEmitter9'
+     UseDirectionAs=4
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.5750000,Color=(R=131,G=131,B=131,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=50.0000000
+     ColorMultiplierRange=(X=(Min=0.4460000,Max=0.4460000),Y=(Min=0.6860000,Max=0.6860000),Z=(Min=1.0000000,Max=1.0000000))
+     Opacity=0.1000000
+     FadeOutStartTime=4.0500002
+     FadeOut=true
+     FadeInEndTime=1.0000000
+     FadeIn=true
+     MaxParticles=5
+     ForcedLifeTime=true
+     ForcedFade=true
+     RespawnDeadParticles=false
+     Name="Aura"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-0.5000000,Max=0.5000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseRegularSizeScale=false
+     StartSizeRange=(X=(Min=20.0000000,Max=25.0000000),Y=(Min=20.0000000,Max=25.0000000),Z=(Min=20.0000000,Max=25.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=10000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0006'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=4
+     SubdivisionStart=12
+     SubdivisionEnd=13
+     LifetimeRange=(Min=5.0000000,Max=5.0000000)
+     Emitters[1]=SpriteEmitter9
+     AutoDestroy=true
+     Physics=10
+     bUseDynamicLights=false
+     bNoDelete=false
+     bTrailerPrePivot=true
+     bAcceptsProjectors=false
+     DrawScale=0.2500000
+}

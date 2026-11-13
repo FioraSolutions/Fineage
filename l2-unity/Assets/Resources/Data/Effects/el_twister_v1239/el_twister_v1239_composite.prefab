@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &772165404161614052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 872060377745669239}
+  - component: {fileID: 4502544510699615819}
+  m_Layer: 0
+  m_Name: el_twister_v1239_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &872060377745669239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 772165404161614052}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4502544510699615819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 772165404161614052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483561304719413
+  - rid: 6421483561304719414
+  - rid: 6421483561304719415
+  - rid: 6421483561304719416
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483561304719413
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_twister_ca
+        prefab: {fileID: 5398136926588517810, guid: 228c2d39c56ae458e909f03b34c60e69, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 0
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483561304719414
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_hurricane_pr
+        prefab: {fileID: 7548019872364013746, guid: 9100c7afa615f423fa5bdc7e3e2f1334, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483561304719415
+      type: {class: ShotProjectilePart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_hurricane_fl
+        prefab: {fileID: 421453387982029371, guid: b8948e3e4e53e4c08b7bbc904a699a3f, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+        launchMode: 2
+        showBeforeAnimationShoot: 0
+        impactType: 1
+        speed: 10
+    - rid: 6421483561304719416
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_hurricane_ta
+        prefab: {fileID: 1581574370457115277, guid: 992b320c1598c42598ab9cf9151de629, type: 3}
+        scale: 1
+        spawnTiming: 4
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 5
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
