@@ -20,14 +20,7 @@ public partial class SkillAnimationDatabase
         _raceCacheMMagic.Add("MagicNotarget_" + MMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicNoTarget_MMagic"));
         _raceCacheMMagic.Add("MagicThrow_" + MMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicThrow_MMagic"));
 
-        // FMagic.overrideController: Cast* body clips are not imported yet — reuse MMagic cast
-        // poses so female mage still plays CastMid/End/Shot after MagicSkillUse (plan #mesh FX).
-        _raceCacheFMagic.Add("CastLong_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastLong_MMagic"));
-        _raceCacheFMagic.Add("CastShort_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastShort_MMagic"));
-        _raceCacheFMagic.Add("CastMid_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastMid_MMagic"));
-        _raceCacheFMagic.Add("CastEnd_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastEnd_MMagic"));
-        _raceCacheFMagic.Add("MagicShot_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicShot_MMagic"));
-        _raceCacheFMagic.Add("MagicThrow_" + FMagic, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_MagicThrow_MMagic"));
+        // Only clips that exist for FMagic. Do not borrow MMagic.
         _raceCacheFMagic.Add("MagicNoTarget_" + FMagic, new SkillClips(FOLDER_FMagic, "FMagic_m000_b.ao_MagicNoTarget_FMagic"));
         _raceCacheFMagic.Add("MagicNotarget_" + FMagic, new SkillClips(FOLDER_FMagic, "FMagic_m000_b.ao_MagicNoTarget_FMagic"));
 

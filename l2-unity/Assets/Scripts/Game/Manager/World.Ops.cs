@@ -18,8 +18,12 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
             gameObject.AddComponent<L2VillageStatuePanner>();
         if (GetComponent<L2CaveTerrainGate>() == null)
             gameObject.AddComponent<L2CaveTerrainGate>();
-        if (GetComponent<L2DarkElfVillageMusic>() == null)
-            gameObject.AddComponent<L2DarkElfVillageMusic>();
+        if (GetComponent<L2TownMusic>() == null)
+            gameObject.AddComponent<L2TownMusic>();
+        if (GetComponent<L2TownAmbience>() == null)
+            gameObject.AddComponent<L2TownAmbience>();
+        if (GetComponent<L2Footsteps>() == null)
+            gameObject.AddComponent<L2Footsteps>();
         UpdateMasks();
     }
 

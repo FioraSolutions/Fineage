@@ -206,8 +206,10 @@ public static partial class WorldPlacement
         if (brush < 0)
             return false;
 
-        // Street sits up to ~5 m under the server Z. The next shell is ~9 m down.
-        const float streetDrop = 6f;
+        // Village street is about 3 m under a server point that sits in a pillar.
+        // The school creation point is only 0.7 m above its own floor; the next
+        // brush, ~5 m down, is the sealed shell under the temple.
+        const float streetDrop = CaveDeckMeters;
         Vector3 origin = new Vector3(sample.x, refY + 0.5f, sample.z);
         RaycastHit[] hits = Physics.RaycastAll(
             origin, Vector3.down, streetDrop + 0.5f, 1 << brush, QueryTriggerInteraction.Ignore);

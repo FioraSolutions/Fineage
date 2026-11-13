@@ -29,7 +29,7 @@ public partial class SkinnedMeshSync : MonoBehaviour
 
         Transform fallbackRoot = ResolveRootBone(skeleton, _rootSkinnedRenderer);
         for (int i = 0; i < destinations.Count; i++)
-            RemapToSkeleton(destinations[i], skeleton, fallbackRoot);
+            RemapToSkeleton(destinations[i], skeleton, fallbackRoot, _rootSkinnedRenderer);
 
         L2ActorMeshPolicy.DisableSkeletonPlaceholders(transform);
     }
