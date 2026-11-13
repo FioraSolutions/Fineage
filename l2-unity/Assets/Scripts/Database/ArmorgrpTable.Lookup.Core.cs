@@ -28,6 +28,11 @@ public partial class ArmorgrpTable
                     {
                         Armorgrp grp = _armorgrps[id];
                         
+                        if (IsIndexValid(ids, indexWeight) && int.TryParse(ids[indexWeight], out int weight))
+                            grp.Weight = weight;
+                        if (IsIndexValid(ids, indexCrystal) && int.TryParse(ids[indexCrystal], out int crystal) &&
+                            crystal >= 0 && crystal <= 5)
+                            grp.Grade = (ItemGrade)crystal;
                         if (IsIndexValid(ids, indexPdef))
                         {
                             grp.PDef  = Int32.Parse(ids[indexPdef]);

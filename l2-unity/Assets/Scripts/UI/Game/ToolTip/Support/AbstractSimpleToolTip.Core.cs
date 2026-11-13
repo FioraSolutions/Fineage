@@ -35,7 +35,7 @@ public partial class AbstractSimpleToolTip
     {
         if (_product != null)
         {
-            return null;
+            return _product.GradeIcon();
         }
         else if (_itemInstance != null)
         {
