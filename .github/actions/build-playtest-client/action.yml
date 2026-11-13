@@ -65,7 +65,13 @@ runs:
           echo "Host is $(uname); leaving memory as-is."
           exit 0
         fi
-        sudo fallocate -l 16G /swapfile
+        # The runner image already has /swapfile active. fallocate on that path
+        # fails with "Text file busy" and would fail the job before Unity starts.
+        if swapon --show=NAME --noheadings | grep -qx /swapfile; then
+          sudo swapoff /swapfile
+        fi
+        sudo rm -f /swapfile
+        sudo fallocate -l 16G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=16384
         sudo chmod 600 /swapfile
         sudo mkswap /swapfile
         sudo swapon /swapfile

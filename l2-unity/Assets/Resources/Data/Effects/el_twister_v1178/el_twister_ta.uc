@@ -1,0 +1,239 @@
+class el_twister_ta extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter8
+         // Reference: SpriteEmitter'lineageeffect.dec.el_twister_ta.SpriteEmitter8'
+         begin object name="SpriteEmitter8" class=Engine.SpriteEmitter
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         Opacity=0.4000000
+         FadeOutStartTime=0.1080000
+         FadeOut=true
+         MaxParticles=4
+         ResetAfterChange=true
+         RespawnDeadParticles=false
+         Name="Core"
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.1000000,Max=0.2000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=1.8000000)
+         SizeScale[1]=(RelativeTime=0.2300000,RelativeSize=2.2000000)
+         SizeScale[2]=(RelativeTime=0.6000000,RelativeSize=2.5000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.8000000)
+         StartSizeRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=100.0000000,Max=100.0000000),Z=(Min=100.0000000,Max=100.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=2000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=5
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=4
+         SubdivisionStart=7
+         SubdivisionEnd=8
+         LifetimeRange=(Min=0.5000000,Max=0.5000000)
+         StartVelocityRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         VelocityLossRange=(X=(Min=3.0000000,Max=3.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter8'
+     Begin Object Class=MeshEmitter Name=MeshEmitter5
+         // Reference: MeshEmitter'lineageeffect.dec.el_twister_ta.MeshEmitter5'
+         begin object name="MeshEmitter5" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windblowin01'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         FadeOutFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+         FadeOutStartTime=0.1350000
+         FadeOut=true
+         FadeInFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+         FadeInEndTime=0.0550000
+         FadeIn=true
+         MaxParticles=2
+         ResetAfterChange=true
+         RespawnDeadParticles=false
+         Name="WindMesh"
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-3.2000000,Max=0.0000000))
+         UseRotationFrom=1
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.0000000,Z=0.0000000)
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=2.0000000,Max=2.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=1.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.2000000)
+         SizeScale[1]=(RelativeTime=0.2800000,RelativeSize=0.7000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.5000000)
+         StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+         UniformSize=true
+         InitialParticlesPerSecond=100.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+         InitialTimeRange=(Min=0.1000000,Max=0.1000000)
+         LifetimeRange=(Min=0.5000000,Max=0.5000000)
+         StartVelocityRange=(X=(Min=100.0000000,Max=100.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         VelocityLossRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         end object
+     End Object
+     Emitters(1)=MeshEmitter'MeshEmitter5'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter2
+         // Reference: SpriteEmitter'lineageeffect.dec.el_twister_ta.SpriteEmitter2'
+         begin object name="SpriteEmitter2" class=Engine.SpriteEmitter
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=94,G=145,B=251,A=0))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=0))
+         ColorScaleRepeats=5.0000000
+         ColorMultiplierRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.6000000,Max=0.6000000),Z=(Min=0.8000000,Max=0.8000000))
+         Opacity=0.4000000
+         FadeOutStartTime=0.3290000
+         FadeOut=true
+         FadeInEndTime=0.0910000
+         FadeIn=true
+         MaxParticles=20
+         RespawnDeadParticles=false
+         Name="Smog"
+         StartLocationOffset=(X=-3.0000000,Y=0.0000000,Z=0.0000000)
+         StartLocationShape=2
+         StartLocationPolarRange=(X=(Min=90.0000000,Max=90.0000000),Y=(Min=0.0000000,Max=360.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         SpinParticles=true
+         SpinCCWorCW=(X=0.4000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=0.3000000,Max=0.3000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=2.0000000)
+         StartSizeRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=80.0000000,Max=80.0000000),Z=(Min=80.0000000,Max=80.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=200.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=5
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0067'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=4
+         SubdivisionStart=2
+         SubdivisionEnd=4
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=1.0000000,Max=1.0000000)
+         StartVelocityRange=(X=(Min=40.0000000,Max=60.0000000),Y=(Min=-30.0000000,Max=30.0000000),Z=(Min=-30.0000000,Max=30.0000000))
+         MaxAbsVelocity=(X=6400.0000000,Y=10000.0000000,Z=8000.0000000)
+         VelocityLossRange=(X=(Min=1.5000000,Max=1.5000000),Y=(Min=1.5000000,Max=1.5000000),Z=(Min=1.5000000,Max=1.5000000))
+         end object
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter2'
+     // Reference: SpriteEmitter'lineageeffect.dec.el_twister_ta.SpriteEmitter8'
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     Opacity=0.4000000
+     FadeOutStartTime=0.1080000
+     FadeOut=true
+     MaxParticles=4
+     ResetAfterChange=true
+     RespawnDeadParticles=false
+     Name="Core"
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.1000000,Max=0.2000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=1.8000000)
+     SizeScale[1]=(RelativeTime=0.2300000,RelativeSize=2.2000000)
+     SizeScale[2]=(RelativeTime=0.6000000,RelativeSize=2.5000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.8000000)
+     StartSizeRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=100.0000000,Max=100.0000000),Z=(Min=100.0000000,Max=100.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=2000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=5
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=4
+     SubdivisionStart=7
+     SubdivisionEnd=8
+     LifetimeRange=(Min=0.5000000,Max=0.5000000)
+     StartVelocityRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     VelocityLossRange=(X=(Min=3.0000000,Max=3.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     Emitters[0]=SpriteEmitter8
+     // Reference: MeshEmitter'lineageeffect.dec.el_twister_ta.MeshEmitter5'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windblowin01'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     FadeOutFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+     FadeOutStartTime=0.1350000
+     FadeOut=true
+     FadeInFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+     FadeInEndTime=0.0550000
+     FadeIn=true
+     MaxParticles=2
+     ResetAfterChange=true
+     RespawnDeadParticles=false
+     Name="WindMesh"
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-3.2000000,Max=0.0000000))
+     UseRotationFrom=1
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.0000000,Z=0.0000000)
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=2.0000000,Max=2.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=1.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.2000000)
+     SizeScale[1]=(RelativeTime=0.2800000,RelativeSize=0.7000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.5000000)
+     StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+     UniformSize=true
+     InitialParticlesPerSecond=100.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+     InitialTimeRange=(Min=0.1000000,Max=0.1000000)
+     LifetimeRange=(Min=0.5000000,Max=0.5000000)
+     StartVelocityRange=(X=(Min=100.0000000,Max=100.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     VelocityLossRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     Emitters[1]=MeshEmitter5
+     // Reference: SpriteEmitter'lineageeffect.dec.el_twister_ta.SpriteEmitter2'
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=94,G=145,B=251,A=0))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=0))
+     ColorScaleRepeats=5.0000000
+     ColorMultiplierRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.6000000,Max=0.6000000),Z=(Min=0.8000000,Max=0.8000000))
+     Opacity=0.4000000
+     FadeOutStartTime=0.3290000
+     FadeOut=true
+     FadeInEndTime=0.0910000
+     FadeIn=true
+     MaxParticles=20
+     RespawnDeadParticles=false
+     Name="Smog"
+     StartLocationOffset=(X=-3.0000000,Y=0.0000000,Z=0.0000000)
+     StartLocationShape=2
+     StartLocationPolarRange=(X=(Min=90.0000000,Max=90.0000000),Y=(Min=0.0000000,Max=360.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     SpinParticles=true
+     SpinCCWorCW=(X=0.4000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=0.3000000,Max=0.3000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=2.0000000)
+     StartSizeRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=80.0000000,Max=80.0000000),Z=(Min=80.0000000,Max=80.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=200.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=5
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0067'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=4
+     SubdivisionStart=2
+     SubdivisionEnd=4
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=1.0000000,Max=1.0000000)
+     StartVelocityRange=(X=(Min=40.0000000,Max=60.0000000),Y=(Min=-30.0000000,Max=30.0000000),Z=(Min=-30.0000000,Max=30.0000000))
+     MaxAbsVelocity=(X=6400.0000000,Y=10000.0000000,Z=8000.0000000)
+     VelocityLossRange=(X=(Min=1.5000000,Max=1.5000000),Y=(Min=1.5000000,Max=1.5000000),Z=(Min=1.5000000,Max=1.5000000))
+     Emitters[2]=SpriteEmitter2
+     AutoDestroy=true
+     bNoDelete=false
+     DrawScale=0.0100000
+     bDirectional=true
+}

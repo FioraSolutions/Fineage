@@ -1,0 +1,157 @@
+class s_u020_c extends NSkillProjectile;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter4
+         // Reference: SpriteEmitter'lineageeffect.dec.s_u020_c.SpriteEmitter4'
+         begin object name="SpriteEmitter4" class=Engine.SpriteEmitter
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.5500000,Color=(R=160,G=160,B=160,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=100.0000000
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.3000000,Max=0.3000000),Z=(Min=0.2000000,Max=0.2000000))
+         FadeOutStartTime=10.0000000
+         MaxParticles=1
+         ResetAfterChange=true
+         RespawnDeadParticles=false
+         Name="LifeCore"
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         UseRotationFrom=1
+         SpinParticles=true
+         SpinCCWorCW=(X=1.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+         SizeScale[1]=(RelativeTime=0.6000000,RelativeSize=0.7000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         SizeScaleRepeats=100.0000000
+         StartSizeRange=(X=(Min=6.0000000,Max=6.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=4
+         SubdivisionStart=6
+         SubdivisionEnd=7
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=10.0000000,Max=10.0000000)
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter4'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter5
+         // Reference: SpriteEmitter'lineageeffect.dec.s_u020_c.SpriteEmitter5'
+         begin object name="SpriteEmitter5" class=Engine.SpriteEmitter
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=50.0000000)
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.5000000,Max=0.5000000),Z=(Min=0.2000000,Max=0.2000000))
+         Opacity=0.8000000
+         FadeOutStartTime=0.0199800
+         FadeOut=true
+         CoordinateSystem=0
+         MaxParticles=500
+         ResetAfterChange=true
+         RespawnDeadParticles=false
+         Name="LifeTicks"
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=-3.0000000,Max=3.0000000),Z=(Min=-3.0000000,Max=3.0000000))
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         UseRotationFrom=1
+         SpinParticles=true
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0900000,RelativeSize=1.5000000)
+         SizeScale[1]=(RelativeTime=0.3200000,RelativeSize=1.8000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=2.0000000)
+         StartSizeRange=(X=(Min=1.0000000,Max=2.0000000),Y=(Min=6.0000000,Max=6.0000000),Z=(Min=6.0000000,Max=6.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=50.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0132'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=2
+         SubdivisionStart=6
+         SubdivisionEnd=7
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.3000000,Max=0.3000000)
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter5'
+     Speed=500.0000000
+     AccSpeed=1000.0000000
+     // Reference: SpriteEmitter'lineageeffect.dec.s_u020_c.SpriteEmitter4'
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.5500000,Color=(R=160,G=160,B=160,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=100.0000000
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.3000000,Max=0.3000000),Z=(Min=0.2000000,Max=0.2000000))
+     FadeOutStartTime=10.0000000
+     MaxParticles=1
+     ResetAfterChange=true
+     RespawnDeadParticles=false
+     Name="LifeCore"
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     UseRotationFrom=1
+     SpinParticles=true
+     SpinCCWorCW=(X=1.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+     SizeScale[1]=(RelativeTime=0.6000000,RelativeSize=0.7000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     SizeScaleRepeats=100.0000000
+     StartSizeRange=(X=(Min=6.0000000,Max=6.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=4
+     SubdivisionStart=6
+     SubdivisionEnd=7
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=10.0000000,Max=10.0000000)
+     Emitters[0]=SpriteEmitter4
+     // Reference: SpriteEmitter'lineageeffect.dec.s_u020_c.SpriteEmitter5'
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=50.0000000)
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.5000000,Max=0.5000000),Z=(Min=0.2000000,Max=0.2000000))
+     Opacity=0.8000000
+     FadeOutStartTime=0.0199800
+     FadeOut=true
+     CoordinateSystem=0
+     MaxParticles=500
+     ResetAfterChange=true
+     RespawnDeadParticles=false
+     Name="LifeTicks"
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=-3.0000000,Max=3.0000000),Z=(Min=-3.0000000,Max=3.0000000))
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     UseRotationFrom=1
+     SpinParticles=true
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0900000,RelativeSize=1.5000000)
+     SizeScale[1]=(RelativeTime=0.3200000,RelativeSize=1.8000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=2.0000000)
+     StartSizeRange=(X=(Min=1.0000000,Max=2.0000000),Y=(Min=6.0000000,Max=6.0000000),Z=(Min=6.0000000,Max=6.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=50.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0132'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=2
+     SubdivisionStart=6
+     SubdivisionEnd=7
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.3000000,Max=0.3000000)
+     Emitters[1]=SpriteEmitter5
+     AutoDestroy=true
+     bDirectional=true
+}

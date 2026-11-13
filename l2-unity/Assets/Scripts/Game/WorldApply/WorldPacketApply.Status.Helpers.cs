@@ -9,6 +9,18 @@ public sealed partial class WorldPacketApply
         return GameWorld == null ? null : GameWorld.GetEntityNoLockSync(objId);
     }
 
+    /// <summary>
+    /// Own cast can arrive before the pawn is in the lookup. A missing mob id must not
+    /// become the local player — that plays their berserk on you.
+    /// </summary>
+    private static Entity LocalCasterOrNull(int objId)
+    {
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (player == null || player.Identity == null || player.Identity.Id != objId)
+            return null;
+        return player;
+    }
+
     private bool TryResolve(Entity entity, out EntityWorldApply apply)
     {
         Type type = entity.GetType();

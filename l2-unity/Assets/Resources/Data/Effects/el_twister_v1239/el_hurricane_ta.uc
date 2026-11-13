@@ -1,0 +1,245 @@
+class el_hurricane_ta extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter2
+         // Reference: SpriteEmitter'lineageeffect.dec.el_hurricane_ta.SpriteEmitter2'
+         begin object name="SpriteEmitter2" class=Engine.SpriteEmitter
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=94,G=145,B=251,A=0))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=0))
+         ColorScaleRepeats=5.0000000
+         ColorMultiplierRange=(X=(Min=0.9000000,Max=0.9000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.8000000,Max=0.8000000))
+         Opacity=0.8000000
+         FadeOutStartTime=0.3290000
+         FadeOut=true
+         FadeInEndTime=0.0910000
+         FadeIn=true
+         MaxParticles=12
+         RespawnDeadParticles=false
+         Name="Smog"
+         StartLocationOffset=(X=-3.0000000,Y=0.0000000,Z=0.0000000)
+         StartLocationPolarRange=(X=(Min=90.0000000,Max=90.0000000),Y=(Min=0.0000000,Max=360.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         SpinParticles=true
+         SpinCCWorCW=(X=0.4000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=-0.2000000,Max=0.2000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.1100000,RelativeSize=1.8000000)
+         SizeScale[1]=(RelativeTime=0.3300000,RelativeSize=2.5000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=3.0000000)
+         StartSizeRange=(X=(Min=8.0000000,Max=9.6000004),Y=(Min=64.0000000,Max=64.0000000),Z=(Min=64.0000000,Max=64.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=200.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=5
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0067'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=4
+         SubdivisionStart=2
+         SubdivisionEnd=4
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=2.0000000,Max=2.0000000)
+         StartVelocityRange=(X=(Min=-24.0000000,Max=24.0000000),Y=(Min=-24.0000000,Max=24.0000000),Z=(Min=-8.0000000,Max=8.0000000))
+         MaxAbsVelocity=(X=6400.0000000,Y=10000.0000000,Z=8000.0000000)
+         VelocityLossRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter2'
+     Begin Object Class=MeshEmitter Name=MeshEmitter5
+         // Reference: MeshEmitter'lineageeffect.dec.el_hurricane_ta.MeshEmitter5'
+         begin object name="MeshEmitter5" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windblowin03'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         FadeOutFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+         FadeOutStartTime=0.2350000
+         FadeOut=true
+         FadeInFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+         FadeInEndTime=0.0500000
+         FadeIn=true
+         MaxParticles=1
+         ResetAfterChange=true
+         RespawnDeadParticles=false
+         Name="WindMesh"
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.5599999,Max=0.0000000))
+         UseRotationFrom=1
+         SpinParticles=true
+         SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+         SpinsPerSecondRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+         SizeScale[1]=(RelativeTime=0.0900000,RelativeSize=1.5000000)
+         SizeScale[2]=(RelativeTime=0.3100000,RelativeSize=2.0000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.5000000)
+         StartSizeRange=(X=(Min=0.0480000,Max=0.0480000),Y=(Min=0.0480000,Max=0.0480000),Z=(Min=0.0480000,Max=0.0480000))
+         InitialParticlesPerSecond=100.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+         InitialTimeRange=(Min=0.1000000,Max=0.1000000)
+         LifetimeRange=(Min=0.5000000,Max=0.5000000)
+         VelocityLossRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         end object
+     End Object
+     Emitters(1)=MeshEmitter'MeshEmitter5'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter8
+         // Reference: SpriteEmitter'lineageeffect.dec.el_hurricane_ta.SpriteEmitter8'
+         begin object name="SpriteEmitter8" class=Engine.SpriteEmitter
+         UseDirectionAs=3
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         Opacity=0.8000000
+         FadeOutStartTime=0.1650000
+         FadeOut=true
+         MaxParticles=4
+         ResetAfterChange=true
+         RespawnDeadParticles=false
+         Name="FlowOut"
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=2.0000000,Max=2.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=1.5000000)
+         SizeScale[1]=(RelativeTime=0.2300000,RelativeSize=1.9000000)
+         SizeScale[2]=(RelativeTime=0.6000000,RelativeSize=2.2000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.5000000)
+         StartSizeRange=(X=(Min=12.0000000,Max=24.0000000),Y=(Min=80.0000000,Max=80.0000000),Z=(Min=80.0000000,Max=80.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=2000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0033'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         SubdivisionStart=2
+         SubdivisionEnd=3
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.8000000,Max=0.8000000)
+         StartVelocityRange=(X=(Min=-0.0800000,Max=0.0800000),Y=(Min=-0.0800000,Max=0.0800000),Z=(Min=-0.8000000,Max=-0.8000000))
+         VelocityLossRange=(X=(Min=3.0000000,Max=3.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         end object
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter8'
+     // Reference: SpriteEmitter'lineageeffect.dec.el_hurricane_ta.SpriteEmitter2'
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=94,G=145,B=251,A=0))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=0))
+     ColorScaleRepeats=5.0000000
+     ColorMultiplierRange=(X=(Min=0.9000000,Max=0.9000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.8000000,Max=0.8000000))
+     Opacity=0.8000000
+     FadeOutStartTime=0.3290000
+     FadeOut=true
+     FadeInEndTime=0.0910000
+     FadeIn=true
+     MaxParticles=12
+     RespawnDeadParticles=false
+     Name="Smog"
+     StartLocationOffset=(X=-3.0000000,Y=0.0000000,Z=0.0000000)
+     StartLocationPolarRange=(X=(Min=90.0000000,Max=90.0000000),Y=(Min=0.0000000,Max=360.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     SpinParticles=true
+     SpinCCWorCW=(X=0.4000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=-0.2000000,Max=0.2000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.1100000,RelativeSize=1.8000000)
+     SizeScale[1]=(RelativeTime=0.3300000,RelativeSize=2.5000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=3.0000000)
+     StartSizeRange=(X=(Min=8.0000000,Max=9.6000004),Y=(Min=64.0000000,Max=64.0000000),Z=(Min=64.0000000,Max=64.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=200.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=5
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0067'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=4
+     SubdivisionStart=2
+     SubdivisionEnd=4
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=2.0000000,Max=2.0000000)
+     StartVelocityRange=(X=(Min=-24.0000000,Max=24.0000000),Y=(Min=-24.0000000,Max=24.0000000),Z=(Min=-8.0000000,Max=8.0000000))
+     MaxAbsVelocity=(X=6400.0000000,Y=10000.0000000,Z=8000.0000000)
+     VelocityLossRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+     Emitters[0]=SpriteEmitter2
+     // Reference: MeshEmitter'lineageeffect.dec.el_hurricane_ta.MeshEmitter5'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windblowin03'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     FadeOutFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+     FadeOutStartTime=0.2350000
+     FadeOut=true
+     FadeInFactor=(W=1.0000000,X=0.3000000,Y=0.3000000,Z=0.3000000)
+     FadeInEndTime=0.0500000
+     FadeIn=true
+     MaxParticles=1
+     ResetAfterChange=true
+     RespawnDeadParticles=false
+     Name="WindMesh"
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.5599999,Max=0.0000000))
+     UseRotationFrom=1
+     SpinParticles=true
+     SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+     SpinsPerSecondRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+     SizeScale[1]=(RelativeTime=0.0900000,RelativeSize=1.5000000)
+     SizeScale[2]=(RelativeTime=0.3100000,RelativeSize=2.0000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.5000000)
+     StartSizeRange=(X=(Min=0.0480000,Max=0.0480000),Y=(Min=0.0480000,Max=0.0480000),Z=(Min=0.0480000,Max=0.0480000))
+     InitialParticlesPerSecond=100.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0000'
+     InitialTimeRange=(Min=0.1000000,Max=0.1000000)
+     LifetimeRange=(Min=0.5000000,Max=0.5000000)
+     VelocityLossRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     Emitters[1]=MeshEmitter5
+     // Reference: SpriteEmitter'lineageeffect.dec.el_hurricane_ta.SpriteEmitter8'
+     UseDirectionAs=3
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     Opacity=0.8000000
+     FadeOutStartTime=0.1650000
+     FadeOut=true
+     MaxParticles=4
+     ResetAfterChange=true
+     RespawnDeadParticles=false
+     Name="FlowOut"
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=2.0000000,Max=2.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=1.5000000)
+     SizeScale[1]=(RelativeTime=0.2300000,RelativeSize=1.9000000)
+     SizeScale[2]=(RelativeTime=0.6000000,RelativeSize=2.2000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.5000000)
+     StartSizeRange=(X=(Min=12.0000000,Max=24.0000000),Y=(Min=80.0000000,Max=80.0000000),Z=(Min=80.0000000,Max=80.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=2000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0033'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     SubdivisionStart=2
+     SubdivisionEnd=3
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.8000000,Max=0.8000000)
+     StartVelocityRange=(X=(Min=-0.0800000,Max=0.0800000),Y=(Min=-0.0800000,Max=0.0800000),Z=(Min=-0.8000000,Max=-0.8000000))
+     VelocityLossRange=(X=(Min=3.0000000,Max=3.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     Emitters[2]=SpriteEmitter8
+     AutoDestroy=true
+     bNoDelete=false
+     DrawScale=0.2500000
+     bDirectional=true
+}

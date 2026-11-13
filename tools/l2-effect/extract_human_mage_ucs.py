@@ -46,7 +46,14 @@ def ensure_built() -> list[str]:
 
 
 def main() -> int:
-    package = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_PACKAGE
+    global MANIFEST
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    for a in sys.argv[1:]:
+        if a.startswith("--manifest="):
+            MANIFEST = Path(a.split("=", 1)[1])
+            if not MANIFEST.is_absolute():
+                MANIFEST = REPO / MANIFEST
+    package = Path(args[0]) if args else DEFAULT_PACKAGE
     if not package.is_file():
         raise SystemExit(f"decoded package missing: {package}")
 

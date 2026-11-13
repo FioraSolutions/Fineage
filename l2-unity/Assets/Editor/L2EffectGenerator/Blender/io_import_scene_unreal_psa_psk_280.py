@@ -1168,26 +1168,27 @@ def pskimport(filepath,
     # Skeleton. Colorize.
 
     if bImportbone:
+        # Blender 4.1+ removed pose.bone_groups; bone color groups are cosmetic only.
+        if hasattr(armature_obj.pose, 'bone_groups'):
+            bone_group_unused = armature_obj.pose.bone_groups.new(name = "Unused bones")
+            bone_group_unused.color_set = 'THEME14'
 
-        bone_group_unused = armature_obj.pose.bone_groups.new(name = "Unused bones")
-        bone_group_unused.color_set = 'THEME14'
+            bone_group_nochild = armature_obj.pose.bone_groups.new(name = "No children")
+            bone_group_nochild.color_set = 'THEME03'
 
-        bone_group_nochild = armature_obj.pose.bone_groups.new(name = "No children")
-        bone_group_nochild.color_set = 'THEME03'
+            armature_data.show_group_colors = True
 
-        armature_data.show_group_colors = True
+            for psk_bone in psk_bones:
 
-        for psk_bone in psk_bones:
+                pose_bone = armature_obj.pose.bones[psk_bone.name]
 
-            pose_bone = armature_obj.pose.bones[psk_bone.name]
+                if psk_bone.have_weight_data:
 
-            if psk_bone.have_weight_data:
+                    if len(psk_bone.children) == 0:
+                        pose_bone.bone_group = bone_group_nochild
 
-                if len(psk_bone.children) == 0:
-                    pose_bone.bone_group = bone_group_nochild
-
-            else:
-                pose_bone.bone_group = bone_group_unused
+                else:
+                    pose_bone.bone_group = bone_group_unused
 
 
     #==============================================================================================
@@ -1268,6 +1269,21 @@ def blen_get_armature_from_selection():
                         break
 
     return armature_obj
+
+
+def _action_fcurves(action, armature_obj):
+    """Blender 4.4+ moved fcurves onto a channelbag. Older builds still expose action.fcurves."""
+    if hasattr(action, "fcurves"):
+        return action
+    if len(action.slots) == 0:
+        action.slots.new(id_type='OBJECT', name=armature_obj.name)
+    slot = action.slots[0]
+    if len(action.layers) == 0:
+        action.layers.new("Layer")
+    layer = action.layers[0]
+    if len(layer.strips) == 0:
+        layer.strips.new(type='KEYFRAME')
+    return layer.strips[0].channelbag(slot, ensure=True)
 
 
 def psaimport(filepath,
@@ -1744,12 +1760,13 @@ def psaimport(filepath,
             bone_import_rot =   (not AnimFlagsExists) or (AnimFlagsExists and ActionFlags[psa_bone.psa_index].no_rotation    == False)
             bone_import_trans = (not AnimFlagsExists) or (AnimFlagsExists and ActionFlags[psa_bone.psa_index].no_translation == False)
 
+            curves = _action_fcurves(action, armature_obj)
             if bone_import_rot:
                 data_path = pose_bone.path_from_id("rotation_quaternion")
-                psa_bone.fcurve_quat_w = action.fcurves.new(data_path, index = 0)
-                psa_bone.fcurve_quat_x = action.fcurves.new(data_path, index = 1)
-                psa_bone.fcurve_quat_y = action.fcurves.new(data_path, index = 2)
-                psa_bone.fcurve_quat_z = action.fcurves.new(data_path, index = 3)
+                psa_bone.fcurve_quat_w = curves.fcurves.new(data_path, index = 0)
+                psa_bone.fcurve_quat_x = curves.fcurves.new(data_path, index = 1)
+                psa_bone.fcurve_quat_y = curves.fcurves.new(data_path, index = 2)
+                psa_bone.fcurve_quat_z = curves.fcurves.new(data_path, index = 3)
 
 
                 # 1. Pre-add keyframes! \0/
@@ -1767,9 +1784,9 @@ def psaimport(filepath,
                 if UseAnimTranslation[psa_bone.psa_index]:
                     if bone_import_trans:
                         data_path = pose_bone.path_from_id("location")
-                        psa_bone.fcurve_loc_x = action.fcurves.new(data_path, index = 0)
-                        psa_bone.fcurve_loc_y = action.fcurves.new(data_path, index = 1)
-                        psa_bone.fcurve_loc_z = action.fcurves.new(data_path, index = 2)
+                        psa_bone.fcurve_loc_x = curves.fcurves.new(data_path, index = 0)
+                        psa_bone.fcurve_loc_y = curves.fcurves.new(data_path, index = 1)
+                        psa_bone.fcurve_loc_z = curves.fcurves.new(data_path, index = 2)
 
 
                         psa_bone.fcurve_loc_x.keyframe_points.add(keyframes)
@@ -1896,6 +1913,8 @@ def psaimport(filepath,
     if not bActionsToTrack:
         if not scene.is_nla_tweakmode:
             armature_obj.animation_data.action = first_action
+            if hasattr(armature_obj.animation_data, "action_slot") and len(first_action.slots) > 0:
+                armature_obj.animation_data.action_slot = first_action.slots[0]
 
     if bUpdateTimelineRange:
 

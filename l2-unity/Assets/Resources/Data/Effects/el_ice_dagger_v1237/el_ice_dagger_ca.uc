@@ -1,0 +1,227 @@
+class el_ice_dagger_ca extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=VertMeshEmitter Name=VertMeshEmitter1
+         // Reference: VertMeshEmitter'lineageeffect.dec.el_ice_dagger_ca.VertMeshEmitter1'
+         begin object name="VertMeshEmitter1" class=Engine.VertMeshEmitter
+         VertexMesh=VertMesh'LineageEffectMeshes.water00'
+         RenderTwoSided=false
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         FadeOutStartTime=3.2000000
+         MaxParticles=1
+         ForcedLifeTime=true
+         ForcedFade=true
+         RespawnDeadParticles=false
+         Name="water"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-42.0000000)
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=18.0000000,Max=18.0000000))
+         SpinParticles=true
+         SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+         SpinsPerSecondRange=(X=(Min=-0.2000000,Max=-0.2000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.5000000)
+         SizeScale[1]=(RelativeTime=0.0800000,RelativeSize=0.8500000)
+         SizeScale[2]=(RelativeTime=0.1500000,RelativeSize=0.9500000)
+         SizeScale[3]=(RelativeTime=0.2500000,RelativeSize=1.0000000)
+         SizeScale[4]=(RelativeTime=0.7500000,RelativeSize=1.0000000)
+         SizeScale[5]=(RelativeTime=0.8500000,RelativeSize=0.9500000)
+         SizeScale[6]=(RelativeTime=0.9000000,RelativeSize=0.8500000)
+         SizeScale[7]=(RelativeTime=1.0000000,RelativeSize=0.5000000)
+         StartSizeRange=(X=(Min=0.5800000,Max=0.5800000),Y=(Min=0.5800000,Max=0.5800000),Z=(Min=0.6300000,Max=0.6300000))
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         LifetimeRange=(Min=3.2000000,Max=3.2000000)
+         InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+         end object
+     End Object
+     Emitters(0)=VertMeshEmitter'VertMeshEmitter1'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter2
+         // Reference: SpriteEmitter'lineageeffect.dec.el_ice_dagger_ca.SpriteEmitter2'
+         begin object name="SpriteEmitter2" class=Engine.SpriteEmitter
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         Opacity=0.8000000
+         FadeOutStartTime=0.9120000
+         FadeOut=true
+         FadeInEndTime=0.1440000
+         FadeIn=true
+         MaxParticles=55
+         ForcedMaxParticles=true
+         RespawnDeadParticles=false
+         Name="Bubble"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=12.0000000)
+         StartLocationShape=2
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=80.0000000,Max=100.0000000),Z=(Min=17.0000000,Max=17.0000000))
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=0.0500000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+         SizeScale[1]=(RelativeTime=0.7400000,RelativeSize=0.7000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         SizeScaleRepeats=3.0000000
+         StartSizeRange=(X=(Min=6.0000000,Max=8.0000000),Y=(Min=6.0000000,Max=8.0000000),Z=(Min=6.0000000,Max=8.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=25.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0099'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         SubdivisionEnd=3
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=1.2000000,Max=1.2000000)
+         InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+         VelocityLossRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=1.0000000,Max=1.0000000))
+         GetVelocityDirectionFrom=1
+         WarmupTicksPerSecond=3.0000000
+         RelativeWarmupTime=0.5000000
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter2'
+     Begin Object Class=MeshEmitter Name=MeshEmitter2
+         // Reference: MeshEmitter'lineageeffect.dec.el_ice_dagger_ca.MeshEmitter2'
+         begin object name="MeshEmitter2" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Aura.auracharge01'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.5035710,Color=(R=179,G=179,B=179,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=30.0000000
+         ColorMultiplierRange=(X=(Min=0.3000000,Max=0.3000000),Y=(Min=0.5000000,Max=0.5000000),Z=(Min=1.0000000,Max=1.0000000))
+         Opacity=0.2500000
+         FadeOutStartTime=2.3199999
+         FadeOut=true
+         FadeInEndTime=0.5800000
+         FadeIn=true
+         MaxParticles=1
+         ForcedLifeTime=true
+         ForcedFade=true
+         RespawnDeadParticles=false
+         Name="Glow"
+         StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.5000000,Max=0.5000000))
+         InitialParticlesPerSecond=10000.0000000
+         AutomaticInitialSpawning=false
+         LifetimeRange=(Min=2.9000001,Max=2.9000001)
+         InitialDelayRange=(Min=0.3000000,Max=0.3000000)
+         end object
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter2'
+     // Reference: VertMeshEmitter'lineageeffect.dec.el_ice_dagger_ca.VertMeshEmitter1'
+     VertexMesh=VertMesh'LineageEffectMeshes.water00'
+     RenderTwoSided=false
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     FadeOutStartTime=3.2000000
+     MaxParticles=1
+     ForcedLifeTime=true
+     ForcedFade=true
+     RespawnDeadParticles=false
+     Name="water"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-42.0000000)
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=18.0000000,Max=18.0000000))
+     SpinParticles=true
+     SpinCCWorCW=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+     SpinsPerSecondRange=(X=(Min=-0.2000000,Max=-0.2000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.5000000)
+     SizeScale[1]=(RelativeTime=0.0800000,RelativeSize=0.8500000)
+     SizeScale[2]=(RelativeTime=0.1500000,RelativeSize=0.9500000)
+     SizeScale[3]=(RelativeTime=0.2500000,RelativeSize=1.0000000)
+     SizeScale[4]=(RelativeTime=0.7500000,RelativeSize=1.0000000)
+     SizeScale[5]=(RelativeTime=0.8500000,RelativeSize=0.9500000)
+     SizeScale[6]=(RelativeTime=0.9000000,RelativeSize=0.8500000)
+     SizeScale[7]=(RelativeTime=1.0000000,RelativeSize=0.5000000)
+     StartSizeRange=(X=(Min=0.5800000,Max=0.5800000),Y=(Min=0.5800000,Max=0.5800000),Z=(Min=0.6300000,Max=0.6300000))
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     LifetimeRange=(Min=3.2000000,Max=3.2000000)
+     InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+     Emitters[0]=VertMeshEmitter1
+     // Reference: SpriteEmitter'lineageeffect.dec.el_ice_dagger_ca.SpriteEmitter2'
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     Opacity=0.8000000
+     FadeOutStartTime=0.9120000
+     FadeOut=true
+     FadeInEndTime=0.1440000
+     FadeIn=true
+     MaxParticles=55
+     ForcedMaxParticles=true
+     RespawnDeadParticles=false
+     Name="Bubble"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=12.0000000)
+     StartLocationShape=2
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=80.0000000,Max=100.0000000),Z=(Min=17.0000000,Max=17.0000000))
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=0.0500000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.0000000)
+     SizeScale[1]=(RelativeTime=0.7400000,RelativeSize=0.7000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     SizeScaleRepeats=3.0000000
+     StartSizeRange=(X=(Min=6.0000000,Max=8.0000000),Y=(Min=6.0000000,Max=8.0000000),Z=(Min=6.0000000,Max=8.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=25.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0099'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     SubdivisionEnd=3
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=1.2000000,Max=1.2000000)
+     InitialDelayRange=(Min=0.1000000,Max=0.1000000)
+     VelocityLossRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=1.0000000,Max=1.0000000))
+     GetVelocityDirectionFrom=1
+     WarmupTicksPerSecond=3.0000000
+     RelativeWarmupTime=0.5000000
+     Emitters[1]=SpriteEmitter2
+     // Reference: MeshEmitter'lineageeffect.dec.el_ice_dagger_ca.MeshEmitter2'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Aura.auracharge01'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.5035710,Color=(R=179,G=179,B=179,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=30.0000000
+     ColorMultiplierRange=(X=(Min=0.3000000,Max=0.3000000),Y=(Min=0.5000000,Max=0.5000000),Z=(Min=1.0000000,Max=1.0000000))
+     Opacity=0.2500000
+     FadeOutStartTime=2.3199999
+     FadeOut=true
+     FadeInEndTime=0.5800000
+     FadeIn=true
+     MaxParticles=1
+     ForcedLifeTime=true
+     ForcedFade=true
+     RespawnDeadParticles=false
+     Name="Glow"
+     StartSizeRange=(X=(Min=0.4000000,Max=0.4000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.5000000,Max=0.5000000))
+     InitialParticlesPerSecond=10000.0000000
+     AutomaticInitialSpawning=false
+     LifetimeRange=(Min=2.9000001,Max=2.9000001)
+     InitialDelayRange=(Min=0.3000000,Max=0.3000000)
+     Emitters[2]=MeshEmitter2
+     AutoDestroy=true
+     bRotEmitter=true
+     RotPerSecond=(Pitch=0,Yaw=-30000,Roll=0)
+     bNoDelete=false
+     DrawScale=0.2500000
+     bDirectional=true
+}

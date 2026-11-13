@@ -1,0 +1,153 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8637314375229224351
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3786011206645358782}
+  - component: {fileID: 560395030496474213}
+  m_Layer: 0
+  m_Name: el_ice_dagger_v1237_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3786011206645358782
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8637314375229224351}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &560395030496474213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8637314375229224351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483560844656734
+  - rid: 6421483560844656735
+  - rid: 6421483560844656736
+  - rid: 6421483560844656737
+  - rid: 6421483560844656738
+  - rid: 6421483560844656739
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483560844656734
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_stun_attack_ca
+        prefab: {fileID: 4479916829413204756, guid: 11979f4931b7c449f94e09cbd51db828, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 0
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483560844656735
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_ice_dagger_ca
+        prefab: {fileID: 8176577431220339221, guid: 59708d04630ac441eb9ba7749b7d6cdf, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 0
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483560844656736
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_ice_dagger_pr
+        prefab: {fileID: 6744181461741405985, guid: de398231d76b645d4928e671ccf71729, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483560844656737
+      type: {class: ShotProjectilePart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_ice_dagger_fl
+        prefab: {fileID: 7072552184354160377, guid: 9f22d2c33a0ce44fe9e31ee458efb750, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+        launchMode: 2
+        showBeforeAnimationShoot: 0
+        impactType: 1
+        speed: 10
+    - rid: 6421483560844656738
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_sonic_rage_ta
+        prefab: {fileID: 4139395949386421649, guid: 765753d19a4dd42c19d47a08a5ba8014, type: 3}
+        scale: 1
+        spawnTiming: 4
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 5
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483560844656739
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: el_ice_dagger_ta
+        prefab: {fileID: 3156582153177431225, guid: 4f13bb3e80c7c4121aaf77ec4197fb26, type: 3}
+        scale: 1
+        spawnTiming: 4
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 5
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
