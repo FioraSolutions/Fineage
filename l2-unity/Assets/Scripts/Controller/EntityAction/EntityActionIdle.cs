@@ -8,10 +8,8 @@ public sealed class EntityActionIdle : IEntityActionProcess
         if (EntityActionMachine.IsFinishingSwing(entity))
             return;
         string restore = payload as string;
-        if (!string.IsNullOrEmpty(restore) &&
-            (entity is MonsterEntity || entity is NpcEntity))
+        if (!string.IsNullOrEmpty(restore) && EntityActionVisual.UsesCreatureAnim(entity))
         {
-          
             EntityActionVisual.RestoreLocomotion(entity, restore);
             return;
         }

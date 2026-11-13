@@ -19,11 +19,7 @@ public static partial class EntityActionVisual
         if (!CanPlayAnim(entity))
             return;
 
-        if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null && monster.Identity != null)
-        {
-      
-            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, "atkwait");
-        }
+        TryPlayCreatureAnim(entity, MonsterAnim.AtkWait);
     }
 
     public static void PlaySocial(Entity entity, int actionId)
@@ -48,13 +44,7 @@ public static partial class EntityActionVisual
             return;
         }
 
-        if ((entity is NpcEntity || entity is MonsterEntity) &&
-            ControllerPacketServices.Animations != null &&
-            entity.Identity != null)
-        {
-            ControllerPacketServices.Animations.PlayMonsterAnimation(
-                entity.Identity.Id, "social01");
-        }
+        TryPlayCreatureAnim(entity, "social01");
     }
 
     public static void PlayWaitType(Entity entity, WaitType waitType)

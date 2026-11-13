@@ -12,9 +12,9 @@ public partial class DealerWindow
 
     /// <summary>
     /// Unlimited GM/shop stackables are listed with Count=1 for tooltip display.
-    /// Qty "All" still caps at the zone grant limit (10000).
+    /// Qty "All" caps at the zone grant / MaxAdena ceiling (2_000_000_000).
     /// </summary>
-    const int ShopStackableQuantityMax = 10000;
+    const int ShopStackableQuantityMax = 2_000_000_000;
 
 
 

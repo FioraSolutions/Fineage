@@ -8,16 +8,36 @@ public static partial class WorldPlacement
         LayerMask? groundMask = null)
     {
         Vector3 pos = serverUnityPos;
-        if (TryResolveGeodataY(pos, out float geoY))
+        bool hasGeo = TryResolveGeodataY(pos, out float geoY);
+        bool hasMesh = TryResolveMeshY(pos, groundMask, out float meshY);
+
+        // Spawned NPCs / monsters / drops: visual mesh is SoT outdoors (TI village geodata sat
+        // below the mesh and buried Folks). Caves still pick the deck nearest server Z via
+        // TryClosestHit. PlayerTeleport / WalkValidate stay geo-first.
+        if (PreferMeshForKind(kind))
+        {
+            if (hasMesh)
+                pos.y = meshY;
+            else if (hasGeo)
+                pos.y = geoY;
+            return pos;
+        }
+
+        if (hasGeo)
         {
             pos.y = geoY;
             return pos;
         }
 
-        if (TryResolveMeshY(pos, groundMask, out float meshY))
+        if (hasMesh)
             pos.y = meshY;
         return pos;
     }
+
+    static bool PreferMeshForKind(PlacementKind kind) =>
+        kind == PlacementKind.NpcSpawn
+        || kind == PlacementKind.MonsterSpawn
+        || kind == PlacementKind.ItemDrop;
 
     public static bool TryResolveGeodataY(Vector3 serverUnityPos, out float y)
     {

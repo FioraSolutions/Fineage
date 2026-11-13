@@ -30,9 +30,7 @@ public static partial class EntityActionVisual
             return;
         }
 
-        if (ControllerPacketServices.Animations == null)
-            return;
-        ControllerPacketServices.Animations.PlayMonsterAnimation(entity.Identity.Id, state);
+        TryPlayCreatureAnim(entity, state);
     }
 
     public static void PlayStandWait(Entity entity)
