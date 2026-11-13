@@ -9,8 +9,12 @@ public static partial class WorldPlacement
     {
         // Gatekeeper stands inside the gate pillar. The street mesh starts a few
         // meters aside and three meters lower; leave her on that shell, not on a ledge.
+        // The dark-elf school floor is already under the creation point. Pulling that
+        // point down to the next brush (~5 m) drops the pawn into the sealed shell
+        // under the temple, which reads as a prison with no exit.
         if ((kind == PlacementKind.NpcSpawn || kind == PlacementKind.PlayerTeleport)
             && IsDarkElfCave(serverUnityPos)
+            && !HasFloorWithin(serverUnityPos, CaveDeckMeters)
             && TryCaveStreet(serverUnityPos, out Vector3 street))
             return street;
 
