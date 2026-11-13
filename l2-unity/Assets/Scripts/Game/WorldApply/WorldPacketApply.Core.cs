@@ -35,6 +35,12 @@ public sealed partial class WorldPacketApply
 
         int objectId = npcInfo.Identity.Id;
         Entity entity = GameWorld.GetEntityNoLockSync(objectId);
+        if (entity != null && NpcBodyLeftPacket(entity, npcInfo))
+        {
+            // SOE return: the body is still registered but fell with the unloaded tile.
+            GameWorld.RemoveObject(objectId);
+            entity = null;
+        }
         if (entity == null)
         {
             if (SpawnFrameBudget.IsCancelled(objectId))
@@ -82,5 +88,22 @@ public sealed partial class WorldPacketApply
         }
         else
             GameWorld.UpdateNpc(entity, npcInfo);
+    }
+
+    /// <summary>
+    /// A repeat NpcInfo for a body that walked a few metres is left alone. A body that dropped
+    /// through an unloaded tile (or sat in another square) is rebuilt at the packet position.
+    /// </summary>
+    static bool NpcBodyLeftPacket(Entity entity, NpcInfoDto npcInfo)
+    {
+        if (entity == null || npcInfo == null || npcInfo.Identity == null)
+            return false;
+        Vector3 have = entity.transform.position;
+        Vector3 want = npcInfo.Identity.Position;
+        float dx = have.x - want.x;
+        float dz = have.z - want.z;
+        if (dx * dx + dz * dz > 9f)
+            return true;
+        return Mathf.Abs(have.y - want.y) > 4f;
     }
 }

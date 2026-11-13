@@ -16,8 +16,17 @@ public partial class World
         out bool unresolvable)
     {
         unresolvable = false;
-        if (identity == null || ContainsNpc(identity.Id))
+        if (identity == null)
             return;
+        if (ContainsNpc(identity.Id))
+        {
+            // Tile unload can destroy the body and leave the id registered. A later NpcInfo
+            // must be allowed to build it again.
+            Entity live = GetEntityNoLockSync(identity.Id);
+            if (live != null)
+                return;
+            RemoveObject(identity.Id);
+        }
 
         if (identity.NpcId == 20481)
             Debug.Log(" object NpcInfo 5 " + identity.Id);
