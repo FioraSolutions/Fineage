@@ -14,6 +14,12 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
     void Start() {
         if (_deadManager != null)
             _deadManager.OnReadyToRemove += RemoveObject;
+        if (GetComponent<L2VillageStatuePanner>() == null)
+            gameObject.AddComponent<L2VillageStatuePanner>();
+        if (GetComponent<L2CaveTerrainGate>() == null)
+            gameObject.AddComponent<L2CaveTerrainGate>();
+        if (GetComponent<L2DarkElfVillageMusic>() == null)
+            gameObject.AddComponent<L2DarkElfVillageMusic>();
         UpdateMasks();
     }
 

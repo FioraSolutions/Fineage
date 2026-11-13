@@ -1,4 +1,4 @@
-// fineage-touch 1794508154.6591449.fixscale2
+// fineage-touch 1794510000.darkelf
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using UnityEngine;
 /// While the Editor is already open (batchmode cannot attach), drop a jobs file to run
 /// one-shot import/bake steps after domain reload.
 /// Flag: Assets/Editor/FineagePendingEditorJobs.txt — one job name per line.
-/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | casino_npc | elf_teleporter_npc | npc_bounds | bake_tile XX_YY | rebuild_static XX_YY
+/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | casino_npc | elf_teleporter_npc | darkelf_npc | npc_bounds | bake_tile XX_YY | rebuild_static XX_YY
 /// </summary>
 [InitializeOnLoad]
 static class FineagePendingEditorJobs
@@ -36,6 +36,7 @@ static class FineagePendingEditorJobs
     static FineagePendingEditorJobs()
     {
         EditorApplication.delayCall += TryConsume;
+        EditorApplication.playModeStateChanged += _ => EditorApplication.delayCall += TryConsume;
     }
 
     static void TryConsume()
@@ -80,6 +81,8 @@ static class FineagePendingEditorJobs
     {
         if (job.StartsWith("bake_tile ", StringComparison.Ordinal))
             return BakeTile(job.Substring("bake_tile ".Length).Trim());
+        if (job.StartsWith("reconvert_terrain ", StringComparison.Ordinal))
+            return ReconvertTerrain(job.Substring("reconvert_terrain ".Length).Trim());
         if (job.StartsWith("rebuild_static ", StringComparison.Ordinal))
             return RebuildStatic(job.Substring("rebuild_static ".Length).Trim());
 
@@ -96,6 +99,8 @@ static class FineagePendingEditorJobs
                 return L2CasinoNpcPrefabBuilder.Run();
             case "elf_teleporter_npc":
                 return L2ElfTeleporterNpcPrefabBuilder.Run();
+            case "darkelf_npc":
+                return L2DarkElfNpcPrefabBuilder.Run();
             case "npc_bounds":
                 return L2NpcPrefabBoundsDiag.Run();
             case "tile_scenes":
@@ -159,6 +164,20 @@ static class FineagePendingEditorJobs
     /// Unity pipeline + tile scene for one square (Phase A / meshes must already be on disk).
     /// Must run in the open Editor — batchmode/-nographics garbles terrain Texture2DArrays.
     /// </summary>
+    /// <summary>GPU rebake of one tile's heightmap mesh and splat arrays. Not safe in -nographics.</summary>
+    static string ReconvertTerrain(string tile)
+    {
+        if (string.IsNullOrWhiteSpace(tile) || tile.IndexOf('_') < 0)
+            return "bad tile id";
+        if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+            return "no GPU — would write 0xCD textures";
+
+        bool ok = TerrainConverter.ConvertTerrainToMeshForMap(tile);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        return ok ? "terrain=ok" : "terrain=fail";
+    }
+
     static string BakeTile(string tile)
     {
         if (string.IsNullOrWhiteSpace(tile) || tile.IndexOf('_') < 0)

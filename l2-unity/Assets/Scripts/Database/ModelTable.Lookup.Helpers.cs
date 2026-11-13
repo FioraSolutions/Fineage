@@ -66,4 +66,24 @@ public partial class ModelTable : AbstractCache
 
         // Debug.Log("Loaded " + success + " npc model(s).");
     }
+
+    /// <summary>
+    /// Race fallbacks ask for a mesh no npcgrp row uses (Dark Elf teleporter → Human in the
+    /// same package). <see cref="GetNpc"/> only sees the boot cache, so load the prefab once.
+    /// </summary>
+    public GameObject GetOrLoadNpc(string meshname)
+    {
+        GameObject cached = GetNpc(meshname);
+        if (cached != null)
+            return cached;
+        if (string.IsNullOrEmpty(meshname) || _npcs == null)
+            return null;
+
+        GameObject loaded = LoadNpc(meshname);
+        if (loaded == null)
+            return null;
+
+        _npcs[meshname] = new L2Npc(loaded, new Dictionary<string, Material[]>());
+        return GetNpc(meshname);
+    }
 }

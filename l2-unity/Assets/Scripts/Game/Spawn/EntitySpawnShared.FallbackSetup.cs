@@ -8,7 +8,7 @@ public static partial class EntitySpawnShared
     /// <summary>Race tags used inside LineageNPCs mesh names that the client art pack omits.</summary>
     static readonly string[] MissingRaceNames =
     {
-        "_FElf_", "_MElf_", "_FDarkElf_", "_MDarkElf_",
+        "_FElf_", "_MElf_", "_FDarkElf_", "_MDarkElf_", "_FDarkelf_", "_MDarkelf_",
         "_FOrc_", "_MOrc_", "_FDwarf_", "_MDwarf_"
     };
 
