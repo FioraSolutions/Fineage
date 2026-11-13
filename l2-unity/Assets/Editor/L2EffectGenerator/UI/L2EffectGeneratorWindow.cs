@@ -199,10 +199,33 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
     /// <summary>
     /// Shared entry for CLI and Editor request-runner (open Unity holds the lock).
     /// </summary>
+    public static void GenerateLightElfBatchCli()
+    {
+        AssetDatabase.Refresh();
+        bool ok = TryRunLightElfBatch(out string summary);
+        Debug.Log("[L2EffectGenerator] " + summary);
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
+
+    public static bool TryRunLightElfBatch(out string summary)
+    {
+        return TryRunManifestBatch(
+            "Assets/Editor/L2EffectGenerator/Data/light_elf_vfx_manifest.json",
+            "LightElfBatch",
+            out summary);
+    }
+
     public static bool TryRunHumanMageBatch(out string summary)
     {
-        const string ManifestPath =
-            "Assets/Editor/L2EffectGenerator/Data/human_mage_vfx_manifest.json";
+        return TryRunManifestBatch(
+            "Assets/Editor/L2EffectGenerator/Data/human_mage_vfx_manifest.json",
+            "HumanMageBatch",
+            out summary);
+    }
+
+    static bool TryRunManifestBatch(string manifestPath, string label, out string summary)
+    {
+        string ManifestPath = manifestPath;
 
         string abs = Path.Combine(
             Directory.GetParent(Application.dataPath).FullName,
@@ -237,11 +260,29 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
         int genOk = 0;
         int fail = 0;
         int skip = 0;
+        var onlyVisuals = new HashSet<int>();
+        string onlyRaw = Environment.GetEnvironmentVariable("FINEAGE_VFX_VISUALS");
+        if (!string.IsNullOrWhiteSpace(onlyRaw))
+        {
+            string[] parts = onlyRaw.Split(',');
+            for (int p = 0; p < parts.Length; p++)
+            {
+                if (int.TryParse(parts[p].Trim(), out int vid))
+                {
+                    onlyVisuals.Add(vid);
+                }
+            }
+        }
 
         for (int i = 0; i < manifest.entries.Length; i++)
         {
             HumanMageManifestEntry entry = manifest.entries[i];
             if (entry == null || entry.serverSkillIds == null || entry.serverSkillIds.Length == 0)
+            {
+                continue;
+            }
+
+            if (onlyVisuals.Count > 0 && !onlyVisuals.Contains(entry.visualId))
             {
                 continue;
             }
@@ -343,7 +384,7 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
         }
 
         summary =
-            "HumanMageBatch done alias=" + aliasOk +
+            label + " done alias=" + aliasOk +
             " generate=" + genOk + " skip=" + skip + " fail=" + fail;
         return fail == 0;
     }

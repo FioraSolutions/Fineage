@@ -87,6 +87,13 @@ public static class L2EffectGeneratorFolderBuilder
         {
             if (!TryAddPlannedFromUc(result, effectName, normalizedRoot, ucPaths[i]))
             {
+                if (IsEmitterlessProjectile(ucPaths[i], result.ErrorMessage))
+                {
+                    result.LogLines.Add("skip emitterless projectile " + ucPaths[i]);
+                    result.ErrorMessage = null;
+                    continue;
+                }
+
                 return false;
             }
 
@@ -95,6 +102,12 @@ public static class L2EffectGeneratorFolderBuilder
             {
                 classNames.Add(planned.ClassName);
             }
+        }
+
+        if (result.Planned.Count == 0)
+        {
+            result.ErrorMessage = "No emitter scripts in " + normalizedRoot;
+            return false;
         }
 
         SortPlanned(result.Planned);
@@ -424,6 +437,29 @@ public static class L2EffectGeneratorFolderBuilder
                 paths.Add(assetPath);
             }
         }
+    }
+
+    /// <summary>
+    /// Interlude shot scripts (s_u003_d and the like) extend NSkillProjectile and carry
+    /// speed only. The particles live in sibling emitter classes in the same folder.
+    /// </summary>
+    static bool IsEmitterlessProjectile(string ucAssetPath, string parseError)
+    {
+        if (string.IsNullOrEmpty(parseError) ||
+            parseError.IndexOf("No emitter blocks", StringComparison.Ordinal) < 0)
+        {
+            return false;
+        }
+
+        string full = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ucAssetPath));
+        if (!File.Exists(full))
+        {
+            return false;
+        }
+
+        string text = File.ReadAllText(full);
+        return text.IndexOf("extends NSkillProjectile", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               text.IndexOf("extends NProjectile", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static bool TryAddPlannedFromUc(

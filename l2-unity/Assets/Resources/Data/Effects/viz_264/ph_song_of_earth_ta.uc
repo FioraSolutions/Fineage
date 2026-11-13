@@ -1,0 +1,477 @@
+class ph_song_of_earth_ta extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter33
+         // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter33'
+         begin object name="SpriteEmitter33" class=Engine.SpriteEmitter
+         UseDirectionAs=4
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         FadeOutStartTime=0.9900000
+         FadeOut=true
+         FadeInEndTime=0.3450000
+         FadeIn=true
+         MaxParticles=18
+         RespawnDeadParticles=false
+         Name="red_ring"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.0000000,Max=2.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.1250000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.6000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=2.5000000)
+         StartSizeRange=(X=(Min=10.0000000,Max=12.0000000),Y=(Min=10.0000000,Max=12.0000000),Z=(Min=10.0000000,Max=12.0000000))
+         InitialParticlesPerSecond=3.0000000
+         AutomaticInitialSpawning=false
+         Texture=none
+         TextureUSubdivisions=5
+         TextureVSubdivisions=5
+         BlendBetweenSubdivisions=true
+         SubdivisionEnd=19
+         LifetimeRange=(Min=1.5000000,Max=1.5000000)
+         InitialDelayRange=(Min=1.5000000,Max=1.5000000)
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter33'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter10
+         // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter10'
+         begin object name="SpriteEmitter10" class=Engine.SpriteEmitter
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=2.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=151,B=36,A=255))
+         ColorScale[1]=(RelativeTime=0.6035710,Color=(R=179,G=128,B=240,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=96,G=22,B=233,A=255))
+         Opacity=0.8000000
+         FadeOutStartTime=3.1800001
+         FadeOut=true
+         FadeInEndTime=1.3200001
+         FadeIn=true
+         MaxParticles=24
+         WeatherSoundCheck=true
+         RespawnDeadParticles=false
+         Name="cubicSmoke"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+         StartLocationShape=2
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=2.0000000,Max=2.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=-0.0200000,Max=0.0200000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.3000000)
+         SizeScale[1]=(RelativeTime=0.6000000,RelativeSize=2.0000000)
+         SizeScale[2]=(RelativeTime=0.8500000,RelativeSize=4.0000000)
+         StartSizeRange=(X=(Min=4.0000000,Max=7.0000000),Y=(Min=4.0000000,Max=7.0000000),Z=(Min=4.0000000,Max=7.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=5.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         Texture=Texture'LineageEffectsTextures.Particles3.fx_m_t4009'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=4
+         BlendBetweenSubdivisions=true
+         SubdivisionEnd=15
+         LifetimeRange=(Min=4.5000000,Max=5.0000000)
+         InitialDelayRange=(Min=0.0000000,Max=3.0000000)
+         StartVelocityRange=(X=(Min=-10.0000000,Max=10.0000000),Y=(Min=-10.0000000,Max=10.0000000),Z=(Min=-15.8999996,Max=-8.9709997))
+         GetVelocityDirectionFrom=2
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter10'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter26
+         // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter26'
+         begin object name="SpriteEmitter26" class=Engine.SpriteEmitter
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8000000,Max=0.8000000),Z=(Min=0.8000000,Max=0.8000000))
+         Opacity=0.7000000
+         FadeOutStartTime=4.5500002
+         FadeOut=true
+         MaxParticles=7
+         WeatherSoundCheck=true
+         RespawnDeadParticles=false
+         Name="CenterStar"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=8.0000000)
+         SizeScale[1]=(RelativeTime=0.2000000,RelativeSize=4.0000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=0.2000000)
+         StartSizeRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=2.0000000,Max=2.0000000),Z=(Min=2.0000000,Max=2.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0063'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=4
+         SubdivisionStart=8
+         SubdivisionEnd=9
+         LifetimeRange=(Min=1.0000000,Max=1.0000000)
+         InitialDelayRange=(Min=1.4000000,Max=1.4000000)
+         end object
+     End Object
+     Emitters(2)=SpriteEmitter'SpriteEmitter26'
+     Begin Object Class=MeshEmitter Name=MeshEmitter26
+         // Reference: MeshEmitter'lineageeffect.dec.ph_song_of_earth_ta.MeshEmitter26'
+         begin object name="MeshEmitter26" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Etc.etc_levelup00'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.3142860,Color=(R=194,G=194,B=194,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=70.0000000
+         Opacity=0.0200000
+         FadeOutStartTime=7.3950000
+         FadeOut=true
+         FadeInEndTime=0.5950000
+         FadeIn=true
+         MaxParticles=2
+         WeatherSoundCheck=true
+         RespawnDeadParticles=false
+         Name="Ray1"
+         StartSizeRange=(X=(Min=0.1000000,Max=0.1000000),Y=(Min=0.1000000,Max=0.1000000),Z=(Min=0.6000000,Max=0.6000000))
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         LifetimeRange=(Min=11.0000000,Max=11.0000000)
+         end object
+     End Object
+     Emitters(3)=MeshEmitter'MeshEmitter26'
+     Begin Object Class=MeshEmitter Name=MeshEmitter27
+         // Reference: MeshEmitter'lineageeffect.dec.ph_song_of_earth_ta.MeshEmitter27'
+         begin object name="MeshEmitter27" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power04'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.4964290,Color=(R=128,G=128,B=128,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=30.0000000
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8000000,Max=0.8000000),Z=(Min=0.6000000,Max=0.6000000))
+         Opacity=0.2000000
+         FadeOutStartTime=0.8000000
+         FadeOut=true
+         FadeInEndTime=0.2200000
+         FadeIn=true
+         MaxParticles=7
+         RespawnDeadParticles=false
+         Name="Ring1"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=0.3000000,Max=0.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.2500000,Max=0.2500000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=9.0000000)
+         StartSizeRange=(X=(Min=0.0300000,Max=0.0300000),Y=(Min=0.1000000,Max=0.1000000),Z=(Min=0.1000000,Max=0.1000000))
+         InitialParticlesPerSecond=1.0000000
+         AutomaticInitialSpawning=false
+         LifetimeRange=(Min=3.0000000,Max=3.0000000)
+         InitialDelayRange=(Min=1.5000000,Max=1.5000000)
+         end object
+     End Object
+     Emitters(4)=MeshEmitter'MeshEmitter27'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter29
+         // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter29'
+         begin object name="SpriteEmitter29" class=Engine.SpriteEmitter
+         UseDirectionAs=4
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.4714290,Color=(R=223,G=123,B=32,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=102,G=0,B=0,A=255))
+         Opacity=0.4000000
+         FadeOutStartTime=3.0000000
+         FadeInEndTime=0.1200000
+         FadeIn=true
+         MaxParticles=7
+         RespawnDeadParticles=false
+         Name="ring2"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+         SpinParticles=true
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=9.0000000)
+         StartSizeRange=(X=(Min=10.0000000,Max=10.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0063'
+         TextureUSubdivisions=4
+         TextureVSubdivisions=4
+         BlendBetweenSubdivisions=true
+         SubdivisionStart=4
+         SubdivisionEnd=6
+         LifetimeRange=(Min=3.0000000,Max=3.0000000)
+         InitialDelayRange=(Min=1.5000000,Max=1.5000000)
+         end object
+     End Object
+     Emitters(5)=SpriteEmitter'SpriteEmitter29'
+     Begin Object Class=MeshEmitter Name=MeshEmitter28
+         // Reference: MeshEmitter'lineageeffect.dec.ph_song_of_earth_ta.MeshEmitter28'
+         begin object name="MeshEmitter28" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Elf.sword_mesh00'
+         UseMeshBlendMode=false
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         FadeOutStartTime=10.3400002
+         FadeOut=true
+         FadeInEndTime=0.4400000
+         FadeIn=true
+         MaxParticles=1
+         WeatherSoundCheck=true
+         RespawnDeadParticles=false
+         Name="simbol"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=50.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=0.5000000,Max=0.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=2.0000000)
+         SizeScale[1]=(RelativeTime=0.1800000,RelativeSize=1.0000000)
+         SizeScale[2]=(RelativeTime=0.7600000,RelativeSize=0.8000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=0.5000000)
+         UniformSize=true
+         InitialParticlesPerSecond=10000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=11.0000000,Max=11.0000000)
+         StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=30.0000000,Max=30.0000000))
+         VelocityLossRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=1.5000000,Max=1.5000000))
+         end object
+     End Object
+     Emitters(6)=MeshEmitter'MeshEmitter28'
+     // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter33'
+     UseDirectionAs=4
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     FadeOutStartTime=0.9900000
+     FadeOut=true
+     FadeInEndTime=0.3450000
+     FadeIn=true
+     MaxParticles=18
+     RespawnDeadParticles=false
+     Name="red_ring"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.0000000,Max=2.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.1250000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.6000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=2.5000000)
+     StartSizeRange=(X=(Min=10.0000000,Max=12.0000000),Y=(Min=10.0000000,Max=12.0000000),Z=(Min=10.0000000,Max=12.0000000))
+     InitialParticlesPerSecond=3.0000000
+     AutomaticInitialSpawning=false
+     Texture=none
+     TextureUSubdivisions=5
+     TextureVSubdivisions=5
+     BlendBetweenSubdivisions=true
+     SubdivisionEnd=19
+     LifetimeRange=(Min=1.5000000,Max=1.5000000)
+     InitialDelayRange=(Min=1.5000000,Max=1.5000000)
+     Emitters[0]=SpriteEmitter33
+     // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter10'
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=2.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=151,B=36,A=255))
+     ColorScale[1]=(RelativeTime=0.6035710,Color=(R=179,G=128,B=240,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=96,G=22,B=233,A=255))
+     Opacity=0.8000000
+     FadeOutStartTime=3.1800001
+     FadeOut=true
+     FadeInEndTime=1.3200001
+     FadeIn=true
+     MaxParticles=24
+     WeatherSoundCheck=true
+     RespawnDeadParticles=false
+     Name="cubicSmoke"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+     StartLocationShape=2
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=2.0000000,Max=2.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=-0.0200000,Max=0.0200000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.3000000)
+     SizeScale[1]=(RelativeTime=0.6000000,RelativeSize=2.0000000)
+     SizeScale[2]=(RelativeTime=0.8500000,RelativeSize=4.0000000)
+     StartSizeRange=(X=(Min=4.0000000,Max=7.0000000),Y=(Min=4.0000000,Max=7.0000000),Z=(Min=4.0000000,Max=7.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=5.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     Texture=Texture'LineageEffectsTextures.Particles3.fx_m_t4009'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=4
+     BlendBetweenSubdivisions=true
+     SubdivisionEnd=15
+     LifetimeRange=(Min=4.5000000,Max=5.0000000)
+     InitialDelayRange=(Min=0.0000000,Max=3.0000000)
+     StartVelocityRange=(X=(Min=-10.0000000,Max=10.0000000),Y=(Min=-10.0000000,Max=10.0000000),Z=(Min=-15.8999996,Max=-8.9709997))
+     GetVelocityDirectionFrom=2
+     Emitters[1]=SpriteEmitter10
+     // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter26'
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8000000,Max=0.8000000),Z=(Min=0.8000000,Max=0.8000000))
+     Opacity=0.7000000
+     FadeOutStartTime=4.5500002
+     FadeOut=true
+     MaxParticles=7
+     WeatherSoundCheck=true
+     RespawnDeadParticles=false
+     Name="CenterStar"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=8.0000000)
+     SizeScale[1]=(RelativeTime=0.2000000,RelativeSize=4.0000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=0.2000000)
+     StartSizeRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=2.0000000,Max=2.0000000),Z=(Min=2.0000000,Max=2.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0063'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=4
+     SubdivisionStart=8
+     SubdivisionEnd=9
+     LifetimeRange=(Min=1.0000000,Max=1.0000000)
+     InitialDelayRange=(Min=1.4000000,Max=1.4000000)
+     Emitters[2]=SpriteEmitter26
+     // Reference: MeshEmitter'lineageeffect.dec.ph_song_of_earth_ta.MeshEmitter26'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Etc.etc_levelup00'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.3142860,Color=(R=194,G=194,B=194,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=70.0000000
+     Opacity=0.0200000
+     FadeOutStartTime=7.3950000
+     FadeOut=true
+     FadeInEndTime=0.5950000
+     FadeIn=true
+     MaxParticles=2
+     WeatherSoundCheck=true
+     RespawnDeadParticles=false
+     Name="Ray1"
+     StartSizeRange=(X=(Min=0.1000000,Max=0.1000000),Y=(Min=0.1000000,Max=0.1000000),Z=(Min=0.6000000,Max=0.6000000))
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     LifetimeRange=(Min=11.0000000,Max=11.0000000)
+     Emitters[3]=MeshEmitter26
+     // Reference: MeshEmitter'lineageeffect.dec.ph_song_of_earth_ta.MeshEmitter27'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power04'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.4964290,Color=(R=128,G=128,B=128,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=30.0000000
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8000000,Max=0.8000000),Z=(Min=0.6000000,Max=0.6000000))
+     Opacity=0.2000000
+     FadeOutStartTime=0.8000000
+     FadeOut=true
+     FadeInEndTime=0.2200000
+     FadeIn=true
+     MaxParticles=7
+     RespawnDeadParticles=false
+     Name="Ring1"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=0.3000000,Max=0.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.2500000,Max=0.2500000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=9.0000000)
+     StartSizeRange=(X=(Min=0.0300000,Max=0.0300000),Y=(Min=0.1000000,Max=0.1000000),Z=(Min=0.1000000,Max=0.1000000))
+     InitialParticlesPerSecond=1.0000000
+     AutomaticInitialSpawning=false
+     LifetimeRange=(Min=3.0000000,Max=3.0000000)
+     InitialDelayRange=(Min=1.5000000,Max=1.5000000)
+     Emitters[4]=MeshEmitter27
+     // Reference: SpriteEmitter'lineageeffect.dec.ph_song_of_earth_ta.SpriteEmitter29'
+     UseDirectionAs=4
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.4714290,Color=(R=223,G=123,B=32,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=102,G=0,B=0,A=255))
+     Opacity=0.4000000
+     FadeOutStartTime=3.0000000
+     FadeInEndTime=0.1200000
+     FadeIn=true
+     MaxParticles=7
+     RespawnDeadParticles=false
+     Name="ring2"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=70.0000000)
+     SpinParticles=true
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=1.0000000,RelativeSize=9.0000000)
+     StartSizeRange=(X=(Min=10.0000000,Max=10.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0063'
+     TextureUSubdivisions=4
+     TextureVSubdivisions=4
+     BlendBetweenSubdivisions=true
+     SubdivisionStart=4
+     SubdivisionEnd=6
+     LifetimeRange=(Min=3.0000000,Max=3.0000000)
+     InitialDelayRange=(Min=1.5000000,Max=1.5000000)
+     Emitters[5]=SpriteEmitter29
+     // Reference: MeshEmitter'lineageeffect.dec.ph_song_of_earth_ta.MeshEmitter28'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Elf.sword_mesh00'
+     UseMeshBlendMode=false
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     FadeOutStartTime=10.3400002
+     FadeOut=true
+     FadeInEndTime=0.4400000
+     FadeIn=true
+     MaxParticles=1
+     WeatherSoundCheck=true
+     RespawnDeadParticles=false
+     Name="simbol"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=50.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=0.5000000,Max=0.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0700000,RelativeSize=2.0000000)
+     SizeScale[1]=(RelativeTime=0.1800000,RelativeSize=1.0000000)
+     SizeScale[2]=(RelativeTime=0.7600000,RelativeSize=0.8000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=0.5000000)
+     UniformSize=true
+     InitialParticlesPerSecond=10000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=11.0000000,Max=11.0000000)
+     StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=30.0000000,Max=30.0000000))
+     VelocityLossRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=1.5000000,Max=1.5000000))
+     Emitters[6]=MeshEmitter28
+     AutoDestroy=true
+     bLightChanged=true
+     bNoDelete=false
+     bSunAffect=true
+     DrawScale=0.1000000
+     bDirectional=true
+}

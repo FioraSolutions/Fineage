@@ -1,0 +1,159 @@
+class e_u005_a extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter3
+         // Reference: MeshEmitter'lineageeffect.dec.e_u005_a.MeshEmitter3'
+         begin object name="MeshEmitter3" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Etc.etc_spawn00'
+         UseMeshBlendMode=false
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.4250000,Color=(R=231,G=231,B=231,A=255))
+         ColorScale[2]=(RelativeTime=0.6464290,Color=(R=230,G=230,B=230,A=255))
+         ColorScale[3]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=30.0000000
+         Opacity=0.8500000
+         FadeOutStartTime=0.8140000
+         FadeOut=true
+         FadeInEndTime=0.0880000
+         FadeIn=true
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="MeshEmitter3"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=2.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.0000000,Z=0.0000000)
+         SpinsPerSecondRange=(X=(Min=0.1500000,Max=0.1500000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.5000000)
+         SizeScale[1]=(RelativeTime=0.1400000,RelativeSize=1.1000000)
+         SizeScale[2]=(RelativeTime=0.3000000,RelativeSize=1.0000000)
+         SizeScale[3]=(RelativeTime=0.7000000,RelativeSize=0.9500000)
+         SizeScale[4]=(RelativeTime=0.8200000,RelativeSize=0.9000000)
+         SizeScale[5]=(RelativeTime=1.0000000,RelativeSize=0.6000000)
+         StartSizeRange=(X=(Min=0.5500000,Max=0.5500000),Y=(Min=0.5500000,Max=0.5500000),Z=(Min=0.5500000,Max=0.5500000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=1.5000000,Max=1.5000000)
+         InitialDelayRange=(Min=1.5500000,Max=1.5500000)
+         end object
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter3'
+     Begin Object Class=MeshEmitter Name=MeshEmitter0
+         // Reference: MeshEmitter'lineageeffect.dec.e_u005_a.MeshEmitter0'
+         begin object name="MeshEmitter0" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Etc.etc_spawn01'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.4428570,Color=(R=219,G=219,B=219,A=255))
+         ColorScale[2]=(RelativeTime=0.5785710,Color=(R=212,G=212,B=212,A=255))
+         ColorScale[3]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=20.0000000
+         FadeOutStartTime=1.2000000
+         FadeOut=true
+         FadeInEndTime=1.0800000
+         FadeIn=true
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="Sign"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=0.1000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.7600000,RelativeSize=1.0000000)
+         SizeScale[1]=(RelativeTime=0.7800000,RelativeSize=1.5000000)
+         SizeScale[2]=(RelativeTime=0.8900000,RelativeSize=1.7000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=1.8500000)
+         StartSizeRange=(X=(Min=0.6000000,Max=0.6000000),Y=(Min=0.6000000,Max=0.6000000),Z=(Min=0.6000000,Max=0.6000000))
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=2.0999999,Max=2.0999999)
+         end object
+     End Object
+     Emitters(1)=MeshEmitter'MeshEmitter0'
+     // Reference: MeshEmitter'lineageeffect.dec.e_u005_a.MeshEmitter3'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Etc.etc_spawn00'
+     UseMeshBlendMode=false
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.4250000,Color=(R=231,G=231,B=231,A=255))
+     ColorScale[2]=(RelativeTime=0.6464290,Color=(R=230,G=230,B=230,A=255))
+     ColorScale[3]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=30.0000000
+     Opacity=0.8500000
+     FadeOutStartTime=0.8140000
+     FadeOut=true
+     FadeInEndTime=0.0880000
+     FadeIn=true
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="MeshEmitter3"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=2.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.0000000,Z=0.0000000)
+     SpinsPerSecondRange=(X=(Min=0.1500000,Max=0.1500000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.5000000)
+     SizeScale[1]=(RelativeTime=0.1400000,RelativeSize=1.1000000)
+     SizeScale[2]=(RelativeTime=0.3000000,RelativeSize=1.0000000)
+     SizeScale[3]=(RelativeTime=0.7000000,RelativeSize=0.9500000)
+     SizeScale[4]=(RelativeTime=0.8200000,RelativeSize=0.9000000)
+     SizeScale[5]=(RelativeTime=1.0000000,RelativeSize=0.6000000)
+     StartSizeRange=(X=(Min=0.5500000,Max=0.5500000),Y=(Min=0.5500000,Max=0.5500000),Z=(Min=0.5500000,Max=0.5500000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=1.5000000,Max=1.5000000)
+     InitialDelayRange=(Min=1.5500000,Max=1.5500000)
+     Emitters[0]=MeshEmitter3
+     // Reference: MeshEmitter'lineageeffect.dec.e_u005_a.MeshEmitter0'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Etc.etc_spawn01'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.4428570,Color=(R=219,G=219,B=219,A=255))
+     ColorScale[2]=(RelativeTime=0.5785710,Color=(R=212,G=212,B=212,A=255))
+     ColorScale[3]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=20.0000000
+     FadeOutStartTime=1.2000000
+     FadeOut=true
+     FadeInEndTime=1.0800000
+     FadeIn=true
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="Sign"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=0.1000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.7600000,RelativeSize=1.0000000)
+     SizeScale[1]=(RelativeTime=0.7800000,RelativeSize=1.5000000)
+     SizeScale[2]=(RelativeTime=0.8900000,RelativeSize=1.7000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=1.8500000)
+     StartSizeRange=(X=(Min=0.6000000,Max=0.6000000),Y=(Min=0.6000000,Max=0.6000000),Z=(Min=0.6000000,Max=0.6000000))
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=2.0999999,Max=2.0999999)
+     Emitters[1]=MeshEmitter0
+     AutoDestroy=true
+     bUseDynamicLights=false
+     bNoDelete=false
+     bAcceptsProjectors=false
+     Tag="Emitter"
+     DrawScale=0.1000000
+}
