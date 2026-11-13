@@ -40,6 +40,40 @@ public static partial class InterludeSfx
         return src;
     }
 
+    /// <summary>
+    /// Own casts stay on the listener. Everyone else hears the clip at the caster.
+    /// The shared one-shot bus stays 2D so hits and UI are not pulled to the last caster.
+    /// </summary>
+    public static void PlaceAtCaster(Vector3 worldPos, bool listener)
+    {
+        Place(EnsureCastSource(), worldPos, listener);
+        Place(EnsureVoiceSource(), worldPos, listener);
+    }
+
+    static void Place(AudioSource src, Vector3 worldPos, bool listener)
+    {
+        if (src == null)
+            return;
+        if (listener)
+        {
+            src.spatialBlend = 0f;
+            src.transform.localPosition = Vector3.zero;
+            return;
+        }
+
+        ApplyWorldFalloff(src);
+        src.transform.position = worldPos;
+    }
+
+    internal static void ApplyWorldFalloff(AudioSource src)
+    {
+        src.spatialBlend = 1f;
+        src.dopplerLevel = 0f;
+        src.rolloffMode = AudioRolloffMode.Linear;
+        src.minDistance = WorldHearMinMeters;
+        src.maxDistance = WorldHearMaxMeters;
+    }
+
     static InterludeSfxRunner EnsureRunner()
     {
         if (_runner != null)

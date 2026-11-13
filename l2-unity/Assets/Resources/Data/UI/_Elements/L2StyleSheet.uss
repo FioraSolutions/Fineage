@@ -2491,6 +2491,14 @@
     min-height: 0;
 }
 
+/* Interlude MagicSkillWnd: vertical scroller on the right (global .l2-scroll-view is row-reverse). */
+.skills-panel .l2-scroll-view .unity-scroll-view__content-and-vertical-scroll-container {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: 100%;
+}
+
 .skills-panel .skills-tab-scroll > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroller--horizontal,
 .skills-panel .unity-scroller--horizontal {
     display: none;

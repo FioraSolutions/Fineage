@@ -83,14 +83,23 @@ public static partial class SkillCastSound
         return false;
     }
 
-    static bool PlaySfx(string clipName, Vector3 pos, float volume)
+    static bool IsLocalCaster(int casterId)
+    {
+        Entity local = DomainPacketServices.LocalPlayer;
+        return local != null && local.Identity != null && local.Identity.Id == casterId;
+    }
+
+    static bool PlaySfx(string clipName, Vector3 pos, float volume, bool listener)
     {
         AudioClip clip = Load(SfxRoot, clipName);
         if (clip == null && !string.IsNullOrEmpty(clipName))
             clip = Load(SfxRoot, clipName.ToLowerInvariant());
         if (clip == null)
             return false;
-        InterludeSfx.Play(clip, volume);
+        if (listener)
+            InterludeSfx.Play(clip, volume);
+        else
+            InterludeSfx.PlayAt(clip, pos, volume, false);
         return true;
     }
 }

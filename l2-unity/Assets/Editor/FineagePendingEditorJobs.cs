@@ -10,7 +10,7 @@ using UnityEngine;
 /// While the Editor is already open (batchmode cannot attach), drop a jobs file to run
 /// one-shot import/bake steps after domain reload.
 /// Flag: Assets/Editor/FineagePendingEditorJobs.txt — one job name per line.
-/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | shaman_faces | casino_npc | elf_teleporter_npc | darkelf_npc | npc_bounds | light_elf_vfx | bake_tile XX_YY | rebuild_static XX_YY | rebuild_brushes XX_YY
+/// Jobs: morc_anim | orc_family_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | shaman_faces | casino_npc | elf_teleporter_npc | darkelf_npc | npc_bounds | light_elf_vfx | bake_tile XX_YY | rebuild_static XX_YY | rebuild_brushes XX_YY
 /// </summary>
 [InitializeOnLoad]
 static class FineagePendingEditorJobs
@@ -92,6 +92,8 @@ static class FineagePendingEditorJobs
         {
             case "morc_anim":
                 return L2MOrcAnimImporter.Run();
+            case "orc_family_anim":
+                return L2MOrcAnimImporter.RunFamily();
             case "orc_prefabs":
                 L2OrcRacePrefabBuilder.BuildMOrcOnly();
                 return "ok";

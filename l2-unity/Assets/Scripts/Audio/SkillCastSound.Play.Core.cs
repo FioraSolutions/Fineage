@@ -14,6 +14,7 @@ public static partial class SkillCastSound
 
         EnsureGrpLoaded();
         Vector3 pos = caster.transform.position;
+        InterludeSfx.PlaceAtCaster(pos, caster == DomainPacketServices.LocalPlayer);
 
         SkillSoundRow row;
         bool fromGrp = TryGetRow(dto.SkillId, dto.SkillLvl, out row);

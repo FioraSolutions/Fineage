@@ -1,0 +1,34 @@
+Materials[6] =
+{
+    Materials[0] = { Material=Shader'z_ch01-2', EnableCollision=true }
+    Materials[1] =
+    {
+        Material = Texture'interior_B_ch10-1'
+        EnableCollision = true
+    }
+    Materials[2] =
+    {
+        Material = Texture'interior_B_ch14'
+        EnableCollision = true
+    }
+    Materials[3] =
+    {
+        Material = Texture'interior_B_ch05'
+        EnableCollision = true
+    }
+    Materials[4] =
+    {
+        Material = Texture'interior_B_ch06-1'
+        EnableCollision = true
+    }
+    Materials[5] =
+    {
+        Material = Texture'interior_B_ch02-1'
+        EnableCollision = true
+    }
+}
+UseSimpleLineCollision = false
+UseSimpleBoxCollision = false
+UseSimpleKarmaCollision = false
+UseVertexColor = false
+InternalVersion = 0

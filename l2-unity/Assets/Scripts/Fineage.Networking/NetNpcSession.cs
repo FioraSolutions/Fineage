@@ -7,7 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public static class NetNpcSession
 {
-    public const int InteractionDistance = 150;
+    /// <summary>Mobius <c>Npc.INTERACTION_DISTANCE</c>.</summary>
+    public const int InteractionDistance = 250;
 
     static readonly object Gate = new object();
     static readonly Dictionary<int, bool> Attackable = new Dictionary<int, bool>();

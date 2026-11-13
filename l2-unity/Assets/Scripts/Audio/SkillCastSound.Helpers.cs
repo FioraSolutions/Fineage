@@ -36,9 +36,10 @@ public static partial class SkillCastSound
         InterludeSfx.StopCast();
 
         Vector3 pos = caster != null ? caster.transform.position : Vector3.zero;
+        InterludeSfx.PlaceAtCaster(pos, caster == DomainPacketServices.LocalPlayer);
         bool shotOk = false;
         if (!string.IsNullOrEmpty(shotClip))
-            shotOk = PlaySfx(shotClip, pos, Volume);
+            shotOk = PlaySfx(shotClip, pos, Volume, caster == DomainPacketServices.LocalPlayer);
 
         // 2) Release hero voice — PlayVoice cuts any still-playing cast line.
         PlayVoiceKind(caster, throwVoiceKind);
@@ -80,7 +81,7 @@ public static partial class SkillCastSound
         pending.ExplodePlayed = true;
         _pending[casterId] = pending;
         float t = Time.realtimeSinceStartup - pending.StartTime;
-        bool ok = PlaySfx(pending.ExplodeClip, pos, Volume);
+        bool ok = PlaySfx(pending.ExplodeClip, pos, Volume, IsLocalCaster(casterId));
         float barRem = CastBarOverlay.Remaining01;
         Debug.Log(
             "[CastSync] PIPELINE.hit EXPLODE reason=" + reason +

@@ -12,6 +12,25 @@ public sealed partial class NetSession
         if (window == null)
             return;
         window.ShowNpcDialog(html.NpcObjectId, html.NpcId, html.Html ?? "");
+        FaceNpcToTalker(html.NpcObjectId);
+    }
+
+    /// <summary>
+    /// Mobius <c>NpcAction</c> sends <c>MoveToPawn(player, npc, 100)</c> before the chat window.
+    /// The Interlude client turns the NPC toward that player; this is the same turn on our pawn.
+    /// </summary>
+    static void FaceNpcToTalker(int npcObjectId)
+    {
+        if (npcObjectId <= 0)
+            return;
+        World world = WorldApplyIncomingPacketServices.GameWorld;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (world == null || player == null)
+            return;
+        Entity npc = world.GetEntityNoLockSync(npcObjectId);
+        if (npc == null)
+            return;
+        CombatPacketServices.Facing?.BeginFollow(npcObjectId, npc.transform, player.transform);
     }
 
     internal void ApplyBuyList(BuyListNetMsg list)
