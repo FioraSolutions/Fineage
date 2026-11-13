@@ -16,20 +16,8 @@ using UnityEngine;
 /// </summary>
 public static class L2MOrcAnimImporter
 {
-    const string Src = "Assets/L2ImportTmp/MOrc_anim.fbx";
     const string Root = "Assets/Resources/Data/Animations/";
-    const string ClipDir = Root + "Orc/MOrc/Clips/";
-    const string RefFbx = Root + "Orc/MOrc/Models/anim/MOrc_anim.fbx";
     const string DonorOc = Root + "Animator/Player/MFighter.overrideController";
-    const string MOrcOc = Root + "Animator/Player/MOrc.overrideController";
-    static readonly string[] Prefabs =
-    {
-        Root + "Orc/MOrc/Player_MOrc.prefab",
-        Root + "Orc/MOrc/Pawn_MOrc.prefab",
-        Root + "Orc/MOrc/User_MOrc.prefab",
-        Root + "Orc/MOrc/MOrc_anim_player.prefab",
-        Root + "Orc/MOrc/MOrc_anim_user.prefab",
-    };
 
     [MenuItem("Shnok/Characters/Import MOrc animations (Orc.ukx)")]
     public static void Menu() { Debug.Log(Run()); }
@@ -99,13 +87,42 @@ public static class L2MOrcAnimImporter
         }
     }
 
-    public static string Run()
+    public static string Run() => RunRace("MOrc", "Orc");
+
+    /// <summary>Female orc and both shamans: the fighter already has clips; these override controllers are empty.</summary>
+    public static string RunFamily()
     {
+        return "FOrc " + RunRace("FOrc", "Orc")
+            + " || MShaman " + RunRace("MShaman", "Shaman")
+            + " || FShaman " + RunRace("FShaman", "Shaman");
+    }
+
+    /// <summary>
+    /// Same recipe as the male orc fighter: clips from {race}_anim.fbx, override filled from MFighter by sequence name.
+    /// Clip pack stays under Orc/{race}/Clips (CharacterAnimPaths). Skeleton FBX lives in {package}/{race}/Models/anim.
+    /// </summary>
+    public static string RunRace(string race, string package)
+    {
+        string Src = Root + package + "/" + race + "/Models/anim/" + race + "_anim.fbx";
+        string ClipDir = Root + "Orc/" + race + "/Clips/";
+        string RefFbx = Src;
+        string raceOc = Root + "Animator/Player/" + race + ".overrideController";
+        string[] Prefabs =
+        {
+            Root + "Orc/" + race + "/Player_" + race + ".prefab",
+            Root + "Orc/" + race + "/Pawn_" + race + ".prefab",
+            Root + "Orc/" + race + "/User_" + race + ".prefab",
+            Root + "Orc/" + race + "/" + race + "_anim_player.prefab",
+            Root + "Orc/" + race + "/" + race + "_anim_user.prefab",
+        };
+        string meshAo = race + "_m000_b.ao";
+        string meshAoCap = race + "_M000_b.ao";
+
         var log = new List<string>();
         Directory.CreateDirectory(ClipDir.TrimEnd('/').Replace("Assets/", Application.dataPath + "/"));
 
         if (AssetDatabase.LoadAssetAtPath<GameObject>(Src) == null)
-            throw new Exception("missing " + Src + " — convert MOrc_anim.psa first");
+            throw new Exception("missing " + Src + " — convert " + race + "_anim.psa first");
         if (AssetDatabase.LoadAssetAtPath<GameObject>(RefFbx) == null)
             throw new Exception("missing " + RefFbx);
 
@@ -151,7 +168,10 @@ public static class L2MOrcAnimImporter
         foreach (var g in AssetDatabase.FindAssets("t:AnimationClip", new[] { ClipDir.TrimEnd('/') }))
         {
             var p = AssetDatabase.GUIDToAssetPath(g);
-            existing[Seq(Path.GetFileNameWithoutExtension(p), "MOrc_m000_b.ao_", "_MOrc")] = p;
+            string fileSeq = Seq(Path.GetFileNameWithoutExtension(p), meshAo + "_", "_" + race);
+            if (fileSeq == Path.GetFileNameWithoutExtension(p).ToLowerInvariant())
+                fileSeq = Seq(Path.GetFileNameWithoutExtension(p), meshAoCap + "_", "_" + race);
+            existing[fileSeq] = p;
         }
 
         var morc = new Dictionary<string, AnimationClip>();
@@ -159,20 +179,23 @@ public static class L2MOrcAnimImporter
         foreach (var src in AssetDatabase.LoadAllAssetsAtPath(Src).OfType<AnimationClip>())
         {
             if (src.name.StartsWith("__preview__")) continue;
-            string seq = Seq(src.name, "MOrc_m000_b.ao|", "_MOrc");
-            // Blender PSA names are often just "ao_Wait_Hand_MOrc" without the mesh prefix.
+            string seq = Seq(src.name, meshAo + "|", "_" + race);
             if (string.IsNullOrEmpty(seq) || seq == src.name.ToLowerInvariant())
-                seq = Seq(src.name, "", "_MOrc");
+                seq = Seq(src.name, meshAoCap + "|", "_" + race);
+            // Blender PSA names are often just "ao_Wait_Hand_{race}" without the mesh prefix.
+            if (string.IsNullOrEmpty(seq) || seq == src.name.ToLowerInvariant())
+                seq = Seq(src.name, "", "_" + race);
             string raw = src.name.Substring(src.name.LastIndexOf('|') + 1);
             if (raw.StartsWith("ao_")) raw = raw.Substring(3);
-            if (raw.EndsWith("_MOrc", StringComparison.OrdinalIgnoreCase))
-                raw = raw.Substring(0, raw.Length - "_MOrc".Length);
+            string raceSuffix = "_" + race;
+            if (raw.EndsWith(raceSuffix, StringComparison.OrdinalIgnoreCase))
+                raw = raw.Substring(0, raw.Length - raceSuffix.Length);
 
             var dst = new AnimationClip { frameRate = src.frameRate };
             foreach (var b in AnimationUtility.GetCurveBindings(src))
             {
                 string leaf = b.path.Length == 0
-                    ? "MOrc_m000_b.ao"
+                    ? meshAo
                     : b.path.Substring(b.path.LastIndexOf('/') + 1);
                 if (!map.TryGetValue(leaf.ToLowerInvariant(), out var np))
                 {
@@ -214,7 +237,7 @@ public static class L2MOrcAnimImporter
 
             string path = existing.TryGetValue(seq, out var ep)
                 ? ep
-                : ClipDir + "MOrc_m000_b.ao_" + raw + "_MOrc.anim";
+                : ClipDir + meshAo + "_" + raw + "_" + race + ".anim";
             var old = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
             if (old != null)
             {
@@ -233,7 +256,7 @@ public static class L2MOrcAnimImporter
         log.Add("clips " + morc.Count + " (unmapped bindings " + unmapped + ")");
 
         var donorOc = AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(DonorOc);
-        var oc = AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(MOrcOc);
+        var oc = AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(raceOc);
         if (donorOc == null || oc == null)
             throw new Exception("missing override controllers");
         oc.runtimeAnimatorController = donorOc.runtimeAnimatorController;
@@ -281,7 +304,7 @@ public static class L2MOrcAnimImporter
         // Rebuild anim skeletons from the real anim FBX (not armor m001_u).
         try
         {
-            L2OrcRacePrefabBuilder.BuildMOrcOnly();
+            L2OrcRacePrefabBuilder.BuildRaces(race);
             log.Add("skeletons rebuilt");
         }
         catch (Exception ex)

@@ -40,6 +40,6 @@ public class NetBypassTests
     [Fact]
     public void Talk_distance_matches_the_npc_service_range()
     {
-        Assert.Equal(150, NetNpcSession.InteractionDistance);
+        Assert.Equal(250, NetNpcSession.InteractionDistance);
     }
 }

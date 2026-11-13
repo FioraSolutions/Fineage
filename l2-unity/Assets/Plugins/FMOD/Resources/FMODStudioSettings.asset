@@ -272,7 +272,8 @@ MonoBehaviour:
   - {fileID: 7258723027372519272}
   - {fileID: 7488828936666028974}
   - {fileID: 7899250250168392572}
-  MigratedPlatforms: 060000000900000008000000050000000b0000000a0000000200000001000000
+  - {fileID: 2977900161342354707}
+  MigratedPlatforms: 060000000900000008000000050000000b0000000a00000002000000010000000c000000
 --- !u!114 &974237612081503810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -353,6 +354,73 @@ MonoBehaviour:
   m_Name: FMODStudioSettingsPlatform
   m_EditorClassIdentifier: 
   identifier: fd7c55dab0fce234b8c25f6ffca523c1
+  parentIdentifier: default
+  active: 0
+  Properties:
+    LiveUpdate:
+      Value: 0
+      HasValue: 0
+    LiveUpdatePort:
+      Value: 0
+      HasValue: 0
+    Overlay:
+      Value: 0
+      HasValue: 0
+    Logging:
+      Value: 0
+      HasValue: 0
+    SampleRate:
+      Value: 0
+      HasValue: 0
+    BuildDirectory:
+      Value: 
+      HasValue: 0
+    SpeakerMode:
+      Value: 0
+      HasValue: 0
+    VirtualChannelCount:
+      Value: 0
+      HasValue: 0
+    RealChannelCount:
+      Value: 0
+      HasValue: 0
+    DSPBufferLength:
+      Value: 0
+      HasValue: 0
+    DSPBufferCount:
+      Value: 0
+      HasValue: 0
+    Plugins:
+      Value: []
+      HasValue: 0
+    StaticPlugins:
+      Value: []
+      HasValue: 0
+    CallbackHandler:
+      Value: {fileID: 0}
+      HasValue: 0
+  OutputTypeName: 
+  threadAffinities:
+    Value: []
+    HasValue: 0
+  displaySortOrder: 0
+  childIdentifiers: []
+  codecChannels:
+    Value: []
+    HasValue: 0
+--- !u!114 &2977900161342354707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 203bf3194b6094aedb7d62c2a4f95756, type: 3}
+  m_Name: FMODStudioSettingsPlatform
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.PlatformAndroid
+  identifier: b7e1c4a09d2f4e6a8c1b3d5e7f90a214
   parentIdentifier: default
   active: 0
   Properties:
@@ -611,6 +679,7 @@ MonoBehaviour:
   - fd7c55dab0fce234b8c25f6ffca523c1
   - 2c5177b11d81d824dbb064f9ac8527da
   - b7716510a1f36934c87976f3a81dbf3d
+  - b7e1c4a09d2f4e6a8c1b3d5e7f90a214
   codecChannels:
     Value: []
     HasValue: 0

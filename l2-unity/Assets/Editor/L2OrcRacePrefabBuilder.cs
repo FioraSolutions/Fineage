@@ -83,6 +83,13 @@ public static class L2OrcRacePrefabBuilder
         return string.Join(" | ", log);
     }
 
+    public static void BuildRaces(params string[] races)
+    {
+        BuildSkeletonsAndContainers(races);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
     public static void BuildMOrcOnly()
     {
         BuildSkeletonsAndContainers(new[] { "MOrc" });

@@ -26,24 +26,29 @@ public sealed partial class FineageZoneTransport
                     return true;
                 }
 
+                // Mobius NpcAction: the first click only setTarget. The second click (already the
+                // target) talks or attacks. Out of canInteract becomes a run, not a local "too far".
+                PlayerEntity self = DomainPacketServices.LocalPlayer;
+                bool alreadySelected = self != null && self.TargetId == netAction.ObjectId;
+                Session.SendSelectTarget(netAction.ObjectId);
+                if (!alreadySelected)
+                    return true;
+
                 TargetManager attackTargets = ControllerPacketServices.Targets;
                 bool forceAttack = GameCtrl.IsHeld ||
                     (attackTargets != null && attackTargets.IsAttackTargetSet());
                 if (EntityInteraction.ShouldTalkOnClick(clicked, forceAttack))
                 {
-                    Session.SendSelectTarget(netAction.ObjectId);
-                    if (NetNpcWindows.InRange(clicked))
-                        Session.SendNpcTalk(netAction.ObjectId);
-                    else
-                        NetChatFeed.NoteSystem("You are too far away.");
+                    Session.SendNpcTalk(netAction.ObjectId);
                     return true;
                 }
+
+                if (forceAttack || EntityInteraction.IsAttackable(clicked))
+                    Session.SendAttackRequest(netAction.ObjectId);
+                return true;
             }
 
             Session.SendSelectTarget(netAction.ObjectId);
-            TargetManager targets = ControllerPacketServices.Targets;
-            if (GameCtrl.IsHeld || (targets != null && targets.IsAttackTargetSet()))
-                Session.SendAttackRequest(netAction.ObjectId);
             return true;
         }
 
