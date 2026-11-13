@@ -19,7 +19,6 @@ public static partial class EntityActionVisual
     {
         if (entity is UserEntity userStop)
         {
-            // Debug.Log(userStop.LogTag + " Visual.StopMove");
             PlayUserLocomotion(userStop, "wait");
             return;
         }
@@ -27,19 +26,8 @@ public static partial class EntityActionVisual
         if (!CanPlayAnim(entity))
             return;
 
-        if (entity is NpcEntity npc)
-            npc.OnStopL2jMoving();
-        else if (entity is MonsterEntity monster)
-        {
-            if (ControllerPacketServices.Animations != null && monster.Identity != null)
-            {
-
-                ControllerPacketServices.Animations.PlayMonsterAnimation(
-                    monster.Identity.Id,
-                    AnimationNames.MONSTER_WAIT.ToString());
-                EntitySpawnShared.LogStriderGait("stop-move", monster, "asked=wait");
-            }
-        }
+        if (TryPlayCreatureAnim(entity, AnimationNames.MONSTER_WAIT.ToString()))
+            EntitySpawnShared.LogStriderGait("stop-move", entity, "asked=wait");
     }
 
     public static void PlayMeleeAttack(Entity entity)
@@ -53,10 +41,6 @@ public static partial class EntityActionVisual
             return;
         }
 
-        if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
-        {
-
-            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, AnimationNames.MONSTER_ATK01.ToString());
-        }
+        TryPlayCreatureAnim(entity, AnimationNames.MONSTER_ATK01.ToString());
     }
 }

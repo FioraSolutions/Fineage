@@ -8,8 +8,8 @@ public sealed partial class NpcSpawner
             return null;
 
         EntityIdentity identity = request.Identity;
-        // Prefer-highest spawn snap (AcquireNpcGameObject) + delayed resnap — outdoor Folks were
-        // floating on raw geodata Y; DE caves stay on the upper deck via highest-hit, not "keep Z".
+        // Mesh-first spawn snap (WorldPlacement NpcSpawn) + delayed resnap — outdoor Folks sank when
+        // client geodata Y sat below the visual mesh; DE caves stay on the upper deck via highest-hit.
 
         GameObject npcGo = EntitySpawnShared.AcquireNpcGameObject(_pool, request.Prefab, identity);
         if (npcGo == null)

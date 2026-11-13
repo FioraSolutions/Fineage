@@ -30,9 +30,6 @@ public static partial class EntityActionVisual
     {
         if (entity is UserEntity userStart)
         {
-            // Debug.Log(userStart.LogTag + " Visual.StartMove walking=" + walking +
-                // " hasAnim=" + userStart.HasAnimator() +
-                // " nac=" + (userStart.GetAnimatorController() != null));
             PlayUserLocomotion(userStart, walking ? "walk" : "run", null, force);
             return;
         }
@@ -43,14 +40,10 @@ public static partial class EntityActionVisual
             return;
         }
 
-        if (entity is NpcEntity npc)
-            npc.OnStartL2jMoving(walking);
-        else if (entity is MonsterEntity monster && ControllerPacketServices.Animations != null)
-        {
-            string anim = walking ? AnimationNames.MONSTER_WALK.ToString() : AnimationNames.MONSTER_RUN.ToString();
-
-            ControllerPacketServices.Animations.PlayMonsterAnimation(monster.Identity.Id, anim);
-            EntitySpawnShared.LogStriderGait("start-move", monster, "asked=" + anim);
-        }
+        string anim = walking
+            ? AnimationNames.MONSTER_WALK.ToString()
+            : AnimationNames.MONSTER_RUN.ToString();
+        if (TryPlayCreatureAnim(entity, anim))
+            EntitySpawnShared.LogStriderGait("start-move", entity, "asked=" + anim);
     }
 }

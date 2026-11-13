@@ -31,8 +31,16 @@ public interface IAnimationManager
     string GetCurrentAnimationName(int objectId);
     string GetLastAnimationName(int objectId);
     void StopCurrentAnimation(int objectId , string paramName , string runName = "");
+    /// <summary>Npc_Basic / Monster_Basic bare-state playback (npc + monster).</summary>
+    void PlayCreatureAnimation(int objectId, string animationName);
+    void PlayCreatureAnimation(int objectId, string animationName, float? fixedDuration);
+    void StopCreatureCurrentAnimation(int objectId, string animationName);
+
+    [System.Obsolete("Use PlayCreatureAnimation")]
     void PlayMonsterAnimation(int objectId, string animationName);
+    [System.Obsolete("Use PlayCreatureAnimation")]
     void PlayMonsterAnimation(int objectId, string animationName, float? fixedDuration);
+    [System.Obsolete("Use StopCreatureCurrentAnimation")]
     void StopMonsterCurrentAnimation(int objectId, string animationName);
     Dictionary<string, float> PlayerGetAllFloat(int objectId);
     void PlayerSetAllFloat(int objectId , Dictionary<string, float> floatValues);

@@ -35,7 +35,8 @@ public sealed partial class EntityActionAttack : IEntityActionProcess
             // CharInfoMoveBudgetLog.Compare(entity, "ATK", target, attack.AttackerPos, true);
             L2PawnRange.TrySnapUserToPacket(entity, attack.AttackerPos, "Attack pos");
             _pawnYaw.RequestLook(entity.transform, target.transform.position, L2PawnYaw.RotationRateYaw);
-            if (entity is MonsterEntity && ControllerPacketServices.Moves != null)
+            if (EntityActionVisual.UsesCreatureAnim(entity) &&
+                ControllerPacketServices.Moves != null)
                 ControllerPacketServices.Moves.AddRotate(entity.Identity.Id, new RotateData(target, entity));
             // EntityActionCombatLog.Watch(entity);
             // EntityActionCombatLog.LogCiPawn(entity,
@@ -89,7 +90,7 @@ public sealed partial class EntityActionAttack : IEntityActionProcess
             target = entity.AttackTarget.GetComponent<Entity>();
         if (target != null && target.IsDead())
         {
-            if ((entity is MonsterEntity || entity is NpcEntity) && entity.HasAnimator())
+            if (EntityActionVisual.UsesCreatureAnim(entity))
                 return;
             if (EntityActionPacketServices.Actions != null)
                 EntityActionPacketServices.Actions.CancelAttackKeepStance(entity);

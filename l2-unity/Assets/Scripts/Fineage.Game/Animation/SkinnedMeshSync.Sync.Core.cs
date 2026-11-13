@@ -16,6 +16,11 @@ public partial class SkinnedMeshSync : MonoBehaviour
         if (srcBones == null || srcBones.Length == 0)
             return;
 
+        // Keep the piece's authored root (pelvis on a full-skeleton face, head on a
+        // head-only hair mesh). Forcing every face onto Bip01_head makes the skull
+        // orbit the neck on its own while the body animates.
+        Transform sourceRoot = renderer.rootBone;
+
         bool faceOrHair = IsFaceOrHairRenderer(renderer);
         Transform missFallback = rootBone;
         // Face/hair verts that miss must NOT fall back to Pelvis — that stretches the
@@ -53,7 +58,11 @@ public partial class SkinnedMeshSync : MonoBehaviour
             return;
 
         renderer.bones = mapped;
-        if (faceOrHair && missFallback != null)
+        if (sourceRoot != null
+            && (TryFindBone(skeleton, sourceRoot.name, out Transform mappedRoot)
+                || TryFindBoneAlias(skeleton, sourceRoot.name, out mappedRoot)))
+            renderer.rootBone = mappedRoot;
+        else if (faceOrHair && missFallback != null)
             renderer.rootBone = missFallback;
         else if (rootBone != null)
             renderer.rootBone = rootBone;

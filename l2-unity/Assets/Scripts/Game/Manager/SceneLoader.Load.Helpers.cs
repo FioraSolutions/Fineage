@@ -7,6 +7,7 @@ using VContainer;
 
 public partial class SceneLoader : MonoBehaviour
 {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     private IEnumerator WorldEnterDiagDelayed()
     {
         yield return null;
@@ -38,6 +39,7 @@ public partial class SceneLoader : MonoBehaviour
             FineageLog.Exception(FineageLogCategory.World, "WorldEnterDiag." + phase, ex);
         }
     }
+#endif
 
     private void FinishLoadSWMap()
     {
