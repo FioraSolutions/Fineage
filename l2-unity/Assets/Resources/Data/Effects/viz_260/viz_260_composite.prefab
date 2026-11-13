@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2571490930820820774
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2331671897874847675}
+  - component: {fileID: 1787382235069308172}
+  m_Layer: 0
+  m_Name: viz_260_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2331671897874847675
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571490930820820774}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1787382235069308172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571490930820820774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483560844656685
+  - rid: 6421483560844656686
+  - rid: 6421483560844656687
+  - rid: 6421483560844656688
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483560844656685
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_fatal_strike_ca
+        prefab: {fileID: 7635442331529794591, guid: fc56b6802bb0741fdb306716a23e0e7d, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 0
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483560844656686
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_stun_attack_ca
+        prefab: {fileID: 5012714121094075474, guid: f03489b59a74040d3a1e1e1db7a2765e, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 2
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483560844656687
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_shield_stun_cs
+        prefab: {fileID: 6144283470580533632, guid: a6a85f3fbe2f44270b2b781534203937, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 2
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483560844656688
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_stun_attack_ta
+        prefab: {fileID: 3787749307531395493, guid: 7b6365e54a2244b75a1aedc1db40cf6e, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 8
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2

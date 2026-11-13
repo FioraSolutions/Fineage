@@ -1,0 +1,163 @@
+class s_u003_b extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter2
+         // Reference: MeshEmitter'lineageeffect.dec.s_u003_b.MeshEmitter2'
+         begin object name="MeshEmitter2" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power00'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=127,G=127,B=127,A=255))
+         ColorScale[1]=(RelativeTime=0.0642860,Color=(R=128,G=128,B=128,A=255))
+         ColorScale[2]=(RelativeTime=0.1250000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[3]=(RelativeTime=0.2357140,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[4]=(RelativeTime=0.3464290,Color=(R=191,G=191,B=191,A=255))
+         ColorScale[5]=(RelativeTime=0.3821430,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[6]=(RelativeTime=0.4392860,Color=(R=194,G=194,B=194,A=255))
+         ColorScale[7]=(RelativeTime=0.4821430,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[8]=(RelativeTime=0.5392860,Color=(R=191,G=191,B=191,A=255))
+         ColorScale[9]=(RelativeTime=0.5892860,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[10]=(RelativeTime=0.6464290,Color=(R=193,G=193,B=193,A=255))
+         ColorScale[11]=(RelativeTime=0.6750000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[12]=(RelativeTime=0.7500000,Color=(R=191,G=191,B=191,A=255))
+         ColorScale[13]=(RelativeTime=0.7892860,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[14]=(RelativeTime=0.8571430,Color=(R=191,G=191,B=191,A=255))
+         ColorScale[15]=(RelativeTime=0.9071430,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[16]=(RelativeTime=0.9642860,Color=(R=191,G=191,B=191,A=255))
+         ColorScale[17]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         FadeOutStartTime=0.4225000
+         FadeOut=true
+         FadeInEndTime=0.0260000
+         FadeIn=true
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="MeshEmitter0"
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=3.0000000,Max=3.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         StartSizeRange=(X=(Min=0.0500000,Max=0.0500000),Y=(Min=0.0300000,Max=0.0300000),Z=(Min=0.0300000,Max=0.0300000))
+         InitialParticlesPerSecond=100000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=1.0000000,Max=1.0000000)
+         end object
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter2'
+     Begin Object Class=MeshEmitter Name=MeshEmitter0
+         // Reference: MeshEmitter'lineageeffect.dec.s_u003_b.MeshEmitter0'
+         begin object name="MeshEmitter0" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windknifewave00'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         Opacity=0.6000000
+         FadeOutStartTime=0.2700000
+         FadeOut=true
+         FadeInEndTime=0.0800000
+         FadeIn=true
+         MaxParticles=12
+         RespawnDeadParticles=false
+         Name="MeshEmitter0"
+         StartLocationOffset=(X=12.0000000,Y=0.0000000,Z=0.0000000)
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.1200000,RelativeSize=2.0000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=5.0000000)
+         StartSizeRange=(X=(Min=0.0336000,Max=0.0336000),Y=(Min=0.0126000,Max=0.0126000),Z=(Min=0.0126000,Max=0.0126000))
+         InitialParticlesPerSecond=10.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=1.0000000,Max=1.0000000)
+         StartVelocityRange=(X=(Min=-60.2000008,Max=-60.2000008),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         WarmupTicksPerSecond=5.0000000
+         RelativeWarmupTime=0.6300000
+         end object
+     End Object
+     Emitters(1)=MeshEmitter'MeshEmitter0'
+     // Reference: MeshEmitter'lineageeffect.dec.s_u003_b.MeshEmitter2'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power00'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=127,G=127,B=127,A=255))
+     ColorScale[1]=(RelativeTime=0.0642860,Color=(R=128,G=128,B=128,A=255))
+     ColorScale[2]=(RelativeTime=0.1250000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[3]=(RelativeTime=0.2357140,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[4]=(RelativeTime=0.3464290,Color=(R=191,G=191,B=191,A=255))
+     ColorScale[5]=(RelativeTime=0.3821430,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[6]=(RelativeTime=0.4392860,Color=(R=194,G=194,B=194,A=255))
+     ColorScale[7]=(RelativeTime=0.4821430,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[8]=(RelativeTime=0.5392860,Color=(R=191,G=191,B=191,A=255))
+     ColorScale[9]=(RelativeTime=0.5892860,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[10]=(RelativeTime=0.6464290,Color=(R=193,G=193,B=193,A=255))
+     ColorScale[11]=(RelativeTime=0.6750000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[12]=(RelativeTime=0.7500000,Color=(R=191,G=191,B=191,A=255))
+     ColorScale[13]=(RelativeTime=0.7892860,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[14]=(RelativeTime=0.8571430,Color=(R=191,G=191,B=191,A=255))
+     ColorScale[15]=(RelativeTime=0.9071430,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[16]=(RelativeTime=0.9642860,Color=(R=191,G=191,B=191,A=255))
+     ColorScale[17]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     FadeOutStartTime=0.4225000
+     FadeOut=true
+     FadeInEndTime=0.0260000
+     FadeIn=true
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="MeshEmitter0"
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=3.0000000,Max=3.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     StartSizeRange=(X=(Min=0.0500000,Max=0.0500000),Y=(Min=0.0300000,Max=0.0300000),Z=(Min=0.0300000,Max=0.0300000))
+     InitialParticlesPerSecond=100000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=1.0000000,Max=1.0000000)
+     Emitters[0]=MeshEmitter2
+     // Reference: MeshEmitter'lineageeffect.dec.s_u003_b.MeshEmitter0'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windknifewave00'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     Opacity=0.6000000
+     FadeOutStartTime=0.2700000
+     FadeOut=true
+     FadeInEndTime=0.0800000
+     FadeIn=true
+     MaxParticles=12
+     RespawnDeadParticles=false
+     Name="MeshEmitter0"
+     StartLocationOffset=(X=12.0000000,Y=0.0000000,Z=0.0000000)
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.1200000,RelativeSize=2.0000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=5.0000000)
+     StartSizeRange=(X=(Min=0.0336000,Max=0.0336000),Y=(Min=0.0126000,Max=0.0126000),Z=(Min=0.0126000,Max=0.0126000))
+     InitialParticlesPerSecond=10.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=1.0000000,Max=1.0000000)
+     StartVelocityRange=(X=(Min=-60.2000008,Max=-60.2000008),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     WarmupTicksPerSecond=5.0000000
+     RelativeWarmupTime=0.6300000
+     Emitters[1]=MeshEmitter0
+     AutoReplay=true
+     Physics=10
+     bUseDynamicLights=false
+     bLightChanged=true
+     bNoDelete=false
+     bTrailerSameRotation=true
+     bTrailerPrePivot=true
+     bTrailerNoOwnerDestroy=true
+     bAcceptsProjectors=false
+     Tag="Emitter"
+     Location=(X=58.3101845,Y=0.9273530,Z=-483.6265259)
+     DrawScale=0.0500000
+     bDirectional=true
+     bSelected=true
+}

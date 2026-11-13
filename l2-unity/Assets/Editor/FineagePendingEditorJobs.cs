@@ -1,4 +1,4 @@
-// fineage-touch 1794510000.darkelf
+// fineage-touch 1794513000.elfvfx
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using UnityEngine;
 /// While the Editor is already open (batchmode cannot attach), drop a jobs file to run
 /// one-shot import/bake steps after domain reload.
 /// Flag: Assets/Editor/FineagePendingEditorJobs.txt — one job name per line.
-/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | casino_npc | elf_teleporter_npc | darkelf_npc | npc_bounds | bake_tile XX_YY | rebuild_static XX_YY
+/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | casino_npc | elf_teleporter_npc | darkelf_npc | npc_bounds | light_elf_vfx | bake_tile XX_YY | rebuild_static XX_YY
 /// </summary>
 [InitializeOnLoad]
 static class FineagePendingEditorJobs
@@ -103,6 +103,12 @@ static class FineagePendingEditorJobs
                 return L2DarkElfNpcPrefabBuilder.Run();
             case "npc_bounds":
                 return L2NpcPrefabBoundsDiag.Run();
+            case "light_elf_vfx":
+            {
+                bool ok = L2EffectGeneratorWindow.TryRunLightElfBatch(out string summary);
+                Debug.Log("[FineagePendingEditorJobs] " + summary);
+                return ok ? "ok" : summary;
+            }
             case "tile_scenes":
             {
                 string[] tiles = { "18_14", "19_14", "19_15", "20_17", "20_18", "23_11", "23_12", "24_11", "24_12" };

@@ -16,7 +16,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 BACKEND = REPO.parent / "Fineage-Backend"
-CLASS_IDS = {10, 11, 12, 13, 14, 15, 16, 17, 94, 95, 96, 97, 98}
+DEFAULT_CLASS_IDS = {10, 11, 12, 13, 14, 15, 16, 17, 94, 95, 96, 97, 98}
 CRAFT_IDS = {1320, 1321, 1322}
 
 EFFECTS_ROOT = REPO / "l2-unity/Assets/Resources/Data/Effects"
@@ -152,7 +152,18 @@ def main() -> int:
             / "l2-unity/Assets/Editor/L2EffectGenerator/Data/human_mage_vfx_manifest.json"
         ),
     )
+    parser.add_argument(
+        "--classes",
+        default="",
+        help="Comma-separated class ids. Default is the human mystic line.",
+    )
+    parser.add_argument("--reference", default="")
     args = parser.parse_args()
+    class_ids = (
+        {int(x) for x in args.classes.split(",") if x.strip()}
+        if args.classes.strip()
+        else set(DEFAULT_CLASS_IDS)
+    )
 
     trees = load_json(BACKEND / "data/skill-trees.json")["trees"]
     skills = {
@@ -180,7 +191,7 @@ def main() -> int:
 
     union: set[int] = set()
     for t in trees:
-        if int(t["classId"]) not in CLASS_IDS:
+        if int(t["classId"]) not in class_ids:
             continue
         for row in t["skills"]:
             union.add(int(row["skillId"]))
@@ -232,8 +243,9 @@ def main() -> int:
         )
 
     out = {
-        "reference": "Human Mystic line VFX gap (classes 10-17,94-98)",
-        "classIds": sorted(CLASS_IDS),
+        "reference": args.reference
+        or "Human Mystic line VFX gap (classes 10-17,94-98)",
+        "classIds": sorted(class_ids),
         "counts": {
             "missingActives": len(missing),
             "uniqueVisuals": len(entries),

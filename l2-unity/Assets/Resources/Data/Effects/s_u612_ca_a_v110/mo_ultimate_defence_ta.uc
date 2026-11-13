@@ -1,0 +1,209 @@
+class mo_ultimate_defence_ta extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=MeshEmitter Name=MeshEmitter37
+         // Reference: MeshEmitter'lineageeffect.dec.mo_ultimate_defence_ta.MeshEmitter37'
+         begin object name="MeshEmitter37" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windknifewave00'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=540.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.3142860,Color=(R=255,G=230,B=162,A=255))
+         ColorScale[2]=(RelativeTime=0.5892860,Color=(R=255,G=159,B=0,A=255))
+         ColorScale[3]=(RelativeTime=1.0000000,Color=(R=227,G=0,B=0,A=255))
+         Opacity=0.4000000
+         FadeOutStartTime=0.1290000
+         FadeOut=true
+         FadeInEndTime=0.0600000
+         FadeIn=true
+         MaxParticles=3
+         WeatherSoundCheck=true
+         RespawnDeadParticles=false
+         Name="EndWave"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-23.0000000)
+         SpinParticles=true
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.7500000,Max=0.7500000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.3100000,RelativeSize=1.5000000)
+         SizeScale[1]=(RelativeTime=0.6500000,RelativeSize=2.2000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=3.2000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=3.5000000)
+         StartSizeRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+         InitialParticlesPerSecond=20.0000000
+         AutomaticInitialSpawning=false
+         LifetimeRange=(Min=0.3000000,Max=0.3000000)
+         StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-240.0000153,Max=-240.0000153))
+         end object
+     End Object
+     Emitters(0)=MeshEmitter'MeshEmitter37'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter49
+         // Reference: SpriteEmitter'lineageeffect.dec.mo_ultimate_defence_ta.SpriteEmitter49'
+         begin object name="SpriteEmitter49" class=Engine.SpriteEmitter
+         ProjectionNormal=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+         Acceleration=(X=1.0000000,Y=1.0000000,Z=0.0000000)
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8300000,Max=0.8300000),Z=(Min=1.0000000,Max=1.0000000))
+         Opacity=0.1100000
+         FadeOutStartTime=0.0360000
+         FadeOut=true
+         FadeInEndTime=0.0120000
+         FadeIn=true
+         MaxParticles=15
+         WeatherSoundCheck=true
+         RespawnDeadParticles=false
+         Name="bRight"
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.2500000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.2000000,RelativeSize=2.0000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=4.5000000)
+         StartSizeRange=(X=(Min=10.0000000,Max=10.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles2.fx_m_t2035'
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.3000000,Max=0.3000000)
+         StartVelocityRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter49'
+     Begin Object Class=MeshEmitter Name=MeshEmitter38
+         // Reference: MeshEmitter'lineageeffect.dec.mo_ultimate_defence_ta.MeshEmitter38'
+         begin object name="MeshEmitter38" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power04'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.7000000,Max=0.7000000),Z=(Min=0.5000000,Max=0.5000000))
+         Opacity=0.3000000
+         FadeOutStartTime=0.0805000
+         FadeOut=true
+         FadeInEndTime=0.0350000
+         FadeIn=true
+         WeatherSoundCheck=true
+         RespawnDeadParticles=false
+         Name="def_ring"
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.0000000,Max=2.0000000))
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=85.0000000,Max=95.0000000),Z=(Min=16.0000000,Max=16.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.1000000,Max=0.2000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.7500000,Max=0.7500000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.5000000,RelativeSize=2.5000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=2.8000000)
+         StartSizeRange=(X=(Min=0.1300000,Max=0.1300000),Y=(Min=0.1300000,Max=0.1300000),Z=(Min=0.2000000,Max=0.2000000))
+         InitialParticlesPerSecond=100.0000000
+         AutomaticInitialSpawning=false
+         LifetimeRange=(Min=0.3500000,Max=0.3500000)
+         end object
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter38'
+     // Reference: MeshEmitter'lineageeffect.dec.mo_ultimate_defence_ta.MeshEmitter37'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Wind.windknifewave00'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=540.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.3142860,Color=(R=255,G=230,B=162,A=255))
+     ColorScale[2]=(RelativeTime=0.5892860,Color=(R=255,G=159,B=0,A=255))
+     ColorScale[3]=(RelativeTime=1.0000000,Color=(R=227,G=0,B=0,A=255))
+     Opacity=0.4000000
+     FadeOutStartTime=0.1290000
+     FadeOut=true
+     FadeInEndTime=0.0600000
+     FadeIn=true
+     MaxParticles=3
+     WeatherSoundCheck=true
+     RespawnDeadParticles=false
+     Name="EndWave"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=-23.0000000)
+     SpinParticles=true
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.7500000,Max=0.7500000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.3100000,RelativeSize=1.5000000)
+     SizeScale[1]=(RelativeTime=0.6500000,RelativeSize=2.2000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=3.2000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=3.5000000)
+     StartSizeRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.4000000,Max=0.4000000))
+     InitialParticlesPerSecond=20.0000000
+     AutomaticInitialSpawning=false
+     LifetimeRange=(Min=0.3000000,Max=0.3000000)
+     StartVelocityRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-240.0000153,Max=-240.0000153))
+     Emitters[0]=MeshEmitter37
+     // Reference: SpriteEmitter'lineageeffect.dec.mo_ultimate_defence_ta.SpriteEmitter49'
+     ProjectionNormal=(X=1.0000000,Y=0.0000000,Z=0.0000000)
+     Acceleration=(X=1.0000000,Y=1.0000000,Z=0.0000000)
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8300000,Max=0.8300000),Z=(Min=1.0000000,Max=1.0000000))
+     Opacity=0.1100000
+     FadeOutStartTime=0.0360000
+     FadeOut=true
+     FadeInEndTime=0.0120000
+     FadeIn=true
+     MaxParticles=15
+     WeatherSoundCheck=true
+     RespawnDeadParticles=false
+     Name="bRight"
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.2500000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.2000000,RelativeSize=2.0000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=4.5000000)
+     StartSizeRange=(X=(Min=10.0000000,Max=10.0000000),Y=(Min=10.0000000,Max=10.0000000),Z=(Min=10.0000000,Max=10.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles2.fx_m_t2035'
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.3000000,Max=0.3000000)
+     StartVelocityRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     Emitters[1]=SpriteEmitter49
+     // Reference: MeshEmitter'lineageeffect.dec.mo_ultimate_defence_ta.MeshEmitter38'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power04'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.7000000,Max=0.7000000),Z=(Min=0.5000000,Max=0.5000000))
+     Opacity=0.3000000
+     FadeOutStartTime=0.0805000
+     FadeOut=true
+     FadeInEndTime=0.0350000
+     FadeIn=true
+     WeatherSoundCheck=true
+     RespawnDeadParticles=false
+     Name="def_ring"
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-2.0000000,Max=2.0000000))
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=85.0000000,Max=95.0000000),Z=(Min=16.0000000,Max=16.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.1000000,Max=0.2000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.7500000,Max=0.7500000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.5000000,RelativeSize=2.5000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=2.8000000)
+     StartSizeRange=(X=(Min=0.1300000,Max=0.1300000),Y=(Min=0.1300000,Max=0.1300000),Z=(Min=0.2000000,Max=0.2000000))
+     InitialParticlesPerSecond=100.0000000
+     AutomaticInitialSpawning=false
+     LifetimeRange=(Min=0.3500000,Max=0.3500000)
+     Emitters[2]=MeshEmitter38
+     AutoDestroy=true
+     bLightChanged=true
+     bNoDelete=false
+     bSunAffect=true
+     DrawScale=0.2500000
+     bDirectional=true
+}
