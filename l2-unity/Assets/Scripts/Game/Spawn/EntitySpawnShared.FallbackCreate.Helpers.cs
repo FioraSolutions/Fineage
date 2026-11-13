@@ -43,23 +43,8 @@ public static partial class EntitySpawnShared
             return true;
         }
 
-        string[] standIns = MonsterStandInMeshes(asset);
-        for (int i = 0; i < standIns.Length; i++)
-        {
-            prefab = models.GetNpc("LineageMonsters." + standIns[i]);
-            if (prefab != null)
-            {
-                usedMesh = "LineageMonsters." + standIns[i];
-                return true;
-            }
-            prefab = models.GetNpc("LineageMonsters2." + standIns[i]);
-            if (prefab != null)
-            {
-                usedMesh = "LineageMonsters2." + standIns[i];
-                return true;
-            }
-        }
-
+        // Missing monster art stays missing. A goblin/orc stand-in was showing on every
+        // unimported mob (Langk lizardmen, keltirs, the rest of the field).
         return false;
     }
 }
