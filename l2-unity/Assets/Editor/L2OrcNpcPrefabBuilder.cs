@@ -94,8 +94,9 @@ public static class L2OrcNpcPrefabBuilder
 
     static void ConfigureFbxImporter(string fbxPath)
     {
-        // Source FBX is raw L2 UU — shared town NPC contract (globalScale 0.019 + forced reimport).
-        L2TownNpcFbxImport.ConfigureUuFbx(fbxPath);
+        // Blender town FBX keeps a 100× centimeter root. 0.019 leaves a ~100 m body.
+        // 0.019×0.01 is the meter-sized clergy (see L2TownNpcFbxImport.ConfigureBlenderUuFbx).
+        L2TownNpcFbxImport.ConfigureBlenderUuFbx(fbxPath);
     }
 
     static Dictionary<string, Material> BindTextures(string stem, Shader shader)

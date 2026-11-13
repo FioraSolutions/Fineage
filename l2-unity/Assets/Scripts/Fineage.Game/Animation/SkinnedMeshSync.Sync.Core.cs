@@ -7,7 +7,8 @@ public partial class SkinnedMeshSync : MonoBehaviour
     static void RemapToSkeleton(
         SkinnedMeshRenderer renderer,
         Dictionary<string, Transform> skeleton,
-        Transform rootBone)
+        Transform rootBone,
+        SkinnedMeshRenderer skeletonMesh)
     {
         if (renderer == null)
             return;
@@ -55,7 +56,14 @@ public partial class SkinnedMeshSync : MonoBehaviour
         }
 
         if (hits == 0)
+        {
+            // FElf (and some FDarkElf / FFighter) back-hair is skinned only to Hair*
+            // bones. Those match Bip01_head's bind but are not on the body skeleton,
+            // so the piece stays in bind pose beside the moving face.
+            if (faceOrHair && missFallback != null)
+                AttachForeignHairChain(renderer, missFallback, skeletonMesh);
             return;
+        }
 
         renderer.bones = mapped;
         if (sourceRoot != null

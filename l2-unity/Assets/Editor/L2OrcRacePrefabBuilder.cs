@@ -48,6 +48,48 @@ public static class L2OrcRacePrefabBuilder
     /// After L2MOrcAnimImporter: rebuild MOrc anim skeletons from Models/anim/MOrc_anim.fbx
     /// (no armor/texture copy). Uses the filled MOrc.overrideController when present.
     /// </summary>
+    /// <summary>
+    /// Rebind MShaman/FShaman face prefabs onto the current FBX renderers.
+    /// Face meshes live under Shaman/Models; Resources loads Orc/&lt;race&gt;/Faces.
+    /// </summary>
+    public static string RebuildShamanFaces()
+    {
+        var log = new List<string>();
+        foreach (string race in new[] { "MShaman", "FShaman" })
+        {
+            string faceFbx = ModelDirOf(race) + "/" + race + "_m000_f.fbx";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(faceFbx) == null)
+                faceFbx = "Assets/Resources/Data/Animations/Shaman/Models/" + race + "_m000_f.fbx";
+            for (int face = 0; face < 3; face++)
+            {
+                string key = race + "_m000_t0" + face + "_f";
+                var faceMat = AssetDatabase.LoadAssetAtPath<Material>(
+                    "Assets/Resources/Data/SysTextures/LineageFaceTex/Materials/" + key + ".mat");
+                var faceMat1 = AssetDatabase.LoadAssetAtPath<Material>(
+                    "Assets/Resources/Data/SysTextures/LineageFaceTex/Materials/" + key + "1.mat");
+                if (faceMat == null)
+                {
+                    log.Add(race + " f" + face + " MISSING " + key);
+                    continue;
+                }
+                Material[] mats = faceMat1 != null ? new[] { faceMat, faceMat1 } : new[] { faceMat };
+                string prefab = "Assets/Resources/Data/Animations/Orc/" + race + "/Faces/" + race + "_f_" + face + ".prefab";
+                WrapFbx(faceFbx, prefab, race + "_f_" + face, mats);
+                log.Add(race + " f" + face + " ok");
+            }
+        }
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        return string.Join(" | ", log);
+    }
+
+    public static void BuildRaces(params string[] races)
+    {
+        BuildSkeletonsAndContainers(races);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
     public static void BuildMOrcOnly()
     {
         BuildSkeletonsAndContainers(new[] { "MOrc" });

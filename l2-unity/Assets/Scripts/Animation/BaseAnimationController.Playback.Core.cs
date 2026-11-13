@@ -25,6 +25,10 @@ public partial class BaseAnimationController : AnimationEventsBase, IAnimationCo
     {
         if (!TryGetAnimator())
             return;
+        // _pAtkSpd stays 0 until the server sends a cycle. Dividing by it writes Infinity
+        // into patkspd and the swing (or the next state that reads it) freezes.
+        if (_pAtkSpd <= 0f)
+            return;
         float newAtkSpd = clipLength * 1000f / _pAtkSpd;
         //Debug.Log("PATACK speed set " + newAtkSpd);
         DriveFloat("patkspd", newAtkSpd);

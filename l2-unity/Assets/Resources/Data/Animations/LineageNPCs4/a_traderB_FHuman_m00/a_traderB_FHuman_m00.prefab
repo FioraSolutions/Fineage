@@ -108,15 +108,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a76c5951754a70e4ca5850b04fe1251d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4734.3784
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a76c5951754a70e4ca5850b04fe1251d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -66.01953
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a76c5951754a70e4ca5850b04fe1251d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1718.4083
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a76c5951754a70e4ca5850b04fe1251d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -784,19 +784,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _entityLoaded: 0
-  _identityInterlude:
-    _entityType: 0
-    _id: 0
-    _name: 
-    _title: 
-    _titleColor: 9CE8A9FF
-    _resetTick: 0
-    _npcId: 0
-    _npcClass: 
-    _playerClass: 0
-    _position: {x: 4724, y: -68, z: -1731}
-    _heading: {x: 0, y: 0, z: 0, w: 0}
-    _owned: 0
   _stats:
     _level: 0
     _speed: 0
@@ -852,6 +839,8 @@ MonoBehaviour:
         _meshName: 
         _decoEffect: 
         _scale: 1
+      _propertySkillIds: 
+      _propertySkillLevels: 
 --- !u!114 &-6318551938668969571
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,7 +12,8 @@ public class NpcStateSpWait : NpcStateBase {
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-        if((stateInfo.normalizedTime % 1) >= 0.90f && started) {
+        // 1.0 % 1 == 0, so a non-looping special-wait that lands on the last frame never returns to wait.
+        if(started && stateInfo.normalizedTime >= 0.90f) {
             started = false;
             SetBool("wait", true);       
         }

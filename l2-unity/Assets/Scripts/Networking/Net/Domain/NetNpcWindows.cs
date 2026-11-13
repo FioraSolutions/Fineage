@@ -44,6 +44,9 @@ public static partial class NetNpcWindows
 
     public static void Close()
     {
+        int npcId = NetNpcSession.ActiveNpcObjectId;
+        if (npcId > 0)
+            CombatPacketServices.Facing?.EndFollow(npcId);
         NetNpcSession.CloseWindows();
         if (GameWindowPacketServices.Html != null)
             GameWindowPacketServices.Html.HideWindow();

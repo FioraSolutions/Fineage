@@ -26,8 +26,8 @@ Transform:
   m_GameObject: {fileID: 170228253977646863}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 47.36842, z: 0}
-  m_LocalScale: {x: 52.63158, y: 52.63158, z: 52.63158}
+  m_LocalPosition: {x: 0, y: 0.9, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7794628600237259060}
@@ -103,18 +103,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.019
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.019
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.019
-      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
       propertyPath: m_Name
       value: e_clergyman_FOrc_m00
@@ -122,19 +110,19 @@ PrefabInstance:
     - target: {fileID: 6419231156090749110, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 524ffba66d58842d3a8c5ea954673b08, type: 2}
+      objectReference: {fileID: 2100000, guid: 2c0e9be7a7a94879817935ce4ddec076, type: 2}
     - target: {fileID: 6419231156090749110, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: 524ffba66d58842d3a8c5ea954673b08, type: 2}
+      objectReference: {fileID: 2100000, guid: 319e89bf03cc4605960d207bee40ec2a, type: 2}
     - target: {fileID: 6419231156090749110, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
       propertyPath: 'm_Materials.Array.data[2]'
       value: 
-      objectReference: {fileID: 2100000, guid: 524ffba66d58842d3a8c5ea954673b08, type: 2}
+      objectReference: {fileID: 2100000, guid: 702c2b3ae763437b87cf1dab8369bd6c, type: 2}
     - target: {fileID: 6419231156090749110, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}
       propertyPath: 'm_Materials.Array.data[3]'
       value: 
-      objectReference: {fileID: 2100000, guid: 524ffba66d58842d3a8c5ea954673b08, type: 2}
+      objectReference: {fileID: 2100000, guid: 68773af5e3da43ac846ef294af274f36, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -221,13 +209,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 94.73684
-  m_Radius: 18.42105
+  m_Height: 1.8
+  m_Radius: 0.35
   m_SlopeLimit: 45
-  m_StepOffset: 15.78947
-  m_SkinWidth: 4.21053
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 47.36842, z: 0}
+  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!114 &5663108967926465254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,19 +257,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcEntity
   _entityLoaded: 0
-  _identityInterlude:
-    _entityType: 0
-    _id: 0
-    _name: 
-    _title: 
-    _titleColor: 9CE8A9FF
-    _resetTick: 0
-    _npcId: 0
-    _npcClass: 
-    _playerClass: 0
-    _position: {x: 4724, y: -68, z: -1731}
-    _heading: {x: 0, y: 0, z: 0, w: 0}
-    _owned: 0
   _stats:
     _level: 0
     _speed: 0
@@ -337,6 +312,8 @@ MonoBehaviour:
         _meshName: 
         _decoEffect: 
         _scale: 1
+      _propertySkillIds: 
+      _propertySkillLevels: 
 --- !u!114 &713534608536394010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,7 +325,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e688c28aabf94c249a90aa0f8f1b551a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcStateMachine
+  m_EditorClassIdentifier: Fineage.Controller::NpcStateMachine
 --- !u!4 &7794628600237259060 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 35b6eab12745b433e94a49e44367b9a3, type: 3}

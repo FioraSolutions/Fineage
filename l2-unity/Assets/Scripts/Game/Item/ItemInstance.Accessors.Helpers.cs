@@ -67,6 +67,10 @@ public partial class ItemInstance
             if(weapon != null) return GetGradeImage(weapon.Grade);
         }
 
+        EtcItemgrp etc = GetEtcItem();
+        if (etc != null)
+            return GetGradeImage(etc.Grade);
+
         return null;
     }
 
