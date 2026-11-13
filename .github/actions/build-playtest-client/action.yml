@@ -55,6 +55,22 @@ runs:
         FINEAGE_GAME_PORT: ${{ inputs.gamePort }}
       run: python3 scripts/bake-playtest-endpoint.py
 
+    # ubuntu-latest has no swap. game-ci sets Docker --memory to ~95% of RAM and,
+    # with --memory-swap unset, the container may use one more memory-sized chunk
+    # of swap. Without a swap file the player import is SIGKILL 137.
+    - name: Add swap for the Unity player build
+      shell: bash
+      run: |
+        if [ "$(uname)" != "Linux" ]; then
+          echo "Host is $(uname); leaving memory as-is."
+          exit 0
+        fi
+        sudo fallocate -l 16G /swapfile
+        sudo chmod 600 /swapfile
+        sudo mkswap /swapfile
+        sudo swapon /swapfile
+        free -h
+
     - uses: actions/download-artifact@v4
       with:
         name: release-notes
