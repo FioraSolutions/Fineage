@@ -1,4 +1,4 @@
-// fineage-touch 1794513000.elfvfx
+// fineage-touch 1794515200.orcscale
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using UnityEngine;
 /// While the Editor is already open (batchmode cannot attach), drop a jobs file to run
 /// one-shot import/bake steps after domain reload.
 /// Flag: Assets/Editor/FineagePendingEditorJobs.txt — one job name per line.
-/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | casino_npc | elf_teleporter_npc | darkelf_npc | npc_bounds | light_elf_vfx | bake_tile XX_YY | rebuild_static XX_YY
+/// Jobs: morc_anim | tile_scenes | bind_18_14 | orc_prefabs | orc_npc | shaman_faces | casino_npc | elf_teleporter_npc | darkelf_npc | npc_bounds | light_elf_vfx | bake_tile XX_YY | rebuild_static XX_YY | rebuild_brushes XX_YY
 /// </summary>
 [InitializeOnLoad]
 static class FineagePendingEditorJobs
@@ -85,6 +85,8 @@ static class FineagePendingEditorJobs
             return ReconvertTerrain(job.Substring("reconvert_terrain ".Length).Trim());
         if (job.StartsWith("rebuild_static ", StringComparison.Ordinal))
             return RebuildStatic(job.Substring("rebuild_static ".Length).Trim());
+        if (job.StartsWith("rebuild_brushes ", StringComparison.Ordinal))
+            return L2InterludeBrushesCli.Rebuild(job.Substring("rebuild_brushes ".Length).Trim());
 
         switch (job)
         {
@@ -95,6 +97,8 @@ static class FineagePendingEditorJobs
                 return "ok";
             case "orc_npc":
                 return L2OrcNpcPrefabBuilder.Run();
+            case "shaman_faces":
+                return L2OrcRacePrefabBuilder.RebuildShamanFaces();
             case "casino_npc":
                 return L2CasinoNpcPrefabBuilder.Run();
             case "elf_teleporter_npc":
