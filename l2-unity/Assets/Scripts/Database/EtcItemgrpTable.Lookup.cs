@@ -74,6 +74,11 @@ public partial class EtcItemgrpTable
         if (!string.IsNullOrEmpty(equip) && string.IsNullOrEmpty(grp.Model))
             grp.Model = FirstToken(equip);
 
+        if (TryReadInt(ids, InterludeWeight, out int weight))
+            grp.Weight = weight;
+        if (TryReadInt(ids, InterludeGrade, out int grade) && grade >= 0 && grade <= 5)
+            grp.Grade = (ItemGrade)grade;
+
         if (TryReadInt(ids, InterludeDropType, out int dropType))
             grp.DropType = dropType;
         if (TryReadInt(ids, InterludeDropAnimType, out int dropAnim))

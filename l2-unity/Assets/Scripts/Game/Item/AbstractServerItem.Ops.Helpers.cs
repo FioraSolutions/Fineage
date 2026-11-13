@@ -25,6 +25,20 @@ public abstract partial class AbstractServerItem
         return null;
     }
 
+    public Texture2D GradeIcon()
+    {
+        Weapongrp weapon = GetWeapon();
+        if (weapon != null)
+            return GetGradeImage(weapon.Grade);
+        Armorgrp armor = GetArmor();
+        if (armor != null)
+            return GetGradeImage(armor.Grade);
+        EtcItemgrp etc = GetEtcItem();
+        if (etc != null)
+            return GetGradeImage(etc.Grade);
+        return null;
+    }
+
     protected Texture2D GetGradeImage(ItemGrade grade)
     {
         switch (grade)
