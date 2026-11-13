@@ -7,6 +7,13 @@ public static partial class WorldPlacement
         Vector3 serverUnityPos,
         LayerMask? groundMask = null)
     {
+        // Gatekeeper stands inside the gate pillar. The street mesh starts a few
+        // meters aside and three meters lower; leave her on that shell, not on a ledge.
+        if ((kind == PlacementKind.NpcSpawn || kind == PlacementKind.PlayerTeleport)
+            && IsDarkElfCave(serverUnityPos)
+            && TryCaveStreet(serverUnityPos, out Vector3 street))
+            return street;
+
         Vector3 pos = serverUnityPos;
         bool hasGeo = TryResolveGeodataY(pos, out float geoY);
         bool hasMesh = TryResolveMeshY(pos, groundMask, out float meshY);

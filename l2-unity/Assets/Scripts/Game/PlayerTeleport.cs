@@ -62,7 +62,6 @@ public class PlayerTeleport : MonoBehaviour
 
             ApplyTeleportPose(snapped);
             _teleportPosition = snapped;
-            yield break;
         }
     }
 }

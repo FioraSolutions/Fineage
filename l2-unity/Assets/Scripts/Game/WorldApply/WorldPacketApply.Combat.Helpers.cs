@@ -49,7 +49,9 @@ public sealed partial class WorldPacketApply
 
         Entity entity = GetEntity(dto.AttackerObjId);
         if (entity == null)
-            entity = DomainPacketServices.LocalPlayer;
+            entity = LocalCasterOrNull(dto.AttackerObjId);
+        if (entity == null)
+            return;
 
         EntityWorldApply apply;
         if (entity == null || !TryResolve(entity, out apply))
@@ -85,7 +87,7 @@ public sealed partial class WorldPacketApply
 
         Entity entity = GetEntity(dto.ObjectId);
         if (entity == null)
-            entity = DomainPacketServices.LocalPlayer;
+            entity = LocalCasterOrNull(dto.ObjectId);
         if (entity == null)
             return;
 

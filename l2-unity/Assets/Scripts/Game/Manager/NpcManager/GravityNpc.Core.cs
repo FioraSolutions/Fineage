@@ -44,6 +44,11 @@ public partial class GravityNpc : MonoBehaviour, IGravity
                     continue;
                 }
 
+                Vector3 feet = controller.transform.position;
+                if (WorldPlacement.IsDarkElfCave(feet)
+                    && !WorldPlacement.HasFloorWithin(feet, WorldPlacement.CaveDeckMeters))
+                    continue;
+
                 Vector3 ajustedDirection = _direction * _speed * _moveSpeedMultiplier + Vector3.down * _gravity;
                 controller.Move(ajustedDirection * Time.deltaTime);
             }

@@ -24,6 +24,14 @@ public static class L2TownNpcFbxImport
     public static void ConfigureUuFbx(string fbxPath) =>
         ConfigureFbx(fbxPath, UuGlobalScale);
 
+    /// <summary>
+    /// Blender 5 writes these town FBX files in UU and also leaves the 100× centimeter
+    /// root that <c>useFileScale</c> would normally cancel. 0.019 alone makes a ~50 UU
+    /// body tens of meters tall. 0.019×0.01 lands next to the meter elf FBX at 0.019.
+    /// </summary>
+    public static void ConfigureBlenderUuFbx(string fbxPath) =>
+        ConfigureFbx(fbxPath, UuGlobalScale * 0.01f);
+
     static void ConfigureFbx(string fbxPath, float globalScale)
     {
         var imp = AssetImporter.GetAtPath(fbxPath) as ModelImporter;
@@ -40,11 +48,11 @@ public static class L2TownNpcFbxImport
         imp.SaveAndReimport();
     }
 
-    /// <summary>Renderer bounds height after import. Throws if still UU-giant or dust-sized.</summary>
-    public static float AssertHumanoidHeight(GameObject root, string label)
+    /// <summary>Renderer bounds height after import.</summary>
+    public static float MeasureHumanoidHeight(GameObject root)
     {
         if (root == null)
-            throw new Exception(label + ": null root");
+            throw new Exception("null root");
 
         Bounds? union = null;
         foreach (var r in root.GetComponentsInChildren<Renderer>(true))
@@ -62,9 +70,20 @@ public static class L2TownNpcFbxImport
         }
 
         if (union == null)
-            throw new Exception(label + ": no renderers");
+            throw new Exception("no renderers");
+        return union.Value.size.y;
+    }
 
-        float h = union.Value.size.y;
+    /// <summary>Renderer bounds height after import. Throws if still UU-giant or dust-sized.</summary>
+    public static float AssertHumanoidHeight(GameObject root, string label)
+    {
+        if (root == null)
+            throw new Exception(label + ": null root");
+
+        float h;
+        try { h = MeasureHumanoidHeight(root); }
+        catch (Exception e) { throw new Exception(label + ": " + e.Message); }
+
         if (h < MinHeight || h > MaxHeight)
             throw new Exception(
                 label + " height=" + h.ToString("0.####")

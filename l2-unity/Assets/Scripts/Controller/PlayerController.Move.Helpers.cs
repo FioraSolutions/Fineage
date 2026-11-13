@@ -73,9 +73,16 @@ public partial class PlayerController
 
     private float ApplyGravity(float deltaTime)
     {
+        bool caveHole = WorldPlacement.IsDarkElfCave(transform.position)
+            && !WorldPlacement.HasFloorWithin(transform.position, WorldPlacement.CaveDeckMeters);
         if (_controller.isGrounded)
         {
             _verticalVelocity = -2f;
+        }
+        else if (caveHole)
+        {
+            // Street mesh does not cover this spot. The next collider is the shell ~9 m down.
+            _verticalVelocity = 0f;
         }
         else
         {
