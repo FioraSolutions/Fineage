@@ -22,6 +22,12 @@ public static class L2InterludeBrushesCli
         EditorApplication.Exit(ok ? 0 : 1);
     }
 
+    public static string Rebuild(string tile)
+    {
+        bool ok = Run(tile, true);
+        return ok ? "brushes=ok" : "brushes=fail";
+    }
+
     static bool Run(string tiles, bool scenes)
     {
         bool ok = true;

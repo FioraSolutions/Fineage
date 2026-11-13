@@ -91,22 +91,35 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
     }
 
     /// <summary>
-    /// Bare hands use WeaponAnim "hand" (wait_hand / atkwait_hand exist), but Player_Basic
-    /// has no jatk*_hand / SpAtk*_hand states yet — CrossFade would no-op and the pawn freezes.
-    /// Fall back to 1HS swing until hand attack states are wired.
+    /// Player_Basic only has SpAtk01/02 for a few weapons. Dagger blows such as Deadly Blow
+    /// ask for SpAtk04_1HS, and dual asks for *_dual — neither state exists, so CrossFade
+    /// no-ops and the skill looks uncast. Play the same-number 1HS swing, or SpAtk01_1HS.
     /// </summary>
     static string ResolvePlayableCombatState(IAnimationController controller, string stateName)
     {
-        if (string.IsNullOrEmpty(stateName) ||
-            !stateName.EndsWith("_hand", System.StringComparison.Ordinal))
-        {
+        if (string.IsNullOrEmpty(stateName) || HasCombatState(controller, stateName))
             return stateName;
-        }
 
+        int split = stateName.LastIndexOf('_');
+        if (split <= 0)
+            return stateName;
+
+        string stem = stateName.Substring(0, split + 1);
+        string oneHs = stem + "1HS";
+        if (!string.Equals(oneHs, stateName, System.StringComparison.Ordinal) &&
+            HasCombatState(controller, oneHs))
+            return oneHs;
+
+        if (stem.StartsWith("SpAtk", System.StringComparison.Ordinal) &&
+            HasCombatState(controller, "SpAtk01_1HS"))
+            return "SpAtk01_1HS";
+
+        return stateName;
+    }
+
+    static bool HasCombatState(IAnimationController controller, string stateName)
+    {
         Animator animator = controller != null ? controller.GetAnimator() : null;
-        if (animator != null && animator.HasState(0, Animator.StringToHash(stateName)))
-            return stateName;
-
-        return stateName.Substring(0, stateName.Length - "hand".Length) + "1HS";
+        return animator != null && animator.HasState(0, Animator.StringToHash(stateName));
     }
 }

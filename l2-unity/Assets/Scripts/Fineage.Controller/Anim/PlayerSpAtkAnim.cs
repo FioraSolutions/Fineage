@@ -11,10 +11,21 @@ public sealed class PlayerSpAtkAnim : PlayerAnimStateMapBase
     public const string Prefix01 = "SpAtk01_";
     public const string Prefix02 = "SpAtk02_";
 
+    // Longer indexes first is unnecessary (all SpAtkNN_ are the same length).
+    // 03–09 and 27–28 are in AnimationCombo; only 01/02 have animator states on every weapon.
     static readonly string[] Prefixes =
     {
-        Prefix01,
-        Prefix02
+        "SpAtk28_",
+        "SpAtk27_",
+        "SpAtk09_",
+        "SpAtk08_",
+        "SpAtk07_",
+        "SpAtk06_",
+        "SpAtk05_",
+        "SpAtk04_",
+        "SpAtk03_",
+        Prefix02,
+        Prefix01
     };
 
     protected override IReadOnlyList<string> PrefixesLongestFirst => Prefixes;
