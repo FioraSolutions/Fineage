@@ -55,6 +55,7 @@ public partial class EntityActionSkill
             return;
         }
 
+        // Mage self-buffs (is_magic=1): CastMid/CastEnd/MagicNoTarget via override runner.
         if (IsMagicSkill(magic))
         {
             AnimationCombo combo = GetCombo(magic);
@@ -68,14 +69,16 @@ public partial class EntityActionSkill
             }
         }
 
+        // Songs/dances (is_magic=3, anim W=SpAtk05) and physical self skills (UD X=SpAtk06):
+        // physical StartRun plays SpAtk*_ CrossFade. Override runner wrongly maps 1-clip to CastEnd.
         if (SetupDurationHelper.TryGetPlayableCombo(magic, out AnimationCombo castCombo) &&
-            magic.SkillGrp != null &&
             SkillExecutorPacketServices.Executor != null)
         {
             SetupDurationHelper.SetupDurationIfHitTimeNot0(
                 magic, entity.Identity.Id, entity, castCombo);
-            _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
-                magic.SkillGrp, entity, castCombo, ResolveEvents(entity));
+            _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
+                entity, castCombo, ResolveEvents(entity));
+            PlaySkillEffect(entity, magic);
             return;
         }
 
@@ -171,7 +174,7 @@ public partial class EntityActionSkill
             entity.Identity != null)
         {
             // MobSkillLog.Play(entity, sequence);
-            ControllerPacketServices.Animations.PlayMonsterAnimation(
+            ControllerPacketServices.Animations.PlayCreatureAnimation(
                 entity.Identity.Id, sequence);
         }
 

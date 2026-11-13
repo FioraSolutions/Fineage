@@ -21,6 +21,7 @@ public partial class SkillInstance : AbstractSkill
 
     public string GetTypeName()
     {
+        SkillPassiveRules.Refresh(this);
         return IsPassive ? "Passive Skill" : "Active Skill";
     }
 

@@ -36,11 +36,17 @@ public abstract partial class BaseAnimationManager
                _animationControllers[objectId].GetType() == typeof(PlayerAnimationController);
     }
 
-    public bool IsMonsterController(int objectId)
+    /// <summary>Registered controller is <see cref="NetworkAnimationController"/> (Npc_Basic / Monster_Basic).</summary>
+    public bool IsCreatureController(int objectId)
     {
-        return _animationControllers.ContainsKey(objectId) &&
-               _animationControllers[objectId].GetType() == typeof(NetworkAnimationController);
+        // The dictionary stores AnimationModel, not the controller. Comparing the model type
+        // to NetworkAnimationController was always false, so walk/attack clips never played.
+        return _animationControllers.TryGetValue(objectId, out AnimationModel model) &&
+               model.GetController() is NetworkAnimationController;
     }
+
+    [Obsolete("Use IsCreatureController")]
+    public bool IsMonsterController(int objectId) => IsCreatureController(objectId);
 
     public PlayerAnimationController GetPlayerController(int objectId)
     {
@@ -78,12 +84,16 @@ public abstract partial class BaseAnimationManager
         return model != null ? model.GetEntity() : null;
     }
 
-    public NetworkAnimationController GetMonsterController(int objectId)
+    public NetworkAnimationController GetCreatureController(int objectId)
     {
-        if (IsMonsterController(objectId))
+        if (IsCreatureController(objectId))
         {
             return _animationControllers[objectId].GetController() as NetworkAnimationController;
         }
         return null;
     }
+
+    [Obsolete("Use GetCreatureController")]
+    public NetworkAnimationController GetMonsterController(int objectId) =>
+        GetCreatureController(objectId);
 }

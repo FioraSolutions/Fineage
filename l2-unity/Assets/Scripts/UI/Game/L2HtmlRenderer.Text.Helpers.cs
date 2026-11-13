@@ -25,6 +25,17 @@ public sealed partial class L2HtmlRenderer
                    .Replace("\t", " ")
                    .Replace("&nbsp;", " ");
 
+        // Interlude HTML uses &$N; → SysString_Classic (e.g. &$556; = Teleportable Regions).
+        text = Regex.Replace(text, @"\&\$(\d+);", match =>
+        {
+            if (!int.TryParse(match.Groups[1].Value, out int id))
+                return match.Value;
+            string resolved = TablePacketServices.SysStrings != null
+                ? TablePacketServices.SysStrings.Get(id)
+                : null;
+            return string.IsNullOrEmpty(resolved) ? match.Value : resolved;
+        });
+
         // collapse ONLY extreme spacing, keep single spaces
         return Regex.Replace(text, @" {2,}", " ");
     }

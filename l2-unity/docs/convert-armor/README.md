@@ -121,7 +121,8 @@ UModel often ships `_sp` / `_ori` / `_sp2` variants.
 
 - Copy PNG **with** the umodel suffix (`MMagic_m005_t02_u_sp.png`).
 - Create **one** `.mat` per armorgrp name, **without** `_sp` / `_ori` / `_sp2`.
-- Prefer albedo source: exact `{name}.png`, else `{name}_sp.png`, else `{name}_ori.png`.
+- Prefer albedo source: exact `{name}.png`, else `{name}_ori.png`, else `{name}_sp.png`.
+  (`_sp` is a specular/mask map — using it as albedo makes armor matte black under Modulate2X, e.g. Draconic `t89`.)
 - Normalize `Mmagic_` → `MMagic_` so it matches `Resources.Load`.
 - Do **not** name the material `MMagic.MMagic_m005_t06_u.mat`. The loader looks for `Materials/MMagic_m005_t06_u`.
 

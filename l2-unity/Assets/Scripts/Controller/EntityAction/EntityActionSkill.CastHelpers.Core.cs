@@ -64,8 +64,6 @@ public partial class EntityActionSkill
         return "other";
     }
 
-    static bool IsWorldNpcOrMonster(Entity entity)
-    {
-        return entity is MonsterEntity || entity is NpcEntity;
-    }
+    static bool IsWorldNpcOrMonster(Entity entity) =>
+        EntityActionVisual.UsesCreatureAnim(entity);
 }

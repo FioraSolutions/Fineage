@@ -14,13 +14,22 @@ public static partial class EntitySpawnShared
             ? WorldPlacement.PlacementKind.MonsterSpawn
             : WorldPlacement.PlacementKind.NpcSpawn;
         Vector3 snapped = WorldPlacement.Resolve(kind, from);
-        if ((snapped - from).sqrMagnitude < 0.0001f)
-            return false;
+        bool moved = (snapped - from).sqrMagnitude >= 0.0001f;
+        if (moved)
+        {
+            identity.Position = snapped;
+            WorldPlacement.ApplyPose(go, snapped, identity.Heading);
+        }
 
-        identity.Position = snapped;
-        WorldPlacement.ApplyPose(go, snapped, identity.Heading);
-        WorldPlacement.SettleFeet(go, snapped);
-        return true;
+        // Always SettleFeet after animator/skinned bounds exist — even when Y already matched.
+        Vector3 afterFeet = WorldPlacement.SettleFeet(go, moved ? snapped : from);
+        if ((afterFeet - from).sqrMagnitude >= 0.0001f)
+        {
+            identity.Position = afterFeet;
+            return true;
+        }
+
+        return moved;
     }
 
     public static void ApplyGroundedTransform(GameObject go, Vector3 position, Quaternion rotation)

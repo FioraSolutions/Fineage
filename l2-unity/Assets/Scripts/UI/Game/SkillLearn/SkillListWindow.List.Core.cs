@@ -49,6 +49,7 @@ public partial class SkillListWindow : L2PopupWindow
     {
         if (list == null) return;
         CopyInDictionry(list);
+        RefreshPassiveFlags(list);
 
         if (!_supportActiveSkills.IsReady)
         {
@@ -67,6 +68,7 @@ public partial class SkillListWindow : L2PopupWindow
     {
         if (list == null) return;
         CopyInDictionry(list);
+        RefreshPassiveFlags(list);
 
         if (!_supportActiveSkills.IsReady)
         {
@@ -86,5 +88,11 @@ public partial class SkillListWindow : L2PopupWindow
         }
 
         _supportPassiveSkills.CreateSlots(passiveSkills, 6);
+    }
+
+    static void RefreshPassiveFlags(List<SkillInstance> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+            SkillPassiveRules.Refresh(list[i]);
     }
 }

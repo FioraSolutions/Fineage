@@ -24,5 +24,13 @@ public partial class SysStringTable
         }
     }
 
-
+    /// <summary>Interlude <c>&amp;$id;</c> lookup. Empty when the id is missing.</summary>
+    public string Get(int id)
+    {
+        if (_strings == null)
+            return "";
+        return _strings.TryGetValue(id, out SysStringData data) && data != null
+            ? (data.Name ?? "")
+            : "";
+    }
 }

@@ -19,36 +19,24 @@ public partial class EntityActionVisual
             return;
         }
 
-        if (entity is not MonsterEntity monster || ControllerPacketServices.Animations == null)
+        if (!UsesCreatureAnim(entity) || entity.Identity == null)
             return;
 
-        // Shared Monster_* path for every mob. Death is terminal: if the clip or held
-        // corpse pose is already up (client predict + Die, or pool leftover cleared on spawn),
-        // do not CrossFade again — MonsterCrossFade also skips when already in "death".
-        if (IsMonsterDeathVisualActive(monster))
+        // Terminal: clip or held corpse pose already up — do not CrossFade again.
+        if (IsCreatureDeathVisualActive(entity))
             return;
 
         // Combat can leave animator.speed / patkspd at 0; death SMB needs a live clock.
-        NetworkAnimationController nac = monster.GetAnimatorController();
+        NetworkAnimationController nac = entity.GetAnimatorController();
         if (nac != null)
         {
             nac.SetPAtkSpeed(1f);
             nac.SetAnimatorSpeed(1f);
         }
 
-        if (!alreadyCorpse)
+        if (!alreadyCorpse && entity is MonsterEntity monster)
             MonsterCombatSound.Play(MonsterSoundEvent.Death, monster);
 
-        ControllerPacketServices.Animations.PlayMonsterAnimation(
-            monster.Identity.Id, AnimationNames.DEAD.ToString());
-    }
-
-    static bool IsMonsterDeathVisualActive(MonsterEntity monster)
-    {
-        if (monster == null)
-            return false;
-        if (monster.ActionSlot != null && monster.ActionSlot.DeathPoseHeld)
-            return true;
-        return IsPlayingDeath(monster);
+        TryPlayCreatureAnim(entity, AnimationNames.DEAD.ToString());
     }
 }
