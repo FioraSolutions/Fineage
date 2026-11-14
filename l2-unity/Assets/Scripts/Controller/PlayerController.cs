@@ -44,6 +44,9 @@ public partial class PlayerController : MonoBehaviour
     private bool _turnsAround = true;
 
     private float _moveTimer = 0f;
+    // Time.time of the last StopMove. A chase repath arrives within a few frames
+    // of reaching the previous point; that must not replay the 0.4s walk start.
+    private float _moveStoppedAt = -1f;
 
     private bool _isFirst = false;
 

@@ -287,7 +287,9 @@ public static class L2OrcRacePrefabBuilder
             string package = PackageOf(race);
             string modelDir = ModelDirOf(race);
             string faceFbx = modelDir + "/" + race + "_m000_f.fbx";
-            for (int face = 0; face < 3; face++)
+            if (faceMats == null)
+                faceFbx = null;
+            for (int face = 0; face < 3 && faceFbx != null; face++)
             {
                 string key = race + "_m000_t0" + face + "_f";
                 string key1 = key + "1";
@@ -298,32 +300,86 @@ public static class L2OrcRacePrefabBuilder
                 WrapFbx(faceFbx, prefab, race + "_f_" + face, mats);
             }
 
+            var hairFbx = new Dictionary<string, string>();
             foreach (string guid in AssetDatabase.FindAssets("t:Model", new[] { modelDir }))
             {
                 string fbx = AssetDatabase.GUIDToAssetPath(guid);
                 string file = Path.GetFileNameWithoutExtension(fbx);
-                // Alpha hair meshes omit bones, so they cannot share the body skeleton index order.
-                if (!file.EndsWith("_bh") || !file.StartsWith(race + "_m"))
+                if (!file.StartsWith(race, System.StringComparison.OrdinalIgnoreCase))
                     continue;
-                string part = file.EndsWith("_ah") ? "ah" : "bh";
+                bool ah = file.EndsWith("_ah", System.StringComparison.OrdinalIgnoreCase);
+                bool bh = file.EndsWith("_bh", System.StringComparison.OrdinalIgnoreCase);
+                if (!ah && !bh)
+                    continue;
+                string part = ah ? "ah" : "bh";
                 int style = StyleIndex(file);
                 if (style < 0)
                     continue;
-                for (int color = 0; color < 4; color++)
+                hairFbx[style.ToString("000") + "_" + part] = fbx;
+                EmitHair(race, fbx, style, part, hairMats);
+            }
+
+            // Orcs and shamans ship one front-hair mesh (m000). Every style uses it,
+            // tinted with that style's color. Back hair stays per style.
+            hairFbx.TryGetValue("000_ah", out string sharedAh);
+            if (sharedAh != null)
+            {
+                for (int style = 0; style < 7; style++)
                 {
-                    string texName = race + "_m" + style.ToString("000") + "_t0" + color + "_m00_" + part;
-                    if (!hairMats.TryGetValue(texName, out Material mat))
-                    {
-                        string fallback = race + "_m" + style.ToString("000") + "_t0" + color + "_m00_bh";
-                        hairMats.TryGetValue(fallback, out mat);
-                    }
-                    if (mat == null)
+                    if (hairFbx.ContainsKey(style.ToString("000") + "_ah"))
                         continue;
-                    string prefab = "Assets/Resources/Data/Animations/" + package + "/" + race + "/Hair/" + race + "_h_" + style + "_" + color + "_" + part + ".prefab";
-                    WrapFbx(fbx, prefab, race + "_h_" + style + "_" + color + "_" + part, new[] { mat });
+                    EmitHair(race, sharedAh, style, "ah", hairMats);
                 }
             }
         }
+    }
+
+    static void EmitHair(string race, string fbx, int style, string part, Dictionary<string, Material> hairMats)
+    {
+        for (int color = 0; color < 4; color++)
+        {
+            string texName = race + "_m" + style.ToString("000") + "_t0" + color + "_m00_" + part;
+            if (!hairMats.TryGetValue(texName, out Material mat))
+            {
+                string fallback = race + "_m" + style.ToString("000") + "_t0" + color + "_m00_bh";
+                hairMats.TryGetValue(fallback, out mat);
+            }
+            if (mat == null && part == "ah")
+            {
+                string shared = race + "_m000_t0" + color + "_m00_bh";
+                hairMats.TryGetValue(shared, out mat);
+            }
+            if (mat == null)
+                continue;
+            // Shamans are an orc race. The client loads Hair under Animations/Orc.
+            string prefab = "Assets/Resources/Data/Animations/Orc/" + race + "/Hair/"
+                + race + "_h_" + style + "_" + color + "_" + part + ".prefab";
+            WrapFbx(fbx, prefab, race + "_h_" + style + "_" + color + "_" + part, new[] { mat });
+        }
+    }
+
+    public static string RebuildHairSlots()
+    {
+        var hairMats = new Dictionary<string, Material>();
+        foreach (string race in Races)
+        {
+            string bodyDir = "Assets/Resources/Data/SysTextures/" + race + "/Materials";
+            if (!AssetDatabase.IsValidFolder(bodyDir))
+                continue;
+            foreach (string guid in AssetDatabase.FindAssets("t:Material", new[] { bodyDir }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string name = Path.GetFileNameWithoutExtension(path);
+                if (name.IndexOf("_m00_", System.StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
+                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (mat != null)
+                    hairMats[name] = mat;
+            }
+        }
+        BuildFaceAndHairPrefabs(null, hairMats);
+        AssetDatabase.SaveAssets();
+        return "hair slots " + hairMats.Count;
     }
 
     static int StyleIndex(string file)

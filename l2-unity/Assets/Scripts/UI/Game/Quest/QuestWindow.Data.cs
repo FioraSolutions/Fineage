@@ -8,12 +8,23 @@ using VContainer;
 
 public partial class QuestWindow
 {
+    public List<QuestInstance> Journal()
+    {
+        var all = new List<QuestInstance>();
+        if (nonRepeatQuests != null)
+            all.AddRange(nonRepeatQuests);
+        if (repeatQuests != null)
+            all.AddRange(repeatQuests);
+        return all;
+    }
+
     public void AddData(List<QuestInstance> quests)
     {
         //if (_questsList != null) _questsList.Clear();
 
         repeatQuests = quests.Where(q => q.IsRepeat()).ToList();
         nonRepeatQuests = quests.Where(q => !q.IsRepeat()).ToList();
+        HudCorePacketServices.CharacterInfo?.FillQuestPanel(Journal());
 
         _questTabPanelRepeat.AddElementsToContent(repeatQuests);
         _questTabPanelSingle.AddElementsToContent(nonRepeatQuests);

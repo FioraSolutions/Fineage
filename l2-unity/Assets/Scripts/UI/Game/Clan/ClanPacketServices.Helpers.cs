@@ -28,6 +28,9 @@ public static partial class ClanPacketServices
         ClanWindow clan = Clan;
         if (clan != null)
             clan.ApplyZoneBook();
+        CharacterInfoWindow info = HudCorePacketServices.CharacterInfo;
+        if (info != null)
+            info.RefreshClanTab();
     }
 
     static void NoteLocalClan(int clanId)

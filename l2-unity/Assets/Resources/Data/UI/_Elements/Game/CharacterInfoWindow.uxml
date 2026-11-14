@@ -106,6 +106,10 @@
             <!-- Interlude MainWnd panels: MagicSkillWnd / ActionWnd swap in place of DetailStatusWnd. -->
             <ui:VisualElement name="SkillsHost" style="position: relative; width: 256px; height: 335px; margin: 0; padding: 0; flex-grow: 0; flex-shrink: 0; overflow: hidden; display: none;" />
             <ui:VisualElement name="ActionsHost" style="position: relative; width: 256px; height: 335px; margin: 0; padding: 0; flex-grow: 0; flex-shrink: 0; overflow: hidden; display: none;" />
+            <ui:VisualElement name="ClanHost" style="position: relative; width: 256px; height: 335px; margin: 0; padding: 0; flex-grow: 0; flex-shrink: 0; overflow: hidden; display: none;" />
+            <ui:VisualElement name="QuestHost" style="position: relative; width: 256px; height: 335px; margin: 0; padding: 0; flex-grow: 0; flex-shrink: 0; overflow: hidden; display: none; background-color: rgb(16, 22, 40);">
+                <ui:ScrollView name="QuestList" style="position: absolute; left: 8px; top: 8px; width: 240px; height: 318px; margin: 0; padding: 0;" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -44,6 +44,9 @@ public class ChatTab
         _scrollView = tabContainer.Q<ScrollView>("ScrollView");
         _scroller = _scrollView.verticalScroller;
         _content = tabContainer.Q<VisualElement>("Content");
+        // Interlude draws the lines against the tab row, not the top of the frame.
+        _scrollView.contentContainer.style.flexGrow = 1f;
+        _scrollView.contentContainer.style.justifyContent = Justify.FlexEnd;
        // _content.text = "";
 
         tabHeader.AddManipulator(new ButtonClickSoundManipulator(tabHeader));

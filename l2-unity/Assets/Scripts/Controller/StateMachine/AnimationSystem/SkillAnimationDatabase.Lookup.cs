@@ -16,8 +16,12 @@ public partial class SkillAnimationDatabase
             return _raceCacheMMagic;
         if (raceName == FMagic || ContainsRaceToken(raceName, FMagic))
             return _raceCacheFMagic;
+        if (raceName == FFighter || ContainsRaceToken(raceName, FFighter))
+            return _raceCacheFFighter;
         if (raceName == MFighter || ContainsRaceToken(raceName, MFighter))
             return _raceCacheMFighter;
+        if (raceName == FDarkElf || ContainsRaceToken(raceName, FDarkElf))
+            return _raceCacheFDarkElf;
         if (raceName == MElf || ContainsRaceToken(raceName, MElf))
             return _raceCacheMElf;
         return null;

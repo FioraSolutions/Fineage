@@ -14,63 +14,63 @@
                 <ui:GroupBox name="LevelContainer" class="level-container" style="margin-top: 0; margin-right: 0; margin-bottom: 3px; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/ps_levelback.png?fileID=2800000&amp;guid=a6577a69848b54348847defd32813d5e&amp;type=3#ps_levelback&apos;); flex-basis: auto; flex-grow: 0; flex-shrink: 0; -unity-font-definition: url(&apos;project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf?fileID=12800000&amp;guid=96fb7a735e76e0742bf125e2d4734bf3&amp;type=3#tahoma&apos;); color: rgb(171, 138, 85); -unity-text-align: upper-center; font-size: 11px; flex-direction: column; -unity-slice-right: 10; -unity-slice-bottom: 12; -unity-slice-scale: 0; -unity-text-outline-width: 0; -unity-text-outline-color: rgb(0, 0, 0); text-shadow: 1px 1px 0.5px rgba(0, 0, 0, 0.65); letter-spacing: 0;">
                     <ui:Label text="1" name="LevelText" />
                 </ui:GroupBox>
-                <ui:Label text="Shnok" name="PlayerNameText" style="align-items: auto; margin-top: 2px; margin-right: 0; margin-bottom: 0; margin-left: 5px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-text-align: upper-center; -unity-font-definition: url(&apos;project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf?fileID=12800000&amp;guid=96fb7a735e76e0742bf125e2d4734bf3&amp;type=3#tahoma&apos;); color: rgb(255, 255, 255); -unity-text-outline-width: 0.3px; text-shadow: 0.5px 0.5px 0 rgb(0, 0, 0); letter-spacing: 3px; font-size: 11px; width: auto; scale: 1 1;" />
+                <ui:Label text="Shnok" name="PlayerNameText" style="align-items: auto; margin-top: 2px; margin-right: 0; margin-bottom: 0; margin-left: 5px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-text-align: upper-center; -unity-font-definition: url(&apos;project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf?fileID=12800000&amp;guid=96fb7a735e76e0742bf125e2d4734bf3&amp;type=3#tahoma&apos;); color: rgb(255, 255, 255); -unity-text-outline-width: 0.3px; text-shadow: 0.5px 0.5px 0 rgb(0, 0, 0); letter-spacing: 0; font-size: 11px; width: auto; scale: 1 1;" />
             </ui:VisualElement>
             <ui:GroupBox name="BarGroup" class="bar-container" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; flex-grow: 1; height: auto;">
-                <ui:VisualElement name="CpBarContainer" template="HpBar" class="bar-container" style="margin-bottom: 0; height: 14px;">
+                <ui:VisualElement name="CpBarContainer" template="HpBar" class="bar-container" style="margin-bottom: 0; height: 12px;">
                     <ui:GroupBox name="CPBarBG" class="bar-inner">
-                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_bg_Left.png?fileID=2800000&amp;guid=4c4058b994ed4f948b5aa240e0acca90&amp;type=3#Gauge_DF_Large_CP_bg_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_bg_Center.png?fileID=2800000&amp;guid=156a82f256ea31140a677eef90d4eba7&amp;type=3#Gauge_DF_Large_CP_bg_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_bg_Right.png?fileID=2800000&amp;guid=167a9d7a08fa285419db69c1fb153ab6&amp;type=3#Gauge_DF_Large_CP_bg_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar_Back');" />
+                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar_Back');" />
+                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar_Back');" />
                     </ui:GroupBox>
                     <ui:GroupBox name="CPBar" class="bar-inner">
-                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_Left.png?fileID=2800000&amp;guid=dcbb3efeedee79d4796ac11367b893b2&amp;type=3#Gauge_DF_Large_CP_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_Center.png?fileID=2800000&amp;guid=9706336a5cf6cea4f960cdfa788efe4d&amp;type=3#Gauge_DF_Large_CP_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_CP/Gauge_DF_Large_CP_Right.png?fileID=2800000&amp;guid=0a7077d7011e8ae4a9ed022a55ec5cac&amp;type=3#Gauge_DF_Large_CP_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar');" />
+                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar');" />
+                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar');" />
                     </ui:GroupBox>
                     <ui:Label text="CP" name="BarLabel" class="bar-label bar-label-name" style="align-items: flex-start; flex-direction: column; flex-shrink: 0; -unity-text-outline-width: 1px;" />
-                    <ui:Label text="1234/1234" name="CPText" select-word-by-double-click="true" enable-rich-text="true" class="bar-label bar-label-numbers" style="align-items: flex-start; flex-direction: column; flex-shrink: 0; position: relative; left: auto; letter-spacing: 5px;" />
+                    <ui:Label text="1234/1234" name="CPText" select-word-by-double-click="true" enable-rich-text="true" class="bar-label bar-label-numbers" style="letter-spacing: 0;" />
                 </ui:VisualElement>
-                <ui:VisualElement name="HPBarContainer" template="HpBar" class="bar-container" style="height: 14px;">
+                <ui:VisualElement name="HPBarContainer" template="HpBar" class="bar-container" style="height: 12px;">
                     <ui:GroupBox name="HPBarBG" class="bar-inner" style="width: 100%;">
-                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_HP/Gauge_DF_Large_HP_bg_Left.png?fileID=2800000&amp;guid=eb4faf84cfe537245a613ac946a5eb78&amp;type=3#Gauge_DF_Large_HP_bg_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_HP/Gauge_DF_Large_HP_bg_Center.png?fileID=2800000&amp;guid=9a39b86abc753c1468dc586de59e7d7c&amp;type=3#Gauge_DF_Large_HP_bg_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_HP/Gauge_DF_Large_HP_bg_Right.png?fileID=2800000&amp;guid=527fbaec86a1c30488274d5fa95ee8cb&amp;type=3#Gauge_DF_Large_HP_bg_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
+                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
+                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
                     </ui:GroupBox>
                     <ui:GroupBox name="HPBar" class="bar-inner">
-                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_HP/Gauge_DF_Large_HP_Left.png?fileID=2800000&amp;guid=8f1fe67ab14eb824f9f0a2e508beb448&amp;type=3#Gauge_DF_Large_HP_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_HP/Gauge_DF_Large_HP_Center.png?fileID=2800000&amp;guid=7df1dce37f179ab4fa24cf38b6f08d7a&amp;type=3#Gauge_DF_Large_HP_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_HP/Gauge_DF_Large_HP_Right.png?fileID=2800000&amp;guid=830973b84f348384fa261d0a752100dc&amp;type=3#Gauge_DF_Large_HP_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
+                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
+                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
                     </ui:GroupBox>
                     <ui:Label text="HP" name="BarLabel" class="bar-label bar-label-name" style="align-items: flex-start; flex-direction: column; flex-shrink: 0;" />
-                    <ui:Label text="1234/1234" name="HPText" select-word-by-double-click="true" class="bar-label bar-label-numbers hp-text-label" style="align-items: flex-start; flex-direction: column; flex-shrink: 0; width: auto; position: relative; left: auto;" />
+                    <ui:Label text="1234/1234" name="HPText" select-word-by-double-click="true" class="bar-label bar-label-numbers hp-text-label" style="letter-spacing: 0;" />
                 </ui:VisualElement>
-                <ui:VisualElement name="MPBarContainer" template="HpBar" class="bar-container">
+                <ui:VisualElement name="MPBarContainer" template="HpBar" class="bar-container" style="height: 12px;">
                     <ui:GroupBox name="MPBarBG" class="bar-inner">
-                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_MP/Gauge_DF_Large_MP_bg_Left.png?fileID=2800000&amp;guid=cf8fdbe4839d13f4ea316b7c674ef0ad&amp;type=3#Gauge_DF_Large_MP_bg_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_MP/Gauge_DF_Large_MP_bg_Center.png?fileID=2800000&amp;guid=aa9ab8608a1abe34d9f0eea51ea214da&amp;type=3#Gauge_DF_Large_MP_bg_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_MP/Gauge_DF_Large_MP_bg_Right.png?fileID=2800000&amp;guid=8f794f09f30e63d4893b10cd1a20df79&amp;type=3#Gauge_DF_Large_MP_bg_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
+                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
+                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
                     </ui:GroupBox>
                     <ui:GroupBox name="MPBar" class="bar-inner">
-                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_MP/Gauge_DF_Large_MP_Left.png?fileID=2800000&amp;guid=4da7c9501a8a97b49a12e93caf1233aa&amp;type=3#Gauge_DF_Large_MP_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_MP/Gauge_DF_Large_MP_Center.png?fileID=2800000&amp;guid=46f31309dd1ee004c8149a33a06f742e&amp;type=3#Gauge_DF_Large_MP_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Large_MP/Gauge_DF_Large_MP_Right.png?fileID=2800000&amp;guid=ea7838896e067454c8ec9292bc91504a&amp;type=3#Gauge_DF_Large_MP_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
+                        <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
+                        <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
                     </ui:GroupBox>
                     <ui:Label text="MP" name="BarLabel" class="bar-label bar-label-name" style="align-items: flex-start; flex-direction: column; flex-shrink: 0;" />
-                    <ui:Label text="1234/1234" name="MPText" select-word-by-double-click="true" class="bar-label bar-label-numbers" style="align-items: flex-start; flex-direction: column; flex-shrink: 0; width: auto; position: relative; left: auto;" />
+                    <ui:Label text="1234/1234" name="MPText" select-word-by-double-click="true" class="bar-label bar-label-numbers" style="letter-spacing: 0;" />
                 </ui:VisualElement>
-                <ui:VisualElement name="EXPBarContainer" class="bar-container" style="height: 10px; margin-top: 1px;">
+                <ui:VisualElement name="EXPBarContainer" class="bar-container" style="height: 12px; margin-top: 1px;">
                     <ui:GroupBox name="EXPBarBG" class="bar-inner" style="width: 100%;">
-                        <ui:VisualElement name="BGLeft" class="left" style="height: 6px; background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Exp/Gauge_DF_Exp_bg_Left.png?fileID=2800000&amp;guid=77849003d01268342992c81dd0123237&amp;type=3#Gauge_DF_Exp_bg_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center" style="height: 6px; background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Exp/Gauge_DF_Exp_bg_Center.png?fileID=2800000&amp;guid=a0e747967041b7a4fb6c4295e9132342&amp;type=3#Gauge_DF_Exp_bg_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right" style="height: 6px; background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Exp/Gauge_DF_Exp_bg_Right.png?fileID=2800000&amp;guid=6d04783e179a98f4ea3e721ad3edd854&amp;type=3#Gauge_DF_Exp_bg_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left" style="height: 12px; background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back');" />
+                        <ui:VisualElement name="BGCenter" class="center" style="height: 12px; background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back');" />
+                        <ui:VisualElement name="BGRight" class="right" style="height: 12px; background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back');" />
                     </ui:GroupBox>
                     <ui:GroupBox name="EXPBar" class="bar-inner">
-                        <ui:VisualElement name="BGLeft" class="left" style="height: 6px; background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Exp/Gauge_DF_Exp_Left.png?fileID=2800000&amp;guid=a4114c65ad3b6e14285cdcbaffa1a27b&amp;type=3#Gauge_DF_Exp_Left&apos;);" />
-                        <ui:VisualElement name="BGCenter" class="center" style="height: 6px; background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Exp/Gauge_DF_Exp_Center.png?fileID=2800000&amp;guid=f4db128ce2f325c408c9e08745e7586e&amp;type=3#Gauge_DF_Exp_Center&apos;);" />
-                        <ui:VisualElement name="BGRight" class="right" style="height: 6px; background-image: url(&apos;project://database/Assets/Resources/Data/UI/Status/Gauge/Gauge_DF_Exp/Gauge_DF_Exp_Right.png?fileID=2800000&amp;guid=5d4e19c32b2e2d54da28de2047e42939&amp;type=3#Gauge_DF_Exp_Right&apos;);" />
+                        <ui:VisualElement name="BGLeft" class="left" style="height: 12px; background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar');" />
+                        <ui:VisualElement name="BGCenter" class="center" style="height: 12px; background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar');" />
+                        <ui:VisualElement name="BGRight" class="right" style="height: 12px; background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar');" />
                     </ui:GroupBox>
-                    <ui:Label text="0.00%" name="EXPText" class="bar-label bar-label-numbers" style="font-size: 9px; flex-shrink: 0; position: relative; left: auto;" />
+                    <ui:Label text="0.00%" name="EXPText" class="bar-label bar-label-numbers" style="font-size: 9px; letter-spacing: 0;" />
                 </ui:VisualElement>
             </ui:GroupBox>
         </ui:GroupBox>

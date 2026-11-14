@@ -105,6 +105,11 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             return stateName;
 
         string stem = stateName.Substring(0, split + 1);
+        // Fists and bare hands must not borrow the club/sword swing when the
+        // hand state is missing. That is the "кастеты бьют как дубина" pose.
+        if (stateName.EndsWith("_hand", System.StringComparison.Ordinal))
+            return stateName;
+
         string oneHs = stem + "1HS";
         if (!string.Equals(oneHs, stateName, System.StringComparison.Ordinal) &&
             HasCombatState(controller, oneHs))

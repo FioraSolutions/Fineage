@@ -11,7 +11,9 @@ public partial class IconManager
 
         var folder = iconFolder == null ? _iconFolder : iconFolder;
         string icon = folder.Replace('\\', '/') + "/" + CleanIconName(name);
-        return Resources.Load<Texture2D>(icon);
+        Texture2D texture = Resources.Load<Texture2D>(icon);
+        ApplyUiSampling(texture);
+        return texture;
     }
 
     public bool IsNoImage(Texture2D texture) =>
@@ -24,6 +26,7 @@ public partial class IconManager
         //Debug.Log($"Loading icon {name}.");
         if (result != null)
         {
+            ApplyUiSampling(result);
             return result;
         }
 

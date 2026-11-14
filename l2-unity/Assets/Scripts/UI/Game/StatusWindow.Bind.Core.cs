@@ -82,6 +82,10 @@ public partial class StatusWindow
         if(_MPBar == null) {
             // Debug.LogError("Status windowar MPBar is null");
         }
+
+        // UXML project:// backgrounds do not resolve in the player. Stamp the
+        // Interlude strips here or the panel is a bare text table.
+        PaintStatusChrome();
     }
 
     private void OnStatusWindowClicked(ClickEvent evt)

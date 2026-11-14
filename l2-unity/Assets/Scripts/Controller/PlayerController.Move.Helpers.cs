@@ -8,7 +8,7 @@ public partial class PlayerController
     {
         bool wasMoving = _isMove;
         ActivateIfNotMoving(_isMove);
-        if (!wasMoving)
+        if (!wasMoving && !KeepsRunGait())
             _moveTimer = 0f;
         _movementTarget = movementTarget;
         _isMove = true;
@@ -20,7 +20,7 @@ public partial class PlayerController
         _isMove = false;
         if (_packetClicks != null)
             _packetClicks.HideLocator();
-        _moveTimer = 0f;
+        _moveStoppedAt = Time.time;
         _switchWalkToRun = false;
 
     }
@@ -91,6 +91,16 @@ public partial class PlayerController
                 _verticalVelocity = -TerminalVelocity;
         }
         return _verticalVelocity;
+    }
+
+    void RecoverFeetIfUnderFloor()
+    {
+        if (!WorldPlacement.TryLiftOutOfFloor(transform.position, out float deck))
+            return;
+        Vector3 p = transform.position;
+        p.y = deck;
+        WorldPlacement.ApplyPose(gameObject, p, transform.rotation);
+        _verticalVelocity = -2f;
     }
 
     private static float FrameIndependentLerp(float perFrameFraction, float deltaTime)

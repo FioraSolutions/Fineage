@@ -19,7 +19,6 @@ public partial class MoveNpc : MonoBehaviour
 
                 Vector3 point = gravityOffTarget - gravityOffTransform;
                 Vector3 lookDir = point.normalized;
-                float vy = ApplyGravity(Time.deltaTime);
 
                 // Clamp the final step to land exactly on target (Interlude
                 // calcVelocity: Dest/dt when remaining distance < one frame step),
@@ -31,12 +30,13 @@ public partial class MoveNpc : MonoBehaviour
                 if (_isTeleport == false)
                 {
                     _detectedIsMove = true;
-                    // Planar velocity scaled by run speed, gravity integrated
-                    // separately (matches PlayerController) so vertical speed is
-                    // not masked/"lightened" by monsterSpeed.
-                    Vector3 step = lookDir * monsterSpeed * Time.deltaTime;
-                    step.y = vy * Time.deltaTime;
-                    _controller.Move(step);
+                    // Same as Mobius MoveActor on a geo-valid segment: write XY, do not
+                    // push the capsule into the wall (that leaves the walk cycle running).
+                    if (_controller != null && _controller.enabled)
+                        _controller.enabled = false;
+                    Vector3 dest = new Vector3(gravityOffTarget.x, transform.position.y, gravityOffTarget.z);
+                    if (L2PawnWalk.TryStep(transform.position, dest, monsterSpeed, Time.deltaTime, out Vector3 stepped))
+                        transform.position = WorldPlacement.KeepOnBrush(stepped);
 
                     if (lookDir.sqrMagnitude > 0.0001f)
                     {
@@ -65,7 +65,7 @@ public partial class MoveNpc : MonoBehaviour
         _isMove = false;
 
         Vector3 dest = new Vector3(target.x, transform.position.y, target.z);
-        transform.position = GroundSnapHelper.SnapToGroundOrKeep(dest);
+        transform.position = WorldPlacement.KeepOnBrush(dest);
         _detectedIsMove = false;
         if (EntityActionPacketServices.Actions != null)
             EntityActionPacketServices.Actions.NotifyArrived(_entity);

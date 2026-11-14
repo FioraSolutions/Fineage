@@ -12,17 +12,23 @@ public partial class ActionWindow : L2PopupWindow
             return;
         // Hide chrome of the standalone popup; park the body under MainWnd.
         _windowEle.style.display = DisplayStyle.None;
-        VisualElement body = _windowEle.Q("content") ?? _basicContainer?.parent ?? _windowEle;
+        VisualElement body = _windowEle.Q("Content");
+        if (body == null && _basicContainer != null && _basicContainer.parent != null)
+            body = _basicContainer.parent.parent;
+        if (body == null)
+            body = _windowEle;
         if (body.parent != host)
         {
             body.RemoveFromHierarchy();
             host.Add(body);
-            body.style.position = Position.Relative;
-            body.style.left = 0;
-            body.style.top = 0;
-            body.style.width = Length.Percent(100);
-            body.style.height = Length.Percent(100);
         }
+        body.style.position = Position.Relative;
+        body.style.left = 8;
+        body.style.top = 2;
+        body.style.width = 236;
+        body.style.height = Length.Percent(100);
+        body.style.marginTop = 0;
+        body.style.marginLeft = 0;
         host.style.display = DisplayStyle.Flex;
         AudioPacketServices.Audio.PlayUISound("window_open");
     }

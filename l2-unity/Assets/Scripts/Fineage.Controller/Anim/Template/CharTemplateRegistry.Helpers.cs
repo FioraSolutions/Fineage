@@ -14,7 +14,7 @@ public static partial class CharTemplateRegistry
             if (isTwoHanded)
                 speed *= stats.TwoHandedBonus;
 
-            return Mathf.Clamp(speed, 0.25f, 0.85f);
+            return Mathf.Clamp(speed, 0.2f, 4f);
         }
 
         return 0.5f;
@@ -25,7 +25,7 @@ public static partial class CharTemplateRegistry
         if (TryResolveModel(classId, out var model))
         {
             var stats = model.GetData(sex);
-            return Mathf.Clamp(serverValue * stats.WalkK, 0.2f, 0.7f);
+            return Mathf.Clamp(serverValue * stats.WalkK, 0.12f, 4f);
         }
 
         return 0.3f;

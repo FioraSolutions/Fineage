@@ -53,6 +53,18 @@ public partial class PlayerController
         return _movementTarget != null && _movementTarget.IsRunningServer();
     }
 
+    /// <summary>
+    /// Already past the walk wind-up and the new order is the same run (chase
+    /// repath), not a fresh click from a stand.
+    /// </summary>
+    public bool KeepsRunGait()
+    {
+        return RunMode()
+            && _moveTimer > L2PlayerMoveGait.WalkSeconds
+            && _moveStoppedAt >= 0f
+            && Time.time - _moveStoppedAt <= 0.35f;
+    }
+
     private float GetMovementSpeed()
     {
         bool walking = L2PlayerMoveGait.IsWalkStart(_moveTimer, RunMode(), false);

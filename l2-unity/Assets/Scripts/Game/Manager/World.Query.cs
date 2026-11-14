@@ -21,6 +21,17 @@ public partial class World
         _entities.ForEachNpc(action);
     }
 
+    /// <summary>Tile colliders arrived after the spawn snap. Drop town NPCs onto the floor.</summary>
+    public void ResnapSpawnedActors()
+    {
+        ForEachNpc(entity =>
+        {
+            if (entity == null || entity.Identity == null || entity is PlayerEntity)
+                return;
+            EntitySpawnShared.ReapplyGroundAfterActivate(entity.gameObject, entity.Identity);
+        });
+    }
+
     public string GetEntityName(int id)
     {
         Entity npc;

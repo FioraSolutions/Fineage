@@ -17,7 +17,11 @@ public partial class NewMoveToPawnIntention : IntentionBase
             if (DomainPacketServices.LocalPlayer != null)
                 DomainPacketServices.LocalPlayer.IsAttack = false;
 
-            _stateMachine.ChangeState(PlayerState.WALKING);
+            PlayerController mover = ControllerPacketServices.Player;
+            bool keepRun = DomainPacketServices.LocalPlayer != null
+                && DomainPacketServices.LocalPlayer.Running
+                && mover != null && mover.KeepsRunGait();
+            _stateMachine.ChangeState(keepRun ? PlayerState.RUNNING : PlayerState.WALKING);
             _stateMachine.NotifyEvent(Event.MOVE_TO);
         }
         else if (_stateMachine.State == PlayerState.WALKING ||

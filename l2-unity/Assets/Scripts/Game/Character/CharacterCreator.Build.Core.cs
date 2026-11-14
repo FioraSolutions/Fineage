@@ -38,9 +38,26 @@ public partial class CharacterCreator
         try
         {
             gear.Initialize(-1, raceId);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+
+        // Armor first. A bad hair chain must not skip the body.
+        try
+        {
+            CharacterDefaultEquipment.EquipStarterGear(gear, appearance);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+
+        try
+        {
             // Face/hair after Initialize — EquipFace parents to gear container + SyncMesh (#933).
             Builder.AttachFaceAndHair(gear, raceId, appearance);
-            CharacterDefaultEquipment.EquipStarterGear(gear, appearance);
         }
         catch (System.Exception ex)
         {

@@ -41,7 +41,19 @@ public partial class SystemMsgWindow : L2Window
         label.text = line;
         _content.Add(label);
         _lines.Add(label);
+        FitHeight();
         ScheduleScrollDown();
+    }
+
+    void FitHeight()
+    {
+        if (_windowEle == null)
+            return;
+        int n = _lines.Count;
+        // interface.xdat SystemMsgWnd absolute height is 125.
+        _windowEle.style.height = n <= 0 ? 0f : 125f;
+        _windowEle.style.display = n <= 0 ? DisplayStyle.None : DisplayStyle.Flex;
+        SyncDock();
     }
 
     void ScheduleScrollDown()

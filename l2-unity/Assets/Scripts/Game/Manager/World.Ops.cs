@@ -18,6 +18,10 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
             gameObject.AddComponent<L2VillageStatuePanner>();
         if (GetComponent<L2CaveTerrainGate>() == null)
             gameObject.AddComponent<L2CaveTerrainGate>();
+        if (GetComponent<L2DoorPassage>() == null)
+            gameObject.AddComponent<L2DoorPassage>();
+        if (GetComponent<L2BrushPortal>() == null)
+            gameObject.AddComponent<L2BrushPortal>();
         if (GetComponent<L2TownMusic>() == null)
             gameObject.AddComponent<L2TownMusic>();
         if (GetComponent<L2TownAmbience>() == null)

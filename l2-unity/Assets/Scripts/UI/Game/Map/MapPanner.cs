@@ -12,8 +12,8 @@ public partial class MapPanner
 
     private bool dragging;
 
-    private const float VIEW_W = 294f;
-    private const float VIEW_H = 300f;
+    private const float VIEW_W = 330f;
+    private const float VIEW_H = 328f;
     private const float MAP_W = 1812f;
     private const float MAP_H = 2620f;
     public const float MapWidthPixels = MAP_W;

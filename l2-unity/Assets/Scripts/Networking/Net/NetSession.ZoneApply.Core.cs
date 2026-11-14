@@ -67,6 +67,11 @@ public sealed partial class NetSession
                 ? (int)BaseClass.MMagic
                 : (int)BaseClass.Fighter
         };
+        // Same kit the server already equipped. Without this the local body
+        // spawns in the naked fighter mesh until a later UserInfo, so a mystic
+        // reads as a fighter.
+        if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)
+            ApplySpawnPaperdollItemIds(appearance, spawn.Paperdoll);
 
         // Stash PlayerInfo then OnCharacterSelect → LoadSWMap.
         // Spawning happens in OnWorldSceneLoaded once the tile is ready.

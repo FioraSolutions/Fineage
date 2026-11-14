@@ -8,6 +8,7 @@ public partial class SkillAnimationDatabase
     private static readonly Dictionary<string, SkillClips> _raceCacheMMagic = new Dictionary<string, SkillClips>();
     private static readonly Dictionary<string, SkillClips> _raceCacheFMagic = new Dictionary<string, SkillClips>();
     private static readonly Dictionary<string, SkillClips> _raceCacheMFighter = new Dictionary<string, SkillClips>();
+    private static readonly Dictionary<string, SkillClips> _raceCacheFFighter = new Dictionary<string, SkillClips>();
     private static readonly Dictionary<string, SkillClips> _raceCacheMElf = new Dictionary<string, SkillClips>();
     private const string  FOLDER_MElf = "Data/Animations/Elf/MElf/Clips/";
     private const string MElf = "MElf";
@@ -15,10 +16,12 @@ public partial class SkillAnimationDatabase
     private const string  FOLDER_MMagic = "Data/Animations/Magic/MMagic/Clips/";
     private const string  FOLDER_FMagic = "Data/Animations/Magic/FMagic/Clips/";
     private const string  FOLDER_MFighter = "Data/Animations/Fighter/MFighter/Clips/";
+    private const string  FOLDER_FFighter = "Data/Animations/Fighter/FFighter/Clips/";
     private const string  FOLDER_FDarkElf = "Data/Animations/DarkElf/FDarkElf/Clips/";
     private const string MMagic = "MMagic";
     private const string FMagic = "FMagic";
     private const string MFighter = "MFighter";
+    private const string FFighter = "FFighter";
     private const string FDarkElf = "FDarkElf";
     public class SkillClips
     {

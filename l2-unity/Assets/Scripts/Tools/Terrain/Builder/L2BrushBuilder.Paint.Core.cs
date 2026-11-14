@@ -83,8 +83,8 @@ public partial class L2BrushBuilder
 
                 List<string> pPolyFlags = new List<string>(polyData.polyFlags);
 
-                // Skip invisible faces
-                if(pPolyFlags.Contains("PF_Unlit") || pPolyFlags.Contains("PF_Invisible") || pPolyFlags.Contains("PF_NotSolid")) {
+                // PF_Unlit is a real face (orc cave roof). Only invisible and non-solid faces are holes.
+                if(pPolyFlags.Contains("PF_Invisible") || pPolyFlags.Contains("PF_NotSolid")) {
                     continue;
                 }
                 

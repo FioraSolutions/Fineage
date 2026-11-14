@@ -80,7 +80,8 @@ public static partial class EntitySpawnShared
 
     static IEnumerator RetryGroundSnap(GameObject go, EntityIdentity identity)
     {
-        float[] at = { 0.25f, 1f, 2f };
+        // Tile mesh colliders often appear after the NpcInfo that spawned the body.
+        float[] at = { 0.25f, 1f, 2f, 5f };
         float elapsed = 0f;
         for (int i = 0; i < at.Length; i++)
         {
@@ -89,8 +90,8 @@ public static partial class EntitySpawnShared
             if (go == null || identity == null)
                 yield break;
 
-            if (TryApplyGroundSnap(go, identity))
-                yield break;
+            // Keep going: a foot settle before the tile collider exists is not the floor.
+            TryApplyGroundSnap(go, identity);
         }
     }
 }

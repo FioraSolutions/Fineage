@@ -52,7 +52,7 @@ public partial class SystemMsgWindow : L2Window
         _list = _windowEle.Q<ScrollView>("SystemMsgList");
         _content = _windowEle.Q<VisualElement>("SystemMsgContent");
         _windowEle.style.position = Position.Absolute;
-        _windowEle.style.height = DefaultHeight;
+        FitHeight();
 
         if (_chatAnchor != null)
             BindDock(_chatAnchor);

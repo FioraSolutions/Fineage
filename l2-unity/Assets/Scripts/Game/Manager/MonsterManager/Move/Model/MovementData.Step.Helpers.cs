@@ -4,51 +4,24 @@ public partial class MovementData
 {
     private Vector3 ApplyCharInfoGravityAndGround(Vector3 position, float deltaTime, out bool grounded)
     {
-        float radius = _entity != null ? _entity.GetCollissionRadius() : 0f;
-        if (radius <= 0.001f)
-            radius = 0.05f;
-
-        LayerMask mask = GroundSnapHelper.ResolveGroundMask(null);
-
-        // Downward capsule probe starting above the pawn (Interlude ToFloor starts
-        // at Location.Z - CollisionHeight, but we probe a safe distance above to
-        // catch a pawn that ended up under the terrain surface).
-        Vector3 origin = new Vector3(position.x, position.y + GroundCastStartAbove, position.z);
-        bool hitFloor = Physics.SphereCast(
-            origin, radius, Vector3.down, out RaycastHit hit,
-            GroundCastStartAbove + GroundCastMaxFall,
-            mask, QueryTriggerInteraction.Ignore);
-
-        float targetY;
-        if (hitFloor)
-        {
-            // Land on the surface. The project-wide ground convention is
-            // transform.position.y == hit.point.y (see GroundSnapHelper), so we do
-            // not add a capsule half-height here — otherwise the pawn lifts ~30-40cm
-            // above the ground each frame vs. its spawn height.
-            targetY = hit.point.y;
-            _verticalVelocity = 0f;
-            grounded = true;
-        }
-        else
-        {
-            // No floor below: keep falling (Interlude physFalling branch), capped
-            // at terminal velocity like the fixed PlayerController.
-            _verticalVelocity -= _gravity * deltaTime;
-            if (_verticalVelocity < -TerminalVelocity)
-                _verticalVelocity = -TerminalVelocity;
-            targetY = position.y + _verticalVelocity * deltaTime;
-            grounded = false;
-        }
-
-        return new Vector3(position.x, targetY, position.z);
+        // GroundMask is only Terrain | StaticMesh | Brush. Orc-camp sheets often
+        // sit on Default, so a SphereCast on that mask misses and the old gravity
+        // branch walked the pawn through the mesh. KeepOnBrush uses the same
+        // walkable layers as spawn and does not free-fall on a miss.
+        Vector3 stood = WorldPlacement.KeepOnBrush(position);
+        _verticalVelocity = 0f;
+        grounded = Mathf.Abs(stood.y - position.y) <= 0.05f || stood.y > position.y;
+        return stood;
     }
 
     public void Move(Vector3 direction , float speed)
     {
         Vector3 lookDir = new Vector3(direction.x, 0f, direction.z);
-        if (L2PawnWalkEntity.IsCharInfoPawn(_entity))
+        // Mobius moves monsters on the geo segment (getValidLocation), not against a mesh.
+        // CharacterController.Move stops on the visual wall and the walk cycle keeps playing.
+        if (L2PawnWalkEntity.IsCharInfoPawn(_entity) || _entity is MonsterEntity || _entity is NpcEntity)
         {
+            ReleasePawnController();
             if (_movementTarget != null && _movementTarget.TryGetTarget(out Vector3 dest))
                 StepCharInfo(dest, speed);
             return;

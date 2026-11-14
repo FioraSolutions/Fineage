@@ -7,6 +7,7 @@ public partial class MonsterEntity : NetworkEntity
         base.Initialize();
         _monsterAnimationAudioHandler = GetComponent<MonsterAnimationAudioHandler>();
         _characterController = GetComponent<CharacterController>();
+        CrowdAnimTest.KeepAnimatorUpdating(gameObject);
         EntityLoaded = true;
     }
 

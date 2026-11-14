@@ -49,6 +49,7 @@ public partial class SceneLoader : MonoBehaviour
 
         yield return LoadSceneAdditiveIfNeeded(tile);
         _loadedTiles.Add(tile);
+        yield return ResnapActorsAfterTile();
 
         FinishLoadSWMap();
         EnsureGameplayCamera();

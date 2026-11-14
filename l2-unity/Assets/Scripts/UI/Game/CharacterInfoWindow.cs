@@ -60,6 +60,9 @@ public partial class CharacterInfoWindow : L2PopupWindow
     VisualElement _detailStatusWnd;
     VisualElement _skillsHost;
     VisualElement _actionsHost;
+    VisualElement _clanHost;
+    VisualElement _questHost;
+    ScrollView _questList;
     int _mainTab = 1;
 
     static CharacterInfoWindow _instance;

@@ -12,6 +12,8 @@ Shader "L2/World/ActorEnvSpecular"
         _SpecMask ("Specularity Mask", 2D) = "black" {}
         _EnvMap ("Env", 2D) = "black" {}
         [MainColor] _BaseColor ("Color", Color) = (1, 1, 1, 1)
+        // 1: SpecularityMask alpha (weapon PNG). 0: RGB export dropped the mask, so bright texels shine.
+        _SpecFromAlpha ("Spec From Alpha", Float) = 1
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
         _ActorAlpha ("Actor Alpha", Range(0, 1)) = 1
         [HideInInspector] _SrcBlend ("Src Blend", Float) = 1
@@ -41,6 +43,7 @@ Shader "L2/World/ActorEnvSpecular"
         float4 _BaseColor;
         float _Cull;
         float _ActorAlpha;
+        float _SpecFromAlpha;
     CBUFFER_END
 
     float2 L2_ActorUv(float2 uv)
@@ -74,6 +77,11 @@ Shader "L2/World/ActorEnvSpecular"
     {
         float3 diffuse = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv).rgb * _BaseColor.rgb;
         float mask = SAMPLE_TEXTURE2D(_SpecMask, sampler_SpecMask, uv).a;
+        if (_SpecFromAlpha < 0.5)
+        {
+            float luma = dot(diffuse, float3(0.30, 0.59, 0.11));
+            mask = saturate((luma - 0.42) * 1.8);
+        }
         float3 env = SAMPLE_TEXTURE2D(_EnvMap, sampler_EnvMap, envUv).rgb;
         float3 base = L2_Modulate2X(diffuse, color0);
         return saturate(base + mask * env);

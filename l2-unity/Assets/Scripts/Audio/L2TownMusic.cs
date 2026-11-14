@@ -187,7 +187,7 @@ public sealed class L2TownMusic : MonoBehaviour
         if (!_inst.isValid())
             return;
 
-        _inst.stop(STOP_MODE.ALLOWFADEOUT);
+        _inst.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         _inst.release();
         _inst.clearHandle();
     }

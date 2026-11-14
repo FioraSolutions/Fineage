@@ -13,7 +13,7 @@ Fineage **server business logic**, **client behavior**, and **client look** must
 | L2J Mobius CT0 Interlude (server) | `Fineage/ref/mobius-ct0-interlude/` and `Fineage-Backend/ref/mobius-ct0-interlude/` |
 | L2 Interlude client (UI / assets) | `Fineage/ref/l2-interlude-client/` |
 
-Before changing HUD, MenuWnd, SystemMsgWnd, skillbar, chat, combat formulas, spawns, etc.: **open the matching original** (Interface / Mobius Java / datapack) and match it. See [`ref/README.md`](ref/README.md) and [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md).
+Before changing HUD, MenuWnd, SystemMsgWnd, skillbar, chat, combat formulas, spawns, etc.: **open the matching original** (Interface / Mobius Java / datapack) and match it. That covers art, how it is drawn, and the business rule. If the local source does not have it or the draw path is unclear, search the web before inventing a screen or a formula. See [`ref/README.md`](ref/README.md), [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md), and `.cursor/rules/interlude-sources-first.mdc`.
 
 ## Model selection
 

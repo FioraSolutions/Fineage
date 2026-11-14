@@ -7,7 +7,7 @@ using VContainer;
 
 public partial class ActionWindow : L2PopupWindow
 {
-    private const int SLOTS_PER_ROW = 8;
+    private const int SLOTS_PER_ROW = 6;
     private VisualTreeAsset _slotTemplate;
     private VisualElement _basicContainer;
     private VisualElement _partyContainer;

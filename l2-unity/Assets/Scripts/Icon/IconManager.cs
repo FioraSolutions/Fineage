@@ -42,4 +42,17 @@ public partial class IconManager
 
     private string CleanIconName(string name) => name?.Replace("icon.", "") ?? "";
 
+    /// <summary>
+    /// Item icons are 32×32. The panel scales from 1280×720, so a point filter
+    /// draws uneven texels. Bilinear matches the Interlude client upscale.
+    /// </summary>
+    static void ApplyUiSampling(Texture2D texture)
+    {
+        if (texture == null)
+            return;
+
+        texture.filterMode = FilterMode.Bilinear;
+        texture.wrapMode = TextureWrapMode.Clamp;
+    }
+
 }
