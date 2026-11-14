@@ -44,7 +44,10 @@ public partial class NpcCursorManager : MonoBehaviour
             return;
         }
 
-        if (SystemUIPacketServices.Ui != null && SystemUIPacketServices.Ui.MouseOverUI)
+        // MouseOverUI sticks after the target window opens. The sword cursor
+        // then never comes back while the pointer is on the mob. Trust a fresh pick.
+        L2UI ui = SystemUIPacketServices.Ui;
+        if (ui != null && ui.IsPointerOverPanel())
         {
             ApplyCursor(DefaultCursorId, _defaultCursor);
             return;

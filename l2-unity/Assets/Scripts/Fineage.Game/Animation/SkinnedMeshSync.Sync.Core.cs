@@ -65,6 +65,14 @@ public partial class SkinnedMeshSync : MonoBehaviour
             return;
         }
 
+        // Orc and shaman faces, and orc back-hair, are one rigid weight on Bip01.
+        // Human and elf weight the same pieces to Bip01_head. The orc file still
+        // has that head bone; move the bind onto it so the face follows the skull.
+        if (faceOrHair && missFallback != null
+            && RigidOnRoot(srcBones, mapped, missFallback)
+            && RebindRootWeightedToHead(renderer, srcBones, mapped, missFallback))
+            return;
+
         renderer.bones = mapped;
         if (sourceRoot != null
             && (TryFindBone(skeleton, sourceRoot.name, out Transform mappedRoot)

@@ -67,7 +67,7 @@ public partial class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, FrameIndependentLerp(r_speed, Time.deltaTime));
 
             _controller.Move(velocity * Time.deltaTime);
-
+            RecoverFeetIfUnderFloor();
 
             _isFirst = false;
             _pp_sender.TickWhileMoving(transform.position, PlayerPositionSender.ToL2Heading(transform.eulerAngles.y), Time.deltaTime);

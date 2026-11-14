@@ -33,7 +33,6 @@ public partial class ActionWindow : L2PopupWindow
 
         _basicContainer = GetElementById("BasicSlots");
         _partyContainer = GetElementById("PartySlots");
-        _tokenContainer = GetElementById("TokenSlots");
         _socialContainer = GetElementById("SocialSlots");
     }
 
@@ -51,7 +50,8 @@ public partial class ActionWindow : L2PopupWindow
         _slots = new List<ActionSlot>();
 
         int position = 0;
-        for (int i = 0; i < SLOTS_PER_ROW * 4; i++)
+        // interface.xdat ActionWnd: Basic 6x3, Party 6x2, Social 6x3. No Token row.
+        for (int i = 0; i < SLOTS_PER_ROW * 3; i++)
         {
             AddSlot(position++, _basicContainer);
         }
@@ -61,17 +61,12 @@ public partial class ActionWindow : L2PopupWindow
             AddSlot(position++, _partyContainer);
         }
 
-        for (int i = 0; i < SLOTS_PER_ROW * 2; i++)
-        {
-            AddSlot(position++, _tokenContainer);
-        }
-
         for (int i = 0; i < SLOTS_PER_ROW * 3; i++)
         {
             AddSlot(position++, _socialContainer);
         }
 
-        // Interlude ActionWnd Basic / Party / Social (icons now; Token left empty).
+        // Interlude ActionWnd Basic / Party / Social.
         AssignBasic(
             ActionType.Sit, ActionType.WalkRun, ActionType.Attack, ActionType.Trade,
             ActionType.NextTarget, ActionType.Pickup, ActionType.Assist,

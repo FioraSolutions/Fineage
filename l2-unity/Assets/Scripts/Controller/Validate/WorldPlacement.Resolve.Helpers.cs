@@ -45,6 +45,12 @@ public static partial class WorldPlacement
         if (!has)
             return groundPos;
 
+        // A staff or cape that hangs below the foot bone is not the sole. Lifting until
+        // that tip touches the stone leaves the feet in the air (Gludin gatekeeper).
+        float footY;
+        if (TryLowestFootY(go, out footY) && minY < footY - 0.2f)
+            minY = footY;
+
         // Positive sink: mesh feet below ground → lift. Negative: feet above ground → lower
         // (aracne / import pivots often sit slightly above the snap point).
         float sink = groundPos.y - minY;
@@ -55,5 +61,32 @@ public static partial class WorldPlacement
         p.y += sink;
         ApplyPose(go, p, go.transform.rotation);
         return p;
+    }
+
+    static bool TryLowestFootY(GameObject go, out float y)
+    {
+        y = 0f;
+        Transform[] bones = go.GetComponentsInChildren<Transform>(true);
+        bool found = false;
+        for (int i = 0; i < bones.Length; i++)
+        {
+            string n = bones[i].name;
+            if (string.IsNullOrEmpty(n))
+                continue;
+            if (n.IndexOf("Nub", System.StringComparison.Ordinal) >= 0)
+                continue;
+            bool foot = n.IndexOf("Toe0", System.StringComparison.Ordinal) >= 0
+                || n.IndexOf("Foot", System.StringComparison.Ordinal) >= 0;
+            if (!foot)
+                continue;
+            float by = bones[i].position.y;
+            if (!found || by < y)
+            {
+                y = by;
+                found = true;
+            }
+        }
+
+        return found;
     }
 }

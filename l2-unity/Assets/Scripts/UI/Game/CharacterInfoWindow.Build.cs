@@ -59,6 +59,10 @@ public partial class CharacterInfoWindow
         _detailStatusWnd = GetElementById("DetailStatusWnd");
         _skillsHost = GetElementById("SkillsHost");
         _actionsHost = GetElementById("ActionsHost");
+        _clanHost = GetElementById("ClanHost");
+        _questHost = GetElementById("QuestHost");
+        _clanMemberList = _windowEle.Q<ScrollView>("ClanMemberList");
+        _questList = _windowEle.Q<ScrollView>("QuestList");
 
         // Interlude MainWnd tabs: Status / Skills / Actions / Clan / Quest.
         // MenuWnd only has Char/Inventory/Map/System — these tabs are the entry points.

@@ -38,7 +38,7 @@ public partial class SystemMsgWindow : L2Window
         Rect parent = _windowEle.parent.worldBound;
         float height = _windowEle.resolvedStyle.height;
         if (height <= 0f)
-            height = DefaultHeight;
+            height = LineHeight + FramePad;
 
         // Prefer layout width — worldBound can lag one frame behind style.width after resize.
         float width = _chatAnchor.resolvedStyle.width;

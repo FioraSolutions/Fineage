@@ -37,4 +37,30 @@ public sealed partial class NameplateBubbleResolver
 
         return false;
     }
+
+    static bool IsHover(Transform target)
+    {
+        return ControllerPacketServices.Clicks != null &&
+            ControllerPacketServices.Clicks.HoverObjectData != null &&
+            SameActor(ControllerPacketServices.Clicks.HoverObjectData.ObjectTransform, target);
+    }
+
+    static bool SameActor(Transform a, Transform b)
+    {
+        if (a == null || b == null)
+            return false;
+        if (a == b)
+            return true;
+        Entity ea = a.GetComponentInParent<Entity>();
+        Entity eb = b.GetComponentInParent<Entity>();
+        return ea != null && ea == eb;
+    }
+
+    static bool Attackable(Transform target)
+    {
+        if (target == null)
+            return false;
+        Entity entity = target.GetComponentInParent<Entity>();
+        return EntityInteraction.IsAttackable(entity);
+    }
 }

@@ -39,15 +39,20 @@ public partial class NewMoveToIntention : IntentionBase
 
             //Debug.Log("NewMoveToIntention> to dict " + distTest + " original " + distTest2);
 
-            L2PawnRange.ClearIgnoredPawn(DomainPacketServices.LocalPlayer);
             // Only skip when the packet itself is a zero-length stop AND we are already there.
             // Approach MoveState can arrive while the transform still sits on the previous
             // PositionCorrection — treating that as "arrived" left run-anim with no locomotion.
             if (distToDest <= 0.12f && packetSpan <= 0.12f)
             {
+                L2PawnRange.ClearIgnoredPawn(DomainPacketServices.LocalPlayer);
                 StandIfSeated();
                 return;
             }
+
+            // Melee approach is a MoveToLocation onto the stop ring, which sits inside
+            // the mob capsule. Ignoring that capsule is what keeps the run from scraping
+            // to a walk. A ground click away from the target clears it again.
+            IgnoreApproachPawn(newPosition);
 
             if (PlayerStatePacketServices.PlayerState.IsMoveToPawn) PlayerStatePacketServices.PlayerState.IsMoveToPawn = false;
 
@@ -80,7 +85,13 @@ public partial class NewMoveToIntention : IntentionBase
                 // $"[SS_CHARGE_SM] MoveTo.StartAnimMoveTo beforeState={before} " +
                 // $"player.Running={runningFlag} → ChangeState(WALKING) + MOVE_TO");
 
-            _stateMachine.ChangeState(PlayerState.WALKING);
+            // Chase repath: the run already started. Dropping to WALKING replays the
+            // 0.4s wind-up and the fighter slows down in front of the mob.
+            PlayerController mover = ControllerPacketServices.Player;
+            if (runningFlag && mover != null && mover.KeepsRunGait())
+                _stateMachine.ChangeState(PlayerState.RUNNING);
+            else
+                _stateMachine.ChangeState(PlayerState.WALKING);
             _stateMachine.NotifyEvent(Event.MOVE_TO);
         }
         else if (_stateMachine.State == PlayerState.RUNNING ||
@@ -100,5 +111,21 @@ public partial class NewMoveToIntention : IntentionBase
                 // $"[SS_CHARGE_SM] MoveTo.StartAnimMoveTo beforeState={before} " +
                 // $"player.Running={runningFlag} → NO anim refresh");
         }
+    }
+
+    static void IgnoreApproachPawn(Vector3 dest)
+    {
+        Entity local = DomainPacketServices.LocalPlayer;
+        if (local == null)
+            return;
+        Entity pawn = local.Target != null ? local.Target.GetComponent<Entity>() : null;
+        if (pawn == null)
+            pawn = EntityPawnLookup.ResolvePawn(local, dest);
+        float near = VectorUtils.ConvertL2UuToMeters(L2PawnRange.AdjustSkipUu);
+        if (pawn != null && pawn.transform != null
+            && VectorUtils.Distance2D(dest, pawn.transform.position) <= near)
+            L2PawnRange.IgnorePawnCollision(local, pawn);
+        else
+            L2PawnRange.ClearIgnoredPawn(local);
     }
 }

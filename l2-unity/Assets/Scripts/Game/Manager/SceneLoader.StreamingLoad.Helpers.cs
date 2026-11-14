@@ -28,7 +28,21 @@ public partial class SceneLoader
 
         yield return LoadSceneAdditiveIfNeeded(tile);
         _loadedTiles.Add(tile);
+        yield return ResnapActorsAfterTile();
         _streamingBusy = false;
+    }
+
+    /// <summary>
+    /// Mesh colliders join the physics scene a frame after the tile. NPCs that
+    /// spawned on the geodata node (Gludin hangs ~0.5 m over the stone) drop then.
+    /// </summary>
+    IEnumerator ResnapActorsAfterTile()
+    {
+        yield return null;
+        yield return new WaitForFixedUpdate();
+        World world = GameWorld;
+        if (world != null)
+            world.ResnapSpawnedActors();
     }
 
     private IEnumerator UnloadSWMap(string tile)
