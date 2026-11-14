@@ -41,6 +41,10 @@ public static partial class WorldPlacement
                 pos.y = meshY;
             else if (hasGeo)
                 pos.y = geoY;
+            // Closest-hit can prefer a shell under the street when the node is
+            // already below the brush. Put monsters and NPCs back on that sheet.
+            if (!IsDarkElfCave(pos))
+                pos = KeepOnBrush(pos);
             return pos;
         }
 

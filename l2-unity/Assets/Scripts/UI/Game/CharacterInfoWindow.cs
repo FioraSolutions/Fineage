@@ -62,7 +62,6 @@ public partial class CharacterInfoWindow : L2PopupWindow
     VisualElement _actionsHost;
     VisualElement _clanHost;
     VisualElement _questHost;
-    ScrollView _clanMemberList;
     ScrollView _questList;
     int _mainTab = 1;
 

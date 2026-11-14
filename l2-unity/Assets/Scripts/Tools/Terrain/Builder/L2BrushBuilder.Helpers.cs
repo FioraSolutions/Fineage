@@ -35,6 +35,7 @@ public partial class L2BrushBuilder
             foreach (PolyData pd in b.model.poly.polyData) {
                 if (pd.vertices == null || pd.vertices.Length < 3) continue;
                 var fl = pd.polyFlags ?? new string[0];
+                // PF_Unlit stays. The orc start roof (rion_floor03 over the spawn tunnel) is unlit.
                 if (fl.Contains("PF_Invisible") || fl.Contains("PF_NotSolid") || fl.Contains("PF_Portal")) continue;
                 string tex = pd.texture;
                 if (string.IsNullOrEmpty(tex) || tex.StartsWith("L2_Skies") || tex.StartsWith("L2_ETC_Textures") || tex.StartsWith("Engine.")

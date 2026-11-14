@@ -46,7 +46,8 @@ public partial class SkinnedMeshSync : MonoBehaviour
         for (int i = 0; i < renderers.Length; i++)
         {
             Renderer renderer = renderers[i];
-            if (_temporarilyHiddenRenderers.Contains(renderer))
+            if (_temporarilyHiddenRenderers.Contains(renderer)
+                && !L2ActorMeshPolicy.IsAlphaOverlayRenderer(renderer))
                 renderer.enabled = true;
         }
     }

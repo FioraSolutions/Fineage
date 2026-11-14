@@ -697,9 +697,11 @@
 }
 
 .chat-window #tab-header-container {
-    margin-left: 22px;
+    margin-left: 14px;
+    margin-right: 14px;
     height: 22px;
     flex-shrink: 0;
+    align-items: flex-end;
 }
 
 .chat-window .unity-tab-view__content-container {
@@ -718,14 +720,13 @@
     background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-left: 6;
-    -unity-slice-right: 6;
-    -unity-slice-top: 0;
-    -unity-slice-bottom: 0;
-    -unity-slice-scale: 0;
+    width: 64px;
+    min-width: 64px;
+    max-width: 64px;
     height: 22px;
-    padding: 0 6px;
-    margin-right: 1px;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
     justify-content: center;
 }
 
@@ -733,14 +734,13 @@
     background-image: resource('Data/UI/Assets/Chat/chatting_tab1');
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-left: 6;
-    -unity-slice-right: 6;
-    -unity-slice-top: 0;
-    -unity-slice-bottom: 0;
-    -unity-slice-scale: 0;
+    width: 64px;
+    min-width: 64px;
+    max-width: 64px;
     height: 22px;
-    padding: 0 6px;
-    margin-right: 1px;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
     justify-content: center;
 }
 
@@ -777,11 +777,12 @@
 
 .chat-window .tab-header-label {
     color: rgb(214, 204, 160);
-    font-size: 11px;
+    font-size: 10px;
     padding: 0;
     margin: 0;
     letter-spacing: 0;
     -unity-text-align: middle-center;
+    -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
 }
 
 .chat-window .unselected-tab {

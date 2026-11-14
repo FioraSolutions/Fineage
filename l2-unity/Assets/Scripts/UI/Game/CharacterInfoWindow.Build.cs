@@ -61,7 +61,6 @@ public partial class CharacterInfoWindow
         _actionsHost = GetElementById("ActionsHost");
         _clanHost = GetElementById("ClanHost");
         _questHost = GetElementById("QuestHost");
-        _clanMemberList = _windowEle.Q<ScrollView>("ClanMemberList");
         _questList = _windowEle.Q<ScrollView>("QuestList");
 
         // Interlude MainWnd tabs: Status / Skills / Actions / Clan / Quest.

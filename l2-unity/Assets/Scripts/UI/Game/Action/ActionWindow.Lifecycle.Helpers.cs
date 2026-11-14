@@ -74,7 +74,7 @@ public partial class ActionWindow : L2PopupWindow
             ActionType.DwarvenManufacture, ActionType.Mount, ActionType.Recommend);
         AssignParty(
             ActionType.PartyInvite, ActionType.PartyLeave, ActionType.PartyKick,
-            ActionType.PartyMatching);
+            ActionType.PartyMatching, ActionType.PartyLeader);
         AssignSocial(
             ActionType.SocialGreeting, ActionType.SocialVictory, ActionType.SocialAdvance,
             ActionType.SocialYes, ActionType.SocialNo, ActionType.SocialBow,

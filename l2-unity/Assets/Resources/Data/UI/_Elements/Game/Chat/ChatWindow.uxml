@@ -1,25 +1,27 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
-    <!-- Interlude ChatWnd: interface.xdat absolute size 348 x 187.
-         Head = Chatting_Back2 348x18, body = Chatting_Back3, bottom = Chatting_Back1 348x46. -->
+    <!-- Interlude ChatWnd: interface.xdat 348x187.
+         Back2 348x18, Back3 body, Back4 348x18 under the tabs, Back1 348x44 input.
+         ChatTabCtrl is 320x23; each tab is the native 64x22 of Chatting_Tab. -->
     <ui:VisualElement name="ChatWindow" focusable="true" class="chat-window" style="flex-grow: 0; width: 348px; height: 187px; position: relative; bottom: auto; left: auto; transform-origin: left bottom; top: auto; flex-wrap: nowrap; flex-direction: column; background-color: rgba(0, 0, 0, 0);">
         <ui:VisualElement name="BGContainer" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; flex-direction: column;">
             <ui:VisualElement name="TopBar" picking-mode="Ignore" style="width: 100%; height: 18px; flex-shrink: 0; background-image: resource('Data/UI/Assets/Chat/chatting_back2'); -unity-background-scale-mode: stretch-to-fill; -unity-slice-left: 2; -unity-slice-right: 2; -unity-slice-top: 1; -unity-slice-bottom: 1; -unity-slice-scale: 0;" />
             <ui:VisualElement name="TextBG" picking-mode="Ignore" style="flex-grow: 1; background-image: resource('Data/UI/Assets/Chat/chatting_back3'); -unity-background-scale-mode: stretch-to-fill; -unity-slice-left: 2; -unity-slice-right: 2; -unity-slice-top: 0; -unity-slice-bottom: 0; -unity-slice-scale: 0;" />
-            <ui:VisualElement name="BtmBar" picking-mode="Ignore" style="width: 100%; height: 46px; flex-shrink: 0; background-image: resource('Data/UI/Assets/Chat/chatting_back1'); -unity-background-scale-mode: stretch-to-fill; -unity-slice-left: 2; -unity-slice-right: 2; -unity-slice-top: 1; -unity-slice-bottom: 2; -unity-slice-scale: 0;" />
+            <ui:VisualElement name="TabLine" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; bottom: 44px; height: 18px; background-image: resource('Data/UI/Assets/Chat/chatting_back4'); -unity-background-scale-mode: stretch-to-fill;" />
+            <ui:VisualElement name="BtmBar" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; bottom: 0; height: 44px; background-image: resource('Data/UI/Assets/Chat/chatting_back1'); -unity-background-scale-mode: stretch-to-fill; -unity-slice-left: 2; -unity-slice-right: 2; -unity-slice-top: 1; -unity-slice-bottom: 2; -unity-slice-scale: 0;" />
         </ui:VisualElement>
         <ui:VisualElement name="Container" focusable="true" style="flex-grow: 1; flex-direction: column; margin: 0; padding: 0;">
-            <ui:VisualElement name="ChatTabView" focusable="true" style="flex-grow: 1; flex-direction: column-reverse; margin-top: 18px;">
-                <ui:VisualElement name="tab-header-container" style="flex-direction: row; height: 22px; flex-shrink: 0; margin-left: 22px; align-items: flex-start;" />
+            <ui:VisualElement name="ChatTabView" focusable="true" style="position: absolute; left: 0; right: 0; top: 18px; bottom: 44px; flex-direction: column-reverse;">
+                <ui:VisualElement name="tab-header-container" style="flex-direction: row; height: 22px; flex-shrink: 0; margin-left: 14px; margin-right: 14px; align-items: flex-end;" />
                 <ui:VisualElement focusable="true" name="tab-content-container" style="flex-grow: 1; flex-direction: column; font-size: 11px; margin-bottom: 0;" />
             </ui:VisualElement>
-            <ui:VisualElement name="ChatBar" focusable="true" style="height: 24px; flex-shrink: 0; flex-direction: row; padding-top: 2px; padding-right: 6px; padding-bottom: 4px; padding-left: 22px;">
+            <ui:VisualElement name="ChatBar" focusable="true" style="position: absolute; left: 22px; right: 6px; bottom: 12px; height: 18px; flex-direction: row;">
                 <ui:VisualElement name="InnerBar" focusable="true" style="flex-direction: row; flex-grow: 1; align-items: center;">
                     <ui:VisualElement name="InputIcon" style="width: 16px; height: 16px; flex-shrink: 0; background-image: resource('Data/UI/Assets/Chat/chatting_imeen'); -unity-background-scale-mode: stretch-to-fill;" />
                     <ui:TextField name="ChatInputField" style="flex-grow: 1; margin: 0; padding-left: 4px; color: rgb(226, 226, 226); font-size: 11px; -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');" />
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="ChatOptions" style="position: absolute; height: 40px; width: 20px; bottom: 2px; left: 2px; justify-content: space-between; align-items: center;">
+            <ui:VisualElement name="ChatOptions" style="position: absolute; height: 36px; width: 16px; bottom: 4px; left: 3px; justify-content: space-between; align-items: center;">
                 <ui:Button text="" name="EnlargeTextBtn" class="chatting-fontsize" style="width: 16px; height: 16px; margin: 0; padding: 0; border-width: 0;" />
                 <ui:Button text="" name="ChatOptionsBtn" class="chatting-option" style="width: 16px; height: 16px; margin: 0; padding: 0; border-width: 0;" />
             </ui:VisualElement>

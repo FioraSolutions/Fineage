@@ -14,14 +14,15 @@ public partial class ActionWindow : L2PopupWindow
 
     void AssignParty(params ActionType[] actions)
     {
-        int baseIndex = SLOTS_PER_ROW * 4;
+        // Basic is 6x3 (18). The old base of 6x4 wrote party icons onto the second party row.
+        int baseIndex = SLOTS_PER_ROW * 3;
         for (int i = 0; i < actions.Length && i < SLOTS_PER_ROW * 2; i++)
             _slots[baseIndex + i].AssignAction(actions[i]);
     }
 
     void AssignSocial(params ActionType[] actions)
     {
-        int baseIndex = SLOTS_PER_ROW * 4 + SLOTS_PER_ROW * 2 + SLOTS_PER_ROW * 2;
+        int baseIndex = SLOTS_PER_ROW * 3 + SLOTS_PER_ROW * 2;
         for (int i = 0; i < actions.Length && i < SLOTS_PER_ROW * 3; i++)
             _slots[baseIndex + i].AssignAction(actions[i]);
     }

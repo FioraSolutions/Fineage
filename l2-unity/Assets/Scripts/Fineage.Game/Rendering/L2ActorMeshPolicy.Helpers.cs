@@ -14,7 +14,7 @@ public static partial class L2ActorMeshPolicy
             if (renderer == null)
                 continue;
 
-            if (IsAlphaOverlay(renderer.name))
+            if (IsAlphaOverlayRenderer(renderer))
             {
                 renderer.enabled = false;
                 continue;
@@ -38,7 +38,26 @@ public static partial class L2ActorMeshPolicy
             if (renderer == null)
                 continue;
 
-            if (IsSkeletonPlaceholder(renderer.name) || renderer.sharedMaterial == null)
+            if (IsSkeletonPlaceholder(renderer.name) || IsAlphaOverlayRenderer(renderer) || renderer.sharedMaterial == null)
+                renderer.enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// Armor FBX ships a second mesh, <c>.ao</c>, whose UVs sit on the black
+    /// card of the texture. Drawn opaque it is a black plane on the arms.
+    /// The solid piece is <c>.mo</c>. Keep the overlay off.
+    /// </summary>
+    public static void DisableAlphaOverlays(Transform root)
+    {
+        if (root == null)
+            return;
+
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (IsAlphaOverlayRenderer(renderer))
                 renderer.enabled = false;
         }
     }

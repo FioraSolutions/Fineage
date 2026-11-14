@@ -64,8 +64,49 @@ public class WeaponTypeParser {
                 return "pole";
             case WeaponType.bow:
                 return "bow";
+            case WeaponType.mbook:
+                // Interlude has no book swing set. Books attack with the one-hand clip.
+                return "1HS";
             default:
                 return "hand";
+        }
+    }
+
+    /// <summary>
+    /// Interlude weapongrp columns: handness (grip) and weapon_type (kind).
+    /// 0 shield, 1 sword, 2 blunt, 3 dagger, 4 pole, 5 fist, 6 bow, 7 book, 8 dual.
+    /// Handness 2 is two-hand, 4 is pole/staff, 5 is bow, 7 is fists.
+    /// </summary>
+    public static WeaponType FromInterlude(int handness, int weaponType)
+    {
+        switch (weaponType)
+        {
+            case 0:
+                return WeaponType.shield;
+            case 1:
+                return handness == 2 ? WeaponType.bigword : WeaponType.sword;
+            case 2:
+                if (handness == 2)
+                    return WeaponType.bigblunt;
+                if (handness == 4)
+                    return WeaponType.staff;
+                return WeaponType.blunt;
+            case 3:
+                return WeaponType.dagger;
+            case 4:
+                return WeaponType.pole;
+            case 5:
+                return WeaponType.fist;
+            case 6:
+                return WeaponType.bow;
+            case 7:
+                return WeaponType.mbook;
+            case 8:
+                return WeaponType.dual;
+            case 10:
+                return WeaponType.pole;
+            default:
+                return ParseByHandness(handness);
         }
     }
 
@@ -169,7 +210,8 @@ public class WeaponTypeParser {
             case 2:
                 return WeaponType.bigword;
             case 3:
-                return WeaponType.hand;
+                // Interlude dual swords are handness 3, weapon_type 8.
+                return WeaponType.dual;
             case 4:
                 return WeaponType.pole;
             case 5:

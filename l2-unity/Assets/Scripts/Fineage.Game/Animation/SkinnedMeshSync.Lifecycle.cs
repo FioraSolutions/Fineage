@@ -58,6 +58,7 @@ public partial class SkinnedMeshSync : MonoBehaviour
             RemapToSkeleton(destinations[i], skeleton, fallbackRoot, _rootSkinnedRenderer, _restLocal, transform);
 
         L2ActorMeshPolicy.DisableSkeletonPlaceholders(transform);
+        L2ActorMeshPolicy.DisableAlphaOverlays(gearContainer);
     }
 
     static List<SkinnedMeshRenderer> CollectGearSkinnedMeshes(Transform gearContainer, Transform animRoot)

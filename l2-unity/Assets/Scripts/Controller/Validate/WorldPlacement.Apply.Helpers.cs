@@ -265,6 +265,25 @@ public static partial class WorldPlacement
     }
 
     /// <summary>
+    /// Feet on the walkable sheet. A floor within <see cref="TownFloorDropMeters"/>
+    /// below wins. If the body is already under the brush, lift onto the face
+    /// above, at most <see cref="TownFloorLiftMeters"/>. No hit: keep Y. Never
+    /// drop toward a distant lower shell and never free-fall through a miss.
+    /// </summary>
+    public static Vector3 KeepOnBrush(Vector3 feet)
+    {
+        if (IsDarkElfCave(feet))
+            return feet;
+
+        LayerMask mask = WalkableMask(null);
+        if (TryFloorUnder(feet, mask, out float below))
+            return new Vector3(feet.x, below, feet.z);
+        if (TryFloorAbove(feet, mask, TownFloorLiftMeters, out float above))
+            return new Vector3(feet.x, above, feet.z);
+        return feet;
+    }
+
+    /// <summary>
     /// Street under a town point. A roof above the point is never chosen.
     /// Lift only when nothing walkable sits below, and the body is already
     /// inside the brush (attack step that pushed the capsule through).

@@ -6,7 +6,7 @@ using UnityEngine;
 
 /// <summary>
 /// After LineageWeapons FBX import, bake loadable prefabs like the handmade swords:
-/// mesh + L2/World/ActorModulate2X on the root, Sword_Tip / Sword_Base children. Does not overwrite existing prefabs.
+/// mesh + L2/World/ActorEnvSpecular on the root, Sword_Tip / Sword_Base children. Does not overwrite existing prefabs.
 /// </summary>
 public class L2WeaponPrefabBuilder : AssetPostprocessor
 {
@@ -14,7 +14,6 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
     const string PrefabFolder = "Assets/Resources/Data/Animations/LineageWeapons";
     const string TexFolder = "Assets/Resources/Data/SysTextures/LineageWeaponsTex";
     const string MatFolder = TexFolder + "/Materials";
-    const string TemplateMat = MatFolder + "/small_sword_t00_wp.mat";
     static readonly string[] TexMapPaths =
     {
         "Assets/Scripts/Tools/Terrain/Blender/sword_tex_map.txt",
@@ -249,10 +248,11 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         if (!AssetDatabase.IsValidFolder(MatFolder))
             AssetDatabase.CreateFolder(TexFolder, "Materials");
 
-        Material template = AssetDatabase.LoadAssetAtPath<Material>(TemplateMat);
-        Material mat = template != null
-            ? new Material(template)
-            : new Material(Shader.Find("L2/World/ActorModulate2X"));
+        // Shield alpha is a hole. Weapon alpha is the specularity mask, added as Shine0.
+        bool shield = texStem.EndsWith("_sh");
+        Material mat = new Material(Shader.Find(shield
+            ? "L2/World/ActorModulate2X"
+            : "L2/World/ActorEnvSpecular"));
         mat.name = texStem;
 
         Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(TexFolder + "/" + texStem + ".png");
@@ -260,10 +260,24 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         {
             mat.SetTexture("_BaseMap", tex);
             mat.SetTexture("_MainTex", tex);
+            if (!shield)
+                mat.SetTexture("_SpecMask", tex);
         }
 
+        if (!shield)
+        {
+            Texture2D env = AssetDatabase.LoadAssetAtPath<Texture2D>(
+                "Assets/Resources/Data/SysTextures/CubeMaps/Shine0.png");
+            if (env != null)
+                mat.SetTexture("_EnvMap", env);
+            mat.SetFloat("_SpecFromAlpha", PngHasAlpha(TexFolder + "/" + texStem + ".png") ? 1f : 0f);
+            mat.SetFloat("_ActorAlpha", 1f);
+        }
+
+        mat.SetFloat("_Cull", 0f);
+
         // Shields commonly use FinalBlend AlphaTest + TwoSided (thin geometry needs Cull Off).
-        if (texStem.EndsWith("_sh"))
+        if (shield)
             ApplyFinalBlendCutout(mat);
 
         AssetDatabase.CreateAsset(mat, matPath);
@@ -278,6 +292,21 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         if (at < 0)
             return t00Stem + "_t" + slotIndex.ToString("00");
         return t00Stem.Substring(0, at) + "_t" + slotIndex.ToString("00") + "_" + t00Stem.Substring(at + marker.Length);
+    }
+
+    /// <summary>RGBA weapon PNG keeps the specularity mask in alpha. RGB export dropped it.</summary>
+    static bool PngHasAlpha(string assetPath)
+    {
+        string full = Path.GetFullPath(assetPath);
+        if (!File.Exists(full))
+            return false;
+        byte[] head = new byte[32];
+        using (FileStream stream = File.OpenRead(full))
+        {
+            if (stream.Read(head, 0, head.Length) < 26)
+                return false;
+        }
+        return head[25] == 4 || head[25] == 6;
     }
 
     /// <summary>Mobius FinalBlend AlphaTest=true / AlphaRef=160 / TwoSided → URP cutout + Cull Off.</summary>

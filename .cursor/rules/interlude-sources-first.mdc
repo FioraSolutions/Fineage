@@ -1,0 +1,19 @@
+---
+description: Match Interlude from local sources; search the web only when those sources do not answer
+alwaysApply: true
+---
+
+# Interlude sources first
+
+Graphics, how something is drawn, and business logic come from the Interlude originals. Do not invent a window, icon, formula, packet, or layout when the original exists.
+
+Look here before writing the change:
+
+- Client UI and art: `ref/l2-interlude-client/` — `interface.xdat`, `systextures/` (`L2UI_CH3.utx`, `l2ui.utx`), `system/interface.u`, `nwindow.dll`.
+- Server rules: `ref/mobius-ct0-interlude/` (also under Fineage-Backend). Java, datapack, and handlers for the same action.
+
+Read the control name, size, texture, and the packet or formula. Match that. A later-chronicle window (MasterClan, new buttons, new tabs) is not Interlude.
+
+If the local original does not contain it, or the bytes do not show how it is drawn, search the web (Interlude client, L2J CT0, retail notes) and then implement the found behavior. Say what was missing locally. Do not fill the gap with a made-up screen.
+
+Examples: chat tabs are `ChatWnd` / `Chatting_Tab*` at 64×22; a head say-box is a client-drawn black rect, not a texture in `L2UI`.
