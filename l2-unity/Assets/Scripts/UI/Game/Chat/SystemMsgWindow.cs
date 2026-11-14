@@ -8,7 +8,8 @@ using VContainer;
 public partial class SystemMsgWindow : L2Window
 {
     const int MaxLines = 80;
-    const float DefaultHeight = 110f;
+    const float LineHeight = 14f;
+    const float FramePad = 8f;
     const float GapAboveChat = 2f;
 
     static SystemMsgWindow _instance;

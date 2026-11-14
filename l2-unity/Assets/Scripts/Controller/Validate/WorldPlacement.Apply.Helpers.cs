@@ -133,6 +133,170 @@ public static partial class WorldPlacement
             && unityPos.z >= 0f && unityPos.z < 624f;
     }
 
+    /// <summary>
+    /// Highest upward face under the server point, at most <see cref="TownFloorDropMeters"/> down.
+    /// A lid or prop that is closer to server Z but above this face is not the street.
+    /// </summary>
+    static bool TryFloorUnder(Vector3 position, LayerMask mask, out float y)
+    {
+        y = position.y;
+        Vector3 origin = new Vector3(position.x, position.y + 0.2f, position.z);
+        bool prevBackfaces = Physics.queriesHitBackfaces;
+        Physics.queriesHitBackfaces = false;
+        RaycastHit[] hits;
+        try
+        {
+            hits = Physics.RaycastAll(
+                origin, Vector3.down, TownFloorDropMeters + 0.2f, mask, QueryTriggerInteraction.Ignore);
+        }
+        finally
+        {
+            Physics.queriesHitBackfaces = prevBackfaces;
+        }
+
+        if (hits == null || hits.Length == 0)
+            return false;
+
+        float bestY = float.NegativeInfinity;
+        bool found = false;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit hit = hits[i];
+            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
+                continue;
+            if (hit.normal.y < 0.55f)
+                continue;
+            float drop = position.y - hit.point.y;
+            if (drop < -0.12f || drop > TownFloorDropMeters)
+                continue;
+            if (!found || hit.point.y > bestY)
+            {
+                bestY = hit.point.y;
+                found = true;
+            }
+        }
+
+        if (!found)
+            return false;
+
+        y = bestY;
+        return true;
+    }
+
+    /// <summary>
+    /// Feet clipped through the brush. A face just above the capsule is that floor.
+    /// A roof higher than the body is left alone.
+    /// </summary>
+    public static bool TryLiftOutOfFloor(Vector3 feet, out float y)
+    {
+        y = feet.y;
+        if (IsDarkElfCave(feet))
+            return false;
+
+        LayerMask mask = WalkableMask(null);
+        const float below = 0.8f;
+        const float above = 0.7f;
+        if (TryFloorWithin(feet, mask, below, out _))
+            return false;
+
+        return TryFloorAbove(feet, mask, above, out y);
+    }
+
+    static bool TryFloorWithin(Vector3 position, LayerMask mask, float maxDrop, out float y)
+    {
+        y = position.y;
+        Vector3 origin = new Vector3(position.x, position.y + 0.15f, position.z);
+        RaycastHit[] hits = Physics.RaycastAll(
+            origin, Vector3.down, maxDrop + 0.15f, mask, QueryTriggerInteraction.Ignore);
+        float best = float.NegativeInfinity;
+        bool found = false;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit hit = hits[i];
+            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
+                continue;
+            if (hit.normal.y < 0.55f)
+                continue;
+            float drop = position.y - hit.point.y;
+            if (drop < -0.05f || drop > maxDrop)
+                continue;
+            if (!found || hit.point.y > best)
+            {
+                best = hit.point.y;
+                found = true;
+            }
+        }
+
+        if (!found)
+            return false;
+        y = best;
+        return true;
+    }
+
+    static bool TryFloorAbove(Vector3 position, LayerMask mask, float maxLift, out float y)
+    {
+        y = position.y;
+        Vector3 origin = new Vector3(position.x, position.y + maxLift, position.z);
+        RaycastHit[] hits = Physics.RaycastAll(
+            origin, Vector3.down, maxLift, mask, QueryTriggerInteraction.Ignore);
+        float best = float.PositiveInfinity;
+        bool found = false;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit hit = hits[i];
+            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
+                continue;
+            if (hit.normal.y < 0.55f)
+                continue;
+            float lift = hit.point.y - position.y;
+            if (lift < 0.05f || lift > maxLift)
+                continue;
+            if (!found || hit.point.y < best)
+            {
+                best = hit.point.y;
+                found = true;
+            }
+        }
+
+        if (!found)
+            return false;
+        y = best;
+        return true;
+    }
+
+    /// <summary>
+    /// Street under a town point. A roof above the point is never chosen.
+    /// Lift only when nothing walkable sits below, and the body is already
+    /// inside the brush (attack step that pushed the capsule through).
+    /// </summary>
+    public static bool TryStreetDeck(Vector3 position, LayerMask mask, out float y)
+    {
+        y = position.y;
+        if (IsDarkElfCave(position))
+            return false;
+        if (TryFloorUnder(position, mask, out y))
+            return true;
+        return TryFloorAbove(position, mask, 0.7f, out y);
+    }
+
+    static bool IsActorCollider(Collider collider)
+    {
+        if (collider == null)
+            return false;
+
+        Transform t = collider.transform;
+        for (int depth = 0; depth < 6 && t != null; depth++, t = t.parent)
+        {
+            if (t.GetComponent<CharacterController>() != null)
+                return true;
+            string n = t.name;
+            if (!string.IsNullOrEmpty(n) && n.IndexOf("click_area", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+        }
+
+        return false;
+    }
+
     /// <summary>True when a walkable surface is within <paramref name="meters"/> under the feet.</summary>
     public static bool HasFloorWithin(Vector3 feet, float meters)
     {

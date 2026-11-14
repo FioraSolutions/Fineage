@@ -57,8 +57,10 @@ public class PlayerTeleport : MonoBehaviour
 
             Vector3 from = transform.position;
             Vector3 snapped = WorldPlacement.Resolve(WorldPlacement.PlacementKind.PlayerTeleport, from);
+            // The destination tile is often still loading on the first retry.
+            // Stopping here left the pawn at the geodata node, above the street.
             if ((snapped - from).sqrMagnitude < 0.0001f)
-                yield break;
+                continue;
 
             ApplyTeleportPose(snapped);
             _teleportPosition = snapped;

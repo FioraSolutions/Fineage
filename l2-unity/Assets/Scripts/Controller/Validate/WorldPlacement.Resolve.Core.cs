@@ -19,6 +19,16 @@ public static partial class WorldPlacement
             return street;
 
         Vector3 pos = serverUnityPos;
+        // Plaza NPCs keep the server Z, which is the geodata node, while the stone
+        // they should stand on is the first upward face under that point.
+        if (PreferMeshForKind(kind)
+            && !IsDarkElfCave(pos)
+            && TryFloorUnder(pos, WalkableMask(groundMask), out float floorY))
+        {
+            pos.y = floorY;
+            return pos;
+        }
+
         bool hasGeo = TryResolveGeodataY(pos, out float geoY);
         bool hasMesh = TryResolveMeshY(pos, groundMask, out float meshY);
 
@@ -35,13 +45,17 @@ public static partial class WorldPlacement
         }
 
         if (hasGeo)
-        {
             pos.y = geoY;
-            return pos;
-        }
-
-        if (hasMesh)
+        else if (hasMesh)
             pos.y = meshY;
+
+        // Geodata sits on the node, often half a metre to two metres above the
+        // brush. Drop onto that face. Do not climb: a roof above the node is ignored.
+        // A point already under the brush (attack stop) is lifted back onto it.
+        if ((kind == PlacementKind.PlayerTeleport || kind == PlacementKind.WalkValidate)
+            && TryStreetDeck(pos, WalkableMask(groundMask), out float deckY))
+            pos.y = deckY;
+
         return pos;
     }
 

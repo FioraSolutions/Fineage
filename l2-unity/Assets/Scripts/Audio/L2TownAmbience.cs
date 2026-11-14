@@ -145,7 +145,7 @@ public sealed class L2TownAmbience : MonoBehaviour
         {
             if (dist > Wake)
                 return;
-            Start(index);
+            PlaySource(index);
             src = _sources[index];
         }
         else if (dist > Sleep)
@@ -167,7 +167,7 @@ public sealed class L2TownAmbience : MonoBehaviour
         _sources[index] = src;
     }
 
-    void Start(int index)
+    void PlaySource(int index)
     {
         Source src = _sources[index];
         try
@@ -193,7 +193,7 @@ public sealed class L2TownAmbience : MonoBehaviour
         src.Playing = false;
         if (src.Instance.isValid())
         {
-            src.Instance.stop(STOP_MODE.ALLOWFADEOUT);
+            src.Instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             src.Instance.release();
             src.Instance.clearHandle();
         }

@@ -197,7 +197,9 @@ public partial class L2BrushBuilder
             return list;
         foreach (Brush b in brushes)
         {
-            if (!BrushUsable(b) || b.csgOper != "CSG_Subtract")
+            // Add-brush AntiPortal sheets are the town doorways. They are not
+            // drawn (L2_ETC), but the wall behind them is. Collect those too.
+            if (!BrushUsable(b))
                 continue;
             Vector3 basePos = b.position - b.prePivot;
             float[] bmin = { float.MaxValue, float.MaxValue, float.MaxValue };
@@ -228,7 +230,7 @@ public partial class L2BrushBuilder
                 PolyData pd = b.model.poly.polyData[p];
                 if (pd == null || worlds[p] == null)
                     continue;
-                if (string.IsNullOrEmpty(pd.texture) || pd.texture.IndexOf("alpha", System.StringComparison.OrdinalIgnoreCase) < 0)
+                if (!IsPortalCap(pd.texture))
                     continue;
                 if (!TryAxisRect(worlds[p], out int axis, out float plane, out int a, out int bv, out float a0, out float a1, out float b0, out float b1))
                     continue;
@@ -252,8 +254,21 @@ public partial class L2BrushBuilder
         return list;
     }
 
+    static bool IsPortalCap(string texture)
+    {
+        if (string.IsNullOrEmpty(texture))
+            return false;
+        if (texture.IndexOf("alpha", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        if (texture.IndexOf("AntiPortal", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        if (texture.IndexOf("ZonePortal", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        return false;
+    }
+
     /// <summary>
-    /// Subtract brushes are emitted as solid sheets, so an alpha cap that is the
+    /// Subtract brushes are emitted as solid sheets, so a portal cap that is the
     /// doorway opening stays as a wall. Drop that cap and cut it out of the coplanar face behind it.
     /// Null means "this polygon is the cap". An empty list means the face was the hole itself.
     /// </summary>
@@ -262,17 +277,13 @@ public partial class L2BrushBuilder
         var single = new List<Vector3[]> { pd.vertices };
         if (portals == null || portals.Count == 0 || pd.vertices == null)
             return single;
-        if (tex != null && tex.IndexOf("ZonePortal", System.StringComparison.OrdinalIgnoreCase) >= 0)
-            return single;
         var world = new Vector3[pd.vertices.Length];
         for (int i = 0; i < pd.vertices.Length; i++)
             world[i] = basePos + pd.vertices[i];
         if (!TryAxisRect(world, out int axis, out float plane, out int a, out int bv, out float a0, out float a1, out float b0, out float b1))
             return single;
 
-        bool alphaCap = b.csgOper == "CSG_Subtract"
-            && tex != null
-            && tex.IndexOf("alpha", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        bool alphaCap = b.csgOper == "CSG_Subtract" && IsPortalCap(tex);
         BspPortal hit = default;
         bool found = false;
         for (int i = 0; i < portals.Count; i++)
