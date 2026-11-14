@@ -89,6 +89,7 @@ public static partial class EntitySpawnShared
         }
 
         CrowdAnimTest.Apply(controller);
+        CrowdAnimTest.KeepAnimatorUpdating(controller.gameObject);
     }
 
     public static void LogStriderAppear(string when, Entity entity, string detail = null)

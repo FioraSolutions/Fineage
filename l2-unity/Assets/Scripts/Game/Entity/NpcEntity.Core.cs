@@ -8,7 +8,7 @@ public partial class NpcEntity : NetworkEntity
         base.Initialize();
         _npcAnimationAudioHandler = GetComponent<CharacterAnimationAudioHandler>();
         _characterController = GetComponent<CharacterController>();
-
+        CrowdAnimTest.KeepAnimatorUpdating(gameObject);
         EntityLoaded = true;
     }
 

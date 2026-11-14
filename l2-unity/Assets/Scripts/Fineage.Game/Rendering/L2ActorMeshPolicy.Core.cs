@@ -9,6 +9,26 @@ public static partial class L2ActorMeshPolicy
             && rendererName.EndsWith(AlphaOverlaySuffix, System.StringComparison.OrdinalIgnoreCase);
     }
 
+    public static bool IsAlphaOverlayRenderer(Renderer renderer)
+    {
+        if (renderer == null)
+            return false;
+        if (IsAlphaOverlay(renderer.name))
+            return true;
+
+        Mesh mesh = null;
+        if (renderer is SkinnedMeshRenderer skin)
+            mesh = skin.sharedMesh;
+        else
+        {
+            MeshFilter filter = renderer.GetComponent<MeshFilter>();
+            if (filter != null)
+                mesh = filter.sharedMesh;
+        }
+
+        return mesh != null && IsAlphaOverlay(mesh.name);
+    }
+
     public static bool IsSkeletonPlaceholder(string rendererName)
     {
         if (string.IsNullOrEmpty(rendererName))

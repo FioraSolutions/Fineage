@@ -45,6 +45,7 @@ Shader "L2/World/FlameAdd"
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
             };
 
@@ -54,10 +55,49 @@ Shader "L2/World/FlameAdd"
                 float2 uv : TEXCOORD0;
             };
 
+            float3 FlameObjectScale()
+            {
+                return float3(
+                    length(float3(UNITY_MATRIX_M._m00, UNITY_MATRIX_M._m10, UNITY_MATRIX_M._m20)),
+                    length(float3(UNITY_MATRIX_M._m01, UNITY_MATRIX_M._m11, UNITY_MATRIX_M._m21)),
+                    length(float3(UNITY_MATRIX_M._m02, UNITY_MATRIX_M._m12, UNITY_MATRIX_M._m22)));
+            }
+
             Varyings Vert(Attributes IN)
             {
                 Varyings OUT;
-                OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+                // Flameset is one camera-facing card. The imported mesh is a cross,
+                // so the second card is edge-on and reads as a peeled white strip.
+                float3 pivot = TransformObjectToWorld(float3(0.0, 0.0, 0.0));
+                float3 scale = FlameObjectScale();
+                float3 toCamera = _WorldSpaceCameraPos - pivot;
+                toCamera.y = 0.0;
+                float3 right = float3(1.0, 0.0, 0.0);
+                float toCameraLenSq = dot(toCamera, toCamera);
+                if (toCameraLenSq > 1e-8)
+                    right = normalize(cross(float3(0.0, 1.0, 0.0), toCamera * rsqrt(toCameraLenSq)));
+
+                float3 nWS = TransformObjectToWorldNormal(IN.normalOS);
+                float nLen = dot(nWS, nWS);
+                float align = 1.0;
+                if (nLen > 1e-8 && toCameraLenSq > 1e-8)
+                    align = abs(dot(nWS * rsqrt(nLen), toCamera * rsqrt(toCameraLenSq)));
+
+                float3 worldPos = pivot;
+                // The card whose normal faces the camera stays. Width may be local X or Z.
+                // The crossed card collapses, so it is not a bright edge beside the flame.
+                if (align >= 0.35)
+                {
+                    float side = IN.positionOS.x * scale.x;
+                    float depth = IN.positionOS.z * scale.z;
+                    if (abs(depth) > abs(side))
+                        side = depth;
+                    worldPos = pivot
+                        + right * side
+                        + float3(0.0, 1.0, 0.0) * (IN.positionOS.y * scale.y);
+                }
+
+                OUT.positionCS = TransformWorldToHClip(worldPos);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 return OUT;
             }

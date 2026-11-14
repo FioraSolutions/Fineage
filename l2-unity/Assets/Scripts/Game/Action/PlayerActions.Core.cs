@@ -30,19 +30,28 @@ public partial class PlayerActions : MonoBehaviour
         nextTarget.Bind(_targets);
         _actions.Add(ActionType.NextTarget, nextTarget);
         _actions.Add(ActionType.Mount, new RideStriderAction());
-        _actions.Add(ActionType.SocialGreeting, new SocialActionUse((int)ActionType.SocialGreeting));
-        _actions.Add(ActionType.SocialVictory, new SocialActionUse((int)ActionType.SocialVictory));
-        _actions.Add(ActionType.SocialAdvance, new SocialActionUse((int)ActionType.SocialAdvance));
-        // Icons-only for now — wire packets/anims in a follow-up.
-        RegisterStub(
-            ActionType.Trade, ActionType.Pickup, ActionType.Assist,
-            ActionType.PartyInvite, ActionType.PartyLeave, ActionType.PartyKick,
-            ActionType.PrivateStoreSell, ActionType.PartyMatching,
+        RegisterSocial(
+            ActionType.SocialGreeting, ActionType.SocialVictory, ActionType.SocialAdvance,
             ActionType.SocialYes, ActionType.SocialNo, ActionType.SocialBow,
             ActionType.SocialUnaware, ActionType.SocialWaiting, ActionType.SocialLaugh,
             ActionType.SocialApplaud, ActionType.SocialDance, ActionType.SocialSorrow,
-            ActionType.SocialCharm, ActionType.SocialShyness,
-            ActionType.PrivateStoreBuy, ActionType.DwarvenManufacture, ActionType.Recommend);
+            ActionType.SocialCharm, ActionType.SocialShyness);
+        RegisterStub(
+            ActionType.Trade, ActionType.Pickup, ActionType.Assist,
+            ActionType.PartyInvite, ActionType.PartyLeave, ActionType.PartyKick,
+            ActionType.PartyMatching, ActionType.PartyLeader,
+            ActionType.PrivateStoreSell, ActionType.PrivateStoreBuy,
+            ActionType.DwarvenManufacture, ActionType.Recommend);
+    }
+
+    void RegisterSocial(params ActionType[] types)
+    {
+        for (int i = 0; i < types.Length; i++)
+        {
+            ActionType t = types[i];
+            if (!_actions.ContainsKey(t))
+                _actions.Add(t, new SocialActionUse((int)t));
+        }
     }
 
     void RegisterStub(params ActionType[] types)

@@ -2,6 +2,13 @@ using UnityEngine;
 
 public partial class MovementData
 {
+    void ReleasePawnController()
+    {
+        CharacterController character = GetControllerToTypeEntity(_entity);
+        if (character != null && character.enabled)
+            character.enabled = false;
+    }
+
     private void CharacterMove(Entity entity , Vector3 direction , float speed)
     {
         CharacterController character = GetControllerToTypeEntity(entity);

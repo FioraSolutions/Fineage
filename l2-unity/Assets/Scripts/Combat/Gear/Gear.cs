@@ -58,4 +58,55 @@ public partial class Gear : AbstractMeshManager
         _weaponAnim = "hand";
         _weaponRange = 40; //default
     }
+
+    void LateUpdate()
+    {
+        FaceShieldWithBody();
+    }
+
+    // Shield meshes are flat on local Y. In the lowered 1HS idle the bone turns that
+    // normal out to the side, so from behind the shield is a thin edge along the back.
+    // Combat idle already points the same normal forward and is left alone.
+    void FaceShieldWithBody()
+    {
+        Transform bone = GetShieldBone();
+        if (bone == null)
+            return;
+
+        Transform shield = null;
+        for (int i = 0; i < bone.childCount; i++)
+        {
+            Transform child = bone.GetChild(i);
+            if (child.name.StartsWith(shieldName))
+            {
+                shield = child;
+                break;
+            }
+        }
+        if (shield == null)
+            return;
+
+        shield.localRotation = Quaternion.identity;
+
+        Vector3 forward = transform.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 1e-6f)
+            return;
+        forward.Normalize();
+
+        Vector3 normal = shield.TransformDirection(Vector3.up);
+        Vector3 normalFlat = new Vector3(normal.x, 0f, normal.z);
+        if (normalFlat.sqrMagnitude < 1e-4f)
+            return;
+        normalFlat.Normalize();
+
+        float align = Vector3.Dot(normalFlat, forward);
+        float edge = 1f - Mathf.Abs(align);
+        float weight = Mathf.Clamp01((edge - 0.35f) / 0.45f);
+        if (weight <= 0f)
+            return;
+
+        float yaw = Vector3.SignedAngle(normalFlat, forward, Vector3.up);
+        shield.Rotate(Vector3.up, yaw * weight, Space.World);
+    }
 }

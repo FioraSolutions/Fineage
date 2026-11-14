@@ -48,7 +48,7 @@ public partial class ChatWindow
         tabFill.pickingMode = PickingMode.Ignore;
         tabFill.style.flexGrow = 1f;
         tabFill.style.height = 13f;
-        tabFill.style.alignSelf = Align.FlexStart;
+        tabFill.style.alignSelf = Align.FlexEnd;
         Texture2D tabEdge = Resources.Load<Texture2D>("Data/UI/Assets/Chat/chatting_tab3");
         if (tabEdge != null)
         {

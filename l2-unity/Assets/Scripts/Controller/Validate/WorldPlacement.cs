@@ -31,5 +31,11 @@ public static partial class WorldPlacement
     /// </summary>
     public const float TownFloorDropMeters = 2.4f;
 
+    /// <summary>
+    /// Geodata nodes in town sit under the brush (orc camp, TI). A body already
+    /// under that sheet must be lifted onto it. Farther than this is another floor.
+    /// </summary>
+    public const float TownFloorLiftMeters = 8f;
+
     /// <summary>Resolve a Unity world position for the given placement kind.</summary>
 }

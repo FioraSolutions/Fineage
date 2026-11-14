@@ -33,11 +33,27 @@ public static partial class CrowdAnimTest
                 continue;
             animator.enabled = true;
             animator.speed = 1f;
-            // CullCompletely freezes the Animator state machine when the mesh is
-            // briefly off-camera (common for CharInfo at screen edge / behind
-            // camera). Result: run clip stuck mid-stride (normT frozen) while
-            // MoveAllCharacters still translates the pawn. CullUpdateTransforms
-            // keeps the state machine advancing and only skips writing bones.
+        }
+
+        KeepAnimatorUpdating(go);
+    }
+
+    // Prefabs ship with CullCompletely. That freezes the state machine (and the
+    // clip time) whenever the skinned bounds leave the camera, including a bad
+    // import bound that is off-screen while the mesh is still in view. The pawn
+    // keeps its last pose until something else CrossFades. Players already get
+    // this in Apply; monsters and NPCs were left on the prefab default.
+    public static void KeepAnimatorUpdating(GameObject go)
+    {
+        if (go == null)
+            return;
+
+        Animator[] animators = go.GetComponentsInChildren<Animator>(true);
+        for (int i = 0; i < animators.Length; i++)
+        {
+            Animator animator = animators[i];
+            if (animator == null)
+                continue;
             animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
         }
     }

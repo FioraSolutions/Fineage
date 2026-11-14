@@ -10,7 +10,7 @@ public partial class CharacterInfoWindow
     {
         SelectMainTab(4, updateTitle: true);
         ShowMainPanel(4);
-        FillClanPanel();
+        RefreshClanTab();
     }
 
     void OpenQuestTab()
@@ -67,42 +67,6 @@ public partial class CharacterInfoWindow
             5 => "Quest",
             _ => "Status"
         };
-    }
-
-    void FillClanPanel()
-    {
-        NetClanBook book = NetClanBook.Shared;
-        SetClanText("ClanNameValue", book.HasClan ? book.Name : "No Clan");
-        SetClanText("ClanLeaderValue", book.HasClan ? book.LeaderName() : "-");
-        SetClanText("ClanHallValue", "None");
-        SetClanText("ClanStatusValue", !book.HasClan ? "-" : book.Dissolving ? "Dissolving" : "At Peace");
-        SetClanText("ClanLevelValue", book.HasClan ? book.Level.ToString() : "-");
-        int count = book.Members != null ? book.Members.Length : 0;
-        SetClanText("ClanMembersValue", book.HasClan ? count.ToString() : "-");
-        if (_clanMemberList == null)
-            return;
-        _clanMemberList.Clear();
-        if (!book.HasClan || book.Members == null)
-            return;
-        for (int i = 0; i < book.Members.Length; i++)
-        {
-            NetPledgeMember member = book.Members[i];
-            var row = new Label(member.Name + "   " + member.Level);
-            row.style.fontSize = 11;
-            row.style.color = member.Online
-                ? new Color(223f / 255f, 222f / 255f, 222f / 255f)
-                : new Color(149f / 255f, 149f / 255f, 149f / 255f);
-            row.style.height = 16;
-            row.style.unityFontStyleAndWeight = FontStyle.Normal;
-            _clanMemberList.Add(row);
-        }
-    }
-
-    void SetClanText(string name, string value)
-    {
-        Label label = _windowEle?.Q<Label>(name);
-        if (label != null)
-            label.text = value ?? "";
     }
 
     public void FillQuestPanel(IReadOnlyList<QuestInstance> quests)

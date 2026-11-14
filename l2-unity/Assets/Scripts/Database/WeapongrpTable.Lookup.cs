@@ -103,8 +103,11 @@ public partial class WeapongrpTable
         grp.BodyPart = BodyPartFromInterlude(handness);
         grp.Grade = GradeFromInterlude(crystalType);
 
-        WeaponType fromHand = WeaponTypeParser.ParseByHandness(handness);
-        grp.WeaponType = WeaponClassifier.GetType(fromHand, grp, handness);
+        int weaponTypeCode = 0;
+        if (ids.Length > 43)
+            int.TryParse(ids[43], out weaponTypeCode);
+        WeaponType fromTable = WeaponTypeParser.FromInterlude(handness, weaponTypeCode);
+        grp.WeaponType = WeaponClassifier.GetType(fromTable, grp, handness);
         grp.ObjectId = int.Parse(ids[1]);
     }
 

@@ -4,7 +4,8 @@ using UnityEngine;
 /// CharInfo / UserEntity step. RestoredClass Interlude:
 /// APawn::calcVelocity (Pawn.h) + physWalking (PawnMove.h) + ULevel::MoveActor
 /// as a transform write. No CharacterController, no PhysX pawn-vs-pawn.
-/// Local player and monsters keep CharacterController.Move.
+/// Local player keeps CharacterController.Move. Server pawns (users, monsters, NPCs)
+/// use this step: Mobius already clipped the segment with getValidLocation.
 /// Y is never written: gravity/floor stay outside this step.
 /// </summary>
 public static class L2PawnWalk
