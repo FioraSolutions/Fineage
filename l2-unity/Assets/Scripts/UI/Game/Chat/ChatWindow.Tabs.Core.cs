@@ -42,6 +42,21 @@ public partial class ChatWindow
 
         }
 
+        // Chatting_Tab3 is the top edge that continues to the right of the last tab.
+        VisualElement tabFill = new VisualElement();
+        tabFill.name = "TabRowFill";
+        tabFill.pickingMode = PickingMode.Ignore;
+        tabFill.style.flexGrow = 1f;
+        tabFill.style.height = 13f;
+        tabFill.style.alignSelf = Align.FlexStart;
+        Texture2D tabEdge = Resources.Load<Texture2D>("Data/UI/Assets/Chat/chatting_tab3");
+        if (tabEdge != null)
+        {
+            tabFill.style.backgroundImage = new StyleBackground(tabEdge);
+            tabFill.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+        }
+        tabHeaderContainer.Add(tabFill);
+
         if (_tabs.Count > 0)
         {
             SwitchTab(_tabs[0]);

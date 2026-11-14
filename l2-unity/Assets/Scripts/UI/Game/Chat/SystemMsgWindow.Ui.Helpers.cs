@@ -50,10 +50,8 @@ public partial class SystemMsgWindow : L2Window
         if (_windowEle == null)
             return;
         int n = _lines.Count;
-        float height = n <= 0 ? 0f : n * LineHeight + FramePad;
-        if (height > 96f)
-            height = 96f;
-        _windowEle.style.height = height;
+        // interface.xdat SystemMsgWnd absolute height is 125.
+        _windowEle.style.height = n <= 0 ? 0f : 125f;
         _windowEle.style.display = n <= 0 ? DisplayStyle.None : DisplayStyle.Flex;
         SyncDock();
     }

@@ -8,7 +8,9 @@ public partial class SkinnedMeshSync : MonoBehaviour
         SkinnedMeshRenderer renderer,
         Dictionary<string, Transform> skeleton,
         Transform rootBone,
-        SkinnedMeshRenderer skeletonMesh)
+        SkinnedMeshRenderer skeletonMesh,
+        Dictionary<Transform, Matrix4x4> restLocal,
+        Transform animRoot)
     {
         if (renderer == null)
             return;
@@ -65,12 +67,13 @@ public partial class SkinnedMeshSync : MonoBehaviour
             return;
         }
 
-        // Orc and shaman faces, and orc back-hair, are one rigid weight on Bip01.
-        // Human and elf weight the same pieces to Bip01_head. The orc file still
-        // has that head bone; move the bind onto it so the face follows the skull.
+        // Faces are one rigid weight. Humans, elves, dwarves, mages: Bip01_head,
+        // and the face bind already matches the body, so the bindpose stays.
+        // Rewriting it from the animated skeleton is what lifted those heads
+        // off the neck. Orc and shaman weight the same mesh to Bip01; that one
+        // weight moves onto the body head, using the face file's own head bone.
         if (faceOrHair && missFallback != null
-            && RigidOnRoot(srcBones, mapped, missFallback)
-            && RebindRootWeightedToHead(renderer, srcBones, mapped, missFallback))
+            && TryDriveRootWeightedFaceFromHead(renderer, srcBones, mapped, missFallback))
             return;
 
         renderer.bones = mapped;
@@ -78,8 +81,6 @@ public partial class SkinnedMeshSync : MonoBehaviour
             && (TryFindBone(skeleton, sourceRoot.name, out Transform mappedRoot)
                 || TryFindBoneAlias(skeleton, sourceRoot.name, out mappedRoot)))
             renderer.rootBone = mappedRoot;
-        else if (faceOrHair && missFallback != null)
-            renderer.rootBone = missFallback;
         else if (rootBone != null)
             renderer.rootBone = rootBone;
         renderer.updateWhenOffscreen = true;
