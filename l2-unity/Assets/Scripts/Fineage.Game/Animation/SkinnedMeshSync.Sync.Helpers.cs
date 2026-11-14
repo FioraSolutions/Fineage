@@ -241,120 +241,6 @@ public partial class SkinnedMeshSync : MonoBehaviour
         return sign * magnitude;
     }
 
-    static bool RigidOnHead(Transform[] mapped, Transform head)
-    {
-        bool any = false;
-        for (int i = 0; i < mapped.Length; i++)
-        {
-            if (mapped[i] == null)
-                continue;
-            any = true;
-            if (mapped[i] != head)
-                return false;
-        }
-        return any;
-    }
-
-    static bool RigidOnRoot(Transform[] srcBones, Transform[] mapped, Transform head)
-    {
-        bool any = false;
-        for (int i = 0; i < srcBones.Length; i++)
-        {
-            Transform src = srcBones[i];
-            if (src == null)
-                continue;
-            any = true;
-            if (mapped[i] == head)
-                return false;
-            string n = src.name;
-            if (!string.Equals(n, "Bip01", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(n, "Bip01_Pelvis", StringComparison.OrdinalIgnoreCase))
-                return false;
-        }
-        return any;
-    }
-
-    /// <summary>
-    /// Face and back-hair weighted only to Bip01. The same file's Bip01_head is
-    /// the skull joint. Rebuild the bindpose so the mesh follows the body head
-    /// instead of staying on the pelvis while the skull turns.
-    /// </summary>
-    static bool RebindRootWeightedToHead(
-        SkinnedMeshRenderer renderer,
-        Transform[] srcBones,
-        Transform[] mapped,
-        Transform head)
-    {
-        Mesh src = renderer != null ? renderer.sharedMesh : null;
-        if (src == null || srcBones == null || mapped == null || head == null)
-            return false;
-
-        Transform sample = null;
-        for (int i = 0; i < srcBones.Length; i++)
-        {
-            if (srcBones[i] != null)
-            {
-                sample = srcBones[i];
-                break;
-            }
-        }
-        if (sample == null)
-            return false;
-
-        Transform faceHead = FindDescendant(sample, "Bip01_head");
-        if (faceHead == null)
-            faceHead = FindDescendant(sample, "Bip01 head");
-        if (faceHead == null)
-            faceHead = FindDescendant(sample, "Bip01 Head");
-        if (faceHead == null)
-            return false;
-
-        bool tagged = src.name.EndsWith("_headbind", StringComparison.Ordinal);
-        Mesh mesh = tagged ? src : UnityEngine.Object.Instantiate(src);
-        if (!tagged)
-            mesh.name = src.name + "_headbind";
-
-        if (!tagged)
-        {
-            Matrix4x4[] poses = mesh.bindposes;
-            if (poses == null || poses.Length == 0)
-                return false;
-            Matrix4x4 headInv = faceHead.localToWorldMatrix.inverse;
-            int n = poses.Length < srcBones.Length ? poses.Length : srcBones.Length;
-            for (int i = 0; i < n; i++)
-            {
-                Transform bone = srcBones[i];
-                if (bone == null)
-                    continue;
-                poses[i] = headInv * bone.localToWorldMatrix * poses[i];
-            }
-            mesh.bindposes = poses;
-        }
-
-        for (int i = 0; i < mapped.Length; i++)
-            mapped[i] = head;
-        renderer.sharedMesh = mesh;
-        renderer.bones = mapped;
-        renderer.rootBone = head;
-        renderer.updateWhenOffscreen = true;
-        return true;
-    }
-
-    static Transform FindDescendant(Transform root, string name)
-    {
-        if (root == null)
-            return null;
-        if (string.Equals(root.name, name, StringComparison.OrdinalIgnoreCase))
-            return root;
-        for (int i = 0; i < root.childCount; i++)
-        {
-            Transform found = FindDescendant(root.GetChild(i), name);
-            if (found != null)
-                return found;
-        }
-        return null;
-    }
-
     static bool RebindRigidToHead(
         SkinnedMeshRenderer renderer,
         Transform[] mapped,
@@ -453,10 +339,11 @@ public partial class SkinnedMeshSync : MonoBehaviour
         SkinnedMeshRenderer renderer,
         Transform[] srcBones,
         Transform[] mapped,
-        Dictionary<Transform, Matrix4x4> restWorld)
+        Dictionary<Transform, Matrix4x4> restLocal,
+        Transform animRoot)
     {
         Mesh src = renderer != null ? renderer.sharedMesh : null;
-        if (src == null || srcBones == null || mapped == null || restWorld == null || restWorld.Count == 0)
+        if (src == null || srcBones == null || mapped == null || restLocal == null || restLocal.Count == 0 || animRoot == null)
             return false;
 
         bool already = src.name.EndsWith("_rest", StringComparison.Ordinal);
@@ -473,6 +360,7 @@ public partial class SkinnedMeshSync : MonoBehaviour
             int n = poses.Length < srcBones.Length ? poses.Length : srcBones.Length;
             if (mapped.Length < n)
                 n = mapped.Length;
+            Matrix4x4 rootNow = animRoot.localToWorldMatrix;
             int replaced = 0;
             for (int i = 0; i < n; i++)
             {
@@ -480,8 +368,9 @@ public partial class SkinnedMeshSync : MonoBehaviour
                 Transform dst = mapped[i];
                 if (srcBone == null || dst == null)
                     continue;
-                if (!restWorld.TryGetValue(dst, out Matrix4x4 rest))
+                if (!restLocal.TryGetValue(dst, out Matrix4x4 localBind))
                     continue;
+                Matrix4x4 rest = rootNow * localBind;
                 next[i] = rest.inverse * srcBone.localToWorldMatrix * poses[i];
                 replaced++;
             }
@@ -495,21 +384,112 @@ public partial class SkinnedMeshSync : MonoBehaviour
         }
 
         renderer.bones = mapped;
-        Transform srcRoot = renderer.rootBone;
-        if (srcRoot != null)
+        // Skin in the mesh's own space. A skull (or any swapped bone) as rootBone
+        // adds that bone's translation on top of the bind and the face floats.
+        renderer.rootBone = null;
+        renderer.updateWhenOffscreen = true;
+        return true;
+    }
+
+    static bool IsSkeletonRootName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return false;
+        return name.Equals("Bip01", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("bip01", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("Bip01_Pelvis", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Bone that actually carries the vertices. The skin lists every cluster,
+    /// including zero-weight ones, so the bone array alone cannot tell orc
+    /// (weight on Bip01) from a human (weight on Bip01_head).
+    /// </summary>
+    static int DominantBone(Mesh mesh)
+    {
+        if (mesh == null || mesh.bindposes == null)
+            return -1;
+        BoneWeight[] weights = mesh.boneWeights;
+        if (weights == null || weights.Length == 0)
+            return -1;
+        int n = mesh.bindposes.Length;
+        var sum = new float[n];
+        for (int i = 0; i < weights.Length; i++)
         {
-            int bones = srcBones.Length < mapped.Length ? srcBones.Length : mapped.Length;
-            for (int i = 0; i < bones; i++)
+            BoneWeight w = weights[i];
+            if (w.boneIndex0 >= 0 && w.boneIndex0 < n) sum[w.boneIndex0] += w.weight0;
+            if (w.boneIndex1 >= 0 && w.boneIndex1 < n) sum[w.boneIndex1] += w.weight1;
+            if (w.boneIndex2 >= 0 && w.boneIndex2 < n) sum[w.boneIndex2] += w.weight2;
+            if (w.boneIndex3 >= 0 && w.boneIndex3 < n) sum[w.boneIndex3] += w.weight3;
+        }
+        int best = -1;
+        float bestW = 0f;
+        for (int i = 0; i < n; i++)
+        {
+            if (sum[i] > bestW)
             {
-                if (srcBones[i] != srcRoot)
-                    continue;
-                if (mapped[i] != null)
-                    renderer.rootBone = mapped[i];
+                bestW = sum[i];
+                best = i;
+            }
+        }
+        return best;
+    }
+
+    static bool TryDriveRootWeightedFaceFromHead(
+        SkinnedMeshRenderer renderer,
+        Transform[] srcBones,
+        Transform[] mapped,
+        Transform bodyHead)
+    {
+        Mesh src = renderer != null ? renderer.sharedMesh : null;
+        if (src == null || srcBones == null || mapped == null || bodyHead == null)
+            return false;
+        int dom = DominantBone(src);
+        if (dom < 0 || dom >= srcBones.Length || srcBones[dom] == null)
+            return false;
+        if (!IsSkeletonRootName(srcBones[dom].name))
+            return false;
+
+        Transform faceHead = null;
+        for (int i = 0; i < srcBones.Length; i++)
+        {
+            if (IsSkullBone(srcBones[i]))
+            {
+                faceHead = srcBones[i];
                 break;
             }
         }
+        if (faceHead == null)
+            return false;
+
+        bool tagged = src.name.EndsWith("_headbind", StringComparison.Ordinal);
+        if (!tagged)
+        {
+            Mesh mesh = UnityEngine.Object.Instantiate(src);
+            mesh.name = src.name + "_headbind";
+            Matrix4x4[] poses = mesh.bindposes;
+            if (poses == null || dom >= poses.Length)
+                return false;
+            poses[dom] = faceHead.worldToLocalMatrix * srcBones[dom].localToWorldMatrix * poses[dom];
+            mesh.bindposes = poses;
+            renderer.sharedMesh = mesh;
+        }
+
+        mapped[dom] = bodyHead;
+        renderer.bones = mapped;
+        renderer.rootBone = bodyHead;
         renderer.updateWhenOffscreen = true;
         return true;
+    }
+
+    static bool IsSkullBone(Transform bone)
+    {
+        if (bone == null || string.IsNullOrEmpty(bone.name))
+            return false;
+        string n = bone.name;
+        return n.Equals("Bip01_head", StringComparison.OrdinalIgnoreCase)
+            || n.Equals("Bip01 Head", StringComparison.OrdinalIgnoreCase)
+            || n.Equals("Bip01_Head", StringComparison.OrdinalIgnoreCase);
     }
 
     static bool TryBoneBindLocal(SkinnedMeshRenderer smr, Transform bone, out Matrix4x4 local)

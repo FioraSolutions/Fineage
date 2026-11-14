@@ -234,7 +234,12 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
         if (string.IsNullOrEmpty(texStem))
             texStem = meshName.Replace("_m00_wp", "_t00_wp").Replace("_m00_sh", "_t00_sh").Replace("_m00", "_t00");
         if (slotIndex > 0)
+        {
             texStem = PromoteTextureSlot(texStem, slotIndex);
+            // No t01 file: reuse t00. A blank second slot draws the shield face black.
+            if (AssetDatabase.LoadAssetAtPath<Texture2D>(TexFolder + "/" + texStem + ".png") == null)
+                return GetOrCreateMaterial(meshName, texMap, slotIndex: 0);
+        }
 
         string matPath = MatFolder + "/" + texStem + ".mat";
         Material existing = AssetDatabase.LoadAssetAtPath<Material>(matPath);

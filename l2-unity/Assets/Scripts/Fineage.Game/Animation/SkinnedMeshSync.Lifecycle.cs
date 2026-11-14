@@ -4,13 +4,39 @@ using UnityEngine;
 
 public partial class SkinnedMeshSync : MonoBehaviour
 {
+    // Bone bind, relative to this anim root. Captured before the Animator
+    // leaves the imported pose. Face FBX rest poses (FOrc head) do not match
+    // the body skeleton; retarget uses this instead of the live pose.
+    Dictionary<Transform, Matrix4x4> _restLocal;
+
+    void Awake()
+    {
+        CaptureRestLocal();
+    }
+
     void Start()
     {
         SyncMesh();
     }
 
+    void CaptureRestLocal()
+    {
+        _restLocal = new Dictionary<Transform, Matrix4x4>(128);
+        Matrix4x4 toRoot = transform.worldToLocalMatrix;
+        Transform[] all = GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
+        {
+            Transform bone = all[i];
+            if (bone != null)
+                _restLocal[bone] = toRoot * bone.localToWorldMatrix;
+        }
+    }
+
     public void SyncMesh()
     {
+        if (_restLocal == null || _restLocal.Count == 0)
+            CaptureRestLocal();
+
         Transform gearContainer = transform.parent;
         if (gearContainer == null)
             return;
@@ -29,7 +55,7 @@ public partial class SkinnedMeshSync : MonoBehaviour
 
         Transform fallbackRoot = ResolveRootBone(skeleton, _rootSkinnedRenderer);
         for (int i = 0; i < destinations.Count; i++)
-            RemapToSkeleton(destinations[i], skeleton, fallbackRoot, _rootSkinnedRenderer);
+            RemapToSkeleton(destinations[i], skeleton, fallbackRoot, _rootSkinnedRenderer, _restLocal, transform);
 
         L2ActorMeshPolicy.DisableSkeletonPlaceholders(transform);
     }

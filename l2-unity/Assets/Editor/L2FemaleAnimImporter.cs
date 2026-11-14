@@ -155,6 +155,11 @@ public static class L2FemaleAnimImporter
             foreach (var b in AnimationUtility.GetCurveBindings(clip))
             {
                 if (string.IsNullOrEmpty(b.path)) continue;
+                // Clips must address the skeleton root (FDarkElf_m000_b.ao). A donor
+                // path under m001 never hits that hierarchy and the body stays in bind.
+                if (!b.path.Equals(rootName, StringComparison.Ordinal)
+                    && !b.path.StartsWith(rootName + "/", StringComparison.Ordinal))
+                    continue;
                 string leaf = b.path.Substring(b.path.LastIndexOf('/') + 1);
                 map[leaf.ToLowerInvariant()] = b.path;
             }
