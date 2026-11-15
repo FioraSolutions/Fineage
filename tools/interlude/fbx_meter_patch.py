@@ -260,10 +260,59 @@ def _retarget_global_matrix(values, linear_div, translation_mul):
         values[i] = values[i] * translation_mul
 
 
-def patch(path, dst):
+def detect_contract(root):
+    """Read the asset's current unit contract before patching.
+
+    Returns (legacy, reason):
+      legacy=True  -> node Lcl Scaling is still 100 and/or UnitScaleFactor is 1, so the
+                      asset is in the old contract and must be multiplied by 1.9.
+      legacy=False -> already on the meter contract; patching again would grow it by
+                      another 1.9x, so the caller must skip it.
+
+    The decision is per file, never per folder: the shared weapon folder holds 382
+    legacy assets next to 8 that are already meter.
+    """
+    unit = None
+    node_scale = None
+    globals_ = root.first("GlobalSettings")
+    if globals_:
+        props = globals_.first("Properties70")
+        for p in (props.children if props else []):
+            if p.name == "P" and p.props and p.props[0].value == "UnitScaleFactor":
+                if len(p.props) > 4:
+                    unit = float(p.props[4].value)
+    objects = root.first("Objects")
+    for obj in (objects.children if objects else []):
+        if obj.name != "Model":
+            continue
+        scaling = _p70(obj, "Lcl Scaling")
+        if scaling and len(scaling.props) > 6:
+            value = abs(float(scaling.props[4].value))
+            if value > 1.5:
+                node_scale = value
+                break
+    if node_scale is not None:
+        return True, f"node-scale={node_scale:g},unit={unit}"
+    if unit is not None and abs(unit - METER_UNIT) > 0.5:
+        return True, f"node-scale=1,unit={unit:g}"
+    return False, f"node-scale=1,unit={unit}"
+
+
+def patch(path, dst, force=False):
     version, nodes, original, footer_offset = parse(path)
     root = Node("", [], nodes, wide=version >= 7500)
     stats = {"unit": 0, "models": 0, "vertices": 0, "bindPose": 0, "clusters": 0, "scaledModels": 0}
+
+    legacy, reason = detect_contract(root)
+    stats["contract"] = reason
+    if not legacy and not force:
+        # Already meter: copy through untouched so a batch run stays idempotent.
+        stats["skipped"] = True
+        os.makedirs(os.path.dirname(os.path.abspath(dst)) or ".", exist_ok=True)
+        with open(path, "rb") as src, open(dst, "wb") as fh:
+            fh.write(src.read())
+        return stats
+    stats["skipped"] = False
 
     globals_ = root.first("GlobalSettings")
     if globals_:
@@ -333,7 +382,8 @@ def main():
         for name in sorted(f for f in os.listdir(src_dir) if f.lower().endswith(".fbx")):
             report[name] = patch(os.path.join(src_dir, name), os.path.join(dst_dir, name))
             print("PATCHED", name, report[name])
-        print("TOTAL", len(report))
+        skipped = sum(1 for s in report.values() if s.get("skipped"))
+        print("TOTAL", len(report), "SKIPPED", skipped)
         return
     for i in range(0, len(args), 2):
         stats = patch(args[i], args[i + 1])

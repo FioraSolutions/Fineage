@@ -58,11 +58,22 @@ public sealed partial class ItemDropWeaponAligner
         target /= 3f;
         target *= 1.3f;
         Vector3 scaleBefore = visual.transform.localScale;
+
+        // `current` is already in meters (mesh bounds x lossyScale), so the only correct
+        // thing is to move it to `target` — the drop is a fixed fraction of the weapon's
+        // real size, independent of the FBX unit contract it came from.
+        //
+        // There used to be a `skip = current >= target * 0.55f` guard here. It only ever
+        // fired because weapon meshes were tiny (legacy contract: a staff measured
+        // 0.0094 u), so the guard read "already big enough" only after a 100x error.
+        // Once weapons moved to the meter contract the same guard started firing on
+        // every weapon and left drops at full real size (0.94 m staff instead of 0.17 m).
         float mul = target / current;
-        bool skip = current >= target * 0.55f;
-        if (!skip)
+        if (mul > 0.0001f && !Mathf.Approximately(mul, 1f))
         {
-            mul = Mathf.Clamp(mul, 0.25f, 64f);
+            // The old lower bound of 0.25 assumed the mesh always had to grow. Meter
+            // meshes have to shrink by the full ratio, so only the upper bound stays.
+            mul = Mathf.Clamp(mul, 0.0001f, 64f);
             visual.transform.localScale *= mul;
         }
 
