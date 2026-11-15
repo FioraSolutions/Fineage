@@ -7,59 +7,49 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// MFighter pilot: finish the meter-contract migration on the Unity side
-/// (Docs/METER_SCALE_MIGRATION.md §4–§6).
+/// Meter-contract migration on the Unity side (Docs/METER_SCALE_MIGRATION.md §4–§6).
 ///
-/// Input: the 75 MFighter FBX already rewritten by tools/interlude/fbx_meter_patch.py
+/// Input: the rig's FBX already rewritten by tools/interlude/fbx_meter_patch.py
 /// (UnitScaleFactor 100, node scale 1, data carrying the legacy 1.9 product).
 ///
 /// Steps, all idempotent:
 ///   1. importers  — globalScale 1, useFileScale true, animationType Generic (and the anim
 ///                   FBX keeps importAnimation on);
 ///   2. clips      — m_LocalPosition curves ×100, .ao root m_LocalScale → 1 (§5);
-///   3. prefabs    — anim prefabs get their skeleton subtree rebuilt from the new FBX (§6)
+///   3. prefabs    — anim prefabs get their skeleton transforms synced from the new FBX (§6)
 ///                   and armor/face/hair prefabs lose stale m_LocalScale 100 overrides.
 ///
 /// Batch:
-///   Unity -batchmode -quit -projectPath l2-unity -executeMethod L2MeterMigration.RunCli
-/// Steps can be run alone: L2MeterMigration.RunCli imports|clips|prefabs
+///   Unity -batchmode -quit -projectPath l2-unity \
+///     -executeMethod L2MeterMigration.RunCli [all|imports|clips|prefabs] [rigFilter] [dry]
+///
+/// `rigFilter` is a substring of the rig id (`Elf/MElf`, `LineageNPCs/`), default: every
+/// rig in `L2MeterRigs.Discover()`.
 /// </summary>
 public static class L2MeterMigration
 {
-    const string Models = "Assets/Resources/Data/Animations/Fighter/MFighter/Models";
-    const string AnimFbx = Models + "/anim/MFighter_anim.fbx";
-    const string AnimPrefab = Models + "/anim/MFighter_anim.prefab";
-    const string AnimPlayer = "Assets/Resources/Data/Animations/Fighter/MFighter/MFighter_anim_player.prefab";
-    const string AnimUser = "Assets/Resources/Data/Animations/Fighter/MFighter/MFighter_anim_user.prefab";
-    const string ClipDir = "Assets/Resources/Data/Animations/Fighter/MFighter/Clips";
-    const string RaceRoot = "Assets/Resources/Data/Animations/Fighter";
-    const string HumanRoot = "Assets/Resources/Data/Animations/Human/MFighter";
     const string ResultPath = "/tmp/fineage-meter-migration.txt";
-
-    /// <summary>
-    /// Clips already rescaled (§5 asks for a re-runnable record instead of a heuristic).
-    /// Written next to the harness baseline and committed, so a second run is a no-op.
-    /// </summary>
-    const string ConvertedClipsPath = "Assets/MeterContract/MFighter.clips-converted.json";
 
     /// <summary>Legacy world factor: 100 (node Lcl Scaling) × 0.019 (importer globalScale).</summary>
     const float PositionFactor = 100f;
 
-    [MenuItem("L2/Meter Contract/Migrate MFighter (import, clips, prefabs)")]
+    static MeterRig _rig;
+
+    [MenuItem("L2/Meter Contract/Migrate all rigs (import, clips, prefabs)")]
     public static void Menu()
     {
-        Debug.Log("[MeterMigration] " + Run("all"));
+        Debug.Log("[MeterMigration] " + RunAll("all", null));
     }
 
     public static void RunCli()
     {
-        // The batch step name is the last argument: -executeMethod L2MeterMigration.RunCli imports
-        string step = Environment.GetCommandLineArgs().LastOrDefault() ?? "all";
-        if (step.StartsWith("-", StringComparison.Ordinal))
-            step = "all";
+        string[] extra = BatchArgs.After("L2MeterMigration.RunCli");
+        string step = extra.Length > 0 ? extra[0] : "all";
+        string filter = extra.Length > 1 ? extra[1] : null;
+        bool dry = extra.Contains("dry", StringComparer.OrdinalIgnoreCase);
         try
         {
-            string report = Run(step);
+            string report = RunAll(step, filter, dry);
             File.AppendAllText(ResultPath, report + "\nOK\n");
             Debug.Log("[MeterMigration] " + report);
             EditorApplication.Exit(0);
@@ -72,24 +62,60 @@ public static class L2MeterMigration
         }
     }
 
-    public static string Run(string step)
+    /// <summary>Rig ids that match the CLI filter, resolved once per batch run.</summary>
+    public static List<MeterRig> SelectRigs(string filter)
+    {
+        List<MeterRig> all = L2MeterRigs.Discover();
+        return string.IsNullOrEmpty(filter)
+            ? all
+            : all.Where(r => r.Id.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+    }
+
+    public static string RunAll(string step, string filter, bool dry = false)
     {
         var log = new List<string>();
-        File.WriteAllText(ResultPath, step + "\n");
+        File.WriteAllText(ResultPath, step + " filter=" + (filter ?? "*") + "\n");
+        List<MeterRig> rigs = SelectRigs(filter);
+        if (rigs.Count == 0)
+            throw new InvalidOperationException("no rig matched filter '" + filter + "'");
+        log.Add("rigs=" + rigs.Count);
         bool all = step == "all";
-        if (all || step == "imports")
-            ConfigureImporters(log);
-        if (all || step == "clips")
-            ConvertClips(log);
-        if (all || step == "prefabs")
-            RebuildPrefabs(log);
+        int imported = 0, clips = 0, prefabs = 0, cleared = 0;
+        if (step == "rigs")
+        {
+            foreach (MeterRig rig in rigs)
+            {
+                log.Add($"{rig.Id} | models={rig.Models} | animFbx={Path.GetFileName(rig.AnimFbx ?? "-")} " +
+                        $"| animPrefab={Path.GetFileName(rig.AnimPrefab ?? "-")} " +
+                        $"| clipDirs={rig.ClipDirs.Count} clips={L2MeterRigs.Clips(rig).Count()} " +
+                        $"| prefabs={L2MeterRigs.Prefabs(rig).Count()}");
+            }
+            return string.Join("\n", log);
+        }
+        foreach (MeterRig rig in rigs)
+        {
+            _rig = rig;
+            if (all || step == "imports")
+                imported += ConfigureImporters(log);
+            if (all || step == "clips")
+                clips += ConvertClips(log);
+            if (all || step == "prefabs")
+                prefabs += RebuildPrefabs(log, out int dropped);
+            cleared += ClearStaleScaleOverrides(rig);
+        }
         AssetDatabase.SaveAssets();
         string report = string.Join(" | ", log);
         File.AppendAllText(ResultPath, report + "\n");
         return report;
     }
 
-    static IEnumerable<string> ModelFbx(string folder = Models)
+    /// <summary>Legacy entry point kept so existing batch invocations keep working.</summary>
+    public static string Run(string step)
+    {
+        return RunAll(step, null);
+    }
+
+    static IEnumerable<string> ModelFbx(string folder)
     {
         foreach (string guid in AssetDatabase.FindAssets("t:Model", new[] { folder }))
         {
@@ -100,10 +126,13 @@ public static class L2MeterMigration
     }
 
     // --------------------------------------------------------------- §4 import settings
-    static void ConfigureImporters(List<string> log)
+    static int ConfigureImporters(List<string> log)
     {
         int changed = 0;
-        var paths = ModelFbx().Concat(ModelFbx(Models + "/anim")).Distinct().ToList();
+        var paths = ModelFbx(_rig.Models).Distinct().ToList();
+        if (!string.IsNullOrEmpty(_rig.AnimFbx))
+            paths.Add(_rig.AnimFbx);
+        paths = paths.Distinct().ToList();
         try
         {
             AssetDatabase.StartAssetEditing();
@@ -111,7 +140,7 @@ public static class L2MeterMigration
             {
                 if (!(AssetImporter.GetAtPath(path) is ModelImporter importer))
                     continue;
-                bool anim = path == AnimFbx;
+                bool anim = path == _rig.AnimFbx;
                 ModelImporterAnimationType type = anim ? ModelImporterAnimationType.Generic
                                                        : importer.animationType;
                 // Only the unit contract is forced for meshes; the rest of their settings stay.
@@ -140,12 +169,13 @@ public static class L2MeterMigration
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
         log.Add($"importers={changed}/{paths.Count}");
+        return changed;
     }
 
     // ------------------------------------------------------------------- §5 anim clips
-    static void ConvertClips(List<string> log)
+    static int ConvertClips(List<string> log)
     {
-        string markerPath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", ConvertedClipsPath));
+        string markerPath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", _rig.ConvertedClipsPath));
         var already = new HashSet<string>(StringComparer.Ordinal);
         if (File.Exists(markerPath))
         {
@@ -161,11 +191,8 @@ public static class L2MeterMigration
         int positionCurves = 0;
         int scaleCurves = 0;
         int skipped = 0;
-        foreach (string guid in AssetDatabase.FindAssets("t:AnimationClip", new[] { ClipDir }))
+        foreach (string path in L2MeterRigs.Clips(_rig))
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (!path.EndsWith(".anim", StringComparison.OrdinalIgnoreCase))
-                continue;
             // §5: no value heuristic. A recorded clip is never converted twice.
             if (already.Contains(path))
             {
@@ -208,8 +235,9 @@ public static class L2MeterMigration
 
         Directory.CreateDirectory(Path.GetDirectoryName(markerPath));
         File.WriteAllLines(markerPath, already.OrderBy(p => p, StringComparer.Ordinal));
-        AssetDatabase.ImportAsset(ConvertedClipsPath);
-        log.Add($"clips={converted} skipped={skipped} positionCurves={positionCurves} scaleCurves={scaleCurves}");
+        AssetDatabase.ImportAsset(_rig.ConvertedClipsPath);
+        log.Add($"{_rig.Id}: clips={converted} skipped={skipped} positionCurves={positionCurves} scaleCurves={scaleCurves}");
+        return converted;
     }
 
     static AnimationCurve Scaled(AnimationCurve curve, float factor)
@@ -254,29 +282,40 @@ public static class L2MeterMigration
     }
 
     // ---------------------------------------------------------------------- §6 prefabs
-    static void RebuildPrefabs(List<string> log)
+    static int RebuildPrefabs(List<string> log, out int cleared)
     {
-        var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(AnimFbx);
-        if (fbx == null)
-            throw new FileNotFoundException("missing anim FBX", AnimFbx);
-
+        cleared = 0;
         // §6 permits rebuilding the subtree, but destroying and re-instantiating it churns
         // prefab fileIDs. Player_/User_/Pawn_ override the carrier SkinnedMeshRenderer by
         // fileID (m_Mesh -> null), so a rebuild silently resurrects the skeleton mesh.
         // The FBX patch is numerically exact, so copying the new local transforms onto the
         // existing objects keeps every fileID and every external override intact.
         int synced = 0;
-        foreach (string path in new[] { AnimPrefab, AnimPlayer, AnimUser })
+        if (string.IsNullOrEmpty(_rig.AnimFbx))
+        {
+            log.Add($"{_rig.Id}: no anim FBX, prefabs left alone");
+            return 0;
+        }
+        var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(_rig.AnimFbx);
+        if (fbx == null)
+            throw new FileNotFoundException("missing anim FBX", _rig.AnimFbx);
+
+        var targets = new List<string>();
+        if (!string.IsNullOrEmpty(_rig.AnimPrefab))
+            targets.Add(_rig.AnimPrefab);
+        targets.AddRange(_rig.AnimPrefabs);
+        foreach (string path in targets.Distinct())
         {
             if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
             {
-                log.Add("missing " + Path.GetFileName(path));
+                log.Add($"{_rig.Id}: missing {Path.GetFileName(path)}");
                 continue;
             }
             synced += SyncSkeletonTransforms(path, fbx);
         }
-        int cleared = ClearStaleScaleOverrides();
-        log.Add($"animPrefabs=3 syncedTransforms={synced} clearedScaleOverrides={cleared}");
+        cleared = ClearStaleScaleOverrides(_rig);
+        log.Add($"{_rig.Id}: animPrefabs={targets.Count} syncedTransforms={synced} clearedScaleOverrides={cleared}");
+        return synced;
     }
 
     /// <summary>
@@ -401,53 +440,45 @@ public static class L2MeterMigration
     /// legitimately carry 100 — `MFighter_h_2_2_bh` has one holding a raw-unit mesh, and
     /// clearing it shrank the hair 100×.
     /// </summary>
-    static int ClearStaleScaleOverrides()
+    static int ClearStaleScaleOverrides(MeterRig rig)
     {
         int cleared = 0;
-        foreach (string folder in new[] { RaceRoot, HumanRoot + "/Faces", HumanRoot + "/Hair" })
+        foreach (string path in L2MeterRigs.GearedPrefabs(rig))
         {
-            if (!AssetDatabase.IsValidFolder(folder))
-                continue;
-            foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { folder }))
+            var root = PrefabUtility.LoadPrefabContents(path);
+            try
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (!Path.GetFileName(path).StartsWith("MFighter_", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                var root = PrefabUtility.LoadPrefabContents(path);
-                try
+                bool dirty = false;
+                foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
                 {
-                    bool dirty = false;
-                    foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
-                    {
-                        if (Mathf.Abs(t.localScale.x - 100f) > 0.5f)
-                            continue;
-                        if (!IsMigratedFbxInstance(t))
-                            continue;
-                        t.localScale = Vector3.one;
-                        PrefabUtility.RecordPrefabInstancePropertyModifications(t);
-                        dirty = true;
-                    }
-                    if (!dirty)
+                    if (Mathf.Abs(t.localScale.x - 100f) > 0.5f)
                         continue;
-                    PrefabUtility.SaveAsPrefabAsset(root, path);
-                    cleared++;
+                    if (!IsMigratedFbxInstance(t, rig))
+                        continue;
+                    t.localScale = Vector3.one;
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+                    dirty = true;
                 }
-                finally
-                {
-                    PrefabUtility.UnloadPrefabContents(root);
-                }
+                if (!dirty)
+                    continue;
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+                cleared++;
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
             }
         }
         return cleared;
     }
 
-    static bool IsMigratedFbxInstance(Transform t)
+    static bool IsMigratedFbxInstance(Transform t, MeterRig rig)
     {
         GameObject source = PrefabUtility.GetCorrespondingObjectFromSource(t.gameObject);
         if (source == null)
             return false;
         string path = AssetDatabase.GetAssetPath(source);
-        return path.StartsWith(Models, StringComparison.Ordinal)
+        return path.StartsWith(rig.Models, StringComparison.Ordinal)
                && path.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase);
     }
 }

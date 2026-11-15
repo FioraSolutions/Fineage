@@ -11,23 +11,21 @@ using UnityEngine;
 /// <summary>
 /// Meter-scale contract harness (Docs/METER_SCALE_MIGRATION.md §7).
 ///
-/// Captures a baseline of the pre-migration character hierarchy and, after the FBX/clip
-/// migration, fails loudly when a bone, skin bound or sampled vertex moved. The baseline
-/// is committed so CI can re-run the same comparison.
+/// Captures a baseline of a rig's pre-migration hierarchy and, after the FBX/clip
+/// migration, fails loudly when a bone, skin bound or sampled vertex moved. One baseline
+/// per rig, committed, so CI can re-run the same comparison.
 ///
 /// Batch:
 ///   Unity -batchmode -quit -projectPath l2-unity \
-///     -executeMethod L2MeterContractHarness.CaptureCli   (writes the baseline JSON)
+///     -executeMethod L2MeterContractHarness.CaptureCli [rigFilter]
 ///   Unity -batchmode -quit -projectPath l2-unity \
-///     -executeMethod L2MeterContractHarness.VerifyCli    (exit 1 on drift)
+///     -executeMethod L2MeterContractHarness.VerifyCli [rigFilter]
 /// </summary>
 public static class L2MeterContractHarness
 {
-    const string RaceRoot = "Assets/Resources/Data/Animations/Fighter";
-    const string HumanRoot = "Assets/Resources/Data/Animations/Human/MFighter";
     const string ResultPath = "/tmp/fineage-meter-harness.txt";
 
-    /// <summary>Committed baseline (small JSON, one entry per captured prefab).</summary>
+    /// <summary>Pilot baseline path, kept for the committed MFighter artefact.</summary>
     public const string BaselinePath = "Assets/MeterContract/MFighter.baseline.json";
 
     const float PositionTolerance = 1e-4f;
@@ -77,23 +75,24 @@ public static class L2MeterContractHarness
     public class Dataset
     {
         public string schema = "meter-contract/1";
+        public string rig;
         public string capturedUtc;
         public string note;
         public List<PrefabEntry> prefabs = new List<PrefabEntry>();
         public List<ClipEntry> clips = new List<ClipEntry>();
     }
 
-    [MenuItem("L2/Meter Contract/Capture MFighter Baseline")]
+    [MenuItem("L2/Meter Contract/Capture Baselines (all rigs)")]
     public static void CaptureMenu()
     {
-        var (report, ok) = Capture();
+        var (report, ok) = CaptureAll(null);
         Debug.Log("[MeterHarness] " + report + (ok ? "" : " (FAILED)"));
     }
 
-    [MenuItem("L2/Meter Contract/Verify MFighter Contract")]
+    [MenuItem("L2/Meter Contract/Verify Contracts (all rigs)")]
     public static void VerifyMenu()
     {
-        string report = Verify(out bool ok);
+        string report = VerifyAll(null, out bool ok);
         Debug.Log("[MeterHarness] " + report);
         if (!ok)
             Debug.LogError("[MeterHarness] FAILED — see " + ResultPath);
@@ -101,25 +100,22 @@ public static class L2MeterContractHarness
 
     public static void CaptureCli()
     {
-        RunBatch(Capture, 0);
+        RunBatch(BatchArgs.First("CaptureCli"), 0);
     }
 
     public static void VerifyCli()
     {
-        RunBatch(() =>
-        {
-            string report = Verify(out bool ok);
-            return (report, ok);
-        }, 1);
+        RunBatch(BatchArgs.First("VerifyCli"), 1);
     }
 
-    static void RunBatch(Func<(string report, bool ok)> work, int failCode)
+    static void RunBatch(string filter, int failCode)
     {
         try
         {
-            var (report, ok) = work();
+            var (report, ok) = CaptureOrVerify(filter);
             File.AppendAllText(ResultPath, report + "\n" + (ok ? "OK" : "FAILED") + "\n");
             Debug.Log("[MeterHarness] " + report);
+            // Verify is the gate: a red rig must fail the batch job, not the empty report.
             EditorApplication.Exit(ok ? 0 : failCode);
         }
         catch (Exception error)
@@ -130,11 +126,61 @@ public static class L2MeterContractHarness
         }
     }
 
+    static (string report, bool ok) CaptureOrVerify(string filter)
+    {
+        return BatchArgs.First("CaptureCli") != null ||
+               Environment.GetCommandLineArgs().Any(a => a.EndsWith(".CaptureCli", StringComparison.Ordinal))
+            ? CaptureAll(filter)
+            : (VerifyAll(filter, out bool ok), ok);
+    }
+
+    /// <summary>Capture the baseline of one rig; name it after the pilot's committed file.</summary>
     public static (string report, bool ok) Capture()
     {
-        Dataset data = BuildDataset();
+        MeterRig rig = L2MeterRigs.Discover().First(r => r.Id == "Fighter/MFighter");
+        return Capture(rig, BaselinePath);
+    }
+
+    public static (string report, bool ok) CaptureAll(string filter)
+    {
+        var reports = new List<string>();
+        foreach (MeterRig rig in L2MeterMigration.SelectRigs(filter))
+        {
+            (string report, bool ok) = Capture(rig, rig.BaselinePath);
+            reports.Add(report);
+        }
+        return (string.Join(" | ", reports), true);
+    }
+
+    /// <summary>
+    /// True when every model of the rig is already on the meter import contract.
+    ///
+    /// Capturing a baseline for such a rig documents the *migrated* tree, and Verify would
+    /// then compare the migration against itself — the failure that let 11,013 differences
+    /// through on the MFighter pilot. The committed baseline must stay the pre-migration
+    /// one, so an already-migrated rig never rewrites it.
+    /// </summary>
+    static bool AlreadyMigrated(MeterRig rig)
+    {
+        var importers = L2MeterRigs.ModelFbx(rig)
+            .Select(AssetImporter.GetAtPath)
+            .OfType<ModelImporter>()
+            .ToList();
+        if (importers.Count == 0)
+            return false;
+        return importers.All(i => Mathf.Approximately(i.globalScale, 1f) && i.useFileScale);
+    }
+
+    static (string report, bool ok) Capture(MeterRig rig, string baselinePath)
+    {
+        string absoluteEarly = Path.GetFullPath(Path.Combine(Application.dataPath, "..", baselinePath));
+        if (AlreadyMigrated(rig) && File.Exists(absoluteEarly))
+            return ($"skipped {rig.Id}: already meter and a baseline exists", true);
+
+        Dataset data = BuildDataset(rig);
+        data.rig = rig.Id;
         data.capturedUtc = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
-        string absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", BaselinePath));
+        string absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", baselinePath));
         Directory.CreateDirectory(Path.GetDirectoryName(absolute));
         File.WriteAllText(absolute, JsonOf(data));
         AssetDatabase.Refresh();
@@ -142,17 +188,42 @@ public static class L2MeterContractHarness
 
         // Capture also records whether the shipped tree is still the legacy x100 contract.
         int legacy = data.prefabs.Count(p => !p.isMeterBoneHierarchy);
-        return ($"captured prefabs={data.prefabs.Count} clips={data.clips.Count} legacyScale={legacy}", true);
+        return ($"captured {rig.Id} prefabs={data.prefabs.Count} clips={data.clips.Count} legacyScale={legacy}", true);
     }
 
     public static string Verify(out bool ok)
     {
-        string absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", BaselinePath));
+        return VerifyAll(null, out ok);
+    }
+
+    public static string VerifyAll(string filter, out bool ok)
+    {
+        var parts = new List<string>();
+        bool allOk = true;
+        int total = 0, failed = 0;
+        foreach (MeterRig rig in L2MeterMigration.SelectRigs(filter))
+        {
+            string report = Verify(rig, out bool rigOk);
+            parts.Add(report);
+            if (!rigOk)
+            {
+                allOk = false;
+                failed++;
+            }
+            total++;
+        }
+        ok = allOk;
+        return $"rigs={total} failed={failed} | " + string.Join(" | ", parts);
+    }
+
+    static string Verify(MeterRig rig, out bool ok)
+    {
+        string absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", rig.BaselinePath));
         if (!File.Exists(absolute))
-            throw new FileNotFoundException("No committed baseline at " + BaselinePath +
+            throw new FileNotFoundException("No committed baseline at " + rig.BaselinePath +
                                             ". Run CaptureCli on the pre-migration tree first.");
         Dataset baseline = DatasetFromJson(File.ReadAllText(absolute));
-        Dataset current = BuildDataset();
+        Dataset current = BuildDataset(rig);
 
         var failures = new List<string>();
         var prefabsByPath = current.prefabs.ToDictionary(p => p.assetPath, p => p);
@@ -179,14 +250,11 @@ public static class L2MeterContractHarness
         }
 
         // Every clip binding must still resolve to a transform in the anim prefab.
-        var animPrefabs = new[]
-        {
-            RaceRoot + "/MFighter/MFighter_anim_player.prefab",
-            RaceRoot + "/MFighter/MFighter_anim_user.prefab",
-            HumanRoot + "/Player_MFighter.prefab",
-            HumanRoot + "/User_MFighter.prefab",
-            HumanRoot + "/Pawn_MFighter.prefab",
-        }.Select(AssetDatabase.LoadAssetAtPath<GameObject>).Where(p => p != null).ToArray();
+        var animPrefabs = rig.AnimPrefabs
+            .Concat(new[] { rig.AnimPrefab })
+            .Concat(rig.ActorPrefabs)
+            .Where(p => !string.IsNullOrEmpty(p))
+            .Select(AssetDatabase.LoadAssetAtPath<GameObject>).Where(p => p != null).ToArray();
         if (animPrefabs.Length > 0)
         {
             foreach (ClipEntry clip in current.clips)
@@ -212,7 +280,7 @@ public static class L2MeterContractHarness
 
         int stillLegacy = CountLegacyScale(current);
         var report = new StringBuilder();
-        report.Append($"verified prefabs={current.prefabs.Count} clips={current.clips.Count} ");
+        report.Append($"{rig.Id}: prefabs={current.prefabs.Count} clips={current.clips.Count} ");
         report.Append($"legacyBoneScale={stillLegacy} failures={failures.Count}");
         foreach (PrefabEntry prefab in current.prefabs)
         {
@@ -270,10 +338,10 @@ public static class L2MeterContractHarness
         }
     }
 
-    static Dataset BuildDataset()
+    static Dataset BuildDataset(MeterRig rig)
     {
-        var data = new Dataset();
-        foreach (string path in CharacterPrefabPaths())
+        var data = new Dataset { rig = rig.Id };
+        foreach (string path in CharacterPrefabPaths(rig))
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (prefab == null)
@@ -289,15 +357,8 @@ public static class L2MeterContractHarness
             }
         }
 
-        foreach (string guid in AssetDatabase.FindAssets("t:AnimationClip", new[] { RaceRoot }))
+        foreach (string path in L2MeterRigs.Clips(rig))
         {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (!path.EndsWith(".anim", StringComparison.OrdinalIgnoreCase))
-                continue;
-            // MSE7 scope: MFighter only (Fighter/ also holds FFighter clips, which bind to
-            // FFighter_m000_b.ao and cannot resolve in an MFighter prefab).
-            if (path.IndexOf("/MFighter", StringComparison.OrdinalIgnoreCase) < 0)
-                continue;
             var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
             if (clip == null)
                 continue;
@@ -317,34 +378,12 @@ public static class L2MeterContractHarness
         return data;
     }
 
-    static IEnumerable<string> CharacterPrefabPaths()
+    static IEnumerable<string> CharacterPrefabPaths(MeterRig rig)
     {
-        var paths = new List<string>
-        {
-            HumanRoot + "/Player_MFighter.prefab",
-            HumanRoot + "/User_MFighter.prefab",
-            HumanRoot + "/Pawn_MFighter.prefab",
-        };
-        foreach (string folder in new[] { RaceRoot, HumanRoot + "/Hair", HumanRoot + "/Faces" })
-        {
-            if (!AssetDatabase.IsValidFolder(folder))
-                continue;
-            foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { folder }))
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                string name = Path.GetFileName(path);
-                if (!name.StartsWith("MFighter_", StringComparison.OrdinalIgnoreCase) &&
-                    !name.StartsWith("F_MFighter_", StringComparison.OrdinalIgnoreCase) &&
-                    !name.StartsWith("Player_MFighter", StringComparison.OrdinalIgnoreCase) &&
-                    !name.StartsWith("User_MFighter", StringComparison.OrdinalIgnoreCase) &&
-                    !name.StartsWith("Pawn_MFighter", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (name.Contains("_anim_"))
-                    continue;
-                paths.Add(path);
-            }
-        }
-        return paths.Distinct().OrderBy(p => p, StringComparer.Ordinal);
+        return L2MeterRigs.Prefabs(rig)
+            .Where(p => File.Exists(p))
+            .Distinct()
+            .OrderBy(p => p, StringComparer.Ordinal);
     }
 
     static PrefabEntry CapturePrefab(string assetPath, GameObject instance)
@@ -488,6 +527,7 @@ public static class L2MeterContractHarness
     {
         var sb = new StringBuilder();
         sb.Append("{\n  \"schema\": ").Append(Quote(data.schema));
+        sb.Append(",\n  \"rig\": ").Append(Quote(data.rig));
         sb.Append(",\n  \"capturedUtc\": ").Append(Quote(data.capturedUtc));
         sb.Append(",\n  \"prefabs\": [");
         for (int i = 0; i < data.prefabs.Count; i++)
