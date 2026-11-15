@@ -309,6 +309,10 @@ def patch(path, dst, force=False):
         # Already meter: copy through untouched so a batch run stays idempotent.
         stats["skipped"] = True
         os.makedirs(os.path.dirname(os.path.abspath(dst)) or ".", exist_ok=True)
+        if os.path.abspath(path) == os.path.abspath(dst):
+            # In-place run of an already-converted file: opening the destination for
+            # writing first truncates the source we are about to read.
+            return stats
         with open(path, "rb") as src, open(dst, "wb") as fh:
             fh.write(src.read())
         return stats
@@ -367,21 +371,40 @@ def patch(path, dst, force=False):
             stats["clusters"] += 1
 
     os.makedirs(os.path.dirname(os.path.abspath(dst)), exist_ok=True)
-    with open(dst, "wb") as fh:
+    # Write beside the target and replace, so an interrupted run can never leave a
+    # truncated FBX behind. In-place patching is the normal path for the race tree.
+    tmp = dst + ".tmp"
+    with open(tmp, "wb") as fh:
         fh.write(serialize(version, nodes, original[footer_offset:]))
+    os.replace(tmp, dst)
     return stats
+
+
+def _batch_pairs(src_dir, dst_dir):
+    """(source, destination) pairs for a folder, mirroring subfolders such as anim/."""
+    for folder, _dirs, files in os.walk(src_dir):
+        for name in sorted(files):
+            if not name.lower().endswith(".fbx"):
+                continue
+            src = os.path.join(folder, name)
+            rel = os.path.relpath(src, src_dir)
+            yield src, os.path.join(dst_dir, rel)
 
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     as_json = "--json" in sys.argv
+    in_place = "--in-place" in sys.argv
     if "--batch" in sys.argv:
-        src_dir, dst_dir = args[0], args[1]
+        src_dir = args[0]
+        dst_dir = src_dir if in_place else args[1]
         os.makedirs(dst_dir, exist_ok=True)
         report = {}
-        for name in sorted(f for f in os.listdir(src_dir) if f.lower().endswith(".fbx")):
-            report[name] = patch(os.path.join(src_dir, name), os.path.join(dst_dir, name))
-            print("PATCHED", name, report[name])
+        for src, dst in _batch_pairs(src_dir, dst_dir):
+            os.makedirs(os.path.dirname(os.path.abspath(dst)) or ".", exist_ok=True)
+            rel = os.path.relpath(src, src_dir)
+            report[rel] = patch(src, dst)
+            print("PATCHED", rel, report[rel])
         skipped = sum(1 for s in report.values() if s.get("skipped"))
         print("TOTAL", len(report), "SKIPPED", skipped)
         return
