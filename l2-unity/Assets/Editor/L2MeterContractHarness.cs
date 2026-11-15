@@ -38,8 +38,9 @@ public static class L2MeterContractHarness
     public class BoneEntry
     {
         public string path;
-        public Vector3 position;
-        public Vector3 lossyScale;
+        /// <summary>position.x,y,z (5 decimals) — strings keep the committed baseline small.</summary>
+        public string position;
+        public string lossyScale;
     }
 
     [Serializable]
@@ -47,10 +48,11 @@ public static class L2MeterContractHarness
     {
         public string nodePath;
         public int boneCount;
-        public Vector3 meshBoundsSize;
-        public Vector3 worldBoundsCenter;
-        public Vector3 worldBoundsSize;
-        public List<Vector3> sampledVertices = new List<Vector3>();
+        public string meshBoundsSize;
+        public string worldBoundsCenter;
+        public string worldBoundsSize;
+        /// <summary>sampled world vertices, one "x,y,z" string each.</summary>
+        public List<string> sampledVertices = new List<string>();
     }
 
     [Serializable]
@@ -66,7 +68,9 @@ public static class L2MeterContractHarness
     public class ClipEntry
     {
         public string assetPath;
-        public List<string> bindings = new List<string>();
+        public int bindingCount;
+        /// <summary>SHA1 of the sorted (path|property) list — keeps the baseline small.</summary>
+        public string bindingsHash;
     }
 
     [Serializable]
@@ -132,7 +136,7 @@ public static class L2MeterContractHarness
         data.capturedUtc = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
         string absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", BaselinePath));
         Directory.CreateDirectory(Path.GetDirectoryName(absolute));
-        File.WriteAllText(absolute, JsonUtility.ToJson(data, true));
+        File.WriteAllText(absolute, JsonOf(data));
         AssetDatabase.Refresh();
         Debug.Log("[MeterHarness] baseline -> " + absolute);
 
@@ -147,7 +151,7 @@ public static class L2MeterContractHarness
         if (!File.Exists(absolute))
             throw new FileNotFoundException("No committed baseline at " + BaselinePath +
                                             ". Run CaptureCli on the pre-migration tree first.");
-        Dataset baseline = JsonUtility.FromJson<Dataset>(File.ReadAllText(absolute));
+        Dataset baseline = DatasetFromJson(File.ReadAllText(absolute));
         Dataset current = BuildDataset();
 
         var failures = new List<string>();
@@ -165,8 +169,13 @@ public static class L2MeterContractHarness
         var clipsByPath = current.clips.ToDictionary(c => c.assetPath, c => c);
         foreach (ClipEntry clip in baseline.clips)
         {
-            if (!clipsByPath.ContainsKey(clip.assetPath))
+            if (!clipsByPath.TryGetValue(clip.assetPath, out ClipEntry actual))
+            {
                 failures.Add("missing clip " + clip.assetPath);
+                continue;
+            }
+            if (actual.bindingCount < clip.bindingCount)
+                failures.Add($"clip {clip.assetPath} lost bindings {clip.bindingCount} -> {actual.bindingCount}");
         }
 
         // Every clip binding must still resolve to a transform in the anim prefab.
@@ -201,11 +210,20 @@ public static class L2MeterContractHarness
             }
         }
 
-        int stillLegacy = current.prefabs.Count(p => !p.isMeterBoneHierarchy);
+        int stillLegacy = CountLegacyScale(current);
         var report = new StringBuilder();
         report.Append($"verified prefabs={current.prefabs.Count} clips={current.clips.Count} ");
-        report.Append($"legacyRootScale={stillLegacy} failures={failures.Count}");
-        foreach (string failure in failures.Take(40))
+        report.Append($"legacyBoneScale={stillLegacy} failures={failures.Count}");
+        foreach (PrefabEntry prefab in current.prefabs)
+        {
+            if (prefab.isMeterBoneHierarchy)
+                continue;
+            BoneEntry off = prefab.bones.FirstOrDefault(b => !NearText(b.lossyScale, "1,1,1", ScaleRelativeTolerance));
+            report.Append("\n  ~ legacy scale ").Append(prefab.assetPath);
+            if (off != null)
+                report.Append(" bone=").Append(off.path).Append(" scale=").Append(off.lossyScale);
+        }
+        foreach (string failure in failures.Take(400))
             report.Append("\n  - ").Append(failure);
         ok = failures.Count == 0;
         return report.ToString();
@@ -222,8 +240,8 @@ public static class L2MeterContractHarness
                 failures.Add($"{tag}: new bone {bone.path}");
                 continue;
             }
-            if (!Near(bone.position, was.position, PositionTolerance))
-                failures.Add($"{tag}: bone {bone.path} moved {Fmt(was.position)} -> {Fmt(bone.position)}");
+            if (!NearText(bone.position, was.position, PositionTolerance))
+                failures.Add($"{tag}: bone {bone.path} moved {was.position} -> {bone.position}");
             // lossyScale is expected to change (100 -> 1); it is reported, not gated.
         }
 
@@ -235,17 +253,17 @@ public static class L2MeterContractHarness
                 failures.Add($"{tag}: new renderer {skin.nodePath}");
                 continue;
             }
-            if (!Near(skin.worldBoundsCenter, was.worldBoundsCenter, PositionTolerance) ||
-                !Near(skin.worldBoundsSize, was.worldBoundsSize, PositionTolerance))
-                failures.Add($"{tag}: {skin.nodePath} bounds {Fmt(was.worldBoundsSize)}@{Fmt(was.worldBoundsCenter)}" +
-                             $" -> {Fmt(skin.worldBoundsSize)}@{Fmt(skin.worldBoundsCenter)}");
+            if (!NearText(skin.worldBoundsCenter, was.worldBoundsCenter, PositionTolerance) ||
+                !NearText(skin.worldBoundsSize, was.worldBoundsSize, PositionTolerance))
+                failures.Add($"{tag}: {skin.nodePath} bounds {was.worldBoundsSize}@{was.worldBoundsCenter}" +
+                             $" -> {skin.worldBoundsSize}@{skin.worldBoundsCenter}");
             int count = Math.Min(skin.sampledVertices.Count, was.sampledVertices.Count);
             for (int i = 0; i < count; i++)
             {
-                if (!Near(skin.sampledVertices[i], was.sampledVertices[i], PositionTolerance))
+                if (!NearText(skin.sampledVertices[i], was.sampledVertices[i], PositionTolerance))
                 {
-                    failures.Add($"{tag}: {skin.nodePath} vertex[{i}] {Fmt(was.sampledVertices[i])}" +
-                                 $" -> {Fmt(skin.sampledVertices[i])}");
+                    failures.Add($"{tag}: {skin.nodePath} vertex[{i}] {was.sampledVertices[i]}" +
+                                 $" -> {skin.sampledVertices[i]}");
                     break;
                 }
             }
@@ -276,17 +294,23 @@ public static class L2MeterContractHarness
             string path = AssetDatabase.GUIDToAssetPath(guid);
             if (!path.EndsWith(".anim", StringComparison.OrdinalIgnoreCase))
                 continue;
+            // MSE7 scope: MFighter only (Fighter/ also holds FFighter clips, which bind to
+            // FFighter_m000_b.ao and cannot resolve in an MFighter prefab).
+            if (path.IndexOf("/MFighter", StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
             var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
             if (clip == null)
                 continue;
+            List<string> bindings = AnimationUtility.GetCurveBindings(clip)
+                .Select(b => b.path + "|" + b.propertyName)
+                .Distinct()
+                .OrderBy(s => s, StringComparer.Ordinal)
+                .ToList();
             data.clips.Add(new ClipEntry
             {
                 assetPath = path,
-                bindings = AnimationUtility.GetCurveBindings(clip)
-                    .Select(b => b.path + "|" + b.propertyName)
-                    .Distinct()
-                    .OrderBy(s => s, StringComparer.Ordinal)
-                    .ToList(),
+                bindingCount = bindings.Count,
+                bindingsHash = HashOf(bindings),
             });
         }
 
@@ -335,12 +359,12 @@ public static class L2MeterContractHarness
             entry.bones.Add(new BoneEntry
             {
                 path = PathOf(instance.transform, t),
-                position = t.position,
-                lossyScale = scale,
+                position = Text(t.position),
+                lossyScale = Text(scale),
             });
         }
 
-        if (entry.bones.Count > 0 && entry.bones.All(b => Mathf.Abs(b.lossyScale.x - 1f) < 1e-3f))
+        if (entry.bones.Count > 0 && entry.bones.All(b => NearText(b.lossyScale, "1,1,1", ScaleRelativeTolerance)))
             entry.isMeterBoneHierarchy = true;
 
         foreach (SkinnedMeshRenderer skin in instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
@@ -352,16 +376,16 @@ public static class L2MeterContractHarness
             {
                 nodePath = PathOf(instance.transform, skin.transform),
                 boneCount = skin.bones.Length,
-                meshBoundsSize = mesh.bounds.size,
-                worldBoundsCenter = skin.bounds.center,
-                worldBoundsSize = skin.bounds.size,
+                meshBoundsSize = Text(mesh.bounds.size),
+                worldBoundsCenter = Text(skin.bounds.center),
+                worldBoundsSize = Text(skin.bounds.size),
             };
             Vector3[] vertices = mesh.vertices;
             if (vertices.Length > 0)
             {
                 int step = Mathf.Max(1, vertices.Length / VerticesPerRenderer);
                 for (int i = 0; i < vertices.Length && renderer.sampledVertices.Count < VerticesPerRenderer; i += step)
-                    renderer.sampledVertices.Add(skin.transform.TransformPoint(vertices[i]));
+                    renderer.sampledVertices.Add(Text(skin.transform.TransformPoint(vertices[i])));
             }
             entry.renderers.Add(renderer);
         }
@@ -376,16 +400,16 @@ public static class L2MeterContractHarness
             {
                 nodePath = PathOf(instance.transform, meshRenderer.transform),
                 boneCount = 0,
-                meshBoundsSize = mesh.bounds.size,
-                worldBoundsCenter = meshRenderer.bounds.center,
-                worldBoundsSize = meshRenderer.bounds.size,
+                meshBoundsSize = Text(mesh.bounds.size),
+                worldBoundsCenter = Text(meshRenderer.bounds.center),
+                worldBoundsSize = Text(meshRenderer.bounds.size),
             };
             Vector3[] vertices = mesh.vertices;
             if (vertices.Length > 0)
             {
                 int step = Mathf.Max(1, vertices.Length / VerticesPerRenderer);
                 for (int i = 0; i < vertices.Length && renderer.sampledVertices.Count < VerticesPerRenderer; i += step)
-                    renderer.sampledVertices.Add(meshRenderer.transform.TransformPoint(vertices[i]));
+                    renderer.sampledVertices.Add(Text(meshRenderer.transform.TransformPoint(vertices[i])));
             }
             entry.renderers.Add(renderer);
         }
@@ -404,18 +428,29 @@ public static class L2MeterContractHarness
         return string.Join("/", parts);
     }
 
-    static bool Near(Vector3 a, Vector3 b, float tolerance)
+    static string Text(Vector3 v)
     {
-        return Mathf.Abs(a.x - b.x) <= tolerance &&
-               Mathf.Abs(a.y - b.y) <= tolerance &&
-               Mathf.Abs(a.z - b.z) <= tolerance;
+        return string.Format(CultureInfo.InvariantCulture, "{0:F5},{1:F5},{2:F5}", v.x, v.y, v.z);
     }
 
-    static bool NearRelative(Vector3 a, Vector3 b, float tolerance)
+    static Vector3 Parse(string text)
     {
-        return Mathf.Abs(a.x - b.x) <= tolerance * Mathf.Max(1f, Mathf.Abs(b.x)) &&
-               Mathf.Abs(a.y - b.y) <= tolerance * Mathf.Max(1f, Mathf.Abs(b.y)) &&
-               Mathf.Abs(a.z - b.z) <= tolerance * Mathf.Max(1f, Mathf.Abs(b.z));
+        string[] parts = (text ?? "").Split(',');
+        if (parts.Length != 3)
+            return Vector3.zero;
+        return new Vector3(
+            float.Parse(parts[0], CultureInfo.InvariantCulture),
+            float.Parse(parts[1], CultureInfo.InvariantCulture),
+            float.Parse(parts[2], CultureInfo.InvariantCulture));
+    }
+
+    static bool NearText(string a, string b, float tolerance)
+    {
+        Vector3 va = Parse(a);
+        Vector3 vb = Parse(b);
+        return Mathf.Abs(va.x - vb.x) <= tolerance &&
+               Mathf.Abs(va.y - vb.y) <= tolerance &&
+               Mathf.Abs(va.z - vb.z) <= tolerance;
     }
 
     /// <summary>Every bone must report lossyScale ~= 1 after the migration.</summary>
@@ -426,7 +461,7 @@ public static class L2MeterContractHarness
         {
             foreach (BoneEntry bone in prefab.bones)
             {
-                if (!NearRelative(bone.lossyScale, Vector3.one, ScaleRelativeTolerance))
+                if (!NearText(bone.lossyScale, "1,1,1", ScaleRelativeTolerance))
                 {
                     legacy++;
                     break;
@@ -436,9 +471,104 @@ public static class L2MeterContractHarness
         return legacy;
     }
 
-    static string Fmt(Vector3 v)
+    static string HashOf(IEnumerable<string> lines)
     {
-        return string.Format(CultureInfo.InvariantCulture, "({0:F4},{1:F4},{2:F4})", v.x, v.y, v.z);
+        using (var sha = System.Security.Cryptography.SHA1.Create())
+        {
+            byte[] digest = sha.ComputeHash(Encoding.UTF8.GetBytes(string.Join("\n", lines)));
+            var hex = new StringBuilder(digest.Length * 2);
+            foreach (byte b in digest)
+                hex.Append(b.ToString("x2", CultureInfo.InvariantCulture));
+            return hex.ToString();
+        }
     }
+
+    /// <summary>Indented JSON (JsonUtility has no pretty-print).</summary>
+    static string JsonOf(Dataset data)
+    {
+        var sb = new StringBuilder();
+        sb.Append("{\n  \"schema\": ").Append(Quote(data.schema));
+        sb.Append(",\n  \"capturedUtc\": ").Append(Quote(data.capturedUtc));
+        sb.Append(",\n  \"prefabs\": [");
+        for (int i = 0; i < data.prefabs.Count; i++)
+        {
+            PrefabEntry prefab = data.prefabs[i];
+            sb.Append(i == 0 ? "\n    " : ",\n    ");
+            sb.Append("{\"assetPath\": ").Append(Quote(prefab.assetPath));
+            sb.Append(", \"isMeterBoneHierarchy\": ").Append(prefab.isMeterBoneHierarchy ? "true" : "false");
+            sb.Append(",\n     \"bones\": [");
+            for (int b = 0; b < prefab.bones.Count; b++)
+            {
+                BoneEntry bone = prefab.bones[b];
+                sb.Append(b == 0 ? "\n" : ",\n");
+                sb.Append("       {\"path\": ").Append(Quote(bone.path));
+                sb.Append(", \"position\": ").Append(Quote(bone.position));
+                sb.Append(", \"lossyScale\": ").Append(Quote(bone.lossyScale)).Append("}");
+            }
+            sb.Append(prefab.bones.Count > 0 ? "\n     ]" : "]");
+            sb.Append(",\n     \"renderers\": [");
+            for (int r = 0; r < prefab.renderers.Count; r++)
+            {
+                RendererEntry renderer = prefab.renderers[r];
+                sb.Append(r == 0 ? "\n" : ",\n");
+                sb.Append("       {\"nodePath\": ").Append(Quote(renderer.nodePath));
+                sb.Append(", \"boneCount\": ").Append(renderer.boneCount);
+                sb.Append(", \"meshBoundsSize\": ").Append(Quote(renderer.meshBoundsSize));
+                sb.Append(", \"worldBoundsCenter\": ").Append(Quote(renderer.worldBoundsCenter));
+                sb.Append(", \"worldBoundsSize\": ").Append(Quote(renderer.worldBoundsSize));
+                sb.Append(", \"sampledVertices\": [");
+                sb.Append(string.Join(", ", renderer.sampledVertices.Select(Quote)));
+                sb.Append("]}");
+            }
+            sb.Append(prefab.renderers.Count > 0 ? "\n     ]" : "]");
+            sb.Append("}");
+        }
+        sb.Append(data.prefabs.Count > 0 ? "\n  ]" : "]");
+        sb.Append(",\n  \"clips\": [");
+        for (int i = 0; i < data.clips.Count; i++)
+        {
+            ClipEntry clip = data.clips[i];
+            sb.Append(i == 0 ? "\n" : ",\n");
+            sb.Append("    {\"assetPath\": ").Append(Quote(clip.assetPath));
+            sb.Append(", \"bindingCount\": ").Append(clip.bindingCount);
+            sb.Append(", \"bindingsHash\": ").Append(Quote(clip.bindingsHash)).Append("}");
+        }
+        sb.Append(data.clips.Count > 0 ? "\n  ]" : "]");
+        sb.Append("\n}\n");
+        return sb.ToString();
+    }
+
+    static string Quote(string value)
+    {
+        if (value == null)
+            return "null";
+        var sb = new StringBuilder(value.Length + 2);
+        sb.Append('"');
+        foreach (char c in value)
+        {
+            switch (c)
+            {
+                case '"': sb.Append("\\\""); break;
+                case '\\': sb.Append("\\\\"); break;
+                case '\n': sb.Append("\\n"); break;
+                case '\r': sb.Append("\\r"); break;
+                case '\t': sb.Append("\\t"); break;
+                default:
+                    if (c < ' ')
+                        sb.Append("\\u").Append(((int)c).ToString("x4", CultureInfo.InvariantCulture));
+                    else
+                        sb.Append(c);
+                    break;
+            }
+        }
+        sb.Append('"');
+        return sb.ToString();
+    }
+
+    static Dataset DatasetFromJson(string json)
+    {
+        return JsonUtility.FromJson<Dataset>(json);
+    }
+
 }
 #endif
