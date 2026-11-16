@@ -320,18 +320,13 @@ public static class L2OrcRacePrefabBuilder
                 EmitHair(race, fbx, style, part, hairMats);
             }
 
-            // Orcs and shamans ship one front-hair mesh (m000). Every style uses it,
-            // tinted with that style's color. Back hair stays per style.
-            hairFbx.TryGetValue("000_ah", out string sharedAh);
-            if (sharedAh != null)
-            {
-                for (int style = 0; style < 7; style++)
-                {
-                    if (hairFbx.ContainsKey(style.ToString("000") + "_ah"))
-                        continue;
-                    EmitHair(race, sharedAh, style, "ah", hairMats);
-                }
-            }
+            // Orcs and shamans ship a front-hair mesh only for m000. The other styles are
+            // back hair only: there is no <race>_m<NNN>_t0x_m00_ah texture anywhere in
+            // SysTextures/FOrc, so the original client draws nothing in the front slot and
+            // the back mesh carries the whole style. Replicating the m000 cap onto styles
+            // 1..6 stacked that oversized cap on top of every back hair.
+            if (!hairFbx.ContainsKey("000_ah"))
+                continue;
         }
     }
 
