@@ -160,6 +160,17 @@ public static class L2MeterMigration
     /// Force the meter import contract on every FBX under a folder. Only the unit contract
     /// is touched; animation flags are forced on the anim FBX, whose clips the rig samples.
     /// </summary>
+    /// <summary>
+    /// True when the FBX at this path already carries the meter import contract. The stale
+    /// scale rule needs this: a node at 100 is only wrong when its mesh data is meter.
+    /// </summary>
+    public static bool IsMeterImporter(string fbxPath)
+    {
+        return AssetImporter.GetAtPath(fbxPath) is ModelImporter importer
+               && Mathf.Approximately(importer.globalScale, 1f)
+               && importer.useFileScale;
+    }
+
     static int ConfigureImportersIn(string folder, string animFbx)
     {
         int changed = 0;
@@ -325,19 +336,29 @@ public static class L2MeterMigration
         // The FBX patch is numerically exact, so copying the new local transforms onto the
         // existing objects keeps every fileID and every external override intact.
         int synced = 0;
-        if (string.IsNullOrEmpty(_rig.AnimFbx))
+        GameObject rigFbx = null;
+        if (!string.IsNullOrEmpty(_rig.AnimFbx))
         {
-            log.Add($"{_rig.Id}: no anim FBX, prefabs left alone");
-            return 0;
+            rigFbx = AssetDatabase.LoadAssetAtPath<GameObject>(_rig.AnimFbx);
+            if (rigFbx == null)
+                throw new FileNotFoundException("missing anim FBX", _rig.AnimFbx);
         }
-        var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(_rig.AnimFbx);
-        if (fbx == null)
-            throw new FileNotFoundException("missing anim FBX", _rig.AnimFbx);
 
         var targets = new List<string>();
         if (!string.IsNullOrEmpty(_rig.AnimPrefab))
             targets.Add(_rig.AnimPrefab);
         targets.AddRange(_rig.AnimPrefabs);
+        // `Player_`/`User_`/`Pawn_` are not always nested instances of the anim prefab: for
+        // DarkElf, Dwarf, Elf and Magic the Player prefab owns its own flattened skeleton
+        // (measured: 0 PrefabInstance blocks, `.ao` still at scale 100 while every other
+        // rig reported 1). Those copies have to follow the FBX too, otherwise §11's
+        // `lossyScale ~= 1` never holds for the prefab the game actually spawns.
+        targets.AddRange(_rig.ActorPrefabs);
+        if (targets.Count == 0)
+        {
+            log.Add($"{_rig.Id}: no anim prefab, prefabs left alone");
+            return 0;
+        }
         foreach (string path in targets.Distinct())
         {
             if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
@@ -345,7 +366,25 @@ public static class L2MeterMigration
                 log.Add($"{_rig.Id}: missing {Path.GetFileName(path)}");
                 continue;
             }
-            synced += SyncSkeletonTransforms(path, fbx);
+            // A flattened skeleton prefab is not always a copy of the rig's anim FBX: the
+            // FFighter pair draws `Models/experiment/test_ffigter_anim.fbx`, and that rig has
+            // no anim FBX at all, so the renderer's own mesh is the only correct reference.
+            //
+            // The anim FBX wins whenever it owns the prefab's skeleton node. Actor prefabs
+            // (`Player_`/`User_`/`Pawn_`) are built on the *anim* skeleton, which has its own
+            // bind pose: resolving them through the body FBX by name (measured:
+            // `Player_MDarkElf` -> `MDarkElf_m000_b.fbx`) moved every bone, because that file
+            // rests the pelvis at 0.4848 instead of 0.8153.
+            string sourcePath = AnimSkeletonFor(path, _rig) ?? SourceFbxFor(path, _rig) ?? _rig.AnimFbx;
+            GameObject source = string.IsNullOrEmpty(sourcePath)
+                ? null
+                : AssetDatabase.LoadAssetAtPath<GameObject>(sourcePath);
+            if (source == null)
+            {
+                log.Add($"{_rig.Id}: no source FBX for {Path.GetFileName(path)}");
+                continue;
+            }
+            synced += SyncSkeletonTransforms(path, source);
         }
         cleared = ClearStaleScaleOverrides(_rig);
         log.Add($"{_rig.Id}: animPrefabs={targets.Count} syncedTransforms={synced} clearedScaleOverrides={cleared}");
@@ -365,12 +404,17 @@ public static class L2MeterMigration
         {
             Transform sourceRoot = FindSkeletonRoot(fbxInstance.transform);
             Transform targetRoot = FindSkeletonRoot(root.transform);
-            if (sourceRoot == null || targetRoot == null)
+            if (targetRoot == null)
                 throw new InvalidOperationException("no .ao root in " + prefabPath);
+            // A body FBX can hold only the carrier mesh (`FFighter_m000_b.fbx` has a `.mo`
+            // and no `.ao`); that rig's skeleton is owned by the armor prefabs, so there is
+            // nothing to copy here and it is not an error.
+            if (sourceRoot == null)
+                return 0;
 
             int changed = 0;
             // The root itself, then every descendant by relative path.
-            if (Apply(targetRoot, sourceRoot))
+            if (Apply(targetRoot, sourceRoot, prefabPath))
                 changed++;
             foreach (Transform source in sourceRoot.GetComponentsInChildren<Transform>(true))
             {
@@ -379,25 +423,38 @@ public static class L2MeterMigration
                 Transform target = targetRoot.Find(RelativePath(sourceRoot, source));
                 if (target == null)
                     continue;
-                if (Apply(target, source))
+                if (Apply(target, source, prefabPath))
                     changed++;
             }
 
-            // The carrier mesh (`.mo`) is a sibling of `.ao`, i.e. a root child.
-            foreach (Transform source in fbxInstance.transform.GetComponentsInChildren<Transform>(true))
+            // The carrier mesh (`.mo`) sits beside the `.ao` in the FBX, but the prefab nests
+            // both under a carrier object (`model/FElf_anim_user/`), so a root-level `Find`
+            // missed it and the node kept scale 100. Match it relative to the skeleton's
+            // parent instead, which is where the FBX puts it.
+            Transform sourceParent = sourceRoot.parent;
+            Transform targetParent = targetRoot.parent;
+            if (sourceParent != null && targetParent != null)
             {
-                if (!source.name.EndsWith(".mo", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                Transform target = root.transform.Find(source.name);
-                if (target != null && Apply(target, source))
-                    changed++;
+                foreach (Transform source in sourceParent.GetComponentsInChildren<Transform>(true))
+                {
+                    if (!source.name.EndsWith(".mo", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    Transform target = targetParent.Find(RelativePath(sourceParent, source));
+                    if (target != null && Apply(target, source, prefabPath))
+                        changed++;
+                }
             }
 
             changed += SyncRendererCaches(root, fbxInstance);
 
+            // Only touch the prefab when something actually moved: saving unconditionally
+            // rewrites every file on every run, which makes the tool non-idempotent in git.
+            bool rootScaleFixed = root.transform.localScale != Vector3.one;
+            if (changed == 0 && !rootScaleFixed)
+                return 0;
             root.transform.localScale = Vector3.one;
             PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
-            return changed;
+            return changed + (rootScaleFixed ? 1 : 0);
         }
         finally
         {
@@ -406,8 +463,22 @@ public static class L2MeterMigration
         }
     }
 
-    static bool Apply(Transform target, Transform source)
+    static bool Apply(Transform target, Transform source, string prefabPath = null)
     {
+        // A transform that comes from a *nested* prefab instance is not ours to edit: writing
+        // to it creates an override on the carrier (and `Player_`/`User_`/`Pawn_` already
+        // override the carrier renderer by fileID). The nested prefab is synced on its own.
+        //
+        // The comparison has to be against the prefab being edited, not "is there a source
+        // at all": objects loaded by `LoadPrefabContents` report the prefab asset itself as
+        // their corresponding source, so a null check silently blocked every owned object
+        // (measured: MDwarf_anim_player stayed at scale 100 with syncedTransforms=0).
+        if (prefabPath != null)
+        {
+            GameObject origin = PrefabUtility.GetCorrespondingObjectFromSource(target.gameObject);
+            if (origin != null && AssetDatabase.GetAssetPath(origin) != prefabPath)
+                return false;
+        }
         bool dirty = (target.localPosition - source.localPosition).sqrMagnitude > 1e-12f
                      || Quaternion.Angle(target.localRotation, source.localRotation) > 1e-4f
                      || (target.localScale - source.localScale).sqrMagnitude > 1e-12f;
@@ -470,9 +541,12 @@ public static class L2MeterMigration
     /// stays behind is an explicit `m_LocalScale = 100` override on the instance's `.ao`/`.mo`
     /// nodes; drop those so the gear reports scale 1.
     ///
-    /// Only nested-instance nodes of a migrated FBX qualify. A prefab's own local object can
-    /// legitimately carry 100 — `MFighter_h_2_2_bh` has one holding a raw-unit mesh, and
-    /// clearing it shrank the hair 100×.
+    /// A prefab's *own* object can also hold 100 legitimately — when its mesh is still stored
+    /// in raw units, clearing the scale shrinks the part 100x. So an own object only
+    /// qualifies when its mesh now comes from a migrated FBX: the mesh data is meter, and the
+    /// 100 is the stale half of the old pair. `MFighter_h_2_2_bh` is exactly that case — a
+    /// stray `FFighter_m002_m00_bh.mo` whose mesh grew 100x on reimport while its node kept
+    /// the scale, so the hair draws 100x too large.
     /// </summary>
     static int ClearStaleScaleOverrides(MeterRig rig)
     {
@@ -487,12 +561,16 @@ public static class L2MeterMigration
                 {
                     if (Mathf.Abs(t.localScale.x - 100f) > 0.5f)
                         continue;
-                    if (!IsMigratedFbxInstance(t, rig))
+                    if (!IsMigratedFbxInstance(t, rig) && !HasMigratedFbxMesh(t))
                         continue;
                     t.localScale = Vector3.one;
                     PrefabUtility.RecordPrefabInstancePropertyModifications(t);
                     dirty = true;
                 }
+                // Dropping the carrier changes the renderer's space, so its serialized
+                // `localBounds` is now wrong by the same factor and the part gets culled.
+                if (RefreshOwnRendererBounds(root))
+                    dirty = true;
                 if (!dirty)
                     continue;
                 PrefabUtility.SaveAsPrefabAsset(root, path);
@@ -504,6 +582,80 @@ public static class L2MeterMigration
             }
         }
         return cleared;
+    }
+
+    /// <summary>
+    /// Recompute `localBounds` for renderers that draw a migrated FBX mesh. The FBX renderer
+    /// is authoritative: it is the same mesh in the same (now meter) space.
+    /// </summary>
+    static bool RefreshOwnRendererBounds(GameObject root)
+    {
+        var cache = new Dictionary<Mesh, Bounds>();
+        bool dirty = false;
+        foreach (SkinnedMeshRenderer skin in root.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            Mesh mesh = skin.sharedMesh;
+            if (mesh == null)
+                continue;
+            string meshPath = AssetDatabase.GetAssetPath(mesh);
+            if (string.IsNullOrEmpty(meshPath) ||
+                !meshPath.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase) ||
+                !IsMeterImporter(meshPath))
+                continue;
+            if (!cache.TryGetValue(mesh, out Bounds bounds))
+            {
+                bounds = FbxLocalBounds(meshPath, mesh, skin.transform.lossyScale);
+                cache[mesh] = bounds;
+            }
+            if ((skin.localBounds.center - bounds.center).sqrMagnitude < 1e-12f &&
+                (skin.localBounds.size - bounds.size).sqrMagnitude < 1e-12f)
+                continue;
+            skin.localBounds = bounds;
+            dirty = true;
+        }
+        return dirty;
+    }
+
+    static Bounds FbxLocalBounds(string fbxPath, Mesh mesh, Vector3 nodeScale)
+    {
+        var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
+        if (fbx != null)
+        {
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(fbx);
+            try
+            {
+                foreach (SkinnedMeshRenderer skin in instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                    if (skin.sharedMesh == mesh)
+                        return skin.localBounds;
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(instance);
+            }
+        }
+        // No FBX renderer to copy: the mesh bounds are the bind-pose local bounds.
+        return mesh.bounds;
+    }
+
+    /// <summary>
+    /// True when the node's own renderer draws a mesh stored in a migrated FBX. Such a mesh
+    /// is already meter-scaled, so a local scale of 100 is the stale half of the old pair.
+    /// </summary>
+    static bool HasMigratedFbxMesh(Transform t)
+    {
+        var skin = t.GetComponent<SkinnedMeshRenderer>();
+        Mesh mesh = skin != null ? skin.sharedMesh : null;
+        if (mesh == null)
+        {
+            var filter = t.GetComponent<MeshFilter>();
+            mesh = filter != null ? filter.sharedMesh : null;
+        }
+        if (mesh == null)
+            return false;
+        string path = AssetDatabase.GetAssetPath(mesh);
+        if (string.IsNullOrEmpty(path) || !path.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase))
+            return false;
+        return L2MeterMigration.IsMeterImporter(path);
     }
 
     static bool IsMigratedFbxInstance(Transform t, MeterRig rig)
@@ -519,34 +671,27 @@ public static class L2MeterMigration
     /// <summary>
     /// Gear prefabs are not all nested instances of a migrated FBX. A face, hair or armor
     /// prefab may hold its own copy of the skeleton — the `.ao` and `.mo` are real objects
-    /// of the prefab, with `m_LocalScale = 100` on the root and every direct child's
-    /// `m_LocalPosition` divided by 100. `ClearStaleScaleOverrides` deliberately skips those
-    /// (they are not instances), so the FBX reimport passed them by and the mesh draws 100x:
-    /// a dwarf glove at y = 56 instead of y = 0.56.
+    /// of the prefab, with `m_LocalScale = 100` on both and the mesh stored in raw units.
+    /// `ClearStaleScaleOverrides` deliberately skips those (they are not instances), so the
+    /// FBX reimport passed them by.
     ///
-    /// Copying the FBX's local transforms wholesale is wrong — the prefab copy keeps the
-    /// bind hierarchy in the legacy basis, so its children are not the FBX's children.
-    /// The change is a basis swap that has to preserve world space: drop the root to scale 1
-    /// and multiply each *direct* child's local position by the scale being removed. A
-    /// grandchild is already in a scale-1 frame, so it is untouched. That reproduces the
-    /// FBX numbers exactly: `FDwarf_m001_u.ao/bip01` goes from y = -0.00022975808 to
-    /// -0.022975808, which is the FBX's `Lcl Translation.y`.
+    /// The FBX is resolved from the renderer's **mesh**, not from the prefab's file name:
+    /// `FDarkElf_h_1_0_ah.prefab` draws `FDarkElf_m001_m00_ah.fbx`, and matching by name
+    /// silently skipped 100 of these prefabs (measured: 223 renderers drawing 100x large).
+    ///
+    /// The prefab copy keeps the legacy basis: scale 100 on `.ao`/`.mo` with the children
+    /// already divided by 100, so its *world* size was right while the mesh was small. The
+    /// FBX is now the opposite — scale 1 with a mesh 100x bigger — so the prefab's own
+    /// objects have to take the FBX basis. Copying the FBX local transforms by path is
+    /// exact: measured `FDarkElf_h_1_0_ah` and `FDarkElf_m001_m00_ah.fbx` share all 111
+    /// transform paths, so no hierarchy reconstruction is needed.
     /// </summary>
     static int SyncEmbeddedSkeletons(MeterRig rig, List<string> log)
     {
         int synced = 0;
-        // These flattened prefabs serialize old importer-local translations, not the raw
-        // FBX `Lcl Translation`: the root is divided by 100, and descendants keep the
-        // old importer's basis. Preserve the world transform when removing the carrier's
-        // 100x scale, then repair positions only where the old basis actually drifted.
         foreach (string path in L2MeterRigs.GearedPrefabs(rig))
         {
-            if (!rig.NamePrefixes.Any(p => Path.GetFileNameWithoutExtension(path)
-                    .StartsWith(p, StringComparison.OrdinalIgnoreCase)))
-                continue;
-            string fbxPath = L2MeterRigs.ModelFbx(rig)
-                .FirstOrDefault(p => Path.GetFileNameWithoutExtension(p)
-                    .Equals(Path.GetFileNameWithoutExtension(path), StringComparison.OrdinalIgnoreCase));
+            string fbxPath = SourceFbxFor(path, rig);
             if (fbxPath == null)
                 continue;
             var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
@@ -556,46 +701,13 @@ public static class L2MeterMigration
             GameObject root = PrefabUtility.LoadPrefabContents(path);
             try
             {
-                Transform sourceRoot = FindSkeletonRoot(source.transform);
-                Transform targetRoot = FindSkeletonRoot(root.transform);
-                if (sourceRoot == null || targetRoot == null ||
-                    Mathf.Abs(targetRoot.localScale.x - 100f) > 0.5f ||
-                    PrefabUtility.GetCorrespondingObjectFromSource(targetRoot.gameObject) != null)
+                if (!HasOwnSkeleton(root))
                     continue;
-
-                // Drop the x100 carrier and preserve each old world point. This makes the
-                // complete flattened hierarchy meter-scaled even where its FBX layout differs.
-                var original = targetRoot.GetComponentsInChildren<Transform>(true)
-                    .ToDictionary(t => RelativePath(targetRoot, t), t => t.position);
-                targetRoot.localScale = Vector3.one;
-                foreach (Transform target in targetRoot.GetComponentsInChildren<Transform>(true))
-                {
-                    if (target == targetRoot)
-                        continue;
-                    target.position = original[RelativePath(targetRoot, target)];
-                }
-                foreach (Transform sourceMesh in source.GetComponentsInChildren<Transform>(true))
-                {
-                    if (!sourceMesh.name.EndsWith(".mo", StringComparison.OrdinalIgnoreCase))
-                        continue;
-                    Transform targetMesh = root.transform.Find(sourceMesh.name);
-                    if (targetMesh != null &&
-                        PrefabUtility.GetCorrespondingObjectFromSource(targetMesh.gameObject) == null &&
-                        Mathf.Abs(targetMesh.localScale.x - 100f) < 0.5f)
-                        targetMesh.localScale = Vector3.one;
-                }
-
-                // The old flattened prefab stored its direct children in a different basis.
-                // The matching migrated FBX nodes are authoritative for those translations.
-                foreach (Transform target in targetRoot.GetComponentsInChildren<Transform>(true))
-                {
-                    if (target == targetRoot)
-                        continue;
-                    Transform match = sourceRoot.Find(RelativePath(targetRoot, target));
-                    if (match != null)
-                        target.localPosition = match.localPosition;
-                }
+                int changed = SyncOwnSkeleton(root, source);
+                if (changed == 0)
+                    continue;
                 SyncRendererCaches(root, source);
+                root.transform.localScale = Vector3.one;
                 PrefabUtility.SaveAsPrefabAsset(root, path);
                 synced++;
             }
@@ -608,6 +720,150 @@ public static class L2MeterMigration
         if (synced > 0)
             log.Add($"{rig.Id}: gearCopiesSynced={synced}");
         return synced;
+    }
+
+    /// <summary>
+    /// The rig's anim FBX when it actually contains the skeleton node this prefab owns.
+    /// The anim skeleton and the body FBX have different bind poses for the same bone
+    /// names, so picking the wrong one silently re-poses the whole character.
+    /// </summary>
+    static string AnimSkeletonFor(string prefabPath, MeterRig rig)
+    {
+        if (string.IsNullOrEmpty(rig.AnimFbx))
+            return null;
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefab == null)
+            return null;
+        Transform skeleton = FindSkeletonRoot(prefab.transform);
+        if (skeleton == null)
+            return null;
+        return FbxHasNode(rig.AnimFbx, skeleton.name) ? rig.AnimFbx : null;
+    }
+
+    /// <summary>
+    /// The FBX a gear prefab draws, taken from the mesh its renderer references. Falls back
+    /// to a name match for prefabs whose renderer is overridden to `m_Mesh: {fileID: 0}`.
+    /// </summary>
+    static string SourceFbxFor(string prefabPath, MeterRig rig)
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefab != null)
+        {
+            foreach (SkinnedMeshRenderer skin in prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                if (skin.sharedMesh == null)
+                    continue;
+                string path = AssetDatabase.GetAssetPath(skin.sharedMesh);
+                if (!string.IsNullOrEmpty(path) &&
+                    path.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase))
+                    return path;
+            }
+            // `Player_`/`User_`/`Pawn_` override the carrier renderer to `m_Mesh: {fileID: 0}`
+            // to hide the placeholder body, so the mesh names no FBX. The skeleton node does:
+            // `FElf_m000_b.ao` is imported from `FElf_m000_b.fbx`.
+            Transform skeleton = FindSkeletonRoot(prefab.transform);
+            if (skeleton != null)
+            {
+                string stem = skeleton.name;
+                if (stem.EndsWith(".ao", StringComparison.OrdinalIgnoreCase))
+                    stem = stem.Substring(0, stem.Length - 3);
+                string match = L2MeterRigs.ModelFbx(rig)
+                    .FirstOrDefault(p => Path.GetFileNameWithoutExtension(p)
+                        .Equals(stem, StringComparison.OrdinalIgnoreCase));
+                if (match != null && FbxHasNode(match, skeleton.name))
+                    return match;
+                // A name match is not enough: `FFighter_m000_b.fbx` holds only the `.mo`
+                // carrier, while the `.ao` this prefab owns was imported from
+                // `Models/experiment/test_ffigter_anim.fbx`. Resolve the FBX that actually
+                // contains the skeleton node, otherwise the prefab keeps the legacy scale.
+                string owner = FbxOwningSkeleton(rig, skeleton.name);
+                if (owner != null)
+                    return owner;
+                if (match != null)
+                    return match;
+            }
+        }
+        string prefabStem = Path.GetFileNameWithoutExtension(prefabPath);
+        return L2MeterRigs.ModelFbx(rig)
+            .FirstOrDefault(p => Path.GetFileNameWithoutExtension(p)
+                .Equals(prefabStem, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// The model FBX whose imported hierarchy actually contains the given skeleton node.
+    /// Needed where the body FBX carries only the carrier mesh (`FFighter_m000_b.fbx`), so
+    /// the `.ao` a prefab owns was imported from a different file in the same rig.
+    /// </summary>
+    static string FbxOwningSkeleton(MeterRig rig, string skeletonName)
+    {
+        foreach (string path in L2MeterRigs.ModelFbx(rig))
+            if (FbxHasNode(path, skeletonName))
+                return path;
+        return null;
+    }
+
+    /// <summary>True when the imported FBX hierarchy contains a transform of this name.</summary>
+    static bool FbxHasNode(string fbxPath, string nodeName)
+    {
+        var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
+        if (fbx == null)
+            return false;
+        foreach (Transform t in fbx.GetComponentsInChildren<Transform>(true))
+            if (t.name == nodeName)
+                return true;
+        return false;
+    }
+
+    /// <summary>
+    /// True when the prefab owns its skeleton objects instead of nesting the FBX. A nested
+    /// instance's transform has a corresponding source object; an owned one does not.
+    /// </summary>
+    static bool HasOwnSkeleton(GameObject root)
+    {
+        foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+        {
+            if (t.name.EndsWith(".ao", StringComparison.OrdinalIgnoreCase))
+                return PrefabUtility.GetCorrespondingObjectFromSource(t.gameObject) == null;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Copy the FBX's local transforms onto the prefab's own skeleton objects, matched by
+    /// path from the `.ao` root. Every path that exists in both trees is applied; a path
+    /// that exists only in one is left alone rather than invented.
+    /// </summary>
+    static int SyncOwnSkeleton(GameObject root, GameObject source)
+    {
+        Transform sourceRoot = FindSkeletonRoot(source.transform);
+        Transform targetRoot = FindSkeletonRoot(root.transform);
+        if (sourceRoot == null || targetRoot == null)
+            return 0;
+
+        int changed = 0;
+        string prefabPath = AssetDatabase.GetAssetPath(root);
+        if (Apply(targetRoot, sourceRoot, prefabPath))
+            changed++;
+        foreach (Transform target in targetRoot.GetComponentsInChildren<Transform>(true))
+        {
+            if (target == targetRoot)
+                continue;
+            Transform match = sourceRoot.Find(RelativePath(targetRoot, target));
+            if (match != null && Apply(target, match, prefabPath))
+                changed++;
+        }
+
+        // The carrier mesh (`.mo`) is a sibling of `.ao`. Its scale has to follow the FBX
+        // too: the prefab kept 100 there for a raw-unit mesh, and the mesh is now meter.
+        foreach (Transform sourceMesh in source.transform.GetComponentsInChildren<Transform>(true))
+        {
+            if (!sourceMesh.name.EndsWith(".mo", StringComparison.OrdinalIgnoreCase))
+                continue;
+            Transform targetMesh = root.transform.Find(sourceMesh.name);
+            if (targetMesh != null && Apply(targetMesh, sourceMesh, prefabPath))
+                changed++;
+        }
+        return changed;
     }
 }
 #endif

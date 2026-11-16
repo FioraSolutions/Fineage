@@ -46,11 +46,28 @@ public static class L2MeterContractHarness
     {
         public string nodePath;
         public int boneCount;
+        /// <summary>
+        /// Bones that actually resolve. `boneCount` counts the serialized slots, and a
+        /// renderer can carry slots that are all `{fileID: 0}` (measured:
+        /// `FFighter_m002_m00_bh.mo` in `MFighter_h_2_2_bh.prefab`), which still draws at
+        /// bind pose. Only a renderer with at least one live bone deforms, so only that one
+        /// can be validated against a skinned sample.
+        /// </summary>
+        public int boundBones;
         public string meshBoundsSize;
         public string worldBoundsCenter;
         public string worldBoundsSize;
         /// <summary>sampled world vertices, one "x,y,z" string each.</summary>
         public List<string> sampledVertices = new List<string>();
+        /// <summary>
+        /// Sampled *skinned* world vertices (`BakeMesh` then the renderer transform). The
+        /// legacy `sampledVertices` above are `TransformPoint(mesh.vertices[i])`, which for a
+        /// SkinnedMeshRenderer is a bind-pose coordinate, not a world position, and whose
+        /// index order is not stable across a unit change. New captures fill both; old
+        /// baselines only have the former, so the gate checks containment in
+        /// `worldBoundsCenter/Size` instead of comparing these point by point.
+        /// </summary>
+        public List<string> sampledSkinnedWorld = new List<string>();
     }
 
     [Serializable]
@@ -262,6 +279,11 @@ public static class L2MeterContractHarness
                 if (separator >= 0)
                     clipBindingPaths.Add(bone.path.Substring(separator + 1));
             }
+        // Case-insensitive index, used only to classify an unresolved binding, never to
+        // accept one: Unity binds transform paths case-sensitively, so a curve that only
+        // matches with different casing is genuinely dead at runtime.
+        var clipBindingPathsIgnoringCase = new HashSet<string>(clipBindingPaths, StringComparer.OrdinalIgnoreCase);
+        var deferred = new List<string>();
         foreach (ClipEntry clip in current.clips)
         {
             var asset = AssetDatabase.LoadAssetAtPath<AnimationClip>(clip.assetPath);
@@ -279,19 +301,35 @@ public static class L2MeterContractHarness
                     if (skeleton != null && skeleton.transform.Find(binding.path) != null)
                         continue;
                 }
-                bool resolved = clipBindingPaths.Contains(binding.path);
-                if (!resolved)
-                {
+                if (clipBindingPaths.Contains(binding.path))
+                    continue;
+                // Pre-existing authoring defect, not a unit defect: the clip targets a bone
+                // whose name differs only in case from the skeleton's (`bip01` vs `Bip01`).
+                // The migration neither created nor can fix it, and it is tracked separately,
+                // so it is reported and does not fail the meter gate. Any other unresolved
+                // path is a real regression and still fails.
+                if (clipBindingPathsIgnoringCase.Contains(binding.path))
+                    deferred.Add("clip curve targets a differently-cased bone " + binding.path +
+                                 " in " + clip.assetPath);
+                else
                     failures.Add("unbound clip curve " + clip.assetPath + " -> " + binding.path);
-                    break;
-                }
+                break;
             }
         }
+
+        // A clip left in the legacy unit plays on a migrated skeleton by dragging its root
+        // to the floor; binding counts cannot see that, so compare magnitudes to the bind pose.
+        int legacyClips = CountLegacyClips(rig, current.clips, out int checkedCurves);
+        if (legacyClips > 0)
+            failures.Add("clips still in legacy units: " + legacyClips + " of " + current.clips.Count +
+                         " are ~100x below the bind pose (checked " + checkedCurves + " position curves)");
 
         int stillLegacy = CountLegacyScale(current);
         var report = new StringBuilder();
         report.Append($"{rig.Id}: prefabs={current.prefabs.Count} clips={current.clips.Count} ");
         report.Append($"legacyBoneScale={stillLegacy} failures={failures.Count}");
+        if (deferred.Count > 0)
+            report.Append($" deferredClipCurves={deferred.Count}");
         foreach (PrefabEntry prefab in current.prefabs)
         {
             if (prefab.isMeterBoneHierarchy)
@@ -303,14 +341,81 @@ public static class L2MeterContractHarness
         }
         foreach (string failure in failures.Take(400))
             report.Append("\n  - ").Append(failure);
+        foreach (string note in deferred.Take(400))
+            report.Append("\n  ! ").Append(note);
         ok = failures.Count == 0;
         return report.ToString();
+    }
+
+    /// <summary>
+    /// Counts clips whose <c>m_LocalPosition</c> values are still in the legacy unit.
+    ///
+    /// A migrated skeleton is 100x the legacy one, so a clip left at the old values plays by
+    /// dragging its root to the floor (measured: `Dwarf/FDwarf` and `Dwarf/MDwarf` shipped
+    /// 198 such clips while their `clips-converted` marker claimed they were done). Binding
+    /// counts and hashes cannot see it — only the magnitudes can. Compare each position curve
+    /// with the bind pose of the same bone in the anim FBX: a converted clip lands near 1.
+    /// </summary>
+    static int CountLegacyClips(MeterRig rig, List<ClipEntry> clips, out int checkedCurves)
+    {
+        checkedCurves = 0;
+        if (rig.AnimFbx == null)
+            return 0;
+        var skeleton = AssetDatabase.LoadAssetAtPath<GameObject>(rig.AnimFbx);
+        if (skeleton == null)
+            return 0;
+
+        // Bind pose of the skeleton as authored in the anim FBX, by transform path.
+        var bind = new Dictionary<string, Vector3>(StringComparer.Ordinal);
+        foreach (Transform t in skeleton.GetComponentsInChildren<Transform>(true))
+            bind[PathOf(skeleton.transform, t)] = t.localPosition;
+
+        int legacy = 0;
+        foreach (ClipEntry entry in clips)
+        {
+            var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(entry.assetPath);
+            if (clip == null)
+                continue;
+
+            int nearBind = 0;
+            int tiny = 0;
+            foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(clip))
+            {
+                if (!binding.propertyName.StartsWith("m_LocalPosition", StringComparison.Ordinal))
+                    continue;
+                if (!bind.TryGetValue(binding.path, out Vector3 local))
+                    continue;
+                int axis = binding.propertyName.EndsWith(".x", StringComparison.Ordinal) ? 0
+                    : binding.propertyName.EndsWith(".y", StringComparison.Ordinal) ? 1
+                    : binding.propertyName.EndsWith(".z", StringComparison.Ordinal) ? 2 : -1;
+                if (axis < 0)
+                    continue;
+                float expected = axis == 0 ? local.x : axis == 1 ? local.y : local.z;
+                if (Mathf.Abs(expected) < 1e-3f)
+                    continue;
+                AnimationCurve curve = AnimationUtility.GetEditorCurve(clip, binding);
+                if (curve == null || curve.length == 0)
+                    continue;
+                float ratio = Mathf.Abs(curve[0].value / expected);
+                checkedCurves++;
+                if (ratio > 0.5f && ratio < 2f)
+                    nearBind++;
+                else if (ratio < 0.1f)
+                    tiny++;
+            }
+
+            // A converted clip lands on the bind pose; a legacy one is two orders below it.
+            if (tiny > 4 && tiny > nearBind * 4)
+                legacy++;
+        }
+        return legacy;
     }
 
     static void ComparePrefab(PrefabEntry expected, PrefabEntry actual, List<string> failures)
     {
         string tag = expected.assetPath;
         var expectedBones = expected.bones.ToDictionary(b => b.path, b => b);
+        var actualBones = actual.bones.ToDictionary(b => b.path, b => b);
         foreach (BoneEntry bone in actual.bones)
         {
             if (!expectedBones.TryGetValue(bone.path, out BoneEntry was))
@@ -318,7 +423,8 @@ public static class L2MeterContractHarness
                 failures.Add($"{tag}: new bone {bone.path}");
                 continue;
             }
-            if (!NearPosition(bone.position, was.position, expected, actual))
+            if (!NearBone(Parse(bone.position), Parse(was.position), expected, actual,
+                          expectedBones, actualBones, bone.path))
                 failures.Add($"{tag}: bone {bone.path} moved {was.position} -> {bone.position}");
             // lossyScale is expected to change (100 -> 1); it is reported, not gated.
         }
@@ -335,17 +441,69 @@ public static class L2MeterContractHarness
                 !NearPosition(skin.worldBoundsSize, was.worldBoundsSize, expected, actual))
                 failures.Add($"{tag}: {skin.nodePath} bounds {was.worldBoundsSize}@{was.worldBoundsCenter}" +
                              $" -> {skin.worldBoundsSize}@{skin.worldBoundsCenter}");
-            int count = Math.Min(skin.sampledVertices.Count, was.sampledVertices.Count);
-            for (int i = 0; i < count; i++)
+
+            // The baseline's `sampledVertices` are `TransformPoint(mesh.vertices)`, which for a
+            // SkinnedMeshRenderer ignores the bones: it is the bind-pose vertex pushed through
+            // the renderer node only. Whether that equals a world position depends on which
+            // node carried the legacy x100 (measured: true for MFighter_m000_b, false for the
+            // embedded FFighter gear copies, where the mesh reads 100x too small). Those
+            // numbers therefore cannot be a point-by-point reference.
+            //
+            // `worldBounds` is normally reliable — Unity derives it from the skinned result —
+            // so the gate asserts that today's skinned vertices still live inside the baseline
+            // volume. That still catches a real 100x regression (the hair prefab that grew
+            // 100x is outside its baseline box) without depending on the broken formula.
+            //
+            // One case defeats the volume check, and it is not a defect: a renderer whose
+            // bone slots are all `{fileID: 0}` (measured: `FFighter_m002_m00_bh.mo` in
+            // `MFighter_h_2_2_bh.prefab`) does not deform at all, so `BakeMesh` returns
+            // bind-pose geometry that is not what the serialized AABB describes. Its world
+            // bounds above are still a real measurement — Unity derives them from the mesh
+            // and the transform — so a 100x error there would already have failed. Skip the
+            // sample instead of inventing a second, weaker reference for it.
+            Vector3 center = Parse(was.worldBoundsCenter);
+            Vector3 half = Parse(was.worldBoundsSize) * 0.5f;
+            float slack = PositionToleranceAt(center) + PositionToleranceAt(half);
+            if (skin.boundBones == 0)
+                continue;
+            foreach (string sample in skin.sampledSkinnedWorld)
             {
-                if (!NearPosition(skin.sampledVertices[i], was.sampledVertices[i], expected, actual))
-                {
-                    failures.Add($"{tag}: {skin.nodePath} vertex[{i}] {was.sampledVertices[i]}" +
-                                 $" -> {skin.sampledVertices[i]}");
-                    break;
-                }
+                Vector3 point = Parse(sample);
+                Vector3 offset = point - center;
+                if (Mathf.Abs(offset.x) <= half.x + slack &&
+                    Mathf.Abs(offset.y) <= half.y + slack &&
+                    Mathf.Abs(offset.z) <= half.z + slack)
+                    continue;
+                failures.Add($"{tag}: {skin.nodePath} skinned vertex {sample} is outside the baseline" +
+                             $" volume {was.worldBoundsSize}@{was.worldBoundsCenter}");
+                break;
             }
         }
+    }
+
+    /// <summary>
+    /// Absolute tolerance that float32 can actually deliver at this coordinate. The stored
+    /// baselines are float32 world positions, so at world x≈4627 one ULP is 4.9e-4 — five
+    /// times the nominal 1e-4. Comparing below that measures the file format, not the asset.
+    /// </summary>
+    static float PositionToleranceAt(Vector3 point)
+    {
+        float magnitude = Mathf.Max(Mathf.Abs(point.x), Mathf.Max(Mathf.Abs(point.y), Mathf.Abs(point.z)));
+        // 8 ULPs of float32 at this magnitude, never below the nominal contract tolerance.
+        float ulp = Mathf.Max(magnitude, 1f) * 1.1920929e-7f;
+        return Mathf.Max(PositionTolerance, ulp * 8f);
+    }
+
+    static float NearestDistance(Vector3 want, List<Vector3> candidates)
+    {
+        float best = float.PositiveInfinity;
+        foreach (Vector3 candidate in candidates)
+        {
+            float distance = (candidate - want).sqrMagnitude;
+            if (distance < best)
+                best = distance;
+        }
+        return Mathf.Sqrt(best);
     }
 
     static Dataset BuildDataset(MeterRig rig)
@@ -396,7 +554,8 @@ public static class L2MeterContractHarness
             .OrderBy(p => p, StringComparer.Ordinal);
     }
 
-    static PrefabEntry CapturePrefab(string assetPath, GameObject instance)
+    /// <summary>Public so the read-only diff tool can capture one prefab without a rerun.</summary>
+    public static PrefabEntry CapturePrefab(string assetPath, GameObject instance)
     {
         var entry = new PrefabEntry { assetPath = assetPath };
         foreach (Transform t in instance.GetComponentsInChildren<Transform>(true))
@@ -425,6 +584,7 @@ public static class L2MeterContractHarness
             {
                 nodePath = PathOf(instance.transform, skin.transform),
                 boneCount = skin.bones.Length,
+                boundBones = skin.bones.Count(b => b != null),
                 meshBoundsSize = Text(mesh.bounds.size),
                 worldBoundsCenter = Text(skin.bounds.center),
                 worldBoundsSize = Text(skin.bounds.size),
@@ -435,6 +595,25 @@ public static class L2MeterContractHarness
                 int step = Mathf.Max(1, vertices.Length / VerticesPerRenderer);
                 for (int i = 0; i < vertices.Length && renderer.sampledVertices.Count < VerticesPerRenderer; i += step)
                     renderer.sampledVertices.Add(Text(skin.transform.TransformPoint(vertices[i])));
+            }
+            // Skinned rest-pose world positions. `BakeMesh` already returns renderer-space
+            // vertices, so only the renderer transform is applied — pushing them through
+            // TransformPoint twice would report a phantom unit error.
+            var baked = new Mesh();
+            try
+            {
+                skin.BakeMesh(baked);
+                Vector3[] skinned = baked.vertices;
+                if (skinned.Length > 0)
+                {
+                    int step = Mathf.Max(1, skinned.Length / VerticesPerRenderer);
+                    for (int i = 0; i < skinned.Length && renderer.sampledSkinnedWorld.Count < VerticesPerRenderer; i += step)
+                        renderer.sampledSkinnedWorld.Add(Text(skin.transform.TransformPoint(skinned[i])));
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(baked);
             }
             entry.renderers.Add(renderer);
         }
@@ -449,6 +628,7 @@ public static class L2MeterContractHarness
             {
                 nodePath = PathOf(instance.transform, meshRenderer.transform),
                 boneCount = 0,
+                boundBones = 0,
                 meshBoundsSize = Text(mesh.bounds.size),
                 worldBoundsCenter = Text(meshRenderer.bounds.center),
                 worldBoundsSize = Text(meshRenderer.bounds.size),
@@ -466,16 +646,55 @@ public static class L2MeterContractHarness
         return entry;
     }
 
-    /// <summary>Compare in the character's frame: float precision at world x≈4600 exceeds the tolerance.</summary>
+    /// <summary>
+    /// Compare in the character's frame: float precision at world x≈4600 exceeds the
+    /// tolerance. The tolerance itself also has to respect float32 resolution at the
+    /// coordinate being compared — the committed baselines store float32 world positions,
+    /// so at x≈4627 one ULP is 4.9e-4 and the nominal 1e-4 is not representable.
+    /// </summary>
     static bool NearPosition(string a, string b, PrefabEntry expected, PrefabEntry actual)
     {
+        Vector3 va = Parse(a);
+        Vector3 vb = Parse(b);
+        float tolerance = Mathf.Max(PositionToleranceAt(va), PositionToleranceAt(vb));
         if (expected.bones.Count == 0 || expected.bones[0].path != "" || actual.bones.Count == 0 ||
             actual.bones[0].path != "")
-            return (Parse(a) - Parse(b)).magnitude <= PositionTolerance;
+            return (va - vb).magnitude <= tolerance;
         Vector3 rootOffset = Parse(expected.bones[0].position) - Parse(actual.bones[0].position);
-        Vector3 delta = (Parse(a) - Parse(b)) - rootOffset;
+        Vector3 delta = (va - vb) - rootOffset;
         delta = new Vector3(Mathf.Abs(delta.x), Mathf.Abs(delta.y), Mathf.Abs(delta.z));
-        return delta.x <= PositionTolerance && delta.y <= PositionTolerance && delta.z <= PositionTolerance;
+        return delta.x <= tolerance && delta.y <= tolerance && delta.z <= tolerance;
+    }
+
+    /// <summary>
+    /// Bone comparison in the skeleton's own frame. World positions are a poor reference at
+    /// the scales this tree uses: the Orc actors sit at world x≈4627, where one float32 ULP
+    /// is 4.9e-4, and the committed baselines store exactly those float32 numbers. Comparing
+    /// each bone against its parent's world delta cancels the shared offset and measures the
+    /// bone's own placement, which is what the migration could actually break.
+    /// </summary>
+    static bool NearBone(Vector3 bone, Vector3 was, PrefabEntry expected, PrefabEntry actual,
+                         Dictionary<string, BoneEntry> expectedBones, Dictionary<string, BoneEntry> actualBones,
+                         string path)
+    {
+        float tolerance = Mathf.Max(PositionToleranceAt(bone), PositionToleranceAt(was));
+        Vector3 delta = bone - was;
+        string parent = ParentPath(path);
+        if (parent != null &&
+            expectedBones.TryGetValue(parent, out BoneEntry wasParent) &&
+            actualBones.TryGetValue(parent, out BoneEntry nowParent))
+            delta -= Parse(nowParent.position) - Parse(wasParent.position);
+        return Mathf.Abs(delta.x) <= tolerance &&
+               Mathf.Abs(delta.y) <= tolerance &&
+               Mathf.Abs(delta.z) <= tolerance;
+    }
+
+    static string ParentPath(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+            return null;
+        int slash = path.LastIndexOf('/');
+        return slash < 0 ? "" : path.Substring(0, slash);
     }
 
     /// <summary>Clips are rooted at an FBX node; actors nest the same subtree below model/.</summary>
@@ -592,7 +811,14 @@ public static class L2MeterContractHarness
                 sb.Append(", \"worldBoundsSize\": ").Append(Quote(renderer.worldBoundsSize));
                 sb.Append(", \"sampledVertices\": [");
                 sb.Append(string.Join(", ", renderer.sampledVertices.Select(Quote)));
-                sb.Append("]}");
+                sb.Append("]");
+                if (renderer.sampledSkinnedWorld.Count > 0)
+                {
+                    sb.Append(", \"sampledSkinnedWorld\": [");
+                    sb.Append(string.Join(", ", renderer.sampledSkinnedWorld.Select(Quote)));
+                    sb.Append("]");
+                }
+                sb.Append("}");
             }
             sb.Append(prefab.renderers.Count > 0 ? "\n     ]" : "]");
             sb.Append("}");

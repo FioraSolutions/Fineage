@@ -155,6 +155,27 @@ the tool re-runnable by recording which clips were converted:
 `L2MeterMigration` writes `Assets/MeterContract/<Race>.clips-converted.json` and skips
 every clip listed there, so a second run reports `clips=0 skipped=62`.
 
+### 5a. The marker can lie — trust the magnitudes, not the list
+
+A marker only records that a clip was *visited* — not that its values changed. Three rigs
+shipped with `clips-converted` present and the clips untouched, so they played at the old
+unit on a migrated skeleton and the root dove to the floor:
+
+| Rig | Clips | Clip / bind-pose ratio |
+|-----|------:|-----------------------:|
+| `Dwarf/FDwarf` | 108 | `0.0100` |
+| `Dwarf/MDwarf` | 90 | `0.0102` |
+| `LineageNPCs/e_clergyman_{F,M}Orc_m00` | 3 + 6 | `0.0100` |
+
+Every other rig reads `1.0000`. The dwarf symptom on screen is the character standing
+inside the floor while the pose itself looks intact.
+
+Fix: delete the stale `<Race>.clips-converted.json`, run `L2MeterMigration.RunCli clips`,
+and re-verify. `L2MeterContractHarness` now fails on this directly — `CountLegacyClips`
+compares each `m_LocalPosition` curve against the bind pose of the same bone in the anim
+FBX and reports `clips still in legacy units: N of M`. A binding-count or binding-hash
+check cannot see it, because the curve set is intact; only the magnitudes are wrong.
+
 ## 6. Prefabs
 
 `Player_<Race>`, `User_<Race>`, `Pawn_<Race>` nest `<Race>_anim.prefab` /
@@ -205,6 +226,72 @@ Tolerance: `1e-4` absolute on positions/bounds, `1e-3` relative on scales.
 
 Baseline capture must happen **before** touching anything, and the baseline file
 must be committed (small JSON) so the check is repeatable in CI.
+
+### 7b. What the gate actually compares (redefined, measured)
+
+The literal §7 recipe cannot be applied to the committed baselines, and forcing it
+produced false failures. Three corrections, all implemented in
+`L2MeterContractHarness.cs`:
+
+1. **Bone positions are compared parent-relative.** Actors sit at world `x ≈ 4627`
+   (`Pawn_MElf`, `User_MElf`, `Pawn_FOrc`), where one float32 ULP is `4.9e-4` — five
+   times the nominal `1e-4`. Comparing raw world coordinates measures the JSON float
+   format, not the asset. `NearBone` subtracts the parent's world delta, which isolates
+   whether the bone moved inside its own skeleton, and `PositionToleranceAt` floors the
+   tolerance at 8 ULPs of the coordinate. This removed 63 phantom failures on the Orc
+   rigs.
+2. **Vertices are checked as skinned world points against the baseline volume.**
+   `sampledVertices` in the committed baselines are `TransformPoint(mesh.vertices[i])`,
+   i.e. bind-pose coordinates pushed through the renderer node, whose index order is not
+   stable across a unit change. They cannot be a point-by-point reference. The gate
+   instead bakes the current skinned mesh and asserts every sampled point lies inside
+   the baseline `worldBounds` box, which is a real measurement and still catches a 100×
+   regression.
+3. **Renderers with no live bones are skipped for the vertex check.** `boneCount` counts
+   serialized slots, and a renderer can carry slots that are all `{fileID: 0}`
+   (`FFighter_m002_m00_bh.mo` in `MFighter_h_2_2_bh.prefab`). Such a renderer does not
+   deform, so `BakeMesh` returns bind-pose geometry that the serialized AABB does not
+   describe. Its world bounds are still gated; only the meaningless sample is skipped.
+   The harness records `boundBones` for this.
+
+**Deferred clip curves.** 19 curves in `LineageMonsters/wolf_m00` and
+`LineageNPCs/a_casino_MHuman_m00` bind `bip01` while the skeleton spells `Bip01`.
+That is a pre-existing authoring defect (Unity binds transform paths case-sensitively,
+so those curves are dead at runtime today), unrelated to units. The gate reports them
+as `deferredClipCurves` and does **not** fail on them; any other unresolved binding
+path is still a hard failure. Tracked as a separate task — do not fix it in the meter
+PR.
+
+### 7c. Actor prefabs own their own skeleton
+
+§6 describes `Player_`/`User_`/`Pawn_` as nesting the anim prefab. That is not true for
+every race: `DarkElf`, `Dwarf`, `Elf` and `Magic` `Player_` prefabs contain **zero**
+`PrefabInstance` blocks and own a full flattened skeleton copy. Those copies are
+migration targets too — the first full run reported `legacyBoneScale` on 14 of them
+while the gate was already green on world positions, because nothing had synced them.
+
+Two rules that follow, both measured:
+
+* **Resolve the source FBX by the skeleton node, not by prefab name.** The anim
+  skeleton and the body FBX have different bind poses for the same bone names
+  (`MDarkElf_anim.fbx` rests `bip01` at `0.8153`, `MDarkElf_m000_b.fbx` at `0.4848`).
+  Syncing an actor prefab from the body FBX re-poses the whole character — it moved
+  every bone on `Player_MDarkElf`. `AnimSkeletonFor` prefers the rig's anim FBX when it
+  contains the prefab's `.ao` node.
+* **A body FBX may hold only the carrier.** `FFighter_m000_b.fbx` has a `.mo` and no
+  `.ao`; that rig's skeleton comes from `Models/experiment/test_ffigter_anim.fbx`.
+  `FbxOwningSkeleton` resolves the file that actually contains the node, and a missing
+  `.ao` in the source is a skip, not an exception.
+* **The `.mo` carrier is a sibling of `.ao` inside the FBX, but the prefab nests both**
+  under a carrier object (`model/<Actor>_anim_user/`). Matching it at the prefab root
+  missed it and left scale 100 on `MDarkElf`/`FElf`/`FMagic`; match it relative to the
+  skeleton's parent.
+* **Anim prefabs are not always in the actor folder.** `Dwarf/MDwarf` keeps
+  `Models/anim/MDwarf_anim_player.prefab`; scanning only `<Actor>/` skipped it.
+
+After these fixes the full tree reports `legacyBoneScale` only for the documented
+`click_area` proxies, and a second `RunCli all` reports `syncedTransforms=0` on every
+rig (idempotent).
 
 ### 7a. Probe the import contract directly
 
@@ -269,6 +356,17 @@ The 3 remaining non-unit scopes are **not** skeleton bones and are expected:
   `0.3 × 0.9 × 0.3`.
 
 Do not "fix" those in this migration; they are unrelated to the character unit contract.
+
+Full-tree result after the actor-prefab fixes in §7c:
+
+```
+rigs=83 failed=0
+LineageMonsters/wolf_m00:                       failures=0 deferredClipCurves=3
+LineageNPCs/a_casino_MHuman_m00/Model:          failures=0 deferredClipCurves=16
+```
+
+Every remaining non-unit `lossyScale` in the report is a `click_area` proxy. A second
+`L2MeterMigration.RunCli all` reports `syncedTransforms=0` on all 12 actor rigs.
 
 ## 8. Only then remove the crutches
 

@@ -165,9 +165,11 @@ public static class L2MeterRigs
             rig.AnimFbx = FirstFbx(animDir, actors + "_anim.fbx")
                           ?? FirstFbx(animDir, actors + "_anim_user.fbx")
                           ?? Directory.GetFiles(animDir, "*.fbx").OrderBy(p => p).FirstOrDefault();
-            rig.AnimPrefab = animDir + "/" + actors + "_anim.prefab";
-            if (!File.Exists(rig.AnimPrefab))
-                rig.AnimPrefab = null;
+            // The flattened skeleton is not always `<Actor>_anim.prefab`: Elf/MElf ships
+            // `Models/anim/MElf_anim_user.prefab`, and missing it left the whole rig on the
+            // legacy 100x carrier while every other rig reported scale 1.
+            rig.AnimPrefab = FirstFile(animDir, actors + "_anim.prefab")
+                             ?? FirstFile(animDir, actors + "_anim_user.prefab");
         }
 
         foreach (string prefab in new[]
@@ -185,6 +187,20 @@ public static class L2MeterRigs
                 rig.AnimPrefabs.Add(prefab);
             else
                 rig.ActorPrefabs.Add(prefab);
+        }
+
+        // Some rigs keep the flattened skeleton under Models/anim instead of the actor
+        // folder (measured: Dwarf/MDwarf ships `Models/anim/MDwarf_anim_player.prefab` and
+        // no `MDwarf_anim.prefab`). Without this scan that prefab was never a migration
+        // target and kept its legacy `.ao` at scale 100.
+        if (hasAnim)
+        {
+            foreach (string prefab in Directory.GetFiles(models + "/anim", "*_anim_*.prefab"))
+            {
+                string normalised = prefab.Replace('\\', '/');
+                if (rig.AnimPrefabs.All(p => p != normalised))
+                    rig.AnimPrefabs.Add(normalised);
+            }
         }
 
         // Clips are authoritative where they live; Shaman keeps them under Orc/ because
@@ -275,6 +291,12 @@ public static class L2MeterRigs
         return File.Exists(path) ? path : null;
     }
 
+    static string FirstFile(string dir, string name)
+    {
+        string path = dir + "/" + name;
+        return File.Exists(path) ? path : null;
+    }
+
     /// <summary>Every `*.fbx` under the rig's model folder, including `Models/anim`.</summary>
     public static IEnumerable<string> ModelFbx(MeterRig rig)
     {
@@ -341,7 +363,12 @@ public static class L2MeterRigs
 
     /// <summary>
     /// Gear (armor/face/hair) prefabs of this actor: nested FBX instances that carry the
-    /// stale `m_LocalScale = 100` override the migration has to clear.
+    /// stale `m_LocalScale = 100` override the migration has to clear, plus the prefabs that
+    /// hold their own copy of the skeleton.
+    ///
+    /// Subfolders are included: every race keeps its parts in `<Actor>/Hair` and
+    /// `<Actor>/Faces`, and a top-level-only scan skipped them (measured: 223 renderers
+    /// still drawing 100x large after the migration reported success).
     /// </summary>
     public static IEnumerable<string> GearedPrefabs(MeterRig rig)
     {
@@ -349,7 +376,7 @@ public static class L2MeterRigs
         {
             if (!Directory.Exists(dir))
                 continue;
-            foreach (string path in Directory.GetFiles(dir, "*.prefab"))
+            foreach (string path in Directory.GetFiles(dir, "*.prefab", SearchOption.AllDirectories))
             {
                 string name = Path.GetFileName(path);
                 if (name.Contains("_anim_"))
