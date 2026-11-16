@@ -32,7 +32,8 @@ import sys
 import zlib
 
 MAGIC = b"Kaydara FBX Binary  \x00\x1a\x00"
-LEGACY_FACTOR = 1.9  # 100 (node) * 0.019 (importer)
+LEGACY_FACTOR = 1.9  # 100 (node) * 0.019 (importer) — the common case
+DEFAULT_IMPORTER_SCALE = 0.019
 NODE_SCALE = 100.0   # legacy Lcl Scaling on .ao/.mo, folded into every global matrix
 METER_UNIT = 100.0
 
@@ -246,6 +247,27 @@ def _matrix_array(node):
     return None
 
 
+def legacy_factor_for(path):
+    """Importer scale the asset was shipped with, read from its `.fbx.meta` when present.
+
+    `LEGACY_FACTOR` = 100 (node Lcl Scaling) x 0.019 (importer `globalScale`). Almost every
+    rig uses 0.019, but the raw-UU town NPCs (`e_clergyman_{F,M}Orc_m00`) were compensated
+    with 0.00019 = 0.019 x 0.01 in an older pass. Patching those with the default 1.9 puts
+    their geometry 100x above the skeleton, so the model renders as a hundred-metre giant
+    while every `lossyScale` still reads 1 and the harness stays green.
+    """
+    meta = path + ".meta"
+    try:
+        with open(meta, "r", encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                marker = "globalScale:"
+                if marker in line:
+                    return NODE_SCALE * float(line.split(marker, 1)[1].strip())
+    except (OSError, ValueError):
+        pass
+    return LEGACY_FACTOR
+
+
 def _retarget_global_matrix(values, linear_div, translation_mul):
     """Scale an absolute (bind) matrix from legacy raw space to meter raw space.
 
@@ -456,6 +478,11 @@ def patch(path, dst, force=False):
 
     legacy, reason = detect_contract(root)
     stats["contract"] = reason
+    # The raw-UU town NPCs were compensated with 0.00019 in their `.meta`, so their geometry
+    # is a hundred times smaller than the shared 1.9 factor assumes. Reading the factor off
+    # the asset itself keeps the common rigs on 1.9 while putting these two back on scale.
+    factor = legacy_factor_for(path)
+    stats["factor"] = factor
     if not legacy and not force:
         # Already meter: normally copy through untouched so a batch run stays idempotent.
         # The take's ×100 scale channel is a second carrier the unit fix does not clear,
@@ -479,7 +506,6 @@ def patch(path, dst, force=False):
         os.replace(tmp, dst)
         return stats
     stats["skipped"] = False
-    stats["takeScales"] = _retarget_take(root)
     # Raw-unit face/hair FBX have no x100 carrier: their bind matrices are already local.
     # Only scale their translations; dividing the linear part by 100 would misalign skin.
     legacy_carrier = has_legacy_carrier(root)
@@ -507,21 +533,21 @@ def patch(path, dst, force=False):
                     scaling.props[i].value = 1.0
             translation = _p70(obj, "Lcl Translation")
             if translation and len(translation.props) > 4:
-                _scale_translation(translation, LEGACY_FACTOR)
+                _scale_translation(translation, factor)
                 stats["scaledModels"] += 1
             stats["models"] += 1
         elif obj.name == "Geometry":
             vertices = obj.first("Vertices")
             if vertices and vertices.props and vertices.props[0].code in ARRAY_CODES:
                 prop = vertices.props[0]
-                prop.value = [v * LEGACY_FACTOR for v in prop.value]
+                prop.value = [v * factor for v in prop.value]
                 stats["vertices"] += 1
         elif obj.name == "Pose":
             for pose_node in obj.find("PoseNode"):
                 values = _matrix_array(pose_node)
                 if values:
                     _retarget_global_matrix(values, NODE_SCALE if legacy_carrier else 1.0,
-                                            LEGACY_FACTOR * 0.01)
+                                            factor * 0.01)
                     stats["bindPose"] += 1
         elif obj.name == "Deformer" and len(obj.props) > 2 and obj.props[2].value == "Cluster":
             link = obj.first("TransformLink")
@@ -529,14 +555,21 @@ def patch(path, dst, force=False):
                 values = _matrix_array(link)
                 if values:
                     _retarget_global_matrix(values, NODE_SCALE if legacy_carrier else 1.0,
-                                            LEGACY_FACTOR * 0.01)
+                                            factor * 0.01)
             local = obj.first("Transform")
             if local is not None:
                 values = _matrix_array(local)
                 if values:
                     for i in (12, 13, 14):
-                        values[i] = values[i] * LEGACY_FACTOR
+                        values[i] = values[i] * factor
             stats["clusters"] += 1
+
+    # The take must be retargeted *after* the model nodes moved: Unity reads the resting
+    # pose from the take channel, so a take holding the pre-patch translation keeps the
+    # rig in the old space no matter how correct the `Lcl Translation` next to it is.
+    # Running it first (the previous order) left the orc clergy a hundred metres tall
+    # with every `lossyScale` still reading 1.
+    stats["takeScales"] = _retarget_take(root)
 
     os.makedirs(os.path.dirname(os.path.abspath(dst)), exist_ok=True)
     # Write beside the target and replace, so an interrupted run can never leave a
