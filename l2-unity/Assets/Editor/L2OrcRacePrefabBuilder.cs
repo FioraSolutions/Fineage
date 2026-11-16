@@ -178,8 +178,9 @@ public static class L2OrcRacePrefabBuilder
                 if (!path.EndsWith(".fbx"))
                     continue;
                 var importer = (ModelImporter)UnityEditor.AssetImporter.GetAtPath(path);
-                importer.globalScale = ModelScale;
-                importer.useFileScale = false;
+                bool meter = importer.globalScale == 1f && importer.useFileScale;
+                importer.globalScale = meter ? 1f : ModelScale;
+                importer.useFileScale = meter;
                 importer.animationType = ModelImporterAnimationType.Generic;
                 importer.importAnimation = path.EndsWith("_anim.fbx");
                 importer.materialImportMode = ModelImporterMaterialImportMode.None;

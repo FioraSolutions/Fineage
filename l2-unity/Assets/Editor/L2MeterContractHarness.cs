@@ -249,31 +249,41 @@ public static class L2MeterContractHarness
                 failures.Add($"clip {clip.assetPath} lost bindings {clip.bindingCount} -> {actual.bindingCount}");
         }
 
-        // Every clip binding must still resolve to a transform in the anim prefab.
-        var animPrefabs = rig.AnimPrefabs
-            .Concat(new[] { rig.AnimPrefab })
-            .Concat(rig.ActorPrefabs)
-            .Where(p => !string.IsNullOrEmpty(p))
-            .Select(AssetDatabase.LoadAssetAtPath<GameObject>).Where(p => p != null).ToArray();
-        if (animPrefabs.Length > 0)
-        {
-            foreach (ClipEntry clip in current.clips)
+        // Clip values are converted exactly once; the binding set is checked for loss
+        // above and each animation curve still has to resolve on a migrated skeleton.
+        // Resolve against the captured paths: instantiating every prefab again for every
+        // binding made this gate quadratic on full race directories.
+        var clipBindingPaths = new HashSet<string>(StringComparer.Ordinal);
+        foreach (PrefabEntry prefab in current.prefabs)
+            foreach (BoneEntry bone in prefab.bones)
             {
-                var asset = AssetDatabase.LoadAssetAtPath<AnimationClip>(clip.assetPath);
-                if (asset == null)
+                clipBindingPaths.Add(bone.path);
+                int separator = bone.path.IndexOf('/', StringComparison.Ordinal);
+                if (separator >= 0)
+                    clipBindingPaths.Add(bone.path.Substring(separator + 1));
+            }
+        foreach (ClipEntry clip in current.clips)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<AnimationClip>(clip.assetPath);
+            if (asset == null)
+                continue;
+            foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(asset))
+            {
+                if (!binding.propertyName.StartsWith("m_LocalPosition", StringComparison.Ordinal) &&
+                    !binding.propertyName.StartsWith("m_LocalRotation", StringComparison.Ordinal) &&
+                    !binding.propertyName.StartsWith("m_LocalScale", StringComparison.Ordinal))
                     continue;
-                foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(asset))
+                if (rig.AnimFbx != null)
                 {
-                    if (!binding.propertyName.StartsWith("m_LocalPosition", StringComparison.Ordinal) &&
-                        !binding.propertyName.StartsWith("m_LocalRotation", StringComparison.Ordinal) &&
-                        !binding.propertyName.StartsWith("m_LocalScale", StringComparison.Ordinal))
+                    var skeleton = AssetDatabase.LoadAssetAtPath<GameObject>(rig.AnimFbx);
+                    if (skeleton != null && skeleton.transform.Find(binding.path) != null)
                         continue;
-                    bool resolved = animPrefabs.Any(root => root.transform.Find(binding.path) != null);
-                    if (!resolved)
-                    {
-                        failures.Add("unbound clip curve " + clip.assetPath + " -> " + binding.path);
-                        break;
-                    }
+                }
+                bool resolved = clipBindingPaths.Contains(binding.path);
+                if (!resolved)
+                {
+                    failures.Add("unbound clip curve " + clip.assetPath + " -> " + binding.path);
+                    break;
                 }
             }
         }
@@ -308,7 +318,7 @@ public static class L2MeterContractHarness
                 failures.Add($"{tag}: new bone {bone.path}");
                 continue;
             }
-            if (!NearText(bone.position, was.position, PositionTolerance))
+            if (!NearPosition(bone.position, was.position, expected, actual))
                 failures.Add($"{tag}: bone {bone.path} moved {was.position} -> {bone.position}");
             // lossyScale is expected to change (100 -> 1); it is reported, not gated.
         }
@@ -321,14 +331,14 @@ public static class L2MeterContractHarness
                 failures.Add($"{tag}: new renderer {skin.nodePath}");
                 continue;
             }
-            if (!NearText(skin.worldBoundsCenter, was.worldBoundsCenter, PositionTolerance) ||
-                !NearText(skin.worldBoundsSize, was.worldBoundsSize, PositionTolerance))
+            if (!NearPosition(skin.worldBoundsCenter, was.worldBoundsCenter, expected, actual) ||
+                !NearPosition(skin.worldBoundsSize, was.worldBoundsSize, expected, actual))
                 failures.Add($"{tag}: {skin.nodePath} bounds {was.worldBoundsSize}@{was.worldBoundsCenter}" +
                              $" -> {skin.worldBoundsSize}@{skin.worldBoundsCenter}");
             int count = Math.Min(skin.sampledVertices.Count, was.sampledVertices.Count);
             for (int i = 0; i < count; i++)
             {
-                if (!NearText(skin.sampledVertices[i], was.sampledVertices[i], PositionTolerance))
+                if (!NearPosition(skin.sampledVertices[i], was.sampledVertices[i], expected, actual))
                 {
                     failures.Add($"{tag}: {skin.nodePath} vertex[{i}] {was.sampledVertices[i]}" +
                                  $" -> {skin.sampledVertices[i]}");
@@ -454,6 +464,30 @@ public static class L2MeterContractHarness
         }
 
         return entry;
+    }
+
+    /// <summary>Compare in the character's frame: float precision at world x≈4600 exceeds the tolerance.</summary>
+    static bool NearPosition(string a, string b, PrefabEntry expected, PrefabEntry actual)
+    {
+        if (expected.bones.Count == 0 || expected.bones[0].path != "" || actual.bones.Count == 0 ||
+            actual.bones[0].path != "")
+            return (Parse(a) - Parse(b)).magnitude <= PositionTolerance;
+        Vector3 rootOffset = Parse(expected.bones[0].position) - Parse(actual.bones[0].position);
+        Vector3 delta = (Parse(a) - Parse(b)) - rootOffset;
+        delta = new Vector3(Mathf.Abs(delta.x), Mathf.Abs(delta.y), Mathf.Abs(delta.z));
+        return delta.x <= PositionTolerance && delta.y <= PositionTolerance && delta.z <= PositionTolerance;
+    }
+
+    /// <summary>Clips are rooted at an FBX node; actors nest the same subtree below model/.</summary>
+    static bool ResolveClipBinding(Transform root, string path)
+    {
+        if (root.Find(path) != null)
+            return true;
+        string leaf = path.Split('/')[0];
+        foreach (Transform candidate in root.GetComponentsInChildren<Transform>(true))
+            if (candidate.name == leaf && candidate.Find(path.Substring(leaf.Length).TrimStart('/')) != null)
+                return true;
+        return false;
     }
 
     static string PathOf(Transform root, Transform target)

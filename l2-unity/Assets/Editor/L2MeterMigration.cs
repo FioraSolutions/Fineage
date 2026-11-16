@@ -35,6 +35,9 @@ public static class L2MeterMigration
 
     static MeterRig _rig;
 
+    /// <summary>Opt-in: gear prefabs that hold their own copy of the skeleton.</summary>
+    static bool RunEmbeddedSkeletonSync;
+
     [MenuItem("L2/Meter Contract/Migrate all rigs (import, clips, prefabs)")]
     public static void Menu()
     {
@@ -47,6 +50,7 @@ public static class L2MeterMigration
         string step = extra.Length > 0 ? extra[0] : "all";
         string filter = extra.Length > 1 ? extra[1] : null;
         bool dry = extra.Contains("dry", StringComparer.OrdinalIgnoreCase);
+        RunEmbeddedSkeletonSync = extra.Contains("gearcopies", StringComparer.OrdinalIgnoreCase);
         try
         {
             string report = RunAll(step, filter, dry);
@@ -80,7 +84,7 @@ public static class L2MeterMigration
             throw new InvalidOperationException("no rig matched filter '" + filter + "'");
         log.Add("rigs=" + rigs.Count);
         bool all = step == "all";
-        int imported = 0, clips = 0, prefabs = 0, cleared = 0;
+        int imported = 0, clips = 0, prefabs = 0, cleared = 0, syncedCopies = 0;
         if (step == "rigs")
         {
             foreach (MeterRig rig in rigs)
@@ -102,8 +106,25 @@ public static class L2MeterMigration
             if (all || step == "prefabs")
                 prefabs += RebuildPrefabs(log, out int dropped);
             cleared += ClearStaleScaleOverrides(rig);
+            if (RunEmbeddedSkeletonSync)
+                syncedCopies += SyncEmbeddedSkeletons(rig, log);
+        }
+
+        // Model folders no rig claims (duplicate face meshes, monster2, effect static
+        // meshes) still carry UnitScaleFactor 1 and globalScale 0.019, so anything that
+        // instances them keeps the legacy 100x bone scale.
+        if (all || step == "imports")
+        {
+            int extra = 0;
+            foreach (string folder in L2MeterRigs.UnclaimedModelFolders(rigs))
+                extra += ConfigureImportersIn(folder, null);
+            if (extra > 0)
+                log.Add($"unclaimedImporters={extra}");
+            imported += extra;
         }
         AssetDatabase.SaveAssets();
+        if (syncedCopies > 0)
+            log.Add($"gearCopiesSynced total={syncedCopies}");
         string report = string.Join(" | ", log);
         File.AppendAllText(ResultPath, report + "\n");
         return report;
@@ -117,6 +138,8 @@ public static class L2MeterMigration
 
     static IEnumerable<string> ModelFbx(string folder)
     {
+        if (!AssetDatabase.IsValidFolder(folder))
+            yield break;
         foreach (string guid in AssetDatabase.FindAssets("t:Model", new[] { folder }))
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
@@ -128,11 +151,23 @@ public static class L2MeterMigration
     // --------------------------------------------------------------- §4 import settings
     static int ConfigureImporters(List<string> log)
     {
+        int changed = ConfigureImportersIn(_rig.Models, _rig.AnimFbx);
+        log.Add($"{_rig.Id}: importers={changed}");
+        return changed;
+    }
+
+    /// <summary>
+    /// Force the meter import contract on every FBX under a folder. Only the unit contract
+    /// is touched; animation flags are forced on the anim FBX, whose clips the rig samples.
+    /// </summary>
+    static int ConfigureImportersIn(string folder, string animFbx)
+    {
         int changed = 0;
-        var paths = ModelFbx(_rig.Models).Distinct().ToList();
-        if (!string.IsNullOrEmpty(_rig.AnimFbx))
-            paths.Add(_rig.AnimFbx);
-        paths = paths.Distinct().ToList();
+        if (!AssetDatabase.IsValidFolder(folder))
+            return 0;
+        var paths = ModelFbx(folder).Distinct().ToList();
+        if (!string.IsNullOrEmpty(animFbx) && !paths.Contains(animFbx))
+            paths.Add(animFbx);
         try
         {
             AssetDatabase.StartAssetEditing();
@@ -140,7 +175,7 @@ public static class L2MeterMigration
             {
                 if (!(AssetImporter.GetAtPath(path) is ModelImporter importer))
                     continue;
-                bool anim = path == _rig.AnimFbx;
+                bool anim = !string.IsNullOrEmpty(animFbx) && path == animFbx;
                 ModelImporterAnimationType type = anim ? ModelImporterAnimationType.Generic
                                                        : importer.animationType;
                 // Only the unit contract is forced for meshes; the rest of their settings stay.
@@ -168,7 +203,6 @@ public static class L2MeterMigration
             AssetDatabase.StopAssetEditing();
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
-        log.Add($"importers={changed}/{paths.Count}");
         return changed;
     }
 
@@ -480,6 +514,100 @@ public static class L2MeterMigration
         string path = AssetDatabase.GetAssetPath(source);
         return path.StartsWith(rig.Models, StringComparison.Ordinal)
                && path.EndsWith(".fbx", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Gear prefabs are not all nested instances of a migrated FBX. A face, hair or armor
+    /// prefab may hold its own copy of the skeleton — the `.ao` and `.mo` are real objects
+    /// of the prefab, with `m_LocalScale = 100` on the root and every direct child's
+    /// `m_LocalPosition` divided by 100. `ClearStaleScaleOverrides` deliberately skips those
+    /// (they are not instances), so the FBX reimport passed them by and the mesh draws 100x:
+    /// a dwarf glove at y = 56 instead of y = 0.56.
+    ///
+    /// Copying the FBX's local transforms wholesale is wrong — the prefab copy keeps the
+    /// bind hierarchy in the legacy basis, so its children are not the FBX's children.
+    /// The change is a basis swap that has to preserve world space: drop the root to scale 1
+    /// and multiply each *direct* child's local position by the scale being removed. A
+    /// grandchild is already in a scale-1 frame, so it is untouched. That reproduces the
+    /// FBX numbers exactly: `FDwarf_m001_u.ao/bip01` goes from y = -0.00022975808 to
+    /// -0.022975808, which is the FBX's `Lcl Translation.y`.
+    /// </summary>
+    static int SyncEmbeddedSkeletons(MeterRig rig, List<string> log)
+    {
+        int synced = 0;
+        // These flattened prefabs serialize old importer-local translations, not the raw
+        // FBX `Lcl Translation`: the root is divided by 100, and descendants keep the
+        // old importer's basis. Preserve the world transform when removing the carrier's
+        // 100x scale, then repair positions only where the old basis actually drifted.
+        foreach (string path in L2MeterRigs.GearedPrefabs(rig))
+        {
+            if (!rig.NamePrefixes.Any(p => Path.GetFileNameWithoutExtension(path)
+                    .StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+                continue;
+            string fbxPath = L2MeterRigs.ModelFbx(rig)
+                .FirstOrDefault(p => Path.GetFileNameWithoutExtension(p)
+                    .Equals(Path.GetFileNameWithoutExtension(path), StringComparison.OrdinalIgnoreCase));
+            if (fbxPath == null)
+                continue;
+            var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
+            if (fbx == null)
+                continue;
+            var source = (GameObject)PrefabUtility.InstantiatePrefab(fbx);
+            GameObject root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                Transform sourceRoot = FindSkeletonRoot(source.transform);
+                Transform targetRoot = FindSkeletonRoot(root.transform);
+                if (sourceRoot == null || targetRoot == null ||
+                    Mathf.Abs(targetRoot.localScale.x - 100f) > 0.5f ||
+                    PrefabUtility.GetCorrespondingObjectFromSource(targetRoot.gameObject) != null)
+                    continue;
+
+                // Drop the x100 carrier and preserve each old world point. This makes the
+                // complete flattened hierarchy meter-scaled even where its FBX layout differs.
+                var original = targetRoot.GetComponentsInChildren<Transform>(true)
+                    .ToDictionary(t => RelativePath(targetRoot, t), t => t.position);
+                targetRoot.localScale = Vector3.one;
+                foreach (Transform target in targetRoot.GetComponentsInChildren<Transform>(true))
+                {
+                    if (target == targetRoot)
+                        continue;
+                    target.position = original[RelativePath(targetRoot, target)];
+                }
+                foreach (Transform sourceMesh in source.GetComponentsInChildren<Transform>(true))
+                {
+                    if (!sourceMesh.name.EndsWith(".mo", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    Transform targetMesh = root.transform.Find(sourceMesh.name);
+                    if (targetMesh != null &&
+                        PrefabUtility.GetCorrespondingObjectFromSource(targetMesh.gameObject) == null &&
+                        Mathf.Abs(targetMesh.localScale.x - 100f) < 0.5f)
+                        targetMesh.localScale = Vector3.one;
+                }
+
+                // The old flattened prefab stored its direct children in a different basis.
+                // The matching migrated FBX nodes are authoritative for those translations.
+                foreach (Transform target in targetRoot.GetComponentsInChildren<Transform>(true))
+                {
+                    if (target == targetRoot)
+                        continue;
+                    Transform match = sourceRoot.Find(RelativePath(targetRoot, target));
+                    if (match != null)
+                        target.localPosition = match.localPosition;
+                }
+                SyncRendererCaches(root, source);
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+                synced++;
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+                UnityEngine.Object.DestroyImmediate(source);
+            }
+        }
+        if (synced > 0)
+            log.Add($"{rig.Id}: gearCopiesSynced={synced}");
+        return synced;
     }
 }
 #endif

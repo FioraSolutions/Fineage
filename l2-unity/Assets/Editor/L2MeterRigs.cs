@@ -198,6 +198,26 @@ public static class L2MeterRigs
             if (Directory.Exists(dir))
                 rig.GearDirs.Add(dir);
 
+        // Human face and hair meshes were shared with the Fighter actor after the race
+        // split. Their FBX live in the actor Models folder, but their prefabs stayed in
+        // Human/<Actor>/Faces and Hair. Include those directories without sharing clips.
+        string human = Path.Combine(Animations, "Human", actors);
+        if (Directory.Exists(human))
+        {
+            if (rig.GearDirs.All(d => d != human))
+                rig.GearDirs.Add(human);
+            foreach (string dir in new[] { "Faces", "Hair" })
+            {
+                string parts = Path.Combine(human, dir);
+                if (Directory.Exists(parts) && rig.GearDirs.All(d => d != parts))
+                    rig.GearDirs.Add(parts);
+            }
+            foreach (string path in new[] { "Player_", "User_", "Pawn_" }
+                         .Select(prefix => Path.Combine(human, prefix + actors + ".prefab")))
+                if (File.Exists(path))
+                    rig.ActorPrefabs.Add(path);
+        }
+
         rig.NamePrefixes.Add(actors);
         return rig;
     }
@@ -237,6 +257,15 @@ public static class L2MeterRigs
         string basename = Path.GetFileName(fbx.OrderBy(p => p.Length).First());
         rig.NamePrefixes.Add(Path.GetFileNameWithoutExtension(basename));
         rig.GearDirs.Add(unit);
+        // Loose town NPCs nest their FBX in Model/ but save the actual character prefab
+        // beside that folder. Include the parent, otherwise Verify reports prefabs=0.
+        DirectoryInfo parent = Directory.GetParent(unit);
+        string assetRoot = Path.GetFullPath(Animations);
+        if (parent != null && parent.FullName.StartsWith(assetRoot, StringComparison.Ordinal))
+        {
+            string relative = Path.GetRelativePath(Path.GetFullPath("."), parent.FullName);
+            rig.GearDirs.Add(relative.Replace('\\', '/'));
+        }
         return rig;
     }
 
@@ -246,13 +275,43 @@ public static class L2MeterRigs
         return File.Exists(path) ? path : null;
     }
 
-    /// <summary>Every `*.fbx` directly in the rig's Models folder (the skeletons and parts).</summary>
+    /// <summary>Every `*.fbx` under the rig's model folder, including `Models/anim`.</summary>
     public static IEnumerable<string> ModelFbx(MeterRig rig)
     {
         if (!Directory.Exists(rig.Models))
             yield break;
         foreach (string path in Directory.GetFiles(rig.Models, "*.fbx", SearchOption.AllDirectories))
             yield return path.Replace('\\', '/');
+    }
+
+    /// <summary>
+    /// Folders of model FBX that no rig owns.
+    ///
+    /// The tree is not uniform: `Orc/Models` and `Shaman/Models` hold duplicate face meshes
+    /// that the per-actor rigs do not cover, and `LineageMonsters2` / the effect static
+    /// meshes are not skeleton rigs. They still carry the legacy import contract, so the
+    /// migration configures them by folder, not by rig.
+    /// </summary>
+    public static IEnumerable<string> UnclaimedModelFolders(List<MeterRig> rigs)
+    {
+        var claimed = new HashSet<string>(
+            rigs.Select(r => r.Models.TrimEnd('/')), StringComparer.Ordinal);
+        foreach (string folder in Directory.GetDirectories(Animations, "*", SearchOption.AllDirectories))
+        {
+            string normalised = folder.Replace('\\', '/').TrimEnd('/');
+            if (normalised.EndsWith("/anim", StringComparison.Ordinal))
+                continue;
+            if (claimed.Contains(normalised))
+                continue;
+            if (Directory.GetFiles(folder, "*.fbx").Length == 0)
+                continue;
+            // Only the trees the migration actually owns.
+            string relative = normalised.Substring(Animations.Length + 1);
+            string top = relative.Split('/')[0];
+            if (top == "LineageWeapons")
+                continue;
+            yield return normalised;
+        }
     }
 
     /// <summary>Every `*.anim` under the rig's clip folders and loose next to its models.</summary>
@@ -272,6 +331,10 @@ public static class L2MeterRigs
     {
         foreach (string path in rig.ActorPrefabs)
             yield return path;
+        // The flattened skeleton itself is a prefab the migration edits, so it has to be
+        // in the baseline: capturing it later turns every sync into a "missing prefab".
+        if (!string.IsNullOrEmpty(rig.AnimPrefab))
+            yield return rig.AnimPrefab;
         foreach (string path in GearedPrefabs(rig))
             yield return path;
     }
