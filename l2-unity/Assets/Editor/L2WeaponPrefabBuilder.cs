@@ -270,7 +270,13 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
                 "Assets/Resources/Data/SysTextures/CubeMaps/Shine0.png");
             if (env != null)
                 mat.SetTexture("_EnvMap", env);
-            mat.SetFloat("_SpecFromAlpha", PngHasAlpha(TexFolder + "/" + texStem + ".png") ? 1f : 0f);
+            // Most weapon PNGs carry the coverage mask in alpha (255 across the whole UV
+            // island, 0 on the padding) or no alpha at all. Feeding either to the
+            // specularity mask makes the entire weapon add the full Shine0 reflection,
+            // which reads as a mirror instead of the few polished edges Interlude
+            // highlights. Only a texture with a real alpha ramp is a specularity mask;
+            // everything else must use the luma fallback, which picks out bright metal.
+            mat.SetFloat("_SpecFromAlpha", TextureHasSpecularRamp(tex) ? 1f : 0f);
             mat.SetFloat("_ActorAlpha", 1f);
         }
 
@@ -308,6 +314,30 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
     }
 
     /// <summary>RGBA weapon PNG keeps the specularity mask in alpha. RGB export dropped it.</summary>
+    /// <summary>True when the alpha channel is a real ramp, not coverage or a constant.</summary>
+    static bool TextureHasSpecularRamp(Texture2D tex)
+    {
+        if (tex == null || !tex.isReadable)
+            return false;
+        Color32[] pixels = tex.GetPixels32();
+        int partial = 0;
+        int solid = 0;
+        int clear = 0;
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            byte a = pixels[i].a;
+            if (a == 0) clear++;
+            else if (a == 255) solid++;
+            else partial++;
+        }
+        // Nothing graded means no specularity mask: a missing alpha is 255 everywhere and
+        // a coverage mask is 0/255 only. A real ramp always leaves partial values, with or
+        // without fully opaque pixels.
+        if (partial == 0)
+            return false;
+        return partial > (clear + solid) / 1000;
+    }
+
     static bool PngHasAlpha(string assetPath)
     {
         string full = Path.GetFullPath(assetPath);
