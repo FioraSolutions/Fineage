@@ -276,6 +276,19 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
 
         mat.SetFloat("_Cull", 0f);
 
+        // A weapon PNG stores the coverage mask in alpha: 255 on the island, 0 on the
+        // black padding, and the mesh UVs of the padding triangles sit outside every
+        // island. Without the clip the padding draws as flat black, which is the band
+        // and the loose diamonds around a dagger. AlphaRef 128 matches the mask.
+        if (!shield && TextureHasCoverageAlpha(tex))
+        {
+            mat.SetFloat("_AlphaClip", 1f);
+            mat.SetFloat("_Cutoff", 0.498039216f);
+            mat.EnableKeyword("_ALPHATEST_ON");
+            mat.SetOverrideTag("RenderType", "TransparentCutout");
+            mat.renderQueue = 2450;
+        }
+
         // Shields commonly use FinalBlend AlphaTest + TwoSided (thin geometry needs Cull Off).
         if (shield)
             ApplyFinalBlendCutout(mat);
@@ -307,6 +320,34 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
                 return false;
         }
         return head[25] == 4 || head[25] == 6;
+    }
+
+    /// <summary>
+    /// True when alpha is a coverage mask rather than a specularity ramp: the padding is
+    /// fully transparent, nothing sits between the two values, and the islands are solid.
+    /// Those textures must be alpha-clipped, the soft ones must not be.
+    /// </summary>
+    static bool TextureHasCoverageAlpha(Texture2D tex)
+    {
+        if (tex == null || !tex.isReadable)
+            return false;
+        Color32[] pixels = tex.GetPixels32();
+        int transparent = 0;
+        int partial = 0;
+        int solid = 0;
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            byte a = pixels[i].a;
+            if (a == 0)
+                transparent++;
+            else if (a == 255)
+                solid++;
+            else
+                partial++;
+        }
+        if (transparent == 0 || solid == 0)
+            return false;
+        return partial <= (transparent + solid) / 50;
     }
 
     /// <summary>Mobius FinalBlend AlphaTest=true / AlphaRef=160 / TwoSided → URP cutout + Cull Off.</summary>
