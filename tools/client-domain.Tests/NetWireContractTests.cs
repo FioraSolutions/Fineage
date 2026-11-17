@@ -17,6 +17,19 @@ namespace Fineage.Client.Domain.Tests;
 /// </summary>
 public class NetWireContractTests
 {
+    /// <summary>Little-endian scan, so tests can locate a field without pinning its offset.</summary>
+    static int FindInt32Le(byte[] payload, int value)
+    {
+        Span<byte> needle = stackalloc byte[4];
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(needle, value);
+        for (int i = 0; i <= payload.Length - 4; i++)
+        {
+            if (payload.AsSpan(i, 4).SequenceEqual(needle))
+                return i;
+        }
+        return -1;
+    }
+
     [Fact]
     public void ValidatePosition_round_trips_as_four_int32()
     {
@@ -236,11 +249,22 @@ public class NetWireContractTests
     [Fact]
     public void UserInfo_rejects_an_absurd_paperdoll_count()
     {
-        // Build a valid empty-paperdoll UserInfo, then corrupt the paperdoll length field.
-        // Karma (int32) + PvpFlag (byte) trail after the paperdoll block.
-        byte[] payload = NetCodec.EncodeUserInfo(new UserInfoNetMsg { Name = "" });
-        const int karmaAndPvpTail = 4 + 1;
-        int paperdollLengthOffset = payload.Length - karmaAndPvpTail - 4;
+        // Build a valid UserInfo with one sentinel slot, then corrupt the paperdoll count.
+        // Locating the count through the sentinel keeps the test independent of whatever
+        // fields trail the paperdoll block, which grow every time the contract gains a tail.
+        const int sentinel = 0x5A5A1234;
+        byte[] payload = NetCodec.EncodeUserInfo(new UserInfoNetMsg
+        {
+            Name = "",
+            Paperdoll = new[]
+            {
+                new PaperdollSlotNet { ObjectId = sentinel, ItemId = 22, EnchantLevel = 4 }
+            }
+        });
+
+        int slotOffset = FindInt32Le(payload, sentinel);
+        Assert.True(slotOffset > 4, "sentinel paperdoll slot not found");
+        int paperdollLengthOffset = slotOffset - 4; // the count precedes the slot entries
 
         System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(
             payload.AsSpan(paperdollLengthOffset),
@@ -286,7 +310,7 @@ public class NetWireContractTests
     [Fact]
     public void EntitySpawn_without_the_new_tail_still_decodes()
     {
-        // Simulate a payload from a peer that predates Paperdoll/Dead by truncating them.
+        // Simulate a payload from a peer that predates every appended tail field.
         byte[] full = NetCodec.EncodeEntitySpawn(new EntitySpawnMsg
         {
             EntityValue = 5,
@@ -304,12 +328,18 @@ public class NetWireContractTests
             RunSpeed = 100f,
             WalkSpeed = 60f,
             Running = true,
-            Attackable = true
+            Attackable = true,
+            Paperdoll = new[] { 18, 0, 0, 22 },
+            Dead = true
         });
 
-        // Trailing: empty paperdoll (u16 count) + Dead + Level/MaxHp/PAtkSpd + Karma + PvpFlag + CurHp.
-        const int newerTail = 2 + 1 + 4 + 4 + 4 + 4 + 1 + 4;
-        byte[] older = full.AsSpan(0, full.Length - newerTail).ToArray();
+        // An old peer's payload ended right after Attackable. That prefix is the only part
+        // of the layout that never changes, so cut there; a hard-coded tail size starts
+        // slicing valid fields as soon as the contract gains another tail (Title/Clan,
+        // WeaponEnchant, Noble/Hero, SummonKind, Cubics, Team).
+        int nameBytes = System.Text.Encoding.UTF8.GetByteCount("Wolf");
+        int olderLength = 8 + 4 + 1 + 1 + (2 + nameBytes) + 4 * 10 + 1 + 1;
+        byte[] older = full.AsSpan(0, olderLength).ToArray();
 
         EntitySpawnMsg decoded = NetCodec.DecodeEntitySpawn(older);
         Assert.Equal("Wolf", decoded.Name);

@@ -32,7 +32,8 @@ import sys
 import zlib
 
 MAGIC = b"Kaydara FBX Binary  \x00\x1a\x00"
-LEGACY_FACTOR = 1.9  # 100 (node) * 0.019 (importer)
+LEGACY_FACTOR = 1.9  # 100 (node) * 0.019 (importer) — the common case
+DEFAULT_IMPORTER_SCALE = 0.019
 NODE_SCALE = 100.0   # legacy Lcl Scaling on .ao/.mo, folded into every global matrix
 METER_UNIT = 100.0
 
@@ -246,6 +247,27 @@ def _matrix_array(node):
     return None
 
 
+def legacy_factor_for(path):
+    """Importer scale the asset was shipped with, read from its `.fbx.meta` when present.
+
+    `LEGACY_FACTOR` = 100 (node Lcl Scaling) x 0.019 (importer `globalScale`). Almost every
+    rig uses 0.019, but the raw-UU town NPCs (`e_clergyman_{F,M}Orc_m00`) were compensated
+    with 0.00019 = 0.019 x 0.01 in an older pass. Patching those with the default 1.9 puts
+    their geometry 100x above the skeleton, so the model renders as a hundred-metre giant
+    while every `lossyScale` still reads 1 and the harness stays green.
+    """
+    meta = path + ".meta"
+    try:
+        with open(meta, "r", encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                marker = "globalScale:"
+                if marker in line:
+                    return NODE_SCALE * float(line.split(marker, 1)[1].strip())
+    except (OSError, ValueError):
+        pass
+    return LEGACY_FACTOR
+
+
 def _retarget_global_matrix(values, linear_div, translation_mul):
     """Scale an absolute (bind) matrix from legacy raw space to meter raw space.
 
@@ -260,10 +282,233 @@ def _retarget_global_matrix(values, linear_div, translation_mul):
         values[i] = values[i] * translation_mul
 
 
-def patch(path, dst):
+def _connections(root):
+    """(child uid -> [(kind, parent uid, axis)]).
+
+    Animation curves bind to a curve node through `OP`, and the *fourth* property names the
+    channel (`d|X`, `d|Y`, `d|Z`). Without it the three curves of one bone are
+    indistinguishable and get rewritten with each other's ratio.
+    """
+    out = {}
+    conns = root.first("Connections")
+    for c in (conns.children if conns else []):
+        if c.name != "C" or len(c.props) < 3:
+            continue
+        kind, child, parent = c.props[0].value, c.props[1].value, c.props[2].value
+        axis = c.props[3].value if len(c.props) > 3 else ""
+        out.setdefault(child, []).append((kind, parent, axis))
+    return out
+
+
+def _scale_channel_props(node, factor, only_scale_100=False):
+    """Multiply (or flatten) the `d|X/Y/Z` defaults and keys of an animation curve node."""
+    changed = 0
+    props = node.first("Properties70")
+    for p in (props.children if props else []):
+        if p.name != "P" or not p.props or len(p.props) <= 4:
+            continue
+        if p.props[0].value not in ("d|X", "d|Y", "d|Z"):
+            continue
+        value = float(p.props[4].value)
+        if only_scale_100:
+            if abs(value - NODE_SCALE) > 1.0:
+                continue
+            p.props[4].value = 1.0
+        else:
+            p.props[4].value = value * factor
+        changed += 1
+    return changed
+
+
+def _retarget_take(root):
+    """Bring the animation take onto the same values as the model nodes.
+
+    An animated FBX carries a take next to the model nodes, and Unity uses the *take's*
+    value both as the model's resting pose and as the imported clip data. The take was
+    authored against the legacy unit contract, so after the node transplant it disagrees
+    with the nodes it drives: a bone's `Lcl Translation` is the legacy raw value while the
+    take still holds the pre-×1.9 one, and the `.ao` carrier's take channel is a constant
+    `S = 100`.
+
+    The fix is not another magic factor but parity: for each `T`/`S` channel, take the
+    target straight from the `Model` it is bound to. The keys are then scaled by the same
+    ratio the defaults moved by, so a channel that already matches is left untouched and a
+    re-run changes nothing.
+
+    Returns the number of rewritten channels (0 when the take already matches).
+    """
+    objects = root.first("Objects")
+    if not objects:
+        return 0
+    by_uid = {o.props[0].value: o for o in objects.children if o.props}
+    links = _connections(root)
+    changed = 0
+
+    for uid, node in by_uid.items():
+        if node.name != "AnimationCurveNode" or len(node.props) < 2:
+            continue
+        channel = node.props[1].value.split("\x00")[0]
+        if channel not in ("T", "S"):
+            continue
+        models = [by_uid[parent] for kind, parent, _axis in links.get(uid, [])
+                  if kind in ("OO", "OP")
+                  and parent in by_uid and by_uid[parent].name == "Model"]
+        if not models:
+            continue
+        target = _p70(models[0], "Lcl Translation" if channel == "T" else "Lcl Scaling")
+        if target is None or len(target.props) < 7:
+            continue
+        wanted = [float(target.props[i].value) for i in (4, 5, 6)]
+
+        props = node.first("Properties70")
+        axes = {p.props[0].value: p for p in (props.children if props else [])
+                if p.name == "P" and p.props and len(p.props) > 4}
+        names = ("d|X", "d|Y", "d|Z")
+        current = []
+        for axis in names:
+            entry = axes.get(axis)
+            if entry is None:
+                break
+            current.append(float(entry.props[4].value))
+        if len(current) != 3:
+            continue
+
+        # Per axis, never a shared average: a bone can sit exactly on one axis while its
+        # sibling moves metres on another, and averaging those ratios multiplies noise.
+        ratios = []
+        for want, have in zip(wanted, current):
+            if abs(have) > 1e-4:
+                ratios.append(want / have)
+            else:
+                ratios.append(None)
+        known = [r for r in ratios if r is not None]
+        if not known:
+            continue
+        if all(abs(r - 1.0) < 1e-4 for r in known):
+            continue
+
+        for axis, value in zip(names, wanted):
+            axes[axis].props[4].value = value
+        changed += 1
+
+        # The curve -> curve node link carries the axis, so each key list is scaled by its
+        # own ratio instead of by whatever order the connections happened to be serialised.
+        axis_curves = {}
+        for child_uid, edges in links.items():
+            for kind, parent, axis in edges:
+                if kind != "OP" or parent != uid:
+                    continue
+                curve = by_uid.get(child_uid)
+                if curve is not None and curve.name == "AnimationCurve":
+                    axis_curves[axis] = curve
+        for index, axis in enumerate(names):
+            curve = axis_curves.get(axis)
+            if curve is None:
+                continue
+            keys = curve.first("KeyValueFloat")
+            if not keys or not keys.props:
+                continue
+            if channel == "T":
+                ratio = ratios[index]
+                if ratio is None:
+                    continue
+                keys.props[0].value = [v * ratio for v in keys.props[0].value]
+            else:
+                # A take-level scale is a constant carrier, not squash and stretch.
+                keys.props[0].value = [
+                    1.0 if abs(v - NODE_SCALE) < 1.5 * NODE_SCALE else v
+                    for v in keys.props[0].value]
+    return changed
+
+
+def has_legacy_carrier(root):
+    """Whether at least one model still carries the legacy x100 node scale."""
+    objects = root.first("Objects")
+    for obj in (objects.children if objects else []):
+        if obj.name != "Model":
+            continue
+        scaling = _p70(obj, "Lcl Scaling")
+        if scaling and len(scaling.props) > 4 and abs(float(scaling.props[4].value)) > 1.5:
+            return True
+    return False
+
+
+def detect_contract(root):
+    """Read the asset's current unit contract before patching.
+
+    Returns (legacy, reason):
+      legacy=True  -> node Lcl Scaling is still 100 and/or UnitScaleFactor is 1, so the
+                      asset is in the old contract and must be multiplied by 1.9.
+      legacy=False -> already on the meter contract; patching again would grow it by
+                      another 1.9x, so the caller must skip it.
+
+    The decision is per file, never per folder: the shared weapon folder holds 382
+    legacy assets next to 8 that are already meter.
+    """
+    unit = None
+    node_scale = None
+    globals_ = root.first("GlobalSettings")
+    if globals_:
+        props = globals_.first("Properties70")
+        for p in (props.children if props else []):
+            if p.name == "P" and p.props and p.props[0].value == "UnitScaleFactor":
+                if len(p.props) > 4:
+                    unit = float(p.props[4].value)
+    objects = root.first("Objects")
+    for obj in (objects.children if objects else []):
+        if obj.name != "Model":
+            continue
+        scaling = _p70(obj, "Lcl Scaling")
+        if scaling and len(scaling.props) > 6:
+            value = abs(float(scaling.props[4].value))
+            if value > 1.5:
+                node_scale = value
+                break
+    if node_scale is not None:
+        return True, f"node-scale={node_scale:g},unit={unit}"
+    if unit is not None and abs(unit - METER_UNIT) > 0.5:
+        return True, f"node-scale=1,unit={unit:g}"
+    return False, f"node-scale=1,unit={unit}"
+
+
+def patch(path, dst, force=False):
     version, nodes, original, footer_offset = parse(path)
     root = Node("", [], nodes, wide=version >= 7500)
     stats = {"unit": 0, "models": 0, "vertices": 0, "bindPose": 0, "clusters": 0, "scaledModels": 0}
+
+    legacy, reason = detect_contract(root)
+    stats["contract"] = reason
+    # The raw-UU town NPCs were compensated with 0.00019 in their `.meta`, so their geometry
+    # is a hundred times smaller than the shared 1.9 factor assumes. Reading the factor off
+    # the asset itself keeps the common rigs on 1.9 while putting these two back on scale.
+    factor = legacy_factor_for(path)
+    stats["factor"] = factor
+    if not legacy and not force:
+        # Already meter: normally copy through untouched so a batch run stays idempotent.
+        # The take's ×100 scale channel is a second carrier the unit fix does not clear,
+        # so a rig patched before this step still needs the file rewritten for it.
+        stats["takeScales"] = _retarget_take(root)
+        if stats["takeScales"] == 0:
+            stats["skipped"] = True
+            os.makedirs(os.path.dirname(os.path.abspath(dst)) or ".", exist_ok=True)
+            if os.path.abspath(path) == os.path.abspath(dst):
+                # In-place run of an already-converted file: opening the destination for
+                # writing first truncates the source we are about to read.
+                return stats
+            with open(path, "rb") as src, open(dst, "wb") as fh:
+                fh.write(src.read())
+            return stats
+        stats["skipped"] = False
+        tmp = dst + ".tmp"
+        os.makedirs(os.path.dirname(os.path.abspath(dst)) or ".", exist_ok=True)
+        with open(tmp, "wb") as fh:
+            fh.write(serialize(version, nodes, original[footer_offset:]))
+        os.replace(tmp, dst)
+        return stats
+    stats["skipped"] = False
+    # Raw-unit face/hair FBX have no x100 carrier: their bind matrices are already local.
+    # Only scale their translations; dividing the linear part by 100 would misalign skin.
+    legacy_carrier = has_legacy_carrier(root)
 
     globals_ = root.first("GlobalSettings")
     if globals_:
@@ -288,52 +533,81 @@ def patch(path, dst):
                     scaling.props[i].value = 1.0
             translation = _p70(obj, "Lcl Translation")
             if translation and len(translation.props) > 4:
-                _scale_translation(translation, LEGACY_FACTOR)
+                _scale_translation(translation, factor)
                 stats["scaledModels"] += 1
             stats["models"] += 1
         elif obj.name == "Geometry":
             vertices = obj.first("Vertices")
             if vertices and vertices.props and vertices.props[0].code in ARRAY_CODES:
                 prop = vertices.props[0]
-                prop.value = [v * LEGACY_FACTOR for v in prop.value]
+                prop.value = [v * factor for v in prop.value]
                 stats["vertices"] += 1
         elif obj.name == "Pose":
             for pose_node in obj.find("PoseNode"):
                 values = _matrix_array(pose_node)
                 if values:
-                    _retarget_global_matrix(values, NODE_SCALE, LEGACY_FACTOR * 0.01)
+                    _retarget_global_matrix(values, NODE_SCALE if legacy_carrier else 1.0,
+                                            factor * 0.01)
                     stats["bindPose"] += 1
         elif obj.name == "Deformer" and len(obj.props) > 2 and obj.props[2].value == "Cluster":
             link = obj.first("TransformLink")
             if link is not None:
                 values = _matrix_array(link)
                 if values:
-                    _retarget_global_matrix(values, NODE_SCALE, LEGACY_FACTOR * 0.01)
+                    _retarget_global_matrix(values, NODE_SCALE if legacy_carrier else 1.0,
+                                            factor * 0.01)
             local = obj.first("Transform")
             if local is not None:
                 values = _matrix_array(local)
                 if values:
                     for i in (12, 13, 14):
-                        values[i] = values[i] * LEGACY_FACTOR
+                        values[i] = values[i] * factor
             stats["clusters"] += 1
 
+    # The take must be retargeted *after* the model nodes moved: Unity reads the resting
+    # pose from the take channel, so a take holding the pre-patch translation keeps the
+    # rig in the old space no matter how correct the `Lcl Translation` next to it is.
+    # Running it first (the previous order) left the orc clergy a hundred metres tall
+    # with every `lossyScale` still reading 1.
+    stats["takeScales"] = _retarget_take(root)
+
     os.makedirs(os.path.dirname(os.path.abspath(dst)), exist_ok=True)
-    with open(dst, "wb") as fh:
+    # Write beside the target and replace, so an interrupted run can never leave a
+    # truncated FBX behind. In-place patching is the normal path for the race tree.
+    tmp = dst + ".tmp"
+    with open(tmp, "wb") as fh:
         fh.write(serialize(version, nodes, original[footer_offset:]))
+    os.replace(tmp, dst)
     return stats
+
+
+def _batch_pairs(src_dir, dst_dir):
+    """(source, destination) pairs for a folder, mirroring subfolders such as anim/."""
+    for folder, _dirs, files in os.walk(src_dir):
+        for name in sorted(files):
+            if not name.lower().endswith(".fbx"):
+                continue
+            src = os.path.join(folder, name)
+            rel = os.path.relpath(src, src_dir)
+            yield src, os.path.join(dst_dir, rel)
 
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     as_json = "--json" in sys.argv
+    in_place = "--in-place" in sys.argv
     if "--batch" in sys.argv:
-        src_dir, dst_dir = args[0], args[1]
+        src_dir = args[0]
+        dst_dir = src_dir if in_place else args[1]
         os.makedirs(dst_dir, exist_ok=True)
         report = {}
-        for name in sorted(f for f in os.listdir(src_dir) if f.lower().endswith(".fbx")):
-            report[name] = patch(os.path.join(src_dir, name), os.path.join(dst_dir, name))
-            print("PATCHED", name, report[name])
-        print("TOTAL", len(report))
+        for src, dst in _batch_pairs(src_dir, dst_dir):
+            os.makedirs(os.path.dirname(os.path.abspath(dst)) or ".", exist_ok=True)
+            rel = os.path.relpath(src, src_dir)
+            report[rel] = patch(src, dst)
+            print("PATCHED", rel, report[rel])
+        skipped = sum(1 for s in report.values() if s.get("skipped"))
+        print("TOTAL", len(report), "SKIPPED", skipped)
         return
     for i in range(0, len(args), 2):
         stats = patch(args[i], args[i + 1])

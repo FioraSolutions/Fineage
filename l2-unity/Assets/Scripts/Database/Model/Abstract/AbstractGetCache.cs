@@ -8,7 +8,8 @@ public abstract partial class AbstractGetCache
 {
     public static int RACE_COUNT = Enum.GetValues(typeof(CharacterRaceAnimation)).Length;
     protected static int FACE_COUNT = 6;
-    protected static int HAIR_STYLE_COUNT = 6;
+    // Interlude ships hair styles 0..6 (female orc/shaman use all seven). Colours are 0..3.
+    protected static int HAIR_STYLE_COUNT = 7;
     protected static int HAIR_COLOR_COUNT = 4;
 
     protected Dictionary<string, GameObject> _weapons;
