@@ -95,17 +95,47 @@ public partial class PlayerInventory
 
     private void AddInventory(ItemInstance item)
     {
-        int slot = InventoryPacketServices.Window != null
-            ? InventoryPacketServices.Window.GetEmptySlot()
-            : _playerInventory.Count;
-        item.SetSlot(slot);
+        item.SetSlot(FindFreeSlot());
         _playerInventory.Add(item.ObjectId, item);
 
     }
 
+    /// <summary>
+    /// Lowest bag slot not used by another row. The slot used to come from the inventory window
+    /// (<c>GetEmptySlot</c>), but the window is repainted from a queued dispatcher callback while the
+    /// model is updated immediately. A purchase that adds several rows in one packet therefore read
+    /// the same still-empty UI slot for each row, so every item collapsed onto one cell and only the
+    /// last was visible until the next full ItemList. Allocating from the model keeps rows distinct.
+    /// </summary>
+    private int FindFreeSlot()
+    {
+        // Bag rows only: paperdoll slots are a separate numbering (0..16) used by the gear tab,
+        // so mixing them in would shove bag items into high slots for no reason.
+        var used = new HashSet<int>();
+        if (_playerInventory != null)
+        {
+            foreach (var row in _playerInventory.Values)
+                used.Add(row.GetPosition());
+        }
+
+        int slot = 0;
+        while (used.Contains(slot))
+            slot++;
+        return slot;
+    }
+
     private void RefreshPosition(Dictionary<int, ItemInstance> playerInventory)
     {
-     
+        if (playerInventory == null || playerInventory.Count == 0)
+            return;
+
+        // The inventory window shifts cells left after a removal
+        // (InventoryTab.Update.Helpers → ShiftElementsLeft). Mirror it in the model, otherwise
+        // FindFreeSlot fills the gap while the UI paints a compacted list and the two disagree
+        // about which cell a row belongs to.
+        var rows = playerInventory.Values.OrderBy(row => row.GetPosition()).ToList();
+        for (int i = 0; i < rows.Count; i++)
+            rows[i].SetSlot(i);
     }
 
     private void Modified(Dictionary<int, ItemInstance> playerInventory, Dictionary<int, ItemInstance> playerEquipInventory, List<ItemInstance> listEquip , ItemInstance item)

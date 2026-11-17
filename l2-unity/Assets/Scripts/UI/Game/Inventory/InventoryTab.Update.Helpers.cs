@@ -23,7 +23,18 @@ public partial class InventoryTab
                 // Gate on UI presence so open Items tab still paints loot pickups.
                 if (GetInventorySlot(item.ObjectId) == null)
                 {
-                    InventorySlot i_slot = _inventorySlots[item.Slot];
+                    // Several rows can be added by one packet (a multi-item purchase). Assign by the
+                    // slot the model gave the row: indexing blindly would land every row on the same
+                    // cell, so only the last one stayed visible.
+                    int slotIndex = item.GetPosition();
+                    if (slotIndex < 0
+                        || slotIndex >= _inventorySlots.Length
+                        || (_inventorySlots[slotIndex] != null && !_inventorySlots[slotIndex].IsEmpty))
+                        slotIndex = FindEmptySlotIndex();
+                    if (slotIndex < 0)
+                        continue;
+
+                    InventorySlot i_slot = _inventorySlots[slotIndex];
                     if (i_slot != null)
                         i_slot.AssignItem(item);
                 }
@@ -39,6 +50,19 @@ public partial class InventoryTab
             }
         }
 
+    }
+
+    private int FindEmptySlotIndex()
+    {
+        if (_inventorySlots == null)
+            return -1;
+        for (int i = 0; i < _inventorySlots.Length; i++)
+        {
+            InventorySlot slot = _inventorySlots[i];
+            if (slot == null || slot.IsEmpty)
+                return i;
+        }
+        return -1;
     }
 
     private void Modified(List<ItemInstance> modified , ChangeInventoryData changeInventoryData)
@@ -59,7 +83,10 @@ public partial class InventoryTab
                     }
                     else
                     {
-                        InventorySlot i_slot = _inventorySlots[currentItem.Slot];
+                        int slotIndex = currentItem.GetPosition();
+                        InventorySlot i_slot = slotIndex >= 0 && slotIndex < _inventorySlots.Length
+                            ? _inventorySlots[slotIndex]
+                            : null;
 
                         if (i_slot != null)
                         {
