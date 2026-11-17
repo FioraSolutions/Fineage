@@ -10,7 +10,8 @@ public partial class EffectManager
         int effectId,
         Entity entity,
         int hitTimeMs,
-        AnimationCombo animCombo)
+        AnimationCombo animCombo,
+        int targetObjectId = 0)
     {
         if (entity == null)
         {
@@ -22,7 +23,7 @@ public partial class EffectManager
 
         Transform attach = weapon != null ? weapon : entity.transform;
         IAnimationManager animations = _animations != null ? _animations : GamePacketServices.Animations;
-        MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo, animations);
+        MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo, animations, targetObjectId);
         PlayEffect(effectId, attach, castData);
     }
 

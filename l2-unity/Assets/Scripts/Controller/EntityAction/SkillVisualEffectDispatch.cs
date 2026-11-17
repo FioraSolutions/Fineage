@@ -54,21 +54,57 @@ public static class SkillVisualEffectDispatch
             return;
         }
 
+        // The art follows the packet's own target, never the caster's current selection. A self skill
+        // (skillgrp cast_range -1, self/party cast) is pinned to the caster even when a monster sits in
+        // the target window — otherwise the composite resolver picked that monster and drew the impact there.
+        int fxTargetId = ResolveEffectTargetId(entity, magic);
+
         if (combo != null)
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             Debug.Log("[SkillVFX] play skill=" + magic.SkillId + " effect=" + effectId +
-                      " hitMs=" + magic.HitTime + " synced=true");
+                      " hitMs=" + magic.HitTime + " synced=true target=" + fxTargetId);
 #endif
-            effects.PlayEffectSyncedToSkillAnimation(effectId, entity, magic.HitTime, combo);
+            effects.PlayEffectSyncedToSkillAnimation(effectId, entity, magic.HitTime, combo, fxTargetId);
             return;
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         Debug.Log("[SkillVFX] play skill=" + magic.SkillId + " effect=" + effectId +
-                  " hitMs=" + magic.HitTime + " synced=false");
+                  " hitMs=" + magic.HitTime + " synced=false target=" + fxTargetId);
 #endif
-        effects.PlayEffect(effectId, entity.transform, entity.GetMagicCastData());
+        effects.PlayEffect(effectId, entity.transform, WithTarget(entity.GetMagicCastData(), fxTargetId));
+    }
+
+    /// <summary>
+    /// Effect anchor id: the caster for self skills (skillgrp <c>cast_range</c> = −1 or the packet's own
+    /// target), otherwise the packet target. 0 means "unknown" and the composite resolver keeps the
+    /// caster, which is the safe choice for art attached to the caster's weapon.
+    /// </summary>
+    public static int ResolveEffectTargetId(Entity entity, MagicSkillUseDto magic)
+    {
+        if (entity?.Identity == null || magic == null)
+            return 0;
+
+        int casterId = entity.Identity.Id;
+        if (magic.TargetId == casterId)
+            return casterId;
+
+        Skillgrp grp = magic.SkillGrp;
+        if (grp == null && TablePacketServices.SkillGrps != null)
+            grp = TablePacketServices.SkillGrps.GetSkill(magic.SkillId, magic.SkillLvl);
+        if (grp != null && grp.CastRange < 0)
+            return casterId;
+
+        return magic.TargetId;
+    }
+
+    static MagicCastData WithTarget(MagicCastData cast, int targetObjectId)
+    {
+        if (cast == null || targetObjectId <= 0)
+            return cast;
+        cast.TargetObjectId = targetObjectId;
+        return cast;
     }
 
     /// <summary>
