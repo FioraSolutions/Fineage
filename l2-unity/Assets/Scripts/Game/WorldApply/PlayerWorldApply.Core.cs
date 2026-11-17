@@ -39,6 +39,8 @@ public sealed partial class PlayerWorldApply : EntityWorldApply
 
     public override void OnDie(Entity entity, DieDto dto)
     {
+        // A real death supersedes any held Fake Death pose (Mobius Player.doDie → stopFakeDeath).
+        EntityActionVisual.ClearFakeDeathPose(entity);
         entity.SetDead(true);
         if (EntityActionPacketServices.Actions != null)
             EntityActionPacketServices.Actions.Die(entity);
@@ -48,6 +50,7 @@ public sealed partial class PlayerWorldApply : EntityWorldApply
 
     public override void OnRevive(Entity entity, ReviveDto dto)
     {
+        EntityActionVisual.ClearFakeDeathPose(entity);
         entity.SetDead(false);
         DeadWindow dead = ControllerPacketServices.Dead;
         if (dead != null)
