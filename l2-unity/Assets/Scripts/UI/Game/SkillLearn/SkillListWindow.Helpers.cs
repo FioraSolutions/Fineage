@@ -53,7 +53,27 @@ public partial class SkillListWindow : L2PopupWindow
 
     private void OnDestroy()
     {
+        SkillToggleState.Changed -= OnToggleStateChanged;
         _instance = null;
+    }
+
+    void OnEnable()
+    {
+        SkillToggleState.Changed -= OnToggleStateChanged;
+        SkillToggleState.Changed += OnToggleStateChanged;
+    }
+
+    void OnDisable()
+    {
+        SkillToggleState.Changed -= OnToggleStateChanged;
+    }
+
+    /// <summary>Repaint the toggle shine on every skill slot after a toggle was switched on or off.</summary>
+    void OnToggleStateChanged()
+    {
+        if (_supportActiveSkills == null)
+            return;
+        _supportActiveSkills.RefreshToggleMarks();
     }
 
     protected override void LoadAssets()

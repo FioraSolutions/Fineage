@@ -18,6 +18,12 @@ public static partial class MagicSkillPresentation
                 return;
         }
 
+        // Interlude toggle (skillgrp operate_type 3): the client applies it and only redraws the toggle marker.
+        // Toggles carry no animation, no cast bar, no cast/shot art and no hero voice — the skillsoundgrp table has
+        // no row for them, so every "war_cry"/"battle_roar" line we played here was invented.
+        if (SkillToggleRules.IsToggle(dto.SkillId, dto.SkillLvl, dto.SkillGrp))
+            return;
+
         AnimChannel.Begin(AnimChannel.Kind.Cast);
 
         CastMoveLock.Begin(dto.HitTime);

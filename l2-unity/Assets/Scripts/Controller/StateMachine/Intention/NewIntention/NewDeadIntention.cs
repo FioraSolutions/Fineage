@@ -10,6 +10,8 @@ public class NewDeadIntention : IntentionBase
         {
             DieDto myModel = (DieDto)arg0;
             ControllerPacketServices.Buffer.RemoveAllEffects();
+            // Death drops every abnormal, including running toggles — clear the HUD toggle marks with it.
+            SkillToggleState.Clear();
             ControllerPacketServices.Dead.ShowWindow();
 
             _stateMachine.ChangeState(PlayerState.DEAD);

@@ -12,6 +12,12 @@ public static partial class SkillCastSound
         if (WeaponChargeSkill.IsCharge(dto.SkillId))
             return;
 
+        // Interlude toggle (skillgrp operate_type 3) has no skillsoundgrp row and no hero voice at all — the
+        // original client only flips the toggle marker. Any "war_cry"/"battle_roar" here would be invented
+        // (that was the loud grunt when switching Focus Skill Mastery / Vicious Stance on).
+        if (SkillToggleRules.IsToggle(dto.SkillId, dto.SkillLvl, dto.SkillGrp))
+            return;
+
         EnsureGrpLoaded();
         Vector3 pos = caster.transform.position;
         InterludeSfx.PlaceAtCaster(pos, caster == DomainPacketServices.LocalPlayer);

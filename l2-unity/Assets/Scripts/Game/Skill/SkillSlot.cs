@@ -11,6 +11,8 @@ public partial class SkillSlot : L2DraggableSlot
     private bool _isPassive = false;
     private VisualElement _reuseElement;
     private VisualElement _rechargeMaskBg;
+    private VisualElement _toggleShine;
+    private IVisualElementScheduledItem _togglePulse;
 
 
 

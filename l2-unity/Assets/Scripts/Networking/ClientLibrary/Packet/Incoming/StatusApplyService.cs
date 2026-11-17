@@ -75,6 +75,12 @@ public sealed class StatusApplyService
 
         if (packet.FullEffectSnapshot)
             buffer.RemoveAllEffects();
+
+        // Mobius AbnormalStatusUpdate *is* the whole abnormal row (fineage zone re-sends it on every apply and on
+        // every toggle switch), so the toggle set is replaced, never merged — merging would leave a switched-off
+        // toggle shining forever.
+        SkillToggleState.Replace(packet.ListEffect);
+
         if (packet.ListEffect == null)
             return;
         foreach (var item in packet.ListEffect)
