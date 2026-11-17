@@ -48,8 +48,14 @@ public static partial class SkillCastSound
 
         // Packet HitTime ≈ impact; projectile leaves at HitTime − flight.
         // Same ResolveMagicFlightTimeMs as READY_TO_ACT / MagicCastData (not explode-gated).
+        // A self cast (Escape Shackle, Ultimate Evasion, Dash…) has nothing flying: release and the
+        // throw voice belong on the packet HitTime, not on a fake flight that lands a shout seconds
+        // after the animation already ended.
         Transform targetTf = ResolveTargetTransform(caster, dto.TargetId);
-        float flightMs = SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
+        bool selfCast = caster.Identity != null && dto.TargetId > 0 && dto.TargetId == caster.Identity.Id;
+        float flightMs = selfCast
+            ? 0f
+            : SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
         float shotDelay = Mathf.Max(0f, (dto.HitTime - flightMs) / 1000f);
 
         float castLen = ClipLengthSec(SfxRoot, castClip);

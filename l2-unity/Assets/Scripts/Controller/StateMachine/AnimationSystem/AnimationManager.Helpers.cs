@@ -122,6 +122,27 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         return stateName;
     }
 
+    /// <summary>
+    /// Finish event name the SMB will report for <paramref name="triggerName"/>. Physical self skills such
+    /// as Ultimate Evasion (X → SpAtk06) have no SpAtk06 animator state, so the CrossFade plays the
+    /// weapon's real swing (SpAtk01_1HS) and the SMB reports that name. Awaiting the raw tag would leave
+    /// the runner stuck and keep the cast channel held.
+    /// </summary>
+    private string ResolveAwaitFinishName(int objectId, string triggerName)
+    {
+        string finalName = GetFinalNameAnim(objectId, triggerName);
+        IAnimationController controller = GetRegisteredController(objectId);
+        if (controller == null)
+            return finalName;
+
+        string stateName;
+        if (!PlayerBasicAttackAnim.TryResolve(finalName, out stateName) &&
+            !PlayerSpAtkAnim.TryResolve(finalName, out stateName))
+            return finalName;
+
+        return ResolvePlayableCombatState(controller, stateName);
+    }
+
     static bool HasCombatState(IAnimationController controller, string stateName)
     {
         Animator animator = controller != null ? controller.GetAnimator() : null;
