@@ -259,6 +259,74 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.BlockList:
                 _ = NetCodec.DecodeBlockList(envelope.Payload);
                 break;
+            // Clan / castle / manor fanouts (Backend #609-#613). Decode for framing honesty;
+            // the matching windows apply these once they land.
+            case NetOpcode.AllyAskJoin:
+                _ = NetCodec.DecodeAllyAskJoin(envelope.Payload);
+                break;
+            case NetOpcode.AllyInfo:
+                _ = NetCodec.DecodeAllyInfo(envelope.Payload);
+                break;
+            case NetOpcode.PledgeInfo:
+                _ = NetCodec.DecodePledgeInfo(envelope.Payload);
+                break;
+            case NetOpcode.PledgeWarList:
+                _ = NetCodec.DecodePledgeWarList(envelope.Payload);
+                break;
+            case NetOpcode.ClanHallList:
+                _ = NetCodec.DecodeClanHallList(envelope.Payload);
+                break;
+            case NetOpcode.CrestData:
+                _ = NetCodec.DecodeCrestData(envelope.Payload);
+                break;
+            case NetOpcode.RelationChanged:
+                _ = NetCodec.DecodeRelationChanged(envelope.Payload);
+                break;
+            case NetOpcode.CastleInfo:
+                _ = NetCodec.DecodeCastleInfo(envelope.Payload);
+                break;
+            case NetOpcode.DoorStatus:
+                _ = NetCodec.DecodeDoorStatus(envelope.Payload);
+                break;
+            case NetOpcode.ManorInfo:
+                _ = NetCodec.DecodeManorInfo(envelope.Payload);
+                break;
+            case NetOpcode.DuelEvent:
+                _ = NetCodec.DecodeDuelEvent(envelope.Payload);
+                break;
+            case NetOpcode.DuelUserInfo:
+                _ = NetCodec.DecodeDuelUserInfo(envelope.Payload);
+                break;
+            case NetOpcode.SummonInfo:
+                _ = NetCodec.DecodeSummonInfo(envelope.Payload);
+                break;
+            case NetOpcode.SummonGone:
+                _ = NetCodec.DecodeSummonGone(envelope.Payload);
+                break;
+            case NetOpcode.PetInventory:
+                _ = NetCodec.DecodePetInventory(envelope.Payload);
+                break;
+            case NetOpcode.FishingEvent:
+                _ = NetCodec.DecodeFishingEvent(envelope.Payload);
+                break;
+            case NetOpcode.MagicSkillLaunched:
+                _ = NetCodec.DecodeMagicSkillLaunched(envelope.Payload);
+                break;
+            case NetOpcode.MagicSkillCanceled:
+                _ = NetCodec.DecodeMagicSkillCanceled(envelope.Payload);
+                break;
+            case NetOpcode.PlaySound:
+                _ = NetCodec.DecodePlaySound(envelope.Payload);
+                break;
+            case NetOpcode.PartyMemberPosition:
+                _ = NetCodec.DecodePartyMemberPosition(envelope.Payload);
+                break;
+            case NetOpcode.PartyMemberUpdate:
+                _ = NetCodec.DecodePartyMemberUpdate(envelope.Payload);
+                break;
+            case NetOpcode.PartySpelled:
+                _ = NetCodec.DecodePartySpelled(envelope.Payload);
+                break;
             case NetOpcode.Reject:
             {
                 var reject = NetCodec.DecodeReject(envelope.Payload);
