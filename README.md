@@ -27,7 +27,7 @@ The Unity project is the `l2-unity/` folder. In Unity Hub, add that folder as th
 1. Install Unity **6000.3.27f1** (the version in `l2-unity/ProjectSettings/ProjectVersion.txt`). The project uses URP.
 2. Open `l2-unity`. The first import resolves packages and can take a long time. `Assets/` is on the order of 2.4 GB.
 3. Open `Assets/Resources/Scenes/Menu.unity` and enter Play to reach the login screen. The walkthrough is [RUN.md](RUN.md).
-4. Editor Play defaults to **local Fineage Net** (loopback Login/Zone). Public playtest hosts are in `l2-unity/Assets/StreamingAssets/fineage-endpoint.json` / `FINEAGE_NET_CLIENT=0`. See [Docs/NET_PROTOCOL.md](Docs/NET_PROTOCOL.md) and [Docs/PLAYTEST_RELEASE.md](Docs/PLAYTEST_RELEASE.md).
+4. Two environments, one switch. Editor Play defaults to the **local** Fineage-Backend (`127.0.0.1`, Login 9106 / Zone 9777); **Fineage → Play Remote (playtest)** points Play at the shared remote server, **Fineage → Play Local** switches back. The menu remembers the choice and ticks the active one. Player builds default to remote, and the GitHub release clients always use remote. See [Docs/NET_PROTOCOL.md](Docs/NET_PROTOCOL.md) and [Docs/PLAYTEST_RELEASE.md](Docs/PLAYTEST_RELEASE.md).
 5. Standalone players: **File → Build Settings** in the editor (Windows, macOS, or Linux). Automated playtest builds are in [Docs/PLAYTEST_RELEASE.md](Docs/PLAYTEST_RELEASE.md).
 
 | Tool | Role | Ports |

@@ -21,6 +21,8 @@
     <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Contract\**\*.cs"
              Link="Client\Net.Contract\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageWireConfig.cs" Link="Client\FineageWireConfig.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageBackendSelector.cs" Link="Client\FineageBackendSelector.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageServerProfile.cs" Link="Client\FineageServerProfile.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacter.cs" Link="Client\LobbyCharacter.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacterMap.cs" Link="Client\LobbyCharacterMap.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\LobbyCharacterMap.Core.cs" Link="Client\LobbyCharacterMap.Core.cs" />

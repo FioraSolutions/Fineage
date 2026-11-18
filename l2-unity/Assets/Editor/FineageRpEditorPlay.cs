@@ -161,7 +161,7 @@ public static class FineageRpEditorPlay
         }
 
         ApplyRequest(body);
-        PlayRp();
+        PlayRemote();
     }
 
     static void ApplyRequest(string body)
@@ -221,7 +221,7 @@ public static class FineageRpEditorPlay
         }
 
         ApplyRequest(body);
-        PlayRp();
+        PlayRemote();
     }
 
     /// <summary>Unity -executeMethod: world enter + lobby-clean assert (default qqqq/qqqq/lol1).</summary>
@@ -252,40 +252,60 @@ public static class FineageRpEditorPlay
         }
 
         ApplyRequest(body);
-        PlayRp();
+        PlayRemote();
     }
 
-    [MenuItem("Fineage/Play Local (127.0.0.1:9106)")]
-    public static void PlayLocal()
-    {
-        EditorPrefs.SetBool(FineageServerProfile.EditorPrefKey, true);
-        PlayerPrefs.DeleteKey(FineageLaunchArgs.CharacterPrefKey);
-        PlayerPrefs.Save();
-        Debug.LogWarning("[FineageRP] Editor Play → LOCAL backend " + FineageServerProfile.LocalHost + ":"
-            + FineageServerProfile.LocalLoginPort + " / zone " + FineageServerProfile.LocalGamePort
-            + " (Editor only; builds always public). Start: Fineage-Backend/scripts/run-local.sh");
-        if (EditorApplication.isPlaying)
-        {
-            EditorApplication.isPlaying = false;
-            EditorApplication.delayCall += OpenMenuThenPlay;
-            return;
-        }
-        OpenMenuThenPlay();
-    }
+    // Two environments, two menu entries. The choice is remembered, so Play also honours it.
+    const string RemoteMenu = "Fineage/Play Remote (playtest)";
+    const string LocalMenu = "Fineage/Play Local (127.0.0.1:9106)";
 
-    [MenuItem("Fineage/Play RP")]
-    public static void PlayRp()
+    [MenuItem(RemoteMenu, false, 1)]
+    public static void PlayRemote()
     {
-        EditorPrefs.SetBool(FineageServerProfile.EditorPrefKey, false);
+        FineageServerProfile.StoreLocalPreference(false);
         PlayerPrefs.DeleteKey("Fineage.LocalBackend");
         PlayerPrefs.DeleteKey("Fineage.PublicPlaytest");
         PlayerPrefs.DeleteKey(FineageLaunchArgs.CharacterPrefKey);
         PlayerPrefs.Save();
 
-        Debug.Log("[FineageRP] Editor Play → public RP ("
+        Debug.Log("[FineageRP] Editor Play → REMOTE playtest ("
             + PlaytestEndpoint.DefaultLoginHost + ":" + PlaytestEndpoint.DefaultLoginPort
             + "). Character hint cleared.");
 
+        TogglePlay();
+    }
+
+    [MenuItem(LocalMenu, false, 2)]
+    public static void PlayLocal()
+    {
+        FineageServerProfile.StoreLocalPreference(true);
+        PlayerPrefs.DeleteKey(FineageLaunchArgs.CharacterPrefKey);
+        PlayerPrefs.Save();
+        Debug.LogWarning("[FineageRP] Editor Play → LOCAL backend " + FineageWireConfig.LocalHost + ":"
+            + FineageWireConfig.LocalLoginPort + " / zone " + FineageWireConfig.LocalGamePort
+            + " (Editor only; a build stays remote unless it sets FINEAGE_BACKEND=local)."
+            + " Start: Fineage-Backend/scripts/run-local-net.sh");
+        TogglePlay();
+    }
+
+    // A tick marks where the next Play will connect. The validate function must return true
+    // or Unity greys the item out; SetChecked draws the tick.
+    [MenuItem(RemoteMenu, true)]
+    static bool PlayRemoteChecked()
+    {
+        Menu.SetChecked(RemoteMenu, FineageServerProfile.IsRemoteActive);
+        return true;
+    }
+
+    [MenuItem(LocalMenu, true)]
+    static bool PlayLocalChecked()
+    {
+        Menu.SetChecked(LocalMenu, FineageServerProfile.IsLocalActive);
+        return true;
+    }
+
+    static void TogglePlay()
+    {
         if (EditorApplication.isPlaying)
         {
             EditorApplication.isPlaying = false;
