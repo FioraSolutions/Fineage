@@ -22,23 +22,16 @@ public partial class GameManager : MonoBehaviour, IGameManager
         DiBootstrap.EnsureAppScope();
     }
 
+    /// <summary>
+    /// Dials whichever backend <see cref="FineageServerProfile"/> resolves: the shared
+    /// remote playtest by default, the local Fineage-Backend when the run asks for it
+    /// (<c>FINEAGE_BACKEND=local</c>, or Fineage/Play Local in the Editor).
+    /// </summary>
     static void ConfigureBackend()
     {
-        string netClient = System.Environment.GetEnvironmentVariable("FINEAGE_NET_CLIENT");
-        bool pinnedToPublic = netClient == "0"
-            || string.Equals(netClient, "false", System.StringComparison.OrdinalIgnoreCase);
-        // Standalone second-window / local dual-client: FINEAGE_NET_CLIENT=1|true|local → 127.0.0.1:9106/9777.
-        bool forceLocal = netClient == "1"
-            || string.Equals(netClient, "true", System.StringComparison.OrdinalIgnoreCase)
-            || string.Equals(netClient, "local", System.StringComparison.OrdinalIgnoreCase);
+        FineageServerProfile.Refresh();
 
-#if UNITY_EDITOR
-        bool useLocal = forceLocal || !pinnedToPublic;
-#else
-        bool useLocal = forceLocal;
-#endif
-
-        if (useLocal)
+        if (FineageServerProfile.IsLocalActive)
         {
             FineageWireConfig.EnableLocalNetBackend();
             Debug.Log("[Fineage] backend=local login="
@@ -46,22 +39,6 @@ public partial class GameManager : MonoBehaviour, IGameManager
                 + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
             return;
         }
-
-#if UNITY_EDITOR
-        FineageServerProfile.Refresh();
-        if (!pinnedToPublic && FineageServerProfile.IsLocalActive)
-        {
-            FineageWireConfig.EnablePlaytestBackend(
-                FineageServerProfile.LocalHost,
-                FineageServerProfile.LocalLoginPort,
-                FineageServerProfile.LocalHost,
-                FineageServerProfile.LocalGamePort);
-            Debug.LogWarning("[Fineage] backend=tunnel-profile login="
-                + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
-                + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
-            return;
-        }
-#endif
 
         PlaytestEndpoint ep = PlaytestEndpointRuntime.Reload();
         string loginHost = FineageWireConfig.IsPublicLoginHost(ep.LoginHost)
@@ -74,7 +51,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
         int gamePort = ep.GamePort > 0 ? ep.GamePort : PlaytestEndpoint.DefaultGamePort;
 
         FineageWireConfig.EnablePlaytestBackend(loginHost, loginPort, gameHost, gamePort);
-        Debug.Log("[Fineage] backend=public-playtest login="
+        Debug.Log("[Fineage] backend=remote-playtest login="
             + FineageWireConfig.LoginHost + ":" + FineageWireConfig.LoginPort
             + " zone=" + FineageWireConfig.ZoneHost + ":" + FineageWireConfig.ZonePort);
     }

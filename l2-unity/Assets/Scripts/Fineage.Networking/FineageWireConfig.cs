@@ -13,13 +13,23 @@ using System;
 ///
 /// <para>
 /// Net is now the only wire. Legacy MessagePack Zone path is gone; Fineage Net only. The
-/// Interlude socket is unreachable: no build sets <c>FINEAGE_NET_CLIENT</c>, and
-/// <see cref="FineagePublicMacBuild"/> ships the public Net playtest. What remains here is
-/// the host/port pair that both profiles write.
+/// Interlude socket is unreachable. What remains here is the host/port pair that both
+/// profiles write, and the local loopback constants.
+/// </para>
+///
+/// <para>
+/// Which pair wins is <see cref="FineageServerProfile"/>'s call: remote playtest by
+/// default, local Fineage-Backend on request. A release-clients build never asks, so it
+/// always dials the public tunnel.
 /// </para>
 /// </summary>
 public static class FineageWireConfig
 {
+    /// <summary>Fineage-Backend run on this machine (see Backend <c>scripts/run-local-net.sh</c>).</summary>
+    public const string LocalHost = "127.0.0.1";
+    public const int LocalLoginPort = 9106;
+    public const int LocalGamePort = 9777;
+
     public static string ZoneHost = PlaytestEndpoint.DefaultGameHost;
     public static int ZonePort = PlaytestEndpoint.DefaultGamePort;
 
@@ -48,15 +58,15 @@ public static class FineageWireConfig
     /// on the forwarded ports 9106/9777.
     /// </summary>
     public static void EnableLocalNetBackend(
-        string loginHost = "127.0.0.1",
-        int loginPort = 9106,
-        string zoneHost = "127.0.0.1",
-        int zonePort = 9777)
+        string loginHost = LocalHost,
+        int loginPort = LocalLoginPort,
+        string zoneHost = LocalHost,
+        int zonePort = LocalGamePort)
     {
-        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? "127.0.0.1" : loginHost.Trim();
-        LoginPort = loginPort > 0 ? loginPort : 9106;
-        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? "127.0.0.1" : zoneHost.Trim();
-        ZonePort = zonePort > 0 ? zonePort : 9777;
+        LoginHost = string.IsNullOrWhiteSpace(loginHost) ? LocalHost : loginHost.Trim();
+        LoginPort = loginPort > 0 ? loginPort : LocalLoginPort;
+        ZoneHost = string.IsNullOrWhiteSpace(zoneHost) ? LocalHost : zoneHost.Trim();
+        ZonePort = zonePort > 0 ? zonePort : LocalGamePort;
     }
 
     /// <summary>Public playtest login TCP (e.g. login.fineage.evpoint.by:2106). Not loopback or localhost.</summary>

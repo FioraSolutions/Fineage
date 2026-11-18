@@ -59,7 +59,7 @@ Highest priority first. An empty field does not clear a lower layer.
 5. `StreamingAssets/fineage-endpoint.json` inside the build.
 6. Resources asset `FineagePlaytest`.
 
-Loopback / `localhost` hosts are ignored by the client (`GameManager` falls back to the public RP defaults). There is no local-backend mode in the client.
+Loopback / `localhost` hosts are ignored by the client (`GameManager` falls back to the public RP defaults). A release player has no local-backend mode: `FineageServerProfile.LocalOverridesAllowed` is false without `FINEAGE_LOCAL_CAPABLE`, so the remote tunnel always wins there. The local environment exists for the Editor and the dev Mac player (Fineage → Build Dev Mac; `FINEAGE_BACKEND=local`, see [NET_PROTOCOL.md](NET_PROTOCOL.md)).
 
 A one-off public host:
 
