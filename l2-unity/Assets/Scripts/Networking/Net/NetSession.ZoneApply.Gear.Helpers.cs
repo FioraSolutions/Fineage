@@ -56,13 +56,17 @@ public sealed partial class NetSession
     {
         int objectId = (int)corr.EntityValue;
         Vector3 pos = VectorUtils.ConvertPosToUnity(new Vector3(corr.X, corr.Y, corr.Z));
+        // Mobius StopRotation (Bluff / turn effects) ships as PositionCorrection with a real heading; plain
+        // ValidatePosition drift leaves it 0, and heading 0 is also a valid "north" yaw — so only trust it when
+        // the sender marked it. Net contract: negative = "no rotation".
+        int heading = corr.Heading;
         // Domain apply — never INTENTION_MOVE_TO with dest==origin (fights approach MoveState).
         PostCritical(() =>
         {
             if (_sink != null)
-                _sink.ApplyPositionCorrection(objectId, pos);
+                _sink.ApplyPositionCorrection(objectId, pos, heading);
             else if (WorldApplyPacketServices.WorldApply != null)
-                WorldApplyPacketServices.WorldApply.ApplyPositionCorrection(objectId, pos);
+                WorldApplyPacketServices.WorldApply.ApplyPositionCorrection(objectId, pos, heading);
         });
     }
 }

@@ -11,9 +11,9 @@ public sealed partial class PlayerWorldApply : EntityWorldApply
             PlayerStatePacketServices.PlayerState.ChangeIntention(Intention.INTENTION_MOVE_TO, dto);
     }
 
-    public override void OnPositionCorrection(Entity entity, Vector3 position)
+    public override void OnPositionCorrection(Entity entity, Vector3 position, int heading = -1)
     {
-        SnapTransform(entity, position);
+        SnapTransform(entity, position, heading);
         // Drop any local MoveTo that was racing ValidatePosition rubber-bands.
         LocalCastStop.Halt();
     }
