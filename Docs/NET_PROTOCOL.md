@@ -8,9 +8,20 @@ Server wire SoT: [Fineage-Backend `docs/net-protocol.md`](https://github.com/Fio
 
 - Fineage Net is the only wire. There is no protocol mode switch: `FineageWireConfig` only carries
   the login/zone hosts (`Networking/Net/Domain/FineageWireConfig.cs`).
-- Editor Play defaults to loopback (`EnableLocalNetBackend()`); a build uses the public
-  tunnel (`EnablePlaytestBackend`). `FINEAGE_NET_CLIENT=0` pins a public-playtest run
-  while developing locally. See `GameManager.ConfigureBackend`.
+- Two environments, one switch: `FineageServerProfile` / `FineageBackendSelector`.
+  - **Local** — Fineage-Backend on this machine, `127.0.0.1:9106` / `:9777`
+    (`EnableLocalNetBackend()`). The **Editor default**, so Play reaches the server you are
+    debugging.
+  - **Remote** — the shared playtest tunnel (`EnablePlaytestBackend`). The **player-build
+    default**, and what GitHub Actions ships.
+  - `Fineage/Play Remote (playtest)` / `Fineage/Play Local` switch Play; the choice is
+    remembered in EditorPrefs and a tick marks the active one.
+- Overrides, highest first: `-fineageBackend local|remote` / `--fineage-backend=…`,
+  `FINEAGE_BACKEND=local|remote`, legacy `FINEAGE_NET_CLIENT=1|0`, stored Editor choice,
+  host default (Local in the Editor, Remote in a player). Local is only honoured by the
+  Editor or a build compiled with `FINEAGE_LOCAL_CAPABLE` (Fineage → Build Dev Mac); a
+  release-clients player ignores all of them and stays remote. See
+  `GameManager.ConfigureBackend`.
 - Login **9106**, Zone **9777** (forwarded / loopback). Public Pi remap: **2106** / **7777**.
 
 ## Types

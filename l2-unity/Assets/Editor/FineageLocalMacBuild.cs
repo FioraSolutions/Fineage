@@ -6,14 +6,21 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 /// <summary>
-/// StandaloneOSX player for local Fineage-Backend (login 9106 / zone 9777).
-/// Launch with <c>FINEAGE_NET_CLIENT=1</c> (see <c>launch-local.sh</c> next to the app).
+/// Developer StandaloneOSX player carrying both environments. It is compiled with
+/// <c>FINEAGE_LOCAL_CAPABLE</c>, so <c>FINEAGE_BACKEND</c> (or the legacy
+/// <c>FINEAGE_NET_CLIENT=1</c>) can point it at loopback.
+///
+/// <para>
+/// The app itself dials <b>remote</b>; the folder ships <c>launch.sh</c> (remote) and
+/// <c>launch-local.sh</c> (Fineage-Backend on 127.0.0.1:9106/9777). Release-clients builds
+/// do not carry the define, so they can never leave the remote server.
+/// </para>
 /// </summary>
 public static class FineageLocalMacBuild
 {
     const string SentinelName = ".fineage-build-local-mac";
 
-    [MenuItem("Fineage/Build Local Mac (9106)")]
+    [MenuItem("Fineage/Build Dev Mac (remote + local)")]
     public static void BuildMenu() => Build();
 
     static string _outOverride;
@@ -92,7 +99,10 @@ public static class FineageLocalMacBuild
                 locationPathName = app,
                 target = BuildTarget.StandaloneOSX,
                 targetGroup = BuildTargetGroup.Standalone,
-                options = BuildOptions.None
+                options = BuildOptions.None,
+                // The one binary allowed to choose loopback at launch. A release build
+                // without this define resolves Remote no matter what the environment says.
+                extraScriptingDefines = new[] { "FINEAGE_LOCAL_CAPABLE" }
             };
 
             BuildReport report = BuildPipeline.BuildPlayer(options);
@@ -104,20 +114,10 @@ public static class FineageLocalMacBuild
             }
 
             File.WriteAllText(Path.Combine(dir, "LAUNCH.txt"), LaunchText());
-            string launchSh = Path.Combine(dir, "launch-local.sh");
-            File.WriteAllText(launchSh, LaunchScript());
-            // +x for double-click / shell
-            try
-            {
-                var chmod = System.Diagnostics.Process.Start("chmod", "+x \"" + launchSh + "\"");
-                chmod?.WaitForExit(5000);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("[FineageLocal] chmod launch-local.sh failed: " + ex.Message);
-            }
+            WriteExecutable(Path.Combine(dir, "launch.sh"), LaunchScript());
+            WriteExecutable(Path.Combine(dir, "launch-local.sh"), LaunchLocalScript());
 
-            Debug.Log("[FineageLocal] built " + app);
+            Debug.Log("[FineageLocal] built " + app + " (remote by default; launch-local.sh → loopback)");
         }
         finally
         {
@@ -130,25 +130,44 @@ public static class FineageLocalMacBuild
 
     static string LaunchText()
     {
-        return "Fineage local macOS client\n"
+        return "Fineage dev macOS client — pick the backend at launch\n"
             + "\n"
-            + "Requires Fineage-Backend run-local-net (login 9106, zone 9777).\n"
+            + "  ./launch.sh         remote playtest (default)\n"
+            + "                      login.fineage.evpoint.by:2106 / game.fineage.evpoint.by:7777\n"
+            + "  ./launch-local.sh   local Fineage-Backend\n"
+            + "                      127.0.0.1:9106 / zone 127.0.0.1:9777\n"
             + "\n"
-            + "Launch:\n"
-            + "  ./launch-local.sh\n"
-            + "\n"
+            + "The local one needs Fineage-Backend scripts/run-local-net.sh.\n"
             + "Accounts: localplay / localplay2 (same password as localplay).\n"
-            + "Chars: KuK / KuK2\n";
+            + "Chars: KuK / KuK2\n"
+            + "\n"
+            + "Running Fineage.app directly is remote. The scripts pass FINEAGE_BACKEND\n"
+            + "to the Mach-O because open(1) drops the environment.\n";
     }
 
-    static string LaunchScript()
+    const string LaunchHeader =
+        "#!/bin/bash\n"
+        + "set -euo pipefail\n"
+        + "cd \"$(dirname \"$0\")\"\n"
+        + "export FINEAGE_BACKEND=%BACKEND%\n"
+        + "exec \"./Fineage.app/Contents/MacOS/Fineage\" \"$@\"\n";
+
+    static string LaunchScript() => LaunchHeader.Replace("%BACKEND%", "remote");
+
+    static string LaunchLocalScript() => LaunchHeader.Replace("%BACKEND%", "local");
+
+    static void WriteExecutable(string path, string contents)
     {
-        // Run the Mach-O directly so FINEAGE_NET_CLIENT reaches GameManager (open(1) drops env).
-        return "#!/bin/bash\n"
-            + "set -euo pipefail\n"
-            + "cd \"$(dirname \"$0\")\"\n"
-            + "export FINEAGE_NET_CLIENT=1\n"
-            + "exec \"./Fineage.app/Contents/MacOS/Fineage\" \"$@\"\n";
+        File.WriteAllText(path, contents);
+        try
+        {
+            var chmod = System.Diagnostics.Process.Start("chmod", "+x \"" + path + "\"");
+            chmod?.WaitForExit(5000);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("[FineageLocal] chmod " + Path.GetFileName(path) + " failed: " + ex.Message);
+        }
     }
 }
 
