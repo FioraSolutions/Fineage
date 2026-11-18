@@ -75,4 +75,16 @@ public partial class EffectManager
         EnsureRegistry();
         return _byId.TryGetValue(id, out entry);
     }
+
+    /// <summary>
+    /// True when the registry can resolve a playable prefab for <paramref name="id"/>.
+    /// Callers use this to skip <see cref="PlayEffect"/> for skills that simply have no art,
+    /// instead of asking it to play and collecting an abort warning on every cast.
+    /// </summary>
+    public bool HasEffect(int id)
+    {
+        EnsureRegistry();
+        return _byId.TryGetValue(id, out RuntimeEffect entry)
+            && (entry.Prefab != null || entry.UseWeaponShot);
+    }
 }

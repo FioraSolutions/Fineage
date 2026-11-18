@@ -49,33 +49,69 @@ public static partial class EntityActionVisual
 
     public static void PlayWaitType(Entity entity, WaitType waitType)
     {
-        UserEntity user = entity as UserEntity;
-        if (user == null)
+        if (entity == null)
             return;
 
-        if (waitType == WaitType.WT_SITTING)
+        // The local hero is a PlayerEntity, not a UserEntity: it drives its own Player_Basic controller,
+        // and it also receives these packets (the zone includes the actor in every wait-type fan-out).
+        if (waitType == WaitType.WT_SITTING || waitType == WaitType.WT_STANDING)
         {
-            NetworkAnimationController nac = user.GetAnimatorController();
-            if (nac == null)
-                return;
-            nac.SetAnimatorSpeed(1f);
-            nac.CrossFadeInFixedTime("sit", LocomotionCrossFadeSettings.FixedDuration);
+            PlaySitStand(entity, waitType);
             return;
         }
 
         if (waitType == WaitType.WT_START_FAKEDEATH)
         {
-            // WaitType 2 is not bDead. OnMoveTo stores it back to standing and walks.
-            PlayUserDeath(user, false);
+            // WaitType 2 is not bDead: the pawn plays the death clip but keeps HP/MP (Mobius _isFakeDeath).
+            PlayFakeDeathPose(entity);
             return;
         }
 
         if (waitType == WaitType.WT_STOP_FAKEDEATH)
         {
-            PlayRevive(user);
+            // Mobius stopFakeDeath broadcasts the wait type and then Revive. The rebirth clip for the local hero
+            // comes from the Revive packet (state machine → REBIRTH → "rebirth"), so here only the latch is released.
+            if (entity is PlayerEntity)
+            {
+                ClearFakeDeathPose(entity);
+                return;
+            }
+            PlayRevive(entity);
             return;
         }
 
-        PlayUserLocomotion(user, "wait");
+        if (entity is UserEntity userStop)
+            PlayUserLocomotion(userStop, "wait");
+    }
+
+    /// <summary>
+    /// <c>ChangeWaitType</c> sitting/standing: the pose is a CrossFade on the bare <c>sit</c> state for every pawn
+    /// shape (User weapon-suffixed controllers and the hero Player_Basic both carry it).
+    /// </summary>
+    static void PlaySitStand(Entity entity, WaitType waitType)
+    {
+        NetworkAnimationController nac = entity.GetAnimatorController();
+        if (nac == null)
+            return;
+
+        nac.SetAnimatorSpeed(1f);
+        if (waitType == WaitType.WT_SITTING)
+        {
+            AnimChannel.Clear();
+            nac.CrossFadeInFixedTime("sit", LocomotionCrossFadeSettings.FixedDuration);
+            return;
+        }
+
+        // Standing back up: the outgoing sit transition plays the authoring "stand" clip where the
+        // controller has it; controllers without it fall through to the idle/locomotion pose.
+        if (entity is UserEntity user)
+        {
+            PlayUserLocomotion(user, "wait");
+            return;
+        }
+
+        if (entity.Identity != null && ControllerPacketServices.Animations != null)
+            ControllerPacketServices.Animations.PlayAnimation(
+                entity.Identity.Id, AnimationNames.WAIT.ToString(), true);
     }
 }

@@ -53,6 +53,11 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             return;
         }
 
+        // Fake Death (Mobius _isFakeDeath) is a terminal pose: a latched wait/atkwait/walk CrossFade must not stand
+        // the pawn up until the zone sends WT_STOP_FAKEDEATH. Only death/rebirth may override it.
+        if (EntityActionVisual.IsFakeDeathPoseHeld(objectId))
+            return;
+
         string finalAnimName = GetFinalNameAnim(objectId , animationName );
 
         Entity entity = GetEntity(objectId);

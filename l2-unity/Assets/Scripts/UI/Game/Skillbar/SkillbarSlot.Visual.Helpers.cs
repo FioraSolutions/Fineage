@@ -37,6 +37,33 @@ public partial class SkillbarSlot
 
     public void RefreshMarks()
     {
+        RefreshAutoShotMark();
+        RefreshToggleMark();
+    }
+
+    /// <summary>
+    /// Interlude toggle marker: a running toggle (operate_type 3) shows the animated ToggleEffect shine over its
+    /// icon on the bar until the zone drops its abnormal.
+    /// </summary>
+    void RefreshToggleMark()
+    {
+        int skillId = 0;
+        int level = 0;
+        if (_shortcut != null && _shortcut.Type == Shortcut.TYPE_SKILL)
+        {
+            skillId = _shortcut.Id;
+            level = _shortcut.Level;
+        }
+
+        ToggleSkillShine.Apply(_slotElement, skillId, level, ref _toggleShine, ref _togglePulse);
+        if (_slotElement != null && skillId > 0 && SkillToggleState.IsActive(skillId))
+            _slotElement.AddToClassList("toggle-on");
+        else
+            _slotElement?.RemoveFromClassList("toggle-on");
+    }
+
+    void RefreshAutoShotMark()
+    {
         int itemId = ShotItemId();
         bool armed = itemId > 0 && NetAutoShot.IsEnabled(itemId);
 

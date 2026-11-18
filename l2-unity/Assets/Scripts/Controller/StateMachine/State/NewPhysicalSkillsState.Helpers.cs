@@ -23,19 +23,10 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                 //not use bow atk
                 //RotateFaceToMonster(_stateMachine.Player);
                 _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
-                // Only skills with a ready EffectDatabase entry (e.g. Power Strike = 3).
-                if (useSkill.SkillId == 3)
-                {
-                    EffectManager effects = ControllerPacketServices.Effects;
-                    if (effects != null)
-                    {
-                        effects.PlayEffectSyncedToSkillAnimation(
-                            useSkill.SkillId,
-                            _stateMachine.Player,
-                            useSkill.HitTime,
-                            animComboAct);
-                    }
-                }
+                // Every physical skill that has art must play it, not just Power Strike (3):
+                // Deadly Blow / Lethal Blow animated the swing and stayed invisible.
+                SkillVisualEffectDispatch.PlayIfKnown(
+                    _stateMachine.Player, useSkill, animComboAct);
                 break;
             case Event.CANCEL:
                 // Debug.Log("NewPhysicalSkillsState Use Sate> Отмена скорее всего запрос пришел из ActionFaild");
@@ -64,8 +55,16 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                     }
                     SetupDurationHelper.SetupDurationIfHitTimeNot0(
                         useSkill, entity.Identity.Id, entity, castCombo);
-                    _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(
-                        useSkill.SkillGrp, entity, castCombo, _events);
+                    // Physical self skills (Ultimate Evasion X, Dash X, Focus Chance X, Escape Shackle X)
+                    // are tags that map to SpAtk06, and there is no SpAtk06 animator state or override
+                    // clip for the player races. The override runner then maps the single clip to the
+                    // "CastEnd" trigger, which plays the magic cast pose and never fires the SpAtk SMB —
+                    // the hero stands frozen (UE/Dash/Focus Chance) or shows the crooked cast pose
+                    // (Escape Shackle). StartRun plays the combat CrossFade instead, which resolves to the
+                    // real SpAtk01_1HS swing for the equipped weapon.
+                    _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
+                        entity, castCombo, _events);
+                    SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill, castCombo);
                 }
                 else if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
                 {

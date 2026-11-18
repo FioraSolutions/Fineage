@@ -21,7 +21,7 @@ public sealed partial class WorldPacketApply
         // UnityReplaySession.OnMoveTo(entity, destination);
     }
 
-    public void ApplyPositionCorrection(int objId, Vector3 position)
+    public void ApplyPositionCorrection(int objId, Vector3 position, int heading = -1)
     {
         Entity entity = GetEntity(objId);
         if (entity == null)
@@ -29,8 +29,8 @@ public sealed partial class WorldPacketApply
 
         EntityWorldApply apply;
         if (TryResolve(entity, out apply))
-            apply.OnPositionCorrection(entity, position);
+            apply.OnPositionCorrection(entity, position, heading);
         else
-            EntityWorldApply.SnapTransform(entity, position);
+            EntityWorldApply.SnapTransform(entity, position, heading);
     }
 }

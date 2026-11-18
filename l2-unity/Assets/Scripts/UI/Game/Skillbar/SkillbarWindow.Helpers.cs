@@ -9,7 +9,32 @@ public partial class SkillbarWindow : L2PopupWindow
 {
     private void OnDestroy()
     {
+        SkillToggleState.Changed -= OnToggleStateChanged;
         _instance = null;
+    }
+
+    void OnEnable()
+    {
+        SkillToggleState.Changed -= OnToggleStateChanged;
+        SkillToggleState.Changed += OnToggleStateChanged;
+        // Toggles may have switched while this window was hidden; repaint from the current set.
+        OnToggleStateChanged();
+    }
+
+    void OnDisable()
+    {
+        SkillToggleState.Changed -= OnToggleStateChanged;
+    }
+
+    /// <summary>
+    /// Mobius abnormal row changed: repaint the toggle shine on every bar slot so a running toggle
+    /// (operate_type 3) shows the ToggleEffect marker and a switched-off one clears it.
+    /// </summary>
+    void OnToggleStateChanged()
+    {
+        if (_skillbars == null || !IsReady)
+            return;
+        _skillbars.ForEach(skillbar => skillbar.RefreshSlotMarks());
     }
 
     protected override void LoadAssets()

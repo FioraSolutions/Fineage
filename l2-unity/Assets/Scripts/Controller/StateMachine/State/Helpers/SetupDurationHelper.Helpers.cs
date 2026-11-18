@@ -110,6 +110,14 @@ public partial class SetupDurationHelper
             return fallbackFlightMs;
         }
 
+        // Self skills (Escape Shackle, Ultimate Evasion, Dash, Focus Chance…) have nothing flying:
+        // the release/hero voice belongs on the packet HitTime, not on a fake 1 s "flight" that
+        // fires the grunt at the same instant as the cast line.
+        if (ReferenceEquals(target, entity.transform))
+        {
+            return 0f;
+        }
+
         Vector3 startPos = entity.GetPositionRightHand();
         Vector3 aimPos = VectorWorldUtils.GetCollision(startPos, target);
         float distance = Vector3.Distance(startPos, aimPos);

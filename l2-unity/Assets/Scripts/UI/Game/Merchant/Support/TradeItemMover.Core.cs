@@ -22,7 +22,10 @@ public partial class TradeItemMover
         else if (selectCount < source.Count)
         {
             Product clone = source.Clone();
-            source.SetCount(source.Count - selectCount);
+            // Buying less than a full stack from a merchant must not shrink the shop row: the row is
+            // merchant stock, not a bag stack. Only a player trade / sale moves the real count.
+            if (_isModifySell)
+                source.SetCount(source.Count - selectCount);
             clone.SetCount(selectCount);
 
             MovingWithCopy(clone, listServer, position);

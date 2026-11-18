@@ -23,11 +23,11 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
         _gameEvents?.Publish(new PlayerMovedEvent(move.ObjectId, move.Destination, move.Origin));
     }
 
-    public void ApplyPositionCorrection(int objectId, Vector3 position)
+    public void ApplyPositionCorrection(int objectId, Vector3 position, int heading = -1)
     {
         if (_worldApply == null)
             return;
-        _worldApply.ApplyPositionCorrection(objectId, position);
+        _worldApply.ApplyPositionCorrection(objectId, position, heading);
     }
 
     public void ApplyStopMove(DomainStopMove stop)

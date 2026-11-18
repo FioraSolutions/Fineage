@@ -16,6 +16,8 @@ public partial class SkillbarSlot : L2ClickableSlot
     private VisualElement _rechargeMaskBg;
     private VisualElement _autoShotMask;
     private IVisualElementScheduledItem _autoShotPulse;
+    private VisualElement _toggleShine;
+    private IVisualElementScheduledItem _togglePulse;
 
     public Shortcut Shortcut
     {

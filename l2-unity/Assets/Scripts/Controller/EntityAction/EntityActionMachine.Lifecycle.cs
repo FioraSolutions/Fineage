@@ -29,7 +29,18 @@ public sealed partial class EntityActionMachine
 
     public void ChangeWaitType(Entity entity, ChangeWaitTypeDto dto)
     {
-        if (!IsAllowed(entity) || dto == null)
+        if (entity == null || dto == null)
+            return;
+
+        // The local hero is a PlayerEntity: the action machine skips it (IsAllowed) but the zone still sends it
+        // the same wait types (its fan-out includes the actor), so sit/stand and fake death pose it here.
+        if (entity is PlayerEntity)
+        {
+            EntityActionMachine.ApplyLocalWaitType(entity, dto);
+            return;
+        }
+
+        if (!IsAllowed(entity))
             return;
         if (entity.IsDead() && dto.WaitType != WaitType.WT_STOP_FAKEDEATH)
             return;
@@ -42,6 +53,33 @@ public sealed partial class EntityActionMachine
         {
             entity.ActionSlot.Write(EntityActionKind.Stop, dto, entity.ActionSlot.Target, entity.ActionSlot.Destination);
             Track(entity, EntityActionKind.Stop);
+        }
+    }
+
+    /// <summary>
+    /// Local hero wait-type apply: stop the pawn, then let the state machine settle idling/standing so a queued
+    /// click-move does not walk away from the pose. Fake death is terminal until the zone sends the stop wait type.
+    /// </summary>
+    static void ApplyLocalWaitType(Entity entity, ChangeWaitTypeDto dto)
+    {
+        PlayerStateMachine machine = PlayerStatePacketServices.PlayerState;
+        if (dto.WaitType == WaitType.WT_START_FAKEDEATH)
+        {
+            // Mobius startFakeDeath: abortAttack() / abortCast() / stopMove(null) before the wait type goes out.
+            LocalCastStop.Halt();
+            CastMoveLock.Clear();
+            EntityActionVisual.CancelMove(entity);
+            EntityActionVisual.PlayWaitType(entity, dto.WaitType);
+            return;
+        }
+
+        EntityActionVisual.CancelMove(entity);
+        EntityActionVisual.PlayWaitType(entity, dto.WaitType);
+
+        if (dto.WaitType == WaitType.WT_STOP_FAKEDEATH)
+        {
+            if (machine != null && machine.State == PlayerState.DEAD)
+                machine.ChangeIntention(Intention.INTENTION_IDLE);
         }
     }
 
