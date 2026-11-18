@@ -41,7 +41,11 @@ public abstract partial class AbstractGetCache
     }
 
     public GameObject GetHair(CharacterRaceAnimation raceId, byte hairStyle, byte hairColor, bool bh) {
-        byte index = (byte)(hairStyle * 8 + hairColor * 2);
+        // Slot layout is style-major: each style owns HAIR_COLOR_COUNT colour pairs.
+        // The previous `hairStyle * 8` assumed 4 styles per block and ran past the end of
+        // the table for style 6, so orcs asked for an unwritten slot and rendered the
+        // wrong (or no) hair.
+        byte index = (byte)(hairStyle * (HAIR_COLOR_COUNT * 2) + hairColor * 2);
         index = GetRemappedIndex(raceId, index);
         if (bh) {
             index += 1;

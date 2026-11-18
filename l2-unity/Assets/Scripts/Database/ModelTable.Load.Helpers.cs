@@ -29,7 +29,9 @@ public partial class ModelTable : AbstractCache
             {
                 for (int color = 0; color < HAIR_COLOR_COUNT; color++)
                 {
-                    int index = style * HAIR_STYLE_COUNT + color * 2;
+                    // Style-major: each style owns HAIR_COLOR_COUNT colour pairs (ah + bh).
+                    // Must match GetHair's index, or the lookup reads another style's mesh.
+                    int index = style * (HAIR_COLOR_COUNT * 2) + color * 2;
                     string hairPrefix = folder + "/Hair/" + raceId + "_h_" + style + "_" + color;
                     _hair[r, index] = Resources.Load<GameObject>(hairPrefix + "_ah");
                     _hair[r, index + 1] = Resources.Load<GameObject>(hairPrefix + "_bh");

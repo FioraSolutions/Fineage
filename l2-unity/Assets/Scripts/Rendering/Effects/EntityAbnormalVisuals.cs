@@ -15,6 +15,7 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
     GameObject _sleepFx;
     GameObject _rootFx;
     GameObject _poisonFx;
+    EntityStunStars _stunFx;
 
     bool _petrified;
     Animator _petrifyAnimator;

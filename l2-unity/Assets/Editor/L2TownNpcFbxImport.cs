@@ -18,32 +18,36 @@ public static class L2TownNpcFbxImport
     public const float UuGlobalScale = 0.019f;
 
     public static void ConfigureMeterFbx(string fbxPath) =>
-        ConfigureFbx(fbxPath, MeterGlobalScale);
+        ConfigureFbx(fbxPath, MeterGlobalScale, useFileScale: true);
 
     /// <summary>Pipeline B: raw UU FBX (umodel) — Unity scales; do not Blender-bake.</summary>
     public static void ConfigureUuFbx(string fbxPath) =>
         ConfigureFbx(fbxPath, UuGlobalScale);
 
-    /// <summary>
-    /// Blender 5 writes these town FBX files in UU and also leaves the 100× centimeter
-    /// root that <c>useFileScale</c> would normally cancel. 0.019 alone makes a ~50 UU
-    /// body tens of meters tall. 0.019×0.01 lands next to the meter elf FBX at 0.019.
-    /// </summary>
+    /// <summary>Legacy Blender FBX that still carries its centimeter root scale.</summary>
     public static void ConfigureBlenderUuFbx(string fbxPath) =>
         ConfigureFbx(fbxPath, UuGlobalScale * 0.01f);
 
-    static void ConfigureFbx(string fbxPath, float globalScale)
+    static void ConfigureFbx(string fbxPath, float globalScale, bool useFileScale = false)
     {
         var imp = AssetImporter.GetAtPath(fbxPath) as ModelImporter;
         if (imp == null)
             throw new Exception("missing ModelImporter " + fbxPath);
+
+        // Meter-patched FBX have already folded the legacy factor into vertices and
+        // transforms. Never let a later NPC rebuild re-apply 0.019 and shrink them 52x.
+        if (imp.globalScale == 1f && imp.useFileScale)
+        {
+            globalScale = 1f;
+            useFileScale = true;
+        }
 
         imp.animationType = ModelImporterAnimationType.Generic;
         imp.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
         imp.importAnimation = true;
         imp.materialImportMode = ModelImporterMaterialImportMode.None;
         imp.globalScale = globalScale;
-        imp.useFileScale = false;
+        imp.useFileScale = useFileScale;
         imp.animationCompression = ModelImporterAnimationCompression.Off;
         imp.SaveAndReimport();
     }

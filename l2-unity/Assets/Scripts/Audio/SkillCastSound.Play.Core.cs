@@ -12,6 +12,12 @@ public static partial class SkillCastSound
         if (WeaponChargeSkill.IsCharge(dto.SkillId))
             return;
 
+        // Interlude toggle (skillgrp operate_type 3) has no skillsoundgrp row and no hero voice at all — the
+        // original client only flips the toggle marker. Any "war_cry"/"battle_roar" here would be invented
+        // (that was the loud grunt when switching Focus Skill Mastery / Vicious Stance on).
+        if (SkillToggleRules.IsToggle(dto.SkillId, dto.SkillLvl, dto.SkillGrp))
+            return;
+
         EnsureGrpLoaded();
         Vector3 pos = caster.transform.position;
         InterludeSfx.PlaceAtCaster(pos, caster == DomainPacketServices.LocalPlayer);
@@ -42,8 +48,14 @@ public static partial class SkillCastSound
 
         // Packet HitTime ≈ impact; projectile leaves at HitTime − flight.
         // Same ResolveMagicFlightTimeMs as READY_TO_ACT / MagicCastData (not explode-gated).
+        // A self cast (Escape Shackle, Ultimate Evasion, Dash…) has nothing flying: release and the
+        // throw voice belong on the packet HitTime, not on a fake flight that lands a shout seconds
+        // after the animation already ended.
         Transform targetTf = ResolveTargetTransform(caster, dto.TargetId);
-        float flightMs = SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
+        bool selfCast = caster.Identity != null && dto.TargetId > 0 && dto.TargetId == caster.Identity.Id;
+        float flightMs = selfCast
+            ? 0f
+            : SetupDurationHelper.ResolveMagicFlightTimeMs(caster, dto.SkillId, targetTf);
         float shotDelay = Mathf.Max(0f, (dto.HitTime - flightMs) / 1000f);
 
         float castLen = ClipLengthSec(SfxRoot, castClip);

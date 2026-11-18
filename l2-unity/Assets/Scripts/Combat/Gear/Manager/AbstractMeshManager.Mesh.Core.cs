@@ -29,6 +29,13 @@ public partial class AbstractMeshManager : MonoBehaviour
         else
             go.transform.SetParent(allBone[3], false);
 
+        // A weapon prefab and the skeleton that carries it do not necessarily share a
+        // unit contract: weapons are meter (mesh 1u = 1m) while a race FBX may still be
+        // legacy (bone lossyScale 100). SetParent(..., false) keeps the local scale, so
+        // the same shared weapon would render 100x larger on the un-migrated races.
+        // Normalise to world scale 1 here, before the per-type tweaks below.
+        NormalizeWeaponWorldScale(go.transform);
+
         // Shield FBX meshes are two slots (face + rim). Rebuilt prefabs often keep
         // only slot 0, so the face draws black. Fist claws are one thin sheet:
         // the left copy is the right mesh mirrored, and both sides of the sheet show.
@@ -51,6 +58,30 @@ public partial class AbstractMeshManager : MonoBehaviour
     static bool IsFistWeapon(WeaponType weaponType)
     {
         return weaponType == WeaponType.fist || weaponType == WeaponType.dualfist;
+    }
+
+    /// <summary>
+    /// Force the weapon to render at world scale 1, whatever unit contract its carry
+    /// bone is in. Weapon FBX are meter (mesh 1 unit = 1 m) while a race skeleton may
+    /// still be legacy (bone lossyScale 100); without this the same shared weapon would
+    /// be 100x larger on the un-migrated races.
+    ///
+    /// Keyed off the *observed* lossy scale rather than the parent scale, so it is
+    /// idempotent: pooled instances come back with their local scale already divided,
+    /// and a second pass sees world scale 1 and does nothing. Sign is preserved because
+    /// the fist mirror relies on a negative X.
+    /// </summary>
+    static void NormalizeWeaponWorldScale(Transform weapon)
+    {
+        Vector3 lossy = weapon.lossyScale;
+        float sx = Mathf.Abs(lossy.x), sy = Mathf.Abs(lossy.y), sz = Mathf.Abs(lossy.z);
+        if (sx <= 0f || sy <= 0f || sz <= 0f)
+            return;
+        if (Mathf.Approximately(sx, 1f) && Mathf.Approximately(sy, 1f) && Mathf.Approximately(sz, 1f))
+            return;
+
+        Vector3 local = weapon.localScale;
+        weapon.localScale = new Vector3(local.x / sx, local.y / sy, local.z / sz);
     }
 
     static void RepairSubmeshMaterials(GameObject go)

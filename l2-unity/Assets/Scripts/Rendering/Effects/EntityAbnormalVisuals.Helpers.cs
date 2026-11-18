@@ -42,6 +42,7 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
         bool wantSleep = (flags & AbnormalAveFlags.Sleep) != 0;
         bool wantRoot = (flags & AbnormalAveFlags.Root) != 0;
         bool wantPoison = (flags & AbnormalAveFlags.DotPoison) != 0;
+        bool wantStun = (flags & AbnormalAveFlags.Stun) != 0;
 
         if (wantSleep)
             EnsureFx(ref _sleepFx, SleepPrefabPath, "AVE_Sleep", ResolveHeadBone(), new Vector3(0f, 0.15f, 0f), new Vector3(0f, 2.2f, 0f));
@@ -57,6 +58,30 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
             EnsureFx(ref _poisonFx, PoisonPrefabPath, "AVE_Poison", transform, new Vector3(0f, 0.4f, 0f), new Vector3(0f, 0.4f, 0f));
         else
             ClearFx(ref _poisonFx);
+
+        // Interlude AVE_STUN — three stars circling the head (Bluff, Shield Stun, Hammer Crush …).
+        if (wantStun)
+            EnsureStunStars();
+        else
+            ClearStunStars();
+    }
+
+    void EnsureStunStars()
+    {
+        if (_stunFx != null)
+            return;
+
+        Transform head = ResolveHeadBone();
+        // Head bone sits at the skull's base; lift the ring above the crown so the stars read over the head.
+        _stunFx = EntityStunStars.Attach(head != null ? head : transform, new Vector3(0f, 0.25f, 0f));
+    }
+
+    void ClearStunStars()
+    {
+        if (_stunFx == null)
+            return;
+        Destroy(_stunFx.gameObject);
+        _stunFx = null;
     }
 
     void EnsureFx(ref GameObject fx, string path, string name, Transform parent, Vector3 localIfParent, Vector3 localIfRoot)
@@ -125,6 +150,7 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
         ClearFx(ref _sleepFx);
         ClearFx(ref _rootFx);
         ClearFx(ref _poisonFx);
+        ClearStunStars();
         _pose = AbnormalPoseKind.None;
         _flags = AbnormalAveFlags.None;
     }

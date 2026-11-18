@@ -8,7 +8,7 @@ public partial class AnimationManager
     public async Task<bool> AsyncPlayAnimationTrigger(int objectId, string triggerName)
     {
         float startedAt = Time.time;
-        string expectedFinishName = GetFinalNameAnim(objectId, triggerName);
+        string expectedFinishName = ResolveAwaitFinishName(objectId, triggerName);
 
         if (_tcsMap.TryGetValue(objectId, out var oldTcs))
         {

@@ -2808,6 +2808,24 @@
     opacity: 0.72;
 }
 
+/* Interlude l2_skilltime.ToggleEffect sheen over a running toggle (shortcut bar + skill window).
+   The retail frames are a full-tile moving gradient, so the overlay covers the slot the same way the
+   original client's toggle flash does; keep it translucent so the icon still reads underneath. */
+.toggle-on {
+    overflow: visible;
+}
+
+.toggle-shine {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 0.55;
+}
+
 .skillbar-slot.empty .slot-bg-container {
     border-width: 0;
     padding: 0;

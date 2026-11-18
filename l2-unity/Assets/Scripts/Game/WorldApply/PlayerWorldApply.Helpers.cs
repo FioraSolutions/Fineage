@@ -62,6 +62,20 @@ public sealed partial class PlayerWorldApply : EntityWorldApply
         sm.NotifyEvent(Event.WAIT_RETURN);
     }
 
+    public override void OnChangeWaitType(Entity entity, ChangeWaitTypeDto dto)
+    {
+        // Mobius ChangeWaitType for the local hero: sit/stand and the fake-death pose (WT_START/STOP_FAKEDEATH).
+        EntityActionMachine actions = EntityActionPacketServices.Actions;
+        if (actions != null)
+        {
+            actions.ChangeWaitType(entity, dto);
+            return;
+        }
+
+        if (dto != null)
+            EntityActionVisual.PlayWaitType(entity, dto.WaitType);
+    }
+
     public override void OnSocialAction(Entity entity, SocialActionDto dto)
     {
         // PlaySocial fires EventBus.LevelUp for action 15 + social01 gesture.

@@ -21,7 +21,7 @@ public partial class EntityActionSkill
             MagicGaitTrace.Event(entity, "ExecuteMagic-FALLBACK-phys",
                 "skill=" + magic.SkillId + " race=" + raceName +
                 " combo=" + (combo != null) + " skillGrp=" + (magic.SkillGrp != null));
-            PlaySkillEffect(entity, magic);
+            SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
             EntityActionVisual.PlayPhysicalSkill(entity, magic);
             return;
         }
@@ -51,7 +51,7 @@ public partial class EntityActionSkill
     {
         if (SetupDurationHelper.IsUsePotion(magic))
         {
-            PlaySkillEffect(entity, magic);
+            SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
             return;
         }
 
@@ -78,7 +78,7 @@ public partial class EntityActionSkill
                 magic, entity.Identity.Id, entity, castCombo);
             _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
                 entity, castCombo, ResolveEvents(entity));
-            PlaySkillEffect(entity, magic);
+            SkillVisualEffectDispatch.PlayIfKnown(entity, magic, castCombo);
             return;
         }
 
@@ -88,10 +88,11 @@ public partial class EntityActionSkill
             AnimationCombo combo = new AnimationCombo(
                 "-1", new[] { skillgrp.GetAnimOperationType3() }, "");
             _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
+            SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
             return;
         }
 
-        PlaySkillEffect(entity, magic);
+        SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
     }
 
     static void PlaySkillEffect(Entity entity, MagicSkillUseDto magic)

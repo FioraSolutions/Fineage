@@ -8,7 +8,7 @@ using UnityEngine;
 public interface IWorldDomainSink
 {
     void ApplyMoveTo(DomainMoveTo move);
-    void ApplyPositionCorrection(int objectId, Vector3 position);
+    void ApplyPositionCorrection(int objectId, Vector3 position, int heading = -1);
     void ApplyStopMove(DomainStopMove stop);
     void ApplyKnownlistAdd(DomainKnownlistAdd add);
     void ApplyPlayerSpawned(DomainPlayerSpawned spawned);

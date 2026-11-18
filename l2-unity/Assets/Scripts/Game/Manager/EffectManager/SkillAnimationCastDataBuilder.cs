@@ -6,14 +6,23 @@
 /// </summary>
 public static class SkillAnimationCastDataBuilder
 {
-    public static MagicCastData Build(Entity entity, int hitTimeMs, AnimationCombo animCombo, IAnimationManager animations = null)
+    public static MagicCastData Build(
+        Entity entity,
+        int hitTimeMs,
+        AnimationCombo animCombo,
+        IAnimationManager animations = null,
+        int targetObjectId = 0)
     {
         MagicCastData castData = new MagicCastData
         {
             StartTime = Time.time,
             HitTime = hitTimeMs > 0 ? hitTimeMs / 1000f : 0f,
             FlightTime = 0f,
-            SkillAnimationDuration = 0f
+            SkillAnimationDuration = 0f,
+            // Explicit cast target. Without it the composite resolver falls back to the caster's current
+            // selection (Entity.TargetId), so a self buff cast while a monster is selected painted its
+            // impact art on that monster.
+            TargetObjectId = targetObjectId
         };
 
         if (entity == null || hitTimeMs <= 0)

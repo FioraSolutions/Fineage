@@ -1,6 +1,11 @@
 // Guard NPC body. Same actor vertex light as keltir, different pixel combine.
 // Engine.Shader on a_guard_MHuman: Diffuse * Color0 * 2, then add
-// SpecularityMask.a * Cube.gold. Output alpha is 1. Alpha test is off.
+// SpecularityMask.a * Cube.gold.
+// Alpha test is off for the guard. Weapon PNGs are the other case: their alpha is
+// the coverage mask (255 inside the islands, 0 on the black padding) and the mesh
+// UVs of the padding triangles sit outside every island, so the material must clip
+// on it. Draw them without the clip and the padding renders as flat black: the
+// black band and the loose black diamonds on a dagger.
 // Cube.gold is sampled with the view-space reflection vector's XY.
 // VS Out writes that unit vector to TEXCOORD2. There is no 0.5 bias.
 // Diffuse and the specularity mask share the mesh UV.
@@ -12,6 +17,8 @@ Shader "L2/World/ActorEnvSpecular"
         _SpecMask ("Specularity Mask", 2D) = "black" {}
         _EnvMap ("Env", 2D) = "black" {}
         [MainColor] _BaseColor ("Color", Color) = (1, 1, 1, 1)
+        [Toggle(_ALPHATEST_ON)] _AlphaClip ("Alpha Clip", Float) = 0
+        _Cutoff ("Alpha Cutoff", Range(0, 1)) = 0.498039216
         // 1: SpecularityMask alpha (weapon PNG). 0: RGB export dropped the mask, so bright texels shine.
         _SpecFromAlpha ("Spec From Alpha", Float) = 1
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
@@ -42,9 +49,19 @@ Shader "L2/World/ActorEnvSpecular"
         float4 _BaseMap_ST;
         float4 _BaseColor;
         float _Cull;
+        float _Cutoff;
         float _ActorAlpha;
         float _SpecFromAlpha;
     CBUFFER_END
+
+    void L2_ActorClip(float alpha)
+    {
+        // _Cutoff 0 is not alpha-test off: clip(0) still exists in the shader.
+        // The keyword removes the instruction, as in L2ActorModulate2X.
+#if defined(_ALPHATEST_ON)
+        clip(alpha - _Cutoff);
+#endif
+    }
 
     float2 L2_ActorUv(float2 uv)
     {
@@ -73,9 +90,10 @@ Shader "L2/World/ActorEnvSpecular"
         return reflection.xy;
     }
 
-    float3 L2_ActorEnvRgb(float2 uv, float2 envUv, float3 color0)
+    float4 L2_ActorEnvRgba(float2 uv, float2 envUv, float3 color0)
     {
-        float3 diffuse = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv).rgb * _BaseColor.rgb;
+        float4 diffuseSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
+        float3 diffuse = diffuseSample.rgb * _BaseColor.rgb;
         float mask = SAMPLE_TEXTURE2D(_SpecMask, sampler_SpecMask, uv).a;
         if (_SpecFromAlpha < 0.5)
         {
@@ -84,7 +102,9 @@ Shader "L2/World/ActorEnvSpecular"
         }
         float3 env = SAMPLE_TEXTURE2D(_EnvMap, sampler_EnvMap, envUv).rgb;
         float3 base = L2_Modulate2X(diffuse, color0);
-        return saturate(base + mask * env);
+        // Coverage comes from the diffuse alpha, not the specularity mask: the weapon
+        // alpha is both, but the padding is 0 either way and the clip needs it.
+        return float4(saturate(base + mask * env), diffuseSample.a * _BaseColor.a);
     }
     ENDHLSL
 
@@ -113,6 +133,7 @@ Shader "L2/World/ActorEnvSpecular"
             #pragma vertex Vert
             #pragma fragment Frag
             #pragma target 2.0
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma multi_compile_instancing
 
             struct Attributes
@@ -154,8 +175,10 @@ Shader "L2/World/ActorEnvSpecular"
             {
                 UNITY_SETUP_INSTANCE_ID(IN);
                 float2 envUv = L2_CameraEnvUv(IN.positionVS, IN.normalWS);
-                float3 rgb = L2_LinearFog(L2_ActorEnvRgb(IN.uv, envUv, IN.color0), IN.viewAbsZ);
-                return half4(rgb, saturate(_ActorAlpha));
+                float4 rgba = L2_ActorEnvRgba(IN.uv, envUv, IN.color0);
+                L2_ActorClip(rgba.a);
+                float3 rgb = L2_LinearFog(rgba.rgb, IN.viewAbsZ);
+                return half4(rgb, saturate(rgba.a * _ActorAlpha));
             }
             ENDHLSL
         }
@@ -172,17 +195,20 @@ Shader "L2/World/ActorEnvSpecular"
             #pragma vertex DepthVert
             #pragma fragment DepthFrag
             #pragma target 2.0
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma multi_compile_instancing
 
             struct DepthAttrs
             {
                 float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct DepthVaryings
             {
                 float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -192,11 +218,14 @@ Shader "L2/World/ActorEnvSpecular"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
                 OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
+                OUT.uv = L2_ActorUv(IN.uv);
                 return OUT;
             }
 
             half DepthFrag(DepthVaryings IN) : SV_Target
             {
+                float alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv).a * _BaseColor.a;
+                L2_ActorClip(alpha);
                 return 0;
             }
             ENDHLSL
@@ -213,12 +242,14 @@ Shader "L2/World/ActorEnvSpecular"
             #pragma vertex DepthNormalsVert
             #pragma fragment DepthNormalsFrag
             #pragma target 2.0
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma multi_compile_instancing
 
             struct DNAttrs
             {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
+                float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -226,6 +257,7 @@ Shader "L2/World/ActorEnvSpecular"
             {
                 float4 positionCS : SV_POSITION;
                 float3 normalWS : TEXCOORD0;
+                float2 uv : TEXCOORD1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -236,11 +268,14 @@ Shader "L2/World/ActorEnvSpecular"
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
                 OUT.positionCS = GetVertexPositionInputs(IN.positionOS.xyz).positionCS;
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
+                OUT.uv = L2_ActorUv(IN.uv);
                 return OUT;
             }
 
             half4 DepthNormalsFrag(DNVaryings IN) : SV_Target
             {
+                float alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv).a * _BaseColor.a;
+                L2_ActorClip(alpha);
                 float3 n = normalize(IN.normalWS);
                 return half4(n * 0.5 + 0.5, 0);
             }

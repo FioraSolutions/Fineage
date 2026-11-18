@@ -6,15 +6,13 @@ using VContainer;
 
 public abstract partial class AbstractGetCache
 {
+    /// <summary>
+    /// Legacy per-race hair index patch. It only existed to paper over the stale
+    /// style-major stride in CacheHair (FFighter style 1 aliased onto style 0). With the
+    /// stride corrected, every race resolves its own asset at the plain index, so the
+    /// remap would now redirect a correct slot onto the wrong style.
+    /// </summary>
     private byte GetRemappedIndex(CharacterRaceAnimation raceId, byte index) {
-        if (CharacterRaceAnimation.FFighter == raceId) {
-            return index switch {
-                8 => 6,
-                10 => 8,
-                12 => 10,
-                _ => index
-            };
-        }
         return index;
     }
 

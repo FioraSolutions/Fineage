@@ -270,11 +270,30 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
                 "Assets/Resources/Data/SysTextures/CubeMaps/Shine0.png");
             if (env != null)
                 mat.SetTexture("_EnvMap", env);
-            mat.SetFloat("_SpecFromAlpha", PngHasAlpha(TexFolder + "/" + texStem + ".png") ? 1f : 0f);
+            // Most weapon PNGs carry the coverage mask in alpha (255 across the whole UV
+            // island, 0 on the padding) or no alpha at all. Feeding either to the
+            // specularity mask makes the entire weapon add the full Shine0 reflection,
+            // which reads as a mirror instead of the few polished edges Interlude
+            // highlights. Only a texture with a real alpha ramp is a specularity mask;
+            // everything else must use the luma fallback, which picks out bright metal.
+            mat.SetFloat("_SpecFromAlpha", TextureHasSpecularRamp(tex) ? 1f : 0f);
             mat.SetFloat("_ActorAlpha", 1f);
         }
 
         mat.SetFloat("_Cull", 0f);
+
+        // A weapon PNG stores the coverage mask in alpha: 255 on the island, 0 on the
+        // black padding, and the mesh UVs of the padding triangles sit outside every
+        // island. Without the clip the padding draws as flat black, which is the band
+        // and the loose diamonds around a dagger. AlphaRef 128 matches the mask.
+        if (!shield && TextureHasCoverageAlpha(tex))
+        {
+            mat.SetFloat("_AlphaClip", 1f);
+            mat.SetFloat("_Cutoff", 0.498039216f);
+            mat.EnableKeyword("_ALPHATEST_ON");
+            mat.SetOverrideTag("RenderType", "TransparentCutout");
+            mat.renderQueue = 2450;
+        }
 
         // Shields commonly use FinalBlend AlphaTest + TwoSided (thin geometry needs Cull Off).
         if (shield)
@@ -295,6 +314,30 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
     }
 
     /// <summary>RGBA weapon PNG keeps the specularity mask in alpha. RGB export dropped it.</summary>
+    /// <summary>True when the alpha channel is a real ramp, not coverage or a constant.</summary>
+    static bool TextureHasSpecularRamp(Texture2D tex)
+    {
+        if (tex == null || !tex.isReadable)
+            return false;
+        Color32[] pixels = tex.GetPixels32();
+        int partial = 0;
+        int solid = 0;
+        int clear = 0;
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            byte a = pixels[i].a;
+            if (a == 0) clear++;
+            else if (a == 255) solid++;
+            else partial++;
+        }
+        // Nothing graded means no specularity mask: a missing alpha is 255 everywhere and
+        // a coverage mask is 0/255 only. A real ramp always leaves partial values, with or
+        // without fully opaque pixels.
+        if (partial == 0)
+            return false;
+        return partial > (clear + solid) / 1000;
+    }
+
     static bool PngHasAlpha(string assetPath)
     {
         string full = Path.GetFullPath(assetPath);
@@ -307,6 +350,34 @@ public class L2WeaponPrefabBuilder : AssetPostprocessor
                 return false;
         }
         return head[25] == 4 || head[25] == 6;
+    }
+
+    /// <summary>
+    /// True when alpha is a coverage mask rather than a specularity ramp: the padding is
+    /// fully transparent, nothing sits between the two values, and the islands are solid.
+    /// Those textures must be alpha-clipped, the soft ones must not be.
+    /// </summary>
+    static bool TextureHasCoverageAlpha(Texture2D tex)
+    {
+        if (tex == null || !tex.isReadable)
+            return false;
+        Color32[] pixels = tex.GetPixels32();
+        int transparent = 0;
+        int partial = 0;
+        int solid = 0;
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            byte a = pixels[i].a;
+            if (a == 0)
+                transparent++;
+            else if (a == 255)
+                solid++;
+            else
+                partial++;
+        }
+        if (transparent == 0 || solid == 0)
+            return false;
+        return partial <= (transparent + solid) / 50;
     }
 
     /// <summary>Mobius FinalBlend AlphaTest=true / AlphaRef=160 / TwoSided → URP cutout + Cull Off.</summary>

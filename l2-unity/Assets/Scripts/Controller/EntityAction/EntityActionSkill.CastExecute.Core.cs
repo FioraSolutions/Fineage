@@ -22,18 +22,17 @@ public partial class EntityActionSkill
         if (combo != null && SkillExecutorPacketServices.Executor != null)
         {
             _ = SkillExecutorPacketServices.Executor.ExecuteSkill(entity, combo, ResolveEvents(entity));
-            EffectManager effects = ControllerPacketServices.Effects;
-            if (magic.SkillId == 3 && effects != null)
-            {
-                effects.PlayEffectSyncedToSkillAnimation(
-                    magic.SkillId, entity, magic.HitTime, combo);
-            }
+            // Physical skills carry their art on the skill itself (Deadly Blow 263 → viz_263,
+            // Lethal Blow 344 → viz_344). Only skill 3 used to play here, so every other drop
+            // skill animated the swing and showed no effect at all. Syncing to the combo keeps the
+            // art on the weapon at the hit moment instead of firing it at cast start.
+            SkillVisualEffectDispatch.PlayIfKnown(entity, magic, combo);
             ArmPhysicalSkillHit(entity, magic);
             return;
         }
 
         EntityActionVisual.PlayPhysicalSkill(entity, magic);
-        PlaySkillEffect(entity, magic);
+        SkillVisualEffectDispatch.PlayIfKnown(entity, magic);
         ArmPhysicalSkillHit(entity, magic);
     }
 

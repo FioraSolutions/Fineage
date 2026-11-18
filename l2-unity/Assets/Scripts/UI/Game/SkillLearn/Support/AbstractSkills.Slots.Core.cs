@@ -20,6 +20,18 @@ public partial class AbstractSkills
         _allSlots = allSlots;
     }
 
+    /// <summary>
+    /// Repaint every skill slot's toggle shine. Passive skills never toggle, but the call is cheap and keeps
+    /// the active/passive tabs in sync after one abnormal update.
+    /// </summary>
+    public void RefreshToggleMarks()
+    {
+        if (_allSlots == null)
+            return;
+        foreach (KeyValuePair<int, SkillSlot> pair in _allSlots)
+            pair.Value?.RefreshToggleMark();
+    }
+
     protected VisualElement GetSkillBar(VisualElement content)
     {
         var childreb = content.Children();
