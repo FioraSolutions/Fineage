@@ -105,6 +105,14 @@ public partial class SetupDurationHelper
             return 0f;
         }
 
+        // No flight stage authored (Trick / Switch: cast art on the caster, impact on the target, no projectile):
+        // the impact lands at HitTime. Reserving a distance flight here moved the shot to ~0.05 s, sped the
+        // CastShort/CastEnd/MagicThrow cycle up ~25x and spawned the "arrival" art at cast start.
+        if (effects != null && AppliesNoFlightRule(skillId) && !effects.HasFlightStage(skillId))
+        {
+            return 0f;
+        }
+
         if (entity == null || target == null)
         {
             return fallbackFlightMs;
@@ -128,5 +136,12 @@ public partial class SetupDurationHelper
 
         float flightSeconds = ProjectileFlightTimeCalculator.CalculateL2SkillFlightTimeSeconds(distance);
         return flightSeconds * 1000f;
+    }
+
+    // Scope of the "no flight stage → no flight time" rule. Physical (is_magic=0) cast-animated skills only for now.
+    static bool AppliesNoFlightRule(int skillId)
+    {
+        Skillgrp grp = TablePacketServices.SkillGrps != null ? TablePacketServices.SkillGrps.GetSkill(skillId, 1) : null;
+        return grp != null && grp.IsMagic == 0;
     }
 }
