@@ -37,6 +37,14 @@
 - Shared official anims resolved generally: `temple_guard_a/b` → `temple_guard_anim`, `temple_savant_a` → `Temple_savant_anim`, `tomb_guard_a/b` → `Tomb_Guard_anim`, `tomb_savant_a` → `Tomb_Savant_anim`.
 - Seven catacomb meshes were already shipped with Giran (Binding, Crimson Doll, Doll Master, Shadeless, Silhouette, Nephilim Priest/Slayer).
 
+
+**Batch 7 imported (this PR):** unique Heine / Innadril official Interlude meshes.
+
+- 17 official bodies: 15 `LineageMonsters` (Blade Stakato / worker, Crocodile, Crokian, Dailaon, Farhite, Great White Shark, Lienrik, Light Worm, Nos, Ogre, Rakul, Theeder, Virud Lizardman Shaman A, Water Giant) plus Orc mystic teacher `e_mageguild_teacher_FOrc_m00` and `pot_m00`.
+- Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageMonsters5.scapegoat_m00`, `LineageNPCs2.iason_haine_m00`.
+- Five Heine meshes already shipped with earlier batches (Blade Stakato drone/soldier, crimson/doll family).
+
+---
 ---
 ---
 ---
