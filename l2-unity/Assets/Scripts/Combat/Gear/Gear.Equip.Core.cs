@@ -137,10 +137,28 @@ public partial class Gear
         GameObject go = CreateCopy(etcItemPrefab, etcIdNameAndId, ObjectType.Arrow);
 
         _goCurrentEtcItem = go;
+        _etcItemReleased = false;
 
         ActivateGameObject(go, WeaponType.arrow, leftSlot, refreshAllBone);
 
     }
+
+    /// <summary>
+    /// Forget the etc-item (arrow) after it is launched as a projectile. Does not destroy the
+    /// flying GameObject; the hand is empty until the next nock / LoadArrow.
+    /// </summary>
+    public void ReleaseEtcItem()
+    {
+        _goCurrentEtcItem = null;
+        _etcItemReleased = true;
+    }
+
+    public void ClearEtcRelease()
+    {
+        _etcItemReleased = false;
+    }
+
+    public bool EtcItemReleased => _etcItemReleased;
 
     public void EquipLeftAndRightWeapon(int weaponId)
     {

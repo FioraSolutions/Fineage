@@ -30,7 +30,20 @@ public abstract partial class EntityWorldApply
         CharacterController cc = entity.GetComponent<CharacterController>();
         if (cc != null && cc.enabled)
             cc.enabled = false;
-        entity.transform.position = position;
+
+        // Heading-only turns (Mobius StopRotation / Bluff) reuse this packet with the pawn's
+        // current server cell. Snapping that cell over the client's grounded pose looks like a toss.
+        bool snapPosition = true;
+        if (heading >= 0)
+        {
+            Vector3 delta = position - entity.transform.position;
+            delta.y = 0f;
+            if (delta.sqrMagnitude <= 0.4f * 0.4f)
+                snapPosition = false;
+        }
+        if (snapPosition)
+            entity.transform.position = position;
+
         if (heading >= 0)
         {
             float yaw = VectorUtils.HeadingToUnityQuaternionForNpc(heading);

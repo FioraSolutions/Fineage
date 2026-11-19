@@ -23,6 +23,14 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
     readonly List<Color> _rendererColors = new();
     readonly List<Renderer> _tintedRenderers = new();
 
+    // Official AActor::SetAlphaTexModifier(~128) for AVE_STEALTH / semi-invisible.
+    const byte StealthAlphaByte = 128;
+    readonly L2ActorFade _stealthFade = new L2ActorFade();
+    bool _stealthed;
+    Renderer[] _stealthRenderers;
+    Material[][] _stealthInstances;
+    Material[][] _stealthShared;
+
 
     void OnDestroy() => ClearAll();
 }
