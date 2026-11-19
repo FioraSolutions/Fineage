@@ -4,7 +4,7 @@ using UnityEngine;
 /// Playback-rate channels for character animators. Keep them orthogonal:
 /// <list type="bullet">
 /// <item><b>Locomotion</b> — Animator floats <c>run_speed</c> / <c>walk_speed</c>
-/// (<see cref="CharTemplateRegistry"/>, <see cref="NumberUtils.NpcLocomotionAnimRate()"/>).</item>
+/// (<see cref="LocomotionGait"/>).</item>
 /// <item><b>Combat</b> — Animator float <c>patkspd</c> and <see cref="CastClipPlayable"/> phase speeds.</item>
 /// <item><b>Gesture</b> — fixed <see cref="GestureRate"/> (pickup, death, rebirth, lobby social).
 /// Gesture AnimatorStates must not use locomotion/combat speed parameters.</item>

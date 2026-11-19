@@ -7,30 +7,22 @@ public partial class Entity
     public void UpdateNpcRunningSpd(float runSpeed)
     {
         float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, runSpeed);
-        float anim_converted = NpcLocomotionAnimRateForMesh("run");
+        float anim_converted = NpcLocomotionAnimRate("run", scaled);
         if (_networkAnimationReceive != null) _networkAnimationReceive.SetRunSpeed(anim_converted);
         Stats.UnitySpeedRun = scaled;
 
     }
 
-    float NpcLocomotionAnimRateForMesh(string sequence)
+    float NpcLocomotionAnimRate(string sequence, float unityMetersPerSecond)
     {
-        string controllerName = _networkAnimationReceive != null
-            ? _networkAnimationReceive.GetAnimatorName()
+        Animator animator = _networkAnimationReceive != null
+            ? _networkAnimationReceive.GetAnimator()
             : null;
-
-        if (string.IsNullOrEmpty(controllerName))
-            return NumberUtils.NpcLocomotionAnimRate();
-
-        // runtimeAnimatorController.name is the override controller's stem
-        // (e.g. "wolf"); AnimTween lists it as "<stem>_anim" (e.g. wolf_anim).
-        string mesh = controllerName.EndsWith("_anim", System.StringComparison.OrdinalIgnoreCase)
-            ? controllerName
-            : controllerName + "_anim";
-
-        float rate = TablePacketServices.AnimTweens.TryGetRate(mesh, sequence);
-        return NumberUtils.NpcLocomotionAnimRate(rate);
-    } 
+        float min = sequence != null && sequence.IndexOf("walk", System.StringComparison.OrdinalIgnoreCase) >= 0
+            ? LocomotionGait.MinWalkRate
+            : LocomotionGait.MinRunRate;
+        return LocomotionGait.Rate(animator, sequence, unityMetersPerSecond, min, LocomotionGait.MaxRate);
+    }
 
     public virtual float UpdateSpeed(int speed) {
         float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
