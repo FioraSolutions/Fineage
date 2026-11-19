@@ -18,6 +18,7 @@ public partial class EnchantWindow
             return;
 
         ShowWindow(scroll);
+        AudioPacketServices.Audio.PlayUISound("window_open");
         if (_textLabel != null)
             _textLabel.text = "Select an item to enchant.";
         SetWindowTitle("Enchant");
@@ -25,9 +26,16 @@ public partial class EnchantWindow
 
     public void ApplyZoneResult(NetEnchantResult result)
     {
-        NetEnchant.View view = NetEnchant.ViewOf(result);
-        if (view.RemoveItem || view.ShowEnchant || view.CloseWindow)
+        _awaitingRoll = false;
+        NetEnchant.ResultAnim anim = NetEnchant.AnimOf(result.Result);
+        if (anim == NetEnchant.ResultAnim.Close || anim == NetEnchant.ResultAnim.None)
+        {
             CloseFromServer();
+            return;
+        }
+
+        _pendingCloseFromServer = true;
+        StartEnchantAnim(anim == NetEnchant.ResultAnim.Success);
     }
 
     public void AbortZone()
