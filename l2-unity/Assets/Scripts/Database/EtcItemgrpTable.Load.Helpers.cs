@@ -10,6 +10,7 @@ public partial class EtcItemgrpTable
     public void Initialize() {
         ReadEtcItemGrpDat();
         ReadEtcItemInterlude();
+        ApplyServerStackableOverrides();
     }
 
     private void ReadEtcItemGrpDat() {
