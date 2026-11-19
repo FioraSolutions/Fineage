@@ -28,6 +28,8 @@ public partial class CompositeEffectV2
         EnsureHitPointFromTarget();
         if (!part.TryResolveSpawn(_v2Resolver, _context, out Transform followTransform, out Vector3 worldPosition))
         {
+            if (TraceTargetArt())
+                LogTargetArt("RESOLVE_FAIL", part, null, Vector3.zero, null);
             if (TraceCrasherWind())
             {
                 Debug.Log(
@@ -130,6 +132,8 @@ public partial class CompositeEffectV2
         }
         RaiseStartSpawnAndMaybeSpawnLight();
         LogHomeSpawnPart(part, followTransform, worldPosition, spawnPosition, afterInstantiate, afterAttach, instance, setupOwner);
+        if (TraceTargetArt())
+            LogTargetArt("SPAWN", part, followTransform, worldPosition, instance);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // Debug.Log(
             // $"{DebugPrefix} Spawned {part.Describe()} owner='{(setupOwner != null ? setupOwner.name : "null")}'.");

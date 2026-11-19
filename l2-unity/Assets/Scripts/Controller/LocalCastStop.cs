@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 /// <summary>
@@ -49,5 +51,67 @@ public static class LocalCastStop
 
         // A queued MoveToPawn chase would otherwise resume the run after the cast.
         machine.IsMoveToPawn = false;
+    }
+}
+
+/// <summary>
+/// Client copy of the server's skill reuse timers, fed by the local MagicSkillUse (reuse delay) and SkillList
+/// (remaining reuse). Used only to decide whether a skill press may stop the hero before the zone answers.
+///
+/// Mobius Player.useMagic: a skill on reuse is refused with SystemMessage "%s is not available at this time" +
+/// ActionFailed and the hero is never stopped, so the run goes on. Halting locally on such a press froze the
+/// client pawn (run animation on the spot) while the server kept moving it, and the next correction teleported it
+/// forward.
+/// </summary>
+public static class LocalSkillReuse
+{
+    // Press-side slack: a press a little before the server timer runs out is still refused by the zone, so treat
+    // the tail of the reuse window as "still on reuse" and keep running. A press that lands just after the real end
+    // is fine either way: MagicSkillUse halts the hero through MagicSkillPresentation.
+    const long EarlyPressSlackMs = 250;
+
+    static readonly object Gate = new object();
+    static readonly Dictionary<int, long> ReadyAtMs = new Dictionary<int, long>();
+
+    static long NowMs => Stopwatch.GetTimestamp() * 1000L / Stopwatch.Frequency;
+
+    /// <summary>Starts (or restarts) the reuse window for <paramref name="skillId"/>. Thread-safe.</summary>
+    public static void Begin(int skillId, long reuseMs)
+    {
+        if (skillId <= 0)
+            return;
+
+        lock (Gate)
+        {
+            if (reuseMs <= 0)
+            {
+                ReadyAtMs.Remove(skillId);
+                return;
+            }
+
+            ReadyAtMs[skillId] = NowMs + reuseMs;
+        }
+    }
+
+    /// <summary>True while the server would refuse <paramref name="skillId"/> with skill_reuse.</summary>
+    public static bool IsOnReuse(int skillId)
+    {
+        lock (Gate)
+        {
+            if (!ReadyAtMs.TryGetValue(skillId, out long readyAt))
+                return false;
+
+            if (NowMs + EarlyPressSlackMs < readyAt)
+                return true;
+
+            ReadyAtMs.Remove(skillId);
+            return false;
+        }
+    }
+
+    public static void Clear()
+    {
+        lock (Gate)
+            ReadyAtMs.Clear();
     }
 }

@@ -26,6 +26,11 @@ public sealed partial class NetSession
     internal void ApplySkillList(SkillListNetMsg list)
     {
         NetSkillEntry[] rows = MapSkillList(list);
+        for (int i = 0; i < rows.Length; i++)
+        {
+            if (rows[i].ReuseDelayMs > 0)
+                LocalSkillReuse.Begin(rows[i].SkillId, rows[i].ReuseDelayMs);
+        }
         SkillListDto dto = MapSkillListToDto(rows);
         if (_skills != null) _skills.ApplySkillList(dto);
         else SkillListApplyIncomingPacketServices.ApplySkillList(dto);
