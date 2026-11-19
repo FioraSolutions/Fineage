@@ -88,12 +88,8 @@ public abstract partial class AbstractGetCache
         if (string.Equals(texture, "None", StringComparison.OrdinalIgnoreCase))
             return null;
 
-        string[] parts = texture.Split('.');
-        if (parts.Length < 2)
+        if (!SysTextureKey.TrySplit(texture, out string folder, out string file))
             return null;
-
-        string folder = parts[0];
-        string file = parts[1];
         // Dat packs use lowercase packages (mmagic.mmagic_m007_t90_u); Resources
         // folders are PascalCase (MMagic/Materials/MMagic_m007_t90_u). Unity
         // Resources.Load is case-sensitive even on macOS APFS.
