@@ -1,0 +1,364 @@
+class at_shock_blast_ra extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter4
+         // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter4'
+         begin object name="SpriteEmitter4" class=Engine.SpriteEmitter
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=239,G=158,B=7,A=255))
+         ColorScale[1]=(RelativeTime=0.1071430,Color=(R=255,G=0,B=0,A=255))
+         ColorScale[2]=(RelativeTime=0.2071430,Color=(R=165,G=73,B=12,A=255))
+         ColorScale[3]=(RelativeTime=1.0000000,Color=(R=160,G=160,B=160,A=255))
+         Opacity=0.4000000
+         FadeOutStartTime=0.4200000
+         FadeOut=true
+         FadeInEndTime=0.1200000
+         FadeIn=true
+         MaxParticles=30
+         RespawnDeadParticles=false
+         Name="out_paticle_black"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=25.0000000)
+         StartLocationShape=2
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=15.0000000,Max=15.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0500000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.8000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=1.5000000)
+         StartSizeRange=(X=(Min=50.0000000,Max=65.0000000),Y=(Min=50.0000000,Max=65.0000000),Z=(Min=50.0000000,Max=65.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=10000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=1
+         Texture=Texture'LineageEffectsTextures2.balakas.fx_m_t2011'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         SubdivisionEnd=3
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.8000000,Max=2.0000000)
+         InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+         StartVelocityRange=(X=(Min=800.0000000,Max=800.0000000),Y=(Min=800.0000000,Max=800.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         VelocityLossRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=5.0000000,Max=5.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         GetVelocityDirectionFrom=2
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter4'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter2
+         // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter2'
+         begin object name="SpriteEmitter2" class=Engine.SpriteEmitter
+         UseDirectionAs=3
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=0,G=0,B=0,A=255))
+         ColorScale[1]=(RelativeTime=0.0642860,Color=(R=255,G=184,B=119,A=255))
+         ColorScale[2]=(RelativeTime=0.1250000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[3]=(RelativeTime=0.2750000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[4]=(RelativeTime=0.5000000,Color=(R=116,G=35,B=35,A=255))
+         ColorScale[5]=(RelativeTime=0.8000000,Color=(R=109,G=46,B=46,A=255))
+         ColorScale[6]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+         ColorMultiplierRange=(X=(Min=0.8000000,Max=0.8000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.3000000,Max=0.3000000))
+         Opacity=0.3000000
+         FadeOutStartTime=0.2400000
+         FadeOut=true
+         MaxParticles=8
+         RespawnDeadParticles=false
+         Name="Bm_FlowIn"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+         StartLocationRange=(X=(Min=-6.0000000,Max=6.0000000),Y=(Min=-6.0000000,Max=6.0000000),Z=(Min=6.0000000,Max=26.0000000))
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.2000000)
+         SizeScale[1]=(RelativeTime=0.2000000,RelativeSize=0.8000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         StartSizeRange=(X=(Min=80.0000000,Max=160.0000000),Y=(Min=80.0000000,Max=160.0000000),Z=(Min=80.0000000,Max=160.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles2.fx_m_t1026'
+         LifetimeRange=(Min=0.5000000,Max=0.5000000)
+         StartVelocityRange=(X=(Min=-0.0400000,Max=0.0400000),Y=(Min=-0.0400000,Max=0.0400000),Z=(Min=0.6000000,Max=1.4000000))
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter2'
+     Begin Object Class=MeshEmitter Name=MeshEmitter0
+         // Reference: MeshEmitter'lineageeffect.dec.at_shock_blast_ra.MeshEmitter0'
+         begin object name="MeshEmitter0" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.boss.skill_Meteo5'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         Opacity=0.1800000
+         FadeOutStartTime=0.1000000
+         FadeOut=true
+         FadeInEndTime=0.0300000
+         FadeIn=true
+         MaxParticles=3
+         RespawnDeadParticles=false
+         Name="Bm_sphere"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=14.8959999)
+         SpinParticles=true
+         StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.2000000)
+         SizeScale[1]=(RelativeTime=0.2400000,RelativeSize=0.9000000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.2700000)
+         StartSizeRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.7000000,Max=0.7000000))
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=0.5000000,Max=0.5000000)
+         InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+         end object
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter0'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter1
+         // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter1'
+         begin object name="SpriteEmitter1" class=Engine.SpriteEmitter
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=221,G=0,B=0,A=255))
+         FadeOutStartTime=0.3080000
+         FadeOut=true
+         MaxParticles=25
+         RespawnDeadParticles=false
+         Name="fire_dust_out"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=20.0000000)
+         StartLocationShape=2
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=10.0000000,Max=15.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0100000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSizeRange=(X=(Min=6.0000000,Max=15.0000000),Y=(Min=6.0000000,Max=15.0000000),Z=(Min=6.0000000,Max=15.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=10000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures2.balakas.fx_m_t1037'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         SubdivisionEnd=3
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.5000000,Max=1.1000000)
+         InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+         StartVelocityRange=(X=(Min=780.0000000,Max=780.0000000),Y=(Min=780.0000000,Max=780.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         VelocityLossRange=(X=(Min=4.0000000,Max=4.0000000),Y=(Min=4.0000000,Max=4.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         GetVelocityDirectionFrom=2
+         end object
+     End Object
+     Emitters(3)=SpriteEmitter'SpriteEmitter1'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter5
+         // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter5'
+         begin object name="SpriteEmitter5" class=Engine.SpriteEmitter
+         Acceleration=(X=0.0000000,Y=0.0000000,Z=30.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=253,G=241,B=26,A=255))
+         ColorScale[1]=(RelativeTime=0.2357140,Color=(R=251,G=111,B=6,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=83,G=60,B=47,A=255))
+         Opacity=0.5000000
+         FadeOutStartTime=0.2000000
+         FadeOut=true
+         RespawnDeadParticles=false
+         Name="Final_Center"
+         StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=15.0000000)
+         StartLocationRange=(X=(Min=-25.0000000,Max=25.0000000),Y=(Min=-25.0000000,Max=25.0000000),Z=(Min=-25.0000000,Max=25.0000000))
+         SpinParticles=true
+         SpinsPerSecondRange=(X=(Min=0.0500000,Max=0.1100000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSizeRange=(X=(Min=30.0000000,Max=70.0000000),Y=(Min=30.0000000,Max=70.0000000),Z=(Min=30.0000000,Max=70.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures2.balakas.fx_m_t2012'
+         TextureUSubdivisions=2
+         TextureVSubdivisions=2
+         SubdivisionEnd=3
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.8000000,Max=1.0000000)
+         InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+         StartVelocityRange=(X=(Min=-200.0000000,Max=200.0000000),Y=(Min=-200.0000000,Max=200.0000000),Z=(Min=-50.0000000,Max=50.0000000))
+         VelocityLossRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=5.0000000,Max=5.0000000),Z=(Min=5.0000000,Max=5.0000000))
+         end object
+     End Object
+     Emitters(4)=SpriteEmitter'SpriteEmitter5'
+     // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter4'
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=239,G=158,B=7,A=255))
+     ColorScale[1]=(RelativeTime=0.1071430,Color=(R=255,G=0,B=0,A=255))
+     ColorScale[2]=(RelativeTime=0.2071430,Color=(R=165,G=73,B=12,A=255))
+     ColorScale[3]=(RelativeTime=1.0000000,Color=(R=160,G=160,B=160,A=255))
+     Opacity=0.4000000
+     FadeOutStartTime=0.4200000
+     FadeOut=true
+     FadeInEndTime=0.1200000
+     FadeIn=true
+     MaxParticles=30
+     RespawnDeadParticles=false
+     Name="out_paticle_black"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=25.0000000)
+     StartLocationShape=2
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=15.0000000,Max=15.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0000000,Max=0.0500000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.8000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=1.5000000)
+     StartSizeRange=(X=(Min=50.0000000,Max=65.0000000),Y=(Min=50.0000000,Max=65.0000000),Z=(Min=50.0000000,Max=65.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=10000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=1
+     Texture=Texture'LineageEffectsTextures2.balakas.fx_m_t2011'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     SubdivisionEnd=3
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.8000000,Max=2.0000000)
+     InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+     StartVelocityRange=(X=(Min=800.0000000,Max=800.0000000),Y=(Min=800.0000000,Max=800.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     VelocityLossRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=5.0000000,Max=5.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     GetVelocityDirectionFrom=2
+     Emitters[0]=SpriteEmitter4
+     // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter2'
+     UseDirectionAs=3
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=0,G=0,B=0,A=255))
+     ColorScale[1]=(RelativeTime=0.0642860,Color=(R=255,G=184,B=119,A=255))
+     ColorScale[2]=(RelativeTime=0.1250000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[3]=(RelativeTime=0.2750000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[4]=(RelativeTime=0.5000000,Color=(R=116,G=35,B=35,A=255))
+     ColorScale[5]=(RelativeTime=0.8000000,Color=(R=109,G=46,B=46,A=255))
+     ColorScale[6]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+     ColorMultiplierRange=(X=(Min=0.8000000,Max=0.8000000),Y=(Min=0.4000000,Max=0.4000000),Z=(Min=0.3000000,Max=0.3000000))
+     Opacity=0.3000000
+     FadeOutStartTime=0.2400000
+     FadeOut=true
+     MaxParticles=8
+     RespawnDeadParticles=false
+     Name="Bm_FlowIn"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+     StartLocationRange=(X=(Min=-6.0000000,Max=6.0000000),Y=(Min=-6.0000000,Max=6.0000000),Z=(Min=6.0000000,Max=26.0000000))
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.2000000)
+     SizeScale[1]=(RelativeTime=0.2000000,RelativeSize=0.8000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     StartSizeRange=(X=(Min=80.0000000,Max=160.0000000),Y=(Min=80.0000000,Max=160.0000000),Z=(Min=80.0000000,Max=160.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles2.fx_m_t1026'
+     LifetimeRange=(Min=0.5000000,Max=0.5000000)
+     StartVelocityRange=(X=(Min=-0.0400000,Max=0.0400000),Y=(Min=-0.0400000,Max=0.0400000),Z=(Min=0.6000000,Max=1.4000000))
+     Emitters[1]=SpriteEmitter2
+     // Reference: MeshEmitter'lineageeffect.dec.at_shock_blast_ra.MeshEmitter0'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.boss.skill_Meteo5'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     Opacity=0.1800000
+     FadeOutStartTime=0.1000000
+     FadeOut=true
+     FadeInEndTime=0.0300000
+     FadeIn=true
+     MaxParticles=3
+     RespawnDeadParticles=false
+     Name="Bm_sphere"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=14.8959999)
+     SpinParticles=true
+     StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=0.2000000)
+     SizeScale[1]=(RelativeTime=0.2400000,RelativeSize=0.9000000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=1.2700000)
+     StartSizeRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=1.0000000,Max=1.0000000),Z=(Min=0.7000000,Max=0.7000000))
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=0.5000000,Max=0.5000000)
+     InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+     Emitters[2]=MeshEmitter0
+     // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter1'
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=5.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=221,G=0,B=0,A=255))
+     FadeOutStartTime=0.3080000
+     FadeOut=true
+     MaxParticles=25
+     RespawnDeadParticles=false
+     Name="fire_dust_out"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=20.0000000)
+     StartLocationShape=2
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=360.0000000),Y=(Min=90.0000000,Max=90.0000000),Z=(Min=10.0000000,Max=15.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0100000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSizeRange=(X=(Min=6.0000000,Max=15.0000000),Y=(Min=6.0000000,Max=15.0000000),Z=(Min=6.0000000,Max=15.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=10000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures2.balakas.fx_m_t1037'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     SubdivisionEnd=3
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.5000000,Max=1.1000000)
+     InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+     StartVelocityRange=(X=(Min=780.0000000,Max=780.0000000),Y=(Min=780.0000000,Max=780.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     VelocityLossRange=(X=(Min=4.0000000,Max=4.0000000),Y=(Min=4.0000000,Max=4.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     GetVelocityDirectionFrom=2
+     Emitters[3]=SpriteEmitter1
+     // Reference: SpriteEmitter'lineageeffect.dec.at_shock_blast_ra.SpriteEmitter5'
+     Acceleration=(X=0.0000000,Y=0.0000000,Z=30.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=253,G=241,B=26,A=255))
+     ColorScale[1]=(RelativeTime=0.2357140,Color=(R=251,G=111,B=6,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=83,G=60,B=47,A=255))
+     Opacity=0.5000000
+     FadeOutStartTime=0.2000000
+     FadeOut=true
+     RespawnDeadParticles=false
+     Name="Final_Center"
+     StartLocationOffset=(X=0.0000000,Y=0.0000000,Z=15.0000000)
+     StartLocationRange=(X=(Min=-25.0000000,Max=25.0000000),Y=(Min=-25.0000000,Max=25.0000000),Z=(Min=-25.0000000,Max=25.0000000))
+     SpinParticles=true
+     SpinsPerSecondRange=(X=(Min=0.0500000,Max=0.1100000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=-1.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSizeRange=(X=(Min=30.0000000,Max=70.0000000),Y=(Min=30.0000000,Max=70.0000000),Z=(Min=30.0000000,Max=70.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures2.balakas.fx_m_t2012'
+     TextureUSubdivisions=2
+     TextureVSubdivisions=2
+     SubdivisionEnd=3
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.8000000,Max=1.0000000)
+     InitialDelayRange=(Min=0.0200000,Max=0.0200000)
+     StartVelocityRange=(X=(Min=-200.0000000,Max=200.0000000),Y=(Min=-200.0000000,Max=200.0000000),Z=(Min=-50.0000000,Max=50.0000000))
+     VelocityLossRange=(X=(Min=5.0000000,Max=5.0000000),Y=(Min=5.0000000,Max=5.0000000),Z=(Min=5.0000000,Max=5.0000000))
+     Emitters[4]=SpriteEmitter5
+     AutoDestroy=true
+     bLightChanged=true
+     bNoDelete=false
+     bSunAffect=true
+     bDirectional=true
+}

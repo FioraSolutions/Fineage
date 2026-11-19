@@ -19,9 +19,9 @@ public partial class Entity
             ? _networkAnimationReceive.GetAnimator()
             : null;
         float min = sequence != null && sequence.IndexOf("walk", System.StringComparison.OrdinalIgnoreCase) >= 0
-            ? LocomotionGait.MinWalkRate
-            : LocomotionGait.MinRunRate;
-        return LocomotionGait.Rate(animator, sequence, unityMetersPerSecond, min, LocomotionGait.MaxRate);
+            ? global::LocomotionGait.MinWalkRate
+            : global::LocomotionGait.MinRunRate;
+        return global::LocomotionGait.Rate(animator, sequence, unityMetersPerSecond, min, global::LocomotionGait.MaxRate);
     }
 
     public virtual float UpdateSpeed(int speed) {
