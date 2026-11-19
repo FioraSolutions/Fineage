@@ -30,6 +30,14 @@
 - Shared official anims resolved generally: `batur_orc_shaman_a` → `batur_orc_shaman_anim`, `hunter_gargoyle` → official typo `hunter_gargolye_anim`.
 - Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageNPCs4.a_traderB_Mhuman_pet_m00`, `LineageNpcsEV.n_event_stakato_egg_m00` (also listed under Aden).
 
+
+**Batch 6 imported (this PR):** unique catacombs/necropolis official Interlude meshes.
+
+- 14 official bodies not already imported with Giran: Blade Stakato drone/soldier, Death Lord, Shadow, Lilim Assassin/Knight/Wizard, Nephilim Lord, Temple Guard A/B, Temple Savant A, Tomb Guard A/B, Tomb Savant A.
+- Shared official anims resolved generally: `temple_guard_a/b` → `temple_guard_anim`, `temple_savant_a` → `Temple_savant_anim`, `tomb_guard_a/b` → `Tomb_Guard_anim`, `tomb_savant_a` → `Tomb_Savant_anim`.
+- Seven catacomb meshes were already shipped with Giran (Binding, Crimson Doll, Doll Master, Shadeless, Silhouette, Nephilim Priest/Slayer).
+
+---
 ---
 ---
 
