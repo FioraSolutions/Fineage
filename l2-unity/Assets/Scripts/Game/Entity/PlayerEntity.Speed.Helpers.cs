@@ -14,11 +14,14 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateRunSpeed(converted);
 
-        PlayerAppearance playerApperance = _appearance as PlayerAppearance;
-        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
-        int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
-        int sex = playerApperance != null ? playerApperance.Sex : 0;
-        float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, serverValue, twoHanded);
+        float anim_converted = LocomotionGait.Rate(
+            AnimationPacketServices.PlayerAnimation != null
+                ? AnimationPacketServices.PlayerAnimation.GetAnimator()
+                : null,
+            AnimationNames.RUN.Concat(WeaponSuffix()),
+            converted,
+            LocomotionGait.MinRunRate,
+            LocomotionGait.MaxRate);
         AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
 
         _lastServerRunSpeed = serverValue;
@@ -27,11 +30,15 @@ public partial class PlayerEntity
 
     public void RefreshRunSpeed()
     {
-        PlayerAppearance playerApperance = _appearance as PlayerAppearance;
-        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
-        int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
-        int sex = playerApperance != null ? playerApperance.Sex : 0;
-        float anim_converted = CharTemplateRegistry.GetRunSpeed(baseClass, sex, _lastServerRunSpeed, twoHanded);
+        float unity = NumberUtils.ScaleToUnity(_lastServerRunSpeed > 0.001f ? _lastServerRunSpeed : 120f);
+        float anim_converted = LocomotionGait.Rate(
+            AnimationPacketServices.PlayerAnimation != null
+                ? AnimationPacketServices.PlayerAnimation.GetAnimator()
+                : null,
+            AnimationNames.RUN.Concat(WeaponSuffix()),
+            unity,
+            LocomotionGait.MinRunRate,
+            LocomotionGait.MaxRate);
         AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
     }
 
@@ -44,14 +51,24 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateWalkSpeed(converted);
 
-        PlayerAppearance playerApperance = _appearance as PlayerAppearance;
-        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
-        int baseClass = playerApperance != null ? playerApperance.BaseClass : 0;
-        int sex = playerApperance != null ? playerApperance.Sex : 0;
-        float anim_converted = CharTemplateRegistry.GetWalkSpeed(baseClass, sex, serverValue, twoHanded);
+        float anim_converted = LocomotionGait.Rate(
+            AnimationPacketServices.PlayerAnimation != null
+                ? AnimationPacketServices.PlayerAnimation.GetAnimator()
+                : null,
+            AnimationNames.WALK.Concat(WeaponSuffix()),
+            converted,
+            LocomotionGait.MinWalkRate,
+            LocomotionGait.MaxRate);
         AnimationPacketServices.PlayerAnimation?.SetWalkSpeed(anim_converted);
 
         return converted;
+    }
+
+    string WeaponSuffix()
+    {
+        if (_gear != null && !string.IsNullOrEmpty(_gear.WeaponAnim))
+            return _gear.WeaponAnim;
+        return "hand";
     }
 
     public override void UpdateWaitType(WaitType moveType)
