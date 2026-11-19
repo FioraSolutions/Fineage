@@ -27,32 +27,52 @@ public sealed partial class NetTransport : IDisposable
 
     async Task ReadLoopAsync(CancellationToken ct)
     {
+        string reason = "remote-closed";
         try
         {
             while (!ct.IsCancellationRequested)
             {
                 PacketEnvelope envelope = await NetFraming.ReadAsync(_stream, ct).ConfigureAwait(false);
                 if (envelope == null)
+                {
+                    reason = _disposed ? "disposed" : "eof";
                     break;
-                _onPacket(envelope);
+                }
+
+                try
+                {
+                    _onPacket(envelope);
+                }
+                catch (Exception ex)
+                {
+                    // Frame already consumed — a decode/handler error must not drop TCP.
+                    UnityEngine.Debug.LogError("[Net] packet handler opcode=" + envelope.Opcode + ": " + ex);
+                }
             }
+
+            if (ct.IsCancellationRequested)
+                reason = _disposed ? "disposed" : "canceled";
         }
         catch (OperationCanceledException)
         {
+            reason = _disposed ? "disposed" : "canceled";
         }
-        catch (IOException)
+        catch (IOException ex)
         {
+            reason = _disposed ? "disposed" : ("io:" + ex.Message);
         }
         catch (ObjectDisposedException)
         {
+            reason = "disposed";
         }
         catch (Exception ex)
         {
+            reason = "error:" + ex.Message;
             UnityEngine.Debug.LogWarning("[Net] read ended: " + ex.Message);
         }
         finally
         {
-            _onClosed?.Invoke("closed");
+            _onClosed?.Invoke(reason);
         }
     }
 
