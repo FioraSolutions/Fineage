@@ -62,6 +62,8 @@ public sealed partial class EntityActionMachine
     /// </summary>
     static void ApplyLocalWaitType(Entity entity, ChangeWaitTypeDto dto)
     {
+        Debug.Log("[wait-type] local type=" + dto.WaitType +
+                  " id=" + (entity.Identity != null ? entity.Identity.Id : 0));
         PlayerStateMachine machine = PlayerStatePacketServices.PlayerState;
         if (dto.WaitType == WaitType.WT_START_FAKEDEATH)
         {

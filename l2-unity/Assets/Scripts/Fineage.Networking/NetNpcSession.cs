@@ -13,6 +13,8 @@ public static class NetNpcSession
     static readonly object Gate = new object();
     static readonly Dictionary<int, bool> Attackable = new Dictionary<int, bool>();
     static readonly Dictionary<int, string> Names = new Dictionary<int, string>();
+    static readonly Dictionary<int, int> Rhands = new Dictionary<int, int>();
+    static readonly Dictionary<int, int> Lhands = new Dictionary<int, int>();
 
     public static int ActiveNpcObjectId { get; private set; }
     public static int ShopNpcObjectId { get; private set; }
@@ -25,6 +27,8 @@ public static class NetNpcSession
         {
             Attackable.Clear();
             Names.Clear();
+            Rhands.Clear();
+            Lhands.Clear();
         }
 
         ActiveNpcObjectId = 0;
@@ -33,7 +37,7 @@ public static class NetNpcSession
         WindowsOpen = false;
     }
 
-    public static void RememberNpc(int objectId, string name, bool attackable)
+    public static void RememberNpc(int objectId, string name, bool attackable, int rhand = 0, int lhand = 0)
     {
         if (objectId <= 0)
             return;
@@ -42,6 +46,25 @@ public static class NetNpcSession
             Attackable[objectId] = attackable;
             if (!string.IsNullOrEmpty(name))
                 Names[objectId] = name;
+            if (rhand > 0)
+                Rhands[objectId] = rhand;
+            if (lhand > 0)
+                Lhands[objectId] = lhand;
+        }
+    }
+
+    /// <summary>Mobius NpcInfo rhand/lhand when the zone sent them; 0 when unknown.</summary>
+    public static bool TryGetEquipment(int objectId, out int rhand, out int lhand)
+    {
+        rhand = 0;
+        lhand = 0;
+        if (objectId <= 0)
+            return false;
+        lock (Gate)
+        {
+            bool hasR = Rhands.TryGetValue(objectId, out rhand);
+            bool hasL = Lhands.TryGetValue(objectId, out lhand);
+            return hasR || hasL;
         }
     }
 
@@ -51,6 +74,8 @@ public static class NetNpcSession
         {
             Attackable.Remove(objectId);
             Names.Remove(objectId);
+            Rhands.Remove(objectId);
+            Lhands.Remove(objectId);
         }
     }
 

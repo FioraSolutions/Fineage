@@ -8,6 +8,31 @@ public partial class EntityActionVisual
     /// until the zone sends <c>WT_STOP_FAKEDEATH</c>.
     /// </summary>
     static int _fakeDeathPoseEntityId;
+    static int _sitPoseEntityId;
+
+    public static bool IsSitPoseHeld(Entity entity)
+    {
+        return entity != null && entity.Identity != null &&
+            _sitPoseEntityId == entity.Identity.Id;
+    }
+
+    public static bool IsSitPoseHeld(int objectId)
+    {
+        return objectId > 0 && _sitPoseEntityId == objectId;
+    }
+
+    public static void HoldSitPose(Entity entity)
+    {
+        if (entity == null || entity.Identity == null)
+            return;
+        _sitPoseEntityId = entity.Identity.Id;
+    }
+
+    public static void ClearSitPose(Entity entity = null)
+    {
+        if (entity == null || IsSitPoseHeld(entity))
+            _sitPoseEntityId = 0;
+    }
 
     public static bool IsFakeDeathPoseHeld(Entity entity)
     {
@@ -27,6 +52,7 @@ public partial class EntityActionVisual
             return;
 
         ClearFakeDeathPose(entity);
+        ClearSitPose(entity);
         // Only the remote-pawn shape carries the swing latch; the local hero has none.
         if (entity is UserEntity user)
             user.ClearAttackVisual();
@@ -47,6 +73,7 @@ public partial class EntityActionVisual
 
         if (entity is UserEntity user)
             user.ClearAttackVisual();
+        ClearSitPose(entity);
         // The pose interrupts a cast/social channel; drop the hero's swing latch too.
         AnimChannel.Clear();
         CastMoveLock.Clear();

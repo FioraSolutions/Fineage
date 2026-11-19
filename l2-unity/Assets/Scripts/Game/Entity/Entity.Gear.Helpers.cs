@@ -84,6 +84,7 @@ public partial class Entity
 
     private void OnWeaponEquipped(int weaponId, Weapon weapon)
     {
+        CreatureWeaponAnimApply.Bind(this);
         if(weapon != null)
         {
             if(this.GetType() == typeof(PlayerEntity))
