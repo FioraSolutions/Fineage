@@ -43,7 +43,11 @@ public partial class CharacterSelector
 
         Ray ray = _charSelectCamera.ScreenPointToRay(PollInput.MousePosition);
         // EntityClick only: pawn CharacterControllers / stage colliders must not swallow the hit.
-        if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, _characterMask, QueryTriggerInteraction.Collide))
+        int mask = _characterMask;
+        int clickLayer = LobbyPresentation.ClickLayer;
+        if (clickLayer >= 0)
+            mask |= 1 << clickLayer;
+        if (!Physics.Raycast(ray, out RaycastHit hit, 1000f, mask, QueryTriggerInteraction.Collide))
             return;
 
         SelectableCharacterEntity entity = hit.collider.GetComponentInParent<SelectableCharacterEntity>();

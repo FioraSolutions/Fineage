@@ -23,7 +23,7 @@ public static partial class LobbyPresentation
         }
     }
 
-    static int ClickLayer
+    public static int ClickLayer
     {
         get
         {
