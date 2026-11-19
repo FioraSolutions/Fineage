@@ -44,6 +44,15 @@
 - Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageMonsters5.scapegoat_m00`, `LineageNPCs2.iason_haine_m00`.
 - Five Heine meshes already shipped with earlier batches (Blade Stakato drone/soldier, crimson/doll family).
 
+
+**Batch 8 imported (this PR):** unique Oren official Interlude meshes.
+
+- 10 official `LineageMonsters` bodies: Iron Golem, King Bugbear, Oel Mahum / warrior / witch doctor, Zenta Lizardman / matriarch / scout / shaman / warrior.
+- Official pack has no `zenta_lizardman_shaman_t00_ghost` / `_t01_ghost` slots (only `t00` / `t01`); those ghost keys are not invented.
+- Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageNPCs2.gustaf_athebaldt_m00`.
+- Six Oren meshes already shipped with Giran (Batur orcs, Hunter Gargoyle, Troll). Iron Golem also covers the mithril mines unique miss.
+
+---
 ---
 ---
 ---
