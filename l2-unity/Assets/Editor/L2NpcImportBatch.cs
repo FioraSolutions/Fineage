@@ -19,7 +19,7 @@ public static class L2NpcImportBatch
     const string BasicController = "Assets/Resources/Data/Animations/Animator/_Template/Npc_Basic.controller";
     const string OverrideFolder = "Assets/Resources/Data/Animations/Animator/Npc";
     const string ActorShader = "Assets/Resources/Data/Shaders/World/L2ActorModulate2X.shader";
-    static readonly string[] Suffixes = { "_t00_b00", "_t00_b01", "_t00_f", "_t00_h", "_t00_wand", "_t00", "_t01", "_t02" };
+    static readonly string[] Suffixes = { "_t00_b00", "_t00_b01", "_t00_f", "_t00_h", "_t00_wand", "_t00", "_t01", "_t02", "_t03" };
 
     [Serializable]
     class Manifest
@@ -230,13 +230,22 @@ public static class L2NpcImportBatch
             "Assets/Resources/Data/SysTextures/LineageNpcsTex3"
         };
         string[] stems = { item.asset + suf };
+        string meshBase = MeshBaseName(item.asset);
+        if (!string.Equals(meshBase, item.asset, StringComparison.Ordinal))
+            stems = Append(stems, meshBase + suf);
         if (item.textures != null)
         {
             for (int i = 0; i < item.textures.Length; i++)
             {
-                if (SysTextureKey.TrySplit(item.textures[i], out _, out string leaf) &&
-                    leaf.EndsWith(suf, StringComparison.OrdinalIgnoreCase))
+                if (!SysTextureKey.TrySplit(item.textures[i], out _, out string leaf))
+                    continue;
+                string leafAlbedo = StripShaderSuffix(leaf);
+                if (leaf.EndsWith(suf, StringComparison.OrdinalIgnoreCase) ||
+                    leafAlbedo.EndsWith(suf, StringComparison.OrdinalIgnoreCase))
+                {
                     stems = Append(stems, leaf);
+                    stems = Append(stems, leafAlbedo);
+                }
             }
         }
 
@@ -254,6 +263,28 @@ public static class L2NpcImportBatch
         }
 
         return null;
+    }
+
+    static string StripShaderSuffix(string leaf)
+    {
+        if (leaf.EndsWith("_sh", StringComparison.OrdinalIgnoreCase))
+            return leaf.Substring(0, leaf.Length - 3);
+        return leaf;
+    }
+
+    static string MeshBaseName(string asset)
+    {
+        int cut = asset.LastIndexOf('_');
+        if (cut <= 0 || cut >= asset.Length - 1)
+            return asset;
+        if (asset[cut + 1] != 'm' && asset[cut + 1] != 'M')
+            return asset;
+        for (int i = cut + 2; i < asset.Length; i++)
+        {
+            if (!char.IsDigit(asset[i]))
+                return asset;
+        }
+        return asset.Substring(0, cut);
     }
 
     static string[] Append(string[] src, string extra)
