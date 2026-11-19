@@ -2,13 +2,26 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Fallback lines when a <c>SystemMessage</c> arrives with an empty <c>text</c>.
-/// The server normally sends the line already written. Ids 30–38 are quests,
+/// The server normally sends the line already written. Ids 10–20 and 355 / 1688 are enchant, 30–38 are quests,
 /// 180–189 are shops, and 190–209 are gatekeeper, warehouse, and newbie magic.
 /// </summary>
 public static class NetSystemLines
 {
     static readonly Dictionary<int, string> Lines = new Dictionary<int, string>
     {
+        { 10, "Select an item to enchant." },
+        { 11, "You have cancelled the enchanting process." },
+        { 12, "Your {0} has been successfully enchanted." },
+        { 13, "Your +{0} {1} has been successfully enchanted." },
+        { 14, "Enchant failed. The enchant value of the item will be retained." },
+        { 15, "Blessed enchant failed. The enchant value of the item became 0." },
+        { 16, "The equipment +{0} {1} has been removed." },
+        { 17, "{0} has been disarmed." },
+        { 18, "The enchantment has failed. Your +{0} {1} has been crystallized." },
+        { 19, "The enchantment has failed. Your {0} has been crystallized." },
+        { 20, "You have earned {0} {1}." },
+        { 355, "Inappropriate enchant conditions." },
+        { 1688, "You cannot enchant while operating a Private Store or Private Workshop." },
         { 30, "You have acquired the quest {0}." },
         { 31, "You cannot take on any more quests." },
         { 32, "{0} is complete." },

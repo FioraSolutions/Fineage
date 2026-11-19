@@ -50,9 +50,13 @@ public sealed partial class NetSession
 
     internal static void NoteReject(string code, string message)
     {
-        string line = NetRejectLines.Resolve(code, message);
+        string line = NetEnchant.ClearsWindow(code)
+            ? NetEnchant.Notice(code, message)
+            : NetRejectLines.Resolve(code, message);
         if (!string.IsNullOrEmpty(line))
             NetChatFeed.NoteSystem(line);
+        if (NetEnchant.ClearsWindow(code))
+            ItemEnchantPacketServices.Enchant?.AbortZone();
     }
 
     internal void ApplyPlayerStats(PlayerStatsMsg msg)

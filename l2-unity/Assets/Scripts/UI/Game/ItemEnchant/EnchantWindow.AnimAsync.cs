@@ -54,6 +54,8 @@ public partial class EnchantWindow
 
             animElement.style.display = DisplayStyle.None;
             animElement.style.marginTop = 0;
+            if (_pendingCloseFromServer)
+                CloseFromServer();
         }
   
     }

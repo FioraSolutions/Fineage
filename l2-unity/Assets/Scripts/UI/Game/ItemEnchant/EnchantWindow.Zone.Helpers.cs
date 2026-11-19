@@ -17,6 +17,9 @@ public partial class EnchantWindow
         bool cancel = _zoneWire && !_closingFromServer;
         _zoneWire = false;
         _awaitingRoll = false;
+        _pendingCloseFromServer = false;
+        _isRun = false;
+        _isStartAnim = false;
         _scrollObjectId = 0;
         _selectItem = null;
         base.HideWindow();
