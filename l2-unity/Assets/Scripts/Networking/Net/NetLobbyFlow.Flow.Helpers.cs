@@ -60,7 +60,12 @@ public sealed partial class NetLobbyFlow
             {
                 var deleted = NetCodec.DecodeDeleteResult(envelope.Payload);
                 if (!deleted.Ok)
+                {
                     Debug.LogWarning($"[Net] delete/restore failed {deleted.Code}: {deleted.Message}");
+                    if (LoginPacketServices.CharSelect != null)
+                        LoginPacketServices.CharSelect.ShowLobbyStatus(
+                            LobbyCharacterText.ErrorMessage(deleted.Code, deleted.Message));
+                }
                 _deleteResultReceived?.Invoke(deleted);
                 break;
             }
@@ -76,6 +81,11 @@ public sealed partial class NetLobbyFlow
             {
                 var reject = NetCodec.DecodeReject(envelope.Payload);
                 Debug.LogWarning($"[Net] lobby reject {reject.Code}: {reject.Message}");
+                if (CharSelectEnterWorld.IsEntering)
+                {
+                    CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
+                    break;
+                }
                 if (_awaitingLoginUi)
                 {
                     _awaitingLoginUi = false;

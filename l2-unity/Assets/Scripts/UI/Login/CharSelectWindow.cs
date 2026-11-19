@@ -22,6 +22,8 @@ public partial class CharSelectWindow : L2Window
     private int _lobbySelectIndex = -1;
     private bool _deleteArmed;
     private int _deleteArmedSlot = -1;
+    private readonly CharSelectEnterGuard _enterWorld = new CharSelectEnterGuard();
+    private Coroutine _enterTimeout;
     private Button _startButton;
     private Button _deleteButton;
     private Button _createButton;

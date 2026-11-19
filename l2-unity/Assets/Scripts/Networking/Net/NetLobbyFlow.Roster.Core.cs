@@ -59,15 +59,26 @@ public sealed partial class NetLobbyFlow
     public async Task SelectCharacter(int characterId, string name = "", int slot = -1)
     {
         if (_lobby == null || !_lobby.Connected)
+        {
+            _post(() => CharSelectEnterWorld.Failed("Login connection lost."));
             return;
-        await _lobby.SendAsync(
-            NetOpcode.SelectCharacter,
-            NetCodec.EncodeSelectCharacter(new SelectCharacterMsg
-            {
-                CharacterId = characterId,
-                Name = name ?? "",
-                Slot = slot
-            }),
-            _nextSeq());
+        }
+        try
+        {
+            await _lobby.SendAsync(
+                NetOpcode.SelectCharacter,
+                NetCodec.EncodeSelectCharacter(new SelectCharacterMsg
+                {
+                    CharacterId = characterId,
+                    Name = name ?? "",
+                    Slot = slot
+                }),
+                _nextSeq());
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[Net] SelectCharacter failed: " + ex.Message);
+            _post(() => CharSelectEnterWorld.Failed("Login connection lost."));
+        }
     }
 }
