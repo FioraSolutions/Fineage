@@ -220,6 +220,7 @@ public static class L2MFighterSpAtk06Importer
         // Meter contract (Docs/METER_SCALE_MIGRATION.md §5): local positions carry the legacy
         // x100 carrier that the committed clips already had folded out, and the `.ao` node keeps
         // its old 100 scale curve. Both are renormalised here so the new clip matches its siblings.
+        float factor = MeterPositionFactor(src, dst);
         int positions = 0, scales = 0;
         foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(dst))
         {
@@ -228,7 +229,7 @@ public static class L2MFighterSpAtk06Importer
                 AnimationCurve curve = AnimationUtility.GetEditorCurve(dst, binding);
                 if (curve == null || curve.length == 0)
                     continue;
-                AnimationUtility.SetEditorCurve(dst, binding, Scaled(curve, MeterPositionFactor(src, dst)));
+                AnimationUtility.SetEditorCurve(dst, binding, Scaled(curve, factor));
                 positions++;
             }
             else if (binding.propertyName.StartsWith("m_LocalScale", StringComparison.Ordinal) &&
@@ -241,6 +242,10 @@ public static class L2MFighterSpAtk06Importer
                 scales++;
             }
         }
+
+        // Guard: bone lengths must land on the committed rig. Any change in the PSA conversion
+        // units shows up here instead of as a hero that visibly collapses while the gesture plays.
+        string limb = VerifyBoneLength(dst);
 
         var settings = AnimationUtility.GetAnimationClipSettings(dst);
         settings.loopTime = false;
@@ -275,13 +280,36 @@ public static class L2MFighterSpAtk06Importer
         AssetDatabase.ImportAsset(ConvertedMarker);
 
         return $"clip={DestClip} len={dst.length:F3} curves={positions} scaleCurves={scales} " +
-               $"unmapped={unmapped} events={dst.events.Length}";
+               $"factor={factor:F4} {limb} unmapped={unmapped} events={dst.events.Length}";
+    }
+
+    /// <summary>
+    /// Compare the finished clip's leg bone length with the committed rig and report it, so a
+    /// unit regression on the PSA conversion is visible in the build log.
+    /// </summary>
+    static string VerifyBoneLength(AnimationClip clip)
+    {
+        AnimationClip reference = AssetDatabase.LoadAssetAtPath<AnimationClip>(RefClip);
+        Vector3? mine = BoneOffset(clip, "Bip01_L_Calf");
+        Vector3? reff = reference != null ? BoneOffset(reference, "Bip01_L_Calf") : null;
+        if (!mine.HasValue || !reff.HasValue)
+            return "calf=n/a";
+        float expect = reff.Value.magnitude;
+        float actual = mine.Value.magnitude;
+        string verdict = Mathf.Abs(actual - expect) <= expect * 0.02f ? "ok" : "MISMATCH";
+        return $"calf={actual:F4}/{expect:F4} {verdict}";
     }
 
     /// <summary>
     /// Ratio between the imported take and the committed siblings. Read off the reference take
     /// family (SpAtk01_1HS) instead of a constant: the PSA conversion can be re-run with a
     /// different Blender unit setup and a hard-coded factor would silently shrink the hero.
+    ///
+    /// Measured off a bone *length* (`bip01` -> `Bip01_L_Calf`), never off one local coordinate.
+    /// A single axis is pose dependent: `SpAtk06` happens to start with `bip01.y = 0.1813`, the
+    /// same value `SpAtk01_1HS` has at frame 0, so the old probe returned 1.0 and left the take
+    /// on the raw PSA unit. The whole skeleton then stayed 1.9x short at every joint (calf
+    /// 0.1015 instead of 0.1928) and the hero visibly collapsed while the gesture played.
     /// </summary>
     static float MeterPositionFactor(AnimationClip src, AnimationClip dst)
     {
@@ -289,21 +317,68 @@ public static class L2MFighterSpAtk06Importer
         if (reference == null)
             return 100f;
 
-        string path = RootBone + "/bip01";
-        var binding = new EditorCurveBinding
+        float? ratio = BoneLengthRatio(dst, reference, "Bip01_L_Calf")
+                       ?? BoneLengthRatio(dst, reference, "Bip01_L_Forearm");
+        return ratio.HasValue && Mathf.Abs(ratio.Value - 1f) > 1e-4f ? ratio.Value : 100f;
+    }
+
+    /// <summary>
+    /// Reference / probe length of a bone, read as its raw `m_LocalPosition` at frame 0 (that
+    /// value is relative to the parent, so it *is* the bone vector). Both clips share the rest
+    /// skeleton, so the ratio is the pure unit factor of the import.
+    /// </summary>
+    static float? BoneLengthRatio(AnimationClip probe, AnimationClip reference, string bone)
+    {
+        Vector3? mine = BoneOffset(probe, bone);
+        Vector3? reff = BoneOffset(reference, bone);
+        if (!mine.HasValue || !reff.HasValue)
+            return null;
+        float a = mine.Value.magnitude;
+        float b = reff.Value.magnitude;
+        if (a < 1e-5f || b < 1e-5f)
+            return null;
+        return b / a;
+    }
+
+    static Vector3? BoneOffset(AnimationClip clip, string bone)
+    {
+        string path = SkeletonPath(clip, bone);
+        var values = new float[3];
+        for (int axis = 0; axis < 3; axis++)
         {
-            path = path,
-            propertyName = "m_LocalPosition.y",
-            type = typeof(Transform)
-        };
-        AnimationCurve mine = AnimationUtility.GetEditorCurve(dst, binding);
-        AnimationCurve reff = AnimationUtility.GetEditorCurve(reference, binding);
-        if (mine == null || mine.length == 0 || reff == null || reff.length == 0)
-            return 100f;
-        float value = mine[0].value;
-        if (Mathf.Abs(value) < 1e-6f)
-            return 100f;
-        return reff[0].value / value;
+            string prop = axis switch
+            {
+                0 => "m_LocalPosition.x",
+                1 => "m_LocalPosition.y",
+                _ => "m_LocalPosition.z"
+            };
+            AnimationCurve curve = AnimationUtility.GetEditorCurve(clip, new EditorCurveBinding
+            {
+                path = path,
+                propertyName = prop,
+                type = typeof(Transform)
+            });
+            if (curve == null || curve.length == 0)
+                return null;
+            values[axis] = curve[0].value;
+        }
+        return new Vector3(values[0], values[1], values[2]);
+    }
+
+    /// <summary>Committed transform path that ends with the given bone leaf on this clip.</summary>
+    static string SkeletonPath(AnimationClip clip, string leaf)
+    {
+        foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(clip))
+        {
+            string path = binding.path;
+            if (string.IsNullOrEmpty(path) ||
+                !path.StartsWith(RootBone + "/", StringComparison.Ordinal))
+                continue;
+            if (path.Substring(path.LastIndexOf('/') + 1)
+                .Equals(leaf, StringComparison.OrdinalIgnoreCase))
+                return path;
+        }
+        return RootBone + "/" + leaf;
     }
 
     static AnimationCurve Scaled(AnimationCurve curve, float factor)
