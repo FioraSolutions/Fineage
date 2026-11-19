@@ -82,12 +82,12 @@ public static partial class EntitySpawnShared
 
         var root = new GameObject("treasure_chest_standin");
         root.SetActive(false);
-        Object.DontDestroyOnLoad(root);
+        UnityEngine.Object.DontDestroyOnLoad(root);
 
         GameObject dropBox = Resources.Load<GameObject>("Data/StaticMeshes/dropitems/drop_box_m00");
         if (dropBox != null)
         {
-            GameObject child = Object.Instantiate(dropBox, root.transform);
+            GameObject child = UnityEngine.Object.Instantiate(dropBox, root.transform);
             child.name = "drop_box_m00";
             child.transform.localPosition = Vector3.zero;
             child.transform.localRotation = Quaternion.identity;
@@ -170,6 +170,6 @@ public static partial class EntitySpawnShared
         renderer.sharedMaterial = material;
         var collider = go.GetComponent<Collider>();
         if (collider != null)
-            Object.DestroyImmediate(collider);
+            UnityEngine.Object.DestroyImmediate(collider);
     }
 }
