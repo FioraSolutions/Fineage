@@ -57,7 +57,7 @@ public partial class CharSelectWindow
             {
                 _deleteArmed = true;
                 _deleteArmedSlot = selected.Slot;
-                ShowLobbyStatus("Delete " + selected.Name + "? Press Delete again to confirm.");
+                ShowLobbyStatus("Delete " + selected.Name + " permanently? Press Delete again to confirm.");
                 RefreshLobbyActions();
                 return;
             }

@@ -31,6 +31,11 @@ public sealed partial class NetLobbyFlow
 
     public void Dispose()
     {
+        DisposeLobby();
+    }
+
+    public void DisposeLobby()
+    {
         _lobby?.Dispose();
         _lobby = null;
     }
@@ -38,6 +43,12 @@ public sealed partial class NetLobbyFlow
     void OnLobbyClosed(string reason)
     {
         Debug.Log("[Net] lobby " + reason);
+        if (CharSelectEnterWorld.IsEntering)
+        {
+            _awaitingLoginUi = false;
+            CharSelectEnterWorld.Failed("Login connection lost.");
+            return;
+        }
         if (!_awaitingLoginUi)
             return;
         _awaitingLoginUi = false;

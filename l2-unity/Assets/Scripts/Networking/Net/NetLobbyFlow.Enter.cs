@@ -12,13 +12,17 @@ public sealed partial class NetLobbyFlow
         _resetSessionObjectId();
         try
         {
-            _lobby?.Dispose();
-            _lobby = null;
+            // Keep the login socket until the world spawn lands so a zone refusal
+            // or restart can re-enable Start and let the player retry.
             await _connectZoneForHandoff(handoff);
         }
         catch (Exception ex)
         {
             Debug.LogError("[Net] EnterZone failed: " + ex.Message);
+            string line = string.IsNullOrWhiteSpace(ex.Message)
+                ? "Could not enter the world. Try again."
+                : ex.Message;
+            _post(() => CharSelectEnterWorld.Failed(line));
         }
     }
 
