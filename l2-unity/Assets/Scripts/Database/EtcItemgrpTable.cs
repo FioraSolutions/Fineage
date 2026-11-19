@@ -41,5 +41,7 @@ public partial class EtcItemgrpTable
     const int InterludeIcon = 13;
     const int InterludeWeight = 19;
     const int InterludeEquipMesh = 24;
+    const int InterludeStackable = 29;
+    const int InterludeFamily = 30;
     const int InterludeGrade = 31;
 }

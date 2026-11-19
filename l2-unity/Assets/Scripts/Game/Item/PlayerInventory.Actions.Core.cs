@@ -40,9 +40,13 @@ public partial class PlayerInventory
 
     static bool IsEnchantScroll(ItemInstance item)
     {
-        if (item.ItemData is EtcItem etcItem)
-            return NetEnchant.IsScrollType(etcItem.EtcItemgrp.EtcItemType.ToString());
-        return false;
+        if (item == null)
+            return false;
+        EtcItem etcItem = item.ItemData as EtcItem;
+        if (etcItem == null)
+            return false;
+        string etcType = etcItem.EtcItemgrp != null ? etcItem.EtcItemgrp.EtcItemType : null;
+        return NetEnchant.IsScrollType(etcType);
     }
 
     private void UseRecipeItem(int objectIdEtcType , int objectId, bool isShortCut)
