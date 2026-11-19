@@ -29,8 +29,7 @@ public static partial class WorldPlacement
     }
 
     /// <summary>
-    /// Mesh height SoT layers (#931). Deco is excluded — Interlude foliage/canopy is not walk height.
-    /// Import must keep tree MeshColliders off this mask (prefer Deco / non-walk layer); name filter is a stopgap.
+    /// Walkable height layers. Water, foliage (Deco), and actors are not ground.
     /// </summary>
     static LayerMask WalkableMask(LayerMask? groundMask)
     {
@@ -39,7 +38,16 @@ public static partial class WorldPlacement
             : ResolveDefaultGroundMask();
         mask |= LayerMask.GetMask("Default", "Terrain", "StaticMesh", "Brush", "AllowWalk", "Obstacle");
         mask &= ~LayerMask.GetMask(
-            "Entity", "EntityClick", "DropItem", "Player", "UI", "Ignore Raycast", "SkillEffect", "Deco");
+            "Entity", "EntityClick", "DropItem", "Player", "UI", "Ignore Raycast",
+            "SkillEffect", "Deco", "Water", "TransparentFX");
         return mask;
+    }
+
+    static LayerMask WaterQueryMask()
+    {
+        int water = LayerMask.NameToLayer("Water");
+        if (water < 0)
+            return 0;
+        return 1 << water;
     }
 }

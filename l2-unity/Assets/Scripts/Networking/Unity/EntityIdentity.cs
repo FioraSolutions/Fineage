@@ -20,6 +20,13 @@ public partial class EntityIdentity
     [SerializeField] private Vector3 _position = new Vector3(4724, -68, -1731);
     [SerializeField] private Quaternion _heading;
 
+    /// <summary>
+    /// Last server-authored Unity position. Visual snaps must not overwrite this;
+    /// retries and gravity use its Y as the grounding authority.
+    /// </summary>
+    Vector3 _serverPosition;
+    bool _hasServerPosition;
+
     private float _origHeading;
     private int _clanId;
 
@@ -38,6 +45,21 @@ public partial class EntityIdentity
     public string Title { get => _title; set => _title = value; }
     public string TitleColor { get => _titleColor; set => _titleColor = value; }
     public Vector3 Position { get => _position; set => _position = value; }
+    public Vector3 ServerPosition => _hasServerPosition ? _serverPosition : _position;
+
+    public void RememberServerPosition()
+    {
+        if (_hasServerPosition)
+            return;
+        _serverPosition = _position;
+        _hasServerPosition = true;
+    }
+
+    public void SetServerPosition(Vector3 unityPos)
+    {
+        _serverPosition = unityPos;
+        _hasServerPosition = true;
+    }
     public Quaternion Heading { get => _heading; set => _heading = value; }
 
     public float OrigHeading { get => _origHeading; set => _origHeading = value; }

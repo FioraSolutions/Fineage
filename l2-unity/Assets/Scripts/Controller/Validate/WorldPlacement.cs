@@ -16,26 +16,18 @@ public static partial class WorldPlacement
     public const float DefaultStartAbove = 50f;
     public const float DefaultMaxDistance = 300f;
 
-    /// <summary>Near-tie epsilon: prefer higher deck when Δ(serverY) is almost equal.</summary>
-    const float NearTieMeters = 0.75f;
+    /// <summary>Deprecated alias of <see cref="WorldGrounding.SnapToleranceMeters"/>.</summary>
+    public const float CaveDeckMeters = WorldGrounding.SnapToleranceMeters;
+
+    /// <summary>Deprecated alias of <see cref="WorldGrounding.SnapToleranceMeters"/>.</summary>
+    public const float TownFloorDropMeters = WorldGrounding.SnapToleranceMeters;
+
+    /// <summary>Deprecated alias of <see cref="WorldGrounding.SnapToleranceMeters"/>.</summary>
+    public const float TownFloorLiftMeters = WorldGrounding.SnapToleranceMeters;
 
     /// <summary>
-    /// Dark Elf street sits about 3 m under the server Z. The next shell is about 9 m
-    /// below that. Anything farther than this is the basement, not the floor.
+    /// Resolve a Unity world position: server Y is the authority, walkable
+    /// mesh/terrain (not water) within <see cref="WorldGrounding.SnapToleranceMeters"/>
+    /// may replace it. Every placement kind shares this pipeline.
     /// </summary>
-    public const float CaveDeckMeters = 4.2f;
-
-    /// <summary>
-    /// Town server Z often sits on the geodata node, half a metre to two metres above
-    /// the brush floor (Gludin plaza is ~0.5 m). Farther than this is the next storey.
-    /// </summary>
-    public const float TownFloorDropMeters = 2.4f;
-
-    /// <summary>
-    /// Geodata nodes in town sit under the brush (orc camp, TI). A body already
-    /// under that sheet must be lifted onto it. Farther than this is another floor.
-    /// </summary>
-    public const float TownFloorLiftMeters = 8f;
-
-    /// <summary>Resolve a Unity world position for the given placement kind.</summary>
 }

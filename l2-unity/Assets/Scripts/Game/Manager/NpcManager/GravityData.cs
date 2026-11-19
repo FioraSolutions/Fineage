@@ -9,6 +9,8 @@ public class GravityData
     /// </summary>
     public int ArmFrames = 2;
 
+    public Entity Entity => _entity;
+
     public GravityData(Entity entity)
     {
         _entity = entity;

@@ -37,12 +37,12 @@ public sealed partial class NameplateTextDrawer
                 continue;
             }
 
-            float depth = screen.z;
+            float depth = L2NameplateScreenBatch.ClipNdcZ(cam, item.World);
             float ax = screen.x;
             float ay = screen.y;
             if (SnapAnchorToPixels && snap != null)
             {
-                float snapDist = (item.IsLocalPlayer && orbitDist > 0.05f) ? orbitDist : depth;
+                float snapDist = (item.IsLocalPlayer && orbitDist > 0.05f) ? orbitDist : screen.z;
                 ax = snap.Snap(item.Id, screen.x, true, snapDist);
                 ay = snap.Snap(item.Id, screen.y, false, snapDist);
             }
