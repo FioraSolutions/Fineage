@@ -21,6 +21,8 @@ public sealed partial class WorldPacketApply
         if (dto == null)
             return;
         Entity entity = GetEntity(dto.ObjectId);
+        if (entity == null)
+            entity = LocalCasterOrNull(dto.ObjectId);
         EntityWorldApply apply;
         if (entity == null || !TryResolve(entity, out apply))
             return;
