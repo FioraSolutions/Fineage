@@ -8,7 +8,7 @@ public sealed partial class EntityActionMove : IEntityActionProcess
 
     void StartMoveToPoint(Entity entity, Vector3 destination)
     {
-        if (entity is UserEntity && entity.Identity != null)
+        if (entity.Identity != null)
             entity.Running = entity.Identity.IsRunning;
 
         if (entity is UserEntity && GaitLog.Enabled)

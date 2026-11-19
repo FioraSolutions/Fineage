@@ -97,6 +97,38 @@ public partial class SetupDurationHelper
         return false;
     }
 
+    /// <summary>
+    /// Skillgrp combos that play a cast/throw cycle (Cast*, MagicThrow, MagicShot, MagicNoTarget)
+    /// must use the override/cast runner even when is_magic is 0 (e.g. Sand Bomb animation L).
+    /// Mix / SpAtk physical combos stay on the physical path.
+    /// </summary>
+    public static bool IsCastStyleCombo(MagicSkillUseDto useSkill)
+    {
+        if (!TryGetPlayableCombo(useSkill, out AnimationCombo combo) || combo == null)
+            return false;
+
+        string[] cycle = combo.GetAnimCycle();
+        if (cycle == null)
+            return false;
+
+        for (int i = 0; i < cycle.Length; i++)
+        {
+            string name = cycle[i];
+            if (string.IsNullOrWhiteSpace(name))
+                continue;
+            string trimmed = name.Trim();
+            if (string.Equals(trimmed, "none", System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (trimmed.StartsWith("Cast", System.StringComparison.Ordinal) ||
+                trimmed.StartsWith("MagicThrow", System.StringComparison.Ordinal) ||
+                trimmed.StartsWith("MagicShot", System.StringComparison.Ordinal) ||
+                trimmed.StartsWith("MagicNoTarget", System.StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
     public static bool IsPickupAnimationPlaying(int objectId)
     {
         if (ControllerPacketServices.Animations == null)
