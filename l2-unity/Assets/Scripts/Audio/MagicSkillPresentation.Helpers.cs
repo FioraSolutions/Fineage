@@ -49,7 +49,11 @@ public static partial class MagicSkillPresentation
         if (grp == null && TablePacketServices.SkillGrps != null)
             grp = TablePacketServices.SkillGrps.GetSkill(dto.SkillId, dto.SkillLvl);
 
-        bool isMagic = grp == null || grp.IsMagic == 1;
+        // Interlude starts the cast graph from the skillgrp animation tag, not from is_magic: Trick (11) and
+        // Switch (12) are is_magic=0 yet animate {[C]} (CastShort → CastEnd → MagicThrow). Sending them down
+        // the physical intention dropped the cast bar and handed CastShort/MagicThrow to StartRun, which has
+        // no such animator states — the hero cast nothing and the art stayed on the caster.
+        bool isMagic = grp == null || grp.IsMagic == 1 || SetupDurationHelper.UsesCastAnimation(dto);
         Debug.Log(
             "[CastSync] CAST.begin skill=" + dto.SkillId +
             " lv=" + dto.SkillLvl +

@@ -29,9 +29,21 @@ public partial class EntityActionSkill
         return ControllerPacketServices.Animations.GetAnimationEvents(entity.Identity.Id);
     }
 
+    /// <summary>
+    /// True when the skill must run through the cast graph. <c>is_magic=1</c> is the mage flag, but the
+    /// Interlude client really keys the animation off the skillgrp <c>animation</c> tag: Trick (11) and
+    /// Switch (12) are <c>is_magic=0</c> dagger utilities with <c>{[C]}</c> = CastShort → CastEnd →
+    /// MagicThrow, and Spoil (254) / Unlock (27) sit on full cast tags too. Those tags are only patches
+    /// over the cast graph — CastShort maps to CastMid, MagicThrow to MagicShot — so they must take the
+    /// override runner (cast bar, stationary cast, shoot notify, split target art). The physical path
+    /// asked StartRun for a "CastShort_" / "MagicThrow_" state that does not exist: the hero stood still,
+    /// the packet timing ran out with no art at all, and no cast bar appeared.
+    /// </summary>
     static bool IsMagicSkill(MagicSkillUseDto magic)
     {
-        return magic != null && magic.SkillGrp != null && magic.SkillGrp.IsMagic == 1;
+        if (magic == null || magic.SkillGrp == null)
+            return false;
+        return magic.SkillGrp.IsMagic == 1 || SetupDurationHelper.UsesCastAnimation(magic);
     }
 
     /// <summary>
