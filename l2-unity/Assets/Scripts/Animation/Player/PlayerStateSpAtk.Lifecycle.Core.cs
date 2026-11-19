@@ -23,6 +23,14 @@ public partial class PlayerStateSpAtk : StateMachineBehaviour
 
         debugMotionName = behaviour.motionName;
         float clipLength = AnimationDataCache.GetOverrideLength(animator, behaviour.motionName);
+
+        // Buff gesture: no hit window to sync to, the clip simply plays at its authored rate.
+        if (IsSpAtk06Gesture(behaviour.motionName))
+        {
+            wallDurationSeconds = (SwitchToIdleNormalizedTime * clipLength) / AnimPlayback.AuthoredRate;
+            return wallDurationSeconds > 0f;
+        }
+
         float startHit = AnimationDataCache.GetEventTimeByName(animator, behaviour.motionName, behaviour.eventStartHitName);
         float endHit = AnimationDataCache.GetEventTimeByName(animator, behaviour.motionName, behaviour.eventEndHitName);
         float hitWindowCenter = (startHit + endHit) * 0.5f;

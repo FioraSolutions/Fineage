@@ -56,12 +56,12 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                     SetupDurationHelper.SetupDurationIfHitTimeNot0(
                         useSkill, entity.Identity.Id, entity, castCombo);
                     // Physical self skills (Ultimate Evasion X, Dash X, Focus Chance X, Escape Shackle X)
-                    // are tags that map to SpAtk06, and there is no SpAtk06 animator state or override
-                    // clip for the player races. The override runner then maps the single clip to the
-                    // "CastEnd" trigger, which plays the magic cast pose and never fires the SpAtk SMB —
-                    // the hero stands frozen (UE/Dash/Focus Chance) or shows the crooked cast pose
-                    // (Escape Shackle). StartRun plays the combat CrossFade instead, which resolves to the
-                    // real SpAtk01_1HS swing for the equipped weapon.
+                    // are tags that map to SpAtk06 → the shared SpAtk06_hand buff gesture on the
+                    // template controller (each race override points it at its own
+                    // *_ao_SpAtk06_Hand_* clip). The override runner would map that single clip to
+                    // the "CastEnd" trigger, which plays the magic cast pose and never fires the
+                    // SpAtk SMB — the hero stands frozen. StartRun plays the combat CrossFade
+                    // instead, which resolves SpAtk06_<weapon> to SpAtk06_hand.
                     _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
                         entity, castCombo, _events);
                     SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill, castCombo);

@@ -110,6 +110,16 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         if (stateName.EndsWith("_hand", System.StringComparison.Ordinal))
             return stateName;
 
+        // SpAtk06 is the retail self-buff gesture (AnimationCombo_Classic "X":
+        // Ultimate Evasion / Dash / Focus Chance / Escape Shackle). In every race's
+        // MFighter_anim etc. the only SpAtk06 pose is *_SpAtk06_Hand_<Race>, a hands-up
+        // buff with no weapon: equipment never adds a suffix. Asking for SpAtk06_1HS
+        // (or _bow / _dual_dagger …) must land on SpAtk06_hand, never on SpAtk01_1HS
+        // (a sword swing that also fires AttackShot at the selected mob).
+        if (stateName.IndexOf("SpAtk06_", System.StringComparison.Ordinal) == 0 &&
+            HasCombatState(controller, SpAtk06HandState))
+            return SpAtk06HandState;
+
         string oneHs = stem + "1HS";
         if (!string.Equals(oneHs, stateName, System.StringComparison.Ordinal) &&
             HasCombatState(controller, oneHs))
@@ -124,9 +134,9 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
 
     /// <summary>
     /// Finish event name the SMB will report for <paramref name="triggerName"/>. Physical self skills such
-    /// as Ultimate Evasion (X → SpAtk06) have no SpAtk06 animator state, so the CrossFade plays the
-    /// weapon's real swing (SpAtk01_1HS) and the SMB reports that name. Awaiting the raw tag would leave
-    /// the runner stuck and keep the cast channel held.
+    /// as Ultimate Evasion (X → SpAtk06) resolve to the shared <c>SpAtk06_hand</c> buff gesture, whose SMB
+    /// reports that state name. Awaiting the raw tag would leave the runner stuck and keep the cast
+    /// channel held.
     /// </summary>
     private string ResolveAwaitFinishName(int objectId, string triggerName)
     {
@@ -142,6 +152,9 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
 
         return ResolvePlayableCombatState(controller, stateName);
     }
+
+    /// <summary>Retail self-buff gesture state shared by every race's controller.</summary>
+    const string SpAtk06HandState = "SpAtk06_hand";
 
     static bool HasCombatState(IAnimationController controller, string stateName)
     {
