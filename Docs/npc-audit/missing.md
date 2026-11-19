@@ -16,11 +16,18 @@
 - Official Interlude has no `LineageNPCs2.agit_maid_a_m00` mesh or `agit_maid_a` textures (Classic clan-hall maid). Dion maid Borna (35402) is not invented from another outfit; she stays outstanding.
 - Shared official anims were resolved generally: token-set (`ant_soldier` ↔ `soldier_ant_anim`), typo (`manadragora` ↔ `mandragora_anim`, `marsh_stakato` ↔ official `marsh_stakarto_anim`), `_sp` last-resort textures for ants / noble ant / marsh stakato drone.
 
+**Batch 4 imported (this PR):** Aden unique missing meshes after a full-world spawn audit.
+
+- Full audit of all 189 backend spawn files. Remaining unique missing meshes, ranked by **new** unique missing meshes (not already in start/Gludin/Gludio/Dion): field tiles 56, **Aden 50**, Giran 47, catacombs/necropolises 34, Heine 28, Oren 20, Goddard 12, Rune 5, Schuttgart 5, Hunter 2, mithril mines 1. Field tiles overlap later named regions, so Aden is the first named-region batch.
+- 45 official Interlude bodies imported: 41 `LineageMonsters` + 2 `LineageMonsters2` (bandersnatch, brain_buster) + maid `a_maidA_FHuman_m00` + `coffer_b_m00`.
+- Shared official anims: `ketra_orc_*_a` → `ketra_orc_*_anim`, `brain_buster` → official `brain_burster_anim`, `blue_eye_m00` (Kaleidos) → official `Unicorn_anim` (no `blue_eye_anim` exists). Official pack has no `brain_buster_t01`.
+- Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageMonsters14.ancient_giant_bowgun_m00`, `LineageMonsters14.ancient_giant_warrior_m00`, `LineageNPCs2.madam_claudia_m00`, `LineageNPCs4.a_traderB_Mhuman_pet_m00`, `LineageNpcsEV.n_event_stakato_egg_m00`.
+
 ---
 
 Meshes were exported from the official Interlude `LineageMonsters.ukx` / `LineageMonsters2.ukx` and `lineagemonsterstex*.utx` with umodel, converted PSK+PSA → FBX with the existing `psk_psa_to_fbx.py` pipeline (wolf.fbx scale reference), then wired like keltir via `L2MonsterImportBatch` (clips, `Monster_Basic` override, click_area, capsule). No per-mob gameplay branches.
 
-Npcgrp package names for these spawn ids already match official Interlude UKX (no mapping fixes in this batch). Batches 1–3 cover start areas, Gludin, and the unique Gludio/Dion meshes listed above. The Classic-only `agit_maid_a_m00` body has no official Interlude source.
+Npcgrp package names for these spawn ids already match official Interlude UKX (no mapping fixes in this batch). Batches 1–4 cover start areas, Gludin, unique Gludio/Dion meshes, and Aden. Classic-only bodies still without an official Interlude source: `agit_maid_a_m00`, plus the five Aden remaster/event meshes listed under Batch 4.
 
 ---
 
@@ -29,7 +36,7 @@ Audit of backend spawn `npcId`s against `Npcgrp_Classic.txt` and Unity Resources
 Load path is `ModelTable.GetOrLoadNpc(package.asset)` → `Data/Animations/{package}/{asset}`.
 Monster package typo is fatal: FallbackCreate only retries `LineageNPC*` packages, not monsters.
 
-Regions: start areas (Talking Island, Dark Elf, Elf, Orc, Dwarf), then Gludin (incl. bears), Gludio, Dion.
+Regions: all Interlude spawn files (start areas, Gludin, Gludio, Dion, Giran, Oren, Aden, Heine, Goddard, Rune, Schuttgart, Hunter, catacombs/necropolises, remaining field tiles, etc.).
 
 ## Currently imported meshes
 
