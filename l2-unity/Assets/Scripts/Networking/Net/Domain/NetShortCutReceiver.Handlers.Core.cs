@@ -60,15 +60,11 @@ public static partial class NetShortCutReceiver
         if (msg == null)
             return;
 
-        PlayerEntity player = DomainPacketServices.LocalPlayer;
-        if (player == null || player.Identity == null)
-            return;
-        if ((ulong)player.Identity.Id != msg.EntityValue)
+        World world = WorldApplyPacketServices.GameWorld ?? ControllerPacketServices.GameWorld;
+        Entity entity = world != null ? world.GetEntityNoLockSync((int)msg.EntityValue) : null;
+        if (entity == null)
             return;
 
-        if (msg.RunSpeed > 0.001f)
-            player.UpdateRunSpeed(msg.RunSpeed);
-        if (msg.WalkSpeed > 0.001f)
-            player.UpdateWalkSpeed(msg.WalkSpeed);
+        MovementGaitApply.Apply(entity, msg.Running, msg.RunSpeed, msg.WalkSpeed);
     }
 }
