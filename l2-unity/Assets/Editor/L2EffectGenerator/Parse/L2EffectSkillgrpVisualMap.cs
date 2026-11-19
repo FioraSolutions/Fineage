@@ -12,7 +12,9 @@ using UnityEditor;
 /// </summary>
 public static class L2EffectSkillgrpVisualMap
 {
-    public const string DefaultAssetPath = "Assets/StreamingAssets/Data/Meta/Skillgrp_Classic.txt";
+    public const string InterludeAssetPath = "Assets/StreamingAssets/Data/Meta/Skillgrp_Interlude.txt";
+    public const string ClassicAssetPath = "Assets/StreamingAssets/Data/Meta/Skillgrp_Classic.txt";
+    public const string DefaultAssetPath = InterludeAssetPath;
 
     static readonly Regex SkillIdRegex = new Regex(@"skill_id=(\d+)", RegexOptions.Compiled);
     static readonly Regex VisualRegex = new Regex(@"skill_visual_effect=\[(\d+)\]", RegexOptions.Compiled);
@@ -86,19 +88,30 @@ public static class L2EffectSkillgrpVisualMap
 
     static string ResolveAssetPath()
     {
-        if (File.Exists(Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", DefaultAssetPath))))
+        // Prefer official Interlude skillgrp (visual lives in desc, exported as
+        // skill_visual_effect). Fall back to Classic when the Interlude table is absent.
+        string[] candidates = { InterludeAssetPath, ClassicAssetPath };
+        for (int c = 0; c < candidates.Length; c++)
         {
-            return DefaultAssetPath;
+            if (File.Exists(Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", candidates[c]))))
+            {
+                return candidates[c];
+            }
         }
 
-        string[] guids = AssetDatabase.FindAssets("Skillgrp_Classic");
-        for (int i = 0; i < guids.Length; i++)
+        string[] names = { "Skillgrp_Interlude", "Skillgrp_Classic" };
+        for (int n = 0; n < names.Length; n++)
         {
-            string path = AssetDatabase.GUIDToAssetPath(guids[i]);
-            if (!string.IsNullOrEmpty(path) &&
-                path.EndsWith("Skillgrp_Classic.txt", StringComparison.OrdinalIgnoreCase))
+            string[] guids = AssetDatabase.FindAssets(names[n]);
+            string suffix = names[n] + ".txt";
+            for (int i = 0; i < guids.Length; i++)
             {
-                return path;
+                string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+                if (!string.IsNullOrEmpty(path) &&
+                    path.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return path;
+                }
             }
         }
 

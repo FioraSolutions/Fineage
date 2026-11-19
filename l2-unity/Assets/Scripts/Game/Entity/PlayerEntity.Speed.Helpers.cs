@@ -14,14 +14,14 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateRunSpeed(converted);
 
-        float anim_converted = LocomotionGait.Rate(
+        float anim_converted = global::LocomotionGait.Rate(
             AnimationPacketServices.PlayerAnimation != null
                 ? AnimationPacketServices.PlayerAnimation.GetAnimator()
                 : null,
             AnimationNames.RUN.Concat(WeaponSuffix()),
             converted,
-            LocomotionGait.MinRunRate,
-            LocomotionGait.MaxRate);
+            global::LocomotionGait.MinRunRate,
+            global::LocomotionGait.MaxRate);
         AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
 
         _lastServerRunSpeed = serverValue;
@@ -31,14 +31,14 @@ public partial class PlayerEntity
     public void RefreshRunSpeed()
     {
         float unity = NumberUtils.ScaleToUnity(_lastServerRunSpeed > 0.001f ? _lastServerRunSpeed : 120f);
-        float anim_converted = LocomotionGait.Rate(
+        float anim_converted = global::LocomotionGait.Rate(
             AnimationPacketServices.PlayerAnimation != null
                 ? AnimationPacketServices.PlayerAnimation.GetAnimator()
                 : null,
             AnimationNames.RUN.Concat(WeaponSuffix()),
             unity,
-            LocomotionGait.MinRunRate,
-            LocomotionGait.MaxRate);
+            global::LocomotionGait.MinRunRate,
+            global::LocomotionGait.MaxRate);
         AnimationPacketServices.PlayerAnimation?.SetRunSpeed(anim_converted);
     }
 
@@ -51,14 +51,14 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateWalkSpeed(converted);
 
-        float anim_converted = LocomotionGait.Rate(
+        float anim_converted = global::LocomotionGait.Rate(
             AnimationPacketServices.PlayerAnimation != null
                 ? AnimationPacketServices.PlayerAnimation.GetAnimator()
                 : null,
             AnimationNames.WALK.Concat(WeaponSuffix()),
             converted,
-            LocomotionGait.MinWalkRate,
-            LocomotionGait.MaxRate);
+            global::LocomotionGait.MinWalkRate,
+            global::LocomotionGait.MaxRate);
         AnimationPacketServices.PlayerAnimation?.SetWalkSpeed(anim_converted);
 
         return converted;
