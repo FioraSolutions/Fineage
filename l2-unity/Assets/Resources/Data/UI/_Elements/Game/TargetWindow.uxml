@@ -23,8 +23,9 @@
             <ui:VisualElement name="Back3" class="target-back3" picking-mode="Ignore" style="width: 19px; min-width: 19px; max-width: 19px; margin: 0; padding: 0;" />
             <!-- NameCtrl UserName x=12 y=9 h=14: Tahoma 11 white, retail black shadow. -->
             <ui:Label name="TargetName" text="" class="target-name" picking-mode="Ignore" style="position: absolute; left: 12px; right: 22px; top: 9px; height: 14px; margin: 0; padding: 0;" />
-            <!-- barHP x=16 y=26 h=6: the 8x6 retail strip stretches across the plate. -->
-            <ui:VisualElement name="HPBarContainer" class="target-bar-container l2-bar-percent-fill" picking-mode="Ignore" style="position: absolute; left: 16px; right: 2px; top: 26px; height: 6px; margin: 0; padding: 0;">
+            <!-- barHP x=16 y=26 h=6: the 8x6 retail strip stretches across the plate and stops
+                 at the 19px SmallWindow_Back3_ex right cap, exactly like the client. -->
+            <ui:VisualElement name="HPBarContainer" class="target-bar-container l2-bar-percent-fill" picking-mode="Ignore" style="position: absolute; left: 16px; right: 19px; top: 26px; height: 6px; margin: 0; padding: 0;">
                 <ui:VisualElement name="HPBarBG" class="target-bar-back" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; top: 0; height: 6px; margin: 0; padding: 0;" />
                 <ui:VisualElement name="HPBar" class="target-bar-fill" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; height: 6px; width: 100%; margin: 0; padding: 0;" />
             </ui:VisualElement>
@@ -38,11 +39,15 @@
             </ui:Button>
         </ui:VisualElement>
         <!-- Horizontal resize grip: sibling of the drag plate, kept off the drag-area so both
-             manipulators do not fight for the pointer. Height tracks the 46/76px plate. -->
-        <ui:VisualElement name="SizeControl" class="target-size-control" style="position: absolute; right: 0; top: 0; width: 5px; max-width: 5px; margin: 0; padding: 0; background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1'); -unity-slice-scale: 1px; -unity-slice-top: 3; -unity-slice-bottom: 3; -unity-slice-left: 0; -unity-slice-right: 0;">
-            <ui:VisualElement name="SizeControlHandle" class="hor-resize-handle resize-hor" style="position: absolute; top: 0; left: 0; width: 5px; margin: 0; padding: 0; background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2'); -unity-slice-scale: 0; -unity-slice-top: 0; -unity-slice-bottom: 0; -unity-slice-left: 0; -unity-slice-right: 8;" />
+             manipulators do not fight for the pointer. Height tracks the 46/76px plate. The grip
+             art is applied by USS on hover only — retail has no grip and it used to paint over
+             the SmallWindow_Back3_ex right cap. -->
+        <ui:VisualElement name="SizeControl" class="target-size-control" style="position: absolute; right: 0; top: 0; width: 5px; max-width: 5px; margin: 0; padding: 0;">
+            <ui:VisualElement name="SizeControlHandle" class="hor-resize-handle resize-hor" style="position: absolute; top: 0; left: 0; width: 5px; margin: 0; padding: 0;" />
         </ui:VisualElement>
-        <!-- Target abnormal strip: monsters/NPCs only, flows under the plate like BuffWnd. -->
-        <ui:VisualElement name="EffectsRow" class="target-effects-row" style="display: none; flex-direction: row; flex-wrap: wrap; align-items: flex-start; flex-grow: 0; flex-shrink: 0; margin: 1px 0 0 16px; padding: 0;" />
+        <!-- Target abnormal strip: monsters/NPCs only. It is painted UNDER the plate as an
+             overlay, exactly like BuffWnd hangs below its own window: as a flex sibling it
+             added its 24px row to the GroupBox and the plate looked like a tall empty box. -->
+        <ui:VisualElement name="EffectsRow" class="target-effects-row" picking-mode="Ignore" style="display: none; margin: 0; padding: 0;" />
     </ui:GroupBox>
 </ui:UXML>

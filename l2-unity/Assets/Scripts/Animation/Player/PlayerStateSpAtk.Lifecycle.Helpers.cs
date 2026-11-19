@@ -97,13 +97,25 @@ public partial class PlayerStateSpAtk : StateMachineBehaviour
             clipLength = Mathf.Max(stateInfo.length, 0.01f);
 
         // Self-buff gesture (SpAtk06_hand: Ultimate Evasion, Dash, Focus Chance, Escape Shackle).
-        // The retail clip carries no hit notify — there is no swing to sync to server HitTime —
-        // so it must run at its authored 30 fps length. Feeding it the attack-speed cycle would
-        // stretch a 1.5 s buff into the PAtk cycle (or blast it at dagger speed).
+        // The retail clip carries no hit notify, so there is no hit window to sync to. It must
+        // still finish with the server cast, otherwise a 1 s Dash keeps gesturing for 1.5 s after
+        // the buff is already applied. Fit the gesture to the same wall time the other SpAtk
+        // families use: SwitchToIdle at the packet HitTime.
         if (IsAuthoredTimingGesture())
         {
-            _linearPatkSpd = AnimPlayback.AuthoredRate;
-            _serverHitTime = clipLength / Mathf.Max(0.01f, _linearPatkSpd);
+            int gestureCycleMs = serverTimeMs > 0 ? serverTimeMs : 0;
+            float gestureSeconds = (gestureCycleMs / 1000f) - HitTimeCompensationSeconds;
+            if (gestureSeconds >= MinServerHitSeconds)
+            {
+                _serverHitTime = gestureSeconds;
+                // Whole clip (to the SwitchToIdle mark) has to land on the server cast end.
+                _linearPatkSpd = (SwitchToIdleNormalizedTime * clipLength) / gestureSeconds;
+            }
+            else
+            {
+                _linearPatkSpd = AnimPlayback.AuthoredRate;
+                _serverHitTime = clipLength / Mathf.Max(0.01f, _linearPatkSpd);
+            }
             Animations.SetPAtkSpeed(objectId, _linearPatkSpd);
         }
         else if (serverTimeMs > 0 && _eventHitTimeInClip > 0.01f)

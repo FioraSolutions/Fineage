@@ -24,10 +24,18 @@ public partial class PlayerStateSpAtk : StateMachineBehaviour
         debugMotionName = behaviour.motionName;
         float clipLength = AnimationDataCache.GetOverrideLength(animator, behaviour.motionName);
 
-        // Buff gesture: no hit window to sync to, the clip simply plays at its authored rate.
+        // Buff gesture: no hit window to sync to, but it still has to end with the server cast.
+        // Same fit as the SpAtk SMB applies on enter (see PlayerStateSpAtk.OnStateEnter), so the
+        // FX lifetime follows the gesture that is actually on screen.
         if (IsSpAtk06Gesture(behaviour.motionName))
         {
-            wallDurationSeconds = (SwitchToIdleNormalizedTime * clipLength) / AnimPlayback.AuthoredRate;
+            float gestureSeconds = (serverHitTimeMs / 1000f) - HitTimeCompensationSeconds;
+            if (gestureSeconds < MinServerHitSeconds)
+            {
+                return false;
+            }
+
+            wallDurationSeconds = gestureSeconds;
             return wallDurationSeconds > 0f;
         }
 

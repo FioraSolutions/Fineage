@@ -790,13 +790,18 @@
 }
 
 .target-window {
-    height: auto;
+    /* Retail TargetStatusWnd is a fixed plate: 46px, or 76px with the SmallWindow2 trio while
+       NpcInfo is open. Never auto height — the abnormal strip hangs below it as an overlay and
+       used to add its own rows to this box, leaving a tall empty plate. */
+    height: 46px;
     min-height: 46px;
+    max-height: 46px;
     flex-direction: column;
     margin: 0;
     padding: 0;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
+    overflow: visible;
 }
 
 /*
@@ -804,12 +809,17 @@
   (SmallWindow2_Back1/2/3_ex) only while the NpcInfo property tree is open.
 */
 .target-window.expanded {
+    height: 76px;
     min-height: 76px;
+    max-height: 76px;
 }
 
 .target-window .target-chrome-row {
     height: 46px;
     min-height: 46px;
+    max-height: 46px;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 /*
@@ -848,6 +858,7 @@
 .target-window.expanded .target-chrome-row {
     height: 76px;
     min-height: 76px;
+    max-height: 76px;
 }
 
 .target-window.expanded .target-back1 {
@@ -929,15 +940,26 @@
   Target abnormal strip. Stock Interlude TargetStatusWnd has no icon control, so this is the
   BuffWnd / TargetStatusBuff* extension the retail client paints directly under the plate.
 */
+/* Painted UNDER the plate like BuffWnd hangs below its window. As a flex sibling the strip
+   added its 24px row to the GroupBox and the plate looked like a tall empty box. */
 .target-window .target-effects-row {
+    position: absolute;
+    left: 16px;
+    right: 0;
+    top: 46px;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    margin: 1px 0 0 16px;
+    margin: 0;
     padding: 0;
     max-width: none;
     flex-grow: 0;
     flex-shrink: 0;
+}
+
+/* The strip hangs under the plate; with NpcInfo open the plate is the 76px SmallWindow2 trio. */
+.target-window.expanded .target-effects-row {
+    top: 76px;
 }
 
 .target-window .target-properties-row {
@@ -958,12 +980,20 @@
     height: 46px;
     margin: 0;
     padding: 0;
+    /* Retail TargetStatusWnd is a fixed 176x46 plate and carries no size grip at all. The resize
+       affordance is ours, so it must not paint over SmallWindow_Back3_ex: keep the strip
+       transparent until the pointer is actually on it (see :hover below). */
+    background-image: none;
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-scale: 1px;
     -unity-slice-top: 3;
     -unity-slice-bottom: 3;
     -unity-slice-left: 0;
     -unity-slice-right: 0;
+}
+
+.target-window .target-size-control:hover {
+    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1');
 }
 
 .target-window.expanded .target-size-control,
@@ -979,12 +1009,18 @@
     height: 46px;
     margin: 0;
     padding: 0;
+    /* Same reason: the grip art appears on hover only. */
+    background-image: none;
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-scale: 0;
     -unity-slice-top: 0;
     -unity-slice-bottom: 0;
     -unity-slice-left: 0;
     -unity-slice-right: 8;
+}
+
+.target-window .target-size-control:hover .hor-resize-handle {
+    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2');
 }
 
 .target-window .target-effect-icon,
