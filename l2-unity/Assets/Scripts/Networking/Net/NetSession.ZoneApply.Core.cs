@@ -91,6 +91,9 @@ public sealed partial class NetSession
             Debug.LogWarning("[Net] Zone transport missing on EntitySpawn — world load will stall");
 
         // GamePacketServices.Manager already prefers NetGameHost then NetworkingPacketServices (A09).
+        CharSelectEnterWorld.Succeeded();
+        _lobbyFlow?.DisposeLobby();
+
         IGameManager gameManager = NetGameHost.TryGet() ?? GamePacketServices.Manager;
         if (gameManager != null)
             gameManager.OnCharacterSelect();

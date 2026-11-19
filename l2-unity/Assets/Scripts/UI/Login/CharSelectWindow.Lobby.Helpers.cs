@@ -15,7 +15,7 @@ public partial class CharSelectWindow
         LobbyCharacter selected = SelectedLobbyCharacter();
         bool pending = selected != null && selected.PendingDelete;
         if (_startButton != null)
-            _startButton.SetEnabled(LobbyCharacterText.CanEnter(selected));
+            _startButton.SetEnabled(!_enterWorld.IsEntering && LobbyCharacterText.CanEnter(selected));
         if (_deleteButton != null)
             _deleteButton.SetEnabled(selected != null);
         if (_createButton != null)

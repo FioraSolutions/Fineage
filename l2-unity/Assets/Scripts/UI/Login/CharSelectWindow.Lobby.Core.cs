@@ -55,7 +55,7 @@ public partial class CharSelectWindow
         if (character.PendingDelete)
             ShowLobbyStatus("Pending deletion. " + LobbyCharacterText.DeleteCountdown(character.DeleteSecondsLeft));
         else if (_deleteArmed && _deleteArmedSlot == character.Slot)
-            ShowLobbyStatus("Delete " + character.Name + "? Press Delete again to confirm.");
+            ShowLobbyStatus("Delete " + character.Name + " permanently? Press Delete again to confirm.");
         else
             ShowLobbyStatus("");
 
