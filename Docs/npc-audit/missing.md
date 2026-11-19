@@ -2,6 +2,17 @@
 
 **Batch 1 imported (this PR):** 43 unique `LineageMonsters*` meshes used in start areas (Talking Island, Dark Elf, Elf, Orc, Dwarf) and Gludin hunting grounds, including all local bears (`grizzly_m00` — Red/Brown/Grizzly/Kasha/Hunter Bear).
 
+**Batch 2 imported (this PR):** start-area + Gludin town/village NPC bodies and missing textures.
+
+- 44 missing `LineageNPCs` / `LineageNPCs4` bodies (teachers, traders, guards, dwarven/orc village, maid/auctioneer, patriarch, coffer, heroes obelisk, orc head, Aden control-tower jewel) exported from official Interlude `LineageNpcs.ukx` as meter FBX (`bScaleDown=True` + `L2TownNpcFbxImport.ConfigureMeterFbx`), wired like the existing village builders via `L2NpcImportBatch`.
+- Official textures staged into `LineageNpcsTex` (and aliased under Classic `LineageNpcsTex3` leaf names where npcgrp uses 3-part remaster keys).
+- General loader fix: `SysTextureKey` uses the last segment of `package.group.asset` texture tokens so Classic 3-part keys resolve.
+- `e_fighterguild_teacher_FOrc_m00` has no official Interlude textures (mesh + FOrc clips only). Orc guard textures exist only as `_sp` and were used as the albedo.
+
+Gludio/Dion-only unique meshes are still outstanding.
+
+---
+
 Meshes were exported from the official Interlude `LineageMonsters.ukx` / `LineageMonsters2.ukx` and `lineagemonsterstex*.utx` with umodel, converted PSK+PSA → FBX with the existing `psk_psa_to_fbx.py` pipeline (wolf.fbx scale reference), then wired like keltir via `L2MonsterImportBatch` (clips, `Monster_Basic` override, click_area, capsule). No per-mob gameplay branches.
 
 Npcgrp package names for these spawn ids already match official Interlude UKX (no mapping fixes in this batch). Village/town NPC bodies and Gludio/Dion-only meshes are still outstanding — see later sections.
