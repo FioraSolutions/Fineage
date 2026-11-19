@@ -24,6 +24,8 @@ public sealed partial class NetSession
                 _zone = null;
                 BumpZoneEpoch("zone-tcp-closed");
                 ZoneCommands.Transport?.NotifyDisconnected();
+                if (CharSelectEnterWorld.IsEntering)
+                    CharSelectEnterWorld.Failed("Zone connection lost.");
             }));
             string host = string.IsNullOrWhiteSpace(handoff.ZoneHost) ? FineageWireConfig.ZoneHost : handoff.ZoneHost;
             int port = handoff.ZonePort > 0 ? handoff.ZonePort : FineageWireConfig.ZonePort;
@@ -39,8 +41,24 @@ public sealed partial class NetSession
         catch
         {
             _zoneConnecting = false;
+            _zone?.Dispose();
+            _zone = null;
             throw;
         }
+    }
+
+    /// <summary>
+    /// Drop a half-open zone socket after a failed enter-world attempt.
+    /// Leaves the login lobby connected so Start can be retried.
+    /// </summary>
+    internal void AbortZoneEnter()
+    {
+        _zoneConnecting = false;
+        if (_zone == null)
+            return;
+        NetTransport zone = _zone;
+        _zone = null;
+        zone.Dispose();
     }
 
     async Task SendZoneHelloAsync(NetTransport transport)

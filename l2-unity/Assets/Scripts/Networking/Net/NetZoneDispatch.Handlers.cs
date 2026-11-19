@@ -18,6 +18,10 @@ public sealed partial class NetZoneDispatch
                 if (!result.Ok)
                 {
                     Debug.LogWarning($"[Net] zone auth failed {result.Code}: {result.Message}");
+                    string line = string.IsNullOrWhiteSpace(result.Message)
+                        ? (string.IsNullOrWhiteSpace(result.Code) ? "Zone refused the login." : result.Code)
+                        : result.Message;
+                    CharSelectEnterWorld.Failed(line);
                     return;
                 }
 
@@ -332,6 +336,8 @@ public sealed partial class NetZoneDispatch
                 var reject = NetCodec.DecodeReject(envelope.Payload);
                 Debug.LogWarning($"[Net] zone reject {reject.Code}: {reject.Message}");
                 NetSession.NoteReject(reject.Code, reject.Message);
+                if (CharSelectEnterWorld.IsEntering)
+                    CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
                 break;
             }
             default:
