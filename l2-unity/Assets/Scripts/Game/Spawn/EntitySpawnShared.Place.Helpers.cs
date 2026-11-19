@@ -9,11 +9,14 @@ public static partial class EntitySpawnShared
         if (PetSummonRise.IsRising(go))
             return false;
 
+        identity.RememberServerPosition();
         Vector3 from = go.transform.position;
+        // Current XY (may already have been nudged off a hole) + original server Y.
+        Vector3 reference = new Vector3(from.x, identity.ServerPosition.y, from.z);
         WorldPlacement.PlacementKind kind = identity.EntityType == EntityType.Monster
             ? WorldPlacement.PlacementKind.MonsterSpawn
             : WorldPlacement.PlacementKind.NpcSpawn;
-        Vector3 snapped = WorldPlacement.Resolve(kind, from);
+        Vector3 snapped = WorldPlacement.Resolve(kind, reference);
         bool moved = (snapped - from).sqrMagnitude >= 0.0001f;
         if (moved)
         {
@@ -26,9 +29,12 @@ public static partial class EntitySpawnShared
         if ((afterFeet - from).sqrMagnitude >= 0.0001f)
         {
             identity.Position = afterFeet;
+            L2OverheadAnchor.Invalidate(identity.Id);
             return true;
         }
 
+        if (moved)
+            L2OverheadAnchor.Invalidate(identity.Id);
         return moved;
     }
 

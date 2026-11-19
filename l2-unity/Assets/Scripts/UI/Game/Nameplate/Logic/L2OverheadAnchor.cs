@@ -10,24 +10,9 @@ public static partial class L2OverheadAnchor
     /// </summary>
     public const float NameOffsetMeters = 10f / 52.5f;
 
-    /// <summary>Entity objectId → local Y of head (root-local).</summary>
-    static readonly Dictionary<int, float> _localHeadYByEntity = new Dictionary<int, float>(128);
+    /// <summary>Entity objectId → live head bone (sampled each paint, not a cached Y).</summary>
+    static readonly Dictionary<int, Transform> _headBoneByEntity = new Dictionary<int, Transform>(128);
 
     /// <summary>Transform instance id → same, for lobby pawns without Entity.</summary>
-    static readonly Dictionary<int, float> _localHeadYByInstance = new Dictionary<int, float>(16);
-
-
-
-
-    /// <summary>
-    /// World point at the bottom of the HeadDisplay stack (under name / cast gauge).
-    /// Never throws on the paint path (#930): biped head in band → skinned top → constant.
-    /// </summary>
-
-    /// <summary>Lobby / no-Entity path. Never throws (#930).</summary>
-
-
-
-
-    /// <summary>Pick the highest Bip01 Head match (some meshes expose a near-root stub first).</summary>
+    static readonly Dictionary<int, Transform> _headBoneByInstance = new Dictionary<int, Transform>(16);
 }

@@ -12,7 +12,7 @@ public sealed partial class PlayerSpawner
         if (identity == null || world == null)
             return null;
 
-        identity.SetPosY(world.GetGroundHeight(identity.Position));
+        identity.RememberServerPosition();
         identity.EntityType = EntityType.Player;
 
         CharacterRace race = (CharacterRace)appearance.Race;

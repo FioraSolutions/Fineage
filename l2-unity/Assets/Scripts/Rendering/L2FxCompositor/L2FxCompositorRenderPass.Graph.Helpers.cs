@@ -95,7 +95,7 @@ public sealed partial class L2FxCompositorRenderPass
                 ExecuteLegacyComposite(context, ref renderingData, cmd, cameraColor, cameraDepth);
 
             if (!L2YebisPostRuntime.WillFlushNameplates)
-                DrawNameplatesAfterComposite(cmd, cameraColor);
+                DrawNameplatesAfterComposite(cmd, cameraColor, cameraDepth);
         }
 
         context.ExecuteCommandBuffer(cmd);
@@ -190,8 +190,11 @@ public sealed partial class L2FxCompositorRenderPass
 
                 if (data.flushNameplates)
                 {
-                    cmd.SetRenderTarget(data.color);
-                    L2NameplateOverlayQueue.Flush(cmd);
+                    if (data.hasDepth)
+                        cmd.SetRenderTarget(data.color, data.depth);
+                    else
+                        cmd.SetRenderTarget(data.color);
+                    L2NameplateOverlayQueue.Flush(cmd, depthTest: data.hasDepth);
                 }
 
                 cmd.SetGlobalFloat(D3D9ActiveId, 0f);

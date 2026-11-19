@@ -24,7 +24,7 @@ public static partial class L2NameplateOverlayQueue
         });
     }
 
-    public static void Flush(CommandBuffer cmd)
+    public static void Flush(CommandBuffer cmd, bool depthTest = false)
     {
         if (cmd == null || s_Items.Count == 0)
         {
@@ -32,12 +32,16 @@ public static partial class L2NameplateOverlayQueue
             return;
         }
 
+        float zTest = (float)(int)(depthTest
+            ? CompareFunction.LessEqual
+            : CompareFunction.Always);
         for (int i = 0; i < s_Items.Count; i++)
         {
             Item item = s_Items[i];
             if (item.Material == null || item.IndexBuffer == null || item.IndexCount <= 0)
                 continue;
 
+            item.Material.SetFloat("_ZTest", zTest);
             item.Material.SetBuffer("_GlyphBuffer", item.GlyphBuffer);
             cmd.DrawProcedural(
                 item.IndexBuffer,

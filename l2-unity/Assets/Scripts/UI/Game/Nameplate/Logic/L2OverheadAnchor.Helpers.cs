@@ -9,35 +9,66 @@ public static partial class L2OverheadAnchor
         if (root == null)
             return Vector3.zero;
 
-        float localY = ResolveLocalHeadY(root.GetInstanceID(), useEntityCache: false, root);
-        return root.TransformPoint(new Vector3(0f, localY, 0f)) + Vector3.up * NameOffsetMeters;
+        return ResolveWorldPos(root.GetInstanceID(), useEntityCache: false, root, 0f);
     }
 
-    static float ResolveLocalHeadY(int cacheKey, bool useEntityCache, Transform root)
+    static Vector3 ResolveWorldPos(int cacheKey, bool useEntityCache, Transform root, float collisionHeight)
     {
-        Dictionary<int, float> cache = useEntityCache ? _localHeadYByEntity : _localHeadYByInstance;
-        if (cacheKey != 0 && cache.TryGetValue(cacheKey, out float cached))
-            return cached;
+        if (TryLiveHeadBone(cacheKey, useEntityCache, root, collisionHeight, out Transform head)
+            && head != null)
+            return head.position + Vector3.up * NameOffsetMeters;
 
-        float localY = SampleLocalHeadY(root);
-        if (cacheKey != 0)
-            cache[cacheKey] = localY;
-        return localY;
+        // Official Interlude: name base is feet + 2×collision height + NameOffset.
+        if (collisionHeight > 0.0001f)
+            return root.position + Vector3.up * L2NameplateAnchor.HeightFromFeet(collisionHeight, NameOffsetMeters);
+
+        return root.position + Vector3.up * FallbackLocalTopY(root);
     }
 
-    static float SampleLocalHeadY(Transform root)
+    static bool TryLiveHeadBone(
+        int cacheKey,
+        bool useEntityCache,
+        Transform root,
+        float collisionHeight,
+        out Transform head)
     {
-        if (TryFindHeadBone(root, out Transform head))
+        head = null;
+        Dictionary<int, Transform> cache = useEntityCache ? _headBoneByEntity : _headBoneByInstance;
+        if (cacheKey != 0 && cache.TryGetValue(cacheKey, out Transform cached))
         {
-            float localY = root.InverseTransformPoint(head.position).y;
-            if (localY > 0f && localY <= 5f)
-                return localY;
+            if (cached == null)
+                cache.Remove(cacheKey);
+            else
+                head = cached;
         }
 
-        // Monster / arachnid imports often lack a biped head or land outside the biped band.
-        // Throwing here aborted the whole nameplate paint pass — Nerupa/mobs lost names while
-        // townsfolk with valid Bip01 Head kept theirs.
-        return FallbackLocalTopY(root);
+        if (head == null)
+        {
+            if (!TryFindHeadBone(root, out head) || head == null)
+                return false;
+            if (cacheKey != 0)
+                cache[cacheKey] = head;
+        }
+
+        // Only trust the bone when it still sits near the standing head height.
+        // A death pose drops the bone; collision height then keeps the name stable
+        // until the pawn stands up and the bone rises back into the band.
+        if (collisionHeight > 0.0001f)
+        {
+            float expected = L2NameplateAnchor.HeightFromFeet(collisionHeight, 0f);
+            float localY = root.InverseTransformPoint(head.position).y;
+            if (expected > 0.05f && (localY < expected * 0.45f || localY > expected * 1.6f))
+                return false;
+        }
+
+        return true;
+    }
+
+    static float CollisionHeightOf(Entity entity)
+    {
+        if (entity == null || entity.Appearance == null)
+            return 0f;
+        return entity.Appearance.CollisionHeight;
     }
 
     static float FallbackLocalTopY(Transform root)
@@ -58,9 +89,9 @@ public static partial class L2OverheadAnchor
         }
 
         if (has && maxY > 0.05f)
-            return Mathf.Min(maxY, 8f);
+            return Mathf.Min(maxY, 8f) + NameOffsetMeters;
 
-        return 1.2f;
+        return 1.2f + NameOffsetMeters;
     }
 
     static bool TryFindHeadBone(Transform root, out Transform head)

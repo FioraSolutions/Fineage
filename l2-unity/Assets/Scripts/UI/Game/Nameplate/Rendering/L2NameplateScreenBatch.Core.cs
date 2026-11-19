@@ -37,6 +37,9 @@ public sealed partial class L2NameplateScreenBatch : IDisposable
             hideFlags = HideFlags.HideAndDontSave,
             renderQueue = 5000
         };
+        // Default: always on top (lobby / fallback). The compositor enables LEqual
+        // when the scene depth target is bound.
+        _material.SetFloat("_ZTest", (float)(int)CompareFunction.Always);
         if (atlas != null)
         {
             _material.mainTexture = atlas;

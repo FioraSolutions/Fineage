@@ -3,6 +3,7 @@ Shader "L2/UI/BitmapFontScreenSpace"
     Properties
     {
         _MainTex ("Atlas", 2D) = "white" {}
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTest", Float) = 8
     }
 
     SubShader
@@ -17,7 +18,7 @@ Shader "L2/UI/BitmapFontScreenSpace"
 
         Cull Off
         ZWrite Off
-        ZTest Always
+        ZTest [_ZTest]
         Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
@@ -71,7 +72,8 @@ Shader "L2/UI/BitmapFontScreenSpace"
                 o.uv = v.UV;
                 o.color = UnpackColor(v.Color);
 
-                // Screen pixels (Unity bottom-up Y) → NDC. L2 canvas path: no world re-project.
+                // Screen pixels (Unity bottom-up Y) → NDC. Depth is clip-space
+                // NDC z from the nameplate world point (see L2NameplateScreenBatch.ClipNdcZ).
                 float2 ndc;
                 ndc.x = (v.ScreenPos.x / _ScreenParams.x) * 2.0 - 1.0;
                 ndc.y = (v.ScreenPos.y / _ScreenParams.y) * 2.0 - 1.0;
@@ -79,8 +81,7 @@ Shader "L2/UI/BitmapFontScreenSpace"
                 ndc.y = -ndc.y;
                 #endif
 
-                // Depth unused for ZTest Always; keep near for stable overlay.
-                o.positionCS = float4(ndc, UNITY_NEAR_CLIP_VALUE, 1.0);
+                o.positionCS = float4(ndc, v.Depth, 1.0);
                 return o;
             }
 
