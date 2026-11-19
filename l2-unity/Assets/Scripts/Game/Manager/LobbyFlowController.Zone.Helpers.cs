@@ -53,8 +53,11 @@ public sealed partial class LobbyFlowController
             MusicPacketServices.Music?.Clear();
             Scenes.LoadMenu();
         }
-        else if (_game.GameState > GameState.LOGIN_SCREEN && !ZoneCommands.IsConnected)
+        else if (_game.GameState > GameState.LOGIN_SCREEN && NetSession.TryGetBound() == null)
         {
+            // Zone TCP dropping during char-select (failed Start) is not a login
+            // disconnect. OnRelogin() would SwitchCamera("Login") and null the
+            // lobby camera, so clicks no longer selected a character.
             OnRelogin();
         }
     }

@@ -32,10 +32,15 @@ public static partial class LobbyPresentation
     {
         if (node.name == ClickAreaName && entityClickLayer >= 0)
         {
+            if (!node.gameObject.activeSelf)
+                node.gameObject.SetActive(true);
             node.gameObject.layer = entityClickLayer;
-            MeshCollider col = node.GetComponent<MeshCollider>();
-            if (col != null)
-                col.enabled = true;
+            Collider[] cols = node.GetComponents<Collider>();
+            for (int i = 0; i < cols.Length; i++)
+            {
+                if (cols[i] != null)
+                    cols[i].enabled = true;
+            }
         }
         else if (entityClickLayer < 0 || node.gameObject.layer != entityClickLayer)
         {
