@@ -17,6 +17,7 @@ public abstract partial class L2Window
             _isWindowHidden = true;
             _windowEle.style.display = DisplayStyle.None;
             _mouseOverDetection.Disable();
+            TooltipLifecycle.HideIfOwnerClosed(_windowEle);
         }
         catch (Exception)
         {
@@ -28,6 +29,7 @@ public abstract partial class L2Window
     public virtual void OnlyHideWindow()
     {
         _windowEle.style.display = DisplayStyle.None;
+        TooltipLifecycle.HideIfOwnerClosed(_windowEle);
     }
 
     public virtual void ShowWindow()

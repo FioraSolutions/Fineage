@@ -33,6 +33,7 @@ public partial class EntityActionVisual
 
         ControllerPacketServices.Animations.PlayExactAnimatorState(
             entity.Identity.Id, PlayerDeathAnim.Death, alreadyCorpse);
+        PlayUserDeathSound(entity);
     }
 
     /// <summary>
@@ -58,7 +59,27 @@ public partial class EntityActionVisual
         _fakeDeathPoseEntityId = entity.Identity.Id;
         ControllerPacketServices.Animations.PlayExactAnimatorState(
             entity.Identity.Id, PlayerDeathAnim.Death);
+        PlayUserDeathSound(entity);
         // Debug.Log("[FAKEDEATH] pose held id=" + entity.Identity.Id);
+    }
+
+    static void PlayUserDeathSound(Entity entity)
+    {
+        if (entity == null)
+            return;
+
+        CharacterAnimationAudioHandler handler =
+            entity.GetComponentInChildren<CharacterAnimationAudioHandler>(true);
+        if (handler != null)
+        {
+            handler.PlaySound(CharacterSoundEvent.Death);
+            return;
+        }
+
+        if (AudioPacketServices.Audio == null)
+            return;
+        AudioPacketServices.Audio.PlayCharacterSound(
+            CharacterSoundEvent.Death, CharacterRaceSound.Default, entity.transform.position);
     }
 
     /// <summary>Release the fake-death latch (wake-up, real death, or a fresh spawn reusing the id).</summary>

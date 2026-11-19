@@ -110,4 +110,6 @@ public struct NetAbnormalEffect
     public int DurationSeconds;
     /// <summary>Mobius <c>abnormalType</c> slot (SLEEP, STUN, PARALYZE, …).</summary>
     public string Slot;
+    /// <summary>Mobius <c>abnormalVisualEffect</c> (STEALTH, DOT_POISON, …).</summary>
+    public string Visual;
 }

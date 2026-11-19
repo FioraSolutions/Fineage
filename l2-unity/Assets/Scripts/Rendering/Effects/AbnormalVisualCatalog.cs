@@ -24,6 +24,8 @@ public enum AbnormalAveFlags
     FleshStone = 1 << 3,
     /// <summary>Mobius <c>abnormalVisualEffect=DOT_POISON</c> (Poison / Poisonous Cloud).</summary>
     DotPoison = 1 << 4,
+    /// <summary>Mobius <c>abnormalVisualEffect=STEALTH</c> — Silent Move, Chameleon Rest, Dance of Shadows, Stealth.</summary>
+    Stealth = 1 << 5,
 }
 
 /// <summary>Resolves PartySpelled / AbnormalStatusUpdate rows into Interlude AVE pose + FX flags.</summary>
@@ -62,6 +64,9 @@ public static class AbnormalVisualCatalog
 
     static AbnormalAveFlags FlagFor(EffectHolder e)
     {
+        if (IsStealthVisual(e.Visual) || IsStealthSlot(e.Slot))
+            return AbnormalAveFlags.Stealth;
+
         if (FleshStoneSkillIds.Contains(e.Id))
             return AbnormalAveFlags.FleshStone;
 
@@ -109,5 +114,19 @@ public static class AbnormalVisualCatalog
             default:
                 return AbnormalAveFlags.None;
         }
+    }
+
+    static bool IsStealthVisual(string visual)
+    {
+        if (string.IsNullOrEmpty(visual))
+            return false;
+        return visual.Equals("STEALTH", StringComparison.OrdinalIgnoreCase)
+            || visual.Equals("AVE_STEALTH", StringComparison.OrdinalIgnoreCase);
+    }
+
+    static bool IsStealthSlot(string slot)
+    {
+        return !string.IsNullOrEmpty(slot)
+            && slot.Equals("STEALTH", StringComparison.OrdinalIgnoreCase);
     }
 }

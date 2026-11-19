@@ -75,6 +75,9 @@ public partial class NewAttackIntention : IntentionBase
                 // $"[ATK_HIT_CHAIN] 0.AttackPacket ss={playerHit.hasSoulshot()} miss={playerHit.isMiss()} " +
                 // $"crit={playerHit.isCrit()} dmg={playerHit.Damage}");
 
+            // Mobius stopMove before doAttack: don't keep sliding forward into the swing.
+            LocalCastStop.HaltForAttack();
+
             if (_stateMachine.State != PlayerState.ATTACKING)
             {
                 _stateMachine.ChangeState(PlayerState.ATTACKING);

@@ -48,6 +48,7 @@ public partial class EntityActionSkill
         if (target == null || target == entity || target.IsDead())
             return;
 
+        EntityActionPendingDeath.ArmSkillHit(target, magic.HitTime);
         hits.ArmRemoteSkillHit(entity, target, magic);
     }
 }
