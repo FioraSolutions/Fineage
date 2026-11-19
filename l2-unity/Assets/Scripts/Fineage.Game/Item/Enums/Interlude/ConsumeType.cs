@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 public class ConsumeType
 {
     public static ConsumeCategory ParceCategory(string type2)
@@ -50,6 +52,36 @@ public class ConsumeType
             case 9: return "dye";
             case 15: return "ticket_of_lord";
             default: return "none";
+        }
+    }
+
+    /// <summary>
+    /// Official Classic/Interlude tables leave some server-stackable items
+    /// (life stones, saga books, later spellbooks) at ConsumeType.Normal.
+    /// Promote only Normal so Classic Asset/Stackable values stay intact.
+    /// </summary>
+    public static ConsumeCategory PromoteServerStackable(ConsumeCategory current)
+    {
+        return current == ConsumeCategory.Normal ? ConsumeCategory.Stackable : current;
+    }
+
+    /// <summary>
+    /// Parse <c>ItemStackable_override.txt</c>: one id per line, <c>#</c> comments.
+    /// </summary>
+    public static IEnumerable<int> ReadStackableOverrideIds(IEnumerable<string> lines)
+    {
+        if (lines == null)
+            yield break;
+        foreach (string raw in lines)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                continue;
+            string line = raw.Trim();
+            if (line[0] == '#')
+                continue;
+            string token = line.Split((char[])null, 2, System.StringSplitOptions.RemoveEmptyEntries)[0];
+            if (int.TryParse(token, out int id) && id > 0)
+                yield return id;
         }
     }
 }

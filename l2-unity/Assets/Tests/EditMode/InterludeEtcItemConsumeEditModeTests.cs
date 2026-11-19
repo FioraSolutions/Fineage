@@ -35,4 +35,30 @@ public sealed class InterludeEtcItemConsumeEditModeTests
         Assert.IsFalse(NetEnchant.IsScrollType("none"));
         Assert.IsTrue(NetEnchant.IsScrollType("scrl_enchant_wp"));
     }
+
+    [Test]
+    public void PromoteServerStackable_OnlyPromotesNormal()
+    {
+        Assert.AreEqual(ConsumeCategory.Stackable, ConsumeType.PromoteServerStackable(ConsumeCategory.Normal));
+        Assert.AreEqual(ConsumeCategory.Stackable, ConsumeType.PromoteServerStackable(ConsumeCategory.Stackable));
+        Assert.AreEqual(ConsumeCategory.Asset, ConsumeType.PromoteServerStackable(ConsumeCategory.Asset));
+    }
+
+    [Test]
+    public void ReadStackableOverrideIds_SkipsCommentsAndKeepsLifeStonesAndSagaBooks()
+    {
+        string[] lines =
+        {
+            "# comment",
+            "",
+            "7093",
+            "  8723  Life Stone",
+            "# 9999",
+            "0",
+            "-4",
+            "8762"
+        };
+        var ids = new System.Collections.Generic.List<int>(ConsumeType.ReadStackableOverrideIds(lines));
+        CollectionAssert.AreEqual(new[] { 7093, 8723, 8762 }, ids);
+    }
 }

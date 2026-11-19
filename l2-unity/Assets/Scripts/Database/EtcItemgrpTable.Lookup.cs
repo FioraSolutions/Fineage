@@ -140,4 +140,23 @@ public partial class EtcItemgrpTable
     {
         return index >= 0 && index < array.Length;
     }
+
+    /// <summary>
+    /// Official client tables mark some Fineage-stackable items as Normal
+    /// (stackable column 0 / consume_type_normal). Promote those ids after
+    /// Classic+Interlude load; leave Asset and already-Stackable rows alone.
+    /// </summary>
+    void ApplyServerStackableOverrides()
+    {
+        if (_etcItemGrps == null)
+            return;
+        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/ItemStackable_override.txt");
+        if (!File.Exists(dataPath))
+            return;
+        foreach (int id in ConsumeType.ReadStackableOverrideIds(File.ReadAllLines(dataPath)))
+        {
+            if (_etcItemGrps.TryGetValue(id, out EtcItemgrp grp))
+                grp.ConsumeType = ConsumeType.PromoteServerStackable(grp.ConsumeType);
+        }
+    }
 }
