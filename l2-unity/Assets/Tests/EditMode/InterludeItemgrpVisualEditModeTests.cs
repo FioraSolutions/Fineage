@@ -8,23 +8,23 @@ using NUnit.Framework;
 public sealed class InterludeItemgrpVisualEditModeTests
 {
     [Test]
-    public void BodyPartFromInterlude_MapsJewelryAndArmorSlots()
+    public void FromInterludeArmor_MapsJewelryAndArmorSlots()
     {
-        Assert.AreEqual(ItemSlot.underwear, ArmorgrpTable.BodyPartFromInterlude(0));
-        Assert.AreEqual(ItemSlot.rear, ArmorgrpTable.BodyPartFromInterlude(1));
-        Assert.AreEqual(ItemSlot.neck, ArmorgrpTable.BodyPartFromInterlude(3));
-        Assert.AreEqual(ItemSlot.rfinger, ArmorgrpTable.BodyPartFromInterlude(4));
-        Assert.AreEqual(ItemSlot.head, ArmorgrpTable.BodyPartFromInterlude(6));
-        Assert.AreEqual(ItemSlot.gloves, ArmorgrpTable.BodyPartFromInterlude(9));
-        Assert.AreEqual(ItemSlot.chest, ArmorgrpTable.BodyPartFromInterlude(10));
-        Assert.AreEqual(ItemSlot.legs, ArmorgrpTable.BodyPartFromInterlude(11));
-        Assert.AreEqual(ItemSlot.feet, ArmorgrpTable.BodyPartFromInterlude(12));
-        Assert.AreEqual(ItemSlot.fullarmor, ArmorgrpTable.BodyPartFromInterlude(15));
-        Assert.AreEqual(ItemSlot.alldress, ArmorgrpTable.BodyPartFromInterlude(16));
-        Assert.AreEqual(ItemSlot.hat1, ArmorgrpTable.BodyPartFromInterlude(17));
-        Assert.AreEqual(ItemSlot.hat2, ArmorgrpTable.BodyPartFromInterlude(18));
-        Assert.AreEqual(ItemSlot.hat1, ArmorgrpTable.BodyPartFromInterlude(19));
-        Assert.AreEqual(ItemSlot.none, ArmorgrpTable.BodyPartFromInterlude(13));
-        Assert.AreEqual(ItemSlot.none, ArmorgrpTable.BodyPartFromInterlude(99));
+        Assert.AreEqual(ItemSlot.underwear, ItemSlotParser.FromInterludeArmor(0));
+        Assert.AreEqual(ItemSlot.rear, ItemSlotParser.FromInterludeArmor(1));
+        Assert.AreEqual(ItemSlot.neck, ItemSlotParser.FromInterludeArmor(3));
+        Assert.AreEqual(ItemSlot.rfinger, ItemSlotParser.FromInterludeArmor(4));
+        Assert.AreEqual(ItemSlot.head, ItemSlotParser.FromInterludeArmor(6));
+        Assert.AreEqual(ItemSlot.gloves, ItemSlotParser.FromInterludeArmor(9));
+        Assert.AreEqual(ItemSlot.chest, ItemSlotParser.FromInterludeArmor(10));
+        Assert.AreEqual(ItemSlot.legs, ItemSlotParser.FromInterludeArmor(11));
+        Assert.AreEqual(ItemSlot.feet, ItemSlotParser.FromInterludeArmor(12));
+        Assert.AreEqual(ItemSlot.fullarmor, ItemSlotParser.FromInterludeArmor(15));
+        Assert.AreEqual(ItemSlot.alldress, ItemSlotParser.FromInterludeArmor(16));
+        Assert.AreEqual(ItemSlot.hat1, ItemSlotParser.FromInterludeArmor(17));
+        Assert.AreEqual(ItemSlot.hat2, ItemSlotParser.FromInterludeArmor(18));
+        Assert.AreEqual(ItemSlot.hat1, ItemSlotParser.FromInterludeArmor(19));
+        Assert.AreEqual(ItemSlot.none, ItemSlotParser.FromInterludeArmor(13));
+        Assert.AreEqual(ItemSlot.none, ItemSlotParser.FromInterludeArmor(99));
     }
 }

@@ -71,7 +71,7 @@ public partial class ArmorgrpTable
             grp.Weight = weight;
 
         if (IsIndexValid(ids, indexBody) && int.TryParse(ids[indexBody], out int body))
-            grp.BodyPart = BodyPartFromInterlude(body);
+            grp.BodyPart = ItemSlotParser.FromInterludeArmor(body);
 
         if (IsIndexValid(ids, indexCrystal) && int.TryParse(ids[indexCrystal], out int crystal) &&
             crystal >= 0 && crystal <= 5)
@@ -93,49 +93,6 @@ public partial class ArmorgrpTable
             return value;
         string[] parts = DatUtils.ParseArray(value);
         return parts != null && parts.Length > 0 ? parts[0] : value;
-    }
-
-    /// <summary>
-    /// Official Interlude armorgrp body_part numbers, matched against Classic
-    /// body_part strings on the overlapping rows (earring=1, neck=3, ring=4,
-    /// underwear=0, head=6, gloves=9, chest=10, legs=11, feet=12, cloak=13,
-    /// full armor=15, formal wear=16, circlet=17, hair accessory=18, hair=19).
-    /// </summary>
-    public static ItemSlot BodyPartFromInterlude(int bodyPartCode)
-    {
-        switch (bodyPartCode)
-        {
-            case 0:
-                return ItemSlot.underwear;
-            case 1:
-                return ItemSlot.rear;
-            case 3:
-                return ItemSlot.neck;
-            case 4:
-                return ItemSlot.rfinger;
-            case 6:
-                return ItemSlot.head;
-            case 9:
-                return ItemSlot.gloves;
-            case 10:
-                return ItemSlot.chest;
-            case 11:
-                return ItemSlot.legs;
-            case 12:
-                return ItemSlot.feet;
-            case 15:
-                return ItemSlot.fullarmor;
-            case 16:
-                return ItemSlot.alldress;
-            case 17:
-                return ItemSlot.hat1;
-            case 18:
-                return ItemSlot.hat2;
-            case 19:
-                return ItemSlot.hat1;
-            default:
-                return ItemSlot.none;
-        }
     }
 
     private void InitializeList(List<List<string>> multilist)
