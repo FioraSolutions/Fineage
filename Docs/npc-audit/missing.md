@@ -9,13 +9,18 @@
 - General loader fix: `SysTextureKey` uses the last segment of `package.group.asset` texture tokens so Classic 3-part keys resolve.
 - `e_fighterguild_teacher_FOrc_m00` has no official Interlude textures (mesh + FOrc clips only). Orc guard textures exist only as `_sp` and were used as the albedo.
 
-Gludio/Dion-only unique meshes are still outstanding.
+**Batch 3 imported (this PR):** 24 unique Gludio/Dion-only meshes that were not in batches 1–2.
+
+- 20 `LineageMonsters` hunting-ground bodies (ants / noble ants, Crimson Bear, Giant Mist Leech, Hatu Windsus, Tyrants/`grave_m00`, Hangman Tree, Tanor Silenos, Strain, Mandragora variants including official typo `manadragora_m00`, Marsh Stakatos, Neer Crawler, Silenos).
+- 4 town/prop bodies: Dion Grand Master Sophya (`a_fighterguild_master_FHuman_m00`), Beer Chest, Clothes Chest, Gludio/Dion Holy Artifact (`castle_kent_statue_jewel_m00`).
+- Official Interlude has no `LineageNPCs2.agit_maid_a_m00` mesh or `agit_maid_a` textures (Classic clan-hall maid). Dion maid Borna (35402) is not invented from another outfit; she stays outstanding.
+- Shared official anims were resolved generally: token-set (`ant_soldier` ↔ `soldier_ant_anim`), typo (`manadragora` ↔ `mandragora_anim`, `marsh_stakato` ↔ official `marsh_stakarto_anim`), `_sp` last-resort textures for ants / noble ant / marsh stakato drone.
 
 ---
 
 Meshes were exported from the official Interlude `LineageMonsters.ukx` / `LineageMonsters2.ukx` and `lineagemonsterstex*.utx` with umodel, converted PSK+PSA → FBX with the existing `psk_psa_to_fbx.py` pipeline (wolf.fbx scale reference), then wired like keltir via `L2MonsterImportBatch` (clips, `Monster_Basic` override, click_area, capsule). No per-mob gameplay branches.
 
-Npcgrp package names for these spawn ids already match official Interlude UKX (no mapping fixes in this batch). Village/town NPC bodies and Gludio/Dion-only meshes are still outstanding — see later sections.
+Npcgrp package names for these spawn ids already match official Interlude UKX (no mapping fixes in this batch). Batches 1–3 cover start areas, Gludin, and the unique Gludio/Dion meshes listed above. The Classic-only `agit_maid_a_m00` body has no official Interlude source.
 
 ---
 
