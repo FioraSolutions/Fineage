@@ -33,6 +33,7 @@ public static partial class EntitySpawnShared
             {
                 WorldPlacement.ApplyPose(pooled, placePos, identity.Heading);
                 WorldPlacement.SettleFeet(pooled, placePos);
+                EnsureEntityClickArea(pooled);
                 return pooled;
             }
         }
@@ -48,6 +49,7 @@ public static partial class EntitySpawnShared
         if (prefabWasActive)
             prefab.SetActive(true);
 
+        EnsureEntityClickArea(npcGo);
         return npcGo;
     }
 

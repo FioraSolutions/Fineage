@@ -14,6 +14,20 @@ public partial class Entity
         _gear.EquipArrowEtcItem(itemId, leftSlot);
     }
 
+    public void ReleaseEtcItem()
+    {
+        if (_gear != null)
+            _gear.ReleaseEtcItem();
+    }
+
+    public void ClearEtcRelease()
+    {
+        if (_gear != null)
+            _gear.ClearEtcRelease();
+    }
+
+    public bool EtcItemReleased => _gear != null && _gear.EtcItemReleased;
+
     public bool IsUseBow() => DomainPacketServices.LocalPlayer.GetCurrentAnimName().IndexOf("bow") > -1;
 
     public void EquipDualWeapon(int weaponId)
