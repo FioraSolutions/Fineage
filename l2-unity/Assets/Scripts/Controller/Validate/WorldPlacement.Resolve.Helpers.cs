@@ -2,23 +2,6 @@ using UnityEngine;
 
 public static partial class WorldPlacement
 {
-    public static bool TryResolveMeshY(
-        Vector3 position,
-        LayerMask? groundMask,
-        out float y)
-    {
-        y = position.y;
-        LayerMask mask = WalkableMask(groundMask);
-
-        if (TryClosestHit(position, position.y + DefaultStartAbove, DefaultStartAbove + DefaultMaxDistance, mask, 0f, out y))
-            return true;
-        if (TryClosestHit(position, HighOriginY, HighMaxDistance, mask, 0f, out y))
-            return true;
-        if (TryClosestHit(position, HighOriginY, HighMaxDistance, mask, 0.4f, out y))
-            return true;
-        return false;
-    }
-
     public static Vector3 SettleFeet(GameObject go, Vector3 groundPos)
     {
         if (go == null)
