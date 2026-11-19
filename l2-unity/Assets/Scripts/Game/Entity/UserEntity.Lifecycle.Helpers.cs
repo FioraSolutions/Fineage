@@ -9,12 +9,12 @@ public partial class UserEntity : NetworkEntity
             return 0f;
 
         float unity = NumberUtils.ScaleToUnity(serverValue);
-        float anim = LocomotionGait.Rate(
+        float anim = global::LocomotionGait.Rate(
             _networkAnimationReceive.GetAnimator(),
             AnimationNames.RUN.Concat(WeaponSuffix()),
             unity,
-            LocomotionGait.MinRunRate,
-            LocomotionGait.MaxRate);
+            global::LocomotionGait.MinRunRate,
+            global::LocomotionGait.MaxRate);
         _networkAnimationReceive.SetRunSpeed(anim);
         return anim;
     }
@@ -25,12 +25,12 @@ public partial class UserEntity : NetworkEntity
             return;
 
         float unity = NumberUtils.ScaleToUnity(serverValue);
-        float anim = LocomotionGait.Rate(
+        float anim = global::LocomotionGait.Rate(
             _networkAnimationReceive.GetAnimator(),
             AnimationNames.WALK.Concat(WeaponSuffix()),
             unity,
-            LocomotionGait.MinWalkRate,
-            LocomotionGait.MaxRate);
+            global::LocomotionGait.MinWalkRate,
+            global::LocomotionGait.MaxRate);
         _networkAnimationReceive.SetWalkSpeed(anim);
     }
 
