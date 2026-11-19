@@ -26,6 +26,46 @@ public partial class SkillgrpTable
         }
     }
 
+    private static string NormalizeToken(string value)
+    {
+        if (string.IsNullOrEmpty(value) || string.Equals(value, "None", StringComparison.OrdinalIgnoreCase))
+            return string.Empty;
+        return value;
+    }
+
+    /// <summary>
+    /// Overlays official Interlude skillgrp columns onto a Classic row, or inserts a new row
+    /// for Interlude-only skills. Classic-only columns (cool_time, reuse_delay, effect_point,
+    /// enchant/icon panel, ...) are kept when a Classic row already exists.
+    /// </summary>
+    private void OverlayOrAdd(Skillgrp incoming)
+    {
+        if (incoming == null)
+            return;
+
+        if (_skills.TryGetValue(incoming.Id, out Dictionary<int, Skillgrp> byLevel)
+            && byLevel != null
+            && byLevel.TryGetValue(incoming.Level, out Skillgrp existing)
+            && existing != null)
+        {
+            existing.OperateType = incoming.OperateType;
+            existing.MpConsume = incoming.MpConsume;
+            existing.CastRange = incoming.CastRange;
+            existing.CastStyle = incoming.CastStyle;
+            existing.HitTime = incoming.HitTime;
+            existing.IsMagic = incoming.IsMagic;
+            existing.Animation = incoming.Animation;
+            existing.SkillVisualEffect = incoming.SkillVisualEffect;
+            existing.Icon = incoming.Icon;
+            existing.HpConsume = incoming.HpConsume;
+            existing.RumbleSelf = incoming.RumbleSelf;
+            existing.RumbleTarget = incoming.RumbleTarget;
+            return;
+        }
+
+        TryAdd(incoming);
+    }
+
     private Dictionary<int, Skillgrp> CreateDict()
     {
         return  new Dictionary<int, Skillgrp>();

@@ -15,14 +15,16 @@ public partial class SkillgrpTable
         TablePacketServices.Bind(skillGrps: this);
         _skills = new Dictionary<int, Dictionary<int, Skillgrp>>();
         _animationsCombo = new Dictionary<string, AnimationCombo>();
-        ReadActions();
+        // Classic first so Interlude-only fields (cool_time, reuse_delay, effect_point, ...)
+        // stay available. Official Interlude skillgrp then overlays animation, visual
+        // effect (from desc), timing, range, icon, and the other client columns it owns.
+        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Classic.txt"), overlay: false);
+        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Interlude.txt"), overlay: true);
         ReadAnimationCombo_Classic();
     }
 
-    private void ReadActions()
+    private void ReadActions(string dataPath, bool overlay)
     {
-        
-        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Classic.txt");
         if (!File.Exists(dataPath))
         {
             // Debug.LogWarning("File not found: " + dataPath);
@@ -99,7 +101,7 @@ public partial class SkillgrpTable
                             break;
                         case "animation":
                             string animation = DatUtils.CleanupString(value);
-                            skillGrp.Animation = DatUtils.CleanupStringNew(animation);
+                            skillGrp.Animation = NormalizeToken(DatUtils.CleanupStringNew(animation));
                             break;
                         case "skill_visual_effect":
                             skillGrp.SkillVisualEffect = DatUtils.CleanupString(value);
@@ -133,10 +135,13 @@ public partial class SkillgrpTable
                             break;
                     }
                 }
-                TryAdd(skillGrp);
+                if (overlay)
+                    OverlayOrAdd(skillGrp);
+                else
+                    TryAdd(skillGrp);
             }
             
-            // Debug.Log($"Successfully imported {_skills.Count} skills(s)");
+            // Debug.Log($"Successfully imported {_skills.Count} skills(s) from {dataPath}");
         }
 
     }
