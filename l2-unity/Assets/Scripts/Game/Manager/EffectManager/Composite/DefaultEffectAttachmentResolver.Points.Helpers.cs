@@ -11,6 +11,33 @@ public partial class DefaultEffectAttachmentResolver
         return src != null;
     }
 
+    /// <summary>
+    /// CasterRoot must mean the actor's own root. Skill effects are started with the weapon as owner
+    /// (<see cref="EffectManager.PlayEffectSyncedToSkillAnimation"/> passes entity.GetWeaponTransform()),
+    /// so the raw CasterTransform is a sword/bow bone. Parenting a ground ring or a dash burst there
+    /// made it ride the swing (and pick up the arm's sideways rotation) instead of staying under the feet.
+    /// </summary>
+    private bool ResolveCasterRoot(EffectResolveContext context, out Transform resolvedTransform, out Vector3 worldPosition)
+    {
+        resolvedTransform = null;
+        worldPosition = Vector3.zero;
+
+        Entity casterEntity = context != null ? context.CasterEntity : null;
+        Transform entityRoot = casterEntity != null ? casterEntity.transform : null;
+        Transform casterTransform = context != null ? context.CasterTransform : null;
+
+        // Keep the entity root whenever the owner is a bone/weapon under it; fall back to the given
+        // transform when the caster entity is unknown (deco, NPC rotating parts, detached FX).
+        Transform root = entityRoot != null &&
+                         casterTransform != null &&
+                         casterTransform != entityRoot &&
+                         casterTransform.IsChildOf(entityRoot)
+            ? entityRoot
+            : casterTransform ?? entityRoot;
+
+        return ResolveRoot(root, out resolvedTransform, out worldPosition);
+    }
+
     private bool ResolveLowerBody(Entity entity, Transform fallbackRoot, out Transform resolvedTransform, out Vector3 worldPosition)
     {
         resolvedTransform = null;

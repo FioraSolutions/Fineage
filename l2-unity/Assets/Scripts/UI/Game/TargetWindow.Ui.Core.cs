@@ -11,20 +11,30 @@ public partial class TargetWindow : L2Window
 
         yield return new WaitForEndOfFrame();
 
-        var statusWindowDragArea = GetElementByClass("drag-area");
-        DragManipulator drag = new DragManipulator(statusWindowDragArea, _windowEle);
-        statusWindowDragArea.AddManipulator(drag);
+        // The whole Interlude SmallWnd plate is the drag handle (as in the client: no title bar).
+        var statusWindowDragArea = GetElementById("ChromeRow");
+        if (statusWindowDragArea != null)
+        {
+            DragManipulator drag = new DragManipulator(statusWindowDragArea, _windowEle);
+            statusWindowDragArea.AddManipulator(drag);
+        }
 
         var horizontalResizeHandle = GetElementByClass("hor-resize-handle");
-        HorizontalResizeManipulator horizontalResize = new HorizontalResizeManipulator(
-            horizontalResizeHandle, _windowEle, _targetWindowMinWidth, _targetWindowMaxWidth);
-        horizontalResizeHandle.AddManipulator(horizontalResize);
+        if (horizontalResizeHandle != null)
+        {
+            HorizontalResizeManipulator horizontalResize = new HorizontalResizeManipulator(
+                horizontalResizeHandle, _windowEle, _targetWindowMinWidth, _targetWindowMaxWidth);
+            horizontalResizeHandle.AddManipulator(horizontalResize);
+        }
 
         var closeBtnHandle = (Button) GetElementById("CloseBtn");
-        closeBtnHandle.AddManipulator(new ButtonClickSoundManipulator(closeBtnHandle));
-        closeBtnHandle.RegisterCallback<MouseUpEvent>(evt => {
-            TargetPacketServices.Targets?.ClearTarget();
-        });
+        if (closeBtnHandle != null)
+        {
+            closeBtnHandle.AddManipulator(new ButtonClickSoundManipulator(closeBtnHandle));
+            closeBtnHandle.RegisterCallback<MouseUpEvent>(evt => {
+                TargetPacketServices.Targets?.ClearTarget();
+            });
+        }
 
         _nameLabel = (Label)GetElementById("TargetName");
         _HPBar = GetElementById("HPBar");
@@ -44,12 +54,13 @@ public partial class TargetWindow : L2Window
             _propertiesRow.style.display = DisplayStyle.None;
 
         _windowEle.style.position = Position.Absolute;
-        _windowEle.style.left = Screen.width / 2f - _windowEle.resolvedStyle.width / 2f;
+        _windowEle.style.width = _targetWindowMinWidth;
+        _windowEle.style.left = Screen.width / 2f - _targetWindowMinWidth / 2f;
         _windowEle.style.top = 0;
     }
 
     private void FixedUpdate()
-     {
+    {
         if(_windowEle == null) {
             return;
         }
@@ -65,13 +76,13 @@ public partial class TargetWindow : L2Window
                 _nameLabel.style.color = targetData.GetColorName();
             }
             if(_HPBarBG != null && _HPBar != null) {
+                // Percentage fill: the 8x6 barHP strip stays exact at any plate width.
                 L2ResourceBarView.SetFill(
                     _HPBar,
                     _HPBarBG,
                     PlayerResourceCaps.BarFillRatio(
                         targetData.Status.GetHp(),
-                        targetData.Stats.MaxHp),
-                    _targetWindowMinWidth);
+                        targetData.Stats.MaxHp));
 
                 TooogleHide(ShouldHideHpBar(targetData));
             }
@@ -87,17 +98,5 @@ public partial class TargetWindow : L2Window
             ClearProperties();
             HideWindow();
         }
-    }
-
-    static bool ShouldHideHpBar(TargetData targetData)
-    {
-        EntityIdentity identity = targetData?.Identity;
-        if (identity == null)
-            return true;
-        if (identity.Owned)
-            return true;
-        if (identity.EntityType == EntityType.Player || identity.EntityType == EntityType.User)
-            return true;
-        return identity.IsHideHpBar;
     }
 }

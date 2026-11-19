@@ -88,8 +88,12 @@ public partial class TargetWindow
         _effectsSignature = 0;
         _effectCells.Clear();
         if (_effectsRow == null)
+        {
+            RefreshPlateHeight();
             return;
+        }
         _effectsRow.Clear();
         _effectsRow.style.display = DisplayStyle.None;
+        RefreshPlateHeight();
     }
 }

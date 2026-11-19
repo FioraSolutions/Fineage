@@ -33,11 +33,26 @@ public partial class TargetWindow
         BindEffects(data);
     }
 
+    /// <summary>
+    /// Interlude TargetStatusWnd carries abnormal rows only for monsters / NPCs. A player target
+    /// (self or another character) is name + HP chrome only: buffs travel through PartySpelled /
+    /// the owner's BufferPanel, never through the target window.
+    /// </summary>
+    static bool CanShowTargetEffects(TargetData targetData)
+    {
+        EntityIdentity identity = targetData?.Identity;
+        if (identity == null)
+            return false;
+        if (identity.Owned)
+            return false;
+        return identity.EntityType == EntityType.Monster || identity.EntityType == EntityType.NPC;
+    }
+
     void BindEffects(TargetData targetData)
     {
         if (_effectsRow == null)
             return;
-        if (targetData?.Identity == null)
+        if (targetData?.Identity == null || !CanShowTargetEffects(targetData))
         {
             ClearEffects();
             return;
@@ -58,6 +73,7 @@ public partial class TargetWindow
         if (list == null || list.Count == 0)
         {
             _effectsRow.style.display = DisplayStyle.None;
+            RefreshPlateHeight();
             return;
         }
 
@@ -72,5 +88,25 @@ public partial class TargetWindow
         }
 
         _effectsRow.style.display = painted > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+        RefreshPlateHeight();
+    }
+
+    /// <summary>
+    /// The SmallWnd plate is 46px; it swaps to the 76px SmallWindow2 trio only while the NpcInfo
+    /// property tree is open with icons. The abnormal strip below the plate never changes it.
+    /// </summary>
+    void RefreshPlateHeight()
+    {
+        if (_windowEle == null)
+            return;
+
+        bool hasProperties = _expanded
+            && _propertiesRow != null
+            && _propertiesRow.childCount > 0;
+
+        if (hasProperties)
+            _windowEle.AddToClassList("expanded");
+        else
+            _windowEle.RemoveFromClassList("expanded");
     }
 }

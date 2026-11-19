@@ -1548,6 +1548,9 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: -9100000000000000003}
     m_Position: {x: 760, y: -1990, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 5948931739036737735}
+    m_Position: {x: 560, y: 60, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 455976464208914810}
@@ -3243,6 +3246,50 @@ AnimatorState:
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
   m_Motion: {fileID: 7400000, guid: b8b4e88a14c24448f9a70c1c21c296a0, type: 2}
+  m_Tag: 
+  m_SpeedParameter: patkspd
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
+--- !u!114 &-8712100124532958276
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba33dbd423646cd44b616a0185f53095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStateSpAtk
+  motionName: FDarkElf_m000_b.ao_SpAtk06_Hand_FDarkElf
+  eventStartHitName: 
+  eventEndHitName: 
+  postHitSpeed: 2
+
+--- !u!1102 &5948931739036737735
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SpAtk06_hand
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours:
+  - {fileID: -8712100124532958276}
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 1
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: 72f5ddc6580f44223a344ce601b8467b, type: 2}
   m_Tag: 
   m_SpeedParameter: patkspd
   m_MirrorParameter: 
