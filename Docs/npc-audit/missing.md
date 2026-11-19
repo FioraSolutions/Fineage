@@ -23,6 +23,14 @@
 - Shared official anims: `ketra_orc_*_a` → `ketra_orc_*_anim`, `brain_buster` → official `brain_burster_anim`, `blue_eye_m00` (Kaleidos) → official `Unicorn_anim` (no `blue_eye_anim` exists). Official pack has no `brain_buster_t01`.
 - Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageMonsters14.ancient_giant_bowgun_m00`, `LineageMonsters14.ancient_giant_warrior_m00`, `LineageNPCs2.madam_claudia_m00`, `LineageNPCs4.a_traderB_Mhuman_pet_m00`, `LineageNpcsEV.n_event_stakato_egg_m00`.
 
+
+**Batch 5 imported (this PR):** unique Giran official Interlude meshes.
+
+- 24 official bodies: 18 `LineageMonsters` (Batur orcs, Binding, crimson/doll family, Harpy, Headless Knight, Hunter Gargoyle, Light Bringer, Pirate Zombies, Shadeless, Silhouette, Troll, Twin Headed Giant) + 3 `LineageMonsters2` (Nephilim Priest/Slayer, Vampire Soldier) + Hardin and both Hardin pupils (`LineageNPCs`).
+- Shared official anims resolved generally: `batur_orc_shaman_a` → `batur_orc_shaman_anim`, `hunter_gargoyle` → official typo `hunter_gargolye_anim`.
+- Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageNPCs4.a_traderB_Mhuman_pet_m00`, `LineageNpcsEV.n_event_stakato_egg_m00` (also listed under Aden).
+
+---
 ---
 
 Meshes were exported from the official Interlude `LineageMonsters.ukx` / `LineageMonsters2.ukx` and `lineagemonsterstex*.utx` with umodel, converted PSK+PSA → FBX with the existing `psk_psa_to_fbx.py` pipeline (wolf.fbx scale reference), then wired like keltir via `L2MonsterImportBatch` (clips, `Monster_Basic` override, click_area, capsule). No per-mob gameplay branches.
