@@ -9,6 +9,14 @@ public static partial class NetEnchant
     public const int ResultReset = 3;
     public const int ResultCrystallize = 4;
 
+    public enum ResultAnim
+    {
+        None,
+        Close,
+        Success,
+        Fail
+    }
+
     public struct Session
     {
         public bool Open;

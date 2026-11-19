@@ -38,6 +38,17 @@ public sealed class ZoneEnchantRequestCommand : INetworkCommand
     }
 }
 
+/// <summary>Fineage Net EnchantConfirm (0x0365) — the item placed in the enchant slot.</summary>
+public sealed class ZoneEnchantConfirmCommand : INetworkCommand
+{
+    public int TargetObjectId;
+
+    public ZoneEnchantConfirmCommand(int targetObjectId)
+    {
+        TargetObjectId = targetObjectId;
+    }
+}
+
 /// <summary>Fineage Net TX opcode 16 — clear paperdoll index 0..16.</summary>
 
 /// <summary>Fineage Net TX opcode 16 — clear paperdoll index 0..16.</summary>

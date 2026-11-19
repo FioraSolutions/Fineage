@@ -64,7 +64,12 @@ public partial class EnchantWindow : L2PopupWindow
         }
 
         if (_zoneWire)
+        {
             _awaitingRoll = true;
+            ZoneCommands.Send(new ZoneEnchantConfirmCommand(_selectItem.ObjectId));
+            return;
+        }
+
         RequestEnchantItem(_selectItem.ObjectId);
     }
 

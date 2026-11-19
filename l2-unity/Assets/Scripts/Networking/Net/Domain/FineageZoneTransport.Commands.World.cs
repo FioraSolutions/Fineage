@@ -75,7 +75,7 @@ public sealed partial class FineageZoneTransport
             return true;
         }
 
-        // Mobius enchant window: the scroll click and the roll travel as their own opcodes.
+        // Mobius enchant window: the scroll click, the roll, and cancel are their own opcodes.
         RequestEnchantItemCommand netEnchant = command as RequestEnchantItemCommand;
         if (netEnchant != null)
         {
@@ -83,6 +83,14 @@ public sealed partial class FineageZoneTransport
                 Session.SendEnchantRequest(netEnchant.ObjectId);
             else
                 Session.SendEnchantCancel();
+            return true;
+        }
+
+        ZoneEnchantConfirmCommand netEnchantConfirm = command as ZoneEnchantConfirmCommand;
+        if (netEnchantConfirm != null)
+        {
+            if (netEnchantConfirm.TargetObjectId > 0)
+                Session.SendEnchantConfirm(netEnchantConfirm.TargetObjectId);
             return true;
         }
 

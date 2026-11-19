@@ -37,6 +37,7 @@ public partial class EnchantWindow : L2PopupWindow
     private bool _awaitingRoll;
     private int _scrollObjectId;
     private bool _frameCloseWired;
+    private bool _pendingCloseFromServer;
 
     public bool AcceptsTarget
     {

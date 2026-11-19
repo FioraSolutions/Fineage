@@ -55,4 +55,27 @@ public static partial class NetEnchant
 
         return view;
     }
+
+    /// <summary>
+    /// Window animation for a finished Fineage Net roll. Cancel closes immediately.
+    /// Success, keep, reset, and crystallize play the result clip, then close.
+    /// Official Interlude EnchantResult ordinals are not used on this wire.
+    /// </summary>
+    public static ResultAnim AnimOf(int result)
+    {
+        switch (result)
+        {
+            case ResultSuccess:
+                return ResultAnim.Success;
+            case ResultKeep:
+            case ResultReset:
+            case ResultCrystallize:
+                return ResultAnim.Fail;
+            case ResultCancel:
+                return ResultAnim.Close;
+            default:
+                return ResultAnim.None;
+        }
+    }
 }
+
