@@ -40,6 +40,11 @@ public class Weapongrp : Abstractgrp
     public int CriticalRate { get { return _critRate; } set { _critRate = value; } }
     public string[] ItemSounds { get { return _itemSounds; } set { _itemSounds = value; } }
 
+    /// <summary>Interlude weapongrp Enchanted / rangeA placement (right or first hand).</summary>
+    public EnchantGlowPlacement EnchantedRight { get; set; }
+    /// <summary>Dual-wield / left-hand Enchanted / rangeB placement, when present.</summary>
+    public EnchantGlowPlacement EnchantedLeft { get; set; }
+
     public string GetSpeedName()
     {
         if(_patkspeed != 0)
