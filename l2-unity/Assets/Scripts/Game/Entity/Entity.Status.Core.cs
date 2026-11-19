@@ -49,6 +49,8 @@ public partial class Entity
         UpdateSpeed(_stats.Speed);
 
         EquipAllWeapons();
+        // Bind wait/walk/run/atk01 clips to the equipped weapon (bow guards must not keep the baked 1HS set).
+        CreatureWeaponAnimApply.Bind(this);
         if (_gear != null)
         {
             _gear.OnEquipAnimationRefresh -= OnWeaponEquipped;
