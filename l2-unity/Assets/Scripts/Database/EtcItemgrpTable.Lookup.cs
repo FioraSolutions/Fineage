@@ -87,6 +87,26 @@ public partial class EtcItemgrpTable
             grp.DropRadius = dropRadius;
         if (TryReadInt(ids, InterludeDropHeight, out int dropHeight))
             grp.DropHeight = dropHeight;
+
+        // Classic key=value rows already have consume_type / etcitem_type. Interlude-only
+        // items (Mana Potion 728, …) used to be inserted with defaults: ConsumeType=Normal
+        // and EtcItemType=null, so the GM shop treated them as unique trade goods and
+        // UseItem NRE'd on EtcItemType.ToString().
+        if (TryReadInt(ids, InterludeStackable, out int stackable)
+            && grp.ConsumeType == ConsumeCategory.Normal)
+        {
+            // Do not overwrite a Classic Stackable/Asset value. Enchant scrolls are
+            // stackable=0 in Interlude but consume_type_stackable in Classic.
+            grp.ConsumeType = ConsumeType.FromInterludeStackable(stackable);
+        }
+
+        if (string.IsNullOrEmpty(grp.EtcItemType))
+        {
+            if (TryReadInt(ids, InterludeFamily, out int family))
+                grp.EtcItemType = ConsumeType.EtcItemTypeFromInterludeFamily(family);
+            else
+                grp.EtcItemType = "none";
+        }
     }
 
     static string ReadCell(string[] ids, int index)
