@@ -71,6 +71,8 @@ public static partial class EntitySpawnShared
         }
 
         // Do NOT substitute a random townsfolk / soldier mesh — that confuses Symbol Maker etc.
+        if (IsChestMeshAsset(asset) && TryCreateChestStandIn(out prefab, out usedMesh))
+            return true;
         return false;
     }
 
