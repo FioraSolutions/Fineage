@@ -23,7 +23,8 @@ public sealed partial class FineageZoneTransport
             // A skill still on reuse is refused by the zone without touching movement (Mobius: SystemMessage +
             // ActionFailed only), so do not stop the run for it: the server keeps the hero moving and a local halt
             // left it running on the spot until the next correction teleported it forward.
-            if (!LocalSkillReuse.IsOnReuse(netSkill.SkillId))
+            // Same for not enough MP (Mobius NOT_ENOUGH_MP + ActionFailed).
+            if (!LocalSkillReuse.WillBeRefused(netSkill.SkillId))
                 LocalCastStop.Halt();
             int targetId = ResolveSelectedTargetObjectId();
             bool ctrl = netSkill.CtrlPressed != 0;

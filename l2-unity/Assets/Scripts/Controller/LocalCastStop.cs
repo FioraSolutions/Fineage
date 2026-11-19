@@ -109,9 +109,51 @@ public static class LocalSkillReuse
         }
     }
 
+    static readonly Dictionary<int, int> LearnedLevel = new Dictionary<int, int>();
+
+    /// <summary>Learned level per skill, from SkillList. Used for the local MP check before a press.</summary>
+    public static void NoteLevel(int skillId, int level)
+    {
+        if (skillId <= 0)
+            return;
+        lock (Gate)
+            LearnedLevel[skillId] = level;
+    }
+
+    /// <summary>
+    /// Mobius Skill.checkCondition / Creature.doCast: not enough MP is refused with SystemMessage NOT_ENOUGH_MP +
+    /// ActionFailed and the hero keeps moving, same as a reuse refusal. False when MP or the cost is unknown.
+    /// </summary>
+    public static bool LacksMp(int skillId)
+    {
+        int level;
+        lock (Gate)
+        {
+            if (!LearnedLevel.TryGetValue(skillId, out level))
+                return false;
+        }
+
+        ISkillgrpLookup table = TablePacketServices.SkillGrps;
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (table == null || player == null || player.Status == null)
+            return false;
+
+        Skillgrp skill = table.GetSkill(skillId, level > 0 ? level : 1);
+        if (skill == null || skill.MpConsume <= 0)
+            return false;
+
+        return player.Status.GetMp() < skill.MpConsume;
+    }
+
+    /// <summary>True when the zone will refuse the press without stopping the run (reuse or not enough MP).</summary>
+    public static bool WillBeRefused(int skillId) => IsOnReuse(skillId) || LacksMp(skillId);
+
     public static void Clear()
     {
         lock (Gate)
+        {
             ReadyAtMs.Clear();
+            LearnedLevel.Clear();
+        }
     }
 }

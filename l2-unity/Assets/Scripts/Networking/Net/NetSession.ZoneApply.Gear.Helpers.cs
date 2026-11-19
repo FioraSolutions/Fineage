@@ -28,6 +28,7 @@ public sealed partial class NetSession
         NetSkillEntry[] rows = MapSkillList(list);
         for (int i = 0; i < rows.Length; i++)
         {
+            LocalSkillReuse.NoteLevel(rows[i].SkillId, rows[i].Level);
             if (rows[i].ReuseDelayMs > 0)
                 LocalSkillReuse.Begin(rows[i].SkillId, rows[i].ReuseDelayMs);
         }
