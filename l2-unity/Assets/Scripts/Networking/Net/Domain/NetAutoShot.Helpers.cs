@@ -26,7 +26,7 @@ public static partial class NetAutoShot
         EtcItemgrp grp = table.GetEtcItem(itemId);
         if (grp == null)
             return false;
-        return string.Equals(grp.EtcItemType, ShotEtcType, StringComparison.OrdinalIgnoreCase);
+        return AutoShotClientRules.IsShotEtcType(grp.EtcItemType);
     }
 
     public static bool Toggle(int itemId)

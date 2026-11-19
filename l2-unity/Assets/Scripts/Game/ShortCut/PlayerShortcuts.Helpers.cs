@@ -60,19 +60,12 @@ public partial class PlayerShortcuts : MonoBehaviour
                 if (inventory == null)
                     break;
 
-                // The original client treats a soulshot / spiritshot shortcut as an auto-use switch: the
-                // click or the key arms automatic charging instead of spending a single shot by hand.
+                // Left click / hotkey: use the item once (Mobius UseItem). Auto-shot is right-click only.
+                // Level carries the template itemId so a restacked shot can still be resolved.
                 ItemInstance item = inventory.FindByAllInventory(shortcut.Id);
-                if (item != null && NetAutoShot.IsShotItem(item.ItemId))
-                {
-                    NetAutoShot.Toggle(item.ItemId);
-                    SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
-                    if (skillbar != null)
-                        skillbar.RefreshAutoShotMarks();
-                    break;
-                }
-
-                inventory.UseItem(shortcut.Id, true);
+                if (item == null && shortcut.Level > 0)
+                    item = inventory.GetItemByItemId(shortcut.Level);
+                inventory.UseItem(item != null ? item.ObjectId : shortcut.Id, true);
                 break;
             }
             case Shortcut.TYPE_ACTION:
