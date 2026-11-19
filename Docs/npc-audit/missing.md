@@ -52,6 +52,15 @@
 - Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageNPCs2.gustaf_athebaldt_m00`.
 - Six Oren meshes already shipped with Giran (Batur orcs, Hunter Gargoyle, Troll). Iron Golem also covers the mithril mines unique miss.
 
+
+**Batch 9 imported (this PR):** unique Goddard and Rune official Interlude meshes.
+
+- 10 official bodies: Unicorn Boxer, Ifrit, Apostle Warrior, commoner C, trader C, Codex of Spirits, Elmore guard, Goddard holy artifact, cute Yeti, and Rune Divine Altar (`rune_holything_m00`, exported from official Interlude `lineagenpcsev.ukx`).
+- General town-NPC texture binder: also matches official albedos when npcgrp uses a `_sh` shader suffix or `t00`/`t01`/`t02`/`t03` without the `_m00` stem, so prop altars bind without per-npc branches. Official Elmore guard / Codex `t00` exist only as `_sp` and are used as the albedo.
+- Shared official anims resolved generally: `a_common_peopleC_Mhuman` → `a_common_peopleA_MHuman_anim`, `a_traderC_Fhuman` → `a_common_peopleB_FHuman_anim`. Static altars / stones have no official PSA.
+- Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageNPCs2.agit_maid_c_m00` (Goddard/Schuttgart). Schuttgart has no remaining official unique meshes after this batch.
+
+---
 ---
 ---
 ---
