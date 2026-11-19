@@ -48,7 +48,7 @@ public sealed partial class NetSession
         dto.Stats.RunRealSpeed = run;
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
-        NetNpcSession.RememberNpc(objectId, spawn.Name, spawn.Attackable);
+        NetNpcSession.RememberNpc(objectId, spawn.Name, spawn.Attackable, spawn.Rhand, spawn.Lhand);
         if (_presence != null) _presence.ApplyNpcInfo(dto);
         else NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
     }
