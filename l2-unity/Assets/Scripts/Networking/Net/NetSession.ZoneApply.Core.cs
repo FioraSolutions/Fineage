@@ -72,6 +72,7 @@ public sealed partial class NetSession
         // reads as a fighter.
         if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)
             ApplySpawnPaperdollItemIds(appearance, spawn.Paperdoll);
+        appearance.WeaponEnchant = EnchantGlow.Cap(spawn.WeaponEnchant);
 
         // Stash PlayerInfo then OnCharacterSelect → LoadSWMap.
         // Spawning happens in OnWorldSceneLoaded once the tile is ready.
@@ -139,6 +140,7 @@ public sealed partial class NetSession
         // undressed while the wearer sees their own kit (UserInfo path).
         if (spawn.Paperdoll != null && spawn.Paperdoll.Length > 0)
             ApplySpawnPaperdollItemIds(dto.Appearance, spawn.Paperdoll);
+        dto.Appearance.WeaponEnchant = EnchantGlow.Cap(spawn.WeaponEnchant);
         if (_presence != null) _presence.ApplyCharInfo(dto);
         else CharInfoApplyIncomingPacketServices.ApplyCharInfo(dto);
     }

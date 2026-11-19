@@ -89,4 +89,21 @@ public sealed partial class CharacterArmorDresser
             _fullBody = false;
         Sync();
     }
+
+    public void ForEachWorn(System.Action<ItemSlot, Armor, GameObject> visit)
+    {
+        if (visit == null)
+            return;
+        VisitWorn(ItemSlot.chest, _chest, visit);
+        VisitWorn(ItemSlot.legs, _legs, visit);
+        VisitWorn(ItemSlot.gloves, _gloves, visit);
+        VisitWorn(ItemSlot.feet, _feet, visit);
+    }
+
+    static void VisitWorn(ItemSlot slot, Worn worn, System.Action<ItemSlot, Armor, GameObject> visit)
+    {
+        if (worn.Mesh != null)
+            visit(slot, worn.Armor, worn.Mesh);
+    }
+
 }

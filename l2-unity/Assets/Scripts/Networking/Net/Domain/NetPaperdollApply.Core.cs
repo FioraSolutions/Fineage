@@ -6,5 +6,6 @@ public static partial class NetPaperdollApply
             return;
         ApplyObjectIds(appearance.PaperDoll, slots);
         ApplyItemIds(appearance, NetPaperdoll.ItemIds(slots));
+        ApplyEnchantLevels(appearance, slots);
     }
 }

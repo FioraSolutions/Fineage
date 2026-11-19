@@ -96,4 +96,23 @@ public static partial class NetPaperdollApply
             }
         }
     }
+
+    public static void ApplyEnchantLevels(PlayerAppearance appearance, NetPaperdollSlot[] slots)
+    {
+        if (appearance == null)
+            return;
+        if (appearance.SlotEnchant == null || appearance.SlotEnchant.Length < NetPaperdoll.Count)
+            appearance.SlotEnchant = new int[NetPaperdoll.Count];
+        int[] enc = appearance.SlotEnchant;
+        for (int i = 0; i < enc.Length; i++)
+            enc[i] = 0;
+        if (slots == null)
+            return;
+        int n = slots.Length < enc.Length ? slots.Length : enc.Length;
+        for (int i = 0; i < n; i++)
+            enc[i] = EnchantGlow.Cap(slots[i].EnchantLevel);
+        if (n > NetPaperdoll.RightHand)
+            appearance.WeaponEnchant = enc[NetPaperdoll.RightHand];
+    }
+
 }

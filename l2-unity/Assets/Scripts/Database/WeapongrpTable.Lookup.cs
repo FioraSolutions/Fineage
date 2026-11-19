@@ -109,6 +109,12 @@ public partial class WeapongrpTable
         WeaponType fromTable = WeaponTypeParser.FromInterlude(handness, weaponTypeCode);
         grp.WeaponType = WeaponClassifier.GetType(fromTable, grp, handness);
         grp.ObjectId = int.Parse(ids[1]);
+        if (ids.Length > EnchantGlow.InterludeOffsetBX + 2)
+        {
+            EnchantGlow.TryParseInterludeRow(ids, out EnchantGlowPlacement right, out EnchantGlowPlacement left);
+            grp.EnchantedRight = right;
+            grp.EnchantedLeft = left;
+        }
     }
 
     /// <summary>
