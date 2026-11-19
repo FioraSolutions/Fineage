@@ -85,8 +85,8 @@ public partial class EntityActionSkill
                 "' isMagic=" + IsMagicSkill(magic));
         }
 
-        if (!IsWorldNpcOrMonster(entity))
-            entity.InCombat = !SetupDurationHelper.IsUsePotion(magic);
+        if (!IsWorldNpcOrMonster(entity) && SkillPutsActorInAttackStance(magic, selfCast))
+            entity.InCombat = true;
         entity.ActionSlot.Target = target;
         if (target != null)
             entity.AttackTarget = target.transform;
