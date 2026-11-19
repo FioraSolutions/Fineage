@@ -34,4 +34,11 @@ public sealed class CharSelectEnterGuardEditModeTests
         Assert.IsTrue(guard.HasTimedOut(CharSelectEnterGuard.TimeoutSeconds));
         Assert.IsTrue(guard.HasTimedOut(CharSelectEnterGuard.TimeoutSeconds + 5f));
     }
+
+    [Test]
+    public void Lobby_close_after_handoff_does_not_abort_world_enter()
+    {
+        Assert.IsFalse(CharSelectEnterGuard.ShouldAbortEnterOnLobbyClose(hasHandoff: true));
+        Assert.IsTrue(CharSelectEnterGuard.ShouldAbortEnterOnLobbyClose(hasHandoff: false));
+    }
 }

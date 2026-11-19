@@ -43,15 +43,16 @@ public sealed partial class NetLobbyFlow
     void OnLobbyClosed(string reason)
     {
         Debug.Log("[Net] lobby " + reason);
+        _awaitingLoginUi = false;
+        // Login commonly drops the lobby socket after Handoff. Zone enter is already
+        // in flight — aborting it here left Start appearing to do nothing.
+        if (HasHandoff)
+            return;
         if (CharSelectEnterWorld.IsEntering)
         {
-            _awaitingLoginUi = false;
             CharSelectEnterWorld.Failed("Login connection lost.");
             return;
         }
-        if (!_awaitingLoginUi)
-            return;
-        _awaitingLoginUi = false;
         ShowLoginFailure("Connection lost.");
     }
 }

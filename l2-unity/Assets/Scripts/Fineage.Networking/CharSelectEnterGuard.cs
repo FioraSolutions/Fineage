@@ -30,4 +30,13 @@ public sealed class CharSelectEnterGuard
     {
         return IsEntering && elapsedSeconds >= TimeoutSeconds;
     }
+
+    /// <summary>
+    /// After Handoff the login server typically closes the lobby socket.
+    /// That close must not abort a zone enter already in flight.
+    /// </summary>
+    public static bool ShouldAbortEnterOnLobbyClose(bool hasHandoff)
+    {
+        return !hasHandoff;
+    }
 }
