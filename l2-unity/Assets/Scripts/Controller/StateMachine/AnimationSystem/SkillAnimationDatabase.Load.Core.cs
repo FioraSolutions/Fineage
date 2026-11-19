@@ -38,7 +38,8 @@ public partial class SkillAnimationDatabase
         _raceCacheFFighter.Add("MagicNotarget_" + FFighter, new SkillClips(FOLDER_FFighter, "FFighter_m000_b.ao_MagicNotarget_FFighter"));
         _raceCacheFFighter.Add("MagicThrow_" + FFighter, new SkillClips(FOLDER_FFighter, "FFighter_m000_b.ao_MagicThrow_FFighter"));
 
-        _raceCacheMFighter.Add("CastShort_" + MFighter, new SkillClips(FOLDER_MMagic, "MMagic_M000_b.ao_CastShort_MMagic"));
+        // MFighter never exported CastLong/CastShort/MagicNoTarget. GetOverrideClip falls
+        // those slots back to CastMid / MagicShot so a 5s tag-i channel still plays motion.
         _raceCacheMFighter.Add("CastMid_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_CastMid_MFighter"));
         _raceCacheMFighter.Add("CastEnd_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_CastEnd_MFighter"));
         _raceCacheMFighter.Add("MagicShot_" + MFighter, new SkillClips(FOLDER_MFighter, "MFighter_m000_b.ao_MagicShot_MFighter"));
@@ -61,8 +62,35 @@ public partial class SkillAnimationDatabase
         _raceCacheFDarkElf.Add("CastMid_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_CastMid_FDarkElf"));
         _raceCacheFDarkElf.Add("CastEnd_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_CastEnd_FDarkElf"));
         _raceCacheFDarkElf.Add("MagicShot_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_MagicShot_A_FDarkElf"));
-        _raceCacheFDarkElf.Add("MagicThrow_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_MagicShot_A_FDarkElf"));
+        _raceCacheFDarkElf.Add("MagicNoTarget_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m000_b.ao_MagicNotarget_FDarkElf"));
+        _raceCacheFDarkElf.Add("MagicNotarget_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m000_b.ao_MagicNotarget_FDarkElf"));
+        _raceCacheFDarkElf.Add("MagicThrow_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m000_b.ao_MagicThrow_FDarkElf"));
 
+        AddStandardCastCache(_raceCacheFElf, FElf, FOLDER_FElf, "FElf_m000_b", "MagicNotarget");
+        AddStandardCastCache(_raceCacheMDarkElf, MDarkElf, FOLDER_MDarkElf, "MDarkElf_m000_b", "MagicNotarget");
+        AddStandardCastCache(_raceCacheMDwarf, MDwarf, FOLDER_MDwarf, "MDwarf_m000_b", "MagicNotarget");
+        AddStandardCastCache(_raceCacheFDwarf, FDwarf, FOLDER_FDwarf, "FDwarf_m001_b", "MagicNotarget");
+        AddStandardCastCache(_raceCacheMOrc, MOrc, FOLDER_MOrc, "MOrc_m000_b", "MagicNotarget");
+        AddStandardCastCache(_raceCacheFOrc, FOrc, FOLDER_FOrc, "FOrc_m000_b", "MagicNotarget");
+        AddStandardCastCache(_raceCacheMShaman, MShaman, FOLDER_MShaman, "MShaman_m000_b", "MagicNotarget");
+        AddStandardCastCache(_raceCacheFShaman, FShaman, FOLDER_FShaman, "FShaman_m000_b", "MagicNotarget");
+    }
 
+    static void AddStandardCastCache(
+        Dictionary<string, SkillClips> cache,
+        string race,
+        string folder,
+        string meshStem,
+        string noTargetClip)
+    {
+        cache.Add("CastLong_" + race, new SkillClips(folder, meshStem + ".ao_CastLong_" + race));
+        cache.Add("CastShort_" + race, new SkillClips(folder, meshStem + ".ao_CastShort_" + race));
+        cache.Add("CastMid_" + race, new SkillClips(folder, meshStem + ".ao_CastMid_" + race));
+        cache.Add("CastEnd_" + race, new SkillClips(folder, meshStem + ".ao_CastEnd_" + race));
+        cache.Add("MagicShot_" + race, new SkillClips(folder, meshStem + ".ao_MagicShot_" + race));
+        cache.Add("MagicThrow_" + race, new SkillClips(folder, meshStem + ".ao_MagicThrow_" + race));
+        string noTargetName = meshStem + ".ao_" + noTargetClip + "_" + race;
+        cache.Add("MagicNoTarget_" + race, new SkillClips(folder, noTargetName));
+        cache.Add("MagicNotarget_" + race, new SkillClips(folder, noTargetName));
     }
 }
