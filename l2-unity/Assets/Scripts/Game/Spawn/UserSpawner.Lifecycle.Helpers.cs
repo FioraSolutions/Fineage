@@ -10,7 +10,7 @@ public sealed partial class UserSpawner
 
         EntityIdentity identity = info.Identity;
         PlayerAppearance appearance = info.Appearance;
-        identity.SetPosY(world.GetGroundHeight(identity.Position));
+        identity.RememberServerPosition();
         identity.EntityType = EntityType.User;
 
         CharacterRace race = (CharacterRace)appearance.Race;

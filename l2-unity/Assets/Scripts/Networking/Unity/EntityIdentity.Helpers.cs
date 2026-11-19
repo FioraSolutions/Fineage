@@ -6,6 +6,7 @@ public partial class EntityIdentity
     {
         Vector3 l2jpos = new Vector3(x, y, z);
         _position = VectorUtils.ConvertPosToUnity(l2jpos);
+        SetServerPosition(_position);
     }
 
     public void SetHideHp(int npcId)

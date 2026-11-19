@@ -44,6 +44,8 @@ public sealed partial class L2PawnRange
             return false;
 
         Vector3 from = entity.transform.position;
+        if (entity.Identity != null)
+            entity.Identity.SetServerPosition(packetPos);
         Vector3 grounded = GroundSnapHelper.SnapToGroundOrKeep(packetPos);
         if (entity.Identity != null)
             entity.Identity.Position = grounded;
