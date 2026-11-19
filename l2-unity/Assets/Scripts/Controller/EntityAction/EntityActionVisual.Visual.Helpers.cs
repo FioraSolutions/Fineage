@@ -90,17 +90,15 @@ public static partial class EntityActionVisual
     /// </summary>
     static void PlaySitStand(Entity entity, WaitType waitType)
     {
-        NetworkAnimationController nac = entity.GetAnimatorController();
-        if (nac == null)
-            return;
-
-        nac.SetAnimatorSpeed(1f);
         if (waitType == WaitType.WT_SITTING)
         {
             AnimChannel.Clear();
-            nac.CrossFadeInFixedTime("sit", LocomotionCrossFadeSettings.FixedDuration);
+            HoldSitPose(entity);
+            PlaySitClip(entity);
             return;
         }
+
+        ClearSitPose(entity);
 
         // Standing back up: the outgoing sit transition plays the authoring "stand" clip where the
         // controller has it; controllers without it fall through to the idle/locomotion pose.
@@ -113,5 +111,24 @@ public static partial class EntityActionVisual
         if (entity.Identity != null && ControllerPacketServices.Animations != null)
             ControllerPacketServices.Animations.PlayAnimation(
                 entity.Identity.Id, AnimationNames.WAIT.ToString(), true);
+    }
+
+    /// <summary>
+    /// Same sit clip the Sit action relies on: the hero uses AnimationManager (Player_Basic bool/state
+    /// "sit"), everyone else CrossFades the bare sit state on their override controller.
+    /// </summary>
+    static void PlaySitClip(Entity entity)
+    {
+        if (entity is PlayerEntity && entity.Identity != null && ControllerPacketServices.Animations != null)
+        {
+            ControllerPacketServices.Animations.PlayAnimation(entity.Identity.Id, "sit", true);
+            return;
+        }
+
+        NetworkAnimationController nac = entity.GetAnimatorController();
+        if (nac == null)
+            return;
+        nac.SetAnimatorSpeed(1f);
+        nac.CrossFadeInFixedTime("sit", LocomotionCrossFadeSettings.FixedDuration);
     }
 }
