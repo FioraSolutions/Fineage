@@ -32,7 +32,9 @@ public partial class ArmorgrpTable
     private Dictionary<int, Armorgrp> _armorgrps;
     public Dictionary<int, Armorgrp> ArmorGrps { get { return _armorgrps; } }
 
+    private int indexIcon = 13;
     private int indexWeight = 19;
+    private int indexBody = 23;
     private int indexCrystal = 327;
     private int indexPdef = 329;
     private int indexMdef = 330;
