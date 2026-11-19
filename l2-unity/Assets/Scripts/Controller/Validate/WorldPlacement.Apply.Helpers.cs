@@ -1,7 +1,22 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static partial class WorldPlacement
 {
+    static readonly List<float> _scratchYs = new List<float>(32);
+    static readonly float[] NearbyRadii = { 0.8f, 1.6f, 2.8f, 4.0f, 5.0f };
+    static readonly Vector3[] NearbyDirs =
+    {
+        new Vector3(1f, 0f, 0f),
+        new Vector3(-1f, 0f, 0f),
+        new Vector3(0f, 0f, 1f),
+        new Vector3(0f, 0f, -1f),
+        new Vector3(0.7071f, 0f, 0.7071f),
+        new Vector3(0.7071f, 0f, -0.7071f),
+        new Vector3(-0.7071f, 0f, 0.7071f),
+        new Vector3(-0.7071f, 0f, -0.7071f)
+    };
+
     static LayerMask ResolveDefaultGroundMask()
     {
         World world = ControllerPacketServices.GameWorld;
@@ -10,15 +25,198 @@ public static partial class WorldPlacement
         return Physics.DefaultRaycastLayers;
     }
 
-    static bool TryClosestHit(
+    /// <summary>
+    /// Snap to walkable ground near the server height. A wet or empty exact XY
+    /// is nudged to the nearest dry rim within <see cref="WorldGrounding.NearbySearchMeters"/>.
+    /// If nothing walkable is in tolerance, the server height is kept.
+    /// </summary>
+    public static bool TrySnapWalkable(Vector3 serverPos, LayerMask mask, out Vector3 snapped)
+    {
+        snapped = serverPos;
+        CollectWalkableYs(serverPos, mask, _scratchYs);
+        bool exactHit = false;
+        for (int i = 0; i < _scratchYs.Count; i++)
+        {
+            if (Mathf.Abs(_scratchYs[i] - serverPos.y) <= WorldGrounding.SnapToleranceMeters)
+            {
+                exactHit = true;
+                break;
+            }
+        }
+        float y = WorldGrounding.PickHeight(serverPos.y, _scratchYs);
+        snapped = new Vector3(serverPos.x, y, serverPos.z);
+
+        bool wet = exactHit && IsUnderwater(snapped);
+        bool miss = !exactHit;
+        if (!wet && !miss)
+            return true;
+
+        if (TryNearbyDry(serverPos, mask, out Vector3 nearby))
+        {
+            snapped = nearby;
+            return true;
+        }
+
+        if (wet)
+        {
+            // Do not submerge: keep the server height at this XY.
+            snapped = serverPos;
+            return false;
+        }
+
+        return exactHit;
+    }
+
+    /// <summary>
+    /// Feet on the walkable sheet nearest to the current Y. A miss keeps Y;
+    /// never free-falls onto a distant shell or a water surface.
+    /// </summary>
+    public static Vector3 KeepOnBrush(Vector3 feet)
+    {
+        if (TrySnapWalkable(feet, WalkableMask(null), out Vector3 snapped))
+            return snapped;
+        return feet;
+    }
+
+    /// <summary>
+    /// Street under a point: same pipeline as spawn/move. Kept so existing
+    /// call sites share the one snap rule.
+    /// </summary>
+    public static bool TryStreetDeck(Vector3 position, LayerMask mask, out float y)
+    {
+        y = position.y;
+        if (!TrySnapWalkable(position, mask, out Vector3 snapped))
+            return false;
+        y = snapped.y;
+        return Mathf.Abs(y - position.y) > 0.001f;
+    }
+
+    /// <summary>
+    /// Feet clipped through the brush. A face just above the capsule is that floor.
+    /// </summary>
+    public static bool TryLiftOutOfFloor(Vector3 feet, out float y)
+    {
+        y = feet.y;
+        LayerMask mask = WalkableMask(null);
+        Vector3 probe = new Vector3(feet.x, feet.y + 0.7f, feet.z);
+        CollectWalkableYs(probe, mask, _scratchYs);
+        if (_scratchYs.Count == 0)
+            return false;
+
+        float best = float.PositiveInfinity;
+        bool found = false;
+        for (int i = 0; i < _scratchYs.Count; i++)
+        {
+            float lift = _scratchYs[i] - feet.y;
+            if (lift < 0.05f || lift > 0.7f)
+                continue;
+            if (!found || _scratchYs[i] < best)
+            {
+                best = _scratchYs[i];
+                found = true;
+            }
+        }
+
+        if (!found)
+            return false;
+        y = best;
+        return true;
+    }
+
+    /// <summary>True when a walkable surface is within <paramref name="meters"/> of the feet.</summary>
+    public static bool HasFloorWithin(Vector3 feet, float meters)
+    {
+        _scratchYs.Clear();
+        AppendHits(feet, feet.y + 0.2f, meters + 0.2f, WalkableMask(null), 0.2f, _scratchYs);
+        for (int i = 0; i < _scratchYs.Count; i++)
+        {
+            if (Mathf.Abs(_scratchYs[i] - feet.y) <= meters)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Nearby walkable floor at about the server height. Replaces the old
+    /// Dark-Elf-only street search: same need exists at any hole, pillar, or rim.
+    /// </summary>
+    public static bool TryCaveStreet(Vector3 serverPos, out Vector3 street)
+    {
+        return TryNearbyDry(serverPos, WalkableMask(null), out street);
+    }
+
+    public static bool TryResolveMeshY(Vector3 position, LayerMask? groundMask, out float y)
+    {
+        y = position.y;
+        if (!TrySnapWalkable(position, WalkableMask(groundMask), out Vector3 snapped))
+            return false;
+        y = snapped.y;
+        return true;
+    }
+
+    static bool TryNearbyDry(Vector3 serverPos, LayerMask mask, out Vector3 found)
+    {
+        found = serverPos;
+        float bestScore = float.PositiveInfinity;
+        bool any = false;
+        for (int r = 0; r < NearbyRadii.Length; r++)
+        {
+            float radius = NearbyRadii[r];
+            if (radius > WorldGrounding.NearbySearchMeters)
+                break;
+            for (int d = 0; d < NearbyDirs.Length; d++)
+            {
+                Vector3 sample = serverPos + NearbyDirs[d] * radius;
+                sample.y = serverPos.y;
+                CollectWalkableYs(sample, mask, _scratchYs);
+                if (_scratchYs.Count == 0)
+                    continue;
+                float y = WorldGrounding.PickHeight(serverPos.y, _scratchYs);
+                if (Mathf.Abs(y - serverPos.y) > WorldGrounding.SnapToleranceMeters)
+                    continue;
+                Vector3 candidate = new Vector3(sample.x, y, sample.z);
+                if (IsUnderwater(candidate))
+                    continue;
+                float score = radius + Mathf.Abs(y - serverPos.y);
+                if (score >= bestScore)
+                    continue;
+                bestScore = score;
+                found = candidate;
+                any = true;
+            }
+
+            if (any)
+                break;
+        }
+
+        return any;
+    }
+
+    static void CollectWalkableYs(Vector3 position, LayerMask mask, List<float> ys)
+    {
+        CollectWalkableYs(position, mask, ys, 0f);
+    }
+
+    static void CollectWalkableYs(Vector3 position, LayerMask mask, List<float> ys, float maxDrop)
+    {
+        ys.Clear();
+        float originY = position.y + DefaultStartAbove;
+        float distance = DefaultStartAbove + (maxDrop > 0.001f ? maxDrop : DefaultMaxDistance);
+        AppendHits(position, originY, distance, mask, 0f, ys);
+        if (ys.Count == 0)
+            AppendHits(position, HighOriginY, HighMaxDistance, mask, 0f, ys);
+        if (ys.Count == 0)
+            AppendHits(position, HighOriginY, HighMaxDistance, mask, 0.4f, ys);
+    }
+
+    static void AppendHits(
         Vector3 position,
         float originY,
         float maxDistance,
         LayerMask mask,
         float sphereRadius,
-        out float y)
+        List<float> ys)
     {
-        y = position.y;
         Vector3 origin = new Vector3(position.x, originY, position.z);
         bool prevBackfaces = Physics.queriesHitBackfaces;
         Physics.queriesHitBackfaces = true;
@@ -34,60 +232,79 @@ public static partial class WorldPlacement
             Physics.queriesHitBackfaces = prevBackfaces;
         }
 
-        if (hits == null || hits.Length == 0)
-            return false;
+        if (hits == null)
+            return;
 
-        // Pass 1: closest |ΔY| to server. Pass 2: among near-ties, pick higher deck (cave vs village).
-        // Skip foliage-named colliders so canopy MeshColliders on StaticMesh cannot become height SoT (#931).
-        float minAbs = float.PositiveInfinity;
-        bool found = false;
         for (int i = 0; i < hits.Length; i++)
         {
             RaycastHit hit = hits[i];
-            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsOverheadHeightmap(hit, position.y))
+            if (!IsWalkableHit(hit))
                 continue;
-            if (IsDarkElfCave(position) && !IsCaveFloorHit(hit, position.y))
-                continue;
-            float abs = Mathf.Abs(hit.point.y - position.y);
-            if (!found || abs < minAbs)
-            {
-                minAbs = abs;
-                found = true;
-            }
+            ys.Add(hit.point.y);
         }
+    }
 
-        if (!found)
+    static bool IsWalkableHit(RaycastHit hit)
+    {
+        if (hit.collider == null)
             return false;
-
-        float bestY = float.NegativeInfinity;
-        bool picked = false;
-        for (int i = 0; i < hits.Length; i++)
-        {
-            RaycastHit hit = hits[i];
-            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsOverheadHeightmap(hit, position.y))
-                continue;
-            if (IsDarkElfCave(position) && !IsCaveFloorHit(hit, position.y))
-                continue;
-            float abs = Mathf.Abs(hit.point.y - position.y);
-            if (abs > minAbs + NearTieMeters)
-                continue;
-            if (!picked || hit.point.y > bestY)
-            {
-                bestY = hit.point.y;
-                picked = true;
-            }
-        }
-
-        if (!picked)
+        if (hit.normal.y < 0.5f)
             return false;
-
-        y = bestY;
+        if (IsWaterCollider(hit.collider) || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
+            return false;
         return true;
     }
 
+    static bool IsUnderwater(Vector3 feet)
+    {
+        int mask = WaterQueryMask();
+        if (mask == 0)
+            return false;
+
+        Vector3 origin = new Vector3(feet.x, feet.y + WorldGrounding.SnapToleranceMeters, feet.z);
+        RaycastHit[] hits = Physics.RaycastAll(
+            origin, Vector3.down, WorldGrounding.SnapToleranceMeters + 0.5f, mask, QueryTriggerInteraction.Collide);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit hit = hits[i];
+            if (hit.collider == null)
+                continue;
+            if (WorldGrounding.IsSubmerged(feet.y, hit.point.y))
+                return true;
+        }
+
+        return false;
+    }
+
+    static bool IsWaterCollider(Collider collider)
+    {
+        if (collider == null)
+            return false;
+
+        int water = LayerMask.NameToLayer("Water");
+        Transform t = collider.transform;
+        for (int depth = 0; depth < 4 && t != null; depth++, t = t.parent)
+        {
+            if (water >= 0 && t.gameObject.layer == water)
+                return true;
+            string n = t.name;
+            if (string.IsNullOrEmpty(n))
+                continue;
+            string lower = n.ToLowerInvariant();
+            if (lower.Contains("watervolume")
+                || lower.Contains("l2watervolumes")
+                || lower == "l2water"
+                || lower.Contains("waterplane")
+                || lower.Contains("watersurface")
+                || lower.Contains("water_surface"))
+                return true;
+        }
+
+        return false;
+    }
+
     /// <summary>
-    /// Import stopgap (#931): tree/bush mesh names on StaticMesh until colliders leave the walk mask.
-    /// Prefer geodata Y; long-term move foliage to Deco / non-walk at import.
+    /// Import stopgap: tree/bush mesh names on StaticMesh until colliders leave the walk mask.
     /// </summary>
     static bool IsFoliageCollider(Collider collider)
     {
@@ -113,191 +330,6 @@ public static partial class WorldPlacement
         return false;
     }
 
-    /// <summary>
-    /// Dark Elf village floor is under the 20_18 heightmap. A hit on that sheet
-    /// from below is the ceiling, not the ground — snapping to it throws the body up.
-    /// </summary>
-    static bool IsOverheadHeightmap(RaycastHit hit, float bodyY)
-    {
-        if (hit.collider == null || hit.point.y <= bodyY + 3f)
-            return false;
-        Transform t = hit.collider.transform;
-        return t != null && t.name == "20_18";
-    }
-
-    /// <summary>Tile 20_18 under the cave mouth. Unity X is L2 Y, Unity Z is L2 X.</summary>
-    public static bool IsDarkElfCave(Vector3 unityPos)
-    {
-        return unityPos.y < 45f
-            && unityPos.x >= 0f && unityPos.x < 624f
-            && unityPos.z >= 0f && unityPos.z < 624f;
-    }
-
-    /// <summary>
-    /// Highest upward face under the server point, at most <see cref="TownFloorDropMeters"/> down.
-    /// A lid or prop that is closer to server Z but above this face is not the street.
-    /// </summary>
-    static bool TryFloorUnder(Vector3 position, LayerMask mask, out float y)
-    {
-        y = position.y;
-        Vector3 origin = new Vector3(position.x, position.y + 0.2f, position.z);
-        bool prevBackfaces = Physics.queriesHitBackfaces;
-        Physics.queriesHitBackfaces = false;
-        RaycastHit[] hits;
-        try
-        {
-            hits = Physics.RaycastAll(
-                origin, Vector3.down, TownFloorDropMeters + 0.2f, mask, QueryTriggerInteraction.Ignore);
-        }
-        finally
-        {
-            Physics.queriesHitBackfaces = prevBackfaces;
-        }
-
-        if (hits == null || hits.Length == 0)
-            return false;
-
-        float bestY = float.NegativeInfinity;
-        bool found = false;
-        for (int i = 0; i < hits.Length; i++)
-        {
-            RaycastHit hit = hits[i];
-            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
-                continue;
-            if (hit.normal.y < 0.55f)
-                continue;
-            float drop = position.y - hit.point.y;
-            if (drop < -0.12f || drop > TownFloorDropMeters)
-                continue;
-            if (!found || hit.point.y > bestY)
-            {
-                bestY = hit.point.y;
-                found = true;
-            }
-        }
-
-        if (!found)
-            return false;
-
-        y = bestY;
-        return true;
-    }
-
-    /// <summary>
-    /// Feet clipped through the brush. A face just above the capsule is that floor.
-    /// A roof higher than the body is left alone.
-    /// </summary>
-    public static bool TryLiftOutOfFloor(Vector3 feet, out float y)
-    {
-        y = feet.y;
-        if (IsDarkElfCave(feet))
-            return false;
-
-        LayerMask mask = WalkableMask(null);
-        const float below = 0.8f;
-        const float above = 0.7f;
-        if (TryFloorWithin(feet, mask, below, out _))
-            return false;
-
-        return TryFloorAbove(feet, mask, above, out y);
-    }
-
-    static bool TryFloorWithin(Vector3 position, LayerMask mask, float maxDrop, out float y)
-    {
-        y = position.y;
-        Vector3 origin = new Vector3(position.x, position.y + 0.15f, position.z);
-        RaycastHit[] hits = Physics.RaycastAll(
-            origin, Vector3.down, maxDrop + 0.15f, mask, QueryTriggerInteraction.Ignore);
-        float best = float.NegativeInfinity;
-        bool found = false;
-        for (int i = 0; i < hits.Length; i++)
-        {
-            RaycastHit hit = hits[i];
-            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
-                continue;
-            if (hit.normal.y < 0.55f)
-                continue;
-            float drop = position.y - hit.point.y;
-            if (drop < -0.05f || drop > maxDrop)
-                continue;
-            if (!found || hit.point.y > best)
-            {
-                best = hit.point.y;
-                found = true;
-            }
-        }
-
-        if (!found)
-            return false;
-        y = best;
-        return true;
-    }
-
-    static bool TryFloorAbove(Vector3 position, LayerMask mask, float maxLift, out float y)
-    {
-        y = position.y;
-        Vector3 origin = new Vector3(position.x, position.y + maxLift, position.z);
-        RaycastHit[] hits = Physics.RaycastAll(
-            origin, Vector3.down, maxLift, mask, QueryTriggerInteraction.Ignore);
-        float best = float.PositiveInfinity;
-        bool found = false;
-        for (int i = 0; i < hits.Length; i++)
-        {
-            RaycastHit hit = hits[i];
-            if (hit.collider == null || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
-                continue;
-            if (hit.normal.y < 0.55f)
-                continue;
-            float lift = hit.point.y - position.y;
-            if (lift < 0.05f || lift > maxLift)
-                continue;
-            if (!found || hit.point.y < best)
-            {
-                best = hit.point.y;
-                found = true;
-            }
-        }
-
-        if (!found)
-            return false;
-        y = best;
-        return true;
-    }
-
-    /// <summary>
-    /// Feet on the walkable sheet. A floor within <see cref="TownFloorDropMeters"/>
-    /// below wins. If the body is already under the brush, lift onto the face
-    /// above, at most <see cref="TownFloorLiftMeters"/>. No hit: keep Y. Never
-    /// drop toward a distant lower shell and never free-fall through a miss.
-    /// </summary>
-    public static Vector3 KeepOnBrush(Vector3 feet)
-    {
-        if (IsDarkElfCave(feet))
-            return feet;
-
-        LayerMask mask = WalkableMask(null);
-        if (TryFloorUnder(feet, mask, out float below))
-            return new Vector3(feet.x, below, feet.z);
-        if (TryFloorAbove(feet, mask, TownFloorLiftMeters, out float above))
-            return new Vector3(feet.x, above, feet.z);
-        return feet;
-    }
-
-    /// <summary>
-    /// Street under a town point. A roof above the point is never chosen.
-    /// Lift only when nothing walkable sits below, and the body is already
-    /// inside the brush (attack step that pushed the capsule through).
-    /// </summary>
-    public static bool TryStreetDeck(Vector3 position, LayerMask mask, out float y)
-    {
-        y = position.y;
-        if (IsDarkElfCave(position))
-            return false;
-        if (TryFloorUnder(position, mask, out y))
-            return true;
-        return TryFloorAbove(position, mask, 0.7f, out y);
-    }
-
     static bool IsActorCollider(Collider collider)
     {
         if (collider == null)
@@ -316,101 +348,14 @@ public static partial class WorldPlacement
         return false;
     }
 
-    /// <summary>True when a walkable surface is within <paramref name="meters"/> under the feet.</summary>
-    public static bool HasFloorWithin(Vector3 feet, float meters)
-    {
-        return TryClosestHit(feet, feet.y + 0.2f, meters + 0.2f, WalkableMask(null), 0.2f, out _);
-    }
-
-    static bool IsCaveFloorHit(RaycastHit hit, float bodyY)
-    {
-        if (hit.normal.y < 0.5f)
-            return false;
-        // A cornice above the body is not the street. The basement shell is ~9 m down.
-        float drop = bodyY - hit.point.y;
-        return drop >= -0.5f && drop <= CaveDeckMeters;
-    }
-
     /// <summary>
-    /// Village shell floor under this point, or the nearest one within a few meters.
-    /// Props such as the gate pillar are not a floor.
+    /// Tile 20_18 under the cave mouth. Kept for the terrain-gate renderer,
+    /// not used by grounding.
     /// </summary>
-    public static bool TryCaveStreet(Vector3 serverPos, out Vector3 street)
+    public static bool IsDarkElfCave(Vector3 unityPos)
     {
-        street = serverPos;
-        if (TryShellFloor(serverPos, serverPos.y, out RaycastHit under))
-        {
-            street = under.point;
-            return true;
-        }
-
-        float best = float.PositiveInfinity;
-        bool found = false;
-        float[] radii = { 2f, 3.4f };
-        for (int r = 0; r < radii.Length; r++)
-        {
-            for (int i = 0; i < 8; i++)
-            {
-                float a = (i + 0.5f) * Mathf.PI * 2f / 8f;
-                Vector3 sample = serverPos + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * radii[r];
-                if (!TryShellFloor(sample, serverPos.y, out RaycastHit hit))
-                    continue;
-                float score = radii[r] + Mathf.Abs(hit.point.y - serverPos.y);
-                if (score >= best)
-                    continue;
-                best = score;
-                street = hit.point;
-                found = true;
-            }
-
-            if (found)
-                break;
-        }
-
-        if (!found)
-            return false;
-
-        Vector3 away = street - serverPos;
-        away.y = 0f;
-        if (away.sqrMagnitude > 0.04f)
-        {
-            Vector3 nudged = street + away.normalized * 0.6f;
-            if (TryShellFloor(nudged, serverPos.y, out RaycastHit again))
-                street = again.point;
-        }
-
-        return true;
-    }
-
-    static bool TryShellFloor(Vector3 sample, float refY, out RaycastHit picked)
-    {
-        picked = default;
-        int brush = LayerMask.NameToLayer("Brush");
-        if (brush < 0)
-            return false;
-
-        // Village street is about 3 m under a server point that sits in a pillar.
-        // The school creation point is only 0.7 m above its own floor; the next
-        // brush, ~5 m down, is the sealed shell under the temple.
-        const float streetDrop = CaveDeckMeters;
-        Vector3 origin = new Vector3(sample.x, refY + 0.5f, sample.z);
-        RaycastHit[] hits = Physics.RaycastAll(
-            origin, Vector3.down, streetDrop + 0.5f, 1 << brush, QueryTriggerInteraction.Ignore);
-        bool found = false;
-        float bestDrop = float.PositiveInfinity;
-        for (int i = 0; i < hits.Length; i++)
-        {
-            RaycastHit hit = hits[i];
-            if (hit.normal.y < 0.5f)
-                continue;
-            float drop = refY - hit.point.y;
-            if (drop < -0.5f || drop > streetDrop || drop >= bestDrop)
-                continue;
-            bestDrop = drop;
-            picked = hit;
-            found = true;
-        }
-
-        return found;
+        return unityPos.y < 45f
+            && unityPos.x >= 0f && unityPos.x < 624f
+            && unityPos.z >= 0f && unityPos.z < 624f;
     }
 }

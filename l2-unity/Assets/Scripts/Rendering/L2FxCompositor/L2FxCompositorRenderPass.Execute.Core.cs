@@ -43,7 +43,7 @@ public sealed partial class L2FxCompositorRenderPass
                 cameraDepth,
                 clearFx: false);
             if (!L2YebisPostRuntime.WillFlushNameplates)
-                DrawNameplatesAfterComposite(cmd, cameraColor);
+                DrawNameplatesAfterComposite(cmd, cameraColor, cameraDepth);
             cmd.SetGlobalFloat(D3D9ActiveId, 0f);
         }
 

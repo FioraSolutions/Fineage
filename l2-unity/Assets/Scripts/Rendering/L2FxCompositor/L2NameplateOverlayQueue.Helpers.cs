@@ -21,6 +21,7 @@ public static partial class L2NameplateOverlayQueue
         if (item.Material == null || item.IndexBuffer == null || item.IndexCount <= 0)
             return;
 
+        item.Material.SetFloat("_ZTest", (float)(int)CompareFunction.Always);
         item.Material.SetBuffer("_GlyphBuffer", item.GlyphBuffer);
         var rp = new RenderParams(item.Material)
         {

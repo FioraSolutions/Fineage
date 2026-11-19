@@ -73,15 +73,23 @@ public partial class PlayerController
 
     private float ApplyGravity(float deltaTime)
     {
-        bool caveHole = WorldPlacement.IsDarkElfCave(transform.position)
-            && !WorldPlacement.HasFloorWithin(transform.position, WorldPlacement.CaveDeckMeters);
+        // Hole in the walkable mesh: geodata (or the current deck) still says we
+        // should be here, but the next collider is a distant shell. Do not fall
+        // through. A real cliff has geodata far below, so gravity still runs.
+        bool meshHole = !WorldPlacement.HasFloorWithin(transform.position, WorldGrounding.SnapToleranceMeters);
+        bool stayOnDeck = false;
+        if (meshHole)
+        {
+            if (WorldPlacement.TryResolveGeodataY(transform.position, out float geoY)
+                && Mathf.Abs(geoY - transform.position.y) <= WorldGrounding.SnapToleranceMeters)
+                stayOnDeck = true;
+        }
         if (_controller.isGrounded)
         {
             _verticalVelocity = -2f;
         }
-        else if (caveHole)
+        else if (stayOnDeck)
         {
-            // Street mesh does not cover this spot. The next collider is the shell ~9 m down.
             _verticalVelocity = 0f;
         }
         else

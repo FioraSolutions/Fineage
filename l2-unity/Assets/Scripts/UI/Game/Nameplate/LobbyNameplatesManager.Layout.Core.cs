@@ -80,7 +80,8 @@ public partial class LobbyNameplatesManager
             float yTop = screenH - ay - lineH;
 
             _batch.AppendLine(
-                _font, item.Name, x, yTop, scale, item.Color, screen.z, screenH, discardFrac);
+                _font, item.Name, x, yTop, scale, item.Color,
+                L2NameplateScreenBatch.ClipNdcZ(cam, item.World), screenH, discardFrac);
         }
 
         return _batch.UploadAndDraw(cam);

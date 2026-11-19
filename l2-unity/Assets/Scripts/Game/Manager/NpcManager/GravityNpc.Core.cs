@@ -11,7 +11,6 @@ public partial class GravityNpc : MonoBehaviour, IGravity
             GravityNpcPacketServices.Bind(gravity: this);
             _dict = new Dictionary<int, GravityData>();
             _remove = new List<int>();
-            _direction = Vector3.zero;
         }
         else
         {
@@ -22,7 +21,6 @@ public partial class GravityNpc : MonoBehaviour, IGravity
     private void FixedUpdate()
     {
         if (_dict == null || _dict.Count == 0) return;
-        //Debug.Log("GravityData size " + _dict.Count);
         foreach (KeyValuePair<int, GravityData> kvp in _dict)
         {
             GravityData data = kvp.Value;
@@ -35,23 +33,37 @@ public partial class GravityNpc : MonoBehaviour, IGravity
                 continue;
             }
 
-            if (!data.IsDead())
+            if (data.IsDead())
+                continue;
+
+            // Spawn gate: wait until WorldPlacement + colliders are live.
+            if (data.ArmFrames > 0)
             {
-                // Spawn gate: wait until WorldPlacement + colliders are live before yanking down.
-                if (data.ArmFrames > 0)
-                {
-                    data.ArmFrames--;
-                    continue;
-                }
-
-                Vector3 feet = controller.transform.position;
-                if (WorldPlacement.IsDarkElfCave(feet)
-                    && !WorldPlacement.HasFloorWithin(feet, WorldPlacement.CaveDeckMeters))
-                    continue;
-
-                Vector3 ajustedDirection = _direction * _speed * _moveSpeedMultiplier + Vector3.down * _gravity;
-                controller.Move(ajustedDirection * Time.deltaTime);
+                data.ArmFrames--;
+                continue;
             }
+
+            // Same pipeline as spawn and move: server Y is the authority.
+            // Do not CharacterController.Move downward — that lands on water
+            // and distant shells the walkable mask would have rejected.
+            Transform body = controller.transform;
+            Vector3 feet = body.position;
+            Entity entity = data.Entity;
+            float refY = feet.y;
+            if (entity != null && entity.Identity != null)
+            {
+                entity.Identity.RememberServerPosition();
+                refY = entity.Identity.ServerPosition.y;
+            }
+
+            Vector3 reference = new Vector3(feet.x, refY, feet.z);
+            Vector3 stood = WorldPlacement.KeepOnBrush(reference);
+            if ((stood - feet).sqrMagnitude < 0.0001f)
+                continue;
+
+            WorldPlacement.ApplyPose(body.gameObject, stood, body.rotation);
+            if (entity != null && entity.Identity != null)
+                entity.Identity.Position = stood;
         }
 
         Delete(_dict, _remove);

@@ -22,7 +22,7 @@ public sealed partial class L2FxCompositorRenderPass
         Shader.SetGlobalFloat(FxGainId, _settings != null ? _settings.fxGain : 1f);
     }
 
-    void DrawNameplatesAfterComposite(CommandBuffer cmd, RTHandle cameraColor)
+    void DrawNameplatesAfterComposite(CommandBuffer cmd, RTHandle cameraColor, RTHandle cameraDepth)
     {
         if (cmd == null || cameraColor == null)
         {
@@ -30,8 +30,11 @@ public sealed partial class L2FxCompositorRenderPass
             return;
         }
 
-        CoreUtils.SetRenderTarget(cmd, cameraColor, ClearFlag.None, Color.clear);
-        L2NameplateOverlayQueue.Flush(cmd);
+        if (cameraDepth != null)
+            CoreUtils.SetRenderTarget(cmd, cameraColor, cameraDepth, ClearFlag.None, Color.clear);
+        else
+            CoreUtils.SetRenderTarget(cmd, cameraColor, ClearFlag.None, Color.clear);
+        L2NameplateOverlayQueue.Flush(cmd, depthTest: cameraDepth != null);
     }
 
     void BlitDebug(CommandBuffer cmd, RTHandle source, RTHandle cameraColor)
