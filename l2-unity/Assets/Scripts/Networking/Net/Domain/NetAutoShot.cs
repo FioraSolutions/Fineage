@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 public static partial class NetAutoShot
 {
-    /// <summary>Classic <c>etcitem_type</c> for both soulshots and spiritshots.</summary>
-    const string ShotEtcType = "soul_shot";
-
     static readonly object Gate = new object();
     static readonly HashSet<int> Enabled = new HashSet<int>();
 

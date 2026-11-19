@@ -12,9 +12,7 @@ using UnityEngine.UIElements;
 /// </summary>
 public static partial class ToggleSkillShine
 {
-    const string FrameRoot = "Data/UI/ShortCut/skill_time/ToggleEffect";
-    const int FrameCount = 13;
-    const long FrameMs = 90;
+    const long FrameMs = ToggleEffectFrames.FrameMs;
 
     /// <summary>Resolved frames. <c>null</c> until the first load attempt, empty when the art is missing.</summary>
     static Texture2D[] _frames;
@@ -24,10 +22,20 @@ public static partial class ToggleSkillShine
     public static void Apply(VisualElement slot, int skillId, int level, ref VisualElement shine,
         ref IVisualElementScheduledItem pulse)
     {
+        Apply(slot, IsRunningToggle(skillId, level), ref shine, ref pulse);
+    }
+
+    /// <summary>
+    /// Same ToggleEffect shine used for a running toggle, also used on a shortcut-bar shot
+    /// whose auto-use the zone has confirmed via <c>AutoSoulShot</c>. Inventory slots must not call this.
+    /// </summary>
+    public static void Apply(VisualElement slot, bool show, ref VisualElement shine,
+        ref IVisualElementScheduledItem pulse)
+    {
         if (slot == null)
             return;
 
-        if (!IsRunningToggle(skillId, level))
+        if (!show)
         {
             Hide(slot, ref shine, ref pulse);
             return;
@@ -89,15 +97,15 @@ public static partial class ToggleSkillShine
             return;
         _triedLoad = true;
 
-        var list = new List<Texture2D>(FrameCount);
-        for (int i = 1; i <= FrameCount; i++)
+        var list = new List<Texture2D>(ToggleEffectFrames.Count);
+        for (int i = 1; i <= ToggleEffectFrames.Count; i++)
         {
-            Texture2D tex = Resources.Load<Texture2D>(FrameRoot + i.ToString("000"));
+            Texture2D tex = Resources.Load<Texture2D>(ToggleEffectFrames.ResourcePath(i));
             if (tex != null)
                 list.Add(tex);
         }
         _frames = list.Count > 0 ? list.ToArray() : null;
         if (_frames == null)
-            Debug.LogWarning("[ToggleShine] missing " + FrameRoot + "001..013");
+            Debug.LogWarning("[ToggleShine] missing " + ToggleEffectFrames.ResourcePath(1) + ".." + ToggleEffectFrames.ResourcePath(ToggleEffectFrames.Count));
     }
 }
