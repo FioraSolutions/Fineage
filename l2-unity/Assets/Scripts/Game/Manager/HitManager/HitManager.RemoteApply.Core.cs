@@ -21,7 +21,7 @@ public partial class HitManager
         foreach (KeyValuePair<int, RemoteMeleeHit> kv in _remoteHits)
         {
             RemoteMeleeHit pending = kv.Value;
-            if (pending == null || pending.Fired)
+            if (pending == null)
             {
                 _remoteHitScratch.Add(kv.Key);
                 continue;
@@ -33,6 +33,9 @@ public partial class HitManager
                 continue;
             }
 
+            if (pending.WaitForShot)
+                continue;
+
             if (Time.time >= pending.FireAt)
                 _remoteHitScratch.Add(kv.Key);
         }
@@ -43,13 +46,7 @@ public partial class HitManager
             RemoteMeleeHit pending;
             if (!_remoteHits.TryGetValue(id, out pending) || pending == null)
                 continue;
-            if (pending.Fired || pending.Attacker == null || pending.Attacker.IsDead())
-            {
-                DropRemoteMeleeHit(id);
-                continue;
-            }
-
-            if (pending.WaitForShot)
+            if (pending.Attacker == null || pending.Attacker.IsDead())
             {
                 DropRemoteMeleeHit(id);
                 continue;
@@ -62,57 +59,75 @@ public partial class HitManager
     void TryFireRemoteMeleeHit(int attackerId)
     {
         RemoteMeleeHit pending;
-        if (!_remoteHits.TryGetValue(attackerId, out pending) || pending == null || pending.Fired)
+        if (!_remoteHits.TryGetValue(attackerId, out pending) || pending == null)
             return;
-
-        pending.Fired = true;
-        UnbindRemoteMeleeHit(pending);
-        _remoteHits.Remove(attackerId);
 
         Entity attacker = pending.Attacker;
-        Entity target = pending.Target;
         if (attacker == null)
-            return;
-        if (target == null && (pending.Packet == null || pending.Packet.ArrHit == null || pending.Packet.ArrHit.Length == 0))
-            return;
-
-        if (target != null && !pending.Miss)
         {
-            attacker.IsSoulshotCharged = pending.Soulshot;
-            Vector3 hitPoint = ResolveTargetImpactCenter(target);
-            HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
+            DropRemoteMeleeHit(attackerId);
+            return;
         }
 
-        int primaryId = target != null && target.Identity != null ? target.Identity.Id : 0;
-        FireExtraHits(attacker, pending.Packet, primaryId);
+        int hitCount = AttackHitPresentation.CountHits(pending.Packet);
+        if (hitCount == 0)
+        {
+            DropRemoteMeleeHit(attackerId);
+            return;
+        }
+
+        if (pending.WaitForShot)
+        {
+            if (!PresentOnePacketHit(pending))
+            {
+                DropRemoteMeleeHit(attackerId);
+                return;
+            }
+
+            if (pending.NextHitIndex >= hitCount)
+            {
+                UnbindRemoteMeleeHit(pending);
+                _remoteHits.Remove(attackerId);
+            }
+
+            return;
+        }
+
+        while (pending.NextHitIndex < hitCount)
+        {
+            if (!PresentOnePacketHit(pending))
+                break;
+        }
+
+        UnbindRemoteMeleeHit(pending);
+        _remoteHits.Remove(attackerId);
     }
 
-    void FireExtraHits(Entity attacker, AttackDto dto, int primaryTargetId)
+    bool PresentOnePacketHit(RemoteMeleeHit pending)
     {
-        if (attacker == null || dto == null || dto.ArrHit == null)
-            return;
+        Entity attacker = pending.Attacker;
+        AttackDto packet = pending.Packet;
+        int hitIndex = pending.NextHitIndex;
+        pending.NextHitIndex++;
 
-        bool savedCharge = attacker.IsSoulshotCharged;
-        for (int i = 0; i < dto.ArrHit.Length; i++)
-        {
-            Hit hit = dto.ArrHit[i];
-            if (hit == null || hit.isMiss() || hit.TargetId == primaryTargetId)
-                continue;
+        Hit hit = AttackHitPresentation.ResolveHit(packet, hitIndex);
+        if (hit == null || hit.isMiss())
+            return true;
 
-            Entity extra = ResolveEntityFromWorld(hit.TargetId);
-            if (extra == null &&
-                DomainPacketServices.LocalPlayer != null &&
-                DomainPacketServices.LocalPlayer.Identity != null &&
-                DomainPacketServices.LocalPlayer.Identity.Id == hit.TargetId)
-                extra = DomainPacketServices.LocalPlayer;
-            if (extra == null || extra == attacker)
-                continue;
+        Entity target = AttackHitPresentation.ResolveHitTarget(
+            pending.Target,
+            hit,
+            ResolveEntityFromWorld);
 
-            attacker.IsSoulshotCharged = hit.hasSoulshot();
-            Vector3 extraPoint = ResolveTargetImpactCenter(extra);
-            HandleHitCollider(attacker, attacker.transform, extra, extraPoint, Vector3.zero);
-        }
+        if (target == null)
+            target = ResolveEntityFromWorld(packet != null ? packet.TargetId : 0);
 
-        attacker.IsSoulshotCharged = savedCharge;
+        if (target == null || target == attacker)
+            return true;
+
+        attacker.IsSoulshotCharged = hit.hasSoulshot();
+        Vector3 hitPoint = ResolveTargetImpactCenter(target);
+        HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
+        return true;
     }
 }

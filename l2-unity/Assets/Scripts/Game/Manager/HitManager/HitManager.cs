@@ -23,7 +23,6 @@ public partial class HitManager : MonoBehaviour
     private readonly List<int> _remoteHitScratch = new List<int>();
     private AttackDto _localAttack;
     private int _localAttackToken;
-    private int _localAttackFiredToken;
 
 
 }
