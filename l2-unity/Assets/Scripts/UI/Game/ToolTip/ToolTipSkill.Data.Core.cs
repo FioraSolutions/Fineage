@@ -22,9 +22,34 @@ public partial class ToolTipSkill
 
         if (desc.Equals(""))
         {
-            SkillNameData fallback = SkillNames != null ? SkillNames.GetName(skillgrp.Id, 1) : null;
-            if (fallback != null)
-                desc = fallback.Desc;
+            if (SkillNames == null)
+            {
+                Debug.LogError(
+                    "[ToolTipSkill] SkillNameTable missing — cannot resolve description skill id="
+                    + skillgrp.Id + " level=" + skillgrp.Level + ".");
+            }
+            else if (skillgrp.Level != 1)
+            {
+                SkillNameData levelOne = SkillNames.GetName(skillgrp.Id, 1);
+                if (levelOne != null && !string.IsNullOrEmpty(levelOne.Desc))
+                {
+                    Debug.LogError(
+                        "[ToolTipSkill] missing skillname description skill id=" + skillgrp.Id
+                        + " level=" + skillgrp.Level + " — using level=1 desc as degrade.");
+                    desc = levelOne.Desc;
+                }
+                else
+                {
+                    Debug.LogError(
+                        "[ToolTipSkill] missing skillname description skill id=" + skillgrp.Id
+                        + " level=" + skillgrp.Level + " (no level=1 row either).");
+                }
+            }
+            else
+            {
+                Debug.LogError(
+                    "[ToolTipSkill] missing skillname description skill id=" + skillgrp.Id + " level=1.");
+            }
         }
 
 

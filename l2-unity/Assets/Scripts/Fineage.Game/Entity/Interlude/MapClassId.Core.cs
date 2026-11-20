@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public partial class MapClassId
 {
@@ -51,8 +52,8 @@ public partial class MapClassId
             return CharacterRace.Dwarf;
         }
 
-        // Debug.Log("Critical error: Not Found Race!!!");
-        return 0;
+        Debug.LogError("[MapClassId] unknown lobby race id=" + race + " (expected 0–4 Interlude race).");
+        return CharacterRace.Human;
     }
 
     public static CharacterRace GetCharacterRace(int serverClassId)
@@ -78,6 +79,9 @@ public partial class MapClassId
             (serverClassId >= (int)ClassId.FORTUNE_SEEKER && serverClassId <= (int)ClassId.MAESTRO))
             return CharacterRace.Dwarf;
 
+        Debug.LogError(
+            "[MapClassId] unknown server classId=" + serverClassId
+            + " (no Interlude race range — check classid tables).");
         return CharacterRace.Human;
     }
 }

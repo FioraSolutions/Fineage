@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Maps attach sockets to skeleton bone names. Race-specific overrides live here as data,
@@ -28,7 +29,13 @@ public static class WeaponSkeletonSocketMap
             return overrideName;
         }
 
-        return DefaultBoneNames[socket];
+        if (DefaultBoneNames.TryGetValue(socket, out string boneName))
+            return boneName;
+
+        Debug.LogError(
+            "[WeaponAttach] unknown attach socket=" + socket
+            + " skeletonId=" + (skeletonId ?? "<null>") + " (no default bone name).");
+        return "Weapon_R_Bone";
     }
 
     public static void RegisterOverride(string skeletonId, WeaponAttachSocket socket, string boneName)

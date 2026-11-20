@@ -32,7 +32,12 @@ public static partial class SkillCastSound
                 data = table.GetName(skillId, 1);
             name = data != null ? data.Name : null;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.LogError(
+                "[SkillCastSound] SkillNameTable lookup failed skillId=" + skillId + " level=" + level + ": "
+                + ex.Message);
+        }
 
         string normalized = Normalize(name);
         if (string.IsNullOrEmpty(normalized))
