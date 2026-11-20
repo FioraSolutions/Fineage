@@ -30,6 +30,7 @@ public sealed partial class CastClipPlayable
     private AnimationEvent[] _events;
     private bool[] _eventFired;
     bool _oneShot;
+    bool _spAtkCombat;
 
     /// <summary>Graph already exists. TryPlay must not Bind again on later casts.</summary>
     public bool IsGraphAlive => _ready && _graph.IsValid() && _controllerPlayable.IsValid();
