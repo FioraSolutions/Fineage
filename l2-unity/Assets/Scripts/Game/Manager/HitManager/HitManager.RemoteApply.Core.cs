@@ -114,7 +114,7 @@ public partial class HitManager
         if (hit == null || hit.isMiss())
             return true;
 
-        Entity target = AttackHitPresentation.ResolveHitTarget(
+        Entity target = AttackHitPresentationTarget.ResolveHitTarget(
             pending.Target,
             hit,
             ResolveEntityFromWorld);
