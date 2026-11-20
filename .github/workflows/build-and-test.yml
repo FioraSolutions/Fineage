@@ -57,6 +57,9 @@ jobs:
       - name: Check NPC/monster meter scale contract (#1473)
         run: python3 scripts/check-npc-monster-meter-contract.py
 
+      - name: Check Elven Village BSP CSG fixtures
+        run: python3 scripts/check-elven-bsp-csg-fixtures.py
+
       - name: Check Net contract is in sync with the backend
         run: |
           FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check \

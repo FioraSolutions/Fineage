@@ -70,9 +70,28 @@ public static class L2InterludeMaterialBinder
                 if (hasBase || hasMain) continue;
                 if (m.shader != null && m.shader.name != "Universal Render Pipeline/Lit" && !m.shader.name.StartsWith("Hidden/") && m.shader.name != "Standard") continue; // custom shaders (water etc.)
 
+                var ue2 = L2Ue2ShaderProps.Analyze(m.name, props);
+                if (ue2.mode == L2Ue2ShaderProps.RenderMode.HiddenCollisionOnly)
+                {
+                    ApplyCollisionOnly(m);
+                    fixedN++;
+                    continue;
+                }
+                if (ue2.mode == L2Ue2ShaderProps.RenderMode.Unknown && !string.IsNullOrEmpty(ue2.detail))
+                    Debug.LogError("[MatBinder] " + m.name + ": " + ue2.detail);
+
                 var info = Resolve(m.name, props, tex, 0);
-                string texPath = Pick(info.tex, tex, mp);
-                if (texPath == null) { missing++; if (missingNames.Count < 40) missingNames.Add(m.name); continue; }
+                info.cutout |= ue2.mode == L2Ue2ShaderProps.RenderMode.MaskedCutout && ue2.alphaTest;
+                info.twoSided |= ue2.twoSided;
+                string texPath = Pick(info.tex ?? ue2.resolvedDiffuseTexture, tex, mp);
+                if (texPath == null) {
+                    if (ue2.mode != L2Ue2ShaderProps.RenderMode.HiddenCollisionOnly) {
+                        missing++;
+                        if (missingNames.Count < 40) missingNames.Add(m.name);
+                        Debug.LogError("[MatBinder] missing diffuse for material " + m.name + " (mesh " + mp + ")");
+                    }
+                    continue;
+                }
                 var t = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
                 if (lit != null && m.shader != lit) m.shader = lit;
                 m.SetTexture("_BaseMap", t);
@@ -82,10 +101,10 @@ public static class L2InterludeMaterialBinder
                 m.SetFloat("_Smoothness", 0f);
                 m.SetFloat("_SpecularHighlights", 0f); m.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
                 m.SetFloat("_EnvironmentReflections", 0f); m.EnableKeyword("_ENVIRONMENTREFLECTIONS_OFF");
-                if (info.cutout)
+                if (info.cutout || ue2.alphaTest)
                 {
                     m.SetFloat("_AlphaClip", 1f);
-                    m.SetFloat("_Cutoff", 0.5f);
+                    m.SetFloat("_Cutoff", ue2.alphaRef > 0 ? ue2.alphaRef / 255f : 0.5f);
                     m.EnableKeyword("_ALPHATEST_ON");
                     m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
                     m.SetOverrideTag("RenderType", "TransparentCutout");
@@ -101,7 +120,7 @@ public static class L2InterludeMaterialBinder
                 (missingNames.Count > 0 ? " (e.g. " + string.Join(", ", missingNames) + ")" : ""));
         log.Add("translucent (water) materials fixed: " + FixTranslucent(props));
         log.Add("SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
-        log.Add("elven bridge/stair mats forced opaque two-sided: " + FixElvenBridgeDeck());
+        log.Add("collision-only shader mats: " + FixCollisionOnlyFromProps(props));
         log.Add(L2InterludeStaticMeshColliders.Run(null));
         log.Add(L2InterludeWaterVolumes.Run(null));
     }
@@ -116,7 +135,7 @@ public static class L2InterludeMaterialBinder
                 props[Path.GetFileName(f).Replace(".props.txt", "")] = f;
         Debug.Log("[MatBinder] translucent (water) materials fixed: " + FixTranslucent(props));
         Debug.Log("[MatBinder] SpeedTree->Lit opaque shader mats fixed: " + FixSpeedTreeOpaque(props));
-        Debug.Log("[MatBinder] elven bridge/stair mats forced opaque two-sided: " + FixElvenBridgeDeck());
+        Debug.Log("[MatBinder] collision-only shader mats: " + FixCollisionOnlyFromProps(props));
         Debug.Log("[Water] " + L2InterludeWaterVolumes.Run(null));
     }
 
@@ -230,6 +249,38 @@ public static class L2InterludeMaterialBinder
             if (Regex.IsMatch(m.name, "water|leaf|leaves|grass|bush", RegexOptions.IgnoreCase)) continue;
             if (!props.TryGetValue(m.name, out var pf)) continue;
             string txt = File.ReadAllText(pf);
+            var ue2 = L2Ue2ShaderProps.Analyze(m.name, props);
+            if (ue2.mode == L2Ue2ShaderProps.RenderMode.MaskedCutout)
+            {
+                if (tex == null)
+                {
+                    tex = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var tg in AssetDatabase.FindAssets("t:Texture2D", new[] { TexRoot }))
+                    {
+                        string tp = AssetDatabase.GUIDToAssetPath(tg);
+                        string tn = Path.GetFileNameWithoutExtension(tp);
+                        if (!tex.TryGetValue(tn, out var tl)) tex[tn] = tl = new List<string>();
+                        tl.Add(tp);
+                    }
+                }
+                // Bridge railings / grates: AlphaTest in L2 → URP cutout (do not force opaque).
+                string texPath = Pick(Resolve(m.name, props, tex, 0).tex, tex, mp);
+                if (lit != null) m.shader = lit;
+                if (texPath != null)
+                {
+                    var cutTex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+                    m.SetTexture("_BaseMap", cutTex);
+                    m.SetTexture("_MainTex", cutTex);
+                }
+                m.SetFloat("_AlphaClip", 1f);
+                m.SetFloat("_Cutoff", ue2.alphaRef > 0 ? ue2.alphaRef / 255f : 0.5f);
+                m.EnableKeyword("_ALPHATEST_ON");
+                m.SetFloat("_Cull", ue2.twoSided ? 0f : 2f);
+                m.doubleSidedGI = ue2.twoSided;
+                EditorUtility.SetDirty(m);
+                n++;
+                continue;
+            }
             if (!Regex.IsMatch(txt, @"^\s*AlphaTest\s*=\s*false", RegexOptions.Multiline)) continue;
             if (!Regex.IsMatch(txt, @"^\s*ZWrite\s*=\s*true", RegexOptions.Multiline)) continue;
             if (tex == null)
@@ -276,31 +327,33 @@ public static class L2InterludeMaterialBinder
         return n;
     }
 
-    /// <summary>
-    /// Oren_HEV_S O_E_Brg / O_E_BrgT / O_E_Bridge / O_E_Stair: walk deck is a single-sided plane (elf_vi_117,
-    /// upward faces), invisible in Unity with Cull Back (railings elf_vi_0002 are two-sided so they showed).
-    /// Force these mats URP Lit opaque, no clip, Cull Off.
-    /// </summary>
-    static readonly HashSet<string> ElvenBridgeMats = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        { "elf_vi_117", "elf_vi_0002", "elf_vi_003", "elf_vi_001", "elf_vi_004" };
+    static Shader _collisionOnly;
 
-    static int FixElvenBridgeDeck()
+    static void ApplyCollisionOnly(Material m)
+    {
+        if (_collisionOnly == null) _collisionOnly = Shader.Find("L2/World/CollisionOnly");
+        if (_collisionOnly == null)
+        {
+            Debug.LogError("[MatBinder] L2/World/CollisionOnly shader missing; cannot hide collision-only material " + m.name);
+            return;
+        }
+        m.shader = _collisionOnly;
+        m.SetOverrideTag("RenderType", "Opaque");
+        EditorUtility.SetDirty(m);
+    }
+
+    static int FixCollisionOnlyFromProps(Dictionary<string, string> props)
     {
         int n = 0;
-        Shader lit = Shader.Find("Universal Render Pipeline/Lit");
-        foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot, TexRoot }))
+        foreach (var g in AssetDatabase.FindAssets("t:Material", new[] { MeshRoot }))
         {
             string mp = AssetDatabase.GUIDToAssetPath(g);
-            if (!ElvenBridgeMats.Contains(Path.GetFileNameWithoutExtension(mp))) continue;
             var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
-            if (m == null || lit == null || m.shader != lit) continue;
-            m.SetFloat("_Surface", 0f); m.SetFloat("_ZWrite", 1f);
-            m.SetFloat("_AlphaClip", 0f); m.DisableKeyword("_ALPHATEST_ON");
-            m.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            m.SetOverrideTag("RenderType", "Opaque");
-            m.renderQueue = -1;
-            m.SetFloat("_Cull", 0f); m.doubleSidedGI = true;
-            EditorUtility.SetDirty(m);
+            if (m == null) continue;
+            var ue2 = L2Ue2ShaderProps.Analyze(m.name, props);
+            if (ue2.mode != L2Ue2ShaderProps.RenderMode.HiddenCollisionOnly) continue;
+            if (m.shader != null && m.shader.name == "L2/World/CollisionOnly") continue;
+            ApplyCollisionOnly(m);
             n++;
         }
         AssetDatabase.SaveAssets();
