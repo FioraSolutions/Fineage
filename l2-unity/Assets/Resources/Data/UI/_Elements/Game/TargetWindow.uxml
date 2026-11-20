@@ -38,11 +38,10 @@
                 <ui:VisualElement name="ButtonBg" picking-mode="Ignore" style="width: 16px; height: 16px;" />
             </ui:Button>
         </ui:VisualElement>
-        <!-- Horizontal resize grip: sibling of the drag plate, kept off the drag-area so both
-             manipulators do not fight for the pointer. Height tracks the 46/76px plate. The grip
-             art is applied by USS on hover only — retail has no grip and it used to paint over
-             the SmallWindow_Back3_ex right cap. -->
-        <ui:VisualElement name="SizeControl" class="target-size-control" style="position: absolute; right: 0; top: 0; width: 5px; max-width: 5px; margin: 0; padding: 0;">
+        <!-- Horizontal resize hit-area: sibling of the drag plate, kept off the drag-area so
+             both manipulators do not fight for the pointer. Height tracks the 46/76px plate.
+             Retail has no grip, so resize-handle-silent keeps the strip invisible. -->
+        <ui:VisualElement name="SizeControl" class="target-size-control resize-handle-silent" style="position: absolute; right: 0; top: 0; width: 5px; max-width: 5px; margin: 0; padding: 0;">
             <ui:VisualElement name="SizeControlHandle" class="hor-resize-handle resize-hor" style="position: absolute; top: 0; left: 0; width: 5px; margin: 0; padding: 0;" />
         </ui:VisualElement>
         <!-- Target abnormal strip: monsters/NPCs only. It is painted UNDER the plate as an

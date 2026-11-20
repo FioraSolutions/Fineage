@@ -54,6 +54,32 @@
 .hor-resize-handle {
 }
 
+/* Invisible hit-area for windows that are resizable but have no retail size
+   grip (TargetStatusWnd). StatusWindow keeps its official 16px ps_sizecontrol2
+   decoration and must not use this class. */
+.resize-handle-silent,
+.resize-handle-silent:hover,
+.resize-handle-silent .hor-resize-handle,
+.resize-handle-silent:hover .hor-resize-handle {
+    background-image: none;
+}
+
+/* Interlude AbnormalStatusWnd / BuffWnd: NSTATUSICON_SIZE = 24.
+   Shared by the status tray (SlotBuffer) and the target abnormal/property strip
+   so 32x32 skill textures stay at the official cell pitch. */
+.abnormal-icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
 .hor-position {
     rotate: 180deg;
 }
@@ -980,20 +1006,10 @@
     height: 46px;
     margin: 0;
     padding: 0;
-    /* Retail TargetStatusWnd is a fixed 176x46 plate and carries no size grip at all. The resize
-       affordance is ours, so it must not paint over SmallWindow_Back3_ex: keep the strip
-       transparent until the pointer is actually on it (see :hover below). */
+    /* Retail TargetStatusWnd is a fixed 176x46 plate and carries no size grip.
+       The 5px strip stays an invisible hit-area even on hover: the 8x8 / 16x16
+       ps_sizecontrol art used to stretch down the 46/76px plate. */
     background-image: none;
-    -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-scale: 1px;
-    -unity-slice-top: 3;
-    -unity-slice-bottom: 3;
-    -unity-slice-left: 0;
-    -unity-slice-right: 0;
-}
-
-.target-window .target-size-control:hover {
-    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1');
 }
 
 .target-window.expanded .target-size-control,
@@ -1009,28 +1025,14 @@
     height: 46px;
     margin: 0;
     padding: 0;
-    /* Same reason: the grip art appears on hover only. */
     background-image: none;
-    -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-scale: 0;
-    -unity-slice-top: 0;
-    -unity-slice-bottom: 0;
-    -unity-slice-left: 0;
-    -unity-slice-right: 8;
-}
-
-.target-window .target-size-control:hover .hor-resize-handle {
-    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2');
 }
 
 .target-window .target-effect-icon,
 .target-window .target-property-icon {
-    /* Interlude AbnormalStatusWnd: NSTATUSICON_SIZE = 24, so cells sit at a 24px pitch. */
-    width: 24px;
-    height: 24px;
+    /* Size comes from the shared .abnormal-icon class (24px Interlude pitch). */
     margin-right: 0;
     margin-bottom: 0;
-    -unity-background-scale-mode: stretch-to-fill;
     position: relative;
 }
 
