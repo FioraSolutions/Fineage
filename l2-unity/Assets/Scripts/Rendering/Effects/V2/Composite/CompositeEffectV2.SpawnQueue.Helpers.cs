@@ -88,12 +88,25 @@ public partial class CompositeEffectV2
 
     void ScheduleServerShootBackup(CompositePart part)
     {
-        if (part == null || _castData == null || _castData.serverTimeToShoot <= 0f)
+        if (part == null || _castData == null)
         {
             return;
         }
 
-        float spawnAt = _castData.StartTime + _castData.serverTimeToShoot;
+        float shootAfter = _castData.serverTimeToShoot;
+        if (shootAfter <= 0f)
+        {
+            // Physical SpAtk cast (no server shoot): impact-only backup at the hit. A projectile spawned here
+            // would never be launched without the AttackShot notify, so flying parts wait for the event as before.
+            if (_castData.ImpactFallbackSeconds <= 0f || part is ShotProjectilePart || part is HomeFlightPart)
+            {
+                return;
+            }
+
+            shootAfter = _castData.ImpactFallbackSeconds;
+        }
+
+        float spawnAt = _castData.StartTime + shootAfter;
         for (int i = 0; i < _pendingDelayed.Count; i++)
         {
             PendingV2Part pending = _pendingDelayed[i];
