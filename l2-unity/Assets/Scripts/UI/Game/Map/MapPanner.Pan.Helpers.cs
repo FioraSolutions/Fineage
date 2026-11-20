@@ -67,4 +67,16 @@ public partial class MapPanner
         _viewport.style.left = 0;
         _viewport.style.top = 0;
     }
+
+    public Vector2 CaptureScrollOffset() => offset;
+
+    public void RestoreScrollOffset(Vector2 value)
+    {
+        float maxX = Mathf.Max(0f, MAP_W - VIEW_W);
+        float maxY = Mathf.Max(0f, MAP_H - VIEW_H);
+        offset.x = Mathf.Clamp(value.x, 0f, maxX);
+        offset.y = Mathf.Clamp(value.y, 0f, maxY);
+        _map.style.left = -offset.x;
+        _map.style.top = -offset.y;
+    }
 }
