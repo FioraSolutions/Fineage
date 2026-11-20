@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -141,8 +142,53 @@ public static class FineageAssetImportRules
         }
 
         _cached = parsed.ToDocument();
+        HydrateTextureRuleMetadata(json, _cached.textureRules);
         _cachedWriteUtc = writeUtc;
         return _cached;
+    }
+
+    /// <summary>
+    /// JsonUtility omits some optional texture rule flags; merge them from raw JSON by rule id.
+    /// </summary>
+    static void HydrateTextureRuleMetadata(string json, TextureRule[] rules)
+    {
+        if (rules == null || rules.Length == 0 || string.IsNullOrEmpty(json))
+            return;
+        JObject root;
+        try
+        {
+            root = JObject.Parse(json);
+        }
+        catch
+        {
+            return;
+        }
+
+        var arr = root["textureRules"] as JArray;
+        if (arr == null)
+            return;
+
+        var byId = new Dictionary<string, TextureRule>();
+        foreach (var rule in rules)
+        {
+            if (rule != null && !string.IsNullOrEmpty(rule.id))
+                byId[rule.id] = rule;
+        }
+
+        foreach (var tok in arr)
+        {
+            if (tok is not JObject obj)
+                continue;
+            string id = obj.Value<string>("id");
+            if (string.IsNullOrEmpty(id) || !byId.TryGetValue(id, out var rule))
+                continue;
+            JToken requiresAlpha = obj["requiresSourceAlpha"];
+            if (requiresAlpha != null && requiresAlpha.Type != JTokenType.Null)
+                rule.requiresSourceAlpha = requiresAlpha.Value<bool>();
+            JToken mipCov = obj["mipMapsPreserveCoverage"];
+            if (mipCov != null && mipCov.Type != JTokenType.Null)
+                rule.mipMapsPreserveCoverage = mipCov.Value<bool>();
+        }
     }
 
     public static TextureRule ResolveTextureRule(string assetPath, bool? sourceHasAlpha = null)

@@ -19,12 +19,12 @@ public sealed class WorldAlphaCutoutImportEditModeTests
     }
 
     [Test]
-    public void Opaque_splat_stays_world_map_not_alpha_cutout()
+    public void Splat_png_uses_terrain_splat_rule_not_alpha_cutout()
     {
         const string splat = "Assets/Resources/Data/Textures/T_24_12/24_12_splat1.png";
         var rule = FineageAssetImportRules.ResolveTextureRule(splat, sourceHasAlpha: false);
         Assert.NotNull(rule);
-        Assert.AreEqual("world-map", rule.id);
+        Assert.AreEqual("terrain-splat", rule.id);
     }
 
     [Test]
