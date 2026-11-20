@@ -130,9 +130,13 @@ public abstract partial class AbstractAttackEvents
             // $"anim={animName} attackerId={attackerEntityId} targetId={targetEntityId} " +
             // $"target={target.name} → EmitHitFromAttackShot");
 
+        int attackShotIndex = SwordCollisionPacketServices.Collision != null
+            ? SwordCollisionPacketServices.Collision.PeekAttackShotIndex(attackerEntityId)
+            : 0;
+
         var hits = CombatPacketServices.Hits;
         if (hits != null)
-            hits.FireRememberedExtraHits(player);
+            hits.PresentLocalAttackHit(player, attackShotIndex);
 
         if (SwordCollisionPacketServices.Collision != null &&
             attackerEntityId > 0 &&

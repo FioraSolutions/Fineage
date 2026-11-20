@@ -11,12 +11,36 @@ public partial class HitManager
         _localAttackToken++;
     }
 
-    public void FireRememberedExtraHits(Entity attacker)
+    /// <summary>
+    /// One AttackShot animation notify → one row in the Attack packet hit list (dual/fist = two notifies).
+    /// </summary>
+    public void PresentLocalAttackHit(Entity attacker, int hitIndex)
     {
-        if (attacker == null || _localAttack == null || _localAttackFiredToken == _localAttackToken)
+        if (attacker == null || _localAttack == null)
+            return;
+        if (_localAttackToken == 0)
             return;
 
-        _localAttackFiredToken = _localAttackToken;
-        FireExtraHits(attacker, _localAttack, _localAttack.TargetId);
+        Hit hit = AttackHitPresentation.ResolveHit(_localAttack, hitIndex);
+        if (hit == null || hit.isMiss())
+            return;
+
+        Entity target = AttackHitPresentation.ResolveHitTarget(
+            attacker.GetTargetEntity(),
+            hit,
+            ResolveEntityFromWorld);
+
+        if (target == null)
+            target = ResolveEntityFromWorld(_localAttack.TargetId);
+
+        if (target == null)
+            return;
+
+        if (attacker is PlayerEntity player)
+            player.SetSelfHit(hit);
+
+        attacker.IsSoulshotCharged = hit.hasSoulshot();
+        Vector3 hitPoint = ResolveTargetImpactCenter(target);
+        HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
     }
 }
