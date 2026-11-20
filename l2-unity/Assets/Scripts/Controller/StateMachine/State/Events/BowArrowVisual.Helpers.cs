@@ -5,13 +5,7 @@ public sealed partial class BowArrowVisual
 {
     static bool IsBowShot(UserEntity user, string animName)
     {
-        return IsBowAnimName(animName) || user.WeaponAnim == "bow";
-    }
-
-    static bool IsBowAnimName(string animName)
-    {
-        return !string.IsNullOrEmpty(animName) &&
-               animName.IndexOf("bow", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        return user != null && CombatStyleEntity.From(user).IsRanged;
     }
 
     static Transform ResolveAimTarget(Entity entity)

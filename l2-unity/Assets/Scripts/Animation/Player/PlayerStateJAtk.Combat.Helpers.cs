@@ -36,7 +36,9 @@ public partial class PlayerStateJAtk : StateMachineBehaviour
         }
     }
 
-    private static bool IsDual(string animName) =>
-        !string.IsNullOrEmpty(animName) &&
-        animName.IndexOf("dual", System.StringComparison.OrdinalIgnoreCase) >= 0;
+    private static bool IsDualWeaponStyle()
+    {
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        return player?.Gear != null && player.Gear.CombatStyle.IsDualAnimSuffix;
+    }
 }

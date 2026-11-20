@@ -28,7 +28,9 @@ public partial class Entity
 
     public bool EtcItemReleased => _gear != null && _gear.EtcItemReleased;
 
-    public bool IsUseBow() => DomainPacketServices.LocalPlayer.GetCurrentAnimName().IndexOf("bow") > -1;
+    public bool IsUseBow() =>
+        DomainPacketServices.LocalPlayer != null &&
+        CombatStyleEntity.IsRanged(DomainPacketServices.LocalPlayer);
 
     public void EquipDualWeapon(int weaponId)
     {

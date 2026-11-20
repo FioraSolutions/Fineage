@@ -67,9 +67,23 @@ public partial class Gear
 
     }
 
-    private void UpdateWeaponType(WeaponType weaponType) {
+    private void ApplyCombatStyleProfile(CombatStyleProfile profile)
+    {
         _lastWeaponAnim = _weaponAnim;
-        _weaponAnim = WeaponTypeParser.GetWeaponAnim(weaponType);
-        _weaponRange = WeaponTypeParser.WeaponRange(weaponType);
+        _combatStyle = profile ?? CombatStyleProfile.Unresolved;
+        _weaponAnim = _combatStyle.AnimSuffix;
+        _weaponRange = _combatStyle.AttackRangeUu;
+    }
+
+    private void UpdateWeaponType(WeaponType weaponType)
+    {
+        ApplyCombatStyleProfile(CombatStyleProfileResolver.ResolveForWeaponType(weaponType));
+    }
+
+    private void UpdateCombatStyleFromWeapon(Weapon weapon)
+    {
+        int itemId = weapon != null ? weapon.Id : 0;
+        Weapongrp grp = weapon?.Weapongrp;
+        ApplyCombatStyleProfile(CombatStyleProfileResolver.Resolve(grp, itemId));
     }
 }

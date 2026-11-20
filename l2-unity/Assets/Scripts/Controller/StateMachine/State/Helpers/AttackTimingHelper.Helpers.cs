@@ -63,13 +63,14 @@ public static partial class AttackTimingHelper
 
     public static float ResolveHitFractionByWeapon(PlayerEntity player)
     {
-        string weaponAnim = player.GetCurrentAnimName();
-        if (string.IsNullOrEmpty(weaponAnim)) return SIMPLE_MELEE_HIT_OVER_FULL;
+        if (player == null || player.Gear == null)
+            return SIMPLE_MELEE_HIT_OVER_FULL;
 
-        string lower = weaponAnim.ToLowerInvariant();
-        if (lower.Contains("bow")) return 0.82f;
+        CombatStyleProfile style = player.Gear.CombatStyle;
+        if (!style.IsResolved)
+            return SIMPLE_MELEE_HIT_OVER_FULL;
 
-        return SIMPLE_MELEE_HIT_OVER_FULL;
+        return style.HitFractionOverAttackCycle;
     }
 
     public static float ResolveServerLikeHitMs(PlayerEntity player)

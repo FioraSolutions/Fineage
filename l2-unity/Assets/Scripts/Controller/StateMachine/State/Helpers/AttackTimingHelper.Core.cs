@@ -61,8 +61,8 @@ public static partial class AttackTimingHelper
         float pAtk = ResolvePAtkSpd(entity);
         float baseTimeAtkMs = CalcBaseParam.CalculateTimeL2j(pAtk);
 
-        if (string.IsNullOrEmpty(animName) ||
-            animName.IndexOf("bow", System.StringComparison.OrdinalIgnoreCase) < 0)
+        bool ranged = entity != null && CombatStyleEntity.IsRanged(entity);
+        if (!ranged)
         {
             return baseTimeAtkMs;
         }
