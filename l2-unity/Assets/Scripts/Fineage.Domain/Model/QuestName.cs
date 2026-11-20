@@ -15,6 +15,7 @@
     //2  repaet
     //0 - unk
     private int _repeat;
+    private int _clan_pet_quest;
     private string _get_item_in_quest;
     private int _contact_npc_id;
     private int _contact_npc_x;
@@ -62,6 +63,7 @@
     public int LvlMax { get => _lvl_max; set => _lvl_max = value; }
 
     public int QuestType { get => _quest_type; set => _quest_type = value; }
+    public int ClanPetQuest { get => _clan_pet_quest; set => _clan_pet_quest = value; }
     public string itemInQuest { get => _get_item_in_quest; set => _get_item_in_quest = value; }
 
     public int ContactNpcId { get => _contact_npc_id; set => _contact_npc_id = value; }

@@ -37,7 +37,7 @@ public static class NetPacketApplyPolicy
 
         RegisterCoalesceLatest(NetOpcode.MoveState, EntityKey<MoveStateMsg>(NetOpcode.MoveState, m => m.EntityValue));
         RegisterCoalesceLatest(NetOpcode.PositionCorrection, EntityKey<PositionCorrectionMsg>(NetOpcode.PositionCorrection, m => m.EntityValue));
-        RegisterCoalesce(NetOpcode.StatusUpdate, CoalesceStrategy.MergeAttributeMap, EntityKey<StatusUpdateNetMsg>(NetOpcode.StatusUpdate, m => m.EntityValue));
+        RegisterCoalesceMerge(NetOpcode.StatusUpdate, CoalesceStrategy.MergeAttributeMap, EntityKey<StatusUpdateNetMsg>(NetOpcode.StatusUpdate, m => m.EntityValue));
         RegisterCoalesceLatest(NetOpcode.ChangeMoveType, EntityKey<ChangeMoveTypeNetMsg>(NetOpcode.ChangeMoveType, m => m.EntityValue));
         RegisterCoalesceLatest(NetOpcode.AttackState, EntityKey<AttackStateMsg>(NetOpcode.AttackState, m => m.AttackerValue));
         RegisterCoalesceLatest(NetOpcode.PartyMemberUpdate, EntityKey<PartyMemberUpdateNetMsg>(NetOpcode.PartyMemberUpdate, m => (ulong)m.ObjectId));
@@ -72,7 +72,10 @@ public static class NetPacketApplyPolicy
     }
 
     static void RegisterCoalesceLatest<T>(ushort opcode, Func<T, long> keyFromBody) =>
-        RegisterCoalesce(opcode, CoalesceStrategy.LatestWins, body => body is T typed ? keyFromBody(typed) : 0);
+        RegisterCoalesceMerge(opcode, CoalesceStrategy.LatestWins, keyFromBody);
+
+    static void RegisterCoalesceMerge<T>(ushort opcode, CoalesceStrategy strategy, Func<T, long> keyFromBody) =>
+        RegisterCoalesce(opcode, strategy, body => body is T typed ? keyFromBody(typed) : 0);
 
     static void RegisterDiscardable(ushort opcode) => ByOpcode[opcode] = Disposition.Discardable;
 

@@ -91,6 +91,10 @@ public sealed partial class NameplateEntryStore
             Color nameColor = NameplateColorsEntity.Resolve(e.Entity, Color.white);
             e.NameColor = nameColor;
 
+            byte questMark = 0;
+            if (e.Entity?.Identity != null)
+                questMark = QuestJournalState.NpcMarkForTemplate(e.Entity.Identity.NpcId);
+
             paintList.Add(new NameplatePaintItem
             {
                 Id = e.Id,
@@ -101,7 +105,8 @@ public sealed partial class NameplateEntryStore
                 TitleColor = e.TitleColor,
                 IsLocalPlayer = isLocal,
                 BubbleType = bubbleType,
-                CastRemaining01 = castRem
+                CastRemaining01 = castRem,
+                QuestMark = questMark
             });
         }
     }

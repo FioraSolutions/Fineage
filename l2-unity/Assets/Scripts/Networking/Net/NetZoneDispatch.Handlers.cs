@@ -316,7 +316,16 @@ public sealed partial class NetZoneDispatch
                 _ = (MagicSkillCanceledNetMsg)packet.Body;
                 break;
             case NetOpcode.PlaySound:
-                _ = (PlaySoundNetMsg)packet.Body;
+                NetQuestFxApply.ApplyPlaySound((PlaySoundNetMsg)packet.Body);
+                break;
+            case NetOpcode.QuestDirection:
+                NetQuestFxApply.ApplyQuestDirection((QuestDirectionNetMsg)packet.Body);
+                break;
+            case NetOpcode.QuestNpcMarks:
+                NetQuestFxApply.ApplyNpcMarks((QuestNpcMarksNetMsg)packet.Body);
+                break;
+            case NetOpcode.TutorialUi:
+                NetQuestFxApply.ApplyTutorial((TutorialUiNetMsg)packet.Body);
                 break;
             case NetOpcode.PartyMemberPosition:
             {
