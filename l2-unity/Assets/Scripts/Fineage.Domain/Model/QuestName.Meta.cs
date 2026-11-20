@@ -15,7 +15,7 @@ public partial class QuestName
 
     public IReadOnlyList<QuestStepItemCount> RequiredItemCounts => _requiredItems;
 
-    internal void AddRequiredItem(int itemId, int count)
+    public void AddRequiredItem(int itemId, int count)
     {
         if (itemId > 0 && count > 0)
             _requiredItems.Add(new QuestStepItemCount(itemId, count));
