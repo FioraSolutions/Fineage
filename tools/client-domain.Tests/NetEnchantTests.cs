@@ -150,4 +150,27 @@ public class NetEnchantTests
         });
         Assert.False(items.ContainsKey(10));
     }
+
+    [Fact]
+    public void AnimOf_maps_net_results_not_legacy_interlude_ordinals()
+    {
+        Assert.Equal(NetEnchant.ResultAnim.Close, NetEnchant.AnimOf(NetEnchant.ResultCancel));
+        Assert.Equal(NetEnchant.ResultAnim.Success, NetEnchant.AnimOf(NetEnchant.ResultSuccess));
+        Assert.Equal(NetEnchant.ResultAnim.Fail, NetEnchant.AnimOf(NetEnchant.ResultKeep));
+        Assert.Equal(NetEnchant.ResultAnim.Fail, NetEnchant.AnimOf(NetEnchant.ResultReset));
+        Assert.Equal(NetEnchant.ResultAnim.Fail, NetEnchant.AnimOf(NetEnchant.ResultCrystallize));
+        Assert.Equal(NetEnchant.ResultAnim.None, NetEnchant.AnimOf(99));
+    }
+
+    [Fact]
+    public void Busy_casting_and_store_rejects_clear_the_window()
+    {
+        Assert.True(NetEnchant.ClearsWindow("enchant_busy"));
+        Assert.True(NetEnchant.ClearsWindow("enchant_casting"));
+        Assert.True(NetEnchant.ClearsWindow("enchant_store"));
+        Assert.Equal("You are already enchanting an item.", NetEnchant.Notice("enchant_busy", ""));
+        Assert.Equal("You cannot enchant while casting.", NetEnchant.Notice("enchant_casting", null));
+        Assert.Equal("You cannot enchant while operating a Private Store or Private Workshop.",
+            NetEnchant.Notice("enchant_store", "  "));
+    }
 }

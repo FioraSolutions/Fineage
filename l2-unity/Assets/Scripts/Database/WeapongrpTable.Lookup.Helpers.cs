@@ -91,6 +91,13 @@ public partial class WeapongrpTable
                         case "item_sound": // {[ItemSound.sword_small_2];[ItemSound.public_sword_shing_9];[ItemSound.sword_small_7];[ItemSound.dagger_4]}
                             string[] itemsounds = DatUtils.ParseArray(value);
                             weaponGrp.ItemSounds = itemsounds;
+                            break;
+                        case "Enchanted":
+                            if (EnchantGlow.TryParseClassic(value, out EnchantGlowPlacement right, out EnchantGlowPlacement left))
+                            {
+                                weaponGrp.EnchantedRight = right;
+                                weaponGrp.EnchantedLeft = left;
+                            }
                             break;                 
                     }
                 }

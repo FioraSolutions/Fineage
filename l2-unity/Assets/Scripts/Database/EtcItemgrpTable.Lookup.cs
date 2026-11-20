@@ -37,8 +37,7 @@ public partial class EtcItemgrpTable
 
                 if (_etcItemGrps.TryGetValue(id, out EtcItemgrp existing))
                 {
-                    if (string.IsNullOrEmpty(existing.DropModel))
-                        ApplyInterludeDropFields(existing, ids);
+                    ApplyInterludeDropFields(existing, ids);
                 }
                 else
                 {
@@ -67,7 +66,7 @@ public partial class EtcItemgrpTable
             grp.DropTexture = dropTex;
 
         string icon = ReadCell(ids, InterludeIcon);
-        if (!string.IsNullOrEmpty(icon) && string.IsNullOrEmpty(grp.Icon))
+        if (!string.IsNullOrEmpty(icon))
             grp.Icon = icon;
 
         string equip = ReadCell(ids, InterludeEquipMesh);

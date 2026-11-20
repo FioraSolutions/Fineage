@@ -61,10 +61,9 @@ public sealed partial class NetSession
         _zone = null;
         closed?.Dispose();
         BumpZoneEpoch("zone-tcp-closed");
+        ZoneCommands.Transport?.NotifyDisconnected();
         if (CharSelectEnterWorld.IsEntering)
             CharSelectEnterWorld.Failed("Zone connection lost.");
-        else
-            ZoneCommands.Transport?.NotifyDisconnected();
     }
 
     /// <summary>
