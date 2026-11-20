@@ -28,7 +28,6 @@ public partial class QuestWindow
 
         _questTabPanelRepeat.AddElementsToContent(repeatQuests);
         _questTabPanelSingle.AddElementsToContent(nonRepeatQuests);
-
         if (!IsSuccess())
         {
             HideDetailedInfo();

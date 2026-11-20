@@ -62,6 +62,9 @@ public partial class InputManager : MonoBehaviour
             OpenSystemMenu = _systemMenuAction.WasPerformedThisFrame();
             OpenActions = _actionsAction.WasPerformedThisFrame();
             OpenMap = _mapAction != null && _mapAction.WasPerformedThisFrame();
+            OpenQuestJournal = (_questJournalAction != null && _questJournalAction.WasPerformedThisFrame())
+                               || (Keyboard.current != null && Keyboard.current.uKey.wasPressedThisFrame
+                                   && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed));
         }
         else
         {

@@ -26,6 +26,15 @@ public partial class QuestNameTable
     //maybe not true
     private const int indexRepaet= 41;
     private const int indexAreaId = 131;
+    private const int indexQuestWorldX = 36;
+    private const int indexQuestWorldY = 37;
+    private const int indexQuestWorldZ = 38;
+    private const int indexContactNpcId = 46;
+    private const int indexContactNpcX = 47;
+    private const int indexContactNpcY = 48;
+    private const int indexContactNpcZ = 49;
+    private const int indexItem0 = 7;
+    private const int indexNumItem0 = 22;
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static QuestNameTable Instance
     {

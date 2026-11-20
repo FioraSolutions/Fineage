@@ -49,6 +49,7 @@ public partial class InputManager : MonoBehaviour
         _systemMenuAction = _playerInput.actions["SystemMenu"];
         _mapAction = _playerInput.actions["Map"];
         _validateAction = _playerInput.actions["Validate"];
+        _questJournalAction = _playerInput.actions.FindAction("QuestJournal", false);
 
         SkillbarActions = new InputAction[5, 12];
 

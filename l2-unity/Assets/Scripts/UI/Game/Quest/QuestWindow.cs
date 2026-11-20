@@ -43,6 +43,8 @@ public partial class QuestWindow : L2TwoPanels
     private Label _labelTracking;
     private VisualElement _imageBoxTracking;
     private bool _isAutoNotifyCheckedTracking = true;
+
+    public bool TrackingEnabled => _isAutoNotifyCheckedTracking;
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static QuestWindow Instance
     {
@@ -53,6 +55,10 @@ public partial class QuestWindow : L2TwoPanels
         if (_instance == null)
         {
             _instance = this;
+            if (GetComponent<QuestHudDirectionMarker>() == null)
+                gameObject.AddComponent<QuestHudDirectionMarker>();
+            if (GetComponent<TutorialQuestOverlay>() == null)
+                gameObject.AddComponent<TutorialQuestOverlay>();
             _builderTabs = new BuilderTabs();
             _questTabPanelSingle = new QuestTabPanel();
             _questTabPanelRepeat = new QuestTabPanel();

@@ -320,7 +320,16 @@ public sealed partial class NetZoneDispatch
                 _ = NetCodec.DecodeMagicSkillCanceled(envelope.Payload);
                 break;
             case NetOpcode.PlaySound:
-                _ = NetCodec.DecodePlaySound(envelope.Payload);
+                NetQuestFxApply.ApplyPlaySound(NetCodec.DecodePlaySound(envelope.Payload));
+                break;
+            case NetOpcode.QuestDirection:
+                NetQuestFxApply.ApplyQuestDirection(NetCodec.DecodeQuestDirection(envelope.Payload));
+                break;
+            case NetOpcode.QuestNpcMarks:
+                NetQuestFxApply.ApplyNpcMarks(NetCodec.DecodeQuestNpcMarks(envelope.Payload));
+                break;
+            case NetOpcode.TutorialUi:
+                NetQuestFxApply.ApplyTutorial(NetCodec.DecodeTutorialUi(envelope.Payload));
                 break;
             case NetOpcode.PartyMemberPosition:
                 _ = NetCodec.DecodePartyMemberPosition(envelope.Payload);

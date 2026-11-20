@@ -71,6 +71,11 @@ public partial class L2GameUI
                 HudCorePacketServices.Map.ToggleHideWindow();
         }
 
+        if (input.OpenQuestJournal)
+        {
+            QuestPacketServices.Quest?.OpenJournalFromHotkey();
+        }
+
         if (input.CloseWindow)
         {
             if (MessagePacketServices.Chat != null && MessagePacketServices.Chat.ChatOpened)

@@ -66,4 +66,9 @@ public partial class NameplatesManager : MonoBehaviour
     {
         _entityMask = mask;
     }
+
+    private void OnGUI()
+    {
+        _questMarkDrawer?.Draw(_paintList);
+    }
 }

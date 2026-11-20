@@ -78,6 +78,16 @@ public partial class QuestWindow
             _isAutoNotifyCheckedTracking = !_isAutoNotifyCheckedTracking;
             var texture = _isAutoNotifyCheckedTracking ? IconPacketServices.Icons.GetCheckedCheckBoxTexture() : IconPacketServices.Icons.GetUncheckedCheckBoxTexture();
             _imageBoxTracking.style.backgroundImage = new StyleBackground(texture);
+            if (_selectQuest != null)
+                QuestJournalState.TrackedQuestId = _selectQuest.QuestID;
+            QuestJournalState.RefreshDirectionFromMetadata();
         }
+    }
+
+    public void OpenJournalFromHotkey()
+    {
+        ToggleHideWindow();
+        if (ZoneCommands.IsConnected)
+            ZoneCommands.Send(new RequestQuestListCommand());
     }
 }
