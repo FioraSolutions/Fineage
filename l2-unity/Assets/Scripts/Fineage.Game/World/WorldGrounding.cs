@@ -19,12 +19,6 @@ public static class WorldGrounding
     public const float NearTieMeters = 0.75f;
 
     /// <summary>
-    /// How far aside to search when the exact XY has no walkable floor
-    /// (pillar, water hole, missing rim).
-    /// </summary>
-    public const float NearbySearchMeters = 5f;
-
-    /// <summary>
     /// Pull nameplate depth toward the camera so the label does not z-fight
     /// the owner's own mesh, while still hiding behind walls and other bodies.
     /// </summary>
@@ -70,13 +64,5 @@ public static class WorldGrounding
         }
 
         return found ? bestY : serverY;
-    }
-
-    /// <summary>
-    /// True when a water surface sits above the feet, so the pawn would be submerged.
-    /// </summary>
-    public static bool IsSubmerged(float feetY, float waterSurfaceY, float epsilon = 0.05f)
-    {
-        return waterSurfaceY > feetY + epsilon;
     }
 }

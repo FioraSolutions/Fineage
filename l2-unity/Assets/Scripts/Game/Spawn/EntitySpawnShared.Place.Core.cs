@@ -33,7 +33,6 @@ public static partial class EntitySpawnShared
             if (pooled != null)
             {
                 WorldPlacement.ApplyPose(pooled, placePos, identity.Heading);
-                WorldPlacement.SettleFeet(pooled, placePos);
                 L2OverheadAnchor.Invalidate(identity.Id);
                 EnsureEntityClickArea(pooled);
                 return pooled;
@@ -46,7 +45,6 @@ public static partial class EntitySpawnShared
 
         GameObject npcGo = Object.Instantiate(prefab, placePos, identity.Heading);
         WorldPlacement.ApplyPose(npcGo, placePos, identity.Heading);
-        WorldPlacement.SettleFeet(npcGo, placePos);
         L2OverheadAnchor.Invalidate(identity.Id);
 
         if (prefabWasActive)
@@ -64,7 +62,6 @@ public static partial class EntitySpawnShared
             go.transform.SetParent(parent);
         Vector3 grounded = WorldPlacement.Resolve(WorldPlacement.PlacementKind.WalkValidate, position);
         WorldPlacement.ApplyPose(go, grounded, rotation);
-        WorldPlacement.SettleFeet(go, grounded);
         if (!string.IsNullOrEmpty(name))
             go.transform.name = name;
     }
