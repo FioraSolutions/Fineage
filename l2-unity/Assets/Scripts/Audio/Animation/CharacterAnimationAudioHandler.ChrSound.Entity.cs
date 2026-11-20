@@ -2,7 +2,7 @@ using UnityEngine;
 
 public partial class CharacterAnimationAudioHandler
 {
-    void TryBindChrSoundBankFromEntity()
+    protected void TryBindChrSoundBankFromEntity()
     {
         if (TryBindChrSoundBank())
             return;
