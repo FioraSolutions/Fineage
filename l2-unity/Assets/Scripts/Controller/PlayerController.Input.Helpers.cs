@@ -45,8 +45,6 @@ public partial class PlayerController : MonoBehaviour
             _moveTimer += Time.deltaTime;
             SwitchWalkToRun();
 
-            float finalAngle = GetFinalAngle(targetPosition, characterPosition);
-
             float speed = GetMovementSpeed();
             Vector3 velocity = GetNewPosition(targetPosition, characterPosition, speed);
 
@@ -62,9 +60,12 @@ public partial class PlayerController : MonoBehaviour
 
             velocity.y = ApplyGravity(Time.deltaTime);
 
-            Quaternion targetRotation = GetNewRotate(finalAngle);
-            float r_speed = _calcSpeed.GetSpeedRotate(_behindPlayer);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, FrameIndependentLerp(r_speed, Time.deltaTime));
+            // Interlude LineagePawn (APawn): physWalking + calcVelocity set planar
+            // velocity toward the destination each tick; physicsRotation (with
+            // bRotateToDesired) turns yaw toward DesiredRotation at RotationRate.Yaw
+            // (0xFDE8). Velocity and facing are updated independently — same pairing
+            // as MovementData.StepCharInfo for CharInfo pawns.
+            StepLocalPawnYaw(targetPosition, Time.deltaTime);
 
             _controller.Move(velocity * Time.deltaTime);
             RecoverFeetIfUnderFloor();

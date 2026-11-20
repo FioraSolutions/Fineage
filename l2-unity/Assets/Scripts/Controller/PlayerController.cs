@@ -50,7 +50,6 @@ public partial class PlayerController : MonoBehaviour
 
     private bool _isFirst = false;
 
-    private bool _behindPlayer = false;
     private bool _switchWalkToRun = false;
     private bool _isRotateAttacker = false;
     private Vector3 _attackerPosition;
@@ -58,5 +57,6 @@ public partial class PlayerController : MonoBehaviour
 
     private PlayerPositionSender _pp_sender;
     private ICalcSpeed _calcSpeed;
+    private L2PawnYawDrive _yawDrive;
 }
 

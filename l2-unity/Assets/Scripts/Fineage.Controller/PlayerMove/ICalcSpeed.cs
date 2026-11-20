@@ -7,8 +7,4 @@ public interface ICalcSpeed
     void UpdateSpeedWalk(float defaultWalkSpeed);
 
     void UpdateSpeedRun(float defaultRunSpeed);
-
-    public float GetSpeedRotate(bool behindPlayer);
-
-
 }

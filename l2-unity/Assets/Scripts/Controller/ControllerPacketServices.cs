@@ -159,6 +159,7 @@ public sealed partial class PlayerController
     [Inject] EventBus _packetBus;
     [Inject] PlayerPositionSender _injectedPositionSender;
     [Inject] ClickManager _packetClicks;
+    [Inject] L2PawnYaw _pawnYaw;
 
     void WireControllerPacketServices()
     {
