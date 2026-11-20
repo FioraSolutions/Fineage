@@ -33,6 +33,7 @@ public partial class ActiveSkillsHide
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
             SetWidthBoxPanel(boxPanel, skillsPerPanel);
+            boxPanel.style.alignSelf = Align.FlexStart;
             var panels = base.CreateSlots(list, _templatePanel8x1, _templateSlotSkill, boxPanel);
 
             _boxPanelsPhysical.Add(panels);
@@ -50,6 +51,7 @@ public partial class ActiveSkillsHide
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
             SetWidthBoxPanel(boxPanel, skillsPerPanel);
+            boxPanel.style.alignSelf = Align.FlexStart;
             var panels = base.CreateSlots(list, _templatePanel8x1, _templateSlotSkill, boxPanel);
             _boxPanelsMagic.Add(panels);
             rowMagical.Add(panels);

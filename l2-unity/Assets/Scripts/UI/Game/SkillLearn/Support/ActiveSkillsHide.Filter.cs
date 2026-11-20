@@ -38,17 +38,14 @@ public partial class ActiveSkillsHide
 
     public void CreateSlots(List<SkillInstance> list , int sizeCell)
     {
-        int panelCount = CalculatePanelCount(list);
+        _rowPhysical = _activeSkillPanel.Q(_rowNamePhysical);
+        _rowMagical = _activeSkillPanel.Q(_rowNameMagical);
+        ResolveSkillsPerPanel(_activeSkillPanel, sizeCell);
 
-        skillsPerPanel = sizeCell;
-    
         var activeSkills = list.Where(s => !s.IsMagic()).ToList();
         var magicSkills = list.Where(s => s.IsMagic()).ToList();
 
         SetAllSlots(new Dictionary<int, SkillSlot>());
-
-        _rowPhysical = _activeSkillPanel.Q(_rowNamePhysical);
-        _rowMagical = _activeSkillPanel.Q(_rowNameMagical);
 
         var allContentPhysical = _activeSkillPanel.Q(_allContentPhysical);
         var allContentMagical = _activeSkillPanel.Q(_allContentMagical);
