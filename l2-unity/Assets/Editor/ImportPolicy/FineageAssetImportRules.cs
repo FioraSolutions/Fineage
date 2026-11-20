@@ -263,10 +263,18 @@ public static class FineageAssetImportRules
         importer.streamingMipmaps = expectation.StreamingMipmaps;
         if (expectation.MipMapsPreserveCoverage && expectation.Mipmaps)
         {
-            var settings = importer.GetDefaultPlatformTextureSettings();
-            settings.mipMapsPreserveCoverage = true;
-            settings.alphaTestReferenceValue = 0.5f;
-            importer.SetPlatformTextureSettings(settings);
+            var serialized = new SerializedObject(importer);
+            SerializedProperty mipmaps = serialized.FindProperty("mipmapSettings");
+            if (mipmaps != null)
+            {
+                SerializedProperty preserve = mipmaps.FindPropertyRelative("mipMapsPreserveCoverage");
+                if (preserve != null)
+                    preserve.boolValue = true;
+                SerializedProperty alphaRef = mipmaps.FindPropertyRelative("alphaTestReferenceValue");
+                if (alphaRef != null)
+                    alphaRef.floatValue = 0.5f;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+            }
         }
         if (expectation.FilterMode.HasValue)
             importer.filterMode = expectation.FilterMode.Value;
