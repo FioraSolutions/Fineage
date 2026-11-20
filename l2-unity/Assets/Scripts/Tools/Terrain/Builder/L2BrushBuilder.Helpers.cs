@@ -47,8 +47,9 @@ public partial class L2BrushBuilder
                 if (!L2BspPolyFlags.IsBrushTextureRenderable(tex)) continue;
                 if (!matCache.TryGetValue(tex, out var mat)) {
                     mat = FindMaterial(tex);
-                    if (mat == null)
-                        Debug.LogError("[Brushes] No material for BSP texture " + tex + " on brush " + b.name);
+                    if (mat == null || mat.name == "BrushFallbackGray")
+                        Debug.LogError("[Brushes] No material for BSP texture " + tex + " on brush " + b.name
+                                       + " (tile " + tileAssetFolder + ")");
                     matCache[tex] = mat;
                 }
                 float tw = 256f, th = 256f;
