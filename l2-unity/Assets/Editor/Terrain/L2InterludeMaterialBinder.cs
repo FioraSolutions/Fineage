@@ -264,11 +264,11 @@ public static class L2InterludeMaterialBinder
                     }
                 }
                 // Bridge railings / grates: AlphaTest in L2 → URP cutout (do not force opaque).
-                string texPath = Pick(Resolve(m.name, props, tex, 0).tex, tex, mp);
+                string cutoutTexPath = Pick(Resolve(m.name, props, tex, 0).tex, tex, mp);
                 if (lit != null) m.shader = lit;
-                if (texPath != null)
+                if (cutoutTexPath != null)
                 {
-                    var cutTex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+                    var cutTex = AssetDatabase.LoadAssetAtPath<Texture2D>(cutoutTexPath);
                     m.SetTexture("_BaseMap", cutTex);
                     m.SetTexture("_MainTex", cutTex);
                 }
