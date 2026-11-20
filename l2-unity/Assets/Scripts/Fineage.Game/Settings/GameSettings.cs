@@ -5,6 +5,26 @@ public static class GameSettings
 {
     const string KMaster = "opt.vol.master", KMusic = "opt.vol.music", KSfx = "opt.vol.sfx", KAmb = "opt.vol.ambient", KMute = "opt.vol.mute";
     const string KResW = "opt.res.w", KResH = "opt.res.h", KFull = "opt.res.full";
+    const string KGfxQuality = "opt.gfx.quality";
+
+    public static bool HasSavedGraphicsQuality => PlayerPrefs.HasKey(KGfxQuality);
+
+    public static int GraphicsQualityLevelIndex
+    {
+        get
+        {
+            int max = Mathf.Max(0, QualitySettings.names.Length - 1);
+            return Mathf.Clamp(PlayerPrefs.GetInt(KGfxQuality, QualitySettings.GetQualityLevel()), 0, max);
+        }
+        set
+        {
+            int max = Mathf.Max(0, QualitySettings.names.Length - 1);
+            int clamped = Mathf.Clamp(value, 0, max);
+            PlayerPrefs.SetInt(KGfxQuality, clamped);
+            PlayerPrefs.Save();
+            GraphicsQualityApplier.ApplyQualityLevel(clamped);
+        }
+    }
 
     public static float Master { get => PlayerPrefs.GetFloat(KMaster, 0.5f); set { PlayerPrefs.SetFloat(KMaster, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static float Music { get => PlayerPrefs.GetFloat(KMusic, 0.6f); set { PlayerPrefs.SetFloat(KMusic, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
@@ -34,6 +54,9 @@ public static class GameSettings
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void ApplySavedAudio() => ApplyAudio();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void ApplySavedGraphicsQuality() => GraphicsQualityApplier.ApplyBootGraphicsQuality();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void ApplySavedResolution()

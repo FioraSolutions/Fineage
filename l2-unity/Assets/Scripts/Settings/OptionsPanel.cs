@@ -44,6 +44,17 @@ public class OptionsPanel : VisualElement
         var full = new Toggle("Fullscreen") { value = Screen.fullScreen };
         Tint(full); Add(full);
 
+        var qualityNames = new List<string>(QualitySettings.names);
+        var quality = new DropdownField("Graphics quality", qualityNames, GameSettings.GraphicsQualityLevelIndex);
+        quality.RegisterValueChangedCallback(e =>
+        {
+            int idx = qualityNames.IndexOf(e.newValue);
+            if (idx >= 0)
+                GameSettings.GraphicsQualityLevelIndex = idx;
+        });
+        Tint(quality);
+        Add(quality);
+
         var row = new VisualElement(); row.style.flexDirection = FlexDirection.Row; row.style.justifyContent = Justify.FlexEnd; row.style.marginTop = 8;
         var apply = new Button(() => { var r = GameSettings.Resolutions[Mathf.Max(0, res.index)]; GameSettings.ApplyResolution(r.x, r.y, full.value); }) { text = "Apply" };
         var close = new Button(() => RemoveFromHierarchy()) { text = "Close" };
