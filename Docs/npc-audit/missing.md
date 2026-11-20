@@ -60,6 +60,21 @@
 - Shared official anims resolved generally: `a_common_peopleC_Mhuman` → `a_common_peopleA_MHuman_anim`, `a_traderC_Fhuman` → `a_common_peopleB_FHuman_anim`. Static altars / stones have no official PSA.
 - Classic-only, no official Interlude mesh, left outstanding (not invented): `LineageNPCs2.agit_maid_c_m00` (Goddard/Schuttgart). Schuttgart has no remaining official unique meshes after this batch.
 
+
+**Batch 10 imported (this PR):** unique Hunter village official Interlude meshes.
+
+- 2 official `LineageMonsters` bodies: Satyr / Satyr Elder (`pan_m00`) and Unicorn / Elder the Unicorn / Eva's Unicorn (`unicorn_m00`).
+
+
+**Batch 11 imported (this PR):** unique Field tile official Interlude meshes not already shipped with earlier region batches.
+
+- 13 official bodies: 9 `LineageMonsters` (Cute Cat, Dwarf Ghost, Elf Ghost, Mana Vampire, Mimic / Treasure Chest, Raikel, Riba, Susceptor, Unicorn Mirage) and 4 `LineageNPCs` props (Holy Ark of Secrecy 3 / `coffer_c_m00`, Heart of Warding, Fairy Tree / `human_tree_m00`, Summer Feast / `yetis_dinner_table_m00`).
+- Mimic `interior_B_box07` material binds the official world albedo already in `Data/Textures/interior_B_t/interior_B_box07.png`. The second slot already used the existing `cbui24` material.
+- Heart of Warding mesh is included; official `LineageNPCsTex.heart_of_warding_t00` was not in the import dump or the repo, so the albedo may be missing until that texture is staged.
+- Official pack has no `zenta_lizardman_shaman_t00_ghost` / `_t01_ghost` slots (same as Batch 8); those ghost keys are not invented.
+- Not in this import dump, left for a later batch (not invented): `LineageMonsters5.ice_elemental_bomb_m00`, `LineageMonsters5.ice_knight_m00`, `LineageMonsters9.minotaur_fanatic_m00`, `LineageNPCs4.castle_warrior_m00`.
+- The other 38 field-tile unique meshes already shipped with Aden / Giran / Oren / Goddard / earlier batches. Unicorn also covers the remaining Hunter village unique miss.
+
 ---
 ---
 ---
