@@ -37,7 +37,7 @@ public partial class AudioManager : MonoBehaviour
             _ambientVolume,
             _SFXVolume,
             _UIVolume,
-            _voiceVolume: 1f,
+            voiceVolume: 1f,
             _muteWhenNotFocused,
             _isDisabled);
     }
