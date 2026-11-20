@@ -13,7 +13,6 @@ public static class OverheadChatSay
     const float LifetimeSec = 5f;
     const int FontSize = 13;
     const int MaxChars = 80;
-    internal const float AboveNameMeters = 0.28f;
 
     static Canvas _canvas;
     static Font _font;
@@ -197,11 +196,29 @@ public sealed class OverheadChatSayRunner : MonoBehaviour
                 cam = Camera.main;
             if (cam != null)
             {
-                Vector3 world = L2OverheadAnchor.GetWorldPos(_entity, _entity.transform) + Vector3.up * OverheadChatSay.AboveNameMeters;
-                Vector3 screen = cam.WorldToScreenPoint(world);
-                if (screen.z > 0f)
+                Vector2 screenBottom;
+                NameplatesManager plates = NameplatePacketServices.Nameplates;
+                bool onScreen = plates != null
+                    && plates.TryResolveOverheadSayScreenPos(cam, _entity, _entity.transform, out screenBottom);
+                if (!onScreen)
                 {
-                    transform.position = screen;
+                    Vector3 world = L2OverheadAnchor.GetWorldPos(_entity, _entity.transform);
+                    Vector3 screen = cam.WorldToScreenPoint(world);
+                    if (screen.z <= 0f)
+                    {
+                        yield return null;
+                        continue;
+                    }
+
+                    float lineH = L2NameplateScreenLayout.FallbackLineHeightPx;
+                    screenBottom = L2NameplateScreenLayout.ResolveSayBottomLeft(
+                        cam.pixelHeight, screen.x, screen.y, lineH);
+                    onScreen = true;
+                }
+
+                if (onScreen)
+                {
+                    transform.position = new Vector3(screenBottom.x, screenBottom.y, 0f);
                     float left = _endAt - Time.time;
                     float alpha = left < 0.6f ? Mathf.Clamp01(left / 0.6f) : 1f;
                     if (_plate != null)

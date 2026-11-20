@@ -15,6 +15,15 @@ public sealed partial class NameplateTextDrawer
 
     public bool IsReady => _font != null && _batch.IsReady;
 
+    public float MeasureNameLineHeightPx()
+    {
+        float scale = PixelScale > 0f ? PixelScale : 1f;
+        if (_font == null)
+            return L2NameplateScreenLayout.FallbackLineHeightPx * scale;
+
+        return _font.MeasureHeight(scale);
+    }
+
 
 
 
