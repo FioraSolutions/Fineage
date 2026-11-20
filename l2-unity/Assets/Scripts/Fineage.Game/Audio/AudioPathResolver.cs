@@ -10,7 +10,10 @@ public static class AudioPathResolver
     public const string ResourcesMonSoundRoot = "Data/Sounds/MonSound/";
 
     public static string FmodChrSound(CharacterRaceSound race, CharacterSoundEvent soundEvent) =>
-        "event:/ChrSound/" + race + "/" + race + "_" + soundEvent;
+        FmodChrSoundBank(race.ToString(), soundEvent);
+
+    public static string FmodChrSoundBank(string bank, CharacterSoundEvent soundEvent) =>
+        "event:/ChrSound/" + bank + "/" + bank + "_" + soundEvent;
 
     public static string FmodItemSound(string soundName) =>
         "event:/ItemSound/" + soundName;

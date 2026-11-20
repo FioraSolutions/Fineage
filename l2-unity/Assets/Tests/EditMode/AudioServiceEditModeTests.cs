@@ -11,6 +11,9 @@ public sealed class AudioServiceEditModeTests
     {
         string path = AudioPathResolver.FmodChrSound(CharacterRaceSound.MHFighter, CharacterSoundEvent.Atk_1H);
         Assert.AreEqual("event:/ChrSound/MHFighter/MHFighter_Atk_1H", path);
+
+        string npcPath = AudioPathResolver.FmodChrSoundBank("FNpc_Young", CharacterSoundEvent.Yawn);
+        Assert.AreEqual("event:/ChrSound/FNpc_Young/FNpc_Young_Yawn", npcPath);
     }
 
     [Test]
