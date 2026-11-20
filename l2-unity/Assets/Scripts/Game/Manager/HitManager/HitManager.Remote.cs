@@ -10,11 +10,9 @@ public partial class HitManager
         public int AttackerId;
         public Entity Attacker;
         public Entity Target;
-        public bool Soulshot;
-        public bool Fired;
+        public int NextHitIndex;
         public float FireAt;
         public bool WaitForShot;
-        public bool Miss;
         public AttackDto Packet;
         public AnimationEventsBase Events;
         public Action<string> OnShot;

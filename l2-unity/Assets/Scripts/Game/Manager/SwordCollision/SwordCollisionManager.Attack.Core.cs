@@ -29,7 +29,7 @@ public partial class SwordCollisionService
             HitFraction = normalizedHitFraction,
             LastElapsedMs = 0f,
             Epoch = epoch,
-            AttackShotFired = false
+            AttackShotCount = 0
         };
 
         string attackerName = attacker != null ? attacker.name : "null";
@@ -51,5 +51,15 @@ public partial class SwordCollisionService
     {
         if (entityId <= 0) return 0;
         return _attackContextsByEntityId.TryGetValue(entityId, out AttackTimingContext context) ? context.Epoch : 0;
+    }
+
+    /// <summary>Hit list index for the next AttackShot notify on this swing (before <see cref="EmitHitFromAttackShot"/> runs).</summary>
+    public int PeekAttackShotIndex(int entityId)
+    {
+        if (entityId <= 0)
+            return 0;
+        return _attackContextsByEntityId.TryGetValue(entityId, out AttackTimingContext context)
+            ? context.AttackShotCount
+            : 0;
     }
 }

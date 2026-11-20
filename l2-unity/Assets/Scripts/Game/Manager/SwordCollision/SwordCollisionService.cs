@@ -27,7 +27,7 @@ public partial class SwordCollisionService : MonoBehaviour
         public float HitFraction;
         public float LastElapsedMs;
         public int Epoch;
-        public bool AttackShotFired;
+        public int AttackShotCount;
     }
 
     private sealed class TimedSwordHit
