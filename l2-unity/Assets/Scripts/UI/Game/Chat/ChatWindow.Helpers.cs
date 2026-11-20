@@ -63,7 +63,6 @@ public partial class ChatWindow : L2Window
         _chatInput.AddManipulator(new BlinkingCursorManipulator(_chatInput));
 
         _chatInputContainer = GetElementById("InnerBar");
-        _chatInput.AddManipulator(new HighlightedInputFieldManipulator(_chatInput, _chatInputContainer, 20));
 
         // Interlude SystemMsgWnd above ChatWnd (C4+). Start before tabs so Flush can queue into it.
         SystemMsgWindow sysMsg = SystemMsgWindow.Ensure();
