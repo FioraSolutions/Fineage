@@ -85,13 +85,10 @@ public partial class WeapongrpTable
     /// </summary>
     static void ApplyInterludeIdentity(Weapongrp grp, string[] ids, int handness, int crystalType)
     {
-        var model = DatUtils.ParseArray(ids[7]);
-        if (model != null && model.Length > 0 && !string.IsNullOrEmpty(model[0]))
-            grp.Model = model[0];
-
-        var modTex = DatUtils.ParseArray(ids[10]);
-        if (modTex != null && modTex.Length > 0 && !string.IsNullOrEmpty(modTex[0]))
-            grp.Texture = modTex[0];
+        string mesh1 = ids.Length > 27 ? ids[27] : null;
+        string tex1 = ids.Length > 30 ? ids[30] : null;
+        WeapongrpHandMeshes.ApplyInterludeMeshes(grp, ids[26], mesh1, ids[29], tex1);
+        grp.Handness = handness;
 
         var icon = DatUtils.ParseArray(ids[13]);
         if (icon != null && icon.Length > 0)

@@ -42,9 +42,22 @@ public partial class ModelTable : AbstractCache
 
     private void CacheWeapons()
     {
-        _weapons = LoadItemModels(
-            TablePacketServices.Items.Weapons,
-            weapon => weapon.Weapongrp != null ? weapon.Weapongrp.Model : null,
-            "weapon");
+        _weapons = new Dictionary<string, GameObject>();
+        int success = 0;
+        foreach (KeyValuePair<int, Weapon> pair in TablePacketServices.Items.Weapons)
+        {
+            if (pair.Value?.Weapongrp == null)
+                continue;
+            foreach (string model in WeapongrpHandMeshes.EnumerateModelKeys(pair.Value.Weapongrp))
+            {
+                if (string.IsNullOrEmpty(model) || _weapons.ContainsKey(model))
+                    continue;
+                GameObject go = LoadWeaponModel(model);
+                if (go == null)
+                    continue;
+                _weapons[model] = go;
+                success++;
+            }
+        }
     }
 }

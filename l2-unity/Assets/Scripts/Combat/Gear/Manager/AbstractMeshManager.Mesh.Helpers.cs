@@ -50,6 +50,17 @@ public partial class AbstractMeshManager : MonoBehaviour
         return mesh;
     }
 
+    public void GetDefaultGoWithArmorModel(
+        ItemSlot slot,
+        out Armor[] defaultArmor,
+        out GameObject[] listArmorPiece,
+        int raceId)
+    {
+        slot = ArmorBodySlots.Normalize(slot);
+        defaultArmor = CharacterDefaultEquipment.GetDefaultArmorByItemSlot(slot);
+        listArmorPiece = InstantiateArmorMeshes(defaultArmor, raceId);
+    }
+
     protected string GetWeaponModelName(int itemId)
     {
         Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
