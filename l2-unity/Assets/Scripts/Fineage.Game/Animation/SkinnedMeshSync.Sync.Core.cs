@@ -44,7 +44,12 @@ public partial class SkinnedMeshSync : MonoBehaviour
                 continue;
             }
 
-            if (TryFindBone(skeleton, src.name, out Transform donor)
+            // Blender suffixes a clashing bone name (Bip01_L_Finger01.001 is the right thumb on many
+            // MFighter armor parts). Resolve it by its parent side first: an exact lookup would hit the
+            // piece's own static copy (the skeleton map also walks gear hierarchies) or miss to the root,
+            // and either way the thumb stays behind while the hand animates.
+            if (TryFindDuplicateBone(skeleton, src, out Transform donor)
+                || TryFindBone(skeleton, src.name, out donor)
                 || TryFindBoneAlias(skeleton, src.name, out donor))
             {
                 mapped[b] = donor;
