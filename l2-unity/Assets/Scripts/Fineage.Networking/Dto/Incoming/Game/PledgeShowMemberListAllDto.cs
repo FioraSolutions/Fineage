@@ -73,6 +73,27 @@ public class PledgeShowMemberListAllDto : IWireDto
         _members = members ?? new System.Collections.Generic.List<ClanMember>();
     }
 
+    public void ApplyZoneSnapshot(NetClanBook book, System.Collections.Generic.List<ClanMember> members)
+    {
+        ApplyZoneSnapshot(
+            book.ClanId,
+            book.Name,
+            book.Level,
+            book.LeaderName(),
+            book.LeaderObjectId,
+            book.CrestId,
+            members);
+        _rank = 0;
+        _reputationScore = book.Reputation;
+        _allyId = book.AllyId;
+        _allyName = book.AllyName ?? "";
+        _allyCrestId = book.AllyCrestId;
+        _castleId = book.CastleId;
+        _clanHallId = book.HallId;
+        _isWar = book.AtWar;
+        _dissolvingExpiryTime = book.Dissolving ? (int)(book.DissolvingExpiryUnixMs / 1000L) : 0;
+    }
+
     public void ReadFrom(PacketReader reader)
     {
         _pledgeTypeEnabled = reader.ReadI();

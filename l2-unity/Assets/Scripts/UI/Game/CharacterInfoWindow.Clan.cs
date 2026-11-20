@@ -143,9 +143,9 @@ public partial class CharacterInfoWindow
             () => ShowClanPage(ClanPageInfo),
             () => ShowClanPage(ClanPagePenalty),
             LeaveClan,
-            () => NetChatFeed.NoteSystem("Clan war is not available."),
-            () => NetChatFeed.NoteSystem("Clan war is not available."),
-            () => NetChatFeed.NoteSystem("Clan war is not available."),
+            () => ClanUiRequests.SendPledgeCommand(Fineage.Net.Contract.PledgeCommandKind.RequestWarList, "RequestPledgeWarList"),
+            () => ClanUiRequests.RejectLocal(nameof(Fineage.Net.Contract.PledgeCommandKind.DeclareWar), "Use the clan window (Alt+N) to declare war."),
+            () => ClanUiRequests.SendPledgeCommand(Fineage.Net.Contract.PledgeCommandKind.StopWar, "RequestStopPledgeWar"),
             InviteToClan,
             () => ShowClanPage(ClanPageAuth),
             () => NetChatFeed.NoteSystem("Clan titles are not available.")

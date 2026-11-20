@@ -141,6 +141,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Clan",
+                    "type": "Button",
+                    "id": "c7d4e211-9e03-4a66-8c12-1f0a9b8c4d11",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Validate",
                     "type": "Button",
                     "id": "ff8bc067-3f59-439d-bd9f-c200524e700f",
@@ -954,6 +963,39 @@
                     "action": "Map",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "Alt+N",
+                    "id": "b18cf0d2-7a7b-4f77-80c4-a8d1ac8f2b01",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Clan",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "b18cf0d2-7a7b-4f77-80c4-a8d1ac8f2b02",
+                    "path": "<Keyboard>/alt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Clan",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "b18cf0d2-7a7b-4f77-80c4-a8d1ac8f2b03",
+                    "path": "<Keyboard>/n",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Clan",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",

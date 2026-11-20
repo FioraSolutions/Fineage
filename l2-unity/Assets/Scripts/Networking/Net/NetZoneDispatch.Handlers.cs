@@ -268,10 +268,10 @@ public sealed partial class NetZoneDispatch
                 _ = (AllyInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.PledgeInfo:
-                _ = (PledgeInfoNetMsg)packet.Body;
+                _session.ApplyPledgeInfo((PledgeInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.PledgeWarList:
-                _ = (PledgeWarListNetMsg)packet.Body;
+                _session.ApplyPledgeWarList((PledgeWarListNetMsg)packet.Body);
                 break;
             case NetOpcode.ClanHallList:
                 _ = (ClanHallListNetMsg)packet.Body;

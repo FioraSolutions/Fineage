@@ -14,8 +14,8 @@ public partial class MasterClan
     {
         var name = new TableColumn(false, "Name", 100, namesList, 13);
         var lvl = new TableColumn(true, "Lv.", 0, lvlList, 0);
-        var role = new TableColumn(true, "Role", 15, roleList, 0, true);
-        var act = new TableColumn(true, "Activity.", 20, activity, 0, true);
+        var role = new TableColumn(false, "Class", 54, roleList, 10);
+        var act = new TableColumn(true, "Act.", 20, activity, 0, true);
 
         return new List<TableColumn> { name, lvl, role, act };
     }

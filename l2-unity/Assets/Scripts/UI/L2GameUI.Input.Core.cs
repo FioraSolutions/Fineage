@@ -71,6 +71,13 @@ public partial class L2GameUI
                 HudCorePacketServices.Map.ToggleHideWindow();
         }
 
+        if (input.OpenClan)
+        {
+            ClanWindow clan = ClanPacketServices.Clan;
+            if (clan != null)
+                clan.ToggleHideWindow();
+        }
+
         if (input.CloseWindow)
         {
             if (MessagePacketServices.Chat != null && MessagePacketServices.Chat.ChatOpened)

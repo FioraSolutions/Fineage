@@ -52,15 +52,6 @@ public sealed class InterludeActionCatalogEditModeTests
         {
             if (e.SlotOrder < 0)
                 continue;
-            if (e.Id == 3)
-            {
-                // Trade icon action004 is not shipped in this repo yet; catalog still names it.
-                Assert.IsFalse(
-                    InterludeActionIcons.StemResolvesInResources(e.IconStem),
-                    "Expected missing trade icon until import");
-                continue;
-            }
-
             Assert.IsTrue(
                 InterludeActionIcons.StemResolvesInResources(e.IconStem),
                 "icon " + e.IconStem + " for action id=" + e.Id);
