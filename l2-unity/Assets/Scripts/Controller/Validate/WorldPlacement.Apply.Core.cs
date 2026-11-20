@@ -42,12 +42,4 @@ public static partial class WorldPlacement
             "SkillEffect", "Deco", "Water", "TransparentFX");
         return mask;
     }
-
-    static LayerMask WaterQueryMask()
-    {
-        int water = LayerMask.NameToLayer("Water");
-        if (water < 0)
-            return 0;
-        return 1 << water;
-    }
 }
