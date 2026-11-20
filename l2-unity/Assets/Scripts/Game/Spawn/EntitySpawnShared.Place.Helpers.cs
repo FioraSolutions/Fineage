@@ -17,15 +17,24 @@ public static partial class EntitySpawnShared
             ? WorldPlacement.PlacementKind.MonsterSpawn
             : WorldPlacement.PlacementKind.NpcSpawn;
         Vector3 snapped = WorldPlacement.Resolve(kind, reference);
-        if ((snapped - from).sqrMagnitude < 0.0001f)
-            return false;
+        bool moved = (snapped - from).sqrMagnitude >= 0.0001f;
+        if (moved)
+        {
+            identity.Position = snapped;
+            WorldPlacement.ApplyPose(go, snapped, identity.Heading);
+        }
 
-        // The mesh origin is the sole (every L2 rig is authored with its feet at z=0),
-        // so the snapped floor is the placement. No renderer-bounds correction.
-        identity.Position = snapped;
-        WorldPlacement.ApplyPose(go, snapped, identity.Heading);
-        L2OverheadAnchor.Invalidate(identity.Id);
-        return true;
+        Vector3 afterFeet = WorldPlacement.SettleFeet(go, moved ? snapped : from);
+        if ((afterFeet - from).sqrMagnitude >= 0.0001f)
+        {
+            identity.Position = afterFeet;
+            L2OverheadAnchor.Invalidate(identity.Id);
+            return true;
+        }
+
+        if (moved)
+            L2OverheadAnchor.Invalidate(identity.Id);
+        return moved;
     }
 
     public static void ApplyGroundedTransform(GameObject go, Vector3 position, Quaternion rotation)

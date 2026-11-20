@@ -5,6 +5,42 @@ using System.Threading.Tasks;
 
 public partial class AnimationManager
 {
+    public bool TryPlayExactAnimatorState(int objectId, string stateName, out float duration)
+    {
+        duration = 0f;
+        IAnimationController controller = GetRegisteredController(objectId);
+        if (controller == null || string.IsNullOrEmpty(stateName))
+        {
+            Debug.LogError(
+                "[SocialAnim] TryPlayExactAnimatorState objectId=" + objectId +
+                " state=" + (stateName ?? "(null)") + " missing animation controller");
+            return false;
+        }
+
+        Animator animator = controller.GetAnimator();
+        if (animator == null)
+        {
+            Debug.LogError(
+                "[SocialAnim] TryPlayExactAnimatorState objectId=" + objectId +
+                " state=" + stateName + " missing Animator");
+            return false;
+        }
+
+        if (!animator.HasState(0, Animator.StringToHash(stateName)))
+        {
+            Debug.LogError(
+                "[SocialAnim] TryPlayExactAnimatorState objectId=" + objectId +
+                " state=" + stateName + " not in controller=" +
+                (animator.runtimeAnimatorController != null
+                    ? animator.runtimeAnimatorController.name
+                    : "(null)"));
+            return false;
+        }
+
+        duration = PlayExactAnimatorState(objectId, stateName);
+        return true;
+    }
+
     public float PlayExactAnimatorState(int objectId, string stateName, bool snapToEnd = false)
     {
         IAnimationController controller = GetRegisteredController(objectId);

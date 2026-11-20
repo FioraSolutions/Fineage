@@ -61,6 +61,7 @@ class TextureExpectation:
     readable: bool
     mipmaps: bool
     streaming_mipmaps: bool
+    mip_maps_preserve_coverage: bool
     filter_mode: int | None
     npot_scale: int | None
     wrap_mode: int | None
@@ -89,8 +90,15 @@ def posix_path(path: Path) -> str:
     return rel
 
 
-def match_globs(asset_path: str, path_globs: list[str], filename_globs: list[str] | None) -> bool:
+def match_globs(
+    asset_path: str,
+    path_globs: list[str],
+    filename_globs: list[str] | None,
+    exclude_path_globs: list[str] | None = None,
+) -> bool:
     if not any(fnmatch.fnmatch(asset_path, pattern) for pattern in path_globs):
+        return False
+    if exclude_path_globs and any(fnmatch.fnmatch(asset_path, pattern) for pattern in exclude_path_globs):
         return False
     if filename_globs:
         name = asset_path.rsplit("/", 1)[-1]
@@ -99,10 +107,42 @@ def match_globs(asset_path: str, path_globs: list[str], filename_globs: list[str
     return True
 
 
-def resolve_texture_rule(asset_path: str, rules: dict[str, Any]) -> dict[str, Any] | None:
+def source_has_alpha(asset_path: Path) -> bool:
+    if not asset_path.is_file():
+        return False
+    ext = asset_path.suffix.lower()
+    try:
+        if ext == ".png":
+            data = asset_path.read_bytes()
+            if len(data) < 26 or data[0:2] != b"\x89\x50":
+                return False
+            color_type = data[25]
+            return color_type in (4, 6)
+        if ext == ".tga":
+            data = asset_path.read_bytes()
+            if len(data) < 18:
+                return False
+            return data[16] == 32
+    except OSError:
+        return False
+    return False
+
+
+def resolve_texture_rule(asset_path: str, rules: dict[str, Any], source_path: Path | None = None) -> dict[str, Any] | None:
     for rule in rules["textureRules"]:
-        if match_globs(asset_path, rule["pathGlobs"], rule.get("filenameGlobs")):
-            return rule
+        if not match_globs(
+            asset_path,
+            rule["pathGlobs"],
+            rule.get("filenameGlobs"),
+            rule.get("excludePathGlobs"),
+        ):
+            continue
+        if rule.get("requiresSourceAlpha"):
+            if source_path is None:
+                source_path = L2_UNITY / asset_path
+            if not source_has_alpha(source_path):
+                continue
+        return rule
     return None
 
 
@@ -188,8 +228,10 @@ def build_audio_expectation(asset_path: str, rules: dict[str, Any], audio_path: 
     )
 
 
-def build_texture_expectation(asset_path: str, rules: dict[str, Any]) -> TextureExpectation | None:
-    rule = resolve_texture_rule(asset_path, rules)
+def build_texture_expectation(asset_path: str, rules: dict[str, Any], source_path: Path | None = None) -> TextureExpectation | None:
+    if source_path is None:
+        source_path = L2_UNITY / asset_path
+    rule = resolve_texture_rule(asset_path, rules, source_path)
     if rule is None:
         return None
     return TextureExpectation(
@@ -197,6 +239,7 @@ def build_texture_expectation(asset_path: str, rules: dict[str, Any]) -> Texture
         readable=bool(rule["readable"]),
         mipmaps=bool(rule["mipmaps"]),
         streaming_mipmaps=bool(rule["streamingMipmaps"]),
+        mip_maps_preserve_coverage=bool(rule.get("mipMapsPreserveCoverage", False)),
         filter_mode=FILTER_MODE_ID.get(rule["filterMode"]) if rule.get("filterMode") else None,
         npot_scale=NPOT_SCALE_ID.get(rule["npotScale"]) if rule.get("npotScale") else None,
         wrap_mode=WRAP_MODE_ID.get(rule["wrapMode"]) if rule.get("wrapMode") else None,
@@ -271,6 +314,9 @@ def apply_texture_meta(text: str, expectation: TextureExpectation) -> str:
     text = _set_yaml_scalar(
         text, "enableMipMap", 1 if expectation.mipmaps else 0, parent_indent="    "
     )
+    if expectation.mipmaps:
+        preserve = 1 if expectation.mip_maps_preserve_coverage else 0
+        text = _set_yaml_scalar(text, "mipMapsPreserveCoverage", preserve, parent_indent="    ")
     if expectation.filter_mode is not None:
         text = _set_yaml_scalar(text, "filterMode", expectation.filter_mode, parent_indent="    ")
     if expectation.npot_scale is not None:
@@ -355,6 +401,10 @@ def texture_meta_matches(text: str, expectation: TextureExpectation) -> bool:
         return False
     if current["enableMipMap"] != (1 if expectation.mipmaps else 0):
         return False
+    if expectation.mip_maps_preserve_coverage:
+        mip_cov = re.search(r"^    mipMapsPreserveCoverage: (\d+)\s*$", text, re.MULTILINE)
+        if not mip_cov or int(mip_cov.group(1)) != 1:
+            return False
     for target, settings in expectation.platforms.items():
         plat = current["platforms"].get(target)
         if plat is None:
