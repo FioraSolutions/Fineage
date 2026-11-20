@@ -20,7 +20,12 @@ public sealed partial class FineageZoneTransport
             // Mobius Player.useMagic: the caster stops the moment the cast is ordered, before
             // the zone answers with MagicSkillUse. Waiting for the reply let the client walk a
             // few metres past the cast origin, then PositionCorrection snapped it back.
-            LocalCastStop.Halt();
+            // A skill still on reuse is refused by the zone without touching movement (Mobius: SystemMessage +
+            // ActionFailed only), so do not stop the run for it: the server keeps the hero moving and a local halt
+            // left it running on the spot until the next correction teleported it forward.
+            // Same for not enough MP (Mobius NOT_ENOUGH_MP + ActionFailed).
+            if (!LocalSkillReuse.WillBeRefused(netSkill.SkillId))
+                LocalCastStop.Halt();
             int targetId = ResolveSelectedTargetObjectId();
             bool ctrl = netSkill.CtrlPressed != 0;
             Session.SendUseSkill(netSkill.SkillId, targetId, ctrl);

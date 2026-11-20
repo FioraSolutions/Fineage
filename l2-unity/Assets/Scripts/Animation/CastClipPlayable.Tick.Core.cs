@@ -32,7 +32,9 @@ public sealed partial class CastClipPlayable
         float wallNeed = _clipLength / speed;
         bool wallDone = localElapsed >= wallNeed;
         float norm = _clipLength > 0.0001f ? clipTime / _clipLength : 1f;
-        bool normDone = norm >= PhaseDoneNormalizedTime;
+        bool normDone = _spAtkCombat
+            ? SpAtkCombatPhaseDone(clipTime)
+            : norm >= PhaseDoneNormalizedTime;
         if (!wallDone && !normDone)
         {
             return;
@@ -59,6 +61,13 @@ public sealed partial class CastClipPlayable
         if (finishedShot)
         {
             SwitchToIdle();
+            Stop();
+        }
+        else if (_spAtkCombat)
+        {
+            if (Animations != null)
+                Animations.SetPAtkSpeed(_objectId, 1f);
+            _spAtkCombat = false;
             Stop();
         }
     }

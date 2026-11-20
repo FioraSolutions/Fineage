@@ -21,6 +21,17 @@ public sealed class LocomotionGaitEditModeTests
     }
 
     [Test]
+    public void Slower_planar_speed_lowers_playback_rate_with_the_same_stride()
+    {
+        const float clipLength = 0.67f;
+        const float stride = 2.70f;
+        float full = LocomotionGait.PlaybackRate(NumberUtils.ScaleToUnity(120f), clipLength, stride, 0.2f, 4f);
+        float slowed = LocomotionGait.PlaybackRate(NumberUtils.ScaleToUnity(60f), clipLength, stride, 0.2f, 4f);
+        Assert.Less(slowed, full);
+        Assert.AreEqual(full * 0.5f, slowed, 0.001f);
+    }
+
+    [Test]
     public void Playback_rate_clamps_to_the_requested_range()
     {
         // 10 * 2 / 0.1 = 200 → max 4. 0.2 * 0.2 / 2 = 0.02 → min 0.2.
