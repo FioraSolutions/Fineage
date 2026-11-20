@@ -91,7 +91,7 @@ public static class InterludeSocialAnimationCatalog
         if (string.IsNullOrEmpty(folder) || string.IsNullOrEmpty(clipStem))
             return false;
 
-        AnimationClip[] clips = UnityEngine.Resources.LoadAll<AnimationClip>(folder);
+        AnimationClip[] clips = Resources.LoadAll<AnimationClip>(folder);
         if (clips == null || clips.Length == 0)
             return false;
 
