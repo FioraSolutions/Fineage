@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 public sealed class CombatStyleProfileEditModeTests
@@ -61,7 +62,7 @@ public sealed class CombatStyleProfileEditModeTests
     public void Missing_weapongrp_returns_unresolved()
     {
         LogAssert.Expect(
-            UnityEngine.LogType.Error,
+            LogType.Error,
             "[World] CombatStyleProfile: missing Weapongrp for weaponItemId=99999 — check Weapongrp table / item id");
         CombatStyleProfile profile = CombatStyleProfileResolver.Resolve(null, weaponItemId: 99999);
         Assert.IsFalse(profile.IsResolved);

@@ -10,10 +10,12 @@ on:
     paths:
       - "l2-unity/Assets/Scripts/**"
       - "l2-unity/Assets/Tests/**"
-      - "l2-unity/Assets/Editor/EditModeTests/**"
+      - "l2-unity/Assets/Editor/**"
+      - "l2-unity/ImportPolicy/**"
       - "l2-unity/Packages/**"
       - "l2-unity/ProjectSettings/ProjectVersion.txt"
       - ".github/workflows/unity-compile.yml"
+  workflow_dispatch:
 
 concurrency:
   group: unity-compile-${{ github.ref }}

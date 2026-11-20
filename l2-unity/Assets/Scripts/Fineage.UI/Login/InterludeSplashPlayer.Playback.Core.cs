@@ -69,22 +69,8 @@ public sealed partial class InterludeSplashPlayer : MonoBehaviour
         ShowFrame(0);
         Debug.Log("[InterludeSplash] frame 1/" + Frames.Length + " " + Frames[0]);
 
-        AudioClip clip = Resources.Load<AudioClip>("Data/Audio/intro");
-        if (clip != null)
-        {
-            _music = gameObject.AddComponent<AudioSource>();
-            _music.clip = clip;
-            _music.loop = false;
-            _music.spatialBlend = 0f;
-            _music.playOnAwake = false;
-            _music.volume = GameSettings.Music;
-            _music.Play();
-            Debug.Log("[InterludeSplash] playing intro " + clip.length.ToString("0.0") + "s");
-        }
-        else
-        {
-            Debug.LogWarning("[InterludeSplash] intro clip missing at Resources/Data/Audio/intro");
-        }
+        LoginSplashMusicBridge.PlaySplashOnce?.Invoke();
+        Debug.Log("[InterludeSplash] intro via AudioService (splash, no loop)");
 
         StartCoroutine(PlayFrames());
         StartCoroutine(CaptureProof());
