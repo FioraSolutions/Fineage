@@ -15,6 +15,7 @@ public sealed partial class NetTransport : IDisposable
     readonly Action<string> _onClosed;
     readonly NetOutboundSendPump _outbound = new NetOutboundSendPump();
     bool _disposed;
+    readonly byte[] _readLengthScratch = new byte[4];
 
     public bool Connected => _client != null && _client.Connected;
 

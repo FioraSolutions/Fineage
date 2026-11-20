@@ -6,20 +6,12 @@ using System.Collections.Concurrent;
 
 public sealed partial class NetSession : MonoBehaviour
 {
-    static bool IsCriticalZoneOpcode(ushort opcode) =>
-        opcode == NetOpcode.EntityDespawn
-        || opcode == NetOpcode.InventoryUpdate
-        || opcode == NetOpcode.ItemList
-        || opcode == NetOpcode.EntityDie
-        || opcode == NetOpcode.DropItem
-        || opcode == NetOpcode.Revive
-        || opcode == NetOpcode.TeleportToLocation;
-
     uint NextSeq() => _seq++;
 
-    void Post(Action action) => _mainThread.Post(action);
+    void Post(Action action, ushort opcode = 0, object coalesceBody = null, ZoneApplyPacket mergeAnchor = null) =>
+        _mainThread.Post(action, opcode, coalesceBody, mergeAnchor);
 
-    void PostCritical(Action action) => _mainThread.PostCritical(action);
+    void PostCritical(Action action, ushort opcode = 0) => _mainThread.PostCritical(action, opcode);
 
     static async System.Threading.Tasks.Task WaitUntil(Func<bool> pred, float seconds)
     {
