@@ -33,10 +33,11 @@ public partial class DataProviderClanInfo : AbstractDataFunction
 
             var icon = container.Q<VisualElement>("ImageOnline");
 
-            AddResourcesIconIfPresent(
-                icon,
-                icon,
-                countOnline == 0 ? IMG_OFFLINE : IMG_ONLINE);
+            bool onlineOk = countOnline > 0
+                ? ClanUiTextures.SetIcon(icon, IMG_ONLINE, "PConline_up")
+                : ClanUiTextures.SetIcon(icon, IMG_OFFLINE, "PConline_down");
+            if (!onlineOk && icon != null)
+                icon.style.display = DisplayStyle.None;
 
 
         }

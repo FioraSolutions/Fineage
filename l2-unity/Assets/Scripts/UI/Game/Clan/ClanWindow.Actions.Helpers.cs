@@ -10,13 +10,7 @@ public partial class ClanWindow
 {
     private void OnClickInvite(ClickEvent evt)
     {
-        if (_packet != null && IsLeader(_packet.SubPledgeLeaderName))
-        {
-            SystemMessagePacketServices.Window.ShowWindowDialogDropdownYesOrNot(" Select a Unit " , new List<string> { _packet.PledgeName});
-            SystemMessagePacketServices.Window.OnButtonOk += OkInvite;
-            SystemMessagePacketServices.Window.OnButtonClosed += OnРЎancel;
-        }
-
+        OnClickClanEntry(null);
     }
 
     private string GetSelfName()

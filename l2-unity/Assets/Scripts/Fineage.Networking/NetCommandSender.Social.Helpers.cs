@@ -74,4 +74,14 @@ public sealed partial class NetCommandSender
             return Task.CompletedTask;
         return zone.SendAsync(NetOpcode.ClanCancelDissolveRequest, Array.Empty<byte>(), _nextSeq());
     }
+
+    public Task SendPledgeCommandAsync(PledgeCommandNetMsg message)
+    {
+        if (message == null || !TryGetZone(out NetTransport zone))
+            return Task.CompletedTask;
+        return zone.SendAsync(
+            NetOpcode.PledgeCommand,
+            NetCodec.EncodePledgeCommand(message),
+            _nextSeq());
+    }
 }

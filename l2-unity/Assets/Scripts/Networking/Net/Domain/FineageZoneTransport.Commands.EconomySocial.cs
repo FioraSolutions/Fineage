@@ -183,6 +183,13 @@ public sealed partial class FineageZoneTransport
             return true;
         }
 
+        PledgeCommandRequestCommand netPledge = command as PledgeCommandRequestCommand;
+        if (netPledge != null && netPledge.Body != null)
+        {
+            Session.SendPledgeCommand(netPledge.Body);
+            return true;
+        }
+
         RequestTradeCommand netRequestTrade = command as RequestTradeCommand;        if (netRequestTrade != null)
         {
             Session.SendTradeRequest(netRequestTrade.TargetObjectId);

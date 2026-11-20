@@ -35,24 +35,44 @@ public partial class MasterClan
         return GetColumns(namesList, conditionsList, levelList, activity);
     }
 
-    public List<string> SetDropdownList(DropdownField dropdown , string clanName)
+    public List<string> SetDropdownList(DropdownField dropdown, NetClanBook book, IList<int> pledgeTypesOut)
     {
-        if (string.IsNullOrEmpty(clanName))
+        pledgeTypesOut.Clear();
+        if (dropdown == null)
+            return new List<string>();
+
+        if (book == null || !book.HasClan || string.IsNullOrEmpty(book.Name))
         {
-            // UI Toolkit throws ArgumentNullException("value") if choices is null.
-            // Login calls this with an empty pledge name before the socket opens.
             var empty = new List<string>();
             dropdown.choices = empty;
             dropdown.SetValueWithoutNotify(string.Empty);
             return empty;
         }
-        else
+
+        var labels = new List<string>();
+        labels.Add("Main Clan - " + book.Name);
+        pledgeTypesOut.Add(0);
+        NetSubPledge[] subs = book.SubPledges;
+        for (int i = 0; i < subs.Length; i++)
         {
-            var _listDropDown = new List<string> { "Main Clan - " + clanName };
-            dropdown.value = "Main Clan - " + clanName;
-            dropdown.choices = _listDropDown;
-            return _listDropDown;
+            string label = SubUnitLabel(subs[i]) + " - " + (string.IsNullOrEmpty(subs[i].Name) ? book.Name : subs[i].Name);
+            labels.Add(label);
+            pledgeTypesOut.Add(subs[i].Type);
         }
 
+        dropdown.choices = labels;
+        dropdown.SetValueWithoutNotify(labels[0]);
+        return labels;
+    }
+
+    static string SubUnitLabel(NetSubPledge sub)
+    {
+        if (sub.Type == -1 || sub.Type == 100)
+            return "Academy";
+        if (sub.Type >= 1001)
+            return "Order of Knights";
+        if (sub.Type == 200 || sub.Type == 201)
+            return "Royal Guard";
+        return "Sub-unit";
     }
 }

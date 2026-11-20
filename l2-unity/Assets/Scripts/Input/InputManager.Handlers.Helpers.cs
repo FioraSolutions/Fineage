@@ -62,11 +62,13 @@ public partial class InputManager : MonoBehaviour
             OpenSystemMenu = _systemMenuAction.WasPerformedThisFrame();
             OpenActions = _actionsAction.WasPerformedThisFrame();
             OpenMap = _mapAction != null && _mapAction.WasPerformedThisFrame();
+            OpenClan = _clanAction != null && _clanAction.WasPerformedThisFrame();
         }
         else
         {
             MoveInput = Vector2.zero;
             OpenMap = false;
+            OpenClan = false;
         }
 
         MoveForward = LeftClickHeld && RightClickHeld;
