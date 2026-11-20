@@ -84,14 +84,14 @@ public static class InterludeSocialAnimationCatalog
         return ".ao_" + clipStem;
     }
 
-    public static bool TryLoadClip(CharacterRaceAnimation race, string clipStem, out UnityEngine.AnimationClip clip)
+    public static bool TryLoadClip(CharacterRaceAnimation race, string clipStem, out AnimationClip clip)
     {
         clip = null;
         string folder = ClipResourcesFolder(race);
         if (string.IsNullOrEmpty(folder) || string.IsNullOrEmpty(clipStem))
             return false;
 
-        AnimationClip[] clips = UnityEngine.Resources.LoadAll<AnimationClip>(folder);
+        AnimationClip[] clips = Resources.LoadAll<AnimationClip>(folder);
         if (clips == null || clips.Length == 0)
             return false;
 

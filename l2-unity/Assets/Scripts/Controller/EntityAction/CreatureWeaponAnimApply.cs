@@ -89,6 +89,9 @@ public static class CreatureWeaponAnimApply
             }
         }
 
+        Debug.LogError(
+            "[CreatureWeaponAnim] no weapon animation clips prefix=" + prefix
+            + " packages=" + string.Join(",", Packages) + "/Model.");
         ClipCache[prefix] = Array.Empty<AnimationClip>();
         return ClipCache[prefix];
     }

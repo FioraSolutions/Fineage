@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>Minimal Interlude-like options: audio volumes/mute + resolution/window mode. Stored in PlayerPrefs.</summary>
 public static class GameSettings
 {
-    const string KMaster = "opt.vol.master", KMusic = "opt.vol.music", KSfx = "opt.vol.sfx", KAmb = "opt.vol.ambient", KMute = "opt.vol.mute";
+    const string KMaster = "opt.vol.master", KMusic = "opt.vol.music", KSfx = "opt.vol.sfx", KAmb = "opt.vol.ambient", KVoice = "opt.vol.voice", KMute = "opt.vol.mute";
     const string KResW = "opt.res.w", KResH = "opt.res.h", KFull = "opt.res.full";
     const string KGfxQuality = "opt.gfx.quality";
 
@@ -30,6 +30,7 @@ public static class GameSettings
     public static float Music { get => PlayerPrefs.GetFloat(KMusic, 0.6f); set { PlayerPrefs.SetFloat(KMusic, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static float Sfx { get => PlayerPrefs.GetFloat(KSfx, 0.7f); set { PlayerPrefs.SetFloat(KSfx, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static float Ambient { get => PlayerPrefs.GetFloat(KAmb, 0.6f); set { PlayerPrefs.SetFloat(KAmb, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
+    public static float Voice { get => PlayerPrefs.GetFloat(KVoice, 0.85f); set { PlayerPrefs.SetFloat(KVoice, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static bool Mute { get => PlayerPrefs.GetInt(KMute, 0) == 1; set { PlayerPrefs.SetInt(KMute, value ? 1 : 0); PlayerPrefs.Save(); ApplyAudio(); } }
 
     public static readonly Vector2Int[] Resolutions = {
@@ -46,7 +47,7 @@ public static class GameSettings
         Screen.SetResolution(w, h, fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
     }
 
-    /// <summary>Skill casts use Unity AudioSources; world/steps/UI/social use FMOD via AudioManager. Master/mute also drives AudioListener.</summary>
+    /// <summary>Unified AudioService: FMOD buses + clip channels; master/mute also drives AudioListener.</summary>
     public static void ApplyAudio()
     {
         AudioListener.volume = Mute ? 0f : Master;
