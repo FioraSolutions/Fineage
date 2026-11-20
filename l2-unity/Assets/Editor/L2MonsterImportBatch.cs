@@ -122,6 +122,8 @@ public static class L2MonsterImportBatch
 
         int written = WriteClipFiles(item.asset, fbx);
         StripAnimationsFromFbx(item, fbx);
+        // Blender may rewrite the FBX after clips are extracted; re-assert the meter contract.
+        L2TownNpcFbxImport.EnsureMeterContract(fbx);
         L2MonsterPrefabBuilder.WireSingle(prefab);
         FitCapsule(prefab);
         UnityEngine.Debug.Log("[MonsterImport] ready " + item.asset + " clips=" + written + " mats=" + mats.Length);
@@ -217,18 +219,15 @@ public static class L2MonsterImportBatch
 
     static void ConfigureModelImporter(string fbxPath)
     {
-        AssetDatabase.ImportAsset(fbxPath, ImportAssetOptions.ForceUpdate);
-        ModelImporter importer = AssetImporter.GetAtPath(fbxPath) as ModelImporter;
-        if (importer == null)
-            return;
-        importer.animationType = ModelImporterAnimationType.Generic;
-        importer.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
-        importer.globalScale = 1f;
-        importer.useFileScale = true;
-        importer.useFileUnits = true;
-        importer.importAnimation = true;
-        importer.importBlendShapes = true;
-        importer.SaveAndReimport();
+        L2TownNpcFbxImport.EnsureMeterContract(fbxPath);
+        if (AssetImporter.GetAtPath(fbxPath) is ModelImporter importer)
+        {
+            importer.useFileUnits = true;
+            importer.importBlendShapes = true;
+            importer.SaveAndReimport();
+        }
+
+        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
     }
 
     static void AssignMaterials(GameObject inst, string[] materialPaths)

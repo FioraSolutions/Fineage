@@ -9,7 +9,7 @@ using UnityEngine;
 
 /// <summary>
 /// Data-driven import of official Interlude town/village NPC FBX + textures.
-/// Meter FBX (pskimport bScaleDown=True) then <see cref="L2TownNpcFbxImport.ConfigureMeterFbx"/>.
+/// Meter FBX (pskimport bScaleDown=True) then <see cref="L2TownNpcFbxImport.EnsureMeterContract"/>.
 /// Wires Npc_Basic like the Dark Elf / Orc village builders. No per-npc gameplay branches.
 /// </summary>
 public static class L2NpcImportBatch
@@ -106,7 +106,7 @@ public static class L2NpcImportBatch
             throw new Exception("FBX missing " + fbxPath);
 
         AssetDatabase.ImportAsset(fbxPath, ImportAssetOptions.ForceUpdate);
-        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
+        L2TownNpcFbxImport.EnsureMeterContract(fbxPath);
         GameObject src = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
         if (src == null)
             throw new Exception("cannot load " + fbxPath);

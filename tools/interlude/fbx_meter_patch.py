@@ -22,6 +22,7 @@ reports `lossyScale = 1`.
 Usage:
   python3 tools/interlude/fbx_meter_patch.py <src.fbx> <dst.fbx> [--json]
   python3 tools/interlude/fbx_meter_patch.py --batch <src_dir> <dst_dir> [--json]
+  python3 tools/interlude/fbx_meter_patch.py --ensure <file.fbx> [...]
 """
 from __future__ import annotations
 
@@ -262,7 +263,14 @@ def legacy_factor_for(path):
             for line in fh:
                 marker = "globalScale:"
                 if marker in line:
-                    return NODE_SCALE * float(line.split(marker, 1)[1].strip())
+                    importer = float(line.split(marker, 1)[1].strip())
+                    # Only a legacy importer scale says how the file was compensated.
+                    # A meter importer (globalScale 1) sitting on a legacy-unit file is
+                    # exactly the broken state this patch repairs, and 100 x 1 would
+                    # blow the rig up 100x instead of the shared 1.9.
+                    if importer < 0.5:
+                        return NODE_SCALE * importer
+                    return LEGACY_FACTOR
     except (OSError, ValueError):
         pass
     return LEGACY_FACTOR
@@ -592,10 +600,32 @@ def _batch_pairs(src_dir, dst_dir):
             yield src, os.path.join(dst_dir, rel)
 
 
+def ensure_legacy_carrier(path):
+    """In-place patch only when the FBX still has a legacy x100 node carrier.
+
+    A bScaleDown meter file (node scale 1, even if UnitScaleFactor is still 1) is
+    left alone — detect_contract would otherwise treat it as legacy and grow it 1.9x.
+    """
+    version, nodes, _original, _footer = parse(path)
+    root = Node("", [], nodes, wide=version >= 7500)
+    if not has_legacy_carrier(root):
+        return {"skipped": True, "contract": "no-legacy-carrier"}
+    return patch(path, path)
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     as_json = "--json" in sys.argv
     in_place = "--in-place" in sys.argv
+    if "--ensure" in sys.argv:
+        for path in args:
+            stats = ensure_legacy_carrier(path)
+            if as_json:
+                print(json.dumps({"src": path, "stats": stats}, indent=1))
+            else:
+                action = "SKIPPED" if stats.get("skipped") else "PATCHED"
+                print(action, path, stats)
+        return
     if "--batch" in sys.argv:
         src_dir = args[0]
         dst_dir = src_dir if in_place else args[1]
