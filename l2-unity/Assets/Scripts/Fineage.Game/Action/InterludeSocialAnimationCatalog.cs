@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Maps SocialAction / RequestActionUse social ids → PSA clip take stem per race (shared table, no per-race ifs in callers).
