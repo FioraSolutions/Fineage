@@ -1,6 +1,6 @@
 namespace Fineage.Net.Contract
 {
-  public sealed class QuestDirectionNetMsg
+    public sealed class QuestDirectionNetMsg
     {
         public int QuestId { get; set; }
         public bool Show { get; set; }
