@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
@@ -63,7 +62,7 @@ public sealed class CombatStyleProfileEditModeTests
     {
         LogAssert.Expect(
             UnityEngine.LogType.Error,
-            new Regex("missing Weapongrp for weaponItemId=99999"));
+            "[World] CombatStyleProfile: missing Weapongrp for weaponItemId=99999 — check Weapongrp table / item id");
         CombatStyleProfile profile = CombatStyleProfileResolver.Resolve(null, weaponItemId: 99999);
         Assert.IsFalse(profile.IsResolved);
         Assert.AreEqual(string.Empty, profile.AnimSuffix);

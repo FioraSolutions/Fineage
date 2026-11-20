@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-public class CharacterRaceAnimationTableEditModeTests
+public sealed class CharacterRaceAnimationTableEditModeTests
 {
     [Test]
     public void ParseRaceInterlude_HumanFighter_Male()
