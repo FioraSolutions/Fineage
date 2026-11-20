@@ -12,6 +12,7 @@ public static partial class DiBootstrap
             if (existing.GetComponent<EventProcessor>() == null)
                 existing.gameObject.AddComponent<EventProcessor>();
             EnsureFmodStudioListener(existing.gameObject);
+            AudioSessionBootstrap.EnsureSession();
             return;
         }
 
@@ -23,6 +24,7 @@ public static partial class DiBootstrap
         go.AddComponent<AppLifetimeScope>();
         // LoginCameras live in additive l2_lobby; FMOD warns before that loads.
         EnsureFmodStudioListener(go);
+        AudioSessionBootstrap.EnsureSession();
     }
 
     static void EnsureFmodStudioListener(GameObject host)

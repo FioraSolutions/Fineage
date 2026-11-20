@@ -49,10 +49,10 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<SwordCollisionService>(builder);
         RegisterIfFound<PathFinderController>(builder);
         RegisterIfFound<Geodata>(builder);
-        RegisterIfFound<AudioManager>(builder);
-        RegisterIfFound<MusicManager>(builder);
+        RegisterLateBound<AudioManager>(builder);
+        RegisterLateBound<MusicManager>(builder);
+        RegisterLateBound<ThirdPersonListener>(builder);
         RegisterIfFound<SurfaceDetector>(builder);
-        RegisterIfFound<ThirdPersonListener>(builder);
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);

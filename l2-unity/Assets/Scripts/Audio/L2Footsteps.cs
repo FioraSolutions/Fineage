@@ -53,7 +53,7 @@ public sealed class L2Footsteps : MonoBehaviour
             return;
         _carry = 0f;
 
-        AudioManager audio = AudioPacketServices.Audio;
+        AudioManager audio = RequiredAudioServices.RequireAudio(nameof(L2Footsteps));
         if (audio == null)
             return;
         audio.PlayStepSound(Surface(pos), pos, running);

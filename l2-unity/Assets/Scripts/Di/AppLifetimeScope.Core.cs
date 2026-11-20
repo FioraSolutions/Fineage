@@ -24,6 +24,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 
         builder.RegisterBuildCallback(container =>
         {
+            AudioSessionBootstrap.EnsureSession();
             App.Container = container;
             AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);

@@ -16,10 +16,12 @@ public partial class AudioManager : MonoBehaviour
 
             _instance = this;
             AudioPacketServices.Bind(audio: this);
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(this);
+            return;
         }
 
         SetBuses();

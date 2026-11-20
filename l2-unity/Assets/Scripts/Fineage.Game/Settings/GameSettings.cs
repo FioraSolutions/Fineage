@@ -26,7 +26,7 @@ public static class GameSettings
         Screen.SetResolution(w, h, fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
     }
 
-    /// <summary>Real audio goes through Unity AudioSources (FMOD AudioManager is disabled), so drive AudioListener.</summary>
+    /// <summary>Skill casts use Unity AudioSources; world/steps/UI/social use FMOD via AudioManager. Master/mute also drives AudioListener.</summary>
     public static void ApplyAudio()
     {
         AudioListener.volume = Mute ? 0f : Master;

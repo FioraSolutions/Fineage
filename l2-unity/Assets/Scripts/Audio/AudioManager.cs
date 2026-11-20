@@ -24,7 +24,7 @@ public partial class AudioManager : MonoBehaviour
     private Bus _SFXBus;
     private Bus _UIBus;
     private Bus _ambientBus;
-    private bool _isDisabled = true;
+    private bool _isDisabled = false;
 
     private static AudioManager _instance;
 
