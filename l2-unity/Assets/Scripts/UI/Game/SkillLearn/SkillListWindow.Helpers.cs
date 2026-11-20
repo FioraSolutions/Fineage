@@ -84,7 +84,6 @@ public partial class SkillListWindow : L2PopupWindow
 
         _templateActiveSkill = LoadAsset("Data/UI/_Elements/Game/SkillLearn/TabActive");
         _templatePassiveSkill = LoadAsset("Data/UI/_Elements/Game/SkillLearn/TabPassive");
-        _templateLearnSkill = LoadAsset("Data/UI/_Elements/Game/SkillLearn/TabLearn");
 
         //template panels 8x1 skills
         _templateBoxPanel = LoadAsset("Data/UI/_Elements/Template/Skills/SkillBoxRow");
