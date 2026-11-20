@@ -60,12 +60,13 @@ public partial class Entity
         string walkClip = UsesNpcLocomotionClipNames
             ? AnimationNames.MONSTER_WALK.Value
             : AnimationNames.WALK.Concat(suffix);
-        LocomotionGait.ApplyPlaybackRates(
-            animation,
+        (float runRate, float walkRate) = LocomotionGait.ComputePlaybackRates(
             animator,
             runClip,
             walkClip,
             UnityRunSpeedMeters,
             UnityWalkSpeedMeters);
+        animation.SetRunSpeed(runRate);
+        animation.SetWalkSpeed(walkRate);
     }
 }
