@@ -25,6 +25,7 @@
 .chat-window {
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
     background-color: rgba(0, 0, 0, 0.25);
+    min-width: 280px;
 }
 
 .ui-bg {
@@ -651,9 +652,10 @@
     border-color: rgba(84, 81, 75, 0.7);
 }
 
-#InnerBar.highlighted {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-color: rgb(106, 94, 71);
+.chat-window #InnerBar.highlighted {
+    background-color: rgba(24, 20, 14, 0.85);
+    border-width: 1px;
+    border-color: rgb(220, 196, 120);
 }
 
 .chat-window .transparent-cursor {
@@ -678,10 +680,17 @@
     margin-bottom: -2px;
 }
 
-.chat-window .unity-scroll-view,
-.system-msg-window .unity-scroll-view {
+.chat-window .unity-scroll-view {
     padding: 2px 0 4px 0;
     font-size: 12px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.system-msg-window .unity-scroll-view {
+    padding: 0;
+    margin: 0;
+    font-size: 11px;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
 }
@@ -730,12 +739,14 @@
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 64px;
+    min-width: 48px;
     max-width: 64px;
     height: 22px;
     padding: 0;
     margin: 0;
-    flex-shrink: 0;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
     justify-content: center;
 }
 
@@ -744,12 +755,14 @@
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 64px;
+    min-width: 48px;
     max-width: 64px;
     height: 22px;
     padding: 0;
     margin: 0;
-    flex-shrink: 0;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
     justify-content: center;
 }
 
@@ -790,6 +803,10 @@
     padding: 0;
     margin: 0;
     letter-spacing: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     -unity-text-align: middle-center;
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
 }
@@ -1282,10 +1299,10 @@
     min-width: 0;
     height: 125px;
     min-height: 0;
-    padding-top: 16px;
-    padding-right: 8px;
-    padding-bottom: 6px;
-    padding-left: 8px;
+    padding-top: 18px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 4px;
     background-image: resource('Data/UI/Assets/Chat/chatting_system');
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-left: 2;
@@ -1294,6 +1311,13 @@
     -unity-slice-bottom: 2;
     -unity-slice-scale: 0;
     overflow: hidden;
+}
+
+/* L2 thin scroller: no Unity default margins that clip the first system line. */
+.system-msg-window .l2-scroll-view .unity-scroll-view__content-viewport,
+.system-msg-window .unity-scroll-view__content-viewport {
+    margin: 0;
+    padding: 0;
 }
 
 .system-msg-list {
