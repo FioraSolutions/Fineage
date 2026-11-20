@@ -20,6 +20,8 @@ public static class MovementGaitApply
             entity.UpdateRunSpeed(runSpeed);
         if (walkSpeed > 0.001f)
             entity.UpdateWalkSpeed(walkSpeed);
+        if (runSpeed <= 0.001f && walkSpeed <= 0.001f)
+            entity.RefreshLocomotionAnimRates();
 
         // Local player locomotion is driven by its own controller; remote pawns already
         // mid-move must retarget so client speed matches the server chase.

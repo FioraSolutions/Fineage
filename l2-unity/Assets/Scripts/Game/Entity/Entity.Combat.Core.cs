@@ -69,9 +69,9 @@ public partial class Entity
 
     public void UpdateNpcWalkSpd(float walkSpeed)
     {
-        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, walkSpeed);
-        float anim_converted = NpcLocomotionAnimRate("walk", scaled);
-        if (_networkAnimationReceive != null) _networkAnimationReceive.SetWalkSpeed(anim_converted);
-        Stats.UnitySpeedWalking = scaled;
+        if (walkSpeed > 0.001f)
+            _stats.WalkRealSpeed = walkSpeed;
+        UpdateWalkSpeed(walkSpeed);
+        RefreshLocomotionAnimRates();
     }
 }

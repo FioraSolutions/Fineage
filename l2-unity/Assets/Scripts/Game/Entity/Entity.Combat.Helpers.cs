@@ -6,22 +6,10 @@ public partial class Entity
 {
     public void UpdateNpcRunningSpd(float runSpeed)
     {
-        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, runSpeed);
-        float anim_converted = NpcLocomotionAnimRate("run", scaled);
-        if (_networkAnimationReceive != null) _networkAnimationReceive.SetRunSpeed(anim_converted);
-        Stats.UnitySpeedRun = scaled;
-
-    }
-
-    float NpcLocomotionAnimRate(string sequence, float unityMetersPerSecond)
-    {
-        Animator animator = _networkAnimationReceive != null
-            ? _networkAnimationReceive.GetAnimator()
-            : null;
-        float min = sequence != null && sequence.IndexOf("walk", System.StringComparison.OrdinalIgnoreCase) >= 0
-            ? global::LocomotionGait.MinWalkRate
-            : global::LocomotionGait.MinRunRate;
-        return global::LocomotionGait.Rate(animator, sequence, unityMetersPerSecond, min, global::LocomotionGait.MaxRate);
+        if (runSpeed > 0.001f)
+            _stats.RunRealSpeed = runSpeed;
+        float scaled = UpdateRunSpeed(runSpeed);
+        RefreshLocomotionAnimRates();
     }
 
     public virtual float UpdateSpeed(int speed) {
@@ -33,11 +21,12 @@ public partial class Entity
 
     public virtual float UpdateRunSpeed(float speed)
     {
+        if (speed <= 0.001f)
+            return UnityRunSpeedMeters;
         float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
-        _stats.UnitySpeedRun = speed;
+        _stats.RunRealSpeed = speed;
+        _stats.UnitySpeedRun = scaled;
         return scaled;
-        //_stats.ScaledRunSpeed = scaled;
-        //return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
 
     public virtual float UpdateAnimRunSpeed(float speed)
@@ -57,11 +46,12 @@ public partial class Entity
 
     public virtual float UpdateWalkSpeed(float speed)
     {
+        if (speed <= 0.001f)
+            return UnityWalkSpeedMeters;
         float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
+        _stats.WalkRealSpeed = speed;
         _stats.UnitySpeedWalking = scaled;
         return scaled;
-        //_stats.ScaledWalkSpeed = scaled;
-       // return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, speed);
     }
 
     public virtual bool IsDead() {
