@@ -53,7 +53,8 @@ public partial class ChatWindow
                         var commands = PlayerCommands.FindByText(text);
                         if (commands != null)
                         {
-                            ZoneCommands.Send(new RequestUserCommandCommand(commands.Id));
+                            if (!TryRunSitStandFromChat(commands.Type))
+                                ZoneCommands.Send(new RequestUserCommandCommand(commands.Id));
                             // Debug.Log("ChatWindow: requested player command :" + commands  + " id: " + commands.Id);
                         }
                         else

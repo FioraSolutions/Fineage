@@ -647,15 +647,41 @@
 }
 
 .chat-window #InnerBar {
-    background-color: rgba(0, 0, 0, 0.35);
-    border-width: 1px;
-    border-color: rgba(84, 81, 75, 0.7);
+    min-height: 16px;
+    padding-right: 2px;
+    background-image: resource('Data/UI/Assets/Login/CharacterPassword_DF_EditBox');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 4;
+    -unity-slice-right: 4;
+    -unity-slice-top: 4;
+    -unity-slice-bottom: 4;
+    border-width: 0;
+    background-color: transparent;
 }
 
-.chat-window #InnerBar.highlighted {
-    background-color: rgba(24, 20, 14, 0.85);
-    border-width: 1px;
-    border-color: rgb(220, 196, 120);
+.chat-window #InnerBar.highlighted,
+.chat-window #InnerBar.bg-highlight-0,
+.chat-window #InnerBar.bg-highlight-1,
+.chat-window #InnerBar.bg-highlight-2,
+.chat-window #InnerBar.bg-highlight-3,
+.chat-window #InnerBar.bg-highlight-4,
+.chat-window #InnerBar.bg-highlight-5,
+.chat-window #InnerBar.bg-highlight-6,
+.chat-window #InnerBar.bg-highlight-7,
+.chat-window #InnerBar.bg-highlight-8,
+.chat-window #InnerBar.bg-highlight-9,
+.chat-window #InnerBar.bg-highlight-10,
+.chat-window #InnerBar.bg-highlight-11,
+.chat-window #InnerBar.bg-highlight-12,
+.chat-window #InnerBar.bg-highlight-13,
+.chat-window #InnerBar.bg-highlight-14,
+.chat-window #InnerBar.bg-highlight-15,
+.chat-window #InnerBar.bg-highlight-16,
+.chat-window #InnerBar.bg-highlight-17,
+.chat-window #InnerBar.bg-highlight-18,
+.chat-window #InnerBar.bg-highlight-19 {
+    background-color: transparent;
+    border-width: 0;
 }
 
 .chat-window .transparent-cursor {
@@ -1318,6 +1344,11 @@
 .system-msg-window .unity-scroll-view__content-viewport {
     margin: 0;
     padding: 0;
+}
+
+.system-msg-window .unity-scroller,
+.system-msg-window .unity-scroller--vertical {
+    display: none;
 }
 
 .system-msg-list {
