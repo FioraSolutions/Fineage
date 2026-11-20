@@ -6,6 +6,7 @@ using VContainer;
 public static class AudioPacketServices
 {
     private static AudioManager _audio;
+    private static AudioService _service;
     private static World _gameWorld;
     private static PlayerController _player;
     private static ThirdPersonListener _listener;
@@ -17,12 +18,15 @@ public static class AudioPacketServices
 
     public static void Bind(
         AudioManager audio = null,
+        AudioService service = null,
         World gameWorld = null,
         PlayerController player = null,
         ThirdPersonListener listener = null)
     {
         if (audio != null)
             _audio = audio;
+        if (service != null)
+            _service = service;
         if (gameWorld != null)
             _gameWorld = gameWorld;
         if (player != null)
@@ -37,6 +41,11 @@ public static class AudioPacketServices
         _audio != null
             ? _audio
             : ResolveFromGame<AudioManager>() ?? LegacyAudioInstance();
+
+    public static AudioService Service =>
+        _service != null
+            ? _service
+            : ResolveFromGame<AudioService>() ?? LegacyServiceInstance();
 
     public static World GameWorld =>
         _gameWorld != null ? _gameWorld : NetworkingPacketServices.GameWorld;
@@ -66,6 +75,7 @@ public static class AudioPacketServices
 
 #pragma warning disable CS0618 // Locator fallback until all call sites are [Inject]
     static AudioManager LegacyAudioInstance() => AudioManager.Instance;
+    static AudioService LegacyServiceInstance() => AudioService.Instance;
     static ThirdPersonListener LegacyListenerInstance() => ThirdPersonListener.Instance;
 #pragma warning restore CS0618
 }

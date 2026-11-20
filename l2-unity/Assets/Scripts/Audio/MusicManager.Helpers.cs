@@ -1,38 +1,14 @@
-using System;
 using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 public partial class MusicManager : MonoBehaviour
 {
-    public void PlayMusic(EventReference musicEvent, int priority) {
-        if(priority < _currentEventPriority) {
-            return;
-        }
+    public void PlayMusic(EventReference musicEvent, int priority) =>
+        Svc.PlayAreaMusic(musicEvent, priority);
 
-        _currentEventPriority = priority;
-        _currentMusicEvent = musicEvent;
+    public void StopMusic(EventReference musicEvent) =>
+        Svc.StopAreaMusic(musicEvent);
 
-        if (_musicInstances.ContainsKey(musicEvent)) {
-            _musicInstances[musicEvent].start();
-        } else {
-            EventInstance musicInstance = RuntimeManager.CreateInstance(musicEvent);
-            _musicInstances.Add(musicEvent, musicInstance);
-            musicInstance.start();
-        }
-
-        //Debug.Log("Playing music " + musicEvent + " with priority " + priority);
-    }
-
-    public void StopMusic(EventReference musicEvent) {
-        if(_musicInstances != null && _musicInstances.ContainsKey(musicEvent)) {
-            _musicInstances[musicEvent].stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-        }             
-    }
-
-    public void ResetPriority() {
-        _currentEventPriority = -1;
-    }
+    public void ResetPriority() => Svc.ResetMusicPriority();
 }

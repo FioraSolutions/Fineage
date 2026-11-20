@@ -50,6 +50,7 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<PathFinderController>(builder);
         RegisterIfFound<Geodata>(builder);
         RegisterLateBound<AudioManager>(builder);
+        RegisterLateBound<AudioService>(builder);
         RegisterLateBound<MusicManager>(builder);
         RegisterLateBound<ThirdPersonListener>(builder);
         RegisterIfFound<SurfaceDetector>(builder);
