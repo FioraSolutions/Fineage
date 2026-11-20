@@ -49,9 +49,21 @@ public sealed class AudioServiceEditModeTests
     }
 
     [Test]
-    public void Login_intro_paths_are_stable()
+    public void Catalog_login_intro_is_fmod_only()
     {
-        Assert.AreEqual("event:/Music/l2_lobby/intro", AudioMusicIds.LoginIntroFmodPath);
-        Assert.AreEqual("Data/Audio/intro", AudioMusicIds.LoginIntroResourcesPath);
+        Assert.IsTrue(AudioSoundCatalog.TryResolve(AudioSoundCatalog.IdLoginIntro, out AudioPlaySpec spec));
+        Assert.AreEqual(AudioSourceKind.FmodStudioEvent, spec.Source);
+        Assert.AreEqual("event:/Music/l2_lobby/intro", spec.Id);
+    }
+
+    [Test]
+    public void Catalog_hit_sounds_are_single_fmod_ids()
+    {
+        Assert.IsTrue(AudioSoundCatalog.TryResolve(AudioSoundCatalog.IdHitCritical, out AudioPlaySpec crit));
+        Assert.AreEqual(AudioSourceKind.FmodStudioEvent, crit.Source);
+        Assert.AreEqual("event:/SkillSound/critical_hit", crit.Id);
+
+        Assert.IsTrue(AudioSoundCatalog.TryResolve(AudioSoundCatalog.IdHitArmor, out AudioPlaySpec armor));
+        Assert.AreEqual("event:/ItemSound/armor_hit_underwear", armor.Id);
     }
 }

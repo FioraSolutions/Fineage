@@ -58,8 +58,7 @@ public static class AudioPathResolver
     }
 
     /// <summary>
-    /// Maps a Resources path under <c>Data/Sounds/</c> to category + preferred backend.
-    /// Skill / voice / quest clips ship as Resources WAVs; world combat uses FMOD events when available.
+    /// Maps a Resources path under <c>Data/Sounds/</c> to category + backend (Resources-only pipeline).
     /// </summary>
     public static AudioPlaySpec SpecForResourcesPath(string resourcesPath)
     {

@@ -115,22 +115,7 @@ public partial class AudioService
 
     public bool PlayHitImpact(bool criticalHit, Vector3 position)
     {
-        if (criticalHit)
-        {
-            if (PlayFmodEvent(AudioPathResolver.FmodSkillSound("critical_hit"), AudioCategory.Sfx, position))
-                return true;
-            return PlayResourcesPath(AudioPathResolver.ResourcesSkillClip("critical_hit"), 0.75f)
-                || PlayResourcesPath(AudioPathResolver.ResourcesSkillClip("critical_hit_stereo"), 0.75f)
-                || PlayResourcesPath(AudioPathResolver.ResourcesSkillClip("critical_hit_02"), 0.75f);
-        }
-
-        if (PlayFmodEvent(AudioPathResolver.FmodItemSound("armor_hit_underwear"), AudioCategory.Sfx, position))
-            return true;
-
-        int idx = (Random.Range(0, 4) % 4) + 1;
-        string armor = AudioPathResolver.ResourcesItemSoundRoot + "armor_underwear_" + idx;
-        if (PlayClip2D(armor, AudioCategory.Sfx, 0.75f))
-            return true;
-        return PlayClip2D(AudioPathResolver.ResourcesItemSoundRoot + "armor_underwear_1", AudioCategory.Sfx, 0.75f);
+        string id = criticalHit ? AudioSoundCatalog.IdHitCritical : AudioSoundCatalog.IdHitArmor;
+        return PlayCatalogSound(id, position, 0.75f);
     }
 }

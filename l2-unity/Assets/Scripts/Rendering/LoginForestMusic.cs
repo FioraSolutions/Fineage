@@ -1,8 +1,8 @@
-/// <summary>Login intro BGM — routed through <see cref="AudioService"/> (Music category).</summary>
+/// <summary>Login intro BGM — <see cref="AudioSoundCatalog.IdLoginIntro"/> (FMOD only).</summary>
 public static class LoginForestMusic
 {
     public const string FmodEventPath = AudioMusicIds.LoginIntroFmodPath;
-    public const string ResourcesClipPath = AudioMusicIds.LoginIntroResourcesPath;
+    public const string CatalogId = AudioSoundCatalog.IdLoginIntro;
 
     public static void Play() => AudioPacketServices.Service?.PlayLoginIntro(loop: true);
 
