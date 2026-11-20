@@ -51,8 +51,8 @@ public static class CombatStyleProfileResolver
             suffix,
             range,
             isRanged,
-            isDual,
             hitFraction,
+            isDual,
             isResolved: true);
     }
 
