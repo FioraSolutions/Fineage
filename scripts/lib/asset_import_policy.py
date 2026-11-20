@@ -113,9 +113,28 @@ def resolve_audio_rule(asset_path: str, rules: dict[str, Any]) -> dict[str, Any]
     raise ValueError(f"No audio import rule for asset: {asset_path}")
 
 
+def _wav_duration_seconds(audio_path: Path) -> float | None:
+    try:
+        import wave
+
+        with wave.open(str(audio_path), "rb") as handle:
+            rate = handle.getframerate()
+            frames = handle.getnframes()
+            if rate <= 0:
+                return None
+            return frames / float(rate)
+    except (wave.Error, OSError, ValueError):
+        return None
+
+
 def audio_duration_seconds(audio_path: Path) -> float | None:
     if not audio_path.is_file():
         return None
+    ext = audio_path.suffix.lower()
+    if ext == ".wav":
+        duration = _wav_duration_seconds(audio_path)
+        if duration is not None:
+            return duration
     try:
         result = subprocess.run(
             [
