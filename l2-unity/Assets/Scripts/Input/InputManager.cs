@@ -28,6 +28,7 @@ public partial class InputManager : MonoBehaviour
     private InputAction _mapAction;
     private InputAction _clanAction;
     private InputAction _validateAction;
+    private InputAction _questJournalAction;
 
     #endregion
 
@@ -65,6 +66,7 @@ public partial class InputManager : MonoBehaviour
     [field: SerializeField] public bool OpenActions { get; private set; }
     [field: SerializeField] public bool OpenMap { get; private set; }
     [field: SerializeField] public bool OpenClan { get; private set; }
+    [field: SerializeField] public bool OpenQuestJournal { get; private set; }
     [field: SerializeField] public bool CloseWindow { get; private set; }
     [field: SerializeField] public bool Validate { get; private set; }
 

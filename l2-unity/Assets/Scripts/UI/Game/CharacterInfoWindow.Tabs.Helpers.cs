@@ -91,12 +91,36 @@ public partial class CharacterInfoWindow
             string name = quest.QuestName();
             if (string.IsNullOrEmpty(name))
                 name = "Quest " + quest.QuestID;
-            var row = new Label(name);
+            string line = string.IsNullOrEmpty(quest.QuestProgName()) ? name : $"{name} — {quest.QuestProgName()}";
+            var row = new Label(line);
             row.style.fontSize = 11;
             row.style.color = new Color(223f / 255f, 222f / 255f, 222f / 255f);
             row.style.height = 16;
+            row.style.whiteSpace = WhiteSpace.Normal;
             row.style.marginLeft = 8;
             _questList.Add(row);
+        }
+
+        if (QuestJournalState.Completed.Count > 0)
+        {
+            var doneHeader = new Label("Completed");
+            doneHeader.style.fontSize = 10;
+            doneHeader.style.color = new Color(0.6f, 0.85f, 0.55f);
+            doneHeader.style.marginTop = 8;
+            doneHeader.style.marginLeft = 8;
+            _questList.Add(doneHeader);
+            foreach (int questId in QuestJournalState.Completed)
+            {
+                QuestName meta = QuestJournalResolver.ResolveCompletedTitle(questId);
+                string title = meta?.Main_name;
+                if (string.IsNullOrEmpty(title))
+                    title = "Quest " + questId;
+                var row = new Label(title);
+                row.style.fontSize = 11;
+                row.style.color = new Color(0.7f, 0.7f, 0.7f);
+                row.style.marginLeft = 8;
+                _questList.Add(row);
+            }
         }
     }
 }

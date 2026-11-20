@@ -13,10 +13,16 @@ public static partial class NetNpcWindows
         for (int i = 0; i < list.Active.Length; i++)
         {
             NetQuestJournal row = list.Active[i];
-            int flags = row.JournalWord != 0 ? row.JournalWord : row.Cond;
-            if (flags == 0)
-                flags = 1;
-            quests.Add(new QuestInstance(row.QuestId, flags, row.Repeatable ? 1 : 0, row.Name));
+            quests.Add(QuestInstance.FromNet(new Fineage.Net.Contract.QuestJournalEntryNet
+            {
+                QuestId = row.QuestId,
+                Name = row.Name,
+                State = row.State,
+                Cond = row.Cond,
+                ProgressFlags = row.ProgressFlags,
+                JournalWord = row.JournalWord,
+                Repeatable = row.Repeatable
+            }));
         }
 
         try

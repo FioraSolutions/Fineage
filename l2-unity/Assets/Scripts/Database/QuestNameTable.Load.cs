@@ -21,6 +21,13 @@ public partial class QuestNameTable
         return null;
     }
 
+    public List<QuestName> GetQuestNames(int questId)
+    {
+        if (_questNames != null && _questNames.TryGetValue(questId, out var list))
+            return list;
+        return null;
+    }
+
     public List<QuestName> GetQuestsWithLastSubtask()
     {
         List<QuestName> quests = new List<QuestName>();

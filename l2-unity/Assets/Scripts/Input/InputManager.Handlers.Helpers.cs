@@ -63,12 +63,16 @@ public partial class InputManager : MonoBehaviour
             OpenActions = _actionsAction.WasPerformedThisFrame();
             OpenMap = _mapAction != null && _mapAction.WasPerformedThisFrame();
             OpenClan = _clanAction != null && _clanAction.WasPerformedThisFrame();
+            OpenQuestJournal = (_questJournalAction != null && _questJournalAction.WasPerformedThisFrame())
+                               || (Keyboard.current != null && Keyboard.current.uKey.wasPressedThisFrame
+                                   && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed));
         }
         else
         {
             MoveInput = Vector2.zero;
             OpenMap = false;
             OpenClan = false;
+            OpenQuestJournal = false;
         }
 
         MoveForward = LeftClickHeld && RightClickHeld;
