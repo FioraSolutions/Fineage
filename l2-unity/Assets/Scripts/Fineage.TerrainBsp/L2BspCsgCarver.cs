@@ -32,17 +32,19 @@ namespace Fineage.TerrainBsp
         if (b == null) continue;
         bool subtract = string.Equals(b.csgOper, CsgSubtract, StringComparison.Ordinal);
         if (subtract) a.subtractBrushCount++;
-        if (!BrushUsable(b)) continue;
+        bool geometryBrush = BrushUsable(b);
+        bool portalBrush = BrushUsableForPortalCollection(b);
         var basePos = b.position - b.prePivot;
         foreach (var pd in b.polygons ?? Array.Empty<L2BspPoly>())
         {
           if (pd?.vertices == null || pd.vertices.Length < 3) continue;
-          if (!subtract && L2BspPolyFlags.IsPortalCapTexture(pd.texture))
+          if (!subtract && portalBrush && L2BspPolyFlags.IsPortalCapTexture(pd.texture))
           {
             var world = WorldVerts(basePos, pd.vertices);
             if (TryAxisRect(world, out _, out _, out _, out _, out _, out _, out _, out _))
               a.portalCapCount++;
           }
+          if (!geometryBrush) continue;
           if (!L2BspPolyFlags.ShouldRenderPolygon(pd.polyFlags, pd.texture))
           {
             if (L2BspPolyFlags.Contains(pd.polyFlags, "PF_Invisible"))
@@ -83,7 +85,7 @@ namespace Fineage.TerrainBsp
       if (brushes == null) return list;
       foreach (var b in brushes)
       {
-        if (b == null || !string.Equals(b.csgOper, CsgAdd, StringComparison.Ordinal) || !BrushUsable(b))
+        if (b == null || !string.Equals(b.csgOper, CsgAdd, StringComparison.Ordinal) || !BrushUsableForPortalCollection(b))
           continue;
         Vector3 basePos = b.position - b.prePivot;
         float[] bmin = { float.MaxValue, float.MaxValue, float.MaxValue };
@@ -257,14 +259,26 @@ namespace Fineage.TerrainBsp
     {
       if (b == null || b.position == Vector3.zero || b.polygons == null) return false;
       if (!L2BspPolyFlags.ShouldRenderBrush(b.polyFlags)) return false;
+      return !BrushHasHugeVertices(b);
+    }
+
+    /// <summary>AntiPortal doorway brushes are brush-level NotSolid/Invisible in UE2 but still define holes.</summary>
+    public static bool BrushUsableForPortalCollection(L2BspBrush b)
+    {
+      if (b == null || b.position == Vector3.zero || b.polygons == null) return false;
+      return !BrushHasHugeVertices(b);
+    }
+
+    static bool BrushHasHugeVertices(L2BspBrush b)
+    {
       foreach (var pd in b.polygons)
       {
         if (pd?.vertices == null) continue;
         foreach (var v in pd.vertices)
           if (Mathf.Abs(v.x) > 60000f || Mathf.Abs(v.y) > 60000f || Mathf.Abs(v.z) > 60000f)
-            return false;
+            return true;
       }
-      return true;
+      return false;
     }
 
     static L2BspAabb? BrushBounds(L2BspBrush b)
