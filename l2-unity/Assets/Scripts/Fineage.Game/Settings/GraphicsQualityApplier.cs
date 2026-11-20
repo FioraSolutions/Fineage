@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-/// <summary>Applies graphics quality through QualitySettings + catalog profile (single pipeline for boot and user changes).</summary>
+/// <summary>Applies graphics quality through QualitySettings and the catalog profile (single pipeline for boot and user changes).</summary>
 public static class GraphicsQualityApplier
 {
     const string LogPrefix = "GraphicsQuality";
