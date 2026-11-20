@@ -18,7 +18,27 @@ Source: official Interlude `animations/*.ukx` -> `umodel -export -psk` -> PSA ta
    rot = (-x, y, z, w) (root bone: (-x, y, z, -w)), pos = (-x, y, z) * 0.0189975, frame/24 s.
    Exact at every committed key (`compare_psa_clip.py`).
 
+## Runtime fix (this branch)
+
+`AnimationManager.TryPlayCombatCrossFade` plays imported `SpAtk03+` clips through
+`CastClipPlayable.TryPlaySpAtkCombat` when `Player_Basic` has no matching state (instead of
+falling back to `SpAtk01_1HS`). Clips resolve via `SkillAnimationDatabase.GetSpAtkCombatClip`.
+
+## Audit
+
+```bash
+python3 scripts/skill-visual-audit/run_audit.py
+```
+
+Outputs:
+
+- `Docs/skill-visual-audit/audit-table.tsv` — skill × race × weapon rows
+- `Docs/skill-visual-audit/missing-assets.tsv` — official takes not imported (needs Mac export)
+- `Docs/skill-visual-audit/audit-summary.txt` — resolution counts
+
+Latest summary (after script): ~2904 `playable_clip`, ~13728 `missing_clip` (mostly MFighter gaps).
+
 ## Next
 
-- Generate missing MFighter takes from PSA (no Unity needed), runtime path that plays the race's
-  `SpAtkNN_<Weapon>` clip when the template has no state, full per-skill table (anim/sound/effect/attach).
+- Import missing MFighter takes from PSA on Mac (`source-takes.tsv` imported=0 rows)
+- Rumble/sound binding pass (skillgrp `rumble_self` → FMOD)
