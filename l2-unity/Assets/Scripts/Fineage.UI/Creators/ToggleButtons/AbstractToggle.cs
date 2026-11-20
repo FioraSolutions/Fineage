@@ -32,7 +32,7 @@ public abstract class AbstractToggle
         IEnumerable<VisualElement> children = btn.Children();
         var e = children.First();
         e.style.display = DisplayStyle.Flex;
-        Texture2D image = Resources.Load<Texture2D>(texture);
+        Texture2D image = L2UiResources.LoadTexture(texture);
         if (image != null)
             btn.style.backgroundImage = new StyleBackground(image);
     }

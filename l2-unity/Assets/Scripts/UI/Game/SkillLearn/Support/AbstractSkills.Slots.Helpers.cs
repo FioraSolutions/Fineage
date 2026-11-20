@@ -40,18 +40,48 @@ public partial class AbstractSkills
         return panelCount;
     }
 
-    public void SetWidthBoxPanel(VisualElement _templateBoxPanel , int sizeCell)
+    protected void ResolveSkillsPerPanel(VisualElement widthSource, int sizeCellOverride)
     {
-        float  width = (sizeCell == 6) ? _default6CellWidth : _default7CellWidth;
+        if (sizeCellOverride > 0)
+        {
+            skillsPerPanel = sizeCellOverride;
+            return;
+        }
 
-        if (_templateBoxPanel != null)
+        float width = widthSource != null ? widthSource.resolvedStyle.width : 0f;
+        if (width <= 0f && widthSource?.parent != null)
+            width = widthSource.parent.resolvedStyle.width;
+        if (width <= 0f && widthSource?.hierarchy.parent != null)
+            width = widthSource.hierarchy.parent.resolvedStyle.width;
+
+        skillsPerPanel = L2SkillsPanelLayout.ComputeColumns(width);
+    }
+
+    public void SetWidthBoxPanel(VisualElement boxPanel, int columns)
+    {
+        if (boxPanel == null)
         {
-           
-            _templateBoxPanel.style.width = width;
+            Debug.LogError("[Skills] SetWidthBoxPanel: boxPanel is null.");
+            return;
         }
-        else
-        {
-            // Debug.LogWarning("ActiveSkillsHide > _templateBoxPanel is null, cannot set width");
-        }
+
+        boxPanel.style.width = L2SkillsPanelLayout.ComputePanelWidth(columns);
+        boxPanel.style.maxWidth = L2SkillsPanelLayout.ComputePanelWidth(columns);
+    }
+
+    protected void ApplySkillsRowChrome(VisualElement rowRoot, int columns)
+    {
+        if (rowRoot == null)
+            return;
+
+        rowRoot.AddToClassList("skills-grid-row");
+        rowRoot.style.height = L2SkillsPanelLayout.RowHeight;
+        rowRoot.style.minHeight = L2SkillsPanelLayout.RowHeight;
+        rowRoot.style.maxHeight = L2SkillsPanelLayout.RowHeight;
+
+        string framePath = L2SkillsPanelLayout.RowFrameResourceForColumns(columns);
+        Texture2D frame = L2UiResources.LoadTexture(framePath);
+        if (frame != null)
+            rowRoot.style.backgroundImage = new StyleBackground(frame);
     }
 }
