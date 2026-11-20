@@ -309,6 +309,10 @@ def make_probes(curves, args, count):
     for c in curves:
         if c.section != "m_EditorCurves" or len(c.keys) < 3 or not c.attribute:
             continue
+        # Unity often exposes rotation via m_RotationCurves; editor float rotation
+        # components are not always readable through AnimationUtility.GetEditorCurve.
+        if c.attribute.startswith("m_LocalRotation."):
+            continue
         if c.path.startswith(("'", '"')) or reducible(c):
             continue
         T, V, IN, OUT = curve_arrays(c)
