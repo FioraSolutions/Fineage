@@ -116,14 +116,8 @@ public partial class StatusWindow
         VisualElement grip = GetElementByClass("hor-resize-handle");
         if (grip != null)
         {
-            Stamp(grip, "Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2");
-            grip.style.unitySliceLeft = 0;
-            grip.style.unitySliceRight = 0;
-            grip.style.unitySliceTop = 0;
-            grip.style.unitySliceBottom = 0;
             grip.style.width = 7;
             grip.style.height = 16;
-            grip.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
         }
     }
 
