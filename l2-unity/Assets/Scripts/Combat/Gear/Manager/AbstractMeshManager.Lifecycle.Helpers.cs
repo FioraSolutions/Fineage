@@ -3,7 +3,7 @@ using VContainer;
 
 public partial class AbstractMeshManager : MonoBehaviour
 {
-    GameObject LoadWeapon(Weapon weapon, int weaponId, bool leftHand = false)
+    protected GameObject LoadWeapon(Weapon weapon, int weaponId, bool leftHand = false)
     {
         if (weapon?.Weapongrp == null)
             return null;
