@@ -43,7 +43,7 @@ public partial class Gear
         Transform[] refreshAllBone = RefreshBone(allBone);
         GameObject go = CreateCopy(weaponPrefab, shieldNameId, ObjectType.Weapon);
         _lastWeaponAnim = _weaponAnim;
-        ActivateGameObject(go, type, true, refreshAllBone);
+        ActivateGameObject(go, weapon.Weapongrp, WeaponAttachEquipMode.Shield, refreshAllBone);
 
         if (_rightHandType != _lastRightHandType | type != _lastShieldHandType 
             | _rightHandType == WeaponType.pole 
@@ -97,7 +97,8 @@ public partial class Gear
         GameObject go = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
 
 
-        ActivateGameObject(go, type, leftSlot, refreshAllBone);
+        WeaponAttachEquipMode mode = WeaponAttachProfileResolver.ModeForSingleEquip(weapon.Weapongrp, leftSlot);
+        ActivateGameObject(go, weapon.Weapongrp, mode, refreshAllBone);
 
         if(type != _lastRightHandType & _leftHandShield == null 
             | _rightHandType == WeaponType.pole
@@ -139,7 +140,7 @@ public partial class Gear
         _goCurrentEtcItem = go;
         _etcItemReleased = false;
 
-        ActivateGameObject(go, WeaponType.arrow, leftSlot, refreshAllBone);
+        ActivateArrow(go, etcItem.EtcItemgrp.Model, refreshAllBone);
 
     }
 
@@ -197,7 +198,10 @@ public partial class Gear
 
         Transform[] refreshAllBone = RefreshBone(allBone);
 
-        GameObject leftGo = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
+        GameObject leftPrefab = LoadWeapon(weapon, weaponId, leftHand: true);
+        if (leftPrefab == null)
+            leftPrefab = weaponPrefab;
+        GameObject leftGo = CreateCopy(leftPrefab, weaponNameAndId, ObjectType.Weapon);
         GameObject rightGo = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
 
         if (type != _lastRightHandType
@@ -212,8 +216,7 @@ public partial class Gear
             if (_leftHandWeapon == null | _leftHandShield == null) OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }
 
-        ActivateOtherGameObject(leftGo, type, true, refreshAllBone);
-        ActivateOtherGameObject(rightGo, type, false, refreshAllBone);
+        ActivateDualHand(leftGo, rightGo, weapon.Weapongrp, refreshAllBone);
 
         _lastRightHandType = type;
         //_lastShieldHandType = type;
