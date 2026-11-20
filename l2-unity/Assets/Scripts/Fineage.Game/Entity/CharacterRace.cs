@@ -1,4 +1,7 @@
-﻿public enum CharacterRace : byte
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+public enum CharacterRace : byte
 {
     Human = 0,
     Elf = 1,
@@ -10,31 +13,32 @@
 
 public static class CharacterRaceParser
 {
+    static readonly Dictionary<CharacterRaceAnimation, CharacterRace> AnimationToRace = new()
+    {
+        { CharacterRaceAnimation.FElf, CharacterRace.Elf },
+        { CharacterRaceAnimation.MElf, CharacterRace.Elf },
+        { CharacterRaceAnimation.MDarkElf, CharacterRace.DarkElf },
+        { CharacterRaceAnimation.FDarkElf, CharacterRace.DarkElf },
+        { CharacterRaceAnimation.FDwarf, CharacterRace.Dwarf },
+        { CharacterRaceAnimation.MDwarf, CharacterRace.Dwarf },
+        { CharacterRaceAnimation.MShaman, CharacterRace.Orc },
+        { CharacterRaceAnimation.FShaman, CharacterRace.Orc },
+        { CharacterRaceAnimation.MOrc, CharacterRace.Orc },
+        { CharacterRaceAnimation.FOrc, CharacterRace.Orc },
+        { CharacterRaceAnimation.FMagic, CharacterRace.Human },
+        { CharacterRaceAnimation.MMagic, CharacterRace.Human },
+        { CharacterRaceAnimation.FFighter, CharacterRace.Human },
+        { CharacterRaceAnimation.MFighter, CharacterRace.Human },
+    };
+
     public static CharacterRace ParseRace(CharacterRaceAnimation race)
     {
-        switch (race)
-        {
-            case CharacterRaceAnimation.MDwarf:
-            case CharacterRaceAnimation.FDwarf:
-                return CharacterRace.Dwarf;
-            case CharacterRaceAnimation.FDarkElf:
-            case CharacterRaceAnimation.MDarkElf:
-                return CharacterRace.DarkElf;
-            case CharacterRaceAnimation.MElf:
-            case CharacterRaceAnimation.FElf:
-                return CharacterRace.Elf;
-            case CharacterRaceAnimation.MShaman:
-            case CharacterRaceAnimation.FShaman:
-            case CharacterRaceAnimation.MOrc:
-            case CharacterRaceAnimation.FOrc:
-                return CharacterRace.Orc;
-            case CharacterRaceAnimation.MFighter:
-            case CharacterRaceAnimation.FFighter:
-            case CharacterRaceAnimation.MMagic:
-            case CharacterRaceAnimation.FMagic:
-                return CharacterRace.Human;
-            default:
-                return CharacterRace.Dwarf;
-        }
+        if (AnimationToRace.TryGetValue(race, out CharacterRace parsed))
+            return parsed;
+
+        Debug.LogError(
+            CharacterRaceAnimationTable.LogTag + " ParseRace unknown animation profile=" + race
+            + " (no CharacterRace mapping).");
+        return CharacterRace.Human;
     }
 }
