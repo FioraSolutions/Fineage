@@ -50,7 +50,7 @@ namespace Fineage.TerrainBsp
           if (L2BspPolyFlags.IsPortalCapTexture(pd.texture) && !subtract)
           {
             var world = WorldVerts(basePos, pd.vertices);
-            if (TryAxisRect(world, out _, out _, out _, out _, out _, out _, out _))
+            if (TryAxisRect(world, out _, out _, out _, out _, out _, out _, out _, out _))
               a.portalCapCount++;
           }
         }
