@@ -271,7 +271,6 @@ public static class FineageAssetImportRules
         settings.sampleRateSetting = AudioSampleRateSetting.PreserveSampleRate;
         importer.defaultSampleSettings = settings;
         importer.loadInBackground = expectation.LoadInBackground;
-        importer.preloadAudioData = false;
     }
 
     static bool RuleMatches(string assetPath, string[] pathGlobs, string[] filenameGlobs)
