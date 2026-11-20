@@ -20,6 +20,7 @@ public partial class TargetWindow
             : null;
 
         var icon = new VisualElement();
+        icon.AddToClassList("l2-abnormal-icon");
         icon.AddToClassList("target-property-icon");
 
         bool painted = skill != null && L2SlotIconView.TrySetNamedIcon(icon, skill.Icon);
