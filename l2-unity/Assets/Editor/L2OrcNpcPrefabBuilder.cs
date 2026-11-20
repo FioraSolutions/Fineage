@@ -94,8 +94,7 @@ public static class L2OrcNpcPrefabBuilder
 
     static void ConfigureFbxImporter(string fbxPath)
     {
-        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
-        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
+        L2TownNpcFbxImport.EnsureMeterContract(fbxPath);
     }
 
     static Dictionary<string, Material> BindTextures(string stem, Shader shader)

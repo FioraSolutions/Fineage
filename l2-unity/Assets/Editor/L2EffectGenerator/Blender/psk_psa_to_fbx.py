@@ -35,7 +35,7 @@ def _import_psk(mod, psk_path, scale_down):
     ok = mod.pskimport(
         psk_path,
         context=bpy.context,
-        bScaleDown=scale_down,
+        bScaleDown=True,
         bDontInvertRoot=True,
         bReorientBones=False,
     )
@@ -52,29 +52,15 @@ def main():
     os.makedirs(os.path.dirname(fbx_path) or ".", exist_ok=True)
     mod = _load_addon(addon_path)
 
-    ref_size = None
+    # Always emit the meter contract. The previous heuristic (bScaleDown only when a
+    # reference mesh was 20x shorter) left overnight imports in legacy units, and a
+    # meter Unity importer then rendered them at 1/1.9 size (tiny Newbie Helper).
     if reference and os.path.isfile(reference):
-        _reset()
-        bpy.ops.import_scene.fbx(filepath=reference)
-        ref_size = _mesh_size()
-        print("REF", ref_size)
+        print("REF", reference)
 
     _reset()
-    _import_psk(mod, psk_path, False)
-    raw_size = _mesh_size()
-    print("PSK_RAW", raw_size)
-
-    scale_down = False
-    if ref_size and raw_size and ref_size[2] > 0.001:
-        ratio = raw_size[2] / ref_size[2]
-        print("HEIGHT_RATIO", ratio)
-        if ratio > 20.0:
-            scale_down = True
-
-    if scale_down:
-        _reset()
-        _import_psk(mod, psk_path, True)
-        print("PSK_SCALED", _mesh_size())
+    _import_psk(mod, psk_path, True)
+    print("PSK_SCALED", _mesh_size())
 
     mesh_only = len(args) >= 6 and args[5].lower() == "mesh"
     arm = next((obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"), None)
@@ -82,14 +68,14 @@ def main():
         raise SystemExit("no armature")
     if mesh_only:
         _export(fbx_path, False)
-        print("WROTE", fbx_path, "mesh_only", "scale_down", scale_down)
+        print("WROTE", fbx_path, "mesh_only", "scale_down", True)
         return
 
     ok = mod.psaimport(
         psa_path,
         context=bpy.context,
         oArmature=arm,
-        bScaleDown=scale_down,
+        bScaleDown=True,
         bDontInvertRoot=True,
     )
     if ok is False:
@@ -101,7 +87,7 @@ def main():
         print("ACTION", act.name)
 
     _export(fbx_path, True)
-    print("WROTE", fbx_path, "scale_down", scale_down)
+    print("WROTE", fbx_path, "scale_down", True)
 
 
 def _export(fbx_path, bake_anim):

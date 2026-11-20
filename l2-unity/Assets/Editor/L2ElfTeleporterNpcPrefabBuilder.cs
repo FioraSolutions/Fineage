@@ -45,8 +45,7 @@ public static class L2ElfTeleporterNpcPrefabBuilder
         if (fbx == null)
             throw new System.Exception("MISSING " + fbxPath);
 
-        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
-        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
+        L2TownNpcFbxImport.EnsureMeterContract(fbxPath);
         fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
 
         Dictionary<string, Material> mats = BindExistingMaterials(shader);

@@ -85,8 +85,7 @@ public static class L2DarkElfNpcPrefabBuilder
         if (AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath) == null)
             return stem + " MISSING " + fbxPath;
 
-        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
-        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
+        L2TownNpcFbxImport.EnsureMeterContract(fbxPath);
         var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
         if (fbx == null)
             return stem + " MISSING after import";
