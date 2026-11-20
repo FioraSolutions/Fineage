@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Shared race×sex×archetype → body animation profile (no per-race switch branches).</summary>
+/// <summary>Shared race×sex×archetype → body animation profile (no per-race branches in callers).</summary>
 static class CharacterRaceAnimationTable
 {
     public const string LogTag = "[CharacterRaceAnimation]";
