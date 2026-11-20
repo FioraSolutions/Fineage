@@ -16,7 +16,7 @@ public partial class ChatWindow : L2Window
     private VisualElement _chatTabView;
     private ChatTab _activeTab;
 
-    [SerializeField] private float _chatWindowMinWidth = 225.0f;
+    [SerializeField] private float _chatWindowMinWidth = 280.0f;
     [SerializeField] private float _chatWindowMaxWidth = 500.0f;
     [SerializeField] private float _chatWindowMinHeight = 175.0f;
     [SerializeField] private float _chatWindowMaxHeight = 600.0f;

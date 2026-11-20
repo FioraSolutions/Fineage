@@ -3,7 +3,7 @@
     <!-- Interlude ChatWnd: interface.xdat 348x187.
          Back2 348x18, Back3 body, Back4 348x18 under the tabs, Back1 348x44 input.
          ChatTabCtrl is 320x23; each tab is the native 64x22 of Chatting_Tab. -->
-    <ui:VisualElement name="ChatWindow" focusable="true" class="chat-window" style="flex-grow: 0; width: 348px; height: 187px; position: relative; bottom: auto; left: auto; transform-origin: left bottom; top: auto; flex-wrap: nowrap; flex-direction: column; background-color: rgba(0, 0, 0, 0);">
+    <ui:VisualElement name="ChatWindow" focusable="true" class="chat-window" style="flex-grow: 0; width: 348px; min-width: 280px; height: 187px; position: relative; bottom: auto; left: auto; transform-origin: left bottom; top: auto; flex-wrap: nowrap; flex-direction: column; background-color: rgba(0, 0, 0, 0);">
         <ui:VisualElement name="BGContainer" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; flex-direction: column;">
             <ui:VisualElement name="TopBar" picking-mode="Ignore" style="width: 100%; height: 18px; flex-shrink: 0; background-image: resource('Data/UI/Assets/Chat/chatting_back2'); -unity-background-scale-mode: stretch-to-fill; -unity-slice-left: 2; -unity-slice-right: 2; -unity-slice-top: 1; -unity-slice-bottom: 1; -unity-slice-scale: 0;" />
             <ui:VisualElement name="TextBG" picking-mode="Ignore" style="flex-grow: 1; background-image: resource('Data/UI/Assets/Chat/chatting_back3'); -unity-background-scale-mode: stretch-to-fill; -unity-slice-left: 2; -unity-slice-right: 2; -unity-slice-top: 0; -unity-slice-bottom: 0; -unity-slice-scale: 0;" />

@@ -31,6 +31,11 @@ public partial class ChatWindow : L2Window
 
         var diagonalResizeHandle = GetElementByClass("resize-diag");
 
+        // Five Interlude tabs (All/+Trade/#Party/@Clan/$Alliance) at 48px plus the 28px
+        // header margins must stay intact; the Game scene used to serialize 225.
+        if (_chatWindowMinWidth < 280f)
+            _chatWindowMinWidth = 280f;
+
         DiagonalResizeManipulator diagonalResizeManipulator = new DiagonalResizeManipulator(
             diagonalResizeHandle,
             _windowEle,
