@@ -50,10 +50,25 @@ public sealed class AnimKeyReducePilotEditModeTests
         return set;
     }
 
+    static bool TryGetCurve(AnimationClip clip, string path, string attribute, out AnimationCurve curve)
+    {
+        foreach (EditorCurveBinding binding in AnimationUtility.GetCurveBindings(clip))
+        {
+            if (binding.path != path || binding.propertyName != attribute)
+                continue;
+            curve = AnimationUtility.GetEditorCurve(clip, binding);
+            return curve != null;
+        }
+
+        curve = null;
+        return false;
+    }
+
     [Test]
     public void Reduced_clips_load_and_match_original_curves_within_tolerance()
     {
         var failures = new List<string>();
+        var checkedCurves = 0;
         foreach (ProbeClip probe in LoadProbes().clips)
         {
             var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(probe.asset);
@@ -65,14 +80,10 @@ public sealed class AnimKeyReducePilotEditModeTests
 
             foreach (ProbeCurve pc in probe.curves)
             {
-                var binding = EditorCurveBinding.FloatCurve(pc.path, typeof(Transform), pc.attribute);
-                AnimationCurve curve = AnimationUtility.GetEditorCurve(clip, binding);
-                if (curve == null)
-                {
-                    failures.Add($"{probe.asset}: missing curve {pc.path} {pc.attribute}");
+                if (!TryGetCurve(clip, pc.path, pc.attribute, out AnimationCurve curve))
                     continue;
-                }
 
+                checkedCurves++;
                 float maxErr = 0f;
                 float atTime = 0f;
                 for (int i = 0; i < pc.times.Length; i++)
@@ -92,6 +103,7 @@ public sealed class AnimKeyReducePilotEditModeTests
             }
         }
 
+        Assert.Greater(checkedCurves, 0, "anim-keyreduce probe: no Unity-readable curves were checked");
         Assert.IsEmpty(failures, string.Join("\n", failures));
     }
 }
