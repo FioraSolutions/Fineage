@@ -45,19 +45,20 @@ public partial class Gear : AbstractMeshManager
     [SerializeField] protected string _weaponAnim;
     protected string _lastWeaponAnim = "";
     private int _weaponRange;
+    private CombatStyleProfile _combatStyle = CombatStyleProfile.BareHand;
 
     public WeaponType WeaponType { get { return _leftHandType != WeaponType.none ? _leftHandType : _rightHandType; } }
     public WeaponType RightHandWeaponType { get { return _rightHandType; } }
     public WeaponType LeftHandWeaponType { get { return _leftHandType; } }
     public string WeaponAnim { get { return _weaponAnim; } }
     public string LastWeaponAnim { get { return _lastWeaponAnim; } }
+    public CombatStyleProfile CombatStyle => _combatStyle;
 
     public virtual void Initialize(int ownderId, CharacterRaceAnimation raceId) {
         TryGetComponent(out _networkAnimationReceive);
         _ownerId = ownderId;
         _raceId = raceId;
-        _weaponAnim = "hand";
-        _weaponRange = 40; //default
+        ApplyCombatStyleProfile(CombatStyleProfileResolver.ResolveBareHand());
     }
 
     void LateUpdate()

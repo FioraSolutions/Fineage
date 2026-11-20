@@ -36,7 +36,7 @@ public partial class Gear
         WeaponType type = WeaponType.none;
         RefreshDataShield(weapon , WeaponType.shield);
         if (_rightHandWeapon != null)
-            UpdateWeaponType(_rightHandType);
+            UpdateCombatStyleFromWeapon(_rightHandWeapon);
         else
             UpdateWeaponType(WeaponType.hand);
         string shieldNameId = shieldName+weaponId;
@@ -91,7 +91,7 @@ public partial class Gear
         var weaponNameAndId = weaponName + weaponId;
         WeaponType type = weapon.Weapongrp.WeaponType;
         RefreshData(leftSlot, weapon);
-        UpdateWeaponType(type);
+        UpdateCombatStyleFromWeapon(weapon);
 
         Transform[] refreshAllBone = RefreshBone(allBone);
         GameObject go = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
@@ -193,7 +193,7 @@ public partial class Gear
         var weaponNameAndId = weaponName + weaponId;
         RefreshData(false, weapon);
         RefreshData(true, weapon);
-        UpdateWeaponType(type);
+        UpdateCombatStyleFromWeapon(weapon);
 
         Transform[] refreshAllBone = RefreshBone(allBone);
 

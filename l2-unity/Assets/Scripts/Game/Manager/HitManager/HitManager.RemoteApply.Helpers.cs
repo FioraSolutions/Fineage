@@ -34,19 +34,7 @@ public partial class HitManager
         pending.OnShot = null;
     }
 
-    static bool IsBowWeapon(Entity attacker)
-    {
-        if (attacker == null)
-            return false;
-
-        UserEntity user = attacker as UserEntity;
-        if (user != null)
-            return string.Equals(user.WeaponAnim, "bow", StringComparison.OrdinalIgnoreCase);
-
-        return attacker.Gear != null &&
-               !string.IsNullOrEmpty(attacker.Gear.WeaponAnim) &&
-               string.Equals(attacker.Gear.WeaponAnim, "bow", StringComparison.OrdinalIgnoreCase);
-    }
+    static bool IsBowWeapon(Entity attacker) => CombatStyleEntity.IsRanged(attacker);
 
     static float ResolveRemoteHitDelay(Entity attacker)
     {

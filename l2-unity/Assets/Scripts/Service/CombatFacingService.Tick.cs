@@ -8,9 +8,7 @@ public sealed partial class CombatFacingService
 
 
 
-    /// <summary>
-    /// Equipped bow via appearance hands, fallback anim name contains "bow".
-    /// </summary>
+    /// <summary>Equipped ranged weapon via cached <see cref="CombatStyleProfile"/> or item-id resolve.</summary>
 
 
 }

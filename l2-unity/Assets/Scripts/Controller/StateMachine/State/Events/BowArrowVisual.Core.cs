@@ -16,7 +16,7 @@ public sealed partial class BowArrowVisual
 
     public void TryShoot(UserEntity user, string animName)
     {
-        if (user == null || !IsBowAnimName(animName))
+        if (user == null || !IsBowShot(user, animName))
             return;
 
         if (user.Gear != null && user.Gear.GetGoEtcItem() == null)

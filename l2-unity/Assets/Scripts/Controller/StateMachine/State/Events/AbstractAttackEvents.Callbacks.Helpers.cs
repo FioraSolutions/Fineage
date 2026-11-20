@@ -87,14 +87,13 @@ public abstract partial class AbstractAttackEvents
 
     private void CallBackAttackShot(string animName)
     {
-        if (!IsMeleeAttackShotAnim(animName))
+        PlayerEntity player = _stateMachine != null ? _stateMachine.Player : null;
+        if (!IsMeleeAttackShotAnim(animName, player))
         {
             // Debug.Log(
                 // $"[HIT_FX] 2.CallBackAttackShot SKIP not-melee-attack-shot frame={Time.frameCount} anim={animName}");
             return;
         }
-
-        PlayerEntity player = _stateMachine != null ? _stateMachine.Player : null;
         if (player == null || SwordCollisionPacketServices.Collision == null)
         {
             // Debug.LogWarning(
@@ -158,14 +157,14 @@ public abstract partial class AbstractAttackEvents
             target);
     }
 
-    private static bool IsMeleeAttackShotAnim(string animName)
+    private static bool IsMeleeAttackShotAnim(string animName, PlayerEntity player)
     {
         if (string.IsNullOrEmpty(animName))
         {
             return false;
         }
 
-        if (animName.IndexOf("bow", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        if (player != null && CombatStyleEntity.IsRanged(player))
         {
             return false;
         }

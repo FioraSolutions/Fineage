@@ -61,12 +61,10 @@ public static class CreatureWeaponAnimApply
         int rhand = entity.Appearance != null ? entity.Appearance.RHand : 0;
         if (rhand <= 0)
             return null;
-        if (TablePacketServices.WeaponGrps != null)
-        {
-            var grp = TablePacketServices.WeaponGrps.GetWeapon(rhand);
-            if (grp != null)
-                return WeaponTypeParser.GetWeaponAnim(grp.WeaponType);
-        }
+        CombatStyleProfile style = CombatStyleEntity.ResolveFromItemId(rhand);
+        if (style.IsResolved)
+            return style.AnimSuffix;
+
         return null;
     }
 
