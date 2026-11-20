@@ -73,22 +73,25 @@ public sealed partial class NetSession : MonoBehaviour
 
     void OnZonePacket(PacketEnvelope envelope)
     {
-        if (envelope.Opcode == NetOpcode.HelloAck)
+        ZoneApplyPacket decoded;
+        using (NetReceiveProfiling.Decode.Auto())
+            decoded = NetZonePacketDecoder.Decode(envelope);
+
+        if (decoded.Opcode == NetOpcode.HelloAck)
             _helloZone = true;
 
-        // Capture epoch at enqueue so a disconnect cannot apply a packet that was already queued.
         int epoch = ZoneEpoch;
-        if (IsCriticalZoneOpcode(envelope.Opcode))
-            PostCritical(() => ApplyZoneIfCurrent(epoch, envelope));
-        else
-            Post(() => ApplyZoneIfCurrent(epoch, envelope));
+        Post(
+            () => ApplyZoneIfCurrent(epoch, decoded),
+            decoded.Opcode,
+            decoded.Body);
     }
 
-    void ApplyZoneIfCurrent(int epoch, PacketEnvelope envelope)
+    void ApplyZoneIfCurrent(int epoch, ZoneApplyPacket packet)
     {
         if (!ZoneEpochGate.IsCurrent(epoch, ZoneEpoch))
             return;
-        HandleZone(envelope);
+        HandleZone(packet);
     }
 
     internal void BumpZoneEpoch(string reason)

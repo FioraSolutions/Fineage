@@ -6,5 +6,5 @@ using UnityEngine;
 
 public sealed partial class NetSession
 {
-    void HandleZone(PacketEnvelope envelope) => _zoneDispatch.Handle(envelope);
+    void HandleZone(ZoneApplyPacket packet) => _zoneDispatch.Handle(packet);
 }
