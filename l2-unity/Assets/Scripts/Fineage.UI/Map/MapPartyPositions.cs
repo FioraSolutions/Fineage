@@ -10,6 +10,14 @@ public static class MapPartyPositions
         public readonly float L2X;
         public readonly float L2Y;
         public readonly float L2Z;
+
+        public MemberPosition(int objectId, float l2X, float l2Y, float l2Z)
+        {
+            ObjectId = objectId;
+            L2X = l2X;
+            L2Y = l2Y;
+            L2Z = l2Z;
+        }
     }
 
     static readonly Dictionary<int, MemberPosition> _positions = new();
@@ -20,13 +28,7 @@ public static class MapPartyPositions
     {
         if (objectId <= 0)
             return;
-        _positions[objectId] = new MemberPosition
-        {
-            ObjectId = objectId,
-            L2X = l2X,
-            L2Y = l2Y,
-            L2Z = l2Z
-        };
+        _positions[objectId] = new MemberPosition(objectId, l2X, l2Y, l2Z);
     }
 
     public static void Clear()
