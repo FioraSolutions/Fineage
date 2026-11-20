@@ -24,15 +24,7 @@ public partial class ArmorgrpTable
         using (StreamReader reader = new StreamReader(dataPath)) {
             string line;
             while ((line = reader.ReadLine()) != null) {
-                Armorgrp armorgrp = new Armorgrp();
-                armorgrp.FirstModel = new string[ModelTable.RACE_COUNT];
-                armorgrp.FirstTexture = new string[ModelTable.RACE_COUNT];
-
-                armorgrp.AllModels = new List<List<string>>(ModelTable.RACE_COUNT);
-                InitializeList(armorgrp.AllModels);
-
-                armorgrp.AllTextures = new List<List<string>>(ModelTable.RACE_COUNT);
-                InitializeList(armorgrp.AllTextures);
+                Armorgrp armorgrp = CreateArmorgrp();
 
                 string[] keyvals = line.Split('\t');
                 for (int i = 0; i < keyvals.Length; i++) {
