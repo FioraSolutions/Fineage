@@ -22,6 +22,9 @@ public partial class CreatorVerticalScrollWindows : ICreatorVerticalScroll
                         slotElement.RegisterCallback<MouseDownEvent>(evt => HandleClickDown(evt, acquireData), TrickleDown.TrickleDown);
                         break;
 
+                    case ModelQuestJournalReward questData:
+                        _dataProvider.AddRewardItem(questData.NameReward, questData.DecReward, questData.Icon, slotElement);
+                        break;
                     case ModelQuestDemoReward questData:
                         _dataProvider.AddRewardItem(questData.NameReward, questData.DecReward, questData.Icon, slotElement);
                         break;

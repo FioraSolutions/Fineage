@@ -31,6 +31,7 @@ public partial class NameplatesManager : MonoBehaviour
     private NameplateTextDrawer _textDrawer;
     private NameplateBubbleDrawer _bubbleDrawer;
     private NameplateCastBarDrawer _castBarDrawer;
+    private NameplateQuestMarkDrawer _questMarkDrawer = new();
 
     private Transform _playerTransform;
     private bool _subscribed;

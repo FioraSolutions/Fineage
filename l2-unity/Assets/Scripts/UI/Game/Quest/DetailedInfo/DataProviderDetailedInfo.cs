@@ -22,6 +22,14 @@ public class DataProviderDetailedInfo : AbstractDataFunction
             Label textlabel = container.Q<Label>("textlabel");
             AddElementIfNotEmpty(textlabel, textlabel, quest.GetDescription());
 
+            Label locationLabel = container.Q<Label>("locationLabel");
+            VisualElement locationGroup = container.Q<VisualElement>("GroupLocation");
+            AddElementIfNotEmpty(locationGroup, locationLabel, quest.GetLocationLine());
+
+            Label itemsLabel = container.Q<Label>("itemsLabel");
+            VisualElement itemsGroup = container.Q<VisualElement>("GroupItems");
+            AddElementIfNotEmpty(itemsGroup, itemsLabel, quest.GetItemCountLine());
+
         }
    }
 }

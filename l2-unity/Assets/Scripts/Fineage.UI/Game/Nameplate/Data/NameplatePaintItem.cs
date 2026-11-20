@@ -25,4 +25,6 @@ public struct NameplatePaintItem
     public float YNameTop;
     /// <summary>Canvas Y of the name line bottom (top-down). Cast gauge starts below this.</summary>
     public float YNameBottom;
+    /// <summary>Interlude NPC quest marker (0 = none). See <see cref="QuestNpcMarkKind"/>.</summary>
+    public byte QuestMark;
 }

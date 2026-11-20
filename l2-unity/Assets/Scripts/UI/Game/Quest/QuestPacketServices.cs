@@ -13,4 +13,6 @@ public static class QuestPacketServices
 
     public static QuestWindow Quest =>
         _quest != null ? _quest : QuestWindow.Instance;
+
+    public static bool IsTrackingEnabled() => Quest == null || Quest.TrackingEnabled;
 }
