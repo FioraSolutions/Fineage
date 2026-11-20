@@ -132,6 +132,7 @@ public partial class MovementData
             return;
         }
         _gaitAnim = anim;
+        _entity.RefreshLocomotionAnimRates();
         MagicGaitTrace.Decision(_entity, "StartMove", "walking=" + walking + " force=false");
         EntityActionVisual.StartMove(_entity, walking);
     }
