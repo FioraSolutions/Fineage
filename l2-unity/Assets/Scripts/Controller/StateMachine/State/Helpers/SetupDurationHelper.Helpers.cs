@@ -105,8 +105,7 @@ public partial class SetupDurationHelper
             return 0f;
         }
 
-        // No flight stage authored (any skill — e.g. Trick / Switch / Aura Burn: cast art on the caster, impact on
-        // the target, no projectile):
+        // No flight stage authored (cast art on the caster, impact on the target, no projectile):
         // the impact lands at HitTime. Reserving a distance flight here moved the shot to ~0.05 s, sped the
         // CastShort/CastEnd/MagicThrow cycle up ~25x and spawned the "arrival" art at cast start.
         if (effects != null && !effects.HasFlightStage(skillId))

@@ -116,13 +116,13 @@ public partial class EntityActionSkill
                 return;
             }
 
-            string branch = selfCast ? "self" : (IsMagicSkill(magic) || SetupDurationHelper.IsCastStyleCombo(magic)) ? "magic" : "physical";
+            string branch = selfCast ? "self" : IsMagicSkill(magic) ? "magic" : "physical";
             if (windstrike)
                 Debug.Log("[WINDSTRIKE] branch=" + branch);
 
             if (selfCast)
                 ExecuteSelfSkill(entity, magic);
-            else if (IsMagicSkill(magic) || SetupDurationHelper.IsCastStyleCombo(magic))
+            else if (IsMagicSkill(magic))
                 ExecuteMagicSkill(entity, magic, target);
             else
                 ExecutePhysicalSkill(entity, magic);

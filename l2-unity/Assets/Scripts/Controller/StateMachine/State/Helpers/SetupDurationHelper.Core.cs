@@ -29,47 +29,6 @@ public partial class SetupDurationHelper
         return useSkill != null && PotionSkillIds.Contains(useSkill.SkillId);
     }
 
-    /// <summary>
-    /// The Interlude client picks the cast graph from the skillgrp <c>animation</c> tag, not from
-    /// <c>is_magic</c>. Trick (11) and Switch (12) are <c>is_magic=0</c> utilities that animate
-    /// <c>{[C]}</c> = CastShort → CastEnd → MagicThrow, and Spoil (254) / Unlock (27) sit on the same
-    /// cast tags. CastShort / CastLong only exist as patches over the cast graph (CastMid) and
-    /// MagicThrow over MagicShot, so those skills must run through the magic runner — cast bar,
-    /// stationary cast, shoot notify, and the art split between caster and victim. The physical
-    /// SpAtk path has no such states and played nothing.
-    /// </summary>
-    public static bool UsesCastAnimation(MagicSkillUseDto useSkill)
-    {
-        if (useSkill == null || TablePacketServices.SkillGrps == null)
-            return false;
-
-        return UsesCastAnimation(
-            TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl));
-    }
-
-    /// <summary>True when the combo's first playable clip is a Cast* tag (CastShort/CastMid/CastLong/CastEnd).</summary>
-    public static bool UsesCastAnimation(AnimationCombo combo)
-    {
-        string[] cycle = combo != null ? combo.GetAnimCycle() : null;
-        if (cycle == null)
-            return false;
-
-        for (int i = 0; i < cycle.Length; i++)
-        {
-            string clip = cycle[i];
-            if (string.IsNullOrWhiteSpace(clip))
-                continue;
-
-            clip = clip.Trim();
-            if (string.Equals(clip, "none", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            return clip.StartsWith("Cast", StringComparison.OrdinalIgnoreCase);
-        }
-
-        return false;
-    }
-
     public static bool TryGetPlayableCombo(MagicSkillUseDto useSkill, out AnimationCombo combo)
     {
         combo = null;
