@@ -43,7 +43,8 @@ public static class InterludeActionCatalog
         new Entry(0, "Sit/Stand", InterludeActionSection.Basic, "action001", InterludeActionWireKind.PlayerMovementCombat, 0),
         new Entry(1, "Walk/Run", InterludeActionSection.Basic, "action002", InterludeActionWireKind.PlayerMovementCombat, 1),
         new Entry(2, "Attack", InterludeActionSection.Basic, "action003", InterludeActionWireKind.PlayerMovementCombat, 2),
-        new Entry(3, "Trade", InterludeActionSection.Basic, "action004", InterludeActionWireKind.TradeOrStore, 3),
+        // Interlude actionname-e.dat: Exchange/Trade → icon.action005. action004 is not in Icon.utx.
+        new Entry(3, "Trade", InterludeActionSection.Basic, "action005", InterludeActionWireKind.TradeOrStore, 3),
         new Entry(4, "Next Target", InterludeActionSection.Basic, "action005", InterludeActionWireKind.PlayerMovementCombat, 4),
         new Entry(5, "Pick Up", InterludeActionSection.Basic, "action006", InterludeActionWireKind.NotImplemented, 5),
         new Entry(6, "Assist", InterludeActionSection.Basic, "action007", InterludeActionWireKind.PartyCommand, 6),
