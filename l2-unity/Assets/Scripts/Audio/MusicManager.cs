@@ -1,27 +1,14 @@
-using System;
 using FMOD.Studio;
 using FMODUnity;
-using System.Collections.Generic;
 using UnityEngine;
-using VContainer;
-using System.Collections;
 
 public partial class MusicManager : MonoBehaviour
 {
-    [SerializeField] private int _currentEventPriority = -1;
-    [SerializeField] private EventReference _currentMusicEvent;
-    [SerializeField] private Dictionary<EventReference, EventInstance> _musicInstances;
-    public int CurrentEventPriority { get { return _currentEventPriority; } }
-    public EventReference CurrentMusicEvent { get { return _currentMusicEvent; } }
+    public int CurrentEventPriority => Svc.CurrentMusicPriority;
+    public EventReference CurrentMusicEvent => Svc.CurrentMusicEvent;
 
-    private static MusicManager _instance;
+    static MusicManager _instance;
 
     [System.Obsolete("Use MusicPacketServices.Music or [Inject] MusicManager instead")]
-    public static MusicManager Instance { get { return _instance; } }
-
-
-
-
-
-
+    public static MusicManager Instance => _instance;
 }

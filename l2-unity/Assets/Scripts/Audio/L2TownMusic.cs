@@ -1,5 +1,3 @@
-using FMOD.Studio;
-using FMODUnity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -47,7 +45,6 @@ public sealed class L2TownMusic : MonoBehaviour
         new[] { 116649, -179760, 117429, -180911, 117493, -180052, 117467, -179575, 116977, -178211, 116142, -178429 }
     };
 
-    EventInstance _inst;
     string _playing;
 
     void OnDisable() => Stop();
@@ -150,45 +147,21 @@ public sealed class L2TownMusic : MonoBehaviour
 
     void Play(string path)
     {
-        try
-        {
-            EventReference er = RuntimeManager.PathToEventReference(path);
-            if (er.IsNull)
-                return;
-
-            _inst = RuntimeManager.CreateInstance(er);
-            _inst.setVolume(GameSettings.Music);
-            _inst.start();
-            _playing = path;
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning("[TownMusic] " + path + " failed: " + ex.Message);
-        }
+        AudioService svc = AudioPacketServices.Service;
+        if (svc == null)
+            return;
+        svc.PlayTownTheme(path);
+        _playing = path;
     }
 
     void KeepAlive()
     {
-        if (!_inst.isValid())
-        {
-            _playing = null;
-            return;
-        }
-
-        _inst.setVolume(GameSettings.Music);
-        _inst.getPlaybackState(out PLAYBACK_STATE state);
-        if (state == PLAYBACK_STATE.STOPPED)
-            _inst.start();
+        /* Volume / restart handled in AudioService.TickMusicLayers */
     }
 
     void Stop()
     {
         _playing = null;
-        if (!_inst.isValid())
-            return;
-
-        _inst.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-        _inst.release();
-        _inst.clearHandle();
+        AudioPacketServices.Service?.StopTownTheme();
     }
 }

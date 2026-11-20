@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 public enum CharacterRaceAnimation : byte
 {
@@ -28,35 +29,12 @@ public static class CharacterRaceAnimationParser
 {
     public static CharacterRaceAnimation ParseRace(CharacterRace race, byte sex, bool isMage)
     {
-        switch (race)
-        {
-            case CharacterRace.Elf:
-                return sex == 0 ? CharacterRaceAnimation.MElf : CharacterRaceAnimation.FElf;
-            case CharacterRace.DarkElf:
-                return sex == 0 ? CharacterRaceAnimation.MDarkElf : CharacterRaceAnimation.FDarkElf;
-            case CharacterRace.Dwarf:
-                return sex == 0 ? CharacterRaceAnimation.MDwarf : CharacterRaceAnimation.FDwarf;
-            case CharacterRace.Orc:
-                if (isMage)
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MShaman : CharacterRaceAnimation.FShaman;
-                }
-                else
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MOrc : CharacterRaceAnimation.FOrc;
-                }
-            case CharacterRace.Human:
-                if (isMage)
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MMagic : CharacterRaceAnimation.FMagic;
-                }
-                else
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MFighter : CharacterRaceAnimation.FFighter;
-                }
-            default:
-                return CharacterRaceAnimation.FDwarf;
-        }
+        if (CharacterRaceAnimationTable.TryResolve(race, sex, isMage, out CharacterRaceAnimation anim))
+            return anim;
+
+        int archetype = isMage ? (int)BaseClass.MMagic : (int)BaseClass.Fighter;
+        CharacterRaceAnimationTable.LogMissing(race, sex, archetype);
+        return CharacterRaceAnimation.FDwarf;
     }
 
     public static CharacterRaceAnimation SafeConvertToRace(int value)
@@ -65,47 +43,26 @@ public static class CharacterRaceAnimationParser
         {
             byte byteValue = Convert.ToByte(value);
             if (Enum.IsDefined(typeof(CharacterRaceAnimation), byteValue))
-            {
                 return (CharacterRaceAnimation)byteValue;
-            }
         }
-        catch (OverflowException)
+        catch (OverflowException ex)
         {
+            Debug.LogError(
+                CharacterRaceAnimationTable.LogTag + " SafeConvertToRace overflow value=" + value + ": " + ex.Message);
         }
 
+        Debug.LogError(
+            CharacterRaceAnimationTable.LogTag + " undefined animation id=" + value
+            + " (wire value is not a valid CharacterRaceAnimation).");
         return CharacterRaceAnimation.FElf;
     }
 
     public static CharacterRaceAnimation ParseRaceInterlude(CharacterRace race, int sex, int baseClass)
     {
-        switch (race)
-        {
-            case CharacterRace.Elf:
-                return sex == 0 ? CharacterRaceAnimation.MElf : CharacterRaceAnimation.FElf;
-            case CharacterRace.DarkElf:
-                return sex == 0 ? CharacterRaceAnimation.MDarkElf : CharacterRaceAnimation.FDarkElf;
-            case CharacterRace.Dwarf:
-                return sex == 0 ? CharacterRaceAnimation.MDwarf : CharacterRaceAnimation.FDwarf;
-            case CharacterRace.Orc:
-                if (baseClass == (int)BaseClass.MMagic)
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MShaman : CharacterRaceAnimation.FShaman;
-                }
-                else
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MOrc : CharacterRaceAnimation.FOrc;
-                }
-            case CharacterRace.Human:
-                if (baseClass == (int)BaseClass.MMagic)
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MMagic : CharacterRaceAnimation.FMagic;
-                }
-                else
-                {
-                    return sex == 0 ? CharacterRaceAnimation.MFighter : CharacterRaceAnimation.FFighter;
-                }
-            default:
-                return CharacterRaceAnimation.FDwarf;
-        }
+        if (CharacterRaceAnimationTable.TryResolveInterlude(race, sex, baseClass, out CharacterRaceAnimation anim))
+            return anim;
+
+        CharacterRaceAnimationTable.LogMissing(race, sex, baseClass);
+        return CharacterRaceAnimation.FDwarf;
     }
 }

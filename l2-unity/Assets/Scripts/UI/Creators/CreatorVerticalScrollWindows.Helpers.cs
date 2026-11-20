@@ -25,9 +25,6 @@ public partial class CreatorVerticalScrollWindows : ICreatorVerticalScroll
                     case ModelQuestJournalReward questData:
                         _dataProvider.AddRewardItem(questData.NameReward, questData.DecReward, questData.Icon, slotElement);
                         break;
-                    case ModelQuestDemoReward questData:
-                        _dataProvider.AddRewardItem(questData.NameReward, questData.DecReward, questData.Icon, slotElement);
-                        break;
                     default:
                         // Debug.LogWarning($"Unknown model type: {model?.GetType().Name}");
                         break;

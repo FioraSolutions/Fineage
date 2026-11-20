@@ -24,6 +24,9 @@ public partial class SkillAnimationDatabase
     static readonly Dictionary<string, AnimationClip> SpAtkClipCache =
         new Dictionary<string, AnimationClip>(StringComparer.Ordinal);
 
+    static readonly HashSet<string> SpAtkProfileMissLogged = new HashSet<string>(StringComparer.Ordinal);
+    static readonly HashSet<string> SpAtkClipMissLogged = new HashSet<string>(StringComparer.Ordinal);
+
     static void EnsureSpAtkProfiles()
     {
         if (SpAtkRaceProfiles.Count > 0)
@@ -115,7 +118,16 @@ public partial class SkillAnimationDatabase
 
         RaceClipProfile profile = ResolveSpAtkProfile(raceName);
         if (profile == null)
+        {
+            if (SpAtkProfileMissLogged.Add(raceName ?? "<null>"))
+            {
+                Debug.LogError(
+                    "[SkillAnimation] SpAtk profile missing raceName=" + raceName
+                    + " state=" + stateName + " (no race clip folder in SpAtkRaceProfiles).");
+            }
+
             return null;
+        }
 
         string weaponStem = CanonicalClipWeaponStem(weaponSuffix);
         string clipStateStem = spatkStem + "_" + weaponStem;
@@ -140,6 +152,14 @@ public partial class SkillAnimationDatabase
             string resourceName = profile.MeshStem + ".ao_" + stem + "_" + profile.Race;
             string path = profile.Folder + resourceName;
             loaded = Resources.Load<AnimationClip>(path);
+        }
+
+        if (loaded == null && SpAtkClipMissLogged.Add(cacheKey))
+        {
+            Debug.LogError(
+                "[SkillAnimation] SpAtk clip missing race=" + profile.Race
+                + " state=" + stateName + " folder=" + profile.Folder
+                + " meshStem=" + profile.MeshStem + ".");
         }
 
         SpAtkClipCache[cacheKey] = loaded;

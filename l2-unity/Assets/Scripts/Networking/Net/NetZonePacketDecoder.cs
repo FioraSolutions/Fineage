@@ -1,3 +1,4 @@
+using System;
 using Fineage.Net.Contract;
 
 /// <summary>Decode zone payloads on the receive thread into immutable messages.</summary>

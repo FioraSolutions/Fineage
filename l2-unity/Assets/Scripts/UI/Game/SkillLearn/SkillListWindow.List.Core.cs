@@ -77,15 +77,7 @@ public partial class SkillListWindow : L2PopupWindow
 
         var activeSkills = list.Where(s => !s.IsPassive).ToList();
         var passiveSkills = list.Where(s => s.IsPassive).ToList();
-        if (_supportActiveSkills.HasSlots)
-        {
-            _supportActiveSkills.UpdateSlots(activeSkills);
-        }
-        else
-        {
-            _supportActiveSkills.CreateSlots(activeSkills, 0);
-        }
-
+        _supportActiveSkills.CreateSlots(activeSkills, 0);
         _supportPassiveSkills.CreateSlots(passiveSkills, 0);
     }
 
