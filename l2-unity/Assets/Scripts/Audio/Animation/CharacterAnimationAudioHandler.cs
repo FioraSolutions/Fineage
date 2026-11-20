@@ -18,12 +18,18 @@ public class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
-        AudioPacketServices.Audio.PlayCharacterSound(soundEvent, _race, transform.position);
+        AudioManager audio = RequiredAudioServices.RequireAudio(nameof(CharacterAnimationAudioHandler));
+        if (audio == null)
+            return;
+        audio.PlayCharacterSound(soundEvent, _race, transform.position);
     }
 
     public void PlaySoundFromAnimationClip(int type) {
         CharacterSoundEvent soundEvent = (CharacterSoundEvent)type;
-        AudioPacketServices.Audio.PlayCharacterSound(soundEvent, _race, transform.position);
+        AudioManager audio = RequiredAudioServices.RequireAudio(nameof(CharacterAnimationAudioHandler));
+        if (audio == null)
+            return;
+        audio.PlayCharacterSound(soundEvent, _race, transform.position);
     }
 
     public void PlaySoundAtRatio(CharacterSoundEvent soundEvent, float ratio) {
@@ -44,11 +50,13 @@ public class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
     }
 
     private void PlayStepSound() {
-        if(_surfaceDetector != null)
+        AudioManager audio = RequiredAudioServices.RequireAudio(nameof(CharacterAnimationAudioHandler));
+        if (audio == null)
+            return;
+        if (_surfaceDetector != null)
         {
             string currentSurface = _surfaceDetector.GetSurfaceTag();
-            AudioPacketServices.Audio.PlayStepSound(currentSurface, transform.position);
+            audio.PlayStepSound(currentSurface, transform.position, false);
         }
-      
     }
 }
