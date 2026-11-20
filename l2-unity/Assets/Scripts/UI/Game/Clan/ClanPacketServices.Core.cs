@@ -21,4 +21,16 @@ public static partial class ClanPacketServices
         NoteLocalClan(NetClanBook.Shared.HasClan ? NetClanBook.Shared.ClanId : 0);
         RefreshWindow();
     }
+
+    public static void ApplyPledgeInfo(NetPledgeInfo info)
+    {
+        NetClanBook.Shared.ApplyPledgeInfo(info);
+        RefreshWindow();
+    }
+
+    public static void ApplyWarList(NetPledgeWarList list)
+    {
+        NetClanBook.Shared.ApplyWarList(list);
+        RefreshWindow();
+    }
 }

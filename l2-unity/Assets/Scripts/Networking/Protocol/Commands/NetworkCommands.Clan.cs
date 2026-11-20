@@ -137,3 +137,16 @@ public sealed class RequestPledgeInfoCommand : INetworkCommand
     }
 }
 
+/// <summary>Client → zone opcode <c>PledgeCommand</c> (<see cref="Fineage.Net.Contract.PledgeCommandKind"/>).</summary>
+public sealed class PledgeCommandRequestCommand : INetworkCommand
+{
+    public Fineage.Net.Contract.PledgeCommandNetMsg Body;
+    public string RequestName;
+
+    public PledgeCommandRequestCommand(Fineage.Net.Contract.PledgeCommandNetMsg body, string requestName)
+    {
+        Body = body;
+        RequestName = requestName ?? body?.Kind.ToString() ?? "PledgeCommand";
+    }
+}
+

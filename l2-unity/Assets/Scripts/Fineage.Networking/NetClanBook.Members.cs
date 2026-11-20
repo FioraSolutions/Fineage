@@ -72,5 +72,6 @@ public sealed partial class NetClanBook
         DissolvingExpiryUnixMs = 0;
         CharPenaltyExpiryUnixMs = 0;
         _members = Array.Empty<NetPledgeMember>();
+        ClearExtended();
     }
 }

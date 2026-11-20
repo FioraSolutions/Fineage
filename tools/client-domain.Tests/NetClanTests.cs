@@ -37,8 +37,15 @@ public class NetClanTests
             Level = 0,
             LeaderObjectId = 1001,
             MemberCount = 2,
-            DissolvingExpiryUnixMs = 50
+            DissolvingExpiryUnixMs = 50,
+            Reputation = 120,
+            AllyId = 7,
+            AllyName = "Foxes",
+            AtWar = true
         });
+        Assert.Equal(120, book.Reputation);
+        Assert.Equal("Foxes", book.AllyName);
+        Assert.True(book.AtWar);
         Assert.Equal("Wolves", book.Name);
         Assert.Equal("Wolves", book.NameFor(4));
         Assert.True(book.Dissolving);

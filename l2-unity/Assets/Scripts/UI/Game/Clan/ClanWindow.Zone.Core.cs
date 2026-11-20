@@ -71,7 +71,7 @@ public partial class ClanWindow
         if (peace != null)
             peace.text = "";
         if (_dropdown != null)
-            _masterClan.SetDropdownList(_dropdown, "");
+            _masterClan.SetDropdownList(_dropdown, NetClanBook.Shared, _pledgeFilterTypes);
         if (_creatorTableWindows != null)
             _masterClan.CreateMembersTable(new List<ClanMember>(), _creatorTableWindows);
     }

@@ -73,6 +73,54 @@ public struct NetPledgeStatus
     public int MemberCount;
     public long DissolvingExpiryUnixMs;
     public long CharPenaltyExpiryUnixMs;
+    public int Reputation;
+    public int LargeCrestId;
+    public int AllyId;
+    public string AllyName;
+    public int AllyCrestId;
+    public int CastleId;
+    public int HallId;
+    public bool AtWar;
+    public int NewLeaderObjectId;
+    public NetSubPledge[] SubPledges;
+    public int[] RankPrivileges;
+    public NetClanSkill[] Skills;
+}
+
+public struct NetSubPledge
+{
+    public int Type;
+    public string Name;
+    public int LeaderObjectId;
+}
+
+public struct NetClanSkill
+{
+    public int SkillId;
+    public int Level;
+}
+
+public struct NetPledgeWarEntry
+{
+    public int ClanId;
+    public string Name;
+    public bool Mutual;
+}
+
+public struct NetPledgeWarList
+{
+    public NetPledgeWarEntry[] Declared;
+    public NetPledgeWarEntry[] UnderAttack;
+}
+
+public struct NetPledgeInfo
+{
+    public int ClanId;
+    public string Name;
+    public int CrestId;
+    public int AllyId;
+    public string AllyName;
+    public int AllyCrestId;
 }
 
 public struct NetPledgeMember

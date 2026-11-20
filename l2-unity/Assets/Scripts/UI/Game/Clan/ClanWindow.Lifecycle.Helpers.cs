@@ -69,6 +69,23 @@ public partial class ClanWindow : L2TwoPanels
         var inviteButton = (UnityEngine.UIElements.Button)GetElementById("InviteButton");
         inviteButton?.RegisterCallback<ClickEvent>(evt => OnClickInvite(evt));
 
+        var noticeButton = (UnityEngine.UIElements.Button)GetElementById("NoticeButton");
+        noticeButton?.RegisterCallback<ClickEvent>(evt => OnClickNotice(evt));
+
+        var warInfoButton = (UnityEngine.UIElements.Button)GetElementById("WarInfoButton");
+        warInfoButton?.RegisterCallback<ClickEvent>(evt => OnClickWarInfo(evt));
+
+        var declareWarButton = (UnityEngine.UIElements.Button)GetElementById("DeclareWarButton");
+        declareWarButton?.RegisterCallback<ClickEvent>(evt => OnClickDeclareWar(evt));
+
+        var clanEntryButton = (UnityEngine.UIElements.Button)GetElementById("ClanEntryButton");
+        clanEntryButton?.RegisterCallback<ClickEvent>(evt => OnClickClanEntry(evt));
+
+        var editCrestButton = (UnityEngine.UIElements.Button)GetElementById("EditCrestButton");
+        editCrestButton?.RegisterCallback<ClickEvent>(evt => OnClickEditCrest(evt));
+
+        _dropdown?.RegisterValueChangedCallback(OnSubPledgeFilterChanged);
+
         BuildZoneActions();
         _creatorTableWindows.OnRowClicked += OnZoneRowClicked;
 

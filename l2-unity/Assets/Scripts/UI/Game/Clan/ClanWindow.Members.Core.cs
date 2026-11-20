@@ -22,8 +22,8 @@ public partial class ClanWindow
     private void ApplyClanData(PledgeShowMemberListAllDto packet)
     {
         _dataProviderClanInfo.SetMasterClanInfo(_windowEle , packet);
-        _listDropDown = _masterClan.SetDropdownList(_dropdown , packet.PledgeName);
-        _masterClan.CreateMembersTable(packet.Members, _creatorTableWindows);
+        _listDropDown = _masterClan.SetDropdownList(_dropdown, NetClanBook.Shared, _pledgeFilterTypes);
+        FilterMembersBySubPledge(_dropdown.value);
         SetDisabledButton(packet.SubPledgeLeaderName , packet.Members);
     }
 

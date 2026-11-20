@@ -25,4 +25,20 @@ public class PledgeReceiveMemberInfoDto : IWireDto
         _subPledgeName = reader.ReadOtherS();
         _apprenticeOrSponsorName = reader.ReadOtherS();
     }
+
+    public void ApplySnapshot(
+        int pledgeType,
+        string name,
+        string title,
+        int powerGrade,
+        string subPledgeName,
+        string apprenticeOrSponsorName)
+    {
+        _pledgeType = pledgeType;
+        _name = name ?? "";
+        _title = title ?? "";
+        _powerGrade = powerGrade;
+        _subPledgeName = subPledgeName ?? "";
+        _apprenticeOrSponsorName = apprenticeOrSponsorName ?? "";
+    }
 }

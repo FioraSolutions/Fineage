@@ -272,10 +272,10 @@ public sealed partial class NetZoneDispatch
                 _ = NetCodec.DecodeAllyInfo(envelope.Payload);
                 break;
             case NetOpcode.PledgeInfo:
-                _ = NetCodec.DecodePledgeInfo(envelope.Payload);
+                _session.ApplyPledgeInfo(NetCodec.DecodePledgeInfo(envelope.Payload));
                 break;
             case NetOpcode.PledgeWarList:
-                _ = NetCodec.DecodePledgeWarList(envelope.Payload);
+                _session.ApplyPledgeWarList(NetCodec.DecodePledgeWarList(envelope.Payload));
                 break;
             case NetOpcode.ClanHallList:
                 _ = NetCodec.DecodeClanHallList(envelope.Payload);
