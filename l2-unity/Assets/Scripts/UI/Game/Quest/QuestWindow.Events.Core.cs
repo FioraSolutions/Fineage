@@ -12,22 +12,8 @@ public partial class QuestWindow
     {
         var tabName = tab.GetTabName();
         var element = _builderTabs.GetActiveContent();
-        
-        switch (tabName)
-        {
-            case _singleTabName:
-                _questTabPanelSingle.GetOrCreateTab(element);
-                ToggleDetailedInfo(nonRepeatQuests);
-                break;
-        }
-        switch (tabName)
-        {
-            case _repeatTabName:
-                _questTabPanelRepeat.GetOrCreateTab(element);
-                ToggleDetailedInfo(repeatQuests);
-                break;
-        }
-
+        TabPanel(tabName).GetOrCreateTab(element);
+        ToggleDetailedInfo(TabList(tabName));
     }
 
     private void OnClickButton(int open , QuestInstance quest)
@@ -37,7 +23,7 @@ public partial class QuestWindow
             _selectQuest = quest;
             _dataProvider.SetDataInfo(_detailedInfoElement, quest);
             _detailedInfoElement.style.display = DisplayStyle.Flex;
-            _creatorRewardTables.AddOtherData(_questsList);
+            BindRewardPanel(quest);
         }
         else
         {

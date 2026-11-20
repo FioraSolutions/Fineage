@@ -11,10 +11,15 @@ public partial class QuestWindow
     public List<QuestInstance> Journal()
     {
         var all = new List<QuestInstance>();
-        if (nonRepeatQuests != null)
-            all.AddRange(nonRepeatQuests);
         if (repeatQuests != null)
             all.AddRange(repeatQuests);
+        else if (nonRepeatQuests != null)
+            all.AddRange(nonRepeatQuests);
+        if (_tabSingle != null) all.AddRange(_tabSingle);
+        if (_tabRepeat != null) all.AddRange(_tabRepeat);
+        if (_tabEpic != null) all.AddRange(_tabEpic);
+        if (_tabTransfer != null) all.AddRange(_tabTransfer);
+        if (_tabSpecial != null) all.AddRange(_tabSpecial);
         return all;
     }
 
@@ -22,12 +27,18 @@ public partial class QuestWindow
     {
         //if (_questsList != null) _questsList.Clear();
 
-        repeatQuests = quests.Where(q => q.IsRepeat()).ToList();
-        nonRepeatQuests = quests.Where(q => !q.IsRepeat()).ToList();
+        repeatQuests = quests ?? new List<QuestInstance>();
+        nonRepeatQuests = quests ?? new List<QuestInstance>();
+        PartitionActiveQuests(quests ?? new List<QuestInstance>());
+        RefreshCompletedTab();
         HudCorePacketServices.CharacterInfo?.FillQuestPanel(Journal());
 
-        _questTabPanelRepeat.AddElementsToContent(repeatQuests);
-        _questTabPanelSingle.AddElementsToContent(nonRepeatQuests);
+        _questTabPanelSingle.AddElementsToContent(_tabSingle);
+        _questTabPanelRepeat.AddElementsToContent(_tabRepeat);
+        _questTabPanelEpic.AddElementsToContent(_tabEpic);
+        _questTabPanelTransfer.AddElementsToContent(_tabTransfer);
+        _questTabPanelSpecial.AddElementsToContent(_tabSpecial);
+        _questTabPanelCompleted.AddElementsToContent(_tabCompleted);
         if (!IsSuccess())
         {
             HideDetailedInfo();
@@ -40,12 +51,6 @@ public partial class QuestWindow
         {
             _detailedInfoElement.style.display = DisplayStyle.None;
         }
-    }
-
-    private void AddTestRewardData()
-    {
-        _questsList.Add(new OtherModel(new ModelQuestDemoReward("XP", "10,000", "etc_exp_point_i00")));
-        _questsList.Add(new OtherModel(new ModelQuestDemoReward("Unknown Reward", "Undecided", "etc_pi_gift_box_i04")));
     }
 
 }

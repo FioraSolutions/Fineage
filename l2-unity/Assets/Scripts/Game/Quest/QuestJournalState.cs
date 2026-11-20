@@ -45,6 +45,8 @@ public static class QuestJournalState
 
         if (TrackedQuestId <= 0 && _active.Count > 0)
             TrackedQuestId = _active[0].QuestID;
+
+        QuestJournalRewardCatalog.Apply(list);
     }
 
     public static void ApplyDirection(QuestDirectionNetMsg msg)

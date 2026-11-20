@@ -62,6 +62,8 @@ public partial class QuestNameTable
         quest.EntityName = entity_name;
         quest.Repeat = repeat;
         quest.AreaId = areaId;
+        if (ids.Length > indexClanPetQuest && int.TryParse(ids[indexClanPetQuest], out int clanPet))
+            quest.ClanPetQuest = clanPet;
 
         return quest;
     }

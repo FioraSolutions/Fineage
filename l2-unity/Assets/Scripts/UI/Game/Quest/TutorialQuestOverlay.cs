@@ -50,7 +50,7 @@ public sealed class TutorialQuestOverlay : MonoBehaviour
         _questionMark.style.position = Position.Absolute;
         _questionMark.style.left = Length.Percent(50);
         _questionMark.style.top = 120;
-        var markTex = Resources.Load<Texture2D>("Data/SysTextures/Icon/etc_question_mark_i00");
+        var markTex = QuestNpcMarkTextureCatalog.Load(QuestNpcMarkKind.Available);
         if (markTex != null)
             _questionMark.style.backgroundImage = new StyleBackground(markTex);
         _questionMark.style.display = DisplayStyle.None;

@@ -16,7 +16,8 @@ public partial class QuestNameTable
     private const int indexProgname = 4;
     private const int indexDescription = 5;
     private const int indexDescriptionToolTips = 53;
-    private const int indexQuestType = 6;
+    private const int indexQuestType = 41;
+    private const int indexClanPetQuest = 128;
 
     private const int indexLvlMin = 39;
     private const int indexLvlMax = 40;

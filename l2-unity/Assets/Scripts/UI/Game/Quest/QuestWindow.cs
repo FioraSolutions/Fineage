@@ -62,6 +62,10 @@ public partial class QuestWindow : L2TwoPanels
             _builderTabs = new BuilderTabs();
             _questTabPanelSingle = new QuestTabPanel();
             _questTabPanelRepeat = new QuestTabPanel();
+            _questTabPanelEpic = new QuestTabPanel();
+            _questTabPanelTransfer = new QuestTabPanel();
+            _questTabPanelSpecial = new QuestTabPanel();
+            _questTabPanelCompleted = new QuestTabPanel();
             _dataProvider = new DataProviderDetailedInfo();
             _creatorRewardTables = new CreatorVerticalScrollWindows();
             WireQuestPacketServices();
@@ -88,6 +92,10 @@ public partial class QuestWindow : L2TwoPanels
         _builderTabs = null;
         _questTabPanelSingle = null;
         _questTabPanelRepeat = null;
+        _questTabPanelEpic = null;
+        _questTabPanelTransfer = null;
+        _questTabPanelSpecial = null;
+        _questTabPanelCompleted = null;
     }
 
     protected override void LoadAssets()
@@ -144,7 +152,9 @@ public partial class QuestWindow : L2TwoPanels
         SetMouseOverDetectionRefreshTargetElement(windowTemplate);
 
 
-        _builderTabs.InitContentTabs(new string[5] { _singleTabName, _repeatTabName, _epicTabName , _transferTabName , _specialTabName });
+        _builderTabs.InitContentTabs(new string[6] {
+            _singleTabName, _repeatTabName, _epicTabName, _transferTabName, _specialTabName, _completedTabName
+        });
         _builderTabs.CreateTabs(content, _tabTemplate, _tabHeaderTemplate);
 
         //_creatorRewardTables.InitTradeTabs(new string[] { "ALL", "Other" });
@@ -152,9 +162,17 @@ public partial class QuestWindow : L2TwoPanels
 
         _questTabPanelSingle.SetTemplateContent(_tabContenTemplate , new List<VisualTreeAsset>() { _singleInsideContentTemplate , _toggleButtonTemplate });
         _questTabPanelRepeat.SetTemplateContent(_tabContenTemplate, new List<VisualTreeAsset>() { _singleInsideContentTemplate, _toggleButtonTemplate });
+        _questTabPanelEpic.SetTemplateContent(_tabContenTemplate, new List<VisualTreeAsset>() { _singleInsideContentTemplate, _toggleButtonTemplate });
+        _questTabPanelTransfer.SetTemplateContent(_tabContenTemplate, new List<VisualTreeAsset>() { _singleInsideContentTemplate, _toggleButtonTemplate });
+        _questTabPanelSpecial.SetTemplateContent(_tabContenTemplate, new List<VisualTreeAsset>() { _singleInsideContentTemplate, _toggleButtonTemplate });
+        _questTabPanelCompleted.SetTemplateContent(_tabContenTemplate, new List<VisualTreeAsset>() { _singleInsideContentTemplate, _toggleButtonTemplate });
 
         _questTabPanelRepeat.OnButtonClick += OnClickButton;
         _questTabPanelSingle.OnButtonClick += OnClickButton;
+        _questTabPanelEpic.OnButtonClick += OnClickButton;
+        _questTabPanelTransfer.OnButtonClick += OnClickButton;
+        _questTabPanelSpecial.OnButtonClick += OnClickButton;
+        _questTabPanelCompleted.OnButtonClick += OnClickButton;
         _builderTabs.EventSwitchOut += OnSwitchEventOut;
 
         VisualElement element = _builderTabs.GetActiveContent();
@@ -166,7 +184,6 @@ public partial class QuestWindow : L2TwoPanels
         OnCenterScreen(_root);
 
         HideWindow();
-        AddTestRewardData();
     }
 
     private List<QuestInstance> repeatQuests;
@@ -184,22 +201,4 @@ public partial class QuestWindow : L2TwoPanels
 
 
 
-}
-
-public class ModelQuestDemoReward
-{
-    private string _nameReward;
-    private string _decReward;
-    private string _icon;
-
-    public ModelQuestDemoReward(string nameReward, string decReward, string icon)
-    {
-        _nameReward = nameReward;
-        _decReward = decReward;
-        _icon = icon;
-    }
-
-    public string NameReward => _nameReward;
-    public string DecReward => _decReward;
-    public string Icon => _icon;
 }
