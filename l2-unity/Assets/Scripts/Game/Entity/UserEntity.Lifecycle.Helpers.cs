@@ -3,46 +3,6 @@ using VContainer;
 
 public partial class UserEntity : NetworkEntity
 {
-    float ApplyAnimRunSpeed(float serverValue)
-    {
-        if (_networkAnimationReceive == null)
-            return 0f;
-
-        float unity = NumberUtils.ScaleToUnity(serverValue);
-        float anim = global::LocomotionGait.Rate(
-            _networkAnimationReceive.GetAnimator(),
-            AnimationNames.RUN.Concat(WeaponSuffix()),
-            unity,
-            global::LocomotionGait.MinRunRate,
-            global::LocomotionGait.MaxRate);
-        _networkAnimationReceive.SetRunSpeed(anim);
-        return anim;
-    }
-
-    void ApplyAnimWalkSpeed(float serverValue)
-    {
-        if (_networkAnimationReceive == null)
-            return;
-
-        float unity = NumberUtils.ScaleToUnity(serverValue);
-        float anim = global::LocomotionGait.Rate(
-            _networkAnimationReceive.GetAnimator(),
-            AnimationNames.WALK.Concat(WeaponSuffix()),
-            unity,
-            global::LocomotionGait.MinWalkRate,
-            global::LocomotionGait.MaxRate);
-        _networkAnimationReceive.SetWalkSpeed(anim);
-    }
-
-    string WeaponSuffix()
-    {
-        if (_gear != null && !string.IsNullOrEmpty(_gear.WeaponAnim))
-            return _gear.WeaponAnim;
-        if (!string.IsNullOrEmpty(WeaponAnim))
-            return WeaponAnim;
-        return "hand";
-    }
-
     public void LogSpeed(string where)
     {
         Stats s = Stats;
@@ -61,8 +21,6 @@ public partial class UserEntity : NetworkEntity
             " moveSpeed=" + move;
         if (move <= 0.001f)
             Debug.LogWarning(msg);
-        // else
-            // Debug.Log(msg);
     }
 
     public void BindCharInfoAnimEvents(UserBowArrowEvents bowArrowEvents)

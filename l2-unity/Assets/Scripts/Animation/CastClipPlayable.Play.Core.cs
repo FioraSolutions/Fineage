@@ -50,6 +50,7 @@ public sealed partial class CastClipPlayable
         _enterTime = Time.time;
         _lastSample = 0f;
         _finished = false;
+        _spAtkCombat = false;
         _finishName = SkillAnimationDatabase.ResolveOverrideCompletionEventName(phaseTriggerName);
         _events = clip.events;
         _eventFired = _events != null && _events.Length > 0 ? new bool[_events.Length] : null;
@@ -115,6 +116,7 @@ public sealed partial class CastClipPlayable
         _mixer.SetInputWeight(0, 0f);
         _mixer.SetInputWeight(1, 1f);
         _oneShot = true;
+        _spAtkCombat = false;
         _speed = 1f;
         _clipLength = clip.length;
         _enterTime = Time.time;
