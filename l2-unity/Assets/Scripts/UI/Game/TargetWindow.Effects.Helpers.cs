@@ -16,47 +16,17 @@ public partial class TargetWindow
             ? TablePacketServices.SkillNames.GetName(skillId, safeLevel)
             : null;
 
-        var icon = new VisualElement();
-        icon.AddToClassList("target-effect-icon");
-
-        bool painted = skill != null && L2SlotIconView.TrySetNamedIcon(icon, skill.Icon);
-        if (!painted)
-            painted = L2SlotIconView.TrySetNamedIcon(icon, "icon.skill" + skillId);
-        if (!painted)
-            painted = L2SlotIconView.TrySetNamedIcon(icon, "skill" + skillId);
-        if (!painted && nameData == null)
+        string tip = BuildPropertyTooltip(nameData, skillId, safeLevel);
+        L2AbnormalEffectIconView.BuiltIcon built = L2AbnormalEffectIconView.TryCreate(
+            skillId, safeLevel, skill, tip, durationSeconds);
+        if (built == null)
             return false;
 
-        // Interlude: debuffs use skillgrp icon_panel (typically panel_2) — buffs leave it None.
-        bool isDebuff = skill != null && skill.Debuff != 0;
-        if (isDebuff)
-            icon.AddToClassList("debuff");
-        if (skill != null && !string.IsNullOrEmpty(skill.IconPanel) &&
-            !skill.IconPanel.Equals("None", System.StringComparison.OrdinalIgnoreCase))
-        {
-            var panel = new VisualElement();
-            panel.AddToClassList("target-effect-panel");
-            panel.pickingMode = PickingMode.Ignore;
-            if (L2SlotIconView.TrySetNamedIcon(panel, skill.IconPanel))
-                icon.Add(panel);
-        }
-
-        var timer = new Label();
-        timer.AddToClassList("target-effect-timer");
-        timer.pickingMode = PickingMode.Ignore;
-        int remaining = Mathf.Max(0, durationSeconds);
-        timer.text = remaining > 0 ? remaining.ToString() : "";
-        icon.Add(timer);
-
-        string tip = BuildPropertyTooltip(nameData, skillId, safeLevel);
-        if (!string.IsNullOrEmpty(tip))
-            icon.AddManipulator(new TooltipManipulator(icon, tip));
-
-        _effectsRow.Add(icon);
+        _effectsRow.Add(built.Root);
         _effectCells.Add(new TargetEffectCell
         {
-            Root = icon,
-            Timer = timer,
+            Root = built.Root,
+            Timer = built.Timer,
             EndsAt = Time.time + Mathf.Max(0, durationSeconds)
         });
         return true;

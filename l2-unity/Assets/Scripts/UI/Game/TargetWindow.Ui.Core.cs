@@ -20,12 +20,13 @@ public partial class TargetWindow : L2Window
         }
 
         var horizontalResizeHandle = GetElementByClass("hor-resize-handle");
-        if (horizontalResizeHandle != null)
-        {
-            HorizontalResizeManipulator horizontalResize = new HorizontalResizeManipulator(
-                horizontalResizeHandle, _windowEle, _targetWindowMinWidth, _targetWindowMaxWidth);
-            horizontalResizeHandle.AddManipulator(horizontalResize);
-        }
+        var resizeGripContainer = GetElementById("SizeControl");
+        HorizontalResizeBinding.TryBind(
+            _windowEle,
+            horizontalResizeHandle,
+            _targetWindowMinWidth,
+            _targetWindowMaxWidth,
+            resizeGripContainer);
 
         var closeBtnHandle = (Button) GetElementById("CloseBtn");
         if (closeBtnHandle != null)

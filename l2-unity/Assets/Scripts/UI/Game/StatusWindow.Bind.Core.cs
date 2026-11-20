@@ -17,11 +17,6 @@ public partial class StatusWindow
         DragManipulator drag = new DragManipulator(statusWindowDragArea, _windowEle);
         statusWindowDragArea.AddManipulator(drag);
 
-        var horizontalResizeHandle = GetElementByClass("hor-resize-handle");
-        HorizontalResizeManipulator horizontalResize = new HorizontalResizeManipulator(
-            horizontalResizeHandle, _windowEle, _statusWindowMinWidth, _statusWindowMaxWidth);
-        horizontalResizeHandle.AddManipulator(horizontalResize);
-
         _windowEle.RegisterCallback<ClickEvent>(OnStatusWindowClicked);
 
         _nameLabel = (Label)GetElementById("PlayerNameText");
@@ -86,6 +81,15 @@ public partial class StatusWindow
         // UXML project:// backgrounds do not resolve in the player. Stamp the
         // Interlude strips here or the panel is a bare text table.
         PaintStatusChrome();
+
+        var horizontalResizeHandle = GetElementByClass("hor-resize-handle");
+        VisualElement resizeGripContainer = horizontalResizeHandle?.parent;
+        HorizontalResizeBinding.TryBind(
+            _windowEle,
+            horizontalResizeHandle,
+            _statusWindowMinWidth,
+            _statusWindowMaxWidth,
+            resizeGripContainer);
     }
 
     private void OnStatusWindowClicked(ClickEvent evt)
