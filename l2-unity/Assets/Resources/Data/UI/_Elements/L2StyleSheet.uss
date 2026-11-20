@@ -52,6 +52,15 @@
 }
 
 .hor-resize-handle {
+    /* Shared invisible resize hit-target. Keep the cursor and drag; never paint grip art.
+       StatusWindow stamps its Interlude chrome with inline styles, which win over this. */
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.hor-resize-handle:hover {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .hor-position {
@@ -980,9 +989,7 @@
     height: 46px;
     margin: 0;
     padding: 0;
-    /* Retail TargetStatusWnd is a fixed 176x46 plate and carries no size grip at all. The resize
-       affordance is ours, so it must not paint over SmallWindow_Back3_ex: keep the strip
-       transparent until the pointer is actually on it (see :hover below). */
+    /* Retail TargetStatusWnd has no size grip. Keep this hit-target transparent. */
     background-image: none;
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-scale: 1px;
@@ -990,10 +997,6 @@
     -unity-slice-bottom: 3;
     -unity-slice-left: 0;
     -unity-slice-right: 0;
-}
-
-.target-window .target-size-control:hover {
-    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1');
 }
 
 .target-window.expanded .target-size-control,
@@ -1009,7 +1012,6 @@
     height: 46px;
     margin: 0;
     padding: 0;
-    /* Same reason: the grip art appears on hover only. */
     background-image: none;
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-scale: 0;
@@ -1019,17 +1021,22 @@
     -unity-slice-right: 8;
 }
 
-.target-window .target-size-control:hover .hor-resize-handle {
-    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2');
-}
-
+/* Shared abnormal-status icon: same 24px cell as Status/Buffer SlotBuffer (and party trays). */
+.l2-abnormal-icon,
 .target-window .target-effect-icon,
 .target-window .target-property-icon {
-    /* Interlude AbnormalStatusWnd: NSTATUSICON_SIZE = 24, so cells sit at a 24px pitch. */
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+    flex-grow: 0;
+    flex-shrink: 0;
     margin-right: 0;
     margin-bottom: 0;
+    padding: 0;
+    overflow: hidden;
     -unity-background-scale-mode: stretch-to-fill;
     position: relative;
 }
