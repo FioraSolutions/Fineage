@@ -37,6 +37,12 @@ namespace Fineage.TerrainBsp
         foreach (var pd in b.polygons ?? Array.Empty<L2BspPoly>())
         {
           if (pd?.vertices == null || pd.vertices.Length < 3) continue;
+          if (!subtract && L2BspPolyFlags.IsPortalCapTexture(pd.texture))
+          {
+            var world = WorldVerts(basePos, pd.vertices);
+            if (TryAxisRect(world, out _, out _, out _, out _, out _, out _, out _, out _))
+              a.portalCapCount++;
+          }
           if (!L2BspPolyFlags.ShouldRenderPolygon(pd.polyFlags, pd.texture))
           {
             if (L2BspPolyFlags.Contains(pd.polyFlags, "PF_Invisible"))
@@ -47,12 +53,6 @@ namespace Fineage.TerrainBsp
           }
           if (subtract && L2BspPolyFlags.IsBrushTextureRenderable(pd.texture))
             a.subtractSolidPolygonsWouldRender++;
-          if (L2BspPolyFlags.IsPortalCapTexture(pd.texture) && !subtract)
-          {
-            var world = WorldVerts(basePos, pd.vertices);
-            if (TryAxisRect(world, out _, out _, out _, out _, out _, out _, out _, out _))
-              a.portalCapCount++;
-          }
         }
       }
       return a;
