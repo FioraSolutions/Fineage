@@ -64,6 +64,14 @@ public partial class MagicCastData
     public float serverTimeToShoot;
 
     /// <summary>
+    /// Impact-stage backup for casts that have no server shoot time (physical SpAtk path:
+    /// <see cref="SkillAnimationCastDataBuilder"/>). Seconds from cast start (= server HitTime). When the
+    /// AttackShot notify never fires, target-side shoot stages (impact art) still spawn at the hit instead of
+    /// never. Projectile/home-flight parts are not spawned from this backup. 0 = none.
+    /// </summary>
+    public float ImpactFallbackSeconds;
+
+    /// <summary>
     /// Seconds from cast start to the AttackShot frame on the last clip.
     /// The projectile fallback uses this. serverTimeToShoot (HitTime − flight) moves with distance.
     /// </summary>
