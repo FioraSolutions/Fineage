@@ -22,7 +22,7 @@ public partial class SkillListWindow : L2PopupWindow
         content?.AddToClassList("skills-panel");
         VisualElement tabView = content?.Q("InventoryTabView") ?? content;
 
-        _builderTabs.InitContentTabs(new string[3] { _activeName, _passiveName , _learnName });
+        _builderTabs.InitContentTabs(new string[2] { _activeName, _passiveName });
         _builderTabs.CreateTabs(tabView, _tabTemplate, _tabHeaderTemplate);
 
         _supportActiveSkills.SetActiveSkillTemplate(_templateActiveSkill , _templateBoxPanel , _templateSkillsRow8x1 , _templateSlotSkill);

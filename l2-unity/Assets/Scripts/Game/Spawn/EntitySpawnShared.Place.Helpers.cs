@@ -11,31 +11,21 @@ public static partial class EntitySpawnShared
 
         identity.RememberServerPosition();
         Vector3 from = go.transform.position;
-        // Current XY (may already have been nudged off a hole) + original server Y.
+        // Current XY + original server Y.
         Vector3 reference = new Vector3(from.x, identity.ServerPosition.y, from.z);
         WorldPlacement.PlacementKind kind = identity.EntityType == EntityType.Monster
             ? WorldPlacement.PlacementKind.MonsterSpawn
             : WorldPlacement.PlacementKind.NpcSpawn;
         Vector3 snapped = WorldPlacement.Resolve(kind, reference);
-        bool moved = (snapped - from).sqrMagnitude >= 0.0001f;
-        if (moved)
-        {
-            identity.Position = snapped;
-            WorldPlacement.ApplyPose(go, snapped, identity.Heading);
-        }
+        if ((snapped - from).sqrMagnitude < 0.0001f)
+            return false;
 
-        // Always SettleFeet after animator/skinned bounds exist — even when Y already matched.
-        Vector3 afterFeet = WorldPlacement.SettleFeet(go, moved ? snapped : from);
-        if ((afterFeet - from).sqrMagnitude >= 0.0001f)
-        {
-            identity.Position = afterFeet;
-            L2OverheadAnchor.Invalidate(identity.Id);
-            return true;
-        }
-
-        if (moved)
-            L2OverheadAnchor.Invalidate(identity.Id);
-        return moved;
+        // The mesh origin is the sole (every L2 rig is authored with its feet at z=0),
+        // so the snapped floor is the placement. No renderer-bounds correction.
+        identity.Position = snapped;
+        WorldPlacement.ApplyPose(go, snapped, identity.Heading);
+        L2OverheadAnchor.Invalidate(identity.Id);
+        return true;
     }
 
     public static void ApplyGroundedTransform(GameObject go, Vector3 position, Quaternion rotation)

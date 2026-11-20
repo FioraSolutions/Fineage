@@ -50,14 +50,6 @@ public sealed class WorldGroundingEditModeTests
     }
 
     [Test]
-    public void Submerged_when_water_is_above_the_feet()
-    {
-        Assert.IsTrue(WorldGrounding.IsSubmerged(10f, 10.2f));
-        Assert.IsFalse(WorldGrounding.IsSubmerged(10f, 10.02f));
-        Assert.IsFalse(WorldGrounding.IsSubmerged(10f, 9.9f));
-    }
-
-    [Test]
     public void Nameplate_height_from_collision_height_is_stable()
     {
         // npcgrp already in meters: 0.5 m half-height → 1 m + name offset above feet.

@@ -47,10 +47,6 @@ public partial class SkillListWindow : L2PopupWindow
             case _passiveName:
                 _supportPassiveSkills.GetOrCreateTab(element);
                 break;
-
-            case _learnName:
-
-                break;
         }
 
 
