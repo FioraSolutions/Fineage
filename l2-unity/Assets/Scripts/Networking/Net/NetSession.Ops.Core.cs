@@ -84,7 +84,8 @@ public sealed partial class NetSession : MonoBehaviour
         Post(
             () => ApplyZoneIfCurrent(epoch, decoded),
             decoded.Opcode,
-            decoded.Body);
+            decoded.Body,
+            decoded);
     }
 
     void ApplyZoneIfCurrent(int epoch, ZoneApplyPacket packet)

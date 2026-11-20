@@ -7,7 +7,7 @@ using UnityEngine;
 
 /// <summary>
 /// Socket-thread → main-thread apply pump (B3 budget / audit #3 / #9).
-/// Preserve queue is never dropped; coalesce lane latest-wins; only discardable packets drop oldest.
+/// Preserve queue is never dropped; coalesce lane merges/replaces per policy; only discardable packets drop oldest.
 /// </summary>
 public sealed class NetMainThreadPump
 {
@@ -16,6 +16,9 @@ public sealed class NetMainThreadPump
 
     /// <summary>Soft cap on pending discardable applies; excess drops oldest discardable only.</summary>
     public const int MaxPendingDiscardable = 512;
+
+    /// <summary>Preserve depth at or above this logs an error (no drop) so overload is visible.</summary>
+    public const int PreserveHighWaterThreshold = 2048;
 
     /// <summary>Legacy name from the pre-policy pump.</summary>
     public const int MaxPendingNormal = MaxPendingDiscardable;
@@ -28,20 +31,24 @@ public sealed class NetMainThreadPump
     readonly ConcurrentQueue<NetQueuedWork> _preserve = new ConcurrentQueue<NetQueuedWork>();
     readonly ConcurrentQueue<NetQueuedWork> _discardable = new ConcurrentQueue<NetQueuedWork>();
 
-    readonly ConcurrentDictionary<long, NetQueuedWork> _coalescePending = new ConcurrentDictionary<long, NetQueuedWork>();
+    readonly ConcurrentDictionary<long, CoalesceSlot> _coalescePending = new ConcurrentDictionary<long, CoalesceSlot>();
     readonly ConcurrentQueue<long> _coalesceOrder = new ConcurrentQueue<long>();
 
     readonly ConcurrentDictionary<ushort, long> _droppedByOpcode = new ConcurrentDictionary<ushort, long>();
     readonly ConcurrentDictionary<ushort, long> _coalescedByOpcode = new ConcurrentDictionary<ushort, long>();
     readonly ConcurrentQueue<string> _deferredWarnings = new ConcurrentQueue<string>();
+    readonly ConcurrentQueue<string> _deferredErrors = new ConcurrentQueue<string>();
 
+    long _preserveHighWater;
     double _nextDepthLogTime;
     double _nextDropLogTime;
+    double _nextPreserveHighWaterLogTime;
 
     public int PreserveCount => _preserve.Count;
     public int DiscardableCount => _discardable.Count;
     public int CoalesceSlotCount => _coalescePending.Count;
     public int Depth => PreserveCount + DiscardableCount + CoalesceSlotCount;
+    public long PreserveHighWater => Interlocked.Read(ref _preserveHighWater);
 
     public long DroppedDiscardable => SumCounts(_droppedByOpcode);
     public long CoalescedReplacements => SumCounts(_coalescedByOpcode);
@@ -55,18 +62,19 @@ public sealed class NetMainThreadPump
     public long GetCoalescedCount(ushort opcode) =>
         _coalescedByOpcode.TryGetValue(opcode, out long n) ? n : 0;
 
-    public void Post(Action action, ushort opcode, object coalesceBody = null)
+    public void Post(Action action, ushort opcode, object coalesceBody = null, ZoneApplyPacket mergeAnchor = null)
     {
         if (action == null)
             return;
 
-        var work = new NetQueuedWork(action, opcode, coalesceBody);
+        var work = new NetQueuedWork(action, opcode, coalesceBody, mergeAnchor);
         using (NetReceiveProfiling.Queue.Auto())
         {
             switch (NetPacketApplyPolicy.GetDisposition(opcode))
             {
                 case NetPacketApplyPolicy.Disposition.Preserve:
                     _preserve.Enqueue(work);
+                    TrackPreserveHighWater();
                     break;
                 case NetPacketApplyPolicy.Disposition.Coalesce:
                     EnqueueCoalesce(work);
@@ -91,7 +99,7 @@ public sealed class NetMainThreadPump
             int applyBudget = MaxNormalActionsPerFrame;
             applyBudget = DrainCoalesce(applyBudget);
             DrainQueue(_discardable, applyBudget);
-            FlushDeferredWarnings();
+            FlushDeferredLogs();
             MaybeWarnDepth();
         }
     }
@@ -99,22 +107,41 @@ public sealed class NetMainThreadPump
     void EnqueueCoalesce(NetQueuedWork work)
     {
         long key = NetPacketApplyPolicy.GetCoalesceKey(work.Opcode, work.CoalesceBody);
-        if (key == 0)
+        if (key == 0 || work.MergeAnchor == null)
         {
             _preserve.Enqueue(work);
+            TrackPreserveHighWater();
             return;
         }
 
-        if (_coalescePending.TryGetValue(key, out NetQueuedWork prior))
+        if (_coalescePending.TryGetValue(key, out CoalesceSlot prior))
         {
             RecordCoalesced(work.Opcode);
-            if (!string.Equals(NetPacketApplyPolicy.OpcodeLabel(prior.Opcode), NetPacketApplyPolicy.OpcodeLabel(work.Opcode), StringComparison.Ordinal))
+            if (prior.Opcode != work.Opcode)
                 RecordCoalesced(prior.Opcode);
+
+            NetPacketApplyPolicy.CoalesceStrategy strategy = NetPacketApplyPolicy.GetCoalesceStrategy(work.Opcode);
+            if (strategy == NetPacketApplyPolicy.CoalesceStrategy.LatestWins)
+            {
+                prior.Apply = work.Apply;
+                prior.Opcode = work.Opcode;
+                prior.Anchor = work.MergeAnchor;
+            }
+            else
+            {
+                prior.Anchor.Body = NetPacketApplyPolicy.MergeCoalesceBodies(
+                    work.Opcode,
+                    prior.Anchor.Body,
+                    work.CoalesceBody);
+                prior.CoalescedBodies++;
+            }
         }
         else
+        {
+            var slot = new CoalesceSlot(work);
+            _coalescePending[key] = slot;
             _coalesceOrder.Enqueue(key);
-
-        _coalescePending[key] = work;
+        }
     }
 
     void EnqueueDiscardable(NetQueuedWork work)
@@ -134,15 +161,41 @@ public sealed class NetMainThreadPump
         _discardable.Enqueue(work);
     }
 
+    void TrackPreserveHighWater()
+    {
+        int depth = _preserve.Count;
+        long observed = depth;
+        long prior;
+        do
+        {
+            prior = Interlocked.Read(ref _preserveHighWater);
+            if (observed <= prior)
+                break;
+        }
+        while (Interlocked.CompareExchange(ref _preserveHighWater, observed, prior) != prior);
+
+        if (depth < PreserveHighWaterThreshold)
+            return;
+
+        double now = Clock.Elapsed.TotalSeconds;
+        if (now < _nextPreserveHighWaterLogTime)
+            return;
+
+        _nextPreserveHighWaterLogTime = now + DepthLogCooldownSeconds;
+        _deferredErrors.Enqueue(
+            $"[Net] preserve queue high-water {depth} (threshold {PreserveHighWaterThreshold}, peak {_preserveHighWater}); "
+            + "packets are not dropped — main-thread apply is behind.");
+    }
+
     int DrainCoalesce(int maxActions)
     {
         int remaining = maxActions;
         while (remaining > 0 && _coalesceOrder.TryDequeue(out long key))
         {
-            if (!_coalescePending.TryRemove(key, out NetQueuedWork work))
+            if (!_coalescePending.TryRemove(key, out CoalesceSlot slot))
                 continue;
             remaining--;
-            RunWork(work);
+            RunWork(new NetQueuedWork(slot.Apply, slot.Opcode, slot.Anchor?.Body, slot.Anchor));
         }
 
         return remaining;
@@ -205,10 +258,12 @@ public sealed class NetMainThreadPump
             + $"total dropped {DroppedDiscardable}; soft-cap {MaxPendingDiscardable}.");
     }
 
-    void FlushDeferredWarnings()
+    void FlushDeferredLogs()
     {
-        while (_deferredWarnings.TryDequeue(out string line))
-            Debug.LogWarning(line);
+        while (_deferredWarnings.TryDequeue(out string warn))
+            Debug.LogWarning(warn);
+        while (_deferredErrors.TryDequeue(out string error))
+            Debug.LogError(error);
     }
 
     static long SumCounts(ConcurrentDictionary<ushort, long> map)
@@ -219,17 +274,34 @@ public sealed class NetMainThreadPump
         return sum;
     }
 
+    sealed class CoalesceSlot
+    {
+        public Action Apply;
+        public ushort Opcode;
+        public ZoneApplyPacket Anchor;
+        public int CoalescedBodies;
+
+        public CoalesceSlot(NetQueuedWork work)
+        {
+            Apply = work.Apply;
+            Opcode = work.Opcode;
+            Anchor = work.MergeAnchor;
+        }
+    }
+
     internal readonly struct NetQueuedWork
     {
         internal readonly Action Apply;
         internal readonly ushort Opcode;
         internal readonly object CoalesceBody;
+        internal readonly ZoneApplyPacket MergeAnchor;
 
-        public NetQueuedWork(Action apply, ushort opcode, object coalesceBody = null)
+        public NetQueuedWork(Action apply, ushort opcode, object coalesceBody = null, ZoneApplyPacket mergeAnchor = null)
         {
             Apply = apply;
             Opcode = opcode;
             CoalesceBody = coalesceBody;
+            MergeAnchor = mergeAnchor;
         }
     }
 }

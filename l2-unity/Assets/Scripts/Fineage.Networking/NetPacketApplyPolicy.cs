@@ -10,35 +10,45 @@ public static class NetPacketApplyPolicy
     {
         /// <summary>Never dropped; FIFO preserve queue (entity lifecycle and state).</summary>
         Preserve = 0,
-        /// <summary>Latest-wins per coalesce key; superseded pending work is replaced, not dropped.</summary>
+        /// <summary>Superseded pending work is merged or replaced per <see cref="CoalesceStrategy"/>.</summary>
         Coalesce = 1,
         /// <summary>May drop oldest entry when the discardable backlog exceeds the soft cap.</summary>
         Discardable = 2,
     }
 
+    public enum CoalesceStrategy
+    {
+        /// <summary>Whole message is authoritative; keep the newest pending body.</summary>
+        LatestWins = 0,
+        /// <summary>Partial attribute rows (L2 StatusUpdate): union per attribute id, newest value wins per id.</summary>
+        MergeAttributeMap = 1,
+        /// <summary>Periodic party map positions with only changed members: union per object id.</summary>
+        MergeKeyedRows = 2,
+    }
+
     static readonly Disposition[] ByOpcode = new Disposition[ushort.MaxValue + 1];
     static readonly Func<object, long>[] CoalesceKeyByOpcode = new Func<object, long>[ushort.MaxValue + 1];
+    static readonly CoalesceStrategy[] CoalesceStrategyByOpcode = new CoalesceStrategy[ushort.MaxValue + 1];
 
     static NetPacketApplyPolicy()
     {
-        // Safe default: state-creating and lifecycle traffic is never dropped.
         for (int i = 0; i < ByOpcode.Length; i++)
             ByOpcode[i] = Disposition.Preserve;
 
-        RegisterCoalesce(NetOpcode.MoveState, EntityKey<MoveStateMsg>(NetOpcode.MoveState, m => m.EntityValue));
-        RegisterCoalesce(NetOpcode.PositionCorrection, EntityKey<PositionCorrectionMsg>(NetOpcode.PositionCorrection, m => m.EntityValue));
-        RegisterCoalesce(NetOpcode.StatusUpdate, EntityKey<StatusUpdateNetMsg>(NetOpcode.StatusUpdate, m => m.EntityValue));
-        RegisterCoalesce(NetOpcode.ChangeMoveType, EntityKey<ChangeMoveTypeNetMsg>(NetOpcode.ChangeMoveType, m => m.EntityValue));
-        RegisterCoalesce(NetOpcode.AttackState, EntityKey<AttackStateMsg>(NetOpcode.AttackState, m => m.AttackerValue));
-        RegisterCoalesce(NetOpcode.PartyMemberUpdate, EntityKey<PartyMemberUpdateNetMsg>(NetOpcode.PartyMemberUpdate, m => (ulong)m.ObjectId));
-        RegisterCoalesceKey(NetOpcode.PartyMemberPosition, PartyMemberPositionKey);
+        RegisterCoalesceLatest(NetOpcode.MoveState, EntityKey<MoveStateMsg>(NetOpcode.MoveState, m => m.EntityValue));
+        RegisterCoalesceLatest(NetOpcode.PositionCorrection, EntityKey<PositionCorrectionMsg>(NetOpcode.PositionCorrection, m => m.EntityValue));
+        RegisterCoalesce(NetOpcode.StatusUpdate, CoalesceStrategy.MergeAttributeMap, EntityKey<StatusUpdateNetMsg>(NetOpcode.StatusUpdate, m => m.EntityValue));
+        RegisterCoalesceLatest(NetOpcode.ChangeMoveType, EntityKey<ChangeMoveTypeNetMsg>(NetOpcode.ChangeMoveType, m => m.EntityValue));
+        RegisterCoalesceLatest(NetOpcode.AttackState, EntityKey<AttackStateMsg>(NetOpcode.AttackState, m => m.AttackerValue));
+        RegisterCoalesceLatest(NetOpcode.PartyMemberUpdate, EntityKey<PartyMemberUpdateNetMsg>(NetOpcode.PartyMemberUpdate, m => (ulong)m.ObjectId));
+        RegisterCoalesce(NetOpcode.PartyMemberPosition, CoalesceStrategy.MergeKeyedRows, PartyMemberPositionKey);
 
-        RegisterDiscardable(NetOpcode.CreatureSay);
-        RegisterDiscardable(NetOpcode.SystemMessage);
         RegisterDiscardable(NetOpcode.PlaySound);
     }
 
     public static Disposition GetDisposition(ushort opcode) => ByOpcode[opcode];
+
+    public static CoalesceStrategy GetCoalesceStrategy(ushort opcode) => CoalesceStrategyByOpcode[opcode];
 
     /// <summary>Non-zero when <see cref="GetDisposition"/> is <see cref="Disposition.Coalesce"/> and the body supports a key.</summary>
     public static long GetCoalesceKey(ushort opcode, object body)
@@ -49,16 +59,20 @@ public static class NetPacketApplyPolicy
         return fn == null ? 0 : fn(body);
     }
 
+    public static object MergeCoalesceBodies(ushort opcode, object accumulated, object incoming) =>
+        NetPacketCoalesceMerge.Merge(opcode, accumulated, incoming);
+
     public static string OpcodeLabel(ushort opcode) => $"0x{opcode:X4}";
 
-    static void RegisterCoalesceKey(ushort opcode, Func<object, long> keyFromBody)
+    static void RegisterCoalesce(ushort opcode, CoalesceStrategy strategy, Func<object, long> keyFromBody)
     {
         ByOpcode[opcode] = Disposition.Coalesce;
+        CoalesceStrategyByOpcode[opcode] = strategy;
         CoalesceKeyByOpcode[opcode] = keyFromBody;
     }
 
-    static void RegisterCoalesce<T>(ushort opcode, Func<T, long> keyFromBody) =>
-        RegisterCoalesceKey(opcode, body => body is T typed ? keyFromBody(typed) : 0);
+    static void RegisterCoalesceLatest<T>(ushort opcode, Func<T, long> keyFromBody) =>
+        RegisterCoalesce(opcode, CoalesceStrategy.LatestWins, body => body is T typed ? keyFromBody(typed) : 0);
 
     static void RegisterDiscardable(ushort opcode) => ByOpcode[opcode] = Disposition.Discardable;
 
@@ -67,9 +81,8 @@ public static class NetPacketApplyPolicy
 
     static long PartyMemberPositionKey(object body)
     {
-        if (body is not PartyMemberPositionNetMsg msg || msg.Members == null)
+        if (body is not PartyMemberPositionNetMsg)
             return 0;
-        // One coalesce slot per periodic fanout (latest positions for the whole party).
         return PackCoalesceKey(NetOpcode.PartyMemberPosition, 0UL);
     }
 

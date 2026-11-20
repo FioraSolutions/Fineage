@@ -8,8 +8,8 @@ public sealed partial class NetSession : MonoBehaviour
 {
     uint NextSeq() => _seq++;
 
-    void Post(Action action, ushort opcode = 0, object coalesceBody = null) =>
-        _mainThread.Post(action, opcode, coalesceBody);
+    void Post(Action action, ushort opcode = 0, object coalesceBody = null, ZoneApplyPacket mergeAnchor = null) =>
+        _mainThread.Post(action, opcode, coalesceBody, mergeAnchor);
 
     void PostCritical(Action action, ushort opcode = 0) => _mainThread.PostCritical(action, opcode);
 
