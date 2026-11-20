@@ -262,7 +262,14 @@ def legacy_factor_for(path):
             for line in fh:
                 marker = "globalScale:"
                 if marker in line:
-                    return NODE_SCALE * float(line.split(marker, 1)[1].strip())
+                    importer = float(line.split(marker, 1)[1].strip())
+                    # Only a legacy importer scale says how the file was compensated.
+                    # A meter importer (globalScale 1) sitting on a legacy-unit file is
+                    # exactly the broken state this patch repairs, and 100 x 1 would
+                    # blow the rig up 100x instead of the shared 1.9.
+                    if importer < 0.5:
+                        return NODE_SCALE * importer
+                    return LEGACY_FACTOR
     except (OSError, ValueError):
         pass
     return LEGACY_FACTOR
