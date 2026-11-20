@@ -1,56 +1,31 @@
-﻿using UnityEngine;
+using UnityEngine;
 
+/// <summary>
+/// Player_Basic <c>stand</c> has no graph exit: when the stand-up clip ends, CrossFade back to the
+/// weapon wait pose (same hand-off as <see cref="PlayerStatePickup"/>). A fresh sit keeps the pose.
+/// </summary>
 public class PlayerStateStand : PlayerStateBase
 {
-    //private float _lastNormalizedTime = 0;
+    const float FinishNorm = 0.95f;
+    bool _switched;
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        //LoadComponents(animator);
-        //if (!_enabled)
-       // {
-       //     return;
-       // }
-
-        //SetBool("stand", false, false, false);
-        //_lastNormalizedTime = 0;
-        //_audioHandler.PlaySound(CharacterSoundEvent.Standup);
+        _switched = false;
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        //if (!_enabled)
-        //{
-        //    return;
-        //}
-
-        //SetBool("stand", false, false, false);
-
-       // if (ShouldDie())
-        //{
-        //    return;
-        //}
-
-        //if (ShouldIdle())
-        //{
-        //    return;
-        //}
-
-        // if ((stateInfo.normalizedTime - _lastNormalizedTime) >= 1f)
-        // {
-        //     _lastNormalizedTime = stateInfo.normalizedTime;
-        //     SetBool("wait", true, true);
-        // }
-    }
-
-    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        if (!_enabled)
-        {
+        if (_switched || stateInfo.normalizedTime < FinishNorm || animator.IsInTransition(layerIndex))
             return;
-        }
 
-        //CameraController.Instance.StickToBone = false;
-        //  PlayerController.Instance.SetCanMove(true);
+        _switched = true;
+        int objectId = AnimatorUtils.GetObjectId(animator);
+        IAnimationManager animations = AnimationPacketServices.Animations;
+        if (animations == null || objectId == 0 || EntityActionVisual.IsSitPoseHeld(objectId))
+            return;
+
+        AnimationPacketServices.QueueOnMain(() =>
+            animations.PlayAnimation(objectId, AnimationNames.WAIT.ToString(), true));
     }
 }

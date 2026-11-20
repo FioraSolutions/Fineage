@@ -8,30 +8,33 @@ public partial class EntityActionVisual
     /// until the zone sends <c>WT_STOP_FAKEDEATH</c>.
     /// </summary>
     static int _fakeDeathPoseEntityId;
-    static int _sitPoseEntityId;
+    /// <summary>Every pawn currently seated (hero and remote players), released on WT_STANDING.</summary>
+    static readonly System.Collections.Generic.HashSet<int> _sitPoseEntityIds = new System.Collections.Generic.HashSet<int>();
 
     public static bool IsSitPoseHeld(Entity entity)
     {
         return entity != null && entity.Identity != null &&
-            _sitPoseEntityId == entity.Identity.Id;
+            _sitPoseEntityIds.Contains(entity.Identity.Id);
     }
 
     public static bool IsSitPoseHeld(int objectId)
     {
-        return objectId > 0 && _sitPoseEntityId == objectId;
+        return objectId > 0 && _sitPoseEntityIds.Contains(objectId);
     }
 
     public static void HoldSitPose(Entity entity)
     {
         if (entity == null || entity.Identity == null)
             return;
-        _sitPoseEntityId = entity.Identity.Id;
+        _sitPoseEntityIds.Add(entity.Identity.Id);
     }
 
     public static void ClearSitPose(Entity entity = null)
     {
-        if (entity == null || IsSitPoseHeld(entity))
-            _sitPoseEntityId = 0;
+        if (entity == null)
+            _sitPoseEntityIds.Clear();
+        else if (entity.Identity != null)
+            _sitPoseEntityIds.Remove(entity.Identity.Id);
     }
 
     public static bool IsFakeDeathPoseHeld(Entity entity)
