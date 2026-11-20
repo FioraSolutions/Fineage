@@ -312,6 +312,7 @@ public static class L2MonsterImportBatch
                 AssetDatabase.DeleteAsset(path);
             AnimationClip copy = UnityEngine.Object.Instantiate(src);
             copy.name = stem + "." + safe;
+            L2AnimClipPipeline.StripRedundantEulerCurves(copy);
             AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(copy);
             settings.loopTime = ShouldLoop(safe);
             AnimationUtility.SetAnimationClipSettings(copy, settings);
