@@ -55,8 +55,10 @@ public partial class QuestWindow : L2TwoPanels
         if (_instance == null)
         {
             _instance = this;
-            if (GetComponent<QuestHudDirectionMarker>() == null)
-                gameObject.AddComponent<QuestHudDirectionMarker>();
+            if (GetComponent<QuestOverheadDirectionArrow>() == null)
+                gameObject.AddComponent<QuestOverheadDirectionArrow>();
+            if (GetComponent<QuestRadarHud>() == null)
+                gameObject.AddComponent<QuestRadarHud>();
             if (GetComponent<TutorialQuestOverlay>() == null)
                 gameObject.AddComponent<TutorialQuestOverlay>();
             _builderTabs = new BuilderTabs();
