@@ -11,6 +11,19 @@ public partial class EffectManager
         return TryGetRuntime(effectId, out RuntimeEffect entry) && entry.IgnoreFlightTimeForCast;
     }
 
+    /// <summary>
+    /// False only for a V2 composite that authors no flying part (see <see cref="CompositeEffectV2.HasFlightStage"/>).
+    /// Legacy / non-composite effects and missing rows keep the old distance-based flight timing.
+    /// </summary>
+    public bool HasFlightStage(int effectId)
+    {
+        if (!TryGetRuntime(effectId, out RuntimeEffect entry) || entry.UseWeaponShot)
+            return true;
+
+        CompositeEffectV2 v2 = entry.Prefab as CompositeEffectV2;
+        return v2 == null || v2.HasFlightStage;
+    }
+
     public bool TryGetByComment(
         string comment,
         out int id,
