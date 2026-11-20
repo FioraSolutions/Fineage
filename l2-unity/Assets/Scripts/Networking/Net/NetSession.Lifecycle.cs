@@ -47,7 +47,7 @@ public sealed partial class NetSession : MonoBehaviour
         _commandSender = new NetCommandSender(() => _zone, NextSeq);
         _lobbyFlow = new NetLobbyFlow(
             NextSeq,
-            Post,
+            action => Post(action),
             ResetLobbySessionState,
             characterId => CharacterId = characterId,
             () => SessionObjectId = 0,
