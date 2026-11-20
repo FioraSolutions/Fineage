@@ -38,11 +38,35 @@ public static partial class EntityActionVisual
 
         string socialState = "social01";
         if (entity is PlayerEntity || entity is UserEntity)
-            PlayerSocialAnimApply.TryPrepareSocialClip(entity, actionId, out socialState);
+        {
+            if (!PlayerSocialAnimApply.TryPrepareSocialClip(entity, actionId, out socialState))
+                return;
+        }
 
         NetworkAnimationController nac = entity.GetAnimatorController();
         if (nac != null)
         {
+            Animator animator = nac.GetAnimator();
+            if (animator == null)
+            {
+                Debug.LogError(
+                    "[SocialAnim] action id=" + actionId + " entity=" + entity.name +
+                    " missing Animator on NetworkAnimationController");
+                return;
+            }
+
+            int stateHash = Animator.StringToHash(socialState);
+            if (!animator.HasState(0, stateHash))
+            {
+                Debug.LogError(
+                    "[SocialAnim] action id=" + actionId + " entity=" + entity.name +
+                    " animator state missing name=" + socialState +
+                    " controller=" + (animator.runtimeAnimatorController != null
+                        ? animator.runtimeAnimatorController.name
+                        : "(null)"));
+                return;
+            }
+
             AnimPlayback.PrepareGesture(nac);
             nac.CrossFadeInFixedTime(socialState, LocomotionCrossFadeSettings.FixedDuration);
             return;
@@ -50,7 +74,9 @@ public static partial class EntityActionVisual
 
         if (entity.Identity != null && ControllerPacketServices.Animations != null)
         {
-            ControllerPacketServices.Animations.PlayExactAnimatorState(entity.Identity.Id, socialState);
+            if (!ControllerPacketServices.Animations.TryPlayExactAnimatorState(
+                    entity.Identity.Id, socialState, out _))
+                return;
             return;
         }
 

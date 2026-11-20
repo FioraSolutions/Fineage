@@ -10,7 +10,11 @@ public sealed class FineageAssetImportPostprocessor : AssetPostprocessor
     void OnPreprocessTexture()
     {
         string path = assetPath.Replace('\\', '/');
-        var rule = FineageAssetImportRules.ResolveTextureRule(path);
+        var importer = (TextureImporter)assetImporter;
+        bool? hasAlpha = importer != null && importer.DoesSourceTextureHaveAlpha()
+            ? (bool?)true
+            : (bool?)false;
+        var rule = FineageAssetImportRules.ResolveTextureRule(path, hasAlpha);
         if (rule == null)
         {
             Debug.LogError("Fineage import policy: no texture rule matched path=" + path);
@@ -21,7 +25,6 @@ public sealed class FineageAssetImportPostprocessor : AssetPostprocessor
         if (expectation == null)
             return;
 
-        var importer = (TextureImporter)assetImporter;
         FineageAssetImportRules.ApplyTextureRule(importer, expectation);
     }
 

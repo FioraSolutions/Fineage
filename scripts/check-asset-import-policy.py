@@ -73,7 +73,7 @@ def main() -> int:
         if not meta_path.is_file():
             errors.append(f"missing texture meta: {rel}.meta")
             continue
-        expectation = build_texture_expectation(rel, rules)
+        expectation = build_texture_expectation(rel, rules, asset)
         if expectation is None:
             errors.append(f"no texture import rule matched: {rel}")
             continue

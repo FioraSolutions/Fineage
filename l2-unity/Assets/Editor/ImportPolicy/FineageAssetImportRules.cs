@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -46,10 +47,13 @@ public static class FineageAssetImportRules
     {
         public string id;
         public string[] pathGlobs;
+        public string[] excludePathGlobs;
         public string[] filenameGlobs;
+        public bool requiresSourceAlpha;
         public bool readable;
         public bool mipmaps;
         public bool streamingMipmaps;
+        public bool mipMapsPreserveCoverage;
         public string filterMode;
         public string npotScale;
         public string wrapMode;
@@ -94,6 +98,7 @@ public static class FineageAssetImportRules
         public bool Readable;
         public bool Mipmaps;
         public bool StreamingMipmaps;
+        public bool MipMapsPreserveCoverage;
         public FilterMode? FilterMode;
         public TextureImporterNPOTScale? NpotScale;
         public TextureWrapMode? WrapMode;
@@ -137,11 +142,56 @@ public static class FineageAssetImportRules
         }
 
         _cached = parsed.ToDocument();
+        HydrateTextureRuleMetadata(json, _cached.textureRules);
         _cachedWriteUtc = writeUtc;
         return _cached;
     }
 
-    public static TextureRule ResolveTextureRule(string assetPath)
+    /// <summary>
+    /// JsonUtility omits some optional texture rule flags; merge them from raw JSON by rule id.
+    /// </summary>
+    static void HydrateTextureRuleMetadata(string json, TextureRule[] rules)
+    {
+        if (rules == null || rules.Length == 0 || string.IsNullOrEmpty(json))
+            return;
+        JObject root;
+        try
+        {
+            root = JObject.Parse(json);
+        }
+        catch
+        {
+            return;
+        }
+
+        var arr = root["textureRules"] as JArray;
+        if (arr == null)
+            return;
+
+        var byId = new Dictionary<string, TextureRule>();
+        foreach (var rule in rules)
+        {
+            if (rule != null && !string.IsNullOrEmpty(rule.id))
+                byId[rule.id] = rule;
+        }
+
+        foreach (var tok in arr)
+        {
+            if (tok is not JObject obj)
+                continue;
+            string id = obj.Value<string>("id");
+            if (string.IsNullOrEmpty(id) || !byId.TryGetValue(id, out var rule))
+                continue;
+            JToken requiresAlpha = obj["requiresSourceAlpha"];
+            if (requiresAlpha != null && requiresAlpha.Type != JTokenType.Null)
+                rule.requiresSourceAlpha = requiresAlpha.Value<bool>();
+            JToken mipCov = obj["mipMapsPreserveCoverage"];
+            if (mipCov != null && mipCov.Type != JTokenType.Null)
+                rule.mipMapsPreserveCoverage = mipCov.Value<bool>();
+        }
+    }
+
+    public static TextureRule ResolveTextureRule(string assetPath, bool? sourceHasAlpha = null)
     {
         var rules = Load();
         if (rules?.textureRules == null)
@@ -149,9 +199,27 @@ public static class FineageAssetImportRules
         assetPath = assetPath.Replace('\\', '/');
         foreach (var rule in rules.textureRules)
         {
-            if (RuleMatches(assetPath, rule.pathGlobs, rule.filenameGlobs))
-                return rule;
+            if (!RuleMatches(assetPath, rule.pathGlobs, rule.filenameGlobs, rule.excludePathGlobs))
+                continue;
+            if (rule.requiresSourceAlpha)
+            {
+                if (sourceHasAlpha == false)
+                    continue;
+                if (sourceHasAlpha != true)
+                {
+                    string onDisk = ToAbsoluteAssetPath(assetPath);
+                    if (!string.IsNullOrEmpty(onDisk))
+                        sourceHasAlpha = SourceFileHasAlpha(onDisk);
+                    else
+                        sourceHasAlpha = false;
+                    if (sourceHasAlpha != true)
+                        continue;
+                }
+            }
+
+            return rule;
         }
+
         return null;
     }
 
@@ -179,6 +247,7 @@ public static class FineageAssetImportRules
             Readable = rule.readable,
             Mipmaps = rule.mipmaps,
             StreamingMipmaps = rule.streamingMipmaps,
+            MipMapsPreserveCoverage = rule.mipMapsPreserveCoverage,
         };
         if (!string.IsNullOrEmpty(rule.filterMode))
             expectation.FilterMode = ParseFilterMode(rule.filterMode);
@@ -238,6 +307,21 @@ public static class FineageAssetImportRules
         importer.isReadable = expectation.Readable;
         importer.mipmapEnabled = expectation.Mipmaps;
         importer.streamingMipmaps = expectation.StreamingMipmaps;
+        if (expectation.MipMapsPreserveCoverage && expectation.Mipmaps)
+        {
+            var serialized = new SerializedObject(importer);
+            SerializedProperty mipmaps = serialized.FindProperty("mipmapSettings");
+            if (mipmaps != null)
+            {
+                SerializedProperty preserve = mipmaps.FindPropertyRelative("mipMapsPreserveCoverage");
+                if (preserve != null)
+                    preserve.boolValue = true;
+                SerializedProperty alphaRef = mipmaps.FindPropertyRelative("alphaTestReferenceValue");
+                if (alphaRef != null)
+                    alphaRef.floatValue = 0.5f;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
         if (expectation.FilterMode.HasValue)
             importer.filterMode = expectation.FilterMode.Value;
         if (expectation.NpotScale.HasValue)
@@ -273,14 +357,65 @@ public static class FineageAssetImportRules
         importer.loadInBackground = expectation.LoadInBackground;
     }
 
-    static bool RuleMatches(string assetPath, string[] pathGlobs, string[] filenameGlobs)
+    static bool RuleMatches(string assetPath, string[] pathGlobs, string[] filenameGlobs, string[] excludePathGlobs = null)
     {
         if (pathGlobs == null || !pathGlobs.Any(g => GlobMatch(assetPath, g)))
+            return false;
+        if (excludePathGlobs != null && excludePathGlobs.Any(g => GlobMatch(assetPath, g)))
             return false;
         if (filenameGlobs == null || filenameGlobs.Length == 0)
             return true;
         string fileName = Path.GetFileName(assetPath);
         return filenameGlobs.Any(g => GlobMatch(fileName, g));
+    }
+
+    static string ToAbsoluteAssetPath(string assetPath)
+    {
+        if (string.IsNullOrEmpty(assetPath))
+            return null;
+        string combined = Path.GetFullPath(Path.Combine(Application.dataPath, "..", assetPath));
+        return File.Exists(combined) ? combined : null;
+    }
+
+    static bool SourceFileHasAlpha(string absolutePath)
+    {
+        if (string.IsNullOrEmpty(absolutePath) || !File.Exists(absolutePath))
+            return false;
+        string ext = Path.GetExtension(absolutePath).ToLowerInvariant();
+        try
+        {
+            if (ext == ".png")
+            {
+                using var stream = File.OpenRead(absolutePath);
+                if (stream.Length < 26)
+                    return false;
+                var buf = new byte[26];
+                if (stream.Read(buf, 0, buf.Length) < buf.Length)
+                    return false;
+                if (buf[0] != 0x89 || buf[1] != 0x50)
+                    return false;
+                int colorType = buf[25] & 0xFF;
+                return colorType == 4 || colorType == 6;
+            }
+
+            if (ext == ".tga")
+            {
+                using var stream = File.OpenRead(absolutePath);
+                if (stream.Length < 18)
+                    return false;
+                stream.Seek(16, SeekOrigin.Begin);
+                int depth = stream.ReadByte();
+                if (depth < 0)
+                    return false;
+                return depth == 32;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+
+        return false;
     }
 
     static bool GlobMatch(string text, string pattern)

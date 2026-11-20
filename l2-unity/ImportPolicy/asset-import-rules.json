@@ -183,6 +183,46 @@
       ]
     },
     {
+      "id": "world-alpha-cutout",
+      "pathGlobs": [
+        "Assets/Resources/Data/Textures/**",
+        "Assets/Resources/Data/SysTextures/**"
+      ],
+      "excludePathGlobs": [
+        "Assets/Resources/Data/SysTextures/Icon/**",
+        "Assets/Resources/Data/UI/**",
+        "Assets/Resources/Data/Clock/**"
+      ],
+      "requiresSourceAlpha": true,
+      "mipMapsPreserveCoverage": true,
+      "readable": false,
+      "mipmaps": true,
+      "streamingMipmaps": true,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "DXT5",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ETC2_RGBA8",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_4x4",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
       "id": "normal-mask",
       "pathGlobs": [
         "Assets/**"

@@ -52,6 +52,8 @@ public interface IAnimationManager
     void PlayLobbyLocomotion(IAnimationController controller, string stateOrPrefixWithWeapon);
     /// <summary>Raw animator state (death/rebirth/etc). Prefer <see cref="PlayGesture"/> for social/pickup.</summary>
     float PlayExactAnimatorState(int objectId, string stateName, bool snapToEnd = false);
+
+    bool TryPlayExactAnimatorState(int objectId, string stateName, out float duration);
     /// <summary>Gesture channel (<see cref="AnimPlayback"/>): pickup, social — authored timing, not run/atk speed.</summary>
     float PlayGesture(int objectId, string stateName);
 }
