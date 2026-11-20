@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
+public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
 {
     [SerializeField] protected CharacterRaceSound _race;
     [SerializeField] protected SurfaceDetector _surfaceDetector;
@@ -21,15 +21,28 @@ public class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
         AudioManager audio = RequiredAudioServices.RequireAudio(nameof(CharacterAnimationAudioHandler));
         if (audio == null)
             return;
+
+        if (!TryBindChrSoundBank())
+            TryBindChrSoundBankFromEntity();
+
+        if (!string.IsNullOrEmpty(_chrSoundBank))
+        {
+            AudioPacketServices.Service.PlayChrSoundBank(_chrSoundBank, soundEvent, transform.position);
+            return;
+        }
+
+        if (_race == CharacterRaceSound.Default)
+        {
+            LogUnresolvedChrSound(soundEvent);
+            return;
+        }
+
         audio.PlayCharacterSound(soundEvent, _race, transform.position);
     }
 
     public void PlaySoundFromAnimationClip(int type) {
         CharacterSoundEvent soundEvent = (CharacterSoundEvent)type;
-        AudioManager audio = RequiredAudioServices.RequireAudio(nameof(CharacterAnimationAudioHandler));
-        if (audio == null)
-            return;
-        audio.PlayCharacterSound(soundEvent, _race, transform.position);
+        PlaySound(soundEvent);
     }
 
     public void PlaySoundAtRatio(CharacterSoundEvent soundEvent, float ratio) {

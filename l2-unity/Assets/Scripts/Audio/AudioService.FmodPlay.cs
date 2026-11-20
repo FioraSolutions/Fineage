@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using FMODUnity;
 using UnityEngine;
 
 public partial class AudioService
 {
+    static readonly HashSet<string> LoggedMissingFmodEvents = new HashSet<string>();
+
     public bool PlayFmodEvent(string eventPath, AudioCategory category, Vector3? position = null)
     {
         if (_disabled || string.IsNullOrEmpty(eventPath))
@@ -11,7 +14,8 @@ public partial class AudioService
         EventReference er = RuntimeManager.PathToEventReference(eventPath);
         if (er.IsNull)
         {
-            LogAudioError("AudioService: missing FMOD event id=\"" + eventPath + "\"");
+            if (LoggedMissingFmodEvents.Add(eventPath))
+                LogAudioError("AudioService: missing FMOD event id=\"" + eventPath + "\"");
             return false;
         }
 
@@ -26,6 +30,15 @@ public partial class AudioService
     public void PlayCharacterSound(CharacterSoundEvent soundEvent, CharacterRaceSound race, Vector3 position)
     {
         string path = AudioPathResolver.FmodChrSound(race, soundEvent);
+        PlayFmodEvent(path, AudioCategory.Sfx, position);
+    }
+
+    public void PlayChrSoundBank(string chrSoundBank, CharacterSoundEvent soundEvent, Vector3 position)
+    {
+        if (string.IsNullOrEmpty(chrSoundBank))
+            return;
+
+        string path = AudioPathResolver.FmodChrSoundBank(chrSoundBank, soundEvent);
         PlayFmodEvent(path, AudioCategory.Sfx, position);
     }
 

@@ -83,4 +83,37 @@ public partial class ActiveSkillsHide
         _rowMagical ??= _activeSkillPanel.Q(_rowNameMagical);
         ClickDf(btn, arrDfSelect, _rowMagical, 1);
     }
+
+    static List<VisualElement> CollectGridRows(List<VisualElement> boxPanels)
+    {
+        var rows = new List<VisualElement>();
+        if (boxPanels == null)
+            return rows;
+
+        for (int i = 0; i < boxPanels.Count; i++)
+        {
+            VisualElement box = boxPanels[i];
+            if (box == null)
+                continue;
+            for (int c = 0; c < box.childCount; c++)
+                rows.Add(box[c]);
+        }
+
+        return rows;
+    }
+
+    void EnsureSectionRowsExpanded(VisualElement rowPhysical, VisualElement rowMagical)
+    {
+        if (rowPhysical != null)
+            rowPhysical.style.display = DisplayStyle.Flex;
+        if (rowMagical != null)
+            rowMagical.style.display = DisplayStyle.Flex;
+        if (_arrDfActiveSelect != null)
+        {
+            if (_arrDfActiveSelect.Length > 0)
+                _arrDfActiveSelect[0] = 1;
+            if (_arrDfActiveSelect.Length > 1)
+                _arrDfActiveSelect[1] = 1;
+        }
+    }
 }

@@ -16,7 +16,6 @@ public partial class AbstractSkills
 
     public void SetAllSlots(Dictionary<int, SkillSlot> allSlots)
     {
-        if (allSlots != null) _allSlots = null;
         _allSlots = allSlots;
     }
 

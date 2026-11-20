@@ -55,24 +55,21 @@ public partial class AbstractSkills
             if (rowPanels.Count == 0)
             {
                 targetPanel = ToolTipsUtils.CloneOne(templatePanel8x1);
-                var rowNameVirtual1 = targetPanel.Q(_rowNameInnerPanel);
-                rowPanels.Add(rowNameVirtual1);
+                ApplySkillsRowChrome(targetPanel, skillsPerPanel);
+                rowPanels.Add(targetPanel);
                 boxPanel.Add(targetPanel);
             }
             else
             {
-                // Берём последнюю панель
                 targetPanel = rowPanels[rowPanels.Count - 1];
-                // Считаем количество ячеек в RowsVirtual
                 var rowNameVirtual = targetPanel.Q(_rowNameInnerPanel);
                 int currentCount = rowNameVirtual != null ? rowNameVirtual.childCount : 0;
 
-                // Если панель заполнена, создаём новую
                 if (currentCount >= skillsPerPanel)
                 {
                     targetPanel = ToolTipsUtils.CloneOne(templatePanel8x1);
-                    var rowNameVirtual1 = targetPanel.Q(_rowNameInnerPanel);
-                    rowPanels.Add(rowNameVirtual1);
+                    ApplySkillsRowChrome(targetPanel, skillsPerPanel);
+                    rowPanels.Add(targetPanel);
                     boxPanel.Add(targetPanel);
                 }
             }
@@ -109,19 +106,20 @@ public partial class AbstractSkills
 
     protected void ShowPanelIfCount1(List<SkillInstance> list, VisualElement panel, VisualElement allContent)
     {
-        if (list != null | list.Count > 0)
+        if (list != null && list.Count > 0)
         {
-            panel.Clear();
-            allContent.style.display = DisplayStyle.Flex;
+            panel?.Clear();
+            if (allContent != null)
+                allContent.style.display = DisplayStyle.Flex;
         }
     }
 
     protected void HidePanelIfCount0(List<SkillInstance> list, VisualElement panel, VisualElement allContent)
     {
-        if (list == null | list.Count == 0)
+        if (list == null || list.Count == 0)
         {
-            //panel.Clear();
-            allContent.style.display = DisplayStyle.None;
+            if (allContent != null)
+                allContent.style.display = DisplayStyle.None;
         }
     }
 }
