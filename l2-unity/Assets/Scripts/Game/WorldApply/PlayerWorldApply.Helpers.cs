@@ -17,6 +17,7 @@ public sealed partial class PlayerWorldApply : EntityWorldApply
 
     public override void OnMagicSkillUse(Entity entity, MagicSkillUseDto dto)
     {
+        LocalSkillReuse.Begin(dto.SkillId, dto.Reusedelay);
         SkillbarWindow skillbar = Skillbar;
         if (skillbar != null)
             skillbar.ShowCooldown(dto.SkillId, Shortcut.TYPE_SKILL, dto.Reusedelay);
