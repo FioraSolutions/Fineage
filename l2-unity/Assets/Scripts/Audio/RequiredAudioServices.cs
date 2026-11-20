@@ -18,6 +18,16 @@ public static class RequiredAudioServices
         return null;
     }
 
+    public static AudioService RequireService(string caller)
+    {
+        AudioService service = AudioPacketServices.Service;
+        if (service != null)
+            return service;
+
+        LogOnce("AudioService", caller);
+        return null;
+    }
+
     public static MusicManager RequireMusic(string caller)
     {
         MusicManager music = MusicPacketServices.Music;
