@@ -17,6 +17,7 @@ public partial class Gear : AbstractMeshManager
     public const string shieldName = "shield_";
     public Transform[] allBone = new Transform[4];
     private GameObject _goCurrentEtcItem;
+    private bool _etcItemReleased;
     [Header("Weapons")]
     [Header("Meta")]
     private Weapon _rightHandWeapon;

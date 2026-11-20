@@ -21,7 +21,6 @@ public partial class SkillListWindow : L2PopupWindow
 
     // _activeName = "Active";
     //_passiveName = "Passive";
-    // _learnName = "Learn Skill";
 
 
 

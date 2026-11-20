@@ -31,7 +31,8 @@ public static class SkillToggleState
                 EffectHolder holder = effects[i];
                 if (holder == null)
                     continue;
-                if (SkillToggleRules.IsToggle(holder.Id, holder.Value))
+                if (SkillToggleRules.IsToggle(holder.Id, holder.Value) ||
+                    SkillToggleRules.IsToggle(holder.Id, 1))
                     next.Add(holder.Id);
             }
         }

@@ -74,6 +74,7 @@ public partial class CharacterCreator
         pawnObject.transform.SetParent(container.transform, true);
         pawnObject.SetActive(true);
         LobbyPresentation.ApplyLayer(pawnObject);
+        EntitySpawnShared.EnsureEntityClickArea(pawnObject);
         BindLobbyPawnPresentation(pawnObject);
     }
 }

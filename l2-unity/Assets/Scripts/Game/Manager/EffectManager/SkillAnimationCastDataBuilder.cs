@@ -92,6 +92,16 @@ public static class SkillAnimationCastDataBuilder
                 // $"hitMs={hitTimeMs} — FX will fall back to HitTime/settings lifetime.");
         }
 
+        // Interlude SkillEffectFinalize: when the clip has no AttackShot notify the client fires
+        // TriggerShot on the first casting tick instead of waiting for an event. SpAtk06_hand
+        // (Dash, Ultimate Evasion, Focus Chance, Escape Shackle) carries no notify at all, so its
+        // OnAnimationShoot parts (e.g. mo_dash_v4 mo_dash_ta, the burst at the feet) never
+        // spawned and the cast ended up artless.
+        if (PlayerStateSpAtk.IsSpAtk06Gesture(spatkName))
+        {
+            castData.SpawnShotVisualsImmediately = true;
+        }
+
         return castData;
     }
 }

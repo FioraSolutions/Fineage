@@ -8,11 +8,13 @@ public partial class UserEntity : NetworkEntity
         if (_networkAnimationReceive == null)
             return 0f;
 
-        PlayerAppearance appearance = _appearance as PlayerAppearance;
-        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
-        float anim = appearance != null
-            ? CharTemplateRegistry.GetRunSpeed(appearance.BaseClass, appearance.Sex, serverValue, twoHanded)
-            : UpdateAnimRunSpeed(serverValue);
+        float unity = NumberUtils.ScaleToUnity(serverValue);
+        float anim = global::LocomotionGait.Rate(
+            _networkAnimationReceive.GetAnimator(),
+            AnimationNames.RUN.Concat(WeaponSuffix()),
+            unity,
+            global::LocomotionGait.MinRunRate,
+            global::LocomotionGait.MaxRate);
         _networkAnimationReceive.SetRunSpeed(anim);
         return anim;
     }
@@ -22,12 +24,23 @@ public partial class UserEntity : NetworkEntity
         if (_networkAnimationReceive == null)
             return;
 
-        PlayerAppearance appearance = _appearance as PlayerAppearance;
-        bool twoHanded = _gear != null && _gear.IsTwoHandedEquipped();
-        float anim = appearance != null
-            ? CharTemplateRegistry.GetWalkSpeed(appearance.BaseClass, appearance.Sex, serverValue, twoHanded)
-            : UpdateAnimWalkSpeed(serverValue);
+        float unity = NumberUtils.ScaleToUnity(serverValue);
+        float anim = global::LocomotionGait.Rate(
+            _networkAnimationReceive.GetAnimator(),
+            AnimationNames.WALK.Concat(WeaponSuffix()),
+            unity,
+            global::LocomotionGait.MinWalkRate,
+            global::LocomotionGait.MaxRate);
         _networkAnimationReceive.SetWalkSpeed(anim);
+    }
+
+    string WeaponSuffix()
+    {
+        if (_gear != null && !string.IsNullOrEmpty(_gear.WeaponAnim))
+            return _gear.WeaponAnim;
+        if (!string.IsNullOrEmpty(WeaponAnim))
+            return WeaponAnim;
+        return "hand";
     }
 
     public void LogSpeed(string where)

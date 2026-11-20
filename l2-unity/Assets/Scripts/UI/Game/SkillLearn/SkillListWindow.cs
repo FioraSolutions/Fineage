@@ -13,7 +13,6 @@ public partial class SkillListWindow : L2PopupWindow
     private VisualTreeAsset _tabHeaderTemplate;
     private VisualTreeAsset _templateActiveSkill;
     private VisualTreeAsset _templatePassiveSkill;
-    private VisualTreeAsset _templateLearnSkill;
 
     private VisualTreeAsset _templateBoxPanel;
     private VisualTreeAsset _templateSlotSkill;
@@ -21,7 +20,6 @@ public partial class SkillListWindow : L2PopupWindow
 
     private const string _activeName = "Active";
     private const string _passiveName = "Passive";
-    private const string _learnName = "Learn Skill";
     private Dictionary<int, SkillInstance> _allSkills;
     private List<SkillInstance> _pendingSkills;
 

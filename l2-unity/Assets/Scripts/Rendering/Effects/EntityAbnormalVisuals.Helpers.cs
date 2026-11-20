@@ -64,6 +64,33 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
             EnsureStunStars();
         else
             ClearStunStars();
+
+        if ((flags & AbnormalAveFlags.Stealth) != 0)
+            ApplyStealth();
+        else
+            ClearStealth();
+    }
+
+    /// <summary>Official Interlude AVE_STEALTH: the pawn becomes semi-invisible, including the local hero.</summary>
+    void ApplyStealth()
+    {
+        if (_stealthed || _entity == null)
+            return;
+        if (!_stealthFade.TryBegin(_entity, StealthAlphaByte, out _stealthRenderers, out _stealthInstances, out _stealthShared))
+            return;
+        _stealthFade.SetAlphaByte(_stealthInstances, StealthAlphaByte);
+        _stealthed = true;
+    }
+
+    void ClearStealth()
+    {
+        if (!_stealthed)
+            return;
+        _stealthFade.Restore(_stealthRenderers, _stealthShared, _stealthInstances);
+        _stealthRenderers = null;
+        _stealthInstances = null;
+        _stealthShared = null;
+        _stealthed = false;
     }
 
     void EnsureStunStars()
@@ -151,6 +178,7 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
         ClearFx(ref _rootFx);
         ClearFx(ref _poisonFx);
         ClearStunStars();
+        ClearStealth();
         _pose = AbnormalPoseKind.None;
         _flags = AbnormalAveFlags.None;
     }

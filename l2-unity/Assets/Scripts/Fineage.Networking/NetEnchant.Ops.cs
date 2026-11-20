@@ -53,6 +53,9 @@ public static partial class NetEnchant
             case "slot_mismatch":
             case "grade_mismatch":
             case "max_enchant":
+            case "enchant_busy":
+            case "enchant_casting":
+            case "enchant_store":
                 return true;
             default:
                 return false;
@@ -82,6 +85,12 @@ public static partial class NetEnchant
                 return "You cannot enchant while dead.";
             case "not_owned":
                 return "That item is not in your inventory.";
+            case "enchant_busy":
+                return "You are already enchanting an item.";
+            case "enchant_casting":
+                return "You cannot enchant while casting.";
+            case "enchant_store":
+                return "You cannot enchant while operating a Private Store or Private Workshop.";
             default:
                 return NetEquipNotices.Line(code, message);
         }

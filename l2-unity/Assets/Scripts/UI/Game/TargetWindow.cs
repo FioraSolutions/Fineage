@@ -24,8 +24,8 @@ public partial class TargetWindow : L2Window
     private VisualElement _propertiesRow;
     private Button _expandButton;
 
-    [SerializeField] private float _targetWindowMinWidth = 175.0f;
-    [SerializeField] private float _targetWindowMaxWidth = 300.0f;
+    [SerializeField] private float _targetWindowMinWidth = 176.0f;
+    [SerializeField] private float _targetWindowMaxWidth = 420.0f;
 
     private bool _expanded;
     private int _boundNpcId = -1;
@@ -46,18 +46,19 @@ public partial class TargetWindow : L2Window
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static TargetWindow Instance { get { return _instance; } }
 
-
-
-    
-
-
-
-
-
     /// <summary>
-    /// Interlude TargetStatus: HP gauge only for attackable monsters. Self / other players /
-    /// village NPCs show name (and effects) without the red bar.
+    /// Interlude TargetStatusWnd: barHP only for attackable monsters. Self / other characters /
+    /// village NPCs show the name (and their own abnormal icons) without the red gauge.
     /// </summary>
-
-  
+    internal static bool ShouldHideHpBar(TargetData targetData)
+    {
+        EntityIdentity identity = targetData?.Identity;
+        if (identity == null)
+            return true;
+        if (identity.Owned)
+            return true;
+        if (identity.EntityType == EntityType.Player || identity.EntityType == EntityType.User)
+            return true;
+        return identity.IsHideHpBar;
+    }
 }

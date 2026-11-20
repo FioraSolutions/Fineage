@@ -37,8 +37,7 @@ public partial class EtcItemgrpTable
 
                 if (_etcItemGrps.TryGetValue(id, out EtcItemgrp existing))
                 {
-                    if (string.IsNullOrEmpty(existing.DropModel))
-                        ApplyInterludeDropFields(existing, ids);
+                    ApplyInterludeDropFields(existing, ids);
                 }
                 else
                 {
@@ -67,7 +66,7 @@ public partial class EtcItemgrpTable
             grp.DropTexture = dropTex;
 
         string icon = ReadCell(ids, InterludeIcon);
-        if (!string.IsNullOrEmpty(icon) && string.IsNullOrEmpty(grp.Icon))
+        if (!string.IsNullOrEmpty(icon))
             grp.Icon = icon;
 
         string equip = ReadCell(ids, InterludeEquipMesh);
@@ -87,6 +86,26 @@ public partial class EtcItemgrpTable
             grp.DropRadius = dropRadius;
         if (TryReadInt(ids, InterludeDropHeight, out int dropHeight))
             grp.DropHeight = dropHeight;
+
+        // Classic key=value rows already have consume_type / etcitem_type. Interlude-only
+        // items (Mana Potion 728, …) used to be inserted with defaults: ConsumeType=Normal
+        // and EtcItemType=null, so the GM shop treated them as unique trade goods and
+        // UseItem NRE'd on EtcItemType.ToString().
+        if (TryReadInt(ids, InterludeStackable, out int stackable)
+            && grp.ConsumeType == ConsumeCategory.Normal)
+        {
+            // Do not overwrite a Classic Stackable/Asset value. Enchant scrolls are
+            // stackable=0 in Interlude but consume_type_stackable in Classic.
+            grp.ConsumeType = ConsumeType.FromInterludeStackable(stackable);
+        }
+
+        if (string.IsNullOrEmpty(grp.EtcItemType))
+        {
+            if (TryReadInt(ids, InterludeFamily, out int family))
+                grp.EtcItemType = ConsumeType.EtcItemTypeFromInterludeFamily(family);
+            else
+                grp.EtcItemType = "none";
+        }
     }
 
     static string ReadCell(string[] ids, int index)
@@ -119,5 +138,24 @@ public partial class EtcItemgrpTable
     bool IsIndexValid<T>(T[] array, int index)
     {
         return index >= 0 && index < array.Length;
+    }
+
+    /// <summary>
+    /// Official client tables mark some Fineage-stackable items as Normal
+    /// (stackable column 0 / consume_type_normal). Promote those ids after
+    /// Classic+Interlude load; leave Asset and already-Stackable rows alone.
+    /// </summary>
+    void ApplyServerStackableOverrides()
+    {
+        if (_etcItemGrps == null)
+            return;
+        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/ItemStackable_override.txt");
+        if (!File.Exists(dataPath))
+            return;
+        foreach (int id in ConsumeType.ReadStackableOverrideIds(File.ReadAllLines(dataPath)))
+        {
+            if (_etcItemGrps.TryGetValue(id, out EtcItemgrp grp))
+                grp.ConsumeType = ConsumeType.PromoteServerStackable(grp.ConsumeType);
+        }
     }
 }

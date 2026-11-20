@@ -11,8 +11,18 @@ public static partial class EntitySpawnShared
         NpcName npcName = request.NpcName;
 
         Appearance appearance = new Appearance();
-        appearance.RHand = npcgrp.Rhand;
-        appearance.LHand = npcgrp.Lhand;
+        // Server NpcInfo rhand/lhand wins when present (Mobius); otherwise the npcgrp table.
+        int rhand = npcgrp.Rhand;
+        int lhand = npcgrp.Lhand;
+        if (NetNpcSession.TryGetEquipment(identity.Id, out int serverRhand, out int serverLhand))
+        {
+            if (serverRhand > 0)
+                rhand = serverRhand;
+            if (serverLhand > 0)
+                lhand = serverLhand;
+        }
+        appearance.RHand = rhand;
+        appearance.LHand = lhand;
         appearance.CollisionRadius = npcgrp.CollisionRadius;
         appearance.CollisionHeight = npcgrp.CollisionHeight;
 

@@ -32,6 +32,11 @@ public partial class UserEntity : NetworkEntity
             // " gear=" + (_gear != null ? _gear.GetType().Name : "null"));
         EquipAllWeapons();
         EquipAllArmors();
+        UserGear userGear = _gear as UserGear;
+        if (userGear != null)
+            userGear.SyncArmorEnchantGlows();
+        if (_gear != null)
+            _gear.SyncEnchantGlows();
     }
 
     public override float UpdateRunSpeed(float speed)

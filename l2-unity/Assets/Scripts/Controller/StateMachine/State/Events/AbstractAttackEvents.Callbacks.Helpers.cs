@@ -65,6 +65,7 @@ public abstract partial class AbstractAttackEvents
                         // $"uuAccel=3000 path=(t/T)^2 (compare vs decompile ANSkillProjectileTick.log)");
 
                     ProjectilePacketServices.Projectiles.LaunchProjectile(go, startPos, target, settings);
+                    DomainPacketServices.LocalPlayer.ReleaseEtcItem();
                     break;
                 }
 
@@ -74,7 +75,14 @@ public abstract partial class AbstractAttackEvents
 
     private void CallBackLoadArrow(string animName)
     {
-        DomainPacketServices.LocalPlayer.EquipArrow(WOODEN_ARROW);
+        PlayerEntity player = DomainPacketServices.LocalPlayer;
+        if (player == null)
+            return;
+        // After release the flying arrow is no longer the hand item. Do not nock a new
+        // one until the next bow clip starts (LoadArrow in this same shot would look stuck).
+        if (player.EtcItemReleased)
+            return;
+        player.EquipArrow(WOODEN_ARROW);
     }
 
     private void CallBackAttackShot(string animName)
@@ -158,6 +166,15 @@ public abstract partial class AbstractAttackEvents
         }
 
         if (animName.IndexOf("bow", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return false;
+        }
+
+        // SpAtk06 (AnimationCombo_Classic "X": Ultimate Evasion, Dash, Focus Chance,
+        // Escape Shackle) is a self-buff gesture in every race — hands up, no weapon
+        // contact. Even if a clip wrongly carries an AttackShot notify, casting a buff
+        // must never emit a sword hit on the selected target.
+        if (animName.IndexOf("SpAtk06", System.StringComparison.OrdinalIgnoreCase) >= 0)
         {
             return false;
         }

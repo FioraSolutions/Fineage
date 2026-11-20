@@ -16,6 +16,18 @@ public static class L2ResourceBarView
         if (bar == null || barBg == null)
             return;
 
+        float clamped = Mathf.Clamp01(ratio);
+
+        // Authored percentage fill: the TargetStatus plate stretches horizontally, so its gauge must be
+        // expressed as a percentage of the container. Pixel math there drifts from the stretched
+        // background on every resize. The flag is checked before layout resolves, so the first frame
+        // is already correct instead of showing a stale 100% bar.
+        if (UsesPercentFill(bar))
+        {
+            bar.style.width = Length.Percent(clamped * 100f);
+            return;
+        }
+
         float bgWidth = barBg.resolvedStyle.width;
         if (float.IsNaN(bgWidth) || bgWidth <= 1f || !float.IsFinite(bgWidth))
             bgWidth = fallbackWidth;
@@ -23,9 +35,25 @@ public static class L2ResourceBarView
         if (bgWidth <= 0f || !float.IsFinite(bgWidth))
             return;
 
-        float clamped = Mathf.Clamp01(ratio);
         float width = bgWidth * clamped;
         bar.style.width = width > 0f ? width : 0f;
+    }
+
+    /// <summary>
+    /// Authored percentage fill: UXML marks the gauge's fill element with <c>l2-bar-percent-fill</c>
+    /// when the bar lives in a container whose width is the plate width. Such a bar is never
+    /// measured in pixels, so resizing the window cannot desynchronise fill from the background.
+    /// </summary>
+    const string PercentFillClass = "l2-bar-percent-fill";
+
+    static bool UsesPercentFill(VisualElement bar)
+    {
+        for (VisualElement e = bar; e != null; e = e.parent)
+        {
+            if (e.ClassListContains(PercentFillClass))
+                return true;
+        }
+        return false;
     }
 
     /// <summary>Interlude CharacterInfo uses authored chrome widths instead of resolvedStyle.</summary>

@@ -16,13 +16,18 @@ public partial class CharSelectWindow
     private void StartGamePressed()
     {
         LobbyCharacter selected = SelectedLobbyCharacter();
-        if (!LobbyCharacterText.CanEnter(selected))
+        if (!LobbyCharacterText.CanEnter(selected) || !_enterWorld.TryBegin())
             return;
         if (_startButton != null)
             _startButton.SetEnabled(false);
+        ShowLobbyStatus("Entering the world...");
+        BeginEnterWorldAttempt();
         NetSession session = NetSession.TryGetBound();
         if (session == null)
+        {
+            NotifyEnterWorldFailed("Login connection lost.");
             return;
+        }
         _ = session.SelectCharacter(selected.Id, selected.Name, selected.Slot);
     }
 }

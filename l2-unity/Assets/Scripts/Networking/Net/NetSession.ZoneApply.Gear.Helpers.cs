@@ -37,6 +37,14 @@ public sealed partial class NetSession
         int objectId = (int)move.EntityValue;
         Vector3 dest = VectorUtils.ConvertPosToUnity(new Vector3(move.DestX, move.DestY, move.DestZ));
         Vector3 origin = VectorUtils.ConvertPosToUnity(new Vector3(move.OriginX, move.OriginY, move.OriginZ));
+        World world = WorldApplyPacketServices.GameWorld ?? ControllerPacketServices.GameWorld;
+        Entity mover = world != null ? world.GetEntityNoLockSync(objectId) : null;
+        if (mover != null)
+        {
+            if (mover.Identity != null)
+                mover.Identity.IsRunning = move.Running;
+            mover.UpdateMoveType(move.Running);
+        }
         var domain = new DomainMoveTo
         {
             ObjectId = objectId,

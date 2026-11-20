@@ -18,7 +18,8 @@ public static partial class EntitySpawnShared
         else if (identity.EntityType == EntityType.Monster)
             poolType = ObjectType.Monster;
 
-        Vector3 serverPos = identity.Position;
+        identity.RememberServerPosition();
+        Vector3 serverPos = identity.ServerPosition;
         WorldPlacement.PlacementKind kind = identity.EntityType == EntityType.Monster
             ? WorldPlacement.PlacementKind.MonsterSpawn
             : WorldPlacement.PlacementKind.NpcSpawn;
@@ -32,7 +33,8 @@ public static partial class EntitySpawnShared
             if (pooled != null)
             {
                 WorldPlacement.ApplyPose(pooled, placePos, identity.Heading);
-                WorldPlacement.SettleFeet(pooled, placePos);
+                L2OverheadAnchor.Invalidate(identity.Id);
+                EnsureEntityClickArea(pooled);
                 return pooled;
             }
         }
@@ -43,11 +45,12 @@ public static partial class EntitySpawnShared
 
         GameObject npcGo = Object.Instantiate(prefab, placePos, identity.Heading);
         WorldPlacement.ApplyPose(npcGo, placePos, identity.Heading);
-        WorldPlacement.SettleFeet(npcGo, placePos);
+        L2OverheadAnchor.Invalidate(identity.Id);
 
         if (prefabWasActive)
             prefab.SetActive(true);
 
+        EnsureEntityClickArea(npcGo);
         return npcGo;
     }
 
@@ -59,7 +62,6 @@ public static partial class EntitySpawnShared
             go.transform.SetParent(parent);
         Vector3 grounded = WorldPlacement.Resolve(WorldPlacement.PlacementKind.WalkValidate, position);
         WorldPlacement.ApplyPose(go, grounded, rotation);
-        WorldPlacement.SettleFeet(go, grounded);
         if (!string.IsNullOrEmpty(name))
             go.transform.name = name;
     }

@@ -6,6 +6,9 @@ public partial class EntityActionSkill
 {
     static void ExecuteMagicSkill(Entity entity, MagicSkillUseDto magic, Entity target)
     {
+        if (magic != null && target != null && target != entity)
+            EntityActionPendingDeath.ArmSkillHit(target, magic.HitTime);
+
         AnimationCombo combo = GetCombo(magic);
         string raceName = entity.RaceId.ToString();
         if (magic.SkillId == 4247)

@@ -8,6 +8,34 @@ public partial class EntityActionVisual
     /// until the zone sends <c>WT_STOP_FAKEDEATH</c>.
     /// </summary>
     static int _fakeDeathPoseEntityId;
+    /// <summary>Every pawn currently seated (hero and remote players), released on WT_STANDING.</summary>
+    static readonly System.Collections.Generic.HashSet<int> _sitPoseEntityIds = new System.Collections.Generic.HashSet<int>();
+
+    public static bool IsSitPoseHeld(Entity entity)
+    {
+        return entity != null && entity.Identity != null &&
+            _sitPoseEntityIds.Contains(entity.Identity.Id);
+    }
+
+    public static bool IsSitPoseHeld(int objectId)
+    {
+        return objectId > 0 && _sitPoseEntityIds.Contains(objectId);
+    }
+
+    public static void HoldSitPose(Entity entity)
+    {
+        if (entity == null || entity.Identity == null)
+            return;
+        _sitPoseEntityIds.Add(entity.Identity.Id);
+    }
+
+    public static void ClearSitPose(Entity entity = null)
+    {
+        if (entity == null)
+            _sitPoseEntityIds.Clear();
+        else if (entity.Identity != null)
+            _sitPoseEntityIds.Remove(entity.Identity.Id);
+    }
 
     public static bool IsFakeDeathPoseHeld(Entity entity)
     {
@@ -27,12 +55,14 @@ public partial class EntityActionVisual
             return;
 
         ClearFakeDeathPose(entity);
+        ClearSitPose(entity);
         // Only the remote-pawn shape carries the swing latch; the local hero has none.
         if (entity is UserEntity user)
             user.ClearAttackVisual();
 
         ControllerPacketServices.Animations.PlayExactAnimatorState(
             entity.Identity.Id, PlayerDeathAnim.Death, alreadyCorpse);
+        PlayUserDeathSound(entity);
     }
 
     /// <summary>
@@ -46,6 +76,7 @@ public partial class EntityActionVisual
 
         if (entity is UserEntity user)
             user.ClearAttackVisual();
+        ClearSitPose(entity);
         // The pose interrupts a cast/social channel; drop the hero's swing latch too.
         AnimChannel.Clear();
         CastMoveLock.Clear();
@@ -58,7 +89,27 @@ public partial class EntityActionVisual
         _fakeDeathPoseEntityId = entity.Identity.Id;
         ControllerPacketServices.Animations.PlayExactAnimatorState(
             entity.Identity.Id, PlayerDeathAnim.Death);
+        PlayUserDeathSound(entity);
         // Debug.Log("[FAKEDEATH] pose held id=" + entity.Identity.Id);
+    }
+
+    static void PlayUserDeathSound(Entity entity)
+    {
+        if (entity == null)
+            return;
+
+        CharacterAnimationAudioHandler handler =
+            entity.GetComponentInChildren<CharacterAnimationAudioHandler>(true);
+        if (handler != null)
+        {
+            handler.PlaySound(CharacterSoundEvent.Death);
+            return;
+        }
+
+        if (AudioPacketServices.Audio == null)
+            return;
+        AudioPacketServices.Audio.PlayCharacterSound(
+            CharacterSoundEvent.Death, CharacterRaceSound.Default, entity.transform.position);
     }
 
     /// <summary>Release the fake-death latch (wake-up, real death, or a fresh spawn reusing the id).</summary>

@@ -31,6 +31,11 @@ public sealed partial class NetLobbyFlow
 
     public void Dispose()
     {
+        DisposeLobby();
+    }
+
+    public void DisposeLobby()
+    {
         _lobby?.Dispose();
         _lobby = null;
     }
@@ -38,9 +43,16 @@ public sealed partial class NetLobbyFlow
     void OnLobbyClosed(string reason)
     {
         Debug.Log("[Net] lobby " + reason);
-        if (!_awaitingLoginUi)
-            return;
         _awaitingLoginUi = false;
+        // Login commonly drops the lobby socket after Handoff. Zone enter is already
+        // in flight — aborting it here left Start appearing to do nothing.
+        if (HasHandoff)
+            return;
+        if (CharSelectEnterWorld.IsEntering)
+        {
+            CharSelectEnterWorld.Failed("Login connection lost.");
+            return;
+        }
         ShowLoginFailure("Connection lost.");
     }
 }

@@ -11,6 +11,11 @@ public partial class PlayerEntity : Entity
             // " gear=" + (_gear != null ? _gear.GetType().Name : "null"));
         EquipAllWeapons();
         EquipAllArmors();
+        UserGear userGear = _gear as UserGear;
+        if (userGear != null)
+            userGear.SyncArmorEnchantGlows();
+        if (_gear != null)
+            _gear.SyncEnchantGlows();
     }
 
     void OnDestroy()

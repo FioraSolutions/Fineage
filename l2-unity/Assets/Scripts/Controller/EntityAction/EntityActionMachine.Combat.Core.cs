@@ -27,7 +27,14 @@ public sealed partial class EntityActionMachine
             if (entity.ActionSlot != null)
                 entity.ActionSlot.Target = null;
             EntityActionVisual.CancelMove(entity);
-            EntityActionVisual.PlayDeath(entity, alreadyCorpse);
+            if (!alreadyCorpse && EntityActionPendingDeath.ShouldDefer(entity))
+            {
+                EntityActionPendingDeath.Queue(entity, alreadyCorpse, src);
+            }
+            else
+            {
+                EntityActionVisual.PlayDeath(entity, alreadyCorpse);
+            }
             Set(entity, EntityActionKind.Stop, null);
         }
 

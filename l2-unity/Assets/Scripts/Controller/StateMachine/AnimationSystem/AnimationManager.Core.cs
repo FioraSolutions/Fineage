@@ -65,6 +65,11 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         // Locomotion: wait_/walk_/run_/atkwait_* → CrossFadeInFixedTime (bool graph bypass).
         if (PlayerLocomotionAnim.TryResolve(finalAnimName, out string locoStateName, out PlayerLocomotionFamily family))
         {
+            // Sitting is held until WT_STANDING (same idea as Fake Death): a later wait/atkwait/walk
+            // CrossFade must not stand the pawn up. "sit" itself is not locomotion, so it still plays.
+            if (EntityActionVisual.IsSitPoseHeld(objectId))
+                return;
+
             // Dedicated AtkWait path — breakpoint here to see callers / skip vs play.
             if (family == PlayerLocomotionFamily.AtkWait)
             {

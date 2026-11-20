@@ -4,7 +4,7 @@ using UnityEngine;
 /// Playback-rate channels for character animators. Keep them orthogonal:
 /// <list type="bullet">
 /// <item><b>Locomotion</b> — Animator floats <c>run_speed</c> / <c>walk_speed</c>
-/// (<see cref="CharTemplateRegistry"/>, <see cref="NumberUtils.NpcLocomotionAnimRate()"/>).</item>
+/// (<see cref="LocomotionGait"/>).</item>
 /// <item><b>Combat</b> — Animator float <c>patkspd</c> and <see cref="CastClipPlayable"/> phase speeds.</item>
 /// <item><b>Gesture</b> — fixed <see cref="GestureRate"/> (pickup, death, rebirth, lobby social).
 /// Gesture AnimatorStates must not use locomotion/combat speed parameters.</item>
@@ -13,6 +13,16 @@ using UnityEngine;
 public static class AnimPlayback
 {
     public const float GestureRate = 1f;
+
+    /// <summary>
+    /// Rate that plays an imported clip at its retail wall-clock length. L2 sequences are
+    /// authored at 30 fps (AnimTween col "rate") but the imported clips keep the same keys on a
+    /// 24 fps timeline, so the timeline is 25% longer and has to be scrubbed faster
+    /// (46-frame SpAtk06 = 45/24 s in Unity, 45/30 s in the client).
+    /// Use for animation that is not driven by combat speed, e.g. buff gestures.
+    /// </summary>
+    public const float AuthoredRate = 30f / 24f;
+
     /// <summary>
     /// Interlude PicItem is a short authored gesture (~4 frames @ 24fps ≈ 0.17s for MMagic).
     /// Not tied to server HitTime / PAtk — play at clip length, do not stretch.

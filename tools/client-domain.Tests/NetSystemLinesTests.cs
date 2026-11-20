@@ -31,4 +31,23 @@ public class NetSystemLinesTests
         Assert.Equal("Wear is not available.", NetSystemLines.Resolve(189, "", null));
         Assert.Equal("Your warehouse is full.", NetSystemLines.Resolve(194, "", null));
     }
+
+    [Fact]
+    public void Enchant_catalog_lines_fill_an_empty_system_message()
+    {
+        Assert.Equal("Select an item to enchant.", NetSystemLines.Resolve(10, "", null));
+        Assert.Equal("You have cancelled the enchanting process.", NetSystemLines.Resolve(11, null, null));
+        Assert.Equal("Your Sword has been successfully enchanted.",
+            NetSystemLines.Resolve(12, "", new[] { "Sword" }));
+        Assert.Equal("Your +3 Sword has been successfully enchanted.",
+            NetSystemLines.Resolve(13, "", new[] { "3", "Sword" }));
+        Assert.Equal("Enchant failed. The enchant value of the item will be retained.",
+            NetSystemLines.Resolve(14, "", null));
+        Assert.Equal("The enchantment has failed. Your Sword has been crystallized.",
+            NetSystemLines.Resolve(19, "", new[] { "Sword" }));
+        Assert.Equal("You have earned 12 Crystal (D-Grade).",
+            NetSystemLines.Resolve(20, "", new[] { "12", "Crystal (D-Grade)" }));
+        Assert.Equal("Inappropriate enchant conditions.", NetSystemLines.Resolve(355, "", null));
+        Assert.Equal("Server already wrote this.", NetSystemLines.Resolve(10, "Server already wrote this.", null));
+    }
 }

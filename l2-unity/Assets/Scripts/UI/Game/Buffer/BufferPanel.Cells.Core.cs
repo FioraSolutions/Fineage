@@ -38,8 +38,10 @@ public partial class BufferPanel
 
     public void AddDataCellToTime(int skillId, int skillLevel, int time)
     {
-
-        if (skillLevel == 0) return;
+        // Live abnormals must appear even when the wire level is 0 (toggles use abnormalTime = -1
+        // and may carry only an abnormal level). skillgrp lookup falls back to level 1.
+        if (skillLevel <= 0)
+            skillLevel = 1;
 
         Skillgrp skill = SkillGrps.GetSkill(skillId, skillLevel);
         if (skill == null)

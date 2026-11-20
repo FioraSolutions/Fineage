@@ -16,6 +16,8 @@ public class PlayerAppearance : Appearance
     public int Gloves;
     public int Feet;
     public int WeaponEnchant;
+    /// <summary>Per-paperdoll-slot enchant (same 17-wide order as UserInfo paperdoll).</summary>
+    public int[] SlotEnchant = new int[17];
     public bool PaperdollReady;
     public PaperDollSelection PaperDoll { get; } = new();
 

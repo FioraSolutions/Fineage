@@ -50,4 +50,24 @@ public static class LocalCastStop
         // A queued MoveToPawn chase would otherwise resume the run after the cast.
         machine.IsMoveToPawn = false;
     }
+
+    /// <summary>
+    /// Mobius <c>stopMove</c> before <c>doAttack</c>: the pawn stands still as the swing starts,
+    /// for every weapon. Does not flip the intention to idle — the attack intention is entering.
+    /// </summary>
+    public static void HaltForAttack()
+    {
+        PlayerController player = ControllerPacketServices.Player;
+        if (player != null)
+            player.StopMove();
+
+        PlayerStateMachine machine = PlayerStatePacketServices.PlayerState;
+        if (machine == null)
+            return;
+
+        if (machine.State == PlayerState.RUNNING || machine.State == PlayerState.WALKING)
+            machine.NotifyEvent(Event.ARRIVED);
+
+        machine.IsMoveToPawn = false;
+    }
 }

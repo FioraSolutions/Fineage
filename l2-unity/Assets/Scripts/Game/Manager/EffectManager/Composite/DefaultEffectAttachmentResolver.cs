@@ -33,7 +33,7 @@ public partial class DefaultEffectAttachmentResolver : IEffectAttachmentResolver
         switch (point)
         {
             case EffectAttachmentPoint.CasterRoot:
-                return ResolveRoot(context.CasterTransform, out resolvedTransform, out worldPosition);
+                return ResolveCasterRoot(context, out resolvedTransform, out worldPosition);
             case EffectAttachmentPoint.CasterLowerBody:
                 return ResolveLowerBody(context.CasterEntity, context.CasterTransform, out resolvedTransform, out worldPosition);
             case EffectAttachmentPoint.WeaponSocket:

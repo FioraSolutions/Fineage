@@ -32,6 +32,7 @@ public sealed partial class EntityActionStop : IEntityActionProcess
         if (entity == null || entity.Identity == null || dto == null)
             return;
 
+        entity.Identity.SetServerPosition(dto.StopPos);
         Vector3 stop = GroundSnapHelper.SnapToGroundOrKeep(dto.StopPos);
         float snapD = Vector3.Distance(entity.transform.position, stop);
         float skipM = pawnRange != null

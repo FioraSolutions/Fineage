@@ -37,19 +37,15 @@ public partial class SkillbarSlot
         if (_shortcut == null)
             return;
 
-        // Interlude: a soulshot / spiritshot shortcut is an auto-use switch, not a "use one" button.
-        // Clicking it arms automatic charging (the icon lights up) and clicking again disarms it.
-        if (TryToggleAutoShot())
-            return;
-
-        // Debug.LogWarning($"Use bar slot {_position}.");
+        // Interlude / Mobius: left click (and the hotkey) uses the item once. Shot auto-use is
+        // a right-click toggle that waits for the zone's AutoSoulShot before the shine appears.
         SkillbarPacketServices.Shortcuts.UseShortcut(_shortcut);
     }
 
     protected override void HandleRightClick()
     {
-        // The original client toggles shots with the left click; the right click does it too so the
-        // gesture mouse players reach for first works, and it stays a no-op for every other shortcut.
+        // Official Interlude: right-clicking a soulshot / spiritshot / beast shot shortcut
+        // sends RequestAutoSoulShot. Other shortcut types stay a no-op.
         TryToggleAutoShot();
     }
 }

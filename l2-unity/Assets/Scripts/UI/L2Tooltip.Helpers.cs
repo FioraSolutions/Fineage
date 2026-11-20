@@ -27,6 +27,7 @@ public partial class L2ToolTip : L2PopupWindow
         _tooltipTarget = target;
 
         ShowWindow();
+        TooltipLifecycle.WatchSource(target, ForceHide);
 
         if (_updateStyleCoroutine != null)
         {
@@ -40,6 +41,12 @@ public partial class L2ToolTip : L2PopupWindow
     {
         while (true)
         {
+            if (target == null || !TooltipLifecycle.IsInteractable(target))
+            {
+                ForceHide();
+                yield break;
+            }
+
             _title.text = title;
 
             yield return new WaitForEndOfFrame();
@@ -54,13 +61,18 @@ public partial class L2ToolTip : L2PopupWindow
     public void HideWindow(VisualElement exitElement)
     {
         if (exitElement == _tooltipTarget)
-        {
-            base.HideWindow();
+            ForceHide();
+    }
 
-            if (_updateStyleCoroutine != null)
-            {
-                StopCoroutine(_updateStyleCoroutine);
-            }
+    public void ForceHide()
+    {
+        TooltipLifecycle.Unwatch(ForceHide);
+        _tooltipTarget = null;
+        base.HideWindow();
+        if (_updateStyleCoroutine != null)
+        {
+            StopCoroutine(_updateStyleCoroutine);
+            _updateStyleCoroutine = null;
         }
     }
 }

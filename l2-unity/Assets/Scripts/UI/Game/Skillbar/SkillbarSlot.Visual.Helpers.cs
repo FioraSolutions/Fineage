@@ -14,8 +14,8 @@ public partial class SkillbarSlot
         if (!NetAutoShot.IsShotItem(itemId))
             return false;
 
+        // Shine waits for the zone AutoSoulShot packet; do not flip it locally.
         NetAutoShot.Toggle(itemId);
-        RefreshMarks();
         return true;
     }
 
@@ -67,28 +67,13 @@ public partial class SkillbarSlot
         int itemId = ShotItemId();
         bool armed = itemId > 0 && NetAutoShot.IsEnabled(itemId);
 
-        if (!armed)
-        {
-            StopAutoShotWave();
-            if (_autoShotMask != null)
-                _autoShotMask.style.display = DisplayStyle.None;
+        // Same ToggleEffect shine as a running toggle skill. Driven only by the zone's
+        // AutoSoulShot state — never by a local click. Inventory slots do not call this.
+        ToggleSkillShine.Apply(_slotElement, armed, ref _autoShotMask, ref _autoShotPulse);
+        if (armed)
+            _slotElement?.AddToClassList("auto-shot-on");
+        else
             _slotElement?.RemoveFromClassList("auto-shot-on");
-            return;
-        }
-
-        _slotElement?.AddToClassList("auto-shot-on");
-        AutoShotSlotGlow.EnsureOverlay(_slotElement, ref _autoShotMask);
-        if (_autoShotPulse == null)
-            _autoShotPulse = AutoShotSlotGlow.StartWave(_autoShotMask);
-    }
-
-    void StopAutoShotWave()
-    {
-        if (_autoShotPulse != null)
-        {
-            _autoShotPulse.Pause();
-            _autoShotPulse = null;
-        }
     }
 
     protected override void HandleMiddleClick()

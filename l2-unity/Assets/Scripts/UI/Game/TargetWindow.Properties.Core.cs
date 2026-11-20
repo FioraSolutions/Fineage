@@ -18,22 +18,19 @@ public partial class TargetWindow
         if (_windowEle == null)
             return;
 
-        if (_expanded)
+        if (_expandButton != null)
         {
-            _windowEle.AddToClassList("expanded");
-            if (_expandButton != null)
+            if (_expanded)
                 _expandButton.AddToClassList("expanded");
-            if (_propertiesRow != null)
-                _propertiesRow.style.display = DisplayStyle.Flex;
-        }
-        else
-        {
-            _windowEle.RemoveFromClassList("expanded");
-            if (_expandButton != null)
+            else
                 _expandButton.RemoveFromClassList("expanded");
-            if (_propertiesRow != null)
-                _propertiesRow.style.display = DisplayStyle.None;
         }
+
+        if (_propertiesRow != null)
+            _propertiesRow.style.display = _expanded ? DisplayStyle.Flex : DisplayStyle.None;
+
+        // 46px SmallWnd normally; 76px SmallWindow2 plate while the NpcInfo tree is open.
+        RefreshPlateHeight();
     }
 
     void BindProperties(TargetData targetData)
@@ -95,5 +92,7 @@ public partial class TargetWindow
             _propertiesRow.style.display = DisplayStyle.Flex;
         else
             _propertiesRow.style.display = DisplayStyle.None;
+
+        RefreshPlateHeight();
     }
 }

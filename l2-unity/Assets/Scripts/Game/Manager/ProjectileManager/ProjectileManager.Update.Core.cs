@@ -43,12 +43,17 @@ public partial class ProjectileManager
         {
             if (activeProjectiles.TryGetValue(projectileId, out ProjectileData projectile))
             {
+                Entity hit = ResolveProjectileTarget(projectile);
                 if (projectile.prefab != null && projectile.impactType == ProjectileImpactType.EffectOnly)
                 {
                     Destroy(projectile.prefab);
                 }
                 activeProjectiles.Remove(projectileId);
+                if (hit != null)
+                    EntityActionPendingDeath.Flush(hit);
             }
         }
+
+        EntityActionPendingDeath.Tick();
     }
 }

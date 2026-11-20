@@ -789,87 +789,247 @@
     display: none;
 }
 
-.target-window .unity-label {
-    margin: 0;
-    padding: 0;
-    -unity-text-align: middle-center;
-    flex-grow: 1;
-    font-size: 10px;
-}
-
-.target-window .bar-container {
-    height: 14px;
-}
-
-.target-window .bar-inner {
-    min-height: 8px;
-    max-height: 8px;
-    flex-direction: row;
-    flex: 0;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    left: 0;
-    right: 0;
-}
-
-.target-window .bar-inner .bar-height {
-    min-height: 8px;
-    max-height: 8px;
-}
-
-.target-window .bar-inner .left {
-    min-width: 2px;
-    max-width: 2px;
-}
-
-.target-window .bar-inner .right {
-    min-width: 2px;
-    max-width: 2px;
-}
-
-.target-window .bar-inner .center {
-    flex-grow: 1;
-}
-
 .target-window {
+    /* Retail TargetStatusWnd is a fixed plate: 46px, or 76px with the SmallWindow2 trio while
+       NpcInfo is open. Never auto height — the abnormal strip hangs below it as an overlay and
+       used to add its own rows to this box, leaving a tall empty plate. */
     height: 46px;
+    min-height: 46px;
+    max-height: 46px;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    overflow: visible;
 }
 
+/*
+  Interlude TargetStatusWnd: the plate itself is authored at 46px and grows to 76px
+  (SmallWindow2_Back1/2/3_ex) only while the NpcInfo property tree is open.
+*/
 .target-window.expanded {
-    height: auto;
-    min-height: 78px;
+    height: 76px;
+    min-height: 76px;
+    max-height: 76px;
 }
 
+.target-window .target-chrome-row {
+    height: 46px;
+    min-height: 46px;
+    max-height: 46px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+/*
+  SmallWindow_Back1 (16x46) | SmallWindow_Back2 (16x46, stretched) | SmallWindow_Back3_ex (20x46).
+  The taller SmallWindow2 trio (76px) is used when NpcInfo properties are open.
+*/
+.target-window .target-back1 {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back1');
+    -unity-background-scale-mode: stretch-to-fill;
+    width: 16px;
+    min-width: 16px;
+    max-width: 16px;
+    margin: 0;
+    padding: 0;
+}
+
+.target-window .target-back2 {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-background-scale-mode: stretch-to-fill;
+    flex-grow: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.target-window .target-back3 {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back3_Ex');
+    -unity-background-scale-mode: stretch-to-fill;
+    width: 19px;
+    min-width: 19px;
+    max-width: 19px;
+    margin: 0;
+    padding: 0;
+}
+
+.target-window.expanded .target-chrome-row {
+    height: 76px;
+    min-height: 76px;
+    max-height: 76px;
+}
+
+.target-window.expanded .target-back1 {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd2_Back1');
+}
+
+.target-window.expanded .target-back2 {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd2_Back2');
+}
+
+.target-window.expanded .target-back3 {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd2_Back3_Ex');
+}
+
+/* UserName NameCtrl: Tahoma 11, white with the retail black shadow. */
+.target-window .target-name {
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    letter-spacing: 0;
+    -unity-text-align: middle-center;
+    -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
+    color: rgb(255, 255, 255);
+    text-shadow: 0.5px 0.5px 0 rgb(0, 0, 0);
+}
+
+.target-window .target-close-btn {
+    width: 15px;
+    height: 15px;
+    min-width: 15px;
+    min-height: 15px;
+    max-width: 15px;
+    max-height: 15px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseBtn');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.target-window .target-close-btn:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameclosebtn_over');
+}
+
+.target-window .target-close-btn:active,
+.target-window .target-close-btn:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseOnBtn');
+}
+
+/*
+  barHP: the retail gauge is an 8x6 HpBar/HpBar_back strip stretched across the plate.
+  Fill is percentage-based so the gauge stays exact at any window width.
+*/
+.target-window .target-bar-container {
+    height: 6px;
+    min-height: 6px;
+    max-height: 6px;
+    overflow: hidden;
+}
+
+.target-window .target-bar-back {
+    height: 6px;
+    min-height: 6px;
+    max-height: 6px;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_HpBar_Back');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.target-window .target-bar-fill {
+    height: 6px;
+    min-height: 6px;
+    max-height: 6px;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_HpBar');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+/*
+  Target abnormal strip. Stock Interlude TargetStatusWnd has no icon control, so this is the
+  BuffWnd / TargetStatusBuff* extension the retail client paints directly under the plate.
+*/
+/* Painted UNDER the plate like BuffWnd hangs below its window. As a flex sibling the strip
+   added its 24px row to the GroupBox and the plate looked like a tall empty box. */
 .target-window .target-effects-row {
+    position: absolute;
+    left: 16px;
+    right: 0;
+    top: 46px;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    align-self: flex-start;
-    margin-top: 4px;
-    margin-left: 4px;
-    min-height: 24px;
-    /* Live icons sit to the right of the chrome — do not clamp to the HP bar width. */
+    margin: 0;
+    padding: 0;
     max-width: none;
     flex-grow: 0;
     flex-shrink: 0;
+}
+
+/* The strip hangs under the plate; with NpcInfo open the plate is the 76px SmallWindow2 trio. */
+.target-window.expanded .target-effects-row {
+    top: 76px;
 }
 
 .target-window .target-properties-row {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    margin-top: 4px;
-    min-height: 24px;
-    max-width: 147px;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+}
+
+.target-window .target-size-control {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 5px;
+    max-width: 5px;
+    height: 46px;
+    margin: 0;
+    padding: 0;
+    /* Retail TargetStatusWnd is a fixed 176x46 plate and carries no size grip at all. The resize
+       affordance is ours, so it must not paint over SmallWindow_Back3_ex: keep the strip
+       transparent until the pointer is actually on it (see :hover below). */
+    background-image: none;
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-scale: 1px;
+    -unity-slice-top: 3;
+    -unity-slice-bottom: 3;
+    -unity-slice-left: 0;
+    -unity-slice-right: 0;
+}
+
+.target-window .target-size-control:hover {
+    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1');
+}
+
+.target-window.expanded .target-size-control,
+.target-window.expanded .target-size-control .hor-resize-handle {
+    height: 76px;
+}
+
+.target-window .target-size-control .hor-resize-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 46px;
+    margin: 0;
+    padding: 0;
+    /* Same reason: the grip art appears on hover only. */
+    background-image: none;
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-scale: 0;
+    -unity-slice-top: 0;
+    -unity-slice-bottom: 0;
+    -unity-slice-left: 0;
+    -unity-slice-right: 8;
+}
+
+.target-window .target-size-control:hover .hor-resize-handle {
+    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2');
 }
 
 .target-window .target-effect-icon,
 .target-window .target-property-icon {
+    /* Interlude AbnormalStatusWnd: NSTATUSICON_SIZE = 24, so cells sit at a 24px pitch. */
     width: 24px;
     height: 24px;
-    margin-right: 2px;
-    margin-bottom: 2px;
+    margin-right: 0;
+    margin-bottom: 0;
     -unity-background-scale-mode: stretch-to-fill;
     position: relative;
 }
@@ -907,19 +1067,35 @@
     color: rgb(255, 255, 200);
     -unity-text-align: middle-center;
     text-shadow: 1px 1px 0 rgb(0, 0, 0);
-    -unity-font-definition: url("project://database/Assets/Resources/Data/UI/Assets/Font/tahoma.ttf");
+    -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
 }
 
 .target-window .target-expand-btn {
-    width: 12px;
-    height: 12px;
-    min-width: 12px;
-    min-height: 12px;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    max-width: 16px;
+    max-height: 16px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_InfoButton');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.target-window .target-expand-btn:hover {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_InfoButton_Over');
+}
+
+.target-window .target-expand-btn.expanded {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_InfoButton_Down');
 }
 
 .target-window .target-expand-btn #ButtonBg {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     -unity-background-scale-mode: stretch-to-fill;
 }
 

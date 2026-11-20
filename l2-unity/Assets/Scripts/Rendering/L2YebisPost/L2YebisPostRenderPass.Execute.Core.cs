@@ -152,13 +152,16 @@ public sealed partial class L2YebisPostRenderPass
                 }
             }
 
-            CoreUtils.SetRenderTarget(cmd, cameraColor, ClearFlag.None, Color.clear);
+            if (cameraDepth != null)
+                CoreUtils.SetRenderTarget(cmd, cameraColor, cameraDepth, ClearFlag.None, Color.clear);
+            else
+                CoreUtils.SetRenderTarget(cmd, cameraColor, ClearFlag.None, Color.clear);
             if (captureFolder != null && _captureScene != null && _captureScene.rt != null && _captureGrade != null && _captureGrade.rt != null && _captureControl != null && _captureControl.rt != null)
             {
                 // Debug.Log("[Yebis] ReadAfterFrame после записи своих RT, не временных целей URP");
                 L2YebisLiveCapture.ReadAfterFrame(captureFolder, _captureScene.rt, _captureGrade.rt, _captureControl.rt);
             }
-            L2NameplateOverlayQueue.Flush(cmd);
+            L2NameplateOverlayQueue.Flush(cmd, depthTest: cameraDepth != null);
             MaybeLogYebis(cmd, cameraColor);
     }
 
