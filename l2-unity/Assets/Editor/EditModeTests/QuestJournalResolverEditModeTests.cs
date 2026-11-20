@@ -1,4 +1,6 @@
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 public sealed class QuestJournalResolverEditModeTests
 {
@@ -21,6 +23,7 @@ public sealed class QuestJournalResolverEditModeTests
         var table = new QuestNameTable();
         TablePacketServices.Bind(questNames: table);
         var quest = new QuestInstance(999_999, 3, 0);
+        LogAssert.Expect(LogType.Error, "missing questname row quest id=999999 step=3");
         QuestName row = QuestJournalResolver.ResolveStep(quest);
         Assert.IsNull(row);
     }

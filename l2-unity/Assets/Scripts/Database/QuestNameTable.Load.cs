@@ -8,6 +8,8 @@ public partial class QuestNameTable
 {
     public QuestName GetQuestName(int questId, int questProg)
     {
+        if (_questNames == null)
+            return null;
         if (_questNames.ContainsKey(questId))
         {
             foreach (var quest in _questNames[questId])
