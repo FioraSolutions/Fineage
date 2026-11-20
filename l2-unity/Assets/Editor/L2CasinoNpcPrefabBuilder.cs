@@ -48,8 +48,8 @@ public static class L2CasinoNpcPrefabBuilder
         if (fbx == null)
             throw new System.Exception("MISSING " + fbxPath);
 
-        // On-disk FBX is still UU (pelvis ~30). Meter Configure + globalScale 1 = giants.
-        L2TownNpcFbxImport.ConfigureUuFbx(fbxPath);
+        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
+        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
         fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
 
         Dictionary<string, Material> mats = BindExistingMaterials(shader);

@@ -45,8 +45,8 @@ public static class L2ElfTeleporterNpcPrefabBuilder
         if (fbx == null)
             throw new System.Exception("MISSING " + fbxPath);
 
-        // FBX on disk is UU; meter Configure + globalScale 1 made Mirabel giant.
-        L2TownNpcFbxImport.ConfigureUuFbx(fbxPath);
+        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
+        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
         fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
 
         Dictionary<string, Material> mats = BindExistingMaterials(shader);

@@ -218,17 +218,15 @@ public static class L2MonsterImportBatch
     static void ConfigureModelImporter(string fbxPath)
     {
         AssetDatabase.ImportAsset(fbxPath, ImportAssetOptions.ForceUpdate);
-        ModelImporter importer = AssetImporter.GetAtPath(fbxPath) as ModelImporter;
-        if (importer == null)
-            return;
-        importer.animationType = ModelImporterAnimationType.Generic;
-        importer.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
-        importer.globalScale = 1f;
-        importer.useFileScale = true;
-        importer.useFileUnits = true;
-        importer.importAnimation = true;
-        importer.importBlendShapes = true;
-        importer.SaveAndReimport();
+        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
+        if (AssetImporter.GetAtPath(fbxPath) is ModelImporter importer)
+        {
+            importer.useFileUnits = true;
+            importer.importBlendShapes = true;
+            importer.SaveAndReimport();
+        }
+
+        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
     }
 
     static void AssignMaterials(GameObject inst, string[] materialPaths)

@@ -8,7 +8,7 @@ using UnityEngine;
 
 /// <summary>
 /// Builds the Dark Elf village bodies that npcgrp names and the client did not have.
-/// FBX on disk is Unreal units. <see cref="L2TownNpcFbxImport.ConfigureUuFbx"/> scales them.
+/// Meter FBX via <see cref="L2TownNpcFbxImport.ConfigureMeterFbx"/> (same contract as <see cref="L2NpcImportBatch"/>).
 /// Menu: Shnok/Characters/Build Dark Elf Village NPC Prefabs
 /// </summary>
 public static class L2DarkElfNpcPrefabBuilder
@@ -85,8 +85,8 @@ public static class L2DarkElfNpcPrefabBuilder
         if (AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath) == null)
             return stem + " MISSING " + fbxPath;
 
-        // bScaleDown puts the file in the same meter range as the elf teleporter FBX.
-        L2TownNpcFbxImport.ConfigureUuFbx(fbxPath);
+        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
+        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
         var fbx = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
         if (fbx == null)
             return stem + " MISSING after import";
@@ -98,11 +98,7 @@ public static class L2DarkElfNpcPrefabBuilder
         {
             AssignMaterials(instance, mats);
             instance.transform.localPosition = Vector3.zero;
-            float raw = L2TownNpcFbxImport.MeasureHumanoidHeight(instance);
-            if (raw < L2TownNpcFbxImport.MinHeight || raw > L2TownNpcFbxImport.MaxHeight)
-                instance.transform.localScale = Vector3.one * (1.6f / Mathf.Max(raw, 0.0001f));
-            else
-                instance.transform.localScale = Vector3.one;
+            instance.transform.localScale = Vector3.one;
             float height = L2TownNpcFbxImport.AssertHumanoidHeight(instance, stem);
             EnsureNpcComponents(instance);
 

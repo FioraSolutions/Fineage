@@ -20,6 +20,20 @@ public static class L2TownNpcFbxImport
     public static void ConfigureMeterFbx(string fbxPath) =>
         ConfigureFbx(fbxPath, MeterGlobalScale, useFileScale: true);
 
+    /// <summary>
+    /// Fails fast when an FBX meta drifts off the meter import contract (regression guard).
+    /// </summary>
+    public static void AssertMeterImporter(string fbxPath)
+    {
+        if (!(AssetImporter.GetAtPath(fbxPath) is ModelImporter imp))
+            throw new Exception("missing ModelImporter " + fbxPath);
+        if (!Mathf.Approximately(imp.globalScale, MeterGlobalScale) || !imp.useFileScale)
+            throw new Exception(
+                fbxPath + " importer must be globalScale=" + MeterGlobalScale
+                + " useFileScale=true (got " + imp.globalScale.ToString("0.####")
+                + " useFileScale=" + imp.useFileScale + ")");
+    }
+
     /// <summary>Pipeline B: raw UU FBX (umodel) — Unity scales; do not Blender-bake.</summary>
     public static void ConfigureUuFbx(string fbxPath) =>
         ConfigureFbx(fbxPath, UuGlobalScale);

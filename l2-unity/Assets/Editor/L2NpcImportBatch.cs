@@ -107,6 +107,7 @@ public static class L2NpcImportBatch
 
         AssetDatabase.ImportAsset(fbxPath, ImportAssetOptions.ForceUpdate);
         L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
+        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
         GameObject src = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
         if (src == null)
             throw new Exception("cannot load " + fbxPath);
