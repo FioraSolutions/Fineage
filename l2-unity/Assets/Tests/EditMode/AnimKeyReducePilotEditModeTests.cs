@@ -12,7 +12,11 @@ using UnityEngine;
 /// </summary>
 public sealed class AnimKeyReducePilotEditModeTests
 {
-    private const string ProbeFile = "Tests/EditMode/Fixtures/anim-keyreduce-pilot-probes.json";
+    private static readonly string[] ProbeFiles =
+    {
+        "Tests/EditMode/Fixtures/anim-keyreduce-pilot-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-lineagemonsters-probes.json",
+    };
 
     // Unity evaluates curves in float32; the tool validates in float64.
     private const float Float32Slack = 2e-6f;
@@ -40,9 +44,9 @@ public sealed class AnimKeyReducePilotEditModeTests
         public ProbeClip[] clips;
     }
 
-    private static ProbeSet LoadProbes()
+    private static ProbeSet LoadProbes(string relativeToAssets)
     {
-        string file = Path.Combine(Application.dataPath, ProbeFile);
+        string file = Path.Combine(Application.dataPath, relativeToAssets);
         Assert.IsTrue(File.Exists(file), $"anim-keyreduce probe fixture missing: {file}");
         var set = JsonUtility.FromJson<ProbeSet>(File.ReadAllText(file));
         Assert.IsNotNull(set?.clips, $"anim-keyreduce probe fixture has no clips: {file}");
@@ -69,36 +73,39 @@ public sealed class AnimKeyReducePilotEditModeTests
     {
         var failures = new List<string>();
         var checkedCurves = 0;
-        foreach (ProbeClip probe in LoadProbes().clips)
+        foreach (string probeFile in ProbeFiles)
         {
-            var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(probe.asset);
-            if (clip == null)
+            foreach (ProbeClip probe in LoadProbes(probeFile).clips)
             {
-                failures.Add($"{probe.asset}: AnimationClip failed to load");
-                continue;
-            }
-
-            foreach (ProbeCurve pc in probe.curves)
-            {
-                if (!TryGetCurve(clip, pc.path, pc.attribute, out AnimationCurve curve))
-                    continue;
-
-                checkedCurves++;
-                float maxErr = 0f;
-                float atTime = 0f;
-                for (int i = 0; i < pc.times.Length; i++)
+                var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(probe.asset);
+                if (clip == null)
                 {
-                    float err = Mathf.Abs(curve.Evaluate(pc.times[i]) - pc.values[i]);
-                    if (err > maxErr)
-                    {
-                        maxErr = err;
-                        atTime = pc.times[i];
-                    }
+                    failures.Add($"{probe.asset}: AnimationClip failed to load");
+                    continue;
                 }
 
-                if (maxErr > pc.tolerance + Float32Slack)
+                foreach (ProbeCurve pc in probe.curves)
                 {
-                    failures.Add($"{probe.asset}: {pc.path} {pc.attribute} max error {maxErr:G4} at t={atTime:G6} > {pc.tolerance:G4}");
+                    if (!TryGetCurve(clip, pc.path, pc.attribute, out AnimationCurve curve))
+                        continue;
+
+                    checkedCurves++;
+                    float maxErr = 0f;
+                    float atTime = 0f;
+                    for (int i = 0; i < pc.times.Length; i++)
+                    {
+                        float err = Mathf.Abs(curve.Evaluate(pc.times[i]) - pc.values[i]);
+                        if (err > maxErr)
+                        {
+                            maxErr = err;
+                            atTime = pc.times[i];
+                        }
+                    }
+
+                    if (maxErr > pc.tolerance + Float32Slack)
+                    {
+                        failures.Add($"{probe.asset}: {pc.path} {pc.attribute} max error {maxErr:G4} at t={atTime:G6} > {pc.tolerance:G4}");
+                    }
                 }
             }
         }
