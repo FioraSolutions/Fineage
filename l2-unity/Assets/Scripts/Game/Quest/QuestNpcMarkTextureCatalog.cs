@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Interlude NPC quest markers: LineageDecosTex <c>e_t00</c> (!) and <c>Q_t00</c> (?).
+/// Interlude NPC quest markers from LineageDecosTex:
+/// <c>Q_t00</c> (yellow ?) and <c>e_t00</c> (cyan !), each a 128x256 two-frame sheet.
 /// Paths are the Unity Resources stems (no fallback textures).
 /// </summary>
 public static class QuestNpcMarkTextureCatalog
@@ -18,7 +19,7 @@ public static class QuestNpcMarkTextureCatalog
 
     public static Texture2D Load(byte mark)
     {
-        if (!Paths.TryValue(mark, out string path))
+        if (!Paths.TryGetValue(mark, out string path))
             return null;
         var tex = Resources.Load<Texture2D>(path);
         if (tex == null && _missingLogged.Add(path))
@@ -26,7 +27,10 @@ public static class QuestNpcMarkTextureCatalog
         return tex;
     }
 
-    /// <summary>Interlude tints: blue available, yellow in-progress/return question marks.</summary>
+    /// <summary>
+    /// Available and Return share <c>Q_t00</c>; tints keep them distinct.
+    /// In-progress uses the original cyan <c>e_t00</c> un-tinted.
+    /// </summary>
     public static Color Tint(byte mark) => mark switch
     {
         QuestNpcMarkKind.Available => new Color(0.45f, 0.72f, 1f),

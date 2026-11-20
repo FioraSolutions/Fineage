@@ -11,12 +11,15 @@ public static class QuestInterludeSound
             return;
         }
 
-        string path = stem.Contains("/")
-            ? "Data/Sounds/" + stem.Replace('.', '/')
-            : "Data/Sounds/ItemSound/" + stem;
-
+        string path;
         if (type == 1)
             path = "Data/Sounds/Music/" + stem;
+        else if (stem.StartsWith("tutorial_voice", System.StringComparison.OrdinalIgnoreCase))
+            path = "Data/Sounds/Voice/" + stem;
+        else if (stem.Contains("/"))
+            path = "Data/Sounds/" + stem.Replace('.', '/');
+        else
+            path = "Data/Sounds/ItemSound/" + stem;
 
         AudioClip clip = InterludeSfx.Load(path);
         if (clip == null)
