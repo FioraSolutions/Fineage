@@ -48,6 +48,9 @@ jobs:
       - name: Check client asmdef layout (#139)
         run: python3 scripts/check-client-asmdef-layout.py
 
+      - name: Check texture and audio import policy (.meta)
+        run: python3 scripts/check-asset-import-policy.py
+
       - name: Check NPC/monster meter scale contract (#1473)
         run: python3 scripts/check-npc-monster-meter-contract.py
 

@@ -6,6 +6,7 @@ using UnityEngine;
 public partial class TextureUtils
 {
     public static Texture2D FlipTextureVertically(Texture2D originalTexture) {
+        originalTexture = DuplicateReadable(originalTexture);
         int width = originalTexture.width;
         int height = originalTexture.height;
 
@@ -28,6 +29,7 @@ public partial class TextureUtils
     }
 
     public static Texture2D RotateTexture(Texture2D original) {
+        original = DuplicateReadable(original);
         int width = original.width;
         int height = original.height;
 
@@ -58,18 +60,47 @@ public partial class TextureUtils
     }
 
     public static Texture2D LoadTexture2DFromInfo(string info, int size) {
-        /*byte[] texBytes = File.ReadAllBytes(GetTexturePath(info));
-
-		Texture2D texture = new Texture2D(size, size);
-		texture.LoadImage(texBytes);*/
         string path = GetTexturePath(info);
         Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        if (texture != null && texture.isReadable)
+            return texture;
 
-        if (texture == null) {
-            // Debug.LogWarning("Can't load textue at path " + path);
+        string fullPath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", path));
+        if (!File.Exists(fullPath))
+            return texture;
+
+        var loaded = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        if (!loaded.LoadImage(File.ReadAllBytes(fullPath)))
+            return texture;
+        return loaded;
+    }
+
+    internal static Texture2D DuplicateReadable(Texture2D source) {
+        if (source == null)
+            return null;
+        if (source.isReadable)
+            return source;
+
+        string path = AssetDatabase.GetAssetPath(source);
+        if (!string.IsNullOrEmpty(path)) {
+            string fullPath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", path));
+            if (File.Exists(fullPath)) {
+                var loaded = new Texture2D(2, 2, TextureFormat.RGBA32, source.mipmapCount > 1, source.isDataSRGB);
+                if (loaded.LoadImage(File.ReadAllBytes(fullPath)))
+                    return loaded;
+            }
         }
 
-        return texture;
+        var rt = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGB32);
+        Graphics.Blit(source, rt);
+        var prev = RenderTexture.active;
+        RenderTexture.active = rt;
+        var copy = new Texture2D(source.width, source.height, TextureFormat.RGBA32, source.mipmapCount > 1, source.isDataSRGB);
+        copy.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0);
+        copy.Apply();
+        RenderTexture.active = prev;
+        RenderTexture.ReleaseTemporary(rt);
+        return copy;
     }
 }
 #endif
