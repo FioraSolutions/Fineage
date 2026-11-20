@@ -16,6 +16,30 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 
     public int DebugV2PartCount => _v2Parts != null ? _v2Parts.Length : 0;
 
+    /// <summary>
+    /// Interlude ShotAction flight stage: true when the effect authors a flying part (projectile or home flight).
+    /// Without one the skill has no "flight" — its target art is the impact at hit time (ExplosionAction), so the
+    /// cast must not reserve a distance-based flight window before HitTime. Unknown/empty part list → true
+    /// (keep the legacy timing).
+    /// </summary>
+    public bool HasFlightStage
+    {
+        get
+        {
+            if (_v2Parts == null || _v2Parts.Length == 0)
+                return true;
+
+            for (int i = 0; i < _v2Parts.Length; i++)
+            {
+                CompositePart part = _v2Parts[i];
+                if (part is ShotProjectilePart || part is HomeFlightPart)
+                    return true;
+            }
+
+            return false;
+        }
+    }
+
     readonly IEffectAttachmentResolver _v2Resolver = new DefaultEffectAttachmentResolver();
     readonly List<PendingV2Part> _pendingDelayed = new List<PendingV2Part>();
     readonly List<CompositePart> _pendingHitCollider = new List<CompositePart>();

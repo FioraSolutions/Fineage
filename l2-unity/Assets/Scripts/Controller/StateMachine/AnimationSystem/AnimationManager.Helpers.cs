@@ -80,13 +80,52 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             return false;
         }
 
-        stateName = ResolvePlayableCombatState(controller, stateName);
+        string requestedState = stateName;
+        if (!HasCombatState(controller, requestedState) &&
+            TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
+        {
+            return true;
+        }
+
+        stateName = ResolvePlayableCombatState(controller, requestedState);
+        if (!HasCombatState(controller, stateName) &&
+            TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
+        {
+            return true;
+        }
+
         SetRecentName(objectId, stateName);
         float fade = LocomotionCrossFadeSettings.FixedDuration;
         PlayerBasicAttackCrossFade.TryPlay(controller, stateName, fade);
         // Debug.Log(
             // $"AnimationManager> start crossfade {family} player {entity.name} " +
             // $"state={stateName} duration={fade:F3}s");
+        return true;
+    }
+
+    bool TryPlaySpAtkOverrideClip(
+        int objectId,
+        IAnimationController controller,
+        Entity entity,
+        string phaseStateName)
+    {
+        if (controller == null ||
+            string.IsNullOrEmpty(phaseStateName) ||
+            phaseStateName.IndexOf("SpAtk", System.StringComparison.Ordinal) != 0)
+        {
+            return false;
+        }
+
+        string raceName = controller.GetAnimatorName();
+        AnimationClip clip = SkillAnimationDatabase.GetSpAtkCombatClip(phaseStateName, raceName);
+        if (clip == null)
+            return false;
+
+        BaseAnimationController castBody = controller as BaseAnimationController;
+        if (castBody == null || !castBody.TryPlaySpAtkCombat(clip, phaseStateName))
+            return false;
+
+        SetRecentName(objectId, phaseStateName);
         return true;
     }
 
@@ -149,6 +188,11 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         if (!PlayerBasicAttackAnim.TryResolve(finalName, out stateName) &&
             !PlayerSpAtkAnim.TryResolve(finalName, out stateName))
             return finalName;
+
+        if (controller != null &&
+            !HasCombatState(controller, stateName) &&
+            SkillAnimationDatabase.GetSpAtkCombatClip(stateName, controller.GetAnimatorName()) != null)
+            return stateName;
 
         return ResolvePlayableCombatState(controller, stateName);
     }
