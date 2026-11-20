@@ -323,8 +323,11 @@ public sealed partial class NetZoneDispatch
                 _ = NetCodec.DecodePlaySound(envelope.Payload);
                 break;
             case NetOpcode.PartyMemberPosition:
-                _ = NetCodec.DecodePartyMemberPosition(envelope.Payload);
+            {
+                var partyMap = NetCodec.DecodePartyMemberPosition(envelope.Payload);
+                PartyMapApplyIncomingPacketServices.ApplyPartyMemberPositions(partyMap);
                 break;
+            }
             case NetOpcode.PartyMemberUpdate:
                 _ = NetCodec.DecodePartyMemberUpdate(envelope.Payload);
                 break;
