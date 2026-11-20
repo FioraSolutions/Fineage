@@ -34,3 +34,17 @@ Writes:
 | `explode` | projectile impact (~HitTime) | `wind_strike_explotion` |
 
 Cast/shot stems may differ (e.g. Acumen: `empower_cast` + `acumen_shot`).
+
+# Interlude DAT tooling (actionname)
+
+Decrypt Interlude `system/actionname-e.dat` (Lineage2Ver413):
+
+```bash
+npx --yes l2encdec -c decode -p 413 --legacy actionname-e.dat actionname-e.dec
+```
+
+Schema: `actionname-e.ddf` (L2FileEdit Interlude defs). Converted runtime table:
+
+`l2-unity/Assets/StreamingAssets/Data/Meta/ActionName-Interlude-eu.txt`
+
+The client catalog (`InterludeActionCatalog`) loads that table; do not substitute Classic ActionName icon stems.

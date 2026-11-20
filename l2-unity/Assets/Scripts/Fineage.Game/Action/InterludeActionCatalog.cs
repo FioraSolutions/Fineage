@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Canonical Interlude (C6) Actions window layout, icons, and metadata.
-/// Sources: <c>ActionName_Classic-eu.txt</c> rows (ids 0–66, categories),
-/// <c>ref/l2-interlude-client/interface.xdat</c> ActionWnd slot order (mirrored in
-/// <c>Assets/Resources/Data/UI/_Elements/Game/Action/ActionWindow.uxml</c>),
-/// Fineage-Backend <c>ActionProtocol.cs</c> / <c>ZoneWorldActions.cs</c> (RequestActionUse + SocialAction 1:1).
+/// Interlude Actions window and ActionName lookup, driven by
+/// <c>ActionName-Interlude-eu.txt</c> (converted from <c>system/actionname-e.dat</c>).
+/// Icons, names, categories, and section order come from that table.
 /// </summary>
 public static class InterludeActionCatalog
 {
@@ -37,82 +35,71 @@ public static class InterludeActionCatalog
         }
     }
 
-    static readonly Entry[] All =
+    static Entry[] _all = Array.Empty<Entry>();
+    static Dictionary<int, Entry> _byId = new();
+    static Dictionary<InterludeActionSection, Entry[]> _bySection = new();
+    static bool _loaded;
+
+    public static IReadOnlyList<Entry> Entries
     {
-        // Basic — ActionWnd 6×3, first 12 slots filled (ActionName category=1, ActionWindow.uxml Basic).
-        new Entry(0, "Sit/Stand", InterludeActionSection.Basic, "action001", InterludeActionWireKind.PlayerMovementCombat, 0),
-        new Entry(1, "Walk/Run", InterludeActionSection.Basic, "action002", InterludeActionWireKind.PlayerMovementCombat, 1),
-        new Entry(2, "Attack", InterludeActionSection.Basic, "action003", InterludeActionWireKind.PlayerMovementCombat, 2),
-        // Interlude actionname-e.dat: Exchange/Trade → icon.action005. action004 is not in Icon.utx.
-        new Entry(3, "Trade", InterludeActionSection.Basic, "action005", InterludeActionWireKind.TradeOrStore, 3),
-        new Entry(4, "Next Target", InterludeActionSection.Basic, "action005", InterludeActionWireKind.PlayerMovementCombat, 4),
-        new Entry(5, "Pick Up", InterludeActionSection.Basic, "action006", InterludeActionWireKind.NotImplemented, 5),
-        new Entry(6, "Assist", InterludeActionSection.Basic, "action007", InterludeActionWireKind.PartyCommand, 6),
-        new Entry(10, "Private Store - Sell", InterludeActionSection.Basic, "action010", InterludeActionWireKind.TradeOrStore, 7),
-        new Entry(28, "Private Store - Buy", InterludeActionSection.Basic, "action028", InterludeActionWireKind.TradeOrStore, 8),
-        new Entry(37, "Dwarven Workshop", InterludeActionSection.Basic, "action040", InterludeActionWireKind.TradeOrStore, 9),
-        new Entry(38, "Mount/Dismount", InterludeActionSection.Basic, "etc_pet_ride_01", InterludeActionWireKind.NotImplemented, 10),
-        new Entry(40, "Recommend", InterludeActionSection.Basic, "action041", InterludeActionWireKind.NotImplemented, 11),
-
-        // Party — category=2 (ActionWindow.uxml Party row).
-        new Entry(7, "Rm. Invite", InterludeActionSection.Party, "action011", InterludeActionWireKind.PartyCommand, 0),
-        new Entry(8, "Leave Party", InterludeActionSection.Party, "action012", InterludeActionWireKind.PartyCommand, 1),
-        new Entry(9, "Dismiss Party Member", InterludeActionSection.Party, "action013", InterludeActionWireKind.PartyCommand, 2),
-        new Entry(11, "Party Matching", InterludeActionSection.Party, "action014", InterludeActionWireKind.NotImplemented, 3),
-        new Entry(50, "Change Party Leader", InterludeActionSection.Party, "action050", InterludeActionWireKind.NotImplemented, 4),
-
-        // Social — category=4; ActionWindow.uxml Social rows (C6: ids 12–66, no couple emotes 71+).
-        new Entry(12, "Announcements", InterludeActionSection.Social, "action015", InterludeActionWireKind.Social, 0),
-        new Entry(13, "Victory", InterludeActionSection.Social, "action016", InterludeActionWireKind.Social, 1),
-        new Entry(14, "Advance", InterludeActionSection.Social, "action017", InterludeActionWireKind.Social, 2),
-        new Entry(24, "Yes", InterludeActionSection.Social, "action020", InterludeActionWireKind.Social, 3),
-        new Entry(25, "No", InterludeActionSection.Social, "action021", InterludeActionWireKind.Social, 4),
-        new Entry(26, "Bow", InterludeActionSection.Social, "action022", InterludeActionWireKind.Social, 5),
-        new Entry(29, "Unaware", InterludeActionSection.Social, "action029", InterludeActionWireKind.Social, 6),
-        new Entry(30, "Standby", InterludeActionSection.Social, "action030", InterludeActionWireKind.Social, 7),
-        new Entry(31, "Laugh", InterludeActionSection.Social, "action031", InterludeActionWireKind.Social, 8),
-        new Entry(33, "Applaud", InterludeActionSection.Social, "action032", InterludeActionWireKind.Social, 9),
-        new Entry(34, "Dance", InterludeActionSection.Social, "action033", InterludeActionWireKind.Social, 10),
-        new Entry(35, "Sorrow", InterludeActionSection.Social, "action034", InterludeActionWireKind.Social, 11),
-        new Entry(62, "Charm", InterludeActionSection.Social, "action051", InterludeActionWireKind.Social, 12),
-        new Entry(66, "Shyness", InterludeActionSection.Social, "Action055", InterludeActionWireKind.Social, 13),
-
-        // Pet — category=5 (Alt+C Pet tab; ActionName ids 15–19).
-        new Entry(15, "Change Movement Mode", InterludeActionSection.Pet, "action046", InterludeActionWireKind.PetSummonCommand, 0),
-        new Entry(16, "Attackers", InterludeActionSection.Pet, "action047", InterludeActionWireKind.PetSummonCommand, 1),
-        new Entry(17, "Stop", InterludeActionSection.Pet, "action048", InterludeActionWireKind.PetSummonCommand, 2),
-        new Entry(18, "Pick Up", InterludeActionSection.Pet, "action052", InterludeActionWireKind.PetSummonCommand, 3),
-        new Entry(19, "Unsummon Pet", InterludeActionSection.Pet, "action054", InterludeActionWireKind.PetSummonCommand, 4),
-
-        // Summon — category=6 (Alt+C Summon tab; shared baseline 21–23).
-        new Entry(21, "Change Movement Mode", InterludeActionSection.Summon, "action057", InterludeActionWireKind.PetSummonCommand, 0),
-        new Entry(22, "Attackers", InterludeActionSection.Summon, "action060", InterludeActionWireKind.PetSummonCommand, 1),
-        new Entry(23, "Stop", InterludeActionSection.Summon, "action062", InterludeActionWireKind.PetSummonCommand, 2),
-        new Entry(52, "Liberate", InterludeActionSection.Summon, "action103", InterludeActionWireKind.PetSummonCommand, 3),
-        new Entry(53, "Move", InterludeActionSection.Summon, "action105", InterludeActionWireKind.PetSummonCommand, 4),
-    };
-
-    static readonly Dictionary<int, Entry> ById = BuildById();
-    static readonly Dictionary<InterludeActionSection, Entry[]> BySection = BuildBySection();
-
-    static Dictionary<int, Entry> BuildById()
-    {
-        var map = new Dictionary<int, Entry>();
-        for (int i = 0; i < All.Length; i++)
+        get
         {
-            Entry e = All[i];
-            if (!map.ContainsKey(e.Id))
-                map.Add(e.Id, e);
+            EnsureLoaded();
+            return _all;
         }
-        return map;
     }
 
-    static Dictionary<InterludeActionSection, Entry[]> BuildBySection()
+    public static void EnsureLoaded()
     {
-        var lists = new Dictionary<InterludeActionSection, List<Entry>>();
-        for (int i = 0; i < All.Length; i++)
+        if (_loaded)
+            return;
+
+        _loaded = true;
+        if (!InterludeActionNameFile.TryLoad(out InterludeActionNameFile.Row[] rows))
         {
-            Entry e = All[i];
+            _all = Array.Empty<Entry>();
+            _byId = new Dictionary<int, Entry>();
+            _bySection = new Dictionary<InterludeActionSection, Entry[]>();
+            return;
+        }
+
+        var entries = new List<Entry>(rows.Length);
+        var sectionCounts = new Dictionary<InterludeActionSection, int>();
+        for (int i = 0; i < rows.Length; i++)
+        {
+            InterludeActionNameFile.Row row = rows[i];
+            if (!TrySection(row.Category, out InterludeActionSection section))
+                continue;
+
+            int slot = -1;
+            if (AppearsInSectionGrid(row, section))
+            {
+                if (!sectionCounts.TryGetValue(section, out slot))
+                    slot = 0;
+                sectionCounts[section] = slot + 1;
+            }
+
+            entries.Add(new Entry(
+                row.Id,
+                row.Cmd,
+                section,
+                row.IconStem,
+                WireKindFor(row.Id, section),
+                slot));
+        }
+
+        _all = entries.ToArray();
+        _byId = new Dictionary<int, Entry>(_all.Length);
+        for (int i = 0; i < _all.Length; i++)
+        {
+            if (!_byId.ContainsKey(_all[i].Id))
+                _byId.Add(_all[i].Id, _all[i]);
+        }
+
+        var lists = new Dictionary<InterludeActionSection, List<Entry>>();
+        for (int i = 0; i < _all.Length; i++)
+        {
+            Entry e = _all[i];
             if (e.SlotOrder < 0)
                 continue;
             if (!lists.TryGetValue(e.Section, out List<Entry> list))
@@ -123,21 +110,128 @@ public static class InterludeActionCatalog
             list.Add(e);
         }
 
-        var result = new Dictionary<InterludeActionSection, Entry[]>();
+        _bySection = new Dictionary<InterludeActionSection, Entry[]>();
         foreach (KeyValuePair<InterludeActionSection, List<Entry>> kv in lists)
         {
             kv.Value.Sort((a, b) => a.SlotOrder.CompareTo(b.SlotOrder));
-            result[kv.Key] = kv.Value.ToArray();
+            _bySection[kv.Key] = kv.Value.ToArray();
         }
-        return result;
     }
 
-    public static IReadOnlyList<Entry> Entries => All;
+    /// <summary>
+    /// Basic / Party / Social: every Interlude row of that category, in dat order.
+    /// Pet / Summon: standing commands only (template-bound skill rows stay in
+    /// <see cref="Entries"/> for icon lookup, not the default grid).
+    /// </summary>
+    static bool AppearsInSectionGrid(InterludeActionNameFile.Row row, InterludeActionSection section)
+    {
+        switch (section)
+        {
+            case InterludeActionSection.Basic:
+            case InterludeActionSection.Party:
+            case InterludeActionSection.Social:
+                return true;
+            case InterludeActionSection.Pet:
+            case InterludeActionSection.Summon:
+                return row.Id < 1000 && IsStandaloneCommand(row);
+            default:
+                return false;
+        }
+    }
 
-    public static bool TryGet(int actionId, out Entry entry) => ById.TryGetValue(actionId, out entry);
+    static bool IsStandaloneCommand(InterludeActionNameFile.Row row)
+    {
+        if (row.Category2 == null || row.Category2.Length == 0)
+            return true;
+        if (row.Category2.Length == 1 && row.Category2[0] == -2)
+            return true;
 
-    public static Entry[] SectionSlots(InterludeActionSection section) =>
-        BySection.TryGetValue(section, out Entry[] rows) ? rows : Array.Empty<Entry>();
+        // e.g. Summon Attack (id 22) lists many NPC templates but is still a command button.
+        switch (row.Cmd)
+        {
+            case "Change Movement Mode":
+            case "Attack":
+            case "Stop":
+            case "Pickup":
+            case "Pick Up":
+            case "Unsummon Pet":
+            case "Unsummon":
+            case "Move":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static bool TrySection(int category, out InterludeActionSection section)
+    {
+        switch (category)
+        {
+            case 0:
+                section = InterludeActionSection.Special;
+                return true;
+            case 1:
+                section = InterludeActionSection.Basic;
+                return true;
+            case 2:
+                section = InterludeActionSection.Party;
+                return true;
+            case 3:
+                section = InterludeActionSection.Social;
+                return true;
+            case 4:
+                section = InterludeActionSection.Pet;
+                return true;
+            case 5:
+                section = InterludeActionSection.Summon;
+                return true;
+            default:
+                section = InterludeActionSection.Special;
+                return false;
+        }
+    }
+
+    static InterludeActionWireKind WireKindFor(int id, InterludeActionSection section)
+    {
+        switch (id)
+        {
+            case 0:
+            case 1:
+            case 2:
+            case 4:
+                return InterludeActionWireKind.PlayerMovementCombat;
+            case 3:
+            case 10:
+            case 28:
+            case 37:
+            case 51:
+                return InterludeActionWireKind.TradeOrStore;
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 50:
+                return InterludeActionWireKind.PartyCommand;
+        }
+
+        if (section == InterludeActionSection.Social)
+            return InterludeActionWireKind.Social;
+        if (section == InterludeActionSection.Pet || section == InterludeActionSection.Summon)
+            return InterludeActionWireKind.PetSummonCommand;
+        return InterludeActionWireKind.NotImplemented;
+    }
+
+    public static bool TryGet(int actionId, out Entry entry)
+    {
+        EnsureLoaded();
+        return _byId.TryGetValue(actionId, out entry);
+    }
+
+    public static Entry[] SectionSlots(InterludeActionSection section)
+    {
+        EnsureLoaded();
+        return _bySection.TryGetValue(section, out Entry[] rows) ? rows : Array.Empty<Entry>();
+    }
 
     public static int[] SectionSlotActionIds(InterludeActionSection section)
     {

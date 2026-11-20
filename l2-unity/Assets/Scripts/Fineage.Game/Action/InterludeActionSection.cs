@@ -1,14 +1,13 @@
 /// <summary>
-/// ActionName.dat <c>category</c> for Interlude (CT0/C6). Matches Mobius ActionData category ids.
+/// Interlude <c>actionname-e.dat</c> <c>category</c> values (CT0).
+/// Classic / later chronicles shifted Social to 4, Pet to 5, Summon to 6.
 /// </summary>
 public enum InterludeActionSection : int
 {
-    /// <summary>Special / hidden (id 20 etc.).</summary>
     Special = 0,
     Basic = 1,
     Party = 2,
-    TacticalToken = 3,
-    Social = 4,
-    Pet = 5,
-    Summon = 6,
+    Social = 3,
+    Pet = 4,
+    Summon = 5,
 }
