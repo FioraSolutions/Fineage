@@ -21,6 +21,12 @@ public partial class BaseAnimationController : AnimationEventsBase, IAnimationCo
         return _castPlayable != null && _castPlayable.PlayOneShot(clip);
     }
 
+    public bool TryPlaySpAtkCombat(AnimationClip clip, string phaseStateName)
+    {
+        EnsureCastPlayable();
+        return _castPlayable != null && _castPlayable.TryPlaySpAtkCombat(clip, phaseStateName);
+    }
+
     public void StopCastClip()
     {
         if (_castPlayable != null && _castPlayable.IsActive)
