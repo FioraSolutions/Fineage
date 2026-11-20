@@ -62,6 +62,22 @@ public sealed partial class NetSession
         closed?.Dispose();
         BumpZoneEpoch("zone-tcp-closed");
         ZoneCommands.Transport?.NotifyDisconnected();
+        if (CharSelectEnterWorld.IsEntering)
+            CharSelectEnterWorld.Failed("Zone connection lost.");
+    }
+
+    /// <summary>
+    /// Drop a half-open zone socket after a failed enter-world attempt.
+    /// Leaves the login lobby connected so Start can be retried.
+    /// </summary>
+    internal void AbortZoneEnter()
+    {
+        _zoneConnecting = false;
+        if (_zone == null)
+            return;
+        NetTransport zone = _zone;
+        _zone = null;
+        zone.Dispose();
     }
 
     async Task SendZoneHelloAsync(NetTransport transport)
