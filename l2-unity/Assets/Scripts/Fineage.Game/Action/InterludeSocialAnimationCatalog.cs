@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// Maps SocialAction / RequestActionUse social ids → PSA clip take stem per race (shared table, no per-race ifs in callers).
@@ -83,7 +84,7 @@ public static class InterludeSocialAnimationCatalog
         return ".ao_" + clipStem;
     }
 
-    public static bool TryLoadClip(CharacterRaceAnimation race, string clipStem, out UnityEngine.AnimationClip clip)
+    public static bool TryLoadClip(CharacterRaceAnimation race, string clipStem, out AnimationClip clip)
     {
         clip = null;
         string folder = ClipResourcesFolder(race);
