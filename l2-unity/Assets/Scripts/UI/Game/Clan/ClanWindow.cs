@@ -18,7 +18,6 @@ public partial class ClanWindow : L2TwoPanels
 
     private DropdownField _dropdown;
     private string _selectDropDown = "";
-    private List<string> _listDropDown = new List<string>();
     private readonly List<int> _pledgeFilterTypes = new List<int>();
 
     private DataProviderClanInfo _dataProviderClanInfo;
