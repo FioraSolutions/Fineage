@@ -1,34 +1,53 @@
-using System;
+using System.Collections.Generic;
 using FMOD.Studio;
 using FMODUnity;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
 public partial class MusicManager : MonoBehaviour
 {
-    private void Awake() {
-        if (_instance == null) {
+    AudioService _service;
+
+    private void Awake()
+    {
+        if (_instance == null)
+        {
             _instance = this;
+            EnsureService();
             MusicPacketServices.Bind(music: this);
             DontDestroyOnLoad(gameObject);
-        } else if(_instance != this){
+        }
+        else if (_instance != this)
+        {
             Destroy(this);
             return;
         }
-
-        _musicInstances = new Dictionary<EventReference, EventInstance>();
     }
 
-    void OnDestroy() {
-        if (_musicInstances == null)
-            return; // duplicate destroyed in Awake
-        Clear();
+    internal void BindService(AudioService service) => _service = service;
+
+    void EnsureService()
+    {
+        if (_service == null)
+            _service = GetComponent<AudioService>();
+        if (_service == null)
+            _service = gameObject.AddComponent<AudioService>();
     }
 
-    public void Clear() {
-        ResetPriority();
-        StopMusic(CurrentMusicEvent);
-        _musicInstances.Clear();
+    AudioService Svc
+    {
+        get
+        {
+            if (_service == null)
+                EnsureService();
+            return _service;
+        }
     }
+
+    void OnDestroy()
+    {
+        if (_instance == this)
+            Clear();
+    }
+
+    public void Clear() => Svc.ClearAllMusic();
 }

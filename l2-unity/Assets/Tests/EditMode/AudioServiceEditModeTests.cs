@@ -47,4 +47,11 @@ public sealed class AudioServiceEditModeTests
         Assert.AreEqual("grass_run", AudioPathResolver.StepEventKey("grass", running: true));
         Assert.AreEqual("default_walk", AudioPathResolver.StepEventKey("grass", running: false));
     }
+
+    [Test]
+    public void Login_intro_paths_are_stable()
+    {
+        Assert.AreEqual("event:/Music/l2_lobby/intro", AudioMusicIds.LoginIntroFmodPath);
+        Assert.AreEqual("Data/Audio/intro", AudioMusicIds.LoginIntroResourcesPath);
+    }
 }

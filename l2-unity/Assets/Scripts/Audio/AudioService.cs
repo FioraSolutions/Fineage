@@ -79,6 +79,7 @@ public partial class AudioService : MonoBehaviour
         EnsureClipHierarchy();
         AudioPacketServices.Bind(service: this);
         BindLegacyAudioManager();
+        BindLegacyMusicManager();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -94,11 +95,19 @@ public partial class AudioService : MonoBehaviour
     {
         ApplyBusVolumes();
         TickWorldEmitters();
+        TickMusicLayers();
     }
 
     void BindLegacyAudioManager()
     {
         AudioManager legacy = GetComponent<AudioManager>();
+        if (legacy != null)
+            legacy.BindService(this);
+    }
+
+    void BindLegacyMusicManager()
+    {
+        MusicManager legacy = GetComponent<MusicManager>();
         if (legacy != null)
             legacy.BindService(this);
     }

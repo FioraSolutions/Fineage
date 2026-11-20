@@ -74,5 +74,8 @@ public static partial class AudioPacketServicesBridge
             AudioService svc = AudioPacketServices.Service;
             return svc != null && svc.PlayHitImpact(critical, Vector3.zero);
         };
+
+        LoginSplashMusicBridge.PlaySplashOnce = () => AudioPacketServices.Service?.PlayLoginIntro(loop: false);
+        LoginSplashMusicBridge.Stop = () => AudioPacketServices.Service?.StopLoginIntro();
     }
 }
