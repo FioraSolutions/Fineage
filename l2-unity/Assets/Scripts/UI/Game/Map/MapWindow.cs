@@ -12,7 +12,7 @@ public class MapWindow : L2PopupWindow
     private VisualTreeAsset _mapTemplate;
     private MapPanner _mapPanner;
     private MapMarkerFollowCamera _mapMarkerFollowCamera;
-    private TownMapOverlay _townMap;
+    private DetailedMapOverlay _detailedMap;
     [Obsolete("Use [Inject] / PacketServices instead")]
     public static MapWindow Instance { get { return _instance; } }
 
@@ -69,9 +69,7 @@ public class MapWindow : L2PopupWindow
         _mapPanner.SetElements(viewport, map, marker, button);
         _mapPanner.RegisterCallback();
 
-        // "+" buttons next to the starter towns open the regional plan from town_map.utx.
-        // Created after the map element exists so their absolute positions are in map pixels.
-        _townMap = new TownMapOverlay(map, host.Q("town-map-layer"));
+        _detailedMap = new DetailedMapOverlay(map, host.Q("town-map-layer"));
 
         _mapMarkerFollowCamera.SetElement(marker);
 
@@ -89,7 +87,7 @@ public class MapWindow : L2PopupWindow
         if (_mapPanner == null)
             return;
         _mapPanner.UpdateMarker(_isWindowHidden);
-        _townMap?.UpdateMarker();
+        _detailedMap?.UpdateMarkers();
     }
 
     public void TurnMarker(Camera targetCamera)
@@ -102,8 +100,7 @@ public class MapWindow : L2PopupWindow
         _mapPanner.SetDisabled(false);
         _mapPanner.SetManualUpdate(true);
         _mapMarkerFollowCamera.ManualTurnUpdate();
-        // MVP (#559): in a starter village, jump straight to that town plan + hero pin.
-        _townMap?.TryOpenForPlayer();
+        _detailedMap?.TryAutoOpenForPlayer();
         base.ShowWindow();
     }
 
@@ -111,7 +108,7 @@ public class MapWindow : L2PopupWindow
     {
         _mapPanner.SetDisabled(true);
         _mapPanner.MoveMarkerToOrigin();
-        _townMap?.Close();
+        _detailedMap?.Close();
         base.HideWindow();
     }
 }

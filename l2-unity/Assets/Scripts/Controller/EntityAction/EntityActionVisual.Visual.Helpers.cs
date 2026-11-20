@@ -36,15 +36,25 @@ public static partial class EntityActionVisual
         if (!AnimChannel.CanPlay(AnimChannel.Kind.Social))
             return;
 
+        string socialState = "social01";
+        if (entity is PlayerEntity || entity is UserEntity)
+            PlayerSocialAnimApply.TryPrepareSocialClip(entity, actionId, out socialState);
+
         NetworkAnimationController nac = entity.GetAnimatorController();
         if (nac != null)
         {
             AnimPlayback.PrepareGesture(nac);
-            nac.CrossFadeInFixedTime("social01", LocomotionCrossFadeSettings.FixedDuration);
+            nac.CrossFadeInFixedTime(socialState, LocomotionCrossFadeSettings.FixedDuration);
             return;
         }
 
-        TryPlayCreatureAnim(entity, "social01");
+        if (entity.Identity != null && ControllerPacketServices.Animations != null)
+        {
+            ControllerPacketServices.Animations.PlayExactAnimatorState(entity.Identity.Id, socialState);
+            return;
+        }
+
+        TryPlayCreatureAnim(entity, socialState);
     }
 
     public static void PlayWaitType(Entity entity, WaitType waitType)

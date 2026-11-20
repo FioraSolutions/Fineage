@@ -319,8 +319,11 @@ public sealed partial class NetZoneDispatch
                 _ = (PlaySoundNetMsg)packet.Body;
                 break;
             case NetOpcode.PartyMemberPosition:
-                _ = (PartyMemberPositionNetMsg)packet.Body;
+            {
+                var partyMap = (PartyMemberPositionNetMsg)packet.Body;
+                PartyMapApplyIncomingPacketServices.ApplyPartyMemberPositions(partyMap);
                 break;
+            }
             case NetOpcode.PartyMemberUpdate:
                 _ = (PartyMemberUpdateNetMsg)packet.Body;
                 break;

@@ -38,10 +38,11 @@ public partial class PlayerActions : MonoBehaviour
             ActionType.SocialCharm, ActionType.SocialShyness);
         RegisterStub(
             ActionType.Trade, ActionType.Pickup, ActionType.Assist,
-            ActionType.PartyInvite, ActionType.PartyLeave, ActionType.PartyKick,
+            ActionType.PartyInvite, ActionType.PartyLeave, ActionType.PartyKick);
+        RegisterNotImplemented(
             ActionType.PartyMatching, ActionType.PartyLeader,
             ActionType.PrivateStoreSell, ActionType.PrivateStoreBuy,
-            ActionType.DwarvenManufacture, ActionType.Recommend);
+            ActionType.DwarvenManufacture, ActionType.Mount, ActionType.Recommend);
     }
 
     void RegisterSocial(params ActionType[] types)
@@ -61,6 +62,16 @@ public partial class PlayerActions : MonoBehaviour
             ActionType t = types[i];
             if (!_actions.ContainsKey(t))
                 _actions.Add(t, new StubAction((int)t));
+        }
+    }
+
+    void RegisterNotImplemented(params ActionType[] types)
+    {
+        for (int i = 0; i < types.Length; i++)
+        {
+            ActionType t = types[i];
+            if (!_actions.ContainsKey(t))
+                _actions.Add(t, new NotImplementedAction((int)t));
         }
     }
 
