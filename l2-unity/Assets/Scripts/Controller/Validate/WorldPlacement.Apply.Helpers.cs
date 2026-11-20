@@ -4,18 +4,6 @@ using UnityEngine;
 public static partial class WorldPlacement
 {
     static readonly List<float> _scratchYs = new List<float>(32);
-    static readonly float[] NearbyRadii = { 0.8f, 1.6f, 2.8f, 4.0f, 5.0f };
-    static readonly Vector3[] NearbyDirs =
-    {
-        new Vector3(1f, 0f, 0f),
-        new Vector3(-1f, 0f, 0f),
-        new Vector3(0f, 0f, 1f),
-        new Vector3(0f, 0f, -1f),
-        new Vector3(0.7071f, 0f, 0.7071f),
-        new Vector3(0.7071f, 0f, -0.7071f),
-        new Vector3(-0.7071f, 0f, 0.7071f),
-        new Vector3(-0.7071f, 0f, -0.7071f)
-    };
 
     static LayerMask ResolveDefaultGroundMask()
     {
@@ -26,45 +14,23 @@ public static partial class WorldPlacement
     }
 
     /// <summary>
-    /// Snap to walkable ground near the server height. A wet or empty exact XY
-    /// is nudged to the nearest dry rim within <see cref="WorldGrounding.NearbySearchMeters"/>.
-    /// If nothing walkable is in tolerance, the server height is kept.
+    /// Snap to the walkable floor nearest the server height at the server XY.
+    /// Water is never a floor and never a reason to move: a pawn standing in a
+    /// shallow pond stands on its bed, as in the retail client. If nothing walkable
+    /// is within <see cref="WorldGrounding.SnapToleranceMeters"/>, the server height is kept.
     /// </summary>
     public static bool TrySnapWalkable(Vector3 serverPos, LayerMask mask, out Vector3 snapped)
     {
-        snapped = serverPos;
         CollectWalkableYs(serverPos, mask, _scratchYs);
-        bool exactHit = false;
+        float y = WorldGrounding.PickHeight(serverPos.y, _scratchYs);
+        snapped = new Vector3(serverPos.x, y, serverPos.z);
         for (int i = 0; i < _scratchYs.Count; i++)
         {
             if (Mathf.Abs(_scratchYs[i] - serverPos.y) <= WorldGrounding.SnapToleranceMeters)
-            {
-                exactHit = true;
-                break;
-            }
-        }
-        float y = WorldGrounding.PickHeight(serverPos.y, _scratchYs);
-        snapped = new Vector3(serverPos.x, y, serverPos.z);
-
-        bool wet = exactHit && IsUnderwater(snapped);
-        bool miss = !exactHit;
-        if (!wet && !miss)
-            return true;
-
-        if (TryNearbyDry(serverPos, mask, out Vector3 nearby))
-        {
-            snapped = nearby;
-            return true;
+                return true;
         }
 
-        if (wet)
-        {
-            // Do not submerge: keep the server height at this XY.
-            snapped = serverPos;
-            return false;
-        }
-
-        return exactHit;
+        return false;
     }
 
     /// <summary>
@@ -136,15 +102,6 @@ public static partial class WorldPlacement
         return false;
     }
 
-    /// <summary>
-    /// Nearby walkable floor at about the server height. Replaces the old
-    /// Dark-Elf-only street search: same need exists at any hole, pillar, or rim.
-    /// </summary>
-    public static bool TryCaveStreet(Vector3 serverPos, out Vector3 street)
-    {
-        return TryNearbyDry(serverPos, WalkableMask(null), out street);
-    }
-
     public static bool TryResolveMeshY(Vector3 position, LayerMask? groundMask, out float y)
     {
         y = position.y;
@@ -152,44 +109,6 @@ public static partial class WorldPlacement
             return false;
         y = snapped.y;
         return true;
-    }
-
-    static bool TryNearbyDry(Vector3 serverPos, LayerMask mask, out Vector3 found)
-    {
-        found = serverPos;
-        float bestScore = float.PositiveInfinity;
-        bool any = false;
-        for (int r = 0; r < NearbyRadii.Length; r++)
-        {
-            float radius = NearbyRadii[r];
-            if (radius > WorldGrounding.NearbySearchMeters)
-                break;
-            for (int d = 0; d < NearbyDirs.Length; d++)
-            {
-                Vector3 sample = serverPos + NearbyDirs[d] * radius;
-                sample.y = serverPos.y;
-                CollectWalkableYs(sample, mask, _scratchYs);
-                if (_scratchYs.Count == 0)
-                    continue;
-                float y = WorldGrounding.PickHeight(serverPos.y, _scratchYs);
-                if (Mathf.Abs(y - serverPos.y) > WorldGrounding.SnapToleranceMeters)
-                    continue;
-                Vector3 candidate = new Vector3(sample.x, y, sample.z);
-                if (IsUnderwater(candidate))
-                    continue;
-                float score = radius + Mathf.Abs(y - serverPos.y);
-                if (score >= bestScore)
-                    continue;
-                bestScore = score;
-                found = candidate;
-                any = true;
-            }
-
-            if (any)
-                break;
-        }
-
-        return any;
     }
 
     static void CollectWalkableYs(Vector3 position, LayerMask mask, List<float> ys)
@@ -253,27 +172,6 @@ public static partial class WorldPlacement
         if (IsWaterCollider(hit.collider) || IsFoliageCollider(hit.collider) || IsActorCollider(hit.collider))
             return false;
         return true;
-    }
-
-    static bool IsUnderwater(Vector3 feet)
-    {
-        int mask = WaterQueryMask();
-        if (mask == 0)
-            return false;
-
-        Vector3 origin = new Vector3(feet.x, feet.y + WorldGrounding.SnapToleranceMeters, feet.z);
-        RaycastHit[] hits = Physics.RaycastAll(
-            origin, Vector3.down, WorldGrounding.SnapToleranceMeters + 0.5f, mask, QueryTriggerInteraction.Collide);
-        for (int i = 0; i < hits.Length; i++)
-        {
-            RaycastHit hit = hits[i];
-            if (hit.collider == null)
-                continue;
-            if (WorldGrounding.IsSubmerged(feet.y, hit.point.y))
-                return true;
-        }
-
-        return false;
     }
 
     static bool IsWaterCollider(Collider collider)
