@@ -56,7 +56,7 @@ public partial class AudioService
             && _areaMusicInstances.TryGetValue(_areaMusicEvent, out EventInstance prev)
             && prev.isValid())
         {
-            prev.stop(FMOD.Studio.STOP_MODE.ALLOW_FADEOUT);
+            prev.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         }
 
         _areaMusicPriority = priority;
@@ -85,7 +85,7 @@ public partial class AudioService
             return;
 
         if (_areaMusicInstances.TryGetValue(musicEvent, out EventInstance inst) && inst.isValid())
-            inst.stop(FMOD.Studio.STOP_MODE.ALLOW_FADEOUT);
+            inst.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
     }
 
     public void ResetMusicPriority() => _areaMusicPriority = -1;
@@ -99,7 +99,7 @@ public partial class AudioService
         {
             if (pair.Value.isValid())
             {
-                pair.Value.stop(FMOD.Studio.STOP_MODE.ALLOW_FADEOUT);
+                pair.Value.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
                 pair.Value.release();
             }
         }
@@ -207,7 +207,7 @@ public partial class AudioService
         {
             if (_loginFmodInstance.isValid())
             {
-                _loginFmodInstance.stop(FMOD.Studio.STOP_MODE.ALLOW_FADEOUT);
+                _loginFmodInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
                 _loginFmodInstance.release();
                 _loginFmodInstance.clearHandle();
             }
