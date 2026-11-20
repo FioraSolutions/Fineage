@@ -12,7 +12,6 @@ public partial class PlayerController
             _moveTimer = 0f;
         _movementTarget = movementTarget;
         _isMove = true;
-        _behindPlayer = VectorUtils.IsTargetBehindPlayer(movementTarget.GetTarget(), transform);
     }
 
     public void StopMove()
@@ -111,11 +110,4 @@ public partial class PlayerController
         _verticalVelocity = -2f;
     }
 
-    private static float FrameIndependentLerp(float perFrameFraction, float deltaTime)
-    {
-        if (perFrameFraction <= 0f) return 0f;
-        if (perFrameFraction >= 1f) return 1f;
-        float rate = -60f * Mathf.Log(1f - perFrameFraction);
-        return 1f - Mathf.Exp(-rate * deltaTime);
-    }
 }
