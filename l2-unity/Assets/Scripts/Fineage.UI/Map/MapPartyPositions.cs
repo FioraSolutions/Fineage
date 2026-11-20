@@ -6,10 +6,10 @@ public static class MapPartyPositions
 {
     public readonly struct MemberPosition
     {
-        public int ObjectId;
-        public float L2X;
-        public float L2Y;
-        public float L2Z;
+        public readonly int ObjectId;
+        public readonly float L2X;
+        public readonly float L2Y;
+        public readonly float L2Z;
     }
 
     static readonly Dictionary<int, MemberPosition> _positions = new();
