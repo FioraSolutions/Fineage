@@ -11,15 +11,23 @@ public partial class QuestWindow
     public List<QuestInstance> Journal()
     {
         var all = new List<QuestInstance>();
-        if (repeatQuests != null)
-            all.AddRange(repeatQuests);
-        else if (nonRepeatQuests != null)
-            all.AddRange(nonRepeatQuests);
-        if (_tabSingle != null) all.AddRange(_tabSingle);
-        if (_tabRepeat != null) all.AddRange(_tabRepeat);
-        if (_tabEpic != null) all.AddRange(_tabEpic);
-        if (_tabTransfer != null) all.AddRange(_tabTransfer);
-        if (_tabSpecial != null) all.AddRange(_tabSpecial);
+        void AddRange(List<QuestInstance> rows)
+        {
+            if (rows == null)
+                return;
+            for (int i = 0; i < rows.Count; i++)
+            {
+                QuestInstance row = rows[i];
+                if (row == null || all.Exists(q => q.QuestID == row.QuestID))
+                    continue;
+                all.Add(row);
+            }
+        }
+        AddRange(_tabSingle);
+        AddRange(_tabRepeat);
+        AddRange(_tabEpic);
+        AddRange(_tabTransfer);
+        AddRange(_tabSpecial);
         return all;
     }
 
