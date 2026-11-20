@@ -196,7 +196,7 @@ public sealed class OverheadChatSayRunner : MonoBehaviour
                 cam = Camera.main;
             if (cam != null)
             {
-                Vector2 screenBottom;
+                Vector2 screenBottom = default;
                 NameplatesManager plates = NameplatePacketServices.Nameplates;
                 bool onScreen = plates != null
                     && plates.TryResolveOverheadSayScreenPos(cam, _entity, _entity.transform, out screenBottom);

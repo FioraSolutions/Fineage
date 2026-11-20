@@ -18,7 +18,7 @@ public static class QuestNpcMarkTextureCatalog
 
     public static Texture2D Load(byte mark)
     {
-        if (!Paths.TryValue(mark, out string path))
+        if (!Paths.TryGetValue(mark, out string path))
             return null;
         var tex = Resources.Load<Texture2D>(path);
         if (tex == null && _missingLogged.Add(path))

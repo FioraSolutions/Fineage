@@ -49,6 +49,6 @@ public partial class EntityActionSkill
             return;
 
         EntityActionPendingDeath.ArmSkillHit(target, magic.HitTime);
-        hits.ArmRemoteSkillHit(entity, target, magic);
+        hits.ArmRemoteMeleeHit(entity, target, magic);
     }
 }
