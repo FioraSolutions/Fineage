@@ -43,8 +43,9 @@ public static partial class EntitySpawnShared
 
         Object.DestroyImmediate(monster);
 
-        if (FindOnPrefab<CharacterAnimationAudioHandler>(go) == null)
-            go.AddComponent<CharacterAnimationAudioHandler>();
+        if (FindOnPrefab<NpcAnimationAudioHandler>(go) == null
+            && FindOnPrefab<CharacterAnimationAudioHandler>(go) == null)
+            go.AddComponent<NpcAnimationAudioHandler>();
         return go.AddComponent<NpcEntity>();
     }
 

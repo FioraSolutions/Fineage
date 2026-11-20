@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Fineage.Networking;
 
 /// <summary>
 /// Required audio/music managers — log once per service+caller, no silent null fallbacks.
@@ -15,6 +14,16 @@ public static class RequiredAudioServices
             return audio;
 
         LogOnce("AudioManager", caller);
+        return null;
+    }
+
+    public static AudioService RequireService(string caller)
+    {
+        AudioService service = AudioPacketServices.Service;
+        if (service != null)
+            return service;
+
+        LogOnce("AudioService", caller);
         return null;
     }
 

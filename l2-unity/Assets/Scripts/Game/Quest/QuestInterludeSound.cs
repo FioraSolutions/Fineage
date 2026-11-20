@@ -2,6 +2,12 @@ using UnityEngine;
 
 public static class QuestInterludeSound
 {
+    /// <summary>
+    /// Interlude voice package language suffix on disk (e.g. <c>tutorial_voice_001a-e.ogg</c>);
+    /// Mobius wire names omit it (<c>tutorial_voice_001a</c>).
+    /// </summary>
+    public const string TutorialVoiceLanguageSuffix = "-e";
+
     public static void Play(string file, int type)
     {
         string stem = (file ?? "").Trim();
@@ -15,7 +21,7 @@ public static class QuestInterludeSound
         if (type == 1)
             path = "Data/Sounds/Music/" + stem;
         else if (stem.StartsWith("tutorial_voice", System.StringComparison.OrdinalIgnoreCase))
-            path = "Data/Sounds/Voice/" + stem;
+            path = "Data/Sounds/Voice/" + stem + TutorialVoiceLanguageSuffix;
         else if (stem.Contains("/"))
             path = "Data/Sounds/" + stem.Replace('.', '/');
         else

@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "audioDurationSeconds": {
+    "streamingMin": 30.0,
+    "compressedInMemoryMin": 3.0
+  },
+  "requiredReadableAssets": [
+    {
+      "assetPath": "Assets/Resources/Data/StaticMeshes/LineageEffectsStaticmeshes/sh2_frames/sh2_frame_positions.asset",
+      "yamlField": "m_IsReadable",
+      "expectedValue": 1,
+      "reason": "L2VertMeshFrameBank.GetPixel at runtime"
+    }
+  ],
+  "textureRules": [
+    {
+      "id": "runtime-data-texture",
+      "pathGlobs": [
+        "Assets/Resources/Data/StaticMeshes/LineageEffectsStaticmeshes/sh2_frames/sh2_frame_positions.asset"
+      ],
+      "readable": true,
+      "mipmaps": false,
+      "streamingMipmaps": false,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "RGBA32",
+          "compression": "Uncompressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "RGBA32",
+          "compression": "Uncompressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "RGBA32",
+          "compression": "Uncompressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "terrain-splat",
+      "pathGlobs": [
+        "Assets/Resources/Data/Textures/**"
+      ],
+      "filenameGlobs": [
+        "*splat*",
+        "*Splat*"
+      ],
+      "readable": false,
+      "mipmaps": true,
+      "streamingMipmaps": true,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "BC7",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "ui-icon",
+      "pathGlobs": [
+        "Assets/Resources/Data/SysTextures/Icon/**"
+      ],
+      "readable": false,
+      "mipmaps": false,
+      "streamingMipmaps": false,
+      "filterMode": "Bilinear",
+      "npotScale": "None",
+      "wrapMode": "Clamp",
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "RGBA32",
+          "compression": "Uncompressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_4x4",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_4x4",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "ui",
+      "pathGlobs": [
+        "Assets/Resources/Data/UI/**",
+        "Assets/Resources/Data/Clock/**"
+      ],
+      "readable": false,
+      "mipmaps": false,
+      "streamingMipmaps": false,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "BC7",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_4x4",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_4x4",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "fx-sprite",
+      "pathGlobs": [
+        "Assets/Resources/Data/SysTextures/LineageEffectsTextures/**",
+        "Assets/Resources/Data/Effects/**"
+      ],
+      "readable": false,
+      "mipmaps": true,
+      "streamingMipmaps": true,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "BC7",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "normal-mask",
+      "pathGlobs": [
+        "Assets/**"
+      ],
+      "filenameGlobs": [
+        "*_n.png",
+        "*_N.png",
+        "*_nrm*",
+        "*_NRM*",
+        "*normal*",
+        "*Normal*",
+        "SCN*.png",
+        "SCS*.png"
+      ],
+      "readable": false,
+      "mipmaps": true,
+      "streamingMipmaps": true,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "BC5",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_5x5",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_5x5",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "world-character",
+      "pathGlobs": [
+        "Assets/Resources/Data/SysTextures/**"
+      ],
+      "readable": false,
+      "mipmaps": true,
+      "streamingMipmaps": true,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "BC7",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "world-map",
+      "pathGlobs": [
+        "Assets/Resources/Data/Textures/**"
+      ],
+      "readable": false,
+      "mipmaps": true,
+      "streamingMipmaps": true,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "BC7",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    },
+    {
+      "id": "world-default",
+      "pathGlobs": [
+        "Assets/**"
+      ],
+      "readable": false,
+      "mipmaps": true,
+      "streamingMipmaps": true,
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "BC7",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_6x6",
+          "compression": "Compressed",
+          "maxTextureSize": 2048
+        }
+      ]
+    }
+  ],
+  "audioRules": [
+    {
+      "id": "audio-streaming-long",
+      "pathGlobs": [
+        "Assets/Resources/Data/Sounds/**"
+      ],
+      "filenameGlobs": [
+        "frintessa_*",
+        "crystal_*"
+      ],
+      "loadType": "Streaming",
+      "compressionFormat": "Vorbis",
+      "quality": 0.7,
+      "loadInBackground": true
+    },
+    {
+      "id": "audio-sfx-short",
+      "pathGlobs": [
+        "Assets/Resources/Data/Sounds/SkillVoice/**",
+        "Assets/Resources/Data/Sounds/MonSound/**",
+        "Assets/Resources/Data/Sounds/ItemSound/**",
+        "Assets/Resources/Data/Sounds/HumanSound/**",
+        "Assets/Resources/Data/Sounds/Interface/**"
+      ],
+      "loadType": "DecompressOnLoad",
+      "compressionFormat": "Vorbis",
+      "quality": 1.0,
+      "loadInBackground": false
+    },
+    {
+      "id": "audio-default",
+      "pathGlobs": [
+        "Assets/Resources/Data/Sounds/**"
+      ],
+      "loadType": "DecompressOnLoad",
+      "compressionFormat": "Vorbis",
+      "quality": 1.0,
+      "loadInBackground": false,
+      "durationOverrides": {
+        "streamingMinSeconds": 30.0,
+        "compressedInMemoryMinSeconds": 3.0,
+        "streamingQuality": 0.7,
+        "compressedInMemoryQuality": 0.65
+      }
+    }
+  ]
+}
