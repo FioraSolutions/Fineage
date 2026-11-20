@@ -39,8 +39,7 @@ public partial class HitManager
         if (attacker is PlayerEntity player)
             player.SetSelfHit(hit);
 
+        // Local player impact FX runs via SwordCollision OnHitCollider (same AttackShot notify).
         attacker.IsSoulshotCharged = hit.hasSoulshot();
-        Vector3 hitPoint = ResolveTargetImpactCenter(target);
-        HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
     }
 }
