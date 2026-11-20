@@ -41,6 +41,7 @@ public partial class L2TerrainGenerator
             int[,] detailLayer = new int[detailHeight, detailWidth];
 
             // Convert the density texture to a 2D array of density values
+            densityTexture = TextureUtils.DuplicateReadable(densityTexture);
             Color32[] pixels = densityTexture.GetPixels32();
 
             for (int y = 0; y < detailHeight; y++) {

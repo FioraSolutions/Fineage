@@ -75,7 +75,7 @@ public partial class TextureUtils
         return loaded;
     }
 
-    internal static Texture2D DuplicateReadable(Texture2D source) {
+    public static Texture2D DuplicateReadable(Texture2D source) {
         if (source == null)
             return null;
         if (source.isReadable)
