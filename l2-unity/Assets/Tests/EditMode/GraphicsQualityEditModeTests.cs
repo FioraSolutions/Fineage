@@ -2,6 +2,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>EditMode coverage for per-tier URP quality wiring.</summary>
 public sealed class GraphicsQualityEditModeTests
 {
     [Test]
