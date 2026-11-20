@@ -101,6 +101,11 @@ public static class SkillAnimationCastDataBuilder
         {
             castData.SpawnShotVisualsImmediately = true;
         }
+        else
+        {
+            // Common staged pipeline: the impact stage of a physical skill lands at the server hit at the latest.
+            castData.ImpactFallbackSeconds = castData.HitTime;
+        }
 
         return castData;
     }

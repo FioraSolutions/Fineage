@@ -190,7 +190,10 @@ public static class CompositeEffectPrefabYamlParser
 
     static string ReadString(string body, string key)
     {
-        Match m = Regex.Match(body, @"^\s*" + key + @":\s*(.*)\s*$", RegexOptions.Multiline);
+        Match m = // [ \t]* (not \s*) after the colon: \s also eats the newline, so an empty "boneName:" swallowed the next
+        // line ("follow: 1"), the part got a bogus bone, BonePlacement fell back to CasterRoot and every
+        // target-side part spawned on the caster instead of the victim.
+        Regex.Match(body, @"^[ \t]*" + key + @":[ \t]*(.*?)[ \t]*\r?$", RegexOptions.Multiline);
         if (!m.Success)
             return null;
         string raw = m.Groups[1].Value.Trim();
