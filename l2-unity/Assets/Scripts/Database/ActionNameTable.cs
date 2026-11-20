@@ -62,7 +62,10 @@ public class ActionNameTable
     private void ReadActions()
     {
         _actions = new Dictionary<int, ActionData>();
-        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/ActionName_Classic-eu.txt");
+        string interludePath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/ActionName-Interlude-eu.txt");
+        string dataPath = File.Exists(interludePath)
+            ? interludePath
+            : Path.Combine(Application.streamingAssetsPath, "Data/Meta/ActionName_Classic-eu.txt");
         if (!File.Exists(dataPath))
         {
             // Debug.LogWarning("File not found: " + dataPath);
