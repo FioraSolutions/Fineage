@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Stopwatch = System.Diagnostics.Stopwatch;
 using System.Threading;
 using UnityEngine;
 
@@ -220,7 +220,7 @@ public sealed class NetMainThreadPump
         }
         catch (Exception ex)
         {
-            Debug.LogException(ex);
+            UnityEngine.Debug.LogException(ex);
         }
     }
 
@@ -241,7 +241,7 @@ public sealed class NetMainThreadPump
             return;
 
         _nextDepthLogTime = now + DepthLogCooldownSeconds;
-        Debug.LogWarning(
+        UnityEngine.Debug.LogWarning(
             $"[Net] main-thread packet queue depth {depth} (preserve {PreserveCount}, coalesce {CoalesceSlotCount}, discardable {DiscardableCount}); "
             + $"apply budget {MaxNormalActionsPerFrame}/frame, discardable soft-cap {MaxPendingDiscardable}.");
     }
@@ -261,9 +261,9 @@ public sealed class NetMainThreadPump
     void FlushDeferredLogs()
     {
         while (_deferredWarnings.TryDequeue(out string warn))
-            Debug.LogWarning(warn);
+            UnityEngine.Debug.LogWarning(warn);
         while (_deferredErrors.TryDequeue(out string error))
-            Debug.LogError(error);
+            UnityEngine.Debug.LogError(error);
     }
 
     static long SumCounts(ConcurrentDictionary<ushort, long> map)
