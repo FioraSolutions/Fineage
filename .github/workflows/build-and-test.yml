@@ -26,6 +26,9 @@ jobs:
           ref: dev
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check character clips have no redundant Euler rotation curves
+        run: python3 scripts/check-anim-rotation-hygiene.py
+
       - name: Check IncomingPacketActions stays deleted (#142)
         run: python3 scripts/check-frozen-incoming-packet-actions.py
 

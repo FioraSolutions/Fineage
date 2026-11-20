@@ -129,6 +129,7 @@ public static class L2MElfAnimImporter
                 var nb = b; nb.path = np;
                 AnimationUtility.SetEditorCurve(dst, nb, AnimationUtility.GetEditorCurve(src, b));
             }
+            L2AnimClipPipeline.StripRedundantEulerCurves(dst);
             // Loop flags mirror the working MMagic clip of the same sequence (CastMid/CastLong one-shot, CastEnd holds/loops).
             AnimationClip mmRef; mmagic.TryGetValue(seq.Replace("spatk0", "spatk00"), out mmRef);
             if (mmRef == null) mmagic.TryGetValue(seq, out mmRef);
