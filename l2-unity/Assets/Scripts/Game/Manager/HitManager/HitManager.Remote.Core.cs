@@ -13,6 +13,7 @@ public partial class HitManager
 
     /// <summary>
     /// One AttackShot animation notify → one row in the Attack packet hit list (dual/fist = two notifies).
+    /// Arms per-hit soulshot charge and miss state; impact FX is SwordCollision OnHitCollider.
     /// </summary>
     public void PresentLocalAttackHit(Entity attacker, int hitIndex)
     {
@@ -25,21 +26,9 @@ public partial class HitManager
         if (hit == null || hit.isMiss())
             return;
 
-        Entity target = AttackHitPresentation.ResolveHitTarget(
-            attacker.GetTargetEntity(),
-            hit,
-            ResolveEntityFromWorld);
-
-        if (target == null)
-            target = ResolveEntityFromWorld(_localAttack.TargetId);
-
-        if (target == null)
-            return;
-
         if (attacker is PlayerEntity player)
             player.SetSelfHit(hit);
 
-        // Local player impact FX runs via SwordCollision OnHitCollider (same AttackShot notify).
         attacker.IsSoulshotCharged = hit.hasSoulshot();
     }
 }
