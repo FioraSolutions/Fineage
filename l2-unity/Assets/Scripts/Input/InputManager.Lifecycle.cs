@@ -48,6 +48,7 @@ public partial class InputManager : MonoBehaviour
         _closeWindowAction = _playerInput.actions["CloseWindow"];
         _systemMenuAction = _playerInput.actions["SystemMenu"];
         _mapAction = _playerInput.actions["Map"];
+        _clanAction = _playerInput.actions["Clan"];
         _validateAction = _playerInput.actions["Validate"];
         _questJournalAction = _playerInput.actions.FindAction("QuestJournal", false);
 

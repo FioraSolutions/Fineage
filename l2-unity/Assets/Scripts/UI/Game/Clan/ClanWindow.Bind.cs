@@ -38,11 +38,17 @@ public partial class ClanWindow : L2TwoPanels
         }
 
         var snapshot = new PledgeShowMemberListAllDto();
-        snapshot.ApplyZoneSnapshot(book.ClanId, book.Name, book.Level, book.LeaderName(), book.LeaderObjectId, book.CrestId, members);
+        snapshot.ApplyZoneSnapshot(book, members);
         AddClanData(snapshot);
         Label peace = _windowEle.Q<Label>("labelAtPeace");
         if (peace != null)
-            peace.text = book.Dissolving ? "Dissolving" : "At Peace";
+            peace.text = book.Dissolving ? "Dissolving" : (book.AtWar ? "At War" : "At Peace");
+        Label baseLabel = _windowEle.Q<Label>("None");
+        if (baseLabel != null)
+        {
+            string hall = book.HallId > 0 ? "Clan Hall" : (book.CastleId > 0 ? "Castle" : "None");
+            baseLabel.text = hall;
+        }
         TuneZoneButtons(book);
     }
 

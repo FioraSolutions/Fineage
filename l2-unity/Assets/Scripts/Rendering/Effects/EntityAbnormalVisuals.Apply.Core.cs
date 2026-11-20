@@ -23,6 +23,7 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
             ApplyPose(pose);
         if (flags != _flags)
             SyncFx(flags);
+        SyncStealth(flags);
 
         _pose = pose;
         _flags = flags;

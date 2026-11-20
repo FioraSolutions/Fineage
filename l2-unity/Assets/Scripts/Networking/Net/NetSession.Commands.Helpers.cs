@@ -90,6 +90,9 @@ public sealed partial class NetSession
     public Task SendClanCancelDissolveRequest() =>
         _commandSender.SendClanCancelDissolveRequestAsync();
 
+    public Task SendPledgeCommand(PledgeCommandNetMsg message) =>
+        _commandSender.SendPledgeCommandAsync(message);
+
     public Task SendTargetCancel() =>
         _commandSender.SendTargetCancelAsync();
 }

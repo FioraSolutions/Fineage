@@ -81,10 +81,24 @@ public sealed class StatusApplyService
         // toggle shining forever.
         SkillToggleState.Replace(packet.ListEffect);
 
+        ApplySelfTargetEffects(packet);
+
         if (packet.ListEffect == null)
             return;
         foreach (var item in packet.ListEffect)
             buffer.AddDataCellToTime(item.Id, item.Value, item.Duration);
+    }
+
+    /// <summary>
+    /// Mobius updateEffectIcons for self must drive <see cref="EntityAbnormalVisuals"/> (AVE_STEALTH, sleep FX, …),
+    /// not only the buff tray. Peers already go through <see cref="ApplyPeer"/>.
+    /// </summary>
+    void ApplySelfTargetEffects(AbnormalStatusUpdateDto packet)
+    {
+        PlayerEntity local = DomainPacketServices.LocalPlayer;
+        if (local == null)
+            return;
+        local.ReplaceTargetEffects(packet?.ListEffect);
     }
 
     void ApplyPeer(AbnormalStatusUpdateDto packet)

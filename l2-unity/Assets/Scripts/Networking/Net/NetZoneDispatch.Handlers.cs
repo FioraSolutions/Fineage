@@ -272,10 +272,10 @@ public sealed partial class NetZoneDispatch
                 _ = NetCodec.DecodeAllyInfo(envelope.Payload);
                 break;
             case NetOpcode.PledgeInfo:
-                _ = NetCodec.DecodePledgeInfo(envelope.Payload);
+                _session.ApplyPledgeInfo(NetCodec.DecodePledgeInfo(envelope.Payload));
                 break;
             case NetOpcode.PledgeWarList:
-                _ = NetCodec.DecodePledgeWarList(envelope.Payload);
+                _session.ApplyPledgeWarList(NetCodec.DecodePledgeWarList(envelope.Payload));
                 break;
             case NetOpcode.ClanHallList:
                 _ = NetCodec.DecodeClanHallList(envelope.Payload);
@@ -332,8 +332,11 @@ public sealed partial class NetZoneDispatch
                 NetQuestFxApply.ApplyTutorial(NetCodec.DecodeTutorialUi(envelope.Payload));
                 break;
             case NetOpcode.PartyMemberPosition:
-                _ = NetCodec.DecodePartyMemberPosition(envelope.Payload);
+            {
+                var partyMap = NetCodec.DecodePartyMemberPosition(envelope.Payload);
+                PartyMapApplyIncomingPacketServices.ApplyPartyMemberPositions(partyMap);
                 break;
+            }
             case NetOpcode.PartyMemberUpdate:
                 _ = NetCodec.DecodePartyMemberUpdate(envelope.Payload);
                 break;

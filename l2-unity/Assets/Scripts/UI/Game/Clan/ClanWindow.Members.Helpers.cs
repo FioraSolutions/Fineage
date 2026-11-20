@@ -97,12 +97,11 @@ public partial class ClanWindow
     private void OkInvite()
     {
         TargetManager targets = TargetPacketServices.Targets;
-        if (targets != null && targets.HasTarget() && targets.Target.GetEntity() != null)
-        {
-            int id = targets.Target != null ? targets.Target.GetEntity().Identity.Id : 0;
-
-            ZoneCommands.Send(new RequestJoinPledgeCommand(id));
-        }
+        int id = ClanUiRequests.SelectedTargetObjectId();
+        if (id > 0)
+            ZoneCommands.Send(new ClanInviteRequestCommand(id, SelectedPledgeType()));
+        else
+            ClanUiRequests.RejectLocal("ClanInviteRequest", "Select a character to invite.");
 
         CancelEvent();
     }
