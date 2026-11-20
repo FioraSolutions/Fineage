@@ -50,7 +50,7 @@ public partial class Entity
     public void RefreshLocomotionAnimRates()
     {
         IAnimationController animation = LocomotionAnimationController;
-        if (animation is not ILocomotionPlaybackRates playback)
+        if (animation == null)
             return;
         Animator animator = animation.GetAnimator();
         string suffix = LocomotionWeaponSuffix();
@@ -61,7 +61,7 @@ public partial class Entity
             ? AnimationNames.MONSTER_WALK.Value
             : AnimationNames.WALK.Concat(suffix);
         LocomotionGait.ApplyPlaybackRates(
-            playback,
+            animation,
             animator,
             runClip,
             walkClip,

@@ -6,7 +6,7 @@ public static partial class LocomotionGait
     /// Push walk/run animator multipliers derived from the same unity m/s that movement uses.
     /// </summary>
     public static void ApplyPlaybackRates(
-        ILocomotionPlaybackRates animation,
+        IAnimationController animation,
         Animator animator,
         string runClipName,
         string walkClipName,

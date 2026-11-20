@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public partial class BaseAnimationController : AnimationEventsBase, IAnimationController, ILocomotionPlaybackRates
+public partial class BaseAnimationController : AnimationEventsBase, IAnimationController
 {
     public bool TryPlayCastPhase(string overrideAnimName, string phaseTriggerName)
     {
