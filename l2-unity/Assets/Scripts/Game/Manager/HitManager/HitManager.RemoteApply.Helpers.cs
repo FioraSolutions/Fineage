@@ -48,6 +48,18 @@ public partial class HitManager
                string.Equals(attacker.Gear.WeaponAnim, "bow", StringComparison.OrdinalIgnoreCase);
     }
 
+    Entity ResolveAttackHitTarget(Entity fallback, Hit hit)
+    {
+        if (hit == null)
+            return fallback;
+        Entity resolved = ResolveEntityFromWorld(hit.TargetId);
+        if (resolved != null)
+            return resolved;
+        if (fallback != null && fallback.Identity != null && fallback.Identity.Id == hit.TargetId)
+            return fallback;
+        return fallback;
+    }
+
     static float ResolveRemoteHitDelay(Entity attacker)
     {
         float pAtk = 333f;
