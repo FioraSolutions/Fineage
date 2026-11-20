@@ -34,7 +34,7 @@ public sealed partial class NetTransport : IDisposable
             {
                 PacketEnvelope envelope;
                 using (NetReceiveProfiling.Read.Auto())
-                    envelope = await NetFraming.ReadAsync(_stream, _readLengthScratch, ct).ConfigureAwait(false);
+                    envelope = await NetFramingPooled.ReadAsync(_stream, _readLengthScratch, ct).ConfigureAwait(false);
                 if (envelope == null)
                 {
                     reason = _disposed ? "disposed" : "eof";

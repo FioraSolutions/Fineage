@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.Buffers.Binary;
 using System.IO;
 using System.Threading;
@@ -81,38 +80,23 @@ namespace Fineage.Net.Contract
             return true;
         }
 
-        public static async Task<PacketEnvelope?> ReadAsync(Stream stream, byte[] lengthScratch, CancellationToken ct)
-        {
-            if (lengthScratch == null || lengthScratch.Length < 4)
-                throw new ArgumentException("lengthScratch must hold at least 4 bytes", nameof(lengthScratch));
-
-            if (!await ReadExactAsync(stream, lengthScratch, 4, ct).ConfigureAwait(false))
-                return null;
-
-            uint total = BinaryPrimitives.ReadUInt32LittleEndian(lengthScratch.AsSpan(0, 4));
-            if (total < PacketEnvelope.HeaderSize || total > PacketEnvelope.MaxFrameBytes)
-                throw new InvalidOperationException("bad_frame_length");
-
-            byte[] rented = ArrayPool<byte>.Shared.Rent((int)total);
-            try
-            {
-                if (!await ReadExactAsync(stream, rented, (int)total, ct).ConfigureAwait(false))
-                    return null;
-
-                if (!TryDecode(rented.AsSpan(0, (int)total), out var envelope, out string? error))
-                    throw new InvalidOperationException(error ?? "decode");
-                return envelope;
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(rented);
-            }
-        }
-
         public static async Task<PacketEnvelope?> ReadAsync(Stream stream, CancellationToken ct)
         {
             var lenBuf = new byte[4];
-            return await ReadAsync(stream, lenBuf, ct).ConfigureAwait(false);
+            if (!await ReadExactAsync(stream, lenBuf, ct).ConfigureAwait(false))
+                return null;
+
+            uint total = BinaryPrimitives.ReadUInt32LittleEndian(lenBuf);
+            if (total < PacketEnvelope.HeaderSize || total > PacketEnvelope.MaxFrameBytes)
+                throw new InvalidOperationException("bad_frame_length");
+
+            var body = new byte[total];
+            if (!await ReadExactAsync(stream, body, ct).ConfigureAwait(false))
+                return null;
+
+            if (!TryDecode(body, out var envelope, out string? error))
+                throw new InvalidOperationException(error ?? "decode");
+            return envelope;
         }
 
         public static async Task WriteAsync(Stream stream, PacketEnvelope envelope, CancellationToken ct)
@@ -122,12 +106,12 @@ namespace Fineage.Net.Contract
             await stream.FlushAsync(ct).ConfigureAwait(false);
         }
 
-        static async Task<bool> ReadExactAsync(Stream stream, byte[] buffer, int length, CancellationToken ct)
+        static async Task<bool> ReadExactAsync(Stream stream, byte[] buffer, CancellationToken ct)
         {
             int offset = 0;
-            while (offset < length)
+            while (offset < buffer.Length)
             {
-                int n = await stream.ReadAsync(buffer.AsMemory(offset, length - offset), ct).ConfigureAwait(false);
+                int n = await stream.ReadAsync(buffer.AsMemory(offset, buffer.Length - offset), ct).ConfigureAwait(false);
                 if (n == 0)
                     return false;
                 offset += n;

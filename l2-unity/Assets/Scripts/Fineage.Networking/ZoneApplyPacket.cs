@@ -1,10 +1,10 @@
 using Fineage.Net.Contract;
 
-/// <summary>Immutable decoded zone packet: apply on the main thread only.</summary>
+/// <summary>Decoded zone packet: apply on the main thread only; body may be merged while pending.</summary>
 public sealed class ZoneApplyPacket
 {
-    public ushort Opcode { get; init; }
+    public ushort Opcode { get; set; }
     /// <summary>Null for opcodes with no decoded body (e.g. HelloAck).</summary>
-    public object Body { get; init; }
-    public PacketEnvelope Envelope { get; init; }
+    public object Body { get; set; }
+    public PacketEnvelope Envelope { get; set; }
 }
