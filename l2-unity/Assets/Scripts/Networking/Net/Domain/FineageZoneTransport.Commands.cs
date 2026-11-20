@@ -38,6 +38,34 @@ public sealed partial class FineageZoneTransport
         }
     }
 
+    static bool TrySendNetSitStandUserCommand(int commandId)
+    {
+        if (commandId != (int)PlayerCommand.SIT
+            && commandId != (int)PlayerCommand.STAND
+            && commandId != (int)PlayerCommand.SITSTAND)
+            return false;
+
+        // Same path as the Actions-window Sit/Stand button (RequestActionUse 0).
+        // /sit and /stand are no-ops when the pawn is already in that pose; /sitstand always toggles.
+        var state = PlayerStatePacketServices.PlayerState;
+        bool sitting = state != null
+            && (state.State == PlayerState.SITTING || state.State == PlayerState.SIT_WAIT);
+        if (commandId == (int)PlayerCommand.SIT && sitting)
+            return true;
+        if (commandId == (int)PlayerCommand.STAND && !sitting)
+            return true;
+
+        if (PlayerActions.Instance != null)
+            PlayerActions.Instance.UseAction(ActionType.Sit);
+        else
+        {
+            NetSession session = NetSession.TryGetBound();
+            if (session != null)
+                _ = session.SendActionUse((int)ActionType.Sit);
+        }
+        return true;
+    }
+
     static bool TrySendNetTradeUserCommand(int commandId)
     {
         if (commandId != (int)PlayerCommand.TRADE)
