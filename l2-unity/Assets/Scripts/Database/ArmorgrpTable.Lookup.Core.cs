@@ -38,7 +38,7 @@ public partial class ArmorgrpTable
                 }
                 else
                 {
-                    Armorgrp grp = new Armorgrp();
+                    Armorgrp grp = CreateArmorgrp();
                     ApplyInterludeIdentity(grp, ids, id);
                     _armorgrps.Add(id, grp);
                 }
@@ -93,6 +93,22 @@ public partial class ArmorgrpTable
             return value;
         string[] parts = DatUtils.ParseArray(value);
         return parts != null && parts.Length > 0 ? parts[0] : value;
+    }
+
+    /// <summary>
+    /// Every armorgrp row gets per-race model/texture slots, including Interlude-only
+    /// rows that have no Classic mesh entry (ModelTable iterates them all).
+    /// </summary>
+    private Armorgrp CreateArmorgrp()
+    {
+        Armorgrp grp = new Armorgrp();
+        grp.FirstModel = new string[ModelTable.RACE_COUNT];
+        grp.FirstTexture = new string[ModelTable.RACE_COUNT];
+        grp.AllModels = new List<List<string>>(ModelTable.RACE_COUNT);
+        InitializeList(grp.AllModels);
+        grp.AllTextures = new List<List<string>>(ModelTable.RACE_COUNT);
+        InitializeList(grp.AllTextures);
+        return grp;
     }
 
     private void InitializeList(List<List<string>> multilist)
