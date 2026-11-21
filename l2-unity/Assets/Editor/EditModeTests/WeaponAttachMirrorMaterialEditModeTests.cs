@@ -28,8 +28,9 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
         WeaponAttachApplicator.Apply(instance, socket, mount);
 
         IList<string> offenders = CollectFlatMirrorSlots(instance);
-        Assert.IsEmpty(
-            offenders,
+        Assert.AreEqual(
+            0,
+            offenders.Count,
             "Mirrored attach must double-side every submesh; offenders: " + string.Join(", ", offenders));
         Object.DestroyImmediate(socket.gameObject);
         Object.DestroyImmediate(instance);
@@ -69,9 +70,10 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
             Object.DestroyImmediate(instance);
         }
 
-        Assert.IsNotZero(audited, "Expected at least one mirror-profile weapon prefab in meta");
-        Assert.IsEmpty(
-            failures,
+        Assert.Greater(audited, 0, "Expected at least one mirror-profile weapon prefab in meta");
+        Assert.AreEqual(
+            0,
+            failures.Count,
             "Weapon mirror audit failures (" + failures.Count + "): " + string.Join(" | ", failures));
     }
 
