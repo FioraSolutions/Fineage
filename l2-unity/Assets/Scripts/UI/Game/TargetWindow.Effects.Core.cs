@@ -9,7 +9,6 @@ public partial class TargetWindow
     {
         if (_effectCells.Count == 0)
             return;
-        float now = Time.time;
         for (int i = 0; i < _effectCells.Count; i++)
         {
             TargetEffectCell cell = _effectCells[i];
