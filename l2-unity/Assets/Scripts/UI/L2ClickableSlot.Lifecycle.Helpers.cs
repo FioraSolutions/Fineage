@@ -30,6 +30,21 @@ public partial class L2ClickableSlot : L2Slot
             switch (_slotType)
             {
                 case SlotType.Recipe:
+                    if (ManufacturePacketServices.Browse != null && ManufacturePacketServices.Browse.IsShown)
+                    {
+                        ManufacturePacketServices.Browse.EventDoubleClick(slotElement);
+                        break;
+                    }
+
+                    if (ManufacturePacketServices.PickingRecipesForShop)
+                    {
+                        string[] posIds = ToolTipsUtils.GetUniquePosition(slotElement);
+                        int position = Int32.Parse(posIds[0]);
+                        int recipeId = CraftPacketServices.RecipeBook.GetRecipeIdByPosition(position);
+                        ManufacturePacketServices.Manage.AddRecipeFromBook(recipeId);
+                        break;
+                    }
+
                     CraftPacketServices.RecipeBook.EventDoubleClick(slotElement);
                     break;
                 case SlotType.PriceBuy:
