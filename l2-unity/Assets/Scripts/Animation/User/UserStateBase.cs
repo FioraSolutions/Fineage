@@ -51,6 +51,17 @@ public class UserStateBase : StateMachineBehaviour {
         _audioHandler.PlaySoundAtRatio(soundEvent, ratio);
     }
 
+    protected void PlayEquippedWeaponItemSounds() {
+        if (_audioHandler == null || _gear == null)
+            return;
+
+        int weaponId = _gear.EquippedRightHandWeapon != null ? _gear.EquippedRightHandWeapon.Id : 0;
+        string swing = CombatHitSoundResolver.ResolveWeaponSwingToken(weaponId);
+        string shing = CombatHitSoundResolver.ResolveWeaponShingToken(weaponId);
+        _audioHandler.PlayItemSoundTokenAtRatio(swing, _audioHandler.SwishRatio);
+        _audioHandler.PlayItemSoundTokenAtRatio(shing, _audioHandler.AtkRatio);
+    }
+
     public void SetBool(string name, bool value) {
         _cancelAction = true;
         AnimatorBoolSet.SetIfExists(_animator, name, value);

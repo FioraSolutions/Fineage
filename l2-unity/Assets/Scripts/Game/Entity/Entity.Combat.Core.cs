@@ -38,7 +38,12 @@ public partial class Entity
 
     protected virtual void OnHit(bool criticalHit) {
         int entityId = Identity != null ? Identity.Id : 0;
-        CharacterCombatAudioDispatch.PlayHitImpact(criticalHit, transform.position, entityId);
+        CharacterCombatAudioDispatch.PlayHitImpact(
+            criticalHit,
+            transform.position,
+            entityId,
+            attacker: null,
+            target: this);
     }
 
     public void PlayHitReaction(bool criticalHit = false) => OnHit(criticalHit);
