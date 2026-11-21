@@ -90,14 +90,10 @@ def check_editmode_asmdef_types() -> list[str]:
 
 
 def check_cs9_syntax() -> list[str]:
-    skip = ("Plugins",)
-    contract_skip = CONTRACT
     errors: list[str] = []
     for path in sorted(ASSETS.rglob("*.cs")):
         rel = path.relative_to(REPO).as_posix()
         if rel.startswith("l2-unity/Assets/Plugins"):
-            continue
-        if contract_skip in path.parents:
             continue
         text = path.read_text(encoding="utf-8-sig", errors="replace")
         for line_no, line in enumerate(text.splitlines(), start=1):
