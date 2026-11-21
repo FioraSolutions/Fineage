@@ -3,7 +3,7 @@ using NUnit.Framework;
 public sealed class WeaponShotSectionResolverEditModeTests
 {
     [Test]
-    public void Bare_hands_returns_HAND()
+    public void Bare_hands_types_return_HAND()
     {
         Assert.AreEqual(
             "HAND",
