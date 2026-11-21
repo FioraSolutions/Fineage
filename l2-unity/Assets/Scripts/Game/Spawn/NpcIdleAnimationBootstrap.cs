@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>Spawn-time checks for NPC base wait idle (Interlude: looping wait + rare SpWait).</summary>
+/// <summary>Spawn-time checks for NPC base wait idle (Interlude: looping wait + rare SpWait). Item 13.</summary>
 public static class NpcIdleAnimationBootstrap
 {
     public static void Apply(NetworkAnimationController controller, Entity entity)
