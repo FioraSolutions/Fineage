@@ -37,7 +37,7 @@ public static class CrowdNetPumpBench
         {
             for (int pawn = 0; pawn < pawnCount; pawn++)
             {
-                var body = new MoveStateMsg { EntityValue = pawn + 1, DestX = frame, DestY = pawn };
+                var body = new MoveStateMsg { EntityValue = (ulong)(pawn + 1), DestX = frame, DestY = pawn };
                 var anchor = new ZoneApplyPacket { Opcode = NetOpcode.MoveState, Body = body };
                 pump.Post(() => { }, NetOpcode.MoveState, body, anchor);
             }
