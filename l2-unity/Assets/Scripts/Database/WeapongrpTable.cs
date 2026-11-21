@@ -15,11 +15,13 @@ public partial class WeapongrpTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<WeapongrpTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(WeapongrpTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(WeapongrpTable));
                 _instance = new WeapongrpTable();
             }
 

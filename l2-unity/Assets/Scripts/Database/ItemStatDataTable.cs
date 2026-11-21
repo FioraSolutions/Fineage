@@ -16,11 +16,13 @@ public partial class ItemStatDataTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<ItemStatDataTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(ItemStatDataTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(ItemStatDataTable));
                 _instance = new ItemStatDataTable();
             }
 
