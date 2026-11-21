@@ -69,10 +69,12 @@ public sealed class FineageFrameTimingOverlay : MonoBehaviour
             _style.normal.background = bg;
         }
 
-        const float width = 380f;
-        const float height = 56f;
+        const float width = 480f;
+        const float height = 72f;
         GUILayout.BeginArea(new Rect(8f, 8f, width, height), GUIContent.none, _style);
         GUILayout.Label(_lastSampleLine);
+        if (CrowdTierPacketServices.System != null)
+            GUILayout.Label(CrowdTierPacketServices.System.HistogramLine);
         GUILayout.EndArea();
     }
 }

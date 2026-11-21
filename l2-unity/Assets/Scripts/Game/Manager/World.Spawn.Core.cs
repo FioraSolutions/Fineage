@@ -18,6 +18,7 @@ public partial class World
         _entities.RegisterPlayer(id, player);
         _entityWait.Notify(id, player);
         L2ActorPointLights.TryRegisterActorRoot(player.transform);
+        CrowdTierPacketServices.System?.Register(id, player.transform, isLocalPlayer: true);
     }
 
     public void RegisterUser(Entity user)
@@ -34,6 +35,7 @@ public partial class World
 
         _entityWait.Notify(id, user);
         L2ActorPointLights.TryRegisterActorRoot(user.transform);
+        CrowdTierPacketServices.System?.Register(id, user.transform);
     }
 
     public void SpawnUser(CharInfoDto info)
