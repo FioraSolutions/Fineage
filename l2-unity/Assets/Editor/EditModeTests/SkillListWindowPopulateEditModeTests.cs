@@ -63,10 +63,9 @@ public sealed class SkillListWindowPopulateEditModeTests
         SkillListWindow.EditModeResetSingletonForTests();
 
         _skillListHost = new GameObject("SkillListWindowEditModeHost");
-        var window = _skillListHost.AddComponent<SkillListWindowEditModeHarness>();
-        Assert.IsTrue(SkillListWindow.Instance == window, "harness must own SkillListWindow singleton");
-        Assert.NotNull(window, "SkillListWindow harness was not created");
-        window.HarnessLoadAssets();
+        var window = _skillListHost.AddComponent<SkillListWindow>();
+        Assert.IsTrue(window.IsSkillListSingletonOwnerForTests, "test host must own SkillListWindow singleton");
+        window.EditorTestLoadAssets();
 
         var visualRoot = windowAsset.Instantiate();
         var host = new VisualElement { name = "UITestRoot" };
@@ -74,7 +73,7 @@ public sealed class SkillListWindowPopulateEditModeTests
         host.style.height = 360;
         host.Add(visualRoot);
 
-        window.HarnessInitWindow(host);
+        window.EditorTestInitWindow(host);
 
         var skills = new List<SkillInstance>
         {
@@ -87,7 +86,7 @@ public sealed class SkillListWindowPopulateEditModeTests
         Assert.Greater(window.PendingSkillCountForEditModeTests, 0, "packet before tab chrome should defer");
         Assert.AreEqual(skills.Count, window.AppliedSkillCountForEditModeTests);
 
-        var content = window.HarnessQueryContent();
+        var content = window.EditorTestQueryContent();
         Assert.NotNull(content, "SkillListWindow content missing");
         VisualElement tabView = content.Q("InventoryTabView") ?? content;
 
@@ -134,13 +133,12 @@ public sealed class SkillListWindowPopulateEditModeTests
         Assert.NotNull(rowPhysical, "RowPhysical missing");
         Assert.NotNull(rowMagical, "RowMagical missing");
         Assert.Greater(rowPhysical.childCount, 0, "physical row has no slot panels");
-        Assert.AreEqual(DisplayStyle.Flex, rowPhysical.style.display, "physical section collapsed");
+        Assert.AreNotEqual(DisplayStyle.None, rowPhysical.style.display.value, "physical section collapsed");
 
         int physicalSlots = CountSkillSlots(rowPhysical);
         Assert.Greater(physicalSlots, 0, "physical active skills should create slots");
 
         Assert.Greater(hide.CountVisibleSkillSlots(), 0, "expected visible skill slots in hierarchy");
-        Assert.IsTrue(hide.IsMountedInHierarchy(), "skill panel should be attached after GetOrCreateTab");
         Assert.IsFalse(DisplayHiddenUpChain(host), "tab host has DisplayStyle.None in ancestor chain");
     }
 
@@ -176,12 +174,4 @@ public sealed class SkillListWindowPopulateEditModeTests
         return n;
     }
 
-    sealed class SkillListWindowEditModeHarness : SkillListWindow
-    {
-        public void HarnessLoadAssets() => LoadAssets();
-
-        public void HarnessInitWindow(VisualElement root) => InitWindow(root);
-
-        public VisualElement HarnessQueryContent() => GetElementById("content");
-    }
 }

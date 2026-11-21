@@ -63,7 +63,8 @@ public partial class SkillListWindow : L2PopupWindow
     private void OnDestroy()
     {
         SkillToggleState.Changed -= OnToggleStateChanged;
-        _instance = null;
+        if (_instance == this)
+            _instance = null;
     }
 
     void OnEnable()
