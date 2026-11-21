@@ -62,20 +62,22 @@ public partial class PlayerStateBase : StateMachineBehaviour
             return;
         }
 
-        if (_audioHandler == null)
-        {
-            int id = _entity.Identity != null ? _entity.Identity.Id : 0;
-            int weaponId = _gear.EquippedRightHandWeapon != null ? _gear.EquippedRightHandWeapon.Id : 0;
-            string swing = CombatHitSoundResolver.ResolveWeaponSwingToken(weaponId);
-            string shing = CombatHitSoundResolver.ResolveWeaponShingToken(weaponId);
-            CharacterCombatAudioDispatch.PlayItemSoundToken(swing, _entity.transform.position, id);
-            CharacterCombatAudioDispatch.PlayItemSoundToken(shing, _entity.transform.position, id);
-            return;
-        }
-
+        int entityId = _entity != null && _entity.Identity != null ? _entity.Identity.Id : 0;
         int weaponId = _gear.EquippedRightHandWeapon != null ? _gear.EquippedRightHandWeapon.Id : 0;
         string swing = CombatHitSoundResolver.ResolveWeaponSwingToken(weaponId);
         string shing = CombatHitSoundResolver.ResolveWeaponShingToken(weaponId);
+
+        if (_audioHandler == null)
+        {
+            if (_entity != null)
+            {
+                CharacterCombatAudioDispatch.PlayItemSoundToken(swing, _entity.transform.position, entityId);
+                CharacterCombatAudioDispatch.PlayItemSoundToken(shing, _entity.transform.position, entityId);
+            }
+
+            return;
+        }
+
         _audioHandler.PlayItemSoundTokenAtRatio(swing, _audioHandler.SwishRatio);
         _audioHandler.PlayItemSoundTokenAtRatio(shing, _audioHandler.AtkRatio);
     }
