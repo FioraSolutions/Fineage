@@ -20,8 +20,8 @@ public sealed class AnimKeyReducePilotEditModeTests
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch2-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch3-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs-batch4-probes.json",
-        "Tests/EditMode/Fixtures/anim-keyreduce-orc-probes.json",
         "Tests/EditMode/Fixtures/anim-keyreduce-lineagenpcs4-probes.json",
+        "Tests/EditMode/Fixtures/anim-keyreduce-orc-probes.json",
     };
 
     // Unity evaluates curves in float32; the tool validates in float64.
