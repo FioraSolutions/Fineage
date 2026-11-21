@@ -178,6 +178,17 @@ public partial class L2GameUI
             CraftPacketServices.Crafting.HideWindow();
         }
 
+        if (ManufacturePacketServices.Browse != null)
+        {
+            ManufacturePacketServices.Browse.AddWindow(_rootVisualContainer);
+            ManufacturePacketServices.Browse.HideWindow();
+        }
+
+        if (ManufacturePacketServices.Manage != null)
+        {
+            ManufacturePacketServices.Manage.AddWindow(_rootVisualContainer);
+            ManufacturePacketServices.Manage.HideWindow();
+        }
 
         if (PartyPacketServices.PartyInvite != null)
         {
