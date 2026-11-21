@@ -20,6 +20,48 @@ public sealed class SkillListWindowPopulateEditModeTests
         RunPopulateScenario(applyBeforeMount: true);
     }
 
+    [Test]
+    public void SkillListWindow_apply_before_tab_build_flushes_active_and_passive_slots_on_open()
+    {
+        var windowAsset = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/SkillListWindow");
+        Assert.NotNull(windowAsset, "SkillListWindow.uxml missing");
+
+        var hostGo = new GameObject("SkillListWindowEditModeHost");
+        var window = hostGo.AddComponent<SkillListWindowEditModeHarness>();
+        window.HarnessLoadAssets();
+
+        var visualRoot = windowAsset.Instantiate();
+        var host = new VisualElement { name = "UITestRoot" };
+        host.style.width = 420;
+        host.style.height = 360;
+        host.Add(visualRoot);
+
+        window.HarnessInitWindow(host);
+
+        var skills = new List<SkillInstance>
+        {
+            new SkillInstance(3, 1, false, false),
+            new SkillInstance(1177, 1, false, false),
+            new SkillInstance(194, 1, true, false),
+        };
+
+        window.UpdateSkillList(skills);
+        Assert.Greater(window.PendingSkillCountForEditModeTests, 0, "packet before tab chrome should defer");
+        Assert.AreEqual(skills.Count, window.AppliedSkillCountForEditModeTests);
+
+        var content = window.HarnessQueryContent();
+        Assert.NotNull(content, "SkillListWindow content missing");
+        VisualElement tabView = content.Q("InventoryTabView") ?? content;
+
+        window.EditorFinishTabBuildForTests(tabView);
+
+        Assert.AreEqual(0, window.PendingSkillCountForEditModeTests, "pending should flush after tab build");
+        Assert.Greater(window.ActiveVisibleSkillSlotsForEditModeTests, 0, "active tab should expose slots");
+        Assert.Greater(window.PassiveVisibleSkillSlotsForEditModeTests, 0, "passive tab should expose slots");
+
+        Object.DestroyImmediate(hostGo);
+    }
+
     static void RunPopulateScenario(bool applyBeforeMount)
     {
         var activeTemplate = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/TabActive");
@@ -96,5 +138,14 @@ public sealed class SkillListWindowPopulateEditModeTests
         }
 
         return n;
+    }
+
+    sealed class SkillListWindowEditModeHarness : SkillListWindow
+    {
+        public void HarnessLoadAssets() => LoadAssets();
+
+        public void HarnessInitWindow(VisualElement root) => InitWindow(root);
+
+        public VisualElement HarnessQueryContent() => GetElementById("content");
     }
 }
