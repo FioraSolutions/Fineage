@@ -178,4 +178,53 @@ public static class SkillAnimationResolver
             default: return weaponSuffix;
         }
     }
+
+    static readonly HashSet<string> OverrideMissLogged = new HashSet<string>(StringComparer.Ordinal);
+    static readonly HashSet<string> OverrideFallbackLogged = new HashSet<string>(StringComparer.Ordinal);
+
+    /// <summary>Override slots already reached through <c>GetOverrideClip</c> / cast playable.</summary>
+    public static readonly string[] GameplayHookedOverrideSlots =
+    {
+        "CastLong", "CastShort", "CastMid", "CastEnd",
+        "MagicShot", "MagicThrow", "MagicNoTarget", "MagicNotarget",
+    };
+
+    /// <summary>Clips in catalog but no gameplay trigger yet (#1620 follow-up).</summary>
+    public static readonly string[] UnhookedOverrideSlots =
+    {
+        "Swim", "SwimWait", "SwimDeath", "SwimDeathWait",
+        "Fishing_end", "Fishing_fly", "Fishing_pull", "Fishing_wait", "Fishing_control",
+        "ChairSit", "ChairWait", "ChairStand",
+        "Wyvern", "Falling", "Damagefly",
+    };
+
+    public static void LogMissingOverrideClip(string slotName, string raceName)
+    {
+        string key = (slotName ?? "") + "|" + (raceName ?? "");
+        if (!OverrideMissLogged.Add(key))
+            return;
+
+        Debug.LogError(
+            "[SkillAnimation] override unresolved slot=" + slotName +
+            " race=" + raceName +
+            " (SkillAnimationDatabase.GetOverrideClip; import clip or add trigger).");
+    }
+
+    public static void LogOverrideCompletionFallback(
+        string requestedSlot,
+        string fallbackSlot,
+        string raceName,
+        string loadedClipName)
+    {
+        string key = requestedSlot + ">" + fallbackSlot + "|" + raceName;
+        if (!OverrideFallbackLogged.Add(key))
+            return;
+
+        Debug.LogError(
+            "[SkillAnimation] override completion fallback requested=" + requestedSlot +
+            " used=" + fallbackSlot +
+            " race=" + raceName +
+            " clip=" + loadedClipName +
+            " (import dedicated take or accept shared mid/shot clip).");
+    }
 }

@@ -100,7 +100,17 @@ public sealed class SpAtkCombatClipEditModeTests
 
                         string diskPath = ResourcesPathOnDisk(resourcesPath);
                         if (!File.Exists(diskPath))
+                        {
+                            if (StrictSpAtkClipMatrixEnabled())
+                            {
+                                Assert.Fail(
+                                    row.Tag + " race=" + race + " state=" + state
+                                    + " missing clip path=" + resourcesPath
+                                    + " (#1622 MFighter takes landed — full matrix required).");
+                            }
+
                             continue;
+                        }
 
                         AnimationClip clip = SkillAnimationDatabase.GetSpAtkCombatClip(state, race);
                         Assert.IsNotNull(
@@ -120,6 +130,14 @@ public sealed class SpAtkCombatClipEditModeTests
                 }
             }
         }
+    }
+
+    /// <summary>After #1622, MFighter SpAtk18_1HS exists — require every combo×race×weapon clip.</summary>
+    static bool StrictSpAtkClipMatrixEnabled()
+    {
+        return File.Exists(Path.Combine(
+            Application.dataPath,
+            "Resources/Data/Animations/Fighter/MFighter/Clips/MFighter_m000_b.ao_SpAtk18_1HS_MFighter.anim"));
     }
 
     static string ResourcesPathOnDisk(string resourcesPath)
