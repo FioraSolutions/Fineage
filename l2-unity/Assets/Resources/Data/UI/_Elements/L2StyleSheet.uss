@@ -2836,7 +2836,8 @@
     margin-top: 6px;
 }
 
-.skills-panel .skills-section:first-child {
+.skills-panel .skills-section:first,
+.skills-panel .skills-section-first {
     margin-top: 0;
 }
 
@@ -2944,7 +2945,7 @@
     align-items: center;
 }
 
-.skills-panel .skills-window-slot:first-child {
+.skills-panel .skills-window-slot:first {
     margin-left: 0;
 }
 

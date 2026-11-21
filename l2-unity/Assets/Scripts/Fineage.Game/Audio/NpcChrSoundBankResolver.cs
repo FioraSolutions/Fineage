@@ -44,4 +44,28 @@ public static class NpcChrSoundBankResolver
 
         return !string.IsNullOrEmpty(bank);
     }
+
+    /// <summary>
+    /// Interlude npcgrp ChrSound tokens name NPC voice banks (MNpc_Young, …) but shipped FMOD ChrSound.bank
+    /// only contains player race folders (MHFighter, FElf, …). Map npc tokens before building event paths.
+    /// </summary>
+    public static string MapDamageBankToFmodBank(string damageSoundBank)
+    {
+        if (string.IsNullOrEmpty(damageSoundBank))
+            return damageSoundBank;
+
+        string bank = damageSoundBank;
+        bool female = bank.Length > 0 && (bank[0] == 'F' || bank[0] == 'f');
+        if (bank.StartsWith("MNpc_", System.StringComparison.OrdinalIgnoreCase)
+            || bank.StartsWith("FNpc_", System.StringComparison.OrdinalIgnoreCase))
+        {
+            if (bank.IndexOf("Elf", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return female ? "FElf" : "MElf";
+            if (bank.IndexOf("Dwarf", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return female ? "FDwarf" : "MDwarf";
+            return female ? "FHFighter" : "MHFighter";
+        }
+
+        return bank;
+    }
 }

@@ -28,7 +28,7 @@ public partial class SkillExecutor : MonoBehaviour
         if (effects != null && skill != null)
         {
             MagicCastData cast = entity.GetMagicCastData();
-            Debug.Log(
+            ShotOrbDebug.Log(
                 "[ShotOrb] ExecuteOverride PlayEffect skill=" + skill.Id +
                 " entity=" + entity.name +
                 " cast=" + (cast != null) +
@@ -38,7 +38,7 @@ public partial class SkillExecutor : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning(
+            ShotOrbDebug.LogWarning(
                 "[ShotOrb] ExecuteOverride SKIP PlayEffect effects=" + (effects != null) +
                 " skill=" + (skill != null ? skill.Id.ToString() : "null"));
         }

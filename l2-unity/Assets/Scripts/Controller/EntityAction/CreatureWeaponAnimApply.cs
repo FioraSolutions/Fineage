@@ -11,12 +11,16 @@ using UnityEngine;
 public static class CreatureWeaponAnimApply
 {
     static readonly string[] Slots = { "atk01", "atkwait", "wait", "walk", "run" };
-    static readonly string[] Packages = { "LineageNPCs", "LineageNPCs4", "LineageNpcs" };
+    static readonly string[] Packages = { "LineageNPCs", "LineageNPCs4", "LineageNpcs", "LineageMonsters" };
     static readonly Dictionary<string, AnimationClip[]> ClipCache = new Dictionary<string, AnimationClip[]>(StringComparer.OrdinalIgnoreCase);
+    static readonly HashSet<string> LoggedMissingClipPrefixes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     public static void Bind(Entity entity)
     {
         if (entity == null || entity is UserEntity || entity is PlayerEntity)
+            return;
+
+        if (!EntityHasWeaponSlots(entity))
             return;
 
         string suffix = WeaponSuffix(entity);
@@ -89,11 +93,28 @@ public static class CreatureWeaponAnimApply
             }
         }
 
-        Debug.LogError(
-            "[CreatureWeaponAnim] no weapon animation clips prefix=" + prefix
-            + " packages=" + string.Join(",", Packages) + "/Model.");
+        if (LoggedMissingClipPrefixes.Add(prefix))
+        {
+            Debug.LogWarning(
+                "[CreatureWeaponAnim] no weapon animation clips prefix=" + prefix
+                + " packages=" + string.Join(",", Packages) + "/Model.");
+        }
+
         ClipCache[prefix] = Array.Empty<AnimationClip>();
         return ClipCache[prefix];
+    }
+
+    static bool EntityHasWeaponSlots(Entity entity)
+    {
+        if (entity == null || entity.Appearance == null)
+            return false;
+
+        if (entity.Appearance.RHand > 0 || entity.Appearance.LHand > 0)
+            return true;
+
+        NpcEntity npc = entity as NpcEntity;
+        Npcgrp grp = npc != null && npc.NpcData != null ? npc.NpcData.Npcgrp : null;
+        return grp != null && (grp.RHand > 0 || grp.LHand > 0);
     }
 
     static string ClipPrefix(AnimatorOverrideController oc)
