@@ -17,12 +17,23 @@ public sealed partial class NameplateEntryStore
         Collider[] hits,
         Color defaultNameColor)
     {
-        if (hits == null)
+        Discover(hits, hits != null ? hits.Length : 0, defaultNameColor);
+    }
+
+    public void Discover(
+        Collider[] hits,
+        int hitCount,
+        Color defaultNameColor)
+    {
+        if (hits == null || hitCount <= 0)
         {
             return;
         }
 
-        for (int i = 0; i < hits.Length; i++)
+        if (hitCount > hits.Length)
+            hitCount = hits.Length;
+
+        for (int i = 0; i < hitCount; i++)
         {
             Collider c = hits[i];
             if (c == null)

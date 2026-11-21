@@ -27,6 +27,9 @@ public partial class NameplatesManager : MonoBehaviour
 
         ApplySettingsToSubsystems();
         EnsureResources();
+
+        _upsertUserInRange = UpsertUserInRange;
+        _upsertNpcInRange = UpsertNpcInRange;
     }
 
     private void OnEnable()

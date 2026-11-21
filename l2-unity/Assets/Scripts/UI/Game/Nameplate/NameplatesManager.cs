@@ -21,9 +21,18 @@ public partial class NameplatesManager : MonoBehaviour
     [SerializeField] private string _atlasResourcePath = "Data/UI/Font/L2Lobby/l2_lobby_font_atlas";
     [SerializeField] private string _csvResourcePath = "Data/UI/Font/L2Lobby/ul2font_ascii";
 
+    public const int OverlapBufferSize = 256;
+
+    static readonly Collider[] OverlapBuffer = new Collider[OverlapBufferSize];
+
     [SerializeField] public Collider[] _entitiesInRange;
 
     private readonly List<NameplatePaintItem> _paintList = new List<NameplatePaintItem>(64);
+
+    System.Action<Entity> _upsertUserInRange;
+    System.Action<Entity> _upsertNpcInRange;
+    float _overlapRangeSq;
+    bool _overlapBufferOverflowLogged;
 
     private NameplateBubbleResolver _bubbleResolver;
     private NameplateEntryStore _entryStore;
