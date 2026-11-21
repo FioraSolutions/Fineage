@@ -26,6 +26,11 @@ fail instead when the backend contract path is missing.
 
 `.meta` files are never touched -- they hold the Unity asset GUIDs, and
 regenerating them would break every serialized reference to these types.
+
+On `--write` and `--check`, backend `.cs` bytes are normalized for Unity's
+C# 9 compiler (see `net_contract_unity_cs9.py`) before comparing to or writing
+client copies. Unity does not support `csc.rsp -langversion:12` on the Contract
+assembly (CS1617 in CI).
 """
 
 from __future__ import annotations
@@ -35,6 +40,11 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
+from net_contract_unity_cs9 import prepare_contract_bytes  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CLIENT = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/Contract"
@@ -86,6 +96,7 @@ FILES = (
     "Messages/ManorMessages.cs",
     "Messages/WorldMessages.Freight.cs",
     "Messages/WorldMessages.MonsterRace.cs",
+    "Messages/WorldMessages.Wedding.cs",
     "Codec/NetCodec.cs",
     "Codec/NetCodec.Session.cs",
     "Codec/NetCodec.Shop.cs",
@@ -112,6 +123,7 @@ FILES = (
     "Codec/NetCodec.Manor.cs",
     "Codec/NetCodec.Freight.cs",
     "Codec/NetCodec.MonsterRace.cs",
+    "Codec/NetCodec.Wedding.cs",
     "Codec/NetCodec.Castle.cs",
     "Modules/IDomainModule.cs",
 )
@@ -217,8 +229,8 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        expected = client_expected_bytes(data, rel)
-        if not dst.is_file() or dst.read_bytes() != expected:
+        prepared = prepare_contract_bytes(data)
+        if dst.read_bytes() != prepared:
             differing.append(rel)
 
     return missing, differing
@@ -239,13 +251,13 @@ def write_contract(
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        expected = client_expected_bytes(data, rel)
-        if dst.is_file() and dst.read_bytes() == expected:
+        prepared = prepare_contract_bytes(data)
+        if dst.is_file() and dst.read_bytes() == prepared:
             continue
 
         dst.parent.mkdir(parents=True, exist_ok=True)
         # write_bytes keeps mtime current, which is what Unity's importer keys on.
-        dst.write_bytes(expected)
+        dst.write_bytes(prepared)
         print(f"updated {rel}")
         changed += 1
 

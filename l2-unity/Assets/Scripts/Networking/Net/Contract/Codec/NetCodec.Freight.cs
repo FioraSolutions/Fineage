@@ -2,7 +2,6 @@ using System;
 
 namespace Fineage.Net.Contract
 {
-
     public static partial class NetCodec
     {
         public static byte[] EncodePackageToList(PackageToListNetMsg m) => Write(w =>

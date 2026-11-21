@@ -12,7 +12,7 @@ public partial class MapPanner
     {
         if (_map == null || _marker == null || _isDisabled || isHideWindow) return;
 
-        if (!L2MapCoordinatesPlayer.TryMapPlaneFromLocalPlayer(out Vector2 l2XY))
+        if (!L2MapLocalPlayer.TryMapPlaneFromLocalPlayer(out Vector2 l2XY))
         {
             PlayerController player = ControllerPacketServices.Player;
             l2XY = player != null

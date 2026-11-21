@@ -6,10 +6,10 @@ public sealed class LocalizationCatalogEditModeTests
     sealed class TestLog : ILocalizationLog
     {
         public int Fallbacks;
-        public int Missing;
+        public int MissingCount;
 
         public void Fallback(string key, string locale) => Fallbacks++;
-        public void Missing(string key) => Missing++;
+        public void Missing(string key) => MissingCount++;
     }
 
   [Test]
@@ -20,7 +20,7 @@ public sealed class LocalizationCatalogEditModeTests
             log,
             ("en", new Dictionary<string, string> { { "ui.login.log_in", "Log In" } }));
         Assert.AreEqual("Log In", catalog.Get("ui.login.log_in", "en"));
-        Assert.AreEqual(0, log.Missing);
+        Assert.AreEqual(0, log.MissingCount);
     }
 
     [Test]
@@ -32,7 +32,7 @@ public sealed class LocalizationCatalogEditModeTests
             ("en", new Dictionary<string, string> { { "chat.welcome", "Welcome, {0}." } }));
         Assert.AreEqual("Welcome, {0}.", catalog.Get("chat.welcome", "ru"));
         Assert.AreEqual(1, log.Fallbacks);
-        Assert.AreEqual(0, log.Missing);
+        Assert.AreEqual(0, log.MissingCount);
     }
 
     [Test]
@@ -41,7 +41,7 @@ public sealed class LocalizationCatalogEditModeTests
         var log = new TestLog();
         var catalog = LocalizationCatalog.Empty(log);
         Assert.AreEqual("ui.missing.key", catalog.Get("ui.missing.key", "en"));
-        Assert.AreEqual(1, log.Missing);
+        Assert.AreEqual(1, log.MissingCount);
     }
 
     [Test]

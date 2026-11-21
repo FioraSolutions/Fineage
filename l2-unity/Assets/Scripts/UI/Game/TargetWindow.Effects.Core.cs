@@ -78,13 +78,29 @@ public partial class TargetWindow
         }
 
         int painted = 0;
+        var seen = new System.Collections.Generic.HashSet<int>();
+        var duplicateIds = new System.Collections.Generic.List<int>();
         for (int i = 0; i < list.Count; i++)
         {
             EffectHolder effect = list[i];
             if (effect == null || effect.Id <= 0)
                 continue;
+            if (!seen.Add(effect.Id))
+            {
+                duplicateIds.Add(effect.Id);
+                continue;
+            }
             if (TryAddEffectIcon(effect.Id, effect.Value, effect.Duration))
                 painted++;
+        }
+
+        if (duplicateIds.Count > 0)
+        {
+            Debug.LogWarning(
+                "[TargetWindow] duplicate abnormal skill ids from server npcId=" +
+                (targetData.Identity != null ? targetData.Identity.NpcId : 0) +
+                " objectId=" + objectId +
+                " ids=" + string.Join(",", duplicateIds));
         }
 
         _effectsRow.style.display = painted > 0 ? DisplayStyle.Flex : DisplayStyle.None;

@@ -19,5 +19,4 @@ public static class L2MapCoordinates
         // ConvertPosUnityToL2j returns (L2.x, L2.z, L2.y) — use .x and .z for the map plane.
         return new Vector2(l2jVector.x, l2jVector.z);
     }
-
 }

@@ -1,43 +1,53 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class NpcStateWait : NpcStateBase {
+public class NpcStateWait : NpcStateBase
+{
     public int playSpWaitChancePercent = 3;
-    private bool hasStarted = false;
 
-    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
         LoadComponents(animator);
-        hasStarted = true;
+        SetBool("spwait", false);
         SetBool("wait", false);
     }
 
-    override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-        // Idle clips with loopTime off hold the last frame (normalizedTime sticks at 1,
-        // and 1 % 1 == 0), so the NPC freezes in the end pose.
-        if (!stateInfo.loop && stateInfo.normalizedTime >= 1f) {
-            animator.Play(stateInfo.fullPathHash, layerIndex, 0f);
-            hasStarted = true;
-            return;
-        }
+    override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        RestartNonLoopingClip(animator, stateInfo, layerIndex);
 
-        if(hasStarted && (stateInfo.normalizedTime % 1) < 0.5f) {
-            SetBool("wait", false);
-
-            if(RandomUtils.ShouldEventHappen(audioHandler.WaitSoundChance)) {
-                audioHandler.PlaySound(CharacterSoundEvent.Admiration);
-            }
-            hasStarted = false;
-        }
-
-        if(!hasStarted && (stateInfo.normalizedTime % 1) >= 0.90f) {
-            if(RandomUtils.ShouldEventHappen(playSpWaitChancePercent)) {
+        NpcIdleScheduler sched = NpcIdleScheduler.Ensure(_entity);
+        if (sched != null && sched.TryTriggerSpecialIdle())
+        {
+            if (AnimatorBoolSet.HasBool(animator, "spwait"))
+            {
                 SetBool("spwait", true);
+                sched.OnSpecialIdleTriggered();
+                return;
             }
-            hasStarted = true;
         }
+
+        if (sched == null
+            && playSpWaitChancePercent > 0
+            && stateInfo.normalizedTime >= 0.92f
+            && RandomUtils.ShouldEventHappen(playSpWaitChancePercent))
+        {
+            SetBool("spwait", true);
+        }
+
+        if (audioHandler != null
+            && RandomUtils.ShouldEventHappen(audioHandler.WaitSoundChance))
+            audioHandler.PlaySound(CharacterSoundEvent.Admiration);
     }
 
-    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+    static void RestartNonLoopingClip(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (stateInfo.loop)
+            return;
 
+        float cycle = stateInfo.normalizedTime % 1f;
+        if (cycle < 0.98f && stateInfo.normalizedTime < 0.98f)
+            return;
+
+        animator.Play(stateInfo.fullPathHash, layerIndex, 0f);
     }
 }

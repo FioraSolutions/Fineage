@@ -4,11 +4,6 @@ using System;
 
 public partial class PlayerEntity
 {
-    protected override IAnimationController LocomotionAnimationController =>
-        AnimationPacketServices.PlayerAnimation != null
-            ? AnimationPacketServices.PlayerAnimation
-            : _networkAnimationReceive;
-
     public override float UpdateRunSpeed(float serverValue)
     {
         if (serverValue <= 0.001f)
@@ -19,6 +14,7 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateRunSpeed(converted);
 
+        RefreshLocomotionAnimRates();
         _lastServerRunSpeed = serverValue;
         return converted;
     }
@@ -41,6 +37,7 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateWalkSpeed(converted);
 
+        RefreshLocomotionAnimRates();
         return converted;
     }
 

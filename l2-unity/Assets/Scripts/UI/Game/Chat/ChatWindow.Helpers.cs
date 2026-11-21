@@ -77,5 +77,28 @@ public partial class ChatWindow : L2Window
         SystemMsgWindow.Ensure()?.SyncDock();
         yield return null;
         SystemMsgWindow.Ensure()?.SyncDock();
+        ValidateInterludeChatTextures();
+    }
+
+    static void ValidateInterludeChatTextures()
+    {
+        string[] paths =
+        {
+            "Data/UI/Assets/Chat/chatting_back1",
+            "Data/UI/Assets/Chat/chatting_back2",
+            "Data/UI/Assets/Chat/chatting_back3",
+            "Data/UI/Assets/Chat/chatting_back4",
+            "Data/UI/Assets/Chat/chatting_imeen",
+            "Data/UI/Assets/Chat/sizecontrol_icon",
+        };
+        for (int i = 0; i < paths.Length; i++)
+        {
+            if (Resources.Load<Texture2D>(paths[i]) == null)
+            {
+                Debug.LogError(
+                    "[ChatWindow] missing Interlude chat texture path='" + paths[i] +
+                    "'. Import ref/l2-interlude-client chatting_* from L2UI.");
+            }
+        }
     }
 }

@@ -1,6 +1,5 @@
 namespace Fineage.Net.Contract
 {
-
     public sealed class PackageToListNetMsg
     {
         public PackageToListEntryNet[] Characters { get; set; } = System.Array.Empty<PackageToListEntryNet>();

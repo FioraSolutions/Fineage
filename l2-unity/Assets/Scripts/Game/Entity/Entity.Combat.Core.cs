@@ -37,9 +37,8 @@ public partial class Entity
     }
 
     protected virtual void OnHit(bool criticalHit) {
-        // TODO: Add armor type for more hit sounds
-        if (AudioPacketServices.Audio != null)
-            AudioPacketServices.Audio.PlayHitSound(criticalHit, transform.position);
+        int entityId = Identity != null ? Identity.Id : 0;
+        CharacterCombatAudioDispatch.PlayHitImpact(criticalHit, transform.position, entityId);
     }
 
     public void PlayHitReaction(bool criticalHit = false) => OnHit(criticalHit);

@@ -1,7 +1,9 @@
 using UnityEngine;
 
-/// <summary>Player-backed map plane read — lives outside Fineage.UI asmdef (needs Entity/DI).</summary>
-public static class L2MapCoordinatesPlayer
+/// <summary>
+/// Map plane from the local player — lives in Assembly-CSharp (needs <see cref="PlayerEntity"/>).
+/// </summary>
+public static class L2MapLocalPlayer
 {
     public static bool TryMapPlaneFromLocalPlayer(out Vector2 l2XY)
     {
