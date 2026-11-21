@@ -40,7 +40,12 @@ public partial class SkillListWindow : L2PopupWindow
             return;
         }
 
-        CopyInDictionry(list);
+        if (!EnsureSingletonOwnerForSkillListApply(phase, list.Count))
+            return;
+
+        if (!TryCopyInDictionry(list, phase))
+            return;
+
         RefreshPassiveFlags(list);
 
         if (!CanApplySkillListToPanels(out string deferReason))
