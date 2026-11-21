@@ -42,12 +42,12 @@ public partial class SkillListWindow : L2PopupWindow
         {
             case _activeName:
                 _supportActiveSkills.GetOrCreateTab(element);
-                TryFlushPendingSkillList();
+                FlushPendingSkillList("OnSwitchEventOut.Active");
                 break;
 
             case _passiveName:
                 _supportPassiveSkills.GetOrCreateTab(element);
-                TryFlushPendingSkillList();
+                FlushPendingSkillList("OnSwitchEventOut.Passive");
                 break;
         }
 

@@ -23,9 +23,10 @@ public sealed class LateBoundMono<T> : ILateBound<T> where T : MonoBehaviour
     {
         get
         {
-            if (_value != null)
+            if (_value != null && _value)
                 return _value;
 
+            _value = null;
             if (_instance != null)
                 _value = _instance();
 
