@@ -91,6 +91,21 @@ public sealed class ShopNpcBuyEditModeTests
         Assert.AreEqual(3, roundTrip.Items[0].Count);
         Assert.AreEqual(500, roundTrip.Items[1].ItemId);
         Assert.AreEqual(1, roundTrip.Items[1].Count);
+
+        var cart = new List<Product> { Row(200, 3, 40), Row(500, 1, 100, TypeWeapon) };
+        const int shopNpc = 100;
+        var dto = new RequestBuyItemDto { NpcObjectId = shopNpc, ListId = 9917, Items = cart };
+        var writer = new PacketWriter();
+        dto.WriteTo(writer);
+        var reader = new PacketReader(writer.ToArray(), skipOpcode: false);
+        Assert.AreEqual(shopNpc, reader.ReadI());
+        Assert.AreEqual(9917, reader.ReadI());
+        Assert.AreEqual(2, reader.ReadI());
+        Assert.AreEqual(200, reader.ReadI());
+        Assert.AreEqual(3, reader.ReadI());
+        Assert.AreEqual(500, reader.ReadI());
+        Assert.AreEqual(1, reader.ReadI());
+        Assert.AreEqual(0, reader.Remaining);
     }
 
     [Test]
