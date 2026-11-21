@@ -59,6 +59,27 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
         StartCoroutine(PlaySoundAtRatioCoroutine(soundEvent, ratio));
     }
 
+    public void PlayItemSoundTokenAtRatio(string datToken, float ratio) {
+        if (string.IsNullOrEmpty(datToken))
+            return;
+
+        if (ratio == 0) {
+            int entityId = ResolveEntityId();
+            CharacterCombatAudioDispatch.PlayItemSoundToken(datToken, transform.position, entityId);
+            return;
+        }
+
+        StartCoroutine(PlayItemSoundTokenAtRatioCoroutine(datToken, ratio));
+    }
+
+    IEnumerator PlayItemSoundTokenAtRatioCoroutine(string datToken, float ratio) {
+        while ((_animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1) < ratio)
+            yield return null;
+
+        int entityId = ResolveEntityId();
+        CharacterCombatAudioDispatch.PlayItemSoundToken(datToken, transform.position, entityId);
+    }
+
     public IEnumerator PlaySoundAtRatioCoroutine(CharacterSoundEvent soundEvent, float ratio) {
         while ((_animator.GetCurrentAnimatorStateInfo(0).normalizedTime % 1) < ratio) {
             yield return null;

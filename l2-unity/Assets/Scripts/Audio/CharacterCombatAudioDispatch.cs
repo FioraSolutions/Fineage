@@ -84,26 +84,108 @@ public static class CharacterCombatAudioDispatch
         return false;
     }
 
-    public static bool PlayHitImpact(bool criticalHit, Vector3 position, int entityId)
+    public static bool PlayHitImpact(bool criticalHit, Vector3 position, int entityId) =>
+        PlayHitImpact(criticalHit, position, entityId, attacker: null, target: null);
+
+    public static bool PlayHitImpact(
+        bool criticalHit,
+        Vector3 position,
+        int entityId,
+        Entity attacker,
+        Entity target)
     {
         AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
         if (service == null)
             return false;
 
-        string catalogId = criticalHit ? AudioSoundCatalog.IdHitCritical : AudioSoundCatalog.IdHitArmor;
-        if (!AudioSoundCatalog.TryResolve(catalogId, out AudioPlaySpec spec))
+        if (attacker == null && CombatAudioHitContext.TryTake(out Entity pendingAttacker, out bool pendingCrit))
+        {
+            attacker = pendingAttacker;
+            if (criticalHit == false)
+                criticalHit = pendingCrit;
+        }
+
+        int weaponItemId = CombatHitSoundResolver.ResolveAttackerWeaponItemId(attacker);
+        string eventPath = CombatHitSoundResolver.ResolveFmodEventPath(
+            criticalHit,
+            attacker,
+            target,
+            weaponItemId);
+
+        if (string.IsNullOrEmpty(eventPath))
         {
             service.LogCombatAudioError(
-                AudioSoundCatalog.FormatUnknownIdError(catalogId),
+                "hit impact event path empty",
                 entityId,
-                catalogId,
+                null,
                 "HitImpact");
             return false;
         }
 
-        if (spec.Source == AudioSourceKind.FmodStudioEvent)
-            return service.PlayFmodEvent(spec.Id, spec.Category, position, entityId, "HitImpact");
+        if (!InterludeSoundTokenPath.IsCombatSfxEvent(eventPath))
+        {
+            service.LogCombatAudioError(
+                "hit impact path is not combat SFX",
+                entityId,
+                eventPath,
+                "HitImpact");
+            return false;
+        }
 
-        return service.PlayFromSpec(spec, position, 0.75f);
+        return PlayCombatSfxEvent(service, eventPath, position, entityId, "HitImpact", volumeScale: 0.75f);
+    }
+
+    public static bool PlayItemSoundToken(string datToken, Vector3 position, int entityId)
+    {
+        if (!InterludeSoundTokenPath.TryFromDatToken(datToken, out string eventPath))
+        {
+            AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
+            service?.LogCombatAudioError(
+                "item_sound token unresolved token=\"" + datToken + "\"",
+                entityId,
+                datToken,
+                "WeaponSwing");
+            return false;
+        }
+
+        if (InterludeSoundTokenPath.IsUiOrInterfaceEvent(eventPath))
+        {
+            AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
+            service?.LogCombatAudioError(
+                "refused UI/interface weapon sound",
+                entityId,
+                eventPath,
+                "WeaponSwing");
+            return false;
+        }
+
+        AudioService play = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
+        if (play == null)
+            return false;
+
+        return PlayCombatSfxEvent(play, eventPath, position, entityId, "WeaponSwing", volumeScale: 1f);
+    }
+
+    static bool PlayCombatSfxEvent(
+        AudioService service,
+        string fmodEventPath,
+        Vector3 position,
+        int entityId,
+        string eventLabel,
+        float volumeScale)
+    {
+        if (service.PlayFmodEvent(fmodEventPath, AudioCategory.Sfx, position, entityId, eventLabel))
+            return true;
+
+        string resourcesPath = InterludeSoundTokenPath.ResourcesPathFromFmodEvent(fmodEventPath);
+        if (!string.IsNullOrEmpty(resourcesPath))
+            return service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false);
+
+        service.LogCombatAudioError(
+            "FMOD and Resources clip missing",
+            entityId,
+            fmodEventPath,
+            eventLabel);
+        return false;
     }
 }
