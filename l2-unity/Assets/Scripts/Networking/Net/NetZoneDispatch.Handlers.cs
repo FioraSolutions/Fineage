@@ -321,8 +321,6 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AugmentVariationResult:
             case NetOpcode.AugmentPutCancelItemResult:
             case NetOpcode.AugmentCancelResult:
-            case NetOpcode.CursedWeaponList:
-            case NetOpcode.CursedWeaponLocation:
                 break;
             case NetOpcode.CursedWeaponList:
             case NetOpcode.CursedWeaponLocation:
