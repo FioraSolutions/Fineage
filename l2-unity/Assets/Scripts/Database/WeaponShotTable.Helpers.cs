@@ -43,5 +43,13 @@ public sealed partial class WeaponShotTable
         }
     }
 
-    static string ResolveSection(Gear gear) => WeaponShotSectionResolver.Resolve(gear);
+    static string ResolveSection(Gear gear)
+    {
+        if (gear == null)
+            return "HAND";
+        return WeaponShotSectionResolver.Resolve(
+            gear.CombatStyle,
+            gear.RightHandWeaponType,
+            gear.LeftHandWeaponType);
+    }
 }
