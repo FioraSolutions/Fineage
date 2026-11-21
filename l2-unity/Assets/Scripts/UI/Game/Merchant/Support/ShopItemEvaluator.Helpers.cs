@@ -15,50 +15,12 @@ public partial class ShopItemEvaluator
 
     public void UpdateAllPrice(List<Product> _listSell)
     {
-        int allPrice = 0;
-
-        if (_listSell != null)
-        {
-            for (int i = 0; i < _listSell.Count; i++)
-            {
-               Product product =  _listSell[i];
-                if (product != null)
-                {
-                    if(product.Count > 1)
-                    {
-                        allPrice += product.Price * product.Count;
-                    }
-                    else
-                    {
-                        allPrice = allPrice + _listSell[i].Price;
-                    }
-                }
-            }
-
-            _dealer.UpdatePrice(allPrice);
-        }
-        else
-        {
-            _dealer.UpdatePrice(0);
-        }
-
+        _dealer.UpdatePrice(ShopCartTotals.SumUnitPriceTimesCount(_listSell));
     }
 
     public void UpdateWeight(List<Product> _listSell , int _currentDataWeight , int _maxWeight)
     {
-        int addWeight = 0;
-
-        if (_listSell != null)
-        {
-            for (int i = 0; i < _listSell.Count; i++)
-            {
-                if (_listSell[i] != null)
-                {
-                    addWeight = addWeight + _listSell[i].GetWeight();
-                }
-            }
-
-            _dealer.UpdateAllWeight(_currentDataWeight + addWeight, _maxWeight);
-        }
+        int addWeight = ShopCartTotals.SumStackWeight(_listSell);
+        _dealer.UpdateAllWeight(_currentDataWeight + addWeight, _maxWeight);
     }
 }

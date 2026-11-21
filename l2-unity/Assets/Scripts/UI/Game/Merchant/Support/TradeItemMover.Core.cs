@@ -5,42 +5,55 @@ using static L2Slot;
 
 public partial class TradeItemMover
 {
-    public TradeItemMover(DealerWindow dealerWindow , ShopInventoryController shopCellCreator , ShopItemEvaluator itemEvaluator)
+    public TradeItemMover(DealerWindow dealerWindow, ShopInventoryController shopCellCreator, ShopItemEvaluator itemEvaluator)
     {
         _shopCellCreator = shopCellCreator;
         _itemEvalutor = itemEvaluator;
         _dealerWindow = dealerWindow;
     }
 
-    public void MovePanelPriceSell(int selectCount, Product source, bool _isModifySell, int position , List<Product> listServer)
+    public void MovePanelPriceSell(int selectCount, Product source, bool isModifySell, int position, List<Product> listServer)
     {
+        ShopTransferMode mode = ShopPanelTransfer.FromModifySellFlag(isModifySell);
         if (selectCount == source.Count)
         {
-           var _listSell = MovingSellWithRemoval(_isModifySell, _dealerWindow.GetListSell(), source, listServer, position);
-           _dealerWindow.SetListSell(_listSell);
+            var listSell = MovingSellWithRemoval(mode, _dealerWindow.GetListSell(), source, listServer, position);
+            _dealerWindow.SetListSell(listSell);
+            return;
         }
-        else if (selectCount < source.Count)
-        {
-            Product clone = source.Clone();
-            // Buying less than a full stack from a merchant must not shrink the shop row: the row is
-            // merchant stock, not a bag stack. Only a player trade / sale moves the real count.
-            if (_isModifySell)
-                source.SetCount(source.Count - selectCount);
-            clone.SetCount(selectCount);
 
-            MovingWithCopy(clone, listServer, position);
-        }else if (source.GetConsumeCategory() != ConsumeCategory.Normal)
+        if (selectCount < source.Count)
         {
-            Product clone = source.Clone();
-            clone.SetCount(selectCount);
+            ShopPanelTransfer.ApplyCatalogQuantityTaken(mode, source, selectCount);
+            Product cartLine = ShopPanelTransfer.CreateCartLine(mode, source, selectCount);
+            if (cartLine == null)
+                return;
 
-            MovingWithCopy(clone, listServer, position);
+            if (mode == ShopTransferMode.NpcMerchantBuy)
+            {
+                MovingWithCopy(cartLine, listServer, position, mode);
+                return;
+            }
+
+            Product staged = cartLine.Clone();
+            staged.SetCount(selectCount);
+            MovingWithCopy(staged, listServer, position, mode);
+            return;
+        }
+
+        if (source.GetConsumeCategory() != ConsumeCategory.Normal)
+        {
+            Product cartLine = ShopPanelTransfer.CreateCartLine(mode, source, selectCount);
+            if (cartLine == null)
+                return;
+            MovingWithCopy(cartLine, listServer, position, mode);
         }
     }
 
-    public void MovingBuyWithRemoval(bool isModifySell, Product source, int position)
+    public void MovingBuyWithRemoval(ShopTransferMode mode, Product source, int position)
     {
-        if (isModifySell) ModifyBuy(source, _dealerWindow.GetListSell(), _dealerWindow.GetListBuy());
+        if (ShopPanelTransfer.ReturnsToCatalog(mode))
+            ModifyBuy(source, _dealerWindow.GetListSell(), _dealerWindow.GetListBuy());
 
         ShiftBuy(_dealerWindow.GetTabSell(), position, _dealerWindow.GetInventorySlotsSell(), _dealerWindow.GetInventorySlotsBuy());
 
@@ -50,65 +63,79 @@ public partial class TradeItemMover
         UpdatePriceAndWeight(listSell, _dealerWindow.GetCurrentDataWeight(), _dealerWindow.GetMaxWeight());
     }
 
-    private void MovingBuyWithCopy(bool isModifySell, Product source, int position)
+    void ReduceCartQuantity(ShopTransferMode mode, Product cartRow, int quantityToRemove, int position)
     {
+        if (cartRow == null)
+        {
+            Debug.LogError("[Shop] ReduceCartQuantity cartRow=null position=" + position + " mode=" + mode);
+            return;
+        }
 
-        if (isModifySell) ModifyBuy(source , _dealerWindow.GetListSell() , _dealerWindow.GetListBuy());
-        if (!isModifySell) ShiftBuy(_dealerWindow.GetTabSell(), position, _dealerWindow.GetInventorySlotsSell(), _dealerWindow.GetInventorySlotsBuy());
+        if (quantityToRemove <= 0 || quantityToRemove > cartRow.Count)
+        {
+            Debug.LogError("[Shop] ReduceCartQuantity itemId=" + cartRow.ItemId + " remove=" + quantityToRemove
+                + " have=" + cartRow.Count + " mode=" + mode);
+            return;
+        }
 
-        //_listSell = _shopCellCreator.RemoveProduct(_listSell, source, false);
-        var listSell = _shopCellCreator.RemoveProduct(_dealerWindow.GetListSell(), source, false);
-        _dealerWindow.SetListSell(listSell);
+        if (ShopPanelTransfer.ReturnsToCatalog(mode))
+        {
+            Product returned = cartRow.Clone();
+            returned.SetCount(quantityToRemove);
+            ModifyBuy(returned, _dealerWindow.GetListSell(), _dealerWindow.GetListBuy());
+        }
 
-        UpdatePriceAndWeight(listSell , _dealerWindow.GetCurrentDataWeight() , _dealerWindow.GetMaxWeight());
+        if (quantityToRemove == cartRow.Count)
+        {
+            MovingBuyWithRemoval(mode, cartRow, position);
+            return;
+        }
+
+        cartRow.SetCount(cartRow.Count - quantityToRemove);
+        Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), position, cartRow);
+        UpdatePriceAndWeight(_dealerWindow.GetListSell(), _dealerWindow.GetCurrentDataWeight(), _dealerWindow.GetMaxWeight());
     }
 
-    public List<Product> MovingSellWithRemoval(bool isModifySell, List<Product> listSell, Product source, List<Product> listServer, int position)
+    public List<Product> MovingSellWithRemoval(ShopTransferMode mode, List<Product> listSell, Product source, List<Product> listServer, int position)
     {
-        // Buy-from-shop: keep merchant row; cart gets a clone (player-trade moves the real bag row).
-        Product cartItem = isModifySell ? source : source.Clone();
+        Product cartItem = ShopPanelTransfer.CreateCartLine(mode, source, source.Count);
+        if (cartItem == null)
+            return listSell;
+
         listSell = _shopCellCreator.AddProduct(listSell, cartItem);
 
         RefreshToolTips(listSell);
 
         if (listSell.Count != 0)
-        {
             Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), GetNewPosition(listSell, cartItem), cartItem);
-        }
 
-        ModifySell(isModifySell, position, listServer, source, true);
+        if (mode == ShopTransferMode.PlayerBagCommit)
+            ModifySell(position, listServer, source, true);
 
         UpdatePriceAndWeight(listSell, _dealerWindow.GetCurrentDataWeight(), _dealerWindow.GetMaxWeight());
 
         return listSell;
     }
 
-    private void MovingWithCopy(Product source, List<Product> listServer, int position)
+    void MovingWithCopy(Product cartLine, List<Product> listServer, int position, ShopTransferMode mode)
     {
-        Product cartItem = source.Clone();
-        var listSell = _shopCellCreator.AddProduct(_dealerWindow.GetListSell(), cartItem);
+        var listSell = _shopCellCreator.AddProduct(_dealerWindow.GetListSell(), cartLine);
         _dealerWindow.SetListSell(listSell);
         RefreshToolTips(listSell);
 
         if (listSell.Count != 0)
-        {
-            Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), GetNewPosition(listSell, cartItem), cartItem);
-        }
+            Move(_dealerWindow.GetInventorySlotsBuy(), _dealerWindow.GetTabBuy(), GetNewPosition(listSell, cartLine), cartLine);
 
-        // Buy mode: never strip the merchant grid (trade/sell-to-NPC only).
-        ModifySell(false, position, listServer, source, false);
+        if (mode == ShopTransferMode.PlayerBagCommit)
+            ModifySell(position, listServer, cartLine, false);
 
-        UpdatePriceAndWeight(listSell , _dealerWindow.GetCurrentDataWeight() , _dealerWindow.GetMaxWeight());
+        UpdatePriceAndWeight(listSell, _dealerWindow.GetCurrentDataWeight(), _dealerWindow.GetMaxWeight());
     }
 
-    private void ModifySell(bool isModify, int position, List<Product> listServer, Product source, bool isRemoval)
+    void ModifySell(int position, List<Product> listServer, Product source, bool isRemoval)
     {
-        if (isModify)
-        {
-            ShiftSell(_dealerWindow.GetTabBuy() ,  position, _dealerWindow.GetInventorySlotsSell(), _dealerWindow.GetInventorySlotsBuy());
-            var _listBuy = _shopCellCreator.RemoveProduct(listServer, source, isRemoval);
-            _dealerWindow.SetListBuy(_listBuy);
-        }
-
+        ShiftSell(_dealerWindow.GetTabBuy(), position, _dealerWindow.GetInventorySlotsSell(), _dealerWindow.GetInventorySlotsBuy());
+        var listBuy = _shopCellCreator.RemoveProduct(listServer, source, isRemoval);
+        _dealerWindow.SetListBuy(listBuy);
     }
 }
