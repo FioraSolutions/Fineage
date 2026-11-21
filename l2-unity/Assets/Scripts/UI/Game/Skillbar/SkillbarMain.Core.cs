@@ -9,7 +9,7 @@ public partial class SkillbarMain : AbstractSkillbar
 
     protected override void UpdateVisuals()
     {
-        PaintInterludeChrome();
+        PaintInterludeHudChrome();
 
         _expandButton = _windowEle.Q<Button>("ExpandBtn");
         _expandButton.AddManipulator(new ButtonClickSoundManipulator(_expandButton));

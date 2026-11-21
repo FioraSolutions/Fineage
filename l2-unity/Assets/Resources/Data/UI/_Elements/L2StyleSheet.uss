@@ -3344,7 +3344,7 @@
     flex-direction: row;
 }
 
-.frame_df_ver {
+.interlude-hud-vertical-column {
     height: auto;
     width: 18px;
     max-width: 18px;
@@ -3356,6 +3356,22 @@
     padding-right: 0;
     padding-bottom: 0;
     padding-left: 0;
+    flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-top {
+    height: 8px;
+    max-height: 8px;
+    flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-center {
+    flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-bottom {
+    height: 8px;
+    max-height: 8px;
     flex-grow: 1;
 }
 
@@ -3736,7 +3752,7 @@
     width: 48px;
 }
 
-.frame_df_ver-vertical {
+.interlude-hud-vertical-column-vertical {
     margin-top: 0;
     height: 49px;
     rotate: 90deg;

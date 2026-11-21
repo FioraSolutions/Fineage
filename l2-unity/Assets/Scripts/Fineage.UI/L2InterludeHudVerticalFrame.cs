@@ -7,11 +7,44 @@ using UnityEngine.UIElements;
 /// </summary>
 public static class L2InterludeHudVerticalFrame
 {
+    public const string ColumnName = "InterludeHudVerticalColumn";
+    public const string RailHostName = "InterludeHudVerticalRail";
+
     public const string TopResource = "Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back1";
     public const string CenterResource = "Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2";
     public const string BottomResource = "Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back3_Ex";
     public const string ColumnBgResource = "Data/UI/Assets/Windows/Windows_DF_Small_Vertical_Bg";
     public const string HorizontalResizeResource = "Data/UI/Assets/Chat/sizecontrol_icon";
+
+    public static bool TryPaintVerticalColumn(VisualElement searchRoot, string context)
+    {
+        if (searchRoot == null)
+        {
+            Debug.LogError($"[InterludeHudFrame] Null search root for '{context}'.");
+            return false;
+        }
+
+        GroupBox column = searchRoot.Q<GroupBox>(ColumnName);
+        if (column == null)
+        {
+            VisualElement rail = searchRoot.Q<VisualElement>(RailHostName);
+            column = rail?.Q<GroupBox>(ColumnName);
+        }
+
+        if (column == null)
+        {
+            Debug.LogError(
+                $"[InterludeHudFrame] Missing GroupBox '{ColumnName}' on '{context}'. " +
+                "UXML must instance Template/InterludeHudVerticalColumn.");
+            return false;
+        }
+
+        while (column.childCount > 3)
+            column.RemoveAt(column.childCount - 1);
+
+        PaintColumn(column, context);
+        return true;
+    }
 
     /// <summary>Paint a 3-piece vertical column (top/center/bottom).</summary>
     public static void PaintColumn(GroupBox column, string context)

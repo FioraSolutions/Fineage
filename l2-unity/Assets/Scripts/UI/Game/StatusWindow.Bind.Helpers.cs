@@ -123,18 +123,7 @@ public partial class StatusWindow
 
     void PaintSideFrame()
     {
-        VisualElement frame = GetElementById("Frame_DF_Ver");
-        if (frame == null)
-            return;
-
-        GroupBox column = frame.Q<GroupBox>("Frame_DF_Ver");
-        if (column == null)
-            return;
-
-        while (column.childCount > 3)
-            column.RemoveAt(column.childCount - 1);
-
-        L2InterludeHudVerticalFrame.PaintColumn(column, nameof(StatusWindow));
+        L2InterludeHudVerticalFrame.TryPaintVerticalColumn(_windowEle ?? _root, nameof(StatusWindow));
 
         VisualElement grip = GetElementById("SizeControlHandle");
         if (grip != null)
