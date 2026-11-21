@@ -63,10 +63,11 @@ public static class PlayerLocomotionPlayback
         AnimationClip walkClip = LocomotionGait.FindClip(animator, walkClipName)
             ?? PlayerLocomotionBodyCatalog.LoadHandClip(profile, walk: true);
 
+        string profileLabel = profile.ToString();
         if (runClip == null)
-            LocomotionGait.LogMissingLocomotionClip(animator, runClipName, profile);
+            LocomotionGait.LogMissingLocomotionClip(animator, runClipName, profileLabel);
         if (walkClip == null)
-            LocomotionGait.LogMissingLocomotionClip(animator, walkClipName, profile);
+            LocomotionGait.LogMissingLocomotionClip(animator, walkClipName, profileLabel);
 
         Transform skeleton = animator != null ? animator.transform : null;
         float runStride = PlayerLocomotionBodyCatalog.ResolveRunStride(profile, runClip, skeleton);

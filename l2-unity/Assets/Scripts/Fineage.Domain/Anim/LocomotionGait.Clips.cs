@@ -13,19 +13,20 @@ public static partial class LocomotionGait
     public static void LogMissingLocomotionClip(
         Animator animator,
         string clipName,
-        CharacterRaceAnimation profile = default)
+        string profile = null)
     {
         if (string.IsNullOrEmpty(clipName))
             return;
 
         string animatorName = animator != null ? animator.name : "null";
-        string key = animatorName + "@" + clipName + "@" + profile;
+        string profileKey = string.IsNullOrEmpty(profile) ? string.Empty : profile;
+        string key = animatorName + "@" + clipName + "@" + profileKey;
         if (!LoggedMissingClips.Add(key))
             return;
 
-        string profileSuffix = profile != default
-            ? " profile=" + profile
-            : string.Empty;
+        string profileSuffix = string.IsNullOrEmpty(profile)
+            ? string.Empty
+            : " profile=" + profile;
         Debug.LogError(
             LogTag + " missing locomotion clip=\"" + clipName + "\" animator="
             + animatorName + profileSuffix
