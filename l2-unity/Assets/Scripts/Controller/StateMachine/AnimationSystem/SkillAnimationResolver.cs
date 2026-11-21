@@ -125,20 +125,8 @@ public static class SkillAnimationResolver
         if (!string.Equals(oneHs, stateName, StringComparison.Ordinal) && hasState(oneHs))
             return oneHs;
 
-        if (stem.StartsWith("SpAtk", StringComparison.Ordinal) && hasState("SpAtk01_1HS"))
-        {
-            string key = stateName + "|" + (raceName ?? "");
-            if (FallbackMissLogged.Add(key))
-            {
-                Debug.LogError(
-                    "[SkillAnimation] SpAtk fallback to SpAtk01_1HS skillId=" + skillId +
-                    " race=" + raceName +
-                    " requested=" + stateName +
-                    " (SpAtk01/02 only; import race clip or fix weapon suffix).");
-            }
-
-            return "SpAtk01_1HS";
-        }
+        if (stem.StartsWith("SpAtk", StringComparison.Ordinal))
+            LogMissingCombatClip(skillId, raceName, stateName);
 
         return stateName;
     }

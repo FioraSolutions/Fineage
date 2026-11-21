@@ -79,9 +79,29 @@ public sealed partial class CastClipPlayable
         }
 
         int serverTimeMs = _animator != null ? _animator.GetInteger("sptimeatk") : 0;
-        if (serverTimeMs > 0 && hitCenter > 0.01f)
+        if (serverTimeMs <= 0)
         {
-            float serverHit = Mathf.Max(0.05f, serverTimeMs / 1000f);
+            World world = WorldApplyPacketServices.GameWorld;
+            Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
+            MagicCastData cast = entity != null ? entity.GetMagicCastData() : null;
+            if (cast != null && cast.HitTime > 0f)
+                serverTimeMs = Mathf.RoundToInt(cast.HitTime * 1000f);
+        }
+
+        if (PlayerStateSpAtk.IsSpAtk06Gesture(phaseStateName) && serverTimeMs > 0)
+        {
+            float gestureSeconds = (serverTimeMs / 1000f) - PlayerStateSpAtk.HitTimeCompensationSeconds;
+            if (gestureSeconds >= PlayerStateSpAtk.MinServerHitSeconds)
+            {
+                float targetLength = clip.length * PlayerStateSpAtk.SwitchToIdleNormalizedTime;
+                return targetLength / gestureSeconds;
+            }
+        }
+        else if (serverTimeMs > 0 && hitCenter > 0.01f)
+        {
+            float serverHit = (serverTimeMs / 1000f) - PlayerStateSpAtk.HitTimeCompensationSeconds;
+            if (serverHit < PlayerStateSpAtk.MinServerHitSeconds)
+                serverHit = PlayerStateSpAtk.MinServerHitSeconds;
             return hitCenter / serverHit;
         }
 
