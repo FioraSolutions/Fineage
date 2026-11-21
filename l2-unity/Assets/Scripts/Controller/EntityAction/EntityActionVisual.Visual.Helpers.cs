@@ -34,7 +34,12 @@ public static partial class EntityActionVisual
 
         // Cast owns the Animator while MagicSkillPresentation holds AnimChannel.Cast.
         if (!AnimChannel.CanPlay(AnimChannel.Kind.Social))
+        {
+            Debug.LogError(
+                "[SocialAnim] action id=" + actionId + " blocked: AnimChannel.Cast is active on entity=" +
+                entity.name);
             return;
+        }
 
         string socialState = InterludeSocialAnimationCatalog.SocialAnimatorStateName;
         if (entity is PlayerEntity || entity is UserEntity)

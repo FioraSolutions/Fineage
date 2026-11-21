@@ -37,7 +37,7 @@ public partial class PlayerActions : MonoBehaviour
         }
         else
         {
-            // Debug.LogWarning("Action not found.");
+            Debug.LogError("[Action] no handler registered for ActionType id=" + (int)actionType + ".");
         }
     }
 

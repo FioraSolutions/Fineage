@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PassiveSkillsHide : AbstractSkills
+public partial class PassiveSkillsHide : AbstractSkills
 {
     private SkillListWindow _skillLearn;
     private VisualElement _passiveSkillPanel;

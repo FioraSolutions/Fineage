@@ -29,6 +29,15 @@ public partial class ActiveSkillsHide
 
     public void CreatePhysicalSlots(List<SkillInstance> list , VisualElement rowPhysical)
     {
+        if (_templateSlotSkill == null || _templatePanel8x1 == null || _templateBoxPanel == null)
+        {
+            Debug.LogError(
+                "[SkillList] ActiveSkillsHide.CreatePhysicalSlots: missing template slot=" +
+                (_templateSlotSkill == null) + " row8x1=" + (_templatePanel8x1 == null) + " box=" +
+                (_templateBoxPanel == null));
+            return;
+        }
+
         if (rowPhysical != null)
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
@@ -41,12 +50,21 @@ public partial class ActiveSkillsHide
         }
         else
         {
-            // Debug.LogWarning("ActiveSkillsHide > not found root panels ");
+            Debug.LogError("[SkillList] ActiveSkillsHide.CreatePhysicalSlots: RowPhysical missing in TabActive.");
         }
     }
 
     public void CreateMagicalSlots(List<SkillInstance> list, VisualElement rowMagical)
     {
+        if (_templateSlotSkill == null || _templatePanel8x1 == null || _templateBoxPanel == null)
+        {
+            Debug.LogError(
+                "[SkillList] ActiveSkillsHide.CreateMagicalSlots: missing template slot=" +
+                (_templateSlotSkill == null) + " row8x1=" + (_templatePanel8x1 == null) + " box=" +
+                (_templateBoxPanel == null));
+            return;
+        }
+
         if (rowMagical != null)
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
@@ -58,7 +76,7 @@ public partial class ActiveSkillsHide
         }
         else
         {
-            // Debug.LogWarning("ActiveSkillsHide > not found root panels ");
+            Debug.LogError("[SkillList] ActiveSkillsHide.CreateMagicalSlots: RowMagical missing in TabActive.");
         }
     }
 

@@ -47,6 +47,7 @@ public partial class SkillListWindow : L2PopupWindow
 
             case _passiveName:
                 _supportPassiveSkills.GetOrCreateTab(element);
+                TryFlushPendingSkillList();
                 break;
         }
 
