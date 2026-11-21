@@ -106,7 +106,7 @@ public static class NetZonePacketDecoder
             NetOpcode.SummonGone => NetCodec.DecodeSummonGone(payload),
             NetOpcode.Ride => NetCodec.DecodeRide(payload),
             NetOpcode.PlayerActionState => NetCodec.DecodePlayerActionState(payload),
-            NetOpcode.WeddingEngageAsk => NetCodec.DecodeWeddingEngageAsk(payload),
+            WeddingNetOpcode.WeddingEngageAsk => NetCodec.DecodeWeddingEngageAsk(payload),
             NetOpcode.PetInventory => NetCodec.DecodePetInventory(payload),
             NetOpcode.FishingEvent => NetCodec.DecodeFishingEvent(payload),
             NetOpcode.MagicSkillLaunched => NetCodec.DecodeMagicSkillLaunched(payload),
