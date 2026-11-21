@@ -29,6 +29,7 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
             return;
 
         UserInfoDto userInfo = changed.InterludeUserInfo;
+        ActionAvailabilityPacketServices.Availability.NoteMount(userInfo.MountType, userInfo.MountNpcId);
         _world.UserInfoUpdateCharacter(userInfo);
         PlayerEntity local = DomainPacketServices.LocalPlayer;
         if (local != null)

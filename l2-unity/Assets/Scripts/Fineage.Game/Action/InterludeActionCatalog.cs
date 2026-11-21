@@ -15,6 +15,8 @@ public static class InterludeActionCatalog
         public readonly InterludeActionSection Section;
         public readonly string IconStem;
         public readonly InterludeActionWireKind WireKind;
+        public readonly InterludeActionAvailabilityKind Availability;
+        public readonly int[] TemplateNpcIds;
         /// <summary>Order within <see cref="Section"/> in the ActionWnd grid (0-based).</summary>
         public readonly int SlotOrder;
 
@@ -24,6 +26,8 @@ public static class InterludeActionCatalog
             InterludeActionSection section,
             string iconStem,
             InterludeActionWireKind wireKind,
+            InterludeActionAvailabilityKind availability,
+            int[] templateNpcIds,
             int slotOrder = -1)
         {
             Id = id;
@@ -31,6 +35,8 @@ public static class InterludeActionCatalog
             Section = section;
             IconStem = iconStem ?? string.Empty;
             WireKind = wireKind;
+            Availability = availability;
+            TemplateNpcIds = templateNpcIds ?? Array.Empty<int>();
             SlotOrder = slotOrder;
         }
     }
@@ -79,12 +85,23 @@ public static class InterludeActionCatalog
                 sectionCounts[section] = slot + 1;
             }
 
+            if (!InterludeActionAvailabilityRules.TryResolve(
+                    row,
+                    out InterludeActionAvailabilityKind availability,
+                    out int[] templateNpcIds))
+            {
+                availability = InterludeActionAvailabilityKind.Unknown;
+                templateNpcIds = Array.Empty<int>();
+            }
+
             entries.Add(new Entry(
                 row.Id,
                 row.Cmd,
                 section,
                 row.IconStem,
                 WireKindFor(row.Id, section),
+                availability,
+                templateNpcIds,
                 slot));
         }
 

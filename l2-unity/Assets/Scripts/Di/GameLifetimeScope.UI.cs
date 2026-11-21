@@ -66,6 +66,7 @@ public sealed partial class GameLifetimeScope
         builder.Register<L2PawnYaw>(Lifetime.Singleton);
         builder.RegisterEntryPoint<EntityActionMachine>().AsSelf();
         builder.RegisterEntryPoint<StriderRideService>().AsSelf();
+        builder.Register<InterludeActionAvailabilityService>(Lifetime.Singleton);
         builder.RegisterEntryPoint<UnityChainTicker>();
         builder.Register(_ => new PlayerWorldApply(), Lifetime.Singleton);
         builder.Register<NpcWorldApply>(Lifetime.Singleton);
@@ -131,6 +132,8 @@ public sealed partial class GameLifetimeScope
                     animations: runtime.Animations,
                     applyQueue: container.Resolve<PacketApplyQueue>(),
                     striderRide: container.Resolve<StriderRideService>());
+                ActionAvailabilityPacketServices.Bind(
+                    availability: container.Resolve<InterludeActionAvailabilityService>());
                 StatsConverter statsConverter = container.Resolve<StatsConverter>();
                 StatsConverterPacketServices.Bind(converter: statsConverter);
                 CombatPacketServices.Bind(statsConverter: statsConverter);
