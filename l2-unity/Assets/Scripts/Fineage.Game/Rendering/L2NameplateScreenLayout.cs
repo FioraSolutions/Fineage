@@ -9,6 +9,9 @@ public static partial class L2NameplateScreenLayout
     /// <summary>Matches default nameplate bitmap font line height at pixel scale 1.</summary>
     public const float FallbackLineHeightPx = 14f;
 
+    /// <summary>Shared <c>OverlapSphereNonAlloc</c> buffer size (roadmap step 6).</summary>
+    public const int OverlapSphereBufferSize = 256;
+
     /// <summary>
     /// Top of the name glyph row in top-down screen pixels (same convention as nameplate batch).
     /// </summary>

@@ -117,7 +117,7 @@ public sealed class InterludeActionAvailabilityService
     return false;
   }
 
-  internal static void Bind(InterludeActionAvailabilityService service)
+  public static void Bind(InterludeActionAvailabilityService service)
   {
     if (service != null)
       _instance = service;
