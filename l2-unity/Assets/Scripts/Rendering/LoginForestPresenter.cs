@@ -86,7 +86,7 @@ public sealed class LoginForestPresenter : MonoBehaviour
         p.Apply(loginCamera);
     }
 
-    public static void Dismiss()
+    public static void DismissVistaOnly()
     {
         GameObject root = GameObject.Find(RootName);
         if (root != null)
@@ -97,7 +97,21 @@ public sealed class LoginForestPresenter : MonoBehaviour
         for (int i = 0; i < hosts.Length; i++)
         {
             if (hosts[i] != null)
-                hosts[i].Restore();
+                hosts[i].RestoreVista();
+        }
+    }
+
+    public static void Dismiss()
+    {
+        DismissVistaOnly();
+        LoginForestMusic.Stop();
+        LobbyAccountRenderSettings.Release();
+        LoginForestPresenter[] hosts = FindObjectsByType<LoginForestPresenter>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < hosts.Length; i++)
+        {
+            if (hosts[i] != null)
+                hosts[i].DeactivateLoginSun();
         }
     }
 
@@ -646,23 +660,8 @@ public sealed class LoginForestPresenter : MonoBehaviour
 
     void PushEnv()
     {
-        if (!_savedEnv)
-        {
-            _fogWas = RenderSettings.fog;
-            _fogColorWas = RenderSettings.fogColor;
-            _fogModeWas = RenderSettings.fogMode;
-            _fogStartWas = RenderSettings.fogStartDistance;
-            _fogEndWas = RenderSettings.fogEndDistance;
-            _fogDensityWas = RenderSettings.fogDensity;
-            _ambientWas = RenderSettings.ambientLight;
-            _ambientModeWas = RenderSettings.ambientMode;
-            _skyWas = RenderSettings.skybox;
-            _savedEnv = true;
-        }
-
-        RenderSettings.fog = false;
-        RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.38f, 0.46f, 0.48f);
+        LobbyAccountRenderSettings.Apply();
+        _savedEnv = true;
         if (_sun != null)
             _sun.SetActive(true);
     }
@@ -671,15 +670,7 @@ public sealed class LoginForestPresenter : MonoBehaviour
     {
         if (!_savedEnv)
             return;
-        RenderSettings.fog = _fogWas;
-        RenderSettings.fogColor = _fogColorWas;
-        RenderSettings.fogMode = _fogModeWas;
-        RenderSettings.fogStartDistance = _fogStartWas;
-        RenderSettings.fogEndDistance = _fogEndWas;
-        RenderSettings.fogDensity = _fogDensityWas;
-        RenderSettings.ambientMode = _ambientModeWas;
-        RenderSettings.ambientLight = _ambientWas;
-        RenderSettings.skybox = _skyWas;
+        LobbyAccountRenderSettings.Release();
         if (_sun != null)
             _sun.SetActive(false);
         _savedEnv = false;
@@ -698,11 +689,10 @@ public sealed class LoginForestPresenter : MonoBehaviour
         _savedCulling = true;
     }
 
-    void Restore()
+    void RestoreVista()
     {
         _live = false;
         _sway.Clear();
-        LoginForestMusic.Stop();
         RestoreHiddenLobby();
 
         LoginJungleFillPass pass = _camera != null ? _camera.GetComponent<LoginJungleFillPass>() : null;
@@ -727,7 +717,6 @@ public sealed class LoginForestPresenter : MonoBehaviour
 
         _terrainMat = null;
 
-        PopEnv();
         if (_camera == null || !_savedCulling)
             return;
         _camera.cullingMask = _savedCullingMask;
@@ -737,6 +726,20 @@ public sealed class LoginForestPresenter : MonoBehaviour
         _camera.nearClipPlane = _savedNear;
         _camera.farClipPlane = _savedFar;
         _savedCulling = false;
+    }
+
+    void DeactivateLoginSun()
+    {
+        if (_sun != null)
+            _sun.SetActive(false);
+        _savedEnv = false;
+    }
+
+    void Restore()
+    {
+        RestoreVista();
+        LoginForestMusic.Stop();
+        PopEnv();
     }
 
     static int BuildMask()

@@ -33,6 +33,8 @@ public enum ActionType : int
     SocialShyness = 66,
     PrivateStoreBuy = 28,
     DwarvenManufacture = 37,
+  /// <summary>Interlude action 51 — common manufacture shop.</summary>
+    GeneralManufacture = 51,
     Mount = 38,
     Recommend = 40,
     /// <summary>Interlude ActionWnd party row: change party leader.</summary>

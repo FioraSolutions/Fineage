@@ -86,4 +86,14 @@ public sealed partial class NetCommandSender
             }),
             _nextSeq());
     }
+
+    public Task SendWeddingEngageAnswerAsync(int response)
+    {
+        if (!TryGetZone(out NetTransport zone))
+            return Task.CompletedTask;
+        return zone.SendAsync(
+            NetOpcode.WeddingEngageAnswer,
+            NetCodec.EncodeWeddingEngageAnswer(new WeddingEngageAnswerNetMsg { Response = response }),
+            _nextSeq());
+    }
 }

@@ -29,14 +29,20 @@ public sealed partial class NetSession
     internal void ApplyNpcSpawn(EntitySpawnMsg spawn)
     {
         int objectId = (int)spawn.EntityValue;
+        bool liveDoor = EntitySpawnApply.IsLiveDoorSpawn(spawn.TemplateId, spawn.Name);
         NpcInfoDto dto = new NpcInfoDto();
         dto.Identity.Id = objectId;
         dto.Identity.NpcId = spawn.TemplateId;
         if (!string.IsNullOrEmpty(spawn.Name))
             dto.Identity.Name = spawn.Name;
         dto.Identity.SetHideHp(spawn.TemplateId);
-        // Attackable mobs → MonsterSpawner; peaceful Folk → NpcSpawner (+ EnsureNpcEntity for monster meshes).
-        dto.Identity.EntityType = EntitySpawnApply.ResolveEntityType(spawn.Attackable);
+        if (liveDoor)
+        {
+            NetDoorSession.RememberDoorSpawn(objectId);
+            dto.Identity.EntityType = EntitySpawnApply.ResolveDoorEntityType(spawn.Attackable);
+        }
+        else
+            dto.Identity.EntityType = EntitySpawnApply.ResolveEntityType(spawn.Attackable);
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
         dto.Identity.OrigHeading = EntitySpawnApply.ResolveHeadingDegrees(spawn.Heading);
         dto.Identity.Heading = Quaternion.Euler(0f, dto.Identity.OrigHeading, 0f);
@@ -57,7 +63,7 @@ public sealed partial class NetSession
         dto.Stats.RunRealSpeed = run;
         dto.Appearance.CollisionRadius = 10f;
         dto.Appearance.CollisionHeight = 22f;
-        NetNpcSession.RememberNpc(objectId, spawn.Name, spawn.Attackable, spawn.Rhand, spawn.Lhand);
+        NetNpcSession.RememberNpc(objectId, spawn.Name, liveDoor || spawn.Attackable, spawn.Rhand, spawn.Lhand);
         if (_presence != null) _presence.ApplyNpcInfo(dto);
         else NpcInfoApplyIncomingPacketServices.ApplyNpcInfo(dto);
     }
@@ -66,6 +72,7 @@ public sealed partial class NetSession
     {
         int objectId = (int)despawn.EntityValue;
         NetNpcSession.Forget(objectId);
+        NetDoorSession.Forget(objectId);
         var dto = new DeleteObjectDto { ObjectId = objectId };
         DeleteObjectGroundApplyService deleteObjectGround = _deleteObjectGround;
         if (deleteObjectGround != null) deleteObjectGround.Apply(dto);

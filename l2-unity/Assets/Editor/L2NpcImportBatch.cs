@@ -129,6 +129,8 @@ public static class L2NpcImportBatch
 
         Dictionary<string, Material> mats = BindMaterials(item, shader);
         AssignMaterials(instance, mats);
+        L2ActorMeshPolicy.DisableSkeletonPlaceholders(instance.transform);
+        L2ActorMeshPolicy.DisableAlphaOverlays(instance.transform);
         EnsureNpcComponents(instance, item.humanoid);
         var clips = ExtractClips(item.asset, fbxPath, folder + "/Model");
         Animator animator = instance.GetComponent<Animator>();
@@ -167,25 +169,17 @@ public static class L2NpcImportBatch
                 if (shader == null || tex == null)
                     continue;
                 mat = new Material(shader) { name = item.asset + suf };
-                if (mat.HasProperty("_BaseMap"))
-                    mat.SetTexture("_BaseMap", tex);
-                if (mat.HasProperty("_MainTex"))
-                    mat.SetTexture("_MainTex", tex);
                 AssetDatabase.CreateAsset(mat, matPath);
             }
-            else
-            {
-                if (shader != null)
-                    mat.shader = shader;
-                if (tex != null)
-                {
-                    if (mat.HasProperty("_BaseMap"))
-                        mat.SetTexture("_BaseMap", tex);
-                    if (mat.HasProperty("_MainTex"))
-                        mat.SetTexture("_MainTex", tex);
-                }
-                EditorUtility.SetDirty(mat);
-            }
+
+            var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+            L2ActorMaterialSetupEditor.ApplyToMaterial(
+                mat,
+                shader,
+                tex,
+                item.asset + suf,
+                props,
+                logMissingTexture: true);
 
             map[suf] = mat;
         }
@@ -209,11 +203,13 @@ public static class L2NpcImportBatch
                 if (mat == null && shader != null)
                 {
                     mat = new Material(shader) { name = asset };
-                    if (mat.HasProperty("_BaseMap"))
-                        mat.SetTexture("_BaseMap", tex);
-                    if (mat.HasProperty("_MainTex"))
-                        mat.SetTexture("_MainTex", tex);
                     AssetDatabase.CreateAsset(mat, matPath);
+                }
+
+                if (mat != null)
+                {
+                    var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+                    L2ActorMaterialSetupEditor.ApplyToMaterial(mat, shader, tex, asset, props, logMissingTexture: true);
                 }
             }
         }
@@ -369,6 +365,7 @@ public static class L2NpcImportBatch
             if (existing != null)
             {
                 EditorUtility.CopySerialized(src, existing);
+                PostProcessNpcClip(existing);
                 EditorUtility.SetDirty(existing);
                 map[Normalize(src.name)] = existing;
             }
@@ -376,12 +373,23 @@ public static class L2NpcImportBatch
             {
                 var copy = UnityEngine.Object.Instantiate(src);
                 copy.name = safe;
+                PostProcessNpcClip(copy);
                 AssetDatabase.CreateAsset(copy, path);
                 map[Normalize(src.name)] = copy;
             }
         }
 
         return map;
+    }
+
+    static void PostProcessNpcClip(AnimationClip clip)
+    {
+        if (clip == null)
+            return;
+        L2AnimClipPipeline.StripRedundantEulerCurves(clip);
+        L2AnimClipPipeline.ApplyStandardLoopSettings(
+            clip,
+            L2AnimClipPipeline.ShouldLoopNpcLocomotion(clip.name));
     }
 
     static string Normalize(string n)
@@ -426,7 +434,9 @@ public static class L2NpcImportBatch
             return clips.Count > 0 ? clips.Values.First() : null;
         }
 
-        AnimationClip wait = Find("wait_1hs", "wait");
+        AnimationClip wait = Find("wait_1hs", "wait", "wait_pole", "wait_bow");
+        if (wait == null)
+            Debug.LogError("[NpcImport] missing base wait clip for override " + ov.name);
         AnimationClip death = Find("death_hand", "death");
         AnimationClip deathWait = Find("deathwait", "death_wait");
         AnimationClip social = Find("social01", "social");
@@ -479,6 +489,8 @@ public static class L2NpcImportBatch
             root.AddComponent<CharacterAnimationAudioHandler>();
         if (root.GetComponent<NpcEntity>() == null)
             root.AddComponent<NpcEntity>();
+        if (root.GetComponent<NpcIdleScheduler>() == null)
+            root.AddComponent<NpcIdleScheduler>();
         if (root.GetComponent<NpcStateMachine>() == null)
             root.AddComponent<NpcStateMachine>();
 

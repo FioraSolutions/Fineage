@@ -7,6 +7,15 @@ using UnityEngine.UIElements;
 
 public partial class SkillListWindow : L2PopupWindow
 {
+    static List<SkillInstance> _orphanedSkillList;
+
+    public static void StashOrphanedSkillList(SkillListDto packet)
+    {
+        if (packet?.Skills == null || packet.Skills.Count == 0)
+            return;
+        _orphanedSkillList = packet.Skills;
+    }
+
     private void Awake()
     {
         if (_instance == null)
@@ -17,6 +26,7 @@ public partial class SkillListWindow : L2PopupWindow
             _supportPassiveSkills = new PassiveSkillsHide();
             _allSkills = new Dictionary<int, SkillInstance>();
             WireSkillLearnPacketServices();
+            TryApplyOrphanedSkillList();
         }
         else
         {
@@ -27,6 +37,16 @@ public partial class SkillListWindow : L2PopupWindow
     private void Start()
     {
         WireSkillLearnPacketServices();
+        TryApplyOrphanedSkillList();
+    }
+
+    void TryApplyOrphanedSkillList()
+    {
+        if (_orphanedSkillList == null)
+            return;
+        List<SkillInstance> pending = _orphanedSkillList;
+        _orphanedSkillList = null;
+        UpdateSkillList(pending);
     }
 
     private void WireSkillLearnPacketServices()

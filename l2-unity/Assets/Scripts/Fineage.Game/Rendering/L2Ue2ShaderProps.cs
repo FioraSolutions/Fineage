@@ -78,6 +78,16 @@ public static class L2Ue2ShaderProps
             return info;
         }
 
+        // Doorway/blocker Shader slots (elf_vi_034_shader): collision filler, not visible cutout.
+        if (materialName.EndsWith("_shader", StringComparison.OrdinalIgnoreCase)
+            && info.zWrite
+            && !info.alphaTest)
+        {
+            info.mode = RenderMode.HiddenCollisionOnly;
+            info.detail = "UE2 shader slot without AlphaTest (collision filler)";
+            return info;
+        }
+
         if (info.alphaTest || info.hasOpacityMap)
         {
             info.mode = RenderMode.MaskedCutout;

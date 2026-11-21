@@ -10,6 +10,27 @@ using UnityEngine;
 public static class InterludeSocialAnimationCatalog
 {
     /// <summary>PSA take suffix (e.g. Social_nod). Animator plays via social01 override.</summary>
+    /// <summary>Override slot / template motion name (runtime swaps per social id).</summary>
+    public const string SocialAnimatorStateName = "social01";
+
+    public const string PlaceholderClipNameFragment = "ao_social01";
+
+    static readonly int[] MappedSocialActionIds =
+    {
+        12, 13, 14, 24, 25, 26, 29, 30, 31, 33, 34, 35, 62, 66,
+    };
+
+    static readonly string[] MappedClipStems =
+    {
+        "Social_nod", "Social_victory", "Social_Atk", "Social_yes", "Social_no", "Social_bow",
+        "Social_unaware", "Social_waiting_a", "Social_laugh", "Social_clap", "Social_dance", "Social_sad",
+        "Social_SpWait01", "Social_SpWait02",
+    };
+
+    public static IReadOnlyList<int> AllMappedSocialActionIds() => MappedSocialActionIds;
+
+    public static IReadOnlyList<string> AllClipStems() => MappedClipStems;
+
     public static bool TryGetClipStem(int socialActionId, out string clipStem)
     {
         clipStem = null;
@@ -29,7 +50,11 @@ public static class InterludeSocialAnimationCatalog
             case 35: clipStem = "Social_sad"; return true;
             case 62: clipStem = "Social_SpWait01"; return true;
             case 66: clipStem = "Social_SpWait02"; return true;
-            default: return false;
+            default:
+                Debug.LogError(
+                    "[SocialAnim] unknown SocialAction / RequestActionUse id=" + socialActionId +
+                    " (no clip mapping in InterludeSocialAnimationCatalog).");
+                return false;
         }
     }
 

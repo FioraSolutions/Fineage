@@ -24,6 +24,7 @@ public sealed partial class NpcSpawner
         }
         npc.NpcData = new NpcData(request.NpcName, request.Npcgrp);
         EntitySpawnShared.ApplyNpcIdentity(npc, request);
+        EntitySpawnShared.ApplyNpcCollisionVisualScale(npcGo, request.Npcgrp);
         EntitySpawnShared.ResetNpcRuntimeForSpawn(npc);
 
         npcGo.transform.name = request.Prefab != null

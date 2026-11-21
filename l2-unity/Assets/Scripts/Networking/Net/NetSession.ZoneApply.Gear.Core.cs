@@ -88,5 +88,7 @@ public sealed partial class NetSession
             status.SetMp(msg.Mp);
             status.Cp = msg.Cp;
         }
+
+        NetCraftSession.UpdateMpFromPlayer(msg.Mp, msg.MaxMp);
     }
 }

@@ -616,4 +616,40 @@ public class NetWireContractTests
         Assert.False(NetCodec.DecodeAutoSoulShot(cleared).Enabled);
         Assert.Equal(1463, NetCodec.DecodeAutoSoulShot(armed).ItemId);
     }
+
+    [Fact]
+    public void Auth_optional_language_tail_round_trips()
+    {
+        byte[] withLang = NetCodec.EncodeAuth(new AuthMsg
+        {
+            Account = "hero",
+            Password = "secret",
+            RegisterIfMissing = true,
+            Language = "pt-br"
+        });
+        AuthMsg decoded = NetCodec.DecodeAuth(withLang);
+        Assert.Equal("hero", decoded.Account);
+        Assert.Equal("pt-br", decoded.Language);
+
+        byte[] legacy = NetCodec.EncodeAuth(new AuthMsg
+        {
+            Account = "hero",
+            Password = "secret",
+            RegisterIfMissing = false,
+            Language = null
+        });
+        AuthMsg legacyDecoded = NetCodec.DecodeAuth(legacy);
+        Assert.Null(legacyDecoded.Language);
+    }
+
+    [Fact]
+    public void EnterWorld_language_payload_round_trips()
+    {
+        byte[] empty = NetCodec.EncodeEnterWorld(new EnterWorldMsg { Language = null });
+        Assert.Empty(empty);
+        Assert.Null(NetCodec.DecodeEnterWorld(empty).Language);
+
+        byte[] withLang = NetCodec.EncodeEnterWorld(new EnterWorldMsg { Language = "ru" });
+        Assert.Equal("ru", NetCodec.DecodeEnterWorld(withLang).Language);
+    }
 }

@@ -13,7 +13,10 @@ public partial class ActionSlot : L2DraggableSlot
         Action = null;
         _slotDragManipulator.enabled = false;
         if (_slotElement != null)
+        {
             _slotElement.AddToClassList("empty");
+            _slotElement.style.display = DisplayStyle.None;
+        }
         if (_slotBg != null)
             _slotBg.style.backgroundImage = StyleKeyword.Null;
         if (_tooltipManipulator != null)
@@ -27,6 +30,8 @@ public partial class ActionSlot : L2DraggableSlot
     {
         ButtonClickSoundManipulator _buttonClickSoundManipulator = new ButtonClickSoundManipulator(_slotElement);
         _slotDragManipulator.enabled = true;
+        if (_slotElement != null)
+            _slotElement.style.display = DisplayStyle.Flex;
         _slotElement.RemoveFromClassList("empty");
 
         ActionId = (int)actionType;
