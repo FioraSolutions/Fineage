@@ -303,6 +303,12 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.SummonGone:
                 _session.ApplySummonGone((SummonGoneNetMsg)packet.Body);
                 break;
+            case NetOpcode.Ride:
+                _session.ApplyRide((RideNetMsg)packet.Body);
+                break;
+            case NetOpcode.PlayerActionState:
+                _session.ApplyPlayerActionState((PlayerActionStateNetMsg)packet.Body);
+                break;
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
                 break;

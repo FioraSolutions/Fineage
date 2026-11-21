@@ -21,7 +21,7 @@ public partial class NameplatesManager : MonoBehaviour
     [SerializeField] private string _atlasResourcePath = "Data/UI/Font/L2Lobby/l2_lobby_font_atlas";
     [SerializeField] private string _csvResourcePath = "Data/UI/Font/L2Lobby/ul2font_ascii";
 
-    public const int OverlapBufferSize = 256;
+    public const int OverlapBufferSize = L2NameplateScreenLayout.OverlapSphereBufferSize;
 
     static readonly Collider[] OverlapBuffer = new Collider[OverlapBufferSize];
 
