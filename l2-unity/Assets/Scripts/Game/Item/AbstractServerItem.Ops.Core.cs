@@ -64,5 +64,9 @@ public abstract partial class AbstractServerItem
         return "";
     }
 
-    public bool IsBow() => TablePacketServices.WeaponGrps.GetWeapon(itemId)?.WeaponType == WeaponType.bow;
+    public bool IsBow()
+    {
+        Weapongrp grp = TablePacketServices.WeaponGrps.GetWeapon(itemId);
+        return WeaponAttachLayoutResolver.Resolve(grp).EquipPrimaryOnLeft;
+    }
 }
