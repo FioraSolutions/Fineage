@@ -15,6 +15,9 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 
         StepMoves();
 
+        IGravity gravity = GravityNpcPacketServices.Gravity;
+        gravity?.StepGravity();
+
         if (_rotateDict == null || _rotateDict.Count == 0) return;
 
         foreach (KeyValuePair<int, RotateData> kvp in _rotateDict)

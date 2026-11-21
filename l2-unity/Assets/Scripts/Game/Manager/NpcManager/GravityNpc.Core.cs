@@ -18,7 +18,13 @@ public partial class GravityNpc : MonoBehaviour, IGravity
         }
     }
 
-    private void FixedUpdate()
+    public void StepGravity()
+    {
+        using (FineagePerfProfiling.GravityStep.Auto())
+            StepGravityCore();
+    }
+
+    void StepGravityCore()
     {
         if (_dict == null || _dict.Count == 0) return;
         foreach (KeyValuePair<int, GravityData> kvp in _dict)
