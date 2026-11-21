@@ -5,7 +5,8 @@ public sealed class PlaytestConsoleSpamEditModeTests
     [Test]
     public void NpcSkinnedBoundsPolicy_uses_collision_height_in_meters_without_extra_scale()
     {
-        Assert.AreEqual(1.8f, NpcSkinnedBoundsPolicy.ExpectedBodyHeightMeters(null));
+        Assert.AreEqual(1.8f, NpcSkinnedBoundsPolicy.ExpectedBodyHeightMeters(collisionHeightMeters: null));
+        Assert.AreEqual(1.0f, NpcSkinnedBoundsPolicy.ExpectedBodyHeightMeters(1.0f));
         Assert.AreEqual(3.35f, NpcSkinnedBoundsPolicy.MaxSkinnedBoundsHeightMeters(1.0f), 0.001f);
     }
 

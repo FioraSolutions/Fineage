@@ -5,11 +5,11 @@ public static class NpcSkinnedBoundsPolicy
     /// <summary>
     /// <see cref="Npcgrp.CollisionHeight"/> is stored in meters after npcgrp table load (already / 52.5).
     /// </summary>
-    public static float ExpectedBodyHeightMeters(Entity entity, float defaultMeters = 1.8f)
+    public static float ExpectedBodyHeightMeters(float? collisionHeightMeters, float defaultMeters = 1.8f)
     {
-        if (entity == null || entity.Appearance == null)
+        if (!collisionHeightMeters.HasValue)
             return defaultMeters;
-        return Mathf.Max(0.5f, entity.Appearance.CollisionHeight);
+        return Mathf.Max(0.5f, collisionHeightMeters.Value);
     }
 
     public static float MaxSkinnedBoundsHeightMeters(float bodyHeightMeters) =>

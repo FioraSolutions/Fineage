@@ -115,7 +115,10 @@ public static partial class EntitySpawnShared
         L2ActorMeshPolicy.DisableAlphaOverlays(go.transform);
 
         int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
-        float bodyHeight = NpcSkinnedBoundsPolicy.ExpectedBodyHeightMeters(entity);
+        float? collisionHeightMeters = entity != null && entity.Appearance != null
+            ? (float?)entity.Appearance.CollisionHeight
+            : null;
+        float bodyHeight = NpcSkinnedBoundsPolicy.ExpectedBodyHeightMeters(collisionHeightMeters);
         float maxHeight = NpcSkinnedBoundsPolicy.MaxSkinnedBoundsHeightMeters(bodyHeight);
         SkinnedMeshRenderer[] skins = go.GetComponentsInChildren<SkinnedMeshRenderer>(true);
         for (int i = 0; i < skins.Length; i++)
