@@ -49,6 +49,12 @@ public partial class TargetWindow
         var sb = new StringBuilder();
         if (!string.IsNullOrEmpty(nameData.Name))
             sb.Append(nameData.Name);
+        if (level > 0)
+        {
+            if (sb.Length > 0)
+                sb.Append(' ');
+            sb.Append("Lv.").Append(level);
+        }
         if (!string.IsNullOrEmpty(nameData.Desc))
         {
             if (sb.Length > 0)

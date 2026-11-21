@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PassiveSkillsHide : AbstractSkills
+public partial class PassiveSkillsHide : AbstractSkills
 {
     private SkillListWindow _skillLearn;
     private VisualElement _passiveSkillPanel;
@@ -77,6 +77,8 @@ public class PassiveSkillsHide : AbstractSkills
         CreateAbilitySlots(abilitySkills, _rowAbility);
         CreateSubjectSlots(subjectSkills, _rowSubject);
 
+        EnsureSectionRowsExpanded(_rowAbility, _rowSubject);
+
         HidePanelIfCount0(abilitySkills, _rowAbility, allContentPhysical);
         HidePanelIfCount0(subjectSkills, _rowSubject, allContentMagical);
         _tempList = list;
@@ -144,5 +146,19 @@ public class PassiveSkillsHide : AbstractSkills
         ClickDf(btn, arrDfPassiveSelect, _rowSubject, 1);
     }
 
-
+    void EnsureSectionRowsExpanded(VisualElement rowAbility, VisualElement rowSubject)
+    {
+        SetSectionExpanded(
+            _passiveSkillPanel?.Q<Button>(_abilityButtonName),
+            _arrDfPassiveSelect,
+            0,
+            rowAbility,
+            true);
+        SetSectionExpanded(
+            _passiveSkillPanel?.Q<Button>(_subjectButtonName),
+            _arrDfPassiveSelect,
+            1,
+            rowSubject,
+            true);
+    }
 }

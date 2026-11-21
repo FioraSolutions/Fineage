@@ -25,7 +25,8 @@ public sealed partial class NetLobbyFlow
                 {
                     Account = account,
                     Password = password,
-                    RegisterIfMissing = registerIfMissing
+                    RegisterIfMissing = registerIfMissing,
+                    Language = PlayerLanguage.Tag
                 }),
                 _nextSeq());
         }

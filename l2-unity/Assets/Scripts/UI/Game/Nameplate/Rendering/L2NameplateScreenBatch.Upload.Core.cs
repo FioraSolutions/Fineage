@@ -30,6 +30,7 @@ public sealed partial class L2NameplateScreenBatch
         _drawIndexCount = _indices.Count;
 
         _material.SetBuffer("_GlyphBuffer", _glyphBuffer);
+        _material.SetFloat("_ZTest", (float)(int)CompareFunction.LessEqual);
         if (L2FxCompositorRuntime.PreferGpuQueue)
         {
             L2NameplateOverlayQueue.Enqueue(

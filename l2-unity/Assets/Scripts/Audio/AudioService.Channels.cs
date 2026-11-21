@@ -115,7 +115,6 @@ public partial class AudioService
 
     public bool PlayHitImpact(bool criticalHit, Vector3 position)
     {
-        string id = criticalHit ? AudioSoundCatalog.IdHitCritical : AudioSoundCatalog.IdHitArmor;
-        return PlayCatalogSound(id, position, 0.75f);
+        return CharacterCombatAudioDispatch.PlayHitImpact(criticalHit, position, entityId: 0);
     }
 }

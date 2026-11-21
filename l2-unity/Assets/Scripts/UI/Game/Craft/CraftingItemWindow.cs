@@ -90,10 +90,19 @@ public class CraftingItemWindow : L2PopupWindow
 
     private void OnCreateButtonClick(ClickEvent evt)
     {
-        if (_packet != null)
+        if (_packet == null)
+            return;
+
+        if (_packet.IsShopMode)
         {
-            ZoneCommands.Send(new RequestRecipeItemMakeSelfCommand(_packet.RecipeId));
+            ZoneCommands.Send(new RequestRecipeShopMakeItemCommand(
+                _packet.ManufacturerObjectId,
+                _packet.RecipeId));
+            return;
         }
+
+        NetCraftSession.PendingMakeSelfRecipeId = _packet.RecipeId;
+        ZoneCommands.Send(new RequestRecipeItemMakeSelfCommand(_packet.RecipeId));
     }
 
     private void OnBackButtonClick(ClickEvent evt)
