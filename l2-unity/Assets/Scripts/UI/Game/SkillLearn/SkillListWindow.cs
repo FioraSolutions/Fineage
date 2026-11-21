@@ -35,8 +35,11 @@ public partial class SkillListWindow : L2PopupWindow
 
     public bool IsReady
     {
-        get { return _supportActiveSkills != null && _supportActiveSkills.IsReady; }
+        get { return _skillListTabsReady; }
     }
+
+    bool _skillListTabsReady;
+    string _loggedDeferReason;
 
 
 

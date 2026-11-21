@@ -18,6 +18,9 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
+        if (!AudioWorldGate.ShouldPlayWorldSound(transform.position))
+            return;
+
         int entityId = ResolveEntityId();
         if (!TryBindChrSoundBank())
             TryBindChrSoundBankFromEntity();

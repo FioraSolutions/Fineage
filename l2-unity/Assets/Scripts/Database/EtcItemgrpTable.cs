@@ -16,11 +16,13 @@ public partial class EtcItemgrpTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<EtcItemgrpTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(EtcItemgrpTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(EtcItemgrpTable));
                 _instance = new EtcItemgrpTable();
             }
 

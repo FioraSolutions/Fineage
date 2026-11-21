@@ -25,6 +25,9 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
             return;
         }
 
+        _burstMoveKeys.Clear();
+        EnsurePlanCapacity(_moveDict.Count);
+
         long start = System.Diagnostics.Stopwatch.GetTimestamp();
         int moving = 0;
         foreach (KeyValuePair<int, MovementData> kvp in _moveDict)
@@ -43,7 +46,8 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 
                 if (isMove)
                     moving++;
-                MoveToPoint(kvp.Key, target, data);
+                if (!TryQueueBurstRemoteMove(kvp.Key, target, data))
+                    MoveToPoint(kvp.Key, target, data);
             }
             else
             {
@@ -53,6 +57,7 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 
         }
 
+        CompleteBurstRemoteMoves();
         RemoveFinishKeyMove();
         double ms = (System.Diagnostics.Stopwatch.GetTimestamp() - start) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
         MoveCostLog.NoteStep(moving, moving, ms);
