@@ -6,8 +6,8 @@
         <engine:VisualElement name="map-host" style="position: absolute; left: 2px; top: 30px; width: 330px; height: 328px; overflow: hidden;" />
         <engine:VisualElement name="MapBack" picking-mode="Ignore" style="position: absolute; left: 0; top: 0; width: 334px; height: 392px; background-image: resource('Data/UI/Map/MinimapFrame'); -unity-background-scale-mode: stretch-to-fill;" />
         <engine:VisualElement name="drag-area" class="drag-area" style="position: absolute; left: 0; top: 0; width: 310px; height: 28px;" />
-        <engine:Button text="My Location" name="MyLocation" class="l2-button" style="position: absolute; left: 8px; top: 362px; width: 76px; height: 23px; margin: 0; padding: 0; font-size: 10px;" />
-        <engine:Button text="Party" name="PartyButton" class="l2-button" style="position: absolute; left: 88px; top: 362px; width: 76px; height: 23px; margin: 0; padding: 0; font-size: 10px;" />
+        <engine:Button text="ui.window.map.my_location" name="MyLocation" class="l2-button l10n" style="position: absolute; left: 8px; top: 362px; width: 76px; height: 23px; margin: 0; padding: 0; font-size: 10px;" />
+        <engine:Button text="ui.window.map.party" name="PartyButton" class="l2-button l10n" style="position: absolute; left: 88px; top: 362px; width: 76px; height: 23px; margin: 0; padding: 0; font-size: 10px;" />
         <engine:Button text="" name="btn-close-frame" class="btn-close-frame" style="position: absolute; right: 4px; top: 4px; width: 16px; height: 16px; margin: 0; padding: 0; background-color: rgba(0, 0, 0, 0); border-width: 0;" />
     </engine:VisualElement>
 </engine:UXML>

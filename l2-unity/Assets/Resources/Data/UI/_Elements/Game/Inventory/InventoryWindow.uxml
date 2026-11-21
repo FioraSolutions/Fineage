@@ -11,7 +11,7 @@
         TrashButton 34x34 @ 208,331
     -->
     <ui:Instance name="defaultWindowsLarge" template="InventoryInterludeChrome" class="inventory-window" style="flex-grow: 1; position: absolute; left: auto; bottom: auto; overflow: hidden;">
-        <AttributeOverrides element-name="windows-name-label" text="Inventory" />
+        <AttributeOverrides element-name="windows-name-label" text="ui.window.inventory" class="l10n" />
         <ui:VisualElement name="Content" class="background_over" style="flex-grow: 1; position: absolute; top: 20px; left: 0; right: 0; bottom: 0; width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-color: rgb(12, 12, 14);">
             <ui:VisualElement name="Container" style="position: relative; flex-grow: 0; flex-shrink: 0; width: 256px; height: 380px; align-self: center; background-image: resource(&apos;Data/UI/Inventory/Inventory_Interlude_Back&apos;); -unity-background-scale-mode: stretch-to-fill;">
                 <!-- Hitboxes only — silhouettes come from Inventory_Back -->
