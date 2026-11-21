@@ -14,6 +14,13 @@ public partial class UserEntity : NetworkEntity
 
         EquipAllArmors();
 
+        NetworkAnimationController nac = GetAnimatorController();
+        if (nac != null)
+            PlayerLocomotionBodyCatalog.ValidateWaitHandOverride(
+                RaceId,
+                nac.GetAnimator(),
+                Identity != null ? Identity.Id : 0);
+
         EntityLoaded = true;
     }
 

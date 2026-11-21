@@ -43,41 +43,5 @@ public sealed partial class WeaponShotTable
         }
     }
 
-    static string ResolveSection(Gear gear)
-    {
-        if (gear == null)
-            return "HAND";
-
-        WeaponType right = gear.RightHandWeaponType;
-        WeaponType left = gear.LeftHandWeaponType;
-        if (left == WeaponType.shield || left == WeaponType.arrow)
-            left = WeaponType.none;
-
-        if (right == WeaponType.bow || left == WeaponType.bow)
-            return "BOW";
-        if (right == WeaponType.dual || left == WeaponType.dual)
-            return "DUAL";
-        if (right == WeaponType.dagger || left == WeaponType.dagger)
-            return "THROW";
-        if (right == WeaponType.mbook || left == WeaponType.mbook)
-            return "BOOK";
-        if (right == WeaponType.fist || left == WeaponType.fist ||
-            right == WeaponType.dualfist || left == WeaponType.dualfist)
-            return "DUALFIST";
-        if (IsBare(right) && IsBare(left))
-            return "HAND";
-        if (right == WeaponType.bigword || right == WeaponType.bigblunt ||
-            left == WeaponType.bigword || left == WeaponType.bigblunt)
-            return "2HS";
-        if (right == WeaponType.pole || right == WeaponType.staff ||
-            left == WeaponType.pole || left == WeaponType.staff)
-            return "POLE";
-
-        return "1HS";
-    }
-
-    static bool IsBare(WeaponType type)
-    {
-        return type == WeaponType.none || type == WeaponType.hand;
-    }
+    static string ResolveSection(Gear gear) => WeaponShotSectionResolver.Resolve(gear);
 }

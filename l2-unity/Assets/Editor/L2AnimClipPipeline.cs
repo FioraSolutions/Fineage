@@ -47,6 +47,18 @@ public static class L2AnimClipPipeline
         return removed;
     }
 
+    public static bool ShouldLoopNpcLocomotion(string clipName)
+    {
+        if (string.IsNullOrEmpty(clipName))
+            return false;
+        string n = clipName.ToLowerInvariant();
+        if (n.Contains("spwait") || n.Contains("social") || n.Contains("atk01"))
+            return false;
+        if (n.Contains("death") && !n.Contains("deathwait") && !n.Contains("atkwait"))
+            return false;
+        return n.Contains("wait") || n.Contains("walk") || n.Contains("run");
+    }
+
     public static void ApplyStandardLoopSettings(AnimationClip clip, bool loop)
     {
         if (clip == null)

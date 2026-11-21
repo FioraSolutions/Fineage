@@ -82,6 +82,41 @@
       ]
     },
     {
+      "id": "ui-map",
+      "pathGlobs": [
+        "Assets/Resources/Data/UI/Map/**"
+      ],
+      "readable": false,
+      "mipmaps": false,
+      "streamingMipmaps": false,
+      "filterMode": "Bilinear",
+      "npotScale": "None",
+      "wrapMode": "Clamp",
+      "platforms": [
+        {
+          "name": "Standalone",
+          "overridden": true,
+          "format": "RGBA32",
+          "compression": "Uncompressed",
+          "maxTextureSize": 4096
+        },
+        {
+          "name": "Android",
+          "overridden": true,
+          "format": "ASTC_4x4",
+          "compression": "Compressed",
+          "maxTextureSize": 4096
+        },
+        {
+          "name": "iPhone",
+          "overridden": true,
+          "format": "ASTC_4x4",
+          "compression": "Compressed",
+          "maxTextureSize": 4096
+        }
+      ]
+    },
+    {
       "id": "ui-icon",
       "pathGlobs": [
         "Assets/Resources/Data/SysTextures/Icon/**"

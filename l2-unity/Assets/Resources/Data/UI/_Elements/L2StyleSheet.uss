@@ -22,9 +22,19 @@
     position: absolute;
 }
 
+.status-window .status-center-plate {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 4;
+    -unity-slice-right: 4;
+    -unity-slice-top: 4;
+    -unity-slice-bottom: 4;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .chat-window {
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0);
     min-width: 280px;
 }
 
@@ -646,17 +656,31 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
+.chat-window #ChatBar {
+    height: 18px;
+    align-items: center;
+}
+
 .chat-window #InnerBar {
-    min-height: 16px;
+    min-height: 18px;
+    height: 18px;
+    align-items: center;
     padding-right: 2px;
-    background-image: resource('Data/UI/Assets/Login/CharacterPassword_DF_EditBox');
-    -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-left: 4;
-    -unity-slice-right: 4;
-    -unity-slice-top: 4;
-    -unity-slice-bottom: 4;
+    padding-top: 0;
+    padding-bottom: 0;
+    background-image: none;
     border-width: 0;
     background-color: transparent;
+}
+
+.chat-window #ChatInputField {
+    height: 16px;
+    min-height: 16px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    -unity-text-align: middle-left;
 }
 
 .chat-window #InnerBar.highlighted,
@@ -2117,6 +2141,116 @@
     padding-left: 5px;
 }
 
+/* Interlude L2UI_CH3 char-select (StatusWnd Ps bars + bigbutton; not Gracia DF chrome). */
+.il-char-select .char-select-detail {
+    background-image: resource('Data/UI/Status/Interlude/Status_Interlude_MyInfo_Back');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-bottom: 0;
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.il-char-select .char-select-start {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.il-char-select .char-select-menu {
+    width: 133px;
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.il-char-select .login-input-bg {
+    height: 21px;
+    background-image: resource('Data/UI/Login/Interlude/inputbox2');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.il-char-select .il-char-select-start-btn {
+    width: 133px;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
+.il-char-select .il-char-select-start-btn .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton');
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 23px;
+}
+
+.il-char-select .il-char-select-start-btn:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_over');
+}
+
+.il-char-select .il-char-select-start-btn:active .l2-button-bg,
+.il-char-select .il-char-select-start-btn:active:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
+}
+
+.il-char-select .il-char-select-menu-btn {
+    width: 133px;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 4px;
+    margin-left: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
+.il-char-select .il-char-select-menu-btn .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton');
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 23px;
+    -unity-slice-left: 8;
+    -unity-slice-right: 8;
+}
+
+.il-char-select .il-char-select-menu-btn:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_over');
+}
+
+.il-char-select .il-char-select-menu-btn:active .l2-button-bg,
+.il-char-select .il-char-select-menu-btn:active:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
+}
+
+.il-char-select .il-char-select-btn-label {
+    font-size: 11px;
+    letter-spacing: 0;
+    color: rgba(255, 244, 214, 0.96);
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
 .bar-label-numbers {
 }
 
@@ -3330,7 +3464,7 @@
     flex-direction: row;
 }
 
-.frame_df_ver {
+.interlude-hud-vertical-column {
     height: auto;
     width: 18px;
     max-width: 18px;
@@ -3343,6 +3477,38 @@
     padding-bottom: 0;
     padding-left: 0;
     flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-top {
+    height: 8px;
+    max-height: 8px;
+    flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-center {
+    flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-bottom {
+    height: 8px;
+    max-height: 8px;
+    flex-grow: 1;
+}
+
+.map-window-close,
+.map-window-close:hover,
+.map-window-close:active {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseBtn');
+    border-width: 0;
+}
+
+.map-window-close:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameclosebtn_over');
+}
+
+.map-window-close:active,
+.map-window-close:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseOnBtn');
 }
 
 .skillbar-slot-anchor {
@@ -3567,14 +3733,14 @@
 .skillbar-inner-container {
     flex-grow: 1;
     flex-direction: row;
-    background-image: resource('Data/UI/Assets/Windows/Windows_DF_Small_Vertical_Bg');
-    -unity-slice-left: 12;
-    -unity-slice-top: 12;
-    -unity-slice-right: 12;
-    -unity-slice-bottom: 12;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
     padding-top: 3px;
     padding-bottom: 3px;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .skillbar-arrow-control {
@@ -3661,7 +3827,7 @@
 }
 
 .skillbar-inner-container {
-    background-color: rgba(0, 0, 0, 0.49);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .skillbar-darkener {
@@ -3706,7 +3872,7 @@
     width: 48px;
 }
 
-.frame_df_ver-vertical {
+.interlude-hud-vertical-column-vertical {
     margin-top: 0;
     height: 49px;
     rotate: 90deg;
@@ -3739,11 +3905,11 @@
 
 .skillbar-inner-container-vertical {
     flex-direction: column;
-    background-image: resource('Data/UI/Assets/Windows/Windows_DF_Small_Bg');
-    -unity-slice-left: 9;
-    -unity-slice-top: 9;
-    -unity-slice-right: 9;
-    -unity-slice-bottom: 9;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
     padding-right: 3px;
     padding-left: 3px;
     padding-bottom: 0;
@@ -3877,7 +4043,7 @@
 }
 
 .skillbar-inner-container {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .footer-container-vertical {

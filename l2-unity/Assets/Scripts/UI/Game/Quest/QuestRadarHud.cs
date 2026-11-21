@@ -21,6 +21,7 @@ public sealed class QuestRadarHud : MonoBehaviour
     const float RimRadiusPx = 54f;
 
     VisualElement _host;
+    VisualElement _disc;
     VisualElement _arrow;
     VisualElement _north;
     VisualElement _target;
@@ -48,10 +49,12 @@ public sealed class QuestRadarHud : MonoBehaviour
 
         _host.style.display = DisplayStyle.Flex;
 
-        Vector3 fwd = player.transform.forward;
+        Vector3 fwd = ResolveRadarForward(player);
         // Unity +X = L2 +Y (north), Unity +Z = L2 +X (east).
         float faceAng = Mathf.Atan2(fwd.z, fwd.x);
-        PlaceOnRim(_north, -faceAng, NorthSizePx);
+        if (_disc != null)
+            _disc.transform.rotation = Quaternion.Euler(0f, 0f, faceAng * Mathf.Rad2Deg);
+        AnchorNorthFixed();
 
         if (!QuestDirectionSight.TryActive(out QuestDirectionTarget target, out _, out Vector3 playerL2, out float planarUu))
         {
@@ -81,12 +84,14 @@ public sealed class QuestRadarHud : MonoBehaviour
         }
     }
 
-    void PlaceOnRim(VisualElement el, float angle, float size)
+    void AnchorNorthFixed()
     {
-        float cx = (SizePx * 0.5f) + Mathf.Sin(angle) * RimRadiusPx;
-        float cy = (SizePx * 0.5f) - Mathf.Cos(angle) * RimRadiusPx;
-        el.style.left = cx - size * 0.5f;
-        el.style.top = cy - size * 0.5f;
+        if (_north == null)
+            return;
+        float top = (SizePx - NorthSizePx) * 0.5f - RimRadiusPx;
+        _north.style.left = (SizePx - NorthSizePx) * 0.5f;
+        _north.style.top = Mathf.Max(0f, top);
+        _north.style.unityBackgroundImageTintColor = Color.white;
     }
 
     bool EnsureUi()
@@ -109,6 +114,9 @@ public sealed class QuestRadarHud : MonoBehaviour
         Texture2D north = Load(NorthPath);
         Texture2D self = Load(SelfPath);
         Texture2D target = Load(TargetPath);
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.RadarWnd,
+            nameof(QuestRadarHud));
         if (back == null || arrow == null || north == null || self == null || target == null)
         {
             _assetsFailed = true;
@@ -122,9 +130,20 @@ public sealed class QuestRadarHud : MonoBehaviour
         _host.style.top = MarginPx;
         _host.style.width = SizePx;
         _host.style.height = SizePx;
-        _host.style.backgroundImage = new StyleBackground(back);
         _host.style.display = DisplayStyle.None;
         root.Add(_host);
+
+        _disc = new VisualElement { name = "QuestRadarDisc" };
+        _disc.pickingMode = PickingMode.Ignore;
+        _disc.style.position = Position.Absolute;
+        _disc.style.left = 0;
+        _disc.style.top = 0;
+        _disc.style.width = SizePx;
+        _disc.style.height = SizePx;
+        _disc.style.backgroundImage = new StyleBackground(back);
+        _disc.style.transformOrigin = new StyleTransformOrigin(
+            new TransformOrigin(Length.Percent(50), Length.Percent(50)));
+        _host.Add(_disc);
 
         _arrow = Image(arrow, SizePx, 0f, 0f);
         _arrow.style.display = DisplayStyle.None;
@@ -132,6 +151,7 @@ public sealed class QuestRadarHud : MonoBehaviour
 
         _north = Image(north, NorthSizePx, 0f, 0f);
         _host.Add(_north);
+        AnchorNorthFixed();
 
         _target = Image(target, TargetSizePx, 0f, 0f);
         _target.style.display = DisplayStyle.None;
@@ -163,5 +183,16 @@ public sealed class QuestRadarHud : MonoBehaviour
         if (tex == null)
             Debug.LogError($"[QuestRadar] missing texture path={path}. Import L2UI_CH3 Radar from Interlude client.");
         return tex;
+    }
+
+    static Vector3 ResolveRadarForward(PlayerEntity player)
+    {
+        CameraController camera = CameraPacketServices.Controller;
+        Vector3 fwd = camera != null ? camera.transform.forward : player.transform.forward;
+        fwd.y = 0f;
+        if (fwd.sqrMagnitude < 1e-6f)
+            fwd = player.transform.forward;
+        fwd.y = 0f;
+        return fwd.sqrMagnitude > 1e-6f ? fwd.normalized : Vector3.right;
     }
 }

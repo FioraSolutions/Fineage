@@ -7,24 +7,37 @@ using VContainer;
 
 public partial class SceneLoader
 {
-    void InstantiateMapTilePrefabs(string tile)
+    IEnumerator InstantiateMapTilePrefabsAsync(string tile)
     {
         if (_prefabTiles.ContainsKey(tile))
-            return;
+            yield break;
 
         using (FineagePerfProfiling.TileLoad.Auto())
-            InstantiateMapTilePrefabsCore(tile);
+        {
+            yield return InstantiateMapTilePrefabsCoreAsync(tile);
+        }
     }
 
-    void InstantiateMapTilePrefabsCore(string tile)
+    IEnumerator InstantiateMapTilePrefabsCoreAsync(string tile)
     {
-        GameObject terrain = Resources.Load<GameObject>("Data/Maps/" + tile + "/" + tile);
+        if (!TileStreamingManifest.Contains(tile))
+        {
+            FineageLog.Error(
+                FineageLogCategory.World,
+                "LoadSWMap: tile '" + tile + "' not in TileStreamingManifest and no additive scene.");
+            yield break;
+        }
+
+        string terrainPath = "Data/Maps/" + tile + "/" + tile;
+        ResourceRequest terrainReq = Resources.LoadAsync<GameObject>(terrainPath);
+        yield return terrainReq;
+        GameObject terrain = terrainReq.asset as GameObject;
         if (terrain == null)
         {
             FineageLog.Warn(
                 FineageLogCategory.World,
-                "LoadSWMap: no scene and no map prefab for tile '" + tile + "'");
-            return;
+                "LoadSWMap: manifest lists tile '" + tile + "' but Resources missing '" + terrainPath + "'");
+            yield break;
         }
 
         var root = new GameObject(tile);
@@ -43,7 +56,10 @@ public partial class SceneLoader
         int placed = 0;
         for (int i = 0; i < parts.Length; i++)
         {
-            GameObject prefab = Resources.Load<GameObject>("Data/Maps/" + tile + "/" + parts[i]);
+            string path = "Data/Maps/" + tile + "/" + parts[i];
+            ResourceRequest req = Resources.LoadAsync<GameObject>(path);
+            yield return req;
+            GameObject prefab = req.asset as GameObject;
             if (prefab == null)
                 continue;
             GameObject go = UnityEngine.Object.Instantiate(prefab, root.transform);

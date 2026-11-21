@@ -12,7 +12,8 @@ VideoCache
 il2cpp_cache
 cachefile
 [Tt]emp
-[Cc]ache
+# Unity Library / player cache folders only (do not use a global [Cc]ache — it excludes Java sources under .../cache/)
+l2-unity/[Ll]ibrary/**/[Cc]ache/
 
 # Unity generated
 l2-unity/[Oo]bj/

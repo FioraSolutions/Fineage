@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -245,13 +246,18 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 
     string ResolveEffectStemName()
     {
-        string stem = name != null ? name.Replace("(Clone)", string.Empty).Trim() : string.Empty;
-        const string suffix = "_composite";
-        if (stem.EndsWith(suffix))
+        if (CompositeEffectPrefabYamlParser.TryResolveCompositePrefabDiskPath(
+                name,
+                out _,
+                out string effectFolderStem))
         {
-            stem = stem.Substring(0, stem.Length - suffix.Length);
+            return effectFolderStem;
         }
 
+        string stem = name != null ? name.Replace("(Clone)", string.Empty).Trim() : string.Empty;
+        const string suffix = "_composite";
+        if (stem.EndsWith(suffix, StringComparison.Ordinal))
+            stem = stem.Substring(0, stem.Length - suffix.Length);
         return stem;
     }
 }

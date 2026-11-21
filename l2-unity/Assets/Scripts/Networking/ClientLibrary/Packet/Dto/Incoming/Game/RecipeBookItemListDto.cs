@@ -18,6 +18,12 @@ public class RecipeBookItemListDto : IWireDto
         _listItemInstance = new List<ItemInstance>();
         _listRecipes = new List<RecipeInstance>();
     }
+
+    public void SetBookTab(int isDwarven, int maxMp = 0)
+    {
+        _isDwarven = isDwarven;
+        _maxMp = maxMp;
+    }
     public void ReadFrom(PacketReader reader)
     {
 

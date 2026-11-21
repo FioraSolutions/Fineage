@@ -13,11 +13,14 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-OPCODE_PATH = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/Contract/Opcodes/NetOpcode.cs"
+OPCODE_DIR = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/Contract/Opcodes"
+OPCODE_PATH = OPCODE_DIR / "NetOpcode.cs"
 HANDLERS_PATH = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/NetZoneDispatch.Handlers.cs"
 
 CONST_RE = re.compile(r"public const ushort (?P<name>\w+)\s*=\s*0x(?P<hex>[0-9A-Fa-f]+)")
-CASE_RE = re.compile(r"case\s+NetOpcode\.(?P<name>\w+)\s*:")
+CASE_RE = re.compile(
+    r"case\s+(?:NetOpcode|WeddingNetOpcode)\.(?P<name>\w+)\s*:"
+)
 DOC_RE = re.compile(r"^\s*///")
 
 # Session / lobby / client→zone opcodes that are not NetZoneDispatch inbound.
@@ -114,6 +117,9 @@ OUTBOUND_EXPLICIT = frozenset(
         "FriendListRequest",
         "FriendDelete",
         "BlockRequest",
+        "WeddingEngageAnswer",
+        "PackageSendRequest",
+        "PackageSendableListRequest",
     }
 )
 
@@ -160,7 +166,13 @@ def main() -> int:
         print(f"missing handlers file: {args.handlers_file}", file=sys.stderr)
         return 1
 
-    opcodes = parse_opcodes(args.opcode_file.read_text(encoding="utf-8"))
+    opcodes: dict[str, str] = {}
+    if args.opcode_file.is_file():
+        opcodes.update(parse_opcodes(args.opcode_file.read_text(encoding="utf-8")))
+    for extra in sorted(OPCODE_DIR.glob("*.cs")):
+        if extra == args.opcode_file:
+            continue
+        opcodes.update(parse_opcodes(extra.read_text(encoding="utf-8")))
     handled = parse_handled(args.handlers_file.read_text(encoding="utf-8"))
 
     missing: list[str] = []

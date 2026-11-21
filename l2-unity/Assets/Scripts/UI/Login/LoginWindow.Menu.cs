@@ -33,13 +33,13 @@ public partial class LoginWindow
     void OnNewAccountPressed()
     {
         if (!TryOpenConfiguredUrl(NewAccountUrlKey, NewAccountUrlEnv))
-            ShowErrorText("New Account URL is not configured.");
+            ShowErrorText(L10n.Get("ui.login.err_new_account_url"));
     }
 
     void OnLostAccountPressed()
     {
         if (!TryOpenConfiguredUrl(LostAccountUrlKey, LostAccountUrlEnv))
-            ShowErrorText("Lost Account URL is not configured.");
+            ShowErrorText(L10n.Get("ui.login.err_lost_account_url"));
     }
 
     void OnOptionsPressed()
@@ -63,12 +63,12 @@ public partial class LoginWindow
 
     void OnProductionTeamPressed()
     {
-        ShowErrorText("Production Team credits are not ported yet.");
+        ShowErrorText(L10n.Get("ui.login.err_production_team"));
     }
 
     void OnReplayPressed()
     {
-        ShowErrorText("Replay is not ported yet.");
+        ShowErrorText(L10n.Get("ui.login.err_replay"));
     }
 
     static bool TryOpenConfiguredUrl(string prefsKey, string envKey)

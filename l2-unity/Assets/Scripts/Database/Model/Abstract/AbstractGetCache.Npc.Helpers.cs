@@ -91,6 +91,9 @@ public abstract partial class AbstractGetCache
 
         if (!assigned && fallback != null)
             ApplyNpcMaterials(fallback, materials);
+
+        L2ActorMeshPolicy.DisableSkeletonPlaceholders(npc.baseModel.transform);
+        L2ActorMeshPolicy.DisableAlphaOverlays(npc.baseModel.transform);
     }
 
     static bool ApplyNpcMaterials(SkinnedMeshRenderer renderer, Material[] materials)
