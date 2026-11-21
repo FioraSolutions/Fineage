@@ -21,6 +21,18 @@ public class PlayerStateAtk : PlayerStateBase
 
         SetBool("atk01", true, false, false);
 
+        if (_audioHandler == null)
+        {
+            int entityId = _entity != null && _entity.Identity != null ? _entity.Identity.Id : 0;
+            FineageLog.Error(
+                FineageLogCategory.World,
+                "PlayerStateAtk: CharacterAnimationAudioHandler missing entityId=" + entityId
+                + " event=Atk_1H");
+            if (_entity is PlayerEntity player)
+                CombatSwingAudio.PlayLocalPlayerWeaponSwing(player);
+            return;
+        }
+
         PlaySoundAtRatio(CharacterSoundEvent.Atk_1H, _audioHandler.AtkRatio);
         PlayEquippedWeaponItemSounds();
     }
