@@ -23,6 +23,12 @@ public partial class SkillListWindow : L2PopupWindow
     }
 #endif
 
+    void OnDestroy()
+    {
+        if (_instance == this)
+            _instance = null;
+    }
+
     private void Awake()
     {
         if (_instance == null)
