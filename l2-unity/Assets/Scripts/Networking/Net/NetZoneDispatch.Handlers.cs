@@ -214,7 +214,7 @@ public sealed partial class NetZoneDispatch
                 _ = (DungeonEnteredNetMsg)packet.Body;
                 break;
             case NetOpcode.PrivateStoreInfo:
-                _ = (PrivateStoreInfoNetMsg)packet.Body;
+                _session.ApplyPrivateStoreInfo((PrivateStoreInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.FriendList:
                 _ = (FriendListNetMsg)packet.Body;
@@ -241,16 +241,16 @@ public sealed partial class NetZoneDispatch
                 _ = (PrivateStoreListBuyNetMsg)packet.Body;
                 break;
             case NetOpcode.RecipeBookList:
-                _ = (RecipeBookListNetMsg)packet.Body;
+                _session.ApplyRecipeBookList((RecipeBookListNetMsg)packet.Body);
                 break;
             case NetOpcode.RecipeItemMakeInfo:
-                _ = (RecipeItemMakeInfoNetMsg)packet.Body;
+                _session.ApplyRecipeItemMakeInfo((RecipeItemMakeInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.RecipeShopSellList:
-                _ = (RecipeShopSellListNetMsg)packet.Body;
+                _session.ApplyRecipeShopSellList((RecipeShopSellListNetMsg)packet.Body);
                 break;
             case NetOpcode.RecipeShopItemInfo:
-                _ = (RecipeShopItemInfoNetMsg)packet.Body;
+                _session.ApplyRecipeShopItemInfo((RecipeShopItemInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.FriendInviteAsk:
                 _ = (FriendInviteAskNetMsg)packet.Body;
@@ -286,7 +286,7 @@ public sealed partial class NetZoneDispatch
                 _ = (CastleInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.DoorStatus:
-                _ = (DoorStatusNetMsg)packet.Body;
+                _session.ApplyDoorStatus((DoorStatusNetMsg)packet.Body);
                 break;
             case NetOpcode.ManorInfo:
                 _ = (ManorInfoNetMsg)packet.Body;
