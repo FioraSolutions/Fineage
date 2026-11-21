@@ -50,32 +50,19 @@ public partial class EntityActionVisual
 
     static string ResolveUserPhysicalSkillTrigger(MagicSkillUseDto magic)
     {
-        if (magic == null || TablePacketServices.SkillGrps == null)
+        if (magic == null)
             return UserMeleeVariants[UnityEngine.Random.Range(0, UserMeleeVariants.Length)];
 
-        AnimationCombo combo = TablePacketServices.SkillGrps.GetAnimComboBySkillId(magic.SkillId, magic.SkillLvl);
-        if (combo == null)
-            return UserMeleeVariants[UnityEngine.Random.Range(0, UserMeleeVariants.Length)];
+        if (SkillAnimationResolver.TryGetPrimarySpAtkTrigger(magic.SkillId, magic.SkillLvl, out string trigger))
+            return trigger;
 
-        string[] cycle = combo.GetAnimCycle();
-        if (cycle == null)
-            return UserMeleeVariants[UnityEngine.Random.Range(0, UserMeleeVariants.Length)];
-
-        for (int i = 0; i < cycle.Length; i++)
-        {
-            string name = cycle[i];
-            if (string.IsNullOrWhiteSpace(name))
-                continue;
-
-            string trimmed = name.Trim();
-            if (string.Equals(trimmed, "none", System.StringComparison.OrdinalIgnoreCase))
-                continue;
-            if (trimmed.StartsWith("Cast", System.StringComparison.Ordinal) ||
-                trimmed.StartsWith("MagicShot", System.StringComparison.Ordinal))
-                break;
-            if (trimmed.StartsWith("SpAtk", System.StringComparison.OrdinalIgnoreCase))
-                return trimmed.EndsWith("_") ? trimmed : trimmed + "_";
-        }
+        Skillgrp grp = magic.SkillGrp;
+        if (grp == null && TablePacketServices.SkillGrps != null)
+            grp = TablePacketServices.SkillGrps.GetSkill(magic.SkillId, magic.SkillLvl);
+        SkillAnimationResolver.LogMissingMixCombo(
+            magic.SkillId,
+            magic.SkillLvl,
+            grp != null ? grp.Animation : null);
 
         return UserMeleeVariants[UnityEngine.Random.Range(0, UserMeleeVariants.Length)];
     }
