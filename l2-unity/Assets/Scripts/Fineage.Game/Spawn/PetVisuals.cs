@@ -6,7 +6,12 @@ public static class PetVisuals
     public static int VisualNpcId(int petNpcId)
     {
         if (petNpcId == 12077)
+        {
+            FineageLog.Error(
+                FineageLogCategory.World,
+                "PetVisuals: summon npcId=12077 using stand-in wolf mesh 20120 — missing pet grp model");
             return 20120;
+        }
         return petNpcId;
     }
 
