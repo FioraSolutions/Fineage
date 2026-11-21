@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 
+// Resolves locomotion suffix from CombatStyleProfile + weapon types (Fineage.Game boundary).
 public static class LocomotionProfileResolver
 {
     static readonly HashSet<CharacterRaceAnimation> LobbyStandardWalkRaces = new HashSet<CharacterRaceAnimation>
