@@ -115,6 +115,8 @@ public static class L10nUiBinder
     {
         if (element?.userData is string saved && !string.IsNullOrEmpty(saved))
             return saved;
-        return element?.text?.Trim() ?? "";
+        if (element is TextElement textEl)
+            return textEl.text?.Trim() ?? "";
+        return "";
     }
 }
