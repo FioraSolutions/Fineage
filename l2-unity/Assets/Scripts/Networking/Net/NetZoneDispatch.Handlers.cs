@@ -10,6 +10,9 @@ public sealed partial class NetZoneDispatch
         if (packet == null)
             return;
 
+        if (HandleAugmentation(packet) || HandleCursedWeapons(packet))
+            return;
+
         switch (packet.Opcode)
         {
             case NetOpcode.HelloAck:
@@ -369,18 +372,6 @@ public sealed partial class NetZoneDispatch
                     CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
                 break;
             }
-            // Augmentation UI packets (Mobius variation make/cancel) — wired when UI lands.
-            case NetOpcode.AugmentShowMakeWindow:
-            case NetOpcode.AugmentShowCancelWindow:
-            case NetOpcode.AugmentPutItemResult:
-            case NetOpcode.AugmentPutRefinerResult:
-            case NetOpcode.AugmentPutGemResult:
-            case NetOpcode.AugmentVariationResult:
-            case NetOpcode.AugmentPutCancelItemResult:
-            case NetOpcode.AugmentCancelResult:
-            case NetOpcode.CursedWeaponList:
-            case NetOpcode.CursedWeaponLocation:
-                break;
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;

@@ -8,6 +8,16 @@ public static partial class NetZonePacketDecoder
     {
         ushort opcode = envelope.Opcode;
         ReadOnlySpan<byte> payload = envelope.Payload;
+        if (TryDecodeAugment(opcode, payload, out object augmentBody))
+        {
+            return new ZoneApplyPacket
+            {
+                Opcode = opcode,
+                Body = augmentBody,
+                Envelope = envelope,
+            };
+        }
+
         object body = opcode switch
         {
             NetOpcode.HelloAck => null,
