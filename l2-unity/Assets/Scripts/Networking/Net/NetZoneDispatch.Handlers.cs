@@ -10,7 +10,11 @@ public sealed partial class NetZoneDispatch
         if (packet == null)
             return;
 
-        switch (packet.Opcode)
+        ushort opcode = packet.Opcode;
+        if (opcode == NetOpcode.CursedWeaponList || opcode == NetOpcode.CursedWeaponLocation)
+            return;
+
+        switch (opcode)
         {
             case NetOpcode.HelloAck:
                 break;

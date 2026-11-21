@@ -115,18 +115,25 @@ public class Product : AbstractServerItem
 
     public int GetWeight()
     {
-        if(GetTypeItem() == EnumType2.TYPE2_WEAPON)
+        int unit = 0;
+        if (GetTypeItem() == EnumType2.TYPE2_WEAPON)
         {
             Weapongrp weapon = GetWeapon();
-            return weapon != null ? weapon.Weight : 0;
+            unit = weapon != null ? weapon.Weight : 0;
         }
-        if (GetTypeItem() == EnumType2.TYPE2_SHIELD_ARMOR || GetTypeItem() == EnumType2.TYPE2_ACCESSORY)
+        else if (GetTypeItem() == EnumType2.TYPE2_SHIELD_ARMOR || GetTypeItem() == EnumType2.TYPE2_ACCESSORY)
         {
             Armorgrp armor = GetArmor();
-            return armor != null ? armor.Weight : 0;
+            unit = armor != null ? armor.Weight : 0;
+        }
+        else
+        {
+            EtcItemgrp etc = GetEtcItem();
+            unit = etc != null ? etc.Weight : 0;
         }
 
-        return 0;
+        long stack = (long)unit * _count;
+        return stack > int.MaxValue ? int.MaxValue : (int)stack;
     }
 
    

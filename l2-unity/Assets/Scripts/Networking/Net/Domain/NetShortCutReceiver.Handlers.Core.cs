@@ -46,9 +46,12 @@ public static partial class NetShortCutReceiver
         // so an early return here left the overload icon stuck after dumping weight.
         // WeightPenalty[0] is the skill id, [1] is the level the buffer reads.
         var dto = new EtcStatusUpdateDto();
+        dto.ForceCharge[1] = charges;
         dto.WeightPenalty[1] = msg.WeightPenalty < 0 ? 0 : msg.WeightPenalty;
         if (msg.ChatBlocked)
             dto.ChatBanned = 1;
+        dto.WeaponPenalty[1] = msg.GradePenalty ? 1 : 0;
+        dto.DeathPenalty[1] = msg.DeathPenalty < 0 ? 0 : msg.DeathPenalty;
 
         StatusApplyService status = ApplyServices.Status;
         if (status != null) status.ApplyEtcStatusUpdate(dto);
