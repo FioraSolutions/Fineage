@@ -31,7 +31,7 @@ public partial class DealerWindow
             else
             {
                 source.SetCount(1);
-                _tradeItemMover.MovingBuyWithRemoval(_isModifySell  ,source, position);
+                _tradeItemMover.MovingBuyWithRemoval(ShopPanelTransfer.FromModifySellFlag(_isModifySell), source, position);
             }
 
 
@@ -54,7 +54,12 @@ public partial class DealerWindow
             else
             {
                 source.SetCount(1);
-                _listSell = _tradeItemMover.MovingSellWithRemoval(_isModifySell , _listSell , source, listServer, position);
+                _listSell = _tradeItemMover.MovingSellWithRemoval(
+                    ShopPanelTransfer.FromModifySellFlag(_isModifySell),
+                    _listSell,
+                    source,
+                    listServer,
+                    position);
             }
         }
     }
