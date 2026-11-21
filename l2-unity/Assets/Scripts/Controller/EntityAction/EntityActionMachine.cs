@@ -58,7 +58,7 @@ public sealed partial class EntityActionMachine : ITickable
     public void Set(Entity entity, EntityActionKind action, object payload)
     {
         MagicSkillUseDto windMagic = payload as MagicSkillUseDto;
-        bool windstrike = windMagic != null && windMagic.SkillId == 4247 &&
+        bool windstrike = windMagic != null && SkillPresentationCatalog.IsWindStrike(windMagic.SkillId) &&
             action == EntityActionKind.Skill;
         if (!IsAllowed(entity))
         {
