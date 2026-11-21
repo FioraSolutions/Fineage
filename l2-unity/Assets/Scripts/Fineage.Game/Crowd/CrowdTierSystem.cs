@@ -152,6 +152,9 @@ public sealed class CrowdTierSystem : MonoBehaviour
             int id = _entries[i].Id;
             var tier = (CrowdDetailTier)tiers[i];
             _tierById[id] = tier;
+            Transform root = _entries[i].Root;
+            if (root != null)
+                CrowdTierVisualPolicy.Apply(root, tier, _profile);
         }
 
         positions.Dispose();

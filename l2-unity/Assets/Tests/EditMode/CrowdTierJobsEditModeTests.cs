@@ -36,6 +36,15 @@ public sealed class CrowdTierJobsEditModeTests
     }
 
     [Test]
+    public void CrowdLodProfile_throttles_animator_speed_by_tier()
+    {
+        var profile = UnityEngine.ScriptableObject.CreateInstance<CrowdLodProfile>();
+        Assert.AreEqual(0.5f, profile.AnimatorSpeedForTier(CrowdDetailTier.T2Mid));
+        Assert.AreEqual(AnimatorCullingMode.CullCompletely, profile.AnimatorCullingForTier(CrowdDetailTier.T3Far));
+        UnityEngine.Object.DestroyImmediate(profile);
+    }
+
+    [Test]
     public void CrowdLodProfile_hides_nameplate_at_configured_tier()
     {
         var profile = UnityEngine.ScriptableObject.CreateInstance<CrowdLodProfile>();
