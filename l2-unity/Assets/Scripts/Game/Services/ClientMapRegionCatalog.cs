@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 
 /// <summary>
-/// Mobius map-region grid for client zone-name banners (<c>map-regions.json</c>, same contract as Fineage-Backend).
+/// Mobius map-region grid for client zone-name banners (<c>client-map-region-cells.json</c>).
 /// Cell index: <c>(x >> 15) + 20</c>, <c>(y >> 15) + 18</c>.
 /// </summary>
 public static class ClientMapRegionCatalog
@@ -13,7 +13,7 @@ public static class ClientMapRegionCatalog
 
     static bool _loaded;
     static readonly Dictionary<(int X, int Y), string> TownByCell = new();
-    static string _fallbackTown = "Talking Island Village";
+    static string _fallbackTown = "Talking Island Town";
 
     public static void EnsureLoaded()
     {
@@ -57,10 +57,6 @@ public static class ClientMapRegionCatalog
         VectorUtils.GetSwMapTile(new Vector3(l2X, l2Y, 0f), out int cellX, out int cellY);
         if (TownByCell.TryGetValue((cellX, cellY), out string town) && !string.IsNullOrEmpty(town))
             return town;
-
-        DetailedMapZoneRecord detailed = DetailedMapCatalog.FindByWorldPosition(l2X, l2Y);
-        if (detailed != null && !string.IsNullOrEmpty(detailed.name))
-            return detailed.name;
 
         Debug.LogError(
             "[ZoneTransition] no town label for L2 (" + l2X.ToString("F0") + "," + l2Y.ToString("F0") +
