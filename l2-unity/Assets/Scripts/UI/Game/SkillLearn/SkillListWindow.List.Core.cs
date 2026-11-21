@@ -142,8 +142,11 @@ public partial class SkillListWindow : L2PopupWindow
             return;
 
         _loggedDeferReason = deferReason;
-        Debug.LogError(
-            "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".");
+        string message = "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".";
+        if (deferReason == "tabs not built")
+            Debug.LogWarning(message);
+        else
+            Debug.LogError(message);
     }
 
     void ApplySkillListToPanels(List<SkillInstance> list, string phase)
