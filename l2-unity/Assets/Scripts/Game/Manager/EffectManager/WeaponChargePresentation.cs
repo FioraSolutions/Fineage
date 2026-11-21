@@ -31,10 +31,10 @@ public static class WeaponChargePresentation
         if (player == null || player.Gear == null)
             return WeaponChargeSkill.SoulshotSkillIdForGrade(ItemGrade.none);
 
-        AbstractServerItem weapon = player.Gear.GetWeapon();
-        if (weapon?.Itemgrp == null)
+        Weapon weapon = player.Gear.EquippedRightHandWeapon;
+        if (weapon?.Weapongrp == null)
             return WeaponChargeSkill.SoulshotSkillIdForGrade(ItemGrade.none);
 
-        return WeaponChargeSkill.SoulshotSkillIdForGrade(weapon.Itemgrp.Grade);
+        return WeaponChargeSkill.SoulshotSkillIdForGrade(weapon.Weapongrp.Grade);
     }
 }
