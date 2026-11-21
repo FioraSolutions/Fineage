@@ -36,6 +36,8 @@ public partial class Entity
         }
     }
 
+    protected virtual void OnHit(bool criticalHit) => OnHit(criticalHit, shielded: false, attacker: null);
+
     protected virtual void OnHit(bool criticalHit, bool shielded, Entity attacker) {
         int entityId = Identity != null ? Identity.Id : 0;
         if (shielded)
