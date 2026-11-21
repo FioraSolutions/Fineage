@@ -29,7 +29,8 @@ public partial class SkillListWindow : L2PopupWindow
 
     private void CopyInDictionry(List<SkillInstance> list)
     {
-        if (_allSkills.Count == 0) _allSkills.Clear();
+        if (_allSkills == null)
+            _allSkills = new Dictionary<int, SkillInstance>();
 
         _allSkills = list.ToDictionary(si => si.SkillID);
     }
