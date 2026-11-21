@@ -48,6 +48,9 @@ jobs:
       - name: Check client asmdef layout (#139)
         run: python3 scripts/check-client-asmdef-layout.py
 
+      - name: Unity EditMode / C#9 static guards
+        run: python3 scripts/check-unity-editmode-guards.py
+
       - name: Install ffprobe for audio import policy duration checks
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
@@ -59,6 +62,9 @@ jobs:
 
       - name: Check Elven Village BSP CSG fixtures
         run: python3 scripts/check-elven-bsp-csg-fixtures.py
+
+      - name: Audit actor alpha-tested materials (no opaque t01/bh)
+        run: python3 scripts/audit-actor-alpha-materials.py
 
       - name: Check Net contract is in sync with the backend
         run: |

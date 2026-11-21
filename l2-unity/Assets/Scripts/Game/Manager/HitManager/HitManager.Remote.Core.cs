@@ -29,6 +29,12 @@ public partial class HitManager
         if (attacker is PlayerEntity player)
             player.SetSelfHit(hit);
 
-        attacker.IsSoulshotCharged = hit.hasSoulshot();
+        if (hit.hasSoulshot())
+        {
+            attacker.IsSoulshotCharged = true;
+            WeaponChargePresentation.PlayMeleeSoulshotConsume(attacker);
+        }
+        else
+            attacker.IsSoulshotCharged = false;
     }
 }

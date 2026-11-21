@@ -71,6 +71,8 @@ public partial class NpcInfoDto : IWireDto
         int _rhand = reader.ReadI();
         int _chest = reader.ReadI();
         int _lhand = reader.ReadI();
+        Appearance.RHand = _rhand;
+        Appearance.LHand = _lhand;
         byte empty2 = reader.ReadB(); // name above char 1=true ... ??
                                // _info.Appearance.Running = isRunning == 1;
         Identity.IsRunning = reader.ReadB() == 1;

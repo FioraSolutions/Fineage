@@ -22,7 +22,7 @@ public class PlayerStateAtk : PlayerStateBase
         SetBool("atk01", true, false, false);
 
         PlaySoundAtRatio(CharacterSoundEvent.Atk_1H, _audioHandler.AtkRatio);
-        PlaySoundAtRatio(ItemSoundEvent.sword_small, _audioHandler.SwishRatio);
+        PlayEquippedWeaponItemSounds();
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

@@ -30,4 +30,19 @@ public sealed class EntitySpawnApplyEditModeTests
         float degrees = EntitySpawnApply.ResolveHeadingDegrees(16384);
         Assert.AreEqual(90f, degrees, 0.5f);
     }
+
+    [Test]
+    public void LiveDoorSpawn_recognizes_npcId_zero_with_name()
+    {
+        Assert.IsTrue(EntitySpawnApply.IsLiveDoorSpawn(0, "gludin_agit_003_001"));
+        Assert.IsFalse(EntitySpawnApply.IsLiveDoorSpawn(0, ""));
+        Assert.IsFalse(EntitySpawnApply.IsLiveDoorSpawn(20001, "Guard"));
+    }
+
+    [Test]
+    public void Door_entity_type_follows_attackable()
+    {
+        Assert.AreEqual(EntityType.Monster, EntitySpawnApply.ResolveDoorEntityType(attackable: true));
+        Assert.AreEqual(EntityType.NPC, EntitySpawnApply.ResolveDoorEntityType(attackable: false));
+    }
 }

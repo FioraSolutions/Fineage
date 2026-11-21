@@ -11,8 +11,7 @@ public partial class SceneLoader
     {
         if (Application.CanStreamedLevelBeLoaded(tile))
             return true;
-        // Baked Maps/{tile}/{tile}.prefab is enough when the Unity scene was never generated.
-        return Resources.Load<GameObject>("Data/Maps/" + tile + "/" + tile) != null;
+        return TileStreamingManifest.Contains(tile);
     }
 
     private IEnumerator LoadSceneAdditiveIfNeeded(string sceneName)
@@ -41,7 +40,7 @@ public partial class SceneLoader
         // Orc Immortal Plateau (18_14), DE (20_18), Dwarf (23_12) ship as map prefabs but
         // often lack Build Settings scenes — without this fallback the world is a white void.
         if (IsMapTileName(sceneName))
-            InstantiateMapTilePrefabs(sceneName);
+            yield return InstantiateMapTilePrefabsAsync(sceneName);
     }
 
     static bool IsMapTileName(string name)

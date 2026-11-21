@@ -109,28 +109,14 @@ public static class L2ActorRaceMaterials
         if (tex == null && mat.HasProperty("_MainTex")) tex = mat.GetTexture("_MainTex");
         if (tex == null) foreach (string p in mat.GetTexturePropertyNames()) { tex = mat.GetTexture(p); if (tex != null) break; }
 
-        mat.shader = actor;
-        mat.shaderKeywords = new string[0];
-        mat.SetTexture("_BaseMap", tex);
-        mat.SetTexture("_MainTex", tex);
-        mat.SetColor("_BaseColor", Color.white);
-        mat.SetFloat("_Cull", 0f);
-        mat.SetFloat("_ActorAlpha", 1f);
-        mat.SetFloat("_Cutoff", 0.498039216f);
-        mat.doubleSidedGI = true;
-        if (hair)
+        var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+        L2ActorMaterialSetupEditor.ApplyToMaterial(mat, actor, tex, mat.name, props, logMissingTexture: false);
+        if (hair && !mat.IsKeywordEnabled("_ALPHATEST_ON"))
         {
             mat.SetFloat("_AlphaClip", 1f);
             mat.EnableKeyword("_ALPHATEST_ON");
             mat.SetOverrideTag("RenderType", "TransparentCutout");
-            mat.renderQueue = 2450;
-        }
-        else
-        {
-            mat.SetFloat("_AlphaClip", 0f);
-            mat.DisableKeyword("_ALPHATEST_ON");
-            mat.SetOverrideTag("RenderType", "Opaque");
-            mat.renderQueue = 2000;
+            mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
         }
     }
 

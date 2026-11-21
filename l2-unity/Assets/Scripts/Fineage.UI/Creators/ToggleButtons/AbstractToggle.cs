@@ -13,10 +13,19 @@ public abstract class AbstractToggle
 
     protected void ClickDf(Button btn, int[] arrDfSelect , VisualElement dataElement , int indexButton)
     {
-        bool show = arrDfSelect[indexButton] == 0;
-        ChangeDfBox(btn, fillBackgroundDf[show ? 0 : 1]);
-        arrDfSelect[indexButton] = show ? 1 : 0;
-        ToogleHideElement(dataElement, show);
+        bool expand = arrDfSelect[indexButton] == 0;
+        SetSectionExpanded(btn, arrDfSelect, indexButton, dataElement, expand);
+    }
+
+  /// <summary>
+  /// Interlude MagicSkillWnd DF button: arr 1 = expanded (rows visible), 0 = collapsed.
+  /// </summary>
+    protected void SetSectionExpanded(Button btn, int[] arrDfSelect, int indexButton, VisualElement body, bool expanded)
+    {
+        if (arrDfSelect != null && indexButton >= 0 && indexButton < arrDfSelect.Length)
+            arrDfSelect[indexButton] = expanded ? 1 : 0;
+        ChangeDfBox(btn, fillBackgroundDf[expanded ? 1 : 0]);
+        ToogleHideElement(body, !expanded);
     }
 
     protected void ToogleHideElement(VisualElement element, bool isHide)

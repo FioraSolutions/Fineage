@@ -10,7 +10,6 @@ public class UserStateBase : StateMachineBehaviour {
     protected bool _cancelAction = false;
     [SerializeField] protected bool _enabled = true;
     [SerializeField] protected string _weaponAnim;
-    [SerializeField] protected WeaponType _weaponType;
 
     public void LoadComponents(Animator animator) {
         if (_entity == null) {
@@ -31,8 +30,7 @@ public class UserStateBase : StateMachineBehaviour {
             _gear = _entity.GetComponent<UserGear>();
         }
 
-        _weaponType = _gear.WeaponType;
-        _weaponAnim = _gear.WeaponAnim;
+        _weaponAnim = LocomotionProfileResolver.RemoteAnimatorSuffix(_gear);
 
         if (_audioHandler == null) {
             _audioHandler = animator.gameObject.GetComponent<CharacterAnimationAudioHandler>();
@@ -51,6 +49,17 @@ public class UserStateBase : StateMachineBehaviour {
 
     public void PlaySoundAtRatio(ItemSoundEvent soundEvent, float ratio) {
         _audioHandler.PlaySoundAtRatio(soundEvent, ratio);
+    }
+
+    protected void PlayEquippedWeaponItemSounds() {
+        if (_audioHandler == null || _gear == null)
+            return;
+
+        int weaponId = _gear.EquippedRightHandWeapon != null ? _gear.EquippedRightHandWeapon.Id : 0;
+        string swing = CombatHitSoundResolver.ResolveWeaponSwingToken(weaponId);
+        string shing = CombatHitSoundResolver.ResolveWeaponShingToken(weaponId);
+        _audioHandler.PlayItemSoundTokenAtRatio(swing, _audioHandler.SwishRatio);
+        _audioHandler.PlayItemSoundTokenAtRatio(shing, _audioHandler.AtkRatio);
     }
 
     public void SetBool(string name, bool value) {

@@ -55,6 +55,8 @@ public partial class Gear : AbstractMeshManager
     public string LastWeaponAnim { get { return _lastWeaponAnim; } }
     public CombatStyleProfile CombatStyle => _combatStyle;
 
+    public Weapon EquippedRightHandWeapon => _rightHandWeapon;
+
     public virtual void Initialize(int ownderId, CharacterRaceAnimation raceId) {
         TryGetComponent(out _networkAnimationReceive);
         _ownerId = ownderId;

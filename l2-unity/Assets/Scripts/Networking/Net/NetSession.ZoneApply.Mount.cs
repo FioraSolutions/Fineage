@@ -45,7 +45,9 @@ public sealed partial class NetSession
         QueueApplyIncomingPacketServices.Queue(() =>
             ActionAvailabilityPacketServices.Availability.ApplyPlayerActionState(
                 msg.PetOut,
+                msg.MountablePet,
                 msg.Mounted,
+                msg.CanRide,
                 msg.MountKind,
                 msg.PetControlObjectId));
     }

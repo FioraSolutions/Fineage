@@ -8,7 +8,6 @@ public static class CrowdTierVisualPolicy
         if (root == null || profile == null)
             return;
 
-        float speed = profile.AnimatorSpeedForTier(tier);
         AnimatorCullingMode cull = profile.AnimatorCullingForTier(tier);
 
         Animator[] animators = root.GetComponentsInChildren<Animator>(false);
@@ -17,8 +16,7 @@ public static class CrowdTierVisualPolicy
             Animator animator = animators[i];
             if (animator == null)
                 continue;
-            if (animator.speed != speed)
-                animator.speed = speed;
+            // Locomotion rate is run_speed / walk_speed from LocomotionGait — do not scale Animator.speed.
             if (animator.cullingMode != cull)
                 animator.cullingMode = cull;
         }
