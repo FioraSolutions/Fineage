@@ -10,7 +10,6 @@ public class UserStateBase : StateMachineBehaviour {
     protected bool _cancelAction = false;
     [SerializeField] protected bool _enabled = true;
     [SerializeField] protected string _weaponAnim;
-    [SerializeField] protected WeaponType _weaponType;
 
     public void LoadComponents(Animator animator) {
         if (_entity == null) {
@@ -31,8 +30,7 @@ public class UserStateBase : StateMachineBehaviour {
             _gear = _entity.GetComponent<UserGear>();
         }
 
-        _weaponType = _gear.WeaponType;
-        _weaponAnim = _gear.WeaponAnim;
+        _weaponAnim = LocomotionProfileResolver.RemoteAnimatorSuffix(_gear);
 
         if (_audioHandler == null) {
             _audioHandler = animator.gameObject.GetComponent<CharacterAnimationAudioHandler>();
