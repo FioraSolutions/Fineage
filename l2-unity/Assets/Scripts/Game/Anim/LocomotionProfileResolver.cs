@@ -2,17 +2,6 @@ using System.Collections.Generic;
 
 public static class LocomotionProfileResolver
 {
-    static readonly HashSet<CharacterRaceAnimation> LobbyStandardWalkRaces = new HashSet<CharacterRaceAnimation>
-    {
-        CharacterRaceAnimation.FFighter,
-        CharacterRaceAnimation.MFighter,
-        CharacterRaceAnimation.FMagic,
-        CharacterRaceAnimation.MMagic,
-    };
-
-    const float LobbyStandardWalkSpeed = 1.2f;
-    const float LobbyAltWalkSpeed = 1.5f;
-
     public static LocomotionProfile ResolveFromGear(UserGear gear)
     {
         if (gear == null)
@@ -23,7 +12,7 @@ public static class LocomotionProfileResolver
 
         CombatStyleProfile combat = gear.CombatStyle;
         if (combat.IsResolved && !string.IsNullOrEmpty(combat.AnimSuffix))
-            return new LocomotionProfile(combat.AnimSuffix, LobbyStandardWalkSpeed, isResolved: true);
+            return new LocomotionProfile(combat.AnimSuffix, LocomotionProfileLobby.LobbyWalkSpeed(CharacterRaceAnimation.FFighter), isResolved: true);
 
         FineageLog.Error(
             FineageLogCategory.World,
@@ -33,10 +22,6 @@ public static class LocomotionProfileResolver
 
     public static string RemoteAnimatorSuffix(UserGear gear) => ResolveFromGear(gear).AnimSuffix;
 
-    public static float LobbyWalkSpeed(CharacterRaceAnimation raceAnimation)
-    {
-        return LobbyStandardWalkRaces.Contains(raceAnimation)
-            ? LobbyStandardWalkSpeed
-            : LobbyAltWalkSpeed;
-    }
+    public static float LobbyWalkSpeed(CharacterRaceAnimation raceAnimation) =>
+        LocomotionProfileLobby.LobbyWalkSpeed(raceAnimation);
 }
