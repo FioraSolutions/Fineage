@@ -17,6 +17,7 @@ public partial class World
         int id = player.Identity.Id;
         _entities.RegisterPlayer(id, player);
         _entityWait.Notify(id, player);
+        L2ActorPointLights.TryRegisterActorRoot(player.transform);
     }
 
     public void RegisterUser(Entity user)
@@ -32,6 +33,7 @@ public partial class World
         }
 
         _entityWait.Notify(id, user);
+        L2ActorPointLights.TryRegisterActorRoot(user.transform);
     }
 
     public void SpawnUser(CharInfoDto info)

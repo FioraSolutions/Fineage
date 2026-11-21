@@ -24,6 +24,16 @@ public sealed class L2ActorLocalLight : MonoBehaviour
         _light = GetComponent<Light>();
     }
 
+    void OnEnable()
+    {
+        L2ActorPointLights.RegisterLocalLight(this);
+    }
+
+    void OnDisable()
+    {
+        L2ActorPointLights.UnregisterLocalLight(this);
+    }
+
     public bool IsActive
     {
         get

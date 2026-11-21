@@ -76,6 +76,9 @@ public partial class World
 
     void UnregisterObject(int id, Entity entity)
     {
+        if (entity != null && entity.transform != null)
+            L2ActorPointLights.UnregisterActorRoot(entity.transform);
+
         if (MoveAllCharactersPacketServices.Moves != null)
             MoveAllCharactersPacketServices.Moves.Forget(id);
         _entities.Unregister(id);
