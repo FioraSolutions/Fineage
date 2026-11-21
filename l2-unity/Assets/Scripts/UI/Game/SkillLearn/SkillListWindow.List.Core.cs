@@ -21,22 +21,61 @@ public partial class SkillListWindow : L2PopupWindow
         content?.AddToClassList("skills-panel");
         VisualElement tabView = content?.Q("InventoryTabView") ?? content;
 
+        if (!EnsureSkillListTemplatesLoaded("BuildWindow"))
+            yield break;
+
+        FinishSkillListTabChrome(tabView, "BuildWindow");
+        TryApplyOrphanedSkillList();
+    }
+
+    public void SetSkillList(List<SkillInstance> list) => RequestSkillListApply(list, "SetSkillList");
+
+    public void UpdateSkillList(List<SkillInstance> list) => RequestSkillListApply(list, "UpdateSkillList");
+
+    void RequestSkillListApply(List<SkillInstance> list, string phase)
+    {
+        if (list == null)
+        {
+            Debug.LogError("[SkillList] " + phase + ": null list.");
+            return;
+        }
+
+        CopyInDictionry(list);
+        RefreshPassiveFlags(list);
+
+        if (!CanApplySkillListToPanels(out string deferReason))
+        {
+            _pendingSkills = list;
+            LogSkillListDeferOnce(deferReason, list.Count, phase);
+            return;
+        }
+
+        ApplySkillListToPanels(list, phase);
+    }
+
+    bool EnsureSkillListTemplatesLoaded(string phase)
+    {
         if (_templateActiveSkill == null || _templatePassiveSkill == null || _templateBoxPanel == null ||
             _templateSkillsRow8x1 == null || _templateSlotSkill == null)
         {
             Debug.LogError(
-                "[SkillList] BuildWindow aborted: missing template active=" + (_templateActiveSkill == null) +
+                "[SkillList] " + phase + " aborted: missing template active=" + (_templateActiveSkill == null) +
                 " passive=" + (_templatePassiveSkill == null) + " box=" + (_templateBoxPanel == null) +
                 " row8x1=" + (_templateSkillsRow8x1 == null) + " slot=" + (_templateSlotSkill == null));
-            yield break;
+            return false;
         }
 
+        _supportActiveSkills.SetActiveSkillTemplate(
+            _templateActiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
+        _supportPassiveSkills.SetPassiveSkillTemplate(
+            _templatePassiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
+        return true;
+    }
+
+    void FinishSkillListTabChrome(VisualElement tabView, string phase)
+    {
         _builderTabs.InitContentTabs(new string[2] { _activeName, _passiveName });
         _builderTabs.CreateTabs(tabView, _tabTemplate, _tabHeaderTemplate);
-
-        _supportActiveSkills.SetActiveSkillTemplate(_templateActiveSkill , _templateBoxPanel , _templateSkillsRow8x1 , _templateSlotSkill);
-        _supportPassiveSkills.SetPassiveSkillTemplate(_templatePassiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
-
         _builderTabs.EventSwitchOut += OnSwitchEventOut;
 
         VisualElement element = _builderTabs.GetActiveContent();
@@ -44,74 +83,62 @@ public partial class SkillListWindow : L2PopupWindow
 
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterCloseWindowEventByName("CloseButton");
-        RegisterClickWindowEvent(_windowEle, dragArea);
+        RegisterClickWindowEvent(_windowEle, GetElementByClass("drag-area"));
         OnCenterScreen(_root);
 
-        if (_pendingSkills != null)
-        {
-            SetSkillList(_pendingSkills);
-            _pendingSkills = null;
-        }
-
-        TryApplyOrphanedSkillList();
+        MarkSkillListTabsReady();
+        FlushPendingSkillList(phase);
+        EnsureSkillSlotsVisibleOnOpen(phase);
     }
 
-    public void SetSkillList(List<SkillInstance> list)
+    void MarkSkillListTabsReady()
     {
-        if (list == null)
-        {
-            Debug.LogError("[SkillList] SetSkillList: null list.");
-            return;
-        }
-
-        CopyInDictionry(list);
-        RefreshPassiveFlags(list);
-
-        if (!_supportActiveSkills.IsReady)
-        {
-            _pendingSkills = list;
-            return;
-        }
-
-        ApplySkillListToPanels(list, "SetSkillList");
+        _skillListTabsReady = true;
+        _loggedDeferReason = null;
     }
 
-    public void UpdateSkillList(List<SkillInstance> list)
+    bool CanApplySkillListToPanels(out string deferReason)
     {
-        if (list == null)
+        if (!_skillListTabsReady)
         {
-            Debug.LogError("[SkillList] UpdateSkillList: null list.");
-            return;
+            deferReason = "tabs not built";
+            return false;
         }
 
-        CopyInDictionry(list);
-        RefreshPassiveFlags(list);
-
-        if (!_supportActiveSkills.IsReady)
-        {
-            _pendingSkills = list;
-            return;
-        }
-
-        ApplySkillListToPanels(list, "UpdateSkillList");
-    }
-
-    void ApplySkillListToPanels(List<SkillInstance> list, string phase)
-    {
         if (_templateSlotSkill == null)
         {
-            Debug.LogError("[SkillList] " + phase + ": slot template null; cannot create skill slots.");
-            _pendingSkills = list;
-            return;
+            deferReason = "slot template missing";
+            return false;
         }
 
         if (_builderTabs == null)
         {
-            Debug.LogError("[SkillList] " + phase + ": tab builder null; list count=" + list.Count);
-            _pendingSkills = list;
-            return;
+            deferReason = "tab builder missing";
+            return false;
         }
 
+        if (_builderTabs.GetTabContent(_activeName) == null)
+        {
+            deferReason = "Active tab host missing";
+            return false;
+        }
+
+        deferReason = null;
+        return true;
+    }
+
+    void LogSkillListDeferOnce(string deferReason, int count, string phase)
+    {
+        if (string.IsNullOrEmpty(deferReason) || deferReason == _loggedDeferReason)
+            return;
+
+        _loggedDeferReason = deferReason;
+        Debug.LogError(
+            "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".");
+    }
+
+    void ApplySkillListToPanels(List<SkillInstance> list, string phase)
+    {
         MountSkillTabPanels(phase);
 
         var activeSkills = list.Where(s => !s.IsPassive).ToList();
@@ -161,24 +188,55 @@ public partial class SkillListWindow : L2PopupWindow
         }
 
         if (list.Count > 0 && activeVisible + passiveVisible == 0)
+        {
             _pendingSkills = list;
+            Debug.LogError(
+                "[SkillList] " + phase + " re-deferred " + list.Count +
+                " skills: slots created but none visible in hierarchy.");
+        }
     }
 
-    void TryFlushPendingSkillList()
+    void FlushPendingSkillList(string phase)
+    {
+        TryFlushPendingSkillList(phase);
+    }
+
+    void TryFlushPendingSkillList(string phase = "TryFlushPendingSkillList")
     {
         if (_pendingSkills == null)
             return;
-        if (!_supportActiveSkills.IsReady)
+
+        if (!CanApplySkillListToPanels(out string deferReason))
         {
-            Debug.LogError(
-                "[SkillList] pending skill list (" + _pendingSkills.Count +
-                ") not flushed: ActiveSkillsHide not ready (panel or templates missing).");
+            LogSkillListDeferOnce(deferReason, _pendingSkills.Count, phase);
             return;
         }
 
         List<SkillInstance> pending = _pendingSkills;
         _pendingSkills = null;
-        ApplySkillListToPanels(pending, "TryFlushPendingSkillList");
+        ApplySkillListToPanels(pending, phase);
+    }
+
+    public void EnsureSkillSlotsVisibleOnOpen(string phase)
+    {
+        if (_pendingSkills != null)
+        {
+            FlushPendingSkillList(phase);
+            return;
+        }
+
+        if (_allSkills == null || _allSkills.Count == 0)
+            return;
+
+        if (!CanApplySkillListToPanels(out _))
+            return;
+
+        int activeVisible = _supportActiveSkills.CountVisibleSkillSlots();
+        int passiveVisible = _supportPassiveSkills.CountVisibleSkillSlots();
+        if (activeVisible + passiveVisible > 0)
+            return;
+
+        ApplySkillListToPanels(_allSkills.Values.ToList(), phase + ".RemountOnOpen");
     }
 
     static void RefreshPassiveFlags(List<SkillInstance> list)
@@ -186,4 +244,25 @@ public partial class SkillListWindow : L2PopupWindow
         for (int i = 0; i < list.Count; i++)
             SkillPassiveRules.Refresh(list[i]);
     }
+
+#if UNITY_EDITOR
+    public int PendingSkillCountForEditModeTests =>
+        _pendingSkills != null ? _pendingSkills.Count : 0;
+
+    public int AppliedSkillCountForEditModeTests =>
+        _allSkills != null ? _allSkills.Count : 0;
+
+    public void EditorFinishTabBuildForTests(VisualElement tabView)
+    {
+        if (!EnsureSkillListTemplatesLoaded("EditorFinishTabBuildForTests"))
+            return;
+        FinishSkillListTabChrome(tabView, "EditorFinishTabBuildForTests");
+    }
+
+    public int ActiveVisibleSkillSlotsForEditModeTests =>
+        _supportActiveSkills != null ? _supportActiveSkills.CountVisibleSkillSlots() : 0;
+
+    public int PassiveVisibleSkillSlotsForEditModeTests =>
+        _supportPassiveSkills != null ? _supportPassiveSkills.CountVisibleSkillSlots() : 0;
+#endif
 }
