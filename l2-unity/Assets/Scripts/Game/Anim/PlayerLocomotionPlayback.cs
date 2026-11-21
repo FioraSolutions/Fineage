@@ -15,7 +15,7 @@ public static class PlayerLocomotionPlayback
         out float runRate,
         out float walkRate)
     {
-        if (entity != null && entity is UserEntity && TryPlayerProfile(entity, out CharacterRaceAnimation profile))
+        if (entity != null && IsPlayerBodyEntity(entity) && TryPlayerProfile(entity, out CharacterRaceAnimation profile))
         {
             ResolvePlayerRates(
                 profile,
@@ -39,6 +39,9 @@ public static class PlayerLocomotionPlayback
             out walkRate);
     }
 
+    static bool IsPlayerBodyEntity(Entity entity) =>
+        entity is PlayerEntity || entity is UserEntity;
+
     static bool TryPlayerProfile(Entity entity, out CharacterRaceAnimation profile)
     {
         profile = entity.RaceId;
@@ -55,8 +58,15 @@ public static class PlayerLocomotionPlayback
         out float runRate,
         out float walkRate)
     {
-        AnimationClip runClip = LocomotionGait.FindClip(animator, runClipName) ?? PlayerLocomotionBodyCatalog.LoadHandClip(profile, walk: false);
-        AnimationClip walkClip = LocomotionGait.FindClip(animator, walkClipName) ?? PlayerLocomotionBodyCatalog.LoadHandClip(profile, walk: true);
+        AnimationClip runClip = LocomotionGait.FindClip(animator, runClipName)
+            ?? PlayerLocomotionBodyCatalog.LoadHandClip(profile, walk: false);
+        AnimationClip walkClip = LocomotionGait.FindClip(animator, walkClipName)
+            ?? PlayerLocomotionBodyCatalog.LoadHandClip(profile, walk: true);
+
+        if (runClip == null)
+            LocomotionGait.LogMissingLocomotionClip(animator, runClipName, profile);
+        if (walkClip == null)
+            LocomotionGait.LogMissingLocomotionClip(animator, walkClipName, profile);
 
         Transform skeleton = animator != null ? animator.transform : null;
         float runStride = PlayerLocomotionBodyCatalog.ResolveRunStride(profile, runClip, skeleton);
