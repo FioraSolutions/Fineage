@@ -231,6 +231,22 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
             out summary);
     }
 
+    /// <summary>
+    /// All player classes VFX batch from player_vfx_manifest.json
+    /// (tools/l2-effect/human_mage_vfx_manifest.py --classes <every player class> --out ...).
+    /// Unity -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GeneratePlayerBatchCli
+    /// </summary>
+    public static void GeneratePlayerBatchCli()
+    {
+        AssetDatabase.Refresh();
+        bool ok = TryRunManifestBatch(
+            "Assets/Editor/L2EffectGenerator/Data/player_vfx_manifest.json",
+            "PlayerBatch",
+            out string summary);
+        Debug.Log("[L2EffectGenerator] " + summary);
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
+
     public static bool TryRunHumanMageBatch(out string summary)
     {
         return TryRunManifestBatch(

@@ -1,0 +1,143 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3093116946964270833
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6323235408615633183}
+  - component: {fileID: 7259396250631682125}
+  m_Layer: 0
+  m_Name: m_u006_c_v54_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6323235408615633183
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3093116946964270833}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7259396250631682125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3093116946964270833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483751547863065
+  - rid: 6421483751547863066
+  - rid: 6421483751547863067
+  - rid: 6421483751547863068
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483751547863065
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_fatal_strike_ca
+        prefab: {fileID: 1907990079768006315, guid: ef8f4280cc43846dd8d658f280f39808, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 0
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483751547863066
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_sonic_blast_ta_1
+        prefab: {fileID: 7966308119355586309, guid: 00d36875ce26e4666b444be87e259038, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 8
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483751547863067
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: at_sonic_blast_ta_2
+        prefab: {fileID: 7966308119355586309, guid: 00d36875ce26e4666b444be87e259038, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 8
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483751547863068
+      type: {class: HomeFlightPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: m_u006_c
+        prefab: {fileID: 8170034059090267193, guid: 9aa85984607d74c9198a919ee8362575, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 9
+        boneName: 
+        follow: 0
+        inheritRotation: 0
+        placement:
+          rid: -2
+        launchMode: 2
+        speed: 10
+        acceleration: 30
+        maxSpeed: 0
+        fadeStartDistance: 0.5
+        fadeOutSeconds: 0.35
+        arriveDistance: 0.2
+        maxLifetime: 0
+        homeAttachmentPoint: 10
+        homeOffset: {x: 0, y: 0.1, z: 0}
+        usePathArc: 1
+        pathStartLineFactor: -0.15
+        pathPeelAlongLine: 0.16
+        pathApexAlongLine: 0
+        pathPeakHeightAlongLine: 0
+        pathSideOffset: 1.25
+        pathHeightOffset: 0.44
+        pathDistanceHeightFactor: 0.112
+        pathEarlyClimbFactor: 0.2
+        pathAscentSpeedScale: 1
+        pathDescentSpeedScale: 1
+        rotateToVelocity: 1
+        destroyOnArrive: 1
+        mirrorDualFlight: 0

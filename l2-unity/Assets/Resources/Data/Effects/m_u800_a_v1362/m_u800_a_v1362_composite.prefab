@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5706541951369427790
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8924474194139217652}
+  - component: {fileID: 2742853989661748204}
+  m_Layer: 0
+  m_Name: m_u800_a_v1362_composite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8924474194139217652
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5706541951369427790}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2742853989661748204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5706541951369427790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3c1a7e2b8d4c6fa1e05d92b47c8e31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompositeEffectV2
+  _owner: {fileID: 0}
+  _parts: []
+  _serverHitLifetimeTailSeconds: 0
+  _matchLifetimeToSkillAnimation: 0
+  _skipDestroyCompositeByLifetime: 0
+  _useLight: 0
+  _lightSettings: {fileID: 0}
+  _v2Parts:
+  - rid: 6421483751547863135
+  - rid: 6421483751547863136
+  - rid: 6421483751547863137
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 6421483751547863135
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: m_u024_b
+        prefab: {fileID: 7347857769372663657, guid: d7fd229f1558547f7ac744b0091c0e07, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 8
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483751547863136
+      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: m_u800_a
+        prefab: {fileID: 6969835894226613844, guid: 4b1bec873ee1d4603b8d0b9209b7154f, type: 3}
+        scale: 1
+        spawnTiming: 0
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 10
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
+    - rid: 6421483751547863137
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
+      data:
+        name: m_u800_b
+        prefab: {fileID: 7777857190879294226, guid: 2cc95e94b73b942aa9cbe1754d26b62e, type: 3}
+        scale: 1
+        spawnTiming: 5
+        spawnDelaySeconds: 0
+        spawnAttachmentPoint: 8
+        boneName: 
+        follow: 1
+        inheritRotation: 0
+        placement:
+          rid: -2
