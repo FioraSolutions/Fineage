@@ -76,6 +76,10 @@ public class MapWindow : L2PopupWindow
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterClickWindowEvent(_windowEle, dragArea);
         OnCenterScreen(_root);
+        L2InterludeHudSkinPipeline.ApplyMinimapLayout(_windowEle);
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.MinimapWnd,
+            nameof(MapWindow));
 
         yield return new WaitForEndOfFrame();
 

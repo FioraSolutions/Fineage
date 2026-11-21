@@ -114,6 +114,9 @@ public sealed class QuestRadarHud : MonoBehaviour
         Texture2D north = Load(NorthPath);
         Texture2D self = Load(SelfPath);
         Texture2D target = Load(TargetPath);
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.RadarWnd,
+            nameof(QuestRadarHud));
         if (back == null || arrow == null || north == null || self == null || target == null)
         {
             _assetsFailed = true;

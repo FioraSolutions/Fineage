@@ -13,7 +13,9 @@ public static class L2InterludeHudVerticalFrame
     public const string TopResource = "Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back1";
     public const string CenterResource = "Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2";
     public const string BottomResource = "Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back3_Ex";
-    public const string ColumnBgResource = "Data/UI/Assets/Windows/Windows_DF_Small_Vertical_Bg";
+
+    /// <summary>Shortcut drag rail uses the same CH3 SmallWnd center tile as the status plate.</summary>
+    public const string DragRailResource = InterludeHudWindowCatalog.SmallWndBack2;
     public const string HorizontalResizeResource = "Data/UI/Assets/Chat/sizecontrol_icon";
 
     public static bool TryPaintVerticalColumn(VisualElement searchRoot, string context)
@@ -65,14 +67,11 @@ public static class L2InterludeHudVerticalFrame
     /// <summary>Single-slice vertical bar (shortcut drag rail).</summary>
     public static void PaintDragRail(VisualElement element, string context)
     {
-        StampSlice(element, ColumnBgResource, context);
-        if (element != null)
-        {
-            element.style.unitySliceLeft = 4;
-            element.style.unitySliceRight = 4;
-            element.style.unitySliceTop = 4;
-            element.style.unitySliceBottom = 4;
-        }
+        L2InterludeHudSkinPipeline.StampSlice(
+            element,
+            DragRailResource,
+            context,
+            L2InterludeHudSkinPipeline.SmallWndSlice);
     }
 
     public static void StampHorizontalResize(VisualElement grip, string context)
@@ -90,7 +89,7 @@ public static class L2InterludeHudVerticalFrame
         {
             Debug.LogError(
                 $"[InterludeHudFrame] Missing texture path='{resourcePath}' context='{context}'. " +
-                "Import from Interlude ref/l2-interlude-client (L2UI_CH3.SmallWnd / l2ui_ct1.Windows_DF_Small_Vertical_Bg).");
+                "Import from Interlude ref/l2-interlude-client (L2UI_CH3.SmallWnd).");
             return;
         }
 

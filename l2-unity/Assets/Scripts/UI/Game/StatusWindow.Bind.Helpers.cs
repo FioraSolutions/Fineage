@@ -111,6 +111,9 @@ public partial class StatusWindow
             level.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
         }
 
+        VisualElement center = GetElementById("CenterContainer");
+        L2InterludeHudSkinPipeline.PaintSmallWndCenterFill(center, nameof(StatusWindow));
+
         PaintSideFrame();
 
         VisualElement grip = GetElementByClass("hor-resize-handle");
@@ -128,6 +131,9 @@ public partial class StatusWindow
         VisualElement grip = GetElementById("SizeControlHandle");
         if (grip != null)
             L2InterludeHudVerticalFrame.StampHorizontalResize(grip, nameof(StatusWindow));
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.StatusWnd,
+            nameof(StatusWindow));
     }
 
     static void PaintBar(VisualElement bar, string resourcesPath)

@@ -46,6 +46,8 @@ public static partial class LocomotionGait
             return Mathf.Clamp(1f, minRate, maxRate);
 
         AnimationClip clip = FindClip(animator, clipName);
+        if (clip == null && !string.IsNullOrEmpty(clipName))
+            LogMissingLocomotionClip(animator, clipName);
         return RateForClip(clip, animator.transform, unityMetersPerSecond, minRate, maxRate);
     }
 
