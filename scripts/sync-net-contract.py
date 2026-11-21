@@ -130,6 +130,8 @@ def unity_compat_cs(data: bytes) -> bytes:
     marker = "namespace Fineage.Net.Contract;\n"
     if marker in text:
         before, _, after = text.partition(marker)
+        if after and not after.endswith("\n"):
+            after += "\n"
         body_lines = after.splitlines(keepends=True)
         indented = "".join(("    " + line) if line.strip() else line for line in body_lines)
         text = before + "namespace Fineage.Net.Contract\n{\n" + indented + "}\n"

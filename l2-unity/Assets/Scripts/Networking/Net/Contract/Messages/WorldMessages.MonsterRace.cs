@@ -23,4 +23,5 @@ namespace Fineage.Net.Contract
         public double CollisionRadius { get; set; }
         public int Unknown120 { get; set; } = 120;
         public byte[] Speeds { get; set; } = new byte[20];
-    }}
+    }
+}

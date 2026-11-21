@@ -80,4 +80,5 @@ namespace Fineage.Net.Contract
             var r = new Reader(p);
             return new PackageSendableListRequestNetMsg { RecipientObjectId = r.ReadInt32() };
         }
-    }}
+    }
+}

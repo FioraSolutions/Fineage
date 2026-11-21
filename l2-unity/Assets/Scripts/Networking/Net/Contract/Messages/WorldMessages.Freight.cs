@@ -28,4 +28,5 @@ namespace Fineage.Net.Contract
     public sealed class PackageSendableListRequestNetMsg
     {
         public int RecipientObjectId { get; set; }
-    }}
+    }
+}

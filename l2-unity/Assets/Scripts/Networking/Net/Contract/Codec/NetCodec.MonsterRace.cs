@@ -30,4 +30,5 @@ namespace Fineage.Net.Contract
                 w.WriteInt32(0);
             }
         });
-    }}
+    }
+}
