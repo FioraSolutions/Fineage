@@ -16,11 +16,13 @@ public partial class ArmorgrpTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<ArmorgrpTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(ArmorgrpTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(ArmorgrpTable));
                 _instance = new ArmorgrpTable();
             }
 
