@@ -14,6 +14,9 @@ public static class FineagePerfProfiling
     public const string CrowdTierName = "Fineage.Crowd.Tier";
     public const string FxBudgetName = "Fineage.Fx.Budget";
     public const string GravityStepName = "Fineage.Gravity.Step";
+    public const string MoveBurstPlanName = "Fineage.Move.BurstPlan";
+    public const string MoveBurstRotateName = "Fineage.Move.BurstRotate";
+    public const string GravityRaycastBatchName = "Fineage.Gravity.RaycastBatch";
 
     public static readonly ProfilerMarker MoveStep = new ProfilerMarker(MoveStepName);
     public static readonly ProfilerMarker NameplatesUpdate = new ProfilerMarker(NameplatesUpdateName);
@@ -23,6 +26,9 @@ public static class FineagePerfProfiling
     public static readonly ProfilerMarker CrowdTier = new ProfilerMarker(CrowdTierName);
     public static readonly ProfilerMarker FxBudget = new ProfilerMarker(FxBudgetName);
     public static readonly ProfilerMarker GravityStep = new ProfilerMarker(GravityStepName);
+    public static readonly ProfilerMarker MoveBurstPlan = new ProfilerMarker(MoveBurstPlanName);
+    public static readonly ProfilerMarker MoveBurstRotate = new ProfilerMarker(MoveBurstRotateName);
+    public static readonly ProfilerMarker GravityRaycastBatch = new ProfilerMarker(GravityRaycastBatchName);
 
     public static readonly string[] RoadmapMarkerNames =
     {
@@ -39,5 +45,8 @@ public static class FineagePerfProfiling
         CrowdTierName,
         FxBudgetName,
         GravityStepName,
+        MoveBurstPlanName,
+        MoveBurstRotateName,
+        GravityRaycastBatchName,
     };
 }

@@ -28,6 +28,9 @@ public static partial class WorldPlacement
         }
     }
 
+    /// <summary>Mask used by gravity batch rays and KeepOnBrush.</summary>
+    public static LayerMask CurrentWalkableMask => WalkableMask(null);
+
     /// <summary>
     /// Walkable height layers. Water, foliage (Deco), and actors are not ground.
     /// </summary>
