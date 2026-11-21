@@ -91,7 +91,11 @@ public sealed class SkillListWindowPopulateEditModeTests
 
         VisualElement rowAbility = content.Q("RowAbility");
         Assert.NotNull(rowAbility, "RowAbility missing");
-        Assert.Greater(CountSlotsInFirstGridRow(rowAbility), 1, "passive ability row must show multiple slots per Interlude grid row");
+        int expectedFirstRow = System.Math.Min(L2SkillsPanelLayout.ResolveGridColumns(), passiveSkills.Count);
+        Assert.AreEqual(
+            expectedFirstRow,
+            CountSlotsInFirstGridRow(rowAbility),
+            "passive ability row must pack up to Interlude MagicSkillWnd columns per row");
         AssertGridRowsHaveInterludeHeight(rowAbility);
         Assert.Greater(hide.CountVisibleSkillSlots(), 0, "expected visible passive skill slots");
     }
@@ -150,10 +154,12 @@ public sealed class SkillListWindowPopulateEditModeTests
 
         VisualElement rowAbility = window.EditorTestQueryContent()?.Q("RowAbility");
         Assert.NotNull(rowAbility, "RowAbility missing on passive tab template");
-        Assert.Greater(
+        int passiveCount = 3;
+        int expectedPassiveRow = System.Math.Min(L2SkillsPanelLayout.ResolveGridColumns(), passiveCount);
+        Assert.AreEqual(
+            expectedPassiveRow,
             CountSlotsInFirstGridRow(rowAbility),
-            1,
-            "passive Ability skills must lay out more than one slot per grid row");
+            "passive Ability skills first row must use Interlude column count (up to skill count)");
     }
 
     static void AssertGridRowsHaveInterludeHeight(VisualElement rowRoot)

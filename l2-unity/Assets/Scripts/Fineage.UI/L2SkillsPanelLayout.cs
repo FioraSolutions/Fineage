@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>Interlude MagicSkillWnd grid metrics (32px icon, standard slot frame, row gap).</summary>
@@ -9,99 +10,48 @@ public static class L2SkillsPanelLayout
     public const float SlotGap = 2f;
     public const float RowHorizontalInset = 1f;
     public const float RowHeight = 36f;
-    public const int MinColumns = 1;
-    public const int MaxColumns = 7;
-    public const int DefaultColumns = 6;
-
-    /// <summary>Below this, layout is an InventoryTab 1px host or a display:none tab — use Interlude default.</summary>
-    static float MinMeasurableContentWidth => ComputePanelWidth(2);
 
     public const string RowFrame6 = "Data/UI/Window/Skills/Skills_SkillBar_6x1";
     public const string RowFrame7 = "Data/UI/Window/Skills/Skills_SkillBar_2x2";
 
-    public static int ResolveGridColumns(VisualElement widthSource, int sizeCellOverride = 0)
+    /// <summary>Interlude MagicSkillWnd: fixed columns per skill bar row (interface.xdat ItemWindow.MaxItemNum).</summary>
+    public static int InterludeColumnsPerRow => InterludeMagicSkillWndLayout.ColumnsPerRow;
+
+    /// <param name="sizeCellOverride">Non-zero only for explicit test or tooling overrides.</param>
+    public static int ResolveGridColumns(int sizeCellOverride = 0)
     {
         if (sizeCellOverride > 0)
-            return Math.Clamp(sizeCellOverride, MinColumns, MaxColumns);
+            return sizeCellOverride;
 
-        float width = MeasureSkillsPanelContentWidth(widthSource);
-        return ComputeColumns(width);
-    }
-
-    public static float MeasureSkillsPanelContentWidth(VisualElement widthSource)
-    {
-        if (widthSource == null)
-            return 0f;
-
-        for (VisualElement walk = widthSource; walk != null; walk = walk.hierarchy.parent)
+        int columns = InterludeMagicSkillWndLayout.ColumnsPerRow;
+        if (columns <= 0)
         {
-            if (walk.ClassListContains("skills-panel"))
-                return UsableContentWidth(ReadLayoutWidth(walk));
+            Debug.LogError(
+                "[SkillsLayout] Cannot resolve MagicSkillWnd grid columns; fix Resources key '" +
+                InterludeMagicSkillWndLayout.ResourcesKey + "'.");
         }
 
-        float local = ReadLayoutWidth(widthSource);
-        if (IsUsableMeasureWidth(local))
-            return UsableContentWidth(local);
-
-        for (VisualElement walk = widthSource.hierarchy.parent; walk != null; walk = walk.hierarchy.parent)
-        {
-            local = ReadLayoutWidth(walk);
-            if (IsUsableMeasureWidth(local))
-                return UsableContentWidth(local);
-        }
-
-        return 0f;
-    }
-
-    public static int ComputeColumns(float panelContentWidth)
-    {
-        if (!IsUsableMeasureWidth(panelContentWidth))
-            return DefaultColumns;
-
-        float usable = panelContentWidth - RowHorizontalInset * 2f;
-        int columns = (int)Math.Floor((usable + SlotGap) / (SlotOuterSize + SlotGap));
-        if (columns < MinColumns)
-            return DefaultColumns;
-
-        return Math.Clamp(columns, MinColumns, MaxColumns);
-    }
-
-    static float UsableContentWidth(float elementWidth)
-    {
-        const float skillsPanelHorizontalChrome = 12f;
-        return Math.Max(0f, elementWidth - skillsPanelHorizontalChrome);
-    }
-
-    static bool IsUsableMeasureWidth(float width) => width >= MinMeasurableContentWidth;
-
-    static float ReadLayoutWidth(VisualElement element)
-    {
-        if (element == null)
-            return 0f;
-
-        if (element.style.width.keyword != StyleKeyword.Auto && element.style.width.keyword != StyleKeyword.Null)
-        {
-            float styleWidth = element.style.width.value.value;
-            if (styleWidth > 0f)
-                return styleWidth;
-        }
-
-        float resolved = element.resolvedStyle.width;
-        if (float.IsNaN(resolved) || float.IsInfinity(resolved))
-            return 0f;
-
-        return resolved;
+        return columns;
     }
 
     public static float ComputePanelWidth(int columns)
     {
-        if (columns < MinColumns)
-            columns = MinColumns;
+        if (columns <= 0)
+            columns = ResolveGridColumns();
+        if (columns <= 0)
+            return 0f;
+
         return RowHorizontalInset * 2f + columns * SlotOuterSize + Math.Max(0, columns - 1) * SlotGap;
     }
 
-    public static string RowFrameResourceForColumns(int columns) =>
-        columns <= 6 ? RowFrame6 : RowFrame7;
+    public static string RowFrameResourceForColumns(int columns)
+    {
+        string configured = InterludeMagicSkillWndLayout.RowFrameResource;
+        if (!string.IsNullOrEmpty(configured))
+            return configured;
+
+        return columns <= 6 ? RowFrame6 : RowFrame7;
+    }
 
     /// <summary>
     /// InventoryTab.uxml bakes height:1px for the item grid; MagicSkillWnd clears its scroll child but keeps that host.
@@ -174,7 +124,7 @@ public static class L2SkillsPanelLayout
         rowRoot.style.flexGrow = 0f;
     }
 
-  /// <summary>Inline/grid style height; layout may be 0 in EditMode until a panel exists.</summary>
+    /// <summary>Inline/grid style height; layout may be 0 in EditMode until a panel exists.</summary>
     public static float ReadConfiguredRowHeight(VisualElement rowRoot)
     {
         if (rowRoot == null)

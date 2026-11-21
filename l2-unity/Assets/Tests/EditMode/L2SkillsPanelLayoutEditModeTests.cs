@@ -4,39 +4,15 @@ using UnityEngine.UIElements;
 
 public sealed class L2SkillsPanelLayoutEditModeTests
 {
-    [Test]
-    public void ComputeColumns_fits_six_slots_in_mainwnd_skills_host()
-    {
-        // CharacterInfo #SkillsHost content width after skills chrome padding (~248px).
-        Assert.AreEqual(6, L2SkillsPanelLayout.ComputeColumns(248f));
-    }
+    [SetUp]
+    public void SetUp() => InterludeMagicSkillWndLayout.ResetForEditModeTests();
 
     [Test]
-    public void ComputeColumns_uses_default_when_tab_host_reports_one_pixel()
+    public void Interlude_layout_config_defines_six_columns_per_row()
     {
-        Assert.AreEqual(L2SkillsPanelLayout.DefaultColumns, L2SkillsPanelLayout.ComputeColumns(1f));
-    }
-
-    [Test]
-    public void ResolveGridColumns_reads_skills_panel_when_passive_tab_is_display_none()
-    {
-        var skillsPanel = new VisualElement();
-        skillsPanel.AddToClassList("skills-panel");
-        skillsPanel.style.width = 280;
-
-        var tabHost = new VisualElement();
-        tabHost.AddToClassList("unselected-tab");
-        skillsPanel.Add(tabHost);
-
-        var content = new VisualElement { name = "Content" };
-        tabHost.Add(content);
-
-        var passiveRoot = new VisualElement();
-        content.Add(passiveRoot);
-        passiveRoot.style.width = 1;
-
-        int columns = L2SkillsPanelLayout.ResolveGridColumns(passiveRoot);
-        Assert.GreaterOrEqual(columns, L2SkillsPanelLayout.DefaultColumns);
+        InterludeMagicSkillWndLayout.EnsureLoaded();
+        Assert.AreEqual(6, InterludeMagicSkillWndLayout.ColumnsPerRow);
+        Assert.AreEqual(6, L2SkillsPanelLayout.ResolveGridColumns());
     }
 
     [Test]
@@ -47,10 +23,11 @@ public sealed class L2SkillsPanelLayoutEditModeTests
     }
 
     [Test]
-    public void RowFrameResource_uses_6x1_art_for_six_or_fewer_columns()
+    public void RowFrameResource_uses_configured_interlude_skill_bar_texture()
     {
-        Assert.AreEqual(L2SkillsPanelLayout.RowFrame6, L2SkillsPanelLayout.RowFrameResourceForColumns(6));
-        Assert.AreEqual(L2SkillsPanelLayout.RowFrame7, L2SkillsPanelLayout.RowFrameResourceForColumns(7));
+        Assert.AreEqual(
+            "Data/UI/Window/Skills/Skills_SkillBar_6x1",
+            L2SkillsPanelLayout.RowFrameResourceForColumns(6));
     }
 
     [Test]
@@ -76,5 +53,15 @@ public sealed class L2SkillsPanelLayoutEditModeTests
         Assert.GreaterOrEqual(
             L2SkillsPanelLayout.ReadConfiguredRowHeight(row),
             L2SkillsPanelLayout.RowHeight - 0.01f);
+    }
+
+    [Test]
+    public void ResolveGridColumns_ignores_hidden_tab_width_uses_fixed_six()
+    {
+        var tabHost = new VisualElement();
+        tabHost.AddToClassList("unselected-tab");
+        tabHost.style.width = 1;
+
+        Assert.AreEqual(6, L2SkillsPanelLayout.ResolveGridColumns());
     }
 }

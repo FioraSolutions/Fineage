@@ -43,7 +43,7 @@ public partial class ActiveSkillsHide
 
         _rowPhysical = _activeSkillPanel.Q(_rowNamePhysical);
         _rowMagical = _activeSkillPanel.Q(_rowNameMagical);
-        ResolveSkillsPerPanel(_activeSkillPanel, sizeCell);
+        ResolveSkillsPerPanel(sizeCell);
 
         var activeSkills = list.Where(s => !s.IsMagic()).ToList();
         var magicSkills = list.Where(s => s.IsMagic()).ToList();
