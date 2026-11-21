@@ -24,13 +24,13 @@ public static class CursorTextureCache
             return source;
         }
 
-        Texture2D copy;
+        int w = Mathf.Max(1, source.width);
+        int h = Mathf.Max(1, source.height);
+
         try
         {
-            Rect rect = source.rect;
-            int w = Mathf.Max(1, (int)rect.width);
-            int h = Mathf.Max(1, (int)rect.height);
-            if (source is Texture2D tex2d && tex2d.width == w && tex2d.height == h)
+            Texture2D copy;
+            if (source.isReadable)
             {
                 Color32[] pixels = source.GetPixels32();
                 copy = new Texture2D(w, h, TextureFormat.RGBA32, mipChain: false, linear: false);
@@ -44,7 +44,6 @@ public static class CursorTextureCache
                 RenderTexture.active = rt;
                 copy = new Texture2D(w, h, TextureFormat.RGBA32, mipChain: false, linear: false);
                 copy.ReadPixels(new Rect(0, 0, w, h), 0, 0);
-                copy.Apply(false, makeNoLongerReadable: false);
                 RenderTexture.active = prev;
                 RenderTexture.ReleaseTemporary(rt);
             }
@@ -52,13 +51,13 @@ public static class CursorTextureCache
             copy.filterMode = FilterMode.Point;
             copy.wrapMode = TextureWrapMode.Clamp;
             copy.Apply(false, makeNoLongerReadable: false);
+            Cache[key] = copy;
+            return copy;
         }
-        catch (UnityException)
+        catch (UnityException ex)
         {
+            Debug.LogError("[Cursor] cannot prepare cursor texture " + source.name + ": " + ex.Message);
             return null;
         }
-
-        Cache[key] = copy;
-        return copy;
     }
 }
