@@ -139,9 +139,9 @@ public sealed partial class NameplateEntryStore
         }
 
         Entity entity = target.GetComponentInParent<Entity>();
-        if (entity != null && !EntityInteraction.IsAttackable(entity))
+        if (entity != null && !EntityInteraction.IsAttackable(entity) && !IsTeleporterNpc(entity))
         {
-            // Interlude: peaceful / teleporter / merchant names in range without LOS to feet.
+            // Interlude: peaceful merchants / folk in range without LOS to feet (not gatekeepers).
             return true;
         }
 
@@ -155,5 +155,16 @@ public sealed partial class NameplateEntryStore
         }
 
         return true;
+    }
+
+    static bool IsTeleporterNpc(Entity entity)
+    {
+        if (entity?.Identity == null)
+            return false;
+        Npcgrp grp = TablePacketServices.NpcGrps?.GetNpcgrp(entity.Identity.NpcId);
+        if (grp == null)
+            return false;
+        string cn = grp.ClassName ?? string.Empty;
+        return cn.IndexOf("teleporter", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }
