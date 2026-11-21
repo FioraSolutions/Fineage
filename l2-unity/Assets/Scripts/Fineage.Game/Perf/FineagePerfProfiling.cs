@@ -17,6 +17,8 @@ public static class FineagePerfProfiling
     public const string MoveBurstPlanName = "Fineage.Move.BurstPlan";
     public const string MoveBurstRotateName = "Fineage.Move.BurstRotate";
     public const string GravityRaycastBatchName = "Fineage.Gravity.RaycastBatch";
+    public const string MoveNpcStepName = "Fineage.Move.NpcStep";
+    public const string MovePawnYawStepName = "Fineage.Move.PawnYaw";
 
     public static readonly ProfilerMarker MoveStep = new ProfilerMarker(MoveStepName);
     public static readonly ProfilerMarker NameplatesUpdate = new ProfilerMarker(NameplatesUpdateName);
@@ -29,6 +31,8 @@ public static class FineagePerfProfiling
     public static readonly ProfilerMarker MoveBurstPlan = new ProfilerMarker(MoveBurstPlanName);
     public static readonly ProfilerMarker MoveBurstRotate = new ProfilerMarker(MoveBurstRotateName);
     public static readonly ProfilerMarker GravityRaycastBatch = new ProfilerMarker(GravityRaycastBatchName);
+    public static readonly ProfilerMarker MoveNpcStep = new ProfilerMarker(MoveNpcStepName);
+    public static readonly ProfilerMarker MovePawnYawStep = new ProfilerMarker(MovePawnYawStepName);
 
     public static readonly string[] RoadmapMarkerNames =
     {
@@ -48,5 +52,7 @@ public static class FineagePerfProfiling
         MoveBurstPlanName,
         MoveBurstRotateName,
         GravityRaycastBatchName,
+        MoveNpcStepName,
+        MovePawnYawStepName,
     };
 }
