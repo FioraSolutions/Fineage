@@ -131,9 +131,17 @@ public static partial class LocomotionGait
         return max;
     }
 
-    static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
+    static bool UseTransformSampling(AnimationClip clip, Animator animator)
     {
         if (clip.legacy || animator == null)
+            return true;
+        Avatar avatar = animator.avatar;
+        return avatar == null || !avatar.isValid;
+    }
+
+    static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
+    {
+        if (UseTransformSampling(clip, animator))
         {
             clip.SampleAnimation(go, time);
             return;

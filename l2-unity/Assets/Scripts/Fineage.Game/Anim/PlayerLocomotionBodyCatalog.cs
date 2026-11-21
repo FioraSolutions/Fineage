@@ -242,8 +242,8 @@ public static class PlayerLocomotionBodyCatalog
             {
                 LogMissing(
                     profile,
-                    "unmeasurable " + (walk ? "walk" : "run") + " stride for clip \"" + clip.name
-                    + "\" (feet/root travel below " + LocomotionGait.MinStrideMeters + "m)");
+                    "unmeasurable " + (walk ? "walk" : "run") + " stride race=" + profile + " clip=\""
+                    + clip.name + "\" (feet/root travel below " + LocomotionGait.MinStrideMeters + "m)");
                 return 0f;
             }
 

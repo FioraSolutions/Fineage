@@ -35,10 +35,10 @@ public sealed class SkillApplyService
 
     SkillListWindow ResolveSkillListWindow()
     {
-        SkillListWindow window = _skillList != null ? _skillList.Value : null;
+        SkillListWindow window = SkillLearnPacketServices.SkillList;
         if (window != null)
             return window;
-        window = SkillLearnPacketServices.SkillList;
+        window = _skillList != null ? _skillList.Value : null;
         if (window != null)
             return window;
         return SkillListApplyIncomingPacketServices.SkillList;

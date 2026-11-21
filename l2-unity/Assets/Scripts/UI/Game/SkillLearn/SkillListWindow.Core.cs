@@ -16,6 +16,13 @@ public partial class SkillListWindow : L2PopupWindow
         _orphanedSkillList = packet.Skills;
     }
 
+#if UNITY_EDITOR
+    public static void EditModeResetSingletonForTests()
+    {
+        _instance = null;
+    }
+#endif
+
     private void Awake()
     {
         if (_instance == null)
@@ -30,6 +37,10 @@ public partial class SkillListWindow : L2PopupWindow
         }
         else
         {
+            Debug.LogError(
+                "[SkillList] Duplicate SkillListWindow destroyed on Awake: '" + gameObject.name + "' (id=" +
+                GetInstanceID() + "). Singleton owner='" + _instance.gameObject.name + "' (id=" +
+                _instance.GetInstanceID() + ").");
             Destroy(this);
         }
     }
