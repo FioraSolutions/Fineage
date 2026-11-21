@@ -20,12 +20,14 @@ public sealed class PerfProfilingEditModeTests
                 "Fineage.Spawn",
                 "Fineage.Tile.Load",
                 "Fineage.Crowd.Tier",
+                "Fineage.Gravity.Step",
             },
             FineagePerfProfiling.RoadmapMarkerNames);
 
         Assert.AreEqual(NetReceiveProfiling.ReadName, FineagePerfProfiling.RoadmapMarkerNames[0]);
         Assert.AreEqual(FineagePerfProfiling.MoveStepName, FineagePerfProfiling.RoadmapMarkerNames[5]);
         Assert.AreEqual(FineagePerfProfiling.CrowdTierName, FineagePerfProfiling.RoadmapMarkerNames[10]);
+        Assert.AreEqual(FineagePerfProfiling.GravityStepName, FineagePerfProfiling.RoadmapMarkerNames[11]);
     }
 
     [Test]
