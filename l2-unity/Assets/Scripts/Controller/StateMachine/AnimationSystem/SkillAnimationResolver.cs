@@ -13,7 +13,6 @@ public static class SkillAnimationResolver
     public const int ForceChargeTraySkillId = 4271;
 
     static readonly HashSet<string> MixMissLogged = new HashSet<string>(StringComparer.Ordinal);
-    static readonly HashSet<string> FallbackMissLogged = new HashSet<string>(StringComparer.Ordinal);
 
     /// <summary>
     /// Returns cleaned SpAtk stem names for each combo phase (e.g. SpAtk08, SpAtk13, SpAtk22), or null.
