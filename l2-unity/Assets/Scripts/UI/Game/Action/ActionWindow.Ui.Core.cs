@@ -12,14 +12,17 @@ public partial class ActionWindow : L2PopupWindow
         int maxSlots = SectionMaxSlots(section);
         InterludeActionCatalog.Entry[] rows = InterludeActionCatalog.SectionSlots(section);
         InterludeActionAvailabilityService availability = ActionAvailabilityPacketServices.Availability;
-        for (int i = 0; i < maxSlots; i++)
+        int write = 0;
+        for (int i = 0; i < rows.Length && write < maxSlots; i++)
         {
-            ActionSlot slot = _slots[baseIndex + i];
-            if (i < rows.Length && availability.IsAvailable(in rows[i]))
-                slot.AssignAction((ActionType)rows[i].Id);
-            else
-                slot.ClearAction();
+            if (!availability.IsAvailable(in rows[i]))
+                continue;
+            _slots[baseIndex + write].AssignAction((ActionType)rows[i].Id);
+            write++;
         }
+
+        for (int i = write; i < maxSlots; i++)
+            _slots[baseIndex + i].ClearAction();
     }
 
     public void RefreshActionAvailability()

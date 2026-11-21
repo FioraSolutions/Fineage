@@ -122,7 +122,13 @@ public partial class HitManager
         if (target == null || target == attacker)
             return true;
 
-        attacker.IsSoulshotCharged = hit.hasSoulshot();
+        if (hit.hasSoulshot())
+        {
+            attacker.IsSoulshotCharged = true;
+            WeaponChargePresentation.PlayMeleeSoulshotConsume(attacker);
+        }
+        else
+            attacker.IsSoulshotCharged = false;
         Vector3 hitPoint = ResolveTargetImpactCenter(target);
         HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
         return true;
