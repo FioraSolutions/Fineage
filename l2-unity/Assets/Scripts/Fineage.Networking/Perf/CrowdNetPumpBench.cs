@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Fineage.Net.Contract;
 
 /// <summary>
 /// Synthetic siege load: posts MoveState coalesce traffic through <see cref="NetMainThreadPump"/>
