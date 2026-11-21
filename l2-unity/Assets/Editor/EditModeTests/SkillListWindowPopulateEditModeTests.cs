@@ -14,10 +14,20 @@ public sealed class SkillListWindowPopulateEditModeTests
     [SetUp]
     public void SetUp()
     {
+        DestroyAllSkillListWindows();
         SkillListWindow.EditModeResetSingletonForTests();
         _tooltipHost = new GameObject("EditMode_ToolTipSimple");
         var tooltip = _tooltipHost.AddComponent<ToolTipSimple>();
         ToolTipSimplePacketServices.Bind(tooltip);
+    }
+
+    static void DestroyAllSkillListWindows()
+    {
+        var existing = Object.FindObjectsByType<SkillListWindow>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        for (int i = 0; i < existing.Length; i++)
+            Object.DestroyImmediate(existing[i].gameObject);
     }
 
     [TearDown]
@@ -49,9 +59,13 @@ public sealed class SkillListWindowPopulateEditModeTests
         var windowAsset = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/SkillListWindow");
         Assert.NotNull(windowAsset, "SkillListWindow.uxml missing");
 
+        DestroyAllSkillListWindows();
+        SkillListWindow.EditModeResetSingletonForTests();
+
         _skillListHost = new GameObject("SkillListWindowEditModeHost");
         var window = _skillListHost.AddComponent<SkillListWindowEditModeHarness>();
-        Assert.NotNull(window, "SkillListWindow harness was not created (singleton guard?)");
+        Assert.IsTrue(SkillListWindow.Instance == window, "harness must own SkillListWindow singleton");
+        Assert.NotNull(window, "SkillListWindow harness was not created");
         window.HarnessLoadAssets();
 
         var visualRoot = windowAsset.Instantiate();
