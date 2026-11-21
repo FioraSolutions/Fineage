@@ -9,6 +9,9 @@ public partial class L2GameUI
     {
         base.LoadUI();
 
+        AbnormalEffectTooltipTables.SkillGrps = TablePacketServices.SkillGrps;
+        AbnormalEffectTooltipTables.SkillNames = TablePacketServices.SkillNames;
+
         if (LobbyUiPacketServices.LoginUi != null)
         {
             StartLoading();

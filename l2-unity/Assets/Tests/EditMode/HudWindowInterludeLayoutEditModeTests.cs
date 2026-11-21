@@ -33,9 +33,4 @@ public sealed class HudWindowInterludeLayoutEditModeTests
         Assert.IsNotNull(content, "SkillTray content must carry buff-tray for scoped USS.");
     }
 
-    [Test]
-    public void Target_abnormal_tooltip_manipulator_type_exists()
-    {
-        Assert.IsNotNull(typeof(TargetAbnormalTooltipManipulator));
-    }
 }

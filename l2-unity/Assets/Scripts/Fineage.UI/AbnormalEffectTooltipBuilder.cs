@@ -16,7 +16,7 @@ public static class AbnormalEffectTooltipBuilder
             return 1;
         if (wireValue <= 0)
             return 1;
-        ISkillgrpLookup table = TablePacketServices.SkillGrps;
+        ISkillgrpLookup table = AbnormalEffectTooltipTables.SkillGrps;
         if (table != null && table.GetSkill(skillId, wireValue) != null)
             return wireValue;
         return 1;
@@ -29,8 +29,8 @@ public static class AbnormalEffectTooltipBuilder
         bool includeRemainingTime = true)
     {
         int level = ResolveSkillLevel(skillId, wireValue);
-        SkillNameData nameData = TablePacketServices.SkillNames?.GetName(skillId, level);
-        Skillgrp skill = TablePacketServices.SkillGrps?.GetSkill(skillId, level);
+        SkillNameData nameData = AbnormalEffectTooltipTables.SkillNames?.GetName(skillId, level);
+        Skillgrp skill = AbnormalEffectTooltipTables.SkillGrps?.GetSkill(skillId, level);
 
         var sb = new StringBuilder();
         if (!string.IsNullOrEmpty(nameData?.Name))
@@ -64,7 +64,9 @@ public static class AbnormalEffectTooltipBuilder
         label = null;
         if (wireValue <= 1)
             return false;
-        Skillgrp skill = TablePacketServices.SkillGrps?.GetSkill(skillId, ResolveSkillLevel(skillId, wireValue));
+        Skillgrp skill = AbnormalEffectTooltipTables.SkillGrps?.GetSkill(
+            skillId,
+            ResolveSkillLevel(skillId, wireValue));
         if (skill == null)
             return false;
         // operate_type 6 = charge / force on many Interlude skillgrp rows (Sonic Focus family).
