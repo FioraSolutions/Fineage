@@ -114,7 +114,7 @@ public static class CreatureWeaponAnimApply
 
         NpcEntity npc = entity as NpcEntity;
         Npcgrp grp = npc != null && npc.NpcData != null ? npc.NpcData.Npcgrp : null;
-        return grp != null && (grp.RHand > 0 || grp.LHand > 0);
+        return grp != null && (grp.Rhand > 0 || grp.Lhand > 0);
     }
 
     static string ClipPrefix(AnimatorOverrideController oc)
