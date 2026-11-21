@@ -11,6 +11,8 @@ public partial class SkillbarMin : AbstractSkillbar
 
     protected override void UpdateVisuals()
     {
+        PaintInterludeHudChrome();
+
         _windowEle.Q<VisualElement>("Footer").style.display = DisplayStyle.None;
         _windowEle.Q<VisualElement>("ExpandBtn").style.display = DisplayStyle.None;
         _windowEle.Q<VisualElement>("MinimizeBtn").style.display = DisplayStyle.None;

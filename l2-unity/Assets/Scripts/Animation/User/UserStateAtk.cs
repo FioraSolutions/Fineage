@@ -22,7 +22,7 @@ public class UserStateAtk : UserStateBase {
         SetBool("atk01_" + _weaponAnim, false);
 
         PlaySoundAtRatio(CharacterSoundEvent.Atk_1H, _audioHandler.AtkRatio);
-        PlaySoundAtRatio(ItemSoundEvent.sword_small, _audioHandler.SwishRatio);
+        PlayEquippedWeaponItemSounds();
 
         _lastNormalizedTime = 0;
 
@@ -37,7 +37,7 @@ public class UserStateAtk : UserStateBase {
         if ((stateInfo.normalizedTime - _lastNormalizedTime) >= 1f) {
             _lastNormalizedTime = stateInfo.normalizedTime;
             PlaySoundAtRatio(CharacterSoundEvent.Atk_1H, _audioHandler.AtkRatio);
-            PlaySoundAtRatio(ItemSoundEvent.sword_small, _audioHandler.SwishRatio);
+            PlayEquippedWeaponItemSounds();
         }
     }
 

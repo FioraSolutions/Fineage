@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using System.Text;
+using UnityEngine.UIElements;
 using UnityEngine;
 
 public partial class DataCell : L2Slot
@@ -44,6 +45,44 @@ public partial class DataCell : L2Slot
         SetBusy(isbusy);
         _skillInstance.RefreshData(skillId , level , IsPassiveSkill() , false);
         if (isbusy != false) SetIcon(skillId, level);
+        RefreshAbnormalTooltip(skillId, level);
+    }
+
+    void RefreshAbnormalTooltip(int skillId, int level)
+    {
+        if (_element == null || skillId <= 0)
+            return;
+
+        int safeLevel = level > 0 ? level : 1;
+        SkillNameData nameData = TablePacketServices.SkillNames?.GetName(skillId, safeLevel);
+        if (nameData == null && TablePacketServices.SkillNames == null)
+            return;
+
+        var sb = new StringBuilder();
+        if (!string.IsNullOrEmpty(nameData?.Name))
+            sb.Append(nameData.Name);
+        if (safeLevel > 0)
+        {
+            if (sb.Length > 0)
+                sb.Append(' ');
+            sb.Append("Lv.").Append(safeLevel);
+        }
+        if (!string.IsNullOrEmpty(nameData?.Desc))
+        {
+            if (sb.Length > 0)
+                sb.Append('\n');
+            sb.Append(nameData.Desc);
+        }
+
+        string tip = sb.Length > 0 ? sb.ToString() : ("Skill " + skillId + " Lv." + safeLevel);
+        if (_tooltipManipulator != null)
+        {
+            _element.RemoveManipulator(_tooltipManipulator);
+            _tooltipManipulator = null;
+        }
+
+        _tooltipManipulator = new TooltipManipulator(_element, tip);
+        _element.AddManipulator(_tooltipManipulator);
     }
 
     public SkillInstance GetSkillInstance()

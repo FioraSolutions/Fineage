@@ -21,6 +21,8 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<EnchantWindow>(builder);
         RegisterIfFound<RecipeBookWindow>(builder);
         RegisterIfFound<CraftingItemWindow>(builder);
+        RegisterIfFound<RecipeShopBrowseWindow>(builder);
+        RegisterIfFound<RecipeShopManageWindow>(builder);
         RegisterIfFound<SkillLearnWindow>(builder);
         RegisterIfFound<DescriptionSkillWindow>(builder);
         RegisterLateBound<SkillListWindow>(builder);

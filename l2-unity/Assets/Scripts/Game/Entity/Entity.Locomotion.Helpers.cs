@@ -60,7 +60,8 @@ public partial class Entity
         string walkClip = UsesNpcLocomotionClipNames
             ? AnimationNames.MONSTER_WALK.Value
             : AnimationNames.WALK.Concat(suffix);
-        global::LocomotionGait.ResolvePlaybackRates(
+        PlayerLocomotionPlayback.ResolvePlaybackRates(
+            this,
             animator,
             runClip,
             walkClip,

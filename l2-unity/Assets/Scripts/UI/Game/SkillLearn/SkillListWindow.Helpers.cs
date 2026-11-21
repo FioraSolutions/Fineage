@@ -12,6 +12,12 @@ public partial class SkillListWindow : L2PopupWindow
         return  _windowEle.worldBound.Contains(vector2);
     }
 
+    public override void ShowWindow()
+    {
+        base.ShowWindow();
+        TryFlushPendingSkillList();
+    }
+
     public void EmbedInto(VisualElement host)
     {
         if (host == null)
@@ -49,6 +55,7 @@ public partial class SkillListWindow : L2PopupWindow
         body.style.paddingLeft = 4;
         host.style.display = DisplayStyle.Flex;
         AudioPacketServices.Audio.PlayUISound("window_open");
+        TryFlushPendingSkillList();
     }
 
     private void OnDestroy()

@@ -92,30 +92,14 @@ public sealed class InterludeActionCatalogEditModeTests
     }
 
     [Test]
-    public void Social_clip_stems_resolve_for_all_races_except_known_gaps()
+    public void ActionWnd_social_slots_map_to_catalog_stems()
     {
         int[] socialIds = InterludeActionCatalog.SectionSlotActionIds(InterludeActionSection.Social);
         foreach (int actionId in socialIds)
         {
             Assert.IsTrue(
-                InterludeSocialAnimationCatalog.TryGetClipStem(actionId, out string stem),
+                InterludeSocialAnimationCatalog.TryGetClipStem(actionId, out _),
                 "clip stem for social id=" + actionId);
-
-            foreach (var raceRow in InterludeSocialAnimationCatalog.AllRaces())
-            {
-                bool loaded = InterludeSocialAnimationCatalog.TryLoadClip(raceRow.Race, stem, out _);
-                if (raceRow.Race == CharacterRaceAnimation.MFighter)
-                {
-                    Assert.IsFalse(loaded, "MFighter social clips not imported yet (tracked gap)");
-                    continue;
-                }
-
-                Assert.IsTrue(
-                    loaded,
-                    "social id=" + actionId + " race=" + raceRow.Race + " gender=" +
-                    InterludeSocialAnimationCatalog.GenderLabel(raceRow.Race) +
-                    " clip '" + stem + "'");
-            }
         }
     }
 

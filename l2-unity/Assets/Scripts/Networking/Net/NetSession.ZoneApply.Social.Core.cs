@@ -34,7 +34,7 @@ public sealed partial class NetSession
         window.OnButtonClosed += () =>
             ZoneCommands.Send(new RequestRestartPointCommand(ReviveRequestNetMsg.DeclineSkillResurrection));
         window.ShowWindowDialogYesOrNot(string.IsNullOrEmpty(messageText)
-            ? "Do you want to be resurrected?"
+            ? L10n.Get("ui.dialog.resurrect")
             : messageText);
     }
 

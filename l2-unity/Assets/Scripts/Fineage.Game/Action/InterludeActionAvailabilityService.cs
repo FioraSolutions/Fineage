@@ -20,9 +20,9 @@ public sealed class InterludeActionAvailabilityService
     Changed?.Invoke();
   }
 
-  public void NoteSummon(byte summonKind, int npcId, bool dead)
+  public void NoteSummon(byte summonKind, int npcId, bool dead, bool mountable = false)
   {
-    _state.NoteSummon(summonKind, npcId, dead);
+    _state.NoteSummon(summonKind, npcId, dead, mountable);
     Changed?.Invoke();
   }
 
@@ -46,9 +46,15 @@ public sealed class InterludeActionAvailabilityService
     Changed?.Invoke();
   }
 
-  public void ApplyPlayerActionState(bool petOut, bool mounted, byte mountKind, int petControlObjectId)
+  public void ApplyPlayerActionState(
+      bool petOut,
+      bool mountablePet,
+      bool mounted,
+      bool canRide,
+      byte mountKind,
+      int petControlObjectId)
   {
-    _state.ApplyPlayerActionState(petOut, mounted, mountKind, petControlObjectId);
+    _state.ApplyPlayerActionState(petOut, mountablePet, mounted, canRide, mountKind, petControlObjectId);
     Changed?.Invoke();
   }
 
@@ -74,7 +80,7 @@ public sealed class InterludeActionAvailabilityService
       case InterludeActionAvailabilityKind.ServitorSummoned:
         return _state.HasServitor;
       case InterludeActionAvailabilityKind.MountablePetSummonedOrMounted:
-        return _state.HasMountablePetOut || _state.PlayerMounted;
+        return _state.RideActionAvailable;
       case InterludeActionAvailabilityKind.SummonTemplateActive:
         return TemplateMatchesActiveSummon(entry.TemplateNpcIds);
       case InterludeActionAvailabilityKind.Unknown:

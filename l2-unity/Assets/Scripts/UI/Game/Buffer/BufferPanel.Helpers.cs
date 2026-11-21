@@ -20,6 +20,8 @@ public partial class BufferPanel : L2Window
     {
         InitWindow(root);
 
+        L2InterludeHudVerticalFrame.TryPaintVerticalColumn(_windowEle, nameof(BufferPanel));
+
         var dragArea = GetElementByClass("drag-area");
         _content = GetElementById("content");
         

@@ -39,9 +39,22 @@ public sealed class InterludeActionAvailabilityEditModeTests
     }
 
     [Test]
-    public void Mount_visible_with_mountable_pet()
+    public void Mount_hidden_when_pet_out_without_can_ride()
     {
-        _service.NoteSummon(InterludeActionAvailabilityState.SummonKindPet, 12526, dead: false);
+        _service.NoteSummon(InterludeActionAvailabilityState.SummonKindPet, 12526, dead: false, mountable: true);
+        Assert.IsFalse(_service.IsAvailable(38));
+    }
+
+    [Test]
+    public void Mount_visible_when_server_can_ride()
+    {
+        _service.ApplyPlayerActionState(
+            petOut: true,
+            mountablePet: true,
+            mounted: false,
+            canRide: true,
+            mountKind: 0,
+            petControlObjectId: 0);
         Assert.IsTrue(_service.IsAvailable(38));
     }
 
@@ -81,7 +94,7 @@ public sealed class InterludeActionAvailabilityEditModeTests
     [Test]
     public void Summon_gone_clears_pet_actions()
     {
-        _service.NoteSummon(InterludeActionAvailabilityState.SummonKindPet, 12526, dead: false);
+        _service.NoteSummon(InterludeActionAvailabilityState.SummonKindPet, 12526, dead: false, mountable: true);
         Assert.IsTrue(_service.IsAvailable(15));
         _service.NoteSummonDismissed(InterludeActionAvailabilityState.SummonKindPet);
         Assert.IsFalse(_service.IsAvailable(15));
