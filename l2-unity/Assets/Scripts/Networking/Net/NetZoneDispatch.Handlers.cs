@@ -327,6 +327,11 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
                 break;
+            case NetOpcode.PackageToList:
+            case NetOpcode.PackageSendableList:
+            case NetOpcode.MonRaceInfo:
+                _ = packet.Body;
+                break;
             case NetOpcode.FishingEvent:
                 _ = (FishingEventNetMsg)packet.Body;
                 break;
