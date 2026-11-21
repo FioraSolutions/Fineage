@@ -322,6 +322,9 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AugmentPutCancelItemResult:
             case NetOpcode.AugmentCancelResult:
                 break;
+            case NetOpcode.CursedWeaponList:
+            case NetOpcode.CursedWeaponLocation:
+                break;
             case NetOpcode.PackageToList:
                 _ = (PackageToListNetMsg)packet.Body;
                 break;
