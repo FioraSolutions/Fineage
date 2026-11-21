@@ -219,5 +219,13 @@ public partial class L2GameUI
             TradePacketServices.Trade.AddWindow(_rootVisualContainer);
             TradePacketServices.Trade.HideWindow();
         }
+
+        EnsureInterludeRadarHud();
+    }
+
+    void EnsureInterludeRadarHud()
+    {
+        if (GetComponent<QuestRadarHud>() == null)
+            gameObject.AddComponent<QuestRadarHud>();
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Text;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 using UnityEngine;
 
 public partial class DataCell : L2Slot
@@ -53,28 +52,8 @@ public partial class DataCell : L2Slot
         if (_element == null || skillId <= 0)
             return;
 
-        int safeLevel = level > 0 ? level : 1;
-        SkillNameData nameData = TablePacketServices.SkillNames?.GetName(skillId, safeLevel);
-        if (nameData == null && TablePacketServices.SkillNames == null)
-            return;
-
-        var sb = new StringBuilder();
-        if (!string.IsNullOrEmpty(nameData?.Name))
-            sb.Append(nameData.Name);
-        if (safeLevel > 0)
-        {
-            if (sb.Length > 0)
-                sb.Append(' ');
-            sb.Append("Lv.").Append(safeLevel);
-        }
-        if (!string.IsNullOrEmpty(nameData?.Desc))
-        {
-            if (sb.Length > 0)
-                sb.Append('\n');
-            sb.Append(nameData.Desc);
-        }
-
-        string tip = sb.Length > 0 ? sb.ToString() : ("Skill " + skillId + " Lv." + safeLevel);
+        int remaining = Mathf.Max(0, Mathf.CeilToInt(GetLastRemainingTime()));
+        string tip = AbnormalEffectTooltipBuilder.Build(skillId, level, remaining, includeRemainingTime: true);
         if (_tooltipManipulator != null)
         {
             _element.RemoveManipulator(_tooltipManipulator);
@@ -83,6 +62,9 @@ public partial class DataCell : L2Slot
 
         _tooltipManipulator = new TooltipManipulator(_element, tip);
         _element.AddManipulator(_tooltipManipulator);
+
+        if (AbnormalEffectTooltipBuilder.TryFormatChargeLabel(skillId, level, out string chargeLabel))
+            SetText(chargeLabel);
     }
 
     public SkillInstance GetSkillInstance()
