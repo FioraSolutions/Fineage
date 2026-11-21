@@ -186,11 +186,14 @@ public static class L2MonsterImportBatch
             }
 
             Texture tex = texPath != null ? AssetDatabase.LoadAssetAtPath<Texture>(texPath) : null;
-            if (tex != null && mat.HasProperty("_BaseMap"))
-            {
-                mat.SetTexture("_BaseMap", tex);
-                EditorUtility.SetDirty(mat);
-            }
+            var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+            L2ActorMaterialSetupEditor.ApplyToMaterial(
+                mat,
+                shader,
+                tex,
+                mat.name,
+                props,
+                logMissingTexture: true);
 
             paths.Add(matPath);
         }
