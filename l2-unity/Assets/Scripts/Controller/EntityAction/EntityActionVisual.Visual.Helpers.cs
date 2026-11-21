@@ -36,7 +36,7 @@ public static partial class EntityActionVisual
         if (!AnimChannel.CanPlay(AnimChannel.Kind.Social))
             return;
 
-        string socialState = "social01";
+        string socialState = InterludeSocialAnimationCatalog.SocialAnimatorStateName;
         if (entity is PlayerEntity || entity is UserEntity)
         {
             if (!PlayerSocialAnimApply.TryPrepareSocialClip(entity, actionId, out socialState))
