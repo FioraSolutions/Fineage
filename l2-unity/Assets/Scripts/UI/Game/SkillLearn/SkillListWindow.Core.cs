@@ -16,6 +16,13 @@ public partial class SkillListWindow : L2PopupWindow
         _orphanedSkillList = packet.Skills;
     }
 
+#if UNITY_EDITOR
+    public static void EditModeResetSingletonForTests()
+    {
+        _instance = null;
+    }
+#endif
+
     private void Awake()
     {
         if (_instance == null)
