@@ -309,6 +309,9 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.PlayerActionState:
                 _session.ApplyPlayerActionState((PlayerActionStateNetMsg)packet.Body);
                 break;
+            case WeddingNetOpcode.WeddingEngageAsk:
+                _session.ApplyWeddingEngageAsk((WeddingEngageAskNetMsg)packet.Body);
+                break;
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
                 break;

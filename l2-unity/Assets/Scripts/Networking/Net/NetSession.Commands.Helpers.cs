@@ -51,6 +51,9 @@ public sealed partial class NetSession
     public Task SendPartyAnswerJoinRequest(int requestorObjectId, int response) =>
         _commandSender.SendPartyAnswerJoinRequestAsync(requestorObjectId, response);
 
+    public Task SendWeddingEngageAnswer(int response) =>
+        _commandSender.SendWeddingEngageAnswerAsync(response);
+
     public Task SendPartyLeaveRequest() =>
         _commandSender.SendPartyLeaveRequestAsync();
 
