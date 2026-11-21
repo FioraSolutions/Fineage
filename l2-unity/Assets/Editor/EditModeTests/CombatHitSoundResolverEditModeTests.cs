@@ -102,6 +102,10 @@ public sealed class CombatHitSoundResolverEditModeTests
             ItemSounds = new[] { "", "", "", "" },
         };
 
+        UnityEngine.TestTools.LogAssert.Expect(
+            UnityEngine.LogType.Error,
+            "CombatShieldBlock: missing weapongrp item_sound[2]/item_sound[3] shieldItemId=20");
+
         Assert.IsNull(CombatHitSoundResolver.ResolveShieldBlockFmodEventPathFromData(20, empty));
     }
 
