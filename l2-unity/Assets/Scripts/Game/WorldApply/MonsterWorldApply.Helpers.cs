@@ -12,7 +12,7 @@ public sealed partial class MonsterWorldApply : EntityWorldApply
 
     public override void OnMagicSkillUse(Entity entity, MagicSkillUseDto dto)
     {
-        bool windstrike = dto != null && dto.SkillId == 4247;
+        bool windstrike = dto != null && SkillPresentationCatalog.IsWindStrike(dto.SkillId);
         if (windstrike)
         {
             Debug.Log(

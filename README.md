@@ -20,6 +20,19 @@ Local `tools/login-stub` and `tools/zone-server` are historical / diag helpers â
 
 Pull requests target the `dev` branch. Branch and worktree rules are in [AGENTS.md](AGENTS.md).
 
+## Public playtest and deploy
+
+| Endpoint | Host | Port / path |
+| --- | --- | --- |
+| Landing (HTTPS) | `fineage.evpoint.by` | 443 |
+| Login HTTP API (register/login/status) | `api-fineage.evpoint.by` | 443 â†’ Login **5080** on the homeserver (Cloudflare tunnel) |
+| Login (Fineage Net TCP) | `login.fineage.evpoint.by` | **2106** |
+| Zone (Fineage Net TCP) | `game.fineage.evpoint.by` | **7777** |
+
+Local development uses loopback **9106** / **9777** (Login HTTP **5080**). Player builds and **Play Remote** use the table above; details and overrides are in [Docs/PLAYTEST_RELEASE.md](Docs/PLAYTEST_RELEASE.md).
+
+The live Login + Zone stack is deployed from [Fineage-Backend](https://github.com/FioraSolutions/Fineage-Backend): pushes to `main` run GitHub Actions over Tailscale to the Debian **`homeserver`** (`systemd` units `fineage-login` / `fineage-zone`). Client playtest binaries ship via `.github/workflows/release-clients.yml` in this repo.
+
 ## Open and build the client
 
 The Unity project is the `l2-unity/` folder. In Unity Hub, add that folder as the project.
