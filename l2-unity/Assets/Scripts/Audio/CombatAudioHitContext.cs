@@ -9,21 +9,25 @@ public static class CombatAudioHitContext
     {
         public Entity Attacker;
         public bool Critical;
+        public bool Shielded;
     }
 
     static Entry _pending;
 
-    public static void Set(Entity attacker, bool critical)
+    public static void Set(Entity attacker, bool critical, bool shielded)
     {
-        _pending = new Entry { Attacker = attacker, Critical = critical };
+        _pending = new Entry { Attacker = attacker, Critical = critical, Shielded = shielded };
     }
 
-    public static bool TryTake(out Entity attacker, out bool critical)
+    public static bool PendingShielded => _pending.Shielded;
+
+    public static bool TryTake(out Entity attacker, out bool critical, out bool shielded)
     {
         attacker = _pending.Attacker;
         critical = _pending.Critical;
+        shielded = _pending.Shielded;
         _pending = default;
-        return attacker != null;
+        return attacker != null || shielded;
     }
 
     public static void Clear() => _pending = default;

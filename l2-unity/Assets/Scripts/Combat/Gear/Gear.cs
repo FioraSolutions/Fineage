@@ -57,6 +57,10 @@ public partial class Gear : AbstractMeshManager
 
     public Weapon EquippedRightHandWeapon => _rightHandWeapon;
 
+    public Weapon EquippedLeftHandShield => _leftHandShield;
+
+    public Transform ShieldAttachPoint => GetShieldBone();
+
     public virtual void Initialize(int ownderId, CharacterRaceAnimation raceId) {
         TryGetComponent(out _networkAnimationReceive);
         _ownerId = ownderId;
