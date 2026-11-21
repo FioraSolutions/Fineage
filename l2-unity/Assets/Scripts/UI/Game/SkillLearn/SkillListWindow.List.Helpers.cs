@@ -27,12 +27,38 @@ public partial class SkillListWindow : L2PopupWindow
             slot.GetReuseElement(), slot.GetRechargeMaskElement(), reuseDelayMs));
     }
 
-    private void CopyInDictionry(List<SkillInstance> list)
+    bool EnsureSingletonOwnerForSkillListApply(string phase, int skillCount)
+    {
+        if (_instance == this && _allSkills != null)
+            return true;
+
+        string ownerLabel = DescribeSkillListSingletonOwner();
+        Debug.LogError(
+            "[SkillList] " + phase + ": apply rejected — '" + gameObject.name + "' (id=" + GetInstanceID() +
+            ") is not the SkillListWindow singleton; skillCount=" + skillCount + ". Owner=" + ownerLabel + ".");
+        return false;
+    }
+
+    static string DescribeSkillListSingletonOwner()
+    {
+        if (_instance == null)
+            return "none";
+        return "'" + _instance.gameObject.name + "' (id=" + _instance.GetInstanceID() + ")";
+    }
+
+    bool TryCopyInDictionry(List<SkillInstance> list, string phase)
     {
         if (_allSkills == null)
-            _allSkills = new Dictionary<int, SkillInstance>();
+        {
+            int count = list != null ? list.Count : 0;
+            Debug.LogError(
+                "[SkillList] " + phase + ": dictionary missing on '" + gameObject.name + "' (id=" + GetInstanceID() +
+                "); skillCount=" + count + ". Owner=" + DescribeSkillListSingletonOwner() + ".");
+            return false;
+        }
 
         _allSkills = list.ToDictionary(si => si.SkillID);
+        return true;
     }
 
     private void OnSwitchEventOut(ITab tab, bool isTrade)

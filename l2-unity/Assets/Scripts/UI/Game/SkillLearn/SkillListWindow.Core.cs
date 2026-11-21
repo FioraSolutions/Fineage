@@ -37,6 +37,10 @@ public partial class SkillListWindow : L2PopupWindow
         }
         else
         {
+            Debug.LogError(
+                "[SkillList] Duplicate SkillListWindow destroyed on Awake: '" + gameObject.name + "' (id=" +
+                GetInstanceID() + "). Singleton owner='" + _instance.gameObject.name + "' (id=" +
+                _instance.GetInstanceID() + ").");
             Destroy(this);
         }
     }
