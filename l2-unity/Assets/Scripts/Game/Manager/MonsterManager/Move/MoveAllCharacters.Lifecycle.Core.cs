@@ -19,7 +19,6 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
             _removeListRotate = new List<int>();
             _stoppedMoveData = new Dictionary<int, MovementData>();
             _reconciledStoppedMoves = new List<int>();
-            CrowdAnimTest.EnsureTimeCap();
             MoveAllCharactersPacketServices.Bind(moves: this);
         }
         else
