@@ -1,13 +1,16 @@
-using System.Reflection;
 using NUnit.Framework;
-using UnityEngine;
 
 public sealed class WeaponShotSectionResolverEditModeTests
 {
     [Test]
-    public void Null_gear_returns_HAND()
+    public void Bare_hands_types_return_HAND()
     {
-        Assert.AreEqual("HAND", WeaponShotSectionResolver.Resolve(null));
+        Assert.AreEqual(
+            "HAND",
+            WeaponShotSectionResolver.Resolve(
+                CombatStyleProfile.BareHand,
+                WeaponType.none,
+                WeaponType.none));
     }
 
     [Test]
@@ -16,17 +19,8 @@ public sealed class WeaponShotSectionResolverEditModeTests
         CombatStyleProfile bow = CombatStyleProfileResolver.Resolve(
             new Weapongrp { WeaponType = WeaponType.bow },
             weaponItemId: 14);
-        Gear gear = CreateGear(bow);
-        Assert.AreEqual("BOW", WeaponShotSectionResolver.Resolve(gear));
-        Object.DestroyImmediate(gear.gameObject);
-    }
-
-    static Gear CreateGear(CombatStyleProfile style)
-    {
-        var go = new GameObject("gear_test");
-        Gear gear = go.AddComponent<Gear>();
-        FieldInfo field = typeof(Gear).GetField("_combatStyle", BindingFlags.Instance | BindingFlags.NonPublic);
-        field.SetValue(gear, style);
-        return gear;
+        Assert.AreEqual(
+            "BOW",
+            WeaponShotSectionResolver.Resolve(bow, WeaponType.bow, WeaponType.arrow));
     }
 }
