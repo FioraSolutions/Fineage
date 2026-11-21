@@ -143,15 +143,18 @@ def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
 def adapt_net_contract_for_unity_cs9(text: str, rel: str) -> str:
     if rel not in UNITY_CS9_ADAPT_FILES:
         return text
-    if text.startswith("namespace Fineage.Net.Contract;\n"):
-        body = text[len("namespace Fineage.Net.Contract;\n") :].rstrip("\n")
+    marker = "namespace Fineage.Net.Contract;\n"
+    idx = text.find(marker)
+    if idx != -1:
+        prefix = text[:idx]
+        body = text[idx + len(marker) :].rstrip("\n")
         lines = []
         for line in body.splitlines():
             if line.strip():
                 lines.append("    " + line)
             else:
                 lines.append("")
-        text = "namespace Fineage.Net.Contract\n{\n" + "\n".join(lines) + "\n}\n"
+        text = prefix + "namespace Fineage.Net.Contract\n{\n" + "\n".join(lines) + "\n}\n"
     text = text.replace(
         "public MonRaceRunnerNetMsg[] Runners { get; set; } = [];",
         "public MonRaceRunnerNetMsg[] Runners { get; set; } = System.Array.Empty<MonRaceRunnerNetMsg>();",
@@ -214,7 +217,8 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        if client_expected_bytes(dst.read_bytes(), rel) != client_expected_bytes(data, rel):
+        expected = client_expected_bytes(data, rel)
+        if not dst.is_file() or dst.read_bytes() != expected:
             differing.append(rel)
 
     return missing, differing
