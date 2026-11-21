@@ -7,7 +7,7 @@ public partial class EntityActionSkill
     public void Enter(Entity entity, object payload)
     {
         MagicSkillUseDto earlyMagic = payload as MagicSkillUseDto;
-        bool windstrike = earlyMagic != null && earlyMagic.SkillId == 4247;
+        bool windstrike = earlyMagic != null && SkillPresentationCatalog.IsWindStrike(earlyMagic.SkillId);
         if (windstrike)
         {
             Debug.Log(
