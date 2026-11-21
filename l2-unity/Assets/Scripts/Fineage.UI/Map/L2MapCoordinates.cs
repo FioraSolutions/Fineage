@@ -19,17 +19,4 @@ public static class L2MapCoordinates
         // ConvertPosUnityToL2j returns (L2.x, L2.z, L2.y) — use .x and .z for the map plane.
         return new Vector2(l2jVector.x, l2jVector.z);
     }
-
-    public static bool TryMapPlaneFromLocalPlayer(out Vector2 l2XY)
-    {
-        l2XY = default;
-        PlayerEntity local = DomainPacketServices.LocalPlayer;
-        if (local == null || local.Identity == null)
-            return false;
-
-        Vector3 unity = local.transform.position;
-        Vector3 l2j = local.Identity.GetL2jPos(unity);
-        l2XY = MapPlaneFromL2jVector(l2j);
-        return true;
-    }
 }

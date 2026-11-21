@@ -52,7 +52,7 @@ public sealed class QuestRadarHud : MonoBehaviour
         // Unity +X = L2 +Y (north), Unity +Z = L2 +X (east).
         float faceAng = Mathf.Atan2(fwd.z, fwd.x);
         PlaceOnRim(_north, -faceAng, NorthSizePx);
-        _north.tintColor = Color.white;
+        _north.style.unityBackgroundImageTintColor = Color.white;
 
         if (!QuestDirectionSight.TryActive(out QuestDirectionTarget target, out _, out Vector3 playerL2, out float planarUu))
         {

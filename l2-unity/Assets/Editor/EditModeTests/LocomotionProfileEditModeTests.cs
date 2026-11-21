@@ -12,6 +12,6 @@ public sealed class LocomotionProfileEditModeTests
     [Test]
     public void LobbyWalk_OtherRaces_UseAltSpeed()
     {
-        Assert.AreEqual(1.5f, LocomotionProfileResolver.LobbyWalkSpeed(CharacterRaceAnimation.FDarkelf));
+        Assert.AreEqual(1.5f, LocomotionProfileResolver.LobbyWalkSpeed(CharacterRaceAnimation.FDarkElf));
     }
 }

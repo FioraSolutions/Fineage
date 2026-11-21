@@ -48,6 +48,9 @@ jobs:
       - name: Check client asmdef layout (#139)
         run: python3 scripts/check-client-asmdef-layout.py
 
+      - name: Unity EditMode / C#9 static guards
+        run: python3 scripts/check-unity-editmode-guards.py
+
       - name: Install ffprobe for audio import policy duration checks
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
