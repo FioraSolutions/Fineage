@@ -10,6 +10,9 @@ public sealed partial class NetZoneDispatch
         if (packet == null)
             return;
 
+        if (HandleAugmentation(packet) || HandleCursedWeapons(packet))
+            return;
+
         switch (packet.Opcode)
         {
             case NetOpcode.HelloAck:
