@@ -10,6 +10,9 @@ public sealed class NpcChrSoundBankResolverEditModeTests
             out string bank));
         Assert.AreEqual("FNpc_Young", bank);
 
+        Assert.AreEqual("MHFighter", NpcChrSoundBankResolver.MapDamageBankToFmodBank("MNpc_Young"));
+        Assert.AreEqual("MElf", NpcChrSoundBankResolver.MapDamageBankToFmodBank("MNpc_Elf_Dmg"));
+
         Assert.IsTrue(NpcChrSoundBankResolver.TryResolveFromDamageSounds(
             new[] { "[ChrSound.MNpc_Old_Dmg_2]" },
             out bank));
