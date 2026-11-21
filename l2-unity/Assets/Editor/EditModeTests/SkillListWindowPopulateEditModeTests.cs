@@ -54,6 +54,49 @@ public sealed class SkillListWindowPopulateEditModeTests
     }
 
     [Test]
+    public void PassiveSkillsHide_CreateSlots_ability_section_uses_interlude_multi_column_row()
+    {
+        var passiveTemplate = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/TabPassive");
+        var boxRow = Resources.Load<VisualTreeAsset>(L2SkillsUiAssets.SkillsBoxRow);
+        var gridRow = Resources.Load<VisualTreeAsset>(L2SkillsUiAssets.SkillsGridRow);
+        var slot = Resources.Load<VisualTreeAsset>(L2SkillsUiAssets.SkillsSlot);
+        Assert.NotNull(passiveTemplate, "TabPassive.uxml missing");
+        Assert.NotNull(boxRow, "SkillsBoxRow missing");
+        Assert.NotNull(gridRow, "SkillsGridRow missing");
+        Assert.NotNull(slot, "SkillsSlot missing");
+
+        var hide = new PassiveSkillsHide();
+        hide.SetPassiveSkillTemplate(passiveTemplate, boxRow, gridRow, slot);
+
+        var skillsPanel = new VisualElement();
+        skillsPanel.AddToClassList("skills-panel");
+        skillsPanel.style.width = 280;
+
+        var tabHost = new VisualElement();
+        tabHost.AddToClassList("unselected-tab");
+        skillsPanel.Add(tabHost);
+
+        var content = new VisualElement { name = "Content" };
+        tabHost.Add(content);
+        hide.GetOrCreateTab(content);
+
+        var passiveSkills = new List<SkillInstance>
+        {
+            new SkillInstance(1320, 1, true, false),
+            new SkillInstance(194, 1, true, false),
+            new SkillInstance(210, 1, true, false),
+            new SkillInstance(227, 1, true, false),
+        };
+        hide.CreateSlots(passiveSkills, 0);
+
+        VisualElement rowAbility = content.Q("RowAbility");
+        Assert.NotNull(rowAbility, "RowAbility missing");
+        Assert.Greater(CountSlotsInFirstGridRow(rowAbility), 1, "passive ability row must show multiple slots per Interlude grid row");
+        AssertGridRowsHaveInterludeHeight(rowAbility);
+        Assert.Greater(hide.CountVisibleSkillSlots(), 0, "expected visible passive skill slots");
+    }
+
+    [Test]
     public void SkillListWindow_apply_before_tab_build_flushes_active_and_passive_slots_on_open()
     {
         var windowAsset = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/SkillListWindow");
@@ -79,7 +122,9 @@ public sealed class SkillListWindowPopulateEditModeTests
         {
             new SkillInstance(3, 1, false, false),
             new SkillInstance(1177, 1, false, false),
+            new SkillInstance(1320, 1, true, false),
             new SkillInstance(194, 1, true, false),
+            new SkillInstance(210, 1, true, false),
         };
 
         window.UpdateSkillList(skills);
@@ -102,6 +147,13 @@ public sealed class SkillListWindowPopulateEditModeTests
             L2SkillsPanelLayout.ReadConfiguredRowHeight(gridRow),
             L2SkillsPanelLayout.RowHeight - 0.01f,
             "skill grid row must keep Interlude 36px row height");
+
+        VisualElement rowAbility = window.EditorTestQueryContent()?.Q("RowAbility");
+        Assert.NotNull(rowAbility, "RowAbility missing on passive tab template");
+        Assert.Greater(
+            CountSlotsInFirstGridRow(rowAbility),
+            1,
+            "passive Ability skills must lay out more than one slot per grid row");
     }
 
     static void AssertGridRowsHaveInterludeHeight(VisualElement rowRoot)
@@ -208,6 +260,20 @@ public sealed class SkillListWindowPopulateEditModeTests
         }
 
         return n;
+    }
+
+    static int CountSlotsInFirstGridRow(VisualElement rowRoot)
+    {
+        if (rowRoot == null || rowRoot.childCount == 0)
+            return 0;
+
+        VisualElement box = rowRoot[0];
+        if (box == null || box.childCount == 0)
+            return 0;
+
+        VisualElement grid = box[0];
+        VisualElement slotsHost = grid?.Q("RowsVirtual");
+        return slotsHost != null ? slotsHost.childCount : 0;
     }
 
 }

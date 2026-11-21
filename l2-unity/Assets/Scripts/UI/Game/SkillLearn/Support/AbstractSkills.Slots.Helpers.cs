@@ -42,19 +42,7 @@ public partial class AbstractSkills
 
     protected void ResolveSkillsPerPanel(VisualElement widthSource, int sizeCellOverride)
     {
-        if (sizeCellOverride > 0)
-        {
-            skillsPerPanel = sizeCellOverride;
-            return;
-        }
-
-        float width = widthSource != null ? widthSource.resolvedStyle.width : 0f;
-        if (width <= 0f && widthSource?.parent != null)
-            width = widthSource.parent.resolvedStyle.width;
-        if (width <= 0f && widthSource?.hierarchy.parent != null)
-            width = widthSource.hierarchy.parent.resolvedStyle.width;
-
-        skillsPerPanel = L2SkillsPanelLayout.ComputeColumns(width);
+        skillsPerPanel = L2SkillsPanelLayout.ResolveGridColumns(widthSource, sizeCellOverride);
     }
 
     public void SetWidthBoxPanel(VisualElement boxPanel, int columns)

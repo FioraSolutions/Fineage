@@ -12,6 +12,34 @@ public sealed class L2SkillsPanelLayoutEditModeTests
     }
 
     [Test]
+    public void ComputeColumns_uses_default_when_tab_host_reports_one_pixel()
+    {
+        Assert.AreEqual(L2SkillsPanelLayout.DefaultColumns, L2SkillsPanelLayout.ComputeColumns(1f));
+    }
+
+    [Test]
+    public void ResolveGridColumns_reads_skills_panel_when_passive_tab_is_display_none()
+    {
+        var skillsPanel = new VisualElement();
+        skillsPanel.AddToClassList("skills-panel");
+        skillsPanel.style.width = 280;
+
+        var tabHost = new VisualElement();
+        tabHost.AddToClassList("unselected-tab");
+        skillsPanel.Add(tabHost);
+
+        var content = new VisualElement { name = "Content" };
+        tabHost.Add(content);
+
+        var passiveRoot = new VisualElement();
+        content.Add(passiveRoot);
+        passiveRoot.style.width = 1;
+
+        int columns = L2SkillsPanelLayout.ResolveGridColumns(passiveRoot);
+        Assert.GreaterOrEqual(columns, L2SkillsPanelLayout.DefaultColumns);
+    }
+
+    [Test]
     public void ComputePanelWidth_matches_six_column_interlude_row()
     {
         float width = L2SkillsPanelLayout.ComputePanelWidth(6);

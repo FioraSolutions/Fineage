@@ -13,17 +13,84 @@ public static class L2SkillsPanelLayout
     public const int MaxColumns = 7;
     public const int DefaultColumns = 6;
 
+    /// <summary>Below this, layout is an InventoryTab 1px host or a display:none tab — use Interlude default.</summary>
+    static float MinMeasurableContentWidth => ComputePanelWidth(2);
+
     public const string RowFrame6 = "Data/UI/Window/Skills/Skills_SkillBar_6x1";
     public const string RowFrame7 = "Data/UI/Window/Skills/Skills_SkillBar_2x2";
 
+    public static int ResolveGridColumns(VisualElement widthSource, int sizeCellOverride = 0)
+    {
+        if (sizeCellOverride > 0)
+            return Math.Clamp(sizeCellOverride, MinColumns, MaxColumns);
+
+        float width = MeasureSkillsPanelContentWidth(widthSource);
+        return ComputeColumns(width);
+    }
+
+    public static float MeasureSkillsPanelContentWidth(VisualElement widthSource)
+    {
+        if (widthSource == null)
+            return 0f;
+
+        for (VisualElement walk = widthSource; walk != null; walk = walk.hierarchy.parent)
+        {
+            if (walk.ClassListContains("skills-panel"))
+                return UsableContentWidth(ReadLayoutWidth(walk));
+        }
+
+        float local = ReadLayoutWidth(widthSource);
+        if (IsUsableMeasureWidth(local))
+            return UsableContentWidth(local);
+
+        for (VisualElement walk = widthSource.hierarchy.parent; walk != null; walk = walk.hierarchy.parent)
+        {
+            local = ReadLayoutWidth(walk);
+            if (IsUsableMeasureWidth(local))
+                return UsableContentWidth(local);
+        }
+
+        return 0f;
+    }
+
     public static int ComputeColumns(float panelContentWidth)
     {
-        if (panelContentWidth <= 0f)
+        if (!IsUsableMeasureWidth(panelContentWidth))
             return DefaultColumns;
 
         float usable = panelContentWidth - RowHorizontalInset * 2f;
         int columns = (int)Math.Floor((usable + SlotGap) / (SlotOuterSize + SlotGap));
+        if (columns < MinColumns)
+            return DefaultColumns;
+
         return Math.Clamp(columns, MinColumns, MaxColumns);
+    }
+
+    static float UsableContentWidth(float elementWidth)
+    {
+        const float skillsPanelHorizontalChrome = 12f;
+        return Math.Max(0f, elementWidth - skillsPanelHorizontalChrome);
+    }
+
+    static bool IsUsableMeasureWidth(float width) => width >= MinMeasurableContentWidth;
+
+    static float ReadLayoutWidth(VisualElement element)
+    {
+        if (element == null)
+            return 0f;
+
+        if (element.style.width.keyword != StyleKeyword.Auto && element.style.width.keyword != StyleKeyword.Null)
+        {
+            float styleWidth = element.style.width.value.value;
+            if (styleWidth > 0f)
+                return styleWidth;
+        }
+
+        float resolved = element.resolvedStyle.width;
+        if (float.IsNaN(resolved) || float.IsInfinity(resolved))
+            return 0f;
+
+        return resolved;
     }
 
     public static float ComputePanelWidth(int columns)
