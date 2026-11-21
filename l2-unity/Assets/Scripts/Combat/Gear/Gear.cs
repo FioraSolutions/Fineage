@@ -41,6 +41,7 @@ public partial class Gear : AbstractMeshManager
     protected Transform _spineBone;
     protected Transform _rightUpperArm;
     [SerializeField] protected Transform _shieldBone;
+    Transform _equippedShieldVisual;
     [SerializeField] protected Transform _leftHand;
     [SerializeField] protected string _weaponAnim;
     protected string _lastWeaponAnim = "";
@@ -71,20 +72,7 @@ public partial class Gear : AbstractMeshManager
     // Combat idle already points the same normal forward and is left alone.
     void FaceShieldWithBody()
     {
-        Transform bone = GetShieldBone();
-        if (bone == null)
-            return;
-
-        Transform shield = null;
-        for (int i = 0; i < bone.childCount; i++)
-        {
-            Transform child = bone.GetChild(i);
-            if (child.name.StartsWith(shieldName))
-            {
-                shield = child;
-                break;
-            }
-        }
+        Transform shield = _equippedShieldVisual;
         if (shield == null)
             return;
 

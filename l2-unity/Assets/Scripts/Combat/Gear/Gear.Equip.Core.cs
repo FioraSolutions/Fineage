@@ -44,6 +44,7 @@ public partial class Gear
         GameObject go = CreateCopy(weaponPrefab, shieldNameId, ObjectType.Weapon);
         _lastWeaponAnim = _weaponAnim;
         ActivateGameObject(go, weapon.Weapongrp, WeaponAttachEquipMode.Shield, refreshAllBone);
+        _equippedShieldVisual = go.transform;
 
         if (_rightHandType != _lastRightHandType | type != _lastShieldHandType 
             | _rightHandType == WeaponType.pole 
