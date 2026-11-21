@@ -135,7 +135,7 @@ public partial class StatusWindow
         if (bar == null)
             return;
 
-        Texture2D texture = LoadUiTexture(resourcesPath);
+        Texture2D texture = LoadUiTexture(resourcesPath, nameof(StatusWindow));
         if (texture == null)
             return;
 
@@ -153,23 +153,32 @@ public partial class StatusWindow
 
     static void Stamp(VisualElement element, string resourcesPath)
     {
-        Texture2D texture = LoadUiTexture(resourcesPath);
+        Texture2D texture = LoadUiTexture(resourcesPath, nameof(StatusWindow));
         if (element == null || texture == null)
             return;
 
         element.style.backgroundImage = new StyleBackground(texture);
     }
 
-    static Texture2D LoadUiTexture(string resourcesPath)
+    static Texture2D LoadUiTexture(string resourcesPath, string context)
     {
+        Texture2D texture = null;
         if (IconPacketServices.Icons != null)
         {
             Texture2D loaded = IconPacketServices.Icons.LoadTextureOtherSources(resourcesPath);
             if (loaded != null && loaded.name != "NOIMAGE")
-                return loaded;
+                texture = loaded;
         }
 
-        return Resources.Load<Texture2D>(resourcesPath);
+        texture ??= Resources.Load<Texture2D>(resourcesPath);
+        if (texture == null)
+        {
+            Debug.LogError(
+                "[StatusWindow] missing HUD texture path='" + resourcesPath +
+                "' context='" + context + "'. Import from ref/l2-interlude-client L2UI_CH3.");
+        }
+
+        return texture;
     }
 
     static float LevelExpRatio(PlayerStats stats)

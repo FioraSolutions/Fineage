@@ -21,6 +21,7 @@ public sealed class QuestRadarHud : MonoBehaviour
     const float RimRadiusPx = 54f;
 
     VisualElement _host;
+    VisualElement _disc;
     VisualElement _arrow;
     VisualElement _north;
     VisualElement _target;
@@ -51,8 +52,9 @@ public sealed class QuestRadarHud : MonoBehaviour
         Vector3 fwd = ResolveRadarForward(player);
         // Unity +X = L2 +Y (north), Unity +Z = L2 +X (east).
         float faceAng = Mathf.Atan2(fwd.z, fwd.x);
-        PlaceOnRim(_north, -faceAng, NorthSizePx);
-        _north.tintColor = Color.white;
+        if (_disc != null)
+            _disc.transform.rotation = Quaternion.Euler(0f, 0f, faceAng * Mathf.Rad2Deg);
+        AnchorNorthFixed();
 
         if (!QuestDirectionSight.TryActive(out QuestDirectionTarget target, out _, out Vector3 playerL2, out float planarUu))
         {
@@ -80,6 +82,16 @@ public sealed class QuestRadarHud : MonoBehaviour
         {
             _target.style.display = DisplayStyle.None;
         }
+    }
+
+    void AnchorNorthFixed()
+    {
+        if (_north == null)
+            return;
+        float top = (SizePx - NorthSizePx) * 0.5f - RimRadiusPx;
+        _north.style.left = (SizePx - NorthSizePx) * 0.5f;
+        _north.style.top = Mathf.Max(0f, top);
+        _north.tintColor = Color.white;
     }
 
     void PlaceOnRim(VisualElement el, float angle, float size)
@@ -123,9 +135,19 @@ public sealed class QuestRadarHud : MonoBehaviour
         _host.style.top = MarginPx;
         _host.style.width = SizePx;
         _host.style.height = SizePx;
-        _host.style.backgroundImage = new StyleBackground(back);
         _host.style.display = DisplayStyle.None;
         root.Add(_host);
+
+        _disc = new VisualElement { name = "QuestRadarDisc" };
+        _disc.pickingMode = PickingMode.Ignore;
+        _disc.style.position = Position.Absolute;
+        _disc.style.left = 0;
+        _disc.style.top = 0;
+        _disc.style.width = SizePx;
+        _disc.style.height = SizePx;
+        _disc.style.backgroundImage = new StyleBackground(back);
+        _disc.transformOrigin = new StyleTransformOrigin(new TransformOrigin(Length.Percent(50), Length.Percent(50)));
+        _host.Add(_disc);
 
         _arrow = Image(arrow, SizePx, 0f, 0f);
         _arrow.style.display = DisplayStyle.None;
@@ -133,6 +155,7 @@ public sealed class QuestRadarHud : MonoBehaviour
 
         _north = Image(north, NorthSizePx, 0f, 0f);
         _host.Add(_north);
+        AnchorNorthFixed();
 
         _target = Image(target, TargetSizePx, 0f, 0f);
         _target.style.display = DisplayStyle.None;

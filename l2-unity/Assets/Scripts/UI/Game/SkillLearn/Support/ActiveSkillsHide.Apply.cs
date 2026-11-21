@@ -104,29 +104,17 @@ public partial class ActiveSkillsHide
 
     void EnsureSectionRowsExpanded(VisualElement rowPhysical, VisualElement rowMagical)
     {
-        if (rowPhysical != null)
-            rowPhysical.style.display = DisplayStyle.Flex;
-        if (rowMagical != null)
-            rowMagical.style.display = DisplayStyle.Flex;
-        if (_arrDfActiveSelect != null)
-        {
-            if (_arrDfActiveSelect.Length > 0)
-                _arrDfActiveSelect[0] = 1;
-            if (_arrDfActiveSelect.Length > 1)
-                _arrDfActiveSelect[1] = 1;
-        }
-
-        SyncExpandButton(_activeSkillPanel?.Q<Button>("DF_Button"), 0);
-        SyncExpandButton(_activeSkillPanel?.Q<Button>("DF_Button_Magic"), 1);
-    }
-
-    void SyncExpandButton(Button button, int index)
-    {
-        if (button == null || _arrDfActiveSelect == null || index < 0 || index >= _arrDfActiveSelect.Length)
-            return;
-        bool expanded = _arrDfActiveSelect[index] != 0;
-        ChangeDfBox(button, L2ExpandCollapseUiAssets.CollapseButton);
-        if (!expanded)
-            ChangeDfBox(button, L2ExpandCollapseUiAssets.ExpandButton);
+        SetSectionExpanded(
+            _activeSkillPanel?.Q<Button>("DF_Button"),
+            _arrDfActiveSelect,
+            0,
+            rowPhysical,
+            true);
+        SetSectionExpanded(
+            _activeSkillPanel?.Q<Button>("DF_Button_Magic"),
+            _arrDfActiveSelect,
+            1,
+            rowMagical,
+            true);
     }
 }

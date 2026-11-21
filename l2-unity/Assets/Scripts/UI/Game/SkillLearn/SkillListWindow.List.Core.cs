@@ -57,10 +57,7 @@ public partial class SkillListWindow : L2PopupWindow
             return;
         }
 
-        var activeSkills = list.Where(s => !s.IsPassive).ToList();
-        var passiveSkills = list.Where(s => s.IsPassive).ToList();
-        _supportActiveSkills.CreateSlots(activeSkills, 0);
-        _supportPassiveSkills.CreateSlots(passiveSkills, 0);
+        ApplySkillListToPanels(list);
     }
 
     public void UpdateSkillList(List<SkillInstance> list)
@@ -75,10 +72,24 @@ public partial class SkillListWindow : L2PopupWindow
             return;
         }
 
+        ApplySkillListToPanels(list);
+    }
+
+    void ApplySkillListToPanels(List<SkillInstance> list)
+    {
         var activeSkills = list.Where(s => !s.IsPassive).ToList();
         var passiveSkills = list.Where(s => s.IsPassive).ToList();
         _supportActiveSkills.CreateSlots(activeSkills, 0);
         _supportPassiveSkills.CreateSlots(passiveSkills, 0);
+    }
+
+    void TryFlushPendingSkillList()
+    {
+        if (_pendingSkills == null || !_supportActiveSkills.IsReady)
+            return;
+        List<SkillInstance> pending = _pendingSkills;
+        _pendingSkills = null;
+        ApplySkillListToPanels(pending);
     }
 
     static void RefreshPassiveFlags(List<SkillInstance> list)
