@@ -35,6 +35,29 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
     }
 
     [Test]
+    public void MFighter_hand_run_stride_is_measurable_on_catalog_body_prefab()
+    {
+        AnimationClip run = Resources.Load<AnimationClip>(
+            "Data/Animations/Fighter/MFighter/Clips/MFighter_m000_b.ao_run_Hand_MFighter");
+        Assert.IsNotNull(run, "MFighter hand run clip");
+
+        Transform skeleton = PlayerLocomotionBodyCatalog.LoadMeasureSkeleton(CharacterRaceAnimation.MFighter);
+        Assert.IsNotNull(skeleton, "MFighter player body prefab for stride measure");
+        try
+        {
+            float stride = LocomotionGait.MeasureStride(run, skeleton);
+            Assert.GreaterOrEqual(
+                stride,
+                LocomotionGait.MinStrideMeters,
+                "race=MFighter clip=" + run.name + " stride must be measurable");
+        }
+        finally
+        {
+            PlayerLocomotionBodyCatalog.DestroyMeasureSkeleton(skeleton);
+        }
+    }
+
+    [Test]
     public void Catalog_stride_yields_playback_rate_matching_unity_run_speed()
     {
         foreach (PlayerLocomotionBodyCatalog.Row row in PlayerLocomotionBodyCatalog.AllRows())
