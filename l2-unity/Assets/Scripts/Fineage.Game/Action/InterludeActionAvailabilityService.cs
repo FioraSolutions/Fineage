@@ -46,6 +46,12 @@ public sealed class InterludeActionAvailabilityService
     Changed?.Invoke();
   }
 
+  public void ApplyPlayerActionState(bool petOut, bool mounted, byte mountKind, int petControlObjectId)
+  {
+    _state.ApplyPlayerActionState(petOut, mounted, mountKind, petControlObjectId);
+    Changed?.Invoke();
+  }
+
   public bool IsAvailable(int actionId)
   {
     if (!InterludeActionCatalog.TryGet(actionId, out var entry))

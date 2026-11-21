@@ -59,4 +59,18 @@ public struct InterludeActionAvailabilityState
     MountType = mountType;
     MountNpcId = mountNpcId;
   }
+
+  public void ApplyPlayerActionState(bool petOut, bool mounted, byte mountKind, int petControlObjectId)
+  {
+    HasPet = petOut;
+    if (!petOut)
+      ActivePetNpcId = 0;
+
+    if (mounted)
+      ApplyMount(mountKind, petControlObjectId);
+    else
+      ApplyMount(0, 0);
+
+    ClientMountedVisual = mounted;
+  }
 }
