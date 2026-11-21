@@ -15,11 +15,13 @@ public partial class NpcNameTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<NpcNameTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(NpcNameTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(NpcNameTable));
                 _instance = new NpcNameTable();
             }
 

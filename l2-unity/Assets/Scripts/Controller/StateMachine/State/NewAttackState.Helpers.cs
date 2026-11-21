@@ -72,6 +72,7 @@ public partial class NewAttackState : AbstractAttackEvents
                     ControllerPacketServices.Animations?.PlayAnimationTrigger(
                         _stateMachine.GetObjectId(),
                         random.ToString());
+                    CombatSwingAudio.PlayLocalPlayerWeaponSwing(DomainPacketServices.LocalPlayer);
                 }
 
                 break;

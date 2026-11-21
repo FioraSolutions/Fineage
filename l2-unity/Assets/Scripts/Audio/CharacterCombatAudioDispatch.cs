@@ -14,6 +14,9 @@ public static class CharacterCombatAudioDispatch
         Vector3 position,
         int entityId)
     {
+        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+            return false;
+
         AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
         if (service == null)
             return false;
@@ -39,6 +42,9 @@ public static class CharacterCombatAudioDispatch
         Vector3 position,
         int entityId)
     {
+        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+            return false;
+
         if (race == CharacterRaceSound.Default)
         {
             AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
@@ -62,6 +68,21 @@ public static class CharacterCombatAudioDispatch
     {
         AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
         if (service == null)
+            return false;
+
+        if (position.sqrMagnitude <= 0.0001f)
+        {
+            service.LogCombatAudioError(
+                "monster combat sound missing world position",
+                entityId,
+                AudioPathResolver.FmodMonsterSound(
+                    AudioPathResolver.NormalizeMonsterSoundFolder(npcClassName),
+                    soundEvent.ToString().ToLowerInvariant()),
+                soundEvent.ToString());
+            return false;
+        }
+
+        if (!AudioWorldGate.ShouldPlayWorldSound(position))
             return false;
 
         if (string.IsNullOrEmpty(npcClassName))
@@ -103,6 +124,9 @@ public static class CharacterCombatAudioDispatch
         Entity attacker,
         Entity target)
     {
+        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+            return false;
+
         AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
         if (service == null)
             return false;
@@ -146,6 +170,9 @@ public static class CharacterCombatAudioDispatch
 
     public static bool PlayItemSoundToken(string datToken, Vector3 position, int entityId)
     {
+        if (!AudioWorldGate.ShouldPlayWorldSound(position))
+            return false;
+
         if (!InterludeSoundTokenPath.TryFromDatToken(datToken, out string eventPath))
         {
             AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));

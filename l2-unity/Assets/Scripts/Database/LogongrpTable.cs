@@ -16,11 +16,13 @@ public partial class LogongrpTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<LogongrpTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(LogongrpTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(LogongrpTable));
                 _instance = new LogongrpTable();
             }
 
