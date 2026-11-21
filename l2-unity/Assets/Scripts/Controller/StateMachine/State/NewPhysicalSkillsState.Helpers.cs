@@ -43,7 +43,7 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                          SkillExecutorPacketServices.Executor != null)
                 {
                     Entity entity = _stateMachine.Player;
-                    if (useSkill.SkillId == 2046)
+                    if (SkillPresentationCatalog.IsTwistDoomPhysical(useSkill.SkillId))
                     {
                         string[] cycle = castCombo.GetAnimCycle();
                         Debug.Log(
