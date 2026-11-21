@@ -3,7 +3,7 @@ using NUnit.Framework;
 public sealed class PerfProfilingEditModeTests
 {
     [Test]
-    public void Roadmap_markers_use_expected_names()
+    public void Roadmap_marker_names_match_perf_contract()
     {
         CollectionAssert.AreEqual(
             new[]
