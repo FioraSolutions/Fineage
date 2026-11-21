@@ -18,16 +18,14 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
-        AudioManager audio = RequiredAudioServices.RequireAudio(nameof(CharacterAnimationAudioHandler));
-        if (audio == null)
-            return;
-
+        int entityId = ResolveEntityId();
         if (!TryBindChrSoundBank())
             TryBindChrSoundBankFromEntity();
 
         if (!string.IsNullOrEmpty(_chrSoundBank))
         {
-            AudioPacketServices.Service.PlayChrSoundBank(_chrSoundBank, soundEvent, transform.position);
+            CharacterCombatAudioDispatch.PlayCharacterBank(
+                _chrSoundBank, soundEvent, transform.position, entityId);
             return;
         }
 
@@ -37,7 +35,14 @@ public partial class CharacterAnimationAudioHandler : BaseAnimationAudioHandler
             return;
         }
 
-        audio.PlayCharacterSound(soundEvent, _race, transform.position);
+        CharacterCombatAudioDispatch.PlayCharacterRace(
+            soundEvent, _race, transform.position, entityId);
+    }
+
+    int ResolveEntityId()
+    {
+        Entity entity = GetComponent<Entity>();
+        return entity != null && entity.Identity != null ? entity.Identity.Id : 0;
     }
 
     public void PlaySoundFromAnimationClip(int type) {
