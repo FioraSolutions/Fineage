@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 
+/// <summary>EditMode coverage for <see cref="LocalizationCatalog"/> and <see cref="PlayerLocale"/>.</summary>
 public sealed class LocalizationCatalogEditModeTests
 {
     sealed class TestLog : ILocalizationLog
