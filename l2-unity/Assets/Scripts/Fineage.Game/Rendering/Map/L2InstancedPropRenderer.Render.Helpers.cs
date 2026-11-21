@@ -79,5 +79,7 @@ public partial class L2InstancedPropRenderer : MonoBehaviour
                 matrices = matrices.ToArray()
             });
         }
+
+        RefreshCellRadii();
     }
 }
