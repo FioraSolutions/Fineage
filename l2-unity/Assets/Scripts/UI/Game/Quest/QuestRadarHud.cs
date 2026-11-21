@@ -91,6 +91,7 @@ public sealed class QuestRadarHud : MonoBehaviour
         float top = (SizePx - NorthSizePx) * 0.5f - RimRadiusPx;
         _north.style.left = (SizePx - NorthSizePx) * 0.5f;
         _north.style.top = Mathf.Max(0f, top);
+        _north.style.unityBackgroundImageTintColor = Color.white;
     }
 
     bool EnsureUi()
@@ -137,7 +138,8 @@ public sealed class QuestRadarHud : MonoBehaviour
         _disc.style.width = SizePx;
         _disc.style.height = SizePx;
         _disc.style.backgroundImage = new StyleBackground(back);
-        _disc.style.transformOrigin = new TransformOrigin(Length.Percent(50), Length.Percent(50));
+        _disc.style.transformOrigin = new StyleTransformOrigin(
+            new TransformOrigin(Length.Percent(50), Length.Percent(50)));
         _host.Add(_disc);
 
         _arrow = Image(arrow, SizePx, 0f, 0f);
