@@ -5,8 +5,8 @@ Upstream: [leeleatherwood/L2TerrainExtractor](https://github.com/leeleatherwood/
 Fineage patches (see git history in Fineage repo):
 
 - Always write `staticmeshes.json` per tile (`[]` when a map has zero StaticMeshActors).
-- Resolve ground textures from regional `T_*.utx` packages, then from per-tile `t_XX_YY.utx` for still-missing splat layers.
-- Log every missing referenced ground texture by name (non-verbose).
+- Ground textures: index every client `textures/*.utx`, resolve by TerrainInfo `Package.TextureName` hint first, then by name across all packages; log source `.utx`; exit non-zero when any referenced name is still missing.
+- Metadata splat lines use `Package.TextureName` when the cache has the package ref.
 
 Build fat jar (Java 17+):
 
