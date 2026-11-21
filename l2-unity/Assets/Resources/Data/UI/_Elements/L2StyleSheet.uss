@@ -2131,6 +2131,116 @@
     padding-left: 5px;
 }
 
+/* Interlude L2UI_CH3 char-select (StatusWnd Ps bars + bigbutton; not Gracia DF chrome). */
+.il-char-select .char-select-detail {
+    background-image: resource('Data/UI/Status/Interlude/Status_Interlude_MyInfo_Back');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-bottom: 0;
+    -unity-slice-left: 0;
+    -unity-slice-top: 0;
+    -unity-slice-right: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.il-char-select .char-select-start {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.il-char-select .char-select-menu {
+    width: 133px;
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.il-char-select .login-input-bg {
+    height: 21px;
+    background-image: resource('Data/UI/Login/Interlude/inputbox2');
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.il-char-select .il-char-select-start-btn {
+    width: 133px;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    margin: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
+.il-char-select .il-char-select-start-btn .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton');
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 23px;
+}
+
+.il-char-select .il-char-select-start-btn:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_over');
+}
+
+.il-char-select .il-char-select-start-btn:active .l2-button-bg,
+.il-char-select .il-char-select-start-btn:active:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
+}
+
+.il-char-select .il-char-select-menu-btn {
+    width: 133px;
+    height: 23px;
+    min-height: 23px;
+    max-height: 23px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 4px;
+    margin-left: 0;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: none;
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
+.il-char-select .il-char-select-menu-btn .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton');
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 23px;
+    -unity-slice-left: 8;
+    -unity-slice-right: 8;
+}
+
+.il-char-select .il-char-select-menu-btn:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_over');
+}
+
+.il-char-select .il-char-select-menu-btn:active .l2-button-bg,
+.il-char-select .il-char-select-menu-btn:active:hover .l2-button-bg {
+    background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
+}
+
+.il-char-select .il-char-select-btn-label {
+    font-size: 11px;
+    letter-spacing: 0;
+    color: rgba(255, 244, 214, 0.96);
+    -unity-font: resource('Data/UI/Font/tahoma');
+}
+
 .bar-label-numbers {
 }
 
