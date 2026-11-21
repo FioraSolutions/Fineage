@@ -21,6 +21,9 @@ public static class CrowdTierVisualPolicy
                 animator.cullingMode = cull;
         }
 
+        L2ActorMeshPolicy.DisableSkeletonPlaceholders(root);
+        L2ActorMeshPolicy.DisableAlphaOverlays(root);
+
         if (tier >= CrowdDetailTier.T2Mid)
         {
             SkinnedMeshRenderer[] renderers = root.GetComponentsInChildren<SkinnedMeshRenderer>(false);
@@ -30,10 +33,33 @@ public static class CrowdTierVisualPolicy
                 if (smr == null || smr.sharedMesh == null)
                     continue;
                 smr.updateWhenOffscreen = tier < CrowdDetailTier.T3Far;
-                Bounds local = smr.sharedMesh.bounds;
-                if ((smr.localBounds.extents - local.extents).sqrMagnitude > 0.01f)
-                    smr.localBounds = local;
+                ShrinkInflatedSkinnedBoundsIfNeeded(smr);
+
+                if (!smr.enabled)
+                    continue;
+
+                string meshName = smr.sharedMesh != null ? smr.sharedMesh.name : smr.name;
+                Material mat = smr.sharedMaterial;
+                if (mat != null)
+                    L2ActorMaterialSetup.LogMissingBaseMapOnce(mat, meshName);
             }
         }
+    }
+
+    /// <summary>
+    /// Step 14 only shrinks stale <em>inflated</em> localBounds (weapon reach). Replacing
+    /// tuned bounds with raw mesh.bounds culled distant skinned bodies (#1608).
+    /// </summary>
+    internal static void ShrinkInflatedSkinnedBoundsIfNeeded(SkinnedMeshRenderer smr)
+    {
+        Bounds meshLocal = smr.sharedMesh.bounds;
+        Bounds current = smr.localBounds;
+        Vector3 meshSize = meshLocal.size;
+        Vector3 curSize = current.size;
+        const float inflateFactor = 1.35f;
+        if (curSize.x > meshSize.x * inflateFactor
+            || curSize.y > meshSize.y * inflateFactor
+            || curSize.z > meshSize.z * inflateFactor)
+            smr.localBounds = meshLocal;
     }
 }
