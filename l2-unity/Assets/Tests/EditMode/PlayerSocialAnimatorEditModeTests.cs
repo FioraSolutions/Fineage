@@ -26,7 +26,7 @@ public sealed class PlayerSocialAnimatorEditModeTests
                 System.StringComparison.OrdinalIgnoreCase) >= 0,
             "placeholder clip name contains " + InterludeSocialAnimationCatalog.PlaceholderClipNameFragment);
         Assert.IsTrue(
-            state.behaviours.Any(b => b is PlayerStateSocial),
+            state.behaviours.Any(b => b != null && b.GetType().Name == "PlayerStateSocial"),
             "PlayerStateSocial behaviour on social01");
     }
 
