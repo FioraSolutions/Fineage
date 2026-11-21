@@ -44,7 +44,6 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
         LogAssert.Expect(
             LogType.Error,
             new Regex(@"WeapongrpTable: using non-DI empty instance"));
-
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Data/Animations/LineageWeapons");
         if (prefabs == null || prefabs.Length == 0)
         {

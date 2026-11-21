@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -38,10 +39,15 @@ public static class PlayerLocomotionBodyCatalog
         public string PlayerPrefabResources { get; }
     }
 
+    const string AuthoritativeStridesRelativePath = "Data/Meta/player_locomotion_strides.json";
+
     static readonly Dictionary<CharacterRaceAnimation, Row> ByProfile = Build();
     static readonly Dictionary<CharacterRaceAnimation, float> RunStrideCache = new();
     static readonly Dictionary<CharacterRaceAnimation, float> WalkStrideCache = new();
     static readonly HashSet<string> Logged = new();
+    static bool _authoritativeStridesLoaded;
+    static readonly Dictionary<CharacterRaceAnimation, float> AuthoritativeRunStride = new();
+    static readonly Dictionary<CharacterRaceAnimation, float> AuthoritativeWalkStride = new();
 
     static Dictionary<CharacterRaceAnimation, Row> Build()
     {
@@ -238,6 +244,12 @@ public static class PlayerLocomotionBodyCatalog
         try
         {
             float stride = LocomotionGait.MeasureStride(clip, skeleton);
+            if (stride < LocomotionGait.MinStrideMeters
+                && TryGetAuthoritativeStride(profile, walk, out float authoritative))
+            {
+                return authoritative;
+            }
+
             if (stride < LocomotionGait.MinStrideMeters)
             {
                 LogMissing(
@@ -302,6 +314,67 @@ public static class PlayerLocomotionBodyCatalog
         RunStrideCache.Clear();
         WalkStrideCache.Clear();
         Logged.Clear();
+    }
+
+    static bool TryGetAuthoritativeStride(CharacterRaceAnimation profile, bool walk, out float meters)
+    {
+        EnsureAuthoritativeStridesLoaded();
+        if (walk)
+            return AuthoritativeWalkStride.TryGetValue(profile, out meters);
+        return AuthoritativeRunStride.TryGetValue(profile, out meters);
+    }
+
+    static void EnsureAuthoritativeStridesLoaded()
+    {
+        if (_authoritativeStridesLoaded)
+            return;
+        _authoritativeStridesLoaded = true;
+        AuthoritativeRunStride.Clear();
+        AuthoritativeWalkStride.Clear();
+
+        string path = Path.Combine(Application.streamingAssetsPath, AuthoritativeStridesRelativePath);
+        if (!File.Exists(path))
+            return;
+
+        try
+        {
+            string json = File.ReadAllText(path);
+            var root = JsonUtility.FromJson<AuthoritativeStridesRootDto>(json);
+            if (root?.profiles == null)
+                return;
+
+            foreach (AuthoritativeStrideRowDto row in root.profiles)
+            {
+                if (row == null || string.IsNullOrEmpty(row.profile))
+                    continue;
+                if (!Enum.TryParse(row.profile, true, out CharacterRaceAnimation profile))
+                    continue;
+                if (row.runMeters >= LocomotionGait.MinStrideMeters)
+                    AuthoritativeRunStride[profile] = row.runMeters;
+                if (row.walkMeters >= LocomotionGait.MinStrideMeters)
+                    AuthoritativeWalkStride[profile] = row.walkMeters;
+            }
+        }
+        catch (Exception ex)
+        {
+            FineageLog.Error(
+                FineageLogCategory.World,
+                LogTag + " failed to load authoritative strides: " + ex.Message);
+        }
+    }
+
+    [Serializable]
+    sealed class AuthoritativeStridesRootDto
+    {
+        public AuthoritativeStrideRowDto[] profiles;
+    }
+
+    [Serializable]
+    sealed class AuthoritativeStrideRowDto
+    {
+        public string profile;
+        public float runMeters;
+        public float walkMeters;
     }
 
     public static void LogStrideFallback(CharacterRaceAnimation profile, bool walk, float measured)
