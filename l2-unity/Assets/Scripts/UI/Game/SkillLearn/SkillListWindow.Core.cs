@@ -29,13 +29,13 @@ public partial class SkillListWindow : L2PopupWindow
         if (owner == null)
             return;
 
-        SkillListWindow[] existing = Object.FindObjectsByType<SkillListWindow>(
+        SkillListWindow[] existing = UnityEngine.Object.FindObjectsByType<SkillListWindow>(
             FindObjectsInactive.Include,
             FindObjectsSortMode.None);
         for (int i = 0; i < existing.Length; i++)
         {
             if (existing[i] != null && existing[i] != owner)
-                Object.DestroyImmediate(existing[i].gameObject);
+                UnityEngine.Object.DestroyImmediate(existing[i].gameObject);
         }
 
         _instance = owner;
