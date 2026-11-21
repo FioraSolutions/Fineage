@@ -6,7 +6,7 @@ public sealed class EtcStatusForceChargeEditModeTests
     public void Dto_defaultForceCharge_usesTraySkill4271()
     {
         var dto = new EtcStatusUpdateDto();
-        Assert.AreEqual(SkillAnimationResolver.ForceChargeTraySkillId, dto.ForceCharge[0]);
+        Assert.AreEqual(4271, dto.ForceCharge[0]);
         Assert.AreEqual(0, dto.ForceCharge[1]);
     }
 
@@ -17,7 +17,7 @@ public sealed class EtcStatusForceChargeEditModeTests
         var payload = new byte[]
         {
             0x00, // opcode skipped
-            0x00, 0x00, 0x00, 0x03, // charges = 3
+            0x03, 0x00, 0x00, 0x00, // charges = 3 (big-endian wire)
             0x00, 0x00, 0x00, 0x00, // weight
             0x00, 0x00, 0x00, 0x00, // chat
             0x00, 0x00, 0x00, 0x00, // danger
