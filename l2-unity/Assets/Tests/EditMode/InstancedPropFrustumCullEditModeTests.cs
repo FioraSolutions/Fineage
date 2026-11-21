@@ -13,10 +13,10 @@ public sealed class InstancedPropFrustumCullEditModeTests
     var planes = new NativeArray<float4>(1, Allocator.Temp);
     var visible = new NativeArray<byte>(1, Allocator.Temp);
 
-  // Camera looks +Z: near plane at origin with normal -Z pushes culled objects behind camera.
+    // Camera at origin looks +Z; near plane normal +Z (Unity frustum convention).
     centers[0] = new float3(0f, 0f, -10f);
     radii[0] = 1f;
-    planes[0] = new float4(0f, 0f, -1f, 0f);
+    planes[0] = new float4(0f, 0f, 1f, 0f);
 
     var job = new InstancedPropFrustumCullJob
     {
