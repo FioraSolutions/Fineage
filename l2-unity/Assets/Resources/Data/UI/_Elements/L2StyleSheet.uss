@@ -22,9 +22,19 @@
     position: absolute;
 }
 
+.status-window .status-center-plate {
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-left: 4;
+    -unity-slice-right: 4;
+    -unity-slice-top: 4;
+    -unity-slice-bottom: 4;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .chat-window {
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0);
     min-width: 280px;
 }
 
@@ -3723,14 +3733,14 @@
 .skillbar-inner-container {
     flex-grow: 1;
     flex-direction: row;
-    background-image: resource('Data/UI/Assets/Windows/Windows_DF_Small_Vertical_Bg');
-    -unity-slice-left: 12;
-    -unity-slice-top: 12;
-    -unity-slice-right: 12;
-    -unity-slice-bottom: 12;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
     padding-top: 3px;
     padding-bottom: 3px;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .skillbar-arrow-control {
@@ -3817,7 +3827,7 @@
 }
 
 .skillbar-inner-container {
-    background-color: rgba(0, 0, 0, 0.49);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .skillbar-darkener {
@@ -3895,11 +3905,11 @@
 
 .skillbar-inner-container-vertical {
     flex-direction: column;
-    background-image: resource('Data/UI/Assets/Windows/Windows_DF_Small_Bg');
-    -unity-slice-left: 9;
-    -unity-slice-top: 9;
-    -unity-slice-right: 9;
-    -unity-slice-bottom: 9;
+    background-image: resource('Data/UI/Target/Interlude/Target_Interlude_SmallWnd_Back2');
+    -unity-slice-left: 4;
+    -unity-slice-top: 4;
+    -unity-slice-right: 4;
+    -unity-slice-bottom: 4;
     padding-right: 3px;
     padding-left: 3px;
     padding-bottom: 0;
@@ -4033,7 +4043,7 @@
 }
 
 .skillbar-inner-container {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .footer-container-vertical {
