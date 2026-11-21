@@ -10,7 +10,8 @@ public sealed partial class NetSession
             ActionAvailabilityPacketServices.Availability.NoteSummon(
                 (byte)msg.Kind,
                 msg.NpcId,
-                msg.Dead));
+                msg.Dead,
+                msg.Mountable));
     }
 
     internal void ApplySummonGone(SummonGoneNetMsg msg)
