@@ -27,10 +27,12 @@ public static partial class EntityActionVisual
         if (entity == null)
             return;
 
-        // Mobius SocialAction.LEVEL_UP = 15 → EventBus → e_u004_a + levelup.ogg.
-        if (actionId == 15 && ControllerPacketServices.Bus != null)
-            ControllerPacketServices.Bus.LevelUp(
-                entity, entity.Identity != null ? entity.Identity.Id : 0);
+        if (InterludePacketPresentationCatalog.TryResolveSocialAction(
+                actionId, out InterludePresentationKind socialKind))
+        {
+            LevelUpCelebrationPresentation.TryPlay(
+                entity, socialKind, "SocialAction actionId=" + actionId);
+        }
 
         // Cast owns the Animator while MagicSkillPresentation holds AnimChannel.Cast.
         if (!AnimChannel.CanPlay(AnimChannel.Kind.Social))

@@ -16,6 +16,9 @@ public static partial class MagicSkillPresentation
             case MagicSkillUseKind.Potion:
                 SetupDurationHelper.PlayPotionEffect(entity, dto);
                 return;
+            case MagicSkillUseKind.Presentation:
+                InterludePacketPresentationApply.TryApplyMagicSkillUse(entity, dto);
+                return;
         }
 
         // Interlude toggle (skillgrp operate_type 3): the client applies it and only redraws the toggle marker.

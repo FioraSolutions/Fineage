@@ -21,6 +21,17 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
             runner.Bind(_itemDropPresentation);
     }
 
+    void BindZoneTransitionRunner()
+    {
+        ZoneTransitionService service = GetComponent<ZoneTransitionService>();
+        if (service == null)
+            service = gameObject.AddComponent<ZoneTransitionService>();
+        ZoneNameBannerOverlay banner = GetComponent<ZoneNameBannerOverlay>();
+        if (banner == null)
+            banner = gameObject.AddComponent<ZoneNameBannerOverlay>();
+        ZoneTransitionPacketServices.Bind(service, banner);
+    }
+
     void OnDestroy() {
         if (_deadManager != null)
             _deadManager.OnReadyToRemove -= RemoveObject;
