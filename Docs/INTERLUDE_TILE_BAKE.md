@@ -91,7 +91,7 @@ Refresh after each batch or via **Shnok/0.1**.
 
 ## Mac one-tile recipe (#476 — 3×3 ring around `22_22`)
 
-Prerequisites: Interlude client on disk (not in git), `l2-unity/External/L2TerrainExtractor` built locally (Gradle; not vendored in repo), Docker (Linux UModel export) or native UModel, Blender, Unity Editor matching the project.
+Prerequisites: Interlude client on disk (not in git), `tools/interlude/L2TerrainExtractor` (vendored; build with `./gradlew fatJar`) or override `L2_TERRAIN_EXTRACTOR` to a local checkout under `l2-unity/External/L2TerrainExtractor`, Docker (Linux UModel export) or native UModel, Blender, Unity Editor matching the project.
 
 Set `FINEAGE_INTERLUDE_TILE` to the map square id (`XX_YY`). The eight neighbors of full `22_22` are `21_21` … `23_23` (excluding center). Examples below use `22_23` (east), `22_21` (west), and `21_22` (north); the same env applies to `21_21`, `21_23`, `23_21`, `23_22`, and `23_23`.
 
@@ -148,7 +148,7 @@ FINEAGE_INTERLUDE_TILES=21_19 Unity -batchmode -nographics -quit -projectPath l2
   -executeMethod L2InterludeTileSceneCli.RunCli
 ```
 
-Extractor note: run the jar directly (`java -jar External/L2TerrainExtractor/build/libs/l2terrain-1.0.0-all.jar "$CLIENT/textures" -p t_XX_YY.utx --maps "$CLIENT/maps" --static-meshes -o out`); it writes `out/XX_YY/…`. `run_mac_tile_bake.sh phase-a` gradle args are stale.
+Extractor note: run the jar directly (`java -jar tools/interlude/L2TerrainExtractor/build/libs/l2terrain-1.0.0-all.jar …`); each tile dir always gets `staticmeshes.json` (empty list when the map has no StaticMeshActors). Ground textures are resolved from regional `T_*.utx` packages then from per-tile `t_XX_YY.utx` when still missing.
 
 ## One-click auto-bake (Editor, GPU) — `Shnok/0.0. [Interlude] Auto-bake tiles (Elven Village)…`
 
