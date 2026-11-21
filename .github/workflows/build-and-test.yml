@@ -48,6 +48,9 @@ jobs:
       - name: Check client asmdef layout (#139)
         run: python3 scripts/check-client-asmdef-layout.py
 
+      - name: Check Unity C# 9 syntax (l2-unity/Assets)
+        run: python3 scripts/check-unity-cs9-syntax.py
+
       - name: Install ffprobe for audio import policy duration checks
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
