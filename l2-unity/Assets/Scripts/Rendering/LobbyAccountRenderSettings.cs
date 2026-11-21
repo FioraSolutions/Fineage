@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /// <summary>
 /// Shared render settings for account lobby (character select / create). Matches Interlude l2_lobby ambient.

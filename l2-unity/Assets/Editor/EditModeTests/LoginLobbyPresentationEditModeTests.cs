@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public sealed class LoginLobbyPresentationEditModeTests
 {
