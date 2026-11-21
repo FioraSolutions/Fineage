@@ -114,9 +114,11 @@ public static partial class EntitySpawnShared
         L2ActorMeshPolicy.DisableAlphaOverlays(go.transform);
 
         int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
-        float maxHeight = entity != null && entity.Appearance != null
-            ? Mathf.Max(0.5f, entity.Appearance.CollisionHeight / 52.5f * 3f)
-            : 4f;
+        float bodyHeight = entity != null && entity.Appearance != null
+            ? Mathf.Max(0.5f, entity.Appearance.CollisionHeight / 52.5f)
+            : 1.8f;
+        // Guards / pole weapons inflate SMR bounds without being a bad import (npcId 31033 etc.).
+        float maxHeight = bodyHeight * 2.75f + 0.4f;
         SkinnedMeshRenderer[] skins = go.GetComponentsInChildren<SkinnedMeshRenderer>(true);
         for (int i = 0; i < skins.Length; i++)
         {
@@ -133,7 +135,8 @@ public static partial class EntitySpawnShared
 
             if (h > maxHeight)
             {
-                Debug.LogError(
+                bool severe = h > maxHeight * 1.45f;
+                string msg =
                     "[NpcMesh] distorted skinned bounds mesh="
                     + smr.name
                     + " npcId="
@@ -143,7 +146,11 @@ public static partial class EntitySpawnShared
                     + "m limit="
                     + maxHeight.ToString("F2")
                     + "m material="
-                    + (smr.sharedMaterial != null ? smr.sharedMaterial.name : "(null)"));
+                    + (smr.sharedMaterial != null ? smr.sharedMaterial.name : "(null)");
+                if (severe)
+                    Debug.LogError(msg);
+                else
+                    Debug.LogWarning(msg + " (may be weapon reach; not necessarily a bad mesh)");
             }
 
             Material mat = smr.sharedMaterial;
