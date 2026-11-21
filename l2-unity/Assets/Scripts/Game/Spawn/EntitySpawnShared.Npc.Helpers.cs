@@ -124,15 +124,15 @@ public static partial class EntitySpawnShared
             if (smr == null || !smr.enabled)
                 continue;
             float h = smr.bounds.size.y;
+            if (L2ActorMeshPolicy.IsSkeletonPlaceholder(smr.name)
+                || L2ActorMeshPolicy.IsAlphaOverlayRenderer(smr))
+            {
+                smr.enabled = false;
+                continue;
+            }
+
             if (h > maxHeight)
             {
-                if (L2ActorMeshPolicy.IsSkeletonPlaceholder(smr.name)
-                    || L2ActorMeshPolicy.IsAlphaOverlayRenderer(smr))
-                {
-                    smr.enabled = false;
-                    continue;
-                }
-
                 Debug.LogError(
                     "[NpcMesh] distorted skinned bounds mesh="
                     + smr.name

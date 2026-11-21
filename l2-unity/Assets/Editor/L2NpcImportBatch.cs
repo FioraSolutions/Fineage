@@ -129,6 +129,8 @@ public static class L2NpcImportBatch
 
         Dictionary<string, Material> mats = BindMaterials(item, shader);
         AssignMaterials(instance, mats);
+        L2ActorMeshPolicy.DisableSkeletonPlaceholders(instance.transform);
+        L2ActorMeshPolicy.DisableAlphaOverlays(instance.transform);
         EnsureNpcComponents(instance, item.humanoid);
         var clips = ExtractClips(item.asset, fbxPath, folder + "/Model");
         Animator animator = instance.GetComponent<Animator>();
