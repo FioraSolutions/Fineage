@@ -281,5 +281,4 @@ public sealed class SkillListWindowPopulateEditModeTests
         VisualElement slotsHost = grid?.Q("RowsVirtual");
         return slotsHost != null ? slotsHost.childCount : 0;
     }
-
 }

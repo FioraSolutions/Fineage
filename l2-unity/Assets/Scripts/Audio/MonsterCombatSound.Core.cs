@@ -4,11 +4,12 @@ public static partial class MonsterCombatSound
 {
     public static void Play(MonsterSoundEvent soundEvent, string npcClassName)
     {
-        CharacterCombatAudioDispatch.PlayMonster(
-            soundEvent,
-            npcClassName,
-            Vector3.zero,
-            entityId: 0);
+        AudioService service = RequiredAudioServices.RequireService(nameof(MonsterCombatSound));
+        service?.LogCombatAudioError(
+            "MonsterCombatSound.Play requires Entity position",
+            entityId: 0,
+            chrSoundBankPath: npcClassName,
+            soundEvent.ToString());
     }
 
     public static void Play(MonsterSoundEvent soundEvent, Entity entity)

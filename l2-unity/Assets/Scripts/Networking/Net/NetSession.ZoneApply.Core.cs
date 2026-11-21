@@ -38,6 +38,10 @@ public sealed partial class NetSession
         identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
 
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
+        if (spawn.MaxHp <= 0)
+            SpawnAppearanceApplyLog.LogDefaultMaxHp((int)spawn.EntityValue, spawn.MaxHp);
+        if (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f)
+            SpawnAppearanceApplyLog.LogDefaultMoveSpeed((int)spawn.EntityValue, spawn.RunSpeed, spawn.WalkSpeed);
         var status = new PlayerStatus();
         status.SetHp(maxHp);
         status.PvpFlag = spawn.PvpFlag;
@@ -57,9 +61,7 @@ public sealed partial class NetSession
 
         var appearance = new PlayerAppearance
         {
-            Race = spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf
-                ? spawn.Race
-                : (int)MapClassId.GetCharacterRace(spawn.ClassId),
+            Race = ResolveSpawnRace(spawn),
             Sex = spawn.Sex,
             Running = spawn.Running,
             // BaseClass is Fighter/Mystic (0/1), not L2 classId — ResolveRaceAnimation uses PlayerClass.
@@ -112,9 +114,7 @@ public sealed partial class NetSession
         dto.Identity.SetL2jPos(spawn.X, spawn.Y, spawn.Z);
         dto.Identity.PlayerClass = spawn.ClassId;
         dto.Identity.IsRunning = spawn.Running;
-        dto.Appearance.Race = spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf
-            ? spawn.Race
-            : (int)MapClassId.GetCharacterRace(spawn.ClassId);
+        dto.Appearance.Race = ResolveSpawnRace(spawn);
         dto.Appearance.Sex = spawn.Sex;
         dto.Appearance.BaseClass = CharacterClassParser.IsMage(spawn.ClassId)
             ? (int)BaseClass.MMagic
@@ -128,6 +128,10 @@ public sealed partial class NetSession
         dto.Stats.WalkRealSpeed = walk;
         dto.Stats.Level = spawn.Level > 0 ? spawn.Level : 1;
         int maxHp = spawn.MaxHp > 0 ? spawn.MaxHp : 100;
+        if (spawn.MaxHp <= 0)
+            SpawnAppearanceApplyLog.LogDefaultMaxHp((int)spawn.EntityValue, spawn.MaxHp);
+        if (spawn.RunSpeed <= 0.001f || spawn.WalkSpeed <= 0.001f)
+            SpawnAppearanceApplyLog.LogDefaultMoveSpeed((int)spawn.EntityValue, spawn.RunSpeed, spawn.WalkSpeed);
         dto.Stats.MaxHp = maxHp;
         dto.Status.SetHp(spawn.Dead ? 0 : maxHp);
         dto.Status.SetMp(100);
