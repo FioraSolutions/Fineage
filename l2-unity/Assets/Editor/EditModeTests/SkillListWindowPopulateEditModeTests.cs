@@ -8,6 +8,29 @@ using UnityEngine.UIElements;
 /// </summary>
 public sealed class SkillListWindowPopulateEditModeTests
 {
+    GameObject _tooltipHost;
+    GameObject _skillListHost;
+
+    [SetUp]
+    public void SetUp()
+    {
+        SkillListWindow.EditModeResetSingletonForTests();
+        _tooltipHost = new GameObject("EditMode_ToolTipSimple");
+        var tooltip = _tooltipHost.AddComponent<ToolTipSimple>();
+        ToolTipSimplePacketServices.Bind(tooltip);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        if (_skillListHost != null)
+            Object.DestroyImmediate(_skillListHost);
+        if (_tooltipHost != null)
+            Object.DestroyImmediate(_tooltipHost);
+        ToolTipSimplePacketServices.Bind(window: null);
+        SkillListWindow.EditModeResetSingletonForTests();
+    }
+
     [Test]
     public void ActiveSkillsHide_CreateSlots_populates_physical_and_magic_rows()
     {
@@ -26,8 +49,9 @@ public sealed class SkillListWindowPopulateEditModeTests
         var windowAsset = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/SkillListWindow");
         Assert.NotNull(windowAsset, "SkillListWindow.uxml missing");
 
-        var hostGo = new GameObject("SkillListWindowEditModeHost");
-        var window = hostGo.AddComponent<SkillListWindowEditModeHarness>();
+        _skillListHost = new GameObject("SkillListWindowEditModeHost");
+        var window = _skillListHost.AddComponent<SkillListWindowEditModeHarness>();
+        Assert.NotNull(window, "SkillListWindow harness was not created (singleton guard?)");
         window.HarnessLoadAssets();
 
         var visualRoot = windowAsset.Instantiate();
@@ -58,8 +82,6 @@ public sealed class SkillListWindowPopulateEditModeTests
         Assert.AreEqual(0, window.PendingSkillCountForEditModeTests, "pending should flush after tab build");
         Assert.Greater(window.ActiveVisibleSkillSlotsForEditModeTests, 0, "active tab should expose slots");
         Assert.Greater(window.PassiveVisibleSkillSlotsForEditModeTests, 0, "passive tab should expose slots");
-
-        Object.DestroyImmediate(hostGo);
     }
 
     static void RunPopulateScenario(bool applyBeforeMount)
