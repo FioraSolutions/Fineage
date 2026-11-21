@@ -20,6 +20,10 @@ public partial class AnimationManager
         if (TryFindNamedClipLength(animator, stateName, out float namedLength))
             return namedLength;
 
+        int oid = animator.gameObject != null
+            ? animator.gameObject.GetInstanceID()
+            : 0;
+        AnimationClipFallbackLog.LogDefaultAttackLength(oid, stateName);
         return 1f;
     }
 

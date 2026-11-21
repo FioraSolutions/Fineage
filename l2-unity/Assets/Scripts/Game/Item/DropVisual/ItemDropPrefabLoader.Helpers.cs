@@ -38,6 +38,10 @@ public sealed partial class ItemDropPrefabLoader
             lower.IndexOf("fdarkelf", System.StringComparison.Ordinal) >= 0)
             return null;
 
+        FineageLog.Error(
+            FineageLogCategory.World,
+            "ItemDrop: using potion stand-in mesh for dropModel='" + dropModel +
+            "' — import missing Lineage drop_items prop");
         return models.GetOrLoadModel(PotionFallbackModel);
     }
 
