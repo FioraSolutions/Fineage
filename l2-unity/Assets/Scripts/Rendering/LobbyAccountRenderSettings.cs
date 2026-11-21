@@ -52,12 +52,6 @@ public static class LobbyAccountRenderSettings
         RenderSettings.fogStartDistance = profile.fogStartDistance;
         RenderSettings.fogEndDistance = profile.fogEndDistance;
 
-        RenderSettings.ambientMode = profile.ambientMode;
-        RenderSettings.ambientIntensity = profile.ambientIntensity;
-        RenderSettings.ambientSkyColor = profile.ambientSky;
-        RenderSettings.ambientEquatorColor = profile.ambientEquator;
-        RenderSettings.ambientGroundColor = profile.ambientGround;
-
         Material sky = null;
         if (!string.IsNullOrEmpty(profile.skyboxResourcePath))
             sky = Resources.Load<Material>(profile.skyboxResourcePath);
@@ -67,8 +61,14 @@ public static class LobbyAccountRenderSettings
                 "[LobbyAccountRenderSettings] missing skybox material Resources/"
                 + profile.skyboxResourcePath);
         }
+
         RenderSettings.skybox = sky;
         RenderSettings.reflectionIntensity = profile.reflectionIntensity;
+        RenderSettings.ambientMode = profile.ambientMode;
+        RenderSettings.ambientIntensity = profile.ambientIntensity;
+        RenderSettings.ambientSkyColor = profile.ambientSky;
+        RenderSettings.ambientEquatorColor = profile.ambientEquator;
+        RenderSettings.ambientGroundColor = profile.ambientGround;
         ApplySkyPresentation(profile, sky);
         PushLobbyActorLighting(profile);
         _applied = true;

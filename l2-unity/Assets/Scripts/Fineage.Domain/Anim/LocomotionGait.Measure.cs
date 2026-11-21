@@ -141,7 +141,7 @@ public static partial class LocomotionGait
 
     static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
     {
-        if (UseTransformSampling(clip, animator))
+        if (!Application.isPlaying || UseTransformSampling(clip, animator))
         {
             clip.SampleAnimation(go, time);
             return;
