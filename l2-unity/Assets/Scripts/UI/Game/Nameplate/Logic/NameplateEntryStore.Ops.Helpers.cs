@@ -33,6 +33,8 @@ public sealed partial class NameplateEntryStore
             }
 
             bool visible = IsNameplateVisible(e.Target, playerTransform, nameplateViewDistance);
+            if (visible && !CrowdTierPacketServices.ShouldShowNameplate(id))
+                visible = false;
             e.Visible = visible;
             _entries[id] = e;
 

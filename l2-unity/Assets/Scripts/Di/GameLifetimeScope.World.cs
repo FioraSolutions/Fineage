@@ -41,6 +41,7 @@ public sealed partial class GameLifetimeScope
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
         RegisterLiveMono<MoveAllCharacters>(builder);
+        RegisterLiveMono<CrowdTierSystem>(builder);
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
         RegisterIfFound<NetworkTransformShare>(builder);
