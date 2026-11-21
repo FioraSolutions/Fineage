@@ -56,15 +56,15 @@ public static partial class LocomotionGait
             float leftAmp = 0f;
             float rightAmp = 0f;
             if (leftFoot != null)
-                leftAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, leftFoot);
+                leftAmp = MeasureFootSwing(clip, skeleton.gameObject, pelvis, leftFoot);
             if (rightFoot != null)
-                rightAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, rightFoot);
+                rightAmp = MeasureFootSwing(clip, skeleton.gameObject, pelvis, rightFoot);
 
             float stride = leftAmp + rightAmp;
             if (stride >= MinStrideMeters)
                 return stride;
 
-            float rootTravel = MeasureRootTravel(clip, skeleton.gameObject, animator, skeleton);
+            float rootTravel = MeasureRootTravel(clip, skeleton.gameObject, skeleton);
             if (rootTravel >= MinStrideMeters)
                 return rootTravel;
             return 0f;
@@ -88,7 +88,6 @@ public static partial class LocomotionGait
     static float MeasureFootSwing(
         AnimationClip clip,
         GameObject go,
-        Animator animator,
         Transform pelvis,
         Transform foot)
     {
@@ -98,7 +97,8 @@ public static partial class LocomotionGait
         for (int i = 0; i <= last; i++)
         {
             float time = clip.length * i / last;
-            EvaluateClip(go, clip, time, animator);
+            // UKX hand locomotion clips are transform-curve assets; PlayableGraph + Avatar does not drive them for measure.
+            EvaluateClip(go, clip, time, animator: null);
             Vector3 rel = pelvis.InverseTransformPoint(foot.position);
             if (rel.x < minX) minX = rel.x;
             if (rel.x > maxX) maxX = rel.x;
@@ -111,16 +111,16 @@ public static partial class LocomotionGait
         return rangeZ >= rangeX ? rangeZ : rangeX;
     }
 
-    static float MeasureRootTravel(AnimationClip clip, GameObject go, Animator animator, Transform root)
+    static float MeasureRootTravel(AnimationClip clip, GameObject go, Transform root)
     {
-        EvaluateClip(go, clip, 0f, animator);
+        EvaluateClip(go, clip, 0f, animator: null);
         Vector3 start = root.position;
         float max = 0f;
         int last = SampleCount - 1;
         for (int i = 1; i <= last; i++)
         {
             float time = clip.length * i / last;
-            EvaluateClip(go, clip, time, animator);
+            EvaluateClip(go, clip, time, animator: null);
             Vector3 delta = root.position - start;
             delta.y = 0f;
             float dist = delta.magnitude;
