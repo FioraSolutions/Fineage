@@ -126,6 +126,9 @@ public partial class SceneLoader
         if (gameplay != null && gameplay.GetComponent<FMODUnity.StudioListener>() == null)
             gameplay.gameObject.AddComponent<FMODUnity.StudioListener>();
 
+        if (gameplay != null && gameplay.GetComponent<AudioListener>() == null)
+            gameplay.gameObject.AddComponent<AudioListener>();
+
         FineageLog.Info(
             FineageLogCategory.World,
             "EnsureGameplayCamera ok name=" + controller.name

@@ -88,7 +88,11 @@ public partial class AudioService : MonoBehaviour
             _instance = null;
     }
 
-    void Start() => SetBuses();
+    void Start()
+    {
+        SetBuses();
+        LogStartupFmodBanks();
+    }
 
     void Update()
     {

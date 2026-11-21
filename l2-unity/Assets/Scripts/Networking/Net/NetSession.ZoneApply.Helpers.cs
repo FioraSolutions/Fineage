@@ -6,6 +6,15 @@ using UnityEngine;
 
 public sealed partial class NetSession
 {
+    static int ResolveSpawnRace(EntitySpawnMsg spawn)
+    {
+        if (spawn.Race >= 0 && spawn.Race <= (int)CharacterRace.Dwarf)
+            return spawn.Race;
+
+        SpawnAppearanceApplyLog.LogRaceDerivedFromClass((int)spawn.EntityValue, spawn.Race, spawn.ClassId);
+        return (int)MapClassId.GetCharacterRace(spawn.ClassId);
+    }
+
     static int ResolveSpawnCurHp(EntitySpawnMsg spawn, int maxHp)
     {
         if (spawn.Dead)
