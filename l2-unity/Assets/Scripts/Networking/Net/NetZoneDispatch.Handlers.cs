@@ -330,6 +330,7 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.PackageToList:
             case NetOpcode.PackageSendableList:
             case NetOpcode.MonRaceInfo:
+            case NetOpcode.WeddingEngageAsk:
                 _ = packet.Body;
                 break;
             case NetOpcode.FishingEvent:
