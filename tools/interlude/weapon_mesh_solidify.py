@@ -21,7 +21,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools" / "interlude"))
 from fbx_meter_patch import Node, parse, serialize  # noqa: E402
 
-MIN_OPP_RATIO = 0.85
+MIN_OPP_RATIO = 0.84
 SOLIDIFY_FACTOR = 0.035
 MIN_SHELL = 0.0015
 INTENTIONALLY_FLAT = ("fishing_rod",)

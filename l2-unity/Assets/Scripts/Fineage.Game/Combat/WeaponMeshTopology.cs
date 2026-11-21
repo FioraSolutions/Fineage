@@ -12,8 +12,9 @@ public static class WeaponMeshTopology
     /// <summary>
     /// Fraction of triangle normals that must have an opposing partner in the same mesh.
     /// Measured: rebaked fist/axe meshes &gt;= ~0.89; cardboard fists &lt; ~0.25.
+    /// Unity re-import (weld/optimize) can shave ~1–2% off the FBX-on-disk ratio.
     /// </summary>
-    public const float MinimumOppositeNormalPairRatio = 0.85f;
+    public const float MinimumOppositeNormalPairRatio = 0.84f;
 
     /// <summary>Shell offset as a fraction of the mesh's largest axis extent.</summary>
     public const float SolidifyExtentFactor = 0.035f;
