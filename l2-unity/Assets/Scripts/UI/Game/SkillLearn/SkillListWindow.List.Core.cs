@@ -269,5 +269,13 @@ public partial class SkillListWindow : L2PopupWindow
 
     public int PassiveVisibleSkillSlotsForEditModeTests =>
         _supportPassiveSkills != null ? _supportPassiveSkills.CountVisibleSkillSlots() : 0;
+
+    public void EditorTestLoadAssets() => LoadAssets();
+
+    public void EditorTestInitWindow(VisualElement root) => InitWindow(root);
+
+    public bool IsSkillListSingletonOwnerForTests => _instance == this;
+
+    public VisualElement EditorTestQueryContent() => GetElementById("content");
 #endif
 }
