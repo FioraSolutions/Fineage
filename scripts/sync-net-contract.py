@@ -42,6 +42,16 @@ CLIENT = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/Contract"
 BACKEND = REPO_ROOT.parent / "Fineage-Backend/src/Fineage.Net.Contract"
 
 # Relative to each contract root. Order is the diff/report order.
+# Backend contract sources may use C# 10+ syntax; Unity EditMode still targets C# 9.
+UNITY_CS9_ADAPT_FILES = frozenset(
+    {
+        "Messages/WorldMessages.Freight.cs",
+        "Messages/WorldMessages.MonsterRace.cs",
+        "Codec/NetCodec.Freight.cs",
+        "Codec/NetCodec.MonsterRace.cs",
+    }
+)
+
 FILES = (
     "Envelope/PacketEnvelope.cs",
     "Envelope/NetFraming.cs",
@@ -130,6 +140,24 @@ def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
     return out.stdout if out.returncode == 0 else None
 
 
+def adapt_net_contract_for_unity_cs9(text: str, rel: str) -> str:
+    if rel not in UNITY_CS9_ADAPT_FILES:
+        return text
+    if text.startswith("namespace Fineage.Net.Contract;\n"):
+        body = text[len("namespace Fineage.Net.Contract;\n") :]
+        text = "namespace Fineage.Net.Contract\n{\n" + body.rstrip() + "\n}\n"
+    text = text.replace(
+        "public MonRaceRunnerNetMsg[] Runners { get; set; } = [];",
+        "public MonRaceRunnerNetMsg[] Runners { get; set; } = System.Array.Empty<MonRaceRunnerNetMsg>();",
+    )
+    return text
+
+
+def client_expected_bytes(data: bytes, rel: str) -> bytes:
+    text = data.decode("utf-8")
+    return adapt_net_contract_for_unity_cs9(text, rel).encode("utf-8")
+
+
 def read_source(
     source: Path,
     rel: str,
@@ -180,7 +208,7 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        if dst.read_bytes() != data:
+        if client_expected_bytes(dst.read_bytes(), rel) != client_expected_bytes(data, rel):
             differing.append(rel)
 
     return missing, differing
@@ -201,12 +229,13 @@ def write_contract(
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        if dst.is_file() and dst.read_bytes() == data:
+        expected = client_expected_bytes(data, rel)
+        if dst.is_file() and dst.read_bytes() == expected:
             continue
 
         dst.parent.mkdir(parents=True, exist_ok=True)
         # write_bytes keeps mtime current, which is what Unity's importer keys on.
-        dst.write_bytes(data)
+        dst.write_bytes(expected)
         print(f"updated {rel}")
         changed += 1
 
