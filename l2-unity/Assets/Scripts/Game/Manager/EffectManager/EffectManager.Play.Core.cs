@@ -41,6 +41,9 @@ public partial class EffectManager
             return;
         }
 
+        if (!TryGateSkillFx(target, castData))
+            return;
+
         if (windstrike)
             Debug.Log("[WINDSTRIKE] EffectManager spawn prefab=" + prefab.name);
 
@@ -67,6 +70,7 @@ public partial class EffectManager
 #endif
         using (MagicSkillUseTrace.Measure("effect.play"))
             instance.Play();
+        TrackFxBudget(instance.gameObject, target, castData);
         if (windstrike)
             Debug.Log("[WINDSTRIKE] EffectManager.Play returned instance=" + instance.name);
 
