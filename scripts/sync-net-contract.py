@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -117,6 +118,35 @@ def require_contract_sync() -> bool:
     return value in ("1", "true", "TRUE")
 
 
+def unity_compat_cs(data: bytes) -> bytes:
+    """Rewrite backend C# 10+ idioms so Unity's default C# 9 toolchain compiles."""
+    if not data:
+        return data
+    try:
+        text = data.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return data
+    text = text.replace("\r\n", "\n")
+    marker = "namespace Fineage.Net.Contract;\n"
+    if marker in text:
+        before, _, after = text.partition(marker)
+        body_lines = after.splitlines(keepends=True)
+        indented = "".join(("    " + line) if line.strip() else line for line in body_lines)
+        text = before + "namespace Fineage.Net.Contract\n{\n" + indented + "}\n"
+    text = re.sub(
+        r"public (\w+)\[\] (\w+) \{ get; set; \} = \[\];",
+        r"public \1[] \2 { get; set; } = System.Array.Empty<\1>();",
+        text,
+    )
+    return text.encode("utf-8")
+
+
+def client_payload(data: bytes, rel: str) -> bytes:
+    if rel.endswith(".cs"):
+        return unity_compat_cs(data)
+    return data
+
+
 def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
     """Contents of `rel` at `ref` in `repo`, or None when unavailable."""
     try:
@@ -180,7 +210,7 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        if dst.read_bytes() != data:
+        if client_payload(data, rel) != client_payload(dst.read_bytes(), rel):
             differing.append(rel)
 
     return missing, differing
@@ -201,12 +231,13 @@ def write_contract(
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        if dst.is_file() and dst.read_bytes() == data:
+        payload = client_payload(data, rel)
+        if dst.is_file() and dst.read_bytes() == payload:
             continue
 
         dst.parent.mkdir(parents=True, exist_ok=True)
         # write_bytes keeps mtime current, which is what Unity's importer keys on.
-        dst.write_bytes(data)
+        dst.write_bytes(payload)
         print(f"updated {rel}")
         changed += 1
 
