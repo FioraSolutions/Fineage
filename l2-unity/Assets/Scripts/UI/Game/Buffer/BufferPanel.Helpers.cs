@@ -20,6 +20,14 @@ public partial class BufferPanel : L2Window
     {
         InitWindow(root);
 
+        GroupBox frameColumn = _windowEle?.Q<GroupBox>("Frame_DF_Ver");
+        if (frameColumn != null)
+        {
+            while (frameColumn.childCount > 3)
+                frameColumn.RemoveAt(frameColumn.childCount - 1);
+            L2InterludeHudVerticalFrame.PaintColumn(frameColumn, nameof(BufferPanel));
+        }
+
         var dragArea = GetElementByClass("drag-area");
         _content = GetElementById("content");
         

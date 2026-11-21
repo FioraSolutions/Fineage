@@ -127,23 +127,18 @@ public partial class StatusWindow
         if (frame == null)
             return;
 
-        VisualElement column = frame.Q<GroupBox>("Frame_DF_Ver");
-        if (column == null || column.childCount < 4)
+        GroupBox column = frame.Q<GroupBox>("Frame_DF_Ver");
+        if (column == null)
             return;
 
-        Stamp(column[0], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Top");
-        Stamp(column[1], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Center");
-        Stamp(column[2], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Center");
-        Stamp(column[3], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Bottom");
-        for (int i = 0; i < column.childCount; i++)
-            column[i].style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+        while (column.childCount > 3)
+            column.RemoveAt(column.childCount - 1);
 
-        VisualElement edge = GetElementById("SizeControl");
-        if (edge != null)
-        {
-            Stamp(edge, "Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1");
-            edge.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-        }
+        L2InterludeHudVerticalFrame.PaintColumn(column, nameof(StatusWindow));
+
+        VisualElement grip = GetElementById("SizeControlHandle");
+        if (grip != null)
+            L2InterludeHudVerticalFrame.StampHorizontalResize(grip, nameof(StatusWindow));
     }
 
     static void PaintBar(VisualElement bar, string resourcesPath)

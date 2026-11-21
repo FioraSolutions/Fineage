@@ -646,17 +646,31 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
+.chat-window #ChatBar {
+    height: 18px;
+    align-items: center;
+}
+
 .chat-window #InnerBar {
-    min-height: 16px;
+    min-height: 18px;
+    height: 18px;
+    align-items: center;
     padding-right: 2px;
-    background-image: resource('Data/UI/Assets/Login/CharacterPassword_DF_EditBox');
-    -unity-background-scale-mode: stretch-to-fill;
-    -unity-slice-left: 4;
-    -unity-slice-right: 4;
-    -unity-slice-top: 4;
-    -unity-slice-bottom: 4;
+    padding-top: 0;
+    padding-bottom: 0;
+    background-image: none;
     border-width: 0;
     background-color: transparent;
+}
+
+.chat-window #ChatInputField {
+    height: 16px;
+    min-height: 16px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    -unity-text-align: middle-left;
 }
 
 .chat-window #InnerBar.highlighted,
@@ -3343,6 +3357,22 @@
     padding-bottom: 0;
     padding-left: 0;
     flex-grow: 1;
+}
+
+.map-window-close,
+.map-window-close:hover,
+.map-window-close:active {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseBtn');
+    border-width: 0;
+}
+
+.map-window-close:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameclosebtn_over');
+}
+
+.map-window-close:active,
+.map-window-close:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseOnBtn');
 }
 
 .skillbar-slot-anchor {
