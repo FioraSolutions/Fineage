@@ -23,6 +23,8 @@ public partial class World
         int id = npc.Identity.Id;
         _entities.RegisterNpc(id, npc);
         _entityWait.Notify(id, npc);
+        if (npc is MonsterEntity or NpcEntity)
+            L2ActorPointLights.TryRegisterActorRoot(npc.transform);
     }
 
     public void RegisterItem(ItemEntity item)
