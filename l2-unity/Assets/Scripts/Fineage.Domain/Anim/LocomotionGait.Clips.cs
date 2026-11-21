@@ -4,6 +4,34 @@ using UnityEngine;
 
 public static partial class LocomotionGait
 {
+    public const string LogTag = "[LocomotionGait]";
+
+    static readonly HashSet<string> LoggedMissingClips = new HashSet<string>();
+
+    public static void ClearMissingClipLogForTests() => LoggedMissingClips.Clear();
+
+    public static void LogMissingLocomotionClip(
+        Animator animator,
+        string clipName,
+        CharacterRaceAnimation profile = default)
+    {
+        if (string.IsNullOrEmpty(clipName))
+            return;
+
+        string animatorName = animator != null ? animator.name : "null";
+        string key = animatorName + "@" + clipName + "@" + profile;
+        if (!LoggedMissingClips.Add(key))
+            return;
+
+        string profileSuffix = profile != default
+            ? " profile=" + profile
+            : string.Empty;
+        Debug.LogError(
+            LogTag + " missing locomotion clip=\"" + clipName + "\" animator="
+            + animatorName + profileSuffix
+            + " (run_speed/walk_speed may stall at 0)");
+    }
+
     public static AnimationClip FindClip(Animator animator, string clipName)
     {
         if (animator == null || string.IsNullOrEmpty(clipName))

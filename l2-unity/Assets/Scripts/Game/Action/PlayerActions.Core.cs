@@ -42,7 +42,9 @@ public partial class PlayerActions : MonoBehaviour
         RegisterNotImplemented(
             ActionType.PartyMatching, ActionType.PartyLeader,
             ActionType.PrivateStoreSell, ActionType.PrivateStoreBuy,
-            ActionType.DwarvenManufacture, ActionType.Mount, ActionType.Recommend);
+            ActionType.Mount, ActionType.Recommend);
+        _actions.Add(ActionType.DwarvenManufacture, new DwarvenManufactureAction());
+        _actions.Add(ActionType.GeneralManufacture, new GeneralManufactureAction());
     }
 
     void RegisterSocial(params ActionType[] types)

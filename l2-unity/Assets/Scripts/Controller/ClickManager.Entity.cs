@@ -49,6 +49,13 @@ public partial class ClickManager
         if (Targets != null && sameSelected && (isMonster || GameCtrl.IsHeld))
             Targets.SetAttackTarget();
 
+        if (clickedEntity is PlayerEntity && !GameCtrl.IsHeld
+            && NetPlayerStoreRegistry.IsManufactureStore(clickTarget.Identity.Id))
+        {
+            ZoneCommands.Send(new RequestPrivateStoreListCommand(clickTarget.Identity.Id));
+            return;
+        }
+
         var l2jpos = clickTarget.Identity.GetL2jPos();
         ZoneCommands.Send(new ClickActionCommand(
             clickTarget.Identity.Id, (int)l2jpos.x, (int)l2jpos.y, (int)l2jpos.z, 0));

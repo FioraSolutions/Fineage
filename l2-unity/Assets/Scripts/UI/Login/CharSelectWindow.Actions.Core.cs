@@ -20,7 +20,7 @@ public partial class CharSelectWindow
             return;
         if (_startButton != null)
             _startButton.SetEnabled(false);
-        ShowLobbyStatus("Entering the world...");
+        ShowLobbyStatus(L10n.Get("ui.char_select.entering"));
         BeginEnterWorldAttempt();
         NetSession session = NetSession.TryGetBound();
         if (session == null)

@@ -9,9 +9,24 @@ public sealed partial class WorldPacketApply
         if (dto == null)
             return;
         Entity entity = GetEntity(dto.ObjectId);
+        if (entity == null)
+            entity = LocalCasterOrNull(dto.ObjectId);
         EntityWorldApply apply;
-        if (entity == null || !TryResolve(entity, out apply))
+        if (entity == null)
+        {
+            Debug.LogError(
+                "[SocialAction] dropped: no entity objectId=" + dto.ObjectId + " actionId=" + dto.ActionId);
             return;
+        }
+
+        if (!TryResolve(entity, out apply))
+        {
+            Debug.LogError(
+                "[SocialAction] dropped: no world apply for entity objectId=" + dto.ObjectId +
+                " actionId=" + dto.ActionId + " type=" + entity.GetType().Name);
+            return;
+        }
+
         // Mobius SocialAction — gesture ids 2–14, 15 = level-up (SocialAction.LEVEL_UP).
         apply.OnSocialAction(entity, dto);
     }
