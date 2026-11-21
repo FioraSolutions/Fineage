@@ -59,7 +59,7 @@ public sealed class L2PawnYaw
     }
 }
 
-public sealed class L2PawnYawDrive : MonoBehaviour
+public sealed class L2PawnYawDrive : MonoBehaviour, IPawnYawDriveStep
 {
     L2PawnYaw _yaw;
     float _desiredYaw;
@@ -90,6 +90,8 @@ public sealed class L2PawnYawDrive : MonoBehaviour
         }
 
         _active = true;
+        if (FineageMovementCentralization.RoutePawnYawLateUpdateThroughMoveAllCharacters)
+            PawnYawDriveRegistry.Register(this);
         if (!enabled)
             enabled = true;
     }
@@ -131,11 +133,13 @@ public sealed class L2PawnYawDrive : MonoBehaviour
     {
         _active = false;
         _appliedInUpdate = false;
+        PawnYawDriveRegistry.Unregister(this);
         if (enabled)
             enabled = false;
     }
 
-    void LateUpdate()
+    /// <summary>Step 10b: invoked from <see cref="MoveAllCharacters"/> instead of per-pawn LateUpdate.</summary>
+    public void StepFromMoveAllCharacters(float deltaTime)
     {
         if (_appliedInUpdate)
         {
@@ -143,31 +147,52 @@ public sealed class L2PawnYawDrive : MonoBehaviour
             return;
         }
 
+        if (!StepYawCore(deltaTime))
+            return;
+    }
+
+    void LateUpdate()
+    {
+        if (FineageMovementCentralization.RoutePawnYawLateUpdateThroughMoveAllCharacters)
+            return;
+
+        if (_appliedInUpdate)
+        {
+            _appliedInUpdate = false;
+            return;
+        }
+
+        StepYawCore(Time.deltaTime);
+    }
+
+    bool StepYawCore(float deltaTime)
+    {
         if (!_active || _yaw == null)
         {
             if (enabled)
                 enabled = false;
-            return;
+            return false;
         }
 
         float current = transform.eulerAngles.y;
         if (Mathf.Abs(Mathf.DeltaAngle(current, _desiredYaw)) <= L2PawnYaw.ArriveDeg)
         {
             Deactivate();
-            return;
+            return false;
         }
 
-        float maxStep = _yaw.DegreesPerSecond(_rate) * Time.deltaTime;
+        float maxStep = _yaw.DegreesPerSecond(_rate) * deltaTime;
         float next = _yaw.StepDegrees(current, _desiredYaw, maxStep);
         if (Mathf.Abs(Mathf.DeltaAngle(current, next)) <= 0.01f)
         {
             if (Mathf.Abs(Mathf.DeltaAngle(next, _desiredYaw)) <= L2PawnYaw.ArriveDeg)
                 Deactivate();
-            return;
+            return false;
         }
 
         transform.rotation = Quaternion.Euler(0f, next, 0f);
         if (Mathf.Abs(Mathf.DeltaAngle(next, _desiredYaw)) <= L2PawnYaw.ArriveDeg)
             Deactivate();
+        return true;
     }
 }
