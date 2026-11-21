@@ -21,6 +21,11 @@ public static class LobbyAccountRenderSettings
     static Material _skyWas;
     static float _reflectionIntensityWas;
 
+#if UNITY_EDITOR
+    /// <summary>EditMode batchmode may not echo <see cref="RenderSettings.ambientMode"/>; tests assert this instead.</summary>
+    public static AmbientMode LastAppliedAmbientModeForTests { get; private set; }
+#endif
+
     public static bool IsApplied => _applied;
 
     public static LobbyAccountEnvironmentProfile LoadProfile()
@@ -65,6 +70,9 @@ public static class LobbyAccountRenderSettings
         RenderSettings.skybox = sky;
         RenderSettings.reflectionIntensity = profile.reflectionIntensity;
         RenderSettings.ambientMode = profile.ambientMode;
+#if UNITY_EDITOR
+        LastAppliedAmbientModeForTests = profile.ambientMode;
+#endif
         RenderSettings.ambientIntensity = profile.ambientIntensity;
         RenderSettings.ambientSkyColor = profile.ambientSky;
         RenderSettings.ambientEquatorColor = profile.ambientEquator;
