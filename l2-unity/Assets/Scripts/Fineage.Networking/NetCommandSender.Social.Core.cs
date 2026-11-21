@@ -92,7 +92,7 @@ public sealed partial class NetCommandSender
         if (!TryGetZone(out NetTransport zone))
             return Task.CompletedTask;
         return zone.SendAsync(
-            WeddingNetOpcode.WeddingEngageAnswer,
+            NetOpcode.WeddingEngageAnswer,
             NetCodec.EncodeWeddingEngageAnswer(new WeddingEngageAnswerNetMsg { Response = response }),
             _nextSeq());
     }

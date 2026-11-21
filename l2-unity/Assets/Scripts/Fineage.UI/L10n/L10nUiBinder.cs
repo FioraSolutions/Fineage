@@ -51,6 +51,17 @@ public static class L10nUiBinder
             inner.text = L10n.Get(key);
     }
 
+    public static void SetText(Toggle toggle, string key)
+    {
+        if (toggle == null)
+            return;
+        string text = L10n.Get(key);
+        toggle.text = text;
+        toggle.label = text;
+        toggle.AddToClassList("l10n");
+        toggle.userData = key;
+    }
+
     static void RebindAll()
     {
         for (int i = BoundRoots.Count - 1; i >= 0; i--)
@@ -115,6 +126,12 @@ public static class L10nUiBinder
     {
         if (element?.userData is string saved && !string.IsNullOrEmpty(saved))
             return saved;
-        return element?.text?.Trim() ?? "";
+        string text = element switch
+        {
+            TextElement te => te.text,
+            Toggle t => t.text,
+            _ => null,
+        };
+        return text?.Trim() ?? "";
     }
 }

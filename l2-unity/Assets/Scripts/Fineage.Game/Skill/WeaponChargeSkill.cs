@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Soulshot and spiritshot skill ids that play a weapon charge.
 /// Grades match Mobius item_skill tables (NG + D…S). Blessed Spiritshot shares the
