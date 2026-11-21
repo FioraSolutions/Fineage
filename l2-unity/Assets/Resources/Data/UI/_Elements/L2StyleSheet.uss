@@ -2976,12 +2976,50 @@
     margin: 0;
     padding: 0;
     width: 100%;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .skills-panel .skills-section-rows {
     margin: 0;
     padding: 0;
     width: 100%;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* InventoryTab host defaults (height:1px) must not crush MagicSkillWnd rows. */
+.skills-panel #tab-content-container {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.skills-list-window #tab-content-container > VisualElement,
+.skills-panel #tab-content-container > VisualElement {
+    height: auto;
+    min-height: 0;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-direction: column;
+}
+
+.skills-list-window #tab-content-container > VisualElement > #Content,
+.skills-panel #tab-content-container > VisualElement > #Content {
+    flex-grow: 1;
+    flex-shrink: 0;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.inventory-window.skills-list-window .unity-tab,
+.inventory-window.skills-list-window #tab-content-container > VisualElement {
+    height: auto;
+    min-height: 0;
 }
 
 .skills-panel .df-button-active-skills {

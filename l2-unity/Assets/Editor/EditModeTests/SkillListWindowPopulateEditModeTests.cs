@@ -95,6 +95,41 @@ public sealed class SkillListWindowPopulateEditModeTests
         Assert.AreEqual(0, window.PendingSkillCountForEditModeTests, "pending should flush after tab build");
         Assert.Greater(window.ActiveVisibleSkillSlotsForEditModeTests, 0, "active tab should expose slots");
         Assert.Greater(window.PassiveVisibleSkillSlotsForEditModeTests, 0, "passive tab should expose slots");
+
+        VisualElement gridRow = FindFirstSkillGridRow(window.EditorTestQueryContent());
+        Assert.NotNull(gridRow, "skills-grid-row missing after skill list populate");
+        Assert.GreaterOrEqual(
+            L2SkillsPanelLayout.ReadConfiguredRowHeight(gridRow),
+            L2SkillsPanelLayout.RowHeight - 0.01f,
+            "skill grid row must keep Interlude 36px row height");
+    }
+
+    static void AssertGridRowsHaveInterludeHeight(VisualElement rowRoot)
+    {
+        VisualElement gridRow = FindFirstSkillGridRow(rowRoot);
+        Assert.NotNull(gridRow, "skills-grid-row missing under category row");
+        Assert.GreaterOrEqual(
+            L2SkillsPanelLayout.ReadConfiguredRowHeight(gridRow),
+            L2SkillsPanelLayout.RowHeight - 0.01f,
+            "skill grid row must keep Interlude 36px row height");
+    }
+
+    static VisualElement FindFirstSkillGridRow(VisualElement rowRoot)
+    {
+        if (rowRoot == null)
+            return null;
+
+        if (rowRoot.ClassListContains("skills-grid-row"))
+            return rowRoot;
+
+        for (int i = 0; i < rowRoot.childCount; i++)
+        {
+            VisualElement found = FindFirstSkillGridRow(rowRoot[i]);
+            if (found != null)
+                return found;
+        }
+
+        return null;
     }
 
     static void RunPopulateScenario(bool applyBeforeMount)
@@ -137,6 +172,7 @@ public sealed class SkillListWindowPopulateEditModeTests
 
         int physicalSlots = CountSkillSlots(rowPhysical);
         Assert.Greater(physicalSlots, 0, "physical active skills should create slots");
+        AssertGridRowsHaveInterludeHeight(rowPhysical);
 
         Assert.Greater(hide.CountVisibleSkillSlots(), 0, "expected visible skill slots in hierarchy");
         Assert.IsFalse(DisplayHiddenUpChain(host), "tab host has DisplayStyle.None in ancestor chain");

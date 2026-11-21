@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.UIElements;
 
 /// <summary>Interlude MagicSkillWnd grid metrics (32px icon, standard slot frame, row gap).</summary>
 public static class L2SkillsPanelLayout
@@ -34,4 +35,89 @@ public static class L2SkillsPanelLayout
 
     public static string RowFrameResourceForColumns(int columns) =>
         columns <= 6 ? RowFrame6 : RowFrame7;
+
+    /// <summary>
+    /// InventoryTab.uxml bakes height:1px for the item grid; MagicSkillWnd clears its scroll child but keeps that host.
+    /// </summary>
+    public static void ApplyMagicSkillTabHostLayout(VisualElement tabHost)
+    {
+        if (tabHost == null)
+            return;
+
+        tabHost.style.height = StyleKeyword.Auto;
+        tabHost.style.minHeight = StyleKeyword.Auto;
+        tabHost.style.maxHeight = StyleKeyword.Null;
+        tabHost.style.flexGrow = 1f;
+        tabHost.style.flexShrink = 0f;
+        tabHost.style.flexDirection = FlexDirection.Column;
+
+        VisualElement content = tabHost.Q("Content");
+        if (content == null)
+            return;
+
+        content.style.height = StyleKeyword.Auto;
+        content.style.minHeight = StyleKeyword.Auto;
+        content.style.flexGrow = 1f;
+        content.style.flexShrink = 0f;
+        content.style.flexDirection = FlexDirection.Column;
+    }
+
+    public static void ApplyMagicSkillTabHostsFromPanel(VisualElement skillsPanelRoot)
+    {
+        if (skillsPanelRoot == null)
+            return;
+
+        VisualElement tabContainer = skillsPanelRoot.Q("tab-content-container");
+        if (tabContainer == null)
+            return;
+
+        for (int i = 0; i < tabContainer.childCount; i++)
+            ApplyMagicSkillTabHostLayout(tabContainer[i]);
+    }
+
+    public static void EnsureInterludeGridRowMetrics(VisualElement root)
+    {
+        if (root == null)
+            return;
+
+        WalkGridRows(root);
+    }
+
+    static void WalkGridRows(VisualElement node)
+    {
+        if (node.ClassListContains("skills-grid-row"))
+            ApplyGridRowMetrics(node);
+
+        for (int i = 0; i < node.childCount; i++)
+            WalkGridRows(node[i]);
+    }
+
+    public static void ApplyGridRowMetrics(VisualElement rowRoot)
+    {
+        if (rowRoot == null)
+            return;
+
+        if (!rowRoot.ClassListContains("skills-grid-row"))
+            rowRoot.AddToClassList("skills-grid-row");
+
+        rowRoot.style.height = RowHeight;
+        rowRoot.style.minHeight = RowHeight;
+        rowRoot.style.maxHeight = RowHeight;
+        rowRoot.style.flexShrink = 0f;
+        rowRoot.style.flexGrow = 0f;
+    }
+
+  /// <summary>Inline/grid style height; layout may be 0 in EditMode until a panel exists.</summary>
+    public static float ReadConfiguredRowHeight(VisualElement rowRoot)
+    {
+        if (rowRoot == null)
+            return 0f;
+
+        float minH = rowRoot.style.minHeight.value.value;
+        if (minH > 0f)
+            return minH;
+
+        float h = rowRoot.style.height.value.value;
+        return h > 0f ? h : 0f;
+    }
 }

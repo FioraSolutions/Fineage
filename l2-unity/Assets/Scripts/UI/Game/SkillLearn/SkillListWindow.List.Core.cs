@@ -81,6 +81,7 @@ public partial class SkillListWindow : L2PopupWindow
     {
         _builderTabs.InitContentTabs(new string[2] { _activeName, _passiveName });
         _builderTabs.CreateTabs(tabView, _tabTemplate, _tabHeaderTemplate);
+        L2SkillsPanelLayout.ApplyMagicSkillTabHostsFromPanel(GetElementById("content") ?? _windowEle);
         _builderTabs.EventSwitchOut += OnSwitchEventOut;
 
         VisualElement element = _builderTabs.GetActiveContent();
@@ -150,7 +151,20 @@ public partial class SkillListWindow : L2PopupWindow
         var passiveSkills = list.Where(s => s.IsPassive).ToList();
         _supportActiveSkills.CreateSlots(activeSkills, 0);
         _supportPassiveSkills.CreateSlots(passiveSkills, 0);
+        RefreshInterludeSkillRowLayout(phase);
         ValidateSkillSlotsAfterApply(phase, list, activeSkills, passiveSkills);
+    }
+
+    void RefreshInterludeSkillRowLayout(string phase)
+    {
+        VisualElement searchRoot = GetElementById("content");
+        if (searchRoot == null)
+        {
+            Debug.LogError("[SkillList] " + phase + ": cannot refresh row layout — skills content root missing.");
+            return;
+        }
+
+        L2SkillsPanelLayout.EnsureInterludeGridRowMetrics(searchRoot);
     }
 
     void MountSkillTabPanels(string phase)

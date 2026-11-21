@@ -1,4 +1,6 @@
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public sealed class L2SkillsPanelLayoutEditModeTests
 {
@@ -21,5 +23,30 @@ public sealed class L2SkillsPanelLayoutEditModeTests
     {
         Assert.AreEqual(L2SkillsPanelLayout.RowFrame6, L2SkillsPanelLayout.RowFrameResourceForColumns(6));
         Assert.AreEqual(L2SkillsPanelLayout.RowFrame7, L2SkillsPanelLayout.RowFrameResourceForColumns(7));
+    }
+
+    [Test]
+    public void ApplyMagicSkillTabHostLayout_clears_inventory_one_pixel_tab_host()
+    {
+        var tabTemplate = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/Inventory/InventoryTab");
+        Assert.NotNull(tabTemplate, "InventoryTab.uxml missing");
+
+        var tabHost = tabTemplate.Instantiate()[0];
+        tabHost.Clear();
+        tabHost.Add(new VisualElement { name = "Content" });
+        Assert.AreEqual(1f, tabHost.style.height.value.value, 0.01f);
+
+        L2SkillsPanelLayout.ApplyMagicSkillTabHostLayout(tabHost);
+        Assert.AreEqual(StyleKeyword.Auto, tabHost.style.height.keyword);
+    }
+
+    [Test]
+    public void ApplyGridRowMetrics_sets_interlude_row_height()
+    {
+        var row = new VisualElement();
+        L2SkillsPanelLayout.ApplyGridRowMetrics(row);
+        Assert.GreaterOrEqual(
+            L2SkillsPanelLayout.ReadConfiguredRowHeight(row),
+            L2SkillsPanelLayout.RowHeight - 0.01f);
     }
 }
