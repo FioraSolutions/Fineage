@@ -16,19 +16,22 @@ public partial class EntityIdentity
 
     private bool ParceHideHpbar(int npcId)
     {
-        Npcgrp npc = TablePacketServices.NpcGrps.GetNpcgrp(npcId);
-        if (npc != null)
+        Npcgrp npc = TablePacketServices.NpcGrps != null
+            ? TablePacketServices.NpcGrps.GetNpcgrp(npcId)
+            : null;
+        if (npc == null)
         {
-            if (npc.Type.Equals("monster_normal") | npc.Type.Equals("hide"))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            Debug.LogError("[EntityIdentity] ParceHideHpbar: missing npcgrp for npcId=" + npcId);
+            return true;
         }
-        return false;
+
+        // Interlude datapack: hpshowable=0 → overhead HP off; attackable mobs still show in target window.
+        if (!npc.HpVisible)
+            return true;
+        if (npc.Type.Equals("monster_normal", System.StringComparison.OrdinalIgnoreCase)
+            || npc.Type.Equals("hide", System.StringComparison.OrdinalIgnoreCase))
+            return false;
+        return true;
     }
 
     public Vector3 GetL2jPos()

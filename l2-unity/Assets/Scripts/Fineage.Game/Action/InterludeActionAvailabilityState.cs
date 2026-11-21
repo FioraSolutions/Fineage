@@ -8,6 +8,10 @@ public struct InterludeActionAvailabilityState
   public bool HasServitor;
   public int ActivePetNpcId;
   public int ActiveServitorNpcId;
+  /// <summary>Server: mountable pet out (PlayerActionState / SummonInfo.mountable).</summary>
+  public bool MountablePet;
+  /// <summary>Server: Ride action 38 allowed (PlayerActionState.canRide).</summary>
+  public bool CanRide;
   /// <summary>Mobius / Interlude mount type byte: 0 none, 1 ground mount, 2 wyvern (fly).</summary>
   public byte MountType;
   public int MountNpcId;
@@ -15,19 +19,20 @@ public struct InterludeActionAvailabilityState
 
   public bool PlayerMounted => MountType != 0 || MountNpcId != 0 || ClientMountedVisual;
 
-  public bool HasMountablePetOut =>
-      HasPet && InterludeMountablePetCatalog.IsMountableNpc(ActivePetNpcId);
+  public bool RideActionAvailable => CanRide || PlayerMounted;
 
   public bool WyvernMounted => MountType == 2;
 
   public static InterludeActionAvailabilityState Empty => default;
 
-  public void NoteSummon(byte summonKind, int npcId, bool dead)
+  public void NoteSummon(byte summonKind, int npcId, bool dead, bool mountable = false)
   {
     if (summonKind == SummonKindPet)
     {
       HasPet = !dead;
       ActivePetNpcId = npcId;
+      if (!dead)
+        MountablePet = mountable;
       return;
     }
 
@@ -44,6 +49,8 @@ public struct InterludeActionAvailabilityState
     {
       HasPet = false;
       ActivePetNpcId = 0;
+      MountablePet = false;
+      CanRide = false;
       return;
     }
 
@@ -60,11 +67,24 @@ public struct InterludeActionAvailabilityState
     MountNpcId = mountNpcId;
   }
 
-  public void ApplyPlayerActionState(bool petOut, bool mounted, byte mountKind, int petControlObjectId)
+  public void ApplyPlayerActionState(
+      bool petOut,
+      bool mountablePet,
+      bool mounted,
+      bool canRide,
+      byte mountKind,
+      int petControlObjectId)
   {
     HasPet = petOut;
     if (!petOut)
+    {
       ActivePetNpcId = 0;
+      MountablePet = false;
+    }
+    else
+      MountablePet = mountablePet;
+
+    CanRide = canRide;
 
     if (mounted)
       ApplyMount(mountKind, petControlObjectId);

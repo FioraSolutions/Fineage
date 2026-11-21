@@ -77,5 +77,9 @@ public partial class ChatWindow : L2Window
         SystemMsgWindow.Ensure()?.SyncDock();
         yield return null;
         SystemMsgWindow.Ensure()?.SyncDock();
+        L2InterludeHudSkinPipeline.ApplyChatLayout(_windowEle);
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.ChatWnd,
+            nameof(ChatWindow));
     }
 }

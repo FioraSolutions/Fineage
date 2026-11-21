@@ -2,7 +2,7 @@ using System;
 using Fineage.Net.Contract;
 
 /// <summary>Decode zone payloads on the receive thread into immutable messages.</summary>
-public static class NetZonePacketDecoder
+public static partial class NetZonePacketDecoder
 {
     public static ZoneApplyPacket Decode(PacketEnvelope envelope)
     {
@@ -106,6 +106,7 @@ public static class NetZonePacketDecoder
             NetOpcode.SummonGone => NetCodec.DecodeSummonGone(payload),
             NetOpcode.Ride => NetCodec.DecodeRide(payload),
             NetOpcode.PlayerActionState => NetCodec.DecodePlayerActionState(payload),
+            NetOpcode.WeddingEngageAsk => NetCodec.DecodeWeddingEngageAsk(payload),
             NetOpcode.PetInventory => NetCodec.DecodePetInventory(payload),
             NetOpcode.FishingEvent => NetCodec.DecodeFishingEvent(payload),
             NetOpcode.MagicSkillLaunched => NetCodec.DecodeMagicSkillLaunched(payload),
@@ -114,6 +115,9 @@ public static class NetZonePacketDecoder
             NetOpcode.PartyMemberPosition => NetCodec.DecodePartyMemberPosition(payload),
             NetOpcode.PartyMemberUpdate => NetCodec.DecodePartyMemberUpdate(payload),
             NetOpcode.PartySpelled => NetCodec.DecodePartySpelled(payload),
+            NetOpcode.PackageToList => NetCodec.DecodePackageToList(payload),
+            NetOpcode.PackageSendableList => NetCodec.DecodePackageSendableList(payload),
+            NetOpcode.MonRaceInfo => DecodeMonRaceInfo(payload),
             NetOpcode.Reject => NetCodec.DecodeReject(payload),
             _ => null,
         };

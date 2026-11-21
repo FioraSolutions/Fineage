@@ -91,15 +91,10 @@ public static partial class EntitySpawnShared
         if (animator == null)
             return;
 
-        int waitHash = Animator.StringToHash("wait");
-        if (animator.HasState(0, waitHash))
-        {
-            animator.Play(waitHash, 0, 0f);
-            animator.Update(0f);
-        }
-
         CrowdAnimTest.Apply(controller);
         CrowdAnimTest.KeepAnimatorUpdating(controller.gameObject);
+        Entity entity = controller.GetComponent<Entity>() ?? controller.GetComponentInParent<Entity>();
+        NpcIdleAnimationBootstrap.Apply(controller, entity);
     }
 
     public static void LogStriderAppear(string when, Entity entity, string detail = null)

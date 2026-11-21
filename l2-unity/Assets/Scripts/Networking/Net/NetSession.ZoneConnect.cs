@@ -98,6 +98,9 @@ public sealed partial class NetSession
     {
         if (_zone == null)
             return;
-        await _zone.SendAsync(NetOpcode.EnterWorld, NetCodec.EncodeEnterWorld(new EnterWorldMsg()), NextSeq());
+        await _zone.SendAsync(
+            NetOpcode.EnterWorld,
+            NetCodec.EncodeEnterWorld(new EnterWorldMsg { Language = PlayerLanguage.Tag }),
+            NextSeq());
     }
 }

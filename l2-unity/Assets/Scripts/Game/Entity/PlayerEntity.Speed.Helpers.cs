@@ -4,6 +4,10 @@ using System;
 
 public partial class PlayerEntity
 {
+    /// <summary>
+    /// Local hero locomotion floats live on <see cref="PlayerAnimationController"/> (child anim_player),
+    /// not the root <see cref="NetworkAnimationController"/> used for remote users.
+    /// </summary>
     protected override IAnimationController LocomotionAnimationController =>
         AnimationPacketServices.PlayerAnimation != null
             ? AnimationPacketServices.PlayerAnimation
@@ -19,6 +23,7 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateRunSpeed(converted);
 
+        RefreshLocomotionAnimRates();
         _lastServerRunSpeed = serverValue;
         return converted;
     }
@@ -41,6 +46,7 @@ public partial class PlayerEntity
         if (player != null)
             player.UpdateWalkSpeed(converted);
 
+        RefreshLocomotionAnimRates();
         return converted;
     }
 

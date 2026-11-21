@@ -111,6 +111,9 @@ public partial class StatusWindow
             level.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
         }
 
+        VisualElement center = GetElementById("CenterContainer");
+        L2InterludeHudSkinPipeline.PaintSmallWndCenterFill(center, nameof(StatusWindow));
+
         PaintSideFrame();
 
         VisualElement grip = GetElementByClass("hor-resize-handle");
@@ -123,27 +126,14 @@ public partial class StatusWindow
 
     void PaintSideFrame()
     {
-        VisualElement frame = GetElementById("Frame_DF_Ver");
-        if (frame == null)
-            return;
+        L2InterludeHudVerticalFrame.TryPaintVerticalColumn(_windowEle ?? _root, nameof(StatusWindow));
 
-        VisualElement column = frame.Q<GroupBox>("Frame_DF_Ver");
-        if (column == null || column.childCount < 4)
-            return;
-
-        Stamp(column[0], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Top");
-        Stamp(column[1], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Center");
-        Stamp(column[2], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Center");
-        Stamp(column[3], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Bottom");
-        for (int i = 0; i < column.childCount; i++)
-            column[i].style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-
-        VisualElement edge = GetElementById("SizeControl");
-        if (edge != null)
-        {
-            Stamp(edge, "Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1");
-            edge.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-        }
+        VisualElement grip = GetElementById("SizeControlHandle");
+        if (grip != null)
+            L2InterludeHudVerticalFrame.StampHorizontalResize(grip, nameof(StatusWindow));
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.StatusWnd,
+            nameof(StatusWindow));
     }
 
     static void PaintBar(VisualElement bar, string resourcesPath)
@@ -151,7 +141,7 @@ public partial class StatusWindow
         if (bar == null)
             return;
 
-        Texture2D texture = LoadUiTexture(resourcesPath);
+        Texture2D texture = LoadUiTexture(resourcesPath, nameof(StatusWindow));
         if (texture == null)
             return;
 
@@ -169,23 +159,32 @@ public partial class StatusWindow
 
     static void Stamp(VisualElement element, string resourcesPath)
     {
-        Texture2D texture = LoadUiTexture(resourcesPath);
+        Texture2D texture = LoadUiTexture(resourcesPath, nameof(StatusWindow));
         if (element == null || texture == null)
             return;
 
         element.style.backgroundImage = new StyleBackground(texture);
     }
 
-    static Texture2D LoadUiTexture(string resourcesPath)
+    static Texture2D LoadUiTexture(string resourcesPath, string context)
     {
+        Texture2D texture = null;
         if (IconPacketServices.Icons != null)
         {
             Texture2D loaded = IconPacketServices.Icons.LoadTextureOtherSources(resourcesPath);
             if (loaded != null && loaded.name != "NOIMAGE")
-                return loaded;
+                texture = loaded;
         }
 
-        return Resources.Load<Texture2D>(resourcesPath);
+        texture ??= Resources.Load<Texture2D>(resourcesPath);
+        if (texture == null)
+        {
+            Debug.LogError(
+                "[StatusWindow] missing HUD texture path='" + resourcesPath +
+                "' context='" + context + "'. Import from ref/l2-interlude-client L2UI_CH3.");
+        }
+
+        return texture;
     }
 
     static float LevelExpRatio(PlayerStats stats)

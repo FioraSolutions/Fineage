@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public static class PlayerSocialAnimApply
 {
-    const string SocialState = "social01";
+    const string SocialState = InterludeSocialAnimationCatalog.SocialAnimatorStateName;
 
     public static bool TryPrepareSocialClip(Entity entity, int socialActionId, out string stateToPlay)
     {
@@ -48,9 +48,14 @@ public static class PlayerSocialAnimApply
             if (original == null)
                 continue;
             string on = original.name;
+            string vn = overrides[i].Value != null ? overrides[i].Value.name : null;
             if (on.IndexOf(SocialState, StringComparison.OrdinalIgnoreCase) < 0
-                && overrides[i].Value != null
-                && overrides[i].Value.name.IndexOf(SocialState, StringComparison.OrdinalIgnoreCase) < 0)
+                && on.IndexOf(InterludeSocialAnimationCatalog.PlaceholderClipNameFragment,
+                    StringComparison.OrdinalIgnoreCase) < 0
+                && (string.IsNullOrEmpty(vn)
+                    || (vn.IndexOf(SocialState, StringComparison.OrdinalIgnoreCase) < 0
+                        && vn.IndexOf(InterludeSocialAnimationCatalog.PlaceholderClipNameFragment,
+                            StringComparison.OrdinalIgnoreCase) < 0)))
                 continue;
 
             oc[original] = clip;

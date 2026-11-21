@@ -13,21 +13,18 @@ public static class WeaponChargeSkillPlayback
         if (effects == null || effectId <= 0 || target == null)
             return;
 
-        // Interlude: charge SFX starts with the weapon glow — fire audio before effect spawn work.
-        PlayChargeSound(skillId, target.position);
+        // Interlude: charge SFX (cast) starts with the weapon glow — shot plays on AttackShot consume.
+        PlayChargeActivationSound(skillId, target.position);
         effects.PlayEffect(effectId, target);
     }
 
-    /// <summary>
-    /// skillsoundgrp for soulshot/spiritshot charge: cast + shot at activation (HitTime is not used).
-    /// </summary>
-    public static void PlayChargeSound(int skillId, Vector3 worldPos)
+    public static void PlayChargeActivationSound(int skillId, Vector3 worldPos)
     {
-        bool spirit = WeaponChargeSkill.IsSpirit(skillId);
-        string castStem = spirit ? "spirits_shot_cast" : "soul_shot_cast";
-        string shotStem = spirit ? "soul_shot_shot" : "soul_shot_shot";
+        SkillCastSound.PlayWeaponChargeActivation(skillId, 1, worldPos);
+    }
 
-        InterludeSfx.Play("Data/Sounds/SkillSound/" + castStem, 0.85f);
-        InterludeSfx.Play("Data/Sounds/SkillSound/" + shotStem, 0.85f);
+    public static void PlayChargeImpactSound(int skillId, Vector3 worldPos)
+    {
+        SkillCastSound.PlayWeaponChargeImpact(skillId, 1, worldPos);
     }
 }

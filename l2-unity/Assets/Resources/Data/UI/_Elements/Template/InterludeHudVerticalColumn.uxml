@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
+    <ui:GroupBox name="InterludeHudVerticalColumn" class="interlude-hud-vertical-column">
+        <ui:VisualElement name="SliceTop" class="interlude-hud-vertical-slice interlude-hud-vertical-slice-top" />
+        <ui:VisualElement name="SliceCenter" class="interlude-hud-vertical-slice interlude-hud-vertical-slice-center" />
+        <ui:VisualElement name="SliceBottom" class="interlude-hud-vertical-slice interlude-hud-vertical-slice-bottom" />
+    </ui:GroupBox>
+</ui:UXML>

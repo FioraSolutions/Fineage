@@ -56,16 +56,7 @@ public partial class SelectableCharacterEntity : MonoBehaviour
     private float GetWalkSpeedPoint(CharSelectInfoPackage info)
     {
         if (info == null)
-            return 1.2f;
-        var race = info.CharacterRaceAnimation;
-        if (race == CharacterRaceAnimation.FFighter ||
-            race == CharacterRaceAnimation.MFighter ||
-            race == CharacterRaceAnimation.FMagic ||
-            race == CharacterRaceAnimation.MMagic)
-        {
-            return 1.2f;
-        }
-
-        return 1.5f;
+            return LocomotionProfileResolver.LobbyWalkSpeed(CharacterRaceAnimation.FFighter);
+        return LocomotionProfileResolver.LobbyWalkSpeed(info.CharacterRaceAnimation);
     }
 }

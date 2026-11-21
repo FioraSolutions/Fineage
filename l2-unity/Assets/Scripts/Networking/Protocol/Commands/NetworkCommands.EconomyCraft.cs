@@ -1,5 +1,56 @@
 using System.Collections.Generic;
+using Fineage.Net.Contract;
 using UnityEngine;
+
+public sealed class RequestSetRecipeShopCommand : INetworkCommand
+{
+    public string Message;
+    public RecipeShopRowNet[] Items;
+
+    public RequestSetRecipeShopCommand(string message, RecipeShopRowNet[] items)
+    {
+        Message = message ?? "";
+        Items = items ?? System.Array.Empty<RecipeShopRowNet>();
+    }
+}
+
+public sealed class RequestRecipeShopMakeInfoCommand : INetworkCommand
+{
+    public int ManufacturerObjectId;
+    public int RecipeId;
+
+    public RequestRecipeShopMakeInfoCommand(int manufacturerObjectId, int recipeId)
+    {
+        ManufacturerObjectId = manufacturerObjectId;
+        RecipeId = recipeId;
+    }
+}
+
+public sealed class RequestRecipeShopMakeItemCommand : INetworkCommand
+{
+    public int ManufacturerObjectId;
+    public int RecipeId;
+
+    public RequestRecipeShopMakeItemCommand(int manufacturerObjectId, int recipeId)
+    {
+        ManufacturerObjectId = manufacturerObjectId;
+        RecipeId = recipeId;
+    }
+}
+
+public sealed class RequestPrivateStoreListCommand : INetworkCommand
+{
+    public int StoreObjectId;
+
+    public RequestPrivateStoreListCommand(int storeObjectId)
+    {
+        StoreObjectId = storeObjectId;
+    }
+}
+
+public sealed class RequestPrivateStoreQuitCommand : INetworkCommand
+{
+}
 
 public sealed class RequestRecipeBookDestroyCommand : INetworkCommand
 {

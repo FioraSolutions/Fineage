@@ -32,7 +32,7 @@ public partial class ChatWindow
 
             VisualElement tabHeaderElement = _tabHeaderTemplate.CloneTree()[0];
             tabHeaderElement.name = _tabs[i].TabName;
-            tabHeaderElement.Q<Label>().text = _tabs[i].TabName;
+            tabHeaderElement.Q<Label>().text = L10n.Get(_tabs[i].TabName);
 
             tabHeaderContainer.Add(tabHeaderElement);
             tabContainer.Add(tabElement);

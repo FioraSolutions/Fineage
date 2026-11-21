@@ -26,7 +26,12 @@ public sealed partial class NameplateBubbleResolver
         }
 
         if (hovering)
+        {
+            Entity entity = target.GetComponentInParent<Entity>();
+            if (entity != null && entity.Identity != null && entity.Identity.IsHideHpBar)
+                return L2TargetRenderType.None;
             return L2TargetRenderType.Normal;
+        }
 
         return L2TargetRenderType.None;
     }

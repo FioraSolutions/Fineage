@@ -86,6 +86,7 @@ public abstract partial class L2Window
             }
 
             root.Add(_windowEle);
+            L10nUiBinder.Bind(_windowEle);
         }
         catch (Exception)
         {

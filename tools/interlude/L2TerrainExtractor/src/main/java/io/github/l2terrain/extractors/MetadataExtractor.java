@@ -158,6 +158,7 @@ public class MetadataExtractor {
                             if (info != null) {
                                 layer.originalName = splatmapName;
                                 layer.groundTexture = info.groundTexture;
+                                layer.groundTexturePackage = info.groundTexturePackage;
                             }
                         }
                         
@@ -196,6 +197,13 @@ public class MetadataExtractor {
         return null;
     }
     
+    private static String formatGroundTextureRef(String packageName, String textureName) {
+        if (packageName != null && !packageName.isBlank()) {
+            return packageName + "." + textureName;
+        }
+        return textureName;
+    }
+
     /**
      * Write metadata to a file.
      */
@@ -215,12 +223,13 @@ public class MetadataExtractor {
             writer.println();
             
             writer.println("# Splatmaps (terrain blend layers)");
-            writer.println("# Format: splatmap_N=filename,ground_texture_name");
+            writer.println("# Format: splatmap_N=filename,ground_texture_ref (Package.TextureName or TextureName)");
             for (TileSplatmapInfo layer : meta.splatmapLayers) {
                 String splatFile = String.format("%d_%d_splatmap%d_layer%d.png", 
                     meta.tileX, meta.tileY, layer.index, layer.index);
                 if (layer.groundTexture != null) {
-                    writer.printf("splatmap_%d=%s,%s%n", layer.index, splatFile, layer.groundTexture);
+                    String groundRef = formatGroundTextureRef(layer.groundTexturePackage, layer.groundTexture);
+                    writer.printf("splatmap_%d=%s,%s%n", layer.index, splatFile, groundRef);
                 } else {
                     writer.printf("splatmap_%d=%s%n", layer.index, splatFile);
                 }
@@ -273,6 +282,7 @@ public class MetadataExtractor {
         public int index;
         public String originalName;
         public String groundTexture;
+        public String groundTexturePackage;
         
         public TileSplatmapInfo(int index) {
             this.index = index;

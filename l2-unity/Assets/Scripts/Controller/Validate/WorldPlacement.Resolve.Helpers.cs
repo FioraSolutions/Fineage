@@ -40,7 +40,8 @@ public static partial class WorldPlacement
 
         // Positive sink: mesh feet below ground → lift. Negative: feet above ground → lower.
         float sink = groundPos.y - minY;
-        if (sink > 5f || sink < -2f || Mathf.Abs(sink) <= 0.001f)
+        // Allow lowering floating NPCs up to ~4.2m (town spawn Y vs walk mesh).
+        if (sink > 5f || sink < -4.2f || Mathf.Abs(sink) <= 0.001f)
             return go.transform.position;
 
         Vector3 p = go.transform.position;

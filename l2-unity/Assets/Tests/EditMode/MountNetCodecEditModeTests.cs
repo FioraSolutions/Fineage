@@ -31,4 +31,20 @@ public sealed class MountNetCodecEditModeTests
         Assert.IsTrue(back.CanRide);
         Assert.AreEqual(9001, back.PetControlObjectId);
     }
+
+    [Test]
+    public void SummonInfo_mountable_tail_roundtrip()
+    {
+        var msg = new SummonInfoNetMsg
+        {
+            ObjectId = 1,
+            Kind = SummonKindNet.Pet,
+            NpcId = 12526,
+            Dead = false,
+            Mountable = true
+        };
+        byte[] bytes = NetCodec.EncodeSummonInfo(msg);
+        SummonInfoNetMsg back = NetCodec.DecodeSummonInfo(bytes);
+        Assert.IsTrue(back.Mountable);
+    }
 }
