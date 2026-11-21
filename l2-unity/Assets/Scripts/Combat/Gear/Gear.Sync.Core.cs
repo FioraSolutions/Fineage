@@ -13,18 +13,14 @@ public partial class Gear
     {
         Weapon rWeapon = rHandId != 0 ? TablePacketServices.Items.GetWeapon(rHandId) : null;
         Weapon lItem = lHandId != 0 ? TablePacketServices.Items.GetWeapon(lHandId) : null;
-        WeaponType rType = rWeapon != null && rWeapon.Weapongrp != null
-            ? rWeapon.Weapongrp.WeaponType : WeaponType.none;
-        WeaponType lType = lItem != null && lItem.Weapongrp != null
-            ? lItem.Weapongrp.WeaponType : WeaponType.none;
+        WeaponAttachLayout rLayout = WeaponAttachLayoutResolver.Resolve(rWeapon?.Weapongrp);
+        WeaponAttachLayout lLayout = WeaponAttachLayoutResolver.Resolve(lItem?.Weapongrp);
+        WeaponType lType = lItem?.Weapongrp?.WeaponType ?? WeaponType.none;
 
-        // dual swords + dual fists / castets (lrhand). Fist starter (Viper's Fang) is
-        // WeaponType.fist from weapongrp handness=7 — still needs both hand meshes.
-        bool dual = rType == WeaponType.dual
-            || rType == WeaponType.dualfist
-            || rType == WeaponType.fist;
-        bool bow = rType == WeaponType.bow;
-        bool lShield = !dual && (lType == WeaponType.shield || lType == WeaponType.none && lHandId != 0 && lItem != null);
+        bool dual = rLayout.SyncAsDualSameId;
+        bool bow = rLayout.EquipPrimaryOnLeft;
+        bool lShield = !dual && (lLayout.IsShieldSlot
+            || (lType == WeaponType.none && lHandId != 0 && lItem != null));
 
         int wantRight = 0;
         int wantLeft = 0;
@@ -77,18 +73,7 @@ public partial class Gear
 
     static bool IsTwoHandedWeapon(Weapon weapon)
     {
-        if (weapon?.Weapongrp == null)
-            return false;
-        if (weapon.Weapongrp.BodyPart == ItemSlot.lrhand)
-            return true;
-        WeaponType type = weapon.Weapongrp.WeaponType;
-        return type == WeaponType.pole
-            || type == WeaponType.staff
-            || type == WeaponType.bigword
-            || type == WeaponType.bigblunt
-            || type == WeaponType.bow
-            || type == WeaponType.dual
-            || type == WeaponType.dualfist;
+        return WeaponAttachLayoutResolver.Resolve(weapon?.Weapongrp).OccupiesBothHands;
     }
 
     void ClearHandsForNewWeapon(bool leftSlot, bool dual, bool twoHand = false)

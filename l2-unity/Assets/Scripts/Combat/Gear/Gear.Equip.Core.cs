@@ -46,9 +46,9 @@ public partial class Gear
         ActivateGameObject(go, weapon.Weapongrp, WeaponAttachEquipMode.Shield, refreshAllBone);
         _equippedShieldVisual = go.transform;
 
-        if (_rightHandType != _lastRightHandType | type != _lastShieldHandType 
-            | _rightHandType == WeaponType.pole 
-            | _rightHandType == WeaponType.staff)
+        var rightLayout = WeaponAttachLayoutResolver.Resolve(_rightHandWeapon?.Weapongrp);
+        if (_rightHandType != _lastRightHandType | type != _lastShieldHandType
+            | rightLayout.CausesStanceAnimRefresh)
         {
             OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }
@@ -64,7 +64,7 @@ public partial class Gear
     public virtual void EquipWeapon(int weaponId, bool leftSlot) {
 
         Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
-        leftSlot = weapon?.Weapongrp?.WeaponType == WeaponType.bow;
+        leftSlot = WeaponAttachLayoutResolver.Resolve(weapon?.Weapongrp).EquipPrimaryOnLeft;
 
 
         ErrorPrint(weapon, weaponId);
@@ -101,11 +101,10 @@ public partial class Gear
         WeaponAttachEquipMode mode = WeaponAttachProfileResolver.ModeForSingleEquip(weapon.Weapongrp, leftSlot);
         ActivateGameObject(go, weapon.Weapongrp, mode, refreshAllBone);
 
-        if(type != _lastRightHandType & _leftHandShield == null 
-            | _rightHandType == WeaponType.pole
-            | _rightHandType == WeaponType.staff
-            | _rightHandType == WeaponType.bigword
-            | _leftHandType == WeaponType.bow)
+        var rightLayout = WeaponAttachLayoutResolver.Resolve(_rightHandWeapon?.Weapongrp);
+        var leftLayout = WeaponAttachLayoutResolver.Resolve(_leftHandWeapon?.Weapongrp);
+        if (WeaponAttachLayoutResolver.EquipTriggersAnimRefresh(
+                type, _lastRightHandType, rightLayout, leftLayout, _leftHandShield != null))
         {
             OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }
@@ -205,10 +204,10 @@ public partial class Gear
         GameObject leftGo = CreateCopy(leftPrefab, weaponNameAndId, ObjectType.Weapon);
         GameObject rightGo = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
 
-        if (type != _lastRightHandType
-            | _rightHandType == WeaponType.pole
-            | _rightHandType == WeaponType.staff
-            | _leftHandType == WeaponType.bow)
+        var rightLayout = WeaponAttachLayoutResolver.Resolve(_rightHandWeapon?.Weapongrp);
+        var leftLayout = WeaponAttachLayoutResolver.Resolve(_leftHandWeapon?.Weapongrp);
+        if (WeaponAttachLayoutResolver.EquipTriggersAnimRefresh(
+                type, _lastRightHandType, rightLayout, leftLayout, leftHandShieldPresent: false))
         {
             OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }

@@ -17,7 +17,7 @@ public partial class Entity : MonoBehaviour
             return null;
 
         // weapon_shot.int [BOW] RH=-1 LH=0: the charge is attached to the left-hand bow, not Sword Bone.
-        if (_gear.WeaponType == WeaponType.bow)
+        if (_gear.CombatStyle.IsRanged)
         {
             Transform bow = FirstWeaponMesh(_gear.GetAllTransformByLeftHand(new[] { Gear.weaponName }));
             if (bow != null)
