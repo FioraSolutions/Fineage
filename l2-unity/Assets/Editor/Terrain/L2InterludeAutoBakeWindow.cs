@@ -275,7 +275,9 @@ public class L2InterludeAutoBakeWindow : EditorWindow
         var parts = new List<string>();
         parts.Add(Directory.Exists(Path.Combine(client ?? "", "maps")) ? "client ok" : "client MISSING maps/");
         parts.Add(File.Exists(Path.Combine(UnityRoot, "External/UEViewer/umodel")) ? "umodel ok" : "umodel MISSING (l2-unity/External/UEViewer/umodel)");
-        parts.Add(Directory.Exists(Path.Combine(UnityRoot, "External/L2TerrainExtractor")) ? "extractor ok" : "L2TerrainExtractor MISSING");
+        bool extractorOk = Directory.Exists(Path.Combine(RepoRoot, "tools/interlude/L2TerrainExtractor"))
+            || Directory.Exists(Path.Combine(UnityRoot, "External/L2TerrainExtractor"));
+        parts.Add(extractorOk ? "extractor ok" : "L2TerrainExtractor MISSING (tools/interlude/L2TerrainExtractor)");
         parts.Add(File.Exists("/opt/homebrew/bin/blender") || File.Exists("/usr/local/bin/blender") ? "blender ok" : "blender MISSING (brew install --cask blender)");
         parts.Add(File.Exists("/usr/local/bin/docker") || File.Exists("/opt/homebrew/bin/docker") ? "docker cli ok (Docker Desktop must be running)" : "docker MISSING");
         return string.Join(", ", parts);

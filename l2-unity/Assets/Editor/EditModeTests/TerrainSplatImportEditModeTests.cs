@@ -42,5 +42,14 @@ public sealed class TerrainSplatImportEditModeTests
         Assert.Greater(loaded.width, 0);
         Assert.DoesNotThrow(() => loaded.GetPixel(0, 0));
     }
+
+    [Test]
+    public void GetTexturePath_resolves_case_insensitive_png_on_disk()
+    {
+        string path = TextureUtils.GetTexturePath("Texture'T_23_13.sch_sn002'");
+        Assert.That(path, Does.Contain("SCh_sn002.png").Or.Contain("sch_sn002.png"));
+        Assert.IsTrue(System.IO.File.Exists(System.IO.Path.GetFullPath(
+            UnityEngine.Application.dataPath + "/../" + path)), "Missing " + path);
+    }
 }
 #endif

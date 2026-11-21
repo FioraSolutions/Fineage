@@ -44,7 +44,14 @@ public partial class L2TerrainInfoParser
             return null;
         }
 
+        layer.diffuseTextureRef = textureInfo;
         layer.texture = TextureUtils.LoadTexture2DFromInfo(textureInfo, L2TerrainGeneratorTool.UV_TEXTURE_SIZE);
+        if (layer.texture == null) {
+            string path = TextureUtils.GetTexturePath(textureInfo);
+            Debug.LogError(
+                "Terrain UV layer diffuse texture missing: ref=" + textureInfo.Trim()
+                + " assetPath=" + path);
+        }
         if (alphaMapInfo != string.Empty) {
             layer.alphaMap = TextureUtils.LoadTexture2DFromInfo(alphaMapInfo, L2TerrainGeneratorTool.UV_LAYER_ALPHAMAP_SIZE);
         }
