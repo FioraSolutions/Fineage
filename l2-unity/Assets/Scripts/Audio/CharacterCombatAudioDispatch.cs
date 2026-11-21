@@ -94,32 +94,43 @@ public static class CharacterCombatAudioDispatch
     }
 
     public static bool PlayHitImpact(bool criticalHit, Vector3 position, int entityId) =>
-        PlayHitImpact(criticalHit, position, entityId, attacker: null, target: null);
+        PlayHitImpact(criticalHit, position, entityId, attacker: null, target: null, shieldBlock: false);
 
     public static bool PlayHitImpact(
         bool criticalHit,
         Vector3 position,
         int entityId,
         Entity attacker,
-        Entity target)
+        Entity target,
+        bool shieldBlock = false)
     {
         AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
         if (service == null)
             return false;
 
-        if (attacker == null && CombatAudioHitContext.TryTake(out Entity pendingAttacker, out bool pendingCrit))
+        if (attacker == null && !shieldBlock
+            && CombatAudioHitContext.TryTake(out Entity pendingAttacker, out bool pendingCrit, out bool pendingShield))
         {
             attacker = pendingAttacker;
+            shieldBlock = pendingShield;
             if (criticalHit == false)
                 criticalHit = pendingCrit;
         }
 
-        int weaponItemId = CombatHitSoundResolver.ResolveAttackerWeaponItemId(attacker);
-        string eventPath = CombatHitSoundResolver.ResolveFmodEventPath(
-            criticalHit,
-            attacker,
-            target,
-            weaponItemId);
+        string eventPath;
+        if (shieldBlock)
+        {
+            eventPath = CombatHitSoundResolver.ResolveShieldBlockFmodEventPath(target);
+        }
+        else
+        {
+            int weaponItemId = CombatHitSoundResolver.ResolveAttackerWeaponItemId(attacker);
+            eventPath = CombatHitSoundResolver.ResolveFmodEventPath(
+                criticalHit,
+                attacker,
+                target,
+                weaponItemId);
+        }
 
         if (string.IsNullOrEmpty(eventPath))
         {
