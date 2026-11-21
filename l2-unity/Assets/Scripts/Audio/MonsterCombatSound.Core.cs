@@ -4,22 +4,11 @@ public static partial class MonsterCombatSound
 {
     public static void Play(MonsterSoundEvent soundEvent, string npcClassName)
     {
-        if (string.IsNullOrEmpty(npcClassName))
-            return;
-
-        string npc = npcClassName.ToLowerInvariant();
-        string key = soundEvent.ToString().ToLowerInvariant();
-
-        AudioClip clip = null;
-        if (soundEvent == MonsterSoundEvent.Dmg)
-            clip = LoadVariant(npc, "dmg");
-        else if (soundEvent == MonsterSoundEvent.Step)
-            clip = LoadVariant(npc, "step");
-        else
-            clip = LoadEvent(npc, key);
-
-        if (clip != null)
-            InterludeSfx.Play(clip, Volume);
+        CharacterCombatAudioDispatch.PlayMonster(
+            soundEvent,
+            npcClassName,
+            Vector3.zero,
+            entityId: 0);
     }
 
     public static void Play(MonsterSoundEvent soundEvent, Entity entity)
@@ -27,9 +16,28 @@ public static partial class MonsterCombatSound
         if (entity == null)
             return;
         string name = ResolveNpcName(entity);
-        if (string.IsNullOrEmpty(name))
-            return;
-        Play(soundEvent, name);
+        int entityId = entity.Identity != null ? entity.Identity.Id : 0;
+        Vector3 position = entity.transform.position;
+        CharacterCombatAudioDispatch.PlayMonster(soundEvent, name, position, entityId);
+    }
+
+    internal static bool TryLoadClip(MonsterSoundEvent soundEvent, string npcClassName, out AudioClip clip)
+    {
+        clip = null;
+        if (string.IsNullOrEmpty(npcClassName))
+            return false;
+
+        string npc = npcClassName.ToLowerInvariant();
+        string key = soundEvent.ToString().ToLowerInvariant();
+
+        if (soundEvent == MonsterSoundEvent.Dmg)
+            clip = LoadVariant(npc, "dmg");
+        else if (soundEvent == MonsterSoundEvent.Step)
+            clip = LoadVariant(npc, "step");
+        else
+            clip = LoadEvent(npc, key);
+
+        return clip != null;
     }
 
     public static string ResolveNpcName(Entity entity)

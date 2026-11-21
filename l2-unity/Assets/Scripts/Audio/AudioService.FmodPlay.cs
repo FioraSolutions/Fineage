@@ -6,26 +6,8 @@ public partial class AudioService
 {
     static readonly HashSet<string> LoggedMissingFmodEvents = new HashSet<string>();
 
-    public bool PlayFmodEvent(string eventPath, AudioCategory category, Vector3? position = null)
-    {
-        if (_disabled || string.IsNullOrEmpty(eventPath))
-            return false;
-
-        EventReference er = RuntimeManager.PathToEventReference(eventPath);
-        if (er.IsNull)
-        {
-            if (LoggedMissingFmodEvents.Add(eventPath))
-                LogAudioError("AudioService: missing FMOD event id=\"" + eventPath + "\"");
-            return false;
-        }
-
-        if (position.HasValue)
-            RuntimeManager.PlayOneShot(er, position.Value);
-        else
-            RuntimeManager.PlayOneShot(er);
-
-        return true;
-    }
+    public bool PlayFmodEvent(string eventPath, AudioCategory category, Vector3? position = null) =>
+        PlayFmodEvent(eventPath, category, position, entityId: 0, eventLabel: "Sfx");
 
     public void PlayCharacterSound(CharacterSoundEvent soundEvent, CharacterRaceSound race, Vector3 position)
     {
@@ -33,14 +15,8 @@ public partial class AudioService
         PlayFmodEvent(path, AudioCategory.Sfx, position);
     }
 
-    public void PlayChrSoundBank(string chrSoundBank, CharacterSoundEvent soundEvent, Vector3 position)
-    {
-        if (string.IsNullOrEmpty(chrSoundBank))
-            return;
-
-        string path = AudioPathResolver.FmodChrSoundBank(chrSoundBank, soundEvent);
-        PlayFmodEvent(path, AudioCategory.Sfx, position);
-    }
+    public void PlayChrSoundBank(string chrSoundBank, CharacterSoundEvent soundEvent, Vector3 position) =>
+        CharacterCombatAudioDispatch.PlayCharacterBank(chrSoundBank, soundEvent, position, entityId: 0);
 
     public void PlayMonsterSoundFmod(MonsterSoundEvent soundEvent, string npcClassName, Vector3 position)
     {
