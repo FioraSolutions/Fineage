@@ -131,8 +131,32 @@ public static partial class LocomotionGait
 
     static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
     {
-        // Stride measurement only needs bind-pose motion on the instantiated skeleton; Playables
-        // against a humanoid avatar without a controller often report zero travel in batchmode.
+        if (clip == null)
+            return;
+
+        if (clip.legacy)
+        {
+            clip.SampleAnimation(go, time);
+            return;
+        }
+
+        Animation anim = go.GetComponent<Animation>();
+        if (anim == null)
+            anim = go.AddComponent<Animation>();
+        string name = clip.name;
+        if (anim.GetClip(name) == null)
+            anim.AddClip(clip, name);
+        anim.clip = clip;
+        var state = anim[name];
+        if (state != null)
+        {
+            state.enabled = true;
+            state.time = time;
+            state.weight = 1f;
+            anim.Sample();
+            return;
+        }
+
         clip.SampleAnimation(go, time);
     }
 }
