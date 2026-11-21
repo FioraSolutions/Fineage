@@ -13,11 +13,11 @@ public static class LocomotionProfileResolver
     const float LobbyStandardWalkSpeed = 1.2f;
     const float LobbyAltWalkSpeed = 1.5f;
 
-    public static LocomotionProfile ResolveFromGear(UserGear gear)
+    public static LocomotionProfile ResolveFromGear(Gear gear)
     {
         if (gear == null)
         {
-            FineageLog.Error(FineageLogCategory.World, "LocomotionProfile: missing UserGear on remote entity");
+            FineageLog.Error(FineageLogCategory.World, "LocomotionProfile: missing Gear on remote entity");
             return LocomotionProfile.BareHand;
         }
 
@@ -27,11 +27,11 @@ public static class LocomotionProfileResolver
 
         FineageLog.Error(
             FineageLogCategory.World,
-            "LocomotionProfile: unresolved CombatStyle on UserGear entity=" + gear.gameObject.name);
+            "LocomotionProfile: unresolved CombatStyle entity=" + gear.gameObject.name);
         return LocomotionProfile.BareHand;
     }
 
-    public static string RemoteAnimatorSuffix(UserGear gear) => ResolveFromGear(gear).AnimSuffix;
+    public static string RemoteAnimatorSuffix(Gear gear) => ResolveFromGear(gear).AnimSuffix;
 
     public static float LobbyWalkSpeed(CharacterRaceAnimation raceAnimation)
     {
