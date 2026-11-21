@@ -15,6 +15,7 @@ public partial class ClickManager
         _lastClickPosition = hit.point;
 
         StopFollow();
+        PredictLocalMoveTo(_lastClickPosition);
         SendPacketMoveToLocation(_lastClickPosition);
 
         if (Targets != null)
@@ -54,5 +55,22 @@ public partial class ClickManager
             return;
 
         ZoneCommands.Send(new MoveToCommand(from, lastClickPosition));
+    }
+
+    /// <summary>
+    /// Interlude starts locomotion on click; server MoveState corrects later.
+    /// </summary>
+    void PredictLocalMoveTo(Vector3 destination)
+    {
+        PlayerController player = ControllerPacketServices.Player;
+        Entity local = DomainPacketServices.LocalPlayer;
+        PlayerStateMachine state = PlayerStatePacketServices.PlayerState;
+        if (player == null || local == null || state == null)
+            return;
+
+        int objectId = local.Identity != null ? local.Identity.Id : 0;
+        Vector3 from = player.transform.position;
+        CharMoveToLocationDto dto = CharMoveToLocationDto.FromUnity(objectId, destination, from);
+        state.ChangeIntention(Intention.INTENTION_MOVE_TO, dto);
     }
 }

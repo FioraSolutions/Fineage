@@ -24,11 +24,17 @@ public partial class AudioService
         if (!MonsterCombatSound.TryLoadClip(soundEvent, npcClassName, out AudioClip clip) || clip == null)
             return false;
 
-        if (position.sqrMagnitude > 0.0001f)
-            PlayClipAt(clip, position, AudioCategory.Sfx, MonsterCombatSound.Volume, atListener: false, clip.name);
-        else
-            PlayLoadedClip2D(clip, AudioCategory.Sfx, MonsterCombatSound.Volume, clip.name);
+        if (position.sqrMagnitude <= 0.0001f)
+        {
+            LogCombatAudioError(
+                "monster combat clip refused without world position",
+                entityId,
+                fmodPath,
+                soundEvent.ToString());
+            return false;
+        }
 
+        PlayClipAt(clip, position, AudioCategory.Sfx, MonsterCombatSound.Volume, atListener: false, clip.name);
         return true;
     }
 
