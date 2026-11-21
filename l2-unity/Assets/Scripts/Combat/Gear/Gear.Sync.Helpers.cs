@@ -62,6 +62,7 @@ public partial class Gear
 
     void ClearShieldMeshesOnBone(Transform bone)
     {
+        _equippedShieldVisual = null;
         ClearPrefixedMeshesOnBone(bone, shieldName);
     }
 

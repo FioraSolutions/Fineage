@@ -88,6 +88,8 @@ public partial class Gear
         if (shield != null)
         {
             DestroyObject(shield.gameObject, _origShieldPrefabName);
+            if (_equippedShieldVisual == shield)
+                _equippedShieldVisual = null;
 
             RefreshHandShield(null);
             int findCount = FindAllWeaponCount(weaponName, shieldName);
