@@ -286,7 +286,7 @@ public sealed partial class NetZoneDispatch
                 _ = (CastleInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.DoorStatus:
-                _ = (DoorStatusNetMsg)packet.Body;
+                _session.ApplyDoorStatus((DoorStatusNetMsg)packet.Body);
                 break;
             case NetOpcode.ManorInfo:
                 _ = (ManorInfoNetMsg)packet.Body;
