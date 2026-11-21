@@ -89,7 +89,10 @@ def main() -> int:
     ap.add_argument("--fix", action="store_true", help="Patch materials under SysTextures")
     ap.add_argument("--glob", default="**/Materials/*.mat")
     args = ap.parse_args()
-    mats_root = ROOT / "l2-unity" / "Assets" / "Resources" / "Data" / "SysTextures"
+    scan_roots = [
+        ROOT / "l2-unity" / "Assets" / "Resources" / "Data" / "SysTextures",
+        ROOT / "l2-unity" / "Assets" / "Resources" / "Data" / "Animations",
+    ]
     ACTOR_TEX_DIRS = (
         "LineageMonstersTex",
         "LineageMonstersTex2",
@@ -109,16 +112,20 @@ def main() -> int:
     )
     offenders: list[dict] = []
     fixed = 0
-    for path in sorted(mats_root.rglob("*.mat")):
-        rel = path.relative_to(mats_root)
-        if rel.parts and rel.parts[0] not in ACTOR_TEX_DIRS:
-            continue
-        row = scan_mat(path)
-        if row:
-            offenders.append(row)
-            if args.fix:
-                if patch_mat(path):
-                    fixed += 1
+    for mats_root in scan_roots:
+        for path in sorted(mats_root.rglob("*.mat")):
+            if "Materials" not in path.parts:
+                continue
+            if mats_root.name == "SysTextures":
+                rel = path.relative_to(mats_root)
+                if rel.parts and rel.parts[0] not in ACTOR_TEX_DIRS:
+                    continue
+            row = scan_mat(path)
+            if row:
+                offenders.append(row)
+                if args.fix:
+                    if patch_mat(path):
+                        fixed += 1
 
     print(f"opaque-alpha mismatches: {len(offenders)}", file=sys.stderr)
     for row in offenders[:80]:

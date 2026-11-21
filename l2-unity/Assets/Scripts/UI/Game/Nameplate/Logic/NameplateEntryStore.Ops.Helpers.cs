@@ -138,10 +138,16 @@ public sealed partial class NameplateEntryStore
             return false;
         }
 
+        Entity entity = target.GetComponentInParent<Entity>();
+        if (entity != null && !EntityInteraction.IsAttackable(entity))
+        {
+            // Interlude: peaceful / teleporter / merchant names in range without LOS to feet.
+            return true;
+        }
+
         CameraController cameraController = CameraPacketServices.Controller;
         if (cameraController != null)
         {
-            Entity entity = target.GetComponentInParent<Entity>();
             Vector3 anchor = entity != null
                 ? L2OverheadAnchor.GetWorldPos(entity, target)
                 : target.position;
