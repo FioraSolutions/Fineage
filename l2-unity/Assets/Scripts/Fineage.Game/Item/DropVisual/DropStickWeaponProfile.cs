@@ -10,15 +10,12 @@ public static class DropStickWeaponProfile
             case WeaponType.dagger:
             case WeaponType.bow:
             case WeaponType.pole:
-            case WeaponType.etc:
             case WeaponType.fist:
             case WeaponType.dual:
             case WeaponType.dualfist:
             case WeaponType.bigword:
             case WeaponType.staff:
             case WeaponType.bigblunt:
-            case WeaponType.rod:
-            case WeaponType.rake:
                 return true;
             default:
                 return false;
