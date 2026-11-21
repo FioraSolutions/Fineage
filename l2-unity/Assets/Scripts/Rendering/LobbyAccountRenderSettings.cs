@@ -2,11 +2,10 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// Shared render settings for account lobby (character select / create). Matches Interlude l2_lobby ambient.
+/// Applies <see cref="LobbyAccountEnvironmentProfile"/> while on account lobby cameras.
 /// </summary>
 public static class LobbyAccountRenderSettings
 {
-    static readonly Color Ambient = new Color(0.38f, 0.46f, 0.48f);
     static bool _applied;
     static bool _fogWas;
     static Color _fogColorWas;
@@ -14,20 +13,62 @@ public static class LobbyAccountRenderSettings
     static float _fogStartWas;
     static float _fogEndWas;
     static float _fogDensityWas;
-    static Color _ambientWas;
+    static Color _ambientSkyWas;
+    static Color _ambientEquatorWas;
+    static Color _ambientGroundWas;
+    static float _ambientIntensityWas;
     static AmbientMode _ambientModeWas;
     static Material _skyWas;
+    static float _reflectionIntensityWas;
 
     public static bool IsApplied => _applied;
 
+    public static LobbyAccountEnvironmentProfile LoadProfile()
+    {
+        var profile = Resources.Load<LobbyAccountEnvironmentProfile>(
+            LobbyAccountEnvironmentProfile.DefaultResourcePath);
+        if (profile == null)
+        {
+            Debug.LogError(
+                "[LobbyAccountRenderSettings] missing Resources/"
+                + LobbyAccountEnvironmentProfile.DefaultResourcePath
+                + " (LobbyAccountEnvironmentProfile)");
+        }
+        return profile;
+    }
+
     public static void Apply()
     {
+        LobbyAccountEnvironmentProfile profile = LoadProfile();
+        if (profile == null)
+            return;
+
         if (!_applied)
             Remember();
 
-        RenderSettings.fog = false;
-        RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = Ambient;
+        RenderSettings.fog = profile.fogEnabled;
+        RenderSettings.fogColor = profile.fogColor;
+        RenderSettings.fogMode = FogMode.Linear;
+        RenderSettings.fogStartDistance = profile.fogStartDistance;
+        RenderSettings.fogEndDistance = profile.fogEndDistance;
+
+        RenderSettings.ambientMode = profile.ambientMode;
+        RenderSettings.ambientIntensity = profile.ambientIntensity;
+        RenderSettings.ambientSkyColor = profile.ambientSky;
+        RenderSettings.ambientEquatorColor = profile.ambientEquator;
+        RenderSettings.ambientGroundColor = profile.ambientGround;
+
+        Material sky = null;
+        if (!string.IsNullOrEmpty(profile.skyboxResourcePath))
+            sky = Resources.Load<Material>(profile.skyboxResourcePath);
+        if (sky == null && !string.IsNullOrEmpty(profile.skyboxResourcePath))
+        {
+            Debug.LogError(
+                "[LobbyAccountRenderSettings] missing skybox material Resources/"
+                + profile.skyboxResourcePath);
+        }
+        RenderSettings.skybox = sky;
+        RenderSettings.reflectionIntensity = profile.reflectionIntensity;
         _applied = true;
     }
 
@@ -42,7 +83,11 @@ public static class LobbyAccountRenderSettings
         RenderSettings.fogEndDistance = _fogEndWas;
         RenderSettings.fogDensity = _fogDensityWas;
         RenderSettings.ambientMode = _ambientModeWas;
-        RenderSettings.ambientLight = _ambientWas;
+        RenderSettings.ambientIntensity = _ambientIntensityWas;
+        RenderSettings.ambientSkyColor = _ambientSkyWas;
+        RenderSettings.ambientEquatorColor = _ambientEquatorWas;
+        RenderSettings.ambientGroundColor = _ambientGroundWas;
+        RenderSettings.reflectionIntensity = _reflectionIntensityWas;
         RenderSettings.skybox = _skyWas;
         _applied = false;
     }
@@ -55,8 +100,12 @@ public static class LobbyAccountRenderSettings
         _fogStartWas = RenderSettings.fogStartDistance;
         _fogEndWas = RenderSettings.fogEndDistance;
         _fogDensityWas = RenderSettings.fogDensity;
-        _ambientWas = RenderSettings.ambientLight;
+        _ambientSkyWas = RenderSettings.ambientSkyColor;
+        _ambientEquatorWas = RenderSettings.ambientEquatorColor;
+        _ambientGroundWas = RenderSettings.ambientGroundColor;
+        _ambientIntensityWas = RenderSettings.ambientIntensity;
         _ambientModeWas = RenderSettings.ambientMode;
         _skyWas = RenderSettings.skybox;
+        _reflectionIntensityWas = RenderSettings.reflectionIntensity;
     }
 }
