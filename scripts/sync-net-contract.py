@@ -76,6 +76,7 @@ FILES = (
     "Messages/ManorMessages.cs",
     "Messages/WorldMessages.Freight.cs",
     "Messages/WorldMessages.MonsterRace.cs",
+    "Messages/WorldMessages.Wedding.cs",
     "Codec/NetCodec.cs",
     "Codec/NetCodec.Session.cs",
     "Codec/NetCodec.Shop.cs",
@@ -102,6 +103,7 @@ FILES = (
     "Codec/NetCodec.Manor.cs",
     "Codec/NetCodec.Freight.cs",
     "Codec/NetCodec.MonsterRace.cs",
+    "Codec/NetCodec.Wedding.cs",
     "Codec/NetCodec.Castle.cs",
     "Modules/IDomainModule.cs",
 )
