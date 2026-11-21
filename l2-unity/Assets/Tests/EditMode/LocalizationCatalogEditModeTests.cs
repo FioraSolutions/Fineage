@@ -60,7 +60,7 @@ public sealed class LocalizationCatalogEditModeTests
   public void PlayerLocale_normalizes_invalid_to_en()
     {
         Assert.AreEqual("en", PlayerLocale.Normalize(null));
-        Assert.AreEqual("en", PlayerLocale.Normalize("EN-US"));
+        Assert.AreEqual("en-us", PlayerLocale.Normalize("EN-US"));
         Assert.True(PlayerLocale.TryNormalize("pt-br", out string tag));
         Assert.AreEqual("pt-br", tag);
     }

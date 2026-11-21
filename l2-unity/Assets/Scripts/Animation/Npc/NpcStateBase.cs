@@ -5,7 +5,7 @@ public class NpcStateBase : StateMachineBehaviour {
     protected NetworkAnimationController _networkAnimationController;
     public CharacterAnimationAudioHandler audioHandler;
     public Animator animator;
-    private Entity _entity;
+    protected Entity _entity;
 
     public void LoadComponents(Animator animator) {
         if(audioHandler == null) {

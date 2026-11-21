@@ -106,10 +106,12 @@ public partial class EntityActionVisual
             return;
         }
 
-        if (AudioPacketServices.Audio == null)
-            return;
-        AudioPacketServices.Audio.PlayCharacterSound(
-            CharacterSoundEvent.Death, CharacterRaceSound.Default, entity.transform.position);
+        int entityId = entity.Identity != null ? entity.Identity.Id : 0;
+        CharacterCombatAudioDispatch.PlayCharacterRace(
+            CharacterSoundEvent.Death,
+            CharacterRaceSound.Default,
+            entity.transform.position,
+            entityId);
     }
 
     /// <summary>Release the fake-death latch (wake-up, real death, or a fresh spawn reusing the id).</summary>

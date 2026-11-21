@@ -365,6 +365,7 @@ public static class L2NpcImportBatch
             if (existing != null)
             {
                 EditorUtility.CopySerialized(src, existing);
+                PostProcessNpcClip(existing);
                 EditorUtility.SetDirty(existing);
                 map[Normalize(src.name)] = existing;
             }
@@ -372,12 +373,23 @@ public static class L2NpcImportBatch
             {
                 var copy = UnityEngine.Object.Instantiate(src);
                 copy.name = safe;
+                PostProcessNpcClip(copy);
                 AssetDatabase.CreateAsset(copy, path);
                 map[Normalize(src.name)] = copy;
             }
         }
 
         return map;
+    }
+
+    static void PostProcessNpcClip(AnimationClip clip)
+    {
+        if (clip == null)
+            return;
+        L2AnimClipPipeline.StripRedundantEulerCurves(clip);
+        L2AnimClipPipeline.ApplyStandardLoopSettings(
+            clip,
+            L2AnimClipPipeline.ShouldLoopNpcLocomotion(clip.name));
     }
 
     static string Normalize(string n)
@@ -422,7 +434,9 @@ public static class L2NpcImportBatch
             return clips.Count > 0 ? clips.Values.First() : null;
         }
 
-        AnimationClip wait = Find("wait_1hs", "wait");
+        AnimationClip wait = Find("wait_1hs", "wait", "wait_pole", "wait_bow");
+        if (wait == null)
+            Debug.LogError("[NpcImport] missing base wait clip for override " + ov.name);
         AnimationClip death = Find("death_hand", "death");
         AnimationClip deathWait = Find("deathwait", "death_wait");
         AnimationClip social = Find("social01", "social");
@@ -475,6 +489,8 @@ public static class L2NpcImportBatch
             root.AddComponent<CharacterAnimationAudioHandler>();
         if (root.GetComponent<NpcEntity>() == null)
             root.AddComponent<NpcEntity>();
+        if (root.GetComponent<NpcIdleScheduler>() == null)
+            root.AddComponent<NpcIdleScheduler>();
         if (root.GetComponent<NpcStateMachine>() == null)
             root.AddComponent<NpcStateMachine>();
 

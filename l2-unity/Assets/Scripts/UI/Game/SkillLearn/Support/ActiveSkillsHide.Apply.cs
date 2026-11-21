@@ -29,6 +29,15 @@ public partial class ActiveSkillsHide
 
     public void CreatePhysicalSlots(List<SkillInstance> list , VisualElement rowPhysical)
     {
+        if (_templateSlotSkill == null || _templatePanel8x1 == null || _templateBoxPanel == null)
+        {
+            Debug.LogError(
+                "[SkillList] ActiveSkillsHide.CreatePhysicalSlots: missing template slot=" +
+                (_templateSlotSkill == null) + " row8x1=" + (_templatePanel8x1 == null) + " box=" +
+                (_templateBoxPanel == null));
+            return;
+        }
+
         if (rowPhysical != null)
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
@@ -41,12 +50,21 @@ public partial class ActiveSkillsHide
         }
         else
         {
-            // Debug.LogWarning("ActiveSkillsHide > not found root panels ");
+            Debug.LogError("[SkillList] ActiveSkillsHide.CreatePhysicalSlots: RowPhysical missing in TabActive.");
         }
     }
 
     public void CreateMagicalSlots(List<SkillInstance> list, VisualElement rowMagical)
     {
+        if (_templateSlotSkill == null || _templatePanel8x1 == null || _templateBoxPanel == null)
+        {
+            Debug.LogError(
+                "[SkillList] ActiveSkillsHide.CreateMagicalSlots: missing template slot=" +
+                (_templateSlotSkill == null) + " row8x1=" + (_templatePanel8x1 == null) + " box=" +
+                (_templateBoxPanel == null));
+            return;
+        }
+
         if (rowMagical != null)
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
@@ -58,7 +76,7 @@ public partial class ActiveSkillsHide
         }
         else
         {
-            // Debug.LogWarning("ActiveSkillsHide > not found root panels ");
+            Debug.LogError("[SkillList] ActiveSkillsHide.CreateMagicalSlots: RowMagical missing in TabActive.");
         }
     }
 
@@ -104,29 +122,17 @@ public partial class ActiveSkillsHide
 
     void EnsureSectionRowsExpanded(VisualElement rowPhysical, VisualElement rowMagical)
     {
-        if (rowPhysical != null)
-            rowPhysical.style.display = DisplayStyle.Flex;
-        if (rowMagical != null)
-            rowMagical.style.display = DisplayStyle.Flex;
-        if (_arrDfActiveSelect != null)
-        {
-            if (_arrDfActiveSelect.Length > 0)
-                _arrDfActiveSelect[0] = 1;
-            if (_arrDfActiveSelect.Length > 1)
-                _arrDfActiveSelect[1] = 1;
-        }
-
-        SyncExpandButton(_activeSkillPanel?.Q<Button>("DF_Button"), 0);
-        SyncExpandButton(_activeSkillPanel?.Q<Button>("DF_Button_Magic"), 1);
-    }
-
-    void SyncExpandButton(Button button, int index)
-    {
-        if (button == null || _arrDfActiveSelect == null || index < 0 || index >= _arrDfActiveSelect.Length)
-            return;
-        bool expanded = _arrDfActiveSelect[index] != 0;
-        ChangeDfBox(button, L2ExpandCollapseUiAssets.CollapseButton);
-        if (!expanded)
-            ChangeDfBox(button, L2ExpandCollapseUiAssets.ExpandButton);
+        SetSectionExpanded(
+            _activeSkillPanel?.Q<Button>("DF_Button"),
+            _arrDfActiveSelect,
+            0,
+            rowPhysical,
+            true);
+        SetSectionExpanded(
+            _activeSkillPanel?.Q<Button>("DF_Button_Magic"),
+            _arrDfActiveSelect,
+            1,
+            rowMagical,
+            true);
     }
 }
