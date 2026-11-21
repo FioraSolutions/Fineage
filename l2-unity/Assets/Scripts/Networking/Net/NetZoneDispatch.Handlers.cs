@@ -314,24 +314,15 @@ public sealed partial class NetZoneDispatch
                 break;
             case NetOpcode.PackageToList:
                 _ = (PackageToListNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.PackageSendableList:
                 _ = (PackageSendableListNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.MonRaceInfo:
                 _ = (MonRaceInfoNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
-                break;
-            case NetOpcode.PackageToList:
-            case NetOpcode.PackageSendableList:
-            case NetOpcode.MonRaceInfo:
-            case NetOpcode.WeddingEngageAsk:
-                _ = packet.Body;
                 break;
             case NetOpcode.FishingEvent:
                 _ = (FishingEventNetMsg)packet.Body;
