@@ -1,11 +1,12 @@
-namespace Fineage.Net.Contract;
+namespace Fineage.Net.Contract
+{
 
 /// <summary>Interlude <c>MonRaceInfo</c> (0xDD) — monster derby runners and per-segment speeds.</summary>
 public sealed class MonRaceInfoNetMsg
 {
     public int CodeA { get; set; }
     public int CodeB { get; set; }
-    public MonRaceRunnerNetMsg[] Runners { get; set; } = [];
+    public MonRaceRunnerNetMsg[] Runners { get; set; } = System.Array.Empty<MonRaceRunnerNetMsg>();
 }
 
 public sealed class MonRaceRunnerNetMsg
@@ -22,4 +23,5 @@ public sealed class MonRaceRunnerNetMsg
     public double CollisionRadius { get; set; }
     public int Unknown120 { get; set; } = 120;
     public byte[] Speeds { get; set; } = new byte[20];
+}
 }

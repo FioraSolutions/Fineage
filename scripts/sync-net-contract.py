@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -130,6 +131,33 @@ def _git_source(repo: Path, ref: str, rel: str) -> bytes | None:
     return out.stdout if out.returncode == 0 else None
 
 
+def unity_cs9_fixup(text: str) -> str:
+    """Backend Fineage.Net.Contract targets modern C#; Unity 6000.3 compiles C# 9 only."""
+    if text.startswith("namespace ") and ";\n" in text[:64]:
+        text = re.sub(
+            r"^namespace ([\w.]+);\n",
+            r"namespace \1\n{\n",
+            text,
+            count=1,
+        )
+        text = text.rstrip() + "\n}\n"
+
+    text = re.sub(
+        r"public (\w+)\[\] (\w+) \{ get; set; \} = \[\];",
+        r"public \1[] \2 { get; set; } = System.Array.Empty<\1>();",
+        text,
+    )
+    return text
+
+
+def unity_cs9_fixup_bytes(data: bytes) -> bytes:
+    try:
+        text = data.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return data
+    return unity_cs9_fixup(text).encode("utf-8")
+
+
 def read_source(
     source: Path,
     rel: str,
@@ -180,7 +208,8 @@ def compare(
         if not dst.is_file():
             differing.append(rel)
             continue
-        if dst.read_bytes() != data:
+        expected = unity_cs9_fixup_bytes(data)
+        if dst.read_bytes() != expected:
             differing.append(rel)
 
     return missing, differing
@@ -201,12 +230,13 @@ def write_contract(
         if data is None:
             print(f"skip (no backend source): {rel}", file=sys.stderr)
             continue
-        if dst.is_file() and dst.read_bytes() == data:
+        payload = unity_cs9_fixup_bytes(data)
+        if dst.is_file() and dst.read_bytes() == payload:
             continue
 
         dst.parent.mkdir(parents=True, exist_ok=True)
         # write_bytes keeps mtime current, which is what Unity's importer keys on.
-        dst.write_bytes(data)
+        dst.write_bytes(payload)
         print(f"updated {rel}")
         changed += 1
 
