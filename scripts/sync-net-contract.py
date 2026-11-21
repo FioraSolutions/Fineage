@@ -144,8 +144,14 @@ def adapt_net_contract_for_unity_cs9(text: str, rel: str) -> str:
     if rel not in UNITY_CS9_ADAPT_FILES:
         return text
     if text.startswith("namespace Fineage.Net.Contract;\n"):
-        body = text[len("namespace Fineage.Net.Contract;\n") :]
-        text = "namespace Fineage.Net.Contract\n{\n" + body.rstrip() + "\n}\n"
+        body = text[len("namespace Fineage.Net.Contract;\n") :].rstrip("\n")
+        lines = []
+        for line in body.splitlines():
+            if line.strip():
+                lines.append("    " + line)
+            else:
+                lines.append("")
+        text = "namespace Fineage.Net.Contract\n{\n" + "\n".join(lines) + "\n}\n"
     text = text.replace(
         "public MonRaceRunnerNetMsg[] Runners { get; set; } = [];",
         "public MonRaceRunnerNetMsg[] Runners { get; set; } = System.Array.Empty<MonRaceRunnerNetMsg>();",
