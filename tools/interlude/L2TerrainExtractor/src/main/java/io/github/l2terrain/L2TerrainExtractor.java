@@ -24,10 +24,12 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import io.github.l2terrain.extractors.TerrainTextureExtractor.GroundTextureRef;
 
 /**
  * L2TerrainExtractor - Extract terrain data from Lineage 2 packages
@@ -75,6 +77,8 @@ public class L2TerrainExtractor implements Callable<Integer> {
     
     // Shared cache built from map files (if --maps is provided)
     private TerrainDataCache terrainCache;
+
+    private final Set<String> missingGroundTextures = new LinkedHashSet<>();
     
     public static void main(String[] args) {
         int exitCode = new CommandLine(new L2TerrainExtractor()).execute(args);
@@ -142,6 +146,12 @@ public class L2TerrainExtractor implements Callable<Integer> {
         }
         
         // Extract static meshes if requested (requires maps directory)
+        if (!missingGroundTextures.isEmpty()) {
+            System.err.println("\nGround texture extraction failed — missing "
+                + missingGroundTextures.size() + " referenced texture(s). See errors above.");
+            return 1;
+        }
+
         if (extractStaticMeshes) {
             if (mapsDir == null) {
                 System.err.println("\nWarning: --static-meshes requires --maps to be specified");
@@ -329,71 +339,70 @@ public class L2TerrainExtractor implements Callable<Integer> {
     
     private int[] extractTerrainTextures() throws IOException {
         TerrainTextureExtractor extractor = new TerrainTextureExtractor();
-        
-        Set<String> textureNames = null;
-        
+        missingGroundTextures.clear();
+
+        Set<GroundTextureRef> textureRefs;
         if (!extractAllTerrainTextures) {
-            // First, collect all unique texture names from metadata files
-            textureNames = extractor.collectTextureNamesFromMetadata(outputDir);
-            
-            if (textureNames.isEmpty()) {
+            textureRefs = extractor.collectGroundTextureRefsFromMetadata(outputDir);
+            if (textureRefs.isEmpty()) {
                 System.out.println("No texture names found in metadata. Run with --maps first to generate metadata,");
-                System.out.println("or use --all-terrain-textures to extract all textures from regional packages.");
+                System.out.println("or use --all-terrain-textures to extract all textures from client packages.");
                 return new int[]{0, 0};
             }
-            
-            System.out.printf("Found %d unique texture names referenced in metadata%n", textureNames.size());
+            System.out.printf("Found %d unique ground texture ref(s) in metadata%n", textureRefs.size());
         } else {
-            System.out.println("Extracting ALL textures from regional packages...");
+            System.out.println("Extracting ALL textures from every .utx under " + inputDir + "...");
+            textureRefs = null;
         }
-        
-        // Create terraintextures output directory
+
         Path texOutputDir = outputDir.resolve("terraintextures");
         Files.createDirectories(texOutputDir);
-        
-        // Extract textures from regional packages
-        Map<String, TextureInfo> textures = extractor.extractAll(inputDir, textureNames);
-        
+
+        Map<String, TextureInfo> textures;
+        if (extractAllTerrainTextures) {
+            textures = extractor.extractAllFromClient(inputDir);
+        } else {
+            textures = extractor.resolveGroundTextures(inputDir, textureRefs);
+        }
+
         int success = 0;
         int failed = 0;
-        
+
         for (TextureInfo tex : textures.values()) {
             Path outputPath = texOutputDir.resolve(tex.name.toLowerCase() + ".png");
-            
             try {
                 ImageIO.write(tex.image, "PNG", outputPath.toFile());
                 success++;
                 if (verbose) {
-                    System.out.printf("  Extracted: %s (%dx%d from %s)%n", 
+                    System.out.printf("  Wrote: %s (%dx%d from %s)%n",
                         tex.name, tex.width, tex.height, tex.sourcePackage);
                 }
             } catch (IOException e) {
                 failed++;
-                System.err.println("  Failed: " + tex.name + " - " + e.getMessage());
+                System.err.println("  Failed to write PNG: " + tex.name + " - " + e.getMessage());
             }
         }
-        
-        // Report any textures that were referenced but not found
-        if (!extractAllTerrainTextures && textureNames != null) {
-            Set<String> foundNames = new HashSet<>();
-            for (TextureInfo tex : textures.values()) {
-                foundNames.add(tex.name.toLowerCase());
+
+        if (!extractAllTerrainTextures && textureRefs != null) {
+            Set<String> foundKeys = textures.keySet();
+            for (GroundTextureRef ref : textureRefs) {
+                if (!foundKeys.contains(ref.key())) {
+                    missingGroundTextures.add(ref.textureName());
+                }
             }
-            
-            Set<String> missingTextures = new HashSet<>(textureNames);
-            missingTextures.removeAll(foundNames);
-            
-            if (!missingTextures.isEmpty()) {
-                System.out.printf("  Error: %d referenced terrain texture(s) not found under %s%n", missingTextures.size(), inputDir);
-                for (String missing : missingTextures.stream().sorted().toList()) {
+            if (!missingGroundTextures.isEmpty()) {
+                System.err.printf(
+                    "Error: %d referenced ground texture(s) not found under %s%n",
+                    missingGroundTextures.size(), inputDir);
+                for (String missing : missingGroundTextures.stream().sorted().toList()) {
                     System.err.println("    missing ground texture: " + missing);
                 }
             }
-            
-            System.out.printf("Extracted %d terrain textures (%d failed, %d not found)%n", 
-                success, failed, missingTextures.size());
+            System.out.printf(
+                "Extracted %d ground textures (%d write failed, %d not found)%n",
+                success, failed, missingGroundTextures.size());
         } else {
-            System.out.printf("Extracted %d terrain textures (%d failed)%n", success, failed);
+            System.out.printf("Extracted %d terrain textures (%d write failed)%n", success, failed);
         }
         return new int[]{success, failed};
     }
