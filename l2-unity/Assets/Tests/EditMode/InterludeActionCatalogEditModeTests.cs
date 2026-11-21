@@ -39,6 +39,15 @@ public sealed class InterludeActionCatalogEditModeTests
     }
 
     [Test]
+    public void Catalog_assigns_availability_from_actionname_rows()
+    {
+        Assert.IsTrue(InterludeActionCatalog.TryGet(38, out var mount));
+        Assert.AreEqual(InterludeActionAvailabilityKind.MountablePetSummonedOrMounted, mount.Availability);
+        Assert.IsTrue(InterludeActionCatalog.TryGet(3, out var trade));
+        Assert.AreEqual(InterludeActionAvailabilityKind.None, trade.Availability);
+    }
+
+    [Test]
     public void Catalog_icons_and_names_match_interlude_actionname()
     {
         Assert.IsTrue(InterludeActionNameFile.TryLoad(out InterludeActionNameFile.Row[] rows));

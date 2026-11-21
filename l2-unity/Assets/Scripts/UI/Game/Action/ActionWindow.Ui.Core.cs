@@ -11,8 +11,24 @@ public partial class ActionWindow : L2PopupWindow
         int baseIndex = SectionBaseSlotIndex(section);
         int maxSlots = SectionMaxSlots(section);
         InterludeActionCatalog.Entry[] rows = InterludeActionCatalog.SectionSlots(section);
-        for (int i = 0; i < rows.Length && i < maxSlots; i++)
-            _slots[baseIndex + i].AssignAction((ActionType)rows[i].Id);
+        InterludeActionAvailabilityService availability = ActionAvailabilityPacketServices.Availability;
+        for (int i = 0; i < maxSlots; i++)
+        {
+            ActionSlot slot = _slots[baseIndex + i];
+            if (i < rows.Length && availability.IsAvailable(in rows[i]))
+                slot.AssignAction((ActionType)rows[i].Id);
+            else
+                slot.ClearAction();
+        }
+    }
+
+    public void RefreshActionAvailability()
+    {
+        if (_slots == null || _slots.Count == 0)
+            return;
+        AssignSection(InterludeActionSection.Basic, _basicContainer);
+        AssignSection(InterludeActionSection.Party, _partyContainer);
+        AssignSection(InterludeActionSection.Social, _socialContainer);
     }
 
     static int SectionBaseSlotIndex(InterludeActionSection section)

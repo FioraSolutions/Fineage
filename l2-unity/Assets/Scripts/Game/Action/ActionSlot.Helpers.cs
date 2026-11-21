@@ -7,6 +7,22 @@ public partial class ActionSlot : L2DraggableSlot
     {
     }
 
+    public void ClearAction()
+    {
+        ActionId = 0;
+        Action = null;
+        _slotDragManipulator.enabled = false;
+        if (_slotElement != null)
+            _slotElement.AddToClassList("empty");
+        if (_slotBg != null)
+            _slotBg.style.backgroundImage = StyleKeyword.Null;
+        if (_tooltipManipulator != null)
+        {
+            _slotElement.RemoveManipulator(_tooltipManipulator);
+            _tooltipManipulator = null;
+        }
+    }
+
     public void AssignAction(ActionType actionType)
     {
         ButtonClickSoundManipulator _buttonClickSoundManipulator = new ButtonClickSoundManipulator(_slotElement);
@@ -61,7 +77,8 @@ public partial class ActionSlot : L2DraggableSlot
             case ActionType.PrivateStoreSell: return "Private Store - Sell\nSet up a private store to sell items. (/vendor)";
             case ActionType.PrivateStoreBuy: return "Private Store - Buy\nSet up a private store to buy items. (/buy)";
             case ActionType.DwarvenManufacture: return "Dwarven Workshop\nSet up a workshop that crafts from Dwarven recipes. (/dwarvenmanufacture)";
-            case ActionType.Mount: return "Mount/Dismount\nMount or dismount a strider you already have summoned. Does not summon one. (/mount, /dismount)";
+            case ActionType.Mount:
+                return "Mount/Dismount";
             case ActionType.Recommend: return "Recommend\nRaise the selected character's evaluation. (/evaluate)";
             case ActionType.SocialGreeting: return "Greeting\nEmote: hello. (/socialhello)";
             case ActionType.SocialVictory: return "Victory\nEmote: victory. (/socialvictory)";

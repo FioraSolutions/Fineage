@@ -70,5 +70,23 @@ public partial class ActionWindow : L2PopupWindow
         AssignSection(InterludeActionSection.Basic, _basicContainer);
         AssignSection(InterludeActionSection.Party, _partyContainer);
         AssignSection(InterludeActionSection.Social, _socialContainer);
+        WireActionAvailability();
+    }
+
+    void WireActionAvailability()
+    {
+        _availabilityChanged = OnActionAvailabilityChanged;
+        ActionAvailabilityPacketServices.Availability.Changed += _availabilityChanged;
+        RefreshActionAvailability();
+    }
+
+    System.Action _availabilityChanged;
+
+    void OnActionAvailabilityChanged() => RefreshActionAvailability();
+
+    void OnDisable()
+    {
+        if (_availabilityChanged != null)
+            ActionAvailabilityPacketServices.Availability.Changed -= _availabilityChanged;
     }
 }

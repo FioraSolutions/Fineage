@@ -298,10 +298,10 @@ public sealed partial class NetZoneDispatch
                 _ = (DuelUserInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.SummonInfo:
-                _ = (SummonInfoNetMsg)packet.Body;
+                _session.ApplySummonInfo((SummonInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.SummonGone:
-                _ = (SummonGoneNetMsg)packet.Body;
+                _session.ApplySummonGone((SummonGoneNetMsg)packet.Body);
                 break;
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
