@@ -64,6 +64,7 @@ public sealed class SkillListWindowPopulateEditModeTests
 
         _skillListHost = new GameObject("SkillListWindowEditModeHost");
         var window = _skillListHost.AddComponent<SkillListWindow>();
+        window.EditorTestSimulateAwakeForTests();
         Assert.IsTrue(window.IsSkillListSingletonOwnerForTests, "test host must own SkillListWindow singleton");
         window.EditorTestLoadAssets();
 

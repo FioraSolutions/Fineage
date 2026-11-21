@@ -135,6 +135,10 @@ public static partial class LocomotionGait
     {
         if (clip.legacy || animator == null)
             return true;
+        // Catalog stride measurement samples clips on an instantiated body prefab with no
+        // runtime controller; Playables need a driven graph and often report zero travel in batchmode.
+        if (animator.runtimeAnimatorController == null)
+            return true;
         Avatar avatar = animator.avatar;
         return avatar == null || !avatar.isValid;
     }
