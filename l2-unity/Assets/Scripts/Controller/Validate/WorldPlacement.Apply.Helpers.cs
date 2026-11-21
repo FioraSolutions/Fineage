@@ -45,6 +45,29 @@ public static partial class WorldPlacement
     }
 
     /// <summary>
+    /// Snap when a batched primary down-ray hit is walkable (first CollectWalkableYs probe).
+    /// Returns false when the hit is unusable — callers should fall back to <see cref="KeepOnBrush"/>.
+    /// </summary>
+    public static bool TrySnapWalkableFromRaycastHit(Vector3 feet, RaycastHit hit, out Vector3 snapped)
+    {
+        snapped = feet;
+        if (!IsWalkableHit(hit))
+            return false;
+
+        _scratchYs.Clear();
+        _scratchYs.Add(hit.point.y);
+        float y = WorldGrounding.PickHeight(feet.y, _scratchYs);
+        snapped = new Vector3(feet.x, y, feet.z);
+        for (int i = 0; i < _scratchYs.Count; i++)
+        {
+            if (Mathf.Abs(_scratchYs[i] - feet.y) <= WorldGrounding.SnapToleranceMeters)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Street under a point: same pipeline as spawn/move. Kept so existing
     /// call sites share the one snap rule.
     /// </summary>

@@ -21,6 +21,9 @@ public sealed class PerfProfilingEditModeTests
                 "Fineage.Crowd.Tier",
                 "Fineage.Fx.Budget",
                 "Fineage.Gravity.Step",
+                "Fineage.Move.BurstPlan",
+                "Fineage.Move.BurstRotate",
+                "Fineage.Gravity.RaycastBatch",
             },
             FineagePerfProfiling.RoadmapMarkerNames);
 
@@ -29,6 +32,7 @@ public sealed class PerfProfilingEditModeTests
         Assert.AreEqual(FineagePerfProfiling.CrowdTierName, FineagePerfProfiling.RoadmapMarkerNames[10]);
         Assert.AreEqual(FineagePerfProfiling.FxBudgetName, FineagePerfProfiling.RoadmapMarkerNames[11]);
         Assert.AreEqual(FineagePerfProfiling.GravityStepName, FineagePerfProfiling.RoadmapMarkerNames[12]);
+        Assert.AreEqual(FineagePerfProfiling.MoveBurstPlanName, FineagePerfProfiling.RoadmapMarkerNames[13]);
     }
 
     [Test]
