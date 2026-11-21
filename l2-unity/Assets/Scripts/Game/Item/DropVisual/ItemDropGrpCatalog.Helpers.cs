@@ -12,20 +12,7 @@ public sealed partial class ItemDropGrpCatalog
         if (weapon == null || weapon.Weapongrp == null)
             return false;
 
-        switch (weapon.Weapongrp.WeaponType)
-        {
-            case WeaponType.sword:
-            case WeaponType.bigword:
-            case WeaponType.dagger:
-            case WeaponType.blunt:
-            case WeaponType.bigblunt:
-            case WeaponType.dual:
-            case WeaponType.pole:
-            case WeaponType.staff:
-                return true;
-            default:
-                return false;
-        }
+        return DropStickWeaponProfile.UsesStickDropModel(weapon.Weapongrp.WeaponType);
     }
 
     public bool IsWeapon(int itemId)
