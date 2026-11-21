@@ -136,7 +136,10 @@ public sealed class DetailedMapOverlay
             _layerTitle.text = zone.name;
 
         if (_layerImage != null)
+        {
             _layerImage.style.backgroundImage = new StyleBackground(tex);
+            _layerImage.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+        }
 
         _layer.style.display = DisplayStyle.Flex;
         UpdateMarkers();
@@ -151,8 +154,17 @@ public sealed class DetailedMapOverlay
 
     static Vector2 PlayerL2(PlayerController player)
     {
-        Vector3 worldPos = player.GetPlayerPosition();
-        return new Vector2(worldPos.z * 52.5f, worldPos.x * 52.5f);
+        if (player == null)
+            return Vector2.zero;
+
+        Entity entity = player.GetComponent<Entity>();
+        if (entity != null && entity.Identity != null)
+        {
+            Vector3 l2j = entity.Identity.GetL2jPos(player.GetPlayerPosition());
+            return L2MapCoordinates.MapPlaneFromL2jVector(l2j);
+        }
+
+        return L2MapCoordinates.MapPlaneFromUnity(player.GetPlayerPosition());
     }
 
     public void UpdateMarkers()

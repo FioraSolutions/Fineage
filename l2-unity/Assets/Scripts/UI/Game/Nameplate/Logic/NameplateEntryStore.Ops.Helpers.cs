@@ -138,12 +138,33 @@ public sealed partial class NameplateEntryStore
             return false;
         }
 
+        Entity entity = target.GetComponentInParent<Entity>();
+        if (entity != null && !EntityInteraction.IsAttackable(entity) && !IsTeleporterNpc(entity))
+        {
+            // Interlude: peaceful merchants / folk in range without LOS to feet (not gatekeepers).
+            return true;
+        }
+
         CameraController cameraController = CameraPacketServices.Controller;
         if (cameraController != null)
         {
-            return cameraController.IsObjectVisible(target);
+            Vector3 anchor = entity != null
+                ? L2OverheadAnchor.GetWorldPos(entity, target)
+                : target.position;
+            return cameraController.IsPointVisible(anchor);
         }
 
         return true;
+    }
+
+    static bool IsTeleporterNpc(Entity entity)
+    {
+        if (entity?.Identity == null)
+            return false;
+        Npcgrp grp = TablePacketServices.NpcGrps?.GetNpcgrp(entity.Identity.NpcId);
+        if (grp == null)
+            return false;
+        string cn = grp.ClassName ?? string.Empty;
+        return cn.IndexOf("teleporter", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

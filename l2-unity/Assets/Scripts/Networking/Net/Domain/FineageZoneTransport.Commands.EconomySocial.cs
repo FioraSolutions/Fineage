@@ -232,6 +232,8 @@ public sealed partial class FineageZoneTransport
                 return true;
             if (TrySendNetTradeUserCommand(netUserCommand.Id))
                 return true;
+            if (TrySendNetCraftUserCommand(netUserCommand.Id))
+                return true;
         }
 
         // No Net opcode exists for this command yet. Returning true still drops it, but say

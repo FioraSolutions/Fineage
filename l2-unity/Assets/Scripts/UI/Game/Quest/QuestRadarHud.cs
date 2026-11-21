@@ -48,10 +48,11 @@ public sealed class QuestRadarHud : MonoBehaviour
 
         _host.style.display = DisplayStyle.Flex;
 
-        Vector3 fwd = player.transform.forward;
+        Vector3 fwd = ResolveRadarForward(player);
         // Unity +X = L2 +Y (north), Unity +Z = L2 +X (east).
         float faceAng = Mathf.Atan2(fwd.z, fwd.x);
         PlaceOnRim(_north, -faceAng, NorthSizePx);
+        _north.tintColor = Color.white;
 
         if (!QuestDirectionSight.TryActive(out QuestDirectionTarget target, out _, out Vector3 playerL2, out float planarUu))
         {
@@ -163,5 +164,16 @@ public sealed class QuestRadarHud : MonoBehaviour
         if (tex == null)
             Debug.LogError($"[QuestRadar] missing texture path={path}. Import L2UI_CH3 Radar from Interlude client.");
         return tex;
+    }
+
+    static Vector3 ResolveRadarForward(PlayerEntity player)
+    {
+        CameraController camera = CameraPacketServices.Controller;
+        Vector3 fwd = camera != null ? camera.transform.forward : player.transform.forward;
+        fwd.y = 0f;
+        if (fwd.sqrMagnitude < 1e-6f)
+            fwd = player.transform.forward;
+        fwd.y = 0f;
+        return fwd.sqrMagnitude > 1e-6f ? fwd.normalized : Vector3.right;
     }
 }

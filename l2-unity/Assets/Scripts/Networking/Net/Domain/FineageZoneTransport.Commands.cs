@@ -10,6 +10,8 @@ public sealed partial class FineageZoneTransport
             return true;
         if (TrySendInteractionCommands(command))
             return true;
+        if (TrySendCraftCommands(command))
+            return true;
         if (TrySendEconomySocialCommands(command))
             return true;
         return false;

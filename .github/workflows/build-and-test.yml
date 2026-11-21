@@ -60,6 +60,9 @@ jobs:
       - name: Check Elven Village BSP CSG fixtures
         run: python3 scripts/check-elven-bsp-csg-fixtures.py
 
+      - name: Audit actor alpha-tested materials (no opaque t01/bh)
+        run: python3 scripts/audit-actor-alpha-materials.py
+
       - name: Check Net contract is in sync with the backend
         run: |
           FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check \
