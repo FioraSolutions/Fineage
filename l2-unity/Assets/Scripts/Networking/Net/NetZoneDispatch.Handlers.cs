@@ -5,16 +5,18 @@ using UnityEngine;
 
 public sealed partial class NetZoneDispatch
 {
-    public void Handle(PacketEnvelope envelope)
+    public void Handle(ZoneApplyPacket packet)
     {
+        if (packet == null)
+            return;
 
-        switch (envelope.Opcode)
+        switch (packet.Opcode)
         {
             case NetOpcode.HelloAck:
                 break;
             case NetOpcode.ZoneAuthResult:
             {
-                var result = NetCodec.DecodeZoneAuthResult(envelope.Payload);
+                var result = (ZoneAuthResultMsg)packet.Body;
                 if (!result.Ok)
                 {
                     Debug.LogWarning($"[Net] zone auth failed {result.Code}: {result.Message}");
@@ -29,311 +31,338 @@ public sealed partial class NetZoneDispatch
                 break;
             }
             case NetOpcode.EntitySpawn:
-                _session.ApplyEntitySpawn(NetCodec.DecodeEntitySpawn(envelope.Payload));
+                _session.ApplyEntitySpawn((EntitySpawnMsg)packet.Body);
                 break;
             case NetOpcode.EntityDespawn:
-                _session.ApplyEntityDespawn(NetCodec.DecodeEntityDespawn(envelope.Payload));
+                _session.ApplyEntityDespawn((EntityDespawnMsg)packet.Body);
                 break;
             case NetOpcode.PlayerStats:
-                _session.ApplyPlayerStats(NetCodec.DecodePlayerStats(envelope.Payload));
+                _session.ApplyPlayerStats((PlayerStatsMsg)packet.Body);
                 break;
             case NetOpcode.ItemList:
-                _session.ApplyItemList(NetCodec.DecodeItemList(envelope.Payload));
+                _session.ApplyItemList((ItemListNetMsg)packet.Body);
                 break;
             case NetOpcode.SkillList:
-                _session.ApplySkillList(NetCodec.DecodeSkillList(envelope.Payload));
+                _session.ApplySkillList((SkillListNetMsg)packet.Body);
                 break;
             case NetOpcode.UserInfo:
-                _session.ApplyUserInfo(NetCodec.DecodeUserInfo(envelope.Payload));
+                _session.ApplyUserInfo((UserInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.ShortCutInit:
-                NetShortCutReceiver.ApplyInit(NetCodec.DecodeShortCutInit(envelope.Payload));
+                NetShortCutReceiver.ApplyInit((ShortCutInitNetMsg)packet.Body);
                 break;
             case NetOpcode.ShortCutRegister:
-                NetShortCutReceiver.ApplyRegister(NetCodec.DecodeShortCut(envelope.Payload));
+                NetShortCutReceiver.ApplyRegister((ShortCutNetMsg)packet.Body);
                 break;
             case NetOpcode.ShortCutDelete:
-                NetShortCutReceiver.ApplyDelete(NetCodec.DecodeShortCutDel(envelope.Payload));
+                NetShortCutReceiver.ApplyDelete((ShortCutDelNetMsg)packet.Body);
                 break;
             case NetOpcode.EtcStatusUpdate:
-                NetShortCutReceiver.ApplyEtcStatus(NetCodec.DecodeEtcStatusUpdate(envelope.Payload));
+                NetShortCutReceiver.ApplyEtcStatus((EtcStatusUpdateNetMsg)packet.Body);
                 break;
             case NetOpcode.MoveState:
-                _session.ApplyMoveState(NetCodec.DecodeMoveState(envelope.Payload));
+                _session.ApplyMoveState((MoveStateMsg)packet.Body);
                 break;
             case NetOpcode.ChangeMoveType:
-                NetShortCutReceiver.ApplyChangeMoveType(NetCodec.DecodeChangeMoveType(envelope.Payload));
+                NetShortCutReceiver.ApplyChangeMoveType((ChangeMoveTypeNetMsg)packet.Body);
                 break;
             case NetOpcode.ChangeWaitType:
-                _session.ApplyChangeWaitType(NetCodec.DecodeChangeWaitType(envelope.Payload));
+                _session.ApplyChangeWaitType((ChangeWaitTypeNetMsg)packet.Body);
                 break;
             case NetOpcode.SocialAction:
-                _session.ApplySocialAction(NetCodec.DecodeSocialAction(envelope.Payload));
+                _session.ApplySocialAction((SocialActionNetMsg)packet.Body);
                 break;
             case NetOpcode.TargetSelected:
-                _session.ApplyTargetSelected(NetCodec.DecodeTargetSelected(envelope.Payload));
+                _session.ApplyTargetSelected((TargetSelectedNetMsg)packet.Body);
                 break;
             case NetOpcode.TargetUnselected:
-                _session.ApplyTargetUnselected(NetCodec.DecodeTargetUnselected(envelope.Payload));
+                _session.ApplyTargetUnselected((TargetUnselectedNetMsg)packet.Body);
                 break;
             case NetOpcode.AttackState:
-                _session.ApplyAttackState(NetCodec.DecodeAttackState(envelope.Payload));
+                _session.ApplyAttackState((AttackStateMsg)packet.Body);
                 break;
             case NetOpcode.AutoAttackStart:
-                _session.ApplyAutoAttackStart((int)NetCodec.DecodeAttackStance(envelope.Payload).EntityValue);
+                _session.ApplyAutoAttackStart((int)((AttackStanceNetMsg)packet.Body).EntityValue);
                 break;
             case NetOpcode.AutoAttackStop:
-                _session.ApplyAutoAttackStop((int)NetCodec.DecodeAttackStance(envelope.Payload).EntityValue);
+                _session.ApplyAutoAttackStop((int)((AttackStanceNetMsg)packet.Body).EntityValue);
                 break;
             case NetOpcode.AutoSoulShot:
             {
-                AutoSoulShotNetMsg shot = NetCodec.DecodeAutoSoulShot(envelope.Payload);
+                AutoSoulShotNetMsg shot = (AutoSoulShotNetMsg)packet.Body;
                 NetAutoShot.Apply(shot.ItemId, shot.Enabled);
-                // The hotbar shows the armed state on the shot slot itself.
                 SkillbarWindow skillbar = SkillbarPacketServices.Skillbar;
                 if (skillbar != null)
                     skillbar.RefreshAutoShotMarks();
                 break;
             }
             case NetOpcode.StatusUpdate:
-                _session.ApplyStatusUpdate(NetCodec.DecodeStatusUpdate(envelope.Payload));
+                _session.ApplyStatusUpdate((StatusUpdateNetMsg)packet.Body);
                 break;
             case NetOpcode.EntityDie:
-                _session.ApplyEntityDie(NetCodec.DecodeEntityDie(envelope.Payload));
+                _session.ApplyEntityDie((EntityDieMsg)packet.Body);
                 break;
             case NetOpcode.DropItem:
-                _session.ApplyDropItem(NetCodec.DecodeDropItem(envelope.Payload));
+                _session.ApplyDropItem((DropItemNetMsg)packet.Body);
                 break;
             case NetOpcode.InventoryUpdate:
-                _session.ApplyInventoryUpdate(NetCodec.DecodeInventoryUpdate(envelope.Payload));
+                _session.ApplyInventoryUpdate((InventoryUpdateNetMsg)packet.Body);
                 break;
             case NetOpcode.CreatureSay:
-                _session.ApplyCreatureSay(NetCodec.DecodeCreatureSay(envelope.Payload));
+                _session.ApplyCreatureSay((CreatureSayNetMsg)packet.Body);
                 break;
             case NetOpcode.SystemMessage:
-                _session.ApplySystemMessage(NetCodec.DecodeSystemMessage(envelope.Payload));
+                _session.ApplySystemMessage((SystemMessageNetMsg)packet.Body);
                 break;
             case NetOpcode.MagicSkillUse:
-                _session.ApplyMagicSkillUse(NetCodec.DecodeMagicSkillUse(envelope.Payload));
+                _session.ApplyMagicSkillUse((MagicSkillUseNetMsg)packet.Body);
                 break;
             case NetOpcode.Revive:
-                _session.ApplyRevive(NetCodec.DecodeRevive(envelope.Payload));
+                _session.ApplyRevive((ReviveNetMsg)packet.Body);
                 break;
             case NetOpcode.TeleportToLocation:
-                _session.ApplyTeleportToLocation(NetCodec.DecodeTeleportToLocation(envelope.Payload));
+                _session.ApplyTeleportToLocation((TeleportToLocationNetMsg)packet.Body);
                 break;
             case NetOpcode.AbnormalStatusUpdate:
-                _session.ApplyAbnormalStatusUpdate(NetCodec.DecodeAbnormalStatusUpdate(envelope.Payload));
+                _session.ApplyAbnormalStatusUpdate((AbnormalStatusUpdateNetMsg)packet.Body);
                 break;
             case NetOpcode.NpcHtml:
-                _session.ApplyNpcHtml(NetCodec.DecodeNpcHtml(envelope.Payload));
+                _session.ApplyNpcHtml((NpcHtmlNetMsg)packet.Body);
                 break;
             case NetOpcode.BuyList:
-                _session.ApplyBuyList(NetCodec.DecodeBuyList(envelope.Payload));
+                _session.ApplyBuyList((BuyListNetMsg)packet.Body);
                 break;
             case NetOpcode.SellList:
-                _session.ApplySellList(NetCodec.DecodeSellList(envelope.Payload));
+                _session.ApplySellList((SellListNetMsg)packet.Body);
                 break;
             case NetOpcode.MultiSellList:
-                _session.ApplyMultiSellList(NetCodec.DecodeMultiSellList(envelope.Payload));
+                _session.ApplyMultiSellList((MultiSellListNetMsg)packet.Body);
                 break;
             case NetOpcode.ShopBalance:
-                _session.ApplyShopBalance(NetCodec.DecodeShopBalance(envelope.Payload));
+                _session.ApplyShopBalance((ShopBalanceNetMsg)packet.Body);
                 break;
             case NetOpcode.WarehouseDepositList:
-                _session.ApplyWarehouseDepositList(NetCodec.DecodeWarehouseDepositList(envelope.Payload));
+                _session.ApplyWarehouseDepositList((WarehouseDepositListNetMsg)packet.Body);
                 break;
             case NetOpcode.WarehouseWithdrawList:
-                _session.ApplyWarehouseWithdrawList(NetCodec.DecodeWarehouseWithdrawList(envelope.Payload));
+                _session.ApplyWarehouseWithdrawList((WarehouseWithdrawListNetMsg)packet.Body);
                 break;
             case NetOpcode.QuestList:
-                _session.ApplyQuestList(NetCodec.DecodeQuestList(envelope.Payload));
+                _session.ApplyQuestList((QuestListNetMsg)packet.Body);
                 break;
             case NetOpcode.AcquireSkillList:
-                _session.ApplyAcquireSkillList(NetCodec.DecodeAcquireSkillList(envelope.Payload));
+                _session.ApplyAcquireSkillList((AcquireSkillListNetMsg)packet.Body);
                 break;
             case NetOpcode.AcquireSkillInfo:
-                _session.ApplyAcquireSkillInfo(NetCodec.DecodeAcquireSkillInfo(envelope.Payload));
+                _session.ApplyAcquireSkillInfo((AcquireSkillInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.EnchantResult:
-                _session.ApplyEnchantResult(NetCodec.DecodeEnchantResult(envelope.Payload));
+                _session.ApplyEnchantResult((EnchantResultNetMsg)packet.Body);
                 break;
             case NetOpcode.PledgeStatus:
-                _session.ApplyPledgeStatus(NetCodec.DecodePledgeStatus(envelope.Payload));
+                _session.ApplyPledgeStatus((PledgeStatusNetMsg)packet.Body);
                 break;
             case NetOpcode.PledgeMemberList:
-                _session.ApplyPledgeMemberList(NetCodec.DecodePledgeMemberList(envelope.Payload));
+                _session.ApplyPledgeMemberList((PledgeMemberListNetMsg)packet.Body);
                 break;
             case NetOpcode.ClanAskJoin:
-                _session.ApplyClanAskJoin(NetCodec.DecodeClanAskJoin(envelope.Payload));
+                _session.ApplyClanAskJoin((ClanAskJoinNetMsg)packet.Body);
                 break;
             case NetOpcode.ClanJoinResult:
-                _session.ApplyClanJoinResult(NetCodec.DecodeClanJoinResult(envelope.Payload));
+                _session.ApplyClanJoinResult((ClanJoinResultNetMsg)packet.Body);
                 break;
             case NetOpcode.PartyAskJoin:
-                _session.ApplyPartyAskJoin(NetCodec.DecodePartyAskJoin(envelope.Payload));
+                _session.ApplyPartyAskJoin((PartyAskJoinNetMsg)packet.Body);
                 break;
             case NetOpcode.PartyJoinResult:
-                _session.ApplyPartyJoinResult(NetCodec.DecodePartyJoinResult(envelope.Payload));
+                _session.ApplyPartyJoinResult((PartyJoinResultNetMsg)packet.Body);
                 break;
             case NetOpcode.PartyMemberList:
-                _session.ApplyPartyMemberList(NetCodec.DecodePartyMemberList(envelope.Payload));
+                _session.ApplyPartyMemberList((PartyMemberListNetMsg)packet.Body);
                 break;
             case NetOpcode.TradeAsk:
-                _session.ApplyTradeAsk(NetCodec.DecodeTradeAsk(envelope.Payload));
+                _session.ApplyTradeAsk((TradeAskNetMsg)packet.Body);
                 break;
             case NetOpcode.TradeRequestResult:
-                _session.ApplyTradeRequestResult(NetCodec.DecodeTradeRequestResult(envelope.Payload));
+                _session.ApplyTradeRequestResult((TradeRequestResultNetMsg)packet.Body);
                 break;
             case NetOpcode.TradeStart:
-                _session.ApplyTradeStart(NetCodec.DecodeTradeStart(envelope.Payload));
+                _session.ApplyTradeStart((TradeStartNetMsg)packet.Body);
                 break;
             case NetOpcode.TradeOfferUpdate:
-                _session.ApplyTradeOfferUpdate(NetCodec.DecodeTradeOfferUpdate(envelope.Payload));
+                _session.ApplyTradeOfferUpdate((TradeOfferUpdateNetMsg)packet.Body);
                 break;
             case NetOpcode.TradeConfirmState:
-                _session.ApplyTradeConfirmState(NetCodec.DecodeTradeConfirmState(envelope.Payload));
+                _session.ApplyTradeConfirmState((TradeConfirmStateNetMsg)packet.Body);
                 break;
             case NetOpcode.TradeFinished:
-                _session.ApplyTradeFinished(NetCodec.DecodeTradeFinished(envelope.Payload));
+                _session.ApplyTradeFinished((TradeFinishedNetMsg)packet.Body);
                 break;
             case NetOpcode.PositionCorrection:
-                _session.ApplyCorrection(NetCodec.DecodePositionCorrection(envelope.Payload));
+                _session.ApplyCorrection((PositionCorrectionMsg)packet.Body);
                 break;
-            // Server → client world/event fanouts that previously fell through with no case (Claude C5).
-            // Decode so framing stays honest; full UI apply lands with the matching windows.
             case NetOpcode.SiegeInfo:
-                _ = NetCodec.DecodeSiegeInfo(envelope.Payload);
+                _ = (SiegeInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.OlympiadStatus:
-                _ = NetCodec.DecodeOlympiadStatus(envelope.Payload);
+                _ = (OlympiadStatusNetMsg)packet.Body;
                 break;
             case NetOpcode.SevenSignsStatus:
-                _ = NetCodec.DecodeSevenSignsStatus(envelope.Payload);
+                _ = (SevenSignsStatusNetMsg)packet.Body;
                 break;
             case NetOpcode.DungeonEntered:
-                _ = NetCodec.DecodeDungeonEntered(envelope.Payload);
+                _ = (DungeonEnteredNetMsg)packet.Body;
                 break;
             case NetOpcode.PrivateStoreInfo:
-                _ = NetCodec.DecodePrivateStoreInfo(envelope.Payload);
+                _session.ApplyPrivateStoreInfo((PrivateStoreInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.FriendList:
-                _ = NetCodec.DecodeFriendList(envelope.Payload);
+                _ = (FriendListNetMsg)packet.Body;
                 break;
-            // Additional Zone→client fanouts: decode for framing honesty until UI apply lands.
             case NetOpcode.BossStatus:
-                _ = NetCodec.DecodeBossStatus(envelope.Payload);
+                _ = (BossStatusNetMsg)packet.Body;
                 break;
             case NetOpcode.OlympiadMatch:
-                _ = NetCodec.DecodeOlympiadMatch(envelope.Payload);
+                _ = (OlympiadMatchNetMsg)packet.Body;
                 break;
             case NetOpcode.OlympiadCountdown:
-                _ = NetCodec.DecodeOlympiadCountdown(envelope.Payload);
+                _ = (OlympiadCountdownNetMsg)packet.Body;
                 break;
             case NetOpcode.OlympiadResult:
-                _ = NetCodec.DecodeOlympiadResult(envelope.Payload);
+                _ = (OlympiadResultNetMsg)packet.Body;
                 break;
             case NetOpcode.SevenSignsSky:
-                _ = NetCodec.DecodeSevenSignsSky(envelope.Payload);
+                _ = (SevenSignsSkyNetMsg)packet.Body;
                 break;
             case NetOpcode.PrivateStoreListSell:
-                _ = NetCodec.DecodePrivateStoreListSell(envelope.Payload);
+                _ = (PrivateStoreListSellNetMsg)packet.Body;
                 break;
             case NetOpcode.PrivateStoreListBuy:
-                _ = NetCodec.DecodePrivateStoreListBuy(envelope.Payload);
+                _ = (PrivateStoreListBuyNetMsg)packet.Body;
                 break;
             case NetOpcode.RecipeBookList:
-                _ = NetCodec.DecodeRecipeBookList(envelope.Payload);
+                _session.ApplyRecipeBookList((RecipeBookListNetMsg)packet.Body);
                 break;
             case NetOpcode.RecipeItemMakeInfo:
-                _ = NetCodec.DecodeRecipeItemMakeInfo(envelope.Payload);
+                _session.ApplyRecipeItemMakeInfo((RecipeItemMakeInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.RecipeShopSellList:
-                _ = NetCodec.DecodeRecipeShopSellList(envelope.Payload);
+                _session.ApplyRecipeShopSellList((RecipeShopSellListNetMsg)packet.Body);
                 break;
             case NetOpcode.RecipeShopItemInfo:
-                _ = NetCodec.DecodeRecipeShopItemInfo(envelope.Payload);
+                _session.ApplyRecipeShopItemInfo((RecipeShopItemInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.FriendInviteAsk:
-                _ = NetCodec.DecodeFriendInviteAsk(envelope.Payload);
+                _ = (FriendInviteAskNetMsg)packet.Body;
                 break;
             case NetOpcode.FriendUpdate:
-                _ = NetCodec.DecodeFriendUpdate(envelope.Payload);
+                _ = (FriendUpdateNetMsg)packet.Body;
                 break;
             case NetOpcode.BlockList:
-                _ = NetCodec.DecodeBlockList(envelope.Payload);
+                _ = (BlockListNetMsg)packet.Body;
                 break;
-            // Clan / castle / manor fanouts (Backend #609-#613). Decode for framing honesty;
-            // the matching windows apply these once they land.
             case NetOpcode.AllyAskJoin:
-                _ = NetCodec.DecodeAllyAskJoin(envelope.Payload);
+                _ = (AllyAskJoinNetMsg)packet.Body;
                 break;
             case NetOpcode.AllyInfo:
-                _ = NetCodec.DecodeAllyInfo(envelope.Payload);
+                _ = (AllyInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.PledgeInfo:
-                _ = NetCodec.DecodePledgeInfo(envelope.Payload);
+                _session.ApplyPledgeInfo((PledgeInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.PledgeWarList:
-                _ = NetCodec.DecodePledgeWarList(envelope.Payload);
+                _session.ApplyPledgeWarList((PledgeWarListNetMsg)packet.Body);
                 break;
             case NetOpcode.ClanHallList:
-                _ = NetCodec.DecodeClanHallList(envelope.Payload);
+                _ = (ClanHallListNetMsg)packet.Body;
                 break;
             case NetOpcode.CrestData:
-                _ = NetCodec.DecodeCrestData(envelope.Payload);
+                _ = (CrestDataNetMsg)packet.Body;
                 break;
             case NetOpcode.RelationChanged:
-                _ = NetCodec.DecodeRelationChanged(envelope.Payload);
+                _ = (RelationChangedNetMsg)packet.Body;
                 break;
             case NetOpcode.CastleInfo:
-                _ = NetCodec.DecodeCastleInfo(envelope.Payload);
+                _ = (CastleInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.DoorStatus:
-                _ = NetCodec.DecodeDoorStatus(envelope.Payload);
+                _session.ApplyDoorStatus((DoorStatusNetMsg)packet.Body);
                 break;
             case NetOpcode.ManorInfo:
-                _ = NetCodec.DecodeManorInfo(envelope.Payload);
+                _ = (ManorInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.DuelEvent:
-                _ = NetCodec.DecodeDuelEvent(envelope.Payload);
+                _ = (DuelEventNetMsg)packet.Body;
                 break;
             case NetOpcode.DuelUserInfo:
-                _ = NetCodec.DecodeDuelUserInfo(envelope.Payload);
+                _ = (DuelUserInfoNetMsg)packet.Body;
                 break;
             case NetOpcode.SummonInfo:
-                _ = NetCodec.DecodeSummonInfo(envelope.Payload);
+                _session.ApplySummonInfo((SummonInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.SummonGone:
-                _ = NetCodec.DecodeSummonGone(envelope.Payload);
+                _session.ApplySummonGone((SummonGoneNetMsg)packet.Body);
+                break;
+            case NetOpcode.Ride:
+                _session.ApplyRide((RideNetMsg)packet.Body);
+                break;
+            case NetOpcode.PlayerActionState:
+                _session.ApplyPlayerActionState((PlayerActionStateNetMsg)packet.Body);
+                break;
+            case NetOpcode.WeddingEngageAsk:
+                _session.ApplyWeddingEngageAsk((WeddingEngageAskNetMsg)packet.Body);
+                break;
+            case NetOpcode.PackageToList:
+                _ = (PackageToListNetMsg)packet.Body;
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
+                break;
+            case NetOpcode.PackageSendableList:
+                _ = (PackageSendableListNetMsg)packet.Body;
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
+                break;
+            case NetOpcode.MonRaceInfo:
+                _ = (MonRaceInfoNetMsg)packet.Body;
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.PetInventory:
-                _ = NetCodec.DecodePetInventory(envelope.Payload);
+                _ = (PetInventoryNetMsg)packet.Body;
                 break;
             case NetOpcode.FishingEvent:
-                _ = NetCodec.DecodeFishingEvent(envelope.Payload);
+                _ = (FishingEventNetMsg)packet.Body;
                 break;
             case NetOpcode.MagicSkillLaunched:
-                _ = NetCodec.DecodeMagicSkillLaunched(envelope.Payload);
+                _ = (MagicSkillLaunchedNetMsg)packet.Body;
                 break;
             case NetOpcode.MagicSkillCanceled:
-                _ = NetCodec.DecodeMagicSkillCanceled(envelope.Payload);
+                _ = (MagicSkillCanceledNetMsg)packet.Body;
                 break;
             case NetOpcode.PlaySound:
-                _ = NetCodec.DecodePlaySound(envelope.Payload);
+                NetQuestFxApply.ApplyPlaySound((PlaySoundNetMsg)packet.Body);
+                break;
+            case NetOpcode.QuestDirection:
+                NetQuestFxApply.ApplyQuestDirection((QuestDirectionNetMsg)packet.Body);
+                break;
+            case NetOpcode.QuestNpcMarks:
+                NetQuestFxApply.ApplyNpcMarks((QuestNpcMarksNetMsg)packet.Body);
+                break;
+            case NetOpcode.TutorialUi:
+                NetQuestFxApply.ApplyTutorial((TutorialUiNetMsg)packet.Body);
                 break;
             case NetOpcode.PartyMemberPosition:
-                _ = NetCodec.DecodePartyMemberPosition(envelope.Payload);
+            {
+                var partyMap = (PartyMemberPositionNetMsg)packet.Body;
+                PartyMapApplyIncomingPacketServices.ApplyPartyMemberPositions(partyMap);
                 break;
+            }
             case NetOpcode.PartyMemberUpdate:
-                _ = NetCodec.DecodePartyMemberUpdate(envelope.Payload);
+                _ = (PartyMemberUpdateNetMsg)packet.Body;
                 break;
             case NetOpcode.PartySpelled:
-                _ = NetCodec.DecodePartySpelled(envelope.Payload);
+                _ = (AbnormalStatusUpdateNetMsg)packet.Body;
                 break;
             case NetOpcode.Reject:
             {
-                var reject = NetCodec.DecodeReject(envelope.Payload);
+                var reject = (RejectMsg)packet.Body;
                 Debug.LogWarning($"[Net] zone reject {reject.Code}: {reject.Message}");
                 NetSession.NoteReject(reject.Code, reject.Message);
                 if (CharSelectEnterWorld.IsEntering)
@@ -341,9 +370,8 @@ public sealed partial class NetZoneDispatch
                 break;
             }
             default:
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{envelope.Opcode:X4}");
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
         }
-    
     }
 }

@@ -7,24 +7,16 @@ using UnityEngine;
 // The three rates are const on this service. The turn itself is the VContainer singleton.
 public sealed class L2PawnYaw
 {
-    public const int FullCircle = 65536;
-    public const int RotationRateYaw = 0xFDE8;
+    public const int FullCircle = L2PawnHeadingMath.FullCircle;
+    public const int RotationRateYaw = L2PawnHeadingMath.RotationRateYaw;
     public const int MagicRotationRateYaw = 0x50000;
     public const float ArriveDeg = 0.05f;
 
-    public float DegreesPerSecond(int headingUnitsPerSecond)
-    {
-        return headingUnitsPerSecond * (360f / FullCircle);
-    }
+    public float DegreesPerSecond(int headingUnitsPerSecond) =>
+        L2PawnHeadingMath.DegreesPerSecond(headingUnitsPerSecond);
 
-    public float StepDegrees(float currentYaw, float desiredYaw, float maxStepDegrees)
-    {
-        float delta = Mathf.DeltaAngle(currentYaw, desiredYaw);
-        float abs = Mathf.Abs(delta);
-        if (abs <= maxStepDegrees || maxStepDegrees < 0f)
-            return desiredYaw;
-        return currentYaw + Mathf.Sign(delta) * maxStepDegrees;
-    }
+    public float StepDegrees(float currentYaw, float desiredYaw, float maxStepDegrees) =>
+        L2PawnHeadingMath.StepDegrees(currentYaw, desiredYaw, maxStepDegrees);
 
     public void RequestLook(Transform actor, Vector3 worldPoint, int headingUnitsPerSecond)
     {

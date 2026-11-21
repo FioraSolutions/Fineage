@@ -48,9 +48,6 @@ public partial class Gear
 
     public bool IsTwoHandedEquipped()
     {
-        return _rightHandType == WeaponType.bigword || 
-               _rightHandType == WeaponType.pole ||    
-               _rightHandType == WeaponType.staff ||  
-               _rightHandType == WeaponType.bigblunt;  
+        return WeaponAttachLayoutResolver.Resolve(_rightHandWeapon?.Weapongrp).IsExtendedTwoHandStance;
     }
 }

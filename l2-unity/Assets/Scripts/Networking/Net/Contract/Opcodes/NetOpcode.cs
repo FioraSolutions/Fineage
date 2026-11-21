@@ -72,6 +72,12 @@ namespace Fineage.Net.Contract
         public const ushort RequestQuestList = 0x0330;
         public const ushort RequestQuestAbort = 0x0331;
         public const ushort QuestList = 0x0332;
+        /// <summary>Zone → client: Mobius quest radar arrow target (ShowRadar / RadarControl).</summary>
+        public const ushort QuestDirection = 0x0344;
+        /// <summary>Zone → client: per-NPC quest markers above nameplates (player-specific).</summary>
+        public const ushort QuestNpcMarks = 0x0345;
+        /// <summary>Zone → client: newbie tutorial UI (TutorialShowHtml, question mark, client events).</summary>
+        public const ushort TutorialUi = 0x0346;
         public const ushort PartyInviteRequest = 0x0333;
         public const ushort PartyAnswerJoinRequest = 0x0334;
         public const ushort PartyLeaveRequest = 0x0335;
@@ -333,5 +339,23 @@ namespace Fineage.Net.Contract
         public const ushort DuelEvent = 0x03C2;
         /// <summary>Zone → client: an opponent's bars during a duel (<c>DuelUserInfoNetMsg</c>, Mobius ExDuelUpdateUserInfo).</summary>
         public const ushort DuelUserInfo = 0x03C3;
+        /// <summary>Zone → watchers: mount / dismount visual (<c>RideNetMsg</c>, Mobius Ride 0x86).</summary>
+        public const ushort Ride = 0x03C4;
+        /// <summary>Zone → owner: pet / mount action gating (<c>PlayerActionStateNetMsg</c>).</summary>
+        public const ushort PlayerActionState = 0x03C5;
+        /// <summary>Zone → sender: account characters to ship packages to (Mobius PackageToList 0xC2).</summary>
+        public const ushort PackageToList = 0x03C6;
+        /// <summary>Zone → sender: sendable bag items for one recipient (Mobius PackageSendableList 0xC3).</summary>
+        public const ushort PackageSendableList = 0x03C7;
+        /// <summary>Client → zone: ship lines to a character on the account (Mobius RequestPackageSend 0x9F).</summary>
+        public const ushort PackageSendRequest = 0x03C8;
+        /// <summary>Client → zone: list sendable items for one recipient (Mobius RequestPackageSendableItemList 0x9E).</summary>
+        public const ushort PackageSendableListRequest = 0x03C9;
+        /// <summary>Zone → derby watchers: Interlude <c>MonRaceInfo</c> (0xDD).</summary>
+        public const ushort MonRaceInfo = 0x03CA;
+        /// <summary>Client → zone: answer wedding engagement.</summary>
+        public const ushort WeddingEngageAnswer = 0x03CB;
+        /// <summary>Zone → client: wedding engagement prompt.</summary>
+        public const ushort WeddingEngageAsk = 0x03CC;
     }
 }

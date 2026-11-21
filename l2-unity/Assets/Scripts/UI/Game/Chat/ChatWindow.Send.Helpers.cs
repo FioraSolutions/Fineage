@@ -7,6 +7,23 @@ using VContainer;
 
 public partial class ChatWindow
 {
+    static bool TryRunSitStandFromChat(PlayerCommand command)
+    {
+        if (command != PlayerCommand.SIT &&
+            command != PlayerCommand.STAND &&
+            command != PlayerCommand.SITSTAND)
+        {
+            return false;
+        }
+
+        PlayerActions actions = ShortcutPacketServices.Actions;
+        if (actions == null)
+            return false;
+
+        actions.UseAction(ActionType.Sit);
+        return true;
+    }
+
     private void OnChatInputFocus(FocusEvent evt)
     {
         if (!_chatInputContainer.ClassListContains("highlighted"))

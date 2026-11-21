@@ -8,16 +8,7 @@ public sealed partial class L2PawnRange
         return VectorUtils.ConvertL2UuToMeters(AdjustSkipUu);
     }
 
-    public bool IsBow(Entity entity)
-    {
-        UserEntity user = entity as UserEntity;
-        if (user != null)
-            return string.Equals(user.WeaponAnim, "bow", StringComparison.OrdinalIgnoreCase);
-
-        return entity != null && entity.Gear != null &&
-               !string.IsNullOrEmpty(entity.Gear.WeaponAnim) &&
-               string.Equals(entity.Gear.WeaponAnim, "bow", StringComparison.OrdinalIgnoreCase);
-    }
+    public bool IsBow(Entity entity) => CombatStyleEntity.IsRanged(entity);
 
     public Vector3 StopPointOnDistRing(Vector3 origin, Vector3 pawnLocation, float distMeters)
     {

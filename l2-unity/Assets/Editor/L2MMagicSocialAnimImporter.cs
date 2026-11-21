@@ -79,6 +79,7 @@ public static class L2MMagicSocialAnimImporter
                 var nb = b; nb.path = np;
                 AnimationUtility.SetEditorCurve(dst, nb, AnimationUtility.GetEditorCurve(src, b));
             }
+            L2AnimClipPipeline.StripRedundantEulerCurves(dst);
             bool loop = seq.Contains("wait") || seq.StartsWith("swim");
             var st = AnimationUtility.GetAnimationClipSettings(dst);
             st.loopTime = loop; st.loopBlend = false;

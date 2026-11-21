@@ -38,17 +38,17 @@ public partial class ActiveSkillsHide
 
     public void CreateSlots(List<SkillInstance> list , int sizeCell)
     {
-        int panelCount = CalculatePanelCount(list);
+        _boxPanelsPhysical = new List<VisualElement>();
+        _boxPanelsMagic = new List<VisualElement>();
 
-        skillsPerPanel = sizeCell;
-    
+        _rowPhysical = _activeSkillPanel.Q(_rowNamePhysical);
+        _rowMagical = _activeSkillPanel.Q(_rowNameMagical);
+        ResolveSkillsPerPanel(_activeSkillPanel, sizeCell);
+
         var activeSkills = list.Where(s => !s.IsMagic()).ToList();
         var magicSkills = list.Where(s => s.IsMagic()).ToList();
 
         SetAllSlots(new Dictionary<int, SkillSlot>());
-
-        _rowPhysical = _activeSkillPanel.Q(_rowNamePhysical);
-        _rowMagical = _activeSkillPanel.Q(_rowNameMagical);
 
         var allContentPhysical = _activeSkillPanel.Q(_allContentPhysical);
         var allContentMagical = _activeSkillPanel.Q(_allContentMagical);
@@ -56,9 +56,12 @@ public partial class ActiveSkillsHide
         ShowPanelIfCount1(activeSkills, _rowPhysical, allContentPhysical);
         ShowPanelIfCount1(magicSkills, _rowMagical, allContentMagical);
 
-         if(_allSlots != null) _allSlots.Clear();
+        if (_allSlots != null)
+            _allSlots.Clear();
         CreatePhysicalSlots(activeSkills, _rowPhysical);
         CreateMagicalSlots(magicSkills, _rowMagical);
+
+        EnsureSectionRowsExpanded(_rowPhysical, _rowMagical);
 
         HidePanelIfCount0(activeSkills, _rowPhysical, allContentPhysical);
         HidePanelIfCount0(magicSkills, _rowMagical, allContentMagical);
@@ -73,7 +76,7 @@ public partial class ActiveSkillsHide
         var allContentPhysical = _activeSkillPanel.Q(_allContentPhysical);
         var allContentMagical = _activeSkillPanel.Q(_allContentMagical);
 
-        if (list == null | list.Count == 0)
+        if (list == null || list.Count == 0)
         {
             //var rowPhysical_hide = _activeSkillPanel.Q(_rowNamePhysical);
             //var rowMagical_hide = _activeSkillPanel.Q(_rowNameMagical);
@@ -98,16 +101,19 @@ public partial class ActiveSkillsHide
         var addMagicSkills = added.Where(s => s.IsMagic()).ToList();
 
 
-        var rowsVirtualPhysical = rowPhysical.Query<VisualElement>(name: "RowsVirtual").ToList();
-        var rowsVirtualMagic = rowMagical.Query<VisualElement>(name: "RowsVirtual").ToList();
-
+        var gridRowsPhysical = CollectGridRows(_boxPanelsPhysical);
+        var gridRowsMagic = CollectGridRows(_boxPanelsMagic);
 
         ShowActiveSkillsPanels(list, allContentPhysical);
         ShowMagicSkillsPanels(list, allContentMagical);
 
+        VisualElement boxPhysical = _boxPanelsPhysical.Count > 0 ? _boxPanelsPhysical[0] : null;
+        VisualElement boxMagic = _boxPanelsMagic.Count > 0 ? _boxPanelsMagic[0] : null;
 
-        UpdateSkills(addActiveSkills, removed, list, rowsVirtualPhysical, _templateSlotSkill , _templatePanel8x1 , _boxPanelsPhysical[0]);
-        UpdateSkills(addMagicSkills, removed, list, rowsVirtualMagic, _templateSlotSkill, _templatePanel8x1, _boxPanelsMagic[0]);
+        if (boxPhysical != null)
+            UpdateSkills(addActiveSkills, removed, list, gridRowsPhysical, _templateSlotSkill, _templatePanel8x1, boxPhysical);
+        if (boxMagic != null)
+            UpdateSkills(addMagicSkills, removed, list, gridRowsMagic, _templateSlotSkill, _templatePanel8x1, boxMagic);
         _tempList = list;
 
         HidePanelActiveSkillsPanel(list, allContentPhysical);
@@ -139,7 +145,7 @@ public partial class ActiveSkillsHide
     private void HidePanels(List<SkillInstance> list, VisualElement allContentMagical, VisualElement allContentPhysical)
     {
 
-        if (list == null | list.Count == 0)
+        if (list == null || list.Count == 0)
         {
             allContentPhysical.style.display = DisplayStyle.None;
             allContentMagical.style.display = DisplayStyle.None;

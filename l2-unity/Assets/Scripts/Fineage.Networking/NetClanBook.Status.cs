@@ -25,6 +25,7 @@ public sealed partial class NetClanBook
         MemberCount = status.MemberCount;
         DissolvingExpiryUnixMs = status.DissolvingExpiryUnixMs;
         CharPenaltyExpiryUnixMs = status.CharPenaltyExpiryUnixMs;
+        ApplyExtendedStatus(status);
         NoteName(status.ClanId, Name);
     }
 

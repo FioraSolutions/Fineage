@@ -27,6 +27,9 @@ public partial class NameplatesManager : MonoBehaviour
 
         ApplySettingsToSubsystems();
         EnsureResources();
+
+        _upsertUserInRange = UpsertUserInRange;
+        _upsertNpcInRange = UpsertNpcInRange;
     }
 
     private void OnEnable()
@@ -65,5 +68,10 @@ public partial class NameplatesManager : MonoBehaviour
     public void SetMask(LayerMask mask)
     {
         _entityMask = mask;
+    }
+
+    private void OnGUI()
+    {
+        _questMarkDrawer?.Draw(_paintList);
     }
 }

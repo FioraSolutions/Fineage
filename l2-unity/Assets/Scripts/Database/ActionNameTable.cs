@@ -62,61 +62,28 @@ public class ActionNameTable
     private void ReadActions()
     {
         _actions = new Dictionary<int, ActionData>();
-        string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/ActionName_Classic-eu.txt");
-        if (!File.Exists(dataPath))
-        {
-            // Debug.LogWarning("File not found: " + dataPath);
+        if (!InterludeActionNameFile.TryLoad(out InterludeActionNameFile.Row[] rows))
             return;
-        }
 
-        using (StreamReader reader = new StreamReader(dataPath))
+        for (int i = 0; i < rows.Length; i++)
         {
-            string line;
-            while ((line = reader.ReadLine()) != null)
+            InterludeActionNameFile.Row row = rows[i];
+            if (_actions.ContainsKey(row.Id))
+                continue;
+
+            var actionData = new ActionData
             {
-                ActionData actionData = new ActionData();
-
-                string[] keyvals = line.Split('\t');
-
-                for (int i = 0; i < keyvals.Length; i++)
-                {
-                    if (!keyvals[i].Contains("="))
-                    {
-                        continue;
-                    }
-
-                    string[] keyval = keyvals[i].Split("=");
-                    string key = keyval[0];
-                    string value = keyval[1];
-
-                    switch (key)
-                    {
-                        case "id":
-                            actionData.Id = int.Parse(value);
-                            break;
-                        case "cmd":
-                            actionData.Name = DatUtils.CleanupString(value);
-                            break;
-                        case "icon":
-                            string[] iconSplit = DatUtils.CleanupString(value).Split(".");
-                            actionData.Icon = iconSplit.Length > 1 ? iconSplit[1] : iconSplit[0];
-                            break;
-                        case "name":
-                            actionData.Descripion = DatUtils.CleanupString(value);
-                            break;
-                    }
-                }
-
-                if (!_actions.ContainsKey(actionData.Id))
-                {
-                    _actions.TryAdd(actionData.Id, actionData);
-                }
-            }
-
-            // Debug.Log($"Successfully imported {_actions.Count} actionName(s)");
+                Id = row.Id,
+                Name = row.Cmd,
+                Icon = row.IconStem,
+                Descripion = row.Name,
+                Category = row.Category,
+                Type = row.Type,
+                Category2 = row.Category2
+            };
+            _actions.Add(row.Id, actionData);
         }
     }
 
-   
 }
 

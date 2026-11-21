@@ -19,9 +19,10 @@ public partial class EffectManager
             return;
         }
 
-        Transform weapon = entity.GetWeaponTransform();
-
-        Transform attach = weapon != null ? weapon : entity.transform;
+        // Skill composites pick sockets via <see cref="DefaultEffectAttachmentResolver"/>.
+        // Using the weapon transform here made ground/root (_ca) FX ride the hand or blade
+        // (Detect Weakness / howl at head height). Anchor resolve context on the pawn root.
+        Transform attach = entity.transform;
         IAnimationManager animations = _animations != null ? _animations : GamePacketServices.Animations;
         MagicCastData castData = SkillAnimationCastDataBuilder.Build(entity, hitTimeMs, animCombo, animations, targetObjectId);
         PlayEffect(effectId, attach, castData);

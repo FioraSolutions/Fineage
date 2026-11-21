@@ -59,17 +59,14 @@ public class PassiveSkillsHide : AbstractSkills
 
     public void CreateSlots(List<SkillInstance> list , int sizeCell)
     {
-        skillsPerPanel = sizeCell;
-
-        int panelCount = CalculatePanelCount(list);
+        _rowAbility = _passiveSkillPanel.Q(_rowNameAbility);
+        _rowSubject = _passiveSkillPanel.Q(_rowNameSubject);
+        ResolveSkillsPerPanel(_passiveSkillPanel, sizeCell);
 
         var abilitySkills = list.Where(s => s.IsPassive).ToList();
         var subjectSkills = new List<SkillInstance>();
 
         SetAllSlots(new Dictionary<int, SkillSlot>());
-
-        _rowAbility = _passiveSkillPanel.Q(_rowNameAbility);
-        _rowSubject = _passiveSkillPanel.Q(_rowNameSubject);
 
         var allContentPhysical = _passiveSkillPanel.Q(_allContentPhysical);
         var allContentMagical = _passiveSkillPanel.Q(_allContentMagical);
@@ -79,6 +76,8 @@ public class PassiveSkillsHide : AbstractSkills
 
         CreateAbilitySlots(abilitySkills, _rowAbility);
         CreateSubjectSlots(subjectSkills, _rowSubject);
+
+        EnsureSectionRowsExpanded(_rowAbility, _rowSubject);
 
         HidePanelIfCount0(abilitySkills, _rowAbility, allContentPhysical);
         HidePanelIfCount0(subjectSkills, _rowSubject, allContentMagical);
@@ -94,6 +93,8 @@ public class PassiveSkillsHide : AbstractSkills
         if (rowPhysical != null)
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
+            SetWidthBoxPanel(boxPanel, skillsPerPanel);
+            boxPanel.style.alignSelf = Align.FlexStart;
             var panels = base.CreateSlots(list, _templatePanel8x1, _templateSlotSkill, boxPanel);
             _boxPanelsAbility.Add(panels);
             rowPhysical.Add(panels);
@@ -109,6 +110,8 @@ public class PassiveSkillsHide : AbstractSkills
         if (rowMagical != null)
         {
             var _boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
+            SetWidthBoxPanel(_boxPanel, skillsPerPanel);
+            _boxPanel.style.alignSelf = Align.FlexStart;
             var panels = base.CreateSlots(list, _templatePanel8x1, _templateSlotSkill, _boxPanel);
             _boxPanelsSubject.Add(panels);
             rowMagical.Add(panels);
@@ -143,5 +146,31 @@ public class PassiveSkillsHide : AbstractSkills
         ClickDf(btn, arrDfPassiveSelect, _rowSubject, 1);
     }
 
+    void EnsureSectionRowsExpanded(VisualElement rowAbility, VisualElement rowSubject)
+    {
+        if (rowAbility != null)
+            rowAbility.style.display = DisplayStyle.Flex;
+        if (rowSubject != null)
+            rowSubject.style.display = DisplayStyle.Flex;
+        if (_arrDfPassiveSelect != null)
+        {
+            if (_arrDfPassiveSelect.Length > 0)
+                _arrDfPassiveSelect[0] = 1;
+            if (_arrDfPassiveSelect.Length > 1)
+                _arrDfPassiveSelect[1] = 1;
+        }
 
+        SyncExpandButton(_passiveSkillPanel?.Q<Button>(_abilityButtonName), 0);
+        SyncExpandButton(_passiveSkillPanel?.Q<Button>(_subjectButtonName), 1);
+    }
+
+    void SyncExpandButton(Button button, int index)
+    {
+        if (button == null || _arrDfPassiveSelect == null || index < 0 || index >= _arrDfPassiveSelect.Length)
+            return;
+        bool expanded = _arrDfPassiveSelect[index] != 0;
+        ChangeDfBox(button, L2ExpandCollapseUiAssets.CollapseButton);
+        if (!expanded)
+            ChangeDfBox(button, L2ExpandCollapseUiAssets.ExpandButton);
+    }
 }

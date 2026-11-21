@@ -36,15 +36,51 @@ public static partial class EntityActionVisual
         if (!AnimChannel.CanPlay(AnimChannel.Kind.Social))
             return;
 
+        string socialState = InterludeSocialAnimationCatalog.SocialAnimatorStateName;
+        if (entity is PlayerEntity || entity is UserEntity)
+        {
+            if (!PlayerSocialAnimApply.TryPrepareSocialClip(entity, actionId, out socialState))
+                return;
+        }
+
         NetworkAnimationController nac = entity.GetAnimatorController();
         if (nac != null)
         {
+            Animator animator = nac.GetAnimator();
+            if (animator == null)
+            {
+                Debug.LogError(
+                    "[SocialAnim] action id=" + actionId + " entity=" + entity.name +
+                    " missing Animator on NetworkAnimationController");
+                return;
+            }
+
+            int stateHash = Animator.StringToHash(socialState);
+            if (!animator.HasState(0, stateHash))
+            {
+                Debug.LogError(
+                    "[SocialAnim] action id=" + actionId + " entity=" + entity.name +
+                    " animator state missing name=" + socialState +
+                    " controller=" + (animator.runtimeAnimatorController != null
+                        ? animator.runtimeAnimatorController.name
+                        : "(null)"));
+                return;
+            }
+
             AnimPlayback.PrepareGesture(nac);
-            nac.CrossFadeInFixedTime("social01", LocomotionCrossFadeSettings.FixedDuration);
+            nac.CrossFadeInFixedTime(socialState, LocomotionCrossFadeSettings.FixedDuration);
             return;
         }
 
-        TryPlayCreatureAnim(entity, "social01");
+        if (entity.Identity != null && ControllerPacketServices.Animations != null)
+        {
+            if (!ControllerPacketServices.Animations.TryPlayExactAnimatorState(
+                    entity.Identity.Id, socialState, out _))
+                return;
+            return;
+        }
+
+        TryPlayCreatureAnim(entity, socialState);
     }
 
     public static void PlayWaitType(Entity entity, WaitType waitType)

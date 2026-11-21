@@ -34,18 +34,18 @@ public partial class HitManager
         pending.OnShot = null;
     }
 
-    static bool IsBowWeapon(Entity attacker)
+    static bool IsBowWeapon(Entity attacker) => CombatStyleEntity.IsRanged(attacker);
+
+    Entity ResolveAttackHitTarget(Entity fallback, Hit hit)
     {
-        if (attacker == null)
-            return false;
-
-        UserEntity user = attacker as UserEntity;
-        if (user != null)
-            return string.Equals(user.WeaponAnim, "bow", StringComparison.OrdinalIgnoreCase);
-
-        return attacker.Gear != null &&
-               !string.IsNullOrEmpty(attacker.Gear.WeaponAnim) &&
-               string.Equals(attacker.Gear.WeaponAnim, "bow", StringComparison.OrdinalIgnoreCase);
+        if (hit == null)
+            return fallback;
+        Entity resolved = ResolveEntityFromWorld(hit.TargetId);
+        if (resolved != null)
+            return resolved;
+        if (fallback != null && fallback.Identity != null && fallback.Identity.Id == hit.TargetId)
+            return fallback;
+        return fallback;
     }
 
     static float ResolveRemoteHitDelay(Entity attacker)

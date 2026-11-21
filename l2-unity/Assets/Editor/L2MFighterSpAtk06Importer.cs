@@ -148,6 +148,7 @@ public static class L2MFighterSpAtk06Importer
             target.path = path;
             AnimationUtility.SetEditorCurve(dst, target, AnimationUtility.GetEditorCurve(src, binding));
         }
+        L2AnimClipPipeline.StripRedundantEulerCurves(dst);
         return dst;
     }
 

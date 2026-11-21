@@ -6,8 +6,8 @@ public abstract partial class AbstractServerItem
 
     public bool IsDual()
     {
-        WeaponType t = TablePacketServices.WeaponGrps.GetWeapon(itemId)?.WeaponType ?? WeaponType.none;
-        return t == WeaponType.dual || t == WeaponType.dualfist || t == WeaponType.fist;
+        Weapongrp grp = TablePacketServices.WeaponGrps.GetWeapon(itemId);
+        return WeaponAttachLayoutResolver.Resolve(grp).SyncAsDualSameId;
     }
 
     public string GetDescription()

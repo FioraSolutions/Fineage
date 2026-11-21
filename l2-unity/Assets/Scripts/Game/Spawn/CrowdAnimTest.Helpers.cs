@@ -4,7 +4,6 @@ public static partial class CrowdAnimTest
 {
     public static void Apply(NetworkAnimationController controller)
     {
-        EnsureTimeCap();
         if (controller == null)
             return;
         if (controller.GetComponent<UserEntity>() == null)

@@ -70,6 +70,7 @@ public sealed partial class StriderRideService
         AttachChildren(seat);
         _seats.Add(id, seat);
         HideOwnedStriders(seat);
+        ActionAvailabilityPacketServices.Availability.NoteClientMountedVisual(true);
         return true;
     }
 }

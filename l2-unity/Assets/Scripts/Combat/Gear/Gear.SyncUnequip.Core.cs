@@ -54,8 +54,8 @@ public partial class Gear
             {
                 // Sword off, shield (or offhand) still on — fists+shield use hand, not leftover 1HS.
                 _lastWeaponAnim = _weaponAnim;
-                if (_leftHandType == WeaponType.bow)
-                    UpdateWeaponType(WeaponType.bow);
+                if (_leftHandWeapon != null)
+                    UpdateCombatStyleFromWeapon(_leftHandWeapon);
                 else
                     UpdateWeaponType(WeaponType.hand);
                 OnUnequipAnimationRefresh?.Invoke("");
@@ -88,6 +88,8 @@ public partial class Gear
         if (shield != null)
         {
             DestroyObject(shield.gameObject, _origShieldPrefabName);
+            if (_equippedShieldVisual == shield)
+                _equippedShieldVisual = null;
 
             RefreshHandShield(null);
             int findCount = FindAllWeaponCount(weaponName, shieldName);

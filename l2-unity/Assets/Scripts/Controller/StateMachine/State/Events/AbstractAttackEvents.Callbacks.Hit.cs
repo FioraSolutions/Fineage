@@ -35,12 +35,16 @@ public abstract partial class AbstractAttackEvents
 
     private void CallBackFinishedHit(string animName)
     {
-        if (!IsMeleeAttackShotAnim(animName))
+        PlayerEntity player = _stateMachine != null ? _stateMachine.Player : null;
+        if (!IsMeleeAttackShotAnim(animName, player))
         {
             return;
         }
 
-        Transform[] swordBasePoints = _stateMachine.Player.GetSwordBasePoints();
+        if (player == null)
+            return;
+
+        Transform[] swordBasePoints = player.GetSwordBasePoints();
         if (swordBasePoints != null && swordBasePoints.Length > 1 &&
             SwordCollisionPacketServices.Collision != null)
         {

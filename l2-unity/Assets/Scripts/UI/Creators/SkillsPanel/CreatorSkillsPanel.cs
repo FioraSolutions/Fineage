@@ -5,10 +5,7 @@ using UnityEngine.UIElements;
 
 public class CreatorSkillsPanel : ICreatorSkillsPanel
 {
-    private const string _skillRow8x1Name = "Data/UI/_Elements/Template/Skills/SkillPanels/SkillsRow6x1";
-    private const string _slotSkillName = "Data/UI/_Elements/Template/Skills/SkillPanels/SlotSkill";
     private const string _activeSkillName = "Data/UI/_Elements/Game/SkillLearn/OnlySkillPanel";
-    private const string _boxPanelName = "Data/UI/_Elements/Template/Skills/SkillBoxRow";
 
     private VisualTreeAsset _templateSkillsRow8x1;
     private VisualTreeAsset _templateSlotSkill;
@@ -23,10 +20,10 @@ public class CreatorSkillsPanel : ICreatorSkillsPanel
     }
     public void LoadAsset(Func<string, VisualTreeAsset> loaderFunc)
     {
-        _templateSkillsRow8x1 = loaderFunc(_skillRow8x1Name);
-        _templateSlotSkill = loaderFunc(_slotSkillName);
+        _templateSkillsRow8x1 = loaderFunc(L2SkillsUiAssets.SkillsGridRow);
+        _templateSlotSkill = loaderFunc(L2SkillsUiAssets.SkillsSlot);
         _templateActiveSkill = loaderFunc(_activeSkillName);
-        _templateBoxPanel = loaderFunc(_boxPanelName);
+        _templateBoxPanel = loaderFunc(L2SkillsUiAssets.SkillsBoxRow);
 
         _skillPanel.SetActiveSkillTemplate(_templateActiveSkill, _templateBoxPanel, _templateSkillsRow8x1, _templateSlotSkill);
     }

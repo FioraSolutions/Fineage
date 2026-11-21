@@ -55,8 +55,7 @@ public sealed partial class InterludeSplashPlayer : MonoBehaviour
         if (_overlay != null && _overlay.parent != null)
             _overlay.RemoveFromHierarchy();
         _overlay = null;
-        if (_music != null)
-            _music.Stop();
+        LoginSplashMusicBridge.Stop?.Invoke();
         if (this != null)
             Destroy(gameObject);
     }

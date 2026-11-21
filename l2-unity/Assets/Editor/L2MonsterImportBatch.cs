@@ -122,6 +122,8 @@ public static class L2MonsterImportBatch
 
         int written = WriteClipFiles(item.asset, fbx);
         StripAnimationsFromFbx(item, fbx);
+        // Blender may rewrite the FBX after clips are extracted; re-assert the meter contract.
+        L2TownNpcFbxImport.EnsureMeterContract(fbx);
         L2MonsterPrefabBuilder.WireSingle(prefab);
         FitCapsule(prefab);
         UnityEngine.Debug.Log("[MonsterImport] ready " + item.asset + " clips=" + written + " mats=" + mats.Length);
@@ -184,11 +186,14 @@ public static class L2MonsterImportBatch
             }
 
             Texture tex = texPath != null ? AssetDatabase.LoadAssetAtPath<Texture>(texPath) : null;
-            if (tex != null && mat.HasProperty("_BaseMap"))
-            {
-                mat.SetTexture("_BaseMap", tex);
-                EditorUtility.SetDirty(mat);
-            }
+            var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+            L2ActorMaterialSetupEditor.ApplyToMaterial(
+                mat,
+                shader,
+                tex,
+                mat.name,
+                props,
+                logMissingTexture: true);
 
             paths.Add(matPath);
         }
@@ -217,18 +222,15 @@ public static class L2MonsterImportBatch
 
     static void ConfigureModelImporter(string fbxPath)
     {
-        AssetDatabase.ImportAsset(fbxPath, ImportAssetOptions.ForceUpdate);
-        ModelImporter importer = AssetImporter.GetAtPath(fbxPath) as ModelImporter;
-        if (importer == null)
-            return;
-        importer.animationType = ModelImporterAnimationType.Generic;
-        importer.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
-        importer.globalScale = 1f;
-        importer.useFileScale = true;
-        importer.useFileUnits = true;
-        importer.importAnimation = true;
-        importer.importBlendShapes = true;
-        importer.SaveAndReimport();
+        L2TownNpcFbxImport.EnsureMeterContract(fbxPath);
+        if (AssetImporter.GetAtPath(fbxPath) is ModelImporter importer)
+        {
+            importer.useFileUnits = true;
+            importer.importBlendShapes = true;
+            importer.SaveAndReimport();
+        }
+
+        L2TownNpcFbxImport.AssertMeterImporter(fbxPath);
     }
 
     static void AssignMaterials(GameObject inst, string[] materialPaths)
@@ -313,6 +315,7 @@ public static class L2MonsterImportBatch
                 AssetDatabase.DeleteAsset(path);
             AnimationClip copy = UnityEngine.Object.Instantiate(src);
             copy.name = stem + "." + safe;
+            L2AnimClipPipeline.StripRedundantEulerCurves(copy);
             AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(copy);
             settings.loopTime = ShouldLoop(safe);
             AnimationUtility.SetAnimationClipSettings(copy, settings);

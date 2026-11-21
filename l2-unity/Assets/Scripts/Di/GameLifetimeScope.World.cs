@@ -41,6 +41,7 @@ public sealed partial class GameLifetimeScope
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
         RegisterLiveMono<MoveAllCharacters>(builder);
+        RegisterLiveMono<CrowdTierSystem>(builder);
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
         RegisterIfFound<NetworkTransformShare>(builder);
@@ -49,10 +50,11 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<SwordCollisionService>(builder);
         RegisterIfFound<PathFinderController>(builder);
         RegisterIfFound<Geodata>(builder);
-        RegisterIfFound<AudioManager>(builder);
-        RegisterIfFound<MusicManager>(builder);
+        RegisterLateBound<AudioManager>(builder);
+        RegisterLateBound<AudioService>(builder);
+        RegisterLateBound<MusicManager>(builder);
+        RegisterLateBound<ThirdPersonListener>(builder);
         RegisterIfFound<SurfaceDetector>(builder);
-        RegisterIfFound<ThirdPersonListener>(builder);
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);

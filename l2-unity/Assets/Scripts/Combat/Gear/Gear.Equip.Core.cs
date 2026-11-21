@@ -36,18 +36,19 @@ public partial class Gear
         WeaponType type = WeaponType.none;
         RefreshDataShield(weapon , WeaponType.shield);
         if (_rightHandWeapon != null)
-            UpdateWeaponType(_rightHandType);
+            UpdateCombatStyleFromWeapon(_rightHandWeapon);
         else
             UpdateWeaponType(WeaponType.hand);
         string shieldNameId = shieldName+weaponId;
         Transform[] refreshAllBone = RefreshBone(allBone);
         GameObject go = CreateCopy(weaponPrefab, shieldNameId, ObjectType.Weapon);
         _lastWeaponAnim = _weaponAnim;
-        ActivateGameObject(go, type, true, refreshAllBone);
+        ActivateGameObject(go, weapon.Weapongrp, WeaponAttachEquipMode.Shield, refreshAllBone);
+        _equippedShieldVisual = go.transform;
 
-        if (_rightHandType != _lastRightHandType | type != _lastShieldHandType 
-            | _rightHandType == WeaponType.pole 
-            | _rightHandType == WeaponType.staff)
+        var rightLayout = WeaponAttachLayoutResolver.Resolve(_rightHandWeapon?.Weapongrp);
+        if (_rightHandType != _lastRightHandType | type != _lastShieldHandType
+            | rightLayout.CausesStanceAnimRefresh)
         {
             OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }
@@ -63,7 +64,7 @@ public partial class Gear
     public virtual void EquipWeapon(int weaponId, bool leftSlot) {
 
         Weapon weapon = TablePacketServices.Items.GetWeapon(weaponId);
-        leftSlot = weapon?.Weapongrp?.WeaponType == WeaponType.bow;
+        leftSlot = WeaponAttachLayoutResolver.Resolve(weapon?.Weapongrp).EquipPrimaryOnLeft;
 
 
         ErrorPrint(weapon, weaponId);
@@ -91,19 +92,19 @@ public partial class Gear
         var weaponNameAndId = weaponName + weaponId;
         WeaponType type = weapon.Weapongrp.WeaponType;
         RefreshData(leftSlot, weapon);
-        UpdateWeaponType(type);
+        UpdateCombatStyleFromWeapon(weapon);
 
         Transform[] refreshAllBone = RefreshBone(allBone);
         GameObject go = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
 
 
-        ActivateGameObject(go, type, leftSlot, refreshAllBone);
+        WeaponAttachEquipMode mode = WeaponAttachProfileResolver.ModeForSingleEquip(weapon.Weapongrp, leftSlot);
+        ActivateGameObject(go, weapon.Weapongrp, mode, refreshAllBone);
 
-        if(type != _lastRightHandType & _leftHandShield == null 
-            | _rightHandType == WeaponType.pole
-            | _rightHandType == WeaponType.staff
-            | _rightHandType == WeaponType.bigword
-            | _leftHandType == WeaponType.bow)
+        var rightLayout = WeaponAttachLayoutResolver.Resolve(_rightHandWeapon?.Weapongrp);
+        var leftLayout = WeaponAttachLayoutResolver.Resolve(_leftHandWeapon?.Weapongrp);
+        if (WeaponAttachLayoutResolver.EquipTriggersAnimRefresh(
+                type, _lastRightHandType, rightLayout, leftLayout, _leftHandShield != null))
         {
             OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }
@@ -139,7 +140,7 @@ public partial class Gear
         _goCurrentEtcItem = go;
         _etcItemReleased = false;
 
-        ActivateGameObject(go, WeaponType.arrow, leftSlot, refreshAllBone);
+        ActivateArrow(go, etcItem.EtcItemgrp.Model, refreshAllBone);
 
     }
 
@@ -193,17 +194,20 @@ public partial class Gear
         var weaponNameAndId = weaponName + weaponId;
         RefreshData(false, weapon);
         RefreshData(true, weapon);
-        UpdateWeaponType(type);
+        UpdateCombatStyleFromWeapon(weapon);
 
         Transform[] refreshAllBone = RefreshBone(allBone);
 
-        GameObject leftGo = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
+        GameObject leftPrefab = LoadWeapon(weapon, weaponId, leftHand: true);
+        if (leftPrefab == null)
+            leftPrefab = weaponPrefab;
+        GameObject leftGo = CreateCopy(leftPrefab, weaponNameAndId, ObjectType.Weapon);
         GameObject rightGo = CreateCopy(weaponPrefab, weaponNameAndId, ObjectType.Weapon);
 
-        if (type != _lastRightHandType
-            | _rightHandType == WeaponType.pole
-            | _rightHandType == WeaponType.staff
-            | _leftHandType == WeaponType.bow)
+        var rightLayout = WeaponAttachLayoutResolver.Resolve(_rightHandWeapon?.Weapongrp);
+        var leftLayout = WeaponAttachLayoutResolver.Resolve(_leftHandWeapon?.Weapongrp);
+        if (WeaponAttachLayoutResolver.EquipTriggersAnimRefresh(
+                type, _lastRightHandType, rightLayout, leftLayout, leftHandShieldPresent: false))
         {
             OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }
@@ -212,8 +216,7 @@ public partial class Gear
             if (_leftHandWeapon == null | _leftHandShield == null) OnEquipAnimationRefresh?.Invoke(-1, weapon);
         }
 
-        ActivateOtherGameObject(leftGo, type, true, refreshAllBone);
-        ActivateOtherGameObject(rightGo, type, false, refreshAllBone);
+        ActivateDualHand(leftGo, rightGo, weapon.Weapongrp, refreshAllBone);
 
         _lastRightHandType = type;
         //_lastShieldHandType = type;

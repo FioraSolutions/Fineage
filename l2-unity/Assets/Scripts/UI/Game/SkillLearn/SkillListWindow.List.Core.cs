@@ -59,9 +59,8 @@ public partial class SkillListWindow : L2PopupWindow
 
         var activeSkills = list.Where(s => !s.IsPassive).ToList();
         var passiveSkills = list.Where(s => s.IsPassive).ToList();
-        // MainWnd SkillsHost is 256px — 6 Interlude-sized slots fit; 7 forces a horizontal scroller.
-        _supportActiveSkills.CreateSlots(activeSkills, 6);
-        _supportPassiveSkills.CreateSlots(passiveSkills, 6);
+        _supportActiveSkills.CreateSlots(activeSkills, 0);
+        _supportPassiveSkills.CreateSlots(passiveSkills, 0);
     }
 
     public void UpdateSkillList(List<SkillInstance> list)
@@ -78,16 +77,8 @@ public partial class SkillListWindow : L2PopupWindow
 
         var activeSkills = list.Where(s => !s.IsPassive).ToList();
         var passiveSkills = list.Where(s => s.IsPassive).ToList();
-        if (_supportActiveSkills.HasSlots)
-        {
-            _supportActiveSkills.UpdateSlots(activeSkills);
-        }
-        else
-        {
-            _supportActiveSkills.CreateSlots(activeSkills, 6);
-        }
-
-        _supportPassiveSkills.CreateSlots(passiveSkills, 6);
+        _supportActiveSkills.CreateSlots(activeSkills, 0);
+        _supportPassiveSkills.CreateSlots(passiveSkills, 0);
     }
 
     static void RefreshPassiveFlags(List<SkillInstance> list)

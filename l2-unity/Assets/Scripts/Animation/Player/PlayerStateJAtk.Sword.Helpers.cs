@@ -30,7 +30,7 @@ public partial class PlayerStateJAtk
             // $"sameRoot={sameRoot} attacker={attackerName} target={targetName} hitPoint={hitPointCollider}");
         // UnityChainLog.OnJAtkHit(DomainPacketServices.LocalPlayer, parameterName, expectedMs, elapsedMs, _lastAnimNormalized, hitPointCollider);
 
-        if (IsDual(parameterName))
+        if (IsDualWeaponStyle())
         {
             // Debug.Log(
                 // $"{JATK_EARLY_LOG} FirstSwordHit DUAL anim={parameterName} " +

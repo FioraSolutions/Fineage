@@ -113,7 +113,7 @@ public partial class PlayerStateJAtk
             // $"player={DomainPacketServices.LocalPlayer?.RandomName}");
         // UnityChainLog.OnJAtkEnter(DomainPacketServices.LocalPlayer, parameterName, _fullCycleMs, hitAtMs, pAtkSpd, _linearPatkSpd, timeAnimation);
 
-        if (IsDual(parameterName))
+        if (IsDualWeaponStyle())
         {
             // Debug.Log(
                 // $"{JATK_EARLY_LOG} Enter DUAL anim={parameterName} clip={clipName} " +

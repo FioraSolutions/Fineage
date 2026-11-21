@@ -25,6 +25,7 @@
 .chat-window {
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
     background-color: rgba(0, 0, 0, 0.25);
+    min-width: 280px;
 }
 
 .ui-bg {
@@ -52,6 +53,15 @@
 }
 
 .hor-resize-handle {
+    /* Shared invisible resize hit-target. Keep the cursor and drag; never paint grip art.
+       StatusWindow stamps its Interlude chrome with inline styles, which win over this. */
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.hor-resize-handle:hover {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .hor-position {
@@ -636,15 +646,56 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
-.chat-window #InnerBar {
-    background-color: rgba(0, 0, 0, 0.35);
-    border-width: 1px;
-    border-color: rgba(84, 81, 75, 0.7);
+.chat-window #ChatBar {
+    height: 18px;
+    align-items: center;
 }
 
-#InnerBar.highlighted {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-color: rgb(106, 94, 71);
+.chat-window #InnerBar {
+    min-height: 18px;
+    height: 18px;
+    align-items: center;
+    padding-right: 2px;
+    padding-top: 0;
+    padding-bottom: 0;
+    background-image: none;
+    border-width: 0;
+    background-color: transparent;
+}
+
+.chat-window #ChatInputField {
+    height: 16px;
+    min-height: 16px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    -unity-text-align: middle-left;
+}
+
+.chat-window #InnerBar.highlighted,
+.chat-window #InnerBar.bg-highlight-0,
+.chat-window #InnerBar.bg-highlight-1,
+.chat-window #InnerBar.bg-highlight-2,
+.chat-window #InnerBar.bg-highlight-3,
+.chat-window #InnerBar.bg-highlight-4,
+.chat-window #InnerBar.bg-highlight-5,
+.chat-window #InnerBar.bg-highlight-6,
+.chat-window #InnerBar.bg-highlight-7,
+.chat-window #InnerBar.bg-highlight-8,
+.chat-window #InnerBar.bg-highlight-9,
+.chat-window #InnerBar.bg-highlight-10,
+.chat-window #InnerBar.bg-highlight-11,
+.chat-window #InnerBar.bg-highlight-12,
+.chat-window #InnerBar.bg-highlight-13,
+.chat-window #InnerBar.bg-highlight-14,
+.chat-window #InnerBar.bg-highlight-15,
+.chat-window #InnerBar.bg-highlight-16,
+.chat-window #InnerBar.bg-highlight-17,
+.chat-window #InnerBar.bg-highlight-18,
+.chat-window #InnerBar.bg-highlight-19 {
+    background-color: transparent;
+    border-width: 0;
 }
 
 .chat-window .transparent-cursor {
@@ -669,10 +720,17 @@
     margin-bottom: -2px;
 }
 
-.chat-window .unity-scroll-view,
-.system-msg-window .unity-scroll-view {
+.chat-window .unity-scroll-view {
     padding: 2px 0 4px 0;
     font-size: 12px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.system-msg-window .unity-scroll-view {
+    padding: 0;
+    margin: 0;
+    font-size: 11px;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
 }
@@ -721,12 +779,14 @@
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 64px;
+    min-width: 48px;
     max-width: 64px;
     height: 22px;
     padding: 0;
     margin: 0;
-    flex-shrink: 0;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
     justify-content: center;
 }
 
@@ -735,12 +795,14 @@
     background-color: transparent;
     -unity-background-scale-mode: stretch-to-fill;
     width: 64px;
-    min-width: 64px;
+    min-width: 48px;
     max-width: 64px;
     height: 22px;
     padding: 0;
     margin: 0;
-    flex-shrink: 0;
+    flex-grow: 0;
+    flex-shrink: 1;
+    overflow: hidden;
     justify-content: center;
 }
 
@@ -781,6 +843,10 @@
     padding: 0;
     margin: 0;
     letter-spacing: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     -unity-text-align: middle-center;
     -unity-font-definition: resource('Data/UI/Assets/Font/tahoma');
 }
@@ -980,9 +1046,7 @@
     height: 46px;
     margin: 0;
     padding: 0;
-    /* Retail TargetStatusWnd is a fixed 176x46 plate and carries no size grip at all. The resize
-       affordance is ours, so it must not paint over SmallWindow_Back3_ex: keep the strip
-       transparent until the pointer is actually on it (see :hover below). */
+    /* Retail TargetStatusWnd has no size grip. Keep this hit-target transparent. */
     background-image: none;
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-scale: 1px;
@@ -990,10 +1054,6 @@
     -unity-slice-bottom: 3;
     -unity-slice-left: 0;
     -unity-slice-right: 0;
-}
-
-.target-window .target-size-control:hover {
-    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1');
 }
 
 .target-window.expanded .target-size-control,
@@ -1009,7 +1069,6 @@
     height: 46px;
     margin: 0;
     padding: 0;
-    /* Same reason: the grip art appears on hover only. */
     background-image: none;
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-scale: 0;
@@ -1019,17 +1078,22 @@
     -unity-slice-right: 8;
 }
 
-.target-window .target-size-control:hover .hor-resize-handle {
-    background-image: resource('Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2');
-}
-
+/* Shared abnormal-status icon: same 24px cell as Status/Buffer SlotBuffer (and party trays). */
+.l2-abnormal-icon,
 .target-window .target-effect-icon,
 .target-window .target-property-icon {
-    /* Interlude AbnormalStatusWnd: NSTATUSICON_SIZE = 24, so cells sit at a 24px pitch. */
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+    flex-grow: 0;
+    flex-shrink: 0;
     margin-right: 0;
     margin-bottom: 0;
+    padding: 0;
+    overflow: hidden;
     -unity-background-scale-mode: stretch-to-fill;
     position: relative;
 }
@@ -1275,10 +1339,10 @@
     min-width: 0;
     height: 125px;
     min-height: 0;
-    padding-top: 16px;
-    padding-right: 8px;
-    padding-bottom: 6px;
-    padding-left: 8px;
+    padding-top: 18px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 4px;
     background-image: resource('Data/UI/Assets/Chat/chatting_system');
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-left: 2;
@@ -1287,6 +1351,18 @@
     -unity-slice-bottom: 2;
     -unity-slice-scale: 0;
     overflow: hidden;
+}
+
+/* L2 thin scroller: no Unity default margins that clip the first system line. */
+.system-msg-window .l2-scroll-view .unity-scroll-view__content-viewport,
+.system-msg-window .unity-scroll-view__content-viewport {
+    margin: 0;
+    padding: 0;
+}
+
+.system-msg-window .unity-scroller,
+.system-msg-window .unity-scroller--vertical {
+    display: none;
 }
 
 .system-msg-list {
@@ -2578,9 +2654,15 @@
 /* Skills MagicSkillWnd — works both standalone (.inventory-window parent) and
    when content is embedded under MainWnd #SkillsHost (loses .inventory-window). */
 .skills-panel {
+    position: relative;
     flex-grow: 1;
     flex-shrink: 1;
+    flex-direction: column;
     min-height: 0;
+    margin: 0;
+    padding: 2px 3px 2px 3px;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
 }
 
@@ -2589,7 +2671,7 @@
     width: 100%;
     height: 100%;
     margin: 0;
-    padding: 2px 4px 2px 4px;
+    padding: 2px 3px 2px 3px;
 }
 
 .skills-panel .skills-standalone-buttons {
@@ -2600,6 +2682,36 @@
 .skills-panel.skills-embed .skills-standalone-buttons,
 .character-info-window #SkillsHost .skills-standalone-buttons {
     display: none;
+}
+
+.skills-panel #tab-header-container {
+    flex-direction: row-reverse;
+    flex-shrink: 0;
+    margin: 0 4px -1px 3px;
+    align-items: flex-end;
+    height: 23px;
+}
+
+.skills-panel .skills-tab-header-line {
+    flex-grow: 1;
+    margin-right: 4px;
+    margin-bottom: -1px;
+    height: 2px;
+    background-image: resource('Data/UI/Tab/Tab_DF_Bg_line');
+}
+
+.skills-panel .skills-tab-chrome {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    background-image: resource('Data/UI/Tab/Tab_DF_bg 1');
+    -unity-slice-left: 10;
+    -unity-slice-top: 10;
+    -unity-slice-right: 10;
+    -unity-slice-bottom: 10;
+    padding: 2px 3px 3px 3px;
 }
 
 .skills-panel .tab-header {
@@ -2616,18 +2728,18 @@
     padding: 0;
     margin-right: 0;
     margin-bottom: 0;
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
+    width: 88px;
+    min-width: 88px;
+    max-width: 88px;
     justify-content: center;
     align-items: center;
     overflow: hidden;
 }
 
 .skills-panel .tab-header.skill {
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
+    width: 88px;
+    min-width: 88px;
+    max-width: 88px;
 }
 
 .skills-panel #Learn\ Skill {
@@ -2695,13 +2807,40 @@
 
 .skills-panel .skills-tab-root,
 .skills-panel .skills-tab-root > .unity-group-box,
-.skills-panel .skills-tab-chrome .unity-group-box {
+.skills-panel .skills-tab-root > .unity-visual-element,
+.skills-panel .skills-tab-chrome .unity-group-box,
+.skills-panel .skills-tab-chrome .unity-visual-element {
     margin: 0;
     padding: 0;
     border-width: 0;
     background-color: rgba(0, 0, 0, 0);
 }
 
+.skills-panel #TopLabel > .unity-label,
+.skills-panel .skills-section-title {
+    margin: 0 0 0 4px;
+    padding: 0;
+    font-size: 11px;
+    color: rgb(223, 222, 222);
+}
+
+.skills-panel .skills-tab-content,
+.skills-panel .skills-all-panel,
+.skills-panel .skills-section {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.skills-panel .skills-section {
+    margin-top: 6px;
+}
+
+.skills-panel .skills-section:first-child {
+    margin-top: 0;
+}
+
+.skills-panel .skills-section-header,
 .skills-panel #TopLabel {
     height: 16px;
     min-height: 16px;
@@ -2712,11 +2851,143 @@
     align-items: center;
 }
 
-.skills-panel #TopLabel > .unity-label {
-    margin: 0 0 0 4px;
+.skills-panel .skills-section-body {
+    margin: 0;
     padding: 0;
-    font-size: 11px;
-    color: rgb(223, 222, 222);
+    width: 100%;
+}
+
+.skills-panel .skills-section-rows {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.skills-panel .df-button-active-skills {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+    padding: 0;
+    margin: 0;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: resource('Data/UI/Window/Skills/Button_DF_Skills_Down_v3');
+    justify-content: center;
+    align-items: center;
+}
+
+.skills-panel .df-line-active-skills {
+    width: 8px;
+    height: 2px;
+    min-width: 8px;
+    min-height: 2px;
+    max-width: 8px;
+    max-height: 2px;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    align-self: center;
+    background-image: resource('Data/UI/Window/Skills/GroupBox_df_LineBack');
+}
+
+.skills-panel .skills-box-row {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.skills-panel .skills-grid-row {
+    margin-top: 2px;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 1px;
+    padding-right: 1px;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    width: 100%;
+    flex-shrink: 0;
+    border-width: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+    justify-content: flex-start;
+    align-items: center;
+    display: flex;
+    opacity: 1;
+}
+
+.skills-panel .skills-grid-row__slots {
+    margin: 0;
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.skills-panel .skills-window-slot {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    max-width: 34px;
+    max-height: 34px;
+    margin: 0 0 0 2px;
+    padding: 0;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.skills-panel .skills-window-slot:first-child {
+    margin-left: 0;
+}
+
+.skills-panel .skills-window-slot .slot-border {
+    flex-grow: 1;
+    background-image: resource('Data/UI/Assets/SkillBar/FrameSkill');
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 6;
+    -unity-slice-scale: 1px;
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+    align-items: center;
+    padding: 1px;
+}
+
+.skills-panel .skills-window-slot .slot-bg {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+}
+
+.skills-panel .skills-slot-reuse-bg {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.skills-panel .skills-slot-recharge-bg {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    display: none;
 }
 
 .character-info-window #SkillsHost {
@@ -3073,7 +3344,7 @@
     flex-direction: row;
 }
 
-.frame_df_ver {
+.interlude-hud-vertical-column {
     height: auto;
     width: 18px;
     max-width: 18px;
@@ -3086,6 +3357,38 @@
     padding-bottom: 0;
     padding-left: 0;
     flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-top {
+    height: 8px;
+    max-height: 8px;
+    flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-center {
+    flex-grow: 1;
+}
+
+.interlude-hud-vertical-slice-bottom {
+    height: 8px;
+    max-height: 8px;
+    flex-grow: 1;
+}
+
+.map-window-close,
+.map-window-close:hover,
+.map-window-close:active {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseBtn');
+    border-width: 0;
+}
+
+.map-window-close:hover {
+    background-image: resource('Data/UI/Frame/Interlude/frameclosebtn_over');
+}
+
+.map-window-close:active,
+.map-window-close:active:hover {
+    background-image: resource('Data/UI/Frame/Interlude/FrameCloseOnBtn');
 }
 
 .skillbar-slot-anchor {
@@ -3449,7 +3752,7 @@
     width: 48px;
 }
 
-.frame_df_ver-vertical {
+.interlude-hud-vertical-column-vertical {
     margin-top: 0;
     height: 49px;
     rotate: 90deg;

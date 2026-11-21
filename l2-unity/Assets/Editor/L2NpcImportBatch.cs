@@ -9,7 +9,7 @@ using UnityEngine;
 
 /// <summary>
 /// Data-driven import of official Interlude town/village NPC FBX + textures.
-/// Meter FBX (pskimport bScaleDown=True) then <see cref="L2TownNpcFbxImport.ConfigureMeterFbx"/>.
+/// Meter FBX (pskimport bScaleDown=True) then <see cref="L2TownNpcFbxImport.EnsureMeterContract"/>.
 /// Wires Npc_Basic like the Dark Elf / Orc village builders. No per-npc gameplay branches.
 /// </summary>
 public static class L2NpcImportBatch
@@ -106,7 +106,7 @@ public static class L2NpcImportBatch
             throw new Exception("FBX missing " + fbxPath);
 
         AssetDatabase.ImportAsset(fbxPath, ImportAssetOptions.ForceUpdate);
-        L2TownNpcFbxImport.ConfigureMeterFbx(fbxPath);
+        L2TownNpcFbxImport.EnsureMeterContract(fbxPath);
         GameObject src = AssetDatabase.LoadAssetAtPath<GameObject>(fbxPath);
         if (src == null)
             throw new Exception("cannot load " + fbxPath);
@@ -129,6 +129,8 @@ public static class L2NpcImportBatch
 
         Dictionary<string, Material> mats = BindMaterials(item, shader);
         AssignMaterials(instance, mats);
+        L2ActorMeshPolicy.DisableSkeletonPlaceholders(instance.transform);
+        L2ActorMeshPolicy.DisableAlphaOverlays(instance.transform);
         EnsureNpcComponents(instance, item.humanoid);
         var clips = ExtractClips(item.asset, fbxPath, folder + "/Model");
         Animator animator = instance.GetComponent<Animator>();
@@ -167,25 +169,17 @@ public static class L2NpcImportBatch
                 if (shader == null || tex == null)
                     continue;
                 mat = new Material(shader) { name = item.asset + suf };
-                if (mat.HasProperty("_BaseMap"))
-                    mat.SetTexture("_BaseMap", tex);
-                if (mat.HasProperty("_MainTex"))
-                    mat.SetTexture("_MainTex", tex);
                 AssetDatabase.CreateAsset(mat, matPath);
             }
-            else
-            {
-                if (shader != null)
-                    mat.shader = shader;
-                if (tex != null)
-                {
-                    if (mat.HasProperty("_BaseMap"))
-                        mat.SetTexture("_BaseMap", tex);
-                    if (mat.HasProperty("_MainTex"))
-                        mat.SetTexture("_MainTex", tex);
-                }
-                EditorUtility.SetDirty(mat);
-            }
+
+            var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+            L2ActorMaterialSetupEditor.ApplyToMaterial(
+                mat,
+                shader,
+                tex,
+                item.asset + suf,
+                props,
+                logMissingTexture: true);
 
             map[suf] = mat;
         }
@@ -209,11 +203,13 @@ public static class L2NpcImportBatch
                 if (mat == null && shader != null)
                 {
                     mat = new Material(shader) { name = asset };
-                    if (mat.HasProperty("_BaseMap"))
-                        mat.SetTexture("_BaseMap", tex);
-                    if (mat.HasProperty("_MainTex"))
-                        mat.SetTexture("_MainTex", tex);
                     AssetDatabase.CreateAsset(mat, matPath);
+                }
+
+                if (mat != null)
+                {
+                    var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+                    L2ActorMaterialSetupEditor.ApplyToMaterial(mat, shader, tex, asset, props, logMissingTexture: true);
                 }
             }
         }

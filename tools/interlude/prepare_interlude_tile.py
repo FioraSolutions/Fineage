@@ -74,7 +74,10 @@ def parse_metadata(meta_path: Path) -> dict:
             loc = (loc[0], loc[1], float(line.split("=", 1)[1]))
         m = re.match(r"splatmap_(\d+)=[^,]+,(\S+)", line)
         if m:
-            splats.append((int(m.group(1)), m.group(2), ""))
+            ground_ref = m.group(2)
+            # Metadata may use Package.TextureName from TerrainInfo refs.
+            ground_name = ground_ref.split(".", 1)[-1] if "." in ground_ref else ground_ref
+            splats.append((int(m.group(1)), ground_name, ""))
     splats.sort(key=lambda x: x[0])
     return {"location": loc, "splats": splats}
 
@@ -230,7 +233,10 @@ def main() -> None:
             if not ground_png.exists() or ground_png.read_bytes() == splat_file.read_bytes():
                 shutil.copy2(ground_src, ground_png)
         elif not ground_png.exists():
-            print(f"WARN {tile_id}: ground texture {ground} not in terraintextures/ (layer will be gray)")
+            raise SystemExit(
+                f"ERROR {tile_id}: ground texture '{ground}' missing — not in "
+                f"{args.extract_dir / 'terraintextures'} and no {ground_png}"
+            )
 
     terrain_info0 = build_terrain_info0(tile_id, meta, tile_tex)
     (meta_dir / "TerrainInfo0.txt").write_text(terrain_info0, encoding="utf-8")

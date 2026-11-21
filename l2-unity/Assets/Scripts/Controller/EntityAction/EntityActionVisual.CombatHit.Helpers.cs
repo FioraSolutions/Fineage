@@ -29,6 +29,7 @@ public partial class EntityActionVisual
 
         nac.SetAnimatorSpeed(1f);
         nac.SetPAtkSpeed(1f);
+        user.RefreshLocomotionAnimRates();
         float duration = fadeDuration ?? LocomotionCrossFadeSettings.ResolveDuration(state, nac);
         bool already = PlayerLocomotionCrossFade.IsAlreadyPlaying(nac, state);
         bool played;

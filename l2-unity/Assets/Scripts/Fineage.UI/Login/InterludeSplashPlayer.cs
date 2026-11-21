@@ -37,7 +37,6 @@ public sealed partial class InterludeSplashPlayer : MonoBehaviour
     VisualElement _overlay;
     VisualElement _frame;
     Texture2D[] _textures;
-    AudioSource _music;
     bool _dismissed;
     float _shownAt;
 

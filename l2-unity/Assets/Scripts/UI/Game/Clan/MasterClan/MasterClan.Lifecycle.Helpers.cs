@@ -7,7 +7,11 @@ public partial class MasterClan
 {
     public void UpdateMembersTable(ClanMember clanMember, ICreatorTables _creatorTableWindows)
     {
-        _creatorTableWindows.UpdateRowByName(clanMember.MemberName , "" , new string[4] { clanMember.MemberName, clanMember.Level.ToString(), ROLE_CREATE, GetOnline(clanMember.Online) });
+        string klass = LobbyRaceCatalog.ClassLabel(clanMember.ClassId) ?? clanMember.ClassId.ToString();
+        _creatorTableWindows.UpdateRowByName(
+            clanMember.MemberName,
+            "",
+            new string[4] { clanMember.MemberName, clanMember.Level.ToString(), klass, GetOnline(clanMember.Online) });
     }
 
     public void CreateMembersTable(List<ClanMember> listMemebers, ICreatorTables _creatorTableWindows)
@@ -43,7 +47,8 @@ public partial class MasterClan
     public void AddMemberData(ClanMember clanMember, PledgeShowMemberListAllDto packet, ICreatorTables _creatorTableWindows)
     {
         packet.Members.Add(clanMember);
-        _creatorTableWindows.AddRow(new string[4] { clanMember.MemberName , clanMember.Level.ToString() , ROLE_CREATE, GetOnline(clanMember.Online) });
+        string klass = LobbyRaceCatalog.ClassLabel(clanMember.ClassId) ?? clanMember.ClassId.ToString();
+        _creatorTableWindows.AddRow(new string[4] { clanMember.MemberName, clanMember.Level.ToString(), klass, GetOnline(clanMember.Online) });
     }
 
     private void PopulateMemberData(List<ClanMember> members, List<string> names,
@@ -53,7 +58,8 @@ public partial class MasterClan
         {
             names.Add(member.MemberName);
             levels.Add(member.Level.ToString());
-            roles.Add(ROLE_CREATE);
+            string klass = LobbyRaceCatalog.ClassLabel(member.ClassId);
+            roles.Add(string.IsNullOrEmpty(klass) ? member.ClassId.ToString() : klass);
             SetOnline(member, activities);
         }
     }

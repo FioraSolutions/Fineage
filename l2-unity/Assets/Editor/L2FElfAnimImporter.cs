@@ -123,6 +123,7 @@ public static class L2FElfAnimImporter
                 var nb = b; nb.path = np;
                 AnimationUtility.SetEditorCurve(dst, nb, AnimationUtility.GetEditorCurve(src, b));
             }
+            L2AnimClipPipeline.StripRedundantEulerCurves(dst);
             AnimationClip maleRef; male.TryGetValue(seq, out maleRef);
             bool willLoop = maleRef != null ? AnimationUtility.GetAnimationClipSettings(maleRef).loopTime
                 : (seq.StartsWith("wait") || seq.StartsWith("walk") || seq.StartsWith("run") || seq.StartsWith("atkwait")

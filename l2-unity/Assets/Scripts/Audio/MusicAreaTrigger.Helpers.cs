@@ -8,18 +8,24 @@ public partial class MusicAreaTrigger : MonoBehaviour
 {
     private void OnTriggerExit(Collider other) {
         // Debug.Log("Exit area:" + transform.name);
-        MusicManager music = Music;
+        MusicManager music = RequiredAudioServices.RequireMusic(nameof(MusicAreaTrigger));
         if (music == null)
             return;
-        music.ResetPriority();
-        music.StopMusic(_enterEvent);
-        if (_loopCoroutine != null) {
+        if (_loopCoroutine != null)
+        {
             StopCoroutine(_loopCoroutine);
+            _loopCoroutine = null;
         }
+
+        // Retail: fade out on area leave (FMOD ALLOWFADEOUT), then drop trigger priority.
+        if (MusicAreaExitFade.UseAllowFadeoutOnAreaExit)
+            music.StopMusic(_enterEvent);
+        if (MusicAreaExitFade.ShouldResetPriorityOnExit(MusicAreaExitFade.UseAllowFadeoutOnAreaExit))
+            music.ResetPriority();
     }
 
     private void PlayMusic() {
-        MusicManager music = Music;
+        MusicManager music = RequiredAudioServices.RequireMusic(nameof(MusicAreaTrigger));
         if (music == null)
             return;
         music.PlayMusic(_enterEvent, _areaPrority);
@@ -37,7 +43,7 @@ public partial class MusicAreaTrigger : MonoBehaviour
     }
 
     private void OnTriggerStay(Collider other) {
-        MusicManager music = Music;
+        MusicManager music = RequiredAudioServices.RequireMusic(nameof(MusicAreaTrigger));
         if (music == null)
             return;
         if(music.CurrentEventPriority > _areaPrority) {

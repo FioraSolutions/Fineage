@@ -38,6 +38,7 @@
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanBook.cs" Link="Client\NetClanBook.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanBook.Status.cs" Link="Client\NetClanBook.Status.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanBook.Members.cs" Link="Client\NetClanBook.Members.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanBook.Extended.cs" Link="Client\NetClanBook.Extended.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetClanNotices.cs" Link="Client\NetClanNotices.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Shop.cs" Link="Client\NetDomainStructs.Shop.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetDomainStructs.Quest.cs" Link="Client\NetDomainStructs.Quest.cs" />
@@ -52,7 +53,12 @@
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetEquip.cs" Link="Client\NetEquip.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetNpcSession.cs" Link="Client\NetNpcSession.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetRejectLines.cs" Link="Client\NetRejectLines.cs" />
-    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\NetSystemLines.cs" Link="Client\NetSystemLines.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\L10n\ILocalizationLog.cs" Link="Client\ILocalizationLog.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\L10n\PlayerLocale.cs" Link="Client\PlayerLocale.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\L10n\L10nStringsJson.cs" Link="Client\L10nStringsJson.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\L10n\LocalizationCatalog.cs" Link="Client\LocalizationCatalog.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\L10n\L10nRuntime.cs" Link="Client\L10nRuntime.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Game\L10n\NetSystemLines.cs" Link="Client\NetSystemLines.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.cs" Link="Client\PlaytestEndpoint.cs" />
     <Compile Include="..\..\l2-unity/Assets/Scripts/Fineage.Networking/PlaytestEndpoint.Parse.cs" Link="Client\PlaytestEndpoint.Parse.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PlaytestEndpoint.Parse.Core.cs" Link="Client\PlaytestEndpoint.Parse.Core.cs" />
@@ -74,8 +80,10 @@
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Domain\Item\EnchantGlow.Placement.cs" Link="Client\EnchantGlow.Placement.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\Transport\ZoneEpochGate.cs" Link="Client\ZoneEpochGate.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Domain\World\WorldEntityRegistry.cs" Link="Client\WorldEntityRegistry.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Domain\Utils\L2PawnHeadingMath.cs" Link="Client\L2PawnHeadingMath.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\IMainThreadApplyPump.cs" Link="Client\IMainThreadApplyPump.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\IPacketApplyQueue.cs" Link="Client\IPacketApplyQueue.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\PacketApplyQueue.cs" Link="Client\PacketApplyQueue.cs" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\ClientLibrary\Model\Hit.cs" Link="Client\Hit.cs" />
   </ItemGroup>
 </Project>

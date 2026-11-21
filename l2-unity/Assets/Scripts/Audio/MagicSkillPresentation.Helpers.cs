@@ -49,7 +49,7 @@ public static partial class MagicSkillPresentation
         if (grp == null && TablePacketServices.SkillGrps != null)
             grp = TablePacketServices.SkillGrps.GetSkill(dto.SkillId, dto.SkillLvl);
 
-        bool isMagic = grp == null || grp.IsMagic == 1;
+        bool isMagic = grp == null || grp.IsMagic == 1 || SetupDurationHelper.IsCastStyleCombo(dto);
         Debug.Log(
             "[CastSync] CAST.begin skill=" + dto.SkillId +
             " lv=" + dto.SkillLvl +

@@ -11,7 +11,8 @@ public partial class DecoToMesh
 
         for(int i = 0; i < decoLayers.Count; i++) {
             // Debug.Log($"Generating decolayer {i}, {decoLayers[i].densityMap.name} : {decoLayers[i].staticMesh.name}");
-            Texture2D decoAlphamap = TextureUtils.RotateTexture(decoLayers[i].densityMap);
+            Texture2D decoAlphamap = TextureUtils.RotateTexture(
+                TextureUtils.DuplicateReadable(decoLayers[i].densityMap));
             decoAlphamap = TextureUtils.FlipTextureVertically(decoAlphamap);
 
             string path = decoLayers[i].densityMapPath;

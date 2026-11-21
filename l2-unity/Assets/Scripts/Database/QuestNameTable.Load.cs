@@ -8,16 +8,22 @@ public partial class QuestNameTable
 {
     public QuestName GetQuestName(int questId, int questProg)
     {
-        if (_questNames.ContainsKey(questId))
+        if (_questNames != null && _questNames.TryGetValue(questId, out List<QuestName> steps))
         {
-            foreach (var quest in _questNames[questId])
+            foreach (QuestName quest in steps)
             {
                 if (quest.QuestProg == questProg)
-                {
                     return quest;
-                }
             }
         }
+
+        return null;
+    }
+
+    public List<QuestName> GetQuestNames(int questId)
+    {
+        if (_questNames != null && _questNames.TryGetValue(questId, out var list))
+            return list;
         return null;
     }
 

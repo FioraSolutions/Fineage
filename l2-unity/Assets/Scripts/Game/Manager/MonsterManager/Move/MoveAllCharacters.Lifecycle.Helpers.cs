@@ -10,11 +10,13 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 {
     void Update()
     {
-        CrowdAnimTest.EnsureTimeCap();
         if (_moveDict == null)
             return;
 
         StepMoves();
+
+        IGravity gravity = GravityNpcPacketServices.Gravity;
+        gravity?.StepGravity();
 
         if (_rotateDict == null || _rotateDict.Count == 0) return;
 

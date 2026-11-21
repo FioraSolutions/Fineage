@@ -25,6 +25,17 @@ public class ClanInfoContent : AbstractClanContent
         return _listDemoSkills;
     }
 
+    List<SkillInstance> BuildClanSkills()
+    {
+        NetClanSkill[] skills = NetClanBook.Shared.Skills;
+        if (skills == null || skills.Length == 0)
+            return _listDemoSkills;
+        var list = new List<SkillInstance>(skills.Length);
+        for (int i = 0; i < skills.Length; i++)
+            list.Add(new SkillInstance(skills[i].SkillId, skills[i].Level, false, false));
+        return list;
+    }
+
     public void PreShow(PledgeClanInfoDto clanInfo, VisualElement detailedInfoElement, PledgeShowMemberListAllDto packetAll)
     {
         content = LoadContent(content, detailedInfoElement);
@@ -45,7 +56,7 @@ public class ClanInfoContent : AbstractClanContent
         if (skillsPanel != null)
         {
             _skillsPanel.RefreshData(skillsPanel);
-            _skillsPanel.CreateSlots(_listDemoSkills , 6);
+            _skillsPanel.CreateSlots(BuildClanSkills(), 6);
         }
 
         _dataProvider.SetSubjectClanInfo(page, packetAll);

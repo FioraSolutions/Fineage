@@ -19,12 +19,7 @@ public partial class AudioManager : MonoBehaviour
     [SerializeField] private float _ambientVolume = 1;
     [SerializeField] private bool _muteWhenNotFocused = true;
 
-    private Bus _masterBus;
-    private Bus _musicBus;
-    private Bus _SFXBus;
-    private Bus _UIBus;
-    private Bus _ambientBus;
-    private bool _isDisabled = true;
+    [SerializeField] private bool _isDisabled = false;
 
     private static AudioManager _instance;
 

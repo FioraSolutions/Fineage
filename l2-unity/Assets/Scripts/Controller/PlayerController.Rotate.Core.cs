@@ -12,14 +12,14 @@ public partial class PlayerController
 
     private void TurnTowardsAttacker(Vector3 attackerPosition)
     {
-        Vector3 directionToAttacker = (_attackerPosition - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(directionToAttacker);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        StepPawnYawToward(attackerPosition, Time.deltaTime);
     }
 
     public float GetLiveRotateSpeed()
     {
-        return _calcSpeed != null ? _calcSpeed.GetSpeedRotate(_behindPlayer) : 0f;
+        return _pawnYaw != null
+            ? _pawnYaw.DegreesPerSecond(L2PawnYaw.RotationRateYaw)
+            : L2PawnHeadingMath.DegreesPerSecond(L2PawnHeadingMath.RotationRateYaw);
     }
 
     public float GetDesiredYawDegrees()

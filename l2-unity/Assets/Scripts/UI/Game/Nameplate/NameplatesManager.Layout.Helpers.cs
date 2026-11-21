@@ -12,6 +12,14 @@ public partial class NameplatesManager : MonoBehaviour
 
     private void Update()
     {
+        using (FineagePerfProfiling.NameplatesUpdate.Auto())
+        {
+            UpdateNameplatesCore();
+        }
+    }
+
+    void UpdateNameplatesCore()
+    {
         if (_playerTransform == null)
         {
             if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.transform != null)
@@ -27,23 +35,36 @@ public partial class NameplatesManager : MonoBehaviour
         if (_entryStore == null || _pixelSnap == null)
             return;
 
-        _entitiesInRange = Physics.OverlapSphere(
-            _playerTransform.position,
+        Vector3 playerPos = _playerTransform.position;
+        _overlapRangeSq = _nameplateViewDistance * _nameplateViewDistance;
+
+        int hitCount = Physics.OverlapSphereNonAlloc(
+            playerPos,
             _nameplateViewDistance,
+            OverlapBuffer,
             _entityMask);
 
-        _entryStore.Discover(_entitiesInRange, _defaultNameColor);
+        if (hitCount >= OverlapBufferSize && !_overlapBufferOverflowLogged)
+        {
+            _overlapBufferOverflowLogged = true;
+            FineageLog.Error(
+                FineageLogCategory.World,
+                $"NameplatesManager OverlapSphereNonAlloc hit cap {OverlapBufferSize}; "
+                + "raise OverlapBufferSize or reduce view distance.");
+        }
+
+        _entitiesInRange = OverlapBuffer;
+        _entryStore.Discover(OverlapBuffer, hitCount, _defaultNameColor);
 
         // Remote users (CharInfo/UserEntity) move via L2PawnWalk with their
         // CharacterController disabled, so OverlapSphere cannot find them. Upsert
-        // every registered user directly from World so their nameplates stay visible
-        // even when not hovered. Distance cull still happens in RefreshVisibility.
+        // users in view range only (distance cull still runs in RefreshVisibility).
         World world = WorldApplyPacketServices.GameWorld;
         if (world != null)
         {
-            world.ForEachUser(user => _entryStore.UpsertEntry(user, _defaultNameColor));
+            world.ForEachUser(_upsertUserInRange);
             // NPCs/monsters whose click_area is outside OverlapSphere (or missing) still need plates (#930).
-            world.ForEachNpc(npc => _entryStore.UpsertEntry(npc, _defaultNameColor));
+            world.ForEachNpc(_upsertNpcInRange);
         }
 
         _entryStore.EnsureHoverAndTarget(_entityMask, _defaultNameColor);
@@ -54,6 +75,24 @@ public partial class NameplatesManager : MonoBehaviour
         }
 
         _entryStore.RefreshVisibility(_playerTransform, _nameplateViewDistance, _pixelSnap);
+    }
+
+    void UpsertUserInRange(Entity user)
+    {
+        if (user == null || user.transform == null)
+            return;
+        if ((_playerTransform.position - user.transform.position).sqrMagnitude > _overlapRangeSq)
+            return;
+        _entryStore.UpsertEntry(user, _defaultNameColor);
+    }
+
+    void UpsertNpcInRange(Entity npc)
+    {
+        if (npc == null || npc.transform == null)
+            return;
+        if ((_playerTransform.position - npc.transform.position).sqrMagnitude > _overlapRangeSq)
+            return;
+        _entryStore.UpsertEntry(npc, _defaultNameColor);
     }
 
     private void OnBeginCameraRendering(ScriptableRenderContext context, Camera cam)

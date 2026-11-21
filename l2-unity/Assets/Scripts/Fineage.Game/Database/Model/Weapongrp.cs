@@ -10,7 +10,10 @@ public class Weapongrp : Abstractgrp
     [SerializeField] private byte _spiritshot;
     [SerializeField] private int _mpConsume;
     [SerializeField] private string _model;
+    [SerializeField] private string _modelLeft;
     [SerializeField] private string _texture;
+    [SerializeField] private string _textureLeft;
+    [SerializeField] private int _handness;
     [SerializeField] private string[] _itemSounds;
     [SerializeField] private int _patk;
     [SerializeField] private int _patkspeed;
@@ -28,7 +31,10 @@ public class Weapongrp : Abstractgrp
     public byte Spiritshot { get { return _spiritshot; } set { _spiritshot = value; } }
     public int MpConsume { get { return _mpConsume; } set { _mpConsume = value; } }
     public string Model { get { return _model; } set { _model = value; } }
+    public string ModelLeft { get { return _modelLeft; } set { _modelLeft = value; } }
     public string Texture { get { return _texture; } set { _texture = value; } }
+    public string TextureLeft { get { return _textureLeft; } set { _textureLeft = value; } }
+    public int Handness { get { return _handness; } set { _handness = value; } }
 
     public int PAtk { get { return _patk; } set { _patk = value; } }
     public int Matk { get { return _matk; } set { _matk = value; } }

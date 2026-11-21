@@ -21,6 +21,7 @@ public partial class UserInfoDto
         // siege flags: attacker - 0x180 sword over name, defender - 0x80 shield, 0xC0 crown (|leader), 0x1C0 flag (|leader)
         int relation = reader.ReadI();
         byte mountType = reader.ReadB();
+        MountType = mountType;
         byte privateStoreType = reader.ReadB();
         byte hasDwarvenCraft = reader.ReadB();
 
@@ -40,6 +41,7 @@ public partial class UserInfoDto
         int recomLeft = reader.ReadSh();
         int recomHave = reader.ReadSh();
         int mountNpcId = reader.ReadI();
+        MountNpcId = mountNpcId;
         int inventoryLimit = reader.ReadSh();
         int class_id = reader.ReadI();
         _info.Identity.PlayerClass = class_id;

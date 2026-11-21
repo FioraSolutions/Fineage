@@ -51,6 +51,9 @@ public sealed partial class NetSession
     public Task SendPartyAnswerJoinRequest(int requestorObjectId, int response) =>
         _commandSender.SendPartyAnswerJoinRequestAsync(requestorObjectId, response);
 
+    public Task SendWeddingEngageAnswer(int response) =>
+        _commandSender.SendWeddingEngageAnswerAsync(response);
+
     public Task SendPartyLeaveRequest() =>
         _commandSender.SendPartyLeaveRequestAsync();
 
@@ -89,6 +92,9 @@ public sealed partial class NetSession
 
     public Task SendClanCancelDissolveRequest() =>
         _commandSender.SendClanCancelDissolveRequestAsync();
+
+    public Task SendPledgeCommand(PledgeCommandNetMsg message) =>
+        _commandSender.SendPledgeCommandAsync(message);
 
     public Task SendTargetCancel() =>
         _commandSender.SendTargetCancelAsync();

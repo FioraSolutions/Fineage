@@ -69,7 +69,15 @@ public abstract partial class AbstractGetCache
             // Debug.LogWarning($"Can't find weapon {itemId} in ItemTable");
         }
 
-        return GetWeapon(weapon.Weapongrp.Model);
+        return GetWeapon(WeapongrpHandMeshes.ModelForHand(weapon.Weapongrp, leftHand: false));
+    }
+
+    public GameObject GetWeaponForHand(int itemId, bool leftHand)
+    {
+        Weapon weapon = TablePacketServices.Items.GetWeapon(itemId);
+        if (weapon?.Weapongrp == null)
+            return null;
+        return GetWeapon(WeapongrpHandMeshes.ModelForHand(weapon.Weapongrp, leftHand));
     }
 
     public GameObject GetEtcById(int itemId)

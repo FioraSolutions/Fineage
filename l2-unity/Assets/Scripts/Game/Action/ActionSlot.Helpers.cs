@@ -7,17 +7,39 @@ public partial class ActionSlot : L2DraggableSlot
     {
     }
 
+    public void ClearAction()
+    {
+        ActionId = 0;
+        Action = null;
+        _slotDragManipulator.enabled = false;
+        if (_slotElement != null)
+        {
+            _slotElement.AddToClassList("empty");
+            _slotElement.style.display = DisplayStyle.None;
+        }
+        if (_slotBg != null)
+            _slotBg.style.backgroundImage = StyleKeyword.Null;
+        if (_tooltipManipulator != null)
+        {
+            _slotElement.RemoveManipulator(_tooltipManipulator);
+            _tooltipManipulator = null;
+        }
+    }
+
     public void AssignAction(ActionType actionType)
     {
         ButtonClickSoundManipulator _buttonClickSoundManipulator = new ButtonClickSoundManipulator(_slotElement);
         _slotDragManipulator.enabled = true;
+        if (_slotElement != null)
+            _slotElement.style.display = DisplayStyle.Flex;
         _slotElement.RemoveFromClassList("empty");
 
         ActionId = (int)actionType;
         Action = TablePacketServices.ActionNames != null
             ? TablePacketServices.ActionNames.GetAction(actionType)
             : null;
-        L2SlotIconView.SetNamedIcon(_slotBg, ConvertIcon(actionType));
+        if (InterludeActionIcons.TryResolveResourcesPath((int)actionType, out string resPath))
+            L2SlotIconView.TrySetResourcesBackground(_slotBg, resPath);
 
         string tip = HoverText(actionType);
         if (_tooltipManipulator == null && _slotElement != null)
@@ -60,7 +82,8 @@ public partial class ActionSlot : L2DraggableSlot
             case ActionType.PrivateStoreSell: return "Private Store - Sell\nSet up a private store to sell items. (/vendor)";
             case ActionType.PrivateStoreBuy: return "Private Store - Buy\nSet up a private store to buy items. (/buy)";
             case ActionType.DwarvenManufacture: return "Dwarven Workshop\nSet up a workshop that crafts from Dwarven recipes. (/dwarvenmanufacture)";
-            case ActionType.Mount: return "Mount/Dismount\nMount or dismount a strider you already have summoned. Does not summon one. (/mount, /dismount)";
+            case ActionType.Mount:
+                return "Mount/Dismount";
             case ActionType.Recommend: return "Recommend\nRaise the selected character's evaluation. (/evaluate)";
             case ActionType.SocialGreeting: return "Greeting\nEmote: hello. (/socialhello)";
             case ActionType.SocialVictory: return "Victory\nEmote: victory. (/socialvictory)";
@@ -81,47 +104,4 @@ public partial class ActionSlot : L2DraggableSlot
         return actionType.ToString();
     }
 
-    private string ConvertIcon(ActionType actionType)
-    {
-        // Interlude ActionWnd icon stems in SysTextures/Icon.
-        switch (actionType)
-        {
-            case ActionType.Sit: return "action001";
-            case ActionType.WalkRun: return "action002";
-            case ActionType.Attack: return "action003";
-            case ActionType.Trade: return "action010";
-            case ActionType.NextTarget: return "action005";
-            case ActionType.Pickup: return "action006";
-            case ActionType.Assist: return "action008";
-            case ActionType.PartyInvite: return "action011";
-            case ActionType.PartyLeave: return "action012";
-            case ActionType.PartyKick: return "action013";
-            case ActionType.PrivateStoreSell: return "action028";
-            case ActionType.PartyMatching: return "action014";
-            case ActionType.SocialGreeting: return "action015";
-            case ActionType.SocialVictory: return "action016";
-            case ActionType.SocialAdvance: return "action017";
-            case ActionType.SocialYes: return "action018";
-            case ActionType.SocialNo: return "action019";
-            case ActionType.SocialBow: return "action020";
-            case ActionType.SocialUnaware: return "action021";
-            case ActionType.SocialWaiting: return "action022";
-            case ActionType.SocialLaugh: return "action024";
-            case ActionType.SocialApplaud: return "action029";
-            case ActionType.SocialDance: return "action030";
-            case ActionType.SocialSorrow: return "action031";
-            case ActionType.SocialCharm: return "action032";
-            case ActionType.SocialShyness: return "action033";
-            case ActionType.PrivateStoreBuy: return "action034";
-            case ActionType.DwarvenManufacture: return "action040";
-            case ActionType.Mount: return "etc_pet_ride_01";
-            case ActionType.Recommend: return "action041";
-            case ActionType.PartyLeader: return "action050";
-        }
-
-        ActionData named = TablePacketServices.ActionNames != null
-            ? TablePacketServices.ActionNames.GetAction(actionType)
-            : null;
-        return named != null && !string.IsNullOrEmpty(named._icon) ? named._icon : "action001";
-    }
 }

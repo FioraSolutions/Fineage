@@ -47,12 +47,12 @@ public sealed partial class NameplateTextDrawer
                 ay = snap.Snap(item.Id, screen.y, false, snapDist);
             }
 
-            float yNameTop = screenH - ay - lineH;
+            float yNameTop = L2NameplateScreenLayout.ComputeYNameTop(screenH, ay, lineH);
             if (!string.IsNullOrEmpty(item.Title))
             {
                 float titleW = _font.MeasureWidth(item.Title, scale);
                 float xTitle = ax - titleW * 0.5f;
-                float yTitleTop = yNameTop - lineH - titleGap;
+                float yTitleTop = L2NameplateScreenLayout.ComputeYTitleTop(yNameTop, lineH, titleGap);
                 _batch.AppendLine(
                     _font, item.Title, xTitle, yTitleTop, scale, item.TitleColor,
                     depth, screenH, discardFrac);

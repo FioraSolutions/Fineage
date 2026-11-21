@@ -15,6 +15,16 @@ public partial class World
         Stats stats,
         out bool unresolvable)
     {
+        using (FineagePerfProfiling.Spawn.Auto())
+            SpawnNpcCore(identity, status, stats, out unresolvable);
+    }
+
+    void SpawnNpcCore(
+        EntityIdentity identity,
+        NpcStatusInterlude status,
+        Stats stats,
+        out bool unresolvable)
+    {
         unresolvable = false;
         if (identity == null)
             return;
@@ -28,8 +38,15 @@ public partial class World
             RemoveObject(identity.Id);
         }
 
-        if (identity.NpcId == 20481)
-            Debug.Log(" object NpcInfo 5 " + identity.Id);
+        if (identity.NpcId == 0 && NetDoorSession.IsLiveDoorObject(identity.Id))
+        {
+            if (DoorSpawnShared.TrySpawn(identity, status, stats, this))
+                return;
+            FineageLog.Error(
+                FineageLogCategory.Net,
+                $"Door spawn failed for objectId={identity.Id} name={identity.Name}");
+            return;
+        }
 
         NpcSpawnRequest request;
         if (!EntitySpawnShared.TryResolveNpc(identity, _npcGrps, _npcNames, _models, out request))

@@ -4,6 +4,28 @@ using UnityEngine;
 
 public partial class PlayerController
 {
+    void EnsureYawDrive()
+    {
+        if (_yawDrive != null || _pawnYaw == null)
+            return;
+        _yawDrive = _pawnYaw.EnsureDrive(transform);
+    }
+
+    void StepLocalPawnYaw(Vector3 worldLookPoint, float deltaTime)
+    {
+        if (_pawnYaw == null)
+            return;
+        EnsureYawDrive();
+        _pawnYaw.RequestLook(_yawDrive, transform, worldLookPoint, L2PawnYaw.RotationRateYaw);
+        if (_yawDrive != null && _yawDrive.TryConsumeStep(deltaTime, out Quaternion rot))
+            transform.rotation = rot;
+    }
+
+    void StepPawnYawToward(Vector3 worldLookPoint, float deltaTime)
+    {
+        StepLocalPawnYaw(worldLookPoint, deltaTime);
+    }
+
     private float GetFinalAngle(Vector3 targetPosition, Vector3 currentPosition)
     {
         Vector3 relativeDirection = targetPosition - currentPosition;

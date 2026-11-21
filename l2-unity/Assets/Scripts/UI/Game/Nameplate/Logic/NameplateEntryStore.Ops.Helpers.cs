@@ -33,6 +33,8 @@ public sealed partial class NameplateEntryStore
             }
 
             bool visible = IsNameplateVisible(e.Target, playerTransform, nameplateViewDistance);
+            if (visible && !CrowdTierPacketServices.ShouldShowNameplate(id))
+                visible = false;
             e.Visible = visible;
             _entries[id] = e;
 
@@ -91,6 +93,10 @@ public sealed partial class NameplateEntryStore
             Color nameColor = NameplateColorsEntity.Resolve(e.Entity, Color.white);
             e.NameColor = nameColor;
 
+            byte questMark = 0;
+            if (e.Entity?.Identity != null)
+                questMark = QuestJournalState.NpcMarkForTemplate(e.Entity.Identity.NpcId);
+
             paintList.Add(new NameplatePaintItem
             {
                 Id = e.Id,
@@ -101,7 +107,8 @@ public sealed partial class NameplateEntryStore
                 TitleColor = e.TitleColor,
                 IsLocalPlayer = isLocal,
                 BubbleType = bubbleType,
-                CastRemaining01 = castRem
+                CastRemaining01 = castRem,
+                QuestMark = questMark
             });
         }
     }
@@ -131,12 +138,33 @@ public sealed partial class NameplateEntryStore
             return false;
         }
 
+        Entity entity = target.GetComponentInParent<Entity>();
+        if (entity != null && !EntityInteraction.IsAttackable(entity) && !IsTeleporterNpc(entity))
+        {
+            // Interlude: peaceful merchants / folk in range without LOS to feet (not gatekeepers).
+            return true;
+        }
+
         CameraController cameraController = CameraPacketServices.Controller;
         if (cameraController != null)
         {
-            return cameraController.IsObjectVisible(target);
+            Vector3 anchor = entity != null
+                ? L2OverheadAnchor.GetWorldPos(entity, target)
+                : target.position;
+            return cameraController.IsPointVisible(anchor);
         }
 
         return true;
+    }
+
+    static bool IsTeleporterNpc(Entity entity)
+    {
+        if (entity?.Identity == null)
+            return false;
+        Npcgrp grp = TablePacketServices.NpcGrps?.GetNpcgrp(entity.Identity.NpcId);
+        if (grp == null)
+            return false;
+        string cn = grp.ClassName ?? string.Empty;
+        return cn.IndexOf("teleporter", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

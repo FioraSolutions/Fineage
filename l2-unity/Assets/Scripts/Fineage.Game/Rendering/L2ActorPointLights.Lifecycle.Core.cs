@@ -7,6 +7,12 @@ public static partial class L2ActorPointLights
 {
     public static void Push()
     {
+        using (FineagePerfProfiling.ActorLightsPush.Auto())
+            PushCore();
+    }
+
+    static void PushCore()
+    {
         if (Time.unscaledTime >= _nextRefresh)
         {
             Refresh();

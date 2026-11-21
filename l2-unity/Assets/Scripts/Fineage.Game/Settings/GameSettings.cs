@@ -3,13 +3,34 @@ using UnityEngine;
 /// <summary>Minimal Interlude-like options: audio volumes/mute + resolution/window mode. Stored in PlayerPrefs.</summary>
 public static class GameSettings
 {
-    const string KMaster = "opt.vol.master", KMusic = "opt.vol.music", KSfx = "opt.vol.sfx", KAmb = "opt.vol.ambient", KMute = "opt.vol.mute";
+    const string KMaster = "opt.vol.master", KMusic = "opt.vol.music", KSfx = "opt.vol.sfx", KAmb = "opt.vol.ambient", KVoice = "opt.vol.voice", KMute = "opt.vol.mute";
     const string KResW = "opt.res.w", KResH = "opt.res.h", KFull = "opt.res.full";
+    const string KGfxQuality = "opt.gfx.quality";
+
+    public static bool HasSavedGraphicsQuality => PlayerPrefs.HasKey(KGfxQuality);
+
+    public static int GraphicsQualityLevelIndex
+    {
+        get
+        {
+            int max = Mathf.Max(0, QualitySettings.names.Length - 1);
+            return Mathf.Clamp(PlayerPrefs.GetInt(KGfxQuality, QualitySettings.GetQualityLevel()), 0, max);
+        }
+        set
+        {
+            int max = Mathf.Max(0, QualitySettings.names.Length - 1);
+            int clamped = Mathf.Clamp(value, 0, max);
+            PlayerPrefs.SetInt(KGfxQuality, clamped);
+            PlayerPrefs.Save();
+            GraphicsQualityApplier.ApplyQualityLevel(clamped);
+        }
+    }
 
     public static float Master { get => PlayerPrefs.GetFloat(KMaster, 0.5f); set { PlayerPrefs.SetFloat(KMaster, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static float Music { get => PlayerPrefs.GetFloat(KMusic, 0.6f); set { PlayerPrefs.SetFloat(KMusic, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static float Sfx { get => PlayerPrefs.GetFloat(KSfx, 0.7f); set { PlayerPrefs.SetFloat(KSfx, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static float Ambient { get => PlayerPrefs.GetFloat(KAmb, 0.6f); set { PlayerPrefs.SetFloat(KAmb, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
+    public static float Voice { get => PlayerPrefs.GetFloat(KVoice, 0.85f); set { PlayerPrefs.SetFloat(KVoice, Mathf.Clamp01(value)); PlayerPrefs.Save(); ApplyAudio(); } }
     public static bool Mute { get => PlayerPrefs.GetInt(KMute, 0) == 1; set { PlayerPrefs.SetInt(KMute, value ? 1 : 0); PlayerPrefs.Save(); ApplyAudio(); } }
 
     public static readonly Vector2Int[] Resolutions = {
@@ -26,7 +47,7 @@ public static class GameSettings
         Screen.SetResolution(w, h, fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
     }
 
-    /// <summary>Real audio goes through Unity AudioSources (FMOD AudioManager is disabled), so drive AudioListener.</summary>
+    /// <summary>Unified AudioService: FMOD buses + clip channels; master/mute also drives AudioListener.</summary>
     public static void ApplyAudio()
     {
         AudioListener.volume = Mute ? 0f : Master;
@@ -34,6 +55,9 @@ public static class GameSettings
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void ApplySavedAudio() => ApplyAudio();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void ApplySavedGraphicsQuality() => GraphicsQualityApplier.ApplyBootGraphicsQuality();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void ApplySavedResolution()

@@ -46,6 +46,12 @@ public sealed partial class GameLifetimeScope
             return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))
             return CharacterPacketServices.Builder as T;
+        if (typeof(T) == typeof(AudioManager))
+            return AudioPacketServices.Audio as T;
+        if (typeof(T) == typeof(MusicManager))
+            return MusicPacketServices.Music as T;
+        if (typeof(T) == typeof(ThirdPersonListener))
+            return AudioPacketServices.Listener as T;
 
         return null;
     }

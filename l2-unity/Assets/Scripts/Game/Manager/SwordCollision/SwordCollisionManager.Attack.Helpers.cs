@@ -50,15 +50,7 @@ public partial class SwordCollisionService
 
         if (_attackContextsByEntityId.TryGetValue(attackerEntityId, out AttackTimingContext ctx))
         {
-            if (ctx.AttackShotFired)
-            {
-                // Debug.Log(
-                    // $"[HIT_FX] 3.EmitHitFromAttackShot SKIP already fired " +
-                    // $"epoch={ctx.Epoch} attackerId={attackerEntityId}");
-                return;
-            }
-
-            ctx.AttackShotFired = true;
+            ctx.AttackShotCount++;
             if (targetEntityId > 0)
             {
                 ctx.TargetEntityId = targetEntityId;

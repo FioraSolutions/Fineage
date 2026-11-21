@@ -7,7 +7,7 @@ public partial class HitManager
 {
     public void ArmRemoteMeleeHit(Entity attacker, Entity target, AttackDto dto)
     {
-        Hit hit = dto != null ? dto.FirstHit : null;
+        Hit hit = dto != null ? AttackHitPresentation.ResolveHit(dto, 0) : null;
         ArmRemoteMeleeHit(
             attacker,
             target,
@@ -17,7 +17,7 @@ public partial class HitManager
             packet: dto);
     }
 
-    public void ArmRemoteSkillHit(Entity attacker, Entity target, MagicSkillUseDto magic)
+    public void ArmRemoteMeleeHit(Entity attacker, Entity target, MagicSkillUseDto magic)
     {
         if (target == null || target == attacker)
             return;
@@ -39,17 +39,17 @@ public partial class HitManager
         int hitTimeMs,
         AttackDto packet = null)
     {
-        bool hasExtra = packet != null && packet.ArrHit != null && packet.ArrHit.Length > 0;
+        int hitCount = AttackHitPresentation.CountHits(packet);
         if (attacker == null || attacker is PlayerEntity)
             return;
-        if (target == null && !hasExtra)
+        if (target == null && hitCount == 0)
             return;
         if (!(attacker is MonsterEntity) && !(attacker is UserEntity))
             return;
         if (attacker.Identity == null)
             return;
 
-        if (miss && !hasExtra)
+        if (miss && hitCount <= 1)
             return;
 
         if (IsBowWeapon(attacker))
@@ -78,8 +78,7 @@ public partial class HitManager
             AttackerId = attackerId,
             Attacker = attacker,
             Target = target,
-            Soulshot = soulshot,
-            Miss = miss,
+            NextHitIndex = 0,
             Packet = packet,
             WaitForShot = waitForShot,
             FireAt = Time.time + delay

@@ -38,7 +38,7 @@ public partial class Entity
 
     protected virtual void OnHit(bool criticalHit) {
         // TODO: Add armor type for more hit sounds
-        if (!HitImpactSound.Play(criticalHit) && AudioPacketServices.Audio != null)
+        if (AudioPacketServices.Audio != null)
             AudioPacketServices.Audio.PlayHitSound(criticalHit, transform.position);
     }
 
@@ -69,9 +69,9 @@ public partial class Entity
 
     public void UpdateNpcWalkSpd(float walkSpeed)
     {
-        float scaled = StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, walkSpeed);
-        float anim_converted = NpcLocomotionAnimRate("walk", scaled);
-        if (_networkAnimationReceive != null) _networkAnimationReceive.SetWalkSpeed(anim_converted);
-        Stats.UnitySpeedWalking = scaled;
+        if (walkSpeed > 0.001f)
+            _stats.WalkRealSpeed = walkSpeed;
+        UpdateWalkSpeed(walkSpeed);
+        RefreshLocomotionAnimRates();
     }
 }

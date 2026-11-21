@@ -116,40 +116,18 @@ public partial class StatusWindow
         VisualElement grip = GetElementByClass("hor-resize-handle");
         if (grip != null)
         {
-            Stamp(grip, "Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol2");
-            grip.style.unitySliceLeft = 0;
-            grip.style.unitySliceRight = 0;
-            grip.style.unitySliceTop = 0;
-            grip.style.unitySliceBottom = 0;
             grip.style.width = 7;
             grip.style.height = 16;
-            grip.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
         }
     }
 
     void PaintSideFrame()
     {
-        VisualElement frame = GetElementById("Frame_DF_Ver");
-        if (frame == null)
-            return;
+        L2InterludeHudVerticalFrame.TryPaintVerticalColumn(_windowEle ?? _root, nameof(StatusWindow));
 
-        VisualElement column = frame.Q<GroupBox>("Frame_DF_Ver");
-        if (column == null || column.childCount < 4)
-            return;
-
-        Stamp(column[0], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Top");
-        Stamp(column[1], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Center");
-        Stamp(column[2], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Center");
-        Stamp(column[3], "Data/UI/Frame/Frame_DF_Ver/Frame_DF_Ver_Small_Bottom");
-        for (int i = 0; i < column.childCount; i++)
-            column[i].style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-
-        VisualElement edge = GetElementById("SizeControl");
-        if (edge != null)
-        {
-            Stamp(edge, "Data/UI/Frame/Frame_DF_Ver/ps_sizecontrol1");
-            edge.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-        }
+        VisualElement grip = GetElementById("SizeControlHandle");
+        if (grip != null)
+            L2InterludeHudVerticalFrame.StampHorizontalResize(grip, nameof(StatusWindow));
     }
 
     static void PaintBar(VisualElement bar, string resourcesPath)

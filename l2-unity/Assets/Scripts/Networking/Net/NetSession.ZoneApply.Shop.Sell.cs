@@ -53,13 +53,16 @@ public sealed partial class NetSession
             };
         }
 
-        NetNpcWindows.ApplyQuestList(new NetQuestList
+        var domain = new NetQuestList
         {
             Active = rows,
             CompletedMask = list.CompletedMask ?? System.Array.Empty<byte>(),
             CompletedQuestIds = list.CompletedQuestIds ?? System.Array.Empty<int>(),
             MaxActive = list.MaxActive
-        });
+        };
+        QuestJournalState.ApplyQuestList(list);
+        QuestJournalState.RefreshDirectionFromMetadata();
+        NetNpcWindows.ApplyQuestList(domain);
     }
 
     internal void ApplyAcquireSkillList(AcquireSkillListNetMsg list)

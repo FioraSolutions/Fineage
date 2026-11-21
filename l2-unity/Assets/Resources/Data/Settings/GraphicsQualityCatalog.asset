@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38cbc5d1eff84f9a97901687c75e2ef4, type: 3}
+  m_Name: GraphicsQualityCatalog
+  m_EditorClassIdentifier: 
+  platformDefaults:
+  - PlatformGroup: 0
+    QualityLevelIndex: 3
+  - PlatformGroup: 1
+    QualityLevelIndex: 1
+  tierPipelines:
+  - TierName: Very Low
+    QualityLevelIndex: 0
+    Pipeline: {fileID: 11400000, guid: dc4fdb042b55d754083f4d8483d169c8, type: 2}
+  - TierName: Low
+    QualityLevelIndex: 1
+    Pipeline: {fileID: 11400000, guid: 145e24d4bb774f80a3bc2d11721e8c7e, type: 2}
+  - TierName: Medium
+    QualityLevelIndex: 2
+    Pipeline: {fileID: 11400000, guid: 89b80c940b3341e2aa2f64a6e59b9539, type: 2}
+  - TierName: High
+    QualityLevelIndex: 3
+    Pipeline: {fileID: 11400000, guid: 782576dd2e6c49b187e7222001ba02a3, type: 2}
+  - TierName: Very High
+    QualityLevelIndex: 4
+    Pipeline: {fileID: 11400000, guid: fbdb5cf5593a4e6a9a0e353c154e1c9e, type: 2}
+  - TierName: Ultra
+    QualityLevelIndex: 5
+    Pipeline: {fileID: 11400000, guid: fbb8dd10433642448b10005ae10192bc, type: 2}

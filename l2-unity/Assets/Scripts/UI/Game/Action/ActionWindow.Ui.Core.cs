@@ -6,24 +6,53 @@ using UnityEngine.UIElements;
 
 public partial class ActionWindow : L2PopupWindow
 {
-    void AssignBasic(params ActionType[] actions)
+    void AssignSection(InterludeActionSection section, VisualElement _)
     {
-        for (int i = 0; i < actions.Length && i < SLOTS_PER_ROW * 4; i++)
-            _slots[i].AssignAction(actions[i]);
+        int baseIndex = SectionBaseSlotIndex(section);
+        int maxSlots = SectionMaxSlots(section);
+        InterludeActionCatalog.Entry[] rows = InterludeActionCatalog.SectionSlots(section);
+        InterludeActionAvailabilityService availability = ActionAvailabilityPacketServices.Availability;
+        int write = 0;
+        for (int i = 0; i < rows.Length && write < maxSlots; i++)
+        {
+            if (!availability.IsAvailable(in rows[i]))
+                continue;
+            _slots[baseIndex + write].AssignAction((ActionType)rows[i].Id);
+            write++;
+        }
+
+        for (int i = write; i < maxSlots; i++)
+            _slots[baseIndex + i].ClearAction();
     }
 
-    void AssignParty(params ActionType[] actions)
+    public void RefreshActionAvailability()
     {
-        // Basic is 6x3 (18). The old base of 6x4 wrote party icons onto the second party row.
-        int baseIndex = SLOTS_PER_ROW * 3;
-        for (int i = 0; i < actions.Length && i < SLOTS_PER_ROW * 2; i++)
-            _slots[baseIndex + i].AssignAction(actions[i]);
+        if (_slots == null || _slots.Count == 0)
+            return;
+        AssignSection(InterludeActionSection.Basic, _basicContainer);
+        AssignSection(InterludeActionSection.Party, _partyContainer);
+        AssignSection(InterludeActionSection.Social, _socialContainer);
     }
 
-    void AssignSocial(params ActionType[] actions)
+    static int SectionBaseSlotIndex(InterludeActionSection section)
     {
-        int baseIndex = SLOTS_PER_ROW * 3 + SLOTS_PER_ROW * 2;
-        for (int i = 0; i < actions.Length && i < SLOTS_PER_ROW * 3; i++)
-            _slots[baseIndex + i].AssignAction(actions[i]);
+        switch (section)
+        {
+            case InterludeActionSection.Basic: return 0;
+            case InterludeActionSection.Party: return SLOTS_PER_ROW * 3;
+            case InterludeActionSection.Social: return SLOTS_PER_ROW * 3 + SLOTS_PER_ROW * 2;
+            default: return 0;
+        }
+    }
+
+    static int SectionMaxSlots(InterludeActionSection section)
+    {
+        switch (section)
+        {
+            case InterludeActionSection.Basic: return SLOTS_PER_ROW * 3;
+            case InterludeActionSection.Party: return SLOTS_PER_ROW * 2;
+            case InterludeActionSection.Social: return SLOTS_PER_ROW * 3;
+            default: return 0;
+        }
     }
 }

@@ -54,6 +54,7 @@ public sealed partial class L2ActorFade
         int count = CountFadeRenderers(found);
         if (count == 0)
         {
+            LogFadeBeginFailure(entity, found, "no enabled SkinnedMeshRenderer/MeshRenderer");
             return false;
         }
 
@@ -81,7 +82,18 @@ public sealed partial class L2ActorFade
             Material[] mats = renderer.materials;
             for (int m = 0; m < mats.Length; m++)
             {
-                PrepareCurrentShader(mats[m]);
+                Material mat = mats[m];
+                if (!MaterialSupportsFade(mat))
+                {
+                    LogFadeBeginFailure(
+                        entity,
+                        found,
+                        $"renderer '{renderer.name}' material[{m}] '{mat?.name ?? "null"}' shader '{mat?.shader?.name ?? "null"}' " +
+                        "has no _ActorAlpha or _BaseColor");
+                    return false;
+                }
+
+                PrepareCurrentShader(mat);
             }
 
             renderers[write] = renderer;

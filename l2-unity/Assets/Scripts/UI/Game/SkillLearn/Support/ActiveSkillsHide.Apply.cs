@@ -33,6 +33,7 @@ public partial class ActiveSkillsHide
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
             SetWidthBoxPanel(boxPanel, skillsPerPanel);
+            boxPanel.style.alignSelf = Align.FlexStart;
             var panels = base.CreateSlots(list, _templatePanel8x1, _templateSlotSkill, boxPanel);
 
             _boxPanelsPhysical.Add(panels);
@@ -50,6 +51,7 @@ public partial class ActiveSkillsHide
         {
             var boxPanel = ToolTipsUtils.CloneOne(_templateBoxPanel);
             SetWidthBoxPanel(boxPanel, skillsPerPanel);
+            boxPanel.style.alignSelf = Align.FlexStart;
             var panels = base.CreateSlots(list, _templatePanel8x1, _templateSlotSkill, boxPanel);
             _boxPanelsMagic.Add(panels);
             rowMagical.Add(panels);
@@ -80,5 +82,51 @@ public partial class ActiveSkillsHide
     {
         _rowMagical ??= _activeSkillPanel.Q(_rowNameMagical);
         ClickDf(btn, arrDfSelect, _rowMagical, 1);
+    }
+
+    static List<VisualElement> CollectGridRows(List<VisualElement> boxPanels)
+    {
+        var rows = new List<VisualElement>();
+        if (boxPanels == null)
+            return rows;
+
+        for (int i = 0; i < boxPanels.Count; i++)
+        {
+            VisualElement box = boxPanels[i];
+            if (box == null)
+                continue;
+            for (int c = 0; c < box.childCount; c++)
+                rows.Add(box[c]);
+        }
+
+        return rows;
+    }
+
+    void EnsureSectionRowsExpanded(VisualElement rowPhysical, VisualElement rowMagical)
+    {
+        if (rowPhysical != null)
+            rowPhysical.style.display = DisplayStyle.Flex;
+        if (rowMagical != null)
+            rowMagical.style.display = DisplayStyle.Flex;
+        if (_arrDfActiveSelect != null)
+        {
+            if (_arrDfActiveSelect.Length > 0)
+                _arrDfActiveSelect[0] = 1;
+            if (_arrDfActiveSelect.Length > 1)
+                _arrDfActiveSelect[1] = 1;
+        }
+
+        SyncExpandButton(_activeSkillPanel?.Q<Button>("DF_Button"), 0);
+        SyncExpandButton(_activeSkillPanel?.Q<Button>("DF_Button_Magic"), 1);
+    }
+
+    void SyncExpandButton(Button button, int index)
+    {
+        if (button == null || _arrDfActiveSelect == null || index < 0 || index >= _arrDfActiveSelect.Length)
+            return;
+        bool expanded = _arrDfActiveSelect[index] != 0;
+        ChangeDfBox(button, L2ExpandCollapseUiAssets.CollapseButton);
+        if (!expanded)
+            ChangeDfBox(button, L2ExpandCollapseUiAssets.ExpandButton);
     }
 }

@@ -1,32 +1,20 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NpcAnimationAudioHandler : CharacterAnimationAudioHandler
 {
-    [SerializeField] private string _npcClassName;
-
-    protected override void Initialize() {
+    protected override void Initialize()
+    {
         base.Initialize();
+        TryBindChrSoundBankFromEntity();
 
-        if (_race == CharacterRaceSound.Default) {
-            string[] raceParts = _npcClassName.Split("_");
-            if (raceParts.Length > 1) {
-                string raceName = raceParts[raceParts.Length - 1];
-                _race = CharacterRaceSoundParser.ParseRace(raceName);
-            }
+        NpcEntity npc = GetComponent<NpcEntity>();
+        if (npc == null || npc.NpcData?.Npcgrp == null)
+            return;
 
-            _npcClassName = GetComponent<Entity>().Identity.NpcClass;
-            if (!string.IsNullOrEmpty(_npcClassName)) {
-                string[] parts = _npcClassName.Split('.');
-                if (parts.Length > 1) {
-                    _npcClassName = parts[1].ToLower();
-                }
-            }
-
-            if (string.IsNullOrEmpty(_npcClassName)) {
-                // Debug.LogWarning("AnimationAudioHandler could not load npc class name");
-                this.enabled = false;
-            }
+        if (!TryBindChrSoundBank())
+        {
+            int npcId = npc.Identity != null ? npc.Identity.Id : npc.NpcData.Npcgrp.NpcId;
+            LogMissingChrSoundOnce(npcId, "damage_sound");
         }
     }
 }

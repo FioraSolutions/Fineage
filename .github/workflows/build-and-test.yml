@@ -26,6 +26,9 @@ jobs:
           ref: dev
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check character clips have no redundant Euler rotation curves
+        run: python3 scripts/check-anim-rotation-hygiene.py
+
       - name: Check IncomingPacketActions stays deleted (#142)
         run: python3 scripts/check-frozen-incoming-packet-actions.py
 
@@ -44,6 +47,24 @@ jobs:
 
       - name: Check client asmdef layout (#139)
         run: python3 scripts/check-client-asmdef-layout.py
+
+      - name: Unity EditMode / C#9 static guards
+        run: python3 scripts/check-unity-editmode-guards.py
+
+      - name: Install ffprobe for audio import policy duration checks
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Check texture and audio import policy (.meta)
+        run: python3 scripts/check-asset-import-policy.py
+
+      - name: Check NPC/monster meter scale contract (#1473)
+        run: python3 scripts/check-npc-monster-meter-contract.py
+
+      - name: Check Elven Village BSP CSG fixtures
+        run: python3 scripts/check-elven-bsp-csg-fixtures.py
+
+      - name: Audit actor alpha-tested materials (no opaque t01/bh)
+        run: python3 scripts/audit-actor-alpha-materials.py
 
       - name: Check Net contract is in sync with the backend
         run: |

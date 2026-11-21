@@ -1,4 +1,5 @@
 ﻿#if (UNITY_EDITOR) 
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -16,7 +17,22 @@ public partial class TextureUtils
             return null;
         }
         string[] folderTexture = L2MetaDataUtils.GetFolderAndFileFromInfo(value);
-        return Path.Combine("Assets/Resources/Data/Textures", folderTexture[0], folderTexture[1] + ".png");
+        string folder = folderTexture[0];
+        string fileStem = folderTexture[1];
+        string canonical = Path.Combine("Assets", "Resources", "Data", "Textures", folder, fileStem + ".png")
+            .Replace('\\', '/');
+        string fullFolder = Path.GetFullPath(
+            Path.Combine(Application.dataPath, "Resources", "Data", "Textures", folder));
+        if (Directory.Exists(fullFolder)) {
+            foreach (string candidate in Directory.GetFiles(fullFolder, "*.png")) {
+                string name = Path.GetFileNameWithoutExtension(candidate);
+                if (string.Equals(name, fileStem, StringComparison.OrdinalIgnoreCase)) {
+                    return Path.Combine("Assets", "Resources", "Data", "Textures", folder, name + ".png")
+                        .Replace('\\', '/');
+                }
+            }
+        }
+        return canonical;
     }
 
     public static string GetMaterialPath(string value) {

@@ -19,7 +19,7 @@ public partial class NetworkTransformReceive : MonoBehaviour
         _positionSyncPaused = false;
     }
 
-    void FixedUpdate() {
+    void Update() {
         if(_positionSyncProtection && !_positionSyncPaused) {
             //Debug.Log("SYNC POSITIOBBBBBBBBBBBBB !");
             UpdatePosition();

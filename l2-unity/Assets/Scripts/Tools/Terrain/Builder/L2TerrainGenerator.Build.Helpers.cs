@@ -1,4 +1,5 @@
 #if (UNITY_EDITOR) 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -12,16 +13,30 @@ public partial class L2TerrainGenerator
         terrainData.terrainLayers = new TerrainLayer[terrainInfo.uvLayers.Count];
 
         for (int i = 0; i < terrainInfo.uvLayers.Count; i++) {
+            L2TerrainLayer uvLayer = terrainInfo.uvLayers[i];
+            Texture2D diffuse = uvLayer.texture;
+            if (diffuse == null) {
+                string refText = string.IsNullOrEmpty(uvLayer.diffuseTextureRef) ? "(unknown)" : uvLayer.diffuseTextureRef.Trim();
+                string assetPath = string.IsNullOrEmpty(refText) || refText == "(unknown)"
+                    ? "?"
+                    : TextureUtils.GetTexturePath(refText);
+                string message =
+                    $"Tile {mapID} UV layer {i} diffuse texture is missing (ref={refText}, assetPath={assetPath}). "
+                    + "Re-run Phase A terrain texture extract or add the PNG under Assets/Resources/Data/Textures/.";
+                Debug.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+
             TerrainLayer terrainLayer = new TerrainLayer();
-            terrainLayer.diffuseTexture = terrainInfo.uvLayers[i].texture;
+            terrainLayer.diffuseTexture = diffuse;
             terrainLayer.metallic = 0;
             terrainLayer.specular = Color.black;
             terrainLayer.smoothness = 0;
             //terrainLayer.smoothnessSource = TerrainLayerSmoothnessSource.Constant;
             terrainLayer.tileOffset = Vector2.zero;
-            terrainLayer.tileSize = new Vector2(terrainInfo.uvLayers[i].uScale, terrainInfo.uvLayers[i].vScale) * L2TerrainGeneratorTool.MAP_SCALE * L2TerrainGeneratorTool.UV_TILE_SIZE;
+            terrainLayer.tileSize = new Vector2(uvLayer.uScale, uvLayer.vScale) * L2TerrainGeneratorTool.MAP_SCALE * L2TerrainGeneratorTool.UV_TILE_SIZE;
 
-            string savePath = Path.Combine("Assets", "Resources", "Data", "Maps", mapID, "TerrainData", mapID + "_layer_" + i + "_" + terrainInfo.uvLayers[i].texture.name + ".asset");
+            string savePath = Path.Combine("Assets", "Resources", "Data", "Maps", mapID, "TerrainData", mapID + "_layer_" + i + "_" + diffuse.name + ".asset");
             AssetDatabase.CreateAsset(terrainLayer, savePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

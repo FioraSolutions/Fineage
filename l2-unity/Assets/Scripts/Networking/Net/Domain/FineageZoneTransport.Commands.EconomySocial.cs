@@ -84,6 +84,13 @@ public sealed partial class FineageZoneTransport
             return true;
         }
 
+        WeddingEngageAnswerCommand netEngageAnswer = command as WeddingEngageAnswerCommand;
+        if (netEngageAnswer != null)
+        {
+            Session.SendWeddingEngageAnswer(netEngageAnswer.Response);
+            return true;
+        }
+
         if (command is RequestWithdrawalPartyCommand)
         {
             Session.SendPartyLeaveRequest();
@@ -183,6 +190,13 @@ public sealed partial class FineageZoneTransport
             return true;
         }
 
+        PledgeCommandRequestCommand netPledge = command as PledgeCommandRequestCommand;
+        if (netPledge != null && netPledge.Body != null)
+        {
+            Session.SendPledgeCommand(netPledge.Body);
+            return true;
+        }
+
         RequestTradeCommand netRequestTrade = command as RequestTradeCommand;        if (netRequestTrade != null)
         {
             Session.SendTradeRequest(netRequestTrade.TargetObjectId);
@@ -217,6 +231,8 @@ public sealed partial class FineageZoneTransport
             if (TrySendNetPartyUserCommand(netUserCommand.Id))
                 return true;
             if (TrySendNetTradeUserCommand(netUserCommand.Id))
+                return true;
+            if (TrySendNetCraftUserCommand(netUserCommand.Id))
                 return true;
         }
 

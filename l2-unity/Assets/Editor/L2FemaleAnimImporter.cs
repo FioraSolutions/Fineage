@@ -216,6 +216,7 @@ public static class L2FemaleAnimImporter
                 hit++; curves++;
             }
             if (hit == 0) continue;
+            L2AnimClipPipeline.StripRedundantEulerCurves(dst);
             bool willLoop = male.TryGetValue(seq, out var maleRef)
                 ? AnimationUtility.GetAnimationClipSettings(maleRef).loopTime
                 : (seq.StartsWith("wait") || seq.StartsWith("walk") || seq.StartsWith("run") || seq.StartsWith("atkwait")

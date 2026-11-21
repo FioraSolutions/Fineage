@@ -206,6 +206,7 @@ public static class L2MOrcAnimImporter
                 nb.path = np;
                 AnimationUtility.SetEditorCurve(dst, nb, AnimationUtility.GetEditorCurve(src, b));
             }
+            L2AnimClipPipeline.StripRedundantEulerCurves(dst);
 
             donor.TryGetValue(seq, out var donorRef);
             bool willLoop = donorRef != null

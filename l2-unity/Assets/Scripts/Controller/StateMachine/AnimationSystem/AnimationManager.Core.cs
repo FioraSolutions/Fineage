@@ -92,6 +92,8 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             controller.SetAnimatorSpeed(1f);
             if (family == PlayerLocomotionFamily.Walk || family == PlayerLocomotionFamily.Run)
             {
+                Entity locomotionEntity = GetEntity(objectId);
+                locomotionEntity?.RefreshLocomotionAnimRates();
                 ResetMagicCastTriggers(controller);
             }
             float fadeDuration = LocomotionCrossFadeSettings.ResolveDuration(locoStateName, controller);

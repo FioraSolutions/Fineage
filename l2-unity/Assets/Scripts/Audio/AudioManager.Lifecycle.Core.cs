@@ -5,52 +5,50 @@ using FMOD.Studio;
 
 public partial class AudioManager : MonoBehaviour
 {
+    AudioService _service;
+
     private void Awake()
     {
         if (_instance == null)
         {
-            if (_isDisabled)
-            {
-                // Debug.Log("AUDIO MANAGER: WARNING SOUND DISABLED");
-            }
-
             _instance = this;
-            AudioPacketServices.Bind(audio: this);
+            EnsureService();
+            AudioPacketServices.Bind(audio: this, service: _service);
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(this);
+            return;
         }
-
-        SetBuses();
     }
 
-    private void SetBuses()
+    internal void BindService(AudioService service) => _service = service;
+
+    void EnsureService()
     {
-        _masterBus = RuntimeManager.GetBus("bus:/");
-        _musicBus = RuntimeManager.GetBus("bus:/Music");
-        _SFXBus = RuntimeManager.GetBus("bus:/SFX");
-        _UIBus = RuntimeManager.GetBus("bus:/UI");
-        _ambientBus = RuntimeManager.GetBus("bus:/Ambient");
+        if (_service == null)
+            _service = GetComponent<AudioService>();
+        if (_service == null)
+            _service = gameObject.AddComponent<AudioService>();
+        _service.SyncInspectorVolumes(
+            _masterVolume,
+            _musicVolume,
+            _ambientVolume,
+            _SFXVolume,
+            _UIVolume,
+            voiceVolume: 1f,
+            _muteWhenNotFocused,
+            _isDisabled);
     }
 
-    private void Update()
+    AudioService Svc
     {
-        if (GameSettings.Mute || (_muteWhenNotFocused && !Application.isFocused))
+        get
         {
-            _masterBus.setVolume(0);
-            _musicBus.setVolume(0);
-            _SFXBus.setVolume(0);
-            _UIBus.setVolume(0);
-            _ambientBus.setVolume(0);
-        }
-        else
-        {
-            _masterBus.setVolume(_masterVolume * 0.75f * GameSettings.Master);
-            _musicBus.setVolume(_musicVolume * 0.7f * GameSettings.Music);
-            _SFXBus.setVolume(_SFXVolume * GameSettings.Sfx);
-            _UIBus.setVolume(_UIVolume * GameSettings.Sfx);
-            _ambientBus.setVolume(_ambientVolume * 0.45f * GameSettings.Ambient);
+            if (_service == null)
+                EnsureService();
+            return _service;
         }
     }
 }

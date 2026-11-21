@@ -65,6 +65,10 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
         else
             ClearStunStars();
 
+    }
+
+    void SyncStealth(AbnormalAveFlags flags)
+    {
         if ((flags & AbnormalAveFlags.Stealth) != 0)
             ApplyStealth();
         else
@@ -74,10 +78,17 @@ public sealed partial class EntityAbnormalVisuals : MonoBehaviour
     /// <summary>Official Interlude AVE_STEALTH: the pawn becomes semi-invisible, including the local hero.</summary>
     void ApplyStealth()
     {
-        if (_stealthed || _entity == null)
+        if (_stealthed)
             return;
+        if (_entity == null)
+        {
+            Debug.LogError("[AVE_STEALTH] Cannot apply STEALTH visual: Entity is null on this pawn.");
+            return;
+        }
+
         if (!_stealthFade.TryBegin(_entity, StealthAlphaByte, out _stealthRenderers, out _stealthInstances, out _stealthShared))
             return;
+
         _stealthFade.SetAlphaByte(_stealthInstances, StealthAlphaByte);
         _stealthed = true;
     }

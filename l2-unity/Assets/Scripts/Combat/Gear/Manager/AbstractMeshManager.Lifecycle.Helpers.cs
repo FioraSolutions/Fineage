@@ -3,11 +3,12 @@ using VContainer;
 
 public partial class AbstractMeshManager : MonoBehaviour
 {
-    GameObject LoadWeapon(Weapon weapon, int weaponId)
+    protected GameObject LoadWeapon(Weapon weapon, int weaponId, bool leftHand = false)
     {
-        if (weapon == null)
+        if (weapon?.Weapongrp == null)
             return null;
-        return Models.GetWeaponById(weaponId);
+        string model = WeapongrpHandMeshes.ModelForHand(weapon.Weapongrp, leftHand);
+        return Models.GetWeapon(model);
     }
 
     GameObject LoadEtcItem(EtcItem etcItem, int etcId)
@@ -17,8 +18,4 @@ public partial class AbstractMeshManager : MonoBehaviour
         return Models.GetEtcById(etcId);
     }
 
-    protected void SetType(WeaponType weaponType, bool leftSlot, Transform[] allBone)
-    {
-        SetParentGo(_go, weaponType, leftSlot, allBone);
-    }
 }

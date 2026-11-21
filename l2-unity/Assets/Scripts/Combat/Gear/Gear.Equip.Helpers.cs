@@ -9,22 +9,53 @@ using System;
 
 public partial class Gear
 {
-    private void ActivateGameObject(GameObject go, WeaponType type , bool leftSlot , Transform[] refreshAllBone)
+    private void ActivateGameObject(GameObject go, Weapongrp grp, WeaponAttachEquipMode mode, Transform[] refreshAllBone)
     {
         if (go != null)
         {
-            SetType(type, leftSlot, refreshAllBone);
+            SetType(mode, grp, refreshAllBone);
             go.SetActive(true);
         }
     }
 
-    private void ActivateOtherGameObject(GameObject go, WeaponType type, bool leftSlot, Transform[] refreshAllBone)
+    private void ActivateDualHand(
+        GameObject leftGo,
+        GameObject rightGo,
+        Weapongrp grp,
+        Transform[] refreshAllBone)
     {
-        if (go != null)
+        if (grp == null)
+            return;
+        WeaponAttachProfile profile = WeaponAttachProfileResolver.Resolve(grp, WeaponAttachEquipMode.BothHands);
+        if (profile.Mounts.Count >= 2)
         {
-            SetTypeOtherGo(go , type, leftSlot, refreshAllBone);
-            go.SetActive(true);
+            if (rightGo != null)
+            {
+                AbstractMeshManager.ApplyWeaponMount(rightGo, profile.Mounts[0], refreshAllBone);
+                rightGo.SetActive(true);
+            }
+            if (leftGo != null)
+            {
+                AbstractMeshManager.ApplyWeaponMount(leftGo, profile.Mounts[1], refreshAllBone);
+                leftGo.SetActive(true);
+            }
+            return;
         }
+
+        if (rightGo != null && profile.Mounts.Count > 0)
+        {
+            AbstractMeshManager.ApplyWeaponMount(rightGo, profile.Mounts[0], refreshAllBone);
+            rightGo.SetActive(true);
+        }
+    }
+
+    private void ActivateArrow(GameObject go, string modelKey, Transform[] refreshAllBone)
+    {
+        if (go == null)
+            return;
+        var mount = new WeaponAttachMount(WeaponAttachSocket.RightHand, modelKey);
+        AbstractMeshManager.ApplyWeaponMount(go, mount, refreshAllBone);
+        go.SetActive(true);
     }
 
     private void ErrorPrint(Weapon weapon , int weaponId)
@@ -36,9 +67,23 @@ public partial class Gear
 
     }
 
-    private void UpdateWeaponType(WeaponType weaponType) {
+    private void ApplyCombatStyleProfile(CombatStyleProfile profile)
+    {
         _lastWeaponAnim = _weaponAnim;
-        _weaponAnim = WeaponTypeParser.GetWeaponAnim(weaponType);
-        _weaponRange = WeaponTypeParser.WeaponRange(weaponType);
+        _combatStyle = profile ?? CombatStyleProfile.Unresolved;
+        _weaponAnim = _combatStyle.AnimSuffix;
+        _weaponRange = _combatStyle.AttackRangeUu;
+    }
+
+    private void UpdateWeaponType(WeaponType weaponType)
+    {
+        ApplyCombatStyleProfile(CombatStyleProfileResolver.ResolveForWeaponType(weaponType));
+    }
+
+    private void UpdateCombatStyleFromWeapon(Weapon weapon)
+    {
+        int itemId = weapon != null ? weapon.Id : 0;
+        Weapongrp grp = weapon?.Weapongrp;
+        ApplyCombatStyleProfile(CombatStyleProfileResolver.Resolve(grp, itemId));
     }
 }

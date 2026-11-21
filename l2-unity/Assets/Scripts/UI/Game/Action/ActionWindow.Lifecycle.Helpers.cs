@@ -66,20 +66,27 @@ public partial class ActionWindow : L2PopupWindow
             AddSlot(position++, _socialContainer);
         }
 
-        // Interlude ActionWnd Basic / Party / Social.
-        AssignBasic(
-            ActionType.Sit, ActionType.WalkRun, ActionType.Attack, ActionType.Trade,
-            ActionType.NextTarget, ActionType.Pickup, ActionType.Assist,
-            ActionType.PrivateStoreSell, ActionType.PrivateStoreBuy,
-            ActionType.DwarvenManufacture, ActionType.Mount, ActionType.Recommend);
-        AssignParty(
-            ActionType.PartyInvite, ActionType.PartyLeave, ActionType.PartyKick,
-            ActionType.PartyMatching, ActionType.PartyLeader);
-        AssignSocial(
-            ActionType.SocialGreeting, ActionType.SocialVictory, ActionType.SocialAdvance,
-            ActionType.SocialYes, ActionType.SocialNo, ActionType.SocialBow,
-            ActionType.SocialUnaware, ActionType.SocialWaiting, ActionType.SocialLaugh,
-            ActionType.SocialApplaud, ActionType.SocialDance, ActionType.SocialSorrow,
-            ActionType.SocialCharm, ActionType.SocialShyness);
+        // Interlude ActionWnd order from InterludeActionCatalog (ActionName + interface.xdat ActionWnd).
+        AssignSection(InterludeActionSection.Basic, _basicContainer);
+        AssignSection(InterludeActionSection.Party, _partyContainer);
+        AssignSection(InterludeActionSection.Social, _socialContainer);
+        WireActionAvailability();
+    }
+
+    void WireActionAvailability()
+    {
+        _availabilityChanged = OnActionAvailabilityChanged;
+        ActionAvailabilityPacketServices.Availability.Changed += _availabilityChanged;
+        RefreshActionAvailability();
+    }
+
+    System.Action _availabilityChanged;
+
+    void OnActionAvailabilityChanged() => RefreshActionAvailability();
+
+    void OnDisable()
+    {
+        if (_availabilityChanged != null)
+            ActionAvailabilityPacketServices.Availability.Changed -= _availabilityChanged;
     }
 }

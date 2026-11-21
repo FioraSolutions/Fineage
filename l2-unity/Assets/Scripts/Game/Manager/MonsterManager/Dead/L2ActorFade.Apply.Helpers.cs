@@ -3,6 +3,26 @@ using UnityEngine.Rendering;
 
 public sealed partial class L2ActorFade
 {
+    static readonly int AlphaClipId = Shader.PropertyToID("_AlphaClip");
+
+    static void LogFadeBeginFailure(Entity entity, Renderer[] found, string reason)
+    {
+        string label = entity != null ? entity.name : "null-entity";
+        if (entity?.Identity != null && entity.Identity.Id > 0)
+            label = $"{entity.Identity.Name} (objectId={entity.Identity.Id})";
+        Debug.LogError($"[L2ActorFade] TryBegin failed for {label}: {reason}.");
+        if (found == null)
+            return;
+        for (int i = 0; i < found.Length; i++)
+        {
+            Renderer r = found[i];
+            if (r == null)
+                continue;
+            Debug.LogError(
+                $"[L2ActorFade]   renderer '{r.name}' type={r.GetType().Name} enabled={r.enabled} layer={r.gameObject.layer}");
+        }
+    }
+
     static void SetAlpha(Material[][] instances, float alpha)
     {
         if (instances == null)
@@ -84,12 +104,22 @@ public sealed partial class L2ActorFade
         Object.Destroy(instance);
     }
 
+    static bool MaterialSupportsFade(Material mat)
+    {
+        return mat != null && (mat.HasProperty(ActorAlphaId) || mat.HasProperty(BaseColorId));
+    }
+
     static void PrepareCurrentShader(Material mat)
     {
         if (mat == null)
         {
             return;
         }
+
+        // Semi-transparent STEALTH must not alpha-test at full texture alpha (L2ActorEnvAdd default).
+        mat.DisableKeyword("_ALPHATEST_ON");
+        if (mat.HasProperty(AlphaClipId))
+            mat.SetFloat(AlphaClipId, 0f);
 
         if (mat.HasProperty(SrcBlendId))
         {

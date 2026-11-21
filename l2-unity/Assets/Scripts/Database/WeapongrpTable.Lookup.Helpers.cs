@@ -59,6 +59,7 @@ public partial class WeapongrpTable
                             break;                  
                         case "handness":
                             handness = int.Parse(value);
+                            weaponGrp.Handness = handness;
                             break;
                         case "weapon_type":
                             weaponType = WeaponTypeParser.Parse(value);
@@ -78,15 +79,11 @@ public partial class WeapongrpTable
                         case "is_magic_weapon":
                             weaponGrp.IsMagicWeapon = int.Parse(value);
                             break;
-                        case "wp_mesh": //{{[LineageWeapons.hell_knife_m00_wp]};{1}}
-                            //TODO for dualswords, store 2 models and textures
-                            modTex = DatUtils.ParseArray(value);
-                            weaponGrp.Model = modTex[0];
+                        case "wp_mesh":
+                            WeapongrpHandMeshes.ApplyClassicMeshes(weaponGrp, value, null);
                             break;
-                        case "texture": //{[LineageWeaponsTex.hell_knife_t00_wp]}	
-                            //TODO for dualswords, store 2 models and textures
-                            modTex = DatUtils.ParseArray(value);
-                            weaponGrp.Texture = modTex[0];
+                        case "texture":
+                            WeapongrpHandMeshes.ApplyClassicMeshes(weaponGrp, null, value);
                             break;
                         case "item_sound": // {[ItemSound.sword_small_2];[ItemSound.public_sword_shing_9];[ItemSound.sword_small_7];[ItemSound.dagger_4]}
                             string[] itemsounds = DatUtils.ParseArray(value);

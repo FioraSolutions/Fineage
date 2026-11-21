@@ -72,7 +72,8 @@ public static partial class EntitySpawnShared
     {
         if (go != null)
         {
-            Gear gear = go.GetComponent<Gear>();
+            EnsureNpcVisualPolicy(go, entity);
+            Gear gear = EnsureNpcGear(go, entity);
             if (gear != null)
                 gear.Initialize(entity.Identity.Id, entity.RaceId);
         }
@@ -80,10 +81,126 @@ public static partial class EntitySpawnShared
         entity.Initialize();
     }
 
+    static Gear EnsureNpcGear(GameObject go, Entity entity)
+    {
+        if (go == null || entity == null || entity.Appearance == null)
+            return go != null ? go.GetComponent<Gear>() : null;
+
+        bool needsWeapons = entity.Appearance.RHand > 0 || entity.Appearance.LHand > 0;
+        Gear gear = go.GetComponent<Gear>();
+        if (gear == null && needsWeapons)
+        {
+            gear = go.AddComponent<Gear>();
+            Debug.Log(
+                "[NpcGear] added Gear for npc id="
+                + entity.Identity.NpcId
+                + " mesh="
+                + go.name
+                + " rhand="
+                + entity.Appearance.RHand
+                + " lhand="
+                + entity.Appearance.LHand);
+        }
+
+        return gear;
+    }
+
+    static void EnsureNpcVisualPolicy(GameObject go, Entity entity)
+    {
+        if (go == null)
+            return;
+
+        L2ActorMeshPolicy.DisableSkeletonPlaceholders(go.transform);
+        L2ActorMeshPolicy.DisableAlphaOverlays(go.transform);
+
+        int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
+        float maxHeight = entity != null && entity.Appearance != null
+            ? Mathf.Max(0.5f, entity.Appearance.CollisionHeight / 52.5f * 3f)
+            : 4f;
+        SkinnedMeshRenderer[] skins = go.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        for (int i = 0; i < skins.Length; i++)
+        {
+            SkinnedMeshRenderer smr = skins[i];
+            if (smr == null || !smr.enabled)
+                continue;
+            float h = smr.bounds.size.y;
+            if (L2ActorMeshPolicy.IsSkeletonPlaceholder(smr.name)
+                || L2ActorMeshPolicy.IsAlphaOverlayRenderer(smr))
+            {
+                smr.enabled = false;
+                continue;
+            }
+
+            if (h > maxHeight)
+            {
+                Debug.LogError(
+                    "[NpcMesh] distorted skinned bounds mesh="
+                    + smr.name
+                    + " npcId="
+                    + npcId
+                    + " height="
+                    + h.ToString("F2")
+                    + "m limit="
+                    + maxHeight.ToString("F2")
+                    + "m material="
+                    + (smr.sharedMaterial != null ? smr.sharedMaterial.name : "(null)"));
+            }
+
+            Material mat = smr.sharedMaterial;
+            if (mat != null && L2ActorMaterialSetup.MaterialLooksLikeActorOpaqueMismatch(mat))
+                L2ActorMaterialSetup.LogOpaqueAlphaMismatch(mat, smr.name);
+        }
+    }
+
     public static void RegisterAnimation(IWorldSpawnContext world, int objectId, IAnimationController controller, Entity entity)
     {
         if (world != null && world.Animations != null && controller != null)
             world.Animations.RegisterController(objectId, controller, entity);
+    }
+
+    public static void ApplyNpcCollisionVisualScale(GameObject go, Npcgrp npcgrp)
+    {
+        if (go == null || npcgrp == null || npcgrp.CollisionHeight <= 0.01f)
+            return;
+
+        float targetHeight = npcgrp.CollisionHeight / 52.5f;
+        Renderer[] renderers = go.GetComponentsInChildren<Renderer>(true);
+        if (renderers == null || renderers.Length == 0)
+            return;
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+                bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        float meshHeight = bounds.size.y;
+        if (meshHeight > 0.001f && meshHeight < targetHeight * 0.45f)
+        {
+            float scale = targetHeight / meshHeight;
+            Transform root = go.transform;
+            root.localScale = root.localScale * scale;
+            Debug.Log(
+                "[NpcScale] structure mesh="
+                + go.name
+                + " npcgrp="
+                + npcgrp.ClassName
+                + " meshHeight="
+                + meshHeight.ToString("F3")
+                + "m target="
+                + targetHeight.ToString("F3")
+                + "m scale="
+                + scale.ToString("F3"));
+        }
+
+        CharacterController cc = go.GetComponent<CharacterController>();
+        if (cc != null)
+        {
+            cc.height = Mathf.Max(targetHeight, cc.height);
+            cc.radius = Mathf.Max(npcgrp.CollisionRadius / 52.5f, cc.radius);
+            cc.center = new Vector3(0f, cc.height * 0.5f, 0f);
+        }
     }
 
     public static void ApplyNpcMoveSpeeds(Entity npc, bool useRealPAtk)

@@ -86,8 +86,8 @@ public partial class SkillListWindow : L2PopupWindow
         _templatePassiveSkill = LoadAsset("Data/UI/_Elements/Game/SkillLearn/TabPassive");
 
         //template panels 8x1 skills
-        _templateBoxPanel = LoadAsset("Data/UI/_Elements/Template/Skills/SkillBoxRow");
-        _templateSkillsRow8x1 = LoadAsset("Data/UI/_Elements/Template/Skills/SkillPanels/SkillsRow8x1");
-        _templateSlotSkill = LoadAsset("Data/UI/_Elements/Template/Skills/SkillPanels/SlotSkill");
+        _templateBoxPanel = LoadAsset(L2SkillsUiAssets.SkillsBoxRow);
+        _templateSkillsRow8x1 = LoadAsset(L2SkillsUiAssets.SkillsGridRow);
+        _templateSlotSkill = LoadAsset(L2SkillsUiAssets.SkillsSlot);
     }
 }

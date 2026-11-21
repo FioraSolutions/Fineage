@@ -16,7 +16,6 @@ public partial class AbstractSkills
 
     public void SetAllSlots(Dictionary<int, SkillSlot> allSlots)
     {
-        if (allSlots != null) _allSlots = null;
         _allSlots = allSlots;
     }
 
@@ -61,6 +60,7 @@ public partial class AbstractSkills
         for (int i = 0; i < panelCount; i++)
         {
             var panel = ToolTipsUtils.CloneOne(templatePanel8x1);
+            ApplySkillsRowChrome(panel, skillsPerPanel);
             var rowNameVirtual = panel.Q(_rowNameInnerPanel);
 
             for (int j = 0; j < skillsPerPanel && skillIndex < totalSkills; j++, skillIndex++)
