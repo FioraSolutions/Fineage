@@ -64,7 +64,7 @@ public static partial class SkillCastSound
         }
         catch (Exception orbEx)
         {
-            Debug.LogWarning("[ShotOrb] RELEASE force failed: " + orbEx.Message);
+            ShotOrbDebug.LogWarning("[ShotOrb] RELEASE force failed: " + orbEx.Message);
         }
 
         if (caster != null && caster.IsSpiritshotCharged)

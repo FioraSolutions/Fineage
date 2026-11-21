@@ -1,3 +1,4 @@
+using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 
@@ -42,7 +43,7 @@ public partial class AudioService
             return false;
 
         EventReference er = RuntimeManager.PathToEventReference(eventPath);
-        if (er.IsNull)
+        if (er.IsNull || !IsFmodEventAvailable(eventPath))
         {
             if (LoggedMissingFmodEvents.Add(eventPath))
             {
@@ -62,5 +63,14 @@ public partial class AudioService
             RuntimeManager.PlayOneShot(er);
 
         return true;
+    }
+
+    static bool IsFmodEventAvailable(string eventPath)
+    {
+        if (string.IsNullOrEmpty(eventPath))
+            return false;
+
+        FMOD.RESULT result = RuntimeManager.StudioSystem.getEvent(eventPath, out EventDescription description);
+        return result == FMOD.RESULT.OK && description.isValid();
     }
 }

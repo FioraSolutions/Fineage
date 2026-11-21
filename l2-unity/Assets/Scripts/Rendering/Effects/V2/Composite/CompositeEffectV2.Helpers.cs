@@ -30,7 +30,7 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
             }
         }
 
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] PlayV2 go=" + name +
             " parts=" + partCount +
             " spawnable=" + spawnable +
@@ -41,7 +41,7 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 
         if (!HasSpawnableV2Parts)
         {
-            Debug.LogWarning("[ShotOrb] PlayV2 abort — no spawnable V2 parts on " + name);
+            ShotOrbDebug.LogWarning("[ShotOrb] PlayV2 abort — no spawnable V2 parts on " + name);
             return;
         }
 
@@ -50,7 +50,7 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
         LogHomeSpawnPlay();
 
         QueueV2Parts();
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] PlayV2 queued shoot=" + _pendingAnimationShoot.Count +
             " delayed=" + _pendingDelayed.Count +
             " spawned=" + _spawned.Count +

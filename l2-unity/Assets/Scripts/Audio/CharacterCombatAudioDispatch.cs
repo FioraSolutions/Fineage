@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -6,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public static class CharacterCombatAudioDispatch
 {
+    static readonly HashSet<string> LoggedUnresolvedMonsterSounds = new HashSet<string>();
     public static bool PlayCharacterBank(
         string chrSoundBank,
         CharacterSoundEvent soundEvent,
@@ -26,7 +28,8 @@ public static class CharacterCombatAudioDispatch
             return false;
         }
 
-        string path = AudioPathResolver.FmodChrSoundBank(chrSoundBank, soundEvent);
+        string fmodBank = NpcChrSoundBankResolver.MapDamageBankToFmodBank(chrSoundBank);
+        string path = AudioPathResolver.FmodChrSoundBank(fmodBank, soundEvent);
         return service.PlayFmodEvent(path, AudioCategory.Sfx, position, entityId, soundEvent.ToString());
     }
 
@@ -71,16 +74,22 @@ public static class CharacterCombatAudioDispatch
             return false;
         }
 
+        string folder = AudioPathResolver.NormalizeMonsterSoundFolder(npcClassName);
         string key = soundEvent.ToString().ToLowerInvariant();
-        string path = AudioPathResolver.FmodMonsterSound(npcClassName, key);
-        if (service.TryPlayFmodOrResourcesMonster(soundEvent, npcClassName, position, entityId, path))
+        string path = AudioPathResolver.FmodMonsterSound(folder, key);
+        if (service.TryPlayFmodOrResourcesMonster(soundEvent, folder, position, entityId, path))
             return true;
 
-        service.LogCombatAudioError(
-            "monster combat sound unresolved",
-            entityId,
-            path,
-            soundEvent.ToString());
+        string logKey = folder + "/" + key;
+        if (LoggedUnresolvedMonsterSounds.Add(logKey))
+        {
+            service.LogCombatAudioError(
+                "monster combat sound unresolved",
+                entityId,
+                path,
+                soundEvent.ToString());
+        }
+
         return false;
     }
 

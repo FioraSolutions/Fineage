@@ -12,6 +12,7 @@ public static class FineagePerfProfiling
     public const string SpawnName = "Fineage.Spawn";
     public const string TileLoadName = "Fineage.Tile.Load";
     public const string CrowdTierName = "Fineage.Crowd.Tier";
+    public const string FxBudgetName = "Fineage.Fx.Budget";
     public const string GravityStepName = "Fineage.Gravity.Step";
 
     public static readonly ProfilerMarker MoveStep = new ProfilerMarker(MoveStepName);
@@ -20,6 +21,7 @@ public static class FineagePerfProfiling
     public static readonly ProfilerMarker Spawn = new ProfilerMarker(SpawnName);
     public static readonly ProfilerMarker TileLoad = new ProfilerMarker(TileLoadName);
     public static readonly ProfilerMarker CrowdTier = new ProfilerMarker(CrowdTierName);
+    public static readonly ProfilerMarker FxBudget = new ProfilerMarker(FxBudgetName);
     public static readonly ProfilerMarker GravityStep = new ProfilerMarker(GravityStepName);
 
     public static readonly string[] RoadmapMarkerNames =
@@ -35,6 +37,7 @@ public static class FineagePerfProfiling
         SpawnName,
         TileLoadName,
         CrowdTierName,
+        FxBudgetName,
         GravityStepName,
     };
 }
