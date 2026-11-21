@@ -390,6 +390,7 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AugmentCancelResult:
             case NetOpcode.CursedWeaponList:
             case NetOpcode.CursedWeaponLocation:
+                _ = packet.Body;
                 break;
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
