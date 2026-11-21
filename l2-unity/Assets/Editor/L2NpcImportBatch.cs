@@ -167,25 +167,17 @@ public static class L2NpcImportBatch
                 if (shader == null || tex == null)
                     continue;
                 mat = new Material(shader) { name = item.asset + suf };
-                if (mat.HasProperty("_BaseMap"))
-                    mat.SetTexture("_BaseMap", tex);
-                if (mat.HasProperty("_MainTex"))
-                    mat.SetTexture("_MainTex", tex);
                 AssetDatabase.CreateAsset(mat, matPath);
             }
-            else
-            {
-                if (shader != null)
-                    mat.shader = shader;
-                if (tex != null)
-                {
-                    if (mat.HasProperty("_BaseMap"))
-                        mat.SetTexture("_BaseMap", tex);
-                    if (mat.HasProperty("_MainTex"))
-                        mat.SetTexture("_MainTex", tex);
-                }
-                EditorUtility.SetDirty(mat);
-            }
+
+            var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+            L2ActorMaterialSetupEditor.ApplyToMaterial(
+                mat,
+                shader,
+                tex,
+                item.asset + suf,
+                props,
+                logMissingTexture: true);
 
             map[suf] = mat;
         }
@@ -209,11 +201,13 @@ public static class L2NpcImportBatch
                 if (mat == null && shader != null)
                 {
                     mat = new Material(shader) { name = asset };
-                    if (mat.HasProperty("_BaseMap"))
-                        mat.SetTexture("_BaseMap", tex);
-                    if (mat.HasProperty("_MainTex"))
-                        mat.SetTexture("_MainTex", tex);
                     AssetDatabase.CreateAsset(mat, matPath);
+                }
+
+                if (mat != null)
+                {
+                    var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+                    L2ActorMaterialSetupEditor.ApplyToMaterial(mat, shader, tex, asset, props, logMissingTexture: true);
                 }
             }
         }

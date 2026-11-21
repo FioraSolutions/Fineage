@@ -49,23 +49,25 @@ public partial class CameraController : MonoBehaviour
 
     public bool IsObjectVisible(Transform target)
     {
-        if (_collisionDetector == null || target == null)
-        {
+        if (target == null)
             return false;
-        }
+        return IsPointVisible(target.position);
+    }
+
+    public bool IsPointVisible(Vector3 worldPoint)
+    {
+        if (_collisionDetector == null)
+            return false;
 
         RaycastHit hit;
         Vector3[] cameraClips = _collisionDetector.GetCameraViewPortPoints();
         if (cameraClips.Length == 0)
-        {
             return false;
-        }
 
         bool visible = false;
-        Vector3 head = target.position + Vector3.up * _resolvedPlayerHeight;
         for (int i = 0; i < cameraClips.Length; i++)
         {
-            if (!Physics.Linecast(cameraClips[i], head, out hit, _collisionMask))
+            if (!Physics.Linecast(cameraClips[i], worldPoint, out hit, _collisionMask))
             {
                 visible = true;
                 break;
@@ -73,17 +75,13 @@ public partial class CameraController : MonoBehaviour
         }
 
         if (!visible)
-        {
             return false;
-        }
 
         Camera cam = _camera != null ? _camera : Camera.main;
         if (cam == null)
-        {
             return false;
-        }
 
-        Vector3 viewPort = cam.WorldToViewportPoint(target.position);
+        Vector3 viewPort = cam.WorldToViewportPoint(worldPoint);
         return viewPort.x <= 1 && viewPort.x >= 0 && viewPort.y <= 1 && viewPort.y >= 0 && viewPort.z >= -0.2f;
     }
 }

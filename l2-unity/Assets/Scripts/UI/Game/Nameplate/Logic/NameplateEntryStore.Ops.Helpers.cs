@@ -141,7 +141,11 @@ public sealed partial class NameplateEntryStore
         CameraController cameraController = CameraPacketServices.Controller;
         if (cameraController != null)
         {
-            return cameraController.IsObjectVisible(target);
+            Entity entity = target.GetComponentInParent<Entity>();
+            Vector3 anchor = entity != null
+                ? L2OverheadAnchor.GetWorldPos(entity, target)
+                : target.position;
+            return cameraController.IsPointVisible(anchor);
         }
 
         return true;
