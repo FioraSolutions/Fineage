@@ -20,6 +20,8 @@ public partial class SkillListWindow : L2PopupWindow
     public static void EditModeResetSingletonForTests()
     {
         _instance = null;
+        SkillLearnPacketServices.EditModeClearForTests();
+        _orphanedSkillList = null;
     }
 #endif
 

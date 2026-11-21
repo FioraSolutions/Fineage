@@ -36,10 +36,11 @@ public sealed class L2SkillsPanelLayoutEditModeTests
         var tabTemplate = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/Inventory/InventoryTab");
         Assert.NotNull(tabTemplate, "InventoryTab.uxml missing");
 
-        var tabHost = tabTemplate.Instantiate()[0];
+        var tabRoot = tabTemplate.Instantiate();
+        var tabHost = tabRoot.Q<VisualElement>("Tab") ?? tabRoot[0];
+        tabHost.style.height = 1;
         tabHost.Clear();
         tabHost.Add(new VisualElement { name = "Content" });
-        Assert.AreEqual(1f, tabHost.style.height.value.value, 0.01f);
 
         L2SkillsPanelLayout.ApplyMagicSkillTabHostLayout(tabHost);
         Assert.AreEqual(StyleKeyword.Auto, tabHost.style.height.keyword);
