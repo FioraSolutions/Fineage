@@ -34,14 +34,13 @@ public sealed class FineageFrameTimingOverlay : MonoBehaviour
             return;
 
         FrameTiming sample = _timings[0];
-        if (!sample.gpuFrameTimeValid)
-        {
-            _lastSampleLine = "FrameTimingManager: GPU sample invalid (enableFrameTimingStats?)";
-            return;
-        }
-
         double cpuMs = sample.cpuFrameTime;
         double gpuMs = sample.gpuFrameTime;
+        if (cpuMs <= 0d)
+        {
+            _lastSampleLine = "FrameTimingManager: waiting for valid CPU sample (enableFrameTimingStats?)";
+            return;
+        }
         const double smooth = 0.12d;
         _smoothedCpuMs = _smoothedCpuMs <= 0d ? cpuMs : _smoothedCpuMs * (1d - smooth) + cpuMs * smooth;
         _smoothedGpuMs = _smoothedGpuMs <= 0d ? gpuMs : _smoothedGpuMs * (1d - smooth) + gpuMs * smooth;

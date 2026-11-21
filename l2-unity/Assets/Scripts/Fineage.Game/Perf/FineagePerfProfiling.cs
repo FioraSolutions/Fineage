@@ -20,11 +20,11 @@ public static class FineagePerfProfiling
         "Fineage.Net.Queue",
         "Fineage.Net.Drain",
         "Fineage.Net.Apply",
-        MoveStep.name,
-        NameplatesUpdate.name,
-        ActorLightsPush.name,
-        Spawn.name,
-        TileLoad.name,
-        CrowdTier.name,
+        "Fineage.Move.Step",
+        "Fineage.Nameplates.Update",
+        "Fineage.ActorLights.Push",
+        "Fineage.Spawn",
+        "Fineage.Tile.Load",
+        "Fineage.Crowd.Tier",
     };
 }
