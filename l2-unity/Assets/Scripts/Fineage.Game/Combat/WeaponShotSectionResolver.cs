@@ -1,19 +1,13 @@
 /// <summary>Interlude soul/spirit shot INI section keys from equipped gear (boundary resolver).</summary>
 public static class WeaponShotSectionResolver
 {
-    public static string Resolve(Gear gear)
+    public static string Resolve(CombatStyleProfile style, WeaponType right, WeaponType left)
     {
-        if (gear == null)
-            return "HAND";
-
-        CombatStyleProfile style = gear.CombatStyle;
         if (style.IsResolved && style.IsRanged)
             return "BOW";
         if (style.IsResolved && style.IsDualAnimSuffix)
             return "DUAL";
 
-        WeaponType right = gear.RightHandWeaponType;
-        WeaponType left = gear.LeftHandWeaponType;
         if (left == WeaponType.shield || left == WeaponType.arrow)
             left = WeaponType.none;
 

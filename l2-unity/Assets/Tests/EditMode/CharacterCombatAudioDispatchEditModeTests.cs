@@ -28,8 +28,10 @@ public sealed class CharacterCombatAudioDispatchEditModeTests
             unity, clipLen, stride, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
         float wrongRate = LocomotionGait.PlaybackRate(
             serverRun, clipLen, stride, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
-        Assert.Greater(wrongRate, rate * 10f,
+        Assert.Greater(wrongRate, rate,
             "Writing server L2j speed into run_speed would overshoot stride-based playback.");
+        Assert.AreEqual(LocomotionGait.MaxRate, wrongRate, 0.001f,
+            "raw L2j speed should hit playback clamp when used without ScaleToUnity");
         Assert.AreEqual(unity * clipLen / stride, rate, 0.001f);
     }
 }

@@ -30,7 +30,17 @@ public class UserStateBase : StateMachineBehaviour {
             _gear = _entity.GetComponent<UserGear>();
         }
 
-        _weaponAnim = LocomotionProfileResolver.RemoteAnimatorSuffix(_gear);
+        if (_gear == null)
+        {
+            FineageLog.Error(FineageLogCategory.World, "LocomotionProfile: remote UserGear missing on entity");
+            _weaponAnim = LocomotionProfile.BareHand.AnimSuffix;
+        }
+        else
+        {
+            _weaponAnim = LocomotionProfileResolver.RemoteAnimatorSuffix(
+                _gear.CombatStyle,
+                _gear.gameObject.name);
+        }
 
         if (_audioHandler == null) {
             _audioHandler = animator.gameObject.GetComponent<CharacterAnimationAudioHandler>();

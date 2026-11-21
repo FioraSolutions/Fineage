@@ -33,6 +33,8 @@ public partial class ToolTipManager
 
     public void RegisterSimple(SlotType type , VisualElement list , int position)
     {
+        if (ToolTipSimplePacketServices.Window == null)
+            return;
         ToolTipSimplePacketServices.Window.RegisterCallback(type , list , position);
     }
 
