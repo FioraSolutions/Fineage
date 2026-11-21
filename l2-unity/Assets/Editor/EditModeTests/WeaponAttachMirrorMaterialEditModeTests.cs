@@ -39,6 +39,9 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
     [Test]
     public void Audit_all_LineageWeapons_prefabs_that_mirror_in_weapongrp()
     {
+        LogAssert.Expect(
+            LogType.Error,
+            "[World] MetaTable WeapongrpTable: using non-DI empty instance; check GameLifetimeScope table registration");
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Data/Animations/LineageWeapons");
         if (prefabs == null || prefabs.Length == 0)
         {

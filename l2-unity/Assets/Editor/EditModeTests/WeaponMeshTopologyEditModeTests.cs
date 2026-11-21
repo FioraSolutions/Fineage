@@ -9,6 +9,9 @@ public sealed class WeaponMeshTopologyEditModeTests
     [Test]
     public void All_weapongrp_weapon_meshes_are_volumetric()
     {
+        LogAssert.Expect(
+            LogType.Error,
+            "[World] MetaTable WeapongrpTable: using non-DI empty instance; check GameLifetimeScope table registration");
         WeapongrpTable table = WeapongrpTable.Instance;
         table.Initialize();
         Assert.IsNotNull(table.WeaponGrps, "Weapongrp table failed to initialize");
