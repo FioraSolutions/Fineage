@@ -10,7 +10,7 @@ public sealed class ZoneNameBannerOverlay : MonoBehaviour
 
     static ZoneNameBannerOverlay _instance;
     UIDocument _document;
-    VisualElement _label;
+    Label _label;
     float _phaseEnd;
     int _phase;
 
@@ -24,7 +24,7 @@ public sealed class ZoneNameBannerOverlay : MonoBehaviour
             return;
         }
         _instance = this;
-        ZoneTransitionPacketServices.Bind(this);
+        ZoneTransitionPacketServices.Bind(banner: this);
     }
 
     void OnDestroy()
