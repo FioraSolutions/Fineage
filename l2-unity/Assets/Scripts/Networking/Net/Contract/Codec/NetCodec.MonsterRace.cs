@@ -1,7 +1,7 @@
 using System;
 
-namespace Fineage.Net.Contract;
-
+namespace Fineage.Net.Contract
+{
 public static partial class NetCodec
 {
     public static byte[] EncodeMonRaceInfo(MonRaceInfoNetMsg m) => Write(w =>
@@ -29,4 +29,5 @@ public static partial class NetCodec
             w.WriteInt32(0);
         }
     });
+}
 }
