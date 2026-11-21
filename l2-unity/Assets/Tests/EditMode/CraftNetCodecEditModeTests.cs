@@ -1,6 +1,7 @@
 using Fineage.Net.Contract;
 using NUnit.Framework;
 
+/// <summary>Net craft opcode codec roundtrips (0x0396–0x039E).</summary>
 public sealed class CraftNetCodecEditModeTests
 {
     [Test]
