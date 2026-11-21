@@ -63,6 +63,9 @@ jobs:
       - name: Check NPC/monster meter scale contract (#1473)
         run: python3 scripts/check-npc-monster-meter-contract.py
 
+      - name: Check LineageWeapons mesh topology (no cardboard sheets)
+        run: python3 scripts/check-weapon-mesh-topology.py
+
       - name: Check Elven Village BSP CSG fixtures
         run: python3 scripts/check-elven-bsp-csg-fixtures.py
 
