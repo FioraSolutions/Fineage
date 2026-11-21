@@ -6,25 +6,32 @@ using Unity.Profiling;
 /// </summary>
 public static class FineagePerfProfiling
 {
-    public static readonly ProfilerMarker MoveStep = new ProfilerMarker("Fineage.Move.Step");
-    public static readonly ProfilerMarker NameplatesUpdate = new ProfilerMarker("Fineage.Nameplates.Update");
-    public static readonly ProfilerMarker ActorLightsPush = new ProfilerMarker("Fineage.ActorLights.Push");
-    public static readonly ProfilerMarker Spawn = new ProfilerMarker("Fineage.Spawn");
-    public static readonly ProfilerMarker TileLoad = new ProfilerMarker("Fineage.Tile.Load");
-    public static readonly ProfilerMarker CrowdTier = new ProfilerMarker("Fineage.Crowd.Tier");
+    public const string MoveStepName = "Fineage.Move.Step";
+    public const string NameplatesUpdateName = "Fineage.Nameplates.Update";
+    public const string ActorLightsPushName = "Fineage.ActorLights.Push";
+    public const string SpawnName = "Fineage.Spawn";
+    public const string TileLoadName = "Fineage.Tile.Load";
+    public const string CrowdTierName = "Fineage.Crowd.Tier";
+
+    public static readonly ProfilerMarker MoveStep = new ProfilerMarker(MoveStepName);
+    public static readonly ProfilerMarker NameplatesUpdate = new ProfilerMarker(NameplatesUpdateName);
+    public static readonly ProfilerMarker ActorLightsPush = new ProfilerMarker(ActorLightsPushName);
+    public static readonly ProfilerMarker Spawn = new ProfilerMarker(SpawnName);
+    public static readonly ProfilerMarker TileLoad = new ProfilerMarker(TileLoadName);
+    public static readonly ProfilerMarker CrowdTier = new ProfilerMarker(CrowdTierName);
 
     public static readonly string[] RoadmapMarkerNames =
     {
-        "Fineage.Net.Read",
-        "Fineage.Net.Decode",
-        "Fineage.Net.Queue",
-        "Fineage.Net.Drain",
-        "Fineage.Net.Apply",
-        "Fineage.Move.Step",
-        "Fineage.Nameplates.Update",
-        "Fineage.ActorLights.Push",
-        "Fineage.Spawn",
-        "Fineage.Tile.Load",
-        "Fineage.Crowd.Tier",
+        NetReceiveProfiling.ReadName,
+        NetReceiveProfiling.DecodeName,
+        NetReceiveProfiling.QueueName,
+        NetReceiveProfiling.DrainName,
+        NetReceiveProfiling.ApplyName,
+        MoveStepName,
+        NameplatesUpdateName,
+        ActorLightsPushName,
+        SpawnName,
+        TileLoadName,
+        CrowdTierName,
     };
 }

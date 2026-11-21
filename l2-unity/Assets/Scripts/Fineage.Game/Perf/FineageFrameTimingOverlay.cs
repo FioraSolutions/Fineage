@@ -36,6 +36,7 @@ public sealed class FineageFrameTimingOverlay : MonoBehaviour
         FrameTiming sample = _timings[0];
         double cpuMs = sample.cpuFrameTime;
         double gpuMs = sample.gpuFrameTime;
+        bool gpuTimingAvailable = gpuMs > 0d;
         if (cpuMs <= 0d)
         {
             _lastSampleLine = "FrameTimingManager: waiting for valid CPU sample (enableFrameTimingStats?)";
@@ -43,14 +44,19 @@ public sealed class FineageFrameTimingOverlay : MonoBehaviour
         }
         const double smooth = 0.12d;
         _smoothedCpuMs = _smoothedCpuMs <= 0d ? cpuMs : _smoothedCpuMs * (1d - smooth) + cpuMs * smooth;
-        _smoothedGpuMs = _smoothedGpuMs <= 0d ? gpuMs : _smoothedGpuMs * (1d - smooth) + gpuMs * smooth;
+
+        if (gpuTimingAvailable)
+        {
+            _smoothedGpuMs = _smoothedGpuMs <= 0d ? gpuMs : _smoothedGpuMs * (1d - smooth) + gpuMs * smooth;
+        }
 
         float frameMs = Time.unscaledDeltaTime * 1000f;
         float instFps = frameMs > 0.001f ? 1000f / frameMs : 0f;
         _smoothedFps = _smoothedFps <= 0f ? instFps : Mathf.Lerp(_smoothedFps, instFps, 0.12f);
 
-        _lastSampleLine =
-            $"fps ~{_smoothedFps:0} | cpu {_smoothedCpuMs:0.00} ms | gpu {_smoothedGpuMs:0.00} ms";
+        _lastSampleLine = gpuTimingAvailable
+            ? $"fps ~{_smoothedFps:0} | cpu {_smoothedCpuMs:0.00} ms | gpu {_smoothedGpuMs:0.00} ms"
+            : $"fps ~{_smoothedFps:0} | cpu {_smoothedCpuMs:0.00} ms | GPU timing unavailable";
     }
 
     void OnGUI()
@@ -63,7 +69,7 @@ public sealed class FineageFrameTimingOverlay : MonoBehaviour
             _style.normal.background = bg;
         }
 
-        const float width = 360f;
+        const float width = 380f;
         const float height = 56f;
         GUILayout.BeginArea(new Rect(8f, 8f, width, height), GUIContent.none, _style);
         GUILayout.Label(_lastSampleLine);
