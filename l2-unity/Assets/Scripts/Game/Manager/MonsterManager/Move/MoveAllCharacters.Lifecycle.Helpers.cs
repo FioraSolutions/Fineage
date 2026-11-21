@@ -10,7 +10,6 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 {
     void Update()
     {
-        CrowdAnimTest.EnsureTimeCap();
         if (_moveDict == null)
             return;
 
