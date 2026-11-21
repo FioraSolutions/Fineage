@@ -78,11 +78,12 @@ public sealed partial class CastClipPlayable
                 hitCenter = (startHit + endHit) * 0.5f;
         }
 
+        World world = WorldApplyPacketServices.GameWorld;
+        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
+
         int serverTimeMs = _animator != null ? _animator.GetInteger("sptimeatk") : 0;
         if (serverTimeMs <= 0)
         {
-            World world = WorldApplyPacketServices.GameWorld;
-            Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
             MagicCastData cast = entity != null ? entity.GetMagicCastData() : null;
             if (cast != null && cast.HitTime > 0f)
                 serverTimeMs = Mathf.RoundToInt(cast.HitTime * 1000f);
@@ -105,8 +106,6 @@ public sealed partial class CastClipPlayable
             return hitCenter / serverHit;
         }
 
-        World world = WorldApplyPacketServices.GameWorld;
-        Entity entity = world != null ? world.GetEntityNoLockSync(objectId) : null;
         if (Animations != null && entity != null)
             return Animations.ApplyLinearMeleePAtkSpeed(objectId, phaseStateName, clip.length);
 

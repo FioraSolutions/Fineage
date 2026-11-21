@@ -37,7 +37,7 @@ public sealed class PlayerSpAtkAnim : PlayerAnimStateMapBase
         return TryParse(animName, out _, out _, out stateName);
     }
 
-    internal static bool TryParse(
+    public static bool TryParse(
         string animName,
         out int spAtkNumber,
         out PlayerAnimWeapon weapon,
