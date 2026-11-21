@@ -11,8 +11,8 @@ public static class WeaponAttachLayoutResolver
         bool bow = grp.WeaponType == WeaponType.bow;
         bool shield = grp.WeaponType == WeaponType.shield
             || grp.BodyPart == ItemSlot.lhand_shield;
-        bool dualVisual = grp.BodyPart == ItemSlot.lrhand
-            || grp.WeaponType == WeaponType.dual
+        // lrhand covers pole/staff/bow too — dual sync is weapon-type only (incl. fist on lrhand).
+        bool dualVisual = grp.WeaponType == WeaponType.dual
             || grp.WeaponType == WeaponType.dualfist
             || grp.WeaponType == WeaponType.fist;
 
