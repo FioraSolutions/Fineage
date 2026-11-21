@@ -20,10 +20,56 @@ TYPE_NAME = re.compile(
     r"(?:class|struct|enum|interface)\s+(\w+)",
     re.MULTILINE,
 )
-# Usages that likely need Assembly-CSharp (not Fineage.* asmdef).
-TYPE_USAGE = re.compile(
-    r"(?:\btypeof\((\w+)\)|\bis\s+(\w+)\b|AddComponent<(\w+)>|<(\w+)[,\s>])"
+BUILTIN_ALLOW = frozenset(
+    {
+        "Assert",
+        "String",
+        "Object",
+        "GameObject",
+        "Transform",
+        "Vector3",
+        "Quaternion",
+        "Mathf",
+        "Exception",
+        "Int32",
+        "Single",
+        "Boolean",
+        "Byte",
+        "Array",
+        "List",
+        "Dictionary",
+        "HashSet",
+        "Task",
+        "Action",
+        "Func",
+        "Enumerable",
+        "Span",
+        "ReadOnlySpan",
+    }
 )
+
+
+def _code_fragment(line: str) -> str:
+    """Drop comments and string literals so guards ignore log text and messages."""
+    if "//" in line:
+        line = line[: line.index("//")]
+    return re.sub(r'"[^"\\]*(?:\\.[^"\\]*)*"', '""', line)
+
+
+def _uses_type_name(fragment: str, name: str) -> bool:
+    if not re.search(rf"\b{re.escape(name)}\b", fragment):
+        return False
+    if re.search(rf"\bNetOpcode\.{re.escape(name)}\b", fragment):
+        return False
+    if len(name) >= 12:
+        return True
+    return bool(
+        re.search(
+            rf"(?:\btypeof\({re.escape(name)}\)|AddComponent<{re.escape(name)}>|"
+            rf"\bis\s+{re.escape(name)}\b|{re.escape(name)}\.|{re.escape(name)}\()",
+            fragment,
+        )
+    )
 
 
 def asmdef_roots(scripts: Path) -> list[Path]:
@@ -67,25 +113,19 @@ def check_editmode_asmdef_types() -> list[str]:
     errors: list[str] = []
     for test in sorted(EDITMODE_TESTS.glob("*.cs")):
         text = test.read_text(encoding="utf-8-sig", errors="replace")
-        for m in TYPE_USAGE.finditer(text):
-            name = next(g for g in m.groups() if g)
-            if name in {
-                "Assert",
-                "String",
-                "Object",
-                "GameObject",
-                "Transform",
-                "Vector3",
-                "Quaternion",
-                "Mathf",
-            }:
-                continue
-            if name not in ac_types:
-                continue
-            errors.append(
-                f"{test.relative_to(REPO)}: references Assembly-CSharp type `{name}` "
-                "(move test to Assets/Editor/EditModeTests/)"
-            )
+        fragments = [_code_fragment(line) for line in text.splitlines()]
+        code = "\n".join(fragments)
+        used = sorted(
+            name
+            for name in ac_types
+            if name not in BUILTIN_ALLOW and _uses_type_name(code, name)
+        )
+        if not used:
+            continue
+        errors.append(
+            f"{test.relative_to(REPO)}: references Assembly-CSharp type(s) {used} "
+            "(move test to Assets/Editor/EditModeTests/)"
+        )
     return errors
 
 
