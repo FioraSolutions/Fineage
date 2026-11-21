@@ -23,9 +23,9 @@ public sealed class PerfProfilingEditModeTests
             },
             FineagePerfProfiling.RoadmapMarkerNames);
 
-        Assert.AreEqual("Fineage.Net.Read", NetReceiveProfiling.Read.ToString());
-        Assert.AreEqual("Fineage.Move.Step", FineagePerfProfiling.MoveStep.ToString());
-        Assert.AreEqual("Fineage.Crowd.Tier", FineagePerfProfiling.CrowdTier.ToString());
+        Assert.AreEqual(NetReceiveProfiling.ReadName, FineagePerfProfiling.RoadmapMarkerNames[0]);
+        Assert.AreEqual(FineagePerfProfiling.MoveStepName, FineagePerfProfiling.RoadmapMarkerNames[5]);
+        Assert.AreEqual(FineagePerfProfiling.CrowdTierName, FineagePerfProfiling.RoadmapMarkerNames[10]);
     }
 
     [Test]
