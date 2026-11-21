@@ -107,6 +107,10 @@ public partial class EntityActionSkill
         if (ControllerPacketServices.Animations != null && entity.Identity != null && magic.HitTime > 0)
             ControllerPacketServices.Animations.SetSpTimeAtk(entity.Identity.Id, magic.HitTime);
 
+        MagicCastData activeCast = entity.GetMagicCastData();
+        if (activeCast != null)
+            activeCast.SkillId = magic.SkillId;
+
         try
         {
             if (TryPlayNoneAnimWorldPawnEffect(entity, magic))
