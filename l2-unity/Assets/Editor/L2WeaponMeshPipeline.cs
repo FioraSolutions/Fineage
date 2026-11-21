@@ -207,8 +207,11 @@ public static class L2WeaponMeshPipeline
                     continue;
                 foreach (string model in WeapongrpHandMeshes.EnumerateModelKeys(grp))
                 {
-                    if (!string.IsNullOrEmpty(model))
-                        keys.Add(model);
+                    if (string.IsNullOrEmpty(model))
+                        continue;
+                    if (!model.StartsWith("LineageWeapons.", StringComparison.Ordinal))
+                        continue;
+                    keys.Add(model);
                 }
             }
         }

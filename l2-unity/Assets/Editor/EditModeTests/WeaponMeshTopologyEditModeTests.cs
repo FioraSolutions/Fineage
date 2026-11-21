@@ -22,18 +22,19 @@ public sealed class WeaponMeshTopologyEditModeTests
                 continue;
             foreach (string model in WeapongrpHandMeshes.EnumerateModelKeys(grp))
             {
-                if (!string.IsNullOrEmpty(model))
-                    keys.Add(model);
+                if (string.IsNullOrEmpty(model))
+                    continue;
+                if (!model.StartsWith("LineageWeapons.", System.StringComparison.Ordinal))
+                    continue;
+                keys.Add(model);
             }
         }
 
-        Assert.Greater(keys.Count, 0, "Expected weapongrp weapon model keys");
+        Assert.Greater(keys.Count, 0, "Expected LineageWeapons keys in weapongrp");
         var failures = new List<string>();
         foreach (string key in keys.OrderBy(k => k, System.StringComparer.Ordinal))
         {
-            string shortName = key.StartsWith("LineageWeapons.", System.StringComparison.Ordinal)
-                ? key.Substring("LineageWeapons.".Length)
-                : key;
+            string shortName = key.Substring("LineageWeapons.".Length);
             string fbxPath = "Assets/Resources/Data/Animations/LineageWeapons/Models/" + shortName + ".fbx";
             UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(fbxPath);
             if (assets == null || assets.Length == 0)
