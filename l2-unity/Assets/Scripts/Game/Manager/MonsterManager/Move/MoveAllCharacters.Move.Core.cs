@@ -11,6 +11,12 @@ public partial class MoveAllCharacters : MonoBehaviour, IMoveAllCharacters
 {
     void StepMoves()
     {
+        using (FineagePerfProfiling.MoveStep.Auto())
+            StepMovesCore();
+    }
+
+    void StepMovesCore()
+    {
         ReconcileStoppedMoves();
         if (_moveDict.Count == 0)
         {

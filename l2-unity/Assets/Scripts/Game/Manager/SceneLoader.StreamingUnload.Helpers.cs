@@ -12,6 +12,12 @@ public partial class SceneLoader
         if (_prefabTiles.ContainsKey(tile))
             return;
 
+        using (FineagePerfProfiling.TileLoad.Auto())
+            InstantiateMapTilePrefabsCore(tile);
+    }
+
+    void InstantiateMapTilePrefabsCore(string tile)
+    {
         GameObject terrain = Resources.Load<GameObject>("Data/Maps/" + tile + "/" + tile);
         if (terrain == null)
         {

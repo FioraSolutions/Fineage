@@ -12,6 +12,14 @@ public partial class NameplatesManager : MonoBehaviour
 
     private void Update()
     {
+        using (FineagePerfProfiling.NameplatesUpdate.Auto())
+        {
+            UpdateNameplatesCore();
+        }
+    }
+
+    void UpdateNameplatesCore()
+    {
         if (_playerTransform == null)
         {
             if (DomainPacketServices.LocalPlayer != null && DomainPacketServices.LocalPlayer.transform != null)

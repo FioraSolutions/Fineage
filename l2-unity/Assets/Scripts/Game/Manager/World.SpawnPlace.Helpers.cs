@@ -15,6 +15,16 @@ public partial class World
         Stats stats,
         out bool unresolvable)
     {
+        using (FineagePerfProfiling.Spawn.Auto())
+            SpawnNpcCore(identity, status, stats, out unresolvable);
+    }
+
+    void SpawnNpcCore(
+        EntityIdentity identity,
+        NpcStatusInterlude status,
+        Stats stats,
+        out bool unresolvable)
+    {
         unresolvable = false;
         if (identity == null)
             return;
