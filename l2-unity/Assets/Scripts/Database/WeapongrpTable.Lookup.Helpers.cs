@@ -11,7 +11,7 @@ public partial class WeapongrpTable
 
         string dataPath = Path.Combine(Application.streamingAssetsPath, "Data/Meta/Weapongrp_Classic.txt");
         if (!File.Exists(dataPath)) {
-            // Debug.LogWarning("File not found: " + dataPath);
+            MetaTableBootstrapLog.LogMissingDatFile(nameof(WeapongrpTable), dataPath);
             return;
         }
 

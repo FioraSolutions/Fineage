@@ -13,5 +13,5 @@ public static class NpcSkinnedBoundsPolicy
     }
 
     public static float MaxSkinnedBoundsHeightMeters(float bodyHeightMeters) =>
-        bodyHeightMeters * 2.75f + 0.4f;
+        bodyHeightMeters * 2.95f + 0.4f;
 }

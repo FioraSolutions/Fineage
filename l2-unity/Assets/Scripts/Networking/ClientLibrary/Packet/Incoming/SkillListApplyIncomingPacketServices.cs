@@ -16,7 +16,9 @@ public static class SkillListApplyIncomingPacketServices
     public static void ApplySkillList(SkillListDto packet) =>
         Queue(() =>
         {
-            SkillListWindow window = SkillList;
+            SkillListWindow window = SkillLearnPacketServices.SkillList;
+            if (window == null)
+                window = SkillList;
             if (window == null)
             {
                 int n = packet?.Skills != null ? packet.Skills.Count : 0;
