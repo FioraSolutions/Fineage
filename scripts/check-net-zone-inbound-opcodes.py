@@ -118,6 +118,8 @@ OUTBOUND_EXPLICIT = frozenset(
         "FriendDelete",
         "BlockRequest",
         "WeddingEngageAnswer",
+        "PackageSendRequest",
+        "PackageSendableListRequest",
     }
 )
 

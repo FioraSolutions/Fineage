@@ -312,6 +312,18 @@ public sealed partial class NetZoneDispatch
             case WeddingNetOpcode.WeddingEngageAsk:
                 _session.ApplyWeddingEngageAsk((WeddingEngageAskNetMsg)packet.Body);
                 break;
+            case NetOpcode.PackageToList:
+                _ = (PackageToListNetMsg)packet.Body;
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
+                break;
+            case NetOpcode.PackageSendableList:
+                _ = (PackageSendableListNetMsg)packet.Body;
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
+                break;
+            case NetOpcode.MonRaceInfo:
+                _ = (MonRaceInfoNetMsg)packet.Body;
+                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
+                break;
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
                 break;
