@@ -378,7 +378,81 @@ public static class L2EffectGeneratorAssetOverrides
             return false;
         }
 
-        return StaticMeshToTextures.TryGetValue(meshName, out textureNames);
+        if (StaticMeshToTextures.TryGetValue(meshName, out textureNames))
+        {
+            return true;
+        }
+
+        return MeshTextureTable().TryGetValue(meshName, out textureNames);
+    }
+
+    const string MeshTextureTablePath =
+        "Assets/Editor/L2EffectGenerator/Data/effect_mesh_textures.tsv";
+    static Dictionary<string, string[]> meshTextureTable;
+
+    /// <summary>
+    /// Mesh -> per-slot leaf texture names read from the original static mesh
+    /// Materials[] (Shader/FinalBlend/modifier chains walked to their texture).
+    /// Built by tools/l2-effect/build_effect_mesh_textures.py, so mesh emitters
+    /// without Texture= get their main texture even when umodel is unavailable.
+    /// </summary>
+    static Dictionary<string, string[]> MeshTextureTable()
+    {
+        if (meshTextureTable != null)
+        {
+            return meshTextureTable;
+        }
+
+        meshTextureTable = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+        string fullPath = System.IO.Path.Combine(
+            System.IO.Directory.GetParent(UnityEngine.Application.dataPath).FullName,
+            MeshTextureTablePath);
+        if (!System.IO.File.Exists(fullPath))
+        {
+            return meshTextureTable;
+        }
+
+        foreach (string raw in System.IO.File.ReadAllLines(fullPath))
+        {
+            if (string.IsNullOrWhiteSpace(raw) || raw.StartsWith("#"))
+            {
+                continue;
+            }
+
+            string[] columns = raw.Split('\t');
+            if (columns.Length < 2)
+            {
+                continue;
+            }
+
+            string[] slots = columns[1].Split(',');
+            string first = null;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                slots[i] = slots[i].Trim();
+                if (first == null && slots[i].Length > 0)
+                {
+                    first = slots[i];
+                }
+            }
+
+            if (first == null)
+            {
+                continue;
+            }
+
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i].Length == 0)
+                {
+                    slots[i] = first;
+                }
+            }
+
+            meshTextureTable[columns[0].Trim()] = slots;
+        }
+
+        return meshTextureTable;
     }
 
     public static bool TryGetMeshSlotShading(

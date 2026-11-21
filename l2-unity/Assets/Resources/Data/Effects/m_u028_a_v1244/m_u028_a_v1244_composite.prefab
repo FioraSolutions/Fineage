@@ -52,15 +52,15 @@ MonoBehaviour:
   _useLight: 0
   _lightSettings: {fileID: 0}
   _v2Parts:
-  - rid: 6421483751547863132
-  - rid: 6421483751547863133
-  - rid: 6421483751547863134
+  - rid: 6421483752386461829
+  - rid: 6421483752386461830
+  - rid: 6421483752386461831
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 6421483751547863132
+    - rid: 6421483752386461829
       type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
       data:
         name: m_u028_a
@@ -68,13 +68,13 @@ MonoBehaviour:
         scale: 1
         spawnTiming: 0
         spawnDelaySeconds: 0
-        spawnAttachmentPoint: 0
+        spawnAttachmentPoint: 10
         boneName: 
         follow: 1
         inheritRotation: 0
         placement:
           rid: -2
-    - rid: 6421483751547863133
+    - rid: 6421483752386461830
       type: {class: HomeFlightPart, ns: , asm: Assembly-CSharp}
       data:
         name: m_u028_b
@@ -112,15 +112,15 @@ MonoBehaviour:
         rotateToVelocity: 1
         destroyOnArrive: 1
         mirrorDualFlight: 0
-    - rid: 6421483751547863134
-      type: {class: StationaryPart, ns: , asm: Assembly-CSharp}
+    - rid: 6421483752386461831
+      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
       data:
         name: m_u028_c
         prefab: {fileID: 4412644367591244047, guid: d08920ad7f8e44e2badeb07e31d8529b, type: 3}
         scale: 1
-        spawnTiming: 0
+        spawnTiming: 3
         spawnDelaySeconds: 0
-        spawnAttachmentPoint: 0
+        spawnAttachmentPoint: 8
         boneName: 
         follow: 1
         inheritRotation: 0
