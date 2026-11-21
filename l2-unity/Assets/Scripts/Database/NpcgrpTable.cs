@@ -16,11 +16,13 @@ public partial class NpcgrpTable
             if (_instance == null && App.HasContainer) {
                 try {
                     _instance = App.Resolve<NpcgrpTable>();
-                } catch {
+                } catch (Exception ex) {
+                    MetaTableBootstrapLog.LogDiResolveFailed(nameof(NpcgrpTable), ex);
                 }
             }
 
             if (_instance == null) {
+                MetaTableBootstrapLog.LogEmptyInstanceFallback(nameof(NpcgrpTable));
                 _instance = new NpcgrpTable();
             }
 
