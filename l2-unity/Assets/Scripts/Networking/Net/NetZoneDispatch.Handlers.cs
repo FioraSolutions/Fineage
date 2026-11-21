@@ -321,8 +321,6 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AugmentVariationResult:
             case NetOpcode.AugmentPutCancelItemResult:
             case NetOpcode.AugmentCancelResult:
-            case NetOpcode.CursedWeaponList:
-            case NetOpcode.CursedWeaponLocation:
                 break;
             case NetOpcode.PackageToList:
                 _ = (PackageToListNetMsg)packet.Body;
@@ -378,6 +376,9 @@ public sealed partial class NetZoneDispatch
                     CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
                 break;
             }
+            case NetOpcode.CursedWeaponList:
+            case NetOpcode.CursedWeaponLocation:
+                break;
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
