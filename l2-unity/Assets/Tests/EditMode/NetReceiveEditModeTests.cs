@@ -212,4 +212,15 @@ public sealed class NetReceiveEditModeTests
         Assert.AreEqual(8, pump.PreserveCount);
         Assert.GreaterOrEqual(pump.PreserveHighWater, 8);
     }
+
+    [Test]
+    public void Drain_leaves_discardable_when_millisecond_budget_exhausted()
+    {
+        var pump = new NetMainThreadPump();
+        for (int i = 0; i < 96; i++)
+            pump.Post(() => System.Threading.Thread.Sleep(2), NetOpcode.PlaySound);
+
+        pump.DrainFrame();
+        Assert.Greater(pump.DiscardableCount, 0, "2 ms × many packets should exceed the 4 ms apply budget.");
+    }
 }

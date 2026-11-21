@@ -95,14 +95,21 @@ public sealed class NetMainThreadPump
     {
         using (NetReceiveProfiling.Drain.Auto())
         {
-            DrainQueue(_preserve, int.MaxValue);
+            DrainQueue(_preserve, int.MaxValue, long.MaxValue);
+            long budgetEndTicks = BudgetEndTicks();
             int applyBudget = MaxNormalActionsPerFrame;
-            applyBudget = DrainCoalesce(applyBudget);
-            DrainQueue(_discardable, applyBudget);
+            applyBudget = DrainCoalesce(applyBudget, budgetEndTicks);
+            DrainQueue(_discardable, applyBudget, budgetEndTicks);
             FlushDeferredLogs();
             MaybeWarnDepth();
         }
     }
+
+    static long BudgetEndTicks() =>
+        Clock.ElapsedTicks
+        + (long)(NetApplyBudget.MaxNormalApplyMillisecondsPerFrame * Stopwatch.Frequency / 1000.0);
+
+    static bool HasTimeRemaining(long budgetEndTicks) => Clock.ElapsedTicks < budgetEndTicks;
 
     void EnqueueCoalesce(NetQueuedWork work)
     {
@@ -187,10 +194,10 @@ public sealed class NetMainThreadPump
             + "packets are not dropped — main-thread apply is behind.");
     }
 
-    int DrainCoalesce(int maxActions)
+    int DrainCoalesce(int maxActions, long budgetEndTicks)
     {
         int remaining = maxActions;
-        while (remaining > 0 && _coalesceOrder.TryDequeue(out long key))
+        while (remaining > 0 && HasTimeRemaining(budgetEndTicks) && _coalesceOrder.TryDequeue(out long key))
         {
             if (!_coalescePending.TryRemove(key, out CoalesceSlot slot))
                 continue;
@@ -201,10 +208,10 @@ public sealed class NetMainThreadPump
         return remaining;
     }
 
-    static void DrainQueue(ConcurrentQueue<NetQueuedWork> queue, int maxActions)
+    static void DrainQueue(ConcurrentQueue<NetQueuedWork> queue, int maxActions, long budgetEndTicks)
     {
         int remaining = maxActions;
-        while (remaining > 0 && queue.TryDequeue(out NetQueuedWork work))
+        while (remaining > 0 && HasTimeRemaining(budgetEndTicks) && queue.TryDequeue(out NetQueuedWork work))
         {
             remaining--;
             RunWork(work);
@@ -243,7 +250,8 @@ public sealed class NetMainThreadPump
         _nextDepthLogTime = now + DepthLogCooldownSeconds;
         UnityEngine.Debug.LogWarning(
             $"[Net] main-thread packet queue depth {depth} (preserve {PreserveCount}, coalesce {CoalesceSlotCount}, discardable {DiscardableCount}); "
-            + $"apply budget {MaxNormalActionsPerFrame}/frame, discardable soft-cap {MaxPendingDiscardable}.");
+            + $"apply budget {MaxNormalActionsPerFrame}/frame or {NetApplyBudget.MaxNormalApplyMillisecondsPerFrame:0.##} ms, "
+            + $"discardable soft-cap {MaxPendingDiscardable}.");
     }
 
     void MaybeWarnDrops(int justDropped, ushort opcode)
