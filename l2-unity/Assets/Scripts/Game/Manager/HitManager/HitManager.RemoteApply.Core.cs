@@ -129,9 +129,9 @@ public partial class HitManager
         }
         else
             attacker.IsSoulshotCharged = false;
+        CombatAudioHitContext.Set(attacker, hit.isCrit(), hit.isShielded());
         Vector3 hitPoint = ResolveTargetImpactCenter(target);
         HandleHitCollider(attacker, attacker.transform, target, hitPoint, Vector3.zero);
-        CombatAudioHitContext.Set(attacker, hit.isCrit());
         target.PlayHitReaction(hit.isCrit());
         return true;
     }
