@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-/// <summary>Lobby walk speeds (Fineage.Game — safe for EditMode asmdef tests).</summary>
+/// <summary>Lobby walk speeds in Fineage.Game (EditMode asmdef-safe).</summary>
 public static class LocomotionProfileLobby
 {
     static readonly HashSet<CharacterRaceAnimation> StandardWalkRaces = new HashSet<CharacterRaceAnimation>
