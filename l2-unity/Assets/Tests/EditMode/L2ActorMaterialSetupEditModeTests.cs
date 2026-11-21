@@ -21,26 +21,24 @@ public class L2ActorMaterialSetupEditModeTests
     }
 
     [Test]
-    public void Paperdoll_normalizes_devotion_armor_off_actor_env_add()
+    public void Devotion_tunic_material_ships_actor_modulate2x()
     {
-        var src = Resources.Load<Material>("Data/SysTextures/MMagic/Materials/MMagic_m007_t90_u");
-        Assert.IsNotNull(src, "MMagic_m007_t90_u devotion tunic material");
-        Assert.IsTrue(
-            src.shader != null && src.shader.name.Contains("ActorEnv"),
-            "fixture expects L2/World/ActorEnvAdd before normalization");
-
-        Material paperdoll = L2ActorMaterialSetup.EnsurePaperdollActorMaterial(src, "test");
-        Assert.AreEqual(L2ActorMaterialSetup.ActorShaderName, paperdoll.shader.name);
-        Assert.IsFalse(paperdoll.IsKeywordEnabled("_ALPHATEST_ON"));
+        var mat = Resources.Load<Material>("Data/SysTextures/MMagic/Materials/MMagic_m007_t90_u");
+        Assert.IsNotNull(mat, "MMagic_m007_t90_u devotion tunic material");
+        Assert.AreEqual(L2ActorMaterialSetup.ActorShaderName, mat.shader.name);
+        Assert.IsFalse(mat.IsKeywordEnabled("_ALPHATEST_ON"));
     }
 
     [Test]
-    public void Paperdoll_preserves_actor_modulate_face_material()
+    public void ValidatePaperdoll_logs_error_for_env_add_shader()
     {
-        var src = Resources.Load<Material>("Data/SysTextures/LineageFaceTex/Materials/FMagic_m000_t00_f");
-        Assert.IsNotNull(src, "FMagic face material");
-        Material paperdoll = L2ActorMaterialSetup.EnsurePaperdollActorMaterial(src, "test");
-        Assert.AreSame(src, paperdoll);
+        var bad = new Material(Shader.Find("L2/World/ActorEnvAdd") ?? Shader.Find("Hidden/InternalErrorShader"))
+        {
+            name = "test_env_add_armor"
+        };
+        LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("paperdoll material=test_env_add_armor"));
+        L2ActorMaterialSetup.ValidatePaperdollActorMaterial(bad, "editmode");
+        Object.DestroyImmediate(bad);
     }
 
     [Test]

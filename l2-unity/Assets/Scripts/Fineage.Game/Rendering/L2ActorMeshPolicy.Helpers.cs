@@ -20,10 +20,10 @@ public static partial class L2ActorMeshPolicy
                 continue;
             }
 
-            Material paperdoll = L2ActorMaterialSetup.EnsurePaperdollActorMaterial(
+            L2ActorMaterialSetup.ValidatePaperdollActorMaterial(
                 material,
                 armorRoot.name + "/" + renderer.name);
-            renderer.sharedMaterial = paperdoll;
+            renderer.sharedMaterial = material;
             renderer.enabled = true;
             renderer.updateWhenOffscreen = true;
         }
