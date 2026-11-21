@@ -22,6 +22,13 @@ public static class PlayerLocale
         if (!TagPattern.IsMatch(text))
             return false;
 
+        // Client ships a single English string table; BCP47 en-XX maps to default en.
+        if (text.StartsWith("en-", System.StringComparison.Ordinal))
+        {
+            locale = Default;
+            return true;
+        }
+
         locale = text;
         return true;
     }

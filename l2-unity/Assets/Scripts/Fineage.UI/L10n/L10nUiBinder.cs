@@ -56,7 +56,6 @@ public static class L10nUiBinder
         if (toggle == null)
             return;
         string text = L10n.Get(key);
-        toggle.text = text;
         toggle.label = text;
         toggle.AddToClassList("l10n");
         toggle.userData = key;
@@ -119,7 +118,6 @@ public static class L10nUiBinder
             return;
         toggle.userData = key;
         toggle.label = L10n.Get(key);
-        toggle.text = L10n.Get(key);
     }
 
     static string KeyFrom(VisualElement element)
@@ -129,7 +127,7 @@ public static class L10nUiBinder
         string text = element switch
         {
             TextElement te => te.text,
-            Toggle t => t.text,
+            Toggle t => t.label,
             _ => null,
         };
         return text?.Trim() ?? "";

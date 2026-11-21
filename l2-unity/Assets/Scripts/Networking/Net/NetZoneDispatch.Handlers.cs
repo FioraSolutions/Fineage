@@ -312,17 +312,24 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.WeddingEngageAsk:
                 _session.ApplyWeddingEngageAsk((WeddingEngageAskNetMsg)packet.Body);
                 break;
+            // Item augmentation (variation) UI — Mobius Ex* handlers; no client UI yet.
+            case NetOpcode.AugmentShowMakeWindow:
+            case NetOpcode.AugmentShowCancelWindow:
+            case NetOpcode.AugmentPutItemResult:
+            case NetOpcode.AugmentPutRefinerResult:
+            case NetOpcode.AugmentPutGemResult:
+            case NetOpcode.AugmentVariationResult:
+            case NetOpcode.AugmentPutCancelItemResult:
+            case NetOpcode.AugmentCancelResult:
+                break;
             case NetOpcode.PackageToList:
                 _ = (PackageToListNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.PackageSendableList:
                 _ = (PackageSendableListNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.MonRaceInfo:
                 _ = (MonRaceInfoNetMsg)packet.Body;
-                Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
             case NetOpcode.PetInventory:
                 _ = (PetInventoryNetMsg)packet.Body;
