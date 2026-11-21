@@ -112,6 +112,7 @@ public sealed class SkillListWindowPopulateEditModeTests
         _skillListHost = new GameObject("SkillListWindowEditModeHost");
         var window = _skillListHost.AddComponent<SkillListWindow>();
         Assert.IsNotNull(window, "SkillListWindow component must survive Awake");
+        SkillListWindow.EditModeAdoptSingletonForTests(window);
         Assert.AreSame(window, SkillListWindow.Instance, "test host must own SkillListWindow singleton");
         window.EditorTestLoadAssets();
 

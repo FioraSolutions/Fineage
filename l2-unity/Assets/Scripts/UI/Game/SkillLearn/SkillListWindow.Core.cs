@@ -23,6 +23,25 @@ public partial class SkillListWindow : L2PopupWindow
         SkillLearnPacketServices.EditModeClearForTests();
         _orphanedSkillList = null;
     }
+
+    public static void EditModeAdoptSingletonForTests(SkillListWindow owner)
+    {
+        if (owner == null)
+            return;
+
+        SkillListWindow[] existing = Object.FindObjectsByType<SkillListWindow>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        for (int i = 0; i < existing.Length; i++)
+        {
+            if (existing[i] != null && existing[i] != owner)
+                Object.DestroyImmediate(existing[i].gameObject);
+        }
+
+        _instance = owner;
+        owner.EnsureEditModeSingletonInitializedForTests();
+        SkillLearnPacketServices.Bind(skillList: owner);
+    }
 #endif
 
     private void Awake()

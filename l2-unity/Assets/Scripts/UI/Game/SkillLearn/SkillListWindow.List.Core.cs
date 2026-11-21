@@ -265,6 +265,14 @@ public partial class SkillListWindow : L2PopupWindow
     }
 
 #if UNITY_EDITOR
+    internal void EnsureEditModeSingletonInitializedForTests()
+    {
+        _builderTabs ??= new BuilderTabs();
+        _supportActiveSkills ??= new ActiveSkillsHide();
+        _supportPassiveSkills ??= new PassiveSkillsHide();
+        _allSkills ??= new Dictionary<int, SkillInstance>();
+    }
+
     public int PendingSkillCountForEditModeTests =>
         _pendingSkills != null ? _pendingSkills.Count : 0;
 
