@@ -6,6 +6,7 @@ public partial class MoveNpc
     {
         _isFollow = true;
         _targetModelObj = targetObj;
+        SyncMoveNpcRegistration();
         //ShowDrawLineDebug(transform.position, targetObj.TarObj());
     }
 
@@ -14,7 +15,7 @@ public partial class MoveNpc
         _isMove = true;
         _targetMove = targetVector;
         _lastPos = transform.position;
-        
+        SyncMoveNpcRegistration();
     }
 
     public void RotateObject()
