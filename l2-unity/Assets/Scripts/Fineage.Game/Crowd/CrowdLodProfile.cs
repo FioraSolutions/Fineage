@@ -22,6 +22,13 @@ public sealed class CrowdLodProfile : ScriptableObject
     public float tier3AnimatorSpeed = 0.25f;
     public CrowdDetailTier animatorCullCompletelyFromTier = CrowdDetailTier.T3Far;
 
+    [Header("Skill FX (step 17)")]
+    [Tooltip("Concurrent mid-tier (T2) other-pawn skill FX cap. High default preserves playtest.")]
+    public int maxConcurrentSkillFxT2 = 512;
+
+    [Tooltip("Concurrent far-tier (T3) other-pawn skill FX cap.")]
+    public int maxConcurrentSkillFxT3 = 128;
+
     public float Tier1MaxSq => tier1MaxDistanceMeters * tier1MaxDistanceMeters;
     public float Tier2MaxSq => tier2MaxDistanceMeters * tier2MaxDistanceMeters;
     public float Tier3MaxSq => tier3MaxDistanceMeters * tier3MaxDistanceMeters;
