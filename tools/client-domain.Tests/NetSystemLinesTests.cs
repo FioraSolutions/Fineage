@@ -8,6 +8,8 @@ namespace Fineage.Client.Domain.Tests;
 /// </summary>
 public class NetSystemLinesTests
 {
+    public NetSystemLinesTests() => L10nTestCatalog.EnsureLoaded();
+
     [Fact]
     public void System_lines_keep_server_text_and_fill_empty_shop_ids()
     {
