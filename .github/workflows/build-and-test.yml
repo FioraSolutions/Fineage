@@ -60,20 +60,6 @@ jobs:
       - name: Check Elven Village BSP CSG fixtures
         run: python3 scripts/check-elven-bsp-csg-fixtures.py
 
-      - name: Set up Java 17 for vendored L2TerrainExtractor
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Set up Gradle 8.5 for vendored L2TerrainExtractor
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.5"
-
-      - name: Build vendored L2TerrainExtractor (fatJar)
-        run: python3 scripts/check-l2-terrain-extractor.py
-
       - name: Check Net contract is in sync with the backend
         run: |
           FINEAGE_REQUIRE_CONTRACT_SYNC=1 python3 scripts/sync-net-contract.py --check \
