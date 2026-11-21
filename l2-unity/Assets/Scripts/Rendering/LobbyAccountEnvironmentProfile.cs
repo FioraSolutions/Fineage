@@ -32,4 +32,10 @@ public sealed class LobbyAccountEnvironmentProfile : ScriptableObject
     public Color fogColor = new Color(130f / 255f, 160f / 255f, 165f / 255f, 1f);
     public float fogStartDistance = 19.05f;
     public float fogEndDistance = 123.8f;
+
+    [Header("Actor vertex lighting (L2 actor LUT; no in-lobby DayNightCycle)")]
+    [Tooltip("World hours sampled for L2ActorLightLut / L2EnvWorldLut on account lobby.")]
+    public float actorWorldHours = 12f;
+    [Range(0.5f, 2f)]
+    public float skyExposure = 1.15f;
 }

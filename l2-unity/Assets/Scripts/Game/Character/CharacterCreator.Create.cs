@@ -77,5 +77,6 @@ public partial class CharacterCreator : MonoBehaviour
 
         SkinnedMeshSync sync = pawnObject.GetComponentInChildren<SkinnedMeshSync>(true);
         sync?.SyncMesh();
+        L2ActorPointLights.TryRegisterActorRoot(pawnObject.transform);
     }
 }

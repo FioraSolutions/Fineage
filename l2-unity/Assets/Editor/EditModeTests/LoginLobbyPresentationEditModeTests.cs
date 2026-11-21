@@ -35,4 +35,14 @@ public sealed class LoginLobbyPresentationEditModeTests
         Assert.IsNotNull(RenderSettings.skybox);
         LobbyAccountRenderSettings.Release();
     }
+
+    [Test]
+    public void Account_profile_exposes_actor_world_hours_for_lut()
+    {
+        var profile = LobbyAccountRenderSettings.LoadProfile();
+        Assert.IsNotNull(profile);
+        Assert.GreaterOrEqual(profile.actorWorldHours, 0f);
+        Assert.Less(profile.actorWorldHours, 24f);
+        Assert.Greater(profile.skyExposure, 0.5f);
+    }
 }

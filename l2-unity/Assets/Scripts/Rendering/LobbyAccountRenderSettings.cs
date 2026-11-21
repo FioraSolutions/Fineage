@@ -69,7 +69,38 @@ public static class LobbyAccountRenderSettings
         }
         RenderSettings.skybox = sky;
         RenderSettings.reflectionIntensity = profile.reflectionIntensity;
+        ApplySkyPresentation(profile, sky);
+        PushLobbyActorLighting(profile);
         _applied = true;
+    }
+
+    static void ApplySkyPresentation(LobbyAccountEnvironmentProfile profile, Material sky)
+    {
+        if (sky == null)
+            return;
+
+        if (sky.HasProperty("_Exposure"))
+            sky.SetFloat("_Exposure", profile.skyExposure);
+
+        L2DayNightLut.EnsureLoaded();
+        if (!L2DayNightLut.IsReady || !sky.HasProperty("_GradientColor1"))
+            return;
+
+        L2DayNightLut.Sample day = L2DayNightLut.SampleAt(profile.actorWorldHours);
+        Color displaySky = L2DayNightLut.ApplyPostSky(day.sky, profile.actorWorldHours);
+        sky.SetColor("_GradientColor1", displaySky);
+    }
+
+    static void PushLobbyActorLighting(LobbyAccountEnvironmentProfile profile)
+    {
+        L2EnvWorldLut.EnsureLoaded();
+        L2ActorLightLut.EnsureLoaded();
+        L2DayNightLut.EnsureLoaded();
+
+        L2DayNightLut.Sample day = L2DayNightLut.SampleAt(profile.actorWorldHours);
+        L2EnvWorldLut.PushGlobals(profile.actorWorldHours, day.actorAmbient, day.sun);
+        L2ActorLightLut.PushGlobals(profile.actorWorldHours);
+        L2ActorPointLights.Push();
     }
 
     public static void Release()
