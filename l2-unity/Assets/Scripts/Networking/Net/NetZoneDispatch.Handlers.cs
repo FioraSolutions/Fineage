@@ -10,7 +10,11 @@ public sealed partial class NetZoneDispatch
         if (packet == null)
             return;
 
-        switch (packet.Opcode)
+        ushort opcode = packet.Opcode;
+        if (opcode == NetOpcode.CursedWeaponList || opcode == NetOpcode.CursedWeaponLocation)
+            return;
+
+        switch (opcode)
         {
             case NetOpcode.HelloAck:
                 break;
@@ -376,9 +380,6 @@ public sealed partial class NetZoneDispatch
                     CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
                 break;
             }
-            case NetOpcode.CursedWeaponList:
-            case NetOpcode.CursedWeaponLocation:
-                break;
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
