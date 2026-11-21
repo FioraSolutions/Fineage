@@ -28,7 +28,24 @@ public static class AudioPathResolver
         "event:/StepSound/" + eventKey;
 
     public static string FmodMonsterSound(string npcClassName, string eventKey) =>
-        "event:/MonSound/" + npcClassName + "/" + eventKey;
+        "event:/MonSound/" + NormalizeMonsterSoundFolder(npcClassName) + "/" + eventKey;
+
+    /// <summary>Strip <c>LineageMonster.</c> and summon/sm suffixes for MonSound folder names.</summary>
+    public static string NormalizeMonsterSoundFolder(string npcClassOrName)
+    {
+        if (string.IsNullOrEmpty(npcClassOrName))
+            return npcClassOrName;
+
+        string name = npcClassOrName.Trim();
+        int dot = name.IndexOf('.');
+        if (dot >= 0 && dot < name.Length - 1)
+            name = name.Substring(dot + 1);
+
+        name = name.ToLowerInvariant();
+        if (name.EndsWith("_sm"))
+            name = name.Substring(0, name.Length - 3);
+        return name;
+    }
 
     public static string FmodSkillSound(string clipStem) =>
         "event:/SkillSound/" + clipStem;

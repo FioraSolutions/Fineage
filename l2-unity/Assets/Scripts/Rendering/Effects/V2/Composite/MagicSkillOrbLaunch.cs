@@ -10,13 +10,13 @@ public static class MagicSkillOrbLaunch
     {
         if (caster == null)
         {
-            Debug.LogWarning("[ShotOrb] RELEASE force abort caster=null skill=" + skillId);
+            ShotOrbDebug.LogWarning("[ShotOrb] RELEASE force abort caster=null skill=" + skillId);
             return;
         }
 
         CompositeEffectV2[] composites =
             caster.GetComponentsInChildren<CompositeEffectV2>(true);
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] RELEASE force skill=" + skillId +
             " caster=" + caster.name +
             " composites=" + composites.Length);

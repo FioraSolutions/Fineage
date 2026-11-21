@@ -20,8 +20,9 @@ public partial class AudioService
 
     public void PlayMonsterSoundFmod(MonsterSoundEvent soundEvent, string npcClassName, Vector3 position)
     {
+        string folder = AudioPathResolver.NormalizeMonsterSoundFolder(npcClassName);
         string key = soundEvent.ToString().ToLowerInvariant();
-        string path = AudioPathResolver.FmodMonsterSound(npcClassName, key);
+        string path = AudioPathResolver.FmodMonsterSound(folder, key);
         PlayFmodEvent(path, AudioCategory.Sfx, position);
     }
 

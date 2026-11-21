@@ -8,12 +8,8 @@ public partial class NpcCursorManager : MonoBehaviour
         if (texture == null)
             return;
 
-        // ForceSoftware: hardware cursors often fail to stick on macOS with Input System only.
         if (_currentCursor == id)
-        {
-            Cursor.SetCursor(texture, Vector2.zero, CursorMode.ForceSoftware);
             return;
-        }
 
         _currentCursor = id;
         Cursor.SetCursor(texture, Vector2.zero, CursorMode.ForceSoftware);

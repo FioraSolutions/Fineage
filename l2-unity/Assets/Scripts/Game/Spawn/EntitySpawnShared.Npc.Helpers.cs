@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public static partial class EntitySpawnShared
 {
+    static readonly HashSet<string> LoggedNpcSkinnedBounds = new HashSet<string>();
     public static void LogStriderGait(string when, Entity entity, string detail = null)
     {
         if (!IsStriderNpc(entity))
@@ -114,11 +115,11 @@ public static partial class EntitySpawnShared
         L2ActorMeshPolicy.DisableAlphaOverlays(go.transform);
 
         int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
-        float bodyHeight = entity != null && entity.Appearance != null
-            ? Mathf.Max(0.5f, entity.Appearance.CollisionHeight / 52.5f)
-            : 1.8f;
-        // Guards / pole weapons inflate SMR bounds without being a bad import (npcId 31033 etc.).
-        float maxHeight = bodyHeight * 2.75f + 0.4f;
+        float? collisionHeightMeters = entity != null && entity.Appearance != null
+            ? (float?)entity.Appearance.CollisionHeight
+            : null;
+        float bodyHeight = NpcSkinnedBoundsPolicy.ExpectedBodyHeightMeters(collisionHeightMeters);
+        float maxHeight = NpcSkinnedBoundsPolicy.MaxSkinnedBoundsHeightMeters(bodyHeight);
         SkinnedMeshRenderer[] skins = go.GetComponentsInChildren<SkinnedMeshRenderer>(true);
         for (int i = 0; i < skins.Length; i++)
         {
@@ -135,6 +136,10 @@ public static partial class EntitySpawnShared
 
             if (h > maxHeight)
             {
+                string logKey = npcId + "@" + smr.name;
+                if (!LoggedNpcSkinnedBounds.Add(logKey))
+                    continue;
+
                 bool severe = h > maxHeight * 1.45f;
                 string msg =
                     "[NpcMesh] distorted skinned bounds mesh="
@@ -170,7 +175,7 @@ public static partial class EntitySpawnShared
         if (go == null || npcgrp == null || npcgrp.CollisionHeight <= 0.01f)
             return;
 
-        float targetHeight = npcgrp.CollisionHeight / 52.5f;
+        float targetHeight = npcgrp.CollisionHeight;
         Renderer[] renderers = go.GetComponentsInChildren<Renderer>(true);
         if (renderers == null || renderers.Length == 0)
             return;
@@ -205,7 +210,7 @@ public static partial class EntitySpawnShared
         if (cc != null)
         {
             cc.height = Mathf.Max(targetHeight, cc.height);
-            cc.radius = Mathf.Max(npcgrp.CollisionRadius / 52.5f, cc.radius);
+            cc.radius = Mathf.Max(npcgrp.CollisionRadius, cc.radius);
             cc.center = new Vector3(0f, cc.height * 0.5f, 0f);
         }
     }

@@ -38,7 +38,7 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
 
         if (!TryRepairFromResourcesFolder())
         {
-            Debug.LogWarning(
+            ShotOrbDebug.LogWarning(
                 "[ShotOrb] RepairParts failed go=" + name +
                 " — YAML/Resources had no rebuildable parts");
         }
@@ -231,7 +231,7 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
         }
 
         _v2Parts = rebuilt.ToArray();
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] RepairParts from Resources folder=" + folder +
             " parts=" + _v2Parts.Length +
             " fl=" + (fl != null));

@@ -48,7 +48,7 @@ public partial class EffectManager
             Debug.Log("[WINDSTRIKE] EffectManager spawn prefab=" + prefab.name);
 
         CompositeEffectV2 srcV2 = prefab as CompositeEffectV2;
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] EffectManager spawn id=" + id +
             " prefab=" + prefab.name +
             " type=" + prefab.GetType().Name +
@@ -75,7 +75,7 @@ public partial class EffectManager
             Debug.Log("[WINDSTRIKE] EffectManager.Play returned instance=" + instance.name);
 
         CompositeEffectV2 v2 = instance as CompositeEffectV2;
-        Debug.Log(
+        ShotOrbDebug.Log(
             "[ShotOrb] EffectManager.Play done id=" + id +
             " instance=" + instance.name +
             " isV2=" + (v2 != null) +
