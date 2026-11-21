@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -34,10 +35,17 @@ def main() -> int:
     else:
         # CI installs Gradle 8.5 via gradle/actions/setup-gradle when the wrapper jar is not vendored.
         cmd = ["gradle", "fatJar", "--no-daemon", "-q"]
-    r = subprocess.run(cmd, cwd=EXTRACTOR)
-    if r.returncode != 0:
+    last_rc = 1
+    for attempt in range(1, 4):
+        last_rc = subprocess.run(cmd, cwd=EXTRACTOR).returncode
+        if last_rc == 0:
+            break
+        if attempt < 3:
+            print(f"WARN fatJar attempt {attempt} failed; retrying in 20s...", file=sys.stderr)
+            time.sleep(20)
+    if last_rc != 0:
         print("ERROR L2TerrainExtractor fatJar failed", file=sys.stderr)
-        return r.returncode
+        return last_rc
     jar_dir = EXTRACTOR / "build/libs"
     jars = list(jar_dir.glob("*-all.jar")) if jar_dir.is_dir() else []
     if not jars:
