@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using Unity.Profiling;
 
 public sealed class PerfProfilingEditModeTests
 {
