@@ -1,4 +1,4 @@
-/// <summary>Fineage Net WeddingEngageAnswer (0x03C6) — 1 accept, 0 decline.</summary>
+/// <summary>Fineage Net WeddingEngageAnswer (0x03CB) — 1 accept, 0 decline.</summary>
 public sealed class WeddingEngageAnswerCommand : INetworkCommand
 {
     public int Response { get; }
