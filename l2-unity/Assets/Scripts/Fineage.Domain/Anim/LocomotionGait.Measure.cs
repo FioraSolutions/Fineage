@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.Animations;
-using UnityEngine.Playables;
 
 public static partial class LocomotionGait
 {
@@ -131,44 +129,10 @@ public static partial class LocomotionGait
         return max;
     }
 
-    static bool UseTransformSampling(AnimationClip clip, Animator animator)
-    {
-        if (clip.legacy || animator == null)
-            return true;
-        // Catalog stride measurement samples clips on an instantiated body prefab with no
-        // runtime controller; Playables need a driven graph and often report zero travel in batchmode.
-        if (animator.runtimeAnimatorController == null)
-            return true;
-        Avatar avatar = animator.avatar;
-        return avatar == null || !avatar.isValid;
-    }
-
     static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
     {
-        if (UseTransformSampling(clip, animator))
-        {
-            clip.SampleAnimation(go, time);
-            return;
-        }
-
-        PlayableGraph graph = PlayableGraph.Create("LocomotionGait.Measure");
-        graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
-        bool wasEnabled = animator.enabled;
-        animator.enabled = true;
-        try
-        {
-            AnimationClipPlayable playable = AnimationClipPlayable.Create(graph, clip);
-            playable.SetApplyFootIK(false);
-            AnimationPlayableOutput output = AnimationPlayableOutput.Create(graph, "gait", animator);
-            output.SetSourcePlayable(playable);
-            playable.SetTime(time);
-            graph.Evaluate();
-        }
-        finally
-        {
-            if (graph.IsValid())
-                graph.Destroy();
-            animator.enabled = wasEnabled;
-        }
+        // Stride measurement only needs bind-pose motion on the instantiated skeleton; Playables
+        // against a humanoid avatar without a controller often report zero travel in batchmode.
+        clip.SampleAnimation(go, time);
     }
 }
