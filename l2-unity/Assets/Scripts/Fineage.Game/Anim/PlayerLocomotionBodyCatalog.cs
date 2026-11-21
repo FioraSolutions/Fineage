@@ -189,13 +189,25 @@ public static class PlayerLocomotionBodyCatalog
 
         GameObject instance = UnityEngine.Object.Instantiate(prefab);
         instance.hideFlags = HideFlags.HideAndDontSave;
+
+        // UKX hand clips bind under the mesh rig (e.g. MFighter_anim/MFighter_m000_b.ao/…),
+        // not the Player_* wrapper — SampleAnimation must root on that rig.
+        Animator animator = instance.GetComponentInChildren<Animator>();
+        if (animator != null)
+            return animator.transform;
+
         return instance.transform;
     }
 
     public static void DestroyMeasureSkeleton(Transform skeleton)
     {
-        if (skeleton != null)
-            UnityEngine.Object.DestroyImmediate(skeleton.gameObject);
+        if (skeleton == null)
+            return;
+
+        Transform root = skeleton;
+        while (root.parent != null)
+            root = root.parent;
+        UnityEngine.Object.DestroyImmediate(root.gameObject);
     }
 
     public static float ResolveRunStride(CharacterRaceAnimation profile, AnimationClip clip, Transform skeleton)

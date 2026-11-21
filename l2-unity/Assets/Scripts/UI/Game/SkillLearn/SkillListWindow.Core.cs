@@ -43,11 +43,17 @@ public partial class SkillListWindow : L2PopupWindow
         SkillLearnPacketServices.Bind(skillList: owner);
     }
 
-    /// <summary>EditMode: <see cref="Awake"/> is not always invoked immediately on <see cref="AddComponent{T}"/>.</summary>
-    public void EditorTestEnsureAwakeForEditMode()
+    /// <summary>EditMode does not run <c>Awake</c>; claim singleton state like Awake without duplicate destroy.</summary>
+    public void EditorTestClaimSingletonForTests()
     {
-        if (_instance == null)
-            Awake();
+        if (_instance != null && _instance != this)
+            return;
+
+        _instance = this;
+        _builderTabs ??= new BuilderTabs();
+        _supportActiveSkills ??= new ActiveSkillsHide();
+        _supportPassiveSkills ??= new PassiveSkillsHide();
+        _allSkills ??= new Dictionary<int, SkillInstance>();
     }
 #endif
 
