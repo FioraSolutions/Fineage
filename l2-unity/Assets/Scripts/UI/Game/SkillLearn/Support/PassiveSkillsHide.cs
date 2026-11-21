@@ -77,6 +77,8 @@ public class PassiveSkillsHide : AbstractSkills
         CreateAbilitySlots(abilitySkills, _rowAbility);
         CreateSubjectSlots(subjectSkills, _rowSubject);
 
+        EnsureSectionRowsExpanded(_rowAbility, _rowSubject);
+
         HidePanelIfCount0(abilitySkills, _rowAbility, allContentPhysical);
         HidePanelIfCount0(subjectSkills, _rowSubject, allContentMagical);
         _tempList = list;
@@ -144,5 +146,31 @@ public class PassiveSkillsHide : AbstractSkills
         ClickDf(btn, arrDfPassiveSelect, _rowSubject, 1);
     }
 
+    void EnsureSectionRowsExpanded(VisualElement rowAbility, VisualElement rowSubject)
+    {
+        if (rowAbility != null)
+            rowAbility.style.display = DisplayStyle.Flex;
+        if (rowSubject != null)
+            rowSubject.style.display = DisplayStyle.Flex;
+        if (_arrDfPassiveSelect != null)
+        {
+            if (_arrDfPassiveSelect.Length > 0)
+                _arrDfPassiveSelect[0] = 1;
+            if (_arrDfPassiveSelect.Length > 1)
+                _arrDfPassiveSelect[1] = 1;
+        }
 
+        SyncExpandButton(_passiveSkillPanel?.Q<Button>(_abilityButtonName), 0);
+        SyncExpandButton(_passiveSkillPanel?.Q<Button>(_subjectButtonName), 1);
+    }
+
+    void SyncExpandButton(Button button, int index)
+    {
+        if (button == null || _arrDfPassiveSelect == null || index < 0 || index >= _arrDfPassiveSelect.Length)
+            return;
+        bool expanded = _arrDfPassiveSelect[index] != 0;
+        ChangeDfBox(button, L2ExpandCollapseUiAssets.CollapseButton);
+        if (!expanded)
+            ChangeDfBox(button, L2ExpandCollapseUiAssets.ExpandButton);
+    }
 }
