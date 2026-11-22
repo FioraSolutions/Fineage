@@ -107,11 +107,11 @@ public static class SkillAnimationResolver
             return stateName;
 
         if (stateName.IndexOf("SpAtk06_", StringComparison.Ordinal) == 0 &&
-            hasState(AnimationManager.SpAtk06HandState))
+            SkillAnimationDatabase.GetSpAtkCombatClip(AnimationManager.SpAtk06HandState, raceName) != null)
             return AnimationManager.SpAtk06HandState;
 
         int spatk = SpAtkIndex(stateName);
-        if (spatk >= 3)
+        if (spatk > 0)
         {
             if (SkillAnimationDatabase.GetSpAtkCombatClip(stateName, raceName) != null)
                 return stateName;
@@ -123,9 +123,6 @@ public static class SkillAnimationResolver
         string oneHs = stem + "1HS";
         if (!string.Equals(oneHs, stateName, StringComparison.Ordinal) && hasState(oneHs))
             return oneHs;
-
-        if (stem.StartsWith("SpAtk", StringComparison.Ordinal))
-            LogMissingCombatClip(skillId, raceName, stateName);
 
         return stateName;
     }
