@@ -39,6 +39,7 @@ public partial class SceneLoader : MonoBehaviour
         SetGameHudVisible(true);
 
         string tile = VectorUtils.GetSwMapName(l2Pos);
+        L2ZoneRender.SetActiveMap(tile);
         FineageLog.Info(FineageLogCategory.World, "LoadSWMap tile='" + tile + "' xyz=(" + l2Pos.x + ", " + l2Pos.y + ", " + l2Pos.z + ")");
 
         Geodata geodata = WorldPacketServices.Geodata;
