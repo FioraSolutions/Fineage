@@ -43,6 +43,41 @@ public class L2CameraBuilder {
         return container;
     }
 
+    /// <summary>
+    /// Builds cameras from UE2 <c>Class=Camera</c> actors (Lobby.unr viewports).
+    /// UE2 FovAngle is horizontal; the baked vertical value uses the 4:3 reference
+    /// aspect and LoginLobbyPresentation re-derives it for the live aspect at
+    /// runtime. Actors without a stored FovAngle inherit the PlayerController.uc
+    /// class default of 50 (official UE2 semantics, logged per camera).
+    /// </summary>
+    public static GameObject BuildLobbyCamerasFromT3d(string t3dAbsolutePath) {
+        List<L2T3DCameraInfo> cameraInfos = L2T3DInfoParser.ParseLobbyCameras(t3dAbsolutePath);
+        GameObject container = new GameObject("LobbyCameras");
+
+        foreach (L2T3DCameraInfo info in cameraInfos) {
+            float hfov = info.fovAngleDeg;
+            if (float.IsNaN(hfov)) {
+                hfov = L2Ue2Fov.OfficialHfovDeg;
+                Debug.Log($"[L2CameraBuilder] {info.name}: no FovAngle, inheriting PlayerController default {hfov}");
+            }
+
+            string goName = string.IsNullOrEmpty(info.tag) ? info.name : $"{info.name} ({info.tag})";
+            GameObject go = new GameObject(goName);
+            go.transform.position = VectorUtils.ConvertPosToUnity(info.position);
+            go.transform.eulerAngles = VectorUtils.ConvertRotToUnity(info.eulerAngles);
+            Camera cam = go.AddComponent<Camera>();
+            cam.usePhysicalProperties = false;
+            cam.fieldOfView = L2Ue2Fov.VerticalForHorizontal(hfov, 4f / 3f);
+            cam.allowHDR = false;
+            cam.allowMSAA = false;
+
+            go.transform.parent = container.transform;
+        }
+
+        SortChildrenByNameTag(container);
+        return container;
+    }
+
     public static void SortChildrenByNameTag(GameObject obj) {
         List<Transform> children = new List<Transform>();
         for (int i = obj.transform.childCount - 1; i >= 0; i--) {

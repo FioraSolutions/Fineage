@@ -41,6 +41,45 @@ public partial class L2T3DInfoParser
         return terrainInfo.interpolationPoints;
     }
 
+    /// <summary>
+    /// UE2 <c>Class=Camera</c> actors (Lobby.unr viewport cameras). Unlike
+    /// InterpolationPoint these carry Tag (U2Viewport*) and optionally FovAngle.
+    /// Rotation is raw UE2 pitch/yaw/roll, same convention as ParseCameraInfo.
+    /// </summary>
+    public static List<L2T3DCameraInfo> ParseLobbyCameras(string t3dPath) {
+        List<L2T3DCameraInfo> cameras = new List<L2T3DCameraInfo>();
+
+        using (StreamReader reader = new StreamReader(t3dPath)) {
+            string line;
+            while ((line = reader.ReadLine()) != null) {
+                line = line.Trim();
+                if (!line.StartsWith("Begin Actor Class=Camera Name=")) {
+                    continue;
+                }
+
+                L2T3DCameraInfo camera = new L2T3DCameraInfo();
+                camera.name = line.Replace("Begin Actor Class=Camera Name=", "");
+                while ((line = reader.ReadLine()) != null && !line.Contains("End Actor")) {
+                    line = line.Trim();
+
+                    if (line.StartsWith("Location=")) {
+                        camera.position = L2MetaDataUtils.ParseVector3(line);
+                    } else if (line.StartsWith("Rotation=")) {
+                        camera.eulerAngles = L2MetaDataUtils.ParseRotation(line);
+                    } else if (line.StartsWith("Tag=")) {
+                        camera.tag = line.Replace("Tag=", "");
+                    } else if (line.StartsWith("FovAngle=")) {
+                        camera.fovAngleDeg = L2MetaDataUtils.ParseFloatFromInfo(line);
+                    }
+                }
+
+                cameras.Add(camera);
+            }
+        }
+
+        return cameras;
+    }
+
     public static List<AmbientSound> ParseAmbientSounds(string t3dPath) {
         if (terrainInfo == null) {
             terrainInfo = new L2TerrainInfo();
