@@ -33,9 +33,6 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
 
         if (ShouldEnsureGameScope())
             DiBootstrap.EnsureGameScope();
-        // Prefer [Inject] EventProcessor; NetworkingPacketServices is the #142 fallback bridge.
-        if (_eventProcessor == null)
-            _eventProcessor = NetworkingPacketServices.Events;
         _playerPlaceholder = Resources.Load<GameObject>("Prefab/Player_FDarkElf");
         _userPlaceholder = Resources.Load<GameObject>("Prefab/User_FDarkElf");
         _npcPlaceHolder = Resources.Load<GameObject>("Prefab/Npc");

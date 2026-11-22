@@ -24,6 +24,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         builder.RegisterBuildCallback(container =>
         {
             AnimationManager animations = RequireAnimationRoster(container);
+            RequireEventQueue(container);
             AudioSessionBootstrap.EnsureSession();
             App.Container = container;
             AnimationManager.Bind(animations);
@@ -94,5 +95,31 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         }
 
         return animations;
+    }
+
+    static void RequireEventQueue(IObjectResolver container)
+    {
+        IEventQueue queue;
+        try
+        {
+            queue = container.Resolve<IEventQueue>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IEventQueue))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IEventQueue missing — EventProcessor was not registered as IEventQueue.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (queue is EventProcessor)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IEventQueue is not an EventProcessor — EventProcessor was not registered as IEventQueue.");
     }
 }
