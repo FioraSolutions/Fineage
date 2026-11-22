@@ -84,27 +84,7 @@ public static class L2InterludeHudSkinPipeline
         if (minimapRoot == null)
             return;
 
-        InterludeHudControlRect viewport = InterludeHudWindowCatalog.MapViewport;
-        VisualElement mapHost = minimapRoot.Q<VisualElement>("map-host");
-        if (mapHost != null)
-        {
-            mapHost.style.position = Position.Absolute;
-            mapHost.style.left = viewport.Left;
-            mapHost.style.top = viewport.Top;
-            mapHost.style.width = viewport.Width;
-            mapHost.style.height = viewport.Height;
-        }
-
-        VisualElement townLayer = minimapRoot.Q<VisualElement>("town-map-layer");
-        if (townLayer != null)
-        {
-            InterludeHudControlRect town = InterludeHudWindowCatalog.TownMapLayer;
-            townLayer.style.position = Position.Absolute;
-            townLayer.style.left = town.Left;
-            townLayer.style.top = town.Top;
-            townLayer.style.width = town.Width;
-            townLayer.style.height = town.Height;
-        }
+        InterludeWindowLayout.Apply(minimapRoot, InterludeHudWindowCatalog.MinimapWnd.XdatName);
     }
 
     public static void PaintSmallWndCenterFill(VisualElement panel, string context)
