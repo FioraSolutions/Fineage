@@ -28,7 +28,6 @@ public partial class NpcInfoDto : IWireDto
             // Debug.Log(" object NpcInfo 1 " + objectId);
         }
 
-        Identity.SetHideHp(TablePacketServices.HideNpcHpBar(Identity.NpcId));
         int isAttackable = reader.ReadI();
         int x = reader.ReadI();
         int y = reader.ReadI();

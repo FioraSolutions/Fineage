@@ -1,6 +1,6 @@
 /// <summary>
-/// Someone entered AOI / knownlist. Users carry identity and player data.
-/// NPCs still carry the wire DTO until that family moves.
+/// Someone entered AOI / knownlist. Users and NPCs carry identity plus
+/// status, stats, and appearance. The sink rebuilds the wire DTO at apply time.
 /// </summary>
 public sealed class DomainKnownlistAdd
 {
@@ -13,5 +13,8 @@ public sealed class DomainKnownlistAdd
     public PlayerAppearance UserAppearance;
     public bool UserAlikeDead;
 
-    public NpcInfoDto InterludeNpc;
+    public EntityIdentity NpcIdentity;
+    public NpcStatusInterlude NpcStatus;
+    public Stats NpcStats;
+    public Appearance NpcAppearance;
 }

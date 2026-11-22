@@ -436,11 +436,12 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S20** `NpcStatusInterlude` → `Fineage.Domain/Character/`. Plain `Status` subclass that `NpcInfoDto` constructs. `NpcStatus` and `StatsConverter` stay in Fineage.Game. Script GUID unchanged.
 - [x] **S21** `InterludeCharAppearance` in `Fineage.Domain/Character/` is the race and fighter/mystic adapter. `ClassId` moves with it. `CharInfoDto` and `UserInfoDto` call it while reading. `MapClassId.GetRace` and `CharacterClassParser.IsMage` delegate to it. `BaseClass` keeps the same values. Unknown packet race still logs `[MapClassId] unknown lobby race id=` and maps to Human.
 - [x] **S22** `CharInfoDto` → `Fineage.Networking`. `InterludeDomainMap.Char` copies identity, status, stats, appearance, and alike-dead. `WorldDomainSink` rebuilds the wire DTO with those same instances before `UpdateUser`. Script GUIDs unchanged.
+- [x] **S23** `NpcInfoDto` → `Fineage.Networking`. Overhead HP stays `TablePacketServices.HideNpcHpBar` inside `InterludeDomainMap.Npc` (same missing-npcgrp log, same hide result). The sink rebuilds the wire DTO from the same identity, status, stats, and appearance before `UpdateNpc`. Script GUIDs unchanged.
 
 **Still blocked (do not force in this wave):**
 
 - `AppLifetimeScope` / `GameLifetimeScope` / `LoginLifetimeScope` / `GameRuntime` / `LoginRuntime` / `DiBootstrap` — they register the ACS host graph. Fineage.Di cannot name those MonoBehaviours until the hosts themselves move.
-- `IWorldDomainSink` stays in Assembly-CSharp. User knownlist payload is identity plus player data (S22); the sink rebuilds `CharInfoDto` at apply time. `NpcStatusInterlude` is Fineage.Domain (S20). `NpcInfoDto` still rides on `DomainKnownlistAdd` until the npcgrp hp-bar call leaves the DTO. `UserInfoDto` still wraps `PlayerInfoInterlude` (`CharacterSkills`, a Game `SkillInstance` bag). One family per PR.
+- `IWorldDomainSink` stays in Assembly-CSharp. Knownlist payloads are identity plus status, stats, and appearance (S22, S23); the sink rebuilds the wire DTO at apply time. `UserInfoDto` still wraps `PlayerInfoInterlude` (`CharacterSkills`, a Game `SkillInstance` bag). One family per PR.
 - `DoorCatalog` — `Newtonsoft.Json` is not a `Fineage.Game` asmdef reference (layout check pins the reference list).
 - Sky MonoBehaviours that `[Inject]` via VContainer (`WorldClock`, `L2HazeRing`, `L2StarDome`, `L2CloudMyst`, `L2CloudSimple`) — Fineage.Game cannot reference VContainer.
 - DAT table ScriptableObjects (`SkillNameTable`, `QuestNameTable`, …) — many are cycle-safe and explicitly out of this wave (no DAT grind).

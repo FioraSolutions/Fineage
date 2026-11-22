@@ -14,8 +14,12 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
                 add.UserStats,
                 add.UserAppearance,
                 add.UserAlikeDead));
-        else if (add.Kind == KnownlistKind.Npc && add.InterludeNpc != null)
-            _worldApply.UpdateNpc(add.InterludeNpc);
+        else if (add.Kind == KnownlistKind.Npc && add.NpcIdentity != null)
+            _worldApply.UpdateNpc(NpcInfoDto.FromKnownlist(
+                add.NpcIdentity,
+                add.NpcStatus,
+                add.NpcStats,
+                add.NpcAppearance));
     }
 
     public void ApplyPlayerSpawned(DomainPlayerSpawned spawned)

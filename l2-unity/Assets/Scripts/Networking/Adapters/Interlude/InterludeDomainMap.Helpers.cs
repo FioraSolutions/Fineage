@@ -4,11 +4,15 @@ public static partial class InterludeDomainMap
     {
         if (dto == null || dto.Identity == null)
             return null;
+        dto.Identity.SetHideHp(TablePacketServices.HideNpcHpBar(dto.Identity.NpcId));
         return new DomainKnownlistAdd
         {
             Kind = KnownlistKind.Npc,
             ObjectId = dto.Identity.Id,
-            InterludeNpc = dto
+            NpcIdentity = dto.Identity,
+            NpcStatus = dto.Status,
+            NpcStats = dto.Stats,
+            NpcAppearance = dto.Appearance
         };
     }
 
