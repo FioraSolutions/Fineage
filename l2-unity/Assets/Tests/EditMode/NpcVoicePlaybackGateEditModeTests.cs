@@ -1,5 +1,6 @@
 using NUnit.Framework;
 
+/// <summary>EditMode coverage for global NPC ChrSound cap (#1604).</summary>
 public sealed class NpcVoicePlaybackGateEditModeTests
 {
     [SetUp]
