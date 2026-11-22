@@ -29,50 +29,67 @@ public partial class TerrainConverter
         Texture2D[] layers = new Texture2D[terrainInfo.uvLayers.Count - 1];
 
         for (int i = 0; i < terrainInfo.uvLayers.Count; i++) {
-            //if(i > 10) {
-            //    Debug.LogWarning("Too many layers (" + terrainInfo.uvLayers.Count + ") for the material.");
-            //}
-
+            L2TerrainLayer uvl = terrainInfo.uvLayers[i];
             if (i > 0) {
-                alphaMaps[i - 1] = terrainInfo.uvLayers[i].alphaMap;
-                layers[i - 1] = terrainInfo.uvLayers[i].texture;
-                terrainMat.SetFloat("_Layer_" + i + "_Enabled", 1.0f);
+                alphaMaps[i - 1] = uvl.alphaMap;
+                layers[i - 1] = uvl.texture;
+                // Overlay without an official AlphaMap is logged at parse and stays off.
+                bool paint = uvl.texture != null && uvl.alphaMap != null;
+                terrainMat.SetFloat("_Layer_" + i + "_Enabled", paint ? 1.0f : 0.0f);
             } else {
-                terrainMat.SetTexture("_Layer_" + i, terrainInfo.uvLayers[i].texture);
+                terrainMat.SetTexture("_Layer_" + i, uvl.texture);
             }
 
-            //terrainMat.SetTexture("_Layer_" + i, terrainInfo.uvLayers[i].texture);
-            //terrainMat.SetTextureScale("_Layer_" + i, new Vector2(terrainInfo.uvLayers[i].uScale, terrainInfo.uvLayers[i].vScale));
-            L2TerrainLayer uvl = terrainInfo.uvLayers[i];
             float us = uvl.uScale == 0 ? 1f : uvl.uScale, vs = uvl.vScale == 0 ? 1f : uvl.vScale;
             terrainMat.SetVector("_Layer_" + i + "_UV", new Vector4(uvl.uScale, uvl.vScale, uvl.uOffset / us, uvl.vOffset / vs));
             terrainMat.SetVector("_Layer_" + i + "_Xform", new Vector4(uvl.textureRotation, uvl.textureMapAxis, uvl.useAlpha ? 1f : 0f, 0f));
         }
 
-        const int maxSplatSlices = 9;
-        int used = 0;
-        for (int i = 0; i < terrainInfo.uvLayers.Count; i++) {
-            if (terrainInfo.uvLayers[i] != null && terrainInfo.uvLayers[i].texture != null) {
-                used++;
+        // Slice i is official overlay layer i+1. Do not cap the count. Trailing
+        // overlays that have no AlphaMap (already LogError at parse) are omitted
+        // from the arrays and stay disabled. A hole before a later valid overlay
+        // is filled with a 1x1 clear placeholder so later slices keep their
+        // official index; those hole layers stay disabled and are not a substitute mask.
+        int lastPaintable = -1;
+        for (int i = 0; i < alphaMaps.Length; i++) {
+            if (alphaMaps[i] != null && layers[i] != null)
+                lastPaintable = i;
+        }
+        if (lastPaintable >= 0) {
+            Texture2D[] tightAlpha = new Texture2D[lastPaintable + 1];
+            Texture2D[] tightLayers = new Texture2D[lastPaintable + 1];
+            int layerW = 0, layerH = 0, maskW = 0, maskH = 0;
+            for (int i = 0; i <= lastPaintable; i++) {
+                if (layers[i] != null) {
+                    layerW = layers[i].width;
+                    layerH = layers[i].height;
+                }
+                if (alphaMaps[i] != null) {
+                    maskW = alphaMaps[i].width;
+                    maskH = alphaMaps[i].height;
+                }
             }
-        }
-        if (used - 1 > maxSplatSlices) {
-            Debug.LogError("[Interlude terrain] " + mapToConvert + " has " + used
-                + " used terrain layers; the splat shader exposes " + maxSplatSlices
-                + " overlay slices (layers 1.." + maxSplatSlices + "). Extra official layers will not paint until the shader slice count is raised.");
-        }
-
-        // The shader only samples 9 overlay slices; do not feed extras (or a trailing
-        // null alphamap on those extras) into the Texture2DArray or the generator
-        // aborts and leaves a stale, oversized asset on disk.
-        int overlayCount = alphaMaps.Length < maxSplatSlices ? alphaMaps.Length : maxSplatSlices;
-        if (overlayCount != alphaMaps.Length) {
-            Texture2D[] cappedAlpha = new Texture2D[overlayCount];
-            Texture2D[] cappedLayers = new Texture2D[overlayCount];
-            System.Array.Copy(alphaMaps, cappedAlpha, overlayCount);
-            System.Array.Copy(layers, cappedLayers, overlayCount);
-            alphaMaps = cappedAlpha;
-            layers = cappedLayers;
+            Texture2D holeLayer = null;
+            Texture2D holeMask = null;
+            for (int i = 0; i <= lastPaintable; i++) {
+                tightAlpha[i] = alphaMaps[i];
+                tightLayers[i] = layers[i];
+                if (tightLayers[i] == null) {
+                    if (holeLayer == null)
+                        holeLayer = MakeIndexPlaceholderTexture(layerW, layerH);
+                    tightLayers[i] = holeLayer;
+                }
+                if (tightAlpha[i] == null) {
+                    if (holeMask == null)
+                        holeMask = MakeIndexPlaceholderTexture(maskW, maskH);
+                    tightAlpha[i] = holeMask;
+                }
+            }
+            alphaMaps = tightAlpha;
+            layers = tightLayers;
+        } else {
+            alphaMaps = new Texture2D[0];
+            layers = new Texture2D[0];
         }
 
         // Build Texture2D array for textures
@@ -103,6 +120,19 @@ public partial class TerrainConverter
         terrainMat.SetVector("_Global_UV_Size", new Vector2(uvScale, uvScale));
 
         return terrainMat;
+    }
+
+    // 1x1 clear texel used only to keep Texture2DArray slice indices when an
+    // official overlay in the middle of the stack is missing a texture or mask.
+    // The corresponding _Layer_N_Enabled stays 0; this is not an official mask.
+    static Texture2D MakeIndexPlaceholderTexture(int width, int height) {
+        int w = Mathf.Max(1, width);
+        int h = Mathf.Max(1, height);
+        var t = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        t.name = "InterludeMissingOverlayPlaceholder";
+        t.SetPixels(new Color[w * h]);
+        t.Apply(false, true);
+        return t;
     }
 }
 #endif

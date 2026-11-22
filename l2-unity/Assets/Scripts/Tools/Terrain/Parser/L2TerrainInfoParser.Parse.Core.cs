@@ -188,6 +188,37 @@ public partial class L2TerrainInfoParser
         }
     }
 
+    /// <summary>
+    /// Official TerrainInfo layer 0 is the base and has no AlphaMap. Every later
+    /// used layer must name an AlphaMap; a missing field is an official-data gap
+    /// and must not be papered over with a generated mask.
+    /// </summary>
+    public static void ValidateOfficialUvLayers(string mapId, IList<L2TerrainLayer> layers)
+    {
+        if (layers == null)
+            return;
+        string map = string.IsNullOrEmpty(mapId) ? "(unknown map)" : mapId;
+        for (int i = 1; i < layers.Count; i++)
+        {
+            L2TerrainLayer layer = layers[i];
+            if (layer == null)
+                continue;
+            bool hasTexture = layer.texture != null
+                || (!string.IsNullOrEmpty(layer.diffuseTextureRef)
+                    && layer.diffuseTextureRef.IndexOf("Texture=None", StringComparison.OrdinalIgnoreCase) < 0);
+            if (hasTexture && layer.alphaMap == null)
+            {
+                string texRef = layer.diffuseTextureRef;
+                if (!string.IsNullOrEmpty(texRef))
+                    texRef = texRef.Trim().TrimStart('(');
+                Debug.LogError(
+                    "[Interlude terrain] " + map + " official layer " + i
+                    + " has " + (string.IsNullOrEmpty(texRef) ? "a Texture" : texRef)
+                    + " but no AlphaMap field; the layer cannot be painted without inventing a mask.");
+            }
+        }
+    }
+
     static int ParseDecoInt(string line, string key, int fallback = 0)
     {
         var m = System.Text.RegularExpressions.Regex.Match(line, key + @"=([-0-9]+)");

@@ -47,6 +47,7 @@ public partial class L2TerrainInfoParser
             }
         }
 
+        ValidateOfficialUvLayers(mapID, terrainInfo.uvLayers);
         terrainInfo.quadVisibilityBitmap = FinalizeQuadVisibility(dataPath, quadWords);
         return terrainInfo;
     }
