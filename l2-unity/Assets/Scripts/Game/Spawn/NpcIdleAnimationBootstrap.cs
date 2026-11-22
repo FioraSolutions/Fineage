@@ -17,8 +17,7 @@ public static class NpcIdleAnimationBootstrap
         string mesh = ResolveMeshLabel(entity, animator);
         int npcId = entity != null && entity.Identity != null ? entity.Identity.NpcId : 0;
 
-        NpcLocomotionClipBootstrap.Bind(controller, entity);
-        CreatureWeaponAnimApply.Bind(entity);
+        NpcAnimationClipBinder.Bind(controller, entity);
 
         AnimationClip waitClip = NpcWaitClipResolver.ResolveBaseWait(animator);
         if (waitClip == null)

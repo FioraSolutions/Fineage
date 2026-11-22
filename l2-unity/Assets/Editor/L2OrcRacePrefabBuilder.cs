@@ -228,25 +228,24 @@ public static class L2OrcRacePrefabBuilder
 
     static Material MakeMaterial(Shader shader, string texturePath, bool cutout)
     {
-        var mat = new Material(shader);
         var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
-        mat.SetTexture("_BaseMap", tex);
-        mat.SetTexture("_MainTex", tex);
-        mat.SetFloat("_Cull", 0f);
-        mat.doubleSidedGI = true;
-        if (cutout)
+        string name = Path.GetFileNameWithoutExtension(texturePath);
+        var props = L2ActorMaterialSetup.CollectPropsIndex(null);
+        Material mat = L2ActorMaterialSetupEditor.CreateActorMaterial(
+            shader,
+            tex,
+            name,
+            props,
+            logMissingTexture: true);
+        if (mat == null)
+            return null;
+        if (cutout && !mat.IsKeywordEnabled("_ALPHATEST_ON"))
         {
             mat.SetFloat("_AlphaClip", 1f);
             mat.SetFloat("_Cutoff", 0.498039216f);
             mat.EnableKeyword("_ALPHATEST_ON");
             mat.SetOverrideTag("RenderType", "TransparentCutout");
             mat.renderQueue = 2450;
-        }
-        else
-        {
-            mat.SetFloat("_AlphaClip", 0f);
-            mat.SetOverrideTag("RenderType", "Opaque");
-            mat.renderQueue = 2000;
         }
         return mat;
     }

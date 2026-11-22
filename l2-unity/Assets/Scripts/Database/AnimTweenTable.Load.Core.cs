@@ -13,6 +13,7 @@ public sealed partial class AnimTweenTable
         _byFamily.Clear();
         _rateByMeshSequence.Clear();
         _rateBySequence.Clear();
+        _sequencesByMesh.Clear();
 
         string dataPath = Path.Combine(Application.streamingAssetsPath, RelativePath);
         if (!File.Exists(dataPath))
@@ -44,6 +45,7 @@ public sealed partial class AnimTweenTable
                     continue;
 
                 _byMeshSequence[mesh + "\0" + sequence] = tween;
+                IndexSequenceRow(mesh, sequence);
                 if (!_bySequence.ContainsKey(sequence))
                     _bySequence.Add(sequence, tween);
 
