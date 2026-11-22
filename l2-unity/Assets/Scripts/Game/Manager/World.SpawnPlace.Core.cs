@@ -20,8 +20,8 @@ public partial class World
         RemoveObject(itemObjectId);
 
         // Let authored PicItem finish before forcing gait (do not stretch the clip).
-        if (pickerCharObjId != 0 && MoveAllCharactersPacketServices.Moves != null &&
-            MoveAllCharactersPacketServices.Moves.IsMoving(pickerCharObjId))
+        IMoveRoster moves = Moves();
+        if (pickerCharObjId != 0 && moves != null && moves.IsMoving(pickerCharObjId))
         {
             StartCoroutine(ResumeGaitAfterPickup(pickerCharObjId));
         }
@@ -30,8 +30,8 @@ public partial class World
     System.Collections.IEnumerator ResumeGaitAfterPickup(int pickerCharObjId)
     {
         yield return new WaitForSeconds(AnimPlayback.PickupFallbackSeconds);
-        if (MoveAllCharactersPacketServices.Moves == null ||
-            !MoveAllCharactersPacketServices.Moves.IsMoving(pickerCharObjId))
+        IMoveRoster moves = Moves();
+        if (moves == null || !moves.IsMoving(pickerCharObjId))
             yield break;
 
         MovementData move = MoveAllCharactersPacketServices.Moves.GetMove(pickerCharObjId);

@@ -81,8 +81,9 @@ public partial class World
 
         VisibilityPacketServices.Manager?.Unregister(id);
 
-        if (MoveAllCharactersPacketServices.Moves != null)
-            MoveAllCharactersPacketServices.Moves.Forget(id);
+        IMoveRoster moves = Moves();
+        if (moves != null)
+            moves.Forget(id);
         _entities.Unregister(id);
         _entityWait.Fail(id);
         if (EntityActionPacketServices.Actions != null)
