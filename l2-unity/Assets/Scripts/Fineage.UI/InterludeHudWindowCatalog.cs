@@ -60,17 +60,15 @@ public static class InterludeHudWindowCatalog
         });
 
     public static readonly InterludeHudWindowEntry RadarWnd = new InterludeHudWindowEntry(
-        "RadarMapCtrl",
-        128f,
-        128f,
+        "RadarContainerWnd",
+        102f,
+        102f,
         new[]
         {
-            "Data/UI/Map/Radar/radar_back",
             "Data/UI/Map/Radar/radar_arrow",
             "Data/UI/Map/Radar/radar_n",
             "Data/UI/Map/Radar/radar_myself",
             "Data/UI/Map/Radar/radar_target",
-            "Data/UI/Map/WorldMap",
         });
 
     /// <summary>Interlude BuffWnd / SkillTray abnormal row beside StatusWnd.</summary>
