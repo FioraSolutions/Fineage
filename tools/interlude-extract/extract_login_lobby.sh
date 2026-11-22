@@ -9,14 +9,19 @@
 #     bash tools/interlude-extract/extract_login_lobby.sh [--only 4,5] [--skip 3]
 #
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
-#        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv.
+#        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
+#        6=texture pixels (java, no umodel), 7=G8 meshes (Docker umodel+Blender).
 #
 # Prerequisites (already needed by other extraction tools):
 #   - Cruma 1.2.0+ (CRUMA_JAR or default ~/Tools/Cruma install) for steps 1-2
 #   - java, javac, python3, dotnet (UScriptDump) for steps 1-4
-#   - L2TerrainExtractor fat jar for step 3: built by run_mac_tile_bake.sh, or
+#   - L2TerrainExtractor fat jar for steps 3+6: built by run_mac_tile_bake.sh, or
 #     set L2TERRAIN_JAR=/path/to/l2terrain-1.0.0-all.jar
 #   - l2encdec Darwin binary for step 5 (optional; step is skipped loudly if absent)
+#   - step 7: Docker (umodel runs as linux/amd64) + Blender on PATH + the umodel
+#     linux binary at l2-unity/External/UEViewer/umodel (UE Viewer,
+#     https://www.gildor.org/downloads — no native macOS arm64 build exists;
+#     the linux/amd64 binary in Docker is the supported path on Apple Silicon)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -85,8 +90,7 @@ if want_step 2; then
   echo "sidecar -> $WORLD/quadvisibility/Lobby.quadvisibility.txt"
 fi
 
-if want_step 3; then
-  echo "== [3/5] BSP brushes (skybox box) of Lobby.unr (gap G4) =="
+l2_jar() {
   L2JAR="${L2TERRAIN_JAR:-}"
   if [[ -z "$L2JAR" ]]; then
     L2JAR="$(ls "$ROOT"/tools/interlude/L2TerrainExtractor/build/libs/*-all.jar 2>/dev/null | head -1 || true)"
@@ -101,6 +105,11 @@ if want_step 3; then
     echo "or set L2TERRAIN_JAR=/path/to/l2terrain-1.0.0-all.jar" >&2
     exit 2
   fi
+}
+
+if want_step 3; then
+  echo "== [3/7] BSP brushes (skybox box) of Lobby.unr (gap G4) =="
+  l2_jar
   java -cp "$L2JAR" "$ROOT/tools/interlude/BrushDump.java" \
     "$CLIENT/maps/Lobby.unr" "$WORK/l2_lobby/brushes.t3d"
   cp "$WORK/l2_lobby/brushes.t3d" "$WORLD/env/Lobby.brushes.t3d"
@@ -108,7 +117,7 @@ if want_step 3; then
 fi
 
 if want_step 4; then
-  echo "== [4/5] Class defaults: Engine.u + UWindow.u .uc dump (gap G1) =="
+  echo "== [4/7] Class defaults: Engine.u + UWindow.u .uc dump (gap G1) =="
   # system/*.u is L2-encrypted (Lineage2Ver111/121 XOR header); UELib only reads
   # plain UPackage. decrypt_package_file strips the header and verifies the
   # 0x9E2A83C1 signature.
@@ -123,7 +132,7 @@ if want_step 4; then
 fi
 
 if want_step 5; then
-  echo "== [5/5] sysstring-e.dat captions (gap G7) =="
+  echo "== [5/7] sysstring-e.dat captions (gap G7) =="
   L2ENCDEC="${L2ENCDEC:-$ROOT/tools/interlude-dat/l2encdec-bin/l2encdec-1.5.0-Darwin/l2encdec}"
   if [[ -x "$L2ENCDEC" ]]; then
     "$L2ENCDEC" -c decode -p 413 -l -o "$WORK/sysstring-e.dec" "$CLIENT/system/sysstring-e.dat"
@@ -134,13 +143,76 @@ if want_step 5; then
   fi
 fi
 
+if want_step 6; then
+  echo "== [6/7] Texture pixels: l2_skies set, L2Font logos, H_M_05 (gaps G5/G6/G8) =="
+  # ExportNamedTextures self-decrypts the package (Lineage2Ver XOR) and writes
+  # PNGs — java + the l2terrain jar only, no umodel/Docker.
+  l2_jar
+  SKY_NAMES="$(python3 -c "import json; print(','.join(sorted({e['name'] for e in json.load(open('$WORLD/env/l2_skies.json'))['exports'] if e['class']=='Texture'})))")"
+  if [[ -z "$SKY_NAMES" ]]; then
+    echo "ERROR: no Texture exports in $WORLD/env/l2_skies.json — run step 1 first." >&2
+    exit 2
+  fi
+  java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
+    "$CLIENT/textures/l2_skies.utx" "$WORK/tex/l2_skies" "$SKY_NAMES"
+  java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
+    "$CLIENT/systextures/L2Font.utx" "$WORK/tex/L2Font" "start_logo-k,start_minilogo-k"
+  java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
+    "$CLIENT/textures/Lobby_terrain_t.utx" "$WORK/tex/Lobby_terrain_t" "H_M_05"
+  # PNGs land in Unity (Textures/l2_skies/*, Textures/lobby_terrain_t/H_M_05.png,
+  # Data/UI/Assets/Login/start_logo-k.png + start_minilogo-k.png), .meta cloned
+  # from existing siblings. Missing exports are ERRORs.
+  python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
+fi
+
+if want_step 7; then
+  echo "== [7/7] G8 meshes via umodel (Docker linux/amd64) + Blender =="
+  UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
+  if [[ ! -x "$UMODEL" ]]; then
+    echo "ERROR: umodel linux binary missing at $UMODEL" >&2
+    echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
+    echo "place the binary there. There is no official macOS arm64 build; the" >&2
+    echo "linux/amd64 binary inside Docker is the supported path on Apple Silicon." >&2
+    exit 2
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "ERROR: docker is required to run the linux/amd64 umodel binary." >&2
+    exit 2
+  fi
+  INNER='apt-get update -qq && apt-get install -y -qq libpng16-16 libsdl2-2.0-0 >/dev/null'
+  for mesh in dion_grass015 Delf_Grass_001; do
+    INNER="$INNER && /umodel -path=/client -game=l2 -export -out=/export staticmeshes/field_deco_S.usx $mesh"
+  done
+  for mesh in Dwarftree01 Dwarftree04 Dwarftree06 Orctree01 Orctree02 Orctree03 Orctree04; do
+    INNER="$INNER && /umodel -path=/client -game=l2 -export -out=/export staticmeshes/speaking_tree_s.usx $mesh"
+  done
+  docker run --rm --platform linux/amd64 \
+    -v "$CLIENT:/client:ro" \
+    -v "$WORK/mesh-export:/export" \
+    -v "$UMODEL:/umodel:ro" \
+    ubuntu:22.04 bash -lc "$INNER"
+  if ! command -v blender >/dev/null 2>&1; then
+    echo "ERROR: blender not on PATH (need: blender -b -P tools/interlude/pskx_to_fbx_batch.py -- $WORK/mesh-export)." >&2
+    exit 2
+  fi
+  blender -b -P "$ROOT/tools/interlude/pskx_to_fbx_batch.py" -- "$WORK/mesh-export"
+  # Only the 9 lobby-referenced FBX are placed into StaticMeshes/<pkg>/.
+  python3 "$ROOT/tools/interlude-extract/place_login_assets.py" meshes --src "$WORK/mesh-export"
+fi
+
 cat <<EOF
 
-Done. Commit the new reference dumps:
+Done. Commit the new reference dumps and assets:
   git add l2-unity/docs/interlude-ref/world/env \\
           l2-unity/docs/interlude-ref/world/quadvisibility \\
           l2-unity/docs/interlude-ref/scripts/Engine.u \\
           l2-unity/docs/interlude-ref/scripts/UWindow.u \\
-          l2-unity/docs/interlude-ref/dats/sysstring-e.tsv
+          l2-unity/docs/interlude-ref/dats/sysstring-e.tsv \\
+          l2-unity/Assets/Resources/Data/Textures/l2_skies \\
+          l2-unity/Assets/Resources/Data/Textures/lobby_terrain_t/H_M_05.png* \\
+          l2-unity/Assets/Resources/Data/UI/Assets/Login/start_logo-k.png* \\
+          l2-unity/Assets/Resources/Data/UI/Assets/Login/start_minilogo-k.png* \\
+          l2-unity/Assets/Resources/Data/StaticMeshes/speaking_tree_s \\
+          l2-unity/Assets/Resources/Data/StaticMeshes/field_deco_S
   (work-dir sidecars under .work/lobby-extract are build inputs, not committed.)
 EOF

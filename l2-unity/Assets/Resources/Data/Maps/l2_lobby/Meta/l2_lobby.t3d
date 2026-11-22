@@ -2558,9 +2558,11 @@ Begin Actor Class=StaticMeshActor Name=StaticMeshActor731
 End Actor
 Begin Actor Class=Camera Name=Camera31
     Tag=TextureBrowserMRU
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera30
     Tag=TextureBrowserUsed
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera29
     Tag=TextureBrowser
@@ -2568,6 +2570,7 @@ Begin Actor Class=Camera Name=Camera29
 End Actor
 Begin Actor Class=Camera Name=Camera28
     Tag=StaticMeshBrowser
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera27
     Tag=MeshViewer
@@ -2576,37 +2579,47 @@ End Actor
 Begin Actor Class=Camera Name=Camera26
     Location=(X=-8555.363280,Y=-300.000000,Z=-6737.355960)
     Tag=U2Viewport3
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera25
     Location=(X=-8262.644530,Y=238302.641000,Z=-6687.028320)
     Rotation=(Pitch=63792,Yaw=33692)
     Tag=U2Viewport2
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera24
     Location=(X=-8554.228520,Y=-300.000000,Z=-6737.355960)
     Tag=U2Viewport1
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera23
     Location=(X=-6846.448240,Y=238678.031000,Z=300.000000)
     Tag=U2Viewport0
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera22
     Tag=MatineeSubActions
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera21
     Tag=MatineeActions
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera20
     Tag=MatineeScenes
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera19
     Tag=TerrainDecoLayers
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera18
     Tag=TerrainLayers
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=Camera Name=Camera17
     Tag=TerrainHeightmap
+    FovAngle=50.000000
 End Actor
 Begin Actor Class=StaticMeshActor Name=StaticMeshActor1098
     StaticMesh=StaticMesh'field_deco_S.grass_flower.grass001'
@@ -4612,7 +4625,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject113
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_dwarf_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-21764.398400,Y=239920.031000,Z=-6336.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject112
@@ -4622,7 +4635,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject112
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_dwarf_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-22004.398400,Y=239824.031000,Z=-6320.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject111
@@ -4630,14 +4643,14 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject111
     SoundVolume=250
     AmbientRandom=50
     Group="None,sd_dwarf_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-21895.943400,Y=239896.234000,Z=-6299.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject110
     SoundVolume=250
     AmbientRandom=50
     Group="None,sd_dwarf_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-22055.943400,Y=239944.234000,Z=-6299.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject109
@@ -4647,7 +4660,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject109
     SoundVolume=250
     AmbientRandom=50
     Group="None,sd_dwarf_wingflap"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-21824.000000,Y=239785.000000,Z=-6336.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject108
@@ -4657,7 +4670,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject108
     SoundVolume=250
     AmbientRandom=50
     Group="None,sd_dwarf_wingflap"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-22016.000000,Y=239817.000000,Z=-6320.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject107
@@ -5794,7 +5807,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject29
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-9101.724610,Y=247084.078000,Z=-6351.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject30
@@ -5804,7 +5817,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject30
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-9073.564450,Y=246642.672000,Z=-6384.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject31
@@ -5814,7 +5827,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject31
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-9237.039060,Y=246905.313000,Z=-6379.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject32
@@ -5824,7 +5837,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject32
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bell"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-9117.496090,Y=246977.531000,Z=-6398.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject33
@@ -5834,7 +5847,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject33
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bell"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-9074.494140,Y=246776.406000,Z=-6390.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject34
@@ -5844,7 +5857,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject34
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9133.648440,Y=246964.844000,Z=-6401.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject35
@@ -5890,7 +5903,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject39
     SoundVolume=250
     AmbientRandom=20
     Group="None,sd_human_animal_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-15154.835000,Y=244065.313000,Z=-6373.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject40
@@ -6036,7 +6049,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject41
     SoundVolume=250
     AmbientRandom=20
     Group="None,sd_human_animal_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-14870.940400,Y=244172.016000,Z=-6386.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject42
@@ -6046,7 +6059,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject42
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_insect_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-14900.033200,Y=244194.578000,Z=-6393.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject43
@@ -6056,7 +6069,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject43
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_insect_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-15134.760700,Y=244070.109000,Z=-6366.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject44
@@ -6066,7 +6079,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject44
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-15038.624000,Y=244196.078000,Z=-6373.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject120
@@ -6076,7 +6089,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject120
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-15126.000000,Y=244032.000000,Z=-6384.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject119
@@ -6086,7 +6099,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject119
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-15046.000000,Y=244128.000000,Z=-6400.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject118
@@ -6096,7 +6109,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject118
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-14934.000000,Y=244144.000000,Z=-6400.000000)
 End LevelObject
 Begin Actor Class=StaticMeshActor Name=StaticMeshActor1159
@@ -6111,7 +6124,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject67
     SoundVolume=250
     AmbientRandom=25
     Group="None,sd_human_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-15094.000000,Y=244112.000000,Z=-6400.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject66
@@ -6120,7 +6133,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject66
     SoundVolume=250
     AmbientRandom=25
     Group="None,sd_human_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-14998.000000,Y=244112.000000,Z=-6400.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject65
@@ -6129,7 +6142,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject65
     SoundVolume=250
     AmbientRandom=25
     Group="None,sd_human_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-15030.000000,Y=244416.000000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject64
@@ -6138,7 +6151,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject64
     SoundVolume=250
     AmbientRandom=25
     Group="None,sd_human_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-15206.000000,Y=244304.000000,Z=-6410.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject63
@@ -6147,7 +6160,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject63
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_human_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-14918.000000,Y=244080.000000,Z=-6384.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject62
@@ -6156,7 +6169,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject62
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_human_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-14998.000000,Y=244112.000000,Z=-6376.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject61
@@ -6165,7 +6178,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject61
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_human_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-15110.000000,Y=244032.000000,Z=-6384.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject57
@@ -6175,7 +6188,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject57
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_insect_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-15039.227500,Y=244170.688000,Z=-6400.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject56
@@ -6185,7 +6198,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject56
     SoundVolume=250
     AmbientRandom=20
     Group="None,sd_human_animal_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-15135.668900,Y=244247.094000,Z=-6397.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject55
@@ -6195,7 +6208,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject55
     SoundVolume=250
     AmbientRandom=20
     Group="None,sd_human_animal_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-15023.668900,Y=244183.094000,Z=-6400.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject54
@@ -6205,7 +6218,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject54
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-15007.668900,Y=244247.094000,Z=-6360.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject53
@@ -6215,7 +6228,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject53
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-14947.668900,Y=244183.094000,Z=-6354.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject52
@@ -6269,7 +6282,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject45
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_human_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-14866.883800,Y=244155.281000,Z=-6370.000000)
 End LevelObject
 Begin Actor Class=StaticMeshActor Name=StaticMeshActor1295
@@ -6774,7 +6787,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject103
     SoundVolume=250
     AmbientRandom=45
     Group="None,sd_orc_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-20728.000000,Y=251508.000000,Z=-6035.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject102
@@ -6784,7 +6797,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject102
     SoundVolume=250
     AmbientRandom=45
     Group="None,sd_orc_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-20856.000000,Y=251508.000000,Z=-6035.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject101
@@ -6794,7 +6807,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject101
     SoundVolume=250
     AmbientRandom=45
     Group="None,sd_orc_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-20904.000000,Y=251428.000000,Z=-6035.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject100
@@ -6804,7 +6817,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject100
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_orc_insect_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-20744.000000,Y=251524.000000,Z=-6035.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject99
@@ -6814,7 +6827,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject99
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_orc_insect_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-20888.000000,Y=251396.000000,Z=-6035.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject98
@@ -6824,7 +6837,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject98
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_orc_insect_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-20920.000000,Y=251476.000000,Z=-6035.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject97
@@ -6834,7 +6847,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject97
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_orc_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-21009.824200,Y=251423.188000,Z=-6034.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject96
@@ -6844,7 +6857,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject96
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_orc_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-20929.824200,Y=251311.188000,Z=-6035.000000)
 End LevelObject
 Begin Actor Class=StaticMeshActor Name=StaticMeshActor365
@@ -6860,7 +6873,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject95
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_orc_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-20993.824200,Y=251487.188000,Z=-6035.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject94
@@ -6894,7 +6907,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject92
     SoundVolume=250
     AmbientRandom=25
     Group="None,sd_dark_elf_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-11059.372100,Y=250585.547000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject91
@@ -6904,7 +6917,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject91
     SoundVolume=250
     AmbientRandom=25
     Group="None,sd_dark_elf_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-10835.779300,Y=250519.156000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject90
@@ -6941,7 +6954,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject87
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_dark_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-10999.000000,Y=250382.000000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject86
@@ -6951,7 +6964,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject86
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_dark_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-10919.000000,Y=250446.000000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject85
@@ -6961,7 +6974,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject85
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_dark_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-10951.000000,Y=250526.000000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject84
@@ -6971,7 +6984,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject84
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_dark_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-11031.000000,Y=250558.000000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject83
@@ -6999,7 +7012,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject81
     SoundVolume=250
     AmbientRandom=20
     Group="None,sd_elf_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9096.418950,Y=247062.563000,Z=-6412.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject80
@@ -7009,7 +7022,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject80
     SoundVolume=250
     AmbientRandom=20
     Group="None,sd_elf_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9146.000000,Y=246878.000000,Z=-6432.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject79
@@ -7019,7 +7032,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject79
     SoundVolume=250
     AmbientRandom=20
     Group="None,sd_elf_animal_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-8970.000000,Y=246750.000000,Z=-6416.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject78
@@ -7029,7 +7042,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject78
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9082.000000,Y=246878.000000,Z=-6396.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject77
@@ -7039,7 +7052,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject77
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9066.000000,Y=247038.000000,Z=-6396.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject76
@@ -7049,7 +7062,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject76
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9050.000000,Y=246782.000000,Z=-6396.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject75
@@ -7059,7 +7072,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject75
     SoundVolume=250
     AmbientRandom=40
     Group="None,sd_elf_insect_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9146.000000,Y=246942.000000,Z=-6412.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject74
@@ -7069,7 +7082,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject74
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9123.747070,Y=246881.766000,Z=-6417.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject73
@@ -7077,7 +7090,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject73
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9030.935550,Y=246801.281000,Z=-6401.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject72
@@ -7087,7 +7100,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject72
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_night"
-    AmbientSoundType=2
+    AmbientSoundType=AST1_Night
     Location=(X=-9087.924800,Y=247056.500000,Z=-6401.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject71
@@ -7097,7 +7110,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject71
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-8986.000000,Y=247006.000000,Z=-6390.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject70
@@ -7107,7 +7120,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject70
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bird_day"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-9082.000000,Y=246848.000000,Z=-6368.000000)
 End LevelObject
 Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject69
@@ -7117,7 +7130,7 @@ Begin LevelObject Class=AmbientSoundObject Name=AmbientSoundObject69
     SoundVolume=250
     AmbientRandom=30
     Group="None,sd_elf_bell"
-    AmbientSoundType=1
+    AmbientSoundType=AST1_Day
     Location=(X=-9147.263670,Y=246823.625000,Z=-6401.000000)
 End LevelObject
 Begin Actor Class=StaticMeshActor Name=StaticMeshActor544

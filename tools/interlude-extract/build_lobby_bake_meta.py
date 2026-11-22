@@ -16,9 +16,13 @@ Inputs (committed, no client needed):
 
 Known non-blocking gaps (extraction list in Docs/LOBBY_LOGIN_EXTRACTION_AUDIT.md):
   - EdgeTurnBitmap bits are not extracted for any map (only counts).
-  - Cameras without a stored FovAngle (e.g. Camera25, the login vista camera)
-    inherit the Engine.u Camera class default, which is unconfirmed until the
-    G1 .uc dump lands. The generator names every such camera on stdout.
+
+Class-default resolutions come from the committed Engine.u .uc dump (gap G1):
+cameras without a stored FovAngle (e.g. Camera25, the login vista camera)
+inherit the class default walked up the extends chain (Camera.uc does not
+override; PlayerController.uc FovAngle=50.0), and AmbientSoundType bytes are
+mapped through AmbientSoundObject.uc enum ASType1. A missing .uc dump or
+missing property is a hard error, never a guessed value.
 
 Every texture PNG / mesh FBX referenced by the generated Meta is verified on
 disk. Missing assets are listed as ERRORs and the exit code is 1 — nothing is
@@ -27,6 +31,7 @@ silently dropped.
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -49,12 +54,60 @@ from rebuild_terrain_layers import (  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD = REPO / "l2-unity/docs/interlude-ref/world"
+ENGINE_UC = REPO / "l2-unity/docs/interlude-ref/scripts/Engine.u"
 MAPS = REPO / "l2-unity/Assets/Resources/Data/Maps"
 TEX = REPO / "l2-unity/Assets/Resources/Data/Textures"
 SM = REPO / "l2-unity/Assets/Resources/Data/StaticMeshes"
 
 TILE = "l2_lobby"
 TILE_PKG = "Lobby_terrain_t"
+
+_UC_CLASS_RE = re.compile(r"^class\s+(\w+)\s+extends\s+(\w+)", re.M)
+_UC_DEFAULT_RE = re.compile(r"^defaultproperties\s*\{(.*?)^\}", re.M | re.S)
+_UC_ENUM_RE = re.compile(r"^enum\s+(\w+)\s*\{(.*?)\}", re.M | re.S)
+
+
+def load_uc(uc_dir: Path, class_name: str) -> tuple[str | None, dict[str, str], dict[str, list[str]]]:
+    """(extends, defaultproperties scalars, enums) parsed from a UScriptDump .uc."""
+    path = uc_dir / f"{class_name}.uc"
+    if not path.is_file():
+        raise SystemExit(f"ERROR {path} missing — run extract_login_lobby.sh step 4 (Engine.u dump)")
+    text = path.read_text(encoding="utf-8", errors="replace")
+    m = _UC_CLASS_RE.search(text)
+    extends = m.group(2) if m else None
+    defaults: dict[str, str] = {}
+    dm = _UC_DEFAULT_RE.search(text)
+    if dm:
+        for line in dm.group(1).splitlines():
+            line = line.split("//", 1)[0].strip()
+            if "=" in line:
+                k, _, v = line.partition("=")
+                defaults[k.strip()] = v.strip()
+    enums: dict[str, list[str]] = {}
+    for em in _UC_ENUM_RE.finditer(text):
+        # Strip // comments before splitting: they trail the comma, so a naive
+        # split("//") would eat the following entry's name.
+        body = re.sub(r"//[^\n]*", "", em.group(2))
+        names = []
+        for item in body.split(","):
+            item = item.strip()
+            if item:
+                names.append(item.split("=")[0].strip())
+        enums[em.group(1)] = names
+    return extends, defaults, enums
+
+
+def resolve_uc_default(uc_dir: Path, class_name: str, prop_name: str) -> str | None:
+    """Walk the extends chain for a defaultproperties scalar (e.g. Camera->PlayerController FovAngle)."""
+    seen = set()
+    cur: str | None = class_name
+    while cur and cur not in seen:
+        seen.add(cur)
+        extends, defaults, _ = load_uc(uc_dir, cur)
+        if prop_name in defaults:
+            return defaults[prop_name]
+        cur = extends
+    return None
 
 
 def texture_ref(imps: dict, ref: str | None) -> str:
@@ -147,7 +200,7 @@ def sma_block(export: dict, imps: dict) -> tuple[str, str | None]:
     return "\n".join(lines), mesh
 
 
-def camera_block(export: dict) -> tuple[str, bool]:
+def camera_block(export: dict, default_fov: str) -> tuple[str, bool]:
     name = export.get("name") or "Camera"
     lines = [f"Begin Actor Class=Camera Name={name}"]
     loc = (prop(export, "Location") or {}).get("vector")
@@ -160,10 +213,14 @@ def camera_block(export: dict) -> tuple[str, bool]:
     if tag:
         lines.append(f"    Tag={tag}")
     fov = (prop(export, "FovAngle") or {}).get("value")
-    if fov is not None:
-        lines.append(f"    FovAngle={fmt_float(fov)}")
+    used_default = fov is None
+    if used_default:
+        # Officially absent on the actor: the value is the Engine.u class
+        # default (Camera.uc does not override; PlayerController.uc FovAngle=50.0).
+        fov = float(default_fov)
+    lines.append(f"    FovAngle={fmt_float(float(fov))}")
     lines.append("End Actor")
-    return "\n".join(lines), fov is None
+    return "\n".join(lines), used_default
 
 
 def interpolation_block(export: dict) -> str:
@@ -179,7 +236,7 @@ def interpolation_block(export: dict) -> str:
     return "\n".join(lines)
 
 
-def ambient_block(export: dict, imps: dict) -> str:
+def ambient_block(export: dict, imps: dict, as_type_names: list[str]) -> str:
     name = export.get("name") or "AmbientSoundObject"
     lines = [f"Begin LevelObject Class=AmbientSoundObject Name={name}"]
     sound = full_name(imps, (prop(export, "AmbientSound") or {}).get("ref"), "Sound")
@@ -193,10 +250,15 @@ def ambient_block(export: dict, imps: dict) -> str:
         p = prop(export, key)
         if p and p.get("value") is not None:
             lines.append(f"    {key}={int(p['value'])}")
-    for key in ("Group", "AmbientSoundType"):
-        p = prop(export, key)
-        if p and p.get("value"):
-            lines.append(f'    {key}="{p["value"]}"' if key == "Group" else f"    {key}={p['value']}")
+    group = prop(export, "Group")
+    if group and group.get("value"):
+        lines.append(f'    Group="{group["value"]}"')
+    as_type = prop(export, "AmbientSoundType")
+    if as_type and as_type.get("value") is not None:
+        idx = int(as_type["value"])
+        if idx >= len(as_type_names):
+            raise SystemExit(f"ERROR {name}: AmbientSoundType byte {idx} outside enum ASType1 ({as_type_names})")
+        lines.append(f"    AmbientSoundType={as_type_names[idx]}")
     loc = (prop(export, "Location") or {}).get("vector")
     if loc:
         lines.append("    " + vec_line("Location", loc))
@@ -219,12 +281,28 @@ def main() -> int:
     ap.add_argument("--dump", type=Path, default=WORLD / "env/Lobby.unr.json.gz")
     ap.add_argument("--quadvisibility", type=Path, default=WORLD / "quadvisibility/Lobby.quadvisibility.txt")
     ap.add_argument("--brushes", type=Path, default=WORLD / "env/Lobby.brushes.t3d")
+    ap.add_argument("--engine-uc", type=Path, default=ENGINE_UC)
     ap.add_argument("--out", type=Path, default=MAPS / TILE / "Meta")
     args = ap.parse_args()
 
     doc = load_json(args.dump)
     imps = import_index(doc)
     ti = find_ti(doc)
+
+    # Engine.u class defaults (gap G1, committed dump): Camera FovAngle comes
+    # from the extends chain (Camera.uc silent -> PlayerController.uc), the
+    # AmbientSoundType byte enum from AmbientSoundObject.uc. Missing data is a
+    # hard error, never a guessed value.
+    default_fov = resolve_uc_default(args.engine_uc, "Camera", "FovAngle")
+    if default_fov is None:
+        raise SystemExit(
+            f"ERROR no FovAngle default in the Camera extends chain under {args.engine_uc} "
+            "— rerun extract_login_lobby.sh step 4"
+        )
+    _, _, as_enums = load_uc(args.engine_uc, "AmbientSoundObject")
+    as_type_names = as_enums.get("ASType1")
+    if not as_type_names:
+        raise SystemExit(f"ERROR no enum ASType1 in {args.engine_uc}/AmbientSoundObject.uc")
 
     if not args.quadvisibility.is_file():
         raise SystemExit(f"ERROR missing {args.quadvisibility} — run extract_login_lobby.sh step 2")
@@ -261,7 +339,7 @@ def main() -> int:
     t3d.append("End Actor")
 
     individuals: list[str] = []
-    cameras_without_fov: list[str] = []
+    cameras_default_fov: list[str] = []
     for export in doc.get("exports") or []:
         cls = export.get("class")
         if cls == "StaticMeshActor":
@@ -270,14 +348,14 @@ def main() -> int:
             if mesh:
                 individuals.append(mesh)
         elif cls == "Camera":
-            block, missing_fov = camera_block(export)
+            block, used_default = camera_block(export, default_fov)
             t3d.append(block)
-            if missing_fov:
-                cameras_without_fov.append(export.get("name") or "?")
+            if used_default:
+                cameras_default_fov.append(export.get("name") or "?")
         elif cls == "InterpolationPoint":
             t3d.append(interpolation_block(export))
         elif cls == "AmbientSoundObject":
-            t3d.append(ambient_block(export, imps))
+            t3d.append(ambient_block(export, imps, as_type_names))
 
     if args.brushes.is_file():
         t3d.append(args.brushes.read_text(encoding="utf-8").rstrip("\n"))
@@ -341,19 +419,13 @@ def main() -> int:
 
     print(
         f"{TILE}: {len(layer_lines)} layers, {len(deco_lines)} deco layers, "
-        f"{len(individuals)} SMAs ({len(uniq)} unique meshes), "
-        f"{len(cameras_without_fov)} cameras without stored FovAngle"
+        f"{len(individuals)} SMAs ({len(uniq)} unique meshes)"
     )
-    if cameras_without_fov:
+    if cameras_default_fov:
         print(
-            "WARN cameras without FovAngle (Engine.u Camera class default unconfirmed, gap G1): "
-            + ", ".join(cameras_without_fov)
-        )
-    n_ambient = sum(1 for e in doc.get("exports") or [] if e.get("class") == "AmbientSoundObject")
-    if n_ambient:
-        print(
-            f"WARN {n_ambient} AmbientSoundObjects: AmbientSoundType emitted as the raw byte; "
-            "enum names unconfirmed until the Engine.u dump (gap G1)"
+            f"FOV: {len(cameras_default_fov)} cameras store no FovAngle; emitted the Engine.uc "
+            f"class default FovAngle={fmt_float(float(default_fov))} "
+            f"(Camera->PlayerController chain): {', '.join(cameras_default_fov)}"
         )
     if missing:
         print("ERROR referenced assets missing:", file=sys.stderr)
