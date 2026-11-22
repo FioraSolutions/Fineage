@@ -57,7 +57,18 @@ public static class SkillEffectSpawnSound
         if (!_byClass.TryGetValue(key, out cue))
             return;
 
-        AudioClip clip = InterludeSfx.Load(SfxRoot + cue.Clip);
+        AudioClip clip = null;
+        OfficialWaveTable.Entry entry;
+        string resolveError;
+        string waveName = !string.IsNullOrEmpty(cue.Name) ? cue.Name : cue.Clip;
+        if (!string.IsNullOrEmpty(waveName) &&
+            OfficialWaveTable.TryResolve(waveName, out entry, out resolveError, cue.Package))
+        {
+            clip = InterludeSfx.Load(entry.ResourcesPath);
+        }
+
+        if (clip == null)
+            clip = InterludeSfx.Load(SfxRoot + cue.Clip);
         if (clip == null)
             clip = InterludeSfx.Load(SfxRoot + cue.Clip.ToLowerInvariant());
         if (clip == null && !string.IsNullOrEmpty(cue.Clip))

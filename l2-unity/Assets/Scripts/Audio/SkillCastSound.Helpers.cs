@@ -163,9 +163,7 @@ public static partial class SkillCastSound
         if (!cue.HasClip)
             return false;
 
-        AudioClip clip = Load(SfxRoot, cue.Clip);
-        if (clip == null)
-            clip = Load(SfxRoot, cue.Clip.ToLowerInvariant());
+        AudioClip clip = LoadCueClip(cue);
         if (clip == null)
         {
             string package = string.IsNullOrEmpty(cue.Package) ? "?" : cue.Package;
@@ -188,6 +186,51 @@ public static partial class SkillCastSound
         else
             InterludeSfx.PlayAt(clip, pos, volume, false, radius);
         return true;
+    }
+
+    static AudioClip LoadCueClip(SkillSoundCue cue)
+    {
+        string path;
+        string error;
+        if (TryResolveEffectClip(cue.Package, cue.Name, cue.Clip, out path, out error))
+        {
+            AudioClip official = InterludeSfx.Load(path);
+            if (official != null)
+                return official;
+        }
+
+        if (string.IsNullOrEmpty(cue.Clip))
+            return null;
+        AudioClip clip = Load(SfxRoot, cue.Clip);
+        if (clip == null)
+            clip = Load(SfxRoot, cue.Clip.ToLowerInvariant());
+        return clip;
+    }
+
+    public static bool TryResolveEffectClip(
+        string package,
+        string name,
+        string clip,
+        out string resourcesPath,
+        out string error)
+    {
+        resourcesPath = null;
+        error = null;
+        string waveName = !string.IsNullOrEmpty(name) ? name : clip;
+        if (string.IsNullOrEmpty(waveName))
+        {
+            error = OfficialWaveTable.FormatMissingWaveError(package, waveName, "empty name");
+            return false;
+        }
+
+        OfficialWaveTable.Entry entry;
+        if (OfficialWaveTable.TryResolve(waveName, out entry, out error, package))
+        {
+            resourcesPath = entry.ResourcesPath;
+            return !string.IsNullOrEmpty(resourcesPath);
+        }
+
+        return false;
     }
 
     static string StemFromClip(string clip)

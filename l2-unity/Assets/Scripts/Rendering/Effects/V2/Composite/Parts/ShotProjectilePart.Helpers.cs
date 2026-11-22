@@ -80,7 +80,9 @@ public sealed partial class ShotProjectilePart : CompositePart
             startPosition = startPos,
             targetTransform = target,
             impactType = impactType,
-            speed = speed > 0.01f ? speed : 10f
+            speed = speed > 0.01f ? speed : 10f,
+            acceleration = acceleration,
+            rotPerSecondEuler = rotPerSecondEuler
         };
         ShotOrbDebug.Log(
             "[ShotOrb] launch part=" + name +

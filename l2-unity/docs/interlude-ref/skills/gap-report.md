@@ -19,16 +19,34 @@ Field names are the original Unreal properties, not invented aliases.
 | `b_absolute` | 16 | 13 | Serialized on the LocateEffect. The catalog only uses this to force Immediate spawn timing when a delay is also set; it does not change the position/orientation space. |
 | `spawn_delay != 0` | 34 | 17 | Maps to CompositePart.spawnDelaySeconds. Already applied when delay > 0. |
 | `specific_stage != 0` | 0 | 0 | SkillActionInfo.SpecificStage from SkillVisualEffect. The client has no stage filter. |
-| `channeling phase` | 6 | 3 | ChannelingActions exist in Interlude skill.usk (a few skills). The catalog has a CHANNELING phase but playback does not keep the effect for the channel duration. |
+| `channeling phase` | 6 | 3 | ChannelingActions exist in Interlude skill.usk (skills 426, 427, 3626). Playback uses MagicCastData.HitTime (skillgrp hit_time: 15s / 15s / 25s) as the composite lifetime instead of a hardcoded 3s. If a channeling action is played with HitTime missing, playback logs `phase=channeling missing field=HitTime`. |
 | `draw_scale present on effect class` | 454 | 221 | LineageEffect class default DrawScale (for example Wind Strike ca=0.25, pr/ta=0.1). Playback now uses it as CompositePart.scale when the value is greater than 0. |
 | `Rotation present on effect class` | 63 | 55 | LineageEffect default Rotation (Unreal rotator units). Playback now applies it as CompositePart.spawnEuler via VectorUtils.ConvertRotToUnity. |
-| `bRotEmitter` | 88 | 70 | LineageEffect default. Not applied by playback. |
-| `bSelfRotation` | 5 | 5 | LineageEffect default. Not applied by playback. |
-| `bDirectional` | 353 | 193 | LineageEffect default. Not applied by playback. |
-| `projectile Speed/AccSpeed` | 17 | 17 | LineageEffect projectile defaults (Wind Strike and Prominence flying shots use Speed=1000, AccSpeed=3000). Playback uses distance/FlyingTime when FlyingTime > 0, otherwise Speed converted from UU; AccSpeed is still not applied. |
+| `bRotEmitter` | 88 | 70 | LineageEffect default. Playback stores the flag on the part. Spin uses official RotPerSecond when that rotator is non-zero (49 of these rows). Flag-only rows with RotPerSecond=0 are left unspun; no invented default rate. |
+| `bSelfRotation` | 5 | 5 | LineageEffect default. Playback stores the flag on the part. Spin uses official RotPerSecond when that rotator is non-zero; a zero official rate is not replaced with an invented spin. |
+| `bDirectional` | 353 | 193 | LineageEffect default. Playback stores the flag on the part. Flying shots already use ProjectileManager `LookRotation * Euler(0,90,0)` (L2 emitter X-forward vs Unity Z-forward). Stationary parts do not get an extra yaw: the packed Notify() axis formula was not dumped, and applying 90° to every flagged attach would invent a convention. |
+| `projectile Speed/AccSpeed` | 17 | 17 | LineageEffect projectile defaults (Wind Strike and Prominence flying shots use Speed=1000, AccSpeed=3000; skill 1419 shot uses Speed=500, AccSpeed=1000). Playback still uses distance/FlyingTime when FlyingTime > 0, otherwise Speed converted from UU. AccSpeed is converted like Speed (UU → Unity) and passed to ProjectileFlightTimeCalculator / ProjectileManager; 0 keeps the existing ANProjectile default of 3000 UU/s². |
 | `effect class defaults missing` | 2 | 2 | The LocateEffect.EffectClass was not found in the lineageeffect.u class-default dump. |
 | `attach bone specified` | 22 | 18 | AttachBoneName is used when attach_on is bone or alias. Already parsed into the catalog Bone field. |
-| `RotPerSecond present` | 63 | 44 | LineageEffect default RotPerSecond. Not applied by playback. |
+| `RotPerSecond present` | 63 | 44 | LineageEffect default RotPerSecond (Unreal rotator units per second). Playback applies VectorUtils.ConvertRotToUnity as degrees/sec: OfficialSkillVisualMotion on stationary parts, ProjectileData.spinEuler on launched shots. |
+
+## Leftover skillgrp desc keys
+
+A skillgrp `desc` of the form `skill.<group>.<id>` that is not itself a
+SkillVisualEffect class name is resolved by following that skill id's official
+visual (same catalog path, with cycle detection). This covers Scroll of Escape
+2036 lv2 (`skill.it.2178` → 2178 → `skill.it.2177` / `it_scroll_of_escape_ta`)
+and 4028/4029 (`skill.mo.87` → 87 → `skill.mo.78` / `mo_war_cry_*`).
+
+4999 and 5001 still have no visual: their desc is `skill.bl.1147`, and skill
+1147 has an empty desc at every level and no skill.usk row. The catalog logs
+`followed skill=1147 empty desc` and leaves them in
+`skill-visual-missing-assets.tsv`. No Vampiric Touch class is invented.
+
+Skills 832 and 4548 still log empty EffectClass; no class is invented.
+
+`b_size_scale` still does not scale the effect with the pawn. Notify() is
+packed in Engine.dll and was not dumped, so no pawn-scale formula is invented.
 
 ## Fields confirmed absent from Interlude skill.usk actions
 
@@ -98,32 +116,25 @@ and is not part of this table.
 | `skillsoundgrp expeffect_* not played` | 0 | 0 | Official expeffect_sound_1/2/3 cues. SkillCastSound now plays every non-empty expeffect slot at impact with the table volume and radius. |
 | `lineageeffect SpawnSound not played` | 0 | 0 | Emitter.SpawnSound is wired into CompositeEffectV2 spawn via SkillEffectSpawnSound, using the table volume and radius. Missing clips log package+name. |
 | `SpawnSound flight loop not played` | 0 | 0 | SpawnSound with SoundLooping on a shot-phase effect. None of the Interlude class defaults use a looping flight cue. |
-| `skillsoundgrp spell/shot/explode played but clip missing` | 13 | 11 | SkillCastSound tries to play the stem under Resources/Data/Sounds/SkillSound (or the matching package folder) and logs the exact package and name when the clip is absent. The 11 rows are listed below. |
+| `skillsoundgrp spell/shot/explode played but clip missing` | 3 | 3 | SkillCastSound resolves package+name through OfficialWaveTable first (ItemSound / ItemSound2 / EtcSound / MonSound clips imported in #1682), then the SkillSound Resources folder. The three leftovers are official tokens that are not in the uax catalog: SkillSound2.antaras_creak, SkillSound4.doublewind_explotion (catalog has doublewind_explosion — the typo is not aliased), MonSound3.antars_ground_wave. Missing clips still log package+name. |
 | `hero voice mapped but clip missing` | 0 | 0 | SkillCastSound.PlayVoiceKind will look up Data/Sounds/SkillVoice/{racePrefix}_{kind} and miss. |
 | `skillsoundgrp hero-voice volume/radius unused` | 10108 | 379 | Hero voice still uses SkillCastSound.VoiceVolume=1. Effect cues (cast/shot/flight/impact/exp, including shoteffect, expeffect, and SpawnSound) now use the table volume (vol/255) and radius (UU/52.5 meters). |
-| `SpawnSound clip missing` | 8 | 0 | SkillEffectSpawnSound logs the exact package and name when the clip is not in Resources. ItemSound2 firework cues are the known leftovers. |
+| `SpawnSound clip missing` | 0 | 0 | SkillEffectSpawnSound resolves package+name through OfficialWaveTable first, then SkillSound / ItemSound Resources folders. ItemSound2 C3_Firework_explosion / C3_Firework_shotup are in official-waves.tsv from #1682. Missing clips still log package+name. |
 | `lineageeffect SpawnSound not referenced by skill.usk` | 22 | 0 | These Emitter.SpawnSound cues exist on LineageEffect class defaults (teleport, Baium, Frintezza drops, fireworks, meteor, bubbles) but no skill.usk LocateEffect points at that class. They are still in the sound table so the dump is lossless. |
 
 ### Missing skill-sound clips
 
 SkillCastSound logs `package` and `name` when a table cue has no clip.
-These 13 skillsoundgrp effect rows are played from the
-table but have no imported .ogg/.wav:
+These remaining skillsoundgrp effect rows are played from the
+table but have no wave under the official token name in the uax catalog
+(no invented alias is used):
 
 | skill_id | level | slot | package | name |
 |---:|---:|---|---|---|
-| 323 | 1 | `spelleffect_sound_2` | `ItemSound` | `itemdrop_wood` |
-| 324 | 1 | `spelleffect_sound_2` | `ItemSound` | `itemdrop_wood` |
-| 419 | 1 | `spelleffect_sound_2` | `ItemSound2` | `broken_key` |
-| 1387 | 1 | `spelleffect_sound_2` | `ItemSound` | `itemdrop_bone` |
-| 2187 | 1 | `spelleffect_sound_1` | `EtcSound` | `battle` |
-| 2272 | 1 | `spelleffect_sound_1` | `EtcSound` | `VVKOREA` |
 | 4110 | 1 | `shoteffect_sound_2` | `SkillSound2` | `antaras_creak` |
 | 4110 | 1 | `spelleffect_sound_2` | `SkillSound2` | `antaras_creak` |
 | 4141 | 1 | `spelleffect_sound_3` | `SkillSound4` | `doublewind_explotion` |
 | 4142 | 1 | `spelleffect_sound_3` | `SkillSound4` | `doublewind_explotion` |
-| 4231 | 1 | `spelleffect_sound_3` | `MonSound` | `Hit_Wet_5` |
-| 4231 | 1 | `spelleffect_sound_2` | `MonSound` | `Hit_Wet_5` |
 | 4606 | 1 | `shoteffect_sound_2` | `MonSound3` | `antars_ground_wave` |
 
 ### Wind Strike, Prominence, Vortex sounds

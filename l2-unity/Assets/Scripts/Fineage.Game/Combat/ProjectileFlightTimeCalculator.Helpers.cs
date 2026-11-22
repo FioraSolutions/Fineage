@@ -4,12 +4,18 @@ public static partial class ProjectileFlightTimeCalculator
 {
     public static float CalculateL2AccelFlightTimeSeconds(float distanceUnity)
     {
+        return CalculateL2AccelFlightTimeSeconds(distanceUnity, 0f);
+    }
+
+    public static float CalculateL2AccelFlightTimeSeconds(float distanceUnity, float accelUnity)
+    {
         if (distanceUnity <= 0f)
         {
             return 0.01f;
         }
 
-        float flySec = Mathf.Sqrt((2f * distanceUnity) / L2ProjectileAccelUnityPerSec2);
+        float accel = accelUnity > 0f ? accelUnity : L2ProjectileAccelUnityPerSec2;
+        float flySec = Mathf.Sqrt((2f * distanceUnity) / accel);
         return Mathf.Max(flySec, 0.01f);
     }
 
