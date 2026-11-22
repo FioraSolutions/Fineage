@@ -14,6 +14,8 @@ Committed output is text only (`l2-unity/Docs/interlude-ref`). Decrypted package
 | Script | Role |
 |--------|------|
 | `extract_all.py` | Entry point: DAT decrypt/parse, package decrypt/index, PE inspect, skill visuals, README |
+| `export_skill_effects.sh` | Dump Interlude `skill.usk` skill-effect table via Cruma 1.2.0 `listVisuals()` |
+| `ExportSkillEffects.java` | Helper used by that script (prebuilt `.class` is Java 26, matching Cruma 1.2.0) |
 | `ddf_parser.py` | l2asm DDF reader (ASCF/CNTR, UNICODE, MTX/MAT, ENBBY) |
 | `decrypt.py` | Lineage2Ver413 DAT via l2encdec; Ver111/121 XOR packages |
 | `package_index.py` | UE2 name/import/export index |

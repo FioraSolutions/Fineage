@@ -33,6 +33,9 @@ Single committed files are split if they would exceed ~20 MB.
 | `binaries/*.interesting-strings.txt` | Keyword-filtered strings from each PE |
 | `skills/skill-visuals.tsv` | skill_id × animation / desc / icon / effect resolution |
 | `skills/skill-visuals-summary.json` | Resolution counts |
+| `skill-effects-engine.tsv` | SkillID → cast/shot/hit actions from `Animations/skill.usk` (Cruma `listVisuals`) |
+| `skills/skill-effects-coverage.json` | Union of skillgrp `desc` paths + this table vs 2630 skill IDs |
+| `skills/skills-without-unique-effect.tsv` | Skill IDs with no `desc` path and no skill.usk entry |
 | `scripts/` | Decompiled UnrealScript from `Interface.u` and other `.u` with scripts (if produced) |
 
 ## How it is produced
@@ -45,8 +48,13 @@ Single committed files are split if they would exceed ~20 MB.
 5. PE binaries are classified from section names, entry point, and entropy. Only `engine.dll`
    is packed (Themida). The others are ordinary PE and can be string-scanned directly.
 6. Skill visuals are resolved from Interlude `skillgrp` (`ani_char`, `desc`, `icon_name`, `extra_eff`)
-   plus `LineageEffect` class names from the package index. Hardcoded C++ maps inside packed
-   `engine.dll` are recorded as unresolved until that binary can be dumped.
+   plus `LineageEffect` class names from the package index.
+7. The C3–Interlude skill-effect table (SkillID → emitters, attach points, phases, timing) is in
+   `Animations/skill.usk` (`SkillVisualEffect` objects), not in packed `engine.dll`. Cruma 1.2.0
+   reads it with `SkillEffects.listVisuals()`. Export:
+   `tools/interlude-extract/export_skill_effects.sh` (needs a Cruma 1.2.0 install, e.g.
+   `~/Tools/Cruma/Cruma.app`, pointed at the official Interlude client). C1/C2 still keep the
+   equivalent table only inside `Engine.dll`, which Cruma cannot read.
 
 ## DAT tables (0 parsed)
 
@@ -104,6 +112,36 @@ On the machine that ran the extractor:
 - `logs/` — extract run logs
 
 PNG texture export and WAV dump are optional follow-up passes against the decrypted packages (see `packages/classes.tsv` / `exports.part*.tsv` for Texture and Sound object names). `engine.dll` is Themida-packed; no dump of its code section is stored here.
+
+
+## Skill-effect table (`skill.usk`)
+
+Interlude (and Chronicle 3) store per-skill visual actions in `Animations/skill.usk`, one
+`SkillVisualEffect` object per entry, named by skill ID (for example `skill.el.1177` for
+Wind Strike). Cruma 1.2.0 dumps this table with `SkillEffects.listVisuals()`.
+
+The table was exported from the official Interlude client with Cruma 1.2.0
+(`ExportSkillEffects`, same `listVisuals()` call the viewer uses). Re-run:
+
+```bash
+tools/interlude-extract/export_skill_effects.sh
+# optional:
+#   CRUMA_CLIENT="/path/to/Lineage II" \
+#   CRUMA_JAR="$HOME/Tools/Cruma/Cruma.app/Contents/app/cruma.jar" \
+#   tools/interlude-extract/export_skill_effects.sh l2-unity/Docs/interlude-ref/skill-effects-engine.tsv
+```
+
+Coverage (unique skill IDs in Interlude `skillgrp` / `skillname`):
+
+- 2630 skill IDs in the catalog
+- 900 have a `skillgrp` `desc` effect path (`skill.wh.1062` and the like)
+- 243 `skill.usk` entries / 238 unique IDs (three IDs — 831, 832, 1058 — are not in the 2630)
+- 28 catalog IDs are new from this table (including Wind Strike 1177); 207 already had a `desc` path
+- Union of `desc` paths + this table: 928 IDs
+- Remaining 1702 IDs have no unique effect in `skillgrp.desc` or `skill.usk`; the original client plays only the character animation (`ani_char`) and sound for those, if any. See `skills/skills-without-unique-effect.tsv`.
+
+Cruma does not unpack Themida-packed `engine.dll`. For Interlude that is unnecessary: the
+viewer already loads this table from `skill.usk`. The leftover packed map is a C1/C2 issue.
 
 ## Notes
 
