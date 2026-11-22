@@ -44,7 +44,7 @@ public static class AnimNotifySoundResolver
         return AudioPathResolver.ResourcesItemSoundRoot + wave;
     }
 
-    public static bool TryPlayWave(AudioService service, string wave, Vector3 position, float volumeScale, out string error)
+    public static bool TryPlayWave(AudioService service, string wave, Vector3 position, float volumeScale, out string error, string contextHint = null)
     {
         error = null;
         if (service == null)
@@ -58,6 +58,16 @@ public static class AnimNotifySoundResolver
             return false;
         }
 
+        if (OfficialWaveTable.TryResolve(wave, out OfficialWaveTable.Entry official, out string resolveError, contextHint: contextHint)
+            && official != null
+            && service.PlayClipAtWorld(official.ResourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+            return true;
+        if (!string.IsNullOrEmpty(resolveError) && resolveError.StartsWith("OfficialWaveTable: ambiguous", System.StringComparison.Ordinal))
+        {
+            error = resolveError;
+            return false;
+        }
+
         for (int i = 0; i < ResourcesRoots.Length; i++)
         {
             string path = ResourcesRoots[i] + wave;
@@ -67,7 +77,7 @@ public static class AnimNotifySoundResolver
                 return true;
         }
 
-        error = FormatMissingWaveError(wave, "roots=" + string.Join(",", ResourcesRoots));
+        error = resolveError ?? FormatMissingWaveError(wave, "roots=" + string.Join(",", ResourcesRoots));
         return false;
     }
 

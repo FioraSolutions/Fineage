@@ -23,10 +23,9 @@ Skill-visual leftovers stay in [skills/gap-report.md](../skills/gap-report.md) a
 
 | Fineage status | Original `.uax` waves |
 |---|---:|
-| `resources_clip` | 690 |
-| `fmod_bank` | 316 |
-| `fmod_bank_ambsound` | 5 |
-| `missing` | 4119 |
+| `resources_clip` | 4688 |
+| `fmod_bank` | 214 |
+| `missing` | 228 |
 | **total** | 5130 |
 
 Status is discovered, not assumed: a wave counts as present if a Resources/StreamingAssets
@@ -35,7 +34,7 @@ Status is discovered, not assumed: a wave counts as present if a Resources/Strea
 `StepSound` 60416, `InterfaceSound` 411904,
 `ChrSound` 686624, `MonSound` 1346080,
 `ItemSound` 58976, `SkillSound` 18688).
-Fineage also has **606** loose clips under `Assets`.
+Fineage also has **4706** loose clips under `Assets/Resources/Data/Sounds` (item, monster, character, skill, and step waves).
 
 This client install has **no loose `.ogg` music folder**; music lives only in `musicinfo.dat`
 plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_Interlude_Client`.
@@ -150,7 +149,7 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - Item DAT sound fields (etc/armor/weapon): **15509** references.
 - Enter-event sound/effect fields: **2263**.
 - Monster and character waves live in `monsound*.uax` and `chrsound*.uax` (see catalog).
-- Fineage loose clips: MonSound folder + bank 1346080 B, ChrSound bank 686624 B.
+- Official `itemsound*` / `EtcSound` / `monsound*` / `chrsound*` waves (**4257**) are imported as Resources clips under `Data/Sounds/{ItemSound,MonSound,Voice,SkillVoice}`. The runtime index is `StreamingAssets/Data/Meta/Sounds/official-waves.tsv`. Leftover missing waves are ambient and UI packages (#1678, #1681).
 
 ### 7. Skill effects and skill sounds
 - Already covered by the lossless `skill.usk` / `lineageeffect.u` dump and `skills/gap-report.md`.
@@ -167,24 +166,24 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 
 | Package | Waves | Missing in Fineage |
 |---|---:|---:|
-| `monsound` | 1499 | 1344 |
-| `chrsound` | 1029 | 836 |
-| `monsound5` | 406 | 406 |
-| `itemsound` | 330 | 313 |
-| `MonSound6` | 243 | 243 |
-| `monsound2` | 193 | 193 |
 | `ambsound` | 393 | 184 |
-| `monsound4` | 174 | 174 |
-| `monsound3` | 122 | 122 |
-| `monsound7` | 117 | 116 |
-| `stepsound` | 93 | 0 |
-| `ItemSound2` | 65 | 65 |
-| `chrsound2` | 40 | 40 |
 | `AmbSound2` | 34 | 34 |
-| `ItemSound3` | 33 | 33 |
-| `EtcSound` | 6 | 6 |
 | `interfacesound` | 11 | 6 |
 | `messengersound` | 4 | 4 |
+| `monsound` | 1499 | 0 |
+| `chrsound` | 1029 | 0 |
+| `monsound5` | 406 | 0 |
+| `itemsound` | 330 | 0 |
+| `MonSound6` | 243 | 0 |
+| `monsound2` | 193 | 0 |
+| `monsound4` | 174 | 0 |
+| `monsound3` | 122 | 0 |
+| `monsound7` | 117 | 0 |
+| `stepsound` | 93 | 0 |
+| `ItemSound2` | 65 | 0 |
+| `chrsound2` | 40 | 0 |
+| `ItemSound3` | 33 | 0 |
+| `EtcSound` | 6 | 0 |
 | `skillsound` | 74 | 0 |
 | `skillsound2` | 53 | 0 |
 | `SkillSound3` | 65 | 0 |
