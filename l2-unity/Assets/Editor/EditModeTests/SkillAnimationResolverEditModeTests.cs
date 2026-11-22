@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 
 /// <summary>
-/// Duelist physical skills — expected Mix tags from Interlude skillgrp + AnimationCombo_Classic.
+/// Duelist physical skills — expected Mix tags from Interlude skillgrp + AnimationCombo_Interlude.
 /// </summary>
 public sealed class SkillAnimationResolverEditModeTests
 {

@@ -61,7 +61,7 @@ public partial class SkillAnimationDatabase
         _raceCacheFDarkElf.Add("CastShort_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_CastShort_FDarkElf"));
         _raceCacheFDarkElf.Add("CastMid_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_CastMid_FDarkElf"));
         _raceCacheFDarkElf.Add("CastEnd_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_CastEnd_FDarkElf"));
-        _raceCacheFDarkElf.Add("MagicShot_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m001_b.ao_MagicShot_A_FDarkElf"));
+        _raceCacheFDarkElf.Add("MagicShot_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m000_b.ao_MagicShot_FDarkElf"));
         _raceCacheFDarkElf.Add("MagicNoTarget_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m000_b.ao_MagicNotarget_FDarkElf"));
         _raceCacheFDarkElf.Add("MagicNotarget_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m000_b.ao_MagicNotarget_FDarkElf"));
         _raceCacheFDarkElf.Add("MagicThrow_" + FDarkElf, new SkillClips(FOLDER_FDarkElf, "FDarkElf_m000_b.ao_MagicThrow_FDarkElf"));

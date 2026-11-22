@@ -148,7 +148,7 @@ public partial class PlayerStateSpAtk : StateMachineBehaviour
 
     /// <summary>
     /// SpAtk06 is the hands-up buff gesture shared by every race (retail
-    /// <c>AnimationCombo_Classic</c> tag <c>X</c>), with no hit window to sync playback to.
+    /// <c>AnimationCombo_Interlude</c> tag <c>X</c>), with no hit window to sync playback to.
     /// The behaviour's <see cref="motionName"/> is the source clip (<c>*_SpAtk06_Hand_&lt;Race&gt;</c>),
     /// which is what the template controller's <c>SpAtk06_hand</c> state holds.
     /// </summary>
