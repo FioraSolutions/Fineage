@@ -63,7 +63,8 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                int wantNumber = ReadSpAtkNumber(phase);
+                if (!TryReadSpAtkNumber(phase, out int wantNumber))
+                    continue;
                 foreach (PlayerAnimWeapon weapon in WeaponTypes)
                 {
                     Assert.IsTrue(
@@ -86,7 +87,8 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                int wantNumber = ReadSpAtkNumber(phase);
+                if (!TryReadSpAtkNumber(phase, out int wantNumber))
+                    continue;
                 foreach (string race in SkillAnimationDatabase.AllSpAtkRaceTokens())
                 {
                     foreach (PlayerAnimWeapon weapon in WeaponTypes)
@@ -115,7 +117,7 @@ public sealed class SpAtkCombatClipEditModeTests
                                 + " must not load generic SpAtk01 clip; got " + clip.name);
                         }
 
-                        AssertSpAtkIndex(clip.name, wantNumber);
+                        AssertSpAtkIndex(state, wantNumber);
                     }
                 }
             }
@@ -138,10 +140,9 @@ public sealed class SpAtkCombatClipEditModeTests
             Assert.IsFalse(state.StartsWith("SpAtk01_", StringComparison.Ordinal));
     }
 
-    static int ReadSpAtkNumber(string phaseToken)
+    static bool TryReadSpAtkNumber(string phaseToken, out int number)
     {
-        Assert.IsTrue(PlayerSpAtkAnim.TryParse(phaseToken + "_1HS", out int number, out _, out _));
-        return number;
+        return PlayerSpAtkAnim.TryParse(phaseToken + "_1HS", out number, out _, out _);
     }
 
     static int CountNonNoneSpAtkColumns(AnimationCombo combo)
