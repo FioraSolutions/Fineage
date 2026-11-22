@@ -2,42 +2,30 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Interlude top-right CH3 radar (L2UI_CH3 Radar package). Heading-up world map inside the
-/// static <c>radar_back</c> frame, fixed north marker, quest arrow/target, and zoom controls.
+/// Compass drawn inside the extracted RadarContainerWnd (102x102, top-right).
+/// The radar has no map texture. Heading, north, self, and the quest blip are the compass marks.
 /// </summary>
 public sealed class QuestRadarHud : MonoBehaviour
 {
-    const string BackPath = "Data/UI/Map/Radar/radar_back";
-    const string MapPath = "Data/UI/Map/WorldMap";
     const string ArrowPath = "Data/UI/Map/Radar/radar_arrow";
     const string NorthPath = "Data/UI/Map/Radar/radar_n";
     const string SelfPath = "Data/UI/Map/Radar/radar_myself";
     const string TargetPath = "Data/UI/Map/Radar/radar_target";
-    const string ZoomInPath = "Data/UI/Map/Radar/mapbutton_zoomin1";
-    const string ZoomInOverPath = "Data/UI/Map/Radar/mapbutton_zoomin1_over";
-    const string ZoomOutPath = "Data/UI/Map/Radar/mapbutton_zoomout1";
-    const string ZoomOutOverPath = "Data/UI/Map/Radar/mapbutton_zoomout1_over";
-    const float SizePx = 128f;
-    const float MarginPx = 12f;
     const float NorthSizePx = 16f;
     const float SelfSizePx = 16f;
     const float TargetSizePx = 8f;
-    const float RimRadiusPx = 54f;
-    const float MapSizePx = 108f;
-    const float ZoomBtnSize = 12f;
 
     VisualElement _host;
-    VisualElement _mapRotator;
-    VisualElement _frame;
+    VisualElement _compass;
     VisualElement _arrow;
     VisualElement _north;
     VisualElement _target;
     VisualElement _self;
-    Button _zoomIn;
-    Button _zoomOut;
-    float _mapZoom = 1f;
+    float _sizePx;
     bool _assetsFailed;
     bool _ready;
+
+    float RimRadiusPx => _sizePx * 0.5f - NorthSizePx * 0.5f - 2f;
 
     void OnDestroy()
     {
@@ -61,10 +49,7 @@ public sealed class QuestRadarHud : MonoBehaviour
 
         Vector3 fwd = ResolveRadarForward(player);
         float faceAng = Mathf.Atan2(fwd.z, fwd.x);
-        if (_mapRotator != null)
-            _mapRotator.transform.rotation = Quaternion.Euler(0f, 0f, faceAng * Mathf.Rad2Deg);
         AnchorNorthFixed();
-        SyncMapScroll(player);
 
         if (!QuestDirectionSight.TryActive(out QuestDirectionTarget target, out _, out Vector3 playerL2, out float planarUu))
         {
@@ -82,8 +67,8 @@ public sealed class QuestRadarHud : MonoBehaviour
         if (planarUu < QuestDirectionSight.RadarRadiusUu)
         {
             float r = (planarUu / QuestDirectionSight.RadarRadiusUu) * RimRadiusPx;
-            float cx = (SizePx * 0.5f) + Mathf.Sin(rel) * r;
-            float cy = (SizePx * 0.5f) - Mathf.Cos(rel) * r;
+            float cx = (_sizePx * 0.5f) + Mathf.Sin(rel) * r;
+            float cy = (_sizePx * 0.5f) - Mathf.Cos(rel) * r;
             _target.style.display = DisplayStyle.Flex;
             _target.style.left = cx - TargetSizePx * 0.5f;
             _target.style.top = cy - TargetSizePx * 0.5f;
@@ -94,34 +79,12 @@ public sealed class QuestRadarHud : MonoBehaviour
         }
     }
 
-    void SyncMapScroll(PlayerEntity player)
-    {
-        if (_mapRotator == null)
-            return;
-        VisualElement map = _mapRotator.Q<VisualElement>("QuestRadarMap");
-        if (map == null)
-            return;
-
-        Vector3 pos = player.transform.position;
-        var l2 = VectorUtils.ConvertPosUnityToL2j(pos);
-        Vector2 mapPx = DetailedMapProjection.ProjectWorldMapPixel(l2.x, l2.y);
-        float scaledW = DetailedMapProjection.WorldMapPixelWidth * _mapZoom;
-        float scaledH = DetailedMapProjection.WorldMapPixelHeight * _mapZoom;
-        map.style.width = scaledW;
-        map.style.height = scaledH;
-        float cx = SizePx * 0.5f;
-        float left = cx - mapPx.x * _mapZoom;
-        float top = cx - mapPx.y * _mapZoom;
-        map.style.left = left;
-        map.style.top = top;
-    }
-
     void AnchorNorthFixed()
     {
         if (_north == null)
             return;
-        float top = (SizePx - NorthSizePx) * 0.5f - RimRadiusPx;
-        _north.style.left = (SizePx - NorthSizePx) * 0.5f;
+        float top = (_sizePx - NorthSizePx) * 0.5f - RimRadiusPx;
+        _north.style.left = (_sizePx - NorthSizePx) * 0.5f;
         _north.style.top = Mathf.Max(0f, top);
         _north.style.unityBackgroundImageTintColor = Color.white;
     }
@@ -141,139 +104,79 @@ public sealed class QuestRadarHud : MonoBehaviour
         if (root == null)
             return false;
 
-        Texture2D back = Load(BackPath);
-        Texture2D map = Load(MapPath);
         Texture2D arrow = Load(ArrowPath);
         Texture2D north = Load(NorthPath);
         Texture2D self = Load(SelfPath);
         Texture2D target = Load(TargetPath);
-        L2InterludeHudSkinPipeline.ValidateTextures(
-            InterludeHudWindowCatalog.RadarWnd,
-            nameof(QuestRadarHud));
-        L2InterludeHudSkinPipeline.ValidateRadarZoomTextures(nameof(QuestRadarHud));
-        if (back == null || map == null || arrow == null || north == null || self == null || target == null)
+        if (arrow == null || north == null || self == null || target == null)
         {
             _assetsFailed = true;
             return false;
         }
 
-        _host = new VisualElement { name = "QuestRadar" };
+        _host = new VisualElement { name = "RadarContainerWnd" };
         _host.pickingMode = PickingMode.Ignore;
-        _host.style.position = Position.Absolute;
-        _host.style.right = MarginPx;
-        _host.style.top = MarginPx;
-        _host.style.width = SizePx;
-        _host.style.height = SizePx + ZoomBtnSize;
-        _host.style.display = DisplayStyle.None;
         root.Add(_host);
+        if (!InterludeWindowLayout.Apply(_host, "RadarContainerWnd"))
+        {
+            _assetsFailed = true;
+            return false;
+        }
 
-        var mapClip = new VisualElement { name = "QuestRadarMapClip" };
-        mapClip.pickingMode = PickingMode.Ignore;
-        mapClip.style.position = Position.Absolute;
-        mapClip.style.left = (SizePx - MapSizePx) * 0.5f;
-        mapClip.style.top = (SizePx - MapSizePx) * 0.5f;
-        mapClip.style.width = MapSizePx;
-        mapClip.style.height = MapSizePx;
-        mapClip.style.overflow = Overflow.Hidden;
-        mapClip.style.borderTopLeftRadius = mapClip.style.borderTopRightRadius =
-            mapClip.style.borderBottomLeftRadius = mapClip.style.borderBottomRightRadius = Length.Percent(50);
-        _host.Add(mapClip);
+        _compass = _host.Q<VisualElement>("Radar");
+        if (_compass == null)
+        {
+            Debug.LogError("[QuestRadar] Radar is missing from RadarContainerWnd.");
+            _assetsFailed = true;
+            return false;
+        }
 
-        _mapRotator = new VisualElement { name = "QuestRadarMapRotator" };
-        _mapRotator.pickingMode = PickingMode.Ignore;
-        _mapRotator.style.position = Position.Absolute;
-        _mapRotator.style.left = 0;
-        _mapRotator.style.top = 0;
-        _mapRotator.style.width = MapSizePx;
-        _mapRotator.style.height = MapSizePx;
-        _mapRotator.style.transformOrigin = new StyleTransformOrigin(
-            new TransformOrigin(Length.Percent(50), Length.Percent(50)));
-        mapClip.Add(_mapRotator);
+        _sizePx = _compass.resolvedStyle.width;
+        if (float.IsNaN(_sizePx) || _sizePx <= 1f)
+            _sizePx = _compass.style.width.value.value;
+        if (_sizePx <= 1f)
+        {
+            Debug.LogError("[QuestRadar] Radar has no positive size in the extracted layout.");
+            _assetsFailed = true;
+            return false;
+        }
 
-        var mapLayer = new VisualElement { name = "QuestRadarMap" };
-        mapLayer.pickingMode = PickingMode.Ignore;
-        mapLayer.style.position = Position.Absolute;
-        mapLayer.style.backgroundImage = new StyleBackground(map);
-        mapLayer.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-        _mapRotator.Add(mapLayer);
+        _self = Image(self, SelfSizePx, (_sizePx - SelfSizePx) * 0.5f, (_sizePx - SelfSizePx) * 0.5f);
+        _compass.Add(_self);
 
-        _frame = new VisualElement { name = "QuestRadarFrame" };
-        _frame.pickingMode = PickingMode.Ignore;
-        _frame.style.position = Position.Absolute;
-        _frame.style.left = 0;
-        _frame.style.top = 0;
-        _frame.style.width = SizePx;
-        _frame.style.height = SizePx;
-        _frame.style.backgroundImage = new StyleBackground(back);
-        _host.Add(_frame);
-
-        _self = Image(self, SelfSizePx, (SizePx - SelfSizePx) * 0.5f, (SizePx - SelfSizePx) * 0.5f);
-        _host.Add(_self);
-
-        _arrow = Image(arrow, SizePx, 0f, 0f);
+        _arrow = Image(arrow, _sizePx, 0f, 0f);
         _arrow.style.display = DisplayStyle.None;
-        _host.Add(_arrow);
+        _arrow.style.transformOrigin = new StyleTransformOrigin(
+            new TransformOrigin(Length.Percent(50), Length.Percent(50)));
+        _compass.Add(_arrow);
 
         _north = Image(north, NorthSizePx, 0f, 0f);
-        _host.Add(_north);
+        _compass.Add(_north);
         AnchorNorthFixed();
 
         _target = Image(target, TargetSizePx, 0f, 0f);
         _target.style.display = DisplayStyle.None;
-        _host.Add(_target);
+        _compass.Add(_target);
 
-        _zoomIn = ZoomButton(ZoomInPath, ZoomInOverPath, SizePx - ZoomBtnSize * 2f, SizePx + 2f);
-        _zoomOut = ZoomButton(ZoomOutPath, ZoomOutOverPath, SizePx - ZoomBtnSize, SizePx + 2f);
-        _zoomIn.clicked += () => _mapZoom = Mathf.Clamp(_mapZoom * 1.15f, 0.6f, 2.2f);
-        _zoomOut.clicked += () => _mapZoom = Mathf.Clamp(_mapZoom / 1.15f, 0.6f, 2.2f);
-        _host.Add(_zoomIn);
-        _host.Add(_zoomOut);
+        VisualElement icons = new VisualElement { name = "RadarWnd" };
+        icons.pickingMode = PickingMode.Ignore;
+        root.Add(icons);
+        if (InterludeWindowLayout.Apply(icons, "RadarWnd"))
+            ShowOnlyIcon(icons, "icon1");
 
+        _host.style.display = DisplayStyle.None;
         _ready = true;
         return true;
     }
 
-    static Button ZoomButton(string normal, string hover, float left, float top)
+    static void ShowOnlyIcon(VisualElement icons, string visibleName)
     {
-        Texture2D tex = Resources.Load<Texture2D>(normal);
-        var btn = new Button { pickingMode = PickingMode.Position };
-        btn.style.position = Position.Absolute;
-        btn.style.left = left;
-        btn.style.top = top;
-        btn.style.width = ZoomBtnSize;
-        btn.style.height = ZoomBtnSize;
-        btn.style.marginLeft = 0;
-        btn.style.marginRight = 0;
-        btn.style.marginTop = 0;
-        btn.style.marginBottom = 0;
-        btn.style.paddingLeft = 0;
-        btn.style.paddingRight = 0;
-        btn.style.paddingTop = 0;
-        btn.style.paddingBottom = 0;
-        btn.style.borderTopWidth = btn.style.borderBottomWidth =
-            btn.style.borderLeftWidth = btn.style.borderRightWidth = 0;
-        btn.style.backgroundColor = Color.clear;
-        if (tex != null)
-            btn.style.backgroundImage = new StyleBackground(tex);
-        else
-            btn.style.display = DisplayStyle.None;
-
-        Texture2D over = Resources.Load<Texture2D>(hover);
-        if (over != null)
+        icons.Query<VisualElement>(className: "il-xdat").ForEach(element =>
         {
-            btn.RegisterCallback<MouseEnterEvent>(_ =>
-            {
-                if (tex != null)
-                    btn.style.backgroundImage = new StyleBackground(over);
-            });
-            btn.RegisterCallback<MouseLeaveEvent>(_ =>
-            {
-                if (tex != null)
-                    btn.style.backgroundImage = new StyleBackground(tex);
-            });
-        }
-
-        return btn;
+            if (element == icons || element.name == "RadarWnd")
+                return;
+            element.style.display = element.name == visibleName ? DisplayStyle.Flex : DisplayStyle.None;
+        });
     }
 
     static VisualElement Image(Texture2D tex, float size, float left, float top)
@@ -293,7 +196,7 @@ public sealed class QuestRadarHud : MonoBehaviour
     {
         var tex = Resources.Load<Texture2D>(path);
         if (tex == null)
-            Debug.LogError($"[QuestRadar] missing texture path='{path}'. Import L2UI_CH3 Radar from Interlude client.");
+            Debug.LogError("[QuestRadar] missing texture path='" + path + "'.");
         return tex;
     }
 

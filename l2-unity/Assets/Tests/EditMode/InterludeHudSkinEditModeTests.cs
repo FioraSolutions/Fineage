@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// HUD chrome must resolve Interlude CH3 textures and must not reference HF frame packages.
@@ -70,12 +71,22 @@ public sealed class InterludeHudSkinEditModeTests
     }
 
     [Test]
-    public void Chat_input_rect_matches_xdat_bottom_strip()
+    public void Chat_input_rect_matches_extracted_edit_box()
     {
-        InterludeHudControlRect bar = InterludeHudWindowCatalog.ChatInputBar;
-        Assert.AreEqual(22f, bar.Left, 0.01f);
-        Assert.AreEqual(6f, bar.Right, 0.01f);
-        Assert.AreEqual(13f, bar.Bottom, 0.01f);
-        Assert.AreEqual(18f, bar.Height, 0.01f);
+        InterludeWindowLayout.ResetForEditModeTests();
+        var host = new VisualElement();
+        Assert.IsTrue(InterludeWindowLayout.Apply(host, "ChatWnd"));
+        VisualElement edit = host.Q("ChatEditBox");
+        Assert.IsNotNull(edit);
+        Assert.AreEqual(39f, edit.style.left.value.value, 0.01f);
+        Assert.AreEqual(165f, edit.style.top.value.value, 0.01f);
+        Assert.AreEqual(303f, edit.style.width.value.value, 0.01f);
+        Assert.AreEqual(16f, edit.style.height.value.value, 0.01f);
+        Assert.AreEqual(100, InterludeWindowLayout.ControlMaxLength("ChatWnd", "ChatEditBox"));
+        Button all = host.Q<Button>("ChatTabCtrl_NormalChat");
+        Assert.IsNotNull(all);
+        Assert.AreEqual("All", all.text);
+        Assert.AreEqual(64f, all.style.width.value.value, 0.01f);
+        Assert.AreEqual(23f, all.style.height.value.value, 0.01f);
     }
 }

@@ -101,6 +101,35 @@ public static class InterludeWindowLayout
         return "";
     }
 
+    public static int ControlMaxLength(string windowName, string controlName)
+    {
+        InterludeLayoutControl control = FindControl(windowName, controlName);
+        return control == null ? 0 : control.maxLength;
+    }
+
+    public static void SetPressed(VisualElement element, string windowName, string controlName, bool pressed)
+    {
+        if (element == null)
+            return;
+        InterludeLayoutControl control = FindControl(windowName, controlName);
+        if (control == null)
+            return;
+        string path = pressed && !string.IsNullOrEmpty(control.texturePushed)
+            ? control.texturePushed
+            : control.texture;
+        if (string.IsNullOrEmpty(path))
+        {
+            Debug.LogError(
+                "[InterludeLayout] window '" + windowName + "' control '" + controlName +
+                "' has no " + (pressed ? "pushed" : "normal") + " texture.");
+            return;
+        }
+
+        Texture2D texture = LoadTexture(path, windowName, controlName, pressed ? "pushedTex" : "texture");
+        if (texture != null)
+            element.style.backgroundImage = new StyleBackground(texture);
+    }
+
 #if UNITY_EDITOR
     public static void ResetForEditModeTests()
     {
@@ -377,6 +406,8 @@ public static class InterludeWindowLayout
         {
             Button button = new Button();
             ClearChrome(button);
+            if (type == "TabButton")
+                button.AddToClassList("tab-header");
             if (!string.IsNullOrEmpty(control.text))
                 button.text = control.text;
             return button;
@@ -505,7 +536,7 @@ public static class InterludeWindowLayout
         }
 
         Stamp(element, control.texture, windowName, control.name, "texture");
-        if (!string.IsNullOrEmpty(control.texturePushed))
+        if (!string.IsNullOrEmpty(control.texturePushed) && type != "TabButton")
         {
             Texture2D normal = LoadTexture(control.texture, windowName, control.name, "texture");
             Texture2D pushed = LoadTexture(control.texturePushed, windowName, control.name, "pushedTex");
@@ -629,6 +660,23 @@ public static class InterludeWindowLayout
             return false;
         color = new Color32(red, green, blue, alpha);
         return true;
+    }
+
+    static InterludeLayoutControl FindControl(string windowName, string controlName)
+    {
+        InterludeLayoutWindow window = Find(windowName);
+        if (window == null || window.controls == null)
+            return null;
+        for (int i = 0; i < window.controls.Length; i++)
+        {
+            if (window.controls[i].name == controlName)
+                return window.controls[i];
+        }
+
+        Debug.LogError(
+            "[InterludeLayout] window '" + windowName + "' control '" + controlName +
+            "' is not in '" + ResourcesKey + "'.");
+        return null;
     }
 
     static InterludeLayoutWindow Find(string windowName)
