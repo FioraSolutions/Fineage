@@ -36,5 +36,14 @@ public partial class HitManager
         }
         else
             attacker.IsSoulshotCharged = false;
+
+        Entity target = attacker.GetTargetEntity();
+        if (target == null && _localAttack != null)
+            target = ResolveEntityFromWorld(_localAttack.TargetId);
+        if (target != null && target != attacker)
+        {
+            CombatAudioHitContext.Set(attacker, hit.isCrit(), hit.isShielded());
+            target.PlayHitReaction(hit.isCrit());
+        }
     }
 }

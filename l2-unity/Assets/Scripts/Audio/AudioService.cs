@@ -91,6 +91,7 @@ public partial class AudioService : MonoBehaviour
     void Start()
     {
         SetBuses();
+        InterludeFmodCombatSoundResolver.WarmCombatBanks();
         LogStartupFmodBanks();
     }
 
