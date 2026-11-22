@@ -90,7 +90,7 @@ public static class L2NameplateOcclusionBatch
             commands[i] = new RaycastCommand(camPos, dir, len, occlusionMask, maxHits: 1);
         }
 
-        var handle = RaycastCommand.ScheduleBatch(commands, hits, 1, 1, default);
+        var handle = RaycastCommand.ScheduleBatch(commands, hits, 1, default);
         handle.Complete();
 
         for (int i = 0; i < count; i++)
