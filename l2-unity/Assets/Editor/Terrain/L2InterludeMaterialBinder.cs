@@ -53,6 +53,7 @@ public static class L2InterludeMaterialBinder
             if (!tex.TryGetValue(n, out var l)) tex[n] = l = new List<string>();
             l.Add(p);
         }
+        BuildChainIndex(tex);
 
         int fixedN = 0, missing = 0;
         var missingNames = new List<string>();
@@ -110,6 +111,11 @@ public static class L2InterludeMaterialBinder
                     m.SetOverrideTag("RenderType", "TransparentCutout");
                 }
                 if (info.twoSided) { m.SetFloat("_Cull", 0f); m.doubleSidedGI = true; }
+                if (props.ContainsKey(m.name))
+                {
+                    L2Ue2MaterialChain.Eval chain = L2Ue2MaterialChain.Evaluate(m.name, props);
+                    L2Ue2MaterialApply.Apply(m, chain, 0f, reference => LoadChainTexture(reference, tex, m.name));
+                }
                 EditorUtility.SetDirty(m);
                 fixedN++;
             }
@@ -358,6 +364,58 @@ public static class L2InterludeMaterialBinder
         }
         AssetDatabase.SaveAssets();
         return n;
+    }
+
+    static readonly Dictionary<string, string> ChainAssets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    static readonly List<string> ChainNames = new List<string>();
+    static readonly List<string> ChainPackages = new List<string>();
+    static readonly List<string> ChainResources = new List<string>();
+
+    static void BuildChainIndex(Dictionary<string, List<string>> tex)
+    {
+        ChainAssets.Clear();
+        ChainNames.Clear();
+        ChainPackages.Clear();
+        ChainResources.Clear();
+        foreach (var kv in tex)
+        {
+            for (int i = 0; i < kv.Value.Count; i++)
+            {
+                string assetPath = kv.Value[i].Replace('\\', '/');
+                const string marker = "/Textures/";
+                int at = assetPath.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+                if (at < 0)
+                    continue;
+                string rel = assetPath.Substring(at + marker.Length);
+                int slash = rel.IndexOf('/');
+                string package = slash > 0 ? rel.Substring(0, slash) : "";
+                string noExt = Path.ChangeExtension(rel, null).Replace('\\', '/');
+                string resource = "Data/Textures/" + noExt;
+                ChainNames.Add(kv.Key);
+                ChainPackages.Add(package);
+                ChainResources.Add(resource);
+                if (!ChainAssets.ContainsKey(resource))
+                    ChainAssets.Add(resource, assetPath);
+            }
+        }
+    }
+
+    static Texture LoadChainTexture(string reference, Dictionary<string, List<string>> tex, string material)
+    {
+        if (ChainNames.Count == 0)
+            BuildChainIndex(tex);
+        var errors = new List<string>();
+        string resource = L2Ue2MaterialApply.PickTexturePath(ChainNames, ChainPackages, ChainResources, reference, errors, material);
+        for (int i = 0; i < errors.Count; i++)
+            Debug.LogError(errors[i]);
+        if (resource == null)
+            return null;
+        if (!ChainAssets.TryGetValue(resource, out string assetPath))
+        {
+            Debug.LogError("[Ue2Material] material " + material + " texture " + reference + " missing");
+            return null;
+        }
+        return AssetDatabase.LoadAssetAtPath<Texture>(assetPath);
     }
 
     struct Info { public string tex; public bool cutout, twoSided; }
