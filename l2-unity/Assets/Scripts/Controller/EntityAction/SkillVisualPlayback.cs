@@ -3,10 +3,16 @@ using UnityEngine;
 
 /// <summary>
 /// Spawns the prefabs <see cref="SkillVisualCatalog"/> resolved for one cast,
-/// with that row's phase, attach, bone, offset, delay, and flying time.
+/// with that row's phase, attach, bone, offset, delay, scale, rotation, and flying time.
+/// Placement comes only from the skill-effect-placement table.
 /// </summary>
 public static class SkillVisualPlayback
 {
+    // Relative-to-cylinder offsets with a component larger than this are stored
+    // in Unreal units even when bRelativeToCylinder is set. The packed Engine.dll
+    // Notify() formula was not dumped; those rows convert as UU and are logged.
+    const float RelativeCylinderUnitMax = 5f;
+
     public static void Play(Entity entity, SkillVisualResolution resolution, MagicCastData cast, int targetId)
     {
         if (entity == null || resolution == null)
@@ -50,7 +56,7 @@ public static class SkillVisualPlayback
                 continue;
             }
 
-            parts.Add(BuildPart(action, prefab, resolution.FlyingTime, entity, target));
+            parts.Add(BuildPart(action, prefab, resolution, entity, target));
         }
 
         if (parts.Count == 0)
@@ -70,14 +76,14 @@ public static class SkillVisualPlayback
     static CompositePart BuildPart(
         SkillVisualAction action,
         BaseEffect prefab,
-        float flyingTime,
+        SkillVisualResolution resolution,
         Entity caster,
         Entity target)
     {
         CompositePart part;
         if (action.Kind == SkillVisualPartKind.Projectile)
         {
-            float speed = ProjectileSpeed(flyingTime, caster, target);
+            float speed = ProjectileSpeed(action, resolution.FlyingTime, caster, target);
             part = new ShotProjectilePart
             {
                 launchMode = ProjectileLaunchMode.OnAnimationShoot,
@@ -95,9 +101,10 @@ public static class SkillVisualPlayback
             part = new StationaryPart();
         }
 
+        Entity attachEntity = action.OnTarget ? target : caster;
         part.name = action.AssetKey;
         part.prefab = prefab;
-        part.scale = 1f;
+        part.scale = action.DrawScale > 0f ? action.DrawScale : 1f;
         part.spawnTiming = action.Timing;
         part.spawnDelaySeconds = action.Delay > 0f ? action.Delay : 0f;
         part.spawnAttachmentPoint = action.Attachment;
@@ -105,21 +112,80 @@ public static class SkillVisualPlayback
         part.boneName = action.NamedBone ? action.Bone : null;
         part.requireNamedBone = action.NamedBone;
         part.boneOnTarget = action.OnTarget && action.NamedBone;
-        part.spawnOffset = VectorUtils.ConvertPosToUnity(new Vector3(action.OffsetX, action.OffsetY, action.OffsetZ));
+        part.spawnOffset = ResolveOffset(action, attachEntity, resolution.SkillId);
         part.spawnOffsetLocal = action.RelativeToCylinder;
+        part.inheritRotation = action.UseCharacterRotation;
+        part.spawnEuler = VectorUtils.ConvertRotToUnity(
+            new Vector3(action.RotationPitch, action.RotationYaw, action.RotationRoll));
         return part;
     }
 
-    static float ProjectileSpeed(float flyingTime, Entity caster, Entity target)
+    static Vector3 ResolveOffset(SkillVisualAction action, Entity attachEntity, int skillId)
     {
-        if (flyingTime <= 0f || caster == null || target == null)
-            return 0.01f;
+        var ue = new Vector3(action.OffsetX, action.OffsetY, action.OffsetZ);
+        if (ue == Vector3.zero)
+            return Vector3.zero;
 
-        Vector3 start = caster.GetPositionRightHand();
-        float distance = Vector3.Distance(start, target.transform.position);
-        if (distance <= 0.01f)
-            return 0.01f;
-        return distance / flyingTime;
+        if (!action.RelativeToCylinder)
+            return VectorUtils.ConvertPosToUnity(ue);
+
+        float maxAbs = Mathf.Max(Mathf.Abs(ue.x), Mathf.Abs(ue.y), Mathf.Abs(ue.z));
+        if (maxAbs > RelativeCylinderUnitMax)
+        {
+            Debug.LogError(
+                "[SkillVisual] skill=" + skillId +
+                " phase=" + (action.Phase ?? string.Empty) +
+                " field=offset relative-to-cylinder value (" +
+                ue.x + "," + ue.y + "," + ue.z +
+                ") is larger than " + RelativeCylinderUnitMax +
+                "; converting as UU because the packed Notify() formula is not available");
+            return VectorUtils.ConvertPosToUnity(ue);
+        }
+
+        CharacterController controller = FindController(attachEntity);
+        if (controller == null)
+        {
+            Debug.LogError(
+                "[SkillVisual] skill=" + skillId +
+                " phase=" + (action.Phase ?? string.Empty) +
+                " field=b_relative_to_cylinder CharacterController is missing");
+            return new Vector3(ue.y, ue.z, ue.x);
+        }
+
+        // Notify() is packed in Engine.dll and was not dumped. Offsets with
+        // max |component| <= 5 are treated as cylinder units from the attach
+        // point (CasterCenter is the capsule center): Unity X = UE Y * radius,
+        // Unity Y = UE Z * half-height, Unity Z = UE X * radius, so (0,0,-1)
+        // lands at the feet. This is an inferred convention, not a dumped formula.
+        float radius = controller.radius;
+        float halfHeight = controller.height * 0.5f;
+        return new Vector3(ue.y * radius, ue.z * halfHeight, ue.x * radius);
+    }
+
+    static CharacterController FindController(Entity entity)
+    {
+        if (entity == null)
+            return null;
+        CharacterController controller = entity.GetComponent<CharacterController>();
+        if (controller != null)
+            return controller;
+        return entity.GetComponentInChildren<CharacterController>(true);
+    }
+
+    static float ProjectileSpeed(SkillVisualAction action, float flyingTime, Entity caster, Entity target)
+    {
+        if (flyingTime > 0f && caster != null && target != null)
+        {
+            Vector3 start = caster.GetPositionRightHand();
+            float distance = Vector3.Distance(start, target.transform.position);
+            if (distance > 0.01f)
+                return distance / flyingTime;
+        }
+
+        if (action.Speed > 0f)
+            return VectorUtils.ConvertPosToUnity(new Vector3(action.Speed, 0f, 0f)).magnitude;
+
+        return 0.01f;
     }
 
     static Entity ResolveTarget(int targetId)

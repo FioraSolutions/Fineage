@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 
 /// <summary>
-/// Loads the skillgrp desc table, the skill.usk export, and the effect-prefab index
+/// Loads the skillgrp desc table, the skill-effect-placement table, and the effect-prefab index
 /// once. Every cast asks this catalog; a missing file is an error, not a GlobalEffect guess.
 /// </summary>
 public static class SkillVisualRuntime
@@ -79,21 +79,21 @@ public static class SkillVisualRuntime
 
         string root = Path.Combine(Application.streamingAssetsPath, Folder);
         string descPath = Path.Combine(root, "skillgrp-desc.txt");
-        string uskPath = Path.Combine(root, "skill-effects-engine.txt");
+        string placementPath = Path.Combine(root, "skill-effect-placement.txt");
         string prefabPath = Path.Combine(root, "effect-prefabs.txt");
-        if (!File.Exists(descPath) || !File.Exists(uskPath) || !File.Exists(prefabPath))
+        if (!File.Exists(descPath) || !File.Exists(placementPath) || !File.Exists(prefabPath))
         {
             _failed = true;
             Debug.LogError(
                 "[SkillVisual] catalog files missing under " + root +
                 " desc=" + File.Exists(descPath) +
-                " usk=" + File.Exists(uskPath) +
+                " placement=" + File.Exists(placementPath) +
                 " prefabs=" + File.Exists(prefabPath));
             return;
         }
 
         string error;
-        if (!SkillVisualCatalog.TryParse(File.ReadAllText(descPath), File.ReadAllText(uskPath), out _catalog, out error))
+        if (!SkillVisualCatalog.TryParse(File.ReadAllText(descPath), File.ReadAllText(placementPath), out _catalog, out error))
         {
             _failed = true;
             _catalog = null;

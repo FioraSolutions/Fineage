@@ -25,6 +25,11 @@ public static partial class SkillCastSound
         SkillSoundRow row;
         bool fromGrp = TryGetRow(dto.SkillId, dto.SkillLvl, out row);
 
+        SkillSoundCue castCue = fromGrp ? row.CastCue : default;
+        SkillSoundCue shotCue = fromGrp ? row.ShotCue : default;
+        SkillSoundCue explodeCue = fromGrp ? row.ExplodeCue : default;
+        SkillSoundCue[] shotEffects = fromGrp ? row.ShotEffects : Array.Empty<SkillSoundCue>();
+        SkillSoundCue[] expEffects = fromGrp ? row.ExpEffects : Array.Empty<SkillSoundCue>();
         string castClip = fromGrp ? row.Cast : null;
         string shotClip = fromGrp ? row.Shot : null;
         string explodeClip = fromGrp ? row.Explode : null;
@@ -34,12 +39,18 @@ public static partial class SkillCastSound
         string throwVoice = fromGrp ? KindForRace(row.ThrowKinds, caster) : null;
 
         string key = KeyFor(dto.SkillId, dto.SkillLvl);
-        if (string.IsNullOrEmpty(castClip) && !string.IsNullOrEmpty(key))
-            castClip = key + "_cast";
-        if (string.IsNullOrEmpty(shotClip) && !string.IsNullOrEmpty(key))
-            shotClip = key + "_shot";
+        // Invented stems only when the skill is missing from skillsoundgrp.
+        // An empty table slot means this phase has no sound.
         if (!fromGrp)
         {
+            if (string.IsNullOrEmpty(castClip) && !string.IsNullOrEmpty(key))
+                castClip = key + "_cast";
+            if (string.IsNullOrEmpty(shotClip) && !string.IsNullOrEmpty(key))
+                shotClip = key + "_shot";
+            if (!castCue.HasClip && !string.IsNullOrEmpty(castClip))
+                castCue = CueFromStem(castClip);
+            if (!shotCue.HasClip && !string.IsNullOrEmpty(shotClip))
+                shotCue = CueFromStem(shotClip);
             if (string.IsNullOrEmpty(castVoice))
                 castVoice = VoiceKindFor(key ?? StemFromClip(castClip), caster);
             if (string.IsNullOrEmpty(throwVoice))
@@ -62,7 +73,7 @@ public static partial class SkillCastSound
         float shotLen = ClipLengthSec(SfxRoot, shotClip);
         float voiceLen = VoiceClipLengthSec(caster, castVoice);
         float explodeDelay = 0f;
-        if (!string.IsNullOrEmpty(explodeClip))
+        if (HasAnyCue(explodeCue, expEffects) || !string.IsNullOrEmpty(explodeClip))
             explodeDelay = Mathf.Max(shotDelay + 0.05f, dto.HitTime / 1000f);
         float hitSec = dto.HitTime / 1000f;
 
@@ -87,8 +98,8 @@ public static partial class SkillCastSound
             "\n  note=anim speeds/walls come later in ANIM.setup; compare BAR.tick remainPct vs these t=");
 
         // 1) Cast SFX + cast-time hero voice (sub / Element / White / …).
-        if (!string.IsNullOrEmpty(castClip))
-            PlayCastSfx(castClip, Volume);
+        if (castCue.HasClip)
+            PlayCue(castCue, "cast", dto.SkillId, pos, true, asCast: true);
         PlayVoiceKind(caster, castVoice);
 
         int casterId = caster.Identity != null ? caster.Identity.Id : 0;
@@ -97,6 +108,10 @@ public static partial class SkillCastSound
             ShotClip = shotClip ?? "",
             ExplodeClip = explodeClip ?? "",
             ThrowVoiceKind = throwVoice ?? "",
+            ShotCue = shotCue,
+            ExplodeCue = explodeCue,
+            ShotEffects = shotEffects ?? Array.Empty<SkillSoundCue>(),
+            ExpEffects = expEffects ?? Array.Empty<SkillSoundCue>(),
             ShotPlayed = false,
             ExplodePlayed = false,
             StartTime = Time.realtimeSinceStartup,
@@ -115,7 +130,7 @@ public static partial class SkillCastSound
             PlayRelease(idCapture, casterCapture, shotCapture, throwCapture, "timer"));
 
         // Explode backup if projectile callback missed (impact ≈ HitTime in Fineage timing).
-        if (!string.IsNullOrEmpty(explodeClip))
+        if (HasAnyCue(explodeCue, expEffects) || !string.IsNullOrEmpty(explodeClip))
         {
             Vector3 hitPos = targetTf != null ? targetTf.position : pos;
             InterludeSfx.PlayAfter(explodeDelay, () => TryPlayExplode(casterId, hitPos, "timer"));

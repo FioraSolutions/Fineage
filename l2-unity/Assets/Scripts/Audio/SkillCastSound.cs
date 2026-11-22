@@ -9,8 +9,10 @@ public static partial class SkillCastSound
     const string VoiceRoot = "Data/Sounds/SkillVoice/";
     const string GrpResource = "Data/SkillSoundGrp";
 
+    // Legacy default; skill SFX volume comes from skillsoundgrp (vol/255), not this constant.
     public static float Volume = 0.8f;
     public static float VoiceVolume = 1f;
+    const float InterludeVolumeMax = 255f;
 
     static readonly CharacterRaceAnimation[] RaceSlots =
     {
@@ -53,11 +55,28 @@ public static partial class SkillCastSound
     static int _localReleaseCasterId;
     static bool _grpTried;
 
+    struct SkillSoundCue
+    {
+        public string Token;
+        public string Package;
+        public string Name;
+        public string Clip;
+        public float Vol;
+        public float Rad;
+
+        public bool HasClip => !string.IsNullOrEmpty(Clip);
+    }
+
     struct SkillSoundRow
     {
         public string Cast;
         public string Shot;
         public string Explode;
+        public SkillSoundCue CastCue;
+        public SkillSoundCue ShotCue;
+        public SkillSoundCue ExplodeCue;
+        public SkillSoundCue[] ShotEffects;
+        public SkillSoundCue[] ExpEffects;
         public string[] Kinds;       // cast-time voice (sub)
         public string[] ThrowKinds;  // release-time voice (throw)
     }
@@ -67,6 +86,10 @@ public static partial class SkillCastSound
         public string ShotClip;
         public string ExplodeClip;
         public string ThrowVoiceKind;
+        public SkillSoundCue ShotCue;
+        public SkillSoundCue ExplodeCue;
+        public SkillSoundCue[] ShotEffects;
+        public SkillSoundCue[] ExpEffects;
         public bool ShotPlayed;
         public bool ExplodePlayed;
         public float StartTime;
@@ -75,12 +98,21 @@ public static partial class SkillCastSound
         public int SkillId;
     }
 
-
-
     [Serializable]
     class SkillSoundGrpDto
     {
         public SkillSoundEntryDto[] entries;
+    }
+
+    [Serializable]
+    class SkillSoundCueDto
+    {
+        public string token;
+        public string package;
+        public string name;
+        public string clip;
+        public float vol;
+        public float rad;
     }
 
     [Serializable]
@@ -91,7 +123,14 @@ public static partial class SkillCastSound
         public string cast;
         public string shot;
         public string explode;
+        public SkillSoundCueDto castCue;
+        public SkillSoundCueDto shotCue;
+        public SkillSoundCueDto explodeCue;
+        public SkillSoundCueDto[] shotEffects;
+        public SkillSoundCueDto[] expEffects;
         public string[] kinds;
         public string[] throwKinds;
+        public float vol;
+        public float rad;
     }
 }

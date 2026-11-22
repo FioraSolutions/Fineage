@@ -61,6 +61,9 @@ public partial class CompositeEffectV2
         Quaternion rotation = ResolveV2SpawnRotation(part, followTransform);
         BaseEffect instance = Instantiate(part.prefab, spawnPosition, rotation);
         instance.gameObject.SetActive(true);
+        SkillEffectSpawnSound.TryPlay(
+            !string.IsNullOrEmpty(part.name) ? part.name : (part.prefab != null ? part.prefab.name : null),
+            instance.transform.position);
         if (TraceCrasherWind())
             Debug.Log("[WINDSTRIKE] Composite spawned part=" + part.name + " pos=" + instance.transform.position);
         Vector3 afterInstantiate = instance.transform.position;
