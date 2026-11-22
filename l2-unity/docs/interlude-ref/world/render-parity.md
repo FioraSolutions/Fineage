@@ -182,6 +182,7 @@ Opened from this audit and linked from [#1673](https://github.com/FioraSolutions
 - [#1685](https://github.com/FioraSolutions/Fineage/issues/1685) — terrain holes (`QuadVisibilityBitmap`) not applied; Meta truncated outside TI
 - #1685 follow-up: official 2048-word bitmaps are in Meta/t3d and `quadvisibility/`; the mesh converter cuts hidden quads. Shipped meshes still need the Unity re-bake in `Docs/INTERLUDE_TILE_BAKE.md`.
 - [#1686](https://github.com/FioraSolutions/Fineage/issues/1686) — terrain layers: Meta drops splat textures; parser drops axis/rotation
+- #1686 follow-up: official layer slots are rebuilt in Meta/t3d (axis/rotation included); missing splat PNGs imported from official `.utx`. Shipped materials still need a Unity mesh re-bake.
 - [#1687](https://github.com/FioraSolutions/Fineage/issues/1687) — DecoLayers fade, density, and MaxPerQuad ignored; Meta missing outside TI
 - [#1688](https://github.com/FioraSolutions/Fineage/issues/1688) — StaticMeshActor counts, transforms, vertex lighting, and L2 LOD
 - [#1689](https://github.com/FioraSolutions/Fineage/issues/1689) — water is a flat shared quad and missing on the harbour and several towns
