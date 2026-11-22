@@ -125,6 +125,20 @@ public class NetWireContractTests
     }
 
     [Fact]
+    public void ClientSetTime_keeps_mobius_field_order()
+    {
+        byte[] payload = NetCodec.EncodeClientSetTime(new ClientSetTimeNetMsg
+        {
+            GameMinutes = 720,
+            ClockSpeed = 6
+        });
+        Assert.Equal(8, payload.Length);
+        ClientSetTimeNetMsg decoded = NetCodec.DecodeClientSetTime(payload);
+        Assert.Equal(720, decoded.GameMinutes);
+        Assert.Equal(6, decoded.ClockSpeed);
+    }
+
+    [Fact]
     public void ShortCut_row_is_four_int32_in_type_slot_id_level_order()
     {
         byte[] payload = NetCodec.EncodeShortCut(new ShortCutNetMsg
@@ -414,6 +428,7 @@ public class NetWireContractTests
         Assert.Equal(0x035B, NetOpcode.ShortCutRegister);
         Assert.Equal(0x035C, NetOpcode.ShortCutDelete);
         Assert.Equal(0x035D, NetOpcode.EtcStatusUpdate);
+        Assert.Equal(0x03E1, NetOpcode.ClientSetTime);
 
         // Lobby 0x02xx
         Assert.Equal(0x0207, NetOpcode.SelectCharacter);

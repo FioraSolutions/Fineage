@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
 
-public class MapWindow : L2PopupWindow
+public partial class MapWindow : L2PopupWindow
 {
     private static MapWindow _instance;
     private const string _mapTemplateName = "Data/UI/_Elements/Game/Map/MapAdenTemplate";
@@ -106,6 +106,8 @@ public class MapWindow : L2PopupWindow
             InterludeHudWindowCatalog.MinimapWnd,
             nameof(MapWindow));
 
+        SubscribeGameTimeClock();
+
         yield return new WaitForEndOfFrame();
 
   
@@ -126,6 +128,8 @@ public class MapWindow : L2PopupWindow
 
     public override void ShowWindow()
     {
+        SubscribeGameTimeClock();
+        RefreshMinimapGameTime();
         _mapPanner.SetDisabled(false);
         _mapPanner.SetManualUpdate(true);
         _mapMarkerFollowCamera.ManualTurnUpdate();

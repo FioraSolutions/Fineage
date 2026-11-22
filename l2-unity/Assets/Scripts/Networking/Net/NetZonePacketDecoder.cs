@@ -130,6 +130,7 @@ public static partial class NetZonePacketDecoder
             NetOpcode.PackageToList => NetCodec.DecodePackageToList(payload),
             NetOpcode.PackageSendableList => NetCodec.DecodePackageSendableList(payload),
             NetOpcode.MonRaceInfo => DecodeMonRaceInfo(payload),
+            NetOpcode.ClientSetTime => NetCodec.DecodeClientSetTime(payload),
             NetOpcode.Reject => NetCodec.DecodeReject(payload),
             _ => null,
         };
