@@ -1,0 +1,12 @@
+FS = "\t";
+HEADER = 1;
+RECCNT = 1;
+MTXCNT_OUT = 1;
+MATCNT_OUT = 1;
+ORD_IGNORE = 0;
+
+{
+	// This Interlude file is a single UTF-16 body; trailing fin* fields in the
+	// community ddf are not present after the SafePackage tail is removed.
+	ASCF eula;
+}
