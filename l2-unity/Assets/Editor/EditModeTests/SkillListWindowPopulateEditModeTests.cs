@@ -67,8 +67,8 @@ public sealed class SkillListWindowPopulateEditModeTests
         _skillListHost = new GameObject("SkillListWindowEditModeHost");
         var window = _skillListHost.AddComponent<SkillListWindow>();
         window.EditorTestEnsureAwakeForEditMode();
-        Assert.IsTrue(window.IsSkillListSingletonOwnerForTests, "test host must own SkillListWindow singleton");
         window.EditorTestLoadAssets();
+        Assert.IsTrue(window.IsSkillListSingletonOwnerForTests, "test host must own SkillListWindow singleton");
 
         var visualRoot = windowAsset.Instantiate();
         var host = new VisualElement { name = "UITestRoot" };
