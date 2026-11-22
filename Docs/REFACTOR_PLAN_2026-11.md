@@ -316,7 +316,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Client ACS hub file-splits continued (MagicCastData Timing/Clips)
 - [x] Cycle-safe `L2MaterialPropertyCopier` / `NpcDecoKeepWorldUp` / debug `DrawLine` into `Fineage.Game`.
 - [x] Overnight ACS hub file-splits (CharacterSelector/EffectManager/EntityAction/UI windows/zone commands/ItemDrop FX).
-- [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual).
+- [ ] Remaining asmdef work = LifetimeScope / more gameplay MonoBehaviours when types are cycle-safe (hard residual). Active list: **#131 slice queue (2026-11-22)** below.
 - [x] `LifetimeScopeMonoRegistration` in `Fineage.Di` (VContainer ref) — App/Login/Game scopes share RegisterIfFound/LateBound/LiveMono; ACS PacketServices fallbacks stay in GameLifetimeScope.
 - [x] Cycle-safe preview/debug MonoBehaviours into `Fineage.Game` (`PreviewOrbitCamera`, `PlayerLoopDebugger`).
 - [x] Client ACS hub file-splits continued (SkillCastSound.Helpers; MovementData.Step)
@@ -325,7 +325,7 @@ Call-site inventory (2026-11-07): DTO/apply logic on `NetSession` (spawn, move, 
 - [x] Cycle-safe `L2MaterialPropertyCopier` into `Fineage.Game`.
 - [x] Cycle-safe `L2MaterialPropertyCopier` (+ AppRand partial) into `Fineage.Game`.
 - [x] Cycle-safe debug `DrawLine` into `Fineage.Game`.
-- [ ] Remaining asmdef work = LifetimeScope types themselves / more gameplay MonoBehaviours when cycle-safe (hard residual).
+- [ ] Remaining asmdef work = LifetimeScope types themselves / more gameplay MonoBehaviours when cycle-safe (hard residual). Active list: **#131 slice queue (2026-11-22)** below.
 
 ### C3. Doc sync
 - [x] Strip “Zone v2 / MessagePack” wording from `NetDomainMap`, `IWorldDomainSink`, stale comments.
@@ -392,16 +392,16 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 
 ---
 
-## Agent start here (as of 2026-11-11 — gameplay-debug bar)
+## Agent start here (as of 2026-11-22 — #131 slice queue)
 
-**Status Now:** Stabilize A–C bar for **gameplay debug + graphics import is MET** (~80–85%). Di seams through `IGameManager` / `ISceneLoader` / `ILobbySession` / `IWorldEntityLookup` / `ISkillNameTable` / `ISkillgrpLookup` / `IZoneTransport` / `PacketApplyQueue` (+ leaf waves ~#1334–#1341). LifetimeScope shells still ACS — **ongoing residual, not the gate**. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
+**Status Now:** Stabilize A–C bar for **gameplay debug + graphics import is MET** (~80–85%). Di seams through `IGameManager` / `ISceneLoader` / `ILobbySession` / `IWorldEntityLookup` / `ISkillNameTable` / `ISkillgrpLookup` / `IZoneTransport` / `PacketApplyQueue` (+ leaf waves ~#1334–#1341). LifetimeScope shells still ACS — **not the gameplay-debug gate**. The active #131 work is the ordered slice queue below. See `CLIENT_ARCHITECTURE_REVIEW` Status Now.
 
-**Primary focus now:** debug gameplay, import graphics / Interlude assets, parity fixes. Backend #353 acceptance largely met. Phase D scale still later.
+**Primary focus now:** debug gameplay, import graphics / Interlude assets, parity fixes. Backend #353 acceptance largely met. Phase D scale still later. This queue is behavior-preserving assembly moves only.
 
 | Track | Do next | Do **not** |
 |-------|---------|------------|
 | Client primary | Gameplay debug, graphics/import, Interlude parity; #129 smoke when useful | Wait on LifetimeScope→`Fineage.Di` before play/assets; invent HUD |
-| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) residual | Opportunistic seams only when they unblock concrete pain | DAT/World grind as finish-line; empty hub splits; fat `IDatRegistry` / ACS `ItemName` |
+| Client [#131](https://github.com/FioraSolutions/Fineage/issues/131) residual | The slice queue below, one cycle-safe PR at a time | DAT/World grind as finish-line; empty hub splits; fat `IDatRegistry` / ACS `ItemName`; terrain importers, audio, nameplates, world map, actions/animations (other agents) |
 | Backend [#353](https://github.com/FioraSolutions/Fineage-Backend/issues/353) | Opportunistic hub residual only; sim actor / retire `_gate` later when measured | Microservices; rewrite ZoneWorld; invent non-Mobius rules |
 | A6 | TLS / Gateway before public internet (#17 / #113) | Treat Phase D scale as current work |
 | Docs | Keep this plan + epic bodies honest after each wave | Trust unchecked boxes in old review prose without Status Now |
@@ -409,6 +409,35 @@ Gateway + TLS, multi-zone ownership, Redis session directory / pub-sub, distribu
 **Out of scope now:** Redis, multi-zone, QUIC, 20k claims, ECS rewrite, microservices.
 
 Living client Status Now: [`l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md`](../l2-unity/docs/CLIENT_ARCHITECTURE_REVIEW.md). Backend Status Now: [Fineage-Backend `docs/ZONE_MODULARIZATION.md`](https://github.com/FioraSolutions/Fineage-Backend/blob/dev/docs/ZONE_MODULARIZATION.md).
+
+## #131 slice queue (2026-11-22)
+
+One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.meta` (script GUID stays), no formula or packet change. Destination assemblies already reference every type the file uses. World-render issues [#1688](https://github.com/FioraSolutions/Fineage/issues/1688) (SMA / vertex light / L2 LOD), [#1690](https://github.com/FioraSolutions/Fineage/issues/1690) (UE2 material chains), [#1691](https://github.com/FioraSolutions/Fineage/issues/1691) (ZoneInfo fog), and [#1692](https://github.com/FioraSolutions/Fineage/issues/1692) (instancing / LOD perf) are **not** fixed here. The slices only put the existing clocks, classifiers' neighbors, sun formula, and fog apply next to the Fineage.Game render types those issues will extend (`L2Ue2ShaderProps`, `L2StaticMeshVertexLight`, `L2StaticMeshSunMask*`).
+
+- [x] **S1** `FxBudgetEffectRelease` → `Fineage.Game/Crowd/`. Cuts the ACS compile of a MonoBehaviour whose only project types (`CrowdDetailTier`, `CrowdTierPacketServices`, `FxBudgetRegistry`) already live in Fineage.Game.
+- [ ] **S2** `L2FlameAnim` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the shared flame texture clock (#1690 neighbor: texture animation sits with `L2Ue2ShaderProps`, clock unchanged).
+- [ ] **S3** `L2VillageStatuePanner` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the one-off TexPanner. It stays a statue-specific clock beside `L2Ue2ShaderProps`; this PR does not turn it into the shared UE2 material path (#1690).
+- [ ] **S4** `L2DoorPassage` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the static-mesh doorway submesh drop (#1688 neighbor, policy unchanged).
+- [ ] **S5** `L2TerrainSunIntensity` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the UE2 sun-direction formula so it sits with `L2StaticMeshVertexLight` / sun masks (#1688). Formula unchanged; still not a rebake entry point.
+- [ ] **S6** `L2BrushPortal` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the baked-brush portal cut (#1688 / #1692 neighbor, mesh cut unchanged).
+- [ ] **S7** `EntityStunStars` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the stun-star drawer; it already calls `L2FxCompositorLayers` in Fineage.Game.
+- [ ] **S8** `ItemEnchantGlowView` → `Fineage.Game/Combat/`. Cuts ACS ownership of the enchant-glow view; placement and style already live on `EnchantGlow` in Fineage.Domain.
+- [ ] **S9** `LoginJungleFillPass` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the login far-plane fill. Uses only Unity rendering types.
+- [ ] **S10** `L2StarDomeMesh` → `Fineage.Game/Rendering/Sky/`. Cuts ACS ownership of the star-dome mesh builder. The `L2StarDome` MonoBehaviour stays ACS (VContainer).
+- [ ] **S11** `L2DayNightLut` (all partials) → `Fineage.Game/Rendering/Lut/`. Cuts ACS ownership of the day/night color table (#1691 neighbor). Sampling unchanged; no per-tile ZoneInfo.
+- [ ] **S12** `LobbyAccountEnvironmentProfile` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/ambient ScriptableObject (fog start/end/color fields unchanged).
+- [ ] **S13** `LobbyAccountRenderSettings` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/sky apply. Depends on S11 and S12. Still lobby-only; not ZoneInfo (#1691).
+- [ ] **S14** `NetGameHost` → `Fineage.Game/Manager/`. Cuts ACS ownership of the `IGameManager` composition host (the port already lives in Fineage.Game). Bind/TryGet behavior unchanged.
+- [ ] **S15** `GameClient` and `LoginClient` → `Fineage.Networking/`. Drops the unused `using VContainer` so the protocol shells can sit beside `IZoneTransport`. Awake singleton behavior unchanged.
+
+**Still blocked (do not force in this wave):**
+
+- `AppLifetimeScope` / `GameLifetimeScope` / `LoginLifetimeScope` / `GameRuntime` / `LoginRuntime` / `DiBootstrap` — they register the ACS host graph. Fineage.Di cannot name those MonoBehaviours until the hosts themselves move.
+- `IWorldDomainSink` and `DomainMoveTo` / `DomainStopMove` / `DomainKnownlistAdd` / `DomainPlayerSpawned` / `DomainStatsChanged` — the payloads still carry Interlude bridges (`CharMoveToLocationDto` is fine for Networking; `CharInfoDto`, `NpcInfoDto`, `UserInfoDto`, `EntityIdentity` are ACS; `PlayerStats` / `PlayerStatus` / `PlayerAppearance` are Fineage.Game). Domain cannot reference Game, and Networking cannot reference Game, so the sink stays ACS until the Interlude fields are a side object. That split is the next protocol-port slice; it is not a pure move.
+- `DoorCatalog` — `Newtonsoft.Json` is not a `Fineage.Game` asmdef reference (layout check pins the reference list).
+- Sky MonoBehaviours that `[Inject]` via VContainer (`WorldClock`, `L2HazeRing`, `L2StarDome`, `L2CloudMyst`, `L2CloudSimple`) — Fineage.Game cannot reference VContainer.
+- DAT table ScriptableObjects (`SkillNameTable`, `QuestNameTable`, …) — many are cycle-safe and explicitly out of this wave (no DAT grind).
+- Terrain importers/converters, audio, nameplates, world map, actions/animations — other agents.
 
 ## Success metrics
 
