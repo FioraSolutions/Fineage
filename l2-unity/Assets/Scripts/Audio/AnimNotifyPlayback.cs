@@ -104,6 +104,14 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
         _hasLast = true;
         if (!string.IsNullOrEmpty(step.Error) && _logged.Add("rate:" + _sequence))
             Log(step.Error + " sequence=\"" + _sequence + "\" clip=\"" + _clipName + "\".");
+        // A blend that restarts the same clip looks like a loop wrap. The new cycle
+        // fires its own notifies after the transition; emitting the wrap would double them.
+        if (step.Wrapped && _animator.IsInTransition(0))
+        {
+            _firedThisLoop.Clear();
+            return;
+        }
+
         if (!step.Emit)
             return;
 
@@ -293,7 +301,8 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
         string id = contextHint + " wave=\"" + wave + "\" notify=" + binding.Id;
         if (!AnimNotifySoundResolver.TryPlayWave(
             service, wave, transform.position, volume, binding.Radius, out string playError, contextHint,
-            GetInstanceID(), Ue2SoundAudibility.SlotForNotifyClass(binding.ClassName), id))
+            GetInstanceID(), Ue2SoundAudibility.SlotForNotifyClass(binding.ClassName), id,
+            "AnimNotify", name))
         {
             if (_logged.Add("wave:" + wave))
                 Log(playError ?? AnimNotifySoundResolver.FormatMissingWaveError(wave, binding.Id));

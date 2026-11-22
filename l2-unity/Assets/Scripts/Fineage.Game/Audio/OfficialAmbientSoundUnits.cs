@@ -1,11 +1,13 @@
 /// <summary>
-/// Official AmbientSoundObject property units. Radius and position share L2 UU → Unity meters.
+/// Official AmbientSoundObject property units.
+/// Hear distance is <see cref="Ue2SoundAudibility.OuterRadiusMeters"/>:
+/// authored SoundRadius times 100, then L2 UU to meters.
 /// </summary>
 public static class OfficialAmbientSoundUnits
 {
-    /// <summary>Same scale as <see cref="VectorUtils.ConvertPosToUnity"/>.</summary>
+    /// <summary>Outer cutoff of an authored SoundRadius, in Unity meters.</summary>
     public static float RadiusToUnity(float officialRadiusUu) =>
-        officialRadiusUu * VectorUtils.L2UuToUnity;
+        Ue2SoundAudibility.OuterRadiusMeters(officialRadiusUu);
 
     /// <summary>Official SoundPitch is a signed offset in hundredths; 0 means no change.</summary>
     public static float PitchToMultiplier(float officialPitch)

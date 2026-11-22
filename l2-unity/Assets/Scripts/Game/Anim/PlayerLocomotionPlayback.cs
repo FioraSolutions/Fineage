@@ -3,8 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// One locomotion playback path for every player race/sex/weapon clip and every NPC.
-/// Rate = current planar speed / authored speed, where authored speed is the baked
-/// cycle distance divided by the clip length.
+/// Rate = (current speed / pawn GroundSpeed) * (Unity clip length / ukx cycle length).
 /// </summary>
 public static class PlayerLocomotionPlayback
 {
@@ -15,6 +14,8 @@ public static class PlayerLocomotionPlayback
         string walkClipName,
         float unityRunMetersPerSecond,
         float unityWalkMetersPerSecond,
+        float authoredRunMetersPerSecond,
+        float authoredWalkMetersPerSecond,
         out float runRate,
         out float walkRate)
     {
@@ -25,6 +26,7 @@ public static class PlayerLocomotionPlayback
             runClipName,
             walk: false,
             unityRunMetersPerSecond,
+            authoredRunMetersPerSecond,
             subject,
             LocomotionGait.MinRunRate);
         walkRate = ResolveOne(
@@ -33,6 +35,7 @@ public static class PlayerLocomotionPlayback
             walkClipName,
             walk: true,
             unityWalkMetersPerSecond,
+            authoredWalkMetersPerSecond,
             subject,
             LocomotionGait.MinWalkRate);
     }
@@ -66,6 +69,7 @@ public static class PlayerLocomotionPlayback
         string clipName,
         bool walk,
         float unityMetersPerSecond,
+        float authoredMetersPerSecond,
         string subject,
         float minRate)
     {
@@ -77,23 +81,69 @@ public static class PlayerLocomotionPlayback
         if (clip == null)
         {
             LocomotionGait.LogMissingLocomotionClip(animator, clipName, subject);
-            LocomotionStrideCatalog.LogMissing(subject, gait, clipName);
+            LogClock(subject, gait, clipName, "missing clip");
             return 0f;
         }
 
-        if (clip.length < 0.01f || !LocomotionStrideCatalog.TryGet(clip.name, out float stride))
+        if (!TryOfficialCycle(clip.name, out float officialSeconds, out string clockError))
         {
-            LocomotionStrideCatalog.LogMissing(subject, gait, clip.name);
+            LogClock(subject, gait, clip.name, clockError);
             return 0f;
         }
 
-        return LocomotionGait.PlaybackRate(
+        if (authoredMetersPerSecond <= 0.001f)
+        {
+            LogClock(subject, gait, clip.name, "missing GroundSpeed (BaseRun/BaseWalk is 0)");
+            return 0f;
+        }
+
+        return LocomotionGait.PlaybackRateForSequence(
             unityMetersPerSecond,
+            authoredMetersPerSecond,
             clip.length,
-            stride,
+            officialSeconds,
             minRate,
             LocomotionGait.MaxRate);
     }
+
+    static bool TryOfficialCycle(string clipName, out float officialSeconds, out string error)
+    {
+        officialSeconds = 0f;
+        error = null;
+        if (!AnimNotifySequenceResolver.TryResolve(clipName, null, out string sequence, out error))
+            return false;
+        if (!AnimNotifyTable.TryGetBySequence(sequence, out var bindings) || bindings.Count == 0)
+        {
+            error = "no notify row for sequence=\"" + sequence + "\"";
+            return false;
+        }
+
+        float rate = bindings[0].Rate;
+        int frames = bindings[0].FrameCount;
+        if (rate <= 0f || frames <= 0)
+        {
+            error = "sequence=\"" + sequence + "\" missing rate=" + rate.ToString("G9") + " frames=" + frames;
+            return false;
+        }
+
+        officialSeconds = frames / rate;
+        return true;
+    }
+
+    static void LogClock(string subject, string gait, string clipName, string detail)
+    {
+        string key = (subject ?? "") + "|" + (gait ?? "") + "|" + (clipName ?? "") + "|" + (detail ?? "");
+        if (!_loggedClock.Add(key))
+            return;
+        Debug.LogError(
+            "[LocomotionClock] " + (string.IsNullOrEmpty(subject) ? "subject=unknown" : subject)
+            + " gait=" + gait
+            + " clip=\"" + (clipName ?? "") + "\" "
+            + (detail ?? "missing sequence clock"));
+    }
+
+    static readonly System.Collections.Generic.HashSet<string> _loggedClock =
+        new System.Collections.Generic.HashSet<string>();
 
     static bool IsPlayerBody(Entity entity) =>
         entity is PlayerEntity || entity is UserEntity;

@@ -68,6 +68,8 @@ public partial class AudioService
         else
             RuntimeManager.PlayOneShot(er);
 
+        AudioPlayTrace.Write(
+            "play", Time.unscaledTime, eventPath, "Fmod", eventLabel, entityId, 0f, 0f, 1f, 0, "fmod");
         return true;
     }
 

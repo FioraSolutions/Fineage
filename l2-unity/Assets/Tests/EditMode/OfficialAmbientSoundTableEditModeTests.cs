@@ -33,7 +33,7 @@ public class OfficialAmbientSoundTableEditModeTests
         Assert.AreEqual("AmbSound.Insect_Night.in_cricket_03", cricket.Sound);
         Assert.AreEqual(AmbientSoundType.AST1_Night, cricket.Type);
         Assert.AreEqual(80f, cricket.RadiusUu);
-        Assert.AreEqual(80f * VectorUtils.L2UuToUnity, cricket.RadiusUnity, 0.0001f);
+        Assert.AreEqual(Ue2SoundAudibility.OuterRadiusMeters(80f), cricket.RadiusUnity, 0.0001f);
         Vector3 unity = cricket.UnityPosition;
         Vector3 expected = VectorUtils.ConvertPosToUnity(new Vector3(-91331.8f, 252042.8f, -3374.0f));
         Assert.AreEqual(expected.x, unity.x, 0.01f);

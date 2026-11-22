@@ -4,5 +4,6 @@ public enum FineageLogCategory
     LoginNet,
     GameNet,
     Net,
-    World
+    World,
+    Audio
 }

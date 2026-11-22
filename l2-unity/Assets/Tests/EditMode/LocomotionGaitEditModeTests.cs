@@ -2,8 +2,8 @@ using NUnit.Framework;
 using UnityEngine;
 
 /// <summary>
-/// Playback rate is unitySpeed * clipLength / stride. Stride is both feet's
-/// swing relative to the pelvis (in-place clips) so every mesh shares one formula.
+/// PlaybackRateForSequence is the locomotion clock (ukx frameCount/rate).
+/// PlaybackRate remains the measured foot-swing helper and is not that clock.
 /// </summary>
 public sealed class LocomotionGaitEditModeTests
 {
@@ -51,6 +51,39 @@ public sealed class LocomotionGaitEditModeTests
     {
         float rate = LocomotionGait.PlaybackRate(3f, 1f, 0f, 0.2f, 4f);
         Assert.AreEqual(0f, rate, 0.001f);
+    }
+
+    [Test]
+    public void Sequence_clock_slows_a_24fps_import_to_the_15fps_ukx_rate()
+    {
+        // MFighter Run_Hand: 13 frames at sequence rate 15. Unity stores the clip at 24.
+        const float frames = 13f;
+        const float sequenceRate = 15f;
+        float official = frames / sequenceRate;
+        float clipLength = frames / 24f;
+        float authored = NumberUtils.ScaleToUnity(120f);
+        float rate = LocomotionGait.PlaybackRateForSequence(
+            authored, authored, clipLength, official, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        Assert.AreEqual(15f / 24f, rate, 0.0001f);
+        float haste = LocomotionGait.PlaybackRateForSequence(
+            authored * 2f, authored, clipLength, official, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        Assert.AreEqual(rate * 2f, haste, 0.0001f);
+    }
+
+    [Test]
+    public void Sequence_clock_does_not_invent_a_ground_speed()
+    {
+        float rate = LocomotionGait.PlaybackRateForSequence(
+            2f, 0f, 13f / 24f, 13f / 15f, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        Assert.AreEqual(0f, rate, 0.0001f);
+    }
+
+    [Test]
+    public void Stopped_pawn_still_uses_the_sequence_clock()
+    {
+        float rate = LocomotionGait.PlaybackRateForSequence(
+            0f, 2f, 13f / 24f, 13f / 15f, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        Assert.AreEqual(15f / 24f, rate, 0.0001f);
     }
 
     [Test]

@@ -33,11 +33,18 @@ public partial class AudioService
             return;
         }
 
+        if (!AudioListenerLifecycle.TryPrepare())
+        {
+            AudioPlayTrace.Write("refuse", Time.unscaledTime, clip.name, "Cast", null, 0, 0f, 0f, volumeScale, 0, "no-listener");
+            return;
+        }
+
         _castChannel.Stop();
         _castChannel.clip = clip;
         _castChannel.volume = CategoryVolume(AudioCategory.Sfx) * volumeScale;
         _castChannel.loop = false;
         _castChannel.Play();
+        AudioPlayTrace.Write("play", Time.unscaledTime, clip.name, "Cast", null, 0, 0f, 0f, volumeScale, 0, "cast");
     }
 
     public void PlayCastClip(string resourcesPath, float volumeScale = 0.85f)
@@ -58,11 +65,18 @@ public partial class AudioService
             return;
         }
 
+        if (!AudioListenerLifecycle.TryPrepare())
+        {
+            AudioPlayTrace.Write("refuse", Time.unscaledTime, resourcesPath, "Cast", null, 0, 0f, 0f, volumeScale, 0, "no-listener");
+            return;
+        }
+
         _castChannel.Stop();
         _castChannel.clip = clip;
         _castChannel.volume = CategoryVolume(AudioCategory.Sfx) * volumeScale;
         _castChannel.loop = false;
         _castChannel.Play();
+        AudioPlayTrace.Write("play", Time.unscaledTime, resourcesPath, "Cast", null, 0, 0f, 0f, volumeScale, 0, "cast");
     }
 
     public void StopCast()
@@ -100,11 +114,18 @@ public partial class AudioService
             return;
         }
 
+        if (!AudioListenerLifecycle.TryPrepare())
+        {
+            AudioPlayTrace.Write("refuse", Time.unscaledTime, idForLog, "Voice", null, 0, 0f, 0f, volumeScale, Ue2SoundAudibility.SlotTalk, "no-listener");
+            return;
+        }
+
         _voiceChannel.Stop();
         _voiceChannel.clip = clip;
         _voiceChannel.volume = CategoryVolume(AudioCategory.Voice) * volumeScale;
         _voiceChannel.loop = false;
         _voiceChannel.Play();
+        AudioPlayTrace.Write("play", Time.unscaledTime, idForLog, "Voice", null, 0, 0f, 0f, volumeScale, Ue2SoundAudibility.SlotTalk, "voice");
     }
 
     public void StopVoice()

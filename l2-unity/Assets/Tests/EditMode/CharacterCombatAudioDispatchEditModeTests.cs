@@ -20,18 +20,15 @@ public sealed class CharacterCombatAudioDispatchEditModeTests
     [Test]
     public void Locomotion_playback_uses_unity_planar_speed_not_server_raw_units()
     {
-        float serverRun = 120f;
-        float unity = NumberUtils.ScaleToUnity(serverRun);
-        float clipLen = 1f;
-        const float stride = 1.5f;
-        float rate = LocomotionGait.PlaybackRate(
-            unity, clipLen, stride, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
-        float wrongRate = LocomotionGait.PlaybackRate(
-            serverRun, clipLen, stride, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
-        Assert.Greater(wrongRate, rate,
-            "Writing server L2j speed into run_speed would overshoot stride-based playback.");
-        Assert.AreEqual(LocomotionGait.MaxRate, wrongRate, 0.001f,
-            "raw L2j speed should hit playback clamp when used without ScaleToUnity");
-        Assert.AreEqual(unity * clipLen / stride, rate, 0.001f);
+        float authored = NumberUtils.ScaleToUnity(120f);
+        const float official = 13f / 15f;
+        const float clipLen = 13f / 24f;
+        float rate = LocomotionGait.PlaybackRateForSequence(
+            authored, authored, clipLen, official, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        float rawAgainstMeters = LocomotionGait.PlaybackRateForSequence(
+            120f, authored, clipLen, official, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        Assert.AreEqual(15f / 24f, rate, 0.0001f);
+        Assert.AreEqual(LocomotionGait.MaxRate, rawAgainstMeters, 0.001f,
+            "server L2j units must be converted before they are compared with GroundSpeed in meters");
     }
 }

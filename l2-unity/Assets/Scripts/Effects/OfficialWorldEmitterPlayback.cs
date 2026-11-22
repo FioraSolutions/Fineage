@@ -13,6 +13,17 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
     readonly Dictionary<string, Instance> _alive = new Dictionary<string, Instance>();
     readonly List<OfficialWorldEmitterTable.Emitter> _nearby = new List<OfficialWorldEmitterTable.Emitter>();
     readonly HashSet<string> _logged = new HashSet<string>();
+    readonly List<PendingSound> _pendingAudio = new List<PendingSound>();
+
+    sealed class PendingSound
+    {
+        public AudioSource Source;
+        public string Token;
+        public string Owner;
+        public float RadiusUu;
+        public float Volume;
+        public string Reason;
+    }
     Transform _root;
     float _nextPoll;
     int _lastTileX = int.MinValue;
@@ -45,6 +56,7 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
 
     void LateUpdate()
     {
+        FlushPendingAudio();
         if (!OfficialWorldEmitterTable.HasEmitters)
             return;
         if (Time.unscaledTime < _nextPoll)
@@ -171,14 +183,49 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
             source.dopplerLevel = 0f;
             source.loop = true;
             source.volume = OfficialAmbientSoundUnits.VolumeToScale(entry.soundVolume);
-            float radius = OfficialAmbientSoundUnits.RadiusToUnity(entry.soundRadius);
-            if (radius > 0f)
+            float radiusUu = Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.soundRadius);
+            AudioService.ApplyUe2LoopFalloff(source, radiusUu);
+            string reason = Ue2SoundAudibility.HasRadius(entry.soundRadius) ? "audible" : "actor-default";
+            if (!AudioListenerLifecycle.TryPrepare())
             {
-                AudioService.ApplyWorldFalloff(source, radius);
-                source.minDistance = Mathf.Min(AudioWorldConstants.HearMinMeters, Mathf.Max(0.01f, radius * 0.05f));
+                AudioPlayTrace.Write(
+                    "refuse", Time.unscaledTime, token, "WorldEmitter", entry.name, 0, 0f, radiusUu,
+                    entry.soundVolume, Ue2SoundAudibility.SlotAmbient, "no-listener");
+                _pendingAudio.Add(new PendingSound
+                {
+                    Source = source,
+                    Token = token,
+                    Owner = entry.name,
+                    RadiusUu = radiusUu,
+                    Volume = entry.soundVolume,
+                    Reason = reason
+                });
+                continue;
             }
+
             source.Play();
+            AudioPlayTrace.Write(
+                "play", Time.unscaledTime, token, "WorldEmitter", entry.name, 0, 0f, radiusUu,
+                entry.soundVolume, Ue2SoundAudibility.SlotAmbient, reason);
         }
+    }
+
+    void FlushPendingAudio()
+    {
+        if (_pendingAudio.Count == 0 || !AudioListenerLifecycle.TryPrepare())
+            return;
+        for (int i = 0; i < _pendingAudio.Count; i++)
+        {
+            PendingSound pending = _pendingAudio[i];
+            if (pending.Source == null)
+                continue;
+            pending.Source.Play();
+            AudioPlayTrace.Write(
+                "play", Time.unscaledTime, pending.Token, "WorldEmitter", pending.Owner, 0, 0f,
+                pending.RadiusUu, pending.Volume, Ue2SoundAudibility.SlotAmbient, pending.Reason);
+        }
+
+        _pendingAudio.Clear();
     }
 
     static string SoundStem(string token)

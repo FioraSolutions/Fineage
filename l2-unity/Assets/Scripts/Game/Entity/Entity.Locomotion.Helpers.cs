@@ -50,6 +50,20 @@ public partial class Entity
     }
 
     /// <summary>
+    /// Pawn GroundSpeed in meters: the planar speed at which PlayAnim rate is 1.
+    /// BaseRunSpeed / BaseWalkingSpeed from the server template. 0 is missing, not a default.
+    /// </summary>
+    float AuthoredSpeedMeters(bool walk)
+    {
+        if (_stats == null)
+            return 0f;
+        int raw = walk ? _stats.BaseWalkingSpeed : _stats.BaseRunSpeed;
+        if (raw <= 0)
+            return 0f;
+        return StatsConverterPacketServices.Converter.ConvertStat(Stat.SPEED, raw);
+    }
+
+    /// <summary>
     /// Re-apply run_speed / walk_speed from current stats (same planar speeds movement uses).
     /// </summary>
     public void RefreshLocomotionAnimRates()
@@ -72,6 +86,8 @@ public partial class Entity
             walkClip,
             UnityRunSpeedMeters,
             UnityWalkSpeedMeters,
+            AuthoredSpeedMeters(walk: false),
+            AuthoredSpeedMeters(walk: true),
             out float runRate,
             out float walkRate);
         if (animation is BaseAnimationController baseAnimation)

@@ -21,6 +21,8 @@ public static partial class FineageLog
                 return "[GameNet]";
             case FineageLogCategory.Net:
                 return "[Net]";
+            case FineageLogCategory.Audio:
+                return "[Audio]";
             default:
                 return "[World]";
         }
@@ -68,6 +70,8 @@ public static partial class FineageLog
                 return "game-net.txt";
             case FineageLogCategory.Net:
                 return "net.txt";
+            case FineageLogCategory.Audio:
+                return "audio-trace.txt";
             default:
                 return "world.txt";
         }

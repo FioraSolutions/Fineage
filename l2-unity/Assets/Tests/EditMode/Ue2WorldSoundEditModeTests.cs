@@ -34,6 +34,46 @@ public sealed class Ue2WorldSoundEditModeTests
     }
 
     [Test]
+    public void SoundRadius_cutoff_is_one_hundred_times_the_authored_radius()
+    {
+        const float authored = 32f;
+        float outer = Ue2SoundAudibility.OuterRadiusMeters(authored);
+        Assert.AreEqual(authored * Ue2SoundAudibility.OuterRadiusScale * VectorUtils.L2UuToUnity, outer, 0.0001f);
+        Assert.AreEqual(outer, OfficialAmbientSoundUnits.RadiusToUnity(authored), 0.0001f);
+        Assert.AreEqual(outer, Ue2SoundAudibility.OuterRadiusMeters(authored), 0.0001f);
+        Assert.Greater(outer, 50f, "Actor default 32 must be heard across tens of meters, not under one.");
+        Assert.IsTrue(Ue2SoundAudibility.IsAudible(outer * 0.5f, authored));
+        Assert.IsFalse(Ue2SoundAudibility.IsAudible(outer, authored));
+    }
+
+    [Test]
+    public void Omitted_actor_sound_radius_uses_the_ue2_actor_default()
+    {
+        Assert.AreEqual(32f, Ue2SoundAudibility.ActorDefaultSoundRadiusUu, 0.001f);
+        Assert.AreEqual(32f, Ue2SoundAudibility.ResolveActorSoundRadiusUu(0f), 0.001f);
+        Assert.AreEqual(80f, Ue2SoundAudibility.ResolveActorSoundRadiusUu(80f), 0.001f);
+        Assert.IsFalse(Ue2SoundAudibility.HasRadius(0f));
+    }
+
+    [Test]
+    public void Audio_trace_line_names_the_play_and_stays_off_unless_enabled()
+    {
+        AudioPlayTrace.EnabledOverride = false;
+        Assert.IsFalse(AudioPlayTrace.IsEnabled);
+        string line = AudioPlayTrace.Format(
+            "refuse", 1.25f, "AmbSound.Harbor.h_seagull_01", "Ambient", "AmbSound01", 21,
+            3.5f, 32f, 190f, 4, "actor-default");
+        StringAssert.Contains("t=1.250", line);
+        StringAssert.Contains("clip=\"AmbSound.Harbor.h_seagull_01\"", line);
+        StringAssert.Contains("source=Ambient", line);
+        StringAssert.Contains("owner=\"AmbSound01\"", line);
+        StringAssert.Contains("id=21", line);
+        StringAssert.Contains("radiusUu=32", line);
+        StringAssert.Contains("reason=actor-default", line);
+        AudioPlayTrace.ClearForTests();
+    }
+
+    [Test]
     public void Missing_radius_names_the_clip_and_is_not_audible()
     {
         string error = Ue2SoundAudibility.FormatMissingRadius("DarkElf Walk wave=\"default_walk_01\"");

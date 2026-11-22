@@ -78,7 +78,7 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
     }
 
     [Test]
-    public void Baked_stride_playback_rate_is_speed_over_authored_speed()
+    public void Baked_stride_helper_is_speed_over_stride_and_is_not_the_playback_clock()
     {
         foreach (PlayerLocomotionBodyCatalog.Row row in PlayerLocomotionBodyCatalog.AllRows())
         {
