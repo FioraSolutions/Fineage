@@ -22,10 +22,11 @@ public partial class SkillListWindow : L2PopupWindow
         _instance = null;
     }
 
-    /// <summary>EditMode AddComponent does not invoke <see cref="Awake"/>; tests call this after attach.</summary>
-    public void EditorTestSimulateAwakeForTests()
+    /// <summary>EditMode: <see cref="Awake"/> is not always invoked immediately on <see cref="AddComponent{T}"/>.</summary>
+    public void EditorTestEnsureAwakeForEditMode()
     {
-        Awake();
+        if (_instance == null)
+            Awake();
     }
 #endif
 

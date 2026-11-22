@@ -193,4 +193,32 @@ public static partial class L2ActorMaterialSetup
 
         return DefaultCutoff;
     }
+
+    /// <summary>
+    /// Paperdoll armor/body must ship on <see cref="ActorShaderName"/> (see L2ActorRaceMaterials).
+    /// </summary>
+    public static void ValidatePaperdollActorMaterial(Material material, string meshContext)
+    {
+        if (material == null)
+            return;
+
+        string shaderName = material.shader != null ? material.shader.name : "(null)";
+        if (shaderName.IndexOf("ActorModulate2X", StringComparison.Ordinal) >= 0)
+            return;
+
+        Texture tex = material.HasProperty("_BaseMap") ? material.GetTexture("_BaseMap") : null;
+        string texName = tex != null ? tex.name : "(none)";
+        Debug.LogError(
+            "[L2ActorMaterial] paperdoll material="
+            + material.name
+            + " shader="
+            + shaderName
+            + " texture="
+            + texName
+            + " mesh="
+            + (meshContext ?? "?")
+            + " — expected "
+            + ActorShaderName
+            + "; run L2/Characters/Migrate Race Materials or scripts/migrate-paperdoll-envadd-to-modulate.py");
+    }
 }

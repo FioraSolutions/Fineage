@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -40,6 +41,10 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
     [Test]
     public void Audit_all_LineageWeapons_prefabs_that_mirror_in_weapongrp()
     {
+        LogAssert.Expect(
+            LogType.Error,
+            new Regex(@"WeapongrpTable: using non-DI empty instance"));
+
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Data/Animations/LineageWeapons");
         if (prefabs == null || prefabs.Length == 0)
         {

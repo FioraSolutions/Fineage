@@ -50,6 +50,36 @@ def expand_file_scoped_namespace(text: str) -> str:
     return f"{before}namespace {ns}\n{{\n}}\n"
 
 
+def fix_null_coalesce_empty_brackets(text: str) -> str:
+    """`expr ?? []` inside Encode* methods → typed `System.Array.Empty<T>()`."""
+    encode_method = ""
+    out: list[str] = []
+    encode_types: dict[str, dict[str, str]] = {
+        "EncodeEnchantSkillList": {"m.Skills": "EnchantSkillListEntryNet"},
+        "EncodeEnchantSkillInfo": {"m.Requirements": "EnchantSkillRequirementNet"},
+        "EncodeCursedWeaponList": {"m.ItemIds": "int"},
+        "EncodeCursedWeaponStatus": {"m.Rows": "CursedWeaponStatusRowNet"},
+    }
+
+    for line in text.split("\n"):
+        match = re.search(r"public static byte\[\] (Encode\w+)", line)
+        if match:
+            encode_method = match.group(1)
+        if "?? []" in line:
+            mapped = encode_types.get(encode_method, {})
+            replaced = False
+            for expr, elem_type in mapped.items():
+                needle = f"{expr} ?? []"
+                if needle in line:
+                    line = line.replace(needle, f"{expr} ?? System.Array.Empty<{elem_type}>()")
+                    replaced = True
+                    break
+            if not replaced:
+                line = line.replace("?? []", "?? System.Array.Empty<object>()")
+        out.append(line)
+    return "\n".join(out)
+
+
 def fix_empty_collection_expression_defaults(text: str) -> str:
     """`public T[] Prop { get; set; } = [];` → `System.Array.Empty<T>()`."""
 
@@ -129,6 +159,7 @@ def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
     text = expand_file_scoped_namespace(text)
     text = fix_empty_collection_expression_defaults(text)
     text = fix_null_coalesce_empty_collection(text, lookup_corpus=lookup_corpus)
+    text = fix_null_coalesce_empty_brackets(text)
     return text
 
 

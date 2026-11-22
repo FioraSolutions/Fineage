@@ -109,14 +109,15 @@ public sealed partial class NetSession
 
     internal void ApplyEnchantSkillList(EnchantSkillListNetMsg list)
     {
-        // Mobius ExEnchantSkillList trainer UI not wired yet; absorb packets so zone sessions stay in sync.
-        _ = list;
+        EnchantSkillListEntryNet[] rows = list?.Skills ?? System.Array.Empty<EnchantSkillListEntryNet>();
+        NetNpcWindows.ApplyEnchantSkillList(rows);
     }
 
     internal void ApplyEnchantSkillInfo(EnchantSkillInfoNetMsg info)
     {
-        // Mobius ExEnchantSkillInfo confirmation UI not wired yet.
-        _ = info;
+        if (info == null)
+            return;
+        NetNpcWindows.ApplyEnchantSkillInfo(info);
     }
 
     internal void ApplyEnchantResult(EnchantResultNetMsg result)
