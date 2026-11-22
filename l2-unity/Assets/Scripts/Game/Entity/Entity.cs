@@ -3,7 +3,7 @@ using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 using System.Collections.Generic;
 
-public partial class Entity : MonoBehaviour
+public partial class Entity : MonoBehaviour, IWorldEntity
 {
     [SerializeField] private bool _entityLoaded;
     [SerializeField] private EntityIdentity _identityInterlude;
@@ -91,6 +91,8 @@ public partial class Entity : MonoBehaviour
     public Stats Stats { get => _stats; set => _stats = value; }
     public Appearance Appearance { get => _appearance; set { _appearance = value; } }
     public EntityIdentity Identity { get => _identityInterlude; set => _identityInterlude = value; }
+    Transform IWorldEntity.Transform => transform;
+    Vector3 IWorldEntity.Position => transform.position;
 
     /// <summary>
     /// Live PartySpelled / AbnormalStatusUpdate icons for this creature (target window).
