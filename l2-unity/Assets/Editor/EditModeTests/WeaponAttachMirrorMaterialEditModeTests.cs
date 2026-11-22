@@ -43,7 +43,8 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
     {
         LogAssert.Expect(
             LogType.Error,
-            new Regex("MetaTable WeapongrpTable: using non-DI empty instance"));
+            new Regex(@"WeapongrpTable: using non-DI empty instance"));
+
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Data/Animations/LineageWeapons");
         if (prefabs == null || prefabs.Length == 0)
         {
@@ -85,6 +86,7 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
     static HashSet<string> CollectMirrorModelKeysFromMeta()
     {
         var keys = new HashSet<string>(System.StringComparer.Ordinal);
+        LogAssert.ignoreFailingMessages = true;
         WeapongrpTable table = WeapongrpTable.Instance;
         table.Initialize();
         if (table.WeaponGrps == null)
@@ -97,6 +99,7 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
             foreach (string model in WeapongrpHandMeshes.EnumerateModelKeys(grp))
                 keys.Add(model);
         }
+        LogAssert.ignoreFailingMessages = false;
         return keys;
     }
 

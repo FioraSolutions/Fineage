@@ -50,14 +50,34 @@ def expand_file_scoped_namespace(text: str) -> str:
     return f"{before}namespace {ns}\n{{\n}}\n"
 
 
-def fix_null_coalesce_empty_collection(text: str) -> str:
-    """`expr ?? []` → `expr ?? System.Array.Empty<T>()` for known contract fields."""
-    return (
-        text.replace(".Skills ?? []", ".Skills ?? System.Array.Empty<EnchantSkillListEntryNet>()")
-        .replace(".Requirements ?? []", ".Requirements ?? System.Array.Empty<EnchantSkillRequirementNet>()")
-        .replace(".ItemIds ?? []", ".ItemIds ?? System.Array.Empty<int>()")
-        .replace(".Rows ?? []", ".Rows ?? System.Array.Empty<CursedWeaponLocationRowNet>()")
-    )
+def fix_null_coalesce_empty_brackets(text: str) -> str:
+    """`expr ?? []` inside Encode* methods → typed `System.Array.Empty<T>()`."""
+    encode_method = ""
+    out: list[str] = []
+    encode_types: dict[str, dict[str, str]] = {
+        "EncodeEnchantSkillList": {"m.Skills": "EnchantSkillListEntryNet"},
+        "EncodeEnchantSkillInfo": {"m.Requirements": "EnchantSkillRequirementNet"},
+        "EncodeCursedWeaponList": {"m.ItemIds": "int"},
+        "EncodeCursedWeaponStatus": {"m.Rows": "CursedWeaponStatusRowNet"},
+    }
+
+    for line in text.split("\n"):
+        match = re.search(r"public static byte\[\] (Encode\w+)", line)
+        if match:
+            encode_method = match.group(1)
+        if "?? []" in line:
+            mapped = encode_types.get(encode_method, {})
+            replaced = False
+            for expr, elem_type in mapped.items():
+                needle = f"{expr} ?? []"
+                if needle in line:
+                    line = line.replace(needle, f"{expr} ?? System.Array.Empty<{elem_type}>()")
+                    replaced = True
+                    break
+            if not replaced:
+                line = line.replace("?? []", "?? System.Array.Empty<object>()")
+        out.append(line)
+    return "\n".join(out)
 
 
 def fix_empty_collection_expression_defaults(text: str) -> str:
@@ -74,17 +94,90 @@ def fix_empty_collection_expression_defaults(text: str) -> str:
     return ARRAY_PROP_EMPTY_COLLECTION.sub(repl, text)
 
 
-def transform_for_unity_cs9(text: str) -> str:
+COALESCE_Member_PROP = re.compile(r"m\.(\w+)\s*\?\?\s*\[\]")
+METHOD_PARAM_MSG = re.compile(r"\((\w+NetMsg)\s+m\)")
+
+
+def _class_body(lookup: str, class_name: str) -> str | None:
+    needle = f"public sealed class {class_name}"
+    idx = lookup.find(needle)
+    if idx < 0:
+        return None
+    brace = lookup.find("{", idx)
+    if brace < 0:
+        return None
+    depth = 0
+    for i in range(brace, len(lookup)):
+        ch = lookup[i]
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return lookup[brace : i + 1]
+    return None
+
+
+def _elem_type_for_prop(prop: str, msg_type: str | None, lookup: str) -> str | None:
+    scope = lookup
+    if msg_type:
+        body = _class_body(lookup, msg_type)
+        if body:
+            scope = body
+    pat = re.compile(rf"public\s+([\w.]+)\[\]\s+{re.escape(prop)}\s")
+    match = pat.search(scope)
+    return match.group(1) if match else None
+
+
+def fix_null_coalesce_empty_collection(text: str, *, lookup_corpus: str = "") -> str:
+    """`m.SomeArrayProp ?? []` → `m.SomeArrayProp ?? System.Array.Empty<T>()`."""
+
+    lookup = lookup_corpus if lookup_corpus else text
+    lines = text.split("\n")
+    current_msg: str | None = None
+
+    def repl_line(line: str) -> str:
+        nonlocal current_msg
+        match = METHOD_PARAM_MSG.search(line)
+        if match:
+            current_msg = match.group(1)
+        if "?? []" not in line:
+            return line
+        out = line
+        for prop_match in COALESCE_Member_PROP.finditer(line):
+            prop = prop_match.group(1)
+            elem = _elem_type_for_prop(prop, current_msg, lookup)
+            if elem:
+                out = out.replace(f"m.{prop} ?? []", f"m.{prop} ?? System.Array.Empty<{elem}>()")
+        return out
+
+    return "\n".join(repl_line(line) for line in lines)
+
+
+def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
     text = normalize_newlines(text)
     text = expand_file_scoped_namespace(text)
     text = fix_empty_collection_expression_defaults(text)
-    text = fix_null_coalesce_empty_collection(text)
+    text = fix_null_coalesce_empty_collection(text, lookup_corpus=lookup_corpus)
+    text = fix_null_coalesce_empty_brackets(text)
     return text
 
 
-def prepare_contract_bytes(data: bytes) -> bytes:
+def build_contract_lookup_corpus(source: Path, rel_paths: tuple[str, ...]) -> str:
+    chunks: list[str] = []
+    for rel in rel_paths:
+        path = source / rel
+        if path.is_file():
+            try:
+                chunks.append(path.read_text(encoding="utf-8-sig", errors="replace"))
+            except OSError:
+                continue
+    return "\n".join(chunks)
+
+
+def prepare_contract_bytes(data: bytes, *, lookup_corpus: str = "") -> bytes:
     text = data.decode("utf-8-sig")
-    return transform_for_unity_cs9(text).encode("utf-8")
+    return transform_for_unity_cs9(text, lookup_corpus=lookup_corpus).encode("utf-8")
 
 
 def scan_assets_cs10_plus(assets_root: Path, *, repo_root: Path | None = None) -> list[str]:
@@ -119,6 +212,8 @@ def scan_assets_cs10_plus(assets_root: Path, *, repo_root: Path | None = None) -
                 errors.append(f"{rel}:{line_no}: file-scoped namespace (C# 10+)")
             if re.search(r"\{\s*get;\s*set;\s*\}\s*=\s*\[\]\s*;", line):
                 errors.append(f"{rel}:{line_no}: collection expression `= []` (C# 12+)")
+            if re.search(r"\?\?\s*\[\]", line):
+                errors.append(f"{rel}:{line_no}: collection expression `?? []` (C# 12+)")
             if re.search(
                 r"(?<![.\w])required\s+(?:public\s+|private\s+|protected\s+|internal\s+)?"
                 r"[\w.<>,\[\]?]+\s+\w+\s*\{",

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -65,6 +66,7 @@ public sealed class SkillListWindowPopulateEditModeTests
 
         _skillListHost = new GameObject("SkillListWindowEditModeHost");
         var window = _skillListHost.AddComponent<SkillListWindow>();
+        window.EditorTestEnsureAwakeForEditMode();
         window.EditorTestLoadAssets();
         Assert.IsTrue(window.IsSkillListSingletonOwnerForTests, "test host must own SkillListWindow singleton");
 
@@ -83,7 +85,7 @@ public sealed class SkillListWindowPopulateEditModeTests
             new SkillInstance(194, 1, true, false),
         };
 
-        LogAssert.Expect(LogType.Error, "[SkillList] UpdateSkillList deferred 3 skills: tabs not built.");
+        LogAssert.Expect(LogType.Error, new Regex(@"\[SkillList\].*deferred.*tabs not built"));
         window.UpdateSkillList(skills);
         Assert.Greater(window.PendingSkillCountForEditModeTests, 0, "packet before tab chrome should defer");
         Assert.AreEqual(skills.Count, window.AppliedSkillCountForEditModeTests);

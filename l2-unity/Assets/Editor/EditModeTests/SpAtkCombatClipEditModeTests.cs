@@ -63,8 +63,7 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                if (!TryReadSpAtkNumber(phase, out int wantNumber))
-                    continue;
+                int wantNumber = ReadSpAtkNumber(phase);
                 foreach (PlayerAnimWeapon weapon in WeaponTypes)
                 {
                     Assert.IsTrue(
@@ -87,8 +86,7 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                if (!TryReadSpAtkNumber(phase, out int wantNumber))
-                    continue;
+                int wantNumber = ReadSpAtkNumber(phase);
                 foreach (string race in SkillAnimationDatabase.AllSpAtkRaceTokens())
                 {
                     foreach (PlayerAnimWeapon weapon in WeaponTypes)
@@ -102,7 +100,17 @@ public sealed class SpAtkCombatClipEditModeTests
 
                         string diskPath = ResourcesPathOnDisk(resourcesPath);
                         if (!File.Exists(diskPath))
+                        {
+                            if (StrictSpAtkClipMatrixEnabled())
+                            {
+                                Assert.Fail(
+                                    row.Tag + " race=" + race + " state=" + state
+                                    + " missing clip path=" + resourcesPath
+                                    + " (#1622 MFighter takes landed — full matrix required).");
+                            }
+
                             continue;
+                        }
 
                         AnimationClip clip = SkillAnimationDatabase.GetSpAtkCombatClip(state, race);
                         Assert.IsNotNull(
@@ -117,11 +125,19 @@ public sealed class SpAtkCombatClipEditModeTests
                                 + " must not load generic SpAtk01 clip; got " + clip.name);
                         }
 
-                        AssertSpAtkIndex(state, wantNumber);
+                        AssertSpAtkNumberInClipName(clip.name, wantNumber);
                     }
                 }
             }
         }
+    }
+
+    /// <summary>After #1622, MFighter SpAtk18_1HS exists — require every combo×race×weapon clip.</summary>
+    static bool StrictSpAtkClipMatrixEnabled()
+    {
+        return File.Exists(Path.Combine(
+            Application.dataPath,
+            "Resources/Data/Animations/Fighter/MFighter/Clips/MFighter_m000_b.ao_SpAtk18_1HS_MFighter.anim"));
     }
 
     static string ResourcesPathOnDisk(string resourcesPath)
@@ -140,9 +156,40 @@ public sealed class SpAtkCombatClipEditModeTests
             Assert.IsFalse(state.StartsWith("SpAtk01_", StringComparison.Ordinal));
     }
 
-    static bool TryReadSpAtkNumber(string phaseToken, out int number)
+    static void AssertSpAtkNumberInClipName(string clipName, int wantNumber)
     {
-        return PlayerSpAtkAnim.TryParse(phaseToken + "_1HS", out number, out _, out _);
+        Assert.IsTrue(
+            TryReadSpAtkNumber(clipName, out int got),
+            "clipName=" + clipName);
+        Assert.AreEqual(wantNumber, got, "clipName=" + clipName);
+        if (wantNumber != 1)
+        {
+            Assert.IsFalse(
+                clipName.IndexOf("SpAtk01", StringComparison.OrdinalIgnoreCase) >= 0,
+                "clipName=" + clipName);
+        }
+    }
+
+    static bool TryReadSpAtkNumber(string text, out int number)
+    {
+        number = 0;
+        int at = text.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase);
+        if (at < 0)
+            return false;
+
+        int digitStart = at + 5;
+        int digitEnd = digitStart;
+        while (digitEnd < text.Length && char.IsDigit(text[digitEnd]))
+            digitEnd++;
+
+        return digitEnd > digitStart &&
+               int.TryParse(text.Substring(digitStart, digitEnd - digitStart), out number);
+    }
+
+    static int ReadSpAtkNumber(string phaseToken)
+    {
+        Assert.IsTrue(PlayerSpAtkAnim.TryParse(phaseToken + "_1HS", out int number, out _, out _));
+        return number;
     }
 
     static int CountNonNoneSpAtkColumns(AnimationCombo combo)

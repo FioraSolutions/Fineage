@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
+
 public static partial class LocomotionGait
 {
     const int SampleCount = 24;
@@ -40,9 +43,10 @@ public static partial class LocomotionGait
         }
 
         Animator animator = skeleton.GetComponentInChildren<Animator>();
+        GameObject sampleRoot = animator != null ? animator.gameObject : skeleton.gameObject;
         bool animatorWasEnabled = animator != null && animator.enabled;
         if (animator != null)
-            animator.enabled = false;
+            animator.enabled = true;
 
         try
         {
@@ -53,15 +57,15 @@ public static partial class LocomotionGait
             float leftAmp = 0f;
             float rightAmp = 0f;
             if (leftFoot != null)
-                leftAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, leftFoot);
+                leftAmp = MeasureFootSwing(clip, sampleRoot, animator, pelvis, leftFoot);
             if (rightFoot != null)
-                rightAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, rightFoot);
+                rightAmp = MeasureFootSwing(clip, sampleRoot, animator, pelvis, rightFoot);
 
             float stride = leftAmp + rightAmp;
             if (stride >= MinStrideMeters)
                 return stride;
 
-            float rootTravel = MeasureRootTravel(clip, skeleton.gameObject, animator, skeleton);
+            float rootTravel = MeasureRootTravel(clip, sampleRoot, animator, skeleton);
             if (rootTravel >= MinStrideMeters)
                 return rootTravel;
             return 0f;
@@ -128,13 +132,40 @@ public static partial class LocomotionGait
         return max;
     }
 
+    static bool UseTransformSampling(AnimationClip clip, Animator animator)
+    {
+        if (clip.legacy || animator == null)
+            return true;
+        Avatar avatar = animator.avatar;
+        return avatar == null || !avatar.isValid;
+    }
+
     static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
     {
-        // UKX body prefabs may have a humanoid Avatar that does not drive transform curves;
-        // SampleAnimation on the rig root is the only reliable stride measure path.
-        GameObject sampleRoot = go;
-        if (animator != null)
-            sampleRoot = animator.gameObject;
-        clip.SampleAnimation(sampleRoot, time);
+        if (!Application.isPlaying || UseTransformSampling(clip, animator))
+        {
+            clip.SampleAnimation(go, time);
+            return;
+        }
+
+        PlayableGraph graph = PlayableGraph.Create("LocomotionGait.Measure");
+        graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
+        bool wasEnabled = animator.enabled;
+        animator.enabled = true;
+        try
+        {
+            AnimationClipPlayable playable = AnimationClipPlayable.Create(graph, clip);
+            playable.SetApplyFootIK(false);
+            AnimationPlayableOutput output = AnimationPlayableOutput.Create(graph, "gait", animator);
+            output.SetSourcePlayable(playable);
+            playable.SetTime(time);
+            graph.Evaluate();
+        }
+        finally
+        {
+            if (graph.IsValid())
+                graph.Destroy();
+            animator.enabled = wasEnabled;
+        }
     }
 }

@@ -20,6 +20,9 @@ public static partial class L2ActorMeshPolicy
                 continue;
             }
 
+            L2ActorMaterialSetup.ValidatePaperdollActorMaterial(
+                material,
+                armorRoot.name + "/" + renderer.name);
             renderer.sharedMaterial = material;
             renderer.enabled = true;
             renderer.updateWhenOffscreen = true;
