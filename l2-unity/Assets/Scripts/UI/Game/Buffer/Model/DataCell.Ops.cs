@@ -70,8 +70,30 @@ public partial class DataCell : L2Slot
         if (_skill == null)
             _skill = TablePacketServices.SkillGrps.GetSkill(skillId, level);
         VisualElement foundChild = _element.Query<VisualElement>(name: "SlotBg").First();
-        if (foundChild != null && _skill != null)
-            L2SlotIconView.SetSkillIcon(foundChild, _skill.Icon);
+        if (_skill == null)
+        {
+            Debug.LogError(
+                "[Buffer] skillgrp missing skillId=" + skillId +
+                " level=" + level +
+                " (tray icon not painted)");
+            return;
+        }
+
+        if (foundChild == null)
+        {
+            Debug.LogError(
+                "[Buffer] SlotBg missing skillId=" + skillId +
+                " level=" + level);
+            return;
+        }
+
+        if (!L2SlotIconView.TrySetNamedIcon(foundChild, _skill.Icon))
+        {
+            Debug.LogError(
+                "[Buffer] icon missing skillId=" + skillId +
+                " level=" + level +
+                " icon=" + (_skill.Icon ?? "<null>"));
+        }
     }
 
     public float GetRemainingTime(float time)

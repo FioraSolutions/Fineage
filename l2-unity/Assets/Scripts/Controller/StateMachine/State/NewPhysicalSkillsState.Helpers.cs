@@ -19,12 +19,10 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
         {
             case Event.READY_TO_ACT:
 
-                AnimationCombo animComboAct = TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl);
-                //not use bow atk
-                //RotateFaceToMonster(_stateMachine.Player);
-                _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, animComboAct, _events);
-                // Every physical skill that has art must play it, not just Power Strike (3):
-                // Deadly Blow / Lethal Blow animated the swing and stayed invisible.
+                AnimationCombo animComboAct = TablePacketServices.SkillGrps != null
+                    ? TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl)
+                    : null;
+                PhysicalSkillPresentation.TryPlay(_stateMachine.Player, useSkill, _events);
                 SkillVisualEffectDispatch.PlayIfKnown(
                     _stateMachine.Player, useSkill, animComboAct);
                 break;
@@ -55,21 +53,15 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                     }
                     SetupDurationHelper.SetupDurationIfHitTimeNot0(
                         useSkill, entity.Identity.Id, entity, castCombo);
-                    // Physical self skills (Ultimate Evasion X, Dash X, Focus Chance X, Escape Shackle X)
-                    // are tags that map to SpAtk06 → the shared SpAtk06_hand buff gesture on the
-                    // template controller (each race override points it at its own
-                    // *_ao_SpAtk06_Hand_* clip). The override runner would map that single clip to
-                    // the "CastEnd" trigger, which plays the magic cast pose and never fires the
-                    // SpAtk SMB — the hero stands frozen. StartRun plays the combat CrossFade
-                    // instead, which resolves SpAtk06_<weapon> to SpAtk06_hand.
-                    _ = SkillExecutorPacketServices.Executor.ExecuteSkill(
-                        entity, castCombo, _events);
+                    // Physical self skills (Ultimate Evasion X, Dash X, Sonic Focus X)
+                    // are tags that map to SpAtk06 → the shared SpAtk06_hand buff gesture.
+                    // The override runner would map that single clip to CastEnd.
+                    PhysicalSkillPresentation.TryPlay(entity, useSkill, _events);
                     SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill, castCombo);
                 }
-                else if (skillgrp != null && SkillExecutorPacketServices.Executor != null)
+                else if (skillgrp != null)
                 {
-                    AnimationCombo combo = new AnimationCombo("-1", new string[1] { skillgrp.GetAnimOperationType3() }, "");
-                    _ = SkillExecutorPacketServices.Executor.ExecuteSkill(_stateMachine.Player, combo, _events);
+                    PhysicalSkillPresentation.TryPlay(_stateMachine.Player, useSkill, _events);
                 }
 
 

@@ -9,8 +9,10 @@ public partial class EntityActionVisual
             return;
 
         string trigger = ResolveUserPhysicalSkillTrigger(magic);
-        bool basicJatk = !string.IsNullOrEmpty(trigger) &&
-            trigger.StartsWith("jatk", System.StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrEmpty(trigger))
+            return;
+
+        bool basicJatk = trigger.StartsWith("jatk", System.StringComparison.OrdinalIgnoreCase);
         NetworkAnimationController nac = user.GetAnimatorController();
         Animator animator = nac != null ? nac.GetAnimator() : null;
         if (basicJatk &&
@@ -63,7 +65,6 @@ public partial class EntityActionVisual
             magic.SkillId,
             magic.SkillLvl,
             grp != null ? grp.Animation : null);
-
-        return UserMeleeVariants[UnityEngine.Random.Range(0, UserMeleeVariants.Length)];
+        return null;
     }
 }
