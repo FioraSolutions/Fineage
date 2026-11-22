@@ -14,6 +14,18 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
     [SerializeReference]
     CompositePart[] _v2Parts;
 
+    bool _partsFromResolver;
+
+    /// <summary>
+    /// Parts built by <c>SkillVisualCatalog</c> for this cast. Skips YAML/folder repair,
+    /// which would replace the usk phase, attach, and flight data.
+    /// </summary>
+    public void AssignResolvedParts(CompositePart[] parts)
+    {
+        _partsFromResolver = true;
+        _v2Parts = parts;
+    }
+
     public int DebugV2PartCount => _v2Parts != null ? _v2Parts.Length : 0;
 
     /// <summary>
