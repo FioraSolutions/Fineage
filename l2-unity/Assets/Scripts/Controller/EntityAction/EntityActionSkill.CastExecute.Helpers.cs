@@ -11,7 +11,7 @@ public partial class EntityActionSkill
 
         AnimationCombo combo = GetCombo(magic);
         string raceName = entity.RaceId.ToString();
-        if (magic.SkillId == 4247)
+        if (SkillPresentationCatalog.IsWindStrike(magic.SkillId))
         {
             Debug.Log(
                 "[WINDSTRIKE] ExecuteMagic combo=" + (combo != null) +
@@ -100,7 +100,7 @@ public partial class EntityActionSkill
 
     static void PlaySkillEffect(Entity entity, MagicSkillUseDto magic)
     {
-        bool windstrike = magic != null && magic.SkillId == 4247;
+        bool windstrike = magic != null && SkillPresentationCatalog.IsWindStrike(magic.SkillId);
         EffectManager effects = ControllerPacketServices.Effects;
         if (effects == null || entity == null || magic == null)
         {
@@ -129,7 +129,7 @@ public partial class EntityActionSkill
 
     static bool TryPlayNoneAnimWorldPawnEffect(Entity entity, MagicSkillUseDto magic)
     {
-        bool windstrikeGate = magic != null && magic.SkillId == 4247;
+        bool windstrikeGate = magic != null && SkillPresentationCatalog.IsWindStrike(magic.SkillId);
         if (windstrikeGate)
         {
             Debug.Log(

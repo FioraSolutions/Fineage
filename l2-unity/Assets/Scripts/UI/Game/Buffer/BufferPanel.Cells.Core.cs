@@ -15,6 +15,13 @@ public partial class BufferPanel
         _deathPenalty = etcStatusUpdatePacket.DeathPenalty;
         _weightPenalty = etcStatusUpdatePacket.WeightPenalty;
         _weaponPenalty = etcStatusUpdatePacket.WeaponPenalty;
+        int[] forceCharge = etcStatusUpdatePacket.ForceCharge;
+
+        if (forceCharge != null)
+        {
+            AddDataCell(forceCharge[0], forceCharge[1]);
+            DeleteDataCell(forceCharge[0], forceCharge[1]);
+        }
 
         AddDataCell(_deathPenalty[0], _deathPenalty[1]);
         AddDataCell(_weightPenalty[0], _weightPenalty[1]);

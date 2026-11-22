@@ -22,7 +22,7 @@ Server wire SoT: [Fineage-Backend `docs/net-protocol.md`](https://github.com/Fio
   Editor or a build compiled with `FINEAGE_LOCAL_CAPABLE` (Fineage → Build Dev Mac); a
   release-clients player ignores all of them and stays remote. See
   `GameManager.ConfigureBackend`.
-- Login **9106**, Zone **9777** (forwarded / loopback). Public Pi remap: **2106** / **7777**.
+- Login **9106**, Zone **9777** (loopback / local Fineage-Backend). Public playtest on the Debian homeserver (DDNS + router forward): **2106** / **7777** — see [`PLAYTEST_RELEASE.md`](PLAYTEST_RELEASE.md).
 
 ## Types
 

@@ -61,6 +61,13 @@ public partial class HitManager
         if (attaker != null && attaker.IsSpiritshotCharged)
             attaker.IsSpiritshotCharged = false;
 
+        if (CombatAudioHitContext.PendingShielded)
+        {
+            spawnPoint = CombatShieldBlockPresentation.ResolveShieldImpactPoint(targetEntity, spawnPoint);
+            effects.PlayerImpactEffect(CombatShieldBlockPresentation.ShieldBlockImpactEffectId, spawnPoint, impactDir);
+            return;
+        }
+
         effects.PlayerImpactEffect(NormalImpactEffectId, spawnPoint, impactDir);
     }
 

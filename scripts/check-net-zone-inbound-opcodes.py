@@ -21,6 +21,9 @@ CONST_RE = re.compile(r"public const ushort (?P<name>\w+)\s*=\s*0x(?P<hex>[0-9A-
 CASE_RE = re.compile(
     r"case\s+(?:NetOpcode|WeddingNetOpcode)\.(?P<name>\w+)\s*:"
 )
+EARLY_OPCODE_GUARD_RE = re.compile(
+    r"(?:NetOpcode|WeddingNetOpcode)\.(?P<name>\w+)"
+)
 DOC_RE = re.compile(r"^\s*///")
 
 # Session / lobby / client→zone opcodes that are not NetZoneDispatch inbound.
@@ -75,6 +78,8 @@ OUTBOUND_EXPLICIT = frozenset(
         "RequestShortCutDel",
         "RequestAcquireSkillInfo",
         "RequestAcquireSkill",
+        "RequestEnchantSkillInfo",
+        "RequestEnchantSkill",
         "EnchantRequest",
         "EnchantConfirm",
         "EnchantCancel",
@@ -150,7 +155,12 @@ def parse_opcodes(text: str) -> dict[str, str]:
 
 
 def parse_handled(text: str) -> set[str]:
-    return {m.group("name") for m in CASE_RE.finditer(text)}
+    handled = {m.group("name") for m in CASE_RE.finditer(text)}
+    pre_switch = text.split("switch (opcode)", 1)
+    if len(pre_switch) > 1:
+        for m in EARLY_OPCODE_GUARD_RE.finditer(pre_switch[0]):
+            handled.add(m.group("name"))
+    return handled
 
 
 def main() -> int:

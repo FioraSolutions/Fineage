@@ -4,6 +4,12 @@ using UnityEngine.Rendering;
 
 public sealed class LoginLobbyPresentationEditModeTests
 {
+    [TearDown]
+    public void TearDown()
+    {
+        LobbyAccountRenderSettings.Release();
+    }
+
     [Test]
     public void CharSelect_is_account_lobby_camera()
     {
@@ -27,12 +33,29 @@ public sealed class LoginLobbyPresentationEditModeTests
     [Test]
     public void Account_lobby_applies_render_settings()
     {
+        LobbyAccountRenderSettings.Release();
         RenderSettings.ambientIntensity = 0f;
         RenderSettings.ambientMode = AmbientMode.Flat;
+        var profile = LobbyAccountRenderSettings.LoadProfile();
+        Assert.IsNotNull(profile);
         LobbyAccountRenderSettings.Apply();
-        Assert.AreEqual(AmbientMode.Skybox, RenderSettings.ambientMode);
-        Assert.AreEqual(0.6f, RenderSettings.ambientIntensity, 0.001f);
+        Assert.IsTrue(LobbyAccountRenderSettings.IsApplied);
+        Assert.AreEqual(profile.ambientMode, LobbyAccountRenderSettings.LastAppliedAmbientModeForTests);
+        Assert.AreEqual(
+            profile.ambientIntensity,
+            LobbyAccountRenderSettings.LastAppliedAmbientIntensityForTests,
+            0.001f);
         Assert.IsNotNull(RenderSettings.skybox);
         LobbyAccountRenderSettings.Release();
+    }
+
+    [Test]
+    public void Account_profile_exposes_actor_world_hours_for_lut()
+    {
+        var profile = LobbyAccountRenderSettings.LoadProfile();
+        Assert.IsNotNull(profile);
+        Assert.GreaterOrEqual(profile.actorWorldHours, 0f);
+        Assert.Less(profile.actorWorldHours, 24f);
+        Assert.Greater(profile.skyExposure, 0.5f);
     }
 }

@@ -10,7 +10,11 @@ public sealed partial class NetZoneDispatch
         if (packet == null)
             return;
 
-        switch (packet.Opcode)
+        ushort opcode = packet.Opcode;
+        if (opcode == NetOpcode.CursedWeaponList || opcode == NetOpcode.CursedWeaponLocation)
+            return;
+
+        switch (opcode)
         {
             case NetOpcode.HelloAck:
                 break;
@@ -155,6 +159,12 @@ public sealed partial class NetZoneDispatch
                 break;
             case NetOpcode.AcquireSkillInfo:
                 _session.ApplyAcquireSkillInfo((AcquireSkillInfoNetMsg)packet.Body);
+                break;
+            case NetOpcode.EnchantSkillList:
+                _session.ApplyEnchantSkillList((EnchantSkillListNetMsg)packet.Body);
+                break;
+            case NetOpcode.EnchantSkillInfo:
+                _session.ApplyEnchantSkillInfo((EnchantSkillInfoNetMsg)packet.Body);
                 break;
             case NetOpcode.EnchantResult:
                 _session.ApplyEnchantResult((EnchantResultNetMsg)packet.Body);
@@ -321,7 +331,6 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AugmentVariationResult:
             case NetOpcode.AugmentPutCancelItemResult:
             case NetOpcode.AugmentCancelResult:
-                break;
             case NetOpcode.CursedWeaponList:
             case NetOpcode.CursedWeaponLocation:
                 break;
@@ -379,18 +388,6 @@ public sealed partial class NetZoneDispatch
                     CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
                 break;
             }
-            // Augmentation UI packets (Mobius variation make/cancel) — wired when UI lands.
-            case NetOpcode.AugmentShowMakeWindow:
-            case NetOpcode.AugmentShowCancelWindow:
-            case NetOpcode.AugmentPutItemResult:
-            case NetOpcode.AugmentPutRefinerResult:
-            case NetOpcode.AugmentPutGemResult:
-            case NetOpcode.AugmentVariationResult:
-            case NetOpcode.AugmentPutCancelItemResult:
-            case NetOpcode.AugmentCancelResult:
-            case NetOpcode.CursedWeaponList:
-            case NetOpcode.CursedWeaponLocation:
-                break;
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;

@@ -62,15 +62,18 @@ public partial class PlayerStateBase : StateMachineBehaviour
             return;
         }
 
+        int entityId = _entity.Identity != null ? _entity.Identity.Id : 0;
         int weaponId = _gear.EquippedRightHandWeapon != null ? _gear.EquippedRightHandWeapon.Id : 0;
         string swing = CombatHitSoundResolver.ResolveWeaponSwingToken(weaponId);
         string shing = CombatHitSoundResolver.ResolveWeaponShingToken(weaponId);
 
         if (_audioHandler == null)
         {
-            int id = _entity.Identity != null ? _entity.Identity.Id : 0;
-            CharacterCombatAudioDispatch.PlayItemSoundToken(swing, _entity.transform.position, id);
-            CharacterCombatAudioDispatch.PlayItemSoundToken(shing, _entity.transform.position, id);
+            if (_entity == null)
+                return;
+
+            CharacterCombatAudioDispatch.PlayItemSoundToken(swing, _entity.transform.position, entityId);
+            CharacterCombatAudioDispatch.PlayItemSoundToken(shing, _entity.transform.position, entityId);
             return;
         }
 

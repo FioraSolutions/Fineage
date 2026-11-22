@@ -10,6 +10,9 @@ public static partial class MagicSkillPresentation
             return MagicSkillUseKind.Charge;
         if (SetupDurationHelper.IsUsePotion(dto))
             return MagicSkillUseKind.Potion;
+        if (InterludePacketPresentationCatalog.TryResolveMagicSkillUse(
+                dto.SkillId, out _))
+            return MagicSkillUseKind.Presentation;
         return MagicSkillUseKind.Cast;
     }
 }

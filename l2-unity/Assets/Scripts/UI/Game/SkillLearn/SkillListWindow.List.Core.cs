@@ -81,10 +81,15 @@ public partial class SkillListWindow : L2PopupWindow
     {
         _builderTabs.InitContentTabs(new string[2] { _activeName, _passiveName });
         _builderTabs.CreateTabs(tabView, _tabTemplate, _tabHeaderTemplate);
+        L2SkillsPanelLayout.ApplyMagicSkillTabHostsFromPanel(GetElementById("content") ?? _windowEle);
         _builderTabs.EventSwitchOut += OnSwitchEventOut;
 
         VisualElement element = _builderTabs.GetActiveContent();
         _supportActiveSkills.GetOrCreateTab(element);
+
+        VisualElement passiveHost = _builderTabs.GetTabContent(_passiveName);
+        if (passiveHost != null)
+            _supportPassiveSkills.GetOrCreateTab(passiveHost);
 
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterCloseWindowEventByName("CloseButton");
@@ -138,8 +143,11 @@ public partial class SkillListWindow : L2PopupWindow
             return;
 
         _loggedDeferReason = deferReason;
-        Debug.LogError(
-            "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".");
+        string message = "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".";
+        if (deferReason == "tabs not built")
+            Debug.LogWarning(message);
+        else
+            Debug.LogError(message);
     }
 
     void ApplySkillListToPanels(List<SkillInstance> list, string phase)
@@ -150,7 +158,20 @@ public partial class SkillListWindow : L2PopupWindow
         var passiveSkills = list.Where(s => s.IsPassive).ToList();
         _supportActiveSkills.CreateSlots(activeSkills, 0);
         _supportPassiveSkills.CreateSlots(passiveSkills, 0);
+        RefreshInterludeSkillRowLayout(phase);
         ValidateSkillSlotsAfterApply(phase, list, activeSkills, passiveSkills);
+    }
+
+    void RefreshInterludeSkillRowLayout(string phase)
+    {
+        VisualElement searchRoot = GetElementById("content");
+        if (searchRoot == null)
+        {
+            Debug.LogError("[SkillList] " + phase + ": cannot refresh row layout — skills content root missing.");
+            return;
+        }
+
+        L2SkillsPanelLayout.EnsureInterludeGridRowMetrics(searchRoot);
     }
 
     void MountSkillTabPanels(string phase)
@@ -251,6 +272,14 @@ public partial class SkillListWindow : L2PopupWindow
     }
 
 #if UNITY_EDITOR
+    internal void EnsureEditModeSingletonInitializedForTests()
+    {
+        _builderTabs ??= new BuilderTabs();
+        _supportActiveSkills ??= new ActiveSkillsHide();
+        _supportPassiveSkills ??= new PassiveSkillsHide();
+        _allSkills ??= new Dictionary<int, SkillInstance>();
+    }
+
     public int PendingSkillCountForEditModeTests =>
         _pendingSkills != null ? _pendingSkills.Count : 0;
 
@@ -270,7 +299,19 @@ public partial class SkillListWindow : L2PopupWindow
     public int PassiveVisibleSkillSlotsForEditModeTests =>
         _supportPassiveSkills != null ? _supportPassiveSkills.CountVisibleSkillSlots() : 0;
 
-    public void EditorTestLoadAssets() => LoadAssets();
+    public void EditorTestLoadAssets()
+    {
+        if (_instance == null)
+            ClaimAsSkillListSingleton();
+        else if (_instance != this)
+        {
+            Debug.LogError(
+                "[SkillList] EditMode: '" + gameObject.name + "' (id=" + GetInstanceID() +
+                ") is not the SkillListWindow singleton; owner=" + DescribeSkillListSingletonOwner() + ".");
+        }
+
+        LoadAssets();
+    }
 
     public void EditorTestInitWindow(VisualElement root) => InitWindow(root);
 

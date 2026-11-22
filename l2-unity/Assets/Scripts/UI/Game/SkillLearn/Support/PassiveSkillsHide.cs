@@ -61,7 +61,7 @@ public partial class PassiveSkillsHide : AbstractSkills
     {
         _rowAbility = _passiveSkillPanel.Q(_rowNameAbility);
         _rowSubject = _passiveSkillPanel.Q(_rowNameSubject);
-        ResolveSkillsPerPanel(_passiveSkillPanel, sizeCell);
+        ResolveSkillsPerPanel(sizeCell);
 
         var abilitySkills = list.Where(s => s.IsPassive).ToList();
         var subjectSkills = new List<SkillInstance>();

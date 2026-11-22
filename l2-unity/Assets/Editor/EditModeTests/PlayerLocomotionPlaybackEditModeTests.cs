@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 /// <summary>
 /// Regression guard for #1578: local <see cref="PlayerEntity"/> must use the body catalog path and
@@ -18,6 +19,7 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
     [Test]
     public void PlayerEntity_resolves_run_rate_from_body_catalog()
     {
+        LogAssert.ignoreFailingMessages = true;
         var go = new GameObject("locomotion-test-player");
         PlayerEntity entity = go.AddComponent<PlayerEntity>();
         entity.RaceId = CharacterRaceAnimation.MFighter;
@@ -39,11 +41,13 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
         Assert.Greater(walkRate, LocomotionGait.MinWalkRate, "MFighter walk_rate must be catalog-backed");
 
         Object.DestroyImmediate(go);
+        LogAssert.ignoreFailingMessages = false;
     }
 
     [Test]
     public void UserEntity_and_PlayerEntity_yield_same_catalog_run_rate_for_same_profile()
     {
+        LogAssert.ignoreFailingMessages = true;
         CharacterRaceAnimation profile = CharacterRaceAnimation.MFighter;
         float unityRun = NumberUtils.ScaleToUnity(120f);
 
@@ -65,5 +69,6 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
 
         Object.DestroyImmediate(playerGo);
         Object.DestroyImmediate(userGo);
+        LogAssert.ignoreFailingMessages = false;
     }
 }

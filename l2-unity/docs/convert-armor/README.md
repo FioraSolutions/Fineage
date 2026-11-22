@@ -20,7 +20,7 @@ Do **not** overwrite meshes the user already imported from Blender by hand. Conv
 Code:
 
 - Mesh: `AbstractCache.LoadArmorModel` → `Data/Animations/{package}/{asset}`
-- Material: `AbstractGetCache.LoadArmorMaterial` → `Data/SysTextures/{package}/Materials/{asset}`  
+- Material: `AbstractGetCache.LoadArmorMaterial` → `Data/SysTextures/{package}/Materials/{asset}` (player race folders must use `L2/World/ActorModulate2X`; CI: `scripts/check-paperdoll-armor-shader.py`)  
   Also tries dotted filenames `MMagic.MMagic_m004_t40_u` as a fallback. Prefer the **short** material name.
 
 On-disk layout:

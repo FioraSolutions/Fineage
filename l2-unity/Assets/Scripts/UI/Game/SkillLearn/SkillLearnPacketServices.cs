@@ -28,4 +28,13 @@ public static class SkillLearnPacketServices
 
     public static SkillListWindow SkillList =>
         _skillList != null ? _skillList : SkillListWindow.Instance;
+
+#if UNITY_EDITOR
+    public static void EditModeClearForTests()
+    {
+        _skillLearn = null;
+        _skillDesc = null;
+        _skillList = null;
+    }
+#endif
 }
