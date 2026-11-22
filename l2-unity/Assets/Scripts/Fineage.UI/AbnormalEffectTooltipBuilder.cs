@@ -7,6 +7,9 @@ using UnityEngine;
 /// </summary>
 public static class AbnormalEffectTooltipBuilder
 {
+    /// <summary>Mobius/Interlude tray icon for EtcStatusUpdate charge count (force / sonic momentum).</summary>
+    public const int ForceChargeTraySkillId = 4271;
+
     /// <summary>
     /// Wire <c>value</c> is skill level when that row exists in skillgrp; otherwise fall back to 1.
     /// </summary>
@@ -62,6 +65,15 @@ public static class AbnormalEffectTooltipBuilder
     public static bool TryFormatChargeLabel(int skillId, int wireValue, out string label)
     {
         label = null;
+        if (wireValue <= 0)
+            return false;
+
+        if (skillId == ForceChargeTraySkillId)
+        {
+            label = wireValue.ToString();
+            return true;
+        }
+
         if (wireValue <= 1)
             return false;
         Skillgrp skill = AbnormalEffectTooltipTables.SkillGrps?.GetSkill(
