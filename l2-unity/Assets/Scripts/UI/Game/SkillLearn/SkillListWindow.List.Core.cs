@@ -270,7 +270,19 @@ public partial class SkillListWindow : L2PopupWindow
     public int PassiveVisibleSkillSlotsForEditModeTests =>
         _supportPassiveSkills != null ? _supportPassiveSkills.CountVisibleSkillSlots() : 0;
 
-    public void EditorTestLoadAssets() => LoadAssets();
+    public void EditorTestLoadAssets()
+    {
+        if (_instance == null)
+            ClaimAsSkillListSingleton();
+        else if (_instance != this)
+        {
+            Debug.LogError(
+                "[SkillList] EditMode: '" + gameObject.name + "' (id=" + GetInstanceID() +
+                ") is not the SkillListWindow singleton; owner=" + DescribeSkillListSingletonOwner() + ".");
+        }
+
+        LoadAssets();
+    }
 
     public void EditorTestInitWindow(VisualElement root) => InitWindow(root);
 

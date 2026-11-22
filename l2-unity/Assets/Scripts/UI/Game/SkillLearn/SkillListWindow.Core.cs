@@ -23,19 +23,22 @@ public partial class SkillListWindow : L2PopupWindow
     }
 #endif
 
+    void ClaimAsSkillListSingleton()
+    {
+        _instance = this;
+        _builderTabs = new BuilderTabs();
+        _supportActiveSkills = new ActiveSkillsHide();
+        _supportPassiveSkills = new PassiveSkillsHide();
+        _allSkills = new Dictionary<int, SkillInstance>();
+        WireSkillLearnPacketServices();
+        TryApplyOrphanedSkillList();
+    }
+
     private void Awake()
     {
         if (_instance == null)
-        {
-            _instance = this;
-            _builderTabs = new BuilderTabs();
-            _supportActiveSkills = new ActiveSkillsHide();
-            _supportPassiveSkills = new PassiveSkillsHide();
-            _allSkills = new Dictionary<int, SkillInstance>();
-            WireSkillLearnPacketServices();
-            TryApplyOrphanedSkillList();
-        }
-        else
+            ClaimAsSkillListSingleton();
+        else if (_instance != this)
         {
             Debug.LogError(
                 "[SkillList] Duplicate SkillListWindow destroyed on Awake: '" + gameObject.name + "' (id=" +
