@@ -37,7 +37,7 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<InventoryWindow>(builder);
         RegisterIfFound<DeadWindow>(builder);
         RegisterIfFound<StatusWindow>(builder);
-        RegisterLiveMono<CharacterInfoWindow>(builder);
+        RegisterCharacterInfo(builder);
 
         builder.Register<PlayerSpawner>(Lifetime.Singleton);
         builder.Register<BowArrowVisual>(Lifetime.Singleton);
@@ -97,6 +97,7 @@ public sealed partial class GameLifetimeScope
             RequireMoveRoster(container);
             RequireNameplateRoster(container);
             RequireClickMasks(container);
+            RequireCharacterInfo(container);
             App.GameContainer = container;
             try
             {
@@ -196,5 +197,46 @@ public sealed partial class GameLifetimeScope
                     UnityEngine.Object.DestroyImmediate(broken.gameObject);
             }
         });
+    }
+
+    /// <summary>
+    /// Register the scene <see cref="CharacterInfoWindow"/> as <see cref="ICharacterInfoValues"/> (#131 S38p).
+    /// </summary>
+    void RegisterCharacterInfo(IContainerBuilder builder)
+    {
+        CharacterInfoWindow found = UnityEngine.Object.FindFirstObjectByType<CharacterInfoWindow>(FindObjectsInactive.Include);
+        if (found == null)
+        {
+            throw new InvalidOperationException(
+                "[GameLifetimeScope] ICharacterInfoValues missing — RegisterCharacterInfo found no CharacterInfoWindow in loaded scenes.");
+        }
+
+        builder.RegisterComponent(found).AsSelf().As<ICharacterInfoValues>();
+    }
+
+    static void RequireCharacterInfo(IObjectResolver container)
+    {
+        ICharacterInfoValues values;
+        try
+        {
+            values = container.Resolve<ICharacterInfoValues>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(ICharacterInfoValues))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] ICharacterInfoValues missing — CharacterInfoWindow was not registered as ICharacterInfoValues.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (values is CharacterInfoWindow)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] ICharacterInfoValues is not a CharacterInfoWindow — CharacterInfoWindow was not registered as ICharacterInfoValues.");
     }
 }

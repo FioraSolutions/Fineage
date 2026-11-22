@@ -27,8 +27,7 @@ public partial class World
                 // UnityReplaySession.OnStatus(e, attributes);
                 if (e.GetType() == typeof(PlayerEntity))
                 {
-                    if (CharacterInfo != null)
-                        CharacterInfo.UpdateValues();
+                    _characterInfo.UpdateValues();
                 }
             }
 
@@ -43,8 +42,7 @@ public partial class World
             if (e == DomainPacketServices.LocalPlayer)
             {
                 DomainPacketServices.LocalPlayer.Running = user.PlayerInfoInterlude.Appearance.Running;
-                if (CharacterInfo != null)
-                    CharacterInfo.UpdateValues();
+                _characterInfo.UpdateValues();
             }
         });
     }

@@ -40,8 +40,6 @@ public sealed partial class GameLifetimeScope
             return CameraPacketServices.Controller as T;
         if (typeof(T) == typeof(CombatFacingService))
             return CombatPacketServices.Facing as T;
-        if (typeof(T) == typeof(CharacterInfoWindow))
-            return HudCorePacketServices.CharacterInfo as T;
         if (typeof(T) == typeof(CharacterBuilder))
             return CharacterPacketServices.Builder as T;
         if (typeof(T) == typeof(AudioManager))
