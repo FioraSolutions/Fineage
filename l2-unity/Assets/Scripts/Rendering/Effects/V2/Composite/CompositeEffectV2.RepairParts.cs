@@ -11,6 +11,9 @@ public partial class CompositeEffectV2 : CompositePrefabEffect
     /// </summary>
     protected void RepairEmptyV2PartsIfNeeded()
     {
+        if (_partsFromResolver)
+            return;
+
         int currentSpawnable = CountSpawnableParts(_v2Parts);
 
         CompositePart[] fromYaml;

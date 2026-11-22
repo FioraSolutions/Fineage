@@ -55,10 +55,9 @@ public partial class CompositeEffectV2
             return;
         }
 
-        Vector3 spawnPosition = CompositeEffectUtilities.ResolveSpawnPosition(
-            followTransform,
-            worldPosition,
-            Vector3.zero);
+        Vector3 spawnPosition = part.spawnOffsetLocal
+            ? CompositeEffectUtilities.ResolveSpawnPosition(followTransform, worldPosition, part.spawnOffset)
+            : CompositeEffectUtilities.ResolveSpawnPosition(followTransform, worldPosition, Vector3.zero) + part.spawnOffset;
         Quaternion rotation = ResolveV2SpawnRotation(part, followTransform);
         BaseEffect instance = Instantiate(part.prefab, spawnPosition, rotation);
         instance.gameObject.SetActive(true);

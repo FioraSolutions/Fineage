@@ -51,19 +51,19 @@ public partial class StatusWindow
         if(_CPTextLabel != null) {
             int cpMax = PlayerResourceCaps.EffectiveMax(stats.MaxCp, status.Cp);
             int cpCur = PlayerResourceCaps.DisplayCurrent(status.Cp, cpMax);
-            _CPTextLabel.text = cpCur + "/" + cpMax;
+            _CPTextLabel.text = ResourceReadout("CPBar", cpCur, cpMax);
         }
 
         if(_HPTextLabel != null) {
             int hpMax = PlayerResourceCaps.EffectiveMax(stats.MaxHp, status.GetHp());
             int hpCur = PlayerResourceCaps.DisplayCurrent(status.GetHp(), hpMax);
-            _HPTextLabel.text = hpCur + "/" + hpMax;
+            _HPTextLabel.text = ResourceReadout("HPBar", hpCur, hpMax);
         }
 
         if(_MPTextLabel != null) {
             int mpMax = PlayerResourceCaps.EffectiveMax(stats.MaxMp, status.GetMp());
             int mpCur = PlayerResourceCaps.DisplayCurrent(status.GetMp(), mpMax);
-            _MPTextLabel.text = mpCur + "/" + mpMax;
+            _MPTextLabel.text = ResourceReadout("MPBar", mpCur, mpMax);
         }
 
         L2ResourceBarView.SetFill(
@@ -86,105 +86,13 @@ public partial class StatusWindow
         L2ResourceBarView.SetFill(_EXPBar, _EXPBarBG, expRatio);
     }
 
-    void PaintStatusChrome()
+    static string ResourceReadout(string controlName, int current, int max)
     {
-        PaintBar(_CPBarBG, "Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar_Back");
-        PaintBar(_CPBar, "Data/UI/Status/Interlude/Status_Interlude_Ps_CpBar");
-        PaintBar(_HPBarBG, "Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back");
-        PaintBar(_HPBar, "Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar");
-        PaintBar(_MPBarBG, "Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back");
-        PaintBar(_MPBar, "Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar");
-        PaintBar(_EXPBarBG, "Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back");
-        PaintBar(_EXPBar, "Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar");
-
-        VisualElement level = GetElementByClass("level-container");
-        if (level != null)
-        {
-            Stamp(level, "Data/UI/Status/ps_levelback");
-            level.style.unitySliceLeft = 6;
-            level.style.unitySliceRight = 6;
-            level.style.unitySliceTop = 6;
-            level.style.unitySliceBottom = 6;
-            level.style.unitySliceScale = 1f;
-            level.style.width = 18;
-            level.style.height = 16;
-            level.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-        }
-
-        VisualElement center = GetElementById("CenterContainer");
-        L2InterludeHudSkinPipeline.PaintSmallWndCenterFill(center, nameof(StatusWindow));
-
-        PaintSideFrame();
-
-        VisualElement grip = GetElementByClass("hor-resize-handle");
-        if (grip != null)
-        {
-            grip.style.width = 7;
-            grip.style.height = 16;
-        }
-    }
-
-    void PaintSideFrame()
-    {
-        L2InterludeHudVerticalFrame.TryPaintVerticalColumn(_windowEle ?? _root, nameof(StatusWindow));
-
-        VisualElement grip = GetElementById("SizeControlHandle");
-        if (grip != null)
-            L2InterludeHudVerticalFrame.StampHorizontalResize(grip, nameof(StatusWindow));
-        L2InterludeHudSkinPipeline.ValidateTextures(
-            InterludeHudWindowCatalog.StatusWnd,
-            nameof(StatusWindow));
-    }
-
-    static void PaintBar(VisualElement bar, string resourcesPath)
-    {
-        if (bar == null)
-            return;
-
-        Texture2D texture = LoadUiTexture(resourcesPath, nameof(StatusWindow));
-        if (texture == null)
-            return;
-
-        List<VisualElement> pieces = bar.Query<VisualElement>(className: "center").ToList();
-        if (pieces.Count == 0)
-            pieces.Add(bar);
-
-        for (int i = 0; i < pieces.Count; i++)
-        {
-            VisualElement piece = pieces[i];
-            piece.style.backgroundImage = new StyleBackground(texture);
-            piece.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
-        }
-    }
-
-    static void Stamp(VisualElement element, string resourcesPath)
-    {
-        Texture2D texture = LoadUiTexture(resourcesPath, nameof(StatusWindow));
-        if (element == null || texture == null)
-            return;
-
-        element.style.backgroundImage = new StyleBackground(texture);
-    }
-
-    static Texture2D LoadUiTexture(string resourcesPath, string context)
-    {
-        Texture2D texture = null;
-        if (IconPacketServices.Icons != null)
-        {
-            Texture2D loaded = IconPacketServices.Icons.LoadTextureOtherSources(resourcesPath);
-            if (loaded != null && loaded.name != "NOIMAGE")
-                texture = loaded;
-        }
-
-        texture ??= Resources.Load<Texture2D>(resourcesPath);
-        if (texture == null)
-        {
-            Debug.LogError(
-                "[StatusWindow] missing HUD texture path='" + resourcesPath +
-                "' context='" + context + "'. Import from ref/l2-interlude-client L2UI_CH3.");
-        }
-
-        return texture;
+        string title = InterludeWindowLayout.ControlText("StatusWnd", controlName);
+        string numbers = current + "/" + max;
+        if (string.IsNullOrEmpty(title))
+            return numbers;
+        return title + " " + numbers;
     }
 
     static float LevelExpRatio(PlayerStats stats)

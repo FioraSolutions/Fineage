@@ -24,8 +24,7 @@ public partial class SkillExecutor : MonoBehaviour
         if (entity == null || animationCombo == null) return;
         int objectId = entity.Identity.Id;
 
-        EffectManager effects = Effects;
-        if (effects != null && skill != null)
+        if (skill != null)
         {
             MagicCastData cast = entity.GetMagicCastData();
             ShotOrbDebug.Log(
@@ -34,13 +33,7 @@ public partial class SkillExecutor : MonoBehaviour
                 " cast=" + (cast != null) +
                 " shoot=" + (cast != null ? cast.serverTimeToShoot.ToString("0.###") : "-") +
                 " targetId=" + (cast != null ? cast.TargetObjectId.ToString() : "-"));
-            effects.PlayEffect(skill.Id, entity.transform, cast);
-        }
-        else
-        {
-            ShotOrbDebug.LogWarning(
-                "[ShotOrb] ExecuteOverride SKIP PlayEffect effects=" + (effects != null) +
-                " skill=" + (skill != null ? skill.Id.ToString() : "null"));
+            SkillVisualEffectDispatch.PlayFromSkill(entity, skill, cast, animationCombo);
         }
 
         string[] cycle = animationCombo.GetAnimCycle();

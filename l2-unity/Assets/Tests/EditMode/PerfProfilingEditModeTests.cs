@@ -26,6 +26,7 @@ public sealed class PerfProfilingEditModeTests
                 "Fineage.Gravity.RaycastBatch",
                 "Fineage.Move.NpcStep",
                 "Fineage.Move.PawnYaw",
+                "Fineage.Deco.InstancedCull",
             },
             FineagePerfProfiling.RoadmapMarkerNames);
 

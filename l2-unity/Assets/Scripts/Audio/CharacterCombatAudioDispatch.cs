@@ -221,15 +221,21 @@ public static class CharacterCombatAudioDispatch
         string eventLabel,
         float volumeScale)
     {
+        InterludeFmodCombatSoundResolver.EnsureCombatBankForEvent(fmodEventPath);
+
         if (service.PlayFmodEvent(fmodEventPath, AudioCategory.Sfx, position, entityId, eventLabel))
             return true;
 
         string resourcesPath = InterludeSoundTokenPath.ResourcesPathFromFmodEvent(fmodEventPath);
-        if (!string.IsNullOrEmpty(resourcesPath))
-            return service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false);
+        if (!string.IsNullOrEmpty(resourcesPath)
+            && service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+            return true;
 
         service.LogCombatAudioError(
-            "FMOD and Resources clip missing",
+            "combat sound unresolved event=\"" + fmodEventPath + "\""
+            + (string.IsNullOrEmpty(resourcesPath)
+                ? " (no Resources stem)"
+                : " Resources=\"" + resourcesPath + "\""),
             entityId,
             fmodEventPath,
             eventLabel);

@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
 /// <summary>
-/// Shared player/NPC locomotion rate path: catalog strides for players, measured stride for creatures.
+/// One locomotion playback path for every player race/sex/weapon clip and every NPC.
+/// Rate = current planar speed / authored speed, where authored speed is the baked
+/// cycle distance divided by the clip length.
 /// </summary>
 public static class PlayerLocomotionPlayback
 {
@@ -15,89 +18,120 @@ public static class PlayerLocomotionPlayback
         out float runRate,
         out float walkRate)
     {
-        if (entity != null && IsPlayerBodyEntity(entity) && TryPlayerProfile(entity, out CharacterRaceAnimation profile))
-        {
-            ResolvePlayerRates(
-                profile,
-                animator,
-                runClipName,
-                walkClipName,
-                unityRunMetersPerSecond,
-                unityWalkMetersPerSecond,
-                out runRate,
-                out walkRate);
-            return;
-        }
-
-        LocomotionGait.ResolvePlaybackRates(
+        string subject = Describe(entity);
+        runRate = ResolveOne(
+            entity,
             animator,
             runClipName,
-            walkClipName,
+            walk: false,
             unityRunMetersPerSecond,
+            subject,
+            LocomotionGait.MinRunRate);
+        walkRate = ResolveOne(
+            entity,
+            animator,
+            walkClipName,
+            walk: true,
             unityWalkMetersPerSecond,
-            out runRate,
-            out walkRate);
+            subject,
+            LocomotionGait.MinWalkRate);
     }
 
-    static bool IsPlayerBodyEntity(Entity entity) =>
+    public static string Describe(Entity entity)
+    {
+        if (entity is PlayerEntity || entity is UserEntity)
+        {
+            CharacterRaceAnimation profile = entity.RaceId;
+            string name = profile.ToString();
+            string sex = name.Length > 0 && name[0] == 'F' ? "F" : "M";
+            string race = name.Length > 1 ? name.Substring(1) : name;
+            return "race=" + race + " sex=" + sex + " profile=" + name;
+        }
+
+        string npc = "npc";
+        int id = 0;
+        if (entity != null && entity.Identity != null)
+        {
+            if (!string.IsNullOrEmpty(entity.Identity.Name))
+                npc = entity.Identity.Name;
+            id = entity.Identity.Id;
+        }
+
+        return "npc=\"" + npc + "\" id=" + id;
+    }
+
+    static float ResolveOne(
+        Entity entity,
+        Animator animator,
+        string clipName,
+        bool walk,
+        float unityMetersPerSecond,
+        string subject,
+        float minRate)
+    {
+        string gait = walk ? "walk" : "run";
+        AnimationClip clip = LocomotionGait.FindClip(animator, clipName);
+        if (clip == null && IsPlayerBody(entity))
+            clip = ResolvePlayerClip(entity.RaceId, clipName, walk);
+
+        if (clip == null)
+        {
+            LocomotionGait.LogMissingLocomotionClip(animator, clipName, subject);
+            LocomotionStrideCatalog.LogMissing(subject, gait, clipName);
+            return 0f;
+        }
+
+        if (clip.length < 0.01f || !LocomotionStrideCatalog.TryGet(clip.name, out float stride))
+        {
+            LocomotionStrideCatalog.LogMissing(subject, gait, clip.name);
+            return 0f;
+        }
+
+        return LocomotionGait.PlaybackRate(
+            unityMetersPerSecond,
+            clip.length,
+            stride,
+            minRate,
+            LocomotionGait.MaxRate);
+    }
+
+    static bool IsPlayerBody(Entity entity) =>
         entity is PlayerEntity || entity is UserEntity;
 
-    static bool TryPlayerProfile(Entity entity, out CharacterRaceAnimation profile)
+    /// <summary>
+    /// Animator overrides name the state (run_1HS). When the animator is not
+    /// bound yet, load that weapon clip from the body catalog path.
+    /// </summary>
+    static AnimationClip ResolvePlayerClip(CharacterRaceAnimation profile, string clipName, bool walk)
     {
-        profile = entity.RaceId;
-        return System.Enum.IsDefined(typeof(CharacterRaceAnimation), profile);
-    }
-
-    static void ResolvePlayerRates(
-        CharacterRaceAnimation profile,
-        Animator animator,
-        string runClipName,
-        string walkClipName,
-        float unityRunMetersPerSecond,
-        float unityWalkMetersPerSecond,
-        out float runRate,
-        out float walkRate)
-    {
-        AnimationClip runClip = LocomotionGait.FindClip(animator, runClipName)
-            ?? PlayerLocomotionBodyCatalog.LoadHandClip(profile, walk: false);
-        AnimationClip walkClip = LocomotionGait.FindClip(animator, walkClipName)
-            ?? PlayerLocomotionBodyCatalog.LoadHandClip(profile, walk: true);
-
-        string profileLabel = profile.ToString();
-        if (runClip == null)
-            LocomotionGait.LogMissingLocomotionClip(animator, runClipName, profileLabel);
-        if (walkClip == null)
-            LocomotionGait.LogMissingLocomotionClip(animator, walkClipName, profileLabel);
-
-        Transform skeleton = animator != null ? animator.transform : null;
-        float runStride = PlayerLocomotionBodyCatalog.ResolveRunStride(profile, runClip, skeleton);
-        float walkStride = PlayerLocomotionBodyCatalog.ResolveWalkStride(profile, walkClip, skeleton);
-
-        if (runStride < LocomotionGait.MinStrideMeters)
+        if (!PlayerLocomotionBodyCatalog.TryGet(profile, out PlayerLocomotionBodyCatalog.Row row))
         {
-            PlayerLocomotionBodyCatalog.LogStrideFallback(profile, walk: false, runStride);
-            runStride = LocomotionGait.FallbackStrideMeters;
-        }
-        if (walkStride < LocomotionGait.MinStrideMeters)
-        {
-            PlayerLocomotionBodyCatalog.LogStrideFallback(profile, walk: true, walkStride);
-            walkStride = LocomotionGait.FallbackStrideMeters;
+            LocomotionStrideCatalog.LogMissing(DescribeProfile(profile), walk ? "walk" : "run", clipName);
+            return null;
         }
 
-        float runLen = runClip != null && runClip.length > 0.01f ? runClip.length : 0.67f;
-        float walkLen = walkClip != null && walkClip.length > 0.01f ? walkClip.length : 0.8f;
-
-        runRate = LocomotionGait.PlaybackRate(
-            unityRunMetersPerSecond,
-            runLen,
-            runStride,
-            LocomotionGait.MinRunRate,
-            LocomotionGait.MaxRate);
-        walkRate = LocomotionGait.PlaybackRate(
-            unityWalkMetersPerSecond,
-            walkLen,
-            walkStride,
-            LocomotionGait.MinWalkRate,
-            LocomotionGait.MaxRate);
+        string hand = walk ? row.WalkHandClipResources : row.RunHandClipResources;
+        if (!LocomotionStrideCatalog.TryResolveResourcesPath(hand, WeaponToken(clipName), out string path))
+            return null;
+        return Resources.Load<AnimationClip>(path);
     }
+
+    public static string DescribeProfile(CharacterRaceAnimation profile)
+    {
+        string name = profile.ToString();
+        string sex = name.Length > 0 && name[0] == 'F' ? "F" : "M";
+        string race = name.Length > 1 ? name.Substring(1) : name;
+        return "race=" + race + " sex=" + sex + " profile=" + name;
+    }
+
+    static string WeaponToken(string clipName)
+    {
+        if (string.IsNullOrEmpty(clipName))
+            return "hand";
+        int split = clipName.IndexOf('_');
+        if (split < 0 || split >= clipName.Length - 1)
+            return "hand";
+        return clipName.Substring(split + 1);
+    }
+
 }

@@ -210,7 +210,7 @@ Columns: **Location** · **Falls back to** · **Should log** · **Original data*
 | `AnimationManager.MonsterHelpers.Helpers.cs:61–66` | Missing override clip → duration `0` | `LogWarning` cycle + controller | **Import** |
 | `AnimationManager.MonsterCore.Helpers.cs:43–44` | No controller → PAtk mult `1f` | `LogWarning` objectId | **State** |
 | `Fineage.Controller/Anim/AnimPlayback.cs:47` | `PickupFallbackSeconds` (0.2s) | `LogWarning` clip + objectId | **Import** |
-| `Fineage.Domain/Anim/LocomotionGait.cs:30` | `FallbackStrideMeters=1.5f` | `LogWarning` clip + skeleton | **Import** |
+| `Fineage.Domain/Anim/LocomotionGait.cs` | missing baked stride returns 0 (no default meters) | `LogError` race/sex/gait/clip | **Import** |
 | `Fineage.Controller/Anim/AnimationDataCache.Core.cs:61` | Missing clip length `1.0f` | `LogWarning` motion name | **Import** |
 | `SkillAnimationDatabase.Lookup.cs:44` | `null` cache unknown race token | `LogError` controller name | **Import** |
 | `SkillAnimationDatabase.Load.Helpers.cs:39–41` | Alias e.g. MagicNoTarget→MagicShot | `LogWarning` when alias used | **Documented optional** — missing packs |

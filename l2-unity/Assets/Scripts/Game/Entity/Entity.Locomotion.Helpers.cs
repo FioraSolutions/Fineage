@@ -22,6 +22,11 @@ public partial class Entity
 
     public float UnityWalkSpeedMeters => ResolveUnityWalkSpeedMeters();
 
+    /// <summary>
+    /// Planar speed from the server: UnitySpeed* when a status update already converted it,
+    /// otherwise CharInfo/UserInfo/NpcInfo RunRealSpeed (class-template base × move multiplier).
+    /// 0 means the packet has not supplied a speed yet — playback does not invent one.
+    /// </summary>
     float ResolveUnityRunSpeedMeters()
     {
         if (_stats == null)

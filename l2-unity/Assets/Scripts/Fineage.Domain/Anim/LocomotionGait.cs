@@ -3,9 +3,15 @@ using UnityEngine;
 
 /// <summary>
 /// One locomotion playback-rate pipeline for every player race/sex/weapon clip
-/// and every NPC mesh: rate = unitySpeed * clipLength / stride.
-/// Unity move speed is already <see cref="NumberUtils.ScaleToUnity"/> (0.0189).
-/// Stride is measured from the clip (both feet's swing relative to the pelvis).
+/// and every NPC mesh.
+/// Original client (UE2 <c>APawn::PlayRunning</c>): PlayAnim rate = Velocity / AnimSpeed,
+/// where AnimSpeed is the pawn's authored GroundSpeed (walk multiplies WalkingPct).
+/// L2 pawn classes store that authored speed (FFighter GroundSpeed=120, GroundMinSpeed=80)
+/// and Engine.u also exports RunAnimRate / WalkAnimRate. The clips themselves are in-place,
+/// so the matching rate is currentSpeed / authoredSpeed.
+/// Authored speed here is the baked cycle distance divided by the clip length
+/// (stride per cycle / seconds), one formula for every race and NPC.
+/// A missing stride returns 0 — callers log race/sex/gait and do not substitute a default.
 /// </summary>
 public static partial class LocomotionGait
 {
@@ -13,8 +19,6 @@ public static partial class LocomotionGait
     public const float MinWalkRate = 0.12f;
     public const float MaxRate = 4f;
     public const float MinStrideMeters = 0.05f;
-    /// <summary>Used only when a clip exists but no feet or root travel can be measured.</summary>
-    public const float FallbackStrideMeters = 1.5f;
 
     static readonly Dictionary<long, float> StrideCache = new Dictionary<long, float>();
 
@@ -27,8 +31,10 @@ public static partial class LocomotionGait
     {
         if (unityMetersPerSecond <= 0.001f || clipLength < 0.01f)
             return Mathf.Clamp(1f, minRate, maxRate);
-        float stride = strideMeters >= MinStrideMeters ? strideMeters : FallbackStrideMeters;
-        return Mathf.Clamp(unityMetersPerSecond * clipLength / stride, minRate, maxRate);
+        if (strideMeters < MinStrideMeters)
+            return 0f;
+        // rate = currentSpeed / authoredSpeed, authoredSpeed = strideMeters / clipLength.
+        return Mathf.Clamp(unityMetersPerSecond * clipLength / strideMeters, minRate, maxRate);
     }
 
     /// <summary>

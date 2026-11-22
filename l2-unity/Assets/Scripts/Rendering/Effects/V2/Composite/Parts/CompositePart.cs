@@ -11,6 +11,11 @@ public abstract partial class CompositePart : ISerializationCallbackReceiver
     [Tooltip("Where this part appears. Spawn Timing is when.")]
     public EffectAttachmentPoint spawnAttachmentPoint;
     public string boneName;
+    public Vector3 spawnOffset;
+    public bool spawnOffsetLocal = true;
+    /// <summary>Resolver-owned parts: a named bone that is missing is an error, not a root substitute.</summary>
+    public bool requireNamedBone;
+    public bool boneOnTarget;
     public bool follow = true;
     public bool inheritRotation;
     // Nested SerializeReference inside a SerializeReference part orphans RefIds

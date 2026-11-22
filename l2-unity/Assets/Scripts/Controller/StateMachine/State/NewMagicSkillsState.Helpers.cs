@@ -55,7 +55,7 @@ public partial class NewMagicSkillsState  : AbstractAttackEvents
                 string durDump = durations != null ? string.Join(",", durations) : "-";
                 float shotEventTime = SetupDurationHelper.ResolveShotEventTime(objectId, orderedReadyCycle);
                 float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(
-                    entity, useSkill.SkillId, entity != null ? entity.Target : null);
+                    entity, useSkill.SkillId, useSkill.SkillLvl, entity != null ? entity.Target : null);
                 Debug.Log(
                     "[CastSync] READY_TO_ACT skill=" + useSkill.SkillId +
                     " lv=" + useSkill.SkillLvl +
