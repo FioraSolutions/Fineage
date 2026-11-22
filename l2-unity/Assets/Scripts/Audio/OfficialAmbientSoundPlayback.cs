@@ -10,7 +10,6 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
 {
     const float TickSeconds = 0.35f;
     const int MaxVoices = 64;
-    const float RandomRetriggerDelay = 3f;
     const int TileReach = 2;
 
     sealed class Voice
@@ -20,6 +19,7 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         public AudioSource Source;
         public AudioClip Clip;
         public float NextOneShotAt;
+        public float Period;
         public bool Looping;
     }
 
@@ -67,7 +67,7 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         {
             OfficialAmbientSoundTable.Entry entry = _candidates[i].entry;
             keep.Add(entry.Id);
-            UpdateVoice(entry, ear);
+            UpdateVoice(entry, ear, _candidates[i].dist);
         }
 
         _stop.Clear();
@@ -115,11 +115,11 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         }
     }
 
-    void UpdateVoice(OfficialAmbientSoundTable.Entry entry, Vector3 ear)
+    void UpdateVoice(OfficialAmbientSoundTable.Entry entry, Vector3 ear, float distance)
     {
         if (!_voices.TryGetValue(entry.Id, out Voice voice))
         {
-            if (!TryCreateVoice(entry, out voice))
+            if (!TryCreateVoice(entry, distance, out voice))
                 return;
             _voices[entry.Id] = voice;
         }
@@ -128,11 +128,11 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         if (voice.Looping)
             return;
 
-        if (Time.unscaledTime < voice.NextOneShotAt)
+        if (voice.Period <= 0f || Time.unscaledTime < voice.NextOneShotAt)
             return;
         if (!RollChance(entry.Random))
         {
-            voice.NextOneShotAt = Time.unscaledTime + RandomRetriggerDelay;
+            voice.NextOneShotAt = Time.unscaledTime + voice.Period;
             return;
         }
 
@@ -140,17 +140,17 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         {
             if (!AudioListenerLifecycle.TryPrepare())
             {
-                TraceAmbient(entry, "refuse", "no-listener");
+                TraceAmbient(entry, distance, "refuse", "no-listener");
                 return;
             }
 
             voice.Source.Play();
-            TraceAmbient(entry, "play", RadiusReason(entry));
+            TraceAmbient(entry, distance, "play", RadiusReason(entry));
         }
-        voice.NextOneShotAt = Time.unscaledTime + RandomRetriggerDelay;
+        voice.NextOneShotAt = Time.unscaledTime + voice.Period;
     }
 
-    bool TryCreateVoice(OfficialAmbientSoundTable.Entry entry, out Voice voice)
+    bool TryCreateVoice(OfficialAmbientSoundTable.Entry entry, float distance, out Voice voice)
     {
         voice = null;
         if (string.IsNullOrEmpty(entry.Sound))
@@ -204,15 +204,30 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
                 phase += length;
             source.time = phase;
         }
-        if (!AudioListenerLifecycle.TryPrepare())
+        bool oneShot = !source.loop;
+        float period = clip.length;
+        if (oneShot && period <= 0.01f)
         {
             ReleaseSource(source);
-            TraceAmbient(entry, "refuse", "no-listener");
+            LogOnce(
+                "period:" + entry.Id,
+                "OfficialAmbientSoundPlayback: one-shot has no wave duration map=\""
+                + entry.Map + "\" name=\"" + entry.Name + "\" sound=\"" + entry.Sound + "\".");
             return false;
         }
 
-        source.Play();
-        TraceAmbient(entry, "play", RadiusReason(entry));
+        if (!AudioListenerLifecycle.TryPrepare())
+        {
+            ReleaseSource(source);
+            TraceAmbient(entry, distance, "refuse", "no-listener");
+            return false;
+        }
+
+        if (!oneShot)
+        {
+            source.Play();
+            TraceAmbient(entry, distance, "play", RadiusReason(entry));
+        }
 
         voice = new Voice
         {
@@ -220,10 +235,24 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
             Entry = entry,
             Source = source,
             Clip = clip,
-            Looping = source.loop,
-            NextOneShotAt = Time.unscaledTime + RandomRetriggerDelay
+            Looping = !oneShot,
+            Period = oneShot ? period : 0f,
+            // AmbientSoundStartTime is a per-actor timestamp. There is no shared
+            // retrigger interval on the actor, so the wave's own length is the cycle
+            // and StartTime only phases it.
+            NextOneShotAt = Time.unscaledTime + (oneShot ? Phase(entry.StartTime, period) : 0f)
         };
         return true;
+    }
+
+    static float Phase(float startTime, float period)
+    {
+        if (period <= 0.01f || startTime == 0f)
+            return 0f;
+        float phase = startTime % period;
+        if (phase < 0f)
+            phase += period;
+        return phase;
     }
 
     AudioSource AcquireSource()
@@ -265,9 +294,11 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
     static string RadiusReason(OfficialAmbientSoundTable.Entry entry) =>
         Ue2SoundAudibility.HasRadius(entry.RadiusUu) ? "audible" : "actor-default";
 
-    static void TraceAmbient(OfficialAmbientSoundTable.Entry entry, string action, string reason)
+    static void TraceAmbient(OfficialAmbientSoundTable.Entry entry, float distance, string action, string reason)
     {
         float radiusUu = Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.RadiusUu);
+        float scale = OfficialAmbientSoundUnits.VolumeToScale(entry.Volume);
+        float applied = scale * Ue2SoundAudibility.Attenuation(distance, radiusUu);
         AudioPlayTrace.Write(
             action,
             Time.unscaledTime,
@@ -275,9 +306,9 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
             "Ambient",
             entry.Name,
             0,
-            0f,
+            distance,
             radiusUu,
-            entry.Volume,
+            applied,
             Ue2SoundAudibility.SlotAmbient,
             reason);
     }

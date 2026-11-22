@@ -5,6 +5,7 @@ using UnityEngine;
 public static partial class FineageLog
 {
     const long MaxFileBytes = 3 * 1024 * 1024;
+    const int MaxRotations = 64;
 
     /// <summary>Runtime toggle for Debug (also enabled by FINEAGE_LOG_DEBUG define).</summary>
     public static bool DebugEnabled;
