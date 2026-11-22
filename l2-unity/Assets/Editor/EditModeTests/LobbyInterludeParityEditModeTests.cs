@@ -7,8 +7,8 @@ public sealed class LobbyInterludeParityEditModeTests
 {
     const string CharSelectUxml =
         "Assets/Resources/Data/UI/_Elements/Login/CharSelectWindow.uxml";
-    const string LoginForestMeta =
-        "Assets/Resources/Data/Maps/l2_lobby/Meta/LoginForestActors.json";
+    const string LobbyT3d =
+        "Assets/Resources/Data/Maps/l2_lobby/Meta/l2_lobby.t3d";
 
     [Test]
     public void Account_environment_profile_loads_from_resources()
@@ -72,7 +72,8 @@ public sealed class LobbyInterludeParityEditModeTests
     {
         Assert.AreEqual("l2_lobby", LobbyMapInterludeContract.AdditiveLobbySceneName);
         Assert.AreEqual("Lobby.unr", LobbyMapInterludeContract.RetailMapName);
-        string meta = File.ReadAllText(LoginForestMeta);
-        StringAssert.Contains("Lobby.unr", meta);
+        string t3d = File.ReadAllText(LobbyT3d);
+        StringAssert.Contains("Class=Camera", t3d);
+        StringAssert.Contains("Camera25", t3d);
     }
 }

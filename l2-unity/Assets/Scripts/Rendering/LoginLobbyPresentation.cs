@@ -37,19 +37,22 @@ public static class LoginLobbyPresentation
     public static void EnterForestLogin(Camera loginCamera)
     {
         LobbyAccountRenderSettings.Release();
-        LoginForestPresenter.Present(loginCamera);
+        // Official vista: the baked lobby scene through the Cameras.prefab "Login"
+        // camera (transform from Lobby.unr Camera25). UE2 FovAngle=50 is horizontal
+        // (PlayerController.uc default); Unity vertical derives from the live aspect.
+        L2Ue2Fov.Apply(loginCamera, L2Ue2Fov.OfficialHfovDeg);
+        LoginForestMusic.Play();
     }
 
     public static void EnterAccountLobby(Camera _)
     {
-        LoginForestPresenter.DismissVistaOnly();
         LobbyAccountRenderSettings.Apply();
         LoginForestMusic.Play();
     }
 
     public static void LeaveLoginFlow()
     {
-        LoginForestPresenter.Dismiss();
+        LoginForestMusic.Stop();
         LobbyAccountRenderSettings.Release();
     }
 

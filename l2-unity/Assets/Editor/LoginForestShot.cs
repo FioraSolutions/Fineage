@@ -2,14 +2,18 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Editor Play proof for the forest login vista. Armed by
 /// /tmp/fineage-login-forest.outpath (not the splash shot path).
+/// Captures from the editor poll once the LoginWindow is shown
+/// (the vista itself is the baked lobby scene — no presenter).
 /// </summary>
 [InitializeOnLoad]
 public static class LoginForestShot
 {
+    public const string ShotPathFile = "/tmp/fineage-login-forest.outpath";
     const string MenuScenePath = "Assets/Resources/Scenes/Menu.unity";
 
     static bool _playRequested;
@@ -17,6 +21,8 @@ public static class LoginForestShot
     static double _armedAt;
     static double _playDeadline;
     static string _shotPath;
+    static int _captureReadyFrames;
+    static bool _captureRequested;
 
     static LoginForestShot()
     {
@@ -35,7 +41,7 @@ public static class LoginForestShot
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(dest) ?? "/tmp");
-        File.WriteAllText(LoginForestPresenter.ShotPathFile, dest);
+        File.WriteAllText(ShotPathFile, dest);
         Debug.Log("[LoginForest] RunCli armed " + dest);
         // Poll() on update drives play + capture + Exit.
     }
@@ -47,7 +53,7 @@ public static class LoginForestShot
 
         if (string.IsNullOrEmpty(_shotPath))
         {
-            if (!File.Exists(LoginForestPresenter.ShotPathFile))
+            if (!File.Exists(ShotPathFile))
                 return;
             if (EditorApplication.isCompiling || EditorApplication.isUpdating)
                 return;
@@ -60,7 +66,7 @@ public static class LoginForestShot
 
             try
             {
-                _shotPath = File.ReadAllText(LoginForestPresenter.ShotPathFile).Trim();
+                _shotPath = File.ReadAllText(ShotPathFile).Trim();
             }
             catch (IOException ex)
             {
@@ -78,6 +84,19 @@ public static class LoginForestShot
 
         if (EditorApplication.isPlaying)
         {
+            if (!_captureRequested)
+            {
+                if (LoginWindowShown())
+                    _captureReadyFrames++;
+                else
+                    _captureReadyFrames = 0;
+                if (_captureReadyFrames >= 3)
+                {
+                    _captureRequested = true;
+                    ScreenCapture.CaptureScreenshot(_shotPath);
+                }
+            }
+
             if (File.Exists(_shotPath))
             {
                 long size = new FileInfo(_shotPath).Length;
@@ -86,8 +105,8 @@ public static class LoginForestShot
                     Debug.Log("[LoginForest] proof shot ready bytes=" + size);
                     try
                     {
-                        if (File.Exists(LoginForestPresenter.ShotPathFile))
-                            File.Delete(LoginForestPresenter.ShotPathFile);
+                        if (File.Exists(ShotPathFile))
+                            File.Delete(ShotPathFile);
                     }
                     catch (IOException)
                     {
@@ -124,6 +143,27 @@ public static class LoginForestShot
             Debug.LogError("[LoginForest] play mode did not start");
             Exit(1);
         }
+    }
+
+    // Same readiness contract the old presenter used: splash gone + LoginWindow
+    // laid out wider than 200px.
+    static bool LoginWindowShown()
+    {
+        UIDocument[] docs = Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        bool loginShown = false;
+        for (int d = 0; d < docs.Length; d++)
+        {
+            if (docs[d] == null || docs[d].rootVisualElement == null)
+                continue;
+            VisualElement splash = docs[d].rootVisualElement.Q("InterludeSplash");
+            if (splash != null && splash.parent != null)
+                return false;
+            VisualElement login = docs[d].rootVisualElement.Q("LoginWindow");
+            float width = login != null ? login.resolvedStyle.width : 0f;
+            if (login != null && login.resolvedStyle.display != DisplayStyle.None && width > 200f)
+                loginShown = true;
+        }
+        return loginShown;
     }
 
     static void ReimportLoginMeshes()
