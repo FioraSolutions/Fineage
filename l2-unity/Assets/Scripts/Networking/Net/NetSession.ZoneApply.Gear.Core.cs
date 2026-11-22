@@ -24,6 +24,7 @@ public sealed partial class NetSession
 
     internal void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
     {
+        // Version stays off this path until the Net contract defines it.
         InventoryUpdateEntryNet[] src = update.Changes ?? System.Array.Empty<InventoryUpdateEntryNet>();
         var rows = new NetInventoryChange[src.Length];
         for (int i = 0; i < src.Length; i++)
@@ -45,7 +46,7 @@ public sealed partial class NetSession
             };
         }
 
-        NetGearSession.NoteInventoryUpdate(rows);
+        NetGearSession.NoteInventoryUpdate(rows, 0);
     }
 
     internal static void NoteReject(string code, string message)

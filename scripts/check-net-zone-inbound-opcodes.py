@@ -125,6 +125,13 @@ OUTBOUND_EXPLICIT = frozenset(
         "WeddingEngageAnswer",
         "PackageSendRequest",
         "PackageSendableListRequest",
+        # Nested NetOpcode.ClientPackets — client → zone, same wire ids as some
+        # server vehicle packets. The checker cannot treat NetOpcode.ClientPackets.X
+        # as a dispatch case.
+        "RequestGetOnVehicle",
+        "RequestGetOffVehicle",
+        "RequestMoveToLocationInVehicle",
+        "CannotMoveAnymoreInVehicle",
     }
 )
 

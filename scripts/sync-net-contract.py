@@ -51,8 +51,9 @@ CLIENT = REPO_ROOT / "l2-unity/Assets/Scripts/Networking/Net/Contract"
 # Sibling checkout is the normal developer layout (see AGENTS.md).
 BACKEND = REPO_ROOT.parent / "Fineage-Backend/src/Fineage.Net.Contract"
 
-# Relative to each contract root. Order is the diff/report order.
 # Backend contract sources may use C# 10+ syntax; Unity EditMode still targets C# 9.
+# The file set is every .cs under the backend contract tree. A hardcoded list
+# left new codecs (vehicle, augmentation) unsynced while their opcodes landed.
 UNITY_CS9_ADAPT_FILES = frozenset(
     {
         "Messages/WorldMessages.Freight.cs",
@@ -63,71 +64,43 @@ UNITY_CS9_ADAPT_FILES = frozenset(
     }
 )
 
-FILES = (
-    "Envelope/PacketEnvelope.cs",
-    "Envelope/NetFraming.cs",
-    "Envelope/ProtocolCapabilities.cs",
-    "Ids/EntityId.cs",
-    "Opcodes/NetOpcode.cs",
-    "Messages/SessionMessages.cs",
-    "Messages/LobbyMessages.cs",
-    "Messages/WorldMessages.Presence.cs",
-    "Messages/WorldMessages.Movement.cs",
-    "Messages/WorldMessages.Combat.cs",
-    "Messages/WorldMessages.Inventory.cs",
-    "Messages/WorldMessages.Skills.cs",
-    "Messages/WorldMessages.Clan.cs",
-    "Messages/WorldMessages.Shop.cs",
-    "Messages/WorldMessages.Quest.cs",
-    "Messages/WorldMessages.Party.cs",
-    "Messages/WorldMessages.Trade.cs",
-    "Messages/WorldMessages.PrivateStore.cs",
-    "Messages/WorldMessages.Craft.cs",
-    "Messages/WorldMessages.Friends.cs",
-    "Messages/WorldMessages.Chat.cs",
-    "Messages/BossMessages.cs",
-    "Messages/SiegeMessages.cs",
-    "Messages/OlympiadMessages.cs",
-    "Messages/DungeonMessages.cs",
-    "Messages/SevenSignsMessages.cs",
-    "Messages/WorldMessages.Pledge.cs",
-    "Messages/DuelMessages.cs",
-    "Messages/SummonMessages.cs",
-    "Messages/FishingMessages.cs",
-    "Messages/ManorMessages.cs",
-    "Messages/WorldMessages.Freight.cs",
-    "Messages/WorldMessages.MonsterRace.cs",
-    "Messages/WorldMessages.Wedding.cs",
-    "Codec/NetCodec.cs",
-    "Codec/NetCodec.Session.cs",
-    "Codec/NetCodec.Shop.cs",
-    "Codec/NetCodec.Warehouse.cs",
-    "Codec/NetCodec.WorldEvents.cs",
-    "Codec/NetCodec.Olympiad.cs",
-    "Codec/NetCodec.DungeonSigns.cs",
-    "Codec/NetCodec.Clan.cs",
-    "Codec/NetCodec.Friends.cs",
-    "Codec/NetCodec.Craft.cs",
-    "Codec/NetCodec.PrivateStore.cs",
-    "Codec/NetCodec.Trade.cs",
-    "Codec/NetCodec.Party.cs",
-    "Codec/NetCodec.Quest.cs",
-    "Codec/NetCodec.Presence.cs",
-    "Codec/NetCodec.Skills.cs",
-    "Codec/NetCodec.Movement.cs",
-    "Codec/NetCodec.Combat.cs",
-    "Codec/NetCodec.InventoryChat.cs",
-    "Codec/NetCodec.Pledge.cs",
-    "Codec/NetCodec.Duel.cs",
-    "Codec/NetCodec.Summons.cs",
-    "Codec/NetCodec.Fishing.cs",
-    "Codec/NetCodec.Manor.cs",
-    "Codec/NetCodec.Freight.cs",
-    "Codec/NetCodec.MonsterRace.cs",
-    "Codec/NetCodec.Wedding.cs",
-    "Codec/NetCodec.Castle.cs",
-    "Modules/IDomainModule.cs",
-)
+
+def contract_rel_paths(
+    source: Path,
+    ref: str | None,
+    backend_repo: Path | None,
+) -> tuple[str, ...]:
+    """Every backend contract .cs, relative to the contract root.
+
+    A ref uses ``git ls-tree`` so a dirty working tree cannot hide a file the
+    committed contract added. Otherwise the working tree is the source.
+    """
+    if ref and backend_repo is not None:
+        try:
+            prefix = source.resolve().relative_to(backend_repo.resolve()).as_posix()
+        except ValueError:
+            prefix = ""
+        if prefix:
+            listed = subprocess.run(
+                ["git", "-C", str(backend_repo), "ls-tree", "-r", "--name-only", ref, prefix],
+                capture_output=True,
+                check=False,
+            )
+            if listed.returncode == 0:
+                rels: list[str] = []
+                head = prefix + "/"
+                for line in listed.stdout.decode("utf-8", errors="replace").splitlines():
+                    if line.startswith(head) and line.endswith(".cs"):
+                        rels.append(line[len(head) :])
+                if rels:
+                    return tuple(sorted(rels))
+
+    rels = []
+    for path in source.rglob("*.cs"):
+        if any(part in {"obj", "bin"} for part in path.parts):
+            continue
+        rels.append(path.relative_to(source).as_posix())
+    return tuple(sorted(rels))
 
 
 def backend_root(explicit: str | None) -> Path:
@@ -220,9 +193,10 @@ def compare(
     """Return (missing, differing) relative paths."""
     missing: list[str] = []
     differing: list[str] = []
-    lookup_corpus = build_contract_lookup_corpus(source, FILES)
+    files = contract_rel_paths(source, ref, backend_repo)
+    lookup_corpus = build_contract_lookup_corpus(source, files)
 
-    for rel in FILES:
+    for rel in files:
         data = read_source(source, rel, ref, backend_repo)
         dst = target / rel
         if data is None:
@@ -246,9 +220,10 @@ def write_contract(
 ) -> int:
     """Copy the backend sources over the client copies, preserving .meta files."""
     changed = 0
-    lookup_corpus = build_contract_lookup_corpus(source, FILES)
+    files = contract_rel_paths(source, ref, backend_repo)
+    lookup_corpus = build_contract_lookup_corpus(source, files)
 
-    for rel in FILES:
+    for rel in files:
         data = read_source(source, rel, ref, backend_repo)
         dst = target / rel
         if data is None:
@@ -340,7 +315,8 @@ def main() -> int:
         )
         return 1
 
-    print(f"Net contract in sync ({len(FILES)} files)")
+    count = len(contract_rel_paths(source, ref, backend_repo))
+    print(f"Net contract in sync ({count} files)")
     return 0
 
 

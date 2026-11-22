@@ -23,7 +23,10 @@ public partial class EnchantWindow : L2PopupWindow
 
         PlayerInventory inventory = InventoryPacketServices.Inventory;
         if (inventory == null)
+        {
+            Debug.LogError("[Inventory] enchant has no inventory model");
             return;
+        }
         ItemInstance itemInstance = inventory.GetItem(objectId);
         if (itemInstance == null)
         {
@@ -42,9 +45,7 @@ public partial class EnchantWindow : L2PopupWindow
                 _textLabel.text = NetEnchant.WithLevel(itemInstance.GetName(), itemInstance.EnchantLevel);
         }
         else
-        {
-            // Debug.LogWarning("EnchantWindows error not add dropItems");
-        }
+            Debug.LogError("[Inventory] enchant objectId " + objectId + " is not in the inventory");
     }
 
     private EnchantSlot CreateEnchantSlot(int i, VisualElement slotElement, SlotType slotType)

@@ -18,8 +18,10 @@ public sealed partial class NetSession
 
     internal void ApplyItemList(ItemListNetMsg list)
     {
+        // Version stays off this path until the Net contract defines it.
+        // Today's ItemList is a full replace with no version.
         NetItemEntry[] rows = MapItemList(list);
-        NetGearSession.NoteItemList(rows);
+        NetGearSession.NoteItemList(rows, 0);
         Debug.Log("[Net] ItemList count=" + rows.Length);
     }
 

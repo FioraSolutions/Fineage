@@ -25,7 +25,7 @@ public partial class PlayerInventory : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
-            _changeInventoryData = new ChangeInventoryData();
+            _book = new CharacterInventory();
             WireItemPacketServices();
         }
         else if (_instance != this)
@@ -44,7 +44,6 @@ public partial class PlayerInventory : MonoBehaviour
     private void Start()
     {
         WireItemPacketServices();
-        _playerInventory.Clear();
     }
 
     private void WireItemPacketServices()

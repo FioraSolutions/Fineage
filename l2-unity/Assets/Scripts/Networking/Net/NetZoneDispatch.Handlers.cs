@@ -289,6 +289,33 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AgitDecoInfo:
                 _ = (AgitDecoInfoNetMsg)packet.Body;
                 break;
+            case NetOpcode.VehicleInfo:
+                _ = (VehicleInfoNetMsg)packet.Body;
+                break;
+            case NetOpcode.VehicleDeparture:
+                _ = (VehicleDepartureNetMsg)packet.Body;
+                break;
+            case NetOpcode.VehicleCheckLocation:
+                _ = (VehicleCheckLocationNetMsg)packet.Body;
+                break;
+            case NetOpcode.GetOnVehicle:
+                _ = (GetOnVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.GetOffVehicle:
+                _ = (GetOffVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.MoveToLocationInVehicle:
+                _ = (MoveToLocationInVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.StopMoveInVehicle:
+                _ = (StopMoveInVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.ValidateLocationInVehicle:
+                _ = (ValidateLocationInVehicleNetMsg)packet.Body;
+                break;
+            case NetOpcode.VehicleStarted:
+                _ = (VehicleStartedNetMsg)packet.Body;
+                break;
             case NetOpcode.CrestData:
                 _ = (CrestDataNetMsg)packet.Body;
                 break;

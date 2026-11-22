@@ -54,6 +54,8 @@ public static partial class NetGearSession
                 return ItemSlot.head;
             case "lhand":
                 return ItemSlot.lhand;
+            case "lhand_shield":
+                return ItemSlot.lhand_shield;
             case "gloves":
                 return ItemSlot.gloves;
             case "chest":

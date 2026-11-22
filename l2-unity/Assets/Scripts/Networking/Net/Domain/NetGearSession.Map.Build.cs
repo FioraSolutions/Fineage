@@ -1,127 +1,66 @@
-using System;
 using System.Collections.Generic;
 using Fineage.Net.Contract;
 using UnityEngine;
 
 public static partial class NetGearSession
 {
-    static ItemListDto ToItemListDto(NetItemEntry[] rows)
+    public static ItemInstance ToItemInstance(CharacterInventory.Row row, int bagIndex)
     {
-        var bag = new Dictionary<int, ItemInstance>();
-        var equip = new Dictionary<int, ItemInstance>();
-        int indexBag = 0;
-        int indexEquip = 0;
-        if (rows != null)
+        var entry = new NetItemEntry
         {
-            for (int i = 0; i < rows.Length; i++)
-                AddZoneRow(rows[i], -1, bag, equip, ref indexBag, ref indexEquip);
-        }
-
-        return ItemListDto.FromZoneInventory(bag, equip);
-    }
-
-    static InventoryUpdateDto ToInventoryUpdateDto(NetInventoryChange[] rows)
-    {
-        var bag = new Dictionary<int, ItemInstance>();
-        var equip = new Dictionary<int, ItemInstance>();
-        int indexBag = 0;
-        int indexEquip = 0;
-        if (rows != null)
+            ObjectId = row.ObjectId,
+            ItemId = row.ItemId,
+            Count = row.Count,
+            EquippedSlot = row.EquippedSlot,
+            BodySlot = row.BodySlot ?? "",
+            Kind = row.Kind ?? "",
+            Icon = row.Icon ?? "",
+            WeaponType = row.WeaponType ?? "",
+            ArmorType = row.ArmorType ?? "",
+            EnchantLevel = row.EnchantLevel
+        };
+        bool worn = entry.EquippedSlot >= 0;
+        ItemCategory category = CategoryFromZone(entry);
+        ItemSlot slot = SlotFromBodyToken(entry.BodySlot);
+        if (worn && slot == ItemSlot.none)
         {
-            for (int i = 0; i < rows.Length; i++)
-            {
-                NetInventoryChange row = rows[i];
-                var entry = new NetItemEntry
-                {
-                    ObjectId = row.ObjectId,
-                    ItemId = row.ItemId,
-                    Count = row.Count,
-                    EquippedSlot = row.EquippedSlot,
-                    BodySlot = row.BodySlot,
-                    Kind = row.Kind,
-                    Icon = row.Icon,
-                    WeaponType = row.WeaponType,
-                    ArmorType = row.ArmorType,
-                    EnchantLevel = row.EnchantLevel
-                };
-                AddZoneRow(entry, row.Change, bag, equip, ref indexBag, ref indexEquip);
-            }
+            Debug.LogError("[Inventory] objectId " + entry.ObjectId + " itemId " + entry.ItemId
+                + " is equipped at slot " + entry.EquippedSlot + " with body '" + entry.BodySlot
+                + "'; the paperdoll cell is unknown");
         }
-
-        return InventoryUpdateDto.FromZoneChanges(bag, equip);
-    }
-
-    static void AddZoneRow(
-        NetItemEntry row,
-        int zoneChange,
-        Dictionary<int, ItemInstance> bag,
-        Dictionary<int, ItemInstance> equip,
-        ref int indexBag,
-        ref int indexEquip)
-    {
-        bool worn = row.EquippedSlot >= 0;
-        ItemCategory category = CategoryFromZone(row);
-        ItemSlot slot = SlotFromBodyToken(row.BodySlot);
-        // Wire rows normally carry Kind + BodySlot. Fall back to local grp tables only when absent
-        // (legacy payloads / incomplete rows), then normalize paper-doll identity once.
-        if (category == ItemCategory.Item && slot == ItemSlot.none)
-            ResolveFromLocalTables(row.ItemId, ref category, ref slot);
+        else if (!string.IsNullOrEmpty(entry.BodySlot) && entry.BodySlot != "none" && slot == ItemSlot.none)
+        {
+            Debug.LogError("[Inventory] objectId " + entry.ObjectId + " body '" + entry.BodySlot + "' is not an Interlude slot token");
+        }
         NormalizeEquippedIdentity(ref category, ref slot);
         ItemLocation location = worn ? ItemLocation.Equipped : ItemLocation.Inventory;
-        int index = worn ? indexEquip++ : indexBag++;
-        var item = new ItemInstance(
-            row.ObjectId,
-            row.ItemId,
+        return new ItemInstance(
+            entry.ObjectId,
+            entry.ItemId,
             location,
-            index,
-            row.Count,
+            bagIndex,
+            entry.Count,
             category,
             worn,
             slot,
-            row.EnchantLevel,
+            entry.EnchantLevel,
             9999);
-        if (zoneChange >= 0)
-            item.LastChange = MapZoneInventoryChange(zoneChange);
-
-        if (worn)
-            equip[row.ObjectId] = item;
-        else
-            bag[row.ObjectId] = item;
     }
 
-    static int MapZoneInventoryChange(int zoneChange)
+    public static CharacterInventory.Row ToRow(NetItemEntry entry)
     {
-        // Fineage.Protocol.InventoryChange: 0 add, 1 modify, 2 remove.
-        // Client InventoryChange stores those as 1, 2, and 3.
-        return NetInventoryBook.ToClientChange(zoneChange);
-    }
-
-    static void ResolveFromLocalTables(int itemId, ref ItemCategory category, ref ItemSlot slot)
-    {
-        ItemTable table = TablePacketServices.Items;
-        if (table == null)
-            return;
-
-        Weapon weapon = table.GetWeapon(itemId);
-        if (weapon != null && weapon.Weapongrp != null)
+        return new CharacterInventory.Row
         {
-            // Raw weapongrp identity (shields are handness 0 → ItemSlot.lhand_shield).
-            // NormalizeEquippedIdentity remaps that to ShieldArmor + lhand.
-            category = ItemCategory.Weapon;
-            slot = weapon.Weapongrp.BodyPart;
-            return;
-        }
-
-        Armor armor = table.GetArmor(itemId);
-        if (armor != null && armor.Armorgrp != null)
-        {
-            slot = armor.Armorgrp.BodyPart;
-            // Rings/earrings/necklaces live in armorgrp but tooltips use Jewel/ACCESSORY, not armor.
-            category = IsJewelItemSlot(slot) ? ItemCategory.Jewel : ItemCategory.ShieldArmor;
-            return;
-        }
-
-        if (table.GetEtcItem(itemId) != null)
-            category = itemId == 57 ? ItemCategory.Adena : ItemCategory.Item;
+            ObjectId = entry.ObjectId,
+            ItemId = entry.ItemId,
+            Count = entry.Count,
+            EnchantLevel = entry.EnchantLevel,
+            EquippedSlot = entry.EquippedSlot,
+            BodySlot = entry.BodySlot ?? "",
+            Kind = entry.Kind ?? "",
+            Icon = entry.Icon ?? "",
+            WeaponType = entry.WeaponType ?? "",
+            ArmorType = entry.ArmorType ?? ""
+        };
     }
 }

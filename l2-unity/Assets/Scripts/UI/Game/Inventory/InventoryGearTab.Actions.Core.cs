@@ -5,17 +5,24 @@ using UnityEngine.UIElements;
 
 public partial class InventoryGearTab : L2Tab
 {
-    private void EquipList(List<ItemInstance> equipItems  , int userId)
+    public void BindEquip(List<ItemInstance> equipItems)
     {
+        if (_gearAnchors == null)
+        {
+            Debug.LogError("[Inventory] paperdoll anchors are not built");
+            return;
+        }
+        EquipEmptyAll();
+        if (equipItems == null)
+            return;
         for (int i = 0; i < equipItems.Count; i++)
         {
-            ItemInstance itemInstance = equipItems[i];
-            EquipItem(itemInstance);
-            GamePacketServices.Bus?.Equipped(itemInstance, userId);
-            // GearFlowLog.Info("InventoryGearTab EquipList userId=" + userId +
-                // " itemId=" + itemInstance.ItemId +
-                // " body=" + itemInstance.BodyPart);
+            ItemInstance item = equipItems[i];
+            if (item != null)
+                EquipItem(item);
         }
+        if (_selectedSlot != -1)
+            SelectSlot(_selectedSlot);
     }
 
     private void EquipEmptyAll()
@@ -64,8 +71,14 @@ public partial class InventoryGearTab : L2Tab
         }
     }
 
-    public void ModifiedRemove(ItemSlot bodyPart , ItemInstance item)
+    public void ModifiedRemove(ItemSlot bodyPart, ItemInstance item)
     {
-        _equip.EquipItemEmpty(bodyPart , item);
+        PlayerInventory inventory = InventoryPacketServices.Inventory;
+        if (inventory == null)
+        {
+            Debug.LogError("[Inventory] paperdoll remove has no inventory model");
+            return;
+        }
+        BindEquip(inventory.GetPlayerEquipToList());
     }
 }

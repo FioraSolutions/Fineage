@@ -27,7 +27,7 @@ public static class NetInventoryBook
             case Remove:
                 return ClientRemoved;
             default:
-                return ClientModified;
+                return -1;
         }
     }
 
