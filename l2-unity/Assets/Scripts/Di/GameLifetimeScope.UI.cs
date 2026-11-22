@@ -39,7 +39,6 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<StatusWindow>(builder);
         RegisterLiveMono<CharacterInfoWindow>(builder);
 
-        builder.Register<StatsConverter>(Lifetime.Singleton);
         builder.Register<PlayerSpawner>(Lifetime.Singleton);
         builder.Register<BowArrowVisual>(Lifetime.Singleton);
         builder.RegisterFactory<UserEntity, UserBowArrowEvents>(container =>
@@ -54,7 +53,6 @@ public sealed partial class GameLifetimeScope
         builder.Register<NpcSpawner>(Lifetime.Singleton);
         builder.Register<MonsterSpawner>(Lifetime.Singleton);
         builder.Register<ItemSpawner>(Lifetime.Singleton);
-        builder.Register<ItemDropLayerService>(Lifetime.Singleton);
         builder.Register<ItemDropClickAreaService>(Lifetime.Singleton);
         builder.Register<ItemDropPicker>(Lifetime.Singleton);
         builder.Register<ItemDropGrpCatalog>(Lifetime.Singleton);
@@ -65,10 +63,8 @@ public sealed partial class GameLifetimeScope
         builder.Register<ItemDropPresentationService>(Lifetime.Singleton);
         builder.Register<PlayerPositionSender>(Lifetime.Singleton);
         builder.Register<L2PawnRange>(Lifetime.Singleton);
-        builder.Register<L2PawnYaw>(Lifetime.Singleton);
         builder.RegisterEntryPoint<EntityActionMachine>().AsSelf();
         builder.RegisterEntryPoint<StriderRideService>().AsSelf();
-        builder.Register<InterludeActionAvailabilityService>(Lifetime.Singleton);
         builder.RegisterEntryPoint<UnityChainTicker>();
         builder.Register(_ => new PlayerWorldApply(), Lifetime.Singleton);
         builder.Register<NpcWorldApply>(Lifetime.Singleton);
