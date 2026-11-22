@@ -56,6 +56,8 @@ class ExportIndex:
         # (utx file lower, object lower) -> set of classes
         self.by_name: dict[tuple[str, str], set[str]] = {}
         self.package_files: set[str] = set()
+        # package stem lower -> "folder/File.utx" as the export table recorded it
+        self.utx_rel: dict[str, str] = {}
         for part in sorted(packages.glob("exports.part*.tsv")):
             with part.open(encoding="utf-8") as fh:
                 for row in csv.DictReader(fh, delimiter="\t"):
@@ -63,6 +65,10 @@ class ExportIndex:
                         continue
                     file_name = row["file"].lower()
                     self.package_files.add(file_name)
+                    self.utx_rel.setdefault(
+                        Path(row["file"]).stem.lower(),
+                        f"{row['folder']}/{row['file']}",
+                    )
                     key = (file_name, row["object"].lower())
                     self.by_name.setdefault(key, set()).add(row["class"])
 

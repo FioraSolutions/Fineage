@@ -11,11 +11,12 @@ is the package export's class (export table, confirmed against the live utx).
 from __future__ import annotations
 
 import argparse
-import shlex
 import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
+
+from umodel_invoke import docker_inner, format_commands, material_argvs
 
 from brush_face_class import (
     KIND_ABSENT,
@@ -119,20 +120,27 @@ def find_props(face: Face, roots: list[Path]) -> Path | None:
     return None
 
 
-def umodel_export(client: Path, umodel: Path, out_dir: Path, utx: Path, names: list[str]) -> None:
-    rel = None
-    for folder in ("textures", "systextures"):
-        candidate = client / folder / utx.name
-        if candidate.is_file() or utx.parent.name.lower() == folder:
-            rel = f"{utx.parent.name}/{utx.name}"
-            break
-    if rel is None:
-        rel = f"textures/{utx.name}"
-    quoted = " ".join(shlex.quote(n) for n in names)
-    inner = (
-        "apt-get update -qq && apt-get install -y -qq libpng16-16 libsdl2-2.0-0 >/dev/null && "
-        f"/umodel -path=/client -game=l2 -export -out=/export {shlex.quote(rel)} {quoted}"
-    )
+def package_rel(utx: Path) -> str:
+    """Path umodel looks up under -path=/client. The on-disk name keeps case."""
+    return f"{utx.parent.name}/{utx.name}"
+
+
+def material_commands(package: str, faces: list[Face]) -> list[list[str]]:
+    """One umodel argv per face. Class is that face's class, group is not an argument."""
+    seen: set[tuple[str, str, str]] = set()
+    objects: list[tuple[str, str, str]] = []
+    for face in faces:
+        if face.key() in seen:
+            continue
+        seen.add(face.key())
+        objects.append((face.group, face.name, face.ue_class))
+    return material_argvs(package, objects)
+
+
+def umodel_export(client: Path, umodel: Path, out_dir: Path, utx: Path, faces: list[Face]) -> None:
+    argvs = material_commands(package_rel(utx), faces)
+    inner = docker_inner(argvs)
+    print(format_commands(argvs), file=sys.stderr)
     out_dir.mkdir(parents=True, exist_ok=True)
     proc = subprocess.run(
         [
@@ -145,9 +153,9 @@ def umodel_export(client: Path, umodel: Path, out_dir: Path, utx: Path, names: l
         text=True,
     )
     if proc.returncode != 0:
+        detail = "; ".join(face.format() for face in faces)
         raise SystemExit(
-            f"umodel material export failed package={utx.stem} objects={','.join(names)} "
-            f"(exit {proc.returncode})"
+            f"umodel material export failed {detail} (exit {proc.returncode})"
         )
 
 
@@ -206,9 +214,14 @@ def export_textures(client: Path, jar: Path, faces: list[Face], out_root: Path) 
             continue
         out_dir = out_root / package / "Texture"
         out_dir.mkdir(parents=True, exist_ok=True)
-        names = ",".join(sorted({face.name for face in group}))
+        names = sorted({face.name for face in group})
+        if any("," in name for name in names):
+            raise SystemExit(
+                "texture name contains a comma; ExportNamedTextures splits one argument on commas: "
+                + ", ".join(face.format() for face in group if "," in face.name)
+            )
         proc = subprocess.run(
-            ["java", "-cp", str(jar), str(EXPORT_JAVA), str(utx), str(out_dir), names],
+            ["java", "-cp", str(jar), str(EXPORT_JAVA), str(utx), str(out_dir), ",".join(names)],
             text=True,
             capture_output=True,
         )
@@ -323,8 +336,7 @@ def export_faces(
             utx = find_utx(client, package)
             if utx is None:
                 raise SystemExit(f"{group[0].format()} utx missing")
-            names = sorted({face.name for face in group})
-            umodel_export(client, umodel, props_out / package, utx, names)
+            umodel_export(client, umodel, props_out / package, utx, group)
             for face in group:
                 exported_materials.add(face.key())
                 if read_props(face) is None:
@@ -357,6 +369,53 @@ def export_faces(
     )
 
 
+def pending_material_argvs(
+    refs: list[str],
+    props_roots: list[Path],
+) -> tuple[list[list[str]], list[str]]:
+    """Umodel commands for material faces whose props are not on disk yet.
+
+    Package paths come from the export table (`folder/file.utx`). The live
+    export uses the on-disk filename instead, because Docker's mount is
+    case-sensitive. Both go through material_commands, so the object and
+    class slots match. A material with no props is still one command; its
+    own references are not invented here.
+    """
+    idx = index()
+    roots = [classify(ref, idx) for ref in refs]
+    errors = [
+        face.format() for face in roots
+        if face.kind in (KIND_ABSENT, KIND_AMBIGUOUS, KIND_OTHER)
+    ]
+    if errors:
+        raise SystemExit("brush face class unresolved:\n" + "\n".join(errors))
+
+    def read_props(face: Face) -> str | None:
+        path = find_props(face, props_roots)
+        if path is None:
+            return None
+        return path.read_text(encoding="utf-8", errors="replace")
+
+    _textures, materials, chain_errors = expand_chain(roots, read_props)
+    if chain_errors:
+        raise SystemExit("brush material chain missing:\n" + "\n".join(chain_errors))
+    need = [face for face in materials if read_props(face) is None]
+    notes = [
+        face.format() + " props missing; its references are exported after this command"
+        for face in need
+    ]
+    by_pkg: dict[str, list[Face]] = defaultdict(list)
+    for face in need:
+        by_pkg[face.package].append(face)
+    argvs: list[list[str]] = []
+    for package, group in sorted(by_pkg.items()):
+        rel = idx.utx_rel.get(package.lower())
+        if rel is None:
+            raise SystemExit(f"{group[0].format()} utx path is not in the export table")
+        argvs.extend(material_commands(rel, group))
+    return argvs, notes
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--brushes", action="append", required=True, type=Path)
@@ -366,12 +425,23 @@ def main() -> None:
     parser.add_argument("--jar", type=Path)
     parser.add_argument("--umodel", type=Path)
     parser.add_argument("--list", action="store_true")
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="print every umodel command the material export would run, and do not export",
+    )
     args = parser.parse_args()
     refs = collect_refs(args.brushes)
     if args.list:
         for ref in refs:
             face = classify(ref)
             print(f"{face.kind}\t{face.format()}\t{face.full}")
+        return
+    if args.dry_run:
+        argvs, notes = pending_material_argvs(refs, [TEX_ASSETS])
+        for note in notes:
+            print(note, file=sys.stderr)
+        print(format_commands(argvs))
+        print(f"dry-run: {len(argvs)} umodel commands", file=sys.stderr)
         return
     if args.client is None or args.out is None or args.jar is None or args.umodel is None:
         raise SystemExit("--client, --out, --jar, and --umodel are required to export")

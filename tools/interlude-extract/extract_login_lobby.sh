@@ -7,6 +7,10 @@
 # Usage:
 #   L2_INTERLUDE_CLIENT_ROOT="$HOME/Downloads/L2_Interlude_Client/Lineage II" \
 #     bash tools/interlude-extract/extract_login_lobby.sh [--only 4,5] [--skip 3]
+#   bash tools/interlude-extract/extract_login_lobby.sh --only 6 --dry-run
+#     prints every umodel command step 6 (and 9, if selected) would run.
+#     No client, Docker, or originals. Each line is one invocation:
+#     package, one object, and that object's class.
 #
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
@@ -34,11 +38,13 @@ WORK="$ROOT/.work/lobby-extract"
 
 ONLY=""
 SKIP=""
+DRY=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --only) ONLY="$2"; shift 2 ;;
     --skip) SKIP="$2"; shift 2 ;;
-    *) echo "ERROR: unknown arg '$1' (want --only a,b,c or --skip a,b,c)" >&2; exit 2 ;;
+    --dry-run) DRY=1; shift ;;
+    *) echo "ERROR: unknown arg '$1' (want --only a,b,c, --skip a,b,c, or --dry-run)" >&2; exit 2 ;;
   esac
 done
 
@@ -64,20 +70,35 @@ cruma_jar() {
   JAVA="${JAVA:-${CRUMA_JAVA:-java}}"
 }
 
-if [[ ! -d "$CLIENT/maps" || ! -d "$CLIENT/system" ]]; then
+if [[ "$DRY" -eq 0 && ( ! -d "$CLIENT/maps" || ! -d "$CLIENT/system" ) ]]; then
   echo "ERROR: client not found at '$CLIENT' (need maps/ and system/)." >&2
   echo "Set L2_INTERLUDE_CLIENT_ROOT to the 'Lineage II' folder." >&2
   exit 2
 fi
+if [[ "$DRY" -eq 1 ]]; then
+  echo "dry-run: umodel commands only (no export, no Docker)"
+fi
 mkdir -p "$WORK/l2_lobby" "$WORK/decrypted"
 
-if want_step 1; then
+if [[ "$DRY" -eq 1 ]]; then
+  for step in 1 2 3 4 5 7 8; do
+    if want_step "$step"; then
+      if [[ "$step" == 7 ]]; then
+        echo "dry-run: skip step 7 (one umodel invocation per mesh; the .usx filename comes from the client)"
+      else
+        echo "dry-run: skip step $step (not an umodel invocation)"
+      fi
+    fi
+  done
+fi
+
+if [[ "$DRY" -eq 0 ]] && want_step 1; then
   echo "== [1/9] Property dumps: Lobby + lobby packages (gap G2) =="
   EXPORT_OUT="$WORLD/env" bash "$ROOT/tools/interlude-extract/export_client_packages.sh" -- \
     Lobby L2_Lobby_T l2_lobby Lobby_terrain_t l2_skies L2Font
 fi
 
-if want_step 2; then
+if [[ "$DRY" -eq 0 ]] && want_step 2; then
   echo "== [2/9] Terrain QuadVisibilityBitmap sidecar for Lobby (gap G3) =="
   cruma_jar
   TOOL_DIR="$ROOT/tools/interlude-extract"
@@ -110,7 +131,7 @@ l2_jar() {
   fi
 }
 
-if want_step 3; then
+if [[ "$DRY" -eq 0 ]] && want_step 3; then
   echo "== [3/9] BSP brushes (skybox box) of Lobby.unr (gap G4) =="
   l2_jar
   java -cp "$L2JAR" "$ROOT/tools/interlude/BrushDump.java" \
@@ -119,7 +140,7 @@ if want_step 3; then
   echo "brushes -> $WORLD/env/Lobby.brushes.t3d"
 fi
 
-if want_step 4; then
+if [[ "$DRY" -eq 0 ]] && want_step 4; then
   echo "== [4/9] Class defaults: Engine.u + UWindow.u .uc dump (gap G1) =="
   # system/*.u is L2-encrypted (Lineage2Ver111/121 XOR header); UELib only reads
   # plain UPackage. decrypt_package_file strips the header and verifies the
@@ -134,7 +155,7 @@ if want_step 4; then
     "$WORK/decrypted/UWindow.u" "$ROOT/l2-unity/docs/interlude-ref/scripts/UWindow.u"
 fi
 
-if want_step 5; then
+if [[ "$DRY" -eq 0 ]] && want_step 5; then
   echo "== [5/9] sysstring-e.dat captions (gap G7) =="
   L2ENCDEC="${L2ENCDEC:-$ROOT/tools/interlude-dat/l2encdec-bin/l2encdec-1.5.0-Darwin/l2encdec}"
   if [[ -x "$L2ENCDEC" ]]; then
@@ -148,27 +169,6 @@ fi
 
 if want_step 6; then
   echo "== [6/9] Texture pixels and brush/BSP material chains =="
-  # Face class comes from the package (export table, confirmed by DescribeExports
-  # on the utx). Texture -> PNG. Any other Material subclass -> the step-9
-  # umodel props path, then the same classification down the chain to base
-  # textures. An object that is not in the package is an ERROR naming
-  # package, group, name, and class. Material faces need Docker umodel.
-  l2_jar
-  SKY_NAMES="$(python3 -c "import json; print(','.join(sorted({e['name'] for e in json.load(open('$WORLD/env/l2_skies.json'))['exports'] if e['class']=='Texture'})))")"
-  if [[ -z "$SKY_NAMES" ]]; then
-    echo "ERROR: no Texture exports in $WORLD/env/l2_skies.json — run step 1 first." >&2
-    exit 2
-  fi
-  java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
-    "$CLIENT/textures/l2_skies.utx" "$WORK/tex/l2_skies" "$SKY_NAMES"
-  java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
-    "$CLIENT/systextures/L2Font.utx" "$WORK/tex/L2Font" "start_logo-k,start_minilogo-k"
-  java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
-    "$CLIENT/textures/Lobby_terrain_t.utx" "$WORK/tex/Lobby_terrain_t" "H_M_05"
-  # PNGs land in Unity (Textures/l2_skies/*, Textures/lobby_terrain_t/H_M_05.png,
-  # Data/UI/Assets/Login/start_logo-k.png + start_minilogo-k.png), .meta cloned
-  # from existing siblings. Missing exports are ERRORs.
-  python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
   BRUSH_ARGS=()
   for src in \
     "$ROOT/l2-unity/Assets/Resources/Data/Maps/l2_lobby/Meta/Brushes.json" \
@@ -183,15 +183,39 @@ if want_step 6; then
     echo "ERROR: no Brushes.json or brushes.t3d to derive brush textures from." >&2
     exit 2
   fi
-  # Material-class faces (Shader, ColorModifier, ...) use the same Docker
-  # umodel props export as step 9. Texture-class faces do not.
-  UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
-  python3 "$ROOT/tools/interlude-extract/export_brush_textures.py" \
-    "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" \
-    --props-out "$WORK/props-export" --jar "$L2JAR" --umodel "$UMODEL"
+  if [[ "$DRY" -eq 1 ]]; then
+    python3 "$ROOT/tools/interlude-extract/export_brush_textures.py" \
+      "${BRUSH_ARGS[@]}" --dry-run
+  else
+    # Face class comes from the package (export table, confirmed by DescribeExports
+    # on the utx). Texture -> PNG. Any other Material subclass -> one umodel
+    # invocation per object (package, leaf name, class), then the same
+    # classification down the chain to base textures. An object that is not in
+    # the package is an ERROR naming package, group, name, and class.
+    l2_jar
+    SKY_NAMES="$(python3 -c "import json; print(','.join(sorted({e['name'] for e in json.load(open('$WORLD/env/l2_skies.json'))['exports'] if e['class']=='Texture'})))")"
+    if [[ -z "$SKY_NAMES" ]]; then
+      echo "ERROR: no Texture exports in $WORLD/env/l2_skies.json — run step 1 first." >&2
+      exit 2
+    fi
+    java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
+      "$CLIENT/textures/l2_skies.utx" "$WORK/tex/l2_skies" "$SKY_NAMES"
+    java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
+      "$CLIENT/systextures/L2Font.utx" "$WORK/tex/L2Font" "start_logo-k,start_minilogo-k"
+    java -cp "$L2JAR" "$ROOT/tools/interlude/ExportNamedTextures.java" \
+      "$CLIENT/textures/Lobby_terrain_t.utx" "$WORK/tex/Lobby_terrain_t" "H_M_05"
+    # PNGs land in Unity (Textures/l2_skies/*, Textures/lobby_terrain_t/H_M_05.png,
+    # Data/UI/Assets/Login/start_logo-k.png + start_minilogo-k.png), .meta cloned
+    # from existing siblings. Missing exports are ERRORs.
+    python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
+    UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
+    python3 "$ROOT/tools/interlude-extract/export_brush_textures.py" \
+      "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" \
+      --props-out "$WORK/props-export" --jar "$L2JAR" --umodel "$UMODEL"
+  fi
 fi
 
-if want_step 7; then
+if [[ "$DRY" -eq 0 ]] && want_step 7; then
   echo "== [7/9] Missing lobby meshes via umodel (Docker linux/amd64) + Blender =="
   # Which meshes the lobby bake still lacks, and which package each one lives
   # in, comes from the Lobby.unr import chain (lobby_missing_meshes.py) — never
@@ -224,7 +248,10 @@ if want_step 7; then
         echo "ERROR no $pkg.usx under $CLIENT/staticmeshes (mesh $full)" >&2
         exit 2
       fi
-      INNER="$INNER && /umodel -path=/client -game=l2 -export -out=/export 'staticmeshes/$(basename "$usx")' '$name'"
+      # One mesh per umodel invocation. A second positional would be read as class.
+      LINE="$(python3 "$ROOT/tools/interlude-extract/umodel_invoke.py" \
+        --package "staticmeshes/$(basename "$usx")" --object "$name")"
+      INNER="$INNER && $LINE"
     done < <(sort -u "$MESH_TSV")
     docker run --rm --platform linux/amd64 \
       -v "$CLIENT:/client:ro" \
@@ -242,7 +269,7 @@ if want_step 7; then
   fi
 fi
 
-if want_step 8; then
+if [[ "$DRY" -eq 0 ]] && want_step 8; then
   echo "== [8/9] Camera BSP zones (ZoneAtPoint self-checked point-zone query) =="
   # Lobby has three ZoneInfo actors with disagreeing fog; the vista fog is the
   # zone containing Camera25. The tool walks the level BSP nodes and validates
@@ -256,30 +283,38 @@ fi
 
 if want_step 9; then
   echo "== [9/9] l2_skies material chains (.props.txt, Docker umodel) =="
-  # The skybox brushes reference L2_Skies.Shaders.* chains (Cloud_Final,
-  # HazeRing_Final, SkybackgroundColor + TexPanner/TexRotator/TexOscillator
-  # modifiers). The runtime material path reads umodel-format .props.txt.
-  # L2_Lobby_T has no material exports, Lobby_terrain_t only Palettes.
-  # Brush face textures (FX_E_T.WaterShader01, Castle_Kent_t.*, ...) are
-  # Texture PNGs from step 6, not this material-chain export.
-  UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
-  if [[ ! -x "$UMODEL" ]]; then
-    echo "ERROR: umodel linux binary missing at $UMODEL" >&2
-    echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
-    echo "place the binary there (linux/amd64 in Docker is the supported path on Apple Silicon)." >&2
-    exit 2
+  # Whole package, no object slot. Per-object exports (brush faces, including
+  # L2_Skies.Shaders.Cloud_Final / HazeRing_Final / SkybackgroundColor) are
+  # step 6: one invocation each, class from the export table.
+  UMODEL_LINE="$(python3 "$ROOT/tools/interlude-extract/umodel_invoke.py" \
+    --package textures/l2_skies.utx --out /export/l2_skies)"
+  if [[ "$DRY" -eq 1 ]]; then
+    echo "$UMODEL_LINE"
+  else
+    UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
+    if [[ ! -x "$UMODEL" ]]; then
+      echo "ERROR: umodel linux binary missing at $UMODEL" >&2
+      echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
+      echo "place the binary there (linux/amd64 in Docker is the supported path on Apple Silicon)." >&2
+      exit 2
+    fi
+    if ! command -v docker >/dev/null 2>&1; then
+      echo "ERROR: docker is required to run the linux/amd64 umodel binary." >&2
+      exit 2
+    fi
+    INNER="$(python3 "$ROOT/tools/interlude-extract/umodel_invoke.py" \
+      --package textures/l2_skies.utx --out /export/l2_skies --apt)"
+    docker run --rm --platform linux/amd64 \
+      -v "$CLIENT:/client:ro" \
+      -v "$WORK/props-export:/export" \
+      -v "$UMODEL:/umodel:ro" \
+      ubuntu:22.04 bash -lc "$INNER"
+    python3 "$ROOT/tools/interlude-extract/place_login_assets.py" props --src "$WORK/props-export"
   fi
-  if ! command -v docker >/dev/null 2>&1; then
-    echo "ERROR: docker is required to run the linux/amd64 umodel binary." >&2
-    exit 2
-  fi
-  docker run --rm --platform linux/amd64 \
-    -v "$CLIENT:/client:ro" \
-    -v "$WORK/props-export:/export" \
-    -v "$UMODEL:/umodel:ro" \
-    ubuntu:22.04 bash -lc 'apt-get update -qq && apt-get install -y -qq libpng16-16 libsdl2-2.0-0 >/dev/null && \
-      /umodel -path=/client -game=l2 -export -out=/export/l2_skies textures/l2_skies.utx'
-  python3 "$ROOT/tools/interlude-extract/place_login_assets.py" props --src "$WORK/props-export"
+fi
+
+if [[ "$DRY" -eq 1 ]]; then
+  exit 0
 fi
 
 cat <<EOF

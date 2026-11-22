@@ -88,15 +88,16 @@ authoritatively by `ZoneAtPoint.java` walking the level BSP nodes (self-checked
 against every ZoneInfo's own stored Location; hard ERROR if the node layout
 fails validation) → `world/env/Lobby.camera-zones.tsv`.
 
-Step 9 (l2_skies material chains): the skybox brushes reference
-`L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor` +
-TexPanner/TexRotator/TexOscillator modifiers). The shared material path reads
-umodel-format `.props.txt`. `L2_Lobby_T` has zero material exports and
-`Lobby_terrain_t` only Palettes. Brush face textures such as
-`FX_E_T.WaterSurfaceShaderSet.WaterShader01` and `Castle_Kent_t.Kent_capet_m`
-are Texture PNGs, exported by step 6 into the bake's umodel layout
-(`.work/lobby-extract/mesh-export/{package}/Texture/{name}.png`), not by this
-material-chain step. Docker umodel export → `Textures/l2_skies/<Group>/`.
+Step 9 (l2_skies material chains): one umodel invocation of the whole package
+(`textures/l2_skies.utx`, no object slot). The skybox brushes also reference
+`L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor`,
+class `ColorModifier`). Those, and every other brush material
+(`FX_E_T.WaterSurfaceShaderSet.WaterShader01` is `Shader`,
+`Castle_Kent_t.Kent_capet_m` is `Shader`), are step 6: one umodel invocation
+per object, leaf name plus that object's class. umodel's positional form is
+`<package> [<object> [<class>]]`; a second object is read as the class.
+`L2_Lobby_T` has zero material exports and `Lobby_terrain_t` only Palettes.
+Texture-class faces are PNGs from `ExportNamedTextures`, not umodel.
 
 ### Mac rerun: l2_lobby brush faces
 
@@ -108,8 +109,25 @@ down to its base textures. `WaterShader01` is `Shader` in group
 `WaterSurfaceShaderSet`. `Kent_capet_m` is `Shader` with no group. An object
 that is not in the package fails naming package, group, name, and class.
 
-Rerun **step 6 only**. It needs Docker umodel for the material faces (the same
-binary as step 9). Steps 1–5 and 7–9 stay as they are.
+umodel is invoked once per material. The command is `package`, the leaf
+object name, and the class from the export table. The group (`Shaders`,
+`WaterSurfaceShaderSet`) is not an argument: umodel matches ObjectName, and
+the class is what disambiguates it. Step 9 is the same helper with no object
+(whole `l2_skies.utx`).
+
+Before the Mac export, print the commands (no client, no Docker):
+
+```bash
+cd ~/Projects/Fineage
+bash tools/interlude-extract/extract_login_lobby.sh --only 6,9 --dry-run
+```
+
+`Cloud_Final`, `HazeRing_Final`, and `SkybackgroundColor` are three lines.
+Each ends with `ColorModifier`. `WaterShader01` ends with `Shader`, not with
+another object's name.
+
+Rerun **step 6 only** on the Mac. It needs Docker umodel for the material
+faces (the same binary as step 9). Steps 1–5 and 7–9 stay as they are.
 
 ```bash
 cd ~/Projects/Fineage
