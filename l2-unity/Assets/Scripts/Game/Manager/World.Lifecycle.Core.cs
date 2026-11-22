@@ -51,5 +51,6 @@ public partial class World : MonoBehaviour, IWorldSpawnContext, IWorldEntityLook
         }
 
         BindItemDropPresentationRunner();
+        BindZoneTransitionRunner();
     }
 }
