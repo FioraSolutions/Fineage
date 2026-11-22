@@ -40,7 +40,7 @@ public partial class L2CelestialDiscs
         var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
         go.name = name;
         go.hideFlags = HideFlags.HideAndDontSave;
-        Object.DestroyImmediate(go.GetComponent<Collider>());
+        UnityEngine.Object.DestroyImmediate(go.GetComponent<Collider>());
 
         tf = go.transform;
         tf.SetParent(null, true);

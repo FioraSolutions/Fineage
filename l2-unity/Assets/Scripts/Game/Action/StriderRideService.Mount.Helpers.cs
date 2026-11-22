@@ -24,7 +24,7 @@ public sealed partial class StriderRideService
 
     static void HideOwnedStriders(Seat seat)
     {
-        Entity[] entities = Object.FindObjectsByType<Entity>(FindObjectsSortMode.None);
+        Entity[] entities = UnityEngine.Object.FindObjectsByType<Entity>(FindObjectsSortMode.None);
         for (int i = 0; i < entities.Length; i++)
         {
             Entity entity = entities[i];

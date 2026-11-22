@@ -33,7 +33,7 @@ public partial class CharacterCreator
     {
         if (_pawnContainer != null)
         {
-            Object.Destroy(_pawnContainer);
+            UnityEngine.Object.Destroy(_pawnContainer);
             _pawnContainer = null;
         }
 

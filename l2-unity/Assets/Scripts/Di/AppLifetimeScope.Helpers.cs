@@ -47,7 +47,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
     {
         GameManager local = GetComponent<GameManager>();
         if (local == null)
-            local = Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
+            local = UnityEngine.Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
         if (local == null)
         {
             throw new InvalidOperationException(
@@ -64,7 +64,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
     {
         SceneLoader local = GetComponent<SceneLoader>();
         if (local == null)
-            local = Object.FindFirstObjectByType<SceneLoader>(FindObjectsInactive.Include);
+            local = UnityEngine.Object.FindFirstObjectByType<SceneLoader>(FindObjectsInactive.Include);
         if (local == null)
         {
             Debug.LogError("[AppLifetimeScope] SceneLoader missing — RegisterSceneLoader found none on the host or in loaded scenes, so ISceneLoader is not registered.");
