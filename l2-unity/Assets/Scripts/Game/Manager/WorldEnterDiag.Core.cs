@@ -2,6 +2,7 @@
 using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 public static partial class WorldEnterDiag
 {
@@ -25,7 +26,7 @@ public static partial class WorldEnterDiag
         sb.Append(" Camera.main=");
         AppendCamera(sb, main);
 
-        CameraController cc = CameraPacketServices.Controller;
+        CameraController cc = Scene<CameraController>();
         sb.Append(" CameraController=");
         if (cc == null)
             sb.Append("null");
@@ -37,7 +38,7 @@ public static partial class WorldEnterDiag
             AppendCamera(sb, cc.GetComponent<Camera>());
         }
 
-        InputManager input = ControllerPacketServices.Input;
+        InputManager input = Scene<InputManager>();
         sb.Append(" Input=");
         if (input == null)
             sb.Append("null");
@@ -46,12 +47,12 @@ public static partial class WorldEnterDiag
                 .Append(" move=").Append(input.Move)
                 .Append(" turnCam=").Append(input.TurnCamera);
 
-        ClickManager clicks = ControllerPacketServices.Clicks;
+        ClickManager clicks = Scene<ClickManager>();
         sb.Append(" ClickManager=").Append(clicks != null
             ? (clicks.isActiveAndEnabled ? "active" : "disabled")
             : "null");
 
-        NameplatesManager plates = NameplatePacketServices.Nameplates;
+        NameplatesManager plates = Scene<NameplatesManager>();
         sb.Append(" Nameplates=");
         if (plates == null)
             sb.Append("null");
@@ -61,15 +62,14 @@ public static partial class WorldEnterDiag
             AppendCamera(sb, plates.Camera != null ? plates.Camera : Camera.main);
         }
 
-        PlayerEntity player = DomainPacketServices.LocalPlayer;
-        sb.Append(" PlayerEntity=").Append(player != null ? player.name + "@" + player.transform.position : "null");
+        sb.Append(" PlayerEntity=").Append(LocalPlayerLabel());
 
-        PlayerController pc = ControllerPacketServices.Player ?? WorldApplyPacketServices.Player;
+        PlayerController pc = Scene<PlayerController>();
         sb.Append(" PlayerController=").Append(pc != null
             ? (pc.isActiveAndEnabled ? "active" : "disabled")
             : "null");
 
-        L2GameUI ui = SystemUIPacketServices.Ui;
+        L2GameUI ui = Scene<L2GameUI>();
         if (ui != null)
             sb.Append(" MouseOverUI=").Append(ui.MouseOverUI)
                 .Append(" OverPanel=").Append(ui.IsPointerOverPanel());
@@ -83,7 +83,7 @@ public static partial class WorldEnterDiag
         int namedLobbyRoot = 0;
         int onCharSelectLayer = 0;
         int enabledRenderersOnCharSelect = 0;
-        Transform[] transforms = Object.FindObjectsByType<Transform>(
+        Transform[] transforms = UnityEngine.Object.FindObjectsByType<Transform>(
             FindObjectsInactive.Include,
             FindObjectsSortMode.None);
         for (int i = 0; i < transforms.Length; i++)
@@ -111,7 +111,7 @@ public static partial class WorldEnterDiag
             .Append(" visibleCharSelectRenderers=").Append(enabledRenderersOnCharSelect);
 
         sb.Append(" cams=[");
-        Camera[] cams = Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        Camera[] cams = UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         for (int i = 0; i < cams.Length; i++)
         {
             Camera c = cams[i];
@@ -129,6 +129,32 @@ public static partial class WorldEnterDiag
 
         // Face leftovers asserted once by LobbyCleanGate after +1s — avoid a second full renderer scan here.
         FineageLog.Info(FineageLogCategory.World, sb.ToString());
+    }
+
+    static T Scene<T>() where T : UnityEngine.Object
+    {
+        return UnityEngine.Object.FindFirstObjectByType<T>(FindObjectsInactive.Include);
+    }
+
+    static string LocalPlayerLabel()
+    {
+        if (App.GameContainer == null)
+            return "null";
+
+        ILocalPlayerSlot slot;
+        try
+        {
+            slot = App.GameContainer.Resolve<ILocalPlayerSlot>();
+        }
+        catch (VContainerException)
+        {
+            return "null";
+        }
+
+        if (slot == null || !slot.TryGetName(out string name) || !slot.TryGetPosition(out Vector3 position))
+            return "null";
+
+        return name + "@" + position;
     }
 }
 #endif
