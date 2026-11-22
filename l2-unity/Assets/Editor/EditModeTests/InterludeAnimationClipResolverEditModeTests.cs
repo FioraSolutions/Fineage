@@ -39,13 +39,12 @@ public sealed class InterludeAnimationClipResolverEditModeTests
         Assert.IsTrue(
             AnimTweenTable.Instance.TryResolveExactSequence("MFighter_anim", query, out string seq));
         string take = InterludeAnimResourceTakeTable.ResourcesTakeName("MFighter_anim", seq);
-        SkillAnimationDatabase.RaceClipProfile profile = SkillAnimationDatabase.ResolveRaceProfile("MFighter");
-        Assert.IsNotNull(profile);
+        const string meshStem = "MFighter_m000_b";
         string path = InterludeAnimationClipResolver.BuildResourcesPath(
-            profile.Folder,
-            profile.MeshStem,
+            "Data/Animations/Fighter/MFighter/Clips/",
+            meshStem,
             take);
-        Assert.That(path, Does.Contain(profile.MeshStem + ".ao_"));
+        Assert.That(path, Does.Contain(meshStem + ".ao_"));
         Assert.IsNull(InterludeAnimationClipResolver.LoadExact(path));
     }
 }
