@@ -157,8 +157,10 @@ public sealed class InterludeWindowLayoutEditModeTests
         Assert.IsTrue(InterludeWindowLayout.Apply(host, "MinimapWnd"));
         Assert.AreEqual(334f, host.style.width.value.value, 0.01f);
         Assert.AreEqual(413f, host.style.height.value.value, 0.01f);
+        Assert.IsNotNull(host.style.backgroundImage.value, "MinimapWnd root must paint MapBack");
         ExpectRect(host, "Minimap", 3f, 51f, 328f, 328f);
         ExpectRect(host, "MyLocButton", 10f, 385f, 76f, 23f);
+        ExpectRect(host, "PartyLocButton", 90f, 385f, 76f, 23f);
     }
 
     [Test]

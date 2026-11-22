@@ -350,6 +350,9 @@ public static class InterludeWindowLayout
                 return;
             }
 
+            if (window.controls.Length > 0)
+                BindTexturesOnce(window.name, window.controls[0], host);
+
             for (int i = 1; i < window.controls.Length; i++)
             {
                 InterludeLayoutControl control = window.controls[i];
