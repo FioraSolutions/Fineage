@@ -86,6 +86,8 @@ public sealed class SpAtkCombatClipEditModeTests
     [Test]
     public void Every_animation_combo_classic_tag_loads_committed_spatk_clips_without_spatk01_fallback()
     {
+        bool strict = StrictSpAtkClipMatrixEnabled();
+        HashSet<string> interludeTakes = strict ? LoadInterludeTakeNames() : null;
         foreach (AnimationComboRow row in LoadAnimationComboClassic())
         {
             string[] phases = SkillAnimationDatabase.GetOrderedSpAtkPhases(row.Combo);
@@ -108,14 +110,18 @@ public sealed class SpAtkCombatClipEditModeTests
                             continue;
 
                         string diskPath = ResourcesPathOnDisk(resourcesPath);
-                        if (!File.Exists(diskPath))
+                        if (!File.Exists(diskPath) && !TryFindClipFileIgnoreCase(diskPath, out diskPath))
                         {
-                            if (StrictSpAtkClipMatrixEnabled())
+                            // AnimationCombo still names swings the ukx never authored
+                            // (SpAtk27/28, and weapon variants a race does not have).
+                            // Those are not missing imports. A take that is in
+                            // player-anim-takes.tsv must have a committed clip.
+                            if (strict && interludeTakes.Contains(TakeName(resourcesPath)))
                             {
                                 Assert.Fail(
                                     row.Tag + " race=" + race + " state=" + state
-                                    + " missing clip path=" + resourcesPath
-                                    + " (#1622 MFighter takes landed — full matrix required).");
+                                    + " missing Interlude take " + TakeName(resourcesPath)
+                                    + " path=" + resourcesPath);
                             }
 
                             continue;
@@ -141,12 +147,61 @@ public sealed class SpAtkCombatClipEditModeTests
         }
     }
 
-    /// <summary>After #1622, MFighter SpAtk18_1HS exists — require every combo×race×weapon clip.</summary>
+    /// <summary>
+    /// After #1622 the MFighter gap import has run. Require every combo cell whose
+    /// sequence is an Interlude take, not every weapon variant the combo table can spell.
+    /// </summary>
     static bool StrictSpAtkClipMatrixEnabled()
     {
         return File.Exists(Path.Combine(
             Application.dataPath,
             "Resources/Data/Animations/Fighter/MFighter/Clips/MFighter_m000_b.ao_SpAtk18_1HS_MFighter.anim"));
+    }
+
+    static HashSet<string> LoadInterludeTakeNames()
+    {
+        string path = Path.GetFullPath(Path.Combine(
+            Application.dataPath, "..", "..", "Docs", "interlude-whitelist", "player-anim-takes.tsv"));
+        Assert.IsTrue(File.Exists(path), path);
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        string[] lines = File.ReadAllLines(path);
+        for (int i = 1; i < lines.Length; i++)
+        {
+            if (lines[i].Length == 0)
+                continue;
+            string[] cols = lines[i].Split('\t');
+            if (cols.Length > 2 && cols[2].Length > 0)
+                names.Add(cols[2]);
+        }
+
+        Assert.Greater(names.Count, 0, path);
+        return names;
+    }
+
+    static string TakeName(string resourcesPath)
+    {
+        int ao = resourcesPath.LastIndexOf(".ao_", StringComparison.Ordinal);
+        return ao >= 0 ? resourcesPath.Substring(ao + 4) : resourcesPath;
+    }
+
+    static bool TryFindClipFileIgnoreCase(string canonicalDiskPath, out string found)
+    {
+        found = null;
+        string dir = Path.GetDirectoryName(canonicalDiskPath);
+        if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            return false;
+
+        string want = Path.GetFileName(canonicalDiskPath);
+        string[] files = Directory.GetFiles(dir, "*.anim");
+        for (int i = 0; i < files.Length; i++)
+        {
+            if (!string.Equals(Path.GetFileName(files[i]), want, StringComparison.OrdinalIgnoreCase))
+                continue;
+            found = files[i];
+            return true;
+        }
+
+        return false;
     }
 
     static string ResourcesPathOnDisk(string resourcesPath)
