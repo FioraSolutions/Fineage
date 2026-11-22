@@ -77,6 +77,7 @@ Refresh after each batch or via **Shnok/0.1**.
 | Tile | Status | Notes |
 |------|--------|--------|
 | `16_24`, `16_25`, `17_24`, `17_25` | full | TI smoke |
+| `16_26`, `17_26`, `18_25`, `18_26` | partial | TI shoreline (Phase A: height, TerrainInfo0 with 2048-word holes, water, ambient, t3d). Unity bake + streamed scene still required. |
 | `22_22` | full | Giran town (#490) |
 | `22_21` | full | West of Giran (#510) |
 | `22_23` | full | East of Giran (#512) |
@@ -158,3 +159,23 @@ Per tile: Phase A (`run_mac_tile_bake.sh phase-a`, uses the prebuilt `L2TerrainE
 → Meshes (`run_mac_tile_bake.sh meshes`: umodel in Docker + Blender psk→fbx into `.work/umodel-export-XX_YY`, only when FBX coverage < 100%)
 → Unity `DefaultSteps` (+materials once) → `L2InterludeTileSceneCli.BuildScene` → diagnostics (t3d StaticMeshActors vs placed MeshFilters, missing FBX per package, alphamap garbage check, `_Splatmaps`, ground collider).
 Prereqs: Docker Desktop running, Blender, Java 17+, client at `~/Downloads/L2_Interlude_Client/Lineage II`. Generated Maps/Scenes stay local (no LFS).
+
+
+## TI shoreline tiles `16_26`, `17_26`, `18_25`, `18_26` (#1673)
+
+Phase A (extractor + `prepare_interlude_tile.py` + `write_ambient_sounds_json.py`) is in the repo: height BMP, `TerrainInfo0.txt` with official Location / 2048-word `QuadVisibilityBitmap`, `watervolumes.json`, 291 ambient objects, and t3d brushes. These maps have **0 StaticMeshActors**, **0 DecoLayers**, and **1 WaterVolume** each (same pattern as `17_24`).
+
+Heightmap preview (no Unity): `l2-unity/docs/interlude-ref/world/ti-shore-tiles-heightmaps.png`.
+
+Remaining Unity bake (terrain mesh, deco prefab, streamable scene, EditorBuildSettings). **Do not use `-nographics`** (Texture2DArrays come out as 0xCD garbage). Close any other Unity Editor first (`pgrep Unity`), and run against this worktree — never `~/Projects/Fineage`:
+
+```bash
+export FINEAGE_INTERLUDE_TILES=16_26,17_26,18_25,18_26
+/Applications/Unity/Hub/Editor/6000.3.27f1/Unity.app/Contents/MacOS/Unity \
+  -batchmode -quit \
+  -projectPath "$(pwd)/l2-unity" \
+  -executeMethod L2InterludeTileBatchCli.RunTerrainExitCli \
+  -logFile .work/unity-ti-shore-bake.log
+```
+
+`RunTerrainExitCli` matches the `17_24` shoreline shape (terrain + brushes + mesh + deco + scene) and skips the global material / static-mesh import (these tiles have no SMA). After prefabs exist, Shnok 0.4 can build water surfaces from `Maps/<tile>/Meta/watervolumes.json`, and Shnok 9.1 can build ambient prefabs from `*_AmbientSounds.json`.
