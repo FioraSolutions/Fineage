@@ -642,6 +642,173 @@ public class NetWireContractTests
         Assert.Null(legacyDecoded.Language);
     }
 
+    /// <summary>
+    /// The zone appends one little-endian int32 after the ItemList and InventoryUpdate bodies.
+    /// The codec must leave those four bytes unread so the book is the rows, not the version.
+    /// </summary>
+    [Fact]
+    public void Inventory_version_tail_is_not_a_row()
+    {
+        const int version = 0x01020304;
+        var list = new ItemListNetMsg
+        {
+            Items = new[]
+            {
+                Item(1001, 57, 800, -1, 11, 22),
+                Item(1002, 2493, 1, 8, 33, 44)
+            }
+        };
+        byte[] listBody = NetCodec.EncodeItemList(list);
+        byte[] listWire = WithVersionTail(listBody, version);
+        ItemListNetMsg decodedList = NetCodec.DecodeItemList(listWire);
+        Assert.Equal(listBody, NetCodec.EncodeItemList(decodedList));
+        Assert.Equal(2, decodedList.Items.Length);
+        AssertSameItem(list.Items[0], decodedList.Items[0]);
+        AssertSameItem(list.Items[1], decodedList.Items[1]);
+
+        var book = new CharacterInventory();
+        var errors = new List<string>();
+        Assert.Equal(CharacterInventory.ApplyStatus.Applied, book.Replace(ToRows(decodedList), 0, errors));
+        Assert.Empty(errors);
+        Assert.Equal(2, book.Count);
+        Assert.True(book.TryGet(1001, out CharacterInventory.Row adena));
+        Assert.Equal(800, adena.Count);
+        Assert.Equal(-1, adena.EquippedSlot);
+        Assert.True(book.TryGet(1002, out CharacterInventory.Row sword));
+        Assert.Equal(8, sword.EquippedSlot);
+        Assert.False(book.Contains(version));
+
+        var update = new InventoryUpdateNetMsg
+        {
+            Changes = new[]
+            {
+                new InventoryUpdateEntryNet
+                {
+                    Change = 1,
+                    ObjectId = 1001,
+                    ItemId = 57,
+                    Count = 500,
+                    EquippedSlot = -1,
+                    BodySlot = "none",
+                    Kind = "etc",
+                    Option1 = 11,
+                    Option2 = 22
+                }
+            }
+        };
+        byte[] updateBody = NetCodec.EncodeInventoryUpdate(update);
+        byte[] updateWire = WithVersionTail(updateBody, version);
+        InventoryUpdateNetMsg decodedUpdate = NetCodec.DecodeInventoryUpdate(updateWire);
+        Assert.Equal(updateBody, NetCodec.EncodeInventoryUpdate(decodedUpdate));
+        Assert.Single(decodedUpdate.Changes);
+        Assert.Equal(1, decodedUpdate.Changes[0].Change);
+        Assert.Equal(1001, decodedUpdate.Changes[0].ObjectId);
+        Assert.Equal(500, decodedUpdate.Changes[0].Count);
+        Assert.Equal(11, decodedUpdate.Changes[0].Option1);
+        Assert.Equal(22, decodedUpdate.Changes[0].Option2);
+
+        Assert.Equal(
+            CharacterInventory.ApplyStatus.Applied,
+            book.Apply(ToChanges(decodedUpdate), 0, errors));
+        Assert.Empty(errors);
+        Assert.Equal(2, book.Count);
+        Assert.True(book.TryGet(1001, out adena));
+        Assert.Equal(500, adena.Count);
+        Assert.False(book.Contains(version));
+    }
+
+    static byte[] WithVersionTail(byte[] body, int version)
+    {
+        var wire = new byte[body.Length + 4];
+        Buffer.BlockCopy(body, 0, wire, 0, body.Length);
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(wire.AsSpan(body.Length), version);
+        return wire;
+    }
+
+    static ItemListEntryNet Item(int objectId, int itemId, int count, int slot, int option1, int option2)
+    {
+        return new ItemListEntryNet
+        {
+            ObjectId = objectId,
+            ItemId = itemId,
+            Count = count,
+            EquippedSlot = slot,
+            BodySlot = slot >= 0 ? "rhand" : "none",
+            Kind = itemId == 57 ? "etc" : "weapon",
+            Icon = "icon",
+            WeaponType = slot >= 0 ? "sword" : "",
+            ArmorType = "",
+            Option1 = option1,
+            Option2 = option2
+        };
+    }
+
+    static void AssertSameItem(ItemListEntryNet expected, ItemListEntryNet actual)
+    {
+        Assert.Equal(expected.ObjectId, actual.ObjectId);
+        Assert.Equal(expected.ItemId, actual.ItemId);
+        Assert.Equal(expected.Count, actual.Count);
+        Assert.Equal(expected.EnchantLevel, actual.EnchantLevel);
+        Assert.Equal(expected.EquippedSlot, actual.EquippedSlot);
+        Assert.Equal(expected.BodySlot, actual.BodySlot);
+        Assert.Equal(expected.Kind, actual.Kind);
+        Assert.Equal(expected.Icon, actual.Icon);
+        Assert.Equal(expected.WeaponType, actual.WeaponType);
+        Assert.Equal(expected.ArmorType, actual.ArmorType);
+        Assert.Equal(expected.Option1, actual.Option1);
+        Assert.Equal(expected.Option2, actual.Option2);
+    }
+
+    static CharacterInventory.Row[] ToRows(ItemListNetMsg list)
+    {
+        var rows = new CharacterInventory.Row[list.Items.Length];
+        for (int i = 0; i < list.Items.Length; i++)
+        {
+            ItemListEntryNet src = list.Items[i];
+            rows[i] = new CharacterInventory.Row
+            {
+                ObjectId = src.ObjectId,
+                ItemId = src.ItemId,
+                Count = src.Count,
+                EnchantLevel = src.EnchantLevel,
+                EquippedSlot = src.EquippedSlot,
+                BodySlot = src.BodySlot,
+                Kind = src.Kind,
+                Icon = src.Icon,
+                WeaponType = src.WeaponType,
+                ArmorType = src.ArmorType
+            };
+        }
+        return rows;
+    }
+
+    static CharacterInventory.Change[] ToChanges(InventoryUpdateNetMsg update)
+    {
+        var changes = new CharacterInventory.Change[update.Changes.Length];
+        for (int i = 0; i < update.Changes.Length; i++)
+        {
+            InventoryUpdateEntryNet src = update.Changes[i];
+            changes[i] = new CharacterInventory.Change
+            {
+                Code = src.Change,
+                Row = new CharacterInventory.Row
+                {
+                    ObjectId = src.ObjectId,
+                    ItemId = src.ItemId,
+                    Count = src.Count,
+                    EnchantLevel = src.EnchantLevel,
+                    EquippedSlot = src.EquippedSlot,
+                    BodySlot = src.BodySlot,
+                    Kind = src.Kind,
+                    Icon = src.Icon,
+                    WeaponType = src.WeaponType,
+                    ArmorType = src.ArmorType
+                }
+            };
+        }
+        return changes;
+    }
+
     [Fact]
     public void EnterWorld_language_payload_round_trips()
     {

@@ -20,6 +20,7 @@
          Assembly-CSharp from a test assembly, so this host compiles them directly. -->
     <Compile Include="..\..\l2-unity\Assets\Scripts\Networking\Net\Contract\**\*.cs"
              Link="Client\Net.Contract\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\CharacterInventory.cs" Link="Client\CharacterInventory.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageWireConfig.cs" Link="Client\FineageWireConfig.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageBackendSelector.cs" Link="Client\FineageBackendSelector.cs" />
     <Compile Include="..\..\l2-unity\Assets\Scripts\Fineage.Networking\FineageServerProfile.cs" Link="Client\FineageServerProfile.cs" />
