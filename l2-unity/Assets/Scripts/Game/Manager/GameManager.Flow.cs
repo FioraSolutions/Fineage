@@ -29,13 +29,13 @@ public partial class GameManager : MonoBehaviour, IGameManager
 
     public void OnGameLaunched() => _lobbyFlow.OnGameLaunched();
 
-    public void WireLoginUi(L2LoginUI loginUi)
+    public void WireLoginUi(IUiLoading loginUi)
     {
         if (loginUi != null)
             _loginUi = loginUi;
     }
 
-    public void WireGameUi(L2GameUI gameUi)
+    public void WireGameUi(IUiLoading gameUi)
     {
         if (gameUi != null)
             _gameUi = gameUi;
@@ -46,11 +46,11 @@ public partial class GameManager : MonoBehaviour, IGameManager
         if (_loadingCamera != null)
             _loadingCamera.enabled = true;
 
-        L2GameUI ui = _gameUi != null ? _gameUi : LobbyUiPacketServices.GameUi;
-        if (ui != null)
-            ui.StartLoading();
-        L2LoginUI loginUi = _loginUi != null ? _loginUi : LobbyUiPacketServices.LoginUi;
-        if (loginUi != null)
-            loginUi.StartLoading();
+        if (_gameUi != null)
+            _gameUi.StartLoading();
+        if (_loginUi != null)
+            _loginUi.StartLoading();
+        if (_gameUi == null && _loginUi == null)
+            Debug.LogError("[GameManager] IUiLoading missing — WireGameUi and WireLoginUi were not called. GameLifetimeScope should register L2GameUI; LoginLifetimeScope should register L2LoginUI.");
     }
 }

@@ -448,7 +448,7 @@ Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VCon
 
 - [x] **S31** `ITableInitializer.LoadTables` in `Fineage.Game`. `GameManager` injects the interface. `TableInitializer` stays Assembly-CSharp and is still registered as itself.
 - [x] **S32** `GameManager` and `LobbyFlowController` inject `ISceneLoader`. `RegisterSceneLoader` logs when no `SceneLoader` is on the host or in loaded scenes. There is no `SceneLoader.Instance` fallback. `LoadMenu` and `LoadSWMap` are the same calls when the interface is present.
-- [ ] **S33** Interfaces for the `L2LoginUI` / `L2GameUI` members `GameManager` actually reads. `GameManager` stops naming those classes.
+- [x] **S33** `IUiLoading.StartLoading` in `Fineage.Game`. `L2UI` implements it, so `GameManager` no longer names `L2LoginUI` or `L2GameUI`. Login and game scopes wire the interface. There is no `LobbyUiPacketServices` or `.Instance` fallback.
 - [ ] **S34** `GameManager` → `Fineage.Di`. Only after S30–S33. It still `[Inject]`s.
 - [ ] **S35** `IWorldSpawnContext` → `Fineage.Game` if its members do not name Assembly-CSharp. `World` still implements it.
 - [ ] **S36** Call sites that only need `IWorldEntityLookup` or `IWorldSpawnContext` stop naming `World`. One caller family per PR.

@@ -31,13 +31,17 @@ public sealed class LoginLifetimeScope : LifetimeScope
                     LobbyFlowController lobby = lobbySession as LobbyFlowController
                         ?? App.Container.Resolve<LobbyFlowController>();
                     lobby.WireLogin(loginRuntime);
-                    // Login UI bind is LobbyFlowController.WireLogin / LobbyUiPacketServices —
-                    // GameManager.WireLoginUi never existed (ACS leftover).
+                    GameManager manager = App.Container.Resolve<GameManager>();
+                    L2LoginUI loginUi = loginRuntime.Ui;
+                    if (loginUi != null)
+                        manager.WireLoginUi(loginUi);
+                    else
+                        Debug.LogError("[LoginLifetimeScope] L2LoginUI missing — LoginRuntime.Ui was not registered, so GameManager has no login loading UI.");
                 }
                 catch (System.Exception ex)
                 {
                     Debug.LogError(
-                        "[LoginLifetimeScope] Failed to wire LobbyFlowController from App.Container: "
+                        "[LoginLifetimeScope] Failed to wire login session from App.Container: "
                         + ex.Message);
                 }
             }
