@@ -441,11 +441,12 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S25** `GameScopeCycleSafeRegistration` in `Fineage.Di` registers `GameEventBus`, `StatsConverter`, `ItemDropLayerService`, `L2PawnYaw`, and `InterludeActionAvailabilityService`. Same singleton lifetimes. `UnityChainTicker` stays an entry point on `GameLifetimeScope` so tick order is unchanged. The scope still registers the Assembly-CSharp hosts.
 - [x] **S26** `IWorldDomainSink`, `DomainKnownlistAdd`, `DomainPlayerSpawned`, and `DomainStatsChanged` → `Fineage.Networking/World/`. Script GUIDs unchanged. `WorldDomainSink` stays Assembly-CSharp and still rebuilds the wire DTO at apply time.
 - [x] **S27** Overhead HP leaves `InterludeDomainMap.Npc`. `NpcOrPetInfoApplyIncomingPacketServices.Apply` and `PresenceApplyService.ApplyNpcInfo` call `TablePacketServices.HideNpcHpBar` and `SetHideHp` before the map. Missing npcgrp still logs `[EntityIdentity] ParceHideHpbar` and hides the bar. The map only copies fields.
+- [x] **S29** `InterludeDomainMap` → `Fineage.Networking/Adapters/Interlude/`. Script GUIDs unchanged. Move, stop, knownlist, spawn, and stats copies are the same field assignments. `WorldDomainSink` stays Assembly-CSharp.
 
 **Still blocked (do not force in this wave):**
 
 - `AppLifetimeScope` / `GameLifetimeScope` / `LoginLifetimeScope` / `GameRuntime` / `LoginRuntime` / `DiBootstrap` — they still name Assembly-CSharp MonoBehaviours. Fineage.Di cannot register those until the hosts themselves move. The cycle-safe singletons above are the exception (S25).
-- `WorldDomainSink` stays in Assembly-CSharp. It rebuilds `CharInfoDto`, `NpcInfoDto`, and `UserInfoDto` at apply time (S22–S24). The port and payloads are Fineage.Networking (S26).
+- `WorldDomainSink` stays in Assembly-CSharp. It rebuilds `CharInfoDto`, `NpcInfoDto`, and `UserInfoDto` at apply time (S22–S24). The port, payloads, and `InterludeDomainMap` are Fineage.Networking (S26, S29).
 - `DoorCatalog` — `Newtonsoft.Json` is not a `Fineage.Game` asmdef reference (layout check pins the reference list).
 - Sky MonoBehaviours that `[Inject]` via VContainer (`WorldClock`, `L2HazeRing`, `L2StarDome`, `L2CloudMyst`, `L2CloudSimple`) — Fineage.Game cannot reference VContainer.
 - DAT table ScriptableObjects (`SkillNameTable`, `QuestNameTable`, …) — many are cycle-safe and explicitly out of this wave (no DAT grind).
