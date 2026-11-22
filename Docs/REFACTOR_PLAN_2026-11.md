@@ -446,7 +446,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VContainer). Do not add VContainer to `Fineage.Game`, `Fineage.UI`, or `Fineage.Controller`. One row per PR. Decouple, then `git mv` with the script GUID unchanged.
 
 - [x] **S31** `ITableInitializer.LoadTables` in `Fineage.Game`. `GameManager` injects the interface. `TableInitializer` stays Assembly-CSharp and is still registered as itself.
-- [ ] **S32** `GameManager`'s scene field and `LobbyFlowPacketServices.Scenes` use `ISceneLoader`. `SceneLoader.Instance` stays the concrete fallback. `LoadMenu` behavior unchanged.
+- [x] **S32** `GameManager`'s scene field and `LobbyFlowPacketServices.Scenes` use `ISceneLoader`. `SceneLoader.Instance` stays the concrete fallback. `LoadMenu` behavior unchanged.
 - [ ] **S33** Interfaces for the `L2LoginUI` / `L2GameUI` members `GameManager` actually reads. `GameManager` stops naming those classes.
 - [ ] **S34** `GameManager` → `Fineage.Di`. Only after S30–S33. It still `[Inject]`s.
 - [ ] **S35** `IWorldSpawnContext` → `Fineage.Game` if its members do not name Assembly-CSharp. `World` still implements it.

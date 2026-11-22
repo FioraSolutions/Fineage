@@ -18,7 +18,7 @@ public sealed partial class LobbyFlowController : ILobbySession
 
 
 
-    private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
+    private ISceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
     private L2LoginUI LoginUi
     {

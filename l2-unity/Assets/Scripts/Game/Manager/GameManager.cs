@@ -19,7 +19,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
     #region Dependencies
 
     [Inject] ITableInitializer _tableInitializer;
-    [Inject] SceneLoader _sceneLoader;
+    [Inject] ISceneLoader _sceneLoader;
 
     ILobbySession _lobbyFlow;
     L2GameUI _gameUi;
@@ -29,7 +29,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
 
     #region Lifecycle
 
-    private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
+    private ISceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
     public bool IsSwitchingServer { get; set; } = false;
     public bool WorldSpawnReady { get; set; }

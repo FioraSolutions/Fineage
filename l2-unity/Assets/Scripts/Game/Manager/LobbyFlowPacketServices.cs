@@ -3,10 +3,10 @@
 /// </summary>
 public static class LobbyFlowPacketServices
 {
-    private static SceneLoader _scenes;
+    private static ISceneLoader _scenes;
 
     public static void Bind(
-        SceneLoader scenes = null,
+        ISceneLoader scenes = null,
         PlayerStateMachine playerState = null,
         MusicManager music = null)
     {
@@ -18,7 +18,7 @@ public static class LobbyFlowPacketServices
             MusicPacketServices.Bind(music: music);
     }
 
-    public static SceneLoader Scenes =>
+    public static ISceneLoader Scenes =>
         _scenes != null ? _scenes : SceneLoader.Instance;
 
     public static PlayerStateMachine PlayerState => PlayerStatePacketServices.PlayerState;
