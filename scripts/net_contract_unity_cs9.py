@@ -65,12 +65,37 @@ def fix_empty_collection_expression_defaults(text: str) -> str:
 
 
 COALESCE_Member_PROP = re.compile(r"m\.(\w+)\s*\?\?\s*\[\]")
-ARRAY_PROP_DECL = re.compile(r"public\s+([\w.]+)\[\]\s+(\w+)\s")
+METHOD_PARAM_MSG = re.compile(r"\((\w+NetMsg)\s+m\)")
 
 
-def _elem_type_for_prop(prop: str, lookup: str) -> str | None:
+def _class_body(lookup: str, class_name: str) -> str | None:
+    needle = f"public sealed class {class_name}"
+    idx = lookup.find(needle)
+    if idx < 0:
+        return None
+    brace = lookup.find("{", idx)
+    if brace < 0:
+        return None
+    depth = 0
+    for i in range(brace, len(lookup)):
+        ch = lookup[i]
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return lookup[brace : i + 1]
+    return None
+
+
+def _elem_type_for_prop(prop: str, msg_type: str | None, lookup: str) -> str | None:
+    scope = lookup
+    if msg_type:
+        body = _class_body(lookup, msg_type)
+        if body:
+            scope = body
     pat = re.compile(rf"public\s+([\w.]+)\[\]\s+{re.escape(prop)}\s")
-    match = pat.search(lookup)
+    match = pat.search(scope)
     return match.group(1) if match else None
 
 
@@ -78,19 +103,25 @@ def fix_null_coalesce_empty_collection(text: str, *, lookup_corpus: str = "") ->
     """`m.SomeArrayProp ?? []` → `m.SomeArrayProp ?? System.Array.Empty<T>()`."""
 
     lookup = lookup_corpus if lookup_corpus else text
+    lines = text.split("\n")
+    current_msg: str | None = None
 
     def repl_line(line: str) -> str:
+        nonlocal current_msg
+        match = METHOD_PARAM_MSG.search(line)
+        if match:
+            current_msg = match.group(1)
         if "?? []" not in line:
             return line
         out = line
         for prop_match in COALESCE_Member_PROP.finditer(line):
             prop = prop_match.group(1)
-            elem = _elem_type_for_prop(prop, lookup)
+            elem = _elem_type_for_prop(prop, current_msg, lookup)
             if elem:
                 out = out.replace(f"m.{prop} ?? []", f"m.{prop} ?? System.Array.Empty<{elem}>()")
         return out
 
-    return "\n".join(repl_line(line) for line in text.split("\n"))
+    return "\n".join(repl_line(line) for line in lines)
 
 
 def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
