@@ -54,10 +54,11 @@ public static class NpcVoicePlaybackGate
     static bool TryEvictLowestPriority(NpcVoicePriority incoming)
     {
         int victimId = 0;
-        NpcVoicePriority lowest = NpcVoicePriority.Targeted;
+        NpcVoicePriority lowest = (NpcVoicePriority)byte.MaxValue;
         foreach (KeyValuePair<int, NpcVoicePriority> kvp in ActiveByEntity)
         {
-            if (kvp.Value <= lowest)
+            if (kvp.Value < lowest
+                || (kvp.Value == lowest && (victimId == 0 || kvp.Key < victimId)))
             {
                 lowest = kvp.Value;
                 victimId = kvp.Key;
