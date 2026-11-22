@@ -30,7 +30,7 @@ public partial class IconManager
             return result;
         }
 
-        // Debug.LogWarning($"Missing texture: {href}.");
+        FineageLog.Error(FineageLogCategory.World, "IconManager: missing texture href='" + href + "'");
 
         return _noImageIcon;
     }

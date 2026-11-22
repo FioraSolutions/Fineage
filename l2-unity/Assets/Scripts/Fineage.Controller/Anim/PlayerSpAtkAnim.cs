@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Maps SpAtk01_/02_ + weapon suffix → Animator state (CrossFade, not Trigger).
+/// Maps SpAtkNN_ + weapon suffix → Animator state (CrossFade, not Trigger).
+/// Accepts skill-runner tokens such as SpAtk18AnimName_1HS after GetFinalNameAnim.
 /// </summary>
 public sealed class PlayerSpAtkAnim : PlayerAnimStateMapBase
 {
@@ -11,24 +12,8 @@ public sealed class PlayerSpAtkAnim : PlayerAnimStateMapBase
     public const string Prefix01 = "SpAtk01_";
     public const string Prefix02 = "SpAtk02_";
 
-    // Longer indexes first is unnecessary (all SpAtkNN_ are the same length).
-    // 03–09 and 27–28 are in AnimationCombo; only 01/02 have animator states on every weapon.
-    static readonly string[] Prefixes =
-    {
-        "SpAtk28_",
-        "SpAtk27_",
-        "SpAtk09_",
-        "SpAtk08_",
-        "SpAtk07_",
-        "SpAtk06_",
-        "SpAtk05_",
-        "SpAtk04_",
-        "SpAtk03_",
-        Prefix02,
-        Prefix01
-    };
-
-    protected override IReadOnlyList<string> PrefixesLongestFirst => Prefixes;
+    protected override IReadOnlyList<string> PrefixesLongestFirst =>
+        Array.Empty<string>();
 
     public static string VariantPrefix(PlayerSpAtkVariant variant)
     {
@@ -44,11 +29,49 @@ public sealed class PlayerSpAtkAnim : PlayerAnimStateMapBase
         ComposeStateName(VariantPrefix(variant), weapon);
 
     /// <summary>
-    /// Full name after GetFinalNameAnim, e.g. SpAtk01_1HS / SpAtk02_1HS / SpAtk01_bow.
+    /// Full name after GetFinalNameAnim, e.g. SpAtk01_1HS / SpAtk18AnimName_dual / SpAtk06_hand.
     /// </summary>
     public static bool TryResolve(string animName, out string stateName)
     {
         stateName = null;
-        return Instance.TryResolveStateName(animName, out stateName, out _);
+        return TryParse(animName, out _, out _, out stateName);
+    }
+
+    public static bool TryParse(
+        string animName,
+        out int spAtkNumber,
+        out PlayerAnimWeapon weapon,
+        out string stateName)
+    {
+        spAtkNumber = 0;
+        weapon = PlayerAnimWeapon.Hand;
+        stateName = null;
+        if (string.IsNullOrEmpty(animName))
+            return false;
+
+        int at = animName.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase);
+        if (at < 0)
+            return false;
+
+        int digitStart = at + 5;
+        int digitEnd = digitStart;
+        while (digitEnd < animName.Length && char.IsDigit(animName[digitEnd]))
+            digitEnd++;
+
+        if (digitEnd == digitStart ||
+            !int.TryParse(animName.Substring(digitStart, digitEnd - digitStart), out spAtkNumber))
+            return false;
+
+        string tail = animName.Substring(digitEnd);
+        if (tail.StartsWith("AnimName", StringComparison.OrdinalIgnoreCase))
+            tail = tail.Substring("AnimName".Length);
+        if (tail.StartsWith("_", StringComparison.Ordinal))
+            tail = tail.Substring(1);
+
+        if (!TryParseWeaponSuffix(tail, out weapon))
+            return false;
+
+        stateName = "SpAtk" + spAtkNumber.ToString("00") + "_" + ToWeaponSuffix(weapon);
+        return true;
     }
 }
