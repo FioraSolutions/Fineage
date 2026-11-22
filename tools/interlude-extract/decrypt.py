@@ -116,3 +116,26 @@ def decrypt_package_file(src: Path, dest: Path) -> dict:
         "upackage": is_upackage(out),
         "size": len(out),
     }
+
+
+def main() -> int:
+    import json
+    import sys
+
+    if len(sys.argv) != 3:
+        print(f"usage: {Path(sys.argv[0]).name} <src package> <dest>", file=sys.stderr)
+        return 2
+    info = decrypt_package_file(Path(sys.argv[1]), Path(sys.argv[2]))
+    print(json.dumps(info))
+    if not info["upackage"]:
+        print(
+            f"ERROR: {sys.argv[2]} is not a UPackage after decrypt "
+            f"(protocol={info['protocol']})",
+            file=sys.stderr,
+        )
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

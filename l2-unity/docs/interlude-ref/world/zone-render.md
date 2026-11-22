@@ -1,6 +1,7 @@
 # Zone render catalog
 
-Derived from `world/maps/*.unr.json.gz`. The gzip dumps stay the lossless source.
+Derived from `world/maps/*.unr.json.gz` and `world/env/*.unr.json.gz`.
+The gzip dumps stay the lossless source.
 An empty cell means the property was not authored on that actor.
 Engine.u `ZoneInfo` class defaults are not in this catalog, so a missing
 `DistanceFogStart` is empty rather than a guessed 3000.
