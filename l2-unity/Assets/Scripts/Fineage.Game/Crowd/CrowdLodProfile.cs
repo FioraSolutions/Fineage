@@ -20,6 +20,7 @@ public sealed class CrowdLodProfile : ScriptableObject
     public float tier1AnimatorSpeed = 1f;
     public float tier2AnimatorSpeed = 0.5f;
     public float tier3AnimatorSpeed = 0.25f;
+    [Tooltip("Kept for existing profile assets. Visible tiers stay on CullUpdateTransforms; only TCulled stops the animator.")]
     public CrowdDetailTier animatorCullCompletelyFromTier = CrowdDetailTier.T3Far;
 
     [Header("Skill FX (step 17)")]
@@ -50,10 +51,11 @@ public sealed class CrowdLodProfile : ScriptableObject
 
     public AnimatorCullingMode AnimatorCullingForTier(CrowdDetailTier tier)
     {
+        // The roster disables renderers when a pawn is culled. CullCompletely on a
+        // visible tier freezes the pose when the skinned bounds are stale, so the
+        // body disappears while the roster still says it is on screen.
         if (tier == CrowdDetailTier.TCulled)
             return AnimatorCullingMode.CullCompletely;
-        return tier >= animatorCullCompletelyFromTier
-            ? AnimatorCullingMode.CullCompletely
-            : AnimatorCullingMode.CullUpdateTransforms;
+        return AnimatorCullingMode.CullUpdateTransforms;
     }
 }

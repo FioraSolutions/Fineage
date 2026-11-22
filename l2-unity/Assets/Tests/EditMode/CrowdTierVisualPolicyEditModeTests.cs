@@ -25,4 +25,29 @@ public sealed class CrowdTierVisualPolicyEditModeTests
         Object.DestroyImmediate(go);
         Object.DestroyImmediate(mesh);
     }
+
+    [Test]
+    public void Visible_tier_keeps_the_skinned_mesh_when_bounds_are_stale()
+    {
+        var profile = ScriptableObject.CreateInstance<CrowdLodProfile>();
+        var mesh = new Mesh { name = "body_m00" };
+        mesh.bounds = new Bounds(Vector3.zero, Vector3.one);
+        var go = new GameObject("pawn");
+        var animator = go.AddComponent<Animator>();
+        var smr = go.AddComponent<SkinnedMeshRenderer>();
+        smr.sharedMesh = mesh;
+        smr.updateWhenOffscreen = false;
+
+        CrowdTierVisualPolicy.Apply(go.transform, CrowdDetailTier.T3Far, profile);
+        Assert.IsTrue(smr.updateWhenOffscreen);
+        Assert.AreEqual(AnimatorCullingMode.CullUpdateTransforms, animator.cullingMode);
+
+        CrowdTierVisualPolicy.Apply(go.transform, CrowdDetailTier.TCulled, profile);
+        Assert.IsFalse(smr.updateWhenOffscreen);
+        Assert.AreEqual(AnimatorCullingMode.CullCompletely, animator.cullingMode);
+
+        Object.DestroyImmediate(go);
+        Object.DestroyImmediate(mesh);
+        Object.DestroyImmediate(profile);
+    }
 }

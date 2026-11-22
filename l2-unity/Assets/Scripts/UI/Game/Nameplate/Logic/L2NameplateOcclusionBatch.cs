@@ -18,6 +18,7 @@ public static class L2NameplateOcclusionBatch
     }
 
     static readonly List<Probe> ProbeBuffer = new List<Probe>(MaxProbesPerFrame);
+    static readonly List<int> HideIds = new List<int>(MaxProbesPerFrame);
 
     public static void ApplyHeadOcclusion(
         Dictionary<int, NameplateEntry> entries,
@@ -29,6 +30,7 @@ public static class L2NameplateOcclusionBatch
             return;
 
         ProbeBuffer.Clear();
+        HideIds.Clear();
         Vector3 camPos = camera.transform.position;
 
         foreach (KeyValuePair<int, NameplateEntry> kv in entries)
@@ -53,8 +55,7 @@ public static class L2NameplateOcclusionBatch
 
             if (!L2NameplateOcclusionDecision.IsOnScreen(camera, anchor))
             {
-                e.Visible = false;
-                entries[kv.Key] = e;
+                HideIds.Add(kv.Key);
                 continue;
             }
 
@@ -66,6 +67,15 @@ public static class L2NameplateOcclusionBatch
                 OwnerRoot = ownerRoot,
                 Distance = dist,
             });
+        }
+
+        for (int h = 0; h < HideIds.Count; h++)
+        {
+            int id = HideIds[h];
+            if (!entries.TryGetValue(id, out NameplateEntry hidden) || !hidden.Visible)
+                continue;
+            hidden.Visible = false;
+            entries[id] = hidden;
         }
 
         int count = ProbeBuffer.Count;
