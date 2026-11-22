@@ -78,6 +78,8 @@ OUTBOUND_EXPLICIT = frozenset(
         "RequestShortCutDel",
         "RequestAcquireSkillInfo",
         "RequestAcquireSkill",
+        "RequestEnchantSkillInfo",
+        "RequestEnchantSkill",
         "EnchantRequest",
         "EnchantConfirm",
         "EnchantCancel",

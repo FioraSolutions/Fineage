@@ -160,6 +160,12 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AcquireSkillInfo:
                 _session.ApplyAcquireSkillInfo((AcquireSkillInfoNetMsg)packet.Body);
                 break;
+            case NetOpcode.EnchantSkillList:
+                _session.ApplyEnchantSkillList((EnchantSkillListNetMsg)packet.Body);
+                break;
+            case NetOpcode.EnchantSkillInfo:
+                _session.ApplyEnchantSkillInfo((EnchantSkillInfoNetMsg)packet.Body);
+                break;
             case NetOpcode.EnchantResult:
                 _session.ApplyEnchantResult((EnchantResultNetMsg)packet.Body);
                 break;
@@ -325,7 +331,6 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.AugmentVariationResult:
             case NetOpcode.AugmentPutCancelItemResult:
             case NetOpcode.AugmentCancelResult:
-                break;
             case NetOpcode.CursedWeaponList:
             case NetOpcode.CursedWeaponLocation:
                 break;

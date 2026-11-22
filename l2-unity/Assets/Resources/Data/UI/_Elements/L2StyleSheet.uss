@@ -2251,10 +2251,41 @@
     -unity-font: resource('Data/UI/Font/tahoma');
 }
 
-.bar-label-numbers {
+/* Char-select StatusWnd Ps layout: two-column stat rows, not in-game status bar stack. */
+.il-char-select .char-select-row {
+    height: auto;
+    min-height: 18px;
+    flex-shrink: 0;
 }
 
-.bar-label {
+.il-char-select .char-select-col {
+    height: auto;
+    min-height: 16px;
+    align-items: center;
+}
+
+.il-char-select .bar-label-numbers {
+    letter-spacing: 0;
+    padding-left: 0;
+    margin: 0;
+    height: 14px;
+    -unity-font-definition: initial;
+    -unity-font: resource('Data/UI/Font/tahoma');
+    -unity-text-align: middle-center;
+}
+
+.il-char-select .bar-container {
+    align-items: center;
+}
+
+.il-char-select .char-select-window .bar-inner {
+    min-height: 12px;
+    max-height: 12px;
+}
+
+.il-char-select .char-select-window .bar-inner .bar-height {
+    min-height: 12px;
+    max-height: 12px;
 }
 
 
