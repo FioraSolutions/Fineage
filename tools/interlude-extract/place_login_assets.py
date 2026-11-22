@@ -25,6 +25,31 @@ TEX = UNITY / "Assets/Resources/Data/Textures"
 SM = UNITY / "Assets/Resources/Data/StaticMeshes"
 UI_LOGIN = UNITY / "Assets/Resources/Data/UI/Assets/Login"
 
+sys.path.insert(0, str(REPO / "scripts" / "lib"))
+from asset_import_policy import (  # noqa: E402
+    apply_texture_meta,
+    build_texture_expectation,
+    load_rules,
+    posix_path,
+)
+
+# Cloned sibling metas predate the ImportPolicy rules, so a fresh clone drifts
+# (CI pr-sanity gate). Every newly placed texture meta is normalized through
+# the policy itself — the same apply_texture_meta the gate's --apply uses.
+_RULES = load_rules()
+
+
+def normalize_texture_meta(dest: Path) -> None:
+    meta = Path(str(dest) + ".meta")
+    if not meta.is_file():
+        return
+    expectation = build_texture_expectation(posix_path(dest), _RULES, dest)
+    if expectation is None:
+        raise SystemExit(f"ERROR no texture import rule matched: {posix_path(dest)}")
+    updated = apply_texture_meta(meta.read_text(encoding="utf-8"), expectation)
+    if updated != meta.read_text(encoding="utf-8"):
+        meta.write_text(updated, encoding="utf-8", newline="\n")
+
 # (src subdir, dest dir, meta template file, names or None for all)
 TEXTURE_MAPS = [
     ("l2_skies", TEX / "l2_skies", TEX / "l2_skies/moon.png.meta", None),
@@ -68,6 +93,7 @@ def place_textures(src_root: Path) -> int:
                 placed += 1
                 print(f"place {png.name} -> {dest.relative_to(UNITY)}")
             clone_meta(template, dest)
+            normalize_texture_meta(dest)
         if want is not None:
             have = {p.stem.lower() for p in src_dir.glob("*.png")}
             for n in want.values():
