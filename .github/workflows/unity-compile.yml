@@ -15,10 +15,9 @@ on:
       - "l2-unity/Packages/**"
       - "l2-unity/ProjectSettings/ProjectVersion.txt"
       - ".github/workflows/unity-compile.yml"
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - "l2-unity/docs/**"
+      - "!**/*.md"
+      - "!docs/**"
+      - "!l2-unity/docs/**"
   push:
     branches: [dev, main]
     paths:
