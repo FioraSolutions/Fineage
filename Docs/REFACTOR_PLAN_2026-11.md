@@ -426,7 +426,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S10** `L2StarDomeMesh` → `Fineage.Game/Rendering/Sky/`. Cuts ACS ownership of the star-dome mesh builder. The `L2StarDome` MonoBehaviour stays ACS (VContainer).
 - [x] **S11** `L2DayNightLut` (all partials) → `Fineage.Game/Rendering/Lut/`. Cuts ACS ownership of the day/night color table (#1691 neighbor). Sampling unchanged; no per-tile ZoneInfo.
 - [x] **S12** `LobbyAccountEnvironmentProfile` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/ambient ScriptableObject (fog start/end/color fields unchanged).
-- [ ] **S13** `LobbyAccountRenderSettings` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/sky apply. Depends on S11 and S12. Still lobby-only; not ZoneInfo (#1691).
+- [x] **S13** `LobbyAccountRenderSettings` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/sky apply. Depends on S11 and S12. Still lobby-only; not ZoneInfo (#1691).
 - [x] **S14** `NetGameHost` → `Fineage.Game/Manager/`. Cuts ACS ownership of the `IGameManager` composition host (the port already lives in Fineage.Game). Bind/TryGet behavior unchanged.
 - [x] **S15** `GameClient` and `LoginClient` → `Fineage.Networking/`. Drops the unused `using VContainer` so the protocol shells can sit beside `IZoneTransport`. Awake singleton behavior unchanged.
 - [x] **S17** `DomainMoveTo` and `DomainStopMove` → `Fineage.Domain/World/`. Drops the Interlude DTO fields. `InterludeDomainMap` is the adapter. `WorldDomainSink` rebuilds `CharMoveToLocationDto` / `StopMoveDto` at apply time so `NewMoveToIntention` still receives a wire payload. Object id, positions, and heading are unchanged.
