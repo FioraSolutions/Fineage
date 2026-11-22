@@ -17,7 +17,7 @@
 4. Restores, builds, and tests `tools/Fineage.Tools.sln` (Release configuration)
 5. Uploads test results as artifacts (`.trx` format, 14 day retention)
 
-**Unity on PRs:** Workflow `unity-compile` runs on pull requests into `dev` when `l2-unity/Assets/Scripts/**` (or Tests/Editor/Packages) changes. It batchmode-compiles the client and runs EditMode tests (PRs skip `[Category("Slow")]`). Requires repo secrets `UNITY_EMAIL` and `UNITY_PASSWORD` (Unity Personal seat, same as `release-clients`). Push to `main`, nightly 01:00 UTC, and `workflow_dispatch` run the full EditMode suite. Player builds remain on `release-clients` (not a PR gate).
+**Unity (not on PRs):** Workflow `unity-compile` does **not** run on pull requests (seat/backlog; see #1676). After merge, **push to `dev`** (path-filtered Scripts/Tests/Editor/Packages) batchmode-compiles the client and runs fast EditMode (`!Slow`); failures post a red **Unity EditMode** check on that commit. Push to `main`, nightly 01:00 UTC, and `workflow_dispatch` run the full EditMode suite. Requires `UNITY_EMAIL` and `UNITY_PASSWORD`. Player builds remain on `release-clients`.
 
 **Required status check name:** `build-and-test`
 

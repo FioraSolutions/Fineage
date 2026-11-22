@@ -1,12 +1,12 @@
-# Unity batchmode compile + EditMode for client Script changes (#737 / #131).
-# PRs → dev: path-filtered Scripts/Tests/Editor; excludes [Category("Slow")] probes.
-# Push main + nightly 01:00 UTC: full EditMode. Requires UNITY_EMAIL + UNITY_PASSWORD (Personal seat).
-# Library cache keyed on manifest, ProjectVersion, and asmdef set hash.
+# Unity batchmode compile + EditMode (#737 / #131). Not on PRs (org runner / seat backlog per #1676).
+# Push dev → fast EditMode (!Slow), red check on the commit; concurrency cancels stale dev runs.
+# Push main + nightly 01:00 UTC + workflow_dispatch → full EditMode suite.
+# Requires UNITY_EMAIL + UNITY_PASSWORD (Personal seat). Library cache: manifest, version, asmdef hash.
 
 name: unity-compile
 
 on:
-  pull_request:
+  push:
     branches: [dev]
     paths:
       - "l2-unity/Assets/Scripts/**"
@@ -26,7 +26,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -84,7 +84,7 @@ jobs:
           projectPath: l2-unity
           unityVersion: auto
           testMode: editmode
-          testFilter: ${{ github.event_name == 'pull_request' && '!Slow' || '' }}
+          testFilter: ${{ github.ref == 'refs/heads/dev' && github.event_name == 'push' && '!Slow' || '' }}
           checkName: Unity EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
