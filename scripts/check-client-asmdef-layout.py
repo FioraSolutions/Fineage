@@ -107,9 +107,11 @@ def check_domain_asmdef_boundary() -> list[str]:
                 stripped = line.strip()
                 if stripped.startswith("//"):
                     continue
-                if not re.search(word_re, line):
+                # A name inside a string literal is not a type reference.
+                code = re.sub(r'"(?:\\.|[^"\\])*"', '""', line)
+                if not re.search(word_re, code):
                     continue
-                remainder = member_name.sub("", line, count=1)
+                remainder = member_name.sub("", code, count=1)
                 if re.search(word_re, remainder):
                     hit = True
                     break

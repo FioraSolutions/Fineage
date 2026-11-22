@@ -19,7 +19,7 @@ public partial class UserInfoDto
         int reace = reader.ReadI();
         int female = reader.ReadI();
         _info.Appearance.Sex = female;
-        _info.Appearance.Race = (int)MapClassId.GetRace(reace);
+        _info.Appearance.Race = InterludeCharAppearance.RaceFromPacket(reace);
         _info.Appearance.BaseClass = reader.ReadI();
         _info.Stats.Level = reader.ReadI();
          long exp =  reader.ReadLOther();

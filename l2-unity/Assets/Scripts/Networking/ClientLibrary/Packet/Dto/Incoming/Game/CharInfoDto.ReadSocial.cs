@@ -50,13 +50,13 @@ public partial class CharInfoDto
             // " locL2=(" + x + "," + y + "," + z + ")");
 
         int baseBefore = Appearance.BaseClass;
-        bool mageByFirst = CharacterClassParser.IsMage(PacketClassFirst);
-        bool mageBySecond = CharacterClassParser.IsMage(Identity.PlayerClass);
-        if (Appearance.BaseClass != (int)BaseClass.Fighter && Appearance.BaseClass != (int)BaseClass.MMagic)
+        bool mageByFirst = InterludeCharAppearance.IsMage(PacketClassFirst);
+        bool mageBySecond = InterludeCharAppearance.IsMage(Identity.PlayerClass);
+        if (Appearance.BaseClass != InterludeCharAppearance.Fighter && Appearance.BaseClass != InterludeCharAppearance.Mystic)
         {
             Appearance.BaseClass = mageBySecond
-                ? (int)BaseClass.MMagic
-                : (int)BaseClass.Fighter;
+                ? InterludeCharAppearance.Mystic
+                : InterludeCharAppearance.Fighter;
         }
 
         // Debug.Log("[CHARINFO_CLASS] nick=" + Identity.Name +
