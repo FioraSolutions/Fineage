@@ -16,7 +16,7 @@ public partial class TargetWindow
             ? TablePacketServices.SkillNames.GetName(skillId, safeLevel)
             : null;
 
-        var icon = new VisualElement();
+        var icon = new VisualElement { pickingMode = PickingMode.Position };
         icon.AddToClassList("l2-abnormal-icon");
         icon.AddToClassList("target-effect-icon");
 
