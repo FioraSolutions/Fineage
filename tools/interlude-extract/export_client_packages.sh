@@ -29,5 +29,8 @@ JAVAC="${JAVAC:-$(command -v javac)}"
   "$TOOL_DIR/ExportClientPackages.java"
 
 mkdir -p "$OUT"
-shift $(( $# >= 1 && $1 == -- )) || true
+# bash 3.2 (macOS): `--` inside $(( )) parses as the decrement operator.
+if [[ "${1:-}" == "--" ]]; then
+  shift
+fi
 exec "$JAVA" --enable-native-access=ALL-UNNAMED -Xmx8g -cp "$TOOL_DIR:$JAR" ExportClientPackages "$CLIENT" "$OUT" "$@"
