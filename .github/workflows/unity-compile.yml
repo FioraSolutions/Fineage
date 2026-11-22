@@ -1,34 +1,15 @@
-# Unity batchmode compile + EditMode for PRs (#737 / #131).
-# Uses the same Personal seat activation as release-clients (UNITY_EMAIL + UNITY_PASSWORD).
-# PR/dev: fast EditMode (excludes [Category("Slow")]). Main push + nightly: Slow tests only.
+# Unity batchmode compile + EditMode — not on PRs into dev (runner backlog).
+# Runs on push to main, nightly 01:00 UTC, and workflow_dispatch.
+# Library cache keyed on manifest, ProjectVersion, and asmdef set hash.
 
 name: unity-compile
 
 on:
-  pull_request:
-    branches: [dev, main]
-    paths:
-      - "l2-unity/Assets/Scripts/**"
-      - "l2-unity/Assets/Tests/**"
-      - "l2-unity/Assets/Editor/**"
-      - "l2-unity/ImportPolicy/**"
-      - "l2-unity/Packages/**"
-      - "l2-unity/ProjectSettings/ProjectVersion.txt"
-      - ".github/workflows/unity-compile.yml"
-      - "!**/*.md"
-      - "!docs/**"
-      - "!l2-unity/docs/**"
   push:
-    branches: [dev, main]
+    branches: [main]
     paths:
-      - "l2-unity/Assets/Scripts/**"
-      - "l2-unity/Assets/Tests/**"
-      - "l2-unity/Assets/Editor/**"
-      - "l2-unity/ImportPolicy/**"
-      - "l2-unity/Packages/**"
-      - "l2-unity/ProjectSettings/ProjectVersion.txt"
+      - "l2-unity/**"
       - ".github/workflows/unity-compile.yml"
-  # Nightly UTC — [Category("Slow")] EditMode (anim probe loads, benches, etc.).
   schedule:
     - cron: "0 1 * * *"
   workflow_dispatch:
@@ -40,82 +21,6 @@ concurrency:
 jobs:
   editmode:
     name: unity-editmode
-    if: >-
-      github.event_name == 'pull_request' ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/dev')
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
-    permissions:
-      contents: read
-      checks: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: false
-
-      - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
-          df -h
-
-      - name: Hash asmdef set for Library cache
-        id: asmdef
-        run: |
-          set -euo pipefail
-          hash=$(find l2-unity/Assets -name '*.asmdef' -print | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
-          echo "hash=$hash" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Unity Library
-        uses: actions/cache@v4
-        with:
-          path: l2-unity/Library
-          key: unity-library-${{ hashFiles('l2-unity/Packages/manifest.json', 'l2-unity/ProjectSettings/ProjectVersion.txt') }}-${{ steps.asmdef.outputs.hash }}
-          restore-keys: |
-            unity-library-${{ hashFiles('l2-unity/Packages/manifest.json', 'l2-unity/ProjectSettings/ProjectVersion.txt') }}-
-            unity-library-
-
-      - name: Require Unity Personal secrets
-        env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        run: |
-          if [ -z "$UNITY_EMAIL" ] || [ -z "$UNITY_PASSWORD" ]; then
-            echo "UNITY_EMAIL / UNITY_PASSWORD secrets are required for #737 Unity PR compile."
-            exit 1
-          fi
-
-      - name: Unity EditMode (compiles Scripts)
-        uses: game-ci/unity-test-runner@v4.4.0
-        env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        with:
-          cliVersion: v0.1.72
-          projectPath: l2-unity
-          unityVersion: auto
-          testMode: editmode
-          customParameters: -testCategory "!Slow"
-          checkName: Unity EditMode
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Unity test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unity-editmode-results
-          path: |
-            artifacts/**
-            **/TestResults-*.xml
-          if-no-files-found: ignore
-          retention-days: 14
-
-  editmode-slow:
-    name: unity-editmode-slow
-    if: >-
-      github.event_name == 'schedule' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
@@ -157,7 +62,7 @@ jobs:
             exit 1
           fi
 
-      - name: Unity EditMode Slow
+      - name: Unity EditMode (compiles Scripts + full suite)
         uses: game-ci/unity-test-runner@v4.4.0
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -168,15 +73,14 @@ jobs:
           projectPath: l2-unity
           unityVersion: auto
           testMode: editmode
-          customParameters: -testCategory "Slow"
-          checkName: Unity EditMode (Slow)
+          checkName: Unity EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Unity test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: unity-editmode-slow-results
+          name: unity-editmode-results
           path: |
             artifacts/**
             **/TestResults-*.xml

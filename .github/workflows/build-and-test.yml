@@ -1,14 +1,13 @@
 name: build-and-test
 
+# Full gate on push to dev/main only — not on PRs (use pr-sanity.yml for PR → dev).
 on:
-  pull_request:
+  push:
     branches: [dev, main]
     paths-ignore:
       - "**/*.md"
       - "docs/**"
       - "l2-unity/docs/**"
-  push:
-    branches: [dev, main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

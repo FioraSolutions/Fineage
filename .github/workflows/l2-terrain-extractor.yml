@@ -3,12 +3,6 @@
 name: l2-terrain-extractor
 
 on:
-  pull_request:
-    branches: [dev, main]
-    paths:
-      - "tools/interlude/**"
-      - "scripts/check-l2-terrain-extractor.py"
-      - ".github/workflows/l2-terrain-extractor.yml"
   push:
     branches: [dev, main]
     paths:
