@@ -14,7 +14,7 @@ public sealed partial class GameLifetimeScope
         // and are only searchable once the prefab is instantiated.
         RegisterLateBound<TargetManager>(builder);
         RegisterIfFound<HitManager>(builder);
-        RegisterIfFound<ClickManager>(builder);
+        RegisterClickMasks(builder);
         RegisterIfFound<KeyboardMoveController>(builder);
         RegisterIfFound<NpcCursorManager>(builder);
         // Late-bound after the scope (#142 slice 4): these live in Input.prefab / UI.prefab
@@ -204,6 +204,47 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] INameplateRoster is not a NameplatesManager — NameplatesManager was not registered as INameplateRoster.");
+    }
+
+    /// <summary>
+    /// Register the scene <see cref="ClickManager"/> as <see cref="IClickMasks"/> (#131 S38o).
+    /// </summary>
+    void RegisterClickMasks(IContainerBuilder builder)
+    {
+        ClickManager found = UnityEngine.Object.FindFirstObjectByType<ClickManager>(FindObjectsInactive.Include);
+        if (found == null)
+        {
+            throw new InvalidOperationException(
+                "[GameLifetimeScope] IClickMasks missing — RegisterClickMasks found no ClickManager in loaded scenes.");
+        }
+
+        builder.RegisterComponent(found).AsSelf().As<IClickMasks>();
+    }
+
+    static void RequireClickMasks(IObjectResolver container)
+    {
+        IClickMasks masks;
+        try
+        {
+            masks = container.Resolve<IClickMasks>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IClickMasks))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IClickMasks missing — ClickManager was not registered as IClickMasks.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (masks is ClickManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IClickMasks is not a ClickManager — ClickManager was not registered as IClickMasks.");
     }
 
     /// <summary>
