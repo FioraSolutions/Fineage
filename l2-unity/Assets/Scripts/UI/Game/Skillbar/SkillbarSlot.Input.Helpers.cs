@@ -25,10 +25,12 @@ public partial class SkillbarSlot
         ClearInnerSlot();
         // The bar can restore shortcuts before the inventory is bound (skillbar init runs early).
         PlayerInventory inventory = SkillbarPacketServices.Inventory;
-        ItemInstance item = inventory != null ? inventory.FindByAllInventory(objectId) : null;
-        // Soulshots etc.: objectId changes when the stack is emptied/restocked; Level carries itemId.
-        if (item == null && inventory != null && itemIdHint > 0)
-            item = inventory.GetItemByItemId(itemIdHint);
+        ItemInstance item = null;
+        string error = null;
+        if (inventory != null && !inventory.TryResolveShortcut(objectId, itemIdHint, out item, out error))
+            item = null;
+        if (!string.IsNullOrEmpty(error))
+            Debug.LogError("[Inventory] " + error);
         _itemId = item != null ? item.ItemId : itemIdHint;
         _innerSlot = new InventorySlot(_position, _slotElement, SlotType.SkillBar);
         ((InventorySlot)_innerSlot).AssignItem(item);

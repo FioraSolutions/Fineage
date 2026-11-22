@@ -117,6 +117,13 @@ public sealed partial class FineageZoneTransport
             return true;
         }
 
+        RequestInventoryResyncCommand netResync = command as RequestInventoryResyncCommand;
+        if (netResync != null)
+        {
+            Session.SendInventoryResync();
+            return true;
+        }
+
         RequestShortCutRegCommand netShortCutReg = command as RequestShortCutRegCommand;
         if (netShortCutReg != null)
         {

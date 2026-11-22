@@ -60,4 +60,14 @@ public sealed partial class NetCommandSender
             NetCodec.EncodeDestroyItemRequest(new DestroyItemRequestMsg { ObjectId = objectId, Count = count }),
             _nextSeq());
     }
+
+    public Task SendInventoryResyncAsync()
+    {
+        if (!TryGetZone(out NetTransport zone))
+        {
+            UnityEngine.Debug.LogError("[Inventory] resync request was not sent; zone transport is down");
+            return Task.CompletedTask;
+        }
+        return zone.SendAsync(InventoryResync.Opcode, System.Array.Empty<byte>(), _nextSeq());
+    }
 }

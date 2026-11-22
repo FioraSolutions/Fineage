@@ -12,7 +12,10 @@ public static partial class NetGearSession
         _hasItems = false;
         _itemsApplied = false;
         _items = null;
+        _itemVersion = 0;
         _updates.Clear();
+        _updateVersions.Clear();
+        _resyncArmed = false;
         _warned = false;
         _lastBlock = null;
     }

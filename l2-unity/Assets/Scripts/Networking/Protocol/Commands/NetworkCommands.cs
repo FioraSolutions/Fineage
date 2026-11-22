@@ -213,6 +213,11 @@ public sealed class RequestDestroyItemCommand : INetworkCommand
     }
 }
 
+/// <summary>Asks the zone for a fresh ItemList. Empty body, opcode <see cref="InventoryResync.Opcode"/>.</summary>
+public sealed class RequestInventoryResyncCommand : INetworkCommand
+{
+}
+
 public sealed class RequestDropItemCommand : INetworkCommand
 {
     public int ObjectId;

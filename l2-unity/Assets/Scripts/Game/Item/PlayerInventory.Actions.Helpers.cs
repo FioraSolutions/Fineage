@@ -15,12 +15,17 @@ public partial class PlayerInventory
 
     private bool TryGetItem(int objectId, out ItemInstance item)
     {
-        if (!_playerInventory.TryGetValue(objectId, out item))
+        item = null;
+        if (!Book.Contains(objectId))
         {
-            // Debug.Log("Item not found");
+            Debug.LogError("[Inventory] use objectId " + objectId + " is not in the inventory");
             return false;
         }
-        return true;
+        item = FindByAllInventory(objectId);
+        if (item != null)
+            return true;
+        Debug.LogError("[Inventory] use objectId " + objectId + " is in the book but has no view");
+        return false;
     }
 
     private void OkUse()
@@ -42,31 +47,26 @@ public partial class PlayerInventory
 
     public void DestroyItem(int objectId, int quantity)
     {
-
-        //Cache Name for Message Equip
-       
-        if (_playerInventory.ContainsKey(objectId))
+        if (!Book.Contains(objectId))
         {
+            Debug.LogError("[Inventory] destroy objectId " + objectId + " is not in the inventory");
+            return;
+        }
 
-            ItemInstance item = _playerInventory[objectId];
-            //getInstance().AddS1Items(new VariableItem(item.ItemData.ItemName.Name, objectId));
-            //AudioPacketServices.Audio.PlayEquipSound("trash_basket");
-            IZoneTransport game = ZoneCommands.Transport;
-            if (game == null)
-                return;
-            ZoneCommands.Send(new RequestDestroyItemCommand(objectId, quantity));
-        }
-        else
+        IZoneTransport game = ZoneCommands.Transport;
+        if (game == null)
         {
-            // Debug.Log("Destroy item not found delete " + objectId);
+            Debug.LogError("[Inventory] destroy objectId " + objectId + " was not sent; zone transport is down");
+            return;
         }
+        ZoneCommands.Send(new RequestDestroyItemCommand(objectId, quantity));
     }
 
     public void DropItem(int objectId, int quantity, Vector3? dropWorldPos = null)
     {
-        if (!_playerInventory.ContainsKey(objectId))
+        if (!Book.Contains(objectId))
         {
-            // Debug.Log("Drop item not found " + objectId);
+            Debug.LogError("[Inventory] drop objectId " + objectId + " is not in the inventory");
             return;
         }
 
@@ -89,6 +89,6 @@ public partial class PlayerInventory
 
     public bool IsContaineInventory(int objectId)
     {
-        return _playerInventory.ContainsKey(objectId);
+        return Book.Contains(objectId);
     }
 }

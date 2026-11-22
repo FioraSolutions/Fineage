@@ -16,11 +16,15 @@ public sealed partial class NetSession
         NetGearSession.NoteUserInfo(user);
     }
 
-    internal void ApplyItemList(ItemListNetMsg list)
+    internal void ApplyItemList(ItemListNetMsg list, PacketEnvelope envelope)
     {
+        string versionError;
+        int version = InventoryPacketVersion.ReadItemList(list, envelope != null ? envelope.Payload : null, out versionError);
+        if (versionError != null)
+            Debug.LogError("[Inventory] " + versionError);
         NetItemEntry[] rows = MapItemList(list);
-        NetGearSession.NoteItemList(rows);
-        Debug.Log("[Net] ItemList count=" + rows.Length);
+        NetGearSession.NoteItemList(rows, version);
+        Debug.Log("[Net] ItemList count=" + rows.Length + " version=" + version);
     }
 
     internal void ApplySkillList(SkillListNetMsg list)

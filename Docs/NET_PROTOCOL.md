@@ -45,7 +45,7 @@ The presentation layer is still Interlude-era (client protocol identity **746**,
 5. Click NPC → `SelectTarget` / `AttackRequest` → `TargetSelected` / `AttackState` / `StatusUpdate`.
 6. Kill → `EntityDie` + `DropItem`; corpse decay / leave → `EntityDespawn`.
 7. Click ground loot → `PickupRequest` → `InventoryUpdate` + `EntityDespawn`.
-8. Bag drop / equip / unequip → `DropItemRequest` / `UseItem` / `UnequipItem` → `InventoryUpdate` (+ `DropItem` for drops).
+8. Bag drop / equip / unequip → `DropItemRequest` / `UseItem` / `UnequipItem` → `InventoryUpdate` (+ `DropItem` for drops). The client keeps one inventory book (`CharacterInventory`), keyed by objectId. `ItemList` replaces it. `InventoryUpdate` applies add (0) / modify (1) / remove (2) in order. The bag, paperdoll, shortcut lookup, adena, and slot count are projections of that book. Weight stays the server load on `PlayerStats` (`StatusUpdate` / `UserInfo`). A trailing int32 on `ItemList` / `InventoryUpdate` is the per-character inventory version (absent means the server has not started the sequence). A gap, an unknown change, or an unreadable tail does not change the book; the client sends `RequestInventoryResync` (opcode `0x03E1`, empty body) and waits for a new `ItemList`.
 9. Chat → `Say` / `CreatureSay`; welcome + notices → `SystemMessage`.
 10. Skills → `UseSkill` / `MagicSkillUse` (+ `StatusUpdate` for MP/heal).
 11. Death → `ReviveRequest` / `Revive` / `TeleportToLocation` (village restart).

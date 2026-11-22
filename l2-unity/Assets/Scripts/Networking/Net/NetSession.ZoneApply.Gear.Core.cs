@@ -22,8 +22,13 @@ public sealed partial class NetSession
         else DropItemApplyIncomingPacketServices.ApplyDropItem(dto);
     }
 
-    internal void ApplyInventoryUpdate(InventoryUpdateNetMsg update)
+    internal void ApplyInventoryUpdate(InventoryUpdateNetMsg update, PacketEnvelope envelope)
     {
+        string versionError;
+        int version = InventoryPacketVersion.ReadUpdate(update, envelope != null ? envelope.Payload : null, out versionError);
+        if (versionError != null)
+            Debug.LogError("[Inventory] " + versionError);
+
         InventoryUpdateEntryNet[] src = update.Changes ?? System.Array.Empty<InventoryUpdateEntryNet>();
         var rows = new NetInventoryChange[src.Length];
         for (int i = 0; i < src.Length; i++)
@@ -45,7 +50,7 @@ public sealed partial class NetSession
             };
         }
 
-        NetGearSession.NoteInventoryUpdate(rows);
+        NetGearSession.NoteInventoryUpdate(rows, version);
     }
 
     internal static void NoteReject(string code, string message)

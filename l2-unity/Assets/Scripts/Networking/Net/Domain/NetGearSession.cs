@@ -10,7 +10,10 @@ public static partial class NetGearSession
     static bool _hasItems;
     static bool _itemsApplied;
     static NetItemEntry[] _items;
+    static int _itemVersion;
     static readonly List<NetInventoryChange[]> _updates = new List<NetInventoryChange[]>();
+    static readonly List<int> _updateVersions = new List<int>();
+    static bool _resyncArmed;
     static bool _warned;
 
 
