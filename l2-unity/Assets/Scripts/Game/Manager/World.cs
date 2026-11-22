@@ -32,6 +32,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [Inject] private AppearFadeService _appearFade;
     [Inject] private CameraController _camera;
     [Inject] private IAnimationManager _animations;
+    [Inject] private IAnimationRoster _animationRoster;
     [Inject] private PlayerSpawner _playerSpawner;
     [Inject] private UserSpawner _userSpawner;
     [Inject] private NpcSpawner _npcSpawner;

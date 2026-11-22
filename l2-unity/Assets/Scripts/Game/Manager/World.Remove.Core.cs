@@ -93,8 +93,7 @@ public partial class World
         if (_gravityNpc != null)
             _gravityNpc.DeleteGravity(id);
 
-        if (Animations != null)
-            Animations.UnregisterController(id);
+        _animationRoster.UnregisterController(id);
     }
 
     void BeginActorDisappear(int id, Entity entity, Action<GameObject> onFinished)

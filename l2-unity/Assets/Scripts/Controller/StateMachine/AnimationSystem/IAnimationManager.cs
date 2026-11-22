@@ -4,10 +4,9 @@ using System.Diagnostics.Tracing;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public interface IAnimationManager
+public interface IAnimationManager : IAnimationRoster
 {
     public void RegisterController(int objectId, IAnimationController controller, Entity entity);
-    public void UnregisterController(int objectId);
     IAnimationController GetRegisteredController(int objectId);
 
     void PlayAnimation(int objectId , string animationName , bool disableTriggerAfterStart);
