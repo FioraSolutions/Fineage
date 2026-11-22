@@ -45,7 +45,7 @@ public static class L2MElfAnimImporter
         return n.ToLowerInvariant();
     }
 
-    // "FDarkElf_m001_b.ao_MagicShot_A_FDarkElf" -> "magicshot"
+    // "FDarkElf_m000_b.ao_MagicShot_FDarkElf" -> "magicshot"
     static string SlotSeq(string n)
     {
         int i = n.IndexOf(".ao_", StringComparison.OrdinalIgnoreCase); if (i >= 0) n = n.Substring(i + 4);

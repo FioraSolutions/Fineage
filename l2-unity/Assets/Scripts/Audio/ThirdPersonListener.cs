@@ -83,14 +83,22 @@ public class ThirdPersonListener : MonoBehaviour
         if (_cam == null && Camera.main != null)
             _cam = Camera.main.gameObject;
 
-        if (_player != null)
-            _attributes.position = FMODUnity.RuntimeUtils.ToFMODVector(_player.transform.position);
-
         if (_cam == null)
             return;
 
-        // Prefer FMOD StudioListener so emitters' distance checks and the
-        // "add Studio Listener" warning stay quiet. Keep 3P attenuation on the player.
+        // Listener at the camera (ears): correct L/R pan when rotating; forward/up match view.
+        Transform listenAt = _cam.transform;
+        if (_player != null)
+        {
+            Vector3 feet = _player.transform.position;
+            Vector3 cam = _cam.transform.position;
+            float planarOffset = new Vector2(cam.x - feet.x, cam.z - feet.z).sqrMagnitude;
+            if (planarOffset > 400f)
+                listenAt = _player.transform;
+        }
+
+        _attributes.position = FMODUnity.RuntimeUtils.ToFMODVector(listenAt.position);
+
         FMODUnity.StudioListener studio = _cam.GetComponent<FMODUnity.StudioListener>();
         if (studio == null)
             studio = _cam.AddComponent<FMODUnity.StudioListener>();

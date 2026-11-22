@@ -6,6 +6,8 @@ public abstract partial class AbstractAttackEvents : StateBase
     public override void Exit()
     {
         base.Exit();
+        if (AnimChannel.IsHeld(AnimChannel.Kind.Cast))
+            MagicSkillPresentation.EndCastChannel();
         CombatPacketServices.Facing?.EndFollow(ResolveFacingObjectId(), "state-exit");
         if (!_isSubscribed) return;
         _isSubscribed = false;

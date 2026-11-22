@@ -8,7 +8,7 @@ Source: official Interlude `animations/*.ukx` -> `umodel -export -psk` -> PSA ta
 1. **Animator template has no SpAtk03..SpAtk28 states.** `Player_Basic.controller` only has
    `SpAtk01_1HS/2HS/bow/pole`, `SpAtk02_1HS`, `SpAtk06_hand`. `PlayerSpAtkAnim` prefixes stop at 09/27/28,
    and `AnimationManager.ResolvePlayableCombatState` falls every missing state back to
-   `SpAtk01_1HS`. So every skill whose skillgrp `animation` tag maps (via `AnimationCombo_Classic.txt`)
+   `SpAtk01_1HS`. So every skill whose skillgrp `animation` tag maps (via `AnimationCombo_Interlude.txt`)
    to SpAtk03+ (Mix01..Mix09 = SpAtk07..26, e.g. Duelist Sonic Blaster Mix06=SpAtk18,
    Sonic Storm Mix07=SpAtk19, Double Sonic Slash Mix04=SpAtk07/12/21, Triple Sonic Slash Mix03)
    plays the generic SpAtk01 swing (the "dagger leftover" look) for every race.

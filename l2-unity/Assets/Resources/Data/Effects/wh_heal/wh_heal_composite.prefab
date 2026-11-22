@@ -53,7 +53,6 @@ MonoBehaviour:
   _lightSettings: {fileID: 0}
   _v2Parts:
   - rid: 2881200516534632556
-  - rid: 2881200516534632558
   references:
     version: 2
     RefIds:
@@ -73,21 +72,4 @@ MonoBehaviour:
           rid: 2881200516534632557
     - rid: 2881200516534632557
       type: {class: FeetPlacement, ns: , asm: Assembly-CSharp}
-      data: 
-    - rid: 2881200516534632558
-      type: {class: IndependentEffectPart, ns: , asm: Assembly-CSharp}
-      data:
-        name: wh_heal_ave
-        prefab: {fileID: 3316680953689571854, guid: 72647c887aa26c949aff8124cad2710e, type: 3}
-        scale: 1
-        spawnTiming: 5
-        spawnDelaySeconds: 0
-        spawnAttachmentPoint: 8
-        boneName: 
-        follow: 1
-        inheritRotation: 0
-        placement:
-          rid: 2881200516534632559
-    - rid: 2881200516534632559
-      type: {class: TargetCenterPlacement, ns: , asm: Assembly-CSharp}
       data: 

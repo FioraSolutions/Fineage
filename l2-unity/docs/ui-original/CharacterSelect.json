@@ -1,0 +1,413 @@
+{
+  "source": {
+    "file": "system/nwindow.dll",
+    "chronicle": "Interlude",
+    "note": "Character select is not in Interface.xdat. NCLobbyWnd / NCLobbyFunctionWnd / NCLobbyStartWnd are implemented in native C++ (nwindow.dll). Layout below was recovered from those OnCreate/OnPaint functions in the retail Interlude nwindow.dll (ImageBase 0x10000000). Screen placement of the three windows is computed at runtime from the current resolution; only local (window-relative) coordinates are hardcoded.",
+    "functions": {
+      "NCLobbyFunctionWnd::OnCreate": "0x1017A9E0-0x1017AD6F",
+      "NCLobbyFunctionWnd::OnPaint": "0x1017ADB0-0x1017AE84",
+      "NCLobbyStartWnd::OnCreate": "0x1017B300-0x1017B478",
+      "NCLobbyStartWnd::OnPaint": "0x1017B4B0-0x1017B584",
+      "NCLobbyWnd_or_pawn_card_ctor": "0x1017C010-0x1017C12A",
+      "NCLobbyWnd_or_pawn_card_OnPaint": "0x1017C130-0x1017C8E9 (approx, continues into value text)"
+    },
+    "output": "CharacterSelect.json"
+  },
+  "sysstrings": {
+    "50": "Name",
+    "89": "Exp",
+    "90": "HP",
+    "91": "MP",
+    "92": "SP",
+    "158": "Create",
+    "159": "Delete",
+    "160": "Start",
+    "162": "Create Character",
+    "163": "Name",
+    "884": "Re-Login"
+  },
+  "wndDefPos": null,
+  "windows": [
+    {
+      "name": "NCLobbyFunctionWnd",
+      "type": "NativeWindow",
+      "parent": "NCLobbyWnd",
+      "width": 120,
+      "height": 138,
+      "backTex": "L2UI_CH3.LobbyWnd.lobby_menuback",
+      "evidence": "OnPaint draws the texture at local (0,0) with size 120x138 (push 0x78, 0x8A).",
+      "controls": [
+        {
+          "name": "btnCreate",
+          "type": "Button",
+          "parent": "NCLobbyFunctionWnd",
+          "x": 13,
+          "y": 20,
+          "width": 96,
+          "height": 23,
+          "textures": {
+            "normalTex": "L2UI_CH3.Button.BigButton",
+            "pushedTex": "L2UI_CH3.Button.BigButton_down"
+          },
+          "buttonName": 158,
+          "buttonText": "Create",
+          "evidence": "OnCreate: SetRect(13,20,96,23) then SetSysString(0x9E=158)."
+        },
+        {
+          "name": "btnDelete",
+          "type": "Button",
+          "parent": "NCLobbyFunctionWnd",
+          "x": 13,
+          "y": 45,
+          "width": 96,
+          "height": 23,
+          "textures": {
+            "normalTex": "L2UI_CH3.Button.BigButton",
+            "pushedTex": "L2UI_CH3.Button.BigButton_down"
+          },
+          "buttonName": 159,
+          "buttonText": "Delete",
+          "evidence": "OnCreate: SetRect(13,45,96,23) then SetSysString(0x9F=159)."
+        },
+        {
+          "name": "btnReLogin",
+          "type": "Button",
+          "parent": "NCLobbyFunctionWnd",
+          "x": 13,
+          "y": 95,
+          "width": 96,
+          "height": 23,
+          "textures": {
+            "normalTex": "L2UI_CH3.Button.BigButton",
+            "pushedTex": "L2UI_CH3.Button.BigButton_down"
+          },
+          "buttonName": 884,
+          "buttonText": "Re-Login",
+          "evidence": "OnCreate: SetRect(13,95,96,23) then SetSysString(0x374=884)."
+        }
+      ]
+    },
+    {
+      "name": "NCLobbyStartWnd",
+      "type": "NativeWindow",
+      "parent": "NCLobbyWnd",
+      "width": 140,
+      "height": 49,
+      "backTex": "L2UI_CH3.LobbyWnd.lobby_startbtnback",
+      "evidence": "OnPaint draws the texture at local (0,0) with size 140x49 (push 0x8C, 0x31).",
+      "controls": [
+        {
+          "name": "btnStart",
+          "type": "Button",
+          "parent": "NCLobbyStartWnd",
+          "x": 13,
+          "y": 10,
+          "width": 116,
+          "height": 31,
+          "textures": {
+            "normalTex": "L2UI_CH3.Button.BigButton2",
+            "pushedTex": "L2UI_CH3.Button.BigButton2_down"
+          },
+          "buttonName": 160,
+          "buttonText": "Start",
+          "evidence": "OnCreate: SetRect(13,10,116,31) then SetSysString(0xA0=160)."
+        }
+      ]
+    },
+    {
+      "name": "NCLobbyWnd_CharInfo",
+      "type": "NativeWindow",
+      "parent": "NCLobbyWnd",
+      "backTex": "L2UI_CH3.LobbyWnd.select1_back",
+      "note": "The character-info card (Name / HP / MP / Exp, and numeric HP/MP/Exp text). There is no SP bar texture in this paint path; SP is a sysstring (92) and may be drawn as text only. Window size itself is the size of select1_back (not a literal in OnCreate). Related texture L2UI_CH3.LobbyWnd.select2_back is present in the same DLL and is used for the unselected/alternate card state.",
+      "controls": [
+        {
+          "name": "select1_back",
+          "type": "Texture",
+          "parent": "NCLobbyWnd_CharInfo",
+          "x": 0,
+          "y": 0,
+          "textures": {
+            "file": "L2UI_CH3.LobbyWnd.select1_back"
+          },
+          "evidence": "Ctor loads the texture; OnPaint draws it at the window origin, stretched to the window size."
+        },
+        {
+          "name": "NameField",
+          "type": "TextOrEdit",
+          "parent": "NCLobbyWnd_CharInfo",
+          "x": 13,
+          "y": 46,
+          "width": 138,
+          "height": 17,
+          "sysstring": 50,
+          "sysstringText": "Name",
+          "evidence": "Ctor SetRect(13,46,138,17) on the first created text/control (id 0x1F04)."
+        },
+        {
+          "name": "labelA",
+          "type": "Text",
+          "parent": "NCLobbyWnd_CharInfo",
+          "x": 15,
+          "y": 16,
+          "fontColor": "#FFA3A3A3",
+          "evidence": "OnPaint DrawText color 0xFFA3A3A3 at (15,16). Likely a field label."
+        },
+        {
+          "name": "labelB",
+          "type": "Text",
+          "parent": "NCLobbyWnd_CharInfo",
+          "x": 15,
+          "y": 39,
+          "fontColor": "#FFA3A3A3",
+          "evidence": "OnPaint DrawText color 0xFFA3A3A3 at (15,39). Likely a field label."
+        },
+        {
+          "name": "HPBar",
+          "type": "StatusBar",
+          "parent": "NCLobbyWnd_CharInfo",
+          "x": 35,
+          "y": 55,
+          "width": 85,
+          "height": 12,
+          "textures": {
+            "foreTexture": "L2UI_ch3.playerstatuswnd.ps_hpbar"
+          },
+          "sysstring": 90,
+          "sysstringText": "HP",
+          "evidence": "OnPaint draws esi+0x1CC (ps_hpbar) at (35,55), dest height 12, fill width = hp*85/maxHp capped at 85."
+        },
+        {
+          "name": "MPBar",
+          "type": "StatusBar",
+          "parent": "NCLobbyWnd_CharInfo",
+          "x": 35,
+          "y": 69,
+          "width": 85,
+          "height": 12,
+          "textures": {
+            "foreTexture": "L2UI_ch3.PlayerStatusWnd.ps_mpbar"
+          },
+          "sysstring": 91,
+          "sysstringText": "MP",
+          "evidence": "OnPaint draws esi+0x1D0 (ps_mpbar) at (35,69), dest height 12, fill width capped at 85."
+        },
+        {
+          "name": "EXPBar",
+          "type": "StatusBar",
+          "parent": "NCLobbyWnd_CharInfo",
+          "x": 35,
+          "y": 83,
+          "width": 206,
+          "height": 12,
+          "textures": {
+            "foreTexture": "L2UI_ch3.PlayerStatusWnd.ps_expbar"
+          },
+          "sysstring": 89,
+          "sysstringText": "Exp",
+          "evidence": "OnPaint draws esi+0x1D4 (ps_expbar) at (35,83), dest height 12, fill width capped at 206 (0xCE)."
+        },
+        {
+          "name": "valueTextColor",
+          "type": "TextStyle",
+          "fontColor": "#FFDCDCDC",
+          "note": "Numeric HP/MP/Exp (and related) values are drawn in #FFDCDCDC. Several values are horizontally centered around x=77 or placed at x=67/83/131; y positions used include 57, 69, 71, 85. Re-read OnPaint if a pixel-perfect value label is needed."
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "name": "NCLobbyFunctionWnd",
+      "type": "NativeWindow",
+      "parent": "NCLobbyWnd",
+      "x": null,
+      "y": null,
+      "width": 120,
+      "height": 138,
+      "textures": {
+        "backTex": "L2UI_CH3.LobbyWnd.lobby_menuback"
+      }
+    },
+    {
+      "name": "btnCreate",
+      "type": "Button",
+      "parent": "NCLobbyFunctionWnd",
+      "x": 13,
+      "y": 20,
+      "width": 96,
+      "height": 23,
+      "textures": {
+        "normalTex": "L2UI_CH3.Button.BigButton",
+        "pushedTex": "L2UI_CH3.Button.BigButton_down"
+      },
+      "buttonName": 158,
+      "buttonText": "Create",
+      "evidence": "OnCreate: SetRect(13,20,96,23) then SetSysString(0x9E=158)."
+    },
+    {
+      "name": "btnDelete",
+      "type": "Button",
+      "parent": "NCLobbyFunctionWnd",
+      "x": 13,
+      "y": 45,
+      "width": 96,
+      "height": 23,
+      "textures": {
+        "normalTex": "L2UI_CH3.Button.BigButton",
+        "pushedTex": "L2UI_CH3.Button.BigButton_down"
+      },
+      "buttonName": 159,
+      "buttonText": "Delete",
+      "evidence": "OnCreate: SetRect(13,45,96,23) then SetSysString(0x9F=159)."
+    },
+    {
+      "name": "btnReLogin",
+      "type": "Button",
+      "parent": "NCLobbyFunctionWnd",
+      "x": 13,
+      "y": 95,
+      "width": 96,
+      "height": 23,
+      "textures": {
+        "normalTex": "L2UI_CH3.Button.BigButton",
+        "pushedTex": "L2UI_CH3.Button.BigButton_down"
+      },
+      "buttonName": 884,
+      "buttonText": "Re-Login",
+      "evidence": "OnCreate: SetRect(13,95,96,23) then SetSysString(0x374=884)."
+    },
+    {
+      "name": "NCLobbyStartWnd",
+      "type": "NativeWindow",
+      "parent": "NCLobbyWnd",
+      "x": null,
+      "y": null,
+      "width": 140,
+      "height": 49,
+      "textures": {
+        "backTex": "L2UI_CH3.LobbyWnd.lobby_startbtnback"
+      }
+    },
+    {
+      "name": "btnStart",
+      "type": "Button",
+      "parent": "NCLobbyStartWnd",
+      "x": 13,
+      "y": 10,
+      "width": 116,
+      "height": 31,
+      "textures": {
+        "normalTex": "L2UI_CH3.Button.BigButton2",
+        "pushedTex": "L2UI_CH3.Button.BigButton2_down"
+      },
+      "buttonName": 160,
+      "buttonText": "Start",
+      "evidence": "OnCreate: SetRect(13,10,116,31) then SetSysString(0xA0=160)."
+    },
+    {
+      "name": "NCLobbyWnd_CharInfo",
+      "type": "NativeWindow",
+      "parent": "NCLobbyWnd",
+      "x": null,
+      "y": null,
+      "width": null,
+      "height": null,
+      "textures": {
+        "backTex": "L2UI_CH3.LobbyWnd.select1_back"
+      }
+    },
+    {
+      "name": "select1_back",
+      "type": "Texture",
+      "parent": "NCLobbyWnd_CharInfo",
+      "x": 0,
+      "y": 0,
+      "textures": {
+        "file": "L2UI_CH3.LobbyWnd.select1_back"
+      },
+      "evidence": "Ctor loads the texture; OnPaint draws it at the window origin, stretched to the window size."
+    },
+    {
+      "name": "NameField",
+      "type": "TextOrEdit",
+      "parent": "NCLobbyWnd_CharInfo",
+      "x": 13,
+      "y": 46,
+      "width": 138,
+      "height": 17,
+      "sysstring": 50,
+      "sysstringText": "Name",
+      "evidence": "Ctor SetRect(13,46,138,17) on the first created text/control (id 0x1F04)."
+    },
+    {
+      "name": "labelA",
+      "type": "Text",
+      "parent": "NCLobbyWnd_CharInfo",
+      "x": 15,
+      "y": 16,
+      "fontColor": "#FFA3A3A3",
+      "evidence": "OnPaint DrawText color 0xFFA3A3A3 at (15,16). Likely a field label."
+    },
+    {
+      "name": "labelB",
+      "type": "Text",
+      "parent": "NCLobbyWnd_CharInfo",
+      "x": 15,
+      "y": 39,
+      "fontColor": "#FFA3A3A3",
+      "evidence": "OnPaint DrawText color 0xFFA3A3A3 at (15,39). Likely a field label."
+    },
+    {
+      "name": "HPBar",
+      "type": "StatusBar",
+      "parent": "NCLobbyWnd_CharInfo",
+      "x": 35,
+      "y": 55,
+      "width": 85,
+      "height": 12,
+      "textures": {
+        "foreTexture": "L2UI_ch3.playerstatuswnd.ps_hpbar"
+      },
+      "sysstring": 90,
+      "sysstringText": "HP",
+      "evidence": "OnPaint draws esi+0x1CC (ps_hpbar) at (35,55), dest height 12, fill width = hp*85/maxHp capped at 85."
+    },
+    {
+      "name": "MPBar",
+      "type": "StatusBar",
+      "parent": "NCLobbyWnd_CharInfo",
+      "x": 35,
+      "y": 69,
+      "width": 85,
+      "height": 12,
+      "textures": {
+        "foreTexture": "L2UI_ch3.PlayerStatusWnd.ps_mpbar"
+      },
+      "sysstring": 91,
+      "sysstringText": "MP",
+      "evidence": "OnPaint draws esi+0x1D0 (ps_mpbar) at (35,69), dest height 12, fill width capped at 85."
+    },
+    {
+      "name": "EXPBar",
+      "type": "StatusBar",
+      "parent": "NCLobbyWnd_CharInfo",
+      "x": 35,
+      "y": 83,
+      "width": 206,
+      "height": 12,
+      "textures": {
+        "foreTexture": "L2UI_ch3.PlayerStatusWnd.ps_expbar"
+      },
+      "sysstring": 89,
+      "sysstringText": "Exp",
+      "evidence": "OnPaint draws esi+0x1D4 (ps_expbar) at (35,83), dest height 12, fill width capped at 206 (0xCE)."
+    },
+    {
+      "name": "valueTextColor",
+      "type": "TextStyle",
+      "fontColor": "#FFDCDCDC",
+      "note": "Numeric HP/MP/Exp (and related) values are drawn in #FFDCDCDC. Several values are horizontally centered around x=77 or placed at x=67/83/131; y positions used include 57, 69, 71, 85. Re-read OnPaint if a pixel-perfect value label is needed."
+    }
+  ]
+}

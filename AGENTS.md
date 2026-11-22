@@ -25,6 +25,9 @@ Every client UI element (lobby / char select, login, HUD, status, target, chat, 
 4. Do not add elements that do not exist in the original (e.g. no map inside the radar) and do not drop ones that do.
 5. Missing layout data or texture → log a concrete error naming the window/control/texture and stop; never substitute a default look. If the agent cannot access the originals (cloud VM without `ref/`), use the committed extracted layout specs/screenshots; if those are missing, extract them first (on the Mac) instead of guessing.
 
+Agents must use [`l2-unity/Docs/interlude-ref`](l2-unity/Docs/interlude-ref) before re-extracting anything from the official client.
+
+
 ## Model selection
 
 | Work | Model |

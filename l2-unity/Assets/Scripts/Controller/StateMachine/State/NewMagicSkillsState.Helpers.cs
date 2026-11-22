@@ -46,6 +46,7 @@ public partial class NewMagicSkillsState  : AbstractAttackEvents
                         " combo=" + (readyCombo != null) +
                         " executor=" + (SkillExecutorPacketServices.Executor != null) +
                         " animator=" + animatorName);
+                    MagicSkillPresentation.EndCastChannel();
                     break;
                 }
 
