@@ -31,6 +31,9 @@ public static class CharacterCombatAudioDispatch
             return false;
         }
 
+        if (TryPlayOfficialCharacterWaves(service, chrSoundBank, soundEvent, position, entityId))
+            return true;
+
         string fmodBank = NpcChrSoundBankResolver.MapDamageBankToFmodBank(chrSoundBank);
         string path = AudioPathResolver.FmodChrSoundBank(fmodBank, soundEvent);
         return service.PlayFmodEvent(path, AudioCategory.Sfx, position, entityId, soundEvent.ToString());
@@ -59,6 +62,9 @@ public static class CharacterCombatAudioDispatch
         AudioService servicePlay = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
         if (servicePlay == null)
             return false;
+
+        if (TryPlayOfficialCharacterWaves(servicePlay, race.ToString(), soundEvent, position, entityId))
+            return true;
 
         string path = AudioPathResolver.FmodChrSound(race, soundEvent);
         return servicePlay.PlayFmodEvent(path, AudioCategory.Sfx, position, entityId, soundEvent.ToString());
@@ -186,9 +192,17 @@ public static class CharacterCombatAudioDispatch
 
         if (!InterludeSoundTokenPath.TryFromDatToken(datToken, out string eventPath))
         {
+            if (OfficialWaveTable.TryResolveDatToken(datToken, out string officialTokenPath, out string tokenError))
+            {
+                AudioService officialService = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
+                if (officialService == null)
+                    return false;
+                return officialService.PlayClipAtWorld(officialTokenPath, position, AudioCategory.Sfx, 1f, atListener: false);
+            }
+
             AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
             service?.LogCombatAudioError(
-                "item_sound token unresolved token=\"" + datToken + "\"",
+                tokenError ?? ("item_sound token unresolved token="" + datToken + """),
                 entityId,
                 datToken,
                 "WeaponSwing");
@@ -223,10 +237,16 @@ public static class CharacterCombatAudioDispatch
     {
         InterludeFmodCombatSoundResolver.EnsureCombatBankForEvent(fmodEventPath);
 
+        string officialPath = null;
+        OfficialWaveTable.TryResolveDatToken(TokenFromFmodOrDat(fmodEventPath), out officialPath, out _);
+        if (!string.IsNullOrEmpty(officialPath)
+            && service.PlayClipAtWorld(officialPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+            return true;
+
         if (service.PlayFmodEvent(fmodEventPath, AudioCategory.Sfx, position, entityId, eventLabel))
             return true;
 
-        string resourcesPath = InterludeSoundTokenPath.ResourcesPathFromFmodEvent(fmodEventPath);
+        string resourcesPath = officialPath ?? InterludeSoundTokenPath.ResourcesPathFromFmodEvent(fmodEventPath);
         if (!string.IsNullOrEmpty(resourcesPath)
             && service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
             return true;
@@ -234,11 +254,52 @@ public static class CharacterCombatAudioDispatch
         service.LogCombatAudioError(
             "combat sound unresolved event=\"" + fmodEventPath + "\""
             + (string.IsNullOrEmpty(resourcesPath)
-                ? " (no Resources stem)"
+                ? " (no official Resources wave)"
                 : " Resources=\"" + resourcesPath + "\""),
             entityId,
             fmodEventPath,
             eventLabel);
         return false;
+    }
+
+    static readonly System.Collections.Generic.Dictionary<string, int> ChrVariantCursor =
+        new System.Collections.Generic.Dictionary<string, int>(System.StringComparer.Ordinal);
+
+    static bool TryPlayOfficialCharacterWaves(
+        AudioService service,
+        string bank,
+        CharacterSoundEvent soundEvent,
+        Vector3 position,
+        int entityId)
+    {
+        if (service == null)
+            return false;
+        if (!OfficialWaveTable.TryResolveCharacter(bank, soundEvent, out var entries, out string error))
+            return false;
+
+        OfficialWaveTable.Entry pick = entries[0];
+        if (entries.Count > 1)
+        {
+            string key = bank + ":" + soundEvent;
+            ChrVariantCursor.TryGetValue(key, out int i);
+            pick = entries[i % entries.Count];
+            ChrVariantCursor[key] = i + 1;
+        }
+
+        return service.PlayClipAtWorld(pick.ResourcesPath, position, AudioCategory.Sfx, 1f, atListener: false);
+    }
+
+    static string TokenFromFmodOrDat(string fmodOrToken)
+    {
+        if (string.IsNullOrEmpty(fmodOrToken))
+            return fmodOrToken;
+        if (fmodOrToken.StartsWith("event:/", System.StringComparison.OrdinalIgnoreCase))
+        {
+            string tail = fmodOrToken.Substring("event:/".Length);
+            int slash = tail.IndexOf('/');
+            if (slash > 0 && slash < tail.Length - 1)
+                return tail.Substring(0, slash) + "." + tail.Substring(slash + 1).Replace('/', '.');
+        }
+        return fmodOrToken;
     }
 }

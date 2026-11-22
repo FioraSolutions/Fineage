@@ -175,7 +175,8 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
             return;
 
         float volume = AnimNotifySoundResolver.VolumeScale(binding.Volume);
-        if (!AnimNotifySoundResolver.TryPlayWave(service, wave, transform.position, volume, out string playError))
+        string contextHint = binding.Package + " " + binding.Animation + " " + binding.Sequence;
+        if (!AnimNotifySoundResolver.TryPlayWave(service, wave, transform.position, volume, out string playError, contextHint))
         {
             if (_logged.Add("wave:" + wave))
                 Log(playError ?? AnimNotifySoundResolver.FormatMissingWaveError(wave, binding.Id));

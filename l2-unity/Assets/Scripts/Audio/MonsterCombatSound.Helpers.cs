@@ -4,6 +4,13 @@ public static partial class MonsterCombatSound
 {
     internal static AudioClip LoadEvent(string npc, string eventKey)
     {
+        if (OfficialWaveTable.TryResolveMonster(npc, eventKey, out string officialPath, out _))
+        {
+            AudioClip official = InterludeSfx.Load(officialPath);
+            if (official != null)
+                return official;
+        }
+
         string[] stems =
         {
             npc + "_" + eventKey,

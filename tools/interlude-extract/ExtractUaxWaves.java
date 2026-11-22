@@ -69,7 +69,9 @@ public final class ExtractUaxWaves {
                     }
                     String ext = extensionFor(data);
                     String fileName = exp.getObjectName() + "." + ext;
-                    Path out = pkgDir.resolve(fileName);
+                    String group = groupName(a, exp);
+                    Path out = group.isEmpty() ? pkgDir.resolve(fileName) : pkgDir.resolve(group).resolve(fileName);
+                    Files.createDirectories(out.getParent());
                     Files.write(out, data);
                     wrote++;
                     waves++;
@@ -82,6 +84,16 @@ public final class ExtractUaxWaves {
         }
         System.err.printf(Locale.ROOT, "Done. packages ok=%d missing=%d failed=%d waves=%d%n", ok, missing, failed, waves);
         if (ok == 0) System.exit(1);
+    }
+
+    static String groupName(UArchive a, UObjectExport exp) {
+        int index = exp.getPackageIndex();
+        if (index > 0 && index <= a.getExportMap().size()) {
+            String n = a.getExportMap().get(index - 1).getObjectName();
+            if (n != null && !n.isEmpty() && !"None".equalsIgnoreCase(n))
+                return n;
+        }
+        return "";
     }
 
     static String extensionFor(byte[] data) {

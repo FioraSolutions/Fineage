@@ -32,7 +32,8 @@ Committed output is text only (`l2-unity/Docs/interlude-ref`). Decrypted package
 | `build_skill_effect_sounds.py` | Derived sound table used by the placement gap report. |
 
 | `MeshAnimationNotifyReader.java` | Reads every AnimNotify binding (time + object) from MeshAnimation sequences. Cruma keeps only AttackShot/PreShot/Channeling times; this reader is what the ukx dump and `anim-sequence-notifies` table use. |
-| `ExtractUaxWaves.java` | Writes official Sound wave payloads from a `.uax` to WAV/OGG under an extract-root (no package binary). |
+| `ExtractUaxWaves.java` | Writes official Sound wave payloads from a `.uax` to WAV/OGG under an extract-root, grouped by the export outer (no package binary). |
+| `import_official_item_mon_chr_waves.py` | Copies extracted item/monster/character waves into Resources and writes `official-waves.tsv`. |
 | `export_client_packages.sh` | Lossless JSON dump of named packages (maps `.unr`, sounds `.uax`, animations `.ukx`, env/UI `.u`). Uses Cruma `UObjectLoader.exportProperties` so map actors (Emitter, Light, MusicVolume, ZoneInfo, …) keep every property. |
 | `build_world_sound_gap.py` | Derived world/sound tables and `docs/interlude-ref/world/gap-report.md` from those dumps vs the Fineage tree. |
 
