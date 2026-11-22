@@ -119,6 +119,22 @@ public sealed partial class NetSession
         });
     }
 
+    internal void ApplyEnchantSkillList(EnchantSkillListNetMsg list)
+    {
+        int count = list?.Skills?.Length ?? 0;
+        FineageLog.Error(
+            FineageLogCategory.Net,
+            "EnchantSkillList: received " + count + " rows; trainer enchant UI handler is not wired yet.");
+    }
+
+    internal void ApplyEnchantSkillInfo(EnchantSkillInfoNetMsg info)
+    {
+        FineageLog.Error(
+            FineageLogCategory.Net,
+            "EnchantSkillInfo: skillId=" + (info?.SkillId ?? 0) + " level=" + (info?.Level ?? 0)
+            + "; trainer enchant UI handler is not wired yet.");
+    }
+
     static NetItemEntry[] MapWarehouseItems(ItemListEntryNet[] items)
     {
         if (items == null || items.Length == 0)
