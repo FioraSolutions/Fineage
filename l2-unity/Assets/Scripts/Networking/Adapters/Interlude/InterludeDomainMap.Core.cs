@@ -32,7 +32,11 @@ public static partial class InterludeDomainMap
         {
             Kind = KnownlistKind.User,
             ObjectId = dto.Identity.Id,
-            InterludeChar = dto
+            UserIdentity = dto.Identity,
+            UserStatus = dto.Status,
+            UserStats = dto.Stats,
+            UserAppearance = dto.Appearance,
+            UserAlikeDead = dto.AlikeDead
         };
     }
 }

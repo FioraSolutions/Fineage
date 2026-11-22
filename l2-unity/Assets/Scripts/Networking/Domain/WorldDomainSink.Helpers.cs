@@ -7,8 +7,13 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
         if (add == null || _worldApply == null)
             return;
 
-        if (add.Kind == KnownlistKind.User && add.InterludeChar != null)
-            _worldApply.UpdateUser(add.InterludeChar);
+        if (add.Kind == KnownlistKind.User && add.UserIdentity != null)
+            _worldApply.UpdateUser(CharInfoDto.FromKnownlist(
+                add.UserIdentity,
+                add.UserStatus,
+                add.UserStats,
+                add.UserAppearance,
+                add.UserAlikeDead));
         else if (add.Kind == KnownlistKind.Npc && add.InterludeNpc != null)
             _worldApply.UpdateNpc(add.InterludeNpc);
     }
