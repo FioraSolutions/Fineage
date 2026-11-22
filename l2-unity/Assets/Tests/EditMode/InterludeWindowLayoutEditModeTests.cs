@@ -124,6 +124,7 @@ public sealed class InterludeWindowLayoutEditModeTests
     [Test]
     public void Login_windows_match_extracted_anchors()
     {
+        // LoginLogoWnd, NCAuthWnd, and NCLoginFunctionWnd come from the nwindow dump.
         VisualElement auth = new VisualElement();
         Assert.IsTrue(InterludeWindowLayout.Apply(auth, "NCAuthWnd"));
         Assert.AreEqual(256f, auth.style.width.value.value, 0.01f);
