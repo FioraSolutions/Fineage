@@ -80,6 +80,19 @@ binary at `l2-unity/External/UEViewer/umodel` (from https://www.gildor.org/downl
 no official macOS arm64 build exists; the linux/amd64 binary in Docker is the
 supported path, same pattern as `tools/interlude/export_tile_staticmeshes.sh`).
 
+Step 8 (camera BSP zones) is Step-3 feedstock: Lobby has three `ZoneInfo`
+actors with disagreeing fog (`ZoneInfo0` 500–10000 grey, `ZoneInfo1` 300–3500,
+`ZoneInfo2` 0–4000 purple), so the per-tile "pick the terrain zone" selection
+is ambiguous by design. The vista fog is the zone containing Camera25, resolved
+authoritatively by `ZoneAtPoint.java` walking the level BSP nodes (self-checked
+against every ZoneInfo's own stored Location; hard ERROR if the node layout
+fails validation) → `world/env/Lobby.camera-zones.tsv`. Run with steps 6/7:
+
+```bash
+L2_INTERLUDE_CLIENT_ROOT=~/Downloads/L2_Interlude_Client/Lineage\ II \
+  bash tools/interlude-extract/extract_login_lobby.sh --only 6,7,8
+```
+
 Then commit: new dumps under `l2-unity/docs/interlude-ref/` (world/env +
 scripts/Engine.u + scripts/UWindow.u), placed assets under
 `Textures/l2_skies/`, `Textures/lobby_terrain_t/H_M_05.png`,
