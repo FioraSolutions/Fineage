@@ -13,7 +13,6 @@ public static class SkillAnimationResolver
     public const int ForceChargeTraySkillId = 4271;
 
     static readonly HashSet<string> MixMissLogged = new HashSet<string>(StringComparer.Ordinal);
-    static readonly HashSet<string> FallbackMissLogged = new HashSet<string>(StringComparer.Ordinal);
 
     /// <summary>
     /// Returns cleaned SpAtk stem names for each combo phase (e.g. SpAtk08, SpAtk13, SpAtk22), or null.
@@ -125,20 +124,8 @@ public static class SkillAnimationResolver
         if (!string.Equals(oneHs, stateName, StringComparison.Ordinal) && hasState(oneHs))
             return oneHs;
 
-        if (stem.StartsWith("SpAtk", StringComparison.Ordinal) && hasState("SpAtk01_1HS"))
-        {
-            string key = stateName + "|" + (raceName ?? "");
-            if (FallbackMissLogged.Add(key))
-            {
-                Debug.LogError(
-                    "[SkillAnimation] SpAtk fallback to SpAtk01_1HS skillId=" + skillId +
-                    " race=" + raceName +
-                    " requested=" + stateName +
-                    " (SpAtk01/02 only; import race clip or fix weapon suffix).");
-            }
-
-            return "SpAtk01_1HS";
-        }
+        if (stem.StartsWith("SpAtk", StringComparison.Ordinal))
+            LogMissingCombatClip(skillId, raceName, stateName);
 
         return stateName;
     }
