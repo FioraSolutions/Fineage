@@ -51,6 +51,7 @@ JAVA="${JAVA:-${CRUMA_JAVA:-java}}"
 TOOL_DIR="$ROOT/tools/interlude-extract"
 javac --release 25 -proc:none -cp "$JAR" -d "$TOOL_DIR" \
   "$TOOL_DIR/ExportPackageProperties.java" \
+  "$TOOL_DIR/MeshAnimationNotifyReader.java" \
   "$TOOL_DIR/DumpTerrainHoles.java"
 # Writes lobby-holes.tsv + quadvisibility/Lobby.quadvisibility.txt next to the other tiles.
 "$JAVA" --enable-native-access=ALL-UNNAMED -Xmx4g -cp "$TOOL_DIR:$JAR" \
