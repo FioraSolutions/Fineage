@@ -75,7 +75,7 @@ public partial class NameplatesManager : MonoBehaviour
             _entryStore.UpsertEntry(DomainPacketServices.LocalPlayer, _defaultNameColor);
         }
 
-        _entryStore.RefreshVisibility(_playerTransform, viewDistance, _pixelSnap);
+        _entryStore.RefreshVisibility(_playerTransform, viewDistance, _pixelSnap, ResolveCamera());
     }
 
     void UpsertUserInRange(Entity user)
