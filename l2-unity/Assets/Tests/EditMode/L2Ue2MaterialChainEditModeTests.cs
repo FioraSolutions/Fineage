@@ -256,6 +256,32 @@ public class L2Ue2MaterialChainEditModeTests
         Assert.IsTrue(errors[0].Contains("missing"));
     }
 
+    [Test]
+    public void Chain_does_not_upgrade_sky_or_terrain_shaders()
+    {
+        Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/Sky/Cloud"));
+        Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/World/TerrainBaseModulate2X"));
+        Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/World/WaterModulate2X"));
+        Assert.IsFalse(L2Ue2MaterialChain.CanUpgradeShader("L2/UI/BitmapFontScreenSpace"));
+        Assert.IsTrue(L2Ue2MaterialChain.CanUpgradeShader("Standard"));
+        Assert.IsTrue(L2Ue2MaterialChain.CanUpgradeShader("L2/World/StaticMeshModulate2X"));
+    }
+
+    [Test]
+    public void Chain_refuses_a_diffuse_from_another_package()
+    {
+        var names = new List<string> { "Cloud_Final01", "grass010" };
+        var packages = new List<string> { "L2_Skies", "field_deco_T" };
+        Assert.IsTrue(L2Ue2MaterialApply.TexturePackageAgrees(
+            "Cloud_Final01", "L2_Skies.Cloud_Final01", names, packages, out _));
+        Assert.IsFalse(L2Ue2MaterialApply.TexturePackageAgrees(
+            "Cloud_Final01", "field_deco_T.grass010", names, packages, out string detail));
+        Assert.IsTrue(detail.Contains("L2_Skies"));
+        Assert.IsTrue(detail.Contains("field_deco_T"));
+        Assert.IsTrue(L2Ue2MaterialApply.TexturePackageAgrees(
+            null, "field_deco_T.grass010", names, packages, out _));
+    }
+
     static Dictionary<string, string> Props(params string[] pairs)
     {
         var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
