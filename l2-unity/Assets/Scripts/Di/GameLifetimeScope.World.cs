@@ -41,7 +41,7 @@ public sealed partial class GameLifetimeScope
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
         RegisterLiveMono<MoveAllCharacters>(builder);
-        RegisterLiveMono<VisibilityManager>(builder);
+        RegisterVisibilityRoster(builder);
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
         RegisterIfFound<NetworkTransformShare>(builder);
@@ -59,6 +59,42 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);
 
+    }
+
+    /// <summary>
+    /// Register the scene <see cref="VisibilityManager"/> as <see cref="IVisibilityRoster"/> (#131 S38h).
+    /// </summary>
+    void RegisterVisibilityRoster(IContainerBuilder builder)
+    {
+        VisibilityManager found = UnityEngine.Object.FindFirstObjectByType<VisibilityManager>(FindObjectsInactive.Include);
+        if (found != null)
+            builder.RegisterComponent(found).AsSelf().As<IVisibilityRoster>();
+    }
+
+    static void RequireVisibilityRoster(IObjectResolver container)
+    {
+        IVisibilityRoster roster;
+        try
+        {
+            roster = container.Resolve<IVisibilityRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IVisibilityRoster))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IVisibilityRoster missing — VisibilityManager was not registered as IVisibilityRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (roster is VisibilityManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IVisibilityRoster is not a VisibilityManager — VisibilityManager was not registered as IVisibilityRoster.");
     }
 
     /// <summary>

@@ -26,7 +26,7 @@ public partial class World
         if (npc is MonsterEntity or NpcEntity)
         {
             L2ActorPointLights.TryRegisterActorRoot(npc.transform);
-            VisibilityPacketServices.Manager?.Register(id, npc.transform);
+            _visibility.Register(id, npc.transform);
         }
     }
 
