@@ -1,5 +1,21 @@
 {
   "volumes": [
-    {"name": "WaterVolume9", "min": [-65536.00,229375.98,-4780.00], "max": [-32768.00,262143.98,-3780.00]}
+    {
+      "name": "WaterVolume9",
+      "min": [
+        -65536.0,
+        229375.98,
+        -4780.0
+      ],
+      "max": [
+        -32768.0,
+        262143.98,
+        -3780.0
+      ]
+    }
+  ],
+  "material": "FX_E_T.WaterSurfaceShaderSet.WaterShader01",
+  "materials": [
+    "FX_E_T.WaterSurfaceShaderSet.WaterShader01"
   ]
 }

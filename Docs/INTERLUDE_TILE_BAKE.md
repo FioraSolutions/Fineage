@@ -225,3 +225,30 @@ python3 tools/interlude-extract/rebuild_terrain_layers.py \
 The bake parser reads those fields and skips `Texture=None` slots (no silent Base substitution). `_Layer_N_Xform` carries rotation (UE rotator units) and axis into `L2_TerrainLayerUv`. `T_themepark.17_16BG` is referenced on `19_17` but the official `T_themepark.utx` was not in this client tree — bake logs a missing-texture error for that layer.
 
 Shipped meshes/materials still need Unity `L2TerrainMeshCli.RunCli` (no `-nographics`) on every in-repo tile so the new layers paint. Close other Unity instances first; use this worktree, not `~/Projects/Fineage`.
+
+
+## Water volumes (#1689)
+
+Official `WaterVolume` bounds and the map's water Shader/FinalBlend are written to `Maps/<tile>/Meta/watervolumes.json`:
+
+```bash
+# build the fat jar once (do not commit it)
+cd tools/interlude/L2TerrainExtractor && gradle fatJar
+python3 tools/interlude-extract/rebuild_water_volumes.py \
+  --maps-dir "$L2_CLIENT/maps" \
+  --jar tools/interlude/L2TerrainExtractor/build/libs/l2terrain-1.0.0-all.jar
+```
+
+`WaterVolumeDump.java` reads official brush bounding boxes. The #1670 map dump supplies the official shader name (almost always `FX_E_T.WaterSurfaceShaderSet.WaterShader01`; `21_22` uses `ssq_water_01sh`). Volume brushes are often untextured physics boxes — do not invent a shared tint if the official Unity material is missing; bake logs an error.
+
+Shipped `*_Water.asset` / prefab children still need Unity (editor closed, no `-nographics`, this worktree not `~/Projects/Fineage`):
+
+```bash
+export FINEAGE_INTERLUDE_TILES=19_19,20_22,21_21,21_22,21_23,22_23,23_22,23_23
+# plus every other in-repo tile that has Meta/watervolumes.json
+# Unity 6000.3.27f1 -batchmode -quit -projectPath <worktree>/l2-unity
+# -executeMethod L2InterludeWaterVolumes.RunCli
+# -logFile .work/unity-water-volumes-1689.log
+```
+
+Tiles without `StaticMeshes.prefab` (the TI shoreline set) must run `L2InterludeTileBatchCli.RunTerrainExitCli` first.

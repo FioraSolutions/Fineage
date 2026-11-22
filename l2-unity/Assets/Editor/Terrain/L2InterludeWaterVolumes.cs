@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -6,11 +7,18 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Interlude pools/sea (Mother Tree basin in 21_19, Giran sea, ...) are not StaticMeshes: L2 draws them from
-/// WaterVolume brushes, which the StaticMesh bake never exported -> dry basins. Phase A now writes
-/// .work/interlude-extract/XX_YY/watervolumes.json (tools/interlude/WaterVolumeDump.java, brush bounds in UE units);
-/// this step adds child "L2WaterVolumes" (one quad per volume at its top Z) to Maps/XX_YY/StaticMeshes.prefab.
+/// Interlude pools/sea are WaterVolume brushes, not StaticMeshes. Official bounds and the
+/// map's water Shader/FinalBlend name live in Maps/XX_YY/Meta/watervolumes.json
+/// (tools/interlude/WaterVolumeDump.java + tools/interlude-extract/rebuild_water_volumes.py).
+/// This step adds child "L2WaterVolumes" (one quad per volume at its top Z) to
+/// Maps/XX_YY/StaticMeshes.prefab and assigns the official Unity material
+/// (typically FX_E_T/Shader/WaterShader01.mat). Missing json, prefab, or official
+/// material logs an error — no silent shared-tint fallback.
 /// UE -> Unity: (y, z, x) / 52.5, same as L2MapStaticMeshBuilder. Idempotent (child is rebuilt each run).
+///
+/// Unity -batchmode -quit -projectPath l2-unity -executeMethod L2InterludeWaterVolumes.RunCli
+/// (env FINEAGE_INTERLUDE_TILES=21_23,22_23,... ; do not pass -nographics; close other Unity first;
+///  not ~/Projects/Fineage).
 /// </summary>
 public static class L2InterludeWaterVolumes
 {
@@ -21,33 +29,59 @@ public static class L2InterludeWaterVolumes
     [MenuItem("Shnok/0.4. [Interlude] Build water surfaces from WaterVolumes (all tiles)")]
     public static void Menu() { Debug.Log("[Water] " + Run(null)); }
 
-    /// <param name="tiles">null = every tile that has watervolumes.json</param>
+    public static void RunCli()
+    {
+        string raw = Environment.GetEnvironmentVariable("FINEAGE_INTERLUDE_TILES");
+        IEnumerable<string> tiles = string.IsNullOrWhiteSpace(raw) ? null
+            : raw.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        Debug.Log("[Water] " + Run(tiles));
+        AssetDatabase.SaveAssets();
+        EditorApplication.Exit(0);
+    }
+
+    /// <param name="tiles">null = every tile that has Maps/&lt;tile&gt;/Meta/watervolumes.json</param>
     public static string Run(IEnumerable<string> tiles)
     {
-        string extract = Path.Combine(RepoRoot, ".work", "interlude-extract");
         var list = new List<string>();
         if (tiles != null) foreach (var t in tiles) list.Add(t.Trim());
-        else if (Directory.Exists(extract))
-            foreach (var d in Directory.GetDirectories(extract))
-                if (File.Exists(Path.Combine(d, "watervolumes.json"))) list.Add(Path.GetFileName(d));
+        else
+        {
+            string maps = Path.Combine(Application.dataPath, "Resources/Data/Maps");
+            if (Directory.Exists(maps))
+                foreach (var d in Directory.GetDirectories(maps))
+                    if (File.Exists(Path.Combine(d, "Meta", "watervolumes.json")))
+                        list.Add(Path.GetFileName(d));
+        }
 
-        var mat = WaterMaterial();
         int quads = 0, prefabs = 0;
         var notes = new List<string>();
         foreach (var tile in list)
         {
-            string json = Path.Combine(extract, tile, "watervolumes.json");
+            string json = Path.Combine(Application.dataPath, "Resources/Data/Maps", tile, "Meta", "watervolumes.json");
             if (!File.Exists(json))
-                json = Path.Combine(Application.dataPath, "Resources/Data/Maps", tile, "Meta", "watervolumes.json");
+                json = Path.Combine(RepoRoot, ".work", "interlude-extract", tile, "watervolumes.json");
             string prefab = "Assets/Resources/Data/Maps/" + tile + "/StaticMeshes.prefab";
             if (!File.Exists(json))
             {
-                Debug.LogError("[Water] " + tile + ": missing watervolumes.json (looked in .work/interlude-extract and Maps/" + tile + "/Meta)");
+                Debug.LogError("[Water] " + tile + ": missing watervolumes.json (looked in Maps/" + tile + "/Meta and .work/interlude-extract)");
                 notes.Add(tile + ": no json");
                 continue;
             }
-            if (!File.Exists(prefab)) { notes.Add(tile + ": no StaticMeshes.prefab"); continue; }
-            var boxes = Parse(File.ReadAllText(json));
+            if (!File.Exists(prefab))
+            {
+                Debug.LogError("[Water] " + tile + ": missing StaticMeshes.prefab; run the tile bake first, then rebuild water");
+                notes.Add(tile + ": no StaticMeshes.prefab");
+                continue;
+            }
+
+            string text = File.ReadAllText(json);
+            var boxes = Parse(text);
+            var mat = ResolveOfficialMaterial(tile, text);
+            if (mat == null)
+            {
+                notes.Add(tile + ": no official material");
+                continue;
+            }
 
             var verts = new List<Vector3>(); var uvs = new List<Vector2>(); var tris = new List<int>();
             foreach (var b in boxes)
@@ -60,7 +94,7 @@ public static class L2InterludeWaterVolumes
                 {
                     var p = new Vector3(c.y * UeToUnity, y, c.x * UeToUnity);
                     verts.Add(p);
-                    uvs.Add(new Vector2(p.x, p.z) / 6f); // ~6 m texture tile
+                    uvs.Add(new Vector2(p.x, p.z) / 6f);
                 }
                 tris.AddRange(new[] { i0, i0 + 1, i0 + 2, i0, i0 + 2, i0 + 3 });
                 quads++;
@@ -112,7 +146,7 @@ public static class L2InterludeWaterVolumes
     static List<(Vector3, Vector3, string)> Parse(string s)
     {
         var r = new List<(Vector3, Vector3, string)>();
-        var rx = new Regex("\"name\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"min\"\\s*:\\s*\\[([^\\]]+)\\]\\s*,\\s*\"max\"\\s*:\\s*\\[([^\\]]+)\\]");
+        var rx = new Regex("\"name\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"min\"\\s*:\\s*\\[([^\\]]+)\\]\\s*,\\s*\"max\"\\s*:\\s*\\[([^\\]]+)\\]", RegexOptions.Singleline);
         foreach (Match m in rx.Matches(s)) r.Add((V(m.Groups[2].Value), V(m.Groups[3].Value), m.Groups[1].Value));
         return r;
     }
@@ -123,38 +157,58 @@ public static class L2InterludeWaterVolumes
         return new Vector3(float.Parse(p[0], CultureInfo.InvariantCulture), float.Parse(p[1], CultureInfo.InvariantCulture), float.Parse(p[2], CultureInfo.InvariantCulture));
     }
 
-    /// <summary>Shared transparent URP water material; seeded from Oren water texture when available.</summary>
-    static Material WaterMaterial()
+    /// <summary>
+    /// Resolves the official Shader/FinalBlend named in watervolumes.json. Does not invent
+    /// L2WaterSurface.mat or a hard-coded tint when the official material is missing.
+    /// </summary>
+    static Material ResolveOfficialMaterial(string tile, string json)
     {
-        const string path = "Assets/Resources/Data/Maps/L2WaterSurface.mat";
-        var m = AssetDatabase.LoadAssetAtPath<Material>(path);
-        if (m != null) { Tint(m); EditorUtility.SetDirty(m); return m; }
-        m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "L2WaterSurface" };
-        Texture2D t = null;
-        foreach (var g in AssetDatabase.FindAssets("Water02 t:Texture2D", new[] { "Assets/Resources/Data/Textures" }))
-        { t = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(g)); if (t != null) break; }
-        if (t != null) { m.SetTexture("_BaseMap", t); m.SetTexture("_MainTex", t); }
-        m.SetFloat("_Surface", 1f); m.SetFloat("_Blend", 0f);
-        m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        m.SetFloat("_SrcBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
-        m.SetFloat("_DstBlendAlpha", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        m.SetFloat("_ZWrite", 0f); m.SetFloat("_AlphaClip", 0f); m.SetFloat("_Cull", 0f);
-        m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-        m.SetOverrideTag("RenderType", "Transparent");
-        m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-        Tint(m);
-        AssetDatabase.CreateAsset(m, path);
-        return m;
+        var names = new List<string>();
+        var one = Regex.Match(json, "\"material\"\\s*:\\s*\"([^\"]+)\"");
+        if (one.Success) names.Add(one.Groups[1].Value);
+        var many = Regex.Match(json, "\"materials\"\\s*:\\s*\\[([^\\]]*)\\]");
+        if (many.Success)
+            foreach (Match m in Regex.Matches(many.Groups[1].Value, "\"([^\"]+)\""))
+                if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
+
+        if (names.Count == 0)
+        {
+            Debug.LogError("[Water] " + tile + ": watervolumes.json has no official material name");
+            return null;
+        }
+
+        foreach (var name in names)
+        {
+            var mat = LoadUeMaterial(name);
+            if (mat != null) return mat;
+        }
+        Debug.LogError("[Water] " + tile + ": official material not in the project: " + string.Join(", ", names));
+        return null;
     }
 
-    /// <summary>Light blue-gray, see-through (old 0.45/0.65/0.75 read too dark in Play).</summary>
-    static void Tint(Material m)
+    static Material LoadUeMaterial(string ueName)
     {
-        var c = new Color(0.72f, 0.88f, 0.96f, 0.5f);
-        m.SetColor("_BaseColor", c); m.SetColor("_Color", c);
-        m.SetFloat("_Smoothness", 0.7f);
-        m.EnableKeyword("_EMISSION");
-        m.SetColor("_EmissionColor", new Color(0.08f, 0.12f, 0.15f));
+        if (string.IsNullOrEmpty(ueName)) return null;
+        var parts = ueName.Split('.');
+        string file = parts[parts.Length - 1];
+        string pkg = parts[0];
+        string[] folders =
+        {
+            "Assets/Resources/Data/Textures/" + pkg + "/Shader/" + file + ".mat",
+            "Assets/Resources/Data/Textures/" + pkg + "/Materials/" + file + ".mat",
+            "Assets/Resources/Data/Textures/" + pkg + "/" + file + ".mat",
+        };
+        foreach (var path in folders)
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m != null) return m;
+        }
+        foreach (var g in AssetDatabase.FindAssets(file + " t:Material", new[] { "Assets/Resources/Data/Textures" }))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(g);
+            if (Path.GetFileNameWithoutExtension(path) == file)
+                return AssetDatabase.LoadAssetAtPath<Material>(path);
+        }
+        return null;
     }
 }
