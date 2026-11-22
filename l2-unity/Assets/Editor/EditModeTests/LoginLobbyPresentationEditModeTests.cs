@@ -41,7 +41,7 @@ public sealed class LoginLobbyPresentationEditModeTests
         LobbyAccountRenderSettings.Apply();
         Assert.IsTrue(LobbyAccountRenderSettings.IsApplied);
         Assert.AreEqual(profile.ambientMode, LobbyAccountRenderSettings.LastAppliedAmbientModeForTests);
-        Assert.AreEqual(0.6f, RenderSettings.ambientIntensity, 0.001f);
+        Assert.AreEqual(profile.ambientIntensity, RenderSettings.ambientIntensity, 0.001f);
         Assert.IsNotNull(RenderSettings.skybox);
         LobbyAccountRenderSettings.Release();
     }

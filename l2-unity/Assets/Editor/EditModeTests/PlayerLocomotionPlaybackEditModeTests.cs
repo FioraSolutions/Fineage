@@ -1,7 +1,5 @@
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 /// <summary>
 /// Regression guard for #1578: local <see cref="PlayerEntity"/> must use the body catalog path and
@@ -20,11 +18,6 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
     [Test]
     public void PlayerEntity_resolves_run_rate_from_body_catalog()
     {
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter unmeasurable"));
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter unmeasurable"));
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter using FallbackStrideMeters"));
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter using FallbackStrideMeters"));
-
         var go = new GameObject("locomotion-test-player");
         PlayerEntity entity = go.AddComponent<PlayerEntity>();
         entity.RaceId = CharacterRaceAnimation.MFighter;
@@ -51,11 +44,6 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
     [Test]
     public void UserEntity_and_PlayerEntity_yield_same_catalog_run_rate_for_same_profile()
     {
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter unmeasurable"));
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter unmeasurable"));
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter using FallbackStrideMeters"));
-        LogAssert.Expect(LogType.Error, new Regex(@"\[PlayerLocomotionBody\] profile=MFighter using FallbackStrideMeters"));
-
         CharacterRaceAnimation profile = CharacterRaceAnimation.MFighter;
         float unityRun = NumberUtils.ScaleToUnity(120f);
 

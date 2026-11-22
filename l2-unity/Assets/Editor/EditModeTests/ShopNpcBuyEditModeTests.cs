@@ -75,7 +75,7 @@ public sealed class ShopNpcBuyEditModeTests
         var dto = new RequestBuyItemDto { ListId = 9917, Items = cart };
         var writer = new PacketWriter();
         dto.WriteTo(writer);
-        var reader = new PacketReader(writer.ToArray());
+        var reader = new PacketReader(writer.ToArray(), skipOpcode: false);
         Assert.AreEqual(9917, reader.ReadI());
         Assert.AreEqual(2, reader.ReadI());
         Assert.AreEqual(200, reader.ReadI());

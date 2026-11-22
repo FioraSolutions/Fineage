@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -83,6 +85,7 @@ public sealed class SkillListWindowPopulateEditModeTests
             new SkillInstance(194, 1, true, false),
         };
 
+        LogAssert.Expect(LogType.Error, new Regex(@"\[SkillList\].*deferred.*tabs not built"));
         window.UpdateSkillList(skills);
         Assert.Greater(window.PendingSkillCountForEditModeTests, 0, "packet before tab chrome should defer");
         Assert.AreEqual(skills.Count, window.AppliedSkillCountForEditModeTests);
