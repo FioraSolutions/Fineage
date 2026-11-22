@@ -23,10 +23,10 @@ Skill-visual leftovers stay in [skills/gap-report.md](../skills/gap-report.md) a
 
 | Fineage status | Original `.uax` waves |
 |---|---:|
-| `resources_clip` | 597 |
-| `fmod_bank` | 334 |
+| `resources_clip` | 690 |
+| `fmod_bank` | 316 |
 | `fmod_bank_ambsound` | 5 |
-| `missing` | 4194 |
+| `missing` | 4119 |
 | **total** | 5130 |
 
 Status is discovered, not assumed: a wave counts as present if a Resources/StreamingAssets
@@ -100,11 +100,11 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 
 ## Fineage world coverage
 
-- Official grid maps: **153**. Fineage map tiles under `Resources/Data/Maps`: **37**.
+- Official grid maps: **153**. Fineage map tiles under `Resources/Data/Maps`: **41**.
 - Tiles with `*_AmbientSounds.prefab`: **32**.
-- Tiles with committed `*_AmbientSounds.json`: **5** (plus Talking Island aggregate).
+- Tiles with committed `*_AmbientSounds.json`: **9** (plus Talking Island aggregate).
 - Tiles with `MusicArea.prefab`: **2** ['16_25', '17_25'].
-- Runtime: AmbientSoundEmitter=yes, interval L2Footsteps=yes, L2TownAmbience hardcoded beds=yes, DayNightCycle=yes, SkillCastSound=yes, CharacterAnimationAudioHandler=yes.
+- Runtime: AmbientSoundEmitter=yes, interval L2Footsteps=no, AnimNotifyPlayback=yes, L2TownAmbience hardcoded beds=yes, DayNightCycle=yes, SkillCastSound=yes, CharacterAnimationAudioHandler=yes.
 
 ## Gaps by category
 
@@ -114,13 +114,13 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - `L2TownAmbience` hardcodes three FMOD loops (`fire_small_05`, `waterfall_big_02`, `stream_small_03`) 
   because, in its own comment, "the map export dropped" original beds. That is a silent substitute,
   not a dump-backed placement.
-- Starting-zone emitter counts are listed below. Full table: `world/map-actors.tsv.gz` (class contains Emitter).
+- Starting-zone emitter counts are listed below. Full table: `world/map-actors.tsv` (class contains Emitter).
 
 ### 2. Ambient sounds (AmbientSound / AmbientSoundObject)
 - Original ambient actors: **185277**.
-- Fineage has an ambient prefab on **32** of **37** shipped tiles.
-- Fineage tiles still missing an ambient prefab: 18_13, 18_15, 19_19, 21_18, 23_13 .
-- Official maps with no Fineage tile at all: **116** (everything outside the current 37-tile ship set).
+- Fineage has an ambient prefab on **32** of **41** shipped tiles.
+- Fineage tiles still missing an ambient prefab: 16_26, 17_26, 18_13, 18_15, 18_25, 18_26, 19_19, 21_18, 23_13 .
+- Official maps with no Fineage tile at all: **112** (everything outside the current 37-tile ship set).
 - Even where a prefab exists, clip coverage is incomplete (see sound table). Night/day types (`AmbientSoundType`)
   and per-actor volume/radius/pitch are authored on every original actor and must be preserved.
 
@@ -135,10 +135,11 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - `AnimNotify_Sound` (footsteps / draw / swing beds with per-surface arrays): **17906**.
 - `AnimNotify_AttackShot` / `AttackItem` / `AttackPreShot` / `AttackVoice`: **2534**.
 - Swim / channeling notifies: **28**.
-- Fineage `L2Footsteps` plays on a **fixed walk/run interval** (0.48s / 0.32s) from a collider tag,
-  not from the original notify time, volume, radius, or per-surface arrays (`DefaultWalkSound`, `GrassRunSound`, …).
-- MeshAnimation sequences do carry `shot_time` / `pre_shot_time` / `channel_times` (dump: `sounds/anim-sequences.tsv`).
-  Notify objects themselves are package-level exports (outer=none); sequence binding is not in tagged properties.
+- Sequence bindings (time + notify object on each MeshAnimation sequence): **21095** (dump: `sounds/anim-sequence-notifies.tsv.gz`). Times are sequence-normalized in 0..1.
+- Fineage plays those bindings through `AnimNotifyPlayback` (one path, official times, volume, radius,
+  and per-surface arrays when the notify's primary wave is in `stepsound`).
+- `stepsound` waves in Fineage: all **93** official clips under `Resources/Data/Sounds/StepSound/`.
+- MeshAnimation sequences also carry `shot_time` / `pre_shot_time` / `channel_times` (dump: `sounds/anim-sequences.tsv`).
 
 ### 5. UI sounds
 - `interfacesound.uax` + `messengersound.uax` waves: **15**, Fineage-missing: **10**.
@@ -176,7 +177,7 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 | `monsound4` | 174 | 174 |
 | `monsound3` | 122 | 122 |
 | `monsound7` | 117 | 116 |
-| `stepsound` | 93 | 75 |
+| `stepsound` | 93 | 0 |
 | `ItemSound2` | 65 | 65 |
 | `chrsound2` | 40 | 40 |
 | `AmbSound2` | 34 | 34 |
@@ -202,12 +203,12 @@ Tiles listed here follow `zonename-e.dat` plus immediately adjacent shipped tile
 |---|---|---|---|---|---:|---|
 | `16_24` | Talking Island, Western Territory | 922 / 0 / 3 / 3 | yes | yes | 920 | no |
 | `16_25` | Elven Ruins; Obelisk of Victory; Singing Waterfall; Talking Island, Western Territory | 1471 / 38 / 6 / 32 | yes | yes | 1465 | yes |
-| `16_26` | Talking Island, Western Territory | 291 / 0 / 0 / 3 | **no tile** | no | — | no |
+| `16_26` | Talking Island, Western Territory | 291 / 0 / 0 / 3 | yes | no | 291 | no |
 | `17_24` | Talking Island, Eastern Territory | 291 / 0 / 0 / 3 | yes | yes | 291 | no |
 | `17_25` | Talking Island Village; Cedric's Training Hall; Einhovant's School of Magic; Talking Island Harbor; Talking Island, Eastern Territory | 1484 / 12 / 12 / 61 | yes | yes | 1482 | yes |
-| `17_26` | Talking Island, Eastern Territory | 291 / 0 / 0 / 3 | **no tile** | no | — | no |
-| `18_25` | Talking Island, Eastern Territory | 291 / 0 / 0 / 3 | **no tile** | no | — | no |
-| `18_26` | Talking Island, Eastern Territory | 291 / 0 / 0 / 3 | **no tile** | no | — | no |
+| `17_26` | Talking Island, Eastern Territory | 291 / 0 / 0 / 3 | yes | no | 291 | no |
+| `18_25` | Talking Island, Eastern Territory | 291 / 0 / 0 / 3 | yes | no | 291 | no |
+| `18_26` | Talking Island, Eastern Territory | 291 / 0 / 0 / 3 | yes | no | 291 | no |
 
 - Official totals on these tiles: ambient **5332**, emitters **50**, music volumes **21**, lights/celestials **111**.
 - Emitter actors: `16_25` × 38, `17_25` × 12.
@@ -524,11 +525,11 @@ Tiles listed here follow `zonename-e.dat` plus immediately adjacent shipped tile
 
 - Lossless dumps: `world/maps/*.unr.json.gz`, `world/env/`, `world/anims/*.ukx.json.gz`, `sounds/packages/*.uax.json`.
 - `world/package-dump-index.json` — package list, export counts, stored sizes (0 extract failures).
-- `world/map-actors.tsv.gz` — every interesting placed actor and its authored properties.
+- `world/map-actors.tsv` — every interesting placed actor and its authored properties.
 - `world/map-class-counts.tsv`, `world/map-summary.tsv`.
 - `sounds/sound-catalog.tsv` — every original wave + Fineage presence.
-- `sounds/sound-references.tsv.gz` — who references each sound.
-- `sounds/anim-notifies.tsv.gz`, `sounds/anim-sequences.tsv`, `sounds/musicinfo-tracks.tsv`.
+- `sounds/sound-references.tsv` — who references each sound.
+- `sounds/anim-notifies.tsv`, `sounds/anim-sequences.tsv`, `sounds/anim-sequence-notifies.tsv.gz`, `sounds/musicinfo-tracks.tsv`.
 - Tools: `tools/interlude-extract/ExportClientPackages.java`, `export_client_packages.sh`, `build_world_sound_gap.py`.
 
 Original binaries are not committed. Dumps omit wave/texture payloads (`wave_bytes` is a length only).

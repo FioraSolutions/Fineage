@@ -25,6 +25,7 @@ TOOL_DIR="$(cd "$(dirname "$0")" && pwd)"
 JAVAC="${JAVAC:-$(command -v javac)}"
 "$JAVAC" --release 25 -proc:none -cp "$JAR" -d "$TOOL_DIR" \
   "$TOOL_DIR/ExportPackageProperties.java" \
+  "$TOOL_DIR/MeshAnimationNotifyReader.java" \
   "$TOOL_DIR/ExportClientPackages.java"
 
 mkdir -p "$OUT"

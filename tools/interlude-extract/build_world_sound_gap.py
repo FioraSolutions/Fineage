@@ -177,6 +177,7 @@ def scan_fineage():
         "effect_prefab_stems": set(),
         "has_daynight": False,
         "has_footsteps_interval": False,
+        "has_anim_notify_playback": False,
         "has_town_ambience_hack": False,
         "has_anim_audio_handler": False,
         "has_ambient_emitter": False,
@@ -246,6 +247,12 @@ def scan_fineage():
     scripts = ASSETS / "Scripts"
     if (scripts / "Audio" / "L2Footsteps.cs").exists():
         info["has_footsteps_interval"] = True
+    playback = scripts / "Audio" / "AnimNotifyPlayback.cs"
+    if playback.exists():
+        text = playback.read_text(encoding="utf-8", errors="replace")
+        info["has_anim_notify_playback"] = "class AnimNotifyPlayback" in text
+        if "WalkInterval" not in (scripts / "Audio" / "L2Footsteps.cs").read_text(encoding="utf-8", errors="replace"):
+            info["has_footsteps_interval"] = False
     if (scripts / "Audio" / "L2TownAmbience.cs").exists():
         info["has_town_ambience_hack"] = True
     if (scripts / "Audio" / "Animation" / "CharacterAnimationAudioHandler.cs").exists():
@@ -338,6 +345,7 @@ def main() -> int:
     sound_refs = []
     anim_notifies = []
     anim_sequences = []
+    anim_sequence_notifies = []
     map_summaries = []
     all_map_classes = Counter()
     uax_names = {}  # lower name -> (package, exact, group, wave_bytes)
@@ -398,6 +406,19 @@ def main() -> int:
                         "pre_shot_times": ",".join(str(x) for x in (seq.get("pre_shot_times") or [])),
                         "channel_times": ",".join(str(x) for x in (seq.get("channel_times") or [])),
                     })
+                    for nt in seq.get("notifies") or []:
+                        anim_sequence_notifies.append({
+                            "package": pkg,
+                            "animation": name,
+                            "sequence": seq.get("name"),
+                            "time": nt.get("time"),
+                            "function": nt.get("function") or "",
+                            "class": nt.get("class") or "",
+                            "notify": nt.get("name") or "",
+                            "object": nt.get("object") or "",
+                            "rate": seq.get("rate"),
+                            "frame_count": seq.get("frame_count"),
+                        })
 
             if cls.startswith("AnimNotify"):
                 pmap = props_by_name(e)
@@ -693,6 +714,12 @@ def main() -> int:
     write_tsv(SOUNDS / "anim-sequences.tsv", anim_sequences,
               ["package", "animation", "sequence", "start_frame", "frame_count", "rate",
                "shot_time", "pre_shot_time", "shot_times", "pre_shot_times", "channel_times"])
+    bind_sequence_notifies(anim_sequence_notifies, anim_notifies, sound_catalog)
+    write_tsv(SOUNDS / "anim-sequence-notifies.tsv.gz", anim_sequence_notifies,
+              ["package", "animation", "sequence", "time", "class", "notify", "function",
+               "volume", "radius", "sound", "sounds", "surface_step", "frame_count", "rate"],
+              gz=True)
+    write_runtime_notify_table(anim_sequence_notifies)
     write_tsv(SOUNDS / "musicinfo-tracks.tsv", music_tracks, ["id", "cnt", "track"])
 
     write_gap_report(
@@ -704,12 +731,58 @@ def main() -> int:
         sound_refs=sound_refs,
         anim_notifies=anim_notifies,
         anim_sequences=anim_sequences,
+        anim_sequence_notifies=anim_sequence_notifies,
         map_summaries=map_summaries,
         music_tracks=music_tracks,
         skill_sound_rows=skill_sound_rows,
     )
     write_readme()
     return 0
+
+
+
+def bind_sequence_notifies(rows: list[dict], notifies: list[dict], catalog: list[dict]) -> None:
+    index = {(n.get("package"), n.get("name")): n for n in notifies}
+    stepsound = {
+        (r.get("name") or "").lower()
+        for r in catalog
+        if (r.get("package") or "").lower() == "stepsound" and r.get("name")
+    }
+    for row in rows:
+        src = index.get((row.get("package"), row.get("notify")))
+        if src is None:
+            row.setdefault("volume", "")
+            row.setdefault("radius", "")
+            row.setdefault("sound", "")
+            row.setdefault("sounds", "")
+            row["surface_step"] = "0"
+            continue
+        row["volume"] = src.get("volume") or ""
+        row["radius"] = src.get("radius") or ""
+        row["sound"] = src.get("sound") or ""
+        row["sounds"] = src.get("sounds") or ""
+        stem, _ = parse_sound_ref(row["sound"])
+        if not stem:
+            stem = row["sound"]
+        row["surface_step"] = "1" if stem.lower() in stepsound else "0"
+
+
+def write_runtime_notify_table(rows: list[dict]) -> None:
+    """StreamingAssets copy used by AnimNotifyTable at runtime."""
+    root = Path(__file__).resolve().parents[2] / "l2-unity" / "Assets" / "StreamingAssets" / "Data" / "Meta" / "AnimNotifies"
+    path = root / "anim-sequence-notifies.tsv"
+    fields = ["package", "animation", "sequence", "time", "class", "notify", "function",
+              "volume", "radius", "sound", "sounds", "surface_step", "frame_count", "rate"]
+    root.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields, delimiter="\t", extrasaction="ignore", lineterminator="\n")
+        w.writeheader()
+        for row in rows:
+            if row.get("surface_step") != "1":
+                row = dict(row)
+                row["sounds"] = ""
+            w.writerow(row)
+    print(f"wrote {path} rows={len(rows)} bytes={path.stat().st_size}", file=sys.stderr)
 
 
 def write_gap_report(**kw):
@@ -870,15 +943,21 @@ def write_gap_report(**kw):
     w("- No official loose `.ogg` music was present in this client tree; `Music.bank` (11 MB) is the only Fineage music container.")
     w()
 
+    seq_notifies = kw.get("anim_sequence_notifies") or []
     w("### 4. Footsteps and weapon-swing / hit notifies (`*.ukx`)")
     w(f"- `AnimNotify_Sound` (footsteps / draw / swing beds with per-surface arrays): **{notify_by_cls.get('AnimNotify_Sound', 0)}**.")
     w(f"- `AnimNotify_AttackShot` / `AttackItem` / `AttackPreShot` / `AttackVoice`: "
       f"**{notify_by_cls.get('AnimNotify_AttackShot', 0) + notify_by_cls.get('AnimNotify_AttackItem', 0) + notify_by_cls.get('AnimNotify_AttackPreShot', 0) + notify_by_cls.get('AnimNotify_AttackVoice', 0)}**.")
     w(f"- Swim / channeling notifies: **{notify_by_cls.get('AnimNotify_SwimSound', 0) + notify_by_cls.get('AnimNotify_Channeling', 0)}**.")
-    w("- Fineage `L2Footsteps` plays on a **fixed walk/run interval** (0.48s / 0.32s) from a collider tag,")
-    w("  not from the original notify time, volume, radius, or per-surface arrays (`DefaultWalkSound`, `GrassRunSound`, …).")
-    w("- MeshAnimation sequences do carry `shot_time` / `pre_shot_time` / `channel_times` (dump: `sounds/anim-sequences.tsv`).")
-    w("  Notify objects themselves are package-level exports (outer=none); sequence binding is not in tagged properties.")
+    w(f"- Sequence bindings (time + notify object on each MeshAnimation sequence): **{len(seq_notifies)}** "
+      f"(dump: `sounds/anim-sequence-notifies.tsv.gz`). Times are sequence-normalized in 0..1.")
+    if fine.get("has_anim_notify_playback"):
+        w("- Fineage plays those bindings through `AnimNotifyPlayback` (one path, official times, volume, radius,")
+        w("  and per-surface arrays when the notify's primary wave is in `stepsound`).")
+    else:
+        w("- Fineage `L2Footsteps` still plays on a **fixed walk/run interval** (0.48s / 0.32s) from a collider tag,")
+        w("  not from the original notify time, volume, radius, or per-surface arrays (`DefaultWalkSound`, `GrassRunSound`, …).")
+    w("- MeshAnimation sequences also carry `shot_time` / `pre_shot_time` / `channel_times` (dump: `sounds/anim-sequences.tsv`).")
     w()
 
     w("### 5. UI sounds")
@@ -1093,7 +1172,7 @@ def write_gap_report(**kw):
     w("- `world/map-class-counts.tsv`, `world/map-summary.tsv`.")
     w("- `sounds/sound-catalog.tsv` — every original wave + Fineage presence.")
     w("- `sounds/sound-references.tsv` — who references each sound.")
-    w("- `sounds/anim-notifies.tsv`, `sounds/anim-sequences.tsv`, `sounds/musicinfo-tracks.tsv`.")
+    w("- `sounds/anim-notifies.tsv`, `sounds/anim-sequences.tsv`, `sounds/anim-sequence-notifies.tsv.gz`, `sounds/musicinfo-tracks.tsv`.")
     w("- Tools: `tools/interlude-extract/ExportClientPackages.java`, `export_client_packages.sh`, `build_world_sound_gap.py`.")
     w()
     w("Original binaries are not committed. Dumps omit wave/texture payloads (`wave_bytes` is a length only).")
@@ -1105,36 +1184,12 @@ def write_gap_report(**kw):
 
 
 def write_readme():
-    text = """# Interlude world and sound dumps
-
-Lossless property dumps of the official Interlude client, for
-[Fineage #1670](https://github.com/FioraSolutions/Fineage/issues/1670).
-
-## Layout
-
-- `maps/` — every `maps/*.unr` grid tile (gzipped JSON). Every export, every property.
-- `env/` — `Lobby`, `entry`, `skylevel`, `ship_position`, plus `lineageenv.u`, `interface.u`, `nwindow.u`, `LineageDeco.u`, `Fire.u`.
-- `anims/` — every `animations/*.ukx` (notifies + MeshAnimation sequence timing; keyframe tracks omitted).
-- `../sounds/packages/` — every `sounds/*.uax` (Sound names and byte lengths; wave payloads omitted).
-- `package-dump-index.json` — inventory of the dump itself.
-- Derived tables and `gap-report.md` in this folder and in `../sounds/`.
-
-## How to regenerate
-
-On a machine with the official client and Cruma 1.2.0:
-
-```bash
-tools/interlude-extract/export_client_packages.sh maps/17_25.unr sounds/ambsound.uax
-# or pass every maps/*.unr, sounds/*.uax, animations/*.ukx
-python3 tools/interlude-extract/build_world_sound_gap.py
-```
-
-JSON over 256 KiB is stored gzipped. Do not commit original `.unr` / `.uax` / `.ukx` binaries.
-"""
-    (WORLD / "README.md").write_text(text, encoding="utf-8")
+    # world/README.md is curated (render-parity, shore-tile notes). Do not overwrite it.
     (SOUNDS / "README.md").write_text(
         "# Interlude sound dumps and derived tables\n\n"
-        "See `../world/README.md` and `../world/gap-report.md`.\n",
+        "See `../world/README.md` and `../world/gap-report.md`.\n\n"
+        "`anim-sequence-notifies.tsv.gz` binds each MeshAnimation sequence to official notify times.\n"
+        "The runtime copy is `StreamingAssets/Data/Meta/AnimNotifies/anim-sequence-notifies.tsv`.\n",
         encoding="utf-8",
     )
 

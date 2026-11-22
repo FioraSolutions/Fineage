@@ -369,39 +369,66 @@ public final class ExportPackageProperties {
         }
         if ("MeshAnimation".equalsIgnoreCase(cls)) {
             try {
-                var obj = a.getObjectLoader().exportObject(exp);
-                if (obj instanceof com.rost.cruma.core.unreal.UMeshAnimation anim) {
-                    j.keyVal("mesh_animation_version", anim.getVersion());
-                    var seqs = anim.getSequences();
-                    var bones = anim.getBones();
-                    j.keyVal("sequence_count", seqs == null ? 0 : seqs.length);
-                    j.keyVal("bone_count", bones == null ? 0 : bones.length);
-                    j.key("sequences");
-                    j.startArr();
-                    if (seqs != null) {
-                        for (var seq : seqs) {
-                            j.comma();
-                            j.nl();
-                            j.startObj();
-                            j.keyVal("name", seq.name());
-                            j.keyVal("start_frame", seq.startFrame());
-                            j.keyVal("frame_count", seq.frameCount());
-                            j.keyVal("rate", seq.rate());
-                            j.keyVal("shot_time", seq.shotTime());
-                            j.keyVal("pre_shot_time", seq.preShotTime());
-                            writeFloatList(j, "shot_times", seq.shotTimes());
-                            writeFloatList(j, "pre_shot_times", seq.preShotTimes());
-                            writeFloatList(j, "channel_times", seq.channelTimes());
-                            // Keyframe tracks omitted (binary motion, not properties).
-                            j.endObj();
-                        }
-                    }
-                    j.endArr();
-                }
+                writeMeshAnimationSequences(j, a, exp);
             } catch (Throwable t) {
                 j.keyVal("mesh_animation_error", String.valueOf(t));
             }
         }
+    }
+
+
+    static void writeMeshAnimationSequences(Json j, UArchive a, UObjectExport exp) {
+        MeshAnimationNotifyReader.Animation anim = MeshAnimationNotifyReader.read(a, exp);
+        j.keyVal("mesh_animation_version", anim.version);
+        j.keyVal("sequence_count", anim.sequences.size());
+        j.keyVal("bone_count", (long) anim.boneCount);
+        j.key("sequences");
+        j.startArr();
+        for (var seq : anim.sequences) {
+            j.comma();
+            j.nl();
+            j.startObj();
+            j.keyVal("name", seq.name);
+            j.keyVal("start_frame", (long) seq.startFrame);
+            j.keyVal("frame_count", (long) seq.frameCount);
+            j.keyVal("rate", seq.rate);
+            j.keyVal("shot_time", seq.shotTime);
+            j.keyVal("pre_shot_time", seq.preShotTime);
+            writeFloatList(j, "shot_times", seq.shotTimes);
+            writeFloatList(j, "pre_shot_times", seq.preShotTimes);
+            writeFloatList(j, "channel_times", seq.channelTimes);
+            j.key("notifies");
+            j.startArr();
+            for (var n : seq.notifies) {
+                j.comma();
+                j.nl();
+                j.startObj();
+                j.keyVal("time", n.time);
+                if (n.function != null && !n.function.isEmpty() && !"None".equals(n.function))
+                    j.keyVal("function", n.function);
+                if (!n.notifyClass.isEmpty()) j.keyVal("class", n.notifyClass);
+                if (!n.notifyName.isEmpty()) j.keyVal("name", n.notifyName);
+                if (!n.objectRef.isEmpty() && !"none".equals(n.objectRef))
+                    j.keyVal("object", n.objectRef);
+                j.endObj();
+            }
+            j.endArr();
+            // Keyframe tracks omitted (binary motion, not properties).
+            j.endObj();
+        }
+        j.endArr();
+    }
+
+    static void writeFloatList(Json j, String key, java.util.List<Float> list) {
+        if (list == null || list.isEmpty()) return;
+        j.key(key);
+        j.startArr();
+        for (int i = 0; i < list.size(); i++) {
+            j.comma();
+            j.nl();
+            j.val((double) list.get(i));
+        }
+        j.endArr();
     }
 
     static void writeFloatList(Json j, String key, org.eclipse.collections.api.list.primitive.ImmutableFloatList list) {

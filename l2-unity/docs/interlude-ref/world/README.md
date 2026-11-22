@@ -7,7 +7,7 @@ Lossless property dumps of the official Interlude client, for
 
 - `maps/` — every `maps/*.unr` grid tile (gzipped JSON). Every export, every property.
 - `env/` — `Lobby`, `entry`, `skylevel`, `ship_position`, plus `lineageenv.u`, `interface.u`, `nwindow.u`, `LineageDeco.u`, `Fire.u`.
-- `anims/` — every `animations/*.ukx` (notifies + MeshAnimation sequence timing; keyframe tracks omitted).
+- `anims/` — every `animations/*.ukx` (sequence notify bindings + MeshAnimation timing; keyframe tracks omitted).
 - `../sounds/packages/` — every `sounds/*.uax` (Sound names and byte lengths; wave payloads omitted).
 - `package-dump-index.json` — inventory of the dump itself.
 - Derived tables and `gap-report.md` in this folder and in `../sounds/`.
