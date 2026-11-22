@@ -22,10 +22,16 @@ public partial class L2TerrainInfoParser
 
         string[] parts = valueString.Split(",");
 
-        layer.minWidth = float.Parse(parts[0]);
-        layer.maxWidth = float.Parse(parts[1]);
-        layer.minHeight = float.Parse(parts[2]);
-        layer.maxHeight = float.Parse(parts[3]);
+        // Official ScaleMultiplier X = width, Z = height (Y is the unused UE axis here).
+        layer.minWidth = float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
+        layer.maxWidth = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+        if (parts.Length >= 6) {
+            layer.minHeight = float.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture);
+            layer.maxHeight = float.Parse(parts[5], System.Globalization.CultureInfo.InvariantCulture);
+        } else {
+            layer.minHeight = float.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture);
+            layer.maxHeight = float.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture);
+        }
 
         return layer;
     }

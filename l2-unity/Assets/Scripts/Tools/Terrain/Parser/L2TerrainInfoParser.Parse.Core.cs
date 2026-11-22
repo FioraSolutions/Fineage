@@ -153,8 +153,41 @@ public partial class L2TerrainInfoParser
         layer.densityMap = TextureUtils.LoadTexture2DFromInfo(densityMap, L2TerrainGeneratorTool.DECO_LAYER_ALPHAMAP_SIZE);
         layer = UpdateDecoLayerScale(layer, scaleMultiplier);
         layer.staticMesh = StaticMeshUtils.LoadMeshFromInfo(staticMesh);
-
+        ParseDecoRange(line, "FadeoutRadius", out float fadeMin, out float fadeMax);
+        layer.fadeMinUu = fadeMin;
+        layer.fadeMaxUu = fadeMax;
+        ParseDecoRange(line, "DensityMultiplier", out float dMin, out float dMax);
+        layer.densityMin = dMin;
+        layer.densityMax = dMax;
+        layer.maxPerQuad = ParseDecoInt(line, "MaxPerQuad");
+        layer.seed = ParseDecoInt(line, "Seed");
+        layer.alignToTerrain = ParseDecoInt(line, "AlignToTerrain") != 0;
+        layer.randomYaw = ParseDecoInt(line, "RandomYaw", 1) != 0;
+        if (layer.densityMap == null && !string.IsNullOrEmpty(densityMap) && !densityMap.Contains("None"))
+            Debug.LogError("[Interlude deco] missing density map " + densityMap);
+        if (layer.staticMesh == null && !string.IsNullOrEmpty(staticMesh) && !staticMesh.Contains("None"))
+            Debug.LogError("[Interlude deco] missing StaticMesh " + staticMesh);
         return layer;
+    }
+
+    static void ParseDecoRange(string line, string key, out float min, out float max)
+    {
+        min = 0f;
+        max = 0f;
+        var m = System.Text.RegularExpressions.Regex.Match(line, key + @"=\(Min=([-0-9.]+),Max=([-0-9.]+)\)");
+        if (m.Success)
+        {
+            float.TryParse(m.Groups[1].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out min);
+            float.TryParse(m.Groups[2].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out max);
+        }
+    }
+
+    static int ParseDecoInt(string line, string key, int fallback = 0)
+    {
+        var m = System.Text.RegularExpressions.Regex.Match(line, key + @"=([-0-9]+)");
+        if (m.Success && int.TryParse(m.Groups[1].Value, out int v))
+            return v;
+        return fallback;
     }
 }
 #endif

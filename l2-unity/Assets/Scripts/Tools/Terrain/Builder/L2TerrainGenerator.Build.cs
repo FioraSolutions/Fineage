@@ -32,32 +32,42 @@ public partial class L2TerrainGenerator
 
         terrainData.detailPrototypes = detailPrototypes;
 
+        float maxFadeUu = 0f;
         for (int i = 0; i < terrainInfo.decoLayers.Count; i++) {
+            var deco = terrainInfo.decoLayers[i];
+            if (deco.fadeMaxUu > maxFadeUu) maxFadeUu = deco.fadeMaxUu;
             Texture2D densityTexture = flippedAlphaMaps[i];
+            if (densityTexture == null)
+            {
+                Debug.LogError("[Interlude deco] " + (deco.densityMapPath ?? ("layer " + i)) + ": density map not loaded, skip placement");
+                continue;
+            }
+            if (!deco.showOnTerrain)
+                continue;
 
             var detailHeight = densityTexture.height;
             var detailWidth = densityTexture.width;
 
             int[,] detailLayer = new int[detailHeight, detailWidth];
 
-            // Convert the density texture to a 2D array of density values
             densityTexture = TextureUtils.DuplicateReadable(densityTexture);
             Color32[] pixels = densityTexture.GetPixels32();
 
             for (int y = 0; y < detailHeight; y++) {
                 for (int x = 0; x < detailWidth; x++) {
-
-                    // Extract the density value from the corresponding pixel
-                    int density = pixels[y * detailWidth + x].r;
-
-                    // Set the density value for the detail layer
-                    detailLayer[x, y] = density;
+                    var px = pixels[y * detailWidth + x];
+                    int packed = Mathf.Max(px.r, px.a);
+                    detailLayer[x, y] = deco.CountForDensity(packed);
                 }
             }
 
-            // Assign the detail layer to the terrain data
             terrainData.SetDetailLayer(0, 0, i, detailLayer);
         }
+
+        // Per-layer FadeoutRadius is official UU (stored on L2DecoLayer). Unity terrain
+        // detail prototypes share one global distance; the instancer/DecoToMesh bake uses fadeMaxUu.
+        if (maxFadeUu > 0f)
+            terrainData.SetDetailScatterMode(DetailScatterMode.InstanceCountMode);
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

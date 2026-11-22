@@ -10,9 +10,16 @@ public partial class DecoToMesh
         decoLayerBase.isStatic = true;
 
         for(int i = 0; i < decoLayers.Count; i++) {
-            // Debug.Log($"Generating decolayer {i}, {decoLayers[i].densityMap.name} : {decoLayers[i].staticMesh.name}");
+            var deco = decoLayers[i];
+            if (deco.densityMap == null || deco.staticMesh == null)
+            {
+                Debug.LogError("[Interlude deco] layer " + i + " missing density map or StaticMesh, skip placement");
+                continue;
+            }
+            if (!deco.showOnTerrain)
+                continue;
             Texture2D decoAlphamap = TextureUtils.RotateTexture(
-                TextureUtils.DuplicateReadable(decoLayers[i].densityMap));
+                TextureUtils.DuplicateReadable(deco.densityMap));
             decoAlphamap = TextureUtils.FlipTextureVertically(decoAlphamap);
 
             string path = decoLayers[i].densityMapPath;
@@ -27,11 +34,14 @@ public partial class DecoToMesh
                 for(int x = 0; x < decoAlphamap.width; x++) {
                     int index = y * decoAlphamap.width + x;
 
-                    float alpha = pixels[index].a;
-                    if(alpha == 0) {
+                    var px = pixels[index];
+                    int packed = Mathf.Max(px.r, px.a);
+                    int cap = deco.CountForDensity(packed);
+                    if(cap == 0) {
                         continue;
                     }
                     alphaCount++;
+                    int spawnedInQuad = 0;
 
                     // Calculate deco position
                     float xRatio = (x + 1f) / decoAlphamap.width;
@@ -67,7 +77,7 @@ public partial class DecoToMesh
                             //    shouldSpawnDeco = Mathf.Abs(scatterNoise - densityNoise) <= 0.042f;
                             //}
 
-                            if (shouldSpawnDeco) {
+                            if (shouldSpawnDeco && spawnedInQuad < cap) {
                                 //GameObject dummy = GameObject.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefab/Dummy.prefab"));
 
                                 Vector3 detailPos = basePosition + new Vector3(scatterX, 0, scatterY);
@@ -96,6 +106,7 @@ public partial class DecoToMesh
                                 float rotation = Mathf.Lerp(0f, 325f, rotationNoise);
 
                                 decoCount++;
+                                spawnedInQuad++;
                                 //Generate GRID Object if missing
                                 //GameObject gridBaseObject = GameObject.Find(terrain.name + "_" + gridIndexX + "_" + gridIndexZ);
                                 //if (gridBaseObject == null) {
@@ -106,7 +117,8 @@ public partial class DecoToMesh
                                 //}
 
                                 GameObject dummy = GameObject.Instantiate(decoLayers[i].staticMesh);
-                                dummy.transform.eulerAngles = new Vector3(dummy.transform.eulerAngles.x, rotation, dummy.transform.eulerAngles.z);
+                                if (deco.randomYaw)
+                                    dummy.transform.eulerAngles = new Vector3(dummy.transform.eulerAngles.x, rotation, dummy.transform.eulerAngles.z);
                                 dummy.transform.localScale = decorScale;
                                 
                        
