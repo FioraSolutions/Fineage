@@ -124,7 +124,7 @@ class UmodelArgvTest(unittest.TestCase):
 
 
 class LobbyStep6DryRunTest(unittest.TestCase):
-    def test_lobby_materials_do_not_share_an_invocation(self):
+    def test_lobby_materials_come_from_the_property_dump(self):
         import export_brush_textures as export
         brushes = Path(__file__).resolve().parents[2] / (
             "l2-unity/Assets/Resources/Data/Maps/l2_lobby/Meta/Brushes.json"
@@ -136,39 +136,20 @@ class LobbyStep6DryRunTest(unittest.TestCase):
         if t3d.is_file():
             roots.append(t3d)
         refs = export.collect_refs(roots)
-        argvs, _notes = export.pending_material_argvs(refs, [export.TEX_ASSETS])
-        by_object = {}
-        for argv in argvs:
-            slots = positionals(argv)
-            self.assertEqual(3, len(slots), slots)
-            package, name, ue_class = slots
-            self.assertTrue(package.endswith(".utx"), package)
-            self.assertNotIn(".", name)
-            by_object[name] = (package, ue_class)
-        self.assertEqual(
-            ("textures/l2_skies.utx", "ColorModifier"),
-            by_object["Cloud_Final"],
-        )
-        self.assertEqual(
-            ("textures/l2_skies.utx", "ColorModifier"),
-            by_object["HazeRing_Final"],
-        )
-        self.assertEqual(
-            ("textures/l2_skies.utx", "ColorModifier"),
-            by_object["SkybackgroundColor"],
-        )
-        self.assertEqual(
-            ("textures/castle_kent_t.utx", "Shader"),
-            by_object["Kent_capet_m"],
-        )
-        # WaterShader01's props are already committed, so it is not re-exported.
-        # Its Combiner child is, as its own command.
-        self.assertNotIn("WaterShader01", by_object)
-        self.assertEqual(
-            ("textures/FX_E_T.utx", "Combiner"),
-            by_object["reflection"],
-        )
-        self.assertNotIn("WaterSurfaceShaderSet", by_object)
+        rows = export.material_plan(refs, [export.TEX_ASSETS])
+        by_object = {face.name: (face, status) for face, status in rows}
+        text = export.format_plan(rows)
+        self.assertNotIn("umodel", text)
+        self.assertNotIn("/umodel", text)
+        # Props derived from l2_skies.json are committed, so they are not re-exported.
+        for name in ("Cloud_Final", "HazeRing_Final", "SkybackgroundColor", "WaterShader01"):
+            face, status = by_object[name]
+            self.assertEqual("satisfied", status, face.format())
+        # No dump is committed for these packages. Step 6 dumps the utx on the Mac.
+        for name in ("Kent_capet_m", "reflection"):
+            face, status = by_object[name]
+            self.assertEqual("needs-property-dump", status, face.format())
+            self.assertNotEqual("Texture", face.ue_class)
 
 
 if __name__ == "__main__":

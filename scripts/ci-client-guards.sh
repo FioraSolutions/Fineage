@@ -24,6 +24,7 @@ python3 scripts/check-unity-editmode-guards.py
 
 python3 tools/interlude-extract/test_umodel_invoke.py
 python3 tools/interlude-extract/test_export_brush_textures.py
+python3 tools/interlude-extract/test_material_props.py
 
 python3 scripts/test_asset_import_policy_meta.py
 python3 scripts/check-asset-import-policy.py

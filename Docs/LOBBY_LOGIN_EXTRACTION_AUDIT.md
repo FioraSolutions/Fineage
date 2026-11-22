@@ -88,57 +88,89 @@ authoritatively by `ZoneAtPoint.java` walking the level BSP nodes (self-checked
 against every ZoneInfo's own stored Location; hard ERROR if the node layout
 fails validation) → `world/env/Lobby.camera-zones.tsv`.
 
-Step 9 (l2_skies material chains): one umodel invocation of the whole package
-(`textures/l2_skies.utx`, no object slot). The skybox brushes also reference
-`L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor`,
-class `ColorModifier`). Those, and every other brush material
-(`FX_E_T.WaterSurfaceShaderSet.WaterShader01` is `Shader`,
-`Castle_Kent_t.Kent_capet_m` is `Shader`), are step 6: one umodel invocation
-per object, leaf name plus that object's class. umodel's positional form is
-`<package> [<object> [<class>]]`; a second object is read as the class.
-`L2_Lobby_T` has zero material exports and `Lobby_terrain_t` only Palettes.
-Texture-class faces are PNGs from `ExportNamedTextures`, not umodel.
+Material properties do not go through umodel. umodel's `REGISTER_MATERIAL_CLASSES`
+(`UnMaterial2.h`) is ConstantColor, BitmapMaterial, Palette, Shader, Combiner,
+Texture, Cubemap, FinalBlend, TexEnvMap, TexOscillator, TexPanner, TexRotator,
+TexScaler. `ColorModifier` is not in that set, so umodel prints `Unknown class
+"ColorModifier"` and writes no props. Every Material subclass is rendered from
+the ExportPackageProperties dump (`material_props.py`), the same reader that
+writes `docs/interlude-ref`. A props file or PNG already on disk is satisfied
+and is not exported again. umodel remains the mesh path (step 7) only.
+
+The three lobby sky brushes are already in `world/env/l2_skies.json`, so their
+props are committed and step 6 treats them as satisfied:
+
+| object | props |
+|---|---|
+| `L2_Skies.Shaders.Cloud_Final` | `Material = Shader'Shaders.Cloud'`, `Color = (B=151,G=192,R=255,A=255)` |
+| `L2_Skies.Shaders.HazeRing_Final` | `Material = Shader'Shaders.HazeRing'`, `Color = (B=149,G=228,R=255,A=255)` |
+| `L2_Skies.Shaders.SkybackgroundColor` | `Material = Texture'Textures.WhiteChip'`, `Color = (B=206,G=150,R=0,A=255)`, `AlphaBlend = false` |
+
+`WaterShader01` was already committed, so it is satisfied too. Its child
+`FX_E_T.WaterSurfaceShaderSet.reflection` (`Combiner`) and
+`Castle_Kent_t.Kent_capet_m` (`Shader`, no group) have no dump in the tree.
+Step 6 dumps those two utx files with `export_client_packages.sh` (Cruma) and
+renders props from that JSON. Texture pixels stay on `ExportNamedTextures`.
+
+`l2_skies` has two exports both named `TexPanner0` (group `Shaders`, PanRate
+0.002, Material `Textures.WhiteCloud`; group `moon`, PanRate -0.05, Material
+`moon.OpenEyeMoon_myst_bitmap4`). The committed `TexPanner/TexPanner0.props.txt`
+is the moon one. It is left in place. `Cloud.props.txt` references
+`TexPanner'Shaders.TexPanner0'`, and the short-name lookup finds that moon file.
+
+`Blend3Textures` (`MaterialSequence`) is `dump-incomplete`: the dump stores
+`SequenceItems` array size 3 and no elements. Step 9 does not write a props
+file for it and exits 1. That object is not a lobby brush face.
+
+Lobby brush classes in `Brushes.json` (export table): Texture 15
+(umodel-supported), Shader 2 (supported), ColorModifier 3 (not supported).
+Committed `StaticMesh/*.props.txt` anywhere in the tree name only Texture,
+Shader, and FinalBlend, all supported. The 48 static-mesh packages Lobby
+imports have no committed `*.props.txt` (16 of them have FBX under
+`StaticMeshes/`), so their skin classes are not in the tree. Step 7 is still
+the mesh export.
+
+Bake consumption of the new props: `L2MaterialBuilder.ProcessProps` follows a
+`Diffuse`/`Material` value only when it starts with `Texture`.
+`SkybackgroundColor` does (`Texture'Textures.WhiteChip'`). `Cloud_Final` and
+`HazeRing_Final` point at a `Shader`, so the generated `.mat` has no main
+texture until the builder follows that reference. `L2Ue2MaterialChain.KnownOps`
+is the same umodel set minus the texture-only classes; a Modifier subclass
+errors `unknown op` there. Pre-verify only checks that the props file exists.
 
 ### Mac rerun: l2_lobby brush faces
 
 Brush faces are classified by the object's class in the package (the export
-table `docs/interlude-ref/packages/exports.part*.tsv`, confirmed against the
-utx). `Texture` is a PNG. Any other `Material` subclass (`Shader`,
-`ColorModifier`, `Combiner`, ...) is the step-9 umodel props chain, followed
-down to its base textures. `WaterShader01` is `Shader` in group
-`WaterSurfaceShaderSet`. `Kent_capet_m` is `Shader` with no group. An object
+table, confirmed against the utx when the client is present). `Texture` is a
+PNG. Any other `Material` subclass is props from the property dump. An object
 that is not in the package fails naming package, group, name, and class.
 
-umodel is invoked once per material. The command is `package`, the leaf
-object name, and the class from the export table. The group (`Shaders`,
-`WaterSurfaceShaderSet`) is not an argument: umodel matches ObjectName, and
-the class is what disambiguates it. Step 9 is the same helper with no object
-(whole `l2_skies.utx`).
-
-Before the Mac export, print the commands (no client, no Docker):
+Before the Mac export, print the plan (no client, no Docker):
 
 ```bash
 cd ~/Projects/Fineage
 bash tools/interlude-extract/extract_login_lobby.sh --only 6,9 --dry-run
 ```
 
-`Cloud_Final`, `HazeRing_Final`, and `SkybackgroundColor` are three lines.
-Each ends with `ColorModifier`. `WaterShader01` ends with `Shader`, not with
-another object's name.
+`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor`, and `WaterShader01` are
+`satisfied`. `Kent_capet_m` and `reflection` are `needs-property-dump`. No line
+is an umodel command.
 
-Rerun **step 6 only** on the Mac. It needs Docker umodel for the material
-faces (the same binary as step 9). Steps 1–5 and 7–9 stay as they are.
+Rerun **step 6 only** on the Mac. It needs Cruma (the property dumper) for
+`Castle_Kent_t` and `FX_E_T`. It does not need Docker. Steps 1–5 and 7–9 stay
+as they are. Step 7 is still Docker umodel, for meshes.
 
 ```bash
 cd ~/Projects/Fineage
 git checkout cursor/login-step3-vista-5766 && git pull
+rm -rf .work/lobby-extract/props-export
 L2_INTERLUDE_CLIENT_ROOT=~/Downloads/L2_Interlude_Client/Lineage\ II \
   bash tools/interlude-extract/extract_login_lobby.sh --only 6
 ```
 
 Step 6 exits 1 naming `package=`, `group=`, `name=`, and `class=` when a
-referenced object is not in the package. Docker must be running (material
-faces). Then rerun the Unity `l2_lobby` bake with that export dir:
+referenced object is not in the package or its property dump. Then rerun the
+Unity `l2_lobby` bake with that export dir:
 
 ```bash
 export L2_INTERLUDE_CLIENT_ROOT="$HOME/Downloads/L2_Interlude_Client/Lineage II"
@@ -159,6 +191,10 @@ Run the remaining pass in one command:
 L2_INTERLUDE_CLIENT_ROOT=~/Downloads/L2_Interlude_Client/Lineage\ II \
   bash tools/interlude-extract/extract_login_lobby.sh --only 6,7,8,9
 ```
+
+Step 9 exits 1 on `l2_skies` / `moon` / `Blend3Textures` (`MaterialSequence`):
+the dump has the array size and not the elements, so no props file is written.
+Steps 6–8 have already finished by then.
 
 Then commit: new dumps under `l2-unity/docs/interlude-ref/` (world/env +
 scripts/Engine.u + scripts/UWindow.u), placed assets under

@@ -57,7 +57,7 @@ TEXTURE_MAPS = [
     ("L2Font", UI_LOGIN, UI_LOGIN / "start_logo-EU.png.meta", ["start_logo-k", "start_minilogo-k"]),
 ]
 
-# umodel-exported UE2 material chains (.props.txt) -> Textures/<pkg>/<Group>/.
+# Material *.props.txt rendered from the property dump -> Textures/<pkg>/<Class>/.
 # Only packages whose lobby material chains are not yet committed. Existing
 # files are kept when byte-identical; a different existing file is an ERROR
 # (it came from an earlier verified export — never silently overwritten).

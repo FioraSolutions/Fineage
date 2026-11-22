@@ -8,19 +8,21 @@
 #   L2_INTERLUDE_CLIENT_ROOT="$HOME/Downloads/L2_Interlude_Client/Lineage II" \
 #     bash tools/interlude-extract/extract_login_lobby.sh [--only 4,5] [--skip 3]
 #   bash tools/interlude-extract/extract_login_lobby.sh --only 6 --dry-run
-#     prints every umodel command step 6 (and 9, if selected) would run.
-#     No client, Docker, or originals. Each line is one invocation:
-#     package, one object, and that object's class.
+#     prints each brush material as satisfied, from-dump, or
+#     needs-property-dump. No client and no Docker. Material props are not
+#     an umodel command: they come from the property dump.
 #
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
-#        6=texture pixels and brush/BSP material chains (class from the package),
+#        6=texture pixels (ExportNamedTextures) and brush/BSP material props
+#          (ExportPackageProperties dump, every Material subclass),
 #        7=G8 meshes (Docker umodel+Blender),
 #        8=camera BSP zones (ZoneAtPoint: which ZoneInfo each Camera sits in),
-#        9=l2_skies material chains (.props.txt via Docker umodel).
+#        9=l2_skies material props from the committed property dump.
 #
 # Prerequisites (already needed by other extraction tools):
 #   - Cruma 1.2.0+ (CRUMA_JAR or default ~/Tools/Cruma install) for steps 1-2
+#     and for any step-6 package that has no committed property dump
 #   - java, javac, python3, dotnet (UScriptDump) for steps 1-4
 #   - L2TerrainExtractor fat jar for steps 3+6: built by run_mac_tile_bake.sh, or
 #     set L2TERRAIN_JAR=/path/to/l2terrain-1.0.0-all.jar
@@ -76,7 +78,7 @@ if [[ "$DRY" -eq 0 && ( ! -d "$CLIENT/maps" || ! -d "$CLIENT/system" ) ]]; then
   exit 2
 fi
 if [[ "$DRY" -eq 1 ]]; then
-  echo "dry-run: umodel commands only (no export, no Docker)"
+  echo "dry-run: material props plan (no export, no Docker, no umodel)"
 fi
 mkdir -p "$WORK/l2_lobby" "$WORK/decrypted"
 
@@ -188,10 +190,12 @@ if want_step 6; then
       "${BRUSH_ARGS[@]}" --dry-run
   else
     # Face class comes from the package (export table, confirmed by DescribeExports
-    # on the utx). Texture -> PNG. Any other Material subclass -> one umodel
-    # invocation per object (package, leaf name, class), then the same
-    # classification down the chain to base textures. An object that is not in
-    # the package is an ERROR naming package, group, name, and class.
+    # on the utx). Texture -> PNG via ExportNamedTextures. Any other Material
+    # subclass -> props rendered from the ExportPackageProperties dump (the
+    # committed env/*.json, or a dump of that utx when the client is here).
+    # A props file or PNG already on disk is satisfied and is not exported again.
+    # An object that is not in the package is an ERROR naming package, group,
+    # name, and class. umodel is not used for materials.
     l2_jar
     SKY_NAMES="$(python3 -c "import json; print(','.join(sorted({e['name'] for e in json.load(open('$WORLD/env/l2_skies.json'))['exports'] if e['class']=='Texture'})))")"
     if [[ -z "$SKY_NAMES" ]]; then
@@ -208,10 +212,9 @@ if want_step 6; then
     # Data/UI/Assets/Login/start_logo-k.png + start_minilogo-k.png), .meta cloned
     # from existing siblings. Missing exports are ERRORs.
     python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
-    UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
     python3 "$ROOT/tools/interlude-extract/export_brush_textures.py" \
       "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" \
-      --props-out "$WORK/props-export" --jar "$L2JAR" --umodel "$UMODEL"
+      --props-out "$WORK/props-export" --jar "$L2JAR"
   fi
 fi
 
@@ -282,34 +285,28 @@ if [[ "$DRY" -eq 0 ]] && want_step 8; then
 fi
 
 if want_step 9; then
-  echo "== [9/9] l2_skies material chains (.props.txt, Docker umodel) =="
-  # Whole package, no object slot. Per-object exports (brush faces, including
-  # L2_Skies.Shaders.Cloud_Final / HazeRing_Final / SkybackgroundColor) are
-  # step 6: one invocation each, class from the export table.
-  UMODEL_LINE="$(python3 "$ROOT/tools/interlude-extract/umodel_invoke.py" \
-    --package textures/l2_skies.utx --out /export/l2_skies)"
+  echo "== [9/9] l2_skies material props (property dump, not umodel) =="
+  # Every Material subclass in the committed l2_skies dump. Texture pixels
+  # are step 6. A props file already on disk is satisfied.
   if [[ "$DRY" -eq 1 ]]; then
-    echo "$UMODEL_LINE"
+    python3 "$ROOT/tools/interlude-extract/material_props.py" \
+      --package l2_skies --dry-run
   else
-    UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
-    if [[ ! -x "$UMODEL" ]]; then
-      echo "ERROR: umodel linux binary missing at $UMODEL" >&2
-      echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
-      echo "place the binary there (linux/amd64 in Docker is the supported path on Apple Silicon)." >&2
-      exit 2
+    set +e
+    python3 "$ROOT/tools/interlude-extract/material_props.py" \
+      --package l2_skies --props-out "$WORK/props-export"
+    status=$?
+    set -e
+    if [[ -d "$WORK/props-export/l2_skies" ]] && \
+       find "$WORK/props-export/l2_skies" -name '*.props.txt' -print -quit | grep -q .; then
+      python3 "$ROOT/tools/interlude-extract/place_login_assets.py" props \
+        --src "$WORK/props-export" --packages l2_skies
+    elif [[ "$status" -eq 0 ]]; then
+      echo "l2_skies material props already present"
     fi
-    if ! command -v docker >/dev/null 2>&1; then
-      echo "ERROR: docker is required to run the linux/amd64 umodel binary." >&2
-      exit 2
+    if [[ "$status" -ne 0 ]]; then
+      exit "$status"
     fi
-    INNER="$(python3 "$ROOT/tools/interlude-extract/umodel_invoke.py" \
-      --package textures/l2_skies.utx --out /export/l2_skies --apt)"
-    docker run --rm --platform linux/amd64 \
-      -v "$CLIENT:/client:ro" \
-      -v "$WORK/props-export:/export" \
-      -v "$UMODEL:/umodel:ro" \
-      ubuntu:22.04 bash -lc "$INNER"
-    python3 "$ROOT/tools/interlude-extract/place_login_assets.py" props --src "$WORK/props-export"
   fi
 fi
 
