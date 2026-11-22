@@ -114,8 +114,8 @@ public sealed class SkillListWindowPopulateEditModeTests
         _skillListHost = new GameObject("SkillListWindowEditModeHost");
         var window = _skillListHost.AddComponent<SkillListWindow>();
         window.EditorTestEnsureAwakeForEditMode();
-        Assert.IsTrue(window.IsSkillListSingletonOwnerForTests, "test host must own SkillListWindow singleton");
         window.EditorTestLoadAssets();
+        Assert.IsTrue(window.IsSkillListSingletonOwnerForTests, "test host must own SkillListWindow singleton");
 
         var visualRoot = windowAsset.Instantiate();
         var host = new VisualElement { name = "UITestRoot" };
@@ -134,7 +134,7 @@ public sealed class SkillListWindowPopulateEditModeTests
             new SkillInstance(210, 1, true, false),
         };
 
-        LogAssert.Expect(LogType.Error, new Regex(@"\[SkillList\].*deferred.*tabs not built"));
+        LogAssert.Expect(LogType.Warning, new Regex(@"\[SkillList\].*deferred.*tabs not built"));
         window.UpdateSkillList(skills);
         Assert.Greater(window.PendingSkillCountForEditModeTests, 0, "packet before tab chrome should defer");
         Assert.AreEqual(skills.Count, window.AppliedSkillCountForEditModeTests);

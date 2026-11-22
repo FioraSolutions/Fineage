@@ -30,6 +30,9 @@ public partial class EntityActionSkill
             return;
         }
 
+        if (InterludePacketPresentationApply.TryApplyMagicSkillUse(entity, magic))
+            return;
+
         if (SetupDurationHelper.IsUsePotion(magic))
         {
             if (windstrike)

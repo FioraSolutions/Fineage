@@ -2,11 +2,13 @@ using System.Collections.Generic;
 
 public sealed class RequestBuyItemDto : IOutgoingDto
 {
+    public int NpcObjectId;
     public int ListId;
     public List<Product> Items;
 
     public void WriteTo(PacketWriter writer)
     {
+        writer.WriteI(NpcObjectId);
         writer.WriteI(ListId);
         if (Items == null || Items.Count == 0)
         {

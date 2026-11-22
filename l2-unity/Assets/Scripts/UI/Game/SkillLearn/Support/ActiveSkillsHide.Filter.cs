@@ -66,6 +66,11 @@ public partial class ActiveSkillsHide
         HidePanelIfCount0(activeSkills, _rowPhysical, allContentPhysical);
         HidePanelIfCount0(magicSkills, _rowMagical, allContentMagical);
 
+        if (activeSkills.Count > 0 && _rowPhysical != null)
+            _rowPhysical.style.display = DisplayStyle.Flex;
+        if (magicSkills.Count > 0 && _rowMagical != null)
+            _rowMagical.style.display = DisplayStyle.Flex;
+
         _tempList = list;
 
     }

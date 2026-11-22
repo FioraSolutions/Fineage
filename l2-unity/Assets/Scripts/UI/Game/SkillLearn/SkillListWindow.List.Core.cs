@@ -143,8 +143,11 @@ public partial class SkillListWindow : L2PopupWindow
             return;
 
         _loggedDeferReason = deferReason;
-        Debug.LogError(
-            "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".");
+        string message = "[SkillList] " + phase + " deferred " + count + " skills: " + deferReason + ".";
+        if (deferReason == "tabs not built")
+            Debug.LogWarning(message);
+        else
+            Debug.LogError(message);
     }
 
     void ApplySkillListToPanels(List<SkillInstance> list, string phase)
@@ -296,7 +299,19 @@ public partial class SkillListWindow : L2PopupWindow
     public int PassiveVisibleSkillSlotsForEditModeTests =>
         _supportPassiveSkills != null ? _supportPassiveSkills.CountVisibleSkillSlots() : 0;
 
-    public void EditorTestLoadAssets() => LoadAssets();
+    public void EditorTestLoadAssets()
+    {
+        if (_instance == null)
+            ClaimAsSkillListSingleton();
+        else if (_instance != this)
+        {
+            Debug.LogError(
+                "[SkillList] EditMode: '" + gameObject.name + "' (id=" + GetInstanceID() +
+                ") is not the SkillListWindow singleton; owner=" + DescribeSkillListSingletonOwner() + ".");
+        }
+
+        LoadAssets();
+    }
 
     public void EditorTestInitWindow(VisualElement root) => InitWindow(root);
 

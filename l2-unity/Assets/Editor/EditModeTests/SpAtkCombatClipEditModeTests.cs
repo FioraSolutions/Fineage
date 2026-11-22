@@ -259,8 +259,10 @@ public sealed class SpAtkCombatClipEditModeTests
     {
         if (string.IsNullOrEmpty(raw))
             return string.Empty;
-        return raw.Replace("a,", string.Empty)
-            .Replace("\\0", string.Empty)
-            .Replace("AnimName", string.Empty);
+        string stripped = raw.Replace("a,", string.Empty).Replace("\\0", string.Empty);
+        int animNameAt = stripped.IndexOf("AnimName", StringComparison.OrdinalIgnoreCase);
+        if (animNameAt >= 0)
+            stripped = stripped.Remove(animNameAt, "AnimName".Length);
+        return stripped;
     }
 }

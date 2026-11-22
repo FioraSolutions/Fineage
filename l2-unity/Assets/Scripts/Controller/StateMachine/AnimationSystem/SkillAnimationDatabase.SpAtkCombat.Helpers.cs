@@ -53,7 +53,10 @@ public partial class SkillAnimationDatabase
                 continue;
             if (token.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase) < 0)
                 continue;
-            if (!PlayerSpAtkAnim.TryParse(token + "_1HS", out _, out _, out _))
+            // Ready/loop/shot charge combos (SpAtk_ready01…) are not swing indices.
+            int spAtkAt = token.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase);
+            int digitAt = spAtkAt + 5;
+            if (digitAt >= token.Length || !char.IsDigit(token[digitAt]))
                 continue;
             phases.Add(token);
         }

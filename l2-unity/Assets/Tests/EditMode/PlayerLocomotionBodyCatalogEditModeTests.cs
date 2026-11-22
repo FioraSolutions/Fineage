@@ -47,14 +47,16 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
         Assert.IsNotNull(skeleton, "MFighter player body prefab for stride measure");
         try
         {
-            float stride = LocomotionGait.MeasureStride(run, skeleton);
+            float stride = PlayerLocomotionBodyCatalog.ResolveRunStride(
+                CharacterRaceAnimation.MFighter,
+                run,
+                skeleton);
             if (stride < LocomotionGait.MinStrideMeters && IsCiBatchStrideUnreliable())
             {
                 Assert.Inconclusive(
                     "Headless EditMode could not sample MFighter run stride; clip and prefab resolve OK.");
                 return;
             }
-
             Assert.GreaterOrEqual(
                 stride,
                 LocomotionGait.MinStrideMeters,
