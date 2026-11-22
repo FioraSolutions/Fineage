@@ -60,6 +60,7 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);
         RegisterPlayerRebirth(builder);
+        RegisterLocalPlayer(builder);
     }
 
     /// <summary>
@@ -280,6 +281,41 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] IPlayerRebirth is not a PlayerRebirthRelay — PlayerRebirthRelay was not registered as IPlayerRebirth.");
+    }
+
+    /// <summary>
+    /// Register <see cref="LocalPlayerSlot"/> as <see cref="ILocalPlayerSlot"/> (#131 S38r).
+    /// The player attaches after spawn.
+    /// </summary>
+    void RegisterLocalPlayer(IContainerBuilder builder)
+    {
+        builder.Register<LocalPlayerSlot>(Lifetime.Singleton).AsSelf().As<ILocalPlayerSlot>();
+    }
+
+    static void RequireLocalPlayer(IObjectResolver container)
+    {
+        ILocalPlayerSlot slot;
+        try
+        {
+            slot = container.Resolve<ILocalPlayerSlot>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(ILocalPlayerSlot))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] ILocalPlayerSlot missing — LocalPlayerSlot was not registered as ILocalPlayerSlot.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (slot is LocalPlayerSlot)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] ILocalPlayerSlot is not a LocalPlayerSlot — LocalPlayerSlot was not registered as ILocalPlayerSlot.");
     }
 
     /// <summary>

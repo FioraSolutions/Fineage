@@ -4,6 +4,8 @@ using VContainer;
 
 public partial class PlayerEntity : Entity
 {
+    [Inject] ILocalPlayerSlot _localPlayerSlot;
+
     private new void Awake()
     {
         if (_instance == null)
@@ -34,6 +36,16 @@ public partial class PlayerEntity : Entity
         EntityPacketServices.Bind(player: local);
         DomainPacketServices.Bind(localPlayer: this);
         GameEventPacketServices.Bind(localPlayer: this);
+        if (_instance != this)
+            return;
+
+        if (_localPlayerSlot == null)
+        {
+            throw new InvalidOperationException(
+                "[PlayerEntity] ILocalPlayerSlot missing — GameLifetimeScope did not register LocalPlayerSlot, so the local player was not published.");
+        }
+
+        _localPlayerSlot.Attach(this);
     }
 
     public override void Initialize()
