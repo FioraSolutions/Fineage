@@ -7,7 +7,7 @@ using UnityEngine;
 /// <summary>
 /// Single client visibility authority: known-list pawns, Interlude clip distances, LOD tiers, char cap.
 /// </summary>
-public sealed class VisibilityManager : MonoBehaviour
+public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
 {
     readonly struct Entry
     {
