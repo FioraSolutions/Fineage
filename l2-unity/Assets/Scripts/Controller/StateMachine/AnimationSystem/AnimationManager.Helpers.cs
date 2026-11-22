@@ -81,50 +81,46 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         }
 
         string requestedState = stateName;
-        if (!HasCombatState(controller, requestedState) &&
-            TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
-        {
-            return true;
-        }
-
         string raceName = controller != null ? controller.GetAnimatorName() : null;
         int skillId = entity != null && entity.GetMagicCastData() != null
             ? entity.GetMagicCastData().SkillId
             : 0;
+
+        // Official race takes first. Player_Basic still has only SpAtk01/02/06
+        // template states; do not play those when the Interlude take is absent
+        // (MMagic/FMagic have no SpAtk01 1HS/2HS/Bow).
+        if (TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
+            return true;
+
         stateName = SkillAnimationResolver.ResolvePlayableCombatState(
             controller,
             requestedState,
             raceName,
             skillId,
             s => HasCombatState(controller, s));
-        if (!HasCombatState(controller, stateName) &&
-            TryPlaySpAtkOverrideClip(objectId, controller, entity, requestedState))
+        if (!string.Equals(stateName, requestedState, StringComparison.Ordinal) &&
+            TryPlaySpAtkOverrideClip(objectId, controller, entity, stateName))
         {
             return true;
         }
 
-        if (!HasCombatState(controller, stateName) &&
-            stateName.IndexOf("SpAtk", StringComparison.Ordinal) >= 0 &&
-            SkillAnimationDatabase.GetSpAtkCombatClip(stateName, controller.GetAnimatorName()) == null)
+        bool isSpAtk = stateName != null &&
+                       stateName.IndexOf("SpAtk", StringComparison.Ordinal) == 0;
+        if (isSpAtk &&
+            SkillAnimationDatabase.GetSpAtkCombatClip(stateName, raceName) == null)
         {
             Debug.LogError(
                 "[AnimationManager] SpAtk combat unresolved objectId=" + objectId
-                + " race=" + controller.GetAnimatorName()
+                + " race=" + (raceName ?? "")
                 + " state=" + stateName
                 + " weaponSuffix=" + ExtractWeaponSuffix(stateName)
-                + " (no animator state and no race override clip).");
-        }
-
-        SetRecentName(objectId, stateName);
-        float fade = LocomotionCrossFadeSettings.FixedDuration;
-        if (!HasCombatState(controller, stateName) &&
-            stateName.IndexOf("SpAtk", StringComparison.Ordinal) == 0 &&
-            SkillAnimationDatabase.GetSpAtkCombatClip(stateName, raceName) == null)
-        {
+                + " (no official race clip; template Player_Basic state is not a substitute).");
             SkillAnimationResolver.LogMissingCombatClip(skillId, raceName, stateName);
             return false;
         }
 
+        SetRecentName(objectId, stateName);
+        float fade = LocomotionCrossFadeSettings.FixedDuration;
         PlayerBasicAttackCrossFade.TryPlay(controller, stateName, fade);
         // Debug.Log(
             // $"AnimationManager> start crossfade {family} player {entity.name} " +
