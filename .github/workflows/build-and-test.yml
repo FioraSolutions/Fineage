@@ -51,6 +51,9 @@ jobs:
       - name: Check Unity .meta guid format and uniqueness
         run: python3 scripts/check-unity-meta-guids.py
 
+      - name: Check Interlude window layout matches extracted docs
+        run: python3 scripts/check-interlude-window-layout.py
+
       - name: Unity EditMode / C#9 static guards
         run: python3 scripts/check-unity-editmode-guards.py
 
