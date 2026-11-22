@@ -7,7 +7,7 @@ public sealed class ForceChargeBuffLabelEditModeTests
     {
         Assert.IsTrue(
             AbnormalEffectTooltipBuilder.TryFormatChargeLabel(
-                SkillAnimationResolver.ForceChargeTraySkillId,
+                AbnormalEffectTooltipBuilder.ForceChargeTraySkillId,
                 7,
                 out string label));
         Assert.AreEqual("7", label);
