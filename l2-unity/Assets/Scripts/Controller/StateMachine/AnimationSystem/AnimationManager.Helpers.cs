@@ -103,6 +103,18 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
             return true;
         }
 
+        if (!HasCombatState(controller, stateName) &&
+            stateName.IndexOf("SpAtk", StringComparison.Ordinal) >= 0 &&
+            SkillAnimationDatabase.GetSpAtkCombatClip(stateName, controller.GetAnimatorName()) == null)
+        {
+            Debug.LogError(
+                "[AnimationManager] SpAtk combat unresolved objectId=" + objectId
+                + " race=" + controller.GetAnimatorName()
+                + " state=" + stateName
+                + " weaponSuffix=" + ExtractWeaponSuffix(stateName)
+                + " (no animator state and no race override clip).");
+        }
+
         SetRecentName(objectId, stateName);
         float fade = LocomotionCrossFadeSettings.FixedDuration;
         if (!HasCombatState(controller, stateName) &&
@@ -152,6 +164,11 @@ public partial class AnimationManager : BaseAnimationManager , IAnimationManager
         return true;
     }
 
+    static string ExtractWeaponSuffix(string stateName)
+    {
+        int split = stateName != null ? stateName.LastIndexOf('_') : -1;
+        return split > 0 ? stateName.Substring(split + 1) : "";
+    }
 
     /// <summary>
     /// Finish event name the SMB will report for <paramref name="triggerName"/>. Physical self skills such

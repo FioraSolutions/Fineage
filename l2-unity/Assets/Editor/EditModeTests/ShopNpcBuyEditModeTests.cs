@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Fineage.Net.Contract;
 using NUnit.Framework;
 
 /// <summary>NPC buy cart rules: infinite catalog, taxed price totals, RequestBuyItem wire.</summary>
@@ -71,18 +72,25 @@ public sealed class ShopNpcBuyEditModeTests
     [Test]
     public void RequestBuyItemDto_writes_list_id_item_id_and_count()
     {
-        var cart = new List<Product> { Row(200, 3, 40), Row(500, 1, 100, TypeWeapon) };
-        var dto = new RequestBuyItemDto { ListId = 9917, Items = cart };
-        var writer = new PacketWriter();
-        dto.WriteTo(writer);
-        var reader = new PacketReader(writer.ToArray(), skipOpcode: false);
-        Assert.AreEqual(9917, reader.ReadI());
-        Assert.AreEqual(2, reader.ReadI());
-        Assert.AreEqual(200, reader.ReadI());
-        Assert.AreEqual(3, reader.ReadI());
-        Assert.AreEqual(500, reader.ReadI());
-        Assert.AreEqual(1, reader.ReadI());
-        Assert.AreEqual(0, reader.Remaining);
+        var msg = new RequestBuyItemNetMsg
+        {
+            NpcObjectId = 70_001,
+            ListId = 9917,
+            Items = new[]
+            {
+                new ShopCountNet { ItemId = 200, Count = 3 },
+                new ShopCountNet { ItemId = 500, Count = 1 },
+            },
+        };
+        RequestBuyItemNetMsg roundTrip =
+            NetCodec.DecodeRequestBuyItem(NetCodec.EncodeRequestBuyItem(msg));
+        Assert.AreEqual(msg.NpcObjectId, roundTrip.NpcObjectId);
+        Assert.AreEqual(9917, roundTrip.ListId);
+        Assert.AreEqual(2, roundTrip.Items.Length);
+        Assert.AreEqual(200, roundTrip.Items[0].ItemId);
+        Assert.AreEqual(3, roundTrip.Items[0].Count);
+        Assert.AreEqual(500, roundTrip.Items[1].ItemId);
+        Assert.AreEqual(1, roundTrip.Items[1].Count);
     }
 
     [Test]
