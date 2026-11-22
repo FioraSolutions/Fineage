@@ -27,7 +27,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
         IsSwitchingServer = false;
         WorldSpawnReady = false;
         GameState = GameState.LOGIN_SCREEN;
-        MusicPacketServices.Music?.Clear();
+        MusicPlayback.TryClear();
         LoadMenuScene();
         yield break;
     }

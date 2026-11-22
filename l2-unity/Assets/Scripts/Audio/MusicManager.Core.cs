@@ -14,6 +14,7 @@ public partial class MusicManager : MonoBehaviour
             _instance = this;
             EnsureService();
             MusicPacketServices.Bind(music: this);
+            MusicPlayback.Bind(this);
             DontDestroyOnLoad(gameObject);
         }
         else if (_instance != this)
