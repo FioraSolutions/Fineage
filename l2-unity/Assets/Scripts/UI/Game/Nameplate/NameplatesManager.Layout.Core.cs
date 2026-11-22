@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
 
-public partial class NameplatesManager : MonoBehaviour
+public partial class NameplatesManager : MonoBehaviour, INameplateRoster
 {
     public void Remove(int id)
     {

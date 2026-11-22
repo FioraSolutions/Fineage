@@ -4,7 +4,7 @@ using UnityEngine;
 using VContainer;
 using UnityEngine.Rendering;
 
-public partial class NameplatesManager : MonoBehaviour
+public partial class NameplatesManager : MonoBehaviour, INameplateRoster
 {
     [SerializeField] private Camera _camera;
     [SerializeField] private float _nameplateViewDistance = 50f;

@@ -34,7 +34,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     }
 
     public void UpdateMasks() {
-        NameplatesManager nameplates = NameplatePacketServices.Nameplates;
+        INameplateRoster nameplates = Nameplates();
         if (nameplates != null)
             nameplates.SetMask(_entityMask);
         if (_geodata != null)
@@ -60,5 +60,19 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     public bool ContainsNpc(int id)
     {
         return _entities.ContainsNpc(id);
+    }
+
+    static bool _loggedMissingNameplates;
+
+    static INameplateRoster Nameplates()
+    {
+        INameplateRoster nameplates = NameplatePacketServices.BoundNameplates;
+        if (nameplates == null && !_loggedMissingNameplates)
+        {
+            _loggedMissingNameplates = true;
+            Debug.LogError("[World] INameplateRoster missing — NameplatesManager.Awake did not bind, so nameplates were not updated.");
+        }
+
+        return nameplates;
     }
 }
