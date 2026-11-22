@@ -18,7 +18,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
 
     #region Dependencies
 
-    [Inject] TableInitializer _tableInitializer;
+    [Inject] ITableInitializer _tableInitializer;
     [Inject] SceneLoader _sceneLoader;
 
     ILobbySession _lobbyFlow;
