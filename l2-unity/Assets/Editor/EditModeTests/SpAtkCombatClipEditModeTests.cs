@@ -140,7 +140,12 @@ public sealed class SpAtkCombatClipEditModeTests
 
     static int ReadSpAtkNumber(string phaseToken)
     {
-        Assert.IsTrue(PlayerSpAtkAnim.TryParse(phaseToken + "_1HS", out int number, out _, out _));
+        string trigger = phaseToken ?? string.Empty;
+        if (trigger.IndexOf("AnimName", StringComparison.OrdinalIgnoreCase) < 0)
+            trigger += "AnimName";
+        Assert.IsTrue(
+            PlayerSpAtkAnim.TryParse(trigger + "_1HS", out int number, out _, out _),
+            "phaseToken=" + phaseToken);
         return number;
     }
 
