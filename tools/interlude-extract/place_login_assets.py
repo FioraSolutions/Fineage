@@ -34,7 +34,8 @@ TEXTURE_MAPS = [
 
 # umodel-exported UE2 material chains (.props.txt) -> Textures/<pkg>/<Group>/.
 # Only packages whose lobby material chains are not yet committed. Existing
-# files are kept (they came from earlier verified exports).
+# files are kept when byte-identical; a different existing file is an ERROR
+# (it came from an earlier verified export — never silently overwritten).
 PROPS_PKGS = ("l2_skies",)
 
 
@@ -126,6 +127,7 @@ def place_meshes(src_root: Path, want_list: Path) -> int:
 def place_props(src_root: Path) -> int:
     placed = 0
     found = 0
+    kept = 0
     for pkg in PROPS_PKGS:
         src_dir = src_root / pkg
         if not src_dir.is_dir():
@@ -139,17 +141,30 @@ def place_props(src_root: Path) -> int:
         for props in sorted(src_dir.rglob("*.props.txt")):
             found += 1
             rel = props.relative_to(src_dir)
+            # umodel writes <out>/<Package>/<Group>/<name>.props.txt; the
+            # destination already IS Textures/<pkg>, so the package folder
+            # level must not be repeated under it.
+            if rel.parts and rel.parts[0].lower() == pkg.lower():
+                rel = Path(*rel.parts[1:])
             dest = dest_root / rel
-            if not dest.exists():
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(props, dest)
-                placed += 1
-                print(f"place {rel} -> {dest.relative_to(UNITY)}")
+            if dest.exists():
+                if dest.read_bytes() != props.read_bytes():
+                    print(
+                        f"ERROR {dest} already exists with different content than the fresh export {props}",
+                        file=sys.stderr,
+                    )
+                    return 1
+                kept += 1
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(props, dest)
+            placed += 1
+            print(f"place {rel} -> {dest.relative_to(UNITY)}")
             clone_meta(template, dest)
     if found == 0:
         print(f"ERROR no .props.txt under {src_root}", file=sys.stderr)
         return 1
-    print(f"props placed: {placed} new of {found}")
+    print(f"props placed: {placed} new of {found} ({kept} already identical)")
     return 0
 
 
