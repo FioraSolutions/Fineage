@@ -85,6 +85,13 @@ public partial class SceneLoader
             GameObject prefab = req.asset as GameObject;
             if (prefab == null)
                 continue;
+            if (!skipDecoPrefab && parts[i] == tile + "_DecoLayer")
+            {
+                FineageLog.Error(
+                    FineageLogCategory.World,
+                    "[Interlude deco] " + tile + ": no " + tile + "_Deco.bytes; loaded " + tile
+                    + "_DecoLayer prefab, waiting for L2DC rebake");
+            }
             GameObject go = UnityEngine.Object.Instantiate(prefab, root.transform);
             go.name = prefab.name;
             go.transform.SetPositionAndRotation(prefab.transform.position, prefab.transform.rotation);
