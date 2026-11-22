@@ -24,6 +24,8 @@ public sealed class PerfProfilingEditModeTests
                 "Fineage.Move.BurstPlan",
                 "Fineage.Move.BurstRotate",
                 "Fineage.Gravity.RaycastBatch",
+                "Fineage.Move.NpcStep",
+                "Fineage.Move.PawnYaw",
             },
             FineagePerfProfiling.RoadmapMarkerNames);
 
