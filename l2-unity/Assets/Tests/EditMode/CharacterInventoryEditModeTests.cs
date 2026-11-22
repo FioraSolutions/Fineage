@@ -121,6 +121,156 @@ public sealed class CharacterInventoryEditModeTests
             book.Apply(new[] { Change(CharacterInventory.Modify, Entry(1, 57, 1)) }, 5, errors));
         Assert.AreEqual(generation, book.Generation);
         Assert.AreEqual(90, book.Adena);
+        Assert.IsFalse(book.ResyncRequired);
+        Assert.IsTrue(Joined(errors).Contains("expected 6"));
+        Assert.IsTrue(Joined(errors).Contains("version 5 received"));
+    }
+
+    [Test]
+    public void EnterItemList_is_version_1_and_the_next_update_is_2()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        Assert.AreEqual(CharacterInventory.ApplyStatus.Applied, book.Replace(new[] { Entry(1, 57, 100) }, 1, errors));
+        Assert.AreEqual(1, book.Version);
+        Assert.AreEqual(
+            CharacterInventory.ApplyStatus.Applied,
+            book.Apply(new[] { Change(CharacterInventory.Modify, Entry(1, 57, 90)) }, 2, errors));
+        Assert.AreEqual(2, book.Version);
+        Assert.AreEqual(90, book.Adena);
+        Assert.IsFalse(book.ResyncRequired);
+    }
+
+    [Test]
+    public void LaterItemList_sets_the_cursor_and_does_not_increment()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        book.Replace(new[] { Entry(1, 57, 100) }, 2, errors);
+        book.Apply(new[] { Change(CharacterInventory.Modify, Entry(1, 57, 80)) }, 3, errors);
+        errors.Clear();
+        Assert.AreEqual(CharacterInventory.ApplyStatus.Applied, book.Replace(new[] { Entry(1, 57, 80), Entry(4, 2369, 1) }, 3, errors));
+        Assert.AreEqual(3, book.Version);
+        Assert.IsTrue(book.Contains(4));
+        Assert.AreEqual(
+            CharacterInventory.ApplyStatus.Applied,
+            book.Apply(new[] { Change(CharacterInventory.Remove, Entry(4, 2369, 0)) }, 4, errors));
+        Assert.IsFalse(book.Contains(4));
+        Assert.AreEqual(4, book.Version);
+    }
+
+    [Test]
+    public void ItemList_jump_sets_the_cursor()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        book.Replace(new[] { Entry(1, 57, 10) }, 2, errors);
+        Assert.AreEqual(CharacterInventory.ApplyStatus.Applied, book.Replace(new[] { Entry(1, 57, 40) }, 9, errors));
+        Assert.AreEqual(9, book.Version);
+        Assert.AreEqual(40, book.Adena);
+        Assert.AreEqual(
+            CharacterInventory.ApplyStatus.Gap,
+            book.Apply(new[] { Change(CharacterInventory.Modify, Entry(1, 57, 1)) }, 11, errors));
+        Assert.AreEqual(40, book.Adena);
+        Assert.AreEqual(9, book.Version);
+    }
+
+    [Test]
+    public void UnversionedItemList_leaves_the_cursor()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        book.Replace(new[] { Entry(1, 57, 10) }, 4, errors);
+        errors.Clear();
+        Assert.AreEqual(CharacterInventory.ApplyStatus.Applied, book.Replace(new[] { Entry(9, 57, 3) }, 0, errors));
+        Assert.AreEqual(4, book.Version);
+        Assert.IsTrue(book.HasVersion);
+        Assert.IsTrue(book.Contains(9));
+        Assert.IsFalse(book.Contains(1));
+        Assert.IsFalse(book.ResyncRequired);
+        Assert.IsTrue(Joined(errors).Contains("expected 4"));
+        Assert.IsTrue(Joined(errors).Contains("version 0 received"));
+    }
+
+    [Test]
+    public void UnversionedUpdate_after_a_versioned_list_is_rejected()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        book.Replace(new[] { Entry(1, 57, 10) }, 4, errors);
+        int generation = book.Generation;
+        errors.Clear();
+        CharacterInventory.ApplyStatus status = book.Apply(
+            new[] { Change(CharacterInventory.Modify, Entry(1, 57, 1)) }, 0, errors);
+        Assert.AreEqual(CharacterInventory.ApplyStatus.Rejected, status);
+        Assert.IsTrue(book.ResyncRequired);
+        Assert.AreEqual(generation, book.Generation);
+        Assert.AreEqual(10, book.Adena);
+        Assert.AreEqual(4, book.Version);
+        Assert.IsTrue(Joined(errors).Contains("expected 5"));
+        Assert.IsTrue(Joined(errors).Contains("version 0 received"));
+    }
+
+    [Test]
+    public void First_versioned_update_is_cursor_plus_one()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        Assert.AreEqual(
+            CharacterInventory.ApplyStatus.Applied,
+            book.Apply(new[] { Change(CharacterInventory.Add, Entry(1, 57, 10)) }, 1, errors));
+        Assert.AreEqual(1, book.Version);
+        Assert.AreEqual(10, book.Adena);
+
+        CharacterInventory gapped = new CharacterInventory();
+        errors.Clear();
+        Assert.AreEqual(
+            CharacterInventory.ApplyStatus.Gap,
+            gapped.Apply(new[] { Change(CharacterInventory.Add, Entry(2, 2369, 1)) }, 2, errors));
+        Assert.IsFalse(gapped.Contains(2));
+        Assert.AreEqual(0, gapped.Version);
+        Assert.IsTrue(gapped.ResyncRequired);
+        Assert.IsTrue(Joined(errors).Contains("expected 1"));
+        Assert.IsTrue(Joined(errors).Contains("version 2 received"));
+    }
+
+    [Test]
+    public void Unreadable_version_does_not_change_the_book()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        book.Replace(new[] { Entry(1, 57, 10) }, 4, errors);
+        int generation = book.Generation;
+        errors.Clear();
+        Assert.AreEqual(
+            CharacterInventory.ApplyStatus.Rejected,
+            book.Replace(new[] { Entry(2, 2369, 1) }, CharacterInventory.UnreadableVersion, errors));
+        Assert.AreEqual(generation, book.Generation);
+        Assert.IsFalse(book.Contains(2));
+        Assert.AreEqual(4, book.Version);
+        Assert.IsTrue(book.ResyncRequired);
+        Assert.IsTrue(Joined(errors).Contains("expected 4"));
+        Assert.IsTrue(Joined(errors).Contains("version " + CharacterInventory.UnreadableVersion + " received"));
+
+        errors.Clear();
+        Assert.AreEqual(
+            CharacterInventory.ApplyStatus.Rejected,
+            book.Apply(new[] { Change(CharacterInventory.Modify, Entry(1, 57, 1)) }, CharacterInventory.UnreadableVersion, errors));
+        Assert.AreEqual(10, book.Adena);
+        Assert.AreEqual(4, book.Version);
+        Assert.IsTrue(Joined(errors).Contains("expected 5"));
+    }
+
+    [Test]
+    public void VersionGap_logs_expected_and_received()
+    {
+        CharacterInventory book = new CharacterInventory();
+        var errors = new List<string>();
+        book.Replace(new[] { Entry(1, 57, 100) }, 4, errors);
+        errors.Clear();
+        book.Apply(new[] { Change(CharacterInventory.Add, Entry(2, 2369, 1)) }, 6, errors);
+        Assert.IsTrue(Joined(errors).Contains("expected 5"));
+        Assert.IsTrue(Joined(errors).Contains("version 6 received"));
     }
 
     [Test]

@@ -128,6 +128,9 @@ OUTBOUND_EXPLICIT = frozenset(
         # Nested NetOpcode.ClientPackets — client → zone, same wire ids as some
         # server vehicle packets. The checker cannot treat NetOpcode.ClientPackets.X
         # as a dispatch case.
+        # Fold bases in NetOpcodeMobius, not packets.
+        "ExServerBase",
+        "ExClientBase",
         "RequestGetOnVehicle",
         "RequestGetOffVehicle",
         "RequestMoveToLocationInVehicle",

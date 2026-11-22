@@ -14,6 +14,8 @@ public sealed class CharacterInventory
     public const int Modify = 1;
     public const int Remove = 2;
     public const int AdenaItemId = 57;
+    /// <summary>A tail that is not 0 or 4 bytes, or a negative int32. The book must not change.</summary>
+    public const int UnreadableVersion = -1;
 
     public enum ApplyStatus
     {
@@ -85,13 +87,37 @@ public sealed class CharacterInventory
         return ids;
     }
 
+    /// <summary>
+    /// The zone appends one little-endian int32 after the codec body
+    /// (Fineage-Backend docs/inventory.md). Re-encoding the decoded message
+    /// is the body. Zero extra bytes is unversioned (return 0). Four extra
+    /// bytes are the version. Any other length, or a negative int32, is
+    /// <see cref="UnreadableVersion"/>.
+    /// </summary>
+    public static int ReadVersionTail(byte[] payload, byte[] body)
+    {
+        int payloadLength = payload == null ? 0 : payload.Length;
+        int bodyLength = body == null ? 0 : body.Length;
+        int extra = payloadLength - bodyLength;
+        if (extra == 0)
+            return 0;
+        if (extra != 4 || payload == null)
+            return UnreadableVersion;
+        int version = System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(
+            new System.ReadOnlySpan<byte>(payload, bodyLength, 4));
+        if (version < 0)
+            return UnreadableVersion;
+        return version;
+    }
+
     public ApplyStatus Replace(IReadOnlyList<Row> rows, int version, List<string> errors)
     {
         if (errors == null)
             throw new ArgumentNullException(nameof(errors));
         if (version < 0)
         {
-            errors.Add("ItemList version " + version + " is invalid");
+            int expected = HasVersion ? Version : 1;
+            errors.Add("ItemList version " + version + " received; expected " + expected + "; snapshot not applied");
             ResyncRequired = true;
             return ApplyStatus.Rejected;
         }
@@ -142,10 +168,7 @@ public sealed class CharacterInventory
         }
         else if (HasVersion)
         {
-            errors.Add("ItemList has no inventory version after a versioned snapshot; version tracking reset");
-            HasVersion = false;
-            Version = 0;
-            dirty = true;
+            errors.Add("ItemList version 0 received; expected " + Version + "; cursor left at " + Version);
         }
 
         if (NotePaperdollCollisions(errors))
@@ -286,9 +309,10 @@ public sealed class CharacterInventory
 
     ApplyStatus AcceptUpdateVersion(int version, List<string> errors)
     {
+        int expected = Version + 1;
         if (version < 0)
         {
-            errors.Add("InventoryUpdate version " + version + " is invalid");
+            errors.Add("InventoryUpdate version " + version + " received; expected " + expected + "; rows not applied");
             ResyncRequired = true;
             return ApplyStatus.Rejected;
         }
@@ -296,24 +320,18 @@ public sealed class CharacterInventory
         {
             if (!HasVersion)
                 return ApplyStatus.Applied;
-            errors.Add("InventoryUpdate has no version after versioned snapshot " + Version);
+            errors.Add("InventoryUpdate version 0 received; expected " + expected + "; rows not applied");
             ResyncRequired = true;
             return ApplyStatus.Rejected;
         }
-        if (!HasVersion)
-        {
-            errors.Add("InventoryUpdate version " + version + " arrived before a versioned ItemList");
-            ResyncRequired = true;
-            return ApplyStatus.Gap;
-        }
-        if (version == Version + 1)
+        if (version == expected)
             return ApplyStatus.Applied;
         if (version <= Version)
         {
-            errors.Add("InventoryUpdate version " + version + " replays snapshot " + Version + "; ignored");
+            errors.Add("InventoryUpdate version " + version + " received; expected " + expected + "; replay ignored");
             return ApplyStatus.IgnoredReplay;
         }
-        errors.Add("InventoryUpdate version " + version + " skips " + (Version + 1));
+        errors.Add("InventoryUpdate version " + version + " received; expected " + expected + "; rows not applied");
         ResyncRequired = true;
         return ApplyStatus.Gap;
     }
