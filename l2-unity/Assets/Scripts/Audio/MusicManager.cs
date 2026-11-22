@@ -2,7 +2,7 @@ using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 
-public partial class MusicManager : MonoBehaviour
+public partial class MusicManager : MonoBehaviour, IMusicPlayback
 {
     public int CurrentEventPriority => Svc.CurrentMusicPriority;
     public EventReference CurrentMusicEvent => Svc.CurrentMusicEvent;
