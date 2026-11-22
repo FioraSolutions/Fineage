@@ -39,7 +39,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
             nameplates.SetMask(_entityMask);
         if (_geodata != null)
             _geodata.ObstacleMask = _obstacleMask;
-        ClickManager clicks = ControllerPacketServices.Clicks;
+        IClickMasks clicks = Clicks();
         if (clicks != null)
         {
             LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
@@ -74,5 +74,19 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
         }
 
         return nameplates;
+    }
+
+    static bool _loggedMissingClicks;
+
+    static IClickMasks Clicks()
+    {
+        IClickMasks clicks = ControllerPacketServices.BoundClicks;
+        if (clicks == null && !_loggedMissingClicks)
+        {
+            _loggedMissingClicks = true;
+            Debug.LogError("[World] IClickMasks missing — ClickManager.Awake did not bind, so click masks were not updated.");
+        }
+
+        return clicks;
     }
 }

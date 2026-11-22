@@ -126,16 +126,16 @@ public class L2ZoneRenderEditModeTests
     public void Selection_prefers_terrain_fog_and_radius_scale_is_a_ratio()
     {
         string text = Header() + "\n" +
-            Row("a", "ZoneInfo", "inner", "holy", "1", "", "500", "16000", "1", "2", "3", "0", "", "", "") + "\n" +
-            Row("a", "ZoneInfo", "ground", "", "1", "1", "", "9000", "", "", "", "", "", "", "") + "\n" +
-            Row("b", "ZoneInfo", "one", "", "1", "1", "", "1000", "", "", "", "", "", "", "") + "\n" +
-            Row("b", "ZoneInfo", "two", "", "1", "1", "", "2000", "", "", "", "", "", "", "") + "\n" +
-            Row("c", "NSun", "NSun0", "", "", "", "", "", "", "", "", "", "", "", "350") + "\n" +
-            Row("c", "NSun", "NSun1", "", "", "", "", "", "", "", "", "", "", "", "350") + "\n" +
-            Row("d", "NSun", "NSun0", "", "", "", "", "", "", "", "", "", "", "", "350") + "\n" +
-            Row("e", "NSun", "NSun0", "", "", "", "", "", "", "", "", "", "", "", "700") + "\n" +
-            Row("e", "SkyZoneInfo", "SkyZoneInfo0", "", "", "", "", "", "", "", "", "", "0.2", "0.2", "") + "\n" +
-            Row("e", "SkyZoneInfo", "SkyZoneInfo1", "", "", "", "", "", "", "", "", "", "0.2", "0.2", "") + "\n";
+            TsvRow("a", "ZoneInfo", "inner", "holy", "1", "", "500", "16000", "1", "2", "3", "0", "", "", "") + "\n" +
+            TsvRow("a", "ZoneInfo", "ground", "", "1", "1", "", "9000", "", "", "", "", "", "", "") + "\n" +
+            TsvRow("b", "ZoneInfo", "one", "", "1", "1", "", "1000", "", "", "", "", "", "", "") + "\n" +
+            TsvRow("b", "ZoneInfo", "two", "", "1", "1", "", "2000", "", "", "", "", "", "", "") + "\n" +
+            TsvRow("c", "NSun", "NSun0", "", "", "", "", "", "", "", "", "", "", "", "350") + "\n" +
+            TsvRow("c", "NSun", "NSun1", "", "", "", "", "", "", "", "", "", "", "", "350") + "\n" +
+            TsvRow("d", "NSun", "NSun0", "", "", "", "", "", "", "", "", "", "", "", "350") + "\n" +
+            TsvRow("e", "NSun", "NSun0", "", "", "", "", "", "", "", "", "", "", "", "700") + "\n" +
+            TsvRow("e", "SkyZoneInfo", "SkyZoneInfo0", "", "", "", "", "", "", "", "", "", "0.2", "0.2", "") + "\n" +
+            TsvRow("e", "SkyZoneInfo", "SkyZoneInfo1", "", "", "", "", "", "", "", "", "", "0.2", "0.2", "") + "\n";
         var errors = new List<string>();
         L2ZoneRenderTable table = L2ZoneRenderTable.Parse(text, errors);
         Assert.AreEqual(0, errors.Count);
@@ -194,7 +194,7 @@ public class L2ZoneRenderEditModeTests
         return "map\tclass\tname\tzone_tag\tb_distance_fog\tb_terrain_zone\tfog_start\tfog_end\tfog_r\tfog_g\tfog_b\tfog_a\ttex_u_pan\ttex_v_pan\tlens_flares\tlens_offsets\tlens_scales\tradius\tlimit_max_radius\tb_directional\tdraw_scale\tlight_brightness\trot_pitch\trot_yaw\trot_roll";
     }
 
-    static string Row(string map, string cls, string name, string tag, string fog, string terrain, string start, string end, string r, string g, string b, string a, string panU, string panV, string radius)
+    static string TsvRow(string map, string cls, string name, string tag, string fog, string terrain, string start, string end, string r, string g, string b, string a, string panU, string panV, string radius)
     {
         var cells = new string[25];
         for (int i = 0; i < cells.Length; i++)
