@@ -25,7 +25,7 @@ public sealed partial class StriderRideService : ILateTickable
         if (seat.Mount != null)
         {
             seat.Mount.SetActive(false);
-            Object.Destroy(seat.Mount);
+            UnityEngine.Object.Destroy(seat.Mount);
         }
         ActionAvailabilityPacketServices.Availability.NoteClientMountedVisual(false);
     }

@@ -1,10 +1,21 @@
-# Unity batchmode compile + EditMode — not on PRs into dev (runner backlog).
-# Runs on push to main, nightly 01:00 UTC, and workflow_dispatch.
+# Unity batchmode compile + EditMode for client Script changes (#737 / #131).
+# PRs → dev: path-filtered Scripts/Tests/Editor; excludes [Category("Slow")] probes.
+# Push main + nightly 01:00 UTC: full EditMode. Requires UNITY_EMAIL + UNITY_PASSWORD (Personal seat).
 # Library cache keyed on manifest, ProjectVersion, and asmdef set hash.
 
 name: unity-compile
 
 on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - "l2-unity/Assets/Scripts/**"
+      - "l2-unity/Assets/Tests/**"
+      - "l2-unity/Assets/Editor/**"
+      - "l2-unity/ImportPolicy/**"
+      - "l2-unity/Packages/**"
+      - "l2-unity/ProjectSettings/ProjectVersion.txt"
+      - ".github/workflows/unity-compile.yml"
   push:
     branches: [main]
     paths:
@@ -58,11 +69,11 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
           if [ -z "$UNITY_EMAIL" ] || [ -z "$UNITY_PASSWORD" ]; then
-            echo "UNITY_EMAIL / UNITY_PASSWORD secrets are required for Unity EditMode."
+            echo "::error::UNITY_EMAIL and UNITY_PASSWORD repo secrets are required for unity-compile (same Personal seat as release-clients). Add them in GitHub Settings → Secrets → Actions."
             exit 1
           fi
 
-      - name: Unity EditMode (compiles Scripts + full suite)
+      - name: Unity EditMode (compiles Scripts + EditMode suite)
         uses: game-ci/unity-test-runner@v4.4.0
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -73,6 +84,7 @@ jobs:
           projectPath: l2-unity
           unityVersion: auto
           testMode: editmode
+          testFilter: ${{ github.event_name == 'pull_request' && '!Slow' || '' }}
           checkName: Unity EditMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 

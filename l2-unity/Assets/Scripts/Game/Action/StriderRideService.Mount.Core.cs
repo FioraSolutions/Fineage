@@ -44,13 +44,13 @@ public sealed partial class StriderRideService
         if (prefab == null)
             return false;
 
-        GameObject mount = Object.Instantiate(prefab);
+        GameObject mount = UnityEngine.Object.Instantiate(prefab);
         mount.name = "strider_ride";
         DisableGameplay(mount);
         Transform bone = FindChild(mount.transform, SeatBone);
         if (bone == null)
         {
-            Object.Destroy(mount);
+            UnityEngine.Object.Destroy(mount);
             return false;
         }
 

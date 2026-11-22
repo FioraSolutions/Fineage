@@ -17,7 +17,7 @@
 4. Restores, builds, and tests `tools/Fineage.Tools.sln` (Release configuration)
 5. Uploads test results as artifacts (`.trx` format, 14 day retention)
 
-**Not in PR CI:** Unity Editor/Player compile, EditMode/PlayMode tests. Player builds run on `release-clients` (not a PR gate). Follow-up: replace closed [#34](https://github.com/FioraSolutions/Fineage/issues/34) with an explicit Unity PR-compile issue when runners/license allow.
+**Unity on PRs:** Workflow `unity-compile` runs on pull requests into `dev` when `l2-unity/Assets/Scripts/**` (or Tests/Editor/Packages) changes. It batchmode-compiles the client and runs EditMode tests (PRs skip `[Category("Slow")]`). Requires repo secrets `UNITY_EMAIL` and `UNITY_PASSWORD` (Unity Personal seat, same as `release-clients`). Push to `main`, nightly 01:00 UTC, and `workflow_dispatch` run the full EditMode suite. Player builds remain on `release-clients` (not a PR gate).
 
 **Required status check name:** `build-and-test`
 
