@@ -4,7 +4,6 @@ public static partial class InterludeDomainMap
     {
         if (dto == null || dto.Identity == null)
             return null;
-        dto.Identity.SetHideHp(TablePacketServices.HideNpcHpBar(dto.Identity.NpcId));
         return new DomainKnownlistAdd
         {
             Kind = KnownlistKind.Npc,

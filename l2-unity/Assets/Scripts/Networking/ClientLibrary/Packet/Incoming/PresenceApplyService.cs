@@ -10,7 +10,10 @@ public sealed class PresenceApplyService
     public void ApplyNpcInfo(NpcInfoDto packet)
     {
         if (packet.Identity != null)
+        {
             SpawnFrameBudget.ClearCancel(packet.Identity.Id);
+            packet.Identity.SetHideHp(TablePacketServices.HideNpcHpBar(packet.Identity.NpcId));
+        }
         StorageNpc.getInstance().AddNpcInfo(packet);
         DomainKnownlistAdd add = InterludeDomainMap.Npc(packet);
         if (WorldApplyIncomingPacketServices.Domain != null && add != null)
