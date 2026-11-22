@@ -15,19 +15,27 @@ public partial class SkillgrpTable
         TablePacketServices.Bind(skillGrps: this);
         _skills = new Dictionary<int, Dictionary<int, Skillgrp>>();
         _animationsCombo = new Dictionary<string, AnimationCombo>();
-        // Classic first so Interlude-only fields (cool_time, reuse_delay, effect_point, ...)
-        // stay available. Official Interlude skillgrp then overlays animation, visual
-        // effect (from desc), timing, range, icon, and the other client columns it owns.
-        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Classic.txt"), overlay: false);
-        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Interlude.txt"), overlay: true);
-        ReadAnimationCombo_Classic();
+        // Official Interlude skillgrp is the only source of skill rows, animation tags and
+        // visual effects. Skillgrp_Classic only supplements columns Interlude skillgrp.dat
+        // does not carry (cool_time, reuse_delay, effect_point, icon panel, enchant icon, ...)
+        // for skill rows that already exist in Interlude; it never adds skills and never
+        // provides animation or visual effect data.
+        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Interlude.txt"), SkillgrpRowSource.InterludeBase);
+        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Classic.txt"), SkillgrpRowSource.SupplementNonVisualColumns);
+        ReadAnimationCombo_Interlude();
     }
 
-    private void ReadActions(string dataPath, bool overlay)
+    private enum SkillgrpRowSource
+    {
+        InterludeBase,
+        SupplementNonVisualColumns,
+    }
+
+    private void ReadActions(string dataPath, SkillgrpRowSource source)
     {
         if (!File.Exists(dataPath))
         {
-            // Debug.LogWarning("File not found: " + dataPath);
+            Debug.LogError("[SkillgrpTable] skillgrp table not found: " + dataPath);
             return;
         }
 
@@ -135,10 +143,10 @@ public partial class SkillgrpTable
                             break;
                     }
                 }
-                if (overlay)
-                    OverlayOrAdd(skillGrp);
-                else
+                if (source == SkillgrpRowSource.InterludeBase)
                     TryAdd(skillGrp);
+                else
+                    SupplementNonVisualColumns(skillGrp);
             }
             
             // Debug.Log($"Successfully imported {_skills.Count} skills(s) from {dataPath}");

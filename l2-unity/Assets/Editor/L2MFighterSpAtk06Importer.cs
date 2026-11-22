@@ -8,7 +8,7 @@ using UnityEngine;
 
 /// <summary>
 /// Human male fighter (MFighter) is the only player race without the self-buff gesture
-/// `SpAtk06_Hand` (Ultimate Evasion / Dash / Focus Chance). `AnimationCombo_Classic.txt`
+/// `SpAtk06_Hand` (Ultimate Evasion / Dash / Focus Chance). `AnimationCombo_Interlude.txt`
 /// tag `X` is `SpAtk06AnimName`; in the retail `MFighter_anim.psa` that is the unarmed
 /// `SpAtk06_Hand_MFighter` take (46 frames, hands-up buff pose, no hit/shoot notifies).
 ///

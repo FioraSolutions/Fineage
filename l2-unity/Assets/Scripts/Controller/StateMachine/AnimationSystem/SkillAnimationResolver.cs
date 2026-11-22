@@ -4,7 +4,7 @@ using System.Globalization;
 using UnityEngine;
 
 /// <summary>
-/// Data-driven physical skill animation resolution from skillgrp + AnimationCombo_Classic.
+/// Data-driven physical skill animation resolution from skillgrp + AnimationCombo_Interlude.
 /// Centralizes SpAtk phase naming and refuses silent SpAtk01/1HS substitution for SpAtk03+.
 /// </summary>
 public static class SkillAnimationResolver
@@ -162,7 +162,7 @@ public static class SkillAnimationResolver
             "[SkillAnimation] AnimationCombo missing skillId=" + skillId +
             " level=" + skillLevel +
             " animTag=" + (animTag ?? "<null>") +
-            " (check Skillgrp + AnimationCombo_Classic).");
+            " (check Skillgrp + AnimationCombo_Interlude).");
     }
 
     static string CanonicalWeaponForClip(string weaponSuffix)

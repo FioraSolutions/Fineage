@@ -173,7 +173,7 @@ public abstract partial class AbstractAttackEvents
             return false;
         }
 
-        // SpAtk06 (AnimationCombo_Classic "X": Ultimate Evasion, Dash, Focus Chance,
+        // SpAtk06 (AnimationCombo_Interlude "X": Ultimate Evasion, Dash, Focus Chance,
         // Escape Shackle) is a self-buff gesture in every race — hands up, no weapon
         // contact. Even if a clip wrongly carries an AttackShot notify, casting a buff
         // must never emit a sword hit on the selected target.

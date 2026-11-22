@@ -14,7 +14,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 UNITY = REPO / "l2-unity"
 SKILLGRP = UNITY / "Assets/StreamingAssets/Data/Meta/Skillgrp_Interlude.txt"
-ANIM_COMBO = UNITY / "Assets/StreamingAssets/Data/Meta/AnimationCombo_Classic.txt"
+ANIM_COMBO = UNITY / "Assets/StreamingAssets/Data/Meta/AnimationCombo_Interlude.txt"
 SOURCE_TAKES = REPO / "Docs/skill-visual-audit/source-takes.tsv"
 CLIP_ROOT = UNITY / "Assets/Resources/Data/Animations"
 EFFECTS_ROOT = UNITY / "Assets/Resources/Data/Effects"
