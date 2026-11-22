@@ -9,8 +9,8 @@ public interface IGameManager
 {
     int ProtocolVersion { get; }
     bool IsSwitchingServer { get; set; }
-    bool WorldSpawnReady { get; }
-    GameState GameState { get; }
+    bool WorldSpawnReady { get; set; }
+    GameState GameState { get; set; }
 
     void OnLoginServerConnected();
     void OnLoginServerAuthAllowed();

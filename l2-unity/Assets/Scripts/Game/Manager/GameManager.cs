@@ -21,7 +21,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
     [Inject] TableInitializer _tableInitializer;
     [Inject] SceneLoader _sceneLoader;
 
-    LobbyFlowController _lobbyFlow;
+    ILobbySession _lobbyFlow;
     L2GameUI _gameUi;
     L2LoginUI _loginUi;
 
@@ -32,7 +32,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
     private SceneLoader Scenes => LobbyFlowPacketServices.Scenes;
 
     public bool IsSwitchingServer { get; set; } = false;
-    public bool WorldSpawnReady { get; internal set; }
+    public bool WorldSpawnReady { get; set; }
 
     public GameState GameState {
         get { return _gameState; }

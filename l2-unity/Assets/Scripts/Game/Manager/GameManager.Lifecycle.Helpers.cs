@@ -7,7 +7,7 @@ using VContainer;
 public partial class GameManager : MonoBehaviour, IGameManager
 {
     [Inject]
-    void WireLobbyFlow(LobbyFlowController lobbyFlow)
+    void WireLobbyFlow(ILobbySession lobbyFlow)
     {
         _lobbyFlow = lobbyFlow;
         _lobbyFlow.Attach(this);

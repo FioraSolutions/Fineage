@@ -4,7 +4,7 @@ using VContainer;
 
 public sealed partial class LobbyFlowController : ILobbySession
 {
-    private GameManager _game;
+    private IGameManager _game;
     private LoginRuntime _loginRuntime;
     private World _world;
     private IWorldDomainSink _domain;
