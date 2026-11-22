@@ -64,10 +64,21 @@ def fix_empty_collection_expression_defaults(text: str) -> str:
     return ARRAY_PROP_EMPTY_COLLECTION.sub(repl, text)
 
 
+def fix_coalesce_empty_array_literals(text: str) -> str:
+    """Backend may use `expr ?? []`; Unity contract assembly targets C# 9."""
+    text = text.replace("m.Skills ?? []", "m.Skills ?? System.Array.Empty<EnchantSkillListEntryNet>()")
+    text = text.replace(
+        "m.Requirements ?? []",
+        "m.Requirements ?? System.Array.Empty<EnchantSkillRequirementNet>()",
+    )
+    return text
+
+
 def transform_for_unity_cs9(text: str) -> str:
     text = normalize_newlines(text)
     text = expand_file_scoped_namespace(text)
     text = fix_empty_collection_expression_defaults(text)
+    text = fix_coalesce_empty_array_literals(text)
     return text
 
 

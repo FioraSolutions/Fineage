@@ -382,6 +382,9 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.CursedWeaponList:
             case NetOpcode.CursedWeaponLocation:
                 break;
+            case NetOpcode.EnchantSkillList:
+            case NetOpcode.EnchantSkillInfo:
+                break;
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
