@@ -286,6 +286,9 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.ClanHallList:
                 _ = (ClanHallListNetMsg)packet.Body;
                 break;
+            case NetOpcode.AgitDecoInfo:
+                _ = (AgitDecoInfoNetMsg)packet.Body;
+                break;
             case NetOpcode.CrestData:
                 _ = (CrestDataNetMsg)packet.Body;
                 break;
