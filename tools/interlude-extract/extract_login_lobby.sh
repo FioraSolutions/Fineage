@@ -168,38 +168,54 @@ if want_step 6; then
 fi
 
 if want_step 7; then
-  echo "== [7/9] G8 meshes via umodel (Docker linux/amd64) + Blender =="
-  UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
-  if [[ ! -x "$UMODEL" ]]; then
-    echo "ERROR: umodel linux binary missing at $UMODEL" >&2
-    echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
-    echo "place the binary there. There is no official macOS arm64 build; the" >&2
-    echo "linux/amd64 binary inside Docker is the supported path on Apple Silicon." >&2
-    exit 2
+  echo "== [7/9] Missing lobby meshes via umodel (Docker linux/amd64) + Blender =="
+  # Which meshes the lobby bake still lacks, and which package each one lives
+  # in, comes from the Lobby.unr import chain (lobby_missing_meshes.py) — never
+  # a hardcoded (package, mesh) list: Lobby imports two different groups both
+  # named "tree" (RionSctgart_tree_s and speaking_tree_s).
+  MESH_TSV="$WORK/lobby-meshes.tsv"
+  python3 "$ROOT/tools/interlude-extract/lobby_missing_meshes.py" > "$MESH_TSV"
+  if [[ ! -s "$MESH_TSV" ]]; then
+    echo "all lobby-referenced meshes already present — nothing to export"
+  else
+    UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
+    if [[ ! -x "$UMODEL" ]]; then
+      echo "ERROR: umodel linux binary missing at $UMODEL" >&2
+      echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
+      echo "place the binary there. There is no official macOS arm64 build; the" >&2
+      echo "linux/amd64 binary inside Docker is the supported path on Apple Silicon." >&2
+      exit 2
+    fi
+    if ! command -v docker >/dev/null 2>&1; then
+      echo "ERROR: docker is required to run the linux/amd64 umodel binary." >&2
+      exit 2
+    fi
+    INNER='apt-get update -qq && apt-get install -y -qq libpng16-16 libsdl2-2.0-0 >/dev/null'
+    # .usx file name casing can differ from the import-table package name
+    # (e.g. RionSctgart_tree_s vs rionsctgart_tree_s.usx); resolve the real
+    # file on the host — the Docker linux mount is case-sensitive.
+    while IFS=$'\t' read -r pkg name full; do
+      usx="$(find "$CLIENT/staticmeshes" -maxdepth 1 -iname "$pkg.usx" -print -quit)"
+      if [[ -z "$usx" ]]; then
+        echo "ERROR no $pkg.usx under $CLIENT/staticmeshes (mesh $full)" >&2
+        exit 2
+      fi
+      INNER="$INNER && /umodel -path=/client -game=l2 -export -out=/export 'staticmeshes/$(basename "$usx")' '$name'"
+    done < <(sort -u "$MESH_TSV")
+    docker run --rm --platform linux/amd64 \
+      -v "$CLIENT:/client:ro" \
+      -v "$WORK/mesh-export:/export" \
+      -v "$UMODEL:/umodel:ro" \
+      ubuntu:22.04 bash -lc "$INNER"
+    if ! command -v blender >/dev/null 2>&1; then
+      echo "ERROR: blender not on PATH (need: blender -b -P tools/interlude/pskx_to_fbx_batch.py -- $WORK/mesh-export)." >&2
+      exit 2
+    fi
+    blender -b -P "$ROOT/tools/interlude/pskx_to_fbx_batch.py" -- "$WORK/mesh-export"
+    # Only the lobby-referenced FBX from the want-list are placed into
+    # StaticMeshes/<pkg>/ (package from the same import-chain TSV).
+    python3 "$ROOT/tools/interlude-extract/place_login_assets.py" meshes --src "$WORK/mesh-export" --list "$MESH_TSV"
   fi
-  if ! command -v docker >/dev/null 2>&1; then
-    echo "ERROR: docker is required to run the linux/amd64 umodel binary." >&2
-    exit 2
-  fi
-  INNER='apt-get update -qq && apt-get install -y -qq libpng16-16 libsdl2-2.0-0 >/dev/null'
-  for mesh in dion_grass015 Delf_Grass_001; do
-    INNER="$INNER && /umodel -path=/client -game=l2 -export -out=/export staticmeshes/field_deco_S.usx $mesh"
-  done
-  for mesh in Dwarftree01 Dwarftree04 Dwarftree06 Orctree01 Orctree02 Orctree03 Orctree04; do
-    INNER="$INNER && /umodel -path=/client -game=l2 -export -out=/export staticmeshes/speaking_tree_s.usx $mesh"
-  done
-  docker run --rm --platform linux/amd64 \
-    -v "$CLIENT:/client:ro" \
-    -v "$WORK/mesh-export:/export" \
-    -v "$UMODEL:/umodel:ro" \
-    ubuntu:22.04 bash -lc "$INNER"
-  if ! command -v blender >/dev/null 2>&1; then
-    echo "ERROR: blender not on PATH (need: blender -b -P tools/interlude/pskx_to_fbx_batch.py -- $WORK/mesh-export)." >&2
-    exit 2
-  fi
-  blender -b -P "$ROOT/tools/interlude/pskx_to_fbx_batch.py" -- "$WORK/mesh-export"
-  # Only the 9 lobby-referenced FBX are placed into StaticMeshes/<pkg>/.
-  python3 "$ROOT/tools/interlude-extract/place_login_assets.py" meshes --src "$WORK/mesh-export"
 fi
 
 if want_step 8; then
@@ -254,7 +270,7 @@ Done. Commit the new reference dumps and assets:
           l2-unity/Assets/Resources/Data/Textures/lobby_terrain_t/H_M_05.png* \\
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_logo-k.png* \\
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_minilogo-k.png* \\
-          l2-unity/Assets/Resources/Data/StaticMeshes/speaking_tree_s \\
+          l2-unity/Assets/Resources/Data/StaticMeshes/RionSctgart_tree_s \\
           l2-unity/Assets/Resources/Data/StaticMeshes/field_deco_S \\
           l2-unity/Assets/Resources/Data/Textures/l2_skies
   (work-dir sidecars under .work/lobby-extract are build inputs, not committed.)

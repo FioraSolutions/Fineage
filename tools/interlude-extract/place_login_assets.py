@@ -7,7 +7,8 @@ from an existing sibling so importer settings match the location. Only files on
 the explicit want-lists are placed; a missing source is an ERROR (exit 1).
 
   python3 place_login_assets.py textures --src .work/lobby-extract/tex
-  python3 place_login_assets.py meshes   --src .work/lobby-extract/mesh-export
+  python3 place_login_assets.py meshes   --src .work/lobby-extract/mesh-export \
+      --list .work/lobby-extract/lobby-meshes.tsv
 """
 from __future__ import annotations
 
@@ -35,19 +36,6 @@ TEXTURE_MAPS = [
 # Only packages whose lobby material chains are not yet committed. Existing
 # files are kept (they came from earlier verified exports).
 PROPS_PKGS = ("l2_skies",)
-
-# mesh name -> package folder under StaticMeshes (from the Lobby.unr import chain)
-MESH_WANT = {
-    "dion_grass015": "field_deco_S",
-    "Delf_Grass_001": "field_deco_S",
-    "Dwarftree01": "speaking_tree_s",
-    "Dwarftree04": "speaking_tree_s",
-    "Dwarftree06": "speaking_tree_s",
-    "Orctree01": "speaking_tree_s",
-    "Orctree02": "speaking_tree_s",
-    "Orctree03": "speaking_tree_s",
-    "Orctree04": "speaking_tree_s",
-}
 
 
 def clone_meta(template: Path, dest: Path) -> None:
@@ -93,16 +81,28 @@ def place_textures(src_root: Path) -> int:
     return 0
 
 
-def place_meshes(src_root: Path) -> int:
+def place_meshes(src_root: Path, want_list: Path) -> int:
+    # The want-list is the lobby_missing_meshes.py TSV: package, object name,
+    # full UE2 name — the package comes from the Lobby.unr import chain, not
+    # from a hardcoded name map.
+    want: dict[str, str] = {}
+    for line in want_list.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        pkg, name, full = line.split("\t")
+        want[name] = (pkg, full)
+    if not want:
+        print(f"ERROR empty mesh want-list {want_list}", file=sys.stderr)
+        return 1
     missing: list[str] = []
     placed = 0
     found: dict[str, Path] = {}
     for fbx in src_root.rglob("*.fbx"):
         found.setdefault(fbx.stem, fbx)
-    for name, pkg in MESH_WANT.items():
+    for name, (pkg, full) in want.items():
         src = found.get(name)
         if src is None:
-            missing.append(f"{name}.fbx under {src_root}")
+            missing.append(f"{name}.fbx ({full}) under {src_root}")
             continue
         dest_dir = SM / pkg
         dest_dir.mkdir(parents=True, exist_ok=True)
@@ -157,6 +157,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("mode", choices=("textures", "meshes", "props"))
     ap.add_argument("--src", type=Path, required=True)
+    ap.add_argument("--list", type=Path, default=None,
+                    help="meshes mode: lobby_missing_meshes.py TSV (package, object, full name)")
     args = ap.parse_args()
     if not args.src.is_dir():
         print(f"ERROR no export dir {args.src}", file=sys.stderr)
@@ -164,7 +166,10 @@ def main() -> int:
     if args.mode == "textures":
         return place_textures(args.src)
     if args.mode == "meshes":
-        return place_meshes(args.src)
+        if args.list is None or not args.list.is_file():
+            print("ERROR meshes mode wants --list <lobby_missing_meshes TSV>", file=sys.stderr)
+            return 1
+        return place_meshes(args.src, args.list)
     return place_props(args.src)
 
 
