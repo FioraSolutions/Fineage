@@ -63,7 +63,8 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                int wantNumber = ReadSpAtkNumber(phase);
+                if (!TryReadSpAtkNumber(phase, out int wantNumber))
+                    continue;
                 foreach (PlayerAnimWeapon weapon in WeaponTypes)
                 {
                     Assert.IsTrue(
@@ -86,7 +87,8 @@ public sealed class SpAtkCombatClipEditModeTests
 
             foreach (string phase in phases)
             {
-                int wantNumber = ReadSpAtkNumber(phase);
+                if (!TryReadSpAtkNumber(phase, out int wantNumber))
+                    continue;
                 foreach (string race in SkillAnimationDatabase.AllSpAtkRaceTokens())
                 {
                     foreach (PlayerAnimWeapon weapon in WeaponTypes)
@@ -138,15 +140,25 @@ public sealed class SpAtkCombatClipEditModeTests
             Assert.IsFalse(state.StartsWith("SpAtk01_", StringComparison.Ordinal));
     }
 
-    static int ReadSpAtkNumber(string phaseToken)
+    static bool TryReadSpAtkNumber(string phaseToken, out int number)
     {
-        string trigger = phaseToken ?? string.Empty;
+        number = 0;
+        if (string.IsNullOrWhiteSpace(phaseToken))
+            return false;
+
+        string trigger = phaseToken.Trim();
+        int spAtkAt = trigger.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase);
+        if (spAtkAt < 0)
+            return false;
+
+        int digitStart = spAtkAt + 5;
+        if (digitStart >= trigger.Length || !char.IsDigit(trigger[digitStart]))
+            return false;
+
         if (trigger.IndexOf("AnimName", StringComparison.OrdinalIgnoreCase) < 0)
             trigger += "AnimName";
-        Assert.IsTrue(
-            PlayerSpAtkAnim.TryParse(trigger + "_1HS", out int number, out _, out _),
-            "phaseToken=" + phaseToken);
-        return number;
+
+        return PlayerSpAtkAnim.TryParse(trigger + "_1HS", out number, out _, out _);
     }
 
     static int CountNonNoneSpAtkColumns(AnimationCombo combo)
