@@ -22,7 +22,7 @@ public static class NpcWaitClipResolver
         for (int i = 0; i < pairs.Count; i++)
         {
             AnimationClip slot = pairs[i].Key;
-            if (slot == null || !slot.name.Equals("wait", StringComparison.OrdinalIgnoreCase))
+            if (slot == null || !LocomotionGait.SameLocomotionTake(slot.name, "wait"))
                 continue;
             AnimationClip clip = pairs[i].Value ?? slot;
             if (clip != null)
