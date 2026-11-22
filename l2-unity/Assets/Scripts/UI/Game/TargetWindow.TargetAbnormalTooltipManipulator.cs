@@ -32,10 +32,9 @@ public sealed class TargetAbnormalTooltipManipulator : TooltipManipulator
         SetText(text);
     }
 
-    protected override void RegisterCallbacksOnTarget()
+    protected override void OnPointerEnterTooltip(PointerEnterEvent evt)
     {
-        base.RegisterCallbacksOnTarget();
-        if (target != null)
-            target.RegisterCallback<PointerEnterEvent>(_ => RefreshText());
+        RefreshText();
+        base.OnPointerEnterTooltip(evt);
     }
 }
