@@ -48,6 +48,32 @@ public sealed class AnimNotifyTableEditModeTests
     }
 
     [Test]
+    public void Shared_sequence_name_does_not_play_another_mesh()
+    {
+        AnimNotifyTable.LoadFrom(
+            "package\tanimation\tsequence\ttime\tclass\tnotify\tfunction\tvolume\tradius\tsound\tsounds\tsurface_step\tframe_count\trate\n"
+            + "LineageMonsters\torc_fighter_anim\tWait\t0.02\tAnimNotify_Sound\tAnimNotify_Sound1\t\t250\t50\timport:Engine:Sound:orc_fighter_Wait\t\t0\t71\t30\n"
+            + "LineageMonsters2\tvalakas_anim\tWait\t0.01\tAnimNotify_Sound\tAnimNotify_Sound2\t\t250\t800\timport:Engine:Sound:antaras_breath\t\t0\t101\t30\n",
+            "test://shared-wait.tsv");
+
+        Assert.IsFalse(AnimNotifySequenceResolver.TryResolve("Wait", null, out _, out string error));
+        StringAssert.Contains("shared", error);
+        StringAssert.Contains("orc_fighter_anim", error);
+        StringAssert.Contains("valakas_anim", error);
+        StringAssert.Contains("owner MeshAnimation is missing", error);
+
+        Assert.IsTrue(AnimNotifySequenceResolver.TryResolve(
+            "Wait", "orc_fighter_anim", out string animation, out string sequence, out error));
+        Assert.IsNull(error);
+        Assert.AreEqual("orc_fighter_anim", animation);
+        Assert.AreEqual("Wait", sequence);
+        Assert.IsTrue(AnimNotifyTable.TryGetByMeshSequence("orc_fighter_anim", "Wait", out var rows));
+        Assert.AreEqual(1, rows.Count);
+        Assert.AreEqual("orc_fighter_Wait", rows[0].Sound);
+        Assert.IsFalse(AnimNotifyTable.TryGetByMeshSequence("missing_anim", "Wait", out _));
+    }
+
+    [Test]
     public void Resolver_logs_when_clip_has_no_official_sequence()
     {
         Assert.IsFalse(AnimNotifySequenceResolver.TryResolve("TotallyUnknownClip", "FDarkElf_anim", out _, out string error));
