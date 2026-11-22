@@ -48,9 +48,13 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
         try
         {
             float stride = LocomotionGait.MeasureStride(run, skeleton);
-            Assume.That(
-                stride >= LocomotionGait.MinStrideMeters,
-                "race=MFighter clip=" + run.name + " stride not measurable in EditMode batch");
+            if (stride < LocomotionGait.MinStrideMeters && IsCiBatchStrideUnreliable())
+            {
+                Assert.Inconclusive(
+                    "Headless EditMode could not sample MFighter run stride; clip and prefab resolve OK.");
+                return;
+            }
+
             Assert.GreaterOrEqual(
                 stride,
                 LocomotionGait.MinStrideMeters,
@@ -74,24 +78,27 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
                 AnimationClip run = Resources.Load<AnimationClip>(row.RunHandClipResources);
                 Assume.That(run != null, row.Profile + " run clip");
 
-                Transform skeleton = PlayerLocomotionBodyCatalog.LoadMeasureSkeleton(row.Profile);
-                Assume.That(skeleton != null, row.Profile + " measure skeleton");
-                try
+            Transform skeleton = PlayerLocomotionBodyCatalog.LoadMeasureSkeleton(row.Profile);
+            Assume.That(skeleton != null, row.Profile + " measure skeleton");
+            try
+            {
+                float stride = PlayerLocomotionBodyCatalog.ResolveRunStride(row.Profile, run, skeleton);
+                if (stride < LocomotionGait.MinStrideMeters && IsCiBatchStrideUnreliable())
                 {
-                    float stride = PlayerLocomotionBodyCatalog.ResolveRunStride(row.Profile, run, skeleton);
-                    Assume.That(
-                        stride >= LocomotionGait.MinStrideMeters,
-                        "measured run stride unavailable in EditMode batch race=" + row.Profile + " clip=" + run.name);
-                    Assert.GreaterOrEqual(
-                        stride,
-                        LocomotionGait.MinStrideMeters,
-                        "measured run stride race=" + row.Profile + " clip=" + run.name
-                        + " stride=" + stride.ToString("F3") + "m");
+                    Assert.Inconclusive(
+                        "Headless EditMode could not sample run stride for " + row.Profile + "; skipping.");
+                    return;
                 }
-                finally
-                {
-                    PlayerLocomotionBodyCatalog.DestroyMeasureSkeleton(skeleton);
-                }
+
+                Assert.GreaterOrEqual(
+                    stride,
+                    LocomotionGait.MinStrideMeters,
+                    "measured run stride race=" + row.Profile + " clip=" + run.name
+                    + " stride=" + stride.ToString("F3") + "m");
+            }
+            finally
+            {
+                PlayerLocomotionBodyCatalog.DestroyMeasureSkeleton(skeleton);
             }
         }
         finally
@@ -99,6 +106,9 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
             LogAssert.ignoreFailingMessages = false;
         }
     }
+
+    static bool IsCiBatchStrideUnreliable() =>
+        !Application.isPlaying && System.Environment.GetEnvironmentVariable("CI") == "true";
 
     [Test]
     public void Catalog_stride_yields_playback_rate_matching_unity_run_speed()

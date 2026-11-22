@@ -43,9 +43,10 @@ public static partial class LocomotionGait
         }
 
         Animator animator = skeleton.GetComponentInChildren<Animator>();
+        GameObject sampleRoot = animator != null ? animator.gameObject : skeleton.gameObject;
         bool animatorWasEnabled = animator != null && animator.enabled;
         if (animator != null)
-            animator.enabled = false;
+            animator.enabled = true;
 
         try
         {
@@ -56,15 +57,15 @@ public static partial class LocomotionGait
             float leftAmp = 0f;
             float rightAmp = 0f;
             if (leftFoot != null)
-                leftAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, leftFoot);
+                leftAmp = MeasureFootSwing(clip, sampleRoot, animator, pelvis, leftFoot);
             if (rightFoot != null)
-                rightAmp = MeasureFootSwing(clip, skeleton.gameObject, animator, pelvis, rightFoot);
+                rightAmp = MeasureFootSwing(clip, sampleRoot, animator, pelvis, rightFoot);
 
             float stride = leftAmp + rightAmp;
             if (stride >= MinStrideMeters)
                 return stride;
 
-            float rootTravel = MeasureRootTravel(clip, skeleton.gameObject, animator, skeleton);
+            float rootTravel = MeasureRootTravel(clip, sampleRoot, animator, skeleton);
             if (rootTravel >= MinStrideMeters)
                 return rootTravel;
             return 0f;
@@ -141,7 +142,7 @@ public static partial class LocomotionGait
 
     static void EvaluateClip(GameObject go, AnimationClip clip, float time, Animator animator)
     {
-        if (UseTransformSampling(clip, animator))
+        if (!Application.isPlaying || UseTransformSampling(clip, animator))
         {
             clip.SampleAnimation(go, time);
             return;

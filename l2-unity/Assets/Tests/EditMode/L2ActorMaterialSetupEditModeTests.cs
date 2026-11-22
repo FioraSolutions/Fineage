@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 public class L2ActorMaterialSetupEditModeTests
 {
@@ -17,6 +19,27 @@ public class L2ActorMaterialSetupEditModeTests
         var props = new Dictionary<string, string>();
         var r = L2ActorMaterialSetup.Resolve("unicorn_t01", props);
         Assert.AreEqual(L2ActorMaterialSetup.SurfaceMode.AlphaCutout, r.mode);
+    }
+
+    [Test]
+    public void Devotion_tunic_material_ships_actor_modulate2x()
+    {
+        var mat = Resources.Load<Material>("Data/SysTextures/MMagic/Materials/MMagic_m007_t90_u");
+        Assert.IsNotNull(mat, "MMagic_m007_t90_u devotion tunic material");
+        Assert.AreEqual(L2ActorMaterialSetup.ActorShaderName, mat.shader.name);
+        Assert.IsFalse(mat.IsKeywordEnabled("_ALPHATEST_ON"));
+    }
+
+    [Test]
+    public void ValidatePaperdoll_logs_error_for_env_add_shader()
+    {
+        var bad = new Material(Shader.Find("L2/World/ActorEnvAdd") ?? Shader.Find("Hidden/InternalErrorShader"))
+        {
+            name = "test_env_add_armor"
+        };
+        LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("paperdoll material=test_env_add_armor"));
+        L2ActorMaterialSetup.ValidatePaperdollActorMaterial(bad, "editmode");
+        Object.DestroyImmediate(bad);
     }
 
     [Test]

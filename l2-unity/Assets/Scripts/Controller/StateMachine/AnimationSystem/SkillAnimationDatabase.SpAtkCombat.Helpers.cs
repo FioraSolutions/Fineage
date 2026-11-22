@@ -4,47 +4,6 @@ using UnityEngine;
 
 public partial class SkillAnimationDatabase
 {
-    sealed class RaceClipProfile
-    {
-        public readonly string Token;
-        public readonly string Folder;
-        public readonly string MeshStem;
-        public readonly string Race;
-
-        public RaceClipProfile(string token, string folder, string meshStem, string race)
-        {
-            Token = token;
-            Folder = folder;
-            MeshStem = meshStem;
-            Race = race;
-        }
-    }
-
-    /// <summary>Races in lookup order: longer tokens before shorter (FDarkElf before FElf, …).</summary>
-    static readonly RaceClipProfile[] SpAtkRaceTable =
-    {
-        new RaceClipProfile(FDarkElf, FOLDER_FDarkElf, "FDarkElf_m000_b", FDarkElf),
-        new RaceClipProfile(MDarkElf, FOLDER_MDarkElf, "MDarkElf_m000_b", MDarkElf),
-        new RaceClipProfile(FShaman, FOLDER_FShaman, "FShaman_m000_b", FShaman),
-        new RaceClipProfile(MShaman, FOLDER_MShaman, "MShaman_m000_b", MShaman),
-        new RaceClipProfile(FFighter, FOLDER_FFighter, "FFighter_m000_b", FFighter),
-        new RaceClipProfile(MFighter, FOLDER_MFighter, "MFighter_m000_b", MFighter),
-        new RaceClipProfile(FMagic, FOLDER_FMagic, "FMagic_m000_b", FMagic),
-        new RaceClipProfile(MMagic, FOLDER_MMagic, "MMagic_M000_b", MMagic),
-        new RaceClipProfile(FElf, FOLDER_FElf, "FElf_m000_b", FElf),
-        new RaceClipProfile(MElf, FOLDER_MElf, "MElf_m000_b", MElf),
-        new RaceClipProfile(FDwarf, FOLDER_FDwarf, "FDwarf_m001_b", FDwarf),
-        new RaceClipProfile(MDwarf, FOLDER_MDwarf, "MDwarf_m000_b", MDwarf),
-        new RaceClipProfile(FOrc, FOLDER_FOrc, "FOrc_m000_b", FOrc),
-        new RaceClipProfile(MOrc, FOLDER_MOrc, "MOrc_m000_b", MOrc),
-    };
-
-    static readonly string[] SpAtkRaceTokens =
-    {
-        MFighter, FFighter, MMagic, FMagic, MElf, FElf, MDarkElf, FDarkElf,
-        MDwarf, FDwarf, MOrc, FOrc, MShaman, FShaman,
-    };
-
     static readonly Dictionary<string, string> SpAtkWeaponClipStem =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -62,7 +21,7 @@ public partial class SkillAnimationDatabase
     static readonly HashSet<string> SpAtkProfileMissLogged = new HashSet<string>(StringComparer.Ordinal);
     static readonly HashSet<string> SpAtkClipMissLogged = new HashSet<string>(StringComparer.Ordinal);
 
-    public static IReadOnlyList<string> AllSpAtkRaceTokens() => SpAtkRaceTokens;
+    public static IReadOnlyList<string> AllSpAtkRaceTokens() => AllRaceTokens;
 
     public static IReadOnlyDictionary<string, string> SpAtkWeaponSuffixMap() => SpAtkWeaponClipStem;
 
@@ -94,6 +53,8 @@ public partial class SkillAnimationDatabase
                 continue;
             if (token.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase) < 0)
                 continue;
+            if (!PlayerSpAtkAnim.TryParse(token + "_1HS", out _, out _, out _))
+                continue;
             phases.Add(token);
         }
 
@@ -115,7 +76,7 @@ public partial class SkillAnimationDatabase
         if (!TrySplitSpAtkState(normalizedState, out string spatkStem, out string weaponToken))
             return false;
 
-        RaceClipProfile profile = ResolveSpAtkProfile(raceName);
+        RaceClipProfile profile = ResolveRaceProfile(raceName);
         if (profile == null)
             return false;
 
@@ -139,29 +100,7 @@ public partial class SkillAnimationDatabase
         }
     }
 
-    static RaceClipProfile ResolveSpAtkProfile(string raceName)
-    {
-        if (string.IsNullOrEmpty(raceName))
-            return null;
-
-        for (int i = 0; i < SpAtkRaceTable.Length; i++)
-        {
-            RaceClipProfile row = SpAtkRaceTable[i];
-            if (string.Equals(raceName, row.Race, StringComparison.OrdinalIgnoreCase))
-                return row;
-        }
-
-        for (int i = 0; i < SpAtkRaceTable.Length; i++)
-        {
-            RaceClipProfile row = SpAtkRaceTable[i];
-            if (ContainsRaceToken(raceName, row.Token))
-                return row;
-        }
-
-        return null;
-    }
-
-  static string CanonicalClipWeaponStem(string weaponSuffix)
+    static string CanonicalClipWeaponStem(string weaponSuffix)
     {
         if (string.IsNullOrEmpty(weaponSuffix))
             return weaponSuffix;
@@ -200,14 +139,14 @@ public partial class SkillAnimationDatabase
 
         PlayerSpAtkAnim.TryParse(normalizedState, out int spAtkNumber, out _, out _);
 
-        RaceClipProfile profile = ResolveSpAtkProfile(raceName);
+        RaceClipProfile profile = ResolveRaceProfile(raceName);
         if (profile == null)
         {
             if (SpAtkProfileMissLogged.Add(raceName ?? "<null>"))
             {
                 Debug.LogError(
                     "[SkillAnimation] SpAtk profile missing raceName=" + raceName
-                    + " state=" + normalizedState + " (no row in SpAtkRaceTable).");
+                    + " state=" + normalizedState + " (no row in RaceClipTable).");
             }
 
             return null;
@@ -222,15 +161,19 @@ public partial class SkillAnimationDatabase
         string[] weaponVariants = { weaponStem, weaponToken };
 
         AnimationClip loaded = null;
-        for (int i = 0; i < weaponVariants.Length && loaded == null; i++)
+        string[] meshStems = MeshStemsForProfile(profile);
+        for (int m = 0; m < meshStems.Length && loaded == null; m++)
         {
-            if (string.IsNullOrEmpty(weaponVariants[i]))
-                continue;
+            for (int i = 0; i < weaponVariants.Length && loaded == null; i++)
+            {
+                if (string.IsNullOrEmpty(weaponVariants[i]))
+                    continue;
 
-            string stem = spatkStem + "_" + weaponVariants[i];
-            string resourceName = profile.MeshStem + ".ao_" + stem + "_" + profile.Race;
-            string path = profile.Folder + resourceName;
-            loaded = Resources.Load<AnimationClip>(path);
+                string stem = spatkStem + "_" + weaponVariants[i];
+                string resourceName = meshStems[m] + ".ao_" + stem + "_" + profile.Race;
+                string path = profile.Folder + resourceName;
+                loaded = Resources.Load<AnimationClip>(path);
+            }
         }
 
         if (loaded == null && SpAtkClipMissLogged.Add(cacheKey))

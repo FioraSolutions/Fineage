@@ -87,6 +87,10 @@ public partial class SkillListWindow : L2PopupWindow
         VisualElement element = _builderTabs.GetActiveContent();
         _supportActiveSkills.GetOrCreateTab(element);
 
+        VisualElement passiveHost = _builderTabs.GetTabContent(_passiveName);
+        if (passiveHost != null)
+            _supportPassiveSkills.GetOrCreateTab(passiveHost);
+
         RegisterCloseWindowEvent("btn-close-frame");
         RegisterCloseWindowEventByName("CloseButton");
         RegisterClickWindowEvent(_windowEle, GetElementByClass("drag-area"));
