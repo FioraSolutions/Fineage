@@ -4,6 +4,15 @@ Default workspace: **`/Users/nikitarakitin/Projects/Fineage`** (client) and **`/
 
 Do not push to `main`/`dev` directly — land via PR into **`dev`** (client) / **`dev`** (backend; `main` is protected deploy). Doc triage: [`Docs/DOC_CANON.md`](Docs/DOC_CANON.md).
 
+## READ FIRST: non-negotiable rules (every task, every PR)
+
+1. **Fix the mechanism, not the symptom.** For any reported bug, find the system that produces the behavior, generalize it, and fix it in the shared architecture (extend or refactor the existing pipeline if needed). No per-case patches, no special-case `if`s for one race/class/item/NPC, no stubs, no hacks. If the right fix needs an architectural change, make it (or propose it in the PR) instead of papering over.
+2. **No silent fallbacks.** Missing data/asset/table/id must log a concrete error naming what is missing. Never substitute a default, alias or placeholder quietly.
+3. **Originals are the source of truth.** Gameplay rules from Mobius CT0 Interlude; client look from the original Interlude client. UI = original window layout + original textures, pixel-perfect, with an original-vs-Fineage screenshot in every UI PR (details below).
+4. **Use the extracted reference catalog first** (`l2-unity/Docs/interlude-ref/`, `l2-unity/Docs/ui-original/` when present). Do not re-extract or guess what is already catalogued; if something is missing, add it to the catalog with the extraction script.
+5. **Interlude only.** Nothing from later chronicles (data, animations, effects, skills).
+6. Every PR description states the root cause and which shared mechanism was changed. PRs that patch a single case of a general problem will be rejected.
+
 ## Parity with originals (hard rule)
 
 Fineage **server business logic**, **client behavior**, and **client look** must match the Interlude originals unless a ticket explicitly documents a deliberate divergence. Do not invent UI layouts, HUD chrome, or gameplay rules when the original exists.
@@ -32,10 +41,12 @@ Agents must use [`l2-unity/Docs/interlude-ref`](l2-unity/Docs/interlude-ref) bef
 
 | Work | Model |
 |------|--------|
-| Architecture, complex design, epic planning, protocol/boundary decisions | **Powerful** — Claude Opus / high-thinking |
-| Implementation, tests, CI after the design is settled | **Composer** (default) |
+| Light (small UI tweaks, docs, merges, sync) | **Composer** (`composer-2.5`) |
+| Medium-light (simple contained fixes, tests, CI fixes) | **DeepSeek V4.1 Flash** (`deepseek-v41-flash-1017`) |
+| Medium (contained bugfixes, features inside existing architecture) | **Grok** (`grok-4.7`) |
+| Hard (architecture, problems the above cannot solve) | **Kimi K3** (`kimi-k3`) or **Claude** (Opus/Sonnet, sparingly — expensive) |
 
-Do not burn Opus on routine edits. Do not vibe-code architecture on Composer alone when boundaries are at stake.
+**If a model is unavailable** (quota/outage), use the fallback: Kimi K3 → Grok; Claude → Grok; DeepSeek V4.1 Flash → Composer.
 
 ## Delivery
 
