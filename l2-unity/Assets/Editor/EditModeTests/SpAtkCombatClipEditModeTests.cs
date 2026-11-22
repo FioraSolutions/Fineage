@@ -190,7 +190,11 @@ public sealed class SpAtkCombatClipEditModeTests
 
     static int ReadSpAtkNumber(string phaseToken)
     {
-        Assert.IsTrue(PlayerSpAtkAnim.TryParse(phaseToken + "_1HS", out int number, out _, out _));
+        string probe = phaseToken;
+        if (probe.IndexOf("AnimName", StringComparison.OrdinalIgnoreCase) >= 0)
+            probe = probe.Replace("AnimName", "", StringComparison.OrdinalIgnoreCase);
+        probe += "_1HS";
+        Assert.IsTrue(PlayerSpAtkAnim.TryParse(probe, out int number, out _, out _));
         return number;
     }
 

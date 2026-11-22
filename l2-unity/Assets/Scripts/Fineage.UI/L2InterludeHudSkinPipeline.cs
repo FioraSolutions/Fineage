@@ -35,6 +35,41 @@ public static class L2InterludeHudSkinPipeline
         return ok;
     }
 
+    public static void ValidateRadarZoomTextures(string logPrefix)
+    {
+        string[] paths = InterludeHudWindowCatalog.RadarZoomTexturePaths;
+        for (int i = 0; i < paths.Length; i++)
+        {
+            string path = paths[i];
+            if (Resources.Load<Texture2D>(path) == null)
+            {
+                Debug.LogError(
+                    $"[{logPrefix}] missing Interlude HUD texture window='RadarMapCtrl' path='{path}'.");
+            }
+        }
+    }
+
+    public static void PaintChatInputStrip(VisualElement innerBar, string context)
+    {
+        if (innerBar == null)
+            return;
+        StampSlice(
+            innerBar,
+            "Data/UI/Assets/Chat/chatting_back1",
+            context,
+            2);
+        innerBar.style.backgroundColor = Color.clear;
+    }
+
+    public static void ApplyBuffTrayLayout(VisualElement trayRoot)
+    {
+        if (trayRoot == null)
+            return;
+        VisualElement anchor = trayRoot.Q<VisualElement>("anchor");
+        if (anchor != null)
+            PaintSmallWndCenterFill(anchor, nameof(InterludeHudWindowCatalog.BuffWnd));
+    }
+
     public static void ApplyChatLayout(VisualElement chatWindowRoot)
     {
         if (chatWindowRoot == null)
@@ -76,6 +111,10 @@ public static class L2InterludeHudSkinPipeline
         VisualElement tabLine = chatWindowRoot.Q<VisualElement>("TabLine");
         if (tabLine != null)
             tabLine.style.bottom = 44f;
+
+        VisualElement innerBar = chatWindowRoot.Q<VisualElement>("InnerBar");
+        if (innerBar != null)
+            PaintChatInputStrip(innerBar, InterludeHudWindowCatalog.ChatWnd.XdatName);
     }
 
     public static void ApplyMinimapLayout(VisualElement minimapRoot)

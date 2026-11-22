@@ -9,14 +9,10 @@ public partial class TargetWindow
     {
         if (_effectCells.Count == 0)
             return;
-        float now = Time.time;
         for (int i = 0; i < _effectCells.Count; i++)
         {
             TargetEffectCell cell = _effectCells[i];
-            if (cell?.Timer == null)
-                continue;
-            int remaining = Mathf.Max(0, Mathf.CeilToInt(cell.EndsAt - now));
-            cell.Timer.text = remaining > 0 ? remaining.ToString() : "";
+            cell?.Tooltip?.SyncRemaining(cell.EndsAt);
         }
     }
 

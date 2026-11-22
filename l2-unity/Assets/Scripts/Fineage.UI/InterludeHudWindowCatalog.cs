@@ -70,7 +70,29 @@ public static class InterludeHudWindowCatalog
             "Data/UI/Map/Radar/radar_n",
             "Data/UI/Map/Radar/radar_myself",
             "Data/UI/Map/Radar/radar_target",
+            "Data/UI/Map/WorldMap",
         });
+
+    /// <summary>Interlude BuffWnd / SkillTray abnormal row beside StatusWnd.</summary>
+    public static readonly InterludeHudWindowEntry BuffWnd = new InterludeHudWindowEntry(
+        "BuffWnd",
+        0f,
+        0f,
+        new[]
+        {
+            SmallWndBack1,
+            SmallWndBack2,
+            SmallWndBack3Ex,
+        });
+
+    /// <summary>CH3 Minimap.mapbutton_zoom* — validated at runtime; import from L2UI_CH3 if missing.</summary>
+    public static readonly string[] RadarZoomTexturePaths =
+    {
+        "Data/UI/Map/Radar/mapbutton_zoomin1",
+        "Data/UI/Map/Radar/mapbutton_zoomin1_over",
+        "Data/UI/Map/Radar/mapbutton_zoomout1",
+        "Data/UI/Map/Radar/mapbutton_zoomout1_over",
+    };
 
     public static readonly InterludeHudWindowEntry MinimapWnd = new InterludeHudWindowEntry(
         "MinimapWnd",
@@ -116,6 +138,7 @@ public static class InterludeHudWindowCatalog
         yield return ShortcutWnd;
         yield return RadarWnd;
         yield return MinimapWnd;
+        yield return BuffWnd;
     }
 
     /// <summary>Later-chronicle frame packages that must not appear on the in-game HUD.</summary>
