@@ -51,6 +51,10 @@ public sealed class L2TownMusic : MonoBehaviour
 
     void LateUpdate()
     {
+        OfficialMusicVolumeTable.Load();
+        if (OfficialMusicVolumeTable.HasVolumes)
+            return;
+
         string theme = Theme();
         if (theme == null)
         {

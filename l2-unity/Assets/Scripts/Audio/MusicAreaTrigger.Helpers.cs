@@ -25,6 +25,10 @@ public partial class MusicAreaTrigger : MonoBehaviour
     }
 
     private void PlayMusic() {
+        OfficialMusicVolumeTable.Load();
+        if (OfficialMusicVolumeTable.HasVolumes)
+            return;
+
         MusicManager music = RequiredAudioServices.RequireMusic(nameof(MusicAreaTrigger));
         if (music == null)
             return;
@@ -43,6 +47,10 @@ public partial class MusicAreaTrigger : MonoBehaviour
     }
 
     private void OnTriggerStay(Collider other) {
+        OfficialMusicVolumeTable.Load();
+        if (OfficialMusicVolumeTable.HasVolumes)
+            return;
+
         MusicManager music = RequiredAudioServices.RequireMusic(nameof(MusicAreaTrigger));
         if (music == null)
             return;
