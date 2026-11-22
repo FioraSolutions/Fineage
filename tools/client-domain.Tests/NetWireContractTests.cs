@@ -717,6 +717,70 @@ public class NetWireContractTests
         Assert.False(book.Contains(version));
     }
 
+    /// <summary>
+    /// Same tail the zone appends. The client reads it by re-encoding the decoded body
+    /// and taking the leftover little-endian int32. That value is the inventory cursor.
+    /// </summary>
+    [Fact]
+    public void Inventory_version_tail_is_the_cursor()
+    {
+        var list = new ItemListNetMsg
+        {
+            Items = new[] { Item(1001, 57, 800, -1, 0, 0) }
+        };
+        byte[] listBody = NetCodec.EncodeItemList(list);
+        byte[] listWire = InventoryVersionTail.Append(listBody, 1);
+        ItemListNetMsg decodedList = NetCodec.DecodeItemList(listWire);
+        Assert.Equal(1, CharacterInventory.ReadVersionTail(listWire, NetCodec.EncodeItemList(decodedList)));
+        Assert.Equal(0, CharacterInventory.ReadVersionTail(listBody, listBody));
+        Assert.Equal(CharacterInventory.UnreadableVersion, CharacterInventory.ReadVersionTail(listBody, WithVersionTail(listBody, 1)));
+        Assert.Equal(CharacterInventory.UnreadableVersion, CharacterInventory.ReadVersionTail(WithVersionTail(listBody, -3), listBody));
+        var shortTail = new byte[listBody.Length + 2];
+        Buffer.BlockCopy(listBody, 0, shortTail, 0, listBody.Length);
+        Assert.Equal(CharacterInventory.UnreadableVersion, CharacterInventory.ReadVersionTail(shortTail, listBody));
+
+        var book = new CharacterInventory();
+        var errors = new List<string>();
+        Assert.Equal(CharacterInventory.ApplyStatus.Applied, book.Replace(ToRows(decodedList), 1, errors));
+        Assert.Equal(1, book.Version);
+
+        var update = new InventoryUpdateNetMsg
+        {
+            Changes = new[]
+            {
+                new InventoryUpdateEntryNet
+                {
+                    Change = 1,
+                    ObjectId = 1001,
+                    ItemId = 57,
+                    Count = 700,
+                    EquippedSlot = -1,
+                    BodySlot = "none",
+                    Kind = "etc"
+                }
+            }
+        };
+        byte[] updateBody = NetCodec.EncodeInventoryUpdate(update);
+        byte[] updateWire = InventoryVersionTail.Append(updateBody, 2);
+        InventoryUpdateNetMsg decodedUpdate = NetCodec.DecodeInventoryUpdate(updateWire);
+        Assert.Equal(2, CharacterInventory.ReadVersionTail(updateWire, NetCodec.EncodeInventoryUpdate(decodedUpdate)));
+        Assert.Equal(CharacterInventory.ApplyStatus.Applied, book.Apply(ToChanges(decodedUpdate), 2, errors));
+        Assert.Equal(700, book.TryGet(1001, out CharacterInventory.Row adena) ? adena.Count : 0);
+        Assert.Equal(2, book.Version);
+
+        Assert.Equal(CharacterInventory.ApplyStatus.IgnoredReplay, book.Apply(ToChanges(decodedUpdate), 2, errors));
+        Assert.False(book.ResyncRequired);
+        Assert.Equal(700, book.TryGet(1001, out adena) ? adena.Count : 0);
+
+        update.Changes[0].Count = 1;
+        Assert.Equal(CharacterInventory.ApplyStatus.Gap, book.Apply(ToChanges(update), 4, errors));
+        Assert.True(book.ResyncRequired);
+        Assert.Equal(700, book.TryGet(1001, out adena) ? adena.Count : 0);
+        Assert.Equal(2, book.Version);
+        Assert.Contains("expected 3", string.Join("; ", errors));
+        Assert.Contains("version 4 received", string.Join("; ", errors));
+    }
+
     static byte[] WithVersionTail(byte[] body, int version)
     {
         var wire = new byte[body.Length + 4];

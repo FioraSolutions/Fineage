@@ -16,13 +16,19 @@ public sealed partial class NetSession
         NetGearSession.NoteUserInfo(user);
     }
 
-    internal void ApplyItemList(ItemListNetMsg list)
+    internal void ApplyItemList(ItemListNetMsg list, byte[] payload)
     {
-        // Version stays off this path until the Net contract defines it.
-        // Today's ItemList is a full replace with no version.
         NetItemEntry[] rows = MapItemList(list);
-        NetGearSession.NoteItemList(rows, 0);
-        Debug.Log("[Net] ItemList count=" + rows.Length);
+        byte[] body = NetCodec.EncodeItemList(list);
+        int version = CharacterInventory.ReadVersionTail(payload, body);
+        if (version < 0)
+        {
+            Debug.LogError(
+                "[Inventory] ItemList tail is unreadable; expected 0 or 4 bytes after the body, payload="
+                + (payload == null ? 0 : payload.Length) + " body=" + body.Length);
+        }
+        NetGearSession.NoteItemList(rows, version);
+        Debug.Log("[Net] ItemList count=" + rows.Length + " version=" + version);
     }
 
     internal void ApplySkillList(SkillListNetMsg list)

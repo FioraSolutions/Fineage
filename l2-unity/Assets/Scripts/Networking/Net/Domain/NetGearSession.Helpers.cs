@@ -62,7 +62,8 @@ public static partial class NetGearSession
             {
                 if (_itemVersion < 0)
                 {
-                    Debug.LogError("[Inventory] ItemList version could not be read; snapshot was not applied");
+                    int expected = inventory.Book.HasVersion ? inventory.Book.Version : 1;
+                    Debug.LogError("[Inventory] ItemList version " + _itemVersion + " received; expected " + expected + "; snapshot not applied");
                     _itemsApplied = true;
                     _updates.Clear();
                     _updateVersions.Clear();
@@ -83,7 +84,8 @@ public static partial class NetGearSession
             {
                 if (_updateVersions[i] < 0)
                 {
-                    Debug.LogError("[Inventory] InventoryUpdate version could not be read; change was not applied");
+                    int expected = inventory.Book.Version + 1;
+                    Debug.LogError("[Inventory] InventoryUpdate version " + _updateVersions[i] + " received; expected " + expected + "; rows not applied");
                     RequestResync("unreadable InventoryUpdate");
                     break;
                 }

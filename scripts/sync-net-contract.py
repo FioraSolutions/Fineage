@@ -184,6 +184,22 @@ def read_source(
     return path.read_bytes() if path.is_file() else None
 
 
+def contract_lookup_corpus(
+    source: Path,
+    files: tuple[str, ...],
+    ref: str | None,
+    backend_repo: Path | None,
+) -> str:
+    """Types for ``?? []`` come from the same revision ``--write`` copies."""
+    texts: list[str] = []
+    for rel in files:
+        data = read_source(source, rel, ref, backend_repo)
+        if data is None:
+            continue
+        texts.append(data.decode("utf-8-sig", errors="replace"))
+    return build_contract_lookup_corpus(texts)
+
+
 def compare(
     source: Path,
     target: Path,
@@ -194,7 +210,7 @@ def compare(
     missing: list[str] = []
     differing: list[str] = []
     files = contract_rel_paths(source, ref, backend_repo)
-    lookup_corpus = build_contract_lookup_corpus(source, files)
+    lookup_corpus = contract_lookup_corpus(source, files, ref, backend_repo)
 
     for rel in files:
         data = read_source(source, rel, ref, backend_repo)
@@ -221,7 +237,7 @@ def write_contract(
     """Copy the backend sources over the client copies, preserving .meta files."""
     changed = 0
     files = contract_rel_paths(source, ref, backend_repo)
-    lookup_corpus = build_contract_lookup_corpus(source, files)
+    lookup_corpus = contract_lookup_corpus(source, files, ref, backend_repo)
 
     for rel in files:
         data = read_source(source, rel, ref, backend_repo)

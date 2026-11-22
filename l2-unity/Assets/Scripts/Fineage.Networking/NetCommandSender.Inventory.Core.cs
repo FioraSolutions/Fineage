@@ -68,7 +68,7 @@ public sealed partial class NetCommandSender
             UnityEngine.Debug.LogError("[Inventory] RequestItemList was not sent; zone transport is down");
             return Task.CompletedTask;
         }
-        // Interlude client → server RequestItemList. Opcode 0x0F, no body.
-        return zone.SendAsync((ushort)GameClientPacketType.RequestItemList, System.Array.Empty<byte>(), _nextSeq());
+        // Interlude client → server RequestItemList. Opcode 0x0F, empty body.
+        return zone.SendAsync(NetOpcode.RequestItemList, System.Array.Empty<byte>(), _nextSeq());
     }
 }

@@ -163,16 +163,14 @@ def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
     return text
 
 
-def build_contract_lookup_corpus(source: Path, rel_paths: tuple[str, ...]) -> str:
-    chunks: list[str] = []
-    for rel in rel_paths:
-        path = source / rel
-        if path.is_file():
-            try:
-                chunks.append(path.read_text(encoding="utf-8-sig", errors="replace"))
-            except OSError:
-                continue
-    return "\n".join(chunks)
+def build_contract_lookup_corpus(texts) -> str:
+    """Join the contract sources the sync is actually reading.
+
+    Callers must pass the same bytes as ``read_source`` (the git ref when one
+    is set). Reading the working tree here typed ``?? []`` as ``object``
+    whenever that tree was behind the ref.
+    """
+    return "\n".join(text for text in texts if text)
 
 
 def prepare_contract_bytes(data: bytes, *, lookup_corpus: str = "") -> bytes:
