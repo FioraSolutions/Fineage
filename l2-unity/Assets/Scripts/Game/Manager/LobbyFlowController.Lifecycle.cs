@@ -6,7 +6,7 @@ public sealed partial class LobbyFlowController
 {
     [Inject] IZoneTransport _zoneTransport;
 
-    public void Attach(GameManager game)
+    public void Attach(IGameManager game)
     {
         _game = game;
     }

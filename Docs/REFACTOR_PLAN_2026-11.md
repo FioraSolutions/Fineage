@@ -440,10 +440,33 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S24** `UserInfoDto` and `PlayerInfoInterlude` → `Fineage.Networking`. `PlayerInfoInterlude.Skills` had no readers or writers (`CharacterSkills` is unused) and is dropped so the bag does not name Game `SkillInstance`. `DomainStatsChanged` keeps the player bag plus mount type and npc id. The sink rebuilds `UserInfoDto` before `UserInfoUpdateCharacter`. Script GUIDs unchanged.
 - [x] **S25** `GameScopeCycleSafeRegistration` in `Fineage.Di` registers `GameEventBus`, `StatsConverter`, `ItemDropLayerService`, `L2PawnYaw`, and `InterludeActionAvailabilityService`. Same singleton lifetimes. `UnityChainTicker` stays an entry point on `GameLifetimeScope` so tick order is unchanged. The scope still registers the Assembly-CSharp hosts.
 - [x] **S27** Overhead HP leaves `InterludeDomainMap.Npc`. `NpcOrPetInfoApplyIncomingPacketServices.Apply` and `PresenceApplyService.ApplyNpcInfo` call `TablePacketServices.HideNpcHpBar` and `SetHideHp` before the map. Missing npcgrp still logs `[EntityIdentity] ParceHideHpbar` and hides the bar. The map only copies fields.
+- [x] **S30** `ILobbySession` is the lobby callback surface `GameManager` already forwards, including `Attach(IGameManager)`. `IGameManager.GameState` and `WorldSpawnReady` are settable. `GameManager` stores `ILobbySession`. `WorldSpawnReady`'s setter is public so the interface can set it. Lobby callbacks are unchanged.
+
+Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VContainer). Do not add VContainer to `Fineage.Game`, `Fineage.UI`, or `Fineage.Controller`. One row per PR. Decouple, then `git mv` with the script GUID unchanged.
+
+- [ ] **S31** `ITableInitializer.LoadTables` in `Fineage.Game`. `GameManager` injects the interface. `TableInitializer` stays Assembly-CSharp.
+- [ ] **S32** `GameManager`'s scene field and `LobbyFlowPacketServices.Scenes` use `ISceneLoader`. `SceneLoader.Instance` stays the concrete fallback. `LoadMenu` behavior unchanged.
+- [ ] **S33** Interfaces for the `L2LoginUI` / `L2GameUI` members `GameManager` actually reads. `GameManager` stops naming those classes.
+- [ ] **S34** `GameManager` → `Fineage.Di`. Only after S30–S33. It still `[Inject]`s.
+- [ ] **S35** `IWorldSpawnContext` → `Fineage.Game` if its members do not name Assembly-CSharp. `World` still implements it.
+- [ ] **S36** Call sites that only need `IWorldEntityLookup` or `IWorldSpawnContext` stop naming `World`. One caller family per PR.
+- [ ] **S37** An entity surface in `Fineage.Game` for the position, identity, and transform reads `World` makes on `Entity`. `Entity` stays Assembly-CSharp and implements it.
+- [ ] **S38** The packet-service locators `World` calls (`WorldPacketServices`, `DomainPacketServices`, and the rest) get interfaces in `Fineage.Game`. One locator per PR.
+- [ ] **S39** `World` → `Fineage.Di`. Only after S35–S38. It still `[Inject]`s.
+- [ ] **S40** `IPlayerPawn` in `Fineage.Game` for the movement and heading members other types use on `PlayerController`.
+- [ ] **S41** `PlayerController` talks to `Entity`, `WorldPlacement`, and `PlayerStateMachine` through interfaces from S37 and new seams in `Fineage.Game`. One dependency per PR.
+- [ ] **S42** `PlayerController` → `Fineage.Di`. It uses UnityEngine and those interfaces. The two `[Inject]` sites stay.
+- [ ] **S43** `ILoginChrome` in `Fineage.Game` for the window members `LoginRuntime` and `LoginPacketServices` actually use. The login windows implement it.
+- [ ] **S44** `L2Window` → `Fineage.UI` if it does not reference VContainer. If it does, split the inject half off first.
+- [ ] **S45** Login windows → `Fineage.Di`, one family per PR: `LicenseWindow`, `LoginWindow`, `ServerSelectWindow`, `CharSelectWindow`, `CharCreationWindow`, `L2LoginUI`. Each still `[Inject]`s.
+- [ ] **S46** `LoginCameraManager`, `CharacterSelector`, `CharacterCreator`, `CharacterBuilder` → `Fineage.Di`, one family per PR, after their table and zone calls go through existing Fineage interfaces.
+- [ ] **S47** `LoginRuntime` → `Fineage.Di`. After S43 and S45, so it does not name Assembly-CSharp windows.
+- [ ] **S48** `GameRuntime` → `Fineage.Di`. After S34, S39, and S42, or after those hosts are behind Fineage interfaces.
+- [ ] **S49** `LoginLifetimeScope`, then `GameLifetimeScope`, then `AppLifetimeScope`, then `DiBootstrap` → `Fineage.Di`. One scope per PR. A scope moves only when every type it names is already in a `Fineage.*` assembly.
 
 **Still blocked (do not force in this wave):**
 
-- `AppLifetimeScope` / `GameLifetimeScope` / `LoginLifetimeScope` / `GameRuntime` / `LoginRuntime` / `DiBootstrap` — they still name Assembly-CSharp MonoBehaviours. Fineage.Di cannot register those until the hosts themselves move. The cycle-safe singletons above are the exception (S25).
+- `AppLifetimeScope` / `GameLifetimeScope` / `LoginLifetimeScope` / `GameRuntime` / `LoginRuntime` / `DiBootstrap` move in S47–S49, after the hosts. They still name Assembly-CSharp MonoBehaviours today.
 - `IWorldDomainSink` stays in Assembly-CSharp. Knownlist and stats payloads are identity plus player data (S22–S24); the sink rebuilds the wire DTO at apply time.
 - `DoorCatalog` — `Newtonsoft.Json` is not a `Fineage.Game` asmdef reference (layout check pins the reference list).
 - Sky MonoBehaviours that `[Inject]` via VContainer (`WorldClock`, `L2HazeRing`, `L2StarDome`, `L2CloudMyst`, `L2CloudSimple`) — Fineage.Game cannot reference VContainer.
