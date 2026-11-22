@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Roadmap step 14: tier-driven animator rate and skinned culling.</summary>
+/// <summary>
+/// Roadmap step 14: tier-driven animator rate and skinned culling.
+/// Invoked from crowd tier refresh (<see cref="CrowdTierSystem"/>; same call path once #1650 VisibilityManager lands).
+/// </summary>
 public static class CrowdTierVisualPolicy
 {
     public static void Apply(Transform root, CrowdDetailTier tier, CrowdLodProfile profile)
@@ -21,6 +24,9 @@ public static class CrowdTierVisualPolicy
                 animator.cullingMode = cull;
         }
 
+        L2ActorMeshPolicy.DisableSkeletonPlaceholders(root);
+        L2ActorMeshPolicy.DisableAlphaOverlays(root);
+
         if (tier >= CrowdDetailTier.T2Mid)
         {
             SkinnedMeshRenderer[] renderers = root.GetComponentsInChildren<SkinnedMeshRenderer>(false);
@@ -30,9 +36,7 @@ public static class CrowdTierVisualPolicy
                 if (smr == null || smr.sharedMesh == null)
                     continue;
                 smr.updateWhenOffscreen = tier < CrowdDetailTier.T3Far;
-                Bounds local = smr.sharedMesh.bounds;
-                if ((smr.localBounds.extents - local.extents).sqrMagnitude > 0.01f)
-                    smr.localBounds = local;
+                L2ActorMeshPolicy.ClampInflatedSkinnedLocalBounds(smr);
             }
         }
     }

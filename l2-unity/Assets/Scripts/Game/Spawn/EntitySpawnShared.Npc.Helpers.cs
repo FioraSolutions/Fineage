@@ -159,8 +159,12 @@ public static partial class EntitySpawnShared
             }
 
             Material mat = smr.sharedMaterial;
-            if (mat != null && L2ActorMaterialSetup.MaterialLooksLikeActorOpaqueMismatch(mat))
-                L2ActorMaterialSetup.LogOpaqueAlphaMismatch(mat, smr.name);
+            if (mat != null)
+            {
+                L2ActorMaterialSetup.LogMissingBaseMapOnce(mat, smr.sharedMesh != null ? smr.sharedMesh.name : smr.name);
+                if (L2ActorMaterialSetup.MaterialLooksLikeActorOpaqueMismatch(mat))
+                    L2ActorMaterialSetup.LogOpaqueAlphaMismatch(mat, smr.name);
+            }
         }
     }
 

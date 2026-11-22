@@ -137,6 +137,48 @@ public static partial class L2ActorMaterialSetup
             + (mat.shader != null ? mat.shader.name : "(null)"));
     }
 
+    static readonly HashSet<string> LoggedMissingBaseMap = new();
+
+    public static void ClearMissingBaseMapLogForTests() => LoggedMissingBaseMap.Clear();
+
+    public static bool MaterialHasBaseMap(Material mat)
+    {
+        if (mat == null)
+            return false;
+        if (mat.HasProperty("_BaseMap"))
+            return mat.GetTexture("_BaseMap") != null;
+        if (mat.HasProperty("_MainTex"))
+            return mat.GetTexture("_MainTex") != null;
+        return false;
+    }
+
+    public static void LogMissingBaseMapOnce(Material mat, string meshContext)
+    {
+        if (mat == null || MaterialHasBaseMap(mat))
+            return;
+
+        string key = (meshContext ?? "?") + "@" + mat.name + "@" + mat.GetInstanceID();
+        if (!LoggedMissingBaseMap.Add(key))
+            return;
+
+        Texture tex = mat.HasProperty("_BaseMap") ? mat.GetTexture("_BaseMap") : null;
+        if (tex == null && mat.HasProperty("_MainTex"))
+            tex = mat.GetTexture("_MainTex");
+        string texName = tex != null ? tex.name : "(null)";
+
+        FineageLog.Error(
+            FineageLogCategory.World,
+            "[L2ActorMaterial] missing BaseMap mesh=\""
+            + (meshContext ?? "?")
+            + "\" material=\""
+            + mat.name
+            + "\" texture=\""
+            + texName
+            + "\" shader=\""
+            + (mat.shader != null ? mat.shader.name : "(null)")
+            + "\"");
+    }
+
     /// <summary>
     /// Enumerate *.props.txt under export roots and shipped texture shader folders.
     /// </summary>

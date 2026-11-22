@@ -43,6 +43,39 @@ public class L2ActorMaterialSetupEditModeTests
     }
 
     [Test]
+    public void MaterialHasBaseMap_false_when_BaseMap_property_is_empty()
+    {
+        var shader = Shader.Find("Unlit/Texture");
+        Assume.That(shader != null, "Unlit/Texture shader required");
+        var mat = new Material(shader) { name = "test_no_tex" };
+        try
+        {
+            mat.SetTexture("_MainTex", null);
+            Assert.IsFalse(L2ActorMaterialSetup.MaterialHasBaseMap(mat));
+        }
+        finally
+        {
+            Object.DestroyImmediate(mat);
+        }
+    }
+
+    [Test]
+    public void MaterialHasBaseMap_false_when_shader_has_no_texture_slot()
+    {
+        var shader = Shader.Find("Unlit/Color");
+        Assume.That(shader != null, "Unlit/Color shader required");
+        var mat = new Material(shader) { name = "test_no_slot" };
+        try
+        {
+            Assert.IsFalse(L2ActorMaterialSetup.MaterialHasBaseMap(mat));
+        }
+        finally
+        {
+            Object.DestroyImmediate(mat);
+        }
+    }
+
+    [Test]
     public void Audit_script_lists_dryad_when_reverted_to_opaque()
     {
         string script = System.IO.Path.Combine(
