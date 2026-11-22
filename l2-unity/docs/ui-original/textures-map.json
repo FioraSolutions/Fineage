@@ -1,6 +1,6 @@
 {
-  "description": "Map of every Unreal texture referenced by l2-unity/docs/ui-original window layouts to the Unity asset path under l2-unity/Assets. Newly imported textures (imported=true) are the exact USize×VSize of the Interlude .utx export, not cropped to a widget. Non-map UI uses point filter, no mipmaps, and the ImportPolicy 'ui' Standalone BC7 / mobile ASTC settings (same as Status/Interlude siblings). Assets under UI/Map use the 'ui-map' rule: bilinear, no mipmaps, uncompressed RGBA32 on Standalone.",
-  "count": 68,
+  "description": "Map of every Unreal texture referenced by l2-unity/docs/ui-original window layouts to the Unity asset path under l2-unity/Assets. Newly imported textures (imported=true) are the exact USize\u00d7VSize of the Interlude .utx export, not cropped to a widget. Non-map UI uses point filter, no mipmaps, and the ImportPolicy 'ui' Standalone BC7 / mobile ASTC settings (same as Status/Interlude siblings). Assets under UI/Map use the 'ui-map' rule: bilinear, no mipmaps, uncompressed RGBA32 on Standalone.",
+  "count": 73,
   "importedThisChange": 38,
   "alreadyPresent": 30,
   "textures": [
@@ -610,6 +610,57 @@
       "height": 32,
       "imported": true,
       "importRule": "ui-map"
+    },
+    {
+      "unreal": "L2UI_CH3.LoginWnd.logon_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/logon_back.png"
+      ],
+      "width": 256,
+      "height": 108,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI.Control.CheckBox",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/CheckBox.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui",
+      "note": "Default checkbox. OptionWnd checkboxes leave checkTexture undefined, so the client draws this."
+    },
+    {
+      "unreal": "L2UI.Control.CheckBox_checked",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/CheckBox_checked.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI.Control.CheckBox_unable",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/CheckBox_unable.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
+    },
+    {
+      "unreal": "L2UI.Control.CheckBox_checked_unable",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/CheckBox_checked_unable.png"
+      ],
+      "width": 16,
+      "height": 16,
+      "imported": true,
+      "importRule": "ui"
     }
   ]
 }

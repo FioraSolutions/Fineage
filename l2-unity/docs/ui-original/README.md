@@ -7,7 +7,8 @@ These JSON files are the pixel-level layout of the retail Interlude UI, extracte
 | Window | Retail source | Notes |
 | --- | --- | --- |
 | StatusWnd, TargetStatusWnd, ChatWnd, AbnormalStatusWnd, MinimapWnd, MinimapWnd_Expand, TownMapWnd, RadarContainerWnd (RadarMapWnd), RadarWnd | `system/interface.xdat` | Unencrypted Interlude xdat. Schema is acmi `xdat_editor_schema` **ct0** ([github.com/acmi/xdat_editor_schema](https://github.com/acmi/xdat_editor_schema)). |
-| Character select lobby (NCLobbyWnd / Function / Start, Name/HP/MP/Exp card, Start/Create/Delete/Re-Login) | `system/nwindow.dll` | **Not in Interface.xdat.** Hardcoded in native C++. Coordinates below come from `OnCreate` / `OnPaint` in the retail Interlude DLL (see `CharacterSelect.json`). |
+| Character select lobby (NCLobbyWnd / Function / Start, Name/HP/MP/Exp card, Start/Create/Delete/Re-Login) | `system/nwindow.dll` | **Not in Interface.xdat.** Local rects from `OnCreate` / `OnPaint`. Screen anchors from the builder at `0x1017D410` (see `CharacterSelect.json`). |
+| Login (`LoginLogoWnd`, `NCAuthWnd`, `NCLoginFunctionWnd`) | `system/nwindow.dll` | **Not in Interface.xdat.** Builder `0x1013D810`, auth `OnCreate` `0x1017F9A0`, menu `OnCreate` `0x1017DD60`. See `Login.json`. |
 
 There is no Interlude `CharacterSelectWnd` (or `LobbyWnd`) record in `interface.xdat`. The closest xdat texture reuse is `L2UI_CH3.LobbyWnd.lobby_menuback` on `BenchMarkFunctionWnd`, which is a different window.
 
@@ -57,12 +58,6 @@ python3 tools/ui-extract/inventory_textures.py \
 - Interlude `TextBox` has an integer `fontType`, not a font name (later chronicles added `fontName`). Almost every text box uses the default `-9999`. The only exception in these windows is `StatusWnd_LevelTextBox` (`fontType` 6, color `#FFB09B79`, centered).
 - `raw` is the full ct0 object (including unnamed `unk*` fields) for anything the flat view omits.
 
-## Not extracted
-
-Login is not in this folder. There is no `LoginWnd`, `AuthWnd`, or `NCLoginFunctionWnd` document in `docs/ui-original`, and the character-select notes from `nwindow.dll` do not include the login form. Do not guess its coordinates, size, textures, or control tree. Leave the current login screen alone until that window is extracted.
-
-Lobby **screen placement** is not extracted either. `CharacterSelect.json` recovers the window-relative controls from `nwindow.dll` `OnCreate` / `OnPaint` (the 96×23 buttons, the 256×128 `select1_back` card, the bars). `wndDefPos` is null. The same note says the three windows (`NCLobbyFunctionWnd`, `NCLobbyStartWnd`, `NCLobbyWnd_CharInfo`) are positioned at runtime from the resolution, and those screen anchors were not recovered. Do not invent them, and do not apply the layout asset for these windows until that placement is extracted. The character-select tree stays as it is.
-
 ## Window notes
 
 - **StatusWnd** is 176×84 at `TOP_LEFT` (0,0). Left / center / right frame slices, level box, CP/HP/MP/Exp bars (`L2UI_CH3.PlayerStatusWnd.ps_*`), `UserName`. The right-edge texture is `ps_sizecontrol1` (the Interlude resize grip). Buff icons are a separate window, **AbnormalStatusWnd** (38×26 at `TOP_LEFT` x=176), which only contains a `StatusIcon` control — icons themselves are created at runtime.
@@ -70,7 +65,12 @@ Lobby **screen placement** is not extracted either. `CharacterSelect.json` recov
 - **ChatWnd** is 348×187 at `BOTTOM_LEFT`. Background is four slices (`Chatting_Back1..4`). The edit box is `ChatEditBox` at (39, −6) size 303×16, type `CHAT`, max length 100. Tabs (`ChatTabCtrl`) sit on a 320×23 strip at (23, −23) with each tab **64×23**, textures `Chatting_Tab2` (normal) / `Chatting_Tab1` (selected). The tab strip background in xdat is `L2UI_CH3.Minimap.MapWnd_back_max` (yes, a minimap texture).
 - **RadarMapWnd** (`RadarContainerWnd` in xdat) is a **102×102** `Radar` control at `TOP_RIGHT` (0,0). It has **no map texture**. The engine draws the compass (oriented in the world plane). `RadarWnd` is a separate 16×16 icon stack at `TOP_RIGHT` (−10, 85) with `L2UI_CH3.Radar.icon1`–`icon9`.
 - **MinimapWnd** is the world map, 334×413, `L2UI_CH3.Minimap.MapBack`, map view 328×328 at (3, 51). Bottom buttons: Current Loc., Party Member, Target Loc., Enlarge Map. Top-right: Find, World Info. `MinimapWnd_Expand` is the fullscreen variant. `TownMapWnd` is the 334×354 town map (`L2UI.MinimapWnd.MinimapBack`).
-- **CharacterSelect** (lobby): window-relative geometry only. `NCLobbyFunctionWnd` 120×138 with `lobby_menuback`, buttons Create (13,20,96,23), Delete (13,45,96,23), Re-Login (13,95,96,23) using `BigButton`. `NCLobbyStartWnd` 140×49 with `lobby_startbtnback`, Start button (13,10,116,31) using `BigButton2`. The char-info card background is `select1_back` (not the in-game `myinfo_back`). HP/MP bars are 85×12 at (35,55) and (35,69); Exp bar is 206×12 at (35,83). Screen placement of these three windows is not in the extract (see Not extracted).
+- **CharacterSelect** (lobby): `NCLobbyFunctionWnd` 120×138 with `lobby_menuback`, `BOTTOM_RIGHT` (−34, −10). Buttons Create (13,20,96,23), Delete (13,45,96,23), Re-Login (13,95,96,23) using `BigButton`. `NCLobbyStartWnd` 140×49 with `lobby_startbtnback`, `BOTTOM_CENTER` (0, −10), Start button (13,10,116,31) using `BigButton2`. The char-info card is 256×108 at `TOP_LEFT` (24, 27); `select1_back` is 256×128 and is stretched to the window. HP/MP bars are 85×12 at (35,55) and (35,69); Exp bar is 206×12 at (35,83).
+- **Login**: `LoginLogoWnd` is 256×256 at `TOP_CENTER` y=50 (original texture `%s_LogoTexture` / `L2Font.start_logo-k`). `NCAuthWnd` is 256×108 at `CENTER` (0, 0), background `L2UI_CH3.LoginWnd.logon_back`. Account edit (84, 20, 128, 17), password edit (84, 42, 128, 17), login button (31, 72, 96, 23), exit button (131, 72, 96, 23). `NCLoginFunctionWnd` is 120×138 at `BOTTOM_RIGHT` (−34, −62) with five 96×23 buttons at y = 8, 33, 58, 83, 107. Sysstring ids are in `Login.json`. The caption text is not decoded: `sysstring-e.dat` is still Lineage2Ver413.
+
+## Not used yet
+
+`Login.json` `gaps` lists what the DLL builds that Fineage does not show: the mini logo, the OTP login path (`otplogon_back`, the extra edit, `aboutotpicon`), the centered 546×425 windows in the login builder, and `NCLoginServerWnd`. Option-window checkboxes do not name a texture (`checkTexture` is undefined); the client uses `L2UI.Control.CheckBox` and `L2UI.Control.CheckBox_checked` (16×16). Two deliberate differences are recorded under `Login.json` `deviations`: the wordmark stays the Fineage logo inside the original 256×256 box, and Remember me is not an original login control. It uses that default checkbox and is placed in the 13px gap under the password edit.
 
 ## Textures already in the Unity project
 

@@ -2195,7 +2195,7 @@
 
 /* Interlude L2UI_CH3 char-select (StatusWnd Ps bars + bigbutton; not Gracia DF chrome). */
 .il-char-select .char-select-detail {
-    background-image: resource('Data/UI/Status/Interlude/Status_Interlude_MyInfo_Back');
+    background-image: resource('Data/UI/Login/Interlude/select1_back');
     -unity-background-scale-mode: stretch-to-fill;
     -unity-slice-bottom: 0;
     -unity-slice-left: 0;
@@ -2205,7 +2205,10 @@
 }
 
 .il-char-select .char-select-start {
-    background-image: none;
+    width: 140px;
+    height: 49px;
+    background-image: resource('Data/UI/Login/Interlude/lobby_startbtnback');
+    -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0, 0, 0, 0);
     padding-top: 0;
     padding-right: 0;
@@ -2214,8 +2217,10 @@
 }
 
 .il-char-select .char-select-menu {
-    width: 133px;
-    background-image: none;
+    width: 120px;
+    height: 138px;
+    background-image: resource('Data/UI/Login/Interlude/lobby_menuback');
+    -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0, 0, 0, 0);
     padding-top: 0;
     padding-right: 0;
@@ -2230,10 +2235,10 @@
 }
 
 .il-char-select .il-char-select-start-btn {
-    width: 133px;
-    height: 23px;
-    min-height: 23px;
-    max-height: 23px;
+    width: 116px;
+    height: 31px;
+    min-height: 31px;
+    max-height: 31px;
     margin: 0;
     padding: 0;
     background-color: rgba(0, 0, 0, 0);
@@ -2242,26 +2247,22 @@
 }
 
 .il-char-select .il-char-select-start-btn .l2-button-bg {
-    background-image: resource('Data/UI/Login/Interlude/bigbutton');
+    background-image: resource('Data/UI/Login/Interlude/bigbutton2');
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
     width: 100%;
-    height: 23px;
-}
-
-.il-char-select .il-char-select-start-btn:hover .l2-button-bg {
-    background-image: resource('Data/UI/Login/Interlude/bigbutton_over');
+    height: 31px;
 }
 
 .il-char-select .il-char-select-start-btn:active .l2-button-bg,
 .il-char-select .il-char-select-start-btn:active:hover .l2-button-bg {
-    background-image: resource('Data/UI/Login/Interlude/bigbutton_down');
+    background-image: resource('Data/UI/Login/Interlude/bigbutton2_down');
 }
 
 .il-char-select .il-char-select-menu-btn {
-    width: 133px;
+    width: 96px;
     height: 23px;
     min-height: 23px;
     max-height: 23px;
@@ -5171,10 +5172,11 @@
 .il-login-logo {
     position: absolute;
     left: 50%;
-    top: 6%;
-    width: 160px;
-    height: 150px;
-    margin-left: -80px;
+    top: 50px;
+    width: 256px;
+    height: 256px;
+    margin-left: 0;
+    translate: -128px 0;
     background-image: resource("Data/UI/Login/fineage-logo-white");
     -unity-background-scale-mode: scale-to-fit;
 }
@@ -5203,31 +5205,39 @@
 
 .il-login-menu {
     position: absolute;
-    right: 28px;
-    bottom: 52px;
+    right: 34px;
+    bottom: 62px;
+    width: 120px;
+    height: 138px;
     flex-direction: column;
     align-items: stretch;
     flex-grow: 0;
     flex-shrink: 0;
+    background-image: resource('Data/UI/Login/Interlude/lobby_menuback');
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
 .il-login-copyright {
     display: none;
 }
 
-/* logon_back.png is 256×108; frame taller for Fineage Remember under PWD. */
+/* logon_back.png is 256×108. Remember me sits in the gap under the password edit. */
 .il-login-frame {
+    position: absolute;
+    left: 50%;
+    top: 50%;
     width: 256px;
-    height: 126px;
+    height: 108px;
+    translate: -128px -54px;
     flex-grow: 0;
     flex-shrink: 0;
     background-image: resource('Data/UI/Login/Interlude/logon_back');
     -unity-background-scale-mode: stretch-to-fill;
     background-color: rgba(0, 0, 0, 0);
-    padding-top: 16px;
-    padding-right: 14px;
-    padding-bottom: 10px;
-    padding-left: 14px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
 }
 
 .il-login-row {
@@ -5269,15 +5279,24 @@
     letter-spacing: 0;
 }
 
-/* Both ID/PWD edits share the same width (256 - pad14*2 - label48 - gap4 = 176). */
+/* Extracted edit is 128x17. The label hangs to the left of that box. */
 .il-field {
-    width: 176px;
-    min-width: 176px;
-    max-width: 176px;
+    width: 128px;
+    min-width: 128px;
+    max-width: 128px;
     flex-grow: 0;
     flex-shrink: 0;
     height: 17px;
-    position: relative;
+    position: absolute;
+    overflow: visible;
+}
+
+.il-login-frame .il-login-label {
+    position: absolute;
+    right: 100%;
+    top: 0;
+    height: 17px;
+    margin-right: 4px;
 }
 
 .il-edit {
@@ -5319,7 +5338,7 @@
     left: 0;
     right: 0;
     top: 0;
-    width: 176px;
+    width: 128px;
     height: 17px;
     min-height: 0;
     max-height: 17px;
@@ -5418,7 +5437,7 @@
 
 /* NCLoginFunctionWnd: equal vertical stack, Interlude bigbutton art. */
 .il-login .il-login-menu-btn {
-    width: 133px;
+    width: 96px;
     height: 23px;
     min-height: 23px;
     max-height: 23px;
@@ -5533,14 +5552,17 @@
 
 /* Remember: Fineage-only under PWD — L2 checkbox left, English label. */
 .il-login .il-login-remember {
+    position: absolute;
+    left: 84px;
+    top: 59px;
     display: flex;
     flex-direction: row;
     align-items: center;
     align-self: flex-start;
-    height: 14px;
-    margin-top: -2px;
-    margin-bottom: 4px;
-    margin-left: 52px;
+    height: 12px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
     margin-right: 0;
     padding-top: 0;
     padding-bottom: 0;
@@ -5600,7 +5622,7 @@
     background-color: rgba(0, 0, 0, 0);
     -unity-background-image-tint-color: rgb(255, 255, 255);
     -unity-background-scale-mode: stretch-to-fill;
-    background-image: resource('Data/UI/Quest/CheckBox_uncheked');
+    background-image: resource('Data/UI/Login/Interlude/CheckBox');
 }
 /* Kill Unity default check glyph (black V) on top of our sprite. */
 .il-login .il-login-remember .unity-toggle__checkmark > VisualElement,
@@ -5609,13 +5631,9 @@
     background-image: none;
     background-color: rgba(0, 0, 0, 0);
 }
-.il-login .il-login-remember:hover .unity-toggle__checkmark,
-.il-login .il-login-remember:hover #unity-checkmark {
-    background-image: resource('Data/UI/Quest/CheckBox_hover');
-}
 .il-login .il-login-remember:checked .unity-toggle__checkmark,
 .il-login .il-login-remember:checked #unity-checkmark {
-    background-image: resource('Data/UI/Quest/CheckBox_checked');
+    background-image: resource('Data/UI/Login/Interlude/CheckBox_checked');
 }
 .il-login .il-login-remember > .unity-label,
 .il-login .il-login-remember .unity-toggle__label {

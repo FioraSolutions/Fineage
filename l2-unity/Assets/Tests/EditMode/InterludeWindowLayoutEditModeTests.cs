@@ -93,24 +93,60 @@ public sealed class InterludeWindowLayoutEditModeTests
     [Test]
     public void Lobby_menu_buttons_match_extracted_rects()
     {
-        InterludeLayoutFile file = LoadLayout();
-        InterludeLayoutWindow menu = RequireWindow(file, "NCLobbyFunctionWnd");
-        ExpectLocal(menu, "NCLobbyFunctionWnd", 0f, 0f, 120f, 138f);
-        ExpectLocal(menu, "btnCreate", 13f, 20f, 96f, 23f);
-        ExpectLocal(menu, "btnDelete", 13f, 45f, 96f, 23f);
-        ExpectLocal(menu, "btnReLogin", 13f, 95f, 96f, 23f);
+        VisualElement host = new VisualElement();
+        Assert.IsTrue(InterludeWindowLayout.Apply(host, "NCLobbyFunctionWnd"));
+        Assert.AreEqual(120f, host.style.width.value.value, 0.01f);
+        Assert.AreEqual(138f, host.style.height.value.value, 0.01f);
+        Assert.AreEqual(34f, host.style.right.value.value, 0.01f);
+        Assert.AreEqual(10f, host.style.bottom.value.value, 0.01f);
+        ExpectRect(host, "btnCreate", 13f, 20f, 96f, 23f);
+        ExpectRect(host, "btnDelete", 13f, 45f, 96f, 23f);
+        ExpectRect(host, "btnReLogin", 13f, 95f, 96f, 23f);
 
-        InterludeLayoutWindow start = RequireWindow(file, "NCLobbyStartWnd");
-        ExpectLocal(start, "NCLobbyStartWnd", 0f, 0f, 140f, 49f);
-        ExpectLocal(start, "btnStart", 13f, 10f, 116f, 31f);
+        VisualElement start = new VisualElement();
+        Assert.IsTrue(InterludeWindowLayout.Apply(start, "NCLobbyStartWnd"));
+        Assert.AreEqual(140f, start.style.width.value.value, 0.01f);
+        Assert.AreEqual(49f, start.style.height.value.value, 0.01f);
+        Assert.AreEqual(10f, start.style.bottom.value.value, 0.01f);
+        ExpectRect(start, "btnStart", 13f, 10f, 116f, 31f);
 
-        InterludeLayoutWindow card = RequireWindow(file, "NCLobbyWnd_CharInfo");
-        ExpectLocal(card, "NameField", 13f, 46f, 138f, 17f);
-        ExpectLocal(card, "HPBar", 35f, 55f, 85f, 12f);
-        ExpectLocal(card, "MPBar", 35f, 69f, 85f, 12f);
-        ExpectLocal(card, "EXPBar", 35f, 83f, 206f, 12f);
-        ExpectLocalPoint(card, "labelA", 15f, 16f);
-        ExpectLocalPoint(card, "labelB", 15f, 39f);
+        VisualElement card = new VisualElement();
+        Assert.IsTrue(InterludeWindowLayout.Apply(card, "NCLobbyWnd_CharInfo"));
+        Assert.AreEqual(24f, card.style.left.value.value, 0.01f);
+        Assert.AreEqual(27f, card.style.top.value.value, 0.01f);
+        Assert.AreEqual(256f, card.style.width.value.value, 0.01f);
+        Assert.AreEqual(108f, card.style.height.value.value, 0.01f);
+        ExpectRect(card, "HPBar", 35f, 55f, 85f, 12f);
+        ExpectRect(card, "MPBar", 35f, 69f, 85f, 12f);
+        ExpectRect(card, "EXPBar", 35f, 83f, 206f, 12f);
+    }
+
+    [Test]
+    public void Login_windows_match_extracted_anchors()
+    {
+        VisualElement auth = new VisualElement();
+        Assert.IsTrue(InterludeWindowLayout.Apply(auth, "NCAuthWnd"));
+        Assert.AreEqual(256f, auth.style.width.value.value, 0.01f);
+        Assert.AreEqual(108f, auth.style.height.value.value, 0.01f);
+        ExpectRect(auth, "IDInput", 84f, 20f, 128f, 17f);
+        ExpectRect(auth, "PasswordInput", 84f, 42f, 128f, 17f);
+        ExpectRect(auth, "LoginButton", 31f, 72f, 96f, 23f);
+        ExpectRect(auth, "ExitButton", 131f, 72f, 96f, 23f);
+
+        VisualElement menu = new VisualElement();
+        Assert.IsTrue(InterludeWindowLayout.Apply(menu, "NCLoginFunctionWnd"));
+        Assert.AreEqual(120f, menu.style.width.value.value, 0.01f);
+        Assert.AreEqual(138f, menu.style.height.value.value, 0.01f);
+        Assert.AreEqual(34f, menu.style.right.value.value, 0.01f);
+        Assert.AreEqual(62f, menu.style.bottom.value.value, 0.01f);
+        ExpectRect(menu, "NewAccountButton", 13f, 8f, 96f, 23f);
+        ExpectRect(menu, "ReplayButton", 13f, 107f, 96f, 23f);
+
+        VisualElement logo = new VisualElement();
+        Assert.IsTrue(InterludeWindowLayout.Apply(logo, "LoginLogoWnd"));
+        Assert.AreEqual(256f, logo.style.width.value.value, 0.01f);
+        Assert.AreEqual(256f, logo.style.height.value.value, 0.01f);
+        Assert.AreEqual(50f, logo.style.top.value.value, 0.01f);
     }
 
     [Test]
@@ -140,56 +176,5 @@ public sealed class InterludeWindowLayoutEditModeTests
         Assert.AreEqual(top, element.style.top.value.value, 0.01f, name + " top");
         Assert.AreEqual(width, element.style.width.value.value, 0.01f, name + " width");
         Assert.AreEqual(height, element.style.height.value.value, 0.01f, name + " height");
-    }
-
-    static InterludeLayoutFile LoadLayout()
-    {
-        TextAsset asset = Resources.Load<TextAsset>(InterludeWindowLayout.ResourcesKey);
-        Assert.IsNotNull(asset, InterludeWindowLayout.ResourcesKey);
-        InterludeLayoutFile file = JsonUtility.FromJson<InterludeLayoutFile>(asset.text);
-        Assert.IsNotNull(file);
-        Assert.IsNotNull(file.windows);
-        return file;
-    }
-
-    static InterludeLayoutWindow RequireWindow(InterludeLayoutFile file, string name)
-    {
-        for (int i = 0; i < file.windows.Length; i++)
-        {
-            if (file.windows[i].name == name)
-                return file.windows[i];
-        }
-
-        Assert.Fail("layout asset is missing window " + name);
-        return null;
-    }
-
-    static void ExpectLocal(InterludeLayoutWindow window, string name, float x, float y, float width, float height)
-    {
-        InterludeLayoutControl control = RequireControl(window, name);
-        Assert.AreEqual(x, control.x, 0.01f, name + " x");
-        Assert.AreEqual(y, control.y, 0.01f, name + " y");
-        Assert.AreEqual(width, control.width, 0.01f, name + " width");
-        Assert.AreEqual(height, control.height, 0.01f, name + " height");
-    }
-
-    static void ExpectLocalPoint(InterludeLayoutWindow window, string name, float x, float y)
-    {
-        InterludeLayoutControl control = RequireControl(window, name);
-        Assert.AreEqual(x, control.x, 0.01f, name + " x");
-        Assert.AreEqual(y, control.y, 0.01f, name + " y");
-    }
-
-    static InterludeLayoutControl RequireControl(InterludeLayoutWindow window, string name)
-    {
-        Assert.IsNotNull(window.controls, window.name);
-        for (int i = 0; i < window.controls.Length; i++)
-        {
-            if (window.controls[i].name == name)
-                return window.controls[i];
-        }
-
-        Assert.Fail(window.name + " is missing control " + name);
-        return null;
     }
 }

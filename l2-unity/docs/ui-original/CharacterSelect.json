@@ -2,7 +2,7 @@
   "source": {
     "file": "system/nwindow.dll",
     "chronicle": "Interlude",
-    "note": "Character select is not in Interface.xdat. NCLobbyWnd / NCLobbyFunctionWnd / NCLobbyStartWnd are implemented in native C++ (nwindow.dll). Layout below was recovered from those OnCreate/OnPaint functions in the retail Interlude nwindow.dll (ImageBase 0x10000000). Screen placement of the three windows is computed at runtime from the current resolution; only local (window-relative) coordinates are hardcoded.",
+    "note": "Character select is not in Interface.xdat. Local control rects come from OnCreate/OnPaint. Screen anchors come from the lobby builder at 0x1017D410, which calls SetPosition (vtable +0xC0) and then stores an anchor with vtable +0xD0. The anchor is the position that survives a resize: the resolver at 0x1005C570 lines the window's anchor point up with the parent's and adds the stored offset. Anchor enum matches the xdat Alignment list (1 TOP_LEFT ... 9 BOTTOM_RIGHT).",
     "functions": {
       "NCLobbyFunctionWnd::OnCreate": "0x1017A9E0-0x1017AD6F",
       "NCLobbyFunctionWnd::OnPaint": "0x1017ADB0-0x1017AE84",
@@ -11,7 +11,37 @@
       "NCLobbyWnd_or_pawn_card_ctor": "0x1017C010-0x1017C12A",
       "NCLobbyWnd_or_pawn_card_OnPaint": "0x1017C130-0x1017C8E9 (approx, continues into value text)"
     },
-    "output": "CharacterSelect.json"
+    "output": "CharacterSelect.json",
+    "screenPlacement": {
+      "function": "0x1017D410-0x1017D6E4",
+      "anchorMethod": "0x1005D950 (vtable +0xD0) stores mode at +0x138, x at +0x150, y at +0x154",
+      "resolver": "0x1005C570 adds (stored - selfAnchor + parentAnchor) to the window origin",
+      "pointResolver": "0x1005A550",
+      "NCLobbyWnd_CharInfo": {
+        "alignment": "TOP_LEFT",
+        "x": 24,
+        "y": 27,
+        "width": 256,
+        "height": 108,
+        "evidence": "SetPosition(0x18, 0x1B, 0x100, 0x6C) then anchor mode 1, x=0x18, y=0x1B at 0x1017D466"
+      },
+      "NCLobbyStartWnd": {
+        "alignment": "BOTTOM_CENTER",
+        "x": 0,
+        "y": -10,
+        "width": 140,
+        "height": 49,
+        "evidence": "SetPosition pre-correction x=screenW/2-0x47, y=screenH-0x6F, 0x8C x 0x31, then anchor mode 8, x=0, y=-10 at 0x1017D5B2"
+      },
+      "NCLobbyFunctionWnd": {
+        "alignment": "BOTTOM_RIGHT",
+        "x": -34,
+        "y": -10,
+        "width": 120,
+        "height": 138,
+        "evidence": "SetPosition pre-correction x=screenW-0x9A, y=screenH-0xC8, 0x78 x 0x8A, then anchor mode 9, x=-34, y=-10 at 0x1017D661"
+      }
+    }
   },
   "sysstrings": {
     "50": "Name",
@@ -31,7 +61,7 @@
     {
       "name": "NCLobbyFunctionWnd",
       "type": "NativeWindow",
-      "parent": "NCLobbyWnd",
+      "parent": "",
       "width": 120,
       "height": 138,
       "backTex": "L2UI_CH3.LobbyWnd.lobby_menuback",
@@ -85,12 +115,16 @@
           "buttonText": "Re-Login",
           "evidence": "OnCreate: SetRect(13,95,96,23) then SetSysString(0x374=884)."
         }
-      ]
+      ],
+      "anchorParentPoint": "BOTTOM_RIGHT",
+      "anchorThisPoint": "BOTTOM_RIGHT",
+      "x": -34,
+      "y": -10
     },
     {
       "name": "NCLobbyStartWnd",
       "type": "NativeWindow",
-      "parent": "NCLobbyWnd",
+      "parent": "",
       "width": 140,
       "height": 49,
       "backTex": "L2UI_CH3.LobbyWnd.lobby_startbtnback",
@@ -112,14 +146,18 @@
           "buttonText": "Start",
           "evidence": "OnCreate: SetRect(13,10,116,31) then SetSysString(0xA0=160)."
         }
-      ]
+      ],
+      "anchorParentPoint": "BOTTOM_CENTER",
+      "anchorThisPoint": "BOTTOM_CENTER",
+      "x": 0,
+      "y": -10
     },
     {
       "name": "NCLobbyWnd_CharInfo",
       "type": "NativeWindow",
-      "parent": "NCLobbyWnd",
+      "parent": "",
       "backTex": "L2UI_CH3.LobbyWnd.select1_back",
-      "note": "The character-info card (Name / HP / MP / Exp, and numeric HP/MP/Exp text). There is no SP bar texture in this paint path; SP is a sysstring (92) and may be drawn as text only. Window size itself is the size of select1_back (not a literal in OnCreate). Related texture L2UI_CH3.LobbyWnd.select2_back is present in the same DLL and is used for the unselected/alternate card state.",
+      "note": "Screen rect is SetPosition 256x108 at TOP_LEFT (24, 27). select1_back's intrinsic size is 256x128; OnPaint stretches it to the window. The earlier note that the window size is only the texture size is superseded by the builder at 0x1017D466.",
       "controls": [
         {
           "name": "select1_back",
@@ -213,21 +251,29 @@
           "fontColor": "#FFDCDCDC",
           "note": "Numeric HP/MP/Exp (and related) values are drawn in #FFDCDCDC. Several values are horizontally centered around x=77 or placed at x=67/83/131; y positions used include 57, 69, 71, 85. Re-read OnPaint if a pixel-perfect value label is needed."
         }
-      ]
+      ],
+      "anchorParentPoint": "TOP_LEFT",
+      "anchorThisPoint": "TOP_LEFT",
+      "x": 24,
+      "y": 27,
+      "width": 256,
+      "height": 108
     }
   ],
   "controls": [
     {
       "name": "NCLobbyFunctionWnd",
       "type": "NativeWindow",
-      "parent": "NCLobbyWnd",
-      "x": null,
-      "y": null,
+      "parent": "",
+      "x": -34,
+      "y": -10,
       "width": 120,
       "height": 138,
       "textures": {
         "backTex": "L2UI_CH3.LobbyWnd.lobby_menuback"
-      }
+      },
+      "anchorParentPoint": "BOTTOM_RIGHT",
+      "anchorThisPoint": "BOTTOM_RIGHT"
     },
     {
       "name": "btnCreate",
@@ -280,14 +326,16 @@
     {
       "name": "NCLobbyStartWnd",
       "type": "NativeWindow",
-      "parent": "NCLobbyWnd",
-      "x": null,
-      "y": null,
+      "parent": "",
+      "x": 0,
+      "y": -10,
       "width": 140,
       "height": 49,
       "textures": {
         "backTex": "L2UI_CH3.LobbyWnd.lobby_startbtnback"
-      }
+      },
+      "anchorParentPoint": "BOTTOM_CENTER",
+      "anchorThisPoint": "BOTTOM_CENTER"
     },
     {
       "name": "btnStart",
@@ -308,14 +356,16 @@
     {
       "name": "NCLobbyWnd_CharInfo",
       "type": "NativeWindow",
-      "parent": "NCLobbyWnd",
-      "x": null,
-      "y": null,
-      "width": null,
-      "height": null,
+      "parent": "",
+      "x": 24,
+      "y": 27,
+      "width": 256,
+      "height": 108,
       "textures": {
         "backTex": "L2UI_CH3.LobbyWnd.select1_back"
-      }
+      },
+      "anchorParentPoint": "TOP_LEFT",
+      "anchorThisPoint": "TOP_LEFT"
     },
     {
       "name": "select1_back",
@@ -323,6 +373,8 @@
       "parent": "NCLobbyWnd_CharInfo",
       "x": 0,
       "y": 0,
+      "width": 256,
+      "height": 108,
       "textures": {
         "file": "L2UI_CH3.LobbyWnd.select1_back"
       },
