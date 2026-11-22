@@ -45,15 +45,15 @@ Related: `Docs/LOBBY_INTERLUDE_SOURCES.md`, `Docs/agent-tips/login-forest-lobby.
 
 | # | Gap | Why it blocks parity | How to close |
 |---|-----|----------------------|--------------|
-| G1 | **Engine.u / UWindow.u class defaults** (`*.uc` not dumped; Class exports serialize with 0 props) | Camera25 FOV is unprovenanced (code uses 35 — must be confirmed from `class Camera` defaultproperties FovAngle); SpriteEmitter/ZoneInfo/Light defaults matter for every partially-specified actor. | `extract_login_lobby.sh` step: UScriptDump on `core/Engine.u` and `core/UWindow.u` → `l2-unity/docs/interlude-ref/scripts/Engine.u/*.uc` |
+| G1 | **Engine.u / UWindow.u class defaults** (`*.uc` not dumped; Class exports serialize with 0 props) | 13 of 15 lobby cameras store no FovAngle (incl. Camera25 — code uses 35, unprovenanced; needs `class Camera` defaultproperties); AmbientSoundType byte-enum names; SpriteEmitter/ZoneInfo/Light defaults. | `extract_login_lobby.sh` step 4: decrypt (Lineage2Ver XOR) + UScriptDump on `system/Engine.u` / `UWindow.u` → `l2-unity/docs/interlude-ref/scripts/Engine.u/*.uc` |
 | G2 | **Property dumps of the lobby packages** (L2_Lobby_T.utx, l2_lobby.usx, Lobby_terrain_t.utx, l2_skies.utx, L2Font.utx) — only name indexes exist | Material chains (Shader→Combiner→TexPanner/TexRotator) for sky/water/lobby textures are unread; terrain alphamap formats unverified. | `extract_login_lobby.sh` step: `export_client_packages.sh -- Lobby L2_Lobby_T l2_lobby Lobby_terrain_t l2_skies L2Font` |
 | G3 | **Terrain QuadVisibilityBitmap/TIntMap payloads** for Lobby (bits not serialized in JSON) | Terrain holes (vista sightlines) can't bake. | `extract_login_lobby.sh` step: `DumpTerrainHoles` sidecar for Lobby → `.work/lobby-extract/quadvisibility/` |
 | G4 | **BSP brushes of the skybox** (Models/Brushes/Polys export with 0 props — binary payloads) | Skybox box with L2_Lobby_sky* faces can't rebuild; sky currently absent. | `extract_login_lobby.sh` step: `BrushDump` on Lobby.unr → `.work/lobby-extract/l2_lobby/brushes.t3d` |
 | G5 | **l2_skies.utx texture pixels** (L2_Lobby_sky, L2_Lobby_sky_front, L2_Lobby_back, moon, HazeRing/Cloud/StarField shaders' inputs) | No skybox faces in Unity. | umodel export (command in §3). |
 | G6 | **L2Font.utx start_logo-k / start_minilogo-k pixels** | Logo texture in Unity is `start_logo-EU.png` of unknown provenance. | umodel export (command in §3). |
 | G7 | **sysstring-e.dat decode** (ids 152/153/154/155/156/805/1251 etc.) | Caption text unverified byte-exact (current strings match retail — low priority). | `dump_sysstring.py` (this repo) after l2encdec decode. |
-| G8 | **2 deco grass meshes**: `dion_grass015`, `Delf_Grass_001` FBX | Two of five deco layers can't spawn. | umodel export of their .usx + pskx→fbx (command in §3). |
-| G9 | **Lobby bake Meta inputs not in git** (`l2_lobby.t3d`, `TerrainInfo0.txt`, `StaticMeshActorIndividuals.txt` — every other tile has them) | Lobby terrain/mesh bake not reproducible from git; LoginForestActors.json is a derived lossy side-format instead. | Generate from committed `Lobby.unr.json.gz` (+ G3/G4 sidecars) with the shared tile-Meta generator — Step 2 work, no client needed. |
+| G8 | **9 meshes + 1 terrain alphamap**: deco grasses `dion_grass015`, `Delf_Grass_001` (field_deco_S.usx); trees `Dwarftree01/04/06`, `Orctree01-04` (speaking_tree_s.usx); terrain alphamap PNG `Lobby_terrain_t.H_M_05` | Two of five deco layers can't spawn; vista trees missing; one human-village splat layer has no weight map. Found by `build_lobby_bake_meta.py` asset verification. | umodel export (command in §3). |
+| G9 | ~~**Lobby bake Meta inputs not in git**~~ **CLOSED** — `tools/interlude-extract/build_lobby_bake_meta.py` generates `TerrainInfo0.txt` / `l2_lobby.t3d` / `StaticMeshActorIndividuals.txt` from the committed lossless dump (+G3/G4 sidecars), verifying every referenced asset. | — | Done in this branch. |
 | G10 | **nwindow.dll second disasm pass** (ID/PWD label rects at OnPaint RVA 0x1017F390, NCLoginServerWnd rect, MiniLogo) | Label placement guesswork. | Analysis task (no Mac command); RVAs already documented in `l2-unity/docs/ui-original/README.md`. |
 
 ## 3. Exact Mac commands
@@ -70,19 +70,19 @@ Textures and meshes (G5, G6, G8) — umodel in Docker, same pattern as
 `tools/interlude/export_tile_staticmeshes.sh`:
 
 ```bash
-# sky + logo textures -> .tga under .work/umodel-export-login/
+# sky + logo + terrain alphamap textures -> .tga under .work/umodel-export-login/
 docker run --rm --platform linux/amd64 \
   -v ~/Downloads/L2_Interlude_Client/Lineage\ II:/client:ro \
   -v "$PWD/.work/umodel-export-login":/export \
   -v "$PWD/l2-unity/External/UEViewer/umodel":/umodel:ro \
   ubuntu:22.04 bash -lc 'apt-get update -qq && apt-get install -y -qq libpng16-16 libsdl2-2.0-0 >/dev/null && \
     /umodel -path=/client -game=l2 -export -out=/export textures/l2_skies.utx && \
-    /umodel -path=/client -game=l2 -export -out=/export systextures/L2Font.utx'
+    /umodel -path=/client -game=l2 -export -out=/export systextures/L2Font.utx && \
+    /umodel -path=/client -game=l2 -export -out=/export textures/Lobby_terrain_t.utx'
 
-# dion_grass015 / Delf_Grass_001 meshes (find owning .usx first: they are
-# referenced from lobby DecoLayers; packages per staticmeshes.json after step G2)
-# then: bash tools/interlude/export_tile_staticmeshes.sh equivalent for those packages,
-# then pskx_to_fbx_batch.py as usual.
+# G8 meshes: speaking_tree_s.usx (7 trees) + field_deco_S.usx (2 deco grasses),
+# same Docker umodel invocation with staticmeshes/<pkg>.usx, then
+# pskx_to_fbx_batch.py as in the tile flow.
 ```
 
 Then commit: new dumps under `l2-unity/docs/interlude-ref/` (world/env +
