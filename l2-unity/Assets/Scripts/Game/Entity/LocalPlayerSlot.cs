@@ -52,4 +52,16 @@ public sealed class LocalPlayerSlot : ILocalPlayerSlot
         position = _player.transform.position;
         return true;
     }
+
+    public bool TryGetName(out string name)
+    {
+        if (_player == null)
+        {
+            name = null;
+            return false;
+        }
+
+        name = _player.name;
+        return true;
+    }
 }
