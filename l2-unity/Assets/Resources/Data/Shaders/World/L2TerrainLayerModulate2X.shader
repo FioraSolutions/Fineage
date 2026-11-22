@@ -11,7 +11,10 @@ Shader "L2/World/TerrainLayerModulate2X"
     {
         _LayerTex ("Layer (t0 color)", 2D) = "white" {}
         [NoScaleOffset] _LayerMask ("Layer mask (t1, this layer AlphaMap)", 2D) = "black" {}
-        _LayerIndex ("Layer Index (1-9, RenderDoc)", Float) = 1
+        [NoScaleOffset] _Layers ("Layer array (slice = _SplatSlice)", 2DArray) = "white" {}
+        [NoScaleOffset] _Splatmaps ("Splat array (slice = _SplatSlice)", 2DArray) = "black" {}
+        _UseSplatArrays ("Use splat arrays", Float) = 0
+        _LayerIndex ("Layer Index (official overlay, RenderDoc)", Float) = 1
         _SplatSlice ("Splat slice (layerIndex - 1)", Float) = 0
         _LayerUV ("Layer UScale (TerrainInfo)", Vector) = (1, 1, 0, 0)
         _L2WorldUvPerTileUu ("World UV tile (UU)", Float) = 128
@@ -27,12 +30,16 @@ Shader "L2/World/TerrainLayerModulate2X"
     SAMPLER(sampler_LayerTex);
     TEXTURE2D(_LayerMask);
     SAMPLER(sampler_LayerMask);
+    TEXTURE2D_ARRAY(_Layers);
+    SAMPLER(sampler_Layers);
+    TEXTURE2D_ARRAY(_Splatmaps);
 
     CBUFFER_START(UnityPerMaterial)
         float4 _LayerTex_ST;
         float4 _LayerUV;
         float _LayerIndex;
         float _SplatSlice;
+        float _UseSplatArrays;
         float _L2WorldUvPerTileUu;
         float _Cull;
     CBUFFER_END
@@ -109,9 +116,19 @@ Shader "L2/World/TerrainLayerModulate2X"
                 if (_L2TerrainLightDebug > 0.5)
                     return half4(L2_TerrainLightDebugColor(IN.worldUu), 1);
                 float2 colorUv = L2_TerrainLayerUv(IN.worldUu, _LayerUV, _L2WorldUvPerTileUu);
-                half3 albedo = SAMPLE_TEXTURE2D(_LayerTex, sampler_LayerTex, colorUv).rgb;
                 float2 maskUv = L2_TerrainSplatUv(IN.meshUv);
-                half alpha = SAMPLE_TEXTURE2D_BIAS(_LayerMask, sampler_LinearClamp, maskUv, -0.5).r;
+                half3 albedo;
+                half alpha;
+                if (_UseSplatArrays > 0.5)
+                {
+                    albedo = SAMPLE_TEXTURE2D_ARRAY(_Layers, sampler_Layers, colorUv, _SplatSlice).rgb;
+                    alpha = SAMPLE_TEXTURE2D_ARRAY_BIAS(_Splatmaps, sampler_LinearClamp, maskUv, _SplatSlice, -0.5).r;
+                }
+                else
+                {
+                    albedo = SAMPLE_TEXTURE2D(_LayerTex, sampler_LayerTex, colorUv).rgb;
+                    alpha = SAMPLE_TEXTURE2D_BIAS(_LayerMask, sampler_LinearClamp, maskUv, -0.5).r;
+                }
                 float3 rgb = L2_LinearFog(L2_Modulate2X(albedo, IN.color0), IN.viewAbsZ);
                 return half4(rgb, alpha);
             }

@@ -45,6 +45,7 @@ public partial class L2T3DInfoParser
             }
         }
 
+        L2TerrainInfoParser.ValidateOfficialUvLayers(mapName, terrainInfo.uvLayers);
         terrainInfo.quadVisibilityBitmap = L2TerrainInfoParser.FinalizeQuadVisibility(t3dPath, quadWords);
 
         // Debug.Log($"Loaded {terrainInfo.uvLayers.Count} uv layers data.");

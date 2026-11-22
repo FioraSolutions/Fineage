@@ -46,22 +46,6 @@ public sealed partial class L2TerrainLayerStack
             || n == "L2/World/TerrainSplatModulate2X";
     }
 
-    static bool IsSkippedOverlay(Texture tex)
-    {
-        if (tex == null)
-            return true;
-        string n = tex.name;
-        if (string.IsNullOrEmpty(n))
-            return false;
-        if (n.IndexOf("Water", System.StringComparison.OrdinalIgnoreCase) >= 0)
-            return true;
-        if (n.IndexOf("SL_WR", System.StringComparison.OrdinalIgnoreCase) >= 0)
-            return true;
-        if (n.EndsWith("_WR", System.StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
-    }
-
     static Texture ReadTex(Material src, string name)
     {
         if (src == null || string.IsNullOrEmpty(name))

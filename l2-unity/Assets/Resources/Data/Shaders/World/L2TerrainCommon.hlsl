@@ -5,17 +5,15 @@
 // Splat UV: mesh UV0 rotated 90° around 0.5, then (i + 0.5) / 256.
 // GenerateTriangles writes mask UV as (globalVertex + 0.5) / mapSize. Map size is 256.
 // Stored UV is i/254, including the extra edge vertex i=255.
-// Overlay alphamap: Texture2DArray slice i = layer i+1, mask in .r.
+// Overlay alphamap: Texture2DArray slice i = official layer i+1, mask in .r.
+// Overlay count is the array depth, not a fixed slice cap.
 //
 // UnTerrain.cpp:
 //   TriangulateLayer(pass) — one triangle list per layer, not the full tile.
 //   PassShouldRenderTriangle + IsTriangleAll(this, 0) — skip if this layer is 0.
 //   IsTriangleAll(later, 255) — skip if a later layer is fully opaque.
 //   GetLayerAlpha / GetAlpha_DXT — raw 0..255, no extra scale.
-// Pixel version of that cull (full mesh still submitted). Slice 2 = SL_WR, skipped.
-
-#define L2_TERRAIN_SPLAT_SLICES 9
-#define L2_TERRAIN_WATER_SLICE 2
+// Pixel version of that cull (full mesh still submitted).
 
 // Sun grid from L2unpacker Output/ExtractStoredIntensity.java (sector windows).
 // The ray rebake (terrain-normals) is the emergency fallback only.
