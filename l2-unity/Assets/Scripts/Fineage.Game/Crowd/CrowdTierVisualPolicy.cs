@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Roadmap step 14: tier-driven animator rate and skinned culling.
-/// Invoked from crowd tier refresh (<see cref="CrowdTierSystem"/>; same path under unified visibility #1650).
+/// Invoked from crowd tier refresh (<see cref="CrowdTierSystem"/>; same call path once #1650 VisibilityManager lands).
 /// </summary>
 public static class CrowdTierVisualPolicy
 {
