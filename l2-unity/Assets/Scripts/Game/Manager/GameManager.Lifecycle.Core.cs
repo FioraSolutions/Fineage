@@ -16,10 +16,9 @@ public partial class GameManager : MonoBehaviour, IGameManager
 
         ConfigureBackend();
 
-        if (FindFirstObjectByType<AppLifetimeScope>() == null)
-            gameObject.AddComponent<AppLifetimeScope>();
-        // AppLifetimeScope may already exist on this GO — still need FMOD listener before lobby.
-        DiBootstrap.EnsureAppScope();
+        // Existing scope stays put. If none exists, Ensure adds it on this object,
+        // then the FMOD listener, before the lobby loads.
+        AppScopeStartup.Run(gameObject);
     }
 
     /// <summary>

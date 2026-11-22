@@ -4,9 +4,17 @@ using VContainer.Unity;
 
 public static partial class DiBootstrap
 {
-    public static void EnsureAppScope()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void RegisterStartup()
+    {
+        AppScopeStartup.Ensure = EnsureAppScope;
+    }
+
+    public static void EnsureAppScope(GameObject host = null)
     {
         AppLifetimeScope existing = Object.FindFirstObjectByType<AppLifetimeScope>();
+        if (existing == null && host != null)
+            existing = host.AddComponent<AppLifetimeScope>();
         if (existing != null)
         {
             if (existing.GetComponent<EventProcessor>() == null)
