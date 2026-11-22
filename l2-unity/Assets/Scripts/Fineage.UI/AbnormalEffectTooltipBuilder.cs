@@ -62,6 +62,15 @@ public static class AbnormalEffectTooltipBuilder
     public static bool TryFormatChargeLabel(int skillId, int wireValue, out string label)
     {
         label = null;
+        if (wireValue <= 0)
+            return false;
+
+        if (skillId == SkillAnimationResolver.ForceChargeTraySkillId)
+        {
+            label = wireValue.ToString();
+            return true;
+        }
+
         if (wireValue <= 1)
             return false;
         Skillgrp skill = AbnormalEffectTooltipTables.SkillGrps?.GetSkill(
