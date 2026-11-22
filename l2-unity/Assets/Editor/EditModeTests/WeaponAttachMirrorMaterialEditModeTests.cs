@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 public sealed class WeaponAttachMirrorMaterialEditModeTests
 {
+    [TearDown]
+    public void TearDown() => WeapongrpTable.UnloadForEditModeTests();
+
     [Test]
     public void MirrorApply_leaves_no_single_sided_cull_slots()
     {
@@ -41,9 +42,6 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
     [Test]
     public void Audit_all_LineageWeapons_prefabs_that_mirror_in_weapongrp()
     {
-        LogAssert.Expect(
-            LogType.Error,
-            new Regex(@"WeapongrpTable: using non-DI empty instance"));
         GameObject[] prefabs = Resources.LoadAll<GameObject>("Data/Animations/LineageWeapons");
         if (prefabs == null || prefabs.Length == 0)
         {
@@ -53,7 +51,11 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
 
         var mirrorKeys = CollectMirrorModelKeysFromMeta();
         if (mirrorKeys.Count == 0)
-            Assert.Inconclusive("Weapongrp mirror profiles not loaded in EditMode (missing meta DAT?)");
+        {
+            Assert.Inconclusive(
+                "Weapongrp table empty or missing StreamingAssets Data/Meta/Weapongrp_Classic.txt");
+            return;
+        }
         int audited = 0;
         var failures = new List<string>();
         for (int i = 0; i < prefabs.Length; i++)
@@ -87,9 +89,9 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
     static HashSet<string> CollectMirrorModelKeysFromMeta()
     {
         var keys = new HashSet<string>(System.StringComparer.Ordinal);
-        LogAssert.ignoreFailingMessages = true;
-        WeapongrpTable table = WeapongrpTable.Instance;
-        table.Initialize();
+        WeapongrpTable table = WeapongrpTable.TryLoadForEditModeTests();
+        if (table == null)
+            return keys;
         if (table.WeaponGrps == null)
             return keys;
         foreach (KeyValuePair<int, Weapongrp> pair in table.WeaponGrps)
@@ -100,7 +102,6 @@ public sealed class WeaponAttachMirrorMaterialEditModeTests
             foreach (string model in WeapongrpHandMeshes.EnumerateModelKeys(grp))
                 keys.Add(model);
         }
-        LogAssert.ignoreFailingMessages = false;
         return keys;
     }
 
