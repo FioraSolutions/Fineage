@@ -23,7 +23,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [SerializeField] private GameObject _usersContainer;
     [SerializeField] private GameObject _itemsContainer;
 
-    [Inject] private EventProcessor _eventProcessor;
+    [Inject] private IEventQueue _eventQueue;
     [Inject] private Geodata _geodata;
     [Inject] private WorldCombat _worldCombat;
     [Inject] private ObjectPoolManager _objectPool;
