@@ -45,9 +45,31 @@ def test_net_framing_write_async_roundtrip() -> None:
     assert "[envelope]" not in out
 
 
+def test_decode_readonly_span_gets_using_system() -> None:
+    backend = (
+        "namespace Fineage.Net.Contract\n"
+        "{\n"
+        "    public static partial class NetCodec\n"
+        "    {\n"
+        "        public static ClientSetTimeNetMsg DecodeClientSetTime(ReadOnlySpan<byte> p)\n"
+        "        {\n"
+        "            return new ClientSetTimeNetMsg();\n"
+        "        }\n"
+        "    }\n"
+        "}\n"
+    )
+    out = prepare_contract_bytes(
+        backend.encode("utf-8"),
+        rel="Codec/NetCodec.GameTime.cs",
+    ).decode("utf-8")
+    assert out.startswith("using System;")
+    assert "ReadOnlySpan<byte>" in out
+
+
 def main() -> int:
     test_call_collection_expression_lowering()
     test_net_framing_write_async_roundtrip()
+    test_decode_readonly_span_gets_using_system()
     print("net_contract_unity_cs9 tests OK")
     return 0
 

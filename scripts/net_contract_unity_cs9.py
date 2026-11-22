@@ -22,20 +22,63 @@ CALL_ARG_COLLECTION = re.compile(
     r"([,(]\s*)\[(?P<inner>[^\[\]]+)\](?=\s*[,)])"
 )
 
+USING_LINE = re.compile(r"^using\s+([\w.]+)\s*;\s*$", re.MULTILINE)
+
+# Map identifier patterns in contract bodies to explicit `using` Unity requires (no implicit usings).
+BCL_USING_RULES: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\bReadOnlySpan\b"), "System"),
+    (re.compile(r"\bSpan<"), "System"),
+    (re.compile(r"\bMemory<"), "System"),
+    (re.compile(r"\bArray\.Empty\b"), "System"),
+    (re.compile(r"\bInvalidOperationException\b"), "System"),
+    (re.compile(r"\bArgument(?:Exception|OutOfRangeException)?\b"), "System"),
+    (re.compile(r"\bMath\."), "System"),
+    (re.compile(r"\bBitConverter\b"), "System"),
+    (re.compile(r"\bEnum\."), "System"),
+    (re.compile(r"\bTask\b"), "System.Threading.Tasks"),
+    (re.compile(r"\bValueTask\b"), "System.Threading.Tasks"),
+    (re.compile(r"\bConfigureAwait\b"), "System.Threading.Tasks"),
+    (re.compile(r"\bCancellationToken\b"), "System.Threading"),
+    (re.compile(r"\bArrayPool\b"), "System.Buffers"),
+    (re.compile(r"\bBinaryPrimitives\b"), "System.Buffers.Binary"),
+    (re.compile(r"\bIReadOnlyList\b"), "System.Collections.Generic"),
+    (re.compile(r"\bList<"), "System.Collections.Generic"),
+    (re.compile(r"\bDictionary<"), "System.Collections.Generic"),
+    (re.compile(r"\bIEnumerable<"), "System.Collections.Generic"),
+    (re.compile(r"\bStream\b"), "System.IO"),
+    (re.compile(r"\bMemoryStream\b"), "System.IO"),
+    (re.compile(r"\bBinaryReader\b"), "System.IO"),
+    (re.compile(r"\bBinaryWriter\b"), "System.IO"),
+    (re.compile(r"\bEncoding\b"), "System.Text"),
+    (re.compile(r"\bUTF8Encoding\b"), "System.Text"),
+    (re.compile(r"\bStringBuilder\b"), "System.Text"),
+)
+
+USING_ORDER = (
+    "System",
+    "System.Buffers",
+    "System.Buffers.Binary",
+    "System.Collections.Generic",
+    "System.IO",
+    "System.Text",
+    "System.Threading",
+    "System.Threading.Tasks",
+)
+
 
 def normalize_newlines(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
 def _indent_body_lines(body: str) -> str:
-  lines = body.split("\n")
-  out: list[str] = []
-  for line in lines:
-      if line.strip() == "":
-          out.append("")
-      else:
-          out.append("    " + line)
-  return "\n".join(out)
+    lines = body.split("\n")
+    out: list[str] = []
+    for line in lines:
+        if line.strip() == "":
+            out.append("")
+        else:
+            out.append("    " + line)
+    return "\n".join(out)
 
 
 def expand_file_scoped_namespace(text: str) -> str:
@@ -171,6 +214,79 @@ def fix_null_coalesce_empty_collection(text: str, *, lookup_corpus: str = "") ->
     return "\n".join(repl_line(line) for line in lines)
 
 
+def split_usings_and_body(text: str) -> tuple[list[str], str]:
+    lines = normalize_newlines(text).split("\n")
+    usings: list[str] = []
+    index = 0
+    while index < len(lines):
+        match = USING_LINE.match(lines[index])
+        if match:
+            usings.append(match.group(1))
+            index += 1
+            continue
+        if not lines[index].strip():
+            if index + 1 < len(lines) and USING_LINE.match(lines[index + 1]):
+                index += 1
+                continue
+        break
+    body = "\n".join(lines[index:]).lstrip("\n")
+    return usings, body
+
+
+def required_bcl_usings(body: str) -> set[str]:
+    needed: set[str] = set()
+    for pattern, namespace in BCL_USING_RULES:
+        if pattern.search(body):
+            needed.add(namespace)
+    return needed
+
+
+def ensure_explicit_usings(text: str) -> str:
+    """Emit every BCL namespace the file needs; Unity has no implicit/global usings."""
+    usings, body = split_usings_and_body(text)
+    merged = list(usings)
+    present = set(usings)
+    for namespace in required_bcl_usings(body):
+        if namespace not in present:
+            merged.append(namespace)
+            present.add(namespace)
+
+    if not merged:
+        return body if body else text
+
+    def sort_key(namespace: str) -> tuple[int, str]:
+        try:
+            return (USING_ORDER.index(namespace), namespace)
+        except ValueError:
+            return (len(USING_ORDER), namespace)
+
+    block = "\n".join(f"using {ns};" for ns in sorted(set(merged), key=sort_key))
+    if not body:
+        return block + "\n"
+    return f"{block}\n\n{body}"
+
+
+def verify_explicit_usings(text: str, rel: str) -> list[str]:
+    """After lowering, unqualified BCL types must resolve via explicit usings."""
+    usings, body = split_usings_and_body(text)
+    present = set(usings)
+    errors: list[str] = []
+    for pattern, namespace in BCL_USING_RULES:
+        if not pattern.search(body):
+            continue
+        if namespace in present:
+            continue
+        fq_prefix = namespace + "."
+        if re.search(rf"\b{re.escape(namespace)}\.", body):
+            continue
+        errors.append(
+            f"{rel}: uses types from `{namespace}` but has no `using {namespace};` "
+            "(Unity C# 9 has no implicit usings)"
+        )
+        break
+    return errors
+
+
 def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
     text = normalize_newlines(text)
     text = expand_file_scoped_namespace(text)
@@ -178,6 +294,7 @@ def transform_for_unity_cs9(text: str, *, lookup_corpus: str = "") -> str:
     text = fix_null_coalesce_empty_collection(text, lookup_corpus=lookup_corpus)
     text = fix_null_coalesce_empty_brackets(text)
     text = fix_call_collection_expressions(text)
+    text = ensure_explicit_usings(text)
     return text
 
 
@@ -227,6 +344,7 @@ def prepare_contract_bytes(data: bytes, *, lookup_corpus: str = "", rel: str = "
     text = transform_for_unity_cs9(text, lookup_corpus=lookup_corpus)
     label = rel or "<contract>"
     violations = scan_source_cs10_plus_lines(text, label)
+    violations.extend(verify_explicit_usings(text, label))
     if violations:
         raise ValueError(
             "backend Net contract cannot be lowered to Unity C# 9 "

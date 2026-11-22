@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     /// <summary>Client → zone: ask for one castle's siege state.</summary>
