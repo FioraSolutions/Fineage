@@ -1,5 +1,6 @@
 using NUnit.Framework;
 
+/// <summary>EditMode coverage for unified visibility policy (#1650).</summary>
 public sealed class VisibilityManagerEditModeTests
 {
     [Test]
