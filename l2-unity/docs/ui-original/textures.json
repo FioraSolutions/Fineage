@@ -2,9 +2,16 @@
   "scannedAssets": "l2-unity/Assets image files (Library excluded)",
   "matchRule": "Case-insensitive alphanumeric stem equals the Unreal last component, or (if that component is at least 5 characters) ends with it. Example: Status_Interlude_Ps_HpBar matches ps_hpbar. Radar icon1–icon9 require an exact stem match so they are not confused with Status_Interlude_MainWndTabIconN.",
   "referencedUnique": 68,
-  "presentCount": 30,
-  "missingCount": 38,
+  "presentCount": 68,
+  "missingCount": 0,
   "present": [
+    {
+      "texture": "L2UI_CH3.LobbyWnd.lobby_menuback",
+      "lastComponent": "lobby_menuback",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/lobby_menuback.png"
+      ]
+    },
     {
       "texture": "L2UI_CH3.Button.BigButton",
       "lastComponent": "BigButton",
@@ -17,6 +24,34 @@
       "lastComponent": "BigButton_down",
       "unityPaths": [
         "l2-unity/Assets/Resources/Data/UI/Login/Interlude/bigbutton_down.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.LobbyWnd.lobby_startbtnback",
+      "lastComponent": "lobby_startbtnback",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/lobby_startbtnback.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Button.BigButton2",
+      "lastComponent": "BigButton2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/bigbutton2.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Button.BigButton2_down",
+      "lastComponent": "BigButton2_down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/bigbutton2_down.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.LobbyWnd.select1_back",
+      "lastComponent": "select1_back",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/select1_back.png"
       ]
     },
     {
@@ -73,6 +108,13 @@
       ]
     },
     {
+      "texture": "L2UI_CH3.ChatWnd.Chatting_IMEkr",
+      "lastComponent": "Chatting_IMEkr",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_imekr.png"
+      ]
+    },
+    {
       "texture": "L2UI_CH3.ChatWnd.Chatting_Option1",
       "lastComponent": "Chatting_Option1",
       "unityPaths": [
@@ -86,6 +128,41 @@
       "unityPaths": [
         "l2-unity/Assets/Resources/Data/UI/Chat/chatting_option2.png",
         "l2-unity/Assets/Resources/Data/UI/Assets/Chat/chatting_option2.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.ChatWnd.PartyMatchButton",
+      "lastComponent": "PartyMatchButton",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/partymatchbutton.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.ChatWnd.PartyMatchButton_Down",
+      "lastComponent": "PartyMatchButton_Down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/partymatchbutton_down.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.ChatWnd.Chatting_Msn4",
+      "lastComponent": "Chatting_Msn4",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_msn4.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.ChatWnd.Chatting_Msn4_down",
+      "lastComponent": "Chatting_Msn4_down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Chat/chatting_msn4_down.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Minimap.MapWnd_back_max",
+      "lastComponent": "MapWnd_back_max",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/mapwnd_back_max.png"
       ]
     },
     {
@@ -106,6 +183,42 @@
       ]
     },
     {
+      "texture": "L2UI_CH3.Minimap.MapBack",
+      "lastComponent": "MapBack",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Town/MinimapBack.png",
+        "l2-unity/Assets/Resources/Data/UI/Map/MapBack.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.FrameCtrl.Bar_Shadow",
+      "lastComponent": "Bar_Shadow",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Frame/Interlude/Bar_Shadow.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Minimap.MapShadow",
+      "lastComponent": "MapShadow",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/MapShadow.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Minimap.Map_Sun",
+      "lastComponent": "Map_Sun",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/map_sun.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Minimap.Map_Moon",
+      "lastComponent": "Map_Moon",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/map_moon.png"
+      ]
+    },
+    {
       "texture": "L2UI_CH3.Minimap.MapButton_ZoomOut1",
       "lastComponent": "MapButton_ZoomOut1",
       "unityPaths": [
@@ -117,6 +230,111 @@
       "lastComponent": "MapButton_ZoomOut2",
       "unityPaths": [
         "l2-unity/Assets/Resources/Data/UI/Map/Radar/mapbutton_zoomout2.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Button.Btn1_Normal",
+      "lastComponent": "Btn1_Normal",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/btn1_normal.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Button.Btn1_NormalOn",
+      "lastComponent": "Btn1_NormalOn",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/btn1_normalon.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Button.SmallButton1",
+      "lastComponent": "SmallButton1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/smallbutton1.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Button.SmallButton1_down",
+      "lastComponent": "SmallButton1_down",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Login/Interlude/smallbutton1_down.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon1",
+      "lastComponent": "icon1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon1.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon2",
+      "lastComponent": "icon2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon2.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon3",
+      "lastComponent": "icon3",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon3.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon4",
+      "lastComponent": "icon4",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon4.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon5",
+      "lastComponent": "icon5",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon5.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon6",
+      "lastComponent": "icon6",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon6.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon7",
+      "lastComponent": "icon7",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon7.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon8",
+      "lastComponent": "icon8",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon8.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.Radar.icon9",
+      "lastComponent": "icon9",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Radar/icon9.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.SmallWnd.Smallwindow2_back1",
+      "lastComponent": "Smallwindow2_back1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Smallwindow2_Back1.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.SmallWnd.Smallwindow2_back2",
+      "lastComponent": "Smallwindow2_back2",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Smallwindow2_Back2.png"
       ]
     },
     {
@@ -157,6 +375,20 @@
       ]
     },
     {
+      "texture": "L2UI_CH3.PlayerStatusWnd.ps_hpbarwarn1",
+      "lastComponent": "ps_hpbarwarn1",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBarWarn1.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.PlayerStatusWnd.ps_hpbarfill",
+      "lastComponent": "ps_hpbarfill",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_HpBarFill.png"
+      ]
+    },
+    {
       "texture": "L2UI_CH3.PlayerStatusWnd.ps_mpbar_back",
       "lastComponent": "ps_mpbar_back",
       "unityPaths": [
@@ -182,6 +414,20 @@
       "lastComponent": "SmallWindow_Back2",
       "unityPaths": [
         "l2-unity/Assets/Resources/Data/UI/Menu/Interlude/Menu_Interlude_Smallwindow_Back2.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.SmallWnd.SmallWindow_Back3_ex",
+      "lastComponent": "SmallWindow_Back3_ex",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWindow_Back3_ex.png"
+      ]
+    },
+    {
+      "texture": "L2UI_CH3.SmallWnd.SmallWindow2_Back3_ex",
+      "lastComponent": "SmallWindow2_Back3_ex",
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWindow2_Back3_ex.png"
       ]
     },
     {
@@ -229,200 +475,30 @@
         "l2-unity/Assets/Resources/Data/UI/Target/Interlude/Target_Interlude_SmallWnd_MpBar_Back.png",
         "l2-unity/Assets/Resources/Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back.png"
       ]
-    }
-  ],
-  "missing": [
-    {
-      "texture": "L2UI_CH3.LobbyWnd.lobby_menuback",
-      "lastComponent": "lobby_menuback",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.LobbyWnd.lobby_startbtnback",
-      "lastComponent": "lobby_startbtnback",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Button.BigButton2",
-      "lastComponent": "BigButton2",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Button.BigButton2_down",
-      "lastComponent": "BigButton2_down",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.LobbyWnd.select1_back",
-      "lastComponent": "select1_back",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.ChatWnd.Chatting_IMEkr",
-      "lastComponent": "Chatting_IMEkr",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.ChatWnd.PartyMatchButton",
-      "lastComponent": "PartyMatchButton",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.ChatWnd.PartyMatchButton_Down",
-      "lastComponent": "PartyMatchButton_Down",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.ChatWnd.Chatting_Msn4",
-      "lastComponent": "Chatting_Msn4",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.ChatWnd.Chatting_Msn4_down",
-      "lastComponent": "Chatting_Msn4_down",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Minimap.MapWnd_back_max",
-      "lastComponent": "MapWnd_back_max",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Minimap.MapBack",
-      "lastComponent": "MapBack",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.FrameCtrl.Bar_Shadow",
-      "lastComponent": "Bar_Shadow",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Minimap.MapShadow",
-      "lastComponent": "MapShadow",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Minimap.Map_Sun",
-      "lastComponent": "Map_Sun",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Minimap.Map_Moon",
-      "lastComponent": "Map_Moon",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Button.Btn1_Normal",
-      "lastComponent": "Btn1_Normal",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Button.Btn1_NormalOn",
-      "lastComponent": "Btn1_NormalOn",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Button.SmallButton1",
-      "lastComponent": "SmallButton1",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Button.SmallButton1_down",
-      "lastComponent": "SmallButton1_down",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon1",
-      "lastComponent": "icon1",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon2",
-      "lastComponent": "icon2",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon3",
-      "lastComponent": "icon3",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon4",
-      "lastComponent": "icon4",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon5",
-      "lastComponent": "icon5",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon6",
-      "lastComponent": "icon6",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon7",
-      "lastComponent": "icon7",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon8",
-      "lastComponent": "icon8",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.Radar.icon9",
-      "lastComponent": "icon9",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.SmallWnd.Smallwindow2_back1",
-      "lastComponent": "Smallwindow2_back1",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.SmallWnd.Smallwindow2_back2",
-      "lastComponent": "Smallwindow2_back2",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.PlayerStatusWnd.ps_hpbarwarn1",
-      "lastComponent": "ps_hpbarwarn1",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.PlayerStatusWnd.ps_hpbarfill",
-      "lastComponent": "ps_hpbarfill",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.SmallWnd.SmallWindow_Back3_ex",
-      "lastComponent": "SmallWindow_Back3_ex",
-      "unityPaths": []
-    },
-    {
-      "texture": "L2UI_CH3.SmallWnd.SmallWindow2_Back3_ex",
-      "lastComponent": "SmallWindow2_Back3_ex",
-      "unityPaths": []
     },
     {
       "texture": "L2UI.MinimapWnd.MinimapBack",
       "lastComponent": "MinimapBack",
-      "unityPaths": []
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Town/MinimapBack.png"
+      ]
     },
     {
       "texture": "Default.BlackTexture",
       "lastComponent": "BlackTexture",
-      "unityPaths": []
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/BlackTexture.png"
+      ]
     },
     {
       "texture": "town_map.icon_i00",
       "lastComponent": "icon_i00",
-      "unityPaths": []
+      "unityPaths": [
+        "l2-unity/Assets/Resources/Data/UI/Map/Town/icon_i00.png"
+      ]
     }
   ],
+  "missing": [],
   "references": [
     {
       "window": "CharacterSelect",
