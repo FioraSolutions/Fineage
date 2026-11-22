@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     /// <summary>Interlude <c>MonRaceInfo</c> (0xDD) — monster derby runners and per-segment speeds.</summary>

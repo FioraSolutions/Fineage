@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     /// <summary>Wire header for Fineage Net (MyL2 PacketEnvelope). Payload is NetCodec bytes.</summary>

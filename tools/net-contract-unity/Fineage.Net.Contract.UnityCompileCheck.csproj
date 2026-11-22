@@ -8,8 +8,8 @@
     <RootNamespace>Fineage.Net.Contract</RootNamespace>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
-  <!-- STAGED_COMPILE_ITEMS filled by scripts/check-net-contract-unity-compile.py -->
   <ItemGroup>
-    <!--STAGED_COMPILE_ITEMS-->
+    <Compile Include="../../l2-unity/Assets/Scripts/Networking/Net/Contract/**/*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

@@ -34,17 +34,11 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     }
 
     public void UpdateMasks() {
-        INameplateRoster nameplates = Nameplates();
-        if (nameplates != null)
-            nameplates.SetMask(_entityMask);
+        _nameplates.SetMask(_entityMask);
         if (_geodata != null)
             _geodata.ObstacleMask = _obstacleMask;
-        IClickMasks clicks = Clicks();
-        if (clicks != null)
-        {
-            LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
-            clicks.SetMasks(_entityClickAreaMask | dropMask, _clickThroughMask);
-        }
+        LayerMask dropMask = _dropLayers != null ? _dropLayers.Mask : 0;
+        _clicks.SetMasks(_entityClickAreaMask | dropMask, _clickThroughMask);
         if (_camera != null)
             _camera.SetMask(_obstacleMask);
     }
@@ -62,31 +56,4 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
         return _entities.ContainsNpc(id);
     }
 
-    static bool _loggedMissingNameplates;
-
-    static INameplateRoster Nameplates()
-    {
-        INameplateRoster nameplates = NameplatePacketServices.BoundNameplates;
-        if (nameplates == null && !_loggedMissingNameplates)
-        {
-            _loggedMissingNameplates = true;
-            Debug.LogError("[World] INameplateRoster missing — NameplatesManager.Awake did not bind, so nameplates were not updated.");
-        }
-
-        return nameplates;
-    }
-
-    static bool _loggedMissingClicks;
-
-    static IClickMasks Clicks()
-    {
-        IClickMasks clicks = ControllerPacketServices.BoundClicks;
-        if (clicks == null && !_loggedMissingClicks)
-        {
-            _loggedMissingClicks = true;
-            Debug.LogError("[World] IClickMasks missing — ClickManager.Awake did not bind, so click masks were not updated.");
-        }
-
-        return clicks;
-    }
 }
