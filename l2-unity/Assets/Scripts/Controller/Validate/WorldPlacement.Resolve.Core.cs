@@ -82,4 +82,18 @@ public static partial class WorldPlacement
             + " " + nearestDetail
             + " pos=(" + serverUnityPos.x.ToString("F1") + "," + serverUnityPos.z.ToString("F1") + ")");
     }
+
+    public static bool TryResolveGeodataY(Vector3 serverUnityPos, out float y)
+    {
+        y = serverUnityPos.y;
+        Geodata geo = GeodataPacketServices.Geodata;
+        if (geo == null || !geo.Loaded)
+            return false;
+
+        if (!geo.TryGetClosestNodeAt(serverUnityPos, out Node node) || node == null)
+            return false;
+
+        y = node.center.y;
+        return true;
+    }
 }

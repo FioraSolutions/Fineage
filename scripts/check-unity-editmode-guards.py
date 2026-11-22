@@ -328,6 +328,25 @@ def check_cs9_syntax() -> list[str]:
     return errors
 
 
+def check_ambiguous_system_object() -> list[str]:
+    """Files with both `using System` and `using UnityEngine` must not bare-qualify `Object.`."""
+    errors: list[str] = []
+    pattern = re.compile(r"\bObject\.")
+    for path in sorted(SCRIPTS.rglob("*.cs")):
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
+        if not re.search(r"^\s*using\s+System\s*;", text, re.MULTILINE):
+            continue
+        if not re.search(r"^\s*using\s+UnityEngine\s*;", text, re.MULTILINE):
+            continue
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            code = _code_fragment(line)
+            if pattern.search(code) and "UnityEngine.Object." not in code:
+                errors.append(
+                    f"{path.relative_to(REPO)}:{line_no}: `Object.` is ambiguous with System + UnityEngine — use UnityEngine.Object"
+                )
+    return errors
+
+
 def check_anim_keyreduce_probe_registration() -> list[str]:
     """Every anim-keyreduce-*-probes.json fixture must appear in AnimKeyReducePilotEditModeTests.ProbeFiles."""
     test = EDITMODE_TESTS / "AnimKeyReducePilotEditModeTests.cs"
@@ -361,6 +380,7 @@ def main() -> int:
         + check_asmdef_references_editor_scripts()
         + check_asmdef_missing_unityengine_usings()
         + check_cs9_syntax()
+        + check_ambiguous_system_object()
         + check_anim_keyreduce_probe_registration()
     )
     if errors:
