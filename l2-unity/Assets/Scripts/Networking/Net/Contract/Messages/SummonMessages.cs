@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     /// <summary>What a summon-control action asks for (Interlude <c>RequestActionUse</c> pet / servitor actions).</summary>

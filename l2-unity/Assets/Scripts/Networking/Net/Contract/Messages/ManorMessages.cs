@@ -1,3 +1,5 @@
+using System;
+
 namespace Fineage.Net.Contract
 {
     /// <summary>Manor actions (<see cref="ManorCommandNetMsg.Kind"/>), after the Mobius manor packets.</summary>

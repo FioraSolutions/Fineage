@@ -13,8 +13,9 @@ symlink's mtime does not change when the file it points to is edited, so Bee
 silently skips the rebuild).
 
 Instead the client keeps real copies and this script synchronises them. Backend
-sources may use newer C#; ``prepare_contract_bytes`` lowers them to Unity C# 9
-(see ``net_contract_unity_cs9.py``) and rejects patterns that cannot be lowered.
+sources may use newer C# and SDK implicit usings; ``prepare_contract_bytes`` lowers
+them to Unity C# 9 (see ``net_contract_unity_cs9.py``): syntax lowering, explicit
+``using`` directives, and hard failure when lowering cannot complete.
 Run it in two ways:
 
   * `--check`   exit 1 if the copies differ (what CI does on every client PR)
