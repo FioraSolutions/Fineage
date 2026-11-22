@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Ground height and spawn containers (#131 S35).
+/// Register and animation members stay on <c>IWorldSpawnRegistration</c> in Assembly-CSharp.
+/// </summary>
 public interface IWorldSpawnContext
 {
     float GetGroundHeight(Vector3 pos);
@@ -7,10 +11,5 @@ public interface IWorldSpawnContext
     Transform NpcsContainer { get; }
     Transform MonstersContainer { get; }
     Transform ItemsContainer { get; }
-    IAnimationManager Animations { get; }
     bool ContainsNpc(int id);
-    void RegisterPlayer(PlayerEntity player);
-    void RegisterUser(Entity user);
-    void RegisterNpc(Entity npc);
-    void RegisterItem(ItemEntity item);
 }

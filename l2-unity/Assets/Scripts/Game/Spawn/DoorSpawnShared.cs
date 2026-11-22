@@ -7,7 +7,7 @@ public static class DoorSpawnShared
         EntityIdentity identity,
         NpcStatusInterlude status,
         Stats stats,
-        IWorldSpawnContext world)
+        IWorldSpawnRegistration world)
     {
         if (identity == null || world == null)
             return false;

@@ -18,7 +18,7 @@ public sealed class ItemSpawner
         bool stackable,
         Vector3 unityPos,
         int dropperCharObjId,
-        IWorldSpawnContext world)
+        IWorldSpawnRegistration world)
     {
         if (world == null)
             return null;

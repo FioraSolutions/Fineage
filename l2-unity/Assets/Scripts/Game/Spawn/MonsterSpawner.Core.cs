@@ -9,7 +9,7 @@ public sealed partial class MonsterSpawner
         _gravity = gravity;
     }
 
-    public Entity Spawn(NpcSpawnRequest request, IWorldSpawnContext world)
+    public Entity Spawn(NpcSpawnRequest request, IWorldSpawnRegistration world)
     {
         if (request == null || world == null)
             return null;

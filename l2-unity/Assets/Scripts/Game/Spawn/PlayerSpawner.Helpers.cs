@@ -7,7 +7,7 @@ public sealed partial class PlayerSpawner
         PlayerStatus status,
         PlayerStats stats,
         PlayerAppearance appearance,
-        IWorldSpawnContext world)
+        IWorldSpawnRegistration world)
     {
         if (identity == null || world == null)
             return null;

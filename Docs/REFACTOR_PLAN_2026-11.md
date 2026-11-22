@@ -455,11 +455,12 @@ Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VCon
 - [x] **S34c** `PlayModeExit` in `Fineage.Di`. `PlayModeExitEditorHook` sets `EditorApplication.isPlaying = false` on editor load. `GameManager.QuitGame` no longer names `UnityEditor`. In the editor, a missing hook logs `[PlayModeExit] StopInEditor was not set` and does not call `Application.Quit`. A player build still calls `Application.Quit`.
 - [x] **S34d** `MusicPlayback` in `Fineage.Game`. `MusicManager.Awake` binds it. `GameManager` restart calls `TryClear`. A missing bind logs `[MusicPlayback] IMusicPlayback missing` and does not read `MusicManager.Instance`.
 - [x] **S34e** `GameManager` partials → `Fineage.Di` (script GUIDs unchanged). It still `[Inject]`s. No `*.Instance` fallback.
-- [ ] **S35** `IWorldSpawnContext` → `Fineage.Game` if its members do not name Assembly-CSharp. `World` still implements it.
+- [x] **S35** `IWorldSpawnContext` → `Fineage.Game` (script GUID unchanged). Members are ground height, the four containers, and `ContainsNpc`. `IWorldSpawnRegistration` stays Assembly-CSharp and extends it with `RegisterPlayer`, `RegisterUser`, `RegisterNpc`, `RegisterItem`, and `IAnimationManager`. Those members name `Entity`, `PlayerEntity`, `ItemEntity`, and `IAnimationManager`. `World` implements the registration interface.
+- [ ] **S35b** `IWorldSpawnRegistration` → `Fineage.Game` once its register and animation members no longer name Assembly-CSharp.
 - [ ] **S36** Call sites that only need `IWorldEntityLookup` or `IWorldSpawnContext` stop naming `World`. One caller family per PR.
 - [ ] **S37** An entity surface in `Fineage.Game` for the position, identity, and transform reads `World` makes on `Entity`. `Entity` stays Assembly-CSharp and implements it.
 - [ ] **S38** The packet-service locators `World` calls (`WorldPacketServices`, `DomainPacketServices`, and the rest) get interfaces in `Fineage.Game`. One locator per PR.
-- [ ] **S39** `World` → `Fineage.Di`. Only after S35–S38. It still `[Inject]`s.
+- [ ] **S39** `World` → `Fineage.Di`. Only after S35b–S38. It still `[Inject]`s.
 - [ ] **S40** `IPlayerPawn` in `Fineage.Game` for the movement and heading members other types use on `PlayerController`.
 - [ ] **S41** `PlayerController` talks to `Entity`, `WorldPlacement`, and `PlayerStateMachine` through interfaces from S37 and new seams in `Fineage.Game`. One dependency per PR.
 - [ ] **S42** `PlayerController` → `Fineage.Di`. It uses UnityEngine and those interfaces. The two `[Inject]` sites stay.
