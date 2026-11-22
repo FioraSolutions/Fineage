@@ -50,7 +50,7 @@ public static class CrowdTierVisualPolicy
     /// Step 14 only shrinks stale <em>inflated</em> localBounds (weapon reach). Replacing
     /// tuned bounds with raw mesh.bounds culled distant skinned bodies (#1608).
     /// </summary>
-    internal static void ShrinkInflatedSkinnedBoundsIfNeeded(SkinnedMeshRenderer smr)
+    public static void ShrinkInflatedSkinnedBoundsIfNeeded(SkinnedMeshRenderer smr)
     {
         Bounds meshLocal = smr.sharedMesh.bounds;
         Bounds current = smr.localBounds;
