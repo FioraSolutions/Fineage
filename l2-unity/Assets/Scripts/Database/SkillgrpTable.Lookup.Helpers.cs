@@ -20,18 +20,18 @@ public partial class SkillgrpTable
         // does not carry (cool_time, reuse_delay, effect_point, icon panel, enchant icon, ...)
         // for skill rows that already exist in Interlude; it never adds skills and never
         // provides animation or visual effect data.
-        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Interlude.txt"), SkillgrpReadMode.InterludeBase);
-        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Classic.txt"), SkillgrpReadMode.SupplementNonVisualColumns);
+        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Interlude.txt"), SkillgrpRowSource.InterludeBase);
+        ReadActions(Path.Combine(Application.streamingAssetsPath, "Data/Meta/Skillgrp_Classic.txt"), SkillgrpRowSource.SupplementNonVisualColumns);
         ReadAnimationCombo_Interlude();
     }
 
-    private enum SkillgrpReadMode
+    private enum SkillgrpRowSource
     {
         InterludeBase,
         SupplementNonVisualColumns,
     }
 
-    private void ReadActions(string dataPath, SkillgrpReadMode mode)
+    private void ReadActions(string dataPath, SkillgrpRowSource source)
     {
         if (!File.Exists(dataPath))
         {
@@ -143,7 +143,7 @@ public partial class SkillgrpTable
                             break;
                     }
                 }
-                if (mode == SkillgrpReadMode.InterludeBase)
+                if (source == SkillgrpRowSource.InterludeBase)
                     TryAdd(skillGrp);
                 else
                     SupplementNonVisualColumns(skillGrp);
