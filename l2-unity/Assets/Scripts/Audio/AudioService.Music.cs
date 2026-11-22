@@ -65,6 +65,7 @@ public partial class AudioService
         if (_areaMusicInstances.TryGetValue(musicEvent, out EventInstance existing) && existing.isValid())
         {
             existing.start();
+            AudioPlayTrace.Write("play", Time.unscaledTime, musicEvent.ToString(), "Music", null, 0, 0f, 0f, 1f, 0, "music");
             return;
         }
 
@@ -74,6 +75,7 @@ public partial class AudioService
 
         _areaMusicInstances[musicEvent] = created;
         created.start();
+        AudioPlayTrace.Write("play", Time.unscaledTime, musicEvent.ToString(), "Music", null, 0, 0f, 0f, 1f, 0, "music");
     }
 
     bool _currentMusicAreaEventEquals(EventReference other) =>
@@ -149,6 +151,7 @@ public partial class AudioService
         _townInstance.setVolume(CategoryVolume(AudioCategory.Music));
         _townInstance.start();
         _townEventPath = fmodEventPath;
+        AudioPlayTrace.Write("play", Time.unscaledTime, fmodEventPath, "Music", null, 0, 0f, 0f, 1f, 0, "music");
     }
 
     public void StopTownTheme()
@@ -194,6 +197,7 @@ public partial class AudioService
         _loginFmodInstance.setVolume(CategoryVolume(AudioCategory.Music));
         _loginFmodInstance.start();
         _loginFmodActive = true;
+        AudioPlayTrace.Write("play", Time.unscaledTime, spec.Id, "Music", null, 0, 0f, 0f, 1f, 0, "music");
 
         if (!loop)
             return;

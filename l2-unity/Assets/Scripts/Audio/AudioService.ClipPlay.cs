@@ -46,7 +46,14 @@ public partial class AudioService
             return false;
         }
 
+        if (!AudioListenerLifecycle.TryPrepare())
+        {
+            Trace("refuse", idForLog, "Clip2D", null, 0, 0f, 0f, volumeScale, 0, "no-listener");
+            return false;
+        }
+
         bus.PlayOneShot(clip, CategoryVolume(category) * volumeScale);
+        Trace("play", idForLog, "Clip2D", null, 0, 0f, 0f, volumeScale, 0, "ui");
         return true;
     }
 
@@ -59,35 +66,50 @@ public partial class AudioService
         string idForLog,
         float innerRadiusUu = float.NaN,
         int ownerId = 0,
-        int soundSlot = 0)
+        int soundSlot = 0,
+        string sourceSystem = null,
+        string ownerName = null)
     {
         if (_disabled || clip == null)
             return false;
 
+        string source = string.IsNullOrEmpty(sourceSystem) ? "WorldClip" : sourceSystem;
         if (atListener)
-        {
-            PlayLoadedClip2D(clip, category, volumeScale, idForLog);
-            return true;
-        }
+            return PlayLoadedClip2D(clip, category, volumeScale, idForLog);
 
         if (!Ue2SoundAudibility.HasRadius(innerRadiusUu))
         {
             LogAudioErrorOnce("radius:" + (idForLog ?? ""), Ue2SoundAudibility.FormatMissingRadius(idForLog));
+            Trace("refuse", idForLog, source, ownerName, ownerId, 0f, innerRadiusUu, volumeScale, soundSlot, "missing-radius");
             return true;
         }
 
         if (!TryDistanceToListener(worldPos, out float distance))
         {
             LogAudioErrorOnce("listener", "AudioService: no listener for 3D sound \"" + (idForLog ?? "") + "\".");
+            Trace("refuse", idForLog, source, ownerName, ownerId, 0f, innerRadiusUu, volumeScale, soundSlot, "no-listener");
             return true;
         }
 
         if (!Ue2SoundAudibility.IsAudible(distance, innerRadiusUu))
+        {
+            Trace("refuse", idForLog, source, ownerName, ownerId, distance, innerRadiusUu, volumeScale, soundSlot, "inaudible");
             return true;
+        }
 
         float priority = Ue2SoundAudibility.Priority(volumeScale, distance, innerRadiusUu);
         if (!_pool.TryClaim(category, priority, ownerId, soundSlot, out int slot, out bool replaced, out _))
+        {
+            Trace("refuse", idForLog, source, ownerName, ownerId, distance, innerRadiusUu, volumeScale, soundSlot, "rejected");
             return true;
+        }
+
+        if (!AudioListenerLifecycle.TryPrepare())
+        {
+            _pool.ReleaseIndex(category, slot);
+            Trace("refuse", idForLog, source, ownerName, ownerId, distance, innerRadiusUu, volumeScale, soundSlot, "no-listener");
+            return true;
+        }
 
         WorldEmitter emitter = replaced ? FindEmitter(category, slot) : null;
         if (emitter == null)
@@ -103,6 +125,7 @@ public partial class AudioService
         ApplyAudibleFalloff(emitter.Source, innerRadiusUu);
         emitter.Source.PlayOneShot(clip, CategoryVolume(category) * volumeScale * attenuation);
         emitter.ReleaseAt = Time.unscaledTime + clip.length + 0.15f;
+        Trace(replaced ? "steal" : "play", idForLog, source, ownerName, ownerId, distance, innerRadiusUu, volumeScale, slot, replaced ? "stolen" : "audible");
         return true;
     }
 
@@ -115,7 +138,9 @@ public partial class AudioService
         float innerRadiusUu = float.NaN,
         int ownerId = 0,
         int soundSlot = 0,
-        string idForLog = null)
+        string idForLog = null,
+        string sourceSystem = null,
+        string ownerName = null)
     {
         if (_disabled)
             return false;
@@ -129,7 +154,25 @@ public partial class AudioService
 
         string id = string.IsNullOrEmpty(idForLog) ? resourcesPath : idForLog;
         return PlayClipAt(
-            clip, worldPos, category, volumeScale, atListener, id, innerRadiusUu, ownerId, soundSlot);
+            clip, worldPos, category, volumeScale, atListener, id, innerRadiusUu, ownerId, soundSlot,
+            sourceSystem, ownerName);
+    }
+
+    void Trace(
+        string action,
+        string clipId,
+        string source,
+        string ownerName,
+        int ownerId,
+        float distance,
+        float radiusUu,
+        float volume,
+        int slot,
+        string reason)
+    {
+        AudioPlayTrace.Write(
+            action, Time.unscaledTime, clipId, source, ownerName, ownerId,
+            distance, radiusUu, volume, slot, reason);
     }
 
     bool TryDistanceToListener(Vector3 worldPos, out float distance)

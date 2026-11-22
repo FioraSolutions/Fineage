@@ -197,7 +197,7 @@ public static class CharacterCombatAudioDispatch
                 AudioService officialService = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
                 if (officialService == null)
                     return false;
-                return officialService.PlayClipAtWorld(officialTokenPath, position, AudioCategory.Sfx, 1f, atListener: false);
+                return officialService.PlayClipAtWorld(officialTokenPath, position, AudioCategory.Sfx, 1f, atListener: false, sourceSystem: "Combat");
             }
 
             AudioService service = RequiredAudioServices.RequireService(nameof(CharacterCombatAudioDispatch));
@@ -240,7 +240,7 @@ public static class CharacterCombatAudioDispatch
         string officialPath = null;
         OfficialWaveTable.TryResolveDatToken(TokenFromFmodOrDat(fmodEventPath), out officialPath, out _);
         if (!string.IsNullOrEmpty(officialPath)
-            && service.PlayClipAtWorld(officialPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+            && service.PlayClipAtWorld(officialPath, position, AudioCategory.Sfx, volumeScale, atListener: false, sourceSystem: "Combat"))
             return true;
 
         if (service.PlayFmodEvent(fmodEventPath, AudioCategory.Sfx, position, entityId, eventLabel))
@@ -248,7 +248,7 @@ public static class CharacterCombatAudioDispatch
 
         string resourcesPath = officialPath ?? InterludeSoundTokenPath.ResourcesPathFromFmodEvent(fmodEventPath);
         if (!string.IsNullOrEmpty(resourcesPath)
-            && service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false))
+            && service.PlayClipAtWorld(resourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false, sourceSystem: "Combat"))
             return true;
 
         service.LogCombatAudioError(
@@ -286,7 +286,7 @@ public static class CharacterCombatAudioDispatch
             ChrVariantCursor[key] = i + 1;
         }
 
-        return service.PlayClipAtWorld(pick.ResourcesPath, position, AudioCategory.Sfx, 1f, atListener: false);
+        return service.PlayClipAtWorld(pick.ResourcesPath, position, AudioCategory.Sfx, 1f, atListener: false, sourceSystem: "Combat");
     }
 
     static string TokenFromFmodOrDat(string fmodOrToken)

@@ -108,14 +108,7 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
             OfficialAmbientSoundTable.Entry entry = rows[i];
             if (!IsTypeActive(entry.Type))
                 continue;
-            if (entry.RadiusUu <= 0f)
-            {
-                LogOnce("radius0:" + entry.Id, "OfficialAmbientSoundPlayback: radius=0 map=\""
-                    + entry.Map + "\" name=\"" + entry.Name + "\" sound=\"" + entry.Sound + "\"");
-                continue;
-            }
-
-            float radius = entry.RadiusUnity;
+            float radius = HearRadiusUnity(entry);
             float dist = HorizontalDistance(ear, entry.UnityPosition);
             if (dist <= radius)
                 _candidates.Add((entry, dist));
@@ -144,7 +137,16 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         }
 
         if (!voice.Source.isPlaying)
+        {
+            if (!AudioListenerLifecycle.TryPrepare())
+            {
+                TraceAmbient(entry, "refuse", "no-listener");
+                return;
+            }
+
             voice.Source.Play();
+            TraceAmbient(entry, "play", RadiusReason(entry));
+        }
         voice.NextOneShotAt = Time.unscaledTime + RandomRetriggerDelay;
     }
 
@@ -192,8 +194,9 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         source.loop = entry.Random == 0;
         source.pitch = OfficialAmbientSoundUnits.PitchToMultiplier(entry.Pitch);
         source.volume = OfficialAmbientSoundUnits.VolumeToScale(entry.Volume);
-        AudioService.ApplyWorldFalloff(source, entry.RadiusUnity);
-        source.minDistance = Mathf.Min(AudioWorldConstants.HearMinMeters, Mathf.Max(0.01f, entry.RadiusUnity * 0.05f));
+        float hear = HearRadiusUnity(entry);
+        AudioService.ApplyWorldFalloff(source, hear);
+        source.minDistance = Mathf.Min(AudioWorldConstants.HearMinMeters, Mathf.Max(0.01f, hear * 0.05f));
         source.transform.position = entry.UnityPosition;
         if (source.loop && clip.length > 0f && entry.StartTime != 0f)
         {
@@ -203,7 +206,15 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
                 phase += length;
             source.time = phase;
         }
+        if (!AudioListenerLifecycle.TryPrepare())
+        {
+            ReleaseSource(source);
+            TraceAmbient(entry, "refuse", "no-listener");
+            return false;
+        }
+
         source.Play();
+        TraceAmbient(entry, "play", RadiusReason(entry));
 
         voice = new Voice
         {
@@ -240,10 +251,40 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
     {
         if (voice == null || voice.Source == null)
             return;
-        voice.Source.Stop();
-        voice.Source.clip = null;
-        voice.Source.gameObject.SetActive(false);
-        _pool.Push(voice.Source);
+        ReleaseSource(voice.Source);
+    }
+
+    void ReleaseSource(AudioSource source)
+    {
+        if (source == null)
+            return;
+        source.Stop();
+        source.clip = null;
+        source.gameObject.SetActive(false);
+        _pool.Push(source);
+    }
+
+    static float HearRadiusUnity(OfficialAmbientSoundTable.Entry entry) =>
+        OfficialAmbientSoundUnits.RadiusToUnity(Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.RadiusUu));
+
+    static string RadiusReason(OfficialAmbientSoundTable.Entry entry) =>
+        Ue2SoundAudibility.HasRadius(entry.RadiusUu) ? "audible" : "actor-default";
+
+    static void TraceAmbient(OfficialAmbientSoundTable.Entry entry, string action, string reason)
+    {
+        float radiusUu = Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.RadiusUu);
+        AudioPlayTrace.Write(
+            action,
+            Time.unscaledTime,
+            entry.Sound,
+            "Ambient",
+            entry.Name,
+            0,
+            0f,
+            radiusUu,
+            entry.Volume,
+            Ue2SoundAudibility.SlotAmbient,
+            reason);
     }
 
     static bool IsTypeActive(AmbientSoundType type)

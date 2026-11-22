@@ -34,11 +34,24 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
             "walk_hand",
             unityRun,
             unityWalk,
+            unityRun,
+            unityWalk,
             out float runRate,
             out float walkRate);
 
         Assert.Greater(runRate, LocomotionGait.MinRunRate, "MFighter run_rate must be catalog-backed");
         Assert.Greater(walkRate, LocomotionGait.MinWalkRate, "MFighter walk_rate must be catalog-backed");
+
+        AnimationClip runClip = Resources.Load<AnimationClip>(
+            "Data/Animations/Fighter/MFighter/Clips/MFighter_m000_b.ao_run_Hand_MFighter");
+        Assert.IsNotNull(runClip);
+        AnimNotifyTable.Load();
+        Assert.IsTrue(AnimNotifyTable.TryGetBySequence("Run_Hand_MFighter", out var runRows) && runRows.Count > 0);
+        float official = runRows[0].FrameCount / runRows[0].Rate;
+        float expected = LocomotionGait.PlaybackRateForSequence(
+            unityRun, unityRun, runClip.length, official, LocomotionGait.MinRunRate, LocomotionGait.MaxRate);
+        Assert.AreEqual(expected, runRate, 0.001f, "run rate is the ukx sequence clock, not the baked stride");
+        Assert.Less(runRate, 1f, "a 15fps sequence imported at 24fps must not play at animator speed 1");
 
         Object.DestroyImmediate(go);
         LogAssert.ignoreFailingMessages = false;
@@ -60,9 +73,9 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
         user.RaceId = profile;
 
         PlayerLocomotionPlayback.ResolvePlaybackRates(
-            player, null, "run_1HS", "walk_1HS", unityRun, unityRun, out float playerRun, out _);
+            player, null, "run_1HS", "walk_1HS", unityRun, unityRun, unityRun, unityRun, out float playerRun, out _);
         PlayerLocomotionPlayback.ResolvePlaybackRates(
-            user, null, "run_1HS", "walk_1HS", unityRun, unityRun, out float userRun, out _);
+            user, null, "run_1HS", "walk_1HS", unityRun, unityRun, unityRun, unityRun, out float userRun, out _);
 
         Assert.AreEqual(playerRun, userRun, 0.0001f,
             "local PlayerEntity and UserEntity must share the catalog stride pipeline");
@@ -87,6 +100,8 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
             "walk_hand",
             NumberUtils.ScaleToUnity(120f),
             NumberUtils.ScaleToUnity(80f),
+            NumberUtils.ScaleToUnity(120f),
+            NumberUtils.ScaleToUnity(80f),
             out float runRate,
             out float walkRate);
 
@@ -100,6 +115,8 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
             null,
             "run_1HS",
             "walk_hand",
+            NumberUtils.ScaleToUnity(120f),
+            NumberUtils.ScaleToUnity(80f),
             NumberUtils.ScaleToUnity(120f),
             NumberUtils.ScaleToUnity(80f),
             out float dwarfRun,

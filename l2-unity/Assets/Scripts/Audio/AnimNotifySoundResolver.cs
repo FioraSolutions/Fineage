@@ -19,8 +19,17 @@ public static class AnimNotifySoundResolver
     public static string FormatMissingWaveError(string wave, string notifyId) =>
         "AnimNotifyPlayback: missing wave=\"" + wave + "\" notify=" + notifyId;
 
-    public static string FormatMissingSoundError(string notifyId) =>
-        "AnimNotifyPlayback: notify has no Sound wave id=" + notifyId;
+    public static string FormatMissingSoundError(string notifyId)
+    {
+        if (!string.IsNullOrEmpty(notifyId)
+            && notifyId.IndexOf("AnimNotify_AttackVoice", StringComparison.Ordinal) >= 0)
+        {
+            return "AnimNotifyPlayback: AnimNotify_AttackVoice authors Volume, Radius, and Random and has no Sound wave. "
+                + "No pawn voice binding is in the catalog. id=" + notifyId;
+        }
+
+        return "AnimNotifyPlayback: notify has no Sound wave id=" + notifyId;
+    }
 
     public static readonly string[] ResourcesRoots =
     {
@@ -54,7 +63,9 @@ public static class AnimNotifySoundResolver
         string contextHint = null,
         int ownerId = 0,
         int soundSlot = 0,
-        string idForLog = null)
+        string idForLog = null,
+        string sourceSystem = null,
+        string ownerName = null)
     {
         error = null;
         if (service == null)
@@ -73,7 +84,7 @@ public static class AnimNotifySoundResolver
             && official != null
             && service.PlayClipAtWorld(
                 official.ResourcesPath, position, AudioCategory.Sfx, volumeScale, atListener: false,
-                innerRadiusUu, ownerId, soundSlot, id))
+                innerRadiusUu, ownerId, soundSlot, id, sourceSystem, ownerName))
             return true;
         if (!string.IsNullOrEmpty(resolveError) && resolveError.StartsWith("OfficialWaveTable: ambiguous", System.StringComparison.Ordinal))
         {
@@ -88,7 +99,7 @@ public static class AnimNotifySoundResolver
                 continue;
             if (service.PlayClipAtWorld(
                 path, position, AudioCategory.Sfx, volumeScale, atListener: false,
-                innerRadiusUu, ownerId, soundSlot, id))
+                innerRadiusUu, ownerId, soundSlot, id, sourceSystem, ownerName))
                 return true;
         }
 

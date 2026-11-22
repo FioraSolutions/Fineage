@@ -10,6 +10,14 @@ public static class Ue2SoundAudibility
     public const float OuterRadiusScale = 100f;
     public const float AlAudioDefaultRolloff = 0.5f;
 
+    /// <summary>
+    /// UE2 Actor.uc defaultproperties SoundRadius=32. AmbientSound does not override it
+    /// (UE2Runtime AmbientSound defaults change SoundVolume only). Map actors that omit
+    /// SoundRadius inherit this. The ambient table stores 0 for that omission.
+    /// L2 Engine.u class-default object is not in the catalog.
+    /// </summary>
+    public const float ActorDefaultSoundRadiusUu = 32f;
+
     /// <summary>UE2 ESoundSlot. SLOT_None mixes. Other slots hold one sound per actor.</summary>
     public const int SlotNone = 0;
     public const int SlotMisc = 1;
@@ -21,6 +29,13 @@ public static class Ue2SoundAudibility
 
     public static bool HasRadius(float innerRadiusUu) =>
         !float.IsNaN(innerRadiusUu) && !float.IsInfinity(innerRadiusUu) && innerRadiusUu > 0f;
+
+    /// <summary>
+    /// Actor/AmbientSound SoundRadius. An omitted property is stored as 0 and uses
+    /// <see cref="ActorDefaultSoundRadiusUu"/>. A positive authored value is kept.
+    /// </summary>
+    public static float ResolveActorSoundRadiusUu(float authoredUu) =>
+        HasRadius(authoredUu) ? authoredUu : ActorDefaultSoundRadiusUu;
 
     public static string FormatMissingRadius(string id) =>
         "AudioService: missing audible radius for \"" + (id ?? "")
