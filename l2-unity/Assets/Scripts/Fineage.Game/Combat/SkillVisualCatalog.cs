@@ -562,11 +562,6 @@ public sealed class SkillVisualCatalog
             return followed;
         }
 
-        Debug.LogError(
-            "[SkillVisual] skill=" + skillId.ToString(CultureInfo.InvariantCulture) +
-            " desc=" + desc +
-            " followed skill=" + followId.ToString(CultureInfo.InvariantCulture) +
-            " empty desc");
         var missing = new SkillVisualResolution
         {
             SkillId = skillId,
