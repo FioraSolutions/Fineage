@@ -419,7 +419,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S3** `L2VillageStatuePanner` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the one-off TexPanner. It stays a statue-specific clock beside `L2Ue2ShaderProps`; this PR does not turn it into the shared UE2 material path (#1690).
 - [ ] **S4** `L2DoorPassage` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the static-mesh doorway submesh drop (#1688 neighbor, policy unchanged).
 - [x] **S5** `L2TerrainSunIntensity` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the UE2 sun-direction formula so it sits with `L2StaticMeshVertexLight` / sun masks (#1688). Formula unchanged; still not a rebake entry point.
-- [ ] **S6** `L2BrushPortal` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the baked-brush portal cut (#1688 / #1692 neighbor, mesh cut unchanged).
+- [x] **S6** `L2BrushPortal` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the baked-brush portal cut (#1688 / #1692 neighbor, mesh cut unchanged).
 - [x] **S7** `EntityStunStars` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the stun-star drawer; it already calls `L2FxCompositorLayers` in Fineage.Game.
 - [ ] **S8** `ItemEnchantGlowView` → `Fineage.Game/Combat/`. Cuts ACS ownership of the enchant-glow view; placement and style already live on `EnchantGlow` in Fineage.Domain.
 - [x] **S9** `LoginJungleFillPass` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the login far-plane fill. Uses only Unity rendering types.
