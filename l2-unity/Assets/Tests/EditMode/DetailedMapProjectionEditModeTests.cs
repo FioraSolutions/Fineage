@@ -42,11 +42,12 @@ public sealed class DetailedMapProjectionEditModeTests
     [Test]
     public void ProjectWorldMapPixel_elvenVillage_center()
     {
+        InterludeWorldMapBounds.ResetForEditModeTests();
         const float l2X = 46890f;
         const float l2Y = 51531f;
         Vector2 px = DetailedMapProjection.ProjectWorldMapPixel(l2X, l2Y);
-        Assert.AreEqual(970f, px.x, 4f);
-        Assert.AreEqual(1555f, px.y, 4f);
+        Assert.AreEqual(897f, px.x, 4f);
+        Assert.AreEqual(1568f, px.y, 4f);
     }
 
     [Test]

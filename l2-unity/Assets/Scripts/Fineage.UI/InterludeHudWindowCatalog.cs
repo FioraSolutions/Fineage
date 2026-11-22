@@ -125,7 +125,7 @@ public static class InterludeHudWindowCatalog
     public static readonly InterludeHudControlRect TownMapLayer = new InterludeHudControlRect(
         left: 0f,
         top: 0f,
-        width: 330f,
+        width: 328f,
         height: 328f);
 
     public static IEnumerable<InterludeHudWindowEntry> AllEntries()

@@ -82,11 +82,12 @@ public partial class MapWindow : L2PopupWindow
         }
 
         Button button = GetElementById("MyLocButton") as Button;
+        Button partyButton = GetElementById("PartyLocButton") as Button;
         VisualElement map = host.Q("map");
         VisualElement marker = host.Q("minimapPos");
-        if (viewport == null || map == null || marker == null || button == null)
+        if (viewport == null || map == null || marker == null || button == null || partyButton == null)
         {
-            Debug.LogError("[MapWindow] map viewport, marker, or MyLocButton is missing.");
+            Debug.LogError("[MapWindow] map viewport, marker, MyLocButton, or PartyLocButton is missing.");
         }
         else
         {
