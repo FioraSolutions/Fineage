@@ -59,7 +59,7 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);
-
+        RegisterPlayerRebirth(builder);
     }
 
     /// <summary>
@@ -245,6 +245,41 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] IClickMasks is not a ClickManager — ClickManager was not registered as IClickMasks.");
+    }
+
+    /// <summary>
+    /// Register <see cref="PlayerRebirthRelay"/> as <see cref="IPlayerRebirth"/> (#131 S38q).
+    /// The live <see cref="PlayerStateMachine"/> attaches after the player spawns.
+    /// </summary>
+    void RegisterPlayerRebirth(IContainerBuilder builder)
+    {
+        builder.Register<PlayerRebirthRelay>(Lifetime.Singleton).AsSelf().As<IPlayerRebirth>();
+    }
+
+    static void RequirePlayerRebirth(IObjectResolver container)
+    {
+        IPlayerRebirth rebirth;
+        try
+        {
+            rebirth = container.Resolve<IPlayerRebirth>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IPlayerRebirth))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IPlayerRebirth missing — PlayerRebirthRelay was not registered as IPlayerRebirth.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (rebirth is PlayerRebirthRelay)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IPlayerRebirth is not a PlayerRebirthRelay — PlayerRebirthRelay was not registered as IPlayerRebirth.");
     }
 
     /// <summary>

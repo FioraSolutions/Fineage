@@ -56,8 +56,7 @@ public partial class World
             if (entity.GetType() == typeof(PlayerEntity))
             {
 
-                PlayerStatePacketServices.PlayerState.ChangeState(PlayerState.REBIRTH);
-                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.REBIRTH);
+                _playerRebirth.NotifyRebirth();
 
                 entity.SetDead(false);
 
