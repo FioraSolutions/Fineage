@@ -12,7 +12,7 @@ namespace Fineage.Net.Contract
             w.WriteInt32(m.PetControlObjectId);
         });
 
-        public static PlayerActionStateNetMsg DecodePlayerActionState(System.ReadOnlySpan<byte> p)
+        public static PlayerActionStateNetMsg DecodePlayerActionState(ReadOnlySpan<byte> p)
         {
             var r = new Reader(p);
             return new PlayerActionStateNetMsg
