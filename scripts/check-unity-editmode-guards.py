@@ -106,6 +106,17 @@ def _type_defined_in_file(text: str, name: str) -> bool:
     )
 
 
+def _method_defined_in_file(text: str, name: str) -> bool:
+    """A helper declared in this file is not an Assembly-CSharp type of the same name."""
+    return bool(
+        re.search(
+            rf"(?:^|\n)\s*(?:(?:public|private|protected|internal|static|async|override|virtual|sealed|unsafe)\s+)*"
+            rf"(?:[\w.<>,\[\]?]+\s+){re.escape(name)}\s*\(",
+            text,
+        )
+    )
+
+
 def _uses_type_name(fragment: str, name: str) -> bool:
     # `Outer.Poly(` is the nested type, not Assembly-CSharp `Poly`.
     if not re.search(rf"(?<!\.)\b{re.escape(name)}\b", fragment):
@@ -204,7 +215,10 @@ def check_editmode_asmdef_types() -> list[str]:
         used = sorted(
             name
             for name in ac_types
-            if name not in BUILTIN_ALLOW and _uses_type_name(code, name)
+            if name not in BUILTIN_ALLOW
+            and not _type_defined_in_file(text, name)
+            and not _method_defined_in_file(code, name)
+            and _uses_type_name(code, name)
         )
         if not used:
             continue

@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace Fineage.Client.Domain.Tests;
 
 public sealed class SkinnedMeshBoneResolverTests

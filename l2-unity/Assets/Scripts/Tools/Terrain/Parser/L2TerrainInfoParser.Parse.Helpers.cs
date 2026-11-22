@@ -7,33 +7,38 @@ using UnityEngine;
 public partial class L2TerrainInfoParser
 {
     private static L2DecoLayer UpdateDecoLayerScale(L2DecoLayer layer, string scaleMultiplier) {
-        int equalsIndex = scaleMultiplier.IndexOf('=');
-        string valueString = scaleMultiplier.Substring(equalsIndex + 1, scaleMultiplier.Length - equalsIndex - 2);
-
-        valueString = valueString
-            .Replace("(", String.Empty)
-            .Replace(")", String.Empty)
-            .Replace("Min", String.Empty)
-            .Replace("Max", String.Empty)
-            .Replace("=", String.Empty)
-            .Replace("X", String.Empty)
-            .Replace("Y", String.Empty)
-            .Replace("Z", String.Empty);
-
-        string[] parts = valueString.Split(",");
-
-        // Official ScaleMultiplier X = width, Z = height (Y is the unused UE axis here).
-        layer.minWidth = float.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
-        layer.maxWidth = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
-        if (parts.Length >= 6) {
-            layer.minHeight = float.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture);
-            layer.maxHeight = float.Parse(parts[5], System.Globalization.CultureInfo.InvariantCulture);
-        } else {
-            layer.minHeight = float.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture);
-            layer.maxHeight = float.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture);
-        }
-
+        if (string.IsNullOrEmpty(scaleMultiplier))
+            return layer;
+        bool x = TryRange(scaleMultiplier, "X", out float xMin, out float xMax);
+        bool y = TryRange(scaleMultiplier, "Y", out float yMin, out float yMax);
+        bool z = TryRange(scaleMultiplier, "Z", out float zMin, out float zMax);
+        if (!x || !y || !z)
+            return layer;
+        layer.hasScale = true;
+        layer.scaleXMin = xMin;
+        layer.scaleXMax = xMax;
+        layer.scaleYMin = yMin;
+        layer.scaleYMax = yMax;
+        layer.scaleZMin = zMin;
+        layer.scaleZMax = zMax;
+        // Unity detail prototypes: X is width, Z is height.
+        layer.minWidth = xMin;
+        layer.maxWidth = xMax;
+        layer.minHeight = zMin;
+        layer.maxHeight = zMax;
         return layer;
+    }
+
+    static bool TryRange(string text, string axis, out float min, out float max)
+    {
+        min = 0f;
+        max = 0f;
+        var m = System.Text.RegularExpressions.Regex.Match(
+            text, axis + @"=\(Min=([-0-9.]+),Max=([-0-9.]+)\)");
+        if (!m.Success)
+            return false;
+        return float.TryParse(m.Groups[1].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out min)
+            && float.TryParse(m.Groups[2].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out max);
     }
 
     public const int QuadVisibilityWordCount = 2048;

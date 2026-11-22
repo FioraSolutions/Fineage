@@ -50,3 +50,4 @@ jobs:
         run: |
           python3 scripts/check-release-secrets.py --self-test
           python3 scripts/bake-playtest-endpoint.py --self-test
+          python3 scripts/check-deco-archive-fixture.py

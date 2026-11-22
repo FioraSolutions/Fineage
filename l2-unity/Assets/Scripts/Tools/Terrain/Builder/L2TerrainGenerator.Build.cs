@@ -24,10 +24,11 @@ public partial class L2TerrainGenerator
             detailPrototypes[i].useInstancing = true;
             detailPrototypes[i].dryColor = Color.white;
             detailPrototypes[i].healthyColor = Color.white;
-            detailPrototypes[i].minHeight = terrainInfo.decoLayers[i].minHeight * ueToUnityUnitScale;
-            detailPrototypes[i].maxHeight = terrainInfo.decoLayers[i].maxHeight * ueToUnityUnitScale;
-            detailPrototypes[i].minWidth = terrainInfo.decoLayers[i].minWidth * ueToUnityUnitScale;
-            detailPrototypes[i].maxWidth = terrainInfo.decoLayers[i].maxWidth * ueToUnityUnitScale;
+            // ScaleMultiplier is a mesh scale, the same numbers L2DecoGenerator uses.
+            detailPrototypes[i].minHeight = terrainInfo.decoLayers[i].minHeight;
+            detailPrototypes[i].maxHeight = terrainInfo.decoLayers[i].maxHeight;
+            detailPrototypes[i].minWidth = terrainInfo.decoLayers[i].minWidth;
+            detailPrototypes[i].maxWidth = terrainInfo.decoLayers[i].maxWidth;
         }
 
         terrainData.detailPrototypes = detailPrototypes;
@@ -44,6 +45,11 @@ public partial class L2TerrainGenerator
             }
             if (!deco.showOnTerrain)
                 continue;
+            if (!deco.hasDensity || !deco.hasMaxPerQuad)
+            {
+                Debug.LogError("[Interlude deco] layer " + i + " (" + (deco.densityMapRef ?? deco.densityMapPath) + "): missing DensityMultiplier or MaxPerQuad");
+                continue;
+            }
 
             var detailHeight = densityTexture.height;
             var detailWidth = densityTexture.width;
@@ -56,16 +62,15 @@ public partial class L2TerrainGenerator
             for (int y = 0; y < detailHeight; y++) {
                 for (int x = 0; x < detailWidth; x++) {
                     var px = pixels[y * detailWidth + x];
-                    int packed = Mathf.Max(px.r, px.a);
-                    detailLayer[x, y] = deco.CountForDensity(packed);
+                    detailLayer[x, y] = deco.CountForDensity(px.a);
                 }
             }
 
             terrainData.SetDetailLayer(0, 0, i, detailLayer);
         }
 
-        // Per-layer FadeoutRadius is official UU (stored on L2DecoLayer). Unity terrain
-        // detail prototypes share one global distance; the instancer/DecoToMesh bake uses fadeMaxUu.
+        // Per-layer FadeoutRadius is official UU. Unity terrain details share one distance.
+        // The shipped path is L2Deco.bytes + L2DecoInstancedRenderer, which culls per layer.
         if (maxFadeUu > 0f)
             terrainData.SetDetailScatterMode(DetailScatterMode.InstanceCountMode);
 

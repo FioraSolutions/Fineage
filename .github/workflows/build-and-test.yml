@@ -73,6 +73,9 @@ jobs:
       - name: Check client asmdef layout (#139)
         run: python3 scripts/check-client-asmdef-layout.py
 
+      - name: Check DecoLayer archive fixture size
+        run: python3 scripts/check-deco-archive-fixture.py
+
       - name: Check Unity .meta guid format and uniqueness
         run: python3 scripts/check-unity-meta-guids.py
 
