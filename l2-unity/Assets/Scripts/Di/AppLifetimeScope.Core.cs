@@ -24,6 +24,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         builder.RegisterBuildCallback(container =>
         {
             AnimationManager animations = RequireAnimationRoster(container);
+            RequireAnimationManager(container);
             RequireEventQueue(container);
             AudioSessionBootstrap.EnsureSession();
             App.Container = container;
@@ -95,6 +96,32 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         }
 
         return animations;
+    }
+
+    static void RequireAnimationManager(IObjectResolver container)
+    {
+        IAnimationManager manager;
+        try
+        {
+            manager = container.Resolve<IAnimationManager>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IAnimationManager))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IAnimationManager missing — AnimationManager was not registered as IAnimationManager.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (manager is AnimationManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IAnimationManager is not an AnimationManager — AnimationManager was not registered as IAnimationManager.");
     }
 
     static void RequireEventQueue(IObjectResolver container)
