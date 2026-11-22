@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 /// <summary>
 /// Detects Mobius map-region cell changes from the local hero position and shows the town/zone name banner.
@@ -9,6 +10,26 @@ public sealed class ZoneTransitionService : MonoBehaviour
 
     string _lastRegionKey;
     float _nextSample;
+    ILocalPlayerSlot _players;
+    ZoneNameBannerOverlay _banner;
+
+    public void Use(ILocalPlayerSlot players, ZoneNameBannerOverlay banner)
+    {
+        if (players == null)
+        {
+            throw new InvalidOperationException(
+                "[ZoneTransitionService] ILocalPlayerSlot missing — World.EnsureZoneTransition did not pass the slot, so region changes were not tracked.");
+        }
+
+        if (banner == null)
+        {
+            throw new InvalidOperationException(
+                "[ZoneTransitionService] ZoneNameBannerOverlay missing — World.EnsureZoneTransition did not pass the banner, so the zone name was not shown.");
+        }
+
+        _players = players;
+        _banner = banner;
+    }
 
     void Awake() => ZoneTransitionPacketServices.Bind(service: this);
 
@@ -24,11 +45,10 @@ public sealed class ZoneTransitionService : MonoBehaviour
             return;
         _nextSample = Time.unscaledTime + MinResampleSeconds;
 
-        PlayerEntity player = DomainPacketServices.LocalPlayer;
-        if (player == null)
+        if (_players == null || _banner == null || !_players.TryGetPosition(out Vector3 position))
             return;
 
-        Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(player.transform.position);
+        Vector3 l2 = VectorUtils.ConvertPosUnityToL2j(position);
         VectorUtils.GetSwMapTile(l2, out int cellX, out int cellY);
         string regionKey = cellX + ":" + cellY;
 
@@ -37,16 +57,7 @@ public sealed class ZoneTransitionService : MonoBehaviour
         _lastRegionKey = regionKey;
 
         string town = ClientMapRegionCatalog.ResolveTownName(l2.x, l2.y);
-        ZoneNameBannerOverlay banner = ZoneTransitionPacketServices.Banner;
-        if (banner == null)
-        {
-            Debug.LogError(
-                "[ZoneTransition] banner overlay missing for region=" + regionKey +
-                " town=\"" + town + "\"");
-            return;
-        }
-
-        banner.Show(town);
+        _banner.Show(town);
     }
 
     /// <summary>EditMode/test hook: evaluate without waiting for Update cadence.</summary>
@@ -62,7 +73,7 @@ public sealed class ZoneTransitionService : MonoBehaviour
 
         _lastRegionKey = regionKey;
         townShown = ClientMapRegionCatalog.ResolveTownName(l2X, l2Y);
-        ZoneTransitionPacketServices.Banner?.Show(townShown);
+        _banner?.Show(townShown);
         return true;
     }
 }
