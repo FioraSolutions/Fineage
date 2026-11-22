@@ -459,7 +459,7 @@ Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VCon
 - [ ] **S35b** `IWorldSpawnRegistration` → `Fineage.Game` once its register and animation members no longer name Assembly-CSharp.
 - [x] **S36** `NetworkTransformReceive`, `NetworkTransformShare`, and `NetworkCharacterControllerShare` inject `IWorldSpawnContext`. `OfflineMode` is on that interface. `RegisterWorld` registers it. A missing inject logs `[NetworkTransformReceive] IWorldSpawnContext missing — GameLifetimeScope.RegisterWorld did not register World` (same prefix for the other two) and does not read `NetworkingPacketServices.GameWorld`. Ground height still snaps when the inject is present.
 - [ ] **S36b** The next caller family that only needs `IWorldEntityLookup` or `IWorldSpawnContext` stops naming `World`.
-- [ ] **S37** An entity surface in `Fineage.Game` for the position, identity, and transform reads `World` makes on `Entity`. `Entity` stays Assembly-CSharp and implements it.
+- [x] **S37** `IWorldEntity` in `Fineage.Game`: `Identity`, `Transform`, and `Position` (`transform.position`). `Entity` implements it. Subclasses inherit the surface. `World` call sites still take `Entity`.
 - [ ] **S38** The packet-service locators `World` calls (`WorldPacketServices`, `DomainPacketServices`, and the rest) get interfaces in `Fineage.Game`. One locator per PR.
 - [ ] **S39** `World` → `Fineage.Di`. Only after S35b–S38. It still `[Inject]`s.
 - [ ] **S40** `IPlayerPawn` in `Fineage.Game` for the movement and heading members other types use on `PlayerController`.
