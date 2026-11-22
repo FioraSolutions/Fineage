@@ -7,13 +7,8 @@ public sealed class AttackHitPresentationDualHitTests
     [Fact]
     public void Dual_attack_extra_hits_build_two_presentation_rows()
     {
-        var extra = new[]
-        {
-            new AttackHitNet { Damage = 11, Flags = 0x20 },
-        };
-
-        int[] extraDamage = { extra[0].Damage };
-        int[] extraFlags = { extra[0].Flags };
+        int[] extraDamage = { 11 };
+        int[] extraFlags = { 0x20 };
 
         Hit[] rows = AttackHitWireRows.BuildHitList(42, 9, 0x10, extraDamage, extraFlags);
 
