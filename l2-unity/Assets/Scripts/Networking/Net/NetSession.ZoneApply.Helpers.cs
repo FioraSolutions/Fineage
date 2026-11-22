@@ -35,7 +35,7 @@ public sealed partial class NetSession
         dto.Identity.NpcId = spawn.TemplateId;
         if (!string.IsNullOrEmpty(spawn.Name))
             dto.Identity.Name = spawn.Name;
-        dto.Identity.SetHideHp(spawn.TemplateId);
+        dto.Identity.SetHideHp(TablePacketServices.HideNpcHpBar(spawn.TemplateId));
         if (liveDoor)
         {
             NetDoorSession.RememberDoorSpawn(objectId);
