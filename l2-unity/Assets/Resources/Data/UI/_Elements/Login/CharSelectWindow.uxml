@@ -22,7 +22,7 @@
                             <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
                             <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
                         </ui:GroupBox>
-                        <ui:GroupBox name="HPBar" class="bar-inner">
+                        <ui:GroupBox name="LobbyHPBar" class="bar-inner">
                             <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
                             <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
                             <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
@@ -47,7 +47,7 @@
                             <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
                             <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
                         </ui:GroupBox>
-                        <ui:GroupBox name="MPBar" class="bar-inner">
+                        <ui:GroupBox name="LobbyMPBar" class="bar-inner">
                             <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
                             <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
                             <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
@@ -84,22 +84,22 @@
         </ui:VisualElement>
 
         <ui:VisualElement name="StartButtonWindow" class="char-select-start">
-            <ui:Button text="Log In" name="StartButton" tabindex="-1" focusable="false" class="l2-button il-char-select-start-btn" style="height: 23px;">
+            <ui:Button text="Log In" name="btnStart" tabindex="-1" focusable="false" class="l2-button il-char-select-start-btn" style="height: 31px;">
                 <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
                 <ui:Label tabindex="-1" text="ui.char_select.start" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0; padding-top: 2px; padding-bottom: 0;" />
             </ui:Button>
         </ui:VisualElement>
 
         <ui:VisualElement name="MenuWindow" class="char-select-menu">
-            <ui:Button text="Log In" name="CreateButton" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px;">
+            <ui:Button text="Log In" name="btnCreate" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px;">
                 <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
                 <ui:Label tabindex="-1" text="ui.char_select.create" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0;" />
             </ui:Button>
-            <ui:Button text="Log In" name="DeleteButton" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px;">
+            <ui:Button text="Log In" name="btnDelete" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px;">
                 <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
                 <ui:Label tabindex="-1" text="ui.char_select.delete" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0;" />
             </ui:Button>
-            <ui:Button text="Log In" name="ReloginButton" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px; margin-top: 21px;">
+            <ui:Button text="Log In" name="btnReLogin" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px; margin-top: 21px;">
                 <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
                 <ui:Label tabindex="-1" text="ui.char_select.relogin" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0;" />
             </ui:Button>

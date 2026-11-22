@@ -16,7 +16,7 @@ public partial class LoginWindow : L2Window
     private TextField _userInput;
     private TextField _passwordInput;
     private Toggle _rememberToggle;
-    // Local playtest convenience only (PlayerPrefs on this machine).
+    // Legacy plaintext keys. Read once so an older install can move into the OS vault, then deleted.
     const string RememberKey = "fineage.login.remember";
     const string RememberAccountKey = "fineage.login.account";
     const string RememberPasswordKey = "fineage.login.password";
