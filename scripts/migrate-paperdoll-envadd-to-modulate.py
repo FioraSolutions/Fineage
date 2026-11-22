@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ACTOR_GUID = "c7e2a91b4f6d48e0a1b35d8c90e47a12"
 ENV_ADD_GUID = "a1e9c4d85b2f4c6e9d07a3b8f1e24c60"
-ENV_SPEC_GUID = "b6f3e8d92c1a4d7e9f0b2c3d4e5f6a71"  # unused if absent
+ENV_SPEC_GUID = "e8f4c21a6b3d49f0a7c15d8e90b47c33"  # L2/World/ActorEnvSpecular
 
 RACE_FOLDERS = [
     "MFighter",
@@ -165,7 +165,7 @@ def shader_guid(text: str) -> str | None:
 def migrate_mat(path: Path) -> bool:
     text = path.read_text(errors="ignore")
     sg = shader_guid(text)
-    if sg not in (ENV_ADD_GUID,):
+    if sg == ACTOR_GUID:
         return False
     tex = extract_tex_guid(text)
     if not tex:
