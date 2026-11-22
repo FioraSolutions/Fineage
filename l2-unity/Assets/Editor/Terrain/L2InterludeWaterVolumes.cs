@@ -37,8 +37,16 @@ public static class L2InterludeWaterVolumes
         foreach (var tile in list)
         {
             string json = Path.Combine(extract, tile, "watervolumes.json");
+            if (!File.Exists(json))
+                json = Path.Combine(Application.dataPath, "Resources/Data/Maps", tile, "Meta", "watervolumes.json");
             string prefab = "Assets/Resources/Data/Maps/" + tile + "/StaticMeshes.prefab";
-            if (!File.Exists(json) || !File.Exists(prefab)) { notes.Add(tile + ": no json/prefab"); continue; }
+            if (!File.Exists(json))
+            {
+                Debug.LogError("[Water] " + tile + ": missing watervolumes.json (looked in .work/interlude-extract and Maps/" + tile + "/Meta)");
+                notes.Add(tile + ": no json");
+                continue;
+            }
+            if (!File.Exists(prefab)) { notes.Add(tile + ": no StaticMeshes.prefab"); continue; }
             var boxes = Parse(File.ReadAllText(json));
 
             var verts = new List<Vector3>(); var uvs = new List<Vector2>(); var tris = new List<int>();

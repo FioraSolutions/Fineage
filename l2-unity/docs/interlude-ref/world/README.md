@@ -11,6 +11,7 @@ Lossless property dumps of the official Interlude client, for
 - `../sounds/packages/` — every `sounds/*.uax` (Sound names and byte lengths; wave payloads omitted).
 - `package-dump-index.json` — inventory of the dump itself.
 - Derived tables and `gap-report.md` in this folder and in `../sounds/`.
+- `ti-shore-tiles-heightmaps.png` — official heightmaps for the TI shoreline tiles `16_26`, `17_26`, `18_25`, `18_26` next to already-imported neighbors (no Unity render).
 - `render-parity.md` plus `render-parity-tiles.tsv`, `render-perf.tsv`, and `render-parity-holes.tsv` — world render parity and static perf audit for [#1673](https://github.com/FioraSolutions/Fineage/issues/1673).
 
 ## How to regenerate

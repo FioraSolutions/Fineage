@@ -1,10 +1,10 @@
 {
     "schemaVersion": "1",
-    "updatedUtc": "2026-11-12T20:49:16.4567330Z",
-    "clientRootHint": "(local only — not stored)",
+    "updatedUtc": "2026-11-22T13:39:14Z",
+    "clientRootHint": "(local only \u2014 not stored)",
     "clientMapCount": 153,
     "importedFullCount": 37,
-    "importedPartialCount": 0,
+    "importedPartialCount": 4,
     "tiles": [
         {
             "id": "15_20",
@@ -157,10 +157,16 @@
         {
             "id": "16_26",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": ""
+            "inRepo": true,
+            "importStatus": "partial",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/16_26/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/16_26/Meta/16_26.t3d",
+                "Assets/Resources/Data/Maps/16_26/Meta/16_26_AmbientSounds.json",
+                "Assets/Resources/Data/Maps/16_26/Meta/watervolumes.json",
+                "Assets/Resources/Data/Textures/T_16_26_Classic/Height.16_26.bmp"
+            ],
+            "notes": "Phase A meta/height/water/ambient landed; Unity bake (prefab, mesh, Mat_Water, scene, EditorBuildSettings) still required."
         },
         {
             "id": "17_10",
@@ -278,10 +284,16 @@
         {
             "id": "17_26",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": ""
+            "inRepo": true,
+            "importStatus": "partial",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/17_26/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/17_26/Meta/17_26.t3d",
+                "Assets/Resources/Data/Maps/17_26/Meta/17_26_AmbientSounds.json",
+                "Assets/Resources/Data/Maps/17_26/Meta/watervolumes.json",
+                "Assets/Resources/Data/Textures/T_17_26_Classic/Height.17_26.bmp"
+            ],
+            "notes": "Phase A meta/height/water/ambient landed; Unity bake (prefab, mesh, Mat_Water, scene, EditorBuildSettings) still required."
         },
         {
             "id": "18_10",
@@ -417,18 +429,30 @@
         {
             "id": "18_25",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": ""
+            "inRepo": true,
+            "importStatus": "partial",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/18_25/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/18_25/Meta/18_25.t3d",
+                "Assets/Resources/Data/Maps/18_25/Meta/18_25_AmbientSounds.json",
+                "Assets/Resources/Data/Maps/18_25/Meta/watervolumes.json",
+                "Assets/Resources/Data/Textures/T_18_25_Classic/Height.18_25.bmp"
+            ],
+            "notes": "Phase A meta/height/water/ambient landed; Unity bake (prefab, mesh, Mat_Water, scene, EditorBuildSettings) still required."
         },
         {
             "id": "18_26",
             "inClient": true,
-            "inRepo": false,
-            "importStatus": "missing",
-            "repoArtifacts": [],
-            "notes": ""
+            "inRepo": true,
+            "importStatus": "partial",
+            "repoArtifacts": [
+                "Assets/Resources/Data/Maps/18_26/Meta/TerrainInfo0.txt",
+                "Assets/Resources/Data/Maps/18_26/Meta/18_26.t3d",
+                "Assets/Resources/Data/Maps/18_26/Meta/18_26_AmbientSounds.json",
+                "Assets/Resources/Data/Maps/18_26/Meta/watervolumes.json",
+                "Assets/Resources/Data/Textures/T_18_26_Classic/Height.18_26.bmp"
+            ],
+            "notes": "Phase A meta/height/water/ambient landed; Unity bake (prefab, mesh, Mat_Water, scene, EditorBuildSettings) still required."
         },
         {
             "id": "19_10",
