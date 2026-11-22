@@ -97,6 +97,32 @@ public sealed partial class GameLifetimeScope
             "[GameLifetimeScope] IVisibilityRoster is not a VisibilityManager — VisibilityManager was not registered as IVisibilityRoster.");
     }
 
+    static void RequireEntityActionRoster(IObjectResolver container)
+    {
+        IEntityActionRoster roster;
+        try
+        {
+            roster = container.Resolve<IEntityActionRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IEntityActionRoster))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IEntityActionRoster missing — EntityActionMachine was not registered as IEntityActionRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (roster is EntityActionMachine)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IEntityActionRoster is not an EntityActionMachine — EntityActionMachine was not registered as IEntityActionRoster.");
+    }
+
     /// <summary>
     /// Register scene <see cref="World"/> as itself, <see cref="IWorldEntityLookup"/>, and <see cref="IWorldSpawnContext"/> (#131).
     /// </summary>

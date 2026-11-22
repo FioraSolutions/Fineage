@@ -63,7 +63,7 @@ public sealed partial class GameLifetimeScope
         builder.Register<ItemDropPresentationService>(Lifetime.Singleton);
         builder.Register<PlayerPositionSender>(Lifetime.Singleton);
         builder.Register<L2PawnRange>(Lifetime.Singleton);
-        builder.RegisterEntryPoint<EntityActionMachine>().AsSelf();
+        builder.RegisterEntryPoint<EntityActionMachine>().AsSelf().As<IEntityActionRoster>();
         builder.RegisterEntryPoint<StriderRideService>().AsSelf();
         builder.RegisterEntryPoint<UnityChainTicker>();
         builder.Register(_ => new PlayerWorldApply(), Lifetime.Singleton);
@@ -93,6 +93,7 @@ public sealed partial class GameLifetimeScope
         builder.RegisterBuildCallback(container =>
         {
             RequireVisibilityRoster(container);
+            RequireEntityActionRoster(container);
             App.GameContainer = container;
             try
             {
