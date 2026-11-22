@@ -64,10 +64,36 @@ def fix_empty_collection_expression_defaults(text: str) -> str:
     return ARRAY_PROP_EMPTY_COLLECTION.sub(repl, text)
 
 
+COALESCE_Member_PROP = re.compile(r"m\.(\w+)\s*\?\?\s*\[\]")
+
+
+def fix_null_coalesce_empty_collection(text: str) -> str:
+    """`m.SomeArrayProp ?? []` → `m.SomeArrayProp ?? System.Array.Empty<T>()`."""
+
+    def elem_type_for_prop(prop: str) -> str | None:
+        pat = re.compile(rf"public\s+([\w.]+)\[\]\s+{re.escape(prop)}\s")
+        match = pat.search(text)
+        return match.group(1) if match else None
+
+    def repl_line(line: str) -> str:
+        if "?? []" not in line:
+            return line
+        out = line
+        for prop_match in COALESCE_Member_PROP.finditer(line):
+            prop = prop_match.group(1)
+            elem = elem_type_for_prop(prop)
+            if elem:
+                out = out.replace(f"m.{prop} ?? []", f"m.{prop} ?? System.Array.Empty<{elem}>()")
+        return out
+
+    return "\n".join(repl_line(line) for line in text.split("\n"))
+
+
 def transform_for_unity_cs9(text: str) -> str:
     text = normalize_newlines(text)
     text = expand_file_scoped_namespace(text)
     text = fix_empty_collection_expression_defaults(text)
+    text = fix_null_coalesce_empty_collection(text)
     return text
 
 
@@ -108,6 +134,8 @@ def scan_assets_cs10_plus(assets_root: Path, *, repo_root: Path | None = None) -
                 errors.append(f"{rel}:{line_no}: file-scoped namespace (C# 10+)")
             if re.search(r"\{\s*get;\s*set;\s*\}\s*=\s*\[\]\s*;", line):
                 errors.append(f"{rel}:{line_no}: collection expression `= []` (C# 12+)")
+            if re.search(r"\?\?\s*\[\]", line):
+                errors.append(f"{rel}:{line_no}: collection expression `?? []` (C# 12+)")
             if re.search(
                 r"(?<![.\w])required\s+(?:public\s+|private\s+|protected\s+|internal\s+)?"
                 r"[\w.<>,\[\]?]+\s+\w+\s*\{",
