@@ -46,6 +46,14 @@ jobs:
           python3 scripts/check-client-asmdef-layout.py
           python3 scripts/check-unity-editmode-guards.py
 
+      - name: Install ffprobe for audio import policy duration checks
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Check texture and audio import policy (.meta)
+        run: |
+          python3 scripts/test_asset_import_policy_meta.py
+          python3 scripts/check-asset-import-policy.py
+
       - name: Playtest helper self-tests
         run: |
           python3 scripts/check-release-secrets.py --self-test
