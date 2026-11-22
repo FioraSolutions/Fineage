@@ -2,8 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Wire-agnostic entry into the live Unity world. Interlude Incoming packets and
-/// Fineage Net adapters both publish here; <see cref="WorldDomainSink"/> drives
-/// <see cref="WorldPacketApply"/> / <see cref="World"/>.
+/// Fineage Net adapters both publish here. The Assembly-CSharp sink applies them.
 /// </summary>
 public interface IWorldDomainSink
 {

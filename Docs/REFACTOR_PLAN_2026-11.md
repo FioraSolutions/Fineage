@@ -439,12 +439,13 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S23** `NpcInfoDto` → `Fineage.Networking`. The sink rebuilds the wire DTO from the same identity, status, stats, and appearance before `UpdateNpc`. Script GUIDs unchanged. Overhead HP moves to the apply sites in S27.
 - [x] **S24** `UserInfoDto` and `PlayerInfoInterlude` → `Fineage.Networking`. `PlayerInfoInterlude.Skills` had no readers or writers (`CharacterSkills` is unused) and is dropped so the bag does not name Game `SkillInstance`. `DomainStatsChanged` keeps the player bag plus mount type and npc id. The sink rebuilds `UserInfoDto` before `UserInfoUpdateCharacter`. Script GUIDs unchanged.
 - [x] **S25** `GameScopeCycleSafeRegistration` in `Fineage.Di` registers `GameEventBus`, `StatsConverter`, `ItemDropLayerService`, `L2PawnYaw`, and `InterludeActionAvailabilityService`. Same singleton lifetimes. `UnityChainTicker` stays an entry point on `GameLifetimeScope` so tick order is unchanged. The scope still registers the Assembly-CSharp hosts.
+- [x] **S26** `IWorldDomainSink`, `DomainKnownlistAdd`, `DomainPlayerSpawned`, and `DomainStatsChanged` → `Fineage.Networking/World/`. Script GUIDs unchanged. `WorldDomainSink` stays Assembly-CSharp and still rebuilds the wire DTO at apply time.
 - [x] **S27** Overhead HP leaves `InterludeDomainMap.Npc`. `NpcOrPetInfoApplyIncomingPacketServices.Apply` and `PresenceApplyService.ApplyNpcInfo` call `TablePacketServices.HideNpcHpBar` and `SetHideHp` before the map. Missing npcgrp still logs `[EntityIdentity] ParceHideHpbar` and hides the bar. The map only copies fields.
 
 **Still blocked (do not force in this wave):**
 
 - `AppLifetimeScope` / `GameLifetimeScope` / `LoginLifetimeScope` / `GameRuntime` / `LoginRuntime` / `DiBootstrap` — they still name Assembly-CSharp MonoBehaviours. Fineage.Di cannot register those until the hosts themselves move. The cycle-safe singletons above are the exception (S25).
-- `IWorldDomainSink` stays in Assembly-CSharp. Knownlist and stats payloads are identity plus player data (S22–S24); the sink rebuilds the wire DTO at apply time.
+- `WorldDomainSink` stays in Assembly-CSharp. It rebuilds `CharInfoDto`, `NpcInfoDto`, and `UserInfoDto` at apply time (S22–S24). The port and payloads are Fineage.Networking (S26).
 - `DoorCatalog` — `Newtonsoft.Json` is not a `Fineage.Game` asmdef reference (layout check pins the reference list).
 - Sky MonoBehaviours that `[Inject]` via VContainer (`WorldClock`, `L2HazeRing`, `L2StarDome`, `L2CloudMyst`, `L2CloudSimple`) — Fineage.Game cannot reference VContainer.
 - DAT table ScriptableObjects (`SkillNameTable`, `QuestNameTable`, …) — many are cycle-safe and explicitly out of this wave (no DAT grind).
