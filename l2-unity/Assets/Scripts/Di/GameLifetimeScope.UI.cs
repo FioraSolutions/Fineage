@@ -174,6 +174,8 @@ public sealed partial class GameLifetimeScope
                         GameManager manager = App.Container.Resolve<GameManager>();
                         if (runtime.Ui != null)
                             manager.WireGameUi(runtime.Ui);
+                        else
+                            Debug.LogError("[GameLifetimeScope] L2GameUI missing — GameRuntime.Ui was not registered, so GameManager has no game loading UI.");
                     }
                     catch
                     {

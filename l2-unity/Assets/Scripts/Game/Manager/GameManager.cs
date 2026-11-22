@@ -22,8 +22,8 @@ public partial class GameManager : MonoBehaviour, IGameManager
     [Inject] ISceneLoader _sceneLoader;
 
     ILobbySession _lobbyFlow;
-    L2GameUI _gameUi;
-    L2LoginUI _loginUi;
+    IUiLoading _gameUi;
+    IUiLoading _loginUi;
 
     #endregion
 
