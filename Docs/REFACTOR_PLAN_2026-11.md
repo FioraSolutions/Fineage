@@ -424,7 +424,7 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [ ] **S8** `ItemEnchantGlowView` → `Fineage.Game/Combat/`. Cuts ACS ownership of the enchant-glow view; placement and style already live on `EnchantGlow` in Fineage.Domain.
 - [ ] **S9** `LoginJungleFillPass` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the login far-plane fill. Uses only Unity rendering types.
 - [ ] **S10** `L2StarDomeMesh` → `Fineage.Game/Rendering/Sky/`. Cuts ACS ownership of the star-dome mesh builder. The `L2StarDome` MonoBehaviour stays ACS (VContainer).
-- [ ] **S11** `L2DayNightLut` (all partials) → `Fineage.Game/Rendering/Lut/`. Cuts ACS ownership of the day/night color table (#1691 neighbor). Sampling unchanged; no per-tile ZoneInfo.
+- [x] **S11** `L2DayNightLut` (all partials) → `Fineage.Game/Rendering/Lut/`. Cuts ACS ownership of the day/night color table (#1691 neighbor). Sampling unchanged; no per-tile ZoneInfo.
 - [ ] **S12** `LobbyAccountEnvironmentProfile` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/ambient ScriptableObject (fog start/end/color fields unchanged).
 - [ ] **S13** `LobbyAccountRenderSettings` → `Fineage.Game/Rendering/`. Cuts ACS ownership of the lobby fog/sky apply. Depends on S11 and S12. Still lobby-only; not ZoneInfo (#1691).
 - [ ] **S14** `NetGameHost` → `Fineage.Game/Manager/`. Cuts ACS ownership of the `IGameManager` composition host (the port already lives in Fineage.Game). Bind/TryGet behavior unchanged.
