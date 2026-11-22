@@ -18,11 +18,7 @@ public sealed class NotImplementedAction : L2Action
             "[Action] not implemented: id=" + _actionId + " name='" + name +
             "'. RequestActionUse has no client handler (see InterludeActionCatalog wire kind).");
 
-        NetSession session = NetSession.TryGetBound();
-        if (session == null)
-            return;
-
         // Still forward so zone can reject with action_unsupported where applicable.
-        _ = session.SendActionUse(_actionId);
+        InterludeRequestActionUse.TrySend(_actionId);
     }
 }

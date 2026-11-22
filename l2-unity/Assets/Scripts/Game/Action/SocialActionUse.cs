@@ -19,13 +19,6 @@ public sealed class SocialActionUse : L2Action
             PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
             return;
 
-        NetSession session = NetSession.TryGetBound();
-        if (session == null)
-        {
-            Debug.LogError("[SocialAction] RequestActionUse not sent: NetSession not bound id=" + _actionId);
-            return;
-        }
-
-        _ = session.SendActionUse(_actionId);
+        InterludeRequestActionUse.TrySend(_actionId);
     }
 }

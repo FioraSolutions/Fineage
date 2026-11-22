@@ -39,8 +39,22 @@ public sealed partial class WorldPacketApply
         if (entity == null)
             entity = LocalCasterOrNull(dto.ObjectId);
         EntityWorldApply apply;
-        if (entity == null || !TryResolve(entity, out apply))
+        if (entity == null)
+        {
+            Debug.LogError(
+                "[ChangeWaitType] dropped: no entity objectId=" + dto.ObjectId +
+                " waitType=" + (int)dto.WaitType);
             return;
+        }
+
+        if (!TryResolve(entity, out apply))
+        {
+            Debug.LogError(
+                "[ChangeWaitType] dropped: no world apply for objectId=" + dto.ObjectId +
+                " waitType=" + (int)dto.WaitType + " type=" + entity.GetType().Name);
+            return;
+        }
+
         apply.OnChangeWaitType(entity, dto);
     }
 
