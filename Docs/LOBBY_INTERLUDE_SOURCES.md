@@ -8,8 +8,8 @@ Fineage account lobby = retail **Interlude** `maps/Lobby.unr` (Talking Island ha
 | --- | --- |
 | Retail map name | `Lobby.unr` (`LobbyMapInterludeContract.RetailMapName`) |
 | Additive Unity scene | `l2-unity/Assets/Resources/Scenes/l2_lobby.unity` (`SceneLoader._lobbyScene` = `l2_lobby`) |
-| Forest login vista meta | `l2-unity/Assets/Resources/Data/Maps/l2_lobby/Meta/LoginForestActors.json` (note: full Interlude `Lobby.unr` forest login) |
-| Char-create hall camera | `CharSelect_` — see `Docs/agent-tips/create-hall-textures.md` |
+| Forest login vista camera | Lobby.unr `Camera25` in `Maps/l2_lobby/Meta/l2_lobby.t3d` → `Maps/l2_lobby/Cameras.prefab` `Login` (UE2 FovAngle=50 horizontal; `L2Ue2Fov`) |
+| Char-create hall camera | `CharSelect` in `Maps/l2_lobby/Cameras.prefab` — see `Docs/agent-tips/create-hall-textures.md` |
 | Render profile (data-driven) | `Resources/Settings/LobbyAccountEnvironmentProfile.asset` → `LobbyAccountRenderSettings` |
 
 ### External references (retail file sets)

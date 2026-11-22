@@ -103,7 +103,7 @@ Import settings that match the files already in the repo: Default texture type, 
 
 ## Gotchas
 
-- Forest login work (`LoginForestPresenter`, uncommitted `field_deco_S/*.fbx.meta` serializer bumps) is a different tree. Stash it. Do not commit it with this hall fix.
+- Forest login work (uncommitted `field_deco_S/*.fbx.meta` serializer bumps) is a different tree. Stash it. Do not commit it with this hall fix.
 - A Unity player build rewrites `ProjectSettings`, URP assets, and unrelated `.mat` files. Stage only the hall materials.
 - `NewPhysicalSkillsState.cs` had an unused `using UnityEditorInternal` that fails any standalone compile. Player scripts must not reference `UnityEditor*`.
 - Public RP macOS player: `Fineage/Build` entry `FineagePublicMacBuild` (`Assets/Editor/FineagePublicMacBuild.cs`), scripting define `FINEAGE_PUBLIC_PLAYTEST`, output `~/Desktop/Fineage-macOS-dev-create/Fineage.app`. Hosts stay `StreamingAssets/fineage-endpoint.json`: `login.fineage.evpoint.by:2106`, `game.fineage.evpoint.by:7777`.

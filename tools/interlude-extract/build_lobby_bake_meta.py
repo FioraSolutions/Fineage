@@ -4,10 +4,11 @@
 Every other tile has its bake inputs committed (Meta/TerrainInfo0.txt,
 Meta/<tile>.t3d, Meta/StaticMeshActorIndividuals.txt, produced by
 tools/interlude/prepare_interlude_tile.py from the L2TerrainExtractor output).
-The lobby bake inputs were never committed; LoginForestActors.json is a derived
-transforms-only side format. This generator emits the same shared Meta format
-for l2_lobby, sourced from the lossless dumps so the shared bake pipeline
-(L2InterludeTileBakePipeline) consumes the lobby exactly like a tile.
+The lobby bake inputs were never committed. This generator emits the same
+shared Meta format for l2_lobby, sourced from the lossless dumps so the shared
+bake pipeline (L2InterludeTileBakePipeline) consumes the lobby exactly like a
+tile. (The old derived LoginForestActors.json side format was removed with the
+LoginForestPresenter in #932 step 3 — the vista is the baked lobby scene.)
 
 Inputs (committed, no client needed):
   l2-unity/docs/interlude-ref/world/env/Lobby.unr.json.gz

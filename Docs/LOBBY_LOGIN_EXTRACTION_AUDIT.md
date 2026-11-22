@@ -139,3 +139,38 @@ Fix direction (Steps 2-3): feed Lobby.unr through the shared world pipeline —
 generate lobby bake Meta inputs from the committed lossless dump, reuse
 terrain bake / material chain / zone fog / sky / emitter mechanisms, and delete
 the hand-tuned presenter.
+
+## 5. Step 3 landed (this branch) — vista on the shared pipeline
+
+- **`LoginForestPresenter` + derived `LoginForestActors.json` deleted** (with
+  `LobbyMapInterludeContract.LoginForestMetaResource`). The vista is the baked
+  additive `l2_lobby` scene, not a runtime-built side scene.
+- **`Cameras.prefab` Login camera = Lobby.unr Camera25 exactly**: position
+  (4539.098, -127.372, -157.384), euler (9.580, 185.076, 0), vertical FOV
+  38.5526 (= UE2 `FovAngle=50` horizontal at the 4:3 reference aspect),
+  physical-projection off so `fieldOfView` is authoritative. Hand-placed
+  ~56 m / 36°-off transform and FOV 35 are gone.
+- **`L2Ue2Fov`** (`Fineage.Game/Rendering`): UE2 horizontal→Unity vertical FOV
+  conversion, `OfficialHfovDeg=50`. `LoginLobbyPresentation.EnterForestLogin`
+  applies it at the live aspect (Vert-); account-lobby cameras are untouched
+  (their official source is the other 14 t3d cameras — follow-up, not
+  invented). EditMode tests: `L2Ue2FovEditModeTests`.
+- **Bake-side reproducibility**: `L2T3DInfoParser.ParseLobbyCameras` reads
+  `Class=Camera` actors (Tag, FovAngle); `L2CameraBuilder.BuildLobbyCamerasFromT3d`
+  builds them with default-50 inheritance logged per camera (no silent
+  fallback — the t3d we generate already resolves FovAngle from Engine.u).
+- **Stale scene rig deleted**: `Login_`/`CharSelect_`/`Human_`/`Elf_`/
+  `DarkElf_`/`Orc_`/`Dwarf_` under the inactive scene-local `Cameras` root
+  (44 scene YAML docs; reference scan proved no outside users, no code
+  `GameObject.Find` on those names).
+- **Proof harness without the presenter**: `LoginForestShot` captures from the
+  editor poll once splash is gone and `#LoginWindow` is laid out (>200 px),
+  same `/tmp/fineage-login-forest.outpath` protocol.
+- Parity test now asserts `Class=Camera` / `Camera25` in the committed
+  `l2_lobby.t3d` instead of the deleted JSON.
+
+Still open (needs the Mac + Unity): `--only 6,7,8,9` assets (G5/G6/G8),
+lobby re-bake including scoping the `L2BspPolyFlags.IsBrushTextureRenderable`
+`L2_Skies.*` exclusion so the lobby skybox bakes, zone-fog wiring via
+`SetActiveMap("Lobby")` + the explicit zone actor from the step-8
+camera-zones TSV, and the side-by-side proof shot against the original.
