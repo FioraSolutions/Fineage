@@ -255,6 +255,51 @@ public partial class AudioService
         src.maxDistance = outer + 0.01f;
     }
 
+    /// <summary>
+    /// Looping actor sound. Same inner plateau and Radius*100 cutoff as one-shots.
+    /// The custom curve is <see cref="Ue2SoundAudibility.Attenuation"/> sampled across that span.
+    /// </summary>
+    internal static void ApplyUe2LoopFalloff(AudioSource src, float innerRadiusUu)
+    {
+        float inner = Ue2SoundAudibility.InnerRadiusMeters(innerRadiusUu);
+        float outer = Ue2SoundAudibility.OuterRadiusMeters(innerRadiusUu);
+        if (inner < 0.01f)
+            inner = 0.01f;
+        if (outer <= inner)
+            outer = inner + 0.01f;
+        src.spatialBlend = 1f;
+        src.dopplerLevel = 0f;
+        src.rolloffMode = AudioRolloffMode.Custom;
+        src.minDistance = inner;
+        src.maxDistance = outer;
+        src.SetCustomCurve(AudioSourceCurveType.CustomRolloff, BuildUe2Rolloff(innerRadiusUu, inner, outer));
+    }
+
+    static AnimationCurve BuildUe2Rolloff(float innerRadiusUu, float inner, float outer)
+    {
+        const int steps = 8;
+        var keys = new Keyframe[steps + 2];
+        keys[0] = new Keyframe(0f, 1f, 0f, 0f);
+        for (int i = 0; i <= steps; i++)
+        {
+            float distance = inner + (outer - inner) * (i / (float)steps);
+            float gain = Ue2SoundAudibility.Attenuation(distance, innerRadiusUu);
+            float inTan = 0f;
+            float outTan = 0f;
+            keys[i + 1] = new Keyframe(distance, gain, inTan, outTan);
+        }
+
+        for (int i = 0; i < keys.Length - 1; i++)
+        {
+            float dt = keys[i + 1].time - keys[i].time;
+            float slope = dt > 0.0001f ? (keys[i + 1].value - keys[i].value) / dt : 0f;
+            keys[i].outTangent = slope;
+            keys[i + 1].inTangent = slope;
+        }
+
+        return new AnimationCurve(keys);
+    }
+
     internal static void ApplyWorldFalloff(AudioSource src, float maxDistanceMeters = -1f)
     {
         src.spatialBlend = 1f;

@@ -108,9 +108,9 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
             OfficialAmbientSoundTable.Entry entry = rows[i];
             if (!IsTypeActive(entry.Type))
                 continue;
-            float radius = HearRadiusUnity(entry);
-            float dist = HorizontalDistance(ear, entry.UnityPosition);
-            if (dist <= radius)
+            float radiusUu = Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.RadiusUu);
+            float dist = Vector3.Distance(ear, entry.UnityPosition);
+            if (Ue2SoundAudibility.IsAudible(dist, radiusUu))
                 _candidates.Add((entry, dist));
         }
     }
@@ -194,9 +194,7 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         source.loop = entry.Random == 0;
         source.pitch = OfficialAmbientSoundUnits.PitchToMultiplier(entry.Pitch);
         source.volume = OfficialAmbientSoundUnits.VolumeToScale(entry.Volume);
-        float hear = HearRadiusUnity(entry);
-        AudioService.ApplyWorldFalloff(source, hear);
-        source.minDistance = Mathf.Min(AudioWorldConstants.HearMinMeters, Mathf.Max(0.01f, hear * 0.05f));
+        AudioService.ApplyUe2LoopFalloff(source, Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.RadiusUu));
         source.transform.position = entry.UnityPosition;
         if (source.loop && clip.length > 0f && entry.StartTime != 0f)
         {
@@ -264,9 +262,6 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         _pool.Push(source);
     }
 
-    static float HearRadiusUnity(OfficialAmbientSoundTable.Entry entry) =>
-        OfficialAmbientSoundUnits.RadiusToUnity(Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.RadiusUu));
-
     static string RadiusReason(OfficialAmbientSoundTable.Entry entry) =>
         Ue2SoundAudibility.HasRadius(entry.RadiusUu) ? "audible" : "actor-default";
 
@@ -308,13 +303,6 @@ public sealed class OfficialAmbientSoundPlayback : MonoBehaviour
         if (ambientRandom <= 0)
             return true;
         return Random.Range(1, 101) <= ambientRandom;
-    }
-
-    static float HorizontalDistance(Vector3 a, Vector3 b)
-    {
-        float dx = a.x - b.x;
-        float dz = a.z - b.z;
-        return Mathf.Sqrt(dx * dx + dz * dz);
     }
 
     void LogOnce(string key, string message)

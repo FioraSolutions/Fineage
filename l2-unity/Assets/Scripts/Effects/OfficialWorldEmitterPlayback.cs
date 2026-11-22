@@ -184,9 +184,7 @@ public sealed class OfficialWorldEmitterPlayback : MonoBehaviour
             source.loop = true;
             source.volume = OfficialAmbientSoundUnits.VolumeToScale(entry.soundVolume);
             float radiusUu = Ue2SoundAudibility.ResolveActorSoundRadiusUu(entry.soundRadius);
-            float radius = OfficialAmbientSoundUnits.RadiusToUnity(radiusUu);
-            AudioService.ApplyWorldFalloff(source, radius);
-            source.minDistance = Mathf.Min(AudioWorldConstants.HearMinMeters, Mathf.Max(0.01f, radius * 0.05f));
+            AudioService.ApplyUe2LoopFalloff(source, radiusUu);
             string reason = Ue2SoundAudibility.HasRadius(entry.soundRadius) ? "audible" : "actor-default";
             if (!AudioListenerLifecycle.TryPrepare())
             {

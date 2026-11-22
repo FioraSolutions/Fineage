@@ -1,9 +1,15 @@
 /// <summary>
-/// UE2 PlaySound audibility (UDN Sound Reference, engine v2226, clarified 2003-11-10).
-/// Authored Radius is the inner plateau in L2 unreal units. The sound is cut off at Radius * 100.
+/// UE2 PlaySound and Actor.SoundRadius (UDN Sound Reference, engine v2226, 2003-11-10).
+/// The authored Radius / SoundRadius is the inner plateau, and it is 1/100 of the
+/// cutoff in unreal units: the sound is inaudible at Radius * 100.
+/// Ambient SoundRadius uses that same scale ("the radius is 1/100 of the radius of
+/// the sound in Unreal Units"); only the edge transition differs from PlaySound.
 /// Falloff: volume_drop_db = 20 * log10(1 + Rolloff * (distance - Radius) / Radius),
 /// which is attenuation = 1 / (1 + Rolloff * (distance - Radius) / Radius).
 /// Rolloff is ALAudioSubsystem.Rolloff from the UE2 reference ini (0.5). L2's l2.ini is not in the dump.
+/// The Interlude client ships ALAudio (UALAudioSubsystem). Engine.u SoundRadius is a
+/// FloatProperty, so this is the UE2 float radius, not the UE1 Galaxy byte radius
+/// whose world radius was (SoundRadius + 1) * 25.
 /// </summary>
 public static class Ue2SoundAudibility
 {

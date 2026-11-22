@@ -34,6 +34,19 @@ public sealed class Ue2WorldSoundEditModeTests
     }
 
     [Test]
+    public void SoundRadius_cutoff_is_one_hundred_times_the_authored_radius()
+    {
+        const float authored = 32f;
+        float outer = Ue2SoundAudibility.OuterRadiusMeters(authored);
+        Assert.AreEqual(authored * Ue2SoundAudibility.OuterRadiusScale * VectorUtils.L2UuToUnity, outer, 0.0001f);
+        Assert.AreEqual(outer, OfficialAmbientSoundUnits.RadiusToUnity(authored), 0.0001f);
+        Assert.AreEqual(outer, Ue2SoundAudibility.OuterRadiusMeters(authored), 0.0001f);
+        Assert.Greater(outer, 50f, "Actor default 32 must be heard across tens of meters, not under one.");
+        Assert.IsTrue(Ue2SoundAudibility.IsAudible(outer * 0.5f, authored));
+        Assert.IsFalse(Ue2SoundAudibility.IsAudible(outer, authored));
+    }
+
+    [Test]
     public void Omitted_actor_sound_radius_uses_the_ue2_actor_default()
     {
         Assert.AreEqual(32f, Ue2SoundAudibility.ActorDefaultSoundRadiusUu, 0.001f);
