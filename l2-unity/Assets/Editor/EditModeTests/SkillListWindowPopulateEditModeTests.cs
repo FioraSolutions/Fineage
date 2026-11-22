@@ -165,6 +165,37 @@ public sealed class SkillListWindowPopulateEditModeTests
             "passive Ability skills first row must use Interlude column count (up to skill count)");
     }
 
+    [Test]
+    public void SkillListWindow_tab_headers_match_interlude_active_and_passive_only()
+    {
+        Assert.IsNull(
+            Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/TabLearn"),
+            "TabLearn.uxml must stay removed; Interlude MagicSkillWnd has no Learn Skill tab");
+
+        var windowAsset = Resources.Load<VisualTreeAsset>("Data/UI/_Elements/Game/SkillLearn/SkillListWindow");
+        Assert.NotNull(windowAsset, "SkillListWindow.uxml missing");
+
+        DestroyAllSkillListWindows();
+        SkillListWindow.EditModeResetSingletonForTests();
+
+        _skillListHost = new GameObject("SkillListWindowTabHeaderHost");
+        var window = _skillListHost.AddComponent<SkillListWindow>();
+        window.EditorTestClaimSingletonForTests();
+        window.EditorTestLoadAssets();
+
+        var visualRoot = windowAsset.Instantiate();
+        var host = new VisualElement { name = "UITestRoot" };
+        host.Add(visualRoot);
+        window.EditorTestInitWindow(host);
+
+        var content = window.EditorTestQueryContent();
+        VisualElement tabView = content.Q("InventoryTabView") ?? content;
+        window.EditorFinishTabBuildForTests(tabView);
+
+        var headers = tabView.Query(className: "tab-header").ToList();
+        Assert.AreEqual(2, headers.Count, "MagicSkillWnd must expose exactly Active and Passive tab headers");
+    }
+
     static void AssertGridRowsHaveInterludeHeight(VisualElement rowRoot)
     {
         VisualElement gridRow = FindFirstSkillGridRow(rowRoot);
