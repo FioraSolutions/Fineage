@@ -39,9 +39,9 @@ public partial class World
         return ExecuteWithEntityAsync(user.PlayerInfoInterlude.Identity.Id, e => {
             if (_worldCombat != null)
                 _worldCombat.StatusUpdate(e, user.PlayerInfoInterlude.Stats, user.PlayerInfoInterlude.Status , user.PlayerInfoInterlude.Identity.Id);
-            if (e == DomainPacketServices.LocalPlayer)
+            if (_localPlayer.IsLocal(e))
             {
-                DomainPacketServices.LocalPlayer.Running = user.PlayerInfoInterlude.Appearance.Running;
+                _localPlayer.SetRunning(user.PlayerInfoInterlude.Appearance.Running);
                 _characterInfo.UpdateValues();
             }
         });
@@ -56,8 +56,7 @@ public partial class World
             if (entity.GetType() == typeof(PlayerEntity))
             {
 
-                PlayerStatePacketServices.PlayerState.ChangeState(PlayerState.REBIRTH);
-                PlayerStatePacketServices.PlayerState.NotifyEvent(Event.REBIRTH);
+                _playerRebirth.NotifyRebirth();
 
                 entity.SetDead(false);
 

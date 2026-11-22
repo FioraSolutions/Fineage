@@ -59,7 +59,8 @@ public sealed partial class GameLifetimeScope
         RegisterIfFound<PlayerActions>(builder);
         RegisterIfFound<ListenerCharacterGear>(builder);
         RegisterLiveMono<CharacterBuilder>(builder);
-
+        RegisterPlayerRebirth(builder);
+        RegisterLocalPlayer(builder);
     }
 
     /// <summary>
@@ -245,6 +246,76 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] IClickMasks is not a ClickManager — ClickManager was not registered as IClickMasks.");
+    }
+
+    /// <summary>
+    /// Register <see cref="PlayerRebirthRelay"/> as <see cref="IPlayerRebirth"/> (#131 S38q).
+    /// The live <see cref="PlayerStateMachine"/> attaches after the player spawns.
+    /// </summary>
+    void RegisterPlayerRebirth(IContainerBuilder builder)
+    {
+        builder.Register<PlayerRebirthRelay>(Lifetime.Singleton).AsSelf().As<IPlayerRebirth>();
+    }
+
+    static void RequirePlayerRebirth(IObjectResolver container)
+    {
+        IPlayerRebirth rebirth;
+        try
+        {
+            rebirth = container.Resolve<IPlayerRebirth>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IPlayerRebirth))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IPlayerRebirth missing — PlayerRebirthRelay was not registered as IPlayerRebirth.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (rebirth is PlayerRebirthRelay)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IPlayerRebirth is not a PlayerRebirthRelay — PlayerRebirthRelay was not registered as IPlayerRebirth.");
+    }
+
+    /// <summary>
+    /// Register <see cref="LocalPlayerSlot"/> as <see cref="ILocalPlayerSlot"/> (#131 S38r).
+    /// The player attaches after spawn.
+    /// </summary>
+    void RegisterLocalPlayer(IContainerBuilder builder)
+    {
+        builder.Register<LocalPlayerSlot>(Lifetime.Singleton).AsSelf().As<ILocalPlayerSlot>();
+    }
+
+    static void RequireLocalPlayer(IObjectResolver container)
+    {
+        ILocalPlayerSlot slot;
+        try
+        {
+            slot = container.Resolve<ILocalPlayerSlot>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(ILocalPlayerSlot))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] ILocalPlayerSlot missing — LocalPlayerSlot was not registered as ILocalPlayerSlot.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (slot is LocalPlayerSlot)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] ILocalPlayerSlot is not a LocalPlayerSlot — LocalPlayerSlot was not registered as ILocalPlayerSlot.");
     }
 
     /// <summary>

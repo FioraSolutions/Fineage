@@ -38,6 +38,8 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [Inject] private IMoveRoster _moveRoster;
     [Inject] private INameplateRoster _nameplates;
     [Inject] private IClickMasks _clicks;
+    [Inject] private IPlayerRebirth _playerRebirth;
+    [Inject] private ILocalPlayerSlot _localPlayer;
     [Inject] private PlayerSpawner _playerSpawner;
     [Inject] private UserSpawner _userSpawner;
     [Inject] private NpcSpawner _npcSpawner;

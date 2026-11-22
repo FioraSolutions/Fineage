@@ -21,7 +21,18 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
             runner.Bind(_itemDropPresentation);
     }
 
+    [Inject]
+    void BindZoneTransitionPlayers(ILocalPlayerSlot players)
+    {
+        EnsureZoneTransition(players);
+    }
+
     void BindZoneTransitionRunner()
+    {
+        EnsureZoneTransition(_localPlayer);
+    }
+
+    void EnsureZoneTransition(ILocalPlayerSlot players)
     {
         ZoneTransitionService service = GetComponent<ZoneTransitionService>();
         if (service == null)
@@ -29,7 +40,10 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
         ZoneNameBannerOverlay banner = GetComponent<ZoneNameBannerOverlay>();
         if (banner == null)
             banner = gameObject.AddComponent<ZoneNameBannerOverlay>();
-        ZoneTransitionPacketServices.Bind(service, banner);
+        if (players == null)
+            return;
+
+        service.Use(players, banner);
     }
 
     void OnDestroy() {

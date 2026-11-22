@@ -98,6 +98,8 @@ public sealed partial class GameLifetimeScope
             RequireNameplateRoster(container);
             RequireClickMasks(container);
             RequireCharacterInfo(container);
+            RequirePlayerRebirth(container);
+            RequireLocalPlayer(container);
             App.GameContainer = container;
             try
             {
