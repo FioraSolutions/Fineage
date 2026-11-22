@@ -1,9 +1,108 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/Data/UI/_Elements/L2StyleSheet.uss?fileID=7433441132597879392&amp;guid=72e99cc94b130bf4ba100dceaa830b13&amp;type=3#L2StyleSheet" />
-    <!-- Hosts only. NCLobbyWnd_CharInfo, NCLobbyStartWnd, and NCLobbyFunctionWnd are placed by InterludeWindowLayout. -->
+    <!-- Overlay host: Ignore so empty screen passes clicks to 3D heroes. Only the three panels pick. -->
     <ui:VisualElement name="CharSelectWindow" picking-mode="Ignore" class="char-select-window il-char-select">
-        <ui:VisualElement name="CharSelectDetailWindow" class="char-select-detail" />
-        <ui:VisualElement name="StartButtonWindow" class="char-select-start" />
-        <ui:VisualElement name="MenuWindow" class="char-select-menu" />
+        <ui:VisualElement name="CharSelectDetailWindow" class="char-select-detail">
+            <ui:VisualElement name="row" class="char-select-row" style="height: 28px; width: 80%;">
+                <ui:VisualElement name="UserSelectContainer" class="char-select-col" style="width: 50%; padding-right: 4px; padding-left: 16px; height: auto;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="row" class="char-select-row" style="height: 30px; align-items: center;">
+                <ui:VisualElement name="col" class="char-select-col" style="width: 50%; padding-right: 4px; padding-left: 16px;">
+                    <ui:Label tabindex="-1" text="ui.char_select.level" name="Label" class="char-select-label l10n" style="color: rgb(165, 143, 113); width: 18px;" />
+                    <ui:Label tabindex="-1" text="1" name="LevelLabel" class="char-select-label" style="color: rgb(165, 143, 113); width: 20px;" />
+                    <ui:Label tabindex="-1" text="Dark Fighter" name="ClassLabel" class="char-select-label" style="color: rgb(165, 143, 113); width: auto; flex-grow: 1;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="row" class="char-select-row" style="align-items: flex-start;">
+                <ui:VisualElement name="col" class="char-select-col" style="width: 50%; padding-right: 4px; padding-left: 16px; align-items: flex-end;">
+                    <ui:Label tabindex="-1" text="ui.char_select.hp" name="Label" class="char-select-label l10n" style="color: rgb(255, 255, 255);" />
+                    <ui:VisualElement name="HPBarContainer" class="bar-container" style="height: 14px; flex-direction: row; flex-grow: 1;">
+                        <ui:GroupBox name="HPBarBG" class="bar-inner" style="width: 100%;">
+                            <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
+                            <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
+                            <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar_Back');" />
+                        </ui:GroupBox>
+                        <ui:GroupBox name="HPBar" class="bar-inner">
+                            <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
+                            <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
+                            <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_HpBar');" />
+                        </ui:GroupBox>
+                        <ui:Label text="1234/1234" name="HPText" class="bar-label bar-label-numbers hp-text-label" style="flex-shrink: 0; flex-grow: 1; padding-left: 0; -unity-font: resource('Data/UI/Font/tahoma');" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="col" class="char-select-col" style="width: 50%; padding-right: 16px; padding-left: 4px; align-items: center;">
+                    <ui:Label tabindex="-1" text="ui.char_select.sp" name="Label" class="char-select-label l10n" style="color: rgb(255, 255, 255);" />
+                    <ui:VisualElement name="HPBarContainer" style="height: 14px; flex-direction: row; flex-grow: 1;">
+                        <ui:VisualElement name="UserInputBg" tabindex="-1" class="login-input-bg" style="flex-grow: 1; position: absolute; width: 106%; height: 21px;" />
+                        <ui:Label tabindex="-1" text="0" name="SPLabel" style="flex-grow: 1; font-size: 12px; -unity-font: resource('Data/UI/Font/tahoma'); color: rgb(165, 143, 113); -unity-text-align: middle-right; padding-right: 4px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="row" class="char-select-row" style="margin-top: 4px; align-items: flex-start;">
+                <ui:VisualElement name="col" class="char-select-col" style="width: 50%; padding-right: 4px; padding-left: 16px; align-items: flex-end;">
+                    <ui:Label tabindex="-1" text="ui.char_select.mp" name="Label" class="char-select-label l10n" style="color: rgb(255, 255, 255);" />
+                    <ui:VisualElement name="MPBarContainer" class="bar-container" style="height: 14px; flex-direction: row; flex-grow: 1;">
+                        <ui:GroupBox name="MPBarBG" class="bar-inner" style="width: 100%;">
+                            <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
+                            <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
+                            <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar_Back');" />
+                        </ui:GroupBox>
+                        <ui:GroupBox name="MPBar" class="bar-inner">
+                            <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
+                            <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
+                            <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_MpBar');" />
+                        </ui:GroupBox>
+                        <ui:Label text="1234/1234" name="MPText" class="bar-label bar-label-numbers hp-text-label" style="flex-shrink: 0; flex-grow: 1; padding-left: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="col" class="char-select-col" style="width: 50%; padding-right: 16px; padding-left: 4px;">
+                    <ui:Label tabindex="-1" text="ui.char_select.karma" name="Label" class="char-select-label l10n" style="color: rgb(255, 255, 255);" />
+                    <ui:VisualElement name="HPBarContainer" style="height: 14px; flex-direction: row; flex-grow: 1;">
+                        <ui:VisualElement name="UserInputBg" tabindex="-1" class="login-input-bg" style="flex-grow: 1; position: absolute; width: 106%; height: 21px;" />
+                        <ui:Label tabindex="-1" text="0" name="KarmaLabel" style="flex-grow: 1; font-size: 12px; -unity-font: resource('Data/UI/Font/tahoma'); color: rgb(165, 143, 113); -unity-text-align: middle-right; padding-right: 4px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="row" class="char-select-row" style="margin-top: 4px; align-items: flex-start;">
+                <ui:VisualElement name="col" class="char-select-col" style="width: 50%; padding-right: 16px; padding-left: 16px; align-items: flex-end;">
+                    <ui:Label tabindex="-1" text="ui.char_select.exp" name="Label" class="char-select-label l10n" style="color: rgb(255, 255, 255);" />
+                    <ui:VisualElement name="ExpBarContainer" class="bar-container" style="height: 13px; flex-direction: row; flex-grow: 1; max-width: 225px;">
+                        <ui:GroupBox name="ExpBarBG" class="bar-inner" style="width: 100%; height: 12px; max-width: 225px;">
+                            <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back');" />
+                            <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back');" />
+                            <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar_Back');" />
+                        </ui:GroupBox>
+                        <ui:GroupBox name="ExpBar" class="bar-inner" style="height: 12px; max-width: 225px;">
+                            <ui:VisualElement name="BGLeft" class="left bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar');" />
+                            <ui:VisualElement name="BGCenter" class="center bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar');" />
+                            <ui:VisualElement name="BGRight" class="right bar-height" style="background-image: resource('Data/UI/Status/Interlude/Status_Interlude_Ps_ExpBar');" />
+                        </ui:GroupBox>
+                        <ui:Label text="0.00%" name="ExpText" class="bar-label bar-label-numbers hp-text-label" style="flex-shrink: 0; flex-grow: 1; padding-left: 0;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="StartButtonWindow" class="char-select-start">
+            <ui:Button text="Log In" name="StartButton" tabindex="-1" focusable="false" class="l2-button il-char-select-start-btn" style="height: 23px;">
+                <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label tabindex="-1" text="ui.char_select.start" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0; padding-top: 2px; padding-bottom: 0;" />
+            </ui:Button>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="MenuWindow" class="char-select-menu">
+            <ui:Button text="Log In" name="CreateButton" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px;">
+                <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label tabindex="-1" text="ui.char_select.create" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0;" />
+            </ui:Button>
+            <ui:Button text="Log In" name="DeleteButton" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px;">
+                <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label tabindex="-1" text="ui.char_select.delete" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0;" />
+            </ui:Button>
+            <ui:Button text="Log In" name="ReloginButton" tabindex="-1" focusable="false" class="l2-button il-char-select-menu-btn" style="height: 23px; margin-top: 21px;">
+                <ui:VisualElement name="ButtonBg" tabindex="-1" picking-mode="Ignore" class="l2-button-bg" />
+                <ui:Label tabindex="-1" text="ui.char_select.relogin" picking-mode="Ignore" name="ButtonLabel" class="button-label il-char-select-btn-label l10n" style="letter-spacing: 0;" />
+            </ui:Button>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

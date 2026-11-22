@@ -59,7 +59,9 @@ python3 tools/ui-extract/inventory_textures.py \
 
 ## Not extracted
 
-Login is not in this folder. There is no `LoginWnd`, `AuthWnd`, or `NCLoginFunctionWnd` document in `docs/ui-original`, and the character-select notes from `nwindow.dll` do not include the login form. Do not guess its coordinates, size, textures, or control tree. Leave the current login screen alone until that window is extracted the same way as the lobby.
+Login is not in this folder. There is no `LoginWnd`, `AuthWnd`, or `NCLoginFunctionWnd` document in `docs/ui-original`, and the character-select notes from `nwindow.dll` do not include the login form. Do not guess its coordinates, size, textures, or control tree. Leave the current login screen alone until that window is extracted.
+
+Lobby **screen placement** is not extracted either. `CharacterSelect.json` recovers the window-relative controls from `nwindow.dll` `OnCreate` / `OnPaint` (the 96×23 buttons, the 256×128 `select1_back` card, the bars). `wndDefPos` is null. The same note says the three windows (`NCLobbyFunctionWnd`, `NCLobbyStartWnd`, `NCLobbyWnd_CharInfo`) are positioned at runtime from the resolution, and those screen anchors were not recovered. Do not invent them, and do not apply the layout asset for these windows until that placement is extracted. The character-select tree stays as it is.
 
 ## Window notes
 
@@ -68,7 +70,7 @@ Login is not in this folder. There is no `LoginWnd`, `AuthWnd`, or `NCLoginFunct
 - **ChatWnd** is 348×187 at `BOTTOM_LEFT`. Background is four slices (`Chatting_Back1..4`). The edit box is `ChatEditBox` at (39, −6) size 303×16, type `CHAT`, max length 100. Tabs (`ChatTabCtrl`) sit on a 320×23 strip at (23, −23) with each tab **64×23**, textures `Chatting_Tab2` (normal) / `Chatting_Tab1` (selected). The tab strip background in xdat is `L2UI_CH3.Minimap.MapWnd_back_max` (yes, a minimap texture).
 - **RadarMapWnd** (`RadarContainerWnd` in xdat) is a **102×102** `Radar` control at `TOP_RIGHT` (0,0). It has **no map texture**. The engine draws the compass (oriented in the world plane). `RadarWnd` is a separate 16×16 icon stack at `TOP_RIGHT` (−10, 85) with `L2UI_CH3.Radar.icon1`–`icon9`.
 - **MinimapWnd** is the world map, 334×413, `L2UI_CH3.Minimap.MapBack`, map view 328×328 at (3, 51). Bottom buttons: Current Loc., Party Member, Target Loc., Enlarge Map. Top-right: Find, World Info. `MinimapWnd_Expand` is the fullscreen variant. `TownMapWnd` is the 334×354 town map (`L2UI.MinimapWnd.MinimapBack`).
-- **CharacterSelect** (lobby): `NCLobbyFunctionWnd` 120×138 with `lobby_menuback`, buttons Create (13,20,96,23), Delete (13,45,96,23), Re-Login (13,95,96,23) using `BigButton`. `NCLobbyStartWnd` 140×49 with `lobby_startbtnback`, Start button (13,10,116,31) using `BigButton2`. The char-info card background is `select1_back` (not the in-game `myinfo_back`). HP/MP bars are 85×12 at (35,55) and (35,69); Exp bar is 206×12 at (35,83).
+- **CharacterSelect** (lobby): window-relative geometry only. `NCLobbyFunctionWnd` 120×138 with `lobby_menuback`, buttons Create (13,20,96,23), Delete (13,45,96,23), Re-Login (13,95,96,23) using `BigButton`. `NCLobbyStartWnd` 140×49 with `lobby_startbtnback`, Start button (13,10,116,31) using `BigButton2`. The char-info card background is `select1_back` (not the in-game `myinfo_back`). HP/MP bars are 85×12 at (35,55) and (35,69); Exp bar is 206×12 at (35,83). Screen placement of these three windows is not in the extract (see Not extracted).
 
 ## Textures already in the Unity project
 

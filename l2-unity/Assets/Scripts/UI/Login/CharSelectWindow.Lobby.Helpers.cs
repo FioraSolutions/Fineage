@@ -20,12 +20,15 @@ public partial class CharSelectWindow
             _deleteButton.SetEnabled(selected != null);
         if (_createButton != null)
             _createButton.SetEnabled(LobbyCharacterText.CanCreate(_lobbyCharacters.Count));
-        if (pending)
-            SetDeleteCaption("Restore");
-        else if (_deleteArmed && selected != null && _deleteArmedSlot == selected.Slot)
-            SetDeleteCaption("Confirm");
-        else
-            SetDeleteCaption("Delete");
+        if (_deleteButtonLabel != null)
+        {
+            if (pending)
+                _deleteButtonLabel.text = "Restore";
+            else if (_deleteArmed && selected != null && _deleteArmedSlot == selected.Slot)
+                _deleteButtonLabel.text = "Confirm";
+            else
+                _deleteButtonLabel.text = "Delete";
+        }
     }
 
     void ApplyLobbyNames()
@@ -61,14 +64,7 @@ public partial class CharSelectWindow
             _deleteButton.SetEnabled(true);
         if (_createButton != null)
             _createButton.SetEnabled(true);
-        SetDeleteCaption("Delete");
-    }
-
-    void SetDeleteCaption(string caption)
-    {
         if (_deleteButtonLabel != null)
-            _deleteButtonLabel.text = caption;
-        else if (_deleteButton != null)
-            _deleteButton.text = caption;
+            _deleteButtonLabel.text = "Delete";
     }
 }
