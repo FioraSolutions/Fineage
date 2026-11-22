@@ -125,7 +125,7 @@ public sealed class SpAtkCombatClipEditModeTests
                                 + " must not load generic SpAtk01 clip; got " + clip.name);
                         }
 
-                        AssertSpAtkIndex(state, wantNumber);
+                        AssertSpAtkNumberInClipName(clip.name, wantNumber);
                     }
                 }
             }
@@ -154,6 +154,36 @@ public sealed class SpAtkCombatClipEditModeTests
         Assert.AreEqual(wantNumber, got, "state=" + state);
         if (wantNumber != 1)
             Assert.IsFalse(state.StartsWith("SpAtk01_", StringComparison.Ordinal));
+    }
+
+    static void AssertSpAtkNumberInClipName(string clipName, int wantNumber)
+    {
+        Assert.IsTrue(
+            TryReadSpAtkNumber(clipName, out int got),
+            "clipName=" + clipName);
+        Assert.AreEqual(wantNumber, got, "clipName=" + clipName);
+        if (wantNumber != 1)
+        {
+            Assert.IsFalse(
+                clipName.IndexOf("SpAtk01", StringComparison.OrdinalIgnoreCase) >= 0,
+                "clipName=" + clipName);
+        }
+    }
+
+    static bool TryReadSpAtkNumber(string text, out int number)
+    {
+        number = 0;
+        int at = text.IndexOf("SpAtk", StringComparison.OrdinalIgnoreCase);
+        if (at < 0)
+            return false;
+
+        int digitStart = at + 5;
+        int digitEnd = digitStart;
+        while (digitEnd < text.Length && char.IsDigit(text[digitEnd]))
+            digitEnd++;
+
+        return digitEnd > digitStart &&
+               int.TryParse(text.Substring(digitStart, digitEnd - digitStart), out number);
     }
 
     static int ReadSpAtkNumber(string phaseToken)

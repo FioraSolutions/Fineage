@@ -19,6 +19,7 @@ public partial class SkillAnimationDatabase
         "MagicShot",
         "MagicThrow",
         "MagicNoTarget",
+        "MagicNotarget",
         "Swim",
         "SwimWait",
         "SwimDeath",
