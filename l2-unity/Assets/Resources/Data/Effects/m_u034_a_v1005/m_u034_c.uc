@@ -1,0 +1,287 @@
+class m_u034_c extends Emitter;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter9
+         // Reference: SpriteEmitter'lineageeffect.dec.m_u034_c.SpriteEmitter9'
+         begin object name="SpriteEmitter9" class=Engine.SpriteEmitter
+         UseDirectionAs=4
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.6920000,Max=0.6920000),Z=(Min=0.3900000,Max=0.3900000))
+         Opacity=0.4000000
+         FadeOutStartTime=0.0720000
+         FadeOut=true
+         FadeInEndTime=0.0080000
+         FadeIn=true
+         MaxParticles=3
+         RespawnDeadParticles=false
+         Name="Finish"
+         SpinParticles=true
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0900000,RelativeSize=1.4000000)
+         SizeScale[1]=(RelativeTime=0.2500000,RelativeSize=1.7000000)
+         SizeScale[2]=(RelativeTime=0.5100000,RelativeSize=1.9000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.0000000)
+         StartSizeRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=20.0000000,Max=20.0000000),Z=(Min=20.0000000,Max=20.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=20.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0068'
+         LifetimeRange=(Min=0.7000000,Max=0.7000000)
+         InitialDelayRange=(Min=2.1099999,Max=2.1099999)
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter9'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter4
+         // Reference: SpriteEmitter'lineageeffect.dec.m_u034_c.SpriteEmitter4'
+         begin object name="SpriteEmitter4" class=Engine.SpriteEmitter
+         UseDirectionAs=4
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.5321430,Color=(R=121,G=121,B=121,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=8.0000000
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.6920000,Max=0.6920000),Z=(Min=0.3900000,Max=0.3900000))
+         FadeOutStartTime=0.2100000
+         FadeOut=true
+         FadeInEndTime=0.0070000
+         FadeIn=true
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="FinishIn"
+         SpinParticles=true
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.1400000,RelativeSize=0.8000000)
+         SizeScale[1]=(RelativeTime=0.4100000,RelativeSize=0.6500000)
+         SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=0.5000000)
+         StartSizeRange=(X=(Min=38.0000000,Max=38.0000000),Y=(Min=38.0000000,Max=38.0000000),Z=(Min=38.0000000,Max=38.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=20.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0061'
+         TextureUSubdivisions=1
+         TextureVSubdivisions=2
+         SubdivisionStart=1
+         SubdivisionEnd=2
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.7000000,Max=0.7000000)
+         InitialDelayRange=(Min=2.1099999,Max=2.1099999)
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter4'
+     Begin Object Class=MeshEmitter Name=MeshEmitter2
+         // Reference: MeshEmitter'lineageeffect.dec.m_u034_c.MeshEmitter2'
+         begin object name="MeshEmitter2" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.orc.orc_magic00'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.8750000,Color=(R=188,G=188,B=188,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=22.0000000
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8000000,Max=0.8000000),Z=(Min=0.7000000,Max=0.7000000))
+         FadeOutStartTime=1.9550000
+         FadeOut=true
+         FadeInEndTime=0.5290000
+         FadeIn=true
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="MC"
+         SpinParticles=true
+         SpinCCWorCW=(X=1.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=0.1000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.8600000,RelativeSize=0.9800000)
+         SizeScale[1]=(RelativeTime=0.8700000,RelativeSize=0.9000000)
+         SizeScale[2]=(RelativeTime=0.8900000,RelativeSize=1.2000000)
+         SizeScale[3]=(RelativeTime=0.9300000,RelativeSize=1.4000000)
+         SizeScale[4]=(RelativeTime=1.0000000,RelativeSize=1.7000000)
+         StartSizeRange=(X=(Min=0.1200000,Max=0.1200000),Y=(Min=0.1200000,Max=0.1200000),Z=(Min=0.1200000,Max=0.1200000))
+         UniformSize=true
+         InitialParticlesPerSecond=1000.0000000
+         AutomaticInitialSpawning=false
+         DrawStyle=6
+         LifetimeRange=(Min=2.5000000,Max=2.5000000)
+         end object
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter2'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter12
+         // Reference: SpriteEmitter'lineageeffect.dec.m_u034_c.SpriteEmitter12'
+         begin object name="SpriteEmitter12" class=Engine.SpriteEmitter
+         UseDirectionAs=3
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=0,G=0,B=0,A=255))
+         ColorScale[1]=(RelativeTime=0.0642860,Color=(R=255,G=184,B=119,A=255))
+         ColorScale[2]=(RelativeTime=0.1714290,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[3]=(RelativeTime=0.4142860,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[4]=(RelativeTime=0.6071430,Color=(R=109,G=46,B=46,A=255))
+         ColorScale[5]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+         Opacity=0.4000000
+         FadeOutStartTime=0.3000000
+         FadeInEndTime=0.0600000
+         FadeIn=true
+         MaxParticles=32
+         RespawnDeadParticles=false
+         Name="FlowIn"
+         StartLocationRange=(X=(Min=-5.0000000,Max=5.0000000),Y=(Min=-5.0000000,Max=5.0000000),Z=(Min=-10.0000000,Max=10.0000000))
+         SpinParticles=true
+         SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+         SpinsPerSecondRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.2000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=0.8000000)
+         StartSizeRange=(X=(Min=26.0000000,Max=26.0000000),Y=(Min=26.0000000,Max=26.0000000),Z=(Min=26.0000000,Max=26.0000000))
+         UniformSize=true
+         InitialParticlesPerSecond=25.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles2.fx_m_t1026'
+         LifetimeRange=(Min=0.3000000,Max=0.3000000)
+         InitialDelayRange=(Min=0.6000000,Max=0.6000000)
+         StartVelocityRange=(X=(Min=-0.1500000,Max=0.1500000),Y=(Min=-0.1500000,Max=0.1500000),Z=(Min=0.3000000,Max=0.7000000))
+         end object
+     End Object
+     Emitters(3)=SpriteEmitter'SpriteEmitter12'
+     // Reference: SpriteEmitter'lineageeffect.dec.m_u034_c.SpriteEmitter9'
+     UseDirectionAs=4
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.6920000,Max=0.6920000),Z=(Min=0.3900000,Max=0.3900000))
+     Opacity=0.4000000
+     FadeOutStartTime=0.0720000
+     FadeOut=true
+     FadeInEndTime=0.0080000
+     FadeIn=true
+     MaxParticles=3
+     RespawnDeadParticles=false
+     Name="Finish"
+     SpinParticles=true
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0900000,RelativeSize=1.4000000)
+     SizeScale[1]=(RelativeTime=0.2500000,RelativeSize=1.7000000)
+     SizeScale[2]=(RelativeTime=0.5100000,RelativeSize=1.9000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=2.0000000)
+     StartSizeRange=(X=(Min=20.0000000,Max=20.0000000),Y=(Min=20.0000000,Max=20.0000000),Z=(Min=20.0000000,Max=20.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=20.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0068'
+     LifetimeRange=(Min=0.7000000,Max=0.7000000)
+     InitialDelayRange=(Min=2.1099999,Max=2.1099999)
+     Emitters[0]=SpriteEmitter9
+     // Reference: SpriteEmitter'lineageeffect.dec.m_u034_c.SpriteEmitter4'
+     UseDirectionAs=4
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.5321430,Color=(R=121,G=121,B=121,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=8.0000000
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.6920000,Max=0.6920000),Z=(Min=0.3900000,Max=0.3900000))
+     FadeOutStartTime=0.2100000
+     FadeOut=true
+     FadeInEndTime=0.0070000
+     FadeIn=true
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="FinishIn"
+     SpinParticles=true
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.1400000,RelativeSize=0.8000000)
+     SizeScale[1]=(RelativeTime=0.4100000,RelativeSize=0.6500000)
+     SizeScale[2]=(RelativeTime=1.0000000,RelativeSize=0.5000000)
+     StartSizeRange=(X=(Min=38.0000000,Max=38.0000000),Y=(Min=38.0000000,Max=38.0000000),Z=(Min=38.0000000,Max=38.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=20.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0061'
+     TextureUSubdivisions=1
+     TextureVSubdivisions=2
+     SubdivisionStart=1
+     SubdivisionEnd=2
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.7000000,Max=0.7000000)
+     InitialDelayRange=(Min=2.1099999,Max=2.1099999)
+     Emitters[1]=SpriteEmitter4
+     // Reference: MeshEmitter'lineageeffect.dec.m_u034_c.MeshEmitter2'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.orc.orc_magic00'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.8750000,Color=(R=188,G=188,B=188,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=22.0000000
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.8000000,Max=0.8000000),Z=(Min=0.7000000,Max=0.7000000))
+     FadeOutStartTime=1.9550000
+     FadeOut=true
+     FadeInEndTime=0.5290000
+     FadeIn=true
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="MC"
+     SpinParticles=true
+     SpinCCWorCW=(X=1.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=0.1000000,Max=0.1000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.8600000,RelativeSize=0.9800000)
+     SizeScale[1]=(RelativeTime=0.8700000,RelativeSize=0.9000000)
+     SizeScale[2]=(RelativeTime=0.8900000,RelativeSize=1.2000000)
+     SizeScale[3]=(RelativeTime=0.9300000,RelativeSize=1.4000000)
+     SizeScale[4]=(RelativeTime=1.0000000,RelativeSize=1.7000000)
+     StartSizeRange=(X=(Min=0.1200000,Max=0.1200000),Y=(Min=0.1200000,Max=0.1200000),Z=(Min=0.1200000,Max=0.1200000))
+     UniformSize=true
+     InitialParticlesPerSecond=1000.0000000
+     AutomaticInitialSpawning=false
+     DrawStyle=6
+     LifetimeRange=(Min=2.5000000,Max=2.5000000)
+     Emitters[2]=MeshEmitter2
+     // Reference: SpriteEmitter'lineageeffect.dec.m_u034_c.SpriteEmitter12'
+     UseDirectionAs=3
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=0,G=0,B=0,A=255))
+     ColorScale[1]=(RelativeTime=0.0642860,Color=(R=255,G=184,B=119,A=255))
+     ColorScale[2]=(RelativeTime=0.1714290,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[3]=(RelativeTime=0.4142860,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[4]=(RelativeTime=0.6071430,Color=(R=109,G=46,B=46,A=255))
+     ColorScale[5]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+     Opacity=0.4000000
+     FadeOutStartTime=0.3000000
+     FadeInEndTime=0.0600000
+     FadeIn=true
+     MaxParticles=32
+     RespawnDeadParticles=false
+     Name="FlowIn"
+     StartLocationRange=(X=(Min=-5.0000000,Max=5.0000000),Y=(Min=-5.0000000,Max=5.0000000),Z=(Min=-10.0000000,Max=10.0000000))
+     SpinParticles=true
+     SpinCCWorCW=(X=0.0000000,Y=0.5000000,Z=0.5000000)
+     SpinsPerSecondRange=(X=(Min=2.0000000,Max=2.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=1.2000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=0.8000000)
+     StartSizeRange=(X=(Min=26.0000000,Max=26.0000000),Y=(Min=26.0000000,Max=26.0000000),Z=(Min=26.0000000,Max=26.0000000))
+     UniformSize=true
+     InitialParticlesPerSecond=25.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles2.fx_m_t1026'
+     LifetimeRange=(Min=0.3000000,Max=0.3000000)
+     InitialDelayRange=(Min=0.6000000,Max=0.6000000)
+     StartVelocityRange=(X=(Min=-0.1500000,Max=0.1500000),Y=(Min=-0.1500000,Max=0.1500000),Z=(Min=0.3000000,Max=0.7000000))
+     Emitters[3]=SpriteEmitter12
+     AutoDestroy=true
+     Physics=10
+     bUseDynamicLights=false
+     bNoDelete=false
+     bTrailerSameRotation=true
+     bTrailerPrePivot=true
+     bAcceptsProjectors=false
+     bDirectional=true
+}

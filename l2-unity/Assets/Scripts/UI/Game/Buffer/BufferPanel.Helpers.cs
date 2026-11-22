@@ -21,6 +21,10 @@ public partial class BufferPanel : L2Window
         InitWindow(root);
 
         L2InterludeHudVerticalFrame.TryPaintVerticalColumn(_windowEle, nameof(BufferPanel));
+        L2InterludeHudSkinPipeline.ApplyBuffTrayLayout(_windowEle);
+        L2InterludeHudSkinPipeline.ValidateTextures(
+            InterludeHudWindowCatalog.BuffWnd,
+            nameof(BufferPanel));
 
         var dragArea = GetElementByClass("drag-area");
         _content = GetElementById("content");

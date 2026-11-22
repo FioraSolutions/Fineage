@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -43,16 +44,17 @@ public static partial class LocomotionGait
         }
 
         Animator animator = skeleton.GetComponentInChildren<Animator>();
-        GameObject sampleRoot = animator != null ? animator.gameObject : skeleton.gameObject;
         bool animatorWasEnabled = animator != null && animator.enabled;
         if (animator != null)
-            animator.enabled = true;
+            animator.enabled = false;
 
         try
         {
             FindBones(skeleton, out Transform pelvis, out Transform leftFoot, out Transform rightFoot);
             if (pelvis == null)
                 pelvis = skeleton;
+
+            GameObject sampleRoot = ResolveSampleGameObject(skeleton, clip);
 
             float leftAmp = 0f;
             float rightAmp = 0f;
@@ -130,6 +132,42 @@ public static partial class LocomotionGait
         }
 
         return max;
+    }
+
+    /// <summary>
+    /// UKX clips bind under {race}_m000_b.ao while Player_* prefabs add an extra anim rig root.
+    /// Sample from the parent of that .ao node so curve paths match the instantiated hierarchy.
+    /// </summary>
+    static GameObject ResolveSampleGameObject(Transform skeleton, AnimationClip clip)
+    {
+        if (skeleton == null)
+            return null;
+        if (clip == null || string.IsNullOrEmpty(clip.name))
+            return skeleton.gameObject;
+
+        string clipName = clip.name;
+        Transform[] nodes = skeleton.GetComponentsInChildren<Transform>(true);
+        Transform aoRoot = null;
+        int bestLen = 0;
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            Transform t = nodes[i];
+            if (t == null)
+                continue;
+            string n = t.name;
+            if (string.IsNullOrEmpty(n) || n.Length >= clipName.Length)
+                continue;
+            if (!clipName.StartsWith(n, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (n.Length <= bestLen)
+                continue;
+            aoRoot = t;
+            bestLen = n.Length;
+        }
+
+        if (aoRoot != null && aoRoot.parent != null)
+            return aoRoot.parent.gameObject;
+        return skeleton.gameObject;
     }
 
     static bool UseTransformSampling(AnimationClip clip, Animator animator)

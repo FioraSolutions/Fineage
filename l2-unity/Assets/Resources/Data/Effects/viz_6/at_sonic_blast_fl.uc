@@ -1,0 +1,237 @@
+class at_sonic_blast_fl extends NSkillProjectile;
+
+defaultproperties
+{
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter9
+         // Reference: SpriteEmitter'lineageeffect.dec.at_sonic_blast_fl.SpriteEmitter9'
+         begin object name="SpriteEmitter9" class=Engine.SpriteEmitter
+         UseDirectionAs=1
+         Acceleration=(X=-960.0000000,Y=0.0000000,Z=0.0000000)
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=213,G=142,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.4535710,Color=(R=255,G=121,B=0,A=255))
+         ColorScale[2]=(RelativeTime=0.7714290,Color=(R=215,G=57,B=40,A=255))
+         ColorScale[3]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+         Opacity=0.6000000
+         FadeOutStartTime=0.3000000
+         FadeOut=true
+         FadeInEndTime=0.0400000
+         FadeIn=true
+         MaxParticles=80
+         RespawnDeadParticles=false
+         Name="Tail"
+         StartLocationOffset=(X=-20.0000000,Y=0.0000000,Z=0.0000000)
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-24.0000000,Max=24.0000000))
+         StartLocationShape=2
+         StartLocationPolarRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=45.0000000,Max=135.0000000),Z=(Min=20.0000000,Max=40.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=2.0000000)
+         SizeScale[1]=(RelativeTime=0.2700000,RelativeSize=1.8000000)
+         SizeScale[2]=(RelativeTime=0.6100000,RelativeSize=1.4000000)
+         SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         StartSizeRange=(X=(Min=3.5999999,Max=6.0000000),Y=(Min=24.0000000,Max=48.0000000),Z=(Min=3.5999999,Max=6.0000000))
+         InitialParticlesPerSecond=40.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0101'
+         TextureUSubdivisions=8
+         TextureVSubdivisions=1
+         BlendBetweenSubdivisions=true
+         SubdivisionEnd=8
+         LifetimeRange=(Min=0.2000000,Max=0.3000000)
+         StartVelocityRange=(X=(Min=-180.0000000,Max=-180.0000000),Y=(Min=-36.0000000,Max=36.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         VelocityLossRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=2.0000000,Max=2.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         WarmupTicksPerSecond=10.0000000
+         RelativeWarmupTime=0.3000000
+         end object
+     End Object
+     Emitters(0)=SpriteEmitter'SpriteEmitter9'
+     Begin Object Class=SpriteEmitter Name=SpriteEmitter10
+         // Reference: SpriteEmitter'lineageeffect.dec.at_sonic_blast_fl.SpriteEmitter10'
+         begin object name="SpriteEmitter10" class=Engine.SpriteEmitter
+         UseDirectionAs=1
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.4750000,Color=(R=0,G=0,B=0,A=255))
+         ColorScale[2]=(RelativeTime=0.6857140,Color=(R=0,G=0,B=0,A=255))
+         ColorScale[3]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=10.0000000
+         ColorMultiplierRange=(X=(Min=0.5500000,Max=1.0000000),Y=(Min=0.5500000,Max=1.0000000),Z=(Min=0.5500000,Max=1.0000000))
+         Opacity=0.4000000
+         FadeOutStartTime=0.1200000
+         FadeOut=true
+         FadeInEndTime=0.0240000
+         FadeIn=true
+         MaxParticles=80
+         RespawnDeadParticles=false
+         Name="Ticks"
+         StartLocationOffset=(X=40.0000000,Y=0.0000000,Z=0.0000000)
+         StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-24.0000000,Max=24.0000000))
+         SpinsPerSecondRange=(X=(Min=0.5000000,Max=0.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.3700000,RelativeSize=0.9000000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=0.2000000)
+         StartSizeRange=(X=(Min=0.4800000,Max=0.9600000),Y=(Min=36.0000000,Max=60.0000000),Z=(Min=0.4800000,Max=0.9600000))
+         InitialParticlesPerSecond=40.0000000
+         AutomaticInitialSpawning=false
+         Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0061'
+         TextureUSubdivisions=8
+         TextureVSubdivisions=8
+         SubdivisionStart=17
+         SubdivisionEnd=20
+         UseRandomSubdivision=true
+         LifetimeRange=(Min=0.3000000,Max=0.3000000)
+         StartVelocityRange=(X=(Min=-480.0000000,Max=-480.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+         VelocityLossRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=3.0000000,Max=3.0000000),Z=(Min=3.0000000,Max=3.0000000))
+         WarmupTicksPerSecond=10.0000000
+         RelativeWarmupTime=0.3000000
+         end object
+     End Object
+     Emitters(1)=SpriteEmitter'SpriteEmitter10'
+     Begin Object Class=MeshEmitter Name=MeshEmitter4
+         // Reference: MeshEmitter'lineageeffect.dec.at_sonic_blast_fl.MeshEmitter4'
+         begin object name="MeshEmitter4" class=Engine.MeshEmitter
+         StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power02'
+         UseMeshBlendMode=false
+         RenderTwoSided=true
+         UseColorScale=true
+         ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScale[1]=(RelativeTime=0.5142860,Color=(R=128,G=128,B=128,A=255))
+         ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+         ColorScaleRepeats=20.0000000
+         ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.7490000,Max=0.7490000),Z=(Min=1.0000000,Max=1.0000000))
+         Opacity=0.6000000
+         FadeOutStartTime=2.0000000
+         MaxParticles=1
+         RespawnDeadParticles=false
+         Name="MeshBlade"
+         StartLocationOffset=(X=-20.0000000,Y=0.0000000,Z=0.0000000)
+         UseSizeScale=true
+         UseRegularSizeScale=false
+         SizeScale[0]=(RelativeTime=0.7900000,RelativeSize=0.9700000)
+         SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+         SizeScaleRepeats=20.0000000
+         StartSizeRange=(X=(Min=0.5760000,Max=0.5760000),Y=(Min=0.4800000,Max=0.4800000),Z=(Min=0.3840000,Max=0.3840000))
+         InitialParticlesPerSecond=10000.0000000
+         AutomaticInitialSpawning=false
+         LifetimeRange=(Min=2.0000000,Max=2.0000000)
+         end object
+     End Object
+     Emitters(2)=MeshEmitter'MeshEmitter4'
+     Speed=1000.0000000
+     AccSpeed=3000.0000000
+     // Reference: SpriteEmitter'lineageeffect.dec.at_sonic_blast_fl.SpriteEmitter9'
+     UseDirectionAs=1
+     Acceleration=(X=-960.0000000,Y=0.0000000,Z=0.0000000)
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=213,G=142,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.4535710,Color=(R=255,G=121,B=0,A=255))
+     ColorScale[2]=(RelativeTime=0.7714290,Color=(R=215,G=57,B=40,A=255))
+     ColorScale[3]=(RelativeTime=1.0000000,Color=(R=0,G=0,B=0,A=255))
+     Opacity=0.6000000
+     FadeOutStartTime=0.3000000
+     FadeOut=true
+     FadeInEndTime=0.0400000
+     FadeIn=true
+     MaxParticles=80
+     RespawnDeadParticles=false
+     Name="Tail"
+     StartLocationOffset=(X=-20.0000000,Y=0.0000000,Z=0.0000000)
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-24.0000000,Max=24.0000000))
+     StartLocationShape=2
+     StartLocationPolarRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=45.0000000,Max=135.0000000),Z=(Min=20.0000000,Max=40.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.0000000,RelativeSize=2.0000000)
+     SizeScale[1]=(RelativeTime=0.2700000,RelativeSize=1.8000000)
+     SizeScale[2]=(RelativeTime=0.6100000,RelativeSize=1.4000000)
+     SizeScale[3]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     StartSizeRange=(X=(Min=3.5999999,Max=6.0000000),Y=(Min=24.0000000,Max=48.0000000),Z=(Min=3.5999999,Max=6.0000000))
+     InitialParticlesPerSecond=40.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0101'
+     TextureUSubdivisions=8
+     TextureVSubdivisions=1
+     BlendBetweenSubdivisions=true
+     SubdivisionEnd=8
+     LifetimeRange=(Min=0.2000000,Max=0.3000000)
+     StartVelocityRange=(X=(Min=-180.0000000,Max=-180.0000000),Y=(Min=-36.0000000,Max=36.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     VelocityLossRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=2.0000000,Max=2.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     WarmupTicksPerSecond=10.0000000
+     RelativeWarmupTime=0.3000000
+     Emitters[0]=SpriteEmitter9
+     // Reference: SpriteEmitter'lineageeffect.dec.at_sonic_blast_fl.SpriteEmitter10'
+     UseDirectionAs=1
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.4750000,Color=(R=0,G=0,B=0,A=255))
+     ColorScale[2]=(RelativeTime=0.6857140,Color=(R=0,G=0,B=0,A=255))
+     ColorScale[3]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=10.0000000
+     ColorMultiplierRange=(X=(Min=0.5500000,Max=1.0000000),Y=(Min=0.5500000,Max=1.0000000),Z=(Min=0.5500000,Max=1.0000000))
+     Opacity=0.4000000
+     FadeOutStartTime=0.1200000
+     FadeOut=true
+     FadeInEndTime=0.0240000
+     FadeIn=true
+     MaxParticles=80
+     RespawnDeadParticles=false
+     Name="Ticks"
+     StartLocationOffset=(X=40.0000000,Y=0.0000000,Z=0.0000000)
+     StartLocationRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=-24.0000000,Max=24.0000000))
+     SpinsPerSecondRange=(X=(Min=0.5000000,Max=0.5000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     StartSpinRange=(X=(Min=0.0000000,Max=1.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.3700000,RelativeSize=0.9000000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=0.2000000)
+     StartSizeRange=(X=(Min=0.4800000,Max=0.9600000),Y=(Min=36.0000000,Max=60.0000000),Z=(Min=0.4800000,Max=0.9600000))
+     InitialParticlesPerSecond=40.0000000
+     AutomaticInitialSpawning=false
+     Texture=Texture'LineageEffectsTextures.Particles.fx_m_t0061'
+     TextureUSubdivisions=8
+     TextureVSubdivisions=8
+     SubdivisionStart=17
+     SubdivisionEnd=20
+     UseRandomSubdivision=true
+     LifetimeRange=(Min=0.3000000,Max=0.3000000)
+     StartVelocityRange=(X=(Min=-480.0000000,Max=-480.0000000),Y=(Min=0.0000000,Max=0.0000000),Z=(Min=0.0000000,Max=0.0000000))
+     VelocityLossRange=(X=(Min=0.0000000,Max=0.0000000),Y=(Min=3.0000000,Max=3.0000000),Z=(Min=3.0000000,Max=3.0000000))
+     WarmupTicksPerSecond=10.0000000
+     RelativeWarmupTime=0.3000000
+     Emitters[1]=SpriteEmitter10
+     // Reference: MeshEmitter'lineageeffect.dec.at_sonic_blast_fl.MeshEmitter4'
+     StaticMesh=StaticMesh'LineageEffectsStaticmeshes.Skill_Power.skill_power02'
+     UseMeshBlendMode=false
+     RenderTwoSided=true
+     UseColorScale=true
+     ColorScale[0]=(RelativeTime=0.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScale[1]=(RelativeTime=0.5142860,Color=(R=128,G=128,B=128,A=255))
+     ColorScale[2]=(RelativeTime=1.0000000,Color=(R=255,G=255,B=255,A=255))
+     ColorScaleRepeats=20.0000000
+     ColorMultiplierRange=(X=(Min=1.0000000,Max=1.0000000),Y=(Min=0.7490000,Max=0.7490000),Z=(Min=1.0000000,Max=1.0000000))
+     Opacity=0.6000000
+     FadeOutStartTime=2.0000000
+     MaxParticles=1
+     RespawnDeadParticles=false
+     Name="MeshBlade"
+     StartLocationOffset=(X=-20.0000000,Y=0.0000000,Z=0.0000000)
+     UseSizeScale=true
+     UseRegularSizeScale=false
+     SizeScale[0]=(RelativeTime=0.7900000,RelativeSize=0.9700000)
+     SizeScale[1]=(RelativeTime=1.0000000,RelativeSize=1.0000000)
+     SizeScaleRepeats=20.0000000
+     StartSizeRange=(X=(Min=0.5760000,Max=0.5760000),Y=(Min=0.4800000,Max=0.4800000),Z=(Min=0.3840000,Max=0.3840000))
+     InitialParticlesPerSecond=10000.0000000
+     AutomaticInitialSpawning=false
+     LifetimeRange=(Min=2.0000000,Max=2.0000000)
+     Emitters[2]=MeshEmitter4
+     AutoDestroy=true
+     bRotEmitter=true
+     RotPerSecond=(Pitch=0,Yaw=0,Roll=20000)
+     bLightChanged=true
+     bSelfRotation=true
+     bSunAffect=true
+     DrawScale=0.1000000
+     bDirectional=true
+}

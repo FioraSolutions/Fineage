@@ -644,8 +644,21 @@ public static class L2EffectGeneratorMaterialConfigurator
 
     static void ApplyMainTexture(Material material, Texture2D texture)
     {
-        if (material == null || texture == null)
+        if (material == null)
             return;
+
+        if (texture == null)
+        {
+            // Do not keep a stale or default binding (shows as "Font Texture").
+            string[] properties = { "_MainTex", "_MainTexture", "_BaseMap" };
+            for (int i = 0; i < properties.Length; i++)
+            {
+                if (material.HasProperty(properties[i]))
+                    material.SetTexture(properties[i], null);
+            }
+
+            return;
+        }
 
         material.SetTexture("_MainTex", texture);
         material.SetTexture("_MainTexture", texture);

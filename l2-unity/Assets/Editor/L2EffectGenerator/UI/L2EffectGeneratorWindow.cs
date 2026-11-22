@@ -231,6 +231,94 @@ public sealed class L2EffectGeneratorWindow : EditorWindow
             out summary);
     }
 
+    /// <summary>
+    /// All player classes VFX batch from player_vfx_manifest.json
+    /// (tools/l2-effect/human_mage_vfx_manifest.py --classes <every player class> --out ...).
+    /// Unity -batchmode -nographics -quit -executeMethod L2EffectGeneratorWindow.GeneratePlayerBatchCli
+    /// </summary>
+    public static void GeneratePlayerBatchCli()
+    {
+        AssetDatabase.Refresh();
+        string manifest = Environment.GetEnvironmentVariable("FINEAGE_VFX_MANIFEST");
+        bool ok = TryRunManifestBatch(
+            string.IsNullOrWhiteSpace(manifest)
+                ? "Assets/Editor/L2EffectGenerator/Data/player_vfx_manifest.json"
+                : manifest,
+            "PlayerBatch",
+            out string summary);
+        Debug.Log("[L2EffectGenerator] " + summary);
+        EditorApplication.Exit(ok ? 0 : 1);
+    }
+
+    /// <summary>
+    /// Batch: rebuild existing effect folders in place (materials, prefabs,
+    /// composite) without touching GlobalEffect bindings. Folder list comes from
+    /// env FINEAGE_VFX_REGEN_LIST (a text file, one Assets/... effect root per line).
+    /// </summary>
+    public static void RegenerateFoldersCli()
+    {
+        AssetDatabase.Refresh();
+        string listPath = Environment.GetEnvironmentVariable("FINEAGE_VFX_REGEN_LIST");
+        if (string.IsNullOrWhiteSpace(listPath) || !File.Exists(listPath))
+        {
+            Debug.LogError("[L2EffectGenerator] FINEAGE_VFX_REGEN_LIST not set or missing");
+            EditorApplication.Exit(1);
+            return;
+        }
+
+        int ok = 0;
+        int fail = 0;
+        foreach (string raw in File.ReadAllLines(listPath))
+        {
+            string folder = raw.Trim();
+            if (folder.Length == 0 || folder.StartsWith("#"))
+            {
+                continue;
+            }
+
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                Debug.LogError("[L2EffectGenerator] regen: missing folder " + folder);
+                fail++;
+                continue;
+            }
+
+            // Folder names carry the skill visual id (<name>_v<id> or viz_<id>);
+            // it disambiguates classes shared by several visuals.
+            int visualId = 0;
+            System.Text.RegularExpressions.Match idMatch =
+                System.Text.RegularExpressions.Regex.Match(
+                    Path.GetFileName(folder), @"(?:_v|^viz_)(\d+)$");
+            if (idMatch.Success)
+            {
+                int.TryParse(idMatch.Groups[1].Value, out visualId);
+            }
+
+            L2EffectGeneratorFolderBuilder.BuildResult result =
+                L2EffectGeneratorFolderBuilder.CreateFromFolder(
+                    folder,
+                    Path.GetFileName(folder),
+                    visualId,
+                    false);
+            for (int li = 0; li < result.LogLines.Count; li++)
+            {
+                Debug.Log("[L2EffectGenerator] " + result.LogLines[li]);
+            }
+
+            if (!result.Success)
+            {
+                Debug.LogError("[L2EffectGenerator] regen failed " + folder + ": " + result.ErrorMessage);
+                fail++;
+                continue;
+            }
+
+            ok++;
+        }
+
+        Debug.Log("[L2EffectGenerator] Regenerate done ok=" + ok + " fail=" + fail);
+        EditorApplication.Exit(fail == 0 ? 0 : 1);
+    }
+
     public static bool TryRunHumanMageBatch(out string summary)
     {
         return TryRunManifestBatch(

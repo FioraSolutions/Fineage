@@ -27,7 +27,7 @@ public partial class SkillListWindow : L2PopupWindow
     public static void EditModeAdoptSingletonForTests(SkillListWindow owner)
     {
         if (owner == null)
-            return;
+            return; // EditMode host claims the singleton without scene Awake ordering
 
         SkillListWindow[] existing = UnityEngine.Object.FindObjectsByType<SkillListWindow>(
             FindObjectsInactive.Include,
