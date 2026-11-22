@@ -15,7 +15,16 @@ public class StopMoveDto : IWireDto
     public int Y { get => _y; }
     public int Z { get => _z; }
     public int Heading { get => _heading; }
-    
+
+    /// <summary>Unity-space stop. Used when the domain command is applied back onto the intention layer.</summary>
+    public static StopMoveDto FromUnity(int objId, Vector3 stopPos, int heading)
+    {
+        var dto = new StopMoveDto();
+        dto._objectId = objId;
+        dto._stopPos = stopPos;
+        dto._heading = heading;
+        return dto;
+    }
 
     public void ReadFrom(PacketReader reader)
     {

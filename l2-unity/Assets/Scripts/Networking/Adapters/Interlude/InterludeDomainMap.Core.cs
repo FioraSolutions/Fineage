@@ -8,8 +8,7 @@ public static partial class InterludeDomainMap
         {
             ObjectId = dto.ObjId,
             Destination = dto.NewPosition,
-            Origin = dto.OldPosition,
-            InterludeDto = dto
+            Origin = dto.OldPosition
         };
     }
 
@@ -21,8 +20,7 @@ public static partial class InterludeDomainMap
         {
             ObjectId = dto.ObjId,
             StopPos = dto.StopPos,
-            Heading = dto.Heading,
-            InterludeDto = dto
+            Heading = dto.Heading
         };
     }
 

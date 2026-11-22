@@ -63,15 +63,16 @@ public sealed partial class NetSession
         {
             ObjectId = objectId,
             Destination = dest,
-            Origin = origin,
-            // The intention layer (NewMoveToIntention) reads the Interlude DTO and bails out when it is
-            // null, so the local player stayed put even though MoveState arrived. Synthesize it here.
-            InterludeDto = CharMoveToLocationDto.FromUnity(objectId, dest, origin)
+            Origin = origin
         };
         if (_sink != null)
             _sink.ApplyMoveTo(domain);
         else if (WorldApplyPacketServices.WorldApply != null)
-            WorldApplyPacketServices.WorldApply.MoveTo(objectId, dest, origin, domain.InterludeDto);
+            WorldApplyPacketServices.WorldApply.MoveTo(
+                objectId,
+                dest,
+                origin,
+                CharMoveToLocationDto.FromUnity(objectId, dest, origin));
     }
 
     internal void ApplyCorrection(PositionCorrectionMsg corr)

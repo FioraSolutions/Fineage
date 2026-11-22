@@ -14,10 +14,9 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
         if (move == null || _worldApply == null)
             return;
 
-        // Intention/Player still consume CharMoveToLocationDto; synthesize when v2 has none.
-        CharMoveToLocationDto dto = move.InterludeDto;
-        if (dto == null)
-            dto = CharMoveToLocationDto.FromUnity(move.ObjectId, move.Destination, move.Origin);
+        // NewMoveToIntention casts this payload and returns when it is null.
+        CharMoveToLocationDto dto = CharMoveToLocationDto.FromUnity(
+            move.ObjectId, move.Destination, move.Origin);
 
         _worldApply.MoveTo(move.ObjectId, move.Destination, move.Origin, dto);
         _gameEvents?.Publish(new PlayerMovedEvent(move.ObjectId, move.Destination, move.Origin));
@@ -34,7 +33,6 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
     {
         if (stop == null || _worldApply == null)
             return;
-        if (stop.InterludeDto != null)
-            _worldApply.StopMove(stop.InterludeDto);
+        _worldApply.StopMove(StopMoveDto.FromUnity(stop.ObjectId, stop.StopPos, stop.Heading));
     }
 }
