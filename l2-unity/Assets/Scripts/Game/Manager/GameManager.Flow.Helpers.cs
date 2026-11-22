@@ -32,7 +32,7 @@ public partial class GameManager : MonoBehaviour, IGameManager
         WorldSpawnReady = false;
         GameState = GameState.LOGIN_SCREEN;
         MusicPacketServices.Music?.Clear();
-        Scenes.LoadMenu();
+        LoadMenuScene();
         yield break;
     }
 }

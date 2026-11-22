@@ -27,7 +27,8 @@ public sealed partial class LobbyFlowController
         _game.WorldSpawnReady = false;
 
         LoginUi.StartLoading();
-        Scenes.LoadSWMap();
+        if (TryScenes(out ISceneLoader scenes))
+            scenes.LoadSWMap();
     }
 
     public void OnCreateUser(List<PlayerTemplates> playerTemplates)
