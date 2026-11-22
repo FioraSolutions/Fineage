@@ -37,7 +37,9 @@ public static partial class InterludeDomainMap
         return new DomainStatsChanged
         {
             ObjectId = dto.PlayerInfoInterlude.Identity.Id,
-            InterludeUserInfo = dto
+            Player = dto.PlayerInfoInterlude,
+            MountType = dto.MountType,
+            MountNpcId = dto.MountNpcId
         };
     }
 }

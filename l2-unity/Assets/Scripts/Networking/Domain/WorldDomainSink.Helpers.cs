@@ -34,10 +34,10 @@ public sealed partial class WorldDomainSink : IWorldDomainSink
 
     public void ApplyStatsChanged(DomainStatsChanged changed)
     {
-        if (changed == null || changed.InterludeUserInfo == null || _world == null)
+        if (changed == null || changed.Player.Identity == null || _world == null)
             return;
 
-        UserInfoDto userInfo = changed.InterludeUserInfo;
+        UserInfoDto userInfo = UserInfoDto.FromStats(changed.Player, changed.MountType, changed.MountNpcId);
         ActionAvailabilityPacketServices.Availability.NoteMount(userInfo.MountType, userInfo.MountNpcId);
         _world.UserInfoUpdateCharacter(userInfo);
         PlayerEntity local = DomainPacketServices.LocalPlayer;
