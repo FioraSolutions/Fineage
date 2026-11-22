@@ -17,7 +17,5 @@ public partial class L2BrushBuilder
     /// with a MeshCollider on layer Brush. The old ProBuilder path left meshes unsaved in the prefab and no colliders.
     /// CSG is not evaluated: additive brush hulls are drawn as-is (L2 BSP brushes are mostly decks/floors/stairs).
     /// </summary>
-
-    static Material _fallback;
 }
 #endif

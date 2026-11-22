@@ -115,15 +115,7 @@ public partial class L2BrushBuilder
     }
 
     private static Material GetMaterialForTexture(string texture) {
-        string materialPath = TextureUtils.GetMaterialPath(texture);
-
-        Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
-        if(material == null) {
-            material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Prefab/Red.mat");
-            // Debug.LogError("Missing material for " + texture);
-        }
-
-        return material;
+        return FindMaterial(texture, texture);
     }
 }
 #endif

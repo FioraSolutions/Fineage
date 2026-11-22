@@ -1,51 +1,97 @@
 #!/usr/bin/env python3
-"""Brush/BSP texture want-list is derived from the lobby T3D and Brushes.json."""
+"""Brush faces are classified by the package export's class, then by chain."""
 from __future__ import annotations
 
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import export_brush_textures as brush  # noqa: E402
+import brush_face_class as faces  # noqa: E402
+from brush_face_class import KIND_MATERIAL, KIND_TEXTURE  # noqa: E402
+import export_brush_textures as export  # noqa: E402
 
-JSON = ROOT / "l2-unity/Assets/Resources/Data/Maps/l2_lobby/Meta/Brushes.json"
-T3D = ROOT / "l2-unity/docs/interlude-ref/world/env/Lobby.brushes.t3d"
+JSON = Path(__file__).resolve().parents[2] / (
+    "l2-unity/Assets/Resources/Data/Maps/l2_lobby/Meta/Brushes.json"
+)
+PROPS = Path(__file__).resolve().parents[2] / (
+    "l2-unity/Assets/Resources/Data/Textures/FX_E_T/Shader/WaterShader01.props.txt"
+)
 
 
-class BrushTextureRefsTest(unittest.TestCase):
-    def test_json_and_t3d_agree_on_png_textures(self):
-        from_json = {ref.key() for ref in brush.collect([JSON])}
-        from_t3d = {ref.key() for ref in brush.collect([T3D])}
-        self.assertEqual(from_json, from_t3d)
-        self.assertIn(("FX_E_T", "WaterShader01"), from_json)
-        self.assertIn(("Castle_Kent_t", "Kent_capet_m"), from_json)
-        self.assertTrue(all("Shaders" not in full for _, _, full in (
-            (r.package, r.texture, r.full) for r in brush.collect([JSON])
-        )))
-        self.assertNotIn(("L2_Skies", "HazeRing_Final"), from_json)
+class BrushFaceClassTest(unittest.TestCase):
+    def test_lobby_faces_match_the_export_table(self):
+        water = faces.classify("FX_E_T.WaterSurfaceShaderSet.WaterShader01")
+        self.assertEqual(KIND_MATERIAL, water.kind)
+        self.assertEqual("Shader", water.ue_class)
+        self.assertEqual("WaterSurfaceShaderSet", water.group)
+        self.assertEqual("WaterShader01", water.name)
 
-    def test_missing_export_names_package_and_texture(self):
-        refs = brush.collect([JSON])
-        with tempfile.TemporaryDirectory() as tmp:
-            lines = brush.missing_messages(refs, Path(tmp), lambda _package: None)
-        text = "\n".join(lines)
-        self.assertIn("package=FX_E_T texture=WaterShader01", text)
-        self.assertIn("package=Castle_Kent_t texture=Kent_capet_m", text)
-        self.assertIn("utx missing", text)
+        carpet = faces.classify("Castle_Kent_t.Kent_capet_m")
+        self.assertEqual(KIND_MATERIAL, carpet.kind)
+        self.assertEqual("Shader", carpet.ue_class)
+        self.assertEqual("", carpet.group)
 
-    def test_present_png_is_not_reported(self):
-        ref = brush.BrushTexture("FX_E_T", "WaterShader01", "FX_E_T.WaterSurfaceShaderSet.WaterShader01")
-        with tempfile.TemporaryDirectory() as tmp:
-            png = brush.dest_png(Path(tmp), ref)
-            png.parent.mkdir(parents=True)
-            png.write_bytes(b"png")
-            self.assertEqual(
-                brush.missing_messages([ref], Path(tmp), lambda _p: Path("FX_E_T.utx")),
-                [],
-            )
+        floor = faces.classify("Castle_Kent_t.GL_CA_floortile")
+        self.assertEqual(KIND_TEXTURE, floor.kind)
+        self.assertEqual("Texture", floor.ue_class)
+
+        sky = faces.classify("L2_Skies.Shaders.HazeRing_Final")
+        self.assertEqual(KIND_MATERIAL, sky.kind)
+        self.assertEqual("ColorModifier", sky.ue_class)
+        self.assertEqual("Shaders", sky.group)
+
+        missing = faces.classify("Castle_Kent_t.NoSuchFace")
+        self.assertEqual("absent", missing.kind)
+        self.assertIn("class=absent", missing.format())
+        self.assertIn("package=Castle_Kent_t", missing.format())
+        self.assertIn("name=NoSuchFace", missing.format())
+
+    def test_water_shader_props_chain_reaches_a_texture(self):
+        root = faces.classify("FX_E_T.WaterSurfaceShaderSet.WaterShader01")
+        text = PROPS.read_text(encoding="utf-8")
+        tokens = faces.props_tokens(text)
+        self.assertIn("WaterSurfaceShaderSet.reflection", tokens)
+        self.assertIn("WaterSurfaceSet.base1", tokens)
+        reflection = faces.resolve_props_token("WaterSurfaceShaderSet.reflection", "FX_E_T")
+        base = faces.resolve_props_token("WaterSurfaceSet.base1", "FX_E_T")
+        self.assertEqual(KIND_MATERIAL, reflection.kind)
+        self.assertEqual("Combiner", reflection.ue_class)
+        self.assertEqual(KIND_TEXTURE, base.kind)
+        self.assertEqual("base1", base.name)
+
+        def read_props(face):
+            if face.name == "WaterShader01":
+                return text
+            if face.name == "reflection":
+                return "Diffuse = Texture'WaterSurfaceSet.base1'\n"
+            return None
+
+        textures, materials, errors = export.expand_chain([root], read_props)
+        self.assertEqual([], errors)
+        self.assertEqual({"base1"}, {face.name for face in textures})
+        self.assertEqual({"WaterShader01", "reflection"}, {face.name for face in materials})
+
+    def test_live_package_must_agree_on_class_and_group(self):
+        carpet = faces.classify("Castle_Kent_t.Kent_capet_m")
+        self.assertIsNone(faces.confirm_live(carpet, [("Kent_capet_m", "Shader", "")]))
+        mismatch = faces.confirm_live(carpet, [("Kent_capet_m", "Texture", "")])
+        self.assertIn("class=Shader", mismatch)
+        self.assertIn("class=Texture", mismatch)
+        water = faces.classify("FX_E_T.WaterSurfaceShaderSet.WaterShader01")
+        wrong_group = faces.confirm_live(water, [("WaterShader01", "Shader", "OtherGroup")])
+        self.assertIn("not in the package", wrong_group)
+        self.assertIn("group=WaterSurfaceShaderSet", wrong_group)
+
+    def test_json_list_does_not_treat_shaders_as_textures(self):
+        kinds = {}
+        for ref in export.refs_in_file(JSON):
+            face = faces.classify(ref)
+            kinds.setdefault(face.kind, set()).add(face.name)
+        self.assertIn("WaterShader01", kinds[KIND_MATERIAL])
+        self.assertIn("Kent_capet_m", kinds[KIND_MATERIAL])
+        self.assertIn("GL_CA_floortile", kinds[KIND_TEXTURE])
+        self.assertNotIn("WaterShader01", kinds.get(KIND_TEXTURE, set()))
 
 
 if __name__ == "__main__":

@@ -9,42 +9,17 @@ using System;
 
 public partial class L2BrushBuilder
 {
-    static Material FindMaterial(string texture) {
-        string path = TextureUtils.GetMaterialPath(texture);
-        Material m = path != null ? AssetDatabase.LoadAssetAtPath<Material>(path) : null;
-        if (m != null) return m;
-        string[] parts = texture.Split('.');
-        string pkg = parts[0], file = parts[parts.Length - 1];
-        string best = null;
-        foreach (var g in AssetDatabase.FindAssets(file + " t:Material", new[] { "Assets/Resources/Data/Textures" })) {
-            string p = AssetDatabase.GUIDToAssetPath(g);
-            if (!string.Equals(Path.GetFileNameWithoutExtension(p), file, System.StringComparison.OrdinalIgnoreCase)) continue;
-            if (p.IndexOf("/" + pkg + "/", System.StringComparison.OrdinalIgnoreCase) >= 0) { best = p; break; }
-            if (best == null) best = p;
+    static Material FindMaterial(string texture, string brushName) {
+        L2BrushFaceClass.Face face = L2BrushFaceClass.Classify(texture);
+        Material material = L2BrushFaceClass.LoadMaterial(face);
+        if (material != null) {
+            return material;
         }
-        if (best != null) return AssetDatabase.LoadAssetAtPath<Material>(best);
-        // texture exported but no material yet -> make a URP Lit one next to it
-        foreach (var g in AssetDatabase.FindAssets(file + " t:Texture2D", new[] { "Assets/Resources/Data/Textures" })) {
-            string tp = AssetDatabase.GUIDToAssetPath(g);
-            if (!string.Equals(Path.GetFileNameWithoutExtension(tp), file, System.StringComparison.OrdinalIgnoreCase)) continue;
-            string dir = Path.GetDirectoryName(tp).Replace('\\', '/') + "/Materials";
-            if (!AssetDatabase.IsValidFolder(dir)) AssetDatabase.CreateFolder(Path.GetDirectoryName(tp).Replace('\\', '/'), "Materials");
-            var nm = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            var t = AssetDatabase.LoadAssetAtPath<Texture2D>(tp);
-            nm.SetTexture("_BaseMap", t); nm.SetTexture("_MainTex", t); nm.SetFloat("_Smoothness", 0f);
-            AssetDatabase.CreateAsset(nm, dir + "/" + file + ".mat");
-            return nm;
-        }
-        Debug.LogWarning("[Brushes] no texture/material for " + texture + " (gray)");
-        if (_fallback == null) {
-            _fallback = AssetDatabase.LoadAssetAtPath<Material>("Assets/Resources/Data/Textures/BrushFallbackGray.mat");
-            if (_fallback == null) {
-                _fallback = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                _fallback.SetColor("_BaseColor", new Color(0.62f, 0.58f, 0.5f)); _fallback.SetFloat("_Smoothness", 0f);
-                AssetDatabase.CreateAsset(_fallback, "Assets/Resources/Data/Textures/BrushFallbackGray.mat");
-            }
-        }
-        return _fallback;
+        Debug.LogError(
+            "[Brushes] material missing " + face.Format()
+            + " ref=" + texture
+            + " brush=" + brushName);
+        return null;
     }
 
     static GameObject Build(Brush[] brushes) {

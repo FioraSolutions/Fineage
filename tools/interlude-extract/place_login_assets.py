@@ -150,11 +150,12 @@ def place_meshes(src_root: Path, want_list: Path) -> int:
     return 0
 
 
-def place_props(src_root: Path) -> int:
+def place_props(src_root: Path, packages: list[str] | None = None) -> int:
     placed = 0
     found = 0
     kept = 0
-    for pkg in PROPS_PKGS:
+    pkgs = packages if packages else list(PROPS_PKGS)
+    for pkg in pkgs:
         src_dir = src_root / pkg
         if not src_dir.is_dir():
             print(f"ERROR missing umodel export dir {src_dir}", file=sys.stderr)
@@ -162,7 +163,9 @@ def place_props(src_root: Path) -> int:
         dest_root = TEX / pkg
         template = next(dest_root.rglob("*.props.txt.meta"), None)
         if template is None:
-            print(f"ERROR no .props.txt.meta template under {dest_root}", file=sys.stderr)
+            template = next(TEX.rglob("*.props.txt.meta"), None)
+        if template is None:
+            print(f"ERROR no .props.txt.meta template for {pkg}", file=sys.stderr)
             return 1
         for props in sorted(src_dir.rglob("*.props.txt")):
             found += 1
@@ -200,6 +203,8 @@ def main() -> int:
     ap.add_argument("--src", type=Path, required=True)
     ap.add_argument("--list", type=Path, default=None,
                     help="meshes mode: lobby_missing_meshes.py TSV (package, object, full name)")
+    ap.add_argument("--packages", default="",
+                    help="props mode: comma-separated packages (default: the l2_skies step-9 set)")
     args = ap.parse_args()
     if not args.src.is_dir():
         print(f"ERROR no export dir {args.src}", file=sys.stderr)
@@ -211,7 +216,8 @@ def main() -> int:
             print("ERROR meshes mode wants --list <lobby_missing_meshes TSV>", file=sys.stderr)
             return 1
         return place_meshes(args.src, args.list)
-    return place_props(args.src)
+    packages = [p for p in args.packages.split(",") if p] or None
+    return place_props(args.src, packages)
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@
 #
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
-#        6=texture pixels (named sets + every brush/BSP texture the bake copies),
+#        6=texture pixels and brush/BSP material chains (class from the package),
 #        7=G8 meshes (Docker umodel+Blender),
 #        8=camera BSP zones (ZoneAtPoint: which ZoneInfo each Camera sits in),
 #        9=l2_skies material chains (.props.txt via Docker umodel).
@@ -147,12 +147,12 @@ if want_step 5; then
 fi
 
 if want_step 6; then
-  echo "== [6/9] Texture pixels: named sets + every brush/BSP texture the bake copies =="
-  # ExportNamedTextures self-decrypts the package (Lineage2Ver XOR) and writes
-  # PNGs — java + the l2terrain jar only, no umodel/Docker.
-  # Brush/BSP names come from Brushes.json and brushes.t3d (not a fixed list)
-  # and land in mesh-export/{package}/Texture/, which is L2_UMODEL_EXPORT_DIR
-  # for the lobby bake. A name that is not a Texture in that package is an ERROR.
+  echo "== [6/9] Texture pixels and brush/BSP material chains =="
+  # Face class comes from the package (export table, confirmed by DescribeExports
+  # on the utx). Texture -> PNG. Any other Material subclass -> the step-9
+  # umodel props path, then the same classification down the chain to base
+  # textures. An object that is not in the package is an ERROR naming
+  # package, group, name, and class. Material faces need Docker umodel.
   l2_jar
   SKY_NAMES="$(python3 -c "import json; print(','.join(sorted({e['name'] for e in json.load(open('$WORLD/env/l2_skies.json'))['exports'] if e['class']=='Texture'})))")"
   if [[ -z "$SKY_NAMES" ]]; then
@@ -183,8 +183,12 @@ if want_step 6; then
     echo "ERROR: no Brushes.json or brushes.t3d to derive brush textures from." >&2
     exit 2
   fi
+  # Material-class faces (Shader, ColorModifier, ...) use the same Docker
+  # umodel props export as step 9. Texture-class faces do not.
+  UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
   python3 "$ROOT/tools/interlude-extract/export_brush_textures.py" \
-    "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" --jar "$L2JAR"
+    "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" \
+    --props-out "$WORK/props-export" --jar "$L2JAR" --umodel "$UMODEL"
 fi
 
 if want_step 7; then

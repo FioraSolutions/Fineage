@@ -46,11 +46,11 @@ public partial class L2BrushBuilder
                 string tex = pd.texture;
                 if (!L2BspPolyFlags.IsBrushTextureRenderable(tex, includeSkyBrushes)) continue;
                 if (!matCache.TryGetValue(tex, out var mat)) {
-                    mat = FindMaterial(tex);
-                    if (mat == null || mat.name == "BrushFallbackGray")
-                        Debug.LogError("[Brushes] No material for BSP texture " + tex + " on brush " + b.name
-                                       + " (tile " + tileAssetFolder + ")");
+                    mat = FindMaterial(tex, b.name);
                     matCache[tex] = mat;
+                }
+                if (mat == null) {
+                    continue;
                 }
                 float tw = 256f, th = 256f;
                 var mt = mat != null && mat.HasProperty("_BaseMap") ? mat.GetTexture("_BaseMap") : mat != null ? mat.mainTexture : null;

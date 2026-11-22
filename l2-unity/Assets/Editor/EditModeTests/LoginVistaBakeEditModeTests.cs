@@ -30,25 +30,54 @@ public sealed class LoginVistaBakeEditModeTests
     }
 
     [Test]
-    public void Missing_brush_texture_names_package_and_file()
+    public void WaterShader01_is_a_shader_material_not_a_texture_png()
     {
+        L2BrushFaceClass.Face face = L2BrushFaceClass.Classify(
+            "FX_E_T.WaterSurfaceShaderSet.WaterShader01");
+        Assert.AreEqual(L2BrushFaceClass.Kind.Material, face.KindOf);
+        Assert.AreEqual("Shader", face.UeClass);
+        Assert.AreEqual("WaterSurfaceShaderSet", face.Group);
+        Assert.AreEqual("WaterShader01", face.Name);
+        // Props are already committed, so the gate does not ask for a PNG.
         string json = WriteBrushJson("FX_E_T.WaterSurfaceShaderSet.WaterShader01");
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => L2JSONBrushImporter.RequireBrushTexturesPresent(json, _dir));
-        StringAssert.Contains("package='FX_E_T'", ex.Message);
-        StringAssert.Contains("texture='WaterShader01.png'", ex.Message);
-        StringAssert.Contains(Path.Combine(_dir, "FX_E_T", "Texture", "WaterShader01.png"), ex.Message);
+        Assert.DoesNotThrow(() => L2JSONBrushImporter.RequireBrushTexturesPresent(json, _dir));
     }
 
     [Test]
-    public void Exported_texture_subdirectory_satisfies_the_gate()
+    public void Kent_capet_m_is_a_shader_and_the_gate_names_its_class()
     {
-        string json = WriteBrushJson(
-            "Castle_Kent_t.Kent_capet_m",
-            "L2_Skies.Shaders.HazeRing_Final");
-        string png = Path.Combine(_dir, "Castle_Kent_t", "Texture", "Kent_capet_m.png");
-        Directory.CreateDirectory(Path.GetDirectoryName(png));
-        File.WriteAllBytes(png, new byte[] { 0x89 });
+        L2BrushFaceClass.Face face = L2BrushFaceClass.Classify("Castle_Kent_t.Kent_capet_m");
+        Assert.AreEqual(L2BrushFaceClass.Kind.Material, face.KindOf);
+        Assert.AreEqual("Shader", face.UeClass);
+        Assert.AreEqual("", face.Group);
+        string json = WriteBrushJson("Castle_Kent_t.Kent_capet_m");
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => L2JSONBrushImporter.RequireBrushTexturesPresent(json, _dir));
+        StringAssert.Contains("package=Castle_Kent_t", ex.Message);
+        StringAssert.Contains("name=Kent_capet_m", ex.Message);
+        StringAssert.Contains("class=Shader", ex.Message);
+        Assert.IsFalse(ex.Message.Contains("Kent_capet_m.png"), ex.Message);
+    }
+
+    [Test]
+    public void Missing_object_names_package_group_and_absent_class()
+    {
+        string json = WriteBrushJson("Castle_Kent_t.NoSuchFace");
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => L2JSONBrushImporter.RequireBrushTexturesPresent(json, _dir));
+        StringAssert.Contains("package=Castle_Kent_t", ex.Message);
+        StringAssert.Contains("name=NoSuchFace", ex.Message);
+        StringAssert.Contains("class=absent", ex.Message);
+    }
+
+    [Test]
+    public void Texture_class_face_still_requires_the_png_when_it_is_not_committed()
+    {
+        // g_01 is a Texture, and it is committed, so a committed texture passes.
+        L2BrushFaceClass.Face face = L2BrushFaceClass.Classify("T_texture.Texture.g_01");
+        Assert.AreEqual(L2BrushFaceClass.Kind.Texture, face.KindOf);
+        Assert.AreEqual("Texture", face.Group);
+        string json = WriteBrushJson("Castle_Kent_t.GL_CA_floortile");
         Assert.DoesNotThrow(() => L2JSONBrushImporter.RequireBrushTexturesPresent(json, _dir));
     }
 

@@ -43,14 +43,30 @@ public class L2JSONBrushImporter : L2TerrainAssetImporter {
         ImportFiles(dataFolder, files, overwrite);
     }
 
-    // Pre-bake gate. Every non-shader brush/BSP texture must already be an asset
-    // or be present in the export ({package}/{name}.png or {package}/Texture/{name}.png).
-    // One exception names every missing package and texture; the bake stops here
-    // instead of continuing into material binding.
+    // Pre-bake gate. Texture-class faces need a PNG. Every other Material
+    // subclass needs its props chain. Anything the export table does not
+    // contain fails here, naming package, group, name, and class.
     public static void RequireBrushTexturesPresent(string brushJsonAbsolutePath, string exportRoot) {
-        List<string> files = ProcessDataFile(exportRoot, brushJsonAbsolutePath);
         var missing = new List<string>();
-        foreach (string filePath in files) {
+        var textureFiles = new List<string>();
+        foreach (string reference in FaceReferences(brushJsonAbsolutePath)) {
+            L2BrushFaceClass.Face face = L2BrushFaceClass.Classify(reference);
+            if (face.KindOf == L2BrushFaceClass.Kind.Texture) {
+                string[] parts = reference.Split('.');
+                textureFiles.Add(Path.Combine(exportRoot, parts[0], parts[parts.Length - 1] + ".png"));
+                continue;
+            }
+            if (face.KindOf == L2BrushFaceClass.Kind.Material) {
+                if (L2BrushFaceClass.FindProps(face) != null) {
+                    continue;
+                }
+                missing.Add(face.Format() + " expectedProps=" + face.Name + ".props.txt");
+                continue;
+            }
+            missing.Add(face.Format() + " ref=" + reference);
+        }
+
+        foreach (string filePath in textureFiles.Distinct()) {
             if (BrushTextureSatisfied(exportRoot, filePath, false, out _, out _, out string detail)) {
                 continue;
             }
@@ -59,41 +75,38 @@ public class L2JSONBrushImporter : L2TerrainAssetImporter {
 
         if (missing.Count > 0) {
             throw new InvalidOperationException(
-                "[Interlude bake] brush texture missing (" + missing.Count + "):\n"
+                "[Interlude bake] brush face missing (" + missing.Count + "):\n"
                 + string.Join("\n", missing));
         }
     }
 
     private static List<string> ProcessDataFile(string dataFolder, string fileToProcess) {
         List<string> files = new List<string>();
+        foreach (string reference in FaceReferences(fileToProcess)) {
+            L2BrushFaceClass.Face face = L2BrushFaceClass.Classify(reference);
+            if (face.KindOf != L2BrushFaceClass.Kind.Texture) {
+                continue;
+            }
+            files.Add(Path.Combine(dataFolder, face.Package, face.Name + ".png"));
+        }
+        return files.Distinct().ToList();
+    }
 
-        Brush[] brushes = ParseBrushFile(fileToProcess);
-        foreach(Brush brush in brushes) {
-            if(brush.model != null) {
-                if(brush.model.poly != null) {
-                    for(int i = 0; i < brush.model.poly.polyData.Length; i++) {
-                        if(!string.IsNullOrEmpty(brush.model.poly.polyData[i].texture)) {
-                            string textureName = brush.model.poly.polyData[i].texture;
-                            if(textureName.Contains("Shaders")) {
-                                // Debug.Log("Skipping shaders " + textureName);
-                                continue;
-                            }
-
-                            string[] parts = textureName.Split('.');
-                            string folder = parts[0];
-                            string file = parts[parts.Length - 1];
-
-                            files.Add(Path.Combine(dataFolder, folder, file + ".png"));
-                        }
-                    }
+    static List<string> FaceReferences(string brushJsonAbsolutePath) {
+        var refs = new List<string>();
+        Brush[] brushes = ParseBrushFile(brushJsonAbsolutePath);
+        foreach (Brush brush in brushes) {
+            if (brush.model == null || brush.model.poly == null || brush.model.poly.polyData == null) {
+                continue;
+            }
+            for (int i = 0; i < brush.model.poly.polyData.Length; i++) {
+                string textureName = brush.model.poly.polyData[i].texture;
+                if (!string.IsNullOrEmpty(textureName)) {
+                    refs.Add(textureName);
                 }
             }
         }
-
-        files = files.Distinct().ToList();
-        // Debug.LogWarning("Total files to import: " + files.Count);
-
-        return files;
+        return refs;
     }
 
     public static Brush[] ParseBrushFile(string path) {
