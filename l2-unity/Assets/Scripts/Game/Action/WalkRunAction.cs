@@ -10,8 +10,6 @@ public class WalkRunAction : L2Action
             PlayerStatePacketServices.PlayerState.State == PlayerState.DEAD)
             return;
 
-        NetSession session = NetSession.TryGetBound();
-        if (session != null)
-            _ = session.SendActionUse((int)ActionType.WalkRun);
+        InterludeRequestActionUse.TrySend((int)ActionType.WalkRun);
     }
 }
