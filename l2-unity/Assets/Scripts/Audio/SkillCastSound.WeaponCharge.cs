@@ -23,7 +23,7 @@ public static partial class SkillCastSound
             return;
         }
 
-        PlayCastSfx(row.Cast, Volume);
+        PlayCue(row.CastCue, "cast", skillId, worldPos, true, asCast: true);
     }
 
     /// <summary>Interlude weapon charge: skillsoundgrp shot when the charged hit lands (AttackShot consume).</summary>
@@ -47,6 +47,6 @@ public static partial class SkillCastSound
             return;
         }
 
-        PlayCastSfx(row.Shot, Volume);
+        PlayCue(row.ShotCue, "shot", skillId, worldPos, true, asCast: true);
     }
 }

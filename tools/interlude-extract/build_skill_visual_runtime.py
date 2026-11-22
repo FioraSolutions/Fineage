@@ -248,7 +248,7 @@ def build() -> None:
     report = [
         "# Skills that have a skillgrp desc path or a skill.usk entry whose effect asset is not imported.",
         "# Source: skillgrp.tsv desc, then Animations/skill.usk (skill-effects-engine.tsv).",
-        "# The effect importer needs the official client packages and the Unity editor; neither is in this workspace, so the missing classes were not imported.",
+        "# Lists only leftovers: effect classes still without a prefab, unresolved skillgrp desc keys, or empty EffectClass rows.",
         "skill_id\tlevel\tsource\tvisual_key\tmissing_asset",
     ]
     report.extend(missing_lines)

@@ -168,7 +168,7 @@ public static class InterludeWindowLayout
             host.style.height = rootHeight;
             if (window.placementKnown == 0)
             {
-                LogOnce(
+                LogOnceWarning(
                     "place:" + window.name,
                     "[InterludeLayout] window '" + window.name +
                     "' has no screen placement in the extracted layout. " +
@@ -735,5 +735,13 @@ public static class InterludeWindowLayout
             return;
         _logged.Add(key);
         Debug.LogError(message);
+    }
+
+    static void LogOnceWarning(string key, string message)
+    {
+        if (_logged.Contains(key))
+            return;
+        _logged.Add(key);
+        Debug.LogWarning(message);
     }
 }

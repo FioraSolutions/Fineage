@@ -18,6 +18,8 @@ public abstract partial class CompositePart : ISerializationCallbackReceiver
     public bool boneOnTarget;
     public bool follow = true;
     public bool inheritRotation;
+    /// <summary>Authored Unreal rotator converted to Unity euler degrees.</summary>
+    public Vector3 spawnEuler;
     // Nested SerializeReference inside a SerializeReference part orphans RefIds
     // (missing 1008/1009) on prefab save. Runtime uses spawnAttachmentPoint.
     // Kept only to migrate old prefabs in OnAfterDeserialize.

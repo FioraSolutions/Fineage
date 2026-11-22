@@ -54,7 +54,10 @@ public sealed partial class LoginRuntime
         }
         catch (System.Exception ex)
         {
-            Debug.LogWarning("[LoginRuntime] Resolve<" + typeof(T).Name + "> failed: " + ex.Message);
+            if (typeof(T) != typeof(LoginCameraManager))
+            {
+                Debug.LogWarning("[LoginRuntime] Resolve<" + typeof(T).Name + "> failed: " + ex.Message);
+            }
             return null;
         }
     }

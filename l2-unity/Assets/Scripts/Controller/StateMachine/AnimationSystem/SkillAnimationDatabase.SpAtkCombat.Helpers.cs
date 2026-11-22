@@ -161,34 +161,37 @@ public partial class SkillAnimationDatabase
         if (SpAtkClipCache.TryGetValue(cacheKey, out AnimationClip cached))
             return cached;
 
-        string[] weaponVariants = { weaponStem, weaponToken };
+        AnimationClip loaded = InterludeAnimationClipResolver.TryLoadPlayerSpAtkCombat(
+            raceName,
+            spAtkNumber,
+            weaponToken,
+            normalizedState);
 
-        AnimationClip loaded = null;
-        string[] meshStems = MeshStemsForProfile(profile);
-        for (int m = 0; m < meshStems.Length && loaded == null; m++)
+        if (loaded == null)
         {
-            for (int i = 0; i < weaponVariants.Length && loaded == null; i++)
+            string[] meshStems = MeshStemsForRaceProfile(profile);
+            for (int i = 0; i < meshStems.Length; i++)
             {
-                if (string.IsNullOrEmpty(weaponVariants[i]))
-                    continue;
-
-                string stem = spatkStem + "_" + weaponVariants[i];
-                string resourceName = meshStems[m] + ".ao_" + stem + "_" + profile.Race;
-                string path = profile.Folder + resourceName;
-                loaded = Resources.Load<AnimationClip>(path);
+                string legacyPath = profile.Folder + meshStems[i] + ".ao_" + clipStateStem + "_" + profile.Race;
+                loaded = InterludeAnimationClipResolver.LoadExact(legacyPath);
+                if (loaded != null)
+                    break;
             }
         }
 
         if (loaded == null && SpAtkClipMissLogged.Add(cacheKey))
         {
+            string query = InterludeAnimationClipResolver.BuildPlayerSpAtkQuery(
+                spAtkNumber,
+                weaponToken,
+                profile.Race);
             Debug.LogError(
                 "[SkillAnimation] SpAtk clip missing race=" + profile.Race
                 + " state=" + normalizedState
-                + " spatk=" + spAtkNumber.ToString("00")
-                + " weapon=" + weaponToken
-                + " expectedStem=" + clipStateStem
+                + " animTweenQuery=" + query
                 + " folder=" + profile.Folder
-                + " meshStem=" + profile.MeshStem + ".");
+                + " meshStem=" + profile.MeshStem
+                + " (re-bake missing takes on Mac; MFighter dual list in Docs/MISSING_MFighter_DUAL_SPATK.md).");
         }
 
         SpAtkClipCache[cacheKey] = loaded;

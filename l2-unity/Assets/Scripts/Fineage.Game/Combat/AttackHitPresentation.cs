@@ -24,4 +24,12 @@ public static class AttackHitPresentation
             return dto.FirstHit;
         return null;
     }
+
+    public static Hit[] BuildHitList(
+        int targetId,
+        int firstDamage,
+        int firstFlags,
+        int[] extraDamage,
+        int[] extraFlags) =>
+        AttackHitWireRows.BuildHitList(targetId, firstDamage, firstFlags, extraDamage, extraFlags);
 }

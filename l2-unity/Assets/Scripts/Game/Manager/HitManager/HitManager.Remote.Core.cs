@@ -22,28 +22,12 @@ public partial class HitManager
         if (_localAttackToken == 0)
             return;
 
-        Hit hit = AttackHitPresentation.ResolveHit(_localAttack, hitIndex);
-        if (hit == null || hit.isMiss())
-            return;
-
-        if (attacker is PlayerEntity player)
-            player.SetSelfHit(hit);
-
-        if (hit.hasSoulshot())
-        {
-            attacker.IsSoulshotCharged = true;
-            WeaponChargePresentation.PlayMeleeSoulshotConsume(attacker);
-        }
-        else
-            attacker.IsSoulshotCharged = false;
-
         Entity target = attacker.GetTargetEntity();
-        if (target == null && _localAttack != null)
-            target = ResolveEntityFromWorld(_localAttack.TargetId);
-        if (target != null && target != attacker)
-        {
-            CombatAudioHitContext.Set(attacker, hit.isCrit(), hit.isShielded());
-            target.PlayHitReaction(hit.isCrit());
-        }
+        TryPresentMeleeHitFromAttackPacket(
+            attacker,
+            target,
+            _localAttack,
+            hitIndex,
+            playColliderImpactFx: false);
     }
 }

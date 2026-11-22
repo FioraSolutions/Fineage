@@ -1,0 +1,526 @@
+import com.rost.cruma.core.unreal.ClassDefaults;
+import com.rost.cruma.core.unreal.ClientSearchPaths;
+import com.rost.cruma.core.unreal.SkillEffects;
+import com.rost.cruma.core.unreal.UArchive;
+import com.rost.cruma.core.unreal.UArchiveLoader;
+import com.rost.cruma.core.unreal.UArchiveLoader.USearchConfig;
+import com.rost.cruma.core.unreal.UObjectExport;
+import com.rost.cruma.core.unreal.UObjectImport;
+import com.rost.cruma.core.unreal.UProperty;
+import com.rost.cruma.core.unreal.primitives.UColor;
+import com.rost.cruma.core.unreal.primitives.URotator;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Lossless dump of every Unreal property on every export in a package,
+ * plus every referenced object in other packages (no binary payloads).
+ */
+public final class ExportPackageProperties {
+    static final class Json {
+        final StringBuilder sb = new StringBuilder();
+        int indent;
+        boolean pendingComma;
+
+        void nl() { sb.append('\n'); for (int i = 0; i < indent; i++) sb.append("  "); }
+
+        void startObj() {
+            comma();
+            sb.append('{');
+            indent++;
+            pendingComma = false;
+        }
+
+        void endObj() {
+            indent--;
+            nl();
+            sb.append('}');
+            pendingComma = true;
+        }
+
+        void startArr() {
+            comma();
+            sb.append('[');
+            indent++;
+            pendingComma = false;
+        }
+
+        void endArr() {
+            indent--;
+            nl();
+            sb.append(']');
+            pendingComma = true;
+        }
+
+        void comma() {
+            if (pendingComma) sb.append(',');
+            pendingComma = false;
+        }
+
+        void key(String k) {
+            comma();
+            nl();
+            sb.append('"').append(esc(k)).append("\": ");
+        }
+
+        void raw(String v) { sb.append(v); pendingComma = true; }
+
+        void valNull() { comma(); sb.append("null"); pendingComma = true; }
+
+        void val(String v) {
+            comma();
+            if (v == null) sb.append("null");
+            else sb.append('"').append(esc(v)).append('"');
+            pendingComma = true;
+        }
+
+        void val(boolean v) { comma(); sb.append(v ? "true" : "false"); pendingComma = true; }
+
+        void val(long v) { comma(); sb.append(v); pendingComma = true; }
+
+        void val(double v) {
+            comma();
+            if (v == (long) v) sb.append(String.format(Locale.ROOT, "%.1f", v));
+            else sb.append(String.format(Locale.ROOT, "%.9g", v));
+            pendingComma = true;
+        }
+
+        void keyVal(String k, String v) { key(k); val(v); }
+        void keyVal(String k, boolean v) { key(k); val(v); }
+        void keyVal(String k, long v) { key(k); val(v); }
+        void keyVal(String k, double v) { key(k); val(v); }
+        void keyNull(String k) { key(k); valNull(); }
+
+        static String esc(String s) {
+            StringBuilder o = new StringBuilder();
+            for (int i = 0; i < s.length(); i++) {
+                char c = s.charAt(i);
+                switch (c) {
+                    case '\\' -> o.append("\\\\");
+                    case '"' -> o.append("\\\"");
+                    case '\n' -> o.append("\\n");
+                    case '\r' -> o.append("\\r");
+                    case '\t' -> o.append("\\t");
+                    default -> {
+                        if (c < 0x20) o.append(String.format(Locale.ROOT, "\\u%04x", (int) c));
+                        else o.append(c);
+                    }
+                }
+            }
+            return o.toString();
+        }
+
+        @Override public String toString() { return sb.toString(); }
+    }
+
+    static String resolve(UArchive a, int index) {
+        if (index > 0 && index <= a.getExportMap().size()) {
+            UObjectExport e = a.getExportMap().get(index - 1);
+            return "export:" + a.getName() + ":" + (index - 1) + ":" + e.getClassName() + ":" + e.getObjectName();
+        }
+        if (index < 0 && (-index) <= a.getImportMap().size()) {
+            UObjectImport e = a.getImportMap().get(-index - 1);
+            String pkg = e.getClassPackage() == null ? "" : e.getClassPackage();
+            return "import:" + pkg + ":" + e.getClassName() + ":" + e.getObjectName();
+        }
+        return index == 0 ? "none" : ("index:" + index);
+    }
+
+    static String importClassName(UArchive a, int index) {
+        if (index >= 0 || (-index) > a.getImportMap().size()) return null;
+        return a.getImportMap().get(-index - 1).getObjectName();
+    }
+
+    static String importClassPackage(UArchive a, int index) {
+        if (index >= 0 || (-index) > a.getImportMap().size()) return null;
+        // classPackage on a Class import is often "Core"; packageIndex points at the package import
+        UObjectImport imp = a.getImportMap().get(-index - 1);
+        int pkg = imp.getPackageIndex();
+        if (pkg < 0 && (-pkg) <= a.getImportMap().size()) {
+            return a.getImportMap().get(-pkg - 1).getObjectName();
+        }
+        return imp.getClassPackage();
+    }
+
+    static List<UProperty> extract(UArchive a, UObjectExport exp) {
+        a.setPosition(exp.getSerialOffset());
+        a.setObjectEnd(exp.getSerialOffset() + exp.getSerialSize());
+        return new ArrayList<>(a.getPropertyExtractor().extractProperties());
+    }
+
+    static void writeProps(Json j, UArchive a, List<UProperty> props) {
+        j.startArr();
+        for (UProperty p : props) writeProp(j, a, p);
+        j.endArr();
+    }
+
+    static void writeProp(Json j, UArchive a, UProperty p) {
+        j.comma();
+        j.nl();
+        j.startObj();
+        j.keyVal("name", p.getName());
+        String type = p.getType() == null ? "Unknown" : p.getType().name();
+        j.keyVal("type", type);
+        if (p.isArray()) j.keyVal("array_index", p.getArrayIndex());
+        if (p.getStructName() != null && !p.getStructName().isEmpty()) j.keyVal("struct", p.getStructName());
+        switch (type) {
+            case "Bool" -> j.keyVal("value", p.isTrue());
+            case "Float" -> j.keyVal("value", p.getFloatValue());
+            case "Int" -> {
+                j.keyVal("value", p.getInt32Value());
+                String n = a.resolveName(p.getInt32Value());
+                if (n != null && !n.isEmpty() && !"None".equalsIgnoreCase(n)) j.keyVal("name_value", n);
+            }
+            case "Byte" -> j.keyVal("value", p.getUInt8Value());
+            case "Name" -> {
+                if (p.getStringValue() != null) j.keyVal("value", p.getStringValue());
+                else {
+                    String n = a.resolveName(p.getIndexValue());
+                    if (n != null) j.keyVal("value", n);
+                    else j.keyNull("value");
+                    j.keyVal("name_index", p.getIndexValue());
+                }
+            }
+            case "Str", "Class" -> j.keyVal("value", p.getStringValue());
+            case "Object" -> {
+                j.keyVal("index", p.getIndexValue());
+                j.keyVal("ref", resolve(a, p.getIndexValue()));
+                if (p.getStringValue() != null) j.keyVal("value", p.getStringValue());
+            }
+            case "Vector" -> writeVec(j, "value", p.getVectorValue());
+            case "Rotator" -> writeRot(j, "value", p.getRotatorValue());
+            case "Struct" -> {
+                if (p.getRotatorValue() != null) writeRot(j, "rotator", p.getRotatorValue());
+                if (p.getVectorValue() != null) writeVec(j, "vector", p.getVectorValue());
+                if (p.getColorValue() != null) writeColor(j, "color", p.getColorValue());
+            }
+            case "Array", "FixedArray" -> {
+                j.keyVal("array_size", p.getArraySize());
+                if (p.getIntArray() != null && p.getIntArray().length > 0) {
+                    j.key("int_array");
+                    j.startArr();
+                    for (int v : p.getIntArray()) { j.comma(); j.nl(); j.val((long) v); }
+                    j.endArr();
+                }
+                if (p.getObjectArray() != null && p.getObjectArray().length > 0) {
+                    j.key("object_array");
+                    j.startArr();
+                    for (int idx : p.getObjectArray()) {
+                        j.comma();
+                        j.nl();
+                        j.startObj();
+                        j.keyVal("index", idx);
+                        j.keyVal("ref", resolve(a, idx));
+                        j.endObj();
+                    }
+                    j.endArr();
+                }
+            }
+            default -> {
+                if (p.getStringValue() != null) j.keyVal("value", p.getStringValue());
+                if (p.getDataValue() != null && p.getDataValue().length > 0 && p.getDataValue().length <= 64) {
+                    j.keyVal("data_len", p.getDataValue().length);
+                } else if (p.getDataValue() != null && p.getDataValue().length > 64) {
+                    j.keyVal("data_len", p.getDataValue().length);
+                    j.keyVal("data_omitted", "binary payload not stored");
+                }
+            }
+        }
+        if (p.getSubProperties() != null && !p.getSubProperties().isEmpty()) {
+            j.key("subproperties");
+            j.startArr();
+            for (Map<String, UProperty> map : p.getSubProperties()) {
+                j.comma();
+                j.nl();
+                writeProps(j, a, new ArrayList<>(map.values()));
+            }
+            j.endArr();
+        }
+        j.endObj();
+    }
+
+    static void writeVec(Json j, String key, glm_.vec3.Vec3 v) {
+        if (v == null) { j.keyNull(key); return; }
+        j.key(key);
+        j.startObj();
+        j.keyVal("x", v.getX());
+        j.keyVal("y", v.getY());
+        j.keyVal("z", v.getZ());
+        j.endObj();
+    }
+
+    static void writeRot(Json j, String key, URotator r) {
+        if (r == null) { j.keyNull(key); return; }
+        j.key(key);
+        j.startObj();
+        j.keyVal("pitch", r.pitch());
+        j.keyVal("yaw", r.yaw());
+        j.keyVal("roll", r.roll());
+        j.endObj();
+    }
+
+    static void writeColor(Json j, String key, UColor c) {
+        if (c == null) { j.keyNull(key); return; }
+        j.key(key);
+        j.startObj();
+        try {
+            var r = c.getClass().getMethod("r");
+            var g = c.getClass().getMethod("g");
+            var b = c.getClass().getMethod("b");
+            var a = c.getClass().getMethod("a");
+            j.keyVal("r", ((Number) r.invoke(c)).longValue());
+            j.keyVal("g", ((Number) g.invoke(c)).longValue());
+            j.keyVal("b", ((Number) b.invoke(c)).longValue());
+            j.keyVal("a", ((Number) a.invoke(c)).longValue());
+        } catch (Exception e) {
+            j.keyVal("to_string", String.valueOf(c));
+        }
+        j.endObj();
+    }
+
+    static boolean isClassExport(UObjectExport exp) {
+        String cn = exp.getClassName();
+        return cn == null || cn.isEmpty() || "None".equalsIgnoreCase(cn) || "Class".equalsIgnoreCase(cn);
+    }
+
+    static List<UProperty> extractSmart(UArchive a, UObjectExport exp, String[] sourceOut) {
+        if (isClassExport(exp)) {
+            try {
+                List<UProperty> defs = ClassDefaults.findAll(a, exp.getObjectName());
+                if (defs != null) {
+                    sourceOut[0] = "class_defaults";
+                    return new ArrayList<>(defs);
+                }
+            } catch (Throwable t) {
+                sourceOut[0] = "class_defaults_error:" + t;
+                return List.of();
+            }
+            sourceOut[0] = "class_defaults_empty";
+            return List.of();
+        }
+        sourceOut[0] = "tagged_properties";
+        return extract(a, exp);
+    }
+
+    static void writeExport(Json j, UArchive a, int i, UObjectExport exp, List<UProperty> props, String source) {
+        j.comma();
+        j.nl();
+        j.startObj();
+        j.keyVal("export_index", i);
+        j.keyVal("class", exp.getClassName());
+        j.keyVal("name", exp.getObjectName());
+        j.keyVal("super", exp.getSuperName());
+        j.keyVal("outer_index", exp.getPackageIndex());
+        j.keyVal("outer", resolve(a, exp.getPackageIndex()));
+        j.keyVal("serial_offset", exp.getSerialOffset());
+        j.keyVal("serial_size", exp.getSerialSize());
+        if (source != null) j.keyVal("properties_source", source);
+        j.key("properties");
+        writeProps(j, a, props);
+        j.endObj();
+    }
+
+    static void writeImport(Json j, UArchive a, int i, UObjectImport imp) {
+        j.comma();
+        j.nl();
+        j.startObj();
+        j.keyVal("import_index", i);
+        j.keyVal("object_name", imp.getObjectName());
+        j.keyVal("class_name", imp.getClassName());
+        j.keyVal("class_package", imp.getClassPackage());
+        j.keyVal("package_index", imp.getPackageIndex());
+        j.keyVal("package", resolve(a, imp.getPackageIndex()));
+        j.endObj();
+    }
+
+    static UArchive load(UArchiveLoader loader, String name) {
+        UArchive a = loader.loadArchiveIfPresent(name);
+        if (a == null && name != null) {
+            a = loader.loadArchiveIfPresent(name.toLowerCase(Locale.ROOT));
+        }
+        if (a == null && name != null && !name.isEmpty()) {
+            a = loader.loadArchiveIfPresent(Character.toUpperCase(name.charAt(0)) + name.substring(1));
+        }
+        return a;
+    }
+
+    static void collectRefs(UArchive a, List<UProperty> props, Map<String, Set<String>> needed) {
+        for (UProperty p : props) {
+            if (p.getType() != null && "Object".equals(p.getType().name())) {
+                rememberImport(a, p.getIndexValue(), needed);
+            }
+            if (p.getObjectArray() != null) {
+                for (int idx : p.getObjectArray()) rememberImport(a, idx, needed);
+            }
+            if (p.getSubProperties() != null) {
+                for (var map : p.getSubProperties()) collectRefs(a, new ArrayList<>(map.values()), needed);
+            }
+        }
+    }
+
+    static void rememberImport(UArchive a, int index, Map<String, Set<String>> needed) {
+        if (index >= 0) return;
+        String cls = importClassName(a, index);
+        String pkg = importClassPackage(a, index);
+        if (cls == null || cls.isEmpty()) return;
+        if (pkg == null || pkg.isEmpty() || "Core".equalsIgnoreCase(pkg) || "Engine".equalsIgnoreCase(pkg)) {
+            // still try lineageeffect for EffectClass imports (class package is often Core, outer is lineageeffect)
+            UObjectImport imp = a.getImportMap().get(-index - 1);
+            int walk = imp.getPackageIndex();
+            String outer = null;
+            int guard = 0;
+            while (walk < 0 && (-walk) <= a.getImportMap().size() && guard++ < 8) {
+                UObjectImport o = a.getImportMap().get(-walk - 1);
+                outer = o.getObjectName();
+                if ("Class".equalsIgnoreCase(o.getClassName()) || "Package".equalsIgnoreCase(o.getClassName())
+                    || "Core".equalsIgnoreCase(outer) || "Engine".equalsIgnoreCase(outer)) {
+                    walk = o.getPackageIndex();
+                    if ("Package".equalsIgnoreCase(o.getClassName()) && !"Core".equalsIgnoreCase(outer) && !"Engine".equalsIgnoreCase(outer)) {
+                        pkg = outer;
+                        break;
+                    }
+                    continue;
+                }
+                walk = o.getPackageIndex();
+            }
+            if (pkg == null || "Core".equalsIgnoreCase(pkg) || "Engine".equalsIgnoreCase(pkg)) {
+                if (outer != null && !"Core".equalsIgnoreCase(outer) && !"Engine".equalsIgnoreCase(outer)) pkg = outer;
+            }
+        }
+        if (pkg == null || pkg.isEmpty()) pkg = "lineageeffect";
+        needed.computeIfAbsent(pkg, k -> new LinkedHashSet<>()).add(cls);
+    }
+
+    static void dumpArchive(Path out, String logicalName, String sourceHint, UArchive a) throws IOException {
+        Files.createDirectories(out.getParent());
+        Json j = new Json();
+        j.startObj();
+        j.keyVal("package", a.getName() == null ? logicalName : a.getName());
+        j.keyVal("source", sourceHint);
+        j.keyVal("tool", "tools/interlude-extract/ExportPackageProperties.java");
+        j.keyVal("export_count", a.getExportMap().size());
+        j.keyVal("import_count", a.getImportMap().size());
+        j.key("imports");
+        j.startArr();
+        List<UObjectImport> imports = a.getImportMap();
+        for (int i = 0; i < imports.size(); i++) writeImport(j, a, i, imports.get(i));
+        j.endArr();
+        j.key("exports");
+        j.startArr();
+        List<UObjectExport> exports = a.getExportMap();
+        int failed = 0;
+        for (int i = 0; i < exports.size(); i++) {
+            UObjectExport exp = exports.get(i);
+            List<UProperty> props;
+            String[] source = new String[] { "tagged_properties" };
+            try {
+                props = extractSmart(a, exp, source);
+            } catch (Throwable t) {
+                failed++;
+                j.comma();
+                j.nl();
+                j.startObj();
+                j.keyVal("export_index", i);
+                j.keyVal("class", exp.getClassName());
+                j.keyVal("name", exp.getObjectName());
+                j.keyVal("serial_size", exp.getSerialSize());
+                j.keyVal("extract_error", String.valueOf(t));
+                j.endObj();
+                continue;
+            }
+            writeExport(j, a, i, exp, props, source[0]);
+        }
+        j.endArr();
+        j.keyVal("extract_failures", failed);
+        j.endObj();
+        j.sb.append('\n');
+        Files.writeString(out, j.toString(), StandardCharsets.UTF_8);
+        System.err.printf(Locale.ROOT, "Wrote %s exports=%d imports=%d failures=%d -> %s (%d bytes)%n",
+            a.getName(), a.getExportMap().size(), a.getImportMap().size(), failed, out, Files.size(out));
+    }
+
+    public static void main(String[] args) throws Exception {
+        if (args.length < 2) {
+            System.err.println("Usage: ExportPackageProperties <client-root> <out-dir>");
+            System.exit(2);
+        }
+        Path root = Path.of(args[0]).toAbsolutePath();
+        Path outDir = Path.of(args[1]).toAbsolutePath();
+        Files.createDirectories(outDir);
+
+        var entries = ClientSearchPaths.read(root);
+        if (entries == null || entries.isEmpty()) entries = ClientSearchPaths.DEFAULT;
+        List<USearchConfig> configs = new ArrayList<>();
+        for (var e : entries) configs.add(new USearchConfig(e.directory(), e.extension()));
+        var loader = new UArchiveLoader(root, configs);
+
+        UArchive skill = load(loader, SkillEffects.VISUAL_PACKAGE);
+        if (skill == null) {
+            System.err.println("Failed to load Animations/skill.usk under " + root);
+            System.exit(1);
+        }
+        Path skillOut = outDir.resolve("skill.usk.json");
+        dumpArchive(skillOut, "skill", "Animations/skill.usk", skill);
+
+        Map<String, Set<String>> needed = new LinkedHashMap<>();
+        for (UObjectExport exp : skill.getExportMap()) {
+            try {
+                collectRefs(skill, extract(skill, exp), needed);
+            } catch (Throwable ignored) {
+            }
+        }
+
+        Path refsOut = outDir.resolve("skill.usk.references.json");
+        Json rj = new Json();
+        rj.startObj();
+        rj.keyVal("from", "skill.usk");
+        rj.key("packages");
+        rj.startObj();
+        for (var e : needed.entrySet()) {
+            rj.key(e.getKey());
+            rj.startArr();
+            for (String c : e.getValue()) { rj.comma(); rj.nl(); rj.val(c); }
+            rj.endArr();
+        }
+        rj.endObj();
+        rj.endObj();
+        rj.sb.append('\n');
+        Files.writeString(refsOut, rj.toString(), StandardCharsets.UTF_8);
+
+        // Always dump the full lineageeffect package (referenced emitters + class defaults).
+        UArchive le = load(loader, "lineageeffect");
+        if (le == null) le = load(loader, "LineageEffect");
+        if (le == null) {
+            System.err.println("WARNING: lineageeffect.u was not loaded; referenced effect class defaults are missing.");
+        } else {
+            dumpArchive(outDir.resolve("lineageeffect.u.json"), "lineageeffect", "system/lineageeffect.u", le);
+        }
+
+        // Dump any other referenced packages that are not engine/core (except skill itself).
+        for (String pkg : needed.keySet()) {
+            if (pkg == null) continue;
+            String low = pkg.toLowerCase(Locale.ROOT);
+            if (low.equals("skill") || low.equals("lineageeffect") || low.equals("core") || low.equals("engine")
+                || low.equals("class") || low.equals("object") || low.equals("enum")) continue;
+            if (Files.exists(outDir.resolve(pkg + ".json"))) continue;
+            UArchive extra = load(loader, pkg);
+            if (extra == null) {
+                System.err.println("WARNING: referenced package not loaded: " + pkg);
+                continue;
+            }
+            dumpArchive(outDir.resolve(pkg + ".u.json"), pkg, "client package " + pkg, extra);
+        }
+
+        System.err.println("Done. Packages referenced from skill.usk: " + needed.keySet());
+    }
+}

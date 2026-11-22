@@ -263,6 +263,13 @@ public sealed class SkillVisualCatalog
                 continue;
             }
 
+            if (string.IsNullOrEmpty(row.EffectClass))
+            {
+                result.MissingAssets.Add(
+                    "phase:" + (row.Phase ?? string.Empty) + " missing field=EffectClass");
+                continue;
+            }
+
             bool present = hasAsset != null && hasAsset(row.AssetKey);
             if (!present)
                 result.MissingAssets.Add(row.AssetKey);
@@ -283,6 +290,20 @@ public sealed class SkillVisualCatalog
                 OffsetZ = row.OffsetZ,
                 Delay = row.Delay,
                 Absolute = row.Absolute,
+                UseCharacterRotation = row.UseCharacterRotation,
+                SizeScale = row.SizeScale,
+                DrawScale = row.DrawScale,
+                RotationPitch = row.RotationPitch,
+                RotationYaw = row.RotationYaw,
+                RotationRoll = row.RotationRoll,
+                RotPerSecondPitch = row.RotPerSecondPitch,
+                RotPerSecondYaw = row.RotPerSecondYaw,
+                RotPerSecondRoll = row.RotPerSecondRoll,
+                RotEmitter = row.RotEmitter,
+                SelfRotation = row.SelfRotation,
+                Directional = row.Directional,
+                Speed = row.Speed,
+                AccSpeed = row.AccSpeed,
                 Kind = kind,
                 Timing = timing,
                 Attachment = attachment,
@@ -415,6 +436,18 @@ public sealed class SkillVisualCatalog
                 attachment = row.OnTarget ? EffectAttachmentPoint.TargetCenter : EffectAttachmentPoint.CasterCenter;
                 follow = true;
                 return true;
+            case 101:
+            case 102:
+                namedBone = true;
+                follow = true;
+                attachment = row.OnTarget ? EffectAttachmentPoint.TargetCenter : EffectAttachmentPoint.CasterCenter;
+                if (string.IsNullOrEmpty(row.Bone))
+                {
+                    error = "attach_on=" + row.AttachOn.ToString(CultureInfo.InvariantCulture) + " without bone";
+                    return false;
+                }
+
+                return true;
             default:
                 error = "attach_on=" + row.AttachOn.ToString(CultureInfo.InvariantCulture);
                 return false;
@@ -520,6 +553,17 @@ public sealed class SkillVisualCatalog
     {
         error = null;
         string[] lines = text.Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string probe = lines[i].TrimEnd('\r');
+            if (probe.Length == 0 || probe[0] == '#')
+                continue;
+            string[] headerCols = probe.Split('\t');
+            if (IndexOf(headerCols, "attach_on_raw") >= 0)
+                return LoadPlacement(lines, out error);
+            break;
+        }
+
         bool header = false;
         for (int i = 0; i < lines.Length; i++)
         {
@@ -602,6 +646,184 @@ public sealed class SkillVisualCatalog
         }
 
         return true;
+    }
+
+    bool LoadPlacement(string[] lines, out string error)
+    {
+        error = null;
+        int skillIdCol = -1;
+        int objectNameCol = -1;
+        int visualKeyCol = -1;
+        int flyingCol = -1;
+        int phaseCol = -1;
+        int effectCol = -1;
+        int attachVisualCol = -1;
+        int attachNameCol = -1;
+        int boneCol = -1;
+        int offsetXCol = -1;
+        int offsetYCol = -1;
+        int offsetZCol = -1;
+        int delayCol = -1;
+        int absoluteCol = -1;
+        int multiCol = -1;
+        int relCol = -1;
+        int sizeScaleCol = -1;
+        int onTargetCol = -1;
+        int useRotCol = -1;
+        int drawScaleCol = -1;
+        int rotPCol = -1;
+        int rotYCol = -1;
+        int rotRCol = -1;
+        int rpsPCol = -1;
+        int rpsYCol = -1;
+        int rpsRCol = -1;
+        int rotEmitterCol = -1;
+        int selfRotCol = -1;
+        int directionalCol = -1;
+        int speedCol = -1;
+        int accSpeedCol = -1;
+        bool header = false;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i].TrimEnd('\r');
+            if (line.Length == 0 || line[0] == '#')
+                continue;
+            string[] cols = line.Split('\t');
+            if (!header)
+            {
+                header = true;
+                if (!RequireColumn(cols, "skill_id", out skillIdCol, ref error) ||
+                    !RequireColumn(cols, "object_name", out objectNameCol, ref error) ||
+                    !RequireColumn(cols, "visual_key", out visualKeyCol, ref error) ||
+                    !RequireColumn(cols, "flying_time", out flyingCol, ref error) ||
+                    !RequireColumn(cols, "phase", out phaseCol, ref error) ||
+                    !RequireColumn(cols, "effect_class", out effectCol, ref error) ||
+                    !RequireColumn(cols, "attach_on_visual", out attachVisualCol, ref error) ||
+                    !RequireColumn(cols, "attach_on_visual_name", out attachNameCol, ref error) ||
+                    !RequireColumn(cols, "attach_bone_name", out boneCol, ref error) ||
+                    !RequireColumn(cols, "offset_x", out offsetXCol, ref error) ||
+                    !RequireColumn(cols, "offset_y", out offsetYCol, ref error) ||
+                    !RequireColumn(cols, "offset_z", out offsetZCol, ref error) ||
+                    !RequireColumn(cols, "spawn_delay", out delayCol, ref error) ||
+                    !RequireColumn(cols, "b_absolute", out absoluteCol, ref error) ||
+                    !RequireColumn(cols, "b_on_multi_target", out multiCol, ref error) ||
+                    !RequireColumn(cols, "b_relative_to_cylinder", out relCol, ref error) ||
+                    !RequireColumn(cols, "b_size_scale", out sizeScaleCol, ref error) ||
+                    !RequireColumn(cols, "b_spawn_on_target", out onTargetCol, ref error) ||
+                    !RequireColumn(cols, "b_use_character_rotation", out useRotCol, ref error) ||
+                    !RequireColumn(cols, "draw_scale", out drawScaleCol, ref error) ||
+                    !RequireColumn(cols, "rotation_pitch", out rotPCol, ref error) ||
+                    !RequireColumn(cols, "rotation_yaw", out rotYCol, ref error) ||
+                    !RequireColumn(cols, "rotation_roll", out rotRCol, ref error) ||
+                    !RequireColumn(cols, "rot_per_second_pitch", out rpsPCol, ref error) ||
+                    !RequireColumn(cols, "rot_per_second_yaw", out rpsYCol, ref error) ||
+                    !RequireColumn(cols, "rot_per_second_roll", out rpsRCol, ref error) ||
+                    !RequireColumn(cols, "b_rot_emitter", out rotEmitterCol, ref error) ||
+                    !RequireColumn(cols, "b_self_rotation", out selfRotCol, ref error) ||
+                    !RequireColumn(cols, "b_directional", out directionalCol, ref error) ||
+                    !RequireColumn(cols, "speed", out speedCol, ref error) ||
+                    !RequireColumn(cols, "acc_speed", out accSpeedCol, ref error))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            int skillId;
+            if (!int.TryParse(Col(cols, skillIdCol), NumberStyles.Integer, CultureInfo.InvariantCulture, out skillId))
+                continue;
+
+            string visualKey = Col(cols, visualKeyCol);
+            if (visualKey.Length == 0)
+                continue;
+
+            string effect = Col(cols, effectCol);
+            string objectName = Col(cols, objectNameCol);
+            var row = new UskAction
+            {
+                SkillId = skillId,
+                ClassName = visualKey,
+                FlyingTime = ParseFloat(cols, flyingCol),
+                Phase = Col(cols, phaseCol).ToLowerInvariant(),
+                EffectClass = effect,
+                AssetKey = AssetKeyOf(effect),
+                AttachOn = ParseInt(cols, attachVisualCol),
+                AttachName = Col(cols, attachNameCol),
+                Bone = Col(cols, boneCol),
+                OnTarget = ParseBool(cols, onTargetCol),
+                OnMultiTarget = ParseBool(cols, multiCol),
+                RelativeToCylinder = ParseBool(cols, relCol),
+                OffsetX = ParseFloat(cols, offsetXCol),
+                OffsetY = ParseFloat(cols, offsetYCol),
+                OffsetZ = ParseFloat(cols, offsetZCol),
+                Delay = ParseFloat(cols, delayCol),
+                Absolute = ParseBool(cols, absoluteCol),
+                UseCharacterRotation = ParseBool(cols, useRotCol),
+                SizeScale = ParseBool(cols, sizeScaleCol),
+                DrawScale = ParseFloat(cols, drawScaleCol),
+                RotationPitch = ParseFloat(cols, rotPCol),
+                RotationYaw = ParseFloat(cols, rotYCol),
+                RotationRoll = ParseFloat(cols, rotRCol),
+                RotPerSecondPitch = ParseFloat(cols, rpsPCol),
+                RotPerSecondYaw = ParseFloat(cols, rpsYCol),
+                RotPerSecondRoll = ParseFloat(cols, rpsRCol),
+                RotEmitter = ParseBool(cols, rotEmitterCol),
+                SelfRotation = ParseBool(cols, selfRotCol),
+                Directional = ParseBool(cols, directionalCol),
+                Speed = ParseFloat(cols, speedCol),
+                AccSpeed = ParseFloat(cols, accSpeedCol)
+            };
+
+            List<UskAction> classRows;
+            if (!_byClass.TryGetValue(row.ClassName, out classRows))
+            {
+                classRows = new List<UskAction>();
+                _byClass[row.ClassName] = classRows;
+            }
+
+            classRows.Add(row);
+
+            string previous;
+            if (!_classByObjectName.TryGetValue(objectName, out previous))
+                _classByObjectName[objectName] = row.ClassName;
+            else if (!string.Equals(previous, row.ClassName, StringComparison.OrdinalIgnoreCase))
+                _classByObjectName[objectName] = string.Empty;
+
+            // Variant object names (1012_sec) stay resolvable by visual_key / object
+            // name but must not make the skill-id usk fallback ambiguous.
+            if (objectName != skillId.ToString(CultureInfo.InvariantCulture))
+                continue;
+
+            List<UskAction> skillRows;
+            if (!_bySkillId.TryGetValue(skillId, out skillRows))
+            {
+                skillRows = new List<UskAction>();
+                _bySkillId[skillId] = skillRows;
+            }
+
+            skillRows.Add(row);
+
+            HashSet<string> names;
+            if (!_classNamesBySkillId.TryGetValue(skillId, out names))
+            {
+                names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                _classNamesBySkillId[skillId] = names;
+            }
+
+            names.Add(row.ClassName);
+        }
+
+        return true;
+    }
+
+    static bool RequireColumn(string[] header, string name, out int index, ref string error)
+    {
+        index = IndexOf(header, name);
+        if (index >= 0)
+            return true;
+        error = "skill-effect-placement header is missing " + name;
+        return false;
     }
 
     static bool IsDescPath(string desc)
@@ -690,6 +912,20 @@ public sealed class SkillVisualCatalog
         public float OffsetZ;
         public float Delay;
         public bool Absolute;
+        public bool UseCharacterRotation;
+        public bool SizeScale;
+        public float DrawScale;
+        public float RotationPitch;
+        public float RotationYaw;
+        public float RotationRoll;
+        public float RotPerSecondPitch;
+        public float RotPerSecondYaw;
+        public float RotPerSecondRoll;
+        public bool RotEmitter;
+        public bool SelfRotation;
+        public bool Directional;
+        public float Speed;
+        public float AccSpeed;
     }
 }
 
@@ -735,6 +971,20 @@ public sealed class SkillVisualAction
     public float OffsetZ;
     public float Delay;
     public bool Absolute;
+    public bool UseCharacterRotation;
+    public bool SizeScale;
+    public float DrawScale;
+    public float RotationPitch;
+    public float RotationYaw;
+    public float RotationRoll;
+    public float RotPerSecondPitch;
+    public float RotPerSecondYaw;
+    public float RotPerSecondRoll;
+    public bool RotEmitter;
+    public bool SelfRotation;
+    public bool Directional;
+    public float Speed;
+    public float AccSpeed;
     public SkillVisualPartKind Kind;
     public CompositePartSpawnTiming Timing;
     public EffectAttachmentPoint Attachment;

@@ -158,3 +158,50 @@ workspace does not have them, so those classes were not imported.
 - `hairaccessarygrp.dat` and `helmetgrp.dat` have no community DDF; they are decrypted only.
 - `orc.dll` is also Themida-packed (besides `engine.dll`).
 - `servername-e.dat` header count is 127; 73 extra trailing records were parsed up to id 199.
+
+## Skill-effect placement (skill.usk lossless dump)
+
+`Animations/skill.usk` holds one `SkillVisualEffect` per skill that has a unique
+effect, plus the `SkillAction_LocateEffect` objects those visuals reference.
+Emitter and effect-actor defaults live in `system/lineageeffect.u`.
+
+The committed dump is a full property tree, not the short Cruma `listVisuals()`
+view. Regeneration (official Interlude client + Cruma 1.2.0):
+
+```bash
+tools/interlude-extract/export_package_properties.sh
+python3 tools/interlude-extract/build_skill_effect_placement.py
+```
+
+| Path | Contents |
+|------|----------|
+| `packages/usk-dump/skill.usk.json` | Every export and import in `skill.usk`, every tagged property |
+| `packages/usk-dump/lineageeffect.u.manifest.json` | Index of the sharded `lineageeffect.u` property dump (class defaults + emitters) |
+| `packages/usk-dump/skill.usk.references.json` | Packages and class names `skill.usk` references |
+| `skills/skill-effect-placement.tsv` | Derived placement/timing table (one row per LocateEffect action) |
+| `skills/skill-effect-placement.json` | Same rows plus enum maps and declared defaults |
+| `skills/skill-effect-sounds.tsv` | Every skill visual / effect sound (skillsoundgrp + LineageEffect SpawnSound) |
+| `skills/skill-effect-sounds.json` | Same sound rows, including volume, radius, loop and whether Fineage plays them |
+| `skills/gap-report.md` | Original fields and sounds the client does not yet use, with skill counts |
+
+### Placement columns
+
+All names below exist in the original data (or are a documented remap / declared default).
+
+**From SkillVisualEffect:** `skill_id` (leading digits of the object name; five Interlude visuals use a suffix such as `1012_sec` or `4641_a`, stored in `object_name` / `visual_key`), `package` (outer Package, so the key is `skill.el.1177`), `desc` (Name), `flying_time` (`FlyingTime`), `phase` (`CastingActions`, `ShotActions`, `ExplosionActions`, `ChannelingActions`, `PreshotActions`), `action_index`, `specific_stage` (`SkillActionInfo.SpecificStage`).
+
+**From SkillAction_LocateEffect:** `effect_class` (`EffectClass`), `attach_on_raw` / `attach_on_name` (`AttachOn`, Interlude `EAttachMethod` in Engine.u: none, rh, lh, bone, alias, trail, rf, lf), `attach_bone_name`, `offset_*`, `spawn_delay` (`SpawnDelay`), `b_absolute`, `b_on_multi_target`, `b_relative_to_cylinder` (default **true** in Engine.u when the flag is not serialized), `b_size_scale`, `b_spawn_on_target`, `b_use_character_rotation`.
+
+**Cruma remap (not a new field):** `attach_on_visual` is `SkillEffects.VISUAL_ATTACH` applied to the Interlude enum (`[0, 2, 3, 7, 8, 9, 101, 102]`). The short `skill-effects-engine.tsv` writes this remapped value.
+
+**From the referenced LineageEffect class defaults (joined, empty when the property is absent):** `draw_scale`, `rotation_*`, `rot_per_second_*`, `b_rot_emitter`, `b_self_rotation`, `b_directional`, `speed`, `acc_speed`.
+
+Cruma's typed Action also exposes `scale`, `turn`, `curve`, `forceLife`, `adjustLife`, `chaining` and Action-level `channeling`. A full pass over Interlude `listVisuals()` found no non-default values for those fields, and they are not properties of `SkillAction_LocateEffect`, so they are not in the table. Duration / loop live on emitters inside `lineageeffect.u`, not on the LocateEffect.
+
+The runtime copy is `Assets/StreamingAssets/Data/Meta/SkillVisual/skill-effect-placement.txt`.
+
+UScriptDump `.uc` files drop the `Emitters` arrays (`/* Array type was not detected. */`). `tools/interlude-extract/write_lineageeffect_uc.py` rewrites complete defaultproperties (including `Begin Object` emitter blocks) from the lossless `lineageeffect.u` dump so L2EffectGenerator can import them without a second parser.
+
+Sound rows are a second derived view: `skills/skill-effect-sounds.tsv`. Each row is one official cue — `skillsoundgrp` `spelleffect_sound_*` (cast / launch / impact), `shoteffect_*`, `expeffect_*`, hero voice (`*_sub` / `*_throw`), and every `Emitter.SpawnSound` (or other Sound object) reached from a skill visual's EffectClass. Columns include the sound package, cue name, the phase it plays in, `fineage_plays` / `fineage_play_path` (whether SkillCastSound or SkillEffectSpawnSound has a code path), and whether a clip exists under `Resources/Data/Sounds`. World, ambient and footstep audio is issue #1670 and is not listed here.
+ The resolver may place, orient and time an effect only from this table, through one shared path. A missing required field logs the skill id, phase and field name. See `skills/gap-report.md`.
+

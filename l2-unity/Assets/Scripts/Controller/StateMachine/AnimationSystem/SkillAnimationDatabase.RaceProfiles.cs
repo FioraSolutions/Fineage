@@ -73,7 +73,9 @@ public partial class SkillAnimationDatabase
         return null;
     }
 
-    internal static string[] MeshStemsForProfile(RaceClipProfile profile)
+    internal static string[] MeshStemsForProfile(RaceClipProfile profile) => MeshStemsForRaceProfile(profile);
+
+    internal static string[] MeshStemsForRaceProfile(RaceClipProfile profile)
     {
         if (profile == null)
             return Array.Empty<string>();

@@ -5,6 +5,74 @@ using UnityEngine;
 
 public static partial class SkillCastSound
 {
+    static SkillSoundCue CueFromDto(SkillSoundCueDto dto, string fallbackClip)
+    {
+        if (dto != null && (!string.IsNullOrEmpty(dto.clip) || !string.IsNullOrEmpty(dto.token)))
+        {
+            return new SkillSoundCue
+            {
+                Token = dto.token ?? "",
+                Package = dto.package ?? "",
+                Name = dto.name ?? "",
+                Clip = !string.IsNullOrEmpty(dto.clip) ? dto.clip : (fallbackClip ?? ""),
+                Vol = dto.vol,
+                Rad = dto.rad
+            };
+        }
+
+        return CueFromStem(fallbackClip);
+    }
+
+    static SkillSoundCue CueFromStem(string clip)
+    {
+        if (string.IsNullOrEmpty(clip))
+            return default;
+        return new SkillSoundCue
+        {
+            Token = clip,
+            Package = "",
+            Name = clip,
+            Clip = clip,
+            Vol = 0f,
+            Rad = 0f
+        };
+    }
+
+    static SkillSoundCue[] CuesFromDto(SkillSoundCueDto[] dtos)
+    {
+        if (dtos == null || dtos.Length == 0)
+            return Array.Empty<SkillSoundCue>();
+        var list = new List<SkillSoundCue>(dtos.Length);
+        for (int i = 0; i < dtos.Length; i++)
+        {
+            SkillSoundCue cue = CueFromDto(dtos[i], null);
+            if (cue.HasClip)
+                list.Add(cue);
+        }
+        return list.Count == 0 ? Array.Empty<SkillSoundCue>() : list.ToArray();
+    }
+
+    static bool HasAnyCue(SkillSoundCue cue, SkillSoundCue[] extras)
+    {
+        if (cue.HasClip)
+            return true;
+        return extras != null && extras.Length > 0;
+    }
+
+    static float VolumeFromTable(float vol255)
+    {
+        if (vol255 <= 0f)
+            return 0f;
+        return Mathf.Clamp01(vol255 / InterludeVolumeMax);
+    }
+
+    static float RadiusMetersFromTable(float radiusUu)
+    {
+        if (radiusUu <= 0f)
+            return 0f;
+        return VectorUtils.ConvertL2UuToMeters(radiusUu);
+    }
+
     static bool TryGetRow(int skillId, int level, out SkillSoundRow row)
     {
         row = default;
