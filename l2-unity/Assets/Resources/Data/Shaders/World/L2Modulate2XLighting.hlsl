@@ -126,8 +126,8 @@ float3 L2_LinearFog(float3 rgb, float viewAbsZ)
 {
     if (_L2FogEnable > 0.5)
     {
-        float fogEnd = _L2FogEnd > 0.0 ? _L2FogEnd : (12288.0 / 52.5);
-        float fogScale = _L2FogScale > 0.0 ? _L2FogScale : (52.5 / 8192.0);
+        float fogEnd = _L2FogEnd;
+        float fogScale = _L2FogScale;
         float f = saturate((fogEnd - viewAbsZ) * fogScale);
         rgb = lerp(_L2FogColor.rgb, rgb, f);
     }

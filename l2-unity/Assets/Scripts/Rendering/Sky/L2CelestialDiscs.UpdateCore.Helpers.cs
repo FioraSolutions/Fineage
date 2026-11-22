@@ -58,11 +58,11 @@ public partial class L2CelestialDiscs
         bool periodic = Application.isPlaying && _logTrajectory && Time.unscaledTime >= _nextTrajLog;
         ApplyBody("SUN", ref _sunTrack, _sunTf, _sunMr, _sunMat, cam, camPos, clock.WorldHours, sample,
             sample.sunOffsetUnity, sample.sunDirUnity, sample.sunElevDeg,
-            sample.sunDrawScale, sample.sunScale, SunRefSideUu, SunRefDrawScale, SunRefDistanceUu, sunTint, false, periodic);
+            sample.sunDrawScale, sample.sunScale, SunRefSideUu, SunRefDrawScale, SunRefDistanceUu, "NSun", sunTint, false, periodic);
         ApplyBody("MOON", ref _moonTrack, _moonTf, _moonMr, _moonMat, cam, camPos, clock.WorldHours, sample,
             sample.moonOffsetUnity, sample.moonDirUnity, sample.moonElevDeg,
             sample.moonDrawScale, sample.moonScale, MoonRefSideUu, MoonRefDrawScale, MoonRefDistanceUu,
-            Color.white, true, periodic);
+            "NMoon", Color.white, true, periodic);
         if (periodic)
         {
             _nextTrajLog = Time.unscaledTime + Mathf.Max(0.05f, _logInterval);

@@ -24,6 +24,7 @@ public partial class L2CelestialDiscs
         float refSideUu,
         float refDrawScale,
         float refDistanceUu,
+        string zoneActor,
         Color tint,
         bool mirrorX,
         bool periodic)
@@ -73,6 +74,7 @@ public partial class L2CelestialDiscs
         }
 
         float sideUu = refSideUu * (drawScale / Mathf.Max(0.01f, refDrawScale));
+        sideUu *= L2ZoneRender.ActiveBodyRadiusScale(zoneActor);
         float distanceM = Vector3.Distance(pos, camPos);
         float refDistanceM = VectorUtils.ConvertL2UuToMeters(refDistanceUu);
         if (distanceM > 0.05f && refDistanceM > 0.05f)

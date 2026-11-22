@@ -16,6 +16,10 @@ public partial class SceneLoader
         }
 
         Vector3 l2Pos = VectorUtils.ConvertPosUnityToL2j(player.transform.position);
+        int standX;
+        int standY;
+        VectorUtils.GetSwMapTile(l2Pos, out standX, out standY);
+        L2ZoneRender.SetActiveMap(VectorUtils.FormatSwMapName(standX, standY));
         List<string> wanted = ResolveSeamlessTiles(l2Pos);
         if (wanted.Count == 0)
         {
