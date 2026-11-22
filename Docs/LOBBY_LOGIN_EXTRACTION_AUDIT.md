@@ -86,11 +86,20 @@ actors with disagreeing fog (`ZoneInfo0` 500–10000 grey, `ZoneInfo1` 300–350
 is ambiguous by design. The vista fog is the zone containing Camera25, resolved
 authoritatively by `ZoneAtPoint.java` walking the level BSP nodes (self-checked
 against every ZoneInfo's own stored Location; hard ERROR if the node layout
-fails validation) → `world/env/Lobby.camera-zones.tsv`. Run with steps 6/7:
+fails validation) → `world/env/Lobby.camera-zones.tsv`.
+
+Step 9 (l2_skies material chains): the skybox brushes reference
+`L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor` +
+TexPanner/TexRotator/TexOscillator modifiers). The shared material path reads
+umodel-format `.props.txt`; only `l2_skies` lacks them (`L2_Lobby_T` has zero
+material exports, `Lobby_terrain_t` only Palettes, `FX_E_T.WaterShader01`
+already committed). Docker umodel export → `Textures/l2_skies/<Group>/`.
+
+Run the remaining pass in one command:
 
 ```bash
 L2_INTERLUDE_CLIENT_ROOT=~/Downloads/L2_Interlude_Client/Lineage\ II \
-  bash tools/interlude-extract/extract_login_lobby.sh --only 6,7,8
+  bash tools/interlude-extract/extract_login_lobby.sh --only 6,7,8,9
 ```
 
 Then commit: new dumps under `l2-unity/docs/interlude-ref/` (world/env +

@@ -11,7 +11,8 @@
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
 #        6=texture pixels (java, no umodel), 7=G8 meshes (Docker umodel+Blender),
-#        8=camera BSP zones (ZoneAtPoint: which ZoneInfo each Camera sits in).
+#        8=camera BSP zones (ZoneAtPoint: which ZoneInfo each Camera sits in),
+#        9=l2_skies material chains (.props.txt via Docker umodel).
 #
 # Prerequisites (already needed by other extraction tools):
 #   - Cruma 1.2.0+ (CRUMA_JAR or default ~/Tools/Cruma install) for steps 1-2
@@ -70,13 +71,13 @@ fi
 mkdir -p "$WORK/l2_lobby" "$WORK/decrypted"
 
 if want_step 1; then
-  echo "== [1/8] Property dumps: Lobby + lobby packages (gap G2) =="
+  echo "== [1/9] Property dumps: Lobby + lobby packages (gap G2) =="
   EXPORT_OUT="$WORLD/env" bash "$ROOT/tools/interlude-extract/export_client_packages.sh" -- \
     Lobby L2_Lobby_T l2_lobby Lobby_terrain_t l2_skies L2Font
 fi
 
 if want_step 2; then
-  echo "== [2/8] Terrain QuadVisibilityBitmap sidecar for Lobby (gap G3) =="
+  echo "== [2/9] Terrain QuadVisibilityBitmap sidecar for Lobby (gap G3) =="
   cruma_jar
   TOOL_DIR="$ROOT/tools/interlude-extract"
   javac --release 25 -proc:none -cp "$JAR" -d "$TOOL_DIR" \
@@ -109,7 +110,7 @@ l2_jar() {
 }
 
 if want_step 3; then
-  echo "== [3/8] BSP brushes (skybox box) of Lobby.unr (gap G4) =="
+  echo "== [3/9] BSP brushes (skybox box) of Lobby.unr (gap G4) =="
   l2_jar
   java -cp "$L2JAR" "$ROOT/tools/interlude/BrushDump.java" \
     "$CLIENT/maps/Lobby.unr" "$WORK/l2_lobby/brushes.t3d"
@@ -118,7 +119,7 @@ if want_step 3; then
 fi
 
 if want_step 4; then
-  echo "== [4/8] Class defaults: Engine.u + UWindow.u .uc dump (gap G1) =="
+  echo "== [4/9] Class defaults: Engine.u + UWindow.u .uc dump (gap G1) =="
   # system/*.u is L2-encrypted (Lineage2Ver111/121 XOR header); UELib only reads
   # plain UPackage. decrypt_package_file strips the header and verifies the
   # 0x9E2A83C1 signature.
@@ -133,7 +134,7 @@ if want_step 4; then
 fi
 
 if want_step 5; then
-  echo "== [5/8] sysstring-e.dat captions (gap G7) =="
+  echo "== [5/9] sysstring-e.dat captions (gap G7) =="
   L2ENCDEC="${L2ENCDEC:-$ROOT/tools/interlude-dat/l2encdec-bin/l2encdec-1.5.0-Darwin/l2encdec}"
   if [[ -x "$L2ENCDEC" ]]; then
     "$L2ENCDEC" -c decode -p 413 -l -o "$WORK/sysstring-e.dec" "$CLIENT/system/sysstring-e.dat"
@@ -145,7 +146,7 @@ if want_step 5; then
 fi
 
 if want_step 6; then
-  echo "== [6/8] Texture pixels: l2_skies set, L2Font logos, H_M_05 (gaps G5/G6/G8) =="
+  echo "== [6/9] Texture pixels: l2_skies set, L2Font logos, H_M_05 (gaps G5/G6/G8) =="
   # ExportNamedTextures self-decrypts the package (Lineage2Ver XOR) and writes
   # PNGs — java + the l2terrain jar only, no umodel/Docker.
   l2_jar
@@ -167,7 +168,7 @@ if want_step 6; then
 fi
 
 if want_step 7; then
-  echo "== [7/8] G8 meshes via umodel (Docker linux/amd64) + Blender =="
+  echo "== [7/9] G8 meshes via umodel (Docker linux/amd64) + Blender =="
   UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
   if [[ ! -x "$UMODEL" ]]; then
     echo "ERROR: umodel linux binary missing at $UMODEL" >&2
@@ -202,7 +203,7 @@ if want_step 7; then
 fi
 
 if want_step 8; then
-  echo "== [8/8] Camera BSP zones (ZoneAtPoint self-checked point-zone query) =="
+  echo "== [8/9] Camera BSP zones (ZoneAtPoint self-checked point-zone query) =="
   # Lobby has three ZoneInfo actors with disagreeing fog; the vista fog is the
   # zone containing Camera25. The tool walks the level BSP nodes and validates
   # the node layout by resolving every ZoneInfo at its own stored Location;
@@ -211,6 +212,33 @@ if want_step 8; then
   java -cp "$L2JAR" "$ROOT/tools/interlude/ZoneAtPoint.java" \
     "$CLIENT/maps/Lobby.unr" "$WORLD/env/Lobby.camera-zones.tsv"
   echo "camera zones -> $WORLD/env/Lobby.camera-zones.tsv"
+fi
+
+if want_step 9; then
+  echo "== [9/9] l2_skies material chains (.props.txt, Docker umodel) =="
+  # The skybox brushes reference L2_Skies.Shaders.* chains (Cloud_Final,
+  # HazeRing_Final, SkybackgroundColor + TexPanner/TexRotator/TexOscillator
+  # modifiers). The runtime material path reads umodel-format .props.txt;
+  # only l2_skies is missing them (L2_Lobby_T has no material exports,
+  # Lobby_terrain_t only Palettes, FX_E_T WaterShader01 already committed).
+  UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
+  if [[ ! -x "$UMODEL" ]]; then
+    echo "ERROR: umodel linux binary missing at $UMODEL" >&2
+    echo "Get UE Viewer (linux build) from https://www.gildor.org/downloads and" >&2
+    echo "place the binary there (linux/amd64 in Docker is the supported path on Apple Silicon)." >&2
+    exit 2
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "ERROR: docker is required to run the linux/amd64 umodel binary." >&2
+    exit 2
+  fi
+  docker run --rm --platform linux/amd64 \
+    -v "$CLIENT:/client:ro" \
+    -v "$WORK/props-export:/export" \
+    -v "$UMODEL:/umodel:ro" \
+    ubuntu:22.04 bash -lc 'apt-get update -qq && apt-get install -y -qq libpng16-16 libsdl2-2.0-0 >/dev/null && \
+      /umodel -path=/client -game=l2 -export -out=/export/l2_skies textures/l2_skies.utx'
+  python3 "$ROOT/tools/interlude-extract/place_login_assets.py" props --src "$WORK/props-export"
 fi
 
 cat <<EOF
@@ -227,6 +255,7 @@ Done. Commit the new reference dumps and assets:
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_logo-k.png* \\
           l2-unity/Assets/Resources/Data/UI/Assets/Login/start_minilogo-k.png* \\
           l2-unity/Assets/Resources/Data/StaticMeshes/speaking_tree_s \\
-          l2-unity/Assets/Resources/Data/StaticMeshes/field_deco_S
+          l2-unity/Assets/Resources/Data/StaticMeshes/field_deco_S \\
+          l2-unity/Assets/Resources/Data/Textures/l2_skies
   (work-dir sidecars under .work/lobby-extract are build inputs, not committed.)
 EOF

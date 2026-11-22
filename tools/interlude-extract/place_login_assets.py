@@ -31,6 +31,11 @@ TEXTURE_MAPS = [
     ("L2Font", UI_LOGIN, UI_LOGIN / "start_logo-EU.png.meta", ["start_logo-k", "start_minilogo-k"]),
 ]
 
+# umodel-exported UE2 material chains (.props.txt) -> Textures/<pkg>/<Group>/.
+# Only packages whose lobby material chains are not yet committed. Existing
+# files are kept (they came from earlier verified exports).
+PROPS_PKGS = ("l2_skies",)
+
 # mesh name -> package folder under StaticMeshes (from the Lobby.unr import chain)
 MESH_WANT = {
     "dion_grass015": "field_deco_S",
@@ -118,15 +123,49 @@ def place_meshes(src_root: Path) -> int:
     return 0
 
 
+def place_props(src_root: Path) -> int:
+    placed = 0
+    found = 0
+    for pkg in PROPS_PKGS:
+        src_dir = src_root / pkg
+        if not src_dir.is_dir():
+            print(f"ERROR missing umodel export dir {src_dir}", file=sys.stderr)
+            return 1
+        dest_root = TEX / pkg
+        template = next(dest_root.rglob("*.props.txt.meta"), None)
+        if template is None:
+            print(f"ERROR no .props.txt.meta template under {dest_root}", file=sys.stderr)
+            return 1
+        for props in sorted(src_dir.rglob("*.props.txt")):
+            found += 1
+            rel = props.relative_to(src_dir)
+            dest = dest_root / rel
+            if not dest.exists():
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(props, dest)
+                placed += 1
+                print(f"place {rel} -> {dest.relative_to(UNITY)}")
+            clone_meta(template, dest)
+    if found == 0:
+        print(f"ERROR no .props.txt under {src_root}", file=sys.stderr)
+        return 1
+    print(f"props placed: {placed} new of {found}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("mode", choices=("textures", "meshes"))
+    ap.add_argument("mode", choices=("textures", "meshes", "props"))
     ap.add_argument("--src", type=Path, required=True)
     args = ap.parse_args()
     if not args.src.is_dir():
         print(f"ERROR no export dir {args.src}", file=sys.stderr)
         return 1
-    return place_textures(args.src) if args.mode == "textures" else place_meshes(args.src)
+    if args.mode == "textures":
+        return place_textures(args.src)
+    if args.mode == "meshes":
+        return place_meshes(args.src)
+    return place_props(args.src)
 
 
 if __name__ == "__main__":
