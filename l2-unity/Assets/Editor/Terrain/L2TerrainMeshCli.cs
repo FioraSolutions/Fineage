@@ -8,7 +8,12 @@ public static class L2TerrainMeshCli {
         string raw = Environment.GetEnvironmentVariable("FINEAGE_INTERLUDE_TILES") ?? "21_19";
         bool ok = true;
         foreach (var t in raw.Split(',', StringSplitOptions.RemoveEmptyEntries)) {
-            ok &= TerrainConverter.ConvertTerrainToMeshForMap(t.Trim());
+            try {
+                ok &= TerrainConverter.ConvertTerrainToMeshForMap(t.Trim());
+            } catch (Exception e) {
+                UnityEngine.Debug.LogError("[L2TerrainMeshCli] " + t.Trim() + " failed: " + e);
+                ok = false;
+            }
         }
         AssetDatabase.SaveAssets();
         EditorApplication.Exit(ok ? 0 : 1);

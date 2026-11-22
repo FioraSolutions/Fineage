@@ -49,12 +49,12 @@ public static class AnimNotifySoundResolver
         error = null;
         if (service == null)
         {
-            error = "AnimNotifyPlayback: AudioService missing while playing wave="" + wave + "".";
+            error = "AnimNotifyPlayback: AudioService missing while playing wave=\"" + wave + "\".";
             return false;
         }
         if (string.IsNullOrEmpty(wave))
         {
-            error = FormatMissingSoundError("wave=""");
+            error = FormatMissingSoundError("wave=\"\"");
             return false;
         }
 
