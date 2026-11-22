@@ -81,9 +81,7 @@ public partial class World
 
         _visibility.Unregister(id);
 
-        IMoveRoster moves = Moves();
-        if (moves != null)
-            moves.Forget(id);
+        _moveRoster.Forget(id);
         _entities.Unregister(id);
         _entityWait.Fail(id);
         _entityActions.Remove(entity);

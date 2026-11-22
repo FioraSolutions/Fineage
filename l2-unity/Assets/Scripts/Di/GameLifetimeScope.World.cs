@@ -40,7 +40,7 @@ public sealed partial class GameLifetimeScope
         builder.Register<HomeProjectileService>(Lifetime.Singleton).As<IHomeProjectileService>();
         builder.RegisterEntryPoint<AppearFadeService>().AsSelf();
         RegisterIfFound<DeadManager>(builder);
-        RegisterLiveMono<MoveAllCharacters>(builder);
+        RegisterMoveRoster(builder);
         RegisterVisibilityRoster(builder);
         RegisterIfFound<NetworkCharacterControllerShare>(builder);
         RegisterIfFound<NetworkTransformReceive>(builder);
@@ -121,6 +121,47 @@ public sealed partial class GameLifetimeScope
 
         throw new InvalidOperationException(
             "[GameLifetimeScope] IEntityActionRoster is not an EntityActionMachine — EntityActionMachine was not registered as IEntityActionRoster.");
+    }
+
+    /// <summary>
+    /// Register the scene <see cref="MoveAllCharacters"/> as <see cref="IMoveRoster"/> (#131 S38l).
+    /// </summary>
+    void RegisterMoveRoster(IContainerBuilder builder)
+    {
+        MoveAllCharacters found = UnityEngine.Object.FindFirstObjectByType<MoveAllCharacters>(FindObjectsInactive.Include);
+        if (found == null)
+        {
+            throw new InvalidOperationException(
+                "[GameLifetimeScope] IMoveRoster missing — RegisterMoveRoster found no MoveAllCharacters in loaded scenes.");
+        }
+
+        builder.RegisterComponent(found).AsSelf().As<IMoveAllCharacters>().As<IMoveRoster>();
+    }
+
+    static void RequireMoveRoster(IObjectResolver container)
+    {
+        IMoveRoster roster;
+        try
+        {
+            roster = container.Resolve<IMoveRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IMoveRoster))
+            {
+                throw new InvalidOperationException(
+                    "[GameLifetimeScope] IMoveRoster missing — MoveAllCharacters was not registered as IMoveRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (roster is MoveAllCharacters)
+            return;
+
+        throw new InvalidOperationException(
+            "[GameLifetimeScope] IMoveRoster is not a MoveAllCharacters — MoveAllCharacters was not registered as IMoveRoster.");
     }
 
     /// <summary>
