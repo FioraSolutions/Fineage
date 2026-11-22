@@ -54,9 +54,14 @@ public partial class World
         Entity existing = GetEntityNoLockSync(objectId);
         if (existing is ItemEntity item)
         {
-            float groundY = GetGroundHeight(unityPos);
-            unityPos.y = groundY;
-            item.UpdateGround(unityPos, count, stackable);
+            var failCtx = new WorldPlacement.PlacementFailContext(objectId, itemId);
+            Vector3 grounded = WorldPlacement.Resolve(
+                WorldPlacement.PlacementKind.ItemDrop,
+                unityPos,
+                _groundMask,
+                failCtx);
+            item.Identity?.SetServerPosition(unityPos);
+            item.UpdateGround(grounded, count, stackable);
             return;
         }
 
@@ -65,7 +70,7 @@ public partial class World
 
         if (_itemSpawner == null)
         {
-            // Debug.LogWarning("[World] ItemSpawner missing — cannot spawn ground item " + objectId);
+            Debug.LogError("[World] ItemSpawner missing — cannot spawn ground item objectId=" + objectId);
             return;
         }
 
