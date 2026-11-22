@@ -13,7 +13,7 @@ public sealed class VisibilityManagerEditModeTests
         Assert.AreEqual(CrowdDetailTier.T1Near,
             VisibilityDecisionPolicy.TierForDistanceSq(10f * 10f, t1, t2, t3, pawn));
         Assert.AreEqual(CrowdDetailTier.T2Mid,
-            VisibilityDecisionPolicy.TierForDistanceSq(40f * 40f, t1, t2, t3, pawn));
+            VisibilityDecisionPolicy.TierForDistanceSq(30f * 30f, t1, t2, t3, pawn));
         Assert.AreEqual(CrowdDetailTier.TCulled,
             VisibilityDecisionPolicy.TierForDistanceSq(50f * 50f, t1, t2, t3, pawn));
         Assert.AreEqual(CrowdDetailTier.TCulled,
