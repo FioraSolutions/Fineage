@@ -41,7 +41,7 @@ jobs:
         id: asmdef
         run: |
           set -euo pipefail
-          hash=$(find l2-unity/Assets -name '*.asmdef' -print | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          hash=$(find l2-unity/Assets -name '*.asmdef' -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$hash" >> "$GITHUB_OUTPUT"
 
       - name: Cache Unity Library
