@@ -18,7 +18,10 @@ internal static class NpcOrPetInfoApplyIncomingPacketServices
     public static void Apply(NpcInfoDto packet)
     {
         if (packet.Identity != null)
+        {
             SpawnFrameBudget.ClearCancel(packet.Identity.Id);
+            packet.Identity.SetHideHp(TablePacketServices.HideNpcHpBar(packet.Identity.NpcId));
+        }
         StorageNpc.getInstance().AddNpcInfo(packet);
         DomainKnownlistAdd add = InterludeDomainMap.Npc(packet);
         if (Domain != null && add != null)
