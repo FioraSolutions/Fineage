@@ -29,6 +29,7 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
     CrowdLodProfile _profile;
     string _histogramLine;
     float _terrainAppliedMeters;
+    bool _loggedMissingCamera;
     readonly Plane[] _frustumScratch = new Plane[VisibilitySphereFrustumCull.FrustumPlaneCount];
 
     void Awake()
@@ -255,7 +256,7 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
 
     void ApplyPawnFrustumCull(NativeArray<float3> positions, CrowdDetailTier[] tierScratch, float pawnDrawMaxSq)
     {
-        Camera cam = Camera.main;
+        Camera cam = GameplayCamera();
         if (cam == null || positions.Length == 0)
             return;
 
@@ -295,12 +296,32 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
             return;
         _terrainAppliedMeters = meters;
 
-        Camera cam = Camera.main;
+        Camera cam = GameplayCamera();
         if (cam != null && cam.farClipPlane < meters)
             cam.farClipPlane = meters;
     }
 
-    static bool TryGetObserver(out float3 observer)
+    Camera GameplayCamera()
+    {
+        CameraController controller = CameraPacketServices.Controller;
+        Camera cam = null;
+        if (controller != null)
+        {
+            cam = controller.GetComponent<Camera>();
+            if (cam == null)
+                cam = controller.GetComponentInChildren<Camera>();
+        }
+
+        if (cam != null)
+            return cam;
+        if (_loggedMissingCamera)
+            return null;
+        _loggedMissingCamera = true;
+        Debug.LogError("[Visibility] gameplay camera missing; pawn frustum cull skipped");
+        return null;
+    }
+
+    bool TryGetObserver(out float3 observer)
     {
         if (AudioWorldGate.TryGetListenerPosition(out Vector3 listener))
         {
@@ -308,7 +329,7 @@ public sealed class VisibilityManager : MonoBehaviour, IVisibilityRoster
             return true;
         }
 
-        Camera cam = Camera.main;
+        Camera cam = GameplayCamera();
         if (cam == null)
         {
             observer = float3.zero;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -48,6 +49,39 @@ public sealed class NameplateOcclusionEditModeTests
         finally
         {
             Object.DestroyImmediate(owner);
+        }
+    }
+
+    [Test]
+    public void Offscreen_hide_does_not_mutate_the_roster_during_enumeration()
+    {
+        var camGo = new GameObject("nameplate-cam");
+        var camera = camGo.AddComponent<Camera>();
+        var target = new GameObject("offscreen");
+        target.transform.position = new Vector3(0f, -100f, 0f);
+        var entries = new Dictionary<int, NameplateEntry>
+        {
+            {
+                7,
+                new NameplateEntry
+                {
+                    Id = 7,
+                    Target = target.transform,
+                    Visible = true,
+                }
+            }
+        };
+
+        try
+        {
+            Assert.DoesNotThrow(() =>
+                L2NameplateOcclusionBatch.ApplyHeadOcclusion(entries, camera, 0, null));
+            Assert.IsFalse(entries[7].Visible);
+        }
+        finally
+        {
+            Object.DestroyImmediate(target);
+            Object.DestroyImmediate(camGo);
         }
     }
 

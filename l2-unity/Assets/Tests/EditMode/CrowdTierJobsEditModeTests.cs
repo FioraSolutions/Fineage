@@ -42,11 +42,14 @@ public sealed class CrowdTierJobsEditModeTests
     {
         var profile = UnityEngine.ScriptableObject.CreateInstance<CrowdLodProfile>();
         Assert.AreEqual(
-            UnityEngine.AnimatorCullingMode.CullCompletely,
+            UnityEngine.AnimatorCullingMode.CullUpdateTransforms,
             profile.AnimatorCullingForTier(CrowdDetailTier.T3Far));
         Assert.AreEqual(
             UnityEngine.AnimatorCullingMode.CullUpdateTransforms,
             profile.AnimatorCullingForTier(CrowdDetailTier.T1Near));
+        Assert.AreEqual(
+            UnityEngine.AnimatorCullingMode.CullCompletely,
+            profile.AnimatorCullingForTier(CrowdDetailTier.TCulled));
         UnityEngine.Object.DestroyImmediate(profile);
     }
 

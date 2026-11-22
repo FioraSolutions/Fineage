@@ -27,17 +27,16 @@ public static class CrowdTierVisualPolicy
         L2ActorMeshPolicy.DisableSkeletonPlaceholders(root);
         L2ActorMeshPolicy.DisableAlphaOverlays(root);
 
-        if (tier >= CrowdDetailTier.T2Mid)
+        bool visible = tier != CrowdDetailTier.TCulled;
+        SkinnedMeshRenderer[] renderers = root.GetComponentsInChildren<SkinnedMeshRenderer>(false);
+        for (int i = 0; i < renderers.Length; i++)
         {
-            SkinnedMeshRenderer[] renderers = root.GetComponentsInChildren<SkinnedMeshRenderer>(false);
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                SkinnedMeshRenderer smr = renderers[i];
-                if (smr == null || smr.sharedMesh == null)
-                    continue;
-                smr.updateWhenOffscreen = tier < CrowdDetailTier.T3Far;
+            SkinnedMeshRenderer smr = renderers[i];
+            if (smr == null || smr.sharedMesh == null)
+                continue;
+            smr.updateWhenOffscreen = visible;
+            if (tier >= CrowdDetailTier.T2Mid)
                 L2ActorMeshPolicy.ClampInflatedSkinnedLocalBounds(smr);
-            }
         }
     }
 }
