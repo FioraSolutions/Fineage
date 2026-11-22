@@ -52,5 +52,7 @@ public class BaseAnimationAudioHandler : MonoBehaviour
         if (_animator == null) {
             _animator = GetComponent<Animator>();
         }
+        if (GetComponent<AnimNotifyPlayback>() == null)
+            gameObject.AddComponent<AnimNotifyPlayback>();
     }
 }
