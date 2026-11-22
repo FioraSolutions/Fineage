@@ -38,8 +38,30 @@ public class L2JSONBrushImporter : L2TerrainAssetImporter {
             dataFolder = @"D:\Stock\Projects\L2-Unity\Tools\umodel_win32\export";
         }
 
+        RequireBrushTexturesPresent(brushJsonAbsolutePath, dataFolder);
         List<string> files = ProcessDataFile(dataFolder, brushJsonAbsolutePath);
         ImportFiles(dataFolder, files, overwrite);
+    }
+
+    // Pre-bake gate. Every non-shader brush/BSP texture must already be an asset
+    // or be present in the export ({package}/{name}.png or {package}/Texture/{name}.png).
+    // One exception names every missing package and texture; the bake stops here
+    // instead of continuing into material binding.
+    public static void RequireBrushTexturesPresent(string brushJsonAbsolutePath, string exportRoot) {
+        List<string> files = ProcessDataFile(exportRoot, brushJsonAbsolutePath);
+        var missing = new List<string>();
+        foreach (string filePath in files) {
+            if (BrushTextureSatisfied(exportRoot, filePath, false, out _, out _, out string detail)) {
+                continue;
+            }
+            missing.Add(detail);
+        }
+
+        if (missing.Count > 0) {
+            throw new InvalidOperationException(
+                "[Interlude bake] brush texture missing (" + missing.Count + "):\n"
+                + string.Join("\n", missing));
+        }
     }
 
     private static List<string> ProcessDataFile(string dataFolder, string fileToProcess) {
@@ -75,16 +97,13 @@ public class L2JSONBrushImporter : L2TerrainAssetImporter {
     }
 
     public static Brush[] ParseBrushFile(string path) {
-        try {
-            string json = File.ReadAllText(path);
-            DataContainer brushes = JsonUtility.FromJson<DataContainer>(json);
-            return brushes.data;
-
-        } catch (IOException) {
-            // Debug.LogError("An error occurred: " + e.Message);
+        string json = File.ReadAllText(path);
+        DataContainer brushes = JsonUtility.FromJson<DataContainer>(json);
+        if (brushes == null || brushes.data == null) {
+            throw new InvalidOperationException(
+                "[Interlude bake] Brushes.json has no brush array: " + path);
         }
-
-        return null;
+        return brushes.data;
     }
 }
 #endif

@@ -41,13 +41,24 @@ public partial class L2AmbientSoundBuilder : MonoBehaviour
         go.transform.position = VectorUtils.ConvertPosToUnity(ambientSound.position);
         go.layer = LayerMask.NameToLayer("AmbientSound");
 
-        // event
+        // event — editor cache only. RuntimeManager.PathToGUID needs a live
+        // studio system, which batchmode bake does not initialize.
         AmbientSoundEmitter emitter = go.AddComponent<AmbientSoundEmitter>();
-        string[] parts = ambientSound.ambientSoundName.Split(".");
-        string eventName = $"event:/AmbSound/{parts[0]}/{parts[2]}";
-        EventReference er = RuntimeManager.PathToEventReference(eventName);
-
-        emitter.EventReference = er;
+        string actor = string.IsNullOrEmpty(ambientSound.name) ? go.name : ambientSound.name;
+        string raw = ambientSound.ambientSoundName;
+        if (string.IsNullOrEmpty(raw)) {
+            Debug.LogError("[FmodEvent] ambient sound name empty actor=" + actor);
+        } else {
+            string[] parts = raw.Split('.');
+            if (parts.Length < 3 || string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[2])) {
+                Debug.LogError(
+                    "[FmodEvent] ambient sound name is not Package.Group.Name name=\""
+                    + raw + "\" actor=" + actor);
+            } else {
+                string eventName = $"event:/AmbSound/{parts[0]}/{parts[2]}";
+                emitter.EventReference = L2FmodEditorEventResolver.Resolve(eventName, actor);
+            }
+        }
         emitter.OverrideAttenuation = true;
         emitter.OverrideMinDistance = soundRadius * 0.05f;
         emitter.OverrideMaxDistance = soundRadius;

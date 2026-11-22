@@ -10,7 +10,8 @@
 #
 # Steps: 1=property dumps, 2=terrain quadvisibility, 3=BSP brushes,
 #        4=Engine/UWindow .uc defaults, 5=sysstring-e.tsv,
-#        6=texture pixels (java, no umodel), 7=G8 meshes (Docker umodel+Blender),
+#        6=texture pixels (named sets + every brush/BSP texture the bake copies),
+#        7=G8 meshes (Docker umodel+Blender),
 #        8=camera BSP zones (ZoneAtPoint: which ZoneInfo each Camera sits in),
 #        9=l2_skies material chains (.props.txt via Docker umodel).
 #
@@ -146,9 +147,12 @@ if want_step 5; then
 fi
 
 if want_step 6; then
-  echo "== [6/9] Texture pixels: l2_skies set, L2Font logos, H_M_05 (gaps G5/G6/G8) =="
+  echo "== [6/9] Texture pixels: named sets + every brush/BSP texture the bake copies =="
   # ExportNamedTextures self-decrypts the package (Lineage2Ver XOR) and writes
   # PNGs — java + the l2terrain jar only, no umodel/Docker.
+  # Brush/BSP names come from Brushes.json and brushes.t3d (not a fixed list)
+  # and land in mesh-export/{package}/Texture/, which is L2_UMODEL_EXPORT_DIR
+  # for the lobby bake. A name that is not a Texture in that package is an ERROR.
   l2_jar
   SKY_NAMES="$(python3 -c "import json; print(','.join(sorted({e['name'] for e in json.load(open('$WORLD/env/l2_skies.json'))['exports'] if e['class']=='Texture'})))")"
   if [[ -z "$SKY_NAMES" ]]; then
@@ -165,6 +169,22 @@ if want_step 6; then
   # Data/UI/Assets/Login/start_logo-k.png + start_minilogo-k.png), .meta cloned
   # from existing siblings. Missing exports are ERRORs.
   python3 "$ROOT/tools/interlude-extract/place_login_assets.py" textures --src "$WORK/tex"
+  BRUSH_ARGS=()
+  for src in \
+    "$ROOT/l2-unity/Assets/Resources/Data/Maps/l2_lobby/Meta/Brushes.json" \
+    "$WORLD/env/Lobby.brushes.t3d" \
+    "$WORK/l2_lobby/brushes.t3d"
+  do
+    if [[ -f "$src" ]]; then
+      BRUSH_ARGS+=(--brushes "$src")
+    fi
+  done
+  if [[ ${#BRUSH_ARGS[@]} -eq 0 ]]; then
+    echo "ERROR: no Brushes.json or brushes.t3d to derive brush textures from." >&2
+    exit 2
+  fi
+  python3 "$ROOT/tools/interlude-extract/export_brush_textures.py" \
+    "${BRUSH_ARGS[@]}" --client "$CLIENT" --out "$WORK/mesh-export" --jar "$L2JAR"
 fi
 
 if want_step 7; then
@@ -234,9 +254,10 @@ if want_step 9; then
   echo "== [9/9] l2_skies material chains (.props.txt, Docker umodel) =="
   # The skybox brushes reference L2_Skies.Shaders.* chains (Cloud_Final,
   # HazeRing_Final, SkybackgroundColor + TexPanner/TexRotator/TexOscillator
-  # modifiers). The runtime material path reads umodel-format .props.txt;
-  # only l2_skies is missing them (L2_Lobby_T has no material exports,
-  # Lobby_terrain_t only Palettes, FX_E_T WaterShader01 already committed).
+  # modifiers). The runtime material path reads umodel-format .props.txt.
+  # L2_Lobby_T has no material exports, Lobby_terrain_t only Palettes.
+  # Brush face textures (FX_E_T.WaterShader01, Castle_Kent_t.*, ...) are
+  # Texture PNGs from step 6, not this material-chain export.
   UMODEL="$ROOT/l2-unity/External/UEViewer/umodel"
   if [[ ! -x "$UMODEL" ]]; then
     echo "ERROR: umodel linux binary missing at $UMODEL" >&2

@@ -91,9 +91,44 @@ fails validation) → `world/env/Lobby.camera-zones.tsv`.
 Step 9 (l2_skies material chains): the skybox brushes reference
 `L2_Skies.Shaders.*` (`Cloud_Final`, `HazeRing_Final`, `SkybackgroundColor` +
 TexPanner/TexRotator/TexOscillator modifiers). The shared material path reads
-umodel-format `.props.txt`; only `l2_skies` lacks them (`L2_Lobby_T` has zero
-material exports, `Lobby_terrain_t` only Palettes, `FX_E_T.WaterShader01`
-already committed). Docker umodel export → `Textures/l2_skies/<Group>/`.
+umodel-format `.props.txt`. `L2_Lobby_T` has zero material exports and
+`Lobby_terrain_t` only Palettes. Brush face textures such as
+`FX_E_T.WaterSurfaceShaderSet.WaterShader01` and `Castle_Kent_t.Kent_capet_m`
+are Texture PNGs, exported by step 6 into the bake's umodel layout
+(`.work/lobby-extract/mesh-export/{package}/Texture/{name}.png`), not by this
+material-chain step. Docker umodel export → `Textures/l2_skies/<Group>/`.
+
+### Mac rerun: l2_lobby brush textures
+
+The bake reads `L2_UMODEL_EXPORT_DIR` (`.work/lobby-extract/mesh-export`) and
+fails before materials if a brush/BSP texture is neither already under
+`Assets/Resources/Data/Textures/{package}/` nor in that export. Rerun **step 6
+only** (it derives the package list from `Brushes.json` and `Lobby.brushes.t3d`).
+Steps 1–5 and 7–9 stay as they are.
+
+```bash
+cd ~/Projects/Fineage
+git checkout cursor/login-step3-vista-5766 && git pull
+L2_INTERLUDE_CLIENT_ROOT=~/Downloads/L2_Interlude_Client/Lineage\ II \
+  bash tools/interlude-extract/extract_login_lobby.sh --only 6
+```
+
+Step 6 exits 1 naming `package=` and `texture=` when a referenced name is not a
+Texture in the client package (or the `.utx` is absent). Then rerun the Unity
+`l2_lobby` bake (same command as the PR runbook) with that export dir:
+
+```bash
+export L2_INTERLUDE_CLIENT_ROOT="$HOME/Downloads/L2_Interlude_Client/Lineage II"
+export UNITY="/Applications/Unity/Hub/Editor/6000.3.27f1/Unity.app/Contents/MacOS/Unity"
+FINEAGE_INTERLUDE_TILE=l2_lobby \
+L2_UMODEL_EXPORT_DIR="$PWD/.work/lobby-extract/mesh-export" \
+"$UNITY" -batchmode -nographics -quit -projectPath l2-unity \
+  -executeMethod L2InterludeTileBatchCli.RunTileBakeCli
+```
+
+Commit the bake outputs under `Maps/l2_lobby/` and any new PNGs the bake copies
+into `Assets/Resources/Data/Textures/{package}/`. Do not commit `.utx` or other
+original client binaries.
 
 Run the remaining pass in one command:
 

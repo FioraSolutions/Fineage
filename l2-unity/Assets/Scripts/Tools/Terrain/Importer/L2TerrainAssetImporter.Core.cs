@@ -7,54 +7,76 @@ using UnityEngine;
 public abstract partial class L2TerrainAssetImporter
 {
     protected static void ImportFiles(string inputFolder, List<string> files, bool overwrite) {
+        // Brush import calls RequireBrushTexturesPresent first and throws there.
+        // This copy loop is the shared "already in Assets, or copy from the export"
+        // step for brushes and static meshes. A miss that reaches here is still an
+        // error (logged with package, texture, and path); it does not invent a file.
         foreach(var filePath in files) {
-            // The import's job is to make the asset exist under Assets; when it is
-            // already there the step is satisfied — never an error, copy or not.
-            // (A tile whose textures are committed but whose umodel export dir is gone
-            // must not log spurious "missing" errors, e.g. the lobby Brushes.json list.)
-            string destination = GetAssetsDestination(inputFolder, filePath);
-            if (!overwrite && destination != null && AssetFileExists(destination)) {
+            if (BrushTextureSatisfied(inputFolder, filePath, overwrite, out string source, out string destination, out string missing)) {
+                if (source == null || destination == null) {
+                    continue;
+                }
+            } else {
+                Debug.LogError(
+                    "L2TerrainAssetImporter: brush texture file missing after rectification; " + missing);
                 continue;
             }
 
-            string path = filePath;
-            if(!File.Exists(path)) {
-                string relativePath = GetRelativeExportPath(inputFolder, path);
-                string[] segments = SplitExportPath(relativePath);
-                if (segments.Length < 2)
-                {
-                    Debug.LogError(
-                        "L2TerrainAssetImporter: cannot resolve missing brush texture; "
-                        + $"inputFolder='{inputFolder}', texturePath='{filePath}', relative='{relativePath}'.");
-                    continue;
-                }
-
-                string package = segments[0];
-                string textureFile = segments[segments.Length - 1];
-                path = Path.Combine(inputFolder, package, "Texture", textureFile);
-
-                if(!File.Exists(path)) {
-                    Debug.LogError(
-                        "L2TerrainAssetImporter: brush texture file missing after rectification; "
-                        + $"package='{package}', texture='{textureFile}', "
-                        + $"expectedPath='{path}', originalPath='{filePath}'.");
-                    continue;
-                }
+            if(!Directory.Exists(Path.GetDirectoryName(destination))) {
+                Directory.CreateDirectory(Path.GetDirectoryName(destination));
             }
 
-            if(destination != null) {
-                if(!Directory.Exists(Path.GetDirectoryName(destination))) {
-                    Directory.CreateDirectory(Path.GetDirectoryName(destination));
-                }
-
-                try {
-                    File.Copy(path, destination, overwrite);
-                } catch (IOException) {
-                    // Debug.LogWarning(destination + " already exists or " + e.Message);
-                }
-
+            try {
+                File.Copy(source, destination, overwrite);
+            } catch (IOException) {
+                // Debug.LogWarning(destination + " already exists or " + e.Message);
             }
         }
+    }
+
+    // True when the texture is already under Assets or the export has the PNG
+    // (flat {package}/{name}.png, or umodel {package}/Texture/{name}.png).
+    // missing names package, texture file, and the rectified path.
+    protected static bool BrushTextureSatisfied(
+        string inputFolder,
+        string filePath,
+        bool overwrite,
+        out string sourcePath,
+        out string destination,
+        out string missing)
+    {
+        sourcePath = null;
+        destination = GetAssetsDestination(inputFolder, filePath);
+        missing = null;
+        // Already committed: the step is done. A vanished export dir is not an error.
+        if (!overwrite && destination != null && AssetFileExists(destination)) {
+            return true;
+        }
+
+        if (File.Exists(filePath)) {
+            sourcePath = filePath;
+            return true;
+        }
+
+        string relativePath = GetRelativeExportPath(inputFolder, filePath);
+        string[] segments = SplitExportPath(relativePath);
+        if (segments.Length < 2)
+        {
+            missing = $"package='', texture='', expectedPath='{filePath}', originalPath='{filePath}', "
+                + $"inputFolder='{inputFolder}', relative='{relativePath}'";
+            return false;
+        }
+
+        string package = segments[0];
+        string textureFile = segments[segments.Length - 1];
+        string expected = Path.Combine(inputFolder, package, "Texture", textureFile);
+        missing = $"package='{package}', texture='{textureFile}', expectedPath='{expected}', originalPath='{filePath}'";
+        if (File.Exists(expected)) {
+            sourcePath = expected;
+            return true;
+        }
+
+        return false;
     }
 
     // Assets destination for an export-side file, without needing the source to
