@@ -169,6 +169,9 @@ public sealed partial class NetZoneDispatch
             case NetOpcode.EnchantResult:
                 _session.ApplyEnchantResult((EnchantResultNetMsg)packet.Body);
                 break;
+            case NetOpcode.EnchantSkillList:
+            case NetOpcode.EnchantSkillInfo:
+                break;
             case NetOpcode.PledgeStatus:
                 _session.ApplyPledgeStatus((PledgeStatusNetMsg)packet.Body);
                 break;

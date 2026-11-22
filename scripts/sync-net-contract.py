@@ -59,6 +59,7 @@ UNITY_CS9_ADAPT_FILES = frozenset(
         "Messages/WorldMessages.MonsterRace.cs",
         "Codec/NetCodec.Freight.cs",
         "Codec/NetCodec.MonsterRace.cs",
+        "Codec/NetCodec.Skills.cs",
     }
 )
 

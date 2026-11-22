@@ -58,6 +58,8 @@ public static partial class NetZonePacketDecoder
             NetOpcode.EnchantSkillList => NetCodec.DecodeEnchantSkillList(payload),
             NetOpcode.EnchantSkillInfo => NetCodec.DecodeEnchantSkillInfo(payload),
             NetOpcode.EnchantResult => NetCodec.DecodeEnchantResult(payload),
+            NetOpcode.EnchantSkillList => NetCodec.DecodeEnchantSkillList(payload),
+            NetOpcode.EnchantSkillInfo => NetCodec.DecodeEnchantSkillInfo(payload),
             NetOpcode.PledgeStatus => NetCodec.DecodePledgeStatus(payload),
             NetOpcode.PledgeMemberList => NetCodec.DecodePledgeMemberList(payload),
             NetOpcode.ClanAskJoin => NetCodec.DecodeClanAskJoin(payload),
