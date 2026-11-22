@@ -70,7 +70,8 @@ public static class InterludeAnimationClipResolver
         string raceName,
         int spAtkNumber,
         string weaponToken,
-        string normalizedState)
+        string normalizedState,
+        bool logMissing = true)
     {
         SkillAnimationDatabase.RaceClipProfile profile = SkillAnimationDatabase.ResolveRaceProfile(raceName);
         if (profile == null)
@@ -81,9 +82,13 @@ public static class InterludeAnimationClipResolver
         AnimTweenTable table = TablePacketServices.AnimTweens;
         if (table == null || !table.TryResolveExactSequence(meshAnim, query, out string animTweenSequence))
         {
-            LogMissing(
-                "AnimTween sequence mesh=" + meshAnim + " query=" + query + " state=" + normalizedState,
-                null);
+            if (logMissing)
+            {
+                LogMissing(
+                    "AnimTween sequence mesh=" + meshAnim + " query=" + query + " state=" + normalizedState,
+                    null);
+            }
+
             return null;
         }
 
@@ -97,10 +102,14 @@ public static class InterludeAnimationClipResolver
                 return clip;
         }
 
-        string expected = BuildResourcesPath(profile.Folder, meshStems[0], take);
-        LogMissing(
-            "player SpAtk animTween=" + animTweenSequence + " state=" + normalizedState,
-            expected);
+        if (logMissing)
+        {
+            string expected = BuildResourcesPath(profile.Folder, meshStems[0], take);
+            LogMissing(
+                "player SpAtk animTween=" + animTweenSequence + " state=" + normalizedState,
+                expected);
+        }
+
         return null;
     }
 

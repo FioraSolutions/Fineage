@@ -44,6 +44,7 @@ public static class SkillVisualEffectDispatch
             return;
 
         SkillVisualResolution resolution = catalog.Resolve(skillId, level, HasPrefab);
+        SkillVisualRuntime.ReportOfficialFlightGap(catalog, resolution);
         SkillVisualPlayback.Play(entity, resolution, cast, targetId);
     }
 

@@ -18,13 +18,7 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
         switch (evt)
         {
             case Event.READY_TO_ACT:
-
-                AnimationCombo animComboAct = TablePacketServices.SkillGrps != null
-                    ? TablePacketServices.SkillGrps.GetAnimComboBySkillId(useSkill.SkillId, useSkill.SkillLvl)
-                    : null;
-                PhysicalSkillPresentation.TryPlay(_stateMachine.Player, useSkill, _events);
-                SkillVisualEffectDispatch.PlayIfKnown(
-                    _stateMachine.Player, useSkill, animComboAct);
+                PlayMixCast(useSkill);
                 break;
             case Event.CANCEL:
                 // Debug.Log("NewPhysicalSkillsState Use Sate> Отмена скорее всего запрос пришел из ActionFaild");
@@ -40,7 +34,6 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                          useSkill.SkillGrp != null &&
                          SkillExecutorPacketServices.Executor != null)
                 {
-                    Entity entity = _stateMachine.Player;
                     if (SkillPresentationCatalog.IsTwistDoomPhysical(useSkill.SkillId))
                     {
                         string[] cycle = castCombo.GetAnimCycle();
@@ -51,13 +44,8 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                             " cycle=" + (cycle == null ? "null" : string.Join(",", cycle)) +
                             " state=" + _stateMachine.State);
                     }
-                    SetupDurationHelper.SetupDurationIfHitTimeNot0(
-                        useSkill, entity.Identity.Id, entity, castCombo);
-                    // Physical self skills (Ultimate Evasion X, Dash X, Sonic Focus X)
-                    // are tags that map to SpAtk06 → the shared SpAtk06_hand buff gesture.
-                    // The override runner would map that single clip to CastEnd.
-                    PhysicalSkillPresentation.TryPlay(entity, useSkill, _events);
-                    SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill, castCombo);
+                    // Same SetupDuration / MagicCastData path as a targeted Mix cast.
+                    PlayMixCast(useSkill);
                 }
                 else if (skillgrp != null)
                 {
@@ -88,5 +76,24 @@ public partial class NewPhysicalSkillsState : AbstractAttackEvents
                 break;
 
         }
+    }
+
+    /// <summary>
+    /// Targeted PHYS (READY_TO_ACT) and self PHYS (APPLY_SELF_SKILL) share this cast.
+    /// Mix combo stretch in <see cref="MagicCastData"/> fits every SpAtk phase to hit time.
+    /// </summary>
+    void PlayMixCast(MagicSkillUseDto useSkill)
+    {
+        Entity entity = _stateMachine.Player;
+        AnimationCombo combo = null;
+        if (entity != null && entity.Identity != null &&
+            SetupDurationHelper.TryGetPlayableCombo(useSkill, out combo))
+        {
+            SetupDurationHelper.SetupDurationIfHitTimeNot0(
+                useSkill, entity.Identity.Id, entity, combo);
+        }
+
+        PhysicalSkillPresentation.TryPlay(entity, useSkill, _events);
+        SkillVisualEffectDispatch.PlayIfKnown(entity, useSkill, combo);
     }
 }

@@ -52,6 +52,9 @@ public partial class AnimationManager
             return;
         }
 
+        if (SkillAnimationResolver.IsCombatBodyState(animationName))
+            return;
+
         controller.ToggleAnimationTrigger(animationName);
         SetRecentName(objectId, animationName);
 

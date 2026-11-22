@@ -31,9 +31,37 @@ public static class SkillVisualRuntime
 
         // Asset presence does not change the authored flying time.
         SkillVisualResolution resolution = catalog.Resolve(skillId, level, Present);
+        ReportOfficialFlightGap(catalog, resolution);
         if (resolution.Status == SkillVisualStatus.None)
             return 0f;
         return resolution.FlyingTime > 0f ? resolution.FlyingTime : 0f;
+    }
+
+    static readonly HashSet<string> _flightGapLogged = new HashSet<string>();
+
+    /// <summary>
+    /// Status.None or a zero flying time is a data error when skill.usk authored a flying shot.
+    /// Skills with no flying row (Sonic Blaster 6) stay quiet.
+    /// </summary>
+    public static void ReportOfficialFlightGap(SkillVisualCatalog catalog, SkillVisualResolution resolution)
+    {
+        if (catalog == null || resolution == null)
+            return;
+        if (!catalog.HasOfficialFlyingPart(resolution.SkillId))
+            return;
+        if (resolution.Status != SkillVisualStatus.None && resolution.FlyingTime > 0f)
+            return;
+
+        string key = resolution.SkillId + "@" + resolution.Level + "@" + resolution.Status;
+        if (!_flightGapLogged.Add(key))
+            return;
+
+        Debug.LogError(
+            "[SkillVisual] skill=" + resolution.SkillId +
+            " level=" + resolution.Level +
+            " status=" + resolution.Status +
+            " flyingTime=" + resolution.FlyingTime.ToString("F3") +
+            " original has a flying shot (skill.usk) but playback has no flight");
     }
 
     public static bool TryLoadPrefab(string assetKey, out BaseEffect prefab, out string resourcePath)

@@ -68,7 +68,7 @@ public partial class NewMagicSkillsState  : AbstractAttackEvents
                     " durations=" + durDump +
                     " animator=" + animatorName);
 
-                entity.SetupTotalCastDuration(useSkill.HitTime, flightTimeMs, durations, shotEventTime, useSkill.TargetId, SetupDurationHelper.CastStyleOf(useSkill), SetupDurationHelper.MixComboOf(useSkill));
+                entity.SetupTotalCastDuration(useSkill.HitTime, flightTimeMs, durations, shotEventTime, useSkill.TargetId, SetupDurationHelper.CastStyleOf(useSkill), SetupDurationHelper.MixComboOf(useSkill), useSkill.SkillId);
 
                 _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(readyGrp, entity, readyCombo, _events);
                 break;

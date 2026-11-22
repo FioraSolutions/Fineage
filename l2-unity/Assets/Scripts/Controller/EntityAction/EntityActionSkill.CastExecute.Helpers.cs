@@ -45,7 +45,7 @@ public partial class EntityActionSkill
             : 0f;
         Transform targetTransform = target != null ? target.transform : entity.AttackTarget;
         float flightTimeMs = SetupDurationHelper.ResolveMagicFlightTimeMs(entity, magic.SkillId, magic.SkillLvl, targetTransform);
-        entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic));
+        entity.SetupTotalCastDuration(magic.HitTime, flightTimeMs, durations, shotEventTime, magic.TargetId, SetupDurationHelper.CastStyleOf(magic), SetupDurationHelper.MixComboOf(magic), magic.SkillId);
 
         _ = SkillExecutorPacketServices.Executor.ExecuteSkillOverride(magic.SkillGrp, entity, combo, ResolveEvents(entity));
     }
@@ -138,7 +138,8 @@ public partial class EntityActionSkill
             0f,
             magic.TargetId,
             SetupDurationHelper.CastStyleOf(magic),
-            SetupDurationHelper.MixComboOf(magic));
+            SetupDurationHelper.MixComboOf(magic),
+            magic.SkillId);
 
         MagicCastData cast = entity.GetMagicCastData();
         int npcId = entity.Identity != null ? entity.Identity.NpcId : 0;

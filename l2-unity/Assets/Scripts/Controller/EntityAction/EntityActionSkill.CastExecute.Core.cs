@@ -18,6 +18,12 @@ public partial class EntityActionSkill
 
     static void ExecutePhysicalSkill(Entity entity, MagicSkillUseDto magic)
     {
+        if (entity != null && entity.Identity != null &&
+            SetupDurationHelper.TryGetPlayableCombo(magic, out AnimationCombo combo))
+        {
+            SetupDurationHelper.SetupDurationIfHitTimeNot0(magic, entity.Identity.Id, entity, combo);
+        }
+
         PhysicalSkillPresentation.TryPlay(entity, magic, ResolveEvents(entity));
         // skillgrp desc, otherwise the skill.usk row. No shared melee swing when the combo is missing.
         SkillVisualEffectDispatch.PlayIfKnown(entity, magic, GetCombo(magic));
