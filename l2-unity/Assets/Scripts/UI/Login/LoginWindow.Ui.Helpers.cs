@@ -68,22 +68,17 @@ public partial class LoginWindow
         }
 
         _rememberToggle = root.Q<Toggle>("RememberToggle");
-        bool remember = PlayerPrefs.GetInt(RememberKey, 0) == 1;
         if (_rememberToggle != null)
         {
             L10nUiBinder.SetText(_rememberToggle, "ui.login.remember");
-            _rememberToggle.SetValueWithoutNotify(remember);
             _rememberToggle.RegisterValueChangedCallback(evt =>
             {
                 if (!evt.newValue)
                     StoreRemembered(false, null, null);
             });
         }
-        if (remember)
-        {
-            _userInput.SetValueWithoutNotify(PlayerPrefs.GetString(RememberAccountKey, ""));
-            _passwordInput.SetValueWithoutNotify(PlayerPrefs.GetString(RememberPasswordKey, ""));
-        }
+
+        LoadRemembered();
 
         WireLoginMenu(root);
 
