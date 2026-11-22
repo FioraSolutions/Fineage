@@ -11,6 +11,9 @@ public static class MoveAllCharactersPacketServices
             _moves = moves;
     }
 
+    /// <summary>The roster <see cref="Bind"/> stored. No container or <c>Instance</c> fallback.</summary>
+    public static IMoveRoster BoundMoves => _moves;
+
     public static IMoveAllCharacters Moves =>
         _moves != null
             ? _moves

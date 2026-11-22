@@ -78,6 +78,20 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
 
     static bool _loggedMissingClicks;
 
+    static bool _loggedMissingMoves;
+
+    static IMoveRoster Moves()
+    {
+        IMoveRoster moves = MoveAllCharactersPacketServices.BoundMoves;
+        if (moves == null && !_loggedMissingMoves)
+        {
+            _loggedMissingMoves = true;
+            Debug.LogError("[World] IMoveRoster missing — MoveAllCharacters.Awake did not bind, so character moves were not updated.");
+        }
+
+        return moves;
+    }
+
     static IClickMasks Clicks()
     {
         IClickMasks clicks = ControllerPacketServices.BoundClicks;
