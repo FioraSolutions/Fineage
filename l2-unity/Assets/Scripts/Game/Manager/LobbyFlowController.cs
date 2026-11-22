@@ -11,6 +11,7 @@ public sealed partial class LobbyFlowController : ILobbySession
     private WorldPacketApply _worldApply;
     private PacketApplyQueue _applyQueue;
     private L2GameUI _gameUi;
+    [Inject] ISceneLoader _scenes;
 
     GameClient Game => DiRuntimePacketServices.Game;
     LoginClient Login => NetworkingPacketServices.Login;
@@ -18,7 +19,14 @@ public sealed partial class LobbyFlowController : ILobbySession
 
 
 
-    private ISceneLoader Scenes => LobbyFlowPacketServices.Scenes;
+    bool TryScenes(out ISceneLoader scenes)
+    {
+        scenes = _scenes;
+        if (scenes != null)
+            return true;
+        Debug.LogError("[LobbyFlowController] ISceneLoader missing — AppLifetimeScope.RegisterSceneLoader did not register SceneLoader.");
+        return false;
+    }
 
     private L2LoginUI LoginUi
     {

@@ -443,10 +443,10 @@ One PR per row. Each move is behavior-preserving: `git mv` the `.cs` and its `.m
 - [x] **S27** Overhead HP leaves `InterludeDomainMap.Npc`. `NpcOrPetInfoApplyIncomingPacketServices.Apply` and `PresenceApplyService.ApplyNpcInfo` call `TablePacketServices.HideNpcHpBar` and `SetHideHp` before the map. Missing npcgrp still logs `[EntityIdentity] ParceHideHpbar` and hides the bar. The map only copies fields.
 - [x] **S30** `ILobbySession` is the lobby callback surface `GameManager` already forwards, including `Attach(IGameManager)`. `IGameManager.GameState` and `WorldSpawnReady` are settable. `GameManager` stores `ILobbySession`. `WorldSpawnReady`'s setter is public so the interface can set it. Lobby callbacks are unchanged.
 
-Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VContainer). Do not add VContainer to `Fineage.Game`, `Fineage.UI`, or `Fineage.Controller`. One row per PR. Decouple, then `git mv` with the script GUID unchanged.
+Hosts that `[Inject]` move to `Fineage.Di` (the only asmdef that references VContainer). Do not add VContainer to `Fineage.Game`, `Fineage.UI`, or `Fineage.Controller`. One row per PR. Decouple, then `git mv` with the script GUID unchanged. Do not use `*.Instance` as a fallback. A missing dependency logs what was not registered and where, then that call stops.
 
 - [x] **S31** `ITableInitializer.LoadTables` in `Fineage.Game`. `GameManager` injects the interface. `TableInitializer` stays Assembly-CSharp and is still registered as itself.
-- [x] **S32** `GameManager`'s scene field and `LobbyFlowPacketServices.Scenes` use `ISceneLoader`. `SceneLoader.Instance` stays the concrete fallback. `LoadMenu` behavior unchanged.
+- [x] **S32** `GameManager` and `LobbyFlowController` inject `ISceneLoader`. `RegisterSceneLoader` logs when no `SceneLoader` is on the host or in loaded scenes. There is no `SceneLoader.Instance` fallback. `LoadMenu` and `LoadSWMap` are the same calls when the interface is present.
 - [ ] **S33** Interfaces for the `L2LoginUI` / `L2GameUI` members `GameManager` actually reads. `GameManager` stops naming those classes.
 - [ ] **S34** `GameManager` → `Fineage.Di`. Only after S30–S33. It still `[Inject]`s.
 - [ ] **S35** `IWorldSpawnContext` → `Fineage.Game` if its members do not name Assembly-CSharp. `World` still implements it.

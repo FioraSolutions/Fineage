@@ -51,7 +51,8 @@ public sealed partial class LobbyFlowController
         if (_game.GameState > GameState.CHAR_CREATION)
         {
             MusicPacketServices.Music?.Clear();
-            Scenes.LoadMenu();
+            if (TryScenes(out ISceneLoader scenes))
+                scenes.LoadMenu();
         }
         else if (_game.GameState > GameState.LOGIN_SCREEN && NetSession.TryGetBound() == null)
         {

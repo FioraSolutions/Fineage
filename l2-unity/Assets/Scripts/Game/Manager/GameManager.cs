@@ -29,8 +29,6 @@ public partial class GameManager : MonoBehaviour, IGameManager
 
     #region Lifecycle
 
-    private ISceneLoader Scenes => LobbyFlowPacketServices.Scenes;
-
     public bool IsSwitchingServer { get; set; } = false;
     public bool WorldSpawnReady { get; set; }
 

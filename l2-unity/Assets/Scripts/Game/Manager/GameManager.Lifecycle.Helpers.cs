@@ -11,7 +11,17 @@ public partial class GameManager : MonoBehaviour, IGameManager
     {
         _lobbyFlow = lobbyFlow;
         _lobbyFlow.Attach(this);
-        LobbyFlowPacketServices.Bind(scenes: _sceneLoader);
+    }
+
+    bool LoadMenuScene()
+    {
+        if (_sceneLoader == null)
+        {
+            Debug.LogError("[GameManager] ISceneLoader missing — AppLifetimeScope.RegisterSceneLoader did not register SceneLoader.");
+            return false;
+        }
+        _sceneLoader.LoadMenu();
+        return true;
     }
 
     private void Start() {
@@ -21,7 +31,8 @@ public partial class GameManager : MonoBehaviour, IGameManager
             return;
         }
         _tableInitializer.LoadTables();
-        Scenes.LoadMenu();
+        if (!LoadMenuScene())
+            return;
         string account;
         string password;
         if (FineageLaunchArgs.TryGetAutoLogin(out account, out password))

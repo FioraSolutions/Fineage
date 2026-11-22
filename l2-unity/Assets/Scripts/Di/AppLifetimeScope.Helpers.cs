@@ -59,8 +59,12 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         SceneLoader local = GetComponent<SceneLoader>();
         if (local == null)
             local = Object.FindFirstObjectByType<SceneLoader>(FindObjectsInactive.Include);
-        if (local != null)
-            builder.RegisterComponent(local).AsSelf().As<ISceneLoader>();
+        if (local == null)
+        {
+            Debug.LogError("[AppLifetimeScope] SceneLoader missing — RegisterSceneLoader found none on the host or in loaded scenes, so ISceneLoader is not registered.");
+            return;
+        }
+        builder.RegisterComponent(local).AsSelf().As<ISceneLoader>();
     }
 
     void HandleTransportDisconnected()
