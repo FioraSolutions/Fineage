@@ -29,12 +29,14 @@ public sealed class VisibilityManager : MonoBehaviour
     CrowdLodProfile _profile;
     string _histogramLine;
     float _terrainAppliedMeters;
+    readonly Plane[] _frustumScratch = new Plane[VisibilitySphereFrustumCull.FrustumPlaneCount];
 
     void Awake()
     {
         _profile = CrowdLodProfileCatalog.LoadActive();
         VisibilityPacketServices.Bind(this);
         VisibilityTierRegistry.Bind(GetTier, ShouldShowNameplate, () => _histogramLine);
+        VisibilityTerrainRegistry.PublishTerrainDecoDrawMeters(InterludeVisibilityOptions.TerrainDrawDistanceMeters);
     }
 
     void OnDestroy()
@@ -43,6 +45,7 @@ public sealed class VisibilityManager : MonoBehaviour
         {
             VisibilityPacketServices.Bind(null);
             VisibilityTierRegistry.Clear();
+            VisibilityTerrainRegistry.Clear();
         }
     }
 
@@ -203,6 +206,8 @@ public sealed class VisibilityManager : MonoBehaviour
             InterludeVisibilityOptions.RenderCharacterCount,
             localPlayerIndex: -1);
 
+        ApplyPawnFrustumCull(positions, tierScratch, pawnDrawSq);
+
         for (int i = 0; i < count; i++)
         {
             int id = entityIds[i];
@@ -248,9 +253,44 @@ public sealed class VisibilityManager : MonoBehaviour
             + " cap=" + InterludeVisibilityOptions.RenderCharacterCount;
     }
 
+    void ApplyPawnFrustumCull(NativeArray<float3> positions, CrowdDetailTier[] tierScratch, float pawnDrawMaxSq)
+    {
+        Camera cam = Camera.main;
+        if (cam == null || positions.Length == 0)
+            return;
+
+        float pawnDrawMeters = math.sqrt(pawnDrawMaxSq);
+        const float pawnBoundsRadius = 1.5f;
+        float3 camPos = cam.transform.position;
+
+        NativeArray<float4> frustumPlanes =
+            new NativeArray<float4>(VisibilitySphereFrustumCull.FrustumPlaneCount, Allocator.TempJob);
+        VisibilitySphereFrustumCull.FillFrustumPlanes(cam, _frustumScratch, frustumPlanes);
+
+        for (int i = 0; i < tierScratch.Length; i++)
+        {
+            if (tierScratch[i] == CrowdDetailTier.T0Hero || tierScratch[i] == CrowdDetailTier.TCulled)
+                continue;
+
+            if (!VisibilitySphereFrustumCull.IsVisible(
+                    positions[i],
+                    pawnBoundsRadius,
+                    camPos,
+                    pawnDrawMeters,
+                    frustumPlanes))
+            {
+                tierScratch[i] = CrowdDetailTier.TCulled;
+            }
+        }
+
+        frustumPlanes.Dispose();
+    }
+
     void ApplyTerrainDrawDistance()
     {
         float meters = InterludeVisibilityOptions.TerrainDrawDistanceMeters;
+        VisibilityTerrainRegistry.PublishTerrainDecoDrawMeters(meters);
+
         if (Mathf.Abs(meters - _terrainAppliedMeters) < 0.5f)
             return;
         _terrainAppliedMeters = meters;
@@ -258,13 +298,6 @@ public sealed class VisibilityManager : MonoBehaviour
         Camera cam = Camera.main;
         if (cam != null && cam.farClipPlane < meters)
             cam.farClipPlane = meters;
-
-        var props = FindObjectsByType<L2InstancedPropRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < props.Length; i++)
-        {
-            if (props[i] != null)
-                props[i].MaxDrawDistance = meters;
-        }
     }
 
     static bool TryGetObserver(out float3 observer)

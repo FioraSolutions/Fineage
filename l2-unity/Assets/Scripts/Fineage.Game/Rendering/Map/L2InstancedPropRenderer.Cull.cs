@@ -57,13 +57,7 @@ public partial class L2InstancedPropRenderer
 
     EnsureCullBuffers(count);
 
-    GeometryUtility.CalculateFrustumPlanes(camera, _frustumScratch);
-    for (int p = 0; p < 6; p++)
-    {
-      Plane plane = _frustumScratch[p];
-      Vector3 n = plane.normal;
-      _frustumPlanesNative[p] = new float4(n.x, n.y, n.z, plane.distance);
-    }
+    VisibilitySphereFrustumCull.FillFrustumPlanes(camera, _frustumScratch, _frustumPlanesNative);
 
     for (int i = 0; i < count; i++)
     {

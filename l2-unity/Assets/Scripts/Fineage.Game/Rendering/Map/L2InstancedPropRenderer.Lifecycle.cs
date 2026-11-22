@@ -23,7 +23,10 @@ public partial class L2InstancedPropRenderer : MonoBehaviour
             return;
         }
 
-        float maxDistance = _maxDrawDistance > 0f ? _maxDrawDistance : camera.farClipPlane;
+        float published = VisibilityTerrainRegistry.TerrainDecoDrawMeters;
+        float maxDistance = published > 0f
+            ? published
+            : (_maxDrawDistance > 0f ? _maxDrawDistance : camera.farClipPlane);
         Vector3 cameraPos = camera.transform.position;
         Matrix4x4 world = _transform.localToWorldMatrix;
         CullAndDraw(camera, world, maxDistance, cameraPos);
