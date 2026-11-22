@@ -60,17 +60,15 @@ public static class InterludeHudWindowCatalog
         });
 
     public static readonly InterludeHudWindowEntry RadarWnd = new InterludeHudWindowEntry(
-        "RadarMapCtrl",
-        128f,
-        128f,
+        "RadarContainerWnd",
+        102f,
+        102f,
         new[]
         {
-            "Data/UI/Map/Radar/radar_back",
             "Data/UI/Map/Radar/radar_arrow",
             "Data/UI/Map/Radar/radar_n",
             "Data/UI/Map/Radar/radar_myself",
             "Data/UI/Map/Radar/radar_target",
-            "Data/UI/Map/WorldMap",
         });
 
     /// <summary>Interlude BuffWnd / SkillTray abnormal row beside StatusWnd.</summary>
@@ -97,13 +95,12 @@ public static class InterludeHudWindowCatalog
     public static readonly InterludeHudWindowEntry MinimapWnd = new InterludeHudWindowEntry(
         "MinimapWnd",
         334f,
-        392f,
+        413f,
         new[]
         {
-            "Data/UI/Map/MinimapFrame",
+            "Data/UI/Map/MapBack",
             "Data/UI/Map/MinimapPos",
             "Data/UI/Map/WorldMap_Black",
-            "Data/UI/Frame/Interlude/FrameCloseBtn",
         });
 
     /// <summary>Chat input row relative to ChatWnd root (interface.xdat ChattingChatInput / InnerBar).</summary>
@@ -120,9 +117,9 @@ public static class InterludeHudWindowCatalog
         height: 36f);
 
     public static readonly InterludeHudControlRect MapViewport = new InterludeHudControlRect(
-        left: 2f,
-        top: 30f,
-        width: 330f,
+        left: 3f,
+        top: 51f,
+        width: 328f,
         height: 328f);
 
     public static readonly InterludeHudControlRect TownMapLayer = new InterludeHudControlRect(
