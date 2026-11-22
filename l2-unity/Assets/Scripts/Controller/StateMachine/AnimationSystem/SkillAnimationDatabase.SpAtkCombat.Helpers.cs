@@ -167,6 +167,18 @@ public partial class SkillAnimationDatabase
             weaponToken,
             normalizedState);
 
+        if (loaded == null)
+        {
+            string[] meshStems = MeshStemsForRaceProfile(profile);
+            for (int i = 0; i < meshStems.Length; i++)
+            {
+                string legacyPath = profile.Folder + meshStems[i] + ".ao_" + clipStateStem + "_" + profile.Race;
+                loaded = InterludeAnimationClipResolver.LoadExact(legacyPath);
+                if (loaded != null)
+                    break;
+            }
+        }
+
         if (loaded == null && SpAtkClipMissLogged.Add(cacheKey))
         {
             string query = InterludeAnimationClipResolver.BuildPlayerSpAtkQuery(

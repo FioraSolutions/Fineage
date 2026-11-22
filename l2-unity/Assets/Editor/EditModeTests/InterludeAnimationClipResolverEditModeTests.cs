@@ -13,11 +13,9 @@ public sealed class InterludeAnimationClipResolverEditModeTests
     [Test]
     public void AnimTween_resolves_MFighter_dual_spatk03_query()
     {
+        string query = InterludeAnimationClipResolver.BuildPlayerSpAtkQuery(3, "_dual", "MFighter");
         Assert.IsTrue(
-            AnimTweenTable.Instance.TryResolveExactSequence(
-                "MFighter_anim",
-                "spatk03_dual_mfighter",
-                out string seq));
+            AnimTweenTable.Instance.TryResolveExactSequence("MFighter_anim", query, out string seq));
         Assert.AreEqual("spatk03_dual_MFighter", seq);
     }
 
@@ -35,13 +33,19 @@ public sealed class InterludeAnimationClipResolverEditModeTests
     }
 
     [Test]
-    public void MFighter_spatk03_dual_clip_missing_logs_concrete_path()
+    public void MFighter_spatk03_dual_clip_missing_has_concrete_resources_path()
     {
-        var loaded = InterludeAnimationClipResolver.TryLoadPlayerSpAtkCombat(
-            "MFighter",
-            3,
-            "_dual",
-            "SpAtk03_dual");
-        Assert.IsNull(loaded);
+        string query = InterludeAnimationClipResolver.BuildPlayerSpAtkQuery(3, "_dual", "MFighter");
+        Assert.IsTrue(
+            AnimTweenTable.Instance.TryResolveExactSequence("MFighter_anim", query, out string seq));
+        string take = InterludeAnimResourceTakeTable.ResourcesTakeName("MFighter_anim", seq);
+        SkillAnimationDatabase.RaceClipProfile profile = SkillAnimationDatabase.ResolveRaceProfile("MFighter");
+        Assert.IsNotNull(profile);
+        string path = InterludeAnimationClipResolver.BuildResourcesPath(
+            profile.Folder,
+            profile.MeshStem,
+            take);
+        Assert.That(path, Does.Contain(profile.MeshStem + ".ao_"));
+        Assert.IsNull(InterludeAnimationClipResolver.LoadExact(path));
     }
 }

@@ -38,14 +38,18 @@ public sealed partial class AnimTweenTable
 
                 string mesh = cols[1];
                 string sequence = cols[2];
-                string tweenText = cols[6];
-                if (string.IsNullOrEmpty(sequence) || string.IsNullOrEmpty(tweenText))
+                if (string.IsNullOrEmpty(mesh) || string.IsNullOrEmpty(sequence))
                     continue;
-                if (!float.TryParse(tweenText, NumberStyles.Float, CultureInfo.InvariantCulture, out float tween))
+
+                // SpAtk rows often leave tween col blank in Interlude exports; still index the sequence.
+                IndexSequenceRow(mesh, sequence);
+
+                string tweenText = cols.Length > 6 ? cols[6] : null;
+                if (string.IsNullOrWhiteSpace(tweenText)
+                    || !float.TryParse(tweenText, NumberStyles.Float, CultureInfo.InvariantCulture, out float tween))
                     continue;
 
                 _byMeshSequence[mesh + "\0" + sequence] = tween;
-                IndexSequenceRow(mesh, sequence);
                 if (!_bySequence.ContainsKey(sequence))
                     _bySequence.Add(sequence, tween);
 
