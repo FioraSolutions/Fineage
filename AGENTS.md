@@ -38,8 +38,10 @@ Every client UI element (lobby / char select, login, HUD, status, target, chat, 
 
 | Work | Model |
 |------|--------|
-| Implementation, bugfixes, tests, CI (default) | **Composer** (`composer-2.5`) |
-| Hard architectural problems Composer cannot solve | **Kimi K3 Pro** (`kimi-k3`) |
+| Light (small UI tweaks, docs, merges, sync) | **Composer** (`composer-2.5`) |
+| Medium-light (simple contained fixes, tests, CI fixes) | **DeepSeek V4.1 Flash** (`deepseek-v41-flash-1017`) |
+| Medium (contained bugfixes, features inside existing architecture) | **Grok** (`grok-4.7`) |
+| Hard (architecture, problems the above cannot solve) | **Kimi K3** (`kimi-k3`) |
 
 Do not use Claude models (token budget).
 
