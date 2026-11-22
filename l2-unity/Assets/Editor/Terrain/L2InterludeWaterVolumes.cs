@@ -2,18 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.IO.Compression;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Interlude pools/sea are WaterVolume brushes, not StaticMeshes. Official bounds and the
-/// map's water Shader/FinalBlend name live in Maps/XX_YY/Meta/watervolumes.json
-/// (tools/interlude/WaterVolumeDump.java + tools/interlude-extract/rebuild_water_volumes.py).
-/// This step adds child "L2WaterVolumes" (one quad per volume at its top Z) to
+/// Interlude pools/sea are WaterVolume brushes. Official brush geometry and the
+/// map's water Shader/FinalBlend import come from the #1670/#1728 dumps
+/// (l2-unity/docs/interlude-ref/world/maps/&lt;tile&gt;.unr.json.gz). This step
+/// rebuilds child "L2WaterVolumes" (top faces of each volume brush) on
 /// Maps/XX_YY/StaticMeshes.prefab and assigns the official Unity material
-/// (typically FX_E_T/Shader/WaterShader01.mat). Missing json, prefab, or official
-/// material logs an error — no silent shared-tint fallback.
+/// (typically FX_E_T/Shader/WaterShader01.mat). Missing dump, volumes, brush
+/// polys, or official material logs an error — no Meta json and no silent
+/// shared-tint fallback.
 /// UE -> Unity: (y, z, x) / 52.5, same as L2MapStaticMeshBuilder. Idempotent (child is rebuilt each run).
 ///
 /// Unity -batchmode -quit -projectPath l2-unity -executeMethod L2InterludeWaterVolumes.RunCli
@@ -24,7 +27,12 @@ public static class L2InterludeWaterVolumes
 {
     const string ChildName = "L2WaterVolumes";
     const float UeToUnity = 1f / 52.5f;
-    static string RepoRoot => Path.GetFullPath(Path.Combine(Application.dataPath, "..", ".."));
+    const string DumpRel = "docs/interlude-ref/world/maps";
+    static readonly HashSet<string> ShaderClasses = new HashSet<string> { "Shader", "FinalBlend", "TexPanner", "TexEnvMap", "Combiner" };
+    static readonly HashSet<string> ShaderNames = new HashSet<string>
+    {
+        "WaterShader01", "WaterShaderPan01", "WaterFinal", "ssq_water_01sh"
+    };
 
     [MenuItem("Shnok/0.4. [Interlude] Build water surfaces from WaterVolumes (all tiles)")]
     public static void Menu() { Debug.Log("[Water] " + Run(null)); }
@@ -39,7 +47,7 @@ public static class L2InterludeWaterVolumes
         EditorApplication.Exit(0);
     }
 
-    /// <param name="tiles">null = every tile that has Maps/&lt;tile&gt;/Meta/watervolumes.json</param>
+    /// <param name="tiles">null = every Maps/&lt;tile&gt; folder in the project.</param>
     public static string Run(IEnumerable<string> tiles)
     {
         var list = new List<string>();
@@ -49,56 +57,78 @@ public static class L2InterludeWaterVolumes
             string maps = Path.Combine(Application.dataPath, "Resources/Data/Maps");
             if (Directory.Exists(maps))
                 foreach (var d in Directory.GetDirectories(maps))
-                    if (File.Exists(Path.Combine(d, "Meta", "watervolumes.json")))
-                        list.Add(Path.GetFileName(d));
+                {
+                    string name = Path.GetFileName(d);
+                    if (name.Length > 0 && char.IsDigit(name[0]) && name.Contains("_"))
+                        list.Add(name);
+                }
         }
 
         int quads = 0, prefabs = 0;
         var notes = new List<string>();
         foreach (var tile in list)
         {
-            string json = Path.Combine(Application.dataPath, "Resources/Data/Maps", tile, "Meta", "watervolumes.json");
-            if (!File.Exists(json))
-                json = Path.Combine(RepoRoot, ".work", "interlude-extract", tile, "watervolumes.json");
-            string prefab = "Assets/Resources/Data/Maps/" + tile + "/StaticMeshes.prefab";
-            if (!File.Exists(json))
+            string dumpPath = FindDump(tile);
+            if (dumpPath == null)
             {
-                Debug.LogError("[Water] " + tile + ": missing watervolumes.json (looked in Maps/" + tile + "/Meta and .work/interlude-extract)");
-                notes.Add(tile + ": no json");
-                continue;
-            }
-            if (!File.Exists(prefab))
-            {
-                Debug.LogError("[Water] " + tile + ": missing StaticMeshes.prefab; run the tile bake first, then rebuild water");
-                notes.Add(tile + ": no StaticMeshes.prefab");
+                Debug.LogError("[Water] " + tile + ": official #1670 dump not found (looked in " + DumpRel + "/" + tile + ".unr.json.gz)");
+                notes.Add(tile + ": no dump");
                 continue;
             }
 
-            string text = File.ReadAllText(json);
-            var boxes = Parse(text);
-            var mat = ResolveOfficialMaterial(tile, text);
+            JObject dump;
+            try { dump = LoadDump(dumpPath); }
+            catch (Exception e)
+            {
+                Debug.LogError("[Water] " + tile + ": failed to read official dump " + dumpPath + ": " + e.Message);
+                notes.Add(tile + ": dump parse error");
+                continue;
+            }
+
+            var volumes = new List<JObject>();
+            foreach (var token in dump["exports"] ?? new JArray())
+            {
+                if (token is JObject exp && (string)exp["class"] == "WaterVolume")
+                    volumes.Add(exp);
+            }
+            if (volumes.Count == 0)
+            {
+                Debug.LogError("[Water] " + tile + ": official dump has no WaterVolume actors");
+                notes.Add(tile + ": no WaterVolume in dump");
+                continue;
+            }
+
+            var shaderNames = OfficialWaterShaders(dump);
+            var mat = ResolveOfficialMaterial(tile, shaderNames);
             if (mat == null)
             {
                 notes.Add(tile + ": no official material");
                 continue;
             }
 
-            var verts = new List<Vector3>(); var uvs = new List<Vector2>(); var tris = new List<int>();
-            foreach (var b in boxes)
+            var verts = new List<Vector3>();
+            var uvs = new List<Vector2>();
+            var tris = new List<int>();
+            foreach (var exp in volumes)
             {
-                Vector3 mn = b.Item1, mx = b.Item2;
-                if (mx.x - mn.x < 1f || mx.y - mn.y < 1f) continue;
-                float y = mx.z * UeToUnity;
-                int i0 = verts.Count;
-                foreach (var c in new[] { new Vector2(mn.x, mn.y), new Vector2(mn.x, mx.y), new Vector2(mx.x, mx.y), new Vector2(mx.x, mn.y) })
+                string name = (string)exp["name"] ?? "WaterVolume";
+                int added = AppendVolumeSurface(tile, name, exp, verts, uvs, tris);
+                if (added > 0)
                 {
-                    var p = new Vector3(c.y * UeToUnity, y, c.x * UeToUnity);
-                    verts.Add(p);
-                    uvs.Add(new Vector2(p.x, p.z) / 6f);
+                    quads += added;
+                    float y = verts[verts.Count - 1].y;
+                    notes.Add(tile + "/" + name + " y=" + y.ToString("F2", CultureInfo.InvariantCulture));
                 }
-                tris.AddRange(new[] { i0, i0 + 1, i0 + 2, i0, i0 + 2, i0 + 3 });
-                quads++;
-                notes.Add(tile + "/" + b.Item3 + " y=" + y.ToString("F2", CultureInfo.InvariantCulture));
+            }
+
+            string prefab = "Assets/Resources/Data/Maps/" + tile + "/StaticMeshes.prefab";
+            if (!File.Exists(prefab))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(Application.dataPath, "Resources/Data/Maps", tile, "StaticMeshes.prefab")));
+                var tmp = new GameObject("StaticMeshes");
+                PrefabUtility.SaveAsPrefabAsset(tmp, prefab);
+                UnityEngine.Object.DestroyImmediate(tmp);
+                Debug.Log("[Water] " + tile + ": created StaticMeshes.prefab to hold official WaterVolume surfaces");
             }
 
             string meshPath = "Assets/Resources/Data/Maps/" + tile + "/" + tile + "_Water.asset";
@@ -127,7 +157,8 @@ public static class L2InterludeWaterVolumes
                     go.transform.SetParent(root.transform, false);
                     go.transform.position = Vector3.zero; go.transform.rotation = Quaternion.identity;
                     var ls = root.transform.lossyScale;
-                    go.transform.localScale = new Vector3(1f / ls.x, 1f / ls.y, 1f / ls.z);
+                    if (Mathf.Abs(ls.x) > 0.0001f && Mathf.Abs(ls.y) > 0.0001f && Mathf.Abs(ls.z) > 0.0001f)
+                        go.transform.localScale = new Vector3(1f / ls.x, 1f / ls.y, 1f / ls.z);
                     int wl = LayerMask.NameToLayer("Water");
                     if (wl >= 0) go.layer = wl;
                     go.AddComponent<MeshFilter>().sharedMesh = mesh;
@@ -140,43 +171,68 @@ public static class L2InterludeWaterVolumes
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
-        return "water surfaces: " + quads + " quad(s) in " + prefabs + " prefab(s)" + (notes.Count > 0 ? " [" + string.Join("; ", notes) + "]" : "");
+        return "water surfaces: " + quads + " top-face(s) in " + prefabs + " prefab(s)" + (notes.Count > 0 ? " [" + string.Join("; ", notes) + "]" : "");
     }
 
-    static List<(Vector3, Vector3, string)> Parse(string s)
+    static string FindDump(string tile)
     {
-        var r = new List<(Vector3, Vector3, string)>();
-        var rx = new Regex("\"name\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"min\"\\s*:\\s*\\[([^\\]]+)\\]\\s*,\\s*\"max\"\\s*:\\s*\\[([^\\]]+)\\]", RegexOptions.Singleline);
-        foreach (Match m in rx.Matches(s)) r.Add((V(m.Groups[2].Value), V(m.Groups[3].Value), m.Groups[1].Value));
-        return r;
+        string root = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        string gz = Path.Combine(root, DumpRel, tile + ".unr.json.gz");
+        if (File.Exists(gz)) return gz;
+        string json = Path.Combine(root, DumpRel, tile + ".unr.json");
+        return File.Exists(json) ? json : null;
     }
 
-    static Vector3 V(string s)
+    static JObject LoadDump(string path)
     {
-        var p = s.Split(',');
-        return new Vector3(float.Parse(p[0], CultureInfo.InvariantCulture), float.Parse(p[1], CultureInfo.InvariantCulture), float.Parse(p[2], CultureInfo.InvariantCulture));
+        using (var fs = File.OpenRead(path))
+        using (Stream stream = path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                   ? (Stream)new GZipStream(fs, CompressionMode.Decompress, leaveOpen: true)
+                   : fs)
+        using (var sr = new StreamReader(stream))
+        using (var reader = new JsonTextReader(sr))
+            return (JObject)JToken.Load(reader);
     }
 
-    /// <summary>
-    /// Resolves the official Shader/FinalBlend named in watervolumes.json. Does not invent
-    /// L2WaterSurface.mat or a hard-coded tint when the official material is missing.
-    /// </summary>
-    static Material ResolveOfficialMaterial(string tile, string json)
+    static List<string> OfficialWaterShaders(JObject dump)
     {
-        var names = new List<string>();
-        var one = Regex.Match(json, "\"material\"\\s*:\\s*\"([^\"]+)\"");
-        if (one.Success) names.Add(one.Groups[1].Value);
-        var many = Regex.Match(json, "\"materials\"\\s*:\\s*\\[([^\\]]*)\\]");
-        if (many.Success)
-            foreach (Match m in Regex.Matches(many.Groups[1].Value, "\"([^\"]+)\""))
-                if (!names.Contains(m.Groups[1].Value)) names.Add(m.Groups[1].Value);
-
-        if (names.Count == 0)
+        var found = new List<string>();
+        foreach (var token in dump["imports"] ?? new JArray())
         {
-            Debug.LogError("[Water] " + tile + ": watervolumes.json has no official material name");
+            if (token is not JObject im) continue;
+            string name = (string)im["object_name"] ?? "";
+            string cls = (string)im["class_name"] ?? "";
+            string pkg = (string)im["package"] ?? "";
+            if (!ShaderClasses.Contains(cls)) continue;
+            if (!ShaderNames.Contains(name) && name.IndexOf("Water", StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
+            string leaf = pkg;
+            int colon = leaf.LastIndexOf(':');
+            if (colon >= 0) leaf = leaf.Substring(colon + 1);
+            string full;
+            if (leaf == "WaterSurfaceShaderSet") full = "FX_E_T.WaterSurfaceShaderSet." + name;
+            else if (leaf == "WaterSurfaceSet") full = "FX_E_T.WaterSurfaceSet." + name;
+            else if (leaf == "FX_E_T") full = "FX_E_T." + name;
+            else full = string.IsNullOrEmpty(leaf) ? name : leaf + "." + name;
+            if (!found.Contains(full)) found.Add(full);
+        }
+        found.Sort((a, b) =>
+        {
+            int ka = a.EndsWith("WaterShader01", StringComparison.Ordinal) ? 0 : 1;
+            int kb = b.EndsWith("WaterShader01", StringComparison.Ordinal) ? 0 : 1;
+            int c = ka.CompareTo(kb);
+            return c != 0 ? c : string.CompareOrdinal(a, b);
+        });
+        return found;
+    }
+
+    static Material ResolveOfficialMaterial(string tile, List<string> names)
+    {
+        if (names == null || names.Count == 0)
+        {
+            Debug.LogError("[Water] " + tile + ": official dump has WaterVolume actors but no water Shader/FinalBlend import");
             return null;
         }
-
         foreach (var name in names)
         {
             var mat = LoadUeMaterial(name);
@@ -210,5 +266,86 @@ public static class L2InterludeWaterVolumes
                 return AssetDatabase.LoadAssetAtPath<Material>(path);
         }
         return null;
+    }
+
+    /// <returns>Number of top faces added for this volume (0 if skipped after LogError).</returns>
+    static int AppendVolumeSurface(string tile, string name, JObject exp, List<Vector3> verts, List<Vector2> uvs, List<int> tris)
+    {
+        var vol = exp["volume"] as JObject;
+        var model = vol?["model"] as JObject;
+        var polys = model?["polys"] as JArray;
+        if (polys == null || polys.Count == 0)
+        {
+            Debug.LogError("[Water] " + tile + "/" + name + ": WaterVolume has no brush polys in the official dump");
+            return 0;
+        }
+
+        Vector3 location = Vec(vol["location"]);
+        Vector3 prepivot = Vec(vol["prepivot"]);
+        Vector3 scale = Vec(vol["scale"], Vector3.one);
+        Vector3 draw = Vec(vol["draw_scale_3d"], Vector3.one);
+        Vector3 rot = Rot(vol["rotation"]);
+
+        int faces = 0;
+        foreach (var token in polys)
+        {
+            if (token is not JObject poly) continue;
+            var rawVerts = poly["vertices"] as JArray;
+            if (rawVerts == null || rawVerts.Count < 3)
+            {
+                Debug.LogError("[Water] " + tile + "/" + name + ": brush poly has fewer than 3 vertices");
+                continue;
+            }
+            var world = new List<Vector3>(rawVerts.Count);
+            for (int i = 0; i < rawVerts.Count; i++)
+                world.Add(OfficialBrushTransform.ToWorld(Vec(rawVerts[i]), location, prepivot, scale, draw, rot));
+
+            Vector3 nrm = Vec(poly["normal"]);
+            nrm = OfficialBrushTransform.RotateNormalUe(nrm, scale, draw, rot);
+            if (nrm.sqrMagnitude < 0.0001f && world.Count >= 3)
+                nrm = Vector3.Cross(world[1] - world[0], world[2] - world[0]).normalized;
+            if (!OfficialBrushTransform.IsTopFace(nrm))
+                continue;
+
+            int i0 = verts.Count;
+            if (!OfficialBrushTransform.AppendPolygon(ToUnity(world), verts, tris))
+                continue;
+            for (int i = i0; i < verts.Count; i++)
+                uvs.Add(new Vector2(verts[i].x, verts[i].z) / 6f);
+            faces++;
+        }
+
+        if (faces == 0)
+            Debug.LogError("[Water] " + tile + "/" + name + ": WaterVolume brush has no upward top face in the official dump");
+        return faces;
+    }
+
+    static List<Vector3> ToUnity(List<Vector3> ue)
+    {
+        var u = new List<Vector3>(ue.Count);
+        for (int i = 0; i < ue.Count; i++)
+        {
+            Vector3 p = ue[i];
+            u.Add(new Vector3(p.y * UeToUnity, p.z * UeToUnity, p.x * UeToUnity));
+        }
+        return u;
+    }
+
+    static Vector3 Vec(JToken token, Vector3 fallback = default)
+    {
+        if (token is not JObject o) return fallback;
+        return new Vector3(
+            (float)(o["x"] ?? fallback.x),
+            (float)(o["y"] ?? fallback.y),
+            (float)(o["z"] ?? fallback.z));
+    }
+
+    static Vector3 Rot(JToken token)
+    {
+        if (token is not JObject o) return Vector3.zero;
+        return new Vector3(
+            (float)(o["pitch"] ?? 0),
+            (float)(o["yaw"] ?? 0),
+            (float)(o["roll"] ?? 0));
     }
 }
