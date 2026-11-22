@@ -1,0 +1,1 @@
+class Bitmap extends Object;
