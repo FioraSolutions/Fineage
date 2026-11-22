@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Fineage.Net.Contract;
 using NUnit.Framework;
 
-/// <summary>NPC buy cart rules: infinite catalog, taxed price totals, RequestBuyItem wire.</summary>
+/// <summary>NPC buy cart rules: infinite catalog, taxed price totals, RequestBuyItem / NetCodec wire.</summary>
 public sealed class ShopNpcBuyEditModeTests
 {
     const int TypeOther = (int)EnumType2.TYPE2_OTHER;
