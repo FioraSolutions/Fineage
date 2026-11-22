@@ -105,6 +105,19 @@ float3 L2_TerrainLightDebugColor(float2 worldUu)
 
 float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu)
 {
+    return L2_TerrainLayerUv(worldUu, uvScale, tileUu, 0.0, 0.0);
+}
+
+float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu, float4 xform)
+{
+    return L2_TerrainLayerUv(worldUu, uvScale, tileUu, xform.x, xform.y);
+}
+
+// worldUu is official UU on Unity XZ (already * 52.5): .x = Unity X = UE Y, .y = Unity Z = UE X.
+// texRotUu is TextureRotation (65536 = 360°). axis is TEXMAPAXIS_XY/XZ/YZ (0/1/2).
+// Axis 1/2 also need world height; callers that only have XZ pass y=0 and those layers stay XY-projected.
+float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu, float texRotUu, float axis)
+{
     float tile = max(tileUu, 1.0);
     float2 s = uvScale.xy;
     if (s.x < 0.001)
@@ -112,7 +125,22 @@ float2 L2_TerrainLayerUv(float2 worldUu, float4 uvScale, float tileUu)
     if (s.y < 0.001)
         s.y = 1;
     // L2 world X is Unity world Z. Grass grain follows that swap on every layer.
-    return worldUu.yx / tile / s + uvScale.zw;
+    float2 uv;
+    if (axis >= 1.5)
+        uv = float2(worldUu.x, 0.0) / tile / s; // YZ without height: UE Y only
+    else if (axis >= 0.5)
+        uv = float2(worldUu.y, 0.0) / tile / s; // XZ without height: UE X only
+    else
+        uv = worldUu.yx / tile / s;
+    uv += uvScale.zw;
+    if (abs(texRotUu) > 0.5)
+    {
+        float a = texRotUu * (6.28318530718 / 65536.0);
+        float c = cos(a);
+        float srot = sin(a);
+        uv = float2(uv.x * c - uv.y * srot, uv.x * srot + uv.y * c);
+    }
+    return uv;
 }
 
 float2 L2_TerrainSplatUv(float2 meshUv)

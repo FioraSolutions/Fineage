@@ -46,6 +46,20 @@ public partial class TerrainConverter
             L2TerrainLayer uvl = terrainInfo.uvLayers[i];
             float us = uvl.uScale == 0 ? 1f : uvl.uScale, vs = uvl.vScale == 0 ? 1f : uvl.vScale;
             terrainMat.SetVector("_Layer_" + i + "_UV", new Vector4(uvl.uScale, uvl.vScale, uvl.uOffset / us, uvl.vOffset / vs));
+            terrainMat.SetVector("_Layer_" + i + "_Xform", new Vector4(uvl.textureRotation, uvl.textureMapAxis, uvl.useAlpha ? 1f : 0f, 0f));
+        }
+
+        const int maxSplatSlices = 9;
+        int used = 0;
+        for (int i = 0; i < terrainInfo.uvLayers.Count; i++) {
+            if (terrainInfo.uvLayers[i] != null && terrainInfo.uvLayers[i].texture != null) {
+                used++;
+            }
+        }
+        if (used - 1 > maxSplatSlices) {
+            Debug.LogError("[Interlude terrain] " + mapToConvert + " has " + used
+                + " used terrain layers; the splat shader exposes " + maxSplatSlices
+                + " overlay slices (layers 1.." + maxSplatSlices + "). Extra official layers will not paint until the shader slice count is raised.");
         }
 
         // Build Texture2D array for textures

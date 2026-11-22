@@ -211,3 +211,17 @@ export FINEAGE_INTERLUDE_TILES=16_25,17_21,17_22,18_14,19_18,19_19,19_21,20_17,2
   -executeMethod L2TerrainMeshCli.RunCli \
   -logFile .work/unity-terrain-holes-1685.log
 ```
+
+
+## Terrain layers (#1686)
+
+Rebuild official `TerrainLayer` slots (texture, alphamap, U/VScale, UPan/VPan, `TextureRotation`, `TextureMapAxis`, `bUseAlpha`, layer Scale) from the #1670 map dump:
+
+```bash
+python3 tools/interlude-extract/rebuild_terrain_layers.py \
+  --export-dir .work/tex-export
+```
+
+The bake parser reads those fields and skips `Texture=None` slots (no silent Base substitution). `_Layer_N_Xform` carries rotation (UE rotator units) and axis into `L2_TerrainLayerUv`. `T_themepark.17_16BG` is referenced on `19_17` but the official `T_themepark.utx` was not in this client tree — bake logs a missing-texture error for that layer.
+
+Shipped meshes/materials still need Unity `L2TerrainMeshCli.RunCli` (no `-nographics`) on every in-repo tile so the new layers paint. Close other Unity instances first; use this worktree, not `~/Projects/Fineage`.

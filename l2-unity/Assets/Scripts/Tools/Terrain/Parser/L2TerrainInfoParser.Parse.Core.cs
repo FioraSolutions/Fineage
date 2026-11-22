@@ -40,6 +40,11 @@ public partial class L2TerrainInfoParser
             }
         }
 
+        if (line.IndexOf("Texture=None", StringComparison.OrdinalIgnoreCase) >= 0
+            || line.IndexOf("Texture=none", StringComparison.OrdinalIgnoreCase) >= 0) {
+            return null;
+        }
+
         if (!textureInfo.Contains("Texture")) {
             return null;
         }
@@ -68,6 +73,46 @@ public partial class L2TerrainInfoParser
         if (wm.Success) {
             layer.uOffset = float.Parse(wm.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
             layer.vOffset = float.Parse(wm.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        var up = System.Text.RegularExpressions.Regex.Match(line, @"UPan=([-0-9.]+)");
+        var vp = System.Text.RegularExpressions.Regex.Match(line, @"VPan=([-0-9.]+)");
+        if (up.Success) {
+            layer.uOffset += float.Parse(up.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+        if (vp.Success) {
+            layer.vOffset += float.Parse(vp.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        var tr = System.Text.RegularExpressions.Regex.Match(line, @"TextureRotation=([-0-9.]+)");
+        if (tr.Success) {
+            layer.textureRotation = float.Parse(tr.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        var ax = System.Text.RegularExpressions.Regex.Match(line, @"TextureMapAxis=([A-Za-z0-9_]+)");
+        if (ax.Success) {
+            string a = ax.Groups[1].Value;
+            if (a == "TEXMAPAXIS_XZ" || a == "1") {
+                layer.textureMapAxis = 1;
+            } else if (a == "TEXMAPAXIS_YZ" || a == "2") {
+                layer.textureMapAxis = 2;
+            } else {
+                layer.textureMapAxis = 0;
+            }
+        }
+
+        var ua = System.Text.RegularExpressions.Regex.Match(line, @"bUseAlpha=(True|False|true|false|1|0)");
+        if (ua.Success) {
+            string v = ua.Groups[1].Value;
+            layer.useAlpha = v == "True" || v == "true" || v == "1";
+        }
+
+        var sc = System.Text.RegularExpressions.Regex.Match(line, @"Scale=\(X=([-0-9.]+),Y=([-0-9.]+),Z=([-0-9.]+)\)");
+        if (sc.Success) {
+            layer.layerScale = new Vector3(
+                float.Parse(sc.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture),
+                float.Parse(sc.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture),
+                float.Parse(sc.Groups[3].Value, System.Globalization.CultureInfo.InvariantCulture));
         }
 
         return layer;
