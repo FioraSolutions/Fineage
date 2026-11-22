@@ -7,6 +7,7 @@ using UnityEngine;
 public interface IWorldSpawnContext
 {
     float GetGroundHeight(Vector3 pos);
+    bool OfflineMode { get; }
     Transform UsersContainer { get; }
     Transform NpcsContainer { get; }
     Transform MonstersContainer { get; }

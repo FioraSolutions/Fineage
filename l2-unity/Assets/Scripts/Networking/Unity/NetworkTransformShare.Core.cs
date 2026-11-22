@@ -18,9 +18,13 @@ public partial class NetworkTransformShare : MonoBehaviour
 
     void Start()
     {
-        NetworkingPacketServices.Bind(world: _world);
-        World world = GameWorld;
-        if (world != null && world.OfflineMode)
+        if (_world == null)
+        {
+            Debug.LogError("[NetworkTransformShare] IWorldSpawnContext missing — GameLifetimeScope.RegisterWorld did not register World.");
+            enabled = false;
+            return;
+        }
+        if (_world.OfflineMode)
         {
             enabled = false;
             return;

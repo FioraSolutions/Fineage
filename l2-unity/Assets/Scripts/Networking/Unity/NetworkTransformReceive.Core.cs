@@ -6,9 +6,12 @@ using VContainer;
 public partial class NetworkTransformReceive : MonoBehaviour
 {
     void Start() {
-        NetworkingPacketServices.Bind(world: _world);
-        World world = GameWorld;
-        if(world != null && world.OfflineMode) {
+        if (_world == null) {
+            Debug.LogError("[NetworkTransformReceive] IWorldSpawnContext missing — GameLifetimeScope.RegisterWorld did not register World.");
+            this.enabled = false;
+            return;
+        }
+        if (_world.OfflineMode) {
             this.enabled = false;
             return;
         }
@@ -29,9 +32,16 @@ public partial class NetworkTransformReceive : MonoBehaviour
 
     public void SetNewPosition(Vector3 pos) {
         /* adjust y to ground height */
-        World world = GameWorld;
-        if (world != null)
-            pos.y = world.GetGroundHeight(pos);
+        if (_world == null)
+        {
+            if (!_loggedMissingSpawnContext)
+            {
+                _loggedMissingSpawnContext = true;
+                Debug.LogError("[NetworkTransformReceive] IWorldSpawnContext missing — GameLifetimeScope.RegisterWorld did not register World.");
+            }
+        }
+        else
+            pos.y = _world.GetGroundHeight(pos);
 
         _serverPosition = pos;
 
