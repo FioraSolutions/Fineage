@@ -46,7 +46,8 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [Inject] private NpcNameTable _npcNames;
     [Inject] private ModelTable _models;
     [Inject] private CharacterInfoWindow _characterInfo;
-    [Inject] private GameManager _gameManager;
+    [Inject] private IGameManager _gameManager;
+    [Inject] private WorldPacketApply _worldApply;
     [Inject] private PacketApplyQueue _applyQueue;
 
     private CharacterInfoWindow CharacterInfo
