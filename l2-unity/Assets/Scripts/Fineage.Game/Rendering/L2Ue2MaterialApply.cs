@@ -139,6 +139,59 @@ public static class L2Ue2MaterialApply
         return null;
     }
 
+    /// <summary>
+    /// A material that already shows a texture from one package must not take a diffuse
+    /// from another package. An empty current texture, or a texture the index does not
+    /// know, does not contradict the props.
+    /// </summary>
+    public static bool TexturePackageAgrees(
+        string currentTexture,
+        string diffuseReference,
+        IReadOnlyList<string> names,
+        IReadOnlyList<string> packages,
+        out string detail)
+    {
+        detail = null;
+        if (string.IsNullOrEmpty(currentTexture) || string.IsNullOrEmpty(diffuseReference))
+            return true;
+
+        string currentShort = L2Ue2MaterialChain.ShortName(currentTexture);
+        string diffuseShort = L2Ue2MaterialChain.ShortName(diffuseReference);
+        if (string.Equals(currentShort, diffuseShort, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        string currentPackage = UniquePackage(names, packages, currentShort);
+        string diffusePackage = L2Ue2MaterialChain.PackageName(diffuseReference);
+        if (string.IsNullOrEmpty(diffusePackage))
+            diffusePackage = UniquePackage(names, packages, diffuseShort);
+        if (string.IsNullOrEmpty(currentPackage) || string.IsNullOrEmpty(diffusePackage))
+            return true;
+        if (string.Equals(currentPackage, diffusePackage, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        detail = "texture " + currentTexture + " package " + currentPackage
+            + " vs props diffuse " + diffuseReference + " package " + diffusePackage;
+        return false;
+    }
+
+    static string UniquePackage(IReadOnlyList<string> names, IReadOnlyList<string> packages, string shortName)
+    {
+        if (names == null || packages == null || string.IsNullOrEmpty(shortName))
+            return null;
+        string found = null;
+        int count = Math.Min(names.Count, packages.Count);
+        for (int i = 0; i < count; i++)
+        {
+            if (!string.Equals(names[i], shortName, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (found == null)
+                found = packages[i];
+            else if (!string.Equals(found, packages[i], StringComparison.OrdinalIgnoreCase))
+                return null;
+        }
+        return found;
+    }
+
     public static void LoadIndex(string tsv, List<string> names, List<string> packages, List<string> paths)
     {
         if (!File.Exists(tsv))

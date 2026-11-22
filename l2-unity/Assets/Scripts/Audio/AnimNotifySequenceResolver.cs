@@ -2,13 +2,23 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Maps a Unity clip name to an official MeshAnimation sequence name.
-/// Does not invent a sequence when the clip cannot be bound.
+/// Maps a Unity clip name to one MeshAnimation's sequence.
+/// A sequence name that exists on more than one MeshAnimation is not a match
+/// unless the owner's animation is known. Other packages are not played.
 /// </summary>
 public static class AnimNotifySequenceResolver
 {
-    public static bool TryResolve(string clipName, string animationHint, out string sequence, out string error)
+    public static bool TryResolve(string clipName, string animationHint, out string sequence, out string error) =>
+        TryResolve(clipName, animationHint, out _, out sequence, out error);
+
+    public static bool TryResolve(
+        string clipName,
+        string animationHint,
+        out string animation,
+        out string sequence,
+        out string error)
     {
+        animation = null;
         sequence = null;
         error = null;
         AnimNotifyTable.Load();
@@ -18,25 +28,20 @@ public static class AnimNotifySequenceResolver
             return false;
         }
 
-        if (AnimNotifyTable.HasSequence(clipName))
-        {
-            sequence = clipName;
-            return true;
-        }
-
+        string owner = string.IsNullOrEmpty(animationHint) ? null : animationHint;
         string stripped = StripCloneSuffix(clipName);
-        if (!string.Equals(stripped, clipName, StringComparison.Ordinal)
-            && AnimNotifyTable.HasSequence(stripped))
-        {
-            sequence = stripped;
-            return true;
-        }
+        if (TryTakeExact(stripped, owner, clipName, out animation, out sequence, out error))
+            return sequence != null;
+        if (error != null)
+            return false;
 
         string best = null;
         int bestScore = -1;
         int ties = 0;
         foreach (string name in AnimNotifyTable.SequenceKeys)
         {
+            if (owner != null && !AnimNotifyTable.AnimationHasSequence(owner, name))
+                continue;
             int score = Score(stripped, name, animationHint);
             if (score < 0)
                 continue;
@@ -54,6 +59,19 @@ public static class AnimNotifySequenceResolver
 
         if (best != null && ties == 1)
         {
+            if (owner == null
+                && AnimNotifyTable.TryGetAnimations(best, out IReadOnlyList<string> owners)
+                && owners.Count > 1)
+            {
+                error = FormatShared(best, clipName, owners);
+                return false;
+            }
+
+            animation = owner;
+            if (animation == null
+                && AnimNotifyTable.TryGetAnimations(best, out IReadOnlyList<string> single)
+                && single.Count == 1)
+                animation = single[0];
             sequence = best;
             return true;
         }
@@ -70,6 +88,51 @@ public static class AnimNotifySequenceResolver
             + (string.IsNullOrEmpty(animationHint) ? "" : " animation=\"" + animationHint + "\"")
             + ".";
         return false;
+    }
+
+    static bool TryTakeExact(
+        string stripped,
+        string owner,
+        string clipName,
+        out string animation,
+        out string sequence,
+        out string error)
+    {
+        animation = null;
+        sequence = null;
+        error = null;
+        if (!AnimNotifyTable.TryGetAnimations(stripped, out IReadOnlyList<string> owners) || owners.Count == 0)
+            return false;
+
+        if (owner != null)
+        {
+            if (!AnimNotifyTable.AnimationHasSequence(owner, stripped))
+                return false;
+            animation = owner;
+            sequence = stripped;
+            return true;
+        }
+
+        if (owners.Count == 1)
+        {
+            animation = owners[0];
+            sequence = stripped;
+            return true;
+        }
+
+        error = FormatShared(stripped, clipName, owners);
+        return true;
+    }
+
+    static string FormatShared(string sequence, string clipName, IReadOnlyList<string> owners)
+    {
+        string sample = owners.Count > 0 ? owners[0] : "";
+        if (owners.Count > 1)
+            sample = sample + ", " + owners[1];
+        return "AnimNotifyPlayback: sequence=\"" + sequence + "\" is shared by "
+            + owners.Count + " MeshAnimations (for example " + sample
+            + ") and the owner MeshAnimation is missing. clip=\"" + clipName
+            + "\". Other packages are not played.";
     }
 
     static string StripCloneSuffix(string name)

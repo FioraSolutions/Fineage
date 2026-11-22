@@ -163,6 +163,28 @@ public static class L2Ue2MaterialChain
         return eval;
     }
 
+    /// <summary>
+    /// The world chain upgrades imported materials (Standard, SpeedTree, and other
+    /// non-pipeline shaders). Sky, UI, effects, terrain splats, and water already
+    /// have a client shader and must not be retargeted to another package's diffuse.
+    /// </summary>
+    public static bool CanUpgradeShader(string shaderName)
+    {
+        if (string.IsNullOrEmpty(shaderName))
+            return true;
+        if (shaderName.StartsWith("Hidden/L2/", StringComparison.Ordinal))
+            return false;
+        if (!shaderName.StartsWith("L2/", StringComparison.Ordinal))
+            return true;
+        if (shaderName.StartsWith("L2/Sky/", StringComparison.Ordinal)
+            || shaderName.StartsWith("L2/UI/", StringComparison.Ordinal)
+            || shaderName.StartsWith("L2/Effects/", StringComparison.Ordinal)
+            || shaderName.StartsWith("L2/World/Terrain", StringComparison.Ordinal)
+            || shaderName.StartsWith("L2/World/Water", StringComparison.Ordinal))
+            return false;
+        return true;
+    }
+
     public static bool NeedsChainShader(Eval eval)
     {
         if (eval == null)

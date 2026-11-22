@@ -85,7 +85,7 @@ public static class PlayerLocomotionPlayback
             return 0f;
         }
 
-        if (!TryOfficialCycle(clip.name, out float officialSeconds, out string clockError))
+        if (!TryOfficialCycle(entity, clip.name, out float officialSeconds, out string clockError))
         {
             LogClock(subject, gait, clip.name, clockError);
             return 0f;
@@ -106,15 +106,18 @@ public static class PlayerLocomotionPlayback
             LocomotionGait.MaxRate);
     }
 
-    static bool TryOfficialCycle(string clipName, out float officialSeconds, out string error)
+    static bool TryOfficialCycle(Entity entity, string clipName, out float officialSeconds, out string error)
     {
         officialSeconds = 0f;
         error = null;
-        if (!AnimNotifySequenceResolver.TryResolve(clipName, null, out string sequence, out error))
+        string owner = InterludeAnimationClipResolver.OwnerMeshAnimation(entity);
+        if (!AnimNotifySequenceResolver.TryResolve(clipName, owner, out string animation, out string sequence, out error))
             return false;
-        if (!AnimNotifyTable.TryGetBySequence(sequence, out var bindings) || bindings.Count == 0)
+        if (string.IsNullOrEmpty(animation)
+            || !AnimNotifyTable.TryGetByMeshSequence(animation, sequence, out var bindings)
+            || bindings.Count == 0)
         {
-            error = "no notify row for sequence=\"" + sequence + "\"";
+            error = "no notify row for animation=\"" + (animation ?? "") + "\" sequence=\"" + sequence + "\"";
             return false;
         }
 

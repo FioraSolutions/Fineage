@@ -147,4 +147,38 @@ public static class InterludeAnimationClipResolver
             expected);
         return null;
     }
+
+    /// <summary>
+    /// MeshAnimation name for this pawn: race + "_anim" for players, npcgrp mesh stem for NPCs.
+    /// Null when the pawn has no race and no npcgrp mesh. Callers must not substitute another package.
+    /// </summary>
+    public static string OwnerMeshAnimation(Entity entity)
+    {
+        if (entity == null)
+            return null;
+        if (entity is PlayerEntity || entity is UserEntity)
+        {
+            string race = entity.RaceId.ToString();
+            if (string.IsNullOrEmpty(race))
+                return null;
+            return race + "_anim";
+        }
+
+        if (entity.Identity == null || entity.Identity.NpcId <= 0)
+            return null;
+        Npcgrp grp = TablePacketServices.NpcGrps != null
+            ? TablePacketServices.NpcGrps.GetNpcgrp(entity.Identity.NpcId)
+            : null;
+        if (grp == null || string.IsNullOrEmpty(grp.Mesh))
+            return null;
+
+        string mesh = grp.Mesh;
+        int dot = mesh.LastIndexOf('.');
+        if (dot >= 0 && dot < mesh.Length - 1)
+            mesh = mesh.Substring(dot + 1);
+        int slash = Math.Max(mesh.LastIndexOf('/'), mesh.LastIndexOf('\\'));
+        if (slash >= 0 && slash < mesh.Length - 1)
+            mesh = mesh.Substring(slash + 1);
+        return DeriveMeshAnimKey(mesh);
+    }
 }

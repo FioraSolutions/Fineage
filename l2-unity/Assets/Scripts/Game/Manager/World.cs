@@ -23,7 +23,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [SerializeField] private GameObject _usersContainer;
     [SerializeField] private GameObject _itemsContainer;
 
-    [Inject] private EventProcessor _eventProcessor;
+    [Inject] private IEventQueue _eventQueue;
     [Inject] private Geodata _geodata;
     [Inject] private WorldCombat _worldCombat;
     [Inject] private ObjectPoolManager _objectPool;
@@ -32,6 +32,8 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
     [Inject] private AppearFadeService _appearFade;
     [Inject] private CameraController _camera;
     [Inject] private IAnimationManager _animations;
+    [Inject] private IAnimationRoster _animationRoster;
+    [Inject] private IVisibilityRoster _visibility;
     [Inject] private PlayerSpawner _playerSpawner;
     [Inject] private UserSpawner _userSpawner;
     [Inject] private NpcSpawner _npcSpawner;
@@ -54,7 +56,7 @@ public partial class World : MonoBehaviour, IWorldSpawnRegistration, IWorldEntit
 
     public IAnimationManager Animations
     {
-        get { return _animations != null ? _animations : WorldPacketServices.Animations; }
+        get { return _animations; }
     }
 
     public Transform UsersContainer

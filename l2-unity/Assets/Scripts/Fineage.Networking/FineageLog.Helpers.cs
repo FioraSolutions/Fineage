@@ -85,16 +85,21 @@ public static partial class FineageLog
         if (info.Length < MaxFileBytes)
             return;
 
-        string bak = path + ".1";
+        int slot = 1;
+        while (slot <= MaxRotations && File.Exists(path + "." + slot))
+            slot++;
+        // The lowest number is the start of the session. Never delete it.
+        // Past the cap, keep appending to the live file.
+        if (slot > MaxRotations)
+            return;
+
         try
         {
-            if (File.Exists(bak))
-                File.Delete(bak);
-            File.Move(path, bak);
+            File.Move(path, path + "." + slot);
         }
         catch
         {
-            try { File.WriteAllText(path, string.Empty); } catch { /* ignore */ }
+            /* keep the earlier chunks */
         }
     }
 }

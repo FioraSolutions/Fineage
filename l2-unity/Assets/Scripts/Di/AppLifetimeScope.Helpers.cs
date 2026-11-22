@@ -36,7 +36,7 @@ public sealed partial class AppLifetimeScope : LifetimeScope
         EventProcessor events = GetComponent<EventProcessor>();
         if (events == null)
             events = gameObject.AddComponent<EventProcessor>();
-        builder.RegisterComponent(events);
+        builder.RegisterComponent(events).AsSelf().As<IEventQueue>();
     }
 
     /// <summary>

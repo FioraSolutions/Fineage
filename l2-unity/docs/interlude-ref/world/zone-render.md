@@ -3,8 +3,9 @@
 Derived from `world/maps/*.unr.json.gz` and `world/env/*.unr.json.gz`.
 The gzip dumps stay the lossless source.
 An empty cell means the property was not authored on that actor.
-Engine.u `ZoneInfo` class defaults are not in this catalog, so a missing
-`DistanceFogStart` is empty rather than a guessed 3000.
+Engine.u `ZoneInfo` defaultproperties are not serialized in the map, so they are
+not copied into this catalog. When `fog_start` is empty the runtime applies the
+class default `DistanceFogStart=3000`.
 
 Columns: `map`, `class`, `name`, `zone_tag`, `b_distance_fog`, `b_terrain_zone`, `fog_start`, `fog_end`, `fog_r`, `fog_g`, `fog_b`, `fog_a`, `tex_u_pan`, `tex_v_pan`, `lens_flares`, `lens_offsets`, `lens_scales`, `radius`, `limit_max_radius`, `b_directional`, `draw_scale`, `light_brightness`, `rot_pitch`, `rot_yaw`, `rot_roll`.
 

@@ -18,7 +18,7 @@ public partial class World
         _entities.RegisterPlayer(id, player);
         _entityWait.Notify(id, player);
         L2ActorPointLights.TryRegisterActorRoot(player.transform);
-        VisibilityPacketServices.Manager?.Register(id, player.transform, isLocalPlayer: true);
+        _visibility.Register(id, player.transform, isLocalPlayer: true);
     }
 
     public void RegisterUser(Entity user)
@@ -35,7 +35,7 @@ public partial class World
 
         _entityWait.Notify(id, user);
         L2ActorPointLights.TryRegisterActorRoot(user.transform);
-        VisibilityPacketServices.Manager?.Register(id, user.transform);
+        _visibility.Register(id, user.transform);
     }
 
     public void SpawnUser(CharInfoDto info)

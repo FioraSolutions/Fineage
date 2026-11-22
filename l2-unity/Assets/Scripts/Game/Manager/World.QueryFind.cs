@@ -133,7 +133,7 @@ public partial class World
             return;
 
         try {
-            _eventProcessor.QueueEvent(() => {
+            _eventQueue.QueueEvent(() => {
                 // Entity may have been removed between wait completion and main-thread apply.
                 if (GetEntityNoLockSync(id) != entity)
                     return;
@@ -162,7 +162,7 @@ public partial class World
             return;
 
         try {
-            _eventProcessor.QueueEvent(() => {
+            _eventQueue.QueueEvent(() => {
                 if (GetEntityNoLockSync(id1) != entity1 || GetEntityNoLockSync(id2) != entity2)
                     return;
                 action(entity1, entity2);

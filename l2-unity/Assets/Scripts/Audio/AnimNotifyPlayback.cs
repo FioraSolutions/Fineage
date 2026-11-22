@@ -14,6 +14,7 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
 
     string _clipName;
     string _sequence;
+    string _ownerAnimation;
     string _sequenceError;
     float _lastNormalized;
     bool _hasLast;
@@ -85,14 +86,15 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
             BindSequence(clipName);
         }
 
-        if (string.IsNullOrEmpty(_sequence))
+        if (string.IsNullOrEmpty(_sequence) || string.IsNullOrEmpty(_ownerAnimation))
             return;
 
-        if (!AnimNotifyTable.TryGetByMeshSequence(_animationHint, _sequence, out var bindings)
-            && !AnimNotifyTable.TryGetBySequence(_sequence, out bindings))
+        if (!AnimNotifyTable.TryGetByMeshSequence(_ownerAnimation, _sequence, out var bindings))
         {
-            if (_logged.Add("empty:" + _sequence))
-                Log("AnimNotifyPlayback: sequence=\"" + _sequence + "\" has no notify bindings clip=\"" + _clipName + "\".");
+            if (_logged.Add("empty:" + _ownerAnimation + "\0" + _sequence))
+                Log("AnimNotifyPlayback: no notify row animation=\"" + _ownerAnimation
+                    + "\" sequence=\"" + _sequence + "\" clip=\"" + _clipName
+                    + "\". Name-only lookup is not used.");
             return;
         }
 
@@ -136,16 +138,51 @@ public sealed class AnimNotifyPlayback : MonoBehaviour
     void BindSequence(string clipName)
     {
         _sequence = null;
+        _ownerAnimation = null;
         _sequenceError = null;
-        if (AnimNotifySequenceResolver.TryResolve(clipName, _animationHint, out string sequence, out string error))
+        string owner = ResolveOwnerAnimation(clipName);
+        if (AnimNotifySequenceResolver.TryResolve(
+            clipName, owner, out string animation, out string sequence, out string error))
         {
             _sequence = sequence;
-            return;
+            _ownerAnimation = animation;
+            if (!string.IsNullOrEmpty(_ownerAnimation))
+                return;
+            error = "AnimNotifyPlayback: sequence=\"" + sequence
+                + "\" resolved without a MeshAnimation. clip=\"" + clipName + "\".";
         }
 
+        _sequence = null;
+        _ownerAnimation = null;
         _sequenceError = error;
-        if (!string.IsNullOrEmpty(error) && _logged.Add("seq:" + clipName))
+        if (!string.IsNullOrEmpty(error) && _logged.Add("seq:" + clipName + "|" + (owner ?? "")))
             Log(error);
+    }
+
+    string ResolveOwnerAnimation(string clipName)
+    {
+        if (!string.IsNullOrEmpty(_animationHint))
+            return _animationHint;
+
+        string fromClip = AnimationFromClip(clipName);
+        if (!string.IsNullOrEmpty(fromClip) && AnimNotifyTable.HasAnimation(fromClip))
+            return fromClip;
+
+        Entity entity = GetComponentInParent<Entity>();
+        string fromOwner = InterludeAnimationClipResolver.OwnerMeshAnimation(entity);
+        if (!string.IsNullOrEmpty(fromOwner))
+            return fromOwner;
+        return fromClip;
+    }
+
+    static string AnimationFromClip(string clipName)
+    {
+        if (string.IsNullOrEmpty(clipName))
+            return null;
+        int ao = clipName.IndexOf(".ao_", System.StringComparison.OrdinalIgnoreCase);
+        if (ao <= 0)
+            return null;
+        return InterludeAnimationClipResolver.DeriveMeshAnimKey(clipName.Substring(0, ao));
     }
 
     void FireRange(

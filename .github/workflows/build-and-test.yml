@@ -89,7 +89,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Check texture and audio import policy (.meta)
-        run: python3 scripts/check-asset-import-policy.py
+        run: |
+          python3 scripts/test_asset_import_policy_meta.py
+          python3 scripts/check-asset-import-policy.py
 
       - name: Check NPC/monster meter scale contract (#1473)
         run: python3 scripts/check-npc-monster-meter-contract.py

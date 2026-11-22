@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -17,14 +18,16 @@ public sealed partial class AppLifetimeScope : LifetimeScope
 
         builder.Register<EventProcessorApplyPump>(Lifetime.Singleton).As<IMainThreadApplyPump>();
         builder.Register<FineageZoneTransport>(Lifetime.Singleton).As<IZoneTransport>();
-        builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().AsSelf();
+        builder.Register<AnimationManager>(Lifetime.Singleton).As<IAnimationManager>().As<IAnimationRoster>().AsSelf();
         RegisterDatTables(builder);
 
         builder.RegisterBuildCallback(container =>
         {
+            AnimationManager animations = RequireAnimationRoster(container);
+            RequireAnimationManager(container);
+            RequireEventQueue(container);
             AudioSessionBootstrap.EnsureSession();
             App.Container = container;
-            AnimationManager animations = container.Resolve<AnimationManager>();
             AnimationManager.Bind(animations);
             LogongrpTable.Bind(container.Resolve<LogongrpTable>());
             ItemNameTable.Bind(container.Resolve<ItemNameTable>());
@@ -64,5 +67,86 @@ public sealed partial class AppLifetimeScope : LifetimeScope
             // NetworkingPacketServices.Bind(manager) already done in BindApp above; session bound above.
             LobbyFlowLog.Wire(() => manager == null || manager.GameState < GameState.IN_GAME);
         });
+    }
+
+    static AnimationManager RequireAnimationRoster(IObjectResolver container)
+    {
+        IAnimationRoster roster;
+        try
+        {
+            roster = container.Resolve<IAnimationRoster>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IAnimationRoster))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IAnimationRoster missing — AnimationManager was not registered as IAnimationRoster.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        AnimationManager animations = roster as AnimationManager;
+        if (animations == null)
+        {
+            throw new InvalidOperationException(
+                "[AppLifetimeScope] IAnimationRoster is not an AnimationManager — AnimationManager was not registered as IAnimationRoster.");
+        }
+
+        return animations;
+    }
+
+    static void RequireAnimationManager(IObjectResolver container)
+    {
+        IAnimationManager manager;
+        try
+        {
+            manager = container.Resolve<IAnimationManager>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IAnimationManager))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IAnimationManager missing — AnimationManager was not registered as IAnimationManager.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (manager is AnimationManager)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IAnimationManager is not an AnimationManager — AnimationManager was not registered as IAnimationManager.");
+    }
+
+    static void RequireEventQueue(IObjectResolver container)
+    {
+        IEventQueue queue;
+        try
+        {
+            queue = container.Resolve<IEventQueue>();
+        }
+        catch (VContainerException ex)
+        {
+            if (ex.InvalidType == typeof(IEventQueue))
+            {
+                throw new InvalidOperationException(
+                    "[AppLifetimeScope] IEventQueue missing — EventProcessor was not registered as IEventQueue.",
+                    ex);
+            }
+
+            throw;
+        }
+
+        if (queue is EventProcessor)
+            return;
+
+        throw new InvalidOperationException(
+            "[AppLifetimeScope] IEventQueue is not an EventProcessor — EventProcessor was not registered as IEventQueue.");
     }
 }

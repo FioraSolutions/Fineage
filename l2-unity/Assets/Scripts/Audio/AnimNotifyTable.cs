@@ -19,6 +19,10 @@ public static class AnimNotifyTable
         new Dictionary<string, List<AnimNotifyBinding>>(StringComparer.OrdinalIgnoreCase);
     static readonly Dictionary<string, List<AnimNotifyBinding>> ByMeshSequence =
         new Dictionary<string, List<AnimNotifyBinding>>(StringComparer.OrdinalIgnoreCase);
+    static readonly Dictionary<string, List<string>> AnimationsBySequence =
+        new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+    static readonly Dictionary<string, HashSet<string>> SequencesByAnimation =
+        new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
     static readonly HashSet<string> SequenceNames =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     static bool _loaded;
@@ -39,6 +43,8 @@ public static class AnimNotifyTable
     {
         BySequence.Clear();
         ByMeshSequence.Clear();
+        AnimationsBySequence.Clear();
+        SequencesByAnimation.Clear();
         SequenceNames.Clear();
         BindingCount = 0;
         _loaded = false;
@@ -58,6 +64,8 @@ public static class AnimNotifyTable
     {
         BySequence.Clear();
         ByMeshSequence.Clear();
+        AnimationsBySequence.Clear();
+        SequencesByAnimation.Clear();
         SequenceNames.Clear();
         BindingCount = 0;
         _loadError = null;
@@ -92,6 +100,7 @@ public static class AnimNotifyTable
                     continue;
                 BindingCount++;
                 SequenceNames.Add(binding.Sequence);
+                NoteOwner(binding.Animation, binding.Sequence);
                 Add(BySequence, binding.Sequence, binding);
                 Add(ByMeshSequence, binding.Animation + "\0" + binding.Sequence, binding);
             }
@@ -121,7 +130,38 @@ public static class AnimNotifyTable
             return list.Count > 0;
         }
 
-        return TryGetBySequence(sequence, out bindings);
+        bindings = Array.Empty<AnimNotifyBinding>();
+        return false;
+    }
+
+    public static bool TryGetAnimations(string sequence, out IReadOnlyList<string> animations)
+    {
+        EnsureLoaded();
+        if (!string.IsNullOrEmpty(sequence)
+            && AnimationsBySequence.TryGetValue(sequence, out List<string> list)
+            && list.Count > 0)
+        {
+            animations = list;
+            return true;
+        }
+
+        animations = Array.Empty<string>();
+        return false;
+    }
+
+    public static bool AnimationHasSequence(string animation, string sequence)
+    {
+        EnsureLoaded();
+        return !string.IsNullOrEmpty(animation)
+            && !string.IsNullOrEmpty(sequence)
+            && SequencesByAnimation.TryGetValue(animation, out HashSet<string> seqs)
+            && seqs.Contains(sequence);
+    }
+
+    public static bool HasAnimation(string animation)
+    {
+        EnsureLoaded();
+        return !string.IsNullOrEmpty(animation) && SequencesByAnimation.ContainsKey(animation);
     }
 
     public static bool HasSequence(string sequence)
@@ -143,6 +183,30 @@ public static class AnimNotifyTable
     {
         if (!_loaded)
             Load();
+    }
+
+    static void NoteOwner(string animation, string sequence)
+    {
+        if (!AnimationsBySequence.TryGetValue(sequence, out List<string> owners))
+        {
+            owners = new List<string>();
+            AnimationsBySequence[sequence] = owners;
+        }
+
+        for (int i = 0; i < owners.Count; i++)
+        {
+            if (string.Equals(owners[i], animation, StringComparison.OrdinalIgnoreCase))
+                return;
+        }
+
+        owners.Add(animation);
+        if (!SequencesByAnimation.TryGetValue(animation, out HashSet<string> seqs))
+        {
+            seqs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            SequencesByAnimation[animation] = seqs;
+        }
+
+        seqs.Add(sequence);
     }
 
     static void Add(Dictionary<string, List<AnimNotifyBinding>> map, string key, AnimNotifyBinding binding)

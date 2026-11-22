@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Roster <c>World</c> uses to register and drop visible actors (#131 S38).
+/// Roster <c>World</c> injects to register and drop visible actors (#131 S38, S38h).
+/// <c>GameLifetimeScope</c> registers <c>VisibilityManager</c> as this interface.
 /// </summary>
 public interface IVisibilityRoster
 {

@@ -54,6 +54,16 @@ AUDIO_COMPRESSION_ID = {
     "ADPCM": 2,
 }
 
+# Unity YAML uses buildTarget iOS; rules JSON and the TextureImporter API use iPhone.
+TEXTURE_PLATFORM_ALIASES: dict[str, tuple[str, ...]] = {
+    "iPhone": ("iOS",),
+    "iOS": ("iPhone",),
+}
+
+
+def texture_platform_aliases(canonical: str) -> tuple[str, ...]:
+    return (canonical,) + TEXTURE_PLATFORM_ALIASES.get(canonical, ())
+
 
 @dataclass(frozen=True)
 class TextureExpectation:
@@ -260,30 +270,56 @@ def _set_yaml_scalar(text: str, key: str, value: int | float, parent_indent: str
     return text
 
 
+def _platform_settings_span(lines: list[str]) -> tuple[int, int] | None:
+    """Return [start, end) line span covering platformSettings and its list items."""
+    for i, line in enumerate(lines):
+        if not line.startswith("  platformSettings:"):
+            continue
+        end = i + 1
+        while end < len(lines):
+            next_line = lines[end]
+            if next_line.startswith("  -") or next_line.startswith("    "):
+                end += 1
+                continue
+            break
+        return (i, end)
+    return None
+
+
 def _parse_platform_blocks(text: str) -> dict[str, tuple[int, int]]:
     """Return buildTarget -> (start, end) line indexes of each platform block."""
     lines = text.splitlines(keepends=True)
+    span = _platform_settings_span(lines)
+    if span is None:
+        return {}
+    start_line, end_line = span
     blocks: dict[str, tuple[int, int]] = {}
-    for i, line in enumerate(lines):
-        if line.strip() != "platformSettings:":
-            continue
-        j = i + 1
-        while j < len(lines) and (lines[j].startswith("  -") or lines[j].startswith("    ")):
-            if not lines[j].startswith("  - serializedVersion:"):
-                j += 1
-                continue
-            start = j
-            target: str | None = None
+    j = start_line + 1
+    while j < end_line:
+        if not lines[j].startswith("  - serializedVersion:"):
             j += 1
-            while j < len(lines) and lines[j].startswith("    "):
-                stripped = lines[j].strip()
-                if stripped.startswith("buildTarget:"):
-                    target = stripped.split(":", 1)[1].strip()
-                j += 1
-            if target is not None:
-                blocks[target] = (start, j)
-        break
+            continue
+        start = j
+        target: str | None = None
+        j += 1
+        while j < end_line and lines[j].startswith("    "):
+            stripped = lines[j].strip()
+            if stripped.startswith("buildTarget:"):
+                target = stripped.split(":", 1)[1].strip()
+            j += 1
+        if target is not None:
+            blocks[target] = (start, j)
     return blocks
+
+
+def _lookup_platform_settings(
+    platforms: dict[str, dict[str, int]], canonical: str
+) -> dict[str, int] | None:
+    for name in texture_platform_aliases(canonical):
+        plat = platforms.get(name)
+        if plat is not None:
+            return plat
+    return None
 
 
 def _render_platform_block(target: str, settings: dict[str, Any]) -> str:
@@ -308,6 +344,65 @@ def _render_platform_block(target: str, settings: dict[str, Any]) -> str:
     )
 
 
+def _render_platform_settings(expectation: TextureExpectation) -> str:
+    # Preserve a stable order so diffs stay predictable across platforms.
+    order = ("Standalone", "Android", "iPhone")
+    rendered: list[str] = ["  platformSettings:\n"]
+    seen: set[str] = set()
+    for target in order:
+        settings = expectation.platforms.get(target)
+        if settings is None:
+            continue
+        rendered.append(_render_platform_block(target, settings))
+        seen.add(target)
+    for target, settings in expectation.platforms.items():
+        if target in seen:
+            continue
+        rendered.append(_render_platform_block(target, settings))
+    if len(rendered) == 1:
+        raise ValueError("texture rule has no platform entries")
+    return "".join(rendered)
+
+
+def _replace_platform_settings(text: str, expectation: TextureExpectation) -> str:
+    lines = text.splitlines(keepends=True)
+    span = _platform_settings_span(lines)
+    new_section = _render_platform_settings(expectation)
+    if span is None:
+        insert_at = None
+        for idx, line in enumerate(lines):
+            if line.startswith("  spriteSheet:"):
+                insert_at = idx
+                break
+        if insert_at is None:
+            raise ValueError("TextureImporter platformSettings section not found")
+        lines.insert(insert_at, new_section)
+        return "".join(lines)
+    start, end = span
+    lines[start:end] = [new_section]
+    return "".join(lines)
+
+
+def _platform_settings_need_rewrite(text: str, expectation: TextureExpectation) -> bool:
+    if "platformSettings: []" in text:
+        return True
+    span = _platform_settings_span(text.splitlines(keepends=True))
+    if span is None:
+        return True
+    current = read_texture_meta_values(text)
+    for target, settings in expectation.platforms.items():
+        plat = _lookup_platform_settings(current["platforms"], target)
+        if plat is None:
+            return True
+        if plat["textureFormat"] != TEXTURE_FORMAT_ID[settings["format"]]:
+            return True
+        if plat["textureCompression"] != TEXTURE_COMPRESSION_ID[settings["compression"]]:
+            return True
+        if plat["overridden"] != (1 if settings.get("overridden", True) else 0):
+            return True
+    return False
+
+
 def apply_texture_meta(text: str, expectation: TextureExpectation) -> str:
     text = _set_yaml_scalar(text, "isReadable", 1 if expectation.readable else 0)
     text = _set_yaml_scalar(text, "streamingMipmaps", 1 if expectation.streaming_mipmaps else 0, parent_indent="  ")
@@ -326,29 +421,9 @@ def apply_texture_meta(text: str, expectation: TextureExpectation) -> str:
         text = _set_yaml_scalar(text, "wrapV", expectation.wrap_mode, parent_indent="    ")
         text = _set_yaml_scalar(text, "wrapW", expectation.wrap_mode, parent_indent="    ")
 
-    lines = text.splitlines(keepends=True)
-    blocks = _parse_platform_blocks(text)
-    # Apply from the bottom up so indexes stay valid when replacing ranges.
-    for target, settings in sorted(
-        expectation.platforms.items(),
-        key=lambda item: blocks.get(item[0], (0, 0))[0],
-        reverse=True,
-    ):
-        new_block = _render_platform_block(target, settings)
-        if target in blocks:
-            start, end = blocks[target]
-            lines[start:end] = [new_block]
-            continue
-
-        insert_at = None
-        for idx, line in enumerate(lines):
-            if line.startswith("  platformSettings:"):
-                insert_at = idx + 1
-                break
-        if insert_at is None:
-            raise ValueError("TextureImporter platformSettings section not found")
-        lines.insert(insert_at, new_block)
-    return "".join(lines)
+    if _platform_settings_need_rewrite(text, expectation):
+        text = _replace_platform_settings(text, expectation)
+    return text
 
 
 def apply_audio_meta(text: str, expectation: AudioExpectation) -> str:
@@ -406,7 +481,7 @@ def texture_meta_matches(text: str, expectation: TextureExpectation) -> bool:
         if not mip_cov or int(mip_cov.group(1)) != 1:
             return False
     for target, settings in expectation.platforms.items():
-        plat = current["platforms"].get(target)
+        plat = _lookup_platform_settings(current["platforms"], target)
         if plat is None:
             return False
         if plat["textureFormat"] != TEXTURE_FORMAT_ID[settings["format"]]:
