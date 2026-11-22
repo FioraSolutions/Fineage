@@ -8,21 +8,22 @@ public partial class TargetWindow : L2Window
 {
     protected override IEnumerator BuildWindow(VisualElement root) {
         InitWindow(root);
+        InterludeWindowLayout.Apply(_windowEle, "TargetStatusWnd");
 
         yield return new WaitForEndOfFrame();
 
-        // The whole Interlude SmallWnd plate is the drag handle (as in the client: no title bar).
-        var statusWindowDragArea = GetElementById("ChromeRow");
-        if (statusWindowDragArea != null)
-        {
-            DragManipulator drag = new DragManipulator(statusWindowDragArea, _windowEle);
-            statusWindowDragArea.AddManipulator(drag);
-        }
+        DragManipulator drag = new DragManipulator(_windowEle, _windowEle);
+        _windowEle.AddManipulator(drag);
 
-        var horizontalResizeHandle = GetElementByClass("hor-resize-handle");
-        AttachInvisibleHorizontalResize(horizontalResizeHandle, _targetWindowMinWidth, _targetWindowMaxWidth);
+        float minWidth = _targetWindowMinWidth;
+        float layoutWidth;
+        float layoutHeight;
+        if (InterludeWindowLayout.TryWindowSize("TargetStatusWnd", out layoutWidth, out layoutHeight))
+            minWidth = layoutWidth;
+        VisualElement horizontalResizeHandle = GetElementByClass("hor-resize-handle");
+        AttachInvisibleHorizontalResize(horizontalResizeHandle, minWidth, _targetWindowMaxWidth);
 
-        var closeBtnHandle = (Button) GetElementById("CloseBtn");
+        Button closeBtnHandle = (Button)GetElementById("btnClose");
         if (closeBtnHandle != null)
         {
             closeBtnHandle.AddManipulator(new ButtonClickSoundManipulator(closeBtnHandle));
@@ -31,11 +32,11 @@ public partial class TargetWindow : L2Window
             });
         }
 
-        _nameLabel = (Label)GetElementById("TargetName");
-        _HPBar = GetElementById("HPBar");
-        _HPBarBG = GetElementById("HPBarBG");
+        _nameLabel = (Label)GetElementById("UserName");
+        _HPBar = GetElementById("barHP__fill");
+        _HPBarBG = GetElementById("barHP");
         _effectsRow = GetElementById("EffectsRow");
-        _propertiesRow = GetElementById("PropertiesRow");
+        _propertiesRow = GetElementById("NpcInfo");
         _expandButton = GetElementById("ExpandBtn") as Button;
 
         if (_expandButton != null)
@@ -48,10 +49,7 @@ public partial class TargetWindow : L2Window
         if (_propertiesRow != null)
             _propertiesRow.style.display = DisplayStyle.None;
 
-        _windowEle.style.position = Position.Absolute;
-        _windowEle.style.width = _targetWindowMinWidth;
-        _windowEle.style.left = Screen.width / 2f - _targetWindowMinWidth / 2f;
-        _windowEle.style.top = 0;
+        RefreshPlateHeight();
     }
 
     private void FixedUpdate()

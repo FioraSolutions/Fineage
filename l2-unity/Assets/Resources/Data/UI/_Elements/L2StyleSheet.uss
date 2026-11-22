@@ -183,12 +183,15 @@
     -unity-text-align: middle-center;
 }
 
-.status-window #PlayerNameText {
+.status-window #PlayerNameText,
+.status-window #UserName {
     font-size: 10px;
     letter-spacing: 0;
+    color: rgb(255, 255, 255);
 }
 
-.status-window #LevelText {
+.status-window #LevelText,
+.status-window #StatusWnd_LevelTextBox {
     font-size: 10px;
 }
 

@@ -120,5 +120,19 @@ public partial class TargetWindow
             _windowEle.AddToClassList("expanded");
         else
             _windowEle.RemoveFromClassList("expanded");
+
+        float width;
+        float height;
+        if (hasProperties && InterludeWindowLayout.TryMeasure("TargetStatusWnd", "BackExpTex1", out width, out height))
+            _windowEle.style.height = height;
+        else if (InterludeWindowLayout.TryWindowSize("TargetStatusWnd", out width, out height))
+            _windowEle.style.height = height;
+
+        VisualElement compact = _windowEle.Q<VisualElement>("BackTex");
+        VisualElement expandedFrame = _windowEle.Q<VisualElement>("BackExpTex");
+        if (compact != null)
+            compact.style.display = hasProperties ? DisplayStyle.None : DisplayStyle.Flex;
+        if (expandedFrame != null)
+            expandedFrame.style.display = hasProperties ? DisplayStyle.Flex : DisplayStyle.None;
     }
 }
