@@ -132,7 +132,7 @@ public abstract partial class AbstractGetCache
                 {
                     Material material = Resources.Load<Material>(candidates[i]);
                     if (material != null)
-                        return material;
+                        return L2ActorMaterialSetup.RemediatePaperdollMaterial(material, texture);
                 }
             }
         }

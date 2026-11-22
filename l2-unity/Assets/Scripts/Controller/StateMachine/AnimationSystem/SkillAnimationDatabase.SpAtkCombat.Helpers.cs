@@ -173,9 +173,14 @@ public partial class SkillAnimationDatabase
                     continue;
 
                 string stem = spatkStem + "_" + weaponVariants[i];
-                string resourceName = meshStems[m] + ".ao_" + stem + "_" + profile.Race;
-                string path = profile.Folder + resourceName;
-                loaded = Resources.Load<AnimationClip>(path);
+                loaded = TryLoadSpAtkClip(profile, meshStems[m], stem);
+                if (loaded == null && weaponVariants[i].Equals("Dual", StringComparison.OrdinalIgnoreCase))
+                {
+                    string lowerStem = "spatk" + spAtkNumber.ToString("00") + "_dual";
+                    loaded = TryLoadSpAtkClip(profile, meshStems[m], lowerStem);
+                    if (loaded == null)
+                        loaded = TryLoadSpAtkClip(profile, meshStems[m], spatkStem + "_Dual_dagger");
+                }
             }
         }
 
@@ -193,5 +198,24 @@ public partial class SkillAnimationDatabase
 
         SpAtkClipCache[cacheKey] = loaded;
         return loaded;
+    }
+
+    static AnimationClip TryLoadSpAtkClip(RaceClipProfile profile, string meshStem, string stem)
+    {
+        string resourceName = meshStem + ".ao_" + stem + "_" + profile.Race;
+        string path = profile.Folder + resourceName;
+        AnimationClip clip = Resources.Load<AnimationClip>(path);
+        if (clip != null)
+            return clip;
+
+        string altStem = stem.Replace("SpAtk", "spatk", StringComparison.Ordinal);
+        if (!altStem.Equals(stem, StringComparison.Ordinal))
+        {
+            resourceName = meshStem + ".ao_" + altStem + "_" + profile.Race;
+            path = profile.Folder + resourceName;
+            clip = Resources.Load<AnimationClip>(path);
+        }
+
+        return clip;
     }
 }

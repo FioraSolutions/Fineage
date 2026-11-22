@@ -84,12 +84,28 @@ public static class CreatureWeaponAnimApply
 
         for (int i = 0; i < Packages.Length; i++)
         {
-            string folder = "Data/Animations/" + Packages[i] + "/" + prefix + "/Model";
-            AnimationClip[] loaded = Resources.LoadAll<AnimationClip>(folder);
-            if (loaded != null && loaded.Length > 0)
+            string rootFolder = "Data/Animations/" + Packages[i] + "/" + prefix;
+            string modelFolder = rootFolder + "/Model";
+            AnimationClip[] root = Resources.LoadAll<AnimationClip>(rootFolder);
+            AnimationClip[] model = Resources.LoadAll<AnimationClip>(modelFolder);
+            if ((root != null && root.Length > 0) || (model != null && model.Length > 0))
             {
-                ClipCache[prefix] = loaded;
-                return loaded;
+                int count = (root?.Length ?? 0) + (model?.Length ?? 0);
+                var merged = new AnimationClip[count];
+                int w = 0;
+                if (root != null)
+                {
+                    for (int r = 0; r < root.Length; r++)
+                        merged[w++] = root[r];
+                }
+                if (model != null)
+                {
+                    for (int m = 0; m < model.Length; m++)
+                        merged[w++] = model[m];
+                }
+
+                ClipCache[prefix] = merged;
+                return merged;
             }
         }
 
