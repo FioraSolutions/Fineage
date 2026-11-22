@@ -100,6 +100,7 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
             {
                 PlayerLocomotionBodyCatalog.DestroyMeasureSkeleton(skeleton);
             }
+            }
         }
         finally
         {

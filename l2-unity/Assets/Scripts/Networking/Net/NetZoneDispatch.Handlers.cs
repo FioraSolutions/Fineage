@@ -388,9 +388,6 @@ public sealed partial class NetZoneDispatch
                     CharSelectEnterWorld.Failed(LobbyCharacterText.ErrorMessage(reject.Code, reject.Message));
                 break;
             }
-            case NetOpcode.EnchantSkillList:
-            case NetOpcode.EnchantSkillInfo:
-                break;
             default:
                 Debug.LogWarning($"[Net] unhandled zone opcode 0x{packet.Opcode:X4}");
                 break;
