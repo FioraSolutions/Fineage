@@ -1,15 +1,16 @@
 using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
 public sealed class PlayerLocomotionBodyCatalogEditModeTests
 {
-    [TearDown]
-    public void TearDown()
+    [SetUp]
+    public void SetUp()
     {
-        PlayerLocomotionBodyCatalog.ClearStrideCacheForTests();
-        LocomotionGait.ClearStrideCache();
+        LocomotionStrideCatalog.ClearForTests();
     }
 
     [Test]
@@ -36,93 +37,54 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
     }
 
     [Test]
-    public void MFighter_hand_run_stride_is_measurable_on_catalog_body_prefab()
+    public void Every_player_race_sex_has_baked_walk_and_run_stride()
     {
-        LogAssert.ignoreFailingMessages = true;
-        AnimationClip run = Resources.Load<AnimationClip>(
-            "Data/Animations/Fighter/MFighter/Clips/MFighter_m000_b.ao_run_Hand_MFighter");
-        Assert.IsNotNull(run, "MFighter hand run clip");
-
-        Transform skeleton = PlayerLocomotionBodyCatalog.LoadMeasureSkeleton(CharacterRaceAnimation.MFighter);
-        Assert.IsNotNull(skeleton, "MFighter player body prefab for stride measure");
-        try
+        foreach (PlayerLocomotionBodyCatalog.Row row in PlayerLocomotionBodyCatalog.AllRows())
         {
-            float stride = PlayerLocomotionBodyCatalog.ResolveRunStride(
-                CharacterRaceAnimation.MFighter,
-                run,
-                skeleton);
-            if (stride < LocomotionGait.MinStrideMeters && IsCiBatchStrideUnreliable())
-            {
-                Assert.Inconclusive(
-                    "Headless EditMode could not sample MFighter run stride; clip and prefab resolve OK.");
-                return;
-            }
-            Assert.GreaterOrEqual(
-                stride,
-                LocomotionGait.MinStrideMeters,
-                "race=MFighter clip=" + run.name + " stride must be measurable");
-        }
-        finally
-        {
-            LogAssert.ignoreFailingMessages = false;
-            PlayerLocomotionBodyCatalog.DestroyMeasureSkeleton(skeleton);
+            AssertBaked(row.Profile, row.RunHandClipResources, "run");
+            AssertBaked(row.Profile, row.WalkHandClipResources, "walk");
         }
     }
 
     [Test]
-    public void Every_profile_run_stride_is_measurable_on_body_prefab()
+    public void Every_weapon_walk_and_run_clip_in_the_body_folder_has_stride_data()
     {
-        LogAssert.ignoreFailingMessages = true;
-        try
+        foreach (PlayerLocomotionBodyCatalog.Row row in PlayerLocomotionBodyCatalog.AllRows())
         {
-            foreach (PlayerLocomotionBodyCatalog.Row row in PlayerLocomotionBodyCatalog.AllRows())
+            string absDir = AbsoluteResourcesDir(row.RunHandClipResources);
+            Assert.IsTrue(Directory.Exists(absDir), row.Profile + " clips dir " + absDir);
+            string[] anims = Directory.GetFiles(absDir, "*.anim");
+            int gaits = 0;
+            for (int i = 0; i < anims.Length; i++)
             {
-                AnimationClip run = Resources.Load<AnimationClip>(row.RunHandClipResources);
-                Assume.That(run != null, row.Profile + " run clip");
+                string name = Path.GetFileName(anims[i]);
+                string gait = GaitOf(name);
+                if (gait == null)
+                    continue;
+                gaits++;
+                string sidecar = anims[i].Substring(0, anims[i].Length - ".anim".Length) + ".stride.json";
+                Assert.IsTrue(File.Exists(sidecar),
+                    row.Profile + " " + gait + " missing stride sidecar " + sidecar);
+                float meters = ReadStride(sidecar);
+                Assert.GreaterOrEqual(meters, LocomotionGait.MinStrideMeters,
+                    row.Profile + " " + gait + " " + name);
+                Assert.IsTrue(LocomotionStrideCatalog.TryGet(Path.GetFileNameWithoutExtension(name), out float indexed),
+                    "index missing " + name);
+                Assert.AreEqual(meters, indexed, 0.0001f, name + " sidecar vs index");
+            }
 
-            Transform skeleton = PlayerLocomotionBodyCatalog.LoadMeasureSkeleton(row.Profile);
-            Assume.That(skeleton != null, row.Profile + " measure skeleton");
-            try
-            {
-                float stride = PlayerLocomotionBodyCatalog.ResolveRunStride(row.Profile, run, skeleton);
-                if (stride < LocomotionGait.MinStrideMeters && IsCiBatchStrideUnreliable())
-                {
-                    Assert.Inconclusive(
-                        "Headless EditMode could not sample run stride for " + row.Profile + "; skipping.");
-                    return;
-                }
-
-                Assert.GreaterOrEqual(
-                    stride,
-                    LocomotionGait.MinStrideMeters,
-                    "measured run stride race=" + row.Profile + " clip=" + run.name
-                    + " stride=" + stride.ToString("F3") + "m");
-            }
-            finally
-            {
-                PlayerLocomotionBodyCatalog.DestroyMeasureSkeleton(skeleton);
-            }
-            }
-        }
-        finally
-        {
-            LogAssert.ignoreFailingMessages = false;
+            Assert.GreaterOrEqual(gaits, 2, row.Profile + " needs walk and run clips");
         }
     }
 
-    static bool IsCiBatchStrideUnreliable() =>
-        !Application.isPlaying && System.Environment.GetEnvironmentVariable("CI") == "true";
-
     [Test]
-    public void Catalog_stride_yields_playback_rate_matching_unity_run_speed()
+    public void Baked_stride_playback_rate_is_speed_over_authored_speed()
     {
         foreach (PlayerLocomotionBodyCatalog.Row row in PlayerLocomotionBodyCatalog.AllRows())
         {
             AnimationClip run = Resources.Load<AnimationClip>(row.RunHandClipResources);
-            Assume.That(run != null, "missing run clip for " + row.Profile);
-
-            float stride = PlayerLocomotionBodyCatalog.ResolveRunStride(row.Profile, run, skeleton: null);
-            Assume.That(stride >= LocomotionGait.MinStrideMeters, "stride missing for " + row.Profile);
+            Assert.IsNotNull(run, row.Profile + " run");
+            Assert.IsTrue(LocomotionStrideCatalog.TryGet(run.name, out float stride), row.Profile + " stride");
 
             float unity = NumberUtils.ScaleToUnity(PlayerLocomotionBodyCatalog.DefaultRunSpeedL2j);
             float rate = LocomotionGait.PlaybackRate(
@@ -132,18 +94,22 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
                 LocomotionGait.MinRunRate,
                 LocomotionGait.MaxRate);
 
+            Assert.AreEqual(unity * run.length / stride, rate, 0.001f, row.Profile + " rate = speed / (stride/length)");
             Assert.Greater(rate, LocomotionGait.MinRunRate, row.Profile + " run rate too low");
             Assert.LessOrEqual(rate, LocomotionGait.MaxRate, row.Profile + " run rate too high");
-
-            float wrong = LocomotionGait.PlaybackRate(
-                PlayerLocomotionBodyCatalog.DefaultRunSpeedL2j,
-                run.length,
-                stride,
-                LocomotionGait.MinRunRate,
-                LocomotionGait.MaxRate);
-            Assert.Greater(wrong, rate + 0.5f,
-                row.Profile + " must use unity m/s not raw L2j speed for playback");
         }
+    }
+
+    [Test]
+    public void Missing_stride_log_names_race_sex_and_gait()
+    {
+        LogAssert.Expect(
+            LogType.Error,
+            new Regex("missing stride race=Fighter sex=M profile=MFighter gait=run clip=\"run_not_a_weapon\""));
+        LocomotionStrideCatalog.LogMissing(
+            "race=Fighter sex=M profile=MFighter",
+            "run",
+            "run_not_a_weapon");
     }
 
     [Test]
@@ -166,5 +132,61 @@ public sealed class PlayerLocomotionBodyCatalogEditModeTests
                 }
             }
         }
+    }
+
+    static void AssertBaked(CharacterRaceAnimation profile, string resourcesPath, string gait)
+    {
+        string abs = Path.Combine(Application.dataPath, "Resources", resourcesPath + ".stride.json");
+        Assert.IsTrue(File.Exists(abs), profile + " " + gait + " sidecar " + abs);
+        float meters = ReadStride(abs);
+        Assert.GreaterOrEqual(meters, LocomotionGait.MinStrideMeters,
+            "race/sex profile=" + profile + " gait=" + gait + " stride=" + meters);
+
+        string clip = Path.GetFileName(resourcesPath);
+        Assert.IsTrue(LocomotionStrideCatalog.TryGet(clip, out float indexed),
+            profile + " " + gait + " missing from locomotion_strides.json");
+        Assert.AreEqual(meters, indexed, 0.0001f, profile + " " + gait);
+    }
+
+    static float ReadStride(string sidecarPath)
+    {
+        var dto = JsonUtility.FromJson<StrideDto>(File.ReadAllText(sidecarPath));
+        Assert.IsNotNull(dto, sidecarPath);
+        return dto.strideMeters;
+    }
+
+    static string AbsoluteResourcesDir(string resourcesFile)
+    {
+        string rel = resourcesFile.Replace('\\', '/');
+        int slash = rel.LastIndexOf('/');
+        string dir = slash >= 0 ? rel.Substring(0, slash) : "";
+        return Path.Combine(Application.dataPath, "Resources", dir);
+    }
+
+    static string GaitOf(string fileName)
+    {
+        string n = fileName.ToLowerInvariant();
+        string[] skip =
+        {
+            "atk", "wait", "social", "cast", "death", "sit", "stun", "damage",
+            "jump", "fall", "swim", "turn", "stand"
+        };
+        for (int i = 0; i < skip.Length; i++)
+        {
+            if (n.Contains(skip[i]))
+                return null;
+        }
+
+        if (Regex.IsMatch(n, @"(^|[_.])walk([_.]|$)") || n.Contains(".ao_walk"))
+            return "walk";
+        if (Regex.IsMatch(n, @"(^|[_.])run([_.]|$)") || n.Contains(".ao_run"))
+            return "run";
+        return null;
+    }
+
+    [Serializable]
+    sealed class StrideDto
+    {
+        public float strideMeters;
     }
 }
