@@ -69,3 +69,10 @@ python3 tools/ui-extract/inventory_textures.py \
 ## Textures already in the Unity project
 
 `textures.json` lists every referenced Unreal name, whether a file already exists under `l2-unity/Assets`, and the path(s). `textures-missing.txt` is the missing list only. Do not commit `.utx`. Import missing textures from `systextures/L2UI_CH3.utx` and `systextures/l2ui.utx` with the same names the JSON uses.
+
+## Textures in the Unity project
+
+`textures-map.json` lists every Unreal texture name used by these layouts and the Unity path under `l2-unity/Assets`. `textures-missing.txt` is empty when every name is present.
+
+New Interlude UI textures were imported at the original `.utx` USize×VSize (for example `ps_hpbar` is 8×16, `BigButton` is 128×32). Some older assets in the project were cropped to a widget size; do not recrop the originals. Non-map UI uses point filtering and no mipmaps; files under `UI/Map` follow the ImportPolicy `ui-map` rule (bilinear, uncompressed RGBA32 on Standalone).
+
