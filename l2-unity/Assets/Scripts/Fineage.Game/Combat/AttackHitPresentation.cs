@@ -25,6 +25,17 @@ public static class AttackHitPresentation
         return null;
     }
 
+    public static AttackHitCue[] PlanCues(AttackDto dto)
+    {
+        if (dto == null)
+            return System.Array.Empty<AttackHitCue>();
+        int count = CountHits(dto);
+        var cues = new AttackHitCue[count];
+        for (int i = 0; i < count; i++)
+            cues[i] = AttackHitWireRows.CueFor(ResolveHit(dto, i), i, count);
+        return cues;
+    }
+
     public static Hit[] BuildHitList(
         int targetId,
         int firstDamage,
