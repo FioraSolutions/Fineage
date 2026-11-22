@@ -6,6 +6,10 @@ using UnityEngine;
 public partial class AmbientSoundEmitter : EventHandler
 {
     public void Play() {
+        OfficialAmbientSoundTable.Load();
+        if (OfficialAmbientSoundTable.HasActors)
+            return;
+
         if(_eventReference.IsNull) {
             return;
         }

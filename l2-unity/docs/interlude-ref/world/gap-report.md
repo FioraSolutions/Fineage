@@ -23,9 +23,9 @@ Skill-visual leftovers stay in [skills/gap-report.md](../skills/gap-report.md) a
 
 | Fineage status | Original `.uax` waves |
 |---|---:|
-| `resources_clip` | 4703 |
-| `fmod_bank` | 209 |
-| `missing` | 218 |
+| `resources_clip` | 5130 |
+| `fmod_bank` | 0 |
+| `missing` | 0 |
 | **total** | 5130 |
 
 Status is discovered, not assumed: a wave counts as present if a Resources/StreamingAssets
@@ -34,7 +34,7 @@ Status is discovered, not assumed: a wave counts as present if a Resources/Strea
 `StepSound` 60416, `InterfaceSound` 411904,
 `ChrSound` 686624, `MonSound` 1346080,
 `ItemSound` 58976, `SkillSound` 18688).
-Fineage also has **4706** loose clips under `Assets/Resources/Data/Sounds` (item, monster, character, skill, and step waves).
+Fineage also has **5148** loose clips under `Assets/Resources/Data/Sounds` (item, monster, character, skill, step, UI, and ambient waves).
 
 This client install has **no loose `.ogg` music folder**; music lives only in `musicinfo.dat`
 plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_Interlude_Client`.
@@ -116,12 +116,9 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - Starting-zone emitter counts are listed below. Full table: `world/map-actors.tsv` (class contains Emitter).
 
 ### 2. Ambient sounds (AmbientSound / AmbientSoundObject)
-- Original ambient actors: **185277**.
-- Fineage has an ambient prefab on **32** of **41** shipped tiles.
-- Fineage tiles still missing an ambient prefab: 16_26, 17_26, 18_13, 18_15, 18_25, 18_26, 19_19, 21_18, 23_13 .
-- Official maps with no Fineage tile at all: **112** (everything outside the current 37-tile ship set).
-- Even where a prefab exists, clip coverage is incomplete (see sound table). Night/day types (`AmbientSoundType`)
-  and per-actor volume/radius/pitch are authored on every original actor and must be preserved.
+- Original ambient actors: **185277**, all shipped in `StreamingAssets/Data/Meta/Sounds/official-ambient-objects.tsv.gz` (grid dumps plus `Lobby` from `map-actors.tsv.gz`).
+- Runtime playback is `OfficialAmbientSoundPlayback`: official Resources clips, authored type / volume / radius / pitch / start, day/night `AmbientSoundType`. `L2TownAmbience` name-matching is disabled when the official table is present, and baked `AmbientSoundEmitter` FMOD events are not started.
+- Official `ambsound` (393) and `AmbSound2` (34) waves are Resources clips. A missing wave logs package + name and is not replaced by an FMOD event.
 
 ### 3. Music (MusicVolume + musicinfo)
 - Original `MusicVolume` actors: **410** using **356** distinct `nMusicID` values.
@@ -149,7 +146,7 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 - Item DAT sound fields (etc/armor/weapon): **15509** references.
 - Enter-event sound/effect fields: **2263**.
 - Monster and character waves live in `monsound*.uax` and `chrsound*.uax` (see catalog).
-- Official `itemsound*` / `EtcSound` / `monsound*` / `chrsound*` waves (**4257**) are imported as Resources clips under `Data/Sounds/{ItemSound,MonSound,Voice,SkillVoice}`. The runtime index is `StreamingAssets/Data/Meta/Sounds/official-waves.tsv`. Leftover missing waves are ambient and UI packages (#1678, #1681).
+- Official `itemsound*` / `EtcSound` / `monsound*` / `chrsound*` waves (**4257**) are imported as Resources clips under `Data/Sounds/{ItemSound,MonSound,Voice,SkillVoice}`. The runtime index is `StreamingAssets/Data/Meta/Sounds/official-waves.tsv`. Official `ambsound` / `AmbSound2` waves are imported as Resources clips under `Data/Sounds/AmbSound/` and `Data/Sounds/AmbSound2/` (#1678).
 
 ### 7. Skill effects and skill sounds
 - Already covered by the lossless `skill.usk` / `lineageeffect.u` dump and `skills/gap-report.md`.
@@ -166,8 +163,8 @@ plus Fineage's `Music.bank`. Track files themselves were not in `~/Downloads/L2_
 
 | Package | Waves | Missing in Fineage |
 |---|---:|---:|
-| `ambsound` | 393 | 184 |
-| `AmbSound2` | 34 | 34 |
+| `ambsound` | 393 | 0 |
+| `AmbSound2` | 34 | 0 |
 | `interfacesound` | 11 | 0 |
 | `messengersound` | 4 | 0 |
 | `monsound` | 1499 | 0 |

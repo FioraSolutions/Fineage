@@ -12,3 +12,6 @@ The runtime copy is `StreamingAssets/Data/Meta/Sounds/official-waves.tsv`.
 `interfacesound` and `messengersound` waves are in the same `official-waves.tsv`.
 System-message `item_sound` tokens are in `StreamingAssets/Data/Meta/systemmsg-e.tsv`.
 Window open/close tokens are in `StreamingAssets/Data/Meta/Sounds/interface-window-sounds.tsv`.
+
+`ambsound` and `AmbSound2` waves are in the same `official-waves.tsv` under `Data/Sounds/AmbSound/` and `Data/Sounds/AmbSound2/`.
+AmbientSoundObject placement for every official map (185277 actors, including Lobby) is `StreamingAssets/Data/Meta/Sounds/official-ambient-objects.tsv.gz`, played by `OfficialAmbientSoundPlayback`.
