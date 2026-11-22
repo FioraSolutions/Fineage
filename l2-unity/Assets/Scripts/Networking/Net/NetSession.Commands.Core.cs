@@ -46,8 +46,8 @@ public sealed partial class NetSession
     public Task SendUnequipItem(int paperdollSlot) =>
         _commandSender.SendUnequipItemAsync(paperdollSlot);
 
-    public Task SendInventoryResync() =>
-        _commandSender.SendInventoryResyncAsync();
+    public Task SendRequestItemList() =>
+        _commandSender.SendRequestItemListAsync();
 
     public Task SendShortCutReg(int type, int worldSlot, int id, int level) =>
         _commandSender.SendShortCutRegAsync(type, worldSlot, id, level);

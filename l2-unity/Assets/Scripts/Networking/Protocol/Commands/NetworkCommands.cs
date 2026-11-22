@@ -213,8 +213,8 @@ public sealed class RequestDestroyItemCommand : INetworkCommand
     }
 }
 
-/// <summary>Asks the zone for a fresh ItemList. Empty body, opcode <see cref="InventoryResync.Opcode"/>.</summary>
-public sealed class RequestInventoryResyncCommand : INetworkCommand
+/// <summary>Interlude RequestItemList (opcode 0x0F, empty body). The zone answers with ItemList.</summary>
+public sealed class RequestItemListCommand : INetworkCommand
 {
 }
 

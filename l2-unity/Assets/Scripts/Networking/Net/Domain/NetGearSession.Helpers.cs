@@ -35,9 +35,9 @@ public static partial class NetGearSession
         if (_resyncArmed)
             return;
         _resyncArmed = true;
-        Debug.LogError("[Inventory] resync requested (" + reason + ")");
-        if (!ZoneCommands.Send(new RequestInventoryResyncCommand()))
-            Debug.LogError("[Inventory] resync request was not sent");
+        Debug.LogError("[Inventory] RequestItemList (" + reason + ")");
+        if (!ZoneCommands.Send(new RequestItemListCommand()))
+            Debug.LogError("[Inventory] RequestItemList was not sent");
     }
 
     public static void FlushPending()

@@ -117,10 +117,10 @@ public sealed partial class FineageZoneTransport
             return true;
         }
 
-        RequestInventoryResyncCommand netResync = command as RequestInventoryResyncCommand;
-        if (netResync != null)
+        RequestItemListCommand netItemList = command as RequestItemListCommand;
+        if (netItemList != null)
         {
-            Session.SendInventoryResync();
+            Session.SendRequestItemList();
             return true;
         }
 

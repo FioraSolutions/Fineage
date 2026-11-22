@@ -44,7 +44,7 @@ public sealed partial class NetZoneDispatch
                 _session.ApplyPlayerStats((PlayerStatsMsg)packet.Body);
                 break;
             case NetOpcode.ItemList:
-                _session.ApplyItemList((ItemListNetMsg)packet.Body, packet.Envelope);
+                _session.ApplyItemList((ItemListNetMsg)packet.Body);
                 break;
             case NetOpcode.SkillList:
                 _session.ApplySkillList((SkillListNetMsg)packet.Body);
@@ -110,7 +110,7 @@ public sealed partial class NetZoneDispatch
                 _session.ApplyDropItem((DropItemNetMsg)packet.Body);
                 break;
             case NetOpcode.InventoryUpdate:
-                _session.ApplyInventoryUpdate((InventoryUpdateNetMsg)packet.Body, packet.Envelope);
+                _session.ApplyInventoryUpdate((InventoryUpdateNetMsg)packet.Body);
                 break;
             case NetOpcode.CreatureSay:
                 _session.ApplyCreatureSay((CreatureSayNetMsg)packet.Body);

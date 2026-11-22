@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Fineage.Net.Contract;
 using NUnit.Framework;
 
 public sealed class CharacterInventoryEditModeTests
@@ -200,45 +198,6 @@ public sealed class CharacterInventoryEditModeTests
         CollectionAssert.AreEqual(new[] { 2, 1, 0, 0 }, slots);
         Assert.AreEqual(3, surface.Adena);
         Assert.AreEqual(2, surface.UsedSlots);
-    }
-
-    [Test]
-    public void VersionTail_roundtrip()
-    {
-        var msg = new ItemListNetMsg
-        {
-            Items = new[]
-            {
-                new ItemListEntryNet
-                {
-                    ObjectId = 1,
-                    ItemId = 57,
-                    Count = 10,
-                    EquippedSlot = -1,
-                    BodySlot = "none",
-                    Kind = "etc"
-                }
-            }
-        };
-        byte[] body = NetCodec.EncodeItemList(msg);
-        string error;
-        Assert.AreEqual(InventoryPacketVersion.Absent, InventoryPacketVersion.ReadItemList(msg, body, out error));
-        Assert.IsNull(error);
-
-        byte[] versioned = new byte[body.Length + 4];
-        Buffer.BlockCopy(body, 0, versioned, 0, body.Length);
-        versioned[versioned.Length - 4] = 12;
-        Assert.AreEqual(12, InventoryPacketVersion.ReadItemList(msg, versioned, out error));
-        Assert.IsNull(error);
-
-        byte[] broken = new byte[body.Length + 2];
-        Buffer.BlockCopy(body, 0, broken, 0, body.Length);
-        Assert.AreEqual(InventoryPacketVersion.Unreadable, InventoryPacketVersion.ReadItemList(msg, broken, out error));
-        Assert.IsNotNull(error);
-
-        ItemListNetMsg decoded = NetCodec.DecodeItemList(versioned);
-        Assert.AreEqual(12, InventoryPacketVersion.ReadItemList(decoded, versioned, out error));
-        Assert.IsNull(error);
     }
 
     static void AssertNoProblems(CharacterInventory book, List<string> errors)

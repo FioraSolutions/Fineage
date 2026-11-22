@@ -61,13 +61,14 @@ public sealed partial class NetCommandSender
             _nextSeq());
     }
 
-    public Task SendInventoryResyncAsync()
+    public Task SendRequestItemListAsync()
     {
         if (!TryGetZone(out NetTransport zone))
         {
-            UnityEngine.Debug.LogError("[Inventory] resync request was not sent; zone transport is down");
+            UnityEngine.Debug.LogError("[Inventory] RequestItemList was not sent; zone transport is down");
             return Task.CompletedTask;
         }
-        return zone.SendAsync(InventoryResync.Opcode, System.Array.Empty<byte>(), _nextSeq());
+        // Interlude client → server RequestItemList. Opcode 0x0F, no body.
+        return zone.SendAsync((ushort)GameClientPacketType.RequestItemList, System.Array.Empty<byte>(), _nextSeq());
     }
 }
