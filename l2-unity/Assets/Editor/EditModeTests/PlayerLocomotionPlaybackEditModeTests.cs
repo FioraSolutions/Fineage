@@ -11,7 +11,7 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
     [TearDown]
     public void TearDown()
     {
-        PlayerLocomotionBodyCatalog.ClearStrideCacheForTests();
+        LocomotionStrideCatalog.ClearForTests();
         LocomotionGait.ClearStrideCache();
         LocomotionGait.ClearMissingClipLogForTests();
     }
@@ -69,6 +69,44 @@ public sealed class PlayerLocomotionPlaybackEditModeTests
 
         Object.DestroyImmediate(playerGo);
         Object.DestroyImmediate(userGo);
+        LogAssert.ignoreFailingMessages = false;
+    }
+
+    [Test]
+    public void Missing_weapon_clip_returns_zero_and_does_not_use_the_hand_stride()
+    {
+        LogAssert.ignoreFailingMessages = true;
+        var go = new GameObject("missing-weapon");
+        PlayerEntity entity = go.AddComponent<PlayerEntity>();
+        entity.RaceId = CharacterRaceAnimation.MFighter;
+
+        PlayerLocomotionPlayback.ResolvePlaybackRates(
+            entity,
+            null,
+            "run_not_a_weapon",
+            "walk_hand",
+            NumberUtils.ScaleToUnity(120f),
+            NumberUtils.ScaleToUnity(80f),
+            out float runRate,
+            out float walkRate);
+
+        Assert.AreEqual(0f, runRate, "missing weapon clip must not fall back to a default or hand stride");
+        Assert.Greater(walkRate, LocomotionGait.MinWalkRate, "hand walk stride is baked");
+
+        // MDwarf's file is run_1hs; the animator state is run_1HS.
+        entity.RaceId = CharacterRaceAnimation.MDwarf;
+        PlayerLocomotionPlayback.ResolvePlaybackRates(
+            entity,
+            null,
+            "run_1HS",
+            "walk_hand",
+            NumberUtils.ScaleToUnity(120f),
+            NumberUtils.ScaleToUnity(80f),
+            out float dwarfRun,
+            out _);
+        Assert.Greater(dwarfRun, LocomotionGait.MinRunRate, "MDwarf run_1hs must resolve despite token case");
+
+        Object.DestroyImmediate(go);
         LogAssert.ignoreFailingMessages = false;
     }
 }

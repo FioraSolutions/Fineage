@@ -47,10 +47,10 @@ public sealed class LocomotionGaitEditModeTests
     }
 
     [Test]
-    public void Unmeasurable_stride_uses_the_generic_fallback_stride()
+    public void Missing_stride_does_not_substitute_a_default()
     {
         float rate = LocomotionGait.PlaybackRate(3f, 1f, 0f, 0.2f, 4f);
-        Assert.AreEqual(3f / LocomotionGait.FallbackStrideMeters, rate, 0.001f);
+        Assert.AreEqual(0f, rate, 0.001f);
     }
 
     [Test]

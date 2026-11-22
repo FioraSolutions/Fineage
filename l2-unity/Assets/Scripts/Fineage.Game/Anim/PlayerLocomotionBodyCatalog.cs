@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -11,7 +10,10 @@ public static class PlayerLocomotionBodyCatalog
 {
     public const string LogTag = "[PlayerLocomotionBody]";
 
-    /// <summary>Default Interlude humanoid run/walk from packet baselines (GenderModel-style).</summary>
+    /// <summary>
+    /// Mobius human-fighter template baseline (same units as CharInfo runSpd/walkSpd).
+    /// Tests use it as a server speed sample. Playback never substitutes it for a missing packet speed.
+    /// </summary>
     public const float DefaultRunSpeedL2j = 120f;
     public const float DefaultWalkSpeedL2j = 80f;
 
@@ -39,15 +41,8 @@ public static class PlayerLocomotionBodyCatalog
         public string PlayerPrefabResources { get; }
     }
 
-    const string AuthoritativeStridesRelativePath = "Data/Meta/player_locomotion_strides.json";
-
     static readonly Dictionary<CharacterRaceAnimation, Row> ByProfile = Build();
-    static readonly Dictionary<CharacterRaceAnimation, float> RunStrideCache = new();
-    static readonly Dictionary<CharacterRaceAnimation, float> WalkStrideCache = new();
     static readonly HashSet<string> Logged = new();
-    static bool _authoritativeStridesLoaded;
-    static readonly Dictionary<CharacterRaceAnimation, float> AuthoritativeRunStride = new();
-    static readonly Dictionary<CharacterRaceAnimation, float> AuthoritativeWalkStride = new();
 
     static Dictionary<CharacterRaceAnimation, Row> Build()
     {
@@ -175,111 +170,6 @@ public static class PlayerLocomotionBodyCatalog
         return clip;
     }
 
-    public static Transform LoadMeasureSkeleton(CharacterRaceAnimation profile)
-    {
-        if (!TryGet(profile, out Row row))
-            return null;
-
-        var prefab = Resources.Load<GameObject>(row.PlayerPrefabResources);
-        if (prefab == null)
-        {
-            LogMissing(profile, "missing player prefab \"" + row.PlayerPrefabResources + "\" for stride measure");
-            return null;
-        }
-
-        GameObject instance = UnityEngine.Object.Instantiate(prefab);
-        instance.hideFlags = HideFlags.HideAndDontSave;
-
-        // UKX hand clips bind under the mesh rig (e.g. MFighter_anim/MFighter_m000_b.ao/…),
-        // not the Player_* wrapper — SampleAnimation must root on that rig.
-        Animator animator = instance.GetComponentInChildren<Animator>();
-        if (animator != null)
-            return animator.transform;
-
-        return instance.transform;
-    }
-
-    public static void DestroyMeasureSkeleton(Transform skeleton)
-    {
-        if (skeleton == null)
-            return;
-
-        Transform root = skeleton;
-        while (root.parent != null)
-            root = root.parent;
-        UnityEngine.Object.DestroyImmediate(root.gameObject);
-    }
-
-    public static float ResolveRunStride(CharacterRaceAnimation profile, AnimationClip clip, Transform skeleton)
-    {
-        if (RunStrideCache.TryGetValue(profile, out float cached))
-            return cached;
-
-        float stride = Measure(profile, clip, skeleton, walk: false);
-        RunStrideCache[profile] = stride;
-        return stride;
-    }
-
-    public static float ResolveWalkStride(CharacterRaceAnimation profile, AnimationClip clip, Transform skeleton)
-    {
-        if (WalkStrideCache.TryGetValue(profile, out float cached))
-            return cached;
-
-        float stride = Measure(profile, clip, skeleton, walk: true);
-        WalkStrideCache[profile] = stride;
-        return stride;
-    }
-
-    static float Measure(CharacterRaceAnimation profile, AnimationClip clip, Transform skeleton, bool walk)
-    {
-        if (clip == null)
-        {
-            if (!TryGet(profile, out Row row))
-            {
-                LogMissingProfile(profile, "stride");
-                return 0f;
-            }
-
-            clip = LoadClip(walk ? row.WalkHandClipResources : row.RunHandClipResources, profile);
-        }
-
-        if (clip == null || clip.length < 0.01f)
-            return 0f;
-
-        bool ownedSkeleton = skeleton == null;
-        if (ownedSkeleton)
-            skeleton = LoadMeasureSkeleton(profile);
-
-        if (skeleton == null)
-            return 0f;
-
-        try
-        {
-            float stride = LocomotionGait.MeasureStride(clip, skeleton);
-            if (stride < LocomotionGait.MinStrideMeters
-                && TryGetAuthoritativeStride(profile, walk, out float authoritative))
-            {
-                return authoritative;
-            }
-
-            if (stride < LocomotionGait.MinStrideMeters)
-            {
-                LogMissing(
-                    profile,
-                    "unmeasurable " + (walk ? "walk" : "run") + " stride race=" + profile + " clip=\""
-                    + clip.name + "\" (feet/root travel below " + LocomotionGait.MinStrideMeters + "m)");
-                return 0f;
-            }
-
-            return stride;
-        }
-        finally
-        {
-            if (ownedSkeleton)
-                DestroyMeasureSkeleton(skeleton);
-        }
-    }
-
     /// <summary>
     /// Confirm idle state uses the catalog wait_Hand clip (not Stand / empty slot).
     /// </summary>
@@ -319,87 +209,6 @@ public static class PlayerLocomotionBodyCatalog
         string e = expected.name.ToLowerInvariant();
         string b = bound.name.ToLowerInvariant();
         return b.Contains("wait_hand") && !b.Contains("stand") && e.Contains("wait") && !e.Contains("stand");
-    }
-
-    public static void ClearStrideCacheForTests()
-    {
-        RunStrideCache.Clear();
-        WalkStrideCache.Clear();
-        Logged.Clear();
-    }
-
-    static bool TryGetAuthoritativeStride(CharacterRaceAnimation profile, bool walk, out float meters)
-    {
-        EnsureAuthoritativeStridesLoaded();
-        if (walk)
-            return AuthoritativeWalkStride.TryGetValue(profile, out meters);
-        return AuthoritativeRunStride.TryGetValue(profile, out meters);
-    }
-
-    static void EnsureAuthoritativeStridesLoaded()
-    {
-        if (_authoritativeStridesLoaded)
-            return;
-        _authoritativeStridesLoaded = true;
-        AuthoritativeRunStride.Clear();
-        AuthoritativeWalkStride.Clear();
-
-        string path = Path.Combine(Application.streamingAssetsPath, AuthoritativeStridesRelativePath);
-        if (!File.Exists(path))
-            return;
-
-        try
-        {
-            string json = File.ReadAllText(path);
-            var root = JsonUtility.FromJson<AuthoritativeStridesRootDto>(json);
-            if (root?.profiles == null)
-                return;
-
-            foreach (AuthoritativeStrideRowDto row in root.profiles)
-            {
-                if (row == null || string.IsNullOrEmpty(row.profile))
-                    continue;
-                if (!Enum.TryParse(row.profile, true, out CharacterRaceAnimation profile))
-                    continue;
-                if (row.runMeters >= LocomotionGait.MinStrideMeters)
-                    AuthoritativeRunStride[profile] = row.runMeters;
-                if (row.walkMeters >= LocomotionGait.MinStrideMeters)
-                    AuthoritativeWalkStride[profile] = row.walkMeters;
-            }
-        }
-        catch (Exception ex)
-        {
-            FineageLog.Error(
-                FineageLogCategory.World,
-                LogTag + " failed to load authoritative strides: " + ex.Message);
-        }
-    }
-
-    [Serializable]
-    sealed class AuthoritativeStridesRootDto
-    {
-        public AuthoritativeStrideRowDto[] profiles;
-    }
-
-    [Serializable]
-    sealed class AuthoritativeStrideRowDto
-    {
-        public string profile;
-        public float runMeters;
-        public float walkMeters;
-    }
-
-    public static void LogStrideFallback(CharacterRaceAnimation profile, bool walk, float measured)
-    {
-        string key = profile + "@fallback@" + (walk ? "walk" : "run") + "@" + measured.ToString("F3");
-        if (!Logged.Add(key))
-            return;
-
-        FineageLog.Error(
-            FineageLogCategory.World,
-            LogTag + " profile=" + profile + " using FallbackStrideMeters="
-            + LocomotionGait.FallbackStrideMeters + " for " + (walk ? "walk" : "run")
-            + " (measured=" + measured.ToString("F3") + "m)");
     }
 
     static void LogMissingProfile(CharacterRaceAnimation profile, string field)
