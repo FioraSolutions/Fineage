@@ -21,6 +21,7 @@ public sealed class CrowdTierJobsEditModeTests
             Tier1MaxSq = 25f * 25f,
             Tier2MaxSq = 60f * 60f,
             Tier3MaxSq = 120f * 120f,
+            PawnDrawMaxSq = 500f * 500f,
             Tiers = tiers,
         };
 

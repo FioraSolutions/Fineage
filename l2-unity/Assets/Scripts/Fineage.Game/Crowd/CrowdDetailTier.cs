@@ -5,4 +5,6 @@ public enum CrowdDetailTier : byte
     T1Near = 1,
     T2Mid = 2,
     T3Far = 3,
+    /// <summary>Beyond client pawn draw distance or over max-characters-on-screen budget.</summary>
+    TCulled = 4,
 }

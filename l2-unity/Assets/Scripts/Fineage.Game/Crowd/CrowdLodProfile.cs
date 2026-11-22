@@ -33,7 +33,8 @@ public sealed class CrowdLodProfile : ScriptableObject
     public float Tier2MaxSq => tier2MaxDistanceMeters * tier2MaxDistanceMeters;
     public float Tier3MaxSq => tier3MaxDistanceMeters * tier3MaxDistanceMeters;
 
-    public bool ShouldShowNameplate(CrowdDetailTier tier) => tier < hideNameplateFromTier;
+    public bool ShouldShowNameplate(CrowdDetailTier tier) =>
+        tier < hideNameplateFromTier && tier != CrowdDetailTier.TCulled;
 
     public float AnimatorSpeedForTier(CrowdDetailTier tier)
     {
@@ -42,12 +43,15 @@ public sealed class CrowdLodProfile : ScriptableObject
             case CrowdDetailTier.T0Hero: return tier0AnimatorSpeed;
             case CrowdDetailTier.T1Near: return tier1AnimatorSpeed;
             case CrowdDetailTier.T2Mid: return tier2AnimatorSpeed;
+            case CrowdDetailTier.TCulled: return 0f;
             default: return tier3AnimatorSpeed;
         }
     }
 
     public AnimatorCullingMode AnimatorCullingForTier(CrowdDetailTier tier)
     {
+        if (tier == CrowdDetailTier.TCulled)
+            return AnimatorCullingMode.CullCompletely;
         return tier >= animatorCullCompletelyFromTier
             ? AnimatorCullingMode.CullCompletely
             : AnimatorCullingMode.CullUpdateTransforms;
